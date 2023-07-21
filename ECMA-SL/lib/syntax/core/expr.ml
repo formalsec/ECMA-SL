@@ -10,18 +10,25 @@ type t =
   | Curry of t * t list
   | Symbolic of Type.t * t
 
+module Bool = struct
+  let const b = Val (Val.Bool b) [@@inline]
+  let not_ e = UnOpt (Operators.Not, e) [@@inline]
+  let and_ e1 e2 = BinOpt (Operators.Log_And, e1, e2) [@@inline]
+  let or_ e1 e2 = BinOpt (Operators.Log_Or, e1, e2) [@@inline]
+end
+
 let rec equal (e1 : t) (e2 : t) : bool =
   match (e1, e2) with
   | Val v1, Val v2 -> Val.equal v1 v2
   | Var x1, Var x2 -> String.equal x1 x2
   | Symbolic (t1, e1'), Symbolic (t2, e2') -> Type.(t1 = t2) && equal e1' e2'
-  | UnOpt (op1, e1'), UnOpt (op2, e2') -> Caml.( = ) op1 op2 && equal e1' e2'
+  | UnOpt (op1, e1'), UnOpt (op2, e2') -> Stdlib.( = ) op1 op2 && equal e1' e2'
   | BinOpt (op1, e1', e2'), BinOpt (op2, e3', e4') ->
-      Caml.( = ) op1 op2 && equal e1' e3' && equal e2' e4'
+      Stdlib.( = ) op1 op2 && equal e1' e3' && equal e2' e4'
   | TriOpt (op1, e1', e2', e3'), TriOpt (op2, e4', e5', e6') ->
-      Caml.( = ) op1 op2 && equal e1' e4' && equal e2' e5' && equal e3' e6'
+      Stdlib.( = ) op1 op2 && equal e1' e4' && equal e2' e5' && equal e3' e6'
   | NOpt (op1, es1), NOpt (op2, es2) ->
-      Caml.( = ) op1 op2 && List.equal equal es1 es2
+      Stdlib.( = ) op1 op2 && List.equal equal es1 es2
   | Curry (x1, es1), Curry (x2, es2) -> equal x1 x2 && List.equal equal es1 es2
   | _ -> false
 
@@ -108,3 +115,28 @@ let rec to_json (e : t) : string =
         "{ \"type\" : \"se_mk_symbolic\", \"val_type\" : \"%s\", \"name\" : \
          \"%s\" }"
         (Type.str t) (str x)
+
+let func v =
+  match v with
+  | Val (Val.Str x) -> Ok (x, [])
+  | Curry (Val (Val.Str x), vs) -> Ok (x, vs)
+  | _ -> Error "Sval is not a 'func' identifier"
+
+let rec unfold_ite ~(accum : t) (e : t) : (t option * string) list =
+  let open Operators in
+  match e with
+  | Val (Val.Loc x) | Val (Val.Symbol x) -> [ (Some accum, x) ]
+  | TriOpt (ITE, c, Val (Val.Loc l), e) ->
+      let accum' = Bool.and_ accum (Bool.not_ c) in
+      let tl = unfold_ite ~accum:accum' e in
+      (Some (Bool.and_ accum c), l) :: tl
+  | _ ->
+      Format.printf "rip with %s@." (str e);
+      assert false
+
+let loc (e : t) : ((t option * string) list, string) Result.t =
+  match e with
+  | Val (Val.Loc l) -> Ok [ (None, l) ]
+  | TriOpt (Operators.ITE, c, Val (Val.Loc l), v) ->
+      Ok ((Some c, l) :: unfold_ite ~accum:(Bool.not_ c) v)
+  | _ -> Error ("Expr '" ^ str e ^ "' is not a loc expression")

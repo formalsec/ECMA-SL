@@ -1,6 +1,5 @@
 open Core
 open Func
-open Expr
 open Source
 
 let ( let* ) o f = Result.bind o ~f
@@ -66,31 +65,31 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
   (* Eval pass to remove variables from store *)
   let rec eval_expr (store : Store.t) (e : Expr.t) : (Expr.t, string) Result.t =
     match e with
-    | Val v -> return (Val v)
-    | Var x ->
+    | Expr.Val v -> return (Expr.Val v)
+    | Expr.Var x ->
         Result.of_option (Store.find store x)
           ~error:(sprintf "Cannot find var '%s'" x)
-    | UnOpt (op, e) ->
+    | Expr.UnOpt (op, e) ->
         let+ e' = eval_expr store e in
-        UnOpt (op, e')
-    | BinOpt (op, e1, e2) ->
+        Expr.UnOpt (op, e')
+    | Expr.BinOpt (op, e1, e2) ->
         let* e1' = eval_expr store e1 in
         let+ e2' = eval_expr store e2 in
-        BinOpt (op, e1', e2')
-    | TriOpt (op, e1, e2, e3) ->
+        Expr.BinOpt (op, e1', e2')
+    | Expr.TriOpt (op, e1, e2, e3) ->
         let* e1' = eval_expr store e1 in
         let* e2' = eval_expr store e2 in
         let+ e3' = eval_expr store e3 in
-        TriOpt (op, e1', e2', e3')
-    | NOpt (op, es) ->
+        Expr.TriOpt (op, e1', e2', e3')
+    | Expr.NOpt (op, es) ->
         let+ es' = list_map ~f:(eval_expr store) es in
-        NOpt (op, es')
-    | Curry (f, es) ->
+        Expr.NOpt (op, es')
+    | Expr.Curry (f, es) ->
         let+ es' = list_map ~f:(eval_expr store) es in
-        Curry (f, es')
-    | Symbolic (t, x) ->
+        Expr.Curry (f, es')
+    | Expr.Symbolic (t, x) ->
         let+ x' = eval_expr store x in
-        Symbolic (t, x')
+        Expr.Symbolic (t, x')
 
   let stmts b =
     match b with
@@ -101,33 +100,6 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
     match b.it with
     | Stmt.Block b -> Ok b
     | _ -> Error "Malformed block statement"
-
-  let func v =
-    match v with
-    | Val (Val.Str x) -> Ok (x, [])
-    | Curry (Val (Val.Str x), vs) -> Ok (x, vs)
-    | _ -> Error "Sval is not a 'func' identifier"
-
-  let rec unfold_ite ~(accum : Expr.t) (e : Expr.t) :
-      (Expr.t Option.t * String.t) List.t =
-    let open Operators in
-    match e with
-    | Val (Val.Loc x) | Val (Val.Symbol x) -> [ (Some accum, x) ]
-    | TriOpt (ITE, c, Val (Val.Loc l), e) ->
-        let accum' = BinOpt (Log_And, accum, UnOpt (Not, c)) in
-        let tl = unfold_ite ~accum:accum' e in
-        (Some (BinOpt (Log_And, accum, c)), l) :: tl
-    | _ ->
-        Format.printf "rip with %s@." (Expr.str e);
-        assert false
-
-  let loc (e : Expr.t) : ((Expr.t Option.t * String.t) List.t, string) Result.t
-      =
-    match e with
-    | Val (Val.Loc l) -> Ok [ (None, l) ]
-    | TriOpt (Operators.ITE, c, Val (Val.Loc l), v) ->
-        Ok ((Some c, l) :: unfold_ite ~accum:(UnOpt (Operators.Not, c)) v)
-    | _ -> Error ("Expr '" ^ Expr.str e ^ "' is not a loc expression")
 
   let step (c : State.config) : (State.config list, string) Result.t =
     let open Stmt in
@@ -148,7 +120,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
         let e' = Reducer.reduce_expr e' in
         let s =
           match e' with
-          | Val (Val.Loc l) ->
+          | Expr.Val (Val.Loc l) ->
               let o = Heap.get heap l in
               Object.to_string (Option.value_exn o) Expr.str
           | _ -> Expr.str e'
@@ -175,11 +147,11 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
     | Stmt.Assert e -> (
         let* e' = eval_expr store e in
         match Reducer.reduce_expr e' with
-        | Val (Val.Bool b) ->
+        | Expr.Val (Val.Bool b) ->
             if b then st @@ Cont (List.tl_exn stmts)
             else st @@ Failure ("assert", Some e')
         | v ->
-            let v' = Reducer.reduce_expr (Expr.UnOpt (Operators.Not, v)) in
+            let v' = Reducer.reduce_expr (Expr.Bool.not_ v) in
             let cont =
               let pc' = ESet.add pc (Translator.translate v') in
               if Batch.check solver (ESet.to_list pc') then
@@ -195,7 +167,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
     | Stmt.If (br, blk1, blk2) -> (
         let* br' = eval_expr store br in
         match Reducer.reduce_expr br' with
-        | Val (Val.Bool b) ->
+        | Expr.Val (Val.Bool b) ->
             if b then
               let* b = block blk1 in
               st @@ Cont (b @ ((Stmt.Merge @> blk1.at) :: List.tl_exn stmts))
@@ -207,7 +179,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
               in
               st @@ Cont cont
         | cond ->
-            let no = Reducer.reduce_expr (Expr.UnOpt (Operators.Not, cond)) in
+            let no = Reducer.reduce_expr (Expr.Bool.not_ cond) in
             Logging.print_endline
               (lazy
                 (sprintf "%s: If (%s)"
@@ -254,7 +226,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
         | Call_stack.Toplevel -> st @@ Final (Some v))
     | Stmt.AssignCall (x, e, es) ->
         let* e' = eval_expr store e in
-        let* f', vs = func (Reducer.reduce_expr e') in
+        let* f', vs = Expr.func (Reducer.reduce_expr e') in
         let* es' = list_map ~f:(eval_expr store) es in
         let vs' = vs @ List.map ~f:Reducer.reduce_expr es' in
         let func = Prog.get_func prog f' in
@@ -271,12 +243,12 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
         let obj = Object.create () in
         let loc = Heap.insert heap obj in
         let state' =
-          (heap, Store.add_exn store x (Val (Val.Loc loc)), stack, f)
+          (heap, Store.add_exn store x (Expr.Val (Val.Loc loc)), stack, f)
         in
         return [ update c (Cont (List.tl_exn stmts)) state' pc ]
     | Stmt.AssignInObjCheck (x, e_field, e_loc) ->
         let* e_loc' = eval_expr store e_loc in
-        let* locs = loc (Reducer.reduce_expr e_loc') in
+        let* locs = Expr.loc (Reducer.reduce_expr e_loc') in
         let* e_field' = eval_expr store e_field in
         let field = Reducer.reduce_expr e_field' in
         return
@@ -304,10 +276,10 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
             match Heap.get h l with
             | None -> Crash.error s.at ("'" ^ l ^ "' not found in heap")
             | Some obj ->
-                NOpt
+                Expr.NOpt
                   ( Operators.ListExpr,
                     List.map (Object.to_list obj) ~f:(fun (f, v) ->
-                        NOpt (Operators.TupleExpr, [ f; v ])) )
+                        Expr.NOpt (Operators.TupleExpr, [ f; v ])) )
           in
           update c
             (Cont (List.tl_exn stmts))
@@ -315,7 +287,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
             pc'
         in
         let* e' = eval_expr store e in
-        let* locs = loc @@ Reducer.reduce_expr e' in
+        let* locs = Expr.loc @@ Reducer.reduce_expr e' in
         return
           (List.fold locs ~init:[] ~f:(fun accum (cond, l) ->
                match cond with
@@ -333,7 +305,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
           let v =
             match Heap.get h l with
             | None -> Crash.error s.at ("'" ^ l ^ "' not found in heap")
-            | Some obj -> NOpt (Operators.ListExpr, Object.get_fields obj)
+            | Some obj -> Expr.NOpt (Operators.ListExpr, Object.get_fields obj)
           in
           update c
             (Cont (List.tl_exn stmts))
@@ -341,7 +313,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
             pc'
         in
         let* e' = eval_expr store e in
-        let* locs = loc @@ Reducer.reduce_expr e' in
+        let* locs = Expr.loc @@ Reducer.reduce_expr e' in
         return
           (List.fold locs ~init:[] ~f:(fun accum (cond, l) ->
                match cond with
@@ -356,7 +328,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                    else f (Heap.clone heap) l pc' :: accum))
     | Stmt.FieldAssign (e_loc, e_field, e_v) ->
         let* e_loc' = eval_expr store e_loc in
-        let* locs = loc @@ Reducer.reduce_expr e_loc' in
+        let* locs = Expr.loc @@ Reducer.reduce_expr e_loc' in
         let* e_field' = eval_expr store e_field in
         let reduced_field = Reducer.reduce_expr e_field' in
         let* e_v' = eval_expr store e_v in
@@ -394,7 +366,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                            pc')))
     | Stmt.FieldDelete (e_loc, e_field) ->
         let* e_loc' = eval_expr store e_loc in
-        let* locs = loc @@ Reducer.reduce_expr e_loc' in
+        let* locs = Expr.loc @@ Reducer.reduce_expr e_loc' in
         let* e_field' = eval_expr store e_field in
         let reduced_field = Reducer.reduce_expr e_field' in
         return
@@ -430,7 +402,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                            pc')))
     | Stmt.FieldLookup (x, e_loc, e_field) ->
         let* e_loc' = eval_expr store e_loc in
-        let* locs = loc @@ Reducer.reduce_expr e_loc' in
+        let* locs = Expr.loc @@ Reducer.reduce_expr e_loc' in
         let* e_field' = eval_expr store e_field in
         let reduced_field = Reducer.reduce_expr e_field' in
         return
@@ -446,7 +418,8 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                    in
                    List.map objects ~f:(fun (new_heap, new_pc, v) ->
                        let v' =
-                         Option.value v ~default:(Val (Val.Symbol "undefined"))
+                         Option.value v
+                           ~default:(Expr.Val (Val.Symbol "undefined"))
                        in
                        let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
                        let state' =
@@ -464,7 +437,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                      List.map objects ~f:(fun (new_heap, new_pc, v) ->
                          let v' =
                            Option.value v
-                             ~default:(Val (Val.Symbol "undefined"))
+                             ~default:(Expr.Val (Val.Symbol "undefined"))
                          in
                          let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
                          update c
@@ -475,7 +448,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
         let* e' = eval_expr store e in
         (* TODO: Do not discharge to solver (saves 1 query per assume) *)
         match Reducer.reduce_expr e' with
-        | Val (Val.Bool b) ->
+        | Expr.Val (Val.Bool b) ->
             if b then st @@ Cont (List.tl_exn stmts) else return []
         | e' ->
             let pc' = ESet.add pc (Translator.translate e') in
@@ -502,7 +475,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
             (Encoding.Optimizer.maximize opt e' (ESet.to_list pc))
         in
         let store' =
-          Store.add_exn store x (Option.value ~default:(Val Val.Null) v)
+          Store.add_exn store x (Option.value ~default:(Expr.Val Val.Null) v)
         in
         return
           [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
@@ -514,7 +487,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
             (Encoding.Optimizer.minimize opt e' (ESet.to_list pc))
         in
         let store' =
-          Store.add_exn store x (Option.value ~default:(Val Val.Null) v)
+          Store.add_exn store x (Option.value ~default:(Expr.Val Val.Null) v)
         in
         return
           [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
@@ -522,16 +495,16 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
         let* e' = eval_expr store e in
         let e' = Reducer.reduce_expr e' in
         let store' =
-          Store.add_exn store x (Val (Val.Bool (Expr.is_symbolic e')))
+          Store.add_exn store x (Expr.Bool.const (Expr.is_symbolic e'))
         in
         return
           [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
     | Stmt.SymStmt (SymStmt.Is_sat (x, e)) ->
-        let* e' = eval_expr store e in 
+        let* e' = eval_expr store e in
         let e' = Reducer.reduce_expr e' in
         let pc' = ESet.add pc (Translator.translate e') in
         let sat = Batch.check c.solver (ESet.to_list pc') in
-        let store' = Store.add_exn store x (Val (Val.Bool sat)) in
+        let store' = Store.add_exn store x (Expr.Bool.const sat) in
         return
           [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
     | Stmt.SymStmt (SymStmt.Is_number (x, e)) ->
@@ -542,7 +515,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
           | Some Type.IntType | Some Type.FltType -> true
           | _ -> false
         in
-        let store' = Store.add_exn store x (Val (Val.Bool is_num)) in
+        let store' = Store.add_exn store x (Expr.Bool.const is_num) in
         return
           [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
 
