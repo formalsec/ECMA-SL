@@ -1,9 +1,47 @@
 open Core
 
-module MakeHeap (Object : S_object_intf.S) = struct
+module type S = sig
+  type encoded_pct = Encoding.Expression.t
+  type obj
+  type t
+
+  val create : unit -> t
+  val clone : t -> t
+  val insert : t -> obj -> Loc.t
+  val remove : t -> Loc.t -> unit
+  val set : t -> Loc.t -> obj -> unit
+  val get : t -> Loc.t -> obj option
+  val has_field : t -> Loc.t -> Expr.t -> Expr.t
+
+  val get_field :
+    t ->
+    Loc.t ->
+    Expr.t ->
+    Batch.t ->
+    encoded_pct list ->
+    (t * encoded_pct list * Expr.t option) list
+
+  val set_field :
+    t ->
+    Loc.t ->
+    Expr.t ->
+    Expr.t ->
+    Batch.t ->
+    encoded_pct list ->
+    (t * encoded_pct list) list
+
+  val delete_field :
+    t ->
+    Loc.t ->
+    Expr.t ->
+    Batch.t ->
+    encoded_pct list ->
+    (t * encoded_pct list) list
+end
+
+module Make (Object : S_object_intf.S) = struct
   type encoded_pct = Encoding.Expression.t
   type obj = Object.t
-  type store = S_store.t
   type t = { parent : t option; map : (Loc.t, obj) Hashtbl.t }
 
   let create () : t = { parent = None; map = Hashtbl.create (module String) }
@@ -38,12 +76,11 @@ module MakeHeap (Object : S_object_intf.S) = struct
     Option.value_map (get h l) ~default:(Expr.Val (Val.Bool false)) ~f:(fun o ->
         Object.has_field o f)
 
-  let get_field (heap : t) (loc : Loc.t) (field : Expr.t)
-      (solver : Batch.t) (pc : encoded_pct list) (store : store) :
-      (t * encoded_pct list * Expr.t option) list =
+  let get_field (heap : t) (loc : Loc.t) (field : Expr.t) (solver : Batch.t)
+      (pc : encoded_pct list) : (t * encoded_pct list * Expr.t option) list =
     let obj = get heap loc in
     let res =
-      Option.bind obj ~f:(fun o -> Some (Object.get o field solver pc store))
+      Option.bind obj ~f:(fun o -> Some (Object.get o field solver pc))
     in
     match res with
     | None -> failwith ("get Return is never none. loc: " ^ loc ^ Expr.str field)
@@ -60,11 +97,10 @@ module MakeHeap (Object : S_object_intf.S) = struct
                 (heap', pc, v)))
 
   let set_field (heap : t) (loc : Loc.t) (field : Expr.t) (v : Expr.t)
-      (solver : Batch.t) (pc : encoded_pct list) (store : store) :
-      (t * encoded_pct list) list =
+      (solver : Batch.t) (pc : encoded_pct list) : (t * encoded_pct list) list =
     let obj = get heap loc in
     let res =
-      Option.bind obj ~f:(fun o -> Some (Object.set o field v solver pc store))
+      Option.bind obj ~f:(fun o -> Some (Object.set o field v solver pc))
     in
     match res with
     | None -> failwith ("set Return is never none. loc: " ^ loc)
@@ -80,12 +116,11 @@ module MakeHeap (Object : S_object_intf.S) = struct
                 set heap' loc obj;
                 (heap', pc)))
 
-  let delete_field (heap : t) (loc : Loc.t) (field : Expr.t)
-      (solver : Batch.t) (pc : encoded_pct list) (store : store) :
-      (t * encoded_pct list) list =
+  let delete_field (heap : t) (loc : Loc.t) (field : Expr.t) (solver : Batch.t)
+      (pc : encoded_pct list) : (t * encoded_pct list) list =
     let obj = get heap loc in
     let res =
-      Option.bind obj ~f:(fun o -> Some (Object.delete o field solver pc store))
+      Option.bind obj ~f:(fun o -> Some (Object.delete o field solver pc))
     in
 
     match res with

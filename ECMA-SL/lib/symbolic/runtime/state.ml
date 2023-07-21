@@ -4,10 +4,10 @@ module P = struct
   end
 
   module Object = struct
-    include S_object
+    include S_object.M
   end
 
-  module Heap = S_heap.MakeHeap(Object)
+  module Heap = S_heap.Make(Object)
 
   module Reducer = struct
     include Reducer

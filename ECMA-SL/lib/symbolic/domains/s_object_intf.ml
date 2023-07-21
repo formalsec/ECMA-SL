@@ -12,7 +12,6 @@ module type S = sig
     Expr.t ->
     Batch.t ->
     encoded_pct list ->
-    S_store.t ->
     (t * encoded_pct list) list
 
   val get :
@@ -20,7 +19,6 @@ module type S = sig
     Expr.t ->
     Batch.t ->
     encoded_pct list ->
-    S_store.t ->
     (t * encoded_pct list * Expr.t option) list
 
   val delete :
@@ -28,7 +26,6 @@ module type S = sig
     Expr.t ->
     Batch.t ->
     encoded_pct list ->
-    S_store.t ->
     (t * encoded_pct list) list
 
   val to_list : t -> (Expr.t * Expr.t) list
