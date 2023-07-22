@@ -58,25 +58,12 @@ end
 
 module type S = sig
   module State : sig
-    type pc
-    type func
-    type stack
-    type state
-
-    type outcome =
-      | Cont of Stmt.t list
-      | Error of Expr.t option
-      | Final of Expr.t option
-      | Failure of string * Expr.t option
-      | Unknown of Expr.t option
-
-    type config
-
-    val is_cont : outcome -> bool
-    val is_fail : outcome -> bool
-    val is_final : outcome -> bool
-    val update : config -> outcome -> state -> pc -> config
-  end
+    type store
+    type env
+    type solver
+    type optimizer
+    type exec_state
+ end
 
   val main : Prog.t -> string -> unit
 end
