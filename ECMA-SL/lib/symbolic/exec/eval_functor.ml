@@ -134,7 +134,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
     | Error _ -> assert false
 
   let exec_func state func args ret_var =
-    Log.debug (lazy (sprintf "calling  : %s" func.name));
+    Log.debug (lazy (sprintf "calling func: %s" func.name));
     let return_state = Some (state, ret_var) in
     let params = func.params in
     let store = Store.create (List.zip_exn params args) in
@@ -156,9 +156,9 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
     let open State in
     let { locals; env; symb_env; _ } = c in
     let st store = return [ State.Continue { c with locals = store } ] in
-    Log.debug (lazy (sprintf "store    : %s" (Store.to_string locals)));
+    Log.debug (lazy (sprintf "store       : %s" (Store.to_string locals)));
     Log.debug
-      (lazy (sprintf "executing: %s" (Stmt.Pp.to_string stmt (pp locals))));
+      (lazy (sprintf "running stmt: %s" (Stmt.Pp.to_string stmt (pp locals))));
     match stmt.it with
     | Stmt.Skip -> st locals
     | Stmt.Merge -> st locals

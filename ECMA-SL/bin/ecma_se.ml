@@ -64,7 +64,7 @@ let command_parameters : (unit -> unit) Command.Param.t =
     flag "interp"
       (optional_with_default "es6.cesl" string)
       ~doc:"path to ECMAScript interpreter"
-  and debug = flag "verbose" no_arg ~doc:" verbose interpreter" in
+  and debug = flag "debug" no_arg ~doc:" verbose interpreter" in
   fun () ->
     Config.target := target;
     Config.workspace := workspace;
