@@ -153,7 +153,8 @@ module Make (P : Eval_functor_intf.P) :
 
   let exec_extern_func state f args ret_var =
     let open Extern_func in
-    let rec apply : type a. Expr.t Stack.t -> a Extern_func.atype -> a -> Expr.t
+    let rec apply : type a. Expr.t Stack.t -> a Extern_func.atype -> a -> 
+      Expr.t
         =
      fun args ty f ->
       match ty with
