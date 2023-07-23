@@ -41,18 +41,25 @@ let error at category msg =
 
 module SMap = Map.Make (String)
 
-let functions =
+let extern_functions =
   let open Extern_func in
-  let test () = 
-    Format.printf "extern test@.";
+  let hello () = 
+    Format.printf "Hello world@.";
     Expr.Val (Val.Symbol "undefined")
   in
-  SMap.of_alist_exn [ ("test", Extern_func (Func (UArg Res), test)) ]
+  let print v =
+    Format.printf "extern print: %s@." (Expr.Pp.str v);
+    Expr.Val (Val.Symbol "undefined")
+  in
+  SMap.of_alist_exn 
+    [ ("hello", Extern_func (Func (UArg Res), hello)) 
+    ; ("value", Extern_func (Func (Arg Res), print))
+    ]
 
 let link_env prog =
   let env = State.P.Env.Build.empty () in
   let env = State.P.Env.Build.add_functions env prog in
-  State.P.Env.Build.add_extern_functions env functions
+  State.P.Env.Build.add_extern_functions env extern_functions
 
 let run env target =
   try Eval.main env target with
