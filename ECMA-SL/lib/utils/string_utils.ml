@@ -16,6 +16,12 @@ let to_char_code (s : string) : int =
   let c = Char.code s.[0] in
   c
 
+let chop (str : string) ~(n : int) : string =
+  let str_len = String.length str in
+  if str_len = n then str
+  else if str_len < n then str ^ String.make (n - str_len) ' '
+  else String.sub str 0 n
+
 (* Does not verify if UTF-8 is valid. Esprima already produces valid UTF-8. *)
 let to_char_code_u (s : string) : int =
   let c = Char.code s.[0] in

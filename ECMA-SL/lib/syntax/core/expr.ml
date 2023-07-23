@@ -140,3 +140,18 @@ let loc (e : t) : ((t option * string) list, string) Result.t =
   | TriOpt (Operators.ITE, c, Val (Val.Loc l), v) ->
       Ok ((Some c, l) :: unfold_ite ~accum:(Bool.not_ c) v)
   | _ -> Error ("Expr '" ^ str e ^ "' is not a loc expression")
+
+module Pp = struct
+  let rec str (e : t) : string =
+    let concat es = String.concat ~sep:", " (List.map ~f:str es) in
+    match e with
+    | Val n -> Val.str n
+    | Var x -> x
+    | UnOpt (op, e) -> Operators.str_of_unopt op ^ "(" ^ str e ^ ")"
+    | BinOpt (op, e1, e2) -> Operators.str_of_binopt op (str e1) (str e2)
+    | TriOpt (op, e1, e2, e3) ->
+        Operators.str_of_triopt op (str e1) (str e2) (str e3)
+    | NOpt (op, es) -> Operators.str_of_nopt op (List.map ~f:str es)
+    | Curry (f, es) -> "{" ^ str f ^ "}@(" ^ concat es ^ ")"
+    | Symbolic (_t, x) -> str x
+end

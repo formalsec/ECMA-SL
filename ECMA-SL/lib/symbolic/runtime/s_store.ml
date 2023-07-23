@@ -17,9 +17,11 @@ let find (store : t) (x : bind) : Expr.t option =
   Symbolic_store.find_opt x store
 
 let to_string (store : t) : string =
+  let start = "{ ... " in
   Symbolic_store.fold
     (fun key data accum ->
-      (if String.equal accum "{ " then accum ^ ", " else accum)
-      ^ Printf.sprintf "%s: %s" key (Expr.str data))
-    store "{ "
+      if String.starts_with ~prefix:"__" key then accum
+      else
+        Printf.sprintf "%s; %s -> %s" accum key (Expr.Pp.str data))
+    store start
   ^ " }"

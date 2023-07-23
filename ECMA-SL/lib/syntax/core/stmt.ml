@@ -183,3 +183,48 @@ let rec to_json (stmt : t) : string =
   | SymStmt st ->
       Printf.sprintf "{\"type\" : \"exception\", \"value\" : \"%s\"}"
         (SymStmt.str st)
+
+module Pp = struct
+  let to_string (stmt : t) pp : string =
+    let str = pp in
+    let concat es = String.concat ~sep:", " (List.map ~f:str es) in
+    match stmt.it with
+    | Skip -> "skip"
+    | Merge -> "merge"
+    | Print e -> Format.sprintf "print %s" (str e)
+    | Fail e -> Format.sprintf "fail %s" (str e)
+    | Assign (lval, rval) -> Format.sprintf "%s := %s" lval (str rval)
+    | If (cond, _, _) -> Format.sprintf "if (%s) { ... }" (str cond)
+    | Block _ -> "block { ... }"
+    | While (cond, _) -> Format.sprintf "while (%s) { ... }" (str cond)
+    | Return exp -> Format.sprintf "return %s" (str exp)
+    | FieldAssign (e_o, f, e_v) ->
+        Format.sprintf "%s[%s] := %s" (str e_o) (str f) (str e_v)
+    | FieldDelete (e, f) -> Format.sprintf "delete %s[%s]" (str e) (str f)
+    | AssignCall (va, st, e_lst) ->
+        Format.sprintf "%s := %s(%s)" va (str st) (concat e_lst)
+    | AssignECall (x, f, es) ->
+        Format.sprintf "%s := extern %s(%s)" x f (concat es)
+    | AssignNewObj va -> Format.sprintf "%s := {}" va
+    | FieldLookup (va, eo, p) ->
+        Format.sprintf "%s := %s[%s]" va (str eo) (str p)
+    | AssignInObjCheck (st, e1, e2) ->
+        Format.sprintf "%s := %s in_obj %s" st (str e1) (str e2)
+    | AssignObjToList (st, e) ->
+        Format.sprintf "%s := obj_to_list %s" st (str e)
+    | AssignObjFields (st, e) -> Format.sprintf "%s := obj_fields %s" st (str e)
+    | Exception st -> Format.sprintf "throw \"%s\"" st
+    | Assert e -> Format.sprintf "assert (%s)" (str e)
+    | Abort e -> Format.sprintf "se_abort (%s)" (str e)
+    | SymStmt stmt -> (
+        match stmt with
+        | SymStmt.Assume e -> sprintf "se_assume(%s)" (str e)
+        | SymStmt.Evaluate (x, e) -> sprintf "%s := se_evaluate(%s)" x (str e)
+        | SymStmt.Maximize (x, e) -> sprintf "%s := se_maximize(%s)" x (str e)
+        | SymStmt.Minimize (x, e) -> sprintf "%s := se_minimize(%s)" x (str e)
+        | SymStmt.Is_symbolic (x, e) ->
+            sprintf "%s := se_is_symbolic(%s)" x (str e)
+        | SymStmt.Is_sat (x, e) -> sprintf "%s := se_is_sat(%s)" x (str e)
+        | SymStmt.Is_number (x, e) -> sprintf "%s := se_is_number(%s)" x (str e)
+        )
+end

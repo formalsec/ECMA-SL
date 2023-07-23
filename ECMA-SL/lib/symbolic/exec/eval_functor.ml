@@ -128,6 +128,11 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
     | Stmt.Block b -> Ok b
     | _ -> Error "Malformed block statement"
 
+  let pp locals e =
+    match eval_reduce_expr locals e with
+    | Ok v -> Expr.Pp.str v
+    | Error _ -> assert false
+
   let exec_func state func args ret_var =
     Log.debug (lazy (sprintf "calling  : %s" func.name));
     let return_state = Some (state, ret_var) in
@@ -148,17 +153,25 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
 
   let exec_stmt stmt (c : State.exec_state) :
       (State.stmt_result list, string) Result.t =
-    let open Stmt in
     let open State in
     let { locals; env; symb_env; _ } = c in
     let st store = return [ State.Continue { c with locals = store } ] in
+    Log.debug (lazy (sprintf "store    : %s" (Store.to_string locals)));
+    Log.debug
+      (lazy (sprintf "executing: %s" (Stmt.Pp.to_string stmt (pp locals))));
     match stmt.it with
-    | Skip -> st locals
-    | Merge -> st locals
-    | Exception err ->
+    | Stmt.Skip -> st locals
+    | Stmt.Merge -> st locals
+    | Stmt.Exception err ->
         let at' = Source.string_of_region stmt.at in
         Error (sprintf "%s: Exception: %s" at' err)
-    | Print e ->
+    | Stmt.Fail e ->
+        let* e' = eval_reduce_expr locals e in
+        Error (sprintf "fail: %s" (Expr.str e'))
+    | Stmt.Abort e ->
+        let* e' = eval_reduce_expr locals e in
+        Error (sprintf "abort: %s" (Expr.str e'))
+    | Stmt.Print e ->
         let* e' = eval_reduce_expr locals e in
         let s =
           match e' with
@@ -170,12 +183,6 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
         (* Printf.printf "print:%s\npc:%s\nheap id:%d\n" s (Encoding.Expression.string_of_pc pc) (Heap.get_id heap); *)
         Format.printf "%s@." s;
         st locals
-    | Fail e ->
-        let* e' = eval_reduce_expr locals e in
-        Error (sprintf "fail: %s" (Expr.str e'))
-    | Abort e ->
-        let* e' = eval_reduce_expr locals e in
-        Error (sprintf "abort: %s" (Expr.str e'))
     | Stmt.Assign (x, e) ->
         let* v = eval_reduce_expr locals e in
         st @@ Store.add_exn locals x v
@@ -200,17 +207,15 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
         | Expr.Val (Val.Bool b) ->
             if b then
               let* b = block blk1 in
-              let stmts' = b @ [ Stmt.Merge @> blk1.at ] in
-              return [ State.Continue { c with stmts = stmts' @ c.stmts } ]
+              return [ State.Continue { c with stmts = b @ c.stmts } ]
             else
               let stmts =
                 Option.fold blk2 ~init:c.stmts ~f:(fun accum stmt ->
-                    stmt :: (Stmt.Merge @> stmt.at) :: accum)
+                    stmt :: accum)
               in
               return [ State.Continue { c with stmts } ]
         | cond ->
             let no = Reducer.reduce_expr (Expr.Bool.not_ cond) in
-            Log.debug (lazy (sprintf "executing: if (%s)" (Expr.str cond)));
             let cond' = Translator.translate cond in
             let no' = Translator.translate no in
             let then_branch =
@@ -219,7 +224,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
               else
                 let env = { env with heap = Heap.clone env.heap } in
                 let symb_env = { symb_env with path_condition = pc' } in
-                let stmts = blk1 :: (Stmt.Merge @> blk1.at) :: c.stmts in
+                let stmts = blk1 :: c.stmts in
                 [ State.Continue { c with stmts; env; symb_env } ]
             in
             let else_branch =
@@ -229,9 +234,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                 let env = { env with heap = Heap.clone env.heap } in
                 let symb_env = { symb_env with path_condition = pc' } in
                 let stmts =
-                  match blk2 with
-                  | None -> c.stmts
-                  | Some s' -> s' :: (Stmt.Merge @> s'.at) :: c.stmts
+                  match blk2 with None -> c.stmts | Some s' -> s' :: c.stmts
                 in
                 [ State.Continue { c with stmts; env; symb_env } ]
             in
