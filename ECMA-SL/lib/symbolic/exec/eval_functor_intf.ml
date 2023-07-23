@@ -89,12 +89,11 @@ module type P = sig
   module Env : sig
     type t = env
     type nonrec memory = memory
-    type extern_func = unit -> unit
 
     val clone : t -> t
     val get_memory : t -> memory
     val get_func : t -> string -> (Func.t, string) Result.t
-    val get_extern_func : t -> string -> (extern_func, string) Result.t
+    val get_extern_func : t -> string -> (Extern_func.extern_func, string) Result.t
     val add_memory : t -> memory -> t
   end
 

@@ -42,7 +42,12 @@ let error at category msg =
 module SMap = Map.Make (String)
 
 let functions =
-  SMap.of_alist_exn [ ("test", fun () -> Format.printf "extern test@.") ]
+  let open Extern_func in
+  let test () = 
+    Format.printf "extern test@.";
+    Expr.Val (Val.Symbol "undefined")
+  in
+  SMap.of_alist_exn [ ("test", Extern_func (Func (UArg Res), test)) ]
 
 let link_env prog =
   let env = State.P.Env.Build.empty () in

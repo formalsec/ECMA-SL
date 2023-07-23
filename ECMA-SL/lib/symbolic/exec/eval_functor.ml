@@ -151,6 +151,23 @@ module Make (P : Eval_functor_intf.P) :
     in
     return [ State.Continue state' ]
 
+  let exec_extern_func state f args ret_var =
+    let open Extern_func in
+    let rec apply : type a. Expr.t Stack.t -> a Extern_func.atype -> a -> Expr.t
+        =
+     fun args ty f ->
+      match ty with
+      | UArg ty' -> apply args ty' (f ())
+      | Arg ty' ->
+          let v = Stack.pop_exn args in
+          apply args ty' (f v)
+      | Res -> f
+    in
+    let (Extern_func (Func atype, func)) = f in
+    let v = apply (Stack.of_list args) atype func in
+    let locals = Store.add_exn state.State.locals ret_var v in
+    return [ State.Continue State.{ state with locals } ]
+
   let exec_stmt stmt (c : State.exec_state) :
       (State.stmt_result list, string) Result.t =
     let open State in
@@ -256,10 +273,10 @@ module Make (P : Eval_functor_intf.P) :
         let* args = list_map ~f:(eval_reduce_expr locals) es in
         let args = args0 @ args in
         exec_func c func args x
-    | Stmt.AssignECall (_, f, _) ->
+    | Stmt.AssignECall (x, f, es) ->
         let* func = Env.get_extern_func env f in
-        func ();
-        st locals
+        let* args = list_map ~f:(eval_reduce_expr locals) es in
+        exec_extern_func c func args x
     | Stmt.AssignNewObj x ->
         let heap = Env.get_memory env in
         let obj = Object.create () in
