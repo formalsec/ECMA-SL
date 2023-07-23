@@ -1000,9 +1000,9 @@ C(delete(e_o[e_f]))=
     print_string
       "Transpiling Program with Inlined Monitor...\n\
        ---------- New Code ---------- \n";
-    let new_prog = Prog.create_empty () in
-    Hashtbl.iter
-      (fun _k v ->
+    let new_prog = Prog.empty () in
+    Prog.iter
+      ~f:(fun v ->
         let (f : Func.t) = v in
 
         let pc = fresh_pc () in

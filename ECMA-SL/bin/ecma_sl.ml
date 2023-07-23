@@ -48,7 +48,7 @@ let argspec =
     ]
 
 let combine_progs (prog1 : Prog.t) (prog2 : Prog.t) : Prog.t =
-  Hashtbl.iter (fun k v -> Prog.add_func prog1 k v) prog2;
+  Prog.iteri ~f:(fun ~key ~data -> Prog.add_func prog1 key data) prog2;
   prog1
 
 let parse_program (prog : Prog.t) (inline : string) : unit =
