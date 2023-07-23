@@ -1,4 +1,5 @@
 function main () {
-  extern test();
+  extern hello();
+  extern value(2);
   return 1
 }

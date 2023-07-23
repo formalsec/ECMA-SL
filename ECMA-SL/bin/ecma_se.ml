@@ -1,4 +1,21 @@
 open Core
+module SMap = Map.Make (String)
+
+let extern_functions =
+  let open Extern_func in
+  let hello () =
+    Format.printf "Hello world@.";
+    Expr.Val (Val.Symbol "undefined")
+  in
+  let print v =
+    Format.printf "extern print: %s@." (Expr.Pp.str v);
+    Expr.Val (Val.Symbol "undefined")
+  in
+  SMap.of_alist_exn
+    [
+      ("hello", Extern_func (Func (UArg Res), hello));
+      ("value", Extern_func (Func (Arg Res), print));
+    ]
 
 let plus_ext = ".esl"
 let core_ext = ".cesl"
@@ -36,30 +53,13 @@ let prog_of_js interp file =
     Sys_unix.remove ast_file;
     Parsing_utils.parse_prog program
 
-let error at category msg =
-  prerr_endline (Source.string_of_region at ^ ":" ^ category ^ ":" ^ msg)
-
-module SMap = Map.Make (String)
-
-let extern_functions =
-  let open Extern_func in
-  let hello () = 
-    Format.printf "Hello world@.";
-    Expr.Val (Val.Symbol "undefined")
-  in
-  let print v =
-    Format.printf "extern print: %s@." (Expr.Pp.str v);
-    Expr.Val (Val.Symbol "undefined")
-  in
-  SMap.of_alist_exn 
-    [ ("hello", Extern_func (Func (UArg Res), hello)) 
-    ; ("value", Extern_func (Func (Arg Res), print))
-    ]
-
 let link_env prog =
   let env = State.P.Env.Build.empty () in
   let env = State.P.Env.Build.add_functions env prog in
   State.P.Env.Build.add_extern_functions env extern_functions
+
+let error at category msg =
+  Format.eprintf "%s:%s:%s@." (Source.string_of_region at) category msg
 
 let run env target =
   try Eval.main env target with
@@ -109,7 +109,7 @@ let () =
   with exn ->
     Caml.flush_all ();
     Printexc.print_backtrace stdout;
-    fprintf stderr "%s: uncaught exception %s"
+    Format.eprintf "%s: uncaught exception %s@."
       (Sys.get_argv ()).(0)
       (Exn.to_string exn);
     exit 2
