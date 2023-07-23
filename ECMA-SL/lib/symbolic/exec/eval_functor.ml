@@ -73,7 +73,7 @@ module Make (P : Eval_functor_intf.P) :
           };
       }
 
-    type stmt_result = Return of value | Continue of exec_state
+    type stmt_result = Return of exec_state | Continue of exec_state
 
     type _stmt_err =
       | Error of string
@@ -82,7 +82,7 @@ module Make (P : Eval_functor_intf.P) :
 
     let ret (state : exec_state) (v : value) : stmt_result =
       match state.return_state with
-      | None -> Return v
+      | None -> Return state
       | Some (state', ret_v) ->
           let locals = Store.add_exn state'.locals ret_v v in
           let env = state.env in
@@ -153,8 +153,7 @@ module Make (P : Eval_functor_intf.P) :
 
   let exec_extern_func state f args ret_var =
     let open Extern_func in
-    let rec apply : type a. Expr.t Stack.t -> a Extern_func.atype -> a -> 
-      Expr.t
+    let rec apply : type a. Expr.t Stack.t -> a Extern_func.atype -> a -> Expr.t
         =
      fun args ty f ->
       match ty with
@@ -574,32 +573,73 @@ module Make (P : Eval_functor_intf.P) :
     val length : 'a t -> int
   end
 
+  let serialize =
+    let open State in
+    let counter = ref 0 in
+    fun ?(witness : string option) (state : State.exec_state) ->
+      let pc = State.ESet.to_list state.symb_env.path_condition in
+      assert (Batch.check state.symb_env.solver pc);
+      let model = Batch.model state.symb_env.solver in
+      let testcase =
+        Option.value_map model ~default:"[]" ~f:(fun m ->
+            let open Encoding in
+            let inputs =
+              List.map (Model.get_bindings m) ~f:(fun (s, v) ->
+                  let sort = Types.string_of_type (Symbol.type_of s) in
+                  let name = Symbol.to_string s in
+                  let interp = Value.to_string v in
+                  sprintf
+                    "{ \"type\" : \"%s\", \"name\" : \"%s\", \"value\" : \
+                     \"%s\" }"
+                    sort name interp)
+            in
+            String.concat ~sep:", " inputs)
+      in
+      let str_pc = Encoding.Expression.string_of_pc pc in
+      let smt_query = Encoding.Expression.to_smt pc in
+      let prefix =
+        incr counter;
+        let fname = if Option.is_some witness then "witness" else "testecase" in
+        let fname = sprintf "%s-%i" fname !counter in
+        Filename.concat (Filename.concat !Config.workspace "test-suite") fname
+      in
+      Io.write_file ~file:(sprintf "%s.json" prefix) ~data:testcase;
+      Io.write_file ~file:(sprintf "%s.pc" prefix) ~data:str_pc;
+      Io.write_file ~file:(sprintf "%s.smt2" prefix) ~data:smt_query;
+      Option.iter witness ~f:(fun sink ->
+          Io.write_file ~file:(sprintf "%s_sink.txt" prefix) ~data:sink)
+
   (* Source: Thanks to Joao Borges (@RageKnify) for writing this code *)
   module TreeSearch (L : WorkList) = struct
     open State
 
-    let eval c : State.exec_state list =
+    let eval c =
+      let time = ref (Stdlib.Sys.time ()) in
       let w = L.create () in
       L.push c w;
-      let out = ref [] in
       while not (L.is_empty w) do
         let c = L.pop w in
         match c.stmts with
         | stmt :: stmts -> (
             let states = exec_stmt stmt { c with stmts } in
             match states with
-            | Ok states ->
-                List.iter states ~f:(fun state ->
-                    match state with
-                    | State.Continue c -> L.push c w
-                    | State.Return _ -> out := c :: !out)
+            | Ok results ->
+                List.iter results ~f:(fun result ->
+                    match result with
+                    | State.Continue state -> L.push state w
+                    | State.Return state -> serialize state)
             | Error msg ->
-                Log.debug (lazy (sprintf "error    : %s: %s" c.func msg)))
+                serialize ~witness:msg c;
+                Log.debug (lazy (sprintf "error       : %s: %s" c.func msg)))
         | [] ->
             Format.printf "Empty continuation!@.";
             assert false
       done;
-      !out
+      time := Stdlib.Sys.time () -. !time;
+      Format.printf "exec time   : %f@." !time;
+      Format.printf "solver time : %f@." !Batch.solver_time;
+      Format.printf "mean time   : %f@."
+        (!Batch.solver_time /. Float.of_int !Batch.solver_count)
   end
 
   (* Source: Thanks to Joao Borges (@RageKnify) for writing this code *)
@@ -625,14 +665,7 @@ module Make (P : Eval_functor_intf.P) :
   module BFS = TreeSearch (Stdlib.Queue)
   module RND = TreeSearch (RandArray)
 
-  let invoke (env : Env.t) (func : Func.t)
-      (eval : State.exec_state -> State.exec_state list) : State.exec_state list
-      =
-    let state = State.empty_state ~env ~func:func.name in
-    eval State.{ state with stmts = [ func.body ] }
-
-  let analyse (env : Env.t) (f : string) (policy : string) :
-      State.exec_state list =
+  let analyse (env : Env.t) (f : string) (policy : string) =
     let f =
       match Env.get_func env f with Ok f -> f | Error msg -> failwith msg
     in
@@ -645,51 +678,11 @@ module Make (P : Eval_functor_intf.P) :
           Crash.error f.body.at
             ("Invalid search policy '" ^ !Config.policy ^ "'")
     in
-    invoke env f eval
+    let state = State.empty_state ~env ~func:f.name in
+    eval State.{ state with stmts = [ f.body ] }
 
   let main (env : Env.t) (f : string) : unit =
-    let open State in
-    let time_analysis = ref 0.0 in
-    let configs =
-      Time_utils.time_call time_analysis (fun () ->
-          analyse env f !Config.policy)
-    in
     let testsuite_path = Filename.concat !Config.workspace "test-suite" in
     Io.safe_mkdir testsuite_path;
-    let final_configs = configs in
-    let error_configs = [] in
-    let f c =
-      let pc' = State.ESet.to_list c.symb_env.path_condition in
-      assert (Batch.check c.symb_env.solver pc');
-      let model = Batch.model c.symb_env.solver in
-      let open Encoding in
-      let testcase =
-        Option.value_map model ~default:[] ~f:(fun m ->
-            List.map (Model.get_bindings m) ~f:(fun (s, v) ->
-                let sort = Types.string_of_type (Symbol.type_of s)
-                and name = Symbol.to_string s
-                and interp = Value.to_string v in
-                (sort, name, interp)))
-      in
-      let pc = (Expression.string_of_pc pc', Expression.to_smt pc') in
-      let sink = ("", "") in
-      (sink, pc, testcase)
-    in
-    let serialize cs prefix =
-      let cs' = List.map ~f cs in
-      let prefix' = Filename.concat testsuite_path prefix in
-      let sinks = List.map ~f:(fun (sink, _, _) -> sink) cs' in
-      let queries = List.map ~f:(fun (_, pc, _) -> pc) cs' in
-      let testsuite = List.map ~f:(fun (_, _, testcase) -> testcase) cs' in
-      Report.serialise_sinks sinks prefix';
-      Report.serialise_queries queries prefix';
-      Report.serialise_testsuite testsuite prefix'
-    in
-    serialize final_configs "testcase";
-    serialize error_configs "witness";
-    Report.serialise_report
-      (Filename.concat !Config.workspace "report.json")
-      !Config.file (List.length configs)
-      (List.length error_configs)
-      0 !time_analysis 0.0
+    analyse env f !Config.policy
 end
