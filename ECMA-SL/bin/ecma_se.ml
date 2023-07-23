@@ -39,8 +39,18 @@ let prog_of_js interp file =
 let error at category msg =
   prerr_endline (Source.string_of_region at ^ ":" ^ category ^ ":" ^ msg)
 
-let run_prog prog target =
-  try Eval.main prog target with
+module SMap = Map.Make (String)
+
+let functions =
+  SMap.of_alist_exn [ ("test", fun () -> Format.printf "extern test@.") ]
+
+let link_env prog =
+  let env = State.P.Env.Build.empty () in
+  let env = State.P.Env.Build.add_functions env prog in
+  State.P.Env.Build.add_extern_functions env functions
+
+let run env target =
+  try Eval.main env target with
   | Eval.Crash (at, msg) -> error at "runtime crash" msg
   | Eval.Invalid_arg (at, msg) -> error at "invalid arg" msg
   | exn -> raise exn
@@ -75,7 +85,8 @@ let command_parameters : (unit -> unit) Command.Param.t =
         let prog =
           dispatch_file_ext prog_of_plus prog_of_core (prog_of_js interp) f
         in
-        run_prog prog target)
+        let env = link_env prog in
+        run env target)
 
 let command =
   Command.basic ~summary:"ECMA-SL symbolic analysis" command_parameters

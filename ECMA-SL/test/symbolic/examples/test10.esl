@@ -1,14 +1,4 @@
-function main() {
-  x := se_mk_symbolic(__$Str, "x");
-  y := s_len(x);
-  se_assume(y = 4);
-  z := "test";
-
-  x2 := s_concat([x, z]);
-  print(se_evaluate(x2));
-
-  /* concat the result of a concat */
-  print(se_evaluate(s_concat(["test", x2])));
-  assert(s_len(x2) = 8);
+function main () {
+  extern test();
   return 1
 }

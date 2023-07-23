@@ -20,11 +20,13 @@ module Invalid_arg = Err.Make ()
 exception Crash = Crash.Error
 exception Invalid_arg = Invalid_arg.Error
 
-module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
+module Make (P : Eval_functor_intf.P) :
+  Eval_functor_intf.S with type env := P.env and type value = Expr.t = struct
   module Store = P.Store
   module Object = P.Object
   module Heap = P.Heap
   module Reducer = P.Reducer
+  module Env = P.Env
 
   type value = Expr.t
 
@@ -32,7 +34,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
     module ESet = Set.Make (Encoding.Expression)
 
     type store = Store.t
-    type env = { prog : Prog.t; heap : Heap.t }
+    type nonrec env = P.env
     type solver = Batch.t
     type optimizer = Encoding.Optimizer.t
 
@@ -51,9 +53,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
       symb_env : symb_env;
     }
 
-    let empty_state ~env =
-      let func, prog = env in
-      let heap = Heap.create () in
+    let empty_state ~env ~func =
       let solver =
         let s = Batch.create () in
         if !Config.axioms then Batch.add s Encoding.Axioms.axioms;
@@ -63,7 +63,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
         return_state = None;
         locals = Store.create [];
         stmts = [];
-        env = { prog; heap };
+        env;
         func;
         symb_env =
           {
@@ -76,8 +76,8 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
     type stmt_result = Return of value | Continue of exec_state
 
     type _stmt_err =
+      | Error of string
       | Assertion of value list
-      | Error of value list
       | Unknown of value list
 
     let ret (state : exec_state) (v : value) : stmt_result =
@@ -176,7 +176,8 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
         let s =
           match e' with
           | Expr.Val (Val.Loc l) ->
-              let o = Heap.get env.heap l in
+              let heap = Env.get_memory env in
+              let o = Heap.get heap l in
               Object.to_string (Option.value_exn o) Expr.str
           | _ -> Expr.str e'
         in
@@ -222,7 +223,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
               let pc' = ESet.add symb_env.path_condition cond' in
               if not (Batch.check symb_env.solver (ESet.to_list pc')) then []
               else
-                let env = { env with heap = Heap.clone env.heap } in
+                let env = Env.clone env in
                 let symb_env = { symb_env with path_condition = pc' } in
                 let stmts = blk1 :: c.stmts in
                 [ State.Continue { c with stmts; env; symb_env } ]
@@ -231,7 +232,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
               let pc' = ESet.add symb_env.path_condition no' in
               if not (Batch.check symb_env.solver (ESet.to_list pc')) then []
               else
-                let env = { env with heap = Heap.clone env.heap } in
+                let env = Env.clone env in
                 let symb_env = { symb_env with path_condition = pc' } in
                 let stmts =
                   match blk2 with None -> c.stmts | Some s' -> s' :: c.stmts
@@ -251,14 +252,18 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
     | Stmt.AssignCall (x, f, es) ->
         let* f' = eval_reduce_expr locals f in
         let* func_name, args0 = Expr.func f' in
-        let* func = Prog.get_func env.prog func_name in
+        let* func = Env.get_func env func_name in
         let* args = list_map ~f:(eval_reduce_expr locals) es in
         let args = args0 @ args in
         exec_func c func args x
-    | Stmt.AssignECall _ -> Error "'AssignECall' not implemented!"
+    | Stmt.AssignECall (_, f, _) ->
+        let* func = Env.get_extern_func env f in
+        func ();
+        st locals
     | Stmt.AssignNewObj x ->
+        let heap = Env.get_memory env in
         let obj = Object.create () in
-        let loc = Heap.insert env.heap obj in
+        let loc = Heap.insert heap obj in
         st @@ Store.add_exn locals x (Expr.Val (Val.Loc loc))
     | Stmt.AssignInObjCheck (x, e_field, e_loc) ->
         let* e_loc' = eval_reduce_expr locals e_loc in
@@ -268,13 +273,11 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
           (List.fold locs ~init:[] ~f:(fun accum (cond, l) ->
                match cond with
                | None ->
-                   let heap = env.heap in
                    let env =
-                     if List.length locs > 1 then
-                       { env with heap = Heap.clone heap }
-                     else env
+                     if List.length locs > 1 then Env.clone env else env
                    in
-                   let v = Heap.has_field env.heap l field in
+                   let heap = Env.get_memory env in
+                   let v = Heap.has_field heap l field in
                    let locals = Store.add_exn locals x v in
                    State.Continue { c with locals; env } :: accum
                | Some cond' ->
@@ -285,14 +288,16 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                    if not (Batch.check symb_env.solver (ESet.to_list pc')) then
                      accum
                    else
-                     let v = Heap.has_field env.heap l field in
-                     let env = { env with heap = Heap.clone env.heap } in
+                     let env = Env.clone env in
+                     let heap = Env.get_memory env in
+                     let v = Heap.has_field heap l field in
                      let locals = Store.add_exn locals x v in
                      let symb_env = { symb_env with path_condition = pc' } in
                      State.Continue { c with locals; env; symb_env } :: accum))
     | Stmt.AssignObjToList (x, e) ->
-        let f h l pc' =
+        let f env l pc' =
           let v =
+            let h = Env.get_memory env in
             match Heap.get h l with
             | None -> Crash.error stmt.at ("'" ^ l ^ "' not found in heap")
             | Some obj ->
@@ -302,7 +307,6 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                         Expr.NOpt (Operators.TupleExpr, [ f; v ])) )
           in
           let locals = Store.add_exn locals x v in
-          let env = { env with heap = h } in
           let symb_env = { symb_env with path_condition = pc' } in
           State.Continue { c with locals; env; symb_env }
         in
@@ -312,11 +316,10 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
           (List.fold locs ~init:[] ~f:(fun accum (cond, l) ->
                match cond with
                | None ->
-                   let heap' =
-                     if List.length locs > 1 then Heap.clone env.heap
-                     else env.heap
+                   let env' =
+                     if List.length locs > 1 then Env.clone env else env
                    in
-                   f heap' l symb_env.path_condition :: accum
+                   f env' l symb_env.path_condition :: accum
                | Some cond' ->
                    let pc' =
                      ESet.add symb_env.path_condition
@@ -324,16 +327,16 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                    in
                    if not (Batch.check symb_env.solver (ESet.to_list pc')) then
                      accum
-                   else f (Heap.clone env.heap) l pc' :: accum))
+                   else f (Env.clone env) l pc' :: accum))
     | Stmt.AssignObjFields (x, e) ->
-        let f h l pc' =
+        let f env l pc' =
           let v =
+            let h = Env.get_memory env in
             match Heap.get h l with
             | None -> Crash.error stmt.at ("'" ^ l ^ "' not found in heap")
             | Some obj -> Expr.NOpt (Operators.ListExpr, Object.get_fields obj)
           in
           let locals = Store.add_exn locals x v in
-          let env = { env with heap = h } in
           let symb_env = { symb_env with path_condition = pc' } in
           State.Continue { c with locals; env; symb_env }
         in
@@ -343,11 +346,10 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
           (List.fold locs ~init:[] ~f:(fun accum (cond, l) ->
                match cond with
                | None ->
-                   let heap' =
-                     if List.length locs > 1 then Heap.clone env.heap
-                     else env.heap
+                   let env' =
+                     if List.length locs > 1 then Env.clone env else env
                    in
-                   f heap' l symb_env.path_condition :: accum
+                   f env' l symb_env.path_condition :: accum
                | Some cond' ->
                    let pc' =
                      ESet.add symb_env.path_condition
@@ -355,7 +357,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                    in
                    if not (Batch.check symb_env.solver (ESet.to_list pc')) then
                      accum
-                   else f (Heap.clone env.heap) l pc' :: accum))
+                   else f (Env.clone env) l pc' :: accum))
     | Stmt.FieldAssign (e_loc, e_field, e_v) ->
         let* e_loc' = eval_reduce_expr locals e_loc in
         let* locs = Expr.loc e_loc' in
@@ -365,9 +367,9 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
           (List.fold locs ~init:[] ~f:(fun accum (cond, l) ->
                match cond with
                | None ->
+                   let heap = Env.get_memory env in
                    let heap' =
-                     if List.length locs > 1 then Heap.clone env.heap
-                     else env.heap
+                     if List.length locs > 1 then Heap.clone heap else heap
                    in
                    let pc = symb_env.path_condition in
                    let objects =
@@ -376,7 +378,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                    in
                    List.map objects ~f:(fun (new_heap, new_pc) ->
                        let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
-                       let env = { env with heap = new_heap } in
+                       let env = Env.add_memory env new_heap in
                        let symb_env = { symb_env with path_condition = pc' } in
                        State.Continue { c with env; symb_env })
                | Some cond' ->
@@ -385,13 +387,14 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                    if not (Batch.check symb_env.solver (ESet.to_list pc')) then
                      accum
                    else
+                     let heap = Env.get_memory env in
                      let objects =
-                       Heap.set_field env.heap l reduced_field v symb_env.solver
+                       Heap.set_field heap l reduced_field v symb_env.solver
                          (ESet.to_list pc)
                      in
                      List.map objects ~f:(fun (new_heap, new_pc) ->
                          let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
-                         let env = { env with heap = new_heap } in
+                         let env = Env.add_memory env new_heap in
                          let symb_env =
                            { symb_env with path_condition = pc' }
                          in
@@ -404,9 +407,9 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
           (List.fold locs ~init:[] ~f:(fun accum (cond, l) ->
                match cond with
                | None ->
+                   let heap = Env.get_memory env in
                    let heap' =
-                     if List.length locs > 1 then Heap.clone env.heap
-                     else env.heap
+                     if List.length locs > 1 then Heap.clone heap else heap
                    in
                    let pc = symb_env.path_condition in
                    let objects =
@@ -415,7 +418,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                    in
                    List.map objects ~f:(fun (new_heap, new_pc) ->
                        let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
-                       let env = { env with heap = new_heap } in
+                       let env = Env.add_memory env new_heap in
                        let symb_env = { symb_env with path_condition = pc' } in
                        State.Continue { c with env; symb_env })
                | Some cond' ->
@@ -424,13 +427,14 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                    if not (Batch.check symb_env.solver (ESet.to_list pc')) then
                      accum
                    else
+                     let heap = Env.get_memory env in
                      let objects =
-                       Heap.delete_field env.heap l reduced_field
-                         symb_env.solver (ESet.to_list pc)
+                       Heap.delete_field heap l reduced_field symb_env.solver
+                         (ESet.to_list pc)
                      in
                      List.map objects ~f:(fun (new_heap, new_pc) ->
                          let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
-                         let env = { env with heap = new_heap } in
+                         let env = Env.add_memory env new_heap in
                          let symb_env =
                            { symb_env with path_condition = pc' }
                          in
@@ -443,9 +447,9 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
           (List.fold locs ~init:[] ~f:(fun accum (cond, l) ->
                match cond with
                | None ->
+                   let heap = Env.get_memory env in
                    let heap' =
-                     if List.length locs > 1 then Heap.clone env.heap
-                     else env.heap
+                     if List.length locs > 1 then Heap.clone heap else heap
                    in
                    let pc = symb_env.path_condition in
                    let objects =
@@ -459,7 +463,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                        in
                        let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
                        let locals = Store.add_exn locals x v' in
-                       let env = { env with heap = new_heap } in
+                       let env = Env.add_memory env new_heap in
                        let symb_env = { symb_env with path_condition = pc' } in
                        State.Continue { c with locals; env; symb_env })
                | Some cond' ->
@@ -468,8 +472,9 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                    if not (Batch.check symb_env.solver (ESet.to_list pc')) then
                      accum
                    else
+                     let heap = Env.get_memory env in
                      let objects =
-                       Heap.get_field env.heap l reduced_field symb_env.solver
+                       Heap.get_field heap l reduced_field symb_env.solver
                          (ESet.to_list pc)
                      in
                      List.map objects ~f:(fun (new_heap, new_pc, v) ->
@@ -479,7 +484,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                          in
                          let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
                          let locals = Store.add_exn locals x v' in
-                         let env = { env with heap = new_heap } in
+                         let env = Env.add_memory env new_heap in
                          let symb_env =
                            { symb_env with path_condition = pc' }
                          in
@@ -602,16 +607,16 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
   module BFS = TreeSearch (Stdlib.Queue)
   module RND = TreeSearch (RandArray)
 
-  let invoke (prog : Prog.t) (func : Func.t)
+  let invoke (env : Env.t) (func : Func.t)
       (eval : State.exec_state -> State.exec_state list) : State.exec_state list
       =
-    let state = State.empty_state ~env:(func.name, prog) in
+    let state = State.empty_state ~env ~func:func.name in
     eval State.{ state with stmts = [ func.body ] }
 
-  let analyse (prog : Prog.t) (f : string) (policy : string) :
+  let analyse (env : Env.t) (f : string) (policy : string) :
       State.exec_state list =
     let f =
-      match Prog.get_func prog f with Ok f -> f | Error msg -> failwith msg
+      match Env.get_func env f with Ok f -> f | Error msg -> failwith msg
     in
     let eval =
       match policy with
@@ -622,14 +627,14 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
           Crash.error f.body.at
             ("Invalid search policy '" ^ !Config.policy ^ "'")
     in
-    invoke prog f eval
+    invoke env f eval
 
-  let main (prog : Prog.t) (f : string) : unit =
+  let main (env : Env.t) (f : string) : unit =
     let open State in
     let time_analysis = ref 0.0 in
     let configs =
       Time_utils.time_call time_analysis (fun () ->
-          analyse prog f !Config.policy)
+          analyse env f !Config.policy)
     in
     let testsuite_path = Filename.concat !Config.workspace "test-suite" in
     Io.safe_mkdir testsuite_path;
