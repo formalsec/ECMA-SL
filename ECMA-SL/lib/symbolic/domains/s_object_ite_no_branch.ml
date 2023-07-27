@@ -77,13 +77,13 @@ module M : S_object_intf.S = struct
       encoded_pct list =
     List.fold l ~init:[] ~f:(fun acc (pc, _) ->
         let ne = Expr.UnOpt (Operators.Not, mk_eq key pc) in
-        let expr = Reducer.reduce_expr ne |> Translator.translate in
+        let expr = Reducer.reduce ne |> Translator.translate in
         expr :: acc)
 
   let create_object (o : t) (k1 : pct) (k2 : pct) :
       t * encoded_pct list =
     let o' = clone o in
-    let eq = Reducer.reduce_expr (mk_eq k1 k2) |> Translator.translate in
+    let eq = Reducer.reduce (mk_eq k1 k2) |> Translator.translate in
     (o', [ eq ])
 
   let create_ite (lst : (pct * pct) list) (key : Expr.t) :
@@ -91,8 +91,8 @@ module M : S_object_intf.S = struct
     let undef = Expr.Val (Val.Symbol "undefined") in
     let ite, new_pc =
       List.fold lst ~init:(undef, []) ~f:(fun (acc_val, acc_pc) (k, d) ->
-          let eq = Reducer.reduce_expr (mk_eq key k) in
-          let acc_val = Reducer.reduce_expr (mk_ite eq d acc_val) in
+          let eq = Reducer.reduce (mk_eq key k) in
+          let acc_val = Reducer.reduce (mk_ite eq d acc_val) in
           (acc_val, eq :: acc_pc))
     in
     let new_pc =
@@ -108,7 +108,7 @@ module M : S_object_intf.S = struct
   let is_key_possible ?(b = false) (k1 : Expr.t) (k2 : Expr.t)
       (solver : Batch.t) (pc : encoded_pct list) : bool =
     let eq0 = mk_eq k1 k2 in
-    let eq = Reducer.reduce_expr eq0 |> Translator.translate in
+    let eq = Reducer.reduce eq0 |> Translator.translate in
     let ret = Batch.check solver (eq :: pc) in
 
     if b then (

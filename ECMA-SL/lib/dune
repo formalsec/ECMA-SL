@@ -3,6 +3,7 @@
 (library
  (name ECMA_SL)
  (wrapped false)
+ (modules :standard \ s_object_ite_no_branch)
  (preprocess
   (staged_pps ppx_import ppx_deriving.std))
  (libraries encoding batteries extlib menhirLib yojson z3 core))
