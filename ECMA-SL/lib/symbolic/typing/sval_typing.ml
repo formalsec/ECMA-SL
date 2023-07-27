@@ -38,8 +38,9 @@ let type_of_unop (op : Operators.uopt) (arg_t : Type.t option) : Type.t option =
         ("Typing Error: [type_of_unop] -> unsuported typing for unary \
           operation " ^ Operators.str_of_unopt op)
 
-let type_of_binop (op : Operators.bopt) (arg1 : Expr.t) (arg2 : Expr.t)
-    (arg1_t : Type.t option) (arg2_t : Type.t option) : Type.t option =
+let type_of_binop (op : Operators.bopt) (arg1 : Sym_value.M.value)
+    (arg2 : Sym_value.M.value) (arg1_t : Type.t option) (arg2_t : Type.t option)
+    : Type.t option =
   match op with
   | Operators.Plus -> bin_args_typing_arith arg1_t arg2_t
   | Operators.Minus -> bin_args_typing_arith arg1_t arg2_t
@@ -85,22 +86,23 @@ let type_of_triop (op : Operators.topt) (_arg1_t : Type.t option)
           if t2 = t3 then arg2_t else failwith "types don't match for ITE."
       | _ -> failwith "types don't match for ITE.")
 
-let rec type_of (v : Expr.t) : Type.t option =
+let rec type_of (v : Sym_value.M.value) : Type.t option =
+  let open Sym_value.M in
   match v with
-  | Expr.Val v -> type_of_val v
-  | Expr.UnOpt (op, arg) ->
+  | Val v -> type_of_val v
+  | UnOpt (op, arg) ->
       let arg_t = type_of arg in
       type_of_unop op arg_t
-  | Expr.BinOpt (op, arg1, arg2) ->
+  | BinOpt (op, arg1, arg2) ->
       let arg1_t = type_of arg1 and arg2_t = type_of arg2 in
       type_of_binop op arg1 arg2 arg1_t arg2_t
-  | Expr.TriOpt (op, arg1, arg2, arg3) ->
+  | TriOpt (op, arg1, arg2, arg3) ->
       let arg1_t = type_of arg1
       and arg2_t = type_of arg2
       and arg3_t = type_of arg3 in
       type_of_triop op arg1_t arg2_t arg3_t
-  | Expr.Symbolic (t, _) -> Some t
-  | Expr.NOpt (Operators.ListExpr, _) -> Some Type.ListType
-  | Expr.NOpt (Operators.TupleExpr, _) -> Some Type.TupleType
-  | Expr.NOpt (Operators.ArrExpr, _) -> Some Type.ArrayType
-  | _ -> failwith (Expr.str v ^ ": Not typed!")
+  | Symbolic (t, _) -> Some t
+  | NOpt (Operators.ListExpr, _) -> Some Type.ListType
+  | NOpt (Operators.TupleExpr, _) -> Some Type.TupleType
+  | NOpt (Operators.ArrExpr, _) -> Some Type.ArrayType
+  | _ -> failwith (Pp.pp v ^ ": Not typed!")

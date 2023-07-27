@@ -2,12 +2,13 @@ open Core
 open Encoding
 open Expression
 open Types
+open Sym_value.M
 
-let expr_of_value (e : Value.t) : Expr.t =
+let expr_of_value (e : Value.t) : value =
   match e with
-  | Value.Int x -> Expr.Val (Val.Int x)
-  | Value.Str x -> Expr.Val (Val.Str x)
-  | Value.Real x -> Expr.Val (Val.Flt x)
+  | Value.Int x -> Val (Val.Int x)
+  | Value.Str x -> Val (Val.Str x)
+  | Value.Real x -> Val (Val.Flt x)
   | _ -> assert false
 
 let translate_val (v : Val.t) : Expression.t =
@@ -204,28 +205,28 @@ let translate_triop (t1 : Type.t option) (t2 : Type.t option)
         ^ Operators.str_of_triopt op "e1" "e2" "e3")
   | _ -> failwith "translate_triop: ill-typed or unsupported operator!"
 
-let rec translate ?(b = false) (e : Expr.t) : Expression.t =
-  if b then Printf.printf "\n\ntranslating: %s\n\n" (Expr.str e);
-  match e with
-  | Expr.Val v -> translate_val v
-  | Expr.Symbolic (t, Expr.Val (Val.Str x)) -> translate_symbol t x
-  | Expr.UnOpt (Operators.Sconcat, e) -> (
+let rec translate ?(b = false) (v : value) : Expression.t =
+  if b then Printf.printf "\n\ntranslating: %s\n\n" (Pp.pp v);
+  match v with
+  | Val v -> translate_val v
+  | Symbolic (t, Val (Val.Str x)) -> translate_symbol t x
+  | UnOpt (Operators.Sconcat, e) -> (
       let binop' e1 e2 = Binop (Str S.Concat, e1, e2) in
       match e with
-      | Expr.NOpt (_, h :: t) ->
+      | NOpt (_, h :: t) ->
           List.fold_left ~init:(translate ~b:false h) ~f:binop'
             (List.map ~f:(translate ~b:false) t)
       | _ -> assert false)
-  | Expr.UnOpt (op, e') ->
+  | UnOpt (op, e') ->
       let ty = Sval_typing.type_of e' in
       let e' = translate ~b:false e' in
       translate_unop ty op e'
-  | Expr.BinOpt (op, e1, e2) ->
+  | BinOpt (op, e1, e2) ->
       let ty1 = Sval_typing.type_of e1 in
       let ty2 = Sval_typing.type_of e2 in
       let e1' = translate ~b:false e1 and e2' = translate ~b:false e2 in
       translate_binop ty1 ty2 op e1' e2'
-  | Expr.TriOpt (op, e1, e2, e3) ->
+  | TriOpt (op, e1, e2, e3) ->
       let ty1 = Sval_typing.type_of e1 in
       let ty2 = Sval_typing.type_of e2 in
       let ty3 = Sval_typing.type_of e3 in
@@ -233,4 +234,4 @@ let rec translate ?(b = false) (e : Expr.t) : Expression.t =
       and e2' = translate ~b:false e2
       and e3' = translate ~b:false e3 in
       translate_triop ty1 ty2 ty3 op e1' e2' e3'
-  | _ -> failwith (Expr.str e ^ ": Not translated!")
+  | _ -> failwith (Pp.pp v ^ ": Not translated!")

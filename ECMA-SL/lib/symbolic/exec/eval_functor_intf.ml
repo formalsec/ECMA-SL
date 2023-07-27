@@ -5,52 +5,67 @@ module type P = sig
   type object_
   type store
 
+  module Value : Value_intf.T with type value = value and type store = store
+
+  module Choice : sig
+    val assertion : Batch.t -> Encoding.Expression.t list -> value -> bool
+    val assumption : value -> bool option
+
+    val branch :
+      Batch.t ->
+      Encoding.Expression.t list ->
+      value ->
+      (bool * Encoding.Expression.t option)
+      * (bool * Encoding.Expression.t option)
+  end
+
   module Store : sig
-    type bind = String.t
+    type bind = string
     type t = store
 
-    val create : (string * Expr.t) list -> t
+    val create : (string * value) list -> t
     val mem : t -> bind -> bool
-    val add_exn : t -> bind -> Expr.t -> t
-    val find : t -> bind -> Expr.t option
-    val to_string : t -> string
+    val add_exn : t -> bind -> value -> t
+    val find : t -> bind -> value option
   end
 
   module Object : sig
     type t = object_
+    type nonrec value = value
     type encoded_pct = Encoding.Expression.t
 
     val create : unit -> t
     val clone : t -> t
-    val to_string : t -> (Expr.t -> string) -> string
+    val to_string : t -> (value -> string) -> string
 
     val set :
       t ->
-      Expr.t ->
-      Expr.t ->
+      value ->
+      value ->
       Batch.t ->
       encoded_pct list ->
       (t * encoded_pct list) list
 
     val get :
       t ->
-      Expr.t ->
+      value ->
       Batch.t ->
       encoded_pct list ->
-      (t * encoded_pct list * Expr.t option) list
+      (t * encoded_pct list * value option) list
 
     val delete :
-      t -> Expr.t -> Batch.t -> encoded_pct list -> (t * encoded_pct list) list
+      t -> value -> Batch.t -> encoded_pct list -> (t * encoded_pct list) list
 
-    val to_list : t -> (Expr.t * Expr.t) list
-    val has_field : t -> Expr.t -> Expr.t
-    val get_fields : t -> Expr.t list
+    val to_list : t -> (value * value) list
+    val has_field : t -> value -> value
+    val get_fields : t -> value list
   end
 
   module Heap : sig
     type encoded_pct = Encoding.Expression.t
     type obj = object_
     type t = memory
+    type nonrec value = value
 
     val create : unit -> t
     val clone : t -> t
@@ -58,21 +73,21 @@ module type P = sig
     val remove : t -> Loc.t -> unit
     val set : t -> Loc.t -> obj -> unit
     val get : t -> Loc.t -> obj option
-    val has_field : t -> Loc.t -> Expr.t -> Expr.t
+    val has_field : t -> Loc.t -> value -> value
 
     val get_field :
       t ->
       Loc.t ->
-      Expr.t ->
+      value ->
       Batch.t ->
       encoded_pct list ->
-      (t * encoded_pct list * Expr.t option) list
+      (t * encoded_pct list * value option) list
 
     val set_field :
       t ->
       Loc.t ->
-      Expr.t ->
-      Expr.t ->
+      value ->
+      value ->
       Batch.t ->
       encoded_pct list ->
       (t * encoded_pct list) list
@@ -80,7 +95,7 @@ module type P = sig
     val delete_field :
       t ->
       Loc.t ->
-      Expr.t ->
+      value ->
       Batch.t ->
       encoded_pct list ->
       (t * encoded_pct list) list
@@ -101,7 +116,12 @@ module type P = sig
   end
 
   module Reducer : sig
-    val reduce_expr : Expr.t -> Expr.t
+    val reduce : value -> value
+  end
+
+  module Translator : sig
+    val expr_of_value : Encoding.Value.t -> value
+    val translate : ?b:bool -> value -> Encoding.Expression.t
   end
 end
 
