@@ -22,6 +22,12 @@ module M = struct
     | Curry of value * value list
     | Symbolic of Type.t * value
 
+  let get_func_name (v : value) =
+    match v with
+    | Val (Val.Str x) -> Ok (x, [])
+    | Curry (Val (Val.Str x), vs) -> Ok (x, vs)
+    | _ -> Error "Value is not a function identifier"
+
   let rec is_symbolic (v : value) : bool =
     match v with
     | Val _ -> false
@@ -73,7 +79,7 @@ module M = struct
     let find (store : t) (x : bind) : value option = SMap.find store x
   end
 
-    type store = Store.t
+  type store = Store.t
 
   let rec eval_expr (store : store) (e : Expr.t) : (value, string) Result.t =
     match e with

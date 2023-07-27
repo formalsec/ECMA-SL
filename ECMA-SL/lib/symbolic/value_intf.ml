@@ -2,6 +2,7 @@ module type T = sig
   type value
   type store
 
+  val get_func_name : value -> (string * value list, string) Result.t
   val is_symbolic : value -> bool
   val equal : value -> value -> bool
 

@@ -10,7 +10,7 @@ module type S = sig
 
   val create : unit -> t
   val clone : t -> t
-  val insert : t -> obj -> Loc.t
+  val insert : t -> obj -> value
   val remove : t -> Loc.t -> unit
   val set : t -> Loc.t -> obj -> unit
   val get : t -> Loc.t -> obj option
@@ -416,10 +416,10 @@ module Heap = struct
   let clone (h : t) : t =
     { parent = Some h; map = Hashtbl.create (module String) }
 
-  let insert (h : t) (obj : obj) : Loc.t =
+  let insert (h : t) (obj : obj) : value =
     let loc = Loc.newloc () in
     Hashtbl.set h.map ~key:loc ~data:obj;
-    loc
+    V.Val (Val.Loc loc)
 
   let remove (h : t) (l : Loc.t) : unit = Hashtbl.remove h.map l
 

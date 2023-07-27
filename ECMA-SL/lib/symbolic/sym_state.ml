@@ -15,20 +15,6 @@ module P = struct
     include Value
   end
 
-  module Choice = struct
-    open Value
-    let assertion _solver _pc c =
-      match c with Val (Val.Bool b) -> b | _v -> assert false
-
-    let assumption c =
-      match c with Val (Val.Bool b) -> Some b | _ -> None
-
-    let branch _solver _pc c =
-      match c with
-      | Val (Val.Bool b) -> ((b, None), (not b, None))
-      | _ -> assert false
-  end
-
   module Store = struct
     type bind = string
     type t = store
@@ -98,6 +84,29 @@ module P = struct
   module Translator = struct
     let translate = Value_translator.translate
     let expr_of_value = Value_translator.expr_of_value
+  end
+
+  module Choice = struct
+    open Value
+
+    let assertion solver pc c =
+      match c with
+      | Val (Val.Bool b) -> b
+      | v ->
+          let v' = Translator.translate (Value.Bool.not_ v) in
+          not (Batch.check solver (v' :: pc))
+
+    let assumption c = match c with Val (Val.Bool b) -> Some b | _ -> None
+
+    let branch solver pc c =
+      match c with
+      | Val (Val.Bool b) -> ((b, None), (not b, None))
+      | v ->
+          let cond = Translator.translate v in
+          let no = Translator.translate @@ Value.Bool.not_ v in
+          let t_branch = Batch.check solver (cond :: pc) in
+          let f_branch = Batch.check solver (no :: pc) in
+          ((t_branch, Some cond), (f_branch, Some no))
   end
 end
 

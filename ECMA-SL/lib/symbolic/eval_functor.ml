@@ -24,8 +24,8 @@ module Make (P : Eval_functor_intf.P) :
   Eval_functor_intf.S with type env := P.env and type value = P.value = struct
   module Value = P.Value
   module Store = P.Store
-  (* module Object = P.Object *)
-  (* module Heap = P.Heap *)
+  module Object = P.Object
+  module Heap = P.Heap
   module Env = P.Env
   module Choice = P.Choice
   module Reducer = P.Reducer
@@ -98,10 +98,10 @@ module Make (P : Eval_functor_intf.P) :
     let+ e' = Value.eval_expr sto e in
     Reducer.reduce e'
 
-  let _block b =
-    match b.it with
-    | Stmt.Block b -> Ok b
-    | _ -> Error "Malformed block statement"
+  (* let block b = *)
+  (*   match b.it with *)
+  (*   | Stmt.Block b -> Ok b *)
+  (*   | _ -> Error "Malformed block statement" *)
 
   let pp locals e =
     match eval_reduce_expr locals e with
@@ -110,7 +110,7 @@ module Make (P : Eval_functor_intf.P) :
         Format.printf "%s@." msg;
         assert false
 
-  let _exec_func state func args ret_var =
+  let exec_func state func args ret_var =
     Log.debug (lazy (sprintf "calling func: %s" func.name));
     let return_state = Some (state, ret_var) in
     let params = func.params in
@@ -149,7 +149,7 @@ module Make (P : Eval_functor_intf.P) :
   let exec_stmt stmt (c : State.exec_state) :
       (State.stmt_result list, string) Result.t =
     let open State in
-    let { locals; symb_env; _ } = c in
+    let { locals; env; symb_env; _ } = c in
     let st store = return [ State.Continue { c with locals = store } ] in
     Log.debug
       (lazy (sprintf "store       : %s" (Value.Pp.Store.to_string locals)));
@@ -190,47 +190,40 @@ module Make (P : Eval_functor_intf.P) :
         if b then st locals else Error (sprintf "assert: %s" (Value.Pp.pp e'))
     | Stmt.Block blk ->
         return [ State.Continue { c with stmts = blk @ c.stmts } ]
-    | Stmt.If (br, _blk1, _blk2) ->
-        let* _br' = eval_reduce_expr locals br in
-        assert false
-        (*
-        match br' with
-        | Expr.Val (Val.Bool b) ->
-            if b then
-              let* b = block blk1 in
-              return [ State.Continue { c with stmts = b @ c.stmts } ]
-            else
-              let stmts =
-                Option.fold blk2 ~init:c.stmts ~f:(fun accum stmt ->
-                    stmt :: accum)
-              in
-              return [ State.Continue { c with stmts } ]
-        | cond ->
-            let no = Reducer.reduce (Expr.Bool.not_ cond) in
-            let cond' = Translator.translate cond in
-            let no' = Translator.translate no in
-            let then_branch =
-              let pc' = ESet.add symb_env.path_condition cond' in
-              if not (Batch.check symb_env.solver (ESet.to_list pc')) then []
-              else
-                let env = Env.clone env in
-                let symb_env = { symb_env with path_condition = pc' } in
-                let stmts = blk1 :: c.stmts in
-                [ State.Continue { c with stmts; env; symb_env } ]
+    | Stmt.If (br, blk1, blk2) ->
+        let* br' = eval_reduce_expr locals br in
+        let pc = ESet.to_list symb_env.path_condition in
+        let (t_branch, t_cond), (f_branch, f_cond) =
+          Choice.branch symb_env.solver pc br'
+        in
+        let states =
+          if not t_branch then []
+          else
+            let pc' =
+              Option.fold t_cond ~init:symb_env.path_condition ~f:ESet.add
             in
-            let else_branch =
-              let pc' = ESet.add symb_env.path_condition no' in
-              if not (Batch.check symb_env.solver (ESet.to_list pc')) then []
-              else
-                let env = Env.clone env in
-                let symb_env = { symb_env with path_condition = pc' } in
-                let stmts =
-                  match blk2 with None -> c.stmts | Some s' -> s' :: c.stmts
-                in
-                [ State.Continue { c with stmts; env; symb_env } ]
+            let symb_env = { symb_env with path_condition = pc' } in
+            let stmts = blk1 :: c.stmts in
+            [ { c with stmts; symb_env } ]
+        in
+        let states =
+          if not f_branch then states
+          else
+            let pc' =
+              Option.fold f_cond ~init:symb_env.path_condition ~f:ESet.add
             in
-            return (else_branch @ then_branch))
-        *)
+            let symb_env = { symb_env with path_condition = pc' } in
+            let stmts = Option.fold blk2 ~init:c.stmts ~f:(fun a b -> b :: a) in
+            { c with stmts; symb_env } :: states
+        in
+        return
+          (match states with
+          | [] -> []
+          | [ state ] -> [ State.Continue state ]
+          | _ ->
+              List.map states ~f:(fun c ->
+                  let env = Env.clone c.env in
+                  State.Continue { c with env }))
     | Stmt.While (br, blk) ->
         let blk' =
           Stmt.Block (blk :: [ Stmt.While (br, blk) @> stmt.at ]) @> blk.at
@@ -240,23 +233,25 @@ module Make (P : Eval_functor_intf.P) :
     | Stmt.Return e ->
         let* v = eval_reduce_expr locals e in
         return [ State.ret c v ]
-    | Stmt.AssignCall (_x, _f, _es) -> assert false
-        (* let* f' = eval_reduce_expr locals f in *)
-        (* let* func_name, args0 = Expr.func f' in *)
-        (* let* func = Env.get_func env func_name in *)
-        (* let* args = list_map ~f:(eval_reduce_expr locals) es in *)
-        (* let args = args0 @ args in *)
-        (* exec_func c func args x *)
-    | Stmt.AssignECall (_x, _f, _es) -> assert false
+    | Stmt.AssignCall (x, f, es) ->
+        let* f' = eval_reduce_expr locals f in
+        let* func_name, args0 = Value.get_func_name f' in
+        let* func = Env.get_func env func_name in
+        let* args = list_map ~f:(eval_reduce_expr locals) es in
+        let args = args0 @ args in
+        exec_func c func args x
+    | Stmt.AssignECall (_x, _f, _es) ->
+        assert false
         (* let* func = Env.get_extern_func env f in *)
         (* let* args = list_map ~f:(eval_reduce_expr locals) es in *)
         (* exec_extern_func c func args x *)
-    | Stmt.AssignNewObj _x -> assert false
-        (* let heap = Env.get_memory env in *)
-        (* let obj = Object.create () in *)
-        (* let loc = Heap.insert heap obj in *)
-        (* st @@ Store.add_exn locals x (Expr.Val (Val.Loc loc)) *)
-    | Stmt.AssignInObjCheck (_x, _e_field, _e_loc) -> assert false
+    | Stmt.AssignNewObj x ->
+        let heap = Env.get_memory env in
+        let obj = Object.create () in
+        let loc = Heap.insert heap obj in
+        st @@ Store.add_exn locals x loc
+    | Stmt.AssignInObjCheck (_x, _e_field, _e_loc) ->
+        assert false
         (* let* e_loc' = eval_reduce_expr locals e_loc in *)
         (* let* locs = Expr.loc e_loc' in *)
         (* let* field = eval_reduce_expr locals e_field in *)
@@ -285,7 +280,8 @@ module Make (P : Eval_functor_intf.P) :
         (*              let locals = Store.add_exn locals x v in *)
         (*              let symb_env = { symb_env with path_condition = pc' } in *)
         (*              State.Continue { c with locals; env; symb_env } :: accum)) *)
-    | Stmt.AssignObjToList (_x, _e) -> assert false
+    | Stmt.AssignObjToList (_x, _e) ->
+        assert false
         (* let f env l pc' = *)
         (*   let v = *)
         (*     let h = Env.get_memory env in *)
@@ -319,7 +315,8 @@ module Make (P : Eval_functor_intf.P) :
         (*            if not (Batch.check symb_env.solver (ESet.to_list pc')) then *)
         (*              accum *)
         (*            else f (Env.clone env) l pc' :: accum)) *)
-    | Stmt.AssignObjFields (_x, _e) -> assert false
+    | Stmt.AssignObjFields (_x, _e) ->
+        assert false
         (* let f env l pc' = *)
         (*   let v = *)
         (*     let h = Env.get_memory env in *)
@@ -349,7 +346,8 @@ module Make (P : Eval_functor_intf.P) :
         (*            if not (Batch.check symb_env.solver (ESet.to_list pc')) then *)
         (*              accum *)
         (*            else f (Env.clone env) l pc' :: accum)) *)
-    | Stmt.FieldAssign (_e_loc, _e_field, _e_v) -> assert false
+    | Stmt.FieldAssign (_e_loc, _e_field, _e_v) ->
+        assert false
         (* let* e_loc' = eval_reduce_expr locals e_loc in *)
         (* let* locs = Expr.loc e_loc' in *)
         (* let* reduced_field = eval_reduce_expr locals e_field in *)
@@ -390,7 +388,8 @@ module Make (P : Eval_functor_intf.P) :
         (*                    { symb_env with path_condition = pc' } *)
         (*                  in *)
         (*                  State.Continue { c with env; symb_env }))) *)
-    | Stmt.FieldDelete (_e_loc, _e_field) -> assert false
+    | Stmt.FieldDelete (_e_loc, _e_field) ->
+        assert false
         (* let* e_loc' = eval_reduce_expr locals e_loc in *)
         (* let* locs = Expr.loc e_loc' in *)
         (* let* reduced_field = eval_reduce_expr locals e_field in *)
@@ -430,7 +429,8 @@ module Make (P : Eval_functor_intf.P) :
         (*                    { symb_env with path_condition = pc' } *)
         (*                  in *)
         (*                  State.Continue { c with env; symb_env }))) *)
-    | Stmt.FieldLookup (_x, _e_loc, _e_field) -> assert false
+    | Stmt.FieldLookup (_x, _e_loc, _e_field) ->
+        assert false
         (* let* e_loc' = eval_reduce_expr locals e_loc in *)
         (* let* locs = Expr.loc e_loc' in *)
         (* let* reduced_field = eval_reduce_expr locals e_field in *)
@@ -498,7 +498,8 @@ module Make (P : Eval_functor_intf.P) :
         assert (
           Batch.check symb_env.solver (ESet.to_list symb_env.path_condition));
         assert false
-    | Stmt.SymStmt (SymStmt.Maximize (_x, _e)) -> assert false
+    | Stmt.SymStmt (SymStmt.Maximize (_x, _e)) ->
+        assert false
         (* let* e' = eval_reduce_expr locals e in *)
         (* let e' = Translator.translate e' in *)
         (* let pc = ESet.to_list symb_env.path_condition in *)
@@ -508,7 +509,8 @@ module Make (P : Eval_functor_intf.P) :
         (* in *)
         (* st *)
         (* @@ Store.add_exn locals x (Option.value ~default:(Expr.Val Val.Null) v) *)
-    | Stmt.SymStmt (SymStmt.Minimize (_x, _e)) -> assert false
+    | Stmt.SymStmt (SymStmt.Minimize (_x, _e)) ->
+        assert false
         (* let* e' = eval_reduce_expr locals e in *)
         (* let e' = Translator.translate e' in *)
         (* let pc = ESet.to_list symb_env.path_condition in *)
@@ -518,22 +520,24 @@ module Make (P : Eval_functor_intf.P) :
         (* in *)
         (* st *)
         (* @@ Store.add_exn locals x (Option.value ~default:(Expr.Val Val.Null) v) *)
-    | Stmt.SymStmt (SymStmt.Is_symbolic (_x, _e)) -> assert false
+    | Stmt.SymStmt (SymStmt.Is_symbolic (_x, _e)) ->
+        assert false
         (* let* e' = eval_reduce_expr locals e in *)
         (* st @@ Store.add_exn locals x (Expr.Bool.const (Expr.is_symbolic e')) *)
-    | Stmt.SymStmt (SymStmt.Is_sat (_x, _e)) -> assert false
+    | Stmt.SymStmt (SymStmt.Is_sat (_x, _e)) ->
+        assert false
         (* let* e' = eval_reduce_expr locals e in *)
         (* let pc' = ESet.add symb_env.path_condition (Translator.translate e') in *)
         (* let sat = Batch.check symb_env.solver (ESet.to_list pc') in *)
         (* st @@ Store.add_exn locals x (Expr.Bool.const sat) *)
     | Stmt.SymStmt (SymStmt.Is_number (_x, _e)) -> assert false
-        (* let* e' = eval_reduce_expr locals e in *)
-        (* let is_num = *)
-        (*   match Sval_typing.type_of e' with *)
-        (*   | Some Type.IntType | Some Type.FltType -> true *)
-        (*   | _ -> false *)
-        (* in *)
-        (* st @@ Store.add_exn locals x (Value.Bool.const is_num) *)
+  (* let* e' = eval_reduce_expr locals e in *)
+  (* let is_num = *)
+  (*   match Sval_typing.type_of e' with *)
+  (*   | Some Type.IntType | Some Type.FltType -> true *)
+  (*   | _ -> false *)
+  (* in *)
+  (* st @@ Store.add_exn locals x (Value.Bool.const is_num) *)
 
   module type WorkList = sig
     type 'a t

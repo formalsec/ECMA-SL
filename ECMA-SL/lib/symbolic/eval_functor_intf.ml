@@ -69,7 +69,7 @@ module type P = sig
 
     val create : unit -> t
     val clone : t -> t
-    val insert : t -> obj -> Loc.t
+    val insert : t -> obj -> value
     val remove : t -> Loc.t -> unit
     val set : t -> Loc.t -> obj -> unit
     val get : t -> Loc.t -> obj option
