@@ -1,6 +1,11 @@
 open Core
 module SMap = Map.Make (String)
 
+let symbolic_api_funcs =
+  let open Extern_func in
+  let mk_string str = Expr.Symbolic (Type.StrType, str) in
+  SMap.of_alist_exn [ ("mk_string", Extern_func (Func (Arg Res), mk_string)) ]
+
 let extern_functions =
   let open Extern_func in
   let hello () =
@@ -56,7 +61,8 @@ let prog_of_js interp file =
 let link_env prog =
   let env = State.P.Env.Build.empty () in
   let env = State.P.Env.Build.add_functions env prog in
-  State.P.Env.Build.add_extern_functions env extern_functions
+  let env = State.P.Env.Build.add_extern_functions env extern_functions in
+  State.P.Env.Build.add_extern_functions env symbolic_api_funcs
 
 let error at category msg =
   Format.eprintf "%s:%s:%s@." (Source.string_of_region at) category msg
