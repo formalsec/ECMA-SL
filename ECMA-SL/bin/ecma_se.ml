@@ -59,10 +59,10 @@ let prog_of_js interp file =
     Parsing_utils.parse_prog program
 
 let link_env prog =
-  let env = State.P.Env.Build.empty () in
-  let env = State.P.Env.Build.add_functions env prog in
-  let env = State.P.Env.Build.add_extern_functions env extern_functions in
-  State.P.Env.Build.add_extern_functions env symbolic_api_funcs
+  let env = Sym_state.P.Env.Build.empty () in
+  let env = Sym_state.P.Env.Build.add_functions env prog in
+  let env = Sym_state.P.Env.Build.add_extern_functions env extern_functions in
+  Sym_state.P.Env.Build.add_extern_functions env symbolic_api_funcs
 
 let error at category msg =
   Format.eprintf "%s:%s:%s@." (Source.string_of_region at) category msg

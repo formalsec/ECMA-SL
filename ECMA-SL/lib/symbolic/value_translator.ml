@@ -218,18 +218,18 @@ let rec translate ?(b = false) (v : value) : Expression.t =
             (List.map ~f:(translate ~b:false) t)
       | _ -> assert false)
   | UnOpt (op, e') ->
-      let ty = Sval_typing.type_of e' in
+      let ty = Value_typing.type_of e' in
       let e' = translate ~b:false e' in
       translate_unop ty op e'
   | BinOpt (op, e1, e2) ->
-      let ty1 = Sval_typing.type_of e1 in
-      let ty2 = Sval_typing.type_of e2 in
+      let ty1 = Value_typing.type_of e1 in
+      let ty2 = Value_typing.type_of e2 in
       let e1' = translate ~b:false e1 and e2' = translate ~b:false e2 in
       translate_binop ty1 ty2 op e1' e2'
   | TriOpt (op, e1, e2, e3) ->
-      let ty1 = Sval_typing.type_of e1 in
-      let ty2 = Sval_typing.type_of e2 in
-      let ty3 = Sval_typing.type_of e3 in
+      let ty1 = Value_typing.type_of e1 in
+      let ty2 = Value_typing.type_of e2 in
+      let ty3 = Value_typing.type_of e3 in
       let e1' = translate ~b:false e1
       and e2' = translate ~b:false e2
       and e3' = translate ~b:false e3 in

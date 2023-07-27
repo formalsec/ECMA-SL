@@ -169,17 +169,15 @@ module Make (P : Eval_functor_intf.P) :
         Error (sprintf "abort: %s" (Value.Pp.pp e'))
     | Stmt.Print e ->
         let* e' = eval_reduce_expr locals e in
-        (*
-        let s =
-          match e' with
-          | Expr.Val (Val.Loc l) ->
-              let heap = Env.get_memory env in
-              let o = Heap.get heap l in
-              Object.to_string (Option.value_exn o) Expr.str
-          | _ -> Expr.str e'
-        in
-          *)
-        (* Printf.printf "print:%s\npc:%s\nheap id:%d\n" s (Encoding.Expression.string_of_pc pc) (Heap.get_id heap); *)
+        (* let s = *)
+        (*   match e' with *)
+        (*   | Expr.Val (Val.Loc l) -> *)
+        (*       let heap = Env.get_memory env in *)
+        (*       let o = Heap.get heap l in *)
+        (*       Object.to_string (Option.value_exn o) Expr.str *)
+        (*   | _ -> Expr.str e' *)
+        (* in *)
+        (* (1* Printf.printf "print:%s\npc:%s\nheap id:%d\n" s (Encoding.Expression.string_of_pc pc) (Heap.get_id heap); *1) *)
         Format.printf "%s@." (Value.Pp.pp e');
         st locals
     | Stmt.Assign (x, e) ->

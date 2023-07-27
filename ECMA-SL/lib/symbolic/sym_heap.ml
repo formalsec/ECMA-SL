@@ -113,18 +113,18 @@ module Object = struct
   let create_not_pct (l : (pct * V.value) list) (key : pct) : encoded_pct list =
     List.fold l ~init:[] ~f:(fun acc (pc, _) ->
         let ne = V.UnOpt (Operators.Not, mk_eq key pc) in
-        let expr = Reducer.reduce ne |> Translator.translate in
+        let expr = Value_reducer.reduce ne |> Value_translator.translate in
         expr :: acc)
 
   let create_object (o : t) (k1 : pct) (k2 : pct) : t * encoded_pct list =
     let o' = clone o in
-    let eq = Reducer.reduce (mk_eq k1 k2) |> Translator.translate in
+    let eq = Value_reducer.reduce (mk_eq k1 k2) |> Value_translator.translate in
     (o', [ eq ])
 
   let is_key_possible ?(b = false) (k1 : V.value) (k2 : V.value)
       (solver : Batch.t) (pc : encoded_pct list) : bool =
     let eq0 = mk_eq k1 k2 in
-    let eq = Reducer.reduce eq0 |> Translator.translate in
+    let eq = Value_reducer.reduce eq0 |> Value_translator.translate in
     let ret = Batch.check solver (eq :: pc) in
 
     if b then (

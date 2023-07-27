@@ -101,7 +101,7 @@ let reduce_unop (op : uopt) (v : value) : value =
   | Typeof, NOpt (ArrExpr, _) -> Val (Type Type.ArrayType)
   | Typeof, Curry (_, _) -> Val (Type Type.CurryType)
   | Typeof, op ->
-      let t = Sval_typing.type_of op in
+      let t = Value_typing.type_of op in
       Val (Type (Option.value_exn t))
   | Sconcat, NOpt (ListExpr, vs) -> reduce_sconcat vs
   | FloatOfString, UnOpt (FloatToString, x) -> x

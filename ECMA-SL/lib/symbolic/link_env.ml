@@ -13,7 +13,7 @@ end
 
 module SMap = Map.Make (String)
 
-module Make (Memory : S_heap.S) = struct
+module Make (Memory : Sym_heap.S) = struct
   type memory = Memory.t
 
   type t = {

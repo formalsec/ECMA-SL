@@ -1,7 +1,7 @@
 module Value = Sym_value.M
 module Store = Sym_value.M.Store
-module Object = S_heap.Object
-module Heap = S_heap.Heap
+module Object = Sym_heap.Object
+module Heap = Sym_heap.Heap
 module Env = Link_env.Make (Heap)
 
 module P = struct
@@ -16,15 +16,16 @@ module P = struct
   end
 
   module Choice = struct
+    open Value
     let assertion _solver _pc c =
-      match c with Value.Val (Val.Bool b) -> b | _v -> assert false
+      match c with Val (Val.Bool b) -> b | _v -> assert false
 
     let assumption c =
-      match c with Value.Val (Val.Bool b) -> Some b | _ -> None
+      match c with Val (Val.Bool b) -> Some b | _ -> None
 
     let branch _solver _pc c =
       match c with
-      | Value.Val (Val.Bool b) -> ((b, None), (not b, None))
+      | Val (Val.Bool b) -> ((b, None), (not b, None))
       | _ -> assert false
   end
 
@@ -91,12 +92,12 @@ module P = struct
   end
 
   module Reducer = struct
-    let reduce = Reducer.reduce
+    let reduce = Value_reducer.reduce
   end
 
   module Translator = struct
-    let translate = Translator.translate
-    let expr_of_value = Translator.expr_of_value
+    let translate = Value_translator.translate
+    let expr_of_value = Value_translator.expr_of_value
   end
 end
 
