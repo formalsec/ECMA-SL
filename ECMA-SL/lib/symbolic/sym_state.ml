@@ -9,11 +9,15 @@ module P = struct
   type store = Store.t
   type memory = Heap.t
   type object_ = Object.t
-  type env = Env.t
 
   module Value = struct
     include Value
   end
+
+  module Extern_func = Extern_func.Make (Value)
+
+  type extern_func = Extern_func.extern_func
+  type env = extern_func Env.t
 
   module Store = struct
     type bind = string

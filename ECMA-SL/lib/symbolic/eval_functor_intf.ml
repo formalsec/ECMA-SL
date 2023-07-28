@@ -6,6 +6,7 @@ module type P = sig
   type store
 
   module Value : Value_intf.T with type value = value and type store = store
+  module Extern_func : Extern_func.T with type value = value
 
   module Choice : sig
     val assertion : Batch.t -> Encoding.Expression.t list -> value -> bool

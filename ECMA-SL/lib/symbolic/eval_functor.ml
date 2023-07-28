@@ -23,6 +23,7 @@ exception Invalid_arg = Invalid_arg.Error
 module Make (P : Eval_functor_intf.P) :
   Eval_functor_intf.S with type env := P.env and type value = P.value = struct
   module Value = P.Value
+  module Extern_func = P.Extern_func
   module Store = P.Store
   module Object = P.Object
   module Heap = P.Heap
@@ -128,9 +129,9 @@ module Make (P : Eval_functor_intf.P) :
     in
     return [ State.Continue state' ]
 
-  let _exec_extern_func state f args ret_var =
+  let exec_extern_func state f args ret_var =
     let open Extern_func in
-    let rec apply : type a. Expr.t Stack.t -> a Extern_func.atype -> a -> Expr.t
+    let rec apply : type a. value Stack.t -> a Extern_func.atype -> a -> value
         =
      fun args ty f ->
       match ty with
@@ -142,8 +143,7 @@ module Make (P : Eval_functor_intf.P) :
     in
     let (Extern_func (Func atype, func)) = f in
     let v = apply (Stack.of_list args) atype func in
-    let* v' = eval_reduce_expr state.State.locals v in
-    let locals = Store.add_exn state.State.locals ret_var v' in
+    let locals = Store.add_exn state.State.locals ret_var v in
     return [ State.Continue State.{ state with locals } ]
 
   let exec_stmt stmt (c : State.exec_state) :
@@ -240,11 +240,10 @@ module Make (P : Eval_functor_intf.P) :
         let* args = list_map ~f:(eval_reduce_expr locals) es in
         let args = args0 @ args in
         exec_func c func args x
-    | Stmt.AssignECall (_x, _f, _es) ->
-        assert false
-        (* let* func = Env.get_extern_func env f in *)
-        (* let* args = list_map ~f:(eval_reduce_expr locals) es in *)
-        (* exec_extern_func c func args x *)
+    | Stmt.AssignECall (x, f, es) ->
+        let* func = Env.get_extern_func env f in
+        let* args = list_map ~f:(eval_reduce_expr locals) es in
+        exec_extern_func c func args x
     | Stmt.AssignNewObj x ->
         let heap = Env.get_memory env in
         let obj = Object.create () in

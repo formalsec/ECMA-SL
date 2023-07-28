@@ -1,14 +1,14 @@
 open Core
 
 module type S = sig
-  type t
+  type 'a t
   type memory
 
-  val clone : t -> t
-  val get_memory : t -> memory
-  val get_func : t -> string -> (Func.t, string) Result.t
-  val get_extern_func : t -> string -> (Extern_func.extern_func, string) Result.t
-  val add_memory : t -> memory -> t
+  val clone : 'a t -> 'a t
+  val get_memory : 'a t -> memory
+  val get_func : 'a t -> string -> (Func.t, string) Result.t
+  val get_extern_func : 'a t -> string -> ('a, string) Result.t
+  val add_memory : 'a t -> memory -> 'a t
 end
 
 module SMap = Map.Make (String)
@@ -16,22 +16,22 @@ module SMap = Map.Make (String)
 module Make (Memory : Sym_heap.S) = struct
   type memory = Memory.t
 
-  type t = {
+  type 'a t = {
     memory : Memory.t;
     functions : Prog.t;
-    extern_funcs : Extern_func.extern_func SMap.t;
+    extern_funcs : 'a SMap.t;
   }
 
-  let clone (env : t) = { env with memory = Memory.clone env.memory }
-  let get_memory (env : t) = env.memory
-  let get_func (env : t) id = Prog.get_func env.functions id
+  let clone (env : 'a t) = { env with memory = Memory.clone env.memory }
+  let get_memory (env : 'a t) = env.memory
+  let get_func (env : 'a t) id = Prog.get_func env.functions id
 
-  let get_extern_func (env : t) id =
+  let get_extern_func (env : 'a t) id =
     Result.of_option
       (SMap.find env.extern_funcs id)
       ~error:(sprintf "unable to find external function '%s'" id)
 
-  let add_memory (env : t) memory = { env with memory }
+  let add_memory (env : 'a t) memory = { env with memory }
 
   module Build = struct
     let empty () =
@@ -41,8 +41,14 @@ module Make (Memory : Sym_heap.S) = struct
         extern_funcs = SMap.empty;
       }
 
-    let add_memory (env : t) memory = { env with memory }
-    let add_functions (env : t) functions = { env with functions }
-    let add_extern_functions (env : t) extern_funcs = { env with extern_funcs }
+    let add_memory (env : 'a t) memory = { env with memory }
+    let add_functions (env : 'a t) functions = { env with functions }
+
+    let add_extern_functions (env : 'a t) extern_funcs =
+      let extern_funcs' =
+        SMap.fold extern_funcs ~init:env.extern_funcs
+          ~f:(fun ~key ~data accum -> SMap.add_exn accum ~key ~data)
+      in
+      { env with extern_funcs = extern_funcs' }
   end
 end

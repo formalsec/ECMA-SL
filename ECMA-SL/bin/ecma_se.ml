@@ -1,20 +1,23 @@
 open Core
+module Value = Sym_value.M
 module SMap = Map.Make (String)
 
 let symbolic_api_funcs =
-  let open Extern_func in
-  let mk_string str = Expr.Symbolic (Type.StrType, str) in
+  let open Sym_state.P.Extern_func in
+  let mk_string (str : Value.value) : Value.value =
+    Value.Symbolic (Type.StrType, str)
+  in
   SMap.of_alist_exn [ ("mk_string", Extern_func (Func (Arg Res), mk_string)) ]
 
 let extern_functions =
-  let open Extern_func in
-  let hello () =
+  let open Sym_state.P.Extern_func in
+  let hello () : Value.value =
     Format.printf "Hello world@.";
-    Expr.Val (Val.Symbol "undefined")
+    Value.Val (Val.Symbol "undefined")
   in
-  let print v =
-    Format.printf "extern print: %s@." (Expr.Pp.str v);
-    Expr.Val (Val.Symbol "undefined")
+  let print (v : Value.value) : Value.value =
+    Format.printf "extern print: %s@." (Value.Pp.pp v);
+    Value.Val (Val.Symbol "undefined")
   in
   SMap.of_alist_exn
     [
