@@ -3,12 +3,40 @@ module Value = Sym_value.M
 module SMap = Map.Make (String)
 
 let symbolic_api_funcs =
+  let open Value in
   let open Sym_state.P.Extern_func in
-  let mk_string (str : Value.value) : Value.value =
-    Value.Symbolic (Type.StrType, str)
+  let str_symbol (x : value) : value = Symbolic (Type.StrType, x) in
+  let int_symbol (x : value) : value = Symbolic (Type.IntType, x) in
+  let num_symbol (x : value) : value = Symbolic (Type.FltType, x) in
+  let is_symbolic (n : value) : value = Val (Val.Bool (Value.is_symbolic n)) in
+  let is_number (n : value) : value =
+    let is_number =
+      match Value_typing.type_of n with
+      | Some Type.IntType | Some Type.FltType -> true
+      | _ -> false
+    in
+    Val (Val.Bool is_number)
   in
-  SMap.of_alist_exn [ ("mk_string", Extern_func (Func (Arg Res), mk_string)) ]
+  let is_sat (_e : value) : value = assert false in
+  let assume (_e : value) : value = assert false in
+  let evaluate (_e : value) : value = assert false in
+  let maximize (_e : value) : value = assert false in
+  let minimize (_e : value) : value = assert false in
+  SMap.of_alist_exn
+    [
+      ("str_symbol", Extern_func (Func (Arg Res), str_symbol));
+      ("int_symbol", Extern_func (Func (Arg Res), int_symbol));
+      ("num_symbol", Extern_func (Func (Arg Res), num_symbol));
+      ("is_symbolic", Extern_func (Func (Arg Res), is_symbolic));
+      ("is_number", Extern_func (Func (Arg Res), is_number));
+      ("is_sat", Extern_func (Func (Arg Res), is_sat));
+      ("assume", Extern_func (Func (Arg Res), assume));
+      ("evaluate", Extern_func (Func (Arg Res), evaluate));
+      ("maximize", Extern_func (Func (Arg Res), maximize));
+      ("minimize", Extern_func (Func (Arg Res), minimize));
+    ]
 
+(* Examples *)
 let extern_functions =
   let open Sym_state.P.Extern_func in
   let hello () : Value.value =

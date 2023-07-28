@@ -99,11 +99,6 @@ module Make (P : Eval_functor_intf.P) :
     let+ e' = Value.eval_expr sto e in
     Reducer.reduce e'
 
-  (* let block b = *)
-  (*   match b.it with *)
-  (*   | Stmt.Block b -> Ok b *)
-  (*   | _ -> Error "Malformed block statement" *)
-
   let pp locals e =
     match eval_reduce_expr locals e with
     | Ok v -> Value.Pp.pp v
@@ -131,8 +126,7 @@ module Make (P : Eval_functor_intf.P) :
 
   let exec_extern_func state f args ret_var =
     let open Extern_func in
-    let rec apply : type a. value Stack.t -> a Extern_func.atype -> a -> value
-        =
+    let rec apply : type a. value Stack.t -> a Extern_func.atype -> a -> value =
      fun args ty f ->
       match ty with
       | UArg ty' -> apply args ty' (f ())
@@ -479,6 +473,7 @@ module Make (P : Eval_functor_intf.P) :
         (*                    { symb_env with path_condition = pc' } *)
         (*                  in *)
         (*                  State.Continue { c with locals; env; symb_env }))) *)
+    (* To deprecate *)
     | Stmt.SymStmt (SymStmt.Assume e) -> (
         let* e' = eval_reduce_expr locals e in
         (* TODO: Do not discharge to solver (saves 1 query per assume) *)
@@ -490,13 +485,14 @@ module Make (P : Eval_functor_intf.P) :
             in
             let symb_env = { symb_env with path_condition = pc' } in
             return [ State.Continue { c with symb_env } ])
-    | Stmt.SymStmt (SymStmt.Evaluate (_x, e)) ->
-        let* e' = eval_reduce_expr locals e in
-        let e' = Translator.translate e' in
-        let _sym_e = List.hd (Encoding.Expression.get_symbols [ e' ]) in
-        assert (
-          Batch.check symb_env.solver (ESet.to_list symb_env.path_condition));
+    | Stmt.SymStmt (SymStmt.Evaluate (_x, _e)) ->
         assert false
+        (* let* e' = eval_reduce_expr locals e in *)
+        (* let e' = Translator.translate e' in *)
+        (* let _sym_e = List.hd (Encoding.Expression.get_symbols [ e' ]) in *)
+        (* assert ( *)
+        (*   Batch.check symb_env.solver (ESet.to_list symb_env.path_condition)); *)
+        (* assert false *)
     | Stmt.SymStmt (SymStmt.Maximize (_x, _e)) ->
         assert false
         (* let* e' = eval_reduce_expr locals e in *)
@@ -519,16 +515,17 @@ module Make (P : Eval_functor_intf.P) :
         (* in *)
         (* st *)
         (* @@ Store.add_exn locals x (Option.value ~default:(Expr.Val Val.Null) v) *)
-    | Stmt.SymStmt (SymStmt.Is_symbolic (_x, _e)) ->
-        assert false
-        (* let* e' = eval_reduce_expr locals e in *)
-        (* st @@ Store.add_exn locals x (Expr.Bool.const (Expr.is_symbolic e')) *)
+       (* st @@ Store.add_exn locals x (Expr.Bool.const (Expr.is_symbolic e')) *)
     | Stmt.SymStmt (SymStmt.Is_sat (_x, _e)) ->
         assert false
         (* let* e' = eval_reduce_expr locals e in *)
         (* let pc' = ESet.add symb_env.path_condition (Translator.translate e') in *)
         (* let sat = Batch.check symb_env.solver (ESet.to_list pc') in *)
         (* st @@ Store.add_exn locals x (Expr.Bool.const sat) *)
+    (* Can remove *)
+    | Stmt.SymStmt (SymStmt.Is_symbolic (_x, _e)) ->
+        assert false
+        (* let* e' = eval_reduce_expr locals e in *)
     | Stmt.SymStmt (SymStmt.Is_number (_x, _e)) -> assert false
   (* let* e' = eval_reduce_expr locals e in *)
   (* let is_num = *)

@@ -1,5 +1,5 @@
 function main () {
-  x := se_mk_symbolic(__$Int, "x");
+  x := extern int_symbol("x");
   se_assume((x > 1) && (x < 10));
   while (x < 10) {
     x := x + 1
