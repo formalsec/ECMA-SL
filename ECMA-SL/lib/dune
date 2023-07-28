@@ -28,6 +28,7 @@
   extern_func
   link_env
   sym_heap
+  sym_heap2
   sym_object_intf
   sym_state
   sym_value
@@ -94,7 +95,7 @@
   t_Constraint
   t_Pattern)
  (preprocess
-  (staged_pps ppx_import ppx_deriving.std))
+  (staged_pps ppx_import ppx_deriving.std ppx_jane))
  (libraries encoding batteries extlib menhirLib yojson z3 core))
 
 (subdir
