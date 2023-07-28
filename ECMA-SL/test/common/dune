@@ -1,6 +1,6 @@
 (library
  (name ecmasl_common_tests)
- (modules test_parsing_number)
+ (modules )
  (inline_tests)
  (preprocess
   (pps ppx_inline_test))
