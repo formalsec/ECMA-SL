@@ -103,23 +103,24 @@ module Object = struct
 end
 
 module Heap = struct
+  type object_ = Object.t
+  type t = (Loc.t, object_) Hashtbl.t
   type value = V.value
-  type t = (Loc.t, Object.t) Hashtbl.t
 
   let create () : t = Hashtbl.create (module String)
   let clone (h : t) : t = Hashtbl.copy h
 
-  let insert (h : t) (o : Object.t) : value =
+  let insert (h : t) (o : object_) : value =
     let loc = Loc.newloc () in
     Hashtbl.set h ~key:loc ~data:o;
     V.Val (Val.Loc loc)
 
   let remove (h : t) (l : Loc.t) : unit = Hashtbl.remove h l
 
-  let set (h : t) (key : Loc.t) (data : Object.t) : unit =
+  let set (h : t) (key : Loc.t) (data : object_) : unit =
     Hashtbl.set h ~key ~data
 
-  let get (h : t) (key : Loc.t) : Object.t option = Hashtbl.find h key
+  let get (h : t) (key : Loc.t) : object_ option = Hashtbl.find h key
 
   let has_field (h : t) (loc : Loc.t) (field : value) : value =
     Option.value_map (get h loc) ~default:(V.Bool.const false) ~f:(fun o ->
@@ -147,6 +148,26 @@ module Heap = struct
     in
     sprintf "{ %s }" (String.concat ~sep:", " map)
 
+  let rec unfold_ite ~(accum : value) (e : value) : (value option * string) list
+      =
+    let open V in
+    let open Operators in
+    match e with
+    | Val (Val.Loc x) | Val (Val.Symbol x) -> [ (Some accum, x) ]
+    | TriOpt (ITE, c, Val (Val.Loc l), e) ->
+        let accum' = BinOpt (Log_And, accum, UnOpt (Not, c)) in
+        let tl = unfold_ite ~accum:accum' e in
+        (Some (BinOpt (Log_And, accum, c)), l) :: tl
+    | _ -> assert false
+
+  let loc (e : value) : ((value option * string) list, string) Result.t =
+    let open V in
+    match e with
+    | Val (Val.Loc l) -> Ok [ (None, l) ]
+    | TriOpt (Operators.ITE, c, Val (Val.Loc l), v) ->
+        Ok ((Some c, l) :: unfold_ite ~accum:(UnOpt (Operators.Not, c)) v)
+    | _ -> Error (sprintf "Value '%s' is not a loc expression" (V.Pp.pp e))
+
   (* let to_string_with_glob (h : 'a t) (pp : 'a -> string) : string = *)
   (*   let glob = *)
   (*     Hashtbl.fold h.map ~init:None ~f:(fun ~key:_ ~data:obj acc -> *)
@@ -163,6 +184,6 @@ module Heap = struct
   (*   | None -> *)
   (*       raise *)
   (*         (Failure *)
-  (*            "Couldn't find the Object that contains only one property, named \ *)
-  (*             \"global\".") *)
+  (* "Couldn't find the Object that contains only one property, named \ *)
+     (*             \"global\".") *)
 end

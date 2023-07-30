@@ -13,11 +13,11 @@ module type P = sig
     val assumption : value -> bool option
 
     val branch :
-      Batch.t ->
-      Encoding.Expression.t list ->
-      value ->
-      (bool * Encoding.Expression.t option)
-      * (bool * Encoding.Expression.t option)
+         Batch.t
+      -> Encoding.Expression.t list
+      -> value
+      -> (bool * Encoding.Expression.t option)
+         * (bool * Encoding.Expression.t option)
   end
 
   module Store : sig
@@ -33,73 +33,34 @@ module type P = sig
   module Object : sig
     type t = object_
     type nonrec value = value
-    type encoded_pct = Encoding.Expression.t
 
     val create : unit -> t
-    val clone : t -> t
-    val to_string : t -> (value -> string) -> string
-
-    val set :
-      t ->
-      value ->
-      value ->
-      Batch.t ->
-      encoded_pct list ->
-      (t * encoded_pct list) list
-
-    val get :
-      t ->
-      value ->
-      Batch.t ->
-      encoded_pct list ->
-      (t * encoded_pct list * value option) list
-
-    val delete :
-      t -> value -> Batch.t -> encoded_pct list -> (t * encoded_pct list) list
-
     val to_list : t -> (value * value) list
-    val has_field : t -> value -> value
     val get_fields : t -> value list
+    val has_field : t -> value -> value
+    val set : t -> key:value -> data:value -> t
+    val get : t -> value -> value option
+    val delete : t -> value -> t
+    val to_string : t -> string
   end
 
   module Heap : sig
-    type encoded_pct = Encoding.Expression.t
-    type obj = object_
     type t = memory
     type nonrec value = value
+    type nonrec object_ = object_
 
     val create : unit -> t
     val clone : t -> t
-    val insert : t -> obj -> value
+    val insert : t -> object_ -> value
     val remove : t -> Loc.t -> unit
-    val set : t -> Loc.t -> obj -> unit
-    val get : t -> Loc.t -> obj option
+    val set : t -> Loc.t -> object_ -> unit
+    val get : t -> Loc.t -> object_ option
     val has_field : t -> Loc.t -> value -> value
-
-    val get_field :
-      t ->
-      Loc.t ->
-      value ->
-      Batch.t ->
-      encoded_pct list ->
-      (t * encoded_pct list * value option) list
-
-    val set_field :
-      t ->
-      Loc.t ->
-      value ->
-      value ->
-      Batch.t ->
-      encoded_pct list ->
-      (t * encoded_pct list) list
-
-    val delete_field :
-      t ->
-      Loc.t ->
-      value ->
-      Batch.t ->
-      encoded_pct list ->
-      (t * encoded_pct list) list
+    val set_field : t -> Loc.t -> field:value -> data:value -> unit
+    val get_field : t -> Loc.t -> value -> value option
+    val delete_field : t -> Loc.t -> value -> unit
+    val to_string : t -> string
+    val loc : value -> ((value option * string) list, string) Result.t
   end
 
   module Env : sig

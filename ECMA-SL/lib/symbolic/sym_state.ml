@@ -1,7 +1,7 @@
 module Value = Sym_value.M
 module Store = Sym_value.M.Store
-module Object = Sym_heap.Object
-module Heap = Sym_heap.Heap
+module Object = Sym_heap2.Object
+module Heap = Sym_heap2.Heap
 module Env = Link_env.Make (Heap)
 
 module P = struct
@@ -32,10 +32,8 @@ module P = struct
   module Object = struct
     type t = object_
     type nonrec value = value
-    type encoded_pct = Encoding.Expression.t
 
     let create = Object.create
-    let clone = Object.clone
     let to_string = Object.to_string
     let set = Object.set
     let get = Object.get
@@ -47,9 +45,8 @@ module P = struct
 
   module Heap = struct
     type t = memory
-    type obj = object_
+    type nonrec object_ = object_
     type nonrec value = value
-    type encoded_pct = Encoding.Expression.t
 
     let create = Heap.create
     let clone = Heap.clone
@@ -61,6 +58,8 @@ module P = struct
     let get_field = Heap.get_field
     let set_field = Heap.set_field
     let delete_field = Heap.delete_field
+    let to_string = Heap.to_string
+    let loc = Heap.loc
   end
 
   module Env = struct

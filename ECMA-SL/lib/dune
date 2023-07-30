@@ -29,6 +29,7 @@
   link_env
   sym_heap
   sym_heap2
+  sym_heap_intf
   sym_object_intf
   sym_state
   sym_value
