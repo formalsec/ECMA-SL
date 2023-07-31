@@ -39,7 +39,7 @@ module type P = sig
     val get_fields : t -> value list
     val has_field : t -> value -> value
     val set : t -> key:value -> data:value -> t
-    val get : t -> value -> value option
+    val get : t -> value -> value
     val delete : t -> value -> t
     val to_string : t -> string
   end

@@ -22,11 +22,9 @@ module M = struct
     | Curry of value * value list
     | Symbolic of Type.t * value
 
-  let get_func_name (v : value) =
-    match v with
-    | Val (Val.Str x) -> Ok (x, [])
-    | Curry (Val (Val.Str x), vs) -> Ok (x, vs)
-    | _ -> Error "Value is not a function identifier"
+  let mk_symbol (x : string) : value = Val (Val.Symbol x)
+  let mk_list (vs : value list) : value = NOpt (Operators.ListExpr, vs)
+  let mk_tuple (fst, snd) : value = NOpt (Operators.TupleExpr, [ fst; snd ])
 
   let rec is_symbolic (v : value) : bool =
     match v with
@@ -53,6 +51,12 @@ module M = struct
     | Curry (x1, es1), Curry (x2, es2) ->
       equal x1 x2 && List.equal equal es1 es2
     | _ -> false
+
+  let get_func_name (v : value) =
+    match v with
+    | Val (Val.Str x) -> Ok (x, [])
+    | Curry (Val (Val.Str x), vs) -> Ok (x, vs)
+    | _ -> Error "Value is not a function identifier"
 
   module Bool = struct
     let const b = Val (Val.Bool b) [@@inline]

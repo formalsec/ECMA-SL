@@ -16,7 +16,11 @@ module Object = struct
   module VMap = Map.Make (Value_key)
 
   type value = V.value
-  type t = { fields : value VMap.t; symbols : value VMap.t }
+
+  type t =
+    { fields : value VMap.t
+    ; symbols : value VMap.t
+    }
 
   let create () = { fields = VMap.empty; symbols = VMap.empty }
   let is_empty (o : t) : bool = VMap.(is_empty o.fields && is_empty o.symbols)
@@ -39,10 +43,10 @@ module Object = struct
       let v0 =
         VMap.fold o.symbols ~init:(V.Bool.const false)
           ~f:(fun ~key ~data:_ accum ->
-            ite (eq k key) (V.Bool.const true) accum)
+          ite (eq k key) (V.Bool.const true) accum )
       in
       VMap.fold o.fields ~init:v0 ~f:(fun ~key ~data:_ accum ->
-          ite (eq k key) (V.Bool.const true) accum)
+        ite (eq k key) (V.Bool.const true) accum )
 
   let map_ite (m : value VMap.t) (k : value) (d : value) =
     VMap.mapi m ~f:(fun ~key ~data -> ite (eq k key) d data)
@@ -56,33 +60,32 @@ module Object = struct
         match get_fields o with
         | [] -> VMap.set symbols0 ~key ~data
         | h :: t ->
-            let old_d = Option.value (VMap.find symbols0 key) ~default:undef in
-            let cond =
-              List.fold t ~init:(ne key h) ~f:(fun accum a ->
-                  and_ (ne key a) accum)
-            in
-            VMap.set symbols0 ~key ~data:(ite cond data old_d)
+          let old_d = Option.value (VMap.find symbols0 key) ~default:undef in
+          let cond =
+            List.fold t ~init:(ne key h) ~f:(fun accum a ->
+              and_ (ne key a) accum )
+          in
+          VMap.set symbols0 ~key ~data:(ite cond data old_d)
       in
       { fields; symbols }
 
   let fold_ite ?(init = undef) (m : value VMap.t) (key : value) =
-    if VMap.is_empty m then None
+    if VMap.is_empty m then init
     else
-      let v =
-        VMap.fold m ~init ~f:(fun ~key:key0 ~data accum ->
-            ite (eq key key0) data accum)
-      in
-      Some v
+      VMap.fold m ~init ~f:(fun ~key:key0 ~data accum ->
+        ite (eq key key0) data accum )
 
-  let get (o : t) (key : value) : value option =
+  (* TODO: Make this return option explicitly *)
+  (* FIXME: @174 *)
+  let get (o : t) (key : value) : value =
     if is_val key then
-      if VMap.mem o.fields key then VMap.find o.fields key
+      if VMap.mem o.fields key then VMap.find_exn o.fields key
       else fold_ite o.symbols key
     else
       let v0 = Option.value (VMap.find o.symbols key) ~default:undef in
       let v1 =
         VMap.fold o.symbols ~init:v0 ~f:(fun ~key:key0 ~data accum ->
-            if V.equal key key0 then accum else ite (eq key key0) data accum)
+          if V.equal key key0 then accum else ite (eq key key0) data accum )
       in
       fold_ite ~init:v1 o.fields key
 
@@ -93,10 +96,12 @@ module Object = struct
   let to_string (o : t) : string =
     let fold_str m =
       VMap.fold m ~init:"" ~f:(fun ~key ~data accum ->
-          let k = V.Pp.pp key and d = V.Pp.pp data in
-          Format.sprintf "%s \"%s\": %s," accum k d)
+        let k = V.Pp.pp key
+        and d = V.Pp.pp data in
+        Format.sprintf "%s \"%s\": %s," accum k d )
     in
-    let fields = fold_str o.fields and symbols = fold_str o.symbols in
+    let fields = fold_str o.fields
+    and symbols = fold_str o.symbols in
     sprintf "{%s%s }" fields symbols
 
   let to_json : t -> string = to_string
@@ -124,27 +129,27 @@ module Heap = struct
 
   let has_field (h : t) (loc : Loc.t) (field : value) : value =
     Option.value_map (get h loc) ~default:(V.Bool.const false) ~f:(fun o ->
-        Object.has_field o field)
+      Object.has_field o field )
 
   let set_field (h : t) (loc : Loc.t) ~(field : value) ~(data : value) : unit =
     Option.iter (get h loc) ~f:(fun o ->
-        let o' = Object.set o ~key:field ~data in
-        set h loc o')
+      let o' = Object.set o ~key:field ~data in
+      set h loc o' )
 
   let get_field (h : t) (loc : Loc.t) (field : value) : value option =
     let* o = get h loc in
-    Object.get o field
+    Some (Object.get o field)
 
   let delete_field (h : t) (loc : Loc.t) (f : value) =
     let obj = get h loc in
     Option.iter obj ~f:(fun o ->
-        let o' = Object.delete o f in
-        set h loc o')
+      let o' = Object.delete o f in
+      set h loc o' )
 
   let to_string (h : t) : string =
     let map =
       Hashtbl.fold h ~init:[] ~f:(fun ~key ~data accum ->
-          sprintf "%s: %s" (Loc.str key) (Object.to_string data) :: accum)
+        sprintf "%s: %s" (Loc.str key) (Object.to_string data) :: accum )
     in
     sprintf "{ %s }" (String.concat ~sep:", " map)
 
@@ -155,9 +160,9 @@ module Heap = struct
     match e with
     | Val (Val.Loc x) | Val (Val.Symbol x) -> [ (Some accum, x) ]
     | TriOpt (ITE, c, Val (Val.Loc l), e) ->
-        let accum' = BinOpt (Log_And, accum, UnOpt (Not, c)) in
-        let tl = unfold_ite ~accum:accum' e in
-        (Some (BinOpt (Log_And, accum, c)), l) :: tl
+      let accum' = BinOpt (Log_And, accum, UnOpt (Not, c)) in
+      let tl = unfold_ite ~accum:accum' e in
+      (Some (BinOpt (Log_And, accum, c)), l) :: tl
     | _ -> assert false
 
   let loc (e : value) : ((value option * string) list, string) Result.t =
@@ -165,7 +170,7 @@ module Heap = struct
     match e with
     | Val (Val.Loc l) -> Ok [ (None, l) ]
     | TriOpt (Operators.ITE, c, Val (Val.Loc l), v) ->
-        Ok ((Some c, l) :: unfold_ite ~accum:(UnOpt (Operators.Not, c)) v)
+      Ok ((Some c, l) :: unfold_ite ~accum:(UnOpt (Operators.Not, c)) v)
     | _ -> Error (sprintf "Value '%s' is not a loc expression" (V.Pp.pp e))
 
   (* let to_string_with_glob (h : 'a t) (pp : 'a -> string) : string = *)

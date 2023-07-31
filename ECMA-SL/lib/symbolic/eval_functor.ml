@@ -240,217 +240,91 @@ module Make (P : Eval_functor_intf.P) :
       let* field = eval_reduce_expr locals e_field in
       let* loc = eval_reduce_expr locals e_loc in
       let* locs = Heap.loc loc in
-      return
-        (List.map locs ~f:(fun (cond, loc) ->
-           let env = if List.length locs > 1 then Env.clone env else env in
-           let heap = Env.get_memory env in
-           let cond' = Option.map cond ~f:Translator.translate in
-           let pc' = Option.fold cond' ~init:symb_env.pc ~f:ESet.add in
-           let symb_env = { symb_env with pc = pc' } in
-           let v = Heap.has_field heap loc field in
-           let locals = Store.add_exn locals x v in
-           State.Continue { c with locals; symb_env } ) )
-    | Stmt.AssignObjToList (_x, e) ->
+      let len_locs = List.length locs in
+      list_map locs ~f:(fun (cond, loc) ->
+        let env = if len_locs > 1 then Env.clone env else env in
+        let heap = Env.get_memory env in
+        let cond' = Option.map cond ~f:Translator.translate in
+        let pc' = Option.fold cond' ~init:symb_env.pc ~f:ESet.add in
+        let symb_env = { symb_env with pc = pc' } in
+        let v = Heap.has_field heap loc field in
+        let locals = Store.add_exn locals x v in
+        Ok (State.Continue { c with locals; env; symb_env }) )
+    | Stmt.AssignObjToList (x, e) ->
       let* loc = eval_reduce_expr locals e in
-      let* _locs = Heap.loc loc in
-      assert false
-      (* let f env l pc' = *)
-      (*   let v = *)
-      (*     let h = Env.get_memory env in *)
-      (*     match Heap.get h l with *)
-      (*     | None -> Crash.error stmt.at ("'" ^ l ^ "' not found in heap") *)
-      (*     | Some obj -> *)
-      (*         Expr.NOpt *)
-      (*           ( Operators.ListExpr, *)
-      (*             List.map (Object.to_list obj) ~f:(fun (f, v) -> *)
-      (*                 Expr.NOpt (Operators.TupleExpr, [ f; v ])) ) *)
-      (*   in *)
-      (*   let locals = Store.add_exn locals x v in *)
-      (*   let symb_env = { symb_env with path_condition = pc' } in *)
-      (*   State.Continue { c with locals; env; symb_env } *)
-      (* in *)
-      (* let* e' = eval_reduce_expr locals e in *)
-      (* let* locs = Expr.loc e' in *)
-      (* return *)
-      (*   (List.fold locs ~init:[] ~f:(fun accum (cond, l) -> *)
-      (*        match cond with *)
-      (*        | None -> *)
-      (*            let env' = *)
-      (*              if List.length locs > 1 then Env.clone env else env *)
-      (*            in *)
-      (*            f env' l symb_env.path_condition :: accum *)
-      (*        | Some cond' -> *)
-      (*            let pc' = *)
-      (*              ESet.add symb_env.path_condition *)
-      (*                (Translator.translate cond') *)
-      (*            in *)
-      (*            if not (Batch.check symb_env.solver (ESet.to_list pc')) then *)
-      (*              accum *)
-      (*            else f (Env.clone env) l pc' :: accum)) *)
-    | Stmt.AssignObjFields (_x, _e) ->
-      assert false
-      (* let f env l pc' = *)
-      (*   let v = *)
-      (*     let h = Env.get_memory env in *)
-      (*     match Heap.get h l with *)
-      (*     | None -> Crash.error stmt.at ("'" ^ l ^ "' not found in heap") *)
-      (*     | Some obj -> Expr.NOpt (Operators.ListExpr, Object.get_fields obj) *)
-      (*   in *)
-      (*   let locals = Store.add_exn locals x v in *)
-      (*   let symb_env = { symb_env with path_condition = pc' } in *)
-      (*   State.Continue { c with locals; env; symb_env } *)
-      (* in *)
-      (* let* e' = eval_reduce_expr locals e in *)
-      (* let* locs = Expr.loc e' in *)
-      (* return *)
-      (*   (List.fold locs ~init:[] ~f:(fun accum (cond, l) -> *)
-      (*        match cond with *)
-      (*        | None -> *)
-      (*            let env' = *)
-      (*              if List.length locs > 1 then Env.clone env else env *)
-      (*            in *)
-      (*            f env' l symb_env.path_condition :: accum *)
-      (*        | Some cond' -> *)
-      (*            let pc' = *)
-      (*              ESet.add symb_env.path_condition *)
-      (*                (Translator.translate cond') *)
-      (*            in *)
-      (*            if not (Batch.check symb_env.solver (ESet.to_list pc')) then *)
-      (*              accum *)
-      (*            else f (Env.clone env) l pc' :: accum)) *)
-    | Stmt.FieldAssign (_e_loc, _e_field, _e_v) ->
-      assert false
-      (* let* e_loc' = eval_reduce_expr locals e_loc in *)
-      (* let* locs = Expr.loc e_loc' in *)
-      (* let* reduced_field = eval_reduce_expr locals e_field in *)
-      (* let* v = eval_reduce_expr locals e_v in *)
-      (* return *)
-      (*   (List.fold locs ~init:[] ~f:(fun accum (cond, l) -> *)
-      (*        match cond with *)
-      (*        | None -> *)
-      (*            let heap = Env.get_memory env in *)
-      (*            let heap' = *)
-      (*              if List.length locs > 1 then Heap.clone heap else heap *)
-      (*            in *)
-      (*            let pc = symb_env.path_condition in *)
-      (*            let objects = *)
-      (*              Heap.set_field heap' l reduced_field v symb_env.solver *)
-      (*                (ESet.to_list pc) *)
-      (*            in *)
-      (*            List.map objects ~f:(fun (new_heap, new_pc) -> *)
-      (*                let pc' = List.fold new_pc ~init:pc ~f:ESet.add in *)
-      (*                let env = Env.add_memory env new_heap in *)
-      (*                let symb_env = { symb_env with path_condition = pc' } in *)
-      (*                State.Continue { c with env; symb_env }) *)
-      (*        | Some cond' -> *)
-      (*            let pc = symb_env.path_condition in *)
-      (*            let pc' = ESet.add pc (Translator.translate cond') in *)
-      (*            if not (Batch.check symb_env.solver (ESet.to_list pc')) then *)
-      (*              accum *)
-      (*            else *)
-      (*              let heap = Env.get_memory env in *)
-      (*              let objects = *)
-      (*                Heap.set_field heap l reduced_field v symb_env.solver *)
-      (*                  (ESet.to_list pc) *)
-      (*              in *)
-      (*              List.map objects ~f:(fun (new_heap, new_pc) -> *)
-      (*                  let pc' = List.fold new_pc ~init:pc ~f:ESet.add in *)
-      (*                  let env = Env.add_memory env new_heap in *)
-      (*                  let symb_env = *)
-      (*                    { symb_env with path_condition = pc' } *)
-      (*                  in *)
-      (*                  State.Continue { c with env; symb_env }))) *)
-    | Stmt.FieldDelete (_e_loc, _e_field) ->
-      assert false
-      (* let* e_loc' = eval_reduce_expr locals e_loc in *)
-      (* let* locs = Expr.loc e_loc' in *)
-      (* let* reduced_field = eval_reduce_expr locals e_field in *)
-      (* return *)
-      (*   (List.fold locs ~init:[] ~f:(fun accum (cond, l) -> *)
-      (*        match cond with *)
-      (*        | None -> *)
-      (*            let heap = Env.get_memory env in *)
-      (*            let heap' = *)
-      (*              if List.length locs > 1 then Heap.clone heap else heap *)
-      (*            in *)
-      (*            let pc = symb_env.path_condition in *)
-      (*            let objects = *)
-      (*              Heap.delete_field heap' l reduced_field symb_env.solver *)
-      (*                (ESet.to_list pc) *)
-      (*            in *)
-      (*            List.map objects ~f:(fun (new_heap, new_pc) -> *)
-      (*                let pc' = List.fold new_pc ~init:pc ~f:ESet.add in *)
-      (*                let env = Env.add_memory env new_heap in *)
-      (*                let symb_env = { symb_env with path_condition = pc' } in *)
-      (*                State.Continue { c with env; symb_env }) *)
-      (*        | Some cond' -> *)
-      (*            let pc = symb_env.path_condition in *)
-      (*            let pc' = ESet.add pc (Translator.translate cond') in *)
-      (*            if not (Batch.check symb_env.solver (ESet.to_list pc')) then *)
-      (*              accum *)
-      (*            else *)
-      (*              let heap = Env.get_memory env in *)
-      (*              let objects = *)
-      (*                Heap.delete_field heap l reduced_field symb_env.solver *)
-      (*                  (ESet.to_list pc) *)
-      (*              in *)
-      (*              List.map objects ~f:(fun (new_heap, new_pc) -> *)
-      (*                  let pc' = List.fold new_pc ~init:pc ~f:ESet.add in *)
-      (*                  let env = Env.add_memory env new_heap in *)
-      (*                  let symb_env = *)
-      (*                    { symb_env with path_condition = pc' } *)
-      (*                  in *)
-      (*                  State.Continue { c with env; symb_env }))) *)
-    | Stmt.FieldLookup (_x, _e_loc, _e_field) -> assert false
-    (* let* e_loc' = eval_reduce_expr locals e_loc in *)
-    (* let* locs = Expr.loc e_loc' in *)
-    (* let* reduced_field = eval_reduce_expr locals e_field in *)
-    (* return *)
-    (*   (List.fold locs ~init:[] ~f:(fun accum (cond, l) -> *)
-    (*        match cond with *)
-    (*        | None -> *)
-    (*            let heap = Env.get_memory env in *)
-    (*            let heap' = *)
-    (*              if List.length locs > 1 then Heap.clone heap else heap *)
-    (*            in *)
-    (*            let pc = symb_env.path_condition in *)
-    (*            let objects = *)
-    (*              Heap.get_field heap' l reduced_field symb_env.solver *)
-    (*                (ESet.to_list pc) *)
-    (*            in *)
-    (*            List.map objects ~f:(fun (new_heap, new_pc, v) -> *)
-    (*                let v' = *)
-    (*                  Option.value v *)
-    (*                    ~default:(Expr.Val (Val.Symbol "undefined")) *)
-    (*                in *)
-    (*                let pc' = List.fold new_pc ~init:pc ~f:ESet.add in *)
-    (*                let locals = Store.add_exn locals x v' in *)
-    (*                let env = Env.add_memory env new_heap in *)
-    (*                let symb_env = { symb_env with path_condition = pc' } in *)
-    (*                State.Continue { c with locals; env; symb_env }) *)
-    (*        | Some cond' -> *)
-    (*            let pc = symb_env.path_condition in *)
-    (*            let pc' = ESet.add pc (Translator.translate cond') in *)
-    (*            if not (Batch.check symb_env.solver (ESet.to_list pc')) then *)
-    (*              accum *)
-    (*            else *)
-    (*              let heap = Env.get_memory env in *)
-    (*              let objects = *)
-    (*                Heap.get_field heap l reduced_field symb_env.solver *)
-    (*                  (ESet.to_list pc) *)
-    (*              in *)
-    (*              List.map objects ~f:(fun (new_heap, new_pc, v) -> *)
-    (*                  let v' = *)
-    (*                    Option.value v *)
-    (*                      ~default:(Expr.Val (Val.Symbol "undefined")) *)
-    (*                  in *)
-    (*                  let pc' = List.fold new_pc ~init:pc ~f:ESet.add in *)
-    (*                  let locals = Store.add_exn locals x v' in *)
-    (*                  let env = Env.add_memory env new_heap in *)
-    (*                  let symb_env = *)
-    (*                    { symb_env with path_condition = pc' } *)
-    (*                  in *)
-    (*                  State.Continue { c with locals; env; symb_env }))) *)
+      let* locs = Heap.loc loc in
+      let len_locs = List.length locs in
+      list_map locs ~f:(fun (cond, loc) ->
+        let env = if len_locs > 1 then Env.clone env else env in
+        let heap = Env.get_memory env in
+        match Heap.get heap loc with
+        | None -> Error (sprintf "'%s' not found in heap" loc)
+        | Some o ->
+          let cond' = Option.map cond ~f:Translator.translate in
+          let pc' = Option.fold cond' ~init:symb_env.pc ~f:ESet.add in
+          let symb_env = { symb_env with pc = pc' } in
+          let vs = Object.to_list o in
+          let v = Value.mk_list (List.map vs ~f:Value.mk_tuple) in
+          let locals = Store.add_exn locals x v in
+          Ok (State.Continue { c with locals; env; symb_env }) )
+    | Stmt.AssignObjFields (x, e) ->
+      let* loc = eval_reduce_expr locals e in
+      let* locs = Heap.loc loc in
+      let len_locs = List.length locs in
+      list_map locs ~f:(fun (cond, loc) ->
+        let env = if len_locs > 1 then Env.clone env else env in
+        let heap = Env.get_memory env in
+        match Heap.get heap loc with
+        | None -> Error (sprintf "'%s' not found in heap" loc)
+        | Some o ->
+          let cond' = Option.map cond ~f:Translator.translate in
+          let pc' = Option.fold cond' ~init:symb_env.pc ~f:ESet.add in
+          let symb_env = { symb_env with pc = pc' } in
+          let v = Value.mk_list @@ Object.get_fields o in
+          let locals = Store.add_exn locals x v in
+          Ok (State.Continue { c with locals; env; symb_env }) )
+    | Stmt.FieldAssign (e_loc, e_field, e_v) ->
+      let* loc = eval_reduce_expr locals e_loc in
+      let* field = eval_reduce_expr locals e_field in
+      let* v = eval_reduce_expr locals e_v in
+      let* locs = Heap.loc loc in
+      let len_locs = List.length locs in
+      list_map locs ~f:(fun (cond, loc) ->
+        let env = if len_locs > 1 then Env.clone env else env in
+        let heap = Env.get_memory env in
+        let cond' = Option.map cond ~f:Translator.translate in
+        let pc' = Option.fold cond' ~init:symb_env.pc ~f:ESet.add in
+        let symb_env = { symb_env with pc = pc' } in
+        Heap.set_field heap loc ~field ~data:v;
+        Ok (State.Continue { c with env; symb_env }) )
+    | Stmt.FieldDelete (e_loc, e_field) ->
+      let* loc = eval_reduce_expr locals e_loc in
+      let* field = eval_reduce_expr locals e_field in
+      let* locs = Heap.loc loc in
+      let len_locs = List.length locs in
+      list_map locs ~f:(fun (cond, loc) ->
+        let env = if len_locs > 1 then Env.clone env else env in
+        let heap = Env.get_memory env in
+        let cond' = Option.map cond ~f:Translator.translate in
+        let pc' = Option.fold cond' ~init:symb_env.pc ~f:ESet.add in
+        let symb_env = { symb_env with pc = pc' } in
+        Heap.delete_field heap loc field;
+        Ok (State.Continue { c with env; symb_env }) )
+    | Stmt.FieldLookup (x, e_loc, e_field) ->
+      let* loc = eval_reduce_expr locals e_loc in
+      let* field = eval_reduce_expr locals e_field in
+      let* locs = Heap.loc loc in
+      let len_locs = List.length locs in
+      list_map locs ~f:(fun (cond, loc) ->
+        let env = if len_locs > 1 then Env.clone env else env in
+        let heap = Env.get_memory env in
+        let cond' = Option.map cond ~f:Translator.translate in
+        let pc' = Option.fold cond' ~init:symb_env.pc ~f:ESet.add in
+        let symb_env = { symb_env with pc = pc' } in
+        let v_opt = Heap.get_field heap loc field in
+        let v = Option.value v_opt ~default:(Value.mk_symbol "undefined") in
+        let locals = Store.add_exn locals x v in
+        Ok (State.Continue { c with locals; env; symb_env }) )
     (* To deprecate *)
     | Stmt.SymStmt (SymStmt.Assume e) -> (
       let* e' = eval_reduce_expr locals e in
