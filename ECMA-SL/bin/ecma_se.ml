@@ -7,7 +7,8 @@ let symbolic_api_funcs =
   let open Sym_state.P.Extern_func in
   let str_symbol (x : value) : value = Symbolic (Type.StrType, x) in
   let int_symbol (x : value) : value = Symbolic (Type.IntType, x) in
-  let num_symbol (x : value) : value = Symbolic (Type.FltType, x) in
+  let flt_symbol (x : value) : value = Symbolic (Type.FltType, x) in
+  let bool_symbol (x : value) : value = Symbolic (Type.BoolType, x) in
   let is_symbolic (n : value) : value = Val (Val.Bool (Value.is_symbolic n)) in
   let is_number (n : value) : value =
     let is_number =
@@ -26,7 +27,8 @@ let symbolic_api_funcs =
     [
       ("str_symbol", Extern_func (Func (Arg Res), str_symbol));
       ("int_symbol", Extern_func (Func (Arg Res), int_symbol));
-      ("num_symbol", Extern_func (Func (Arg Res), num_symbol));
+      ("flt_symbol", Extern_func (Func (Arg Res), flt_symbol));
+      ("bool_symbol", Extern_func (Func (Arg Res), bool_symbol));
       ("is_symbolic", Extern_func (Func (Arg Res), is_symbolic));
       ("is_number", Extern_func (Func (Arg Res), is_number));
       ("is_sat", Extern_func (Func (Arg Res), is_sat));

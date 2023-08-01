@@ -17,8 +17,8 @@ function IsArrayIndex(P) {
     return false
   };
 
-  if (se_is_symbolic(P)) {
-    return se_is_number(P)
+  if (extern is_symbolic(P)) {
+    return extern is_number(P)
   };
 
   p_uint := ToUint32(P);

@@ -39,15 +39,15 @@ function initESLSymbolicObject(globalObject, objectPrototype, strict) {
 };
 
 function __apiSymbolicNumber(globalObject, this, NewTarget, strict, params) {
-  return se_mk_symbolic(__$Flt, l_nth(params, 0))
+  return extern flt_symbol(l_nth(params, 0))
 };
 
 function __apiSymbolicBoolean(globalObject, this, NewTarget, strict, params) {
-  return se_mk_symbolic(__$Bool, l_nth(params, 0))
+  return extern bool_symbol(l_nth(params, 0))
 };
 
 function __apiSymbolicString(globalObject, this, NewTarget, strict, params) {
-  return se_mk_symbolic(__$Str, l_nth(params, 0))
+  return extern str_symbol(l_nth(params, 0))
 };
 
 function __apiSymbolicAssume(globalObject, this, NewTarget, strict, params) {
@@ -62,12 +62,12 @@ function __apiSymbolicAssert(globalObject, this, NewTarget, strict, params) {
 };
 
 function __apiSymbolicIsSymbolic(globalObject, this, NewTarget, strict, params) {
-  return se_is_symbolic(l_nth(params, 0))
+  return extern is_symbolic(l_nth(params, 0))
 };
 
 function __apiSymbolicEvalWrapper(globalObject, this, NewTarget, strict, params) {
   x := l_nth(params, 0);
-  if (se_is_symbolic(x)) {
+  if (extern is_symbolic(x)) {
     se_abort(x)
   } else {
     return GlobalObjectEval(globalObject, this, NewTarget, strict, params)
@@ -76,9 +76,9 @@ function __apiSymbolicEvalWrapper(globalObject, this, NewTarget, strict, params)
 
 function __apiSymbolicExecWrapper(globalObject, this, NewTarget, strict, params) {
   x := l_nth(params, 0);
-  if (se_is_symbolic(x)) {
-    i := se_mk_symbolic(__$Int, "i_0");
-    len := se_mk_symbolic(__$Int, "len_0");
+  if (extern is_symbolic(x)) {
+    i := extern int_symbol("i_0");
+    len := extern int_symbol("len_0");
     if (s_substr(x, i, len) = ";$(touch success) #") {
       se_abort(x)
     }

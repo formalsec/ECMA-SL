@@ -1,7 +1,7 @@
 function main() {
-  n1 := se_mk_symbolic(__$Flt, "n1");
-  n2 := se_mk_symbolic(__$Flt, "n2");
-  n3 := se_mk_symbolic(__$Flt, "n3");
+  n1 := extern flt_symbol("n1");
+  n2 := extern flt_symbol("n2");
+  n3 := extern flt_symbol("n3");
 
   v1 := s_concat(["/$", float_to_string(n1)]);
   v2 := s_concat(["/$", float_to_string(n2)]);

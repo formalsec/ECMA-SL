@@ -497,7 +497,7 @@ function StrictEqualityComparison(x, y) {
       return false
     };
 
-    if (se_is_symbolic(x) ||| se_is_symbolic(y)) {
+    if (extern is_symbolic(x) ||| extern is_symbolic(y)) {
       return x = y
     };
     /* c. If x is the same Number value as y, */
