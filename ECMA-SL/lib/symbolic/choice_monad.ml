@@ -23,8 +23,8 @@ module List = struct
     let lst = v t in
     match lst with
     | [] -> []
-    | [ (r, t) ] -> (f r) t
-    | _ -> List.concat_map (fun (r, t) -> (f r) t) lst
+    | [ (r, t') ] -> (f r) t'
+    | _ -> List.concat_map (fun (r, t') -> (f r) t') lst
 
   let select (v : Value.value) : bool t =
     let open Value in

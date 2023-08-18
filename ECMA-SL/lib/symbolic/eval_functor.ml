@@ -39,7 +39,7 @@ module Make (P : Eval_functor_intf.P) :
 
   let ( let/ ) o f = Choice.bind o f
 
-  (* let ( let/* ) o f = *)
+  (* let ( let*/ ) o f = *)
   (*   match o with Error e -> failwith e | Ok o -> Choice.bind o f *)
 
   module State = struct
@@ -200,71 +200,46 @@ module Make (P : Eval_functor_intf.P) :
       let obj = Object.create () in
       let loc = Heap.insert heap obj in
       st @@ Store.add_exn locals x loc
-    | Stmt.AssignInObjCheck (_x, _e_field, _e_loc) ->
-      assert false
-      (* let* field = eval_reduce_expr locals e_field in *)
-      (* let* loc = eval_reduce_expr locals e_loc in *)
-      (* let/* _cond, loc = Heap.loc loc in *)
-      (* let heap = Env.get_memory env in *)
-      (* let v = Heap.has_field heap loc field in *)
-      (* let locals = Store.add_exn locals x v in *)
-      (* Choice.return @@ State.Continue { c with locals; env } *)
-    | Stmt.AssignObjToList (_x, _e) ->
-      assert false
-      (* let* loc = eval_reduce_expr locals e in *)
-      (* let* locs = Heap.loc loc in *)
-      (* let len_locs = List.length locs in *)
-      (* list_map locs ~f:(fun (cond, loc) -> *)
-      (*   let env = if len_locs > 1 then Env.clone env else env in *)
-      (*   let heap = Env.get_memory env in *)
-      (*   match Heap.get heap loc with *)
-      (*   | None -> Error (sprintf "'%s' not found in heap" loc) *)
-      (*   | Some o -> *)
-      (*     let symb_env = State.add_pc symb_env cond in *)
-      (*     let vs = Object.to_list o in *)
-      (*     let v = Value.mk_list (List.map vs ~f:Value.mk_tuple) in *)
-      (*     let locals = Store.add_exn locals x v in *)
-      (*     Ok (State.Continue { c with locals; env; symb_env }) ) *)
-    | Stmt.AssignObjFields (_x, _e) ->
-      assert false
-      (* let* loc = eval_reduce_expr locals e in *)
-      (* let* locs = Heap.loc loc in *)
-      (* let len_locs = List.length locs in *)
-      (* list_map locs ~f:(fun (cond, loc) -> *)
-      (*   let env = if len_locs > 1 then Env.clone env else env in *)
-      (*   let heap = Env.get_memory env in *)
-      (*   match Heap.get heap loc with *)
-      (*   | None -> Error (sprintf "'%s' not found in heap" loc) *)
-      (*   | Some o -> *)
-      (*     let symb_env = State.add_pc symb_env cond in *)
-      (*     let v = Value.mk_list @@ Object.get_fields o in *)
-      (*     let locals = Store.add_exn locals x v in *)
-      (*     Ok (State.Continue { c with locals; env; symb_env }) ) *)
-    | Stmt.FieldAssign (_e_loc, _e_field, _e_v) ->
-      assert false
-      (* let* loc = eval_reduce_expr locals e_loc in *)
-      (* let* field = eval_reduce_expr locals e_field in *)
-      (* let* v = eval_reduce_expr locals e_v in *)
-      (* let* locs = Heap.loc loc in *)
-      (* let len_locs = List.length locs in *)
-      (* list_map locs ~f:(fun (cond, loc) -> *)
-      (*   let env = if len_locs > 1 then Env.clone env else env in *)
-      (*   let heap = Env.get_memory env in *)
-      (*   let symb_env = State.add_pc symb_env cond in *)
-      (*   Heap.set_field heap loc ~field ~data:v; *)
-      (*   Ok (State.Continue { c with env; symb_env }) ) *)
-    | Stmt.FieldDelete (_e_loc, _e_field) ->
-      assert false
-      (* let* loc = eval_reduce_expr locals e_loc in *)
-      (* let* field = eval_reduce_expr locals e_field in *)
-      (* let* locs = Heap.loc loc in *)
-      (* let len_locs = List.length locs in *)
-      (* list_map locs ~f:(fun (cond, loc) -> *)
-      (*   let env = if len_locs > 1 then Env.clone env else env in *)
-      (*   let heap = Env.get_memory env in *)
-      (*   let symb_env = State.add_pc symb_env cond in *)
-      (*   Heap.delete_field heap loc field; *)
-      (*   Ok (State.Continue { c with env; symb_env }) ) *)
+    | Stmt.AssignInObjCheck (x, e_field, e_loc) ->
+      let* field = eval_reduce_expr locals e_field in
+      let* loc = eval_reduce_expr locals e_loc in
+      let/ loc = Heap.loc loc in
+      let heap = Env.get_memory env in
+      let v = Heap.has_field heap loc field in
+      st @@ Store.add_exn locals x v
+    | Stmt.AssignObjToList (x, e) -> (
+      let* loc = eval_reduce_expr locals e in
+      let/ loc = Heap.loc loc in
+      let heap = Env.get_memory env in
+      match Heap.get heap loc with
+      | None -> Choice.error (sprintf "'%s' not found in heap" loc)
+      | Some o ->
+        let v = Value.mk_list (List.map (Object.to_list o) ~f:Value.mk_tuple) in
+        st @@ Store.add_exn locals x v )
+    | Stmt.AssignObjFields (x, e) -> (
+      let* loc = eval_reduce_expr locals e in
+      let/ loc = Heap.loc loc in
+      let heap = Env.get_memory env in
+      match Heap.get heap loc with
+      | None -> Choice.error (sprintf "'%s' not found in heap" loc)
+      | Some o ->
+        let v = Value.mk_list @@ Object.get_fields o in
+        st @@ Store.add_exn locals x v )
+    | Stmt.FieldAssign (e_loc, e_field, e_v) ->
+      let* loc = eval_reduce_expr locals e_loc in
+      let* field = eval_reduce_expr locals e_field in
+      let* v = eval_reduce_expr locals e_v in
+      let/ loc = Heap.loc loc in
+      let heap = Env.get_memory env in
+      Heap.set_field heap loc ~field ~data:v;
+      st locals
+    | Stmt.FieldDelete (e_loc, e_field) ->
+      let* loc = eval_reduce_expr locals e_loc in
+      let* field = eval_reduce_expr locals e_field in
+      let/ loc = Heap.loc loc in
+      let heap = Env.get_memory env in
+      Heap.delete_field heap loc field;
+      st locals
     | Stmt.FieldLookup (_x, _e_loc, _e_field) -> assert false
     (* let* loc = eval_reduce_expr locals e_loc in *)
     (* let* field = eval_reduce_expr locals e_field in *)

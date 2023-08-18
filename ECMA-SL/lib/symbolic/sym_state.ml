@@ -4,6 +4,8 @@ module Object = Sym_heap2.Object
 module Heap = Sym_heap2.Heap
 module Env = Link_env.Make (Heap)
 
+let ( let* ) o f = match o with Error e -> failwith e | Ok o -> f o
+
 module P = struct
   type value = Value.value
   type store = Store.t
@@ -59,7 +61,11 @@ module P = struct
     let set_field = Heap.set_field
     let delete_field = Heap.delete_field
     let to_string = Heap.to_string
-    let loc = Heap.loc
+
+    let loc v =
+      let* locs = Heap.loc v in
+      (* TODO: add c to pc of t and clone memory *)
+      fun t -> List.map (fun (_c, x) -> (x, t)) locs
   end
 
   module Env = struct

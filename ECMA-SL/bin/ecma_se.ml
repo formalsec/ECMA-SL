@@ -1,5 +1,6 @@
 open Core
-module Value = Sym_value.M
+module Env = Sym_state.P.Env
+module Value = Sym_state.P.Value
 module Choice = Sym_state.P.Choice
 module Thread = Choice_monad.Thread
 module SMap = Map.Make (String)
@@ -92,10 +93,10 @@ let prog_of_js interp file =
     Parsing_utils.parse_prog program
 
 let link_env prog =
-  let env = Sym_state.P.Env.Build.empty () in
-  let env = Sym_state.P.Env.Build.add_functions env prog in
-  let env = Sym_state.P.Env.Build.add_extern_functions env extern_functions in
-  Sym_state.P.Env.Build.add_extern_functions env symbolic_api_funcs
+  let env = Env.Build.empty () in
+  let env = Env.Build.add_functions env prog in
+  let env = Env.Build.add_extern_functions env extern_functions in
+  Env.Build.add_extern_functions env symbolic_api_funcs
 
 let _error at category msg =
   Format.eprintf "%s:%s:%s@." (Source.string_of_region at) category msg
@@ -107,7 +108,7 @@ let run env target =
   let results = Choice.run result thread in
   List.iter results ~f:(fun (_, thread) ->
     let pc = Encoding.Expression.string_of_pc @@ Thread.pc thread in
-    Format.printf "Path Condition: %s@." pc );
+    Format.printf "  path cond : %s@." pc );
   Format.printf "  exec time : %fs@." (Stdlib.Sys.time () -. start);
   Format.printf "solver time : %fs@." !Batch.solver_time;
   Format.printf "  mean time : %fms@."
