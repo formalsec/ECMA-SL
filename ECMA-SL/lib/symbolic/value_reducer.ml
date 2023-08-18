@@ -128,7 +128,7 @@ let reduce_binop (op : bopt) (v1 : value) (v2 : value) : value =
       Val (Bool false)
   | Eq, NOpt (_v1_t, list1), NOpt (_v2_t, list2) ->
       reduce_list_compare list1 list2
-  | Eq, Symbolic _ , Val (Symbol _) -> Val (Bool false)
+  | Eq, v, Val (Symbol _) when is_symbolic v -> Val (Bool false)
   | Eq, v, Val (Flt x)
     when is_symbolic v
          && (Float.is_inf x || Float.(x = neg_infinity) || Float.is_nan x) ->

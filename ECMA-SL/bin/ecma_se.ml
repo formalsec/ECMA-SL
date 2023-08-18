@@ -1,5 +1,7 @@
 open Core
 module Value = Sym_value.M
+module Choice = Sym_state.P.Choice
+module Thread = Choice_monad.Thread
 module SMap = Map.Make (String)
 
 let symbolic_api_funcs =
@@ -24,18 +26,17 @@ let symbolic_api_funcs =
   let maximize (_e : value) : value = assert false in
   let minimize (_e : value) : value = assert false in
   SMap.of_alist_exn
-    [
-      ("str_symbol", Extern_func (Func (Arg Res), str_symbol));
-      ("int_symbol", Extern_func (Func (Arg Res), int_symbol));
-      ("flt_symbol", Extern_func (Func (Arg Res), flt_symbol));
-      ("bool_symbol", Extern_func (Func (Arg Res), bool_symbol));
-      ("is_symbolic", Extern_func (Func (Arg Res), is_symbolic));
-      ("is_number", Extern_func (Func (Arg Res), is_number));
-      ("is_sat", Extern_func (Func (Arg Res), is_sat));
-      ("assume", Extern_func (Func (Arg Res), assume));
-      ("evaluate", Extern_func (Func (Arg Res), evaluate));
-      ("maximize", Extern_func (Func (Arg Res), maximize));
-      ("minimize", Extern_func (Func (Arg Res), minimize));
+    [ ("str_symbol", Extern_func (Func (Arg Res), str_symbol))
+    ; ("int_symbol", Extern_func (Func (Arg Res), int_symbol))
+    ; ("flt_symbol", Extern_func (Func (Arg Res), flt_symbol))
+    ; ("bool_symbol", Extern_func (Func (Arg Res), bool_symbol))
+    ; ("is_symbolic", Extern_func (Func (Arg Res), is_symbolic))
+    ; ("is_number", Extern_func (Func (Arg Res), is_number))
+    ; ("is_sat", Extern_func (Func (Arg Res), is_sat))
+    ; ("assume", Extern_func (Func (Arg Res), assume))
+    ; ("evaluate", Extern_func (Func (Arg Res), evaluate))
+    ; ("maximize", Extern_func (Func (Arg Res), maximize))
+    ; ("minimize", Extern_func (Func (Arg Res), minimize))
     ]
 
 (* Examples *)
@@ -50,9 +51,8 @@ let extern_functions =
     Value.Val (Val.Symbol "undefined")
   in
   SMap.of_alist_exn
-    [
-      ("hello", Extern_func (Func (UArg Res), hello));
-      ("value", Extern_func (Func (Arg Res), print));
+    [ ("hello", Extern_func (Func (UArg Res), hello))
+    ; ("value", Extern_func (Func (Arg Res), print))
     ]
 
 let plus_ext = ".esl"
@@ -69,7 +69,7 @@ let prog_of_plus file =
   let e_prog =
     Parsing_utils.(
       apply_prog_macros
-        (resolve_prog_imports (parse_e_prog file (load_file file))))
+        (resolve_prog_imports (parse_e_prog file (load_file file))) )
   in
   Compiler.compile_prog e_prog
 
@@ -81,7 +81,7 @@ let prog_of_js interp file =
   let ret =
     Sys_unix.command
       (String.concat ~sep:" "
-         [ "js2ecma-sl"; "-c"; "-i"; file; "-o"; ast_file ])
+         [ "js2ecma-sl"; "-c"; "-i"; file; "-o"; ast_file ] )
   in
   if ret <> 0 then raise (Sys_error ("unable to compile: " ^ file))
   else
@@ -97,14 +97,21 @@ let link_env prog =
   let env = Sym_state.P.Env.Build.add_extern_functions env extern_functions in
   Sym_state.P.Env.Build.add_extern_functions env symbolic_api_funcs
 
-let error at category msg =
+let _error at category msg =
   Format.eprintf "%s:%s:%s@." (Source.string_of_region at) category msg
 
 let run env target =
-  try Eval.main env target with
-  | Eval.Crash (at, msg) -> error at "runtime crash" msg
-  | Eval.Invalid_arg (at, msg) -> error at "invalid arg" msg
-  | exn -> raise exn
+  let start = Stdlib.Sys.time () in
+  let thread = Choice_monad.Thread.create () in
+  let result = Eval.S.main env target in
+  let results = Choice.run result thread in
+  List.iter results ~f:(fun (_, thread) ->
+    let pc = Encoding.Expression.string_of_pc @@ Thread.pc thread in
+    Format.printf "Path Condition: %s@." pc );
+  Format.printf "  exec time : %fs@." (Stdlib.Sys.time () -. start);
+  Format.printf "solver time : %fs@." !Batch.solver_time;
+  Format.printf "  mean time : %fms@."
+    (1000. *. !Batch.solver_time /. float !Batch.solver_count)
 
 let command_parameters : (unit -> unit) Command.Param.t =
   let%map_open.Command files =
@@ -132,12 +139,12 @@ let command_parameters : (unit -> unit) Command.Param.t =
     Config.policy := policy;
     Log.on_debug := debug;
     List.iter files ~f:(fun f ->
-        Config.file := f;
-        let prog =
-          dispatch_file_ext prog_of_plus prog_of_core (prog_of_js interp) f
-        in
-        let env = link_env prog in
-        run env target)
+      Config.file := f;
+      let prog =
+        dispatch_file_ext prog_of_plus prog_of_core (prog_of_js interp) f
+      in
+      let env = link_env prog in
+      run env target )
 
 let command =
   Command.basic ~summary:"ECMA-SL symbolic analysis" command_parameters

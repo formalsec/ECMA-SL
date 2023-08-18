@@ -89,28 +89,7 @@ module P = struct
     let expr_of_value = Value_translator.expr_of_value
   end
 
-  module Choice = struct
-    open Value
-
-    let assertion solver pc c =
-      match c with
-      | Val (Val.Bool b) -> b
-      | v ->
-          let v' = Translator.translate (Value.Bool.not_ v) in
-          not (Batch.check solver (v' :: pc))
-
-    let assumption c = match c with Val (Val.Bool b) -> Some b | _ -> None
-
-    let branch solver pc c =
-      match c with
-      | Val (Val.Bool b) -> ((b, None), (not b, None))
-      | v ->
-          let cond = Translator.translate v in
-          let no = Translator.translate @@ Value.Bool.not_ v in
-          let t_branch = Batch.check solver (cond :: pc) in
-          let f_branch = Batch.check solver (no :: pc) in
-          ((t_branch, Some cond), (f_branch, Some no))
-  end
+  module Choice = Choice_monad.List
 end
 
 module P' : Eval_functor_intf.P = P

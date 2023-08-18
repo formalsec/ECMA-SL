@@ -49,24 +49,15 @@ module Object = struct
         ite (eq k key) (V.Bool.const true) accum )
 
   let map_ite (m : value VMap.t) (k : value) (d : value) =
-    VMap.mapi m ~f:(fun ~key ~data -> ite (eq k key) d data)
+    VMap.mapi m ~f:(fun ~key ~data ->
+      if V.equal k key then data else ite (eq k key) d data )
 
   let set (o : t) ~(key : value) ~(data : value) : t =
     if is_val key then { o with fields = VMap.set o.fields ~key ~data }
     else
       let fields = map_ite o.fields key data in
       let symbols0 = map_ite o.symbols key data in
-      let symbols =
-        match get_fields o with
-        | [] -> VMap.set symbols0 ~key ~data
-        | h :: t ->
-          let old_d = Option.value (VMap.find symbols0 key) ~default:undef in
-          let cond =
-            List.fold t ~init:(ne key h) ~f:(fun accum a ->
-              and_ (ne key a) accum )
-          in
-          VMap.set symbols0 ~key ~data:(ite cond data old_d)
-      in
+      let symbols = VMap.set symbols0 ~key ~data in
       { fields; symbols }
 
   let fold_ite ?(init = undef) (m : value VMap.t) (key : value) =
@@ -77,17 +68,42 @@ module Object = struct
 
   (* TODO: Make this return option explicitly *)
   (* FIXME: @174 *)
-  let get (o : t) (key : value) : value =
+  let get (o : t) (key : value) : (value * value list) list =
     if is_val key then
-      if VMap.mem o.fields key then VMap.find_exn o.fields key
-      else fold_ite o.symbols key
+      if VMap.mem o.fields key then [ (VMap.find_exn o.fields key, []) ]
+      else
+        match VMap.to_alist o.symbols with
+        | [] -> []
+        | [ (k, v) ] -> [ (v, [ eq key k ]); (undef, [ ne key k ]) ]
+        | (k0, v0) :: t ->
+          let vs, neg_keys =
+            List.fold t
+              ~init:([ (v0, [ eq key k0 ]) ], ne key k0)
+              ~f:(fun (vs, c) (k1, v1) ->
+                ( (v1, [ V.Bool.and_ c (eq key k1) ]) :: vs
+                , V.Bool.and_ c (ne key k1) ) )
+          in
+          (undef, [ neg_keys ]) :: vs
     else
-      let v0 = Option.value (VMap.find o.symbols key) ~default:undef in
-      let v1 =
-        VMap.fold o.symbols ~init:v0 ~f:(fun ~key:key0 ~data accum ->
-          if V.equal key key0 then accum else ite (eq key key0) data accum )
-      in
-      fold_ite ~init:v1 o.fields key
+      match VMap.find o.symbols key with
+      | Some v ->
+        let v1 =
+          VMap.fold o.symbols ~init:v ~f:(fun ~key:k0 ~data:d0 accum ->
+            if V.equal key k0 then accum else ite (eq key k0) d0 accum )
+        in
+        [ (fold_ite ~init:v1 o.fields key, []) ]
+      | None -> assert false
+
+  (* if is_val key then *)
+  (*   if VMap.mem o.fields key then VMap.find_exn o.fields key *)
+  (*   else fold_ite o.symbols key *)
+  (* else *)
+  (*   let v0 = Option.value (VMap.find o.symbols key) ~default:undef in *)
+  (*   let v1 = *)
+  (*     VMap.fold o.symbols ~init:v0 ~f:(fun ~key:key0 ~data accum -> *)
+  (*       if V.equal key key0 then accum else ite (eq key key0) data accum ) *)
+  (*   in *)
+  (*   fold_ite ~init:v1 o.fields key *)
 
   let delete (o : t) (key : value) : t =
     if is_val key then { o with fields = VMap.remove o.fields key }
@@ -136,9 +152,10 @@ module Heap = struct
       let o' = Object.set o ~key:field ~data in
       set h loc o' )
 
-  let get_field (h : t) (loc : Loc.t) (field : value) : value option =
-    let* o = get h loc in
-    Some (Object.get o field)
+  let get_field (h : t) (loc : Loc.t) (field : value) :
+    (value * value list) list =
+    let o = get h loc in
+    Option.value_map o ~default:[] ~f:(fun o -> Object.get o field)
 
   let delete_field (h : t) (loc : Loc.t) (f : value) =
     let obj = get h loc in

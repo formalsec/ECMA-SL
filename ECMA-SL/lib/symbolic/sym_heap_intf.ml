@@ -11,7 +11,7 @@ module type S = sig
   val get : t -> Loc.t -> object_ option
   val has_field : t -> Loc.t -> value -> value
   val set_field : t -> Loc.t -> field:value -> data:value -> unit
-  val get_field : t -> Loc.t -> value -> value option
+  val get_field : t -> Loc.t -> value -> (value * value list) list
   val delete_field : t -> Loc.t -> value -> unit
   val to_string : t -> string
   val loc : value -> ((value option * string) list, string) Result.t

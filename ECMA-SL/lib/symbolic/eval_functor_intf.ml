@@ -8,17 +8,7 @@ module type P = sig
   module Value : Value_intf.T with type value = value and type store = store
   module Extern_func : Extern_func.T with type value = value
 
-  module Choice : sig
-    val assertion : Batch.t -> Encoding.Expression.t list -> value -> bool
-    val assumption : value -> bool option
-
-    val branch :
-         Batch.t
-      -> Encoding.Expression.t list
-      -> value
-      -> (bool * Encoding.Expression.t option)
-         * (bool * Encoding.Expression.t option)
-  end
+  module Choice : Choice_monad_intf.Base with module V := Value
 
   module Store : sig
     type bind = string
@@ -39,7 +29,7 @@ module type P = sig
     val get_fields : t -> value list
     val has_field : t -> value -> value
     val set : t -> key:value -> data:value -> t
-    val get : t -> value -> value
+    val get : t -> value -> (value * value list) list
     val delete : t -> value -> t
     val to_string : t -> string
   end
@@ -57,7 +47,7 @@ module type P = sig
     val get : t -> Loc.t -> object_ option
     val has_field : t -> Loc.t -> value -> value
     val set_field : t -> Loc.t -> field:value -> data:value -> unit
-    val get_field : t -> Loc.t -> value -> value option
+    val get_field : t -> Loc.t -> value -> (value * value list) list
     val delete_field : t -> Loc.t -> value -> unit
     val to_string : t -> string
     val loc : value -> ((value option * string) list, string) Result.t
@@ -90,14 +80,13 @@ end
 module type S = sig
   type env
   type value
+  type 'a choice
 
   module State : sig
     type store
     type env
-    type solver
-    type optimizer
     type exec_state
   end
 
-  val main : env -> string -> unit
+  val main : env -> string -> unit choice
 end

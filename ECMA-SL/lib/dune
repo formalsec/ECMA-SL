@@ -21,6 +21,8 @@
   operators
   config
   batch
+  choice_monad_intf
+  choice_monad
   eval
   eval_op
   eval_functor
@@ -30,7 +32,6 @@
   sym_heap
   sym_heap2
   sym_heap_intf
-  sym_object_intf
   sym_state
   sym_value
   args_typing_binop
