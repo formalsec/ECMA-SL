@@ -29,7 +29,7 @@ module type P = sig
     val get_fields : t -> value list
     val has_field : t -> value -> value
     val set : t -> key:value -> data:value -> t
-    val get : t -> value -> (value * value list) list
+    val get : t -> value -> value option Choice.t
     val delete : t -> value -> t
     val to_string : t -> string
   end
@@ -47,10 +47,10 @@ module type P = sig
     val get : t -> Loc.t -> object_ option
     val has_field : t -> Loc.t -> value -> value
     val set_field : t -> Loc.t -> field:value -> data:value -> unit
-    val get_field : t -> Loc.t -> value -> (value * value list) list
+    val get_field : t -> Loc.t -> value -> value option Choice.t
     val delete_field : t -> Loc.t -> value -> unit
     val to_string : t -> string
-    val loc : value -> string Choice.t
+    val loc : value -> Loc.t Choice.t
   end
 
   module Env : sig

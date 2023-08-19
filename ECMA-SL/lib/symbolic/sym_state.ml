@@ -3,6 +3,7 @@ module Store = Sym_value.M.Store
 module Object = Sym_heap2.Object
 module Heap = Sym_heap2.Heap
 module Env = Link_env.Make (Heap)
+module Thread = Choice_monad.Thread
 
 let ( let* ) o f = match o with Error e -> failwith e | Ok o -> f o
 
@@ -16,6 +17,7 @@ module P = struct
     include Value
   end
 
+  module Choice = Choice_monad.List
   module Extern_func = Extern_func.Make (Value)
 
   type extern_func = Extern_func.extern_func
@@ -38,7 +40,25 @@ module P = struct
     let create = Object.create
     let to_string = Object.to_string
     let set = Object.set
-    let get = Object.get
+
+    let get o key =
+      let vals = Object.get o key in
+      fun t ->
+        match vals with
+        | [] -> [ (None, t) ]
+        | _ ->
+          (* TODO: add pc to pc of t and clone memory *)
+          List.map
+            (fun (v, pc) ->
+              let t' =
+                List.fold_left
+                  (fun thread c ->
+                    Thread.add_pc thread @@ Value_translator.translate c )
+                  t pc
+              in
+              (Some v, t') )
+            vals
+
     let delete = Object.delete
     let to_list = Object.to_list
     let has_field = Object.has_field
@@ -57,15 +77,39 @@ module P = struct
     let set = Heap.set
     let get = Heap.get
     let has_field = Heap.has_field
-    let get_field = Heap.get_field
+
+    let get_field h loc v =
+      let field_vals = Heap.get_field h loc v in
+      fun t ->
+        match field_vals with
+        | [] -> [ (None, t) ]
+        | _ ->
+          (* TODO: clone memory *)
+          List.map
+            (fun (v, pc) ->
+              let t' =
+                List.fold_left
+                  (fun thread c ->
+                    Thread.add_pc thread @@ Value_translator.translate c )
+                  t pc
+              in
+              (Some v, t') )
+            field_vals
+
     let set_field = Heap.set_field
     let delete_field = Heap.delete_field
     let to_string = Heap.to_string
 
     let loc v =
       let* locs = Heap.loc v in
-      (* TODO: add c to pc of t and clone memory *)
-      fun t -> List.map (fun (_c, x) -> (x, t)) locs
+      (* TODO: clone memory *)
+      fun t ->
+        List.map
+          (fun (c, x) ->
+            let c' = Option.map Value_translator.translate c in
+            let t' = Option.map_default (Thread.add_pc t) t c' in
+            (x, t') )
+          locs
   end
 
   module Env = struct
@@ -94,8 +138,6 @@ module P = struct
     let translate = Value_translator.translate
     let expr_of_value = Value_translator.expr_of_value
   end
-
-  module Choice = Choice_monad.List
 end
 
 module P' : Eval_functor_intf.P = P

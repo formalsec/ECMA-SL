@@ -240,34 +240,14 @@ module Make (P : Eval_functor_intf.P) :
       let heap = Env.get_memory env in
       Heap.delete_field heap loc field;
       st locals
-    | Stmt.FieldLookup (_x, _e_loc, _e_field) -> assert false
-    (* let* loc = eval_reduce_expr locals e_loc in *)
-    (* let* field = eval_reduce_expr locals e_field in *)
-    (* let* locs = Heap.loc loc in *)
-    (* let len_locs = List.length locs in *)
-    (* let states = *)
-    (*   List.map locs ~f:(fun (cond, loc) -> *)
-    (*     let heap = Env.get_memory env in *)
-    (*     let symb_env = State.add_pc symb_env cond in *)
-    (*     let vs = Heap.get_field heap loc field in *)
-    (*     if List.is_empty vs then *)
-    (*       let env = if len_locs > 1 then Env.clone env else env in *)
-    (*       let locals = Store.add_exn locals x (Value.mk_symbol "undefined") in *)
-    (*       [ State.Continue { c with locals; env; symb_env } ] *)
-    (*     else *)
-    (*       List.fold vs ~init:[] ~f:(fun accum (value, pc) -> *)
-    (*         let pc = ESet.of_list @@ List.map pc ~f:Translator.translate in *)
-    (*         let pc = ESet.union symb_env.pc pc in *)
-    (*         if not (Batch.check symb_env.solver (ESet.to_list pc)) then accum *)
-    (*         else *)
-    (*           let env = if len_locs > 1 then Env.clone env else env in *)
-    (*           let symb_env = *)
-    (*             { symb_env with pc = ESet.union symb_env.pc pc } *)
-    (*           in *)
-    (*           let locals = Store.add_exn locals x value in *)
-    (*           State.Continue { c with locals; env; symb_env } :: accum ) ) *)
-    (* in *)
-    (* Ok (List.join states) *)
+    | Stmt.FieldLookup (x, e_loc, e_field) ->
+      let* loc = eval_reduce_expr locals e_loc in
+      let* field = eval_reduce_expr locals e_field in
+      let/ loc = Heap.loc loc in
+      let heap = Env.get_memory env in
+      let/ value = Heap.get_field heap loc field in
+      let value' = Option.value value ~default:(Value.mk_symbol "undefined") in
+      st @@ Store.add_exn locals x value'
     (* FIXME: Move to external functions *)
     | Stmt.SymStmt (SymStmt.Assume _e) ->
       assert false
