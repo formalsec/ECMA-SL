@@ -58,7 +58,7 @@ module type P = sig
     type nonrec memory = memory
 
     val clone : t -> t
-    val get_memory : t -> memory
+    val get_memory : t -> memory Choice.t
     val get_func : t -> string -> (Func.t, string) Result.t
 
     val get_extern_func :

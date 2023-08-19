@@ -196,7 +196,7 @@ module Make (P : Eval_functor_intf.P) :
       let* args = list_map ~f:(eval_reduce_expr locals) es in
       exec_extern_func state func args x
     | Stmt.AssignNewObj x ->
-      let heap = Env.get_memory env in
+      let/ heap = Env.get_memory env in
       let obj = Object.create () in
       let loc = Heap.insert heap obj in
       st @@ Store.add_exn locals x loc
@@ -204,13 +204,13 @@ module Make (P : Eval_functor_intf.P) :
       let* field = eval_reduce_expr locals e_field in
       let* loc = eval_reduce_expr locals e_loc in
       let/ loc = Heap.loc loc in
-      let heap = Env.get_memory env in
+      let/ heap = Env.get_memory env in
       let v = Heap.has_field heap loc field in
       st @@ Store.add_exn locals x v
     | Stmt.AssignObjToList (x, e) -> (
       let* loc = eval_reduce_expr locals e in
       let/ loc = Heap.loc loc in
-      let heap = Env.get_memory env in
+      let/ heap = Env.get_memory env in
       match Heap.get heap loc with
       | None -> Choice.error (sprintf "'%s' not found in heap" loc)
       | Some o ->
@@ -219,7 +219,7 @@ module Make (P : Eval_functor_intf.P) :
     | Stmt.AssignObjFields (x, e) -> (
       let* loc = eval_reduce_expr locals e in
       let/ loc = Heap.loc loc in
-      let heap = Env.get_memory env in
+      let/ heap = Env.get_memory env in
       match Heap.get heap loc with
       | None -> Choice.error (sprintf "'%s' not found in heap" loc)
       | Some o ->
@@ -230,21 +230,21 @@ module Make (P : Eval_functor_intf.P) :
       let* field = eval_reduce_expr locals e_field in
       let* v = eval_reduce_expr locals e_v in
       let/ loc = Heap.loc loc in
-      let heap = Env.get_memory env in
+      let/ heap = Env.get_memory env in
       Heap.set_field heap loc ~field ~data:v;
       st locals
     | Stmt.FieldDelete (e_loc, e_field) ->
       let* loc = eval_reduce_expr locals e_loc in
       let* field = eval_reduce_expr locals e_field in
       let/ loc = Heap.loc loc in
-      let heap = Env.get_memory env in
+      let/ heap = Env.get_memory env in
       Heap.delete_field heap loc field;
       st locals
     | Stmt.FieldLookup (x, e_loc, e_field) ->
       let* loc = eval_reduce_expr locals e_loc in
       let* field = eval_reduce_expr locals e_field in
       let/ loc = Heap.loc loc in
-      let heap = Env.get_memory env in
+      let/ heap = Env.get_memory env in
       let/ value = Heap.get_field heap loc field in
       let value' = Option.value value ~default:(Value.mk_symbol "undefined") in
       st @@ Store.add_exn locals x value'

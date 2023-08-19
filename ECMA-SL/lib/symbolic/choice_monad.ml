@@ -1,15 +1,19 @@
 module Value = Sym_value.M
+module Heap = Sym_heap2.Heap
 
 module Thread = struct
   type t =
     { solver : Batch.t
     ; pc : Encoding.Expression.t list
+    ; mem : Sym_heap2.Heap.t
     }
 
-  let create () = { solver = Batch.create (); pc = [] }
+  let create () = { solver = Batch.create (); pc = []; mem = Heap.create () }
   let solver t = t.solver
   let pc t = t.pc
+  let mem t = t.mem
   let add_pc t v = { t with pc = v :: t.pc }
+  let clone_mem t = { t with mem = Heap.clone t.mem }
 end
 
 module List = struct
@@ -54,7 +58,9 @@ module List = struct
         | true, false -> [ (true, Thread.add_pc t cond) ]
         | false, true -> [ (false, Thread.add_pc t no) ]
         | true, true ->
-          [ (true, Thread.add_pc t cond); (false, Thread.add_pc t no) ] )
+          let t0 = Thread.clone_mem t in
+          let t1 = Thread.clone_mem t in
+          [ (true, Thread.add_pc t0 cond); (false, Thread.add_pc t1 no) ] )
 
   let run (v : 'a t) (thread : thread) = v thread
 

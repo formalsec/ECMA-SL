@@ -43,21 +43,22 @@ module P = struct
 
     let get o key =
       let vals = Object.get o key in
-      fun t ->
-        match vals with
-        | [] -> [ (None, t) ]
-        | _ ->
-          (* TODO: add pc to pc of t and clone memory *)
-          List.map
-            (fun (v, pc) ->
-              let t' =
-                List.fold_left
-                  (fun thread c ->
-                    Thread.add_pc thread @@ Value_translator.translate c )
-                  t pc
-              in
-              (Some v, t') )
-            vals
+      let return t (v, pc) =
+        let t' =
+          List.fold_left
+            (fun thread c ->
+              Thread.add_pc thread @@ Value_translator.translate c )
+            t pc
+        in
+        (Some v, t')
+      in
+      match vals with
+      | [] -> fun t -> [ (None, t) ]
+      | [ (v, pc) ] -> fun t -> [ return t (v, pc) ]
+      | _ ->
+        fun t ->
+          let t = Thread.clone_mem t in
+          List.map (return t) vals
 
     let delete = Object.delete
     let to_list = Object.to_list
@@ -80,21 +81,22 @@ module P = struct
 
     let get_field h loc v =
       let field_vals = Heap.get_field h loc v in
-      fun t ->
-        match field_vals with
-        | [] -> [ (None, t) ]
-        | _ ->
-          (* TODO: clone memory *)
-          List.map
-            (fun (v, pc) ->
-              let t' =
-                List.fold_left
-                  (fun thread c ->
-                    Thread.add_pc thread @@ Value_translator.translate c )
-                  t pc
-              in
-              (Some v, t') )
-            field_vals
+      let return t (v, pc) =
+        let t' =
+          List.fold_left
+            (fun thread c ->
+              Thread.add_pc thread @@ Value_translator.translate c )
+            t pc
+        in
+        (Some v, t')
+      in
+      match field_vals with
+      | [] -> fun t -> [ (None, t) ]
+      | [ (v, pc) ] -> fun t -> [ return t (v, pc) ]
+      | _ ->
+        fun t ->
+          let t = Thread.clone_mem t in
+          List.map (return t) field_vals
 
     let set_field = Heap.set_field
     let delete_field = Heap.delete_field
@@ -102,14 +104,17 @@ module P = struct
 
     let loc v =
       let* locs = Heap.loc v in
-      (* TODO: clone memory *)
-      fun t ->
-        List.map
-          (fun (c, x) ->
-            let c' = Option.map Value_translator.translate c in
-            let t' = Option.map_default (Thread.add_pc t) t c' in
-            (x, t') )
-          locs
+      let return t (c, x) =
+        let c' = Option.map Value_translator.translate c in
+        (x, Option.map_default (Thread.add_pc t) t c')
+      in
+      match locs with
+      | [] -> Choice.error "no loc"
+      | [ (c, x) ] -> fun t -> [ return t (c, x) ]
+      | _ ->
+        fun t ->
+          let t = Thread.clone_mem t in
+          List.map (return t) locs
   end
 
   module Env = struct
@@ -117,7 +122,7 @@ module P = struct
     type nonrec memory = memory
 
     let clone = Env.clone
-    let get_memory = Env.get_memory
+    let get_memory _env (* Env.get_memory *) t = [ (Thread.mem t, t) ]
     let get_func = Env.get_func
     let get_extern_func = Env.get_extern_func
     let add_memory = Env.add_memory
