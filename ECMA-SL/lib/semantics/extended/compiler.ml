@@ -568,33 +568,6 @@ and compile_expr (at : region) (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   | ECall (f, es) ->
       let ret_es = List.map (compile_expr at) es in
       compile_e_call f ret_es at
-  | SymOpt op -> (
-      let open SymStmt in
-      match op with
-      | Evaluate e ->
-          let stmts, e' = compile_expr at e in
-          let x = generate_fresh_var () in
-          (stmts @ [ Stmt.SymStmt (Evaluate (x, e')) @> at ], Expr.Var x)
-      | Maximize e ->
-          let stmts, e' = compile_expr at e in
-          let x = generate_fresh_var () in
-          (stmts @ [ Stmt.SymStmt (Maximize (x, e')) @> at ], Expr.Var x)
-      | Minimize e ->
-          let stmts, e' = compile_expr at e in
-          let x = generate_fresh_var () in
-          (stmts @ [ Stmt.SymStmt (Minimize (x, e')) @> at ], Expr.Var x)
-      | Is_symbolic e ->
-          let stmts, e' = compile_expr at e in
-          let x = generate_fresh_var () in
-          (stmts @ [ Stmt.SymStmt (Is_symbolic (x, e')) @> at ], Expr.Var x)
-      | Is_sat e ->
-          let stmts, e' = compile_expr at e in
-          let x = generate_fresh_var () in
-          (stmts @ [ Stmt.SymStmt (Is_sat (x, e')) @> at ], Expr.Var x)
-      | Is_number e ->
-          let stmts, e' = compile_expr at e in
-          let x = generate_fresh_var () in
-          (stmts @ [ Stmt.SymStmt (Is_number (x, e')) @> at ], Expr.Var x))
 
 and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   let compile_cases =
@@ -694,9 +667,6 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | Abort e ->
       let stmts, e' = compile_expr e_stmt.at e in
       stmts @ [ Stmt.Abort e' @> e_stmt.at ]
-  | SymStmt (Assume e_e) ->
-      let stmts, e' = compile_expr e_stmt.at e_e in
-      stmts @ [ Stmt.SymStmt (SymStmt.Assume e') @> e_stmt.at ]
 
 (*
 C(s) = s', _

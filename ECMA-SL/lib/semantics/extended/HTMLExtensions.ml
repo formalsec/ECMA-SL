@@ -1477,9 +1477,6 @@ module E_Stmt = struct
             (String.concat "" rows),
           Table )
     | Lambda _ -> ("", ctxt')
-    | SymStmt (Assume e) ->
-        let e_html = E_Expr.(to_html Assert e) in
-        (sprintf "<li>Assert: %s.</li>" e_html, ctxt')
 end
 
 module E_Func = struct

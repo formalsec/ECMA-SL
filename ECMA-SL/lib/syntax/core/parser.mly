@@ -59,9 +59,7 @@ let at (startpos, endpos) =
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
 %token EOF
 
-%token API_ASSUME API_MK_SYMBOLIC API_ABORT
-%token API_EVALUATE API_MAXIMIZE API_MINIMIZE
-%token API_IS_SYMBOLIC API_IS_SAT API_IS_NUMBER
+%token API_ABORT
 
 %left LAND LOR
 %left EQUAL
@@ -162,8 +160,6 @@ val_target:
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 expr_target:
-  | API_MK_SYMBOLIC; LPAREN; t = type_target; COMMA; x = expr_target; RPAREN;
-    { Expr.Symbolic (t, x) }
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
     { Expr.NOpt (ListExpr, es) }
   | LARRBRACK; es = separated_list (COMMA, expr_target); RARRBRACK;
@@ -320,36 +316,36 @@ expr_target:
     { Expr.UnOpt (ParseString, e) } %prec unopt_prec
   | PARSE_DATE; e = expr_target;
     { Expr.UnOpt (ParseDate, e) } %prec unopt_prec
-  | TO_PRECISION; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN; 
+  | TO_PRECISION; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
     { Expr.BinOpt (ToPrecision, e1, e2) }
-  | TO_EXPONENTIAL; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN; 
+  | TO_EXPONENTIAL; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
     { Expr.BinOpt (ToExponential, e1, e2) }
-  | TO_FIXED; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN; 
+  | TO_FIXED; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
     { Expr.BinOpt (ToFixed, e1, e2) }
   | COSH;  e = expr_target;
-    { Expr.UnOpt (Cosh, e) } %prec unopt_prec 
+    { Expr.UnOpt (Cosh, e) } %prec unopt_prec
   | LOG_2;  e = expr_target;
-    { Expr.UnOpt (Log_2, e) } %prec unopt_prec 
+    { Expr.UnOpt (Log_2, e) } %prec unopt_prec
   | SINH;  e = expr_target;
-    { Expr.UnOpt (Sinh, e) } %prec unopt_prec 
+    { Expr.UnOpt (Sinh, e) } %prec unopt_prec
   | TANH;  e = expr_target;
     { Expr.UnOpt (Tanh, e) } %prec unopt_prec
   | FLOAT64_TO_LE_BYTES; e = expr_target;
-    { Expr.UnOpt (Float64ToLEBytes, e) } %prec unopt_prec 
+    { Expr.UnOpt (Float64ToLEBytes, e) } %prec unopt_prec
   | FLOAT64_TO_BE_BYTES; e = expr_target;
-    { Expr.UnOpt (Float64ToBEBytes, e) } %prec unopt_prec 
+    { Expr.UnOpt (Float64ToBEBytes, e) } %prec unopt_prec
   | FLOAT32_TO_LE_BYTES; e = expr_target;
-    { Expr.UnOpt (Float32ToLEBytes, e) } %prec unopt_prec 
+    { Expr.UnOpt (Float32ToLEBytes, e) } %prec unopt_prec
   | FLOAT32_TO_BE_BYTES; e = expr_target;
-    { Expr.UnOpt (Float32ToBEBytes, e) } %prec unopt_prec 
+    { Expr.UnOpt (Float32ToBEBytes, e) } %prec unopt_prec
   | INT_TO_BE_BYTES; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
     { Expr.BinOpt (IntToBEBytes, e1, e2) }
   | FLOAT64_FROM_LE_BYTES; e = expr_target;
-    { Expr.UnOpt (Float64FromLEBytes, e) } %prec unopt_prec 
+    { Expr.UnOpt (Float64FromLEBytes, e) } %prec unopt_prec
   | FLOAT64_FROM_BE_BYTES; e = expr_target;
-    { Expr.UnOpt (Float64FromBEBytes, e) } %prec unopt_prec 
+    { Expr.UnOpt (Float64FromBEBytes, e) } %prec unopt_prec
   | FLOAT32_FROM_LE_BYTES; e = expr_target;
-    { Expr.UnOpt (Float32FromLEBytes, e) } %prec unopt_prec 
+    { Expr.UnOpt (Float32FromLEBytes, e) } %prec unopt_prec
   | FLOAT32_FROM_BE_BYTES  e = expr_target;
     { Expr.UnOpt (Float32FromBEBytes, e) } %prec unopt_prec
   | INT_FROM_BYTES; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
@@ -375,7 +371,7 @@ expr_target:
   ;
 
 stmt_block:
-  | s = separated_list (SEMICOLON, stmt_target); 
+  | s = separated_list (SEMICOLON, stmt_target);
     { Stmt.Block s @> at $sloc }
   ;
 
@@ -411,7 +407,6 @@ stmt_target:
     { Stmt.Return e @> at $sloc }
   | RETURN;
     { Stmt.Return (Expr.Val Val.Void) @> at $sloc }
-  | api_stmt = api_stmt_target; { api_stmt @> at $sloc }
   | v = VAR; DEFEQ; f = expr_target; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
     { Stmt.AssignCall (v,f,vs) @> at $sloc }
   | x = VAR; DEFEQ; EXTERN; f = VAR; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
@@ -428,23 +423,6 @@ stmt_target:
     { Stmt.AssignObjToList (v, e) @> at $sloc }
   | v = VAR; DEFEQ; OBJ_FIELDS; e = expr_target;
     { Stmt.AssignObjFields (v, e) @> at $sloc }
-  ;
-
-api_stmt_target:
-  | API_ASSUME; LPAREN; e = expr_target; RPAREN;
-    { Stmt.SymStmt (SymStmt.Assume e) }
-  | v = VAR; DEFEQ; API_IS_SYMBOLIC; LPAREN; e = expr_target; RPAREN;
-    { Stmt.SymStmt (SymStmt.Is_symbolic (v, e)) }
-  | v = VAR; DEFEQ; API_IS_SAT; LPAREN; e = expr_target; RPAREN;
-    { Stmt.SymStmt (SymStmt.Is_sat (v, e)) }
-  | v = VAR; DEFEQ; API_IS_NUMBER; LPAREN; e = expr_target; RPAREN;
-    { Stmt.SymStmt (SymStmt.Is_number (v, e)) }
-  | v = VAR; DEFEQ; API_MAXIMIZE; LPAREN; e = expr_target; RPAREN;
-    { Stmt.SymStmt (SymStmt.Maximize (v, e)) }
-  | v = VAR; DEFEQ; API_MINIMIZE; LPAREN; e = expr_target; RPAREN;
-    { Stmt.SymStmt (SymStmt.Minimize (v, e)) }
-  | v = VAR; DEFEQ; API_EVALUATE; LPAREN; e = expr_target; RPAREN;
-    { Stmt.SymStmt (SymStmt.Evaluate (v, e)) }
   ;
 
 (* if (e) { s } | if (e) {s} else { s } *)

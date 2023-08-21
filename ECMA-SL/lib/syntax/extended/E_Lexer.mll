@@ -44,7 +44,7 @@
                 "delete"                , DELETE;
                 "typeof"                , TYPEOF;
                 "gen_wrapper"           , WRAPPER;
-                
+
                 (* Constants *)
                 "NaN"                   , FLOAT (float_of_string "nan");
                 "Infinity"              , FLOAT (float_of_string "infinity");
@@ -71,13 +71,13 @@
                 "float_to_string"       , FLOAT_TO_STRING;
                 "float_of_string"       , FLOAT_OF_STRING;
                 "float_to_byte"         , FLOAT_TO_BYTE;
-                "float64_to_le_bytes"   , FLOAT64_TO_LE_BYTES; 
-                "float64_to_be_bytes"   , FLOAT64_TO_BE_BYTES; 
-                "float32_to_le_bytes"   , FLOAT32_TO_LE_BYTES; 
-                "float32_to_be_bytes"   , FLOAT32_TO_BE_BYTES; 
-                "float64_from_le_bytes" , FLOAT64_FROM_LE_BYTES; 
-                "float64_from_be_bytes" , FLOAT64_FROM_BE_BYTES; 
-                "float32_from_le_bytes" , FLOAT32_FROM_LE_BYTES; 
+                "float64_to_le_bytes"   , FLOAT64_TO_LE_BYTES;
+                "float64_to_be_bytes"   , FLOAT64_TO_BE_BYTES;
+                "float32_to_le_bytes"   , FLOAT32_TO_LE_BYTES;
+                "float32_to_be_bytes"   , FLOAT32_TO_BE_BYTES;
+                "float64_from_le_bytes" , FLOAT64_FROM_LE_BYTES;
+                "float64_from_be_bytes" , FLOAT64_FROM_BE_BYTES;
+                "float32_from_le_bytes" , FLOAT32_FROM_LE_BYTES;
                 "float32_from_be_bytes" , FLOAT32_FROM_BE_BYTES;
 
                 "bytes_to_string"       , BYTES_TO_STRING;
@@ -163,15 +163,7 @@
                 "in_obj"                , IN_OBJ;
 
                 (* API *)
-                "se_assume"             , API_ASSUME;
                 "se_abort"              , API_ABORT;
-                "se_is_sat"             , API_IS_SAT;
-                "se_is_symbolic"        , API_IS_SYMBOLIC;
-                "se_is_number"          , API_IS_NUMBER;
-                "se_mk_symbolic"        , API_MK_SYMBOLIC;
-                "se_evaluate"           , API_EVAL;
-                "se_maximize"           , API_MAXIMIZE;
-                "se_minimize"           , API_MINIMIZE;
 
                 (* Types *)
                 "typedef"               , TYPEDEF;

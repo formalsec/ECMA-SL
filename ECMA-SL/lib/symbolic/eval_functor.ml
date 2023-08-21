@@ -32,7 +32,6 @@ module Make (P : Eval_functor_intf.P) :
   module Env = P.Env
   module Choice = P.Choice
   module Reducer = P.Reducer
-  (* module Translator = P.Translator *)
 
   type value = P.value
   type store = P.store
@@ -124,10 +123,6 @@ module Make (P : Eval_functor_intf.P) :
     let open State in
     let { locals; env; _ } = state in
     let st locals = Choice.return @@ State.Continue { state with locals } in
-    (* Log.debug *)
-    (*   ( lazy *)
-    (*     (sprintf "path cond   : %s" *)
-    (*        (Encoding.Expression.string_of_pc (ESet.to_list symb_env.pc)) ) ); *)
     Log.debug
       (lazy (sprintf "store       : %s" (Value.Pp.Store.to_string locals)));
     Log.debug
@@ -146,6 +141,7 @@ module Make (P : Eval_functor_intf.P) :
       Choice.error (sprintf "abort: %s" (Value.Pp.pp e'))
     | Stmt.Print e ->
       let* e' = eval_reduce_expr locals e in
+      (* TODO: Print function in sym_value *)
       (* let s = *)
       (*   match e' with *)
       (*   | Expr.Val (Val.Loc l) -> *)
@@ -248,62 +244,63 @@ module Make (P : Eval_functor_intf.P) :
       let/ value = Heap.get_field heap loc field in
       let value' = Option.value value ~default:(Value.mk_symbol "undefined") in
       st @@ Store.add_exn locals x value'
+
     (* FIXME: Move to external functions *)
-    | Stmt.SymStmt (SymStmt.Assume _e) ->
-      assert false
-      (* ( *)
-      (* let* e' = eval_reduce_expr locals e in *)
-      (* (1* TODO: Do not discharge to solver (saves 1 query per assume) *1) *)
-      (* match Choice.assumption e' with *)
-      (* | Some b -> if b then st locals else Ok [] *)
-      (* | None -> *)
-      (* let symb_env = State.add_pc symb_env (Some e') in *)
-      (* Ok [ State.Continue { c with symb_env } ] ) *)
-    | Stmt.SymStmt (SymStmt.Evaluate (_x, _e)) ->
-      assert false
-      (* let* e' = eval_reduce_expr locals e in *)
-      (* let e' = Translator.translate e' in *)
-      (* let _sym_e = List.hd (Encoding.Expression.get_symbols [ e' ]) in *)
-      (* assert ( *)
-      (*   Batch.check symb_env.solver (ESet.to_list symb_env.path_condition)); *)
-      (* assert false *)
-    | Stmt.SymStmt (SymStmt.Maximize (_x, _e)) ->
-      assert false
-      (* let* e' = eval_reduce_expr locals e in *)
-      (* let e' = Translator.translate e' in *)
-      (* let pc = ESet.to_list symb_env.path_condition in *)
-      (* let v = *)
-      (*   Option.map ~f:Translator.expr_of_value *)
-      (*     (Encoding.Optimizer.maximize symb_env.optimizer e' pc) *)
-      (* in *)
-      (* st *)
-      (* @@ Store.add_exn locals x (Option.value ~default:(Expr.Val Val.Null) v) *)
-    | Stmt.SymStmt (SymStmt.Minimize (_x, _e)) ->
-      assert false
-      (* let* e' = eval_reduce_expr locals e in *)
-      (* let e' = Translator.translate e' in *)
-      (* let pc = ESet.to_list symb_env.path_condition in *)
-      (* let v = *)
-      (*   Option.map ~f:Translator.expr_of_value *)
-      (*     (Encoding.Optimizer.minimize symb_env.optimizer e' pc) *)
-      (* in *)
-      (* st *)
-      (* @@ Store.add_exn locals x (Option.value ~default:(Expr.Val Val.Null) v) *)
-      (* st @@ Store.add_exn locals x (Expr.Bool.const (Expr.is_symbolic e')) *)
-    | Stmt.SymStmt (SymStmt.Is_sat (_x, _e)) -> assert false
+    (* | Stmt.SymStmt (SymStmt.Assume _e) -> *)
+    (*   assert false *)
+    (*   ( *)
+    (*   let* e' = eval_reduce_expr locals e in *)
+    (*   (1* TODO: Do not discharge to solver (saves 1 query per assume) *1) *)
+    (*   match Choice.assumption e' with *)
+    (*   | Some b -> if b then st locals else Ok [] *)
+    (*   | None -> *)
+    (*   let symb_env = State.add_pc symb_env (Some e') in *)
+    (*   Ok [ State.Continue { c with symb_env } ] ) *)
+    (* | Stmt.SymStmt (SymStmt.Evaluate (_x, _e)) -> *)
+    (*   assert false *)
+    (*   let* e' = eval_reduce_expr locals e in *)
+    (*   let e' = Translator.translate e' in *)
+    (*   let _sym_e = List.hd (Encoding.Expression.get_symbols [ e' ]) in *)
+    (*   assert ( *)
+    (*     Batch.check symb_env.solver (ESet.to_list symb_env.path_condition)); *)
+    (*   assert false *)
+    (* | Stmt.SymStmt (SymStmt.Maximize (_x, _e)) -> *)
+    (*   assert false *)
+    (*   let* e' = eval_reduce_expr locals e in *)
+    (*   let e' = Translator.translate e' in *)
+    (*   let pc = ESet.to_list symb_env.path_condition in *)
+    (*   let v = *)
+    (*     Option.map ~f:Translator.expr_of_value *)
+    (*       (Encoding.Optimizer.maximize symb_env.optimizer e' pc) *)
+    (*   in *)
+    (*   st *)
+    (*   @@ Store.add_exn locals x (Option.value ~default:(Expr.Val Val.Null) v) *)
+    (* | Stmt.SymStmt (SymStmt.Minimize (_x, _e)) -> *)
+    (*   assert false *)
+    (*   let* e' = eval_reduce_expr locals e in *)
+    (*   let e' = Translator.translate e' in *)
+    (*   let pc = ESet.to_list symb_env.path_condition in *)
+    (*   let v = *)
+    (*     Option.map ~f:Translator.expr_of_value *)
+    (*       (Encoding.Optimizer.minimize symb_env.optimizer e' pc) *)
+    (*   in *)
+    (*   st *)
+    (*   @@ Store.add_exn locals x (Option.value ~default:(Expr.Val Val.Null) v) *)
+    (*   st @@ Store.add_exn locals x (Expr.Bool.const (Expr.is_symbolic e')) *)
+    (* | Stmt.SymStmt (SymStmt.Is_sat (_x, _e)) -> assert false *)
     (* let* e' = eval_reduce_expr locals e in *)
     (* let pc' = ESet.add symb_env.path_condition (Translator.translate e') in *)
     (* let sat = Batch.check symb_env.solver (ESet.to_list pc') in *)
     (* st @@ Store.add_exn locals x (Expr.Bool.const sat) *)
     (* Can remove *)
-    | Stmt.SymStmt (SymStmt.Is_symbolic (_x, _e)) ->
-      assert false (* let* e' = eval_reduce_expr locals e in *)
-    | Stmt.SymStmt (SymStmt.Is_number (_x, _e)) -> assert false
+    (* | Stmt.SymStmt (SymStmt.Is_symbolic (_x, _e)) -> *)
+    (*   assert false (1* let* e' = eval_reduce_expr locals e in *1) *)
+    (* | Stmt.SymStmt (SymStmt.Is_number (_x, _e)) -> assert false *)
   (* let* e' = eval_reduce_expr locals e in *)
   (* let is_num = *)
-  (*   match Sval_typing.type_of e' with *)
-  (*   | Some Type.IntType | Some Type.FltType -> true *)
-  (*   | _ -> false *)
+    (* match Sval_typing.type_of e' with *)
+    (* | Some Type.IntType | Some Type.FltType -> true *)
+    (* | _ -> false *)
   (* in *)
   (* st @@ Store.add_exn locals x (Value.Bool.const is_num) *)
 

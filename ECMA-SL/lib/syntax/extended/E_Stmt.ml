@@ -1,7 +1,9 @@
 open Source
 
-type metadata_t = { where : string; html : string }
-type stmt = Assume of E_Expr.t
+type metadata_t =
+  { where : string
+  ; html : string
+  }
 
 type t = t' Source.phrase
 
@@ -32,7 +34,6 @@ and t' =
   | Lambda of string * string * string list * string list * t
   | Abort of E_Expr.t
   | Assert of E_Expr.t
-  | SymStmt of stmt
 
 let is_basic (s : t) : bool =
   match s.it with
@@ -65,45 +66,44 @@ let rec str (stmt : t) : string =
   | Return (Some e) -> "return " ^ E_Expr.str e
   | Wrapper (_m, s) -> str s
   | Assign (x, t, exp) ->
-      let x' = match t with None -> x | Some t' -> x ^ ": " ^ E_Type.str t' in
-      x' ^ " := " ^ E_Expr.str exp
+    let x' = match t with None -> x | Some t' -> x ^ ": " ^ E_Type.str t' in
+    x' ^ " := " ^ E_Expr.str exp
   | GlobAssign (x, exp) -> "|" ^ x ^ "| := " ^ E_Expr.str exp
   | Block stmts -> "{ " ^ String.concat ";" (List.map str stmts) ^ " }"
   | If (e, s1, s2, _, _) -> (
-      let v = "if (" ^ E_Expr.str e ^ ") " ^ str s1 in
-      match s2 with None -> v | Some s -> v ^ " else " ^ str s)
+    let v = "if (" ^ E_Expr.str e ^ ") " ^ str s1 in
+    match s2 with None -> v | Some s -> v ^ " else " ^ str s )
   | EIf (ifs, final_else) -> (
-      let ifs' =
-        List.map
-          (fun (e, s, _) -> Printf.sprintf "if (%s) %s" (E_Expr.str e) (str s))
-          ifs
-      in
-      let if_elses = String.concat " else " ifs' in
-      match final_else with
-      | None -> if_elses
-      | Some (s, _) -> Printf.sprintf "%s else %s" if_elses (str s))
+    let ifs' =
+      List.map
+        (fun (e, s, _) -> Printf.sprintf "if (%s) %s" (E_Expr.str e) (str s))
+        ifs
+    in
+    let if_elses = String.concat " else " ifs' in
+    match final_else with
+    | None -> if_elses
+    | Some (s, _) -> Printf.sprintf "%s else %s" if_elses (str s) )
   | While (exp, s) -> "while (" ^ E_Expr.str exp ^ ") " ^ str s
   | ForEach (x, exp, s, _, _) ->
-      Printf.sprintf "foreach (%s, %s) %s" x (E_Expr.str exp) (str s)
+    Printf.sprintf "foreach (%s, %s) %s" x (E_Expr.str exp) (str s)
   | FieldAssign (e_o, f, e_v) ->
-      E_Expr.str e_o ^ "[" ^ E_Expr.str f ^ "] := " ^ E_Expr.str e_v
+    E_Expr.str e_o ^ "[" ^ E_Expr.str f ^ "] := " ^ E_Expr.str e_v
   | FieldDelete (e, f) -> "delete " ^ E_Expr.str e ^ "[" ^ E_Expr.str f ^ "]"
   | ExprStmt e -> E_Expr.str e
   | RepeatUntil (s, e, _) -> "repeat " ^ str s ^ " until " ^ E_Expr.str e
   | MatchWith (e, pats_stmts) ->
-      "match " ^ E_Expr.str e ^ " with | "
-      ^ String.concat " | "
-          (List.map (fun (e, s) -> E_Pat.str e ^ ": " ^ str s) pats_stmts)
+    "match " ^ E_Expr.str e ^ " with | "
+    ^ String.concat " | "
+        (List.map (fun (e, s) -> E_Pat.str e ^ ": " ^ str s) pats_stmts)
   | MacroApply (m, es) ->
-      "@" ^ m ^ " (" ^ String.concat ", " (List.map E_Expr.str es) ^ ")"
+    "@" ^ m ^ " (" ^ String.concat ", " (List.map E_Expr.str es) ^ ")"
   | Switch (e, cases, so, _) ->
-      Printf.sprintf "switch (%s) { %s %s }" (E_Expr.str e) (str_cases cases)
-        (str_o so)
+    Printf.sprintf "switch (%s) { %s %s }" (E_Expr.str e) (str_cases cases)
+      (str_o so)
   | Lambda (x, fid, xs, ys, s) ->
-      Printf.sprintf "%s := lambda <%s> (%s; %s) { %s }" x fid
-        (String.concat ", " xs) (String.concat ", " ys) (str s)
+    Printf.sprintf "%s := lambda <%s> (%s; %s) { %s }" x fid
+      (String.concat ", " xs) (String.concat ", " ys) (str s)
   | Abort e -> "se_abort " ^ E_Expr.str e
-  | SymStmt (Assume e) -> "se_assume " ^ E_Expr.str e
 
 let return_val (expr_opt : E_Expr.t option) : E_Expr.t =
   Option.default (E_Expr.Val Val.Null) expr_opt
@@ -135,11 +135,10 @@ let rec map ?(fe : (E_Expr.t -> E_Expr.t) option) (f : t -> t) (s : t) : t =
     | GlobAssign (x, e) -> GlobAssign (fx x, fe e)
     | Block ss -> Block (List.map (map ~fe f) ss)
     | If (e, s1, s2, m_i, m_e) ->
-        If (fe e, map ~fe f s1, Option.map (map ~fe f) s2, m_i, m_e)
+      If (fe e, map ~fe f s1, Option.map (map ~fe f) s2, m_i, m_e)
     | EIf (ifs, final_else) ->
-        EIf
-          ( f_if_elses ifs,
-            Option.map (fun (s, m) -> (map ~fe f s, m)) final_else )
+      EIf
+        (f_if_elses ifs, Option.map (fun (s, m) -> (map ~fe f s, m)) final_else)
     | While (e, s) -> While (fe e, map ~fe f s)
     | ForEach (x, e, s, m, v_m) -> ForEach (fx x, fe e, map ~fe f s, m, v_m)
     | FieldAssign (e_o, e_f, e_v) -> FieldAssign (fe e_o, fe e_f, fe e_v)
@@ -149,10 +148,9 @@ let rec map ?(fe : (E_Expr.t -> E_Expr.t) option) (f : t -> t) (s : t) : t =
     | MatchWith (e, pats_stmts) -> MatchWith (fe e, f_pat pats_stmts)
     | MacroApply (m, es) -> MacroApply (m, List.map fe es)
     | Switch (e, cases, so, meta) ->
-        Switch (fe e, f_cases cases, Option.map (map ~fe f) so, meta)
+      Switch (fe e, f_cases cases, Option.map (map ~fe f) so, meta)
     | Lambda (z, id, xs, ys, s) -> Lambda (z, id, xs, ys, map ~fe f s)
     | Abort e -> Abort (fe e)
-    | SymStmt (Assume e) -> SymStmt (Assume (fe e))
   in
   f (s' @> s.at)
 
@@ -176,15 +174,14 @@ let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
       match s.it with
       | Skip | Print _ | Wrapper _ | Assign _ | GlobAssign _ | Return _
       | FieldAssign _ | FieldDelete _ | ExprStmt _ | Throw _ | Fail _ | Assert _
-      | Abort _
-      | SymStmt (Assume _) ->
-          []
+      | Abort _ ->
+        []
       | Block stmts -> f_stmts stmts
       | If (_e, st, sf, _, _) -> f' st @ f_o sf
       | EIf (ifs, final_else) ->
-          f_stmts
-            (f_if_elses ifs
-            @ Option.map_default (fun (s, _) -> [ s ]) [] final_else)
+        f_stmts
+          ( f_if_elses ifs
+          @ Option.map_default (fun (s, _) -> [ s ]) [] final_else )
       | While (_e, s) -> f' s
       | ForEach (_x, _e, s, _, _) -> f' s
       | RepeatUntil (s, _e, _) -> f' s
@@ -192,7 +189,7 @@ let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
       | Lambda (_, _, _, _, s) -> f' s
       | MacroApply _ -> failwith "E_Stmt.to_list on MacroApply"
       | Switch (_, cases, so, _) ->
-          f_stmts (f_cases cases @ Option.map_default (fun x -> [ x ]) [] so)
+        f_stmts (f_cases cases @ Option.map_default (fun x -> [ x ]) [] so)
     in
     ret @ ret_rec
 

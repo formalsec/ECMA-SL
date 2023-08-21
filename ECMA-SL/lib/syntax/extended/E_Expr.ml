@@ -16,15 +16,6 @@ type t =
   | Lookup of t * t
   | Curry of t * t list
   | Symbolic of Type.t * t
-  | SymOpt of sopt
-
-and sopt =
-  | Evaluate of t
-  | Maximize of t
-  | Minimize of t
-  | Is_sat of t
-  | Is_number of t
-  | Is_symbolic of t
 
 type subst_t = (string, t) Stdlib.Hashtbl.t
 
@@ -52,17 +43,6 @@ let rec str (e : t) : string =
   | Lookup (e, f) -> str e ^ "[" ^ str f ^ "]"
   | Curry (f, es) -> str f ^ "@(" ^ str_es es ^ ")"
   | Symbolic (t, x) -> "se_mk_symbolic(" ^ Type.str t ^ ", \"" ^ str x ^ "\")"
-  | SymOpt op ->
-      let op' =
-        match op with
-        | Evaluate _e -> "se_evaluate"
-        | Maximize _e -> "se_maximize"
-        | Minimize _e -> "se_minimize"
-        | Is_symbolic _e -> "se_is_symbolic"
-        | Is_sat _e -> "se_is_sat"
-        | Is_number _e -> "se_is_number"
-      in
-      sprintf "%s(%s)" op' (str e)
 
 (* Used in module HTMLExtensions but not yet terminated.
    This still contains defects. *)
@@ -118,17 +98,6 @@ let rec map (f : t -> t) (e : t) : t =
     | NewObj fes -> NewObj (map_obj fes)
     | Lookup (e, ef) -> Lookup (mapf e, mapf ef)
     | Curry (e, es) -> Curry (mapf e, List.map ~f:mapf es)
-    | SymOpt op ->
-        let op' =
-          match op with
-          | Evaluate e -> Evaluate (mapf e)
-          | Maximize e -> Maximize (mapf e)
-          | Minimize e -> Minimize (mapf e)
-          | Is_symbolic e -> Is_symbolic (mapf e)
-          | Is_sat e -> Is_sat (mapf e)
-          | Is_number e -> Is_number (mapf e)
-        in
-        SymOpt op'
   in
   f e'
 

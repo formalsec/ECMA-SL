@@ -14,14 +14,6 @@
       List.iter (fun (kwd, tok) -> Hashtbl.add keywords kwd tok)
                 [
                   (* API *)
-                  "se_assume", API_ASSUME;
-                  "se_mk_symbolic", API_MK_SYMBOLIC;
-                  "se_evaluate", API_EVALUATE;
-                  "se_maximize", API_MAXIMIZE;
-                  "se_minimize", API_MINIMIZE;
-                  "se_is_symbolic", API_IS_SYMBOLIC;
-                  "se_is_sat", API_IS_SAT;
-                  "se_is_number", API_IS_NUMBER;
                   "se_abort", API_ABORT;
                   "parse_number"    , PARSE_NUMBER;
                   "parse_string"    , PARSE_STRING;
@@ -103,7 +95,7 @@
                   "null"            , NULL;
                   "fail"            , FAIL;
                   "assert"          , ASSERT;
-                  "print"           , PRINT; 
+                  "print"           , PRINT;
                   "to_precision"    , TO_PRECISION;
                   "to_exponential"    , TO_EXPONENTIAL;
                   "to_fixed"    , TO_FIXED;
@@ -111,14 +103,14 @@
                   "log_2" , LOG_2;
                   "sinh" , SINH;
                   "tanh" , TANH;
-                  "float64_to_le_bytes"   , FLOAT64_TO_LE_BYTES; 
-                  "float64_to_be_bytes"   , FLOAT64_TO_BE_BYTES; 
-                  "float32_to_le_bytes"   , FLOAT32_TO_LE_BYTES; 
-                  "float32_to_be_bytes"   , FLOAT32_TO_BE_BYTES; 
+                  "float64_to_le_bytes"   , FLOAT64_TO_LE_BYTES;
+                  "float64_to_be_bytes"   , FLOAT64_TO_BE_BYTES;
+                  "float32_to_le_bytes"   , FLOAT32_TO_LE_BYTES;
+                  "float32_to_be_bytes"   , FLOAT32_TO_BE_BYTES;
                   "int_to_be_bytes"       , INT_TO_BE_BYTES;
-                  "float64_from_le_bytes" , FLOAT64_FROM_LE_BYTES; 
-                  "float64_from_be_bytes" , FLOAT64_FROM_BE_BYTES; 
-                  "float32_from_le_bytes" , FLOAT32_FROM_LE_BYTES; 
+                  "float64_from_le_bytes" , FLOAT64_FROM_LE_BYTES;
+                  "float64_from_be_bytes" , FLOAT64_FROM_BE_BYTES;
+                  "float32_from_le_bytes" , FLOAT32_FROM_LE_BYTES;
                   "float32_from_be_bytes" , FLOAT32_FROM_BE_BYTES;
                   "int_from_le_bytes"     , INT_FROM_BYTES;
                   "uint_from_le_bytes"    , UINT_FROM_BYTES;

@@ -25,7 +25,6 @@ and t' =
   | FieldDelete of Expr.t * Expr.t
   | FieldLookup of string * Expr.t * Expr.t
   | Exception of string
-  | SymStmt of SymStmt.t
 
 (*---------------Strings------------------*)
 
@@ -64,7 +63,6 @@ let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
   | Exception st -> Printf.sprintf "throw \"%s\"" st
   | Assert e -> "assert (" ^ str_e e ^ ")"
   | Abort e -> "se_abort " ^ str_e e
-  | SymStmt stmt -> SymStmt.str stmt
 
 let rec js (stmt : t) : string =
   let str_es es = String.concat ~sep:", " (List.map ~f:Expr.js es) in
@@ -103,7 +101,6 @@ let rec js (stmt : t) : string =
   | Exception st -> Printf.sprintf "throw \"%s\"" st
   | Fail e | Abort e -> Printf.sprintf "throw %s" (Expr.js e)
   | Assert _e -> failwith "Stmt: js: Assert not implemented!"
-  | SymStmt _e -> failwith "Stmt: js: SymStmt not implemented!"
 (*Printf.sprintf "throw %s" (Expr.js e)*)
 
 let rec to_json (stmt : t) : string =
@@ -180,9 +177,6 @@ let rec to_json (stmt : t) : string =
         (Expr.to_json e)
   | Exception st ->
       Printf.sprintf "{\"type\" : \"exception\", \"value\" : \"%s\"}" st
-  | SymStmt st ->
-      Printf.sprintf "{\"type\" : \"exception\", \"value\" : \"%s\"}"
-        (SymStmt.str st)
 
 module Pp = struct
   let to_string (stmt : t) pp : string =
@@ -216,15 +210,5 @@ module Pp = struct
     | Exception st -> Format.sprintf "throw \"%s\"" st
     | Assert e -> Format.sprintf "assert (%s)" (str e)
     | Abort e -> Format.sprintf "se_abort (%s)" (str e)
-    | SymStmt stmt -> (
-        match stmt with
-        | SymStmt.Assume e -> sprintf "se_assume(%s)" (str e)
-        | SymStmt.Evaluate (x, e) -> sprintf "%s := se_evaluate(%s)" x (str e)
-        | SymStmt.Maximize (x, e) -> sprintf "%s := se_maximize(%s)" x (str e)
-        | SymStmt.Minimize (x, e) -> sprintf "%s := se_minimize(%s)" x (str e)
-        | SymStmt.Is_symbolic (x, e) ->
-            sprintf "%s := se_is_symbolic(%s)" x (str e)
-        | SymStmt.Is_sat (x, e) -> sprintf "%s := se_is_sat(%s)" x (str e)
-        | SymStmt.Is_number (x, e) -> sprintf "%s := se_is_number(%s)" x (str e)
-        )
+
 end

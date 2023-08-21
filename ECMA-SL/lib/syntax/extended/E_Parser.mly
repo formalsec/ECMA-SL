@@ -72,9 +72,7 @@ let at (startpos, endpos) =
 %token TYPEDEF, TYPE_ANY, TYPE_UNKNOWN, TYPE_NEVER, TYPE_UNDEFINED, TYPE_VOID, TYPE_INT, TYPE_FLOAT, TYPE_STRING, TYPE_BOOLEAN TYPE_SYMBOL, TYPE_SIGMA
 
 
-%token API_ASSUME API_MK_SYMBOLIC API_ABORT
-%token API_EVAL API_MAXIMIZE API_MINIMIZE
-%token API_IS_SYMBOLIC API_IS_SAT API_IS_NUMBER
+%token API_ABORT
 
 %left SCLAND SCLOR LAND LOR
 %left EQUAL
@@ -117,7 +115,7 @@ e_prog_e_func_target:
 e_prog_target:
   | imports = list (import_target); prog_elemts = separated_list (SEMICOLON, e_prog_elem_target); EOF;
    {
-    let prog_elemts_split = fun el (type_decls', funcs', macros') -> 
+    let prog_elemts_split = fun el (type_decls', funcs', macros') ->
       match el with
         | E_Prog.ElementType.TypeDeclaration el' -> (el'::type_decls', funcs', macros')
         | E_Prog.ElementType.Procedure el' -> (type_decls', el'::funcs', macros')
@@ -148,7 +146,7 @@ type_decl_target:
 proc_target:
   | FUNCTION; f = VAR; LPAREN; vars = proc_params_target; RPAREN; ret_t = option(e_typing_target); s = e_block_target;
    { E_Func.create None f vars ret_t s @> at $sloc }
-  | FUNCTION; f = VAR; LPAREN; vars = proc_params_target; RPAREN; meta = metadata_target; vars_meta_opt = option(vars_metadata_target); 
+  | FUNCTION; f = VAR; LPAREN; vars = proc_params_target; RPAREN; meta = metadata_target; vars_meta_opt = option(vars_metadata_target);
     ret_t = option(e_typing_target); s = e_block_target;
    {
      let vars_meta = Option.default [] vars_meta_opt in
@@ -226,7 +224,7 @@ type_target:
     { Type.SymbolType }
   | CURRY_TYPE;
     { Type.CurryType }
-  ; 
+  ;
 
 (* v ::= f | i | b | s *)
 val_target:
@@ -293,25 +291,8 @@ e_expr_target:
     { pre_tri_op_expr }
   | in_bin_op_expr = infix_binary_op_target;
     { in_bin_op_expr }
-  | se_op_target; { $1 }
   ;
 
-se_op_target:
-  | API_MK_SYMBOLIC; LPAREN; t = type_target; COMMA; x = e_expr_target; RPAREN;
-    { E_Expr.Symbolic (t, x) }
-  | API_EVAL; LPAREN; e = e_expr_target; RPAREN; 
-    { E_Expr.SymOpt (E_Expr.Evaluate e) }
-  | API_MAXIMIZE; LPAREN; e = e_expr_target; RPAREN; 
-    { E_Expr.SymOpt (E_Expr.Maximize e) }
-  | API_MINIMIZE; LPAREN; e = e_expr_target; RPAREN; 
-    { E_Expr.SymOpt (E_Expr.Minimize e) }
-  | API_IS_SAT; LPAREN; e = e_expr_target; RPAREN;
-    { E_Expr.SymOpt (E_Expr.Is_sat e) }
-  | API_IS_SYMBOLIC; LPAREN; e = e_expr_target; RPAREN; 
-    { E_Expr.SymOpt (E_Expr.Is_symbolic e) }
-  | API_IS_NUMBER; LPAREN; e = e_expr_target; RPAREN; 
-    { E_Expr.SymOpt (E_Expr.Is_number e) }
-  ;
 
 nary_op_target:
   | LBRACK; es = separated_list (COMMA, e_expr_target); RBRACK;
@@ -446,19 +427,19 @@ prefix_unary_op_target:
   | TANH; e = e_expr_target;
     { E_Expr.UnOpt (Tanh, e) } %prec unopt_prec
   | FLOAT64_TO_LE_BYTES; e = e_expr_target;
-    { E_Expr.UnOpt (Float64ToLEBytes, e) } %prec unopt_prec 
+    { E_Expr.UnOpt (Float64ToLEBytes, e) } %prec unopt_prec
   | FLOAT64_TO_BE_BYTES; e = e_expr_target;
-    { E_Expr.UnOpt (Float64ToBEBytes, e) } %prec unopt_prec 
+    { E_Expr.UnOpt (Float64ToBEBytes, e) } %prec unopt_prec
   | FLOAT32_TO_LE_BYTES; e = e_expr_target;
-    { E_Expr.UnOpt (Float32ToLEBytes, e) } %prec unopt_prec 
+    { E_Expr.UnOpt (Float32ToLEBytes, e) } %prec unopt_prec
   | FLOAT32_TO_BE_BYTES; e = e_expr_target;
-    { E_Expr.UnOpt (Float32ToBEBytes, e) } %prec unopt_prec 
+    { E_Expr.UnOpt (Float32ToBEBytes, e) } %prec unopt_prec
   | FLOAT64_FROM_LE_BYTES; e = e_expr_target;
-    { E_Expr.UnOpt (Float64FromLEBytes, e) } %prec unopt_prec 
+    { E_Expr.UnOpt (Float64FromLEBytes, e) } %prec unopt_prec
   | FLOAT64_FROM_BE_BYTES; e = e_expr_target;
-    { E_Expr.UnOpt (Float64FromBEBytes, e) } %prec unopt_prec 
+    { E_Expr.UnOpt (Float64FromBEBytes, e) } %prec unopt_prec
   | FLOAT32_FROM_LE_BYTES; e = e_expr_target;
-    { E_Expr.UnOpt (Float32FromLEBytes, e) } %prec unopt_prec 
+    { E_Expr.UnOpt (Float32FromLEBytes, e) } %prec unopt_prec
   | FLOAT32_FROM_BE_BYTES  e = e_expr_target;
     { E_Expr.UnOpt (Float32FromBEBytes, e) } %prec unopt_prec
   | BYTES_TO_STRING  e = e_expr_target;
@@ -498,11 +479,11 @@ prefix_binary_op_target:
     { E_Expr.BinOpt (Max, e1, e2) }
   | MIN; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (Min, e1, e2) }
-  | TO_PRECISION; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN; 
+  | TO_PRECISION; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (ToPrecision, e1, e2) }
-  | TO_EXPONENTIAL; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN; 
+  | TO_EXPONENTIAL; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (ToExponential, e1, e2) }
-  | TO_FIXED; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN; 
+  | TO_FIXED; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (ToFixed, e1, e2) }
   | ARRAY_MAKE; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (ArrayMake, e1, e2) }
@@ -551,8 +532,6 @@ e_stmt_target:
     { E_Stmt.Wrapper (meta, s) @> at $sloc }
   | API_ABORT; e = e_expr_target;
     { E_Stmt.Abort e @> at $sloc }
-  | API_ASSUME; e = e_expr_target;
-    { E_Stmt.SymStmt (Assume e) @> at $sloc }
   | ASSERT; e = e_expr_target;
     { E_Stmt.Assert e @> at $sloc }
   | e1 = e_expr_target; PERIOD; f = VAR; DEFEQ; e2 = e_expr_target;
@@ -770,7 +749,7 @@ e_nary_type_target:
 e_nary_type_op_target:
   | TIMES;        { E_Type.merge_tuple_type }
   | PIPE;         { E_Type.merge_union_type }
-  
+
 e_type_property_target:
   | v = VAR; COLON; t = e_type_target;
     { E_Type.Field.NamedField (v, (t, false) ) }

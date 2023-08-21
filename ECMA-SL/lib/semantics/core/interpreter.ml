@@ -360,13 +360,6 @@ module M (Mon : SecurityMonitor) = struct
         let v = eval_objfields_oper heap sto e in
         Store.set sto st v;
         (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignLab (st, e))
-    | SymStmt (SymStmt.Assume e) ->
-        let v = eval_expr sto e in
-        if is_true v then (Intermediate (state, cont), SecLabel.EmptyLab)
-        else
-          let e' = "Assume false: " ^ Expr.str e in
-          (Finalv (Some (Val.Str e')), SecLabel.EmptyLab)
-    | SymStmt _ -> failwith "eval_small_step: SymStmt: TODO"
 
   (*This function will iterate smallsteps in a list of functions*)
   let rec small_step_iter
