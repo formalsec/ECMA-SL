@@ -18,7 +18,7 @@ module P = struct
   end
 
   module Choice = Choice_monad.List
-  module Extern_func = Extern_func.Make (Value)
+  module Extern_func = Extern_func.Make (Value) (Choice)
 
   type extern_func = Extern_func.extern_func
   type env = extern_func Env.t

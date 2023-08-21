@@ -1,10 +1,10 @@
 function main() {
 	x := extern str_symbol("x");
-  	y := s_len(x);
-	se_assume(y = 4);
+  y := s_len(x);
+	extern assume(y = 4);
 
-	se_assume(s_substr(x, 0, 3) = "EFG");
-	se_assume(s_nth(x, 3) = "A");
+	extern assume(s_substr(x, 0, 3) = "EFG");
+	extern assume(s_nth(x, 3) = "A");
 
 	z := s_substr(x, 0, 3);
 	assert(z = "EFG");

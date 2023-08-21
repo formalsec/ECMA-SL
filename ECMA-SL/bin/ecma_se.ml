@@ -5,27 +5,38 @@ module Choice = Sym_state.P.Choice
 module Thread = Choice_monad.Thread
 module SMap = Map.Make (String)
 
+let ( let/ ) = Choice.bind
+
 let symbolic_api_funcs =
   let open Value in
   let open Sym_state.P.Extern_func in
-  let str_symbol (x : value) : value = Symbolic (Type.StrType, x) in
-  let int_symbol (x : value) : value = Symbolic (Type.IntType, x) in
-  let flt_symbol (x : value) : value = Symbolic (Type.FltType, x) in
-  let bool_symbol (x : value) : value = Symbolic (Type.BoolType, x) in
-  let is_symbolic (n : value) : value = Val (Val.Bool (Value.is_symbolic n)) in
-  let is_number (n : value) : value =
+  let str_symbol (x : value) = Choice.return (Symbolic (Type.StrType, x)) in
+  let int_symbol (x : value) = Choice.return (Symbolic (Type.IntType, x)) in
+  let flt_symbol (x : value) = Choice.return (Symbolic (Type.FltType, x)) in
+  let bool_symbol (x : value) = Choice.return (Symbolic (Type.BoolType, x)) in
+  let is_symbolic (n : value) =
+    Choice.return (Val (Val.Bool (Value.is_symbolic n)))
+  in
+  let is_number (n : value) =
     let is_number =
       match Value_typing.type_of n with
       | Some Type.IntType | Some Type.FltType -> true
       | _ -> false
     in
-    Val (Val.Bool is_number)
+    Choice.return (Val (Val.Bool is_number))
   in
-  let is_sat (_e : value) : value = assert false in
-  let assume (_e : value) : value = assert false in
-  let evaluate (_e : value) : value = assert false in
-  let maximize (_e : value) : value = assert false in
-  let minimize (_e : value) : value = assert false in
+  let is_sat (e : value) =
+    let/ b = Choice.select e in
+    Choice.return (Val (Val.Bool b))
+  in
+  let assume (e : value) =
+    fun t ->
+      let e' = Value_translator.translate e in
+      [ (Val (Val.Symbol "undefined"), Thread.add_pc t e') ]
+  in
+  let evaluate (_e : value) = assert false in
+  let maximize (_e : value) = assert false in
+  let minimize (_e : value) = assert false in
   SMap.of_alist_exn
     [ ("str_symbol", Extern_func (Func (Arg Res), str_symbol))
     ; ("int_symbol", Extern_func (Func (Arg Res), int_symbol))
@@ -43,13 +54,13 @@ let symbolic_api_funcs =
 (* Examples *)
 let extern_functions =
   let open Sym_state.P.Extern_func in
-  let hello () : Value.value =
+  let hello () =
     Format.printf "Hello world@.";
-    Value.Val (Val.Symbol "undefined")
+    Choice.return (Value.Val (Val.Symbol "undefined"))
   in
-  let print (v : Value.value) : Value.value =
+  let print (v : Value.value) =
     Format.printf "extern print: %s@." (Value.Pp.pp v);
-    Value.Val (Val.Symbol "undefined")
+    Choice.return (Value.Val (Val.Symbol "undefined"))
   in
   SMap.of_alist_exn
     [ ("hello", Extern_func (Func (UArg Res), hello))

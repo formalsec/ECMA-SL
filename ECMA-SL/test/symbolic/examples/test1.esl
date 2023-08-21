@@ -1,6 +1,6 @@
 function main () {
   x := extern int_symbol("x");
-  se_assume(x > 10);
+  extern assume(x > 10);
   x := x * 2;
   assert(x > 20);
   return 1

@@ -6,9 +6,10 @@ module type P = sig
   type store
 
   module Value : Value_intf.T with type value = value and type store = store
-  module Extern_func : Extern_func.T with type value = value
-
   module Choice : Choice_monad_intf.Base with module V := Value
+
+  module Extern_func :
+    Extern_func.T with type value = value with type 'a choice := 'a Choice.t
 
   module Store : sig
     type bind = string

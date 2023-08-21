@@ -1,5 +1,4 @@
 open Core
-open Func
 open Source
 
 let ( let* ) o f = match o with Error e -> failwith e | Ok o -> f o
@@ -36,7 +35,7 @@ module Make (P : Eval_functor_intf.P) :
   type value = P.value
   type store = P.store
 
-  let ( let/ ) o f = Choice.bind o f
+  let ( let/ ) = Choice.bind
 
   (* let ( let*/ ) o f = *)
   (*   match o with Error e -> failwith e | Ok o -> Choice.bind o f *)
@@ -82,22 +81,29 @@ module Make (P : Eval_functor_intf.P) :
     Reducer.reduce e'
 
   let pp locals e =
-    match eval_reduce_expr locals e with
-    | Ok v -> Value.Pp.pp v
-    | Error msg ->
-      Format.printf "%s@." msg;
-      assert false
+    (* TODO: Print function in sym_value *)
+    (* let s = *)
+    (*   match e' with *)
+    (*   | Expr.Val (Val.Loc l) -> *)
+    (*     let heap = Env.get_memory env in *)
+    (*     let o = Heap.get heap l in *)
+    (*     Object.to_string (Option.value_exn o) Expr.str *)
+    (*   | _ -> Expr.str e' *)
+    (* in *)
+    (* Printf.printf "print:%s\npc:%s\nheap id:%d\n" s (Encoding.Expression.string_of_pc pc) (Heap.get_id heap); *)
+    let* v = eval_reduce_expr locals e in
+    Value.Pp.pp v
 
   let exec_func state func args ret_var =
-    Log.debug (lazy (sprintf "calling func: %s" func.name));
+    Log.debug (lazy (sprintf "calling func: %s" (Func.get_name func)));
     let return_state = Some (state, ret_var) in
-    let params = func.params in
+    let params = Func.get_params func in
     let store = Store.create (List.zip_exn params args) in
     let state' =
       State.
         { return_state
         ; locals = store
-        ; stmts = [ func.body ]
+        ; stmts = [ Func.get_body func ]
         ; env = state.env (* ; func = func.name *)
         }
     in
@@ -105,7 +111,8 @@ module Make (P : Eval_functor_intf.P) :
 
   let exec_extern_func state f args ret_var =
     let open Extern_func in
-    let rec apply : type a. value Stack.t -> a Extern_func.atype -> a -> value =
+    let rec apply :
+      type a. value Stack.t -> a Extern_func.atype -> a -> value Choice.t =
      fun args ty f ->
       match ty with
       | UArg ty' -> apply args ty' (f ())
@@ -115,7 +122,7 @@ module Make (P : Eval_functor_intf.P) :
       | Res -> f
     in
     let (Extern_func (Func atype, func)) = f in
-    let v = apply (Stack.of_list args) atype func in
+    let/ v = apply (Stack.of_list args) atype func in
     let locals = Store.add_exn state.State.locals ret_var v in
     Choice.return @@ State.Continue State.{ state with locals }
 
@@ -133,25 +140,10 @@ module Make (P : Eval_functor_intf.P) :
     | Stmt.Exception err ->
       let at' = Source.string_of_region stmt.at in
       Choice.error (sprintf "%s: Exception: %s" at' err)
-    | Stmt.Fail e ->
-      let* e' = eval_reduce_expr locals e in
-      Choice.error (sprintf "fail: %s" (Value.Pp.pp e'))
-    | Stmt.Abort e ->
-      let* e' = eval_reduce_expr locals e in
-      Choice.error (sprintf "abort: %s" (Value.Pp.pp e'))
+    | Stmt.Fail e -> Choice.error (sprintf "fail: %s" (pp locals e))
+    | Stmt.Abort e -> Choice.error (sprintf "abort: %s" (pp locals e))
     | Stmt.Print e ->
-      let* e' = eval_reduce_expr locals e in
-      (* TODO: Print function in sym_value *)
-      (* let s = *)
-      (*   match e' with *)
-      (*   | Expr.Val (Val.Loc l) -> *)
-      (*       let heap = Env.get_memory env in *)
-      (*       let o = Heap.get heap l in *)
-      (*       Object.to_string (Option.value_exn o) Expr.str *)
-      (*   | _ -> Expr.str e' *)
-      (* in *)
-      (* (1* Printf.printf "print:%s\npc:%s\nheap id:%d\n" s (Encoding.Expression.string_of_pc pc) (Heap.get_id heap); *1) *)
-      Format.printf "%s@." (Value.Pp.pp e');
+      Format.printf "%s@." (pp locals e);
       st locals
     | Stmt.Assign (x, e) ->
       let* v = eval_reduce_expr locals e in
@@ -245,64 +237,36 @@ module Make (P : Eval_functor_intf.P) :
       let value' = Option.value value ~default:(Value.mk_symbol "undefined") in
       st @@ Store.add_exn locals x value'
 
-    (* FIXME: Move to external functions *)
-    (* | Stmt.SymStmt (SymStmt.Assume _e) -> *)
-    (*   assert false *)
-    (*   ( *)
-    (*   let* e' = eval_reduce_expr locals e in *)
-    (*   (1* TODO: Do not discharge to solver (saves 1 query per assume) *1) *)
-    (*   match Choice.assumption e' with *)
-    (*   | Some b -> if b then st locals else Ok [] *)
-    (*   | None -> *)
-    (*   let symb_env = State.add_pc symb_env (Some e') in *)
-    (*   Ok [ State.Continue { c with symb_env } ] ) *)
-    (* | Stmt.SymStmt (SymStmt.Evaluate (_x, _e)) -> *)
-    (*   assert false *)
-    (*   let* e' = eval_reduce_expr locals e in *)
-    (*   let e' = Translator.translate e' in *)
-    (*   let _sym_e = List.hd (Encoding.Expression.get_symbols [ e' ]) in *)
-    (*   assert ( *)
-    (*     Batch.check symb_env.solver (ESet.to_list symb_env.path_condition)); *)
-    (*   assert false *)
-    (* | Stmt.SymStmt (SymStmt.Maximize (_x, _e)) -> *)
-    (*   assert false *)
-    (*   let* e' = eval_reduce_expr locals e in *)
-    (*   let e' = Translator.translate e' in *)
-    (*   let pc = ESet.to_list symb_env.path_condition in *)
-    (*   let v = *)
-    (*     Option.map ~f:Translator.expr_of_value *)
-    (*       (Encoding.Optimizer.maximize symb_env.optimizer e' pc) *)
-    (*   in *)
-    (*   st *)
-    (*   @@ Store.add_exn locals x (Option.value ~default:(Expr.Val Val.Null) v) *)
-    (* | Stmt.SymStmt (SymStmt.Minimize (_x, _e)) -> *)
-    (*   assert false *)
-    (*   let* e' = eval_reduce_expr locals e in *)
-    (*   let e' = Translator.translate e' in *)
-    (*   let pc = ESet.to_list symb_env.path_condition in *)
-    (*   let v = *)
-    (*     Option.map ~f:Translator.expr_of_value *)
-    (*       (Encoding.Optimizer.minimize symb_env.optimizer e' pc) *)
-    (*   in *)
-    (*   st *)
-    (*   @@ Store.add_exn locals x (Option.value ~default:(Expr.Val Val.Null) v) *)
-    (*   st @@ Store.add_exn locals x (Expr.Bool.const (Expr.is_symbolic e')) *)
-    (* | Stmt.SymStmt (SymStmt.Is_sat (_x, _e)) -> assert false *)
-    (* let* e' = eval_reduce_expr locals e in *)
-    (* let pc' = ESet.add symb_env.path_condition (Translator.translate e') in *)
-    (* let sat = Batch.check symb_env.solver (ESet.to_list pc') in *)
-    (* st @@ Store.add_exn locals x (Expr.Bool.const sat) *)
-    (* Can remove *)
-    (* | Stmt.SymStmt (SymStmt.Is_symbolic (_x, _e)) -> *)
-    (*   assert false (1* let* e' = eval_reduce_expr locals e in *1) *)
-    (* | Stmt.SymStmt (SymStmt.Is_number (_x, _e)) -> assert false *)
-  (* let* e' = eval_reduce_expr locals e in *)
-  (* let is_num = *)
-    (* match Sval_typing.type_of e' with *)
-    (* | Some Type.IntType | Some Type.FltType -> true *)
-    (* | _ -> false *)
-  (* in *)
-  (* st @@ Store.add_exn locals x (Value.Bool.const is_num) *)
+  (* | Stmt.SymStmt (SymStmt.Evaluate (_x, _e)) -> *)
+  (*   assert false *)
+  (*   let* e' = eval_reduce_expr locals e in *)
+  (*   let e' = Translator.translate e' in *)
+  (*   let _sym_e = List.hd (Encoding.Expression.get_symbols [ e' ]) in *)
+  (*   assert ( *)
+  (*     Batch.check symb_env.solver (ESet.to_list symb_env.path_condition)); *)
+  (*   assert false *)
+  (* | Stmt.SymStmt (SymStmt.Maximize (_x, _e)) -> *)
+  (*   assert false *)
+  (*   let* e' = eval_reduce_expr locals e in *)
+  (*   let e' = Translator.translate e' in *)
+  (*   let pc = ESet.to_list symb_env.path_condition in *)
+  (*   let v = *)
+  (*     Option.map ~f:Translator.expr_of_value *)
+  (*       (Encoding.Optimizer.maximize symb_env.optimizer e' pc) *)
+  (*   in *)
+  (*   st *)
+  (*   @@ Store.add_exn locals x (Option.value ~default:(Expr.Val Val.Null) v) *)
+  (* | Stmt.SymStmt (SymStmt.Minimize (_x, _e)) -> *)
+  (*   assert false *)
+  (*   let* e' = eval_reduce_expr locals e in *)
+  (*   let e' = Translator.translate e' in *)
+  (*   let pc = ESet.to_list symb_env.path_condition in *)
+  (*   let v = *)
+  (*     Option.map ~f:Translator.expr_of_value *)
+  (*       (Encoding.Optimizer.minimize symb_env.optimizer e' pc) *)
+  (*   in *)
+  (*   st *)
+  (*   @@ Store.add_exn locals x (Option.value ~default:(Expr.Val Val.Null) v) *)
 
   (* let serialize = *)
   (*   let open State in *)
@@ -432,5 +396,5 @@ module Make (P : Eval_functor_intf.P) :
     (* in *)
     let* f = Env.get_func env f in
     let state = State.empty_state ~env in
-    loop State.{ state with stmts = [ f.body ] }
+    loop State.{ state with stmts = [ Func.get_body f ] }
 end
