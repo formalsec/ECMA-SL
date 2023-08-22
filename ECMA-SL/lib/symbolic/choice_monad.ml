@@ -1,5 +1,6 @@
 module Value = Sym_value.M
 module Heap = Sym_heap2.Heap
+module Translator = Value_translator
 
 module Thread = struct
   type t =
@@ -46,7 +47,7 @@ module List = struct
       match v with
       | Val (Val.Bool b) -> [ (b, t) ]
       | _ ->
-        let cond = Value_translator.translate v in
+        let cond = Translator.translate v in
         [ (Batch.check solver (cond :: pc), t) ]
 
   let branch (v : Value.value) : bool t =
@@ -57,8 +58,8 @@ module List = struct
       match v with
       | Val (Val.Bool b) -> [ (b, t) ]
       | _ -> (
-        let cond = Value_translator.translate v in
-        let no = Value_translator.translate @@ Value.Bool.not_ v in
+        let cond = Translator.translate v in
+        let no = Translator.translate @@ Value.Bool.not_ v in
         let sat_true = Batch.check solver (cond :: pc) in
         let sat_false = Batch.check solver (no :: pc) in
         match (sat_true, sat_false) with

@@ -71,11 +71,6 @@ module type P = sig
   module Reducer : sig
     val reduce : value -> value
   end
-
-  module Translator : sig
-    val expr_of_value : Encoding.Value.t -> value
-    val translate : ?b:bool -> value -> Encoding.Expression.t
-  end
 end
 
 module type S = sig

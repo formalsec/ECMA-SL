@@ -77,8 +77,9 @@ module Make (P : Eval_functor_intf.P) :
         Continue { state' with locals; env }
   end
 
-  let eval_reduce_expr (sto : store) (e : Expr.t) : (value, string) Result.t =
+  let eval_expr (sto : store) (e : Expr.t) : (value, string) Result.t =
     let+ e' = Value.eval_expr sto e in
+    (* TODO: decouple Reducer from abstract values *)
     Reducer.reduce e'
 
   let pp locals e =
@@ -92,7 +93,7 @@ module Make (P : Eval_functor_intf.P) :
     (*   | _ -> Expr.str e' *)
     (* in *)
     (* Printf.printf "print:%s\npc:%s\nheap id:%d\n" s (Encoding.Expression.string_of_pc pc) (Heap.get_id heap); *)
-    let* v = eval_reduce_expr locals e in
+    let* v = eval_expr locals e in
     Value.Pp.pp v
 
   let exec_func state func args ret_var =
@@ -148,17 +149,17 @@ module Make (P : Eval_functor_intf.P) :
       Format.printf "%s@." (pp locals e);
       st locals
     | Stmt.Assign (x, e) ->
-      let* v = eval_reduce_expr locals e in
+      let* v = eval_expr locals e in
       st @@ Store.add_exn locals x v
     | Stmt.Assert e ->
-      let* e' = eval_reduce_expr locals e in
+      let* e' = eval_expr locals e in
       let/ b = Choice.select @@ Value.Bool.not_ e' in
       if b then Choice.error (sprintf "assert: %s" (Value.Pp.pp e'))
       else st locals
     | Stmt.Block blk ->
       Choice.return @@ State.Continue { state with stmts = blk @ state.stmts }
     | Stmt.If (br, blk1, blk2) ->
-      let* br = eval_reduce_expr locals br in
+      let* br = eval_expr locals br in
       let/ b = Choice.branch br in
       let stmts =
         if b then blk1 :: state.stmts
@@ -172,18 +173,18 @@ module Make (P : Eval_functor_intf.P) :
       let stmts = (Stmt.If (br, blk', None) @> stmt.at) :: state.stmts in
       Choice.return @@ State.Continue { state with stmts }
     | Stmt.Return e ->
-      let* v = eval_reduce_expr locals e in
+      let* v = eval_expr locals e in
       Choice.return @@ State.return state v
     | Stmt.AssignCall (x, f, es) ->
-      let* f' = eval_reduce_expr locals f in
+      let* f' = eval_expr locals f in
       let* func_name, args0 = Value.get_func_name f' in
       let* func = Env.get_func env func_name in
-      let* args = list_map ~f:(eval_reduce_expr locals) es in
+      let* args = list_map ~f:(eval_expr locals) es in
       let args = args0 @ args in
       exec_func state func args x
     | Stmt.AssignECall (x, f, es) ->
       let* func = Env.get_extern_func env f in
-      let* args = list_map ~f:(eval_reduce_expr locals) es in
+      let* args = list_map ~f:(eval_expr locals) es in
       exec_extern_func state func args x
     | Stmt.AssignNewObj x ->
       let/ heap = Env.get_memory env in
@@ -191,14 +192,15 @@ module Make (P : Eval_functor_intf.P) :
       let loc = Heap.insert heap obj in
       st @@ Store.add_exn locals x loc
     | Stmt.AssignInObjCheck (x, e_field, e_loc) ->
-      let* field = eval_reduce_expr locals e_field in
-      let* loc = eval_reduce_expr locals e_loc in
+      let* field = eval_expr locals e_field in
+      let* loc = eval_expr locals e_loc in
       let/ loc = Heap.loc loc in
+      (* `get_memory` comes after `Heap.loc` due to branching *)
       let/ heap = Env.get_memory env in
       let v = Heap.has_field heap loc field in
       st @@ Store.add_exn locals x v
     | Stmt.AssignObjToList (x, e) -> (
-      let* loc = eval_reduce_expr locals e in
+      let* loc = eval_expr locals e in
       let/ loc = Heap.loc loc in
       let/ heap = Env.get_memory env in
       match Heap.get heap loc with
@@ -207,7 +209,7 @@ module Make (P : Eval_functor_intf.P) :
         let v = Value.mk_list (List.map (Object.to_list o) ~f:Value.mk_tuple) in
         st @@ Store.add_exn locals x v )
     | Stmt.AssignObjFields (x, e) -> (
-      let* loc = eval_reduce_expr locals e in
+      let* loc = eval_expr locals e in
       let/ loc = Heap.loc loc in
       let/ heap = Env.get_memory env in
       match Heap.get heap loc with
@@ -216,23 +218,23 @@ module Make (P : Eval_functor_intf.P) :
         let v = Value.mk_list @@ Object.get_fields o in
         st @@ Store.add_exn locals x v )
     | Stmt.FieldAssign (e_loc, e_field, e_v) ->
-      let* loc = eval_reduce_expr locals e_loc in
-      let* field = eval_reduce_expr locals e_field in
-      let* v = eval_reduce_expr locals e_v in
+      let* loc = eval_expr locals e_loc in
+      let* field = eval_expr locals e_field in
+      let* v = eval_expr locals e_v in
       let/ loc = Heap.loc loc in
       let/ heap = Env.get_memory env in
       Heap.set_field heap loc ~field ~data:v;
       st locals
     | Stmt.FieldDelete (e_loc, e_field) ->
-      let* loc = eval_reduce_expr locals e_loc in
-      let* field = eval_reduce_expr locals e_field in
+      let* loc = eval_expr locals e_loc in
+      let* field = eval_expr locals e_field in
       let/ loc = Heap.loc loc in
       let/ heap = Env.get_memory env in
       Heap.delete_field heap loc field;
       st locals
     | Stmt.FieldLookup (x, e_loc, e_field) ->
-      let* loc = eval_reduce_expr locals e_loc in
-      let* field = eval_reduce_expr locals e_field in
+      let* loc = eval_expr locals e_loc in
+      let* field = eval_expr locals e_field in
       let/ loc = Heap.loc loc in
       let/ heap = Env.get_memory env in
       let/ value = Heap.get_field heap loc field in
