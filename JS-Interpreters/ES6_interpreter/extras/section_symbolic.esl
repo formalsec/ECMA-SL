@@ -51,7 +51,7 @@ function __apiSymbolicString(globalObject, this, NewTarget, strict, params) {
 };
 
 function __apiSymbolicAssume(globalObject, this, NewTarget, strict, params) {
-  se_assume(l_nth(params, 0));
+  extern assume(l_nth(params, 0));
   return 0
 };
 

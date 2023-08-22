@@ -273,7 +273,7 @@ function GetValue(V) {
 
       x := {base.Get}(base, ref_name, GetThisValue(V));
 
-      /* if (se_is_symbolic(ref_name)) {
+      /* if (extern is_symbolic(ref_name)) {
         print "getValue";
         print ref_name;
         print x
