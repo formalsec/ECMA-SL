@@ -6,12 +6,20 @@ module Thread = struct
     { solver : Batch.t
     ; pc : Encoding.Expression.t list
     ; mem : Sym_heap2.Heap.t
+    ; optimizer : Encoding.Optimizer.t
     }
 
-  let create () = { solver = Batch.create (); pc = []; mem = Heap.create () }
+  let create () =
+    { solver = Batch.create ()
+    ; pc = []
+    ; mem = Heap.create ()
+    ; optimizer = Encoding.Optimizer.create ()
+    }
+
   let solver t = t.solver
   let pc t = t.pc
   let mem t = t.mem
+  let optimizer t = t.optimizer
   let add_pc t v = { t with pc = v :: t.pc }
   let clone_mem t = { t with mem = Heap.clone t.mem }
 end

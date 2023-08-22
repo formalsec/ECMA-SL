@@ -3,6 +3,7 @@ module Env = Sym_state.P.Env
 module Value = Sym_state.P.Value
 module Choice = Sym_state.P.Choice
 module Thread = Choice_monad.Thread
+module Translator = Sym_state.P.Translator
 module SMap = Map.Make (String)
 
 let ( let/ ) = Choice.bind
@@ -29,14 +30,39 @@ let symbolic_api_funcs =
     let/ b = Choice.select e in
     Choice.return (Val (Val.Bool b))
   in
-  let assume (e : value) =
-    fun t ->
-      let e' = Value_translator.translate e in
-      [ (Val (Val.Symbol "undefined"), Thread.add_pc t e') ]
+  let assume (e : value) thread =
+    let e' = Translator.translate e in
+    [ (Val (Val.Symbol "undefined"), Thread.add_pc thread e') ]
   in
-  let evaluate (_e : value) = assert false in
-  let maximize (_e : value) = assert false in
-  let minimize (_e : value) = assert false in
+  let evaluate (e : value) thread =
+    let e' = Translator.translate e in
+    let pc = Thread.pc thread in
+    let solver = Thread.solver thread in
+    assert (Batch.check solver (e' :: pc));
+    let symbols = Encoding.Expression.get_symbols [ e' ] in
+    let model = Option.value_exn (Batch.model ~symbols solver) in
+    match Encoding.Model.evaluate model (List.hd_exn symbols) with
+    | Some v -> [ (Translator.expr_of_value v, thread) ]
+    | None -> assert false (* Should never happpen due to sat check above *)
+  in
+  let maximize (e : value) thread =
+    let e' = Translator.translate e in
+    let pc = Thread.pc thread in
+    let opt = Thread.optimizer thread in
+    let v = Encoding.Optimizer.maximize opt e' pc in
+    match v with
+    | Some v -> [ (Translator.expr_of_value v, thread) ]
+    | None -> assert false
+  in
+  let minimize (e : value) thread =
+    let e' = Translator.translate e in
+    let pc = Thread.pc thread in
+    let opt = Thread.optimizer thread in
+    let v = Encoding.Optimizer.minimize opt e' pc in
+    match v with
+    | Some v -> [ (Translator.expr_of_value v, thread) ]
+    | None -> assert false
+  in
   SMap.of_alist_exn
     [ ("str_symbol", Extern_func (Func (Arg Res), str_symbol))
     ; ("int_symbol", Extern_func (Func (Arg Res), int_symbol))
