@@ -138,7 +138,44 @@ let link_env prog =
 let _error at category msg =
   Format.eprintf "%s:%s:%s@." (Source.string_of_region at) category msg
 
+  (* let serialize = *)
+  (*   let open State in *)
+  (*   let counter = ref 0 in *)
+  (*   fun ?(witness : string option) (state : State.exec_state) -> *)
+  (*     let pc = State.ESet.to_list state.symb_env.pc in *)
+  (*     assert (Batch.check state.symb_env.solver pc); *)
+  (*     let model = Batch.model state.symb_env.solver in *)
+  (*     let testcase = *)
+  (*       Option.value_map model ~default:"[]" ~f:(fun m -> *)
+  (*         let open Encoding in *)
+  (*         let inputs = *)
+  (*           List.map (Model.get_bindings m) ~f:(fun (s, v) -> *)
+  (*             let sort = Types.string_of_type (Symbol.type_of s) in *)
+  (*             let name = Symbol.to_string s in *)
+  (*             let interp = Value.to_string v in *)
+  (*             sprintf *)
+  (*               "{ \"type\" : \"%s\", \"name\" : \"%s\", \"value\" : \"%s\" }" *)
+  (*               sort name interp ) *)
+  (*         in *)
+  (*         String.concat ~sep:", " inputs ) *)
+  (*     in *)
+  (*     let str_pc = Encoding.Expression.string_of_pc pc in *)
+  (*     let smt_query = Encoding.Expression.to_smt pc in *)
+  (*     let prefix = *)
+  (*       incr counter; *)
+  (*       let fname = if Option.is_some witness then "witness" else "testecase" in *)
+  (*       let fname = sprintf "%s-%i" fname !counter in *)
+  (*       Filename.concat (Filename.concat !Config.workspace "test-suite") fname *)
+  (*     in *)
+  (*     Io.write_file ~file:(sprintf "%s.json" prefix) ~data:testcase; *)
+  (*     Io.write_file ~file:(sprintf "%s.pc" prefix) ~data:str_pc; *)
+  (*     Io.write_file ~file:(sprintf "%s.smt2" prefix) ~data:smt_query; *)
+  (*     Option.iter witness ~f:(fun sink -> *)
+  (*       Io.write_file ~file:(sprintf "%s_sink.txt" prefix) ~data:sink ) *)
+
 let run env target =
+  let testsuite_path = Filename.concat !Config.workspace "test-suite" in
+  Io.safe_mkdir testsuite_path;
   let start = Stdlib.Sys.time () in
   let thread = Choice_monad.Thread.create () in
   let result = Eval.S.main env target in

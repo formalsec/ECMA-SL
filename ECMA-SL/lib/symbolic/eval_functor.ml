@@ -1,3 +1,5 @@
+[@@@ocaml.warning "-69"]
+
 open Core
 open Source
 
@@ -37,9 +39,6 @@ module Make (P : Eval_functor_intf.P) :
 
   let ( let/ ) = Choice.bind
 
-  (* let ( let*/ ) o f = *)
-  (*   match o with Error e -> failwith e | Ok o -> Choice.bind o f *)
-
   module State = struct
     type store = Store.t
     type nonrec env = P.env
@@ -48,14 +47,16 @@ module Make (P : Eval_functor_intf.P) :
       { return_state : (exec_state * string) option
       ; locals : store
       ; stmts : Stmt.t list
-      ; env : env (* ; func : string *)
+      ; env : env
+      ; func : string
       }
 
     let empty_state ~env =
       { return_state = None
       ; locals = Store.create []
       ; stmts = []
-      ; env (* ; func = "" *)
+      ; env
+      ; func = ""
       }
 
     type stmt_result =
@@ -104,7 +105,8 @@ module Make (P : Eval_functor_intf.P) :
         { return_state
         ; locals = store
         ; stmts = [ Func.get_body func ]
-        ; env = state.env (* ; func = func.name *)
+        ; env = state.env
+        ; func = Func.get_name func
         }
     in
     Choice.return @@ State.Continue state'
@@ -237,109 +239,6 @@ module Make (P : Eval_functor_intf.P) :
       let value' = Option.value value ~default:(Value.mk_symbol "undefined") in
       st @@ Store.add_exn locals x value'
 
-  (* let serialize = *)
-  (*   let open State in *)
-  (*   let counter = ref 0 in *)
-  (*   fun ?(witness : string option) (state : State.exec_state) -> *)
-  (*     let pc = State.ESet.to_list state.symb_env.pc in *)
-  (*     assert (Batch.check state.symb_env.solver pc); *)
-  (*     let model = Batch.model state.symb_env.solver in *)
-  (*     let testcase = *)
-  (*       Option.value_map model ~default:"[]" ~f:(fun m -> *)
-  (*         let open Encoding in *)
-  (*         let inputs = *)
-  (*           List.map (Model.get_bindings m) ~f:(fun (s, v) -> *)
-  (*             let sort = Types.string_of_type (Symbol.type_of s) in *)
-  (*             let name = Symbol.to_string s in *)
-  (*             let interp = Value.to_string v in *)
-  (*             sprintf *)
-  (*               "{ \"type\" : \"%s\", \"name\" : \"%s\", \"value\" : \"%s\" }" *)
-  (*               sort name interp ) *)
-  (*         in *)
-  (*         String.concat ~sep:", " inputs ) *)
-  (*     in *)
-  (*     let str_pc = Encoding.Expression.string_of_pc pc in *)
-  (*     let smt_query = Encoding.Expression.to_smt pc in *)
-  (*     let prefix = *)
-  (*       incr counter; *)
-  (*       let fname = if Option.is_some witness then "witness" else "testecase" in *)
-  (*       let fname = sprintf "%s-%i" fname !counter in *)
-  (*       Filename.concat (Filename.concat !Config.workspace "test-suite") fname *)
-  (*     in *)
-  (*     Io.write_file ~file:(sprintf "%s.json" prefix) ~data:testcase; *)
-  (*     Io.write_file ~file:(sprintf "%s.pc" prefix) ~data:str_pc; *)
-  (*     Io.write_file ~file:(sprintf "%s.smt2" prefix) ~data:smt_query; *)
-  (*     Option.iter witness ~f:(fun sink -> *)
-  (*       Io.write_file ~file:(sprintf "%s_sink.txt" prefix) ~data:sink ) *)
-
-  (* Source: Thanks to Joao Borges (@RageKnify) for writing this code *)
-  (* module type WorkList = sig *)
-  (*   type 'a t *)
-
-  (*   exception Empty *)
-
-  (*   val create : unit -> 'a t *)
-  (*   val push : 'a -> 'a t -> unit *)
-  (*   val pop : 'a t -> 'a *)
-  (*   val is_empty : 'a t -> bool *)
-  (*   val length : 'a t -> int *)
-  (* end *)
-
-  (* Source: Thanks to Joao Borges (@RageKnify) for writing this code *)
-  (* module RandArray : WorkList = struct *)
-  (*   type 'a t = 'a BatDynArray.t *)
-
-  (*   exception Empty *)
-
-  (*   let create () = BatDynArray.create () *)
-  (*   let is_empty a = BatDynArray.empty a *)
-  (*   let push v a = BatDynArray.add a v *)
-
-  (*   let pop a = *)
-  (*     let i = Random.int (BatDynArray.length a) in *)
-  (*     let v = BatDynArray.get a i in *)
-  (*     BatDynArray.delete a i; *)
-  (*     v *)
-
-  (*   let length = BatDynArray.length *)
-  (* end *)
-
-  (* module TreeSearch (_ : WorkList) = struct *)
-  (*   open State *)
-
-  (*   let eval c = *)
-  (*     let time = ref (Stdlib.Sys.time ()) in *)
-  (*     let w = L.create () in *)
-  (*     L.push c w; *)
-  (*     while not (L.is_empty w) do *)
-  (*       let c = L.pop w in *)
-  (*       match c.stmts with *)
-  (*       | stmt :: stmts -> ( *)
-  (*         let states = exec_stmt stmt { c with stmts } in *)
-  (*         match states with *)
-  (*         | Ok results -> *)
-  (*           List.iter results ~f:(fun result -> *)
-  (*             match result with *)
-  (*             | State.Continue state -> L.push state w *)
-  (*             | State.Return state -> serialize state ) *)
-  (*         | Error msg -> *)
-  (*           serialize ~witness:msg c; *)
-  (*           Format.printf "error       : %s: %s@." c.func msg ) *)
-  (*       | [] -> *)
-  (*         Format.printf "Empty continuation!@."; *)
-  (*         assert false *)
-  (*     done; *)
-  (*     time := Stdlib.Sys.time () -. !time; *)
-  (*     Format.printf "  exec time : %fs@." !time; *)
-  (*     Format.printf "solver time : %fs@." !Batch.solver_time; *)
-  (*     Format.printf "  mean time : %fms@." *)
-  (*       (1000. *. !Batch.solver_time /. float !Batch.solver_count) *)
-  (* end *)
-
-  (* module DFS = TreeSearch (Stdlib.Stack) *)
-  (* module BFS = TreeSearch (Stdlib.Queue) *)
-  (* module RND = TreeSearch (RandArray) *)
-
   let rec loop (state : State.exec_state) : unit Choice.t =
     let open State in
     match state.stmts with
@@ -353,17 +252,8 @@ module Make (P : Eval_functor_intf.P) :
       assert false
 
   let main (env : Env.t) (f : string) : unit Choice.t =
-    let testsuite_path = Filename.concat !Config.workspace "test-suite" in
-    Io.safe_mkdir testsuite_path;
-    (* let eval = *)
-    (*   match policy with *)
-    (*   | "breadth" -> BFS.eval *)
-    (*   | "depth" -> DFS.eval *)
-    (*   | "random" -> RND.eval *)
-    (*   | _ -> *)
-    (*     Crash.error f.body.at ("Invalid search policy '" ^ !Config.policy ^ "'") *)
-    (* in *)
     let* f = Env.get_func env f in
     let state = State.empty_state ~env in
-    loop State.{ state with stmts = [ Func.get_body f ] }
+    loop
+      State.{ state with stmts = [ Func.get_body f ]; func = Func.get_name f }
 end
