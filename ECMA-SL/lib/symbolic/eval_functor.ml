@@ -68,10 +68,14 @@ module Make (P : Eval_functor_intf.P) :
       | Assertion of value list
       | Unknown of value list
 
-    let return (state : exec_state) (v : value) : stmt_result =
+    let return ?(value : value option) (state : exec_state) : stmt_result =
       match state.return_state with
       | None -> Return state
       | Some (state', ret_v) ->
+        let v =
+          Option.value value
+            ~default:Value.(mk_tuple (Bool.const false, mk_symbol "undefined"))
+        in
         let locals = Store.add_exn state'.locals ret_v v in
         let env = state.env in
         Continue { state' with locals; env }
@@ -134,7 +138,7 @@ module Make (P : Eval_functor_intf.P) :
     let { locals; env; _ } = state in
     let st locals = Choice.return @@ State.Continue { state with locals } in
     Log.debug
-      (lazy (sprintf "store       : %s" (Value.Pp.Store.to_string locals)));
+      (lazy (sprintf "      store : %s" (Value.Pp.Store.to_string locals)));
     Log.debug
       (lazy (sprintf "running stmt: %s" (Stmt.Pp.to_string stmt (pp locals))));
     match stmt.it with
@@ -174,7 +178,7 @@ module Make (P : Eval_functor_intf.P) :
       Choice.return @@ State.Continue { state with stmts }
     | Stmt.Return e ->
       let* v = eval_expr locals e in
-      Choice.return @@ State.return state v
+      Choice.return @@ State.return state ~value:v
     | Stmt.AssignCall (x, f, es) ->
       let* f' = eval_expr locals f in
       let* func_name, args0 = Value.get_func_name f' in
@@ -249,9 +253,11 @@ module Make (P : Eval_functor_intf.P) :
       match state with
       | State.Continue state -> loop state
       | State.Return _state -> Choice.return () )
-    | [] ->
-      Format.printf "Empty continuation!@.";
-      assert false
+    | [] -> (
+      Format.printf "    warning : %s: missing a return statement!@." state.func;
+      match State.return state with
+      | State.Continue state -> loop state
+      | State.Return _state -> Choice.return () )
 
   let main (env : Env.t) (f : string) : unit Choice.t =
     let* f = Env.get_func env f in
