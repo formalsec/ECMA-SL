@@ -1,4 +1,4 @@
-[@@@ocaml.warning "-69"]
+[@@@ocaml.warning "-37"]
 
 open Core
 open Source
@@ -59,26 +59,24 @@ module Make (P : Eval_functor_intf.P) :
       ; func = ""
       }
 
-    type stmt_result =
-      | Return of exec_state
-      | Continue of exec_state
+    type return_type =
+      | Res of value list
+      | Fail of string * value list
 
-    type _stmt_err =
-      | Error of string
-      | Assertion of value list
-      | Unknown of value list
+    type stmt_result =
+      | Return of return_type
+      | Continue of exec_state
 
     let return ?(value : value option) (state : exec_state) : stmt_result =
       match state.return_state with
-      | None -> Return state
+      | None -> Return (Res (Option.to_list value))
       | Some (state', ret_v) ->
         let v =
           Option.value value
             ~default:Value.(mk_tuple (Bool.const false, mk_symbol "undefined"))
         in
         let locals = Store.add_exn state'.locals ret_v v in
-        let env = state.env in
-        Continue { state' with locals; env }
+        Continue { state' with locals; env = state.env }
   end
 
   let eval_expr (sto : store) (e : Expr.t) : (value, string) Result.t =
@@ -158,7 +156,9 @@ module Make (P : Eval_functor_intf.P) :
     | Stmt.Assert e ->
       let* e' = eval_expr locals e in
       let/ b = Choice.select @@ Value.Bool.not_ e' in
-      if b then Choice.error (sprintf "assert: %s" (Value.Pp.pp e'))
+      if b then
+        Choice.error
+          (sprintf "     assert : failure with (%s)" (Value.Pp.pp e'))
       else st locals
     | Stmt.Block blk ->
       Choice.return @@ State.Continue { state with stmts = blk @ state.stmts }
@@ -252,12 +252,12 @@ module Make (P : Eval_functor_intf.P) :
       let/ state = exec_stmt stmt { state with stmts } in
       match state with
       | State.Continue state -> loop state
-      | State.Return _state -> Choice.return () )
+      | State.Return _ret -> Choice.return () )
     | [] -> (
       Format.printf "    warning : %s: missing a return statement!@." state.func;
       match State.return state with
       | State.Continue state -> loop state
-      | State.Return _state -> Choice.return () )
+      | State.Return _ret -> Choice.return () )
 
   let main (env : Env.t) (f : string) : unit Choice.t =
     let* f = Env.get_func env f in

@@ -15,9 +15,9 @@ let list_map ~f l =
 module M = struct
   type value =
     | Val of Val.t
-    | UnOpt of (Operators.uopt * value)
-    | BinOpt of (Operators.bopt * value * value)
-    | TriOpt of (Operators.topt * value * value * value)
+    | UnOpt of Operators.uopt * value
+    | BinOpt of Operators.bopt * value * value
+    | TriOpt of Operators.topt * value * value * value
     | NOpt of Operators.nopt * value list
     | Curry of value * value list
     | Symbolic of Type.t * value

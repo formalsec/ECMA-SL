@@ -4,6 +4,7 @@ module Object = Sym_heap2.Object
 module Heap = Sym_heap2.Heap
 module Env = Link_env.Make (Heap)
 module Thread = Choice_monad.Thread
+module Translator = Value_translator
 
 let ( let* ) o f = match o with Error e -> failwith e | Ok o -> f o
 
@@ -44,21 +45,24 @@ module P = struct
     let get o key =
       let vals = Object.get o key in
       let return thread (v, pc) =
-        let thread' =
-          List.fold_left
-            (fun thread c ->
-              Thread.add_pc thread @@ Value_translator.translate c )
-            thread pc
-        in
-        (Some v, thread')
+        let pc_thread = Thread.pc thread in
+        let solver = Thread.solver thread in
+        match pc with
+        | [] -> Some (Some v, thread)
+        | _ ->
+          let pc' = List.map Translator.translate pc in
+          if not (Batch.check solver (pc' @ pc_thread)) then None
+          else Some (Some v, List.fold_left Thread.add_pc thread pc')
       in
       match vals with
       | [] -> fun thread -> [ (None, thread) ]
-      | [ (v, pc) ] -> fun thread -> [ return thread (v, pc) ]
+      | [ (v, pc) ] ->
+        fun thread ->
+          Option.map_default (fun r -> [ r ]) [] (return thread (v, pc))
       | _ ->
         fun thread ->
           let thread = Thread.clone_mem thread in
-          List.map (return thread) vals
+          List.filter_map (return thread) vals
 
     let delete = Object.delete
     let to_list = Object.to_list
@@ -82,21 +86,24 @@ module P = struct
     let get_field h loc v =
       let field_vals = Heap.get_field h loc v in
       let return thread (v, pc) =
-        let thread' =
-          List.fold_left
-            (fun thread c ->
-              Thread.add_pc thread @@ Value_translator.translate c )
-            thread pc
-        in
-        (Some v, thread')
+        let pc_thread = Thread.pc thread in
+        let solver = Thread.solver thread in
+        match pc with
+        | [] -> Some (Some v, thread)
+        | _ ->
+          let pc' = List.map Translator.translate pc in
+          if not (Batch.check solver (pc' @ pc_thread)) then None
+          else Some (Some v, List.fold_left Thread.add_pc thread pc')
       in
       match field_vals with
       | [] -> fun thread -> [ (None, thread) ]
-      | [ (v, pc) ] -> fun thread -> [ return thread (v, pc) ]
+      | [ (v, pc) ] ->
+        fun thread ->
+          Option.map_default (fun r -> [ r ]) [] (return thread (v, pc))
       | _ ->
         fun thread ->
           let thread = Thread.clone_mem thread in
-          List.map (return thread) field_vals
+          List.filter_map (return thread) field_vals
 
     let set_field = Heap.set_field
     let delete_field = Heap.delete_field
@@ -104,17 +111,25 @@ module P = struct
 
     let loc v =
       let* locs = Heap.loc v in
-      let return thread (c, x) =
-        let c' = Option.map Value_translator.translate c in
-        (x, Option.map_default (Thread.add_pc thread) thread c')
+      let return thread (cond, v) =
+        let pc = Thread.pc thread in
+        let solver = Thread.solver thread in
+        match cond with
+        | None -> Some (v, thread)
+        | Some c ->
+          let c' = Translator.translate c in
+          if not (Batch.check solver (c' :: pc)) then None
+          else Some (v, Thread.add_pc thread c')
       in
       match locs with
       | [] -> Choice.error "no loc"
-      | [ (c, x) ] -> fun thread -> [ return thread (c, x) ]
+      | [ (c, v) ] ->
+        fun thread ->
+          Option.map_default (fun a -> [ a ]) [] (return thread (c, v))
       | _ ->
         fun thread ->
           let thread = Thread.clone_mem thread in
-          List.map (return thread) locs
+          List.filter_map (return thread) locs
   end
 
   module Env = struct

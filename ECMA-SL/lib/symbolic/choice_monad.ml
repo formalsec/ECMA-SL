@@ -74,7 +74,7 @@ module List = struct
   let run (v : 'a t) (thread : thread) = v thread
 
   let error (v : string) : 'a t =
-    Format.printf "%s" v;
+    Format.printf "%s@." v;
     fun _ -> []
 end
 
