@@ -59,17 +59,15 @@ module Make (P : Eval_functor_intf.P) :
       ; func = ""
       }
 
-    type return_type =
-      | Res of value list
-      | Fail of string * value list
+    type return_result = (value list, string) Result.t
 
     type stmt_result =
-      | Return of return_type
+      | Return of return_result
       | Continue of exec_state
 
     let return ?(value : value option) (state : exec_state) : stmt_result =
       match state.return_state with
-      | None -> Return (Res (Option.to_list value))
+      | None -> Return (Ok (Option.to_list value))
       | Some (state', ret_v) ->
         let v =
           Option.value value
@@ -99,7 +97,7 @@ module Make (P : Eval_functor_intf.P) :
     Value.Pp.pp v
 
   let exec_func state func args ret_var =
-    Log.debug (lazy (sprintf "calling func: %s" (Func.get_name func)));
+    Log.debug "calling func: %s" (Func.get_name func);
     let return_state = Some (state, ret_var) in
     let params = Func.get_params func in
     let store = Store.create (List.zip_exn params args) in
@@ -135,18 +133,23 @@ module Make (P : Eval_functor_intf.P) :
     let open State in
     let { locals; env; _ } = state in
     let st locals = Choice.return @@ State.Continue { state with locals } in
-    Log.debug
-      (lazy (sprintf "      store : %s" (Value.Pp.Store.to_string locals)));
-    Log.debug
-      (lazy (sprintf "running stmt: %s" (Stmt.Pp.to_string stmt (pp locals))));
+    Log.debug "      store : %s" (Value.Pp.Store.to_string locals);
+    Log.debug "running stmt: %s" (Stmt.Pp.to_string stmt (pp locals));
     match stmt.it with
     | Stmt.Skip -> st locals
     | Stmt.Merge -> st locals
     | Stmt.Exception err ->
       let at' = Source.string_of_region stmt.at in
-      Choice.error (sprintf "%s: Exception: %s" at' err)
-    | Stmt.Fail e -> Choice.error (sprintf "fail: %s" (pp locals e))
-    | Stmt.Abort e -> Choice.error (sprintf "abort: %s" (pp locals e))
+      Format.printf "  exception : %s: %s@." at' err;
+      Choice.return @@ State.Return (Error (sprintf "{\"exn\":\"%s\"}" err))
+    | Stmt.Fail e ->
+      let e' = pp locals e in
+      Format.printf "       fail : %s@." (pp locals e);
+      Choice.return @@ State.Return (Error (sprintf "{\"fail\":\"%s\"}" e'))
+    | Stmt.Abort e ->
+      let e' = pp locals e in
+      Format.printf "      abort : %s@." e';
+      Choice.return @@ State.Return (Error (sprintf "{\"abort\":\"%s\"}" e'))
     | Stmt.Print e ->
       Format.printf "%s@." (pp locals e);
       st locals
@@ -156,9 +159,11 @@ module Make (P : Eval_functor_intf.P) :
     | Stmt.Assert e ->
       let* e' = eval_expr locals e in
       let/ b = Choice.select @@ Value.Bool.not_ e' in
-      if b then
-        Choice.error
-          (sprintf "     assert : failure with (%s)" (Value.Pp.pp e'))
+      if b then (
+        let e' = Value.Pp.pp e' in
+        Format.printf "     assert : failure with (%s)@." e';
+        Choice.return @@ State.Return (Error (sprintf "{\"assert\":\"%s\"}" e'))
+        )
       else st locals
     | Stmt.Block blk ->
       Choice.return @@ State.Continue { state with stmts = blk @ state.stmts }
@@ -245,21 +250,21 @@ module Make (P : Eval_functor_intf.P) :
       let value' = Option.value value ~default:(Value.mk_symbol "undefined") in
       st @@ Store.add_exn locals x value'
 
-  let rec loop (state : State.exec_state) : unit Choice.t =
+  let rec loop (state : State.exec_state) : State.return_result Choice.t =
     let open State in
     match state.stmts with
     | stmt :: stmts -> (
       let/ state = exec_stmt stmt { state with stmts } in
       match state with
       | State.Continue state -> loop state
-      | State.Return _ret -> Choice.return () )
+      | State.Return ret -> Choice.return ret )
     | [] -> (
       Format.printf "    warning : %s: missing a return statement!@." state.func;
       match State.return state with
       | State.Continue state -> loop state
-      | State.Return _ret -> Choice.return () )
+      | State.Return ret -> Choice.return ret )
 
-  let main (env : Env.t) (f : string) : unit Choice.t =
+  let main (env : Env.t) (f : string) : State.return_result Choice.t =
     let* f = Env.get_func env f in
     let state = State.empty_state ~env in
     loop

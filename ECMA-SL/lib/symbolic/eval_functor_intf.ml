@@ -81,8 +81,9 @@ module type S = sig
   module State : sig
     type store
     type env
+    type return_result = (value list, string) Result.t
     type exec_state
   end
 
-  val main : env -> string -> unit choice
+  val main : env -> string -> State.return_result choice
 end

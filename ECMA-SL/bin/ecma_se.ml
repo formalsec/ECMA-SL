@@ -147,18 +147,16 @@ let serialize =
     assert (Batch.check solver pc);
     let model = Batch.model solver in
     let testcase =
-      Option.value_map model ~default:"[]" ~f:(fun m ->
+      Option.value_map model ~default:"" ~f:(fun m ->
         let open Encoding in
         let inputs =
           List.map (Model.get_bindings m) ~f:(fun (s, v) ->
-            let sort = Types.string_of_type (Symbol.type_of s) in
+            let _sort = Types.string_of_type (Symbol.type_of s) in
             let name = Symbol.to_string s in
             let interp = Value.to_string v in
-            sprintf
-              "{ \"type\" : \"%s\", \"name\" : \"%s\", \"value\" : \"%s\" }"
-              sort name interp )
+            sprintf "var %s = %s;" name interp )
         in
-        String.concat ~sep:", " inputs )
+        String.concat ~sep:"\n" inputs )
     in
     let str_pc = Encoding.Expression.string_of_pc pc in
     let smt_query = Encoding.Expression.to_smt pc in
@@ -168,21 +166,22 @@ let serialize =
       let fname = sprintf "%s-%i" fname !counter in
       Filename.concat (Filename.concat !Config.workspace "test-suite") fname
     in
-    Io.write_file ~file:(sprintf "%s.json" prefix) ~data:testcase;
+    Io.write_file ~file:(sprintf "%s.js" prefix) ~data:testcase;
     Io.write_file ~file:(sprintf "%s.pc" prefix) ~data:str_pc;
     Io.write_file ~file:(sprintf "%s.smt2" prefix) ~data:smt_query;
     Option.iter witness ~f:(fun sink ->
-      Io.write_file ~file:(sprintf "%s_sink.txt" prefix) ~data:sink )
+      Io.write_file ~file:(sprintf "%s_sink.json" prefix) ~data:sink )
 
-let run env target =
+let run env entry_func =
   let testsuite_path = Filename.concat !Config.workspace "test-suite" in
   Io.safe_mkdir testsuite_path;
   let start = Stdlib.Sys.time () in
   let thread = Choice_monad.Thread.create () in
-  let result = Eval.S.main env target in
+  let result = Eval.S.main env entry_func in
   let results = Choice.run result thread in
-  List.iter results ~f:(fun (_, thread) ->
-    serialize thread;
+  List.iter results ~f:(fun (ret, thread) ->
+    let witness = match ret with Ok _ -> None | Error err -> Some err in
+    serialize ?witness thread;
     let pc = Encoding.Expression.string_of_pc @@ Thread.pc thread in
     Format.printf "  path cond : %s@." pc );
   Format.printf "  exec time : %fs@." (Stdlib.Sys.time () -. start);

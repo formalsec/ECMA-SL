@@ -130,7 +130,8 @@ module M = struct
         Operators.str_of_triopt op (pp e1) (pp e2) (pp e3)
       | NOpt (op, es) -> Operators.str_of_nopt op (List.map ~f:pp es)
       | Curry (f, es) -> "{" ^ pp f ^ "}@(" ^ concat es ^ ")"
-      | Symbolic (_t, x) -> pp x
+      | Symbolic (_t, x) -> (
+        match x with Val (Val.Str x) -> x | _ -> assert false )
 
     module Store = struct
       type t = Store.t
