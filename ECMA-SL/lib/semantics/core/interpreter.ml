@@ -182,12 +182,9 @@ module M (Mon : SecurityMonitor) = struct
     let cs, heap, sto, f = state in
     let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
     if Stmt.is_basic_stmt s then
-      Log.debug
-        (lazy
-          (Printf.sprintf
-             "====================================\n\
-              Evaluating >>>>> %s: %s (%s)" f (Stmt.str s)
-             (Stmt.str ~print_expr:str_e s)));
+      Log.debug "====================================\n\
+        Evaluating >>>>> %s: %s (%s)" f (Stmt.str s)
+        (Stmt.str ~print_expr:str_e s);
     match s.it with
     | Skip -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab)
     | Exception str ->
@@ -201,13 +198,10 @@ module M (Mon : SecurityMonitor) = struct
         | Loc l -> (
             match Heap.get heap l with
             | Some o ->
-                Log.debug
-                  (lazy
-                    ("PROGRAM PRINT: "
-                    ^ Object.to_string o (Val.str ~flt_with_dot:false)))
-            | None ->
-                Log.debug (lazy "PROGRAM PRINT: Non-existent location"))
-        | _ -> Log.debug (lazy ("PROGRAM PRINT: " ^ Val.str v)));
+                Log.debug "PROGRAM PRINT: %s"
+                  (Object.to_string o (Val.str ~flt_with_dot:false))
+            | None -> Log.debug "PROGRAM PRINT: Non-existent location")
+        | _ -> Log.debug "PROGRAM PRINT: %s" (Val.str v));
         (Intermediate ((cs, heap, sto, f), cont), SecLabel.PrintLab e)
     | Abort _ ->
         (* NOP *)
@@ -215,13 +209,11 @@ module M (Mon : SecurityMonitor) = struct
     | Fail e ->
         let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
         Log.debug
-          (lazy
-            (Printf.sprintf
-               "====================================\n\
-                Evaluating >>>>> %s: %s (%s) in the callstack:\n\
-               \ %s" f (Stmt.str s)
-               (Stmt.str ~print_expr:str_e s)
-               (Call_stack.str cs)));
+          "====================================\n\
+          Evaluating >>>>> %s: %s (%s) in the callstack:\n\
+          \ %s" f (Stmt.str s)
+          (Stmt.str ~print_expr:str_e s)
+          (Call_stack.str cs);
         let v = eval_expr sto e in
         (Errorv (Some v), SecLabel.EmptyLab)
     | Assert e ->
@@ -419,10 +411,10 @@ module M (Mon : SecurityMonitor) = struct
     | Finalv v -> (v, heap)
     | Errorv (Some (Val.Str s)) ->
         let subStr = String.sub s 0 11 in
-        Log.debug (lazy subStr);
+        Log.debug "%s" subStr;
         if subStr = "Unsupported" then (Some (Val.Str s), heap)
         else (
-          Log.debug (lazy "eval_prog else");
+          Log.debug "eval_prog else";
           raise (Except s))
     | _ -> raise (Except "No return value")
   (*ERROR*)

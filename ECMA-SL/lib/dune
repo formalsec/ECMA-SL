@@ -15,7 +15,6 @@
   func
   prog
   source
-  symStmt
   store
   field
   operators
