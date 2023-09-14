@@ -130,6 +130,8 @@ module P = struct
         fun thread ->
           let thread = Thread.clone_mem thread in
           List.filter_map (return thread) locs
+
+      let pp = Heap.pp
   end
 
   module Env = struct

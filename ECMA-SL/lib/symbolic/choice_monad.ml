@@ -39,7 +39,7 @@ module List = struct
     | [ (r, t') ] -> (f r) t'
     | _ -> List.concat_map (fun (r, t') -> (f r) t') lst
 
-  let select (v : Value.value) : bool t =
+  let check (v : Value.value) : bool t =
     let open Value in
     fun t ->
       let solver = Thread.solver t in
@@ -49,6 +49,19 @@ module List = struct
       | _ ->
         let cond = Translator.translate v in
         [ (Batch.check solver (cond :: pc), t) ]
+
+  let check_add_true (v : Value.value) : bool t =
+    let open Value in
+    fun t ->
+      let solver = Thread.solver t in
+      let pc = Thread.pc t in
+      match v with
+      | Val (Val.Bool b) -> [ (b, t) ]
+      | _ ->
+        let cond' = Translator.translate v in
+        if Batch.check solver (cond' :: pc) then
+          [ (true, Thread.add_pc t cond') ]
+        else [ (false, t) ]
 
   let branch (v : Value.value) : bool t =
     let open Value in

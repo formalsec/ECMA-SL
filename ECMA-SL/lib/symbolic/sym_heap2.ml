@@ -191,6 +191,13 @@ module Heap = struct
       Ok ((Some c, l) :: unfold_ite ~accum:(UnOpt (Operators.Not, c)) v)
     | _ -> Error (sprintf "Value '%s' is not a loc expression" (V.Pp.pp e))
 
+  let pp (h : t) (e : value) : string =
+    match e with
+    | V.Val (Val.Loc l) -> (
+      match get h l with
+      | None -> l
+      | Some o -> Format.sprintf "%s -> %s" l (Object.to_string o) )
+    | _ -> V.Pp.pp e
   (* let to_string_with_glob (h : 'a t) (pp : 'a -> string) : string = *)
   (*   let glob = *)
   (*     Hashtbl.fold h.map ~init:None ~f:(fun ~key:_ ~data:obj acc -> *)

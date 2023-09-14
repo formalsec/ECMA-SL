@@ -80,9 +80,10 @@ module Make (P : Eval_functor_intf.P) :
   let eval_expr (sto : store) (e : Expr.t) : (value, string) Result.t =
     let+ e' = Value.eval_expr sto e in
     (* TODO: decouple Reducer from abstract values *)
+    (* Reduce is only used on Sym_value.M.value *)
     Reducer.reduce e'
 
-  let pp locals e =
+  let pp locals heap e =
     (* TODO: Print function in sym_value *)
     (* let s = *)
     (*   match e' with *)
@@ -94,10 +95,10 @@ module Make (P : Eval_functor_intf.P) :
     (* in *)
     (* Printf.printf "print:%s\npc:%s\nheap id:%d\n" s (Encoding.Expression.string_of_pc pc) (Heap.get_id heap); *)
     let* v = eval_expr locals e in
-    Value.Pp.pp v
+    Heap.pp heap v
 
   let exec_func state func args ret_var =
-    Log.debug "calling func: %s" (Func.get_name func);
+    Log.debug "calling func: %s@." (Func.get_name func);
     let return_state = Some (state, ret_var) in
     let params = Func.get_params func in
     let store = Store.create (List.zip_exn params args) in
@@ -133,8 +134,9 @@ module Make (P : Eval_functor_intf.P) :
     let open State in
     let { locals; env; _ } = state in
     let st locals = Choice.return @@ State.Continue { state with locals } in
-    Log.debug "      store : %s" (Value.Pp.Store.to_string locals);
-    Log.debug "running stmt: %s" (Stmt.Pp.to_string stmt (pp locals));
+    let/ m = Env.get_memory env in
+    Log.debug "      store : %s@." (Value.Pp.Store.to_string locals);
+    Log.debug "running stmt: %s@." (Stmt.Pp.to_string stmt (pp locals m));
     match stmt.it with
     | Stmt.Skip -> st locals
     | Stmt.Merge -> st locals
@@ -143,22 +145,22 @@ module Make (P : Eval_functor_intf.P) :
       Format.printf "  exception : %s: %s@." at' err;
       Choice.return @@ State.Return (Error (sprintf "{\"exn\":\"%s\"}" err))
     | Stmt.Fail e ->
-      let e' = pp locals e in
-      Format.printf "       fail : %s@." (pp locals e);
+      let e' = pp locals m e in
+      Format.printf "       fail : %s@." e';
       Choice.return @@ State.Return (Error (sprintf "{\"fail\":\"%s\"}" e'))
     | Stmt.Abort e ->
-      let e' = pp locals e in
+      let e' = pp locals m e in
       Format.printf "      abort : %s@." e';
       Choice.return @@ State.Return (Error (sprintf "{\"abort\":\"%s\"}" e'))
     | Stmt.Print e ->
-      Format.printf "%s@." (pp locals e);
+      Format.printf "%s@." (pp locals m e);
       st locals
     | Stmt.Assign (x, e) ->
       let* v = eval_expr locals e in
       st @@ Store.add_exn locals x v
     | Stmt.Assert e ->
       let* e' = eval_expr locals e in
-      let/ b = Choice.select @@ Value.Bool.not_ e' in
+      let/ b = Choice.check @@ Value.Bool.not_ e' in
       if b then (
         let e' = Value.Pp.pp e' in
         Format.printf "     assert : failure with (%s)@." e';

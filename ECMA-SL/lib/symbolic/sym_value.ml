@@ -22,9 +22,18 @@ module M = struct
     | Curry of value * value list
     | Symbolic of Type.t * value
 
-  let mk_symbol (x : string) : value = Val (Val.Symbol x)
+  let int_symbol (x : value) : value = Symbolic (Type.IntType, x) [@@inline]
+
+  let int_symbol_s (x : string) : value = int_symbol (Val (Val.Str x))
+    [@@inline]
+
+  let mk_symbol (x : string) : value = Val (Val.Symbol x) [@@inline]
+
   let mk_list (vs : value list) : value = NOpt (Operators.ListExpr, vs)
+    [@@inline]
+
   let mk_tuple (fst, snd) : value = NOpt (Operators.TupleExpr, [ fst; snd ])
+    [@@inline]
 
   let rec is_symbolic (v : value) : bool =
     match v with

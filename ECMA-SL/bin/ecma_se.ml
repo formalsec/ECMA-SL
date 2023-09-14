@@ -9,11 +9,17 @@ module SMap = Map.Make (String)
 
 let ( let/ ) = Choice.bind
 
+let fresh : string -> string =
+  let counter = ref (-1) in
+  fun x ->
+    incr counter;
+    Format.sprintf "%s_%d" x !counter
+
 let symbolic_api_funcs =
   let open Value in
   let open Extern_func in
   let str_symbol (x : value) = Choice.return (Symbolic (Type.StrType, x)) in
-  let int_symbol (x : value) = Choice.return (Symbolic (Type.IntType, x)) in
+  let int_symbol (x : value) = Choice.return (Value.int_symbol x) in
   let flt_symbol (x : value) = Choice.return (Symbolic (Type.FltType, x)) in
   let bool_symbol (x : value) = Choice.return (Symbolic (Type.BoolType, x)) in
   let is_symbolic (n : value) =
@@ -28,7 +34,27 @@ let symbolic_api_funcs =
     Choice.return (Val (Val.Bool is_number))
   in
   let is_sat (e : value) =
-    let/ b = Choice.select e in
+    let/ b = Choice.check e in
+    Choice.return (Val (Val.Bool b))
+  in
+  let is_exec_sat (e : value) =
+    (* TODO: more fine-grained exploit analysis *)
+    let i = Value.int_symbol_s (fresh "i") in
+    let len = Value.int_symbol_s (fresh "len") in
+    let sub = TriOpt (Operators.Ssubstr, e, i, len) in
+    let query = BinOpt (Operators.Eq, sub, Val (Val.Str ";touch success #")) in
+    let/ b = Choice.check_add_true query in
+    Choice.return (Val (Val.Bool b))
+  in
+  let is_eval_sat (e : value) =
+    (* TODO: more fine-grained exploit analysis *)
+    let i = Value.int_symbol_s (fresh "i") in
+    let len = Value.int_symbol_s (fresh "len") in
+    let sub = TriOpt (Operators.Ssubstr, e, i, len) in
+    let query =
+      BinOpt (Operators.Eq, sub, Val (Val.Str ";console.log('success')//"))
+    in
+    let/ b = Choice.check_add_true query in
     Choice.return (Val (Val.Bool b))
   in
   let assume (e : value) thread =
@@ -72,6 +98,8 @@ let symbolic_api_funcs =
     ; ("is_symbolic", Extern_func (Func (Arg Res), is_symbolic))
     ; ("is_number", Extern_func (Func (Arg Res), is_number))
     ; ("is_sat", Extern_func (Func (Arg Res), is_sat))
+    ; ("is_exec_sat", Extern_func (Func (Arg Res), is_exec_sat))
+    ; ("is_eval_sat", Extern_func (Func (Arg Res), is_eval_sat))
     ; ("assume", Extern_func (Func (Arg Res), assume))
     ; ("evaluate", Extern_func (Func (Arg Res), evaluate))
     ; ("maximize", Extern_func (Func (Arg Res), maximize))
@@ -154,9 +182,11 @@ let serialize =
             let _sort = Types.string_of_type (Symbol.type_of s) in
             let name = Symbol.to_string s in
             let interp = Value.to_string v in
-            sprintf "var %s = %s;" name interp )
+            sprintf "\"%s\" : %s" name interp )
         in
-        String.concat ~sep:"\n" inputs )
+        "const symbolic_map = \n  { "
+        ^ String.concat ~sep:"\n  , " inputs
+        ^ "\n  }" )
     in
     let str_pc = Encoding.Expression.string_of_pc pc in
     let smt_query = Encoding.Expression.to_smt pc in

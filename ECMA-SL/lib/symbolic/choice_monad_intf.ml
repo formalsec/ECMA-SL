@@ -5,7 +5,8 @@ module type Base = sig
 
   val return : 'a -> 'a t
   val bind : 'a t -> ('a -> 'b t) -> 'b t
-  val select : V.value -> bool t
+  val check : V.value -> bool t
+  val check_add_true : V.value -> bool t
   val branch : V.value -> bool t
   val error : string -> 'a t
 end

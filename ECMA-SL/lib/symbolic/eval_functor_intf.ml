@@ -52,6 +52,7 @@ module type P = sig
     val delete_field : t -> Loc.t -> value -> unit
     val to_string : t -> string
     val loc : value -> Loc.t Choice.t
+    val pp : t -> value -> string
   end
 
   module Env : sig
