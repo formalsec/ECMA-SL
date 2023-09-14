@@ -8,6 +8,14 @@ function main() {
   y[z] := 3.0;
 
   t := y["length"];
-  assert(t = 2.0 || t = 1.0 || t = 3.0);
+
+  /* z = "length" => t = 3.0 */
+  assert(!(z = "length") || t = 3.0);
+
+  /* z != "length" && x = "length" => t = 1.0 */
+  assert(!(!(z = "length") && (x = "length")) || t = 1.0);
+
+  /* (x != "length" && z != "length") => t = 2.0 */
+  assert(((z = "length") || (x = "length")) || t = 2.0);
   return 0
 }
