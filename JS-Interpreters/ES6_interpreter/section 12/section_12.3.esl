@@ -102,7 +102,7 @@ function SuperPropertyEvaluationA(scope, Expression) {
     /* 4. ReturnIfAbrupt(propertyKey). */
     @ReturnIfAbrupt(propertyKey);
 
-    /* 5. If the code matched by the syntactic production that is being 
+    /* 5. If the code matched by the syntactic production that is being
         evaluated is strict mode code, let strict be true, else let strict be false */
     /* strict = ???? */
 
@@ -114,7 +114,7 @@ function SuperPropertyEvaluationB(IdentifierName, propertyKey) {
     /* 1. Let propertyKey be StringValue of IdentifierName. */
     propertyKey := StringValue(IdentifierName);
 
-    /* 2. If the code matched by the syntactic production that is being 
+    /* 2. If the code matched by the syntactic production that is being
         evaluated is strict mode code, let strict be true, else let strict be false */
     /* strict = ???? */
 
@@ -126,7 +126,7 @@ function SuperPropertyEvaluationB(IdentifierName, propertyKey) {
 /**
  * 12.3.5.2 Runtime Semantics: GetSuperConstructor
  *
- * The abstract operation GetSuperConstructor performs the following steps: 
+ * The abstract operation GetSuperConstructor performs the following steps:
  */
 function GetSuperConstructor(scope) {
     /* 1. Let envRec be GetThisEnvironment( ). */

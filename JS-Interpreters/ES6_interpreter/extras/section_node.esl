@@ -33,12 +33,29 @@ function createProcessObject(objectPrototype) {
   return process
 };
 
+function __NodeRequire(globalObject, this, newTarget, strict, params) {
+  path := l_nth(params, 0);
+  objectPrototype := |Intrinsics|["ObjectPrototype"];
+  if (path = "esl_symbolic") {
+    return initESLSymbolicObject(globalObject, objectPrototype, false)
+  } elif (path = "os") {
+    return createOSObject(objectPrototype)
+  } else {
+    return newLazyObject()
+  }
+};
+
 function initNodeGlobalObject(globalObject, objectPrototype, strict) {
-  createBuiltInProperty(
-  globalObject, "__dirname", extern str_symbol("__dirname"));
-  createBuiltInProperty(
-  globalObject, "__filename", extern str_symbol("__filename"));
-  createBuiltInProperty(globalObject, "require", newLazyObject());
+  realm := { globalEnv : globalObject };
+  dirname := extern str_symbol("__dirname");
+  filename := extern str_symbol("__filename");
+  createBuiltInProperty(globalObject, "__dirname", dirname);
+  createBuiltInProperty(globalObject, "__filename", filename);
+
+  require := CreateBuiltInFunctionObject(["path"], "__NodeRequire", realm,
+    strict, null);
+  createBuiltInProperty(globalObject, "require", require);
+  createBuiltInProperty(require, "prototype", objectPrototype);
 
   module := NewECMAScriptObject();
   setAllInternalMethodsOfOrdinaryObject(module);
@@ -51,11 +68,7 @@ function initNodeGlobalObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(module, "exports", exports);
   createBuiltInProperty(globalObject, "exports", exports);
 
-  /* process */
   process := createProcessObject(objectPrototype);
   createBuiltInProperty(globalObject, "process", process);
-
-  os := createOSObject(objectPrototype);
-  createBuiltInProperty(globalObject, "os", os);
   return 'null
 }

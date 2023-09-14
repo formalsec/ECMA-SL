@@ -164,7 +164,7 @@ function OrdinaryCallBindThis (F, calleeContext, thisArgument) {
     else {
         if (thisArgument = 'undefined ||| thisArgument = 'null) {
             /* a. Let thisValue be calleeRealm.[[globalThis]].  */
-            thisValue := calleeRealm.globalThis 
+            thisValue := calleeRealm.globalThis
             /*thisValue := |global|*/
         } /* b. Else,  */
         else {
@@ -993,18 +993,18 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   foreach(d : lexDeclarations) {
     /* a. NOTE A lexically declared name cannot be the same as a function/generator declaration, formal parameter, or a var name. Lexically declared names are only instantiated here but not initialized. */
     /* b. For each element dn of the BoundNames of d do */
-    
+
       /* i. If IsConstantDeclaration of d is true, then */
       if (IsConstantDeclaration(d)) {
         /* 1. Let status be lexEnvRec.CreateImmutableBinding(dn, true). */
         status := {lexEnvRec.CreateImmutableBinding}(lexEnvRec, d.name, true)
-      }        
+      }
       /* ii. Else, */
       else {
         /* 1. Let status be lexEnvRec.CreateMutableBinding(dn, false). */
         status := {lexEnvRec.CreateMutableBinding}(lexEnvRec, d.name, false)
       };
-  
+
     /* c. Assert: status is never an abrupt completion. */
     assert(!isAnAbruptCompletion(status))
   };

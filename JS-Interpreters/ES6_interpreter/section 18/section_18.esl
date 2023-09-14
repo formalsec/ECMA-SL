@@ -144,9 +144,6 @@ function initGlobalObject(globalObject, intrinsic) {
   ConsoleObject := initConsoleObject(globalObject, intrinsic.ObjectPrototype, false);
   createBuiltInProperty(globalObject, "console", ConsoleObject);
 
-  ESLSymbolicObject := initESLSymbolicObject(globalObject, intrinsic.ObjectPrototype, false);
-  createBuiltInProperty(globalObject, "esl_symbolic", ESLSymbolicObject);
-
   initNodeGlobalObject(globalObject, intrinsic.ObjectPrototype, false);
 
   test262Object := initTest262Object(globalObject, intrinsic.ObjectPrototype, false);
