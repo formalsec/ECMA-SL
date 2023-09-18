@@ -1,3 +1,4 @@
+open Bos
 open Core
 module Env = Sym_state.P.Env
 module Value = Sym_state.P.Value
@@ -7,6 +8,7 @@ module Translator = Value_translator
 module Extern_func = Sym_state.P.Extern_func
 module SMap = Map.Make (String)
 
+let ( let* ) o f = match o with Error (`Msg e) -> failwith e | Ok v -> f v
 let ( let/ ) = Choice.bind
 
 let fresh : string -> string =
@@ -50,6 +52,7 @@ let symbolic_api_funcs =
     (* TODO: more fine-grained exploit analysis *)
     let i = Value.int_symbol_s (fresh "i") in
     let len = Value.int_symbol_s (fresh "len") in
+
     let sub = TriOpt (Operators.Ssubstr, e, i, len) in
     let query =
       BinOpt (Operators.Eq, sub, Val (Val.Str ";console.log('success')//"))
@@ -142,21 +145,19 @@ let prog_of_plus file =
 
 let prog_of_core file = Parsing_utils.(parse_prog (load_file file))
 
+let js2ecma_sl file output =
+  Cmd.(v "js2ecma-sl" % "-c" % "-i" % file % "-o" % output)
+
 let prog_of_js interp file =
-  assert (Sys_unix.file_exists_exn interp);
+  let* exists_file = OS.File.exists (Fpath.v file) in
+  assert exists_file;
   let ast_file = Filename.chop_extension file in
-  let ret =
-    Sys_unix.command
-      (String.concat ~sep:" "
-         [ "js2ecma-sl"; "-c"; "-i"; file; "-o"; ast_file ] )
-  in
-  if ret <> 0 then raise (Sys_error ("unable to compile: " ^ file))
-  else
-    let ast_str = In_channel.read_all ast_file in
-    let interp = In_channel.read_all interp in
-    let program = String.concat ~sep:";\n" [ ast_str; interp ] in
-    Sys_unix.remove ast_file;
-    Parsing_utils.parse_prog program
+  let* () = OS.Cmd.run (js2ecma_sl file ast_file) in
+  let ast_str = In_channel.read_all ast_file in
+  let interp = In_channel.read_all interp in
+  let program = String.concat ~sep:";\n" [ ast_str; interp ] in
+  let* () = OS.File.delete (Fpath.v ast_file) in
+  Parsing_utils.parse_prog program
 
 let link_env prog =
   let env = Env.Build.empty () in
@@ -184,7 +185,7 @@ let serialize =
             let interp = Value.to_string v in
             sprintf "\"%s\" : %s" name interp )
         in
-        "const symbolic_map = \n  { "
+        "module.exports.symbolic_map = \n  { "
         ^ String.concat ~sep:"\n  , " inputs
         ^ "\n  }" )
     in
@@ -219,45 +220,47 @@ let run env entry_func =
   Format.printf "  mean time : %fms@."
     (1000. *. !Batch.solver_time /. float !Batch.solver_count)
 
-let command_parameters : (unit -> unit) Command.Param.t =
-  let%map_open.Command files =
-    anon (sequence ("filename" %: Filename_unix.arg_type))
-  and target =
-    flag "target" ~aliases:[ "d" ]
-      (optional_with_default "main" string)
-      ~doc:"string target function to analyse"
-  and workspace =
-    flag "workspace" ~aliases:[ "o" ]
-      (optional_with_default "output" string)
-      ~doc:"string write result files to directory"
-  and policy =
-    flag "policy"
-      (optional_with_default "breadth" string)
-      ~doc:"string search policy (depth|breadth|random)"
-  and interp =
-    flag "interp"
-      (optional_with_default "es6.cesl" string)
-      ~doc:"path to ECMAScript interpreter"
-  and debug = flag "debug" no_arg ~doc:" verbose interpreter" in
-  fun () ->
-    Config.target := target;
-    Config.workspace := workspace;
-    Config.policy := policy;
-    Log.on_debug := debug;
-    List.iter files ~f:(fun f ->
-      Config.file := f;
-      let prog =
-        dispatch_file_ext prog_of_plus prog_of_core (prog_of_js interp) f
-      in
-      let env = link_env prog in
-      run env target )
+let main target workspace interpreter debug file =
+  Config.target := target;
+  Config.workspace := workspace;
+  Log.on_debug := debug;
+  Config.file := file;
+  let prog =
+    dispatch_file_ext prog_of_plus prog_of_core (prog_of_js interpreter) file
+  in
+  let env = link_env prog in
+  run env target
 
-let command =
-  Command.basic ~summary:"ECMA-SL symbolic analysis" command_parameters
+let file =
+  let doc = "analysis files" in
+  Cmdliner.Arg.(required & pos 0 (some file) None & info [] ~doc)
+
+let target =
+  let doc = "target function to analyse" in
+  Cmdliner.Arg.(value & opt string "main" & info [ "target"; "d" ] ~doc)
+
+let workspace =
+  let doc = "write result file to directory" in
+  Cmdliner.Arg.(value & opt string "output" & info [ "workspace"; "o" ] ~doc)
+
+let interpreter =
+  let doc = "path to ECMAscript interpreter" in
+  Cmdliner.Arg.(value & opt string "es6.cesl" & info [ "interp" ] ~doc)
+
+let debug =
+  let doc = "debug mode" in
+  Cmdliner.Arg.(value & flag & info [ "debug" ] ~doc)
+
+let cli =
+  let open Cmdliner in
+  let doc = "ECMA-SL symbolic analysis" in
+  let man = [ `S Manpage.s_bugs ] in
+  let info = Cmd.info "ecma-se" ~version:"%%VERSION%%" ~doc ~man in
+  Cmd.v info Term.(const main $ target $ workspace $ interpreter $ debug $ file)
 
 let () =
   Backtrace.Exn.set_recording true;
-  try Command_unix.run ~version:"0.1.0" command
+  try exit (Cmdliner.Cmd.eval cli)
   with exn ->
     Caml.flush_all ();
     Printexc.print_backtrace stdout;

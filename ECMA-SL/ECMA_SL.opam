@@ -17,6 +17,8 @@ depends: [
   "core" {= "v0.15.1"}
   "core_unix" {= "v0.15.1"}
   "dune" {>= "3.2"}
+  "cmdliner"
+  "bos"
   "batteries"
   "ppx_import"
   "ppx_deriving"

@@ -26,6 +26,8 @@
    (core (= v0.15.1))
    (core_unix (= v0.15.1))
    dune
+   cmdliner
+   bos
    batteries
    ppx_import
    ppx_deriving
