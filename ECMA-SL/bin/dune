@@ -1,22 +1,26 @@
 (executable
+ (package ECMA_SL)
  (public_name ECMA-SL)
  (name ecma_sl)
  (modules ecma_sl)
  (libraries ECMA_SL))
 
 (executable
+ (package ECMA_SL)
  (public_name ecma-se)
  (name ecma_se)
  (modules ecma_se)
- (libraries ECMA_SL cmdliner bos))
+ (libraries ECMA_SL cmdliner bos es))
 
 (executable
+ (package ECMA_SL)
  (public_name generate_standard)
  (name generate_standard)
  (modules generate_standard)
  (libraries ECMA_SL))
 
 (executable
+ (package ECMA_SL)
  (public_name js2cesl)
  (name js_to_cesl)
  (modules js_to_cesl)

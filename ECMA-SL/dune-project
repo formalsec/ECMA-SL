@@ -1,5 +1,6 @@
 (lang dune 3.2)
 (using menhir 2.1)
+(using dune_site 0.1)
 
 (name ECMA_SL)
 
@@ -39,5 +40,11 @@
    yojson)
  (tags
   (ECMAScript "Specification Language" "Reference Interpreters" "OCaml")))
+
+(package
+  (name es)
+  (depends
+    dune-site)
+  (sites (share interpreters)))
 
 ; See the complete stanza docs at https://dune.readthedocs.io/en/stable/dune-files.html#dune-project

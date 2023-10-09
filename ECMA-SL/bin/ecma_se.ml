@@ -146,13 +146,13 @@ let prog_of_core file = Parsing_utils.(parse_prog (load_file file))
 let js2ecma_sl file output =
   Cmd.(v "js2ecma-sl" % "-c" % "-i" % file % "-o" % output)
 
-let prog_of_js interp file =
+let prog_of_js file =
   let* exists_file = OS.File.exists (Fpath.v file) in
   assert exists_file;
   let ast_file = Filename.chop_extension file in
   let* () = OS.Cmd.run (js2ecma_sl file ast_file) in
   let ast_chan = open_in ast_file in
-  let interp_chan = open_in interp in
+  let interp_chan = open_in (Option.get (Es.get_es6 ())) in
   Fun.protect
     ~finally:(fun () ->
       close_in ast_chan;
@@ -233,13 +233,13 @@ let run env entry_func =
   Format.printf "  mean time : %fms@."
     (1000. *. !Batch.solver_time /. float !Batch.solver_count)
 
-let main target workspace interpreter debug file =
+let main target workspace debug file =
   Config.target := target;
   Config.workspace := workspace;
   Log.on_debug := debug;
   Config.file := file;
   let prog =
-    dispatch_file_ext prog_of_plus prog_of_core (prog_of_js interpreter) file
+    dispatch_file_ext prog_of_plus prog_of_core prog_of_js file
   in
   let env = link_env prog in
   run env target
@@ -256,10 +256,6 @@ let workspace =
   let doc = "write result file to directory" in
   Cmdliner.Arg.(value & opt string "output" & info [ "workspace"; "o" ] ~doc)
 
-let interpreter =
-  let doc = "path to ECMAscript interpreter" in
-  Cmdliner.Arg.(value & opt string "es6.cesl" & info [ "interp" ] ~doc)
-
 let debug =
   let doc = "debug mode" in
   Cmdliner.Arg.(value & flag & info [ "debug" ] ~doc)
@@ -269,7 +265,7 @@ let cli =
   let doc = "ECMA-SL symbolic analysis" in
   let man = [ `S Manpage.s_bugs ] in
   let info = Cmd.info "ecma-se" ~version:"%%VERSION%%" ~doc ~man in
-  Cmd.v info Term.(const main $ target $ workspace $ interpreter $ debug $ file)
+  Cmd.v info Term.(const main $ target $ workspace $ debug $ file)
 
 let () =
   Printexc.record_backtrace true;

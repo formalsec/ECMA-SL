@@ -1,0 +1,14 @@
+(install
+  (package es)
+  (section (site (es interpreters)))
+  (files
+    (interpreters/es6.cesl as es6.cesl)))
+
+(library
+  (name es)
+  (modules es es_site)
+  (libraries dune-site))
+
+(generate_sites_module
+  (module es_site)
+  (sites es))
