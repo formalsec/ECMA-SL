@@ -1,5 +1,4 @@
 open Bos
-open Core
 module Env = Sym_state.P.Env
 module Value = Sym_state.P.Value
 module Choice = Sym_state.P.Choice
@@ -69,8 +68,8 @@ let symbolic_api_funcs =
     let solver = Thread.solver thread in
     assert (Batch.check solver (e' :: pc));
     let symbols = Encoding.Expression.get_symbols [ e' ] in
-    let model = Option.value_exn (Batch.model ~symbols solver) in
-    match Encoding.Model.evaluate model (List.hd_exn symbols) with
+    let model = Option.get (Batch.model ~symbols solver) in
+    match Encoding.Model.evaluate model (List.hd symbols) with
     | Some v -> [ (Translator.expr_of_value v, thread) ]
     | None -> assert false (* Should never happpen due to sat check above *)
   in
@@ -92,7 +91,7 @@ let symbolic_api_funcs =
     | Some v -> [ (Translator.expr_of_value v, thread) ]
     | None -> assert false
   in
-  SMap.of_alist_exn
+  SMap.of_list
     [ ("str_symbol", Extern_func (Func (Arg Res), str_symbol))
     ; ("int_symbol", Extern_func (Func (Arg Res), int_symbol))
     ; ("flt_symbol", Extern_func (Func (Arg Res), flt_symbol))
@@ -119,7 +118,7 @@ let extern_functions =
     Format.printf "extern print: %s@." (Value.Pp.pp v);
     Choice.return (Value.Val (Val.Symbol "undefined"))
   in
-  SMap.of_alist_exn
+  SMap.of_list
     [ ("hello", Extern_func (Func (UArg Res), hello))
     ; ("value", Extern_func (Func (Arg Res), print))
     ]
@@ -152,11 +151,18 @@ let prog_of_js interp file =
   assert exists_file;
   let ast_file = Filename.chop_extension file in
   let* () = OS.Cmd.run (js2ecma_sl file ast_file) in
-  let ast_str = In_channel.read_all ast_file in
-  let interp = In_channel.read_all interp in
-  let program = String.concat ~sep:";\n" [ ast_str; interp ] in
-  let* () = OS.File.delete (Fpath.v ast_file) in
-  Parsing_utils.parse_prog program
+  let ast_chan = open_in ast_file in
+  let interp_chan = open_in interp in
+  Fun.protect
+    ~finally:(fun () ->
+      close_in ast_chan;
+      close_in interp_chan )
+    (fun () ->
+      let ast_str = In_channel.input_all ast_chan in
+      let interp = In_channel.input_all interp_chan in
+      let program = String.concat ";\n" [ ast_str; interp ] in
+      let* () = OS.File.delete (Fpath.v ast_file) in
+      Parsing_utils.parse_prog program )
 
 let link_env prog =
   let env = Env.Build.empty () in
@@ -175,32 +181,38 @@ let serialize =
     assert (Batch.check solver pc);
     let model = Batch.model solver in
     let testcase =
-      Option.value_map model ~default:"" ~f:(fun m ->
-        let open Encoding in
-        let inputs =
-          List.map (Model.get_bindings m) ~f:(fun (s, v) ->
-            let _sort = Types.string_of_type (Symbol.type_of s) in
-            let name = Symbol.to_string s in
-            let interp = Value.to_string v in
-            sprintf "\"%s\" : %s" name interp )
-        in
-        "module.exports.symbolic_map = \n  { "
-        ^ String.concat ~sep:"\n  , " inputs
-        ^ "\n  }" )
+      Option.map_default
+        (fun m ->
+          let open Encoding in
+          let inputs =
+            List.map
+              (fun (s, v) ->
+                let _sort = Types.string_of_type (Symbol.type_of s) in
+                let name = Symbol.to_string s in
+                let interp = Value.to_string v in
+                Format.sprintf "\"%s\" : %s" name interp )
+              (Model.get_bindings m)
+          in
+          "module.exports.symbolic_map = \n  { "
+          ^ String.concat "\n  , " inputs
+          ^ "\n  }" )
+        "" model
     in
-    let str_pc = Encoding.Expression.string_of_pc pc in
+    let str_pc = Encoding.Expression.string_of_list pc in
     let smt_query = Encoding.Expression.to_smt pc in
     let prefix =
       incr counter;
       let fname = if Option.is_some witness then "witness" else "testecase" in
-      let fname = sprintf "%s-%i" fname !counter in
+      let fname = Format.sprintf "%s-%i" fname !counter in
       Filename.concat (Filename.concat !Config.workspace "test-suite") fname
     in
-    Io.write_file ~file:(sprintf "%s.js" prefix) ~data:testcase;
-    Io.write_file ~file:(sprintf "%s.pc" prefix) ~data:str_pc;
-    Io.write_file ~file:(sprintf "%s.smt2" prefix) ~data:smt_query;
-    Option.iter witness ~f:(fun sink ->
-      Io.write_file ~file:(sprintf "%s_sink.json" prefix) ~data:sink )
+    Io.write_file ~file:(Format.sprintf "%s.js" prefix) ~data:testcase;
+    Io.write_file ~file:(Format.sprintf "%s.pc" prefix) ~data:str_pc;
+    Io.write_file ~file:(Format.sprintf "%s.smt2" prefix) ~data:smt_query;
+    Option.may
+      (fun sink ->
+        Io.write_file ~file:(Format.sprintf "%s_sink.json" prefix) ~data:sink )
+      witness
 
 let run env entry_func =
   let testsuite_path = Filename.concat !Config.workspace "test-suite" in
@@ -209,11 +221,13 @@ let run env entry_func =
   let thread = Choice_monad.Thread.create () in
   let result = Eval.S.main env entry_func in
   let results = Choice.run result thread in
-  List.iter results ~f:(fun (ret, thread) ->
-    let witness = match ret with Ok _ -> None | Error err -> Some err in
-    serialize ?witness thread;
-    let pc = Encoding.Expression.string_of_pc @@ Thread.pc thread in
-    Format.printf "  path cond : %s@." pc );
+  List.iter
+    (fun (ret, thread) ->
+      let witness = match ret with Ok _ -> None | Error err -> Some err in
+      serialize ?witness thread;
+      let pc = Encoding.Expression.string_of_list @@ Thread.pc thread in
+      Format.printf "  path cond : %s@." pc )
+    results;
   Format.printf "  exec time : %fs@." (Stdlib.Sys.time () -. start);
   Format.printf "solver time : %fs@." !Batch.solver_time;
   Format.printf "  mean time : %fms@."
@@ -258,12 +272,11 @@ let cli =
   Cmd.v info Term.(const main $ target $ workspace $ interpreter $ debug $ file)
 
 let () =
-  Backtrace.Exn.set_recording true;
+  Printexc.record_backtrace true;
   try exit (Cmdliner.Cmd.eval cli)
   with exn ->
-    Stdlib.flush_all ();
+    flush_all ();
     Printexc.print_backtrace stdout;
-    Format.eprintf "%s: uncaught exception %s@."
-      (Sys.get_argv ()).(0)
-      (Exn.to_string exn);
-    exit 2
+    Format.eprintf "%s: uncaught exception %s@." Sys.argv.(0)
+      (Printexc.to_string exn);
+    exit 1

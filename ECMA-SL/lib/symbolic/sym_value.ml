@@ -1,15 +1,12 @@
-open Core
-
-let ( let* ) o f = Result.bind o ~f
-let ( let+ ) o f = Result.map o ~f
-let return = Result.return
+let ( let* ) o f = Result.bind o f
+let ( let+ ) o f = Result.map f o
+let return = Result.ok
 
 let list_map ~f l =
   let exception E of string in
   try
     return
-    @@ List.map l ~f:(fun v ->
-         match f v with Error s -> raise (E s) | Ok v -> v )
+    @@ List.map (fun v -> match f v with Error s -> raise (E s) | Ok v -> v) l
   with E s -> Error s
 
 module M = struct
@@ -25,15 +22,15 @@ module M = struct
   let int_symbol (x : value) : value = Symbolic (Type.IntType, x) [@@inline]
 
   let int_symbol_s (x : string) : value = int_symbol (Val (Val.Str x))
-    [@@inline]
+  [@@inline]
 
   let mk_symbol (x : string) : value = Val (Val.Symbol x) [@@inline]
 
   let mk_list (vs : value list) : value = NOpt (Operators.ListExpr, vs)
-    [@@inline]
+  [@@inline]
 
   let mk_tuple (fst, snd) : value = NOpt (Operators.TupleExpr, [ fst; snd ])
-    [@@inline]
+  [@@inline]
 
   let rec is_symbolic (v : value) : bool =
     match v with
@@ -41,9 +38,9 @@ module M = struct
     | Symbolic _ -> true
     | UnOpt (_, v) -> is_symbolic v
     | BinOpt (_, v1, v2) -> is_symbolic v1 || is_symbolic v2
-    | TriOpt (_, v1, v2, v3) -> List.exists ~f:is_symbolic [ v1; v2; v3 ]
+    | TriOpt (_, v1, v2, v3) -> List.exists is_symbolic [ v1; v2; v3 ]
     | NOpt (_, es) | Curry (_, es) ->
-      (not (List.is_empty es)) && List.exists es ~f:is_symbolic
+      (not (List.is_empty es)) && List.exists is_symbolic es
 
   let rec equal (e1 : value) (e2 : value) : bool =
     match (e1, e2) with
@@ -81,15 +78,16 @@ module M = struct
     type t = value SMap.t
 
     let create (values : (bind * value) list) : t =
-      List.fold values ~init:SMap.empty ~f:(fun accum (key, data) ->
-        SMap.set accum ~key ~data )
+      List.fold_left
+        (fun acc (key, data) -> SMap.add key data acc)
+        SMap.empty values
 
-    let mem (store : t) (x : bind) : bool = SMap.mem store x
+    let mem (store : t) (x : bind) : bool = SMap.mem x store
 
     let add_exn (store : t) (key : bind) (data : value) : t =
-      SMap.set store ~key ~data
+      SMap.add key data store
 
-    let find (store : t) (x : bind) : value option = SMap.find store x
+    let find (store : t) (x : bind) : value option = SMap.find_opt x store
   end
 
   type store = Store.t
@@ -97,9 +95,10 @@ module M = struct
   let rec eval_expr (store : store) (e : Expr.t) : (value, string) Result.t =
     match e with
     | Expr.Val v -> return (Val v)
-    | Expr.Var x ->
-      Result.of_option (Store.find store x)
-        ~error:(sprintf "Cannot find var '%s'" x)
+    | Expr.Var x -> (
+      match Store.find store x with
+      | Some v -> return v
+      | None -> Error (Format.sprintf "Cannot find var '%s'" x) )
     | Expr.UnOpt (op, e) -> (
       let+ e' = eval_expr store e in
       match e' with Val v -> Val (Eval_op.eval_unop op v) | _ -> UnOpt (op, e')
@@ -130,14 +129,14 @@ module M = struct
 
   module Pp = struct
     let rec pp (e : value) : string =
-      let concat es = String.concat ~sep:", " (List.map ~f:pp es) in
+      let concat es = String.concat ", " (List.map pp es) in
       match e with
       | Val n -> Val.str n
       | UnOpt (op, e) -> Operators.str_of_unopt op ^ "(" ^ pp e ^ ")"
       | BinOpt (op, e1, e2) -> Operators.str_of_binopt op (pp e1) (pp e2)
       | TriOpt (op, e1, e2, e3) ->
         Operators.str_of_triopt op (pp e1) (pp e2) (pp e3)
-      | NOpt (op, es) -> Operators.str_of_nopt op (List.map ~f:pp es)
+      | NOpt (op, es) -> Operators.str_of_nopt op (List.map pp es)
       | Curry (f, es) -> "{" ^ pp f ^ "}@(" ^ concat es ^ ")"
       | Symbolic (_t, x) -> (
         match x with Val (Val.Str x) -> x | _ -> assert false )
@@ -149,9 +148,11 @@ module M = struct
 
       let to_string (store : t) : string =
         let start = "{ ... " in
-        SMap.fold store ~init:start ~f:(fun ~key ~data accum ->
-          if String.is_prefix ~prefix:"__" key then accum
-          else Printf.sprintf "%s; %s -> %s" accum key (pp data) )
+        SMap.fold
+          (fun key data acc ->
+            if String.starts_with ~prefix:"__" key then acc
+            else Printf.sprintf "%s; %s -> %s" acc key (pp data) )
+          store start
         ^ " }"
     end
   end

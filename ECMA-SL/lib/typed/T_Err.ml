@@ -144,23 +144,23 @@ exception TypeError of t
 let top_err (terr : t) : err_t =
   match terr.errs with err :: _ -> err | [] -> failwith "T_Err.top_err"
 
-let continue (terr : t) = Caml.raise (TypeError terr)
+let continue (terr : t) = raise (TypeError terr)
 
 let create ?(kind : kind_t = Error) ?(src : tkn_t = NoTkn)
     ?(tkn : tkn_t = NoTkn) (err : err_t) : t =
   { kind; errs = [ err ]; src; tkn }
 
-let raise ?(kind : kind_t = Error) ?(src : tkn_t = NoTkn) ?(tkn : tkn_t = NoTkn)
-    (err : err_t) =
-  Caml.raise (TypeError (create ~kind ~src ~tkn err))
-
 let push (terr : t) (err : err_t) =
-  Caml.raise (TypeError { terr with errs = err :: terr.errs })
+  raise (TypeError { terr with errs = err :: terr.errs })
 
 let update (terr : t) (err : err_t) =
   match terr.errs with
   | [] -> push terr err
-  | _ :: errs' -> Caml.raise (TypeError { terr with errs = err :: errs' })
+  | _ :: errs' -> raise (TypeError { terr with errs = err :: errs' })
+
+let raise ?(kind : kind_t = Error) ?(src : tkn_t = NoTkn) ?(tkn : tkn_t = NoTkn)
+    (err : err_t) =
+  raise (TypeError (create ~kind ~src ~tkn err))
 
 let format (terr : t) : string =
   let terrMsgs = List.map err_str terr.errs in
