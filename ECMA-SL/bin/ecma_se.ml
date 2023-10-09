@@ -252,7 +252,7 @@ let target =
 
 let workspace =
   let doc = "write result file to directory" in
-  Cmdliner.Arg.(value & opt string "output" & info [ "workspace"; "o" ] ~doc)
+  Cmdliner.Arg.(value & opt string "ecma-out" & info [ "workspace"; "o" ] ~doc)
 
 let debug =
   let doc = "debug mode" in
