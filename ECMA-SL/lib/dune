@@ -28,7 +28,6 @@
   eval_functor_intf
   extern_func
   link_env
-  sym_heap
   sym_heap2
   sym_heap_intf
   sym_heap_obj_list

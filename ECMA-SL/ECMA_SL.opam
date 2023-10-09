@@ -12,10 +12,10 @@ homepage: "https://github.com/j3fsantos/ECMA-SL"
 doc: "https://url/to/documentation"
 bug-reports: "https://github.com/j3fsantos/ECMA-SL/issues"
 depends: [
-  "ocaml" {>= "4.14.0"}
-  "ocamlformat" {= "0.24.1"}
-  "core" {= "v0.15.1"}
-  "core_unix" {= "v0.15.1"}
+  "ocaml" {>= "5.1.0"}
+  "ocamlformat" {= "0.26.0"}
+  "core" {>= "v0.16.0"}
+  "core_unix" {>= "v0.16.0"}
   "dune" {>= "3.2"}
   "cmdliner"
   "bos"
@@ -46,5 +46,5 @@ build: [
 ]
 dev-repo: "git+https://github.com/j3fsantos/ECMA-SL.git"
 pin-depends: [
-  [ "encoding.dev" "git+https://github.com/wasp-platform/encoding" ]
+  [ "encoding.release" "git+https://github.com/wasp-platform/encoding" ]
 ]
