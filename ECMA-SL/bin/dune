@@ -24,4 +24,4 @@
  (public_name js2cesl)
  (name js_to_cesl)
  (modules js_to_cesl)
- (libraries ECMA_SL))
+ (libraries ECMA_SL es))
