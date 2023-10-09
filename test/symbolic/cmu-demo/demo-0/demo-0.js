@@ -1,3 +1,5 @@
+const esl_symbolic = require('esl_symbolic');
+
 function symbolic_string_array(prefix, n) {
   var arr = [];
 	for (let i = 0; i < n; ++i) {

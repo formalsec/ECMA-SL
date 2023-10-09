@@ -1,3 +1,4 @@
+const esl_symbolic = require('esl_symbolic');
 var obj___instr_obj_2 = {};
 var obj____inputs___instr_obj_0 = {};
 var obj____inputs____x___instr_symb_str_0 = esl_symbolic.string("obj____inputs____x___instr_symb_str_0");
