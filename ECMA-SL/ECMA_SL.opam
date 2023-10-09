@@ -4,7 +4,7 @@ synopsis: "ECMA-SL"
 description: "A Platform for specifying and running the ECMAScript standard."
 maintainer: ["José Fragoso Santos"]
 authors: ["José Fragoso Santos"]
-license: "LICENSE"
+license: "GPL-3.0-or-later"
 tags: [
   "ECMAScript" "Specification Language" "Reference Interpreters" "OCaml"
 ]
