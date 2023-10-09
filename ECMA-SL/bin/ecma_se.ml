@@ -238,9 +238,7 @@ let main target workspace debug file =
   Config.workspace := workspace;
   Log.on_debug := debug;
   Config.file := file;
-  let prog =
-    dispatch_file_ext prog_of_plus prog_of_core prog_of_js file
-  in
+  let prog = dispatch_file_ext prog_of_plus prog_of_core prog_of_js file in
   let env = link_env prog in
   run env target
 

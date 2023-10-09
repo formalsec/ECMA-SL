@@ -13,7 +13,7 @@
 
 (maintainers "José Fragoso Santos")
 
-(license LICENSE)
+(license "GPL-3.0-or-later")
 
 (documentation https://url/to/documentation)
 
@@ -42,9 +42,6 @@
   (ECMAScript "Specification Language" "Reference Interpreters" "OCaml")))
 
 (package
-  (name es)
-  (depends
-    dune-site)
-  (sites (share interpreters)))
-
-; See the complete stanza docs at https://dune.readthedocs.io/en/stable/dune-files.html#dune-project
+ (name es)
+ (depends dune-site)
+ (sites (share interpreters)))
