@@ -1,4 +1,5 @@
 let interpreters_location : string list = Es_site.Sites.interpreters
+let nodejs_location : string list = Es_site.Sites.nodejs
 
 let find file =
   List.find_map
@@ -8,3 +9,4 @@ let find file =
     interpreters_location
 
 let get_es6 () = find "es6.cesl"
+let get_esl_symbolic () = find "esl_symbolic.js"

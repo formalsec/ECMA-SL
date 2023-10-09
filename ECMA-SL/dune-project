@@ -44,4 +44,4 @@
 (package
  (name es)
  (depends dune-site)
- (sites (share interpreters)))
+ (sites (share interpreters) (share nodejs)))

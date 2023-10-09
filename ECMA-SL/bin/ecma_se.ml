@@ -233,7 +233,7 @@ let run env entry_func =
   Format.printf "  mean time : %fms@."
     (1000. *. !Batch.solver_time /. float !Batch.solver_count)
 
-let main target workspace debug file =
+let main debug target workspace file =
   Config.target := target;
   Config.workspace := workspace;
   Log.on_debug := debug;
@@ -242,9 +242,35 @@ let main target workspace debug file =
   let env = link_env prog in
   run env target
 
+let validate debug filename testsuite_path =
+  Log.on_debug := debug;
+  Log.debug "filename: %s, testsuite_path: %s@." filename testsuite_path;
+  ()
+
+let help =
+  [ `S Cmdliner.Manpage.s_common_options
+  ; `P "These options are common to all commands"
+  ; `P "Use $(mname)  $(i,COMMAND) --help for help on a single command"
+  ; `S Cmdliner.Manpage.s_bugs
+  ; `P "Check bug reports at TODO"
+  ]
+
+let copts debug = debug
+
+let copts_term =
+  let open Cmdliner in
+  let docs = Manpage.s_common_options in
+  let debug =
+    let doc = "debug mode" in
+    Arg.(value & flag & info [ "debug" ] ~docs ~doc)
+  in
+  Term.(const copts $ debug)
+
+let sdocs = Cmdliner.Manpage.s_common_options
+
 let file =
-  let doc = "analysis files" in
-  Cmdliner.Arg.(required & pos 0 (some file) None & info [] ~doc)
+  let doc = "file to analyse" in
+  Cmdliner.Arg.(required & pos 0 (some file) None & info [] ~docv:"FILE" ~doc)
 
 let target =
   let doc = "target function to analyse" in
@@ -254,20 +280,50 @@ let workspace =
   let doc = "write result file to directory" in
   Cmdliner.Arg.(value & opt string "ecma-out" & info [ "workspace"; "o" ] ~doc)
 
-let debug =
-  let doc = "debug mode" in
-  Cmdliner.Arg.(value & flag & info [ "debug" ] ~doc)
-
-let cli =
+let run_cmd =
   let open Cmdliner in
-  let doc = "ECMA-SL symbolic analysis" in
-  let man = [ `S Manpage.s_bugs ] in
-  let info = Cmd.info "ecma-se" ~version:"%%VERSION%%" ~doc ~man in
-  Cmd.v info Term.(const main $ target $ workspace $ debug $ file)
+  let doc = "Symbolic execution analysis" in
+  let man =
+    [ `S Manpage.s_description
+    ; `P "Symbolic analysis of ECMA-SL."
+    ; `P "Parses files with respect to their file extension .js/.esl/.cesl."
+    ; `Blocks help
+    ]
+  in
+  let info = Cmd.info "run" ~doc ~sdocs ~man in
+  Cmd.v info Term.(const main $ copts_term $ target $ workspace $ file)
+
+let val_cmd =
+  let open Cmdliner in
+  let file =
+    let doc = "symbolic test to validate" in
+    Arg.(required & pos 0 (some file) None & info [] ~docv:"FILE" ~doc)
+  in
+  let dir =
+    let doc = "uses concrete testsuite in directory $(docv)" in
+    Arg.(required & pos 1 (some file) None & info [] ~docv:"DIR" ~doc)
+  in
+  let doc = "Testsuite validation" in
+  let man =
+    [ `S Manpage.s_description
+    ; `P "Validates symbolic tests produced by explode.js"
+    ; `Blocks help
+    ]
+  in
+  let info = Cmd.info "validate" ~doc ~sdocs ~man in
+  Cmd.v info Term.(const validate $ copts_term $ file $ dir)
+
+let cmd =
+  let open Cmdliner in
+  let doc = "ECMA-SL Symbolic Analyser" in
+  let man = help in
+  let info = Cmd.info "ecma-se" ~doc ~sdocs ~man in
+  let default = Term.(const main $ copts_term $ target $ workspace $ file) in
+  Cmd.group ~default info [ run_cmd; val_cmd ]
 
 let () =
   Printexc.record_backtrace true;
-  try exit (Cmdliner.Cmd.eval cli)
+  try exit (Cmdliner.Cmd.eval cmd)
   with exn ->
     flush_all ();
     Printexc.print_backtrace stdout;

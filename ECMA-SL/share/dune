@@ -1,8 +1,16 @@
 (install
  (package es)
- (section (site (es interpreters)))
+ (section
+  (site (es interpreters)))
  (files
   (interpreters/es6.cesl as es6.cesl)))
+
+(install
+ (package es)
+ (section
+  (site (es nodejs)))
+ (files
+  (nodejs/esl_symbolic.js as esl_symbolic.js)))
 
 (library
  (name es)
