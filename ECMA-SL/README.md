@@ -7,7 +7,7 @@
 
 ```sh
 opam init
-opam switch create 4.14.0 4.14.0
+opam switch create ecma-sl 5.1.0
 ```
 
 - Then, install the library dependencies:
