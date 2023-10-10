@@ -1,14 +1,23 @@
-open Bos
+open Bos_setup
 module Env = Sym_state.P.Env
 module Value = Sym_state.P.Value
 module Choice = Sym_state.P.Choice
 module Thread = Choice_monad.Thread
 module Translator = Value_translator
 module Extern_func = Sym_state.P.Extern_func
-module SMap = Map.Make (String)
+module SMap = Stdlib.Map.Make (Stdlib.String)
 
-let ( let* ) o f = match o with Error (`Msg e) -> failwith e | Ok v -> f v
+let ( let* ) = Result.bind
 let ( let/ ) = Choice.bind
+
+let list_iter ~f lst =
+  let exception E of Rresult.R.msg in
+  try
+    List.iter
+      (fun v -> match f v with Error s -> raise (E s) | Ok () -> ())
+      lst;
+    Ok ()
+  with E s -> Error s
 
 let fresh : string -> string =
   let counter = ref (-1) in
@@ -128,10 +137,10 @@ let core_ext = ".cesl"
 let js_ext = ".js"
 
 let dispatch_file_ext on_plus on_core on_js file =
-  if Filename.check_suffix file plus_ext then on_plus file
-  else if Filename.check_suffix file core_ext then on_core file
+  if Filename.check_suffix file plus_ext then Ok (on_plus file)
+  else if Filename.check_suffix file core_ext then Ok (on_core file)
   else if Filename.check_suffix file js_ext then on_js file
-  else raise (Sys_error (file ^ " :unreconized file type"))
+  else Error (`Msg (file ^ " :unreconized file type"))
 
 let prog_of_plus file =
   let e_prog =
@@ -144,14 +153,13 @@ let prog_of_plus file =
 let prog_of_core file = Parsing_utils.(parse_prog (load_file file))
 
 let js2ecma_sl file output =
-  Cmd.(v "js2ecma-sl" % "-c" % "-i" % file % "-o" % output)
+  Cmd.(v "js2ecma-sl" % "-c" % "-i" % p file % "-o" % p output)
 
 let prog_of_js file =
-  let* exists_file = OS.File.exists (Fpath.v file) in
-  assert exists_file;
-  let ast_file = Filename.chop_extension file in
+  let* file = OS.File.must_exist (Fpath.v file) in
+  let ast_file = Fpath.(file -+ "_ast.cesl") in
   let* () = OS.Cmd.run (js2ecma_sl file ast_file) in
-  let ast_chan = open_in ast_file in
+  let ast_chan = open_in @@ Fpath.to_string ast_file in
   let interp_chan = open_in (Option.get (Es.get_es6 ())) in
   Fun.protect
     ~finally:(fun () ->
@@ -160,9 +168,9 @@ let prog_of_js file =
     (fun () ->
       let ast_str = In_channel.input_all ast_chan in
       let interp = In_channel.input_all interp_chan in
-      let program = String.concat ";\n" [ ast_str; interp ] in
-      let* () = OS.File.delete (Fpath.v ast_file) in
-      Parsing_utils.parse_prog program )
+      let program = String.concat ~sep:";\n" [ ast_str; interp ] in
+      let* () = OS.File.delete ast_file in
+      Ok (Parsing_utils.parse_prog program) )
 
 let link_env prog =
   let env = Env.Build.empty () in
@@ -194,7 +202,7 @@ let serialize =
               (Model.get_bindings m)
           in
           "module.exports.symbolic_map = \n  { "
-          ^ String.concat "\n  , " inputs
+          ^ String.concat ~sep:"\n  , " inputs
           ^ "\n  }" )
         "" model
     in
@@ -238,14 +246,60 @@ let main debug target workspace file =
   Config.workspace := workspace;
   Log.on_debug := debug;
   Config.file := file;
-  let prog = dispatch_file_ext prog_of_plus prog_of_core prog_of_js file in
-  let env = link_env prog in
-  run env target
+  (let* prog = dispatch_file_ext prog_of_plus prog_of_core prog_of_js file in
+   let env = link_env prog in
+   run env target;
+   Ok 0 )
+  |> Logs.on_error_msg ~use:(fun () -> 1)
 
-let validate debug filename testsuite_path =
-  Log.on_debug := debug;
-  Log.debug "filename: %s, testsuite_path: %s@." filename testsuite_path;
-  ()
+let node test witness = Cmd.(v "node" % test % p witness)
+
+type observable =
+  | Stdout of string
+  | File of string
+
+let observable_effects = [ Stdout "success"; File "success" ]
+
+let execute_witness env (test : string) (witness : Fpath.t) =
+  let open OS in
+  Logs.app (fun m -> m " running : %s" @@ Fpath.to_string witness);
+  let cmd = node test witness in
+  let* out, status = Cmd.(run_out ~env ~err:err_run_out cmd |> out_string) in
+  match status with
+  | _, `Exited 0 ->
+    Ok
+      (List.find_opt
+         (fun effect ->
+           match effect with
+           | Stdout sub -> String.find_sub ~sub out |> Option.is_some
+           | File file -> Sys.file_exists file )
+         observable_effects )
+  | _ -> Error (`Msg (Format.sprintf "unexpected node failure: %s" out))
+
+let validate debug filename suite_path =
+  if debug then Logs.set_level (Some Logs.Debug);
+  Logs.app (fun m -> m "validating : %s..." filename);
+  let node_loc = List.nth Es.nodejs_location 0 in
+  let node_path = Printf.sprintf ".:%s" node_loc in
+  let env = String.Map.of_list [ ("NODE_PATH", node_path) ] in
+  (let* witnesses = OS.Path.matches Fpath.(v suite_path / "witness-$(n).js") in
+   let* () =
+     list_iter witnesses ~f:(fun witness ->
+       let* effect = execute_witness env filename witness in
+       match effect with
+       | Some (Stdout msg) ->
+         Logs.app (fun m -> m " status : true (\"%s\" in output)" msg);
+         Ok ()
+       | Some (File file) ->
+         let* () = OS.Path.delete @@ Fpath.v file in
+         Logs.app (fun m -> m " status : true (created file \"%s\")" file);
+         Ok ()
+       | None ->
+         Logs.app (fun m -> m " status : false (no side effect)");
+         Ok () )
+   in
+   Ok 0 )
+  |> Logs.on_error_msg ~use:(fun () -> 1)
 
 let help =
   [ `S Cmdliner.Manpage.s_common_options
@@ -323,7 +377,7 @@ let cmd =
 
 let () =
   Printexc.record_backtrace true;
-  try exit (Cmdliner.Cmd.eval cmd)
+  try exit (Cmdliner.Cmd.eval' cmd)
   with exn ->
     flush_all ();
     Printexc.print_backtrace stdout;

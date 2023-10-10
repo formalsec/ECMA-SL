@@ -10,7 +10,7 @@
  (public_name ecma-se)
  (name ecma_se)
  (modules ecma_se)
- (libraries ECMA_SL cmdliner bos es))
+ (libraries ECMA_SL cmdliner bos bos.setup es))
 
 (executable
  (package ECMA_SL)
