@@ -16,6 +16,7 @@ function initESLSymbolicObject(globalObject, objectPrototype, strict) {
   apiPollutingObject := CreateBuiltInFunctionObject([], "__apiPollutingObject",
     realm, strict, null);
 
+  createBuiltInProperty(esl_symbolic, "any", apiSymbolicString);
   createBuiltInProperty(esl_symbolic, "number", apiSymbolicNumber);
   createBuiltInProperty(esl_symbolic, "string", apiSymbolicString);
   createBuiltInProperty(esl_symbolic, "boolean", apiSymbolicBoolean);

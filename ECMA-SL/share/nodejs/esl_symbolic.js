@@ -16,7 +16,7 @@ function ignore(_x) { }
 function is_symbolic(_x) { }
 function lazy_object() { return {}; }
 
-module.exports.any = function(_x) { return {}; };
+module.exports.any = get;
 module.exports.number = get;
 module.exports.string = get;
 module.exports.boolean = get;
