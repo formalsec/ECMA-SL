@@ -372,8 +372,8 @@ let cmd =
   let doc = "ECMA-SL Symbolic Analyser" in
   let man = help in
   let info = Cmd.info "ecma-se" ~doc ~sdocs ~man in
-  let default = Term.(const main $ copts_term $ target $ workspace $ file) in
-  Cmd.group ~default info [ run_cmd; val_cmd ]
+  let d = Term.(ret (const (fun _ -> `Help (`Pager, None)) $ copts_term)) in
+  Cmd.group ~default:d info [ run_cmd; val_cmd ]
 
 let () =
   Printexc.record_backtrace true;
