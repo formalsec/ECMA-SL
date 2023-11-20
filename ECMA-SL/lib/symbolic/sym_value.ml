@@ -10,65 +10,58 @@ let list_map ~f l =
   with E s -> Error s
 
 module M = struct
-  type value =
-    | Val of Val.t
-    | UnOpt of Operators.uopt * value
-    | BinOpt of Operators.bopt * value * value
-    | TriOpt of Operators.topt * value * value * value
-    | NOpt of Operators.nopt * value list
-    | Curry of value * value list
-    | Symbolic of Type.t * value
+  module E = Encoding.Expr
+  module V = Encoding.Value
+  module T = Encoding.Ty
 
-  let int_symbol (x : value) : value = Symbolic (Type.IntType, x) [@@inline]
+  type value = E.t
 
-  let int_symbol_s (x : string) : value = int_symbol (Val (Val.Str x))
-  [@@inline]
+  (* let int_symbol (x : value) : value = Symbolic (Type.IntType, x) [@@inline] *)
 
-  let mk_symbol (x : string) : value = Val (Val.Symbol x) [@@inline]
+  (* let int_symbol_s (x : string) : value = int_symbol (Val (Val.Str x)) *)
+  (* [@@inline] *)
+  
+  let ( @: ) = E.( @: )
 
-  let mk_list (vs : value list) : value = NOpt (Operators.ListExpr, vs)
-  [@@inline]
+  let mk_symbol s = E.mk_symbol s
 
-  let mk_tuple (fst, snd) : value = NOpt (Operators.TupleExpr, [ fst; snd ])
-  [@@inline]
+  let mk_list (_vs : value list) : value = assert false
+  (* let mk_list (vs : value list) : value = NOpt (Operators.ListExpr, vs)
+  [@@inline] *)
 
+  let mk_tuple (_fst, _snd) : value = assert false
+  (* let mk_tuple (fst, snd) : value = NOpt (Operators.TupleExpr, [ fst; snd ])
+  [@@inline] *)
+  
   let rec is_symbolic (v : value) : bool =
-    match v with
-    | Val _ -> false
-    | Symbolic _ -> true
-    | UnOpt (_, v) -> is_symbolic v
-    | BinOpt (_, v1, v2) -> is_symbolic v1 || is_symbolic v2
-    | TriOpt (_, v1, v2, v3) -> List.exists is_symbolic [ v1; v2; v3 ]
-    | NOpt (_, es) | Curry (_, es) ->
-      (not (List.is_empty es)) && List.exists is_symbolic es
-
-  let rec equal (e1 : value) (e2 : value) : bool =
-    match (e1, e2) with
-    | Val v1, Val v2 -> Val.equal v1 v2
-    | Symbolic (t1, e1'), Symbolic (t2, e2') -> Type.(t1 = t2) && equal e1' e2'
-    | UnOpt (op1, e1'), UnOpt (op2, e2') ->
-      Stdlib.( = ) op1 op2 && equal e1' e2'
-    | BinOpt (op1, e1', e2'), BinOpt (op2, e3', e4') ->
-      Stdlib.( = ) op1 op2 && equal e1' e3' && equal e2' e4'
-    | TriOpt (op1, e1', e2', e3'), TriOpt (op2, e4', e5', e6') ->
-      Stdlib.( = ) op1 op2 && equal e1' e4' && equal e2' e5' && equal e3' e6'
-    | NOpt (op1, es1), NOpt (op2, es2) ->
-      Stdlib.( = ) op1 op2 && List.equal equal es1 es2
-    | Curry (x1, es1), Curry (x2, es2) ->
-      equal x1 x2 && List.equal equal es1 es2
-    | _ -> false
+    let open E in
+      match v.e with
+      | Val _ -> false
+      | Symbol _ -> true
+      | Unop (_, v) -> is_symbolic v
+      | Binop (_, v1, v2) -> is_symbolic v1 || is_symbolic v2
+      | Triop (_, v1, v2, v3) -> List.exists is_symbolic [ v1; v2; v3 ]
+      | Cvtop (_, v) -> is_symbolic v
+      | Relop (_, v1, v2) -> is_symbolic v1 || is_symbolic v2
+      | _ -> assert false
+      (* | NOpt (_, es) | Curry (_, es) ->
+        (not (List.is_empty es)) && List.exists is_symbolic es *)
+  
+  let equal (e1 : value) (e2 : value) = E.equal e1 e2
 
   let get_func_name (v : value) =
-    match v with
-    | Val (Val.Str x) -> Ok (x, [])
-    | Curry (Val (Val.Str x), vs) -> Ok (x, vs)
-    | _ -> Error "Value is not a function identifier"
+    let open E in
+      match v.e with
+      | E.Val (V.Str x) -> Ok (x, [])
+      (* | Curry (Val (Val.Str x), vs) -> Ok (x, vs) *)
+      | _ -> Error "Value is not a function identifier"
 
   module Bool = struct
-    let const b = Val (Val.Bool b) [@@inline]
-    let not_ e = UnOpt (Operators.Not, e) [@@inline]
-    let and_ e1 e2 = BinOpt (Operators.Log_And, e1, e2) [@@inline]
-    let or_ e1 e2 = BinOpt (Operators.Log_Or, e1, e2) [@@inline]
+
+    let const b = E.Val b @: T.Ty_bool [@@inline]
+    let not_ e = E.Unop (T.Not, e) @: T.Ty_bool  [@@inline]
+    let and_ e1 e2 = E.Binop (T.And, e1, e2) @: T.Ty_bool [@@inline]
+    let or_ e1 e2 = E.Binop (T.Or, e1, e2) @: T.Ty_bool [@@inline]
   end
 
   module Store = struct
@@ -92,9 +85,26 @@ module M = struct
 
   type store = Store.t
 
+  (* let eval_value (v : Val.t) : E.t =
+    match v with
+    | Val.Int n -> E.Val (V.Int n)
+    | Val.Bool b -> E.Val (V.Bool b)
+    | Val.Str s -> E.Val (V.Str s)
+    | Val.List l -> E.List List.map eval_value l
+    | _ -> assert false *)
+
+  let eval_value (v : Val.t) : E.t =
+    match v with
+    | Val.Int n -> E.Val (V.Int n) @: T.Ty_int
+    | Val.Str s -> E.Val (V.Str s) @: T.Ty_str
+    | Val.Bool b -> match b with true -> E.Val (V.True) @: T.Ty_bool | false -> E.Val (V.False) @: T.Ty_bool
+    | _ -> assert false
+  
+
   let rec eval_expr (store : store) (e : Expr.t) : (value, string) Result.t =
     match e with
-    | Expr.Val v -> return (Val v)
+    | Expr.Val v -> 
+      return (eval_value v)
     | Expr.Var x -> (
       match Store.find store x with
       | Some v -> return v
