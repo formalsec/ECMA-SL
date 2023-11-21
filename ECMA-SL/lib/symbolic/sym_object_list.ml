@@ -6,7 +6,7 @@ module Translator = Value_translator
 
 module M : sig
   type value = Value.value
-  type encoded_pct = Encoding.Expression.t
+  type encoded_pct = Encoding.Expr.t
   type t
 
   val create : unit -> t
@@ -23,7 +23,7 @@ end = struct
 
 type value = Value.value
 type pct = Value.value
-type encoded_pct = Encoding.Expression.t
+type encoded_pct = Encoding.Expr.t
 
 let rec_size = 1000
 

@@ -5,7 +5,7 @@ module Translator = Value_translator
 module Thread = struct
   type t =
     { solver : Batch.t
-    ; pc : Encoding.Expression.t list
+    ; pc : Encoding.Expr.t list
     ; mem : Sym_heap2.Heap.t
     ; optimizer : Encoding.Optimizer.t
     }

@@ -8,7 +8,7 @@ module Translator = Value_translator
 module M : sig
   type value = Value.value
   type object_ = Object.t
-  type encoded_pct = Encoding.Expression.t
+  type encoded_pct = Encoding.Expr.t
   type t
 
   val create : unit -> t
@@ -40,7 +40,7 @@ module M : sig
 end = struct
 type value = Value.value
 type object_ = Object.t
-type encoded_pct = Encoding.Expression.t
+type encoded_pct = Encoding.Expr.t
 type t = { parent : t option; map : (Loc.t, object_) Hashtbl.t }
 
 let create () : t = { parent = None; map = Hashtbl.create (module String) }

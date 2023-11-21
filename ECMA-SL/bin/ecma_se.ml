@@ -76,7 +76,7 @@ let symbolic_api_funcs =
     let pc = Thread.pc thread in
     let solver = Thread.solver thread in
     assert (Batch.check solver (e' :: pc));
-    let symbols = Encoding.Expression.get_symbols [ e' ] in
+    let symbols = Encoding.Expr.get_symbols [ e' ] in
     let model = Option.get (Batch.model ~symbols solver) in
     match Encoding.Model.evaluate model (List.hd symbols) with
     | Some v -> [ (Translator.expr_of_value v, thread) ]
@@ -192,22 +192,16 @@ let serialize =
       Option.map_default
         (fun m ->
           let open Encoding in
-          let inputs =
-            List.map
-              (fun (s, v) ->
-                let _sort = Types.string_of_type (Symbol.type_of s) in
-                let name = Symbol.to_string s in
-                let interp = Value.to_string v in
-                Format.sprintf "\"%s\" : %s" name interp )
-              (Model.get_bindings m)
-          in
-          "module.exports.symbolic_map = \n  { "
-          ^ String.concat ~sep:"\n  , " inputs
-          ^ "\n  }" )
+          Format.asprintf "module.exports.symbolic_map = @[<h 2>{%a@\n}@]"
+            (Format.pp_print_list
+               ~pp_sep:(fun fmt () -> Format.fprintf fmt "@\n")
+               (fun fmt (s, v) ->
+                 Format.fprintf fmt {|"%a" : %a|} Symbol.pp s Value.pp v ) )
+            (Model.get_bindings m) )
         "" model
     in
-    let str_pc = Encoding.Expression.string_of_list pc in
-    let smt_query = Encoding.Expression.to_smt pc in
+    let str_pc = Format.asprintf "%a" Encoding.Expr.pp_list pc in
+    let smt_query = Format.asprintf "%a" Encoding.Expr.pp_smt pc in
     let prefix =
       incr counter;
       let fname = if Option.is_some witness then "witness" else "testecase" in
@@ -233,8 +227,8 @@ let run env entry_func =
     (fun (ret, thread) ->
       let witness = match ret with Ok _ -> None | Error err -> Some err in
       serialize ?witness thread;
-      let pc = Encoding.Expression.string_of_list @@ Thread.pc thread in
-      Format.printf "  path cond : %s@." pc )
+      Format.printf "  path cond : %a@." Encoding.Expr.pp_list
+        (Thread.pc thread) )
     results;
   Format.printf "  exec time : %fs@." (Stdlib.Sys.time () -. start);
   Format.printf "solver time : %fs@." !Batch.solver_time;
@@ -285,18 +279,18 @@ let validate debug filename suite_path =
   (let* witnesses = OS.Path.matches Fpath.(v suite_path / "witness-$(n).js") in
    let* () =
      list_iter witnesses ~f:(fun witness ->
-       let* effect = execute_witness env filename witness in
-       match effect with
-       | Some (Stdout msg) ->
-         Logs.app (fun m -> m " status : true (\"%s\" in output)" msg);
-         Ok ()
-       | Some (File file) ->
-         let* () = OS.Path.delete @@ Fpath.v file in
-         Logs.app (fun m -> m " status : true (created file \"%s\")" file);
-         Ok ()
-       | None ->
-         Logs.app (fun m -> m " status : false (no side effect)");
-         Ok () )
+         let* effect = execute_witness env filename witness in
+         match effect with
+         | Some (Stdout msg) ->
+           Logs.app (fun m -> m " status : true (\"%s\" in output)" msg);
+           Ok ()
+         | Some (File file) ->
+           let* () = OS.Path.delete @@ Fpath.v file in
+           Logs.app (fun m -> m " status : true (created file \"%s\")" file);
+           Ok ()
+         | None ->
+           Logs.app (fun m -> m " status : false (no side effect)");
+           Ok () )
    in
    Ok 0 )
   |> Logs.on_error_msg ~use:(fun () -> 1)
