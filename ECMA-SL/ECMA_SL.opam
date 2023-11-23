@@ -13,7 +13,6 @@ doc: "https://url/to/documentation"
 bug-reports: "https://github.com/j3fsantos/ECMA-SL/issues"
 depends: [
   "ocaml" {>= "5.1.0"}
-  "ocamlformat" {= "0.26.0"}
   "core" {>= "v0.16.0"}
   "core_unix" {>= "v0.16.0"}
   "dune" {>= "3.2"}
@@ -26,7 +25,7 @@ depends: [
   "extlib"
   "menhir"
   "menhirLib"
-  "encoding"
+  "encoding" {>= "0.0.1"}
   "yojson"
   "odoc" {with-doc}
 ]
@@ -47,6 +46,3 @@ build: [
   ["dune" "install" "-p" name "--create-install-files" name]
 ]
 dev-repo: "git+https://github.com/j3fsantos/ECMA-SL.git"
-pin-depends: [
-  [ "encoding.v0.0.1" "git+https://github.com/wasp-platform/encoding" ]
-]

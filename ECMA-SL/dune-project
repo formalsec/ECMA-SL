@@ -23,7 +23,7 @@
  (description "A Platform for specifying and running the ECMAScript standard.")
  (depends
    (ocaml (>= "5.1.0"))
-   (ocamlformat (= "0.26.0"))
+   (odoc :with-doc)
    (core (>= "v0.16.0"))
    (core_unix (>= "v0.16.0"))
    dune
@@ -36,7 +36,7 @@
    extlib
    menhir
    menhirLib
-   encoding
+   (encoding (>= "0.0.1"))
    yojson)
  (tags
   (ECMAScript "Specification Language" "Reference Interpreters" "OCaml")))

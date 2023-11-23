@@ -1,7 +1,7 @@
 (include_subdirs unqualified)
 
 (library
- (name ECMA_SL)
+ (public_name ECMA_SL)
  (wrapped false)
  (modules
   io

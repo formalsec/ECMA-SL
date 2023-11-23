@@ -13,7 +13,7 @@
   (nodejs/esl_symbolic.js as esl_symbolic.js)))
 
 (library
- (name es)
+ (public_name es)
  (modules es es_site)
  (libraries dune-site))
 
