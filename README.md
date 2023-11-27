@@ -8,7 +8,12 @@ This project is composed of three sub-projects, each presented in its own folder
 - **Heap2HTML:** a tool that creates an HTML representation of a JSON file. 
   With this tool, we can visualise a Heap and navigate through its containing 
   objects.
-- **ECMA-SL:** the ECMA-SL interpreter. 
+- **ECMA-SL:** the ECMA-SL interpreter.
+
+## ECMA-SL Syntax Highlighting
+
+- [VSCode](https://github.com/luisloureiro-ist/ECMA-SL_VSCode)
+- [Vim](https://github.com/formalsec/ecmasl-vim)
 
 ## Build and install ECMA-SL
 
