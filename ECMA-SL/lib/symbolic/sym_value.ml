@@ -85,21 +85,41 @@ module M = struct
 
   type store = Store.t
 
-  (* let eval_value (v : Val.t) : E.t =
-    match v with
-    | Val.Int n -> E.Val (V.Int n)
-    | Val.Bool b -> E.Val (V.Bool b)
-    | Val.Str s -> E.Val (V.Str s)
-    | Val.List l -> E.List List.map eval_value l
-    | _ -> assert false *)
-
-  let eval_value (v : Val.t) : E.t =
+  let rec eval_value (v : Val.t) : E.t =
     match v with
     | Val.Int n -> E.Val (V.Int n) @: T.Ty_int
     | Val.Str s -> E.Val (V.Str s) @: T.Ty_str
-    | Val.Bool b -> match b with true -> E.Val (V.True) @: T.Ty_bool | false -> E.Val (V.False) @: T.Ty_bool
+    | Val.Bool true -> E.Val (V.True) @: T.Ty_bool 
+    | Val.Bool false -> E.Val (V.False) @: T.Ty_bool
+    | Val.Byte n -> E.Val (V.Int n) @: T.Ty_int
+    | Val.List l -> E.List (List.map eval_value l) @: T.Ty_list
     | _ -> assert false
   
+  let eval_unop_operator = function
+    | Operators.Neg -> T.Neg
+    | Operators.Not -> T.Not
+    | Operators.Abs -> T.Abs
+    | Operators.Floor -> T.Floor
+    | Operators.IsNaN -> T.Is_nan
+    | Operators.Sqrt -> T.Sqrt
+    | Operators.Ceil -> T.Ceil
+    | _ -> assert false
+
+  let eval_binop_operator = function
+    | Operators.Plus -> T.Add
+    | Operators.Minus -> T.Sub
+    | Operators.Times -> T.Mul
+    | Operators.Div -> T.Div
+    | Operators.ShiftLeft -> T.Shl
+    | Operators.ShiftRight -> T.ShrA
+    | Operators.ShiftRightLogical -> T.ShrL
+    | Operators.Log_And -> T.And
+    | Operators.Log_Or -> T.Or
+    | Operators.Pow -> T.Pow
+    | Operators.Min -> T.Min
+    | Operators.Max -> T.Max
+    | Operators.LRem -> T.Rem
+    | _ -> assert false
 
   let rec eval_expr (store : store) (e : Expr.t) : (value, string) Result.t =
     match e with
@@ -110,15 +130,20 @@ module M = struct
       | Some v -> return v
       | None -> Error (Format.sprintf "Cannot find var '%s'" x) )
     | Expr.UnOpt (op, e) -> (
+      let op' = eval_unop_operator op in
       let+ e' = eval_expr store e in
-      match e' with Val v -> Val (Eval_op.eval_unop op v) | _ -> UnOpt (op, e')
+      E.Unop (op', e') @: e'.ty 
       )
     | Expr.BinOpt (op, e1, e2) -> (
+      let op' = eval_binop_operator op in
+      (* operator might be from relop *)
       let* e1' = eval_expr store e1 in
       let+ e2' = eval_expr store e2 in
-      match (e1', e2') with
+      E.Binop (op', e1', e2') @: e1'.ty
+      (* match (e1', e2') with
       | Val v1, Val v2 -> Val (Eval_op.eval_binopt_expr op v1 v2)
-      | _ -> BinOpt (op, e1', e2') )
+      | _ -> BinOpt (op, e1', e2') ) *)
+      )
     | Expr.TriOpt (op, e1, e2, e3) -> (
       let* e1' = eval_expr store e1 in
       let* e2' = eval_expr store e2 in
