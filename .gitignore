@@ -1,4 +1,3 @@
-JS2ECMA-SL/ast.esl
 implementation/ES5_interpreter/ast.esl
 implementation/final_heap.json
 implementation/output.esl
@@ -38,6 +37,7 @@ _opam/
 
 .DS_Store
 .vscode
+**/*.code-workspace
 
 implementation/results/
 implementation/logs/

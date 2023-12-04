@@ -146,11 +146,11 @@ let prog_of_plus file =
   let e_prog =
     Parsing_utils.(
       apply_prog_macros
-        (resolve_prog_imports (parse_e_prog file (load_file file))) )
+        (resolve_prog_imports (parse_e_prog file (Io.load_file file))) )
   in
   Compiler.compile_prog e_prog
 
-let prog_of_core file = Parsing_utils.(parse_prog (load_file file))
+let prog_of_core file = Parsing_utils.(parse_prog (Io.load_file file))
 
 let js2ecma_sl file output =
   Cmd.(v "js2ecma-sl" % "-c" % "-i" % p file % "-o" % p output)
