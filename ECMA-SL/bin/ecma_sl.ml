@@ -61,7 +61,7 @@ let parse_program (prog : Prog.t) (inline : string) : unit =
   Printf.printf "%s" jsonfile
 
 let core_of_plus (file : string) : Prog.t =
-  let e_prog_contents = Parsing_utils.load_file file in
+  let e_prog_contents = Io.load_file file in
   let e_prog = Parsing_utils.parse_e_prog file e_prog_contents in
   let e_prog_imports_resolved = Parsing_utils.resolve_prog_imports e_prog in
   let e_prog_macros_applied =
@@ -82,11 +82,11 @@ let compile_from_plus_to_core (file : string) : unit =
   else print_endline (Prog.str c_prog)
 
 let inline_compiler () : Prog.t =
-  let prog_contents = Parsing_utils.load_file !Config.file in
+  let prog_contents = Io.load_file !Config.file in
   let prog = Parsing_utils.parse_prog prog_contents in
   let inlined_prog = Inliner.compile_functions prog in
   (* Add Security funcs. H-L-Lattice.esl*)
-  let sec_prog_contents = Parsing_utils.load_file _INLINE_LATTICE_ in
+  let sec_prog_contents = Io.load_file _INLINE_LATTICE_ in
   let lattice_prog = Parsing_utils.parse_prog sec_prog_contents in
   let final_prog = combine_progs inlined_prog lattice_prog in
   let inlinedfile = Filename.remove_extension !Config.file in
@@ -154,11 +154,11 @@ let () =
       FAILURE)
     else if !Config.mode = "ci" then (
       print_string "======================= CORE =======================\n";
-      let prog = Parsing_utils.(parse_prog (load_file !Config.file)) in
+      let prog = Parsing_utils.(parse_prog (Io.load_file !Config.file)) in
       if !Config.parse then parse_program prog "";
       core_interpretation prog)
     else if !Config.mode = "parse" then (
-      let prog = Parsing_utils.(parse_prog (load_file !Config.file)) in
+      let prog = Parsing_utils.(parse_prog (Io.load_file !Config.file)) in
       parse_program prog "";
       SUCCESS)
     else if !Config.mode = "ic" then (

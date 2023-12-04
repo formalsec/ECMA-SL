@@ -1,7 +1,7 @@
 open T_Err
 
 let type_checker_test (file : string) (eerrs : err_t list) : bool =
-  let data = Parsing_utils.load_file file in
+  let data = Io.load_file file in
   let prog = Parsing_utils.parse_e_prog file data in
   let _main_terr_f terr = List.nth terr.errs (List.length terr.errs - 1) in
   let terrs = List.map _main_terr_f (T_Checker.type_program prog) in

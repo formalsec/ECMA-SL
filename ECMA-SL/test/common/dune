@@ -1,7 +1,0 @@
-(library
- (name ecmasl_common_tests)
- (modules )
- (inline_tests)
- (preprocess
-  (pps ppx_inline_test))
- (libraries ECMA_SL))

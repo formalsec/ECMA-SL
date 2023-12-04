@@ -1,0 +1,140 @@
+(include_subdirs unqualified)
+
+(library
+ (public_name ECMA_SL)
+ (wrapped false)
+ (modules
+  ;  general
+  config
+  ;  utils
+  common
+  io
+  log
+  err
+  font
+  counter
+  arith_utils
+  byte_utils
+  date_utils
+  parsing_utils
+  parsing_heap_utils
+  parsing_number_utils
+  string_utils
+  time_utils
+  ;   syntax (share)
+  val
+  loc
+  type
+  object
+  field
+  source
+  operators
+  call_stack
+  ;   syntax (core)
+  expr
+  stmt
+  func
+  prog
+  lexer
+  parser
+  ;   syntax (extended)
+  E_Expr
+  E_Stmt
+  E_Func
+  E_Prog
+  E_Type
+  E_Oper
+  E_Pat
+  E_Pat_v
+  E_Macro
+  E_Store
+  E_Lexer
+  E_Parser
+  ;   semantics (domains)
+  store
+  heap
+  ;   semantics (core)
+  eval_op
+  external
+  inspector ; UNUSED
+  interpreter
+  ;   semantics (extended)
+  compiler
+  E_Func_Metadata
+  E_Pat_Metadata
+  ;   semantics (monitors)
+  NSU_CompilerConstants
+  NSU_Inliner
+  NSU_Monitor
+  SecLabel
+  SecLevel
+  SecLevel2
+  SecLevel_Dep
+  SecObject
+  SecCallStack
+  SecStore
+  SecHeap
+  TopLevel
+  ; typed
+  T_Checker
+  T_Expr
+  T_Stmt
+  T_Op
+  T_Ctx
+  T_Err
+  T_ErrFmt
+  T_Typing
+  T_Narrowing
+  T_Constraint
+  T_Pattern
+  ;   symbolic
+  args_typing_unop
+  args_typing_binop
+  batch
+  choice_monad_intf
+  choice_monad
+  eval
+  eval_functor
+  eval_functor_intf
+  extern_func
+  link_env
+  sym_heap2
+  sym_heap_intf
+  sym_heap_obj_list
+  sym_object_list
+  sym_state
+  sym_value
+  type_of_val
+  value_intf
+  value_reducer
+  value_translator
+  value_typing)
+ (preprocess
+  (staged_pps ppx_import ppx_deriving.std ppx_jane))
+ (libraries encoding batteries extlib menhirLib yojson z3 core))
+
+(subdir
+ syntax/core
+ (rule
+  (target lexer.ml)
+  (deps lexer.mll)
+  (action
+   (chdir
+    %{workspace_root}
+    (run %{bin:ocamllex} -ml -q -o %{target} %{deps}))))
+ (menhir
+  (modules parser)
+  (flags --table)))
+
+(subdir
+ syntax/extended
+ (rule
+  (target E_Lexer.ml)
+  (deps E_Lexer.mll)
+  (action
+   (chdir
+    %{workspace_root}
+    (run %{bin:ocamllex} -ml -q -o %{target} %{deps}))))
+ (menhir
+  (modules E_Parser)
+  (flags --table --explain)))

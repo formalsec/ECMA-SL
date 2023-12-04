@@ -3,30 +3,30 @@ const esprima = require("esprima-next");
 const yargs = require("yargs");
 const fs = require("fs");
 const translator = require("./ECMA-SL/translator");
-const ParseRegExps = require("./ECMA-SL/utils/parse_regexp");
+const { ParseRegExps } = require("./ECMA-SL/utils/parse_regexp");
 const { processClasses } = require("./ECMA-SL/utils/processClasses");
 const { processTailCalls } = require("./ECMA-SL/utils/processTailCalls");
 
 const argv = yargs
-  .option("input", { alias: "i", description: "JS input file", type: "string" })
+  .option("input", { alias: "i", description: "Input file (.js)", type: "string" })
   .option("output", {
     alias: "o",
-    description: "ECMA-SL output file",
+    description: "Output file (.esl)",
     type: "string",
   })
-  .option("name", {
-    alias: "n",
-    description: "Name of the function that creates the AST object",
+  .option("builder", {
+    alias: "b",
+    description: "Name of the function that builds the AST",
     type: "string",
   })
   .option("compile-to-core", {
     alias: "c",
-    description: "Compiles the JS input file directly to Core",
+    description: "Compiles the input directly to Core (.cesl)",
     type: "boolean",
     default: false,
   })
   .option("optimised", {
-    description: 'Adds the "optimised" property to the generated AST object',
+    description: 'Adds the "optimised" property to the AST',
     type: "boolean",
     default: false,
   })
@@ -37,7 +37,7 @@ const argv = yargs
 
 fs.readFile(argv.input, "utf-8", (err, data) => {
   if (err) throw err;
-  const FUNC_NAME = argv.name ? argv.name : "buildAST";
+  const FUNC_NAME = argv.builder ? argv.builder : "buildAST";
 
   let prog;
   try {

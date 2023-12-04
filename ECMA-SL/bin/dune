@@ -14,13 +14,6 @@
 
 (executable
  (package ECMA_SL)
- (public_name generate_standard)
- (name generate_standard)
- (modules generate_standard)
- (libraries ECMA_SL))
-
-(executable
- (package ECMA_SL)
  (public_name js2cesl)
  (name js_to_cesl)
  (modules js_to_cesl)
