@@ -1,16 +1,11 @@
 {
   "name": "js2ecma-sl",
   "version": "0.0.1",
-  "description": "Command-line tool that receives a ES5 program, parses it using Esprima and converts the corresponding AST to a sequence of ECMA-SL statements used to create this AST in a heap passed to an ECMA-SL interpreter.",
+  "description": "Command-line tool that receives a JS program, parses it using Esprima and converts the corresponding AST to a sequence of ECMA-SL statements used to create this AST in a heap passed to an ECMA-SL interpreter.",
   "bin": {
     "js2ecma-sl": "src/index.js"
   },
   "main": "src/index.js",
-  "scripts": {
-    "start": "node src/index.js -i $INPUT -o ast.esl",
-    "poststart": "cp ast.esl ../implementation/ES5_interpreter/ast.esl",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "Luís Loureiro",
   "license": "MIT",
   "dependencies": {
