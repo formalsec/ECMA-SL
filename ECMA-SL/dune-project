@@ -4,12 +4,12 @@
 
 (using dune_site 0.1)
 
-(name ECMA_SL)
+(name ecma-sl)
 
 (generate_opam_files true)
 
 (source
- (github j3fsantos/ECMA-SL))
+ (github formalsec/ECMA-SL))
 
 (authors "José Fragoso Santos")
 
@@ -17,10 +17,10 @@
 
 (license "GPL-3.0-or-later")
 
-(documentation https://url/to/documentation)
+(documentation https://github.com/formalsec.github.io/ECMA-SL)
 
 (package
- (name ECMA_SL)
+ (name ecma-sl)
  (synopsis "ECMA-SL")
  (description
   "A platform for specifying and running the ECMAScript standard.")
@@ -49,7 +49,7 @@
   (ECMAScript "Specification Language" "Reference Interpreters" "OCaml")))
 
 (package
- (name es)
+ (name ecma-sl-share)
  (depends dune-site)
  (sites
   (share interpreters)

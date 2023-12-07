@@ -1,11 +1,13 @@
 (include_subdirs unqualified)
 
 (library
- (public_name ECMA_SL)
- (wrapped false)
+ (public_name ecma-sl)
+ (name ecma_sl)
  (modules
   ;  general
   config
+  cmd_sym
+  cmd_run
   ;  utils
   common
   io
@@ -111,7 +113,17 @@
   value_typing)
  (preprocess
   (staged_pps ppx_import ppx_deriving.std ppx_jane))
- (libraries encoding batteries extlib menhirLib yojson z3 core))
+ (libraries
+  encoding
+  batteries
+  extlib
+  menhirLib
+  yojson
+  z3
+  core
+  bos
+  bos.setup
+  esl_share))
 
 (subdir
  syntax/core
