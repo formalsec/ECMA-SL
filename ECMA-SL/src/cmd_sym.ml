@@ -160,7 +160,7 @@ let prog_of_js file =
   let ast_file = Fpath.(file -+ "_ast.cesl") in
   let* () = OS.Cmd.run (js2ecma_sl file ast_file) in
   let ast_chan = open_in @@ Fpath.to_string ast_file in
-  let interp_chan = open_in (Option.get (Es.get_es6 ())) in
+  let interp_chan = open_in (Option.get (Esl_share.get_es6 ())) in
   Fun.protect
     ~finally:(fun () ->
       close_in ast_chan;
@@ -273,7 +273,7 @@ let execute_witness env (test : string) (witness : Fpath.t) =
 let validate debug filename suite_path =
   if debug then Logs.set_level (Some Logs.Debug);
   Logs.app (fun m -> m "validating : %s..." filename);
-  let node_loc = List.nth Es.nodejs_location 0 in
+  let node_loc = List.nth Esl_share.nodejs_location 0 in
   let node_path = Printf.sprintf ".:%s" node_loc in
   let env = String.Map.of_list [ ("NODE_PATH", node_path) ] in
   (let* witnesses = OS.Path.matches Fpath.(v suite_path / "witness-$(n).js") in
@@ -294,87 +294,3 @@ let validate debug filename suite_path =
    in
    Ok 0 )
   |> Logs.on_error_msg ~use:(fun () -> 1)
-
-let help =
-  [ `S Cmdliner.Manpage.s_common_options
-  ; `P "These options are common to all commands"
-  ; `P "Use $(mname)  $(i,COMMAND) --help for help on a single command"
-  ; `S Cmdliner.Manpage.s_bugs
-  ; `P "Check bug reports at TODO"
-  ]
-
-let copts debug = debug
-
-let copts_term =
-  let open Cmdliner in
-  let docs = Manpage.s_common_options in
-  let debug =
-    let doc = "debug mode" in
-    Arg.(value & flag & info [ "debug" ] ~docs ~doc)
-  in
-  Term.(const copts $ debug)
-
-let sdocs = Cmdliner.Manpage.s_common_options
-
-let file =
-  let doc = "file to analyse" in
-  Cmdliner.Arg.(required & pos 0 (some file) None & info [] ~docv:"FILE" ~doc)
-
-let target =
-  let doc = "target function to analyse" in
-  Cmdliner.Arg.(value & opt string "main" & info [ "target"; "d" ] ~doc)
-
-let workspace =
-  let doc = "write result file to directory" in
-  Cmdliner.Arg.(value & opt string "ecma-out" & info [ "workspace"; "o" ] ~doc)
-
-let run_cmd =
-  let open Cmdliner in
-  let doc = "Symbolic execution analysis" in
-  let man =
-    [ `S Manpage.s_description
-    ; `P "Symbolic analysis of ECMA-SL."
-    ; `P "Parses files with respect to their file extension .js/.esl/.cesl."
-    ; `Blocks help
-    ]
-  in
-  let info = Cmd.info "run" ~doc ~sdocs ~man in
-  Cmd.v info Term.(const main $ copts_term $ target $ workspace $ file)
-
-let val_cmd =
-  let open Cmdliner in
-  let file =
-    let doc = "symbolic test to validate" in
-    Arg.(required & pos 0 (some file) None & info [] ~docv:"FILE" ~doc)
-  in
-  let dir =
-    let doc = "uses concrete testsuite in directory $(docv)" in
-    Arg.(required & pos 1 (some file) None & info [] ~docv:"DIR" ~doc)
-  in
-  let doc = "Testsuite validation" in
-  let man =
-    [ `S Manpage.s_description
-    ; `P "Validates symbolic tests produced by explode.js"
-    ; `Blocks help
-    ]
-  in
-  let info = Cmd.info "validate" ~doc ~sdocs ~man in
-  Cmd.v info Term.(const validate $ copts_term $ file $ dir)
-
-let cmd =
-  let open Cmdliner in
-  let doc = "ECMA-SL Symbolic Analyser" in
-  let man = help in
-  let info = Cmd.info "ecma-se" ~doc ~sdocs ~man in
-  let d = Term.(ret (const (fun _ -> `Help (`Pager, None)) $ copts_term)) in
-  Cmd.group ~default:d info [ run_cmd; val_cmd ]
-
-let () =
-  Printexc.record_backtrace true;
-  try exit (Cmdliner.Cmd.eval' cmd)
-  with exn ->
-    flush_all ();
-    Printexc.print_backtrace stdout;
-    Format.eprintf "%s: uncaught exception %s@." Sys.argv.(0)
-      (Printexc.to_string exn);
-    exit 1
