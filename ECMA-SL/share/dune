@@ -1,22 +1,25 @@
 (install
- (package es)
+ (package ecma-sl-share)
  (section
-  (site (es interpreters)))
+  (site
+   (es interpreters)))
  (files
   (interpreters/es6.cesl as es6.cesl)))
 
 (install
- (package es)
+ (package ecma-sl-share)
  (section
-  (site (es nodejs)))
+  (site
+   (es nodejs)))
  (files
   (nodejs/esl_symbolic.js as esl_symbolic.js)))
 
 (library
- (public_name es)
- (modules es es_site)
+ (public_name ecma-sl-share)
+ (name esl_share)
+ (modules esl_share esl_site)
  (libraries dune-site))
 
 (generate_sites_module
- (module es_site)
- (sites es))
+ (module esl_site)
+ (sites ecma-sl-share))

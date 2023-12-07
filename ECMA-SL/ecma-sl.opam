@@ -8,9 +8,9 @@ license: "GPL-3.0-or-later"
 tags: [
   "ECMAScript" "Specification Language" "Reference Interpreters" "OCaml"
 ]
-homepage: "https://github.com/j3fsantos/ECMA-SL"
-doc: "https://url/to/documentation"
-bug-reports: "https://github.com/j3fsantos/ECMA-SL/issues"
+homepage: "https://github.com/formalsec/ECMA-SL"
+doc: "https://github.com/formalsec.github.io/ECMA-SL"
+bug-reports: "https://github.com/formalsec/ECMA-SL/issues"
 depends: [
   "ocaml" {>= "5.1.0"}
   "odoc" {with-doc}
@@ -45,4 +45,4 @@ build: [
   ]
   ["dune" "install" "-p" name "--create-install-files" name]
 ]
-dev-repo: "git+https://github.com/j3fsantos/ECMA-SL.git"
+dev-repo: "git+https://github.com/formalsec/ECMA-SL.git"
