@@ -24,26 +24,26 @@ let copts_t =
 let sdocs = Manpage.s_common_options
 
 let file =
-  let doc = "file to analyse" in
+  let doc = "Input file." in
   Arg.(required & pos 0 (some file) None & info [] ~docv:"FILE" ~doc)
 
+let unsafe =
+  let doc = "Unsafe mode skips typechecking pass." in
+  Arg.(value & flag & info [ "untyped" ] ~doc)
+
 let target =
-  let doc = "target function to analyse" in
+  let doc = "Start function." in
   Arg.(value & opt string "main" & info [ "target"; "d" ] ~doc)
 
 let workspace =
-  let doc = "write result file to directory" in
-  Arg.(value & opt string "ecma-out" & info [ "workspace"; "o" ] ~doc)
+  let doc = "Workspace directory." in
+  Arg.(value & opt string "ecma-out" & info [ "workspace"; "w" ] ~doc)
+
+let output =
+  let doc = "Output file." in
+  Arg.(value & opt (some string) None & info [ "output"; "o" ] ~doc)
 
 let compile_cmd =
-  let output =
-    let doc = "write the program to this file" in
-    Arg.(value & opt (some string) None & info [ "output"; "o" ] ~doc)
-  in
-  let unsafe =
-    let doc = "skip typechecker" in
-    Arg.(value & flag & info [ "untyped" ] ~doc)
-  in
   let doc = "Compiler from plus to core" in
   let man =
     [ `S Manpage.s_description
@@ -82,22 +82,18 @@ let sym_cmd =
 
 let val_cmd =
   let open Cmdliner in
-  let file =
-    let doc = "symbolic test to validate" in
-    Arg.(required & pos 0 (some file) None & info [] ~docv:"FILE" ~doc)
-  in
   let dir =
-    let doc = "uses concrete testsuite in directory $(docv)" in
+    let doc = "Search $(docv) for concrete testsuites to validate." in
     Arg.(required & pos 1 (some file) None & info [] ~docv:"DIR" ~doc)
   in
   let doc = "Testsuite validation" in
   let man =
     [ `S Manpage.s_description
-    ; `P "Validates symbolic tests produced by explode.js"
+    ; `P "Replays concrete testsuites generated in symbolic execution."
     ; `Blocks help_sec
     ]
   in
-  let info = Cmd.info "validate" ~doc ~sdocs ~man in
+  let info = Cmd.info "replay" ~doc ~sdocs ~man in
   Cmd.v info Term.(const Cmd_sym.validate $ copts_t $ file $ dir)
 
 let cli =
