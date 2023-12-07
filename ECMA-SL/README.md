@@ -31,10 +31,10 @@ dune install
 
 1. Compile the ECMA-SL (`.esl`) file to Core ECMA-SL (`.cesl`):
 ```sh
-ECMA-SL -mode c -i <input.esl> -o <output.cesl>
+ecma-sl compile <input.esl> -o <output.cesl>
 ```
 
 1. Interpreter the Core ECMA.SL (`.cesl`) file:
 ```sh
-ECMA-SL -mode ci -i <input.cesl>
+ecma-sl run <input.cesl>
 ```
