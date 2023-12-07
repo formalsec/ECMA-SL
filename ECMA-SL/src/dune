@@ -6,8 +6,6 @@
  (modules
   ;  general
   config
-  cmd_sym
-  cmd_run
   ;  utils
   common
   io

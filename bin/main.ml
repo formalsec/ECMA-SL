@@ -1,5 +1,4 @@
 open Cmdliner
-open Ecma_sl
 
 let help_sec =
   [ `S Manpage.s_common_options

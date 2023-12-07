@@ -1,3 +1,5 @@
+open Ecma_sl
+
 type exit_code =
   | SUCCESS
   | FAILURE

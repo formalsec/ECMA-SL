@@ -1,4 +1,5 @@
 open Bos_setup
+open Ecma_sl
 module Env = Sym_state.P.Env
 module Value = Sym_state.P.Value
 module Choice = Sym_state.P.Choice
