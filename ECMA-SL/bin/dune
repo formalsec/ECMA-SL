@@ -1,20 +1,5 @@
 (executable
- (package ECMA_SL)
- (public_name ECMA-SL)
- (name ecma_sl)
- (modules ecma_sl)
- (libraries ECMA_SL))
-
-(executable
- (package ECMA_SL)
- (public_name ecma-se)
- (name ecma_se)
- (modules ecma_se)
- (libraries ECMA_SL cmdliner bos bos.setup es))
-
-(executable
- (package ECMA_SL)
- (public_name js2cesl)
- (name js_to_cesl)
- (modules js_to_cesl)
- (libraries ECMA_SL es))
+ (package ecma-sl)
+ (public_name ecma-sl)
+ (name main)
+ (libraries ecma_sl cmdliner))
