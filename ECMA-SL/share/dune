@@ -2,7 +2,7 @@
  (package ecma-sl-share)
  (section
   (site
-   (es interpreters)))
+   (ecma-sl-share interpreters)))
  (files
   (interpreters/es6.cesl as es6.cesl)))
 
@@ -10,7 +10,7 @@
  (package ecma-sl-share)
  (section
   (site
-   (es nodejs)))
+   (ecma-sl-share nodejs)))
  (files
   (nodejs/esl_symbolic.js as esl_symbolic.js)))
 
