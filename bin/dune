@@ -4,5 +4,15 @@
  (package ecma-sl)
  (public_name ecma-sl)
  (name main)
- (modules main cmd_run cmd_sym)
+ (modules
+  main
+  options
+  doc_compile
+  doc_interpret
+  doc_symbolic
+  doc_replay
+  cmd
+  cmd_compile
+  cmd_interpret
+  cmd_symbolic)
  (libraries ecma_sl cmdliner))

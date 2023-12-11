@@ -1,110 +1,82 @@
 open Cmdliner
 
-let help_sec =
-  [ `S Manpage.s_common_options
-  ; `P "These options are common to all commands."
-  ; `S "MORE HELP"
-  ; `P "Use $(mname) $(i,COMMAND) --help for help on a single command."
-  ; `Noblank
-  ; `S Manpage.s_bugs
-  ; `P "Check bug reports at https://github.com/formalsec/ECMA-SL/issues."
-  ]
+module AppInfo = struct
+  let version = "%%VERSION%%"
+  let doc = "Executable specification of the ECMAScript standard"
+  let sdocs = Manpage.s_common_options
 
-let copts debug = debug
+  let description =
+    [ "ECMA-SL is a comprehensive platform designed for the specification and \
+       execution of the ECMAScript standard, commonly known as JavaScript. The \
+       platform introduces an intermediate language, ECMA-SL, which serves as \
+       a bridge between JavaScript and its execution environment. This \
+       intermediate language is used to provide a reference implementation of \
+       the ECMAScript standard that adheres to JavaScript's specification."
+    ; "Key features of the platform include a JavaScript-to-ECMA-SL \
+       (JS2ECMA-SL) parser, allowing the conversion of JavaScript code into \
+       the ECMA-SL language. Additionally, ECMA-SL incorporates a compiler \
+       from ECMA-SL to Core ECMA-SL, a simplified version of the intermediate \
+       language, as well as an interpreter for Core ECMA-SL. The combination \
+       of these tools results in a mechanism to execute JavaScript programs \
+       using the reference interpreters for the language."
+    ; "The ECMA-SL platform also includes a symbolic analysis mechanism for \
+       performing symbolic analyses on ECMA-SL programs. [FIXME?]"
+    ; "Use ecma-sl <command> --help for more information on a specific command."
+    ]
 
-let copts_t =
-  let docs = Manpage.s_common_options in
-  let debug =
-    let doc = "Give debug output." in
-    Arg.(value & flag & info [ "debug" ] ~docs ~doc)
-  in
-  Term.(const copts $ debug)
+  let man =
+    [ `S Cmdliner.Manpage.s_description
+    ; `P (List.nth description 0)
+    ; `P (List.nth description 1)
+    ; `P (List.nth description 2)
+    ; `P (List.nth description 3)
+    ; `S Manpage.s_common_options
+    ; `P "These options are common to all commands."
+    ; `S Manpage.s_bugs
+    ; `P "Check bug reports at https://github.com/formalsec/ECMA-SL/issues."
+    ]
 
-let sdocs = Manpage.s_common_options
+  let man_xrefs = []
 
-let file =
-  let doc = "Input file." in
-  Arg.(required & pos 0 (some file) None & info [] ~docv:"FILE" ~doc)
-
-let unsafe =
-  let doc = "Unsafe mode skips typechecking pass." in
-  Arg.(value & flag & info [ "untyped" ] ~doc)
-
-let target =
-  let doc = "Start function." in
-  Arg.(value & opt string "main" & info [ "target"; "d" ] ~doc)
-
-let workspace =
-  let doc = "Workspace directory." in
-  Arg.(value & opt string "ecma-out" & info [ "workspace"; "w" ] ~doc)
-
-let output =
-  let doc = "Output file." in
-  Arg.(value & opt (some string) None & info [ "output"; "o" ] ~doc)
+  let exits =
+    List.append Cmd.Exit.defaults
+      [ Cmd.Exit.info ~doc:"on failure" 1
+      ; Cmd.Exit.info ~doc:"on error" 2
+      ; Cmd.Exit.info ~doc:"on unsupported" 3
+      ]
+end
 
 let compile_cmd =
-  let doc = "Compiler from plus to core" in
-  let man =
-    [ `S Manpage.s_description
-    ; `P "ECMA-SL compiler command."
-    ; `P "Currently only does .esl->.cesl but we should also do .js->.cesl"
-    ; `Blocks help_sec
-    ]
-  in
-  let info = Cmd.info "compile" ~doc ~sdocs ~man in
-  Cmd.v info Term.(const Cmd_run.compile $ copts_t $ unsafe $ file $ output)
+  let open Doc_compile in
+  let info = Cmd.info "compile" ~doc ~sdocs ~man ~man_xrefs in
+  Cmd.v info term
 
-let run_cmd =
-  let open Cmdliner in
-  let doc = "ECMA-SL Interpreter" in
-  let man =
-    [ `S Manpage.s_description
-    ; `P "ECMA-SL Concrete Interpreter"
-    ; `Blocks help_sec
-    ]
-  in
-  let info = Cmd.info "run" ~doc ~sdocs ~man in
-  Cmd.v info Term.(const Cmd_run.main $ copts_t $ file)
+let execute_cmd =
+  let open Doc_interpret in
+  let info = Cmd.info "interpret" ~doc ~sdocs ~man ~man_xrefs in
+  Cmd.v info term
 
-let sym_cmd =
-  let open Cmdliner in
-  let doc = "Symbolic execution analysis" in
-  let man =
-    [ `S Manpage.s_description
-    ; `P "Symbolic analysis of ECMA-SL."
-    ; `P "Parses files with respect to their file extension .js/.esl/.cesl."
-    ; `Blocks help_sec
-    ]
-  in
-  let info = Cmd.info "sym" ~doc ~sdocs ~man in
-  Cmd.v info Term.(const Cmd_sym.main $ copts_t $ target $ workspace $ file)
+let symbolic_cmd =
+  let open Doc_symbolic in
+  let info = Cmd.info "symbolic" ~doc ~sdocs ~man ~man_xrefs in
+  Cmd.v info term
 
-let val_cmd =
-  let open Cmdliner in
-  let dir =
-    let doc = "Search $(docv) for concrete testsuites to validate." in
-    Arg.(required & pos 1 (some file) None & info [] ~docv:"DIR" ~doc)
-  in
-  let doc = "Testsuite validation" in
-  let man =
-    [ `S Manpage.s_description
-    ; `P "Replays concrete testsuites generated in symbolic execution."
-    ; `Blocks help_sec
-    ]
-  in
-  let info = Cmd.info "replay" ~doc ~sdocs ~man in
-  Cmd.v info Term.(const Cmd_sym.validate $ copts_t $ file $ dir)
+let replay_cmd =
+  let open Doc_replay in
+  let info = Cmd.info "replay" ~doc ~sdocs ~man ~man_xrefs in
+  Cmd.v info term
 
-let cli =
-  let doc = "ECMA-SL" in
-  let man = help_sec in
-  let info = Cmd.info "ecma-sl" ~version:"%%VERSION%%" ~doc ~sdocs ~man in
-  let default = Term.(ret (const (fun _ -> `Help (`Pager, None)) $ copts_t)) in
-  Cmd.group info ~default [ compile_cmd; run_cmd; sym_cmd; val_cmd ]
+let cmd_list = [ compile_cmd; execute_cmd; symbolic_cmd; replay_cmd ]
+
+let main_cmd =
+  let open AppInfo in
+  let info = Cmd.info "ecma-sl" ~version ~doc ~sdocs ~man ~man_xrefs ~exits in
+  let default = Term.(ret (const (fun _ -> `Help (`Pager, None)) $ const ())) in
+  Cmd.group info ~default cmd_list
 
 let () =
   Printexc.record_backtrace true;
-  try exit (Cmdliner.Cmd.eval' cli)
+  try exit (Cmdliner.Cmd.eval' main_cmd)
   with exn ->
     flush_all ();
     Printexc.print_backtrace stdout;
