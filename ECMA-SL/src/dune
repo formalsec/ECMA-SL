@@ -56,7 +56,7 @@
   ;   semantics (core)
   eval_op
   external
-  inspector ; UNUSED
+  inspector
   interpreter
   ;   semantics (extended)
   compiler

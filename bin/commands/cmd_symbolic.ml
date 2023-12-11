@@ -236,11 +236,11 @@ let run env entry_func =
   Format.printf "  mean time : %fms@."
     (1000. *. !Batch.solver_time /. float !Batch.solver_count)
 
-let main debug target workspace file =
-  Config.target := target;
-  Config.workspace := workspace;
+let main debug file target workspace =
   Log.on_debug := debug;
   Config.file := file;
+  Config.target := target;
+  Config.workspace := workspace;
   (let* prog = dispatch_file_ext prog_of_plus prog_of_core prog_of_js file in
    let env = link_env prog in
    run env target;

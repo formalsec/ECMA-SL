@@ -1,14 +1,4 @@
-let file = ref ""
-let heap_file = ref ""
-let mode = ref ""
-let mon = ref ""
-let output = ref ""
+let file = ref "" 
 let target = ref "main"
-let policy = ref "depth"
 let workspace = ref "output"
-let silent = ref false
-let parse = ref false
-let axioms = ref false
-let untyped = ref false
-let uninterpreted_functions = ref false
 let default_hashtbl_sz = ref 0
