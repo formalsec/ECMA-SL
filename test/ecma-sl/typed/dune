@@ -14,7 +14,7 @@
  (inline_tests)
  (preprocess
   (pps ppx_expect ppx_inline_test))
- (libraries ECMA_SL))
+ (libraries ecma-sl))
 
 (alias
  (name runtest)
