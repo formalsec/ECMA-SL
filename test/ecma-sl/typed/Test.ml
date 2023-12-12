@@ -1,3 +1,4 @@
+open Ecma_sl
 open T_Err
 
 let type_checker_test (file : string) (eerrs : err_t list) : bool =
