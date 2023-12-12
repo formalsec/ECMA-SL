@@ -1,5 +1,5 @@
-import "ES5_interpreter/ast.esl";
-import "ES5_interpreter/ESL_Interpreter.esl";
+import "ecmaref5/esl_interpreter.esl";
+
 function main() {
   x := buildAST();
   ret := JS_Interpreter_Program(x, null);
@@ -7,7 +7,6 @@ function main() {
   c_value := getCompletionValue(ret);
   if ((typeof c_value = __$Obj) &&& ("Class" in_obj c_value) &&& (getInternalProperty(c_value, "Class") = "Error")) {
     error_name := {c_value.GetProperty}(c_value, "name");
-    
     return newCompletion(getCompletionType(ret), getDescriptorValue(error_name), getCompletionTarget(ret))
   };
 

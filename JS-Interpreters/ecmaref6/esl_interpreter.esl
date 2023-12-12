@@ -1,7 +1,6 @@
-import "ES6_interpreter/ES6_Reference_Interpreter.esl";
+import "ecmaref6/esl_sections.esl";
 
 function JS_Interpreter_Program(p, callingExecCtx) {
-
 
   /* 14 Program */
   match p with

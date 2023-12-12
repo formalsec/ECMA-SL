@@ -29,7 +29,7 @@ let execution_lang =
 let ecmaref_version =
   let open Ecmaref in
   let doc = "Version of the reference interpreter." in
-  let ecmaref_version_enum = Arg.enum [ latest; ecmaref5; ecmaref6 ] in
+  let ecmaref_version_enum = Arg.enum [ latest; toyecma; ecmaref5; ecmaref6 ] in
   Arg.(value & opt ecmaref_version_enum Latest & info [ "ecmaref" ] ~doc)
 
 let ecmaref_builder =

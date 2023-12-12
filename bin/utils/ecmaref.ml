@@ -1,9 +1,11 @@
 type version =
   | Latest
+  | ToyEcma
   | ECMARef5
   | ECMARef6
 
 let latest = ("latest", Latest)
+let toyecma = ("toyecma", ToyEcma)
 let ecmaref5 = ("ecmaref5", ECMARef5)
 let ecmaref6 = ("ecmaref6", ECMARef6)
 
