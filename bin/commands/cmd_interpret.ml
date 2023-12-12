@@ -41,15 +41,15 @@ let compile_and_interpret (input_file : string) (heap_file : string option)
   Cmd.test_file_ext input_file [ ".esl" ];
   Cmd_compile.run_compiler untyped input_file |> run_interpreter heap_file
 
-let run (input_file : string) (heap_file : string option) (target_esl : bool)
+let run (input_file : string) (heap_file : string option) (interpret_esl : bool)
   (untyped : bool) : unit =
-  match target_esl with
+  match interpret_esl with
   | true -> compile_and_interpret input_file heap_file untyped
   | false -> interpret_core input_file heap_file
 
 let main (debug : bool) (input_file : string) (heap_file : string option)
-  (target_esl : bool) (untyped : bool) : int =
+  (interpret_esl : bool) (untyped : bool) : int =
   Log.on_debug := debug;
   Config.file := input_file;
-  let run' () = run input_file heap_file target_esl untyped in
+  let run' () = run input_file heap_file interpret_esl untyped in
   Cmd.eval_cmd run'
