@@ -1,5 +1,0 @@
-(env
- (_
-  (flags
-   (-w +a-4-42-44-45-48-70 -warn-error +a-3))
-  (ocamlopt_flags (-O3))))
