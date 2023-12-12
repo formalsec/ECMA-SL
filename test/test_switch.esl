@@ -1,9 +1,0 @@
-function main () {
-   switch(3) {
-       case 4:  x := 4
-       case 5:  x := 5
-       sdefault: x := 0
-   };
-   print x; 
-   return 
-} 
