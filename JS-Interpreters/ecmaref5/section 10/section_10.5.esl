@@ -1,0 +1,179 @@
+/* 10.5 Declaration Binding Instantiation */
+
+/* Every execution context has an associated VariableEnvironment. Variables and functions declared in
+   ECMAScript code evaluated in an execution context are added as bindings in that VariableEnvironment‘s
+   Environment Record. For function code, parameters are also added as bindings to that Environment Record. */
+
+/* Which Environment Record is used to bind a declaration and its kind depends upon the type of ECMAScript
+   code executed by the execution context, but the remainder of the behaviour is generic. On entering an
+   execution context, bindings are created in the VariableEnvironment as follows using the caller provided code
+   and, if it is function code, argument List args: */
+
+function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
+  /* 1. Let env be the environment record component of the running execution context‘s VariableEnvironment. */
+  env := getEnvironmentRecord(getVariableEnvironment(runningExecCtx));
+  /* 2. If code is eval code, then let configurableBindings be true else let configurableBindings be false. */
+  if (isEvalCode(code)) {
+    configurableBindings := true
+  } else {
+    configurableBindings := false
+  };
+  /* 3. If code is strict mode code, then let strict be true else let strict be false. */
+  if (isStrictModeCode(code, runningExecCtx)) {
+    strict := true
+  } else {
+    strict := false
+  };
+  /* 4. If code is function code, then */
+  if (isFunctionCode(code)) {
+    /* a. Let func be the function whose [[Call]] internal method initiated execution of code. Let names be
+          the value of func‘s [[FormalParameters]] internal property. */
+    func := F;
+    names := func.FormalParameters;
+    /* b. Let argCount be the number of elements in args. */
+    argCount := l_len args;
+    /* c. Let n be the number 0. */
+    n := 0;
+    /* d. For each String argName in names, in list order do */
+    foreach (argName : names) {
+      /* i. Let n be the current value of n plus 1. */
+      n := n + 1;
+      /* ii. If n is greater than argCount, let v be undefined otherwise let v be the value of the n‘th
+             element of args. */
+      if (n > argCount) {
+        v := 'undefined
+      } else {
+        v := l_nth(args, n - 1)
+      };
+      /* iii. Let argAlreadyDeclared be the result of calling env’s HasBinding concrete method passing
+              argName as the argument. */
+      argAlreadyDeclared := HasBinding(env, argName);
+      /* iv. If argAlreadyDeclared is false, call env’s CreateMutableBinding concrete method passing
+             argName as the argument. */
+      if (argAlreadyDeclared = false) {
+        CreateMutableBinding(env, argName, false) /* the third argument is optional as in the method signature */
+      };
+      /* v. Call env’s SetMutableBinding concrete method passing argName, v, and strict as the
+            arguments. */
+      SetMutableBinding(env, argName, v, strict)
+    }
+  };
+  /* 5. For each FunctionDeclaration f in code, in source text order do */
+  foreach (f : getFunctionDeclarationsInCode(code)) {
+    /* a. Let fn be the Identifier in FunctionDeclaration f. */
+    fn := getIdentifierFunctionDeclaration(f);
+    /* b. Let fo be the result of instantiating FunctionDeclaration f as described in Clause 13. */
+    fo := JS_Interpreter_FunctionDeclaration(f, runningExecCtx);
+    /* c. Let funcAlreadyDeclared be the result of calling env’s HasBinding concrete method passing fn as
+          the argument. */
+    funcAlreadyDeclared := HasBinding(env, fn);
+    /* d. If funcAlreadyDeclared is false, call env’s CreateMutableBinding concrete method passing fn and
+          configurableBindings as the arguments. */
+    if (funcAlreadyDeclared = false) {
+      CreateMutableBinding(env, fn, configurableBindings)
+    }
+    /* e. Else if env is the environment record component of the global environment then */
+    elif (env = |global|) {
+      /* i. Let go be the global object. */
+      go := |global|;
+      /* ii. Let existingProp be the resulting of calling the [[GetProperty]] internal method of go with
+            argument fn. */
+      existingProp := {go.GetProperty}(go, fn);
+      /* iii. If existingProp.[[Configurable]] is true, then */
+      if (existingProp.Configurable = true) {
+        /* 1. Call the [[DefineOwnProperty]] internal method of go, passing fn, Property
+              Descriptor {[[Value]]: undefined, [[Writable]]: true, [[Enumerable]]: true ,
+              [[Configurable]]: configurableBindings }, and true as arguments. */
+        {go.DefineOwnProperty}(go, fn, newDataPropertyDescriptorFull('undefined, true, true, configurableBindings), true)
+      }
+      /* iv. Else if IsAccessorPropertyDescriptor(existingProp) or existingProp does not have attribute values
+              {[[Writable]]: true, [[Enumerable]]: true}, then */
+      elif (IsAccessorPropertyDescriptor(existingProp) || !(existingProp.Writable && existingProp.Enumerable)) {
+        /* 1. Throw a TypeError exception. */
+        throw TypeErrorConstructorInternal()
+      }
+    };
+    /* f. Call env’s SetMutableBinding concrete method passing fn, fo, and strict as the arguments. */
+    SetMutableBinding(env, fn, fo, strict)
+  };
+  /* 6. Let argumentsAlreadyDeclared be the result of calling env’s HasBinding concrete method passing
+      "arguments" as the argument. */
+  argumentsAlreadyDeclared := HasBinding(env, "arguments");
+  /* 7. If code is function code and argumentsAlreadyDeclared is false, then */
+  if (isFunctionCode(code) && (argumentsAlreadyDeclared = false)) {
+    /* a. Let argsObj be the result of calling the abstract operation CreateArgumentsObject (10.6) passing
+          func, names, args, env and strict as arguments. */
+    argsObj := CreateArgumentsObject(func, names, args, env, getVariableEnvironment(runningExecCtx), strict);
+    /* b. If strict is true, then */
+    if (strict = true) {
+      /* i. Call env‘s CreateImmutableBinding concrete method passing the String "arguments" as
+            the argument. */
+      CreateImmutableBinding(env, "arguments");
+      /* ii. Call env‘s InitializeImmutableBinding concrete method passing "arguments" and
+             argsObj as arguments. */
+      InitializeImmutableBinding(env, "arguments", argsObj)
+    }
+    /* c. Else, */
+    else {
+      /* i. Call env‘s CreateMutableBinding concrete method passing the String "arguments" as the argument. */
+      CreateMutableBinding(env, "arguments", false); /* the third argument is optional as in the method signature */
+      /* ii. Call env‘s SetMutableBinding concrete method passing "arguments", argsObj, and false
+             as arguments. */
+      SetMutableBinding(env, "arguments", argsObj, false)
+    }
+  };
+  /* 8. For each VariableDeclaration and VariableDeclarationNoIn d in code, in source text order do */
+  foreach (d : getVariableDeclarationsInCode(code)) {
+    /* a. Let dn be the Identifier in d. */
+    dn := getIdentifierVariableDeclaration(d);
+    /* b. Let varAlreadyDeclared be the result of calling env’s HasBinding concrete method passing dn as the
+          argument. */
+    varAlreadyDeclared := HasBinding(env, dn);
+    /* c. If varAlreadyDeclared is false, then */
+    if (varAlreadyDeclared = false) {
+      /* i. Call env‘s CreateMutableBinding concrete method passing dn and configurableBindings as
+            the arguments. */
+      CreateMutableBinding(env, dn, configurableBindings);
+      /* ii. Call env‘s SetMutableBinding concrete method passing dn, undefined, and strict as the
+             arguments.*/
+      SetMutableBinding(env, dn, 'undefined, strict)
+    }
+  };
+
+  return
+};
+
+/* Auxiliary functions */
+function isEvalCode(code) {
+  return (typeof code = __$Obj) &&& (code.codeType = "eval")
+};
+
+function isFunctionCode(code) {
+  return (typeof code = __$Obj) &&& (code.codeType = "function")
+};
+
+function isStrictModeCode(code, execCtx) {
+  return (!(code = 'undefined) &&& (code.strict = true)) ||| isContainedInStrictCode(execCtx)
+};
+
+function getFunctionDeclarationsInCode(object) {
+  if (object = 'undefined) {
+    return []
+  };
+  return object.functionDeclarations
+};
+
+function getVariableDeclarationsInCode(object) {
+  if (object = 'undefined) {
+    return []
+  };
+  return object.variableDeclarations
+};
+
+function getIdentifierFunctionDeclaration(f) {
+  return f.id.name
+};
+
+function getIdentifierVariableDeclaration(v) {
+  return v
+}

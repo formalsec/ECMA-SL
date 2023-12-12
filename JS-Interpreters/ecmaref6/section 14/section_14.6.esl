@@ -1,0 +1,62 @@
+/* 
+14.6.1 Static Semantics: IsInTailPosition(nonterminal) 
+
+The abstract operation IsInTailPosition with argument nonterminal performs the following steps:
+*/
+function IsInTailPosition(nonterminal) {
+    /*Assert: nonterminal is a parsed grammar production.*/
+    
+    /*If the source code matching nonterminal is not strict code, return false.*/
+
+
+    /*If nonterminal is not contained within a FunctionBody or ConciseBody, return false.*/
+
+
+    /*Let body be the FunctionBody or ConciseBody that most closely contains nonterminal.*/
+
+    /*If body is the FunctionBody of a GeneratorBody, return false.*/
+
+    /*Return the result of HasProductionInTailPosition of body with argument nonterminal.*/
+    return HasProductionInTailPosition(nonterminal)
+
+    /*NOTE Tail Position calls are only defined in strict mode code because of a common non-standard language
+           extension (see 9.2.7) that enables observation of the chain of caller contexts.
+    */
+};
+
+/*
+14.6.2 Static Semantics: HasProductionInTailPosition
+
+With parameter nonterminal. 
+*/
+function HasProductionInTailPosition(nonterminal) {
+    return ("is_tail_call" in_obj nonterminal) &&& (nonterminal.is_tail_call = true)
+};
+
+/* 14.6.3 Runtime Semantics: PrepareForTailCall ( ) */
+function PrepareForTailCall() {
+    /*Let leafContext be the running execution context.*/
+    leafContext := topExecStack();
+
+    /*Suspend leafContext.*/
+    leafContext.Suspend := true;
+
+    /*Pop leafContext from the execution context stack. The execution context now on the top of the
+    stack becomes the running execution context.*/
+    popExecStack();
+    topExecStack().Suspend := false;
+
+    return
+    /*Assert: leafContext has no further use. It will never be activated as the running execution context.*/
+    /* TODO */
+
+    /*
+    A tail position call must either release any transient internal resources associated with the
+    currently executing function execution context before invoking the target function or reuse those
+    resources in support of the target function.
+
+    NOTE For example, a tail position call should only grow an implementation’s activation
+    record stack by the amount that the size of the target function’s activation record
+    exceeds the size of the calling function’s activation record. If the target function’s
+    activation record is smaller, then the total size of the stack should decrease.*/
+}

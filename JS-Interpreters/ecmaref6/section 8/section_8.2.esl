@@ -1,0 +1,144 @@
+/* 8.2 Code Realms */
+/* Before it is evaluated, all ECMAScript code must be associated with a Realm. Conceptually, a realm
+   consists of a set of intrinsic objects, an ECMAScript global environment, all of the ECMAScript code
+   that is loaded within the scope of that global environment, and other associated state and resources.
+   
+   A Realm is specified as a Record with the fields specified in Table 21: 
+*/
+
+/* 8.2.1 CreateRealm ( ) */
+/* The abstract operation CreateRealm with no arguments performs the following steps: */
+function CreateRealm() {
+    /* Let realmRec be a new Record. */
+    realmRec := {};
+    
+    /* Perform CreateIntrinsics(realmRec). */
+    CreateIntrinsics(realmRec);
+    
+    /* Set realmRec.[[globalThis]] to undefined. */
+    realmRec.globalThis := 'undefined;
+    
+    /* Set realmRec.[[globalEnv]] to undefined. */
+    realmRec.globalEnv := 'undefined;
+    
+    /* Set realmRec.[[templateMap]] to a new empty List. */
+    realmRec.templateMap := [];
+    
+    /* Return realmRec. */
+    return realmRec
+};
+
+/* 8.2.2 CreateIntrinsics ( realmRec ) */
+function CreateIntrinsics(realmRec) {
+    /* Initializing global symbols */
+    initWellKnownSymbols();
+    
+    /* Let intrinsics be a new Record. */
+    intrinsics := {};
+    |Intrinsics| := intrinsics;
+
+    /* Set realmRec.[[intrinsics]] to intrinsics. */
+    realmRec.intrinsics := intrinsics;
+
+    /* Criar global Object */
+    globalObject := NewECMAScriptObjectFull('null, "Object", true);
+    |global| := globalObject;
+    setAllInternalMethodsOfOrdinaryObject(globalObject);
+    intrinsics.GlobalObject := globalObject;
+
+    /* Set intrinsics.[[%ObjectPrototype%]] to ObjectPrototype. */
+    /* ObjectPrototype := initObjectPrototype(); */
+    ObjectPrototype := ObjectCreate('null, null);
+    
+    intrinsics.ObjectPrototype := ObjectPrototype;
+    setInternalProperty(globalObject, "Prototype", ObjectPrototype);
+
+    /* Set intrinsics.[[%FunctionPrototype%]] to FunctionPrototype. */
+    FunctionPrototype := initFunctionPrototype(ObjectPrototype, realmRec, false);
+    intrinsics.FunctionPrototype := FunctionPrototype;
+
+    /* Initializing ObjectConstructor */
+    ObjectConstructor := initObjectConstructor(ObjectPrototype, FunctionPrototype, realmRec, false);
+    |objectConstructor| := ObjectConstructor;
+    intrinsics.Object := ObjectConstructor;
+    createBuiltInProperty(globalObject, "Object", ObjectConstructor);
+
+    /* Initializing FunctionConstructor */
+    FunctionConstructor := initFunctionConstructor(FunctionPrototype, realmRec, false);
+    intrinsics.Function := FunctionConstructor;
+    createBuiltInProperty(globalObject, "Function", FunctionConstructor);
+
+    /* Filling Protos and Constructors */
+    fillObjectPrototype(ObjectPrototype, ObjectConstructor, realmRec, false);
+    fillFunctionPrototype(FunctionPrototype, FunctionConstructor, realmRec, false);
+    fillObjectConstructor(ObjectConstructor, realmRec, false);
+    fillFunctionConstructor(FunctionConstructor, realmRec, false);
+
+    /* ThrowTypeError */
+    thrower := CreateGeneralBuiltInFunction(FunctionPrototype, [], "internalTypeErrorThrower", realmRec, false, null);
+    intrinsics.ThrowTypeError := thrower;
+
+    AddRestrictedFunctionProperties(FunctionPrototype, realmRec);
+
+    /* Initializing Intrinsics */
+    initIntrinsics(intrinsics, realmRec, false);
+    
+    /* Return intrinsics. */
+    return intrinsics
+};
+
+/* 8.2.3 SetRealmGlobalObject ( realmRec, globalObj ) */
+
+/* The abstract operation SetRealmGlobalObject with arguments realmRec and globalObj performs
+   the following steps: */
+function SetRealmGlobalObject(realmRec, globalObj) {
+    /* If globalObj is undefined, then */
+    if ( globalObj = 'undefined )
+    {
+        /* Let intrinsics be realmRec.[[intrinsics]]. */
+        intrinsics := realmRec.intrinsics;
+
+        /* Let globalObj be ObjectCreate(intrinsics.[[%ObjectPrototype%]]). */
+        globalObj := ObjectCreate(intrinsics.ObjectPrototype, null)
+    };
+
+    /* Assert: Type(globalObj) is Object. */
+    assert( Type(globalObj) = "Object" );
+
+    /* Set realmRec.[[globalThis]] to globalObj. */
+    realmRec.globalThis := globalObj;
+
+    /* Let newGlobalEnv be NewGlobalEnvironment(globalObj). */
+    newGlobalEnv := NewGlobalEnvironment(globalObj);
+
+    /* Set realmRec.[[globalEnv]] to newGlobalEnv. */
+    realmRec.globalEnv := newGlobalEnv;
+
+    /* Return realmRec. */
+    return realmRec
+};
+
+/* 8.2.4 SetDefaultGlobalBindings ( realmRec ) */
+
+/* The abstract operation SetDefaultGlobalBindings with argument realmRec performs the following
+   steps: */
+function SetDefaultGlobalBindings(realmRec) {
+    /* Let global be realmRec.[[globalThis]]. */
+    global := realmRec.globalThis;
+
+    /* For each property of the Global Object specified in clause 18, do */
+        /* Let name be the String value of the property name. */
+
+        
+        /* Let desc be the fully populated data property descriptor for the property containing the
+           specified attributes for the property. For properties listed in 18.2, 18.3, or 18.4 the value
+           of the [[Value]] attribute is the corresponding intrinsic object from realmRec. */
+
+        /* Let status be DefinePropertyOrThrow(global, name, desc). */
+
+        /* ReturnIfAbrupt(status). */
+    initGlobalObject(global, realmRec.intrinsics);
+
+    /* Return global. */
+    return global
+}

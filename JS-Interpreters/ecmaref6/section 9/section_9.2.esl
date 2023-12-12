@@ -1,0 +1,1115 @@
+/* Section 9.2 - Function Objects */
+
+
+/* Auxiliary Functions */
+
+function setAllInternalMethodsOfFunctionObject(obj) {
+    setAllInternalMethodsOfOrdinaryObject(obj);
+
+    obj.Environment := 'undefined;
+    obj.FormalParameters := 'undefined;
+    obj.FunctionKind := 'undefined;
+    obj.ECMAScriptCode := 'undefined;
+    obj.ConstructorKind := 'undefined;
+    obj.Realm := 'undefined;
+    obj.ThisMode := 'undefined;
+    obj.Strict := 'undefined;
+    obj.HomeObject := 'undefined;
+
+    return obj
+};
+
+function isESFunctionObject(obj) {
+    if (obj.FunctionKind = "normal" ||| obj.FunctionKind = "classConstructor" ||| obj.FunctionKind = "generator") {
+        return true
+    };
+    return false
+};
+
+
+function OrdinaryCall_Handler(error) {
+    popExecStack();
+    throw error
+};
+
+
+/**
+ * 9.2.1 [[Call]] (thisArgument, argumentsList)
+ *
+ * The [[Call]] internal method for an ECMAScript function object F is called
+ * with parameters thisArgument and argumentsList, a List of ECMAScript language
+ * values. The following steps are taken:
+ */
+function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, NewTarget, argumentList) {
+    /* 1. Assert: F is an ECMAScript function object. */
+    assert(isESFunctionObject(F));
+
+    /* 2. If F’s [[FunctionKind]] internal slot is “classConstructor”, */
+    if (F.FunctionKind = "classConstructor") {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 3. Let callerContext be the running execution context. */
+    callerContext := topExecStack();
+
+    /* 4. Let calleeContext be PrepareForOrdinaryCall(F, undefined). */
+    calleeContext := PrepareForOrdinaryCall(F, 'undefined);
+
+    /* 5. Assert: calleeContext is now the running execution context. */
+    assert( calleeContext = topExecStack() );
+
+    /* 6. Perform OrdinaryCallBindThis(F, calleeContext, thisArgument). */
+    OrdinaryCallBindThis(F, calleeContext, thisArgument);
+
+    /* 7. Let result be OrdinaryCallEvaluateBody(F, argumentsList). */
+    result := OrdinaryCallEvaluateBody(calleeContext, F, argumentList) catch OrdinaryCall_Handler;
+
+    /* 8. Remove calleeContext from the execution context stack and restore callerContext as the running execution context. */
+    if ( calleeContext = topExecStack() ) {
+        popExecStack()
+    };
+
+    callerContext.Suspend := false;
+
+    /* 9. If result.[[type]] is return, return NormalCompletion(result.[[value]]). */
+    if (getCompletionType(result) = 'return) {
+      value := getCompletionValue(result);
+      return NormalCompletion(value)
+	};
+
+    /* 10. ReturnIfAbrupt(result). */
+    @ReturnIfAbrupt(result);
+
+    /* 11. Return NormalCompletion(undefined). */
+    return NormalCompletion('undefined)
+};
+
+/**
+ * 9.2.1.1 PrepareForOrdinaryCall( F, newTarget )
+ *
+ *   When the abstract operation PrepareForOrdinaryCall is called with function object F
+ *   and ECMAScript language value newTarget, the following steps are taken:
+ */
+
+function PrepareForOrdinaryCall(F, newTarget) {
+    /* 1. Assert: Type(newTarget) is Undefined or Object. */
+    assert(Type(newTarget) = "Undefined" ||| Type(newTarget) = "Object");
+
+    /* 2. Let callerContext be the running execution context. */
+    callerContext := topExecStack();
+    /* if (externalScope = null) {
+      callerContext := F.Environment
+    }; */
+
+    /* 3. Let calleeContext be a new ECMAScript code execution context. */
+    calleeContext := createExecutionContext();
+    setContainedInStrictCode(calleeContext, F.Strict);
+
+    /* 4. Set the Function of calleeContext to F. */
+    calleeContext.Function := F;
+
+    /* 5. Let calleeRealm be the value of F’s [[Realm]] internal slot. */
+    calleeRealm := F.Realm;
+
+    /* 6. Set the Realm of calleeContext to calleeRealm. */
+    calleeContext.Realm := calleeRealm;
+
+    /* 7. Let localEnv be NewFunctionEnvironment(F, newTarget). */
+    localEnv := NewFunctionEnvironment(F, newTarget);
+
+    /* 8. Set the LexicalEnvironment of calleeContext to localEnv. */
+    calleeContext.LexicalEnvironment := localEnv;
+
+    /* 9. Set the VariableEnvironment of calleeContext to localEnv. */
+    calleeContext.VariableEnvironment := localEnv;
+
+    /* 10. If callerContext is not already suspended, Suspend callerContext. */
+    callerContext.Suspend = true;
+
+    /* 11. Push calleeContext onto the execution context stack; calleeContext is now the running execution context. */
+    pushExecStack(calleeContext);
+
+    /* 12. NOTE Any exception objects produced after this point are associated with calleeRealm. */
+
+    /* 13. Return calleeContext. */
+    return calleeContext
+};
+
+/**
+ * 9.2.1.2 OrdinaryCallBindThis ( F, calleeContext, thisArgument )
+ *
+ *   When the abstract operation OrdinaryCallBindThis is called with function object F,
+ *   execution context calleeContext, and ECMAScript value thisArgument the following steps are taken:
+ */
+
+function OrdinaryCallBindThis (F, calleeContext, thisArgument) {
+    /* 1. Let thisMode be the value of F’s [[ThisMode]] internal slot.  */
+    thisMode := F.ThisMode;
+
+    /* 2. If thisMode is lexical, return NormalCompletion(undefined).  */
+    if (thisMode = "lexical") {
+        return NormalCompletion('undefined)
+    };
+
+    /* 3. Let calleeRealm be the value of F’s [[Realm]] internal slot.  */
+    calleeRealm := F.Realm;
+
+    /* 4. Let localEnv be the LexicalEnvironment of calleeContext.  */
+    localEnv := calleeContext.LexicalEnvironment;
+
+    /* 5. If thisMode is strict, let thisValue be thisArgument.  */
+    if (thisMode = "strict") {
+        thisValue := thisArgument
+    } /* 6. Else  */
+    else {
+        if (thisArgument = 'undefined ||| thisArgument = 'null) {
+            /* a. Let thisValue be calleeRealm.[[globalThis]].  */
+            thisValue := calleeRealm.globalThis
+            /*thisValue := |global|*/
+        } /* b. Else,  */
+        else {
+            /* c. Let thisValue be ToObject(thisArgument).  */
+            thisValue := ToObject(thisArgument);
+            /* Assert: thisValue is not an abrupt completion. */
+            assert(!(isAnAbruptCompletion(thisValue)))
+        }
+    };
+
+    /* 7. Let envRec be localEnv’s EnvironmentRecord  */
+    envRec := localEnv.EnvRec;
+
+    /* TODO */
+    /* 8. Assert: The next step never returns an abrupt completion because envRec.[[thisBindingStatus]] is not "uninitialized".  */
+
+    /* 9. Return envRec.BindThisValue(thisValue). */
+    return {envRec.BindThisValue}(envRec, thisValue)
+    /* TODO - Fix this we should not do this ThisBinding  */
+    /*calleeContext.ThisBinding := thisValue;*/
+};
+
+/**
+ * 9.2.1.3 OrdinaryCallEvaluateBody (F, argumentsList)
+ *
+ * When the abstract operation OrdinaryCallEvaluateBody is called with function
+ * object F and List argumentsList the following steps are taken:
+ */
+function OrdinaryCallEvaluateBody(scope, F, argumentsList) {
+  /* 1. Let status be FunctionDeclarationInstantiation(F, argumentsList). */
+  status := FunctionDeclarationInstantiation(scope, F, argumentsList);
+
+  /* 2. ReturnIfAbrupt(status) */
+  @ReturnIfAbrupt(status);
+
+  /* 3. Return the result of EvaluateBody of the parsed code that is the value
+     of F's [[ECMAScriptCode]] internal slot passing F as the argument. */
+
+  return JS_Interpreter_FunctionBody(F.ECMAScriptCode, scope)
+};
+
+/**
+ * 9.2.2 [[Construct]] (argumentsList, newTarget)
+ *
+ * The [[Construct]] internal method for an ECMAScript Function object F is
+ * called with parameters argumentsList and newTarget. argumentsList is a
+ * possibly empty List of ECMAScript language values. The following steps are
+ * taken:
+ */
+function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
+  /* 1. Assert: F is an ECMAScript function object. */
+  /*assert(isESFunctionObject(F)); */
+
+  /* 2. Assert: Type(newTarget) is Object. */
+  assert(Type(newTarget) = "Object");
+
+  /* 3. Let callerContext be the running execution context. */
+  callerContext := topExecStack();
+
+  /* 4. Let kind be F's [[ConstructorKind]] internal slot. */
+  kind := F.ConstructorKind;
+
+  /* 5. If kind is "base", then */
+  if (kind = "base") {
+    /* a. Let thisArgument be OrdinaryCreateFromConstructor(newTarget,
+       "%ObjectPrototype%"). */
+    thisArgument := OrdinaryCreateFromConstructor(newTarget, "ObjectPrototype", []);
+    /* b. ReturnIfAbrupt(thisArgument). */
+    @ReturnIfAbrupt(thisArgument)
+  };
+
+  /* 6. Let calleeContext be PrepareForOrdinaryCall(F, newTarget). */
+  calleeContext := PrepareForOrdinaryCall(F, newTarget);
+
+  /* 7. Assert: calleeContext is now the running execution context. */
+  assert( calleeContext = topExecStack() );
+
+  /* 8. If kind is "base", */
+  if (kind = "base") {
+    /* perform OrdinaryCallBindThis(F, calleeContext, thisArgument) */
+    OrdinaryCallBindThis(F, calleeContext, thisArgument)
+  };
+
+  /* 9. Let constructorEnv be the LexicalEnvironment of calleeContext. */
+  constructorEnv := calleeContext.LexicalEnvironment;
+
+  /* 10. Let envRec be constructorEnv's EnvironmentRecord. */
+  envRec := constructorEnv.EnvRec;
+
+  /* 11. Let result be OrdinaryCallEvaluateBody(F, argumentsList). */
+  result := OrdinaryCallEvaluateBody(calleeContext, F, argumentsList);
+
+  /* 12. Remove calleeContext from the execution context stack and restore
+     callerContext as the running execution context. */
+  popExecStack();
+  callerContext.Suspend := false;
+
+  /* 13. If result.[[type]] is return, then */
+  if (getCompletionType(result) = 'return) {
+    /* a. If Type(result.[[value]]) is Object, */
+    if (Type(getCompletionValue(result)) = "Object") {
+      /* return NormalCompletion(result.[[value]]) */
+      return getCompletionValue(result)
+    };
+    /* b. If kind is "base", */
+    if (kind = "base") {
+      /* return NormalCompletion(thisArgument) */
+      return thisArgument
+    };
+    /* c. If result.[[value]] is not undefined, */
+    if (!(getCompletionValue(result) = 'undefined)) {
+      /* throw a TypeError exception */
+      throw TypeErrorConstructorInternal()
+    }
+  }
+
+  /* 14. Else, */
+  else {
+    /* ReturnIfAbrupt(result) */
+    @ReturnIfAbrupt(result)
+  };
+
+  /* 15. Return envRec.GetThisBinding(). */
+  return {envRec.GetThisBinding}(envRec)
+};
+
+/**
+ * 9.2.3 FunctionAllocate (functionPrototype, strict [ , functionKind ] )
+ *
+ * The abstract operation FunctionAllocate requires the two arguments
+ * functionPrototype and strict. It also accepts one optional argument,
+ * functionKind. FunctionAllocate performs the following steps:
+ */
+function FunctionAllocate(functionPrototype, strict, functionKind) {
+  /* 1. Assert: Type(functionPrototype) is Object. */
+  assert(Type(functionPrototype) = "Object");
+
+  /* 2. Assert: If functionKind is present, its value is either "normal",
+     "non-constructor" or "generator". */
+  if (!(functionKind = null)) {
+      assert(functionKind = "normal" ||| functionKind = "non-constructor" ||| functionKind = "generator")
+  };
+
+  /* 3. If functionKind is not present, */
+  if (functionKind = null) {
+    /* let functionKind be "normal" */
+    functionKind := "normal"
+  };
+
+  /* 4. If functionKind is "non-constructor", then */
+  if (functionKind = "non-constructor") {
+    /* a. Let functionKind be "normal". */
+    functionKind := "normal";
+    /* b. Let needsConstruct be false. */
+    needsConstruct := false
+  } else {
+      /* 5. Else let needsConstruct be true. */
+      needsConstruct := true
+  };
+
+  /* 6. Let F be a newly created ECMAScript function object with the internal
+     slots listed in Table 27. All of those internal slots are initialized
+     to undefined. */
+  F := NewECMAScriptObject();
+  setAllInternalMethodsOfFunctionObject(F);
+  F.Class := "Function";
+  /* 7. Set F's essential internal methods to the default ordinary object
+     definitions specified in 9.1. */
+  /* Done by NewECMAScriptObject function :*/
+
+  /* 8. Set F's [[Call]] internal method to the definition specified in 9.2.1. */
+  F.Call := "NewOrdinaryFunctionCall";
+
+  if ( strict = false ) {
+    setJSProperty(F, "caller",  newDataPropertyDescriptorFull('null, false, false, true) )
+  };
+
+  /* 9. If needsConstruct is true, then */
+  if (needsConstruct = true) {
+    /* a. Set F's [[Construct]] internal method to the definition specified in
+       9.2.2. */
+       F.Construct := "FunctionConstruct";
+    /* b. If functionKind is "generator", */
+    if (functionKind = "generator") {
+      F.ConstructorKind := "derived"
+    }
+    /* c. Else, */
+    else {
+        F.ConstructorKind := "base"
+    }
+    /* d. NOTE Generator functions are tagged as "derived" constructors to
+       prevent [[Construct]] from preallocating a generator instance.
+       Generator instance objects are allocated when EvaluateBody is applied
+       to the GeneratorBody of a generator function. */
+  };
+  /* 10. Set the [[Strict]] internal slot of F to strict. */
+  F.Strict := strict;
+
+  /* 11. Set the [[FunctionKind]] internal slot of F to functionKind. */
+  F.FunctionKind := functionKind;
+
+  /* 12. Set the [[Prototype]] internal slot of F to functionPrototype. */
+  F.Prototype := functionPrototype;
+
+  /* 13. Set the [[Extensible]] internal slot of F to true. */
+  F.Extensible := true;
+
+  /* 14. Set the [[Realm]] internal slot of F to the running execution
+     context's Realm. */
+  if (!execStackIsEmpty()) {
+   F.Realm := topExecStack().Realm
+  } else {
+   F.Realm := null
+  };
+  /* 15. Return F. */
+  return F
+};
+
+
+/**
+ * 9.2.4 FunctionInitialize (F, kind, ParameterList, Body, Scope)
+ *
+ * The abstract operation FunctionInitialize requires the arguments: a function
+ * object F, kind which is one of (Normal, Method, Arrow), a parameter list
+ * production specified by ParameterList, a body production specified by Body, a
+ * Lexical Environment specified by Scope. FunctionInitialize performs the
+ * following steps:
+ */
+function FunctionInitialize(F, kind, ParameterList, Body, Scope) {
+  /* 1. Assert: F is an extensible object that does not have a length own
+     property. */
+  assert(F.Extensible = true &&& !("length" in_obj F));
+
+  /* 2. Let len be the ExpectedArgumentCount of ParameterList. */
+  paramsDetails := getParamsDetails(Body);
+  if (paramsDetails = false) {
+    len := l_len ParameterList
+  } else {
+   len := ExpectedArgumentCount(paramsDetails)
+  };
+
+  /* 3. Let status be DefinePropertyOrThrow(F, "length",
+     PropertyDescriptor{[[Value]]: len, [[Writable]]: false,
+     [[Enumerable]]: false, [[Configurable]]: true}). */
+  status := DefinePropertyOrThrow(F, "length", newDataPropertyDescriptorFull(int_to_float len, false, false, true));
+  setInternalProperty(F, "internalLength", int_to_float len);
+  /* 4. Assert: status is not an abrupt completion. */
+  assert(!isAnAbruptCompletion(status));
+
+  status := DefinePropertyOrThrow(F, "caller", newDataPropertyDescriptorFull('undefined, false, false, false));
+
+  /* 5. Let Strict be the value of the [[Strict]] internal slot of F. */
+  Strict := F.Strict;
+
+  /* 6. Set the [[Environment]] internal slot of F to the value of Scope. */
+  F.Environment := Scope;
+
+  /* 7. Set the [[FormalParameters]] internal slot of F to ParameterList . */
+  F.FormalParameters := ParameterList;
+
+  /* 8. Set the [[ECMAScriptCode]] internal slot of F to Body. */
+  F.ECMAScriptCode := Body;
+
+  /* 9. If kind is Arrow, */
+  if (kind = "Arrow") {
+    /* set the [[ThisMode]] internal slot of F to lexical */
+    F.ThisMode := "lexical"
+  }
+
+  /* 10. Else if Strict is true, */
+  elif (Strict = true) {
+    /* set the [[ThisMode]] internal slot of F to strict */
+    F.ThisMode := "strict"
+  }
+
+  /* 11. Else set the [[ThisMode]] internal slot of F to global. */
+  else {
+      F.ThisMode := "global"
+  };
+  /* 12. Return F. */
+  return F
+};
+
+/**
+ * 9.2.5 FunctionCreate (kind, ParameterList, Body, Scope, Strict, prototype)
+ *
+ * The abstract operation FunctionCreate requires the arguments: kind which is
+ * one of (Normal, Method, Arrow), a parameter list production specified by
+ * ParameterList, a body production specified by Body, a Lexical Environment
+ * specified by Scope, a Boolean flag Strict, and optionally, an object
+ * prototype. FunctionCreate performs the following steps:
+ */
+function FunctionCreate(kind, ParameterList, Body, Scope, Strict, prototype) {
+  /* 1. If the prototype argument was not passed, then */
+  if (prototype = null) {
+    /* a. Let prototype be the intrinsic object %FunctionPrototype%. */
+    prototype := getFunctionPrototype(Strict)
+  };
+
+  /* 2. If kind is not Normal, */
+  if (!(kind = "normal")) {
+    /* let allocKind be "non-constructor" */
+    allocKind := "non-constructor"
+  }
+  /* 3. Else let allocKind be "normal". */
+  else {
+    allocKind := "normal"
+  };
+
+  /* 4. Let F be FunctionAllocate(prototype, Strict, allocKind). */
+  F := FunctionAllocate(prototype, Strict, allocKind);
+
+  /* 5. Return FunctionInitialize(F, kind, ParameterList, Body, Scope). */
+  return FunctionInitialize(F, kind, ParameterList, Body, Scope)
+};
+
+/**
+ * 9.2.6 GeneratorFunctionCreate (kind, ParameterList, Body, Scope, Strict)
+ *
+ * The abstract operation GeneratorFunctionCreate requires the arguments: kind
+ * which is one of (Normal, Method), a parameter list production specified by
+ * ParameterList, a body production specified by Body, a Lexical Environment
+ * specified by Scope, and a Boolean flag Strict. GeneratorFunctionCreate
+ * performs the following steps:
+ */
+function GeneratorFunctionCreate(kind, ParameterList, Body, Scope, Strict) {
+  /* 1. Let functionPrototype be the intrinsic object %Generator%. */
+  /* TODO: Add the generator object here. */
+  functionPrototype := NewECMAScriptObject();
+
+  /* 2. Let F be FunctionAllocate(functionPrototype, Strict, "generator"). */
+  F := FunctionAllocate(functionPrototype, Strict, "generator");
+
+  /* 3. Return FunctionInitialize(F, kind, ParameterList, Body, Scope). */
+  return FunctionInitialize(F, kind, ParameterList, Body, Scope)
+};
+
+/**
+ * 9.2.7 AddRestrictedFunctionProperties (F, realm)
+ *
+ * The abstract operation AddRestrictedFunctionProperties is called with a
+ * function object F and Realm Record realm as its argument. It performs the
+ * following steps:
+ */
+function AddRestrictedFunctionProperties(F, realm) {
+  /* 1. Assert: realm.[[intrinsics]].[[%ThrowTypeError%]] exists and has been
+     initialized. */
+  assert( "ThrowTypeError" in_obj realm.intrinsics &&& !(realm.intrinsics.ThrowTypeError = 'undefined) );
+
+  /* 2. Let thrower be realm.[[intrinsics]].[[%ThrowTypeError%]]. */
+  thrower := realm.intrinsics.ThrowTypeError;
+
+  /* 3. Let status be DefinePropertyOrThrow(F, "caller", PropertyDescriptor
+     {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false,
+     [[Configurable]]: true}). */
+  /* status := DefinePropertyOrThrow(F, "caller", newGetAndSetAccessorPropertyDescriptorFull(thrower, thrower, false, true)); */
+  F.JSProperties.caller := newGetAndSetAccessorPropertyDescriptorFull(thrower, thrower, false, true);
+  status := true;
+
+  /* 4. Assert: status is not an abrupt completion. */
+  assert(!isAnAbruptCompletion(status));
+
+  /* 5. Return DefinePropertyOrThrow(F , "arguments", PropertyDescriptor
+     {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false,
+     [[Configurable]]: true}). */
+  /* arguments := DefinePropertyOrThrow(F, "arguments", newGetAndSetAccessorPropertyDescriptorFull(thrower, thrower, false, true)); */
+  F.JSProperties.arguments := newGetAndSetAccessorPropertyDescriptorFull(thrower, thrower, false, true);
+  arguments := true;
+
+  /* 6. Assert: The above returned value is not an abrupt completion. */
+  assert(!isAnAbruptCompletion(arguments));
+
+  return
+};
+
+/* 9.2.7.1 %ThrowTypeError% ( )
+
+The %ThrowTypeError% intrinsic is an anonymous built-in function object that is defined once for
+each Realm. When %ThrowTypeError% is called it performs the following steps: */
+function ThrowTypeError() {
+  throw TypeErrorConstructorInternal()
+};
+
+/**
+ * 9.2.8 MakeConstructor (F, writablePrototype, prototype)
+ *
+ * The abstract operation MakeConstructor requires a Function argument F and
+ * optionally, a Boolean writablePrototype and an object prototype. If prototype
+ * is provided it is assumed to already contain, if needed, a "constructor"
+ * property whose value is F. This operation converts F into a constructor by
+ * performing the following steps:
+ */
+function MakeConstructor(F, writablePrototype, prototype) {
+
+  /* 1. Assert: F is an ECMAScript function object. */
+  assert(isESFunctionObject(F));
+
+  /* 2. Assert: F has a [[Construct]] internal method. */
+  assert("Construct" in_obj F);
+
+  /* 3. Assert: F is an extensible object that does not have a prototype own
+     property. */
+  /* assert(InternalObjectIsExtensible(F) &&& !(HasProperty(F, "prototype"))); TO-DO */
+
+  /* 4. If the writablePrototype argument was not provided, let writablePrototype be true */
+  if (writablePrototype = null) {
+    writablePrototype := true
+  };
+
+  /* 5. If the prototype argument was not provided, then */
+  if (prototype = null) {
+
+    /* a. Let prototype be ObjectCreate(%ObjectPrototype%). */
+    prototype := ObjectCreate(getObjectPrototype(false), null);
+
+    /* b. Let status be DefinePropertyOrThrow(prototype, "constructor",
+       PropertyDescriptor{[[Value]]: F, [[Writable]]: writablePrototype,
+       [[Enumerable]]: false, [[Configurable]]: true }). */
+    status := DefinePropertyOrThrow(prototype, "constructor", newDataPropertyDescriptorFull(F, writablePrototype, false, true));
+
+	  /* c. Assert: status is not an abrupt completion. */
+    assert(!isAnAbruptCompletion(status))
+  };
+
+  /* 6. Let status be DefinePropertyOrThrow(F, "prototype",
+     PropertyDescriptor{[[Value]]: prototype, [[Writable]]:
+     writablePrototype, [[Enumerable]]: false, [[Configurable]]: false}). */
+  status := DefinePropertyOrThrow(F, "prototype", newDataPropertyDescriptorFull(prototype, writablePrototype, false, false));
+
+  /* 7. Assert: status is not an abrupt completion. */
+  assert(!isAnAbruptCompletion(status));
+
+  /* 8. Return NormalCompletion(undefined). */
+  return NormalCompletion('undefined)
+};
+
+/**
+ * 9.2.9 MakeClassConstructor (F)
+ *
+ * The abstract operation MakeClassConstructor with argument F performs the
+ * following steps:
+ */
+function MakeClassConstructor(F) {
+  /* 1. Assert: F is an ECMAScript function object. */
+  assert(isESFunctionObject(F));
+
+  /* 2. Assert: F's [[FunctionKind]] internal slot is "normal". */
+  assert(F.FunctionKind = "normal");
+
+  /* 3. Set F's [[FunctionKind]] internal slot to "classConstructor". */
+  F.FunctionKind := "classConstructor";
+
+  /* 4. Return NormalCompletion(undefined). */
+  return NormalCompletion('undefined)
+};
+
+/**
+ * 9.2.10 MakeMethod (F, homeObject)
+ *
+ * The abstract operation MakeMethod with arguments F and homeObject configures
+ * F as a method by performing the following steps:
+ */
+function MakeMethod(F, homeObject) {
+  /* 1. Assert: F is an ECMAScript function object. */
+  assert(isESFunctionObject(F));
+
+  /* 2. Assert: Type(homeObject ) is Object. */
+  assert(Type(homeObject) = "Object");
+
+  /* 3. Set the [[HomeObject]] internal slot of F to homeObject. */
+  F.HomeObject := homeObject;
+
+  /* 4. Return NormalCompletion(undefined). */
+  return NormalCompletion('undefined)
+};
+
+/**
+ * 9.2.11 SetFunctionName (F, name, prefix)
+ *
+ * The abstract operation SetFunctionName requires a Function argument F, a
+ * String or Symbol argument name and optionally a String argument prefix. This
+ * operation adds a name property to F by performing the following steps:
+ */
+function SetFunctionName(F, name, prefix) {
+  /* 1. Assert: F is an extensible object that does not have a name own
+     property. */
+  assert(F.Extensible = true &&& !("Name" in_obj F));
+
+  /* 2. Assert: Type(name) is either Symbol or String. */
+  assert(Type(name) = "Symbol" ||| Type(name) = "String");
+
+  /* 3. Assert: If prefix was passed then Type(prefix) is String. */
+  if (!(prefix = null)) {
+    assert(Type(prefix) = "String")
+  };
+
+  /* 4. If Type(name) is Symbol, then */
+  if (Type(name) = "Symbol") {
+    /* a. Let description be name's [[Description]] value. */
+    description := name.Description;
+
+    /* b. If description is undefined, */
+    if (description = 'undefined) {
+      /* let name be the empty String */
+      name := ""
+    }
+
+    /* c. Else, */
+    else {
+      /* let name be the concatenation of "[", description, and "]" */
+      name := s_concat ["[", description, "]"]
+    }
+  };
+
+  /* 5. If prefix was passed, then */
+  if (!(prefix = null)) {
+    /* a. Let name be the concatenation of prefix, code unit 0x0020 (SPACE), and
+       name. */
+    name := s_concat [prefix, " ", name]
+  };
+
+  /* 6. Return DefinePropertyOrThrow(F, "name", PropertyDescriptor{[[Value]]:
+     name, [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]:
+     true}). */
+  name_property := DefinePropertyOrThrow(F, "name", newDataPropertyDescriptorFull(name, false, false, true));
+
+  /* 7. Assert: the result is never an abrupt completion. */
+  assert(!isAnAbruptCompletion(name_property));
+
+  return name_property
+};
+
+
+/**
+ * 9.2.12 FunctionDeclarationInstantiation (func, argumentsList)
+ *
+ * NOTE 1 When an execution context is established for evaluating an ECMAScript
+ * function a new function Environment Record is created and bindings for each
+ * formal parameter are instantiated in that Environment Record. Each
+ * declaration in the function body is also instantiated. If the function's
+ * formal parameters do not include any default value initializers then the body
+ * declarations are instantiated in the same Environment Record as the
+ * parameters. If default value parameter initializers exist, a second
+ * Environment Record is created for the body declarations. Formal parameters
+ * and functions are initialized as part of FunctionDeclarationInstantiation.
+ * All other bindings are initialized during evaluation of the function body.
+ *
+ * FunctionDeclarationInstantiation is performed as follows using arguments func
+ * and argumentsList. func is the function object for which the execution
+ * context is being established.
+ */
+function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
+  /* 1. Let calleeContext be the running execution context. */
+  /* TODO: Get the context or the Scope */
+
+  /* 2. Let env be the LexicalEnvironment of calleeContext. */
+  env := calleeContext.LexicalEnvironment;
+
+  /* 3. Let envRec be env's EnvironmentRecord. */
+  envRec := env.EnvRec;
+
+  /* 4. Let code be the value of the [[ECMAScriptCode]] internal slot of func. */
+  code := func.ECMAScriptCode;
+
+  /* 5. Let strict be the value of the [[Strict]] internal slot of func. */
+  strict := func.Strict;
+
+  /* 6. Let formals be the value of the [[FormalParameters]] internal slot of
+     func. */
+  formals := func.FormalParameters;
+
+  /* 7. Let parameterNames be the BoundNames of formals. */
+  parameterNames := getParamsNamesInFromFunction(code);
+
+  /* 8. If parameterNames has any duplicate entries, let hasDuplicates be true. Otherwise, let hasDuplicates be false. */
+  if (parametersHasDuplicates(parameterNames) = true) {
+    hasDuplicates := true
+  } else {
+    hasDuplicates := false
+  };
+
+  /* 9. Let simpleParameterList be IsSimpleParameterList of formals. */
+  simpleParameterList := getIsSimpleParameterListFromFunction(code);
+
+  /* 10. Let hasParameterExpressions be ContainsExpression of formals. */
+  hasParameterExpressions := getContainsExpressionInFunctionParams(code);
+
+  /* 11. Let varNames be the VarDeclaredNames of code. */
+  varNames := getVariableDeclarationsInCode(code);
+
+  /* 12. Let varDeclarations be the VarScopedDeclarations of code. */
+  /* TODO: VarScopedDeclarations. */
+  varDeclarations := varNames;
+
+  /* 13. Let lexicalNames be the LexicallyDeclaredNames of code. */
+  lexicalNames := getLexicallyDeclaredNames(code);
+
+  /* 14. Let functionNames be an empty List. */
+  functionNames := [];
+
+  /* 15. Let functionsToInitialize be an empty List. */
+  functionsToInitialize := getFunctionDeclarationsInCode(code);
+
+  /* 16. For each d in varDeclarations, in reverse list order do */
+  /* TODO */
+
+  /* 17. Let argumentsObjectNeeded be true. */
+  argumentsObjectNeeded := true;
+
+  /* 18. If the value of the [[ThisMode]] internal slot of func is lexical,
+     then */
+  if (func.ThisMode = "lexical") {
+    /* a. NOTE Arrow functions never have an arguments objects. */
+    /* b. Let argumentsObjectNeeded be false. */
+    argumentsObjectNeeded := false
+  } elif (argumentsInArray(parameterNames) = true) {
+    /* 19. Else if "arguments" is an element of parameterNames, then */
+    /* a. Let argumentsObjectNeeded be false. */
+    argumentsObjectNeeded := false
+  } elif (hasParameterExpressions = false) {
+    /* 20. Else if hasParameterExpressions is false, then */
+    /* a. If "arguments" is an element of functionNames or if "arguments" is an
+          element of lexicalNames, then */
+    if (argumentsInArray(functionNames) = true ||| argumentsInArray(lexicalNames) = true) {
+      /* i. Let argumentsObjectNeeded be false. */
+      argumentsObjectNeeded := false
+    }
+  };
+
+  /* 21. For each String paramName in parameterNames, do */
+  lparameterNames := l_len (parameterNames);
+  i := 0;
+  while(i < lparameterNames) {
+    paramName := l_nth(parameterNames, i);
+    /* a.  Let alreadyDeclared be envRec.HasBinding(paramName). */
+    alreadyDeclared := {envRec.HasBinding}(envRec, paramName);
+
+    /* b. If alreadyDeclared is false, then */
+    if (alreadyDeclared = false) {
+      /* b. Let status be envRec.CreateMutableBinding(paramName). */
+      status := {envRec.CreateMutableBinding}(envRec, paramName, false);
+
+      /* If hasDuplicates is true, then
+        Let status be envRec.InitializeBinding(paramName, undefined). */
+        if (hasDuplicates = true) {
+          status := {envRec.InitializeBinding}(envRec, paramName, 'undefined)
+        };
+
+      /* Assert: status is never an abrupt completion for either of the above operations. */
+      assert(!(isAnAbruptCompletion(status)))
+    };
+    i := i + 1
+  };
+
+  /* 22. If argumentsObjectNeeded is true, then */
+  if (argumentsObjectNeeded = true) {
+    /* a. If strict is true or if simpleParameterList is false, then */
+    if (strict = true ||| simpleParameterList = false) {
+      /* i. Let ao be CreateUnmappedArgumentsObject(argumentsList). */
+      ao := CreateUnmappedArgumentsObject(func, parameterNames, argumentsList, env)
+
+    } else {
+      /* b. Else */
+       /*Let ao be CreateMappedArgumentsObject(func, formals, argumentsList, env). */
+      ao := CreateMappedArgumentsObject(func, parameterNames, argumentsList, env)
+    };
+    /* c. ReturnIfAbrupt(ao) */
+    @ReturnIfAbrupt(ao);
+
+    /* d. If strict is true, then */
+    if (strict = true) {
+      /* i. Let status be envRec.CreateImmutableBinding("arguments").*/
+      status := {envRec.CreateImmutableBinding}(envRec, "arguments", true)
+    } else {
+      /* e. Else */
+      /* i. Let status be envRec.CreateMutableBinding("arguments"). */
+      status := {envRec.CreateMutableBinding}(envRec, "arguments", false)
+    };
+
+    /* f. Assert: status is never an abrupt completion. */
+    assert(!(isAnAbruptCompletion(status)));
+
+    /* g. Call envRec.InitializeBinding("arguments", ao). */
+    {envRec.InitializeBinding}(envRec, "arguments", ao);
+    /*h. Append "arguments" to parameterNames. */
+    parameterNames := l_add(parameterNames, "arguments")
+  };
+  /* 23. Let iteratorRecord be Record {[[iterator]]:
+        CreateListIterator(argumentsList), [[done]]: false}. */
+  iteratorRecord := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(iteratorRecord);
+  iteratorRecord.iterator := CreateListIterator(argumentsList);
+  iteratorRecord.done := false;
+
+  paramsDetails := getParamsDetails(code);
+  /* 24. If hasDuplicates is true, then */
+  if (hasDuplicates = true) {
+    /* a. Let formalStatus be IteratorBindingInitialization for formals with iteratorRecord and undefined as arguments. */
+    formalStatus := IteratorBindingInitialization(paramsDetails, iteratorRecord, 'undefined, func)
+  } else {
+    /* a. Let formalStatus be IteratorBindingInitialization for formals with iteratorRecord and env as arguments. */
+    formalStatus := IteratorBindingInitialization(paramsDetails, iteratorRecord, calleeContext, func)
+  };
+
+
+  /* 26. ReturnIfAbrupt(formalStatus). */
+  @ReturnIfAbrupt(formalStatus);
+
+  /* 27. If hasParameterExpressions is false, then */
+  if (hasParameterExpressions = false) {
+    /* a. NOTE Only a single lexical environment is needed for the parameters
+       and top-level vars. */
+    /* b. Let instantiatedVarNames be a copy of the List parameterNames. */
+    instantiatedVarNames := parameterNames;
+    if (argumentsObjectNeeded = true) {
+      instantiatedVarNames := l_add(instantiatedVarNames, "arguments")
+    };
+
+    /* c. For each n in varNames, do */
+    lvarNames := l_len(varNames);
+    i := 0;
+    while(i < lvarNames) {
+      element := l_nth(varNames, i);
+      /* i. If n is not an element of instantiatedVarNames, then */
+      if (!(element in_list instantiatedVarNames)) {
+        /* 1. Append n to instantiatedVarNames. */
+        instantiatedVarNames := l_add(instantiatedVarNames, element);
+
+        /* Let status be envRec.CreateMutableBinding(n). */
+        status := {envRec.CreateMutableBinding}(envRec, element, false);
+
+        /* Assert: status is never an abrupt completion. */
+        assert(!(isAnAbruptCompletion(status)));
+
+        /* Call envRec.InitializeBinding(n, undefined). */
+        {envRec.InitializeBinding}(envRec, element, 'undefined)
+      };
+      i := i + 1
+    };
+    /* Let varEnv be env. */
+    varEnv := env;
+
+    /* Let varEnvRec be envRec. */
+    varEnvRec := envRec
+  } /* 28. Else, */
+  else {
+    /* NOTE A separate Environment Record is needed to ensure that closures
+       created by expressions in the formal parameter list do not have
+       visibility of declarations in the function body. */
+    /* a. Let varEnv be NewDeclarativeEnvironment(env). */
+    varEnv := NewDeclarativeEnvironment(env);
+
+    /* b. Let varEnvRec be varEnv’s EnvironmentRecord. */
+    varEnvRec := varEnv.EnvRec;
+
+    /*c. Set the VariableEnvironment of calleeContext to varEnv. */
+    calleeContext.VariableEnvironment := varEnv;
+
+    /* d. Let instantiatedVarNames be a new empty List. */
+    instantiatedVarNames := [];
+
+    /* f. For each n in varNames, do */
+    lvarNames := l_len(varNames);
+    i := 0;
+    while(i < lvarNames) {
+      element := l_nth(varNames, i);
+      /* i. If n is not an element of instantiatedVarNames, then */
+      if (!(element in_list instantiatedVarNames)) {
+        /* 1. Append n to instantiatedVarNames. */
+        instantiatedVarNames := l_add(instantiatedVarNames, element);
+
+        /* 2. Let status be varEnvRec.CreateMutableBinding(n, true). */
+        status := {varEnvRec.CreateMutableBinding}(varEnvRec, element, true);
+
+        /* 3. Assert: status is never an abrupt completion. */
+        assert(!(isAnAbruptCompletion(status)));
+
+        /* 4. If n is not an element of parameterNames or if n is an element of functionNames
+              let initialValue be undefined. */
+        if (!(element in_list parameterNames) ||| (element in_list functionNames)) {
+          initialValue := 'undefined
+        } else {
+          /* 5. Else, let initialValue be the result of performing
+                 GetV(argumentsList, n). */
+          initialValue := GetV(argumentsList, element);
+          /* b. ReturnIfAbrupt(initialValue). */
+          @ReturnIfAbrupt(initialValue)
+          /* NOTE vars whose names are the same as a formal parameter
+            initially have the same value as the corresponding initialized parameter.*/
+        };
+        {varEnvRec.InitializeBinding}(varEnvRec, element, initialValue)
+      };
+      i := i + 1
+    }
+  };
+  /* 29. NOTE: Annex B.3.3 adds additional steps at this point. */
+
+  /* 30. If strict is false, then */
+  if (strict = false) {
+    /* a. Let lexEnv be NewDeclarativeEnvironment(varEnv). */
+    lexEnv := NewDeclarativeEnvironment(varEnv)
+
+    /* b. NOTE: Non-strict functions use a separate lexical Environment Record
+       for top-level lexical declarations so that a direct eval (see
+       12.3.4.1) can determine whether any var scoped declarations introduced
+       by the eval code conflict with pre-existing top-level lexically scoped
+       declarations. This is not needed for strict functions because a strict
+       direct eval always places all declarations into a new Environment
+       Record. */
+  } /* 31. Else, */
+  else {
+  /* let lexEnv be varEnv */
+    lexEnv := varEnv
+  };
+
+  /* 32. Let lexEnvRec be lexEnv's EnvironmentRecord. */
+  lexEnvRec := lexEnv.EnvRec;
+
+  /* 33. Set the LexicalEnvironment of calleeContext to lexEnv. */
+  calleeContext.LexicalEnvironment := lexEnv;
+
+  /* 34. Let lexDeclarations be the LexicallyScopedDeclarations of code. */
+  lexDeclarations := LexicallyScopedDeclarations(code);
+
+  /* 35. For each element d in lexDeclarations do */
+  foreach(d : lexDeclarations) {
+    /* a. NOTE A lexically declared name cannot be the same as a function/generator declaration, formal parameter, or a var name. Lexically declared names are only instantiated here but not initialized. */
+    /* b. For each element dn of the BoundNames of d do */
+
+      /* i. If IsConstantDeclaration of d is true, then */
+      if (IsConstantDeclaration(d)) {
+        /* 1. Let status be lexEnvRec.CreateImmutableBinding(dn, true). */
+        status := {lexEnvRec.CreateImmutableBinding}(lexEnvRec, d.name, true)
+      }
+      /* ii. Else, */
+      else {
+        /* 1. Let status be lexEnvRec.CreateMutableBinding(dn, false). */
+        status := {lexEnvRec.CreateMutableBinding}(lexEnvRec, d.name, false)
+      };
+
+    /* c. Assert: status is never an abrupt completion. */
+    assert(!isAnAbruptCompletion(status))
+  };
+
+  /* 36. For each parsed grammar phrase f in functionsToInitialize, do */
+  foreach (f : functionsToInitialize) {
+    /* Let fn be the sole element of the BoundNames of f. */
+    fn := f.id.name;
+
+    /* Let fo be the result of performing InstantiateFunctionObject for f with argument lexEnv. */
+    fo := InstantiateFunctionObject(f, calleeContext, calleeContext.realm);
+
+    /* Let status be varEnvRec.SetMutableBinding(fn, fo, false). */
+    status := {varEnvRec.SetMutableBinding}(varEnvRec, fn, fo, false);
+    setBindingDeletable(varEnvRec, fn, false);
+
+    /* Assert: status is never an abrupt completion. */
+    assert(!(isAnAbruptCompletion(status)))
+  };
+  /* 37. Return NormalCompletion(empty). */
+  return NormalCompletion('empty)
+};
+/**
+ * NOTE 2 B.3.3 provides an extension to the above algorithm that is necessary
+ * for backwards compatibility with web browser implementations of ECMAScript
+ * that predate ECMAScript 2015.
+ *
+ * NOTE 3 Parameter Initializers may contain direct eval expressions (12.3.4.1).
+ * Any top level declarations of such evals are only visible to the eval code
+ * (10.2). The creation of the environment for such declarations is described in
+ * 14.1.18.
+ */
+ /* NOT IMPLEMENTED */
+
+/* Auxiliary Functions */
+
+function parametersHasDuplicates(parameters) {
+  l_parameters := l_len (parameters);
+  i := 0;
+  while(i < l_parameters) {
+    param := l_nth(parameters, i);
+    j := i + 1;
+    while (j < l_parameters) {
+      param2 := l_nth(parameters, j);
+      if (param = param2) {
+        return true
+      };
+      j := j + 1
+    };
+    i := i + 1
+  };
+  return false
+};
+
+function argumentsInArray(parameters) {
+  l_parameters := l_len (parameters);
+  i := 0;
+  while(i < l_parameters) {
+    param := l_nth(parameters, i);
+    if (param = "arguments") {
+      return true
+    };
+    i := i + 1
+  };
+  return false
+};
+
+function getContainsExpressionInFunctionParams(codeObj) {
+  if ((codeObj = 'undefined)||| (!(Type(codeObj) = "Object"))) {
+    return false
+  };
+  return codeObj.containsExpression
+};
+
+function getIsSimpleParameterListFromFunction(codeObj) {
+  /* IF type of codeObj is not object */
+  if (codeObj = 'undefined ||| (!(Type(codeObj) = "Object"))) {
+    return true
+  };
+  return codeObj.isSimpleParameterList
+};
+
+function getParamsNamesInFromFunction(codeObj) {
+  if (codeObj = 'undefined ||| (!(Type(codeObj) = "Object")) ||| !("paramsNames" in_obj codeObj)) {
+    return []
+  };
+  return codeObj.paramsNames
+};
+
+function getParamsDetails(codeObj) {
+  if ((codeObj = 'undefined )||| (!(Type(codeObj) = "Object"))) {
+    return false
+  };
+  return codeObj.paramsDetails
+};
+
+function ExpectedArgumentCount(paramsDetails){
+  count := 0;
+  foreach (param: paramsDetails) {
+    if (param.type = "Identifier") {
+      count := count + 1
+    }
+    elif (param.type = "AssignmentPattern") {
+      return count
+    }
+  };
+  return count
+}

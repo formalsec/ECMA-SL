@@ -1,0 +1,3894 @@
+import "ecmaref6/esl_sections.esl";
+
+function JS_Interpreter_Program(p, callingExecCtx) {
+
+  /* 14 Program */
+  match p with
+  | { sourceType: "script", type: "Program", codeType: "eval", body: SourceElementsopt, strict: strict } -> {
+    if (SourceElementsopt = []) {
+      return NormalCompletion('empty)
+    };
+
+
+    result := JS_Interpreter_SourceElements(SourceElementsopt, callingExecCtx);
+    return result
+  }
+  | { sourceType: "script", type: "EarlySyntaxError", codeType: "eval", message: message } -> {
+    if (message = "Invalid left-hand side in assignment") {
+      return throwEmptyCompletion(ReferenceErrorConstructorInternal())
+    };
+    return throwEmptyCompletion(SyntaxErrorConstructorInternal())
+  }
+};
+
+function Interpreter_Statement_Guard(error) {
+  return throwEmptyCompletion(error)
+};
+
+
+function JS_Interpreter_SourceElements(SourceElements, scope) {
+  return JS_Interpreter_StmtList(SourceElements, scope);
+  /* The production SourceElements : SourceElements SourceElement is evaluated as follows: */
+
+
+  i := 0;
+  lSourceElements := l_len(SourceElements);
+  while (i < lSourceElements) {
+    /* 1. Let headResult be the result of evaluating SourceElements. */
+    /* 2. If headResult is an abrupt completion, return headResult. */
+    /* 3. Let tailResult be result of evaluating SourceElement. */
+    /* 4. If tailResult.value is empty, let V = headResult.value, otherwise let V = tailResult.value. */
+    result := JS_Interpreter_Stmt(l_nth(SourceElements, i), scope) catch Interpreter_Statement_Guard;
+
+
+    if (isAnAbruptCompletion(result)) {
+      return result
+    };
+    V := getCompletionValue(result);
+    i := i + 1
+  };
+  /* 5. Return (tailResult.type, V, tailResult.target) */
+  return newCompletion(getCompletionType(result), V, getCompletionTarget(result))
+};
+
+function JS_Interpreter_Expr(e, scope) {
+  match e with
+  | {type: "ArrowFunctionExpression", id: Identifier, params: ArrowParameters, body: ConciseBody} -> {
+    /**
+      * 14.2.16 Runtime Semantics: Evaluation
+      *
+      * NOTE An ArrowFunction does not define local bindings for arguments, super,
+      * this, or new.target. Any reference to arguments, super, this, or new.target
+      * within an ArrowFunction must resolve to a binding in a lexically enclosing
+      * environment. Typically this will be the Function Environment of an
+      * immediately enclosing function. Even though an ArrowFunction may contain
+      * references to super, the function object created in step 4 is not made into a
+      * method by performing MakeMethod. An ArrowFunction that references super is
+      * always contained within a non-ArrowFunction and the necessary state to
+      * implement super is accessible via the scope that is captured by the function
+      * object of the ArrowFunction.
+    */
+    /* 1. If the function code for this ArrowFunction is strict mode code
+     (10.2.1), */
+    if (isStrictModeCode(ConciseBody, scope)) {
+      /* let strict be true. Otherwise let strict be false */
+      strict := true
+    } else {
+      strict := false
+    };
+
+    /* 2. Let scope be the LexicalEnvironment of the running execution context. */
+    lexEnv := scope.LexicalEnvironment;
+    /* 3. Let parameters be CoveredFormalsList of ArrowParameters. */
+    parameters := ArrowParameters;
+    /* 4. Let closure be FunctionCreate(Arrow, parameters, ConciseBody, scope,
+      strict). */
+    closure := FunctionCreate("Arrow", parameters, ConciseBody, lexEnv, strict, null);
+
+    /* Because of section 16.1 */
+    delete closure.JSProperties["caller"];
+
+    /* 5. Return closure. */
+    return closure
+    /**
+      * NOTE An ArrowFunction does not define local bindings for arguments, super,
+      * this, or new.target. Any reference to arguments, super, this, or new.target
+      * within an ArrowFunction must resolve to a binding in a lexically enclosing
+      * environment. Typically this will be the Function Environment of an
+      * immediately enclosing function. Even though an ArrowFunction may contain
+      * references to super, the function object created in step 4 is not made into a
+      * method by performing MakeMethod. An ArrowFunction that references super is
+      * always contained within a non-ArrowFunction and the necessary state to
+      * implement super is accessible via the scope that is captured by the function
+      * object of the ArrowFunction.
+    */
+  }
+  | { type: "ThisExpression" } -> {
+    /* 11.1.1 The this Keyword */
+
+    /* The this keyword evaluates to the value of the ThisBinding of the current execution context. */
+    return ResolveThisBinding(scope)
+  }
+  | { type: "Identifier", name: name } -> {
+    /* 11.1.2 Identifier Reference */
+
+    /* An Identifier is evaluated by performing Identifier Resolution as specified in 10.3.1. The result of evaluating an
+       Identifier is always a value of type Reference. */
+    res := ResolveBinding(scope, name, null);
+    return res
+    /*return IdentifierResolution(name, scope)*/
+  }
+  | { type: "Literal", regex: re, source: source } -> {
+
+    return JS_Interpreter_RegEx_TopLevel(re, source)
+  }
+  | { type: "Literal", value: value } -> {
+    /* 11.1.3 Literal Reference */
+
+    /* A Literal is evaluated as described in 7.8. */
+    return formingTheValueOfTheNumericLiteral(value)
+  }
+  | { type: "ArrayExpression", elements: ElementList } -> {
+    /* 11.1.4 Array Initialiser */
+    array := ArrayCreate(0., null);
+    len := l_len ElementList;
+    i := 0;
+    while (i < len) {
+      el := l_nth (ElementList, i);
+
+      if (!(el = null)) {
+        initResult := JS_Interpreter_Expr(el, scope);
+        initValue := GetValue(initResult);
+
+        descriptor := newDataPropertyDescriptorFull(initValue, true, true, true);
+        {array.DefineOwnProperty}(array, ToString(ToUint32(int_to_float i)), descriptor)
+      };
+      i := i + 1
+    };
+    descriptor := newDataPropertyDescriptorFull(ToUint32(int_to_float i), true, false, false);
+    {array.DefineOwnProperty}(array, "length", descriptor);
+
+    return array
+  }
+  | { type: "ObjectExpression" } -> {
+    /* 11.1.5 Object Initialiser */
+
+    /* An object initialiser is an expression describing the initialisation of an Object, written in a form resembling a
+       literal. It is a list of zero or more pairs of property names and associated values, enclosed in curly braces. The
+       values need not be literals; they are evaluated each time the object initialiser is evaluated. */
+
+    return JS_Interpreter_ObjectInitializer(e, scope)
+  }
+  | { type: "ProtoAssignment", object: Object, value: Expression } -> {
+    /* This pattern match is specific to this implementation and
+       does not exist specified in the ES5 standard.
+       Was created to test the assignment of a value to the Prototype of an object. */
+    objectReference := JS_Interpreter_Expr(Object, scope);
+    objectLocation := GetValue(objectReference);
+    valueReference := JS_Interpreter_Expr(Expression, scope);
+    value := GetValue(valueReference);
+
+    objectLocation.Prototype := value;
+
+    return value
+  }
+  | { type: "ESLPrint", value: Argument } -> {
+    arg := JS_Interpreter_Expr(Argument, scope);
+    argValue := GetValue(arg);
+
+
+    return argValue
+  }
+  | { type: "MemberExpression", object: MemberExpression, property: Expression } -> {
+    /* 11.2.1 Property Accessors */
+
+    /* The production MemberExpression : MemberExpression [ Expression ] is evaluated as follows: */
+    /* 1. Let baseReference be the result of evaluating MemberExpression. */
+    baseReference := JS_Interpreter_Expr(MemberExpression, scope);
+
+
+    /* 2. Let baseValue be GetValue(baseReference). */
+    baseValue := GetValue(baseReference);
+
+    @ReturnIfAbrupt(baseValue);
+
+    /* 3. Let propertyNameReference be the result of evaluating Expression. */
+    propertyNameReference := JS_Interpreter_Expr(Expression, scope);
+
+    /* 4. Let propertyNameValue be GetValue(propertyNameReference). */
+    propertyNameValue := GetValue(propertyNameReference);
+
+    @ReturnIfAbrupt(propertyNameValue);
+
+    /* 5. Call CheckObjectCoercible(baseValue). */
+    coercibleObject := RequireObjectCoercible(baseValue);
+
+    @ReturnIfAbrupt(coercibleObject);
+
+    /* 6. Let propertyNameString be ToString(propertyNameValue). */
+    propertyNameString := ToPropertyKey(propertyNameValue);
+    @ReturnIfAbrupt(propertyNameString);
+    /* 7. If the syntactic production that is being evaluated is contained in strict mode code,
+          let strict be true, else let strict be false. */
+    if (isContainedInStrictCode(scope)) {
+      strict := true
+    } else {
+      strict := false
+    };
+    /* 8. Return a value of type Reference whose base value is baseValue and whose referenced name is
+          propertyNameString, and whose strict mode flag is strict. */
+    ref := newPropertyReference(baseValue, propertyNameString, strict);
+    return ref
+  }
+  | { type: "NewExpression", callee: MemberExpression, arguments: Arguments } -> {
+    /* 12.3.3.1 MemberExpression : new MemberExpression Arguments */
+    /* 1. Return EvaluateNew(MemberExpression, Arguments). */
+    return EvaluateNew(MemberExpression, Arguments, scope);
+
+
+    /* 11.2.2 The new Operator */
+
+    /* The production MemberExpression : new MemberExpression Arguments is evaluated as follows: */
+
+    /* 1. Let ref be the result of evaluating MemberExpression. */
+    ref := JS_Interpreter_Expr(MemberExpression, scope);
+    /* 2. Let constructor be GetValue(ref). */
+    constructor := GetValue(ref);
+    /* 3. Let argList be the result of evaluating Arguments, producing an internal list of argument values (11.2.4). */
+    argList := JS_Interpreter_Arguments(Arguments, scope);
+    @ReturnIfAbrupt(argList);
+    /* 4. If Type(constructor) is not Object, throw a TypeError exception. */
+    if (!(Type(constructor) = "Object")) {
+      throw TypeErrorConstructorInternal()
+    };
+    /* 5. If constructor does not implement the [[Construct]] internal method, throw a TypeError exception. */
+    if (!("Construct" in_obj constructor)) {
+      throw TypeErrorConstructorInternal()
+    };
+    /* 6. Return the result of calling the [[Construct]] internal method on constructor, providing the list argList as the
+          argument values. */
+    return Construct(scope, ref, constructor, argList, null)
+  }
+  | { type: "CallExpression", callee: MemberExpression, arguments: Arguments } -> {
+    /* 12.3.4.1 Function Calls */
+
+    /* 1. Let ref be the result of evaluating MemberExpression. */
+
+    ref := JS_Interpreter_Expr(MemberExpression, scope);
+
+    /* 2. Let func be GetValue(ref). */
+    func := GetValue(ref);
+
+    /* 3. ReturnIfAbrupt(func). */
+    @ReturnIfAbrupt(func);
+
+    /* 4. If Type(ref) is Reference and IsPropertyReference(ref) is false and
+      GetReferencedName(ref) is "eval", then */
+    if (Type(ref) = "Reference" &&& IsPropertyReference(ref) = false &&& GetReferencedName(ref) = "eval") {
+      /* i. Let argList be ArgumentListEvaluation(Arguments). */
+      argList := JS_Interpreter_Arguments(Arguments, scope);
+      /* ii. ReturnIfAbrupt(argList). */
+      @ReturnIfAbrupt(argList);
+      /* iii. If argList has no elements, return undefined. */
+      length := l_len argList;
+      if (length = 0) {
+        return 'undefined
+      };
+      /* iv. Let evalText be the first element of argList. */
+      evalText := l_nth (argList, 0);
+      /* v. If the source code matching this CallExpression is strict code, let
+        strictCaller be true. Otherwise let strictCaller be false. */
+      if (isContainedInStrictCode(scope)) {
+        strictCaller := true
+      } else {
+        strictCaller := false
+      };
+      /* vi. Let evalRealm be the running execution context's Realm. */
+      evalRealm := scope.Realm;
+      /* vii. Return PerformEval(evalText, evalRealm, strictCaller, true). . */
+      return PerformEval(evalText, evalRealm, strictCaller, true)
+    };
+
+    /* 5. If Type(ref) is Reference, then */
+    if (Type(ref) = "Reference") {
+      /* a. If IsPropertyReference(ref) is true, then */
+      if (IsPropertyReference(ref) = true) {
+        /* i. Let thisValue be GetThisValue(ref). */
+        thisValue := GetThisValue(ref)
+      }
+      /* b. Else, the base of ref is an Environment Record */
+      else {
+        /* i.  Let refEnv be GetBase(ref). */
+        refEnv := GetBase(ref);
+
+        /* ii.  Let thisValue be refEnv.WithBaseObject(). */
+        thisValue := {refEnv.WithBaseObject}(refEnv)
+      }
+    } else {
+      /* 6. Else Type(ref) is not Reference, */
+      /* a. Let thisValue be undefined. */
+      thisValue := 'undefined
+    };
+
+    /* 7. Let thisCall be this CallExpression. */
+    thisCall := e;
+
+    /* 8. Let tailCall be IsInTailPosition(thisCall). (See 14.6.1) */
+    tailCall := IsInTailPosition(thisCall);
+
+    /* 9. Return EvaluateDirectCall(func, thisValue, Arguments, tailCall). */
+    return EvaluateDirectCall(func, thisValue, Arguments, tailCall, scope)
+  }
+  | { type: "FunctionExpression", id: Identifier, params: FormalParameterList, body: FunctionBody } -> {
+    /* 11.2.5 Function Expressions */
+
+    /* The production MemberExpression : FunctionExpression is evaluated as follows: */
+    /* 1. Return the result of evaluating FunctionExpression. */
+    return JS_Interpreter_FunctionExpression(e, scope)
+  }
+  | { type: "UpdateExpression", prefix: false } -> {
+    /* 11.3 Postfix Expressions */
+    return JS_Interpreter_PostfixExpressions(e, scope)
+  }
+  | { type: "UpdateExpression", prefix: true } -> {
+    /* 11.4 Unary Operators */
+    return JS_Interpreter_UnaryOperator(e, scope)
+  }
+  | { type: "UnaryExpression", prefix: true } -> {
+    /* 11.4 Unary Operators */
+    return JS_Interpreter_UnaryOperator(e, scope)
+  }
+  | { type: "BinaryExpression" } -> {
+    return JS_Interpreter_BinExpr(e, scope)
+  }
+  | { type: "LogicalExpression" } -> {
+    /* 12.12 Binary Logical Operators */
+    return JS_Interpreter_LogicalExpression(e, scope)
+  }
+  | { type: "ConditionalExpression", test: LogicalORExpression, consequent: firstAssignmentExpression, alternate: secondAssignmentExpression } -> {
+    /* 12.13 Conditional Operator ( ? : ) */
+
+    /* The production ConditionalExpression : LogicalORExpression ? AssignmentExpression : AssignmentExpression is
+       evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating LogicalORExpression. */
+    lref := JS_Interpreter_Expr(LogicalORExpression, scope);
+    /* 2. Let lval be ToBoolean(GetValue(lref)). */
+    lval := ToBoolean(GetValue(lref));
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. If lval is true, then */
+    if (lval = true) {
+      /* a. Let trueRef be the result of evaluating the first AssignmentExpression. */
+      trueRef := JS_Interpreter_Expr(firstAssignmentExpression, scope);
+      /* b. Return GetValue(trueRef). */
+      return GetValue(trueRef)
+    }
+    /* 5. Else */
+    else {
+      /* a. Let falseRef be the result of evaluating the second AssignmentExpression. */
+      falseRef := JS_Interpreter_Expr(secondAssignmentExpression, scope);
+      /* b. Return GetValue(falseRef). */
+      return GetValue(falseRef)
+    }
+
+    /* The ConditionalExpressionNoIn production is evaluated in the same manner as the ConditionalExpression
+       production except that the contained LogicalORExpressionNoIn, AssignmentExpression and AssignmentExpressionNoIn
+       are evaluated instead of the contained LogicalORExpression, first AssignmentExpression and second AssignmentExpression, respectively. */
+
+    /* NOTE The grammar for a ConditionalExpression in ECMAScript is a little bit different from that in C and Java, which
+            each allow the second subexpression to be an Expression but restrict the third expression to be a ConditionalExpression.
+            The motivation for this difference in ECMAScript is to allow an assignment expression to be governed by either arm of a
+            conditional and to eliminate the confusing and fairly useless case of a comma expression as the centre expression. */
+  }
+  | { type: "AssignmentExpression" } -> {
+    /* 12.4 Assignment Operators */
+
+    /* The AssignmentExpressionNoIn productions are evaluated in the same manner as the AssignmentExpression
+       productions except that the contained ConditionalExpressionNoIn and AssignmentExpressionNoIn are evaluated
+       instead of the contained ConditionalExpression and AssignmentExpression, respectively. */
+    return JS_Interpreter_AssignmentExpression(e, scope)
+  }
+  | { type: "SequenceExpression", expressions: Expressions } -> {
+    /* 12.15 Comma Operator ( , ) */
+
+    /* The production Expression : Expression , AssignmentExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating Expression. */
+    /* 2. ReturnIfAbrupt(GetValue(lref)) */
+    /* 3. Let rref be the result of evaluating AssignmentExpression. */
+    /* 4. Return GetValue(rref). */
+
+    lExpression := l_len Expressions;
+
+    ref := JS_Interpreter_Expr(l_nth(Expressions, 0), scope);
+    val := GetValue(ref);
+
+    i := 1;
+    while(i < lExpression) {
+      @ReturnIfAbrupt(val);
+      ref := JS_Interpreter_Expr(l_nth(Expressions, i), scope);
+      val := GetValue(ref);
+
+      i := i + 1
+    };
+
+    return val
+
+    /**
+     * NOTE GetValue must be called even though its value is not used because it may
+     * have observable side-effects.
+     */
+
+  }
+  | { type: "MetaProperty", meta: meta, property: property } -> {
+    return GetNewTarget(scope)
+  }
+  | { type: "SuperCall", arguments: Arguments } -> {
+    /* 1. Let newTarget be GetNewTarget().*/
+    newTarget := GetNewTarget(scope);
+    /* 2. If newTarget is undefined, throw a ReferenceError exception. */
+    if (newTarget = 'undefined) {
+      throw ReferenceErrorConstructorInternal()
+    };
+    /* 3. Let func be GetSuperConstructor(). */
+    func := GetSuperConstructor(scope);
+    /* 4. ReturnIfAbrupt(func). */
+    @ReturnIfAbrupt(func);
+    /* 5. Let argList be ArgumentListEvaluation of Arguments. */
+    argList := JS_Interpreter_Arguments(Arguments, scope);
+    /* 6. ReturnIfAbrupt(argList). */
+    @ReturnIfAbrupt(argList);
+    /* 7. Let result be Construct(func, argList, newTarget). */
+    result := Construct(scope, null, func, argList, newTarget);
+    /* 8. ReturnIfAbrupt(result). */
+    @ReturnIfAbrupt(result);
+    /* 9. Let thisER be GetThisEnvironment( ). */
+    thisER := GetThisEnvironment(scope);
+    /* 10. Return thisER.BindThisValue(result).*/
+    return BindThisValue(thisER, result)
+  }
+  | { type: "SuperProperty", property: property } -> {
+    if (property.type = "Identifier") {
+      propertyKey := property.name
+    } else {
+      /* 1. Let propertyNameReference be the result of evaluating Expression. */
+      propertyNameReference := JS_Interpreter_Expr(property, scope);
+
+      propertyNameValue := GetValue(propertyNameReference);
+      @ReturnIfAbrupt(propertyNameValue);
+
+
+      propertyKey := ToPropertyKey(propertyNameValue);
+      @ReturnIfAbrupt(propertyKey)
+    };
+    /* 5. If the code matched by the syntactic production that is being evaluated
+          is strict mode code, let strict be true, else let strict be false. */
+    if (isContainedInStrictCode(scope)) {
+      strict := true
+    } else {
+      strict := false
+    };
+    /* 6. Return MakeSuperPropertyReference(propertyKey, strict). */
+    return MakeSuperPropertyReference(propertyKey, strict, scope)
+  }
+  | { type: "YieldExpression"} -> {
+    fail "Unsupported: Yield"
+  }
+  | { type: "ClassExpression", id: id, body: body, superClass: superClass } -> {
+    /* 1. If BindingIdentifieropt is not present, */
+    if (id = null) {
+      /* let className be undefined */
+      className := 'undefined
+    }
+    /* 2. Else, */
+    else {
+      /* let className be StringValue of BindingIdentifier */
+      className := StringValue(id.name)
+    };
+    /* 3. Let value be the result of ClassDefinitionEvaluation of ClassTail with
+      argument className. */
+    value := ClassDefinitionEvaluation(scope, className, superClass, body);
+    /* 4. ReturnIfAbrupt(value). */
+    @ReturnIfAbrupt(value);
+    /* 5. If className is not undefined, then */
+    if (!(className = 'undefined)) {
+      /* a. Let hasNameProperty be HasOwnProperty(value, "name"). */
+      hasNameProperty := HasOwnProperty(value, "name");
+      /* b. ReturnIfAbrupt(hasNameProperty). */
+      @ReturnIfAbrupt(hasNameProperty);
+      /* c. If hasNameProperty is false, then */
+      if (hasNameProperty = false) {
+        /* i. Perform SetFunctionName(value, className). */
+        SetFunctionName(value, className, null)
+      }
+    };
+    /* 6. Return NormalCompletion(value). */
+    return NormalCompletion(value)
+  }
+  | { type: "SpreadElement", argument: Argument } -> {
+    /* 1. Let list be an empty List. */
+    list := [];
+    /* 2. Let spreadRef be the result of evaluating AssignmentExpression. */
+    spreadRef := JS_Interpreter_Expr(Argument, scope);
+    /* 3. Let spreadObj be GetValue(spreadRef). */
+    spreadObj := GetValue(spreadRef);
+    /* 4. Let iterator be GetIterator(spreadObj). */
+    iterator := GetIterator(spreadObj, null);
+    /* 5. ReturnIfAbrupt(iterator). */
+    @ReturnIfAbrupt(iterator);
+    /* 6. Repeat */
+    repeat {
+      /* a. Let next be IteratorStep(iterator). */
+      next := IteratorStep(iterator);
+      /* b. ReturnIfAbrupt(next) .*/
+      @ReturnIfAbrupt(next);
+      /* c. If next is false, return nextIndex. */
+      if (next = false) {
+        return list
+      };
+      /* d. Let nextArg be IteratorValue(next). */
+      nextArg := IteratorValue(next);
+      /* e. ReturnIfAbrupt(nextArg). */
+      @ReturnIfAbrupt(nextArg);
+      /* f. Append nextArg as the last element of list. */
+      list := l_add(list, nextArg)
+    }
+  }
+  | { type: "TemplateLiteral", quasis: quasis, expressions: expressions } -> {
+
+    template := (hd quasis).value.raw;
+    quasis := tl quasis;
+
+    len := l_len(quasis);
+    i := 0;
+    while ( i < len ) {
+      sub := JS_Interpreter_Expr( l_nth(expressions, i), scope );
+
+      sub := GetValue(sub);
+
+      middle := ToString(sub);
+
+      @ReturnIfAbrupt(middle);
+
+      /* quasis values are TemplateElements */
+      rest := l_nth(quasis, i).value.raw;
+
+      template := s_concat [template, middle, rest];
+
+      i := i + 1
+    };
+
+    return template
+  }
+  | default -> {
+    print e
+  }
+};
+
+function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
+
+  match AssignmentExpression with
+  | { operator: "=", left: LeftHandSideExpression, right: AssignmentExpression } -> {
+    /**
+    * 12.14.4 Runtime Semantics: Evaluation
+    *
+    * AssignmentExpression[In, Yield] : LeftHandSideExpression[?Yield] =
+    * AssignmentExpression[?In, ?Yield]
+    */
+
+    /* 1. If LeftHandSideExpression is neither an ObjectLiteral nor an ArrayLiteral, then */
+    if (! (IsObjectLiteral(LeftHandSideExpression) ||| IsArrayLiteral(LeftHandSideExpression))) {
+      /* a. Let lref be the result of evaluating LeftHandSideExpression. */
+      lref := JS_Interpreter_Expr(LeftHandSideExpression, scope);
+      /* b. ReturnIfAbrupt(lref). */
+      @ReturnIfAbrupt(lref);
+      /* c. Let rref be the result of evaluating AssignmentExpression. */
+      rref := JS_Interpreter_Expr(AssignmentExpression, scope);
+      /* d. Let rval be GetValue(rref). */
+      rval := GetValue(rref);
+      /* e. If IsAnonymousFunctionDefinition(AssignmentExpression) and IsIdentifierRef of LeftHandSideExpression are both true, then */
+      if (IsAnonymousFunctionDefinition(AssignmentExpression) &&& IsIdentifierRef(LeftHandSideExpression)) {
+        /* i. Let hasNameProperty be HasOwnProperty(rval, "name"). */
+        hasNameProperty := HasOwnProperty(rval, "name");
+        /* ii. ReturnIfAbrupt(hasNameProperty). */
+        @ReturnIfAbrupt(hasNameProperty);
+        /* iii. If hasNameProperty is false, perform SetFunctionName(rval, GetReferencedName(lref)). */
+        if (hasNameProperty = false) {
+          SetFunctionName(rval, GetReferencedName(lref), null)
+        }
+      };
+      /* f. Let status be PutValue(lref, rval). */
+      status := PutValue(lref, rval);
+      /* g. ReturnIfAbrupt(status). */
+      @ReturnIfAbrupt(status);
+      /* h. Return rval. */
+      return rval
+    };
+    /* 2. Let assignmentPattern be the parse of the source text corresponding to
+      LeftHandSideExpression using AssignmentPattern[?Yield] as the goal
+      symbol. */
+    assignmentPattern := LeftHandSideExpression;
+    /* 3. Let rref be the result of evaluating AssignmentExpression. */
+    rref :=  JS_Interpreter_Expr(AssignmentExpression, scope);
+    /* 4. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 5. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 6. Let status be the result of performing
+      DestructuringAssignmentEvaluation of assignmentPattern using rval as
+      the argument. */
+    status := DestructuringAssignmentEvaluation(assignmentPattern, rval, scope, null);
+    /* 7. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+    /* 8. Return rval. */
+    return rval
+
+  /* NOTE When an assignment occurs within strict mode code, its LeftHandSide must not evaluate to an unresolvable
+          reference. If it does a ReferenceError exception is thrown upon assignment. The LeftHandSide also may not be a
+          reference to a data property with the attribute value {[[Writable]]:false}, to an accessor property with the attribute value
+          {[[Set]]:undefined}, nor to a non-existent property of an object whose [[Extensible]] internal property has the value false. In
+          these cases a TypeError exception is thrown. */
+  }
+  | { operator: AssignmentOperator, left: LeftHandSideExpression, right: AssignmentExpression } -> {
+    /* 11.13.2 Compound Assignment ( op= ) */
+    /* 1. Let lref be the result of evaluating LeftHandSideExpression. */
+    lref := JS_Interpreter_Expr(LeftHandSideExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating AssignmentExpression. */
+    rref := JS_Interpreter_Expr(AssignmentExpression, scope);
+    /* 5. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. Let op be the @ where AssignmentOperator is @= */
+    /* op := */
+    /* 8. Let r be the result of applying op to lval and rval as if evaluating
+      the expression lval op rval. */
+    r := applyOperator(AssignmentOperator, lval, rval);
+    /* 9. Let status be PutValue(lref, r). */
+    status := PutValue(lref, r);
+    /* 10. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+    /* 11. Return r. */
+    return r
+  }
+};
+
+function JS_Interpreter_AssignmentPattern(AssignmentPattern, scope) {
+  /* TODO: Match this with the standard */
+  /* This is currently used for functions with default parameters, to evaluate the right side
+      Example function foo(a, b = 2) { ... } */
+  /* 2. Let rref be the result of evaluating AssignmentPattern. */
+  rref := JS_Interpreter_Expr(AssignmentPattern, scope);
+
+  /* 3. Let rval be GetValue(rref). */
+  rval := GetValue(rref);
+  return rval
+};
+
+function JS_Interpreter_LogicalExpression(LogicalExpression, scope) {
+  match LogicalExpression with
+  | { operator: "&&", left: LogicalANDExpression, right: BitwiseORExpression } -> {
+    /* The production LogicalANDExpression : LogicalANDExpression && BitwiseORExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating LogicalANDExpression. */
+    lref := JS_Interpreter_Expr(LogicalANDExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. Let lbool be ToBoolean(lval). */
+    lbool := ToBoolean(lval);
+    /* 4. ReturnIfAbrupt(lbool). */
+    @ReturnIfAbrupt(lbool);
+    /* 5. If lbool is false, */
+    if (lbool = false) {
+      /* return lval */
+      return lval
+    };
+    /* 6. Let rref be the result of evaluating BitwiseORExpression. */
+    rref := JS_Interpreter_Expr(BitwiseORExpression, scope);
+    /* 7. Return GetValue(rref). */
+    return GetValue(rref)
+  }
+  | { operator: "||", left: LogicalORExpression, right: LogicalANDExpression } -> {
+    /* The production LogicalORExpression : LogicalORExpression || LogicalANDExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating LogicalORExpression. */
+    lref := JS_Interpreter_Expr(LogicalORExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. Let lbool be ToBoolean(lval). */
+    lbool := ToBoolean(lval);
+    /* 4. ReturnIfAbrupt(lbool). */
+    @ReturnIfAbrupt(lbool);
+    /* 5. If lbool is true, */
+    if (lbool = true) {
+      /* return lval */
+      return lval
+    };
+    /* 6. Let rref be the result of evaluating LogicalANDExpression. */
+    rref := JS_Interpreter_Expr(LogicalANDExpression, scope);
+    /* 7. Return GetValue(rref). */
+    return GetValue(rref)
+  }
+};
+
+function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
+  match UnaryExpression with
+  | { type: "UnaryExpression", operator: "delete", argument: UnaryExpression } -> {
+    /* 12.5.4 The delete Operator
+    * UnaryExpression : delete UnaryExpression
+    * NOTE When a delete operator occurs within strict mode code, a SyntaxError
+    * exception is thrown if its UnaryExpression is a direct reference to a
+    * variable, function argument, or function name. In addition, if a delete
+    * operator occurs within strict mode code and the property to be deleted has
+    * the attribute { [[Configurable]]: false }, a TypeError exception is thrown.
+    */
+
+    /* 1. Let ref be the result of evaluating UnaryExpression. */
+    ref := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 2. ReturnIfAbrupt(ref). */
+    @ReturnIfAbrupt(ref);
+    /* 3. If Type(ref) is not Reference, */
+    if (!(Type(ref) = "Reference")) {
+      /* return true */
+      return true
+    };
+    /* 4. If IsUnresolvableReference(ref) is true, then */
+    if (IsUnresolvableReference(ref) = true) {
+      /* a. Assert: IsStrictReference(ref) is false. */
+      assert(IsStrictReference(ref) = false);
+      /* b. Return true. */
+      return true
+    };
+    /* 5. If IsPropertyReference(ref) is true, then */
+    if (IsPropertyReference(ref) = true) {
+      /* a. If IsSuperReference(ref), */
+      if (IsSuperReference(ref)) {
+        /* throw a ReferenceError exception */
+        throw ReferenceErrorConstructorInternal()
+      };
+      /* b. Let baseObj be ToObject(GetBase(ref)). */
+      baseObj := ToObject(GetBase(ref));
+      /* c. Assert: baseObj is not an abrupt completion. */
+      assert(!isAnAbruptCompletion(baseObj));
+      /* d. Let deleteStatus be baseObj.[[Delete]](GetReferencedName(ref)). */
+      deleteStatus :=  {baseObj.Delete}(baseObj, GetReferencedName(ref));
+      /* e. ReturnIfAbrupt(deleteStatus). */
+      @ReturnIfAbrupt(deleteStatus);
+      /* f. If deleteStatus is false and IsStrictReference(ref) is true, */
+      if ( (deleteStatus = false) &&& (IsStrictReference(ref) = true) ) {
+        /* throw a TypeError exception */
+        throw TypeErrorConstructorInternal()
+      };
+      /* g. Return deleteStatus. */
+      return deleteStatus
+    }
+    /* 6. Else ref is a Reference to an Environment Record binding, */
+    else {
+      /* a.Let bindings be GetBase(ref). */
+      bindings := GetBase(ref);
+
+      /* b.Return bindings.DeleteBinding(GetReferencedName(ref)). */
+      return {bindings.DeleteBinding}(bindings, GetReferencedName(ref))
+    }
+  }
+  | { type: "UnaryExpression", operator: "void", argument: UnaryExpression } -> {
+    /* 12.5.5.1 The void Operator */
+
+    /* The production UnaryExpression : void UnaryExpression is evaluated as follows:
+     * NOTE GetValue must be called even though its value is not used because it may
+     * have observable side-effects. */
+
+    /* 1. Let expr be the result of evaluating UnaryExpression. */
+    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+
+    /* 2. Let status be GetValue(expr). */
+    status := GetValue(expr);
+    /* 3. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+    /* 4. Return undefined. */
+    return 'undefined
+  }
+  | { type: "UnaryExpression", operator: "typeof", argument: UnaryExpression } -> {
+    /* 12.5.6 The typeof Operator */
+    /**
+     * NOTE Implementations are discouraged from defining new typeof result values
+     * for non-standard exotic objects. If possible "object"should be used for such
+     * objects.
+     */
+
+    /* 1. Let val be the result of evaluating UnaryExpression. */
+    val := JS_Interpreter_Expr(UnaryExpression, scope);
+
+    /* 2. If Type(val) is Reference, then */
+    if (Type(val) = "Reference") {
+      /* a. If IsUnresolvableReference(val) is true, */
+      if (IsUnresolvableReference(val) = true) {
+        /* return "undefined" */
+        return "undefined"
+      }
+    };
+    /* 3. Let val be GetValue(val). */
+    val := GetValue(val);
+    /* 4. ReturnIfAbrupt(val). */
+    @ReturnIfAbrupt(val);
+    /* 5. Return a String according to Table 35. */
+    if (Type(val) = "Undefined") {
+      return "undefined"
+    };
+    if (Type(val) = "Null") {
+      return "object"
+    };
+    if (Type(val) = "Boolean") {
+      return "boolean"
+    };
+    if (Type(val) = "Number") {
+      return "number"
+    };
+    if (Type(val) = "String") {
+      return "string"
+    };
+    if (Type(val) = "Symbol") {
+      return "symbol"
+    };
+    if (Type(val) = "Object") {
+      /* Object (ordinary and does not implement [[Call]]) | "object" */
+      /* Object (standard exotic and does not implement [[Call]]) | "object" */
+      if (!("Call" in_obj val)) {
+        return "object"
+      }
+      /* Object (implements [[Call]]) | "function" */
+      else {
+        return "function"
+      }
+    }
+  }
+  | { type: "UpdateExpression", operator: "++", argument: UnaryExpression, prefix: true } -> {
+    /* 12.5.7.1 Prefix Increment Operator */
+
+    /* The production UnaryExpression : ++ UnaryExpression is evaluated as follows: */
+
+    /* 1. Let expr be the result of evaluating UnaryExpression. */
+    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 2. Let oldValue be ToNumber(GetValue(expr)). */
+    oldValue := ToNumber(GetValue(expr));
+    /* 3. ReturnIfAbrupt(oldValue). */
+    @ReturnIfAbrupt(oldValue);
+    /* 4. Let newValue be the result of adding the value 1 to oldValue, using
+      the same rules as for the + operator (see 12.7.5). */
+    newValue := oldValue + 1.;
+    /* 5. Let status be PutValue(expr, newValue). */
+    status := PutValue(expr, newValue);
+    /* 6. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+    /* 7. Return newValue. */
+    return newValue
+  }
+  | { type: "UpdateExpression", operator: "--", argument: UnaryExpression, prefix: true } -> {
+    /* 12.5.8.1 Prefix Decrement Operator */
+
+    /* The production UnaryExpression : -- UnaryExpression is evaluated as follows: */
+
+    /* 1. Let expr be the result of evaluating UnaryExpression. */
+    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 2. Let oldValue be ToNumber(GetValue(expr)). */
+    oldValue := ToNumber(GetValue(expr));
+    /* 3. ReturnIfAbrupt(oldValue). */
+    @ReturnIfAbrupt(oldValue);
+    /* 4. Let newValue be the result of subtracting the value 1 from oldValue,
+      using the same rules as for the - operator (see 12.7.5). */
+    newValue := oldValue - 1.;
+    /* 5. Let status be PutValue(expr, newValue). */
+    status := PutValue(expr, newValue);
+    /* 6. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+    /* 7. Return newValue. */
+    return newValue
+  }
+  | { type: "UnaryExpression", operator: "+", argument: UnaryExpression } -> {
+    /* 12.5.9.1 Unary + Operator */
+
+    /* The unary + operator converts its operand to Number type. */
+
+    /* The production UnaryExpression : + UnaryExpression is evaluated as follows: */
+
+    /* 1. Let expr be the result of evaluating UnaryExpression. */
+    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 2. Return ToNumber(GetValue(expr)). */
+    return ToNumber(GetValue(expr))
+  }
+  | { type: "UnaryExpression", operator: "-", argument: UnaryExpression } -> {
+    /* 12.5.10.1 Unary - Operator */
+
+    /* The unary - operator converts its operand to Number type and then negates it. Note that negating +0
+       produces -0, and negating -0 produces +0. */
+
+    /* The production UnaryExpression : - UnaryExpression is evaluated as follows: */
+
+    /* 1. Let expr be the result of evaluating UnaryExpression. */
+    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 2. Let oldValue be ToNumber(GetValue(expr)). */
+    oldValue := ToNumber(GetValue(expr));
+    /* 3. ReturnIfAbrupt(oldValue). */
+    @ReturnIfAbrupt(oldValue);
+    /* 4. If oldValue is NaN, */
+    if (is_NaN oldValue) {
+      return NaN
+    };
+    /* 5. Return the result of negating oldValue that is, compute a Number with
+      the same magnitude but opposite sign. */
+    return -(oldValue)
+  }
+  | { type: "UnaryExpression", operator: "~", argument: UnaryExpression } -> {
+    /* 12.5.11 Bitwise NOT Operator ( ~ ) */
+
+    /* The production UnaryExpression : ~ UnaryExpression is evaluated as follows: */
+
+    /* 1. Let expr be the result of evaluating UnaryExpression. */
+    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 2. Let oldValue be ToInt32(GetValue(expr)). */
+    oldValue := ToInt32(GetValue(expr));
+    /* 3. ReturnIfAbrupt(oldValue). */
+    @ReturnIfAbrupt(oldValue);
+    /* 4. Return the result of applying bitwise complement to oldValue. The result is a signed 32-bit integer. */
+    return ~oldValue
+  }
+  | { type: "UnaryExpression", operator: "!", argument: UnaryExpression } -> {
+    /* 12.5.12 Logical NOT Operator ( ! ) */
+
+    /* The production UnaryExpression : ! UnaryExpression is evaluated as follows: */
+
+    /* 1. Let expr be the result of evaluating UnaryExpression. */
+    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 2. Let oldValue be ToBoolean(GetValue(expr)). */
+    oldValue := ToBoolean(GetValue(expr));
+    /* 3. ReturnIfAbrupt(oldValue). */
+    @ReturnIfAbrupt(oldValue);
+    /* 4. If oldValue is true, return false. */
+    return !oldValue
+  }
+};
+
+function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
+  match PostfixExpression with
+  | { type: "UpdateExpression", operator: "++", argument: LeftHandSideExpression, prefix: false } -> {
+    /* 12.4.4 Postfix Increment Operator */
+
+    /* The production PostfixExpression : LeftHandSideExpression [no LineTerminator here] ++ is evaluated as follows: */
+
+    /* 1. Let lhs be the result of evaluating LeftHandSideExpression. */
+    lhs := JS_Interpreter_Expr(LeftHandSideExpression, scope);
+    /* 2. Let oldValue be ToNumber(GetValue(lhs)). */
+    oldValue := ToNumber(GetValue(lhs));
+    /* 3. ReturnIfAbrupt(oldValue). */
+    @ReturnIfAbrupt(oldValue);
+    /* 4. Let newValue be the result of adding the value 1 from oldValue,
+      using the same rules as for the - operator (12.7.5). */
+    newValue := oldValue + 1.;
+    /* 5. Let status be PutValue(lhs, newValue). */
+    status := PutValue(lhs, newValue);
+    /* 6. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+    /* 7. Return oldValue. */
+    return oldValue
+  }
+  | { type: "UpdateExpression", operator: "--", argument: LeftHandSideExpression, prefix: false } -> {
+    /* 12.4.5 Postfix Decrement Operator */
+
+    /* The production PostfixExpression : LeftHandSideExpression [no LineTerminator here] -- is evaluated as follows: */
+
+    /* 1. Let lhs be the result of evaluating LeftHandSideExpression. */
+    lhs := JS_Interpreter_Expr(LeftHandSideExpression, scope);
+    /* 2. Let oldValue be ToNumber(GetValue(lhs)). */
+    oldValue := ToNumber(GetValue(lhs));
+    /* 3. ReturnIfAbrupt(oldValue). */
+    @ReturnIfAbrupt(oldValue);
+    /* 4. Let newValue be the result of adding the value 1 from oldValue,
+      using the same rules as for the - operator (12.7.5). */
+    newValue := oldValue - 1.;
+    /* 5. Let status be PutValue(lhs, newValue). */
+    status := PutValue(lhs, newValue);
+    /* 6. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+    /* 7. Return oldValue. */
+    return oldValue
+  }
+};
+
+function JS_Interpreter_Arguments(ArgumentsList, scope) {
+  /* 11.2.4 Argument Lists */
+  /* The evaluation of an argument list produces a List of values (see 8.8). */
+
+  /* The production ArgumentList : ArgumentList , AssignmentExpression is evaluated as follows:*/
+
+  args := [];
+  lArguments := l_len ArgumentsList;
+  i := 0;
+  /* 1. Let precedingArgs be the result of evaluating ArgumentList. */
+  while(lArguments > i) {
+    /* 2. Let ref be the result of evaluating AssignmentExpression. */
+    argument := l_nth(ArgumentsList, i);
+    ref := JS_Interpreter_Expr(argument, scope);
+    /* 3. Let arg be GetValue(ref). */
+    arg := GetValue(ref);
+
+    @ReturnIfAbrupt(arg);
+
+    if (argument.type = "SpreadElement") {
+      j := 0;
+      lSpread := l_len arg;
+      while (lSpread > j) {
+        args := l_add(args, l_nth(arg, j));
+        j := j + 1
+      }
+    } else {
+      args := l_add(args, arg)
+    };
+
+    i := i + 1
+  };
+
+  /* 4. Return a List whose length is one greater than the length of precedingArgs and whose items are the items of
+        precedingArgs, in order, followed at the end by arg which is the last item of the new list. */
+  return args
+};
+
+function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
+  /* 13 Function Definition */
+  match FunctionDeclaration with
+  | { id: Identifier, params: FormalParameterListopt, body: FunctionBody } -> {
+    if (FunctionDeclaration.generator = true){
+      fail "Unsupported: Generators"
+    };
+    scope := topExecStack();
+
+    /* 1. If the function code for FunctionDeclaration is strict mode code, let strict be true.
+          Otherwise let strict be false. */
+    if ( isStrictModeCode(FunctionBody, scope)) {
+      strict := true
+    } else {
+      strict := false
+    };
+
+    /* 2. Let name br StringValue of BindingIdentifier */
+    name := Identifier.name;
+
+    lex := getLexicalEnvironment(scope);
+
+    /* 3. Let F be FunctionCreate(Normal, FormalParameters, FunctionBody, scope, strict) */
+    F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, getLexicalEnvironment(scope), strict, null);
+
+    /* 4. Perform MakeConstructor(F) */
+    MakeConstructor(F, null, null);
+
+    /* 5. Perform SetFunctionName(F, name) */
+    SetFunctionName(F, name, null);
+
+    return F
+  }
+  | { id: null, params: FormalParameterListopt, body: FunctionBody } -> {
+    /* 14.1.19 2nd configuration */
+    if (FunctionDeclaration.generator = true){
+      fail "Unsupported: Generators"
+    };
+    /* 1. If the function code for FunctionDeclaration is strict mode code, let strict be true.
+          Otherwise let strict be false. */
+    if ( isStrictModeCode(FunctionBody, scope)) {
+      strict := true
+    } else {
+      strict := false
+    };
+
+    /* 2. Let F be FunctionCreate(Normal, FormalParameters, FunctionBody, scope, strict) */
+    F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, scope.LexicalEnvironment, strict, null);
+
+    /* 3. Perform MakeConstructor(F) */
+    MakeConstructor(F, null, null);
+
+    /* 4. Perform SetFunctionName(F, name) */
+    SetFunctionName(F, "default", null);
+
+    /* 5. Return F */
+    return F
+  }
+};
+
+function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
+  /* 13 Function Definition */
+  match FunctionExpression with
+  | { id: null, params: FormalParameterList, body: FunctionBody } -> {
+    /* We still do not support generators ): */
+    if (FunctionExpression.generator = true) {
+      fail "Unsupported: Generators"
+    };
+    if ( isStrictModeCode(FunctionBody, scope)) {
+      strict := true
+    } else {
+      strict := false
+    };
+
+    /* *??* function () {} has FormalParameterList of ['undefined] instead of []. Might actually be caused by a RestElement (...args) */
+    if ((l_len FormalParameterList > 0) &&& (l_nth(FormalParameterList, 0) = 'undefined)) {
+      FormalParameterList := []
+    };
+
+    closure := FunctionCreate("normal", FormalParameterList, FunctionBody, scope.LexicalEnvironment, strict, null);
+
+    MakeConstructor(closure, null, null);
+
+    return closure
+  }
+  | { id: Identifier, params: FormalParameterListopt, body: FunctionBody } -> {
+    if (FunctionExpression.generator = true) {
+      fail "Unsupported: Generators"
+    };
+    if ( isStrictModeCode(FunctionBody, scope)) {
+      strict := true
+    } else {
+      strict := false
+    };
+
+    runningContext := scope.LexicalEnvironment;
+
+    funcEnv := NewDeclarativeEnvironment(runningContext);
+
+    envRec := funcEnv.EnvRec;
+
+    name := StringValue(Identifier.name);
+
+    {envRec.CreateImmutableBinding}(envRec, name, false);
+
+    closure := FunctionCreate("normal", FormalParameterListopt, FunctionBody, funcEnv, strict, null);
+
+    MakeConstructor(closure, null, null);
+
+    SetFunctionName(closure, name, null);
+
+    {envRec.InitializeBinding}(envRec, name, closure);
+
+    return NormalCompletion(closure)
+  }
+};
+
+function JS_Interpreter_FunctionBody(FunctionBody, scope) {
+  match FunctionBody with
+  | { body: SourceElementsopt } -> {
+    /* The production FunctionBody : SourceElements opt is evaluated as follows: */
+
+    /* 1. The code of this FunctionBody is strict mode code if it is part of a FunctionDeclaration or
+          FunctionExpression that is contained in strict mode code or if the Directive Prologue (14.1)
+          of its SourceElements contains a Use Strict Directive or if any of the conditions in 10.1.1 apply.
+          If the code of this FunctionBody is strict mode code, SourceElements is evaluated in the following
+          steps as strict mode code. Otherwise, SourceElements is evaluated in the following steps as
+          non-strict mode code. */
+    /* 2. If SourceElements is present return the result of evaluating SourceElements. */
+
+    if (!(SourceElementsopt = [])) {
+      return JS_Interpreter_SourceElements(SourceElementsopt, scope)
+    }
+    /* 3. Else return (normal, undefined, empty). */
+    else {
+      return NormalCompletion('undefined)
+    }
+  }
+  | default -> {
+    /**
+      * 14.2.15 Runtime Semantics: EvaluateBody
+      *
+      * With parameter functionObject.
+      *
+      * See also: 14.1.17, 14.4.11.
+    */
+    /* 1. Let exprRef be the result of evaluating AssignmentExpression. */
+    exprRef := JS_Interpreter_Expr(FunctionBody, scope);
+    /* 2. Let exprValue be GetValue(exprRef). */
+    exprValue := GetValue(exprRef);
+    /* 3. ReturnIfAbrupt(exprValue). */
+    @ReturnIfAbrupt(exprValue);
+    /* 4. Return Completion{[[type]]: return, [[value]]: exprValue, [[target]]:
+      empty}. */
+    return newCompletion('return, exprValue, 'empty)
+  }
+};
+
+function JS_Interpreter_ObjectInitializer(objExpr, scope) {
+  /* 12.2.6 Object Initialiser */
+
+  match objExpr with
+  | { type: "ObjectExpression", properties: [] } -> { /* ObjectLiteral : { } */
+    /* 1. Return ObjectCreate(%ObjectPrototype%). */
+    return ObjectCreate(|Intrinsics|["ObjectPrototype"], null)
+  }
+  | { type: "ObjectExpression", properties: PropertyDefinitionList } -> {
+    /**
+     * ObjectLiteral :
+     *    { PropertyDefinitionList }
+     *    { PropertyDefinitionList , }
+     */
+    /* The production ObjectLiteral : { } is evaluated as follows: */
+    /* Return a new object created as if by the expression new Object() where Object
+        is the standard built-in constructor with that name. */
+
+    /* 1. Let obj be ObjectCreate(%ObjectPrototype%). */
+    obj := ObjectCreate(|Intrinsics|["ObjectPrototype"], null);
+    /* 2. Let status be the result of performing PropertyDefinitionEvaluation of PropertyDefinitionList with arguments obj and true. */
+    status := PropertyDefinitionListEvaluation(PropertyDefinitionList, obj, true, scope);
+    /* 3. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+    /* 4. Return obj. */
+    return obj
+  }
+};
+
+function PropertyDefinitionListEvaluation(PropertyDefinitionList, object, enumerable, scope) {
+  /* PropertyDefinitionList : PropertyDefinitionList , PropertyDefinition */
+  foreach(PropertyDefinition : PropertyDefinitionList) {
+    /* 1. Let status be the result of performing PropertyDefinitionEvaluation of PropertyDefinitionList with arguments object and enumerable. */
+    status := PropertyDefinitionEvaluation(PropertyDefinition, object, enumerable, scope);
+    /* 2. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status)
+    /* 3. Return the result of performing PropertyDefinitionEvaluation of PropertyDefinition with arguments object and enumerable. */
+  };
+  return status
+};
+
+function PropertyDefinitionEvaluation(PropertyDefinition, object, enumerable, scope) {
+  match PropertyDefinition with
+  | {key: PropertyName, value: IdentifierReference, kind: "init", shorthand: true, method: false} -> {
+    /* 12.2.6.9 PropertyDefinition : IdentifierReference */
+
+    /* 1. Let propName be StringValue of IdentifierReference. */
+    propName := IdentifierReference.name;
+    /* 2. Let exprValue be the result of evaluating IdentifierReference. */
+    exprValue := JS_Interpreter_Expr(IdentifierReference, scope);
+    /* 3. ReturnIfAbrupt(exprValue). */
+    @ReturnIfAbrupt(exprValue);
+    /* 4. Let propValue be GetValue(exprValue). */
+    propValue := GetValue(exprValue);
+    /* 5. ReturnIfAbrupt(propValue). */
+    @ReturnIfAbrupt(propValue);
+    /* 6. Assert: enumerable is true. */
+    assert(enumerable = true);
+    /* 7. Return CreateDataPropertyOrThrow(object, propName, propValue). */
+    return CreateDataPropertyOrThrow(object, propName, propValue)
+  }
+  | {key: PropertyName, value: AssignmentExpression, kind: "init", shorthand: false, method: false} -> {
+    /* 12.2.6.9 PropertyDefinition : PropertyName : AssignmentExpression */
+
+    /* 1. Let propKey be the result of evaluating PropertyName. */
+    propKey := JS_Interpreter_PropertyName(PropertyName, scope);
+    /* 2. ReturnIfAbrupt(propKey). */
+    @ReturnIfAbrupt(propKey);
+    /* 3. Let exprValueRef be the result of evaluating AssignmentExpression. */
+    exprValueRef := JS_Interpreter_Expr(AssignmentExpression, scope);
+    /* 4. Let propValue be GetValue(exprValueRef). */
+    propValue := GetValue(exprValueRef);
+    /* 5. ReturnIfAbrupt(propValue). */
+    @ReturnIfAbrupt(propValue);
+    /* 6. If IsAnonymousFunctionDefinition(AssignmentExpression) is true, then */
+    if (IsAnonymousFunctionDefinition(AssignmentExpression) = true) {
+      /* a. Let hasNameProperty be HasOwnProperty(propValue, "name"). */
+      hasNameProperty := HasOwnProperty(propValue, "name");
+      /* b. ReturnIfAbrupt(hasNameProperty). */
+      @ReturnIfAbrupt(hasNameProperty);
+      /* c. If hasNameProperty is false, perform SetFunctionName(propValue, propKey). */
+      if (hasNameProperty = false) {
+        SetFunctionName(propValue, propKey, null)
+      }
+    };
+    /* 7. Assert: enumerable is true. */
+    assert(enumerable = true);
+    /* 8. Return CreateDataPropertyOrThrow(object, propKey, propValue). */
+    return CreateDataPropertyOrThrow(object, propKey, propValue)
+  }
+  | { type: "SpreadElement", argument: AssignmentExpression } -> {
+    /* 13.2.6.5 of __ES12__(Not present in ES6 or ES8 so just used the most recent version). PropertyDefinition : ... AssignmentExpression */
+    /* 1. Let exprValue be the result of evaluating AssignmentExpression. */
+    exprValue := JS_Interpreter_Expr(AssignmentExpression, scope);
+    /* 2. Let fromValue be ? GetValue(exprValue). */
+    fromValue := GetValue(exprValue);
+    @ReturnIfAbrupt(fromValue);
+    /* 3. Let excludedNames be a new empty List. */
+    excludedNames := [];
+    /* 4. Return ? CopyDataProperties(object, fromValue, excludedNames). */
+    result := CopyDataProperties(object, fromValue, excludedNames);
+    @ReturnIfAbrupt(result);
+    return result
+  }
+  | default -> {
+    return MethodPropertyDefinitionEvaluation(scope, object, enumerable, PropertyDefinition)
+  }
+};
+
+function JS_Interpreter_PropertyName(PropertyName, scope) {
+  match PropertyName with
+  /* The production PropertyName : IdentifierName is evaluated as follows: */
+  | { type: "Identifier", name: IdentifierName } -> {
+    /* 1. Return the String value containing the same sequence of characters as the IdentifierName. */
+    return IdentifierName
+  }
+  /* The production PropertyName : StringLiteral is evaluated as follows: */
+  | { type: "Literal", value: Literal } -> {
+    /* Return the SV of the StringLiteral. */
+    if (typeof Literal = __$Str) {
+      return Literal
+    };
+    /* The production PropertyName : NumericLiteral is evaluated as follows: */
+
+    /* 1. Let nbr be the result of forming the value of the NumericLiteral. */
+    nbr := formingTheValueOfTheNumericLiteral(Literal);
+    /* 2. Return ToString(nbr). */
+    return ToString(nbr)
+  }
+  /* The production PropertyName : MemberExpression is evaluated as follows: */
+  | { type: "MemberExpression" } -> { /* TODO: Temporary solution. Not according to standard. To fix */
+    /* 12.2.6.8 ComputedPropertyName : [ AssignmentExpression ] */
+    /* 1. Let exprValue be the result of evaluating AssignmentExpression. */
+    exprValue := JS_Interpreter_Expr(PropertyName, scope);
+    /* 2. Let propName be GetValue(exprValue). */
+    propName := GetValue(exprValue);
+    /* 3. ReturnIfAbrupt(propName). */
+    @ReturnIfAbrupt(propName);
+    /* 4. Return ToPropertyKey(propName). */
+    return ToPropertyKey(propName)
+  }
+  | default -> {
+    exprValue := JS_Interpreter_Expr(PropertyName, scope);
+    /* 2. Let propName be GetValue(exprValue). */
+    propName := GetValue(exprValue);
+    /* 3. ReturnIfAbrupt(propName). */
+    @ReturnIfAbrupt(propName);
+    /* 4. Return ToPropertyKey(propName). */
+    return ToPropertyKey(propName)
+  }
+};
+
+macro PropagateBlockLabelSet(Block, Stmts) {
+  if ("labelSet" in_obj Block) {
+    labelSet := Block.labelSet;
+
+    first_stmt := l_nth(Stmts, 0);
+    if ("labelSet" in_obj first_stmt) {
+      first_stmt.labelSet := l_concat(first_stmt.labelSet, labelSet)
+    } else {
+      first_stmt.labelSet := labelSet
+    }
+  }
+};
+
+function JS_Interpreter_Stmt(s, scope) {
+  /* TODO: Debug print
+   *  - Current statement
+   *  - Current Scope (Current Environment Record)
+   *  - Breakpoint
+   */
+  match s with
+  | { type: "BlockStatement", body: StatementList } -> {
+    /* 13.2.13 Block */
+
+    /* Block : { } */
+    if ((l_len StatementList) = 0) {
+    /* 1. Return NormalCompletion(empty). */
+      return NormalCompletion('empty)
+    };
+
+    @PropagateBlockLabelSet(s, StatementList);
+
+    /* Block : { StatementList } */
+
+    /* 1. Let oldEnv be the running execution context's LexicalEnvironment. */
+    oldEnv := getLexicalEnvironment(scope);
+    /* 2. Let blockEnv be NewDeclarativeEnvironment(oldEnv). */
+    blockEnv := NewDeclarativeEnvironment(oldEnv);
+    /* 3. Perform BlockDeclarationInstantiation(StatementList, blockEnv). */
+    BlockDeclarationInstantiation(s, blockEnv.EnvRec);
+    /* 4. Set the running execution context's LexicalEnvironment to blockEnv. */
+    setLexicalEnvironment(scope, blockEnv);
+    /* 5. Let blockValue be the result of evaluating StatementList. */
+    blockValue := JS_Interpreter_StmtList(StatementList, scope);
+    /* 6. Set the running execution context's LexicalEnvironment to oldEnv. */
+    setLexicalEnvironment(scope, oldEnv);
+    /* 7. Return blockValue. */
+    return blockValue
+  }
+  | { type: "VariableDeclaration", declarations: VariableDeclarationList, kind: "var" } -> {
+    /* 13.3.2.4 Variable Statement */
+
+    /* VariableStatement : var VariableDeclarationList ; */
+    /* 1. Let next be the result of evaluating VariableDeclarationList. */
+    /* 2. ReturnIfAbrupt(next). */
+    /* 3. Return NormalCompletion( empty). */
+    /* VariableDeclarationList : VariableDeclarationList , VariableDeclaration */
+    /* 1. Let next be the result of evaluating VariableDeclarationList. */
+    /* 2. ReturnIfAbrupt(next). */
+    /* 3. Return the result of evaluating VariableDeclaration. */
+
+    foreach (VariableDeclaration : VariableDeclarationList) {
+      next := JS_Interpreter_VarDecl(VariableDeclaration, scope);
+      @ReturnIfAbrupt(next)
+    };
+    /* 2. Return (normal, empty, empty).*/
+    return NormalCompletion('empty)
+  }
+  | { type: "VariableDeclaration", declarations: BindingList, kind: kind } -> {
+    /* 13.3.1.4 LexicalDeclaration : LetOrConst BindingList */
+    /* 1. Let next be the result of evaluating BindingList. */
+    next := JS_Interpreter_BindingList(BindingList, scope);
+    /* 2. ReturnIfAbrupt(next). */
+    @ReturnIfAbrupt(next);
+    /* 3. Return NormalCompletion(empty). */
+    return NormalCompletion('empty)
+  }
+  | { type: "EmptyStatement" } -> {
+    /* 13.4 Empty Statement */
+    /* 1. Return NormalCompletion(empty). */
+    return NormalCompletion('empty)
+  }
+  | { type: "ExpressionStatement", expression: Expression } -> {
+    /* 13.5 Expression Statement */
+
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 2. Return (normal, GetValue(exprRef), empty). ES5 */
+    /* return NormalCompletion(GetValue(exprRef)) */
+
+    exprValue := GetValue(exprRef);
+
+    /*return NormalCompletion(exprValue);*/
+
+    if (Type(exprValue) = "Completion") {
+      return exprValue
+    }
+    else {
+      return NormalCompletion(exprValue)
+    }
+    /* 2. Return GetValue(exprRef). ES6 */
+    /*return GetValue(exprRef)*/
+
+    /* @ReturnIfAbrupt(exprRef);
+    /* 2. Return (normal, GetValue(exprRef), empty). */
+    /* return NormalCompletion(GetValue(exprRef)) */
+  }
+  | { type: "IfStatement" } -> {
+    /* 13.6 The if Statement */
+    /* Each else for which the choice of associated if is ambiguous shall be associated with the nearest possible
+       if that would otherwise have no corresponding else. */
+    return JS_Interpreter_IfStatement(s, scope)
+  }
+  | { type: "LabeledStatement"/*, label: Identifier, body: Statement */} -> {
+    /* 12.12 Labelled Statements */
+    /* The production Identifier : Statement is evaluated by adding Identifier to the label set of Statement
+      and then evaluating Statement. */
+
+    /*if (!("labelSet" in_obj Statement)) {
+      Statement.labelSet := []
+    };
+    Statement.labelSet := l_add(Statement.labelSet, Identifier.name);
+    /* If the LabelledStatement itself has a non-empty label set, these labels are also added to
+       the label set of Statement before evaluating it */
+    /*if ("labelSet" in_obj s) {
+      Statement.labelSet := l_concat(s.labelSet, Statement.labelSet)
+    };
+    */
+    return JS_Interpreter_LabelledStmt(s, scope)
+    /* return JS_Interpreter_Stmt(Statement, scope) */
+  }
+  /* The label set of an IterationStatement or a SwitchStatement initially contains the single element empty. */
+  | { type: "DoWhileStatement" } -> {
+    if (!("labelSet" in_obj s)) {
+      s.labelSet := []
+    };
+
+    s.labelSet := l_add(s.labelSet, 'empty);
+
+    return JS_Interpreter_BreakableStatement(s, scope)
+  }
+  | { type: "WhileStatement" } -> {
+    if (!("labelSet" in_obj s)) {
+      s.labelSet := []
+    };
+
+    s.labelSet := l_add(s.labelSet, 'empty);
+    return JS_Interpreter_BreakableStatement(s, scope)
+  }
+  | { type: "ForStatement" } -> {
+    if (!("labelSet" in_obj s)) {
+      s.labelSet := []
+    };
+
+    s.labelSet := l_add(s.labelSet, 'empty);
+
+    return JS_Interpreter_BreakableStatement(s, scope)
+  }
+  | { type: "ForInStatement" } -> {
+    if (!("labelSet" in_obj s)) {
+      s.labelSet := []
+    };
+
+    s.labelSet := l_add(s.labelSet, 'empty);
+
+    return JS_Interpreter_BreakableStatement(s, scope)
+
+  }
+  | { type: "ForOfStatement" } -> {
+    if (!("labelSet" in_obj s)) {
+      s.labelSet := []
+    };
+
+    s.labelSet := l_add(s.labelSet, 'empty);
+    return JS_Interpreter_BreakableStatement(s, scope)
+  }
+  | { type: "ContinueStatement", label: LabelIdentifier } -> {
+    /* 13.8 The continue Statement */
+    /* A ContinueStatement without an Identifier is evaluated as follows: */
+
+    if (LabelIdentifier = null) {
+      /* 1. Return Completion{[[type]]: continue, [[value]]: empty, [[target]]: empty}. */
+
+      return newCompletion('continue, 'empty, 'empty)
+    };
+
+    /* A ContinueStatement with the optional Identifier is evaluated as follows: */
+    /* 1. Let label be the StringValue of LabelIdentifier. */
+    label := LabelIdentifier;
+    /* 2. Return Completion{[[type]]: continue, [[value]]: empty, [[target]]: label }. */
+    return newCompletion('continue, 'empty, label)
+  }
+  | { type: "BreakStatement", label: LabelIdentifier } -> {
+    /* 13.9 The break Statement */
+    /* A BreakStatement without an LabelIdentifier is evaluated as follows: */
+    if (LabelIdentifier = null) {
+      /* 1. Return Completion{[[type]]: break, [[value]]: empty, [[target]]: empty}. */
+      return newCompletion('break, 'empty, 'empty)
+    };
+
+
+    /* A BreakStatement with an Identifier is evaluated as follows:
+    /* 1. Let label be the StringValue of LabelIdentifier. */
+    label := LabelIdentifier;
+    /* 2. Return Completion{[[type]]: break, [[value]]: empty, [[target]]: label }. */
+    return newCompletion('break, 'empty, label)
+  }
+  | { type: "ReturnStatement", argument: null } -> {
+    /* 13.10 The return Statement */
+
+    /* 1. Return Completion{[[type]]: return, [[value]]: undefined, [[target]]: empty}. */
+    return newCompletion('return, 'undefined, 'empty)
+  }
+  | { type: "ReturnStatement", argument: Expression } -> {
+    /* 13.10 The return Statement */
+
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 2. Let exprValue be GetValue(exprRef). */
+    exprValue := GetValue(exprRef);
+    /* 3. ReturnIfAbrupt(exprValue). */
+    @ReturnIfAbrupt(exprValue);
+    /* 4. Return Completion{[[type]]: return, [[value]]: exprValue, [[target]]: empty}. */
+    return newCompletion('return, exprValue, 'empty)
+  }
+  | { type: "WithStatement", object: Expression, body: Statement } -> {
+    /* 13.11 The with Statement */
+
+  /*  /* The with statement adds an object environment record for a computed object to the lexical environment of
+  /*     the current execution context. It then executes a statement using this augmented lexical environment.
+  /*     Finally, it restores the original lexical environment. */
+  /*
+  /*  /* The production WithStatement : with ( Expression ) Statement is evaluated as follows: */
+
+/**
+ * 13.11.7 Runtime Semantics: Evaluation
+ *
+ * NOTE No matter how control leaves the embedded Statement, whether normally or
+ * by some form of abrupt completion or exception, the LexicalEnvironment is
+ * always restored to its former state.
+ */
+  /* 1. Let val be the result of evaluating Expression. */
+  val := JS_Interpreter_Expr(Expression, scope);
+  /* 2. Let obj be ToObject(GetValue(val)). */
+  obj := ToObject(GetValue(val));
+  /* 3. ReturnIfAbrupt(obj). */
+  @ReturnIfAbrupt(obj);
+  /* 4. Let oldEnv be the running execution context's LexicalEnvironment. */
+  oldEnv := getLexicalEnvironment(scope);
+  /* 5. Let newEnv be NewObjectEnvironment(obj, oldEnv). */
+  newEnv := NewObjectEnvironment(obj, oldEnv);
+  /* 6. Set the withEnvironment flag of newEnv's EnvironmentRecord to true. */
+  newEnv.EnvRec.withEnvironment := true;
+  setProvideThis(newEnv, true);
+  /* 7. Set the running execution context's LexicalEnvironment to newEnv. */
+  setLexicalEnvironment(scope, newEnv);
+  /* 8. Let C be the result of evaluating Statement. */
+  C := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
+  /* 9. Set the running execution context's Lexical Environment to oldEnv. */
+  setLexicalEnvironment(scope, oldEnv);
+  /* 10. If C.[[type]] is normal and C.[[value]] is empty, */
+  if (getCompletionType(C) = 'normal &&& getCompletionValue(C) = 'empty) {
+    /* return NormalCompletion(undefined) */
+    return NormalCompletion('undefined)
+  };
+  /* 11. Return Completion(C). */
+  return Completion(C)
+  /**
+   * NOTE No matter how control leaves the embedded Statement, whether normally or
+   * by some form of abrupt completion or exception, the LexicalEnvironment is
+   * always restored to its former state.
+   */
+  }
+  | { type: "SwitchStatement" } -> {
+    if (!("labelSet" in_obj s)) {
+      s.labelSet := []
+    };
+
+    s.labelSet := l_add(s.labelSet, 'empty);
+
+    return JS_Interpreter_BreakableStatement(s, scope)
+
+  /* return JS_Interpreter_SwitchStatement(s, scope) */
+  }
+  | { type: "ThrowStatement", argument: Expression } -> {
+    /* 13.14 The throw Statement */
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+
+    /* 2. Let exprValue be GetValue(exprRef). */
+    exprValue := GetValue(exprRef);
+    /* 3. ReturnIfAbrupt(exprValue). */
+    @ReturnIfAbrupt(exprValue);
+
+    /* 4. Return Completion{[[type]]: throw, [[value]]: exprValue, [[target]]: empty}. */
+    return newCompletion('throw, exprValue, 'empty)
+  }
+  | { type: "TryStatement" } -> {
+    /* 13.15 The try Statement */
+
+    /* The try statement encloses a block of code in which an exceptional condition can occur, such as a runtime
+       error or a throw statement. The catch clause provides the exception-handling code. When a catch clause
+       catches an exception, its Identifier is bound to that exception. */
+
+    return JS_Interpreter_TryStatement(s, scope)
+  }
+  | { type: "DebuggerStatement" } -> {
+    /* 13.16.1 The debugger statement */
+
+    /* Evaluating the DebuggerStatement production may allow an implementation to cause a breakpoint when run
+       under a debugger. If a debugger is not present or active this statement has no observable effect. */
+
+    /* The production DebuggerStatement : debugger ; is evaluated as follows: */
+
+    /* 1. If an implementation defined debugging facility is available and enabled, then */
+    if(existsDebuggerImplementation()) {
+      /* a. Perform an implementation defined debugging action. */
+      /* b. Let result be an implementation defined Completion value. */
+      result := debuggerAction()
+    }
+    /* 2. Else */
+    else {
+      /* a. Let result be NormalCompletion(empty). */
+      result := NormalCompletion('empty)
+    };
+    /* 3. Return result. */
+    return result
+  }
+  | { type: "ClassDeclaration", id: BindingIdentifier, superClass: ClassHeritageopt, body: ClassBodyopt } -> {
+    return JS_Interpreter_ClassEvaluation(scope, BindingIdentifier, ClassHeritageopt, ClassBodyopt)
+  } | default -> {
+    fail "Statement not matched"
+  }
+};
+
+function JS_Interpreter_BindingList(BindingList, scope) {
+  /* 13.3.1.4 BindingList : BindingList , LexicalBinding */
+  foreach (LexicalBinding : BindingList) {
+    /* 1. Let next be the result of evaluating BindingList. */
+    next := JS_Interpreter_LexicalDecl(LexicalBinding, scope);
+    /* 2. ReturnIfAbrupt(next). */
+    @ReturnIfAbrupt(next)
+  };
+  /* 3. Return the result of evaluating LexicalBinding. */
+  return next
+};
+
+/* 13.6.7 If Statement Runtime Semantics: Evaluation */
+function JS_Interpreter_IfStatement(IfStatement, scope) {
+  match IfStatement with
+  | { type: "IfStatement", test: Expression, consequent: Statement, alternate: null } -> {
+    /* The production IfStatement : if ( Expression ) Statement is evaluated as follows: */
+
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope) catch Interpreter_Statement_Guard;
+    /* 2. Let exprValue be ToBoolean(GetValue(exprRef)). */
+    exprValue :=  ToBoolean(GetValue(exprRef));
+    /* 3.ReturnIfAbrupt(exprValue). */
+    @ReturnIfAbrupt(exprValue);
+    /* 4. If exprValue is false, then */
+    if (exprValue = false) {
+      /* a. Return NormalCompletion(undefined). */
+      return NormalCompletion('undefined)
+    }
+    /* 5. Else, */
+    else {
+      /* a. Let stmtCompletion be the result of evaluating Statement. */
+      stmtCompletion := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
+      /* b. ReturnIfAbrupt(stmtCompletion). */
+      copy := stmtCompletion;
+      @ReturnIfAbrupt(copy);
+      /* c. If stmtCompletion.[[value]] is not empty, return stmtCompletion. */
+      if (!(getCompletionValue(stmtCompletion) = 'empty)){
+        return stmtCompletion
+      };
+      /* d. Return NormalCompletion(undefined). */
+      return NormalCompletion('undefined)
+    }
+  }
+  | { type: "IfStatement", test: Expression, consequent: Statement1, alternate: Statement2 } -> {
+    /* The production IfStatement : if ( Expression ) Statement else Statement is evaluated as follows: */
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 2. Let exprValue be ToBoolean(GetValue(exprRef)). */
+    exprValue := ToBoolean(GetValue(exprRef));
+    /* 3. ReturnIfAbrupt(exprValue). */
+    @ReturnIfAbrupt(exprValue);
+    /* 4. If exprValue is true, then */
+    if (exprValue = true) {
+      /* a. Let stmtCompletion be the result of evaluating the first Statement. */
+      stmtCompletion := JS_Interpreter_Stmt(Statement1, scope)
+    }
+    /* 5. Else, */
+    else {
+      /* a. Let stmtCompletion be the result of evaluating the second Statement. */
+      stmtCompletion := JS_Interpreter_Stmt(Statement2, scope)
+    };
+    /* 6. ReturnIfAbrupt(stmtCompletion). */
+    copy := stmtCompletion;
+    @ReturnIfAbrupt(copy);
+    /* 7. If stmtCompletion.[[value]] is not empty, return stmtCompletion. */
+    if (!(getCompletionValue(stmtCompletion) = 'empty)){
+      return stmtCompletion
+    };
+    /* 8. Return NormalCompletion(undefined). */
+    return NormalCompletion('undefined)
+  }
+};
+
+/** 13.15 */
+function JS_Interpreter_TryStatement(TryStatement, scope) {
+  match TryStatement with
+  | { type: "TryStatement", block: Block, handler: Catch, finalizer: null } -> {
+    /* The production TryStatement : try Block Catch is evaluated as follows: */
+
+    /* 1. Let B be the result of evaluating Block. */
+    B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
+
+    /* 2. If B.[[type]] is throw, then */
+    if (getCompletionType(B) = 'throw) {
+      /* a. Let C be CatchClauseEvaluation of Catch with parameter B.[[value]]. */
+      C := JS_Interpreter_Catch(Catch, getCompletionValue(B), scope)
+    }
+    /* 3. Else B.[[type]] is not throw, */
+    else {
+      /* a. Let C be B. */
+      C := B
+    };
+    /* 4. If C.[[type]] is return, or C.[[type]] is throw, return Completion(C). */
+    if (getCompletionType(C) = 'return ||| getCompletionType(C) = 'throw) {
+      return Completion(C)
+    };
+    /* 5. If C.[[value]] is not empty, return Completion(C). */
+    if (!(getCompletionValue(C) = 'empty)) {
+      return Completion(C)
+    };
+    /* 6. Return Completion{[[type]]: C.[[type]], [[value]]: undefined, [[target]]: C.[[target]]}. */
+    return newCompletion(getCompletionType(C), 'undefined, getCompletionTarget(C))
+
+  }
+  | { type: "TryStatement", block: Block, handler: null, finalizer: Finally } -> {
+    /* The production TryStatement : try Block Finally is evaluated as follows: */
+
+    /* 1. Let B be the result of evaluating Block. */
+    B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
+
+    /* 2. Let F be the result of evaluating Finally. */
+    F := JS_Interpreter_Stmt(Finally, scope) catch Interpreter_Statement_Guard;
+
+    /* 3. If F.[[type]] is normal, let F be B. */
+    if (getCompletionType(F) = 'normal) {
+      F := B
+    };
+    /* 4. If F.[[type]] is return, or F.[[type]] is throw, return Completion(F). */
+    if (getCompletionType(F) = 'return ||| getCompletionType(F) = 'throw) {
+      return Completion(F)
+    };
+    /* 5. If F.[[value]] is not empty, return Completion(F). */
+    if (!(getCompletionValue(F) = 'empty)) {
+      return Completion(F)
+    };
+
+    /* 6. Return Completion{[[type]]: F.[[type]], [[value]]: undefined, [[target]]: F.[[target]]}. */
+    return newCompletion(getCompletionType(F), 'undefined, getCompletionTarget(F))
+  }
+  | { type: "TryStatement", block: Block, handler: Catch, finalizer: Finally } -> {
+    /* The production TryStatement : try Block Catch Finally is evaluated as follows: */
+    /* 1. Let B be the result of evaluating Block. */
+    B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
+
+    /* 2. If B.[[type]] is throw, then */
+    if (getCompletionType(B) = 'throw) {
+      /* a. Let C be CatchClauseEvaluation of Catch with parameter B.[[value]]. */
+      C := JS_Interpreter_Catch(Catch, getCompletionValue(B), scope)
+    }
+    /* 3. Else B.[[type]] is not throw, let C be B. */
+    else {
+      C := B
+    };
+    /* 4. Let F be the result of evaluating Finally. */
+    F := JS_Interpreter_Stmt(Finally, scope) catch Interpreter_Statement_Guard;
+    /* 5. If F.[[type]] is normal, let F be C. */
+    if (getCompletionType(F) = 'normal) {
+      F := C
+    };
+    /* 6. If F.[[type]] is return, or F.[[type]] is throw, return Completion(F). */
+    if (getCompletionType(F) = 'return ||| getCompletionType(F) = 'throw) {
+      return Completion(F)
+    };
+    /* 7. If F.[[value]] is not empty, return NormalCompletion(F.[[value]]). */
+    if (!(getCompletionValue(F) = 'empty)) {
+      /* Non empty continue/break is lost wihout this check */
+      if (getCompletionType(F) in_list ['continue, 'break]){
+        return Completion(F)
+      };
+      return NormalCompletion(getCompletionValue(F))
+    };
+    /* 8. Return Completion{[[type]]: F.[[type]], [[value]]: undefined, [[target]]: F.[[target]]}. */
+    return newCompletion(getCompletionType(F), 'undefined, getCompletionTarget(F))
+  }
+};
+
+/* 13.15.7 Runtime Semantics: CatchClauseEvaluation */
+function JS_Interpreter_Catch(Catch, thrownValue, scope) {
+  match Catch with
+  | { type: "CatchClause", param: Identifier, body: Block } -> {
+    /* The production Catch : catch ( CatchParameter ) Block is evaluated as follows: */
+
+    /* 1. Let oldEnv be the running execution context's LexicalEnvironment. */
+    oldEnv := getLexicalEnvironment(scope);
+    /* 2. Let catchEnv be NewDeclarativeEnvironment(oldEnv). */
+    catchEnv := NewDeclarativeEnvironment(oldEnv);
+    /* 3. For each element argName of the BoundNames of CatchParameter, do */
+    foreach(argName : Catch.paramsNames) {
+      /* a. Perform catchEnv.CreateMutableBinding(argName). */
+      res := {catchEnv.EnvRec.CreateMutableBinding}(catchEnv.EnvRec, argName, false);
+      /* b. Assert: The above call to CreateMutableBinding will never return an abrupt completion. */
+      assert(!(isAnAbruptCompletion(res)))
+    };
+
+    /* 4. Set the running execution context's LexicalEnvironment to catchEnv. */
+    setLexicalEnvironment(scope, catchEnv);
+    /* 5. Let status be the result of performing BindingInitialization for CatchParameter
+          passing thrownValue and catchEnv as arguments. */
+    status := BindingInitialization(Identifier, thrownValue, {LexicalEnvironment: catchEnv}, null);
+
+    /* 6. If status is an abrupt completion, then */
+    if (isAnAbruptCompletion(status)) {
+      /* a. Set the running execution context's LexicalEnvironment to oldEnv. */
+      setLexicalEnvironment(scope, oldEnv);
+      /* b. Return Completion(status). */
+      return Completion(status)
+    };
+    /* 7. Let B be the result of evaluating Block. */
+    B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
+    /* 8. Set the running execution context's LexicalEnvironment to oldEnv. */
+    setLexicalEnvironment(scope, oldEnv);
+    /* 9. Return Completion(B). */
+    return Completion(B)
+  }
+};
+
+/* 13.3.2.4 Runtime Semantics: Evaluation */
+function JS_Interpreter_VarDecl(variableDeclaration, scope) {
+
+  match variableDeclaration with
+  | { type: "VariableDeclarator", id: Identifier, init: null } -> {
+    /* VariableDeclaration : BindingIdentifier */
+    /* 1. Return NormalCompletion(empty). */
+    return NormalCompletion('empty)
+  }
+  | { type: "VariableDeclarator", id: id, init: Initializer } -> {
+    if (id.type = "Identifier"){
+    BindingIdentifier := id.name;
+
+      /* VariableDeclaration : BindingIdentifier Initializer */
+
+      /** NOTE: If a VariableDeclaration is nested within a with statement and the
+            BindingIdentifier in the VariableDeclaration is the same as a property name
+            of the binding object of the with statement’s object Environment Record,
+            then step 7 will assign value to the property instead of assigning to the
+            VariableEnvironment binding of the Identifier.*/
+
+      /* 1. Let bindingId be StringValue of BindingIdentifier. */
+      bindingId := StringValue(BindingIdentifier);
+      /* 2. Let lhs be ResolveBinding(bindingId). */
+      lhs := ResolveBinding(scope, bindingId, null);
+      /* 3. ReturnIfAbrupt(lhs). */
+      @ReturnIfAbrupt(lhs);
+      /* 4. Let rhs be the result of evaluating Initializer. */
+      rhs := JS_Interpreter_Expr(Initializer, scope);
+      /* 5. Let value be GetValue(rhs). */
+      value := GetValue(rhs);
+      /* 6. ReturnIfAbrupt(value). */
+      @ReturnIfAbrupt(value);
+      /* 7. If IsAnonymousFunctionDefinition(Initializer) is true, then */
+      if (IsAnonymousFunctionDefinition(Initializer) = true){
+        /* a. Let hasNameProperty be HasOwnProperty(value, "name"). */
+        hasNameProperty := HasOwnProperty(value, "name");
+        /* b. ReturnIfAbrupt(hasNameProperty). */
+        @ReturnIfAbrupt(hasNameProperty);
+        /* c. If hasNameProperty is false, perform SetFunctionName(value, bindingId). */
+        if (hasNameProperty = false){
+          SetFunctionName(value, bindingId, null)
+        }
+      };
+      /* 8. Return PutValue(lhs, value). */
+      return PutValue(lhs, value)
+    }
+    else{
+      /* VariableDeclaration : BindingPattern Initializer */
+      BindingPattern := id;
+
+      /* 1. Let rhs be the result of evaluating Initializer. */
+      rhs := JS_Interpreter_Expr(Initializer, scope);
+      /* 2. Let rval be GetValue(rhs). */
+      rval := GetValue(rhs);
+      /* 3. ReturnIfAbrupt(rval). */
+      @ReturnIfAbrupt(rval);
+      /* 4. Return the result of performing BindingInitialization for BindingPattern
+              passing rval and undefined as arguments.*/
+      return DestructuringAssignmentEvaluation(BindingPattern, rval, scope, null)
+    }
+  }
+  | { type: "VariableDeclaration", declarations: VariableDeclarationListNoIn } -> {
+    /* Pattern created specifically for the ForInStatement where the VariableDeclarationListNoIn can only contain one VariableDeclarator
+       and where the String returned by this function is used in the evaluation of the ForInStatement */
+    ret := 'null;
+    i := 0;
+    ldeclarations := l_len VariableDeclarationListNoIn;
+    while (ldeclarations > i) {
+      ret := JS_Interpreter_VarDecl(l_nth(VariableDeclarationListNoIn, i), scope);
+      i := i + 1
+    };
+
+    return ret
+  }
+};
+
+function JS_Interpreter_LexicalDecl(LexicalDeclaration, scope){
+  match LexicalDeclaration with
+  | { type: "VariableDeclarator", id: id, init: null } -> {
+    BindingIdentifier := id.name;
+    /* LexicalBinding : BindingIdentifier */
+    /* 1. Let lhs be ResolveBinding(StringValue of BindingIdentifier). */
+    lhs := ResolveBinding(scope, StringValue(BindingIdentifier), null);
+    /* 2. Return InitializeReferencedBinding(lhs, undefined). */
+    return InitializeReferencedBinding(lhs, 'undefined)
+
+  /* NOTE: A static semantics rule ensures that this form of LexicalBinding never occurs in a const declaration. */
+
+  }
+  | { type: "VariableDeclarator", id: id, init: Initializer } -> {
+    if (id.type = "Identifier"){
+      BindingIdentifier := id.name;
+      /* LexicalBinding : BindingIdentifier Initializer */
+      /* 1. Let bindingId be StringValue of BindingIdentifier. */
+      bindingId := StringValue(BindingIdentifier);
+      /* 2. Let lhs be ResolveBinding(bindingId). */
+      lhs := ResolveBinding(scope, bindingId, null);
+      /* 3. Let rhs be the result of evaluating Initializer. */
+      rhs := JS_Interpreter_Expr(Initializer, scope);
+      /* 4. Let value be GetValue(rhs). */
+      value := GetValue(rhs);
+      /* 5. ReturnIfAbrupt(value). */
+      @ReturnIfAbrupt(value);
+      /* 6. If IsAnonymousFunctionDefinition(Initializer) is true, then */
+      if (IsAnonymousFunctionDefinition(Initializer) = true){
+        /* a. Let hasNameProperty be HasOwnProperty(value, "name"). */
+        hasNameProperty := HasOwnProperty(value, "name");
+        /* b. ReturnIfAbrupt(hasNameProperty). */
+        @ReturnIfAbrupt(hasNameProperty);
+        /* c. If hasNameProperty is false, perform SetFunctionName(value, bindingId). */
+        if (hasNameProperty = false){
+          SetFunctionName(value, bindingId, null)
+        }
+      };
+      /* 7. Return InitializeReferencedBinding(lhs, value). */
+      return InitializeReferencedBinding(lhs, value)
+    }
+    else {
+      /* LexicalBinding : BindingPattern Initializer */
+      BindingPattern := id;
+      /* 1. Let rhs be the result of evaluating Initializer. */
+      rhs := JS_Interpreter_Expr(Initializer, scope);
+      /* 2. Let value be GetValue(rhs). */
+      value := GetValue(rhs);
+      /* 3. ReturnIfAbrupt(value). */
+      @ReturnIfAbrupt(value);
+      /* 4. Let env be the running execution context’s LexicalEnvironment. */
+      env := getLexicalEnvironment(scope);
+      /* 5. Return the result of performing BindingInitialization for BindingPattern
+            using value and env as the arguments. */
+      return BindingInitialization(BindingPattern, value, {LexicalEnvironment: env}, null)
+    }
+  }
+};
+
+function JS_Interpreter_StmtList(stmts, scope) {
+
+  /* StatementList : StatementList StatementListItem */
+  if (l_len stmts = 1) {
+  Statement := l_nth(stmts, 0);
+    s := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
+    return s
+  };
+
+  i := (l_len stmts) - 1;
+  Statement := l_nth(stmts, i);
+  StatementList := [];
+  while(i > 0) {
+    i := i - 1;
+    StatementList := l_prepend(l_nth(stmts, i), StatementList)
+  };
+
+  /* 1. Let sl be the result of evaluating StatementList. */
+  sl := JS_Interpreter_StmtList(StatementList, scope);
+  /* 2. ReturnIfAbrupt(sl). */
+  copy := sl;
+  @ReturnIfAbrupt(copy);
+  /* 3. Let s be the result of evaluating StatementListItem. */
+  s := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
+  /* 4. Return Completion(UpdateEmpty(s, sl.[[value]])). */
+  return Completion(UpdateEmpty(s, getCompletionValue(sl)))
+
+};
+
+function JS_Interpreter_BinExpr(e, scope) {
+  match e with
+  /* 12.6.3 Multiplicative Operators */
+  | { type: "BinaryExpression", operator: "*", left: MultiplicativeExpression, right: UnaryExpression } -> {
+    /* 1. Let left be the result of evaluating MultiplicativeExpression. */
+    left := JS_Interpreter_Expr(MultiplicativeExpression, scope);
+    /* 2. Let leftValue be GetValue(left). */
+    leftValue := GetValue(left);
+    /* 3. ReturnIfAbrupt(leftValue). */
+    @ReturnIfAbrupt(leftValue);
+    /* 4. Let right be the result of evaluating UnaryExpression. */
+    right := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 5. Let rightValue be GetValue(right). */
+    rightValue := GetValue(right);
+    /* 6. Let lnum be ToNumber(leftValue). */
+    lnum := ToNumber(leftValue);
+    /* 7. ReturnIfAbrupt(lnum). */
+    @ReturnIfAbrupt(lnum);
+    /* 8. Let rnum be ToNumber(rightValue). */
+    rnum := ToNumber(rightValue);
+    /* 9. ReturnIfAbrupt(rnum). */
+    @ReturnIfAbrupt(rnum);
+    /* 12.6.3.1 Applying the * Operator */
+    /* The * operator performs multiplication, producing the product of its operands. Multiplication is commutative.
+       Multiplication is not always associative in ECMAScript, because of finite precision.
+       The result of a floating-point multiplication is governed by the rules of IEEE 754 binary double-precision
+       arithmetic: */
+
+    /* If either operand is NaN, the result is NaN. */
+    /* The sign of the result is positive if both operands have the same sign, negative if the operands have different signs. */
+    /* Multiplication of an infinity by a zero results in NaN. */
+    /* Multiplication of an infinity by an infinity results in an infinity. The sign is determined by the rule already stated above. */
+    /* Multiplication of an infinity by a finite nonzero value results in a signed infinity. The sign is determined by the rule already stated above. */
+    /* In the remaining cases, where neither an infinity or NaN is involved, the product is computed and rounded to the nearest representable value
+       using IEEE 754 round-to-nearest mode. If the magnitude is too large to represent, the result is then an infinity of appropriate sign.
+       If the magnitude is too small to represent, the result is then a zero of appropriate sign.
+       The ECMAScript language requires support of gradual underflow as defined by IEEE 754. */
+    return lnum * rnum
+  }
+  | { type: "BinaryExpression", operator: "/", left: MultiplicativeExpression, right: UnaryExpression } -> {
+    /* 12.6.3 Multiplicative Operators */
+    /* The production MultiplicativeExpression : MultiplicativeExpression @ UnaryExpression, where @ stands for one
+       of the operators in the above definitions, is evaluated as follows: */
+
+    /* 1. Let left be the result of evaluating MultiplicativeExpression. */
+    left := JS_Interpreter_Expr(MultiplicativeExpression, scope);
+    /* 2. Let leftValue be GetValue(left). */
+    leftValue := GetValue(left);
+    /* 3. ReturnIfAbrupt(leftValue). */
+    @ReturnIfAbrupt(leftValue);
+    /* 4. Let right be the result of evaluating UnaryExpression. */
+    right := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 5. Let rightValue be GetValue(right). */
+    rightValue := GetValue(right);
+    /* 6. Let lnum be ToNumber(leftValue). */
+    lnum := ToNumber(leftValue);
+    /* 7. ReturnIfAbrupt(lnum). */
+    @ReturnIfAbrupt(lnum);
+    /* 8. Let rnum be ToNumber(rightValue). */
+    rnum := ToNumber(rightValue);
+    /* 9. ReturnIfAbrupt(rnum). */
+    @ReturnIfAbrupt(rnum);
+
+    /* 12.6.3.2 Applying the / Operator */
+    /* The / operator performs division, producing the quotient of its operands. The left operand is the dividend and
+       the right operand is the divisor. ECMAScript does not perform integer division. The operands and result of all
+       division operations are double-precision floating-point numbers. The result of division is determined by the
+       specification of IEEE 754 arithmetic: */
+
+    /* If either operand is NaN, the result is NaN. */
+    /* The sign of the result is positive if both operands have the same sign, negative if the operands have different signs. */
+    /* Division of an infinity by an infinity results in NaN. */
+    /* Division of an infinity by a zero results in an infinity. The sign is determined by the rule already stated above. */
+    /* Division of an infinity by a nonzero finite value results in a signed infinity. The sign is determined by the rule already stated above. */
+    /* Division of a finite value by an infinity results in zero. The sign is determined by the rule already stated above. */
+    /* Division of a zero by a zero results in NaN; division of zero by any other finite value results in zero, with the sign determined by the rule already stated above. */
+    /* Division of a nonzero finite value by a zero results in a signed infinity. The sign is determined by the rule already stated above. */
+
+    /* In the remaining cases, where neither an infinity, nor a zero, nor NaN is involved, the quotient is computed and rounded
+       to the nearest representable value using IEEE 754 round-to-nearest mode. If the magnitude is too large to represent,
+       the operation overflows; the result is then an infinity of appropriate sign. If the magnitude is too small to represent, the
+       operation underflows and the result is a zero of the appropriate sign. The ECMAScript language requires support of
+       gradual underflow as defined by IEEE 754. */
+    return lnum / rnum
+  }
+  | { type: "BinaryExpression", operator: "%", left: MultiplicativeExpression, right: UnaryExpression } -> {
+    /* 12.6.3 Multiplicative Operators */
+    /* The production MultiplicativeExpression : MultiplicativeExpression @ UnaryExpression, where @ stands for one
+       of the operators in the above definitions, is evaluated as follows: */
+
+    /* 1. Let left be the result of evaluating MultiplicativeExpression. */
+    left := JS_Interpreter_Expr(MultiplicativeExpression, scope);
+    /* 2. Let leftValue be GetValue(left). */
+    leftValue := GetValue(left);
+    /* 3. ReturnIfAbrupt(leftValue). */
+    @ReturnIfAbrupt(leftValue);
+    /* 4. Let right be the result of evaluating UnaryExpression. */
+    right := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 5. Let rightValue be GetValue(right). */
+    rightValue := GetValue(right);
+    /* 6. Let lnum be ToNumber(leftValue). */
+    lnum := ToNumber(leftValue);
+    /* 7. ReturnIfAbrupt(lnum). */
+    @ReturnIfAbrupt(lnum);
+    /* 8. Let rnum be ToNumber(rightValue). */
+    rnum := ToNumber(rightValue);
+    /* 9. ReturnIfAbrupt(rnum). */
+    @ReturnIfAbrupt(rnum);
+    /* 12.6.3.3 Applying the % Operator */
+    /* The % operator yields the remainder of its operands from an implied division; the left operand is the dividend
+       and the right operand is the divisor. */
+    /* NOTE In C and C++, the remainder operator accepts only integral operands; in ECMAScript, it also accepts floating-
+       point operands. */
+    /* The result of a floating-point remainder operation as computed by the % operator is not the same as the
+       ―remainder‖ operation defined by IEEE 754. The IEEE 754 ―remainder‖ operation computes the remainder
+       from a rounding division, not a truncating division, and so its behaviour is not analogous to that of the usual
+       integer remainder operator. Instead the ECMAScript language defines % on floating-point operations to
+       behave in a manner analogous to that of the Java integer remainder operator; this may be compared with the
+       C library function fmod. */
+    /* The result of an ECMAScript floating-point remainder operation is determined by the rules of IEEE arithmetic: */
+
+    /* If either operand is NaN, the result is NaN. */
+    /* The sign of the result equals the sign of the dividend. */
+    /* If the dividend is an infinity, or the divisor is a zero, or both, the result is NaN. */
+    /* If the dividend is finite and the divisor is an infinity, the result equals the dividend. */
+    /* If the dividend is a zero and the divisor is nonzero and finite, the result is the same as the
+       dividend. */
+    /* In the remaining cases, where neither an infinity, nor a zero, nor NaN is involved, the
+       floating-point remainder r from a dividend n and a divisor d is defined by the mathematical
+       relation r = n  (d  q) where q is an integer that is negative only if n/d is negative and
+       positive only if n/d is positive, and whose magnitude is as large as possible without
+       exceeding the magnitude of the true mathematical quotient of n and d. r is computed and
+       rounded to the nearest representable value using IEEE 754 round -to-nearest mode. */
+
+    return lnum % rnum
+  }
+  /* 12.7 Additive Operators */
+  | { type: "BinaryExpression", operator: "+", left: AdditiveExpression, right: MultiplicativeExpression } -> {
+    /* 12.7.3.1 */
+    /* 1. Let lref be the result of evaluating AdditiveExpression. */
+    lref := JS_Interpreter_Expr(AdditiveExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating MultiplicativeExpression. */
+    rref := JS_Interpreter_Expr(MultiplicativeExpression, scope);
+    /* 5. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. Let lprim be ToPrimitive(lval). */
+    lprim := ToPrimitive(lval, null);
+    /* 8. ReturnIfAbrupt(lprim). */
+    @ReturnIfAbrupt(lprim);
+    /* 9. Let rprim be ToPrimitive(rval). */
+    rprim := ToPrimitive(rval, null);
+    /* 10. ReturnIfAbrupt(rprim). */
+    @ReturnIfAbrupt(rprim);
+    /* 11. If Type(lprim) is String or Type(rprim) is String, then */
+    if ((Type(lprim) = "String") || (Type(rprim) = "String"))  {
+      /* a. Let lstr be ToString(lprim). */
+      lstr := ToString(lprim);
+      /* b. ReturnIfAbrupt(lstr). */
+      @ReturnIfAbrupt(lstr);
+      /* c. Let rstr be ToString(rprim). */
+      rstr := ToString(rprim);
+      /* d. ReturnIfAbrupt(rstr). */
+      @ReturnIfAbrupt(rstr);
+      /* e. Return the String that is the result of concatenating lstr and rstr. */
+      return s_concat [lstr, rstr]
+    };
+    /* 12. Let lnum be ToNumber(lprim). */
+    lnum := ToNumber(lprim);
+    /* 13. ReturnIfAbrupt(lnum). */
+    @ReturnIfAbrupt(lnum);
+    /* 14. Let rnum be ToNumber(rprim). */
+    rnum := ToNumber(rprim);
+    /* 15. ReturnIfAbrupt(rnum). */
+    @ReturnIfAbrupt(rnum);
+    /* 16. Return the result of applying the addition operation to lnum and rnum.
+      See the Note below 12.7.5. */
+    return applyingTheAdditionOperation(lnum, rnum)
+  }
+  | { type: "BinaryExpression", operator: "-", left: AdditiveExpression, right: MultiplicativeExpression } -> {
+    /* 12.7.4 The Subtraction Operator ( - ) */
+    /* 1. Let lref be the result of evaluating AdditiveExpression. */
+    lref := JS_Interpreter_Expr(AdditiveExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating MultiplicativeExpression. */
+    rref := JS_Interpreter_Expr(MultiplicativeExpression, scope);
+    /* 5. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. Let lnum be ToNumber(lval). */
+    lnum := ToNumber(lval);
+    /* 8. ReturnIfAbrupt(lnum). */
+    @ReturnIfAbrupt(lnum);
+    /* 9. Let rnum be ToNumber(rval). */
+    rnum := ToNumber(rval);
+    /* 10. ReturnIfAbrupt(rnum). */
+    @ReturnIfAbrupt(rnum);
+    /* 11. Return the result of applying the subtraction operation to lnum and
+      rnum. See the note below 12.7.5. */
+    return applyingTheSubtractionOperation(lnum, rnum)
+  }
+  /* 12.8 Bitwise Shift Operators */
+  | { type: "BinaryExpression", operator: "<<", left: ShiftExpression, right: AdditiveExpression } -> {
+    /**
+     * 12.8.3 The Left Shift Operator ( << )
+     * ShiftExpression : ShiftExpression << AdditiveExpression
+     * NOTE: Performs a bitwise left shift operation on the left operand by the amount specified by the right operand.
+     */
+
+    /* 1. Let lref be the result of evaluating ShiftExpression. */
+    lref := JS_Interpreter_Expr(ShiftExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating AdditiveExpression. */
+    rref := JS_Interpreter_Expr(AdditiveExpression, scope);
+    /* 5. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. Let lnum be ToInt32(lval). */
+    lnum := ToInt32(lval);
+    /* 8. ReturnIfAbrupt(lnum). */
+    @ReturnIfAbrupt(lnum);
+    /* 9. Let rnum be ToUint32(rval). */
+    rnum := ToUint32(rval);
+    /* 10. ReturnIfAbrupt(rnum). */
+    @ReturnIfAbrupt(rnum);
+    /* 11. Let shiftCount be the result of masking out all but the least
+      significant 5 bits of rnum, that is, compute rnum & 0x1F. */
+    shiftCount := maskOutBits(rnum);
+    /* 12. Return the result of left shifting lnum by shiftCount bits. The result
+      is a signed 32-bit integer. */
+    return lnum << shiftCount
+  }
+  | { type: "BinaryExpression", operator: ">>", left: ShiftExpression, right: AdditiveExpression } -> {
+    /* 12.8.4 The Signed Right Shift Operator ( >> ) */
+
+    /* Performs a sign-filling bitwise right shift operation on the left operand by the amount specified by the
+       right operand. */
+
+    /* The production ShiftExpression : ShiftExpression >> AdditiveExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating ShiftExpression. */
+    lref := JS_Interpreter_Expr(ShiftExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating AdditiveExpression. */
+    rref := JS_Interpreter_Expr(AdditiveExpression, scope);
+    /* 5. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. Let lnum be ToInt32(lval). */
+    lnum := ToInt32(lval);
+    /* 8. ReturnIfAbrupt(lnum). */
+    @ReturnIfAbrupt(lnum);
+    /* 9. Let rnum be ToUint32(rval). */
+    rnum := ToUint32(rval);
+    /* 10. ReturnIfAbrupt(rnum). */
+    @ReturnIfAbrupt(rnum);
+    /* 11. Let shiftCount be the result of masking out all but the least
+      significant 5 bits of rnum, that is, compute rnum & 0x1F. */
+    shiftCount := maskOutBits(rnum);
+    /* 12. Return the result of left shifting lnum by shiftCount bits. The result
+      is a signed 32-bit integer. */
+    return lnum >> shiftCount
+  }
+  | { type: "BinaryExpression", operator: ">>>", left: ShiftExpression, right: AdditiveExpression } -> {
+    /* 12.8.5 The Unsigned Right Shift Operator ( >>> ) */
+
+    /* Performs a zero-filling bitwise right shift operation on the left operand by the amount specified by
+       the right operand. */
+
+    /* The production ShiftExpression : ShiftExpression >>> AdditiveExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating ShiftExpression. */
+    lref := JS_Interpreter_Expr(ShiftExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating AdditiveExpression. */
+    rref := JS_Interpreter_Expr(AdditiveExpression, scope);
+    /* 5. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. Let lnum be ToUInt32(lval). */
+    lnum := ToUint32(lval);
+    /* 8. ReturnIfAbrupt(lnum). */
+    @ReturnIfAbrupt(lnum);
+    /* 9. Let rnum be ToUint32(rval). */
+    rnum := ToUint32(rval);
+    /* 10. ReturnIfAbrupt(rnum). */
+    @ReturnIfAbrupt(rnum);
+    /* 11. Let shiftCount be the result of masking out all but the least
+      significant 5 bits of rnum, that is, compute rnum & 0x1F. */
+    shiftCount := maskOutBits(rnum);
+    /* 12. Return the result of left shifting lnum by shiftCount bits. The result
+      is a signed 32-bit integer. */
+    return lnum >>> shiftCount
+  }
+  /* 12.9 Relational Operators */
+  /* The result of evaluating a relational operator is always of type Boolean, reflecting whether the relationship
+     named by the operator holds between its two operands.
+     The RelationalExpressionNoIn productions are evaluated in the same manner as the RelationalExpression
+     productions except that the contained RelationalExpressionNoIn is evaluated instead of the contained
+     RelationalExpression. */
+  | { type: "BinaryExpression", operator: "<", left: RelationalExpression, right: ShiftExpression } -> {
+    /* The Less-than Operator ( < ) */
+
+    /* The production RelationalExpression : RelationalExpression < ShiftExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating RelationalExpression. */
+    lref := JS_Interpreter_Expr(RelationalExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. ReturnIfAbrupt(lval).*/
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating ShiftExpression. */
+    rref := JS_Interpreter_Expr(ShiftExpression, scope);
+    /* 5. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 6. Let r be the result of performing abstract relational comparison lval < rval. (see 7.2.11) */
+    r := AbstractRelationalComparison(lval, rval, true);
+    /* 7. ReturnIfAbrupt(r).*/
+    @ReturnIfAbrupt(r);
+    /* 8. If r is undefined, return false. Otherwise, return r.*/
+    if (r = 'undefined) {
+      return false
+    };
+
+    return r
+  }
+  | { type: "BinaryExpression", operator: ">", left: RelationalExpression, right: ShiftExpression } -> {
+    /* The Greater-than Operator ( > ) */
+
+    /* The production RelationalExpression : RelationalExpression > ShiftExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating RelationalExpression. */
+    lref := JS_Interpreter_Expr(RelationalExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. ReturnIfAbrupt(lval).*/
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating ShiftExpression. */
+    rref := JS_Interpreter_Expr(ShiftExpression, scope);
+    /* 5. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 6. Let r be the result of performing abstract relational comparison rval < lval with LeftFirst equal to false. */
+    r := AbstractRelationalComparison(rval, lval, false);
+    /* 7. ReturnIfAbrupt(r).*/
+    @ReturnIfAbrupt(r);
+    /* 8. If r is undefined, return false. Otherwise, return r.*/
+    if (r = 'undefined) {
+      return false
+    };
+
+    return r
+  }
+  | { type: "BinaryExpression", operator: "<=", left: RelationalExpression, right: ShiftExpression } -> {
+    /* The Less-than-or-equal Operator ( <= ) */
+
+    /* The production RelationalExpression : RelationalExpression <= ShiftExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating RelationalExpression. */
+    lref := JS_Interpreter_Expr(RelationalExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. ReturnIfAbrupt(lval).*/
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating ShiftExpression. */
+    rref := JS_Interpreter_Expr(ShiftExpression, scope);
+    /* 5. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 6. Let r be the result of performing abstract relational comparison rval < lval with LeftFirst equal to false. */
+    r := AbstractRelationalComparison(rval, lval, false);
+    /* 7. ReturnIfAbrupt(r).*/
+    @ReturnIfAbrupt(r);
+    /* 8. If r is true or undefined, return false. Otherwise, return true. */
+    if ((r = true) || (r = 'undefined)) {
+      return false
+    };
+
+    return true
+  }
+  | { type: "BinaryExpression", operator: ">=", left: RelationalExpression, right: ShiftExpression } -> {
+    /* The Greater-than-or-equal Operator ( >= ) */
+
+    /* The production RelationalExpression : RelationalExpression >= ShiftExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating RelationalExpression. */
+    lref := JS_Interpreter_Expr(RelationalExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. ReturnIfAbrupt(lval).*/
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating ShiftExpression. */
+    rref := JS_Interpreter_Expr(ShiftExpression, scope);
+    /* 5. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 6. Let r be the result of performing abstract relational comparison lval < rval. (see 7.2.11) */
+    r := AbstractRelationalComparison(lval, rval, true);
+    /* 7. ReturnIfAbrupt(r).*/
+    @ReturnIfAbrupt(r);
+    /* 8. If r is true or undefined, return false. Otherwise, return true. */
+    if ((r = true) || (r = 'undefined)) {
+      return false
+    };
+
+    return true
+  }
+  | { type: "BinaryExpression", operator: "instanceof", left: RelationalExpression, right: ShiftExpression } -> {
+    /* 12.9.4 The instanceof operator */
+
+    /* The production RelationalExpression: RelationalExpression instanceof ShiftExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating RelationalExpression. */
+    lref := JS_Interpreter_Expr(RelationalExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating ShiftExpression. */
+    rref := JS_Interpreter_Expr(ShiftExpression, scope);
+    /* 5. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. Return InstanceofOperator(lval, rval). */
+    return InstanceofOperator(lval, rval)
+  }
+  | { type: "BinaryExpression", operator: "in", left: RelationalExpression, right: ShiftExpression } -> {
+    /* The in operator */
+
+    /* The production RelationalExpression : RelationalExpression in ShiftExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating RelationalExpression. */
+    lref := JS_Interpreter_Expr(RelationalExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating ShiftExpression. */
+    rref := JS_Interpreter_Expr(ShiftExpression, scope);
+    /* 5. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. If Type(rval) is not Object, throw a TypeError exception. */
+    if (!(Type(rval) = "Object")) {
+      throw TypeErrorConstructorInternal()
+    };
+    /* 8. Return HasProperty(rval, ToPropertyKey(lval)). */
+    return {rval.HasProperty}(rval, ToPropertyKey(lval))
+  }
+  /* 12.10 Equality Operators */
+  /* The result of evaluating an equality operator is always of type Boolean, reflecting whether the relationship
+     named by the operator holds between its two operands. */
+  | { type: "BinaryExpression", operator: "==", left: EqualityExpression, right: RelationalExpression } -> {
+    /* The Equals Operator ( == ) */
+
+    /* The production EqualityExpression : EqualityExpression == RelationalExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating EqualityExpression. */
+    lref := JS_Interpreter_Expr(EqualityExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating RelationalExpression. */
+    rref := JS_Interpreter_Expr(RelationalExpression, scope);
+    /* 5. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. Return the result of performing abstract equality comparison rval == lval. */
+    return AbstractEqualityComparison(rval, lval)
+  }
+  | { type: "BinaryExpression", operator: "!=", left: EqualityExpression, right: RelationalExpression } -> {
+    /* The Does-not-equals Operator ( != ) */
+
+    /* The production EqualityExpression : EqualityExpression != RelationalExpression is evaluated as follows: */
+
+   /* 1. Let lref be the result of evaluating EqualityExpression. */
+    lref := JS_Interpreter_Expr(EqualityExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating RelationalExpression. */
+    rref := JS_Interpreter_Expr(RelationalExpression, scope);
+    /* 5. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. Let r be the result of performing abstract equality comparison rval == lval. */
+    r := AbstractEqualityComparison(rval, lval);
+
+    @ReturnIfAbrupt(r);
+
+    /* 8. If r is true, return false. Otherwise, return true. */
+    if (r = true) {
+      return false
+    };
+    return true
+  }
+  | { type: "BinaryExpression", operator: "===", left: EqualityExpression, right: RelationalExpression } -> {
+    /* The Strict Equals Operator ( === ) */
+
+    /* The production EqualityExpression : EqualityExpression === RelationalExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating EqualityExpression. */
+    lref := JS_Interpreter_Expr(EqualityExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating RelationalExpression. */
+    rref := JS_Interpreter_Expr(RelationalExpression, scope);
+    /* 5. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. Return the result of performing the strict equality comparison rval === lval. (See 11.9.6) */
+    return StrictEqualityComparison(rval, lval)
+  }
+  | { type: "BinaryExpression", operator: "!==", left: EqualityExpression, right: RelationalExpression } -> {
+    /* The Strict Does-not-equal Operator ( !== ) */
+
+    /* The production EqualityExpression : EqualityExpression !== RelationalExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating EqualityExpression. */
+    lref := JS_Interpreter_Expr(EqualityExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating RelationalExpression. */
+    rref := JS_Interpreter_Expr(RelationalExpression, scope);
+    /* 5. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. Let r be the result of performing strict equality comparison rval === lval. (See 11.9.6) */
+    r := StrictEqualityComparison(rval, lval);
+    /* 8. If r is true, return false. Otherwise, return true. */
+    if (r = true) {
+      return false
+    };
+    return true
+  }
+  | { type: "BinaryExpression", operator: "**", left: LeftExpr, right: RightExpr } -> {
+    /* TODO */
+
+    /* 1. Let lref be the result of evaluating AdditiveExpression. */
+    lref := JS_Interpreter_Expr(LeftExpr, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. Let rref be the result of evaluating MultiplicativeExpression. */
+    rref := JS_Interpreter_Expr(RightExpr, scope);
+    /* 4. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 5. Let lnum be ToNumber(lval). */
+    lnum := ToNumber(lval);
+    /* 6. Let rnum be ToNumber(rval). */
+    rnum := ToNumber(rval);
+
+    x := (lnum ** rnum);
+
+    return x
+  }
+  /**
+   * 12.11 Binary Bitwise Operators
+   *
+   * The production A : A @ B, where @ is one of the bitwise operators in the productions above,
+   * is evaluated as follows:
+   */
+  | { type: "BinaryExpression", operator: operator, left: A, right: B } -> {
+    /* 1. Let lref be the result of evaluating A. */
+    lref := JS_Interpreter_Expr(A, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating B. */
+    rref := JS_Interpreter_Expr(B, scope);
+    /* 5. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. Let lnum be ToInt32(lval). */
+    lnum := ToInt32(lval);
+    /* 8. ReturnIfAbrupt(lnum). */
+    @ReturnIfAbrupt(lnum);
+    /* 9. Let rnum be ToInt32(rval). */
+    rnum := ToInt32(rval);
+    /* 10. ReturnIfAbrupt(rnum). */
+    @ReturnIfAbrupt(rnum);
+    /* 11. Return the result of applying the bitwise operator @ to lnum and rnum.
+      The result is a signed 32 bit integer. */
+    return applyBitwiseOperator(operator, lnum, rnum)
+  }
+};
+
+function JS_Interpreter_CaseClause(caseClause, scope){
+  match caseClause with
+  | {type: "SwitchCase", test: Expression, consequent: StatementList} -> {
+
+    /* CaseClause : case Expression : */
+    if (StatementList = []){
+      /* 1. Return NormalCompletion(empty). */
+      return NormalCompletion('empty)
+    };
+
+    /* CaseClause : case Expression : StatementList */
+    /* 1. Return the result of evaluating StatementList. */
+    return JS_Interpreter_StmtList(StatementList, scope)
+  }
+};
+
+function JS_Interpreter_SwitchStatement(switchStmt, scope) {
+  match switchStmt with
+  | { type: "SwitchStatement", discriminant: Expression, cases: CaseBlock, labelSet: currentLabelSet } -> {
+    /* 13.12.11 The switch Statement */
+
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 2. Let switchValue be GetValue(exprRef). */
+    switchValue := GetValue(exprRef);
+    /* 3. ReturnIfAbrupt(switchValue). */
+    @ReturnIfAbrupt(switchValue);
+    /* 4. Let oldEnv be the running execution context's LexicalEnvironment. */
+    oldEnv := getLexicalEnvironment(scope);
+    /* 5. Let blockEnv be NewDeclarativeEnvironment(oldEnv). */
+    blockEnv := NewDeclarativeEnvironment(oldEnv);
+    /* 6. Perform BlockDeclarationInstantiation(CaseBlock, blockEnv). */
+    BlockDeclarationInstantiation(switchStmt, blockEnv.EnvRec);
+    /* 7. Set the running execution context's LexicalEnvironment to blockEnv. */
+    setLexicalEnvironment(scope, blockEnv);
+    /* 8. Let R be the result of performing CaseBlockEvaluation of CaseBlock
+      with argument switchValue. */
+    R := JS_Interpreter_CaseBlock(CaseBlock, GetValue(exprRef), scope);
+    /* 9. Set the running execution context's LexicalEnvironment to oldEnv. */
+    setLexicalEnvironment(scope, oldEnv);
+    /* 10. Return R. */
+    return R
+
+  }
+};
+
+/**
+ * 13.12.9 Runtime Semantics: CaseBlockEvaluation
+ *
+ * With argument input.
+ */
+function JS_Interpreter_CaseBlock(caseBlock, input, scope) {
+  /* production CaseBlock : { CaseClauses} */
+  if (l_nth(caseBlock, 1) = null) {
+    casesA := l_nth(caseBlock, 0);
+    return JS_Interpreter_CaseBlock_CaseClauses(casesA, input, scope)
+  } else {
+    /* production CaseBlock : { CaseClauses opt DefaultClause CaseClauses opt } */
+    clausesA := l_nth(caseBlock, 0);
+    defaultClause := l_nth(caseBlock, 1);
+    clausesB := l_nth(caseBlock, 2);
+    return JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, defaultClause, clausesB, input, scope)
+  }
+};
+
+/**
+ * 13.12.9 Runtime Semantics: CaseBlockEvaluation
+ *
+ * With argument input.
+ *
+ * CaseBlock : { CaseClauses }
+ */
+function JS_Interpreter_CaseBlock_CaseClauses(caseClauses, input, scope) {
+    /* 1. Let V = undefined. */
+  V := 'undefined;
+  /* 2. Let A be the list of CaseClause items in source text order. */
+  A := caseClauses;
+  /* 3. Let founde be false. */
+  found := false;
+  /* 4. Repeat for each CaseClause C in A */
+  foreach( C : A){
+    /* a. If found is false, then */
+    if (found = false) {
+      /* i. Let clauseSelector be the result of CaseSelectorEvaluation of C. */
+      clauseSelector := CaseSelectorEvaluation(C, scope);
+      /* ii. If clauseSelector is an abrupt completion, then */
+      if (isAnAbruptCompletion(clauseSelector)) {
+        /* 1. If clauseSelector.[[value]] is empty, */
+        if (getCompletionValue(clauseSelector) = 'empty) {
+          /* return Completion{[[type]]: clauseSelector.[[type]], [[value]]:
+             undefined, [[target]]: clauseSelector.[[target]]} */
+          return newCompletion('clauseSelector.type, 'undefined, getCompletionTarget(clauseSelector))
+        }
+        /* 2. Else, */
+        else {
+          /* return Completion(clauseSelector) */
+          return Completion(clauseSelector)
+        }
+      };
+      /* iii. Let found be the result of performing Strict Equality Comparison
+      input === clauseSelector.[[value]]. */
+      found := StrictEqualityComparison(input,  GetValue(clauseSelector))
+    };
+    /* b. If found is true, then */
+    if (found = true) {
+      /* i. Let R be the result of evaluating C. */
+      R := JS_Interpreter_CaseClause(C, scope);
+      /* R := JS_Interpreter_Stmt(C, scope)  catch Interpreter_Statement_Guard; */
+      /* ii. If R.[[value]] is not empty, */
+      if (!(getCompletionValue(R) = 'empty)) {
+        /* let V = R.[[value]] */
+        V := getCompletionValue(R)
+      };
+      /* iii. If R is an abrupt completion, */
+      if (isAnAbruptCompletion(R)) {
+        /* return Completion(UpdateEmpty(R, V)) */
+        return Completion(UpdateEmpty(R, V))
+      }
+    }
+  };
+  /* 5. Return NormalCompletion(V). */
+  return NormalCompletion(V);
+
+
+  /* 1. Let V = empty. */
+  V := 'empty;
+  /* 2. Let A be the list of CaseClause items in source text order. */
+  A := caseClauses;
+  /* 3. Let searching be true. */
+  searching := true;
+  /* 4. Repeat, while searching is true */
+  i := 0;
+  repeat {
+    /* a. Let C be the next CaseClause in A. If there is no such CaseClause, return (normal, V, empty). */
+    C := getNextCaseClause(A, i);
+    i := i + 1;
+    if (C = "None") {
+      return NormalCompletion(V)
+    };
+    /* b. Let clauseSelector be the result of evaluating C. */
+    clauseSelector := JS_Interpreter_SwitchCase(C, scope);
+    /* c. If input is equal to clauseSelector as defined by the === operator, then */
+    if (StrictEqualityComparison(GetValue(clauseSelector), GetValue(input))) {
+      /* i. Set searching to false. */
+      searching := false;
+      /* ii. If C has a StatementList, then */
+      if (hasStatementList(C)) {
+        /* 1. Evaluate C‘s StatementList and let R be the result. */
+        R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
+        /* 2. If R is an abrupt completion, then return R. */
+        if (isAnAbruptCompletion(R)) {
+          return R
+        };
+        /* 3. Let V = R.value. */
+        V := getCompletionValue(R)
+      }
+    }
+  } until searching = false;
+  /* 5. Repeat */
+  i := 0;
+  repeat {
+    /* a. Let C be the next CaseClause in A. If there is no such CaseClause, return (normal, V, empty). */
+    C := getNextCaseClause(A, i);
+    i := i + 1;
+    if (C = "None") {
+      return NormalCompletion(V)
+    };
+    /* b. If C has a StatementList, then */
+    if (hasStatementList(C)) {
+      /* i. Evaluate C‘s StatementList and let R be the result. */
+      R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
+      /* ii. If R.value is not empty, then let V = R.value. */
+      if (!(getCompletionValue(R) = 'empty)) {
+        V := getCompletionValue(R)
+      };
+      /* iii. If R is an abrupt completion, then return (R.type, V, R.target). */
+      if (isAnAbruptCompletion(R)) {
+        return newCompletion(getCompletionType(R), V, getCompletionTarget(R))
+      }
+    }
+  }
+};
+
+/**
+ * 13.12.10 Runtime Semantics: CaseSelectorEvaluation
+ *
+ * CaseClause : case Expression : StatementListopt
+ *
+ * NOTE CaseSelectorEvaluation does not execute the associated StatementList. It
+ * simply evaluates the Expression and returns the value, which the CaseBlock
+ * algorithm uses to determine which StatementList to start executing.
+ */
+function CaseSelectorEvaluation(switchCase, scope) {
+  match switchCase with
+  | { type: "SwitchCase", test: Expression } -> {
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 2. Return GetValue(exprRef). */
+    return GetValue(exprRef)
+  }
+};
+
+/**
+ * 13.12.9 Runtime Semantics: CaseBlockEvaluation
+ *
+ * CaseBlock : { CaseClausesopt DefaultClause CaseClausesopt }
+ */
+function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, DefaultClause, clausesB, input, scope) {
+  /* 1. Let V = undefined. */
+  V := 'undefined;
+  /* 2. Let A be the list of CaseClause items in the first CaseClauses, in source text order.
+    If the first CaseClauses is not present A is « ». */
+  A := clausesA;
+  /* 3. Let found be false. */
+  found := false;
+  /* 4. Repeat for each CaseClause C in A */
+  foreach(C : A){
+    /* a. If found is false, then*/
+    if (found = false) {
+      /* i. Let clauseSelector be the result of CaseSelectorEvaluation of C. */
+      clauseSelector := CaseSelectorEvaluation(C, scope);
+      /* ii. If clauseSelector is an abrupt completion, then */
+      if (isAnAbruptCompletion(clauseSelector)){
+        /* 1. If clauseSelector.[[value]] is empty, */
+        if (getCompletionValue(clauseSelector) = 'empty){
+        /* return Completion{[[type]]: clauseSelector.[[type]],
+          [[value]]: undefined, [[target]]: clauseSelector.[[target]]}. */
+          return Completion(getCompletionType(clauseSelector), 'undefined, getCompletionTarget(clauseSelector))
+        }
+        /* 2. Else, return Completion(clauseSelector). */
+        else {
+          return Completion(clauseSelector)
+        }
+      };
+
+      /* iii. Let found be the result of performing Strict Equality Comparison input === clauseSelector.[[value]]. */
+      found := StrictEqualityComparison(input, GetValue(clauseSelector))
+    };
+    /* b. If found is true, then */
+    if (found = true) {
+      /* i. Let R be the result of evaluating C. */
+      R := JS_Interpreter_CaseClause(C, scope);
+      /* ii. If R.[[value]] is not empty */
+      if (!(getCompletionValue(R) = 'empty)) {
+        /* let V = R.[[value]] */
+        V := getCompletionValue(R)
+      };
+      /* iii. If R is an abrupt completion, */
+      if (isAnAbruptCompletion(R)) {
+        /* return Completion(UpdateEmpty(R, V)) */
+        return Completion(UpdateEmpty(R, V))
+      }
+    }
+  };
+  /* 5. Let foundInB be false. */
+  foundInB := false;
+  /* 6. Let B be the List containing the CaseClause items in the second CaseClauses, in source text order.
+  If the second CaseClauses is not present B is « ». */
+  B := clausesB;
+  /* 7. If found is false, then */
+  if (found = false){
+    /* a. Repeat for each CaseClause C in B */
+    foreach(C : B){
+      /* i. If foundInB is false, then*/
+      if (foundInB = false) {
+        /* 1. Let clauseSelector be the result of CaseSelectorEvaluation of C. */
+        clauseSelector := CaseSelectorEvaluation(C, scope);
+        /* 2. If clauseSelector is an abrupt completion, then */
+        if (isAnAbruptCompletion(clauseSelector)){
+          /* a. If clauseSelector.[[value]] is empty, */
+          if (getCompletionValue(clauseSelector) = 'empty){
+          /* return Completion{[[type]]: clauseSelector.[[type]],
+            [[value]]: undefined, [[target]]: clauseSelector.[[target]]}. */
+            return Completion(getCompletionType(clauseSelector), 'undefined, getCompletionTarget(clauseSelector))
+          }
+          /* b. Else, return Completion(clauseSelector). */
+          else {
+            return Completion(clauseSelector)
+          }
+        };
+
+        /* 3. Let foundInB be the result of performing Strict Equality Comparison input === clauseSelector.[[value]]. */
+        foundInB := StrictEqualityComparison(input, GetValue(clauseSelector))
+      };
+      /* ii. If foundInB is true, then */
+      if (foundInB = true) {
+        /* 1. Let R be the result of evaluating C. */
+        R := JS_Interpreter_CaseClause(C, scope);
+        /* 2. If R.[[value]] is not empty */
+        if (!(getCompletionValue(R) = 'empty)) {
+          /* let V = R.[[value]] */
+          V := getCompletionValue(R)
+        };
+        /* 3. If R is an abrupt completion, */
+        if (isAnAbruptCompletion(R)) {
+          /* return Completion(UpdateEmpty(R, V)) */
+          return Completion(UpdateEmpty(R, V))
+        }
+      }
+    }
+  };
+  /* 8. If foundInB is true, return NormalCompletion(V). */
+  if (foundInB = true){
+    return NormalCompletion(V)
+  };
+  /* 9. Let R be the result of evaluating DefaultClause. */
+  R := JS_Interpreter_CaseClause(DefaultClause, scope);
+  /* 10. If R.[[value]] is not empty, let V = R.[[value]]. */
+  if (!(getCompletionValue(R) = 'empty)){
+    V := getCompletionValue(R)
+  };
+  /* 11. If R is an abrupt completion, return Completion(UpdateEmpty(R, V)). */
+  if (isAnAbruptCompletion(R)){
+      return Completion(UpdateEmpty(R, V))
+  };
+  /* 12. Repeat for each CaseClause C in B (NOTE this is another complete iteration of the second CaseClauses) */
+  foreach(C : B){
+    /* a. Let R be the result of evaluating CaseClause C. */
+    R := JS_Interpreter_CaseClause(C, scope);
+    /* b. If R.[[value]] is not empty, let V = R.[[value]]. */
+    if (!(getCompletionValue(R) = 'empty)){
+      V := getCompletionValue(R)
+    };
+    /* c. If R is an abrupt completion, return Completion(UpdateEmpty(R, V)). */
+    if (isAnAbruptCompletion(R)){
+      return Completion(UpdateEmpty(R, V))
+    }
+  };
+  /* 13. Return NormalCompletion(V). */
+  return NormalCompletion(V);
+
+
+
+  /* ES5 */
+  /* 1. Let V = empty. */
+  V := 'empty;
+  /* 2. Let A be the list of CaseClause items in the first CaseClauses, in source text order. */
+  A := clausesA;
+  /* 3. Let B be the list of CaseClause items in the second CaseClauses, in source text order. */
+  B := clausesB;
+  /* 4. Let found be false. */
+  found := false;
+  /* 5. Repeat letting C be in order each CaseClause in A */
+  i := 0;
+  repeat {
+    C := getNextCaseClause(A, i);
+    i := i + 1;
+    if (!(C = "None")) {
+      /* a. If found is false, then */
+      if (found = false) {
+        /* i. Let clauseSelector be the result of evaluating C. */
+        clauseSelector := JS_Interpreter_SwitchCase(C, scope);
+        /* ii. If input is equal to clauseSelector as defined by the === operator, then set found to true. */
+        if (StrictEqualityComparison(GetValue(clauseSelector), GetValue(input))) {
+          found := true
+        }
+      };
+      /* b. If found is true, then */
+      if (found = true) {
+        /* i. If C has a StatementList, then */
+        if (hasStatementList(C)) {
+          /* 1. Evaluate C‘s StatementList and let R be the result. */
+          R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
+          /* 2. If R.value is not empty, then let V = R.value. */
+          if (!(getCompletionValue(R) = 'empty)) {
+            V := getCompletionValue(R)
+          };
+          /* 3. R is an abrupt completion, then return (R.type, V, R.target). */
+          if (isAnAbruptCompletion(R)) {
+            return newCompletion(getCompletionType(R), V, getCompletionTarget(R))
+          }
+        }
+      }
+    }
+  } until C = "None";
+  /* 6. Let foundInB be false. */
+  foundInB := false;
+  /* 7. If found is false, then */
+  i := 0;
+  if (found = false) {
+    /* a. Repeat, while foundInB is false and all elements of B have not been processed */
+    repeat {
+      /* i. Let C be the next CaseClause in B. */
+      C := getNextCaseClause(B, i);
+      i := i + 1;
+      if (!(C = "None")) {
+        /* ii. Let clauseSelector be the result of evaluating C. */
+        clauseSelector := JS_Interpreter_SwitchCase(C, scope);
+        /* iii. If input is equal to clauseSelector as defined by the === operator, then */
+        if (StrictEqualityComparison(GetValue(clauseSelector), GetValue(input))) {
+          /* 1. Set foundInB to true. */
+          foundInB := true;
+          /* 2. If C has a StatementList, then */
+          if (hasStatementList(C)) {
+            /* a  Evaluate C‘s StatementList and let R be the result. */
+            R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
+            /* b  If R.value is not empty, then let V = R.value. */
+            if (!(getCompletionValue(R) = 'empty)) {
+              V := getCompletionValue(R)
+            };
+            /* c  R is an abrupt completion, then return (R.type, V, R.target). */
+            if (isAnAbruptCompletion(R)) {
+              return newCompletion(getCompletionType(R), V, getCompletionTarget(R))
+            }
+          }
+        }
+      }
+    } until (foundInB = true) || (C = "None")
+  };
+  /* 8. If foundInB is false and the DefaultClause has a StatementList, then */
+  if ((foundInB = false) && hasStatementList(DefaultClause)) {
+    /* a. Evaluate the DefaultClause's StatementList and let R be the result. */
+    R := JS_Interpreter_StmtList(getCaseClauseStatementList(DefaultClause), scope);
+    /* b. If R.value is not empty, then let V = R.value. */
+    if (!(getCompletionValue(R) = 'empty)) {
+      V := getCompletionValue(R)
+    };
+    /* c. If R is an abrupt completion, then return (R.type, V, R.target). */
+    if (isAnAbruptCompletion(R)) {
+      return newCompletion(getCompletionType(R), V, getCompletionTarget(R))
+    }
+  };
+  /* 9. Repeat (Note that if step 7.a.i has been performed this loop does not start at the beginning of B) */
+  repeat {
+    /* a. Let C be the next CaseClause in B. If there is no such CaseClause, return (normal, V, empty). */
+    C := getNextCaseClause(B, i);
+    i := i + 1;
+    if (C = "None") {
+      return NormalCompletion(V)
+    };
+    /* b. If C has a StatementList, then */
+    if (hasStatementList(C)) {
+      /* i. Evaluate C‘s StatementList and let R be the result. */
+      R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
+      /* ii. If R.value is not empty, then let V = R.value. */
+      if (!(getCompletionValue(R) = 'empty)) {
+        V := getCompletionValue(R)
+      };
+      /* iii. If R is an abrupt completion, then return (R.type, V, R.target). */
+      if (isAnAbruptCompletion(R)) {
+        return newCompletion(getCompletionType(R), V, getCompletionTarget(R))
+      }
+    }
+  }
+};
+
+function JS_Interpreter_SwitchCase(switchCase, scope) {
+  match switchCase with
+  | { type: "SwitchCase", test: Expression } -> {
+    ref := JS_Interpreter_Expr(Expression, scope);
+    return ref
+  }
+};
+
+/**
+ * 13.7.1.2 Runtime Semantics: LoopContinues (completion, labelSet)
+ *
+ * The abstract operation LoopContinues with arguments completion and labelSet
+ * is defined by the following steps:
+ */
+function LoopContinues(completion, labelSet) {
+  /* 1. If completion.[[type]] is normal, */
+  if (getCompletionType(completion) = 'normal) {
+    /* return true */
+    return true
+  };
+  /* 2. If completion.[[type]] is not continue, */
+  if (!(getCompletionType(completion) = 'continue)) {
+    /* return false */
+    return false
+  };
+  /* 3. If completion.[[target]] is empty, */
+    if (getCompletionTarget(completion) = 'empty) {
+    /* return true */
+    return true
+  };
+  /* 4. If completion.[[target]] is an element of labelSet, */
+  if (getCompletionTarget(completion) in_list labelSet) {
+    /* return true */
+    return true
+  };
+  /* 5. Return false. */
+  return false
+};
+/**
+ * NOTE Within the Statement part of an IterationStatement a ContinueStatement
+ * may be used to begin a new iteration.
+ */
+
+ /**
+ * 13.7.2.6 Runtime Semantics: LabelledEvaluation
+ *
+ *
+ *
+ *
+ * See also: 13.1.7, 13.7.3.6, 13.7.4.7, 13.7.5.11, 13.13.14.
+ */
+function JS_Interpreter_IterationStmt(IterationStatement, scope) {
+   match IterationStatement with
+  | { type: "DoWhileStatement", test: Expression, body: Statement, labelSet: labelSet } -> {
+    /* IterationStatement : do Statement while ( Expression )
+       With argument labelSet.*/
+    /* 1. Let V = undefined. */
+    V := 'undefined;
+    /* 2. Repeat */
+    repeat {
+      /* a. Let stmt be the result of evaluating Statement. */
+      stmt := JS_Interpreter_Stmt(Statement, scope)  catch Interpreter_Statement_Guard;
+      /* b. If LoopContinues(stmt, labelSet) is false, */
+      if (LoopContinues(stmt, labelSet) = false) {
+        /* return Completion(UpdateEmpty(stmt, V)) */
+        return Completion(UpdateEmpty(stmt, V))
+      };
+      /* c. If stmt.[[value]] is not empty, let V = stmt.[[value]]. */
+      if (!(getCompletionValue(stmt) = 'empty)) {
+        V := getCompletionValue(stmt)
+      };
+      /* d. Let exprRef be the result of evaluating Expression. */
+      exprRef := JS_Interpreter_Expr(Expression, scope);
+      /* e. Let exprValue be GetValue(exprRef). */
+      exprValue := GetValue(exprRef);
+      /* f. ReturnIfAbrupt(exprValue). */
+      @ReturnIfAbrupt(exprValue);
+      /* g. If ToBoolean(exprValue) is false, */
+      if (ToBoolean(exprValue) = false) {
+        /* return NormalCompletion(V) */
+        return NormalCompletion(V)
+      }
+    }
+  }
+  | { type: "WhileStatement", test: Expression, body: Statement, labelSet: labelSet } -> {
+    /* IterationStatement : while ( Expression ) Statement
+      With argument labelSet.*/
+
+    /* 1. Let V = undefined. */
+    V := 'undefined;
+    /* 2. Repeat */
+    repeat {
+      /* a. Let exprRef be the result of evaluating Expression. */
+      exprRef := JS_Interpreter_Expr(Expression, scope);
+      /* b. Let exprValue be GetValue(exprRef). */
+      exprValue := GetValue(exprRef);
+      /* c. ReturnIfAbrupt(exprValue). */
+      @ReturnIfAbrupt(exprValue);
+      /* d. If ToBoolean(exprValue) is false, */
+      if (ToBoolean(exprValue) = false) {
+        /* return NormalCompletion(V) */
+        return NormalCompletion(V)
+      };
+      /* e. Let stmt be the result of evaluating Statement. */
+      stmt := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
+      /* f. If LoopContinues (stmt, labelSet) is false, */
+      if (LoopContinues(stmt, labelSet) = false) {
+        /* return Completion(UpdateEmpty(stmt, V)) */
+        return Completion(UpdateEmpty(stmt, V))
+      };
+      /* g. If stmt.[[value]] is not empty, */
+      if (!(getCompletionValue(stmt) = 'empty)) {
+        /* let V = stmt.[[value]] */
+        V := getCompletionValue(stmt)
+      }
+    }
+  }
+  | { type: "ForStatement", init: Expression1, test: Expression2, update: Expression3, body: Statement, labelSet: labelSet, lexicalDeclarations: None} -> {
+    if (Expression2 = null) {
+      Expression2 := 'empty
+    };
+    if (Expression3 = null) {
+      Expression3 := 'empty
+    };
+
+    if (!(Expression1 = null)) {
+      match Expression1 with
+      | { type: "VariableDeclaration" } -> {
+        /* IterationStatement : for ( var VariableDeclarationList ; Expressionopt ; Expressionopt ) Statement */
+
+        /* 1. Let varDcl be the result of evaluating VariableDeclarationList. */
+        varDcl := JS_Interpreter_Stmt(Expression1, scope) catch Interpreter_Statement_Guard;
+        /* 2. ReturnIfAbrupt(varDcl). */
+        @ReturnIfAbrupt(varDcl);
+        /* 3. Return ForBodyEvaluation(the first Expression, the second Expression, Statement, « », labelSet). */
+        return ForBodyEvaluation(Expression2, Expression3, Statement, [], labelSet, scope)
+      }
+    };
+
+    /* IterationStatement : for ( Expressionopt ; Expressionopt ; Expressionopt ) Statement */
+    /* 1. If the first Expression is present, then */
+    if (!(Expression1 = null)){
+      /* a. Let exprRef be the result of evaluating the first Expression. */
+      exprRef := JS_Interpreter_Expr(Expression1, scope);
+      /* b. Let exprValue be GetValue(exprRef). */
+      exprValue :=  GetValue(exprRef);
+      /* c. ReturnIfAbrupt(exprValue). */
+      @ReturnIfAbrupt(exprValue)
+    };
+
+    /* 2. Return ForBodyEvaluation(the second Expression, the third Expression, Statement, « », labelSet). */
+    return ForBodyEvaluation(Expression2, Expression3, Statement, [], labelSet, scope)
+  }
+  | { type: "ForStatement", init: LexicalDeclaration, test: Expression1, update: Expression2, body: Statement,
+          labelSet: labelSet, lexicalDeclarations: lexicalDeclarations, isConstant: isConst} -> {
+    if (Expression1 = null) {
+      Expression1 := 'empty
+    };
+    if (Expression2 = null) {
+      Expression2 := 'empty
+    };
+
+    /* IterationStatement : for ( LexicalDeclaration Expressionopt ; Expressionopt ) Statement */
+
+    /* 1. Let oldEnv be the running execution context's LexicalEnvironment. */
+    oldEnv := getLexicalEnvironment(scope);
+    /* 2. Let loopEnv be NewDeclarativeEnvironment(oldEnv). */
+    loopEnv := NewDeclarativeEnvironment(oldEnv);
+    /* 3. Let isConst be the result of performing IsConstantDeclaration of LexicalDeclaration. */
+    /* isConst := (LexicalDeclaration.kind = "const") */
+    /* 4. Let boundNames be the BoundNames of LexicalDeclaration. */
+    boundNames := lexicalDeclarations;
+    /* 5. For each element dn of boundNames do */
+    foreach (dn : boundNames){
+      /* a. If isConst is true, then */
+      if (isConst = true){
+        /* i. Perform loopEnv.CreateImmutableBinding(dn, true). */
+        {loopEnv.EnvRec.CreateImmutableBinding}(loopEnv.EnvRec, dn, true)
+      }
+      /* b. Else, */
+      else {
+        /* i. Perform loopEnv.CreateMutableBinding(dn, false). */
+        status := {loopEnv.EnvRec.CreateMutableBinding}(loopEnv.EnvRec, dn, false);
+        /*{loopEnv.EnvRec.InitializeBinding}(loopEnv.EnvRec, dn, 'undefined);*/
+
+        /* ii. Assert: The above call to CreateMutableBinding will never return an abrupt completion. */
+        assert(!(isAnAbruptCompletion(status)))
+      }
+    };
+    /* 6. Set the running execution context's LexicalEnvironment to loopEnv. */
+    setLexicalEnvironment(scope, loopEnv);
+    /* 7. Let forDcl be the result of evaluating LexicalDeclaration. */
+    forDcl := JS_Interpreter_Stmt(LexicalDeclaration, scope);
+    /* 8. If forDcl is an abrupt completion, then */
+    if (isAnAbruptCompletion(forDcl)){
+      /* a. Set the running execution context's LexicalEnvironment to oldEnv. */
+      setLexicalEnvironment(scope, oldEnv);
+      /* b. Return Completion(forDcl). */
+      return Completion(forDcl)
+    };
+    /* 9. If isConst is false, let perIterationLets be boundNames otherwise let perIterationLets be « ». */
+    if (isConst = false){
+      perIterationLets := boundNames
+    }
+    else {
+      perIterationLets := []
+    };
+    /* 10. Let bodyResult be ForBodyEvaluation(the first Expression, the second Expression,
+    Statement, perIterationLets, labelSet). */
+    bodyResult := ForBodyEvaluation(Expression1, Expression2, Statement, perIterationLets, labelSet, scope);
+    /* 11. Set the running execution context's LexicalEnvironment to oldEnv. */
+    setLexicalEnvironment(scope, oldEnv);
+    /* 12. Return Completion(bodyResult). */
+    return Completion(bodyResult)
+  }
+  /* 13.7.5 The for-in Statement */
+  | { type: "ForInStatement", left: lhsExpr_or_VarDecl, right: AssignmentExpression,
+    body: Statement, labelSet: labelSet} -> {
+    match lhsExpr_or_VarDecl with
+    | { type: "VariableDeclarator", kind: "var" } -> {
+      ForBinding := lhsExpr_or_VarDecl;
+      /* production IterationStatement : for ( var ForBinding of AssignmentExpression ) Statement */
+
+      /* 1. Let keyResult be the result of performing ForIn/OfHeadEvaluation( « », AssignmentExpression, iterate). */
+      keyResult := ForIn_OfHeadEvaluation([], AssignmentExpression, "enumerate", scope);
+      /* 2. ReturnIfAbrupt(keyResult). */
+      @ReturnIfAbrupt(keyResult);
+      /* 3. Return ForIn/OfBodyEvaluation(ForBinding, Statement, keyResult, varBinding, labelSet). */
+      return ForIn_OfBodyEvaluation(ForBinding, Statement, keyResult, "varBinding", labelSet, scope)
+    }
+    | { type: "VariableDeclarator", boundNames: boundNames} -> {
+      ForDeclaration := lhsExpr_or_VarDecl;
+      /* ForDeclaration.boundNames := boundNames; */
+      /* IterationStatement : for ( ForDeclaration of AssignmentExpression ) Statement */
+      /* 1. Let keyResult be the result of performing ForIn/OfHeadEvaluation( BoundNames of ForDeclaration, AssignmentExpression, iterate). */
+      keyResult := ForIn_OfHeadEvaluation(boundNames, AssignmentExpression, "enumerate", scope);
+      /* 2. ReturnIfAbrupt(keyResult). */
+      @ReturnIfAbrupt(keyResult);
+      /* 3. Return ForIn/OfBodyEvaluation(ForDeclaration, Statement, keyResult, lexicalBinding, labelSet). */
+      return ForIn_OfBodyEvaluation(ForDeclaration, Statement, keyResult, "lexicalBinding", labelSet, scope)
+    }
+    | default -> {
+      LeftHandSideExpression := lhsExpr_or_VarDecl;
+      /* production IterationStatement : for ( LeftHandSideExpression of Expression ) Statement */
+      /* 1. Let keyResult be the result of performing ForIn/OfHeadEvaluation( « », AssignmentExpression, iterate). */
+      keyResult := ForIn_OfHeadEvaluation([], AssignmentExpression, "enumerate", scope);
+      /* 2. ReturnIfAbrupt(keyResult). */
+      @ReturnIfAbrupt(keyResult);
+      /* 3. Return ForIn/OfBodyEvaluation(LeftHandSideExpression, Statement, keyResult, assignment, labelSet). */
+      return ForIn_OfBodyEvaluation(LeftHandSideExpression, Statement, keyResult, "assignment", labelSet, scope)
+    }
+  }
+  | { type: "ForOfStatement", left: lhsExpr_or_VarDecl, right: AssignmentExpression,
+      body: Statement, labelSet: labelSet} -> {
+    /* 13.7.5 The for-of Statement */
+    match lhsExpr_or_VarDecl with
+    | { type: "VariableDeclarator", kind: "var" } -> {
+      ForBinding := lhsExpr_or_VarDecl;
+      /* production IterationStatement : for ( var ForBinding of AssignmentExpression ) Statement */
+
+      /* 1. Let keyResult be the result of performing ForIn/OfHeadEvaluation( « », AssignmentExpression, iterate). */
+      keyResult := ForIn_OfHeadEvaluation([], AssignmentExpression, "iterate", scope);
+      /* 2. ReturnIfAbrupt(keyResult). */
+      @ReturnIfAbrupt(keyResult);
+      /* 3. Return ForIn/OfBodyEvaluation(ForBinding, Statement, keyResult, varBinding, labelSet). */
+      return ForIn_OfBodyEvaluation(ForBinding, Statement, keyResult, "varBinding", labelSet, scope)
+      }
+    | { type: "VariableDeclarator", boundNames: boundNames} -> {
+      ForDeclaration := lhsExpr_or_VarDecl;
+      /* ForDeclaration.boundNames := boundNames;
+      /* IterationStatement : for ( ForDeclaration of AssignmentExpression ) Statement */
+      /* 1. Let keyResult be the result of performing ForIn/OfHeadEvaluation( BoundNames of ForDeclaration, AssignmentExpression, iterate). */
+      keyResult := ForIn_OfHeadEvaluation(boundNames, AssignmentExpression, "iterate", scope);
+      /* 2. ReturnIfAbrupt(keyResult). */
+      @ReturnIfAbrupt(keyResult);
+      /* 3. Return ForIn/OfBodyEvaluation(ForDeclaration, Statement, keyResult, lexicalBinding, labelSet). */
+      return ForIn_OfBodyEvaluation(ForDeclaration, Statement, keyResult, "lexicalBinding", labelSet, scope)
+
+    }
+    | default -> {
+      LeftHandSideExpression := lhsExpr_or_VarDecl;
+      /* production IterationStatement : for ( LeftHandSideExpression of Expression ) Statement */
+      /* 1. Let keyResult be the result of performing ForIn/OfHeadEvaluation( « », AssignmentExpression, iterate). */
+      keyResult := ForIn_OfHeadEvaluation([], AssignmentExpression, "iterate", scope);
+      /* 2. ReturnIfAbrupt(keyResult). */
+      @ReturnIfAbrupt(keyResult);
+      /* 3. Return ForIn/OfBodyEvaluation(LeftHandSideExpression, Statement, keyResult, assignment, labelSet). */
+      return ForIn_OfBodyEvaluation(LeftHandSideExpression, Statement, keyResult, "assignment", labelSet, scope)
+    }
+  }
+};
+
+function JS_Interpreter_LabelledStmt(LabelledStatement, scope){
+  match LabelledStatement with
+  | { type: "LabeledStatement", label: LabelIdentifier, body: LabelledItem} -> {
+    /* LabelledStatement : LabelIdentifier : LabelledItem */
+    if ("labelSet" in_obj LabelledStatement) {
+      labelSet := LabelledStatement.labelSet
+    }
+    else{
+      labelSet := []
+    };
+    /* 1. Let label be the StringValue of LabelIdentifier. */
+    label := LabelIdentifier.name; /* StringValue(LabelIdentifier); */
+    /* 2. Append label as an element of labelSet. */
+    labelSet := l_add(labelSet, label);
+    /* 3. Let stmtResult be LabelledEvaluation of LabelledItem with argument
+      labelSet. */
+    LabelledItem.labelSet := labelSet;
+    stmtResult := JS_Interpreter_Stmt(LabelledItem, scope) catch Interpreter_Statement_Guard;
+    /* 4. If stmtResult.[[type]] is break and SameValue(stmtResult.[[target]],
+      label), then */
+    if (getCompletionType(stmtResult) = 'break &&& SameValue(getCompletionTarget(stmtResult), label)) {
+      /* a. Let stmtResult be NormalCompletion(stmtResult.[[value]]). */
+      stmtResult := NormalCompletion(getCompletionValue(stmtResult))
+    };
+    /* 5. Return Completion(stmtResult). */
+    return Completion(stmtResult)
+  }
+  /* TODO */
+  /* LabelledItem : Statement */
+
+  /* 1. If Statement is either a LabelledStatement or a BreakableStatement, then */
+    /* a. Return LabelledEvaluation of Statement with argument labelSet. */
+  /* 2. Else, */
+    /* b. Return the result of evaluating Statement. */
+
+  /*LabelledItem : FunctionDeclaration*/
+  /* Return the result of evaluating FunctionDeclaration. */
+
+};
+/**
+ * 13.1.7 Runtime Semantics: LabelledEvaluation
+ *
+ * With argument labelSet.
+ *
+ * See also: 13.7.2.6, 13.7.3.6, 13.7.4.7, 13.7.5.11, 13.13.14.
+ *
+ * NOTE A BreakableStatement is one that can be exited via an unlabelled
+ * BreakStatement.
+ */
+function JS_Interpreter_BreakableStatement(BreakableStatement, scope) {
+
+  match BreakableStatement with
+  | { type: "SwitchStatement"} -> {
+    /* BreakableStatement : SwitchStatement */
+    /* 1. Let stmtResult be the result of evaluating SwitchStatement. */
+    stmtResult := JS_Interpreter_SwitchStatement(BreakableStatement, scope)
+  }
+  |  default -> {
+    /* BreakableStatement : IterationStatement */
+    /* 1. Let stmtResult be the result of performing LabelledEvaluation of
+        IterationStatement with argument labelSet. */
+    stmtResult := JS_Interpreter_IterationStmt(BreakableStatement, scope)
+  };
+  /* 2. If stmtResult.[[type]] is break, then */
+  if (getCompletionType(stmtResult) = 'break) {
+    /* a. If stmtResult.[[target]] is empty, then */
+    if (getCompletionTarget(stmtResult) = 'empty) {
+      /* i. If stmtResult.[[value]] is empty, */
+      if (getCompletionValue(stmtResult) = 'empty) {
+        /* let stmtResult be NormalCompletion(undefined) */
+        stmtResult := NormalCompletion('undefined)
+      }
+      /* ii. Else, */
+      else {
+        /* let stmtResult be NormalCompletion(stmtResult.[[value]]) */
+        stmtResult := NormalCompletion(getCompletionValue(stmtResult))
+      }
+    }
+  };
+  /* 3. Return Completion(stmtResult). */
+  return Completion(stmtResult)
+};
+
+
+/**
+ * 13.7.4.8 Runtime Semantics: ForBodyEvaluation (test, increment, stmt, perIterationBindings, labelSet)
+ *
+ * The abstract operation ForBodyEvaluation with arguments test, increment,
+ * stmt, perIterationBindings, and labelSet is performed as follows:
+ */
+function ForBodyEvaluation(test, increment, stmt, perIterationBindings, labelSet, scope) {
+  /* 1. Let V = undefined. */
+  V := 'undefined;
+  /* 2. Let status be CreatePerIterationEnvironment(perIterationBindings). */
+  status := CreatePerIterationEnvironment(perIterationBindings, scope);
+  /* 3. ReturnIfAbrupt(status). */
+  @ReturnIfAbrupt(status);
+  /* 4. Repeat */
+  repeat {
+    /* a. If test is not [empty], then */
+    if (!(test = 'empty)) {
+      /* i. Let testRef be the result of evaluating test. */
+      testRef := JS_Interpreter_Expr(test, scope);
+      /* ii. Let testValue be GetValue(testRef). */
+      testValue := GetValue(testRef);
+      /* iii. ReturnIfAbrupt(testValue). */
+      @ReturnIfAbrupt(testValue);
+      /* iv. If ToBoolean(testValue) is false, */
+      if (ToBoolean(testValue) = false) {
+        /* return NormalCompletion(V) */
+        return NormalCompletion(V)
+      }
+    };
+    /* b. Let result be the result of evaluating stmt. */
+    result := JS_Interpreter_Stmt(stmt, scope) catch Interpreter_Statement_Guard;
+    /* c. If LoopContinues(result, labelSet) is false, */
+    if (LoopContinues(result, labelSet) = false) {
+      /* return Completion(UpdateEmpty(result, V)) */
+      return Completion(UpdateEmpty(result, V))
+    };
+    /* d. If result.[[value]] is not empty, */
+    if (!(getCompletionValue(result) = 'empty)) {
+      /* let V = result.[[value]] */
+      V := getCompletionValue(result)
+    };
+    /* e. Let status be CreatePerIterationEnvironment(perIterationBindings). */
+    status := CreatePerIterationEnvironment(perIterationBindings, scope);
+    /* f. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+    /* g. If increment is not [empty], then */
+    if (!(increment = 'empty)) {
+      /* i. Let incRef be the result of evaluating increment. */
+      incRef := JS_Interpreter_Expr(increment, scope);
+      /* ii. Let incValue be GetValue(incRef). */
+      incValue := GetValue(incRef);
+      /* iii. ReturnIfAbrupt(incValue). */
+      @ReturnIfAbrupt(incValue)
+    }
+  };
+  return
+};
+
+/**
+ * 13.7.4.9 Runtime Semantics: CreatePerIterationEnvironment (perIterationBindings)
+ *
+ * The abstract operation CreatePerIterationEnvironment with argument
+ * perIterationBindings is performed as follows:
+ */
+function CreatePerIterationEnvironment(perIterationBindings, scope) {
+  /* 1. If perIterationBindings has any elements, then */
+  if (!(perIterationBindings = [])) {
+    /* a. Let lastIterationEnv be the running execution context's LexicalEnvironment. */
+    lastIterationEnv := getLexicalEnvironment(scope);
+    /* b. Let outer be lastIterationEnv's outer environment reference. */
+    outer := getOuterEnvironmentReference(lastIterationEnv);
+    /* c. Assert: outer is not null. */
+    assert(!(outer = 'null));
+    /* d. Let thisIterationEnv be NewDeclarativeEnvironment(outer). */
+    thisIterationEnv := NewDeclarativeEnvironment(outer);
+    /* e. For each element bn of perIterationBindings do, */
+    foreach(bn : perIterationBindings){
+      /* i. Let status be thisIterationEnv.CreateMutableBinding(bn, false). */
+      status := {thisIterationEnv.EnvRec.CreateMutableBinding}(thisIterationEnv.EnvRec, bn, false);
+      /* ii. Assert: status is never an abrupt completion. */
+      assert(!(isAnAbruptCompletion(status)));
+      /* iii. Let lastValue be lastIterationEnv.GetBindingValue(bn, true). */
+      lastValue := {lastIterationEnv.EnvRec.GetBindingValue}(lastIterationEnv.EnvRec, bn, true);
+      /* iii. ReturnIfAbrupt(lastValue). */
+      @ReturnIfAbrupt(lastValue);
+      /* iv. Perform thisIterationEnv.InitializeBinding(bn, lastValue). */
+      {thisIterationEnv.EnvRec.InitializeBinding}(thisIterationEnv.EnvRec, bn, lastValue)
+    };
+    /* f. Set the running execution context's LexicalEnvironment to
+       thisIterationEnv. */
+    setLexicalEnvironment(scope, thisIterationEnv)
+  };
+  /* 2. Return undefined */
+  return 'undefined
+};
+
+/**
+ * 13.7.5.12 Runtime Semantics: ForIn/OfHeadEvaluation (TDZnames, expr, iterationKind)
+ *
+ * The abstract operation ForIn/OfHeadEvaluation is called with arguments
+ * TDZnames, expr, and iterationKind. The value of iterationKind is either
+ * enumerate or iterate.
+ */
+function ForIn_OfHeadEvaluation(TDZnames, expr, iterationKind, scope) {
+  /* 1. Let oldEnv be the running execution context's LexicalEnvironment. */
+  oldEnv := getLexicalEnvironment(scope);
+  /* 2. If TDZnames is not an empty List, then */
+  if (!(TDZnames = [])) {
+    /* a. Assert: TDZnames has no duplicate entries. */
+    assert(!(parametersHasDuplicates(TDZnames)));
+    /* b. Let TDZ be NewDeclarativeEnvironment(oldEnv). */
+    TDZ := NewDeclarativeEnvironment(oldEnv);
+    /* c. For each string name in TDZnames, do */
+    foreach (name : TDZnames){
+      /* i. Let status be TDZ.CreateMutableBinding(name, false). */
+      status := {TDZ.EnvRec.CreateMutableBinding}(TDZ.EnvRec, name, false);
+      /* ii. Assert: status is never an abrupt completion. */
+      assert(!(isAnAbruptCompletion(status)))
+    };
+    /* d. Set the running execution context's LexicalEnvironment to TDZ. */
+    setLexicalEnvironment(scope, TDZ)
+  };
+  /* 3. Let exprRef be the result of evaluating the production that is expr. */
+  exprRef := JS_Interpreter_Expr(expr, scope);
+  /* 4. Set the running execution context's LexicalEnvironment to oldEnv. */
+  setLexicalEnvironment(scope, oldEnv);
+  /* 5. Let exprValue be GetValue(exprRef). */
+  exprValue := GetValue(exprRef);
+  /* 6. ReturnIfAbrupt(exprValue). */
+  @ReturnIfAbrupt(exprValue);
+  /* 7. If iterationKind is enumerate, then */
+  if (iterationKind = "enumerate") {
+    /* a. If exprValue.[[value]] is null or undefined, then */
+    if (exprValue = 'null ||| exprValue = 'undefined) {
+      /* i. Return Completion{[[type]]: break, [[value]]: empty, [[target]]:
+         empty}. */
+      return newCompletion('break, 'empty, 'empty)
+    };
+    /* b. Let obj be ToObject(exprValue). */
+    obj := ToObject(exprValue);
+    /* c. Return obj.[[Enumerate]](). */
+    res := {obj.Enumerate}(obj);
+    return res
+  }
+  /* 8. Else, */
+  else {
+    /* a. Assert: iterationKind is iterate. */
+    assert(iterationKind = "iterate");
+    /* b. Return GetIterator(exprValue). */
+    return GetIterator(exprValue, null)
+  }
+};
+
+/**
+ * 13.7.5.13 Runtime Semantics: ForIn/OfBodyEvaluation (lhs, stmt, iterator, lhsKind, labelSet)
+ *
+ * The abstract operation ForIn/OfBodyEvaluation is called with arguments lhs,
+ * stmt, iterator, lhsKind, and labelSet. The value of lhsKind is either
+ * assignment, varBinding or lexicalBinding.
+ */
+function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
+  /* 1. Let oldEnv be the running execution context's LexicalEnvironment. */
+  oldEnv := getLexicalEnvironment(scope);
+  /* 2. Let V = undefined . */
+  V := 'undefined;
+  /* 3. Let destructuring be IsDestructuring of lhs. */
+  destructuring := IsDestructuring(lhs);
+  /* 4. If destructuring is true and if lhsKind is assignment, then */
+  if (destructuring = true &&& lhsKind = "assignment") {
+    /*fail " a. Assert: lhs is a LeftHandSideExpression." */
+    /* a. Assert: lhs is a LeftHandSideExpression. */
+    /*assert( TODO: Instruction not yet implemented. )
+    /* b. Let assignmentPattern be the parse of the source text corresponding to
+       lhs using AssignmentPattern as the goal symbol. */
+    /* assignmentPattern :=  TODO: Instruction not yet implemented. */
+    assignmentPattern := lhs
+    /* exprRef := JS_Interpreter_Expr(Expression1, scope); */
+    /* b. Let exprValue be GetValue(exprRef). */
+    /* exprValue :=  GetValue(exprRef); */
+
+  };
+  /* 5. Repeat */
+  repeat {
+    /* a. Let nextResult be IteratorStep(iterator). */
+    nextResult := IteratorStep(iterator);
+    /* b. ReturnIfAbrupt(nextResult). */
+    @ReturnIfAbrupt(nextResult);
+    /* c. If nextResult is false, */
+    if (nextResult = false) {
+      /* return NormalCompletion(V) */
+      return NormalCompletion(V)
+    };
+    /* d. Let nextValue be IteratorValue(nextResult). */
+    nextValue := IteratorValue(nextResult);
+    /* e. ReturnIfAbrupt(nextValue). */
+    @ReturnIfAbrupt(nextValue);
+    /* f. If lhsKind is either assignment or varBinding, then */
+    if (lhsKind = "assignment" ||| lhsKind = "varBinding") {
+      /* i. If destructuring is false, then */
+      if (destructuring = false) {
+        /* 1. Let lhsRef be the result of evaluating lhs ( it may be evaluated
+           repeatedly). */
+        if (lhsKind = "varBinding"){
+          /* 13.7.5.14 Runtime Semantics: Evaluation */
+          /* ForBinding : BindingIdentifier */
+          /* 1. Let bindingId be StringValue of BindingIdentifier. */
+          bindingId := StringValue(lhs.id.name);
+          /* 2. Return ResolveBinding(bindingId) */
+          lhsRef := ResolveBinding(scope, bindingId, null)
+        }
+        else {
+          lhsRef := JS_Interpreter_Expr(lhs, scope)
+        }
+
+      }
+    }
+    /* g. Else */
+    else {
+      /* i. Assert: lhsKind is lexicalBinding. */
+      assert(lhsKind = "lexicalBinding");
+      /* ii. Assert: lhs is a ForDeclaration. */
+      assert(isForDeclaration(lhs));
+      /* iii. Let iterationEnv be NewDeclarativeEnvironment(oldEnv). */
+      iterationEnv := NewDeclarativeEnvironment(oldEnv);
+      /* iv. Perform BindingInstantiation for lhs passing iterationEnv as the argument. */
+      BindingInstantiation(lhs, iterationEnv);
+      /* v. Set the running execution context’s LexicalEnvironment to iterationEnv. */
+      setLexicalEnvironment(scope, iterationEnv);
+      /* vi. If destructuring is false, then */
+      if (destructuring = false) {
+        /* 1. Assert: lhs binds a single name. */
+        assert(l_len(lhs.boundNames) = 1);
+        /* 2. Let lhsName be the sole element of BoundNames of lhs. */
+        lhsName := l_nth(lhs.boundNames, 0);
+        /* 3. Let lhsRef be ResolveBinding(lhsName). */
+        lhsRef := ResolveBinding(scope, lhsName, null);
+        /* 4. Assert: lhsRef is not an abrupt completion. */
+        assert(!isAnAbruptCompletion(lhsRef))
+      }
+    };
+    /* h. If destructuring is false, then */
+    if (destructuring = false) {
+      /* i. If lhsRef is an abrupt completion, then */
+      if (isAnAbruptCompletion(lhsRef)) {
+        /* 1. Let status be lhsRef. */
+        status := lhsRef
+      }
+      /* ii. Else if lhsKind is lexicalBinding, then */
+      elif (lhsKind = "lexicalBinding") {
+        /* 1. Let status be InitializeReferencedBinding(lhsRef, nextValue). */
+        status := InitializeReferencedBinding(lhsRef, nextValue)
+      }
+      /* iii. Else, */
+      else {
+        /* 1. Let status be PutValue(lhsRef, nextValue). */
+        status := PutValue(lhsRef, nextValue)
+      }
+    }
+    /* i. Else, */
+    else {
+      /* i. If lhsKind is assignment, then */
+      if (lhsKind = "assignment") {
+        /* fail "destructuring";*/
+        /* 1. Let status be the result of performing DestructuringAssignmentEvaluation of assignmentPattern using nextValue as the argument. */
+        /*status := DestructuringAssignmentEvaluation(assignmentPattern, nextValue, scope) */
+        status := DestructuringAssignmentEvaluation(assignmentPattern, nextValue, scope, null)
+      }
+      /* ii. Else if lhsKind is varBinding, then */
+      elif (lhsKind = "varBinding") {
+        /* 1. Assert: lhs is a ForBinding. */
+        assert(lhs.type = "VariableDeclarator" && lhs.kind ="var");
+        /* 2. Let status be the result of performing BindingInitialization for lhs passing nextValue and undefined as the arguments. */
+        status := BindingInitialization(lhs.id, nextValue, scope, null)
+
+      }
+      /* iii. Else, */
+      else {
+        /* 1. Assert: lhsKind is lexicalBinding. */
+        assert(lhsKind = "lexicalBinding");
+        /* 2. Assert: lhs is a ForDeclaration. */
+        assert(lhs.type = "VariableDeclarator" && lhs.kind ="let");
+        /* 3. Let status be the result of performing BindingInitialization for lhs passing nextValue and iterationEnv as arguments. */
+        status := BindingInitialization(lhs.id, nextValue, {LexicalEnvironment: iterationEnv}, null)
+
+      }
+    };
+    /* j. If status is an abrupt completion, then */
+    if (isAnAbruptCompletion(status)) {
+      /* i. Set the running execution context's LexicalEnvironment to oldEnv. */
+      setLexicalEnvironment(scope, oldEnv);
+      /* ii. Return IteratorClose(iterator, status). */
+      return IteratorClose(iterator, status)
+    };
+    /* k. Let result be the result of evaluating stmt. */
+    result := JS_Interpreter_Stmt(stmt, scope);
+    /* l. Set the running execution context's LexicalEnvironment to oldEnv. */
+    setLexicalEnvironment(scope, oldEnv);
+    /* m. If LoopContinues(result, labelSet) is false, */
+    if (LoopContinues(result, labelSet) = false) {
+      /* return IteratorClose(iterator, UpdateEmpty(result, V)) */
+      return IteratorClose(iterator, UpdateEmpty(result, V))
+    };
+    /* n. If result.[[value]] is not empty, */
+    if (!(getCompletionValue(result) = 'empty)) {
+      /* let V be result.[[value]] */
+      V := getCompletionValue(result)
+    }
+  };
+  return
+};
+/**
+ * 13.7.5.6 Static Semantics: IsDestructuring
+ *
+ */
+function IsDestructuring(arg){
+  if (arg.type = "VariableDeclarator"){
+    arg := arg.id
+  };
+
+  return (arg.type in_list ["ArrayPattern", "ObjectPattern", "AssignmentPattern"])
+
+};
+/**
+ * 13.7.5.10 Runtime Semantics: BindingInstantiation
+ *
+ * With argument environment.
+ * ForDeclaration : LetOrConst ForBinding
+ */
+function BindingInstantiation(ForDeclaration, environment) {
+  /* 1. For each element name of the BoundNames of ForBinding do */
+  foreach(name : ForDeclaration.boundNames){
+    /* a. If IsConstantDeclaration of LetOrConst is true, then */
+    if (ForDeclaration.kind = "const"){
+    /* i. Perform environment.CreateImmutableBinding(name, true). */
+    {environment.EnvRec.CreateImmutableBinding}(environment.EnvRec, name, true)
+    }
+    /* b. Else, */
+    else {
+      /* i. Perform environment.CreateMutableBinding(name). */
+      status := {environment.EnvRec.CreateMutableBinding}(environment.EnvRec, name, false);
+      /* ii. Assert: The above call to CreateMutableBinding will never return an abrupt completion. */
+      assert(!isAnAbruptCompletion(status))
+    }
+  };
+  return
+};
+
+/**
+ * 14.1.9 Static Semantics: IsAnonymousFunctionDefinition (production)
+ *
+ * The abstract operation IsAnonymousFunctionDefinition determines if its
+ * argument is a function definition that does not bind a name. The argument
+ * production is the result of parsing an AssignmentExpression or Initializer.
+ * The following steps are taken:
+ */
+function IsAnonymousFunctionDefinition(production) {
+  /* 1. If IsFunctionDefinition of production is false, */
+  if (IsFunctionDefinition(production) = false) {
+    /* return false */
+    return false
+  };
+  /* 2. Let hasName be the result of HasName of production. */
+  hasName := HasName(production);
+  /* 3. If hasName is true, */
+  if (hasName = true) {
+    /* return false */
+    return false
+  };
+  /* 4. Return true. */
+  return true
+};
+
+function IsFunctionDefinition(expression){
+  return (expression.type in_list ["ArrowFunctionExpression", "FunctionExpression", "ClassExpression"])
+};
+
+function HasName(expression){
+  return !(expression.id = null)
+};
+
+function isForDeclaration(Statement){
+  return Statement.type = "VariableDeclarator" &&& (Statement.kind = "let" ||| Statement.kind = "const")
+};
+
+function IsObjectLiteral(arg) {
+  return IsOfType(arg, "ObjectExpression") || IsOfType(arg, "ObjectPattern")
+};
+
+function IsArrayLiteral(arg) {
+  return IsOfType(arg, "ArrayExpression")  || IsOfType(arg, "ArrayPattern")
+};
+
+function IsIdentifierRef(arg) {
+  return IsOfType(arg, "Identifier")
+};
+
+function IsOfType(arg, type) {
+  return ("type" in_obj arg) &&& (arg.type = type)
+}

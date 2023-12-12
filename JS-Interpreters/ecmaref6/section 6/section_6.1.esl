@@ -1,0 +1,364 @@
+/**
+ * 6.1 Types
+ */
+function Type(V) {
+  v_type := typeof V;
+  if (v_type = __$Int) { return "Number" };
+  if (v_type = __$Flt) { return "Number" };
+  if (v_type = __$Bool) { return "Boolean" };
+  if (v_type = __$Str) { return "String" };
+  if (v_type = __$Obj) {
+    if (isJavaScriptSymbol(V)) { return "Symbol" };
+    if (isJavaScriptObject(V)) { return "Object" };
+    if (isPropertyDescriptor(V)) { return "PropertyDescriptor" };
+    if (isCodeObject(V)) { return "Object" };
+    return "EnvironmentRecord"
+  };
+  if (v_type = __$List) { return "List" };
+  if (v_type = __$Symbol) {
+    if (V = 'null) { return "Null" };
+    if (V = 'undefined) { return "Undefined" }
+  };
+  if (v_type = __$Tuple) {
+    ft := fst V;
+    if (ft = "R") { return "Reference" };
+    if (ft = "C") { return "Completion" };
+    if (ft = "P") { return "PropertyIdentifier" }
+  };
+  if (v_type = __$Null) { return "Null" };
+  if (V = 'empty) { return null };
+  return "Lambda"
+};
+
+/* Auxiliary functions */
+function isJavaScriptObject(obj) {
+  return "Prototype" in_obj obj
+};
+
+function isCodeObject(obj) {
+  return "codeType" in_obj obj
+};
+
+
+function isPropertyDescriptor(obj) {
+  return ("Enumerable" in_obj obj) || ("Configurable" in_obj obj)
+};
+
+function isJavaScriptSymbol(obj) {
+  return "Description" in_obj obj
+};
+
+function setConfigurability(obj, prop, b) {
+  desc := getJSProperty(obj, prop);
+  desc.Configurable := b;
+  return b
+};
+
+
+
+/**
+ * 6.1.5 The Symbol Type
+ *
+ * The Symbol type is the set of all non-String values that may be used as the key of an Object property (6.1.7).
+ *
+ * Each possible Symbol value is unique and immutable.
+ *
+ * Each Symbol value immutably holds an associated value called [[Description]] that is either undefined or a String value.
+ */
+function InternalSymbolConstructor(description) {
+  sym := {
+    Description: description,
+    _id: |__CUR__SYMB__|
+  };
+  |__CUR__SYMB__| := |__CUR__SYMB__| + 1;
+  return sym
+};
+
+/**
+ * 6.1.5.1 Well-Known Symbols
+ */
+function initWellKnownSymbols() {
+  wellKnownSymbols := ["Symbol.hasInstance","Symbol.isConcatSpreadable",
+                       "Symbol.iterator", "Symbol.match",
+                       "Symbol.replace", "Symbol.search",
+                       "Symbol.species", "Symbol.split", "Symbol.toPrimitive",
+                       "Symbol.toStringTag", "Symbol.unscopables"];
+
+  foreach (sym : wellKnownSymbols) {
+    initWellKnownSymbol(sym)
+  };
+
+  return
+};
+
+function initWellKnownSymbol(description) {
+  sym := InternalSymbolConstructor(description);
+  rec := {
+    key: description,
+    sym: sym,
+    wellknown: true
+  };
+  |GlobalSymbolRegistry|[description] := rec;
+  return
+};
+
+function getWellKnownSymbol(key) {
+  if (key in_obj |GlobalSymbolRegistry|) {
+    return |GlobalSymbolRegistry|[key].sym
+  };
+  return 'undefined
+};
+
+/** 6.1.7.4 Well-Known Intrinsic Objects
+    Just initializing the intrinsic container here and assign the well-known objects when they are created (section 18/section_18.esl)
+*/
+function initIntrinsics(intrinsic, realm, strict) {
+  /* initWellKnownSymbols(); */
+
+  objectPrototype := intrinsic.ObjectPrototype;
+  funcPrototype := intrinsic.FunctionPrototype;
+
+  |Intrinsics|["IteratorPrototype"] := initIteratorPrototype(realm, objectPrototype, strict);
+
+  /* Array */
+  ArrayObject := initArrayObject(realm, objectPrototype, strict);
+  |Intrinsics|["Array"] := ArrayObject;
+  |Intrinsics|["ArrayPrototype"] := getPrototypeValue(ArrayObject);
+  |Intrinsics|["ArrayProto_values"] := getJSProperty(getPrototypeValue(ArrayObject), "values").Value;
+  |Intrinsics|["ArrayIteratorPrototype"] := initArrayIteratorPrototype(realm, objectPrototype, strict);
+  
+  /* ArrayBuffer */
+  ArrayBufferObject := initArrayBufferObject(realm, objectPrototype, strict);
+  |Intrinsics|["ArrayBuffer"] := ArrayBufferObject;
+  |Intrinsics|["ArrayBufferPrototype"] := getPrototypeValue(ArrayBufferObject);
+  
+  /* Boolean */
+  BooleanObject := initBooleanObject(realm, objectPrototype, strict);
+  |Intrinsics|["Boolean"] := BooleanObject;
+  |Intrinsics|["BooleanPrototype"] := getPrototypeValue(BooleanObject);
+
+  /* DataView */
+  DataViewObject := initDataViewObject(realm, objectPrototype, strict);
+  |Intrinsics|["DataView"] := DataViewObject;
+  |Intrinsics|["DataViewPrototype"] := getPrototypeValue(DataViewObject);
+
+  /* Date */
+  DateObject := initDateObject(realm, objectPrototype, strict);
+  |Intrinsics|["Date"] := DateObject;
+  |Intrinsics|["DatePrototype"] := getPrototypeValue(DateObject);
+
+  /* decodeURI */
+  decodeURI := CreateBuiltInFunctionObject(["encodedURI"], "GlobalObjectDecodeURI", realm, strict, null);
+  |Intrinsics|["decodeURI"] := decodeURI;
+  
+  decodeURIComponent := CreateBuiltInFunctionObject(["encodedURIComponent"], "GlobalObjectDecodeURIComponent", realm, strict, null);
+  |Intrinsics|["decodeURIComponent"] := decodeURIComponent;
+  
+  /* encodeURI */
+  encodeURI := CreateBuiltInFunctionObject(["uri"], "GlobalObjectEncodeURI", realm, strict, null);
+  |Intrinsics|["encodeURI"] := encodeURI;
+
+  encodeURIComponent := CreateBuiltInFunctionObject(["uriComponent"], "GlobalObjectEncodeURIComponent", realm, strict, null);
+  |Intrinsics|["encodeURIComponent"] := encodeURIComponent;
+
+  /* Error */
+  ErrorObject := initErrorObject(realm, objectPrototype, strict);
+  |Intrinsics|["Error"] := ErrorObject;
+  |Intrinsics|["ErrorPrototype"] := getPrototypeValue(ErrorObject);
+ 
+ /* eval */
+  eval := CreateBuiltInFunctionObject(["x"], "GlobalObjectEval", realm, strict, null);
+  |Intrinsics|["eval"] := eval;
+
+  /* Eval Error */
+  EvalErrorObject := initEvalErrorObject(realm, |Intrinsics|["ErrorPrototype"], strict);
+  |Intrinsics|["EvalError"] := EvalErrorObject;
+  |Intrinsics|["EvalErrorPrototype"] := getPrototypeValue(EvalErrorObject);
+ 
+  /* TypedArray */
+  typedArray := initTypedArrayMainConstructor(realm, objectPrototype, strict);
+  |Intrinsics|["TypedArray"] := typedArray;
+  |Intrinsics|["TypedArrayPrototype"] := getPrototypeValue(typedArray);
+
+ /* Float32Array */
+  Float32ArrayObject := initTypedArrayObject(realm, strict, "Float32", typedArray);
+  |Intrinsics|["Float32Array"] := Float32ArrayObject;
+  |Intrinsics|["Float32ArrayPrototype"] := getPrototypeValue(Float32ArrayObject);
+ 
+  /* Float64Array */
+  Float64ArrayObject := initTypedArrayObject(realm, strict, "Float64", typedArray);
+  |Intrinsics|["Float64Array"] := Float64ArrayObject;
+  |Intrinsics|["Float64ArrayPrototype"] := getPrototypeValue(Float64ArrayObject);
+ 
+  /* TODO GENERATOR */
+
+  /* Int8 Array */
+  Int8ArrayObject := initTypedArrayObject(realm, strict, "Int8", typedArray);
+  |Intrinsics|["Int8Array"] := Int8ArrayObject;
+  |Intrinsics|["Int8ArrayPrototype"] := getPrototypeValue(Int8ArrayObject);
+ 
+  /* Int16 Array */
+  Int16ArrayObject := initTypedArrayObject(realm, strict, "Int16", typedArray);
+  |Intrinsics|["Int16Array"] := Int16ArrayObject;
+  |Intrinsics|["Int16ArrayPrototype"] := getPrototypeValue(Int16ArrayObject);
+
+  /* Int32 Array */
+  Int32ArrayObject := initTypedArrayObject(realm, strict, "Int32", typedArray);
+  |Intrinsics|["Int32Array"] := Int32ArrayObject;
+  |Intrinsics|["Int32ArrayPrototype"] := getPrototypeValue(Int32ArrayObject);
+
+  /* isFinite */
+  isFinite := CreateBuiltInFunctionObject(["number"], "GlobalObjectIsFinite", realm, strict, null);
+  |Intrinsics|["isFinite"] := isFinite;
+
+  /* isNaN */
+  isNaN := CreateBuiltInFunctionObject(["number"], "GlobalObjectIsNaN", realm, strict, null);
+  |Intrinsics|["isNaN"] := isNaN;
+
+  /* JSON */
+  JsonObject := initJsonObject(realm, objectPrototype, strict);
+  |Intrinsics|["JSON"] := JsonObject;
+
+  /* Map */
+  MapObject := initMapObject(realm, funcPrototype, objectPrototype, strict);
+  |Intrinsics|["Map"] := MapObject;
+  |Intrinsics|["MapIteratorPrototype"] := initMapIteratorPrototype(realm, objectPrototype, strict);
+  |Intrinsics|["MapPrototype"] := getPrototypeValue(MapObject);
+
+  /* Math */
+  MathObject := initMathObject(realm, objectPrototype, strict);
+  |Intrinsics|["Math"] := MathObject;
+
+  /* Number */
+  NumberObject := initNumberObject(realm, objectPrototype, strict);
+  |Intrinsics|["Number"] := NumberObject;
+  |Intrinsics|["NumberPrototype"] := getPrototypeValue(NumberObject);
+ 
+  /* Object */
+  |Intrinsics|["ObjProto_toString"] := getJSProperty(objectPrototype, "toString").Value;
+
+  /* parseFloat */
+  parseFloat := CreateBuiltInFunctionObject(["string"], "GlobalObjectParseFloat", realm, strict, null);
+  |Intrinsics|["parseFloat"] := parseFloat;
+
+  /* parseInt */
+  parseInt := CreateBuiltInFunctionObject(["string", "radix"], "GlobalObjectParseInt", realm, strict, null);
+  |Intrinsics|["parseInt"] := parseInt;
+
+  /* Promise */
+  PromiseObject := initPromiseObject(realm, funcPrototype, objectPrototype, strict);
+  |Intrinsics|["Promise"] := PromiseObject;
+  |Intrinsics|["PromisePrototype"] := getPrototypeValue(PromiseObject);
+ 
+  /* Proxy */
+  ProxyObject := initProxyObject(realm, objectPrototype, strict);
+  |Intrinsics|["Proxy"] := ProxyObject;
+
+  /* RangeError */
+  RangeErrorObject := initRangeErrorObject(realm, |Intrinsics|["ErrorPrototype"], strict);
+  |Intrinsics|["RangeError"] := RangeErrorObject;
+  |Intrinsics|["RangeErrorPrototype"] := getPrototypeValue(RangeErrorObject);
+
+  /* ReferenceError */
+  ReferenceErrorObject := initReferenceErrorObject(realm, |Intrinsics|["ErrorPrototype"], strict);
+  |Intrinsics|["ReferenceError"] := ReferenceErrorObject;
+  |Intrinsics|["ReferenceErrorPrototype"] := getPrototypeValue(ReferenceErrorObject);
+ 
+  /* Reflect */
+  ReflectObject := initReflectObject(realm, objectPrototype, strict);
+  |Intrinsics|["Reflect"] := ReflectObject;
+
+  /* RegExp */
+  RegExpObject := initRegExpObject(realm, objectPrototype, strict);
+  |Intrinsics|["RegExp"] := RegExpObject;
+  |Intrinsics|["RegExpPrototype"] := getPrototypeValue(RegExpObject);
+  
+  /* Set */
+  SetObject := initSetObject(realm, funcPrototype, objectPrototype, strict);
+  |Intrinsics|["Set"] := SetObject;
+  |Intrinsics|["SetIteratorPrototype"] := initSetIteratorPrototype(realm, objectPrototype, strict);
+  |Intrinsics|["SetPrototype"] := getPrototypeValue(SetObject);
+  
+  /* String */
+  StringObject := initStringObject(realm, objectPrototype, strict);
+  |Intrinsics|["String"] := StringObject;
+  |Intrinsics|["StringIteratorPrototype"] := initStringIteratorPrototype(realm, objectPrototype, strict);
+  |Intrinsics|["StringPrototype"] := getPrototypeValue(StringObject);
+  
+  /* Symbol */
+  symbolObject := initSymbolObject(realm, objectPrototype, strict);
+  |Intrinsics|["Symbol"] := symbolObject;
+  |Intrinsics|["SymbolPrototype"] := getPrototypeValue(symbolObject);
+  
+  /* SyntaxError */
+  SyntaxErrorObject := initSyntaxErrorObject(realm, |Intrinsics|["ErrorPrototype"], strict);
+  |Intrinsics|["SyntaxError"] := SyntaxErrorObject;
+  |Intrinsics|["SyntaxErrorPrototype"] := getPrototypeValue(SyntaxErrorObject);
+  
+  /* TypeError */
+  TypeErrorObject := initTypeErrorObject(realm, |Intrinsics|["ErrorPrototype"], strict);
+  |Intrinsics|["TypeError"] := TypeErrorObject;
+  |Intrinsics|["TypeErrorPrototype"] := getPrototypeValue(TypeErrorObject);
+
+  /* Uint8Array */
+  Uint8ArrayObject := initTypedArrayObject(realm, strict, "Uint8", typedArray);
+  |Intrinsics|["Uint8Array"] := Uint8ArrayObject;
+  |Intrinsics|["Uint8ArrayPrototype"] := getPrototypeValue(Uint8ArrayObject);
+
+  /* Uint8ClampedArray */
+  Uint8ClampedArrayObject := initTypedArrayObject(realm, strict, "Uint8Clamped", typedArray);
+  |Intrinsics|["Uint8ClampedArray"] := Uint8ClampedArrayObject;
+  |Intrinsics|["Uint8ClampedArrayPrototype"] := getPrototypeValue(Uint8ClampedArrayObject);
+
+  /* Uint16Array */
+  Uint16ArrayObject := initTypedArrayObject(realm, strict, "Uint16", typedArray);
+  |Intrinsics|["Uint16Array"] := Uint16ArrayObject;
+  |Intrinsics|["Uint16ArrayPrototype"] := getPrototypeValue(Uint16ArrayObject);
+
+  /* Uint32Array */
+  Uint32ArrayObject := initTypedArrayObject(realm, strict, "Uint32", typedArray);
+  |Intrinsics|["Uint32Array"] := Uint32ArrayObject;
+  |Intrinsics|["Uint32ArrayPrototype"] := getPrototypeValue(Uint32ArrayObject);
+
+  /* URIError */
+  URIErrorObject := initURIErrorObject(realm, |Intrinsics|["ErrorPrototype"], strict);
+  |Intrinsics|["URIError"] := URIErrorObject;
+  |Intrinsics|["URIErrorPrototype"] := getPrototypeValue(URIErrorObject);
+
+  /* WeakMap */
+  WeakMapObject := initWeakMapObject(realm, funcPrototype, objectPrototype, strict);
+  |Intrinsics|["WeakMap"] := WeakMapObject;
+  |Intrinsics|["WeakMapPrototype"] := getPrototypeValue(WeakMapObject);
+
+  /* WeakSet */
+  WeakSetObject := initWeakSetObject(realm, funcPrototype, objectPrototype, strict);
+  |Intrinsics|["WeakSet"] := WeakSetObject;
+  |Intrinsics|["WeakSetPrototype"] := getPrototypeValue(WeakSetObject);
+
+  /* ObjectIterator */
+  |Intrinsics|["ObjectIteratorPrototype"] := initObjectIteratorPrototype(realm, objectPrototype, strict);
+
+  return
+};
+
+function getProp(global, prop, strict) {
+  ref := newPropertyReference(global, prop, strict);
+  obj := GetValue(ref);
+  return obj
+};
+
+function getConstructorProto(global, constructor, strict) {
+  ref := newPropertyReference(global, constructor, strict);
+  obj := GetValue(ref);
+
+  proto := getJSProperty(obj, "prototype").Value;
+  return proto
+};
+
+function getPrototypeValue(object) {
+  return getJSProperty(object, "prototype").Value
+};
+
+function isIntrinsic(name) {
+  return name in_obj |Intrinsics|
+}

@@ -1,0 +1,779 @@
+/**
+ * 7.1.1 OrdinaryToPrimitive( O, hint )
+*/
+function OrdinaryToPrimitive(O, hint) {
+
+    /* Assert: Type(O) is Object*/ 
+    assert( Type(O) = "Object" );
+
+    /* Assert: Type(hint) is String and its value is either "string" or "number".*/ 
+    assert( (Type(hint) = "String") &&& (( hint = "string" ) ||| ( hint = "number" )) );
+
+    /* If hint is "string", then*/ 
+    if (hint = "string") {
+        /* Let methodNames be «"toString", "valueOf"».*/ 
+        methodNames := ["toString", "valueOf"]
+    }
+    /* Else,*/ 
+    else {
+        /* Let methodNames be «"valueOf", "toString"».*/ 
+        methodNames := ["valueOf", "toString"]
+    };
+
+    /* For each name in methodNames in List order, do*/ 
+    foreach( name : methodNames ) {
+        /* Let method be Get(O, name).*/ 
+        method := Get(O, name);
+
+        /* ReturnIfAbrupt(method).*/ 
+        @ReturnIfAbrupt(method);
+
+        /* If IsCallable(method) is true, then*/ 
+        if ( IsCallable(method) = true ) {
+            /* Let result be Call(method, O).*/ 
+            result := Call(null, null, method, O, null);
+
+            /* ReturnIfAbrupt(result).*/ 
+            @ReturnIfAbrupt(result);
+
+            /* If Type(result) is not Object, return result.*/ 
+            if ( !(Type(result) = "Object") ) {
+            	return result
+            }
+        }
+    };
+
+    /* Throw a TypeError exception.*/ 
+    throw TypeErrorConstructorInternal()
+};
+
+/**
+ * 7.1.1 ToPrimitive ( input [, PreferredType] )
+ * 
+ * The abstract operation ToPrimitive takes an input argument and an optional argument PreferredType. The
+ * abstract operation ToPrimitive converts its input argument to a non-Object type. If an object is capable
+ * of converting to more than one primitive type, it may use the optional hint PreferredType to favour that type.
+ * Conversion occurs according to Table 9:
+*/
+function ToPrimitive(input, PreferredType) {
+	switch( Type(input) ) {
+		case "Completion": {
+			if ( isAnAbruptCompletion(input) = true ) {
+				return input
+			}
+			else {
+				return ToPrimitive(getCompletionValue(input), PreferredType)
+			}
+		}
+
+		case "Undefined": { return input }
+		case "Null": { return input }
+		case "Boolean": { return input }
+		case "Number": { return input }
+		case "String": { return input }
+		case "Symbol": { return input }
+
+		case "Object": {
+    		/* If PreferredType was not passed, let hint be "default". */
+			if ( PreferredType = null ) {
+				hint := "default"
+			}
+    		/* Else if PreferredType is hint String, let hint be "string". */
+			elif ( PreferredType = 'String ) {
+				hint := "string" 
+			}
+    		/* Else PreferredType is hint Number, let hint be "number". */
+			else {
+				hint := "number"
+			};
+
+  		/* Let exoticToPrim be GetMethod(input, @@toPrimitive). */
+  		exoticToPrim := GetMethod(input, getToPrimitivePropertyName()); 
+
+  		/* ReturnIfAbrupt(exoticToPrim). */
+  		@ReturnIfAbrupt(exoticToPrim);
+
+  		/* If exoticToPrim is not undefined, then */
+  		if ( !(exoticToPrim = 'undefined) ) {
+  		    /* Let result be Call(exoticToPrim, input, «hint»). */
+  		    result := Call(null, null, exoticToPrim, input, [hint]);
+
+  		    /* ReturnIfAbrupt(result). */
+  		    @ReturnIfAbrupt(result);
+
+  		    /* If Type(result) is not Object, return result. */
+  		    if ( !(Type(result) = "Object") ) {
+  		    	return result
+  		    };
+
+  		    /* Throw a TypeError exception. */
+  		    throw TypeErrorConstructorInternal()
+  		};
+
+
+  		/* If hint is "default", let hint be "number". */
+  		if ( hint = "default" ) {
+  			hint := "number"
+  		};
+  		
+      /* Return OrdinaryToPrimitive(input,hint). */
+  		return OrdinaryToPrimitive(input, hint)
+
+
+  		/* NOTE When ToPrimitive is called with no hint, then it generally behaves as if the hint were Number.
+  			    However, objects may over-ride this behaviour by defining a @@toPrimitive method. Of the objects
+  			    defined in this specification only Date objects (see 20.3.4.45) and Symbol objects (see 19.4.3.4)
+  			    over-ride the default ToPrimitive behaviour. Date objects treat no hint as if the hint were String.
+  		*/
+		}
+	}
+};
+
+/**
+ * 7.1.2 ToBoolean ( argument )
+ * 
+ * The abstract operation ToBoolean converts argument to a value of type Boolean according to Table 10:
+*/
+function ToBoolean( argument ) {
+	switch( Type(argument) ) {
+		case "Completion": {
+			if ( isAnAbruptCompletion(argument) = true ) {
+				return argument
+			}
+			else {
+				return ToBoolean(getCompletionValue(argument))
+			}
+		}
+
+		case "Undefined": { return false }
+		case "Null": { return false }
+		case "Boolean": { return argument }
+		case "Number": { 
+			if ( (argument = NaN) ||| (isZero(argument) = true) ||| (isMinusZero(argument) = true) ) {
+				return false
+			}
+			else {
+				return true
+			}
+		}
+
+		case "String": { 
+			if ( argument = "" ) {
+				return false
+			}
+			else {
+				return true
+			}
+		}
+
+		case "Symbol": { return true }
+
+		case "Object": { return true }
+  }
+};
+
+/**
+ * 7.1.3 ToNumber ( argument )
+ * 
+ * The abstract operation ToNumber converts argument to a value of type Number according to Table 11:
+*/
+function ToNumber( argument ) {
+  print "ToNumber";
+  print argument;
+  print Type(argument);
+	switch( Type(argument) ) {
+		case "Completion": {
+			if ( isAnAbruptCompletion(argument) = true ) {
+				return argument
+			}
+			else {
+				return ToNumber(getCompletionValue(argument))
+			}
+		}
+
+		case "Undefined": { return NaN }
+		case "Null": { return 0. }
+		case "Boolean": { 
+			if ( argument = true ) {
+				return 1.
+			}
+			else {
+				return 0.
+			}
+		}
+
+		case "Number": { return argument }
+
+		case "String": { return MV(argument) }
+
+		case "Symbol": { throw TypeErrorConstructorInternal() }
+
+		case "Object": {
+			/* 1. Let primValue be ToPrimitive(input argument, hint Number). */
+			primValue := ToPrimitive(argument, 'Number);
+
+			/* 2. Return ToNumber(primValue). */
+			return ToNumber(primValue)
+    }
+  }
+};
+
+/* 7.1.3.1 ToNumber Applied to the String Type */
+/* 7.1.3.1.1 Runtime Semantics: MV’s */
+function MV(str) {
+  str := trim str;
+  if ((s_len str) = 0) {
+    return 0.
+  };
+  return float_of_string str
+};
+
+/**
+ * 7.1.4 ToInteger ( argument )
+ *
+ * The abstract operation ToInteger converts argument to an integral numeric value. This abstract operation functions as follows:
+*/
+function ToInteger( argument ) {
+	/* Let number be the result of calling ToNumber on the input argument. */
+	num := ToNumber(argument);
+
+	/* ReturnIfAbrupt(number). */
+	@ReturnIfAbrupt(num);
+
+	/* If number is NaN, return +0. */
+	if ( is_NaN num ) {
+		return 0.
+	};
+
+	/* If number is +0, -0, +Infinity, or -Infinity, return number. */
+	if ( ( isZero(argument) = true ) ||| ( isMinusZero(argument) = true ) ||| (argument = Infinity) ||| (argument = -Infinity) ) {
+		return num
+	};
+
+	/* Return the number value that is the same sign as number and whose magnitude is floor(abs(number)). */
+	return to_int(num)
+};
+
+/**
+ * 7.1.5 ToInt32 ( argument )
+ * 
+ * The abstract operation ToInt32 converts argument to one of 2^32 integer values in the range −2^31 through
+ * 2^31−1, inclusive. This abstract operation functions as follows:
+*/
+function ToInt32(argument) {
+  /* 1. Let number be the result of calling ToNumber on the input argument. */
+  num := ToNumber(argument);
+
+  /* ReturnIfAbrupt(number). */
+  @ReturnIfAbrupt(num);
+
+  return to_int32(num)
+  /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
+  /* 3. Let posInt be sign(number) * floor(abs(number)). */
+  /* 4. Let int32bit be posInt modulo 2^32 ; that is, a finite integer value k of Number type with positive sign and less
+        than 2^32 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
+        multiple of 2^32 . */
+  /* 5. If int32bit is greater than or equal to 2^31 , return int32bit - 2^32 , otherwise return int32bit. */
+
+  /* NOTE Given the above definition of ToInt32:
+          * The ToInt32 abstract operation is idempotent: if applied to a result that it produced, the second application leaves that
+            value unchanged.
+          * ToInt32(ToUint32(x)) is equal to ToInt32(x) for all values of x. (It is to preserve this latter property that +Infinity and -Infinity are
+            mapped to +0.)
+          * ToInt32 maps -0 to +0. */
+};
+
+/**
+ *  7.1.6 ToUint32: (Unsigned 32 Bit Integer) 
+ * 
+ * The abstract operation ToUint32 converts its argument to one of 2^32 integer values in the range 0 through 2^32 - 1, 
+ * inclusive. This abstraction operation functions as follows:
+*/
+function ToUint32(argument) {
+  /* 1. Let number be the result of calling ToNumber on the input argument. */
+  num := ToNumber(argument);
+
+  /* ReturnIfAbrupt(number). */
+  @ReturnIfAbrupt(num);
+
+  /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
+  return to_uint32(num)
+  /* 3. Let posInt be sign(number) x floor(abs(number)). */
+  /* 4. Let int32bit be posInt modulo 2^32 ; that is, a finite integer value k of Number type with positive sign and less
+        than 2^32 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
+        multiple of 2^32 . */
+  /* 5. Return int32bit. */
+
+  /* NOTE Given the above definition of ToUint32:
+          * Step 5 is the only difference between ToUint32 and ToInt32.
+          * The ToUint32 abstract operation is idempotent: if applied to a result that it produced, the second
+            application leaves that value unchanged.
+          * ToUint32(ToInt32(x)) is equal to ToUint32(x) for all values of x. (It is to preserve this latter property
+            that +Infinity and -Infinity are mapped to +0.)
+          * ToUint32 maps -0 to +0. */
+};
+
+/**
+ *  7.1.7 ToInt16: (Unsigned 16 Bit Integer)
+ *  The abstract operation ToInt16 converts argument to one of 2^16 integer values in the range −32768 through
+ * 	32767, inclusive. This abstract operation functions as follows:
+*/
+function ToInt16(argument) {
+  /* 1. Let number be the result of calling ToNumber on the input argument. */
+  num := ToNumber(argument);
+
+  /* ReturnIfAbrupt(number). */
+  @ReturnIfAbrupt(num);
+
+  return to_int(num)
+  /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
+  /* 3. Let posInt be sign(number) x floor(abs(number)). */
+  /* 4. Let int16bit be posInt modulo 2 16 ; that is, a finite integer value k of Number type with positive sign and less
+        than 2 16 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
+        multiple of 2^16 . */
+  /* 5. Return int16bit. */
+
+  /* NOTE Given the above definition of ToUint16:
+     * The substitution of 2 16 for 2 32 in step 4 is the only difference between ToUint32 and ToUint16.
+     * ToUint16 maps -0 to +0 */
+};
+
+/**
+ *  7.1.8 ToUint16: (Unsigned 16 Bit Integer)
+ *  The abstract operation ToUint16 converts its argument to one of 2^16 integer values in the range 0 through 2^16 - 1, 
+ * inclusive. This abstract operation functions as follows:
+*/
+function ToUint16(argument) {
+  /* 1. Let number be the result of calling ToNumber on the input argument. */
+  num := ToNumber(argument);
+
+  /* ReturnIfAbrupt(number). */
+  @ReturnIfAbrupt(num);
+
+  return to_uint16(num)
+  /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
+  /* 3. Let posInt be sign(number) x floor(abs(number)). */
+  /* 4. Let int16bit be posInt modulo 2 16 ; that is, a finite integer value k of Number type with positive sign and less
+        than 2 16 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
+        multiple of 2^16 . */
+  /* 5. Return int16bit. */
+
+  /* NOTE Given the above definition of ToUint16:
+     * The substitution of 2 16 for 2 32 in step 4 is the only difference between ToUint32 and ToUint16.
+     * ToUint16 maps -0 to +0 */
+};
+
+/**
+ * 7.1.9 ToInt8 ( argument )
+ * 
+ * The abstract operation ToInt8 converts argument to one of 2^8 integer values in the range −128 through 127,
+ * inclusive. This abstract operation functions as follows:
+ * 
+ * TODO
+*/
+
+
+/**
+ * 7.1.10 ToUint8 ( argument )
+ * 
+ * The abstract operation ToUint8 converts argument to one of 2^8 integer values in the range 0 through 255,
+ * inclusive. This abstract operation functions as follows:
+ * 
+ * TODO
+*/
+
+/**
+ * 7.1.11 ToUint8Clamp ( argument )
+ * 
+ * The abstract operation ToUint8Clamp converts argument to one of 2^8 integer values in the range 0 through
+ * 255, inclusive. This abstract operation functions as follows:
+ * 
+ * TODO
+*/
+
+/**
+ * 7.1.12 ToString ( argument )
+ * 
+ * The abstract operation ToString converts argument to a value of type String according to Table 12:
+*/
+function ToString( argument ) {
+	switch( Type(argument) ) {
+		case "Completion": {
+			if ( isAnAbruptCompletion(argument) = true ) {
+				return argument
+			}
+			else {
+				return ToString(getCompletionValue(argument))
+			}
+		}
+
+		case "Undefined": { return "undefined" }
+		case "Null": { return "null" }
+		case "Boolean": { 
+			if ( argument = true ) {
+				return "true"
+			}
+			else {
+				return "false"
+			}
+		}
+
+		case "Number": { return float_to_string argument }
+
+		case "String": { return argument }
+		
+		case "Symbol": { throw TypeErrorConstructorInternal() }
+
+		case "Object": { 
+			/* 1. Let primValue be ToPrimitive(input argument, hint String). */
+			primValue := ToPrimitive(argument, 'String);
+
+			/* 2. Return ToString(primValue). */
+			return ToString(primValue)
+		}
+  }
+};
+
+/**
+ * 7.1.13 ToObject ( argument )
+ * 
+ * The abstract operation ToObject converts argument to a value of type Object according to Table 13:
+*/
+function ToObject(argument) {
+	switch( Type(argument) ) {
+		case "Completion": {
+			if ( isAnAbruptCompletion(argument) = true ) {
+				return argument
+			}
+			else {
+				return ToObject(getCompletionValue(argument))
+			}
+		}
+
+		case "Undefined": { throw TypeErrorConstructorInternal() }
+		case "Null": { throw TypeErrorConstructorInternal() }
+		case "Boolean": { return BooleanConstructor(|global|, true, |Intrinsics|["Boolean"], false, [argument]) }
+
+		case "Number": { return NumberConstructor(|global|, true, |Intrinsics|["Number"], false, [argument]) }
+
+		case "String": { return StringCreate(argument, |Intrinsics|["StringPrototype"]) }
+		
+		case "Symbol": { return SymbolObjectConstructor(argument) }
+
+		case "Object": { return argument }
+	}
+};
+
+/**
+ * 7.1.14 ToPropertyKey ( argument )
+ * 
+ * The abstract operation ToPropertyKey converts argument to a value that can be used as a property key by
+ * performing the following steps:
+*/
+function ToPropertyKey(argument) {
+    /* Let key be ToPrimitive(argument, hint String). */
+    key := ToPrimitive(argument, 'String);
+
+    /* ReturnIfAbrupt(key). */
+    @ReturnIfAbrupt(key);
+
+    /* If Type(key) is Symbol, then */
+    if ( Type(key) = "Symbol" ) {
+        /* Return key. */
+        return key
+    };
+
+    /* Return ToString(key). */
+    return ToString(key)
+};
+
+/**
+ * 7.1.15 ToLength ( argument )
+ * 
+ * The abstract operation ToLength converts argument to an integer suitable for use as the length of an array-like
+ * object. It performs the following steps:
+*/
+function ToLength(argument) {
+    /* ReturnIfAbrupt(argument). */
+    @ReturnIfAbrupt(argument);
+
+    /* Let len be ToInteger(argument). */
+    len := ToInteger(argument);
+
+    /* ReturnIfAbrupt(len). */
+    @ReturnIfAbrupt(len);
+
+    /* If len ≤ +0, return +0. */
+    if (len <= 0.) {
+    	return 0.
+    };
+
+    maxNumber := (2. ** 53.) - 1.;
+
+    /* If len is +∞, return 2^53-1. */
+    if ( len = Infinity ) {
+    	return maxNumber
+    };
+
+    /* Return min(len, 2^53-1). */
+    return min(len, maxNumber)
+};
+
+/**
+ * 7.1.16 CanonicalNumericIndexString ( argument )
+ * 
+ * The abstract operation CanonicalNumericIndexString returns argument converted to a numeric value if it is a
+ * String representation of a Number that would be produced by ToString, or the string "-0". Otherwise, it
+ * returns undefined. This abstract operation functions as follows:
+*/
+function CanonicalNumericIndexString(argument) {
+    /* Assert: Type(argument) is String. */
+    assert( Type(argument) = "String" );
+
+    /* If argument is "-0", return −0. */
+    if (argument = "-0") {
+    	return -(0.)
+    };
+
+    /* Let n be ToNumber(argument). */
+    n := ToNumber(argument);
+
+    /* If SameValue(ToString(n), argument) is false, return undefined. */
+    if ( SameValue(ToString(n), argument) = false ) {
+    	return 'undefined
+    };
+
+    /* Return n. */
+    return n
+};
+
+
+/**
+ * 7.1.5 ToInt32 (argument)
+ *
+ * The abstract operation ToInt32 converts argument to one of 2^32 integer values 
+ * in the range -2^31 through 2^31-1, inclusive. This abstract operation functions 
+ * as follows:
+ *
+ * NOTE Given the above definition of ToInt32: 
+ *
+ * The ToInt32 abstract operation is idempotent: if applied to a result that it 
+ * produced, the second application leaves that value unchanged. 
+ *
+ * ToInt32(ToUint32(x)) is equal to ToInt32(x) for all values of x. (It is to 
+ * preserve this latter property that +∞ and -∞ are mapped to +0.) 
+ *
+ * ToInt32 maps -0 to +0. 
+ */
+function _ToInt32(argument) {
+  /* 1. Let number be ToNumber(argument). */
+  num := ToNumber(argument);
+  /* 2. ReturnIfAbrupt(number). */
+  @ReturnIfAbrupt(num);
+  /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
+  if (is_NaN num ||| num = Infinity ||| num = -Infinity 
+        ||| isZero(num) ||| isMinusZero(num)) {
+    return 0.
+  };
+  /* 4. Let int be the mathematical value that is the same sign as number and 
+     whose magnitude is floor(abs(number)). */
+  integer := floor(abs(num)) *(abs(num)/num);
+  /* 5. Let int32bit be int modulo 2^32. */
+  int32bit := mod(integer, 2.**32.);
+  /* 6. If int32bit >= 2^31, */
+  if (int32bit >= 2.**31.) {
+    /* return int32bit - 2^32,*/
+    return int32bit - 2.**32.
+  };
+  /*  otherwise return int32bit */
+  return int32bit
+
+};
+
+/**
+ * 7.1.6 ToUint32 (argument)
+ *
+ * The abstract operation ToUint32 converts argument to one of 2^32 integer 
+ * values in the range 0 through 2^32-1, inclusive. This abstract operation 
+ * functions as follows: 
+ *
+ * NOTE Given the above definition of ToUint32: 
+ *
+ * Step 6 is the only difference between ToUint32 and ToInt32. 
+ *
+ * The ToUint32 abstract operation is idempotent: if applied to a result that it 
+ * produced, the second application leaves that value unchanged. 
+ *
+ * ToUint32(ToInt32(x)) is equal to ToUint32(x) for all values of x. (It is to 
+ * preserve this latter property that +∞ and -∞ are mapped to +0.) 
+ *
+ * ToUint32 maps -0 to +0. 
+ */
+function _ToUint32(argument) {
+   /* 1. Let number be ToNumber(argument). */
+  num := ToNumber(argument);
+  /* 2. ReturnIfAbrupt(number). */
+  @ReturnIfAbrupt(num);
+  /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
+  if (is_NaN num ||| num = Infinity ||| num = -Infinity 
+        ||| isZero(num) ||| isMinusZero(num)) {
+    return 0.
+  };
+  /* 4. Let int be the mathematical value that is the same sign as number and 
+     whose magnitude is floor(abs(number)). */
+  integer := floor(abs(num)) *(abs(num)/num);
+  /* 5. Let int32bit be int modulo 2^32. */
+  int32bit := mod(integer, 2.**32.);
+  /* 6. Return int32bit. */
+  return int32bit
+};
+
+/**
+ * 7.1.8 ToUint16 (argument)
+ *
+ * The abstract operation ToUint16 converts argument to one of 2^16 integer values 
+ * in the range 0 through 2^16-1, inclusive. This abstract operation 
+ * functions as follows: 
+ *
+ * 
+ * NOTE Given the above definition of ToUint16:
+ *
+ * The substitution of 216 for 232 in step 5 is the only difference between ToUint32 and ToUint16.
+ * ToUint16 maps −0 to +0.
+ */
+function _ToUint16(argument) {
+  /* 1. Let number be ToNumber(argument). */
+  num := ToNumber(argument);
+  /* 2. ReturnIfAbrupt(number). */
+  @ReturnIfAbrupt(num);
+  /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
+  if (is_NaN num ||| num = Infinity ||| num = -Infinity 
+        ||| isZero(num) ||| isMinusZero(num)) {
+    return 0.
+  };
+  /* 4. Let int be the mathematical value that is the same sign as number and 
+     whose magnitude is floor(abs(number)). */
+  integer := floor(abs(num)) *(abs(num)/num);
+  /* 5. Let int16bit be int modulo 2^16. */
+  int16bit := mod(integer, 2.**16.);
+  /* 6. Return int16bit */
+  return int16bit
+};
+
+
+/**
+ * 7.1.9 ToInt8 (argument)
+ *
+ * The abstract operation ToInt8 converts argument to one of 2^8 integer values 
+ * in the range -128 through 127, inclusive. This abstract operation functions 
+ * as follows: 
+ */
+function ToInt8(argument) {
+  /* 1. Let number be ToNumber(argument). */
+  num := ToNumber(argument);
+  /* 2. ReturnIfAbrupt(number). */
+  @ReturnIfAbrupt(num);
+  /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
+  if (is_NaN num ||| num = Infinity ||| num = -Infinity 
+        ||| isZero(num) ||| isMinusZero(num)) {
+    return 0.
+  };
+  /* 4. Let int be the mathematical value that is the same sign as number and 
+     whose magnitude is floor(abs(number)). */
+  integer := floor(abs(num)) *(abs(num)/num);
+  /* 5. Let int8bit be int modulo 2^8. */
+  int8bit := mod(integer, 2.**8.); /*TODO usar modulo que funciona com negativos*/
+  /* 6. If int8bit ≥ 2^7, */
+  if (int8bit >= 2.**7.) {
+    /* return int8bit - 2^8, otherwise return int8bit */
+    return int8bit - 2.**8.
+  };
+  return int8bit
+};
+
+/**
+ * 7.1.10  ToUint8 (argument)
+ *
+ * The abstract operation ToUInt8 converts argument to one of 2^8 integer values 
+ * in the range 0 through 255, inclusive. This abstract operation functions 
+ * as follows: 
+ */
+function ToUint8(argument) {
+  /* 1. Let number be ToNumber(argument). */
+  num := ToNumber(argument);
+  /* 2. ReturnIfAbrupt(number). */
+  @ReturnIfAbrupt(num);
+  /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
+  if (is_NaN num ||| num = Infinity ||| num = -Infinity 
+        ||| isZero(num) ||| isMinusZero(num)) {
+    return 0.
+  };
+  /* 4. Let int be the mathematical value that is the same sign as number and 
+     whose magnitude is floor(abs(number)). */
+  integer := floor(abs(num)) *(abs(num)/num);
+  /* 5. Let int8bit be int modulo 2^8. */
+  int8bit := mod(integer, 2.**8.); /*TODO usar modulo que funciona com negativos*/
+  /* 6. Return int8bit. */
+  return int8bit
+};
+
+/**
+ * 7.1.11  ToUint8Clamp (argument)
+ *
+ * The abstract operation ToUint8Clamp converts argument to one of 2^8 integer values 
+ * in the range 0 through 255, inclusive. This abstract operation functions 
+ * as follows:
+ *
+ * NOTE Unlike the other ECMAScript integer conversion abstract operation, 
+ * ToUint8Clamp rounds rather than truncates non-integer values and does not convert +∞ to 0. 
+ * ToUint8Clamp does “round half to even” tie-breaking. 
+ * This differs from Math.round which does “round half up” tie-breaking.
+ */
+function ToUint8Clamp(argument) {
+
+    /* 1. Let number be ToNumber(argument). */
+    num := ToNumber(argument);
+    /* 2. ReturnIfAbrupt(number). */
+    @ReturnIfAbrupt(num);
+    /* 3. If number is NaN, return +0. */
+    if (is_NaN num){
+        return 0.
+    };
+    /* 4. If number ≤ 0, return +0. */
+    if (num <= 0.){
+        return 0.
+    };
+    /* 5. If number ≥ 255, return 255. */
+    if (num >= 255.){
+        return 255.
+    };
+    /* 6. Let f be floor(number). */
+    f := floor(num);
+    /* 7. If f + 0.5 < number, return f + 1. */
+    if (f + 0.5 < num){
+        return (f + 1.)
+    };
+    /* 8. If number < f + 0.5, return f. */
+    if (num < (f + 0.5)){
+        return f
+    };
+    /* 9. If f is odd, return f + 1. */
+    if (!((f % 2.) = 0.)){
+        return f + 1.
+    };
+    /* 10. Return f. */
+    return f
+};
+
+
+/* aux functions */
+
+function mod(a, b) {
+  res := a % b;
+  if (res < 0.){
+      return res + b
+  };
+  return res
+
+  /* return (((a % b) + b) % b) */
+}

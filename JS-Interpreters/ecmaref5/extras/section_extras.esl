@@ -1,0 +1,82 @@
+function initConsoleObject(globalObject, objectPrototype, strict) {
+  console := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(console);
+
+  internalLog := CreateFunctionObject(["str"], "__internalLog", globalObject, strict, null);
+  internalLogObject := CreateFunctionObject(["obj"], "__internalLogObject", globalObject, strict, null);
+  internalSetInternalClass := CreateFunctionObject(["obj", "class"], "__internalSetInternalClass", globalObject, strict, null);
+  internalSetInternalName := CreateFunctionObject(["obj", "name"], "__internalSetInternalName", globalObject, strict, null);
+
+  createBuiltInProperty(console, "log", internalLog);
+  createBuiltInProperty(console, "logObject", internalLogObject);
+  createBuiltInProperty(console, "setInternalClass", internalSetInternalClass);
+  createBuiltInProperty(console, "setInternalName", internalSetInternalName);
+
+  createBuiltInProperty(internalLog, "prototype", objectPrototype);
+  createBuiltInProperty(internalLogObject, "prototype", objectPrototype);
+  createBuiltInProperty(internalSetInternalClass, "prototype", objectPrototype);
+  createBuiltInProperty(internalSetInternalName, "prototype", objectPrototype);
+
+  setInternalProperty(console, "Prototype", objectPrototype);
+
+  return console
+};
+
+function __internalLog(globalObject, this, strict, params) {
+  str := l_nth(params, 0);
+
+  if (!(typeof str = __$Str)) {
+    str := ToString(str)
+  };
+  print s_concat ["JS Log: ", str];
+
+  return 'null
+};
+
+function __internalLogObject(globalObject, this, strict, params) {
+  obj := l_nth(params, 0);
+
+  if (!((typeof obj) = __$Obj)) {
+    return __internalLog(globalObject, this, strict, params)
+  };
+
+  /*props := getOwnProperties(obj);*/ /* Doesn't print all because enumerable */
+/*
+  i := 0;
+  len := l_len props;
+  str := "";
+  while (i < len ) {
+    P := l_nth(props, i);
+    str := s_concat([str, P]);
+    if (!(i = (len - 1))) {
+      str := s_concat([str, ", "])
+    };
+    i := i + 1
+  };
+
+  print s_concat ["JS Log: [", str, "]"];*/
+
+  oProps := obj.JSProperties;
+  print "JS Log Object: ";
+  print oProps;
+
+  return 'null
+};
+
+function __internalSetInternalClass(globalObject, this, strict, params) {
+  obj := l_nth(params, 0);
+  class := l_nth(params, 1);
+
+  setInternalProperty(obj, "Class", class);
+
+  return 'null
+};
+
+function __internalSetInternalName(globalObject, this, strict, params) {
+  obj := l_nth(params, 0);
+  name := l_nth(params, 1);
+
+  createBuiltInProperty(obj, "name", name);
+
+  return 'null
+}

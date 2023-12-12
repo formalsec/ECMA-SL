@@ -1,0 +1,2827 @@
+/* 20.3 Date Objects */
+function initDateObject(globalObject, ObjectPrototype, strict) {
+
+  /* datePrototype := initDatePrototype(globalObject, ObjectPrototype, strict); */
+  datePrototypeObject := NewECMAScriptObjectFull(ObjectPrototype, "Object", true);
+  setAllInternalMethodsOfOrdinaryObject(datePrototypeObject);
+  
+  dateConstructor := initDateConstructor(datePrototypeObject, globalObject, strict);
+
+  fillDatePrototype(datePrototypeObject, dateConstructor, globalObject, strict); 
+
+  descriptor := newDataPropertyDescriptorFull(datePrototypeObject, false, false, false);
+  setJSProperty(dateConstructor, "prototype", descriptor);
+
+  descriptor := newDataPropertyDescriptorFull("Date", false, false, true);
+  setJSProperty(dateConstructor, "name", descriptor);
+
+  descriptor := newDataPropertyDescriptorFull(7., false, false, true);
+  setJSProperty(dateConstructor, "length", descriptor);
+
+  |msPerDay| := 86400000.; /* TODO change to constant */
+  |LocalTZA| := 0.;
+
+  return dateConstructor /* -2%9  -> -2 */
+};
+
+/* 20.3.1 Overview of Date Objects and Definitions of Abstract Operators */
+/* The following functions are abstract operations that operate on time values (defined in 20.3.1.1). Note that, in
+   every case, if any argument to one of these functions is NaN, the result will be NaN. */
+
+/* 20.3.1.1 Time Values and Time Range */
+/* A Date object contains a Number indicating a particular instant in time to within a millisecond. Such a Number
+   is called a time value. A time value may also be NaN, indicating that the Date object does not represent a
+   specific instant of time. */
+
+/* Time is measured in ECMAScript in milliseconds since 01 January, 1970 UTC. In time values leap seconds
+   are ignored. It is assumed that there are exactly 86,400,000 milliseconds per day. ECMAScript Number values
+   can represent all integers from –9,007,199,254,740,992 to 9,007,199,254,740,992; this range suffices to
+   measure times to millisecond precision for any instant that is within approximately 285,616 years, either
+   forward or backward, from 01 January, 1970 UTC. */
+
+/* The actual range of times supported by ECMAScript Date objects is slightly smaller: exactly –100,000,000
+   days to 100,000,000 days measured relative to midnight at the beginning of 01 January, 1970 UTC. This gives
+   a range of 8,640,000,000,000,000 milliseconds to either side of 01 January, 1970 UTC. */
+
+/* The exact moment of midnight at the beginning of 01 January, 1970 UTC is represented by the value +0. */
+
+/* 20.3.1.2 Day Number and Time within Day */
+/* A given time value t belongs to day number */
+/*               Day(t) = floor(t / msPerDay) */
+/* where the number of milliseconds per day is */
+/*               msPerDay = 86400000 */
+/* The remainder is called the time within the day: */
+/*               TimeWithinDay(t) = t modulo msPerDay */
+function Day(t) { return floor(t / |msPerDay|)};
+function TimeWithinDay(t) { return (t % |msPerDay|) };
+
+/* 20.3.1.3 Year Number */
+/* ECMAScript uses an extrapolated Gregorian system to map a day number to a year number and to determine
+   the month and date within that year. In this system, leap years are precisely those which are (divisible by 4)
+   and ((not divisible by 100) or (divisible by 400)). The number of days in year number y is therefore defined by */
+
+/* DaysInYear(y) = 365 if (y modulo 4) <> 0 */
+/*               = 366 if (y modulo 4) = 0 and (y modulo 100) <> 0 */
+/*               = 365 if (y modulo 100) = 0 and (y modulo 400) <> 0 */
+/*               = 366 if (y modulo 400) = 0 */
+function DaysInYear(y) {
+
+   if ((!(y % 4. = 0.)) || (((y % 100. ) = 0.) &&& !((y % 400.) = 0.))) {
+      return 365.
+   }
+   elif (((y % 4.) = 0. &&& !((y % 100.) = 0.)) || (y % 400.) = 0.) {
+     return 366.
+   }
+};
+
+/* All non-leap years have 365 days with the usual number of days per month and leap years have an extra day
+   in February. The day number of the first day of year y is given by: */
+/*                DayFromYear(y) = 365 x (y-1970) + floor((y-1969)/4) - floor((y-1901)/100) + floor((y-1601)/400) */
+function DayFromYear(y){
+   return 365. * (y - 1970.) + floor((y - 1969.) / 4.) - floor((y - 1901.) / 100.) + floor((y - 1601.) / 400.)
+};
+
+/* The time value of the start of a year is: */
+/*                TimeFromYear(y) = msPerDay x DayFromYear(y) */
+function TimeFromYear(y) { return |msPerDay| * DayFromYear(y) };
+
+/* A time value determines a year by: */
+/*                YearFromTime(t) = the largest integer y (closest to positive infinity) such that TimeFromYear(y) <= t */
+function YearFromTime(t) {
+  if (!auxIsFinite(t)) {
+    return t
+  };
+
+  msPerYear := 365. * |msPerDay|;
+
+  aprox := floor(t/msPerYear) + 1970.;
+  /*if (t >= 0.) {
+    aprox := floor(t/msPerYear) + 1970.
+  }
+  else {
+    aprox := floor((t)/(366. * |msPerDay|)) + 1970.
+  }; */
+
+  if (aprox = 1970.) {
+    return aprox
+  };
+
+  step := - abs(t) / t;
+  /* i := 0; */
+  while(!((TimeFromYear(aprox) <= t) &&& (t < TimeFromYear(aprox + 1.)))) {
+    /*i := i + 1;
+    if ( i > 500) {
+      return aprox
+    }; */
+    aprox := aprox + step /*- 1. /* - abs(t) / t  */
+  };
+
+ 
+  return aprox
+};
+
+/* The leap-year function is 1 for a time within a leap year and otherwise is zero: */
+/*                InLeapYear(t) = 0 if DaysInYear(YearFromTime(t)) = 365 */
+/*                              = 1 if DaysInYear(YearFromTime(t)) = 366 */
+function InLeapYear(t) {
+   if (DaysInYear(YearFromTime(t)) = 365.) {
+      return 0.
+   }
+   elif (DaysInYear(YearFromTime(t)) = 366.) {
+      return 1.
+   }
+};
+
+/* 20.3.1.4 Month Number */
+/* Months are identified by an integer in the range 0 to 11, inclusive. The mapping MonthFromTime(t) from a time
+   value t to a month number is defined by: */
+/*                  MonthFromTime(t) = 0 if 0                  <= DayWithinYear(t) < 31                 */
+/*                                   = 1 if 31                 <= DayWithinYear (t) < 59+InLeapYear(t)  */
+/*                                   = 2 if 59+InLeapYear(t)   <= DayWithinYear (t) < 90+InLeapYear(t)  */
+/*                                   = 3 if 90+InLeapYear(t)   <= DayWithinYear (t) < 120+InLeapYear(t) */
+/*                                   = 4 if 120+InLeapYear(t)  <= DayWithinYear (t) < 151+InLeapYear(t) */
+/*                                   = 5 if 151+InLeapYear(t)  <= DayWithinYear (t) < 181+InLeapYear(t) */
+/*                                   = 6 if 181+InLeapYear(t)  <= DayWithinYear (t) < 212+InLeapYear(t) */
+/*                                   = 7 if 212+InLeapYear(t)  <= DayWithinYear (t) < 243+InLeapYear(t) */
+/*                                   = 8 if 243+InLeapYear(t)  <= DayWithinYear (t) < 273+InLeapYear(t) */
+/*                                   = 9 if 273+InLeapYear(t)  <= DayWithinYear (t) < 304+InLeapYear(t) */
+/*                                   = 10 if 304+InLeapYear(t) <= DayWithinYear (t) < 334+InLeapYear(t) */
+/*                                   = 11 if 334+InLeapYear(t) <= DayWithinYear (t) < 365+InLeapYear(t) */
+/* where */
+/*                 DayWithinYear(t) = Day(t)-DayFromYear(YearFromTime(t)) */
+/* A month value of 0 specifies January; 1 specifies February; 2 specifies March; 3 specifies April; 4 specifies
+   May; 5 specifies June; 6 specifies July; 7 specifies August; 8 specifies September; 9 specifies October; 10
+   specifies November; and 11 specifies December. Note that MonthFromTime(0) = 0, corresponding to Thursday,
+   01 January, 1970. */
+
+function MonthFromTime(t) {
+  dayWithinYear := DayWithinYear(t);
+  inLeapYear := InLeapYear(t);
+
+   if (0. <= dayWithinYear &&& dayWithinYear < 31.) {
+      return 0.
+   }
+   elif (31. <= dayWithinYear &&& dayWithinYear < 59. + inLeapYear) {
+      return 1.
+   }
+   elif (59. + inLeapYear <= dayWithinYear &&& dayWithinYear < 90. + inLeapYear) {
+      return 2.
+   }
+   elif (90. + inLeapYear <= dayWithinYear &&& dayWithinYear < 120. + inLeapYear) {
+      return 3.
+   }
+   elif (120. + inLeapYear <= dayWithinYear &&& dayWithinYear < 151. + inLeapYear) {
+      return 4.
+   }
+   elif (151. + inLeapYear <= dayWithinYear &&& dayWithinYear < 181. + inLeapYear) {
+      return 5.
+   }
+   elif (181. + inLeapYear <= dayWithinYear &&& dayWithinYear< 212. + inLeapYear) {
+      return 6.
+   }
+   elif (212. + inLeapYear <= dayWithinYear &&& dayWithinYear< 243. + inLeapYear) {
+      return 7.
+   }
+   elif (243. + inLeapYear <= dayWithinYear &&& dayWithinYear< 273. + inLeapYear) {
+      return 8.
+   }
+   elif (273. + inLeapYear <= dayWithinYear &&& dayWithinYear< 304. + inLeapYear) {
+      return 9.
+   }
+   elif (304. + inLeapYear <= dayWithinYear &&& dayWithinYear< 334. + inLeapYear) {
+      return 10.
+   }
+   elif (334. + inLeapYear <= dayWithinYear &&& dayWithinYear< 365. + inLeapYear) {
+      return 11.
+   }
+   /* Note that, in every case, if any argument to 
+    one of these functions is NaN, the result will be NaN.*/
+   elif(is_NaN t) { 
+     return NaN
+   }
+};
+
+function DayWithinYear(t) { 
+  return Day(t)-DayFromYear(YearFromTime(t)) };
+
+/* 20.3.1.5 Date Number */
+/* A date number is identified by an integer in the range 1 through 31, inclusive. The mapping DateFromTime(t)
+   from a time value t to a month number is defined by: */
+/*                   DateFromTime(t) = DayWithinYear(t)+1                  if MonthFromTime(t)=0  */
+/*                                   = DayWithinYear(t)-30                 if MonthFromTime(t)=1  */
+/*                                   = DayWithinYear(t)-58-InLeapYear(t)   if MonthFromTime(t)=2  */
+/*                                   = DayWithinYear(t)-89-InLeapYear(t)   if MonthFromTime(t)=3  */
+/*                                   = DayWithinYear(t)-119-InLeapYear(t)  if MonthFromTime(t)=4  */
+/*                                   = DayWithinYear(t)-150-InLeapYear(t)  if MonthFromTime(t)=5  */
+/*                                   = DayWithinYear(t)-180-InLeapYear(t)  if MonthFromTime(t)=6  */
+/*                                   = DayWithinYear(t)-211-InLeapYear(t)  if MonthFromTime(t)=7  */
+/*                                   = DayWithinYear(t)-242-InLeapYear(t)  if MonthFromTime(t)=8  */
+/*                                   = DayWithinYear(t)-272-InLeapYear(t)  if MonthFromTime(t)=9  */
+/*                                   = DayWithinYear(t)-303-InLeapYear(t)  if MonthFromTime(t)=10 */
+/*                                   = DayWithinYear(t)-333-InLeapYear(t)  if MonthFromTime(t)=11 */
+
+function DateFromTime(t) {
+  MonthFromTime := MonthFromTime(t);
+  DayWithinYear := DayWithinYear(t);
+  InLeapYear := InLeapYear(t);
+  if (MonthFromTime = 0.) {
+     return DayWithinYear + 1.
+  }
+  elif (MonthFromTime = 1.) {
+     return DayWithinYear - 30.
+  }
+  elif (MonthFromTime = 2.) {
+     return DayWithinYear - 58. - InLeapYear
+  }
+  elif (MonthFromTime = 3.) {
+     return DayWithinYear - 89. - InLeapYear
+  }
+  elif (MonthFromTime = 4.) {
+     return DayWithinYear - 119. - InLeapYear
+  }
+  elif (MonthFromTime = 5.) {
+     return DayWithinYear - 150. - InLeapYear
+  }
+  elif (MonthFromTime = 6.) {
+     return DayWithinYear - 180. - InLeapYear
+  }
+  elif (MonthFromTime = 7.) {
+     return DayWithinYear - 211. - InLeapYear
+  }
+  elif (MonthFromTime = 8.) {
+     return DayWithinYear - 242. - InLeapYear
+  }
+  elif (MonthFromTime = 9.) {
+     return DayWithinYear - 272. - InLeapYear
+  }
+  elif (MonthFromTime = 10.) {
+     return DayWithinYear - 303. - InLeapYear
+  }
+  elif (MonthFromTime = 11.) {
+     return DayWithinYear - 333. - InLeapYear
+  }
+  /* Note that, in every case, if any argument to 
+  one of these functions is NaN, the result will be NaN.*/
+  elif(is_NaN t) {
+    return NaN 
+  }
+};
+
+/* 20.3.1.6 Week Day */
+/* The weekday for a particular time value t is defined as */
+/*                   WeekDay(t) = (Day(t) + 4) modulo 7 */
+/* A weekday value of 0 specifies Sunday; 1 specifies Monday; 2 specifies Tuesday; 3 specifies Wednesday;
+   4 specifies Thursday; 5 specifies Friday; and 6 specifies Saturday. Note that WeekDay(0) = 4, corresponding to
+   Thursday, 01 January, 1970. */
+function WeekDay(t) { return (Day(t) + 4.) % 7. };
+
+/* 20.3.1.7 Local Time Zone Adjustment */
+/* An implementation of ECMAScript is expected to determine the local time zone adjustment. The local time
+   zone adjustment is a value LocalTZA measured in milliseconds which when added to UTC represents the
+   local standard time. Daylight saving time is not reflected by LocalTZA. The value LocalTZA does not vary with
+   time but depends only on the geographic location. */
+
+
+/* 20.3.1.8 Daylight Saving Time Adjustment */
+/* An implementation of ECMAScript is expected to determine the daylight saving time algorithm. The algorithm
+   to determine the daylight saving time adjustment DaylightSavingTA(t), measured in milliseconds, must depend
+   only on four things: */
+/* (1) the time since the beginning of the year */
+/*               t – TimeFromYear(YearFromTime(t)) */
+/* (2) whether t is in a leap year */
+/*               InLeapYear(t) */
+/* (3) the week day of the beginning of the year */
+/*               WeekDay(TimeFromYear(YearFromTime(t))) */
+/* and (4) the geographic location. */
+/* NOTE It is recommended that implementations use the time zone information of the IANA Time Zone Database http://www.iana.org/time-zones/. */
+function DaylightSavingTA(t) {return 0. /* TODO */};
+
+/* 20.3.1.9 Local Time */
+/* The abstract operation LocalTime with argument t converts t from UTC 
+   to local time by performing the following steps: */
+function LocalTime(t) {
+  /* 1. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 2. Return t + LocalTZA + DaylightSavingTA(t). */
+  return t + |LocalTZA| + DaylightSavingTA(t)
+};
+
+/* 20.3.1.10 UTC ( t )
+ *
+ * The abstract operation UTC with argument t converts t from local time to UTC is defined by performing the following steps:
+ *
+ * NOTE UTC(LocalTime(t)) is not necessarily always equal to t.
+ */
+function UTC(t) {
+   /* 1. ReturnIfAbrupt(t). */
+   @ReturnIfAbrupt(t);
+
+   /* 2. Return t - LocalTZA - DaylightSavingTA(t - LocalTZA). */
+   return t - |LocalTZA| - DaylightSavingTA(t - |LocalTZA|)
+};
+
+/* 20.3.1.11 Hours, Minutes, Second, and Milliseconds */
+/* The following functions are useful in decomposing time values: */
+/*             HourFromTime(t) = floor(t / msPerHour) modulo HoursPerDay */
+/*             MinFromTime(t)  = floor(t / msPerMinute) modulo MinutesPerHour */
+/*             SecFromTime(t)  = floor(t / msPerSecond) modulo SecondsPerMinute */
+/*             msFromTime(t)   = t modulo msPerSecond */
+/* where */
+/*             HoursPerDay      = 24 */
+/*             MinutesPerHour   = 60 */
+/*             SecondsPerMinute = 60 */
+/*             msPerSecond      = 1000 */
+/*             msPerMinute      = 60000 = msPerSecond x SecondsPerMinute */
+/*             msPerHour        = 3600000 = msPerMinute x MinutesPerHou */
+function HourFromTime(t) {
+   HoursPerDay := 24.;
+   msPerHour := 3600000.;
+   return floor(t / msPerHour) % HoursPerDay
+};
+function MinFromTime(t) { 
+   msPerMinute := 60000.;
+   MinutesPerHour := 60.;
+   return floor(t / msPerMinute) % MinutesPerHour
+};
+function SecFromTime(t) {
+   msPerSecond := 1000.;
+   SecondsPerMinute := 60.;
+   return (floor(t / msPerSecond) % SecondsPerMinute)
+};
+function msFromTime(t) { 
+  msPerSecond := 1000.;
+  
+   
+  return t % msPerSecond
+};
+
+/**
+ * 20.3.1.12 MakeTime (hour, min, sec, ms)
+ *
+ * The abstract operation MakeTime calculates a number of milliseconds from its four arguments,
+ * which must be ECMAScript Number values.
+ */
+function MakeTime(hour, mins, sec, ms) {
+  /* 1. If hour is not finite or min is not finite or sec is not finite or ms is not finite, return NaN. */
+  if (!(auxIsFinite(hour) &&& auxIsFinite(mins) &&& auxIsFinite(sec) &&& auxIsFinite(ms))) {
+     return NaN
+  };
+
+  /* 2. Let h be ToInteger(hour). */
+  h := ToInteger(hour);
+  /* 3. Let m be ToInteger(min). */
+  m := ToInteger(mins);
+  /* 4. Let s be ToInteger(sec). */
+  s := ToInteger(sec);
+  /* 5. Let milli be ToInteger(ms). */
+  milli := ToInteger(ms);
+
+  msPerSecond := 1000.;
+  msPerMinute := 60000.;
+  msPerHour := 3600000.;
+
+  /* 6. Let t be h * msPerHour + m * msPerMinute + s * msPerSecond + milli, 
+   TODO ?? performing the arithmetic according to IEEE 754-2008 rules ?? (that is, as if using the ECMAScript operators * and +). */
+  t := (h * msPerHour) + (m * msPerMinute) + (s * msPerSecond) + milli;
+  
+  /* 7. Return t. */
+   return t
+};
+
+/**
+ * 20.3.1.13 MakeDay (year, month, date)
+ * The operator MakeDay calculates a number of days from its three arguments,
+ * which must be ECMAScript Number values.
+ */
+function MakeDay(year, month, date) {
+  
+  /* 1. If year is not finite or month is not finite or date is not finite, return NaN. */
+  if (!(auxIsFinite(year) &&& auxIsFinite(month) &&& auxIsFinite(date))) {
+     return NaN
+  };
+
+  /* 2. Let y be ToInteger(year). */
+  y := ToInteger(year);
+  /* 3. Let m be ToInteger(month). */
+  m := ToInteger(month);
+  /* 4. Let dt be ToInteger(date). */
+  dt := ToInteger(date);
+  
+  /* 5. Let ym be y + floor(m /12). */
+  
+  ym := y + floor(m/12.);
+
+  /* 6. Let mn be m modulo 12. */
+  mn := m % 12.;
+  
+  /* 7. Find a value t such that YearFromTime(t) == ym and MonthFromTime(t) == mn and DateFromTime(t) == 1;
+        but if this is not possible (because some argument is out of range), return NaN. */
+  
+  
+  t := TimeFromYear(ym);
+  t := t + TimeFromMonth(mn, t);
+  if(!(DateFromTime(t) = 1.)) {
+    return NaN
+  };
+
+
+  /* 8. Return Day(t) + dt - 1. */
+  return Day(t) + dt - 1.
+};
+
+/**
+ * 20.3.1.14 MakeDate (day, time)
+ * The abstract operation MakeDate calculates a number of milliseconds from its two arguments, 
+ * which must be ECMAScript Number values.
+ */ 
+function MakeDate(day, time) {
+  /* 1. If day is not finite or time is not finite, return NaN. */
+  if (!(auxIsFinite(day) &&& auxIsFinite(time))){
+     return NaN
+  };
+  /* 2. Return day x msPerDay + time. */
+  return day * |msPerDay| + time
+};
+
+/** 
+ * 20.3.1.15 TimeClip (time) 
+ * The abstract operation TimeClip calculates a number of milliseconds from its argument, which must be an ECMAScript Number value.
+ * NOTE  The point of step 3 is that an implementation is permitted a choice of internal representations of time values,
+ *       for example as a 64-bit signed integer or as a 64-bit floating-point value. Depending on the implementation,
+ *       this internalrepresentation may or may not distinguish -0 and +0. 
+ */
+function TimeClip(time) {
+  /* 1. If time is not finite, return NaN. */
+  if (!(auxIsFinite(time))) {
+     return NaN
+  };
+
+  /* 2. If abs(time) > 8.64 x 10^15 , return NaN. */
+  /* TODO not enough precision*/
+  if (abs(time) >= (8.64 * (10. ** 15.))) {
+     return NaN
+  };
+
+  /* 3. Return an implementation-dependent choice of either ToInteger(time) or ToInteger(time) + (+0).
+  (Adding a positive zero converts -0 to +0.) */
+   return ToInteger(time) + (0.)
+  
+};
+
+/* 20.3.1.16 Date Time String Format */
+/* ECMAScript defines a string interchange format for date-times based upon a simplification of the ISO 8601
+   Extended Format. The format is as follows: YYYY-MM-DDTHH:mm:ss.sssZ */
+
+/* Where the fields are as follows: */
+/*     YYYY  is the decimal digits of the year 0000 to 9999 in the Gregorian calendar. */
+/*     -     "-" (hyphen) appears literally twice in the string. */
+/*     MM    is the month of the year from 01 (January) to 12 (December). */
+/*     DD    is the day of the month from 01 to 31. */
+/*     T     "T" appears literally in the string, to indicate the beginning of the time element . */
+/*     HH    is the number of complete hours that have passed since midnight as two decimal digits from
+             00 to 24. */
+/*     :     ":" (colon) appears literally twice in the string. */
+/*     mm    is the number of complete minutes since the start of the hour as two decimal digits from 00 to
+             59. */
+/*     ss    is the number of complete seconds since the start of the minute as two deci mal digits from 00
+             to 59. */
+/*     .     "." (dot) appears literally in the string. */
+/*     sss   is the number of complete milliseconds since the start of the second as three decimal digits. */
+/*     Z     is the time zone offset specified as "Z" (for UTC) or either "+" or "-" followed by a time
+             expression HH:mm */
+
+/* This format includes date-only forms: */
+/* YYYY */
+/* YYYY-MM */
+/* YYYY-MM-DD */
+
+/* It also includes "date-time" forms that consist of one of the above date-only forms immediately followed by one
+   of the following time forms with an optional time zone offset appended: */
+/* THH:mm */
+/* THH:mm:ss */
+/* THH:mm:ss.sss */
+
+/* All numbers must be base 10. If the MM or DD fields are absent "01" is used as the value. If the HH, mm, or ss
+   fields are absent "00" is used as the value and the value of an absent sss field is "000". The value of an
+   absent time zone offset is "Z". */
+
+/* Illegal values (out-of-bounds as well as syntax errors) in a format string means that the format string is not a
+   valid instance of this format. */
+
+/* NOTE 1 As every day both starts and ends with midnight, the two notations 00:00 and 24:00 are available to
+          distinguish the two midnights that can be associated with one date. This means that the following two notations
+          refer to exactly the same point in time: 1995-02-04T24:00 and 1995-02-05T00:00 */
+/* NOTE 2 There exists no international standard that specifies abbreviations for civil time zones like CET, EST, etc. and
+          sometimes the same abbreviation is even used for two very different time zones. For this reason, ISO 8601 and this
+          format specifies numeric representations of date and time. */
+
+/* 20.3.1.16.1 Extended years */
+/* ECMAScript requires the ability to specify 6 digit years (extended years); approximately 285,426 years, either
+   forward or backward, from 01 January, 1970 UTC. To represent years before 0 or after 9999, ISO 8601
+   permits the expansion of the year representation, but only by prior agreement between the sender and the
+   receiver. In the simplified ECMAScript format such an expanded year representation shall have 2 extra year
+   digits and is always prefixed with a + or – sign. The year 0 is considered positive and hence prefixed with a +
+   sign. */
+
+/* NOTE   Examples of extended years: */
+/* -283457-03-21T15:00:59.008Z   283458 B.C. */
+/* -000001-01-01T00:00:00Z       2 B.C. */
+/* +000000-01-01T00:00:00Z       1 B.C. */
+/* +000001-01-01T00:00:00Z       1 A.D. */
+/* +001970-01-01T00:00:00Z       1970 A.D. */
+/* +002009-12-15T00:00:00Z       2009 A.D. */
+/* +287396-10-12T08:59:00.992Z   287396 A.D. */
+
+/* 15.9.2 The Date Constructor Called as a Function */
+/* When Date is called as a function rather than as a constructor, it returns a String representing the current
+   time (UTC). */
+/* NOTE The function call Date(...) is not equivalent to the object creation expression new Date(...) with the same
+        arguments. */
+
+/* 15.9.2.1 Date ( [ year [, month [, date [, hours [, minutes [, seconds [, ms ] ] ] ] ] ] ] ) */
+/* All of the arguments are optional; any arguments supplied are accepted but are completely ignored. A String
+   is created and returned as if by the expression (new Date()).toString() where Date is the standard
+   built-in constructor with that name and toString is the standard built-in method
+   Date.prototype.toString. */
+function DateConstructorCalledAsFunction(datePrototypeObject, strict, args) {
+  return DatePrototypeToString(null, internalNewDateWithoutValue(datePrototypeObject), strict, args)
+};
+
+/* 15.9.3 The Date Constructor */
+/* When Date is called as part of a new expression, it is a constructor: it initialises the newly created object. */
+function DateConstructor(global, this, NewTarget, strict, args) {
+  prototype := getDatePrototype(strict);
+
+  if ((this = 'undefined) ||| (this = 'null)) {
+    return DateConstructorCalledAsFunction(prototype, strict, args)
+  };
+
+  if ((l_len args) = 1) {
+    value := l_nth(args, 0);
+    return internalNewDateWithValue(prototype, value)
+  };
+  if ((l_len args = 0)) {
+    return internalNewDateWithoutValue(prototype)
+  };
+  return internalNewDate(prototype, args)
+};
+
+function newDateConstructor(global, this, NewTarget, strict, args) {
+   numberOfArgs := l_len(args);
+
+   if (numberOfArgs >= 2) {
+      return dateConstructorMultipleArgs(global, this, NewTarget, strict, args)
+   }
+   elif (numberOfArgs = 0) { 
+      return dateConstructorNoArgs(global, this, NewTarget, strict, args)
+   }
+   elif (numberOfArgs = 1) {
+      return dateConstructorOneArg(global, this, NewTarget, strict, args)
+   }
+};
+
+
+/**
+ *
+ * 20.3.2.1 Date ( year, month [, date [ , hours [ , minutes [ , seconds [ , ms ] ] ] ] ] )
+ *
+ * This description applies only if the Date constructor is called with at least two arguments.
+ */
+function dateConstructorMultipleArgs(global, this, NewTarget, strict, args){
+  
+  year := l_nth(args, 0);
+  month := l_nth(args, 1);
+  date := getOptionalParam(args, 2);
+  hours := getOptionalParam(args, 3);
+  minutes := getOptionalParam(args, 4);
+  seconds := getOptionalParam(args, 5);
+  ms := getOptionalParam(args, 6);
+
+  /* 1. Let numberOfArgs be the number of arguments passed to this function call. */
+  numberOfArgs := l_len(args);
+
+  /* 2. Assert: numberOfArgs ≥ 2. */
+  assert(numberOfArgs >= 2);
+
+  /* 3. If NewTarget is not undefined, then */
+  if (!(NewTarget = 'undefined)) {
+    /* a. Let y be ToNumber(year). */
+    y := ToNumber(year);
+
+    /* b. ReturnIfAbrupt(y). */
+    @ReturnIfAbrupt(y);
+
+    /* c. Let m be ToNumber(month). */
+    m := ToNumber(month);
+
+    /* d. ReturnIfAbrupt(m). */
+    @ReturnIfAbrupt(m);
+
+    /* e. If date is supplied, let dt be ToNumber(date); else let dt be 1. */
+    if (!(date = null)) {
+      dt := ToNumber(date)
+    }
+    else{
+       dt := 1.
+    };
+
+    /* f. ReturnIfAbrupt(dt). */
+    @ReturnIfAbrupt(dt);
+
+    /* g. If hours is supplied, let h be ToNumber(hours); else let h be 0. */
+    if (!(hours = null)) {
+      h := ToNumber(hours)
+    }
+    else{
+       h := 0.
+    };
+
+    /* h. ReturnIfAbrupt(h). */
+    @ReturnIfAbrupt(h);
+
+    /* i. If minutes is supplied, let min be ToNumber(minutes); else let min be 0. */
+    if (!(minutes = null)) {
+      mins := ToNumber(minutes)
+    }
+    else{
+       mins := 0.
+    };
+    /* j. ReturnIfAbrupt(min). */
+    @ReturnIfAbrupt(mins);
+
+    /* k. If seconds is supplied, let s be ToNumber(seconds); else let s be 0. */
+    if (!(seconds = null)) {
+      s := ToNumber(seconds)
+    }
+    else{
+       s := 0.
+    };
+    /* l. ReturnIfAbrupt(s). */
+    @ReturnIfAbrupt(s);
+
+    /* m. If ms is supplied, let milli be ToNumber(ms); else let milli be 0. */
+    if (!(ms = null)) {
+      milli := ToNumber(ms)
+    }
+    else{
+       milli := 0.
+    };
+    /* n. ReturnIfAbrupt(milli). */
+    @ReturnIfAbrupt(milli);
+
+    /* o. If y is not NaN and 0 ≤ ToInteger(y) ≤ 99, let yr be 1900+ToInteger(y); otherwise, let yr be y. */
+    if (!(is_NaN y) &&& 0. <= ToInteger(y) &&& ToInteger(y) <= 99.) {
+       yr := 1900. + ToInteger(y)
+    }
+    else {
+       yr := y
+    };
+    
+    /* p. Let finalDate be MakeDate(MakeDay(yr, m, dt), MakeTime(h, min, s, milli)). */
+    finalDate := MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli));
+
+    /* q. Let O be OrdinaryCreateFromConstructor(NewTarget, "%DatePrototype%", «‍ [[DateValue]]»). */
+    O := OrdinaryCreateFromConstructor(NewTarget, "DatePrototype", ["DateValue"]);
+    
+    /* r. ReturnIfAbrupt(O). */
+    @ReturnIfAbrupt(O);
+
+    /* s. Set the [[DateValue]] internal slot of O to TimeClip(UTC(finalDate)). */
+    O.DateValue := TimeClip(UTC(finalDate));
+
+    /* t. Return O. */
+    return O
+  }
+  /* 4. Else, */
+  else {
+    /* a. Let now be the Number that is the time value (UTC) identifying the current time. */
+    now := getTimeValueIdentifyingCurrentTime();
+  
+      /* b. Return ToDateString (now). */
+    return toDateString(now)
+  }
+};
+
+/**
+ * 20.3.2.2 Date ( value )
+ *
+ * This description applies only if the Date constructor is called
+ * with exactly one argument.
+*/
+function dateConstructorOneArg(global, this, NewTarget, strict, args) {
+  value := l_nth(args, 0);
+
+  /* 1. Let numberOfArgs be the number of arguments passed to this function call. */
+  numberOfArgs := l_len(args);
+
+  /* 2. Assert: numberOfArgs = 1. */
+  assert(numberOfArgs = 1);
+
+  /* 3. If NewTarget is not undefined, then */
+  if (!(NewTarget = 'undefined)) {
+    /* a. If Type(value) is Object and value has a [[DateValue]] internal slot, then */
+    if (Type(value) = "Object" &&& "DateValue" in_obj value) {
+      /* i.  Let tv be thisTimeValue(value). */
+      tv := thisTimeValue(value)
+    }
+    /* b. Else, */
+    else {
+      /* i. Let v be ToPrimitive(value). */
+      v := ToPrimitive(value, null);
+
+      /* ii. If Type(v) is String, then */
+      if (Type(v) = "String") {
+        /* 1. Let tv be the result of parsing v as a date, in exactly the same manner as for the parse method (20.3.3.2). 
+        If the parse resulted in an abrupt completion, tv is the Completion Record. */
+        tv := auxParseDate(v)
+      }  
+      /* iii. Else, */
+      else {
+        /* 1. Let tv be ToNumber(v). */
+        tv := ToNumber(v)
+      }
+    };
+    /* c. ReturnIfAbrupt(tv). */
+    @ReturnIfAbrupt(tv);
+
+    /* d. Let O be OrdinaryCreateFromConstructor(NewTarget, "%DatePrototype%", «‍ [[DateValue]]»). */
+    O := OrdinaryCreateFromConstructor(NewTarget, "DatePrototype", ["DateValue"]);
+
+    /* e. ReturnIfAbrupt(O). */
+    @ReturnIfAbrupt(O);
+
+    /* f. Set the [[DateValue]] internal slot of O to TimeClip(tv). */
+    O.DateValue := TimeClip(tv);
+
+    /* g. Return O. */
+    return O
+  }
+  /* 4. Else, */
+  else {
+    /* a. Let now be the Number that is the time value (UTC) identifying the current time. */
+    now := getTimeValueIdentifyingCurrentTime();
+
+    /* b. Return ToDateString (now). */
+    return toDateString(now)
+  }
+};
+/**
+ * 
+ * 20.3.2.3 Date ( )
+ * 
+ * This description applies only if the Date constructor is called with no arguments.
+ * 
+ * When the Date function is called the following steps are taken:
+ * 
+ *     1. Let numberOfArgs be the number of arguments passed to this function call.
+ *     2. Assert: numberOfArgs = 0.
+ *     3. If NewTarget is not undefined, then
+ *        a. Let O be OrdinaryCreateFromConstructor(NewTarget, "%DatePrototype%", «‍ [[DateValue]]»).
+ *        b. ReturnIfAbrupt(O).
+ *        c. Set the [[DateValue]] internal slot of O to the time value (UTC) identifying the current time.
+ *       d. Return O.
+ *    4. Else,
+ *       a. Let now be the Number that is the time value (UTC) identifying the current time.
+ *       b. Return ToDateString (now).
+ */
+function dateConstructorNoArgs(global, this, NewTarget, strict, args){
+   /* 1. Let numberOfArgs be the number of arguments passed to this function call. */
+   numberOfArgs := l_len(args);
+
+   /* 2. Assert: numberOfArgs = 0. */
+   assert(numberOfArgs = 0);
+   
+   /* 3. If NewTarget is not undefined, then */
+   if (!(NewTarget = 'undefined)) {
+      /* a. Let O be OrdinaryCreateFromConstructor(NewTarget, "%DatePrototype%", «‍ [[DateValue]]»). */
+      O := OrdinaryCreateFromConstructor(NewTarget, "DatePrototype", ["DateValue"]);
+      
+      /* b. ReturnIfAbrupt(O). */
+      @ReturnIfAbrupt(O);
+      
+      /* c. Set the [[DateValue]] internal slot of O to the time value (UTC) identifying the current time. */
+      O.DateValue := getTimeValueIdentifyingCurrentTime();
+      
+      /* d. Return O. */
+      return O
+   }
+   /* 4. Else, */
+   else {   
+      /* a. Let now be the Number that is the time value (UTC) identifying the current time. */
+      now := getTimeValueIdentifyingCurrentTime();
+
+      /*b. Return ToDateString (now). */
+      return (toDateString(now))      
+   }
+};
+
+
+/**
+ * 
+ * 20.3.3.1 Date.now ( )
+ * 
+ * The now function returns a Number value that is the time value designating the UTC date and time of the occurrence of the call to now.
+ */
+function DateNow(globalObject, this, NewTarget, strict, args) {
+  return getTimeValueIdentifyingCurrentTime()
+};
+
+
+/**
+ * 20.3.3.2 Date.parse ( string )
+
+The parse function applies the ToString operator to its argument. 
+If ToString results in an abrupt completion the Completion Record is immediately returned. Otherwise, parse interprets the resulting String as a date and time; it returns a Number, the UTC time value corresponding to the date and time. The String may be interpreted as a local time, a UTC time, or a time in some other time zone, depending on the contents of the String. The function first attempts to parse the format of the String according to the rules (including extended years) called out in Date Time String Format (20.3.1.16). If the String does not conform to that format the function may fall back to any implementation-specific heuristics or implementation-specific date formats. Unrecognizable Strings or dates containing illegal element values in the format String shall cause Date.parse to return NaN.
+
+If x is any Date object whose milliseconds amount is zero within a particular implementation of ECMAScript, then all of the following expressions should produce the same numeric value in that implementation, if all the properties referenced have their initial values:
+
+x.valueOf()
+
+Date.parse(x.toString())
+
+Date.parse(x.toUTCString())
+
+Date.parse(x.toISOString())
+
+However, the expression
+
+Date.parse(x.toLocaleString())
+
+is not required to produce the same Number value as the preceding three expressions and, in general, the value produced by Date.parse is implementation-dependent when given any String value that does not conform to the Date Time String Format (20.3.1.16) and that could not be produced in that implementation by the toString or toUTCString method.
+*/
+function DateParse(global, this, NewTarget, strict, args) {
+  arg := l_nth(args, 0);
+
+  /* The parse function applies the ToString operator to its argument. */
+  str := ToString(arg);
+
+  /* If ToString results in an abrupt completion the Completion Record is immediately returned. */
+  if ((Type(str) = "Completion") &&& isAnAbruptCompletion(str)) {
+    return getCompletionValue(str)
+  }
+  /* Otherwise, parse interprets the resulting String as a date and time; it returns a Number, the UTC time value corresponding to the date and time. 
+  The String may be interpreted as a local time, a UTC time, or a time in some other time zone, depending on the contents of the String. The function first attempts to parse the format of the String according to the rules (including extended years) called out in Date Time String Format (20.3.1.16). If the String does not conform to that format the function may fall back to any implementation-specific heuristics or implementation-specific date formats. Unrecognizable Strings or dates containing illegal element values in the format String shall cause Date.parse to return NaN. */
+  else {
+    return auxParseDate(str)
+  }
+
+};
+
+
+/**
+ * 20.3.3.4 Date.UTC ( year, month [ , date [ , hours [ , minutes [ , seconds [ , ms ] ] ] ] ] )
+ * 
+ * When the UTC function is called with fewer than two arguments, the behaviour is implementation-dependent. 
+ * When the UTC function is called with two to seven arguments, it computes the date from year, month and (optionally) date, hours, minutes, seconds and ms.
+ * The following steps are taken:
+ * 
+ * The length property of the UTC function is 7.
+ *
+ * NOTE The UTC function differs from the Date constructor in two ways: 
+ * it returns a time value as a Number, rather than creating a Date object, 
+ * and it interprets the arguments in UTC rather than as local time.
+ */
+function DateUTC(global, this, NewTarget, strict, args) {
+ 
+  year := l_nth(args, 0);
+  month := l_nth(args, 1);
+  date := getOptionalParam(args, 2);
+  hours := getOptionalParam(args, 3);
+  minutes := getOptionalParam(args, 4);
+  seconds := getOptionalParam(args, 5);
+  ms := getOptionalParam(args, 6);
+
+  if (year = 'undefined) {
+    return NaN
+  };
+  if (month = 'undefined) {
+    month := 0.
+  };
+
+
+  /* 1. Let y be ToNumber(year). */
+  y := ToNumber(year);
+  /* 2. ReturnIfAbrupt(y). */
+  @ReturnIfAbrupt(y);
+
+  /* 3. Let m be ToNumber(month). */
+  m := ToNumber(month);
+  /* 4. ReturnIfAbrupt(m). */
+  @ReturnIfAbrupt(m);
+
+  /* 5. If date is supplied, let dt be ToNumber(date); else let dt be 1. */
+  if (!(date = null)) { dt := ToNumber(date) } else { dt := 1. };
+  /* 6. ReturnIfAbrupt(dt). */
+  @ReturnIfAbrupt(dt);
+
+  /* 7. If hours is supplied, let h be ToNumber(hours); else let h be 0. */
+  if (!(hours = null)) { h := ToNumber(hours) } else { h := 0. };
+  /* 8. ReturnIfAbrupt(h). */
+  @ReturnIfAbrupt(h);
+  
+  /* 9. If minutes is supplied, let min be ToNumber(minutes); else let min be 0. */
+  if (!(minutes = null)) { mins := ToNumber(minutes) } else { mins := 0. };
+  /* 10. ReturnIfAbrupt(min). */
+  @ReturnIfAbrupt(mins);
+
+  /* 11. If seconds is supplied, let s be ToNumber(seconds); else let s be 0. */
+  if (!(seconds = null)) { s := ToNumber(seconds) } else { s := 0. };
+  /* 12. ReturnIfAbrupt(s). */
+  @ReturnIfAbrupt(s);
+
+  /* 13. If ms is supplied, let milli be ToNumber(ms); else let milli be 0. */
+  if (!(ms = null)) { milli := ToNumber(ms) } else { milli := 0. };
+  /* 14. ReturnIfAbrupt(milli). */
+  @ReturnIfAbrupt(milli);
+
+  /* 15. If y is not NaN and 0 ≤ ToInteger(y) ≤ 99, let yr be 1900+ToInteger(y); otherwise, let yr be y. */
+  if (!(is_NaN y) &&& 0. <= ToInteger(y) &&& ToInteger(y) <= 99.) {
+    yr := 1900. + ToInteger(y)
+  }
+  else {
+    yr := y
+  };
+  /* 16. Return TimeClip(MakeDate(MakeDay(yr, m, dt), MakeTime(h, min, s, milli))). */
+  return TimeClip(MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli)))
+
+};
+
+
+/**
+ * 20.3.4.2 Date.prototype.getDate ( )
+ */
+function DatePrototypeGetDate(global, this, NewTarget, strict, args) {
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+  
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. If t is NaN, return NaN. */
+  if (is_NaN t) {
+    return NaN
+  };
+
+  /* 4. Return DateFromTime(LocalTime(t)). */
+  return DateFromTime(LocalTime(t))
+};
+
+
+/**
+ * 20.3.4.3 Date.prototype.getDay ( )
+ */
+function DatePrototypeGetDay(global, this, NewTarget, strict, args) {
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+  
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. If t is NaN, return NaN. */
+  if (is_NaN t) {
+    return NaN
+  };
+
+  /* 4. Return WeekDay(LocalTime(t)). */
+  return WeekDay(LocalTime(t))
+};
+
+/**
+ * 20.3.4.4 Date.prototype.getFullYear ( )
+ */
+function DatePrototypeGetFullYear(global, this, NewTarget, strict, args) {
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+  
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. If t is NaN, return NaN. */
+  if (is_NaN t) {
+    return NaN
+  };
+
+  /* 4. Return YearFromTime(LocalTime(t)). */
+  return YearFromTime(LocalTime(t))
+};
+
+
+/**
+ * 20.3.4.5 Date.prototype.getHours ( )
+ */
+function DatePrototypeGetHours(global, this, NewTarget, strict, args) {
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+  
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+  /* 3. If t is NaN, return NaN. */
+  if (is_NaN t) {
+    return NaN
+  };
+
+  /* 4. Return HourFromTime(LocalTime(t)). */
+  return HourFromTime(LocalTime(t))
+};
+
+
+/**
+ * 20.3.4.6 Date.prototype.getMilliseconds ( )
+ */
+function DatePrototypeGetMilliseconds(global, this, NewTarget, strict, args) {
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+  
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. If t is NaN, return NaN. */
+  if (is_NaN t) {
+    return NaN
+  };
+
+  /* 4. Return msFromTime(LocalTime(t)). */
+  return msFromTime(LocalTime(t))
+};
+
+
+/**
+ * 20.3.4.7 Date.prototype.getMinutes ( )
+ */
+function DatePrototypeGetMinutes(global, this, NewTarget, strict, args) {
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+  
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. If t is NaN, return NaN. */
+  if (is_NaN t) {
+    return NaN
+  };
+
+  /* 4. Return MinFromTime(LocalTime(t)). */
+  return MinFromTime(LocalTime(t))
+};
+
+
+/**
+ * 20.3.4.8 Date.prototype.getMonth ( )
+ */
+function DatePrototypeGetMonth(global, this, NewTarget, strict, args) {
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+  
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. If t is NaN, return NaN. */
+  if (is_NaN t) {
+    return NaN
+  };
+
+  /* 4. Return MonthFromTime(LocalTime(t)). */
+  return MonthFromTime(LocalTime(t))
+};
+
+
+/**
+ * 20.3.4.9 Date.prototype.getSeconds ( )
+ */
+function DatePrototypeGetSeconds(global, this, NewTarget, strict, args) {
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+  
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. If t is NaN, return NaN. */
+  if (is_NaN t) {
+    return NaN
+  };
+
+  /* 4. Return SecFromTime(LocalTime(t)). */
+  return SecFromTime(LocalTime(t))
+};
+
+
+/**
+ * 20.3.4.10 Date.prototype.getTime ( )
+ *
+*/
+function  DatePrototypeGetTime(global, this, NewTarget, strict, args) {
+   /* 1. Return this time value. */
+   return thisTimeValue(this)
+};
+
+/**
+ *
+ * 20.3.4.11 Date.prototype.getTimezoneOffset ( )
+ *
+ */
+function  DatePrototypeGetTimezoneOffset(global, this, NewTarget, strict, args) {
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+  
+   
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+   
+  /* 3. If t is NaN, return NaN. */
+  if (is_NaN t) {
+     return NaN
+  };
+
+  msPerMinute := 60000.;
+  /* 4. Return (t − LocalTime(t)) / msPerMinute. */
+  return (t - LocalTime(t)) / msPerMinute
+};
+
+
+/**
+ *
+ * 20.3.4.12 Date.prototype.getUTCDate ( )
+ *
+ */
+function  DatePrototypeGetUTCDate(global, this, NewTarget, strict, args) {
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+   
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+   
+  /* 3. If t is NaN, return NaN. */
+  if (is_NaN t) {
+     return NaN
+  };
+
+  /* 4. Return DateFromTime(t). */
+  return DateFromTime(t)
+};
+
+
+/**
+ *
+ * 20.3.4.13 Date.prototype.getUTCDay ( )
+ *
+ */
+function  DatePrototypeGetUTCDay(global, this, NewTarget, strict, args) {
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+   
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+   
+  /* 3. If t is NaN, return NaN. */
+  if (is_NaN t) {
+     return NaN
+  };
+
+  /* 4. Return WeekDay(t). */
+  return WeekDay(t)
+};
+
+
+/**
+ *
+ * 20.3.4.14 Date.prototype.getUTCFullYear ( )
+ *
+ */
+function  DatePrototypeGetUTCFullYear(global, this, NewTarget, strict, args) {
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+   
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+   
+  /* 3. If t is NaN, return NaN. */
+  if (is_NaN t) {
+     return NaN
+  };
+
+  /* 4. Return YearFromTime(t). */
+  return YearFromTime(t)
+};
+
+
+/**
+ *
+ * 20.3.4.15 Date.prototype.getUTCHours ( )
+ *
+ */
+function  DatePrototypeGetUTCHours(global, this, NewTarget, strict, args) {
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+   
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+   
+  /* 3. If t is NaN, return NaN. */
+  if (is_NaN t) {
+     return NaN
+  };
+
+  /* 4. Return HourFromTime(t). */
+  return HourFromTime(t)
+};
+
+
+
+/**
+ *
+ * 20.3.4.16 Date.prototype.getUTCMilliseconds ( )
+ *
+ */
+function  DatePrototypeGetUTCMilliseconds(global, this, NewTarget, strict, args) {
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+   
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+   
+  /* 3. If t is NaN, return NaN. */
+  if (is_NaN t) {
+     return NaN
+  };
+
+  /* 4. Return msFromTime(t). */
+  return msFromTime(t)
+};
+
+
+/**
+ *
+ * 20.3.4.17 Date.prototype.getUTCMinutes ( )
+ *
+ */
+function  DatePrototypeGetUTCMinutes(global, this, NewTarget, strict, args) {
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+   
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+   
+  /* 3. If t is NaN, return NaN. */
+  if (is_NaN t) {
+     return NaN
+  };
+
+  /* 4. Return MinFromTime(t). */
+  return MinFromTime(t)
+};
+
+
+/**
+ *
+ * 20.3.4.18 Date.prototype.getUTCMonth ( )
+ *
+ */
+function  DatePrototypeGetUTCMonth(global, this, NewTarget, strict, args) {
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+   
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+   
+  /* 3. If t is NaN, return NaN. */
+  if (is_NaN t) {
+     return NaN
+  };
+
+  /* 4. Return MonthFromTime(t). */
+  return MonthFromTime(t)
+};
+
+
+/**
+ *
+ * 20.3.4.19 Date.prototype.getUTCSeconds ( )
+ *
+ */
+function  DatePrototypeGetUTCSeconds(global, this, NewTarget, strict, args) {
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+   
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+   
+  /* 3. If t is NaN, return NaN. */
+  if (is_NaN t) {
+     return NaN
+  };
+
+  /* 4. Return SecFromTime(t). */
+  return SecFromTime(t)
+};
+
+
+/**
+ *
+ * 20.3.4.20 Date.prototype.setDate ( date )
+ *
+ */
+function DatePrototypeSetDate(global, this, NewTarget, strict, args) {
+  date := l_nth(args, 0);
+
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+   
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+   
+  /* 3. Let dt be ToNumber(date). */
+  dt := ToNumber(date);
+
+  /* 4. ReturnIfAbrupt(dt). */
+  @ReturnIfAbrupt(dt);
+  
+  /* 5. Let newDate be MakeDate(MakeDay(YearFromTime(t), MonthFromTime(t), dt), TimeWithinDay(t)). */
+  newDate := MakeDate(MakeDay(YearFromTime(t), MonthFromTime(t), dt), TimeWithinDay(t));
+
+  /* 6. Let u be TimeClip(UTC(newDate)). */
+  u := TimeClip(UTC(newDate));
+
+  /* 7. Set the [[DateValue]] internal slot of this Date object to u. */
+  this.DateValue := u;
+
+  /* 8. Return u. */
+  return u
+};
+
+
+/**
+ * 20.3.4.21 Date.prototype.setFullYear ( year [ , month [ , date ] ] )
+ *
+ * The length property of the setFullYear method is 3.
+ * NOTE If month is not specified, this method behaves as if month were specified with the value getMonth(). 
+ *      If date is not specified, it behaves as if date were specified with the value getDate().
+ */
+function DatePrototypeSetFullYear(global, this, NewTarget, strict, args) {
+  year := l_nth(args, 0);
+  month := getOptionalParam(args, 1);
+  date := getOptionalParam(args, 2);
+  
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. If t is NaN, let t be +0; otherwise, let t be LocalTime(t). */
+  if (is_NaN t) {
+    t := 0.
+  }
+  else {
+    t := LocalTime(t)
+  };
+  /* 4. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 5. Let y be ToNumber(year). */
+  y := ToNumber(year);
+  /* 6. ReturnIfAbrupt(y). */
+  @ReturnIfAbrupt(y);
+  
+  /* 7. If month is not specified, let m be MonthFromTime(t); otherwise, let m be ToNumber(month). */
+  if (month = null) {
+    m := MonthFromTime(t)
+  }
+  else {
+    m := ToNumber(month)
+  };
+  /* 8. ReturnIfAbrupt(m). */
+  @ReturnIfAbrupt(m);
+
+  /* 9. If date is not specified, let dt be DateFromTime(t); otherwise, let dt be ToNumber(date). */
+  if (date = null) {
+    dt := DateFromTime(t)
+  }
+  else {
+    dt := ToNumber(date)
+  };
+  /* 10. ReturnIfAbrupt(dt). */
+  @ReturnIfAbrupt(dt);
+  
+  /* 11. Let newDate be MakeDate(MakeDay(y, m, dt), TimeWithinDay(t)). */
+  newDate := MakeDate(MakeDay(y, m, dt), TimeWithinDay(t));
+
+  /* 12. Let u be TimeClip(UTC(newDate)). */
+  u := TimeClip(UTC(newDate));
+
+  /* 13. Set the [[DateValue]] internal slot of this Date object to u. */
+  this.DateValue := u;
+
+  /* 14. Return u. */
+  return u
+};
+
+
+/**
+ * 20.3.4.22 Date.prototype.setHours ( hour [ , min [ , sec [ , ms ] ] ] )
+ *
+ * The length property of the setHours method is 4.
+ *
+ * NOTE If min is not specified, this method behaves as if 
+ *      min were specified with the value getMinutes(). 
+ *      If sec is not specified, it behaves as if sec were specified
+ *      with the value getSeconds(). 
+ *      If ms is not specified, it behaves as if ms were specified 
+ *      with the value getMilliseconds().
+ */
+function DatePrototypeSetHours(global, this, NewTarget, strict, args) {
+  hour := l_nth(args, 0);
+  mins := getOptionalParam(args, 1);
+  sec := getOptionalParam(args, 2);
+  ms := getOptionalParam(args, 3);
+
+  /* 1. Let t be LocalTime(this time value). */
+  t := LocalTime(thisTimeValue(this));
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. Let y be ToNumber(hour). */
+  h := ToNumber(hour);
+  /* 4. ReturnIfAbrupt(h). */
+  @ReturnIfAbrupt(h);
+  
+  /* 5. If min is not specified, let m be MinFromTime(t); otherwise, let m be ToNumber(min). */
+  if (mins = null) {
+    m := MinFromTime(t)
+  }
+  else {
+    m := ToNumber(mins)
+  };
+  /* 6. ReturnIfAbrupt(m). */
+  @ReturnIfAbrupt(m);
+
+  /* 7. If sec is not specified, let s be SecFromTime(t); otherwise, let s be ToNumber(sec). */
+  if (sec = null) {
+    s := SecFromTime(t)
+  }
+  else {
+    s := ToNumber(sec)
+  };
+  /* 8. ReturnIfAbrupt(s). */
+  @ReturnIfAbrupt(s);
+  
+  /* 9. If ms is not specified, let milli be msFromTime(t); otherwise, let milli be ToNumber(ms). */
+  if (ms = null) {
+    milli := msFromTime(t)
+  }
+  else {
+    milli := ToNumber(ms)
+  };
+  /* 10. ReturnIfAbrupt(milli). */
+  @ReturnIfAbrupt(milli);
+
+  /* 11. Let date be MakeDate(Day(t), MakeTime(h, m, s, milli)). */
+  date := MakeDate(Day(t), MakeTime(h, m, s, milli));
+
+  /* 12. Let u be TimeClip(UTC(date)). */
+  u := TimeClip(UTC(date));
+
+  /* 13. Set the [[DateValue]] internal slot of this Date object to u. */
+  this.DateValue := u;
+
+  /* 14. Return u. */
+  return u
+};
+
+
+/**
+ * 20.3.4.22 Date.prototype.setMilliseconds ( ms )
+ *
+ */
+function DatePrototypeSetMilliseconds(global, this, NewTarget, strict, args) {
+  ms := l_nth(args, 0);
+  
+  /* 1. Let t be LocalTime(this time value). */
+  t := LocalTime(thisTimeValue(this));
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. Let ms be ToNumber(ms). */
+  ms := ToNumber(ms);
+  /* 4. ReturnIfAbrupt(ms). */
+  @ReturnIfAbrupt(ms);
+  
+  /* 5. Let time be MakeTime(HourFromTime(t), MinFromTime(t), SecFromTime(t), ms). */
+  time := MakeTime(HourFromTime(t), MinFromTime(t), SecFromTime(t), ms);
+
+  /* 6. Let u be TimeClip(UTC(MakeDate(Day(t), time))). */
+  u := TimeClip(UTC(MakeDate(Day(t), time)));
+
+  /* 7. Set the [[DateValue]] internal slot of this Date object to u. */
+  this.DateValue := u;
+
+  /* 8. Return u. */
+  return u
+};
+
+
+/**
+ * 20.3.4.24 Date.prototype.setMinutes ( min [ , sec [ , ms ] ] )
+ *
+ * The length property of the setMinutes method is 3.
+ *
+ * NOTE  If sec is not specified, this method behaves as if 
+ *       sec were specified with the value getSeconds(). 
+ *       If ms is not specified, this behaves as if 
+ *       ms were specified with the value getMilliseconds().
+ */
+function DatePrototypeSetMinutes(global, this, NewTarget, strict, args) {
+  mins := l_nth(args, 0);
+  sec := getOptionalParam(args, 1);
+  ms := getOptionalParam(args, 2);
+
+  /* 1. Let t be LocalTime(this time value). */
+  t := LocalTime(thisTimeValue(this));
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. Let m be ToNumber(min). */
+  m := ToNumber(mins);
+  /* 4. ReturnIfAbrupt(m). */
+  @ReturnIfAbrupt(m);
+  
+
+  /* 5. If sec is not specified, let s be SecFromTime(t); otherwise, let s be ToNumber(sec). */
+  if (sec = null) {
+    s := SecFromTime(t)
+  }
+  else {
+    s := ToNumber(sec)
+  };
+  /* 6. ReturnIfAbrupt(s). */
+  @ReturnIfAbrupt(s);
+  
+  /* 7. If ms is not specified, let milli be msFromTime(t); otherwise, let milli be ToNumber(ms). */
+  if (ms = null) {
+    milli := msFromTime(t)
+  }
+  else {
+    milli := ToNumber(ms)
+  };
+  /* 8. ReturnIfAbrupt(milli). */
+  @ReturnIfAbrupt(milli);
+
+  /* 9. Let date be MakeDate(Day(t), MakeTime(HourFromTime(t), m, s, milli)). */
+  date := MakeDate(Day(t), MakeTime(HourFromTime(t), m, s, milli));
+
+  /* 10. Let u be TimeClip(UTC(date)). */
+  u := TimeClip(UTC(date));
+
+  /* 11. Set the [[DateValue]] internal slot of this Date object to u. */
+  this.DateValue := u;
+
+  /* 12. Return u. */
+  return u
+};
+
+
+/**
+ * 20.3.4.25 Date.prototype.setMonth ( month [ , date ] )
+ *
+ * The length property of the setMonth method is 2.
+ *
+ * NOTE   If date is not specified, this method behaves as if
+ *        date were specified with the value getDate().
+ */
+function DatePrototypeSetMonth(global, this, NewTarget, strict, args) {
+  month := l_nth(args, 0);
+  date := getOptionalParam(args, 1);
+
+  /* 1. Let t be LocalTime(this time value). */
+  t := LocalTime(thisTimeValue(this));
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. Let m be ToNumber(month). */
+  m := ToNumber(month);
+  /* 4. ReturnIfAbrupt(m). */
+  @ReturnIfAbrupt(m);
+  
+
+  /* 5. If date is not specified, let dt be DateFromTime(t); otherwise, let dt be ToNumber(date). */
+  if (date = null) {
+    dt := DateFromTime(t)
+  }
+  else {
+    dt := ToNumber(date)
+  };
+  /* 6. ReturnIfAbrupt(dt). */
+  @ReturnIfAbrupt(dt);
+  
+  /* 7. Let newDate be MakeDate(MakeDay(YearFromTime(t), m, dt), TimeWithinDay(t)). */
+  newDate := MakeDate(MakeDay(YearFromTime(t), m, dt), TimeWithinDay(t));
+
+  /* 8. Let u be TimeClip(UTC(newDate)). */
+  u := TimeClip(UTC(newDate));
+
+  /* 9. Set the [[DateValue]] internal slot of this Date object to u. */
+  this.DateValue := u;
+
+  /* 10. Return u. */
+  return u
+};
+
+
+/**
+ * 20.3.4.26 Date.prototype.setSeconds ( sec [ , ms ] )
+ *
+ * The length property of the setSeconds method is 2.
+ *
+ * NOTE   If ms is not specified, this method behaves as if
+ *        ms were specified with the value getMilliseconds().
+ */
+function DatePrototypeSetSeconds(global, this, NewTarget, strict, args) {
+
+  sec := l_nth(args, 0);
+  ms := getOptionalParam(args, 1);
+
+  /* 1. Let t be LocalTime(this time value). */
+  t := LocalTime(thisTimeValue(this));
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. Let m be ToNumber(sec). */
+  s := ToNumber(sec);
+  /* 4. ReturnIfAbrupt(s). */
+  @ReturnIfAbrupt(s);
+  
+
+  /* 5. If ms is not specified, let milli be msFromTime(t); otherwise, let milli be ToNumber(ms). */
+  if (ms = null) {
+    milli := msFromTime(t)
+  }
+  else {
+    milli := ToNumber(ms)
+  };
+  /* 6. ReturnIfAbrupt(milli). */
+  @ReturnIfAbrupt(milli);
+
+  /* 7. Let date be MakeDate(Day(t), MakeTime(HourFromTime(t), MinFromTime(t), s, milli)). */
+  date := MakeDate(Day(t), MakeTime(HourFromTime(t), MinFromTime(t), s, milli));
+
+  /* 8. Let u be TimeClip(UTC(date)). */
+  u := TimeClip(UTC(date));
+
+  /* 9. Set the [[DateValue]] internal slot of this Date object to u. */
+  this.DateValue := u;
+
+  /* 10. Return u. */
+  return u
+};
+
+
+/**
+ * 20.3.4.27 Date.prototype.setTime ( time )
+ *
+ */
+function DatePrototypeSetTime(global, this, NewTarget, strict, args) {
+  time := l_nth(args, 0);
+  
+  /* 1. Let valueNotUsed be this time value. */
+  valueNotUsed := thisTimeValue(this);
+
+  /* 2. ReturnIfAbrupt(valueNotUsed). */
+  @ReturnIfAbrupt(valueNotUsed);
+  
+  /* 3. Let t be ToNumber(time). */
+  t := ToNumber(time);
+
+  /* 4. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 5. Let v be TimeClip(t). */
+  v := TimeClip(t);
+
+  /* 6. Set the [[DateValue]] internal slot of this Date object to v. */
+  this.DateValue := v;
+
+  /* 7. Return v. */
+  return v
+};
+
+/**
+ * 20.3.4.28 Date.prototype.setUTCDate ( date )
+ *
+ */
+function DatePrototypeSetUTCDate(global, this, NewTarget, strict, args) {
+  date := l_nth(args, 0);
+
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. Let dt be ToNumber(date). */
+  dt := ToNumber(date);
+
+  /* 4. ReturnIfAbrupt(dt). */
+  @ReturnIfAbrupt(dt);
+
+  /* 5. Let newDate be MakeDate(MakeDay(YearFromTime(t), MonthFromTime(t), dt), TimeWithinDay(t)). */
+  newDate := MakeDate(MakeDay(YearFromTime(t), MonthFromTime(t), dt), TimeWithinDay(t));
+
+  /* 6. Let v be TimeClip(newDate). */
+  v := TimeClip(newDate);
+  
+  /* 7. Set the [[DateValue]] internal slot of this Date object to v. */
+  this.DateValue := v;
+
+  /* 8. Return v. */
+  return v 
+};
+
+
+/**
+ * 20.3.4.29 Date.prototype.setUTCFullYear ( year [ , month [ , date ] ] )
+ *
+ * The length property of the setUTCFullYear method is 3.
+ *
+ * NOTE If month is not specified, this method behaves as if
+ *      month were specified with the value getUTCMonth(). 
+ *      If date is not specified, it behaves as if 
+ *      date were specified with the value getUTCDate().
+
+ */
+function DatePrototypeSetUTCFullYear(global, this, NewTarget, strict, args) {
+  year := l_nth(args, 0);
+  month := getOptionalParam(args, 1);
+  date := getOptionalParam(args, 2);
+
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. If t is NaN, let t be +0. */
+  if (is_NaN t) {
+    t := 0.
+  };
+
+  /* 4. Let y be ToNumber(year). */
+  
+  y := ToNumber(year);
+  
+  /* 5. ReturnIfAbrupt(y). */
+  @ReturnIfAbrupt(y);
+
+  /* 6. If month is not specified, let m be MonthFromTime(t); otherwise, let m be ToNumber(month). */
+  if (month = null) {
+    m := MonthFromTime(t)
+  }
+  else {
+    m := ToNumber(month)
+  };
+  /* 7. ReturnIfAbrupt(m). */
+  @ReturnIfAbrupt(m);
+
+  /* 8. If date is not specified, let dt be DateFromTime(t); otherwise, let dt be ToNumber(date). */
+  if (date = null) {
+    dt := DateFromTime(t)
+  }
+  else {
+    dt := ToNumber(date)
+  };
+  /* 9. ReturnIfAbrupt(dt). */
+  @ReturnIfAbrupt(dt);
+
+  /* 10. Let newDate be MakeDate(MakeDay(y, m, dt), TimeWithinDay(t)). */
+  newDate := MakeDate(MakeDay(y, m, dt), TimeWithinDay(t));
+
+  /* 11. Let v be TimeClip(newDate). */
+  v := TimeClip(newDate);
+
+  /* 12. Set the [[DateValue]] internal slot of this Date object to v. */
+  this.DateValue := v;
+
+  /* 13. Return v. */
+  return v
+};
+
+
+/**
+ * 20.3.4.30 Date.prototype.setUTCHours ( hour [ , min [ , sec [ , ms ] ] ] )
+ *
+ * The length property of the setUTCHours method is 4.
+ *
+ * NOTE if min is not specified, this method behaves as if
+ *      min were specified with the value getUTCMinutes(). 
+ *      If sec is not specified, it behaves as if sec were 
+ *      specified with the value getUTCSeconds(). 
+ *      If ms is not specified, it behaves as if ms were 
+ *      specified with the value getUTCMilliseconds().
+ *
+ */
+function DatePrototypeSetUTCHours(global, this, NewTarget, strict, args) {
+  hour := l_nth(args, 0);
+  mins := getOptionalParam(args, 1);
+  sec := getOptionalParam(args, 2);
+  ms := getOptionalParam(args, 3);
+
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. Let h be ToNumber(hour). */
+  
+  h := ToNumber(hour);
+  
+  /* 4. ReturnIfAbrupt(h). */
+  @ReturnIfAbrupt(h);
+
+  /* 5. If min is not specified, let m be MinFromTime(t); otherwise, let m be ToNumber(min) */
+  if (mins = null) {
+    m := MinFromTime(t)
+  }
+  else {
+    m := ToNumber(mins)
+  };
+  /* 6. ReturnIfAbrupt(m). */
+  @ReturnIfAbrupt(m);
+
+  /* 7. If sec is not specified, let s be SecFromTime(t); otherwise, let s be ToNumber(sec). */
+  if (sec = null) {
+    s := SecFromTime(t)
+  }
+  else {
+    s := ToNumber(sec)
+  };
+  /* 8. ReturnIfAbrupt(s). */
+  @ReturnIfAbrupt(s);
+
+  /* 9. If ms is not specified, let milli be msFromTime(t); otherwise, let milli be ToNumber(ms). */
+  if (ms = null) {
+    milli := SecFromTime(t)
+  }
+  else {
+    milli := ToNumber(ms)
+  };
+  /* 10. ReturnIfAbrupt(milli). */
+  @ReturnIfAbrupt(milli);
+  
+  /* 11. Let newDate be MakeDate(Day(t), MakeTime(h, m, s, milli)). */
+  newDate := MakeDate(Day(t), MakeTime(h, m, s, milli));
+
+  /* 12. Let v be TimeClip(newDate). */
+  v := TimeClip(newDate);
+
+  /* 13. Set the [[DateValue]] internal slot of this Date object to v. */
+  this.DateValue := v;
+
+  /* 14. Return v. */
+  return v
+};
+
+
+/**
+ * 20.3.4.31 Date.prototype.setUTCMilliseconds ( ms )
+ *
+ */
+function DatePrototypeSetUTCMilliseconds(global, this, NewTarget, strict, args) {
+  ms := l_nth(args, 0);
+  
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. Let milli be ToNumber(ms). */
+  milli := ToNumber(ms);
+  /* 4. ReturnIfAbrupt(milli). */
+  @ReturnIfAbrupt(milli);
+  
+  /* 5. Let time be MakeTime(HourFromTime(t), MinFromTime(t), SecFromTime(t), milli). */
+  time := MakeTime(HourFromTime(t), MinFromTime(t), SecFromTime(t), milli);
+
+  /* 6. Let v be TimeClip(MakeDate(Day(t), time)). */
+  v := TimeClip(UTC(MakeDate(Day(t), time)));
+
+  /* 7. Set the [[DateValue]] internal slot of this Date object to v. */
+  this.DateValue := v;
+
+  /* 8. Return v. */
+  return v
+};
+
+
+/** 
+ * 20.3.4.32 Date.prototype.setUTCMinutes ( min [ , sec [, ms ] ] )
+ *
+ * The length property of the setUTCMinutes method is 3.
+ *
+ * NOTE If sec is not specified, this method behaves as if sec were 
+ *      specified with the value getUTCSeconds(). 
+ *      If ms is not specified, it function behaves as if ms were
+ *      specified with the value return by getUTCMilliseconds().
+ *
+ */
+function DatePrototypeSetUTCMinutes(global, this, NewTarget, strict, args) {
+  mins := l_nth(args, 0);
+  sec := getOptionalParam(args, 1);
+  ms := getOptionalParam(args, 2);
+
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. Let m be ToNumber(min). */
+  m := ToNumber(mins);
+  /* 4. ReturnIfAbrupt(m). */
+  @ReturnIfAbrupt(m);
+  
+
+  /* 5. If sec is not specified, let s be SecFromTime(t). */
+  if (sec = null) {
+    s := SecFromTime(t)
+  }
+  /* 6. Else */
+  else {
+    /* a. Let s be ToNumber(sec). */
+    s := ToNumber(sec);
+    /* b. ReturnIfAbrupt(s). */
+    @ReturnIfAbrupt(s)    
+  };
+  
+  /* 7. If ms is not specified, let milli be msFromTime(t). */
+  if (ms = null) {
+    milli := msFromTime(t)
+  }
+  /* 8. Else */
+  else {
+    /* a. Let milli be ToNumber(ms). */
+    milli := ToNumber(ms);
+    /* b. ReturnIfAbrupt(milli). */
+    @ReturnIfAbrupt(milli) 
+  };
+
+  /* 9. Let date be MakeDate(Day(t), MakeTime(HourFromTime(t), m, s, milli)). */
+  date := MakeDate(Day(t), MakeTime(HourFromTime(t), m, s, milli));
+
+  /* 10. Let v be TimeClip(UTC(date)). */
+  v := TimeClip(UTC(date));
+
+  /* 11. Set the [[DateValue]] internal slot of this Date object to v. */
+  this.DateValue := v;
+
+  /* 12. Return v. */
+  return v
+};
+
+
+/** 
+ * 20.3.4.33 Date.prototype.setUTCMonth ( month [ , date ] )
+ *
+ * The length property of the setUTCMonth method is 2.
+ *
+ * NOTE   If date is not specified, this method behaves as if
+ *        date were specified with the value getUTCDate().
+ */
+function DatePrototypeSetUTCMonth(global, this, NewTarget, strict, args) {
+  month := l_nth(args, 0);
+  date := getOptionalParam(args, 1);
+
+  /* 1. Let t be LocalTime(this time value). */
+  t := LocalTime(thisTimeValue(this));
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. Let m be ToNumber(month). */
+  m := ToNumber(month);
+  /* 4. ReturnIfAbrupt(m). */
+  @ReturnIfAbrupt(m);
+  
+
+  /* 5. If date is not specified, let dt be DateFromTime(t). */
+  if (date = null) {
+    dt := DateFromTime(t)
+  }
+  /* 6. Else*/
+  else {
+
+    /* a. Let dt be ToNumber(date). */
+    dt := ToNumber(date);
+    /* b. ReturnIfAbrupt(dt). */
+    @ReturnIfAbrupt(dt)
+  };
+  
+
+  /* 7. Let newDate be MakeDate(MakeDay(YearFromTime(t), m, dt), TimeWithinDay(t)). */
+  newDate := MakeDate(MakeDay(YearFromTime(t), m, dt), TimeWithinDay(t));
+
+  /* 8. Let v be TimeClip(UTC(newDate)). */
+  v := TimeClip(UTC(newDate));
+
+  /* 9. Set the [[DateValue]] internal slot of this Date object to v. */
+  this.DateValue := v;
+
+  /* 10. Return v. */
+  return v
+};
+
+/**
+ * 20.3.4.34 Date.prototype.setUTCSeconds ( sec [ , ms ] )
+ *
+ * The length property of the setUTCSeconds method is 2. 
+ *
+ * NOTE If ms is not specified, this method behaves as if ms were specified with the value getUTCMilliseconds().
+ *
+*/
+function DatePrototypeSetUTCSeconds (global, this, stric, args) {
+  sec := l_nth(args, 0);
+  ms := getOptionalParam(args, 1);
+
+  /* 1. Let t be this time value. */
+  t := thisTimeValue(this);
+
+  /* 2. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
+
+  /* 3. Let s be ToNumber(sec). */
+  s := ToNumber(sec);
+
+  /* 4. ReturnIfAbrupt(s). */
+  @ReturnIfAbrupt(s);
+
+  /* 5. If ms is not specified, let milli be msFromTime(t). */
+  if (ms = null) {
+    milli := msFromTime(t)
+  }
+  /* 6. Else */
+  else {
+    /* a. Let milli be ToNumber(ms). */
+    milli := ToNumber(ms);
+    /* b. ReturnIfAbrupt(milli). */
+    @ReturnIfAbrupt(milli)
+  };
+
+  /* 7. Let date be MakeDate(Day(t), MakeTime(HourFromTime(t), MinFromTime(t), s, milli)). */
+  date := MakeDate(Day(t), MakeTime(HourFromTime(t), MinFromTime(t), s, milli));
+
+  /* 8. Let v be TimeClip(date). */
+  v := TimeClip(date);
+
+  /* 9. Set the [[DateValue]] internal slot of this Date object to v. */
+  this.DateValue := v;
+
+  /* 10. Return v. */
+  return v
+
+};
+
+
+/**
+ *
+ * 20.3.4.35 Date.prototype.toDateString ( )
+ * 
+ * This function returns a String value. 
+ * The contents of the String are implementation-dependent, 
+ * but are intended to represent the “date” portion of the Date in the current time zone 
+ * in a convenient, human-readable form.
+ * 
+ */
+function DatePrototypeToDateString(globalObject, this, NewTarget, strict, args){
+   
+   return toDateString(thisTimeValue(this))
+};
+
+
+/**
+ *
+ * 20.3.4.36 Date.prototype.toISOString ( )
+ * This function returns a String value representing the 
+ * instance in time corresponding to this time value. 
+ * The format of the String is the Date Time string format defined in 20.3.1.16. 
+ * All fields are present in the String. 
+ * The time zone is always UTC, denoted by the suffix Z. 
+ * If this time value is not a finite Number or if the year is not a value that can be represented in that format (if necessary using extended year format), a RangeError exception is thrown.
+ * 
+ */
+function DatePrototypeToISOString(globalObject, this, NewTarget, strict, args) {
+  /* If this time value is not a finite Number or if the year is not a
+   value that can be represented in that format (if necessary using extended year format), a RangeError exception is thrown. */
+  if (!auxIsFinite(thisTimeValue(this)) ||| int_of_float(abs((thisTimeValue(this)))) > (100000000 * 8640000000000000)) {
+    throw RangeErrorConstructorInternal()
+  };
+
+  return toDateString(thisTimeValue(this))
+};
+
+/**
+ *
+ * 20.3.4.37 Date.prototype.toJSON ( key )
+ *
+ * This function provides a String representation of a Date object for use by JSON.stringify (24.3.2)
+ *
+ * NOTE 1 The argument is ignored.
+ * NOTE 2 The toJSON function is intentionally generic; 
+ *  it does not require that its this value be a Date object. 
+ *  Therefore, it can be transferred to other kinds of objects for use as a method. 
+ *  However, it does require that any such object have a toISOString method.
+ */
+function DatePrototypeToJSON(globalObject, this, NewTarget, strict, args){
+
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* 2. Let tv be ToPrimitive(O, hint Number). */
+  tv := ToPrimitive(O, 'Number);
+  
+  /* 3. ReturnIfAbrupt(tv). */
+  @ReturnIfAbrupt(tv);
+
+  /* 4. If Type(tv) is Number and tv is not finite, return null. */
+  if ((Type(tv) = "Number") &&& (!(auxIsFinite(tv)))) {
+    return 'null  
+  };
+
+  /* 5. Return Invoke(O, "toISOString"). */
+  return Invoke(null, null, O, "toISOString", [])
+};
+
+
+/**
+ * 20.3.4.41  Date.prototype.toString ( ) 
+ *
+ * NOTE 1 For any Date object d whose milliseconds amount is zero, the result of Date.parse(d.toString()) is equal to d.valueOf(). See 20.3.3.2.
+ *
+ * NOTE 2 The toString function is intentionally generic; it does not require that its this value be a Date object. Therefore, it can be transferred to other kinds of objects for use as a method.
+ *
+ */
+function DatePrototypeToString(globalObject, this, NewTarget, strict, args) {
+  
+   /* 1. Let O be this Date object. */
+   O := this;
+
+   /* 2. If O does not have a [[DateValue]] internal slot, then */
+   if (!("DateValue" in_obj O)) {
+      /* a. Let tv be NaN. */
+      tv := NaN
+   }
+   /* 3. Else, */
+   else{
+      /* a. Let tv be this time value. */
+      tv := thisTimeValue(this)
+   };
+
+   /* 4. Return ToDateString(tv). */
+   return toDateString(tv)
+
+};
+
+
+/**
+ * 20.3.4.41.1 Runtime Semantics: ToDateString(tv)
+ */
+function toDateString(tv){
+   /* 1. Assert: Type(tv) is Number. */
+   assert((Type(tv) = "Number"));
+  
+   /* 2. If tv is NaN, return "Invalid Date". */
+   if (is_NaN tv) {
+      return "Invalid Date"
+   };
+   
+   /* 3. Return an implementation-dependent String value that represents tv as a date and time in the current time zone using a convenient, human-readable form.*/
+   return timeValueRepresentation(tv)
+};
+
+
+/**
+ * 20.3.4.42 Date.prototype.toTimeString ( )
+ *
+ */
+function DatePrototypeToTimeString(globalObject, this, NewTarget, strict, args) {
+  return toDateString(thisTimeValue(this))
+};
+
+/**
+ * 20.3.4.43 Date.prototype.toUTCString ( )
+ *
+ */
+function DatePrototypeToUTCString(globalObject, this, NewTarget, strict, args) {
+  tv := thisTimeValue(this);
+
+  if (is_NaN tv){
+    return "Invalid Date"
+  };
+
+  /*Sun, 23 Mar 2014 00:00:00 GMT*/
+  months := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  week := ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  year := padding(YearFromTime(tv), 4);
+
+  month := l_nth(months, int_of_float (MonthFromTime(tv)));
+  
+  day := padding(DateFromTime(tv), 2);
+  
+  weekday := l_nth(week, int_of_float (WeekDay(tv)));
+  
+  
+  hours := padding(HourFromTime(tv), 2);
+  minutes := padding(MinFromTime(tv), 2);
+  seconds := padding(SecFromTime(tv), 2);
+  
+  repr := s_concat[weekday, ", ", day, " ", month, " ", year, " ", hours, ":", minutes, ":", seconds, " GMT"];
+  
+  return repr
+};
+
+
+/**
+ * 20.3.4.44 Date.prototype.valueOf ( )
+*/
+function DatePrototypeValueOf (globalObject, this, NewTarget, strict, args) {
+  /* The valueOf function returns a Number, which is this time value. */
+  return thisTimeValue(this)
+};
+
+/**
+ * 20.3.4.45 Date.prototype [ @@toPrimitive ] ( hint )
+ *
+ * This function is called by ECMAScript language operators to 
+ * convert a Date object to a primitive value. 
+ * The allowed values for hint are "default", "number", and "string". 
+ * Date objects, are unique among built-in ECMAScript object in that they 
+ * treat "default" as being equivalent to "string", 
+ * All other built-in ECMAScript objects treat "default" as being equivalent to "number".
+ *
+ */
+function DatePrototypeToPrimitive (globalObject, this, NewTarget, strict, args) {
+  hint := l_nth(args, 0);
+  /* 1. Let O be the this value. */
+  O := this;
+  /* 2. If Type(O) is not Object, throw a TypeError exception. */
+  if (!(Type(O) = "Object")) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 3. If hint is the String value "string" or the String value "default" , then */
+  if (hint = "string" ||| hint = "default") {
+    /* a. Let tryFirst be "string". */
+    tryFirst := "string" 
+  }
+  /* 4. Else if hint is the String value "number", then */
+  elif (hint = "number") {
+    /* a. Let tryFirst be "number". */
+    tryFirst := "number"
+  }
+  /* 5. Else, throw a TypeError exception. */
+  else {
+    throw TypeErrorConstructorInternal()
+  };
+  
+  /* 6. Return OrdinaryToPrimitive(O, tryFirst). */
+  return OrdinaryToPrimitive(O, tryFirst)
+};
+
+
+/* 15.9.3.1 new Date (year, month [, date [, hours [, minutes [, seconds [, ms ] ] ] ] ] ) */
+function internalNewDate(datePrototypeObject, args) {
+  year := l_nth(args, 0);
+  month := l_nth(args, 1);
+  date := getOptionalParam(args, 2);
+  hours := getOptionalParam(args, 3);
+  minutes := getOptionalParam(args, 4);
+  seconds := getOptionalParam(args, 5);
+  ms := getOptionalParam(args, 6);
+
+  /* When Date is called with two to seven arguments, it computes the date from year, month, and (optionally)
+    date, hours, minutes, seconds and ms. */
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
+
+  /* The [[Prototype]] internal property of the newly constructed object is set to the original Date prototype object,
+    the one that is the initial value of Date.prototype (15.9.4.1). */
+  setInternalProperty(newlyConstructedObject, "Prototype", datePrototypeObject);
+  /* The [[Class]] internal property of the newly constructed object is set to "Date". */
+  setInternalProperty(newlyConstructedObject, "Class", "Date");
+  /* The [[Extensible]] internal property of the newly constructed object is set to true. */
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
+  /* The [[PrimitiveValue]] internal property of the newly constructed object is set as follows: */
+  /* 1. Let y be ToNumber(year). */
+  y := ToNumber(year);
+  /* 2. Let m be ToNumber(month). */
+  m := ToNumber(month);
+  /* 3. If date is supplied then let dt be ToNumber(date); else let dt be 1. */
+  if (!(date = null)) { dt := ToNumber(date) } else { dt := 1. };
+  /* 4. If hours is supplied then let h be ToNumber(hours); else let h be 0. */
+  if (!(hours = null)) { h := ToNumber(hours) } else { h := 0. };
+  /* 5. If minutes is supplied then let min be ToNumber(minutes); else let min be 0. */
+  if (!(minutes = null)) { mins := ToNumber(minutes) } else { mins := 0. };
+  /* 6. If seconds is supplied then let s be ToNumber(seconds); else let s be 0. */
+  if (!(seconds = null)) { s := ToNumber(seconds) } else { s := 0. };
+  /* 7. If ms is supplied then let milli be ToNumber(ms); else let milli be 0. */
+  if (!(ms = null)) { milli := ToNumber(ms) } else { milli := 0. };
+  /* 8. If y is not NaN and 0 <= ToInteger(y) <= 99, then let yr be 1900+ToInteger(y); otherwise, let yr be y. */
+  if (!(is_NaN y) &&& (0. <= ToInteger(y)) &&& (ToInteger(y) <= 99.)) { yr := 1900. + ToInteger(y) } else { yr := y };
+  /* 9. Let finalDate be MakeDate(MakeDay(yr, m, dt), MakeTime(h, min, s, milli)). */
+  finalDate := MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli));
+  /* 10. Set the [[PrimitiveValue]] internal property of the newly constructed object to TimeClip(UTC(finalDate)). */
+  setInternalProperty(newlyConstructedObject, "PrimitiveValue", TimeClip(UTC(finalDate)));
+
+  return newlyConstructedObject
+};
+
+/* 15.9.3.2 new Date (value) */
+function internalNewDateWithValue(datePrototypeObject, value) {
+  /* The [[Prototype]] internal property of the newly constructed object is set to the original Date prototype object,
+    the one that is the initial value of Date.prototype (15.9.4.1). */
+  setInternalProperty(newlyConstructedObject, "Prototype", datePrototypeObject);
+  /* The [[Class]] internal property of the newly constructed object is set to "Date". */
+  setInternalProperty(newlyConstructedObject, "Class", "Date");
+  /* The [[Extensible]] internal property of the newly constructed object is set to true. */
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
+  /* The [[PrimitiveValue]] internal property of the newly constructed object is set as follows: */
+  /* 1. Let v be ToPrimitive(value). */
+  v := ToPrimitive(value);
+  /* 2. If Type(v) is String, then */
+  if (Type(v) = "String") {
+    /* a. Parse v as a date, in exactly the same manner as for the parse method (15.9.4.2); let V be the time
+          value for this date. */
+    /* TODO */
+    fail "15.9.3.2 - new Date (value) 2.a. Not implemented"
+  }
+  /* 3. Else, let V be ToNumber(v). */
+  else {
+    V := ToNumber(v)
+  };
+  /* 4. Set the [[PrimitiveValue]] internal property of the newly constructed object to TimeClip(V) and return. */
+  setInternalProperty(newlyConstructedObject, "PrimitiveValue", TimeClip(V));
+
+  return newlyConstructedObject
+};
+
+/* 15.9.3.3 new Date ( ) */
+function internalNewDateWithoutValue(datePrototypeObject) {
+  /* The [[Prototype]] internal property of the newly constructed object is set to the original Date prototype object,
+    the one that is the initial value of Date.prototype (15.9.4.1). */
+  setInternalProperty(newlyConstructedObject, "Prototype", datePrototypeObject);
+  /* The [[Class]] internal property of the newly constructed object is set to "Date". */
+  setInternalProperty(newlyConstructedObject, "Class", "Date");
+  /* The [[Extensible]] internal property of the newly constructed object is set to true. */
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
+  /* The [[PrimitiveValue]] internal property of the newly constructed object is set to the time value (UTC)
+    identifying the current time. */
+  setInternalProperty(newlyConstructedObject, "PrimitiveValue", getTimeValueIdentifyingCurrentTime());
+
+  return newlyConstructedObject
+};
+
+/* 20.3.3 Properties of the Date Constructor */
+function initDateConstructor(DatePrototype, globalObject, strict) {
+  /* The value of the [[Prototype]] internal property of the Date constructor is the Function prototype object (19.2.3). */
+  DateConstructor := CreateGeneralBuiltInFunction(getFunctionPrototype(strict), ["year", "month", "date", "hours", "minutes", "seconds", "ms"], "newDateConstructor", globalObject, strict, 0.);
+
+  /* Besides the length property (whose value is 7), the Date constructor has the following properties: */
+
+  /* 20.3.3.1 Date.now ( ) */
+  nowObject := CreateBuiltInFunctionObject([], "DateNow", globalObject, strict, null);
+  createBuiltInProperty(DateConstructor, "now", nowObject);
+  setJSProperty(nowObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(nowObject, "name", newDataPropertyDescriptorFull("now", false, false, true));
+
+  /* 20.3.3.2 Date.parse (string) */
+  parseObject := CreateBuiltInFunctionObject([ "string" ], "DateParse", globalObject, strict, null);
+  createBuiltInProperty(DateConstructor, "parse", parseObject);
+  setJSProperty(parseObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(parseObject, "name", newDataPropertyDescriptorFull("parse", false, false, true));
+
+  /* 20.3.3.3 Date.prototype */
+  /* The initial value of Date.prototype is the built-in Date prototype object (20.3.4). */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(DateConstructor, "prototype", DatePrototype, false, false, false);
+
+  /* 20.3.3.4 Date.UTC (year, month [, date [, hours [, minutes [, seconds [, ms ] ] ] ] ] ) */
+  UTCObject := CreateBuiltInFunctionObject(["year", "month", "date", "hours", "minutes", "seconds", "ms"], "DateUTC", globalObject, strict, 2.);
+  createBuiltInProperty(DateConstructor, "UTC", UTCObject);
+  setJSProperty(UTCObject, "length", newDataPropertyDescriptorFull(7., false, false, true));
+  setJSProperty(UTCObject, "name", newDataPropertyDescriptorFull("UTC", false, false, true));
+
+
+  return DateConstructor
+};
+
+/** 
+ * thisTimeValue(value)
+ * The abstract operation thisTimeValue(value) performs the following steps:
+ *
+ *   1. If Type(value) is Object and value has a [[DateValue]] internal slot, then
+ *       a. Return the value of value’s [[DateValue]] internal slot.
+ *   2. Throw a TypeError exception.
+ */
+function thisTimeValue(value) {
+  /* 1. If Type(value) is Object and value has a [[DateValue]] internal slot, then */
+  if (Type(value) = "Object" &&& "DateValue" in_obj value ) { 
+    /* a. Return the value of value’s [[DateValue]] internal slot. */
+    return value.DateValue
+  };
+  /* 2. Throw a TypeError exception. */
+  throw TypeErrorConstructorInternal()
+};
+
+
+
+function fillDatePrototype(datePrototypeObject, dateConstructor, globalObject, strict) {
+  /* datePrototypeObject := NewECMAScriptObjectFull(objectPrototype, "Object", true);
+  setAllInternalMethodsOfOrdinaryObject(datePrototypeObject); */
+
+  /* In following descriptions of functions that are properties of the Date prototype object,
+   the phrase “this Date object” refers to the object that is the this value 
+   for the invocation of the function. 
+   If the Type of the this value is not Object, a TypeError exception is thrown. 
+   The phrase “this time value” within the specification of a method refers to the result
+   returned by calling the abstract operation thisTimeValue with the this value of the method invocation passed as the argument. */
+
+  /* 20.3.4.1 Date.prototype.constructor */
+  /* The initial value of Date.prototype.constructor is the built-in Date constructor. */
+  createBuiltInProperty(datePrototypeObject, "constructor", dateConstructor);
+
+  /* 20.3.4.2 Date.prototype.getDate ( ) */
+  getDate := CreateBuiltInFunctionObject([], "DatePrototypeGetDate", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "getDate", getDate);
+  setJSProperty(getDate, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getDate, "name", newDataPropertyDescriptorFull("getDate", false, false, true));
+
+  /* 20.3.4.3 Date.prototype.getDay ( ) */
+  getDay := CreateBuiltInFunctionObject([], "DatePrototypeGetDay", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "getDay", getDay);
+  setJSProperty(getDay, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getDay, "name", newDataPropertyDescriptorFull("getDay", false, false, true));
+
+  /* 20.3.4.4 Date.prototype.getFullYear ( ) */
+  getFullYear := CreateBuiltInFunctionObject([], "DatePrototypeGetFullYear", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "getFullYear", getFullYear);
+  setJSProperty(getFullYear, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getFullYear, "name", newDataPropertyDescriptorFull("getFullYear", false, false, true));
+
+  /* 20.3.4.5 Date.prototype.getHours ( ) */
+  getHours := CreateBuiltInFunctionObject([], "DatePrototypeGetHours", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "getHours", getHours);
+  setJSProperty(getHours, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getHours, "name", newDataPropertyDescriptorFull("getHours", false, false, true));
+
+  /* 20.3.4.6 Date.prototype.getMilliseconds ( ) */
+  getMilliseconds := CreateBuiltInFunctionObject([], "DatePrototypeGetMilliseconds", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "getMilliseconds", getMilliseconds);
+  setJSProperty(getMilliseconds, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getMilliseconds, "name", newDataPropertyDescriptorFull("getMilliseconds", false, false, true));
+
+  /* 20.3.4.7  Date.prototype.getMinutes ( ) */
+  getMinutes := CreateBuiltInFunctionObject([], "DatePrototypeGetMinutes", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "getMinutes", getMinutes);
+  setJSProperty(getMinutes, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getMinutes, "name", newDataPropertyDescriptorFull("getMinutes", false, false, true));
+
+  /* 20.3.4.8 Date.prototype.getMonth ( ) */
+  getMonth := CreateBuiltInFunctionObject([], "DatePrototypeGetMonth", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "getMonth", getMonth);
+  setJSProperty(getMonth, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getMonth, "name", newDataPropertyDescriptorFull("getMonth", false, false, true));
+
+  /* 20.3.4.9 Date.prototype.getSeconds ( ) */
+  getSeconds := CreateBuiltInFunctionObject([], "DatePrototypeGetSeconds", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "getSeconds", getSeconds);
+  setJSProperty(getSeconds, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getSeconds, "name", newDataPropertyDescriptorFull("getSeconds", false, false, true));
+
+  /* 20.3.4.10 Date.prototype.getTime ( ) */
+  getTime := CreateBuiltInFunctionObject([], "DatePrototypeGetTime", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "getTime", getTime);
+  setJSProperty(getTime, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getTime, "name", newDataPropertyDescriptorFull("getTime", false, false, true));
+ 
+  /* 20.3.4.11 Date.prototype.getTimezoneOffset ( ) */
+  getTimezoneOffset := CreateBuiltInFunctionObject([], "DatePrototypeGetTimezoneOffset", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "getTimezoneOffset", getTimezoneOffset);
+  setJSProperty(getTimezoneOffset, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getTimezoneOffset, "name", newDataPropertyDescriptorFull("getTimezoneOffset", false, false, true));
+
+  /* 20.3.4.12  Date.prototype.getUTCDate ( ) */
+  getUTCDate := CreateBuiltInFunctionObject([], "DatePrototypeGetUTCDate", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "getUTCDate", getUTCDate);
+  setJSProperty(getUTCDate, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getUTCDate, "name", newDataPropertyDescriptorFull("getUTCDate", false, false, true));
+
+  /* 20.3.4.13  Date.prototype.getUTCDay ( ) */
+  getUTCDay := CreateBuiltInFunctionObject([], "DatePrototypeGetUTCDay", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "getUTCDay", getUTCDay);
+  setJSProperty(getUTCDay, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getUTCDay, "name", newDataPropertyDescriptorFull("getUTCDay", false, false, true));
+
+  /* 20.3.4.14 Date.prototype.getUTCFullYear ( ) */
+  getUTCFullYear := CreateBuiltInFunctionObject([], "DatePrototypeGetUTCFullYear", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "getUTCFullYear", getUTCFullYear);
+  setJSProperty(getUTCFullYear, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getUTCFullYear, "name", newDataPropertyDescriptorFull("getUTCFullYear", false, false, true));
+
+  /* 20.3.4.15 Date.prototype.getUTCHours ( ) */
+  getUTCHours := CreateBuiltInFunctionObject([], "DatePrototypeGetUTCHours", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "getUTCHours", getUTCHours);
+  setJSProperty(getUTCHours, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getUTCHours, "name", newDataPropertyDescriptorFull("getUTCHours", false, false, true));
+
+  /* 20.3.4.16 Date.prototype.getUTCMilliseconds ( ) */
+  getUTCMilliseconds := CreateBuiltInFunctionObject([], "DatePrototypeGetUTCMilliseconds", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "getUTCMilliseconds", getUTCMilliseconds);
+  setJSProperty(getUTCMilliseconds, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getUTCMilliseconds, "name", newDataPropertyDescriptorFull("getUTCMilliseconds", false, false, true));
+
+  /* 20.3.4.17 Date.prototype.getUTCMinutes ( ) */
+  getUTCMinutes := CreateBuiltInFunctionObject([], "DatePrototypeGetUTCMinutes", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "getUTCMinutes", getUTCMinutes);
+  setJSProperty(getUTCMinutes, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getUTCMinutes, "name", newDataPropertyDescriptorFull("getUTCMinutes", false, false, true));
+
+  /* 20.3.4.18 Date.prototype.getUTCMonth ( ) */
+  getUTCMonth := CreateBuiltInFunctionObject([], "DatePrototypeGetUTCMonth", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "getUTCMonth", getUTCMonth);
+  setJSProperty(getUTCMonth, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getUTCMonth, "name", newDataPropertyDescriptorFull("getUTCMonth", false, false, true));
+
+  /* 20.3.4.19 Date.prototype.getUTCSeconds ( ) */
+  getUTCSeconds := CreateBuiltInFunctionObject([], "DatePrototypeGetUTCSeconds", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "getUTCSeconds", getUTCSeconds);
+  setJSProperty(getUTCSeconds, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getUTCSeconds, "name", newDataPropertyDescriptorFull("getUTCSeconds", false, false, true));
+
+  /* 20.3.4.20  Date.prototype.setDate (date) */
+  setDate := CreateBuiltInFunctionObject(["date"], "DatePrototypeSetDate", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "setDate", setDate);
+  setJSProperty(setDate, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(setDate, "name", newDataPropertyDescriptorFull("setDate", false, false, true));
+
+  /* 20.3.4.21 Date.prototype.setFullYear (year [, month [, date ] ] ) */
+  setFullYear := CreateBuiltInFunctionObject(["year", "month", "date"], "DatePrototypeSetFullYear", globalObject, strict, 1.);
+  createBuiltInProperty(datePrototypeObject, "setFullYear", setFullYear);
+  setJSProperty(setFullYear, "length", newDataPropertyDescriptorFull(3., false, false, true));
+  setJSProperty(setFullYear, "name", newDataPropertyDescriptorFull("setFullYear", false, false, true));
+
+  /* 20.3.4.22 Date.prototype.setHours (hour [, min [, sec [, ms ] ] ] ) */
+  setHours := CreateBuiltInFunctionObject(["hour", "min", "sec", "ms"], "DatePrototypeSetHours", globalObject, strict, 1.);
+  createBuiltInProperty(datePrototypeObject, "setHours", setHours);
+  setJSProperty(setHours, "length", newDataPropertyDescriptorFull(4., false, false, true));
+  setJSProperty(setHours, "name", newDataPropertyDescriptorFull("setHours", false, false, true));
+
+  /* 20.3.4.23 Date.prototype.setMilliseconds (ms) */
+  setMilliseconds := CreateBuiltInFunctionObject(["ms"], "DatePrototypeSetMilliseconds", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "setMilliseconds", setMilliseconds);
+  setJSProperty(setMilliseconds, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(setMilliseconds, "name", newDataPropertyDescriptorFull("setMilliseconds", false, false, true));
+
+  /* 20.3.4.24 Date.prototype.setMinutes (min [, sec [, ms ] ] ) */
+  setMinutes := CreateBuiltInFunctionObject(["min", "sec", "ms"], "DatePrototypeSetMinutes", globalObject, strict, 1.);
+  createBuiltInProperty(datePrototypeObject, "setMinutes", setMinutes);
+  setJSProperty(setMinutes, "length", newDataPropertyDescriptorFull(3., false, false, true));
+  setJSProperty(setMinutes, "name", newDataPropertyDescriptorFull("setMinutes", false, false, true));
+
+  /* 20.3.4.25 Date.prototype.setMonth (month [, date ] ) */
+  setMonth := CreateBuiltInFunctionObject(["month", "date"], "DatePrototypeSetMonth", globalObject, strict, 1.);
+  createBuiltInProperty(datePrototypeObject, "setMonth", setMonth);
+  setJSProperty(setMonth, "length", newDataPropertyDescriptorFull(2., false, false, true));
+  setJSProperty(setMonth, "name", newDataPropertyDescriptorFull("setMonth", false, false, true));
+
+  /* 20.3.4.26 Date.prototype.setSeconds (sec [, ms ] ) */
+  setSeconds := CreateBuiltInFunctionObject(["sec", "ms"], "DatePrototypeSetSeconds", globalObject, strict, 1.);
+  createBuiltInProperty(datePrototypeObject, "setSeconds", setSeconds);
+  setJSProperty(setSeconds, "length", newDataPropertyDescriptorFull(2., false, false, true));
+  setJSProperty(setSeconds, "name", newDataPropertyDescriptorFull("setSeconds", false, false, true));
+
+  /* 20.3.4.27 Date.prototype.setTime (time) */
+  setTime := CreateBuiltInFunctionObject(["time"], "DatePrototypeSetTime", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "setTime", setTime);
+  setJSProperty(setTime, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(setTime, "name", newDataPropertyDescriptorFull("setTime", false, false, true));
+
+  /* 20.3.4.28 Date.prototype.setUTCDate (date) */
+  setUTCDate := CreateBuiltInFunctionObject(["date"], "DatePrototypeSetUTCDate", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "setUTCDate", setUTCDate);
+  setJSProperty(setUTCDate, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(setUTCDate, "name", newDataPropertyDescriptorFull("setUTCDate", false, false, true));
+  
+  /* 20.3.4.29 Date.prototype.setUTCFullYear (year [, month [, date ] ] ) */
+  setUTCFullYear := CreateBuiltInFunctionObject(["year", "month", "date"], "DatePrototypeSetUTCFullYear", globalObject, strict, 1.);
+  createBuiltInProperty(datePrototypeObject, "setUTCFullYear", setUTCFullYear);
+  setJSProperty(setUTCFullYear, "length", newDataPropertyDescriptorFull(3., false, false, true));
+  setJSProperty(setUTCFullYear, "name", newDataPropertyDescriptorFull("setUTCFullYear", false, false, true));
+
+  /* 20.3.4.30  Date.prototype.setUTCHours (hour [, min [, sec [, ms ] ] ] ) */
+  setUTCHours := CreateBuiltInFunctionObject(["hour", "min", "sec", "ms"], "DatePrototypeSetUTCHours", globalObject, strict, 1.);
+  createBuiltInProperty(datePrototypeObject, "setUTCHours", setUTCHours);
+  setJSProperty(setUTCHours, "length", newDataPropertyDescriptorFull(4., false, false, true));
+  setJSProperty(setUTCHours, "name", newDataPropertyDescriptorFull("setUTCHours", false, false, true));
+
+  /* 20.3.4.31 Date.prototype.setUTCMilliseconds (ms) */
+  setUTCMilliseconds := CreateBuiltInFunctionObject(["ms"], "DatePrototypeSetUTCMilliseconds", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "setUTCMilliseconds", setUTCMilliseconds);
+  setJSProperty(setUTCMilliseconds, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(setUTCMilliseconds, "name", newDataPropertyDescriptorFull("setUTCMilliseconds", false, false, true));
+
+  /* 20.3.4.32 Date.prototype.setUTCMinutes (min [, sec [, ms ] ] ) */
+  setUTCMinutes := CreateBuiltInFunctionObject(["min", "sec", "ms"], "DatePrototypeSetUTCMinutes", globalObject, strict, 1.);
+  createBuiltInProperty(datePrototypeObject, "setUTCMinutes", setUTCMinutes);
+  setJSProperty(setUTCMinutes, "length", newDataPropertyDescriptorFull(3., false, false, true));
+  setJSProperty(setUTCMinutes, "name", newDataPropertyDescriptorFull("setUTCMinutes", false, false, true));
+
+  /* 20.3.4.33 Date.prototype.setUTCMonth (month [, date ] ) */
+  setUTCMonth := CreateBuiltInFunctionObject(["month", "date"], "DatePrototypeSetUTCMonth", globalObject, strict, 1.);
+  createBuiltInProperty(datePrototypeObject, "setUTCMonth", setUTCMonth);
+  setJSProperty(setUTCMonth, "length", newDataPropertyDescriptorFull(2., false, false, true));
+  setJSProperty(setUTCMonth, "name", newDataPropertyDescriptorFull("setUTCMonth", false, false, true));
+
+  /* 20.3.4.34 Date.prototype.setUTCSeconds (sec [, ms ] ) */
+  setUTCSeconds := CreateBuiltInFunctionObject(["sec", "ms"], "DatePrototypeSetUTCSeconds", globalObject, strict, 1.);
+  createBuiltInProperty(datePrototypeObject, "setUTCSeconds", setUTCSeconds);
+  setJSProperty(setUTCSeconds, "length", newDataPropertyDescriptorFull(2., false, false, true));
+  setJSProperty(setUTCSeconds, "name", newDataPropertyDescriptorFull("setUTCSeconds", false, false, true));
+
+  /* 20.3.4.35 Date.prototype.toDateString ( ) */
+  toDateString := CreateBuiltInFunctionObject([], "DatePrototypeToDateString", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "toDateString", toDateString);
+  setJSProperty(toDateString, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(toDateString, "name", newDataPropertyDescriptorFull("toDateString", false, false, true));
+  
+  /* 20.3.4.36 Date.prototype.toISOString ( ) */
+  toISOString := CreateBuiltInFunctionObject([], "DatePrototypeToISOString", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "toISOString", toISOString);
+  setJSProperty(toISOString, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(toISOString, "name", newDataPropertyDescriptorFull("toISOString", false, false, true));
+
+  /* 20.3.4.37 Date.prototype.toJSON ( key ) */
+  toJSON := CreateBuiltInFunctionObject(["key"], "DatePrototypeToJSON", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "toJSON", toJSON);
+  setJSProperty(toJSON, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(toJSON, "name", newDataPropertyDescriptorFull("toJSON", false, false, true));
+
+  /* 20.3.4.38 Date.prototype.toLocaleDateString ( ) */
+  toLocaleDateString := CreateBuiltInFunctionObject([], "DatePrototypeToLocaleDateString", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "toLocaleDateString", toLocaleDateString);
+  setJSProperty(toLocaleDateString, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(toLocaleDateString, "name", newDataPropertyDescriptorFull("toLocaleDateString", false, false, true));
+
+  /* 20.3.4.39 Date.prototype.toLocaleString ( ) */
+  toLocaleString := CreateBuiltInFunctionObject([], "DatePrototypeToLocaleString", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "toLocaleString", toLocaleString);
+  setJSProperty(toLocaleString, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(toLocaleString, "name", newDataPropertyDescriptorFull("toLocaleString", false, false, true));
+  
+  /* 20.3.4.40 Date.prototype.toLocaleTimeString ( ) */
+  toLocaleTimeString := CreateBuiltInFunctionObject([], "DatePrototypeToLocaleTimeString", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "toLocaleTimeString", toLocaleTimeString);
+  setJSProperty(toLocaleTimeString, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(toLocaleTimeString, "name", newDataPropertyDescriptorFull("toLocaleTimeString", false, false, true));
+
+  /* 20.3.4.41 Date.prototype.toString ( ) */
+  toString := CreateBuiltInFunctionObject([], "DatePrototypeToString", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "toString", toString);
+  setJSProperty(toString, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(toString, "name", newDataPropertyDescriptorFull("toString", false, false, true));
+   
+  /* 20.3.4.42 Date.prototype.toTimeString ( ) */
+  toTimeString := CreateBuiltInFunctionObject([], "DatePrototypeToTimeString", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "toTimeString", toTimeString);
+  setJSProperty(toTimeString, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(toTimeString, "name", newDataPropertyDescriptorFull("toTimeString", false, false, true));
+
+  /* 20.3.4.43 Date.prototype.toUTCString ( ) */
+  toUTCString := CreateBuiltInFunctionObject([], "DatePrototypeToUTCString", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "toUTCString", toUTCString);
+  setJSProperty(toUTCString, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(toUTCString, "name", newDataPropertyDescriptorFull("toUTCString", false, false, true));
+   
+  /* 20.3.4.44 Date.prototype.valueOf ( ) */
+  valueOf := CreateBuiltInFunctionObject([], "DatePrototypeValueOf", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "valueOf", valueOf);
+  setJSProperty(valueOf, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(valueOf, "name", newDataPropertyDescriptorFull("valueOf", false, false, true));
+
+  /* 20.3.4.45 Date.prototype [ @@toPrimitive ] ( hint ) */
+  toPrimitive := CreateBuiltInFunctionObject(["hint"], "DatePrototypeToPrimitive", globalObject, strict, null);
+  setJSProperty(datePrototypeObject, getToPrimitivePropertyName(), newDataPropertyDescriptorFull(toPrimitive, false, false, true));
+  setJSProperty(toPrimitive, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(toPrimitive, "name", newDataPropertyDescriptorFull("[Symbol.toPrimitive]", false, false, true));
+
+  return datePrototypeObject
+};
+
+
+
+
+/* Auxiliary functions */
+
+
+function getDatePrototype(strict) {
+  /* refDate := newPropertyReference(|global|, "Date", strict);
+  DateObject := GetValue(refDate);
+
+  refDateProto := newPropertyReference(DateObject, "prototype", strict);
+  objectDateProto := GetValue(refDateProto); */
+
+  return |Intrinsics|["DatePrototype"]
+};
+
+function getTimeValueIdentifyingCurrentTime() {
+  /* TODO */
+  return 0.
+};
+
+function auxIsFinite(num) {
+   return !(num = Infinity ||| num = -Infinity ||| is_NaN num)
+};
+
+function timeValueRepresentation(tv) {
+
+  year := padding(YearFromTime(tv), 4);
+  month := padding(MonthFromTime(tv) + 1., 2);
+  day := padding(DateFromTime(tv), 2);
+  
+  /*2021-08-05T18:09:30.607Z*/
+  
+  hours := padding(HourFromTime(tv), 2);
+  minutes := padding(MinFromTime(tv), 2);
+  seconds := padding(SecFromTime(tv), 2);
+  mseconds := padding(msFromTime(tv), 3);
+  repr := s_concat[year, "-", month, "-", day, "T", hours, ":", minutes, ":", seconds, ".", mseconds, "Z"];
+  return repr
+};
+
+function padding(num, size) {
+  str := float_to_string(num);
+
+  pad := size - s_len(str);
+  
+  i := 0;
+  while (i < pad) {
+    str := s_concat["0", str];
+    i := i + 1
+  };
+  
+  return  str
+};
+
+/** TimeFromMonth
+ * Calculates time value of a month, also receives time value of the year 
+ */
+function TimeFromMonth(m, t) {
+
+  /* TODO add real modulo*/
+  if (m < 0.) {
+    m := m - 12. * floor(m / 12.) 
+  };
+
+  leapYear := InLeapYear(t);
+  
+  daysInMonths := [0., 31., 59. + leapYear, 90. + leapYear, 120. + leapYear, 151. + leapYear,
+   181. + leapYear, 212. + leapYear, 243. + leapYear, 273. + leapYear, 304. + leapYear, 334. + leapYear];
+  
+  
+  
+
+  return (l_nth(daysInMonths, int_of_float(m)) * |msPerDay|)
+};
+
+function auxParseDate(str) {
+  list := parse_date(str);
+  if (list = - (1.)) {
+    return NaN
+  }
+  else {
+
+    yr := l_nth(list, 0);
+    m := l_nth(list, 1) - 1.; 
+    dt := l_nth(list, 2);
+    h := l_nth(list, 3);
+    mins := l_nth(list, 4);
+    sec := l_nth(list, 5);
+    milli := l_nth(list, 6);
+
+    if (is_NaN m) {
+      m := 0.
+    };
+    if (is_NaN dt) {
+      dt := 1.
+    };
+    if (is_NaN h) {
+      h := 0.
+    };
+    if (is_NaN mins) {
+      mins := 0.
+    };
+    if (is_NaN sec) {
+      sec := 0.
+    };
+    if (is_NaN milli) {
+      milli := 0.
+    };
+
+    return TimeClip(MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, sec, milli)))
+  }
+}

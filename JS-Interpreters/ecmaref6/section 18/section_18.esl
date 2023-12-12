@@ -1,0 +1,535 @@
+/* 15.1 The Global Object */
+
+/* The unique global object is created before control enters any execution context.
+Unless otherwise specified, the standard built-in properties of the global object have attributes {[[Writable]]:
+true, [[Enumerable]]: false, [[Configurable]]: true}. */
+
+/* The global object does not have a [[Construct]] internal property; it is not possible to use the global object as a
+constructor with the new operator. */
+
+/* The global object does not have a [[Call]] internal property; it is not possible to invoke the global object as a
+function. */
+
+/* The values of the [[Prototype]] and [[Class]] internal properties of the global object are implementation-
+dependent. */
+
+/* In addition to the properties defined in this specification the global object may have additional host defined
+properties. This may include a property whose value is the global object itself; for example, in the HTML
+document object model the window property of the global object is the global object itself. */
+
+function initGlobalObject(globalObject, intrinsic) {
+  /* 15.1.1 Value Properties of the Global Object */
+  /* 15.1.1.1 NaN */
+  /* The value of NaN is NaN (see 8.5). This property has the attributes { [[Writable]]: false, [[Enumerable]]: false,
+    [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(globalObject, "NaN", NaN, false, false, false);
+  /* 15.1.1.2 Infinity */
+  /* The value of Infinity is +Infinity (see 8.5). This property has the attributes { [[Writable]]: false, [[Enumerable]]:
+    false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(globalObject, "Infinity", Infinity, false, false, false);
+  /* 15.1.1.3 undefined */
+  /* The value of undefined is undefined (see 8.1). This property has the attributes { [[Writable]]: false,
+    [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(globalObject, "undefined", 'undefined, false, false, false);
+
+  /* 15.1.2 Function Properties of the Global Object */
+  /* 15.1.2.1 eval (x) */
+  createBuiltInProperty(globalObject, "eval", intrinsic.eval);
+  /* 15.1.2.2 parseInt (string , radix) */
+  createBuiltInProperty(globalObject, "parseInt", intrinsic.parseInt);
+  /* 15.1.2.3 parseFloat (string) */
+  createBuiltInProperty(globalObject, "parseFloat", intrinsic.parseFloat);
+  /* 15.1.2.4 isNaN (number) */
+  createBuiltInProperty(globalObject, "isNaN", intrinsic.isNaN);
+  setJSProperty(intrinsic.isNaN, "name", newDataPropertyDescriptorFull("isNaN", false, false, true));
+  /* 15.1.2.5 isFinite (number) */
+  createBuiltInProperty(globalObject, "isFinite", intrinsic.isFinite);
+  setJSProperty(intrinsic.isFinite, "name", newDataPropertyDescriptorFull("isFinite", false, false, true));
+  /* 15.1.3 URI Handling Function Properties */ /* TODO */
+  /* 15.1.3.1 decodeURI (encodedURI) */
+  createBuiltInProperty(globalObject, "decodeURI", intrinsic.decodeURI);
+  /* 15.1.3.2 decodeURIComponent (encodedURIComponent) */
+  createBuiltInProperty(globalObject, "decodeURIComponent", intrinsic.decodeURIComponent);
+  /* 15.1.3.3 encodeURI (uri) */
+  createBuiltInProperty(globalObject, "encodeURI", intrinsic.encodeURI);
+  /* 15.1.3.4 encodeURIComponent (uriComponent) */
+  createBuiltInProperty(globalObject, "encodeURIComponent", intrinsic.encodeURIComponent);
+
+  /* 15.1.4 Constructor Properties of the Global Object */
+  /* 15.1.4.1 Object ( . . . ) */
+  /* 15.1.4.2 Function ( . . . ) */
+
+  /* 15.1.4.3 Array ( . . . ) */
+  createBuiltInProperty(globalObject, "Array", intrinsic.Array);
+  /* 15.1.4.4 String ( . . . ) */
+  createBuiltInProperty(globalObject, "String", intrinsic.String);
+  /* 15.1.4.5 Boolean ( . . . ) */
+  createBuiltInProperty(globalObject, "Boolean", intrinsic.Boolean);
+  /* 15.1.4.7 Date ( . . . ) */
+  createBuiltInProperty(globalObject, "Date", intrinsic.Date);
+  /* 15.1.4.8 RegExp ( . . . ) */
+  createBuiltInProperty(globalObject, "RegExp", intrinsic.RegExp);
+  /* 15.1.4.9 Error ( . . . ) */
+  createBuiltInProperty(globalObject, "Error", intrinsic.Error);
+  /* 15.1.4.10 EvalError ( . . . ) */
+  createBuiltInProperty(globalObject, "EvalError", intrinsic.EvalError);
+  /* 15.1.4.11 RangeError ( . . . ) */
+  createBuiltInProperty(globalObject, "RangeError", intrinsic.RangeError);
+  /* 15.1.4.12 ReferenceError ( . . . ) */
+  createBuiltInProperty(globalObject, "ReferenceError", intrinsic.ReferenceError);
+  /* 15.1.4.13 SyntaxError ( . . . ) */
+  createBuiltInProperty(globalObject, "SyntaxError", intrinsic.SyntaxError);
+  /* 15.1.4.14 TypeError ( . . . ) */
+  createBuiltInProperty(globalObject, "TypeError", |Intrinsics|["TypeError"]);
+  /* 15.1.4.15 URIError ( . . . ) */
+  createBuiltInProperty(globalObject, "URIError", intrinsic.URIError);
+
+  /* 15.1.5 Other Properties of the Global Object*/
+  /* 15.1.5.1 Math */
+  createBuiltInProperty(globalObject, "Math", intrinsic.Math);
+  /* 15.1.5.2 JSON */
+  createBuiltInProperty(globalObject, "JSON", intrinsic.JSON);
+
+  /* 18.3.8 Float32Array () */
+  createBuiltInProperty(globalObject, "Float32Array", intrinsic.Float32Array);
+  /* 18.3.9 Float64Array () */
+  createBuiltInProperty(globalObject, "Float64Array", intrinsic.Float64Array);
+  /* 18.3.11 Int8Array () */
+  createBuiltInProperty(globalObject, "Int8Array", intrinsic.Int8Array);
+  /* 18.3.12 Int16Array () */
+  createBuiltInProperty(globalObject, "Int16Array", intrinsic.Int16Array);
+  /* 18.3.13 Int32Array () */
+  createBuiltInProperty(globalObject, "Int32Array", intrinsic.Int32Array);
+  /* 18.3.27 Uint8Array () */
+  createBuiltInProperty(globalObject, "Uint8Array", intrinsic.Uint8Array);
+  /* 18.3.28 Uint8ClampedArray () */
+  createBuiltInProperty(globalObject, "Uint8ClampedArray", intrinsic.Uint8ClampedArray);
+  /* 18.3.29 Uint16Array () */
+  createBuiltInProperty(globalObject, "Uint16Array", intrinsic.Uint16Array);
+  /* 18.3.30 Uint32Array () */
+  createBuiltInProperty(globalObject, "Uint32Array", intrinsic.Uint32Array);
+
+  /* 25.4.3.1 Promise */
+  createBuiltInProperty(globalObject, "Promise", intrinsic.Promise);
+
+  /* 20.1 Number Objects */
+  createBuiltInProperty(globalObject, "Number", intrinsic.Number);
+
+  /* 23.1 Map */
+  createBuiltInProperty(globalObject, "Map", intrinsic.Map);
+
+  createBuiltInProperty(globalObject, "Symbol", intrinsic.Symbol);
+
+  /* 23.2 Set */
+  createBuiltInProperty(globalObject, "Set", intrinsic.Set);
+
+  /* 23.3 WeakMap Objects */
+  createBuiltInProperty(globalObject, "WeakMap", intrinsic.WeakMap);
+
+  /* 23.4 WeakSet Objects */
+  createBuiltInProperty(globalObject, "WeakSet", intrinsic.WeakSet);
+
+  /* 24.1 ArrayBuffer Objects */
+  createBuiltInProperty(globalObject, "ArrayBuffer", intrinsic.ArrayBuffer);
+
+  /* 24.2 DataView Objects */
+  createBuiltInProperty(globalObject, "DataView", intrinsic.DataView);
+
+  /* 26.1 Reflect Object */
+  createBuiltInProperty(globalObject, "Reflect", intrinsic.Reflect);
+  /* 26.2 Proxy Objects */
+  createBuiltInProperty(globalObject, "Proxy", intrinsic.Proxy);
+
+  /* Extras */
+  ConsoleObject := initConsoleObject(globalObject, intrinsic.ObjectPrototype, false);
+  createBuiltInProperty(globalObject, "console", ConsoleObject);
+
+  initNodeGlobalObject(globalObject, intrinsic.ObjectPrototype, false);
+
+  test262Object := initTest262Object(globalObject, intrinsic.ObjectPrototype, false);
+  createBuiltInProperty(globalObject, "$262", test262Object);
+
+  return globalObject
+};
+
+/* 15.1.2.1 eval (x) */
+function GlobalObjectEval(ref, this, NewTarget, strict, params) {
+  x := getOptionalParam(params, 0);
+  externalScope := topExecStack();
+
+  realm := externalScope.Function.Realm;
+
+  return PerformEval(x, realm, false, false)
+};
+
+/* 15.1.2.1.1 Direct Call to Eval */
+/* A direct call to the eval function is one that is expressed as a CallExpression that meets the following two
+   conditions: */
+/* The Reference that is the result of evaluating the MemberExpression in the CallExpression has an environment
+   record as its base value and its reference name is "eval". */
+/* The result of calling the abstract operation GetValue with that Reference as the argument is the standard built-
+   in function defined in 15.1.2.1. */
+
+/* 15.1.2.2 parseInt (string , radix) */
+/* TODO: RE-CHECK THIS, IT WAS COPIED FROM ES5 - MAYBE THERE IS DIFFERENCES ON ES6 */
+function GlobalObjectParseInt(globalObject, this, NewTarget, strict, params) {
+  str := getOptionalParam(params, 0);
+  radix := getOptionalParam(params, 1);
+  /* The parseInt function produces an integer value dictated by interpretation of the contents of the string
+      argument according to the specified radix. Leading white space in string is ignored. If radix is undefined or 0,
+      it is assumed to be 10 except when the number begins with the character pairs 0x or 0X, in which case a radix
+      of 16 is assumed. If radix is 16, the number may also optionally begin with the character pairs 0x or 0X. */
+
+  /* When the parseInt function is called, the following steps are taken: */
+
+  /* 1. Let inputString be ToString(string). */
+  inputString := ToString(str);
+  /* 2. Let S be a newly created substring of inputString consisting of the first character that is not a
+        StrWhiteSpaceChar and all characters following that character. (In other words, remove leading white
+        space.) If inputString does not contain any such characters, let S be the empty string. */
+  S := removeLeadingWhitespace(inputString);
+  /* 3. Let sign be 1. */
+  sign := 1.;
+  /* 4. If S is not empty and the first character of S is a minus sign -, let sign be -1. */
+  if (!(S = "") &&& (s_nth_u(S, 0) = "-")) {
+    sign := -(1.)
+  };
+  /* 5. If S is not empty and the first character of S is a plus sign + or a minus sign -, then remove the first character
+        from S. */
+  if (!(S = "") &&& ((s_nth_u(S, 0) = "+") ||| (s_nth_u(S, 0) = "-"))) {
+    S := s_substr_u(S, 1, s_len_u(S) - 1)
+  };
+  /* 6. Let R = ToInt32(radix). */
+  R := ToInt32(radix);
+  /* 7. Let stripPrefix be true. */
+  stripPrefix := true;
+  /* 8. If R <> 0, then */
+  if (!(R = 0.)) {
+    /* a. If R < 2 or R > 36, then return NaN. */
+    if (R < 2. ||| R > 36.) {
+      return NaN
+    };
+    /* b. If R <> 16, let stripPrefix be false. */
+    if (!(R = 16.)) {
+      stripPrefix := false
+    }
+  }
+  /* 9. Else, R = 0 */
+  else {
+    /* a. Let R = 10. */
+    R := 10.
+  };
+  /* 10. If stripPrefix is true, then */
+  if (stripPrefix = true) {
+    /* a. If the length of S is at least 2 and the first two characters of S are either "0x" or "0X", then remove
+          the first two characters from S and let R = 16. */
+    if (s_len_u(S) >= 2 &&& (s_substr_u(S, 0, 2) = "0x" ||| s_substr_u(S, 0, 2) = "0X")) {
+      S := s_substr_u(S, 2, s_len_u(S) - 2);
+      R := 16.
+    }
+  };
+  /* 11. If S contains any character that is not a radix-R digit, then let Z be the substring of S consisting of all
+         characters before the first such character; otherwise, let Z be S. */
+  if (containsInvalidDigit(S, R)) {
+    Z := stripInvalidChars(S, R)
+  } else {
+    Z := S
+  };
+  /* 12. If Z is empty, return NaN. */
+  if (Z = "") {
+    return NaN
+  };
+  /* 13. Let mathInt be the mathematical integer value that is represented by Z in radix-R notation, using the letters
+         A-Z and a-z for digits with values 10 through 35. (However, if R is 10 and Z contains more than 20
+         significant digits, every significant digit after the 20th may be replaced by a 0 digit, at the option of the
+         implementation; and if R is not 2, 4, 8, 10, 16, or 32, then mathInt may be an implementation-dependent
+         approximation to the mathematical integer value that is represented by Z in radix-R notation.) */
+  mathInt := mathIntegerOf(Z, R);
+  /* 14. Let number be the Number value for mathInt. */
+  num := mathInt;
+  /* 15. Return sign x number. */
+  return sign * num
+};
+
+/* 15.1.2.3 parseFloat (string) */
+function GlobalObjectParseFloat(globalObject, this, NewTarget, strict, params) {
+  print("debug1111 in parseFloat");
+  print(params);
+
+  str := getOptionalParam(params, 0);
+  /* The parseFloat function produces a Number value dictated by interpretation of the contents of the string
+     argument as a decimal literal. */
+
+  /* When the parseFloat function is called, the following steps are taken: */
+
+  /* 1. Let inputString be ToString(string). */
+  inputString := ToString(str);
+  @ReturnIfAbrupt(inputString);
+
+  return float_of_string inputString
+  /* 2. Let trimmedString be a substring of inputString consisting of the leftmost character that is not a
+        StrWhiteSpaceChar and all characters to the right of that character. (In other words, remove leading white
+        space.) If inputString does not contain any such characters, let trimmedString be the empty string. */
+  /* 3. If neither trimmedString nor any prefix of trimmedString satisfies the syntax of a StrDecimalLiteral (see
+        9.3.1), return NaN. */
+  /* 4. Let numberString be the longest prefix of trimmedString, which might be trimmedString itself, that satisfies
+        the syntax of a StrDecimalLiteral. */
+  /* 5. Return the Number value for the MV of numberString. */
+
+  /* NOTE parseFloat may interpret only a leading portion of string as a Number value; it ignores any characters that
+          cannot be interpreted as part of the notation of an decimal literal, and no indication is given that any such characters were
+          ignored. */
+};
+
+/* 15.1.2.3 parseFloat (string) */
+function GlobalObjectParseFloatAlt(globalObject, this, NewTarget, strict, params) {
+  str := getOptionalParam(params, 0);
+  /* 1. Let inputString be ToString(string). */
+  inputString := ToString(str);
+  /* 2. ReturnIfAbrupt(inputString). */
+  @ReturnIfAbrupt(inputString);
+  /* 3. Let trimmedString be a substring of inputString
+  consisting of the leftmost code unit that is not a StrWhiteSpaceChar
+  and all code units to the right of that code unit.
+  (In other words, remove leading white space.)
+  If inputString does not contain any such code units, let trimmedString be the empty string. */
+  trimmedString := inputString;
+  len := s_len_u(inputString);
+  while (s_nth(inputString, index) = " ") {
+    if (len = 0) {
+      trimmedString := ""
+      /* TODO break */
+    };
+    trimmedString := s_substr_u(trimmedString, 1, len - 1);
+    len := len - 1
+  };
+  /* TODO */
+  /* 4. If neither trimmedString nor any prefix of trimmedString satisfies
+  the syntax of a StrDecimalLiteral (see 7.1.3.1), return NaN. */
+  /* 5. Let numberString be the longest prefix of trimmedString, which might be trimmedString itself,
+  that satisfies the syntax of a StrDecimalLiteral. */
+
+  /* 6. TODO Let mathFloat be MV of numberString. */
+
+  /* 7. If mathFloat=0, then */
+  if (mathFloat = 0) {
+    /* a. If the first code unit of trimmedString is "-", return −0. */
+    if (s_nth(0, trimmedString) =  "-") {
+      return -(0.)
+    };
+    /* b. Return +0. */
+    return 0.
+  };
+  /* 8. Return the Number value for mathFloat. */
+  return mathFloat
+};
+
+/**
+ * 15.1.2.4 isNaN (number)
+ *
+ * The isNaN function is the %isNaN% intrinsic object.
+ * When the isNaN function is called with one argument number, the following steps are taken:
+ *
+ * NOTE: A reliable way for ECMAScript code to test if a value X is a NaN is an expression of the form X !== X.
+ *      The result will be true if and only if X is a NaN.
+ */
+function GlobalObjectIsNaN(globalObject, this, NewTarget, strict, params) {
+  num := getOptionalParam(params, 0);
+  /* 1. Let num be ToNumber(number). */
+  num := ToNumber(num);
+  /* 2. ReturnIfAbrupt(num). */
+  @ReturnIfAbrupt(num);
+  /* 3. If num is NaN, return true. */
+  if (is_NaN num) {
+    return true
+  };
+  /* 4. Otherwise, return false. */
+  return false
+
+};
+
+/**
+ * 18.2.2 isFinite (number)
+ *
+ * The isFinite function is the %isFinite% intrinsic object.
+ * When the isFinite function is called with one argument x, the following steps are taken:
+ */
+function GlobalObjectIsFinite(globalObject, this, NewTarget, strict, params) {
+  num := l_nth(params, 0);
+  /* Returns false if the argument coerces to NaN, +Infinity, or -Infinity, and otherwise returns true. */
+
+    /* 1. Let num be ToNumber(number). */
+  num := ToNumber(num);
+  /* 2. ReturnIfAbrupt(num). */
+  @ReturnIfAbrupt(num);
+  /* 3. If num is NaN, +∞, or −∞, return false. */
+  if ((is_NaN num) ||| (num = Infinity) ||| (num = -Infinity)) {
+    return false
+  };
+  /* 4. Otherwise, return true. */
+  return true
+};
+
+/* 15.1.3 URI Handling Function Properties */ /* TODO */
+/* 15.1.3.1 decodeURI (encodedURI) */
+/* 15.1.3.2 decodeURIComponent (encodedURIComponent) */
+/* 15.1.3.3 encodeURI (uri) */
+/* 15.1.3.4 encodeURIComponent (uriComponent) */
+
+/* Auxiliary functions */
+function parseAsProgram(progStr, strict) {
+  if (strict) {
+    progStr := s_concat ["\"use strict\";", progStr]
+  };
+  prog := extern parseJS(progStr);
+  progObj := {prog}();
+  progObj.codeType := "eval";
+
+  return progObj
+};
+
+function optimizeInitGlobalObject(strict) {
+  if ((typeof strict = __$Bool) &&& strict) {
+    loc_global := extern loadInitialHeap("globalHeap_strict.json")
+  } else {
+    loc_global := extern loadInitialHeap("globalHeap.json")
+  };
+
+  |global| := loc_global;
+
+  return loc_global
+};
+
+function removeLeadingWhitespace(str) {
+  T := trim str;
+  /* Remove leading spaces */
+  if (!(T = "")) {
+    len := s_len_u T;
+    i := 0;
+    j := 0;
+    while (i < len) {
+      c := s_nth_u(T, j);
+      if (isSpaceCharacter(c)) {
+        j := j + 1
+      } else {
+        i := len
+      };
+      i := i + 1
+    };
+    T := s_substr_u(T, j, (len - j))
+  };
+
+  return T
+};
+
+function containsInvalidDigit(str, radix) {
+  radixInt := int_of_float radix;
+  str_len := s_len_u str;
+  i := 0;
+
+  while (i < str_len) {
+    char := s_nth_u(str, i);
+    index := indexOfChar(char);
+
+    if (index = -1 ||| index >= radixInt) {
+      return true
+    };
+
+    i:= i + 1
+  };
+
+  return false
+};
+
+function isSpaceCharacter(c) {
+  /* Table 2 — Whitespace Characters
+      Code Unit            Value Name          Formal Name
+      \u0009               Tab                 <TAB>
+      \u000B               Vertical Tab        <VT>
+      \u000C               Form Feed           <FF>
+      \u0020               Space               <SP>
+      \u00A0               No-break space      <#x0a>
+      \uFEFF               Byte Order Mark     <BOM>
+      Other category “Zs”  Any other Unicode   <USP>
+                           “space separator” */
+
+  /* https://www.compart.com/en/unicode/category/Zs */
+  /*
+   * \u0020 \u00A0 \u1680 \u2000 \u2001 \u2002
+   * \u2003 \u2004 \u2005 \u2006 \u2007 \u2008
+   * \u2009 \u200A \u202F \u205F \u3000
+   */
+
+  /* Table 3 — Line Terminator Characters
+    Code Unit Value       Name                  Formal Name
+    \u000A                Line Feed             <LF>
+    \u000D                Carriage Return       <CR>
+    \u2028                Line separator        <LS>
+    \u2029                Paragraph separator   <PS> */
+  spaces := ["\t", "\v", "\f", " ", "\u{00A0}", "\u{FEFF}", "\u{1680}", "\u{2000}",
+    "\u{2001}", "\u{2002}", "\u{2003}", "\u{2004}", "\u{2005}", "\u{2006}", "\u{2007}",
+    "\u{2008}", "\u{2009}", "\u{200A}", "\u{202F}", "\u{205F}", "\u{3000}", "\n", "\r",
+    "\u{2028}", "\u{2029}"];
+  foreach (s : spaces) {
+    if (s = c) {
+      return true
+    }
+  };
+  return false
+};
+
+function indexOfChar(char) {
+  chars := [
+    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+    "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
+    "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
+  ];
+  i := 0;
+
+  while(i < 36) {
+    if (to_lower_case char = l_nth(chars, i)) {
+      return i
+    };
+
+    i:= i + 1
+  };
+
+  return -1
+};
+
+function mathIntegerOf(str, radix) {
+  str_len := s_len_u str;
+  i := str_len;
+  value := 0.;
+
+  while(i > 0) {
+    char := s_nth_u(str, i - 1);
+    charValue := indexOfChar(char);
+
+    value := value + ((radix ** (int_to_float (str_len - i))) * (int_to_float charValue));
+
+    i:= i - 1
+  };
+
+  return value
+};
+
+function stripInvalidChars(str, radix) {
+  radixInt := int_of_float radix;
+  str_len := s_len_u str;
+  i := 0;
+
+  while (i < str_len) {
+    char := s_nth_u(str, i);
+    index := indexOfChar(char);
+
+    if (index = -1 ||| index >= radixInt) {
+      return s_substr_u(str, 0, i)
+    };
+
+    i:= i + 1
+  };
+
+  return str
+}
+

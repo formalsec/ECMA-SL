@@ -1,0 +1,102 @@
+/* Auxiliary functions */
+
+/* Checks if neither string or any prefix of string satisfies the syntax of a StrDecimalLiteral (see 9.3.1) */
+/* StrDecimalLiteral :::
+      StrUnsignedDecimalLiteral
+      + StrUnsignedDecimalLiteral
+      - StrUnsignedDecimalLiteral
+*/
+function satisfiesTheSyntaxOfStrDecimalLiteral(str) {
+  string_len := s_len str;
+  if (string_len = 0) {
+    return false
+  };
+
+  /* Is a string containing only a single char? */
+  if (string_len = 1) {
+    if (isDecimalDigit(str)) {
+      return true
+    };
+    return false
+  };
+
+  /* Check first character */
+  firstChar := s_nth(str, 0);
+
+  /* Starts with "+" or "-"? */
+  if (firstChar = "+" ||| firstChar = "-") {
+    return satisfiesTheSyntaxOfStrUnsignedDecimalLiteral(s_substr(str, 1, string_len - 1))
+  };
+
+  return satisfiesTheSyntaxOfStrUnsignedDecimalLiteral(str)
+};
+
+/* StrUnsignedDecimalLiteral :::
+      Infinity
+      DecimalDigits . DecimalDigitsopt ExponentPartopt
+      . DecimalDigits ExponentPartopt
+      DecimalDigits ExponentPartopt
+ */
+function satisfiesTheSyntaxOfStrUnsignedDecimalLiteral(str) {
+  strLen := s_len str;
+  if (strLen >= 8 &&& s_substr(str, 0, 8) = "Infinity") {
+    return true
+  };
+
+  firstChar := s_nth(str, 0);
+  if (isDecimalDigit(firstChar)) {
+    return true
+  };
+
+  if (firstChar = "." &&& strLen >= 2) {
+    return isDecimalDigit(s_nth(str, 1))
+  };
+
+  return false
+};
+
+
+
+/* Returns the longest substring that satisfies the syntax of a StrDecimalLiteral. */
+function getStrDecimalLiteral(str) {
+  retStr := "";
+  subLen := s_len str;
+
+  /* Is HexIntegerLiteral? */
+  if (isHexIntegerLiteral(str)) {
+    return "0"
+  };
+
+  if (!(is_NaN (float_of_string str))) {
+    return str
+  };
+
+  while(subLen > 0) {
+    subLen := subLen - 1;
+
+    subStr := s_substr(str, 0, subLen);
+    if (!(is_NaN (float_of_string subStr))) {
+      return subStr
+    }
+  };
+
+  return retStr
+};
+
+/* DecimalDigit */
+function isDecimalDigit(char) {
+  return char >= "0" &&& char <= "9"
+};
+
+function isHexIntegerLiteral(str) {
+  if (s_len(str) < 2) {
+    return false
+  };
+
+  firstTwoChars := s_substr(str, 0, 2);
+  if (firstTwoChars = "0x" ||| firstTwoChars = "0X") {
+    return true
+  };
+
+  return false
+}

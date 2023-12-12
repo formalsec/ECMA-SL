@@ -1,0 +1,82 @@
+/*
+  11.8.5 The Abstract Relational Comparison Algorithm
+
+  The comparison x < y, where x and y are values, produces true, false, or undefined (which indicates that at
+  least one operand is NaN). In addition to x and y the algorithm takes a Boolean flag named LeftFirst as a
+  parameter. The flag is used to control the order in which operations with potentially visible side-effects are
+  performed upon x and y. It is necessary because ECMAScript specifies left to right evaluation of expressions.
+  The default value of LeftFirst is true and indicates that the x parameter corresponds to an expression that
+  occurs to the left of the y parameter‘s corresponding expression. If LeftFirst is false, the reverse is the case
+  and operations must be performed upon y before x. Such a comparison is performed as follows:
+
+    NOTE 1    Step 3 differs from step 7 in the algorithm for the addition operator + (11.6.1) in using and instead of or.
+    NOTE 2    The comparison of Strings uses a simple lexicographic ordering on sequences of code unit values. There is no
+              attempt to use the more complex, semantically oriented definitions of character or string equality and collating order
+              defined in the Unicode specification. Therefore String values that are canonically equal according to the Unicode standard
+              could test as unequal. In effect this algorithm assumes that both Strings are already in normalised form. Also, note that for
+              strings containing supplementary characters, lexicographic ordering on sequences of UTF-16 code unit values differs from
+              that on sequences of code point values.
+*/
+function AbstractRelationalComparison(x, y, LeftFirst) {
+  /* 1. If the LeftFirst flag is true, then */
+  if (LeftFirst = true) {
+    /* a. Let px be the result of calling ToPrimitive(x, hint Number). */
+    px := ToPrimitive(x, 'Number);
+    /* b. Let py be the result of calling ToPrimitive(y, hint Number). */
+    py := ToPrimitive(y, 'Number)
+  }
+  /* 2. Else the order of evaluation needs to be reversed to preserve left to right evaluation */
+  else {
+    /* a. Let py be the result of calling ToPrimitive(y, hint Number). */
+    py := ToPrimitive(y, 'Number);
+    /* b. Let px be the result of calling ToPrimitive(x, hint Number). */
+    px := ToPrimitive(x, 'Number)
+  };
+  /* 3. If it is not the case that both Type(px) is String and Type(py) is String, then */
+  if (!((Type(px) = "String") && (Type(py) = "String"))) {
+    /* a. Let nx be the result of calling ToNumber(px). Because px and py are primitive values evaluation order is not important. */
+    nx := ToNumber(px);
+    /* b. Let ny be the result of calling ToNumber(py). */
+    ny := ToNumber(py);
+    /* c. If nx is NaN, return undefined. */
+    if (is_NaN nx) { return 'undefined };
+    /* d. If ny is NaN, return undefined. */
+    if (is_NaN ny) { return 'undefined };
+    /* e. If nx and ny are the same Number value, return false. */
+    if (sameNumber(nx, ny)) { return false };
+    /* f. If nx is +0 and ny is -0, return false. */
+    if (isZero(nx) && isMinusZero(ny)) { return false };
+    /* g. If nx is -0 and ny is +0, return false. */
+    if (isMinusZero(nx) && isZero(ny)) { return false };
+    /* h. If nx is +Infinity, return false. */
+    if (nx = Infinity) { return false };
+    /* i. If ny is +Infinity, return true. */
+    if (ny = Infinity) { return true };
+    /* j. If ny is -Infinity, return false. */
+    if (ny = -Infinity) { return false };
+    /* k. If nx is -Infinity, return true. */
+    if (nx = -Infinity) { return true };
+    /* l. If the mathematical value of nx is less than the mathematical value of ny — note that these
+          mathematical values are both finite and not both zero — return true. Otherwise, return false. */
+    if (mathematicalValue(nx) < mathematicalValue(ny)) { return true };
+
+    return false
+  }
+  /* 4. Else, both px and py are Strings */
+  else {
+    /* a. If py is a prefix of px, return false. (A String value p is a prefix of String value q if q can be the
+          result of concatenating p and some other String r. Note that any String is a prefix of itself, because r
+          may be the empty String.) */
+    /* b. If px is a prefix of py, return true. */
+    /* c. Let k be the smallest nonnegative integer such that the character at position k within px is different
+          from the character at position k within py. (There must be such a k, for neither String is a prefix of
+          the other.) */
+    /* d. Let m be the integer that is the code unit value for the character at position k within px. */
+    /* e. Let n be the integer that is the code unit value for the character at position k within py. */
+    /* f. If m < n, return true. Otherwise, return false. */
+
+    if (px < py) { return true };
+
+    return false
+  }
+}

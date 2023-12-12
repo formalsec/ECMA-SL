@@ -1,0 +1,272 @@
+/* Auxiliary function for 12.14 Assignment Operators */
+function applyOperator(operator, lval, rval) {
+  if ((operator = "*=") || (operator = "/=") || (operator = "%=")) {
+    /* Let leftNum be ToNumber(leftValue). */
+    leftNum := ToNumber(lval);
+    /* Let rightNum be ToNumber(rightValue). */
+    rightNum := ToNumber(rval);
+    /* Return the result of applying the specified operation (*, /, or %) to leftNum and rightNum. See the Notes below 11.5.1, 11.5.2, 11.5.3. */
+    if (operator = "*=") {
+      return leftNum * rightNum
+    };
+    if (operator = "/=") {
+      return leftNum / rightNum
+    };
+    if (operator = "%=") {
+      return leftNum % rightNum
+    }
+  };
+  if (operator = "+=") {
+    /* Let lprim be ToPrimitive(lval). */
+    lprim := ToPrimitive(lval, null);
+    /* Let rprim be ToPrimitive(rval). */
+    rprim := ToPrimitive(rval, null);
+    /* If Type(lprim) is String or Type(rprim) is String, then */
+    if ((Type(lprim) = "String") || (Type(rprim) = "String")) {
+      /* Return the String that is the result of concatenating ToString( lprim) followed by ToString(rprim) */
+      return s_concat [ToString(lprim), ToString(rprim)]
+    };
+    /* Return the result of applying the addition operation to ToNumber( lprim) and ToNumber(rprim). See the
+       Note below 11.6.3. */
+    return applyingTheAdditionOperation(ToNumber(lprim), ToNumber(rprim))
+  };
+  if (operator = "-=") {
+    /* Let lnum be ToNumber(lval). */
+    lnum := ToNumber(lval);
+    /* Let rnum be ToNumber(rval). */
+    rnum := ToNumber(rval);
+    /* Return the result of applying the subtraction operation to lnum and rnum.
+       See the note below 11.6.3. */
+    return applyingTheSubtractionOperation(lnum, rnum)
+  };
+
+  if ((operator = "<<=") || (operator = ">>=") || (operator = ">>>=")) {
+    /* Let lnum be ToInt32(lval). */
+    lnum := ToInt32(lval);
+    /* Let rnum be ToUint32(rval). */
+    rnum := ToUint32(rval);
+    /* Let shiftCount be the result of masking out all but the least significant 5 bits of rnum, that is,
+       compute rnum & 0x1F. */
+    shiftCount := maskOutBits(rnum);
+    if (operator = "<<=") {
+      /* Return the result of left shifting lnum by shiftCount bits. The result is a signed 32-bit integer. */
+      return lnum << shiftCount
+    };
+    if (operator = ">>=") {
+      /* Return the result of performing a sign-extending right shift of lnum by shiftCount bits. The most
+         significant bit is propagated. The result is a signed 32-bit integer. */
+      return lnum >> shiftCount
+    };
+    if (operator = ">>>=") {
+      /* Return the result of performing a zero-filling right shift of lnum by shiftCount bits. Vacated bits are
+        filled with zero. The result is an unsigned 32-bit integer. */
+      return lnum >>> shiftCount
+    }
+  };
+
+  if ((operator = "&=") || (operator = "^=") || (operator = "|=")) {
+    /* Check 11.10 */
+    /* Let lnum be ToInt32(lval). */
+    lnum := ToInt32(lval);
+    /* Let rnum be ToInt32(rval). */
+    rnum := ToInt32(rval);
+    /* Return the result of applying the bitwise operator @ to lnum and rnum. The result is a signed 32 bit integer */
+    return applyBitwiseOperator(s_nth(operator, 0), lnum, rnum)
+  }
+};
+
+/**
+ * 12.14.5.2 Runtime Semantics: DestructuringAssignmentEvaluation
+ */
+function DestructuringAssignmentEvaluation(param, value, environment, listIterator) {
+  match param with
+  | { type: "Identifier" } -> {
+    /* Identifier Case - Base case */
+    return DestructuringAssignmentIdentifier(param, value, environment)
+  }
+  | { type: "RestElement" } -> {
+    /* Identifier Case - Base case */
+    if (listIterator = null) {
+      return DestructuringAssignmentEvaluation(param.argument, value, environment, null)
+    };
+    restValue := GetRestValue(listIterator, value);
+    return DestructuringAssignmentEvaluation(param.argument, restValue, environment, listIterator)
+  }
+  | { type: "ArrayPattern" } -> {
+    return DestructuringAssignmentArrayPattern(param, value, environment)
+  }
+  | { type: "ObjectPattern" } -> {
+    return DestructuringAssignmentObjectPattern(param, value, environment)
+  }
+  | { type: "AssignmentPattern" } -> {
+    /* AssignmentPattern Case */
+    /* If the parameter already has a value, then just initialize the binding for the parameter */
+    if (!(value = 'undefined)) {
+      return DestructuringAssignmentEvaluation(param.left, value, environment, listIterator)
+    };
+    initializer := param.right;
+
+
+    newValue := JS_Interpreter_AssignmentPattern(initializer, environment);
+
+    v := GetValue(newValue);
+
+    @ReturnIfAbrupt(v);
+
+    if (IsAnonymousFunctionDefinition(initializer)) {
+      /* i. Let hasNameProperty be HasOwnProperty(v, "name"). */
+      hasNameProperty := HasOwnProperty(v, "name");
+      /* ii. ReturnIfAbrupt(hasNameProperty). */
+      @ReturnIfAbrupt(hasNameProperty);
+      /* iii. If hasNameProperty is false, perform SetFunctionName(v, P). */
+      P := param.left.name;
+      if (hasNameProperty = false) {
+        SetFunctionName(v, P, null)
+      }
+    };
+
+    return DestructuringAssignmentEvaluation(param.left, v, environment, listIterator)
+  }
+  | { type: "MemberExpression" } -> {
+    lref := JS_Interpreter_Expr(param, environment);
+    @ReturnIfAbrupt(lref);
+    return PutValue(lref, value)
+  }
+};
+
+function DestructuringAssignmentArrayPattern(param, value, environment) {
+  arrayIterator := GetIterator(value, null);
+  @ReturnIfAbrupt(arrayIterator);
+  iteratorRecord := {iterator: arrayIterator, done: false};
+  result := IteratorDestructuringAssignmentEvaluation(param.elements, iteratorRecord, environment);
+
+  if (iteratorRecord.done = false) {
+    return IteratorClose(arrayIterator, result)
+  };
+  return result
+};
+
+function IteratorDestructuringAssignmentEvaluation(elements, iteratorRecord, environment) {
+  DESTRUCTURING_PATTERNS := ["Identifier", "ArrayPattern", "ObjectPattern", "AssignmentPattern"];
+  l_elements := l_len(elements);
+  i := 0;
+
+  while (i < l_elements) {
+    /*If DestructuringAssignmentTarget is neither an ObjectLiteral nor an ArrayLiteral, then */
+    element := l_nth(elements, i);
+    if (!(element = null) &&& ("type" in_obj element) &&& (!(element.type in_list DESTRUCTURING_PATTERNS))) {
+      match element with
+      | { type: "RestElement" } -> {
+        element := element.argument;
+        if (!(element = null) &&& ("type" in_obj element) &&& (!(element.type in_list DESTRUCTURING_PATTERNS))) {
+          lref := JS_Interpreter_Expr(element, environment);
+          @ReturnIfAbrupt(lref)
+        }
+      }
+      | default -> {
+        lref := JS_Interpreter_Expr(element, environment);
+        @ReturnIfAbrupt(lref)
+      }
+    };
+
+    arrayIterator := iteratorRecord.iterator;
+
+    step := IteratorStep(arrayIterator);
+    if (isAnAbruptCompletion(step)) {
+      iteratorRecord.done := true
+    };
+    @ReturnIfAbrupt(step);
+
+    if (step = false && !(element = null)) {
+     iteratorRecord.done := true;
+     status := DestructuringAssignmentEvaluation(element, 'undefined, environment, {iterator: arrayIterator, done: true});
+     @ReturnIfAbrupt(status)
+    } else {
+      if (!(element = null)) {
+        /* When the element inside the array is an elision, it comes in as null  */
+        iterValue := IteratorValue(step);
+        @ReturnIfAbrupt(iterValue);
+
+        status := DestructuringAssignmentEvaluation(element, iterValue, environment, {iterator: arrayIterator, done: false});
+        @ReturnIfAbrupt(status)
+      }
+    };
+    i := i + 1
+  };
+  return NormalCompletion('empty)
+};
+
+function DestructuringAssignmentIdentifier(param, value, environment) {
+  /* Based on 12.14.5.2 */
+  /* 1. Let P be StringValue of IdentifierReference. */
+  P := StringValue(param.name);
+
+  strict := isContainedInStrictCode(environment);
+
+  /* 2. Let lref be ResolveBinding(P). */
+  if (environment = 'undefined) {
+    lref := GetIdentifierReference(null, P, strict)
+  } else {
+    lref := GetIdentifierReference(environment.LexicalEnvironment, P, strict)
+  };
+
+  /* 3. @ReturnIfAbrupt(P)*/
+  @ReturnIfAbrupt(P);
+
+  /* 4. Let v be GetV(value, P). */
+
+  /* 5. ReturnIfAbrupt(v). */
+
+  /*7. Return PutValue(lref,v). */
+  return PutValue(lref, value)
+};
+
+function DestructuringAssignmentObjectPattern(param, value, environment) {
+  properties := param.properties;
+  l_properties := l_len(properties);
+  i := 0;
+  valid := RequireObjectCoercible(value);
+  @ReturnIfAbrupt(valid);
+  initialized_keys := [];
+  while (i < l_properties) {
+    property := l_nth(properties, i);
+
+    if (!("key" in_obj property)) {
+      /* Rest Element case*/
+      argument := property.argument;
+      /* If its a rest Element which is an identifier */
+      if (argument.type = "Identifier") {
+        /* Creates an Empty Object for that identifier */
+        status := DestructuringAssignmentEvaluation(property, ObjectCreate(getObjectPrototype(false), null), environment, null);
+        @ReturnIfAbrupt(status);
+
+        /* Initialize the remaining keys on that object */
+        restElementObjectInitializer(property.argument, value, environment, initialized_keys)
+      } elif (argument.type = "ObjectPattern") {
+        /* if the rest element is an object pattern, we just call the function recursively */
+        DestructuringAssignmentObjectPattern(argument, value, environment)
+      }
+    } else {
+      key := JS_Interpreter_PropertyName(property.key, environment);
+      @ReturnIfAbrupt(key);
+      property_name := GetPropertyName(key);
+      status := DestructuringSingleObjectProperty(property, property_name, value, environment);
+      initialized_keys := l_add(initialized_keys, property_name);
+      @ReturnIfAbrupt(status)
+    };
+    i := i + 1
+  };
+  return
+};
+
+function DestructuringSingleObjectProperty(property, property_name, objectValue, environment) {
+  property_value := GetV(objectValue, property_name);
+
+  @ReturnIfAbrupt(property_value);
+
+  status := DestructuringAssignmentEvaluation(property.value, property_value, environment, null);
+  @ReturnIfAbrupt(status);
+  return
+}
+
+

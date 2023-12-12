@@ -1,0 +1,112 @@
+
+/** 25.1.1.1 The Iterable Interface
+ *
+ * The Iterable interface includes the property described in Table 52:
+ *
+ * Table 52 — Iterable Interface Required Properties
+ *
+ * --------------------------------------------------------------------------------------------------------------------------
+ * | Property   | Value                                       | Requirements                                                |
+ * |------------|---------------------------------------------|-------------------------------------------------------------|
+ * | @@iterator | A function that returns an Iterator object. | The returned object must conform to the Iterator interface. |
+ * --------------------------------------------------------------------------------------------------------------------------
+ */
+function IsIterable(obj) {
+    iterator := GetMethod(obj, getIteratorPropertyName());
+
+    @ReturnIfAbrupt(iterator);
+
+    if (iterator = 'undefined) {
+        return false
+    } else {
+        return IsIterator(iterator)
+    }
+};
+
+/** 25.1.1.2 The Iterator Interface
+ *
+ * An object that implements the Iterator interface must include the property in Table 53. Such objects may also implement the properties in Table 54.
+ *
+ * Table 53 — Iterator Interface Required Properties
+ *
+ * ----------------------------------------------------------------------------------------------------------------------
+ * | Property | Value                     | Requirements                                                                |
+ * |----------|---------------------------|-----------------------------------------------------------------------------|
+ * |          | A function that returns   | The returned object must conform to the IteratorResult interface.           |
+ * |  next    | an IteratorResult object. | If a previous call to the next method of an Iterator has returned           |
+ * |          |                           | an IteratorResult object whose done property is true,                       |
+ * |          |                           | then all subsequent calls to the next method of that object                 |
+ * |          |                           | should also return an IteratorResult object whose done property is true.    |
+ * |          |                           | However, this requirement is not enforced.                                  |
+ * ----------------------------------------------------------------------------------------------------------------------
+ *
+ * NOTE 1 Arguments may be passed to the next function but their interpretation and validity is dependent upon the target Iterator.
+ *        The for-of statement and other common users of Iterators do not pass any arguments, so Iterator objects that expect to be
+ *        used in such a manner must be prepared to deal with being called with no arguments.
+ * 
+ * Table 54 — Iterator Interface Optional Properties
+ * 
+ * ------------------------------------------------------------------------------------------------------------------------
+ * | Property | Value                     | Requirements                                                                  |
+ * |----------|---------------------------|-------------------------------------------------------------------------------|
+ * | return	  | A function that returns   | The returned object must conform to the IteratorResult interface.             |
+ * |          | an IteratorResult object. |	Invoking this method notifies the Iterator object that the caller             |
+ * |          |                           | does not intend to make any more next method calls to the Iterator.           | 
+ * |          |                           | The returned IteratorResult object will typically have a done property        |
+ * |          |                           | whose value is true, and a value property with the value passed as            |
+ * |          |                           | the argument of the return method. However, this requirement is not enforced. |
+ * |----------|---------------------------|-------------------------------------------------------------------------------|
+ * |  throw	  | A function that returns   | The returned object must conform to the IteratorResult interface.             |
+ * |          | an IteratorResult object. |	Invoking this method notifies the Iterator object that the caller             |
+ * |          |                           | has detected an error condition. The argument may be used to identify         |
+ * |          |                           | the error condition and typically will be an exception object.                |
+ * |          |                           | A typical response is to throw the value passed as the argument.              |
+ * |          |                           | If the method does not throw, the returned IteratorResult object              |
+ * |          |                           | will typically have a done property whose value is true.                      |
+ * ------------------------------------------------------------------------------------------------------------------------
+ * 
+ * NOTE 2 Typically callers of these methods should check for their existence before invoking them. Certain ECMAScript language features including for-of, yield*, and array destructuring call these methods after performing an existence check. Most ECMAScript library functions that accept Iterable objects as arguments also conditionally call them.
+ */
+function IsIterator(iterator) {
+    next := GetMethod(iterator, "next");
+
+    return !(next = 'undefined)
+};
+
+/** 25.1.2 The %IteratorPrototype% Object
+ *
+ * The value of the [[Prototype]] internal slot of the %IteratorPrototype% object is the intrinsic object %ObjectPrototype% (19.1.3).
+ * The %IteratorPrototype% object is an ordinary object.
+ * The initial value of the [[Extensible]] internal slot of the %IteratorPrototype% object is true.
+ */
+function initIteratorPrototype(global, objectPrototype, strict) {
+    proto := NewECMAScriptObject();
+    proto.Prototype := objectPrototype;
+    setAllInternalMethodsOfOrdinaryObject(proto);
+    proto.Extensible := true;
+    
+    /* 25.1.2.1 %IteratorPrototype% [ @@iterator ] ( ) */
+    iteratorObj := CreateBuiltInFunctionObject([], "IteratorPrototypeIterator", global, strict, null);
+    iteratorDesc := newDataPropertyDescriptorFull(iteratorObj, true, false, true);
+    setJSProperty(proto, getIteratorPropertyName(), iteratorDesc);
+    /* Length */
+    descLen := newDataPropertyDescriptorFull(0., false, false, true);
+    setJSProperty(iteratorObj, "length", descLen);
+    /* Name */
+    descName := newDataPropertyDescriptorFull("[Symbol.iterator]", false, false, true);
+    setJSProperty(iteratorObj, "name", descName);
+
+    return proto
+};
+
+/** 25.1.2.1 %IteratorPrototype% [ @@iterator ] ( )
+ *
+ * The following steps are taken:
+ */
+function IteratorPrototypeIterator(global, this, NewTarget, strict, args) {
+    /* 1. Return the this value. */
+    return this
+} 
+/**
+ * The value of the name property of this function is "[Symbol.iterator]".
+ */

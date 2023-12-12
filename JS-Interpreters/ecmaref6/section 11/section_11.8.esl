@@ -1,0 +1,8 @@
+/* Section 11.8: Literals */
+function formingTheValueOfTheNumericLiteral(literal) {
+  if ((typeof literal = __$Int)) {
+    return int_to_float literal
+  } else {
+    return literal
+  }
+}

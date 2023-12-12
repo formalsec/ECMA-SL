@@ -1,0 +1,666 @@
+/* 10.2 Lexical Environments */
+
+/* A Lexical Environment is a specification type used to define the association of Identifiers to specific variables
+and functions based upon the lexical nesting structure of ECMAScript code. A Lexical Environment consists of
+an Environment Record and a possibly null reference to an outer Lexical Environment. Usually a Lexical
+Environment is associated with some specific syntactic structure of ECMAScript code such as a
+FunctionDeclaration, a WithStatement, or a Catch clause of a TryStatement and a new Lexical Environment is
+created each time such code is evaluated. */
+
+/* An Environment Record records the identifier bindings that are created within the scope of its associated
+Lexical Environment. */
+
+/* The outer environment reference is used to model the logical nesting of Lexical Environment values. The
+outer reference of a (inner) Lexical Environment is a reference to the Lexical Environment that logically
+surrounds the inner Lexical Environment. An outer Lexical Environment may, of course, have its own outer
+Lexical Environment. A Lexical Environment may serve as the outer environment for multiple inner Lexical
+Environments. For example, if a FunctionDeclaration contains two nested FunctionDeclarations then the Lexical
+Environments of each of the nested functions will have as their outer Lexical Environment the Lexical
+Environment of the current execution of the surrounding function. */
+
+/* Lexical Environments and Environment Record values are purely specification mechanisms and need not
+correspond to any specific artefact of an ECMAScript implementation. It is impossible for an ECMAScript
+program to directly access or manipulate such values. */
+
+
+
+/* 10.2.1 Environment Records */
+
+/* There are two kinds of Environment Record values used in this specification: declarative environment records
+and object environment records. Declarative environment records are used to define the effect of ECMAScript
+language syntactic elements such as FunctionDeclarations, VariableDeclarations, and Catch clauses that directly
+associate identifier bindings with ECMAScript language values. Object environment records are used to define
+the effect of ECMAScript elements such as Program and WithStatement that associate identifier bindings with
+the properties of some object. */
+
+/* For specification purposes Environment Record values can be thought of as existing in a simple object-
+oriented hierarchy where Environment Record is an abstract class with two concrete subclasses, declarative
+environment record and object environment record. The abstract class includes the abstract specification
+methods defined in Table 17. These abstract methods have distinct concrete algorithms for each of the
+concrete subclasses. */
+
+
+/* 10.2.1.1 Declarative Environment Records */
+
+/* Each declarative environment record is associated with an ECMAScript program scope containing variable
+and/or function declarations. A declarative environment record binds the set of identifiers defined by the
+declarations contained within its scope. */
+
+/* The behaviour of the concrete specification methods for Declarative Environment Records is defined by the
+following algorithms. */
+
+function HasBinding(envRec, N) {
+  if (isDeclarativeEnvironmentRecord(envRec)) {
+    return HasBindingDeclarativeEnvRecord(envRec, N)
+  };
+  return HasBindingObjectEnvRecord(envRec, N)
+};
+
+function HasBindingDeclarativeEnvRecord(declarativeEnvRec, N) {
+  /* 10.2.1.1.1 HasBinding(N) */
+  /* The concrete environment record method HasBinding for declarative environment records simply determines
+     if the argument identifier is one of the identifiers bound by the record: */
+
+  /* 1. Let envRec be the declarative environment record for which the method was invoked. */
+  envRec := declarativeEnvRec;
+  /* 2. If envRec has a binding for the name that is the value of N, return true. */
+  if (N in_obj envRec) {
+    return true
+  };
+  /* 3. If it does not have such a binding, return false. */
+  return false
+};
+
+function HasBindingObjectEnvRecord(objectEnvRec, N) {
+  /* 10.2.1.2.1 HasBinding(N) */
+  /* The concrete Environment Record method HasBinding for object environment records determines if its
+     associated binding object has a property whose name is the value of the argument N: */
+
+  /* 1. Let envRec be the object environment record for which the method was invoked. */
+  envRec := objectEnvRec;
+  /* 2. Let bindings be the binding object for envRec. */
+  bindings := getBindingObject(envRec);
+  /* 3. Return the result of calling the [[HasProperty]] internal method of bindings, passing N as the property name. */
+  return {bindings.HasProperty}(bindings, N)
+};
+
+/*
+  Create a new mutable binding in an environment record. The String value N is the text of the bound name.
+  If the optional Boolean argument D is true the binding is may be subsequently deleted.
+*/
+function CreateMutableBinding(envRec, N, D) {
+  if (isDeclarativeEnvironmentRecord(envRec)) {
+    return CreateMutableBindingDeclarative(envRec, N, D)
+  };
+  return CreateMutableBindingObject(envRec, N, D)
+};
+
+function CreateMutableBindingDeclarative(declarativeEnvRec, N, D) {
+  /* 10.2.1.1.2 CreateMutableBinding (N, D) */
+  /* The concrete Environment Record method CreateMutableBinding for declarative environment records creates
+     a new mutable binding for the name N that is initialised to the value undefined. A binding must not already
+     exist in this Environment Record for N. If Boolean argument D is provided and has the value true the new
+     binding is marked as being subject to deletion. */
+
+  /* 1. Let envRec be the declarative environment record for which the method was invoked. */
+  envRec := declarativeEnvRec;
+  /* 2. Assert: envRec does not already have a binding for N. */
+  assert !(N in_obj envRec);
+  /* 3. Create a mutable binding in envRec for N and set its bound value to undefined. If D is true record that
+        the newly created binding may be deleted by a subsequent DeleteBinding call. */
+  createMutableBinding(envRec, N, 'undefined);
+  if (D = true) {
+    setBindingDeletable(envRec, N, true)
+  };
+
+  return
+};
+
+function CreateMutableBindingObject(objectEnvRec, N, D) {
+  /* 10.2.1.2.2 CreateMutableBinding (N, D) */
+  /* The concrete Environment Record method CreateMutableBinding for object environment records creates in
+     an environment record‘s associated binding object a property whose name is the String value and initialises it
+     to the value undefined. A property named N must not already exist in the binding object. If Boolean argument
+     D is provided and has the value true the new property‘s [[Configurable]] attribute is set to true,
+     otherwise it is set to false. */
+
+  /* 1. Let envRec be the object environment record for which the method was invoked. */
+  envRec := objectEnvRec;
+  /* 2. Let bindings be the binding object for envRec. */
+  bindings := getBindingObject(envRec);
+  /* 3. Assert: The result of calling the [[HasProperty]] internal method of bindings,
+        passing N as the property name, is false. */
+  assert ({bindings.HasProperty}(bindings, N) = false);
+  /* 4. If D is true then let configValue be true otherwise let configValue be false. */
+  if (D = true) {
+    configValue := true
+  } else {
+    configValue := false
+  };
+  /* 5. Call the [[DefineOwnProperty]] internal method of bindings, passing N, Property Descriptor
+        {[[Value]]:undefined, [[Writable]]: true, [[Enumerable]]: true , [[Configurable]]: configValue},
+        and true as arguments. */
+  {bindings.DefineOwnProperty}(bindings, N, newDataPropertyDescriptorFull('undefined, true, true, configValue), true);
+
+  return
+};
+
+
+function SetMutableBinding(envRec, N, V, S) {
+  print "SetMutableBinding";
+  if (isDeclarativeEnvironmentRecord(envRec)) {
+    return SetMutableBindingDeclarative(envRec, N, V, S)
+  };
+  return SetMutableBindingObject(envRec, N, V, S)
+};
+
+function SetMutableBindingDeclarative(declarativeEnvRec, N, V, S) {
+  print "SetMutableBindingDeclarative";
+  /* 10.2.1.1.3 SetMutableBinding (N,V,S) */
+
+  /* The concrete Environment Record method SetMutableBinding for declarative environment records attempts to
+     change the bound value of the current binding of the identifier whose name is the value of the argument N to
+     the value of argument V. A binding for N must already exist. If the binding is an immutable binding, a
+     TypeError is thrown if S is true. */
+
+  /* 1. Let envRec be the declarative environment record for which the method was invoked. */
+  envRec := declarativeEnvRec;
+  /* 2. Assert: envRec must have a binding for N. */
+  assert (N in_obj envRec);
+  /* 3. If the binding for N in envRec is a mutable binding, change its bound value to V. */
+  if (isMutableBinding(envRec, N)) {
+    setBindingValue(envRec, N, V)
+  } else {
+  /* 4. Else this must be an attempt to change the value of an immutable binding so if S if true throw a TypeError exception. */
+    if (S = true) {
+      throw TypeErrorConstructorInternal()
+    }
+  };
+
+  return
+};
+
+function SetMutableBindingObject(objectEnvRec, N, V, S) {
+  /* 10.2.1.2.3 SetMutableBinding (N,V,S) */
+
+  /* The concrete Environment Record method SetMutableBinding for object environment records attempts to set
+     the value of the environment record‘s associated binding object‘s property whose name is the value of the
+     argument N to the value of argument V. A property named N should already exist but if it does not or is not
+     currently writable, error handling is determined by the value of the Boolean argument S. */
+
+  /* 1. Let envRec be the object environment record for which the method was invoked. */
+  envRec := objectEnvRec;
+  /* 2. Let bindings be the binding object for envRec. */
+  bindings := getBindingObject(envRec);
+  /* 3. Call the [[Put]] internal method of bindings with arguments N, V, and S. */
+  {bindings.Put}(bindings, N, V, S);
+
+  return
+};
+
+
+function GetBindingValue(envRec, N, S) {
+  print "GetBindingValue";
+  if (isDeclarativeEnvironmentRecord(envRec)) {
+    return GetBindingValueDeclarative(envRec, N, S)
+  };
+  return GetBindingValueObject(envRec, N, S)
+};
+
+function GetBindingValueDeclarative(declarativeEnvRec, N, S) {
+  /* 10.2.1.1.4 GetBindingValue(N,S) */
+
+  /* The concrete Environment Record method GetBindingValue for declarative environment records simply
+     returns the value of its bound identifier whose name is the value of the argument N. The binding must already
+     exist. If S is true and the binding is an uninitialised immutable binding throw a ReferenceError exception. */
+
+  /* 1. Let envRec be the declarative environment record for which the method was invoked. */
+  envRec := declarativeEnvRec;
+  /* 2. Assert: envRec has a binding for N. */
+  assert (N in_obj envRec);
+  /* 3. If the binding for N in envRec is an uninitialised immutable binding, then */
+  if (isUninitialisedBinding(envRec, N)) {
+    /* a. If S is false, return the value undefined, otherwise throw a ReferenceError exception. */
+    if (S = false) {
+      return 'undefined
+    };
+    throw ReferenceErrorConstructorInternal()
+  }
+  /* 4. Else, return the value currently bound to N in envRec. */
+  else {
+    return getBindingValue(envRec, N)
+  }
+};
+
+function GetBindingValueObject(objectEnvRec, N, S) {
+  /* 10.2.1.2.4 GetBindingValue(N,S) */
+
+  /* The concrete Environment Record method GetBindingValue for object environment records returns the value
+     of its associated binding object‘s property whose name is the String value of the argument identifier N.
+     The property should already exist but if it does not the result depends upon the value of the S argument: */
+
+  /* 1. Let envRec be the object environment record for which the method was invoked. */
+  envRec := objectEnvRec;
+  /* 2. Let bindings be the binding object for envRec. */
+  bindings := getBindingObject(envRec);
+  /* 3. Let value be the result of calling the [[HasProperty]] internal method of bindings, passing N as the property name. */
+  value := {bindings.HasProperty}(bindings, N);
+  /* 4. If value is false, then */
+  if (value = false) {
+    /* a. If S is false, return the value undefined, otherwise throw a ReferenceError exception. */
+    if (S = false) {
+      return 'undefined
+    };
+    throw ReferenceErrorConstructorInternal()
+  };
+  /* 5. Return the result of calling the [[Get]] internal method of bindings, passing N for the argument. */
+  return {bindings.Get}(bindings, N)
+};
+
+
+/*
+  Delete a binding from an environment record. The String value N
+  is the text of the bound name If a binding for N exists, remove
+  the binding and return true. If the binding exists but cannot be
+  removed return false. If the binding does not exist return true.
+  */
+function DeleteBinding(envRec, N) {
+  if (isDeclarativeEnvironmentRecord(envRec)) {
+    return DeleteBindingDeclarative(envRec, N)
+  };
+  return DeleteBindingObject(envRec, N)
+};
+
+function DeleteBindingDeclarative(declarativeEnvRec, N) {
+  /* 10.2.1.1.5 DeleteBinding (N) */
+
+  /* The concrete Environment Record method DeleteBinding for declarative environment records can only delete
+     bindings that have been explicitly designated as being subject to deletion. */
+
+  /* 1. Let envRec be the declarative environment record for which the method was invoked. */
+  envRec := declarativeEnvRec;
+  /* 2. If envRec does not have a binding for the name that is the value of N, return true. */
+  if (!(N in_obj envRec)) {
+    return true
+  };
+  /* 3. If the binding for N in envRec is cannot be deleted, return false. */
+  if (isBindingCannotBeDeleted(envRec, N)) {
+    return false
+  };
+  /* 4. Remove the binding for N from envRec. */
+  delete envRec[N];
+  /* 5. Return true. */
+  return true
+};
+
+function DeleteBindingObject(objectEnvRec, N) {
+  /* 10.2.1.2.5 DeleteBinding (N) */
+
+  /* The concrete Environment Record method DeleteBinding for object environment records can only delete
+     bindings that correspond to properties of the environment object whose [[Configurable]] attribute have the
+     value true. */
+
+  /* 1. Let envRec be the object environment record for which the method was invoked. */
+  envRec := objectEnvRec;
+  /* 2. Let bindings be the binding object for envRec. */
+  bindings := getBindingObject(envRec);
+  /* 3. Return the result of calling the [[Delete]] internal method of bindings, passing N and false as arguments. */
+  return {bindings.Delete}(bindings, N, false)
+};
+
+/*
+  Returns the value to use as the this value on calls to function objects that are obtained as
+  binding values from this environment record.
+ */
+function ImplicitThisValue(envRec) {
+  if (isDeclarativeEnvironmentRecord(envRec)) {
+    return ImplicitThisValueDeclarative(envRec)
+  };
+  return ImplicitThisValueObject(envRec)
+};
+
+function ImplicitThisValueDeclarative(declarativeEnvRec) {
+  /* 10.2.1.1.6 ImplicitThisValue() */
+
+  /* Declarative Environment Records always return undefined as their ImplicitThisValue. */
+
+  /* 1. Return undefined. */
+  return 'undefined
+};
+
+function ImplicitThisValueObject(objectEnvRec) {
+  /* 10.2.1.2.6 ImplicitThisValue() */
+
+  /* Object Environment Records return undefined as their ImplicitThisValue unless their provideThis flag is true. */
+
+  /* 1. Let envRec be the object environment record for which the method was invoked. */
+  envRec := objectEnvRec;
+  /* 2. If the provideThis flag of envRec is true, return the binding object for envRec. */
+  if (getProvideThis(envRec) = true) {
+    return getBindingObject(envRec)
+  }
+  /* 3. Otherwise, return undefined. */
+  else {
+    return 'undefined
+  }
+};
+
+/* In addition to the mutable bindings supported by all Environment Records, declarative environment records
+also provide for immutable bindings. An immutable binding is one where the association between an identifier
+and a value may not be modified once it has been established. Creation and initialisation of immutable binding
+are distinct steps so it is possible for such bindings to exist in either an initialised or uninitialised state.
+Declarative environment records support the methods listed in Table 18 in addition to the Environment Record
+abstract specification methods: */
+
+/*
+  Create a new but uninitialised immutable binding in an environment record.
+  The String value N is the text of the bound name.
+*/
+function CreateImmutableBinding(envRec, N) {
+  if (isDeclarativeEnvironmentRecord(envRec)) {
+    return CreateImmutableBindingDeclarative(envRec, N)
+  };
+  return
+};
+
+function CreateImmutableBindingDeclarative(declarativeEnvRec, N) {
+  /* 10.2.1.1.7 CreateImmutableBinding (N) */
+
+  /* The concrete Environment Record method CreateImmutableBinding for declarative environment records
+     creates a new immutable binding for the name N that is initialised to the value undefined.
+     A binding must not already exist in this environment record for N. */
+
+  /* 1. Let envRec be the declarative environment record for which the method was invoked. */
+  envRec := declarativeEnvRec;
+  /* 2. Assert: envRec does not already have a binding for N. */
+  assert !(N in_obj envRec);
+  /* 3. Create an immutable binding in envRec for N and record that it is uninitialised. */
+  createImmutableBinding(envRec, N);
+  setBindingInitialised(envRec, N, false);
+
+  return
+};
+
+/*
+  Set the value of an already existing but uninitialised immutable binding in an environment record.
+  The String value N is the text of the bound name. V is the value for the binding and is a value
+  of any ECMAScript language type.
+*/
+function InitializeImmutableBinding(envRec, N, V) {
+  if (isDeclarativeEnvironmentRecord(envRec)) {
+    return InitializeImmutableBindingDeclarative(envRec, N, V)
+  };
+  return
+};
+
+function InitializeImmutableBindingDeclarative(declarativeEnvRec, N, V) {
+  /* The concrete Environment Record method InitializeImmutableBinding for declarative environment records is
+     used to set the bound value of the current binding of the identifier whose name is the value of the argument N
+     to the value of argument V. An uninitialised immutable binding for N must already exist. */
+
+  /* 1. Let envRec be the declarative environment record for which the method was invoked. */
+  envRec := declarativeEnvRec;
+  /* 2. Assert: envRec must have an uninitialised immutable binding for N. */
+  assert (hasUninitialisedImmutableBinding(envRec, N));
+  /* 3. Set the bound value for N in envRec to V. */
+  setBindingValue(envRec, N, V);
+  /* 4. Record that the immutable binding for N in envRec has been initialised. */
+  setBindingInitialised(envRec, N, true);
+
+  return
+};
+
+
+
+/* 10.2.2 Lexical Environment Operations */
+
+/* The following abstract operations are used in this specification to operate upon lexical environments: */
+
+function GetIdentifierReference(lex, name, strict) {
+  print "GetIdentifierReference";
+  /* The abstract operation GetIdentifierReference is called with a Lexical Environment lex, an identifier String
+     name, and a Boolean flag strict. The value of lex may be null. When called, the following steps are performed: */
+  /* 1. If lex is the value null, then */
+  if (lex = 'null) {
+    /* a. Return a value of type Reference whose base value is undefined, whose referenced name is name,
+          and whose strict mode flag is strict. */
+    return newValueReference('undefined, name, strict)
+  };
+  /* 2. Let envRec be lex‘s environment record. */
+  envRec := getEnvironmentRecord(lex);
+  /* 3. Let exists be the result of calling the HasBinding(N) concrete method of envRec passing name as the argument N. */
+  exists := HasBinding(envRec, name);
+  /* 4. If exists is true, then */
+  if (exists = true) {
+    /* a. Return a value of type Reference whose base value is envRec, whose referenced name is name, and whose strict mode flag is strict. */
+    return newValueReference(envRec, name, strict)
+  }
+  /* 5. Else */
+  else {
+    /* a. Let outer be the value of lex’s outer environment reference. */
+    outer := getOuterEnvironmentReference(lex);
+    /* b. Return the result of calling GetIdentifierReference passing outer, name, and strict as arguments. */
+    return GetIdentifierReference(outer, name, strict)
+  }
+};
+
+function NewDeclarativeEnvironment(E) {
+  /* 10.2.2.2 NewDeclarativeEnvironment (E) */
+  /* When the abstract operation NewDeclarativeEnvironment is called with either a Lexical Environment or null
+     as argument E the following steps are performed: */
+
+  /* 1. Let env be a new Lexical Environment. */
+  env := newLexicalEnvironment();
+  /* 2. Let envRec be a new declarative environment record containing no bindings. */
+  envRec := newDeclarativeEnvironmentRecord();
+  /* 3. Set env’s environment record to be envRec. */
+  setEnvironmentRecord(env, envRec);
+  /* 4. Set the outer lexical environment reference of env to E. */
+  setOuterLexicalEnvironmentReference(env, E);
+  /* 5. Return env. */
+  return env
+};
+
+function NewObjectEnvironment(O, E) {
+  /* 10.2.2.3 NewObjectEnvironment (O, E) */
+  /* When the abstract operation NewObjectEnvironment is called with an Object O and a Lexical Environment E (or null)
+     as arguments, the following steps are performed: */
+
+  /* 1. Let env be a new Lexical Environment. */
+  env := newLexicalEnvironment();
+  /* 2. Let envRec be a new object environment record containing O as the binding object. */
+  envRec := newObjectEnvironmentRecord(O);
+  /* 3. Set env’s environment record to be envRec. */
+  setEnvironmentRecord(env, envRec);
+  /* 4. Set the outer lexical environment reference of env to E. */
+  setOuterLexicalEnvironmentReference(env, E);
+  /* 5. Return env. */
+  return env
+};
+
+function GlobalEnvironment(globalObject) {
+  /* 10.2.3 The Global Environment */
+
+  /* The global environment is a unique Lexical Environment which is created before any ECMAScript code is
+     executed. The global environment‘s Environment Record is an object environment record whose binding
+     object is the global object (15.1). The global environment‘s outer environment reference is null.
+
+  /* As ECMAScript code is executed, additional properties may be added to the global object and the initial
+     properties may be modified.*/
+
+  globalEnv := newLexicalEnvironment();
+  /* The global environment‘s Environment Record is an object environment record whose binding
+     object is the global object (15.1) */
+  globalEnvRec := newObjectEnvironmentRecord(globalObject);
+  setEnvironmentRecord(globalEnv, globalEnvRec);
+  /* The global environment‘s outer environment reference is null. */
+  setOuterLexicalEnvironmentReference(globalEnv, 'null);
+
+  setGlobalEnvironment(globalObject, globalEnv);
+
+  return globalEnv
+};
+
+
+/* Auxiliary functions used to deal with Lexical Environments and Environment Records */
+function getGlobalObject(lexicalEnvironment) {
+  if (!("EnvRec" in_obj lexicalEnvironment)) { return lexicalEnvironment };
+  lex := lexicalEnvironment;
+  outer := getOuterEnvironmentReference(lexicalEnvironment);
+  while(!(outer = 'null)) {
+    lex := outer;
+    outer := getOuterEnvironmentReference(lex)
+  };
+
+  return getBindingObject(getEnvironmentRecord(lex))
+};
+
+function getGlobalEnvironment(globalObject) {
+  return globalObject.GlobalEnv
+};
+
+function setGlobalEnvironment(globalObject, globalEnv) {
+  globalObject.GlobalEnv := globalEnv;
+
+  return
+};
+
+function newLexicalEnvironment() {
+  return {
+    /* environment‘s outer environment reference */
+    OuterEnvRef: 'undefined,
+    /* environment‘s Environment Record */
+    EnvRec: 'undefined
+  }
+};
+
+function newDeclarativeEnvironmentRecord() {
+  return {}
+};
+
+function newObjectEnvironmentRecord(bindingObj) {
+  /* An object environment record binds the set of identifier names that directly correspond to the property names
+     of its binding object. Property names that are not an IdentifierName are not included in the set of bound identifiers.
+     Both own and inherited properties are included in the set regardless of the setting of their [[Enumerable]] attribute. */
+  objEnvRec := {
+    isObjectEnvRec: true,
+    bindingObject: bindingObj,
+    provideThis: false
+  };
+
+  return objEnvRec
+};
+
+function isDeclarativeEnvironmentRecord(envRec) {
+  print "isDeclarativeEnvironmentRecord";
+  if ("isObjectEnvRec" in_obj envRec) {
+    return false
+  } else {
+    return true
+  }
+};
+
+function getBindingObject(objectEnvRec) {
+  return objectEnvRec.bindingObject
+};
+
+function setProvideThis(objectEnvironment, value) {
+  getEnvironmentRecord(objectEnvironment).provideThis := value;
+
+  return
+};
+
+function getProvideThis(objectEnvRec) {
+  return objectEnvRec.provideThis
+};
+
+function getEnvironmentRecord(lexicalEnvironment) {
+  return lexicalEnvironment.EnvRec
+};
+
+function getOuterEnvironmentReference(lexicalEnvironment) {
+  return lexicalEnvironment.OuterEnvRef
+};
+
+function setEnvironmentRecord(lexicalEnvironment, environmentRecord) {
+  lexicalEnvironment.EnvRec := environmentRecord;
+  return
+};
+
+function setOuterLexicalEnvironmentReference(lexicalEnvironment, outerLexicalEnvironment) {
+  lexicalEnvironment.OuterEnvRef := outerLexicalEnvironment;
+  return
+};
+
+function createMutableBinding(declarativeEnvRec, name, value) {
+  declarativeEnvRec[name] := newMutableBinding(value);
+  return
+};
+
+function createImmutableBinding(declarativeEnvRec, name) {
+  declarativeEnvRec[name] := newImmutableBinding('undefined);
+  return
+};
+
+function newBinding(initialised, value, deletable, modifiable) {
+  return (initialised, value, deletable, modifiable)
+};
+
+function newMutableBinding(value) {
+  return newBinding(true, value, false, true)
+};
+
+function newImmutableBinding(value) {
+  return newBinding(false, value, false, false)
+};
+
+function isMutableBinding(envRec, name) {
+  binding := envRec[name];
+  return t_nth(binding, 3)
+};
+
+function isUninitialisedBinding(envRec, name) {
+  binding := envRec[name];
+  return !(t_nth(binding, 0))
+};
+
+function getBindingValue(envRec, name) {
+  binding := envRec[name];
+  return t_nth(binding, 1)
+};
+
+function setBindingValue(envRec, name, value) {
+  binding := envRec[name];
+  newBinding := newBinding(t_nth(binding, 0), value, t_nth(binding, 2), t_nth(binding, 3));
+
+  envRec[name] := newBinding;
+
+  return
+};
+
+function setBindingInitialised(envRec, name, initialised) {
+  binding := envRec[name];
+  newBinding := newBinding(initialised, t_nth(binding, 1), t_nth(binding, 2), t_nth(binding, 3));
+
+  envRec[name] := newBinding;
+
+  return
+};
+
+function setBindingDeletable(envRec, name, deletable) {
+  binding := envRec[name];
+  newBinding := newBinding(t_nth(binding, 0), t_nth(binding, 1), deletable, t_nth(binding, 3));
+
+  envRec[name] := newBinding;
+
+  return
+};
+
+function hasUninitialisedImmutableBinding(envRec, name) {
+  return (name in_obj envRec) &&& isUninitialisedBinding(envRec, name)
+};
+
+function isBindingCannotBeDeleted(envRec, name) {
+  binding := envRec[name];
+  return !t_nth(binding, 2)
+}

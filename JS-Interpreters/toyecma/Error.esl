@@ -1,0 +1,6 @@
+function raiseError(msg: string, src: unknown): never {
+	errMsg: string := s_concat (["[ERROR]: ", msg]);
+	print(errMsg);
+	print(src);
+	throw msg
+}
