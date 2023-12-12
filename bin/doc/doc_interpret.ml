@@ -27,5 +27,5 @@ let term =
     $ Options.common_options
     $ Options.input_file
     $ Options.heap_file
-    $ Options.target_esl_flag
+    $ Options.interpret_esl_flag
     $ Options.untyped_flag )

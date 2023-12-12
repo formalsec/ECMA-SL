@@ -51,9 +51,24 @@ let compile_cmd =
   let info = Cmd.info "compile" ~doc ~sdocs ~man ~man_xrefs in
   Cmd.v info term
 
-let execute_cmd =
+let interpret_cmd =
   let open Doc_interpret in
   let info = Cmd.info "interpret" ~doc ~sdocs ~man ~man_xrefs in
+  Cmd.v info term
+
+let encode_cmd =
+  let open Doc_encode in
+  let info = Cmd.info "encode" ~doc ~sdocs ~man ~man_xrefs in
+  Cmd.v info term
+
+let execute_cmd =
+  let open Doc_execute in
+  let info = Cmd.info "execute" ~doc ~sdocs ~man ~man_xrefs in
+  Cmd.v info term
+
+let build_cmd =
+  let open Doc_build in
+  let info = Cmd.info "build" ~doc ~sdocs ~man ~man_xrefs in
   Cmd.v info term
 
 let symbolic_cmd =
@@ -66,7 +81,15 @@ let replay_cmd =
   let info = Cmd.info "replay" ~doc ~sdocs ~man ~man_xrefs in
   Cmd.v info term
 
-let cmd_list = [ compile_cmd; execute_cmd; symbolic_cmd; replay_cmd ]
+let cmd_list =
+  [ compile_cmd
+  ; interpret_cmd
+  ; encode_cmd
+  ; execute_cmd
+  ; build_cmd
+  ; symbolic_cmd
+  ; replay_cmd
+  ]
 
 let main_cmd =
   let open AppInfo in

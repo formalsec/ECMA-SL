@@ -9,10 +9,18 @@
   options
   doc_compile
   doc_interpret
+  doc_encode
+  doc_execute
+  doc_build
   doc_symbolic
   doc_replay
   cmd
   cmd_compile
   cmd_interpret
-  cmd_symbolic)
+  cmd_encode
+  cmd_execute
+  cmd_build
+  cmd_symbolic
+  lang
+  ecmaref)
  (libraries ecma_sl cmdliner))
