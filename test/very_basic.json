@@ -1,1 +1,0 @@
-{"type" : " prog", "funcs" : [ {"type" : "function", "name" : "main", "params" : [  ], "body" :  {"type" : "block", "value" : [ {"type" : "return", "expr" : { "type" : "value", "value" : { "type" : "boolean", "value" : true } }} ]} } ] }
