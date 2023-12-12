@@ -1,8 +1,6 @@
-let run (ecmaref_version : Ecmaref.version) : unit =
-  let _ = ecmaref_version in
+let run (_ecmaref_version : Ecmaref.version) : unit =
   print_endline "NOT IMPLEMENTED!"
 
-let main (debug : bool) (ecmaref_version : Ecmaref.version) : int =
-  let _ = debug in
+let main (_debug : bool) (ecmaref_version : Ecmaref.version) : int =
   let run' () = run ecmaref_version in
   Cmd.eval_cmd run'
