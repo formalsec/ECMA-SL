@@ -38,7 +38,7 @@
   batteries
   ppx_import
   ppx_deriving
-  ppx_inline_test
+  (ppx_inline_test :with-test)
   extlib
   menhir
   menhirLib
