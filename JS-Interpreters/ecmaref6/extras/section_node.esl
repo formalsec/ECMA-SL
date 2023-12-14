@@ -1,13 +1,3 @@
-function createOSObject(objectPrototype) {
-  os := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(os);
-  setInternalProperty(os, "Prototype", objectPrototype);
-
-  /* Functions: */
-
-  return os
-};
-
 function __NodeRequire(globalObject, this, newTarget, strict, params) {
   path := l_nth(params, 0);
   objectPrototype := |Intrinsics|["ObjectPrototype"];
