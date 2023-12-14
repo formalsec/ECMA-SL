@@ -83,6 +83,7 @@ import "ecmaref6/section 26/section_26.2.esl";
 import "ecmaref6/extras/section_node.esl";
 import "ecmaref6/extras/section_node_fs.esl";
 import "ecmaref6/extras/section_node_cp.esl";
+import "ecmaref6/extras/section_node_os.esl";
 import "ecmaref6/extras/section_node_process.esl";
 import "ecmaref6/extras/section_extras.esl";
 import "ecmaref6/extras/section_symbolic.esl";
