@@ -1,0 +1,9 @@
+function createOSObject(objectPrototype) {
+  os := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(os);
+  setInternalProperty(os, "Prototype", objectPrototype);
+
+  /* Functions: */
+
+  return os
+}
