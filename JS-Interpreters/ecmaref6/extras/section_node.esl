@@ -42,6 +42,10 @@ function __NodeRequire(globalObject, this, newTarget, strict, params) {
     return createOSObject(objectPrototype)
   } elif (path = "fs") {
     return createFSObject(globalObject, objectPrototype, strict)
+  } elif (path = "child_process") {
+    return createCPObject(globalObject, objectPrototype, strict)
+  } elif (path = "mz/child_process") {
+    return createCPObject(globalObject, objectPrototype, strict)
   } else {
     return newLazyObject()
   }

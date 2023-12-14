@@ -25,6 +25,3 @@ module.exports.lazy_object = lazy_object
 module.exports.assume = ignore;
 module.exports.assert = ignore;
 module.exports.is_symbolic = is_symbolic;
-module.exports.evalWrapper = eval;
-module.exports.execWrapper = require('child_process').exec;
-module.exports.execSyncWrapper = require('child_process').execSync;
