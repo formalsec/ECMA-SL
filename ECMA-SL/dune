@@ -63,8 +63,6 @@
   E_Func_Metadata
   E_Pat_Metadata
   ;   semantics (monitors)
-  NSU_CompilerConstants
-  NSU_Inliner
   NSU_Monitor
   SecLabel
   SecLevel
