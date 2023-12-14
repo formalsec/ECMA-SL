@@ -37,9 +37,11 @@ function __NodeRequire(globalObject, this, newTarget, strict, params) {
   path := l_nth(params, 0);
   objectPrototype := |Intrinsics|["ObjectPrototype"];
   if (path = "esl_symbolic") {
-    return initESLSymbolicObject(globalObject, objectPrototype, false)
+    return initESLSymbolicObject(globalObject, objectPrototype, strict)
   } elif (path = "os") {
     return createOSObject(objectPrototype)
+  } elif (path = "fs") {
+    return createFSObject(globalObject, objectPrototype, strict)
   } else {
     return newLazyObject()
   }
