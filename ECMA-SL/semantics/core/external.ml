@@ -23,6 +23,7 @@ let loadInitialHeap (_prog : Prog.t) (heap : 'a Heap.t) (file : string) : Val.t 
 let execute (prog : Prog.t) (heap : 'a Heap.t) (f : string) (vs : Val.t list) :
     Val.t =
   match (f, vs) with
+  | "is_symbolic", _ -> Val.Bool false
   | "parseJS", [ Val.Str str ] -> parseJS prog heap str
   | "loadInitialHeap", [ Val.Str file ] ->
       let loc = loadInitialHeap prog heap file in
