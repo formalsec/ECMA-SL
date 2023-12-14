@@ -8,31 +8,6 @@ function createOSObject(objectPrototype) {
   return os
 };
 
-function createProcessObject(objectPrototype) {
-  process := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(process);
-  setInternalProperty(process, "Prototype", objectPrototype);
-
-  /* Properties: */
-  createBuiltInProperty(process, "arch", extern str_symbol("p.arch"));
-  createBuiltInProperty(process, "execPath", extern str_symbol("p.execPath"));
-  createBuiltInProperty(process, "platform", extern str_symbol("p.platform"));
-
-  /* Should be a symbolic lazy object, but now it just keeps env empty */
-  env := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(env);
-  setInternalProperty(env, "Prototype", objectPrototype);
-  createBuiltInProperty(process, "env", env);
-
-  argv := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(argv);
-  setInternalProperty(argv, "Prototype", objectPrototype);
-  createBuiltInProperty(process, "argv", argv);
-
-  /* Functions: */
-  return process
-};
-
 function __NodeRequire(globalObject, this, newTarget, strict, params) {
   path := l_nth(params, 0);
   objectPrototype := |Intrinsics|["ObjectPrototype"];
@@ -74,7 +49,7 @@ function initNodeGlobalObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(module, "exports", exports);
   createBuiltInProperty(globalObject, "exports", exports);
 
-  process := createProcessObject(objectPrototype);
+  process := createProcessObject(globalObject, objectPrototype, strict);
   createBuiltInProperty(globalObject, "process", process);
   return 'null
 }
