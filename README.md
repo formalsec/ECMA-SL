@@ -1,3 +1,5 @@
+[![Build](https://github.com/formalsec/ECMA-SL/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/formalsec/ECMA-SL/actions/workflows/build.yml)
+
 <h1 align="center", style="font-size: 40px">ECMA-SL Project</h1>
 
 <p align="center">
@@ -12,12 +14,12 @@
 
 # About
 
-ECMA-SL is a comprehensive platform designed for the specification and execution of the ECMAScript standard, commonly known as JavaScript. 
+ECMA-SL is a comprehensive platform designed for the specification and execution of the ECMAScript standard, commonly known as JavaScript.
 The platform introduces an intermediate language, ECMA-SL, which
 serves as a bridge between JavaScript and its execution environment.
 This intermediate language is used to provide a reference implementation of the ECMAScript standard that adheres to JavaScript's specification.
 
-Key features of the platform include a JavaScript-to-ECMA-SL (JS2ECMA-SL) parser, allowing the conversion of JavaScript code into the ECMA-SL language. 
+Key features of the platform include a JavaScript-to-ECMA-SL (JS2ECMA-SL) parser, allowing the conversion of JavaScript code into the ECMA-SL language.
 Additionally, ECMA-SL incorporates a compiler from ECMA-SL to Core ECMA-SL, a simplified version of the intermediate language, as well as an interpreter for Core ECMA-SL.
 The combination of these tools results in a mechanism to execute JavaScript programs using the reference interpreters for the language.
 
@@ -25,7 +27,7 @@ The combination of these tools results in a mechanism to execute JavaScript prog
 
 # Installation
 
-The ECMA-SL platform is accessed through the `ecma-sl` application, which is written in the [OCaml](https://ocaml.org/) programming language. 
+The ECMA-SL platform is accessed through the `ecma-sl` application, which is written in the [OCaml](https://ocaml.org/) programming language.
 To build this application, we utilize [dune](https://github.com/ocaml/dune), a composable build system for OCaml.
 
 1. Install [opam](https://opam.ocaml.org/doc/Install.html).
