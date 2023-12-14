@@ -32,6 +32,7 @@ function createCPObject(globalObject, objectPrototype, strict) {
   setAllInternalMethodsOfOrdinaryObject(cp);
   setInternalProperty(cp, "Prototype", objectPrototype);
 
+  /* Functions: */
   exec := CreateBuiltInFunctionObject(["path"], "__cp_exec", realm,
     strict, null);
   createBuiltInProperty(cp, "exec", exec);
