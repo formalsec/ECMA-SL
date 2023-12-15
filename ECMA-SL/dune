@@ -24,12 +24,11 @@
   ;   syntax (share)
   val
   loc
-  type
   object
-  field
   source
   operators
   call_stack
+  type
   ;   syntax (core)
   expr
   stmt

@@ -17,16 +17,16 @@ let run_interpreter (heap_file : string option) (prog : Prog.t) : unit =
       print_string ("MAIN return -> " ^ Val.str completion ^ "\n");
       match completion with
       | Val.Tuple [ _; Val.Symbol "normal" ] -> ()
-      | _ -> raise (Cmd.CmdError Cmd.Failure) )
+      | _ -> raise (Cmd.Command_error Cmd.Failure) )
     | Some (Val.Str s) when String.sub s 0 11 = "Unsuported" ->
       print_string ("MAIN fail -> " ^ s);
-      raise (Cmd.CmdError Cmd.Unsupported)
+      raise (Cmd.Command_error Cmd.Unsupported)
     | Some v -> print_string ("MAIN return -> " ^ Val.str v)
     | _ ->
       Cmd.log "core interpretation error\n";
-      raise (Cmd.CmdError Cmd.Error)
+      raise (Cmd.Command_error Cmd.Error)
   in
-  let value, heap = Interpreter.eval_prog prog in
+  let (value, heap) = Interpreter.eval_prog prog in
   _output_heap heap;
   _output_value value
 

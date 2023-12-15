@@ -7,7 +7,7 @@ let run_type_checker (untyped : bool) (prog : E_Prog.t) : E_Prog.t =
     if terrs = [] then prog
     else (
       Printf.eprintf "%s" (T_Checker.terrs_str terrs);
-      raise (Cmd.CmdError Cmd.Error) )
+      raise (Cmd.Command_error Cmd.Error) )
 
 let run_compiler (untyped : bool) (input_file : string) : Prog.t =
   Io.load_file input_file
