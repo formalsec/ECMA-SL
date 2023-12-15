@@ -3,29 +3,21 @@ open Core
 type 'a t = (String.t, 'a) Hashtbl.t
 
 let create () : 'a t = Hashtbl.create (module String)
-let clone (o : 'a t) = Hashtbl.copy o
+let clone (obj : 'a t) = Hashtbl.copy obj
+let fld_list (obj : 'a t) : (String.t * 'a) list = Hashtbl.to_alist obj
+let flds (obj : 'a t) : String.t list = Hashtbl.keys obj
+let get (obj : 'a t) (key : String.t) : 'a option = Hashtbl.find obj key
+let delete (obj : 'a t) (f : String.t) : unit = Hashtbl.remove obj f
 
-let set (o : 'a t) (key : String.t) (data : 'a) : unit =
-  Hashtbl.set o ~key ~data
+let set (obj : 'a t) (key : String.t) (data : 'a) : unit =
+  Hashtbl.set obj ~key ~data
 
-let get (o : 'a t) (key : String.t) : 'a option = Hashtbl.find o key
-let delete (o : 'a t) (f : String.t) : unit = Hashtbl.remove o f
+let str (obj : 'a t) (printer : 'a -> string) : string =
+  let print_fun (key, data) = Printf.sprintf "\"%s\": %s" key (printer data) in
+  let obj_flds_str = Hashtbl.to_alist obj |> List.map ~f:print_fun in
+  "{ " ^ String.concat ~sep:", " obj_flds_str ^ "} "
 
-let to_string (o : 'a t) (printer : 'a -> string) : string =
-  let str_obj =
-    Hashtbl.fold o ~init:"{ " ~f:(fun ~key:n ~data:v ac ->
-        (if String.(ac <> "{ ") then ac ^ ", " else ac)
-        ^ Printf.sprintf "\"%s\": %s" n (printer v) )
-  in
-  str_obj ^ " }"
-
-let to_json (o : 'a t) (printer : 'a -> string) : string =
-  let str_obj =
-    Hashtbl.fold o ~init:"{ " ~f:(fun ~key:n ~data:v ac ->
-        (if String.(ac <> "{ ") then ac ^ ", " else ac)
-        ^ Printf.sprintf "\"%s\": %s" n (printer v) )
-  in
-  str_obj ^ " }"
-
-let to_list (o : 'a t) : (String.t * 'a) list = Hashtbl.to_alist o
-let get_fields (o : 'a t) : String.t list = Hashtbl.keys o
+let to_json (obj : 'a t) (printer : 'a -> string) : string =
+  let print_fun (key, data) = Printf.sprintf "\"%s\": %s" key (printer data) in
+  let obj_flds_str = Hashtbl.to_alist obj |> List.map ~f:print_fun in
+  "{ " ^ String.concat ~sep:", " obj_flds_str ^ "} "

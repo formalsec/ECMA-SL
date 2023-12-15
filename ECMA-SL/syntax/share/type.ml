@@ -1,45 +1,45 @@
 type t =
+  | NullType
   | IntType
   | FltType
-  | BoolType
   | StrType
-  | LocType
-  | ListType
-  | TypeType
-  | TupleType
-  | NullType
+  | BoolType
   | SymbolType
-  | CurryType
+  | LocType
   | ArrayType
+  | ListType
+  | TupleType
+  | TypeType
+  | CurryType
 
 let str (v : t) : string =
   match v with
+  | NullType -> "__$Null"
   | IntType -> "__$Int"
   | FltType -> "__$Flt"
-  | BoolType -> "__$Bool"
   | StrType -> "__$Str"
-  | LocType -> "__$Obj"
-  | ListType -> "__$List"
-  | TypeType -> "__$Type"
-  | TupleType -> "__$Tuple"
-  | NullType -> "__$Null"
+  | BoolType -> "__$Bool"
   | SymbolType -> "__$Symbol"
-  | CurryType -> "__$Curry"
+  | LocType -> "__$Obj"
   | ArrayType -> "__$Array"
+  | ListType -> "__$List"
+  | TupleType -> "__$Tuple"
+  | TypeType -> "__$Type"
+  | CurryType -> "__$Curry"
 
 let ( = ) t1 t2 =
   match (t1, t2) with
+  | (NullType, NullType)
   | (IntType, IntType)
   | (FltType, FltType)
-  | (BoolType, BoolType)
   | (StrType, StrType)
-  | (LocType, LocType)
-  | (ListType, ListType)
-  | (TypeType, TypeType)
-  | (TupleType, TupleType)
-  | (NullType, NullType)
+  | (BoolType, BoolType)
   | (SymbolType, SymbolType)
-  | (CurryType, CurryType)
-  | (ArrayType, ArrayType) ->
+  | (LocType, LocType)
+  | (ArrayType, ArrayType)
+  | (ListType, ListType)
+  | (TupleType, TupleType)
+  | (TypeType, TypeType)
+  | (CurryType, CurryType) ->
     true
   | _ -> false

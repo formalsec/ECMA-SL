@@ -90,7 +90,7 @@ module Make (P : Eval_functor_intf.P) :
     (*   | Expr.Val (Val.Loc l) -> *)
     (*     let heap = Env.get_memory env in *)
     (*     let o = Heap.get heap l in *)
-    (*     Object.to_string (Option.value_exn o) Expr.str *)
+    (*     Object.str (Option.value_exn o) Expr.str *)
     (*   | _ -> Expr.str e' *)
     (* in *)
     (* Printf.printf "print:%s\npc:%s\nheap id:%d\n" s (Encoding.Expression.string_of_pc pc) (Heap.get_id heap); *)

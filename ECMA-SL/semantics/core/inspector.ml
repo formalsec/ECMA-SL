@@ -42,11 +42,6 @@ let show_inspector_dialog () : unit =
   in
   Printf.printf "%s" dialog_str
 
-let parse_base (s : string) : base_t =
-  match Loc.parse_loc s with
-  | Some l -> Loc l
-  | _ -> Var s
-
 let parse_cmd (str : string) : t option =
   let strs = String.split_on_char ' ' str in
   match strs with
@@ -55,7 +50,7 @@ let parse_cmd (str : string) : t option =
     let e_strs = String.split_on_char '.' e_str in
     match e_strs with
     | y :: ps ->
-      let base_y = parse_base y in
+      let base_y = Loc y in
       if cmd = "val" then Some (ShowVal (base_y, ps))
       else Some (ShowObj (base_y, ps))
     | _ -> None )
@@ -81,7 +76,7 @@ let rec inspector (heap : Val.t Heap.t) (sto : Val.t Store.t) : unit =
       match Heap.get heap l with
       | Some o ->
         Printf.printf "Obj: %s\n"
-          (Object.to_string o (Val.str ~flt_with_dot:false))
+          (Object.str o (Val.str ~flt_with_dot:false))
       | None -> Printf.printf "Obj: %s\n" "Non-Existent" )
     | _ -> Printf.printf "Provided Location is not an object. Try again!\n" );
     f ()

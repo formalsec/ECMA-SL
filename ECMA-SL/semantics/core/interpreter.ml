@@ -35,7 +35,7 @@ module M (Mon : SecurityMonitor) = struct
     | Errorv of Val.t option
     | Finalv of Val.t option
 
-  let add_fields_to (obj : Val.t Object.t) (fes : (Field.t * Expr.t) list)
+  let add_fields_to (obj : Val.t Object.t) (fes : (string * Expr.t) list)
     (eval_e : Expr.t -> Val.t) : unit =
     List.iter
       (fun (f, e) ->
@@ -138,7 +138,7 @@ module M (Mon : SecurityMonitor) = struct
         ^ Loc.str loc'
         ^ "\" doesn't exist in the Heap" )
     | Some o ->
-      let fvs = Object.to_list o in
+      let fvs = Object.fld_list o in
       List (List.map (fun (f, v) -> Val.Tuple (Str f :: [ v ])) fvs)
 
   let eval_objfields_oper (heap : Val.t Heap.t) (st : Val.t Store.t)
@@ -159,7 +159,7 @@ module M (Mon : SecurityMonitor) = struct
         ( "Exception in Interpreter.eval_objfields_oper: \""
         ^ Loc.str loc'
         ^ "\" doesn't exist in the Heap" )
-    | Some o -> List (List.map (fun f -> Val.Str f) (Object.get_fields o))
+    | Some o -> List (List.map (fun f -> Val.Str f) (Object.flds o))
 
   let eval_fielddelete_stmt (_prog : Prog.t) (heap : Val.t Heap.t)
     (sto : Val.t Store.t) (e : Expr.t) (f : Expr.t) : unit =
@@ -209,7 +209,7 @@ module M (Mon : SecurityMonitor) = struct
         match Heap.get heap l with
         | Some o ->
           Log.debug "PROGRAM PRINT: %s"
-            (Object.to_string o (Val.str ~flt_with_dot:false))
+            (Object.str o (Val.str ~flt_with_dot:false))
         | None -> Log.debug "PROGRAM PRINT: Non-existent location" )
       | _ -> Log.debug "PROGRAM PRINT: %s" (Val.str v) );
       (Intermediate ((cs, heap, sto, f), cont), SecLabel.PrintLab e)
