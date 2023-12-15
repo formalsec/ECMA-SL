@@ -248,7 +248,7 @@ let to_string (_heap : t) : string = assert false
     "{ "
     ^ String.concat ~sep:", "
         (Hashtbl.fold h.map ~init:[] ~f:(fun ~key:n ~data:v acc ->
-            Printf.sprintf "%s: %s" (Loc.str n) (S_object.to_string v pp) :: acc))
+            Printf.sprintf "%s: %s" (Loc.str n) (S_object.str v pp) :: acc))
     ^ " }" *)
 
 (* let to_string_with_glob (h : 'a t) (pp : 'a -> string) : string =

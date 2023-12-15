@@ -38,12 +38,12 @@ let get_obj (heap : 'sl t) (loc : Loc.t) : 'sl SecObject.t option =
   let res = Hashtbl.find_opt heap loc in
   match res with None -> None | Some (sec_obj, _, _) -> Some sec_obj
 
-let get_field (heap : 'sl t) (loc : Loc.t) (field : Field.t) :
+let get_field (heap : 'sl t) (loc : Loc.t) (field : string) :
     ('sl * 'sl) option =
   let obj = get_obj heap loc in
   match obj with Some obj -> SecObject.get obj field | None -> None
 
-let delete_field (heap : 'sl t) (loc : Loc.t) (field : Field.t) : bool =
+let delete_field (heap : 'sl t) (loc : Loc.t) (field : string) : bool =
   let obj = get_obj heap loc in
   match obj with
   | Some obj ->
@@ -51,7 +51,7 @@ let delete_field (heap : 'sl t) (loc : Loc.t) (field : Field.t) : bool =
       true
   | None -> false
 
-let new_sec_prop (heap : 'sl t) (loc : Loc.t) (field : Field.t)
+let new_sec_prop (heap : 'sl t) (loc : Loc.t) (field : string)
     (exists_lvl : 'sl) (val_lvl : 'sl) : bool =
   match get_obj heap loc with
   | Some obj ->
@@ -64,12 +64,12 @@ let newSecObj (heap : 'sl t) (loc : Loc.t) (struct_lvl : 'sl) (obj_lvl : 'sl) :
   let sec_obj = SecObject.create () in
   insert heap loc sec_obj struct_lvl obj_lvl
 
-let upg_prop_exists_lvl (heap : 'sl t) (loc : Loc.t) (field : Field.t)
+let upg_prop_exists_lvl (heap : 'sl t) (loc : Loc.t) (field : string)
     (lvl : 'sl) : unit =
   let sec_obj, _, _ = get heap loc in
   SecObject.upg_exists sec_obj field lvl
 
-let upg_prop_val_lvl (heap : 'sl t) (loc : Loc.t) (field : Field.t) (lvl : 'sl)
+let upg_prop_val_lvl (heap : 'sl t) (loc : Loc.t) (field : string) (lvl : 'sl)
     : unit =
   let sec_obj, _, _ = get heap loc in
   SecObject.upg_val sec_obj field lvl

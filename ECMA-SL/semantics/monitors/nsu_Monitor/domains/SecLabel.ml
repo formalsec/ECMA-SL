@@ -10,10 +10,10 @@ type 'sl t =
   | MergeLab
   | AssignCallLab of (string list * Expr.t list * string * string)
   | ReturnLab of Expr.t
-  | FieldAssignLab of (Loc.t * Field.t * Expr.t * Expr.t * Expr.t)
-  | FieldLookupLab of (string * Loc.t * Field.t * Expr.t * Expr.t)
-  | FieldDeleteLab of (Loc.t * Field.t * Expr.t * Expr.t)
-  | AssignInObjCheckLab of (string * Field.t * Loc.t * Expr.t * Expr.t)
+  | FieldAssignLab of (Loc.t * string * Expr.t * Expr.t * Expr.t)
+  | FieldLookupLab of (string * Loc.t * string * Expr.t * Expr.t)
+  | FieldDeleteLab of (Loc.t * string * Expr.t * Expr.t)
+  | AssignInObjCheckLab of (string * string * Loc.t * Expr.t * Expr.t)
   | NewLab of (string * Loc.t)
   (* Direct Security Level Upgrades *)
   | UpgVarLab of (string * 'sl)

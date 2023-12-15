@@ -3,15 +3,18 @@ type error =
   | Error
   | Unsupported
 
-exception CmdError of error
+exception Command_error of error
 
 let err_code (error : error) : int =
-  match error with Failure -> 1 | Error -> 2 | Unsupported -> 3
+  match error with
+  | Failure -> 1
+  | Error -> 2
+  | Unsupported -> 3
 
 let log (msg : string) : unit = Printf.eprintf "ecma-sl: %s.\n" msg
 
 let eval_cmd (cmd : unit -> unit) : int =
-  try cmd () |> fun () -> 0 with CmdError err -> err_code err
+  try cmd () |> fun () -> 0 with Command_error err -> err_code err
 
 let test_file_ext (file : string) (exts : string list) : unit =
   if not (List.exists (Filename.check_suffix file) exts) then

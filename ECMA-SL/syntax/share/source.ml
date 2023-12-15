@@ -10,8 +10,8 @@ type region =
   }
 
 type 'a phrase =
-  { at : region
-  ; it : 'a
+  { it : 'a
+  ; at : region
   }
 
 let ( @> ) x region = { it = x; at = region }

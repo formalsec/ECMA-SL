@@ -25,14 +25,14 @@ let type_unop (op : Operators.uopt) : funcPrototype_t list =
   | Operators.FloatToString -> [ ([ E_Type.FloatType ], E_Type.StringType) ]
   | Operators.FloatOfString -> [ ([ E_Type.StringType ], E_Type.FloatType) ]
   | Operators.FloatToByte -> notImplemented
-  | Operators.Float64ToLEBytes -> notImplemented
-  | Operators.Float64ToBEBytes -> notImplemented
   | Operators.Float32ToLEBytes -> notImplemented
   | Operators.Float32ToBEBytes -> notImplemented
-  | Operators.Float64FromLEBytes -> notImplemented
-  | Operators.Float64FromBEBytes -> notImplemented
+  | Operators.Float64ToLEBytes -> notImplemented
+  | Operators.Float64ToBEBytes -> notImplemented
   | Operators.Float32FromLEBytes -> notImplemented
   | Operators.Float32FromBEBytes -> notImplemented
+  | Operators.Float64FromLEBytes -> notImplemented
+  | Operators.Float64FromBEBytes -> notImplemented
   | Operators.BytesToString -> notImplemented
   | Operators.Utf8Decode -> [ ([ E_Type.StringType ], E_Type.StringType) ]
   | Operators.HexDecode -> [ ([ E_Type.StringType ], E_Type.StringType) ]

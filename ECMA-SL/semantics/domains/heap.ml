@@ -46,7 +46,7 @@ let to_string (h : 'a t) (pp : 'a -> string) : string =
   "{ "
   ^ String.concat ~sep:", "
       (Hashtbl.fold h.map ~init:[] ~f:(fun ~key:n ~data:v acc ->
-           Printf.sprintf "%s: %s" (Loc.str n) (Object.to_string v pp) :: acc )
+           Printf.sprintf "%s: %s" (Loc.str n) (Object.str v pp) :: acc )
       )
   ^ " }"
 
