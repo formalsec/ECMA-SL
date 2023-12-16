@@ -15,6 +15,7 @@ let translate_val (v : Val.t) : Expr.t =
   | Val.Flt x -> Val (Value.Real x) @: Ty_real
   | Val.Str x -> Val (Value.Str x) @: Ty_str
   | Val.Bool x -> Val (if x then Value.True else Value.False) @: Ty_bool
+  | Val.Loc x -> Val (Value.Str x) @: Ty_str
   | _ -> failwith ("translate_val: unsupported value '" ^ Val.str v ^ "'")
 
 let translate_symbol (t : Type.t) (x : string) : Expr.t =
@@ -51,9 +52,9 @@ let translate_unop (t : Type.t option) (op : Operator.unopt) (e : Expr.t) :
     | StringToFloat -> Cvtop (OfString, e) @: Ty_real
     | Ceil -> Unop (Ceil, e) @: Ty_real
     | Floor -> Unop (Floor, e) @: Ty_real
-    | ToInt -> Cvtop (Reinterpret_float, e) @: Ty_int
+    | IntOfFloat | ToInt -> Cvtop (Reinterpret_float, e) @: Ty_int
     | _ ->
-      Printf.printf "op: %s\n" (Operator.str_of_unopt_single op);
+      Format.eprintf "op: %s\n" (Operator.str_of_unopt_single op);
       assert false
   in
   let str_unop (op : Operator.unopt) e =
