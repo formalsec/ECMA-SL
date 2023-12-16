@@ -4,13 +4,17 @@ function __NodeRequire(globalObject, this, newTarget, strict, params) {
   if (path = "esl_symbolic") {
     return initESLSymbolicObject(globalObject, objectPrototype, strict)
   } elif (path = "os") {
-    return createOSObject(objectPrototype)
+    return createOSObject(globalObject, objectPrototype, strict)
   } elif (path = "fs") {
     return createFSObject(globalObject, objectPrototype, strict)
   } elif (path = "child_process") {
     return createCPObject(globalObject, objectPrototype, strict)
   } elif (path = "mz/child_process") {
     return createCPObject(globalObject, objectPrototype, strict)
+  } elif (path = "shelljs") {
+    return createShellJSObject(globalObject, objectPrototype, strict)
+  } elif (path = "cross-spawn") {
+    return createCrossSpawnObject(globalObject, objectPrototype, strict)
   } else {
     return newLazyObject()
   }
