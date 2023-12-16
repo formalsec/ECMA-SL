@@ -47,25 +47,35 @@ let is_special_number (s : string) : bool =
   || String.contains s 'e'
   || String.contains s 'E'
 
-let rec str (v : t) : string =
+let pp_list f fmt v =
+  Format.pp_print_list
+    ~pp_sep:(fun fmt () -> Format.pp_print_string fmt ", ")
+    f fmt v
+
+let pp_array f fmt v =
+  Format.pp_print_array
+    ~pp_sep:(fun fmt () -> Format.pp_print_string fmt ", ")
+    f fmt v
+
+let rec pp fmt (v : t) : unit =
+  let open Format in
   match v with
-  | Flt v -> Printf.sprintf "%.17F" v
-  | Int v -> Int.to_string v
-  | Bool v -> Bool.to_string v
-  | Str v -> Printf.sprintf "%S" v
-  | Loc v -> Loc.str v
-  | List vs -> "[" ^ String.concat ~sep:", " (List.map ~f:str vs) ^ "]"
-  | Arr vs ->
-    "[|" ^ String.concat ~sep:", " (Array.to_list (Array.map ~f:str vs)) ^ "|]"
-  | Type v -> Type.str v
-  | Tuple vs -> "(" ^ String.concat ~sep:", " (List.map ~f:str vs) ^ ")"
-  | Void -> ""
-  | Null -> "null"
-  | Symbol s -> "'" ^ s
-  | Curry (s, vs) ->
-    Printf.sprintf "{\"%s\"}@(%s)" s
-      (String.concat ~sep:", " (List.map ~f:str vs))
-  | Byte i -> Int.to_string i
+  | Flt v -> fprintf fmt "%.17F" v
+  | Int v -> pp_print_int fmt v
+  | Bool v -> pp_print_bool fmt v
+  | Str v -> fprintf fmt "%S" v
+  | Loc v -> Loc.pp fmt v
+  | List vs -> fprintf fmt "[%a]" (pp_list pp) vs
+  | Arr vs -> fprintf fmt "[|%a|]" (pp_array pp) vs
+  | Type v -> Type.pp fmt v
+  | Tuple vs -> fprintf fmt "(%a)" (pp_list pp) vs
+  | Void -> ()
+  | Null -> pp_print_string fmt "null"
+  | Symbol s -> fprintf fmt "'%s" s
+  | Curry (s, vs) -> fprintf fmt {|{"%s"}@(%a)|} s (pp_list pp) vs
+  | Byte i -> pp_print_int fmt i
+
+let str v = Format.asprintf "%a" pp v
 
 let rec to_json (v : t) : string =
   match v with
