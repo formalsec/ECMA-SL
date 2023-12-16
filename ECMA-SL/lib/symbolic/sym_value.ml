@@ -24,7 +24,6 @@ module M = struct
   let ( @: ) = E.( @: )
 
   let mk_symbol s = E.mk_symbol s
-
   let mk_list (_vs : value list) : value = assert false
   (* let mk_list (vs : value list) : value = NOpt (Operators.ListExpr, vs)
   [@@inline] *)
@@ -43,9 +42,10 @@ module M = struct
       | Triop (_, v1, v2, v3) -> List.exists is_symbolic [ v1; v2; v3 ]
       | Cvtop (_, v) -> is_symbolic v
       | Relop (_, v1, v2) -> is_symbolic v1 || is_symbolic v2
+      | List vs | Tuple vs -> List.exists is_symbolic vs
+      | Array vs -> Array.exists is_symbolic vs
+      | App (_, vs) -> List.exists is_symbolic vs
       | _ -> assert false
-      (* | NOpt (_, es) | Curry (_, es) ->
-        (not (List.is_empty es)) && List.exists is_symbolic es *)
   
   let equal (e1 : value) (e2 : value) = E.equal e1 e2
 
@@ -93,33 +93,60 @@ module M = struct
     | Val.Bool false -> E.Val (V.False) @: T.Ty_bool
     | Val.Byte n -> E.Val (V.Int n) @: T.Ty_int
     | Val.List l -> E.List (List.map eval_value l) @: T.Ty_list
+    | Val.Tuple t -> E.Tuple (List.map eval_value t) @: T.Ty_tuple
+    | Val.Arr a -> E.Array (Array.map eval_value a) @: T.Ty_array
+    | Val.Curry (s, es) -> E.App (s, List.map eval_value es) @: T.Ty_int
     | _ -> assert false
   
-  let eval_unop_operator = function
-    | Operators.Neg -> T.Neg
-    | Operators.Not -> T.Not
-    | Operators.Abs -> T.Abs
-    | Operators.Floor -> T.Floor
-    | Operators.IsNaN -> T.Is_nan
-    | Operators.Sqrt -> T.Sqrt
-    | Operators.Ceil -> T.Ceil
-    | _ -> assert false
+  let eval_unop_operator op =
+    let open Operators in
+    match op with
+    (* UNOP *)
+    | Neg -> (Some T.Neg, None, None)
+    | Not -> (Some T.Not, None, None)
+    | Abs -> (Some T.Abs, None, None)
+    | Floor -> (Some T.Floor, None, None)
+    | IsNaN -> (Some T.Is_nan, None, None)
+    | Sqrt -> (Some T.Sqrt, None, None)
+    | Ceil -> (Some T.Ceil, None, None)
+    (* CVTOP *)
+    | IntToString | FloatToString | BytesToString -> (None, Some T.ToString, None)
+    | IntOfString | FloatOfString -> (None, Some T.OfString, None)
+    (* APP *)
+    | _ -> (None, None, Some (str_of_unopt op))
 
-  let eval_binop_operator = function
-    | Operators.Plus -> T.Add
-    | Operators.Minus -> T.Sub
-    | Operators.Times -> T.Mul
-    | Operators.Div -> T.Div
-    | Operators.ShiftLeft -> T.Shl
-    | Operators.ShiftRight -> T.ShrA
-    | Operators.ShiftRightLogical -> T.ShrL
-    | Operators.Log_And -> T.And
-    | Operators.Log_Or -> T.Or
-    | Operators.Pow -> T.Pow
-    | Operators.Min -> T.Min
-    | Operators.Max -> T.Max
-    | Operators.LRem -> T.Rem
-    | _ -> assert false
+  let eval_binop_operator op = 
+    let open Operators in
+    match op with
+    (* BINOP *)
+    | Plus -> (Some T.Add, None, None)
+    | Minus -> (Some T.Sub, None, None)
+    | Times -> (Some T.Mul, None, None)
+    | Div -> (Some T.Div, None, None)
+    | ShiftLeft -> (Some T.Shl, None, None)
+    | ShiftRight -> (Some T.ShrA, None, None)
+    | ShiftRightLogical -> (Some T.ShrL, None, None)
+    | Log_And -> (Some T.And, None, None)
+    | Log_Or -> (Some T.Or, None, None)
+    | Pow -> (Some T.Pow, None, None)
+    | Min -> (Some T.Min, None, None)
+    | Max -> (Some T.Max, None, None)
+    | LRem -> (Some T.Rem, None, None)
+    (* RELOPS *)
+    | Eq -> (None, Some T.Eq, None)
+    | Lt -> (None, Some T.Lt, None)
+    | Gt -> (None, Some T.Gt, None)
+    | Le -> (None, Some T.Le, None)
+    | Ge -> (None, Some T.Ge, None)
+    (* APP *)
+    | _ -> (None, None, Some (str_of_binopt_single op))
+  
+  let eval_triopt_operator op =
+    let open Operators in
+    match op with
+    | ITE -> (Some T.Ite, None)
+    | Ssubstr | SsubstrU -> (Some T.Substr, None)
+    | _ -> (None, Some (str_of_triopt_single op))
 
   let rec eval_expr (store : store) (e : Expr.t) : (value, string) Result.t =
     match e with
@@ -132,35 +159,40 @@ module M = struct
     | Expr.UnOpt (op, e) -> (
       let op' = eval_unop_operator op in
       let+ e' = eval_expr store e in
-      E.Unop (op', e') @: e'.ty 
-      )
+      match op' with
+      | Some op', _, _ -> E.Unop (op', e') @: e'.E.ty
+      | _, Some op', _ -> E.Cvtop (op', e') @: e'.E.ty
+      | _, _, Some op' -> E.App (op', [ e' ]) @: e'.E.ty
+      | _ -> assert false )
     | Expr.BinOpt (op, e1, e2) -> (
       let op' = eval_binop_operator op in
-      (* operator might be from relop *)
       let* e1' = eval_expr store e1 in
       let+ e2' = eval_expr store e2 in
-      E.Binop (op', e1', e2') @: e1'.ty
-      (* match (e1', e2') with
-      | Val v1, Val v2 -> Val (Eval_op.eval_binopt_expr op v1 v2)
-      | _ -> BinOpt (op, e1', e2') ) *)
-      )
+      match op' with
+      | Some op', _, _ -> E.Binop (op', e1', e2') @: e1'.E.ty
+      | _, Some op', _ -> E.Relop (op', e1', e2') @: e1'.E.ty
+      | _, _, Some op' -> E.App (op', [ e1'; e2' ]) @: e1'.E.ty
+      | _ -> assert false )
     | Expr.TriOpt (op, e1, e2, e3) -> (
+      let op' = eval_triopt_operator op in
       let* e1' = eval_expr store e1 in
       let* e2' = eval_expr store e2 in
       let+ e3' = eval_expr store e3 in
-      match (e1', e2', e3') with
-      | Val v1, Val v2, Val v3 -> Val (Eval_op.eval_triopt_expr op v1 v2 v3)
-      | _ -> TriOpt (op, e1', e2', e3') )
+      match op' with
+      | Some op', _ -> E.Triop (op', e1', e2', e3') @: e1'.E.ty
+      | _, Some op' -> E.App (op', [ e1'; e2'; e3' ]) @: e1'.E.ty 
+      | _ -> assert false ) 
     | Expr.NOpt (op, es) ->
       let+ es' = list_map ~f:(eval_expr store) es in
-      NOpt (op, es')
+      let op' = Operators.str_of_nopt op in
+      E.App (op', es') @: es'.E.ty
     | Expr.Curry (f, es) ->
       let* f' = eval_expr store f in
       let+ es' = list_map ~f:(eval_expr store) es in
-      Curry (f', es')
+      E.App (f', es') @: es'.E.ty
     | Expr.Symbolic (t, x) ->
       let+ x' = eval_expr store x in
-      Symbolic (t, x')
+      E.Symbol (t, x') @: x'.E.ty
 
   module Pp = struct
     let rec pp (e : value) : string =
