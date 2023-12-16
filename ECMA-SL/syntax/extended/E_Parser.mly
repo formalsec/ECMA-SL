@@ -307,7 +307,7 @@ prefix_unary_op_target:
   | MINUS; e = e_expr_target;
     { E_Expr.UnOpt (Neg, e) } %prec unopt_prec
   | NOT; e = e_expr_target;
-    { E_Expr.UnOpt (Not, e) } %prec unopt_prec
+    { E_Expr.UnOpt (LogicalNot, e) } %prec unopt_prec
   | IS_NAN; e = e_expr_target;
     { E_Expr.UnOpt (IsNaN, e) } %prec unopt_prec
   | BITWISE_NOT; e = e_expr_target;
@@ -323,17 +323,17 @@ prefix_unary_op_target:
   | TYPEOF; e = e_expr_target;
     { E_Expr.UnOpt (Typeof, e) } %prec unopt_prec
   | HD; e = e_expr_target;
-    { E_Expr.UnOpt (Head, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ListHead, e) } %prec unopt_prec
   | TL; e = e_expr_target;
-    { E_Expr.UnOpt (Tail, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ListTail, e) } %prec unopt_prec
   | FST; e = e_expr_target;
-    { E_Expr.UnOpt (First, e) } %prec unopt_prec
+    { E_Expr.UnOpt (TupleFirst, e) } %prec unopt_prec
   | SND; e = e_expr_target;
-    { E_Expr.UnOpt (Second, e) } %prec unopt_prec
+    { E_Expr.UnOpt (TupleSecond, e) } %prec unopt_prec
   | LREMOVELAST; e = e_expr_target;
-    { E_Expr.UnOpt (LRemoveLast, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ListRemoveLast, e) } %prec unopt_prec
   | LSORT; e = e_expr_target;
-    { E_Expr.UnOpt (LSort, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ListSort, e) } %prec unopt_prec
   | INT_TO_FLOAT; e = e_expr_target;
     { E_Expr.UnOpt (IntToFloat, e) } %prec unopt_prec
   | INT_TO_STRING; e = e_expr_target;
@@ -347,13 +347,13 @@ prefix_unary_op_target:
   | OCTAL_TO_DECIMAL; e = e_expr_target;
     { E_Expr.UnOpt (OctalToDecimal, e) } %prec unopt_prec
   | INT_OF_STRING; e = e_expr_target;
-    { E_Expr.UnOpt (IntOfString, e) } %prec unopt_prec
+    { E_Expr.UnOpt (StringToInt, e) } %prec unopt_prec
   | INT_OF_FLOAT; e = e_expr_target;
-    { E_Expr.UnOpt (IntOfFloat, e) } %prec unopt_prec
+    { E_Expr.UnOpt (FloatToInt, e) } %prec unopt_prec
   | FLOAT_TO_STRING; e = e_expr_target;
     { E_Expr.UnOpt (FloatToString, e) } %prec unopt_prec
   | FLOAT_OF_STRING; e = e_expr_target;
-    { E_Expr.UnOpt (FloatOfString, e) } %prec unopt_prec
+    { E_Expr.UnOpt (StringToFloat, e) } %prec unopt_prec
   | TO_INT; e = e_expr_target;
     { E_Expr.UnOpt (ToInt, e) } %prec unopt_prec
   | TO_INT32; e = e_expr_target;
@@ -393,9 +393,9 @@ prefix_unary_op_target:
   | FLOOR; e = e_expr_target;
     { E_Expr.UnOpt (Floor, e) } %prec unopt_prec
   | LOG_E; e = e_expr_target;
-    { E_Expr.UnOpt (Log_e, e) } %prec unopt_prec
+    { E_Expr.UnOpt (LogE, e) } %prec unopt_prec
   | LOG_10; e = e_expr_target;
-    { E_Expr.UnOpt (Log_10, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Log10, e) } %prec unopt_prec
   | RANDOM; e = e_expr_target;
     { E_Expr.UnOpt (Random, e) } %prec unopt_prec
   | SIN; e = e_expr_target;
@@ -405,11 +405,11 @@ prefix_unary_op_target:
   | TAN; e = e_expr_target;
     { E_Expr.UnOpt (Tan, e) } %prec unopt_prec
   | OBJ_TO_LIST; e = e_expr_target;
-    { E_Expr.UnOpt (ObjToList, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ObjectToList, e) } %prec unopt_prec
   | SCONCAT; e = e_expr_target;
-    { E_Expr.UnOpt (Sconcat, e) } %prec unopt_prec
+    { E_Expr.UnOpt (StringConcat, e) } %prec unopt_prec
   | OBJ_FIELDS; e = e_expr_target;
-    { E_Expr.UnOpt (ObjFields, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ObjectFields, e) } %prec unopt_prec
   | PARSE_NUMBER; e = e_expr_target;
     { E_Expr.UnOpt (ParseNumber, e) } %prec unopt_prec
   | PARSE_STRING; e = e_expr_target;
@@ -417,11 +417,11 @@ prefix_unary_op_target:
   | PARSE_DATE; e = e_expr_target;
     { E_Expr.UnOpt (ParseDate, e) } %prec unopt_prec
   | LREVERSE; e = e_expr_target;
-    { E_Expr.UnOpt (LReverse, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ListReverse, e) } %prec unopt_prec
   | COSH; e = e_expr_target;
     { E_Expr.UnOpt (Cosh, e) } %prec unopt_prec
   | LOG_2; e = e_expr_target;
-    { E_Expr.UnOpt (Log_2, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Log2, e) } %prec unopt_prec
   | SINH; e = e_expr_target;
     { E_Expr.UnOpt (Sinh, e) } %prec unopt_prec
   | TANH; e = e_expr_target;
@@ -454,25 +454,25 @@ prefix_unary_op_target:
 
 prefix_binary_op_target:
   | LNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Lnth, e1, e2) }
+    { E_Expr.BinOpt (ListNth, e1, e2) }
   | LREM; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (LRem, e1, e2) }
+    { E_Expr.BinOpt (ListRemove, e1, e2) }
   | LREMNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (LRemNth, e1, e2) }
+    { E_Expr.BinOpt (ListRemoveNth, e1, e2) }
   | TNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Tnth, e1, e2) }
+    { E_Expr.BinOpt (TupleNth, e1, e2) }
   | SNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Snth, e1, e2) }
+    { E_Expr.BinOpt (StringNth, e1, e2) }
   | SNTH_U; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Snth_u, e1, e2) }
+    { E_Expr.BinOpt (StringNthU, e1, e2) }
   | SSPLIT; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Ssplit, e1, e2) }
+    { E_Expr.BinOpt (StringSplit, e1, e2) }
   | LADD; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Ladd, e1, e2) }
+    { E_Expr.BinOpt (ListAdd, e1, e2) }
   | LPREPEND; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Lprepend, e1, e2) }
+    { E_Expr.BinOpt (ListPrepend, e1, e2) }
   | LCONCAT; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Lconcat, e1, e2) }
+    { E_Expr.BinOpt (ListConcat, e1, e2) }
   | ATAN_2; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (Atan2, e1, e2) }
   | MAX; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
@@ -488,23 +488,23 @@ prefix_binary_op_target:
   | ARRAY_MAKE; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (ArrayMake, e1, e2) }
   | ANTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Anth, e1, e2) }
+    { E_Expr.BinOpt (ArrayNth, e1, e2) }
   | INT_TO_BE_BYTES; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (IntToBEBytes, e1, e2) }
   | INT_FROM_BYTES; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (IntFromBytes, e1, e2) }
+    { E_Expr.BinOpt (IntFromLEBytes, e1, e2) }
   | UINT_FROM_BYTES; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (UintFromBytes, e1, e2) }
+    { E_Expr.BinOpt (UintFromLEBytes, e1, e2) }
 
 prefix_trinary_op_target:
   | SSUBSTR; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; COMMA; e3 = e_expr_target; RPAREN;
-    { E_Expr.TriOpt (Ssubstr, e1, e2, e3) }
+    { E_Expr.TriOpt (StringSubstr, e1, e2, e3) }
   | SSUBSTR_U; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; COMMA; e3 = e_expr_target; RPAREN;
-    { E_Expr.TriOpt (SsubstrU, e1, e2, e3) }
+    { E_Expr.TriOpt (StringSubstrU, e1, e2, e3) }
   | ASET; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; COMMA; e3 = e_expr_target; RPAREN;
-    { E_Expr.TriOpt (Aset, e1, e2, e3) }
+    { E_Expr.TriOpt (ArraySet, e1, e2, e3) }
   | LSET; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; COMMA; e3 = e_expr_target; RPAREN;
-    { E_Expr.TriOpt (Lset, e1, e2, e3) }
+    { E_Expr.TriOpt (ListSet, e1, e2, e3) }
 
 infix_binary_op_target:
   | e1 = e_expr_target; bop = op_target; e2 = e_expr_target;
@@ -679,21 +679,21 @@ e_pat_v_pat_target:
   | LT      { Lt }
   | EGT     { Ge }
   | ELT     { Le }
-  | LAND    { Log_And }
-  | LOR     { Log_Or }
+  | LAND    { LogicalAnd }
+  | LOR     { LogicalOr }
   | BITWISE_AND { BitwiseAnd }
   | PIPE { BitwiseOr }
   | BITWISE_XOR { BitwiseXor }
   | SHIFT_LEFT { ShiftLeft }
   | SHIFT_RIGHT { ShiftRight }
   | SHIFT_RIGHT_LOGICAL { ShiftRightLogical }
-  | IN_OBJ  { InObj }
-  | IN_LIST { InList }
+  | IN_OBJ  { ObjectMem }
+  | IN_LIST { ListMem }
   | POW     { Pow }
 
 %inline e_op_target:
-  | SCLAND  { E_Oper.SCLogAnd }
-  | SCLOR   { E_Oper.SCLogOr }
+  | SCLAND  { E_Oper.SCLogicalAnd }
+  | SCLOR   { E_Oper.SCLogicalOr }
 
 
 e_typing_target:

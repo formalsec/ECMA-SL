@@ -24,7 +24,7 @@ let reduce_sconcat (vs : value list) : value =
   match s with
   | [] -> Val (Str "")
   | [ v ] -> v
-  | _ -> UnOpt (Sconcat, NOpt (ListExpr, s))
+  | _ -> UnOpt (StringConcat, NOpt (ListExpr, s))
 
 let reduce_list_compare (list1 : value list) (list2 : value list) : value =
   if List.length list1 = List.length list2 then
@@ -38,8 +38,8 @@ let reduce_list_compare (list1 : value list) (list2 : value list) : value =
     in
     let concat curr v =
       match (curr, v) with
-      | _, BinOpt (_, _, _) -> BinOpt (Log_And, curr, v)
-      | BinOpt (_, _, _), _ -> BinOpt (Log_And, curr, v)
+      | _, BinOpt (_, _, _) -> BinOpt (LogicalAnd, curr, v)
+      | BinOpt (_, _, _), _ -> BinOpt (LogicalAnd, curr, v)
       | Val (Bool b1), Val (Bool b2) ->
           Val (Operators.log_and (Bool b1, Bool b2))
       | _ -> failwith "wrong"
@@ -85,30 +85,30 @@ let reduce_unop (op : uopt) (v : value) : value =
   | op, Val v -> Val (Eval_op.eval_unop op v)
   | Neg, Symbolic (_, _) -> UnOpt (Neg, v)
   | IsNaN, Symbolic _ -> Val (Bool false)
-  | Not, _v' -> UnOpt (Not, v)
-  | Head, NOpt (ListExpr, l) -> List.hd_exn l
-  | Tail, NOpt (ListExpr, _ :: tl) -> NOpt (ListExpr, tl)
-  | First, NOpt (TupleExpr, l) -> List.hd_exn l
-  | Second, NOpt (TupleExpr, _ :: b :: _) -> b
+  | LogicalNot, _v' -> UnOpt (LogicalNot, v)
+  | ListHead, NOpt (ListExpr, l) -> List.hd_exn l
+  | ListTail, NOpt (ListExpr, _ :: tl) -> NOpt (ListExpr, tl)
+  | TupleFirst, NOpt (TupleExpr, l) -> List.hd_exn l
+  | TupleSecond, NOpt (TupleExpr, _ :: b :: _) -> b
   | ListLen, NOpt (ListExpr, vs) -> Val (Int (List.length vs))
-  | ListLen, UnOpt (LSort, NOpt (ListExpr, vs)) -> Val (Int (List.length vs))
-  | ListLen, UnOpt (LSort, lst) -> UnOpt (ListLen, lst)
+  | ListLen, UnOpt (ListSort, NOpt (ListExpr, vs)) -> Val (Int (List.length vs))
+  | ListLen, UnOpt (ListSort, lst) -> UnOpt (ListLen, lst)
   | TupleLen, NOpt (TupleExpr, vs) -> Val (Int (List.length vs))
-  | LSort, NOpt (ListExpr, []) -> NOpt (ListExpr, [])
+  | ListSort, NOpt (ListExpr, []) -> NOpt (ListExpr, [])
   | Typeof, Symbolic (t, _) -> Val (Type t)
   | Typeof, NOpt (ListExpr, _) -> Val (Type Type.ListType)
   | Typeof, NOpt (TupleExpr, _) -> Val (Type Type.TupleType)
-  | Typeof, NOpt (ArrExpr, _) -> Val (Type Type.ArrayType)
+  | Typeof, NOpt (ArrayExpr, _) -> Val (Type Type.ArrayType)
   | Typeof, Curry (_, _) -> Val (Type Type.CurryType)
   | Typeof, op ->
       let t = Value_typing.type_of op in
       Val (Type (Option.value_exn t))
-  | Sconcat, NOpt (ListExpr, vs) -> reduce_sconcat vs
-  | FloatOfString, UnOpt (FloatToString, x) -> x
+  | StringConcat, NOpt (ListExpr, vs) -> reduce_sconcat vs
+  | StringToFloat, UnOpt (FloatToString, x) -> x
   (* Unsound *)
   | FloatToString, UnOpt (ToUint32, v) -> v
   (* | ToUint32, Symbolic (Type.FltType, x) -> Symbolic (Type.FltType, x) *)
-  | LSort, NOpt (ListExpr, l) when List.length l <= 1 -> NOpt (ListExpr, l)
+  | ListSort, NOpt (ListExpr, l) when List.length l <= 1 -> NOpt (ListExpr, l)
   | Trim, UnOpt (FloatToString, v) -> UnOpt (FloatToString, v)
   | op', v1' -> UnOpt (op', v1')
 
@@ -135,7 +135,7 @@ let reduce_binop (op : bopt) (v1 : value) (v2 : value) : value =
       Val (Bool false)
   | Eq, NOpt (_, _), Val Null -> Val (Bool false)
   | Eq, v, Val Null when Stdlib.not (is_loc v) -> Val (Bool false)
-  | Eq, UnOpt (Sconcat, NOpt (_, l1)), UnOpt (Sconcat, NOpt (ListExpr, l2)) -> (
+  | Eq, UnOpt (StringConcat, NOpt (_, l1)), UnOpt (StringConcat, NOpt (ListExpr, l2)) -> (
       match (l1, l2) with
       | [ pre1; target1 ], [ pre2; target2 ] when Value.equal pre1 pre2 ->
           BinOpt (Eq, target1, target2)
@@ -152,21 +152,21 @@ let reduce_binop (op : bopt) (v1 : value) (v2 : value) : value =
       match s' with
       | Flt v when Val.equal (Flt v) (Flt Float.nan) -> Val (Bool false)
       | _ -> BinOpt (Eq, Symbolic (Type.FltType, n), Val s'))
-  | Tnth, NOpt (TupleExpr, vs), Val (Int i) -> List.nth_exn vs i
-  | Lnth, NOpt (ListExpr, vs), Val (Int i) -> List.nth_exn vs i
-  | Lconcat, NOpt (ListExpr, vs1), NOpt (ListExpr, vs2) ->
+  | TupleNth, NOpt (TupleExpr, vs), Val (Int i) -> List.nth_exn vs i
+  | ListNth, NOpt (ListExpr, vs), Val (Int i) -> List.nth_exn vs i
+  | ListConcat, NOpt (ListExpr, vs1), NOpt (ListExpr, vs2) ->
       NOpt (ListExpr, vs1 @ vs2)
-  | Lconcat, lst, NOpt (ListExpr, []) -> lst
-  | Lconcat, NOpt (ListExpr, []), lst -> lst
-  | Lprepend, v1, NOpt (ListExpr, vs) -> NOpt (ListExpr, v1 :: vs)
-  | Ladd, NOpt (ListExpr, vs), v2 -> NOpt (ListExpr, vs @ [ v2 ])
-  | InList, v1, NOpt (ListExpr, vs) -> Val (Bool (Stdlib.List.mem v1 vs))
+  | ListConcat, lst, NOpt (ListExpr, []) -> lst
+  | ListConcat, NOpt (ListExpr, []), lst -> lst
+  | ListPrepend, v1, NOpt (ListExpr, vs) -> NOpt (ListExpr, v1 :: vs)
+  | ListAdd, NOpt (ListExpr, vs), v2 -> NOpt (ListExpr, vs @ [ v2 ])
+  | ListMem, v1, NOpt (ListExpr, vs) -> Val (Bool (Stdlib.List.mem v1 vs))
   | op', v1', v2' -> BinOpt (op', v1', v2')
 
 let reduce_triop (op : topt) (v1 : value) (v2 : value) (v3 : value) : value =
   match (op, v1, v2, v3) with
   | op, Val v1, Val v2, Val v3 -> Val (Eval_op.eval_triopt_expr op v1 v2 v3)
-  | Lset, NOpt (ListExpr, vs), Val (Int v2'), _ -> reduce_list_set vs v2' v3
+  | ListSet, NOpt (ListExpr, vs), Val (Int v2'), _ -> reduce_list_set vs v2' v3
   | _ -> TriOpt (op, v1, v2, v3)
 
 let reduce_nop (op : nopt) (vs : value list) : value = NOpt (op, vs)

@@ -74,7 +74,7 @@ let rec get (h : t) (l : Loc.t) : object_ option =
 let mk_ite (e1 : value) (e2 : value) (e3 : value) : value =
   Value.TriOpt (Operators.ITE, e1, e2, e3)
 
-let mk_not (e : value) : value = Value.UnOpt (Operators.Not, e)
+let mk_not (e : value) : value = Value.UnOpt (Operators.LogicalNot, e)
 let mk_bool (b : bool) : value = Value.Val (Val.Bool b)
 
 let apply_op_get ~(cond : value) ~(left : value)

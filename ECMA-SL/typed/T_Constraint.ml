@@ -14,12 +14,12 @@ let rec is_container (e : E_Expr.t) : bool =
 
 let rec generate (tctx : T_Ctx.t) (expr : E_Expr.t) : t =
   match expr with
-  | E_Expr.UnOpt (Operators.Not, e) -> Not (generate tctx e)
-  | E_Expr.BinOpt (Operators.Log_And, e1, e2) ->
+  | E_Expr.UnOpt (Operators.LogicalNot, e) -> Not (generate tctx e)
+  | E_Expr.BinOpt (Operators.LogicalAnd, e1, e2) ->
     let ce1 = generate tctx e1 in
     let ce2 = generate tctx e2 in
     And (ce1, ce2)
-  | E_Expr.BinOpt (Operators.Log_Or, e1, e2) ->
+  | E_Expr.BinOpt (Operators.LogicalOr, e1, e2) ->
     let ce1 = generate tctx e1 in
     let ce2 = generate tctx e2 in
     Or (ce1, ce2)

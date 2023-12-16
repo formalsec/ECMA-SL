@@ -50,7 +50,7 @@ let translate_unop (t : Type.t option) (op : Operators.uopt) (e : Expr.t) :
       assert false
     | IsNaN -> Val Value.False @: Ty_bool
     | FloatToString -> Cvtop (ToString, e) @: Ty_real
-    | FloatOfString -> Cvtop (OfString, e) @: Ty_real
+    | StringToFloat -> Cvtop (OfString, e) @: Ty_real
     | Ceil -> Unop (Ceil, e) @: Ty_real
     | Floor -> Unop (Floor, e) @: Ty_real
     | ToInt -> Cvtop (Reinterpret_float, e) @: Ty_int
@@ -62,7 +62,7 @@ let translate_unop (t : Type.t option) (op : Operators.uopt) (e : Expr.t) :
     match op with
     | StringLen | StringLenU -> Unop (Len, e) @: Ty_str
     | Trim -> Unop (Trim, e) @: Ty_str
-    | FloatOfString -> Cvtop (OfString, e) @: Ty_real
+    | StringToFloat -> Cvtop (OfString, e) @: Ty_real
     | _ ->
       Printf.printf "op: %s\n" (Operators.str_of_unopt op);
       assert false
@@ -70,7 +70,7 @@ let translate_unop (t : Type.t option) (op : Operators.uopt) (e : Expr.t) :
 
   let bool_unop (op : Operators.uopt) e =
     match op with
-    | Not -> Unop (Not, e) @: Ty_bool
+    | LogicalNot -> Unop (Not, e) @: Ty_bool
     | _ ->
       Printf.printf "op: %s\n" (Operators.str_of_unopt op);
       assert false
@@ -131,7 +131,7 @@ let translate_binop (t1 : Type.t option) (t2 : Type.t option)
   in
   let str_binop op e1 e2 =
     match op with
-    | Snth | Snth_u -> Binop (Nth, e1, e2) @: Ty_str
+    | StringNth | StringNthU -> Binop (Nth, e1, e2) @: Ty_str
     | Eq -> Relop (Eq, e1, e2) @: Ty_str
     | _ ->
       Printf.printf "op: %s\n" (Operators.str_of_binopt_single op);
@@ -140,8 +140,8 @@ let translate_binop (t1 : Type.t option) (t2 : Type.t option)
   let bool_binop (op : Operators.bopt) e1 e2 =
     match op with
     | Eq -> Relop (Eq, e1, e2) @: Ty_bool
-    | Log_And -> Binop (And, e1, e2) @: Ty_bool
-    | Log_Or -> Binop (Or, e1, e2) @: Ty_bool
+    | LogicalAnd -> Binop (And, e1, e2) @: Ty_bool
+    | LogicalOr -> Binop (Or, e1, e2) @: Ty_bool
     | _ ->
       Printf.printf "op: %s\n" (Operators.str_of_binopt_single op);
       assert false
@@ -165,7 +165,7 @@ let translate_triop (t1 : Type.t option) (t2 : Type.t option)
   let open Operators in
   let str_triop (op : Operators.topt) e1 e2 e3 =
     match op with
-    | SsubstrU | Ssubstr -> Triop (Substr, e1, e2, e3) @: Ty_str
+    | StringSubstrU | StringSubstr -> Triop (Substr, e1, e2, e3) @: Ty_str
     | _ -> assert false
   in
   let bool_triop (op : Operators.topt) e1 e2 e3 =
@@ -187,7 +187,7 @@ let rec translate ?(b = false) (v : value) : Expr.t =
   match v with
   | Val v -> translate_val v
   | Symbolic (t, Val (Val.Str x)) -> translate_symbol t x
-  | UnOpt (Operators.Sconcat, e) -> (
+  | UnOpt (Operators.StringConcat, e) -> (
     let binop' e1 e2 = Binop (Concat, e1, e2) @: Ty_str in
     match e with
     | NOpt (_, h :: t) ->

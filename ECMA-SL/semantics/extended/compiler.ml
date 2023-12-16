@@ -301,8 +301,8 @@ C_s({e}(e1, ..., en) catch g) =
 
 *)
 let build_if_throw_basic (x : string) (s_then : Stmt.t) (at : region) : Stmt.t =
-  let guard = Expr.UnOpt (First, Expr.Var x) in
-  let s_else = Stmt.Assign (x, Expr.UnOpt (Second, Expr.Var x)) @> at in
+  let guard = Expr.UnOpt (TupleFirst, Expr.Var x) in
+  let s_else = Stmt.Assign (x, Expr.UnOpt (TupleFirst, Expr.Var x)) @> at in
   Stmt.If (guard, s_then, Some s_else) @> at
 
 let build_if_throw (x : string) (g : string option) (at : region) : Stmt.t =
@@ -310,7 +310,7 @@ let build_if_throw (x : string) (g : string option) (at : region) : Stmt.t =
   | None -> build_if_throw_basic x (Stmt.Return (Expr.Var x) @> at) at
   | Some g ->
     let args =
-      [ Expr.Var __INTERNAL_ESL_GLOBAL__; Expr.UnOpt (Second, Expr.Var x) ]
+      [ Expr.Var __INTERNAL_ESL_GLOBAL__; Expr.UnOpt (TupleFirst, Expr.Var x) ]
     in
     let call_stmt = Stmt.AssignCall (x, Expr.Val (Val.Str g), args) @> at in
     let inner_if = build_if_throw_basic x (Stmt.Return (Expr.Var x) @> at) at in
@@ -358,15 +358,15 @@ let rec compile_ebinopt (binop : E_Oper.bopt) (e_e1 : E_Expr.t)
   let (stmts_1, e1) = compile_expr at e_e1 in
   let (stmts_2, e2) = compile_expr at e_e2 in
   match binop with
-  | SCLogAnd -> compile_sc_and x stmts_1 e1 stmts_2 e2 at
-  | SCLogOr -> compile_sc_or x stmts_1 e1 stmts_2 e2 at
+  | SCLogicalAnd -> compile_sc_and x stmts_1 e1 stmts_2 e2 at
+  | SCLogicalOr -> compile_sc_or x stmts_1 e1 stmts_2 e2 at
 
 and compile_unopt (op : uopt) (expr : E_Expr.t) (at : region) :
   Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
   let (stmts_expr, expr') = compile_expr at expr in
   match op with
-  | ObjToList ->
+  | ObjectToList ->
     (stmts_expr @ [ Stmt.AssignObjToList (var, expr') @> at ], Expr.Var var)
   | _ ->
     ( stmts_expr @ [ Stmt.Assign (var, Expr.UnOpt (op, expr')) @> at ]
@@ -455,7 +455,7 @@ and compile_repeatuntil (stmt : E_Stmt.t) (expr : E_Expr.t) (at : region) :
   Stmt.t list =
   let stmts_stmt = compile_stmt stmt in
   let (stmts_expr, expr') = compile_expr at expr in
-  let not_expr = Expr.UnOpt (Not, expr') in
+  let not_expr = Expr.UnOpt (LogicalNot, expr') in
   let stmts = stmts_stmt @ stmts_expr in
   stmts @ [ Stmt.While (not_expr, Stmt.Block stmts @> stmt.at) @> at ]
 
@@ -473,7 +473,7 @@ and compile_patv (expr : Expr.t) (pname : string) (pat_v : E_Pat_v.t)
     in
     ([ b ], [ stmt; stmt_assign ], [])
   | PatNone ->
-    let stmt = Stmt.Assign (var_b, Expr.UnOpt (Not, Expr.Var var_b)) @> at in
+    let stmt = Stmt.Assign (var_b, Expr.UnOpt (LogicalNot, Expr.Var var_b)) @> at in
     ([], [ stmt ], [])
 
 and compile_pn_pat (expr : Expr.t) ((pn, patv) : string * E_Pat_v.t)
@@ -505,7 +505,7 @@ and compile_pats_stmts (at : region) (expr : Expr.t)
   let stmts = compile_stmt stmt in
   let and_bs =
     Expr.NOpt
-      (NAry_And, Expr.Val (Val.Bool true) :: List.map (fun b -> Expr.Var b) bs)
+      (NAryLogicalAnd, Expr.Val (Val.Bool true) :: List.map (fun b -> Expr.Var b) bs)
   in
   let if_stmt = in_pat_stmts @ stmts in
   (pre_pat_stmts, and_bs, if_stmt)
@@ -619,7 +619,7 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
       :: [ Stmt.Assign (len_str, Expr.UnOpt (ListLen, e_e')) @> e_stmt.at ]
     in
     let stmt_assign_x =
-      Stmt.Assign (x, Expr.BinOpt (Lnth, e_e', Var idx_str)) @> e_stmt.at
+      Stmt.Assign (x, Expr.BinOpt (ListNth, e_e', Var idx_str)) @> e_stmt.at
     in
     let stmts_s = compile_stmt e_s in
     stmts_e

@@ -112,7 +112,7 @@ module Object = struct
 
   let create_not_pct (l : (pct * V.value) list) (key : pct) : encoded_pct list =
     List.fold l ~init:[] ~f:(fun acc (pc, _) ->
-        let ne = V.UnOpt (Operators.Not, mk_eq key pc) in
+        let ne = V.UnOpt (Operators.LogicalNot, mk_eq key pc) in
         let expr = Value_reducer.reduce ne |> Value_translator.translate in
         expr :: acc)
 

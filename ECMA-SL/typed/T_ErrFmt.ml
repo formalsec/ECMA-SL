@@ -57,7 +57,7 @@ let unop_tkns (op : Operators.uopt) (e : E_Expr.t) : tkn_t list =
   let opTkn = Lit (Operators.str_of_unopt op) in
   match op with
   | Operators.Neg -> [ opTkn; Expr e ]
-  | Operators.Not -> [ opTkn; Expr e ]
+  | Operators.LogicalNot -> [ opTkn; Expr e ]
   | Operators.BitwiseNot -> [ opTkn; Expr e ]
   | _ -> call_tkns opTkn [ e ]
 
@@ -76,16 +76,16 @@ let binop_tkns (op : Operators.bopt) (e1 : E_Expr.t) (e2 : E_Expr.t) :
   | Operators.Lt -> [ Expr e1; opTkn; Expr e2 ]
   | Operators.Ge -> [ Expr e1; opTkn; Expr e2 ]
   | Operators.Le -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.Log_And -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
-  | Operators.Log_Or -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
+  | Operators.LogicalAnd -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
+  | Operators.LogicalOr -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
   | Operators.BitwiseAnd -> [ Expr e1; opTkn; Expr e2 ]
   | Operators.BitwiseOr -> [ Expr e1; opTkn; Expr e2 ]
   | Operators.BitwiseXor -> [ Expr e1; opTkn; Expr e2 ]
   | Operators.ShiftLeft -> [ Expr e1; opTkn; Expr e2 ]
   | Operators.ShiftRight -> [ Expr e1; opTkn; Expr e2 ]
   | Operators.ShiftRightLogical -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.InObj -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.InList -> [ Expr e1; opTkn; Expr e2 ]
+  | Operators.ObjectMem -> [ Expr e1; opTkn; Expr e2 ]
+  | Operators.ListMem -> [ Expr e1; opTkn; Expr e2 ]
   | Operators.Pow -> [ Expr e1; opTkn; Expr e2 ]
   | _ -> call_tkns (Lit opStr) [ e1; e2 ]
 
@@ -94,8 +94,8 @@ let ebinop_tkns (op : E_Oper.bopt) (e1 : E_Expr.t) (e2 : E_Expr.t) : tkn_t list
   let opStr = E_Oper.str_of_binopt_single op in
   let opTkn = Lit (" " ^ opStr ^ " ") in
   match op with
-  | E_Oper.SCLogAnd -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
-  | E_Oper.SCLogOr -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
+  | E_Oper.SCLogicalAnd -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
+  | E_Oper.SCLogicalOr -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
 
 let triop_tkns (op : Operators.topt) (e1 : E_Expr.t) (e2 : E_Expr.t)
   (e3 : E_Expr.t) : tkn_t list =
