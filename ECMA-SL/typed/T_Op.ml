@@ -7,7 +7,7 @@ let type_unop (op : Operators.uopt) : funcPrototype_t list =
     [ ([ E_Type.IntType ], E_Type.IntType)
     ; ([ E_Type.FloatType ], E_Type.FloatType)
     ]
-  | Operators.Not -> [ ([ E_Type.BooleanType ], E_Type.BooleanType) ]
+  | Operators.LogicalNot -> [ ([ E_Type.BooleanType ], E_Type.BooleanType) ]
   | Operators.BitwiseNot -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
   | Operators.IsNaN -> [ ([ E_Type.AnyType ], E_Type.BooleanType) ]
   | Operators.Typeof ->
@@ -17,13 +17,13 @@ let type_unop (op : Operators.uopt) : funcPrototype_t list =
   | Operators.ToUint16 -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
   | Operators.ToUint32 -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
   | Operators.IntToFloat -> [ ([ E_Type.IntType ], E_Type.FloatType) ]
-  | Operators.IntOfFloat -> [ ([ E_Type.FloatType ], E_Type.IntType) ]
+  | Operators.FloatToInt -> [ ([ E_Type.FloatType ], E_Type.IntType) ]
   | Operators.IntToString -> [ ([ E_Type.IntType ], E_Type.StringType) ]
-  | Operators.IntOfString -> [ ([ E_Type.StringType ], E_Type.IntType) ]
+  | Operators.StringToInt -> [ ([ E_Type.StringType ], E_Type.IntType) ]
   | Operators.IntToFourHex -> [ ([ E_Type.IntType ], E_Type.StringType) ]
   | Operators.OctalToDecimal -> [ ([ E_Type.IntType ], E_Type.IntType) ]
   | Operators.FloatToString -> [ ([ E_Type.FloatType ], E_Type.StringType) ]
-  | Operators.FloatOfString -> [ ([ E_Type.StringType ], E_Type.FloatType) ]
+  | Operators.StringToFloat -> [ ([ E_Type.StringType ], E_Type.FloatType) ]
   | Operators.FloatToByte -> notImplemented
   | Operators.Float32ToLEBytes -> notImplemented
   | Operators.Float32ToBEBytes -> notImplemented
@@ -49,9 +49,9 @@ let type_unop (op : Operators.uopt) : funcPrototype_t list =
   | Operators.Ceil -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
   | Operators.Floor -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
   | Operators.Exp -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Log_2 -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Log_e -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Log_10 -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operators.Log2 -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operators.LogE -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operators.Log10 -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
   | Operators.Sin -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
   | Operators.Cos -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
   | Operators.Tan -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
@@ -66,20 +66,20 @@ let type_unop (op : Operators.uopt) : funcPrototype_t list =
   | Operators.ParseDate -> notImplemented
   | Operators.StringLen -> [ ([ E_Type.StringType ], E_Type.IntType) ]
   | Operators.StringLenU -> [ ([ E_Type.StringType ], E_Type.IntType) ]
-  | Operators.Sconcat -> notImplemented
+  | Operators.StringConcat -> notImplemented
   | Operators.ArrayLen -> notImplemented
   | Operators.ListToArray -> notImplemented
-  | Operators.Head -> notImplemented
-  | Operators.Tail -> notImplemented
+  | Operators.ListHead -> notImplemented
+  | Operators.ListTail -> notImplemented
   | Operators.ListLen -> notImplemented
-  | Operators.LSort -> notImplemented
-  | Operators.LReverse -> notImplemented
-  | Operators.LRemoveLast -> notImplemented
-  | Operators.First -> notImplemented
-  | Operators.Second -> notImplemented
+  | Operators.ListSort -> notImplemented
+  | Operators.ListReverse -> notImplemented
+  | Operators.ListRemoveLast -> notImplemented
+  | Operators.TupleFirst -> notImplemented
+  | Operators.TupleSecond -> notImplemented
   | Operators.TupleLen -> notImplemented
-  | Operators.ObjToList -> notImplemented
-  | Operators.ObjFields -> notImplemented
+  | Operators.ObjectToList -> notImplemented
+  | Operators.ObjectFields -> notImplemented
 
 let type_binop (op : Operators.bopt) : funcPrototype_t list =
   let notImplemented =
@@ -116,9 +116,9 @@ let type_binop (op : Operators.bopt) : funcPrototype_t list =
     [ ([ E_Type.FloatType; E_Type.FloatType ], E_Type.FloatType) ]
   | Operators.ShiftRightLogical ->
     [ ([ E_Type.FloatType; E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Log_And ->
+  | Operators.LogicalAnd ->
     [ ([ E_Type.BooleanType; E_Type.BooleanType ], E_Type.BooleanType) ]
-  | Operators.Log_Or ->
+  | Operators.LogicalOr ->
     [ ([ E_Type.BooleanType; E_Type.BooleanType ], E_Type.BooleanType) ]
   | Operators.Eq -> [ ([ E_Type.AnyType; E_Type.AnyType ], E_Type.BooleanType) ]
   | Operators.Lt -> [ ([ E_Type.AnyType; E_Type.AnyType ], E_Type.BooleanType) ]
@@ -134,36 +134,36 @@ let type_binop (op : Operators.bopt) : funcPrototype_t list =
   | Operators.Atan2 ->
     [ ([ E_Type.FloatType; E_Type.FloatType ], E_Type.FloatType) ]
   | Operators.IntToBEBytes -> notImplemented
-  | Operators.IntFromBytes -> notImplemented
-  | Operators.UintFromBytes -> notImplemented
+  | Operators.IntFromLEBytes -> notImplemented
+  | Operators.UintFromLEBytes -> notImplemented
   | Operators.ToPrecision ->
     [ ([ E_Type.FloatType; E_Type.IntType ], E_Type.StringType) ]
   | Operators.ToExponential ->
     [ ([ E_Type.FloatType; E_Type.IntType ], E_Type.StringType) ]
   | Operators.ToFixed ->
     [ ([ E_Type.FloatType; E_Type.IntType ], E_Type.StringType) ]
-  | Operators.Snth ->
+  | Operators.ObjectMem -> notImplemented
+  | Operators.StringNth ->
     [ ([ E_Type.StringType; E_Type.IntType ], E_Type.StringType) ]
-  | Operators.Snth_u ->
+  | Operators.StringNthU ->
     [ ([ E_Type.StringType; E_Type.IntType ], E_Type.StringType) ]
-  | Operators.Ssplit -> notImplemented
-  | Operators.Anth -> notImplemented
+  | Operators.StringSplit -> notImplemented
   | Operators.ArrayMake -> notImplemented
-  | Operators.Lnth -> notImplemented
-  | Operators.Ladd -> notImplemented
-  | Operators.Lprepend -> notImplemented
-  | Operators.Lconcat -> notImplemented
-  | Operators.LRem -> notImplemented
-  | Operators.LRemNth -> notImplemented
-  | Operators.InList -> notImplemented
-  | Operators.Tnth -> notImplemented
-  | Operators.InObj -> notImplemented
+  | Operators.ArrayNth -> notImplemented
+  | Operators.ListNth -> notImplemented
+  | Operators.ListMem -> notImplemented
+  | Operators.ListAdd -> notImplemented
+  | Operators.ListPrepend -> notImplemented
+  | Operators.ListConcat -> notImplemented
+  | Operators.ListRemove -> notImplemented
+  | Operators.ListRemoveNth -> notImplemented
+  | Operators.TupleNth -> notImplemented
 
 let type_ebinop (op : E_Oper.bopt) : funcPrototype_t list =
   match op with
-  | E_Oper.SCLogAnd ->
+  | E_Oper.SCLogicalAnd ->
     [ ([ E_Type.BooleanType; E_Type.BooleanType ], E_Type.BooleanType) ]
-  | E_Oper.SCLogOr ->
+  | E_Oper.SCLogicalOr ->
     [ ([ E_Type.BooleanType; E_Type.BooleanType ], E_Type.BooleanType) ]
 
 let type_triop (op : Operators.topt) : funcPrototype_t list =
@@ -171,10 +171,10 @@ let type_triop (op : Operators.topt) : funcPrototype_t list =
     [ ([ E_Type.AnyType; E_Type.AnyType; E_Type.AnyType ], E_Type.AnyType) ]
   in
   match op with
-  | Operators.Ssubstr ->
+  | Operators.StringSubstr ->
     [ ([ E_Type.StringType; E_Type.IntType; E_Type.IntType ], E_Type.StringType)
     ]
-  | Operators.SsubstrU ->
+  | Operators.StringSubstrU ->
     [ ([ E_Type.StringType; E_Type.IntType; E_Type.IntType ], E_Type.StringType)
     ]
-  | Operators.Aset | Operators.Lset | Operators.ITE -> notImplemented
+  | Operators.ArraySet | Operators.ListSet | Operators.ITE -> notImplemented

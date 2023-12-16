@@ -103,8 +103,8 @@ let record_concrete_keys (o : obj_record) : value list =
 
 let mk_eq e1 e2 = Value.BinOpt (Operators.Eq, e1, e2)
 let mk_ite e1 e2 e3 = Value.TriOpt (Operators.ITE, e1, e2, e3)
-let mk_or e1 e2 = Value.BinOpt (Operators.Log_Or, e1, e2)
-let mk_not e1 = Value.UnOpt (Operators.Not, e1)
+let mk_or e1 e2 = Value.BinOpt (Operators.LogicalOr, e1, e2)
+let mk_not e1 = Value.UnOpt (Operators.LogicalNot, e1)
 
 let is_key_possible (k1 : value) (k2 : value) (solver : Batch.t)
     (pc : encoded_pct list) : bool =

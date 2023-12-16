@@ -5,91 +5,30 @@ type const =
   | MIN_VALUE
   | PI
 
-type bopt =
-  | Plus
-  | Minus
-  | Times
-  | Div
-  | Modulo
-  | Eq
-  | Lt
-  | Gt
-  | Le
-  | Ge
-  | Log_And
-  | Log_Or
-  | BitwiseAnd
-  | BitwiseOr
-  | BitwiseXor
-  | ShiftLeft
-  | ShiftRight
-  | ShiftRightLogical
-  | InObj
-  | InList
-  | Lnth
-  | LRem
-  | LRemNth
-  | Tnth
-  | Snth
-  | Snth_u
-  | Ssplit
-  | Ladd
-  | Lprepend
-  | Lconcat
-  | Atan2
-  | Max
-  | Min
-  | Pow
-  | ToPrecision
-  | ToExponential
-  | ToFixed
-  | ArrayMake
-  | Anth
-  | IntToBEBytes
-  | IntFromBytes
-  | UintFromBytes
-
-type topt =
-  | Ssubstr
-  | SsubstrU
-  | Aset
-  | Lset
-  | ITE
-
 type uopt =
-  | Neg
-  | Not
-  | IsNaN
-  | BitwiseNot
   | Typeof
-  | ListLen
-  | TupleLen
-  | StringLen
-  | StringLenU
-  | Head
-  | Tail
-  | First
-  | Second
-  | LRemoveLast
-  | LSort
-  | LReverse
+  (* Arithmetic Operators *)
+  | Neg
+  (* Bitwise Operators *)
+  | BitwiseNot
+  (* Logical *)
+  | LogicalNot
+  (* Integer Operators *)
   | IntToFloat
   | IntToString
   | IntToFourHex
-  | IntOfString
-  | IntOfFloat
-  | FloatOfString
-  | FloatToString
-  | HexDecode
-  | Utf8Decode
   | OctalToDecimal
-  | ObjToList
-  | Sconcat
-  | ObjFields
+  (* Float Operators *)
+  | FloatToInt
+  | FloatToString
   | ToInt
   | ToInt32
-  | ToUint32
   | ToUint16
+  | ToUint32
+  | IsNaN
+  (* String Operators *)
+  | StringToInt
+  | StringToFloat
   | FromCharCode
   | FromCharCodeU
   | ToCharCode
@@ -97,46 +36,277 @@ type uopt =
   | ToLowerCase
   | ToUpperCase
   | Trim
+  | StringLen
+  | StringLenU
+  | StringConcat
+  (* Object Operators *)
+  | ObjectToList
+  | ObjectFields
+  (* Array Operators *)
+  | ArrayLen
+  (* List Operators *)
+  | ListToArray
+  | ListHead
+  | ListTail
+  | ListLen
+  | ListSort
+  | ListReverse
+  | ListRemoveLast
+  (* Tuple Operators *)
+  | TupleFirst
+  | TupleSecond
+  | TupleLen
+  (* Byte Operators *)
+  | FloatToByte
+  | Float32ToLEBytes
+  | Float32ToBEBytes
+  | Float64ToLEBytes
+  | Float64ToBEBytes
+  | Float32FromLEBytes
+  | Float32FromBEBytes
+  | Float64FromLEBytes
+  | Float64FromBEBytes
+  | BytesToString
+  (* Math Operators *)
+  | Random
   | Abs
+  | Sqrt
+  | Ceil
+  | Floor
+  | Exp
+  | Log2
+  | LogE
+  | Log10
+  | Sin
+  | Cos
+  | Tan
+  | Sinh
+  | Cosh
+  | Tanh
   | Acos
   | Asin
   | Atan
-  | Ceil
-  | Cos
-  | Exp
-  | Floor
-  | Log_e
-  | Log_10
-  | Random
-  | Sin
-  | Sqrt
-  | Tan
+  (* Parse Operators *)
+  | Utf8Decode
+  | HexDecode
   | ParseNumber
   | ParseString
   | ParseDate
-  | Cosh
-  | Log_2
-  | Sinh
-  | Tanh
-  | Float64ToLEBytes
-  | Float64ToBEBytes
-  | Float32ToLEBytes
-  | Float32ToBEBytes
-  | Float64FromLEBytes
-  | Float64FromBEBytes
-  | Float32FromLEBytes
-  | Float32FromBEBytes
-  | BytesToString
-  | FloatToByte
-  | ArrayLen
-  | ListToArray
+
+type bopt =
+  (* Arithmetic Operators *)
+  | Plus
+  | Minus
+  | Times
+  | Div
+  | Modulo
+  (* Bitwise Operators *)
+  | BitwiseAnd
+  | BitwiseOr
+  | BitwiseXor
+  | ShiftLeft
+  | ShiftRight
+  | ShiftRightLogical
+  (* Logical Operators *)
+  | LogicalAnd
+  | LogicalOr
+  (* Comparison Operators *)
+  | Eq
+  | Lt
+  | Gt
+  | Le
+  | Ge
+  (* Float Operators *)
+  | ToPrecision
+  | ToExponential
+  | ToFixed
+  (* Object Operators *)
+  | ObjectMem
+  (* String Operators *)
+  | StringNth
+  | StringNthU
+  | StringSplit
+  (* Array Operators *)
+  | ArrayMake
+  | ArrayNth
+  (* List Operators *)
+  | ListMem
+  | ListNth
+  | ListAdd
+  | ListPrepend
+  | ListConcat
+  | ListRemove
+  | ListRemoveNth
+  (* Tuple Operators *)
+  | TupleNth
+  (* Byte Operators *)
+  | IntToBEBytes
+  | IntFromLEBytes
+  | UintFromLEBytes
+  (* Math Operators *)
+  | Min
+  | Max
+  | Pow
+  | Atan2
+
+type topt =
+  (* String Operators *)
+  | StringSubstr
+  | StringSubstrU
+  (* Array Operators *)
+  | ArraySet
+  (* List Operators *)
+  | ListSet
+  (* Other Operators *)
+  | ITE
 
 type nopt =
+  (* Logical Operators *)
+  | NAryLogicalAnd
+  | NAryLogicalOr
+  (* Array Operators *)
+  | ArrayExpr
+  (* List Operators *)
   | ListExpr
+  (* Tuple Operators *)
   | TupleExpr
-  | NAry_And
-  | NAry_Or
-  | ArrExpr
+
+let label_of_uopt (op : uopt) : string =
+  match op with
+  | Typeof -> "typeof"
+  | Neg -> "Arith.neg (-)"
+  | BitwiseNot -> "Bitwise.not (~)"
+  | LogicalNot -> "Logical.not (!)"
+  | IntToFloat -> "Integer.int_to_float"
+  | IntToString -> "Integer.int_to_string"
+  | IntToFourHex -> "Integer.int_to_four_hex"
+  | OctalToDecimal -> "Integer.octal_to_decimal"
+  | FloatToInt -> "Float.float_to_int"
+  | FloatToString -> "Float.float_to_string"
+  | ToInt -> "Float.to_int"
+  | ToInt32 -> "Float.to_int32"
+  | ToUint16 -> "Float.to_uint16"
+  | ToUint32 -> "Float.to_uint32"
+  | IsNaN -> "Float.is_NaN"
+  | StringToInt -> "String.string_to_int"
+  | StringToFloat -> "String.string_to_float"
+  | FromCharCode -> "String.from_char_code"
+  | FromCharCodeU -> "String.from_char_code_u"
+  | ToCharCode -> "String.to_char_code_u"
+  | ToCharCodeU -> "String.to_char_code_u"
+  | ToLowerCase -> "String.to_lower_case"
+  | ToUpperCase -> "String.to_upper_case"
+  | Trim -> "String.trim"
+  | StringLen -> "String.s_len"
+  | StringLenU -> "String.s_len_u"
+  | StringConcat -> "String.s_concat"
+  | ObjectToList -> "Object.obj_to_list"
+  | ObjectFields -> "Object.obj_fields"
+  | ArrayLen -> "Array.a_len"
+  | ListToArray -> "List.list_to_array"
+  | ListHead -> "List.hd"
+  | ListTail -> "List.tl"
+  | ListLen -> "List.l_len"
+  | ListSort -> "List.l_sort"
+  | ListReverse -> "List.l_reverse"
+  | ListRemoveLast -> "List.l_remove"
+  | TupleLen -> "Tup.t_len"
+  | TupleFirst -> "Tuple.fst"
+  | TupleSecond -> "Tuple.snd"
+  | Random -> "Math.random"
+  | Abs -> "Math.abs"
+  | Sqrt -> "Math.sqrt"
+  | Ceil -> "Math.ceil"
+  | Floor -> "Math.floor"
+  | Exp -> "Math.exp"
+  | Log2 -> "Math.log_2"
+  | LogE -> "Math.log_e"
+  | Log10 -> "Math.log_10"
+  | Sin -> "Math.sin"
+  | Cos -> "Math.cos"
+  | Tan -> "Math.tan"
+  | Sinh -> "Math.sinh"
+  | Cosh -> "Math.cosh"
+  | Tanh -> "Math.tanh"
+  | Acos -> "Math.acos"
+  | Asin -> "Math.asin"
+  | Atan -> "Math.atan"
+  | FloatToByte -> "Byte.float_to_byte"
+  | Float32ToLEBytes -> "Byte.float32_to_le_bytes"
+  | Float32ToBEBytes -> "Byte.float32_to_be_bytes"
+  | Float64ToLEBytes -> "Byte.float64_to_le_bytes"
+  | Float64ToBEBytes -> "Byte.float64_to_be_bytes"
+  | Float32FromLEBytes -> "Byte.float32_from_le_bytes"
+  | Float32FromBEBytes -> "Byte.float32_from_be_bytes"
+  | Float64FromLEBytes -> "Byte.float64_from_le_bytes"
+  | Float64FromBEBytes -> "Byte.float64_from_be_bytes"
+  | BytesToString -> "Byte.bytes_to_string"
+  | Utf8Decode -> "Parse.utf8_decode"
+  | HexDecode -> "Parse.hex_decode"
+  | ParseNumber -> "Parse.parse_number"
+  | ParseString -> "Parse.parse_string"
+  | ParseDate -> "Parse.parse_date"
+
+let label_of_bopt (op : bopt) : string =
+  match op with
+  | Plus -> "Arith.plus (+)"
+  | Minus -> "Arith.minus (-)"
+  | Times -> "Arith.times (*)"
+  | Div -> "Arith.div (/)"
+  | Modulo -> "Arith.mod (%)"
+  | BitwiseAnd -> "Bitwise.and (&)"
+  | BitwiseOr -> "Bitwise.or (|)"
+  | BitwiseXor -> "Bitwise.xor (^)"
+  | ShiftLeft -> "Bitwise.shift_left (<<)"
+  | ShiftRight -> "Bitwise.shift_right (>>)"
+  | ShiftRightLogical -> "Bitwise.shift_right_logical (>>>)"
+  | LogicalAnd -> "Logical.and (&&)"
+  | LogicalOr -> "Logical.or (||)"
+  | Eq -> "Comp.eq (=)"
+  | Lt -> "Comp.lt (<)"
+  | Gt -> "Comp.gt (>)"
+  | Le -> "Comp.le (<=)"
+  | Ge -> "Comp.ge (>=)"
+  | ToPrecision -> "Float.to_precision"
+  | ToExponential -> "Float.to_exponential"
+  | ToFixed -> "Float.to_fixed"
+  | ObjectMem -> "Object.in_obj"
+  | StringNth -> "String.s_nth"
+  | StringNthU -> "String.s_nth_u"
+  | StringSplit -> "String.s_split"
+  | ArrayMake -> "Array.array_make"
+  | ArrayNth -> "Array.a_nth"
+  | ListMem -> "List.in_list"
+  | ListNth -> "List.l_nth"
+  | ListAdd -> "List.l_add"
+  | ListPrepend -> "List.l_prepend"
+  | ListConcat -> "List.l_concat"
+  | ListRemove -> "List.l_remove"
+  | ListRemoveNth -> "List.l_remove_nth"
+  | TupleNth -> "Tuple.t_nth"
+  | IntToBEBytes -> "Byte.int_to_be_bytes"
+  | IntFromLEBytes -> "Byte.int_from_le_bytes"
+  | UintFromLEBytes -> "Byte.uint_from_le_bytes"
+  | Min -> "Math.min"
+  | Max -> "Math.max"
+  | Pow -> "Math.pow"
+  | Atan2 -> "Math.atan2"
+
+let label_of_topt (op : topt) : string =
+  match op with
+  | ITE -> "IfThenElse"
+  | StringSubstr -> "String.s_substr"
+  | StringSubstrU -> "String.s_substr_u"
+  | ArraySet -> "Array.a_set"
+  | ListSet -> "List.l_set"
+
+let label_of_nopt (op: nopt) : string = 
+  match op with
+  | NAryLogicalAnd -> "Logical.nary_and"
+  | NAryLogicalOr -> "Logical.nary_or"
+  | ArrayExpr -> "Array.a_expr"
+  | ListExpr -> "List.l_expr"
+  | TupleExpr -> "Tuple.t_expr"
 
 let neg (v : Val.t) : Val.t =
   match v with
@@ -1250,7 +1420,7 @@ let str_of_const (c : const) : string =
 let str_of_unopt (op : uopt) : string =
   match op with
   | Neg -> "-"
-  | Not -> "!"
+  | LogicalNot -> "!"
   | IsNaN -> "is_NaN"
   | BitwiseNot -> "~"
   | Typeof -> "typeof"
@@ -1258,26 +1428,26 @@ let str_of_unopt (op : uopt) : string =
   | TupleLen -> "t_len"
   | StringLen -> "s_len"
   | StringLenU -> "s_len_u"
-  | Head -> "hd"
-  | Tail -> "tl"
-  | First -> "fst"
-  | Second -> "snd"
-  | LRemoveLast -> "l_remove_last"
-  | LSort -> "l_sort"
-  | LReverse -> "l_reverse"
+  | ListHead -> "hd"
+  | ListTail -> "tl"
+  | TupleFirst -> "fst"
+  | TupleSecond -> "snd"
+  | ListRemoveLast -> "l_remove_last"
+  | ListSort -> "l_sort"
+  | ListReverse -> "l_reverse"
   | IntToFloat -> "int_to_float"
   | IntToString -> "int_to_string"
   | IntToFourHex -> "int_to_four_hex"
-  | IntOfString -> "int_of_string"
-  | IntOfFloat -> "int_of_float"
-  | FloatOfString -> "float_of_string"
+  | StringToInt -> "int_of_string"
+  | FloatToInt -> "int_of_float"
+  | StringToFloat -> "float_of_string"
   | FloatToString -> "float_to_string"
   | HexDecode -> "hex_decode"
   | Utf8Decode -> "utf8_decode"
   | OctalToDecimal -> "octal_to_decimal"
-  | ObjToList -> "obj_to_list"
-  | Sconcat -> "s_concat"
-  | ObjFields -> "obj_fields"
+  | ObjectToList -> "obj_to_list"
+  | StringConcat -> "s_concat"
+  | ObjectFields -> "obj_fields"
   | ToInt -> "to_int"
   | ToInt32 -> "to_int32"
   | ToUint32 -> "to_uint32"
@@ -1297,8 +1467,8 @@ let str_of_unopt (op : uopt) : string =
   | Cos -> "cos"
   | Exp -> "exp"
   | Floor -> "floor"
-  | Log_e -> "log_e"
-  | Log_10 -> "log_10"
+  | LogE -> "log_e"
+  | Log10 -> "log_10"
   | Random -> "random"
   | Sin -> "sin"
   | Sqrt -> "sqrt"
@@ -1307,7 +1477,7 @@ let str_of_unopt (op : uopt) : string =
   | ParseString -> "parse_string"
   | ParseDate -> "parse_date"
   | Cosh -> "cosh"
-  | Log_2 -> "log_2"
+  | Log2 -> "log_2"
   | Sinh -> "sinh"
   | Tanh -> "tanh"
   | Float64ToLEBytes -> "float64_to_le_bytes"
@@ -1335,26 +1505,26 @@ let str_of_binopt_single (op : bopt) : string =
   | Lt -> "<"
   | Ge -> ">="
   | Le -> "<="
-  | Log_And -> "&&"
-  | Log_Or -> "||"
+  | LogicalAnd -> "&&"
+  | LogicalOr -> "||"
   | BitwiseAnd -> "&"
   | BitwiseOr -> "|"
   | BitwiseXor -> "^"
   | ShiftLeft -> "<<"
   | ShiftRight -> ">>"
   | ShiftRightLogical -> ">>>"
-  | InObj -> "in_obj"
-  | InList -> "in_list"
-  | Lnth -> "l_nth"
-  | LRem -> "l_remove"
-  | LRemNth -> "l_remove_nth"
-  | Tnth -> "t_nth"
-  | Snth -> "s_nth"
-  | Snth_u -> "s_nth_u"
-  | Ssplit -> "s_split"
-  | Ladd -> "l_add"
-  | Lprepend -> "l_prepend"
-  | Lconcat -> "l_concat"
+  | ObjectMem -> "in_obj"
+  | ListMem -> "in_list"
+  | ListNth -> "l_nth"
+  | ListRemove -> "l_remove"
+  | ListRemoveNth -> "l_remove_nth"
+  | TupleNth -> "t_nth"
+  | StringNth -> "s_nth"
+  | StringNthU -> "s_nth_u"
+  | StringSplit -> "s_split"
+  | ListAdd -> "l_add"
+  | ListPrepend -> "l_prepend"
+  | ListConcat -> "l_concat"
   | Atan2 -> "atan2"
   | Max -> "max"
   | Min -> "min"
@@ -1363,10 +1533,10 @@ let str_of_binopt_single (op : bopt) : string =
   | ToExponential -> "to_exponential"
   | ToFixed -> "to_fixed"
   | ArrayMake -> "array_make"
-  | Anth -> "a_nth"
+  | ArrayNth -> "a_nth"
   | IntToBEBytes -> "int_to_be_bytes"
-  | IntFromBytes -> "int_from_le_bytes"
-  | UintFromBytes -> "uint_from_le_bytes"
+  | IntFromLEBytes -> "int_from_le_bytes"
+  | UintFromLEBytes -> "uint_from_le_bytes"
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string =
   match op with
@@ -1380,26 +1550,26 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string =
   | Lt -> e1 ^ " < " ^ e2
   | Ge -> e1 ^ " >= " ^ e2
   | Le -> e1 ^ " <= " ^ e2
-  | Log_And -> e1 ^ " && " ^ e2
-  | Log_Or -> e1 ^ " || " ^ e2
+  | LogicalAnd -> e1 ^ " && " ^ e2
+  | LogicalOr -> e1 ^ " || " ^ e2
   | BitwiseAnd -> e1 ^ " & " ^ e2
   | BitwiseOr -> e1 ^ " | " ^ e2
   | BitwiseXor -> e1 ^ " ^ " ^ e2
   | ShiftLeft -> e1 ^ " << " ^ e2
   | ShiftRight -> e1 ^ " >> " ^ e2
   | ShiftRightLogical -> e1 ^ " >>> " ^ e2
-  | InObj -> e1 ^ " in_obj " ^ e2
-  | InList -> e1 ^ " in_list " ^ e2
-  | Lnth -> "l_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
-  | LRem -> "l_remove(" ^ e1 ^ ", " ^ e2 ^ ")"
-  | LRemNth -> "l_remove_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
-  | Tnth -> "t_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
-  | Snth -> "s_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
-  | Snth_u -> "s_nth_u(" ^ e1 ^ ", " ^ e2 ^ ")"
-  | Ssplit -> Printf.sprintf "s_split(%s, %s)" e1 e2
-  | Ladd -> "l_add(" ^ e1 ^ ", " ^ e2 ^ ")"
-  | Lprepend -> "l_prepend(" ^ e1 ^ ", " ^ e2 ^ ")"
-  | Lconcat -> "l_concat(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | ObjectMem -> e1 ^ " in_obj " ^ e2
+  | ListMem -> e1 ^ " in_list " ^ e2
+  | ListNth -> "l_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | ListRemove -> "l_remove(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | ListRemoveNth -> "l_remove_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | TupleNth -> "t_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | StringNth -> "s_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | StringNthU -> "s_nth_u(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | StringSplit -> Printf.sprintf "s_split(%s, %s)" e1 e2
+  | ListAdd -> "l_add(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | ListPrepend -> "l_prepend(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | ListConcat -> "l_concat(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Atan2 -> "atan2(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Max -> "max(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Min -> "min(" ^ e1 ^ ", " ^ e2 ^ ")"
@@ -1408,35 +1578,35 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string =
   | ToExponential -> "to_exponential(" ^ e1 ^ ", " ^ e2 ^ ")"
   | ToFixed -> "to_fixed(" ^ e1 ^ ", " ^ e2 ^ ")"
   | ArrayMake -> "array_make(" ^ e1 ^ ", " ^ e2 ^ ")"
-  | Anth -> "a_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | ArrayNth -> "a_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
   | IntToBEBytes -> "int_to_be_bytes(" ^ e1 ^ ", " ^ e2 ^ ")"
-  | IntFromBytes -> "int_from_le_bytes(" ^ e1 ^ ", " ^ e2 ^ ")"
-  | UintFromBytes -> "uint_from_le_bytes(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | IntFromLEBytes -> "int_from_le_bytes(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | UintFromLEBytes -> "uint_from_le_bytes(" ^ e1 ^ ", " ^ e2 ^ ")"
 
 let str_of_triopt_single (op : topt) : string =
   match op with
-  | Ssubstr -> "s_substr"
-  | SsubstrU -> "s_substr_u"
-  | Aset -> "a_set"
-  | Lset -> "l_set"
+  | StringSubstr -> "s_substr"
+  | StringSubstrU -> "s_substr_u"
+  | ArraySet -> "a_set"
+  | ListSet -> "l_set"
   | ITE -> "ite"
 
 let str_of_triopt (op : topt) (e1 : string) (e2 : string) (e3 : string) : string
     =
   match op with
-  | Ssubstr -> "s_substr(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
-  | SsubstrU -> "s_substr_u(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
-  | Aset -> "a_set(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
-  | Lset -> "l_set(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
+  | StringSubstr -> "s_substr(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
+  | StringSubstrU -> "s_substr_u(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
+  | ArraySet -> "a_set(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
+  | ListSet -> "l_set(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
   | ITE -> "ite(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
 
 let str_of_nopt (op : nopt) (es : string list) : string =
   match op with
+  | NAryLogicalAnd -> String.concat " && " es
+  | NAryLogicalOr -> String.concat " || " es
+  | ArrayExpr -> "[| " ^ String.concat ", " es ^ " |]"
   | ListExpr -> "[ " ^ String.concat ", " es ^ " ]"
   | TupleExpr -> "( " ^ String.concat ", " es ^ " )"
-  | NAry_And -> String.concat " && " es
-  | NAry_Or -> String.concat " || " es
-  | ArrExpr -> "[| " ^ String.concat ", " es ^ " |]"
 
 let unary_float_call (func : float -> float) (v : Val.t) (failure_msg : string)
   : Val.t =
@@ -1466,8 +1636,8 @@ let apply_uopt_oper (oper : uopt) (v : Val.t) : Val.t =
   | Cos -> unary_float_call Float.cos v "Cosine"
   | Exp -> unary_float_call Float.exp v "Exponential"
   | Floor -> unary_float_call Float.floor v "Floor"
-  | Log_e -> unary_float_call Float.log v "Natural logarithm"
-  | Log_10 -> unary_float_call Float.log10 v "Base-10 logarithm"
+  | LogE -> unary_float_call Float.log v "Natural logarithm"
+  | Log10 -> unary_float_call Float.log10 v "Base-10 logarithm"
   | Random -> unary_float_call Random.float v "Random"
   | Sin -> unary_float_call Float.sin v "Sine"
   | Sqrt -> unary_float_call Float.sqrt v "Square root"
@@ -1504,26 +1674,26 @@ let bopt_to_json (op : bopt) : string =
     | Lt -> Printf.sprintf "Lt\" }"
     | Ge -> Printf.sprintf "Egt\" }"
     | Le -> Printf.sprintf "Elt\" }"
-    | Log_And -> Printf.sprintf "Log_And\" }"
-    | Log_Or -> Printf.sprintf "Log_Or\" }"
+    | LogicalAnd -> Printf.sprintf "Log_And\" }"
+    | LogicalOr -> Printf.sprintf "Log_Or\" }"
     | BitwiseAnd -> Printf.sprintf "BitwiseAnd\" }"
     | BitwiseOr -> Printf.sprintf "BitwiseOr\" }"
     | BitwiseXor -> Printf.sprintf "BitwiseXor\" }"
     | ShiftLeft -> Printf.sprintf "ShiftLeft\" }"
     | ShiftRight -> Printf.sprintf "ShiftRight\" }"
     | ShiftRightLogical -> Printf.sprintf "ShiftRightLogical\" }"
-    | InObj -> Printf.sprintf "InObj\" }"
-    | InList -> Printf.sprintf "InList\" }"
-    | Lnth -> Printf.sprintf "Lnth\" }"
-    | LRem -> Printf.sprintf "LRem\" }"
-    | LRemNth -> Printf.sprintf "LRemNth\" }"
-    | Tnth -> Printf.sprintf "Tnth\" }"
-    | Snth -> Printf.sprintf "Snth\" }"
-    | Snth_u -> Printf.sprintf "Snth_u\" }"
-    | Ssplit -> Printf.sprintf "Ssplit\" }"
-    | Ladd -> Printf.sprintf "Ladd\" }"
-    | Lprepend -> Printf.sprintf "Lprepend\" }"
-    | Lconcat -> Printf.sprintf "Lconcat\" }"
+    | ObjectMem -> Printf.sprintf "InObj\" }"
+    | ListMem -> Printf.sprintf "InList\" }"
+    | ListNth -> Printf.sprintf "Lnth\" }"
+    | ListRemove -> Printf.sprintf "LRem\" }"
+    | ListRemoveNth -> Printf.sprintf "LRemNth\" }"
+    | TupleNth -> Printf.sprintf "Tnth\" }"
+    | StringNth -> Printf.sprintf "Snth\" }"
+    | StringNthU -> Printf.sprintf "Snth_u\" }"
+    | StringSplit -> Printf.sprintf "Ssplit\" }"
+    | ListAdd -> Printf.sprintf "Ladd\" }"
+    | ListPrepend -> Printf.sprintf "Lprepend\" }"
+    | ListConcat -> Printf.sprintf "Lconcat\" }"
     | Atan2 -> Printf.sprintf "Atan2\" }"
     | Max -> Printf.sprintf "Max\" }"
     | Min -> Printf.sprintf "Min\" }"
@@ -1532,34 +1702,34 @@ let bopt_to_json (op : bopt) : string =
     | ToExponential -> Printf.sprintf "To_Exponential\" }"
     | ToFixed -> Printf.sprintf "To_Fixed\" }"
     | ArrayMake -> Printf.sprintf "Array_Make\" }"
-    | Anth -> Printf.sprintf "Anth\" }"
+    | ArrayNth -> Printf.sprintf "Anth\" }"
     | IntToBEBytes -> Printf.sprintf "IntToBEBytes\" }"
-    | IntFromBytes -> Printf.sprintf "IntFromBytes\" }"
-    | UintFromBytes -> Printf.sprintf "UintFromBytes\" }" )
+    | IntFromLEBytes -> Printf.sprintf "IntFromBytes\" }"
+    | UintFromLEBytes -> Printf.sprintf "UintFromBytes\" }" )
 
 let topt_to_json (op : topt) : string =
   Printf.sprintf "{ \"type\" : \"triopt\", \"value\" : \"%s"
     ( match op with
-    | Ssubstr -> Printf.sprintf "Ssubstr\" }"
-    | SsubstrU -> Printf.sprintf "SsubstrU\" }"
-    | Aset -> Printf.sprintf "Aset\" }"
-    | Lset -> Printf.sprintf "Lset\" }"
+    | StringSubstr -> Printf.sprintf "Ssubstr\" }"
+    | StringSubstrU -> Printf.sprintf "SsubstrU\" }"
+    | ArraySet -> Printf.sprintf "Aset\" }"
+    | ListSet -> Printf.sprintf "Lset\" }"
     | ITE -> Printf.sprintf "ITE\" }" )
 
 let nopt_to_json (op : nopt) : string =
   Printf.sprintf "{ \"type\" : \"nopt\", \"value\" : \"%s"
     ( match op with
+    | NAryLogicalAnd -> Printf.sprintf "NAry_And\" }"
+    | NAryLogicalOr -> Printf.sprintf "NAry_Or\" }"
+    | ArrayExpr -> Printf.sprintf "ArrExpr\" }"
     | ListExpr -> Printf.sprintf "ListExpr\" }"
-    | TupleExpr -> Printf.sprintf "TupleExpr\" }"
-    | NAry_And -> Printf.sprintf "NAry_And\" }"
-    | NAry_Or -> Printf.sprintf "NAry_Or\" }"
-    | ArrExpr -> Printf.sprintf "ArrExpr\" }" )
+    | TupleExpr -> Printf.sprintf "TupleExpr\" }" )
 
 let uopt_to_json (op : uopt) : string =
   Printf.sprintf "{ \"type\" : \"unopt\", \"value\" : \"%s"
     ( match op with
     | Neg -> Printf.sprintf "Neg\" }"
-    | Not -> Printf.sprintf "Not\" }"
+    | LogicalNot -> Printf.sprintf "Not\" }"
     | IsNaN -> Printf.sprintf "IsNaN\" }"
     | BitwiseNot -> Printf.sprintf "BitwiseNot\" }"
     | Typeof -> Printf.sprintf "Typeof\" }"
@@ -1567,26 +1737,26 @@ let uopt_to_json (op : uopt) : string =
     | TupleLen -> Printf.sprintf "TypleLen\" }"
     | StringLen -> Printf.sprintf "StringLen\" }"
     | StringLenU -> Printf.sprintf "StringLenU\" }"
-    | Head -> Printf.sprintf "Head\" }"
-    | Tail -> Printf.sprintf "Tail\" }"
-    | First -> Printf.sprintf "First\" }"
-    | Second -> Printf.sprintf "Second\" }"
-    | LRemoveLast -> Printf.sprintf "LRemoveLast\" }"
-    | LSort -> Printf.sprintf "LSort\" }"
-    | LReverse -> Printf.sprintf "LReverse\" }"
+    | ListHead -> Printf.sprintf "Head\" }"
+    | ListTail -> Printf.sprintf "Tail\" }"
+    | TupleFirst -> Printf.sprintf "First\" }"
+    | TupleSecond -> Printf.sprintf "Second\" }"
+    | ListRemoveLast -> Printf.sprintf "LRemoveLast\" }"
+    | ListSort -> Printf.sprintf "LSort\" }"
+    | ListReverse -> Printf.sprintf "LReverse\" }"
     | IntToFloat -> Printf.sprintf "IntToFloat\" }"
     | IntToString -> Printf.sprintf "IntToString\" }"
     | IntToFourHex -> Printf.sprintf "IntToFourHex\" }"
-    | IntOfString -> Printf.sprintf "IntOfString\" }"
-    | IntOfFloat -> Printf.sprintf "IntOfFloat\" }"
-    | FloatOfString -> Printf.sprintf "FloatOfString\" }"
+    | StringToInt -> Printf.sprintf "IntOfString\" }"
+    | FloatToInt -> Printf.sprintf "IntOfFloat\" }"
+    | StringToFloat -> Printf.sprintf "FloatOfString\" }"
     | FloatToString -> Printf.sprintf "FloatToString\" }"
     | HexDecode -> Printf.sprintf "HexDecode\" }"
     | Utf8Decode -> Printf.sprintf "Utf8Decode\" }"
     | OctalToDecimal -> Printf.sprintf "OctalToDecimal\" }"
-    | ObjToList -> Printf.sprintf "ObjToList\" }"
-    | Sconcat -> Printf.sprintf "Sconcat\" }"
-    | ObjFields -> Printf.sprintf "ObjFields\" }"
+    | ObjectToList -> Printf.sprintf "ObjToList\" }"
+    | StringConcat -> Printf.sprintf "StringConcat\" }"
+    | ObjectFields -> Printf.sprintf "ObjFields\" }"
     | ToInt -> Printf.sprintf "ToInt\" }"
     | ToInt32 -> Printf.sprintf "ToInt32\" }"
     | ToUint32 -> Printf.sprintf "ToUint32\" }"
@@ -1606,8 +1776,8 @@ let uopt_to_json (op : uopt) : string =
     | Cos -> Printf.sprintf "Cos\" }"
     | Exp -> Printf.sprintf "Exp\" }"
     | Floor -> Printf.sprintf "Floor\" }"
-    | Log_e -> Printf.sprintf "Log_e\" }"
-    | Log_10 -> Printf.sprintf "Log_10\" }"
+    | LogE -> Printf.sprintf "Log_e\" }"
+    | Log10 -> Printf.sprintf "Log_10\" }"
     | Random -> Printf.sprintf "Random\" }"
     | Sin -> Printf.sprintf "Sin\" }"
     | Sqrt -> Printf.sprintf "Sqrt\" }"
@@ -1616,7 +1786,7 @@ let uopt_to_json (op : uopt) : string =
     | ParseString -> Printf.sprintf "ParseString\" }"
     | ParseDate -> Printf.sprintf "ParseDate\" }"
     | Cosh -> Printf.sprintf "Cosh\" }"
-    | Log_2 -> Printf.sprintf "Log2\" }"
+    | Log2 -> Printf.sprintf "Log2\" }"
     | Sinh -> Printf.sprintf "Sinh\" }"
     | Tanh -> Printf.sprintf "Tanh\" }"
     | Float64ToLEBytes -> Printf.sprintf "Float64ToLEBytes\" }"
