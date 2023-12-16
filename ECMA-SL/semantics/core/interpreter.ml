@@ -203,9 +203,7 @@ module M (Mon : SecurityMonitor) = struct
       ( match v with
       | Loc l -> (
         match Heap.get heap l with
-        | Some o ->
-          Log.debug "PROGRAM PRINT: %s"
-            (Object.to_string o (Val.str ~flt_with_dot:false))
+        | Some o -> Log.debug "PROGRAM PRINT: %s" (Object.to_string o Val.str)
         | None -> Log.debug "PROGRAM PRINT: Non-existent location" )
       | _ -> Log.debug "PROGRAM PRINT: %s" (Val.str v) );
       (Intermediate ((cs, heap, sto, f), cont), SecLabel.PrintLab e)

@@ -28,7 +28,7 @@ let rec equal (v1 : t) (v2 : t) : bool =
   | Tuple t1, Tuple t2 -> List.equal equal t1 t2
   | Void, Void | Null, Null -> true
   | Curry (x1, vs1), Curry (x2, vs2) ->
-      String.equal x1 x2 && List.equal equal vs1 vs2
+    String.equal x1 x2 && List.equal equal vs1 vs2
   | _ -> false
 
 let rec copy (v : t) : t =
@@ -44,74 +44,59 @@ let is_loc = function Loc _ -> true | _ -> false
 
 let is_special_number (s : string) : bool =
   List.mem [ "nan"; "inf"; "-inf" ] s ~equal:String.equal
-  || String.contains s 'e' || String.contains s 'E'
+  || String.contains s 'e'
+  || String.contains s 'E'
 
-let add_final_dot (s : string) : string =
-  if is_special_number s then s
-  else
-    try
-      let _ = String.rindex_exn s '.' in
-      s
-    with _ -> s ^ "."
-
-let rec str ?(flt_with_dot = true) (v : t) : string =
+let rec str (v : t) : string =
   match v with
-  | Flt v ->
-      let s = Printf.sprintf "%.17g" v in
-      if flt_with_dot then add_final_dot s else s
+  | Flt v -> Printf.sprintf "%.17F" v
   | Int v -> Int.to_string v
   | Bool v -> Bool.to_string v
   | Str v -> Printf.sprintf "%S" v
   | Loc v -> Loc.str v
-  | List vs ->
-      "[" ^ String.concat ~sep:", " (List.map ~f:(str ~flt_with_dot) vs) ^ "]"
+  | List vs -> "[" ^ String.concat ~sep:", " (List.map ~f:str vs) ^ "]"
   | Arr vs ->
-      "[|"
-      ^ String.concat ~sep:", "
-          (Array.to_list (Array.map ~f:(str ~flt_with_dot) vs))
-      ^ "|]"
+    "[|" ^ String.concat ~sep:", " (Array.to_list (Array.map ~f:str vs)) ^ "|]"
   | Type v -> Type.str v
-  | Tuple vs ->
-      "(" ^ String.concat ~sep:", " (List.map ~f:(str ~flt_with_dot) vs) ^ ")"
+  | Tuple vs -> "(" ^ String.concat ~sep:", " (List.map ~f:str vs) ^ ")"
   | Void -> ""
   | Null -> "null"
   | Symbol s -> "'" ^ s
   | Curry (s, vs) ->
-      Printf.sprintf "{\"%s\"}@(%s)" s
-        (String.concat ~sep:", " (List.map ~f:(str ~flt_with_dot) vs))
+    Printf.sprintf "{\"%s\"}@(%s)" s
+      (String.concat ~sep:", " (List.map ~f:str vs))
   | Byte i -> Int.to_string i
 
 let rec to_json (v : t) : string =
   match v with
   | Flt v ->
-      Printf.sprintf "{ \"type\" : \"float\", \"value\" : %s }"
-        (Printf.sprintf "%.12g" v)
+    Printf.sprintf "{ \"type\" : \"float\", \"value\" : %s }"
+      (Printf.sprintf "%.12g" v)
   | Int v ->
-      Printf.sprintf "{ \"type\" : \"int\", \"value\" : %s }" (Int.to_string v)
+    Printf.sprintf "{ \"type\" : \"int\", \"value\" : %s }" (Int.to_string v)
   | Bool v ->
-      Printf.sprintf "{ \"type\" : \"boolean\", \"value\" : %s }"
-        (Bool.to_string v)
+    Printf.sprintf "{ \"type\" : \"boolean\", \"value\" : %s }"
+      (Bool.to_string v)
   | Str v -> Printf.sprintf "{ \"type\" : \"string\", \"value\" : \"%s\" }" v
   | Loc v -> Printf.sprintf "{ \"type\" : \"location\", \"value\" : %s }" v
   | List vs ->
-      Printf.sprintf "{ \"type\" : \"list\", \"value\" : [ %s ] }"
-        (String.concat ~sep:", " (List.map ~f:to_json vs))
+    Printf.sprintf "{ \"type\" : \"list\", \"value\" : [ %s ] }"
+      (String.concat ~sep:", " (List.map ~f:to_json vs))
   | Arr vs ->
-      Printf.sprintf "{ \"type\" : \"array\", \"value\" : [| %s |] }"
-        (String.concat ~sep:", "
-           (Array.to_list (Array.map ~f:(str ~flt_with_dot:true) vs)))
+    Printf.sprintf "{ \"type\" : \"array\", \"value\" : [| %s |] }"
+      (String.concat ~sep:", " (Array.to_list (Array.map ~f:str vs)))
   | Type v ->
-      Printf.sprintf "{ \"type\" : \"type\", \"value\" : %s }" (Type.str v)
+    Printf.sprintf "{ \"type\" : \"type\", \"value\" : %s }" (Type.str v)
   | Tuple vs ->
-      Printf.sprintf "{ \"type\" : \"tuple\", \"value\" : [ %s ] }"
-        (String.concat ~sep:", " (List.map ~f:to_json vs))
+    Printf.sprintf "{ \"type\" : \"tuple\", \"value\" : [ %s ] }"
+      (String.concat ~sep:", " (List.map ~f:to_json vs))
   | Void -> Printf.sprintf "{ \"type\" : \"void\" }"
   | Null -> Printf.sprintf "{ \"type\" : \"null\" }"
   | Symbol s -> Printf.sprintf "{ \"type\" : \"symbol\", \"value\" : \"%s\" }" s
   | Curry (s, vs) ->
-      Printf.sprintf
-        "{ \"type\" : \"curry\", \"fun\" : \"%s\", \"args\" : [ %s ] }" s
-        (String.concat ~sep:", " (List.map ~f:to_json vs))
+    Printf.sprintf
+      "{ \"type\" : \"curry\", \"fun\" : \"%s\", \"args\" : [ %s ] }" s
+      (String.concat ~sep:", " (List.map ~f:to_json vs))
   | Byte i ->
-      Printf.sprintf "{ \"type\" : \"byte\", \"value\" : \"%s\" }"
-        (Int.to_string i)
+    Printf.sprintf "{ \"type\" : \"byte\", \"value\" : \"%s\" }"
+      (Int.to_string i)
