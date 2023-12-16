@@ -1,0 +1,13 @@
+function createShellJSObject(globalObject, objectPrototype, strict) {
+  realm := { globalEnv : globalObject };
+  shelljs := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(shelljs);
+  setInternalProperty(shelljs, "Prototype", objectPrototype);
+
+  /* Functions: */
+  exec := CreateBuiltInFunctionObject(["path"], "__cp_exec", realm, strict, null);
+  createBuiltInProperty(shelljs, "exec", exec);
+  createBuiltInProperty(exec, "prototype", objectPrototype);
+
+  return cp
+}
