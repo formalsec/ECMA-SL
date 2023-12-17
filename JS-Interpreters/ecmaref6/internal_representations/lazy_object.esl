@@ -3,31 +3,15 @@ function __concatStringList(globalObject, this, NewTarget, strict, params) {
   return s_concat(params)
 };
 
-function symbolic_string(globalObject, this, newTarget, strict, params) {
-  return extern str_symbol("os")
-};
-
 function newLazyObject() {
   realm := { globalEnv : |global| };
   n_object := CreateBuiltInFunctionObject([], "lazyFunction", realm, false,
     null);
   n_object.Get := "lazyGet";
 
-  join := CreateBuiltInFunctionObject(["v1", "v2"], "__concatStringList",
-    realm, false, null);
-  createBuiltInProperty(n_object, "join", join);
-
   format := CreateBuiltInFunctionObject(["..."], "__concatStringList", realm,
     false, null);
   createBuiltInProperty(n_object, "format", format);
-
-  exec := CreateBuiltInFunctionObject(["..."], "__apiSymbolicExecWrapper",
-    realm, false, null);
-  createBuiltInProperty(n_object, "readFile", exec);
-  createBuiltInProperty(n_object, "runInContext", exec);
-
-  str := CreateBuiltInFunctionObject([], "symbolic_string", realm, false, null);
-  createBuiltInProperty(n_object, "platform", str);
 
   return n_object
 };
