@@ -128,18 +128,24 @@ module M = struct
       Symbolic (t, x')
 
   module Pp = struct
-    let rec pp (e : value) : string =
-      let concat es = String.concat ", " (List.map pp es) in
+    open Format
+
+    let rec pp fmt (e : value) : unit =
       match e with
-      | Val n -> Val.str n
-      | UnOpt (op, e) -> Operators.str_of_unopt op ^ "(" ^ pp e ^ ")"
-      | BinOpt (op, e1, e2) -> Operators.str_of_binopt op (pp e1) (pp e2)
+      | Val n -> Val.pp fmt n
+      | UnOpt (op, e) -> fprintf fmt "%a(%a)" Operators.pp_unop op pp e
+      | BinOpt (op, e1, e2) -> Operators.pp_binop ~pp_v:pp fmt (op, e1, e2)
       | TriOpt (op, e1, e2, e3) ->
-        Operators.str_of_triopt op (pp e1) (pp e2) (pp e3)
-      | NOpt (op, es) -> Operators.str_of_nopt op (List.map pp es)
-      | Curry (f, es) -> "{" ^ pp f ^ "}@(" ^ concat es ^ ")"
+        Operators.pp_triop ~pp_v:pp fmt (op, e1, e2, e3)
+      | NOpt (op, es) -> Operators.pp_nopt ~pp_v:pp fmt (op, es)
+      | Curry (f, es) ->
+        fprintf fmt "{%a}@(%a)" pp f
+          (pp_print_list ~pp_sep:(fun fmt () -> pp_print_string fmt ", ") pp)
+          es
       | Symbolic (_t, x) -> (
-        match x with Val (Val.Str x) -> x | _ -> assert false )
+        match x with
+        | Val (Val.Str x) -> pp_print_string fmt x
+        | _ -> assert false )
 
     module Store = struct
       type t = Store.t
@@ -151,7 +157,7 @@ module M = struct
         SMap.fold
           (fun key data acc ->
             if String.starts_with ~prefix:"__" key then acc
-            else Printf.sprintf "%s; %s -> %s" acc key (pp data) )
+            else asprintf "%s; %s -> %a" acc key pp data )
           store start
         ^ " }"
     end

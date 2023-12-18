@@ -125,7 +125,7 @@ let extern_functions =
     Choice.return (Value.Val (Val.Symbol "undefined"))
   in
   let print (v : Value.value) =
-    Format.printf "extern print: %s@." (Value.Pp.pp v);
+    Format.printf "extern print: %a@." Value.Pp.pp v;
     Choice.return (Value.Val (Val.Symbol "undefined"))
   in
   SMap.of_list

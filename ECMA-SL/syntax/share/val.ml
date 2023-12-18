@@ -60,7 +60,7 @@ let pp_array f fmt v =
 let rec pp fmt (v : t) : unit =
   let open Format in
   match v with
-  | Flt v -> fprintf fmt "%.17F" v
+  | Flt v -> fprintf fmt "%.17f" v
   | Int v -> pp_print_int fmt v
   | Bool v -> pp_print_bool fmt v
   | Str v -> fprintf fmt "%S" v

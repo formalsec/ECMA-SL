@@ -17,29 +17,35 @@ type t =
 
 type subst_t = (string, t) Hashtbl.t
 
-let rec str (e : t) : string =
-  let str_es es = String.concat ", " (List.map str es) in
+let rec pp fmt (e : t) =
+  let open Format in
   match e with
-  | Val n -> Val.str n
-  | Var x -> x
-  | GVar x -> "|" ^ x ^ "|"
-  | Const c -> Operators.str_of_const c
-  | UnOpt (op, e) -> Operators.str_of_unopt op ^ "(" ^ str e ^ ")"
-  | EBinOpt (op, e1, e2) -> E_Oper.str_of_binopt op (str e1) (str e2)
-  | BinOpt (op, e1, e2) -> Operators.str_of_binopt op (str e1) (str e2)
-  | TriOpt (op, e1, e2, e3) ->
-    Operators.str_of_triopt op (str e1) (str e2) (str e3)
-  | NOpt (op, es) -> Operators.str_of_nopt op (List.map str es)
-  | ECall (f, es) -> "extern " ^ f ^ "(" ^ str_es es ^ ")"
-  | Call (f, es, None) -> str f ^ "(" ^ str_es es ^ ")"
-  | Call (f, es, Some g) -> str f ^ "(" ^ str_es es ^ ") catch " ^ g
+  | Val n -> Val.pp fmt n
+  | Var x -> pp_print_string fmt x
+  | GVar x -> fprintf fmt "|%s|" x
+  | Const c -> Operators.pp_const fmt c
+  | UnOpt (op, e) -> fprintf fmt "%a(%a)" Operators.pp_unop op pp e
+  | EBinOpt (op, e1, e2) -> E_Oper.pp_binopt ~pp_v:pp fmt (op, e1, e2)
+  | BinOpt (op, e1, e2) -> Operators.pp_binop ~pp_v:pp fmt (op, e1, e2)
+  | TriOpt (op, e1, e2, e3) -> Operators.pp_triop ~pp_v:pp fmt (op, e1, e2, e3)
+  | NOpt (op, es) -> Operators.pp_nopt ~pp_v:pp fmt (op, es)
+  | ECall (f, es) -> fprintf fmt "extern %s(%a)" f pp_args es
+  | Call (f, es, None) -> fprintf fmt "%a(%a)" pp f pp_args es
+  | Call (f, es, Some g) -> fprintf fmt "%a(%a) catch %s" pp f pp_args es g
   | NewObj fes ->
-    "{ "
-    ^ String.concat ", " (List.map (fun (f, e) -> f ^ ": " ^ str e) fes)
-    ^ " }"
-  | Lookup (e, f) -> str e ^ "[" ^ str f ^ "]"
-  | Curry (f, es) -> str f ^ "@(" ^ str_es es ^ ")"
-  | Symbolic (t, x) -> "se_mk_symbolic(" ^ Type.str t ^ ", \"" ^ str x ^ "\")"
+    fprintf fmt "{%a}"
+      (pp_print_list
+         ~pp_sep:(fun fmt () -> fprintf fmt ",@ ")
+         (fun fmt (f, e) -> fprintf fmt "%s : %a" f pp e) )
+      fes
+  | Lookup (e, f) -> fprintf fmt "%a[%a]" pp e pp f
+  | Curry (f, es) -> fprintf fmt "%a@(%a)" pp f pp_args es
+  | Symbolic (t, x) -> fprintf fmt "se_mk_symbolic(%a, %a)" Type.pp t pp x
+
+and pp_args fmt args =
+  Format.(pp_print_list ~pp_sep:(fun fmt () -> fprintf fmt ",@ ") pp fmt args)
+
+let str e = Format.asprintf "%a" pp e
 
 (* Used in module HTML_Extensions but not yet terminated.
    This still contains defects. *)
@@ -52,11 +58,10 @@ let rec pattern_match (subst : subst_t) (e1 : t) (e2 : t) : bool =
     | None ->
       Hashtbl.replace subst x1 e2;
       true
-    | Some e2' -> (e2 = e2') )
-  | Const c1, Const c2 -> (c1 = c2)
-  | UnOpt (op, e), UnOpt (op', e') when (op = op') ->
-    pattern_match subst e e'
-  | BinOpt (op, e1, e2), BinOpt (op', e1', e2') when (op = op') ->
+    | Some e2' -> e2 = e2' )
+  | Const c1, Const c2 -> c1 = c2
+  | UnOpt (op, e), UnOpt (op', e') when op = op' -> pattern_match subst e e'
+  | BinOpt (op, e1, e2), BinOpt (op', e1', e2') when op = op' ->
     pattern_match subst e1 e1' && pattern_match subst e2 e2'
   | Call (f, es, None), Call (f', es', None)
     when List.length es = List.length es' ->
@@ -105,9 +110,7 @@ let subst (sbst : subst_t) (e : t) : t =
   map f e
 
 let string_of_subst (sbst : subst_t) : string =
-  let strs =
-    Hashtbl.fold (fun x e ac -> (x ^ ": " ^ str e) :: ac) sbst []
-  in
+  let strs = Hashtbl.fold (fun x e ac -> (x ^ ": " ^ str e) :: ac) sbst [] in
   String.concat ", " strs
 
 let rec get_expr_name (e : t) : string option =

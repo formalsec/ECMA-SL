@@ -128,7 +128,7 @@ end = struct
     let fold_str map =
       VMap.fold
         (fun key data acc ->
-          Format.sprintf "%s \"%s\": %s," acc (V.Pp.pp key) (V.Pp.pp data) )
+          Format.asprintf {|%s "%a": %a,|} acc V.Pp.pp key V.Pp.pp data )
         map ""
     in
     Format.sprintf "{%s%s }" (fold_str fields) (fold_str symbols)
@@ -210,7 +210,7 @@ module Heap = struct
     | TriOpt (Operators.ITE, c, Val (Val.Loc l), v) ->
       Ok ((Some c, l) :: unfold_ite ~accum:(UnOpt (Operators.Not, c)) v)
     | _ ->
-      Error (Format.sprintf "Value '%s' is not a loc expression" (V.Pp.pp e))
+      Error (Format.asprintf "Value '%a' is not a loc expression" V.Pp.pp e)
 
   let pp (h : t) (e : value) : string =
     match e with
@@ -218,7 +218,7 @@ module Heap = struct
       match get h l with
       | None -> l
       | Some o -> Format.sprintf "%s -> %s" l (Object.to_string o) )
-    | _ -> V.Pp.pp e
+    | _ -> Format.asprintf "%a" V.Pp.pp e
   (* let to_string_with_glob (h : 'a t) (pp : 'a -> string) : string = *)
   (*   let glob = *)
   (*     Hashtbl.fold h.map ~init:None ~f:(fun ~key:_ ~data:obj acc -> *)
