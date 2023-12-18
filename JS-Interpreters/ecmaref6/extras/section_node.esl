@@ -17,6 +17,8 @@ function __NodeRequire(globalObject, this, newTarget, strict, params) {
     return createShellJSObject(globalObject, objectPrototype, strict)
   } elif (path = "cross-spawn") {
     return createCrossSpawnObject(globalObject, objectPrototype, strict)
+  } elif (path = "im-metadata") {
+    return createCrossSpawnObject(globalObject, objectPrototype, strict)
   } else {
     return newLazyObject()
   }

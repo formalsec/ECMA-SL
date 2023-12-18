@@ -17,7 +17,7 @@ function __cp_execSync(globalObject, this, newTarget, strict, params) {
 };
 
 function __cp_execFile(globalObject, this, newTarget, strict, params) {
-  exploit_if_symbolic(l_nth(params, 0));
+  exploit_if_symbolic(s_concat(params));
   return null
 };
 
