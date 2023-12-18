@@ -68,6 +68,7 @@ module type P = sig
       t -> string -> (Extern_func.extern_func, string) Result.t
 
     val add_memory : t -> memory -> t
+    val add_func : t -> string -> Func.t -> unit
   end
 
   module Reducer : sig
