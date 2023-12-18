@@ -137,6 +137,11 @@ function FunctionConstructor(globalObject, this, NewTarget, strict, params) {
     }
   };
 
+  if (extern is_symbolic(body)) {
+    extern is_eval_sat(body);
+    se_abort(body)
+  };
+
   /* 6. Let body be ToString(body). */
   body := ToString(body);
 
@@ -325,7 +330,7 @@ function FunctionPrototypeBind(globalObject, this, NewTarget, strict, params) {
 
   /* 18. Set the [[Extensible]] internal property of F to true. */
   F.Extensible := true;
-  
+
   /* 19. Let thrower be the [[ThrowTypeError]] function Object (13.2.3). */
   thrower := topExecStack().Realm.intrinsics.ThrowTypeError;
 
