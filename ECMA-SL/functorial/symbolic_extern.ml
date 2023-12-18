@@ -1,9 +1,10 @@
+module Env = Symbolic.P.Env
 module SMap = Link_env.SMap
 
 module type S = sig
   type extern_func
 
-  val api : extern_func SMap.t
+  val api : Env.t -> extern_func SMap.t
 end
 
 module Make () = struct
@@ -17,8 +18,9 @@ module Make () = struct
   let ( let/ ) = Choice.bind
   let fresh_i = Utils.make_name_generator "i"
   let fresh_len = Utils.make_name_generator "len"
+  let fresh_func = Utils.make_name_generator "eval_func_"
 
-  let api =
+  let api env =
     let open Value in
     let open Extern_func in
     let str_symbol (x : value) =
@@ -114,6 +116,31 @@ module Make () = struct
         (* TODO: Error here *)
         assert false
     in
+    let parseJS data =
+      let data =
+        match data with Value.Val (Val.Str data) -> data | _ -> assert false
+      in
+      let input_file = Filename.temp_file "__parse_in_" "__.js" in
+      let output_file = Filename.temp_file "__parse_out_" "__.js" in
+      Io.write_file input_file data;
+      let fid = fresh_func () in
+      begin
+        match
+          Bos.OS.Cmd.run
+            (Utils.js2ecma_sl ~id:fid (Fpath.v input_file) (Fpath.v output_file))
+        with
+        | Error (`Msg msg) -> Log.err "%s" msg
+        | Ok () -> ()
+      end;
+      let data = Io.read_file output_file in
+      let func = Parsing_utils.parse_func data in
+      Env.add_func env fid func;
+      Choice.return (Ok (Value.Val (Val.Str fid)))
+    in
+    let print (v : Value.value) =
+      Fmt.printf "extern print: %a@." Value.pp v;
+      Choice.return (Ok (Value.Val (Val.Symbol "undefined")))
+    in
     SMap.of_seq
       (Array.to_seq
          [| ("str_symbol", Extern_func (Func (Arg Res), str_symbol))
@@ -130,6 +157,8 @@ module Make () = struct
           ; ("evaluate", Extern_func (Func (Arg Res), evaluate))
           ; ("maximize", Extern_func (Func (Arg Res), maximize))
           ; ("minimize", Extern_func (Func (Arg Res), minimize))
+          ; ("parseJS", Extern_func (Func (Arg Res), parseJS))
+          ; ("value", Extern_func (Func (Arg Res), print))
          |] )
 end
 

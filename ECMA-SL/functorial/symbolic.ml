@@ -154,6 +154,7 @@ module P = struct
     let get_func env func_id = Env.get_func env func_id [@@inline]
     let get_extern_func env func_id = Env.get_extern_func env func_id [@@inline]
     let add_memory env mem = Env.add_memory env mem [@@inline]
+    let add_func env func_id func = Env.add_func env func_id func [@@inline]
 
     module Build = struct
       let empty () = Env.Build.empty () [@@inline]

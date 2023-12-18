@@ -53,9 +53,8 @@ let prog_of_js file =
   Ok (Parsing_utils.parse_prog program)
 
 let link_env ~extern prog =
-  Env.Build.empty ()
-  |> Env.Build.add_functions prog
-  |> Env.Build.add_extern_functions extern
+  let env0 = Env.Build.empty () |> Env.Build.add_functions prog in
+  Env.Build.add_extern_functions (extern env0) env0
 
 let pp_model fmt v =
   let open Encoding in
