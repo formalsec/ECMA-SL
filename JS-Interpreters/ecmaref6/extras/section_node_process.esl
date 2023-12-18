@@ -4,6 +4,7 @@ function __process_cwd(globalObject, this, newTarget, strict, params) {
 
 function createProcessObject(globalObject, objectPrototype, strict) {
   realm := { globalEnv : globalObject };
+  newTarget := |Intrinsics|["Array"];
   process := NewECMAScriptObject();
   setAllInternalMethodsOfOrdinaryObject(process);
   setInternalProperty(process, "Prototype", objectPrototype);
@@ -19,9 +20,14 @@ function createProcessObject(globalObject, objectPrototype, strict) {
   setInternalProperty(env, "Prototype", objectPrototype);
   createBuiltInProperty(process, "env", env);
 
-  argv := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(argv);
-  setInternalProperty(argv, "Prototype", objectPrototype);
+  items :=
+    [ extern str_symbol("argv0")
+    , extern str_symbol("argv1")
+    , extern str_symbol("argv2")
+    , extern str_symbol("argv3")
+    , extern str_symbol("argv4")
+    ];
+  argv := ArrayConstructor('null, 'undefined, newTarget, strict, items, newTarget);
   createBuiltInProperty(process, "argv", argv);
 
   /* Functions: */
