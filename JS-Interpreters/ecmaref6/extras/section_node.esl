@@ -3,6 +3,8 @@ function __NodeRequire(globalObject, this, newTarget, strict, params) {
   objectPrototype := |Intrinsics|["ObjectPrototype"];
   if (path = "esl_symbolic") {
     return initESLSymbolicObject(globalObject, objectPrototype, strict)
+  } elif (path = "process") {
+    return createProcessObject(globalObject, objectPrototype, strict)
   } elif (path = "os") {
     return createOSObject(globalObject, objectPrototype, strict)
   } elif (path = "fs") {
@@ -18,6 +20,8 @@ function __NodeRequire(globalObject, this, newTarget, strict, params) {
   } elif (path = "cross-spawn") {
     return createCrossSpawnObject(globalObject, objectPrototype, strict)
   } elif (path = "im-metadata") {
+    return createCrossSpawnObject(globalObject, objectPrototype, strict)
+  } elif (path = "gray-matter") {
     return createCrossSpawnObject(globalObject, objectPrototype, strict)
   } else {
     return newLazyObject()
