@@ -101,10 +101,10 @@ let record_concrete_keys (o : obj_record) : value list =
 (* let concrete_to_list (o : t) : (value * value option) list = *)
 (*   List.fold o ~init:[] ~f:(fun accum o_r -> accum @ record_concrete_list o_r) *)
 
-let mk_eq e1 e2 = Value.BinOpt (Operators.Eq, e1, e2)
-let mk_ite e1 e2 e3 = Value.TriOpt (Operators.ITE, e1, e2, e3)
-let mk_or e1 e2 = Value.BinOpt (Operators.LogicalOr, e1, e2)
-let mk_not e1 = Value.UnOpt (Operators.LogicalNot, e1)
+let mk_eq e1 e2 = Value.BinOpt (Operator.Eq, e1, e2)
+let mk_ite e1 e2 e3 = Value.TriOpt (Operator.ITE, e1, e2, e3)
+let mk_or e1 e2 = Value.BinOpt (Operator.LogicalOr, e1, e2)
+let mk_not e1 = Value.UnOpt (Operator.LogicalNot, e1)
 
 let is_key_possible (k1 : value) (k2 : value) (solver : Batch.t)
     (pc : encoded_pct list) : bool =
@@ -114,7 +114,7 @@ let is_key_possible (k1 : value) (k2 : value) (solver : Batch.t)
 
 (* let create_not_pct (l : (pct * value) list) (key : pct) : encoded_pct list = *)
 (*   List.fold l ~init:[] ~f:(fun acc (pc, _) -> *)
-(*       let ne = Value.UnOpt (Operators.Not, mk_eq key pc) in *)
+(*       let ne = Value.UnOpt (Operator.Not, mk_eq key pc) in *)
 (*       let expr = Reducer.reduce ne |> Translator.translate in *)
 (*       expr :: acc) *)
 

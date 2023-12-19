@@ -1,9 +1,9 @@
 module V = Sym_value.M
 
 let ( let* ) o f = match o with None -> None | Some v -> f v
-let eq v1 v2 = V.BinOpt (Operators.Eq, v1, v2)
-let ne v1 v2 = V.UnOpt (Operators.LogicalNot, eq v1 v2)
-let ite c v1 v2 = V.TriOpt (Operators.ITE, c, v1, v2)
+let eq v1 v2 = V.BinOpt (Operator.Eq, v1, v2)
+let ne v1 v2 = V.UnOpt (Operator.LogicalNot, eq v1 v2)
+let ite c v1 v2 = V.TriOpt (Operator.ITE, c, v1, v2)
 let undef = V.Val (Val.Symbol "undefined")
 let is_val = function V.Val _ -> true | _ -> false
 
@@ -194,7 +194,7 @@ module Heap = struct
   let rec unfold_ite ~(accum : value) (e : value) : (value option * string) list
       =
     let open V in
-    let open Operators in
+    let open Operator in
     match e with
     | Val (Val.Loc x) | Val (Val.Symbol x) -> [ (Some accum, x) ]
     | TriOpt (ITE, c, Val (Val.Loc l), e) ->
@@ -207,8 +207,8 @@ module Heap = struct
     let open V in
     match e with
     | Val (Val.Loc l) -> Ok [ (None, l) ]
-    | TriOpt (Operators.ITE, c, Val (Val.Loc l), v) ->
-      Ok ((Some c, l) :: unfold_ite ~accum:(UnOpt (Operators.LogicalNot, c)) v)
+    | TriOpt (Operator.ITE, c, Val (Val.Loc l), v) ->
+      Ok ((Some c, l) :: unfold_ite ~accum:(UnOpt (Operator.LogicalNot, c)) v)
     | _ ->
       Error (Format.sprintf "Value '%s' is not a loc expression" (V.Pp.pp e))
 

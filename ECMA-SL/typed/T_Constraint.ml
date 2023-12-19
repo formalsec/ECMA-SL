@@ -9,22 +9,22 @@ let rec is_container (e : E_Expr.t) : bool =
   match e with
   | E_Expr.Var _ -> true
   | E_Expr.Lookup _ -> true
-  | E_Expr.UnOpt (Operators.Typeof, e') -> is_container e'
+  | E_Expr.UnOpt (Operator.Typeof, e') -> is_container e'
   | _ -> false
 
 let rec generate (tctx : T_Ctx.t) (expr : E_Expr.t) : t =
   match expr with
-  | E_Expr.UnOpt (Operators.LogicalNot, e) -> Not (generate tctx e)
-  | E_Expr.BinOpt (Operators.LogicalAnd, e1, e2) ->
+  | E_Expr.UnOpt (Operator.LogicalNot, e) -> Not (generate tctx e)
+  | E_Expr.BinOpt (Operator.LogicalAnd, e1, e2) ->
     let ce1 = generate tctx e1 in
     let ce2 = generate tctx e2 in
     And (ce1, ce2)
-  | E_Expr.BinOpt (Operators.LogicalOr, e1, e2) ->
+  | E_Expr.BinOpt (Operator.LogicalOr, e1, e2) ->
     let ce1 = generate tctx e1 in
     let ce2 = generate tctx e2 in
     Or (ce1, ce2)
-  | E_Expr.BinOpt (Operators.Eq, e1, e2) -> (
-    let revExpr = Expr (E_Expr.BinOpt (Operators.Eq, e2, e1)) in
+  | E_Expr.BinOpt (Operator.Eq, e1, e2) -> (
+    let revExpr = Expr (E_Expr.BinOpt (Operator.Eq, e2, e1)) in
     match (is_container e1, is_container e2) with
     | (true, true) -> And (Expr expr, revExpr)
     | _ -> Expr expr )
@@ -120,18 +120,18 @@ let inspect_element (tctx : T_Ctx.t) (expr : E_Expr.t) (isNeq : bool) :
   in
   let _eval_type expr =
     match expr with
-    | E_Expr.UnOpt (Operators.Typeof, e) ->
+    | E_Expr.UnOpt (Operator.Typeof, e) ->
       E_Type.to_runtime (T_Expr.type_expr tctx e)
     | _ -> T_Expr.type_expr tctx expr
   in
   match expr with
-  | E_Expr.BinOpt (Operators.Eq, e1, e2) -> (
+  | E_Expr.BinOpt (Operator.Eq, e1, e2) -> (
     let (tar, cstr) = choose_container e1 e2 in
     let tcstr = _eval_type cstr in
     match tar with
     | E_Expr.Var _ -> (tar, create_constraint expr tcstr isNeq false)
     | E_Expr.Lookup _ -> (tar, create_constraint expr tcstr isNeq false)
-    | E_Expr.UnOpt (Operators.Typeof, tar') ->
+    | E_Expr.UnOpt (Operator.Typeof, tar') ->
       (tar', create_constraint expr tcstr isNeq true)
     | _ -> (tar, create_constraint expr tcstr isNeq false) )
   | _ -> failwith "Typed ECMA-SL: T_Constraint.inspect_element"

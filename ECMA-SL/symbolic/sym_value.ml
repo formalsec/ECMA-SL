@@ -12,10 +12,10 @@ let list_map ~f l =
 module M = struct
   type value =
     | Val of Val.t
-    | UnOpt of Operators.uopt * value
-    | BinOpt of Operators.bopt * value * value
-    | TriOpt of Operators.topt * value * value * value
-    | NOpt of Operators.nopt * value list
+    | UnOpt of Operator.unopt * value
+    | BinOpt of Operator.binopt * value * value
+    | TriOpt of Operator.triopt * value * value * value
+    | NOpt of Operator.nopt * value list
     | Curry of value * value list
     | Symbolic of Type.t * value
 
@@ -26,10 +26,10 @@ module M = struct
 
   let mk_symbol (x : string) : value = Val (Val.Symbol x) [@@inline]
 
-  let mk_list (vs : value list) : value = NOpt (Operators.ListExpr, vs)
+  let mk_list (vs : value list) : value = NOpt (Operator.ListExpr, vs)
   [@@inline]
 
-  let mk_tuple (fst, snd) : value = NOpt (Operators.TupleExpr, [ fst; snd ])
+  let mk_tuple (fst, snd) : value = NOpt (Operator.TupleExpr, [ fst; snd ])
   [@@inline]
 
   let rec is_symbolic (v : value) : bool =
@@ -66,9 +66,9 @@ module M = struct
 
   module Bool = struct
     let const b = Val (Val.Bool b) [@@inline]
-    let not_ e = UnOpt (Operators.LogicalNot, e) [@@inline]
-    let and_ e1 e2 = BinOpt (Operators.LogicalAnd, e1, e2) [@@inline]
-    let or_ e1 e2 = BinOpt (Operators.LogicalOr, e1, e2) [@@inline]
+    let not_ e = UnOpt (Operator.LogicalNot, e) [@@inline]
+    let and_ e1 e2 = BinOpt (Operator.LogicalAnd, e1, e2) [@@inline]
+    let or_ e1 e2 = BinOpt (Operator.LogicalOr, e1, e2) [@@inline]
   end
 
   module Store = struct
@@ -101,20 +101,20 @@ module M = struct
       | None -> Error (Format.sprintf "Cannot find var '%s'" x) )
     | Expr.UnOpt (op, e) -> (
       let+ e' = eval_expr store e in
-      match e' with Val v -> Val (Eval_op.eval_unop op v) | _ -> UnOpt (op, e')
+      match e' with Val v -> Val (Eval_operator.eval_unop op v) | _ -> UnOpt (op, e')
       )
     | Expr.BinOpt (op, e1, e2) -> (
       let* e1' = eval_expr store e1 in
       let+ e2' = eval_expr store e2 in
       match (e1', e2') with
-      | Val v1, Val v2 -> Val (Eval_op.eval_binopt_expr op v1 v2)
+      | Val v1, Val v2 -> Val (Eval_operator.eval_binopt_expr op v1 v2)
       | _ -> BinOpt (op, e1', e2') )
     | Expr.TriOpt (op, e1, e2, e3) -> (
       let* e1' = eval_expr store e1 in
       let* e2' = eval_expr store e2 in
       let+ e3' = eval_expr store e3 in
       match (e1', e2', e3') with
-      | Val v1, Val v2, Val v3 -> Val (Eval_op.eval_triopt_expr op v1 v2 v3)
+      | Val v1, Val v2, Val v3 -> Val (Eval_operator.eval_triopt_expr op v1 v2 v3)
       | _ -> TriOpt (op, e1', e2', e3') )
     | Expr.NOpt (op, es) ->
       let+ es' = list_map ~f:(eval_expr store) es in
@@ -132,11 +132,11 @@ module M = struct
       let concat es = String.concat ", " (List.map pp es) in
       match e with
       | Val n -> Val.str n
-      | UnOpt (op, e) -> Operators.str_of_unopt op ^ "(" ^ pp e ^ ")"
-      | BinOpt (op, e1, e2) -> Operators.str_of_binopt op (pp e1) (pp e2)
+      | UnOpt (op, e) -> Operator.str_of_unopt op (pp e)
+      | BinOpt (op, e1, e2) -> Operator.str_of_binopt op (pp e1) (pp e2)
       | TriOpt (op, e1, e2, e3) ->
-        Operators.str_of_triopt op (pp e1) (pp e2) (pp e3)
-      | NOpt (op, es) -> Operators.str_of_nopt op (List.map pp es)
+        Operator.str_of_triopt op (pp e1) (pp e2) (pp e3)
+      | NOpt (op, es) -> Operator.str_of_nopt op (List.map pp es)
       | Curry (f, es) -> "{" ^ pp f ^ "}@(" ^ concat es ^ ")"
       | Symbolic (_t, x) -> (
         match x with Val (Val.Str x) -> x | _ -> assert false )

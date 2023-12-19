@@ -1,7 +1,7 @@
 (* parser-specification file *)
 %{
 open Source
-open Operators
+open Operator
 
 let position_to_pos position =
   {

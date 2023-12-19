@@ -108,11 +108,11 @@ module Object = struct
   let get_symbolic_field (o : t) (key : V.value) : V.value option =
     Expr_Hashtbl.find o.symbolic_fields key
 
-  let mk_eq e1 e2 = V.BinOpt (Operators.Eq, e1, e2)
+  let mk_eq e1 e2 = V.BinOpt (Operator.Eq, e1, e2)
 
   let create_not_pct (l : (pct * V.value) list) (key : pct) : encoded_pct list =
     List.fold l ~init:[] ~f:(fun acc (pc, _) ->
-        let ne = V.UnOpt (Operators.LogicalNot, mk_eq key pc) in
+        let ne = V.UnOpt (Operator.LogicalNot, mk_eq key pc) in
         let expr = Value_reducer.reduce ne |> Value_translator.translate in
         expr :: acc)
 
@@ -137,7 +137,7 @@ module Object = struct
       ret)
     else ret
 
-  let mk_ite e1 e2 e3 = V.TriOpt (Operators.ITE, e1, e2, e3)
+  let mk_ite e1 e2 e3 = V.TriOpt (Operator.ITE, e1, e2, e3)
   let is_val = function V.Val _ -> true | _ -> false
 
   let has_field (o : t) (k : V.value) : V.value =

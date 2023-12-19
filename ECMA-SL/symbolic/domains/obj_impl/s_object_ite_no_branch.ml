@@ -71,15 +71,15 @@ let get_symbolic_field (o : t) (key : vt) : Expr.t option =
 let get_concrete_field (o : t) (key : string) : Expr.t option =
   Hashtbl.find o.concrete_fields key
 
-let mk_eq e1 e2 = Expr.BinOpt (Operators.Eq, e1, e2)
-let mk_ite e1 e2 e3 = Expr.TriOpt (Operators.ITE, e1, e2, e3)
-let mk_or e1 e2 = Expr.BinOpt (Operators.Log_Or, e1, e2)
-let mk_not e1 = Expr.UnOpt (Operators.Not, e1)
+let mk_eq e1 e2 = Expr.BinOpt (Operator.Eq, e1, e2)
+let mk_ite e1 e2 e3 = Expr.TriOpt (Operator.ITE, e1, e2, e3)
+let mk_or e1 e2 = Expr.BinOpt (Operator.Log_Or, e1, e2)
+let mk_not e1 = Expr.UnOpt (Operator.Not, e1)
 
 let create_not_pct (l : (pct * Expr.t) list) (key : pct) (store : S_store.t) :
     encoded_pct list =
   List.fold l ~init:[] ~f:(fun acc (pc, _) ->
-      let ne = Expr.UnOpt (Operators.Not, mk_eq key pc) in
+      let ne = Expr.UnOpt (Operator.Not, mk_eq key pc) in
       let expr = Reducer.reduce_expr store ne |> Translator.translate in
       expr :: acc)
 

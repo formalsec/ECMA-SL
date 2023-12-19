@@ -1,180 +1,180 @@
 type funcPrototype_t = E_Type.t list * E_Type.t
 
-let type_unop (op : Operators.uopt) : funcPrototype_t list =
+let type_unop (op : Operator.unopt) : funcPrototype_t list =
   let notImplemented = [ ([ E_Type.AnyType ], E_Type.AnyType) ] in
   match op with
-  | Operators.Neg ->
+  | Operator.Neg ->
     [ ([ E_Type.IntType ], E_Type.IntType)
     ; ([ E_Type.FloatType ], E_Type.FloatType)
     ]
-  | Operators.LogicalNot -> [ ([ E_Type.BooleanType ], E_Type.BooleanType) ]
-  | Operators.BitwiseNot -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.IsNaN -> [ ([ E_Type.AnyType ], E_Type.BooleanType) ]
-  | Operators.Typeof ->
+  | Operator.LogicalNot -> [ ([ E_Type.BooleanType ], E_Type.BooleanType) ]
+  | Operator.BitwiseNot -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.IsNaN -> [ ([ E_Type.AnyType ], E_Type.BooleanType) ]
+  | Operator.Typeof ->
     [ ([ E_Type.AnyType ], E_Type.RuntimeType Type.TypeType) ]
-  | Operators.ToInt -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.ToInt32 -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.ToUint16 -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.ToUint32 -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.IntToFloat -> [ ([ E_Type.IntType ], E_Type.FloatType) ]
-  | Operators.FloatToInt -> [ ([ E_Type.FloatType ], E_Type.IntType) ]
-  | Operators.IntToString -> [ ([ E_Type.IntType ], E_Type.StringType) ]
-  | Operators.StringToInt -> [ ([ E_Type.StringType ], E_Type.IntType) ]
-  | Operators.IntToFourHex -> [ ([ E_Type.IntType ], E_Type.StringType) ]
-  | Operators.OctalToDecimal -> [ ([ E_Type.IntType ], E_Type.IntType) ]
-  | Operators.FloatToString -> [ ([ E_Type.FloatType ], E_Type.StringType) ]
-  | Operators.StringToFloat -> [ ([ E_Type.StringType ], E_Type.FloatType) ]
-  | Operators.FloatToByte -> notImplemented
-  | Operators.Float32ToLEBytes -> notImplemented
-  | Operators.Float32ToBEBytes -> notImplemented
-  | Operators.Float64ToLEBytes -> notImplemented
-  | Operators.Float64ToBEBytes -> notImplemented
-  | Operators.Float32FromLEBytes -> notImplemented
-  | Operators.Float32FromBEBytes -> notImplemented
-  | Operators.Float64FromLEBytes -> notImplemented
-  | Operators.Float64FromBEBytes -> notImplemented
-  | Operators.BytesToString -> notImplemented
-  | Operators.Utf8Decode -> [ ([ E_Type.StringType ], E_Type.StringType) ]
-  | Operators.HexDecode -> [ ([ E_Type.StringType ], E_Type.StringType) ]
-  | Operators.FromCharCode -> [ ([ E_Type.IntType ], E_Type.StringType) ]
-  | Operators.FromCharCodeU -> [ ([ E_Type.IntType ], E_Type.StringType) ]
-  | Operators.ToCharCode -> [ ([ E_Type.StringType ], E_Type.IntType) ]
-  | Operators.ToCharCodeU -> [ ([ E_Type.StringType ], E_Type.IntType) ]
-  | Operators.ToLowerCase -> [ ([ E_Type.StringType ], E_Type.StringType) ]
-  | Operators.ToUpperCase -> [ ([ E_Type.StringType ], E_Type.StringType) ]
-  | Operators.Trim -> [ ([ E_Type.StringType ], E_Type.FloatType) ]
-  | Operators.Random -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Abs -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Sqrt -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Ceil -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Floor -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Exp -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Log2 -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.LogE -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Log10 -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Sin -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Cos -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Tan -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Sinh -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Cosh -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Tanh -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Acos -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Asin -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Atan -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.ParseNumber -> [ ([ E_Type.StringType ], E_Type.StringType) ]
-  | Operators.ParseString -> [ ([ E_Type.StringType ], E_Type.StringType) ]
-  | Operators.ParseDate -> notImplemented
-  | Operators.StringLen -> [ ([ E_Type.StringType ], E_Type.IntType) ]
-  | Operators.StringLenU -> [ ([ E_Type.StringType ], E_Type.IntType) ]
-  | Operators.StringConcat -> notImplemented
-  | Operators.ArrayLen -> notImplemented
-  | Operators.ListToArray -> notImplemented
-  | Operators.ListHead -> notImplemented
-  | Operators.ListTail -> notImplemented
-  | Operators.ListLen -> notImplemented
-  | Operators.ListSort -> notImplemented
-  | Operators.ListReverse -> notImplemented
-  | Operators.ListRemoveLast -> notImplemented
-  | Operators.TupleFirst -> notImplemented
-  | Operators.TupleSecond -> notImplemented
-  | Operators.TupleLen -> notImplemented
-  | Operators.ObjectToList -> notImplemented
-  | Operators.ObjectFields -> notImplemented
+  | Operator.ToInt -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.ToInt32 -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.ToUint16 -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.ToUint32 -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.IntToFloat -> [ ([ E_Type.IntType ], E_Type.FloatType) ]
+  | Operator.FloatToInt -> [ ([ E_Type.FloatType ], E_Type.IntType) ]
+  | Operator.IntToString -> [ ([ E_Type.IntType ], E_Type.StringType) ]
+  | Operator.StringToInt -> [ ([ E_Type.StringType ], E_Type.IntType) ]
+  | Operator.IntToFourHex -> [ ([ E_Type.IntType ], E_Type.StringType) ]
+  | Operator.OctalToDecimal -> [ ([ E_Type.IntType ], E_Type.IntType) ]
+  | Operator.FloatToString -> [ ([ E_Type.FloatType ], E_Type.StringType) ]
+  | Operator.StringToFloat -> [ ([ E_Type.StringType ], E_Type.FloatType) ]
+  | Operator.FloatToByte -> notImplemented
+  | Operator.Float32ToLEBytes -> notImplemented
+  | Operator.Float32ToBEBytes -> notImplemented
+  | Operator.Float64ToLEBytes -> notImplemented
+  | Operator.Float64ToBEBytes -> notImplemented
+  | Operator.Float32FromLEBytes -> notImplemented
+  | Operator.Float32FromBEBytes -> notImplemented
+  | Operator.Float64FromLEBytes -> notImplemented
+  | Operator.Float64FromBEBytes -> notImplemented
+  | Operator.BytesToString -> notImplemented
+  | Operator.Utf8Decode -> [ ([ E_Type.StringType ], E_Type.StringType) ]
+  | Operator.HexDecode -> [ ([ E_Type.StringType ], E_Type.StringType) ]
+  | Operator.FromCharCode -> [ ([ E_Type.IntType ], E_Type.StringType) ]
+  | Operator.FromCharCodeU -> [ ([ E_Type.IntType ], E_Type.StringType) ]
+  | Operator.ToCharCode -> [ ([ E_Type.StringType ], E_Type.IntType) ]
+  | Operator.ToCharCodeU -> [ ([ E_Type.StringType ], E_Type.IntType) ]
+  | Operator.ToLowerCase -> [ ([ E_Type.StringType ], E_Type.StringType) ]
+  | Operator.ToUpperCase -> [ ([ E_Type.StringType ], E_Type.StringType) ]
+  | Operator.Trim -> [ ([ E_Type.StringType ], E_Type.FloatType) ]
+  | Operator.Random -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.Abs -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.Sqrt -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.Ceil -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.Floor -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.Exp -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.Log2 -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.LogE -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.Log10 -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.Sin -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.Cos -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.Tan -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.Sinh -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.Cosh -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.Tanh -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.Acos -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.Asin -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.Atan -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operator.ParseNumber -> [ ([ E_Type.StringType ], E_Type.StringType) ]
+  | Operator.ParseString -> [ ([ E_Type.StringType ], E_Type.StringType) ]
+  | Operator.ParseDate -> notImplemented
+  | Operator.StringLen -> [ ([ E_Type.StringType ], E_Type.IntType) ]
+  | Operator.StringLenU -> [ ([ E_Type.StringType ], E_Type.IntType) ]
+  | Operator.StringConcat -> notImplemented
+  | Operator.ArrayLen -> notImplemented
+  | Operator.ListToArray -> notImplemented
+  | Operator.ListHead -> notImplemented
+  | Operator.ListTail -> notImplemented
+  | Operator.ListLen -> notImplemented
+  | Operator.ListSort -> notImplemented
+  | Operator.ListReverse -> notImplemented
+  | Operator.ListRemoveLast -> notImplemented
+  | Operator.TupleFirst -> notImplemented
+  | Operator.TupleSecond -> notImplemented
+  | Operator.TupleLen -> notImplemented
+  | Operator.ObjectToList -> notImplemented
+  | Operator.ObjectFields -> notImplemented
 
-let type_binop (op : Operators.bopt) : funcPrototype_t list =
+let type_binop (op : Operator.binopt) : funcPrototype_t list =
   let notImplemented =
     [ ([ E_Type.AnyType; E_Type.AnyType ], E_Type.AnyType) ]
   in
   match op with
-  | Operators.Plus ->
+  | Operator.Plus ->
     [ ([ E_Type.IntType; E_Type.IntType ], E_Type.IntType)
     ; ([ E_Type.FloatType; E_Type.FloatType ], E_Type.FloatType)
     ]
-  | Operators.Minus ->
+  | Operator.Minus ->
     [ ([ E_Type.IntType; E_Type.IntType ], E_Type.IntType)
     ; ([ E_Type.FloatType; E_Type.FloatType ], E_Type.FloatType)
     ]
-  | Operators.Times ->
+  | Operator.Times ->
     [ ([ E_Type.IntType; E_Type.IntType ], E_Type.IntType)
     ; ([ E_Type.FloatType; E_Type.FloatType ], E_Type.FloatType)
     ]
-  | Operators.Div ->
+  | Operator.Div ->
     [ ([ E_Type.IntType; E_Type.IntType ], E_Type.IntType)
     ; ([ E_Type.FloatType; E_Type.FloatType ], E_Type.FloatType)
     ]
-  | Operators.Modulo ->
+  | Operator.Modulo ->
     [ ([ E_Type.FloatType; E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.BitwiseAnd ->
+  | Operator.BitwiseAnd ->
     [ ([ E_Type.FloatType; E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.BitwiseOr ->
+  | Operator.BitwiseOr ->
     [ ([ E_Type.FloatType; E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.BitwiseXor ->
+  | Operator.BitwiseXor ->
     [ ([ E_Type.FloatType; E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.ShiftLeft ->
+  | Operator.ShiftLeft ->
     [ ([ E_Type.FloatType; E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.ShiftRight ->
+  | Operator.ShiftRight ->
     [ ([ E_Type.FloatType; E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.ShiftRightLogical ->
+  | Operator.ShiftRightLogical ->
     [ ([ E_Type.FloatType; E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.LogicalAnd ->
+  | Operator.LogicalAnd ->
     [ ([ E_Type.BooleanType; E_Type.BooleanType ], E_Type.BooleanType) ]
-  | Operators.LogicalOr ->
+  | Operator.LogicalOr ->
     [ ([ E_Type.BooleanType; E_Type.BooleanType ], E_Type.BooleanType) ]
-  | Operators.Eq -> [ ([ E_Type.AnyType; E_Type.AnyType ], E_Type.BooleanType) ]
-  | Operators.Lt -> [ ([ E_Type.AnyType; E_Type.AnyType ], E_Type.BooleanType) ]
-  | Operators.Gt -> [ ([ E_Type.AnyType; E_Type.AnyType ], E_Type.BooleanType) ]
-  | Operators.Le -> [ ([ E_Type.AnyType; E_Type.AnyType ], E_Type.BooleanType) ]
-  | Operators.Ge -> [ ([ E_Type.AnyType; E_Type.AnyType ], E_Type.BooleanType) ]
-  | Operators.Min ->
+  | Operator.Eq -> [ ([ E_Type.AnyType; E_Type.AnyType ], E_Type.BooleanType) ]
+  | Operator.Lt -> [ ([ E_Type.AnyType; E_Type.AnyType ], E_Type.BooleanType) ]
+  | Operator.Gt -> [ ([ E_Type.AnyType; E_Type.AnyType ], E_Type.BooleanType) ]
+  | Operator.Le -> [ ([ E_Type.AnyType; E_Type.AnyType ], E_Type.BooleanType) ]
+  | Operator.Ge -> [ ([ E_Type.AnyType; E_Type.AnyType ], E_Type.BooleanType) ]
+  | Operator.Min ->
     [ ([ E_Type.FloatType; E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Max ->
+  | Operator.Max ->
     [ ([ E_Type.FloatType; E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Pow ->
+  | Operator.Pow ->
     [ ([ E_Type.FloatType; E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.Atan2 ->
+  | Operator.Atan2 ->
     [ ([ E_Type.FloatType; E_Type.FloatType ], E_Type.FloatType) ]
-  | Operators.IntToBEBytes -> notImplemented
-  | Operators.IntFromLEBytes -> notImplemented
-  | Operators.UintFromLEBytes -> notImplemented
-  | Operators.ToPrecision ->
+  | Operator.IntToBEBytes -> notImplemented
+  | Operator.IntFromLEBytes -> notImplemented
+  | Operator.UintFromLEBytes -> notImplemented
+  | Operator.ToPrecision ->
     [ ([ E_Type.FloatType; E_Type.IntType ], E_Type.StringType) ]
-  | Operators.ToExponential ->
+  | Operator.ToExponential ->
     [ ([ E_Type.FloatType; E_Type.IntType ], E_Type.StringType) ]
-  | Operators.ToFixed ->
+  | Operator.ToFixed ->
     [ ([ E_Type.FloatType; E_Type.IntType ], E_Type.StringType) ]
-  | Operators.ObjectMem -> notImplemented
-  | Operators.StringNth ->
+  | Operator.ObjectMem -> notImplemented
+  | Operator.StringNth ->
     [ ([ E_Type.StringType; E_Type.IntType ], E_Type.StringType) ]
-  | Operators.StringNthU ->
+  | Operator.StringNthU ->
     [ ([ E_Type.StringType; E_Type.IntType ], E_Type.StringType) ]
-  | Operators.StringSplit -> notImplemented
-  | Operators.ArrayMake -> notImplemented
-  | Operators.ArrayNth -> notImplemented
-  | Operators.ListNth -> notImplemented
-  | Operators.ListMem -> notImplemented
-  | Operators.ListAdd -> notImplemented
-  | Operators.ListPrepend -> notImplemented
-  | Operators.ListConcat -> notImplemented
-  | Operators.ListRemove -> notImplemented
-  | Operators.ListRemoveNth -> notImplemented
-  | Operators.TupleNth -> notImplemented
+  | Operator.StringSplit -> notImplemented
+  | Operator.ArrayMake -> notImplemented
+  | Operator.ArrayNth -> notImplemented
+  | Operator.ListNth -> notImplemented
+  | Operator.ListMem -> notImplemented
+  | Operator.ListAdd -> notImplemented
+  | Operator.ListPrepend -> notImplemented
+  | Operator.ListConcat -> notImplemented
+  | Operator.ListRemove -> notImplemented
+  | Operator.ListRemoveNth -> notImplemented
+  | Operator.TupleNth -> notImplemented
 
-let type_ebinop (op : E_Oper.bopt) : funcPrototype_t list =
+let type_ebinop (op : E_Operator.binopt) : funcPrototype_t list =
   match op with
-  | E_Oper.SCLogicalAnd ->
+  | E_Operator.SCLogicalAnd ->
     [ ([ E_Type.BooleanType; E_Type.BooleanType ], E_Type.BooleanType) ]
-  | E_Oper.SCLogicalOr ->
+  | E_Operator.SCLogicalOr ->
     [ ([ E_Type.BooleanType; E_Type.BooleanType ], E_Type.BooleanType) ]
 
-let type_triop (op : Operators.topt) : funcPrototype_t list =
+let type_triop (op : Operator.triopt) : funcPrototype_t list =
   let notImplemented =
     [ ([ E_Type.AnyType; E_Type.AnyType; E_Type.AnyType ], E_Type.AnyType) ]
   in
   match op with
-  | Operators.StringSubstr ->
+  | Operator.StringSubstr ->
     [ ([ E_Type.StringType; E_Type.IntType; E_Type.IntType ], E_Type.StringType)
     ]
-  | Operators.StringSubstrU ->
+  | Operator.StringSubstrU ->
     [ ([ E_Type.StringType; E_Type.IntType; E_Type.IntType ], E_Type.StringType)
     ]
-  | Operators.ArraySet | Operators.ListSet | Operators.ITE -> notImplemented
+  | Operator.ArraySet | Operator.ListSet | Operator.ITE -> notImplemented
