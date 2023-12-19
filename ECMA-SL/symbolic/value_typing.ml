@@ -2,85 +2,85 @@ open Args_typing_unop
 open Args_typing_binop
 open Type_of_val
 
-let type_of_unop (op : Operators.uopt) (arg_t : Type.t option) : Type.t option =
+let type_of_unop (op : Operator.unopt) (arg_t : Type.t option) : Type.t option =
   match op with
-  | Operators.Neg -> un_args_typing_neg arg_t
-  | Operators.LogicalNot -> un_args_typing_not arg_t
-  | Operators.ListHead -> None
-  | Operators.ListTail -> None
-  | Operators.TupleFirst -> None
-  | Operators.TupleSecond -> None
-  | Operators.TupleLen -> un_args_typing_container_length arg_t Type.TupleType
-  | Operators.IntToFloat -> un_args_typing_int_casts arg_t Type.FltType
-  | Operators.IntToString -> un_args_typing_int_casts arg_t Type.StrType
-  | Operators.FloatToString -> un_args_typing_float_casts arg_t Type.StrType
-  | Operators.StringToFloat -> Some Type.FltType
-  | Operators.ToUint32 -> Some Type.FltType
-  | Operators.Typeof -> un_args_typing_typeof arg_t
-  | Operators.StringConcat -> un_args_typing_sconcat arg_t
-  | Operators.Exp -> un_args_typing_float_math arg_t Type.FltType
-  | Operators.LogE -> un_args_typing_float_math arg_t Type.FltType
-  | Operators.Log10 -> un_args_typing_float_math arg_t Type.FltType
-  | Operators.Ceil -> un_args_typing_float_math arg_t Type.FltType
-  | Operators.Floor -> un_args_typing_float_math arg_t Type.FltType
-  | Operators.Abs -> un_args_typing_float_math arg_t Type.FltType
-  | Operators.ToInt -> un_args_typing_float_math arg_t Type.FltType
-  | Operators.Sqrt -> un_args_typing_float_math arg_t Type.FltType
-  | Operators.IsNaN -> un_args_typing_float_math arg_t Type.BoolType
-  | Operators.StringLen -> Some Type.IntType
-  | Operators.StringLenU -> Some Type.IntType
-  | Operators.BitwiseNot -> un_args_typing_bitwise_not arg_t
-  | Operators.Trim -> Some Type.StrType
-  | Operators.ListLen -> Some Type.IntType
-  | Operators.ListSort -> Some Type.ListType
+  | Operator.Neg -> un_args_typing_neg arg_t
+  | Operator.LogicalNot -> un_args_typing_not arg_t
+  | Operator.ListHead -> None
+  | Operator.ListTail -> None
+  | Operator.TupleFirst -> None
+  | Operator.TupleSecond -> None
+  | Operator.TupleLen -> un_args_typing_container_length arg_t Type.TupleType
+  | Operator.IntToFloat -> un_args_typing_int_casts arg_t Type.FltType
+  | Operator.IntToString -> un_args_typing_int_casts arg_t Type.StrType
+  | Operator.FloatToString -> un_args_typing_float_casts arg_t Type.StrType
+  | Operator.StringToFloat -> Some Type.FltType
+  | Operator.ToUint32 -> Some Type.FltType
+  | Operator.Typeof -> un_args_typing_typeof arg_t
+  | Operator.StringConcat -> un_args_typing_sconcat arg_t
+  | Operator.Exp -> un_args_typing_float_math arg_t Type.FltType
+  | Operator.LogE -> un_args_typing_float_math arg_t Type.FltType
+  | Operator.Log10 -> un_args_typing_float_math arg_t Type.FltType
+  | Operator.Ceil -> un_args_typing_float_math arg_t Type.FltType
+  | Operator.Floor -> un_args_typing_float_math arg_t Type.FltType
+  | Operator.Abs -> un_args_typing_float_math arg_t Type.FltType
+  | Operator.ToInt -> un_args_typing_float_math arg_t Type.FltType
+  | Operator.Sqrt -> un_args_typing_float_math arg_t Type.FltType
+  | Operator.IsNaN -> un_args_typing_float_math arg_t Type.BoolType
+  | Operator.StringLen -> Some Type.IntType
+  | Operator.StringLenU -> Some Type.IntType
+  | Operator.BitwiseNot -> un_args_typing_bitwise_not arg_t
+  | Operator.Trim -> Some Type.StrType
+  | Operator.ListLen -> Some Type.IntType
+  | Operator.ListSort -> Some Type.ListType
   | _ ->
     failwith
       ( "Typing Error: [type_of_unop] -> unsuported typing for unary operation "
-      ^ Operators.str_of_unopt op )
+      ^ Operator.str_of_unopt_single op )
 
-let type_of_binop (op : Operators.bopt) (arg1 : Sym_value.M.value)
+let type_of_binop (op : Operator.binopt) (arg1 : Sym_value.M.value)
   (arg2 : Sym_value.M.value) (arg1_t : Type.t option) (arg2_t : Type.t option) :
   Type.t option =
   match op with
-  | Operators.Plus -> bin_args_typing_arith arg1_t arg2_t
-  | Operators.Minus -> bin_args_typing_arith arg1_t arg2_t
-  | Operators.Times -> bin_args_typing_arith arg1_t arg2_t
-  | Operators.Div -> bin_args_typing_arith arg1_t arg2_t
-  | Operators.Modulo -> bin_args_typing_arith arg1_t arg2_t
-  | Operators.Eq -> bin_args_typing_eq arg1_t arg2_t
-  | Operators.Lt -> bin_args_typing_comp arg1_t arg2_t
-  | Operators.Gt -> bin_args_typing_comp arg1_t arg2_t
-  | Operators.Le -> bin_args_typing_comp arg1_t arg2_t
-  | Operators.Ge -> bin_args_typing_comp arg1_t arg2_t
-  | Operators.LogicalAnd -> bin_args_typing_logic arg1_t arg2_t
-  | Operators.LogicalOr -> bin_args_typing_logic arg1_t arg2_t
-  | Operators.Min -> bin_args_typing_arith arg1_t arg2_t
-  | Operators.Max -> bin_args_typing_arith arg1_t arg2_t
-  | Operators.TupleNth -> None
-  | Operators.ListNth -> bin_args_typing_lnth arg1 arg2
-  | Operators.ListMem -> bin_args_typing_inlist arg1_t
-  | Operators.ListPrepend -> None
-  | Operators.ListAdd -> None
-  | Operators.Pow -> bin_args_typing_pow arg1_t arg2_t
-  | Operators.StringNth -> Some Type.StrType
-  | Operators.StringNthU -> Some Type.StrType
-  | Operators.BitwiseAnd | Operators.BitwiseOr | Operators.BitwiseXor
-  | Operators.ShiftLeft | Operators.ShiftRight | Operators.ShiftRightLogical ->
+  | Operator.Plus -> bin_args_typing_arith arg1_t arg2_t
+  | Operator.Minus -> bin_args_typing_arith arg1_t arg2_t
+  | Operator.Times -> bin_args_typing_arith arg1_t arg2_t
+  | Operator.Div -> bin_args_typing_arith arg1_t arg2_t
+  | Operator.Modulo -> bin_args_typing_arith arg1_t arg2_t
+  | Operator.Eq -> bin_args_typing_eq arg1_t arg2_t
+  | Operator.Lt -> bin_args_typing_comp arg1_t arg2_t
+  | Operator.Gt -> bin_args_typing_comp arg1_t arg2_t
+  | Operator.Le -> bin_args_typing_comp arg1_t arg2_t
+  | Operator.Ge -> bin_args_typing_comp arg1_t arg2_t
+  | Operator.LogicalAnd -> bin_args_typing_logic arg1_t arg2_t
+  | Operator.LogicalOr -> bin_args_typing_logic arg1_t arg2_t
+  | Operator.Min -> bin_args_typing_arith arg1_t arg2_t
+  | Operator.Max -> bin_args_typing_arith arg1_t arg2_t
+  | Operator.TupleNth -> None
+  | Operator.ListNth -> bin_args_typing_lnth arg1 arg2
+  | Operator.ListMem -> bin_args_typing_inlist arg1_t
+  | Operator.ListPrepend -> None
+  | Operator.ListAdd -> None
+  | Operator.Pow -> bin_args_typing_pow arg1_t arg2_t
+  | Operator.StringNth -> Some Type.StrType
+  | Operator.StringNthU -> Some Type.StrType
+  | Operator.BitwiseAnd | Operator.BitwiseOr | Operator.BitwiseXor
+  | Operator.ShiftLeft | Operator.ShiftRight | Operator.ShiftRightLogical ->
     bitwise_operators_typing_logic arg1_t arg2_t
   | _ ->
     failwith
       ( "Typing Error: [type_of_binop] -> unsuported typing for binary \
          operation "
-      ^ Operators.str_of_binopt_single op )
+      ^ Operator.str_of_binopt_single op )
 
-let type_of_triop (op : Operators.topt) (_arg1_t : Type.t option)
+let type_of_triop (op : Operator.triopt) (_arg1_t : Type.t option)
   (arg2_t : Type.t option) (arg3_t : Type.t option) : Type.t option =
   match op with
-  | Operators.StringSubstr -> Some Type.StrType
-  | Operators.StringSubstrU -> Some Type.StrType
-  | Operators.ListSet -> Some Type.ListType
-  | Operators.ArraySet -> Some Type.ArrayType
-  | Operators.ITE -> (
+  | Operator.StringSubstr -> Some Type.StrType
+  | Operator.StringSubstrU -> Some Type.StrType
+  | Operator.ListSet -> Some Type.ListType
+  | Operator.ArraySet -> Some Type.ArrayType
+  | Operator.ITE -> (
     match (arg2_t, arg3_t) with
     | (Some t2, Some t3) ->
       if t2 = t3 then arg2_t else failwith "types don't match for ITE."
@@ -102,7 +102,7 @@ let rec type_of (v : Sym_value.M.value) : Type.t option =
     and arg3_t = type_of arg3 in
     type_of_triop op arg1_t arg2_t arg3_t
   | Symbolic (t, _) -> Some t
-  | NOpt (Operators.ListExpr, _) -> Some Type.ListType
-  | NOpt (Operators.TupleExpr, _) -> Some Type.TupleType
-  | NOpt (Operators.ArrayExpr, _) -> Some Type.ArrayType
+  | NOpt (Operator.ListExpr, _) -> Some Type.ListType
+  | NOpt (Operator.TupleExpr, _) -> Some Type.TupleType
+  | NOpt (Operator.ArrayExpr, _) -> Some Type.ArrayType
   | _ -> failwith (Pp.pp v ^ ": Not typed!")

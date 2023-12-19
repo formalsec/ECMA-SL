@@ -70,8 +70,8 @@ let%test "symbolic_set" =
   in
   let v' = S_object.get_concrete_field o' "key" in
   let k = Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "symb_k")) in
-  let eq = Expr.BinOpt (Operators.Eq, k, Expr.Val (Val.Str "key")) in
-  let not1 = Expr.UnOpt (Operators.Not, eq) in
+  let eq = Expr.BinOpt (Operator.Eq, k, Expr.Val (Val.Str "key")) in
+  let not1 = Expr.UnOpt (Operator.Not, eq) in
   let translated_eq = Translator.translate eq in
   let translated_expr = Translator.translate not1 in
   match (v, pc, v', pc') with
@@ -121,13 +121,13 @@ let%test "symbolic_get_doesnt_exist" =
   in
   let eq1 =
     Expr.BinOpt
-      ( Operators.Eq,
+      ( Operator.Eq,
         symb_key,
         Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "symb_k")) )
   in
-  let eq2 = Expr.BinOpt (Operators.Eq, symb_key, Expr.Val (Val.Str "key")) in
-  let not1 = Expr.UnOpt (Operators.Not, eq1) in
-  let not2 = Expr.UnOpt (Operators.Not, eq2) in
+  let eq2 = Expr.BinOpt (Operator.Eq, symb_key, Expr.Val (Val.Str "key")) in
+  let not1 = Expr.UnOpt (Operator.Not, eq1) in
+  let not2 = Expr.UnOpt (Operator.Not, eq2) in
   let eq1 = Translator.translate eq1 in
   let eq2 = Translator.translate eq2 in
 
@@ -163,11 +163,11 @@ let%test "set_another_symb_key" =
   let v' = S_object.get_concrete_field o' "key" in
   let v'' = S_object.get_symbolic_field o'' orig_symb_key in
 
-  let eq1 = Expr.BinOpt (Operators.Eq, symb_key, Expr.Val (Val.Str "key")) in
-  let eq2 = Expr.BinOpt (Operators.Eq, symb_key, orig_symb_key) in
+  let eq1 = Expr.BinOpt (Operator.Eq, symb_key, Expr.Val (Val.Str "key")) in
+  let eq2 = Expr.BinOpt (Operator.Eq, symb_key, orig_symb_key) in
 
-  let not1 = Expr.UnOpt (Operators.Not, eq1) in
-  let not2 = Expr.UnOpt (Operators.Not, eq2) in
+  let not1 = Expr.UnOpt (Operator.Not, eq1) in
+  let not2 = Expr.UnOpt (Operator.Not, eq2) in
 
   let eq1 = Translator.translate eq1 in
   let eq2 = Translator.translate eq2 in
@@ -208,11 +208,11 @@ let%test "set_another_concrete_key" =
   let v2 = S_object.get_symbolic_field o2 symb_key in
   let v3 = S_object.get_symbolic_field o3 orig_symb_key in
 
-  let eq1 = Expr.BinOpt (Operators.Eq, concrete_key2, symb_key) in
-  let eq2 = Expr.BinOpt (Operators.Eq, concrete_key2, orig_symb_key) in
+  let eq1 = Expr.BinOpt (Operator.Eq, concrete_key2, symb_key) in
+  let eq2 = Expr.BinOpt (Operator.Eq, concrete_key2, orig_symb_key) in
 
-  let not1 = Expr.UnOpt (Operators.Not, eq1) in
-  let not2 = Expr.UnOpt (Operators.Not, eq2) in
+  let not1 = Expr.UnOpt (Operator.Not, eq1) in
+  let not2 = Expr.UnOpt (Operator.Not, eq2) in
 
   let not1 = Translator.translate not1 in
   let not2 = Translator.translate not2 in

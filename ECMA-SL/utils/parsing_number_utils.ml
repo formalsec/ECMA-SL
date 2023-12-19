@@ -126,9 +126,9 @@ let parse_exponent_part (str : string) (idx : int) : float * int =
 (*
 StrUnsignedDecimalLiteral :::
 Infinity
-. DecimalDigits ExponentPartopt
-DecimalDigits . DecimalDigitsopt ExponentPartopt
-DecimalDigits ExponentPartopt
+. DecimalDigits ExponentPartriopt
+DecimalDigits . DecimalDigitsopt ExponentPartriopt
+DecimalDigits ExponentPartriopt
 *)
 let parse_str_unsigned_decimal_literal (str : string) (idx : int) : float * int
     =

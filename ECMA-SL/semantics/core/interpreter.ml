@@ -3,8 +3,7 @@ open Expr
 open Stmt
 open Func
 open Source
-open Operators
-open Eval_op
+open Eval_operator
 
 let ( let+ ) o f =
   match o with

@@ -1,7 +1,7 @@
 open Val
 open Expr
-open Operators
-open E_Oper
+open Operator
+open E_Operator
 open E_Pat
 open E_Pat_v
 open E_Expr
@@ -96,14 +96,14 @@ let compile_sc_or (x : string) (stmts_1 : Stmt.t list) (e1' : Expr.t)
 
   (stmts_1 @ [ outer_if ], Expr.Var x)
 
-let compile_binopt (binop : Operators.bopt)
+let compile_binopt (binop : Operator.binopt)
   ((stmts_1, e1) : Stmt.t list * Expr.t) ((stmts_2, e2) : Stmt.t list * Expr.t)
   (at : region) : Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
   ( stmts_1 @ stmts_2 @ [ Stmt.Assign (var, Expr.BinOpt (binop, e1, e2)) @> at ]
   , Expr.Var var )
 
-let compile_triopt (triop : topt) ((stmts_1, e1) : Stmt.t list * Expr.t)
+let compile_triopt (triop : triopt) ((stmts_1, e1) : Stmt.t list * Expr.t)
   ((stmts_2, e2) : Stmt.t list * Expr.t) ((stmts_3, e3) : Stmt.t list * Expr.t)
   (at : region) : Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
@@ -352,7 +352,7 @@ let compile_const (c : const) : Stmt.t list * Expr.t =
   | MIN_VALUE -> ([], Expr.Val (Val.Flt 5e-324))
   | PI -> ([], Expr.Val (Val.Flt Float.pi))
 
-let rec compile_ebinopt (binop : E_Oper.bopt) (e_e1 : E_Expr.t)
+let rec compile_ebinopt (binop : E_Operator.binopt) (e_e1 : E_Expr.t)
   (e_e2 : E_Expr.t) (at : region) : Stmt.t list * Expr.t =
   let x = generate_fresh_var () in
   let (stmts_1, e1) = compile_expr at e_e1 in
@@ -361,7 +361,7 @@ let rec compile_ebinopt (binop : E_Oper.bopt) (e_e1 : E_Expr.t)
   | SCLogicalAnd -> compile_sc_and x stmts_1 e1 stmts_2 e2 at
   | SCLogicalOr -> compile_sc_or x stmts_1 e1 stmts_2 e2 at
 
-and compile_unopt (op : uopt) (expr : E_Expr.t) (at : region) :
+and compile_unopt (op : unopt) (expr : E_Expr.t) (at : region) :
   Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
   let (stmts_expr, expr') = compile_expr at expr in
@@ -473,7 +473,9 @@ and compile_patv (expr : Expr.t) (pname : string) (pat_v : E_Pat_v.t)
     in
     ([ b ], [ stmt; stmt_assign ], [])
   | PatNone ->
-    let stmt = Stmt.Assign (var_b, Expr.UnOpt (LogicalNot, Expr.Var var_b)) @> at in
+    let stmt =
+      Stmt.Assign (var_b, Expr.UnOpt (LogicalNot, Expr.Var var_b)) @> at
+    in
     ([], [ stmt ], [])
 
 and compile_pn_pat (expr : Expr.t) ((pn, patv) : string * E_Pat_v.t)
@@ -505,7 +507,8 @@ and compile_pats_stmts (at : region) (expr : Expr.t)
   let stmts = compile_stmt stmt in
   let and_bs =
     Expr.NOpt
-      (NAryLogicalAnd, Expr.Val (Val.Bool true) :: List.map (fun b -> Expr.Var b) bs)
+      ( NAryLogicalAnd
+      , Expr.Val (Val.Bool true) :: List.map (fun b -> Expr.Var b) bs )
   in
   let if_stmt = in_pat_stmts @ stmts in
   (pre_pat_stmts, and_bs, if_stmt)

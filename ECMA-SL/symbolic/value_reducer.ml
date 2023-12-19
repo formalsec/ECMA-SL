@@ -1,5 +1,5 @@
 open Core
-open Operators
+open Operator
 open Val
 module Value = Sym_value.M
 open Value
@@ -41,7 +41,7 @@ let reduce_list_compare (list1 : value list) (list2 : value list) : value =
       | _, BinOpt (_, _, _) -> BinOpt (LogicalAnd, curr, v)
       | BinOpt (_, _, _), _ -> BinOpt (LogicalAnd, curr, v)
       | Val (Bool b1), Val (Bool b2) ->
-          Val (Operators.log_and (Bool b1, Bool b2))
+          Val (Eval_operator.logical_and (Bool b1, Bool b2))
       | _ -> failwith "wrong"
     in
     let rec fold_until l1 l2 acc =
@@ -80,9 +80,9 @@ let reduce_list_set (list : value list) (idx : int) (newVal : value) : value =
       "Exception in Oper.list_set: this operation is only applicable to List, \
        Int greater or equal to 0 and Any arguments"
 
-let reduce_unop (op : uopt) (v : value) : value =
+let reduce_unop (op : unopt) (v : value) : value =
   match (op, v) with
-  | op, Val v -> Val (Eval_op.eval_unop op v)
+  | op, Val v -> Val (Eval_operator.eval_unop op v)
   | Neg, Symbolic (_, _) -> UnOpt (Neg, v)
   | IsNaN, Symbolic _ -> Val (Bool false)
   | LogicalNot, _v' -> UnOpt (LogicalNot, v)
@@ -114,9 +114,9 @@ let reduce_unop (op : uopt) (v : value) : value =
 
 let is_loc = function Val (Loc _) -> true | _ -> false
 
-let reduce_binop (op : bopt) (v1 : value) (v2 : value) : value =
+let reduce_binop (op : binopt) (v1 : value) (v2 : value) : value =
   match (op, v1, v2) with
-  | op, Val v1, Val v2 -> Val (Eval_op.eval_binopt_expr op v1 v2)
+  | op, Val v1, Val v2 -> Val (Eval_operator.eval_binopt_expr op v1 v2)
   (* int_to_float(s_len_u(symbolic (__$Str, "s1"))) < 0.  *)
   | ( Lt,
       UnOpt (IntToFloat, UnOpt (StringLenU, Symbolic (Type.StrType, _))),
@@ -148,7 +148,7 @@ let reduce_binop (op : bopt) (v1 : value) (v2 : value) : value =
       BinOpt (Eq, Symbolic (Type.FltType, n1), Symbolic (Type.FltType, n2))
   | Eq, Val (Str s), UnOpt (FloatToString, Symbolic (Type.FltType, n))
   | Eq, UnOpt (FloatToString, Symbolic (Type.FltType, n)), Val (Str s) -> (
-      let s' = Operators.float_of_string (Str s) in
+      let s' = Eval_operator.string_to_float (Str s) in
       match s' with
       | Flt v when Val.equal (Flt v) (Flt Float.nan) -> Val (Bool false)
       | _ -> BinOpt (Eq, Symbolic (Type.FltType, n), Val s'))
@@ -163,9 +163,9 @@ let reduce_binop (op : bopt) (v1 : value) (v2 : value) : value =
   | ListMem, v1, NOpt (ListExpr, vs) -> Val (Bool (Stdlib.List.mem v1 vs))
   | op', v1', v2' -> BinOpt (op', v1', v2')
 
-let reduce_triop (op : topt) (v1 : value) (v2 : value) (v3 : value) : value =
+let reduce_triop (op : triopt) (v1 : value) (v2 : value) (v3 : value) : value =
   match (op, v1, v2, v3) with
-  | op, Val v1, Val v2, Val v3 -> Val (Eval_op.eval_triopt_expr op v1 v2 v3)
+  | op, Val v1, Val v2, Val v3 -> Val (Eval_operator.eval_triopt_expr op v1 v2 v3)
   | ListSet, NOpt (ListExpr, vs), Val (Int v2'), _ -> reduce_list_set vs v2' v3
   | _ -> TriOpt (op, v1, v2, v3)
 

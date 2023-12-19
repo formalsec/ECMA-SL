@@ -82,9 +82,9 @@ let assign_obj_to_list (heap : t) (loc : Expr.t)
     | Some o ->
         let ret =
           Expr.NOpt
-            ( Operators.ListExpr,
+            ( Operator.ListExpr,
               List.map (Object.to_list o) ~f:(fun (f, v) ->
-                  Expr.NOpt (Operators.TupleExpr, [ f; v ])) )
+                  Expr.NOpt (Operator.TupleExpr, [ f; v ])) )
         in
         ret
   )
@@ -99,7 +99,7 @@ let assign_obj_fields (heap : t) (loc : Expr.t)
     match obj with
     | None -> failwith "Object not found."
     | Some o -> 
-      Expr.NOpt (Operators.ListExpr, Object.get_fields o)
+      Expr.NOpt (Operator.ListExpr, Object.get_fields o)
   )
   | _ -> let msg = Printf.sprintf "Invalid loc expr %s" (Expr.str loc) in failwith msg 
 

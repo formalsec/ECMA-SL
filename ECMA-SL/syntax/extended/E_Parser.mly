@@ -4,7 +4,7 @@
 %{
 open E_Stmt
 open Source
-open Operators
+open Operator
 
 let fresh_lambda_id_gen = String_utils.make_fresh_var_generator "__lambda__"
 
@@ -692,8 +692,8 @@ e_pat_v_pat_target:
   | POW     { Pow }
 
 %inline e_op_target:
-  | SCLAND  { E_Oper.SCLogicalAnd }
-  | SCLOR   { E_Oper.SCLogicalOr }
+  | SCLAND  { E_Operator.SCLogicalAnd }
+  | SCLOR   { E_Operator.SCLogicalOr }
 
 
 e_typing_target:

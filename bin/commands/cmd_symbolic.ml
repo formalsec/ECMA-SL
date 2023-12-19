@@ -52,8 +52,8 @@ let symbolic_api_funcs =
     (* TODO: more fine-grained exploit analysis *)
     let i = Value.int_symbol_s (fresh "i") in
     let len = Value.int_symbol_s (fresh "len") in
-    let sub = TriOpt (Operators.StringSubstr, e, i, len) in
-    let query = BinOpt (Operators.Eq, sub, Val (Val.Str "; touch success #")) in
+    let sub = TriOpt (Operator.StringSubstr, e, i, len) in
+    let query = BinOpt (Operator.Eq, sub, Val (Val.Str "; touch success #")) in
     let/ b = Choice.check_add_true query in
     Choice.return (Val (Val.Bool b))
   in
@@ -61,9 +61,9 @@ let symbolic_api_funcs =
     (* TODO: more fine-grained exploit analysis *)
     let i = Value.int_symbol_s (fresh "i") in
     let len = Value.int_symbol_s (fresh "len") in
-    let sub = TriOpt (Operators.StringSubstr, e, i, len) in
+    let sub = TriOpt (Operator.StringSubstr, e, i, len) in
     let query =
-      BinOpt (Operators.Eq, sub, Val (Val.Str ";console.log('success')//"))
+      BinOpt (Operator.Eq, sub, Val (Val.Str ";console.log('success')//"))
     in
     let/ b = Choice.check_add_true query in
     Choice.return (Val (Val.Bool b))

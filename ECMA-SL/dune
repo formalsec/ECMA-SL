@@ -26,7 +26,7 @@
   loc
   object
   source
-  operators
+  operator
   call_stack
   type
   ;   syntax (core)
@@ -42,7 +42,7 @@
   E_Func
   E_Prog
   E_Type
-  E_Oper
+  E_Operator
   E_Pat
   E_Pat_v
   E_Macro
@@ -53,7 +53,7 @@
   store
   heap
   ;   semantics (core)
-  eval_op
+  eval_operator
   external
   inspector
   interpreter

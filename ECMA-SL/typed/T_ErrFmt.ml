@@ -53,60 +53,60 @@ let call_tkns (fnTkn : tkn_t) (args : E_Expr.t list) : tkn_t list =
   let argTkns = concat_tkns (List.map (fun arg -> [ Expr arg ]) args) ", " in
   List.concat [ [ fnTkn ]; [ Lit "(" ]; argTkns; [ Lit ")" ] ]
 
-let unop_tkns (op : Operators.uopt) (e : E_Expr.t) : tkn_t list =
-  let opTkn = Lit (Operators.str_of_unopt op) in
+let unop_tkns (op : Operator.unopt) (e : E_Expr.t) : tkn_t list =
+  let opTkn = Lit (Operator.str_of_unopt_single op) in
   match op with
-  | Operators.Neg -> [ opTkn; Expr e ]
-  | Operators.LogicalNot -> [ opTkn; Expr e ]
-  | Operators.BitwiseNot -> [ opTkn; Expr e ]
+  | Operator.Neg -> [ opTkn; Expr e ]
+  | Operator.LogicalNot -> [ opTkn; Expr e ]
+  | Operator.BitwiseNot -> [ opTkn; Expr e ]
   | _ -> call_tkns opTkn [ e ]
 
-let binop_tkns (op : Operators.bopt) (e1 : E_Expr.t) (e2 : E_Expr.t) :
+let binop_tkns (op : Operator.binopt) (e1 : E_Expr.t) (e2 : E_Expr.t) :
   tkn_t list =
-  let opStr = Operators.str_of_binopt_single op in
+  let opStr = Operator.str_of_binopt_single op in
   let opTkn = Lit (" " ^ opStr ^ " ") in
   match op with
-  | Operators.Plus -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.Minus -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.Times -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.Div -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.Modulo -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.Eq -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.Gt -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.Lt -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.Ge -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.Le -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.LogicalAnd -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
-  | Operators.LogicalOr -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
-  | Operators.BitwiseAnd -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.BitwiseOr -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.BitwiseXor -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.ShiftLeft -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.ShiftRight -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.ShiftRightLogical -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.ObjectMem -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.ListMem -> [ Expr e1; opTkn; Expr e2 ]
-  | Operators.Pow -> [ Expr e1; opTkn; Expr e2 ]
+  | Operator.Plus -> [ Expr e1; opTkn; Expr e2 ]
+  | Operator.Minus -> [ Expr e1; opTkn; Expr e2 ]
+  | Operator.Times -> [ Expr e1; opTkn; Expr e2 ]
+  | Operator.Div -> [ Expr e1; opTkn; Expr e2 ]
+  | Operator.Modulo -> [ Expr e1; opTkn; Expr e2 ]
+  | Operator.Eq -> [ Expr e1; opTkn; Expr e2 ]
+  | Operator.Gt -> [ Expr e1; opTkn; Expr e2 ]
+  | Operator.Lt -> [ Expr e1; opTkn; Expr e2 ]
+  | Operator.Ge -> [ Expr e1; opTkn; Expr e2 ]
+  | Operator.Le -> [ Expr e1; opTkn; Expr e2 ]
+  | Operator.LogicalAnd -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
+  | Operator.LogicalOr -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
+  | Operator.BitwiseAnd -> [ Expr e1; opTkn; Expr e2 ]
+  | Operator.BitwiseOr -> [ Expr e1; opTkn; Expr e2 ]
+  | Operator.BitwiseXor -> [ Expr e1; opTkn; Expr e2 ]
+  | Operator.ShiftLeft -> [ Expr e1; opTkn; Expr e2 ]
+  | Operator.ShiftRight -> [ Expr e1; opTkn; Expr e2 ]
+  | Operator.ShiftRightLogical -> [ Expr e1; opTkn; Expr e2 ]
+  | Operator.ObjectMem -> [ Expr e1; opTkn; Expr e2 ]
+  | Operator.ListMem -> [ Expr e1; opTkn; Expr e2 ]
+  | Operator.Pow -> [ Expr e1; opTkn; Expr e2 ]
   | _ -> call_tkns (Lit opStr) [ e1; e2 ]
 
-let ebinop_tkns (op : E_Oper.bopt) (e1 : E_Expr.t) (e2 : E_Expr.t) : tkn_t list
+let ebinop_tkns (op : E_Operator.binopt) (e1 : E_Expr.t) (e2 : E_Expr.t) : tkn_t list
     =
-  let opStr = E_Oper.str_of_binopt_single op in
+  let opStr = E_Operator.str_of_binopt_single op in
   let opTkn = Lit (" " ^ opStr ^ " ") in
   match op with
-  | E_Oper.SCLogicalAnd -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
-  | E_Oper.SCLogicalOr -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
+  | E_Operator.SCLogicalAnd -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
+  | E_Operator.SCLogicalOr -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
 
-let triop_tkns (op : Operators.topt) (e1 : E_Expr.t) (e2 : E_Expr.t)
+let triop_tkns (op : Operator.triopt) (e1 : E_Expr.t) (e2 : E_Expr.t)
   (e3 : E_Expr.t) : tkn_t list =
-  let opTkn = Lit (Operators.str_of_triopt_single op) in
+  let opTkn = Lit (Operator.str_of_triopt_single op) in
   match op with
   | _ -> call_tkns opTkn [ e1; e2; e3 ]
 
-let nopt_tkns (op : Operators.nopt) (es : E_Expr.t list) : tkn_t list =
+let nopt_tkns (op : Operator.nopt) (es : E_Expr.t list) : tkn_t list =
   let exprTkns = concat_tkns (List.map (fun arg -> [ Expr arg ]) es) ", " in
   match op with
-  | Operators.TupleExpr -> List.concat [ [ Lit "(" ]; exprTkns; [ Lit ")" ] ]
+  | Operator.TupleExpr -> List.concat [ [ Lit "(" ]; exprTkns; [ Lit ")" ] ]
   | _ -> []
 
 let expr_tkns (expr : E_Expr.t) : tkn_t list =
@@ -114,7 +114,7 @@ let expr_tkns (expr : E_Expr.t) : tkn_t list =
   | Val v -> [ Lit (Val.str v) ]
   | Var x -> [ Str x ]
   (* | GVar _ -> [] *)
-  | Const c -> [ Lit (Operators.str_of_const c) ]
+  | Const c -> [ Lit (Operator.str_of_const c) ]
   | UnOpt (op, e) -> unop_tkns op e
   | BinOpt (op, e1, e2) -> binop_tkns op e1 e2
   | EBinOpt (op, e1, e2) -> ebinop_tkns op e1 e2

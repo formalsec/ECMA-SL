@@ -10,15 +10,15 @@ let type_var (narrow : bool) (tctx : T_Ctx.t) (x : string) : E_Type.t =
     if narrow then ntvar else rtvar
   | None -> T_Err.raise (T_Err.UnknownVar x) ~tkn:(T_Err.str_tkn x)
 
-let type_const (c : Operators.const) : E_Type.t =
+let type_const (c : Operator.const) : E_Type.t =
   match c with
-  | Operators.MAX_VALUE -> E_Type.FloatType
-  | Operators.MIN_VALUE -> E_Type.FloatType
-  | Operators.PI -> E_Type.FloatType
+  | Operator.MAX_VALUE -> E_Type.FloatType
+  | Operator.MIN_VALUE -> E_Type.FloatType
+  | Operator.PI -> E_Type.FloatType
 
-let type_nopt (op : Operators.nopt) (tes : E_Type.t list) : E_Type.t =
+let type_nopt (op : Operator.nopt) (tes : E_Type.t list) : E_Type.t =
   match op with
-  | Operators.TupleExpr -> E_Type.TupleType tes
+  | Operator.TupleExpr -> E_Type.TupleType tes
   | _ -> E_Type.AnyType
 
 let test_operand (test_operand_f : E_Expr.t -> E_Type.t -> E_Type.t)

@@ -3,18 +3,18 @@ open Core
 type t =
   | Val of Val.t
   | Var of string
-  | UnOpt of (Operators.uopt * t)
-  | BinOpt of (Operators.bopt * t * t)
-  | TriOpt of (Operators.topt * t * t * t)
-  | NOpt of Operators.nopt * t list
+  | UnOpt of (Operator.unopt * t)
+  | BinOpt of (Operator.binopt * t * t)
+  | TriOpt of (Operator.triopt * t * t * t)
+  | NOpt of Operator.nopt * t list
   | Curry of t * t list
   | Symbolic of Type.t * t
 
 module Bool = struct
   let const b = Val (Val.Bool b) [@@inline]
-  let not_ e = UnOpt (Operators.LogicalNot, e) [@@inline]
-  let and_ e1 e2 = BinOpt (Operators.LogicalAnd, e1, e2) [@@inline]
-  let or_ e1 e2 = BinOpt (Operators.LogicalOr, e1, e2) [@@inline]
+  let not_ e = UnOpt (Operator.LogicalNot, e) [@@inline]
+  let and_ e1 e2 = BinOpt (Operator.LogicalAnd, e1, e2) [@@inline]
+  let or_ e1 e2 = BinOpt (Operator.LogicalOr, e1, e2) [@@inline]
 end
 
 let rec equal (e1 : t) (e2 : t) : bool =
@@ -69,11 +69,11 @@ let rec str (e : t) : string =
   match e with
   | Val n -> Val.str n
   | Var x -> x
-  | UnOpt (op, e) -> Operators.str_of_unopt op ^ "(" ^ str e ^ ")"
-  | BinOpt (op, e1, e2) -> Operators.str_of_binopt op (str e1) (str e2)
+  | UnOpt (op, e) -> Operator.str_of_unopt op (str e)
+  | BinOpt (op, e1, e2) -> Operator.str_of_binopt op (str e1) (str e2)
   | TriOpt (op, e1, e2, e3) ->
-    Operators.str_of_triopt op (str e1) (str e2) (str e3)
-  | NOpt (op, es) -> Operators.str_of_nopt op (List.map ~f:str es)
+    Operator.str_of_triopt op (str e1) (str e2) (str e3)
+  | NOpt (op, es) -> Operator.str_of_nopt op (List.map ~f:str es)
   | Curry (f, es) -> "{" ^ str f ^ "}@(" ^ str_es es ^ ")"
   | Symbolic (t, x) -> "se_mk_symbolic (" ^ Type.str t ^ ", " ^ str x ^ ")"
 
@@ -99,21 +99,21 @@ let rec to_json (e : t) : string =
   | UnOpt (op, e) ->
     Printf.sprintf "{ \"type\" : \"unop\", \"rhs\" : %s, \"op\": %s}"
       (to_json e)
-      (Operators.uopt_to_json op)
+      (Operator.unopt_to_json op)
   | BinOpt (op, e1, e2) ->
     Printf.sprintf
       "{ \"type\" : \"binop\", \"lhs\" : %s, \"rhs\": %s,  \"op\": %s}"
       (to_json e1) (to_json e2)
-      (Operators.bopt_to_json op)
+      (Operator.binopt_to_json op)
   | TriOpt (op, e1, e2, e3) ->
     Printf.sprintf
       "{ \"type\" : \"triop\", \"arg1\" : %s, \"arg2\" : %s, \"arg3\": %s,  \
        \"op\": %s}"
       (to_json e1) (to_json e2) (to_json e3)
-      (Operators.topt_to_json op)
+      (Operator.triopt_to_json op)
   | NOpt (op, es) ->
     Printf.sprintf "{ \"type\" : \"nop\", \"op\": %s, \"args\" : [ %s ]}"
-      (Operators.nopt_to_json op)
+      (Operator.nopt_to_json op)
       (String.concat ~sep:", " (List.map ~f:to_json es))
   | Curry (f, es) ->
     Printf.sprintf
@@ -132,7 +132,7 @@ let func v =
   | _ -> Error "Sval is not a 'func' identifier"
 
 let rec unfold_ite ~(accum : t) (e : t) : (t option * string) list =
-  let open Operators in
+  let open Operator in
   match e with
   | Val (Val.Loc x) | Val (Val.Symbol x) -> [ (Some accum, x) ]
   | TriOpt (ITE, c, Val (Val.Loc l), e) ->
@@ -146,7 +146,7 @@ let rec unfold_ite ~(accum : t) (e : t) : (t option * string) list =
 let loc (e : t) : ((t option * string) list, string) Result.t =
   match e with
   | Val (Val.Loc l) -> Ok [ (None, l) ]
-  | TriOpt (Operators.ITE, c, Val (Val.Loc l), v) ->
+  | TriOpt (Operator.ITE, c, Val (Val.Loc l), v) ->
     Ok ((Some c, l) :: unfold_ite ~accum:(Bool.not_ c) v)
   | _ -> Error ("Expr '" ^ str e ^ "' is not a loc expression")
 
@@ -156,11 +156,11 @@ module Pp = struct
     match e with
     | Val n -> Val.str n
     | Var x -> x
-    | UnOpt (op, e) -> Operators.str_of_unopt op ^ "(" ^ str e ^ ")"
-    | BinOpt (op, e1, e2) -> Operators.str_of_binopt op (str e1) (str e2)
+    | UnOpt (op, e) -> Operator.str_of_unopt op (str e)
+    | BinOpt (op, e1, e2) -> Operator.str_of_binopt op (str e1) (str e2)
     | TriOpt (op, e1, e2, e3) ->
-      Operators.str_of_triopt op (str e1) (str e2) (str e3)
-    | NOpt (op, es) -> Operators.str_of_nopt op (List.map ~f:str es)
+      Operator.str_of_triopt op (str e1) (str e2) (str e3)
+    | NOpt (op, es) -> Operator.str_of_nopt op (List.map ~f:str es)
     | Curry (f, es) -> "{" ^ str f ^ "}@(" ^ concat es ^ ")"
     | Symbolic (_t, x) -> str x
 end
