@@ -18,7 +18,7 @@ module type SecurityMonitor = sig
     | MReturn of state_t
     | MFail of (state_t * string)
 
-  val eval_small_step : state_t -> sl SecLabel.t -> monitor_return
+  val eval_small_step : state_t -> sl NSULabel.t -> monitor_return
   val initial_monitor_state : unit -> state_t
   val parse_lvl : string -> sl
 end
@@ -185,9 +185,9 @@ module M (Mon : SecurityMonitor) = struct
 
   let eval_small_step
     (interceptor :
-      string -> Val.t list -> Expr.t list -> Mon.sl SecLabel.t option )
+      string -> Val.t list -> Expr.t list -> Mon.sl NSULabel.t option )
     (prog : Prog.t) (state : state_t) (cont : Stmt.t list) (s : Stmt.t) :
-    return * Mon.sl SecLabel.t =
+    return * Mon.sl NSULabel.t =
     let (cs, heap, sto, f) = state in
     let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
     if Stmt.is_basic_stmt s then
@@ -196,11 +196,11 @@ module M (Mon : SecurityMonitor) = struct
         (Stmt.str s)
         (Stmt.str ~expr_printer:str_e s);
     match s.it with
-    | Skip -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab)
+    | Skip -> (Intermediate ((cs, heap, sto, f), cont), NSULabel.EmptyLab)
     | Throw str ->
       print_string (Source.string_of_region s.at ^ ": Exception: " ^ str ^ "\n");
       exit 1
-    | Merge -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.MergeLab)
+    | Merge -> (Intermediate ((cs, heap, sto, f), cont), NSULabel.MergeLab)
     | Print e ->
       let v = eval_expr sto e in
       ( match v with
@@ -211,10 +211,10 @@ module M (Mon : SecurityMonitor) = struct
             (Object.str o (Val.str ~flt_with_dot:false))
         | None -> Log.debug "PROGRAM PRINT: Non-existent location" )
       | _ -> Log.debug "PROGRAM PRINT: %s" (Val.str v) );
-      (Intermediate ((cs, heap, sto, f), cont), SecLabel.PrintLab e)
+      (Intermediate ((cs, heap, sto, f), cont), NSULabel.PrintLab e)
     | Abort _ ->
       (* NOP *)
-      (Intermediate (state, cont), SecLabel.EmptyLab)
+      (Intermediate (state, cont), NSULabel.EmptyLab)
     | Fail e ->
       let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
       Log.debug
@@ -224,27 +224,27 @@ module M (Mon : SecurityMonitor) = struct
         (Stmt.str ~expr_printer:str_e s)
         (Call_stack.str cs);
       let v = eval_expr sto e in
-      (Errorv (Some v), SecLabel.EmptyLab)
+      (Errorv (Some v), NSULabel.EmptyLab)
     | Assert e ->
       let v = eval_expr sto e in
-      if is_true v then (Intermediate (state, cont), SecLabel.EmptyLab)
+      if is_true v then (Intermediate (state, cont), NSULabel.EmptyLab)
       else
         let e' = "Assert false: " ^ Expr.str e in
-        (Errorv (Some (Val.Str e')), SecLabel.EmptyLab)
+        (Errorv (Some (Val.Str e')), NSULabel.EmptyLab)
     | Assign (x, e) ->
       let v = eval_expr sto e in
       Store.set sto x v;
-      (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignLab (x, e))
+      (Intermediate ((cs, heap, sto, f), cont), NSULabel.AssignLab (x, e))
     | Return e -> (
       let v = eval_expr sto e in
       let (f, cs') = Call_stack.pop cs in
       match f with
       | Call_stack.Intermediate (cont', sto', x, f') ->
         Store.set sto' x v;
-        (Intermediate ((cs', heap, sto', f'), cont'), SecLabel.ReturnLab e)
-      | Call_stack.Toplevel -> (Finalv (Some v), SecLabel.ReturnLab e) )
+        (Intermediate ((cs', heap, sto', f'), cont'), NSULabel.ReturnLab e)
+      | Call_stack.Toplevel -> (Finalv (Some v), NSULabel.ReturnLab e) )
     | Block block ->
-      (Intermediate ((cs, heap, sto, f), block @ cont), SecLabel.EmptyLab)
+      (Intermediate ((cs, heap, sto, f), block @ cont), NSULabel.EmptyLab)
     | If (e, s1, s2) -> (
       let v = eval_expr sto e in
       if is_true v then
@@ -254,10 +254,10 @@ module M (Mon : SecurityMonitor) = struct
           match s2 with
           | Some v ->
             ( Intermediate ((cs, heap, sto, f), blockm @ cont)
-            , SecLabel.BranchLab (e, v) )
+            , NSULabel.BranchLab (e, v) )
           | None ->
             ( Intermediate ((cs, heap, sto, f), blockm @ cont)
-            , SecLabel.BranchLab (e, Stmt.Skip @> s.at) ) )
+            , NSULabel.BranchLab (e, Stmt.Skip @> s.at) ) )
         | _ -> raise (Except "IF block expected ")
       else
         match s2 with
@@ -266,13 +266,13 @@ module M (Mon : SecurityMonitor) = struct
           | Block block2 ->
             let block2m = block2 @ ((Stmt.Merge @> v.at) :: []) in
             ( Intermediate ((cs, heap, sto, f), block2m @ cont)
-            , SecLabel.BranchLab (e, s1) )
+            , NSULabel.BranchLab (e, s1) )
           | _ -> raise (Except "Not expected") )
-        | None -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab) )
+        | None -> (Intermediate ((cs, heap, sto, f), cont), NSULabel.EmptyLab) )
     | While (e, s') ->
       let s1 = (s' :: []) @ ((Stmt.While (e, s') @> s.at) :: []) in
       let stms = Stmt.If (e, Stmt.Block s1 @> s'.at, None) @> s.at in
-      (Intermediate ((cs, heap, sto, f), stms :: cont), SecLabel.EmptyLab)
+      (Intermediate ((cs, heap, sto, f), stms :: cont), NSULabel.EmptyLab)
     | AssignCall (x, func, es) -> (
       let (f', vs') = get_func_id sto func in
       let vs'' = List.map (eval_expr sto) es in
@@ -287,13 +287,13 @@ module M (Mon : SecurityMonitor) = struct
         let (cont' : Stmt.t) = func.body in
         let aux_list = cont' :: [] in
         ( Intermediate ((cs', heap, sto_aux, f'), aux_list)
-        , SecLabel.AssignCallLab (params, es, x, f') )
+        , NSULabel.AssignCallLab (x, f', params, es) )
       | Some lab -> (Intermediate ((cs, heap, sto, f), cont), lab) )
     | AssignECall (x, func, es) ->
       let vs = List.map (eval_expr sto) es in
       let v = External.execute prog heap func vs in
       Store.set sto x v;
-      (Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab)
+      (Intermediate ((cs, heap, sto, f), cont), NSULabel.EmptyLab)
     | AssignInObjCheck (st, e_f, e_o) ->
       let field = eval_expr sto e_f in
       let obj = eval_expr sto e_o in
@@ -305,12 +305,12 @@ module M (Mon : SecurityMonitor) = struct
       let v = eval_inobj_expr prog heap sto field obj in
       Store.set sto st v;
       ( Intermediate ((cs, heap, sto, f), cont)
-      , SecLabel.AssignInObjCheckLab (st, field', obj', e_f, e_o) )
+      , NSULabel.AssignInObjCheckLab (st, field', obj', e_f, e_o) )
     | AssignNewObj x ->
       let newobj = Object.create () in
       let loc = Heap.insert heap newobj in
       Store.set sto x (Val.Loc loc);
-      (Intermediate ((cs, heap, sto, f), cont), SecLabel.NewLab (x, loc))
+      (Intermediate ((cs, heap, sto, f), cont), NSULabel.NewLab (x, loc))
     | FieldLookup (x, e_o, e_f) -> (
       let loc = eval_expr sto e_o in
       let field = eval_expr sto e_f in
@@ -324,7 +324,7 @@ module M (Mon : SecurityMonitor) = struct
         in
         Store.set sto x v';
         ( Intermediate ((cs, heap, sto, f), cont)
-        , SecLabel.FieldLookupLab (x, loc', field', e_o, e_f) )
+        , NSULabel.FieldLookupLab (x, loc', field', e_o, e_f) )
       | _ ->
         invalid_arg
           "Exception in Interpreter.eval_access_expr : \"e\" didn't evaluate \
@@ -337,7 +337,7 @@ module M (Mon : SecurityMonitor) = struct
       | (Loc loc, Str field) ->
         Heap.set_field heap loc field v;
         ( Intermediate ((cs, heap, sto, f), cont)
-        , SecLabel.FieldAssignLab (loc, field, e_o, e_f, e_v) )
+        , NSULabel.FieldAssignLab (loc, field, e_o, e_f, e_v) )
       | _ ->
         invalid_arg
           "Exception in Interpreter.eval_fieldassign_stmt : \"e_o\" is not a \
@@ -349,7 +349,7 @@ module M (Mon : SecurityMonitor) = struct
       | (Loc loc', Str field') ->
         Heap.delete_field heap loc' field';
         ( Intermediate ((cs, heap, sto, f), cont)
-        , SecLabel.FieldDeleteLab (loc', field', e, e_f) )
+        , NSULabel.FieldDeleteLab (loc', field', e, e_f) )
       | _ ->
         invalid_arg
           "Exception in Interpreter.eval_fielddelete_stmt : \"e\" is not a Loc \
@@ -357,16 +357,16 @@ module M (Mon : SecurityMonitor) = struct
     | AssignObjToList (st, e) ->
       let v = eval_objtolist_oper heap sto e in
       Store.set sto st v;
-      (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignLab (st, e))
+      (Intermediate ((cs, heap, sto, f), cont), NSULabel.AssignLab (st, e))
     | AssignObjFields (st, e) ->
       let v = eval_objfields_oper heap sto e in
       Store.set sto st v;
-      (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignLab (st, e))
+      (Intermediate ((cs, heap, sto, f), cont), NSULabel.AssignLab (st, e))
 
   (*This function will iterate smallsteps in a list of functions*)
   let rec small_step_iter
     (interceptor :
-      string -> Val.t list -> Expr.t list -> Mon.sl SecLabel.t option )
+      string -> Val.t list -> Expr.t list -> Mon.sl NSULabel.t option )
     (prog : Prog.t) (state : state_t) (mon_state : Mon.state_t)
     (stmts : Stmt.t list) (monitor : string) : return =
     match stmts with
@@ -411,7 +411,7 @@ module M (Mon : SecurityMonitor) = struct
     let+ func = Prog.func prog main in
     let state_0 = initial_state () in
     let mon_state_0 = Mon.initial_monitor_state () in
-    let interceptor = SecLabel.interceptor Mon.parse_lvl in
+    let interceptor = NSULabel.interceptor Mon.parse_lvl in
     let v =
       small_step_iter interceptor prog state_0 mon_state_0 [ func.body ] monitor
     in

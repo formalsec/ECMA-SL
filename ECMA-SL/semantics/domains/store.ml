@@ -1,10 +1,8 @@
 type var = string
 type 'a t = (var, 'a) Hashtbl.t
 
-let create (vs : (var * 'a) list) : 'a t =
-  let store = Hashtbl.create !Config.default_hashtbl_sz in
-  List.to_seq vs |> Hashtbl.add_seq store;
-  store
+let create (var_vals : (var * 'a) list) : 'a t =
+  List.to_seq var_vals |> Hashtbl.of_seq
 
 let clone (store : 'a t) : 'a t = Hashtbl.copy store
 let get (store : 'a t) (x : var) : 'a option = Hashtbl.find_opt store x
