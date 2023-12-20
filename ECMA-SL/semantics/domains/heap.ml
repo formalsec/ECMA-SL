@@ -1,5 +1,3 @@
-open Core
-
 type 'a obj = 'a Object.t
 
 type 'a t =
@@ -7,64 +5,48 @@ type 'a t =
   ; map : (Loc.t, 'a obj) Hashtbl.t
   }
 
-let create () : 'a t = { parent = None; map = Hashtbl.create (module String) }
+let create () : 'a t =
+  { parent = None; map = Hashtbl.create !Config.default_hashtbl_sz }
 
-let clone (h : 'a t) : 'a t =
-  { parent = Some h; map = Hashtbl.create (module String) }
+let clone (heap : 'a t) : 'a t =
+  { parent = Some heap; map = Hashtbl.create !Config.default_hashtbl_sz }
 
-let insert (h : 'a t) (obj : 'a obj) : Loc.t =
+let insert (heap : 'a t) (obj : 'a obj) : Loc.t =
   let loc = Loc.newloc () in
-  Hashtbl.set h.map ~key:loc ~data:obj;
+  Hashtbl.add heap.map loc obj;
   loc
 
-let remove (h : 'a t) (l : Loc.t) : unit = Hashtbl.remove h.map l
+let remove (heap : 'a t) (loc : Loc.t) : unit = Hashtbl.remove heap.map loc
 
-let set (h : 'a t) (key : Loc.t) (data : 'a obj) : unit =
-  Hashtbl.set h.map ~key ~data
+let set (heap : 'a t) (loc : Loc.t) (obj : 'a obj) : unit =
+  Hashtbl.replace heap.map loc obj
 
-let rec get (h : 'a t) (l : Loc.t) : 'a obj option =
-  match Hashtbl.find h.map l with
-  | Some _ as v -> v
+let rec get (heap : 'a t) (loc : Loc.t) : 'a obj option =
+  match Hashtbl.find_opt heap.map loc with
+  | Some _ as obj -> obj
   | None ->
-    let obj = Option.bind h.parent ~f:(fun h -> get h l) in
-    Option.iter obj ~f:(fun o -> set h l (Object.clone o));
+    let obj = Option.map_default (fun h -> get h loc) None heap.parent in
+    Option.may (fun o -> set heap loc (Object.clone o)) obj;
     obj
 
-let get_field (heap : 'a t) (loc : Loc.t) (field : String.t) : 'a option =
-  let obj = get heap loc in
-  Option.bind obj ~f:(fun o -> Object.get o field)
+let get_field (heap : 'a t) (loc : Loc.t) (fn : string) : 'a option =
+  get heap loc |> Option.map_default (fun o -> Object.get o fn) None
 
-let set_field (heap : 'a t) (loc : Loc.t) (field : String.t) (v : 'a) : unit =
-  let obj = get heap loc in
-  Option.iter obj ~f:(fun o -> Object.set o field v)
+let set_field (heap : 'a t) (loc : Loc.t) (fn : string) (v : 'a) : unit =
+  get heap loc |> Option.may (fun o -> Object.set o fn v)
 
-let delete_field (heap : 'a t) (loc : Loc.t) (field : String.t) : unit =
-  let obj = get heap loc in
-  Option.iter obj ~f:(fun o -> Object.delete o field)
+let delete_field (heap : 'a t) (loc : Loc.t) (fn : string) : unit =
+  get heap loc |> Option.may (fun o -> Object.delete o fn)
 
-let to_string (h : 'a t) (pp : 'a -> string) : string =
-  "{ "
-  ^ String.concat ~sep:", "
-      (Hashtbl.fold h.map ~init:[] ~f:(fun ~key:n ~data:v acc ->
-           Printf.sprintf "%s: %s" (Loc.str n) (Object.str v pp) :: acc )
-      )
-  ^ " }"
+let str (heap : 'a t) (printer : 'a -> string) : string =
+  let _loc_str l = Loc.str l [@@inline] in
+  let _obj_str o = Object.str o printer [@@inline] in
+  let _binding_str l o = Printf.sprintf "%s: %s" (_loc_str l) (_obj_str o) in
+  let _heap_str_f l o acc = _binding_str l o :: acc in
+  let heap_str = Hashtbl.fold _heap_str_f heap.map [] |> String.concat ", " in
+  "{ " ^ heap_str ^ " }"
 
-let to_string_with_glob (h : 'a t) (pp : 'a -> string) : string =
-  let glob =
-    Hashtbl.fold h.map ~init:None ~f:(fun ~key:_ ~data:obj acc ->
-        match acc with
-        | Some _ -> acc
-        (* Keep this in sync with Compiler.ml function *)
-        (* "compile_gvar" and "compile_glob_assign" *)
-        | None -> Object.get obj Common.global_var_compiled )
-  in
-  match glob with
-  | Some l ->
-    Printf.sprintf "{ \"heap\": %s, \"global\": %s }" (to_string h pp)
-      (Val.str l)
-  | None ->
-    raise
-      (Failure
-         "Couldn't find the Object that contains only one property, named \
-          \"global\"." )
+let str_with_glob (heap : 'a t) (printer : 'a -> string) : string =
+  (* TODO: Return the heap with the __$global object (i.e., special object that \
+     contains the field __$global) *)
+  str heap printer
