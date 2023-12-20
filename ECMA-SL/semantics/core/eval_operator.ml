@@ -590,6 +590,12 @@ let modulo ((v1, v2) : Val.t * Val.t) : Val.t =
   | (Flt f1, Flt f2) -> Flt (mod_float f1 f2)
   | _ -> runtime_arg_err op_label "(float, float)" [ v1; v2 ]
 
+let pow ((v1, v2) : Val.t * Val.t) : Val.t =
+  let op_label = label_of_binopt Max in
+  match (v1, v2) with
+  | (Flt f1, Flt f2) -> Flt (Float.pow f1 f2)
+  | _ -> runtime_arg_err op_label "(float, float)" [ v1; v2 ]
+
 let bitwise_and ((v1, v2) : Val.t * Val.t) : Val.t =
   let op_label = label_of_binopt BitwiseAnd in
   match (v1, v2) with
@@ -862,12 +868,6 @@ let max ((v1, v2) : Val.t * Val.t) : Val.t =
   | (Flt f1, Flt f2) -> Flt (Float.max f1 f2)
   | _ -> runtime_arg_err op_label "(float, float)" [ v1; v2 ]
 
-let pow ((v1, v2) : Val.t * Val.t) : Val.t =
-  let op_label = label_of_binopt Max in
-  match (v1, v2) with
-  | (Flt f1, Flt f2) -> Flt (Float.pow f1 f2)
-  | _ -> runtime_arg_err op_label "(float, float)" [ v1; v2 ]
-
 let atan2 ((v1, v2) : Val.t * Val.t) : Val.t =
   let op_label = label_of_binopt Atan2 in
   match (v1, v2) with
@@ -1018,6 +1018,7 @@ let eval_binopt_expr (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | Times -> times (v1, v2)
   | Div -> div (v1, v2)
   | Modulo -> modulo (v1, v2)
+  | Pow -> pow (v1, v2)
   | BitwiseAnd -> bitwise_and (v1, v2)
   | BitwiseOr -> bitwise_or (v1, v2)
   | BitwiseXor -> bitwise_xor (v1, v2)
@@ -1053,7 +1054,6 @@ let eval_binopt_expr (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | UintFromLEBytes -> uint_from_le_bytes (v1, v2)
   | Min -> min (v1, v2)
   | Max -> max (v1, v2)
-  | Pow -> pow (v1, v2)
   | Atan2 -> atan2 (v1, v2)
 
 let eval_triopt_expr (op : triopt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) :

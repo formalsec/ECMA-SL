@@ -1,45 +1,43 @@
-open Core
 open Func
 
-let ( let+ ) o f = Result.map o ~f
+let ( let+ ) o f = Result.map f o
 
 type t = (string, Func.t) Hashtbl.t
 
-let empty () : t = Hashtbl.create (module String)
+let empty () : t = Hashtbl.create !Config.default_hashtbl_sz
 
 let create (funcs : Func.t list) : t =
   let env = empty () in
-  List.iter funcs ~f:(fun f -> Hashtbl.set env ~key:f.name ~data:f);
+  List.iter (fun f -> Hashtbl.replace env f.name f) funcs;
   env
 
-let get_func (prog : t) (id : string) : (Func.t, string) Result.t =
-  let f = Hashtbl.find prog id in
-  Result.of_option f ~error:(Format.sprintf "Could not find function %s " id)
+let funcs (prog : t) : Func.t list =
+  let _func_acc_f _ func acc = func :: acc in
+  Hashtbl.fold _func_acc_f prog []
 
-let get_body (prog : t) (id : string) : (Stmt.t, string) Result.t =
-  let+ s = get_func prog id in
-  s.body
+let func (prog : t) (fname : string) : (Func.t, string) Result.t =
+  match Hashtbl.find_opt prog fname with
+  | None -> Result.error (Format.sprintf "Could not find function %s" fname)
+  | Some f -> Result.ok f
 
-let get_params (prog : t) (id : string) : (string list, string) Result.t =
-  let+ s = get_func prog id in
-  s.params
-
-let get_name (prog : t) (id : string) : (string, string) Result.t =
-  let+ s = get_func prog id in
+let func_name (prog : t) (fname : string) : (string, string) Result.t =
+  let+ s = func prog fname in
   s.name
 
-let add_func (prog : t) (key : string) (data : Func.t) : unit =
-  Hashtbl.set prog ~key ~data
+let func_body (prog : t) (fname : string) : (Stmt.t, string) Result.t =
+  let+ s = func prog fname in
+  s.body
 
-let get_funcs (prog : t) : Func.t list = Hashtbl.data prog [@@inline]
-let iter (prog : t) ~(f : Func.t -> unit) : unit = Hashtbl.iter prog ~f
+let func_params (prog : t) (fname : string) : (string list, string) Result.t =
+  let+ s = func prog fname in
+  s.params
 
-let iteri (prog : t) ~(f : key:string -> data:Func.t -> unit) : unit =
-  Hashtbl.iteri prog ~f
+let add_func (prog : t) (fname : string) (func : Func.t) : unit =
+  Hashtbl.replace prog fname func
 
 let str (prog : t) : string =
-  String.concat ~sep:";\n" (List.map ~f:Func.str (get_funcs prog))
+  List.map Func.str (funcs prog) |> String.concat ";\n"
 
 let to_json (prog : t) : string =
-  Printf.sprintf "{\"type\" : \" prog\", \"funcs\" : [ %s ] }"
-    (String.concat ~sep:", " (List.map ~f:Func.to_json (get_funcs prog)))
+  let funcs_json = List.map Func.to_json (funcs prog) |> String.concat ", " in
+  Printf.sprintf "{ \"type\" : \"prog\", \"funcs\" : [ %s ] }" funcs_json

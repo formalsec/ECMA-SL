@@ -22,7 +22,7 @@ module Make (Memory : Sym_heap_intf.S) = struct
 
   let clone (env : 'a t) = { env with memory = Memory.clone env.memory }
   let get_memory (env : 'a t) = env.memory
-  let get_func (env : 'a t) id = Prog.get_func env.functions id
+  let get_func (env : 'a t) id = Prog.func env.functions id
 
   let get_extern_func (env : 'a t) id =
     match SMap.find_opt id env.extern_funcs with

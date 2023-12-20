@@ -3,7 +3,11 @@
 open Core
 open Source
 
-let ( let* ) o f = match o with Error e -> failwith e | Ok o -> f o
+let ( let* ) o f =
+  match o with
+  | Error e -> failwith e
+  | Ok o -> f o
+
 let ( let+ ) o f = Result.map o ~f
 
 let list_map ~f l =
@@ -11,7 +15,9 @@ let list_map ~f l =
   try
     Ok
       (List.map l ~f:(fun v ->
-         match f v with Error s -> raise (E s) | Ok v -> v ) )
+           match f v with
+           | Error s -> raise (E s)
+           | Ok v -> v ) )
   with E s -> Error s
 
 module Crash = Err.Make ()
@@ -98,17 +104,17 @@ module Make (P : Eval_functor_intf.P) :
     Heap.pp heap v
 
   let exec_func state func args ret_var =
-    Log.debug "calling func: %s@." (Func.get_name func);
+    Log.debug "calling func: %s@." (Func.name func);
     let return_state = Some (state, ret_var) in
-    let params = Func.get_params func in
+    let params = Func.params func in
     let store = Store.create (List.zip_exn params args) in
     let state' =
       State.
         { return_state
         ; locals = store
-        ; stmts = [ Func.get_body func ]
+        ; stmts = [ Func.body func ]
         ; env = state.env
-        ; func = Func.get_name func
+        ; func = Func.name func
         }
     in
     Choice.return @@ State.Continue state'
@@ -140,7 +146,7 @@ module Make (P : Eval_functor_intf.P) :
     match stmt.it with
     | Stmt.Skip -> st locals
     | Stmt.Merge -> st locals
-    | Stmt.Exception err ->
+    | Stmt.Throw err ->
       let at' = Source.string_of_region stmt.at in
       Format.printf "  exception : %s: %s@." at' err;
       Choice.return @@ State.Return (Error (sprintf "{\"exn\":\"%s\"}" err))
@@ -188,7 +194,7 @@ module Make (P : Eval_functor_intf.P) :
       Choice.return @@ State.return state ~value:v
     | Stmt.AssignCall (x, f, es) ->
       let* f' = eval_expr locals f in
-      let* func_name, args0 = Value.get_func_name f' in
+      let* (func_name, args0) = Value.get_func_name f' in
       let* func = Env.get_func env func_name in
       let* args = list_map ~f:(eval_expr locals) es in
       let args = args0 @ args in
@@ -269,6 +275,5 @@ module Make (P : Eval_functor_intf.P) :
   let main (env : Env.t) (f : string) : State.return_result Choice.t =
     let* f = Env.get_func env f in
     let state = State.empty_state ~env in
-    loop
-      State.{ state with stmts = [ Func.get_body f ]; func = Func.get_name f }
+    loop State.{ state with stmts = [ Func.body f ]; func = Func.name f }
 end
