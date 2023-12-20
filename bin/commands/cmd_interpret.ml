@@ -7,7 +7,7 @@ let run_interpreter (heap_file : string option) (prog : Prog.t) : unit =
     match heap_file with
     | None -> ()
     | Some heap_file' ->
-      let data = Heap.to_string_with_glob heap (Val.str ~flt_with_dot:false) in
+      let data = Heap.str_with_glob heap (Val.str ~flt_with_dot:false) in
       Io.write_file ~file:heap_file' ~data
   in
   let _output_value value =
