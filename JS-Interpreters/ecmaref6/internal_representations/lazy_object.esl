@@ -5,8 +5,7 @@ function __concatStringList(globalObject, this, NewTarget, strict, params) {
 
 function newLazyObject() {
   realm := { globalEnv : |global| };
-  n_object := CreateBuiltInFunctionObject([], "lazyFunction", realm, false,
-    null);
+  n_object := CreateBuiltInFunctionObject([], "lazyFunction", realm, false, null);
   n_object.Get := "lazyGet";
 
   format := CreateBuiltInFunctionObject(["..."], "__concatStringList", realm,
@@ -28,6 +27,5 @@ function lazyGet(O, P, Receiver) {
     desc := newDataPropertyDescriptorFull(newLazyObject(), true, true, true);
     setJSProperty(O, P, desc);
     return desc.Value
-
   }
 }
