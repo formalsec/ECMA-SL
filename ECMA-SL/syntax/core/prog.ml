@@ -3,7 +3,6 @@ open Func
 
 let ( let+ ) o f = Result.map o ~f
 
-
 type t = (string, Func.t) Hashtbl.t
 
 let empty () : t = Hashtbl.create (module String)
@@ -33,11 +32,9 @@ let add_func (prog : t) (key : string) (data : Func.t) : unit =
   Hashtbl.set prog ~key ~data
 
 let get_funcs (prog : t) : Func.t list = Hashtbl.data prog [@@inline]
+let iter (prog : t) ~(f : Func.t -> unit) : unit = Hashtbl.iter prog ~f
 
-let iter (prog : t) ~(f : (Func.t -> unit)) : unit =
-  Hashtbl.iter prog ~f
-
-let iteri (prog : t) ~(f : (key:string -> data:Func.t -> unit)) : unit =
+let iteri (prog : t) ~(f : key:string -> data:Func.t -> unit) : unit =
   Hashtbl.iteri prog ~f
 
 let str (prog : t) : string =
