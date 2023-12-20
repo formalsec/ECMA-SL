@@ -1,92 +1,92 @@
+function __symNumber(globalObject, this, NewTarget, strict, params) {
+  return extern flt_symbol(l_nth(params, 0))
+};
+
+function __symBoolean(globalObject, this, NewTarget, strict, params) {
+  return extern bool_symbol(l_nth(params, 0))
+};
+
+function __fresh_string(globalObject, this, NewTarget, strict, params) {
+  str := extern str_symbol("x");
+  strObj := StringCreate(str, getStringPrototype(strict));
+  replace := CreateBuiltInFunctionObject(["str"], "__fresh_string",
+    { globalEnv : globalObject }, strict, null);
+  createBuiltInProperty(strObj, "replace", replace);
+  return strObj
+};
+
+function __symString(globalObject, this, NewTarget, strict, params) {
+  id := l_nth(params, 0);
+  str := extern str_symbol(id);
+  strObj := StringCreate(str, getStringPrototype(strict));
+  replace := CreateBuiltInFunctionObject(["str"], "__fresh_string",
+    { globalEnv : globalObject }, strict, null);
+  createBuiltInProperty(strObj, "replace", replace);
+  return strObj
+};
+
+function __symAssume(globalObject, this, NewTarget, strict, params) {
+  extern assume(l_nth(params, 0));
+  return 0
+};
+
+function __symAssert(globalObject, this, NewTarget, strict, params) {
+  e := l_nth(params, 0);
+  assert(e);
+  return 0
+};
+
+function __symIsSymbolic(globalObject, this, NewTarget, strict, params) {
+  return extern is_symbolic(l_nth(params, 0))
+};
+
+function __symLazyObject(globalObject, this, NewTarget, strict, params) {
+  return newLazyObject()
+};
+
 function initESLSymbolicObject(globalObject, objectPrototype, strict) {
   realm := { globalEnv : globalObject };
   esl_symbolic := NewECMAScriptObject();
   setAllInternalMethodsOfOrdinaryObject(esl_symbolic);
   setInternalProperty(esl_symbolic, "Prototype", objectPrototype);
 
-  apiSymbolicNumber := CreateBuiltInFunctionObject(["var"], "__apiSymbolicNumber", realm, strict, null);
-  apiSymbolicString := CreateBuiltInFunctionObject(["var"], "__apiSymbolicString", realm, strict, null);
-  apiSymbolicBoolean := CreateBuiltInFunctionObject(["var"], "__apiSymbolicBoolean", realm, strict, null);
-  apiSymbolicAssume := CreateBuiltInFunctionObject(["expr"], "__apiSymbolicAssume", realm, strict, null);
-  apiSymbolicAssert := CreateBuiltInFunctionObject(["expr"], "__apiSymbolicAssert", realm, strict, null);
-  apiIsSymbolic := CreateBuiltInFunctionObject(["expr"], "__apiSymbolicIsSymbolic", realm, strict, null);
-  apiLazyObject := CreateBuiltInFunctionObject([], "__apiSymbolicLazyObject", realm, strict, null);
-  apiPollutingObject := CreateBuiltInFunctionObject([], "__apiPollutingObject",
+  apiSymbolicNumber := CreateBuiltInFunctionObject(["var"], "__symNumber",
     realm, strict, null);
-
-  createBuiltInProperty(esl_symbolic, "any", apiSymbolicString);
   createBuiltInProperty(esl_symbolic, "number", apiSymbolicNumber);
+  createBuiltInProperty(apiSymbolicNumber, "prototype", objectPrototype);
+
+  apiSymbolicString := CreateBuiltInFunctionObject(["var"], "__symString",
+    realm, strict, null);
   createBuiltInProperty(esl_symbolic, "string", apiSymbolicString);
+  createBuiltInProperty(esl_symbolic, "any", apiSymbolicString);
+  createBuiltInProperty(apiSymbolicString, "prototype", objectPrototype);
+
+  apiSymbolicBoolean := CreateBuiltInFunctionObject(["var"], "__symBoolean",
+    realm, strict, null);
   createBuiltInProperty(esl_symbolic, "boolean", apiSymbolicBoolean);
+  createBuiltInProperty(apiSymbolicBoolean, "prototype", objectPrototype);
+
+  apiSymbolicAssume := CreateBuiltInFunctionObject(["expr"], "__symAssume",
+    realm, strict, null);
   createBuiltInProperty(esl_symbolic, "assume", apiSymbolicAssume);
+  createBuiltInProperty(apiSymbolicAssume, "prototype", objectPrototype);
+
+  apiSymbolicAssert := CreateBuiltInFunctionObject(["expr"], "__symAssert",
+    realm, strict, null);
   createBuiltInProperty(esl_symbolic, "assert", apiSymbolicAssert);
+  createBuiltInProperty(apiSymbolicAssert, "prototype", objectPrototype);
+
+  apiIsSymbolic := CreateBuiltInFunctionObject(["expr"], "__symIsSymbolic",
+    realm, strict, null);
   createBuiltInProperty(esl_symbolic, "is_symbolic", apiIsSymbolic);
+  createBuiltInProperty(apiIsSymbolic, "prototype", objectPrototype);
+
+  apiLazyObject := CreateBuiltInFunctionObject([], "__symLazyObject",
+    realm, strict, null);
   createBuiltInProperty(esl_symbolic, "lazy_object", apiLazyObject);
   createBuiltInProperty(esl_symbolic, "function", apiLazyObject);
-  createBuiltInProperty(esl_symbolic, "polluting_object", apiPollutingObject);
-
-  createBuiltInProperty(apiSymbolicNumber, "prototype", objectPrototype);
-  createBuiltInProperty(apiSymbolicString, "prototype", objectPrototype);
-  createBuiltInProperty(apiSymbolicBoolean, "prototype", objectPrototype);
-  createBuiltInProperty(apiSymbolicAssume, "prototype", objectPrototype);
-  createBuiltInProperty(apiSymbolicAssert, "prototype", objectPrototype);
-  createBuiltInProperty(apiIsSymbolic, "prototype", objectPrototype);
   createBuiltInProperty(apiLazyObject, "prototype", objectPrototype);
-  createBuiltInProperty(apiPollutingObject, "prototype", objectPrototype);
 
   return esl_symbolic
-};
-
-function __apiSymbolicNumber(globalObject, this, NewTarget, strict, params) {
-  return extern flt_symbol(l_nth(params, 0))
-};
-
-function __apiSymbolicBoolean(globalObject, this, NewTarget, strict, params) {
-  return extern bool_symbol(l_nth(params, 0))
-};
-
-function __apiSymbolicString(globalObject, this, NewTarget, strict, params) {
-  return extern str_symbol(l_nth(params, 0))
-};
-
-function __apiSymbolicAssume(globalObject, this, NewTarget, strict, params) {
-  extern assume(l_nth(params, 0));
-  return 0
-};
-
-function __apiSymbolicAssert(globalObject, this, NewTarget, strict, params) {
-  e := l_nth(params, 0);
-  assert(e);
-  return 0
-};
-
-function __apiSymbolicIsSymbolic(globalObject, this, NewTarget, strict, params) {
-  return extern is_symbolic(l_nth(params, 0))
-};
-
-
-function __apiSymbolicLazyObject(globalObject, this, NewTarget, strict, params) {
-  return newLazyObject()
-};
-
-function __apiPollutingObject(globalObject, this, NewTarget, strict, params) {
-  base := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(base);
-  setInternalProperty(base, "Prototype", globalObject);
-  base_property := extern str_symbol("bp");
-
-  inner := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(inner);
-  setInternalProperty(inner, "Prototype", globalObject);
-  inner_property := extern str_symbol("ip");
-
-  inner_most := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(inner_most);
-  setInternalProperty(inner_most, "Prototype", globalObject);
-  /* setJSProperty */
-  /* createBuiltInProperty(inner_most, "toString", "malicious"); */
-  /* createBuiltInProperty(inner, inner_property, inner_most); */
-  /* createBuiltInProperty(base, base_property, inner); */
-  print base;
-  return base
 }
+
