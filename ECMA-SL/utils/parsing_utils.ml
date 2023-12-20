@@ -25,11 +25,11 @@ let e_parse start (lexbuf : Lexing.lexbuf) =
     (function
       | ESLMI.Rejected -> failwith "Parser rejected input"
       | ESLMI.HandlingError _e ->
-          (* let csn = ESLMI.current_state_number e in *)
-          Format.eprintf "%a, last token: %s: %s.@." print_position lexbuf
-            (show_e_token !last_token) "Error message found";
-          raise E_Parser.Error
-      | _ -> failwith "Unexpected state in failure handler!")
+        (* let csn = ESLMI.current_state_number e in *)
+        Format.eprintf "%a, last token: %s: %s.@." print_position lexbuf
+          (show_e_token !last_token) "Error message found";
+        raise E_Parser.Error
+      | _ -> failwith "Unexpected state in failure handler!" )
     (ESLMI.lexer_lexbuf_to_supplier lexer lexbuf)
     (start lexbuf.Lexing.lex_curr_p)
 
@@ -48,11 +48,11 @@ let parse start (lexbuf : Lexing.lexbuf) =
     (function
       | Core_ESLMI.Rejected -> failwith "Parser rejected input"
       | Core_ESLMI.HandlingError _e ->
-          (* let csn = Core_ESLMI.current_state_number e in *)
-          Format.eprintf "%a, last token: %s: %s.@." print_position lexbuf
-            (show_token !last_token) "Error message found";
-          raise Parser.Error
-      | _ -> failwith "Unexpected state in failure handler!")
+        (* let csn = Core_ESLMI.current_state_number e in *)
+        Format.eprintf "%a, last token: %s: %s.@." print_position lexbuf
+          (show_token !last_token) "Error message found";
+        raise Parser.Error
+      | _ -> failwith "Unexpected state in failure handler!" )
     (Core_ESLMI.lexer_lexbuf_to_supplier lexer lexbuf)
     (start lexbuf.Lexing.lex_curr_p)
 
@@ -100,38 +100,38 @@ let parse_file str : Prog.t =
   fs
 
 let rec resolve_imports (to_resolve : string list list) (resolved : StrSet.t)
-    (path : string list) (typedefs : (string * E_Type.t) list)
-    (funcs : E_Func.t list) (macros : E_Macro.t list) :
-    (string * E_Type.t) list * E_Func.t list * E_Macro.t list =
+  (path : string list) (typedefs : (string * E_Type.t) list)
+  (funcs : E_Func.t list) (macros : E_Macro.t list) :
+  (string * E_Type.t) list * E_Func.t list * E_Macro.t list =
   match (to_resolve, path) with
-  | [], _ -> (typedefs, funcs, macros)
-  | [] :: lst, file :: rest_path ->
-      let resolved = StrSet.add file resolved in
-      resolve_imports lst resolved rest_path typedefs funcs macros
-  | (file :: files) :: _, _ ->
-      if StrSet.mem file resolved then
-        resolve_imports [ files ] resolved path typedefs funcs macros
-      else if List.mem file path then
-        failwith "Error resolving imports: Cyclic dependency"
-      else
-        let file_contents = Io.load_file file in
-        let cur_prog = parse_e_prog file file_contents in
-        let cur_prog_typedefs = E_Prog.get_typedefs_list cur_prog in
-        let cur_prog_funcs = E_Prog.get_funcs cur_prog in
-        let cur_prog_macros = E_Prog.get_macros cur_prog in
-        resolve_imports
-          (E_Prog.get_imports cur_prog :: to_resolve)
-          resolved (file :: path)
-          (cur_prog_typedefs @ typedefs)
-          (cur_prog_funcs @ funcs) (cur_prog_macros @ macros)
-  | [] :: _, [] ->
-      invalid_arg
-        "Error resolving imports: path is empty and still some imports to \
-         resolve."
+  | ([], _) -> (typedefs, funcs, macros)
+  | ([] :: lst, file :: rest_path) ->
+    let resolved = StrSet.add file resolved in
+    resolve_imports lst resolved rest_path typedefs funcs macros
+  | ((file :: files) :: _, _) ->
+    if StrSet.mem file resolved then
+      resolve_imports [ files ] resolved path typedefs funcs macros
+    else if List.mem file path then
+      failwith "Error resolving imports: Cyclic dependency"
+    else
+      let file_contents = Io.load_file file in
+      let cur_prog = parse_e_prog file file_contents in
+      let cur_prog_typedefs = E_Prog.get_typedefs_list cur_prog in
+      let cur_prog_funcs = E_Prog.get_funcs cur_prog in
+      let cur_prog_macros = E_Prog.get_macros cur_prog in
+      resolve_imports
+        (E_Prog.get_imports cur_prog :: to_resolve)
+        resolved (file :: path)
+        (cur_prog_typedefs @ typedefs)
+        (cur_prog_funcs @ funcs) (cur_prog_macros @ macros)
+  | ([] :: _, []) ->
+    invalid_arg
+      "Error resolving imports: path is empty and still some imports to \
+       resolve."
 
 let resolve_prog_imports (prog : E_Prog.t) : E_Prog.t =
   let file_name = E_Prog.get_file_name prog in
-  let total_typedefs, total_funcs, total_macros =
+  let (total_typedefs, total_funcs, total_macros) =
     resolve_imports
       [ E_Prog.get_imports prog ]
       StrSet.empty

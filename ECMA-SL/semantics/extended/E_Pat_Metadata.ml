@@ -1,14 +1,15 @@
 open Val
 
-type t = {
-  production_number : string;
-  pre : string;
-  production_text : string;
-  post : string;
-  production_name : string option;
-  meta_params : (string * string) list;
-      (** parameter name and its alternative text that is used in the standard HTML generator. *)
-}
+type t =
+  { production_number : string
+  ; pre : string
+  ; production_text : string
+  ; post : string
+  ; production_name : string option
+  ; meta_params : (string * string) list
+      (** parameter name and its alternative text that is used in the standard
+          HTML generator. *)
+  }
 
 let get_pre (meta : t) : string = meta.pre
 let get_post (meta : t) : string = meta.post
@@ -18,42 +19,42 @@ let get_production_name (meta : t) : string option = meta.production_name
 let get_meta_params (meta : t) : (string * string) list = meta.meta_params
 
 let build_pat_metadata (metadata : Val.t list)
-    (params_alternatives : (string * string) list) : t =
+  (params_alternatives : (string * string) list) : t =
   let production_number =
     match List.nth_opt metadata 0 with
     | None -> ""
     | Some (Str s) -> s
     | _ ->
-        invalid_arg
-          "Unexpected metadata value type for section number (list index 0): \
-           expecting a String value"
+      invalid_arg
+        "Unexpected metadata value type for section number (list index 0): \
+         expecting a String value"
   in
   let pre =
     match List.nth_opt metadata 1 with
     | None -> ""
     | Some (Str s) -> s
     | _ ->
-        invalid_arg
-          "Unexpected metadata value type for section pre-text (list index 1): \
-           expecting a String value"
+      invalid_arg
+        "Unexpected metadata value type for section pre-text (list index 1): \
+         expecting a String value"
   in
   let production_text =
     match List.nth_opt metadata 2 with
     | None -> ""
     | Some (Str s) -> s
     | _ ->
-        invalid_arg
-          "Unexpected metadata value type for section pre-text (list index 2): \
-           expecting a String value"
+      invalid_arg
+        "Unexpected metadata value type for section pre-text (list index 2): \
+         expecting a String value"
   in
   let post =
     match List.nth_opt metadata 3 with
     | None -> ""
     | Some (Str s) -> s
     | _ ->
-        invalid_arg
-          "Unexpected metadata value type for section post-text (list index \
-           3): expecting a String value"
+      invalid_arg
+        "Unexpected metadata value type for section post-text (list index 3): \
+         expecting a String value"
   in
   let production_name =
     match List.nth_opt metadata 4 with
@@ -61,17 +62,16 @@ let build_pat_metadata (metadata : Val.t list)
     | Some Null -> None
     | Some (Str s) -> Some s
     | _ ->
-        invalid_arg
-          "Unexpected metadata value type for section name (list index 4): \
-           expecting a String value or Null"
+      invalid_arg
+        "Unexpected metadata value type for section name (list index 4): \
+         expecting a String value or Null"
   in
-  {
-    production_number;
-    pre;
-    production_text;
-    post;
-    production_name;
-    meta_params = params_alternatives;
+  { production_number
+  ; pre
+  ; production_text
+  ; post
+  ; production_name
+  ; meta_params = params_alternatives
   }
 
 let two_digits (value : string) : string =

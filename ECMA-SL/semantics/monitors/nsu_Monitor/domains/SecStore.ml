@@ -17,5 +17,5 @@ let str (str_sl : 'sl -> string) (sto : 'sl t) : string =
   Hashtbl.fold
     (fun k v ac ->
       let kv_str = Printf.sprintf "(%s, %s)" k (str_sl v) in
-      if ac == "" then kv_str else ac ^ ", " ^ kv_str)
+      if ac == "" then kv_str else ac ^ ", " ^ kv_str )
     sto ""

@@ -2,31 +2,30 @@ open Source
 
 type t = t' Source.phrase
 
-and t' = {
-  metadata : E_Func_Metadata.t option;
-  name : string;
-  params_t : (string * E_Type.t option) list;
-  return_t : E_Type.t option;
-  (* list_param: list_param_t option; *)
-  body : E_Stmt.t;
-}
+and t' =
+  { metadata : E_Func_Metadata.t option
+  ; name : string
+  ; params_t : (string * E_Type.t option) list
+  ; return_t : E_Type.t option
+  ; (* list_param: list_param_t option; *)
+    body : E_Stmt.t
+  }
 
 (* type list_param_t = string list * string list * string option *)
 (* required, optionals, summary_list *)
 (* target -> list_param_t_target *)
 
 let create (metadata : E_Func_Metadata.t option) (name : string)
-    (params_t : (string * E_Type.t option) list) (return_t : E_Type.t option)
-    (body : E_Stmt.t) : t' =
+  (params_t : (string * E_Type.t option) list) (return_t : E_Type.t option)
+  (body : E_Stmt.t) : t' =
   { metadata; name; params_t; return_t; body }
 
 let default () : t' =
-  {
-    metadata = None;
-    name = "";
-    params_t = [];
-    return_t = None;
-    body = E_Stmt.default () @> no_region;
+  { metadata = None
+  ; name = ""
+  ; params_t = []
+  ; return_t = None
+  ; body = E_Stmt.default () @> no_region
   }
 
 let get_name (func : t) : string = func.it.name
@@ -49,7 +48,9 @@ let create_store (func : t) (vals : Val.t list) : E_Store.t =
 
 let str (func : t) : string =
   let param_str (p : string) (t : E_Type.t option) : string =
-    match t with None -> p | Some t' -> p ^ ": " ^ E_Type.str t'
+    match t with
+    | None -> p
+    | Some t' -> p ^ ": " ^ E_Type.str t'
   in
   let return_str (return_t : E_Type.t option) : string =
     match return_t with
@@ -57,7 +58,11 @@ let str (func : t) : string =
     | Some return_t' -> ": " ^ E_Type.str return_t'
   in
   let params_str = List.map (fun (p, t) -> param_str p t) func.it.params_t in
-  "function " ^ func.it.name ^ " (" ^ print_list params_str ^ ") "
+  "function "
+  ^ func.it.name
+  ^ " ("
+  ^ print_list params_str
+  ^ ") "
   ^ return_str func.it.return_t
   ^ E_Stmt.str func.it.body
 

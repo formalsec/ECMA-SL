@@ -45,20 +45,19 @@ let rec str (e : t) : string =
    This still contains defects. *)
 let rec pattern_match (subst : subst_t) (e1 : t) (e2 : t) : bool =
   match (e1, e2) with
-  | Val v1, Val v2 -> Val.equal v1 v2
-  | Var x1, Var _x2 | GVar x1, GVar _x2 -> (
+  | (Val v1, Val v2) -> Val.equal v1 v2
+  | (Var x1, Var _x2) | (GVar x1, GVar _x2) -> (
     let x1' = Hashtbl.find_opt subst x1 in
     match x1' with
     | None ->
       Hashtbl.replace subst x1 e2;
       true
-    | Some e2' -> (e2 = e2') )
-  | Const c1, Const c2 -> (c1 = c2)
-  | UnOpt (op, e), UnOpt (op', e') when (op = op') ->
-    pattern_match subst e e'
-  | BinOpt (op, e1, e2), BinOpt (op', e1', e2') when (op = op') ->
+    | Some e2' -> e2 = e2' )
+  | (Const c1, Const c2) -> c1 = c2
+  | (UnOpt (op, e), UnOpt (op', e')) when op = op' -> pattern_match subst e e'
+  | (BinOpt (op, e1, e2), BinOpt (op', e1', e2')) when op = op' ->
     pattern_match subst e1 e1' && pattern_match subst e2 e2'
-  | Call (f, es, None), Call (f', es', None)
+  | (Call (f, es, None), Call (f', es', None))
     when List.length es = List.length es' ->
     let b = pattern_match subst f f' in
     if b then
@@ -101,13 +100,15 @@ let rec map (f : t -> t) (e : t) : t =
 
 let subst (sbst : subst_t) (e : t) : t =
   (* Printf.printf "In subst expr\n"; *)
-  let f e' = match e' with Var x -> get_subst sbst x | _ -> e' in
+  let f e' =
+    match e' with
+    | Var x -> get_subst sbst x
+    | _ -> e'
+  in
   map f e
 
 let string_of_subst (sbst : subst_t) : string =
-  let strs =
-    Hashtbl.fold (fun x e ac -> (x ^ ": " ^ str e) :: ac) sbst []
-  in
+  let strs = Hashtbl.fold (fun x e ac -> (x ^ ": " ^ str e) :: ac) sbst [] in
   String.concat ", " strs
 
 let rec get_expr_name (e : t) : string option =
@@ -117,6 +118,6 @@ let rec get_expr_name (e : t) : string option =
   | Lookup (e, f) -> (
     let ename = get_expr_name e in
     match (ename, f) with
-    | Some ename', Val (Val.Str fn) -> Some (ename' ^ "[" ^ fn ^ "]")
+    | (Some ename', Val (Val.Str fn)) -> Some (ename' ^ "[" ^ fn ^ "]")
     | _ -> None )
   | _ -> None

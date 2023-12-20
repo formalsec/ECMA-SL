@@ -2,7 +2,11 @@ module SSet = Set.Make (String)
 
 exception Except of string
 
-type t = High | MidOne | MidTwo | Low
+type t =
+  | High
+  | MidOne
+  | MidTwo
+  | Low
 
 let top () : SSet.t option ref = raise (Except "Illegal Lattice operation ")
 
@@ -31,17 +35,17 @@ let parse_lvl (str : string) : t =
 
 let lub (l1 : t) (l2 : t) : t =
   match (l1, l2) with
-  | High, _ | _, High | MidOne, MidTwo | MidTwo, MidOne -> High
-  | MidOne, _ | _, MidOne -> MidOne
-  | MidTwo, _ | _, MidTwo -> MidTwo
-  | _, _ -> Low
+  | (High, _) | (_, High) | (MidOne, MidTwo) | (MidTwo, MidOne) -> High
+  | (MidOne, _) | (_, MidOne) -> MidOne
+  | (MidTwo, _) | (_, MidTwo) -> MidTwo
+  | (_, _) -> Low
 
 let lubn (lst : t list) : t = List.fold_left lub Low lst
 
 let leq (l1 : t) (l2 : t) : bool =
   match (l1, l2) with
-  | _, High -> true
-  | Low, _ -> true
-  | MidOne, MidOne -> true
-  | MidTwo, MidTwo -> true
-  | _, _ -> false
+  | (_, High) -> true
+  | (Low, _) -> true
+  | (MidOne, MidOne) -> true
+  | (MidTwo, MidTwo) -> true
+  | (_, _) -> false

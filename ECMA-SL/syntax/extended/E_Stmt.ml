@@ -18,7 +18,7 @@ and t' =
   | GlobAssign of string * E_Expr.t
   | Block of t list
   | If of E_Expr.t * t * t option * metadata_t list * metadata_t list
-      (** "If" and "Else" metadata *)
+    (** "If" and "Else" metadata *)
   | EIf of (E_Expr.t * t * metadata_t list) list * (t * metadata_t list) option
   | While of E_Expr.t * t
   | ForEach of
@@ -30,7 +30,7 @@ and t' =
   | MatchWith of E_Expr.t * (E_Pat.t * t) list
   | MacroApply of string * E_Expr.t list
   | Switch of E_Expr.t * (E_Expr.t * t) list * t option * string
-      (** metadata; just "table caption" for now. *)
+    (** metadata; just "table caption" for now. *)
   | Lambda of string * string * string list * string list * t
   | Abort of E_Expr.t
   | Assert of E_Expr.t
@@ -66,13 +66,19 @@ let rec str (stmt : t) : string =
   | Return (Some e) -> "return " ^ E_Expr.str e
   | Wrapper (_m, s) -> str s
   | Assign (x, t, exp) ->
-    let x' = match t with None -> x | Some t' -> x ^ ": " ^ E_Type.str t' in
+    let x' =
+      match t with
+      | None -> x
+      | Some t' -> x ^ ": " ^ E_Type.str t'
+    in
     x' ^ " := " ^ E_Expr.str exp
   | GlobAssign (x, exp) -> "|" ^ x ^ "| := " ^ E_Expr.str exp
   | Block stmts -> "{ " ^ String.concat ";" (List.map str stmts) ^ " }"
   | If (e, s1, s2, _, _) -> (
     let v = "if (" ^ E_Expr.str e ^ ") " ^ str s1 in
-    match s2 with None -> v | Some s -> v ^ " else " ^ str s )
+    match s2 with
+    | None -> v
+    | Some s -> v ^ " else " ^ str s )
   | EIf (ifs, final_else) -> (
     let ifs' =
       List.map
@@ -92,7 +98,9 @@ let rec str (stmt : t) : string =
   | ExprStmt e -> E_Expr.str e
   | RepeatUntil (s, e, _) -> "repeat " ^ str s ^ " until " ^ E_Expr.str e
   | MatchWith (e, pats_stmts) ->
-    "match " ^ E_Expr.str e ^ " with | "
+    "match "
+    ^ E_Expr.str e
+    ^ " with | "
     ^ String.concat " | "
         (List.map (fun (e, s) -> E_Pat.str e ^ ": " ^ str s) pats_stmts)
   | MacroApply (m, es) ->

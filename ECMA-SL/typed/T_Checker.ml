@@ -9,26 +9,29 @@ let type_main_func (tctx : T_Ctx.t) : T_Err.t list =
   match T_Ctx.get_func_by_name tctx "main" with
   | None -> [ T_Err.create T_Err.MissingMainFunc ]
   | Some func ->
-      let params = E_Func.get_params func in
-      if List.length params = 0 then []
-      else
-        let tkn = T_Err.str_tkn (List.nth params 0) in
-        [ T_Err.create T_Err.BadMainArgs ~src:(T_Err.func_tkn func) ~tkn ]
+    let params = E_Func.get_params func in
+    if List.length params = 0 then []
+    else
+      let tkn = T_Err.str_tkn (List.nth params 0) in
+      [ T_Err.create T_Err.BadMainArgs ~src:(T_Err.func_tkn func) ~tkn ]
 
 let type_function_params (tctx : T_Ctx.t) (func : E_Func.t) : unit =
-  let _tparam = function None -> E_Type.AnyType | Some t -> t in
+  let _tparam = function
+    | None -> E_Type.AnyType
+    | Some t -> t
+  in
   let _ = T_Ctx.tenv_reset tctx in
   let tparams = E_Func.get_params_t func in
   List.iter
     (fun (param, tparam) ->
       match T_Ctx.tenv_find tctx param with
       | None ->
-          let tparam' = _tparam tparam |> fun t -> T_Ctx.create_tvar t t true in
-          T_Ctx.tenv_update tctx param tparam'
+        let tparam' = _tparam tparam |> fun t -> T_Ctx.create_tvar t t true in
+        T_Ctx.tenv_update tctx param tparam'
       | Some _ ->
-          T_Err.raise (T_Err.DuplicatedParam param)
-            ~src:(T_Err.func_tkn (T_Ctx.get_func tctx))
-            ~tkn:(T_Err.str_tkn param))
+        T_Err.raise (T_Err.DuplicatedParam param)
+          ~src:(T_Err.func_tkn (T_Ctx.get_func tctx))
+          ~tkn:(T_Err.str_tkn param) )
     tparams
 
 let test_function_return (tctx : T_Ctx.t) (func : E_Func.t) : unit =

@@ -9,8 +9,8 @@ and t' =
 let str (pat : t) : string =
   match pat.it with
   | ObjPat (pn_pats, _) ->
-      "{ "
-      ^ String.concat ", "
-          (List.map (fun (pn, pat) -> pn ^ ": " ^ E_Pat_v.str pat) pn_pats)
-      ^ "}"
+    "{ "
+    ^ String.concat ", "
+        (List.map (fun (pn, pat) -> pn ^ ": " ^ E_Pat_v.str pat) pn_pats)
+    ^ "}"
   | DefaultPat -> "default"

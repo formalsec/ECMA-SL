@@ -17,11 +17,11 @@ let str (str_sl : 'sl -> string) (obj : 'sl t) : string =
   Hashtbl.fold
     (fun prop (exists_lvl, val_lvl) acc ->
       Printf.sprintf "%s: (%s, %s), %s" prop (str_sl exists_lvl)
-        (str_sl val_lvl) acc)
+        (str_sl val_lvl) acc )
     obj ""
 
 let new_sec_prop (obj : 'sl t) (field : Field.t) (exists_lvl : 'sl)
-    (val_lvl : 'sl) : unit =
+  (val_lvl : 'sl) : unit =
   Hashtbl.replace obj field (exists_lvl, val_lvl)
 
 let upg_exists (obj : 'sl t) (field : Field.t) (lvl : 'sl) : unit =

@@ -4,13 +4,19 @@ open E_Func
 open E_Pat
 open Source
 
-type kind_t = Error | Warning
+type kind_t =
+  | Error
+  | Warning
 
 let kind_err (kind : kind_t) : string =
-  match kind with Error -> "TypeError" | Warning -> "Type Warning"
+  match kind with
+  | Error -> "TypeError"
+  | Warning -> "Type Warning"
 
 let kind_font (kind : kind_t) : string =
-  match kind with Error -> Font.red | Warning -> Font.yellow
+  match kind with
+  | Error -> Font.red
+  | Warning -> Font.yellow
 
 type tkn_t =
   | NoTkn
@@ -31,11 +37,17 @@ let tkn_region (src : tkn_t) : Source.region =
   | _ -> no_region
 
 let concat_tkns (tkns : tkn_t list list) (split : string) : tkn_t list =
-  let _split_tkn_f r = match r with [] -> r | _r' :: _ -> Lit split :: r in
+  let _split_tkn_f r =
+    match r with
+    | [] -> r
+    | _r' :: _ -> Lit split :: r
+  in
   List.fold_right (fun f r -> List.append f (_split_tkn_f r)) tkns []
 
 let type_tkns (t : E_Type.t option) : tkn_t list =
-  match t with None -> [] | Some t' -> [ Lit ": "; Type t' ]
+  match t with
+  | None -> []
+  | Some t' -> [ Lit ": "; Type t' ]
 
 let call_tkns (fnTkn : tkn_t) (args : E_Expr.t list) : tkn_t list =
   let argTkns = concat_tkns (List.map (fun arg -> [ Expr arg ]) args) ", " in
@@ -50,7 +62,7 @@ let unop_tkns (op : Operators.uopt) (e : E_Expr.t) : tkn_t list =
   | _ -> call_tkns opTkn [ e ]
 
 let binop_tkns (op : Operators.bopt) (e1 : E_Expr.t) (e2 : E_Expr.t) :
-    tkn_t list =
+  tkn_t list =
   let opStr = Operators.str_of_binopt_single op in
   let opTkn = Lit (" " ^ opStr ^ " ") in
   match op with
@@ -77,7 +89,8 @@ let binop_tkns (op : Operators.bopt) (e1 : E_Expr.t) (e2 : E_Expr.t) :
   | Operators.Pow -> [ Expr e1; opTkn; Expr e2 ]
   | _ -> call_tkns (Lit opStr) [ e1; e2 ]
 
-let ebinop_tkns (op : E_Oper.bopt) (e1 : E_Expr.t) (e2 : E_Expr.t) : tkn_t list =
+let ebinop_tkns (op : E_Oper.bopt) (e1 : E_Expr.t) (e2 : E_Expr.t) : tkn_t list
+    =
   let opStr = E_Oper.str_of_binopt_single op in
   let opTkn = Lit (" " ^ opStr ^ " ") in
   match op with
@@ -85,9 +98,10 @@ let ebinop_tkns (op : E_Oper.bopt) (e1 : E_Expr.t) (e2 : E_Expr.t) : tkn_t list 
   | E_Oper.SCLogOr -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
 
 let triop_tkns (op : Operators.topt) (e1 : E_Expr.t) (e2 : E_Expr.t)
-    (e3 : E_Expr.t) : tkn_t list =
+  (e3 : E_Expr.t) : tkn_t list =
   let opTkn = Lit (Operators.str_of_triopt_single op) in
-  match op with _ -> call_tkns opTkn [ e1; e2; e3 ]
+  match op with
+  | _ -> call_tkns opTkn [ e1; e2; e3 ]
 
 let nopt_tkns (op : Operators.nopt) (es : E_Expr.t list) : tkn_t list =
   let exprTkns = concat_tkns (List.map (fun arg -> [ Expr arg ]) es) ", " in
@@ -109,9 +123,9 @@ let expr_tkns (expr : E_Expr.t) : tkn_t list =
   | Call (Val (Val.Str fn), args, _) -> call_tkns (Str fn) args
   (* | ECall (_, _) -> [] *)
   | NewObj fes ->
-      let _fe_tkn_f (fn, fe) = [ Str fn; Lit ": "; Expr fe ] in
-      let feTkns = concat_tkns (List.map _fe_tkn_f fes) ", " in
-      List.concat [ [ Lit "{ " ]; feTkns; [ Lit " }" ] ]
+    let _fe_tkn_f (fn, fe) = [ Str fn; Lit ": "; Expr fe ] in
+    let feTkns = concat_tkns (List.map _fe_tkn_f fes) ", " in
+    List.concat [ [ Lit "{ " ]; feTkns; [ Lit " }" ] ]
   | Lookup (oe, fe) -> [ Expr oe; Lit "["; Expr fe; Lit "]" ]
   (* | Curry (_, _) -> [] *)
   (* | Symbolic (_, _) -> [] *)
@@ -130,8 +144,8 @@ let stmt_tkns (stmt : E_Stmt.t) : tkn_t list =
   | Return (Some e) -> [ Lit "return "; Expr e ]
   (* | Wrapper (_, _) -> [] *)
   | Assign (x, t, e) ->
-      let typeTkns = type_tkns t in
-      List.concat [ [ Str x ]; typeTkns; [ Lit " := " ]; [ Expr e ] ]
+    let typeTkns = type_tkns t in
+    List.concat [ [ Str x ]; typeTkns; [ Lit " := " ]; [ Expr e ] ]
   (* | GlobAssign (_, _) -> [] *)
   | Block _stmts -> []
   | If (e, _, _, _, _) -> [ Lit "if ("; Expr e; Lit ") { "; Lit threedots ]
@@ -139,7 +153,7 @@ let stmt_tkns (stmt : E_Stmt.t) : tkn_t list =
   | While (e, _) -> [ Lit "while ("; Expr e; Lit ") { "; Lit threedots ]
   (* | ForEach (_, _, _, _, _) -> [] *)
   | FieldAssign (oe, fe, e) ->
-      [ Expr oe; Lit "["; Expr fe; Lit "]"; Lit " := "; Expr e ]
+    [ Expr oe; Lit "["; Expr fe; Lit "]"; Lit " := "; Expr e ]
   (* | FieldDelete (_, _) -> [] *)
   | ExprStmt expr -> [ Expr expr ]
   (* | RepeatUntil (_, _, _) -> [] *)
@@ -152,7 +166,7 @@ let stmt_tkns (stmt : E_Stmt.t) : tkn_t list =
 let func_tkns (func : E_Func.t) : tkn_t list =
   let _param_tkn_f (param, tparam) = Str param :: type_tkns tparam in
   let func' = func.it in
-  let fn, fparams, freturn = (func'.name, func'.params_t, func'.return_t) in
+  let (fn, fparams, freturn) = (func'.name, func'.params_t, func'.return_t) in
   let funcTkns = [ Lit "function "; Str fn ] in
   let paramTkns = concat_tkns (List.map _param_tkn_f fparams) ", " in
   let retTkn = type_tkns freturn in
@@ -164,8 +178,8 @@ let pat_tkns (pat : E_Pat.t) : tkn_t list =
   let _pat_tkns pat =
     match pat with
     | ObjPat (patFlds, _) ->
-        let patFldTkns = concat_tkns (List.map _pat_fld_tkn_f patFlds) ", " in
-        List.concat [ [ Lit "{ " ]; patFldTkns; [ Lit " }" ] ]
+      let patFldTkns = concat_tkns (List.map _pat_fld_tkn_f patFlds) ", " in
+      List.concat [ [ Lit "{ " ]; patFldTkns; [ Lit " }" ] ]
     | DefaultPat -> [ Lit "default" ]
   in
   let patTkns = _pat_tkns pat.it in
@@ -173,18 +187,20 @@ let pat_tkns (pat : E_Pat.t) : tkn_t list =
 
 let tkn_cmp (tkn1 : tkn_t) (tkn2 : tkn_t) : bool =
   match (tkn1, tkn2) with
-  | Lit tkn1', Lit tkn2' -> tkn1' = tkn2'
-  | Str tkn1', Str tkn2' -> tkn1' == tkn2'
-  | Type tkn1', Type tkn2' -> tkn1' == tkn2'
-  | Expr tkn1', Expr tkn2' -> tkn1' == tkn2'
-  | Stmt tkn1', Stmt tkn2' -> tkn1' == tkn2'
-  | Func tkn1', Func tkn2' -> tkn1' == tkn2'
-  | Pat tkn1', Pat tkn2' -> tkn1' == tkn2'
-  | PatVal tkn1', PatVal tkn2' -> tkn1' == tkn2'
+  | (Lit tkn1', Lit tkn2') -> tkn1' = tkn2'
+  | (Str tkn1', Str tkn2') -> tkn1' == tkn2'
+  | (Type tkn1', Type tkn2') -> tkn1' == tkn2'
+  | (Expr tkn1', Expr tkn2') -> tkn1' == tkn2'
+  | (Stmt tkn1', Stmt tkn2') -> tkn1' == tkn2'
+  | (Func tkn1', Func tkn2') -> tkn1' == tkn2'
+  | (Pat tkn1', Pat tkn2') -> tkn1' == tkn2'
+  | (PatVal tkn1', PatVal tkn2') -> tkn1' == tkn2'
   | _ -> false
 
 let tkn_is_splitable (tkn : tkn_t) : bool =
-  match tkn with Expr _ | Stmt _ | Func _ | Pat _ -> true | _ -> false
+  match tkn with
+  | Expr _ | Stmt _ | Func _ | Pat _ -> true
+  | _ -> false
 
 let split_tkn (tkn : tkn_t) : tkn_t list =
   match tkn with
@@ -211,37 +227,35 @@ let tkn_str_size (tkn : tkn_t) : string * int =
   let cleanTknStr = Font.clean tknStr in
   (tknStr, String.length cleanTknStr)
 
-type locData_t = {
-  region : region;
-  mutable file : string;
-  mutable line : int;
-  mutable left : int;
-  mutable right : int;
-}
+type locData_t =
+  { region : region
+  ; mutable file : string
+  ; mutable line : int
+  ; mutable left : int
+  ; mutable right : int
+  }
 
-type srcData_t = {
-  mutable code : string;
-  mutable hgl : string;
-  mutable locData : locData_t;
-}
+type srcData_t =
+  { mutable code : string
+  ; mutable hgl : string
+  ; mutable locData : locData_t
+  }
 
 let init_source_data (src : tkn_t) : srcData_t =
   let region = tkn_region src in
-  {
-    code = "";
-    hgl = "";
-    locData =
-      {
-        region;
-        file = region.left.file;
-        line = region.left.line;
-        left = region.left.column;
-        right = region.left.column;
-      };
+  { code = ""
+  ; hgl = ""
+  ; locData =
+      { region
+      ; file = region.left.file
+      ; line = region.left.line
+      ; left = region.left.column
+      ; right = region.left.column
+      }
   }
 
 let process_empty_cause (srcData : srcData_t) (src : tkn_t) : unit =
-  let tknStr, tknSize = tkn_str_size src in
+  let (tknStr, tknSize) = tkn_str_size src in
   srcData.code <- tknStr;
   srcData.hgl <- String.make tknSize '^';
   srcData.locData.left <- 0;
@@ -249,7 +263,7 @@ let process_empty_cause (srcData : srcData_t) (src : tkn_t) : unit =
 
 let rec process_cause (srcData : srcData_t) (tkn : tkn_t) (src : tkn_t) : unit =
   let _write_tkn hgl =
-    let tknStr, tknSize = tkn_str_size src in
+    let (tknStr, tknSize) = tkn_str_size src in
     let _ = srcData.code <- srcData.code ^ tknStr in
     let _ = srcData.hgl <- srcData.hgl ^ String.make tknSize hgl in
     tknSize
@@ -296,9 +310,9 @@ let format_source (kind : kind_t) (tkn : tkn_t) (src : tkn_t) : string =
   match src with
   | NoTkn -> ""
   | _ ->
-      Font.format (format_loc srcData.locData) [ Font.italic; Font.faint ]
-      ^ format_code srcData
-      ^ Font.format (format_hgl srcData) [ kind_font kind ]
+    Font.format (format_loc srcData.locData) [ Font.italic; Font.faint ]
+    ^ format_code srcData
+    ^ Font.format (format_hgl srcData) [ kind_font kind ]
 
 let format_msg (kind : kind_t) (msgs : string list) : string =
   let font = kind_font kind in
@@ -307,6 +321,6 @@ let format_msg (kind : kind_t) (msgs : string list) : string =
   match msgs with
   | [] -> terrHeader ^ "???"
   | mainErrStr :: sideErrs ->
-      let _side_err_str_f errStr = terrCause ^ errStr ^ "\n" in
-      let sideErrsStr = String.concat "" (List.map _side_err_str_f sideErrs) in
-      terrHeader ^ mainErrStr ^ "\n" ^ sideErrsStr
+    let _side_err_str_f errStr = terrCause ^ errStr ^ "\n" in
+    let sideErrsStr = String.concat "" (List.map _side_err_str_f sideErrs) in
+    terrHeader ^ mainErrStr ^ "\n" ^ sideErrsStr

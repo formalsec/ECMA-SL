@@ -17,15 +17,16 @@ let parseJS (prog : Prog.t) (_heap : 'a Heap.t) (str : string) : Val.t =
   List.iter Sys.remove [ input_file; output_file ];
   Val.Str func_id
 
-let loadInitialHeap (_prog : Prog.t) (heap : 'a Heap.t) (file : string) : Val.t =
+let loadInitialHeap (_prog : Prog.t) (heap : 'a Heap.t) (file : string) : Val.t
+    =
   Val.Loc (Parsing_heap_utils.parse_and_update heap file)
 
 let execute (prog : Prog.t) (heap : 'a Heap.t) (f : string) (vs : Val.t list) :
-    Val.t =
+  Val.t =
   match (f, vs) with
-  | "is_symbolic", _ -> Val.Bool false
-  | "parseJS", [ Val.Str str ] -> parseJS prog heap str
-  | "loadInitialHeap", [ Val.Str file ] ->
-      let loc = loadInitialHeap prog heap file in
-      loc
+  | ("is_symbolic", _) -> Val.Bool false
+  | ("parseJS", [ Val.Str str ]) -> parseJS prog heap str
+  | ("loadInitialHeap", [ Val.Str file ]) ->
+    let loc = loadInitialHeap prog heap file in
+    loc
   | _ -> failwith "UNKNOWN external function"

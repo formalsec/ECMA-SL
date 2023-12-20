@@ -75,7 +75,7 @@ let parse_decimal_digit (str : string) (idx : int) : float option =
   Printf.printf "parse_decimal_digit %d\n" length;
   if idx >= length then (
     Printf.printf "%s\n" "None";
-    None)
+    None )
   else
     let code = Char.code (String.get str idx) in
     if 47 < code && code < 58 then Some (Float.of_int (code - 48)) else None
@@ -86,7 +86,7 @@ DecimalDigits :::
   DecimalDigits DecimalDigit
 *)
 let rec parse_decimal_digits (str : string) (idx : int) (f : float) :
-    float * int =
+  float * int =
   Printf.printf "parse_decimal_digits %s %d %f\n" str idx f;
   let od = parse_decimal_digit str idx in
   match od with
@@ -109,7 +109,7 @@ let parse_signed_integer (str : string) (idx : int) : float * int =
   Printf.printf "parse_signed_integer %s %d\n" str idx;
   let c = String.get str idx in
   if c = '-' then
-    let f, idx' = parse_decimal_digits str (idx + 1) 0. in
+    let (f, idx') = parse_decimal_digits str (idx + 1) 0. in
     (f *. -1., idx')
   else parse_decimal_digits str (idx + 1) 0.
 
@@ -137,27 +137,27 @@ let parse_str_unsigned_decimal_literal (str : string) (idx : int) : float * int
   match res with
   | Some (f, idx') -> (f, idx')
   | None ->
-      let c = String.get str idx in
-      if c = '.' then
-        let f1, idx1 = parse_decimal_digits str (idx + 1) 0. in
-        let f2, idx2 = parse_exponent_part str idx1 in
-        let exp = -.(Int.to_float (String.length (Float.to_string f1)) -. 1.) in
-        (f1 *. (10. ** exp) *. (10. ** f2), idx2)
+    let c = String.get str idx in
+    if c = '.' then
+      let (f1, idx1) = parse_decimal_digits str (idx + 1) 0. in
+      let (f2, idx2) = parse_exponent_part str idx1 in
+      let exp = -.(Int.to_float (String.length (Float.to_string f1)) -. 1.) in
+      (f1 *. (10. ** exp) *. (10. ** f2), idx2)
+    else
+      let (f1, idx1) = parse_decimal_digits str idx 0. in
+      if idx1 >= String.length str then (f1, idx1)
       else
-        let f1, idx1 = parse_decimal_digits str idx 0. in
-        if idx1 >= String.length str then (f1, idx1)
+        let c = String.get str idx1 in
+        if c = '.' then
+          let (f2, idx2) = parse_decimal_digits str (idx1 + 1) 0. in
+          let (f3, idx3) = parse_exponent_part str idx2 in
+          let exp =
+            -.(Int.to_float (String.length (Float.to_string f2)) -. 1.)
+          in
+          ((f1 +. (f2 *. (10. ** exp))) *. (10. ** f3), idx3)
         else
-          let c = String.get str idx1 in
-          if c = '.' then
-            let f2, idx2 = parse_decimal_digits str (idx1 + 1) 0. in
-            let f3, idx3 = parse_exponent_part str idx2 in
-            let exp =
-              -.(Int.to_float (String.length (Float.to_string f2)) -. 1.)
-            in
-            ((f1 +. (f2 *. (10. ** exp))) *. (10. ** f3), idx3)
-          else
-            let f2, idx2 = parse_exponent_part str (idx1 + 1) in
-            (f1 *. (10. ** f2), idx2)
+          let (f2, idx2) = parse_exponent_part str (idx1 + 1) in
+          (f1 *. (10. ** f2), idx2)
 
 (*
 StrDecimalLiteral :::
@@ -169,7 +169,7 @@ let parse_str_decimal_literal (str : string) (idx : int) : float * int =
   Printf.printf "parse_str_decimal_literal %s %d\n" str idx;
   let c = String.get str idx in
   if c = '-' then
-    let f, idx' = parse_str_unsigned_decimal_literal str (idx + 1) in
+    let (f, idx') = parse_str_unsigned_decimal_literal str (idx + 1) in
     (f *. -1., idx')
   else parse_str_unsigned_decimal_literal str idx
 
@@ -201,6 +201,6 @@ let parse_string_numeric_literal (str : string) : float =
   let idx1 = parse_white_space_opt str 0 in
   if idx1 = String.length str then 0.
   else
-    let f, idx2 = parse_str_numeric_literal str idx1 in
+    let (f, idx2) = parse_str_numeric_literal str idx1 in
     let _ = parse_white_space_opt str idx2 in
     f
