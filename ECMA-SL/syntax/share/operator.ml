@@ -98,6 +98,7 @@ type binopt =
   | Times
   | Div
   | Modulo
+  | Pow
   (* Bitwise Operators *)
   | BitwiseAnd
   | BitwiseOr
@@ -144,7 +145,6 @@ type binopt =
   (* Math Operators *)
   | Min
   | Max
-  | Pow
   | Atan2
 
 type triopt =
@@ -258,6 +258,7 @@ let label_of_binopt (op : binopt) : string =
   | Times -> "Arith.times (*)"
   | Div -> "Arith.div (/)"
   | Modulo -> "Arith.mod (%)"
+  | Pow -> "Arith.pow (**)"
   | BitwiseAnd -> "Bitwise.and (&)"
   | BitwiseOr -> "Bitwise.or (|)"
   | BitwiseXor -> "Bitwise.xor (^)"
@@ -293,7 +294,6 @@ let label_of_binopt (op : binopt) : string =
   | UintFromLEBytes -> "Byte.uint_from_le_bytes"
   | Min -> "Math.min"
   | Max -> "Math.max"
-  | Pow -> "Math.pow"
   | Atan2 -> "Math.atan2"
 
 let label_of_triopt (op : triopt) : string =
@@ -477,6 +477,7 @@ let str_of_binopt_single (op : binopt) : string =
   | Times -> "*"
   | Div -> "/"
   | Modulo -> "%"
+  | Pow -> "**"
   | BitwiseAnd -> "&"
   | BitwiseOr -> "|"
   | BitwiseXor -> "^"
@@ -512,7 +513,6 @@ let str_of_binopt_single (op : binopt) : string =
   | UintFromLEBytes -> "uint_from_le_bytes"
   | Min -> "min"
   | Max -> "max"
-  | Pow -> "**"
   | Atan2 -> "atan2"
 
 let str_of_binopt (op : binopt) (v1 : string) (v2 : string) : string =
@@ -522,6 +522,7 @@ let str_of_binopt (op : binopt) (v1 : string) (v2 : string) : string =
   | Times -> Printf.sprintf "%s * %s" v1 v2
   | Div -> Printf.sprintf "%s / %s" v1 v2
   | Modulo -> Printf.sprintf "%s %% %s" v1 v2
+  | Pow -> Printf.sprintf "%s ** %s" v1 v2
   | BitwiseAnd -> Printf.sprintf "%s & %s" v1 v2
   | BitwiseOr -> Printf.sprintf "%s | %s" v1 v2
   | BitwiseXor -> Printf.sprintf "%s ^ %s" v1 v2
@@ -557,7 +558,6 @@ let str_of_binopt (op : binopt) (v1 : string) (v2 : string) : string =
   | UintFromLEBytes -> Printf.sprintf "uint_from_le_bytes(%s, %s)" v1 v2
   | Min -> Printf.sprintf "min(%s, %s)" v1 v2
   | Max -> Printf.sprintf "max(%s, %s)" v1 v2
-  | Pow -> Printf.sprintf "%s ** %s" v1 v2
   | Atan2 -> Printf.sprintf "atan2(%s, %s)" v1 v2
 
 let str_of_triopt_single (op : triopt) : string =
@@ -670,6 +670,7 @@ let binopt_to_json (op : binopt) : string =
     | Times -> "Times"
     | Div -> "Div"
     | Modulo -> "Modulo"
+    | Pow -> "Pow"
     | BitwiseAnd -> "BitwiseAnd"
     | BitwiseOr -> "BitwiseOr"
     | BitwiseXor -> "BitwiseXor"
@@ -705,7 +706,6 @@ let binopt_to_json (op : binopt) : string =
     | UintFromLEBytes -> "UintFromLEBytes"
     | Min -> "Min"
     | Max -> "Max"
-    | Pow -> "Pow"
     | Atan2 -> "Atan2" )
 
 let triopt_to_json (op : triopt) : string =
