@@ -30,14 +30,14 @@ module M = struct
           if !ele = lev then (
             chng := false;
             (*Printf.printf "Found ref >>>>>%d   (%s)\n" (Obj.magic (ele)) (str_sset !ref_res);*)
-            ele)
-          else ac)
+            ele )
+          else ac )
         (ref SSet.empty) !all_levels
     in
     if !chng then (
       all_levels := !all_levels @ [ ref_res ];
       (*Printf.printf "New ref >>>>>%d   (%s)\n" (Obj.magic (ref_res)) (str_sset !ref_res);*)
-      ref_res)
+      ref_res )
     else ele
 
   (* Gives an existent ref or a new ref *)
@@ -53,14 +53,14 @@ module M = struct
 
   let flow_to_str (fl : flow) : string =
     match fl with
-    | fromset, toset -> Printf.sprintf "%s -> %s" (str fromset) (str toset)
+    | (fromset, toset) -> Printf.sprintf "%s -> %s" (str fromset) (str toset)
 
   let apply_flow (fl : flow) (lev : SSet.t) : SSet.t =
     Printf.printf "\tApplying flow %s to lev %s\n" (flow_to_str fl)
       (str_sset lev);
     match fl with
-    | fromset, toset ->
-        if SSet.subset !toset lev then SSet.union !fromset lev else lev
+    | (fromset, toset) ->
+      if SSet.subset !toset lev then SSet.union !fromset lev else lev
 
   let close_level (lev : SSet.t) : SSet.t =
     Printf.printf "Closing level %s\n" (str_sset lev);
@@ -102,11 +102,11 @@ module M = struct
       let close = close_level (SSet.of_list []) in
       let refer = find_ref close in
       (*Printf.printf ">>>>>>>>>>>>%d\n" (Obj.magic refer);*)
-      refer)
+      refer )
     else (
       print_string "ELSE\n";
       let close = close_level (SSet.of_list finalst) in
       let refer = find_ref close in
       (*Printf.printf ">>>>>>>>>>>>%d\n" (Obj.magic refer);*)
-      refer)
+      refer )
 end

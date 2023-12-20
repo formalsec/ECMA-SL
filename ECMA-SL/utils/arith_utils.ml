@@ -15,43 +15,43 @@ let to_int n =
   | FP_infinite -> n
   | FP_zero -> n
   | FP_normal | FP_subnormal ->
-      (if n < 0. then -1. else 1.) *. floor (abs_float n)
+    (if n < 0. then -1. else 1.) *. floor (abs_float n)
 
 let to_int32 n =
   match classify_float n with
   | FP_normal | FP_subnormal ->
-      let i32 = 2. ** 32. in
-      let i31 = 2. ** 31. in
-      let posint = (if n < 0. then -1. else 1.) *. floor (abs_float n) in
-      let int32bit =
-        let smod = mod_float posint i32 in
-        if smod < 0. then smod +. i32 else smod
-      in
-      if int32bit >= i31 then int32bit -. i32 else int32bit
+    let i32 = 2. ** 32. in
+    let i31 = 2. ** 31. in
+    let posint = (if n < 0. then -1. else 1.) *. floor (abs_float n) in
+    let int32bit =
+      let smod = mod_float posint i32 in
+      if smod < 0. then smod +. i32 else smod
+    in
+    if int32bit >= i31 then int32bit -. i32 else int32bit
   | _ -> 0.
 
 let to_uint32 n =
   match classify_float n with
   | FP_normal | FP_subnormal ->
-      let i32 = 2. ** 32. in
-      let posint = (if n < 0. then -1. else 1.) *. floor (abs_float n) in
-      let int32bit =
-        let smod = mod_float posint i32 in
-        if smod < 0. then smod +. i32 else smod
-      in
-      int32bit
+    let i32 = 2. ** 32. in
+    let posint = (if n < 0. then -1. else 1.) *. floor (abs_float n) in
+    let int32bit =
+      let smod = mod_float posint i32 in
+      if smod < 0. then smod +. i32 else smod
+    in
+    int32bit
   | _ -> 0.
 
 let to_uint16 n =
   match classify_float n with
   | FP_normal | FP_subnormal ->
-      let i16 = 2. ** 16. in
-      let posint = (if n < 0. then -1. else 1.) *. floor (abs_float n) in
-      let int16bit =
-        let smod = mod_float posint i16 in
-        if smod < 0. then smod +. i16 else smod
-      in
-      int16bit
+    let i16 = 2. ** 16. in
+    let posint = (if n < 0. then -1. else 1.) *. floor (abs_float n) in
+    let int16bit =
+      let smod = mod_float posint i16 in
+      if smod < 0. then smod +. i16 else smod
+    in
+    int16bit
   | _ -> 0.
 
 let modulo_32 x =

@@ -1,7 +1,13 @@
 open Source
 
 type tenv_t = (string, tvar_t) Hashtbl.t
-and tvar_t = { at : E_Type.t; rt : E_Type.t; nt : E_Type.t; mt : bool }
+
+and tvar_t =
+  { at : E_Type.t
+  ; rt : E_Type.t
+  ; nt : E_Type.t
+  ; mt : bool
+  }
 
 let get_tvar_at (tvar : tvar_t) : E_Type.t = tvar.at
 let get_tvar_rt (tvar : tvar_t) : E_Type.t = tvar.rt
@@ -14,32 +20,33 @@ let create_tvar (at : E_Type.t) (nt : E_Type.t) (mt : bool) : tvar_t =
   let nt' = T_Narrowing.create_narrow_type at nt in
   { at; rt = at; nt = nt'; mt }
 
-type tstate_t = Normal | Abrupt | EndBlock
+type tstate_t =
+  | Normal
+  | Abrupt
+  | EndBlock
 
-type t = {
-  prog : E_Prog.t;
-  mutable func : E_Func.t;
-  mutable stmt : E_Stmt.t;
-  mutable state : tstate_t;
-  tenv : tenv_t;
-}
+type t =
+  { prog : E_Prog.t
+  ; mutable func : E_Func.t
+  ; mutable stmt : E_Stmt.t
+  ; mutable state : tstate_t
+  ; tenv : tenv_t
+  }
 
 let create (prog : E_Prog.t) : t =
-  {
-    prog;
-    func = E_Func.default () @> no_region;
-    stmt = E_Stmt.default () @> no_region;
-    state = Normal;
-    tenv = Hashtbl.create !Config.default_hashtbl_sz;
+  { prog
+  ; func = E_Func.default () @> no_region
+  ; stmt = E_Stmt.default () @> no_region
+  ; state = Normal
+  ; tenv = Hashtbl.create !Config.default_hashtbl_sz
   }
 
 let copy (tctx : t) : t =
-  {
-    prog = tctx.prog;
-    func = tctx.func;
-    stmt = tctx.stmt;
-    state = tctx.state;
-    tenv = Hashtbl.copy tctx.tenv;
+  { prog = tctx.prog
+  ; func = tctx.func
+  ; stmt = tctx.stmt
+  ; state = tctx.state
+  ; tenv = Hashtbl.copy tctx.tenv
   }
 
 let get_func (tctx : t) : E_Func.t = tctx.func
@@ -61,8 +68,8 @@ let get_typedefs (tctx : t) : (string, E_Type.t) Hashtbl.t =
 
 let merge_tstates (tstate1 : tstate_t) (tstate2 : tstate_t) : tstate_t =
   match (tstate1, tstate2) with
-  | Normal, _ | _, Normal -> Normal
-  | Abrupt, Abrupt -> Abrupt
+  | (Normal, _) | (_, Normal) -> Normal
+  | (Abrupt, Abrupt) -> Abrupt
   | _ -> failwith "Typed ECMA-SL: T_Ctx.merge_tstates"
 
 let tenv_reset (tctx : t) : t = Hashtbl.clear tctx.tenv |> fun () -> tctx

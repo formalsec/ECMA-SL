@@ -1,7 +1,11 @@
 open Core
 
 type 'a obj = 'a Object.t
-type 'a t = { parent : 'a t option; map : (Loc.t, 'a obj) Hashtbl.t }
+
+type 'a t =
+  { parent : 'a t option
+  ; map : (Loc.t, 'a obj) Hashtbl.t
+  }
 
 let create () : 'a t = { parent = None; map = Hashtbl.create (module String) }
 
@@ -22,9 +26,9 @@ let rec get (h : 'a t) (l : Loc.t) : 'a obj option =
   match Hashtbl.find h.map l with
   | Some _ as v -> v
   | None ->
-      let obj = Option.bind h.parent ~f:(fun h -> get h l) in
-      Option.iter obj ~f:(fun o -> set h l (Object.clone o));
-      obj
+    let obj = Option.bind h.parent ~f:(fun h -> get h l) in
+    Option.iter obj ~f:(fun o -> set h l (Object.clone o));
+    obj
 
 let get_field (heap : 'a t) (loc : Loc.t) (field : String.t) : 'a option =
   let obj = get heap loc in
@@ -42,7 +46,8 @@ let to_string (h : 'a t) (pp : 'a -> string) : string =
   "{ "
   ^ String.concat ~sep:", "
       (Hashtbl.fold h.map ~init:[] ~f:(fun ~key:n ~data:v acc ->
-           Printf.sprintf "%s: %s" (Loc.str n) (Object.to_string v pp) :: acc))
+           Printf.sprintf "%s: %s" (Loc.str n) (Object.to_string v pp) :: acc )
+      )
   ^ " }"
 
 let to_string_with_glob (h : 'a t) (pp : 'a -> string) : string =
@@ -52,14 +57,14 @@ let to_string_with_glob (h : 'a t) (pp : 'a -> string) : string =
         | Some _ -> acc
         (* Keep this in sync with Compiler.ml function *)
         (* "compile_gvar" and "compile_glob_assign" *)
-        | None -> Object.get obj Common.global_var_compiled)
+        | None -> Object.get obj Common.global_var_compiled )
   in
   match glob with
   | Some l ->
-      Printf.sprintf "{ \"heap\": %s, \"global\": %s }" (to_string h pp)
-        (Val.str l)
+    Printf.sprintf "{ \"heap\": %s, \"global\": %s }" (to_string h pp)
+      (Val.str l)
   | None ->
-      raise
-        (Failure
-           "Couldn't find the Object that contains only one property, named \
-            \"global\".")
+    raise
+      (Failure
+         "Couldn't find the Object that contains only one property, named \
+          \"global\"." )

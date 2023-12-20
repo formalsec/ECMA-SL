@@ -15,7 +15,7 @@ let to_string (o : 'a t) (printer : 'a -> string) : string =
   let str_obj =
     Hashtbl.fold o ~init:"{ " ~f:(fun ~key:n ~data:v ac ->
         (if String.(ac <> "{ ") then ac ^ ", " else ac)
-        ^ Printf.sprintf "\"%s\": %s" n (printer v))
+        ^ Printf.sprintf "\"%s\": %s" n (printer v) )
   in
   str_obj ^ " }"
 
@@ -23,7 +23,7 @@ let to_json (o : 'a t) (printer : 'a -> string) : string =
   let str_obj =
     Hashtbl.fold o ~init:"{ " ~f:(fun ~key:n ~data:v ac ->
         (if String.(ac <> "{ ") then ac ^ ", " else ac)
-        ^ Printf.sprintf "\"%s\": %s" n (printer v))
+        ^ Printf.sprintf "\"%s\": %s" n (printer v) )
   in
   str_obj ^ " }"
 

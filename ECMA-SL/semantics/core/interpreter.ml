@@ -6,7 +6,10 @@ open Source
 open Operators
 open Eval_op
 
-let ( let+ ) o f = match o with Ok v -> f v | Error m -> failwith m
+let ( let+ ) o f =
+  match o with
+  | Ok v -> f v
+  | Error m -> failwith m
 
 module type SecurityMonitor = sig
   type state_t
@@ -106,13 +109,15 @@ module M (Mon : SecurityMonitor) = struct
     (_sto : Val.t Store.t) (field : Val.t) (loc : Val.t) : Val.t =
     let b =
       match (loc, field) with
-      | Loc l, Str f -> Heap.get_field heap l f
+      | (Loc l, Str f) -> Heap.get_field heap l f
       | _ ->
         invalid_arg
           "Exception in Interpreter.eval_inobj_expr : \"loc\" is not a Loc \
            value or \"field\" is not a string"
     in
-    match b with Some _v -> Bool true | None -> Bool false
+    match b with
+    | Some _v -> Bool true
+    | None -> Bool false
 
   let eval_objtolist_oper (heap : Val.t Heap.t) (st : Val.t Store.t)
     (loc_expr : Expr.t) : Val.t =
@@ -158,8 +163,7 @@ module M (Mon : SecurityMonitor) = struct
 
   let eval_fielddelete_stmt (_prog : Prog.t) (heap : Val.t Heap.t)
     (sto : Val.t Store.t) (e : Expr.t) (f : Expr.t) : unit =
-    let loc = eval_expr sto e
-    and field = eval_expr sto f in
+    let loc = eval_expr sto e and field = eval_expr sto f in
     let loc' =
       match loc with
       | Loc loc -> loc
@@ -185,7 +189,7 @@ module M (Mon : SecurityMonitor) = struct
       string -> Val.t list -> Expr.t list -> Mon.sl SecLabel.t option )
     (prog : Prog.t) (state : state_t) (cont : Stmt.t list) (s : Stmt.t) :
     return * Mon.sl SecLabel.t =
-    let cs, heap, sto, f = state in
+    let (cs, heap, sto, f) = state in
     let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
     if Stmt.is_basic_stmt s then
       Log.debug
@@ -234,7 +238,7 @@ module M (Mon : SecurityMonitor) = struct
       (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignLab (x, e))
     | Return e -> (
       let v = eval_expr sto e in
-      let f, cs' = Call_stack.pop cs in
+      let (f, cs') = Call_stack.pop cs in
       match f with
       | Call_stack.Intermediate (cont', sto', x, f') ->
         Store.set sto' x v;
@@ -271,14 +275,16 @@ module M (Mon : SecurityMonitor) = struct
       let stms = Stmt.If (e, Stmt.Block s1 @> s'.at, None) @> s.at in
       (Intermediate ((cs, heap, sto, f), stms :: cont), SecLabel.EmptyLab)
     | AssignCall (x, func, es) -> (
-      let f', vs' = get_func_id sto func in
+      let (f', vs') = get_func_id sto func in
       let vs'' = List.map (eval_expr sto) es in
       let vs = vs' @ vs'' in
       let b = interceptor f' vs es in
       match b with
       | None ->
         let+ func = Prog.get_func prog f' in
-        let cs', sto_aux, params = prepare_call prog f cs sto cont x es f' vs in
+        let (cs', sto_aux, params) =
+          prepare_call prog f cs sto cont x es f' vs
+        in
         let (cont' : Stmt.t) = func.body in
         let aux_list = cont' :: [] in
         ( Intermediate ((cs', heap, sto_aux, f'), aux_list)
@@ -292,9 +298,9 @@ module M (Mon : SecurityMonitor) = struct
     | AssignInObjCheck (st, e_f, e_o) ->
       let field = eval_expr sto e_f in
       let obj = eval_expr sto e_o in
-      let field', obj' =
+      let (field', obj') =
         match (field, obj) with
-        | Str f, Loc o -> (f, o)
+        | (Str f, Loc o) -> (f, o)
         | _ -> raise (Except "Internal Error")
       in
       let v = eval_inobj_expr prog heap sto field obj in
@@ -310,10 +316,12 @@ module M (Mon : SecurityMonitor) = struct
       let loc = eval_expr sto e_o in
       let field = eval_expr sto e_f in
       match (loc, field) with
-      | Loc loc', Str field' ->
+      | (Loc loc', Str field') ->
         let v = Heap.get_field heap loc' field' in
         let v' =
-          match v with None -> Val.Symbol "undefined" | Some v'' -> v''
+          match v with
+          | None -> Val.Symbol "undefined"
+          | Some v'' -> v''
         in
         Store.set sto x v';
         ( Intermediate ((cs, heap, sto, f), cont)
@@ -327,7 +335,7 @@ module M (Mon : SecurityMonitor) = struct
       let field = eval_expr sto e_f in
       let v = eval_expr sto e_v in
       match (loc, field) with
-      | Loc loc, Str field ->
+      | (Loc loc, Str field) ->
         Heap.set_field heap loc field v;
         ( Intermediate ((cs, heap, sto, f), cont)
         , SecLabel.FieldAssignLab (loc, field, e_o, e_f, e_v) )
@@ -339,7 +347,7 @@ module M (Mon : SecurityMonitor) = struct
       let loc = eval_expr sto e in
       let field = eval_expr sto e_f in
       match (loc, field) with
-      | Loc loc', Str field' ->
+      | (Loc loc', Str field') ->
         Heap.delete_field heap loc' field';
         ( Intermediate ((cs, heap, sto, f), cont)
         , SecLabel.FieldDeleteLab (loc', field', e, e_f) )
@@ -365,7 +373,7 @@ module M (Mon : SecurityMonitor) = struct
     match stmts with
     | [] -> raise (Except "Empty list")
     | s :: stmts' -> (
-      let return, label = eval_small_step interceptor prog state stmts' s in
+      let (return, label) = eval_small_step interceptor prog state stmts' s in
       if monitor = "nsu" then (
         let mon_return : Mon.monitor_return =
           Mon.eval_small_step mon_state label
@@ -408,7 +416,7 @@ module M (Mon : SecurityMonitor) = struct
     let v =
       small_step_iter interceptor prog state_0 mon_state_0 [ func.body ] monitor
     in
-    let _, heap, _, _ = state_0 in
+    let (_, heap, _, _) = state_0 in
     match v with
     | Finalv v -> (v, heap)
     | Errorv (Some (Val.Str s)) ->

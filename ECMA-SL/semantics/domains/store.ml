@@ -14,6 +14,6 @@ let str (s : 'a t) (printer : 'a -> string) : string =
   Hashtbl.fold
     (fun x v ac ->
       (if ac <> "{ " then ac ^ ", " else ac)
-      ^ Printf.sprintf "%s: %s" x (printer v))
+      ^ Printf.sprintf "%s: %s" x (printer v) )
     s "{ "
   ^ " }"

@@ -29,17 +29,17 @@ let str (v : t) : string =
 
 let ( = ) t1 t2 =
   match (t1, t2) with
-  | IntType, IntType
-  | FltType, FltType
-  | BoolType, BoolType
-  | StrType, StrType
-  | LocType, LocType
-  | ListType, ListType
-  | TypeType, TypeType
-  | TupleType, TupleType
-  | NullType, NullType
-  | SymbolType, SymbolType
-  | CurryType, CurryType
-  | ArrayType, ArrayType ->
-      true
+  | (IntType, IntType)
+  | (FltType, FltType)
+  | (BoolType, BoolType)
+  | (StrType, StrType)
+  | (LocType, LocType)
+  | (ListType, ListType)
+  | (TypeType, TypeType)
+  | (TupleType, TupleType)
+  | (NullType, NullType)
+  | (SymbolType, SymbolType)
+  | (CurryType, CurryType)
+  | (ArrayType, ArrayType) ->
+    true
   | _ -> false
