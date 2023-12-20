@@ -9,5 +9,5 @@ function createShellJSObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(shelljs, "exec", exec);
   createBuiltInProperty(exec, "prototype", objectPrototype);
 
-  return cp
+  return shelljs
 }
