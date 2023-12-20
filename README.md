@@ -7,7 +7,8 @@
   <a href="#installation">Installation</a> •
   <a href="#ecma-sl-execution">Execution</a> •
   <a href="#integrated-development-environment-ide">IDE</a> •
-  <a href="#issues">Issues</a>
+  <a href="#issues">Issues</a> •
+  <a href="#license">License</a>
 </p>
 
 <br>
@@ -103,3 +104,9 @@ FIXME
 # Issues
 
 For the list containing all current issues, please consult our [issue-tracker](https://github.com/formalsec/ECMA-SL/issues).
+
+<br>
+
+# License
+
+This project is licensed under the [GPL-3.0 License](https://www.gnu.org/licenses/gpl-3.0.en.html) - see the [LICENSE](LICENSE) file for details.
