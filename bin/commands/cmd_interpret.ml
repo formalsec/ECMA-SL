@@ -1,5 +1,5 @@
 open Ecma_sl
-module NSU = NSU_Monitor.M (SecLevel)
+module NSU = NSUMonitor.M (SecLevel)
 module Interpreter = Interpreter.M (NSU)
 
 let run_interpreter (heap_file : string option) (prog : Prog.t) : unit =
