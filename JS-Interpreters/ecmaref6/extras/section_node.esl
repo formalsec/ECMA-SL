@@ -1,30 +1,41 @@
 function __NodeRequire(globalObject, this, newTarget, strict, params) {
   path := l_nth(params, 0);
   objectPrototype := |Intrinsics|["ObjectPrototype"];
-  if (path = "esl_symbolic") {
-    return initESLSymbolicObject(globalObject, objectPrototype, strict)
-  } elif (path = "process") {
-    return createProcessObject(globalObject, objectPrototype, strict)
-  } elif (path = "os") {
-    return createOSObject(globalObject, objectPrototype, strict)
-  } elif (path = "fs") {
-    return createFSObject(globalObject, objectPrototype, strict)
-  } elif (path = "path") {
-    return createPathObject(globalObject, objectPrototype, strict)
-  } elif (path = "child_process") {
-    return createCPObject(globalObject, objectPrototype, strict)
-  } elif (path = "mz/child_process") {
-    return createCPObject(globalObject, objectPrototype, strict)
-  } elif (path = "shelljs") {
-    return createShellJSObject(globalObject, objectPrototype, strict)
-  } elif (path = "cross-spawn") {
-    return createCrossSpawnObject(globalObject, objectPrototype, strict)
-  } elif (path = "im-metadata") {
-    return createCrossSpawnObject(globalObject, objectPrototype, strict)
-  } elif (path = "gray-matter") {
-    return createCrossSpawnObject(globalObject, objectPrototype, strict)
-  } else {
-    return newLazyObject()
+  switch(path) {
+    case "esl_symbolic": {
+      return initESLSymbolicObject(globalObject, objectPrototype, strict)
+    }
+    case "process": {
+      return createProcessObject(globalObject, objectPrototype, strict)
+    }
+    case "os": {
+      return createOSObject(globalObject, objectPrototype, strict)
+    }
+    case "fs": {
+      return createFSObject(globalObject, objectPrototype, strict)
+    }
+    case "path": {
+      return createPathObject(globalObject, objectPrototype, strict)
+    }
+    case "child_process": {
+      return createCPObject(globalObject, objectPrototype, strict)
+    }
+    case "mz/child_process": {
+      return createCPObject(globalObject, objectPrototype, strict)
+    }
+    case "shelljs": {
+      return createShellJSObject(globalObject, objectPrototype, strict)
+    }
+    case "cross-spawn": {
+      return createCrossSpawnObject(globalObject, objectPrototype, strict)
+    }
+    case "im-metadata": {
+      return createCrossSpawnObject(globalObject, objectPrototype, strict)
+    }
+    case "gray-matter": {
+      return createCrossSpawnObject(globalObject, objectPrototype, strict)
+    }
+    sdefault: return newLazyObject()
   }
 };
 
