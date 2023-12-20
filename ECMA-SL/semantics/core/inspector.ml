@@ -84,7 +84,7 @@ let rec inspector (heap : Val.t Heap.t) (sto : Val.t Store.t) : unit =
     Printf.printf "%s" (Store.str sto Val.str);
     f ()
   | Some ShowHeap ->
-    Printf.printf "%s" (Heap.to_string heap (Val.str ~flt_with_dot:false));
+    Printf.printf "%s" (Heap.str heap (Val.str ~flt_with_dot:false));
     f ()
   | Some Continue -> ()
   | None ->
