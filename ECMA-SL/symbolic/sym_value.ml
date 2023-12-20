@@ -6,7 +6,12 @@ let list_map ~f l =
   let exception E of string in
   try
     return
-    @@ List.map (fun v -> match f v with Error s -> raise (E s) | Ok v -> v) l
+    @@ List.map
+         (fun v ->
+           match f v with
+           | Error s -> raise (E s)
+           | Ok v -> v )
+         l
   with E s -> Error s
 
 module M = struct
@@ -44,17 +49,18 @@ module M = struct
 
   let rec equal (e1 : value) (e2 : value) : bool =
     match (e1, e2) with
-    | Val v1, Val v2 -> Val.equal v1 v2
-    | Symbolic (t1, e1'), Symbolic (t2, e2') -> Type.(t1 = t2) && equal e1' e2'
-    | UnOpt (op1, e1'), UnOpt (op2, e2') ->
+    | (Val v1, Val v2) -> Val.equal v1 v2
+    | (Symbolic (t1, e1'), Symbolic (t2, e2')) ->
+      Type.equal t1 t2 && equal e1' e2'
+    | (UnOpt (op1, e1'), UnOpt (op2, e2')) ->
       Stdlib.( = ) op1 op2 && equal e1' e2'
-    | BinOpt (op1, e1', e2'), BinOpt (op2, e3', e4') ->
+    | (BinOpt (op1, e1', e2'), BinOpt (op2, e3', e4')) ->
       Stdlib.( = ) op1 op2 && equal e1' e3' && equal e2' e4'
-    | TriOpt (op1, e1', e2', e3'), TriOpt (op2, e4', e5', e6') ->
+    | (TriOpt (op1, e1', e2', e3'), TriOpt (op2, e4', e5', e6')) ->
       Stdlib.( = ) op1 op2 && equal e1' e4' && equal e2' e5' && equal e3' e6'
-    | NOpt (op1, es1), NOpt (op2, es2) ->
+    | (NOpt (op1, es1), NOpt (op2, es2)) ->
       Stdlib.( = ) op1 op2 && List.equal equal es1 es2
-    | Curry (x1, es1), Curry (x2, es2) ->
+    | (Curry (x1, es1), Curry (x2, es2)) ->
       equal x1 x2 && List.equal equal es1 es2
     | _ -> false
 
@@ -101,20 +107,22 @@ module M = struct
       | None -> Error (Format.sprintf "Cannot find var '%s'" x) )
     | Expr.UnOpt (op, e) -> (
       let+ e' = eval_expr store e in
-      match e' with Val v -> Val (Eval_operator.eval_unop op v) | _ -> UnOpt (op, e')
-      )
+      match e' with
+      | Val v -> Val (Eval_operator.eval_unop op v)
+      | _ -> UnOpt (op, e') )
     | Expr.BinOpt (op, e1, e2) -> (
       let* e1' = eval_expr store e1 in
       let+ e2' = eval_expr store e2 in
       match (e1', e2') with
-      | Val v1, Val v2 -> Val (Eval_operator.eval_binopt_expr op v1 v2)
+      | (Val v1, Val v2) -> Val (Eval_operator.eval_binopt_expr op v1 v2)
       | _ -> BinOpt (op, e1', e2') )
     | Expr.TriOpt (op, e1, e2, e3) -> (
       let* e1' = eval_expr store e1 in
       let* e2' = eval_expr store e2 in
       let+ e3' = eval_expr store e3 in
       match (e1', e2', e3') with
-      | Val v1, Val v2, Val v3 -> Val (Eval_operator.eval_triopt_expr op v1 v2 v3)
+      | (Val v1, Val v2, Val v3) ->
+        Val (Eval_operator.eval_triopt_expr op v1 v2 v3)
       | _ -> TriOpt (op, e1', e2', e3') )
     | Expr.NOpt (op, es) ->
       let+ es' = list_map ~f:(eval_expr store) es in
@@ -139,7 +147,9 @@ module M = struct
       | NOpt (op, es) -> Operator.str_of_nopt op (List.map pp es)
       | Curry (f, es) -> "{" ^ pp f ^ "}@(" ^ concat es ^ ")"
       | Symbolic (_t, x) -> (
-        match x with Val (Val.Str x) -> x | _ -> assert false )
+        match x with
+        | Val (Val.Str x) -> x
+        | _ -> assert false )
 
     module Store = struct
       type t = Store.t

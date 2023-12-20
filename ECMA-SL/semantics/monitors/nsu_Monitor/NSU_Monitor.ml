@@ -38,7 +38,7 @@ module M (SL : SecLevel.M) = struct
 
   let expr_lvl (ssto : sl SecStore.t) (exp : Expr.t) : sl =
     (*Criar lub entre lista de variaveis*)
-    let vars = Expr.vars exp in
+    let vars = Expr.vars_in_expr exp in
     List.fold_left SL.lub (SL.get_low ()) (List.map (SecStore.get ssto) vars)
 
   let rec eval_small_step (m_state : state_t) (tl : sl SecLabel.t) :

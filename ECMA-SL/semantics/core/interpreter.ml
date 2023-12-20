@@ -96,7 +96,7 @@ module M (Mon : SecurityMonitor) = struct
     let cs' =
       Call_stack.push cs (Call_stack.Intermediate (cont, sto, x, calling_f))
     in
-    let+ params = Prog.get_params prog f in
+    let+ params = Prog.func_params prog f in
     let pvs =
       try List.combine params vs
       with _ -> raise (Failure ("Invalid number of arguments: " ^ f))
@@ -194,10 +194,10 @@ module M (Mon : SecurityMonitor) = struct
       Log.debug
         "====================================\nEvaluating >>>>> %s: %s (%s)" f
         (Stmt.str s)
-        (Stmt.str ~print_expr:str_e s);
+        (Stmt.str ~expr_printer:str_e s);
     match s.it with
     | Skip -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab)
-    | Exception str ->
+    | Throw str ->
       print_string (Source.string_of_region s.at ^ ": Exception: " ^ str ^ "\n");
       exit 1
     | Merge -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.MergeLab)
@@ -221,7 +221,7 @@ module M (Mon : SecurityMonitor) = struct
         "====================================\n\
          Evaluating >>>>> %s: %s (%s) in the callstack:\n\
         \ %s" f (Stmt.str s)
-        (Stmt.str ~print_expr:str_e s)
+        (Stmt.str ~expr_printer:str_e s)
         (Call_stack.str cs);
       let v = eval_expr sto e in
       (Errorv (Some v), SecLabel.EmptyLab)
@@ -280,7 +280,7 @@ module M (Mon : SecurityMonitor) = struct
       let b = interceptor f' vs es in
       match b with
       | None ->
-        let+ func = Prog.get_func prog f' in
+        let+ func = Prog.func prog f' in
         let (cs', sto_aux, params) =
           prepare_call prog f cs sto cont x es f' vs
         in
@@ -408,7 +408,7 @@ module M (Mon : SecurityMonitor) = struct
   (*Worker class of the Interpreter*)
   let eval_prog ?(monitor : string = "") ?(main : string = "main")
     (prog : Prog.t) : Val.t option * Val.t Heap.t =
-    let+ func = Prog.get_func prog main in
+    let+ func = Prog.func prog main in
     let state_0 = initial_state () in
     let mon_state_0 = Mon.initial_monitor_state () in
     let interceptor = SecLabel.interceptor Mon.parse_lvl in

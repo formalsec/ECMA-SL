@@ -12,6 +12,8 @@ type t =
   | TypeType
   | CurryType
 
+let equal (t1 : t) (t2 : t) : bool = t1 = t2 [@@inline]
+
 let str (v : t) : string =
   match v with
   | NullType -> "__$Null"
@@ -26,20 +28,3 @@ let str (v : t) : string =
   | TupleType -> "__$Tuple"
   | TypeType -> "__$Type"
   | CurryType -> "__$Curry"
-
-let ( = ) t1 t2 =
-  match (t1, t2) with
-  | (NullType, NullType)
-  | (IntType, IntType)
-  | (FltType, FltType)
-  | (StrType, StrType)
-  | (BoolType, BoolType)
-  | (SymbolType, SymbolType)
-  | (LocType, LocType)
-  | (ArrayType, ArrayType)
-  | (ListType, ListType)
-  | (TupleType, TupleType)
-  | (TypeType, TypeType)
-  | (CurryType, CurryType) ->
-    true
-  | _ -> false
