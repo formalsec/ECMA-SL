@@ -53,16 +53,14 @@
   store
   heap
   ;   semantics (core)
-  eval_operator
-  external
-  inspector
   interpreter
-  ;   semantics (extended)
-  compiler
-  E_Func_Metadata
-  E_Pat_Metadata
-  ;   semantics (monitors)
-  NSU_Monitor
+  inspector
+  external
+  eval_operator
+  ;   semantics (default monitor)
+
+  ;   semantics (nsu monitor)
+  NSUMonitor
   SecLabel
   SecLevel
   SecLevel2
@@ -72,6 +70,10 @@
   SecStore
   SecHeap
   TopLevel
+  ;   semantics (extended)
+  compiler
+  E_Func_Metadata
+  E_Pat_Metadata
   ; typed
   T_Checker
   T_Expr
