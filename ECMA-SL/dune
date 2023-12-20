@@ -57,19 +57,18 @@
   inspector
   external
   eval_operator
-  ;   semantics (default monitor)
-
   ;   semantics (nsu monitor)
   NSUMonitor
-  SecLabel
-  SecLevel
-  SecLevel2
-  SecLevel_Dep
-  SecObject
-  SecCallStack
-  SecStore
-  SecHeap
-  TopLevel
+  NSUException
+  NSUObject
+  NSUStore
+  NSUHeap
+  NSUCallStack
+  NSULabel
+  NSUTopLevel
+  NSULevel
+  NSULevel2
+  NSULevel_Dep
   ;   semantics (extended)
   compiler
   E_Func_Metadata
