@@ -72,10 +72,10 @@ let upg_obj_lvl (heap : 'sl t) (loc : Loc.t) (lvl : 'sl) : unit =
   let (obj, struct_lvl, _) = get heap loc in
   update heap loc obj struct_lvl lvl
 
-let str (heap : 'sl t) (sl_printer : 'sl -> string) : string =
+let str (sl_printer : 'sl -> string) (heap : 'sl t) : string =
   let _binding_str loc obj struct_lvl obj_lvl =
     Printf.sprintf "%s|-> {%s}_{%s, %s}" loc
-      (NSUObject.str obj sl_printer)
+      (NSUObject.str sl_printer obj)
       (sl_printer struct_lvl) (sl_printer obj_lvl)
   in
   let _heap_str_f loc (obj, struct_lvl, obj_lvl) acc =

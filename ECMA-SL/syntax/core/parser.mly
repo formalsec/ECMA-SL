@@ -52,7 +52,7 @@ let at (startpos, endpos) =
 %token PRINT DELETE 
 %token FUNCTION RETURN EXTERN
 %token IF ELSE WHILE
-%token THROW FAIL ASSERT
+%token FAIL ASSERT
 
 (* ========== Operator Tokens ========== *)
 
@@ -186,8 +186,6 @@ stmt_target:
     { Stmt.If (e, s1, Some s2) @> at $sloc }
   | WHILE; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_block_target; RBRACE;
     { Stmt.While (e, s) @> at $sloc }
-  | THROW; exn = STRING;
-    { Stmt.Throw exn @> at $sloc }
   | FAIL; e = expr_target;
     { Stmt.Fail e @> at $sloc }
   | ASSERT; LPAREN; e = expr_target; RPAREN;

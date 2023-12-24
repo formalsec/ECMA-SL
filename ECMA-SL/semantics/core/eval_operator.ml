@@ -935,7 +935,7 @@ let array_expr (vals : Val.t list) : Val.t = Arr (Array.of_list vals)
 let list_expr (vals : Val.t list) : Val.t = List vals
 let tuple_expr (vals : Val.t list) : Val.t = Tuple vals
 
-let eval_unop (op : unopt) (v : Val.t) : Val.t =
+let eval_unopt (op : unopt) (v : Val.t) : Val.t =
   match op with
   | Typeof -> typeof v
   | Neg -> neg v
@@ -1011,7 +1011,7 @@ let eval_unop (op : unopt) (v : Val.t) : Val.t =
   | ParseString -> parse_string v
   | ParseDate -> parse_date v
 
-let eval_binopt_expr (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
+let eval_binopt (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   match op with
   | Plus -> plus (v1, v2)
   | Minus -> minus (v1, v2)
@@ -1056,7 +1056,7 @@ let eval_binopt_expr (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | Max -> max (v1, v2)
   | Atan2 -> atan2 (v1, v2)
 
-let eval_triopt_expr (op : triopt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) :
+let eval_triopt (op : triopt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) :
   Val.t =
   match op with
   | ITE -> ite (v1, v2, v3)
@@ -1065,7 +1065,7 @@ let eval_triopt_expr (op : triopt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) :
   | ArraySet -> array_set (v1, v2, v3)
   | ListSet -> list_set (v1, v2, v3)
 
-let eval_nopt_expr (op : nopt) (vals : Val.t list) : Val.t =
+let eval_nopt (op : nopt) (vals : Val.t list) : Val.t =
   match op with
   | NAryLogicalAnd -> Val.Bool true
   | NAryLogicalOr -> Val.Bool true

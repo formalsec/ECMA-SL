@@ -149,10 +149,6 @@ module Make (P : Eval_functor_intf.P) :
     match stmt.it with
     | Stmt.Skip -> st locals
     | Stmt.Merge -> st locals
-    | Stmt.Throw e ->
-      let at' = Source.string_of_region stmt.at in
-      Log.err "  exception : %s: %s@." at' e;
-      err {|{ "exn" : %S }|} e
     | Stmt.Fail e ->
       let e' = pp locals m e in
       Log.err "       fail : %s@." e';

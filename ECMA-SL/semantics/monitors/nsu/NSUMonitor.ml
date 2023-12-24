@@ -44,7 +44,7 @@ module M (SL : NSULevel.M) = struct
   let rec eval_small_step (m_state : state_t) (tl : sl NSULabel.t) :
     monitor_return =
     let (scs, sheap, ssto, pc) = m_state in
-    print_string ("Monitor Evaluating >> " ^ NSULabel.str tl SL.str ^ "\n");
+    print_string ("Monitor Evaluating >> " ^ NSULabel.str SL.str tl ^ "\n");
     print_string "=== MONITOR STATE ===\n";
     print_string ("PC level: " ^ SL.str (check_pc pc) ^ "\n");
 

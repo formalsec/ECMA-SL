@@ -54,9 +54,10 @@
   heap
   ;   semantics (core)
   interpreter
+  eval_operator
+  monitor
   inspector
   external
-  eval_operator
   ;   semantics (nsu monitor)
   NSUMonitor
   NSUException

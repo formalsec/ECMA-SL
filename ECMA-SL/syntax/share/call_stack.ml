@@ -10,16 +10,16 @@ exception Empty_stack
 
 let empty : 'a t = []
 
-let str (cs : 'a t) : string =
+let str (stack : 'a t) : string =
   let str_frame_fun = function
     | Intermediate (_, _, _, f) -> f
     | Toplevel -> "TopLevel"
   in
-  List.map str_frame_fun cs |> String.concat "; "
+  List.map str_frame_fun stack |> String.concat "; "
 
-let pop (cs : 'a t) : 'a sft * 'a t =
-  match cs with
+let pop (stack : 'a t) : 'a sft * 'a t =
+  match stack with
   | [] -> raise Empty_stack
   | f :: frames -> (f, frames)
 
-let push (cs : 'a t) (frame : 'a sft) : 'a t = frame :: cs
+let push (stack : 'a t) (frame : 'a sft) : 'a t = frame :: stack

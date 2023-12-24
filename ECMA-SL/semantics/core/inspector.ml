@@ -75,16 +75,15 @@ let rec inspector (heap : Val.t Heap.t) (sto : Val.t Store.t) : unit =
     | Val.Loc l -> (
       match Heap.get heap l with
       | Some o ->
-        Printf.printf "Obj: %s\n"
-          (Object.str o (Val.str ~flt_with_dot:false))
+        Printf.printf "Obj: %s\n" (Object.str (Val.str ~flt_with_dot:false) o)
       | None -> Printf.printf "Obj: %s\n" "Non-Existent" )
     | _ -> Printf.printf "Provided Location is not an object. Try again!\n" );
     f ()
   | Some ShowStore ->
-    Printf.printf "%s" (Store.str sto Val.str);
+    Printf.printf "%s" (Store.str Val.str sto);
     f ()
   | Some ShowHeap ->
-    Printf.printf "%s" (Heap.str heap (Val.str ~flt_with_dot:false));
+    Printf.printf "%s" (Heap.str (Val.str ~flt_with_dot:false) heap);
     f ()
   | Some Continue -> ()
   | None ->

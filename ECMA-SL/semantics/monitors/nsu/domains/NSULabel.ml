@@ -23,7 +23,7 @@ type 'sl t =
   | SetTopLab of string
   | AllowFlowLab of string * string
 
-let str (label : 'sl t) (_sl_printer : 'sl -> string) : string =
+let str (_sl_printer : 'sl -> string) (label : 'sl t) : string =
   match label with
   | EmptyLab -> "EmptyLab"
   | MergeLab -> "MergeLab"

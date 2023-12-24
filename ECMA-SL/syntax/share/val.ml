@@ -27,8 +27,8 @@ let rec equal (v1 : t) (v2 : t) : bool =
   | (Tuple t1, Tuple t2) -> List.equal equal t1 t2
   | (Type t1, Type t2) -> Type.equal t1 t2
   | (Byte bt1, Byte bt2) -> Int.equal bt1 bt2
-  | (Curry (x1, vs1), Curry (x2, vs2)) ->
-    String.equal x1 x2 && List.equal equal vs1 vs2
+  | (Curry (fn1, fvs1), Curry (fn2, fvs2)) ->
+    String.equal fn1 fn2 && List.equal equal fvs1 fvs2
   | _ -> v1 = v2
 
 let rec copy (v : t) : t =
@@ -82,9 +82,9 @@ let rec str ?(flt_with_dot = true) (v : t) : string =
     "(" ^ String.concat ", " (List.map (str ~flt_with_dot) tup) ^ ")"
   | Type t -> Type.str t
   | Byte bt -> Int.to_string bt
-  | Curry (s, vs) ->
-    let vs_str = List.map (str ~flt_with_dot) vs |> String.concat ", " in
-    Printf.sprintf "{\"%s\"}@(%s)" s vs_str
+  | Curry (fn, fvs) ->
+    let vs_str = List.map (str ~flt_with_dot) fvs |> String.concat ", " in
+    Printf.sprintf "{\"%s\"}@(%s)" fn vs_str
 
 let rec to_json (v : t) : string =
   let _lst_to_json lst = List.map to_json lst |> String.concat ", " in
@@ -110,7 +110,7 @@ let rec to_json (v : t) : string =
   | Type t ->
     Printf.sprintf "{ \"type\" : \"type\", \"value\" : %s }" (Type.str t)
   | Byte bt -> Printf.sprintf "{ \"type\" : \"byte\", \"value\" : \"%d\" }" bt
-  | Curry (s, vs) ->
-    let vs_str = _lst_to_json vs in
+  | Curry (fn, fvs) ->
+    let vs_str = _lst_to_json fvs in
     Printf.sprintf
-      "{ \"type\" : \"curry\", \"fun\" : \"%s\", \"args\" : [ %s ] }" s vs_str
+      "{ \"type\" : \"curry\", \"fun\" : \"%s\", \"args\" : [ %s ] }" fn vs_str
