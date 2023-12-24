@@ -15,14 +15,14 @@ let get (obj : 'a t) (fn : string) : 'a option = Hashtbl.find_opt obj fn
 let set (obj : 'a t) (fn : string) (fv : 'a) : unit = Hashtbl.replace obj fn fv
 let delete (obj : 'a t) (fn : string) : unit = Hashtbl.remove obj fn
 
-let str (obj : 'a t) (printer : 'a -> string) : string =
-  let _fld_str fn fv = Printf.sprintf "\"%s\": %s" fn (printer fv) in
+let str (val_printer : Val.t -> string) (obj : 'a t) : string =
+  let _fld_str fn fv = Printf.sprintf "\"%s\": %s" fn (val_printer fv) in
   let _obj_str_f fn fv acc = _fld_str fn fv :: acc in
   let obj_str = Hashtbl.fold _obj_str_f obj [] |> String.concat ", " in
   "{ " ^ obj_str ^ " }"
 
-let to_json (obj : 'a t) (printer : 'a -> string) : string =
-  let _fld_str fn fv = Printf.sprintf "\"%s\": %s" fn (printer fv) in
+let to_json (val_printer : Val.t -> string) (obj : 'a t) : string =
+  let _fld_str fn fv = Printf.sprintf "\"%s\": %s" fn (val_printer fv) in
   let _obj_str_f fn fv acc = _fld_str fn fv :: acc in
   let obj_str = Hashtbl.fold _obj_str_f obj [] |> String.concat ", " in
   "{ " ^ obj_str ^ " }"

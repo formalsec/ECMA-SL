@@ -20,7 +20,6 @@ and t' =
   | FieldDelete of Expr.t * Expr.t
   | If of Expr.t * t * t option
   | While of Expr.t * t
-  | Throw of string
   | Fail of Expr.t
   | Assert of Expr.t
   | Abort of Expr.t
@@ -57,7 +56,6 @@ let rec str ?(expr_printer : Expr.t -> string = Expr.str) (stmt : t) : string =
     in
     Printf.sprintf "if (%s) {\n%s\n}%s" (_str_e e) (str s1) (else_str s2)
   | While (e, s) -> Printf.sprintf "while (%s) {\n%s\n}" (_str_e e) (str s)
-  | Throw s -> Printf.sprintf "throw \"%s\"" s
   | Fail e -> Printf.sprintf "fail %s" (_str_e e)
   | Assert e -> Printf.sprintf "assert (%s)" (_str_e e)
   | Abort e -> Printf.sprintf "abort %s" (_str_e e)
@@ -128,19 +126,12 @@ let rec to_json (stmt : t) : string =
   | While (e, s) ->
     Printf.sprintf "{ \"type\" : \"loop\", \"expr\" : %s, \"do\" : %s }"
       (Expr.to_json e) (to_json s)
-  | Throw exn ->
-    Printf.sprintf "{ \"type\" : \"exception\", \"value\" : \"%s\" }" exn
   | Assert e ->
     Printf.sprintf "{ \"type\" : \"assert\", \"expr\" : %s }" (Expr.to_json e)
   | Fail e ->
     Printf.sprintf "{ \"type\" : \"fail\", \"expr\" : %s }" (Expr.to_json e)
   | Abort e ->
     Printf.sprintf "{ \"type\" : \"abort\", \"expr\" : %s }" (Expr.to_json e)
-
-let is_basic_stmt (s : t) : bool =
-  match s.it with
-  | If _ | While _ | Block _ -> false
-  | _ -> true
 
 module Pp = struct
   let to_string (stmt : t) pp : string =
@@ -171,7 +162,6 @@ module Pp = struct
     | AssignObjToList (st, e) ->
       Format.sprintf "%s := obj_to_list %s" st (str e)
     | AssignObjFields (st, e) -> Format.sprintf "%s := obj_fields %s" st (str e)
-    | Throw st -> Format.sprintf "throw \"%s\"" st
     | Assert e -> Format.sprintf "assert (%s)" (str e)
     | Abort e -> Format.sprintf "se_abort (%s)" (str e)
 end
