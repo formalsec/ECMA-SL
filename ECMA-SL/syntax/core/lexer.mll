@@ -20,7 +20,6 @@
                   "if"                      , IF;
                   "else"                    , ELSE;
                   "while"                   , WHILE;
-                  "throw"                   , THROW;
                   "fail"                    , FAIL;
                   "assert"                  , ASSERT;
 

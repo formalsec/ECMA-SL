@@ -82,7 +82,7 @@ let reduce_list_set (list : value list) (idx : int) (newVal : value) : value =
 
 let reduce_unop (op : unopt) (v : value) : value =
   match (op, v) with
-  | op, Val v -> Val (Eval_operator.eval_unop op v)
+  | op, Val v -> Val (Eval_operator.eval_unopt op v)
   | Neg, Symbolic (_, _) -> UnOpt (Neg, v)
   | IsNaN, Symbolic _ -> Val (Bool false)
   | LogicalNot, _v' -> UnOpt (LogicalNot, v)
@@ -116,7 +116,7 @@ let is_loc = function Val (Loc _) -> true | _ -> false
 
 let reduce_binop (op : binopt) (v1 : value) (v2 : value) : value =
   match (op, v1, v2) with
-  | op, Val v1, Val v2 -> Val (Eval_operator.eval_binopt_expr op v1 v2)
+  | op, Val v1, Val v2 -> Val (Eval_operator.eval_binopt op v1 v2)
   (* int_to_float(s_len_u(symbolic (__$Str, "s1"))) < 0.  *)
   | ( Lt,
       UnOpt (IntToFloat, UnOpt (StringLenU, Symbolic (Type.StrType, _))),
@@ -165,7 +165,7 @@ let reduce_binop (op : binopt) (v1 : value) (v2 : value) : value =
 
 let reduce_triop (op : triopt) (v1 : value) (v2 : value) (v3 : value) : value =
   match (op, v1, v2, v3) with
-  | op, Val v1, Val v2, Val v3 -> Val (Eval_operator.eval_triopt_expr op v1 v2 v3)
+  | op, Val v1, Val v2, Val v3 -> Val (Eval_operator.eval_triopt op v1 v2 v3)
   | ListSet, NOpt (ListExpr, vs), Val (Int v2'), _ -> reduce_list_set vs v2' v3
   | ITE, _, v2, v3 when Value.equal v2 v3 -> v2
   | _ -> TriOpt (op, v1, v2, v3)

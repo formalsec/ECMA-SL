@@ -10,7 +10,7 @@ let set (obj : 'sl t) (fn : string) (exist_lvl : 'sl) (val_lvl : 'sl) : unit =
 
 let delete (obj : 'sl t) (fn : string) : unit = Hashtbl.remove obj fn
 
-let str (obj : 'sl t) (sl_printer : 'sl -> string) : string =
+let str (sl_printer : 'sl -> string) (obj : 'sl t) : string =
   let _fld_str prop exists_lvl val_lvl =
     Printf.sprintf "%s: (%s, %s)" prop (sl_printer exists_lvl)
       (sl_printer val_lvl)

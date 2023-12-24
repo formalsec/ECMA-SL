@@ -38,15 +38,15 @@ let set_field (heap : 'a t) (loc : Loc.t) (fn : string) (v : 'a) : unit =
 let delete_field (heap : 'a t) (loc : Loc.t) (fn : string) : unit =
   get heap loc |> Option.may (fun o -> Object.delete o fn)
 
-let str (heap : 'a t) (printer : 'a -> string) : string =
-  let _loc_str l = Loc.str l [@@inline] in
-  let _obj_str o = Object.str o printer [@@inline] in
+let str (val_printer : Val.t -> string) (heap : 'a t) : string =
+  let _loc_str l = Loc.str l in
+  let _obj_str o = Object.str val_printer o in
   let _binding_str l o = Printf.sprintf "%s: %s" (_loc_str l) (_obj_str o) in
   let _heap_str_f l o acc = _binding_str l o :: acc in
   let heap_str = Hashtbl.fold _heap_str_f heap.map [] |> String.concat ", " in
   "{ " ^ heap_str ^ " }"
 
-let str_with_glob (heap : 'a t) (printer : 'a -> string) : string =
+let str_with_glob (val_printer : Val.t -> string) (heap : 'a t) : string =
   (* TODO: Return the heap with the __$global object (i.e., special object that \
      contains the field __$global) *)
-  str heap printer
+  str val_printer heap

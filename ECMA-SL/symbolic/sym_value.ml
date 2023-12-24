@@ -108,13 +108,13 @@ module M = struct
     | Expr.UnOpt (op, e) -> (
       let+ e' = eval_expr store e in
       match e' with
-      | Val v -> Val (Eval_operator.eval_unop op v)
+      | Val v -> Val (Eval_operator.eval_unopt op v)
       | _ -> UnOpt (op, e') )
     | Expr.BinOpt (op, e1, e2) -> (
       let* e1' = eval_expr store e1 in
       let+ e2' = eval_expr store e2 in
       match (e1', e2') with
-      | (Val v1, Val v2) -> Val (Eval_operator.eval_binopt_expr op v1 v2)
+      | (Val v1, Val v2) -> Val (Eval_operator.eval_binopt op v1 v2)
       | _ -> BinOpt (op, e1', e2') )
     | Expr.TriOpt (op, e1, e2, e3) -> (
       let* e1' = eval_expr store e1 in
@@ -122,7 +122,7 @@ module M = struct
       let+ e3' = eval_expr store e3 in
       match (e1', e2', e3') with
       | (Val v1, Val v2, Val v3) ->
-        Val (Eval_operator.eval_triopt_expr op v1 v2 v3)
+        Val (Eval_operator.eval_triopt op v1 v2 v3)
       | _ -> TriOpt (op, e1', e2', e3') )
     | Expr.NOpt (op, es) ->
       let+ es' = list_map ~f:(eval_expr store) es in
