@@ -1429,6 +1429,14 @@ let str_of_nopt (op : nopt) (es : string list) : string =
   | NAry_Or -> String.concat " || " es
   | ArrExpr -> "[| " ^ String.concat ", " es ^ " |]"
 
+let str_of_nopt_single (op : nopt) : string =
+  match op with
+  | ListExpr -> "list_expr"
+  | TupleExpr -> "tuple_expr"
+  | NAry_And -> "nary_and"
+  | NAry_Or -> "nary_or"
+  | ArrExpr -> "arr_expr"
+
 let unary_float_call (func : float -> float) (v : Val.t) (failure_msg : string)
     : Val.t =
   match v with

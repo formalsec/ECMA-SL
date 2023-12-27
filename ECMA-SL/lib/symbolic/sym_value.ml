@@ -16,21 +16,11 @@ module M = struct
 
   type value = E.t
 
-  (* let int_symbol (x : value) : value = Symbolic (Type.IntType, x) [@@inline] *)
-
-  (* let int_symbol_s (x : string) : value = int_symbol (Val (Val.Str x)) *)
-  (* [@@inline] *)
-  
   let ( @: ) = E.( @: )
-
-  let mk_symbol s = E.mk_symbol s
-  let mk_list (_vs : value list) : value = assert false
-  (* let mk_list (vs : value list) : value = NOpt (Operators.ListExpr, vs)
-  [@@inline] *)
-
-  let mk_tuple (_fst, _snd) : value = assert false
-  (* let mk_tuple (fst, snd) : value = NOpt (Operators.TupleExpr, [ fst; snd ])
-  [@@inline] *)
+  (* let mk_symbol s = E.mk_symbol s *)
+  let mk_symbol _s = assert false [@@inline]
+  let mk_list (_vs : value list) : value = assert false [@@inline]
+  let mk_tuple (_fst, _snd) : value = assert false [@@inline]
   
   let rec is_symbolic (v : value) : bool =
     let open E in
@@ -58,7 +48,9 @@ module M = struct
 
   module Bool = struct
 
-    let const b = E.Val b @: T.Ty_bool [@@inline]
+    let const = function
+      | true -> E.Val V.True @: T.Ty_bool
+      | false -> E.Val V.False @: T.Ty_bool [@@inline]
     let not_ e = E.Unop (T.Not, e) @: T.Ty_bool  [@@inline]
     let and_ e1 e2 = E.Binop (T.And, e1, e2) @: T.Ty_bool [@@inline]
     let or_ e1 e2 = E.Binop (T.Or, e1, e2) @: T.Ty_bool [@@inline]
@@ -184,8 +176,8 @@ module M = struct
       | _ -> assert false ) 
     | Expr.NOpt (op, es) ->
       let+ es' = list_map ~f:(eval_expr store) es in
-      let op' = Operators.str_of_nopt op in
-      E.App (op', es') @: es'.E.ty
+      let op' = Operators.str_of_nopt_single op in
+      E.App (op', es') @: T.Ty_list
     | Expr.Curry (f, es) ->
       let* f' = eval_expr store f in
       let+ es' = list_map ~f:(eval_expr store) es in
