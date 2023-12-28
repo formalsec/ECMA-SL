@@ -725,3 +725,14 @@ let nopt_to_json (op : nopt) : string =
     | ArrayExpr -> "ArrayExpr"
     | ListExpr -> "ListExpr"
     | TupleExpr -> "TupleExpr" )
+
+let is_infix_unopt (op : unopt) : bool =
+  match op with Neg | BitwiseNot | LogicalNot -> true | _ -> false
+
+let is_infix_binopt (op : binopt) : bool =
+  match op with
+  | Plus | Minus | Times | Div | Modulo | Pow | BitwiseAnd | BitwiseOr
+  | BitwiseXor | ShiftLeft | ShiftRight | ShiftRightLogical | LogicalAnd
+  | LogicalOr | Eq | Lt | Gt | Le | Ge | ObjectMem | ListMem ->
+    true
+  | _ -> false

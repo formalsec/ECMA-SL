@@ -20,7 +20,7 @@ let no_region = { left = no_pos; right = no_pos }
 
 let string_of_pos (pos : pos) : string =
   if pos.line = -1 then Printf.sprintf "0x%x" pos.column
-  else string_of_int pos.line ^ "." ^ string_of_int (pos.column + 1)
+  else string_of_int pos.line ^ "." ^ string_of_int pos.column
 
 let string_of_region (r : region) : string =
   r.left.file
