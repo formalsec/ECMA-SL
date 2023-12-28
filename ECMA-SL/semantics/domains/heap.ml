@@ -16,27 +16,24 @@ let insert (heap : 'a t) (obj : 'a obj) : Loc.t =
   Hashtbl.add heap.map loc obj;
   loc
 
-let remove (heap : 'a t) (loc : Loc.t) : unit = Hashtbl.remove heap.map loc
-
 let set (heap : 'a t) (loc : Loc.t) (obj : 'a obj) : unit =
   Hashtbl.replace heap.map loc obj
 
-let rec get (heap : 'a t) (loc : Loc.t) : 'a obj option =
+let rec get_opt (heap : 'a t) (loc : Loc.t) : 'a obj option =
   match Hashtbl.find_opt heap.map loc with
   | Some _ as obj -> obj
   | None ->
-    let obj = Option.map_default (fun h -> get h loc) None heap.parent in
+    let obj = Option.map_default (fun h -> get_opt h loc) None heap.parent in
     Option.may (fun o -> set heap loc (Object.clone o)) obj;
     obj
 
-let get_field (heap : 'a t) (loc : Loc.t) (fn : string) : 'a option =
-  get heap loc |> Option.map_default (fun o -> Object.get o fn) None
+let get (heap : 'a t) (loc : Loc.t) : ('a obj, string) Result.t =
+  match get_opt heap loc with
+  | None -> Error (Format.sprintf "Cannot find location '%s'." loc)
+  | Some obj -> Ok obj
 
-let set_field (heap : 'a t) (loc : Loc.t) (fn : string) (v : 'a) : unit =
-  get heap loc |> Option.may (fun o -> Object.set o fn v)
-
-let delete_field (heap : 'a t) (loc : Loc.t) (fn : string) : unit =
-  get heap loc |> Option.may (fun o -> Object.delete o fn)
+let get_field_opt (heap : 'a t) (loc : Loc.t) (fn : string) : 'a option =
+  get_opt heap loc |> Option.map_default (fun o -> Object.get o fn) None
 
 let str (val_printer : Val.t -> string) (heap : 'a t) : string =
   let _loc_str l = Loc.str l in
@@ -45,8 +42,3 @@ let str (val_printer : Val.t -> string) (heap : 'a t) : string =
   let _heap_str_f l o acc = _binding_str l o :: acc in
   let heap_str = Hashtbl.fold _heap_str_f heap.map [] |> String.concat ", " in
   "{ " ^ heap_str ^ " }"
-
-let str_with_glob (val_printer : Val.t -> string) (heap : 'a t) : string =
-  (* TODO: Return the heap with the __$global object (i.e., special object that \
-     contains the field __$global) *)
-  str val_printer heap

@@ -15,12 +15,10 @@ module AppInfo = struct
     ; "Key features of the platform include a JavaScript-to-ECMA-SL \
        (JS2ECMA-SL) parser, allowing the conversion of JavaScript code into \
        the ECMA-SL language. Additionally, ECMA-SL incorporates a compiler \
-       from ECMA-SL to Core ECMA-SL, a simplified version of the intermediate \
-       language, as well as an interpreter for Core ECMA-SL. The combination \
-       of these tools results in a mechanism to execute JavaScript programs \
-       using the reference interpreters for the language."
-    ; "The ECMA-SL platform also includes a symbolic analysis mechanism for \
-       performing symbolic analyses on ECMA-SL programs. [FIXME?]"
+       from ECMA-SL to Core ECMA-SL, a simplified version of the platform's \
+       language, as well as an interpreter for Core ECMA-SL. By combining \
+       these tools, one can execute a JavaScript program using the reference \
+       interpreters for JavaScript."
     ; "Use ecma-sl <command> --help for more information on a specific command."
     ]
 
@@ -29,7 +27,6 @@ module AppInfo = struct
     ; `P (List.nth description 0)
     ; `P (List.nth description 1)
     ; `P (List.nth description 2)
-    ; `P (List.nth description 3)
     ; `S Manpage.s_common_options
     ; `P "These options are common to all commands."
     ; `S Manpage.s_bugs
@@ -40,9 +37,8 @@ module AppInfo = struct
 
   let exits =
     List.append Cmd.Exit.defaults
-      [ Cmd.Exit.info ~doc:"on failure" 1
-      ; Cmd.Exit.info ~doc:"on error" 2
-      ; Cmd.Exit.info ~doc:"on unsupported" 3
+      [ Cmd.Exit.info ~doc:"on application failure" 1
+      ; Cmd.Exit.info ~doc:"on execution error" 2
       ]
 end
 
@@ -102,7 +98,7 @@ let () =
   try exit (Cmdliner.Cmd.eval' main_cmd)
   with exn ->
     flush_all ();
-    Printexc.print_backtrace stdout;
     Format.eprintf "%s: uncaught exception %s@." Sys.argv.(0)
       (Printexc.to_string exn);
+    Printexc.print_backtrace stderr;
     exit 1

@@ -1,8 +1,8 @@
 type func = string
 
 type 'a sft =
-  | Intermediate of (Stmt.t list * 'a * string * func)
   | Toplevel
+  | Intermediate of (Stmt.t list * 'a * string * func)
 
 type 'a t = 'a sft list
 
@@ -18,8 +18,6 @@ let str (stack : 'a t) : string =
   List.map str_frame_fun stack |> String.concat "; "
 
 let pop (stack : 'a t) : 'a sft * 'a t =
-  match stack with
-  | [] -> raise Empty_stack
-  | f :: frames -> (f, frames)
+  match stack with [] -> raise Empty_stack | f :: frames -> (f, frames)
 
 let push (stack : 'a t) (frame : 'a sft) : 'a t = frame :: stack

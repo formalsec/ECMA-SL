@@ -25,10 +25,9 @@
   val
   loc
   object
-  source
   operator
-  call_stack
   type
+  source
   ;   syntax (core)
   expr
   stmt
@@ -49,9 +48,14 @@
   E_Store
   E_Lexer
   E_Parser
+  ;   error
+  Eslerr
+  Eslerr_msgs
+  Eslerr_fmt
   ;   semantics (domains)
   store
   heap
+  call_stack
   ;   semantics (core)
   interpreter
   eval_operator
