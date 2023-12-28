@@ -16,7 +16,7 @@ let eval (heap : Val.t Heap.t) (sto : Val.t Store.t) (e : obj_exp_t) : Val.t =
   let v_b =
     match b with
     | Var x ->
-      let v = Store.get sto x in
+      let v = Store.get_opt sto x in
       if Option.is_none v then
         failwith "Inspector: eval: failed to load var from store.";
       Option.get v
@@ -26,7 +26,7 @@ let eval (heap : Val.t Heap.t) (sto : Val.t Store.t) (e : obj_exp_t) : Val.t =
     (fun ac p ->
       match ac with
       | Val.Loc l ->
-        let v = Heap.get_field heap l p in
+        let v = Heap.get_field_opt heap l p in
         Option.default Val.Null v
       | _ -> raise (Failure "Base value is not a location") )
     v_b ps
@@ -73,7 +73,7 @@ let rec inspector (heap : Val.t Heap.t) (sto : Val.t Store.t) : unit =
     let v = eval heap sto e in
     ( match v with
     | Val.Loc l -> (
-      match Heap.get heap l with
+      match Heap.get_opt heap l with
       | Some o ->
         Printf.printf "Obj: %s\n" (Object.str (Val.str ~flt_with_dot:false) o)
       | None -> Printf.printf "Obj: %s\n" "Non-Existent" )

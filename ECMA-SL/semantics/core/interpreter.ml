@@ -1,11 +1,10 @@
 open Source
 open Stmt
 
-let ( let+ ) res f =
-  match res with Ok v -> f v | Error err -> raise (Failure err)
-
-let internal_err (err : string) : 'a = raise (Failure err)
-let runtime_err (err : string) : 'a = raise (Failure err)
+let ( !! ) res =
+  match res with
+  | Ok v -> v
+  | Error err -> Eslerr.(runtime (RuntimeErr.Custom err))
 
 module M (Mon : Monitor.M) = struct
   type obj = Val.t Object.t
@@ -15,9 +14,9 @@ module M (Mon : Monitor.M) = struct
   type state = stack * store * heap * string
 
   type return =
-    | Intermediate of state * Stmt.t list
     | Final of Val.t
     | Error of Val.t
+    | Intermediate of state * Stmt.t list
 
   let initial_state (main : string) : state =
     let stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
@@ -27,85 +26,83 @@ module M (Mon : Monitor.M) = struct
 
   let val_to_string (heap : heap) (v : Val.t) : string =
     match v with
-    | Loc l -> (
-      match Heap.get heap l with
-      | Some obj -> Object.str (Val.str ~flt_with_dot:false) obj
-      | _ -> runtime_err (Printf.sprintf "Cannot find location '%s'" l) )
+    | Str s -> s
+    | Loc l -> !!(Heap.get heap l) |> Object.str (Val.str ~flt_with_dot:false)
     | _ -> Val.str v
+
+  let eval_operator_safe (eval_op_fun : unit -> Val.t) (es : Expr.t list) :
+    Val.t =
+    try eval_op_fun ()
+    with Eslerr.Runtime_error _ as exn ->
+      let e = Eslerr.(src exn |> index_to_el es) in
+      Eslerr.(set_src (Expr e) exn |> raise)
 
   let rec eval_expr (store : store) (expr : Expr.t) : Val.t =
     match expr with
     | Val v -> v
-    | Var x -> (
-      match Store.get store x with
-      | Some v -> v
-      | None -> runtime_err (Printf.sprintf "Cannot find variable '%s'" x) )
+    | Var x -> !!(Store.get store x)
     | UnOpt (op, e) ->
       let v = eval_expr store e in
-      Eval_operator.eval_unopt op v
+      let eval_op_fun () = Eval_operator.eval_unopt op v in
+      eval_operator_safe eval_op_fun [ e ]
     | BinOpt (op, e1, e2) ->
       let v1 = eval_expr store e1 in
       let v2 = eval_expr store e2 in
-      Eval_operator.eval_binopt op v1 v2
+      let eval_op_fun () = Eval_operator.eval_binopt op v1 v2 in
+      eval_operator_safe eval_op_fun [ e1; e2 ]
     | TriOpt (op, e1, e2, e3) ->
       let v1 = eval_expr store e1 in
       let v2 = eval_expr store e2 in
       let v3 = eval_expr store e3 in
-      Eval_operator.eval_triopt op v1 v2 v3
+      let eval_op_fun () = Eval_operator.eval_triopt op v1 v2 v3 in
+      eval_operator_safe eval_op_fun [ e1; e2; e3 ]
     | NOpt (op, es) ->
       let vs = List.map (eval_expr store) es in
-      Eval_operator.eval_nopt op vs
+      let eval_op_fun () = Eval_operator.eval_nopt op vs in
+      eval_operator_safe eval_op_fun es
     | Curry (f, es) -> (
       let fv = eval_expr store f in
       let vs = List.map (eval_expr store) es in
       match fv with
       | Str s -> Val.Curry (s, vs)
-      | _ -> runtime_err "Illegal curry expression" )
+      | _ ->
+        Eslerr.(runtime ~src:(Expr f) (RuntimeErr.BadExpression ("curry", fv)))
+      )
     | Symbolic (t, _) -> (
       Random.self_init ();
       match t with
       | Type.IntType -> Val.Int (Random.int 128)
       | Type.FltType -> Val.Flt (Random.float 128.0)
-      | _ ->
-        internal_err
-          (Printf.sprintf
-             "Interpreter.eval_expr: symbolic \"%s\" not implemented"
-             (Type.str t) ) )
+      | _ -> Eslerr.internal __FUNCTION__ (NotImplemented (Some "symbolic")) )
 
   let eval_string (store : store) (expr : Expr.t) : string =
     match eval_expr store expr with
     | Str s -> s
-    | _ ->
-      runtime_err
-        (Printf.sprintf "Expecting a string value, but got '%s'" (Expr.str expr))
+    | _ as v ->
+      Eslerr.(runtime ~src:(Expr expr) (RuntimeErr.BadValue ("string", v)))
 
   let eval_boolean (store : store) (expr : Expr.t) : bool =
     match eval_expr store expr with
     | Bool b -> b
-    | _ ->
-      runtime_err
-        (Printf.sprintf "Expecting a boolean value, but got '%s'"
-           (Expr.str expr) )
+    | _ as v ->
+      Eslerr.(runtime ~src:(Expr expr) (RuntimeErr.BadValue ("boolean", v)))
 
   let eval_location (store : store) (expr : Expr.t) : string =
     match eval_expr store expr with
     | Loc l -> l
-    | _ ->
-      runtime_err
-        (Printf.sprintf "Expecting a location value, but got '%s'"
-           (Expr.str expr) )
+    | _ as v ->
+      Eslerr.(runtime ~src:(Expr expr) (RuntimeErr.BadValue ("location", v)))
 
   let eval_object (store : store) (heap : heap) (expr : Expr.t) : string * obj =
     let loc = eval_location store expr in
-    match Heap.get heap loc with
-    | Some obj -> (loc, obj)
-    | None -> runtime_err (Printf.sprintf "Location '%s' does not exits" loc)
+    let obj = !!(Heap.get heap loc) in
+    (loc, obj)
 
   let get_func_id (store : store) (fexpr : Expr.t) : string * Val.t list =
     match eval_expr store fexpr with
     | Val.Str fn -> (fn, [])
     | Val.Curry (fn, fvs) -> (fn, fvs)
-    | _ -> runtime_err "Wrong or invalid function id"
+    | _ as v -> Eslerr.(runtime ~src:(Expr fexpr) (RuntimeErr.BadFunctionId v))
 
   let prepare_call (stack : stack) (store : store) (cont : Stmt.t list)
     (x : string) (func : Func.t) (vs : Val.t list) : stack * store =
@@ -115,7 +112,9 @@ module M (Mon : Monitor.M) = struct
     let params = Func.params func in
     let store' =
       try List.combine params vs |> Store.create
-      with _ -> runtime_err ("Invalid number of arguments in " ^ fn)
+      with _ ->
+        let nparams = List.length params and nargs = List.length vs in
+        Eslerr.(runtime (RuntimeErr.NExpectedArgs (nparams, nargs)))
     in
     (stack', store')
 
@@ -148,7 +147,7 @@ module M (Mon : Monitor.M) = struct
       match Mon.interceptor fn vs es with
       | Some label -> (Intermediate (state, cont), label)
       | None ->
-        let+ func = Prog.func prog fn in
+        let func = !!(Prog.func prog fn) in
         let (stack', store') = prepare_call stack store cont x func vs in
         let state' = (stack', store', heap, fn) in
         let cont' = Func.body func :: [] in
@@ -209,10 +208,8 @@ module M (Mon : Monitor.M) = struct
         let block' = block @ ((Stmt.Merge @> s2'.at) :: cont) in
         (Intermediate (state, block'), _label (IfLbl false))
       | (false, _, Skip) -> (Intermediate (state, cont), _label (IfLbl false))
-      | (true, _, _) ->
-        internal_err "Interpreter.eval_small_step: Expecting if block"
-      | (false, _, _) ->
-        internal_err "Interpreter.eval_small_step: Expecting else block" )
+      | (true, _, _) -> Eslerr.internal __FUNCTION__ (Expecting "if block")
+      | (false, _, _) -> Eslerr.internal __FUNCTION__ (Expecting "else block") )
     | While (e, s) ->
       let loop_stmt = [ s; Stmt.While (e, s) @> s.at ] in
       let stmts = Stmt.If (e, Stmt.Block loop_stmt @> s.at, None) @> stmt.at in
@@ -228,12 +225,18 @@ module M (Mon : Monitor.M) = struct
         (Error (Val.Str err), _label (AssertLbl false))
     | Abort _ -> (Intermediate (state, cont), _label AbortLbl)
 
+  let eval_small_step_safe (prog : Prog.t) (state : state) (stmt : Stmt.t)
+    (cont : Stmt.t list) : return * Mon.sl_label =
+    try eval_small_step prog state stmt cont
+    with Eslerr.Runtime_error _ as exn ->
+      Eslerr.(set_loc (Stmt stmt) exn |> raise)
+
   let rec small_step_iter (prog : Prog.t) (state : state)
     (mon_state : Mon.state) (stmts : Stmt.t list) : return =
     match stmts with
-    | [] -> internal_err "Interpreter.small_step_iter: empty stmt list"
+    | [] -> Eslerr.internal __FUNCTION__ (Expecting "non-empty stmt list")
     | s :: stmts' -> (
-      let (return, label) = eval_small_step prog state s stmts' in
+      let (return, label) = eval_small_step_safe prog state s stmts' in
       let mon_return = Mon.eval_small_step mon_state label in
       let mon_state' = Mon.next_state mon_return in
       match return with
@@ -242,13 +245,15 @@ module M (Mon : Monitor.M) = struct
       | Intermediate (state', stmts'') ->
         small_step_iter prog state' mon_state' stmts'' )
 
-  let eval_prog ?(main : string = "main") (prog : Prog.t) : Val.t =
-    let+ func = Prog.func prog main in
+  let eval_prog ?(main : string = "main") (prog : Prog.t) : return =
+    let func = !!(Prog.func prog main) in
     let state = initial_state main in
     let mon_state = Mon.initial_state () in
     let return = small_step_iter prog state mon_state [ func.body ] in
     match return with
-    | Final v -> v
-    | Error v -> runtime_err (Printf.sprintf "Failure: %s" (Val.str v))
-    | _ -> internal_err "Interpreter.eval_prog: intermediate state at the end"
+    | Final _ as retval -> retval
+    | Error err as retval ->
+      Printf.printf "uncaught exception: %s" (Val.str err);
+      retval
+    | _ -> Eslerr.internal __FUNCTION__ (Expecting "final/error return")
 end

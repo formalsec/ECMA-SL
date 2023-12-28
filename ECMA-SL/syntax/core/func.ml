@@ -1,5 +1,3 @@
-exception Except of string
-
 type t =
   { name : string
   ; params : string list

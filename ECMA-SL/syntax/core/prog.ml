@@ -17,7 +17,7 @@ let funcs (prog : t) : Func.t list =
 
 let func (prog : t) (fname : string) : (Func.t, string) Result.t =
   match Hashtbl.find_opt prog fname with
-  | None -> Result.error (Format.sprintf "Could not find function %s" fname)
+  | None -> Result.error (Printf.sprintf "Cannot find function '%s'." fname)
   | Some f -> Result.ok f
 
 let func_name (prog : t) (fname : string) : (string, string) Result.t =

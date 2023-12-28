@@ -21,11 +21,20 @@ let cyan = "36"
 let white = "37"
 
 let clean (text : string) : string =
-  let escapeRegex = Str.regexp "\027\\[[0-9;]*m" in
-  Str.global_replace escapeRegex "" text
+  let escape_regex = Str.regexp "\027\\[[0-9;]*m" in
+  Str.global_replace escape_regex "" text
 
-let format (text : string) (format : string list) : string =
-  let format_str =
-    "\027[" ^ List.fold_left (fun f s -> f ^ ";" ^ s) "" format ^ "m"
+let format (format_strs : string list) (text : string) : string =
+  let _format_str_f acc font = acc ^ ";" ^ font in
+  let format_str = String.concat ";" format_strs in
+  Printf.sprintf "\027[%sm%s\027[0m" format_str text
+
+let fformat (fileDesc : Unix.file_descr) (format_strs : string list)
+  (text : string) : string =
+  let _is_channel_redirected () =
+    try
+      let status = Unix.fstat fileDesc in
+      status.Unix.st_kind = Unix.S_REG || status.Unix.st_kind = Unix.S_LNK
+    with Unix.Unix_error _ -> false
   in
-  format_str ^ text ^ "\027[0m"
+  if not (_is_channel_redirected ()) then format format_strs text else text
