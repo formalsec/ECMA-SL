@@ -24,10 +24,10 @@ and t' =
   | Assert of Expr.t
   | Abort of Expr.t
 
-let rec str ?(expr_printer : Expr.t -> string = Expr.str) (stmt : t) : string =
+let rec str ?(expr_printer : Expr.t -> string = Expr.str) (s : t) : string =
   let _str_e e = expr_printer e in
   let _str_es es = String.concat ", " (List.map _str_e es) in
-  match stmt.it with
+  match s.it with
   | Skip -> ""
   | Merge -> ""
   | Block stmts -> List.map (str ~expr_printer) stmts |> String.concat ";\n"
@@ -55,20 +55,20 @@ let rec str ?(expr_printer : Expr.t -> string = Expr.str) (stmt : t) : string =
       | None -> ""
     in
     Printf.sprintf "if (%s) {\n%s\n}%s" (_str_e e) (str s1) (else_str s2)
-  | While (e, s) -> Printf.sprintf "while (%s) {\n%s\n}" (_str_e e) (str s)
+  | While (e, s') -> Printf.sprintf "while (%s) {\n%s\n}" (_str_e e) (str s')
   | Fail e -> Printf.sprintf "fail %s" (_str_e e)
   | Assert e -> Printf.sprintf "assert (%s)" (_str_e e)
   | Abort e -> Printf.sprintf "abort %s" (_str_e e)
 
 let rec to_json (stmt : t) : string =
-  let to_json_exprs exprs = List.map Expr.to_json exprs |> String.concat ", "
-  and to_json_stmts stmts = List.map to_json stmts |> String.concat ", " in
+  let _json_exprs es = List.map Expr.to_json es |> String.concat ", "
+  and _json_stmts stmts = List.map to_json stmts |> String.concat ", " in
   match stmt.it with
   | Skip -> Printf.sprintf "{ \"type\" : \"skip\" }"
   | Merge -> Printf.sprintf "{ \"type\" : \"merge\" }"
   | Block stmts ->
     Printf.sprintf "{ \"type\" : \"block\", \"value\" : [ %s ] }"
-      (to_json_stmts stmts)
+      (_json_stmts stmts)
   | Print e ->
     Printf.sprintf "{ \"type\" : \"print\", \"expr\" : %s }" (Expr.to_json e)
   | Return e ->
@@ -80,12 +80,12 @@ let rec to_json (stmt : t) : string =
     Printf.sprintf
       "{ \"type\" : \"assigncall\", \"lhs\" : \"%s\", \"func\" : %s, \"args\" \
        : [ %s ] }"
-      x (Expr.to_json fe) (to_json_exprs es)
+      x (Expr.to_json fe) (_json_exprs es)
   | AssignECall (x, fn, es) ->
     Printf.sprintf
       "{ \"type\" : \"assignecall\", \"lhs\" : \"%s\", \"func\" : %s, \"args\" \
        : [ %s ] }"
-      x fn (to_json_exprs es)
+      x fn (_json_exprs es)
   | AssignNewObj x ->
     Printf.sprintf "{ \"type\" : \"assignnewobject\", \"lhs\" : \"%s\" }" x
   | AssignObjToList (x, e) ->
@@ -123,9 +123,9 @@ let rec to_json (stmt : t) : string =
       "{ \"type\" : \"condition\", \"expr\" : %s, \"then\" : %s, \"else\" : %s \
        }"
       (Expr.to_json e) (to_json s1) (to_json s2)
-  | While (e, s) ->
+  | While (e, s') ->
     Printf.sprintf "{ \"type\" : \"loop\", \"expr\" : %s, \"do\" : %s }"
-      (Expr.to_json e) (to_json s)
+      (Expr.to_json e) (to_json s')
   | Assert e ->
     Printf.sprintf "{ \"type\" : \"assert\", \"expr\" : %s }" (Expr.to_json e)
   | Fail e ->

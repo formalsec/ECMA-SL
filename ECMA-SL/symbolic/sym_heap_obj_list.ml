@@ -69,7 +69,7 @@ end = struct
     { parent = Some h; map = Hashtbl.create (module String) }
 
   let insert (h : t) (obj : object_) : Loc.t =
-    let loc = Loc.newloc () in
+    let loc = Loc.create () in
     Hashtbl.set h.map ~key:loc ~data:obj;
     loc
 

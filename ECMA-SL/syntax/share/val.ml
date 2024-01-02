@@ -22,9 +22,9 @@ let rec equal (v1 : t) (v2 : t) : bool =
   | (Bool b1, Bool b2) -> Bool.equal b1 b2
   | (Symbol s1, Symbol s2) -> String.equal s1 s2
   | (Loc l1, Loc l2) -> String.equal l1 l2
-  | (Arr a1, Arr a2) -> Core.Array.equal equal a1 a2
-  | (List l1, List l2) -> List.equal equal l1 l2
-  | (Tuple t1, Tuple t2) -> List.equal equal t1 t2
+  | (Arr arr1, Arr arr2) -> Core.Array.equal equal arr1 arr2
+  | (List lst1, List lst2) -> List.equal equal lst1 lst2
+  | (Tuple tup1, Tuple tup2) -> List.equal equal tup1 tup2
   | (Type t1, Type t2) -> Type.equal t1 t2
   | (Byte bt1, Byte bt2) -> Int.equal bt1 bt2
   | (Curry (fn1, fvs1), Curry (fn2, fvs2)) ->
@@ -33,21 +33,14 @@ let rec equal (v1 : t) (v2 : t) : bool =
 
 let rec copy (v : t) : t =
   match v with
-  | Arr x -> Arr (Array.copy x)
-  | List x -> List (List.map copy x)
-  | Tuple x -> Tuple (List.map copy x)
-  | Curry (x, vs) -> Curry (x, List.map copy vs)
-  | x -> x
+  | Arr arr -> Arr (Array.copy arr)
+  | List lst -> List (List.map copy lst)
+  | Tuple tup -> Tuple (List.map copy tup)
+  | Curry (fn, fvs) -> Curry (fn, List.map copy fvs)
+  | _ -> v
 
-let is_symbol (v : t) : bool =
-  match v with
-  | Symbol _ -> true
-  | _ -> false
-
-let is_loc (v : t) : bool =
-  match v with
-  | Loc _ -> true
-  | _ -> false
+let is_symbol (v : t) : bool = match v with Symbol _ -> true | _ -> false
+let is_loc (v : t) : bool = match v with Loc _ -> true | _ -> false
 
 let is_special_number (s : string) : bool =
   List.mem s [ "nan"; "inf"; "-inf" ]

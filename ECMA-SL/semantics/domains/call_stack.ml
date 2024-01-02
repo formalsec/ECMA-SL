@@ -1,23 +1,24 @@
-type func = string
+type retvar = string
+type func = Func.t
 
-type 'a sft =
+type 'store frame =
   | Toplevel
-  | Intermediate of (Stmt.t list * 'a * string * func)
+  | Intermediate of (Stmt.t list * 'store * retvar * func)
 
-type 'a t = 'a sft list
+type 'store t = 'store frame list
 
 exception Empty_stack
 
-let empty : 'a t = []
+let empty : 'store t = []
 
-let str (stack : 'a t) : string =
-  let str_frame_fun = function
+let pop (stack : 'store t) : 'store frame * 'store t =
+  match stack with [] -> raise Empty_stack | frame :: stack' -> (frame, stack')
+
+let push (stack : 'store t) (frame : 'store frame) : 'store t = frame :: stack
+
+let str (stack : 'store t) : string =
+  let _str_frame_f = function
     | Toplevel -> "TopLevel"
-    | Intermediate (_, _, _, f) -> f
+    | Intermediate (_, _, _, func) -> Func.name func
   in
-  List.map str_frame_fun stack |> String.concat "; "
-
-let pop (stack : 'a t) : 'a sft * 'a t =
-  match stack with [] -> raise Empty_stack | f :: frames -> (f, frames)
-
-let push (stack : 'a t) (frame : 'a sft) : 'a t = frame :: stack
+  List.map _str_frame_f stack |> String.concat " -> "
