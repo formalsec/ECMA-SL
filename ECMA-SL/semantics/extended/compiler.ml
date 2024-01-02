@@ -689,17 +689,17 @@ let compile_func (e_func : E_Func.t) : Func.t =
   if fname = __MAIN_FUNC__ then
     let asgn_new_obj = Stmt.AssignNewObj __INTERNAL_ESL_GLOBAL__ @> no_region in
     let stmt_list' = asgn_new_obj :: stmt_list in
-    Func.create fname fparams (Stmt.Block stmt_list' @> no_region)
+    Func.create fname fparams (Stmt.Block stmt_list' @> no_region) @> e_func.at
   else
     let fparams' = __INTERNAL_ESL_GLOBAL__ :: fparams in
-    Func.create fname fparams' (Stmt.Block stmt_list @> no_region)
+    Func.create fname fparams' (Stmt.Block stmt_list @> no_region) @> e_func.at
 
 let compile_lambda
   ((f_id, params, params', s) : string * string list * string list * E_Stmt.t) :
   Func.t =
   let stmt_list = compile_stmt s in
   let params'' = params @ [ __INTERNAL_ESL_GLOBAL__ ] @ params' in
-  Func.create f_id params'' (Stmt.Block stmt_list @> no_region)
+  Func.create f_id params'' (Stmt.Block stmt_list @> no_region) @> no_region
 
 let compile_prog (e_prog : E_Prog.t) : Prog.t =
   let funcs =
