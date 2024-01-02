@@ -1,11 +1,18 @@
 module V = Sym_value.M
 
-let ( let* ) o f = match o with None -> None | Some v -> f v
+let ( let* ) o f =
+  match o with
+  | None -> None
+  | Some v -> f v
+
 let eq v1 v2 = V.BinOpt (Operator.Eq, v1, v2)
 let ne v1 v2 = V.UnOpt (Operator.LogicalNot, eq v1 v2)
 let ite c v1 v2 = V.TriOpt (Operator.ITE, c, v1, v2)
 let undef = V.Val (Val.Symbol "undefined")
-let is_val = function V.Val _ -> true | _ -> false
+
+let is_val = function
+  | V.Val _ -> true
+  | _ -> false
 
 module Value_key = struct
   type t = V.value
@@ -94,7 +101,7 @@ end = struct
         | [] -> []
         | [ (v, cond) ] -> [ (v, [ cond ]); (undef, [ V.Bool.not_ cond ]) ]
         | (v0, cond0) :: tl ->
-          let v, neg_conds =
+          let (v, neg_conds) =
             List.fold_left
               (fun (acc, neg_conds) (v1, cond1) ->
                 (ite cond1 v1 acc, V.Bool.not_ cond1 :: neg_conds) )
@@ -110,7 +117,7 @@ end = struct
         | [] -> []
         | [ (v, cond) ] -> [ (v, [ cond ]); (undef, [ V.Bool.not_ cond ]) ]
         | (v0, cond0) :: tl ->
-          let v, neg_conds =
+          let (v, neg_conds) =
             List.fold_left
               (fun (acc, neg_conds) (v1, cond1) ->
                 (ite cond1 v1 acc, V.Bool.not_ cond1 :: neg_conds) )
@@ -128,7 +135,7 @@ end = struct
     let fold_str map =
       VMap.fold
         (fun key data acc ->
-          Format.sprintf "%s \"%s\": %s," acc (V.Pp.pp key) (V.Pp.pp data) )
+          Format.asprintf {|%s "%a": %a,|} acc V.Pp.pp key V.Pp.pp data )
         map ""
     in
     Format.sprintf "{%s%s }" (fold_str fields) (fold_str symbols)
@@ -210,7 +217,7 @@ module Heap = struct
     | TriOpt (Operator.ITE, c, Val (Val.Loc l), v) ->
       Ok ((Some c, l) :: unfold_ite ~accum:(UnOpt (Operator.LogicalNot, c)) v)
     | _ ->
-      Error (Format.sprintf "Value '%s' is not a loc expression" (V.Pp.pp e))
+      Error (Format.asprintf "Value '%a' is not a loc expression" V.Pp.pp e)
 
   let pp (h : t) (e : value) : string =
     match e with
@@ -218,7 +225,7 @@ module Heap = struct
       match get h l with
       | None -> l
       | Some o -> Format.sprintf "%s -> %s" l (Object.to_string o) )
-    | _ -> V.Pp.pp e
+    | _ -> Format.asprintf "%a" V.Pp.pp e
   (* let to_string_with_glob (h : 'a t) (pp : 'a -> string) : string = *)
   (*   let glob = *)
   (*     Hashtbl.fold h.map ~init:None ~f:(fun ~key:_ ~data:obj acc -> *)

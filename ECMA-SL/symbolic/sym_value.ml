@@ -136,20 +136,32 @@ module M = struct
       Symbolic (t, x')
 
   module Pp = struct
-    let rec pp (e : value) : string =
-      let concat es = String.concat ", " (List.map pp es) in
-      match e with
-      | Val n -> Val.str n
-      | UnOpt (op, e) -> Operator.str_of_unopt op (pp e)
-      | BinOpt (op, e1, e2) -> Operator.str_of_binopt op (pp e1) (pp e2)
+    open Format
+
+    (* FIXME: Proper pp *)
+    let rec pp fmt =
+      let pp_list fmt es =
+        pp_print_list ~pp_sep:(fun fmt () -> pp_print_string fmt ", ") pp fmt es
+      in
+      let pp_str e = asprintf "%a" pp e in
+      function
+      | Val n -> fprintf fmt "%s" (Val.str n)
+      | UnOpt (op, e) ->
+        let e = pp_str e in
+        fprintf fmt "%s" (Operator.str_of_unopt op e)
+      | BinOpt (op, e1, e2) ->
+        let e1 = pp_str e1 in
+        let e2 = pp_str e2 in
+        fprintf fmt "%s" (Operator.str_of_binopt op e1 e2)
       | TriOpt (op, e1, e2, e3) ->
-        Operator.str_of_triopt op (pp e1) (pp e2) (pp e3)
-      | NOpt (op, es) -> Operator.str_of_nopt op (List.map pp es)
-      | Curry (f, es) -> "{" ^ pp f ^ "}@(" ^ concat es ^ ")"
-      | Symbolic (_t, x) -> (
-        match x with
-        | Val (Val.Str x) -> x
-        | _ -> assert false )
+        let e1 = pp_str e1 in
+        let e2 = pp_str e2 in
+        let e3 = pp_str e3 in
+        fprintf fmt "%s" (Operator.str_of_triopt op e1 e2 e3)
+      | NOpt (op, es) ->
+        fprintf fmt "%s" (Operator.str_of_nopt op (List.map pp_str es))
+      | Curry (f, es) -> fprintf fmt "{%a}@(%a)" pp f pp_list es
+      | Symbolic (_t, x) -> pp fmt x
 
     module Store = struct
       type t = Store.t
@@ -161,7 +173,7 @@ module M = struct
         SMap.fold
           (fun key data acc ->
             if String.starts_with ~prefix:"__" key then acc
-            else Printf.sprintf "%s; %s -> %s" acc key (pp data) )
+            else Format.asprintf "%s; %s -> %a" acc key pp data )
           store start
         ^ " }"
     end

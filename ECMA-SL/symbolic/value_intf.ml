@@ -29,7 +29,7 @@ module type T = sig
   val eval_expr : store -> Expr.t -> (value, string) Result.t
 
   module Pp : sig
-    val pp : value -> string
+    val pp : Format.formatter -> value -> unit
 
     module Store : sig
       val to_string : Store.t -> string
