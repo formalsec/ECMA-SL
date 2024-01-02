@@ -22,11 +22,11 @@ let common_options = Term.(const common_options' $ debug_flag $ colorless_flag)
 
 let input_file =
   let doc = "Name of the input file." in
-  Arg.(required & pos 0 (some file) None & info [] ~doc ~docv:"FILE")
+  Arg.(required & pos 0 (some non_dir_file) None & info [] ~doc ~docv:"FILE")
 
 let output_file =
   let doc = "Name of the output file." in
-  Arg.(value & opt (some string) None & info [ "o"; "output" ] ~doc)
+  Arg.(value & opt (some string) None & info [ "o"; "output" ] ~doc ~docv:"FILE")
 
 (* Compile options *)
 
@@ -39,7 +39,7 @@ let interpret_esl_flag =
   let doc = "Interpret a program written in ECMA-SL (.esl)." in
   Arg.(value & flag & info [ "esl" ] ~doc)
 
-(* FIXME *)
+(* TODO *)
 
 let execution_lang =
   let open Lang in
