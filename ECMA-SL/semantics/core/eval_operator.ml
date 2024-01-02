@@ -3,15 +3,15 @@ open Val
 
 let op_err (src_arg_i : int) (op_label : string) (rt_msg : Eslerr.runtime_err) :
   'a =
-  let msgs = [ Eslerr.RuntimeErr.OperatorError op_label; rt_msg ] in
+  let msgs = [ Eslerr.RuntimeErr.OpEvalErr op_label; rt_msg ] in
   raise Eslerr.(runtime' ~src:(Index src_arg_i) msgs)
 
 let unexpected_err (src_arg_i : int) (op_label : string) (msg : string) : 'a =
-  op_err src_arg_i op_label (Eslerr.RuntimeErr.UnexpectedValue msg)
+  op_err src_arg_i op_label (Eslerr.RuntimeErr.Unexpected msg)
 
 let bad_arg_err (src_arg_i : int) (op_label : string) (types : string)
   (vals : Val.t list) : 'a =
-  op_err src_arg_i op_label (Eslerr.RuntimeErr.BadOperands (types, vals))
+  op_err src_arg_i op_label (Eslerr.RuntimeErr.BadOpArgs (types, vals))
 
 let typeof (v : Val.t) : Val.t =
   let op_label = label_of_unopt Typeof in

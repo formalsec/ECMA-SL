@@ -12,8 +12,8 @@ let empty : 'a t = []
 
 let str (stack : 'a t) : string =
   let str_frame_fun = function
-    | Intermediate (_, _, _, f) -> f
     | Toplevel -> "TopLevel"
+    | Intermediate (_, _, _, f) -> f
   in
   List.map str_frame_fun stack |> String.concat "; "
 

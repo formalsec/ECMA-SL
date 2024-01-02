@@ -65,9 +65,7 @@ module M (Mon : Monitor.M) = struct
       let vs = List.map (eval_expr store) es in
       match fv with
       | Str s -> Val.Curry (s, vs)
-      | _ ->
-        Eslerr.(runtime ~src:(Expr f) (RuntimeErr.BadExpression ("curry", fv)))
-      )
+      | _ -> Eslerr.(runtime ~src:(Expr f) (RuntimeErr.BadExpr ("curry", fv))) )
     | Symbolic (t, _) -> (
       Random.self_init ();
       match t with
@@ -79,19 +77,19 @@ module M (Mon : Monitor.M) = struct
     match eval_expr store expr with
     | Str s -> s
     | _ as v ->
-      Eslerr.(runtime ~src:(Expr expr) (RuntimeErr.BadValue ("string", v)))
+      Eslerr.(runtime ~src:(Expr expr) (RuntimeErr.BadVal ("string", v)))
 
   let eval_boolean (store : store) (expr : Expr.t) : bool =
     match eval_expr store expr with
     | Bool b -> b
     | _ as v ->
-      Eslerr.(runtime ~src:(Expr expr) (RuntimeErr.BadValue ("boolean", v)))
+      Eslerr.(runtime ~src:(Expr expr) (RuntimeErr.BadVal ("boolean", v)))
 
   let eval_location (store : store) (expr : Expr.t) : string =
     match eval_expr store expr with
     | Loc l -> l
     | _ as v ->
-      Eslerr.(runtime ~src:(Expr expr) (RuntimeErr.BadValue ("location", v)))
+      Eslerr.(runtime ~src:(Expr expr) (RuntimeErr.BadVal ("location", v)))
 
   let eval_object (store : store) (heap : heap) (expr : Expr.t) : string * obj =
     let loc = eval_location store expr in
@@ -102,7 +100,7 @@ module M (Mon : Monitor.M) = struct
     match eval_expr store fexpr with
     | Val.Str fn -> (fn, [])
     | Val.Curry (fn, fvs) -> (fn, fvs)
-    | _ as v -> Eslerr.(runtime ~src:(Expr fexpr) (RuntimeErr.BadFunctionId v))
+    | _ as v -> Eslerr.(runtime ~src:(Expr fexpr) (RuntimeErr.BadFuncId v))
 
   let prepare_call (stack : stack) (store : store) (cont : Stmt.t list)
     (x : string) (func : Func.t) (vs : Val.t list) : stack * store =
@@ -113,8 +111,8 @@ module M (Mon : Monitor.M) = struct
     let store' =
       try List.combine params vs |> Store.create
       with _ ->
-        let nparams = List.length params and nargs = List.length vs in
-        Eslerr.(runtime (RuntimeErr.NExpectedArgs (nparams, nargs)))
+        let (nparams, nargs) = (List.length params, List.length vs) in
+        Eslerr.(runtime (RuntimeErr.BadNArgs (nparams, nargs)))
     in
     (stack', store')
 
