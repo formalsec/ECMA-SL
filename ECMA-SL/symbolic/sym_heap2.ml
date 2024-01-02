@@ -152,7 +152,7 @@ module Heap = struct
   let clone (h : t) : t = Hashtbl.copy h
 
   let insert (h : t) (o : object_) : value =
-    let loc = Loc.newloc () in
+    let loc = Loc.create () in
     Hashtbl.replace h loc o;
     V.Val (Val.Loc loc)
 

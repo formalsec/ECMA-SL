@@ -21,6 +21,7 @@ module Runtime = struct
     | BadExpr of string * Val.t
     | BadFuncId of Val.t
     | BadOpArgs of string * Val.t list
+    | MissingReturn of string
 end
 
 let internal_message_str (msg : Internal.t) : string =
@@ -44,7 +45,7 @@ let runtime_message_str (msg : Runtime.t) : string =
   | Default -> "Generic runtime error."
   | Custom msg' -> msg'
   | Unexpected msg -> Printf.sprintf "Unexpected %s." msg
-  | OpEvalErr op_label -> Printf.sprintf "Exception in Operator.%s." op_label
+  | OpEvalErr op_lbl -> Printf.sprintf "Exception in Operator.%s." op_lbl
   | UnknownVar x -> Printf.sprintf "Cannot find variable '%s'." x
   | UnknownLoc l -> Printf.sprintf "Cannot find location '%s'." l
   | UnknownFunc fn -> Printf.sprintf "Cannot find function '%s'." fn
@@ -63,3 +64,4 @@ let runtime_message_str (msg : Runtime.t) : string =
     let vals_str = List.map Val.str vals |> String.concat ", " |> _paren in
     Printf.sprintf "Expecting argument%s of type%s '%s', but got '%s'." s_sfx
       s_sfx types_str vals_str
+  | MissingReturn fn -> Printf.sprintf "Missing return in function '%s'." fn

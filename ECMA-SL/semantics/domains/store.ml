@@ -15,7 +15,7 @@ let get (store : 'a t) (x : var) : ('a, string) Result.t =
 let set (store : 'a t) (x : var) (v : 'a) : unit = Hashtbl.replace store x v
 
 let str (val_printer : Val.t -> string) (store : 'a t) : string =
-  let _binding_str x v = Printf.sprintf "%s: %s" x (val_printer v) in
-  let _store_str_f x v acc = _binding_str x v :: acc in
-  let store_str = Hashtbl.fold _store_str_f store [] |> String.concat ", " in
+  let _str_binding x v = Printf.sprintf "%s: %s" x (val_printer v) in
+  let _str_store_f x v acc = _str_binding x v :: acc in
+  let store_str = Hashtbl.fold _str_store_f store [] |> String.concat ", " in
   "{ " ^ store_str ^ " }"

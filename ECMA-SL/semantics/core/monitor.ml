@@ -1,24 +1,24 @@
-type stmt_label =
-  | SkipLbl
-  | MergeLbl
-  | BlockLbl
-  | PrintLbl
-  | ReturnLbl
-  | AssignLbl
-  | AssignCallLbl of Func.t
-  | AssignECallLbl
-  | AssignNewObjLbl of string
-  | AssignObjToListLbl
-  | AssignObjFieldsLbl
-  | AssignInObjCheckLbl of string * string
-  | FieldLookupLbl of string * string
-  | FieldAssignLbl of string * string
-  | FieldDeleteLbl of string * string
-  | IfLbl of bool
-  | WhileLbl
-  | FailLbl
-  | AssertLbl of bool
-  | AbortLbl
+type stmt_eval =
+  | SkipEval
+  | MergeEval
+  | BlockEval
+  | PrintEval
+  | ReturnEval
+  | AssignEval
+  | AssignCallEval of Func.t
+  | AssignECallEval
+  | AssignNewObjEval of string
+  | AssignObjToListEval
+  | AssignObjFieldsEval
+  | AssignInObjCheckEval of string * string
+  | FieldLookupEval of string * string
+  | FieldAssignEval of string * string
+  | FieldDeleteEval of string * string
+  | IfEval of bool
+  | WhileEval
+  | FailEval
+  | AssertEval of bool
+  | AbortEval
 
 module type M = sig
   type sl
@@ -29,7 +29,7 @@ module type M = sig
 
   val parse_lvl : string -> sl
   val initial_state : unit -> state
-  val generate_label : Stmt.t -> stmt_label -> sl_label
+  val generate_label : Stmt.t -> stmt_eval -> sl_label
   val eval_small_step : state -> sl_label -> return
   val next_state : return -> state
   val interceptor : string -> Val.t list -> Expr.t list -> sl_label option
@@ -44,7 +44,7 @@ module Default : M = struct
 
   let parse_lvl (_ : string) : sl = ()
   let initial_state () : state = ()
-  let generate_label (_ : Stmt.t) (_ : stmt_label) : sl_label = ()
+  let generate_label (_ : Stmt.t) (_ : stmt_eval) : sl_label = ()
   let eval_small_step (_ : state) (_ : sl_label) : return = ()
   let next_state (_ : return) : state = ()
 
