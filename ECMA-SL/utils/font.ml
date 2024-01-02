@@ -25,9 +25,11 @@ let clean (text : string) : string =
   Str.global_replace escape_regex "" text
 
 let format (format_strs : string list) (text : string) : string =
-  let _format_str_f acc font = acc ^ ";" ^ font in
-  let format_str = String.concat ";" format_strs in
-  Printf.sprintf "\027[%sm%s\027[0m" format_str text
+  if text = "" then ""
+  else
+    let _format_str_f acc font = acc ^ ";" ^ font in
+    let format_str = String.concat ";" format_strs in
+    Printf.sprintf "\027[%sm%s\027[0m" format_str text
 
 let fformat (fileDesc : Unix.file_descr) (format_strs : string list)
   (text : string) : string =
@@ -38,3 +40,6 @@ let fformat (fileDesc : Unix.file_descr) (format_strs : string list)
     with Unix.Unix_error _ -> false
   in
   if not (_is_channel_redirected ()) then format format_strs text else text
+
+let format_err (format_strs : string list) (text : string) : string =
+  fformat Unix.stderr format_strs text

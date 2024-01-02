@@ -68,7 +68,8 @@ let format_rt (err : runtime) : string =
   let msgs_str = List.map Eslerr_msgs.runtime_message_str err.msgs in
   let main_str = Eslerr_fmt.format_message font header msgs_str in
   let source_str = Eslerr_fmt.format_source font err.loc err.src in
-  Printf.sprintf "%s%s" main_str source_str
+  let main_source_nl = if source_str <> "" then "\n" else "" in
+  Printf.sprintf "%s%s%s" main_str main_source_nl source_str
 
 let format = function
   | Internal_error err -> format_int err

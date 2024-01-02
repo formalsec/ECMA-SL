@@ -131,7 +131,7 @@ module M (Mon : Monitor.M) = struct
     | Merge -> (Intermediate (state, cont), _lbl MergeEval)
     | Block stmts -> (Intermediate (state, stmts @ cont), _lbl BlockEval)
     | Print e ->
-      eval_expr store e |> val_to_string heap |> Printf.printf "%s";
+      eval_expr store e |> val_to_string heap |> Printf.printf "%s\n";
       (Intermediate (state, cont), _lbl PrintEval)
     | Return e -> (
       let v = eval_expr store e in
