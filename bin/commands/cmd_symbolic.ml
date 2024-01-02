@@ -15,7 +15,10 @@ let list_iter ~f lst =
   let exception E of Rresult.R.msg in
   try
     List.iter
-      (fun v -> match f v with Error s -> raise (E s) | Ok () -> ())
+      (fun v ->
+        match f v with
+        | Error s -> raise (E s)
+        | Ok () -> () )
       lst;
     Ok ()
   with E s -> Error s
@@ -144,14 +147,14 @@ let dispatch_file_ext on_plus on_core on_js file =
   else Error (`Msg (file ^ " :unreconized file type"))
 
 let prog_of_plus file =
-  let e_prog =
-    Parsing_utils.(
-      apply_prog_macros
-        (resolve_prog_imports (parse_e_prog file (Io.load_file file))) )
-  in
-  Compiler.compile_prog e_prog
+  let open Parsing_utils in
+  Io.load_file file
+  |> parse_e_prog file
+  |> resolve_prog_imports
+  |> apply_prog_macros
+  |> Compiler.compile_prog
 
-let prog_of_core file = Parsing_utils.(parse_prog (Io.load_file file))
+let prog_of_core file = Io.load_file file |> Parsing_utils.parse_prog
 
 let js2ecma_sl file output =
   Cmd.(v "js2ecma-sl" % "-c" % "-i" % p file % "-o" % p output)
@@ -174,13 +177,10 @@ let prog_of_js file =
       Ok (Parsing_utils.parse_prog program) )
 
 let link_env prog =
-  let env = Env.Build.empty () in
-  let env = Env.Build.add_functions env prog in
-  let env = Env.Build.add_extern_functions env extern_functions in
-  Env.Build.add_extern_functions env symbolic_api_funcs
-
-let _error at category msg =
-  Format.eprintf "%s:%s:%s@." (Source.string_of_region at) category msg
+  Env.Build.empty ()
+  |> Env.Build.add_functions prog
+  |> Env.Build.add_extern_functions extern_functions
+  |> Env.Build.add_extern_functions symbolic_api_funcs
 
 let serialize =
   let counter = ref 0 in
@@ -226,7 +226,11 @@ let run env entry_func =
   let results = Choice.run result thread in
   List.iter
     (fun (ret, thread) ->
-      let witness = match ret with Ok _ -> None | Error err -> Some err in
+      let witness =
+        match ret with
+        | Ok _ -> None
+        | Error err -> Some err
+      in
       serialize ?witness thread;
       Format.printf "  path cond : %a@." Encoding.Expr.pp_list
         (Thread.pc thread) )
@@ -259,9 +263,9 @@ let execute_witness env (test : string) (witness : Fpath.t) =
   let open OS in
   Logs.app (fun m -> m " running : %s" @@ Fpath.to_string witness);
   let cmd = node test witness in
-  let* out, status = Cmd.(run_out ~env ~err:err_run_out cmd |> out_string) in
+  let* (out, status) = Cmd.(run_out ~env ~err:err_run_out cmd |> out_string) in
   match status with
-  | _, `Exited 0 ->
+  | (_, `Exited 0) ->
     Ok
       (List.find_opt
          (fun effect ->
