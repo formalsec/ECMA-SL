@@ -38,18 +38,18 @@ module AppInfo = struct
   let exits =
     List.append Cmd.Exit.defaults
       [ Cmd.Exit.info ~doc:"on application failure" 1
-      ; Cmd.Exit.info ~doc:"on execution error" 2
+      ; Cmd.Exit.info ~doc:"on generic execution error" 2
       ]
 end
 
 let compile_cmd =
   let open Doc_compile in
-  let info = Cmd.info "compile" ~doc ~sdocs ~man ~man_xrefs in
+  let info = Cmd.info "compile" ~doc ~sdocs ~man ~man_xrefs ~exits in
   Cmd.v info term
 
 let interpret_cmd =
   let open Doc_interpret in
-  let info = Cmd.info "interpret" ~doc ~sdocs ~man ~man_xrefs in
+  let info = Cmd.info "interpret" ~doc ~sdocs ~man ~man_xrefs ~exits in
   Cmd.v info term
 
 let encode_cmd =

@@ -1,6 +1,3 @@
-let file = ref ""
-let target = ref "main"
-let workspace = ref "output"
 let default_hashtbl_sz = ref 16
 
 module Common = struct
@@ -10,3 +7,10 @@ end
 module Eslerr = struct
   let show_code = ref true
 end
+
+module Tesl = struct
+  let untyped = ref false
+end
+
+let file = ref ""
+let workspace = ref "output"
