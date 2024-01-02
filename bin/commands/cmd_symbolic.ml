@@ -244,7 +244,6 @@ let run env entry_func =
 let main (copts : Options.common_options) file target workspace =
   Log.on_debug := copts.debug;
   Config.file := file;
-  Config.target := target;
   Config.workspace := workspace;
   (let* prog = dispatch_file_ext prog_of_plus prog_of_core prog_of_js file in
    let env = link_env prog in

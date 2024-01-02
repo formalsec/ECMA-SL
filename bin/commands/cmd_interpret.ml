@@ -16,18 +16,19 @@ let interpret_core (input_file : string) : unit =
   Cmd.test_file_ext input_file [ ".cesl" ];
   Io.load_file input_file |> Parsing_utils.parse_prog |> run_interpreter
 
-let compile_and_interpret (input_file : string) (untyped : bool) : unit =
-  Config.Eslerr.show_code := false;
+let compile_and_interpret (input_file : string) : unit =
   Cmd.test_file_ext input_file [ ".esl" ];
-  Cmd_compile.run_compiler untyped input_file |> run_interpreter
+  Cmd_compile.run_compiler input_file |> run_interpreter
 
 let run (opts : options) : unit =
   match opts.interpret_esl with
-  | true -> compile_and_interpret opts.input_file opts.untyped
+  | true -> compile_and_interpret opts.input_file
   | false -> interpret_core opts.input_file
 
 let main (copts : Options.common_options) (opts : options) : int =
   Log.on_debug := copts.debug;
-  Config.Common.colored := (not copts.colorless);
+  Config.Common.colored := not copts.colorless;
+  Config.Eslerr.show_code := not opts.interpret_esl;
+  Config.Tesl.untyped := opts.untyped;
   Config.file := opts.input_file;
   Cmd.eval_cmd (fun () -> run opts)
