@@ -105,4 +105,4 @@ let rec type_of (v : Sym_value.M.value) : Type.t option =
   | NOpt (Operator.ListExpr, _) -> Some Type.ListType
   | NOpt (Operator.TupleExpr, _) -> Some Type.TupleType
   | NOpt (Operator.ArrayExpr, _) -> Some Type.ArrayType
-  | _ -> failwith (Pp.pp v ^ ": Not typed!")
+  | _ -> Format.kasprintf failwith "%a: Not typed!" Pp.pp v

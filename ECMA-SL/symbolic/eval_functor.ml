@@ -1,5 +1,3 @@
-[@@@ocaml.warning "-37"]
-
 open Core
 open Source
 
@@ -168,10 +166,10 @@ module Make (P : Eval_functor_intf.P) :
       let* e' = eval_expr locals e in
       let/ b = Choice.check @@ Value.Bool.not_ e' in
       if b then (
-        let e' = Value.Pp.pp e' in
-        Format.printf "     assert : failure with (%s)@." e';
-        Choice.return @@ State.Return (Error (sprintf "{\"assert\":\"%s\"}" e'))
-        )
+        Format.printf "     assert : failure with (%a)@." Value.Pp.pp e';
+        Choice.return
+        @@ State.Return
+             (Error (Format.asprintf {|{"assert":"%a"}|} Value.Pp.pp e')) )
       else st locals
     | Stmt.Block blk ->
       Choice.return @@ State.Continue { state with stmts = blk @ state.stmts }
