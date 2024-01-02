@@ -13,6 +13,9 @@ module Runtime = struct
     | Custom of string
     | Unexpected of string
     | OpEvalErr of string
+    | UnknownVar of string
+    | UnknownLoc of string
+    | UnknownFunc of string
     | BadNArgs of int * int
     | BadVal of string * Val.t
     | BadExpr of string * Val.t
@@ -42,6 +45,9 @@ let runtime_message_str (msg : Runtime.t) : string =
   | Custom msg' -> msg'
   | Unexpected msg -> Printf.sprintf "Unexpected %s." msg
   | OpEvalErr op_label -> Printf.sprintf "Exception in Operator.%s." op_label
+  | UnknownVar x -> Printf.sprintf "Cannot find variable '%s'." x
+  | UnknownLoc l -> Printf.sprintf "Cannot find location '%s'." l
+  | UnknownFunc fn -> Printf.sprintf "Cannot find function '%s'." fn
   | BadNArgs (nparams, nargs) ->
     Printf.sprintf "Expected %d arguments, but got %d." nparams nargs
   | BadVal (exp_str, v) ->

@@ -1,21 +1,17 @@
 open Source
 open Stmt
 
-let ( !! ) res =
-  match res with
-  | Ok v -> v
-  | Error err -> Eslerr.(runtime (RuntimeErr.Custom err))
-
 module M (Mon : Monitor.M) = struct
-  type obj = Val.t Object.t
-  type store = Val.t Store.t
-  type heap = Val.t Heap.t
+  type value = Val.t
+  type obj = value Object.t
+  type store = value Store.t
+  type heap = value Heap.t
   type stack = store Call_stack.t
   type state = stack * store * heap * string
 
   type return =
-    | Final of Val.t
-    | Error of Val.t
+    | Final of value
+    | Error of value
     | Intermediate of state * Stmt.t list
 
   let initial_state (main : string) : state =
@@ -24,42 +20,56 @@ module M (Mon : Monitor.M) = struct
     let heap = Heap.create () in
     (stack, store, heap, main)
 
-  let val_to_string (heap : heap) (v : Val.t) : string =
-    match v with
-    | Str s -> s
-    | Loc l -> !!(Heap.get heap l) |> Object.str (Val.str ~flt_with_dot:false)
-    | _ -> Val.str v
+  let eval_var (store : store) (x : string) : value =
+    match Store.get_opt store x with
+    | Some v -> v
+    | None -> Eslerr.(runtime ~src:(Str x) (RuntimeErr.UnknownVar x))
 
-  let eval_operator_safe (eval_op_fun : unit -> Val.t) (es : Expr.t list) :
-    Val.t =
+  let eval_loc (heap : heap) (l : string) : obj =
+    match Heap.get_opt heap l with
+    | Some obj -> obj
+    | None -> Eslerr.(runtime ~src:(Str l) (RuntimeErr.UnknownLoc l))
+
+  let eval_func (prog : Prog.t) (fn : string) : Func.t =
+    match Prog.func_opt prog fn with
+    | Some func -> func
+    | None -> Eslerr.(runtime ~src:(Str fn) (RuntimeErr.UnknownFunc fn))
+
+  let eval_operator (eval_op_fun : unit -> value) (es : Expr.t list) : value =
     try eval_op_fun ()
     with Eslerr.Runtime_error _ as exn ->
       let e = Eslerr.(src exn |> index_to_el es) in
       Eslerr.(set_src (Expr e) exn |> raise)
 
-  let rec eval_expr (store : store) (expr : Expr.t) : Val.t =
+  let val_to_string (heap : heap) (v : value) : string =
+    match v with
+    | Str s -> s
+    | Loc l -> eval_loc heap l |> Object.str (Val.str ~flt_with_dot:false)
+    | _ -> Val.str v
+
+  let rec eval_expr (store : store) (expr : Expr.t) : value =
     match expr with
     | Val v -> v
-    | Var x -> !!(Store.get store x)
+    | Var x -> eval_var store x
     | UnOpt (op, e) ->
       let v = eval_expr store e in
       let eval_op_fun () = Eval_operator.eval_unopt op v in
-      eval_operator_safe eval_op_fun [ e ]
+      eval_operator eval_op_fun [ e ]
     | BinOpt (op, e1, e2) ->
       let v1 = eval_expr store e1 in
       let v2 = eval_expr store e2 in
       let eval_op_fun () = Eval_operator.eval_binopt op v1 v2 in
-      eval_operator_safe eval_op_fun [ e1; e2 ]
+      eval_operator eval_op_fun [ e1; e2 ]
     | TriOpt (op, e1, e2, e3) ->
       let v1 = eval_expr store e1 in
       let v2 = eval_expr store e2 in
       let v3 = eval_expr store e3 in
       let eval_op_fun () = Eval_operator.eval_triopt op v1 v2 v3 in
-      eval_operator_safe eval_op_fun [ e1; e2; e3 ]
+      eval_operator eval_op_fun [ e1; e2; e3 ]
     | NOpt (op, es) ->
       let vs = List.map (eval_expr store) es in
       let eval_op_fun () = Eval_operator.eval_nopt op vs in
-      eval_operator_safe eval_op_fun es
+      eval_operator eval_op_fun es
     | Curry (f, es) -> (
       let fv = eval_expr store f in
       let vs = List.map (eval_expr store) es in
@@ -93,17 +103,17 @@ module M (Mon : Monitor.M) = struct
 
   let eval_object (store : store) (heap : heap) (expr : Expr.t) : string * obj =
     let loc = eval_location store expr in
-    let obj = !!(Heap.get heap loc) in
+    let obj = eval_loc heap loc in
     (loc, obj)
 
-  let get_func_id (store : store) (fexpr : Expr.t) : string * Val.t list =
+  let get_func_id (store : store) (fexpr : Expr.t) : string * value list =
     match eval_expr store fexpr with
     | Val.Str fn -> (fn, [])
     | Val.Curry (fn, fvs) -> (fn, fvs)
     | _ as v -> Eslerr.(runtime ~src:(Expr fexpr) (RuntimeErr.BadFuncId v))
 
   let prepare_call (stack : stack) (store : store) (cont : Stmt.t list)
-    (x : string) (func : Func.t) (vs : Val.t list) : stack * store =
+    (x : string) (func : Func.t) (vs : value list) : stack * store =
     let fn = Func.name func in
     let new_frame = Call_stack.Intermediate (cont, store, x, fn) in
     let stack' = Call_stack.push stack new_frame in
@@ -145,7 +155,7 @@ module M (Mon : Monitor.M) = struct
       match Mon.interceptor fn vs es with
       | Some label -> (Intermediate (state, cont), label)
       | None ->
-        let func = !!(Prog.func prog fn) in
+        let func = eval_func prog fn in
         let (stack', store') = prepare_call stack store cont x func vs in
         let state' = (stack', store', heap, fn) in
         let cont' = Func.body func :: [] in
@@ -244,14 +254,14 @@ module M (Mon : Monitor.M) = struct
         small_step_iter prog state' mon_state' stmts'' )
 
   let eval_prog ?(main : string = "main") (prog : Prog.t) : return =
-    let func = !!(Prog.func prog main) in
+    let func = eval_func prog main in
     let state = initial_state main in
     let mon_state = Mon.initial_state () in
     let return = small_step_iter prog state mon_state [ func.body ] in
     match return with
     | Final _ as retval -> retval
     | Error err as retval ->
-      Printf.printf "uncaught exception: %s" (Val.str err);
+      Printf.eprintf "uncaught exception: %s" (Val.str err);
       retval
-    | _ -> Eslerr.internal __FUNCTION__ (Expecting "final/error return")
+    | _ -> Eslerr.internal __FUNCTION__ (Expecting "non-intermediate state")
 end

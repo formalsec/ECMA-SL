@@ -9,8 +9,8 @@ let get_opt (store : 'a t) (x : var) : 'a option = Hashtbl.find_opt store x
 
 let get (store : 'a t) (x : var) : ('a, string) Result.t =
   match get_opt store x with
-  | None -> Error (Format.sprintf "Cannot find variable '%s'." x)
   | Some v' -> Ok v'
+  | None -> Error (Format.sprintf "Cannot find variable '%s'." x)
 
 let set (store : 'a t) (x : var) (v : 'a) : unit = Hashtbl.replace store x v
 
