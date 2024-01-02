@@ -29,8 +29,8 @@ let rec get_opt (heap : 'a t) (loc : Loc.t) : 'a obj option =
 
 let get (heap : 'a t) (loc : Loc.t) : ('a obj, string) Result.t =
   match get_opt heap loc with
-  | None -> Error (Format.sprintf "Cannot find location '%s'." loc)
   | Some obj -> Ok obj
+  | None -> Error (Format.sprintf "Cannot find location '%s'." loc)
 
 let get_field_opt (heap : 'a t) (loc : Loc.t) (fn : string) : 'a option =
   get_opt heap loc |> Option.map_default (fun o -> Object.get o fn) None
