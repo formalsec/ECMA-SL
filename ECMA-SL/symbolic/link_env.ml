@@ -38,10 +38,10 @@ module Make (Memory : Sym_heap_intf.S) = struct
       ; extern_funcs = SMap.empty
       }
 
-    let add_memory (env : 'a t) memory = { env with memory }
-    let add_functions (env : 'a t) functions = { env with functions }
+    let add_memory memory (env : 'a t) = { env with memory }
+    let add_functions functions (env : 'a t) = { env with functions }
 
-    let add_extern_functions (env : 'a t) extern_funcs =
+    let add_extern_functions extern_funcs (env : 'a t) =
       let extern_funcs' =
         SMap.fold
           (fun key data accum -> SMap.add key data accum)
