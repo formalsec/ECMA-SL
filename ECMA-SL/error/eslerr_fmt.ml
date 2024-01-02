@@ -104,13 +104,16 @@ let tokens_stmt (stmt : Stmt.t) : token list =
 
 let tokens_func (func : Func.t) : token list =
   let open Func in
-  let fn_tkn = Str func.name in
-  let param_tkns = List.map (fun p -> Str p) func.params in
+  let fn_tkn = Str func.it.name in
+  let param_tkns = List.map (fun p -> Str p) func.it.params in
   let end_tkns = [ Lit " { "; Lit threedots ] in
   Lit "function " :: (tokens_call fn_tkn param_tkns @ end_tkns)
 
 let token_region (tkn : token) : Source.region =
-  match tkn with Stmt stmt -> stmt.at | _ -> Source.no_region
+  match tkn with
+  | Stmt stmt -> stmt.at
+  | Func func -> func.at
+  | _ -> Source.no_region
 
 let rec token_str (tkn : token) : string =
   match tkn with
@@ -207,18 +210,16 @@ let rec process_existing_source (srcdata : srcdata) (src : token) (loc : token)
     srcdata.hgl <- srcdata.hgl ^ String.make tkn_size hgl;
     tkn_size
   in
-  srcdata.locdata.right <- 0;
-  if srcdata.locdata.left >= srcdata.locdata.right then
-    if token_cmp loc src then (
-      let tkn_size = _write_tkn '^' in
-      srcdata.locdata.right <- srcdata.locdata.left + tkn_size - 1;
-      srcdata.found <- true )
-    else if token_is_splitable loc then
-      List.iter (process_existing_source srcdata src) (token_split loc)
-    else
-      let tkn_size = _write_tkn ' ' in
-      srcdata.locdata.left <- srcdata.locdata.left + tkn_size
-  else ignore (_write_tkn ' ')
+  if srcdata.found then ignore (_write_tkn ' ')
+  else if token_cmp loc src then (
+    let tkn_size = _write_tkn '^' in
+    srcdata.locdata.right <- srcdata.locdata.left + tkn_size - 1;
+    srcdata.found <- true )
+  else if token_is_splitable loc then
+    List.iter (process_existing_source srcdata src) (token_split loc)
+  else
+    let tkn_size = _write_tkn ' ' in
+    srcdata.locdata.left <- srcdata.locdata.left + tkn_size
 
 let process_source (src : token) (loc : token) : srcdata =
   let srcdata = srcdata_init loc in

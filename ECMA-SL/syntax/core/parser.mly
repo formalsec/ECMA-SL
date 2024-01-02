@@ -137,7 +137,7 @@ prog_target:
 
 proc_target:
   | FUNCTION; fn = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; LBRACE; s = stmt_block_target; RBRACE
-    { Func.create fn vars s }
+    { Func.create fn vars s @> at $sloc }
   ;
 
 (* ========== Statements ========== *)

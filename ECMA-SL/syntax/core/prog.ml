@@ -1,6 +1,5 @@
+open Source
 open Func
-
-let ( let+ ) o f = Result.map f o
 
 type t = (string, Func.t) Hashtbl.t
 
@@ -8,7 +7,7 @@ let empty () : t = Hashtbl.create !Config.default_hashtbl_sz
 
 let create (funcs : Func.t list) : t =
   let env = empty () in
-  List.iter (fun f -> Hashtbl.replace env f.name f) funcs;
+  List.iter (fun f -> Hashtbl.replace env f.it.name f) funcs;
   env
 
 let func_opt (prog : t) (fn : string) : Func.t option = Hashtbl.find_opt prog fn
@@ -19,16 +18,9 @@ let func (prog : t) (fn : string) : (Func.t, string) Result.t =
   | None -> Result.error (Printf.sprintf "Cannot find function '%s'." fn)
 
 let func_name (prog : t) (fn : string) : (string, string) Result.t =
+  let ( let+ ) o f = Result.map f o in
   let+ s = func prog fn in
-  s.name
-
-let func_body (prog : t) (fn : string) : (Stmt.t, string) Result.t =
-  let+ s = func prog fn in
-  s.body
-
-let func_params (prog : t) (fn : string) : (string list, string) Result.t =
-  let+ s = func prog fn in
-  s.params
+  s.it.name
 
 let funcs (prog : t) : Func.t list =
   let _func_acc_f _ func acc = func :: acc in
