@@ -138,24 +138,29 @@ module Make (P : Eval_functor_intf.P) :
     let open State in
     let { locals; env; _ } = state in
     let st locals = Choice.return @@ State.Continue { state with locals } in
+    let err fmt =
+      Format.kasprintf
+        (fun msg -> Choice.return @@ State.Return (Error msg))
+        fmt
+    in
     let/ m = Env.get_memory env in
     Log.debug "      store : %s@." (Value.Pp.Store.to_string locals);
     Log.debug "running stmt: %s@." (Stmt.Pp.to_string stmt (pp locals m));
     match stmt.it with
     | Stmt.Skip -> st locals
     | Stmt.Merge -> st locals
-    | Stmt.Throw err ->
+    | Stmt.Throw e ->
       let at' = Source.string_of_region stmt.at in
-      Format.printf "  exception : %s: %s@." at' err;
-      Choice.return @@ State.Return (Error (sprintf "{\"exn\":\"%s\"}" err))
+      Log.err "  exception : %s: %s@." at' e;
+      err {|{ "exn" : %S }|} e
     | Stmt.Fail e ->
       let e' = pp locals m e in
-      Format.printf "       fail : %s@." e';
-      Choice.return @@ State.Return (Error (sprintf "{\"fail\":\"%s\"}" e'))
+      Log.err "       fail : %s@." e';
+      err {|{ "fail" : "%S" }|} e'
     | Stmt.Abort e ->
       let e' = pp locals m e in
-      Format.printf "      abort : %s@." e';
-      Choice.return @@ State.Return (Error (sprintf "{\"abort\":\"%s\"}" e'))
+      Log.err "      abort : %s@." e';
+      err {|{ "abort" : %S }|} e'
     | Stmt.Print e ->
       Format.printf "%s@." (pp locals m e);
       st locals
@@ -166,10 +171,8 @@ module Make (P : Eval_functor_intf.P) :
       let* e' = eval_expr locals e in
       let/ b = Choice.check @@ Value.Bool.not_ e' in
       if b then (
-        Format.printf "     assert : failure with (%a)@." Value.Pp.pp e';
-        Choice.return
-        @@ State.Return
-             (Error (Format.asprintf {|{"assert":"%a"}|} Value.Pp.pp e')) )
+        Log.err "     assert : failure with (%a)@." Value.Pp.pp e';
+        err {|{ "assert" : "%a" }|} Value.Pp.pp e' )
       else st locals
     | Stmt.Block blk ->
       Choice.return @@ State.Continue { state with stmts = blk @ state.stmts }
