@@ -27,7 +27,6 @@ let clean (text : string) : string =
 let format (format_strs : string list) (text : string) : string =
   if text = "" then ""
   else
-    let _format_str_f acc font = acc ^ ";" ^ font in
     let format_str = String.concat ";" format_strs in
     Printf.sprintf "\027[%sm%s\027[0m" format_str text
 
