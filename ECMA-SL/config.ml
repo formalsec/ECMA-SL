@@ -8,6 +8,10 @@ module Eslerr = struct
   let show_code = ref true
 end
 
+module Interpreter = struct
+  let verbose = ref true
+end
+
 module Tesl = struct
   let untyped = ref false
 end
