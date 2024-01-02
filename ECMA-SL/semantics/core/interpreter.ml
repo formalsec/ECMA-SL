@@ -48,7 +48,7 @@ module M (Mon : Monitor.M) = struct
     | Loc l -> printf "%a@." (Object.pp Val.pp) (eval_loc heap l)
     | _ -> printf "%a@." Val.pp v
 
-  let rec eval_expr (store : store) (e : Expr.t) : value =
+  let rec eval_expr_sub (store : store) (e : Expr.t) : value =
     match e with
     | Val v -> v
     | Var x -> eval_var store x
@@ -83,6 +83,11 @@ module M (Mon : Monitor.M) = struct
       | Type.IntType -> Val.Int (Random.int 128)
       | Type.FltType -> Val.Flt (Random.float 128.0)
       | _ -> Eslerr.internal __FUNCTION__ (NotImplemented (Some "symbolic")) )
+
+  and eval_expr (store : store) (e : Expr.t) : value =
+    let v = eval_expr_sub store e in
+    Verbose.eval_expr e v;
+    v
 
   let eval_string (store : store) (e : Expr.t) : string =
     match eval_expr store e with
@@ -126,7 +131,8 @@ module M (Mon : Monitor.M) = struct
   let eval_small_step (prog : Prog.t) (state : state) (s : Stmt.t)
     (cont : Stmt.t list) : return * Mon.sl_label =
     let lbl s_eval = Mon.generate_label s s_eval in
-    let (stack, store, heap, _) = state in
+    let (stack, store, heap, func) = state in
+    Verbose.eval_small_step func s;
     match s.it with
     | Skip -> (Intermediate (state, cont), lbl SkipEval)
     | Merge -> (Intermediate (state, cont), lbl MergeEval)
@@ -255,6 +261,7 @@ module M (Mon : Monitor.M) = struct
         small_step_iter prog state' mon_state' stmts'' )
 
   let eval_prog ?(main : string = "main") (prog : Prog.t) : return =
+    Verbose.init ();
     let func = eval_func prog main in
     let state = initial_state func in
     let mon_state = Mon.initial_state () in
