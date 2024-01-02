@@ -21,13 +21,16 @@ let set (heap : 'a t) (l : Loc.t) (obj : 'a obj) : unit =
 
 let rec get_opt (heap : 'a t) (l : Loc.t) : 'a obj option =
   let _get_from_parent_heap_f heap = get_opt heap l in
-  let _set_in_current_heap_f obj = set heap l (Object.clone obj) in
   match Hashtbl.find_opt heap.map l with
   | Some _ as obj -> obj
   | None ->
-    let obj = Option.map_default _get_from_parent_heap_f None heap.parent in
-    Option.may _set_in_current_heap_f obj;
-    obj
+    let obj_opt = Option.map_default _get_from_parent_heap_f None heap.parent in
+    Option.map
+      (fun obj ->
+        let obj' = Object.clone obj in
+        set heap l obj';
+        obj' )
+      obj_opt
 
 let get (heap : 'a t) (l : Loc.t) : ('a obj, string) Result.t =
   match get_opt heap l with

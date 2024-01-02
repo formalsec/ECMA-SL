@@ -32,11 +32,11 @@ let internal_message_str (msg : Internal.t) : string =
   | Expecting msg' -> Printf.sprintf "expecting %s" msg'
   | UnexpectedEval msg' -> (
     match msg' with
-    | None -> Printf.sprintf "unexpected evaluation"
+    | None -> "unexpected evaluation"
     | Some msg'' -> Printf.sprintf "unexpected evaluation of '%s'" msg'' )
   | NotImplemented msg' -> (
     match msg' with
-    | None -> Printf.sprintf "not implemented"
+    | None -> "not implemented"
     | Some msg'' -> Printf.sprintf "'%s' not implemented" msg'' )
 
 let runtime_message_str (msg : Runtime.t) : string =

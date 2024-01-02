@@ -62,7 +62,7 @@ let rec str ?(flt_with_dot = true) (v : t) : string =
   | Void -> ""
   | Int i -> Int.to_string i
   | Flt f -> str_of_flt ~flt_with_dot f
-  | Str s -> Printf.sprintf "\"%s\"" s
+  | Str s -> Printf.sprintf "%S" s
   | Bool v -> Bool.to_string v
   | Symbol s -> "'" ^ s
   | Loc l -> Loc.str l
