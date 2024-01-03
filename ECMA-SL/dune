@@ -114,7 +114,7 @@
   value_translator
   value_typing)
  (preprocess
-  (staged_pps ppx_import ppx_deriving.std ppx_jane))
+  (staged_pps ppx_import ppx_deriving.std))
  (libraries
   str
   encoding
