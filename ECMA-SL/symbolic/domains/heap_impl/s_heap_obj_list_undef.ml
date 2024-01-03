@@ -1,5 +1,5 @@
 open Core
-module Object = S_object_ite_no_branch_undef
+module Object = S_object_list_undef
 
 type encoded_pct = Encoding.Expression.t
 type obj = Object.t
@@ -9,7 +9,7 @@ type t =
   ; map : (Loc.t, obj) Hashtbl.t
   }
 
-let caching = true
+let caching = false
 let create () : t = { parent = None; map = Hashtbl.create (module String) }
 
 let clone (h : t) : t =
@@ -134,7 +134,7 @@ let rec has_field_aux (h : t) (loc : Expr.t) (field : Expr.t) (solver : Batch.t)
   match loc with
   | Expr.Val (Val.Loc l) ->
     Option.value_map (get h l ~setVal:caching) ~default:(mk_bool false)
-      ~f:(fun o -> Object.has_field o field )
+      ~f:(fun o -> Object.has_field o field solver pc store )
   | Expr.TriOpt (Operators.ITE, cond, left, right) ->
     let op l pc = has_field_aux h l field solver pc store in
     apply_op_get h loc cond left right solver op pc store
@@ -148,31 +148,53 @@ let has_field (h : t) (loc : Expr.t) (field : Expr.t) (solver : Batch.t)
   (t * encoded_pct list * Expr.t) list =
   [ (h, [], has_field_aux h loc field solver pc store) ]
 
+let getKey (tp : Type.t option) : int =
+  match tp with
+  | Some Type.IntType -> 1
+  | Some Type.FltType -> 2
+  | Some Type.BoolType -> 3
+  | Some Type.StrType -> 4
+  | Some Type.LocType -> 5
+  | Some Type.ListType -> 6
+  | Some Type.TypeType -> 7
+  | Some Type.TupleType -> 8
+  | Some Type.NullType -> 9
+  | Some Type.CurryType -> 10
+  | Some Type.ArrayType -> 11
+  | Some Type.SymbolType -> 12
+  | None -> -1
+
 let rec get_field_aux ?(guard = None) (heap : t) (loc : Expr.t) (field : Expr.t)
   (solver : Batch.t) (pc : encoded_pct list) (store : S_store.t)
-  (acc : (Expr.t * Expr.t option * Expr.t option) list * (Expr.t * Expr.t) list)
-  : (Expr.t * Expr.t option * Expr.t option) list * (Expr.t * Expr.t) list =
+  (acc : (int, (Expr.t * Expr.t option * Expr.t option) list) Hashtbl.t) :
+  (int, (Expr.t * Expr.t option * Expr.t option) list) Hashtbl.t =
   match loc with
   | Expr.Val (Val.Loc l) -> (
     let obj = get heap l ~setVal:caching in
     match obj with
     | None -> failwith "Object not found."
-    | Some o -> (
-      let (conc, undef) = Object.get o field solver pc store in
+    | Some o ->
+      let l = Object.get o field solver pc store in
 
-      let (v1, pc') = conc in
-      let conc' = (v1, pc', guard) in
-      let (acc1, acc2) = acc in
-      match undef with
-      (* case Some (v, None) is impossible. Check create_ite on obj *)
-      | Some (v, Some pc') ->
-        let pc' =
-          match guard with
-          | Some guard -> mk_and guard pc'
-          | None -> pc'
-        in
-        (conc' :: acc1, (v, pc') :: acc2)
-      | _ -> (conc' :: acc1, acc2) ) )
+      List.fold l ~init:acc ~f:(fun acc (v, pc') ->
+          let k = getKey (Sval_typing.type_of v) in
+
+          let lst = Hashtbl.find acc k in
+          let lst =
+            match lst with
+            | None -> []
+            | Some lst -> lst
+          in
+
+          let lst =
+            match (pc', guard) with
+            | (Some p, Some g) -> (v, Some (mk_and g p), guard) :: lst
+            | (None, Some g) -> (v, Some g, guard) :: lst
+            | (Some p, None) -> (v, Some p, guard) :: lst
+            | (None, None) -> (v, None, guard) :: lst
+          in
+          Hashtbl.set acc ~key:k ~data:lst;
+          acc ) )
   | Expr.TriOpt (Operators.ITE, cond, left, right) -> (
     let op l pc guard = get_field_aux ~guard heap l field solver pc store in
     let not_cond = mk_not cond in
@@ -190,76 +212,110 @@ let rec get_field_aux ?(guard = None) (heap : t) (loc : Expr.t) (field : Expr.t)
     | (false, true) -> op right pc_right (Some not_cond) acc
     | _ -> failwith "Apply op error." )
   | Expr.Val (Val.Symbol "undefined") ->
-    invalid_arg ("Invalid location in get_field: " ^ Expr.str loc)
+    invalid_arg ("Invalid location in getr_field: " ^ Expr.str loc)
   | _ -> assert false
+
+let or_aux (e1 : Expr.t) (e2 : Expr.t option) : Expr.t =
+  match e2 with
+  | Some e2 -> mk_or e1 e2
+  | None -> e1
 
 let get_field (heap : t) (loc : Expr.t) (field : Expr.t) (solver : Batch.t)
   (pc : encoded_pct list) (store : S_store.t) :
   (t * encoded_pct list * Expr.t option) list =
-  let (acc_conc, acc_undef) =
-    get_field_aux heap loc field solver pc store ([], [])
+  let branch_table = Hashtbl.create (module Int) in
+  let branch_table =
+    get_field_aux heap loc field solver pc store branch_table
   in
-  let false_e = mk_bool false in
-  (* let undef = Expr.Val (Val.Symbol "undefined") in *)
-  let pc_undef =
-    List.fold acc_undef ~init:false_e ~f:(fun acc (_, pc') ->
-        if Expr.equal acc false_e then pc' else mk_or pc' acc )
-  in
-
   let undef = Expr.Val (Val.Symbol "undefined") in
+  let f_e = mk_bool false in
+  if Hashtbl.length branch_table > 1 then
+    Hashtbl.fold branch_table ~init:[] ~f:(fun ~key ~data acc ->
+        let (ite, pc') =
+          List.fold data ~init:(undef, f_e)
+            ~f:(fun (ite, new_pc) (v, pc', guard) ->
+              let new_pc' =
+                if Expr.equal f_e new_pc then Option.value_exn pc'
+                else or_aux new_pc pc'
+              in
 
-  let v_ite =
-    List.fold acc_conc ~init:undef ~f:(fun acc_v (v, pc', guard) ->
-        let acc_v =
-          match guard with
-          | None -> v
-          | Some guard ->
-            if Expr.equal acc_v undef || Expr.equal acc_v v then v
-            else mk_ite guard v acc_v
+              let ite' =
+                match guard with
+                | Some g -> if Expr.equal undef ite then v else mk_ite g v ite
+                | None -> v
+              in
+              (ite', new_pc') )
         in
-        acc_v )
-  in
-
-  if Expr.equal pc_undef false_e then
-    (* let _ = Printf.printf ("i should get here conc only %s\n") (Expr.str v_ite) in *)
-    [ (heap, [], Some v_ite) ]
+        (clone heap, [ Translator.translate pc' ], Some ite) :: acc )
   else
-    (* let _ = Printf.printf ("i shouldnt get here both %s undef\n") (Expr.str v_ite) in *)
-    [ (clone heap, [ Translator.translate (mk_not pc_undef) ], Some v_ite)
-    ; (clone heap, [ Translator.translate pc_undef ], None)
-    ]
+    Hashtbl.fold branch_table ~init:[] ~f:(fun ~key ~data acc ->
+        let (ite, pc') =
+          List.fold data ~init:(undef, Some f_e)
+            ~f:(fun (ite, new_pc) (v, pc', guard) -> (v, pc') )
+        in
+        let pc' =
+          match pc' with
+          | Some p -> [ Translator.translate p ]
+          | None -> []
+        in
+        (heap, pc', Some ite) :: acc )
+
+(* if List.length branch_list > 1 then
+     List.map branch_list ~f:(fun (v, pc') ->
+       let p = match pc' with | Some p -> [Translator.translate p] | None -> [] in
+       (clone heap, p, Some v)
+   )
+   else
+     let v, pc' = List.hd_exn branch_list in
+     let p = match pc' with | Some p -> [Translator.translate p] | None -> [] in
+     [(heap, p, Some v)] *)
+
+(* let undef = Expr.Val (Val.Symbol "undefined") in *)
+(* let pc_undef = List.fold acc_undef ~init:(false_e) ~f:(fun acc (_, pc') ->
+     if Expr.equal acc false_e then
+       pc'
+     else
+       mk_or pc' acc
+   ) in
+   let undef = Expr.Val (Val.Symbol "undefined") in
+   let v_ite =
+     List.fold acc_conc ~init:(undef)
+       ~f:(fun acc_v (v, pc', guard) ->
+         let acc_v =
+           match guard with
+           | None -> v
+           | Some guard ->
+             if Expr.equal acc_v undef || Expr.equal acc_v v then v
+             else
+               mk_ite guard v acc_v
+         in acc_v
+       )
+   in
+   if Expr.equal (pc_undef) false_e then
+     (* let _ = Printf.printf ("i should get here conc only %s\n") (Expr.str v_ite) in *)
+     [(heap, [], Some v_ite)]
+   else
+     (* let _ = Printf.printf ("i shouldnt get here both %s undef\n") (Expr.str v_ite) in *)
+     [
+       (clone heap, [Translator.translate (mk_not pc_undef)], Some v_ite);
+       (clone heap, [Translator.translate pc_undef], None)
+     ] *)
 
 let set_field_exec (heap : t) (loc : Loc.t) (field : Expr.t) (v : 'a)
   (solver : Batch.t) (pc : encoded_pct list)
   (encoded_guard : encoded_pct option) (store : S_store.t) :
   (t * encoded_pct list) list =
   let obj = get heap loc in
-  let res =
-    Option.bind obj ~f:(fun o -> Some (Object.set o field v solver pc store))
-  in
-  match res with
+  match obj with
   | None -> failwith ("set Return is never none. loc: " ^ loc)
-  | Some objs -> (
-    (* Don't clone heap unless necessary *)
-    match objs with
-    | [ (obj, pc) ] ->
-      let pc =
-        match encoded_guard with
-        | None -> pc
-        | Some p -> p :: pc
-      in
-      set heap loc obj;
-      [ (heap, pc) ]
-    | _ ->
-      List.map objs ~f:(fun (obj, pc) ->
-          let heap' = clone heap in
-          let pc =
-            match encoded_guard with
-            | None -> pc
-            | Some p -> p :: pc
-          in
-          set heap' loc obj;
-          (heap', pc) ) )
+  | Some o ->
+    let (o, pc') = Object.set o field v solver pc store in
+    set heap loc o;
+    [ (heap, pc') ]
+(* let l = Object.set o field v solver pc store in
+   List.map l ~f:(fun (o, pc') ->
+       set heap loc o;
+       (heap, pc')) *)
 
 let rec set_field_aux ?(encoded_guard = None) (heap : t) (loc : Expr.t)
   (field : Expr.t) (v : 'a) (solver : Batch.t) (pc : encoded_pct list)
@@ -286,32 +342,13 @@ let delete_field_exec (heap : t) (loc : Loc.t) (field : Expr.t)
   (encoded_guard : encoded_pct option) (store : S_store.t) :
   (t * encoded_pct list) list =
   let obj = get heap loc in
-  let res =
-    Option.bind obj ~f:(fun o -> Some (Object.delete o field solver pc store))
-  in
-  match res with
-  | None -> failwith ("delete Return is never none. loc: " ^ loc)
-  | Some objs -> (
-    (* Don't clone heap unless necessary *)
-    match objs with
-    | [ (obj, pc) ] ->
-      let pc =
-        match encoded_guard with
-        | None -> pc
-        | Some p -> p :: pc
-      in
-      set heap loc obj;
-      [ (heap, pc) ]
-    | _ ->
-      List.map objs ~f:(fun (obj, pc) ->
-          let heap' = clone heap in
-          set heap' loc obj;
-          let pc =
-            match encoded_guard with
-            | None -> pc
-            | Some p -> p :: pc
-          in
-          (heap', pc) ) )
+  match obj with
+  | None -> failwith ("Delete obj is never none. loc: " ^ loc)
+  | Some o ->
+    let l = Object.delete o field solver pc store in
+    List.map l ~f:(fun (o, pc') ->
+        set heap loc o;
+        (heap, pc') )
 
 let rec delete_field_aux ?(encoded_guard = None) (heap : t) (loc : Expr.t)
   (field : Expr.t) (solver : Batch.t) (pc : encoded_pct list) (store : S_store.t)

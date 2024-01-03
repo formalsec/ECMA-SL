@@ -167,6 +167,7 @@ let reduce_triop (op : triopt) (v1 : value) (v2 : value) (v3 : value) : value =
   match (op, v1, v2, v3) with
   | op, Val v1, Val v2, Val v3 -> Val (Eval_operator.eval_triopt_expr op v1 v2 v3)
   | ListSet, NOpt (ListExpr, vs), Val (Int v2'), _ -> reduce_list_set vs v2' v3
+  | ITE, _, v2, v3 when Value.equal v2 v3 -> v2
   | _ -> TriOpt (op, v1, v2, v3)
 
 let reduce_nop (op : nopt) (vs : value list) : value = NOpt (op, vs)

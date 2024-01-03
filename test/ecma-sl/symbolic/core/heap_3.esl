@@ -1,0 +1,11 @@
+function main() {
+  o := {};
+  x := se_mk_symbolic(__$Str, "x");
+
+  o[x] := 1;
+  delete o[x];
+
+  print(o[x]);
+
+  return 0
+}
