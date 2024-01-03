@@ -207,7 +207,7 @@ module M (SL : NSULevel.M) = struct
       let lev_o = expr_lvl ssto e_o in
       let lev_f = expr_lvl ssto e_f in
       let lev_ctx = SL.lubn [ lev_o; lev_f; check_pc pc ] in
-      let lev_x = Option.default lev_ctx (NSUStore.get_opt ssto x) in
+      let lev_x = Option.value ~default:lev_ctx (NSUStore.get_opt ssto x) in
       if SL.leq lev_ctx lev_x then
         match NSUHeap.get_field sheap loc field with
         | Some (_, prop_val_lvl) ->

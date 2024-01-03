@@ -1,8 +1,9 @@
-open Core
+open Syntax.Option
 module Value = Sym_value.M
 module Object = Sym_object_list.M
 module Reducer = Value_reducer
 module Translator = Value_translator
+
 
 module M : sig
   type value = Value.value
@@ -63,33 +64,32 @@ end = struct
     ; map : (Loc.t, object_) Hashtbl.t
     }
 
-  let create () : t = { parent = None; map = Hashtbl.create (module String) }
+  let create () : t =
+    { parent = None; map = Hashtbl.create !Config.default_hashtbl_sz }
 
   let clone (h : t) : t =
-    { parent = Some h; map = Hashtbl.create (module String) }
+    { parent = Some h; map = Hashtbl.create !Config.default_hashtbl_sz }
 
   let insert (h : t) (obj : object_) : Loc.t =
     let loc = Loc.create () in
-    Hashtbl.set h.map ~key:loc ~data:obj;
+    Hashtbl.add h.map loc obj;
     loc
 
   let remove (h : t) (l : Loc.t) : unit = Hashtbl.remove h.map l
 
   let set (h : t) (key : Loc.t) (data : object_) : unit =
-    Hashtbl.set h.map ~key ~data
+    Hashtbl.replace h.map key data
 
   let rec get (h : t) (l : Loc.t) : object_ option =
-    let result = Hashtbl.find h.map l in
+    let result = Hashtbl.find_opt h.map l in
     match result with
-    | Some _o -> result
-    | None -> (
-      let obj = Option.bind h.parent ~f:(fun h -> get h l) in
-      match obj with
-      | Some o ->
-        let o' = Object.clone o in
-        set h l o';
-        Some o'
-      | None -> None )
+    | Some _ -> result
+    | None ->
+      let* parent = h.parent in
+      let+ obj = get parent l in
+      let o' = Object.clone obj in
+      set h l o';
+      o'
 
   let mk_ite (e1 : value) (e2 : value) (e3 : value) : value =
     Value.TriOpt (Operator.ITE, e1, e2, e3)
@@ -159,8 +159,7 @@ end = struct
       let obj = get h l in
       match obj with
       | None -> failwith "Object not found."
-      | Some o -> Value.mk_list @@ List.map (Object.to_list o) ~f:Value.mk_tuple
-      )
+      | Some o -> Value.mk_list @@ List.map Value.mk_tuple (Object.to_list o) )
     | Value.TriOpt (Operator.ITE, cond, left, right) ->
       let op l pc = assign_obj_to_list h l solver pc in
       apply_op_get ~cond ~left ~right solver op pc
@@ -171,7 +170,7 @@ end = struct
     (pc : encoded_pct list) : value =
     match loc with
     | Value.Val (Val.Loc l) ->
-      Option.value_map (get h l) ~default:(mk_bool false) ~f:(fun o ->
+      Option.fold (get h l) ~none:(mk_bool false) ~some:(fun o ->
           Object.has_field o field solver pc )
     | Value.TriOpt (Operator.ITE, cond, left, right) ->
       let op l pc = has_field_aux h l field solver pc in

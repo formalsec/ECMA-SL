@@ -1,18 +1,6 @@
-let ( let* ) o f = Result.bind o f
-let ( let+ ) o f = Result.map f o
-let return = Result.ok
+open Syntax.Result
 
-let list_map ~f l =
-  let exception E of string in
-  try
-    return
-    @@ List.map
-         (fun v ->
-           match f v with
-           | Error s -> raise (E s)
-           | Ok v -> v )
-         l
-  with E s -> Error s
+let return = Result.ok
 
 module M = struct
   type value =
@@ -121,8 +109,7 @@ module M = struct
       let* e2' = eval_expr store e2 in
       let+ e3' = eval_expr store e3 in
       match (e1', e2', e3') with
-      | (Val v1, Val v2, Val v3) ->
-        Val (Eval_operator.eval_triopt op v1 v2 v3)
+      | (Val v1, Val v2, Val v3) -> Val (Eval_operator.eval_triopt op v1 v2 v3)
       | _ -> TriOpt (op, e1', e2', e3') )
     | Expr.NOpt (op, es) ->
       let+ es' = list_map ~f:(eval_expr store) es in

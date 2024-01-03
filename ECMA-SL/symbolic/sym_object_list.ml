@@ -1,4 +1,3 @@
-open Core
 module Value = Sym_value.M
 module Reducer = Value_reducer
 module Translator = Value_translator
@@ -43,7 +42,9 @@ end = struct
   type t = obj_record list
 
   let create_obj_record () : obj_record =
-    { concrete_fields = Hashtbl.create (module String); symbolic_field = None }
+    { concrete_fields = Hashtbl.create !Config.default_hashtbl_sz
+    ; symbolic_field = None
+    }
 
   let create () : t = [ create_obj_record () ]
 
@@ -67,9 +68,11 @@ end = struct
     in
 
     let str_obj =
-      Hashtbl.fold o_r.concrete_fields ~init:"{ " ~f:(fun ~key:n ~data:v ac ->
-          (if String.(ac <> "{ ") then ac ^ ", " else ac)
+      Hashtbl.fold
+        (fun n v ac ->
+          (if ac <> "{ " then ac ^ ", " else ac)
           ^ Printf.sprintf "\"%s\": %s" n (aux v) )
+        o_r.concrete_fields "{ "
       ^ "|"
     in
     match o_r.symbolic_field with
@@ -78,8 +81,7 @@ end = struct
       str_obj ^ Format.asprintf {|"%a": %s|} Value.Pp.pp key (aux data) ^ " }"
 
   let to_string (o : t) : string =
-    List.fold o ~init:"" ~f:(fun acc o_r ->
-        acc ^ obj_record_to_string o_r ^ "@" )
+    List.fold_left (fun acc o_r -> acc ^ obj_record_to_string o_r ^ "@") "" o
 
   (* let record_has_concrete_key (o : obj_record) (key : string) : bool = *)
   (*   let res = Hashtbl.find o.concrete_fields key in *)
@@ -90,18 +92,17 @@ end = struct
   (*   List.map s_l ~f:(fun (k, v) -> (Value.Val (Val.Str k), v)) *)
 
   let record_concrete_list2 (o : obj_record) : (value * value) list =
-    let s_l = Hashtbl.to_alist o.concrete_fields in
-    List.fold s_l ~init:[] ~f:(fun acc (k, v) ->
+    Hashtbl.fold
+      (fun k v acc ->
         match v with
         | Some v' -> acc @ [ (Value.Val (Val.Str k), v') ]
         | None -> acc )
+      o.concrete_fields []
 
   let record_concrete_keys (o : obj_record) : value list =
-    let s_l = Hashtbl.keys o.concrete_fields in
-    List.map s_l ~f:(fun k -> Value.Val (Val.Str k))
-
-  (* let concrete_to_list (o : t) : (value * value option) list = *)
-  (*   List.fold o ~init:[] ~f:(fun accum o_r -> accum @ record_concrete_list o_r) *)
+    Hashtbl.fold
+      (fun k _ acc -> Value.Val (Val.Str k) :: acc)
+      o.concrete_fields []
 
   let mk_eq e1 e2 = Value.BinOpt (Operator.Eq, e1, e2)
   let mk_ite e1 e2 e3 = Value.TriOpt (Operator.ITE, e1, e2, e3)
@@ -150,13 +151,15 @@ end = struct
 
   let mk_ite_expr (conds : (value * value) list list) (default_val : value) :
     value =
-    List.fold ~init:default_val
-      ~f:(fun acc_ite l ->
-        List.fold l ~init:acc_ite ~f:(fun acc (cond, data) ->
+    List.fold_left
+      (fun acc_ite l ->
+        List.fold_left
+          (fun acc (cond, data) ->
             let eq = Reducer.reduce cond in
             let ite = Reducer.reduce (mk_ite eq data acc) in
-            ite ) )
-      conds
+            ite )
+          acc_ite l )
+      default_val conds
 
   let get_prop_rec (o_rec : obj_record) (prop : value)
     (get_val : value option -> value) (solver : Batch.t) (pc : encoded_pct list)
@@ -177,19 +180,20 @@ end = struct
     let (ret_lst, ret_e) =
       match prop with
       | Val (Str p) when Hashtbl.mem o_rec.concrete_fields p ->
-        (ret_lst, Some (Hashtbl.find_exn o_rec.concrete_fields p))
+        (ret_lst, Some (Hashtbl.find o_rec.concrete_fields p))
       | Val (Str _p) -> (ret_lst, ret_e)
       | _ -> (
         match ret_e with
         | Some _e -> (ret_lst, ret_e)
         | None ->
-          ( Hashtbl.fold o_rec.concrete_fields ~init:ret_lst
-              ~f:(fun ~key:k ~data:v acc ->
+          ( Hashtbl.fold
+              (fun k v acc ->
                 if is_key_possible (Val (Str k)) prop solver pc then
                   let eq = Reducer.reduce (mk_eq (Val (Str k)) prop) in
                   let ret = (eq, get_val v) in
                   ret :: acc
                 else acc )
+              o_rec.concrete_fields ret_lst
           , ret_e ) )
     in
     (ret_lst, ret_e)
@@ -210,8 +214,10 @@ end = struct
       | (((_, v) :: rest as lst'), None) ->
         let false_e = Value.Val (Val.Bool false) in
         let new_pc =
-          List.fold lst' ~init:false_e ~f:(fun acc (eq, _) ->
+          List.fold_left
+            (fun acc (eq, _) ->
               if Value.equal false_e acc then eq else mk_or acc eq )
+            false_e lst'
         in
         let not_new = mk_not new_pc in
         let not_new = Translator.translate not_new in
@@ -238,17 +244,17 @@ end = struct
   let set (o : t) ~(key : value) ~(data : value) : t =
     match key with
     | Value.Val (Val.Str key_s) ->
-      let o_r = List.hd_exn o in
+      let o_r = List.hd o in
       if Hashtbl.length o_r.concrete_fields >= rec_size then (
         let new_or = create_obj_record () in
-        Hashtbl.set new_or.concrete_fields ~key:key_s ~data:(Some data);
+        Hashtbl.replace new_or.concrete_fields key_s (Some data);
         new_or :: o )
       else
-        let _ = Hashtbl.set o_r.concrete_fields ~key:key_s ~data:(Some data) in
+        let _ = Hashtbl.replace o_r.concrete_fields key_s (Some data) in
         o
     | _ ->
-      let o_r = List.hd_exn o in
-      let tl = List.tl_exn o in
+      let o_r = List.hd o in
+      let tl = List.tl o in
       let new_written = { o_r with symbolic_field = Some (key, Some data) } in
       let new_rec = create_obj_record () in
       new_rec :: new_written :: tl
@@ -256,22 +262,18 @@ end = struct
   let get (o : t) (key : value) (solver : Batch.t) (pc : encoded_pct list) :
     value =
     let undef = Value.Val (Val.Symbol "undefined") in
-    let get_val v =
-      match v with
-      | Some v -> v
-      | _ -> undef
-    in
+    let get_val v = match v with Some v -> v | _ -> undef in
     get_prop ~default_val:undef o key solver pc get_val
 
   let delete (o : t) (key : value) : t =
     match key with
     | Value.Val (Val.Str key_s) ->
-      let o_r = List.hd_exn o in
-      Hashtbl.set o_r.concrete_fields ~key:key_s ~data:None;
+      let o_r = List.hd o in
+      Hashtbl.replace o_r.concrete_fields key_s None;
       o
     | _ ->
-      let o_r = List.hd_exn o in
-      let tl = List.tl_exn o in
+      let o_r = List.hd o in
+      let tl = List.tl o in
       let new_written = { o_r with symbolic_field = Some (key, None) } in
       let new_rec = create_obj_record () in
       new_rec :: new_written :: tl
@@ -286,7 +288,8 @@ end = struct
 
   let to_list (o : t) : (value * value) list =
     let (c, s) =
-      List.fold o ~init:([], []) ~f:(fun (concrete, symb) o_r ->
+      List.fold_left
+        (fun (concrete, symb) o_r ->
           let s =
             match o_r.symbolic_field with
             | None -> symb
@@ -294,18 +297,21 @@ end = struct
             | _ -> symb
           in
           (concrete @ record_concrete_list2 o_r, s) )
+        ([], []) o
     in
     c @ s
 
   let get_fields (o : t) : value list =
     let (c, s) =
-      List.fold o ~init:([], []) ~f:(fun (concrete, symb) o_r ->
+      List.fold_left
+        (fun (concrete, symb) o_r ->
           let s =
             match o_r.symbolic_field with
             | None -> symb
             | Some (key, _data) -> key :: symb
           in
           (concrete @ record_concrete_keys o_r, s) )
+        ([], []) o
     in
     c @ s
 end

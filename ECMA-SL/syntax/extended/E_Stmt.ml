@@ -53,7 +53,7 @@ let rec str (stmt : t) : string =
   in
 
   let str_o =
-    Option.map_default (fun s -> Printf.sprintf "default: %s" (str s)) ""
+    Option.fold ~none:"" ~some:(fun s -> Printf.sprintf "default: %s" (str s))
   in
 
   match stmt.it with
@@ -66,19 +66,13 @@ let rec str (stmt : t) : string =
   | Return (Some e) -> "return " ^ E_Expr.str e
   | Wrapper (_m, s) -> str s
   | Assign (x, t, exp) ->
-    let x' =
-      match t with
-      | None -> x
-      | Some t' -> x ^ ": " ^ E_Type.str t'
-    in
+    let x' = match t with None -> x | Some t' -> x ^ ": " ^ E_Type.str t' in
     x' ^ " := " ^ E_Expr.str exp
   | GlobAssign (x, exp) -> "|" ^ x ^ "| := " ^ E_Expr.str exp
   | Block stmts -> "{ " ^ String.concat ";" (List.map str stmts) ^ " }"
   | If (e, s1, s2, _, _) -> (
     let v = "if (" ^ E_Expr.str e ^ ") " ^ str s1 in
-    match s2 with
-    | None -> v
-    | Some s -> v ^ " else " ^ str s )
+    match s2 with None -> v | Some s -> v ^ " else " ^ str s )
   | EIf (ifs, final_else) -> (
     let ifs' =
       List.map
@@ -114,10 +108,9 @@ let rec str (stmt : t) : string =
   | Abort e -> "se_abort " ^ E_Expr.str e
 
 let return_val (expr_opt : E_Expr.t option) : E_Expr.t =
-  Option.default (E_Expr.Val Val.Null) expr_opt
+  Option.value ~default:(E_Expr.Val Val.Null) expr_opt
 
-let rec map ?(fe : (E_Expr.t -> E_Expr.t) option) (f : t -> t) (s : t) : t =
-  let fe = Option.default (fun x -> x) fe in
+let rec map ?(fe = Fun.id) (f : t -> t) (s : t) : t =
   let f_pat = List.map (fun (epat, s) -> (epat, map ~fe f s)) in
   let f_cases = List.map (fun (e, s) -> (fe e, map ~fe f s)) in
   let f_if_elses = List.map (fun (e, s, m) -> (fe e, map ~fe f s, m)) in
@@ -171,7 +164,7 @@ let subst (sbst : E_Expr.subst_t) (s : t) : t =
 let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
   let f' = to_list is_rec f in
   let f_stmts stmts = List.concat (List.map f' stmts) in
-  let f_o so = Option.map_default f' [] so in
+  let f_o so = Option.fold ~some:f' ~none:[] so in
   let f_pat pats = List.concat (List.map (fun (_, s) -> f' s) pats) in
   let f_cases cases = List.map (fun (_, s) -> s) cases in
   let f_if_elses if_elses = List.map (fun (_, s, _) -> s) if_elses in
@@ -189,7 +182,7 @@ let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
       | EIf (ifs, final_else) ->
         f_stmts
           ( f_if_elses ifs
-          @ Option.map_default (fun (s, _) -> [ s ]) [] final_else )
+          @ Option.fold ~some:(fun (s, _) -> [ s ]) ~none:[] final_else )
       | While (_e, s) -> f' s
       | ForEach (_x, _e, s, _, _) -> f' s
       | RepeatUntil (s, _e, _) -> f' s
@@ -197,7 +190,7 @@ let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
       | Lambda (_, _, _, _, s) -> f' s
       | MacroApply _ -> failwith "E_Stmt.to_list on MacroApply"
       | Switch (_, cases, so, _) ->
-        f_stmts (f_cases cases @ Option.map_default (fun x -> [ x ]) [] so)
+        f_stmts (f_cases cases @ Option.fold ~some:(fun x -> [ x ]) ~none:[] so)
     in
     ret @ ret_rec
 

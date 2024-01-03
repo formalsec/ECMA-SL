@@ -75,7 +75,7 @@ let type_named_call (tctx : T_Ctx.t) (expr : E_Expr.t) (fname : string)
   match T_Ctx.get_func_by_name tctx fname with
   | Some func ->
     let tparams = E_Func.get_tparams func in
-    let tret = Option.default E_Type.AnyType (E_Func.get_return_t func) in
+    let tret = Option.value ~default:E_Type.AnyType (E_Func.get_return_t func) in
     let _ = _check_abrupt tret in
     test_nargs tctx expr args tparams |> fun () -> (tparams, tret)
   | None -> T_Err.raise (T_Err.UnknownFunction fname) ~tkn:(T_Err.str_tkn fname)

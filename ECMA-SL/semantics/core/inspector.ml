@@ -27,7 +27,7 @@ let eval (heap : Val.t Heap.t) (sto : Val.t Store.t) (e : obj_exp_t) : Val.t =
       match ac with
       | Val.Loc l ->
         let v = Heap.get_field_opt heap l p in
-        Option.default Val.Null v
+        Option.value ~default:Val.Null v
       | _ -> raise (Failure "Base value is not a location") )
     v_b ps
 

@@ -22,7 +22,8 @@ let rec equal (v1 : t) (v2 : t) : bool =
   | (Bool b1, Bool b2) -> Bool.equal b1 b2
   | (Symbol s1, Symbol s2) -> String.equal s1 s2
   | (Loc l1, Loc l2) -> String.equal l1 l2
-  | (Arr arr1, Arr arr2) -> Core.Array.equal equal arr1 arr2
+  | (Arr arr1, Arr arr2) ->
+    if arr1 == arr2 then true else Array.for_all2 equal arr1 arr2
   | (List lst1, List lst2) -> List.equal equal lst1 lst2
   | (Tuple tup1, Tuple tup2) -> List.equal equal tup1 tup2
   | (Type t1, Type t2) -> Type.equal t1 t2

@@ -1,4 +1,3 @@
-open Core
 open Encoding
 open Expr
 open Ty
@@ -194,8 +193,8 @@ let rec translate ?(b = false) (v : value) : Expr.t =
     let binop' e1 e2 = Binop (Concat, e1, e2) @: Ty_str in
     match e with
     | NOpt (_, h :: t) ->
-      List.fold_left ~init:(translate ~b:false h) ~f:binop'
-        (List.map ~f:(translate ~b:false) t)
+      List.fold_left binop' (translate ~b:false h)
+        (List.map (translate ~b:false) t)
     | _ -> assert false )
   | UnOpt (op, e') ->
     let ty = Value_typing.type_of e' in
@@ -204,7 +203,8 @@ let rec translate ?(b = false) (v : value) : Expr.t =
   | BinOpt (op, e1, e2) ->
     let ty1 = Value_typing.type_of e1 in
     let ty2 = Value_typing.type_of e2 in
-    let e1' = translate ~b:false e1 and e2' = translate ~b:false e2 in
+    let e1' = translate ~b:false e1
+    and e2' = translate ~b:false e2 in
     translate_binop ty1 ty2 op e1' e2'
   | TriOpt (op, e1, e2, e3) ->
     let ty1 = Value_typing.type_of e1 in

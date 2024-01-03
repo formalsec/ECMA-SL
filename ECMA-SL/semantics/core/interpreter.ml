@@ -204,7 +204,7 @@ module M (Mon : Monitor.M) = struct
       (Intermediate (state, cont), _lbl (FieldDeleteEval (l, fn)))
     | If (e, s1, s2) -> (
       let v = eval_boolean store e in
-      let s2' = Option.default (Skip @> no_region) s2 in
+      let s2' = Option.value ~default:(Skip @> no_region) s2 in
       match (v, s1.it, s2'.it) with
       | (true, Block stmts, _) ->
         let cont' = stmts @ ((Stmt.Merge @> s1.at) :: cont) in

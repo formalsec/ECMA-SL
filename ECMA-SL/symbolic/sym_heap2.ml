@@ -1,18 +1,10 @@
 module V = Sym_value.M
 
-let ( let* ) o f =
-  match o with
-  | None -> None
-  | Some v -> f v
-
 let eq v1 v2 = V.BinOpt (Operator.Eq, v1, v2)
 let ne v1 v2 = V.UnOpt (Operator.LogicalNot, eq v1 v2)
 let ite c v1 v2 = V.TriOpt (Operator.ITE, c, v1, v2)
 let undef = V.Val (Val.Symbol "undefined")
-
-let is_val = function
-  | V.Val _ -> true
-  | _ -> false
+let is_val = function V.Val _ -> true | _ -> false
 
 module Value_key = struct
   type t = V.value
@@ -164,12 +156,12 @@ module Heap = struct
   let get (h : t) (key : Loc.t) : object_ option = Hashtbl.find_opt h key
 
   let has_field (h : t) (loc : Loc.t) (field : value) : value =
-    Option.map_default
-      (fun o -> Object.has_field o field)
-      (V.Bool.const false) (get h loc)
+    Option.fold (get h loc)
+      ~some:(fun o -> Object.has_field o field)
+      ~none:(V.Bool.const false)
 
   let set_field (h : t) (loc : Loc.t) ~(field : value) ~(data : value) : unit =
-    Option.may
+    Option.iter
       (fun o ->
         let o' = Object.set o ~key:field ~data in
         set h loc o' )
@@ -178,11 +170,11 @@ module Heap = struct
   let get_field (h : t) (loc : Loc.t) (field : value) :
     (value * value list) list =
     let o = get h loc in
-    Option.map_default (fun o -> Object.get o field) [] o
+    Option.fold o ~none:[] ~some:(fun o -> Object.get o field)
 
   let delete_field (h : t) (loc : Loc.t) (f : value) =
     let obj = get h loc in
-    Option.may
+    Option.iter
       (fun o ->
         let o' = Object.delete o f in
         set h loc o' )
