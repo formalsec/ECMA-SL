@@ -6,23 +6,9 @@ function __symBoolean(globalObject, this, NewTarget, strict, params) {
   return extern bool_symbol(l_nth(params, 0))
 };
 
-function __fresh_string(globalObject, this, NewTarget, strict, params) {
-  str := extern str_symbol("x");
-  strObj := StringCreate(str, getStringPrototype(strict));
-  replace := CreateBuiltInFunctionObject(["str"], "__fresh_string",
-    { globalEnv : globalObject }, strict, null);
-  createBuiltInProperty(strObj, "replace", replace);
-  return strObj
-};
-
 function __symString(globalObject, this, NewTarget, strict, params) {
   id := l_nth(params, 0);
-  str := extern str_symbol(id);
-  strObj := StringCreate(str, getStringPrototype(strict));
-  replace := CreateBuiltInFunctionObject(["str"], "__fresh_string",
-    { globalEnv : globalObject }, strict, null);
-  createBuiltInProperty(strObj, "replace", replace);
-  return strObj
+  return extern str_symbol(id)
 };
 
 function __symAssume(globalObject, this, NewTarget, strict, params) {
