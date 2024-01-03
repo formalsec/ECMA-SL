@@ -13,7 +13,7 @@
   TestTypedef)
  (inline_tests)
  (preprocess
-  (pps ppx_expect ppx_inline_test))
+  (pps ppx_inline_test))
  (libraries ecma-sl))
 
 (alias
