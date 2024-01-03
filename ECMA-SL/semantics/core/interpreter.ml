@@ -136,6 +136,7 @@ module M (Mon : Monitor.M) = struct
     match s.it with
     | Skip -> (Intermediate (state, cont), lbl SkipEval)
     | Merge -> (Intermediate (state, cont), lbl MergeEval)
+    | Debug -> (Intermediate (state, cont), lbl DebugEval)
     | Block stmts -> (Intermediate (state, stmts @ cont), lbl BlockEval)
     | Print e ->
       eval_expr store e |> print_val heap;

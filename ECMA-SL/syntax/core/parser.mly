@@ -31,9 +31,15 @@ let at (startpos, endpos) =
 %token <string> LOC
 %token <string> VAR
 
-(* ========== Language Tokens ========== *)
+(* ========== Language & Infix Tokens ========== *)
 
-%token EOF
+%token DEBUG
+%token NULL
+%token PRINT DELETE 
+%token FUNCTION RETURN EXTERN
+%token IF ELSE WHILE
+%token FAIL ASSERT
+
 %token PERIOD COMMA SEMICOLON
 %token DEFEQ
 %token ATSIGN
@@ -47,12 +53,7 @@ let at (startpos, endpos) =
 %token NOT LAND LOR
 %token EQ LT GT LE GE
 %token IN_OBJ IN_LIST
-
-%token NULL
-%token PRINT DELETE 
-%token FUNCTION RETURN EXTERN
-%token IF ELSE WHILE
-%token FAIL ASSERT
+%token EOF
 
 (* ========== Operator Tokens ========== *)
 
@@ -148,6 +149,8 @@ stmt_block_target:
   ;
 
 stmt_target:
+  | DEBUG;
+    { Stmt.Debug @> at $sloc }
   | PRINT; e = expr_target;
     { Stmt.Print e @> at $sloc }
   | RETURN;
