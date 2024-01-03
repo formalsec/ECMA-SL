@@ -507,7 +507,7 @@ function OrdinaryObjectGet(O, P, Receiver) {
     };
 
     /* Return Call(getter, Receiver). */
-    return Call(null, null, getter, Receiver, null)
+    return Call(null, null, getter, Receiver, [ P ])
 };
 
 /**
@@ -601,7 +601,7 @@ function OrdinaryObjectSet(O, P, V, Receiver) {
     };
 
     /* Let setterResult be Call(setter, Receiver, «V»). */
-    setterResult := Call(null, null, setter, Receiver, [V]);
+    setterResult := Call(null, null, setter, Receiver, [ V, P ]);
 
     /* ReturnIfAbrupt(setterResult). */
     @ReturnIfAbrupt(setterResult);
@@ -703,6 +703,11 @@ function OrdinaryObjectEnumerateAux(O) {
     }
   };
 
+<<<<<<< HEAD
+=======
+  print("debugKeys");
+  print(retKeys);
+>>>>>>> 5791d9dd7 (Adds Javascript sealProperties functions)
   return retKeys
 };
 

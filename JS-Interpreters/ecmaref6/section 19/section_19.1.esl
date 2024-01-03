@@ -92,6 +92,10 @@ function fillObjectConstructor(ObjectConstructor, globalObject, strict) {
   seal := CreateBuiltInFunctionObject(["O"], "ObjectSeal", globalObject, strict, null);
   createBuiltInProperty(ObjectConstructor, "seal", seal);
 
+  sealProperties :=
+    CreateBuiltInFunctionObject(["O"], "ObjectSealProperties", globalObject, strict, null);
+  createBuiltInProperty(ObjectConstructor, "sealProperties", sealProperties);
+
   /* 19.1.2.18 Object.setPrototypeOf ( O, proto ) */
   setPrototypeOf := CreateBuiltInFunctionObject(["O", "proto"], "ObjectSetPrototypeOf", globalObject, strict, null);
   createBuiltInProperty(ObjectConstructor, "setPrototypeOf", setPrototypeOf);
@@ -687,6 +691,68 @@ function ObjectSeal(globalObject, this, NewTarget, strict, params) {
   if (status = false) {
     throw TypeErrorConstructorInternal()
   };
+
+  /* 4. Return O. */
+  return O
+};
+
+function safeGet(globalObject, this, NewTarget, strict, params) {
+  O := this;
+  P := l_nth(params, 0);
+  Receiver := this;
+  desc := {O.GetOwnProperty}(O, P);
+  @ReturnIfAbrupt(desc);
+  if (desc = 'undefined) {
+    parent := {O.GetPrototypeOf}(O);
+    @ReturnIfAbrupt(parent);
+    if (parent = 'null) {
+      return 'undefined
+    };
+    if (!(P in_obj parent.OldJSProperties)) {
+      return 'undefined
+    };
+    return parent.OldJSProperties[P].Value
+  };
+  if (!(P in_obj this.OldJSProperties)) {
+    return 'undefined
+  };
+  return this.OldJSProperties[P].Value
+};
+
+function forbiddenSet(globalObject, this, NewTarget, strict, params) {
+  if (this = |Intrinsics|["ObjectPrototype"]) {
+    se_abort("Prototype pollution detected!")
+  };
+  V := l_nth(params, 0);
+  P := l_nth(params, 1);
+  this.JSProperties[P] := newDataPropertyDescriptor(V);
+  return true
+};
+
+/* 19.1.2.17 Object.seal ( O ) */
+function ObjectSealProperties(globalObject, this, NewTarget, strict, params) {
+  O := l_nth(params, 0);
+  /* When the seal function is called, the following steps are taken: */
+
+  /* 1. If Type(O) is not Object, return O. */
+  if (!(Type(O) = "Object")) {
+    return O
+  };
+
+  /* Let status be SetIntegrityLevel( O, "sealed"). */
+  status := SetIntegrityLevel(O, "sealed");
+
+  realm := { globalEnv : globalObject };
+  newJSProperties := {};
+  get := CreateBuiltInFunctionObject([], "safeGet", realm, strict, null);
+  set := CreateBuiltInFunctionObject([], "forbiddenSet", realm, strict, null);
+  foreach (prop : obj_fields O.JSProperties) {
+    desc := newGetAndSetAccessorPropertyDescriptorFull(get, set, false, false);
+    newJSProperties[prop] := desc
+  };
+
+  O.OldJSProperties := O.JSProperties;
+  O.JSProperties := newJSProperties;
 
   /* 4. Return O. */
   return O
