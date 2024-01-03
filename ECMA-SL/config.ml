@@ -9,7 +9,7 @@ module Eslerr = struct
 end
 
 module Interpreter = struct
-  let verbose = ref true
+  let verbose = ref false
 end
 
 module Tesl = struct

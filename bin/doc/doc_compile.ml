@@ -20,6 +20,7 @@ let exits =
     ]
 
 let options =
-  Term.(const Cmd_compile.options $ input_file $ output_file $ untyped_flag)
+  Term.(
+    const Cmd_compile.options $ input_file $ output_file $ compile_untyped_flag )
 
 let term = Term.(const Cmd_compile.main $ common_options $ options)
