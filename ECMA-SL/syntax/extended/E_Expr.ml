@@ -77,7 +77,7 @@ let get_subst_o (sbst : subst_t) (x : string) : t option =
 
 let get_subst (sbst : subst_t) (x : string) : t =
   let eo = get_subst_o sbst x in
-  Option.default (Var x) eo
+  Option.value ~default:(Var x) eo
 
 let rec map (f : t -> t) (e : t) : t =
   let mapf = map f in

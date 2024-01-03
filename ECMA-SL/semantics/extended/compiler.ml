@@ -560,7 +560,8 @@ and compile_expr (at : region) (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   | NewObj e_fes -> compile_newobj e_fes at
   | Lookup (e_e, e_f) -> compile_lookup e_e e_f at
   | Curry (f, es) ->
-    let f' = compile_expr at f and es' = List.map (compile_expr at) es in
+    let f' = compile_expr at f
+    and es' = List.map (compile_expr at) es in
     compile_curry f' es' at
   | Call (f, e_es, g) ->
     let ret_f = compile_expr at f in
@@ -591,7 +592,9 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | Block e_stmts -> compile_block e_stmts
   | If (e_e, e_s1, e_s2, _, _) -> compile_if e_e e_s1 e_s2 e_stmt.at
   | EIf (ifs, final_else) ->
-    let acc = Option.map_default (fun (s, _) -> compile_stmt s) [] final_else in
+    let acc =
+      Option.fold final_else ~some:(fun (s, _) -> compile_stmt s) ~none:[]
+    in
     let ifs' = List.rev ifs in
     List.fold_left
       (fun acc (e, s, _) ->
@@ -657,7 +660,7 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | Switch (e, cases, so, _) ->
     let ret_e = compile_expr e_stmt.at e in
     let ret_cases = compile_cases cases in
-    let ret_so = Option.map_default compile_stmt [] so in
+    let ret_so = Option.fold so ~some:compile_stmt ~none:[] in
     compile_switch ret_e ret_cases ret_so e_stmt.at
   | Return e_e ->
     let ret_e = compile_expr e_stmt.at (E_Stmt.return_val e_e) in

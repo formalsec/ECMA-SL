@@ -149,7 +149,7 @@ proc_target:
   | FUNCTION; f = VAR; LPAREN; vars = proc_params_target; RPAREN; meta = metadata_target; vars_meta_opt = option(vars_metadata_target);
     ret_t = option(e_typing_target); s = e_block_target;
    {
-     let vars_meta = Option.default [] vars_meta_opt in
+     let vars_meta = Option.value ~default:[] vars_meta_opt in
      let metadata = E_Func_Metadata.build_func_metadata meta vars_meta in
      E_Func.create (Some metadata) f vars ret_t s @> at $sloc  }
 
@@ -553,7 +553,7 @@ e_stmt_target:
   | IF; LPAREN; e1 = e_expr_target; RPAREN; meta1 = option(e_stmt_metadata_target); s1 = e_block_target;
     es2 = elif_target; ess = list(elif_target); else_stmt = option(final_else_target);
     {
-      let meta1' = Option.default [] meta1 in
+      let meta1' = Option.value ~default:[] meta1 in
       let ess' = (e1, s1, meta1')::es2::ess in
       E_Stmt.EIf (ess', else_stmt) @> at $sloc
     }
@@ -575,9 +575,9 @@ e_stmt_target:
   | e = e_expr_target;
     { E_Stmt.ExprStmt e @> at $sloc }
   | REPEAT; meta = option(e_stmt_metadata_target); s = e_block_target;
-    { E_Stmt.RepeatUntil (s, E_Expr.Val (Val.Bool false), Option.map_default (fun x -> x) [] meta) @> at $sloc }
+    { E_Stmt.RepeatUntil (s, E_Expr.Val (Val.Bool false), Option.value ~default:[] meta) @> at $sloc }
   | REPEAT; meta = option(e_stmt_metadata_target); s = e_block_target; UNTIL; e = e_expr_target;
-    { E_Stmt.RepeatUntil (s, e, Option.map_default (fun x -> x) [] meta) @> at $sloc }
+    { E_Stmt.RepeatUntil (s, e, Option.value ~default:[] meta) @> at $sloc }
   | MATCH; e = e_expr_target; WITH; PIPE; pat_stmts = separated_list (PIPE, pat_stmt_target);
     { E_Stmt.MatchWith (e, pat_stmts) @> at $sloc }
   | x = VAR; option (e_typing_target); DEFEQ; LAMBDA; LPAREN;  xs = separated_list (COMMA, VAR); RPAREN; LBRACK; ys = separated_list (COMMA, VAR); RBRACK; s = e_block_target;
@@ -585,10 +585,10 @@ e_stmt_target:
   | AT_SIGN; m = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
     { E_Stmt.MacroApply (m, es) @> at $sloc }
   | SWITCH; LPAREN; e=e_expr_target; RPAREN; meta = option(case_metadata_target); LBRACE; cases = list (switch_case_target); RBRACE
-    { let m = Option.default "" meta in
+    { let m = Option.value ~default:"" meta in
       E_Stmt.Switch(e, cases, None, m) @> at $sloc }
   | SWITCH; LPAREN; e=e_expr_target; RPAREN; meta = option(case_metadata_target); LBRACE; cases = list (switch_case_target); SDEFAULT; COLON; s = e_stmt_target; RBRACE
-    { let m = Option.default "" meta in
+    { let m = Option.value ~default:"" meta in
       E_Stmt.Switch(e, cases, Some s, m) @> at $sloc }
 
 switch_case_target:
@@ -603,23 +603,23 @@ case_metadata_target:
 ifelse_target:
   | IF; LPAREN; e = e_expr_target; RPAREN; meta_if = option(e_stmt_metadata_target); s1 = e_block_target; ELSE; meta_else = option(e_stmt_metadata_target); s2 = e_block_target;
     {
-      let meta_if' = Option.default [] meta_if in
-      let meta_else' = Option.default [] meta_else in
+      let meta_if' = Option.value ~default:[] meta_if in
+      let meta_else' = Option.value ~default:[] meta_else in
       E_Stmt.If (e, s1, Some s2, meta_if', meta_else') @> at $sloc
     }
   | IF; LPAREN; e = e_expr_target; RPAREN; meta_if = option(e_stmt_metadata_target); s = e_block_target;
     {
-      let meta_if' = Option.default [] meta_if in
+      let meta_if' = Option.value ~default:[] meta_if in
       E_Stmt.If (e, s, None, meta_if', []) @> at $sloc
     }
 
 elif_target:
   | ELIF; LPAREN; e = e_expr_target; RPAREN; meta = option(e_stmt_metadata_target); s = e_block_target;
-    { (e, s, Option.map_default (fun x -> x) [] meta) }
+    { (e, s, Option.value ~default:[] meta) }
 
 final_else_target:
-  | ELSE; meta = option(e_stmt_metadata_target); s = e_block_target;
-    { (s, Option.map_default (fun x -> x) [] meta) }
+  | ELSE; meta = e_stmt_metadata_target?; s = e_block_target;
+    { (s, Option.value ~default:[] meta) }
 
 e_stmt_metadata_target:
   | LBRACK; meta = separated_list (COMMA, STRING); RBRACK;
@@ -648,7 +648,7 @@ e_pat_target:
 pat_metadata_target:
   | LBRACK; meta = separated_list(COMMA, val_target); RBRACK; vars_meta_opt = option(vars_metadata_target);
     {
-      let vars_meta = Option.default [] vars_meta_opt in
+      let vars_meta = Option.value ~default:[] vars_meta_opt in
       E_Pat_Metadata.build_pat_metadata meta vars_meta
     }
 

@@ -84,10 +84,10 @@ let err_str (err : err_t) : string =
       "Argument of type '%s' is not assignable to a operand of type '%s'."
       (E_Type.str targ) (E_Type.str tparam)
   | BadType (x, t) ->
-    let name = Option.default "Object" x in
+    let name = Option.value ~default:"Object" x in
     Printf.sprintf "'%s' is of type '%s'." name (E_Type.str t)
   | BadPossibleType (x, t) ->
-    let name = Option.default "Object" x in
+    let name = Option.value ~default:"Object" x in
     Printf.sprintf "'%s' is possible of type '%s'." name (E_Type.str t)
   | BadLookup (fn, tobj) ->
     Printf.sprintf "Field '%s' does not exist on type '%s'." fn

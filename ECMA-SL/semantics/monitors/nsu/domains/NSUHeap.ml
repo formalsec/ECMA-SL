@@ -40,19 +40,18 @@ let get_obj_lvl (heap : 'sl t) (loc : Loc.t) : 'sl option =
   | None -> None
 
 let get_field (heap : 'sl t) (loc : Loc.t) (fn : string) : ('sl * 'sl) option =
-  let _get_fld obj = NSUObject.get obj fn in
-  get_obj heap loc |> Option.map_default _get_fld None
+  Option.bind (get_obj heap loc) (fun o -> NSUObject.get o fn)
 
 let delete_field (heap : 'sl t) (loc : Loc.t) (fn : string) : bool =
   let _delete_fld obj = NSUObject.delete obj fn |> fun () -> true in
-  get_obj heap loc |> Option.map_default _delete_fld false
+  get_obj heap loc |> Option.fold ~none:false ~some:_delete_fld
 
 let new_sec_prop (heap : 'sl t) (loc : Loc.t) (fn : string) (exists_lvl : 'sl)
   (val_lvl : 'sl) : bool =
   let _new_sec_prop obj =
     NSUObject.new_sec_prop obj fn exists_lvl val_lvl |> fun () -> true
   in
-  get_obj heap loc |> Option.map_default _new_sec_prop false
+  get_obj heap loc |> Option.fold ~none:false ~some:_new_sec_prop
 
 let upg_prop_exists_lvl (heap : 'sl t) (loc : Loc.t) (fn : string) (lvl : 'sl) :
   unit =

@@ -1,5 +1,6 @@
 open Bos_setup
 open Ecma_sl
+open Syntax.Result
 module Env = Sym_state.P.Env
 module Value = Sym_state.P.Value
 module Choice = Sym_state.P.Choice
@@ -8,17 +9,13 @@ module Translator = Value_translator
 module Extern_func = Sym_state.P.Extern_func
 module SMap = Stdlib.Map.Make (Stdlib.String)
 
-let ( let* ) = Result.bind
 let ( let/ ) = Choice.bind
 
 let list_iter ~f lst =
   let exception E of Rresult.R.msg in
   try
     List.iter
-      (fun v ->
-        match f v with
-        | Error s -> raise (E s)
-        | Ok () -> () )
+      (fun v -> match f v with Error s -> raise (E s) | Ok () -> ())
       lst;
     Ok ()
   with E s -> Error s
@@ -190,8 +187,7 @@ let serialize =
     assert (Batch.check solver pc);
     let model = Batch.model solver in
     let testcase =
-      Option.map_default
-        (fun m ->
+      Option.fold model ~none:"" ~some:(fun m ->
           let open Encoding in
           Format.asprintf "module.exports.symbolic_map = @[<h 2>{%a@\n}@]"
             (Format.pp_print_list
@@ -199,7 +195,6 @@ let serialize =
                (fun fmt (s, v) ->
                  Format.fprintf fmt {|"%a" : %a|} Symbol.pp s Value.pp v ) )
             (Model.get_bindings m) )
-        "" model
     in
     let str_pc = Format.asprintf "%a" Encoding.Expr.pp_list pc in
     let smt_query = Format.asprintf "%a" Encoding.Expr.pp_smt pc in
@@ -212,7 +207,7 @@ let serialize =
     Io.write_file ~file:(Format.sprintf "%s.js" prefix) ~data:testcase;
     Io.write_file ~file:(Format.sprintf "%s.pc" prefix) ~data:str_pc;
     Io.write_file ~file:(Format.sprintf "%s.smt2" prefix) ~data:smt_query;
-    Option.may
+    Option.iter
       (fun sink ->
         Io.write_file ~file:(Format.sprintf "%s_sink.json" prefix) ~data:sink )
       witness
@@ -226,11 +221,7 @@ let run env entry_func =
   let results = Choice.run result thread in
   List.iter
     (fun (ret, thread) ->
-      let witness =
-        match ret with
-        | Ok _ -> None
-        | Error err -> Some err
-      in
+      let witness = match ret with Ok _ -> None | Error err -> Some err in
       serialize ?witness thread;
       Format.printf "  path cond : %a@." Encoding.Expr.pp_list
         (Thread.pc thread) )

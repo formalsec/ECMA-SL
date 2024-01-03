@@ -58,7 +58,7 @@ module P = struct
       | [] -> fun thread -> [ (None, thread) ]
       | [ (v, pc) ] ->
         fun thread ->
-          Option.map_default (fun r -> [ r ]) [] (return thread (v, pc))
+          Option.fold ~none:[] ~some:(fun r -> [ r ]) (return thread (v, pc))
       | _ ->
         fun thread ->
           let thread = Thread.clone_mem thread in
@@ -99,7 +99,7 @@ module P = struct
       | [] -> fun thread -> [ (None, thread) ]
       | [ (v, pc) ] ->
         fun thread ->
-          Option.map_default (fun r -> [ r ]) [] (return thread (v, pc))
+          Option.fold ~none:[] ~some:(fun r -> [ r ]) (return thread (v, pc))
       | _ ->
         fun thread ->
           let thread = Thread.clone_mem thread in
@@ -125,13 +125,13 @@ module P = struct
       | [] -> Choice.error "no loc"
       | [ (c, v) ] ->
         fun thread ->
-          Option.map_default (fun a -> [ a ]) [] (return thread (c, v))
+          Option.fold ~none:[] ~some:(fun a -> [ a ]) (return thread (c, v))
       | _ ->
         fun thread ->
           let thread = Thread.clone_mem thread in
           List.filter_map (return thread) locs
 
-      let pp = Heap.pp
+    let pp = Heap.pp
   end
 
   module Env = struct

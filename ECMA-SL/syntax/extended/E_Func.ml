@@ -39,7 +39,9 @@ let get_params (func : t) : string list =
   List.map (fun p -> fst p) func.it.params_t
 
 let get_tparams (func : t) : E_Type.t list =
-  List.map (fun (_, t) -> Option.default E_Type.AnyType t) func.it.params_t
+  List.map
+    (fun (_, t) -> Option.value ~default:E_Type.AnyType t)
+    func.it.params_t
 
 let create_store (func : t) (vals : Val.t list) : E_Store.t =
   let params = get_params func in
@@ -48,9 +50,7 @@ let create_store (func : t) (vals : Val.t list) : E_Store.t =
 
 let str (func : t) : string =
   let param_str (p : string) (t : E_Type.t option) : string =
-    match t with
-    | None -> p
-    | Some t' -> p ^ ": " ^ E_Type.str t'
+    match t with None -> p | Some t' -> p ^ ": " ^ E_Type.str t'
   in
   let return_str (return_t : E_Type.t option) : string =
     match return_t with

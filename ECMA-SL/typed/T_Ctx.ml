@@ -102,7 +102,9 @@ let tenv_intersect (tctx_src : t) (tctxs : t list) : unit =
   in
   let _find_types_f (x : string) : tvar_t list =
     let tvarUndef = default_tvar E_Type.UndefinedType in
-    List.map (fun tctx -> Option.default tvarUndef (tenv_find tctx x)) tctxs
+    List.map
+      (fun tctx -> Option.value ~default:tvarUndef (tenv_find tctx x))
+      tctxs
   in
   let _typing_var_f (tenv : tenv_t) (x : string) =
     let tvars = _find_types_f x in

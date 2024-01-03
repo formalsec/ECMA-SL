@@ -1,22 +1,7 @@
-open Core
 open Source
+open Syntax.Result
 
-let ( let* ) o f =
-  match o with
-  | Error e -> failwith e
-  | Ok o -> f o
-
-let ( let+ ) o f = Result.map o ~f
-
-let list_map ~f l =
-  let exception E of string in
-  try
-    Ok
-      (List.map l ~f:(fun v ->
-           match f v with
-           | Error s -> raise (E s)
-           | Ok v -> v ) )
-  with E s -> Error s
+let ( let* ) o f = match o with Error e -> failwith e | Ok o -> f o
 
 module Crash = Err.Make ()
 module Invalid_arg = Err.Make ()
@@ -74,8 +59,9 @@ module Make (P : Eval_functor_intf.P) :
       | None -> Return (Ok (Option.to_list value))
       | Some (state', ret_v) ->
         let v =
-          Option.value value
+          Option.value
             ~default:Value.(mk_tuple (Bool.const false, mk_symbol "undefined"))
+            value
         in
         let locals = Store.add_exn state'.locals ret_v v in
         Continue { state' with locals; env = state.env }
@@ -105,7 +91,7 @@ module Make (P : Eval_functor_intf.P) :
     Log.debug "calling func: %s@." (Func.name func);
     let return_state = Some (state, ret_var) in
     let params = Func.params func in
-    let store = Store.create (List.zip_exn params args) in
+    let store = Store.create (List.combine params args) in
     let state' =
       State.
         { return_state
@@ -120,17 +106,17 @@ module Make (P : Eval_functor_intf.P) :
   let exec_extern_func state f args ret_var =
     let open Extern_func in
     let rec apply :
-      type a. value Stack.t -> a Extern_func.atype -> a -> value Choice.t =
+      type a. value list -> a Extern_func.atype -> a -> value Choice.t =
      fun args ty f ->
       match ty with
       | UArg ty' -> apply args ty' (f ())
       | Arg ty' ->
-        let v = Stack.pop_exn args in
-        apply args ty' (f v)
+        let v = List.hd args in
+        apply (List.tl args) ty' (f v)
       | Res -> f
     in
     let (Extern_func (Func atype, func)) = f in
-    let/ v = apply (Stack.of_list args) atype func in
+    let/ v = apply args atype func in
     let locals = Store.add_exn state.State.locals ret_var v in
     Choice.return @@ State.Continue State.{ state with locals }
 
@@ -177,7 +163,8 @@ module Make (P : Eval_functor_intf.P) :
       let/ b = Choice.branch br in
       let stmts =
         if b then blk1 :: state.stmts
-        else Option.fold blk2 ~init:state.stmts ~f:(fun a b -> b :: a)
+        else
+          Option.fold blk2 ~none:state.stmts ~some:(fun st -> st :: state.stmts)
       in
       Choice.return @@ State.Continue { state with stmts }
     | Stmt.While (br, blk) ->
@@ -218,16 +205,16 @@ module Make (P : Eval_functor_intf.P) :
       let/ loc = Heap.loc loc in
       let/ heap = Env.get_memory env in
       match Heap.get heap loc with
-      | None -> Choice.error (sprintf "'%s' not found in heap" loc)
+      | None -> Choice.error (Format.sprintf "'%s' not found in heap" loc)
       | Some o ->
-        let v = Value.mk_list (List.map (Object.to_list o) ~f:Value.mk_tuple) in
+        let v = Value.mk_list (List.map Value.mk_tuple (Object.to_list o)) in
         st @@ Store.add_exn locals x v )
     | Stmt.AssignObjFields (x, e) -> (
       let* loc = eval_expr locals e in
       let/ loc = Heap.loc loc in
       let/ heap = Env.get_memory env in
       match Heap.get heap loc with
-      | None -> Choice.error (sprintf "'%s' not found in heap" loc)
+      | None -> Choice.error (Format.sprintf "'%s' not found in heap" loc)
       | Some o ->
         let v = Value.mk_list @@ Object.get_fields o in
         st @@ Store.add_exn locals x v )

@@ -1,12 +1,10 @@
-open Batteries
-
 (* This is very tricky, -0 has to not be an int *)
 let is_int (f : float) : bool =
   let f' = float_of_int (int_of_float f) in
   f = f' && copysign 1.0 f = copysign 1.0 f'
 
 let is_normal (f : float) =
-  let fc = Float.classify f in
+  let fc = Float.classify_float f in
   not (fc = FP_infinite || fc = FP_nan)
 
 let to_int n =
@@ -118,7 +116,7 @@ let rec float_to_string_inner n =
   else string_of_pos_float n
 
 (*
-   "1.2343434e+15" -> appropriate float 
+   "1.2343434e+15" -> appropriate float
 *)
 let parse_efloat (f_str : string) : float =
   let i = String.rindex f_str 'e' in

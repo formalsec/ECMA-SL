@@ -1,3 +1,5 @@
+open Syntax.Option
+
 type 'a obj = 'a Object.t
 
 type 'a t =
@@ -20,17 +22,14 @@ let set (heap : 'a t) (l : Loc.t) (obj : 'a obj) : unit =
   Hashtbl.replace heap.map l obj
 
 let rec get_opt (heap : 'a t) (l : Loc.t) : 'a obj option =
-  let _get_from_parent_heap_f heap = get_opt heap l in
   match Hashtbl.find_opt heap.map l with
   | Some _ as obj -> obj
   | None ->
-    let obj_opt = Option.map_default _get_from_parent_heap_f None heap.parent in
-    Option.map
-      (fun obj ->
-        let obj' = Object.clone obj in
-        set heap l obj';
-        obj' )
-      obj_opt
+    let* parent = heap.parent in
+    let+ obj = get_opt parent l in
+    let obj' = Object.clone obj in
+    set heap l obj';
+    obj'
 
 let get (heap : 'a t) (l : Loc.t) : ('a obj, string) Result.t =
   match get_opt heap l with
@@ -38,8 +37,8 @@ let get (heap : 'a t) (l : Loc.t) : ('a obj, string) Result.t =
   | None -> Error (Format.sprintf "Cannot find lation '%s'." l)
 
 let get_field_opt (heap : 'a t) (l : Loc.t) (fn : string) : 'a option =
-  let get_fld_f obj = Object.get obj fn in
-  get_opt heap l |> Option.map_default get_fld_f None
+  let* obj = get_opt heap l in
+  Object.get obj fn
 
 let str (val_printer : Val.t -> string) (heap : 'a t) : string =
   let _str_loc l = Loc.str l in

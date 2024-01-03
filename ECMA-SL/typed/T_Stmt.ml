@@ -18,7 +18,9 @@ let type_return (tctx : T_Ctx.t) (expr : E_Expr.t option) : unit =
     | (Some expr', _) -> ignore (T_Expr.safe_type_expr tctx expr' tret)
   in
   let _ = T_Ctx.set_tstate tctx T_Ctx.Abrupt in
-  let tret = Option.default E_Type.AnyType (T_Ctx.get_curr_return_t tctx) in
+  let tret =
+    Option.value ~default:E_Type.AnyType (T_Ctx.get_curr_return_t tctx)
+  in
   try _type_return tret
   with T_Err.TypeError terr -> (
     match terr.errs with
@@ -47,10 +49,10 @@ let type_assign (tctx : T_Ctx.t) (var : string) (tvar : E_Type.t option)
       T_Ctx.create_tvar tref texpr mtprev |> T_Ctx.tenv_update tctx var
     else T_Err.raise (T_Err.BadTypeUpdate (atprev, tref))
   in
-  let tdefault = T_Ctx.default_tvar E_Type.AnyType in
-  let tprev = Option.default tdefault (T_Ctx.tenv_find tctx var) in
+  let default = T_Ctx.default_tvar E_Type.AnyType in
+  let tprev = Option.value ~default (T_Ctx.tenv_find tctx var) in
   let (atprev, mtprev) = (T_Ctx.get_tvar_at tprev, T_Ctx.get_tvar_mt tprev) in
-  let tref = Option.default atprev tvar in
+  let tref = Option.value ~default:atprev tvar in
   try _type_assign atprev mtprev tref
   with T_Err.TypeError terr ->
     T_Ctx.create_tvar tref tref true |> T_Ctx.tenv_update tctx var |> fun () ->
@@ -77,7 +79,7 @@ let type_ifelse (tctx : T_Ctx.t) (expr : E_Expr.t) (stmt1 : E_Stmt.t)
   (stmt2 : E_Stmt.t option) (type_stmt_f : T_Ctx.t -> E_Stmt.t -> T_Err.t list)
   : T_Err.t list =
   let terrGuard = type_guard tctx expr in
-  let stmt2 = Option.default (Skip @> no_region) stmt2 in
+  let stmt2 = Option.value ~default:(Skip @> no_region) stmt2 in
   let (tctx1, tctx2) = (T_Ctx.copy tctx, T_Ctx.copy tctx) in
   let form1 = T_Constraint.generate tctx expr in
   let form2 =
@@ -106,9 +108,7 @@ let type_while (tctx : T_Ctx.t) (expr : E_Expr.t) (stmt : E_Stmt.t)
 let type_fassign (tctx : T_Ctx.t) (oe : E_Expr.t) (fe : E_Expr.t)
   (expr : E_Expr.t) : unit =
   let _rt_of_nt rtoe nt =
-    match rtoe with
-    | E_Type.SigmaType _ | E_Type.UnionType _ -> nt
-    | _ -> rtoe
+    match rtoe with E_Type.SigmaType _ | E_Type.UnionType _ -> nt | _ -> rtoe
   in
   let _type_fassign fn rtoe nt =
     let tref = T_Expr.type_fld_lookup oe fe fn (_rt_of_nt rtoe nt) in
