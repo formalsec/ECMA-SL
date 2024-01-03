@@ -3,40 +3,27 @@ module Object = S_object_branch_get
 
 type encoded_pct = Encoding.Expression.t
 type obj = Object.t
+type t = (Loc.t, obj) Hashtbl.t
 
-type t =
-  { parent : t option
-  ; map : (Loc.t, obj) Hashtbl.t
-  }
-
-let caching = true
-let create () : t = { parent = None; map = Hashtbl.create (module String) }
+let create () : t = Hashtbl.create (module String)
 
 let clone (h : t) : t =
-  { parent = Some h; map = Hashtbl.create (module String) }
+  let h' = Hashtbl.create (module String) in
+  Hashtbl.iteri h ~f:(fun ~key ~data ->
+      Hashtbl.set h' ~key ~data:(Object.clone data) );
+  h'
 
 let insert (h : t) (obj : obj) : Loc.t =
   let loc = Loc.newloc () in
-  Hashtbl.set h.map ~key:loc ~data:obj;
+  Hashtbl.set h ~key:loc ~data:obj;
   loc
 
-let remove (h : t) (l : Loc.t) : unit = Hashtbl.remove h.map l
-let set (h : t) (key : Loc.t) (data : obj) : unit = Hashtbl.set h.map ~key ~data
+let remove (h : t) (l : Loc.t) : unit = Hashtbl.remove h l
+let set (h : t) (key : Loc.t) (data : obj) : unit = Hashtbl.set h ~key ~data
 
-let rec get ?(setVal = true) (h : t) (l : Loc.t) : obj option =
-  let result = Hashtbl.find h.map l in
-  match result with
-  | Some o -> result
-  | None -> (
-    let obj = Option.bind h.parent ~f:(fun h -> get h l ~setVal:false) in
-    match obj with
-    | Some o ->
-      if setVal then (
-        let o' = Object.clone o in
-        set h l o';
-        Some o' )
-      else Some o
-    | None -> None )
+let get ?(setVal = true) (h : t) (l : Loc.t) : obj option =
+  let result = Hashtbl.find h l in
+  result
 
 let get_field (heap : t) (loc : Expr.t) (field : Expr.t) (solver : Batch.t)
   (pc : encoded_pct list) (store : S_store.t) :

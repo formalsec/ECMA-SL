@@ -19,7 +19,9 @@ let bin_args_typing_eq (arg1_t : Type.t option) (arg2_t : Type.t option) :
   | Some Type.BoolType, Some Type.BoolType ->
       Some Type.BoolType
   (* missing the symbolic cases *)
-  | _ -> None
+  | _ ->
+    (* None *)
+    Some Type.BoolType
 
 let bin_args_typing_comp (arg1_t : Type.t option) (arg2_t : Type.t option) :
     Type.t option =

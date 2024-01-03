@@ -82,8 +82,15 @@ let type_of_triop (op : Operator.triopt) (_arg1_t : Type.t option)
   | Operator.ArraySet -> Some Type.ArrayType
   | Operator.ITE -> (
     match (arg2_t, arg3_t) with
-    | (Some t2, Some t3) ->
-      if t2 = t3 then arg2_t else failwith "types don't match for ITE."
+    | (Some t2, Some t3) -> (
+      if t2 = t3 then arg2_t
+      else
+        match (t2, t3) with
+        | (_, Type.SymbolType) -> arg2_t
+        | (Type.SymbolType, _) -> arg3_t
+        | _ ->
+          Format.kasprintf failwith "types don't match for ITE: %s %s\n"
+            (Type.str t2) (Type.str t3) )
     | _ -> failwith "types don't match for ITE." )
 
 let rec type_of (v : Sym_value.M.value) : Type.t option =
@@ -105,4 +112,5 @@ let rec type_of (v : Sym_value.M.value) : Type.t option =
   | NOpt (Operator.ListExpr, _) -> Some Type.ListType
   | NOpt (Operator.TupleExpr, _) -> Some Type.TupleType
   | NOpt (Operator.ArrayExpr, _) -> Some Type.ArrayType
+  | Curry _ -> Some Type.CurryType
   | _ -> Format.kasprintf failwith "%a: Not typed!" Pp.pp v
