@@ -1,6 +1,7 @@
 type stmt_eval =
   | SkipEval
   | MergeEval
+  | DebugEval
   | BlockEval
   | PrintEval
   | ReturnEval

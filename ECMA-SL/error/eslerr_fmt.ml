@@ -71,6 +71,7 @@ let tokens_stmt (stmt : Stmt.t) : token list =
   match stmt.it with
   | Skip -> []
   | Merge -> []
+  | Debug -> []
   | Block _ -> []
   | Print e -> [ Lit "print "; Expr e ]
   | Return e -> [ Lit "return "; Expr e ]
