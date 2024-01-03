@@ -50,6 +50,7 @@
 
 (package
  (name ecma-sl-share)
+ (synopsis "Ecma-sl-share")
  (depends dune-site)
  (sites
   (share interpreters)
