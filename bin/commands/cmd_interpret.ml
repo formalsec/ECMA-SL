@@ -4,11 +4,12 @@ module Interpreter = Interpreter.M (Monitor.Default)
 type options =
   { input_file : string
   ; interpret_esl : bool
+  ; interpret_verbose : bool
   ; untyped : bool
   }
 
-let options input_file interpret_esl untyped : options =
-  { input_file; interpret_esl; untyped }
+let options input_file interpret_esl interpret_verbose untyped : options =
+  { input_file; interpret_esl; interpret_verbose; untyped }
 
 let run_interpreter (prog : Prog.t) : unit = ignore (Interpreter.eval_prog prog)
 
@@ -29,6 +30,7 @@ let main (copts : Options.common_options) (opts : options) : int =
   Log.on_debug := copts.debug;
   Config.Common.colored := not copts.colorless;
   Config.Eslerr.show_code := not opts.interpret_esl;
+  Config.Interpreter.verbose := opts.interpret_verbose;
   Config.Tesl.untyped := opts.untyped;
   Config.file := opts.input_file;
   Cmd.eval_cmd (fun () -> run opts)

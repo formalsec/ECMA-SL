@@ -32,6 +32,10 @@ let exits =
 
 let options =
   Term.(
-    const Cmd_interpret.options $ input_file $ interpret_esl_flag $ untyped_flag )
+    const Cmd_interpret.options
+    $ input_file
+    $ interpret_esl_flag
+    $ interpret_verbose_flag
+    $ compile_untyped_flag )
 
 let term = Term.(const Cmd_interpret.main $ common_options $ options)

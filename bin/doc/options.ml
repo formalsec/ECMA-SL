@@ -30,14 +30,18 @@ let output_file =
 
 (* Compile options *)
 
-let untyped_flag =
-  let doc = "Run ECMA-SL compiler without typechecking." in
+let compile_untyped_flag =
+  let doc = "Run the ECMA-SL compiler without typechecking." in
   Arg.(value & flag & info [ "untyped" ] ~doc)
 
 (* Interpret options *)
 let interpret_esl_flag =
   let doc = "Interpret a program written in ECMA-SL (.esl)." in
   Arg.(value & flag & info [ "esl" ] ~doc)
+
+let interpret_verbose_flag =
+  let doc = "Display intermediate interpreter information." in
+  Arg.(value & flag & info [ "verbose" ] ~doc)
 
 (* TODO *)
 
