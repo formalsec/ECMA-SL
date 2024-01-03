@@ -7,7 +7,7 @@ module M (Mon : Monitor.M) = struct
   type store = value Store.t
   type heap = value Heap.t
   type stack = store Call_stack.t
-  type state = stack * store * heap * Func.t
+  type state = store * heap * stack * Func.t
 
   type return =
     | Final of value
@@ -36,10 +36,10 @@ module M (Mon : Monitor.M) = struct
       Eslerr.(set_src (Expr e) exn |> raise)
 
   let initial_state (main : Func.t) : state =
-    let stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
+    let stack = Call_stack.push Call_stack.empty (Call_stack.Toplevel main) in
     let store = Store.create [] in
     let heap = Heap.create () in
-    (stack, store, heap, main)
+    (store, heap, stack, main)
 
   let print_val (heap : heap) (v : value) : unit =
     let open Fmt in
@@ -131,7 +131,7 @@ module M (Mon : Monitor.M) = struct
   let eval_small_step (prog : Prog.t) (state : state) (s : Stmt.t)
     (cont : Stmt.t list) : return * Mon.sl_label =
     let lbl s_eval = Mon.generate_label s s_eval in
-    let (stack, store, heap, func) = state in
+    let (store, heap, stack, func) = state in
     Verbose.eval_small_step func s;
     match s.it with
     | Skip -> (Intermediate (state, cont), lbl SkipEval)
@@ -145,10 +145,10 @@ module M (Mon : Monitor.M) = struct
       let v = eval_expr store e in
       let (frame, stack') = Call_stack.pop stack in
       match frame with
-      | Call_stack.Toplevel -> (Final v, lbl ReturnEval)
-      | Call_stack.Intermediate (cont', store', x, func) ->
+      | Call_stack.Toplevel _ -> (Final v, lbl ReturnEval)
+      | Call_stack.Intermediate (cont', store', x, func') ->
         Store.set store' x v;
-        let state' = (stack', store', heap, func) in
+        let state' = (store', heap, stack', func') in
         (Intermediate (state', cont'), lbl ReturnEval) )
     | Assign (x, e) ->
       eval_expr store e |> Store.set store x;
@@ -159,10 +159,10 @@ module M (Mon : Monitor.M) = struct
       match Mon.interceptor fn vs es with
       | Some lbl -> (Intermediate (state, cont), lbl)
       | None ->
-        let func = eval_func prog fn in
-        let (stack', store') = prepare_call stack store cont x func vs in
-        let state' = (stack', store', heap, func) in
-        let cont' = [ Func.body func ] in
+        let func' = eval_func prog fn in
+        let (stack', store') = prepare_call stack store cont x func' vs in
+        let state' = (store', heap, stack', func') in
+        let cont' = [ Func.body func' ] in
         (Intermediate (state', cont'), lbl (AssignCallEval func)) )
     | AssignECall (x, fe, es) ->
       let vs = List.map (eval_expr store) es in
