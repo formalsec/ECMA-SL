@@ -28,18 +28,12 @@
   (ocaml
    (>= "5.1.0"))
   (odoc :with-doc)
-  (core
-   (>= "v0.16.0"))
-  (core_unix
-   (>= "v0.16.0"))
   dune
   cmdliner
   bos
-  batteries
   ppx_import
   ppx_deriving
   (ppx_inline_test :with-test)
-  extlib
   menhir
   menhirLib
   (encoding

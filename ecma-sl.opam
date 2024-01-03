@@ -14,16 +14,12 @@ bug-reports: "https://github.com/formalsec/ECMA-SL/issues"
 depends: [
   "ocaml" {>= "5.1.0"}
   "odoc" {with-doc}
-  "core" {>= "v0.16.0"}
-  "core_unix" {>= "v0.16.0"}
   "dune" {>= "3.2"}
   "cmdliner"
   "bos"
-  "batteries"
   "ppx_import"
   "ppx_deriving"
   "ppx_inline_test" {with-test}
-  "extlib"
   "menhir"
   "menhirLib"
   "encoding" {>= "0.0.1"}

@@ -18,9 +18,7 @@ let func (prog : t) (fn : string) : (Func.t, string) Result.t =
   | None -> Result.error (Printf.sprintf "Cannot find function '%s'." fn)
 
 let func_name (prog : t) (fn : string) : (string, string) Result.t =
-  let ( let+ ) o f = Result.map f o in
-  let+ s = func prog fn in
-  s.it.name
+  Result.map (fun f -> f.it.name) (func prog fn)
 
 let funcs (prog : t) : Func.t list =
   let _func_acc_f _ func acc = func :: acc in
