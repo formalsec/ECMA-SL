@@ -15,17 +15,13 @@ let body (func : t) : Stmt.t = func.it.body
 let create (name : string) (params : string list) (body : Stmt.t) : t' =
   { name; params; body }
 
-let str (func : t) : string =
-  let _params_str = String.concat ", " func.it.params in
-  let _body_str = Stmt.str func.it.body in
-  Printf.sprintf "function %s(%s) {\n%s\n}" func.it.name _params_str _body_str
-
-let to_json (func : t) : string =
+let pp (fmt : Format.formatter) (func : t) : unit =
+  let open Format in
   let { name; params; body } = func.it in
-  let _json_param_f param = Printf.sprintf "\"%s\"" param in
-  let _params_json = List.map _json_param_f params |> String.concat ", " in
-  let _body_json = Stmt.to_json body in
-  Printf.sprintf
-    "{ \"type\" : \"function\", \"name\" : \"%s\", \"params\" : [ %s ], \
-     \"body\" : %s }"
-    name _params_json _body_json
+  let pp_sep seq fmt () = pp_print_string fmt seq in
+  let pp_lst seq pp fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
+  fprintf fmt "function %s(%a) {\n%a\n}" name
+    (pp_lst ", " pp_print_string)
+    params Stmt.pp body
+
+let str (func : t) : string = Format.asprintf "%a" pp func

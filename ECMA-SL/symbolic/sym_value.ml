@@ -135,18 +135,21 @@ module M = struct
       | Val n -> fprintf fmt "%s" (Val.str n)
       | UnOpt (op, e) ->
         let e = pp_str e in
-        fprintf fmt "%s" (Operator.str_of_unopt op e)
+        fprintf fmt "%s" (Operator.str_of_unopt Format.pp_print_string op e)
       | BinOpt (op, e1, e2) ->
         let e1 = pp_str e1 in
         let e2 = pp_str e2 in
-        fprintf fmt "%s" (Operator.str_of_binopt op e1 e2)
+        fprintf fmt "%s"
+          (Operator.str_of_binopt Format.pp_print_string op e1 e2)
       | TriOpt (op, e1, e2, e3) ->
         let e1 = pp_str e1 in
         let e2 = pp_str e2 in
         let e3 = pp_str e3 in
-        fprintf fmt "%s" (Operator.str_of_triopt op e1 e2 e3)
+        fprintf fmt "%s"
+          (Operator.str_of_triopt Format.pp_print_string op e1 e2 e3)
       | NOpt (op, es) ->
-        fprintf fmt "%s" (Operator.str_of_nopt op (List.map pp_str es))
+        fprintf fmt "%s"
+          (Operator.str_of_nopt Format.pp_print_string op (List.map pp_str es))
       | Curry (f, es) -> fprintf fmt "{%a}@(%a)" pp f pp_list es
       | Symbolic (_t, x) -> pp fmt x
 

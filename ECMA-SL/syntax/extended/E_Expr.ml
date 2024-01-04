@@ -24,12 +24,14 @@ let rec str (e : t) : string =
   | Var x -> x
   | GVar x -> "|" ^ x ^ "|"
   | Const c -> Operator.str_of_const c
-  | UnOpt (op, e) -> Operator.str_of_unopt op (str e)
+  | UnOpt (op, e) -> Operator.str_of_unopt Format.pp_print_string op (str e)
   | EBinOpt (op, e1, e2) -> E_Operator.str_of_binopt op (str e1) (str e2)
-  | BinOpt (op, e1, e2) -> Operator.str_of_binopt op (str e1) (str e2)
+  | BinOpt (op, e1, e2) ->
+    Operator.str_of_binopt Format.pp_print_string op (str e1) (str e2)
   | TriOpt (op, e1, e2, e3) ->
-    Operator.str_of_triopt op (str e1) (str e2) (str e3)
-  | NOpt (op, es) -> Operator.str_of_nopt op (List.map str es)
+    Operator.str_of_triopt Format.pp_print_string op (str e1) (str e2) (str e3)
+  | NOpt (op, es) ->
+    Operator.str_of_nopt Format.pp_print_string op (List.map str es)
   | ECall (f, es) -> "extern " ^ f ^ "(" ^ str_es es ^ ")"
   | Call (f, es, None) -> str f ^ "(" ^ str_es es ^ ")"
   | Call (f, es, Some g) -> str f ^ "(" ^ str_es es ^ ") catch " ^ g
@@ -100,11 +102,7 @@ let rec map (f : t -> t) (e : t) : t =
 
 let subst (sbst : subst_t) (e : t) : t =
   (* Printf.printf "In subst expr\n"; *)
-  let f e' =
-    match e' with
-    | Var x -> get_subst sbst x
-    | _ -> e'
-  in
+  let f e' = match e' with Var x -> get_subst sbst x | _ -> e' in
   map f e
 
 let string_of_subst (sbst : subst_t) : string =
