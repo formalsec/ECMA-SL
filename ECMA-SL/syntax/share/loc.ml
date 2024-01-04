@@ -7,4 +7,5 @@ let inc_get_count () : int =
   !count
 
 let create () : t = Printf.sprintf "$loc_%d" (inc_get_count ())
-let str (v : t) : string = Printf.sprintf "\"%s\"" v
+let pp (fmt : Format.formatter) (l : t) : unit = Format.fprintf fmt "%S" l
+let str (l : t) : string = Format.asprintf "%a" pp l

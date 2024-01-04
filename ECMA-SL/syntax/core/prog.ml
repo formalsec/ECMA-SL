@@ -20,16 +20,13 @@ let func (prog : t) (fn : string) : (Func.t, string) Result.t =
 let func_name (prog : t) (fn : string) : (string, string) Result.t =
   Result.map (fun f -> f.it.name) (func prog fn)
 
-let funcs (prog : t) : Func.t list =
-  let _func_acc_f _ func acc = func :: acc in
-  Hashtbl.fold _func_acc_f prog []
-
 let add_func (prog : t) (fn : string) (func : Func.t) : unit =
   Hashtbl.replace prog fn func
 
-let str (prog : t) : string =
-  List.map Func.str (funcs prog) |> String.concat ";\n"
+let pp (fmt : Format.formatter) (prog : t) : unit =
+  let open Format in
+  let pp_sep sep fmt () = pp_print_string fmt sep in
+  let pp_seq sep pp fmt lst = pp_print_seq ~pp_sep:(pp_sep sep) pp fmt lst in
+  fprintf fmt "%a" (pp_seq ";\n" Func.pp) (Hashtbl.to_seq_values prog)
 
-let to_json (prog : t) : string =
-  let funcs_json = List.map Func.to_json (funcs prog) |> String.concat ", " in
-  Printf.sprintf "{ \"type\" : \"prog\", \"funcs\" : [ %s ] }" funcs_json
+let str (prog : t) : string = Format.asprintf "%a" pp prog

@@ -24,114 +24,41 @@ and t' =
   | Assert of Expr.t
   | Abort of Expr.t
 
-let rec str ?(expr_printer : Expr.t -> string = Expr.str) (s : t) : string =
-  let _str_e e = expr_printer e in
-  let _str_es es = String.concat ", " (List.map _str_e es) in
+let rec pp (fmt : Format.formatter) (s : t) : unit =
+  let open Format in
+  let pp_sep sep fmt () = pp_print_string fmt sep in
+  let pp_lst sep pp fmt lst = pp_print_list ~pp_sep:(pp_sep sep) pp fmt lst in
   match s.it with
-  | Skip -> ""
-  | Merge -> ""
-  | Block stmts -> List.map (str ~expr_printer) stmts |> String.concat ";\n"
-  | Print e -> Printf.sprintf "print %s" (_str_e e)
-  | Return e -> Printf.sprintf "return %s" (_str_e e)
-  | Assign (x, e) -> Printf.sprintf "%s := %s" x (_str_e e)
+  | Skip -> fprintf fmt "skip"
+  | Merge -> fprintf fmt "merge"
+  | Block stmts -> fprintf fmt "%a" (pp_lst ";\n" pp) stmts
+  | Print e -> fprintf fmt "print %a" Expr.pp e
+  | Return e -> fprintf fmt "return %a" Expr.pp e
+  | Assign (x, e) -> fprintf fmt "%s := %a" x Expr.pp e
   | AssignCall (x, fe, es) ->
-    Printf.sprintf "%s := %s(%s)" x (_str_e fe) (_str_es es)
+    fprintf fmt "%s := %a(%a)" x Expr.pp fe (pp_lst ", " Expr.pp) es
   | AssignECall (x, fn, es) ->
-    Printf.sprintf "%s := extern %s(%s)" x fn (_str_es es)
-  | AssignNewObj x -> Printf.sprintf "%s := { }" x
-  | AssignObjToList (x, e) -> Printf.sprintf "%s := obj_to_list %s" x (_str_e e)
-  | AssignObjFields (x, e) -> Printf.sprintf "%s := obj_fields %s" x (_str_e e)
+    fprintf fmt "%s := extern %s(%a)" x fn (pp_lst ", " Expr.pp) es
+  | AssignNewObj x -> fprintf fmt "%s := { }" x
+  | AssignObjToList (x, e) -> fprintf fmt "%s := obj_to_list %a" x Expr.pp e
+  | AssignObjFields (x, e) -> fprintf fmt "%s := obj_fields %a" x Expr.pp e
   | AssignInObjCheck (x, e1, e2) ->
-    Printf.sprintf "%s := %s in_obj %s" x (_str_e e1) (_str_e e2)
+    fprintf fmt "%s := %a in_obj %a" x Expr.pp e1 Expr.pp e2
   | FieldLookup (x, oe, fe) ->
-    Printf.sprintf "%s := %s[%s]" x (_str_e oe) (_str_e fe)
+    fprintf fmt "%s := %a[%a]" x Expr.pp oe Expr.pp fe
   | FieldAssign (oe, fe, e) ->
-    Printf.sprintf "%s[%s] := %s" (_str_e oe) (_str_e fe) (_str_e e)
-  | FieldDelete (oe, fe) ->
-    Printf.sprintf "delete %s[%s]" (_str_e oe) (_str_e fe)
+    fprintf fmt "%a[%a] := %a" Expr.pp oe Expr.pp fe Expr.pp e
+  | FieldDelete (oe, fe) -> fprintf fmt "delete %a[%a]" Expr.pp oe Expr.pp fe
   | If (e, s1, s2) ->
-    let else_str = function
-      | Some s -> Printf.sprintf " else {\n%s\n}" (str s)
-      | None -> ""
-    in
-    Printf.sprintf "if (%s) {\n%s\n}%s" (_str_e e) (str s1) (else_str s2)
-  | While (e, s') -> Printf.sprintf "while (%s) {\n%s\n}" (_str_e e) (str s')
-  | Fail e -> Printf.sprintf "fail %s" (_str_e e)
-  | Assert e -> Printf.sprintf "assert (%s)" (_str_e e)
-  | Abort e -> Printf.sprintf "abort %s" (_str_e e)
+    let else_t_fun fmt = fprintf fmt " else {\n%a\n}" pp in
+    let else_t fmt s = Syntax.Option.map_default (else_t_fun fmt) () s in
+    fprintf fmt "if (%a) {\n%a\n}%a" Expr.pp e pp s1 else_t s2
+  | While (e, s') -> fprintf fmt "while (%a) {\n%a\n}" Expr.pp e pp s'
+  | Fail e -> fprintf fmt "fail %a" Expr.pp e
+  | Assert e -> fprintf fmt "assert (%a)" Expr.pp e
+  | Abort e -> fprintf fmt "abort %a" Expr.pp e
 
-let rec to_json (stmt : t) : string =
-  let _json_exprs es = List.map Expr.to_json es |> String.concat ", "
-  and _json_stmts stmts = List.map to_json stmts |> String.concat ", " in
-  match stmt.it with
-  | Skip -> Printf.sprintf "{ \"type\" : \"skip\" }"
-  | Merge -> Printf.sprintf "{ \"type\" : \"merge\" }"
-  | Block stmts ->
-    Printf.sprintf "{ \"type\" : \"block\", \"value\" : [ %s ] }"
-      (_json_stmts stmts)
-  | Print e ->
-    Printf.sprintf "{ \"type\" : \"print\", \"expr\" : %s }" (Expr.to_json e)
-  | Return e ->
-    Printf.sprintf "{ \"type\" : \"return\", \"expr\" : %s }" (Expr.to_json e)
-  | Assign (x, e) ->
-    Printf.sprintf "{ \"type\" : \"assign\", \"lhs\" : \"%s\", \"rhs\" : %s }" x
-      (Expr.to_json e)
-  | AssignCall (x, fe, es) ->
-    Printf.sprintf
-      "{ \"type\" : \"assigncall\", \"lhs\" : \"%s\", \"func\" : %s, \"args\" \
-       : [ %s ] }"
-      x (Expr.to_json fe) (_json_exprs es)
-  | AssignECall (x, fn, es) ->
-    Printf.sprintf
-      "{ \"type\" : \"assignecall\", \"lhs\" : \"%s\", \"func\" : %s, \"args\" \
-       : [ %s ] }"
-      x fn (_json_exprs es)
-  | AssignNewObj x ->
-    Printf.sprintf "{ \"type\" : \"assignnewobject\", \"lhs\" : \"%s\" }" x
-  | AssignObjToList (x, e) ->
-    Printf.sprintf
-      "{ \"type\" : \"assigniobjtolist\", \"lhs\" : \"%s\", \"obj\" : %s }" x
-      (Expr.to_json e)
-  | AssignObjFields (x, e) ->
-    Printf.sprintf
-      "{ \"type\" : \"assignobjfields\", \"lhs\" : \"%s\", \"obj\" : %s }" x
-      (Expr.to_json e)
-  | AssignInObjCheck (x, e1, e2) ->
-    Printf.sprintf
-      "{ \"type\" : \"assigninobjcheck\", \"lhs\" : \"%s\", \"field\" : %s, \
-       \"obj\" : %s }"
-      x (Expr.to_json e1) (Expr.to_json e2)
-  | FieldLookup (x, oe, fe) ->
-    Printf.sprintf
-      "{ \"type\" : \"fieldlookup\", \"lhs\" : \"%s\", \"obj\" : %s, \"field\" \
-       : %s }"
-      x (Expr.to_json oe) (Expr.to_json fe)
-  | FieldAssign (oe, fe, e) ->
-    Printf.sprintf
-      "{ \"type\" : \"fieldassign\", \"obj\" : %s, \"field\" : %s, \"value\" : \
-       %s }"
-      (Expr.to_json oe) (Expr.to_json fe) (Expr.to_json e)
-  | FieldDelete (oe, fe) ->
-    Printf.sprintf
-      "{ \"type\" : \"fielddelete\", \"obj\" : %s, \"field\" : %s }"
-      (Expr.to_json oe) (Expr.to_json fe)
-  | If (e, s1, None) ->
-    Printf.sprintf "{ \"type\" : \"condition\", \"expr\" : %s, \"then\" : %s }"
-      (Expr.to_json e) (to_json s1)
-  | If (e, s1, Some s2) ->
-    Printf.sprintf
-      "{ \"type\" : \"condition\", \"expr\" : %s, \"then\" : %s, \"else\" : %s \
-       }"
-      (Expr.to_json e) (to_json s1) (to_json s2)
-  | While (e, s') ->
-    Printf.sprintf "{ \"type\" : \"loop\", \"expr\" : %s, \"do\" : %s }"
-      (Expr.to_json e) (to_json s')
-  | Assert e ->
-    Printf.sprintf "{ \"type\" : \"assert\", \"expr\" : %s }" (Expr.to_json e)
-  | Fail e ->
-    Printf.sprintf "{ \"type\" : \"fail\", \"expr\" : %s }" (Expr.to_json e)
-  | Abort e ->
-    Printf.sprintf "{ \"type\" : \"abort\", \"expr\" : %s }" (Expr.to_json e)
+let str (s : t) : string = Format.asprintf "%a" pp s
 
 module Pp = struct
   let to_string (stmt : t) pp : string =

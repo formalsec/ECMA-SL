@@ -36,9 +36,6 @@ let rec copy (e : t) : t =
   | Curry (fe, es) -> Curry (fe, List.map copy es)
   | Symbolic (t, e) -> Symbolic (t, copy e)
 
-let is_val (e : t) : bool = match e with Val _ -> true | _ -> false
-let is_loc (e : t) : bool = match e with Val (Val.Loc _) -> true | _ -> false
-
 let rec is_symbolic (e : t) : bool =
   match e with
   | Val _ | Var _ -> false
@@ -48,53 +45,21 @@ let rec is_symbolic (e : t) : bool =
   | NOpt (_, es) | Curry (_, es) -> List.exists is_symbolic es
   | Symbolic _ -> true
 
-let rec str (e : t) : string =
-  let _str_es es = List.map str es |> String.concat ", " in
+let rec pp (fmt : Format.formatter) (e : t) : unit =
+  let open Format in
+  let pp_sep seq fmt () = pp_print_string fmt seq in
+  let pp_lst seq pp fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
   match e with
-  | Val v -> Val.str v
-  | Var x -> x
-  | UnOpt (op, e') -> Operator.str_of_unopt op (str e')
-  | BinOpt (op, e1, e2) -> Operator.str_of_binopt op (str e1) (str e2)
-  | TriOpt (op, e1, e2, e3) ->
-    Operator.str_of_triopt op (str e1) (str e2) (str e3)
-  | NOpt (op, es) -> Operator.str_of_nopt op (List.map str es)
-  | Curry (fe, es) -> Printf.sprintf "{%s}@(%s)" (str fe) (_str_es es)
-  | Symbolic (t, e') ->
-    Printf.sprintf "se_mk_symbolic(%s, %s)" (Type.str t) (str e')
+  | Val v -> Val.pp fmt v
+  | Var x -> pp_print_string fmt x
+  | UnOpt (op, e') -> Operator.pp_of_unopt pp fmt (op, e')
+  | BinOpt (op, e1, e2) -> Operator.pp_of_binopt pp fmt (op, e1, e2)
+  | TriOpt (op, e1, e2, e3) -> Operator.pp_of_triopt pp fmt (op, e1, e2, e3)
+  | NOpt (op, es) -> Operator.pp_of_nopt pp fmt (op, es)
+  | Curry (fe, es) -> fprintf fmt "{%a}@(%a)" pp fe (pp_lst ", " pp) es
+  | Symbolic (t, e') -> fprintf fmt "se_mk_symbolic(%a, %a)" Type.pp t pp e'
 
-let rec to_json (e : t) : string =
-  let _json_exprs es = List.map to_json es |> String.concat ", " in
-  match e with
-  | Val v ->
-    Printf.sprintf "{ \"type\" : \"value\", \"value\" : %s }" (Val.to_json v)
-  | Var x -> Printf.sprintf "{ \"type\" : \"var\", \"name\" : \"%s\" }" x
-  | UnOpt (op, e') ->
-    Printf.sprintf "{ \"type\" : \"unop\", \"op\" : %s, \"rhs\" : %s }"
-      (Operator.unopt_to_json op)
-      (to_json e')
-  | BinOpt (op, e1, e2) ->
-    Printf.sprintf
-      "{ \"type\" : \"binop\", \"op\" : %s, \"lhs\" : %s, \"rhs\" : %s }"
-      (Operator.binopt_to_json op)
-      (to_json e1) (to_json e2)
-  | TriOpt (op, e1, e2, e3) ->
-    Printf.sprintf
-      "{ \"type\" : \"triop\", \"op\" : %s, \"arg1\" : %s, \"arg2\" : %s, \
-       \"arg3\" : %s }"
-      (Operator.triopt_to_json op)
-      (to_json e1) (to_json e2) (to_json e3)
-  | NOpt (op, es) ->
-    Printf.sprintf "{ \"type\" : \"nop\", \"op\" : %s, \"args\" : [ %s ]}"
-      (Operator.nopt_to_json op) (_json_exprs es)
-  | Curry (fe, es) ->
-    Printf.sprintf
-      "{ \"type\" : \"curry\", \"function:\" : %s, \"args\" : [ %s ]}"
-      (to_json fe) (_json_exprs es)
-  | Symbolic (t, e') ->
-    Printf.sprintf
-      "{ \"type\" : \"se_mk_symbolic\", \"val_type\" : \"%s\", \"name\" : \
-       \"%s\" }"
-      (Type.str t) (str e')
+let str (e : t) : string = Format.asprintf "%a" pp e
 
 let rec vars_in_expr (e : t) : string list =
   let _vars_in_lst lst = List.map vars_in_expr lst |> List.concat in
