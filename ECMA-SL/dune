@@ -97,20 +97,18 @@
   ;   symbolic
   args_typing_unop
   args_typing_binop
-  batch
   choice_monad_intf
   choice_monad
-  eval
-  eval_functor
-  eval_functor_intf
   extern_func
+  interpreter_functor
+  interpreter_functor_intf
   link_env
-  sym_heap2
-  sym_heap_intf
-  sym_heap_obj_list
-  sym_object_list
-  sym_state
-  sym_value
+  memory_intf
+  solver
+  symbolic
+  symbolic_interpreter
+  symbolic_memory
+  symbolic_value
   type_of_val
   value_intf
   value_reducer

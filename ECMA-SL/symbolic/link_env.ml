@@ -11,7 +11,7 @@ end
 
 module SMap = Map.Make (String)
 
-module Make (Memory : Sym_heap_intf.S) = struct
+module Make (Memory : Memory_intf.S) = struct
   type memory = Memory.t
 
   type 'a t =

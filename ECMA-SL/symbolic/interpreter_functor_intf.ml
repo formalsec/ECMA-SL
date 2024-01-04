@@ -35,7 +35,7 @@ module type P = sig
     val to_string : t -> string
   end
 
-  module Heap : sig
+  module Memory : sig
     type t = memory
     type nonrec value = value
     type nonrec object_ = object_

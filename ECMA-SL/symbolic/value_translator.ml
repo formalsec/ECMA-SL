@@ -1,7 +1,7 @@
 open Encoding
 open Expr
 open Ty
-open Sym_value.M
+open Symbolic_value.M
 
 let expr_of_value (e : Value.t) : value =
   match e with

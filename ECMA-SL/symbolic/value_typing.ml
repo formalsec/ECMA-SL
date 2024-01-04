@@ -38,9 +38,9 @@ let type_of_unop (op : Operator.unopt) (arg_t : Type.t option) : Type.t option =
       ( "Typing Error: [type_of_unop] -> unsuported typing for unary operation "
       ^ Operator.str_of_unopt_single op )
 
-let type_of_binop (op : Operator.binopt) (arg1 : Sym_value.M.value)
-  (arg2 : Sym_value.M.value) (arg1_t : Type.t option) (arg2_t : Type.t option) :
-  Type.t option =
+let type_of_binop (op : Operator.binopt) (arg1 : Symbolic_value.M.value)
+  (arg2 : Symbolic_value.M.value) (arg1_t : Type.t option)
+  (arg2_t : Type.t option) : Type.t option =
   match op with
   | Operator.Plus -> bin_args_typing_arith arg1_t arg2_t
   | Operator.Minus -> bin_args_typing_arith arg1_t arg2_t
@@ -93,15 +93,16 @@ let type_of_triop (op : Operator.triopt) (_arg1_t : Type.t option)
             (Type.str t2) (Type.str t3) )
     | _ -> failwith "types don't match for ITE." )
 
-let rec type_of (v : Sym_value.M.value) : Type.t option =
-  let open Sym_value.M in
+let rec type_of (v : Symbolic_value.M.value) : Type.t option =
+  let open Symbolic_value.M in
   match v with
   | Val v -> type_of_val v
   | UnOpt (op, arg) ->
     let arg_t = type_of arg in
     type_of_unop op arg_t
   | BinOpt (op, arg1, arg2) ->
-    let arg1_t = type_of arg1 and arg2_t = type_of arg2 in
+    let arg1_t = type_of arg1
+    and arg2_t = type_of arg2 in
     type_of_binop op arg1 arg2 arg1_t arg2_t
   | TriOpt (op, arg1, arg2, arg3) ->
     let arg1_t = type_of arg1

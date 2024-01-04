@@ -1,20 +1,20 @@
-module Value = Sym_value.M
-module Heap = Sym_heap2.Heap
+module Value = Symbolic_value.M
+module Memory = Symbolic_memory.Memory
 module Translator = Value_translator
 module Optimizer = Encoding.Optimizer.Z3
 
 module Thread = struct
   type t =
-    { solver : Batch.t
+    { solver : Solver.t
     ; pc : Encoding.Expr.t list
     ; mem : Sym_heap2.Heap.t
-    ; optimizer : Optimizer.t
+    ; mem : Memory.t
     }
 
   let create () =
-    { solver = Batch.create ()
+    { solver = Solver.create ()
     ; pc = []
-    ; mem = Heap.create ()
+    ; mem = Memory.create ()
     ; optimizer = Optimizer.create ()
     }
 
@@ -23,7 +23,7 @@ module Thread = struct
   let mem t = t.mem
   let optimizer t = t.optimizer
   let add_pc t v = { t with pc = v :: t.pc }
-  let clone_mem t = { t with mem = Heap.clone t.mem }
+  let clone_mem t = { t with mem = Memory.clone t.mem }
 end
 
 module List = struct
@@ -49,7 +49,7 @@ module List = struct
       | Val (Val.Bool b) -> [ (b, t) ]
       | _ ->
         let cond = Translator.translate v in
-        [ (Batch.check solver (cond :: pc), t) ]
+        [ (Solver.check solver (cond :: pc), t) ]
 
   let check_add_true (v : Value.value) : bool t =
     let open Value in
@@ -60,7 +60,7 @@ module List = struct
       | Val (Val.Bool b) -> [ (b, t) ]
       | _ ->
         let cond' = Translator.translate v in
-        if Batch.check solver (cond' :: pc) then
+        if Solver.check solver (cond' :: pc) then
           [ (true, Thread.add_pc t cond') ]
         else [ (false, t) ]
 
@@ -74,8 +74,8 @@ module List = struct
       | _ -> (
         let cond = Translator.translate v in
         let no = Translator.translate @@ Value.Bool.not_ v in
-        let sat_true = Batch.check solver (cond :: pc) in
-        let sat_false = Batch.check solver (no :: pc) in
+        let sat_true = Solver.check solver (cond :: pc) in
+        let sat_false = Solver.check solver (no :: pc) in
         match (sat_true, sat_false) with
         | false, false -> []
         | true, false -> [ (true, Thread.add_pc t cond) ]
