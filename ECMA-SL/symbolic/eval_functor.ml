@@ -85,7 +85,7 @@ module Make (P : Eval_functor_intf.P) :
     (* in *)
     (* Printf.printf "print:%s\npc:%s\nheap id:%d\n" s (Encoding.Expression.string_of_pc pc) (Heap.get_id heap); *)
     let* v = eval_expr locals e in
-    Heap.pp heap v
+    Heap.pp_val heap v
 
   let exec_func state func args ret_var =
     Log.debug "calling func: %s@." (Func.name func);

@@ -183,7 +183,7 @@ module Heap = struct
         set h loc o' )
       obj
 
-  let to_string (h : t) : string =
+  let pp fmt (h : t) =
     let map =
       Hashtbl.fold
         (fun key data acc ->
@@ -191,7 +191,7 @@ module Heap = struct
           )
         h []
     in
-    Format.sprintf "{ %s }" (String.concat ", " map)
+    Format.fprintf fmt "{ %s }" (String.concat ", " map)
 
   let rec unfold_ite ~(accum : value) (e : value) : (value option * string) list
       =
@@ -214,7 +214,7 @@ module Heap = struct
     | _ ->
       Error (Format.asprintf "Value '%a' is not a loc expression" V.Pp.pp e)
 
-  let pp (h : t) (e : value) : string =
+  let pp_val (h : t) (e : value) : string =
     match e with
     | V.Val (Val.Loc l) -> (
       match get h l with
