@@ -1,12 +1,12 @@
 open Bos_setup
 open Ecma_sl
 open Syntax.Result
-module Env = Sym_state.P.Env
-module Value = Sym_state.P.Value
-module Choice = Sym_state.P.Choice
+module Env = Symbolic.P.Env
+module Value = Symbolic.P.Value
+module Choice = Symbolic.P.Choice
 module Thread = Choice_monad.Thread
 module Translator = Value_translator
-module Extern_func = Sym_state.P.Extern_func
+module Extern_func = Symbolic.P.Extern_func
 module SMap = Stdlib.Map.Make (Stdlib.String)
 module Optimizer = Choice_monad.Optimizer
 
@@ -88,9 +88,9 @@ let symbolic_api_funcs =
     let e' = Translator.translate e in
     let pc = Thread.pc thread in
     let solver = Thread.solver thread in
-    assert (Batch.check solver (e' :: pc));
+    assert (Solver.check solver (e' :: pc));
     let symbols = Encoding.Expr.get_symbols [ e' ] in
-    let model = Option.get (Batch.model ~symbols solver) in
+    let model = Option.get (Solver.model ~symbols solver) in
     match Encoding.Model.evaluate model (List.hd symbols) with
     | Some v -> [ (Ok (Translator.expr_of_value v), thread) ]
     | None -> assert false (* Should never happpen due to sat check above *)
@@ -206,8 +206,8 @@ let serialize =
   fun ?(witness : string option) thread ->
     let pc = Thread.pc thread in
     let solver = Thread.solver thread in
-    assert (Batch.check solver pc);
-    let model = Batch.model solver in
+    assert (Solver.check solver pc);
+    let model = Solver.model solver in
     let testcase =
       Option.fold model ~none:"" ~some:(fun m ->
           let open Encoding in
@@ -239,7 +239,7 @@ let run env entry_func =
   Io.safe_mkdir testsuite_path;
   let start = Stdlib.Sys.time () in
   let thread = Choice_monad.Thread.create () in
-  let result = Eval.S.main env entry_func in
+  let result = Symbolic_interpreter.main env entry_func in
   let results = Choice.run result thread in
   List.iter
     (fun (ret, thread) ->
@@ -249,9 +249,9 @@ let run env entry_func =
       )
     results;
   Fmt.printf "  exec time : %fs@." (Stdlib.Sys.time () -. start);
-  Fmt.printf "solver time : %fs@." !Batch.solver_time;
+  Fmt.printf "solver time : %fs@." !Solver.solver_time;
   Fmt.printf "  mean time : %fms@."
-    (1000. *. !Batch.solver_time /. float !Batch.solver_count)
+    (1000. *. !Solver.solver_time /. float !Solver.solver_count)
 
 let main (copts : Options.common_options) file target workspace =
   Log.on_debug := copts.debug;
