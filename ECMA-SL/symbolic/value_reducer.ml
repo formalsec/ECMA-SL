@@ -1,6 +1,6 @@
 open Operator
 open Val
-module Value = Sym_value.M
+module Value = Symbolic_value.M
 open Value
 
 let reduce_sconcat (vs : value list) : value =

@@ -1,4 +1,4 @@
-module V = Sym_value.M
+module V = Symbolic_value.M
 
 let eq v1 v2 = V.BinOpt (Operator.Eq, v1, v2)
 let ne v1 v2 = V.UnOpt (Operator.LogicalNot, eq v1 v2)
@@ -15,7 +15,7 @@ module Value_key = struct
   let compare (e1 : t) (e2 : t) = compare (Hashtbl.hash e1) (Hashtbl.hash e2)
 end
 
-module Object : sig
+module type Object_intf = sig
   type t
   type value = V.value
 
@@ -29,7 +29,9 @@ module Object : sig
   val delete : t -> value -> t
   val to_string : t -> string
   val to_json : t -> string
-end = struct
+end
+
+module Object : Object_intf = struct
   module VMap = Map.Make (Value_key)
 
   type value = V.value
@@ -138,8 +140,8 @@ end = struct
   let to_json = to_string
 end
 
-module Heap = struct
-  type object_ = Object.t
+module Make (O : Object_intf) = struct
+  type object_ = O.t
   type t = (Loc.t, object_) Hashtbl.t
   type value = V.value
 
@@ -160,26 +162,26 @@ module Heap = struct
 
   let has_field (h : t) (loc : Loc.t) (field : value) : value =
     Option.fold (get h loc)
-      ~some:(fun o -> Object.has_field o field)
+      ~some:(fun o -> O.has_field o field)
       ~none:(V.Bool.const false)
 
   let set_field (h : t) (loc : Loc.t) ~(field : value) ~(data : value) : unit =
     Option.iter
       (fun o ->
-        let o' = Object.set o ~key:field ~data in
+        let o' = O.set o ~key:field ~data in
         set h loc o' )
       (get h loc)
 
   let get_field (h : t) (loc : Loc.t) (field : value) :
     (value * value list) list =
     let o = get h loc in
-    Option.fold o ~none:[] ~some:(fun o -> Object.get o field)
+    Option.fold o ~none:[] ~some:(fun o -> O.get o field)
 
   let delete_field (h : t) (loc : Loc.t) (f : value) =
     let obj = get h loc in
     Option.iter
       (fun o ->
-        let o' = Object.delete o f in
+        let o' = O.delete o f in
         set h loc o' )
       obj
 
@@ -187,8 +189,7 @@ module Heap = struct
     let map =
       Hashtbl.fold
         (fun key data acc ->
-          Format.sprintf "%s: %s" (Loc.str key) (Object.to_string data) :: acc
-          )
+          Format.sprintf "%s: %s" (Loc.str key) (O.to_string data) :: acc )
         h []
     in
     Format.fprintf fmt "{ %s }" (String.concat ", " map)
@@ -219,24 +220,10 @@ module Heap = struct
     | V.Val (Val.Loc l) -> (
       match get h l with
       | None -> l
-      | Some o -> Format.sprintf "%s -> %s" l (Object.to_string o) )
+      | Some o -> Format.sprintf "%s -> %s" l (O.to_string o) )
     | _ -> Format.asprintf "%a" V.Pp.pp e
-  (* let to_string_with_glob (h : 'a t) (pp : 'a -> string) : string = *)
-  (*   let glob = *)
-  (*     Hashtbl.fold h.map ~init:None ~f:(fun ~key:_ ~data:obj acc -> *)
-  (*         match acc with *)
-  (*         | Some _ -> acc *)
-  (*         (1* Keep this in sync with Compiler.ml function *1) *)
-  (*         (1* "compile_gvar" and "compile_glob_assign" *1) *)
-  (*         | None -> Object.get obj Common.global_var_compiled) *)
-  (*   in *)
-  (*   match glob with *)
-  (*   | Some l -> *)
-  (*       Printf.sprintf "{ \"heap\": %s, \"global\": %s }" (to_string h pp) *)
-  (*         (Val.str l) *)
-  (*   | None -> *)
-  (*       raise *)
-  (*         (Failure *)
-  (* "Couldn't find the Object that contains only one property, named \ *)
-     (*             \"global\".") *)
 end
+
+module Memory :
+  Memory_intf.S with type value = V.value and type object_ = Object.t =
+  Make (Object)

@@ -1,8 +1,8 @@
-module Value = Sym_value.M
-module Store = Sym_value.M.Store
-module Object = Sym_heap2.Object
-module Heap = Sym_heap2.Heap
-module Env = Link_env.Make (Heap)
+module Value = Symbolic_value.M
+module Store = Value.Store
+module Object = Symbolic_memory.Object
+module Memory = Symbolic_memory.Memory
+module Env = Link_env.Make (Memory)
 module Thread = Choice_monad.Thread
 module Translator = Value_translator
 
@@ -11,7 +11,7 @@ let ( let* ) o f = match o with Error e -> failwith e | Ok o -> f o
 module P = struct
   type value = Value.value
   type store = Store.t
-  type memory = Heap.t
+  type memory = Memory.t
   type object_ = Object.t
 
   module Value = struct
@@ -51,7 +51,7 @@ module P = struct
         | [] -> Some (Some v, thread)
         | _ ->
           let pc' = List.map Translator.translate pc in
-          if not (Batch.check solver (pc' @ pc_thread)) then None
+          if not (Solver.check solver (pc' @ pc_thread)) then None
           else Some (Some v, List.fold_left Thread.add_pc thread pc')
       in
       match vals with
@@ -70,21 +70,21 @@ module P = struct
     let get_fields = Object.get_fields
   end
 
-  module Heap = struct
+  module Memory = struct
     type t = memory
     type nonrec object_ = object_
     type nonrec value = value
 
-    let create = Heap.create
-    let clone = Heap.clone
-    let insert = Heap.insert
-    let remove = Heap.remove
-    let set = Heap.set
-    let get = Heap.get
-    let has_field = Heap.has_field
+    let create = Memory.create
+    let clone = Memory.clone
+    let insert = Memory.insert
+    let remove = Memory.remove
+    let set = Memory.set
+    let get = Memory.get
+    let has_field = Memory.has_field
 
     let get_field h loc v =
-      let field_vals = Heap.get_field h loc v in
+      let field_vals = Memory.get_field h loc v in
       let return thread (v, pc) =
         let pc_thread = Thread.pc thread in
         let solver = Thread.solver thread in
@@ -92,7 +92,7 @@ module P = struct
         | [] -> Some (Some v, thread)
         | _ ->
           let pc' = List.map Translator.translate pc in
-          if not (Batch.check solver (pc' @ pc_thread)) then None
+          if not (Solver.check solver (pc' @ pc_thread)) then None
           else Some (Some v, List.fold_left Thread.add_pc thread pc')
       in
       match field_vals with
@@ -105,12 +105,12 @@ module P = struct
           let thread = Thread.clone_mem thread in
           List.filter_map (return thread) field_vals
 
-    let set_field = Heap.set_field
-    let delete_field = Heap.delete_field
-    let to_string h = Format.asprintf "%a" Heap.pp h
+    let set_field = Memory.set_field
+    let delete_field = Memory.delete_field
+    let to_string h = Format.asprintf "%a" Memory.pp h
 
     let loc v =
-      let* locs = Heap.loc v in
+      let* locs = Memory.loc v in
       let return thread (cond, v) =
         let pc = Thread.pc thread in
         let solver = Thread.solver thread in
@@ -118,7 +118,7 @@ module P = struct
         | None -> Some (v, thread)
         | Some c ->
           let c' = Translator.translate c in
-          if not (Batch.check solver (c' :: pc)) then None
+          if not (Solver.check solver (c' :: pc)) then None
           else Some (v, Thread.add_pc thread c')
       in
       match locs with
@@ -131,7 +131,7 @@ module P = struct
           let thread = Thread.clone_mem thread in
           List.filter_map (return thread) locs
 
-    let pp_val = Heap.pp_val
+    let pp_val = Memory.pp_val
   end
 
   module Env = struct
@@ -161,4 +161,4 @@ module P = struct
   end
 end
 
-module P' : Eval_functor_intf.P = P
+module P' : Interpreter_functor_intf.P = P
