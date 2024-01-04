@@ -107,7 +107,7 @@ module P = struct
 
     let set_field = Heap.set_field
     let delete_field = Heap.delete_field
-    let to_string = Heap.to_string
+    let to_string h = Format.asprintf "%a" Heap.pp h
 
     let loc v =
       let* locs = Heap.loc v in
@@ -131,7 +131,7 @@ module P = struct
           let thread = Thread.clone_mem thread in
           List.filter_map (return thread) locs
 
-    let pp = Heap.pp
+    let pp_val = Heap.pp_val
   end
 
   module Env = struct
