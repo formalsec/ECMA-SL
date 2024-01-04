@@ -1,5 +1,3 @@
-open Syntax.Option
-
 type 'a obj = 'a Object.t
 
 type 'a t =
@@ -22,6 +20,7 @@ let set (heap : 'a t) (l : Loc.t) (obj : 'a obj) : unit =
   Hashtbl.replace heap.map l obj
 
 let rec get_opt (heap : 'a t) (l : Loc.t) : 'a obj option =
+  let open Syntax.Option in
   match Hashtbl.find_opt heap.map l with
   | Some _ as obj -> obj
   | None ->
@@ -37,6 +36,7 @@ let get (heap : 'a t) (l : Loc.t) : ('a obj, string) Result.t =
   | None -> Error (Format.sprintf "Cannot find lation '%s'." l)
 
 let get_field_opt (heap : 'a t) (l : Loc.t) (fn : string) : 'a option =
+  let open Syntax.Option in
   let* obj = get_opt heap l in
   Object.get obj fn
 
