@@ -14,6 +14,8 @@ type t =
   | Type of Type.t
   | Curry of string * t list
 
+type pp_fmt = t -> Format.formatter -> unit
+
 let rec equal (v1 : t) (v2 : t) : bool =
   match (v1, v2) with
   | (Int i1, Int i2) -> Int.equal i1 i2
@@ -40,71 +42,25 @@ let rec copy (v : t) : t =
   | Curry (fn, fvs) -> Curry (fn, List.map copy fvs)
   | _ -> v
 
-let is_symbol (v : t) : bool = match v with Symbol _ -> true | _ -> false
-let is_loc (v : t) : bool = match v with Loc _ -> true | _ -> false
-
-let is_special_number (s : string) : bool =
-  List.mem s [ "nan"; "inf"; "-inf" ]
-  || String.contains s 'e'
-  || String.contains s 'E'
-
-let add_final_dot (s : string) : string =
-  if is_special_number s then s
-  else if String.contains s '.' then s
-  else s ^ "."
-
-let str_of_flt ?(flt_with_dot = true) (f : float) : string =
-  let s = Printf.sprintf "%.17g" f in
-  if flt_with_dot then add_final_dot s else s
-
-let rec str ?(flt_with_dot = true) (v : t) : string =
+let rec pp (fmt : Format.formatter) (v : t) : unit =
+  let open Format in
+  let pp_sep seq fmt () = pp_print_string fmt seq in
+  let pp_arr seq pp fmt arr = pp_print_array ~pp_sep:(pp_sep seq) pp fmt arr in
+  let pp_lst seq pp fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
   match v with
-  | Null -> "null"
-  | Void -> ""
-  | Int i -> Int.to_string i
-  | Flt f -> str_of_flt ~flt_with_dot f
-  | Str s -> Printf.sprintf "%S" s
-  | Bool v -> Bool.to_string v
-  | Symbol s -> "'" ^ s
-  | Loc l -> Loc.str l
-  | Arr arr ->
-    let vs' = Array.to_list arr in
-    "[|" ^ String.concat ", " (List.map (str ~flt_with_dot) vs') ^ "|]"
-  | List lst ->
-    "[" ^ String.concat ", " (List.map (str ~flt_with_dot) lst) ^ "]"
-  | Tuple tup ->
-    "(" ^ String.concat ", " (List.map (str ~flt_with_dot) tup) ^ ")"
-  | Type t -> Type.str t
-  | Byte bt -> Int.to_string bt
-  | Curry (fn, fvs) ->
-    let vs_str = List.map (str ~flt_with_dot) fvs |> String.concat ", " in
-    Printf.sprintf "{\"%s\"}@(%s)" fn vs_str
+  | Null -> pp_print_string fmt "null"
+  | Void -> ()
+  | Int i -> fprintf fmt "%i" i
+  | Flt f -> fprintf fmt "%.17f" f
+  | Str s -> fprintf fmt "%s" s
+  | Bool b -> fprintf fmt "%b" b
+  | Symbol s -> fprintf fmt "%S" s
+  | Loc l -> Loc.pp fmt l
+  | Arr arr -> fprintf fmt "[| %a |]" (pp_arr ", " pp) arr
+  | List lst -> fprintf fmt "[ %a ]" (pp_lst ", " pp) lst
+  | Tuple tup -> fprintf fmt "(%a)" (pp_lst ", " pp) tup
+  | Byte bt -> fprintf fmt "%i" bt
+  | Type t -> Type.pp fmt t
+  | Curry (fn, fvs) -> fprintf fmt "{%S}@(%a)" fn (pp_lst ", " pp) fvs
 
-let rec to_json (v : t) : string =
-  let _lst_to_json lst = List.map to_json lst |> String.concat ", " in
-  match v with
-  | Null -> Printf.sprintf "{ \"type\" : \"null\" }"
-  | Void -> Printf.sprintf "{ \"type\" : \"void\" }"
-  | Int i -> Printf.sprintf "{ \"type\" : \"int\", \"value\" : %d }" i
-  | Flt f ->
-    Printf.sprintf "{ \"type\" : \"float\", \"value\" : %s }" (str_of_flt f)
-  | Str s -> Printf.sprintf "{ \"type\" : \"string\", \"value\" : \"%s\" }" s
-  | Bool b -> Printf.sprintf "{ \"type\" : \"boolean\", \"value\" : %b }" b
-  | Symbol s -> Printf.sprintf "{ \"type\" : \"symbol\", \"value\" : \"%s\" }" s
-  | Loc l -> Printf.sprintf "{ \"type\" : \"location\", \"value\" : %s }" l
-  | Arr arr ->
-    let arr_str = Array.to_list arr |> _lst_to_json in
-    Printf.sprintf "{ \"type\" : \"array\", \"value\" : [ %s ] }" arr_str
-  | List lst ->
-    let lst_str = _lst_to_json lst in
-    Printf.sprintf "{ \"type\" : \"list\", \"value\" : [ %s ] }" lst_str
-  | Tuple tup ->
-    let tup_str = _lst_to_json tup in
-    Printf.sprintf "{ \"type\" : \"tuple\", \"value\" : [ %s ] }" tup_str
-  | Type t ->
-    Printf.sprintf "{ \"type\" : \"type\", \"value\" : %s }" (Type.str t)
-  | Byte bt -> Printf.sprintf "{ \"type\" : \"byte\", \"value\" : \"%d\" }" bt
-  | Curry (fn, fvs) ->
-    let vs_str = _lst_to_json fvs in
-    Printf.sprintf
-      "{ \"type\" : \"curry\", \"fun\" : \"%s\", \"args\" : [ %s ] }" fn vs_str
+let str v = Format.asprintf "%a" pp v

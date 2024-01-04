@@ -181,7 +181,7 @@ let translate_triop (t1 : Type.t option) (t2 : Type.t option)
   | (None, _, _) | (_, None, _) | (_, _, None) ->
     failwith
       ( "translate_triop: untyped operator! "
-      ^ Operator.str_of_triopt op "e1" "e2" "e3" )
+      ^ Operator.str_of_triopt Format.pp_print_string op "e1" "e2" "e3" )
   | _ -> failwith "translate_triop: ill-typed or unsupported operator!"
 
 let rec translate ?(b = false) (v : value) : Expr.t =

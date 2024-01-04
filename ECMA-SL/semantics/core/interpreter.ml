@@ -44,7 +44,7 @@ module M (Mon : Monitor.M) = struct
   let val_to_string (heap : heap) (v : value) : string =
     match v with
     | Str s -> s
-    | Loc l -> eval_loc heap l |> Object.str (Val.str ~flt_with_dot:false)
+    | Loc l -> eval_loc heap l |> Object.str Val.pp
     | _ -> Val.str v
 
   let rec eval_expr (store : store) (e : Expr.t) : value =

@@ -1,3 +1,5 @@
+type 'a pp_fmt = Format.formatter -> 'a -> unit
+
 type const =
   | MAX_VALUE
   | MIN_VALUE
@@ -169,6 +171,17 @@ type nopt =
   (* Tuple Operators *)
   | TupleExpr
 
+let is_infix_unopt (op : unopt) : bool =
+  match op with Neg | BitwiseNot | LogicalNot -> true | _ -> false
+
+let is_infix_binopt (op : binopt) : bool =
+  match op with
+  | Plus | Minus | Times | Div | Modulo | Pow | BitwiseAnd | BitwiseOr
+  | BitwiseXor | ShiftLeft | ShiftRight | ShiftRightLogical | LogicalAnd
+  | LogicalOr | Eq | Lt | Gt | Le | Ge | ObjectMem | ListMem ->
+    true
+  | _ -> false
+
 let label_of_const (c : const) : string =
   match c with
   | MAX_VALUE -> "Const.MAX_VALUE"
@@ -312,427 +325,196 @@ let label_of_nopt (op : nopt) : string =
   | ListExpr -> "List.l_expr"
   | TupleExpr -> "Tuple.t_expr"
 
-let str_of_const (c : const) : string =
+let pp_of_unopt_single (fmt : Format.formatter) (op : unopt) : unit =
+  let open Format in
+  match op with
+  | Typeof -> fprintf fmt "typeof"
+  | Neg -> fprintf fmt "-"
+  | BitwiseNot -> fprintf fmt "~"
+  | LogicalNot -> fprintf fmt "!"
+  | IntToFloat -> fprintf fmt "int_to_float"
+  | IntToString -> fprintf fmt "int_to_string"
+  | IntToFourHex -> fprintf fmt "int_to_four_hex"
+  | OctalToDecimal -> fprintf fmt "octal_to_decimal"
+  | FloatToInt -> fprintf fmt "int_of_float"
+  | FloatToString -> fprintf fmt "float_to_string"
+  | ToInt -> fprintf fmt "to_int"
+  | ToInt32 -> fprintf fmt "to_int32"
+  | ToUint16 -> fprintf fmt "to_uint16"
+  | ToUint32 -> fprintf fmt "to_uint32"
+  | IsNaN -> fprintf fmt "is_NaN"
+  | StringToInt -> fprintf fmt "int_of_string"
+  | StringToFloat -> fprintf fmt "float_of_string"
+  | FromCharCode -> fprintf fmt "from_char_code"
+  | FromCharCodeU -> fprintf fmt "from_char_code_u"
+  | ToCharCode -> fprintf fmt "to_char_code"
+  | ToCharCodeU -> fprintf fmt "to_char_code_u"
+  | ToLowerCase -> fprintf fmt "to_lower_case"
+  | ToUpperCase -> fprintf fmt "to_upper_case"
+  | Trim -> fprintf fmt "trim"
+  | StringLen -> fprintf fmt "s_len"
+  | StringLenU -> fprintf fmt "s_len_u"
+  | StringConcat -> fprintf fmt "s_concat"
+  | ObjectToList -> fprintf fmt "obj_to_list"
+  | ObjectFields -> fprintf fmt "obj_fields"
+  | ArrayLen -> fprintf fmt "a_len"
+  | ListToArray -> fprintf fmt "list_to_array"
+  | ListHead -> fprintf fmt "hd"
+  | ListTail -> fprintf fmt "tl"
+  | ListLen -> fprintf fmt "l_len"
+  | ListSort -> fprintf fmt "l_sort"
+  | ListReverse -> fprintf fmt "l_reverse"
+  | ListRemoveLast -> fprintf fmt "l_remove_last"
+  | TupleFirst -> fprintf fmt "fst"
+  | TupleSecond -> fprintf fmt "snd"
+  | TupleLen -> fprintf fmt "t_len"
+  | FloatToByte -> fprintf fmt "float_to_byte"
+  | Float32ToLEBytes -> fprintf fmt "float32_to_le_bytes"
+  | Float32ToBEBytes -> fprintf fmt "float32_to_be_bytes"
+  | Float64ToLEBytes -> fprintf fmt "float64_to_le_bytes"
+  | Float64ToBEBytes -> fprintf fmt "float64_to_be_bytes"
+  | Float32FromLEBytes -> fprintf fmt "float32_from_le_bytes"
+  | Float32FromBEBytes -> fprintf fmt "float32_from_be_bytes"
+  | Float64FromLEBytes -> fprintf fmt "float64_from_le_bytes"
+  | Float64FromBEBytes -> fprintf fmt "float64_from_be_bytes"
+  | BytesToString -> fprintf fmt "bytes_to_string"
+  | Random -> fprintf fmt "random"
+  | Abs -> fprintf fmt "abs"
+  | Sqrt -> fprintf fmt "sqrt"
+  | Ceil -> fprintf fmt "ceil"
+  | Floor -> fprintf fmt "floor"
+  | Exp -> fprintf fmt "exp"
+  | Log2 -> fprintf fmt "log_2"
+  | LogE -> fprintf fmt "log_e"
+  | Log10 -> fprintf fmt "log_10"
+  | Sin -> fprintf fmt "sin"
+  | Cos -> fprintf fmt "cos"
+  | Tan -> fprintf fmt "tan"
+  | Sinh -> fprintf fmt "sinh"
+  | Cosh -> fprintf fmt "cosh"
+  | Tanh -> fprintf fmt "tanh"
+  | Asin -> fprintf fmt "asin"
+  | Acos -> fprintf fmt "acos"
+  | Atan -> fprintf fmt "atan"
+  | Utf8Decode -> fprintf fmt "utf8_decode"
+  | HexDecode -> fprintf fmt "hex_decode"
+  | ParseNumber -> fprintf fmt "parse_number"
+  | ParseString -> fprintf fmt "parse_string"
+  | ParseDate -> fprintf fmt "parse_date"
+
+let pp_of_binopt_single (fmt : Format.formatter) (op : binopt) : unit =
+  let open Format in
+  match op with
+  | Plus -> fprintf fmt "+"
+  | Minus -> fprintf fmt "-"
+  | Times -> fprintf fmt "*"
+  | Div -> fprintf fmt "/"
+  | Modulo -> fprintf fmt "%%"
+  | Pow -> fprintf fmt "**"
+  | BitwiseAnd -> fprintf fmt "&"
+  | BitwiseOr -> fprintf fmt "|"
+  | BitwiseXor -> fprintf fmt "^"
+  | ShiftLeft -> fprintf fmt "<<"
+  | ShiftRight -> fprintf fmt ">>"
+  | ShiftRightLogical -> fprintf fmt ">>>"
+  | LogicalAnd -> fprintf fmt "&&"
+  | LogicalOr -> fprintf fmt "||"
+  | Eq -> fprintf fmt "="
+  | Lt -> fprintf fmt "<"
+  | Gt -> fprintf fmt ">"
+  | Le -> fprintf fmt "<="
+  | Ge -> fprintf fmt ">="
+  | ToPrecision -> fprintf fmt "to_precision"
+  | ToExponential -> fprintf fmt "to_exponential"
+  | ToFixed -> fprintf fmt "to_fixed"
+  | ObjectMem -> fprintf fmt "in_obj"
+  | StringNth -> fprintf fmt "s_nth"
+  | StringNthU -> fprintf fmt "s_nth_u"
+  | StringSplit -> fprintf fmt "s_split"
+  | ArrayMake -> fprintf fmt "array_make"
+  | ArrayNth -> fprintf fmt "a_nth"
+  | ListMem -> fprintf fmt "in_list"
+  | ListNth -> fprintf fmt "l_nth"
+  | ListAdd -> fprintf fmt "l_add"
+  | ListPrepend -> fprintf fmt "l_prepend"
+  | ListConcat -> fprintf fmt "l_concat"
+  | ListRemove -> fprintf fmt "l_remove"
+  | ListRemoveNth -> fprintf fmt "l_remove_nth"
+  | TupleNth -> fprintf fmt "t_nth"
+  | IntToBEBytes -> fprintf fmt "int_to_be_bytes"
+  | IntFromLEBytes -> fprintf fmt "int_from_le_bytes"
+  | UintFromLEBytes -> fprintf fmt "uint_from_le_bytes"
+  | Min -> fprintf fmt "min"
+  | Max -> fprintf fmt "max"
+  | Atan2 -> fprintf fmt "atan2"
+
+let pp_of_triopt_single (fmt : Format.formatter) (op : triopt) : unit =
+  let open Format in
+  match op with
+  | ITE -> fprintf fmt "ite"
+  | StringSubstr -> fprintf fmt "s_substr"
+  | StringSubstrU -> fprintf fmt "s_substr_u"
+  | ArraySet -> fprintf fmt "a_set"
+  | ListSet -> fprintf fmt "l_set"
+
+let pp_of_const (fmt : Format.formatter) (c : const) : unit =
+  let open Format in
   match c with
-  | MAX_VALUE -> "MAX_VALUE"
-  | MIN_VALUE -> "MIN_VALUE"
-  | PI -> "PI"
+  | MAX_VALUE -> fprintf fmt "MAX_VALUE"
+  | MIN_VALUE -> fprintf fmt "MIN_VALUE"
+  | PI -> fprintf fmt "PI"
+
+let pp_of_unopt (pp_val : 'a pp_fmt) (fmt : Format.formatter)
+  ((op, v) : unopt * 'a) : unit =
+  if is_infix_unopt op then
+    Format.fprintf fmt "%a%a" pp_of_unopt_single op pp_val v
+  else Format.fprintf fmt "%a(%a)" pp_of_unopt_single op pp_val v
+
+let pp_of_binopt (pp_val : 'a pp_fmt) (fmt : Format.formatter)
+  ((op, v1, v2) : binopt * 'a * 'a) : unit =
+  if is_infix_binopt op then
+    Format.fprintf fmt "%a %a %a" pp_val v1 pp_of_binopt_single op pp_val v2
+  else
+    Format.fprintf fmt "%a(%a, %a)" pp_of_binopt_single op pp_val v1 pp_val v2
+
+let pp_of_triopt (pp_val : 'a pp_fmt) (fmt : Format.formatter)
+  ((op, v1, v2, v3) : triopt * 'a * 'a * 'a) : unit =
+  Format.fprintf fmt "%a(%a, %a, %a)" pp_of_triopt_single op pp_val v1 pp_val v2
+    pp_val v3
+
+let pp_of_nopt (pp_val : 'a pp_fmt) (fmt : Format.formatter)
+  ((op, vs) : nopt * 'a list) : unit =
+  let open Format in
+  let pp_sep sep fmt () = pp_print_string fmt sep in
+  let pp_lst sep pp fmt lst = pp_print_list ~pp_sep:(pp_sep sep) pp fmt lst in
+  match op with
+  | NAryLogicalAnd -> fprintf fmt "%a" (pp_lst " && " pp_val) vs
+  | NAryLogicalOr -> fprintf fmt "%a" (pp_lst " || " pp_val) vs
+  | ArrayExpr -> fprintf fmt "[| %a |]" (pp_lst ", " pp_val) vs
+  | ListExpr -> fprintf fmt "[ %a ]" (pp_lst ", " pp_val) vs
+  | TupleExpr -> fprintf fmt "(%a)" (pp_lst ", " pp_val) vs
 
 let str_of_unopt_single (op : unopt) : string =
-  match op with
-  | Typeof -> "typeof"
-  | Neg -> "-"
-  | BitwiseNot -> "~"
-  | LogicalNot -> "!"
-  | IntToFloat -> "int_to_float"
-  | IntToString -> "int_to_string"
-  | IntToFourHex -> "int_to_four_hex"
-  | OctalToDecimal -> "octal_to_decimal"
-  | FloatToInt -> "int_of_float"
-  | FloatToString -> "float_to_string"
-  | ToInt -> "to_int"
-  | ToInt32 -> "to_int32"
-  | ToUint16 -> "to_uint16"
-  | ToUint32 -> "to_uint32"
-  | IsNaN -> "is_NaN"
-  | StringToInt -> "int_of_string"
-  | StringToFloat -> "float_of_string"
-  | FromCharCode -> "from_char_code"
-  | FromCharCodeU -> "from_char_code_u"
-  | ToCharCode -> "to_char_code"
-  | ToCharCodeU -> "to_char_code_u"
-  | ToLowerCase -> "to_lower_case"
-  | ToUpperCase -> "to_upper_case"
-  | Trim -> "trim"
-  | StringLen -> "s_len"
-  | StringLenU -> "s_len_u"
-  | StringConcat -> "s_concat"
-  | ObjectToList -> "obj_to_list"
-  | ObjectFields -> "obj_fields"
-  | ArrayLen -> "a_len"
-  | ListToArray -> "list_to_array"
-  | ListHead -> "hd"
-  | ListTail -> "tl"
-  | ListLen -> "l_len"
-  | ListSort -> "l_sort"
-  | ListReverse -> "l_reverse"
-  | ListRemoveLast -> "l_remove_last"
-  | TupleFirst -> "fst"
-  | TupleSecond -> "snd"
-  | TupleLen -> "t_len"
-  | FloatToByte -> "float_to_byte"
-  | Float32ToLEBytes -> "float32_to_le_bytes"
-  | Float32ToBEBytes -> "float32_to_be_bytes"
-  | Float64ToLEBytes -> "float64_to_le_bytes"
-  | Float64ToBEBytes -> "float64_to_be_bytes"
-  | Float32FromLEBytes -> "float32_from_le_bytes"
-  | Float32FromBEBytes -> "float32_from_be_bytes"
-  | Float64FromLEBytes -> "float64_from_le_bytes"
-  | Float64FromBEBytes -> "float64_from_be_bytes"
-  | BytesToString -> "bytes_to_string"
-  | Random -> "random"
-  | Abs -> "abs"
-  | Sqrt -> "sqrt"
-  | Ceil -> "ceil"
-  | Floor -> "floor"
-  | Exp -> "exp"
-  | Log2 -> "log_2"
-  | LogE -> "log_e"
-  | Log10 -> "log_10"
-  | Sin -> "sin"
-  | Cos -> "cos"
-  | Tan -> "tan"
-  | Sinh -> "sinh"
-  | Cosh -> "cosh"
-  | Tanh -> "tanh"
-  | Asin -> "asin"
-  | Acos -> "acos"
-  | Atan -> "atan"
-  | Utf8Decode -> "utf8_decode"
-  | HexDecode -> "hex_decode"
-  | ParseNumber -> "parse_number"
-  | ParseString -> "parse_string"
-  | ParseDate -> "parse_date"
-
-let str_of_unopt (op : unopt) (v : string) : string =
-  match op with
-  | Typeof -> Printf.sprintf "typeof(%s)" v
-  | Neg -> Printf.sprintf "-%s" v
-  | BitwiseNot -> Printf.sprintf "~%s" v
-  | LogicalNot -> Printf.sprintf "!%s" v
-  | IntToFloat -> Printf.sprintf "int_to_float(%s)" v
-  | IntToString -> Printf.sprintf "int_to_string(%s)" v
-  | IntToFourHex -> Printf.sprintf "int_to_four_hex(%s)" v
-  | OctalToDecimal -> Printf.sprintf "octal_to_decimal(%s)" v
-  | FloatToInt -> Printf.sprintf "int_of_float(%s)" v
-  | FloatToString -> Printf.sprintf "float_to_string(%s)" v
-  | ToInt -> Printf.sprintf "to_int(%s)" v
-  | ToInt32 -> Printf.sprintf "to_int32(%s)" v
-  | ToUint16 -> Printf.sprintf "to_uint16(%s)" v
-  | ToUint32 -> Printf.sprintf "to_uint32(%s)" v
-  | IsNaN -> Printf.sprintf "is_NaN(%s)" v
-  | StringToInt -> Printf.sprintf "int_of_string(%s)" v
-  | StringToFloat -> Printf.sprintf "float_of_string(%s)" v
-  | FromCharCode -> Printf.sprintf "from_char_code(%s)" v
-  | FromCharCodeU -> Printf.sprintf "from_char_code_u(%s)" v
-  | ToCharCode -> Printf.sprintf "to_char_code(%s)" v
-  | ToCharCodeU -> Printf.sprintf "to_char_code_u(%s)" v
-  | ToLowerCase -> Printf.sprintf "to_lower_case(%s)" v
-  | ToUpperCase -> Printf.sprintf "to_upper_case(%s)" v
-  | Trim -> Printf.sprintf "trim(%s)" v
-  | StringLen -> Printf.sprintf "s_len(%s)" v
-  | StringLenU -> Printf.sprintf "s_len_u(%s)" v
-  | StringConcat -> Printf.sprintf "s_concat(%s)" v
-  | ObjectToList -> Printf.sprintf "obj_to_list(%s)" v
-  | ObjectFields -> Printf.sprintf "obj_fields(%s)" v
-  | ArrayLen -> Printf.sprintf "a_len(%s)" v
-  | ListToArray -> Printf.sprintf "list_to_array(%s)" v
-  | ListHead -> Printf.sprintf "hd(%s)" v
-  | ListTail -> Printf.sprintf "tl(%s)" v
-  | ListLen -> Printf.sprintf "l_len(%s)" v
-  | ListSort -> Printf.sprintf "l_sort(%s)" v
-  | ListReverse -> Printf.sprintf "l_reverse(%s)" v
-  | ListRemoveLast -> Printf.sprintf "l_remove_last(%s)" v
-  | TupleFirst -> Printf.sprintf "fst(%s)" v
-  | TupleSecond -> Printf.sprintf "snd(%s)" v
-  | TupleLen -> Printf.sprintf "t_len(%s)" v
-  | FloatToByte -> Printf.sprintf "float_to_byte(%s)" v
-  | Float32ToLEBytes -> Printf.sprintf "float32_to_le_bytes(%s)" v
-  | Float32ToBEBytes -> Printf.sprintf "float32_to_be_bytes(%s)" v
-  | Float64ToLEBytes -> Printf.sprintf "float64_to_le_bytes(%s)" v
-  | Float64ToBEBytes -> Printf.sprintf "float64_to_be_bytes(%s)" v
-  | Float32FromLEBytes -> Printf.sprintf "float32_from_le_bytes(%s)" v
-  | Float32FromBEBytes -> Printf.sprintf "float32_from_be_bytes(%s)" v
-  | Float64FromLEBytes -> Printf.sprintf "float64_from_le_bytes(%s)" v
-  | Float64FromBEBytes -> Printf.sprintf "float64_from_be_bytes(%s)" v
-  | BytesToString -> Printf.sprintf "bytes_to_string(%s)" v
-  | Random -> Printf.sprintf "random(%s)" v
-  | Abs -> Printf.sprintf "abs(%s)" v
-  | Sqrt -> Printf.sprintf "sqrt(%s)" v
-  | Ceil -> Printf.sprintf "ceil(%s)" v
-  | Floor -> Printf.sprintf "floor(%s)" v
-  | Exp -> Printf.sprintf "exp(%s)" v
-  | Log2 -> Printf.sprintf "log_2(%s)" v
-  | LogE -> Printf.sprintf "log_e(%s)" v
-  | Log10 -> Printf.sprintf "log_10(%s)" v
-  | Sin -> Printf.sprintf "sin(%s)" v
-  | Cos -> Printf.sprintf "cos(%s)" v
-  | Tan -> Printf.sprintf "tan(%s)" v
-  | Sinh -> Printf.sprintf "sinh(%s)" v
-  | Cosh -> Printf.sprintf "cosh(%s)" v
-  | Tanh -> Printf.sprintf "tanh(%s)" v
-  | Asin -> Printf.sprintf "asin(%s)" v
-  | Acos -> Printf.sprintf "acos(%s)" v
-  | Atan -> Printf.sprintf "atan(%s)" v
-  | Utf8Decode -> Printf.sprintf "utf8_decode(%s)" v
-  | HexDecode -> Printf.sprintf "hex_decode(%s)" v
-  | ParseNumber -> Printf.sprintf "parse_number(%s)" v
-  | ParseString -> Printf.sprintf "parse_string(%s)" v
-  | ParseDate -> Printf.sprintf "parse_date(%s)" v
+  Format.asprintf "%a" pp_of_unopt_single op
 
 let str_of_binopt_single (op : binopt) : string =
-  match op with
-  | Plus -> "+"
-  | Minus -> "-"
-  | Times -> "*"
-  | Div -> "/"
-  | Modulo -> "%"
-  | Pow -> "**"
-  | BitwiseAnd -> "&"
-  | BitwiseOr -> "|"
-  | BitwiseXor -> "^"
-  | ShiftLeft -> "<<"
-  | ShiftRight -> ">>"
-  | ShiftRightLogical -> ">>>"
-  | LogicalAnd -> "&&"
-  | LogicalOr -> "||"
-  | Eq -> "="
-  | Lt -> "<"
-  | Gt -> ">"
-  | Le -> "<="
-  | Ge -> ">="
-  | ToPrecision -> "to_precision"
-  | ToExponential -> "to_exponential"
-  | ToFixed -> "to_fixed"
-  | ObjectMem -> "in_obj"
-  | StringNth -> "s_nth"
-  | StringNthU -> "s_nth_u"
-  | StringSplit -> "s_split"
-  | ArrayMake -> "array_make"
-  | ArrayNth -> "a_nth"
-  | ListMem -> "in_list"
-  | ListNth -> "l_nth"
-  | ListAdd -> "l_add"
-  | ListPrepend -> "l_prepend"
-  | ListConcat -> "l_concat"
-  | ListRemove -> "l_remove"
-  | ListRemoveNth -> "l_remove_nth"
-  | TupleNth -> "t_nth"
-  | IntToBEBytes -> "int_to_be_bytes"
-  | IntFromLEBytes -> "int_from_le_bytes"
-  | UintFromLEBytes -> "uint_from_le_bytes"
-  | Min -> "min"
-  | Max -> "max"
-  | Atan2 -> "atan2"
-
-let str_of_binopt (op : binopt) (v1 : string) (v2 : string) : string =
-  match op with
-  | Plus -> Printf.sprintf "%s + %s" v1 v2
-  | Minus -> Printf.sprintf "%s - %s" v1 v2
-  | Times -> Printf.sprintf "%s * %s" v1 v2
-  | Div -> Printf.sprintf "%s / %s" v1 v2
-  | Modulo -> Printf.sprintf "%s %% %s" v1 v2
-  | Pow -> Printf.sprintf "%s ** %s" v1 v2
-  | BitwiseAnd -> Printf.sprintf "%s & %s" v1 v2
-  | BitwiseOr -> Printf.sprintf "%s | %s" v1 v2
-  | BitwiseXor -> Printf.sprintf "%s ^ %s" v1 v2
-  | ShiftLeft -> Printf.sprintf "%s << %s" v1 v2
-  | ShiftRight -> Printf.sprintf "%s >> %s" v1 v2
-  | ShiftRightLogical -> Printf.sprintf "%s >>> %s" v1 v2
-  | LogicalAnd -> Printf.sprintf "%s && %s" v1 v2
-  | LogicalOr -> Printf.sprintf "%s || %s" v1 v2
-  | Eq -> Printf.sprintf "%s = %s" v1 v2
-  | Lt -> Printf.sprintf "%s < %s" v1 v2
-  | Gt -> Printf.sprintf "%s > %s" v1 v2
-  | Le -> Printf.sprintf "%s <= %s" v1 v2
-  | Ge -> Printf.sprintf "%s >= %s" v1 v2
-  | ToPrecision -> Printf.sprintf "to_precision(%s, %s)" v1 v2
-  | ToExponential -> Printf.sprintf "to_exponential(%s, %s)" v1 v2
-  | ToFixed -> Printf.sprintf "to_fixed(%s, %s)" v1 v2
-  | ObjectMem -> Printf.sprintf "%s in_obj %s" v1 v2
-  | StringNth -> Printf.sprintf "s_nth(%s, %s)" v1 v2
-  | StringNthU -> Printf.sprintf "s_nth_u(%s, %s)" v1 v2
-  | StringSplit -> Printf.sprintf "s_split(%s, %s)" v1 v2
-  | ArrayMake -> Printf.sprintf "array_make(%s, %s)" v1 v2
-  | ArrayNth -> Printf.sprintf "a_nth(%s, %s)" v1 v2
-  | ListMem -> Printf.sprintf "%s in_list %s" v1 v2
-  | ListNth -> Printf.sprintf "l_nth(%s, %s)" v1 v2
-  | ListAdd -> Printf.sprintf "l_add(%s, %s)" v1 v2
-  | ListPrepend -> Printf.sprintf "l_prepend(%s, %s)" v1 v2
-  | ListConcat -> Printf.sprintf "l_concat(%s, %s)" v1 v2
-  | ListRemove -> Printf.sprintf "l_remove(%s, %s)" v1 v2
-  | ListRemoveNth -> Printf.sprintf "l_remove_nth(%s, %s)" v1 v2
-  | TupleNth -> Printf.sprintf "t_nth(%s, %s)" v1 v2
-  | IntToBEBytes -> Printf.sprintf "int_to_be_bytes(%s, %s)" v1 v2
-  | IntFromLEBytes -> Printf.sprintf "int_from_le_bytes(%s, %s)" v1 v2
-  | UintFromLEBytes -> Printf.sprintf "uint_from_le_bytes(%s, %s)" v1 v2
-  | Min -> Printf.sprintf "min(%s, %s)" v1 v2
-  | Max -> Printf.sprintf "max(%s, %s)" v1 v2
-  | Atan2 -> Printf.sprintf "atan2(%s, %s)" v1 v2
+  Format.asprintf "%a" pp_of_binopt_single op
 
 let str_of_triopt_single (op : triopt) : string =
-  match op with
-  | ITE -> "ite"
-  | StringSubstr -> "s_substr"
-  | StringSubstrU -> "s_substr_u"
-  | ArraySet -> "a_set"
-  | ListSet -> "l_set"
+  Format.asprintf "%a" pp_of_triopt_single op
 
-let str_of_triopt (op : triopt) (v1 : string) (v2 : string) (v3 : string) :
+let str_of_const (c : const) : string = Format.asprintf "%a" pp_of_const c
+
+let str_of_unopt (pp_val : 'a pp_fmt) (op : unopt) (v : 'a) : string =
+  Format.asprintf "%a" (pp_of_unopt pp_val) (op, v)
+
+let str_of_binopt (pp_val : 'a pp_fmt) (op : binopt) (v1 : 'a) (v2 : 'a) :
   string =
-  match op with
-  | ITE -> Printf.sprintf "ite(%s, %s, %s)" v1 v2 v3
-  | StringSubstr -> Printf.sprintf "s_substr(%s, %s, %s)" v1 v2 v3
-  | StringSubstrU -> Printf.sprintf "s_substr_u(%s, %s, %s)" v1 v2 v3
-  | ArraySet -> Printf.sprintf "a_set(%s, %s, %s)" v1 v2 v3
-  | ListSet -> Printf.sprintf "l_set(%s, %s, %s)" v1 v2 v3
+  Format.asprintf "%a" (pp_of_binopt pp_val) (op, v1, v2)
 
-let str_of_nopt (op : nopt) (es : string list) : string =
-  match op with
-  | NAryLogicalAnd -> String.concat " && " es
-  | NAryLogicalOr -> String.concat " || " es
-  | ArrayExpr -> "[| " ^ String.concat ", " es ^ " |]"
-  | ListExpr -> "[ " ^ String.concat ", " es ^ " ]"
-  | TupleExpr -> "( " ^ String.concat ", " es ^ " )"
+let str_of_triopt (pp_val : 'a pp_fmt) (op : triopt) (v1 : 'a) (v2 : 'a)
+  (v3 : 'a) : string =
+  Format.asprintf "%a" (pp_of_triopt pp_val) (op, v1, v2, v3)
 
-let unopt_to_json (op : unopt) : string =
-  Printf.sprintf "{ \"type\" : \"unopt\", \"value\" : \"%s\" }"
-    ( match op with
-    | Typeof -> "Typeof"
-    | Neg -> "Neg"
-    | BitwiseNot -> "BitwiseNot"
-    | LogicalNot -> "LogicalNot"
-    | IntToFloat -> "IntToFloat"
-    | IntToString -> "IntToString"
-    | IntToFourHex -> "IntToFourHex"
-    | OctalToDecimal -> "OctalToDecimal"
-    | FloatToInt -> "FloatToInt"
-    | FloatToString -> "FloatToString"
-    | ToInt -> "ToInt"
-    | ToInt32 -> "ToInt32"
-    | ToUint16 -> "ToUint16"
-    | ToUint32 -> "ToUint32"
-    | IsNaN -> "IsNaN"
-    | StringToInt -> "StringToInt"
-    | StringToFloat -> "StringToFloat"
-    | FromCharCode -> "FromCharCode"
-    | FromCharCodeU -> "FromCharCodeU"
-    | ToCharCode -> "ToCharCode"
-    | ToCharCodeU -> "ToCharCodeU"
-    | ToLowerCase -> "ToLowerCase"
-    | ToUpperCase -> "ToUpperCase"
-    | Trim -> "Trim"
-    | StringLen -> "StringLen"
-    | StringLenU -> "StringLenU"
-    | StringConcat -> "StringConcat"
-    | ObjectToList -> "ObjectToList"
-    | ObjectFields -> "ObjectFields"
-    | ArrayLen -> "ArrayLen"
-    | ListToArray -> "ListToArray"
-    | ListHead -> "ListHead"
-    | ListTail -> "ListTail"
-    | ListLen -> "ListLen"
-    | ListSort -> "ListSort"
-    | ListReverse -> "ListReverse"
-    | ListRemoveLast -> "ListRemoveLast"
-    | TupleFirst -> "TupleFirst"
-    | TupleSecond -> "TupleSecond"
-    | TupleLen -> "TupleLen"
-    | FloatToByte -> "FloatToByte"
-    | Float32ToLEBytes -> "Float32ToLEBytes"
-    | Float32ToBEBytes -> "Float32ToBEBytes"
-    | Float64ToLEBytes -> "Float64ToLEBytes"
-    | Float64ToBEBytes -> "Float64ToBEBytes"
-    | Float32FromLEBytes -> "Float32FromLEBytes"
-    | Float32FromBEBytes -> "Float32FromBEBytes"
-    | Float64FromLEBytes -> "Float64FromLEBytes"
-    | Float64FromBEBytes -> "Float64FromBEBytes"
-    | BytesToString -> "BytesToString"
-    | Random -> "Random"
-    | Abs -> "Abs"
-    | Sqrt -> "Sqrt"
-    | Ceil -> "Ceil"
-    | Floor -> "Floor"
-    | Exp -> "Exp"
-    | Log2 -> "Log2"
-    | LogE -> "LogE"
-    | Log10 -> "Log10"
-    | Sin -> "Sin"
-    | Cos -> "Cos"
-    | Tan -> "Tan"
-    | Sinh -> "Sinh"
-    | Cosh -> "Cosh"
-    | Tanh -> "Tanh"
-    | Asin -> "Asin"
-    | Acos -> "Acos"
-    | Atan -> "Atan"
-    | Utf8Decode -> "Utf8Decode"
-    | HexDecode -> "HexDecode"
-    | ParseNumber -> "ParseNumber"
-    | ParseString -> "ParseString"
-    | ParseDate -> "ParseDate" )
-
-let binopt_to_json (op : binopt) : string =
-  Printf.sprintf "{ \"type\" : \"binopt\", \"value\" : \"%s\" }"
-    ( match op with
-    | Plus -> "Plus"
-    | Minus -> "Minus"
-    | Times -> "Times"
-    | Div -> "Div"
-    | Modulo -> "Modulo"
-    | Pow -> "Pow"
-    | BitwiseAnd -> "BitwiseAnd"
-    | BitwiseOr -> "BitwiseOr"
-    | BitwiseXor -> "BitwiseXor"
-    | ShiftLeft -> "ShiftLeft"
-    | ShiftRight -> "ShiftRight"
-    | ShiftRightLogical -> "ShiftRightLogical"
-    | LogicalAnd -> "LogicalAnd"
-    | LogicalOr -> "LogicalOr"
-    | Eq -> "Eq"
-    | Lt -> "Lt"
-    | Gt -> "Gt"
-    | Le -> "Le"
-    | Ge -> "Ge"
-    | ToPrecision -> "ToPrecision"
-    | ToExponential -> "ToExponential"
-    | ToFixed -> "ToFixed"
-    | ObjectMem -> "ObjectMem"
-    | StringNth -> "StringNth"
-    | StringNthU -> "StringNthU"
-    | StringSplit -> "StringSplit"
-    | ArrayMake -> "ArrayMake"
-    | ArrayNth -> "ArrayNth"
-    | ListMem -> "ListMem"
-    | ListNth -> "ListNth"
-    | ListAdd -> "ListAdd"
-    | ListPrepend -> "ListPrepend"
-    | ListConcat -> "ListConcat"
-    | ListRemove -> "ListRemove"
-    | ListRemoveNth -> "ListRemoveNth"
-    | TupleNth -> "TupleNth"
-    | IntToBEBytes -> "IntToBEBytes"
-    | IntFromLEBytes -> "IntFromLEBytes"
-    | UintFromLEBytes -> "UintFromLEBytes"
-    | Min -> "Min"
-    | Max -> "Max"
-    | Atan2 -> "Atan2" )
-
-let triopt_to_json (op : triopt) : string =
-  Printf.sprintf "{ \"type\" : \"triopt\", \"value\" : \"%s\" }"
-    ( match op with
-    | ITE -> "ITE"
-    | StringSubstr -> "StringSubstr"
-    | StringSubstrU -> "StringSubstrU"
-    | ArraySet -> "ArraySet"
-    | ListSet -> "ListSet" )
-
-let nopt_to_json (op : nopt) : string =
-  Printf.sprintf "{ \"type\" : \"nopt\", \"value\" : \"%s\" }"
-    ( match op with
-    | NAryLogicalAnd -> "NAryLogicalAnd"
-    | NAryLogicalOr -> "NAryLogicalOr"
-    | ArrayExpr -> "ArrayExpr"
-    | ListExpr -> "ListExpr"
-    | TupleExpr -> "TupleExpr" )
-
-let is_infix_unopt (op : unopt) : bool =
-  match op with Neg | BitwiseNot | LogicalNot -> true | _ -> false
-
-let is_infix_binopt (op : binopt) : bool =
-  match op with
-  | Plus | Minus | Times | Div | Modulo | Pow | BitwiseAnd | BitwiseOr
-  | BitwiseXor | ShiftLeft | ShiftRight | ShiftRightLogical | LogicalAnd
-  | LogicalOr | Eq | Lt | Gt | Le | Ge | ObjectMem | ListMem ->
-    true
-  | _ -> false
+let str_of_nopt (pp_val : 'a pp_fmt) (op : nopt) (vs : 'a list) : string =
+  Format.asprintf "%a" (pp_of_nopt pp_val) (op, vs)
