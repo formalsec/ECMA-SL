@@ -79,10 +79,10 @@ let rec inspector (heap : Val.t Heap.t) (sto : Val.t Store.t) : unit =
     | _ -> Printf.printf "Provided Location is not an object. Try again!\n" );
     f ()
   | Some ShowStore ->
-    Printf.printf "%s" (Store.str Val.str sto);
+    Printf.printf "%s" (Store.str Val.pp sto);
     f ()
   | Some ShowHeap ->
-    Printf.printf "%s" (Heap.str Val.pp heap);
+    Printf.printf "%s" (Heap.str (Object.pp Val.pp) heap);
     f ()
   | Some Continue -> ()
   | None ->
