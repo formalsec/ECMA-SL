@@ -35,12 +35,17 @@ let rec get_opt (heap : 'a t) (l : Loc.t) : 'a obj option =
 let get (heap : 'a t) (l : Loc.t) : ('a obj, string) Result.t =
   match get_opt heap l with
   | Some obj -> Ok obj
-  | None -> Error (Fmt.sprintf "Cannot find lation '%s'." l)
+  | None -> Error (Fmt.sprintf "Cannot find location '%s'." l)
 
 let get_field_opt (heap : 'a t) (l : Loc.t) (fn : string) : 'a option =
   let open Syntax.Option in
   let* obj = get_opt heap l in
   Object.get obj fn
+
+let get_field (heap : 'a t) (l : Loc.t) (fn : string) : ('a, string) Result.t =
+  match get_field_opt heap l fn with
+  | Some fld -> Ok fld
+  | None -> Error (Fmt.sprintf "Cannot find field '%s' in location '%s'." fn l)
 
 let pp (pp_binding : Fmt.formatter -> Loc.t -> 'a obj -> unit) (sep : string)
   (fmt : Fmt.formatter) (heap : 'a t) : unit =

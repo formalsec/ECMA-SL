@@ -15,7 +15,7 @@
       List.iter (fun (kwd, tok) -> Hashtbl.add keyword_table kwd tok)
               [
                 (* Internals *)
-                "__DEBUG__"             , DEBUG;
+                "__debug__"             , DEBUG;
 
                 (* Language *)
                 "if"                    , IF;
