@@ -1,5 +1,5 @@
 let not_implemented () : 'a = failwith "not implemented in eslerr"
-let threedots = Font.format [ Font.faint ] "..."
+let threedots = Font.str_format_err [ Font.Faint ] "..."
 
 type token =
   | NoTkn
@@ -152,14 +152,14 @@ let token_str_size (tkn : token) : string * int =
   let cleanTknStr = Font.clean tkn_str in
   (tkn_str, String.length cleanTknStr)
 
-let format_message (error_font : string) (header : string) (msgs : string list)
+let format_message (error_font : Font.t) (header : string) (msgs : string list)
   : string =
   let _fmt_line header msg = Printf.sprintf "\n%s %s" header msg in
-  let cause_font = [ error_font; Font.faint ] in
-  let main_header = Font.format_err [ error_font ] (header ^ ":") in
-  let cause_header = Font.format_err cause_font "Caused by:" in
+  let cause_font = [ error_font; Font.Faint ] in
+  let main_header = Font.str_format_err [ error_font ] (header ^ ":") in
+  let cause_header = Font.str_format_err cause_font "Caused by:" in
   match msgs with
-  | [] -> _fmt_line main_header (Font.format_err [ error_font ] "???")
+  | [] -> _fmt_line main_header (Font.str_format_err [ error_font ] "???")
   | main_str :: cause_msgs ->
     let _fmt_cause_str_f cause_str = _fmt_line cause_header cause_str in
     let cause_strs = String.concat "" (List.map _fmt_cause_str_f cause_msgs) in
@@ -227,7 +227,7 @@ let process_source (src : token) (loc : token) : srcdata =
   if not srcdata.found then process_empty_source srcdata loc;
   srcdata
 
-let format_location ?(colon : bool = true) (locdata : locdata) : string =
+let format_loc ?(colon : bool = true) (locdata : locdata) : string =
   if locdata.region = Source.no_region then ""
   else
     let colon_str = if colon then ":" else "" in
@@ -243,23 +243,23 @@ let format_code (srcdata : srcdata) : string =
     in
     Printf.sprintf "%s%s" code_header srcdata.code
 
-let format_highlight (hgl_font : string) (srcdata : srcdata) : string =
+let format_hgl (hgl_font : Font.t) (srcdata : srcdata) : string =
   let lineno_size = String.length (string_of_int srcdata.locdata.line) in
   let err_cause_ident = String.make (lineno_size + 5) ' ' in
-  Font.format_err [ hgl_font ] (err_cause_ident ^ srcdata.hgl)
+  Font.str_format_err [ hgl_font ] (err_cause_ident ^ srcdata.hgl)
 
-let format_source (error_font : string) (loc : token) (src : token) : string =
-  let loc_font = [ Font.italic; Font.faint ] in
+let format_source (error_font : Font.t) (loc : token) (src : token) : string =
+  let loc_font = [ Font.Italic; Font.Faint ] in
   match (!Config.Eslerr.show_code, loc) with
   | (_, NoTkn) -> ""
   | (false, _) ->
     let colon = false in
     let locdata = (srcdata_init loc).locdata in
-    let loc_str = Font.format_err loc_font (format_location ~colon locdata) in
+    let loc_str = Font.str_format_err loc_font (format_loc ~colon locdata) in
     Printf.sprintf "%s" loc_str
   | (true, _) ->
     let srcdata = process_source src loc in
-    let loc_str = Font.format_err loc_font (format_location srcdata.locdata) in
+    let loc_str = Font.str_format_err loc_font (format_loc srcdata.locdata) in
     let code_str = format_code srcdata in
-    let hgl_str = format_highlight error_font srcdata in
+    let hgl_str = format_hgl error_font srcdata in
     Printf.sprintf "%s\n%s\n%s" loc_str code_str hgl_str

@@ -52,7 +52,7 @@ let rec pp (fmt : Format.formatter) (v : t) : unit =
   | Void -> ()
   | Int i -> fprintf fmt "%i" i
   | Flt f -> fprintf fmt "%.17f" f
-  | Str s -> fprintf fmt "%s" s
+  | Str s -> fprintf fmt "%S" s
   | Bool b -> fprintf fmt "%b" b
   | Symbol s -> fprintf fmt "%S" s
   | Loc l -> Loc.pp fmt l

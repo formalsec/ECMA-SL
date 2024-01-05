@@ -64,7 +64,7 @@ let format_int (err : internal) : string =
   Printf.sprintf "(%s) %s" err.loc msg_str
 
 let format_rt (err : runtime) : string =
-  let (header, font) = ("RuntimeError", Font.red) in
+  let (header, font) = ("RuntimeError", Font.Red) in
   let msgs_str = List.map Eslerr_msgs.runtime_message_str err.msgs in
   let main_str = Eslerr_fmt.format_message font header msgs_str in
   let source_str = Eslerr_fmt.format_source font err.loc err.src in

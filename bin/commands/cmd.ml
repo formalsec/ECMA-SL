@@ -9,7 +9,7 @@ let error_code (error : error) : int =
 
 let log ?(header : bool = true) msg_fmt =
   let header_str = if header then "ecma-sl: " else "" in
-  Format.(kdprintf (eprintf "%s%t" header_str) msg_fmt)
+  Format.(kdprintf (eprintf "%s%t@." header_str) msg_fmt)
 
 let eval_cmd (cmd : unit -> unit) : int =
   let open Ecma_sl in
