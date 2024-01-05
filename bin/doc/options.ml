@@ -1,12 +1,24 @@
 open Cmdliner
 
+(* Common options *)
+
+type common_options =
+  { debug : bool
+  ; colorless : bool
+  }
+
 let debug_flag =
   let doc = "Run and generate debug output." in
   Arg.(value & flag & info [ "debug" ] ~doc)
 
-let common_options =
-  let common_options' opt = opt in
-  Term.(const common_options' $ debug_flag)
+let colorless_flag =
+  let doc = "Generate colorless output." in
+  Arg.(value & flag & info [ "colorless" ] ~doc)
+
+let common_options' debug colorless = { debug; colorless }
+let common_options = Term.(const common_options' $ debug_flag $ colorless_flag)
+
+(* File options *)
 
 let input_file =
   let doc = "Name of the input file." in
@@ -16,9 +28,18 @@ let output_file =
   let doc = "Name of the output file." in
   Arg.(value & opt (some string) None & info [ "o"; "output" ] ~doc)
 
-let heap_file =
-  let doc = "Name of the heap file (to write the final heap of the program)." in
-  Arg.(value & opt (some string) None & info [ "h"; "heap" ] ~doc)
+(* Compile options *)
+
+let untyped_flag =
+  let doc = "Run ECMA-SL compiler without typechecking." in
+  Arg.(value & flag & info [ "untyped" ] ~doc)
+
+(* Interpret options *)
+let interpret_esl_flag =
+  let doc = "Interpret a program written in ECMA-SL (.esl)." in
+  Arg.(value & flag & info [ "esl" ] ~doc)
+
+(* FIXME *)
 
 let execution_lang =
   let open Lang in
@@ -38,17 +59,9 @@ let ecmaref_builder =
   let ecmaref_builder_enum = Arg.enum [ never; if_missing; always ] in
   Arg.(value & opt ecmaref_builder_enum Never & info [ "ecmaref-builder" ] ~doc)
 
-let interpret_esl_flag =
-  let doc = "Interpret a program written in ECMA-SL (.esl)." in
-  Arg.(value & flag & info [ "esl" ] ~doc)
-
 let encode_esl_flag =
   let doc = "Encode the program in ECMA-SL (.esl)." in
   Arg.(value & flag & info [ "esl" ] ~doc)
-
-let untyped_flag =
-  let doc = "Run ECMA-SL compiler without typechecking." in
-  Arg.(value & flag & info [ "untyped" ] ~doc)
 
 let target_func =
   let doc = "The start function of the analysis." in
