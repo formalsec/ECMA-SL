@@ -1,44 +1,83 @@
-(* Style *)
-let normal = "0 "
-let bold = "1"
-let faint = "2"
-let italic = "3"
-let underline = "4"
-let blink = "5"
-let blinkfast = "6"
-let negative = "7"
-let conceal = "8"
-let strike = "9"
-
-(* Colors *)
-let black = "30"
-let red = "31"
-let green = "32"
-let yellow = "33"
-let blue = "34"
-let purple = "35"
-let cyan = "36"
-let white = "37"
+type t =
+  | Normal
+  | Bold
+  | Faint
+  | Italic
+  | Underline
+  | Blink
+  | Blinkfast
+  | Negative
+  | Conceal
+  | Strike
+  | Black
+  | Red
+  | Green
+  | Yellow
+  | Blue
+  | Purple
+  | Cyan
+  | White
 
 let clean (text : string) : string =
   let escape_regex = Str.regexp "\027\\[[0-9;]*m" in
   Str.global_replace escape_regex "" text
 
-let format (format_strs : string list) (text : string) : string =
-  if text = "" then ""
+let pp_code (fmt : Format.formatter) (font_el : t) : unit =
+  let open Format in
+  match font_el with
+  | Normal -> fprintf fmt "0"
+  | Bold -> fprintf fmt "1"
+  | Faint -> fprintf fmt "2"
+  | Italic -> fprintf fmt "3"
+  | Underline -> fprintf fmt "4"
+  | Blink -> fprintf fmt "5"
+  | Blinkfast -> fprintf fmt "6"
+  | Negative -> fprintf fmt "7"
+  | Conceal -> fprintf fmt "8"
+  | Strike -> fprintf fmt "9"
+  | Black -> fprintf fmt "30"
+  | Red -> fprintf fmt "31"
+  | Green -> fprintf fmt "32"
+  | Yellow -> fprintf fmt "33"
+  | Blue -> fprintf fmt "34"
+  | Purple -> fprintf fmt "35"
+  | Cyan -> fprintf fmt "36"
+  | White -> fprintf fmt "37"
+
+let pp_font (fmt : Format.formatter) (font : t list) : unit =
+  let open Format in
+  let pp_sep seq fmt () = pp_print_string fmt seq in
+  let pp_lst seq pp fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
+  fprintf fmt "%a" (pp_lst ";" pp_code) font
+
+let pp ?(fdesc : Unix.file_descr option = None) (font : t list)
+  (pp_el : Format.formatter -> 'a -> unit) (fmt : Format.formatter) (el : 'a) :
+  unit =
+  let open Format in
+  if not !Config.Common.colored then fprintf fmt "%a" pp_el el
   else
-    let format_str = String.concat ";" format_strs in
-    Printf.sprintf "\027[%sm%s\027[0m" format_str text
+    match fdesc with
+    | Some fdesc' when not Unix.(isatty fdesc') -> fprintf fmt "%a" pp_el el
+    | _ -> fprintf fmt "\027[%am%a\027[0m" pp_font font pp_el el
 
-let fformat (fileDesc : Unix.file_descr) (format_strs : string list)
-  (text : string) : string =
-  let _is_channel_redirected () =
-    try
-      let status = Unix.fstat fileDesc in
-      status.Unix.st_kind = Unix.S_REG || status.Unix.st_kind = Unix.S_LNK
-    with Unix.Unix_error _ -> false
-  in
-  if not (_is_channel_redirected ()) then format format_strs text else text
+let format ?(fdesc : Unix.file_descr option = None) (font : t list)
+  (pp_el : Format.formatter -> 'a -> unit) (el : 'a) : string =
+  Format.asprintf "%a" (pp ~fdesc font pp_el) el
 
-let format_err (format_strs : string list) (text : string) : string =
-  fformat Unix.stderr format_strs text
+let pp_out font pp_el fmt el = pp ~fdesc:(Some Unix.stdout) font pp_el fmt el
+let pp_err font pp_el fmt el = pp ~fdesc:(Some Unix.stderr) font pp_el fmt el
+let format_out font pp_el el = format ~fdesc:(Some Unix.stdout) font pp_el el
+let format_err font pp_el el = format ~fdesc:(Some Unix.stderr) font pp_el el
+
+let str_pp ?(fdesc : Unix.file_descr option = None) (font : t list)
+  (fmt : Format.formatter) (s : string) =
+  pp ~fdesc font Format.pp_print_string fmt s
+
+let str_format ?(fdesc : Unix.file_descr option = None) (font : t list)
+  (s : string) =
+  Format.asprintf "%a" (str_pp ~fdesc font) s
+
+let str_pp_out font fmt s = str_pp ~fdesc:(Some Unix.stdout) font fmt s
+let str_pp_err font fmt s = str_pp ~fdesc:(Some Unix.stderr) font fmt s
+let str_format_out font s = str_format ~fdesc:(Some Unix.stdout) font s
+let str_format_err font s = str_format ~fdesc:(Some Unix.stderr) font s

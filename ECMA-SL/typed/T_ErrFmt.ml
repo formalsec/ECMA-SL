@@ -9,14 +9,10 @@ type kind_t =
   | Warning
 
 let kind_err (kind : kind_t) : string =
-  match kind with
-  | Error -> "TypeError"
-  | Warning -> "Type Warning"
+  match kind with Error -> "TypeError" | Warning -> "Type Warning"
 
-let kind_font (kind : kind_t) : string =
-  match kind with
-  | Error -> Font.red
-  | Warning -> Font.yellow
+let kind_font (kind : kind_t) : Font.t =
+  match kind with Error -> Font.Red | Warning -> Font.Yellow
 
 type tkn_t =
   | NoTkn
@@ -37,17 +33,11 @@ let tkn_region (src : tkn_t) : Source.region =
   | _ -> no_region
 
 let concat_tkns (tkns : tkn_t list list) (split : string) : tkn_t list =
-  let _split_tkn_f r =
-    match r with
-    | [] -> r
-    | _r' :: _ -> Lit split :: r
-  in
+  let _split_tkn_f r = match r with [] -> r | _r' :: _ -> Lit split :: r in
   List.fold_right (fun f r -> List.append f (_split_tkn_f r)) tkns []
 
 let type_tkns (t : E_Type.t option) : tkn_t list =
-  match t with
-  | None -> []
-  | Some t' -> [ Lit ": "; Type t' ]
+  match t with None -> [] | Some t' -> [ Lit ": "; Type t' ]
 
 let call_tkns (fnTkn : tkn_t) (args : E_Expr.t list) : tkn_t list =
   let argTkns = concat_tkns (List.map (fun arg -> [ Expr arg ]) args) ", " in
@@ -89,8 +79,8 @@ let binop_tkns (op : Operator.binopt) (e1 : E_Expr.t) (e2 : E_Expr.t) :
   | Operator.Pow -> [ Expr e1; opTkn; Expr e2 ]
   | _ -> call_tkns (Lit opStr) [ e1; e2 ]
 
-let ebinop_tkns (op : E_Operator.binopt) (e1 : E_Expr.t) (e2 : E_Expr.t) : tkn_t list
-    =
+let ebinop_tkns (op : E_Operator.binopt) (e1 : E_Expr.t) (e2 : E_Expr.t) :
+  tkn_t list =
   let opStr = E_Operator.str_of_binopt_single op in
   let opTkn = Lit (" " ^ opStr ^ " ") in
   match op with
@@ -100,8 +90,7 @@ let ebinop_tkns (op : E_Operator.binopt) (e1 : E_Expr.t) (e2 : E_Expr.t) : tkn_t
 let triop_tkns (op : Operator.triopt) (e1 : E_Expr.t) (e2 : E_Expr.t)
   (e3 : E_Expr.t) : tkn_t list =
   let opTkn = Lit (Operator.str_of_triopt_single op) in
-  match op with
-  | _ -> call_tkns opTkn [ e1; e2; e3 ]
+  match op with _ -> call_tkns opTkn [ e1; e2; e3 ]
 
 let nopt_tkns (op : Operator.nopt) (es : E_Expr.t list) : tkn_t list =
   let exprTkns = concat_tkns (List.map (fun arg -> [ Expr arg ]) es) ", " in
@@ -132,7 +121,7 @@ let expr_tkns (expr : E_Expr.t) : tkn_t list =
   | _ -> []
 
 let stmt_tkns (stmt : E_Stmt.t) : tkn_t list =
-  let threedots = Font.format [ Font.faint ] "..." in
+  let threedots = Font.str_format_err [ Font.Faint ] "..." in
   match stmt.it with
   | Skip -> []
   (* | Fail _ -> [] *)
@@ -173,7 +162,7 @@ let func_tkns (func : E_Func.t) : tkn_t list =
   List.concat [ funcTkns; [ Lit "(" ]; paramTkns; [ Lit ")" ]; retTkn ]
 
 let pat_tkns (pat : E_Pat.t) : tkn_t list =
-  let threedots = Font.format  [ Font.faint ] "..." in
+  let threedots = Font.str_format_err [ Font.Faint ] "..." in
   let _pat_fld_tkn_f (s, patVal) = [ Str s; Lit ": "; PatVal patVal ] in
   let _pat_tkns pat =
     match pat with
@@ -198,9 +187,7 @@ let tkn_cmp (tkn1 : tkn_t) (tkn2 : tkn_t) : bool =
   | _ -> false
 
 let tkn_is_splitable (tkn : tkn_t) : bool =
-  match tkn with
-  | Expr _ | Stmt _ | Func _ | Pat _ -> true
-  | _ -> false
+  match tkn with Expr _ | Stmt _ | Func _ | Pat _ -> true | _ -> false
 
 let split_tkn (tkn : tkn_t) : tkn_t list =
   match tkn with
@@ -310,14 +297,14 @@ let format_source (kind : kind_t) (tkn : tkn_t) (src : tkn_t) : string =
   match src with
   | NoTkn -> ""
   | _ ->
-    Font.format [ Font.italic; Font.faint ] (format_loc srcData.locData) 
+    Font.str_format_err [ Font.Italic; Font.Faint ] (format_loc srcData.locData)
     ^ format_code srcData
-    ^ Font.format [ kind_font kind ] (format_hgl srcData) 
+    ^ Font.str_format_err [ kind_font kind ] (format_hgl srcData)
 
 let format_msg (kind : kind_t) (msgs : string list) : string =
   let font = kind_font kind in
-  let terrHeader = Font.format [ font ] (kind_err kind ^ ": ")  in
-  let terrCause = Font.format [ font; Font.faint ]"Caused by: "  in
+  let terrHeader = Font.str_format_err [ font ] (kind_err kind ^ ": ") in
+  let terrCause = Font.str_format_err [ font; Font.Faint ] "Caused by: " in
   match msgs with
   | [] -> terrHeader ^ "???"
   | mainErrStr :: sideErrs ->
