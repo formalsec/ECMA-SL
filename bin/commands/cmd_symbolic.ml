@@ -231,8 +231,8 @@ let run env entry_func =
   Format.printf "  mean time : %fms@."
     (1000. *. !Batch.solver_time /. float !Batch.solver_count)
 
-let main debug file target workspace =
-  Log.on_debug := debug;
+let main (copts : Options.common_options) file target workspace =
+  Log.on_debug := copts.debug;
   Config.file := file;
   Config.target := target;
   Config.workspace := workspace;
@@ -266,8 +266,8 @@ let execute_witness env (test : string) (witness : Fpath.t) =
          observable_effects )
   | _ -> Error (`Msg (Format.sprintf "unexpected node failure: %s" out))
 
-let validate debug filename suite_path =
-  if debug then Logs.set_level (Some Logs.Debug);
+let validate (copts : Options.common_options) filename suite_path =
+  if copts.debug then Logs.set_level (Some Logs.Debug);
   Logs.app (fun m -> m "validating : %s..." filename);
   let node_loc = List.nth Esl_share.nodejs_location 0 in
   let node_path = Printf.sprintf ".:%s" node_loc in

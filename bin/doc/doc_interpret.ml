@@ -1,4 +1,5 @@
 open Cmdliner
+open Options
 
 let doc = "Interprets a Core ECMA-SL program"
 let sdocs = Manpage.s_common_options
@@ -21,11 +22,8 @@ let man =
 
 let man_xrefs = []
 
-let term =
+let options =
   Term.(
-    const Cmd_interpret.main
-    $ Options.common_options
-    $ Options.input_file
-    $ Options.heap_file
-    $ Options.interpret_esl_flag
-    $ Options.untyped_flag )
+    const Cmd_interpret.options $ input_file $ interpret_esl_flag $ untyped_flag )
+
+let term = Term.(const Cmd_interpret.main $ common_options $ options)
