@@ -1,146 +1,6 @@
 module V = Symbolic_value.M
 
-let eq v1 v2 = V.BinOpt (Operator.Eq, v1, v2)
-let ne v1 v2 = V.UnOpt (Operator.LogicalNot, eq v1 v2)
-let ite c v1 v2 = V.TriOpt (Operator.ITE, c, v1, v2)
-let undef = V.Val (Val.Symbol "undefined")
-let is_val = function V.Val _ -> true | _ -> false
-
-module Value_key = struct
-  type t = V.value
-
-  let hash (e : t) = Hashtbl.hash e
-  let t_of_sexp _ = assert false
-  let sexp_of_t _ = assert false
-  let compare (e1 : t) (e2 : t) = compare (Hashtbl.hash e1) (Hashtbl.hash e2)
-end
-
-module type Object_intf = sig
-  type t
-  type value = V.value
-
-  val create : unit -> t
-  val is_empty : t -> bool
-  val to_list : t -> (value * value) list
-  val get_fields : t -> value list
-  val has_field : t -> value -> value
-  val set : t -> key:value -> data:value -> t
-  val get : t -> value -> (value * value list) list
-  val delete : t -> value -> t
-  val to_string : t -> string
-  val to_json : t -> string
-end
-
-module Object : Object_intf = struct
-  module VMap = Map.Make (Value_key)
-
-  type value = V.value
-
-  type t =
-    { fields : value VMap.t
-    ; symbols : value VMap.t
-    }
-
-  let create () = { fields = VMap.empty; symbols = VMap.empty }
-  let is_empty o = VMap.(is_empty o.fields && is_empty o.symbols)
-
-  let to_list o =
-    List.(
-      append (of_seq (VMap.to_seq o.symbols)) (of_seq (VMap.to_seq o.fields)) )
-
-  let get_fields o =
-    let symbols = VMap.fold (fun key _ acc -> key :: acc) o.symbols [] in
-    VMap.fold (fun key _ acc -> key :: acc) o.fields symbols
-
-  let has_field o k =
-    if VMap.is_empty o.fields && VMap.is_empty o.symbols then V.Bool.const false
-    else
-      match k with
-      | V.Val _ as v -> V.Bool.const (VMap.mem v o.fields)
-      | _ ->
-        let r0 =
-          VMap.fold
-            (fun key _ acc -> ite (eq k key) (V.Bool.const true) acc)
-            o.symbols (V.Bool.const false)
-        in
-        VMap.fold
-          (fun key _ acc -> ite (eq k key) (V.Bool.const true) acc)
-          o.fields r0
-
-  let map_ite (m : value VMap.t) ~(key : value) ~(data : value) =
-    VMap.mapi
-      (fun key0 data0 ->
-        if V.equal key key0 then data0 else ite (eq key key0) data data0 )
-      m
-
-  let set o ~key ~data =
-    match key with
-    | V.Val v -> { o with fields = VMap.add (V.Val v) data o.fields }
-    | _ ->
-      { fields = map_ite o.fields ~key ~data
-      ; symbols = map_ite o.symbols ~key ~data |> VMap.add key data
-      }
-
-  let fold_eq (m : value VMap.t) (key0 : value) : (value * value) list =
-    VMap.fold
-      (fun key data acc ->
-        if V.equal key0 key then acc else (data, eq key0 key) :: acc )
-      m []
-
-  (* FIXME: @174 *)
-  let get { fields; symbols } key =
-    match key with
-    | V.Val _ -> (
-      match VMap.find_opt key fields with
-      | Some v -> [ (v, []) ]
-      | None -> (
-        match fold_eq symbols key with
-        | [] -> []
-        | [ (v, cond) ] -> [ (v, [ cond ]); (undef, [ V.Bool.not_ cond ]) ]
-        | (v0, cond0) :: tl ->
-          let (v, neg_conds) =
-            List.fold_left
-              (fun (acc, neg_conds) (v1, cond1) ->
-                (ite cond1 v1 acc, V.Bool.not_ cond1 :: neg_conds) )
-              (v0, [ V.Bool.not_ cond0 ])
-              tl
-          in
-          [ (v, []); (undef, neg_conds) ] ) )
-    | _ -> (
-      match VMap.find_opt key symbols with
-      | Some v -> [ (v, []) ]
-      | None -> (
-        match fold_eq fields key with
-        | [] -> []
-        | [ (v, cond) ] -> [ (v, [ cond ]); (undef, [ V.Bool.not_ cond ]) ]
-        | (v0, cond0) :: tl ->
-          let (v, neg_conds) =
-            List.fold_left
-              (fun (acc, neg_conds) (v1, cond1) ->
-                (ite cond1 v1 acc, V.Bool.not_ cond1 :: neg_conds) )
-              (v0, [ V.Bool.not_ cond0 ])
-              tl
-          in
-          [ (v, []); (undef, neg_conds) ] ) )
-
-  let delete o key =
-    match key with
-    | V.Val _ -> { o with fields = VMap.remove key o.fields }
-    | _ -> assert false
-
-  let to_string { fields; symbols } =
-    let fold_str map =
-      VMap.fold
-        (fun key data acc ->
-          Format.asprintf {|%s "%a": %a,|} acc V.Pp.pp key V.Pp.pp data )
-        map ""
-    in
-    Format.sprintf "{%s%s }" (fold_str fields) (fold_str symbols)
-
-  let to_json = to_string
-end
-
-module Make (O : Object_intf) = struct
+module Make (O : Object_intf.S with type value = V.value) = struct
   type object_ = O.t
   type t = (Loc.t, object_) Hashtbl.t
   type value = V.value
@@ -185,14 +45,16 @@ module Make (O : Object_intf) = struct
         set h loc o' )
       obj
 
+  let pp_hashtbl ~pp_sep pp_v fmt v =
+    Format.pp_print_seq ~pp_sep pp_v fmt (Hashtbl.to_seq v)
+
   let pp fmt (h : t) =
-    let map =
-      Hashtbl.fold
-        (fun key data acc ->
-          Format.sprintf "%s: %s" (Loc.str key) (O.to_string data) :: acc )
-        h []
-    in
-    Format.fprintf fmt "{ %s }" (String.concat ", " map)
+    Format.fprintf fmt "{ %a }"
+      (pp_hashtbl
+         ~pp_sep:(fun fmt () -> Format.fprintf fmt ",@ ")
+         (fun fmt (key, data) ->
+           Format.fprintf fmt "%a: %a" Loc.pp key O.pp data ) )
+      h
 
   let rec unfold_ite ~(accum : value) (e : value) : (value option * string) list
       =
@@ -220,10 +82,12 @@ module Make (O : Object_intf) = struct
     | V.Val (Val.Loc l) -> (
       match get h l with
       | None -> l
-      | Some o -> Format.sprintf "%s -> %s" l (O.to_string o) )
+      | Some o -> Format.asprintf "%s -> %a" l O.pp o )
     | _ -> Format.asprintf "%a" V.Pp.pp e
 end
 
-module Memory :
-  Memory_intf.S with type value = V.value and type object_ = Object.t =
-  Make (Object)
+module M :
+  Memory_intf.S with type value = V.value and type object_ = Symbolic_object.M.t =
+  Make (Symbolic_object.M)
+
+include M

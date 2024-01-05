@@ -1,5 +1,5 @@
 module Value = Symbolic_value.M
-module Memory = Symbolic_memory.Memory
+module Memory = Symbolic_memory
 module Translator = Value_translator
 module Optimizer = Encoding.Optimizer.Z3
 

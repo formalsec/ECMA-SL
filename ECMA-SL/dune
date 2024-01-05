@@ -103,10 +103,12 @@
   interpreter_functor
   interpreter_functor_intf
   link_env
+  object_intf
   memory_intf
   solver
   symbolic
   symbolic_interpreter
+  symbolic_object
   symbolic_memory
   symbolic_value
   type_of_val
