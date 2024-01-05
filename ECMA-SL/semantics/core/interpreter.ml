@@ -41,11 +41,12 @@ module M (Mon : Monitor.M) = struct
     let heap = Heap.create () in
     (stack, store, heap, main)
 
-  let val_to_string (heap : heap) (v : value) : string =
+  let print_val (heap : heap) (v : value) : unit =
+    let open Format in
     match v with
-    | Str s -> s
-    | Loc l -> eval_loc heap l |> Object.str Val.pp
-    | _ -> Val.str v
+    | Str s -> printf "%s@." s
+    | Loc l -> printf "%a@." (Object.pp Val.pp) (eval_loc heap l)
+    | _ -> printf "%a@." Val.pp v
 
   let rec eval_expr (store : store) (e : Expr.t) : value =
     match e with
@@ -131,7 +132,7 @@ module M (Mon : Monitor.M) = struct
     | Merge -> (Intermediate (state, cont), _lbl MergeEval)
     | Block stmts -> (Intermediate (state, stmts @ cont), _lbl BlockEval)
     | Print e ->
-      eval_expr store e |> val_to_string heap |> Printf.printf "%s\n";
+      eval_expr store e |> print_val heap;
       (Intermediate (state, cont), _lbl PrintEval)
     | Return e -> (
       let v = eval_expr store e in
@@ -226,7 +227,7 @@ module M (Mon : Monitor.M) = struct
       let v = eval_boolean store e in
       if v then (Intermediate (state, cont), _lbl (AssertEval true))
       else
-        let err = Printf.sprintf "Assert false: %s" (Expr.str e) in
+        let err = Format.asprintf "Assert false: %a" Expr.pp e in
         (Error (Val.Str err), _lbl (AssertEval false))
     | Abort _ -> (Intermediate (state, cont), _lbl AbortEval)
 
@@ -261,7 +262,7 @@ module M (Mon : Monitor.M) = struct
     match return with
     | Final _ as retval -> retval
     | Error err as retval ->
-      Printf.eprintf "uncaught exception: %s" (Val.str err);
+      Format.eprintf "uncaught exception: %a@." Val.pp err;
       retval
     | _ -> Eslerr.internal __FUNCTION__ (Expecting "non-intermediate state")
 end

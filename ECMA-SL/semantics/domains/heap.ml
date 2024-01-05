@@ -5,6 +5,8 @@ type 'a t =
   ; map : (Loc.t, 'a obj) Hashtbl.t
   }
 
+type 'a pp_fmt = Format.formatter -> 'a obj -> unit
+
 let create () : 'a t =
   { parent = None; map = Hashtbl.create !Config.default_hashtbl_sz }
 
@@ -40,10 +42,37 @@ let get_field_opt (heap : 'a t) (l : Loc.t) (fn : string) : 'a option =
   let* obj = get_opt heap l in
   Object.get obj fn
 
-let str (pp_val : 'a Object.pp_fmt) (heap : 'a t) : string =
-  let _str_loc l = Loc.str l in
-  let _str_obj o = Object.str pp_val o in
-  let _str_binding l o = Printf.sprintf "%s: %s" (_str_loc l) (_str_obj o) in
-  let _str_heap_f l o acc = _str_binding l o :: acc in
-  let heap_str = Hashtbl.fold _str_heap_f heap.map [] |> String.concat ", " in
-  "{ " ^ heap_str ^ " }"
+let pp (pp_binding : Format.formatter -> Loc.t * 'a obj -> unit) (sep : string)
+  (fmt : Format.formatter) (heap : 'a t) : unit =
+  let open Format in
+  let pp_sep fmt () = pp_print_string fmt sep in
+  let pp_seq pp fmt lst = pp_print_seq ~pp_sep pp fmt lst in
+  fprintf fmt "%a" (pp_seq pp_binding) (Hashtbl.to_seq heap.map)
+
+let pp_inline (pp_obj : 'a pp_fmt) (fmt : Format.formatter) (heap : 'a t) : unit
+    =
+  let open Format in
+  let pp_bind fmt (x, obj) = fprintf fmt "%s: %a" x pp_obj obj in
+  fprintf fmt "{ %a }" (pp pp_bind ", ") heap
+
+let pp_table (pp_obj : 'a pp_fmt) (fmt : Format.formatter) (heap : 'a t) : unit
+    =
+  let open Format in
+  let max_f acc n = if n > acc then n else acc in
+  let lengths = Hashtbl.to_seq_keys heap.map |> Seq.map String.length in
+  let max = Seq.fold_left max_f 0 lengths in
+  let var_sep x = String.make (max - String.length x) ' ' in
+  let pp_bind fmt (x, v) = fprintf fmt "%s%s | %a\n" (var_sep x) x pp_obj v in
+  pp pp_bind "" fmt heap
+
+let str ?(tabular : bool = true) (pp_obj : 'a pp_fmt) (heap : 'a t) : string =
+  if tabular then Format.asprintf "%a" (pp_table pp_obj) heap
+  else Format.asprintf "%a" (pp_inline pp_obj) heap
+
+(* let str (pp_val : 'a Object.pp_fmt) (heap : 'a t) : string =
+   let _str_loc l = Loc.str l in
+   let _str_obj o = Object.str pp_val o in
+   let _str_binding l o = Printf.sprintf "%s: %s" (_str_loc l) (_str_obj o) in
+   let _str_heap_f l o acc = _str_binding l o :: acc in
+   let heap_str = Hashtbl.fold _str_heap_f heap.map [] |> String.concat ", " in
+   "{ " ^ heap_str ^ " }" *)
