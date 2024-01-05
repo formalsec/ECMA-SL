@@ -9,7 +9,7 @@
       List.iter (fun (kwd, tok) -> Hashtbl.add keywords kwd tok)
                 [
                   (* Language Internals *)
-                  "__DEBUG__"               , DEBUG;
+                  "__debug__"               , DEBUG;
 
                   (* Language Values *)
                   "null"                    , NULL;
