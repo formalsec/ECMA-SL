@@ -1,7 +1,7 @@
 module Value = Symbolic_value.M
 module Store = Value.Store
-module Object = Symbolic_memory.Object
-module Memory = Symbolic_memory.Memory
+module Object = Symbolic_object.M
+module Memory = Symbolic_memory
 module Env = Link_env.Make (Memory)
 module Thread = Choice_monad.Thread
 module Translator = Value_translator
