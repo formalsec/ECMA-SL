@@ -60,8 +60,8 @@ let runtime_message_str (msg : Runtime.t) : string =
   | BadOpArgs (types_str, vals) ->
     let nargs = List.length vals > 1 in
     let s_sfx = if nargs then "s" else "" in
-    let _paren s = if nargs then "(" ^ s ^ ")" else s in
-    let vals_str = List.map Val.str vals |> String.concat ", " |> _paren in
+    let paren s = if nargs then "(" ^ s ^ ")" else s in
+    let vals_str = List.map Val.str vals |> String.concat ", " |> paren in
     Printf.sprintf "Expecting argument%s of type%s '%s', but got '%s'." s_sfx
       s_sfx types_str vals_str
   | MissingReturn fn -> Printf.sprintf "Missing return in function '%s'." fn

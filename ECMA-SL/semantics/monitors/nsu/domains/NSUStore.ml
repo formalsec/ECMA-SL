@@ -12,6 +12,6 @@ let set (store : 'sl t) (var : string) (v : 'sl) : unit =
   Hashtbl.replace store var v
 
 let str (sl_printer : 'sl -> string) (store : 'sl t) : string =
-  let _binding_str x v = Printf.sprintf "(%s, %s)" x (sl_printer v) in
-  let _store_str_f x v acc = _binding_str x v :: acc in
-  Hashtbl.fold _store_str_f store [] |> String.concat ", "
+  let binding_str x v = Printf.sprintf "(%s, %s)" x (sl_printer v) in
+  let store_str_f x v acc = binding_str x v :: acc in
+  Hashtbl.fold store_str_f store [] |> String.concat ", "
