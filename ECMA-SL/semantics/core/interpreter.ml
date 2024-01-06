@@ -125,27 +125,27 @@ module M (Mon : Monitor.M) = struct
 
   let eval_small_step (prog : Prog.t) (state : state) (s : Stmt.t)
     (cont : Stmt.t list) : return * Mon.sl_label =
-    let _lbl s_eval = Mon.generate_label s s_eval in
+    let lbl s_eval = Mon.generate_label s s_eval in
     let (stack, store, heap, _) = state in
     match s.it with
-    | Skip -> (Intermediate (state, cont), _lbl SkipEval)
-    | Merge -> (Intermediate (state, cont), _lbl MergeEval)
-    | Block stmts -> (Intermediate (state, stmts @ cont), _lbl BlockEval)
+    | Skip -> (Intermediate (state, cont), lbl SkipEval)
+    | Merge -> (Intermediate (state, cont), lbl MergeEval)
+    | Block stmts -> (Intermediate (state, stmts @ cont), lbl BlockEval)
     | Print e ->
       eval_expr store e |> print_val heap;
-      (Intermediate (state, cont), _lbl PrintEval)
+      (Intermediate (state, cont), lbl PrintEval)
     | Return e -> (
       let v = eval_expr store e in
       let (frame, stack') = Call_stack.pop stack in
       match frame with
-      | Call_stack.Toplevel -> (Final v, _lbl ReturnEval)
+      | Call_stack.Toplevel -> (Final v, lbl ReturnEval)
       | Call_stack.Intermediate (cont', store', x, func) ->
         Store.set store' x v;
         let state' = (stack', store', heap, func) in
-        (Intermediate (state', cont'), _lbl ReturnEval) )
+        (Intermediate (state', cont'), lbl ReturnEval) )
     | Assign (x, e) ->
       eval_expr store e |> Store.set store x;
-      (Intermediate (state, cont), _lbl AssignEval)
+      (Intermediate (state, cont), lbl AssignEval)
     | AssignCall (x, fe, es) -> (
       let (fn, fvs) = eval_func_expr store fe in
       let vs = fvs @ List.map (eval_expr store) es in
@@ -156,80 +156,80 @@ module M (Mon : Monitor.M) = struct
         let (stack', store') = prepare_call stack store cont x func vs in
         let state' = (stack', store', heap, func) in
         let cont' = [ Func.body func ] in
-        (Intermediate (state', cont'), _lbl (AssignCallEval func)) )
+        (Intermediate (state', cont'), lbl (AssignCallEval func)) )
     | AssignECall (x, fe, es) ->
       let vs = List.map (eval_expr store) es in
       let v = External.execute prog heap fe vs in
       Store.set store x v;
-      (Intermediate (state, cont), _lbl AssignECallEval)
+      (Intermediate (state, cont), lbl AssignECallEval)
     | AssignNewObj x ->
       let l = Object.create () |> Heap.insert heap in
       Store.set store x (Val.Loc l);
-      (Intermediate (state, cont), _lbl (AssignNewObjEval l))
+      (Intermediate (state, cont), lbl (AssignNewObjEval l))
     | AssignObjToList (x, e) ->
-      let _fld_to_tup_f (fn, fv) = Val.Tuple [ Str fn; fv ] in
+      let fld_to_tup_f (fn, fv) = Val.Tuple [ Str fn; fv ] in
       let (_, obj) = eval_object store heap e in
-      let v = Val.List (Object.fld_list obj |> List.map _fld_to_tup_f) in
+      let v = Val.List (Object.fld_list obj |> List.map fld_to_tup_f) in
       Store.set store x v;
-      (Intermediate (state, cont), _lbl AssignObjToListEval)
+      (Intermediate (state, cont), lbl AssignObjToListEval)
     | AssignObjFields (x, e) ->
-      let _fld_to_tup_f (fn, _) = Val.Str fn in
+      let fld_to_tup_f (fn, _) = Val.Str fn in
       let (_, obj) = eval_object store heap e in
-      let v = Val.List (Object.fld_list obj |> List.map _fld_to_tup_f) in
+      let v = Val.List (Object.fld_list obj |> List.map fld_to_tup_f) in
       Store.set store x v;
-      (Intermediate (state, cont), _lbl AssignObjFieldsEval)
+      (Intermediate (state, cont), lbl AssignObjFieldsEval)
     | AssignInObjCheck (x, fe, oe) ->
-      let _in_obj = function Some _ -> true | None -> false in
+      let in_obj = function Some _ -> true | None -> false in
       let (loc, obj) = eval_object store heap oe in
       let fn = eval_string store fe in
-      let v = Val.Bool (Object.get obj fn |> _in_obj) in
+      let v = Val.Bool (Object.get obj fn |> in_obj) in
       Store.set store x v;
-      (Intermediate (state, cont), _lbl (AssignInObjCheckEval (loc, fn)))
+      (Intermediate (state, cont), lbl (AssignInObjCheckEval (loc, fn)))
     | FieldLookup (x, oe, fe) ->
-      let _fld_val = function None -> Val.Symbol "undefined" | Some v -> v in
+      let fld_val = function None -> Val.Symbol "undefined" | Some v -> v in
       let (l, obj) = eval_object store heap oe in
       let fn = eval_string store fe in
-      let v = Object.get obj fn |> _fld_val in
+      let v = Object.get obj fn |> fld_val in
       Store.set store x v;
-      (Intermediate (state, cont), _lbl (FieldLookupEval (l, fn)))
+      (Intermediate (state, cont), lbl (FieldLookupEval (l, fn)))
     | FieldAssign (oe, fe, e) ->
       let (l, obj) = eval_object store heap oe in
       let fn = eval_string store fe in
       let v = eval_expr store e in
       Object.set obj fn v;
-      (Intermediate (state, cont), _lbl (FieldAssignEval (l, fn)))
+      (Intermediate (state, cont), lbl (FieldAssignEval (l, fn)))
     | FieldDelete (oe, fe) ->
       let (l, obj) = eval_object store heap oe in
       let fn = eval_string store fe in
       Object.delete obj fn;
-      (Intermediate (state, cont), _lbl (FieldDeleteEval (l, fn)))
+      (Intermediate (state, cont), lbl (FieldDeleteEval (l, fn)))
     | If (e, s1, s2) -> (
       let v = eval_boolean store e in
       let s2' = Option.value ~default:(Skip @> no_region) s2 in
       match (v, s1.it, s2'.it) with
       | (true, Block stmts, _) ->
         let cont' = stmts @ ((Stmt.Merge @> s1.at) :: cont) in
-        (Intermediate (state, cont'), _lbl (IfEval true))
+        (Intermediate (state, cont'), lbl (IfEval true))
       | (false, _, Block stmts) ->
         let cont' = stmts @ ((Stmt.Merge @> s2'.at) :: cont) in
-        (Intermediate (state, cont'), _lbl (IfEval false))
-      | (false, _, Skip) -> (Intermediate (state, cont), _lbl (IfEval false))
+        (Intermediate (state, cont'), lbl (IfEval false))
+      | (false, _, Skip) -> (Intermediate (state, cont), lbl (IfEval false))
       | (true, _, _) -> Eslerr.internal __FUNCTION__ (Expecting "if block")
       | (false, _, _) -> Eslerr.internal __FUNCTION__ (Expecting "else block") )
     | While (e, s) ->
       let stmts = [ s; Stmt.While (e, s) @> s.at ] in
       let loop = Stmt.If (e, Stmt.Block stmts @> s.at, None) @> s.at in
-      (Intermediate (state, loop :: cont), _lbl WhileEval)
+      (Intermediate (state, loop :: cont), lbl WhileEval)
     | Fail e ->
       let v = eval_expr store e in
-      (Error v, _lbl FailEval)
+      (Error v, lbl FailEval)
     | Assert e ->
       let v = eval_boolean store e in
-      if v then (Intermediate (state, cont), _lbl (AssertEval true))
+      if v then (Intermediate (state, cont), lbl (AssertEval true))
       else
         let err = Format.asprintf "Assert false: %a" Expr.pp e in
-        (Error (Val.Str err), _lbl (AssertEval false))
-    | Abort _ -> (Intermediate (state, cont), _lbl AbortEval)
+        (Error (Val.Str err), lbl (AssertEval false))
+    | Abort _ -> (Intermediate (state, cont), lbl AbortEval)
 
   let eval_small_step_safe (prog : Prog.t) (state : state) (s : Stmt.t)
     (cont : Stmt.t list) : return * Mon.sl_label =

@@ -43,15 +43,15 @@ let get_field (heap : 'sl t) (loc : Loc.t) (fn : string) : ('sl * 'sl) option =
   Option.bind (get_obj heap loc) (fun o -> NSUObject.get o fn)
 
 let delete_field (heap : 'sl t) (loc : Loc.t) (fn : string) : bool =
-  let _delete_fld obj = NSUObject.delete obj fn |> fun () -> true in
-  get_obj heap loc |> Option.fold ~none:false ~some:_delete_fld
+  let delete_field' obj = NSUObject.delete obj fn |> fun () -> true in
+  get_obj heap loc |> Option.fold ~none:false ~some:delete_field'
 
 let new_sec_prop (heap : 'sl t) (loc : Loc.t) (fn : string) (exists_lvl : 'sl)
   (val_lvl : 'sl) : bool =
-  let _new_sec_prop obj =
+  let new_sec_prop obj =
     NSUObject.new_sec_prop obj fn exists_lvl val_lvl |> fun () -> true
   in
-  get_obj heap loc |> Option.fold ~none:false ~some:_new_sec_prop
+  get_obj heap loc |> Option.fold ~none:false ~some:new_sec_prop
 
 let upg_prop_exists_lvl (heap : 'sl t) (loc : Loc.t) (fn : string) (lvl : 'sl) :
   unit =
@@ -72,12 +72,12 @@ let upg_obj_lvl (heap : 'sl t) (loc : Loc.t) (lvl : 'sl) : unit =
   update heap loc obj struct_lvl lvl
 
 let str (sl_printer : 'sl -> string) (heap : 'sl t) : string =
-  let _binding_str loc obj struct_lvl obj_lvl =
+  let binding_str loc obj struct_lvl obj_lvl =
     Printf.sprintf "%s|-> {%s}_{%s, %s}" loc
       (NSUObject.str sl_printer obj)
       (sl_printer struct_lvl) (sl_printer obj_lvl)
   in
-  let _heap_str_f loc (obj, struct_lvl, obj_lvl) acc =
-    _binding_str loc obj struct_lvl obj_lvl :: acc
+  let heap_str_f loc (obj, struct_lvl, obj_lvl) acc =
+    binding_str loc obj struct_lvl obj_lvl :: acc
   in
-  Hashtbl.fold _heap_str_f heap [] |> String.concat "\n"
+  Hashtbl.fold heap_str_f heap [] |> String.concat "\n"

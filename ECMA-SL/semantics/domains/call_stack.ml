@@ -17,8 +17,8 @@ let pop (stack : 'store t) : 'store frame * 'store t =
 let push (stack : 'store t) (frame : 'store frame) : 'store t = frame :: stack
 
 let str (stack : 'store t) : string =
-  let _str_frame_f = function
+  let str_frame_f = function
     | Toplevel -> "TopLevel"
     | Intermediate (_, _, _, func) -> Func.name func
   in
-  List.map _str_frame_f stack |> String.concat " -> "
+  List.map str_frame_f stack |> String.concat " -> "

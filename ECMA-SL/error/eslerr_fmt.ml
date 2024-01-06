@@ -12,10 +12,8 @@ type token =
   | Func of Func.t
 
 let separate_tkns (sep : string) (tkns : token list) : token list =
-  let _sep_f tkn acc =
-    match acc with [] -> [ tkn ] | _ -> tkn :: Lit sep :: acc
-  in
-  List.fold_right _sep_f tkns []
+  let sep_f tkn = function [] -> [ tkn ] | acc -> tkn :: Lit sep :: acc in
+  List.fold_right sep_f tkns []
 
 let exprs_to_tokens (es : Expr.t list) : token list =
   List.map (fun e -> Expr e) es
@@ -154,15 +152,15 @@ let token_str_size (tkn : token) : string * int =
 
 let format_message (error_font : Font.t) (header : string) (msgs : string list)
   : string =
-  let _fmt_line header msg = Printf.sprintf "\n%s %s" header msg in
+  let fmt_line header msg = Printf.sprintf "\n%s %s" header msg in
   let cause_font = [ error_font; Font.Faint ] in
   let main_header = Font.str_format_err [ error_font ] (header ^ ":") in
   let cause_header = Font.str_format_err cause_font "Caused by:" in
   match msgs with
-  | [] -> _fmt_line main_header (Font.str_format_err [ error_font ] "???")
+  | [] -> fmt_line main_header (Font.str_format_err [ error_font ] "???")
   | main_str :: cause_msgs ->
-    let _fmt_cause_str_f cause_str = _fmt_line cause_header cause_str in
-    let cause_strs = String.concat "" (List.map _fmt_cause_str_f cause_msgs) in
+    let fmt_cause_str_f cause_str = fmt_line cause_header cause_str in
+    let cause_strs = String.concat "" (List.map fmt_cause_str_f cause_msgs) in
     Printf.sprintf "%s %s%s" main_header main_str cause_strs
 
 type locdata =
@@ -204,21 +202,21 @@ let process_empty_source (srcdata : srcdata) (loc : token) : unit =
 
 let rec process_existing_source (srcdata : srcdata) (src : token) (loc : token)
   : unit =
-  let _write_tkn hgl =
+  let write_tkn hgl =
     let (tkn_str, tkn_size) = token_str_size loc in
     srcdata.code <- srcdata.code ^ tkn_str;
     srcdata.hgl <- srcdata.hgl ^ String.make tkn_size hgl;
     tkn_size
   in
-  if srcdata.found then ignore (_write_tkn ' ')
+  if srcdata.found then ignore (write_tkn ' ')
   else if token_cmp loc src then (
-    let tkn_size = _write_tkn '^' in
+    let tkn_size = write_tkn '^' in
     srcdata.locdata.right <- srcdata.locdata.left + tkn_size - 1;
     srcdata.found <- true )
   else if token_is_splitable loc then
     List.iter (process_existing_source srcdata src) (token_split loc)
   else
-    let tkn_size = _write_tkn ' ' in
+    let tkn_size = write_tkn ' ' in
     srcdata.locdata.left <- srcdata.locdata.left + tkn_size
 
 let process_source (src : token) (loc : token) : srcdata =

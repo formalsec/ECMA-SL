@@ -190,12 +190,12 @@ let string_len_u (v : Val.t) : Val.t =
   | _ -> bad_arg_err 1 op_lbl "string" [ v ]
 
 let string_concat_aux (lst : t list) : string list option =
-  let _concat_f acc v =
+  let concat_f acc v =
     match (acc, v) with
     | (Some strs, Val.Str s) -> Some (strs @ [ s ])
     | _ -> None
   in
-  List.fold_left _concat_f (Some []) lst
+  List.fold_left concat_f (Some []) lst
 
 let string_concat (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt StringConcat in
@@ -239,12 +239,12 @@ let list_len (v : Val.t) : Val.t =
 
 let list_sort (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt ListSort in
-  let _str_f s = Val.Str s in
+  let str_f s = Val.Str s in
   match v with
   | List lst -> (
     let strs = string_concat_aux lst in
     match strs with
-    | Some strs -> List (List.map _str_f (List.fast_sort String.compare strs))
+    | Some strs -> List (List.map str_f (List.fast_sort String.compare strs))
     | None -> bad_arg_err 1 op_lbl "string list" [ v ] )
   | _ -> bad_arg_err 1 op_lbl "string list" [ v ]
 
@@ -282,10 +282,10 @@ let tuple_len (v : Val.t) : Val.t =
   | _ -> bad_arg_err 1 op_lbl "tuple" [ v ]
 
 let unpack_bytes_aux (op_lbl : string) (v : Val.t) : int array =
-  let _unpack_bt_f = function Int i -> i | Byte bt -> bt | _ -> raise Exit in
+  let unpack_bt_f = function Int i -> i | Byte bt -> bt | _ -> raise Exit in
   try
     match v with
-    | Arr bytes -> Array.map _unpack_bt_f bytes
+    | Arr bytes -> Array.map unpack_bt_f bytes
     | _ -> bad_arg_err 1 op_lbl "byte array" [ v ]
   with _ -> bad_arg_err 1 op_lbl "byte array" [ v ]
 
@@ -514,14 +514,14 @@ let parse_string (v : Val.t) : Val.t =
 
 let parse_date (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt ParseDate in
-  let _remove_sign s = String.sub s 1 (String.length s - 1) in
-  let _signed_year year_neg year = if year_neg then -.year else year in
-  let _parse_date year_neg date =
+  let remove_sign s = String.sub s 1 (String.length s - 1) in
+  let signed_year year_neg year = if year_neg then -.year else year in
+  let parse_date year_neg date =
     match date with
     | None -> Val.Flt (-1.)
     | Some ([ year; month; day; hour; min; sec; msec ], tz) ->
       Val.List
-        [ Val.Flt (_signed_year year_neg year)
+        [ Val.Flt (signed_year year_neg year)
         ; Val.Flt month
         ; Val.Flt day
         ; Val.Flt hour
@@ -536,10 +536,10 @@ let parse_date (v : Val.t) : Val.t =
   | Str s ->
     let year_sign = s.[0] in
     if year_sign == '-' then
-      _remove_sign s |> Date_utils.parse_date |> _parse_date true
+      remove_sign s |> Date_utils.parse_date |> parse_date true
     else if year_sign == '+' then
-      _remove_sign s |> Date_utils.parse_date |> _parse_date false
-    else Date_utils.parse_date s |> _parse_date false
+      remove_sign s |> Date_utils.parse_date |> parse_date false
+    else Date_utils.parse_date s |> parse_date false
   | _ -> bad_arg_err 1 op_lbl "string" [ v ]
 
 let plus ((v1, v2) : Val.t * Val.t) : Val.t =

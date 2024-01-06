@@ -11,14 +11,14 @@ let set (obj : 'sl t) (fn : string) (exist_lvl : 'sl) (val_lvl : 'sl) : unit =
 let delete (obj : 'sl t) (fn : string) : unit = Hashtbl.remove obj fn
 
 let str (sl_printer : 'sl -> string) (obj : 'sl t) : string =
-  let _fld_str prop exists_lvl val_lvl =
+  let fld_str prop exists_lvl val_lvl =
     Printf.sprintf "%s: (%s, %s)" prop (sl_printer exists_lvl)
       (sl_printer val_lvl)
   in
-  let _obj_str_f prop (exists_lvl, val_lvl) acc =
-    _fld_str prop exists_lvl val_lvl :: acc
+  let obj_str_f prop (exists_lvl, val_lvl) acc =
+    fld_str prop exists_lvl val_lvl :: acc
   in
-  Hashtbl.fold _obj_str_f obj [] |> String.concat ", "
+  Hashtbl.fold obj_str_f obj [] |> String.concat ", "
 
 let new_sec_prop (obj : 'sl t) (field : string) (exists_lvl : 'sl)
   (val_lvl : 'sl) : unit =

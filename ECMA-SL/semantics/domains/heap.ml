@@ -68,11 +68,3 @@ let pp_table (pp_obj : 'a pp_fmt) (fmt : Format.formatter) (heap : 'a t) : unit
 let str ?(tabular : bool = true) (pp_obj : 'a pp_fmt) (heap : 'a t) : string =
   if tabular then Format.asprintf "%a" (pp_table pp_obj) heap
   else Format.asprintf "%a" (pp_inline pp_obj) heap
-
-(* let str (pp_val : 'a Object.pp_fmt) (heap : 'a t) : string =
-   let _str_loc l = Loc.str l in
-   let _str_obj o = Object.str pp_val o in
-   let _str_binding l o = Printf.sprintf "%s: %s" (_str_loc l) (_str_obj o) in
-   let _str_heap_f l o acc = _str_binding l o :: acc in
-   let heap_str = Hashtbl.fold _str_heap_f heap.map [] |> String.concat ", " in
-   "{ " ^ heap_str ^ " }" *)
