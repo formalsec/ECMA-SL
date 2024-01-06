@@ -62,12 +62,12 @@ let rec pp (fmt : Format.formatter) (e : t) : unit =
 let str (e : t) : string = Format.asprintf "%a" pp e
 
 let rec vars_in_expr (e : t) : string list =
-  let _vars_in_lst lst = List.map vars_in_expr lst |> List.concat in
+  let vars_in_lst lst = List.map vars_in_expr lst |> List.concat in
   match e with
   | Var x -> [ x ]
-  | UnOpt (_, e') -> _vars_in_lst [ e' ]
-  | BinOpt (_, e1, e2) -> _vars_in_lst [ e1; e2 ]
-  | TriOpt (_, e1, e2, e3) -> _vars_in_lst [ e1; e2; e3 ]
-  | NOpt (_, es) -> _vars_in_lst es
-  | Curry (fe, es) -> _vars_in_lst (fe :: es)
+  | UnOpt (_, e') -> vars_in_lst [ e' ]
+  | BinOpt (_, e1, e2) -> vars_in_lst [ e1; e2 ]
+  | TriOpt (_, e1, e2, e3) -> vars_in_lst [ e1; e2; e3 ]
+  | NOpt (_, es) -> vars_in_lst es
+  | Curry (fe, es) -> vars_in_lst (fe :: es)
   | _ -> []
