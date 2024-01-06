@@ -42,23 +42,36 @@ let rec copy (v : t) : t =
   | Curry (fn, fvs) -> Curry (fn, List.map copy fvs)
   | _ -> v
 
+let is_special_number (s : string) : bool =
+  List.mem s [ "nan"; "inf"; "-inf" ]
+  || String.contains s 'e'
+  || String.contains s 'E'
+
+let float_str (f : float) : string =
+  let f_str = Printf.sprintf "%.17g" f in
+  if is_special_number f_str || String.contains f_str '.' then f_str
+  else f_str ^ ".0"
+
 let rec pp (fmt : Format.formatter) (v : t) : unit =
   let open Format in
   let pp_sep seq fmt () = pp_print_string fmt seq in
   let pp_arr seq pp fmt arr = pp_print_array ~pp_sep:(pp_sep seq) pp fmt arr in
   let pp_lst seq pp fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
   match v with
-  | Null -> pp_print_string fmt "null"
+  | Null -> fprintf fmt "null"
   | Void -> ()
   | Int i -> fprintf fmt "%i" i
-  | Flt f -> fprintf fmt "%.17f" f
+  | Flt f -> fprintf fmt "%s" (float_str f)
   | Str s -> fprintf fmt "%S" s
   | Bool b -> fprintf fmt "%b" b
-  | Symbol s -> fprintf fmt "%S" s
+  | Symbol s -> fprintf fmt "'%s" s
   | Loc l -> Loc.pp fmt l
+  | Arr arr when Array.length arr = 0 -> fprintf fmt "[| |]"
   | Arr arr -> fprintf fmt "[| %a |]" (pp_arr ", " pp) arr
+  | List [] -> fprintf fmt "[]"
   | List lst -> fprintf fmt "[ %a ]" (pp_lst ", " pp) lst
-  | Tuple tup -> fprintf fmt "(%a)" (pp_lst ", " pp) tup
+  | Tuple [] -> fprintf fmt "()"
+  | Tuple tup -> fprintf fmt "( %a )" (pp_lst ", " pp) tup
   | Byte bt -> fprintf fmt "%i" bt
   | Type t -> Type.pp fmt t
   | Curry (fn, fvs) -> fprintf fmt "{%S}@(%a)" fn (pp_lst ", " pp) fvs
