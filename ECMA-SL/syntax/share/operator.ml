@@ -487,12 +487,15 @@ let pp_of_nopt (pp_val : 'a pp_fmt) (fmt : Format.formatter)
   let open Format in
   let pp_sep sep fmt () = pp_print_string fmt sep in
   let pp_lst sep pp fmt lst = pp_print_list ~pp_sep:(pp_sep sep) pp fmt lst in
-  match op with
-  | NAryLogicalAnd -> fprintf fmt "%a" (pp_lst " && " pp_val) vs
-  | NAryLogicalOr -> fprintf fmt "%a" (pp_lst " || " pp_val) vs
-  | ArrayExpr -> fprintf fmt "[| %a |]" (pp_lst ", " pp_val) vs
-  | ListExpr -> fprintf fmt "[ %a ]" (pp_lst ", " pp_val) vs
-  | TupleExpr -> fprintf fmt "(%a)" (pp_lst ", " pp_val) vs
+  match (op, vs) with
+  | (NAryLogicalAnd, _) -> fprintf fmt "%a" (pp_lst " && " pp_val) vs
+  | (NAryLogicalOr, _) -> fprintf fmt "%a" (pp_lst " || " pp_val) vs
+  | (ArrayExpr, []) -> fprintf fmt "[| |]"
+  | (ArrayExpr, _) -> fprintf fmt "[|%a|]" (pp_lst ", " pp_val) vs
+  | (ListExpr, []) -> fprintf fmt "[]"
+  | (ListExpr, _) -> fprintf fmt "[ %a ]" (pp_lst ", " pp_val) vs
+  | (TupleExpr, []) -> fprintf fmt "()"
+  | (TupleExpr, _) -> fprintf fmt "( %a )" (pp_lst ", " pp_val) vs
 
 let str_of_unopt_single (op : unopt) : string =
   Format.asprintf "%a" pp_of_unopt_single op
