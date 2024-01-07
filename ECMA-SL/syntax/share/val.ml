@@ -64,9 +64,9 @@ let rec pp (fmt : Fmt.formatter) (v : t) : unit =
   | Loc l -> Loc.pp fmt l
   | Arr arr when Array.length arr = 0 -> fprintf fmt "[| |]"
   | Arr arr -> fprintf fmt "[| %a |]" (pp_arr ", " pp) arr
-  | List [] -> fprintf fmt "[]"
+  | List [] -> fprintf fmt "[ ]"
   | List lst -> fprintf fmt "[ %a ]" (pp_lst ", " pp) lst
-  | Tuple [] -> fprintf fmt "()"
+  | Tuple [] -> fprintf fmt "( )"
   | Tuple tup -> fprintf fmt "( %a )" (pp_lst ", " pp) tup
   | Byte bt -> fprintf fmt "%i" bt
   | Type t -> Type.pp fmt t

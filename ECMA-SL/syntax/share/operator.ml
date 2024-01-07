@@ -490,9 +490,9 @@ let pp_of_nopt (pp_val : 'a pp_fmt) (fmt : Fmt.formatter)
   | (NAryLogicalOr, _) -> fprintf fmt "%a" (pp_lst " || " pp_val) vs
   | (ArrayExpr, []) -> fprintf fmt "[| |]"
   | (ArrayExpr, _) -> fprintf fmt "[|%a|]" (pp_lst ", " pp_val) vs
-  | (ListExpr, []) -> fprintf fmt "[]"
+  | (ListExpr, []) -> fprintf fmt "[ ]"
   | (ListExpr, _) -> fprintf fmt "[ %a ]" (pp_lst ", " pp_val) vs
-  | (TupleExpr, []) -> fprintf fmt "()"
+  | (TupleExpr, []) -> fprintf fmt "( )"
   | (TupleExpr, _) -> fprintf fmt "( %a )" (pp_lst ", " pp_val) vs
 
 let str_of_unopt_single (op : unopt) : string =

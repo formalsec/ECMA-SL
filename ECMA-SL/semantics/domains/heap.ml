@@ -58,12 +58,13 @@ let pp_inline (pp_obj : 'a pp_fmt) (fmt : Fmt.formatter) (heap : 'a t) : unit =
 
 let pp_table (pp_obj : 'a pp_fmt) (fmt : Fmt.formatter) (heap : 'a t) : unit =
   let open Fmt in
-  let max_f acc n = if n > acc then n else acc in
   let lengths = Hashtbl.to_seq_keys heap.map |> Seq.map String.length in
-  let max = Seq.fold_left max_f 0 lengths in
+  let max = Seq.fold_left (fun acc n -> if n > acc then n else acc) 0 lengths in
   let var_sep x = String.make (max - String.length x) ' ' in
-  let pp_bind fmt x v = fprintf fmt "%s%s | %a\n" (var_sep x) x pp_obj v in
-  pp pp_bind "" fmt heap
+  let pp_binding fmt x v =
+    fprintf fmt "» %s%s  <-  %a\n" (var_sep x) x pp_obj v
+  in
+  pp pp_binding "" fmt heap
 
 let str ?(tabular : bool = true) (pp_obj : 'a pp_fmt) (heap : 'a t) : string =
   if tabular then Fmt.asprintf "%a" (pp_table pp_obj) heap
