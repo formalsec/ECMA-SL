@@ -263,16 +263,17 @@ module M (Mon : Monitor.M) = struct
       | Intermediate (state', stmts'') ->
         small_step_iter prog state' mon_state' stmts'' )
 
-  let eval_prog ?(main : string = "main") (prog : Prog.t) : return =
+  let eval_prog ?(main : string = "main") (prog : Prog.t) : value =
     Verbose.init ();
     let func = eval_func prog main in
     let state = initial_state func in
     let mon_state = Mon.initial_state () in
     let return = small_step_iter prog state mon_state [ Func.body func ] in
     match return with
-    | Final _ as retval -> retval
-    | Error err as retval ->
-      Fmt.eprintf "uncaught exception: %a@." Val.pp err;
-      retval
+    | Final (Val.Tuple [ Val.Bool false; retval ]) -> retval
+    | Final (Val.Tuple [ Val.Bool true; err ]) ->
+      Eslerr.(runtime (UncaughtExn (Val.str err)))
+    | Final _ -> Eslerr.internal __FUNCTION__ (Custom "invalid return format")
+    | Error err -> Eslerr.(runtime (Failure (Val.str err)))
     | _ -> Eslerr.internal __FUNCTION__ (Expecting "non-intermediate state")
 end
