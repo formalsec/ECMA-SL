@@ -7,7 +7,7 @@ module M (Mon : Monitor.M) = struct
   type store = value Store.t
   type heap = value Heap.t
   type stack = store Call_stack.t
-  type state = store * heap * stack * Func.t
+  type state = store * heap * stack
 
   type return =
     | Final of value
@@ -36,10 +36,10 @@ module M (Mon : Monitor.M) = struct
       Eslerr.(set_src (Expr e) exn |> raise)
 
   let initial_state (main : Func.t) : state =
-    let stack = Call_stack.push Call_stack.empty (Call_stack.Toplevel main) in
+    let stack = Call_stack.create main in
     let store = Store.create [] in
     let heap = Heap.create () in
-    (store, heap, stack, main)
+    (store, heap, stack)
 
   let print_val (heap : heap) (v : value) : unit =
     let open Fmt in
@@ -115,11 +115,10 @@ module M (Mon : Monitor.M) = struct
     | Val.Curry (fn, fvs) -> (fn, fvs)
     | _ as v -> Eslerr.(runtime ~src:(Expr fe) (BadFuncId v))
 
-  let prepare_call (stack : stack) (store : store) (cont : Stmt.t list)
-    (x : string) (func : Func.t) (vs : value list) : stack * store =
+  let prepare_call (stack : stack) (func : Func.t) (store : store)
+    (cont : Stmt.t list) (x : string) (vs : value list) : stack * store =
     let params = Func.params func in
-    let new_frame = Call_stack.Intermediate (cont, store, x, func) in
-    let stack' = Call_stack.push stack new_frame in
+    let stack' = Call_stack.push stack func store cont x in
     let store' =
       try List.combine params vs |> Store.create
       with _ ->
@@ -131,7 +130,9 @@ module M (Mon : Monitor.M) = struct
   let eval_small_step (prog : Prog.t) (state : state) (s : Stmt.t)
     (cont : Stmt.t list) : return * Mon.sl_label =
     let lbl s_eval = Mon.generate_label s s_eval in
-    let (store, heap, stack, func) = state in
+    let (store, heap, stack) = state in
+    let func = Call_stack.func stack in
+    Call_stack.update stack s;
     Verbose.eval_small_step func s;
     match s.it with
     | Skip -> (Intermediate (state, cont), lbl SkipEval)
@@ -148,9 +149,10 @@ module M (Mon : Monitor.M) = struct
       let (frame, stack') = Call_stack.pop stack in
       match frame with
       | Call_stack.Toplevel _ -> (Final v, lbl ReturnEval)
-      | Call_stack.Intermediate (cont', store', x, func') ->
+      | Call_stack.Intermediate (_, restore) ->
+        let (store', cont', x) = Call_stack.restore restore in
         Store.set store' x v;
-        let state' = (store', heap, stack', func') in
+        let state' = (store', heap, stack') in
         (Intermediate (state', cont'), lbl ReturnEval) )
     | Assign (x, e) ->
       eval_expr store e |> Store.set store x;
@@ -162,8 +164,8 @@ module M (Mon : Monitor.M) = struct
       | Some lbl -> (Intermediate (state, cont), lbl)
       | None ->
         let func' = eval_func prog fn in
-        let (stack', store') = prepare_call stack store cont x func' vs in
-        let state' = (store', heap, stack', func') in
+        let (stack', store') = prepare_call stack func' store cont x vs in
+        let state' = (store', heap, stack') in
         let cont' = [ Func.body func' ] in
         (Intermediate (state', cont'), lbl (AssignCallEval func)) )
     | AssignECall (x, fe, es) ->
@@ -250,7 +252,8 @@ module M (Mon : Monitor.M) = struct
     (mon_state : Mon.state) (stmts : Stmt.t list) : return =
     match stmts with
     | [] ->
-      let (_, _, _, func) = state in
+      let (_, _, stack) = state in
+      let func = Call_stack.func stack in
       let fn = Func.name func in
       Eslerr.(runtime ~loc:(Func func) ~src:(Str fn) (MissingReturn fn))
     | s :: stmts' -> (
