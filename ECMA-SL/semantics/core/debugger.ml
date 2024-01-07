@@ -90,12 +90,14 @@ let eval_cmd (store : store) (heap : heap) (expr : string) : unit =
     List.fold_left (eval_fld heap) lv fns |> print_val heap
 
 let store_cmd (store : store) : unit =
-  Format.printf "%s" (Store.str ~tabular:true Val.pp store)
+  Format.printf "%a" (Store.pp ~tabular:true Val.pp) store
 
 let heap_cmd (heap : heap) : unit =
-  Format.printf "%s" (Heap.str ~tabular:true (Object.pp Val.pp) heap)
+  Format.printf "%a" (Heap.pp ~tabular:true (Object.pp Val.pp)) heap
 
-let stack_cmd (stack : stack) : unit = Format.printf "%s" (Call_stack.str stack)
+let stack_cmd (stack : stack) : unit =
+  Format.printf "%a" (Call_stack.pp ~tabular:true) stack
+
 let help_cmd () : unit = Display.dialog ()
 let invalid_cmd () : unit = cmd_err "Invalid command. Try again."
 

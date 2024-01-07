@@ -15,7 +15,7 @@ let get (store : 'a t) (x : var) : ('a, string) Result.t =
 
 let set (store : 'a t) (x : var) (v : 'a) : unit = Hashtbl.replace store x v
 
-let pp (pp_binding : Fmt.formatter -> var * 'a -> unit) (sep : string)
+let pp_entry (pp_binding : Fmt.formatter -> var * 'a -> unit) (sep : string)
   (fmt : Fmt.formatter) (store : 'a t) : unit =
   let open Fmt in
   let pp_sep fmt () = pp_print_string fmt sep in
@@ -24,19 +24,23 @@ let pp (pp_binding : Fmt.formatter -> var * 'a -> unit) (sep : string)
 
 let pp_inline (pp_val : 'a pp_fmt) (fmt : Fmt.formatter) (store : 'a t) : unit =
   let open Fmt in
-  let pp_bind fmt (x, v) = fprintf fmt "%s: %a" x pp_val v in
-  fprintf fmt "{ %a }" (pp pp_bind ", ") store
+  let pp_binding fmt (x, v) = fprintf fmt "%s: %a" x pp_val v in
+  fprintf fmt "{ %a }" (pp_entry pp_binding ", ") store
 
-let pp_table (pp_val : 'a pp_fmt) (fmt : Fmt.formatter) (store : 'a t) : unit =
+let pp_tabular (pp_val : 'a pp_fmt) (fmt : Fmt.formatter) (store : 'a t) : unit
+    =
   let open Fmt in
   let lengths = Hashtbl.to_seq_keys store |> Seq.map String.length in
   let max = Seq.fold_left (fun acc n -> if n > acc then n else acc) 0 lengths in
   let var_sep x = String.make (max - String.length x) ' ' in
   let pp_binding fmt (x, v) =
-    fprintf fmt "» %s%s  <-  %a\n" (var_sep x) x pp_val v
+    fprintf fmt "%s%s  <-  %a" (var_sep x) x pp_val v
   in
-  pp pp_binding "" fmt store
+  pp_entry pp_binding "\n" fmt store
+
+let pp ?(tabular : bool = false) (pp_val : 'a pp_fmt) (fmt : Fmt.formatter)
+  (store : 'a t) : unit =
+  if tabular then pp_tabular pp_val fmt store else pp_inline pp_val fmt store
 
 let str ?(tabular : bool = false) (pp_val : 'a pp_fmt) (store : 'a t) : string =
-  if tabular then Fmt.asprintf "%a" (pp_table pp_val) store
-  else Fmt.asprintf "%a" (pp_inline pp_val) store
+  Fmt.asprintf "%a" (pp ~tabular pp_val) store
