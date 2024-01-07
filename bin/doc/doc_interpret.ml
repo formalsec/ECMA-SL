@@ -36,6 +36,7 @@ let options =
     $ input_file
     $ interpret_esl_flag
     $ interpret_verbose_flag
+    $ interpret_debugger_flag
     $ compile_untyped_flag )
 
 let term = Term.(const Cmd_interpret.main $ common_options $ options)

@@ -5,11 +5,13 @@ type options =
   { input_file : string
   ; interpret_esl : bool
   ; interpret_verbose : bool
+  ; interpret_debugger : bool
   ; untyped : bool
   }
 
-let options input_file interpret_esl interpret_verbose untyped : options =
-  { input_file; interpret_esl; interpret_verbose; untyped }
+let options input_file interpret_esl interpret_verbose interpret_debugger
+  untyped : options =
+  { input_file; interpret_esl; interpret_verbose; interpret_debugger; untyped }
 
 let run_interpreter (prog : Prog.t) : unit = ignore (Interpreter.eval_prog prog)
 
@@ -31,6 +33,7 @@ let main (copts : Options.common_options) (opts : options) : int =
   Config.Common.colored := not copts.colorless;
   Config.Eslerr.show_code := not opts.interpret_esl;
   Config.Interpreter.verbose := opts.interpret_verbose;
+  Config.Interpreter.debugger := opts.interpret_debugger;
   Config.Tesl.untyped := opts.untyped;
   Config.file := opts.input_file;
   Cmd.eval_cmd (fun () -> run opts)

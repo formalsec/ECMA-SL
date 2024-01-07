@@ -137,7 +137,7 @@ module M (Mon : Monitor.M) = struct
     | Skip -> (Intermediate (state, cont), lbl SkipEval)
     | Merge -> (Intermediate (state, cont), lbl MergeEval)
     | Debug ->
-      Debugger.run store heap stack;
+      if !Config.Interpreter.debugger then Debugger.run store heap stack;
       (Intermediate (state, cont), lbl DebugEval)
     | Block stmts -> (Intermediate (state, stmts @ cont), lbl BlockEval)
     | Print e ->

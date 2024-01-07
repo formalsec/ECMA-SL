@@ -43,6 +43,10 @@ let interpret_verbose_flag =
   let doc = "Display intermediate interpreter information." in
   Arg.(value & flag & info [ "verbose" ] ~doc)
 
+let interpret_debugger_flag =
+  let doc = "Enable the Core ECMA-SL debugger." in
+  Arg.(value & flag & info [ "db"; "debugger" ] ~doc)
+
 (* TODO *)
 
 let execution_lang =
