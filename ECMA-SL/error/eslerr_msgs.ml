@@ -12,6 +12,8 @@ module Runtime = struct
     | Default
     | Custom of string
     | Unexpected of string
+    | Failure of string
+    | UncaughtExn of string
     | OpEvalErr of string
     | UnknownVar of string
     | UnknownLoc of string
@@ -45,6 +47,8 @@ let runtime_message_str (msg : Runtime.t) : string =
   | Default -> "Generic runtime error."
   | Custom msg' -> msg'
   | Unexpected msg -> Printf.sprintf "Unexpected %s." msg
+  | Failure msg -> Printf.sprintf "Failure %s." msg
+  | UncaughtExn msg -> Printf.sprintf "Uncaught exception %s." msg
   | OpEvalErr op_lbl -> Printf.sprintf "Exception in Operator.%s." op_lbl
   | UnknownVar x -> Printf.sprintf "Cannot find variable '%s'." x
   | UnknownLoc l -> Printf.sprintf "Cannot find location '%s'." l

@@ -303,7 +303,9 @@ C_s({e}(e1, ..., en) catch g) =
 let build_if_throw_basic (x : string) (s_then : Stmt.t) (at : region) : Stmt.t =
   let guard = Expr.UnOpt (TupleFirst, Expr.Var x) in
   let s_else = Stmt.Assign (x, Expr.UnOpt (TupleSecond, Expr.Var x)) @> at in
-  Stmt.If (guard, s_then, Some s_else) @> at
+  let s_then' = Stmt.Block [ s_then ] @> at in
+  let s_else' = Stmt.Block [ s_else ] @> at in
+  Stmt.If (guard, s_then', Some s_else') @> at
 
 let build_if_throw (x : string) (g : string option) (at : region) : Stmt.t =
   match g with
