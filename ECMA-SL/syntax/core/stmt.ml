@@ -30,7 +30,7 @@ let rec pp (fmt : Fmt.formatter) (s : t) : unit =
   match s.it with
   | Skip -> fprintf fmt "skip"
   | Merge -> fprintf fmt "merge"
-  | Debug -> fprintf fmt "__DEBUG__"
+  | Debug -> fprintf fmt "__debug__"
   | Block stmts -> fprintf fmt "%a" (pp_lst ";\n" pp) stmts
   | Print e -> fprintf fmt "print %a" Expr.pp e
   | Return e -> fprintf fmt "return %a" Expr.pp e
