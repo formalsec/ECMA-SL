@@ -60,13 +60,13 @@ let parse_command (line : string) : t option =
   | [ "help" ] -> Some Help
   | _ -> None
 
-let print_stmt (func : Func.t) (s : Stmt.t) : unit =
+let print_stmt (f : Func.t) (s : Stmt.t) : unit =
   let open Source in
   let lineno_str = string_of_int s.at.left.line in
   let lineno_sz = String.length lineno_str in
   let lineno_indent = String.make lineno_sz ' ' in
-  Format.printf "\n%s | %a\n%s |    %a\n%s | }\n" lineno_indent Func.pp_simple
-    func lineno_str Stmt.pp_simple s lineno_indent
+  Format.printf "\n%s | %a\n%s |    %a\n%s | }\n" lineno_indent Func.pp_simple f
+    lineno_str Stmt.pp_simple s lineno_indent
 
 let print_obj (obj : obj) : unit = Format.printf "%a" (Object.pp Val.pp) obj
 
@@ -138,9 +138,9 @@ end
 
 module Default : M = struct
   let run (store : store) (heap : heap) (stack : stack) : unit =
-    let (func, s) = Call_stack.loc stack in
+    let (f, s) = Call_stack.loc stack in
     Show.header ();
-    print_stmt func s;
+    print_stmt f s;
     Show.dialog ();
     debug_loop_safe store heap stack;
     Show.footer ()

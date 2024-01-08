@@ -101,18 +101,15 @@ let tokens_stmt (stmt : Stmt.t) : token list =
   | Assert e -> [ Lit "assert "; Lit "("; Expr e; Lit ")" ]
   | Abort e -> [ Lit "abort "; Expr e ]
 
-let tokens_func (func : Func.t) : token list =
+let tokens_func (f : Func.t) : token list =
   let open Func in
-  let fn_tkn = Str func.it.name in
-  let param_tkns = List.map (fun p -> Str p) func.it.params in
+  let fn_tkn = Str f.it.name in
+  let param_tkns = List.map (fun p -> Str p) f.it.params in
   let end_tkns = [ Lit " { "; Lit threedots ] in
   Lit "function " :: (tokens_call fn_tkn param_tkns @ end_tkns)
 
 let token_region (tkn : token) : Source.region =
-  match tkn with
-  | Stmt stmt -> stmt.at
-  | Func func -> func.at
-  | _ -> Source.no_region
+  match tkn with Stmt s -> s.at | Func f -> f.at | _ -> Source.no_region
 
 let rec token_str (tkn : token) : string =
   match tkn with
@@ -121,9 +118,9 @@ let rec token_str (tkn : token) : string =
   | Lit l -> l
   | Str s -> s
   | Val v -> Val.str v
-  | Expr expr -> List.map token_str (tokens_expr expr) |> String.concat ""
-  | Stmt stmt -> List.map token_str (tokens_stmt stmt) |> String.concat ""
-  | Func func -> List.map token_str (tokens_func func) |> String.concat ""
+  | Expr e -> List.map token_str (tokens_expr e) |> String.concat ""
+  | Stmt s -> List.map token_str (tokens_stmt s) |> String.concat ""
+  | Func f -> List.map token_str (tokens_func f) |> String.concat ""
 
 let token_cmp (tkn1 : token) (tkn2 : token) : bool =
   match (tkn1, tkn2) with

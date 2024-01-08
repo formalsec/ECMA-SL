@@ -15,9 +15,9 @@ module Default : M = struct
   let eval_expr_val (e : Expr.t) (v : Val.t) : unit =
     Format.eprintf "» | %a | --> %a@." Expr.pp e Val.pp v
 
-  let eval_small_step (func : Func.t) (s : Stmt.t) : unit =
+  let eval_small_step (f : Func.t) (s : Stmt.t) : unit =
     if log_stmt s then
       let divider_str = "----------------------------------------" in
       Format.eprintf "%s\nEvaluating >>>> %s() [line=%d]: %a@." divider_str
-        (Func.name func) s.at.left.line Stmt.pp_simple s
+        (Func.name f) s.at.left.line Stmt.pp_simple s
 end
