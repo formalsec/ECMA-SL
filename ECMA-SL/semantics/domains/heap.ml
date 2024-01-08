@@ -54,7 +54,7 @@ let pp_entry (pp_binding : Fmt.formatter -> Loc.t * 'a obj -> unit)
   let pp_seq pp fmt lst = pp_print_seq ~pp_sep pp fmt lst in
   fprintf fmt "%a" (pp_seq pp_binding) (Hashtbl.to_seq heap.map)
 
-let pp_inline (pp_obj : 'a pp_fmt) (fmt : Fmt.formatter) (heap : 'a t) : unit =
+let pp (pp_obj : 'a pp_fmt) (fmt : Fmt.formatter) (heap : 'a t) : unit =
   let open Fmt in
   let pp_binding fmt (x, obj) = fprintf fmt "%s: %a" x pp_obj obj in
   fprintf fmt "{ %a }" (pp_entry pp_binding ", ") heap
@@ -69,9 +69,6 @@ let pp_tabular (pp_obj : 'a pp_fmt) (fmt : Fmt.formatter) (heap : 'a t) : unit =
   in
   pp_entry pp_binding "\n" fmt heap
 
-let pp ?(tabular : bool = false) (pp_obj : 'a pp_fmt) (fmt : Fmt.formatter)
-  (heap : 'a t) : unit =
-  if tabular then pp_tabular pp_obj fmt heap else pp_inline pp_obj fmt heap
-
 let str ?(tabular : bool = false) (pp_obj : 'a pp_fmt) (heap : 'a t) : string =
-  Fmt.asprintf "%a" (pp ~tabular pp_obj) heap
+  if tabular then Fmt.asprintf "%a" (pp_tabular pp_obj) heap
+  else Fmt.asprintf "%a" (pp pp_obj) heap

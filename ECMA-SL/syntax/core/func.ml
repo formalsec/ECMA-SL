@@ -15,9 +15,21 @@ let body (func : t) : Stmt.t = func.it.body
 let create (name : string) (params : string list) (body : Stmt.t) : t' =
   { name; params; body }
 
-let pp (fmt : Fmt.formatter) ({ it = { name; params; body }; _ }: t) : unit =
+let pp_signature (fmt : Fmt.formatter) (func : t) : unit =
   let open Fmt in
-  fprintf fmt "function %s(%a) {\n%a\n}" name (pp_lst ", " pp_str) params
-    Stmt.pp body
+  let pp_sep seq fmt () = pp_print_string fmt seq in
+  let pp_lst seq pp fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
+  let { name; params; _ } = func.it in
+  fprintf fmt "function %s(%a) {" name (pp_lst ", " pp_print_string) params
 
-let str (func : t) : string = Fmt.asprintf "%a" pp func
+let pp (fmt : Fmt.formatter) (func : t) : unit =
+  let open Fmt in
+  let body = func.it.body in
+  fprintf fmt "%a\n%a\n}" pp_signature func Stmt.pp body
+
+let pp_simple (fmt : Fmt.formatter) (func : t) : unit =
+  let open Fmt in
+  fprintf fmt "%a ..." pp_signature func
+
+let str ?(simple : bool = false) (func : t) : string =
+  if simple then Fmt.asprintf "%a" pp_simple func else Fmt.asprintf "%a" pp func

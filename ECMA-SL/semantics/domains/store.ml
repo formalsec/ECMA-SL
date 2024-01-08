@@ -22,7 +22,7 @@ let pp_entry (pp_binding : Fmt.formatter -> var * 'a -> unit) (sep : string)
   let pp_seq pp fmt lst = pp_print_seq ~pp_sep pp fmt lst in
   fprintf fmt "%a" (pp_seq pp_binding) (Hashtbl.to_seq store)
 
-let pp_inline (pp_val : 'a pp_fmt) (fmt : Fmt.formatter) (store : 'a t) : unit =
+let pp (pp_val : 'a pp_fmt) (fmt : Fmt.formatter) (store : 'a t) : unit =
   let open Fmt in
   let pp_binding fmt (x, v) = fprintf fmt "%s: %a" x pp_val v in
   fprintf fmt "{ %a }" (pp_entry pp_binding ", ") store
@@ -38,9 +38,6 @@ let pp_tabular (pp_val : 'a pp_fmt) (fmt : Fmt.formatter) (store : 'a t) : unit
   in
   pp_entry pp_binding "\n" fmt store
 
-let pp ?(tabular : bool = false) (pp_val : 'a pp_fmt) (fmt : Fmt.formatter)
-  (store : 'a t) : unit =
-  if tabular then pp_tabular pp_val fmt store else pp_inline pp_val fmt store
-
 let str ?(tabular : bool = false) (pp_val : 'a pp_fmt) (store : 'a t) : string =
-  Fmt.asprintf "%a" (pp ~tabular pp_val) store
+  if tabular then Fmt.asprintf "%a" (pp_tabular pp_val) store
+  else Fmt.asprintf "%a" (pp pp_val) store
