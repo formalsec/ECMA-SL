@@ -2,23 +2,37 @@ module V = Symbolic_value.M
 
 module Make (O : Object_intf.S with type value = V.value) = struct
   type object_ = O.t
-  type t = (Loc.t, object_) Hashtbl.t
+
+  type t =
+    { parent : t option
+    ; data : (Loc.t, object_) Hashtbl.t
+    }
+
   type value = V.value
 
-  let create () : t = Hashtbl.create 512
-  let clone (h : t) : t = Hashtbl.copy h
+  let create () : t = { parent = None; data = Hashtbl.create 512 }
+  let clone (m : t) : t = { parent = Some m; data = Hashtbl.create 16 }
 
-  let insert (h : t) (o : object_) : value =
+  let insert ({ data = memory; _ } : t) (o : object_) : value =
     let loc = Loc.create () in
-    Hashtbl.replace h loc o;
+    Hashtbl.replace memory loc o;
     V.Val (Val.Loc loc)
 
-  let remove (h : t) (l : Loc.t) : unit = Hashtbl.remove h l
+  let remove (m : t) (l : Loc.t) : unit = Hashtbl.remove m.data l
 
-  let set (h : t) (key : Loc.t) (data : object_) : unit =
-    Hashtbl.replace h key data
+  let set ({ data = memory; _ } : t) (key : Loc.t) (data : object_) : unit =
+    Hashtbl.replace memory key data
 
-  let get (h : t) (key : Loc.t) : object_ option = Hashtbl.find_opt h key
+  let rec get ({ parent; data } as h : t) (key : Loc.t) : object_ option =
+    let open Syntax.Option in
+    match Hashtbl.find_opt data key with
+    | Some _ as result -> result
+    | None ->
+      let* parent in
+      let+ obj = get parent key in
+      let obj = O.clone obj in
+      set h key obj;
+      obj
 
   let has_field (h : t) (loc : Loc.t) (field : value) : value =
     Option.fold (get h loc)
@@ -48,13 +62,14 @@ module Make (O : Object_intf.S with type value = V.value) = struct
   let pp_hashtbl ~pp_sep pp_v fmt v =
     Format.pp_print_seq ~pp_sep pp_v fmt (Hashtbl.to_seq v)
 
-  let pp fmt (h : t) =
-    Format.fprintf fmt "{ %a }"
-      (pp_hashtbl
-         ~pp_sep:(fun fmt () -> Format.fprintf fmt ",@ ")
-         (fun fmt (key, data) ->
-           Format.fprintf fmt "%a: %a" Loc.pp key O.pp data ) )
-      h
+  let rec pp fmt ({ data; parent } : t) =
+    let open Format in
+    let pp_sep fmt () = fprintf fmt ",@ " in
+    let pp_v fmt (key, data) = fprintf fmt "%a: %a" Loc.pp key O.pp data in
+    let pp_parent fmt p =
+      pp_print_option (fun fmt h -> fprintf fmt "%a@ <-@ " pp h) fmt p
+    in
+    fprintf fmt "%a{ %a }" pp_parent parent (pp_hashtbl ~pp_sep pp_v) data
 
   let rec unfold_ite ~(accum : value) (e : value) : (value option * string) list
       =

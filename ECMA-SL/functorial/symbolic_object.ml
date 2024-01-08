@@ -26,6 +26,11 @@ module M : Object_intf.S with type value = V.value = struct
     }
 
   let create () = { fields = VMap.empty; symbols = VMap.empty }
+
+  let clone o =
+    (* Immutable structures don't need to be copied *)
+    o
+
   let is_empty o = VMap.(is_empty o.fields && is_empty o.symbols)
   let to_list o = VMap.to_list o.symbols @ VMap.to_list o.fields
 
