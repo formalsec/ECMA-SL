@@ -1,5 +1,4 @@
 open Ecma_sl
-module Interpreter = Interpreter.M (Monitor.Default)
 
 type options =
   { input_file : string
@@ -13,7 +12,25 @@ let options input_file interpret_esl interpret_verbose interpret_debugger
   untyped : options =
   { input_file; interpret_esl; interpret_verbose; interpret_debugger; untyped }
 
-let run_interpreter (prog : Prog.t) : unit = ignore (Interpreter.eval_prog prog)
+let configure_debugger () : (module Debugger.M) =
+  match !Config.Interpreter.debugger with
+  | true -> (module Debugger.Default : Debugger.M)
+  | false -> (module Debugger.Disable : Debugger.M)
+
+let configure_verbose () : (module Verbose.M) =
+  match !Config.Interpreter.verbose with
+  | true -> (module Verbose.Default : Verbose.M)
+  | false -> (module Verbose.Disable : Verbose.M)
+
+let configure_monitor () : (module Monitor.M) =
+  (module Monitor.Default : Monitor.M)
+
+let run_interpreter (prog : Prog.t) : unit =
+  let module Debugger = (val configure_debugger ()) in
+  let module Verbose = (val configure_verbose ()) in
+  let module Monitor = (val configure_monitor ()) in
+  let module Interpreter = Interpreter.M (Debugger) (Verbose) (Monitor) in
+  ignore (Interpreter.eval_prog prog)
 
 let interpret_core (input_file : string) : unit =
   Cmd.test_file_ext input_file [ ".cesl" ];
