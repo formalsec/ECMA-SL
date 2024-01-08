@@ -8,28 +8,28 @@ and t' =
   ; body : Stmt.t
   }
 
-let name (func : t) : string = func.it.name
-let params (func : t) : string list = func.it.params
-let body (func : t) : Stmt.t = func.it.body
+let name (f : t) : string = f.it.name
+let params (f : t) : string list = f.it.params
+let body (f : t) : Stmt.t = f.it.body
 
 let create (name : string) (params : string list) (body : Stmt.t) : t' =
   { name; params; body }
 
-let pp_signature (fmt : Fmt.formatter) (func : t) : unit =
+let pp_signature (fmt : Fmt.formatter) (f : t) : unit =
   let open Fmt in
   let pp_sep seq fmt () = pp_print_string fmt seq in
   let pp_lst seq pp fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
-  let { name; params; _ } = func.it in
+  let { name; params; _ } = f.it in
   fprintf fmt "function %s(%a) {" name (pp_lst ", " pp_print_string) params
 
-let pp (fmt : Fmt.formatter) (func : t) : unit =
+let pp (fmt : Fmt.formatter) (f : t) : unit =
   let open Fmt in
-  let body = func.it.body in
-  fprintf fmt "%a\n%a\n}" pp_signature func Stmt.pp body
+  let body = f.it.body in
+  fprintf fmt "%a\n%a\n}" pp_signature f Stmt.pp body
 
-let pp_simple (fmt : Fmt.formatter) (func : t) : unit =
+let pp_simple (fmt : Fmt.formatter) (f : t) : unit =
   let open Fmt in
-  fprintf fmt "%a ..." pp_signature func
+  fprintf fmt "%a ..." pp_signature f
 
-let str ?(simple : bool = false) (func : t) : string =
-  if simple then Fmt.asprintf "%a" pp_simple func else Fmt.asprintf "%a" pp func
+let str ?(simple : bool = false) (f : t) : string =
+  if simple then Fmt.asprintf "%a" pp_simple f else Fmt.asprintf "%a" pp f

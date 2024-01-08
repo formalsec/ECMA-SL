@@ -26,7 +26,7 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
 
   let eval_func (prog : Prog.t) (fn : string) : Func.t =
     match Prog.func_opt prog fn with
-    | Some func -> func
+    | Some f -> f
     | None -> Eslerr.(runtime ~src:(Str fn) (UnknownFunc fn))
 
   let eval_operator (eval_op_fun : unit -> value) (es : Expr.t list) : value =
@@ -115,10 +115,10 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     | Val.Curry (fn, fvs) -> (fn, fvs)
     | _ as v -> Eslerr.(runtime ~src:(Expr fe) (BadFuncId v))
 
-  let prepare_call (stack : stack) (func : Func.t) (store : store)
+  let prepare_call (stack : stack) (f : Func.t) (store : store)
     (cont : Stmt.t list) (x : string) (vs : value list) : stack * store =
-    let params = Func.params func in
-    let stack' = Call_stack.push stack func store cont x in
+    let params = Func.params f in
+    let stack' = Call_stack.push stack f store cont x in
     let store' =
       try List.combine params vs |> Store.create
       with _ ->
@@ -131,9 +131,9 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     (cont : Stmt.t list) : return * Mon.sl_label =
     let lbl s_eval = Mon.generate_label s s_eval in
     let (store, heap, stack) = state in
-    let func = Call_stack.func stack in
+    let f = Call_stack.func stack in
     Call_stack.update stack s;
-    Vb.eval_small_step func s;
+    Vb.eval_small_step f s;
     match s.it with
     | Skip -> (Intermediate (state, cont), lbl SkipEval)
     | Merge -> (Intermediate (state, cont), lbl MergeEval)
@@ -163,11 +163,11 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
       match Mon.interceptor fn vs es with
       | Some lbl -> (Intermediate (state, cont), lbl)
       | None ->
-        let func' = eval_func prog fn in
-        let (stack', store') = prepare_call stack func' store cont x vs in
+        let f' = eval_func prog fn in
+        let (stack', store') = prepare_call stack f' store cont x vs in
         let state' = (store', heap, stack') in
-        let cont' = [ Func.body func' ] in
-        (Intermediate (state', cont'), lbl (AssignCallEval func)) )
+        let cont' = [ Func.body f' ] in
+        (Intermediate (state', cont'), lbl (AssignCallEval f)) )
     | AssignECall (x, fe, es) ->
       let vs = List.map (eval_expr store) es in
       let v = External.execute prog heap fe vs in
@@ -253,9 +253,9 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     match stmts with
     | [] ->
       let (_, _, stack) = state in
-      let func = Call_stack.func stack in
-      let fn = Func.name func in
-      Eslerr.(runtime ~loc:(Func func) ~src:(Str fn) (MissingReturn fn))
+      let f = Call_stack.func stack in
+      let fn = Func.name f in
+      Eslerr.(runtime ~loc:(Func f) ~src:(Str fn) (MissingReturn fn))
     | s :: stmts' -> (
       let (return, lbl) = eval_small_step_safe prog state s stmts' in
       let mon_return = Mon.eval_small_step mon_state lbl in
@@ -267,10 +267,10 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
         small_step_iter prog state' mon_state' stmts'' )
 
   let eval_prog ?(main : string = "main") (prog : Prog.t) : value =
-    let func = eval_func prog main in
-    let state = initial_state func in
+    let f = eval_func prog main in
+    let state = initial_state f in
     let mon_state = Mon.initial_state () in
-    let return = small_step_iter prog state mon_state [ Func.body func ] in
+    let return = small_step_iter prog state mon_state [ Func.body f ] in
     match return with
     | Final (Val.Tuple [ Val.Bool false; retval ]) -> retval
     | Final (Val.Tuple [ Val.Bool true; err ]) ->
