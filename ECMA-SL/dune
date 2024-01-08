@@ -62,8 +62,8 @@
   interpreter
   eval_operator
   debugger
-  monitor
   verbose
+  monitor
   external
   ;   semantics (nsu monitor)
   NSUMonitor

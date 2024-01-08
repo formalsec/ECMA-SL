@@ -1,7 +1,7 @@
 open Source
 open Stmt
 
-module M (Mon : Monitor.M) = struct
+module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
   type value = Val.t
   type obj = value Object.t
   type store = value Store.t
@@ -86,7 +86,7 @@ module M (Mon : Monitor.M) = struct
 
   and eval_expr (store : store) (e : Expr.t) : value =
     let v = eval_expr_sub store e in
-    Verbose.eval_expr e v;
+    Vb.eval_expr_val e v;
     v
 
   let eval_string (store : store) (e : Expr.t) : string =
@@ -133,12 +133,12 @@ module M (Mon : Monitor.M) = struct
     let (store, heap, stack) = state in
     let func = Call_stack.func stack in
     Call_stack.update stack s;
-    Verbose.eval_small_step func s;
+    Vb.eval_small_step func s;
     match s.it with
     | Skip -> (Intermediate (state, cont), lbl SkipEval)
     | Merge -> (Intermediate (state, cont), lbl MergeEval)
     | Debug ->
-      if !Config.Interpreter.debugger then Debugger.run store heap stack;
+      Db.run store heap stack;
       (Intermediate (state, cont), lbl DebugEval)
     | Block stmts -> (Intermediate (state, stmts @ cont), lbl BlockEval)
     | Print e ->
@@ -267,7 +267,6 @@ module M (Mon : Monitor.M) = struct
         small_step_iter prog state' mon_state' stmts'' )
 
   let eval_prog ?(main : string = "main") (prog : Prog.t) : value =
-    Verbose.init ();
     let func = eval_func prog main in
     let state = initial_state func in
     let mon_state = Mon.initial_state () in

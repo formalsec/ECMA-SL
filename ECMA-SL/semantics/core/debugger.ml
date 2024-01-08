@@ -120,8 +120,18 @@ and debug_loop_safe (store : store) (heap : heap) (stack : stack) : unit =
     Format.printf "%s" err;
     debug_loop_safe store heap stack
 
-let run (store : store) (heap : heap) (stack : stack) : unit =
-  Display.header ();
-  Display.dialog ();
-  debug_loop_safe store heap stack;
-  Display.footer ()
+module type M = sig
+  val run : store -> heap -> stack -> unit
+end
+
+module Disable : M = struct
+  let run (_ : store) (_ : heap) (_ : stack) : unit = ()
+end
+
+module Default : M = struct
+  let run (store : store) (heap : heap) (stack : stack) : unit =
+    Display.header ();
+    Display.dialog ();
+    debug_loop_safe store heap stack;
+    Display.footer ()
+end
