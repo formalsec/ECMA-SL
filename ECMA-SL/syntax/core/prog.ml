@@ -20,8 +20,8 @@ let func (prog : t) (fn : string) : (Func.t, string) Result.t =
 let func_name (prog : t) (fn : string) : (string, string) Result.t =
   Result.map (fun f -> f.it.name) (func prog fn)
 
-let add_func (prog : t) (fn : string) (func : Func.t) : unit =
-  Hashtbl.replace prog fn func
+let add_func (prog : t) (fn : string) (f : Func.t) : unit =
+  Hashtbl.replace prog fn f
 
 let pp (fmt : Fmt.formatter) (prog : t) : unit =
   let open Fmt in
