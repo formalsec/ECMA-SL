@@ -238,7 +238,7 @@ let format_code (srcdata : srcdata) : string =
   else
     let code_header =
       if srcdata.locdata.region = Source.no_region then String.make 6 ' '
-      else Printf.sprintf "%d |   " srcdata.locdata.line
+      else Printf.sprintf "%d |  " srcdata.locdata.line
     in
     Printf.sprintf "%s%s" code_header srcdata.code
 

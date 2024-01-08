@@ -4,7 +4,7 @@ type store = value Store.t
 type heap = value Heap.t
 type stack = store Call_stack.t
 
-module Display = struct
+module Show = struct
   let header () : unit =
     Format.printf "\n%a"
       (Font.str_pp_out [ Font.Cyan ])
@@ -60,6 +60,14 @@ let parse_command (line : string) : t option =
   | [ "help" ] -> Some Help
   | _ -> None
 
+let print_stmt (func : Func.t) (s : Stmt.t) : unit =
+  let open Source in
+  let lineno_str = string_of_int s.at.left.line in
+  let lineno_sz = String.length lineno_str in
+  let lineno_indent = String.make lineno_sz ' ' in
+  Format.printf "\n%s | %a\n%s |    %a\n%s | }\n" lineno_indent Func.pp_simple
+    func lineno_str Stmt.pp_simple s lineno_indent
+
 let print_obj (obj : obj) : unit = Format.printf "%a" (Object.pp Val.pp) obj
 
 let print_val (heap : heap) (res : value) : unit =
@@ -90,20 +98,20 @@ let eval_cmd (store : store) (heap : heap) (expr : string) : unit =
     List.fold_left (eval_fld heap) lv fns |> print_val heap
 
 let store_cmd (store : store) : unit =
-  Format.printf "%a" (Store.pp ~tabular:true Val.pp) store
+  Format.printf "%a" (Store.pp_tabular Val.pp) store
 
 let heap_cmd (heap : heap) : unit =
-  Format.printf "%a" (Heap.pp ~tabular:true (Object.pp Val.pp)) heap
+  Format.printf "%a" (Heap.pp_tabular (Object.pp Val.pp)) heap
 
 let stack_cmd (stack : stack) : unit =
-  Format.printf "%a" (Call_stack.pp ~tabular:true) stack
+  Format.printf "%a" Call_stack.pp_tabular stack
 
-let help_cmd () : unit = Display.dialog ()
+let help_cmd () : unit = Show.dialog ()
 let invalid_cmd () : unit = cmd_err "Invalid command. Try again."
 
 let rec debug_loop (store : store) (heap : heap) (stack : stack) : unit =
   let run_cmd cmd = cmd () |> fun () -> debug_loop store heap stack in
-  Display.prompt ();
+  Show.prompt ();
   let command = read_line () |> parse_command in
   match command with
   | Some (Eval expr) -> run_cmd (fun () -> eval_cmd store heap expr)
@@ -130,8 +138,10 @@ end
 
 module Default : M = struct
   let run (store : store) (heap : heap) (stack : stack) : unit =
-    Display.header ();
-    Display.dialog ();
+    let (func, s) = Call_stack.loc stack in
+    Show.header ();
+    print_stmt func s;
+    Show.dialog ();
     debug_loop_safe store heap stack;
-    Display.footer ()
+    Show.footer ()
 end

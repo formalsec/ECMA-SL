@@ -23,15 +23,13 @@ exception Empty_stack
 let no_stmt () : Stmt.t = Source.(Stmt.Skip @> no_region)
 let create (func : Func.t) : 'store t = [ Toplevel { func; stmt = no_stmt () } ]
 
-let func (stack : 'store t) : Func.t =
+let loc (stack : 'store t) : Func.t * Stmt.t =
   match stack with
   | [] -> raise Empty_stack
-  | Toplevel loc :: _ | Intermediate (loc, _) :: _ -> loc.func
+  | Toplevel loc :: _ | Intermediate (loc, _) :: _ -> (loc.func, loc.stmt)
 
-let stmt (stack : 'store t) : Stmt.t =
-  match stack with
-  | [] -> raise Empty_stack
-  | Toplevel loc :: _ | Intermediate (loc, _) :: _ -> loc.stmt
+let func (stack : 'store t) : Func.t = fst (loc stack)
+let stmt (stack : 'store t) : Stmt.t = snd (loc stack)
 
 let pop (stack : 'store t) : 'store frame * 'store t =
   match stack with [] -> raise Empty_stack | frame :: stack' -> (frame, stack')
@@ -59,7 +57,7 @@ let pp_entry (fmt : Format.formatter) (frame : 'store frame) : unit =
   let { func; stmt } = frame_loc frame in
   fprintf fmt "'%s' in %a" func.it.name pp_loc stmt.at
 
-let pp_inline (fmt : Format.formatter) (stack : 'store t) : unit =
+let pp (fmt : Format.formatter) (stack : 'store t) : unit =
   let open Format in
   let frame_loc = function Toplevel loc | Intermediate (loc, _) -> loc in
   let pp_sep seq fmt () = pp_print_string fmt seq in
@@ -78,9 +76,6 @@ let pp_tabular (fmt : Format.formatter) (stack : 'store t) : unit =
   | frame :: stack' ->
     fprintf fmt "%a%a" pp_curr frame (pp_lst "\n" pp_trace) stack'
 
-let pp ?(tabular : bool = false) (fmt : Format.formatter) (stack : 'store t) :
-  unit =
-  if tabular then pp_tabular fmt stack else pp_inline fmt stack
-
 let str ?(tabular : bool = false) (stack : 'store t) : string =
-  Format.asprintf "%a" (pp ~tabular) stack
+  if tabular then Format.asprintf "%a" pp_tabular stack
+  else Format.asprintf "%a" pp stack
