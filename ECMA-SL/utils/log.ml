@@ -4,4 +4,5 @@ let debug fmt =
   if !on_debug then Fmt.eprintf fmt
   else Fmt.ifprintf Fmt.err_formatter fmt
 
-let err fmt = Fmt.eprintf fmt
+let warn fmt = Format.eprintf fmt
+let err fmt = Format.kasprintf failwith fmt

@@ -3,6 +3,7 @@ module type S = sig
   type value
 
   val create : unit -> t
+  val clone : t -> t
   val is_empty : t -> bool
   val to_list : t -> (value * value) list
   val get_fields : t -> value list

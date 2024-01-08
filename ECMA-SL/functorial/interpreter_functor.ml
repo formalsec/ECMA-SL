@@ -147,7 +147,7 @@ module Make (P : Interpreter_functor_intf.P) :
       Choice.return @@ State.Continue { state with stmts = s' :: state.stmts }
     | Stmt.Fail e ->
       let e' = pp locals m e in
-      Log.err "       fail : %s@." e';
+      Log.warn "       fail : %s@." e';
       err {|{ "fail" : "%S" }|} e'
     | Stmt.Print e ->
       Format.printf "%s@." (pp locals m e);
@@ -159,7 +159,7 @@ module Make (P : Interpreter_functor_intf.P) :
       let* e' = eval_expr locals e in
       let/ b = Choice.check @@ Value.Bool.not_ e' in
       if b then (
-        Log.err "     assert : failure with (%a)@." Value.Pp.pp e';
+        Log.warn "     assert : failure with (%a)@." Value.Pp.pp e';
         err {|{ "assert" : "%a" }|} Value.Pp.pp e' )
       else st locals
     | Stmt.Block blk ->
