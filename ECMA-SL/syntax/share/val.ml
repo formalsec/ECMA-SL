@@ -18,6 +18,7 @@ type pp_fmt = t -> Format.formatter -> unit
 
 let rec equal (v1 : t) (v2 : t) : bool =
   match (v1, v2) with
+  | Null, Null | Void, Void -> true
   | (Int i1, Int i2) -> Int.equal i1 i2
   | (Flt f1, Flt f2) -> Float.equal f1 f2
   | (Str s1, Str s2) -> String.equal s1 s2
@@ -32,7 +33,7 @@ let rec equal (v1 : t) (v2 : t) : bool =
   | (Byte bt1, Byte bt2) -> Int.equal bt1 bt2
   | (Curry (fn1, fvs1), Curry (fn2, fvs2)) ->
     String.equal fn1 fn2 && List.equal equal fvs1 fvs2
-  | _ -> v1 = v2
+  | _ -> false
 
 let rec copy (v : t) : t =
   match v with
