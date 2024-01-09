@@ -64,8 +64,8 @@
                   "s_substr_u"              , STRING_SUBSTR_U;
 
                   (* Object Operators *)
-                  "object_to_list"          , OBJECT_TO_LIST;
-                  "object_fields"           , OBJECT_FIELDS;
+                  "obj_to_list"             , OBJECT_TO_LIST;
+                  "obj_fields"              , OBJECT_FIELDS;
 
                   (* Array Operators *)
                   "a_len"                   , ARRAY_LEN;
