@@ -302,7 +302,7 @@ C_s({e}(e1, ..., en) catch g) =
 *)
 let build_if_throw_basic (x : string) (s_then : Stmt.t) (at : region) : Stmt.t =
   let guard = Expr.UnOpt (TupleFirst, Expr.Var x) in
-  let s_else = Stmt.Assign (x, Expr.UnOpt (TupleFirst, Expr.Var x)) @> at in
+  let s_else = Stmt.Assign (x, Expr.UnOpt (TupleSecond, Expr.Var x)) @> at in
   Stmt.If (guard, s_then, Some s_else) @> at
 
 let build_if_throw (x : string) (g : string option) (at : region) : Stmt.t =
@@ -310,7 +310,7 @@ let build_if_throw (x : string) (g : string option) (at : region) : Stmt.t =
   | None -> build_if_throw_basic x (Stmt.Return (Expr.Var x) @> at) at
   | Some g ->
     let args =
-      [ Expr.Var __INTERNAL_ESL_GLOBAL__; Expr.UnOpt (TupleFirst, Expr.Var x) ]
+      [ Expr.Var __INTERNAL_ESL_GLOBAL__; Expr.UnOpt (TupleSecond, Expr.Var x) ]
     in
     let call_stmt = Stmt.AssignCall (x, Expr.Val (Val.Str g), args) @> at in
     let inner_if = build_if_throw_basic x (Stmt.Return (Expr.Var x) @> at) at in
