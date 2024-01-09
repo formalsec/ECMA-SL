@@ -656,8 +656,8 @@ let eq ((v1, v2) : Val.t * Val.t) : Val.t =
 
 let lt ((v1, v2) : Val.t * Val.t) : Val.t = Bool (v1 < v2)
 let gt ((v1, v2) : Val.t * Val.t) : Val.t = Bool (v1 > v2)
-let le ((v1, v2) : Val.t * Val.t) : Val.t = Bool (v1 >= v2)
-let ge ((v1, v2) : Val.t * Val.t) : Val.t = Bool (v1 <= v2)
+let le ((v1, v2) : Val.t * Val.t) : Val.t = Bool (v1 <= v2)
+let ge ((v1, v2) : Val.t * Val.t) : Val.t = Bool (v1 >= v2)
 
 let to_precision ((v1, v2) : Val.t * Val.t) : Val.t =
   let op_lbl = label_of_binopt ToPrecision in
