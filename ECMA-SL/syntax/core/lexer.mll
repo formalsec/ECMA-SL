@@ -25,13 +25,13 @@
 
                   (* General Operators *)
                   "typeof"                  , TYPEOF;
-                  
+
                   (* Integer Operators *)
                   "int_to_float"            , INT_TO_FLOAT;
                   "int_to_string"           , INT_TO_STRING;
                   "int_to_four_hex"         , INT_TO_FOUR_HEX;
                   "octal_to_decimal"        , OCTAL_TO_DECIMAL;
-                  
+
                   (* Float Operators *)
                   "int_of_float"            , FLOAT_TO_INT;
                   "float_to_string"         , FLOAT_TO_STRING;
@@ -62,17 +62,17 @@
                   "s_split"                 , STRING_SPLIT;
                   "s_substr"                , STRING_SUBSTR;
                   "s_substr_u"              , STRING_SUBSTR_U;
-                  
+
                   (* Object Operators *)
                   "object_to_list"          , OBJECT_TO_LIST;
                   "object_fields"           , OBJECT_FIELDS;
-                  
+
                   (* Array Operators *)
                   "a_len"                   , ARRAY_LEN;
                   "array_make"              , ARRAY_MAKE;
                   "a_nth"                   , ARRAY_NTH;
                   "a_set"                   , ARRAY_SET;
-                  
+
                   (* List Operators *)
                   "list_to_array"           , LIST_TO_ARRAY;
                   "hd"                      , LIST_HEAD;
@@ -88,13 +88,13 @@
                   "l_remove"                , LIST_REMOVE;
                   "l_remove_nth"            , LIST_REMOVE_NTH;
                   "l_set"                   , LIST_SET;
-                  
+
                   (* Tuple Operators *)
                   "fst"                     , TUPLE_FST;
                   "snd"                     , TUPLE_SND;
                   "t_len"                   , TUPLE_LEN;
                   "t_nth"                   , TUPLE_NTH;
-                  
+
                   (* Byte Operators *)
                   "float_to_byte"           , FLOAT_TO_BYTE;
                   "float32_to_le_bytes"     , FLOAT32_TO_LE_BYTES;
@@ -109,7 +109,7 @@
                   "int_to_be_bytes"         , INT_TO_BE_BYTES;
                   "int_from_le_bytes"       , INT_FROM_LE_BYTES;
                   "uint_from_le_bytes"      , UINT_FROM_LE_BYTES;
-                  
+
                   (* Math Operators *)
                   "random"                  , RANDOM;
                   "abs"                     , ABS;
@@ -141,7 +141,7 @@
                   "parse_date"              , PARSE_DATE;
 
                   (* Symbolic *)
-                  "se_abort"                , SE_ABORT;
+                  "abort"                , SE_ABORT;
                 ]
 
   exception Syntax_error of string

@@ -172,7 +172,7 @@ type nopt =
   | TupleExpr
 
 let is_infix_unopt (op : unopt) : bool =
-  match op with Neg | BitwiseNot | LogicalNot -> true | _ -> false
+  match op with BitwiseNot | LogicalNot -> true | _ -> false
 
 let is_infix_binopt (op : binopt) : bool =
   match op with
