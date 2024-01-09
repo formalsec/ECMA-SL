@@ -2,7 +2,7 @@ type t =
   | Null
   | Void
   | Int of int
-  | Flt of float
+  | Flt of (float [@unboxed])
   | Str of string
   | Bool of bool
   | Symbol of string
