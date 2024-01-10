@@ -26,7 +26,6 @@ let at (startpos, endpos) =
   BEGIN first section - declarations
   - token and type specifications, precedence directives and other output directives
 *)
-%token DEBUG 
 %token SKIP
 %token PRINT WRAPPER
 %token DEFEQ
@@ -69,6 +68,7 @@ let at (startpos, endpos) =
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
 %token QUESTION
+%token HASH
 %token EOF
 %token TYPEDEF, TYPE_ANY, TYPE_UNKNOWN, TYPE_NEVER, TYPE_UNDEFINED, TYPE_VOID, TYPE_INT, TYPE_FLOAT, TYPE_STRING, TYPE_BOOLEAN TYPE_SYMBOL, TYPE_SIGMA
 
@@ -527,8 +527,8 @@ e_block_target:
 
 (* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return | repeat s until e*)
 e_stmt_target:
-  | DEBUG;
-    { E_Stmt.Debug @> at $sloc }
+  | HASH; s= e_stmt_target;
+    { E_Stmt.Debug s @> at $sloc }
   | PRINT; e = e_expr_target;
     { E_Stmt.Print e @> at $sloc }
   | WRAPPER; meta = e_stmt_metadata_target; s = e_block_target;

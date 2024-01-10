@@ -69,12 +69,12 @@ let pp_tabular (fmt : Format.formatter) (stack : 'store t) : unit =
   let open Format in
   let pp_sep seq fmt () = pp_print_string fmt seq in
   let pp_lst seq pp fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
-  let pp_curr fmt frame = fprintf fmt "Currently at %a\n" pp_entry frame in
-  let pp_trace fmt frame = fprintf fmt "Called from %a" pp_entry frame in
+  let pp_curr fmt frame = fprintf fmt "Currently at %a" pp_entry frame in
+  let pp_trace fmt frame = fprintf fmt "\nCalled from %a" pp_entry frame in
   match stack with
   | [] -> raise Empty_stack
   | frame :: stack' ->
-    fprintf fmt "%a%a" pp_curr frame (pp_lst "\n" pp_trace) stack'
+    fprintf fmt "%a%a" pp_curr frame (pp_lst "" pp_trace) stack'
 
 let str ?(tabular : bool = false) (stack : 'store t) : string =
   if tabular then Format.asprintf "%a" pp_tabular stack

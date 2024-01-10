@@ -8,9 +8,6 @@
     let _ =
       List.iter (fun (kwd, tok) -> Hashtbl.add keywords kwd tok)
                 [
-                  (* Language Internals *)
-                  "__debug__"               , DEBUG;
-
                   (* Language Values *)
                   "null"                    , NULL;
 
@@ -231,6 +228,7 @@ rule read =
   | symbol            { SYMBOL (String_utils.chop_first_char (Lexing.lexeme lexbuf)) }
   | loc               { LOC (Lexing.lexeme lexbuf) }
   | "/*"              { read_comment lexbuf }
+  | "#"               { HASH }
   | _                 { raise (create_syntax_error "Unexpected char" lexbuf) }
   | eof               { EOF }
 

@@ -14,9 +14,6 @@
     let _ =
       List.iter (fun (kwd, tok) -> Hashtbl.add keyword_table kwd tok)
               [
-                (* Internals *)
-                "__debug__"             , DEBUG;
-
                 (* Language *)
                 "if"                    , IF;
                 "else"                  , ELSE;
@@ -282,6 +279,7 @@ rule read =
   | loc            { LOC (Lexing.lexeme lexbuf) }
   | hex_literal    { INT(Stdlib.int_of_string (Lexing.lexeme lexbuf)) }
   | "/*"           { read_comment lexbuf }
+  | "#"            { HASH }
   | _              { raise (create_syntax_error "Unexpected char" lexbuf) }
   | eof            { EOF }
 

@@ -9,7 +9,7 @@ type t = t' Source.phrase
 
 and t' =
   | Skip
-  | Debug
+  | Debug of t
   | Fail of E_Expr.t
   | Throw of E_Expr.t
   | Print of E_Expr.t
@@ -59,7 +59,7 @@ let rec str (stmt : t) : string =
 
   match stmt.it with
   | Skip -> ""
-  | Debug -> "__DEBUG__"
+  | Debug s -> "# " ^ str s
   | Fail e -> "fail " ^ E_Expr.str e
   | Throw e -> "throw " ^ E_Expr.str e
   | Print e -> "print " ^ E_Expr.str e
@@ -127,7 +127,7 @@ let rec map ?(fe = Fun.id) (f : t -> t) (s : t) : t =
   let s' =
     match s.it with
     | Skip -> Skip
-    | Debug -> Debug
+    | Debug s -> Debug s
     | Fail e -> Fail (fe e)
     | Throw e -> Throw (fe e)
     | Print e -> Print (fe e)
@@ -176,10 +176,11 @@ let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
   else
     let ret_rec =
       match s.it with
-      | Skip | Debug | Print _ | Wrapper _ | Assign _ | GlobAssign _ | Return _
+      | Skip | Print _ | Wrapper _ | Assign _ | GlobAssign _ | Return _
       | FieldAssign _ | FieldDelete _ | ExprStmt _ | Throw _ | Fail _ | Assert _
       | Abort _ ->
         []
+      | Debug s' -> f' s'
       | Block stmts -> f_stmts stmts
       | If (_e, st, sf, _, _) -> f' st @ f_o sf
       | EIf (ifs, final_else) ->
