@@ -1,10 +1,9 @@
-open Eslerr_fmt
-
 (* Error types *)
 
-module InternalErr = Eslerr_msgs.Internal
-module RuntimeErr = Eslerr_msgs.Runtime
+module InternalErr = Eslerr_type.Internal
+module RuntimeErr = Eslerr_type.Runtime
 
+type token = Eslerr_token.t
 type internal_msg = InternalErr.t
 type runtime_msg = RuntimeErr.t
 
@@ -58,22 +57,20 @@ let push_rt (msg : runtime_msg) = function
 
 (* Formatting functions *)
 
-let format_int (err : internal) : string =
-  let msg_str = Eslerr_msgs.internal_message_str err.msg in
-  Printf.sprintf "(%s) %s" err.loc msg_str
+let internal_pp (fmt : Fmt.t) (err : internal) : unit =
+  Fmt.fprintf fmt "(%s) %a" err.loc Eslerr_type.InternalFmt.pp err.msg
 
-let format_rt (err : runtime) : string =
-  let (header, font) = ("RuntimeError", Font.Red) in
-  let msgs_str = List.map Eslerr_msgs.runtime_message_str err.msgs in
-  let main_str = Eslerr_fmt.format_message font header msgs_str in
-  let source_str = Eslerr_fmt.format_source font err.loc err.src in
-  let main_source_nl = if source_str <> "" then "\n" else "" in
-  Printf.sprintf "%s%s%s" main_str main_source_nl source_str
+let runtime_pp (fmt : Fmt.t) (err : runtime) : unit =
+  let module MsgFmt = Eslerr_fmt.Msgs (Eslerr_type.RuntimeFmt) in
+  let module CodeFmt = Eslerr_fmt.Code (Eslerr_type.RuntimeFmt) in
+  Fmt.fprintf fmt "%a%a" MsgFmt.pp err.msgs CodeFmt.pp (err.loc, err.src)
 
-let format = function
-  | Internal_error err -> format_int err
-  | Runtime_error err -> format_rt err
-  | exn -> Printexc.to_string exn
+let pp (fmt : Fmt.t) = function
+  | Internal_error err -> internal_pp fmt err
+  | Runtime_error err -> runtime_pp fmt err
+  | exn -> Fmt.fprintf fmt "%s" (Printexc.to_string exn)
+
+let str (exn : exn) = Fmt.asprintf "%a" pp exn
 
 (* Utility functions *)
 

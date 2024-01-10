@@ -52,7 +52,8 @@
   E_Parser
   ;   error
   Eslerr
-  Eslerr_msgs
+  Eslerr_type
+  Eslerr_token
   Eslerr_fmt
   ;   semantics (domains)
   store

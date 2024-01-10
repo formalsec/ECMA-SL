@@ -48,7 +48,6 @@ let run (opts : options) : unit =
 let main (copts : Options.common_options) (opts : options) : int =
   Log.on_debug := copts.debug;
   Config.Common.colored := not copts.colorless;
-  (* Config.Eslerr.show_code := not opts.interpret_esl; *)
   Config.Interpreter.verbose := opts.interpret_verbose;
   Config.Interpreter.debugger := opts.interpret_debugger;
   Config.Tesl.untyped := opts.untyped;
