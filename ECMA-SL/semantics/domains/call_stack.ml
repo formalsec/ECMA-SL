@@ -18,21 +18,21 @@ type 'store frame =
 
 type 'store t = 'store frame list
 
-exception Empty_stack
-
 let no_stmt () : Stmt.t = Source.(Stmt.Skip @> no_region)
 let create (func : Func.t) : 'store t = [ Toplevel { func; stmt = no_stmt () } ]
 
 let loc (stack : 'store t) : Func.t * Stmt.t =
   match stack with
-  | [] -> raise Empty_stack
+  | [] -> Eslerr.(internal __FUNCTION__ (Expecting "non-empty call stack"))
   | Toplevel loc :: _ | Intermediate (loc, _) :: _ -> (loc.func, loc.stmt)
 
 let func (stack : 'store t) : Func.t = fst (loc stack)
 let stmt (stack : 'store t) : Stmt.t = snd (loc stack)
 
 let pop (stack : 'store t) : 'store frame * 'store t =
-  match stack with [] -> raise Empty_stack | frame :: stack' -> (frame, stack')
+  match stack with
+  | [] -> Eslerr.(internal __FUNCTION__ (Expecting "non-empty call stack"))
+  | frame :: stack' -> (frame, stack')
 
 let push (stack : 'store t) (func : Func.t) (store : 'store)
   (cont : Stmt.t list) (retvar : string) : 'store t =
@@ -40,7 +40,7 @@ let push (stack : 'store t) (func : Func.t) (store : 'store)
 
 let update (stack : 'store t) (stmt : Stmt.t) : unit =
   match stack with
-  | [] -> raise Empty_stack
+  | [] -> Eslerr.(internal __FUNCTION__ (Expecting "non-empty call stack"))
   | Toplevel loc :: _ | Intermediate (loc, _) :: _ -> loc.stmt <- stmt
 
 let pp_loc (fmt : Fmt.t) (region : Source.region) : unit =
@@ -67,7 +67,7 @@ let pp_tabular (fmt : Fmt.t) (stack : 'store t) : unit =
   let pp_curr fmt frame = fprintf fmt "Currently at %a" pp_frame frame in
   let pp_trace fmt frame = fprintf fmt "\nCalled from %a" pp_frame frame in
   match stack with
-  | [] -> raise Empty_stack
+  | [] -> fprintf fmt "Empty call stack"
   | frame :: stack' ->
     fprintf fmt "%a%a" pp_curr frame (pp_lst "" pp_trace) stack'
 
