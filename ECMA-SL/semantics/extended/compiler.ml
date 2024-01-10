@@ -583,7 +583,10 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
 
   match e_stmt.it with
   | Skip -> [ Stmt.Skip @> e_stmt.at ]
-  | Debug -> [ Stmt.Debug @> e_stmt.at ]
+  | Debug s -> (
+    match compile_stmt s with
+    | [] -> failwith "error"
+    | s' :: stmts -> (Stmt.Debug s' @> e_stmt.at) :: stmts )
   | Print e ->
     let (stmts, e') = compile_expr e_stmt.at e in
     stmts @ [ Stmt.Print e' @> e_stmt.at ]

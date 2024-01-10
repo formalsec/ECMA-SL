@@ -33,7 +33,6 @@ let at (startpos, endpos) =
 
 (* ========== Language & Infix Tokens ========== *)
 
-%token DEBUG
 %token NULL
 %token PRINT DELETE 
 %token FUNCTION RETURN EXTERN
@@ -53,6 +52,7 @@ let at (startpos, endpos) =
 %token NOT LAND LOR
 %token EQ LT GT LE GE
 %token IN_OBJ IN_LIST
+%token HASH
 %token EOF
 
 (* ========== Operator Tokens ========== *)
@@ -149,8 +149,8 @@ stmt_block_target:
   ;
 
 stmt_target:
-  | DEBUG;
-    { Stmt.Debug @> at $sloc }
+  | HASH; s= stmt_target;
+    { Stmt.Debug (s) @> at $sloc }
   | PRINT; e = expr_target;
     { Stmt.Print e @> at $sloc }
   | RETURN;

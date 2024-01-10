@@ -1,5 +1,5 @@
 let log_stmt (s : Stmt.t) : bool =
-  match s.it with Skip | Merge | Debug | Block _ -> false | _ -> true
+  match s.it with Skip | Merge | Block _ -> false | _ -> true
 
 module type M = sig
   val eval_expr_val : Expr.t -> Val.t -> unit
@@ -11,7 +11,7 @@ module Disable : M = struct
   let eval_small_step (_ : Func.t) (_ : Stmt.t) : unit = ()
 end
 
-module Default : M = struct
+module Enable : M = struct
   let eval_expr_val (e : Expr.t) (v : Val.t) : unit =
     Format.eprintf "» | %a | --> %a@." Expr.pp e Val.pp v
 

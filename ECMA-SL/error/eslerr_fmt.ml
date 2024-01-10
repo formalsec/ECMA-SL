@@ -66,12 +66,12 @@ let tokens_expr (expr : Expr.t) : token list =
   | Curry _ -> not_implemented ()
   | Symbolic _ -> not_implemented ()
 
-let tokens_stmt (stmt : Stmt.t) : token list =
+let rec tokens_stmt (stmt : Stmt.t) : token list =
   let open Stmt in
   match stmt.it with
   | Skip -> []
   | Merge -> []
-  | Debug -> []
+  | Debug s' -> Lit "# " :: tokens_stmt s'
   | Block _ -> []
   | Print e -> [ Lit "print "; Expr e ]
   | Return e -> [ Lit "return "; Expr e ]
