@@ -2,15 +2,15 @@ open Ecma_sl
 
 type options =
   { input_file : string
-  ; interpret_esl : bool
+  ; interpret_lang : Lang.t
   ; interpret_verbose : bool
   ; interpret_debugger : bool
   ; untyped : bool
   }
 
-let options input_file interpret_esl interpret_verbose interpret_debugger
+let options input_file interpret_lang interpret_verbose interpret_debugger
   untyped : options =
-  { input_file; interpret_esl; interpret_verbose; interpret_debugger; untyped }
+  { input_file; interpret_lang; interpret_verbose; interpret_debugger; untyped }
 
 let configure_debugger () : (module Debugger.M) =
   match !Config.Interpreter.debugger with
@@ -33,22 +33,22 @@ let run_interpreter (prog : Prog.t) : unit =
   ignore (Interpreter.eval_prog prog)
 
 let interpret_core (input_file : string) : unit =
-  Cmd.test_file_ext input_file [ ".cesl" ];
   Io.load_file input_file |> Parsing_utils.parse_prog |> run_interpreter
 
 let compile_and_interpret (input_file : string) : unit =
-  Cmd.test_file_ext input_file [ ".esl" ];
   Cmd_compile.run_compiler input_file |> run_interpreter
 
 let run (opts : options) : unit =
-  match opts.interpret_esl with
-  | true -> compile_and_interpret opts.input_file
-  | false -> interpret_core opts.input_file
+  let valid_langs = Lang.valid [ Lang.ESL; Lang.CESL ] opts.interpret_lang in
+  match Cmd.test_file_lang opts.input_file valid_langs with
+  | Lang.ESL -> compile_and_interpret opts.input_file
+  | Lang.CESL -> interpret_core opts.input_file
+  | _ -> raise Cmd.(Command_error Failure)
 
 let main (copts : Options.common_options) (opts : options) : int =
   Log.on_debug := copts.debug;
   Config.Common.colored := not copts.colorless;
-  Config.Eslerr.show_code := not opts.interpret_esl;
+  (* Config.Eslerr.show_code := not opts.interpret_esl; *)
   Config.Interpreter.verbose := opts.interpret_verbose;
   Config.Interpreter.debugger := opts.interpret_debugger;
   Config.Tesl.untyped := opts.untyped;

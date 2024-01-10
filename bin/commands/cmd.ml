@@ -17,10 +17,15 @@ let log ?(header : bool = true) msg_fmt =
   let header_str = if header then "ecma-sl: " else "" in
   Format.(kdprintf (eprintf "%s%t@." header_str) msg_fmt)
 
-let test_file_ext (file : string) (exts : string list) : unit =
-  if not (List.exists (Filename.check_suffix file) exts) then
-    let ext_str = String.concat " or " exts in
-    log "expecting file with '%s' extension" ext_str
+let test_file_lang (filename : string) (langs : Lang.t list) : Lang.t =
+  match Lang.of_file (Filename.extension filename) langs with
+  | Some lang -> lang
+  | None ->
+    let open Format in
+    let pp_sep seq fmt () = pp_print_string fmt seq in
+    let pp_lst seq pp fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
+    log "expecting file extensions: { %a }" (pp_lst " ; " Lang.pp) langs;
+    raise (Command_error Error)
 
 let eval_cmd (cmd : unit -> unit) : int =
   let open Ecma_sl in
