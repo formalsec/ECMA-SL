@@ -14,12 +14,12 @@ let options input_file interpret_esl interpret_verbose interpret_debugger
 
 let configure_debugger () : (module Debugger.M) =
   match !Config.Interpreter.debugger with
-  | true -> (module Debugger.Default : Debugger.M)
+  | true -> (module Debugger.Enable : Debugger.M)
   | false -> (module Debugger.Disable : Debugger.M)
 
 let configure_verbose () : (module Verbose.M) =
   match !Config.Interpreter.verbose with
-  | true -> (module Verbose.Default : Verbose.M)
+  | true -> (module Verbose.Enable : Verbose.M)
   | false -> (module Verbose.Disable : Verbose.M)
 
 let configure_monitor () : (module Monitor.M) =

@@ -5,7 +5,7 @@ type t = t' Source.phrase
 and t' =
   | Skip
   | Merge
-  | Debug
+  | Debug of t
   | Block of t list
   | Print of Expr.t
   | Return of Expr.t
@@ -30,7 +30,7 @@ let rec pp (fmt : Fmt.formatter) (s : t) : unit =
   match s.it with
   | Skip -> fprintf fmt "skip"
   | Merge -> fprintf fmt "merge"
-  | Debug -> fprintf fmt "__debug__"
+  | Debug s' -> fprintf fmt "# %a" pp s'
   | Block stmts -> fprintf fmt "%a" (pp_lst ";\n" pp) stmts
   | Print e -> fprintf fmt "print %a" Expr.pp e
   | Return e -> fprintf fmt "return %a" Expr.pp e
@@ -69,13 +69,13 @@ let str ?(simple : bool = false) (s : t) : string =
   if simple then Fmt.asprintf "%a" pp_simple s else Fmt.asprintf "%a" pp s
 
 module Pp = struct
-  let to_string (stmt : t) pp : string =
+  let rec to_string (stmt : t) pp : string =
     let str = pp in
     let concat es = String.concat ", " (List.map str es) in
     match stmt.it with
     | Skip -> "skip"
     | Merge -> "merge"
-    | Debug -> "__DEBUG__"
+    | Debug s -> Fmt.sprintf "# %s" (to_string s pp)
     | Print e -> Fmt.sprintf "print %s" (str e)
     | Fail e -> Fmt.sprintf "fail %s" (str e)
     | Assign (lval, rval) -> Fmt.sprintf "%s := %s" lval (str rval)
