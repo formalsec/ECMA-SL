@@ -20,10 +20,10 @@ let set (heap : 'a t) (l : Loc.t) (obj : 'a obj) : unit =
   Hashtbl.replace heap.map l obj
 
 let rec get_opt (heap : 'a t) (l : Loc.t) : 'a obj option =
-  let open Syntax.Option in
   match Hashtbl.find_opt heap.map l with
   | Some _ as obj -> obj
   | None ->
+    let open Syntax.Option in
     let* parent = heap.parent in
     let+ obj = get_opt parent l in
     let obj' = Object.clone obj in

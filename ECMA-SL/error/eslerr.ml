@@ -5,18 +5,18 @@ open Eslerr_fmt
 module InternalErr = Eslerr_msgs.Internal
 module RuntimeErr = Eslerr_msgs.Runtime
 
-type internal_err = InternalErr.t
-type runtime_err = RuntimeErr.t
+type internal_msg = InternalErr.t
+type runtime_msg = RuntimeErr.t
 
 type internal =
   { loc : string
-  ; msg : internal_err
+  ; msg : internal_msg
   }
 
 type runtime =
   { loc : token
   ; src : token
-  ; msgs : runtime_err list
+  ; msgs : runtime_msg list
   }
 
 exception Internal_error of internal
@@ -24,17 +24,17 @@ exception Runtime_error of runtime
 
 (* Error generation *)
 
-let internal' (loc : string) (msg : internal_err) : exn =
+let internal' (loc : string) (msg : internal_msg) : exn =
   Internal_error { msg; loc }
 
 let runtime' ?(loc : token = NoTkn) ?(src : token = NoTkn)
-  (msgs : runtime_err list) : exn =
+  (msgs : runtime_msg list) : exn =
   Runtime_error { loc; src; msgs }
 
-let internal (loc : string) (msg : internal_err) : 'a =
+let internal (loc : string) (msg : internal_msg) : 'a =
   internal' loc msg |> raise
 
-let runtime ?(loc : token = NoTkn) ?(src : token = NoTkn) (msg : runtime_err) :
+let runtime ?(loc : token = NoTkn) ?(src : token = NoTkn) (msg : runtime_msg) :
   'a =
   runtime' ~loc ~src [ msg ] |> raise
 
@@ -52,8 +52,7 @@ let set_src (src : token) = function
   | exn -> exn
 
 (* Runtime error specific functions *)
-
-let push_rt (msg : runtime_err) = function
+let push_rt (msg : runtime_msg) = function
   | Runtime_error err -> Runtime_error { err with msgs = msg :: err.msgs }
   | exn -> exn
 

@@ -23,29 +23,25 @@ let tokens_call (call_tkn : token) (args_tkn : token list) : token list =
   List.concat [ [ call_tkn ]; [ Lit "(" ]; argTkns; [ Lit ")" ] ]
 
 let tokens_unopt (op : Operator.unopt) (e_tkn : token) : token list =
-  let open Operator in
-  let op_tkn = Lit (str_of_unopt_single op) in
+  let op_tkn = Lit (Operator.str_of_unopt_single op) in
   let args_tkn () = [ e_tkn ] in
-  if is_infix_unopt op then [ op_tkn; e_tkn ]
+  if Operator.is_infix_unopt op then [ op_tkn; e_tkn ]
   else tokens_call op_tkn (args_tkn ())
 
 let tokens_binopt (op : Operator.binopt) (e1_tkn : token) (e2_tkn : token) :
   token list =
-  let open Operator in
-  let op_tkn = Lit (str_of_binopt_single op) in
+  let op_tkn = Lit (Operator.str_of_binopt_single op) in
   let args_tkn () = [ e1_tkn; e2_tkn ] in
-  if is_infix_binopt op then [ e1_tkn; op_tkn; e2_tkn ]
+  if Operator.is_infix_binopt op then [ e1_tkn; op_tkn; e2_tkn ]
   else tokens_call op_tkn (args_tkn ())
 
 let tokens_triopt (op : Operator.triopt) (e1_tkn : token) (e2_tkn : token)
   (e3_tkn : token) : token list =
-  let open Operator in
-  let op_tkn = Lit (str_of_triopt_single op) in
+  let op_tkn = Lit (Operator.str_of_triopt_single op) in
   let args_tkn () = [ e1_tkn; e2_tkn; e3_tkn ] in
   tokens_call op_tkn (args_tkn ())
 
 let tokens_nopt (op : Operator.nopt) (es_tkn : token list) : token list =
-  let open Operator in
   let sep_tkns sep = separate_tkns sep es_tkn in
   match op with
   | NAryLogicalAnd -> sep_tkns " && "
@@ -55,7 +51,6 @@ let tokens_nopt (op : Operator.nopt) (es_tkn : token list) : token list =
   | TupleExpr -> List.concat [ [ Lit "(" ]; sep_tkns ", "; [ Lit ")" ] ]
 
 let tokens_expr (expr : Expr.t) : token list =
-  let open Expr in
   match expr with
   | Val v -> [ Val v ]
   | Var x -> [ Str x ]
@@ -67,7 +62,6 @@ let tokens_expr (expr : Expr.t) : token list =
   | Symbolic _ -> not_implemented ()
 
 let rec tokens_stmt (stmt : Stmt.t) : token list =
-  let open Stmt in
   match stmt.it with
   | Skip -> []
   | Merge -> []
@@ -102,7 +96,6 @@ let rec tokens_stmt (stmt : Stmt.t) : token list =
   | Abort e -> [ Lit "abort "; Expr e ]
 
 let tokens_func (f : Func.t) : token list =
-  let open Func in
   let fn_tkn = Str f.it.name in
   let param_tkns = List.map (fun p -> Str p) f.it.params in
   let end_tkns = [ Lit " { "; Lit threedots ] in

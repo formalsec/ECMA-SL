@@ -71,7 +71,6 @@ let parse_command (line : string) : cmd option =
   | _ -> None
 
 let print_stmt (f : Func.t) (s : Stmt.t) : unit =
-  let open Source in
   let lineno_str = string_of_int s.at.left.line in
   let lineno_sz = String.length lineno_str in
   let lineno_indent = String.make lineno_sz ' ' in
@@ -201,7 +200,6 @@ module Enable : M = struct
 
   and inject_debug_innerscope (stack : stack) (cont : Stmt.t list) :
     stack * Stmt.t list =
-    let open Source in
     match cont with
     | ({ it = Skip; _ } as s) :: cont' | ({ it = Merge; _ } as s) :: cont' ->
       let (stack', cont'') = inject_debug_innerscope stack cont' in
@@ -210,7 +208,7 @@ module Enable : M = struct
       let (stack', cont'') = inject_debug_innerscope stack (stmts @ cont') in
       (stack', cont'')
     | { it = Debug _; _ } :: _ -> (stack, cont)
-    | s :: cont' -> (stack, (Stmt.Debug s @> s.at) :: cont')
+    | s :: cont' -> (stack, Source.(Stmt.Debug s @> s.at) :: cont')
     | [] -> (inject_debug_outerscope stack, cont)
 
   let update_prog (cmd : cmd) (stack : stack) (s : Stmt.t) (cont : Stmt.t list)
@@ -224,8 +222,7 @@ module Enable : M = struct
       inject_debug_outerscope stack |> fun stack' -> (Normal, stack', s :: cont)
     | (Continue, _) -> (Normal, stack, s :: cont)
     | (Exit, _) -> (Final, stack, s :: cont)
-    | _ ->
-      Eslerr.(internal __FUNCTION__ (InternalErr.Expecting "termination cmd"))
+    | _ -> Eslerr.(internal __FUNCTION__ (Expecting "termination cmd"))
 
   let initialize () : t = Initial
 
