@@ -3,6 +3,7 @@
 	"name": "ECMA-SL",
 	"patterns": [
 		{ "include": "#comments" },
+		{ "include": "#breakpoints" },
 		
 		{ "include": "#control" },
 		{ "include": "#constants" },
@@ -27,6 +28,11 @@
 					"end": "\\*/"
 				}
 			]
+		},
+		
+		"breakpoints": {
+      "name": "invalid.esl",
+      "match": "#.*?$"
 		},
 
 		"control": {
