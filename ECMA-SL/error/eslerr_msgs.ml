@@ -27,7 +27,6 @@ module Runtime = struct
 end
 
 let internal_message_str (msg : Internal.t) : string =
-  let open Internal in
   match msg with
   | Default -> "generic internal error"
   | Custom msg' -> msg'
@@ -42,7 +41,6 @@ let internal_message_str (msg : Internal.t) : string =
     | Some msg'' -> Printf.sprintf "'%s' not implemented" msg'' )
 
 let runtime_message_str (msg : Runtime.t) : string =
-  let open Runtime in
   match msg with
   | Default -> "Generic runtime error."
   | Custom msg' -> msg'

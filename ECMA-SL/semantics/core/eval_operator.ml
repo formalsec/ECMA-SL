@@ -1,17 +1,16 @@
 open Operator
 open Val
 
-let op_err (src_arg_i : int) (op_lbl : string) (rt_msg : Eslerr.runtime_err) :
+let op_err (src_arg_i : int) (op_lbl : string) (rt_msg : Eslerr.runtime_msg) :
   'a =
-  let msgs = [ Eslerr.RuntimeErr.OpEvalErr op_lbl; rt_msg ] in
-  raise Eslerr.(runtime' ~src:(Index src_arg_i) msgs)
+  raise Eslerr.(runtime' ~src:(Index src_arg_i) [ OpEvalErr op_lbl; rt_msg ])
 
 let unexpected_err (src_arg_i : int) (op_lbl : string) (msg : string) : 'a =
-  op_err src_arg_i op_lbl (Eslerr.RuntimeErr.Unexpected msg)
+  op_err src_arg_i op_lbl (Unexpected msg)
 
 let bad_arg_err (src_arg_i : int) (op_lbl : string) (types : string)
   (vals : Val.t list) : 'a =
-  op_err src_arg_i op_lbl (Eslerr.RuntimeErr.BadOpArgs (types, vals))
+  op_err src_arg_i op_lbl (BadOpArgs (types, vals))
 
 let typeof (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt Typeof in
@@ -655,24 +654,24 @@ let eq ((v1, v2) : Val.t * Val.t) : Val.t =
   | _ -> Bool (v1 = v2)
 
 let lt = function
-  | Flt f, Int i -> Bool (f < float i)
-  | Int i, Flt f -> Bool (float i < f)
-  | v1, v2 -> Bool (v1 < v2)
+  | (Flt f, Int i) -> Bool (f < float i)
+  | (Int i, Flt f) -> Bool (float i < f)
+  | (v1, v2) -> Bool (v1 < v2)
 
 let gt = function
-  | Flt f, Int i -> Bool (f > float i)
-  | Int i, Flt f -> Bool (float i > f)
-  | v1, v2 -> Bool (v1 > v2)
+  | (Flt f, Int i) -> Bool (f > float i)
+  | (Int i, Flt f) -> Bool (float i > f)
+  | (v1, v2) -> Bool (v1 > v2)
 
 let le = function
-  | Flt f, Int i -> Bool (f <= float i)
-  | Int i, Flt f -> Bool (float i <= f)
-  | v1, v2 -> Bool (v1 <= v2)
+  | (Flt f, Int i) -> Bool (f <= float i)
+  | (Int i, Flt f) -> Bool (float i <= f)
+  | (v1, v2) -> Bool (v1 <= v2)
 
 let ge = function
-  | Flt f, Int i -> Bool (f >= float i)
-  | Int i, Flt f -> Bool (float i >= f)
-  | v1, v2 -> Bool (v1 >= v2)
+  | (Flt f, Int i) -> Bool (f >= float i)
+  | (Int i, Flt f) -> Bool (float i >= f)
+  | (v1, v2) -> Bool (v1 >= v2)
 
 let to_precision ((v1, v2) : Val.t * Val.t) : Val.t =
   let op_lbl = label_of_binopt ToPrecision in
