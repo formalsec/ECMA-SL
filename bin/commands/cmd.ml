@@ -32,10 +32,10 @@ let eval_cmd (cmd : unit -> unit) : int =
   try cmd () |> fun () -> 0 with
   | Eslerr.Internal_error _ as exn ->
     flush_all ();
-    log "%s" (Eslerr.format exn);
+    log "%a" Eslerr.pp exn;
     Printexc.print_backtrace stderr;
     error_code Failure
   | Eslerr.Runtime_error _ as exn ->
-    log ~header:false "%s" (Eslerr.format exn);
+    log ~header:false "%a" Eslerr.pp exn;
     error_code RuntimeError
   | Command_error err -> error_code err

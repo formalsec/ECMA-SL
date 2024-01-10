@@ -96,7 +96,7 @@ let at (startpos, endpos) =
 
 (* ========== Symbolic Execution Tokens ========== *)
 
-%token SE_ABORT
+%token ABORT
 
 %token NULL_TYPE INT_TYPE FLT_TYPE STR_TYPE BOOL_TYPE SYMBOL_TYPE 
 %token LOC_TYPE LIST_TYPE TUPLE_TYPE CURRY_TYPE
@@ -193,7 +193,7 @@ stmt_target:
     { Stmt.Fail e @> at $sloc }
   | ASSERT; LPAREN; e = expr_target; RPAREN;
     { Stmt.Assert e @> at $sloc }
-  | SE_ABORT; e = expr_target;
+  | ABORT; e = expr_target;
     { Stmt.Abort e @> at $sloc }
   ;
 

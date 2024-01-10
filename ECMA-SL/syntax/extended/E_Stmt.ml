@@ -107,7 +107,7 @@ let rec str (stmt : t) : string =
   | Lambda (x, fid, xs, ys, s) ->
     Printf.sprintf "%s := lambda <%s> (%s; %s) { %s }" x fid
       (String.concat ", " xs) (String.concat ", " ys) (str s)
-  | Abort e -> "se_abort " ^ E_Expr.str e
+  | Abort e -> "abort " ^ E_Expr.str e
 
 let return_val (expr_opt : E_Expr.t option) : E_Expr.t =
   Option.value ~default:(E_Expr.Val Val.Null) expr_opt

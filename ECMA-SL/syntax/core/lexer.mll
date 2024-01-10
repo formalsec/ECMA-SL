@@ -141,7 +141,7 @@
                   "parse_date"              , PARSE_DATE;
 
                   (* Symbolic *)
-                  "abort"                , SE_ABORT;
+                  "abort"                   , ABORT;
                 ]
 
   exception Syntax_error of string
