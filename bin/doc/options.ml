@@ -35,9 +35,11 @@ let compile_untyped_flag =
   Arg.(value & flag & info [ "untyped" ] ~doc)
 
 (* Interpret options *)
-let interpret_esl_flag =
-  let doc = "Interpret a program written in ECMA-SL (.esl)." in
-  Arg.(value & flag & info [ "esl" ] ~doc)
+let interpret_lang =
+  let open Lang in
+  let doc = "Language of the program to be interpreted." in
+  let langs_enum = Arg.enum [ auto; esl; cesl ] in
+  Arg.(value & opt langs_enum Auto & info [ "lang" ] ~doc)
 
 let interpret_verbose_flag =
   let doc = "Display intermediate interpreter information." in
