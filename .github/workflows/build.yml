@@ -16,7 +16,7 @@ jobs:
         os:
           - self-hosted
         ocaml-compiler:
-          - "5.1"
+          - "4.14"
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
