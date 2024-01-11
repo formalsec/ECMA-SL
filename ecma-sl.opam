@@ -12,7 +12,7 @@ homepage: "https://github.com/formalsec/ECMA-SL"
 doc: "https://github.com/formalsec.github.io/ECMA-SL"
 bug-reports: "https://github.com/formalsec/ECMA-SL/issues"
 depends: [
-  "ocaml" {>= "5.1.0"}
+  "ocaml" {>= "4.14.0"}
   "odoc" {with-doc}
   "dune" {>= "3.2"}
   "cmdliner"
