@@ -26,7 +26,7 @@
   "A platform for specifying and running the ECMAScript standard.")
  (depends
   (ocaml
-   (>= "5.1.0"))
+   (>= "4.14.0"))
   (odoc :with-doc)
   dune
   cmdliner
