@@ -7,8 +7,7 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
   type store = value Store.t
   type heap = value Heap.t
   type stack = store Call_stack.t
-  type db = Db.t
-  type state = store * heap * stack * db
+  type state = store * heap * stack * Db.t
 
   type return =
     | Final of value
@@ -50,7 +49,7 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     | Loc l -> printf "%a@." (Object.pp Val.pp) (eval_loc heap l)
     | _ -> printf "%a@." Val.pp v
 
-  let rec eval_expr_sub (store : store) (e : Expr.t) : value =
+  let rec eval_expr' (store : store) (e : Expr.t) : value =
     match e with
     | Val v -> v
     | Var x -> eval_var store x
@@ -87,7 +86,7 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
       | _ -> Eslerr.internal __FUNCTION__ (NotImplemented (Some "symbolic")) )
 
   and eval_expr (store : store) (e : Expr.t) : value =
-    let v = eval_expr_sub store e in
+    let v = eval_expr' store e in
     Vb.eval_expr_val e v;
     v
 
