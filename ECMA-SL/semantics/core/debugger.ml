@@ -155,9 +155,9 @@ module Disable : M = struct
 
   let initialize () : t = ()
 
-  let run ((_, _, stack, db) : store * heap * stack * t) (s : Stmt.t)
+  let run ((_, _, stack, _) : store * heap * stack * t) (s : Stmt.t)
     (cont : Stmt.t list) : t * stack * Stmt.t list =
-    (db, stack, s :: cont)
+    ((), stack, s :: cont)
 
   let custom_inject (_ : Stmt.t) (_ : t) (stack : stack) (cont : Stmt.t list) :
     t * stack * Stmt.t list =
@@ -237,5 +237,5 @@ module Enable : M = struct
     | (Call, { it = AssignCall _; _ }) ->
       inject_debug_innerscope stack cont |> fun (stack', cont') ->
       (Normal, stack', cont')
-    | _ -> (Normal, stack, cont)
+    | _ -> (db, stack, cont)
 end

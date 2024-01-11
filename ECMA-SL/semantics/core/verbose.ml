@@ -17,7 +17,7 @@ module Enable : M = struct
 
   let eval_small_step (f : Func.t) (s : Stmt.t) : unit =
     if log_stmt s then
-      let divider_str = "----------------------------------------" in
-      Fmt.eprintf "%s\nEvaluating >>>> %s() [line=%d]: %a@." divider_str
+      let divider = "----------------------------------------" in
+      Fmt.eprintf "%s\nEvaluating >>>> %s() [line=%d]: %a@." divider
         (Func.name f) s.at.left.line Stmt.pp_simple s
 end
