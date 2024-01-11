@@ -7,8 +7,8 @@ module Thread = struct
   type t =
     { solver : Solver.t
     ; pc : Encoding.Expr.t list
-    ; mem : Sym_heap2.Heap.t
     ; mem : Memory.t
+    ; optimizer : Optimizer.t
     }
 
   let create () =
