@@ -243,7 +243,6 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
       else
         let err = Fmt.asprintf "Assert false: %a" Expr.pp e in
         (Error (Val.Str err), lbl (AssertEval false))
-    | Abort _ -> (Intermediate (state, cont), lbl AbortEval)
 
   let eval_small_step_safe (prog : Prog.t) (state : state) (s : Stmt.t)
     (cont : Stmt.t list) : return * Mon.sl_label =

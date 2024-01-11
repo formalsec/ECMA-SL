@@ -162,9 +162,6 @@
                 "obj_fields"            , OBJ_FIELDS;
                 "in_obj"                , IN_OBJ;
 
-                (* API *)
-                "se_abort"              , API_ABORT;
-
                 (* Types *)
                 "typedef"               , TYPEDEF;
                 "any"                   , TYPE_ANY;

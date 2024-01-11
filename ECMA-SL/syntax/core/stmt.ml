@@ -23,7 +23,6 @@ and t' =
   | While of Expr.t * t
   | Fail of Expr.t
   | Assert of Expr.t
-  | Abort of Expr.t
 
 let rec pp (fmt : Fmt.t) (s : t) : unit =
   let open Fmt in
@@ -55,7 +54,6 @@ let rec pp (fmt : Fmt.t) (s : t) : unit =
   | While (e, s') -> fprintf fmt "while (%a) {\n%a\n}" Expr.pp e pp s'
   | Fail e -> fprintf fmt "fail %a" Expr.pp e
   | Assert e -> fprintf fmt "assert (%a)" Expr.pp e
-  | Abort e -> fprintf fmt "abort %a" Expr.pp e
 
 let pp_simple (fmt : Fmt.t) (s : t) : unit =
   let open Fmt in
@@ -67,35 +65,3 @@ let pp_simple (fmt : Fmt.t) (s : t) : unit =
 
 let str ?(simple : bool = false) (s : t) : string =
   if simple then Fmt.asprintf "%a" pp_simple s else Fmt.asprintf "%a" pp s
-
-module Pp = struct
-  let rec to_string (stmt : t) pp : string =
-    let str = pp in
-    let concat es = String.concat ", " (List.map str es) in
-    match stmt.it with
-    | Skip -> "skip"
-    | Merge -> "merge"
-    | Debug s -> Fmt.sprintf "# %s" (to_string s pp)
-    | Print e -> Fmt.sprintf "print %s" (str e)
-    | Fail e -> Fmt.sprintf "fail %s" (str e)
-    | Assign (lval, rval) -> Fmt.sprintf "%s := %s" lval (str rval)
-    | If (cond, _, _) -> Fmt.sprintf "if (%s) { ... }" (str cond)
-    | Block _ -> "block { ... }"
-    | While (cond, _) -> Fmt.sprintf "while (%s) { ... }" (str cond)
-    | Return exp -> Fmt.sprintf "return %s" (str exp)
-    | FieldAssign (e_o, f, e_v) ->
-      Fmt.sprintf "%s[%s] := %s" (str e_o) (str f) (str e_v)
-    | FieldDelete (e, f) -> Fmt.sprintf "delete %s[%s]" (str e) (str f)
-    | AssignCall (va, st, e_lst) ->
-      Fmt.sprintf "%s := %s(%s)" va (str st) (concat e_lst)
-    | AssignECall (x, f, es) ->
-      Fmt.sprintf "%s := extern %s(%s)" x f (concat es)
-    | AssignNewObj va -> Fmt.sprintf "%s := {}" va
-    | FieldLookup (va, eo, p) -> Fmt.sprintf "%s := %s[%s]" va (str eo) (str p)
-    | AssignInObjCheck (st, e1, e2) ->
-      Fmt.sprintf "%s := %s in_obj %s" st (str e1) (str e2)
-    | AssignObjToList (st, e) -> Fmt.sprintf "%s := obj_to_list %s" st (str e)
-    | AssignObjFields (st, e) -> Fmt.sprintf "%s := obj_fields %s" st (str e)
-    | Assert e -> Fmt.sprintf "assert (%s)" (str e)
-    | Abort e -> Fmt.sprintf "se_abort (%s)" (str e)
-end

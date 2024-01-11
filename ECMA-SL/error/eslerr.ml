@@ -16,7 +16,7 @@ type runtime =
   { loc : token
   ; src : token
   ; msgs : runtime_msg list
-  ; trace : (Format.formatter -> unit -> unit) option
+  ; trace : (Fmt.t -> unit -> unit) option
   }
 
 exception Internal_error of internal
@@ -52,7 +52,7 @@ let set_src (src : token) = function
   | Runtime_error err -> Runtime_error { err with src }
   | exn -> exn
 
-let set_trace (trace_pp : Format.formatter -> unit -> unit) = function
+let set_trace (trace_pp : Fmt.t -> unit -> unit) = function
   | Runtime_error err -> Runtime_error { err with trace = Some trace_pp }
   | exn -> exn
 

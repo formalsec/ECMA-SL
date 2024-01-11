@@ -89,7 +89,6 @@ let from_stmt (s : Stmt.t) : t list =
   | While (e, _) -> [ Lit "while ("; Expr e; Lit ") { "; threedots () ]
   | Fail e -> [ Lit "fail "; Expr e ]
   | Assert e -> [ Lit "assert "; Lit "("; Expr e; Lit ")" ]
-  | Abort e -> [ Lit "abort "; Expr e ]
 
 let from_func (f : Func.t) : t list =
   let fn_tkn = Str f.it.name in

@@ -7,7 +7,7 @@ function main() {
 
   if ((typeof c_value = __$Obj) &&& ("ErrorData" in_obj c_value) ) {
     error_name := {c_value.Get}(c_value, "name", c_value);
-    se_abort(error_name);
+    extern abort(error_name);
     return newCompletion(getCompletionType(ret), error_name, getCompletionTarget(ret))
   };
 
