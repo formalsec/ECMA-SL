@@ -95,7 +95,7 @@ let symbolic_api_funcs =
     let e' = Translator.translate e in
     let pc = Thread.pc thread in
     let opt = Thread.optimizer thread in
-    let v =  optimize Optimizer.maximize opt e' pc in
+    let v = optimize Optimizer.maximize opt e' pc in
     match v with
     | Some v -> [ (Translator.expr_of_value v, thread) ]
     | None -> assert false
@@ -109,21 +109,22 @@ let symbolic_api_funcs =
     | Some v -> [ (Translator.expr_of_value v, thread) ]
     | None -> assert false
   in
-  SMap.of_list
-    [ ("str_symbol", Extern_func (Func (Arg Res), str_symbol))
-    ; ("int_symbol", Extern_func (Func (Arg Res), int_symbol))
-    ; ("flt_symbol", Extern_func (Func (Arg Res), flt_symbol))
-    ; ("bool_symbol", Extern_func (Func (Arg Res), bool_symbol))
-    ; ("is_symbolic", Extern_func (Func (Arg Res), is_symbolic))
-    ; ("is_number", Extern_func (Func (Arg Res), is_number))
-    ; ("is_sat", Extern_func (Func (Arg Res), is_sat))
-    ; ("is_exec_sat", Extern_func (Func (Arg Res), is_exec_sat))
-    ; ("is_eval_sat", Extern_func (Func (Arg Res), is_eval_sat))
-    ; ("assume", Extern_func (Func (Arg Res), assume))
-    ; ("evaluate", Extern_func (Func (Arg Res), evaluate))
-    ; ("maximize", Extern_func (Func (Arg Res), maximize))
-    ; ("minimize", Extern_func (Func (Arg Res), minimize))
-    ]
+  SMap.of_seq
+    (Array.to_seq
+       [| ("str_symbol", Extern_func (Func (Arg Res), str_symbol))
+        ; ("int_symbol", Extern_func (Func (Arg Res), int_symbol))
+        ; ("flt_symbol", Extern_func (Func (Arg Res), flt_symbol))
+        ; ("bool_symbol", Extern_func (Func (Arg Res), bool_symbol))
+        ; ("is_symbolic", Extern_func (Func (Arg Res), is_symbolic))
+        ; ("is_number", Extern_func (Func (Arg Res), is_number))
+        ; ("is_sat", Extern_func (Func (Arg Res), is_sat))
+        ; ("is_exec_sat", Extern_func (Func (Arg Res), is_exec_sat))
+        ; ("is_eval_sat", Extern_func (Func (Arg Res), is_eval_sat))
+        ; ("assume", Extern_func (Func (Arg Res), assume))
+        ; ("evaluate", Extern_func (Func (Arg Res), evaluate))
+        ; ("maximize", Extern_func (Func (Arg Res), maximize))
+        ; ("minimize", Extern_func (Func (Arg Res), minimize))
+       |] )
 
 (* Examples *)
 let extern_functions =
@@ -136,10 +137,11 @@ let extern_functions =
     Format.printf "extern print: %a@." Value.Pp.pp v;
     Choice.return (Value.Val (Val.Symbol "undefined"))
   in
-  SMap.of_list
-    [ ("hello", Extern_func (Func (UArg Res), hello))
-    ; ("value", Extern_func (Func (Arg Res), print))
-    ]
+  SMap.of_seq
+    (Array.to_seq
+       [| ("hello", Extern_func (Func (UArg Res), hello))
+        ; ("value", Extern_func (Func (Arg Res), print))
+       |] )
 
 let plus_ext = ".esl"
 let core_ext = ".cesl"

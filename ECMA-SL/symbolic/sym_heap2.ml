@@ -41,7 +41,10 @@ end = struct
 
   let create () = { fields = VMap.empty; symbols = VMap.empty }
   let is_empty o = VMap.(is_empty o.fields && is_empty o.symbols)
-  let to_list o = VMap.to_list o.symbols @ VMap.to_list o.fields
+
+  let to_list o =
+    List.(
+      append (of_seq (VMap.to_seq o.symbols)) (of_seq (VMap.to_seq o.fields)) )
 
   let get_fields o =
     let symbols = VMap.fold (fun key _ acc -> key :: acc) o.symbols [] in

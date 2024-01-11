@@ -33,7 +33,7 @@ module M = struct
     | BinOpt (_, v1, v2) -> is_symbolic v1 || is_symbolic v2
     | TriOpt (_, v1, v2, v3) -> List.exists is_symbolic [ v1; v2; v3 ]
     | NOpt (_, es) | Curry (_, es) ->
-      (not (List.is_empty es)) && List.exists is_symbolic es
+      List.length es <> 0 && List.exists is_symbolic es
 
   let rec equal (e1 : value) (e2 : value) : bool =
     match (e1, e2) with
