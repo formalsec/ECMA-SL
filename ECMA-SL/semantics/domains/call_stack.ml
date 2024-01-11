@@ -64,12 +64,11 @@ let pp (fmt : Fmt.t) (stack : 'store t) : unit =
 
 let pp_tabular (fmt : Fmt.t) (stack : 'store t) : unit =
   let open Fmt in
-  let pp_curr fmt frame = fprintf fmt "Currently at %a" pp_frame frame in
   let pp_trace fmt frame = fprintf fmt "\nCalled from %a" pp_frame frame in
   match stack with
   | [] -> fprintf fmt "Empty call stack"
   | frame :: stack' ->
-    fprintf fmt "%a%a" pp_curr frame (pp_lst "" pp_trace) stack'
+    fprintf fmt "%a%a" pp_frame frame (pp_lst "" pp_trace) stack'
 
 let str ?(tabular : bool = false) (stack : 'store t) : string =
   if tabular then Fmt.asprintf "%a" pp_tabular stack

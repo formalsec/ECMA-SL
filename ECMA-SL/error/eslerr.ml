@@ -16,6 +16,7 @@ type runtime =
   { loc : token
   ; src : token
   ; msgs : runtime_msg list
+  ; trace : (Format.formatter -> unit -> unit) option
   }
 
 exception Internal_error of internal
@@ -28,7 +29,7 @@ let internal' (loc : string) (msg : internal_msg) : exn =
 
 let runtime' ?(loc : token = NoTkn) ?(src : token = NoTkn)
   (msgs : runtime_msg list) : exn =
-  Runtime_error { loc; src; msgs }
+  Runtime_error { loc; src; msgs; trace = None }
 
 let internal (loc : string) (msg : internal_msg) : 'a =
   internal' loc msg |> raise
@@ -41,6 +42,7 @@ let runtime ?(loc : token = NoTkn) ?(src : token = NoTkn) (msg : runtime_msg) :
 
 let loc = function Runtime_error err -> err.loc | _ -> NoTkn
 let src = function Runtime_error err -> err.src | _ -> NoTkn
+let trace = function Runtime_error err -> err.trace | _ -> None
 
 let set_loc (loc : token) = function
   | Runtime_error err -> Runtime_error { err with loc }
@@ -48,6 +50,10 @@ let set_loc (loc : token) = function
 
 let set_src (src : token) = function
   | Runtime_error err -> Runtime_error { err with src }
+  | exn -> exn
+
+let set_trace (trace_pp : Format.formatter -> unit -> unit) = function
+  | Runtime_error err -> Runtime_error { err with trace = Some trace_pp }
   | exn -> exn
 
 (* Runtime error specific functions *)
@@ -63,7 +69,9 @@ let internal_pp (fmt : Fmt.t) (err : internal) : unit =
 let runtime_pp (fmt : Fmt.t) (err : runtime) : unit =
   let module MsgFmt = Eslerr_fmt.Msgs (Eslerr_type.RuntimeFmt) in
   let module CodeFmt = Eslerr_fmt.Code (Eslerr_type.RuntimeFmt) in
-  Fmt.fprintf fmt "%a%a" MsgFmt.pp err.msgs CodeFmt.pp (err.loc, err.src)
+  let module CustomFmt = Eslerr_fmt.Custom (Eslerr_type.RuntimeFmt) in
+  Fmt.fprintf fmt "%a%a%a" MsgFmt.pp err.msgs CodeFmt.pp (err.loc, err.src)
+    CustomFmt.pp_trace err.trace
 
 let pp (fmt : Fmt.t) = function
   | Internal_error err -> internal_pp fmt err

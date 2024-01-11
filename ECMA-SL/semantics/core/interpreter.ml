@@ -250,7 +250,9 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     (cont : Stmt.t list) : return * Mon.sl_label =
     try eval_small_step prog state s cont
     with Eslerr.Runtime_error _ as exn ->
-      Eslerr.(set_loc (Stmt s) exn |> raise)
+      let (_, _, stack, _) = state in
+      let trace_pp fmt () = Call_stack.pp_tabular fmt stack in
+      Eslerr.(set_loc (Stmt s) exn |> set_trace trace_pp |> raise)
 
   let rec small_step_iter (prog : Prog.t) (state : state) (mon : Mon.state)
     (stmts : Stmt.t list) : return =
