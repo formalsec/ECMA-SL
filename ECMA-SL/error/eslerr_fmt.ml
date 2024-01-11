@@ -129,9 +129,8 @@ module Code (ErrTypeFmt : ErrTypeFmt) = struct
 end
 
 module Custom (ErrTypeFmt : ErrTypeFmt) = struct
-  let pp_trace (fmt : Format.formatter)
-    (trace : (Format.formatter -> unit -> unit) option) : unit =
+  let pp_trace (fmt : Fmt.t) (trace : (Fmt.t -> unit -> unit) option) : unit =
     match trace with
     | None -> ()
-    | Some trace_pp -> Format.fprintf fmt "\nRaised at %a" trace_pp ()
+    | Some trace_pp -> Fmt.fprintf fmt "\nRaised at %a" trace_pp ()
 end

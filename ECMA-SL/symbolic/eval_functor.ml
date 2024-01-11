@@ -106,7 +106,11 @@ module Make (P : Eval_functor_intf.P) :
   let exec_extern_func state f args ret_var =
     let open Extern_func in
     let rec apply :
-      type a. value list -> a Extern_func.atype -> a -> value Choice.t =
+      type a.
+         value list
+      -> a Extern_func.atype
+      -> a
+      -> (value, string) Result.t Choice.t =
      fun args ty f ->
       match ty with
       | UArg ty' -> apply args ty' (f ())
@@ -117,8 +121,11 @@ module Make (P : Eval_functor_intf.P) :
     in
     let (Extern_func (Func atype, func)) = f in
     let/ v = apply args atype func in
-    let locals = Store.add_exn state.State.locals ret_var v in
-    Choice.return @@ State.Continue State.{ state with locals }
+    match v with
+    | Error _ as err -> Choice.return @@ State.Return err
+    | Ok v ->
+      let locals = Store.add_exn state.State.locals ret_var v in
+      Choice.return @@ State.Continue State.{ state with locals }
 
   let exec_stmt stmt (state : State.exec_state) : State.stmt_result Choice.t =
     let open State in
@@ -131,7 +138,7 @@ module Make (P : Eval_functor_intf.P) :
     in
     let/ m = Env.get_memory env in
     Log.debug "      store : %s@." (Value.Pp.Store.to_string locals);
-    Log.debug "running stmt: %s@." (Stmt.Pp.to_string stmt (pp locals m));
+    Log.debug "running stmt: %a@." Stmt.pp stmt;
     match stmt.it with
     | Stmt.Skip -> st locals
     | Stmt.Merge -> st locals
@@ -142,10 +149,6 @@ module Make (P : Eval_functor_intf.P) :
       let e' = pp locals m e in
       Log.err "       fail : %s@." e';
       err {|{ "fail" : "%S" }|} e'
-    | Stmt.Abort e ->
-      let e' = pp locals m e in
-      Log.err "      abort : %s@." e';
-      err {|{ "abort" : %S }|} e'
     | Stmt.Print e ->
       Format.printf "%s@." (pp locals m e);
       st locals

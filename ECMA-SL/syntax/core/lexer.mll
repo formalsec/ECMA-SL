@@ -139,9 +139,6 @@
                   "parse_number"            , PARSE_NUMBER;
                   "parse_string"            , PARSE_STRING;
                   "parse_date"              , PARSE_DATE;
-
-                  (* Symbolic *)
-                  "abort"                   , ABORT;
                 ]
 
   exception Syntax_error of string

@@ -73,8 +73,6 @@ let at (startpos, endpos) =
 %token TYPEDEF, TYPE_ANY, TYPE_UNKNOWN, TYPE_NEVER, TYPE_UNDEFINED, TYPE_VOID, TYPE_INT, TYPE_FLOAT, TYPE_STRING, TYPE_BOOLEAN TYPE_SYMBOL, TYPE_SIGMA
 
 
-%token API_ABORT
-
 %left SCLAND SCLOR LAND LOR
 %left EQUAL
 %left GT LT EGT ELT IN_OBJ IN_LIST BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
@@ -533,8 +531,6 @@ e_stmt_target:
     { E_Stmt.Print e @> at $sloc }
   | WRAPPER; meta = e_stmt_metadata_target; s = e_block_target;
     { E_Stmt.Wrapper (meta, s) @> at $sloc }
-  | API_ABORT; e = e_expr_target;
-    { E_Stmt.Abort e @> at $sloc }
   | ASSERT; e = e_expr_target;
     { E_Stmt.Assert e @> at $sloc }
   | e1 = e_expr_target; PERIOD; f = VAR; DEFEQ; e2 = e_expr_target;
