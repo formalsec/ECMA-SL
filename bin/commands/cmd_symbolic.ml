@@ -30,12 +30,18 @@ let fresh : string -> string =
 let symbolic_api_funcs =
   let open Value in
   let open Extern_func in
-  let str_symbol (x : value) = Choice.return (Symbolic (Type.StrType, x)) in
-  let int_symbol (x : value) = Choice.return (Value.int_symbol x) in
-  let flt_symbol (x : value) = Choice.return (Symbolic (Type.FltType, x)) in
-  let bool_symbol (x : value) = Choice.return (Symbolic (Type.BoolType, x)) in
+  let str_symbol (x : value) =
+    Choice.return (Ok (Symbolic (Type.StrType, x)))
+  in
+  let int_symbol (x : value) = Choice.return (Ok (Value.int_symbol x)) in
+  let flt_symbol (x : value) =
+    Choice.return (Ok (Symbolic (Type.FltType, x)))
+  in
+  let bool_symbol (x : value) =
+    Choice.return (Ok (Symbolic (Type.BoolType, x)))
+  in
   let is_symbolic (n : value) =
-    Choice.return (Val (Val.Bool (Value.is_symbolic n)))
+    Choice.return (Ok (Val (Val.Bool (Value.is_symbolic n))))
   in
   let is_number (n : value) =
     let is_number =
@@ -43,11 +49,11 @@ let symbolic_api_funcs =
       | Some Type.IntType | Some Type.FltType -> true
       | _ -> false
     in
-    Choice.return (Val (Val.Bool is_number))
+    Choice.return (Ok (Val (Val.Bool is_number)))
   in
   let is_sat (e : value) =
     let/ b = Choice.check e in
-    Choice.return (Val (Val.Bool b))
+    Choice.return (Ok (Val (Val.Bool b)))
   in
   let is_exec_sat (e : value) =
     (* TODO: more fine-grained exploit analysis *)
@@ -56,7 +62,7 @@ let symbolic_api_funcs =
     let sub = TriOpt (Operator.StringSubstr, e, i, len) in
     let query = BinOpt (Operator.Eq, sub, Val (Val.Str "; touch success #")) in
     let/ b = Choice.check_add_true query in
-    Choice.return (Val (Val.Bool b))
+    Choice.return (Ok (Val (Val.Bool b)))
   in
   let is_eval_sat (e : value) =
     (* TODO: more fine-grained exploit analysis *)
@@ -67,11 +73,16 @@ let symbolic_api_funcs =
       BinOpt (Operator.Eq, sub, Val (Val.Str ";console.log('success')//"))
     in
     let/ b = Choice.check_add_true query in
-    Choice.return (Val (Val.Bool b))
+    Choice.return (Ok (Val (Val.Bool b)))
+  in
+  let abort (e : value) =
+    let e' = Format.asprintf "%a" Value.Pp.pp e in
+    Log.err "      abort : %s@." e';
+    Choice.return @@ Error (Format.asprintf {|{ "abort" : %S }|} e')
   in
   let assume (e : value) thread =
     let e' = Translator.translate e in
-    [ (Val (Val.Symbol "undefined"), Thread.add_pc thread e') ]
+    [ (Ok (Val (Val.Symbol "undefined")), Thread.add_pc thread e') ]
   in
   let evaluate (e : value) thread =
     let e' = Translator.translate e in
@@ -81,7 +92,7 @@ let symbolic_api_funcs =
     let symbols = Encoding.Expr.get_symbols [ e' ] in
     let model = Option.get (Batch.model ~symbols solver) in
     match Encoding.Model.evaluate model (List.hd symbols) with
-    | Some v -> [ (Translator.expr_of_value v, thread) ]
+    | Some v -> [ (Ok (Translator.expr_of_value v), thread) ]
     | None -> assert false (* Should never happpen due to sat check above *)
   in
   let optimize target opt e pc =
@@ -97,7 +108,7 @@ let symbolic_api_funcs =
     let opt = Thread.optimizer thread in
     let v = optimize Optimizer.maximize opt e' pc in
     match v with
-    | Some v -> [ (Translator.expr_of_value v, thread) ]
+    | Some v -> [ (Ok (Translator.expr_of_value v), thread) ]
     | None -> assert false
   in
   let minimize (e : value) thread =
@@ -106,36 +117,36 @@ let symbolic_api_funcs =
     let opt = Thread.optimizer thread in
     let v = optimize Optimizer.minimize opt e' pc in
     match v with
-    | Some v -> [ (Translator.expr_of_value v, thread) ]
+    | Some v -> [ (Ok (Translator.expr_of_value v), thread) ]
     | None -> assert false
   in
-  SMap.of_seq
-    (Array.to_seq
-       [| ("str_symbol", Extern_func (Func (Arg Res), str_symbol))
-        ; ("int_symbol", Extern_func (Func (Arg Res), int_symbol))
-        ; ("flt_symbol", Extern_func (Func (Arg Res), flt_symbol))
-        ; ("bool_symbol", Extern_func (Func (Arg Res), bool_symbol))
-        ; ("is_symbolic", Extern_func (Func (Arg Res), is_symbolic))
-        ; ("is_number", Extern_func (Func (Arg Res), is_number))
-        ; ("is_sat", Extern_func (Func (Arg Res), is_sat))
-        ; ("is_exec_sat", Extern_func (Func (Arg Res), is_exec_sat))
-        ; ("is_eval_sat", Extern_func (Func (Arg Res), is_eval_sat))
-        ; ("assume", Extern_func (Func (Arg Res), assume))
-        ; ("evaluate", Extern_func (Func (Arg Res), evaluate))
-        ; ("maximize", Extern_func (Func (Arg Res), maximize))
-        ; ("minimize", Extern_func (Func (Arg Res), minimize))
-       |] )
+  SMap.of_list
+    [ ("str_symbol", Extern_func (Func (Arg Res), str_symbol))
+    ; ("int_symbol", Extern_func (Func (Arg Res), int_symbol))
+    ; ("flt_symbol", Extern_func (Func (Arg Res), flt_symbol))
+    ; ("bool_symbol", Extern_func (Func (Arg Res), bool_symbol))
+    ; ("is_symbolic", Extern_func (Func (Arg Res), is_symbolic))
+    ; ("is_number", Extern_func (Func (Arg Res), is_number))
+    ; ("is_sat", Extern_func (Func (Arg Res), is_sat))
+    ; ("is_exec_sat", Extern_func (Func (Arg Res), is_exec_sat))
+    ; ("is_eval_sat", Extern_func (Func (Arg Res), is_eval_sat))
+    ; ("abort", Extern_func (Func (Arg Res), abort))
+    ; ("assume", Extern_func (Func (Arg Res), assume))
+    ; ("evaluate", Extern_func (Func (Arg Res), evaluate))
+    ; ("maximize", Extern_func (Func (Arg Res), maximize))
+    ; ("minimize", Extern_func (Func (Arg Res), minimize))
+    ]
 
 (* Examples *)
 let extern_functions =
   let open Extern_func in
   let hello () =
-    Fmt.printf "Hello world@.";
-    Choice.return (Value.Val (Val.Symbol "undefined"))
+    Format.printf "Hello world@.";
+    Choice.return (Ok (Value.Val (Val.Symbol "undefined")))
   in
   let print (v : Value.value) =
-    Fmt.printf "extern print: %a@." Value.Pp.pp v;
-    Choice.return (Value.Val (Val.Symbol "undefined"))
+    Format.printf "extern print: %a@." Value.Pp.pp v;
+    Choice.return (Ok (Value.Val (Val.Symbol "undefined")))
   in
   SMap.of_seq
     (Array.to_seq
