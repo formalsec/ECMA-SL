@@ -127,3 +127,11 @@ module Code (ErrTypeFmt : ErrTypeFmt) = struct
       Fmt.fprintf fmt "%a%a%a" (pp_location ~colon:true) srcdata.locdata pp_code
         srcdata pp_hgl srcdata
 end
+
+module Custom (ErrTypeFmt : ErrTypeFmt) = struct
+  let pp_trace (fmt : Format.formatter)
+    (trace : (Format.formatter -> unit -> unit) option) : unit =
+    match trace with
+    | None -> ()
+    | Some trace_pp -> Format.fprintf fmt "\nRaised at %a" trace_pp ()
+end
