@@ -2,7 +2,7 @@ type t =
   | Null
   | Void
   | Int of int
-  | Flt of (float [@unboxed])
+  | Flt of (float[@unboxed])
   | Str of string
   | Bool of bool
   | Symbol of string
@@ -18,7 +18,7 @@ type pp_fmt = t -> Format.formatter -> unit
 
 let rec equal (v1 : t) (v2 : t) : bool =
   match (v1, v2) with
-  | Null, Null | Void, Void -> true
+  | (Null, Null) | (Void, Void) -> true
   | (Int i1, Int i2) -> Int.equal i1 i2
   | (Flt f1, Flt f2) -> Float.equal f1 f2
   | (Str s1, Str s2) -> String.equal s1 s2
@@ -56,8 +56,15 @@ let float_str (f : float) : string =
 let rec pp (fmt : Format.formatter) (v : t) : unit =
   let open Format in
   let pp_sep seq fmt () = pp_print_string fmt seq in
-  let pp_arr seq pp fmt arr = pp_print_array ~pp_sep:(pp_sep seq) pp fmt arr in
-  let pp_lst seq pp fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
+  let pp_arr seq fmt arr =
+    let is_first = ref false in
+    let pp_v v =
+      if !is_first then is_first := false else pp_sep seq fmt ();
+      pp fmt v
+    in
+    Array.iter pp_v arr
+  in
+  let pp_lst seq fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
   match v with
   | Null -> fprintf fmt "null"
   | Void -> ()
@@ -68,13 +75,13 @@ let rec pp (fmt : Format.formatter) (v : t) : unit =
   | Symbol s -> fprintf fmt "'%s" s
   | Loc l -> Loc.pp fmt l
   | Arr arr when Array.length arr = 0 -> fprintf fmt "[| |]"
-  | Arr arr -> fprintf fmt "[| %a |]" (pp_arr ", " pp) arr
+  | Arr arr -> fprintf fmt "[| %a |]" (pp_arr ", ") arr
   | List [] -> fprintf fmt "[]"
-  | List lst -> fprintf fmt "[ %a ]" (pp_lst ", " pp) lst
+  | List lst -> fprintf fmt "[ %a ]" (pp_lst ", ") lst
   | Tuple [] -> fprintf fmt "()"
-  | Tuple tup -> fprintf fmt "( %a )" (pp_lst ", " pp) tup
+  | Tuple tup -> fprintf fmt "( %a )" (pp_lst ", ") tup
   | Byte bt -> fprintf fmt "%i" bt
   | Type t -> Type.pp fmt t
-  | Curry (fn, fvs) -> fprintf fmt "{%S}@(%a)" fn (pp_lst ", " pp) fvs
+  | Curry (fn, fvs) -> fprintf fmt "{%S}@(%a)" fn (pp_lst ", ") fvs
 
 let str v = Format.asprintf "%a" pp v
