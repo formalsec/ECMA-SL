@@ -1,20 +1,21 @@
 module Value = Sym_value.M
 module Heap = Sym_heap2.Heap
 module Translator = Value_translator
+module Optimizer = Encoding.Optimizer.Z3
 
 module Thread = struct
   type t =
     { solver : Batch.t
     ; pc : Encoding.Expr.t list
     ; mem : Sym_heap2.Heap.t
-    ; optimizer : Encoding.Optimizer.t
+    ; optimizer : Optimizer.t
     }
 
   let create () =
     { solver = Batch.create ()
     ; pc = []
     ; mem = Heap.create ()
-    ; optimizer = Encoding.Optimizer.create ()
+    ; optimizer = Optimizer.create ()
     }
 
   let solver t = t.solver

@@ -8,6 +8,7 @@ module Thread = Choice_monad.Thread
 module Translator = Value_translator
 module Extern_func = Sym_state.P.Extern_func
 module SMap = Stdlib.Map.Make (Stdlib.String)
+module Optimizer = Choice_monad.Optimizer
 
 let ( let/ ) = Choice.bind
 
@@ -83,11 +84,18 @@ let symbolic_api_funcs =
     | Some v -> [ (Translator.expr_of_value v, thread) ]
     | None -> assert false (* Should never happpen due to sat check above *)
   in
+  let optimize target opt e pc =
+    Optimizer.push opt;
+    Optimizer.add opt pc;
+    let v = target opt e in
+    Optimizer.pop opt;
+    v
+  in
   let maximize (e : value) thread =
     let e' = Translator.translate e in
     let pc = Thread.pc thread in
     let opt = Thread.optimizer thread in
-    let v = Encoding.Optimizer.maximize opt e' pc in
+    let v =  optimize Optimizer.maximize opt e' pc in
     match v with
     | Some v -> [ (Translator.expr_of_value v, thread) ]
     | None -> assert false
@@ -96,7 +104,7 @@ let symbolic_api_funcs =
     let e' = Translator.translate e in
     let pc = Thread.pc thread in
     let opt = Thread.optimizer thread in
-    let v = Encoding.Optimizer.minimize opt e' pc in
+    let v = optimize Optimizer.minimize opt e' pc in
     match v with
     | Some v -> [ (Translator.expr_of_value v, thread) ]
     | None -> assert false

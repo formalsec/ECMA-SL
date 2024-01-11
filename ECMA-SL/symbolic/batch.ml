@@ -1,1 +1,1 @@
-include Encoding.Batch.Make (Encoding.Z3_mappings)
+include Encoding.Solver.Batch (Encoding.Z3_mappings)

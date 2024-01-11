@@ -37,7 +37,7 @@
   menhir
   menhirLib
   (encoding
-   (>= "0.0.1"))
+   (>= 0.0.3))
   yojson)
  (tags
   (ECMAScript "Specification Language" "Reference Interpreters" "OCaml")))
