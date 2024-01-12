@@ -3,11 +3,10 @@ open Expr
 open Ty
 open Symbolic_value.M
 
-let expr_of_value (e : Value.t) : value =
-  match e with
-  | Value.Int x -> Val (Val.Int x)
-  | Value.Str x -> Val (Val.Str x)
-  | Value.Real x -> Val (Val.Flt x)
+let expr_of_value : Expr.expr -> value = function
+  | Val (Value.Int x) -> Val (Val.Int x)
+  | Val (Value.Str x) -> Val (Val.Str x)
+  | Val (Value.Real x) -> Val (Val.Flt x)
   | _ -> assert false
 
 let translate_val (v : Val.t) : Expr.t =
