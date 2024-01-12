@@ -1,4 +1,4 @@
-type 'a pp_fmt = Format.formatter -> 'a -> unit
+type 'a pp_fmt = Fmt.formatter -> 'a -> unit
 
 type const =
   | MAX_VALUE
@@ -325,168 +325,166 @@ let label_of_nopt (op : nopt) : string =
   | ListExpr -> "List.l_expr"
   | TupleExpr -> "Tuple.t_expr"
 
-let pp_of_unopt_single (fmt : Format.formatter) (op : unopt) : unit =
-  let open Format in
+let pp_of_unopt_single (fmt : Fmt.formatter) (op : unopt) : unit =
+  let open Fmt in
   match op with
-  | Typeof -> fprintf fmt "typeof"
-  | Neg -> fprintf fmt "-"
-  | BitwiseNot -> fprintf fmt "~"
-  | LogicalNot -> fprintf fmt "!"
-  | IntToFloat -> fprintf fmt "int_to_float"
-  | IntToString -> fprintf fmt "int_to_string"
-  | IntToFourHex -> fprintf fmt "int_to_four_hex"
-  | OctalToDecimal -> fprintf fmt "octal_to_decimal"
-  | FloatToInt -> fprintf fmt "int_of_float"
-  | FloatToString -> fprintf fmt "float_to_string"
-  | ToInt -> fprintf fmt "to_int"
-  | ToInt32 -> fprintf fmt "to_int32"
-  | ToUint16 -> fprintf fmt "to_uint16"
-  | ToUint32 -> fprintf fmt "to_uint32"
-  | IsNaN -> fprintf fmt "is_NaN"
-  | StringToInt -> fprintf fmt "int_of_string"
-  | StringToFloat -> fprintf fmt "float_of_string"
-  | FromCharCode -> fprintf fmt "from_char_code"
-  | FromCharCodeU -> fprintf fmt "from_char_code_u"
-  | ToCharCode -> fprintf fmt "to_char_code"
-  | ToCharCodeU -> fprintf fmt "to_char_code_u"
-  | ToLowerCase -> fprintf fmt "to_lower_case"
-  | ToUpperCase -> fprintf fmt "to_upper_case"
-  | Trim -> fprintf fmt "trim"
-  | StringLen -> fprintf fmt "s_len"
-  | StringLenU -> fprintf fmt "s_len_u"
-  | StringConcat -> fprintf fmt "s_concat"
-  | ObjectToList -> fprintf fmt "obj_to_list"
-  | ObjectFields -> fprintf fmt "obj_fields"
-  | ArrayLen -> fprintf fmt "a_len"
-  | ListToArray -> fprintf fmt "list_to_array"
-  | ListHead -> fprintf fmt "hd"
-  | ListTail -> fprintf fmt "tl"
-  | ListLen -> fprintf fmt "l_len"
-  | ListSort -> fprintf fmt "l_sort"
-  | ListReverse -> fprintf fmt "l_reverse"
-  | ListRemoveLast -> fprintf fmt "l_remove_last"
-  | TupleFirst -> fprintf fmt "fst"
-  | TupleSecond -> fprintf fmt "snd"
-  | TupleLen -> fprintf fmt "t_len"
-  | FloatToByte -> fprintf fmt "float_to_byte"
-  | Float32ToLEBytes -> fprintf fmt "float32_to_le_bytes"
-  | Float32ToBEBytes -> fprintf fmt "float32_to_be_bytes"
-  | Float64ToLEBytes -> fprintf fmt "float64_to_le_bytes"
-  | Float64ToBEBytes -> fprintf fmt "float64_to_be_bytes"
-  | Float32FromLEBytes -> fprintf fmt "float32_from_le_bytes"
-  | Float32FromBEBytes -> fprintf fmt "float32_from_be_bytes"
-  | Float64FromLEBytes -> fprintf fmt "float64_from_le_bytes"
-  | Float64FromBEBytes -> fprintf fmt "float64_from_be_bytes"
-  | BytesToString -> fprintf fmt "bytes_to_string"
-  | Random -> fprintf fmt "random"
-  | Abs -> fprintf fmt "abs"
-  | Sqrt -> fprintf fmt "sqrt"
-  | Ceil -> fprintf fmt "ceil"
-  | Floor -> fprintf fmt "floor"
-  | Exp -> fprintf fmt "exp"
-  | Log2 -> fprintf fmt "log_2"
-  | LogE -> fprintf fmt "log_e"
-  | Log10 -> fprintf fmt "log_10"
-  | Sin -> fprintf fmt "sin"
-  | Cos -> fprintf fmt "cos"
-  | Tan -> fprintf fmt "tan"
-  | Sinh -> fprintf fmt "sinh"
-  | Cosh -> fprintf fmt "cosh"
-  | Tanh -> fprintf fmt "tanh"
-  | Asin -> fprintf fmt "asin"
-  | Acos -> fprintf fmt "acos"
-  | Atan -> fprintf fmt "atan"
-  | Utf8Decode -> fprintf fmt "utf8_decode"
-  | HexDecode -> fprintf fmt "hex_decode"
-  | ParseNumber -> fprintf fmt "parse_number"
-  | ParseString -> fprintf fmt "parse_string"
-  | ParseDate -> fprintf fmt "parse_date"
+  | Typeof -> pp_str fmt "typeof"
+  | Neg -> pp_str fmt "-"
+  | BitwiseNot -> pp_str fmt "~"
+  | LogicalNot -> pp_str fmt "!"
+  | IntToFloat -> pp_str fmt "int_to_float"
+  | IntToString -> pp_str fmt "int_to_string"
+  | IntToFourHex -> pp_str fmt "int_to_four_hex"
+  | OctalToDecimal -> pp_str fmt "octal_to_decimal"
+  | FloatToInt -> pp_str fmt "int_of_float"
+  | FloatToString -> pp_str fmt "float_to_string"
+  | ToInt -> pp_str fmt "to_int"
+  | ToInt32 -> pp_str fmt "to_int32"
+  | ToUint16 -> pp_str fmt "to_uint16"
+  | ToUint32 -> pp_str fmt "to_uint32"
+  | IsNaN -> pp_str fmt "is_NaN"
+  | StringToInt -> pp_str fmt "int_of_string"
+  | StringToFloat -> pp_str fmt "float_of_string"
+  | FromCharCode -> pp_str fmt "from_char_code"
+  | FromCharCodeU -> pp_str fmt "from_char_code_u"
+  | ToCharCode -> pp_str fmt "to_char_code"
+  | ToCharCodeU -> pp_str fmt "to_char_code_u"
+  | ToLowerCase -> pp_str fmt "to_lower_case"
+  | ToUpperCase -> pp_str fmt "to_upper_case"
+  | Trim -> pp_str fmt "trim"
+  | StringLen -> pp_str fmt "s_len"
+  | StringLenU -> pp_str fmt "s_len_u"
+  | StringConcat -> pp_str fmt "s_concat"
+  | ObjectToList -> pp_str fmt "obj_to_list"
+  | ObjectFields -> pp_str fmt "obj_fields"
+  | ArrayLen -> pp_str fmt "a_len"
+  | ListToArray -> pp_str fmt "list_to_array"
+  | ListHead -> pp_str fmt "hd"
+  | ListTail -> pp_str fmt "tl"
+  | ListLen -> pp_str fmt "l_len"
+  | ListSort -> pp_str fmt "l_sort"
+  | ListReverse -> pp_str fmt "l_reverse"
+  | ListRemoveLast -> pp_str fmt "l_remove_last"
+  | TupleFirst -> pp_str fmt "fst"
+  | TupleSecond -> pp_str fmt "snd"
+  | TupleLen -> pp_str fmt "t_len"
+  | FloatToByte -> pp_str fmt "float_to_byte"
+  | Float32ToLEBytes -> pp_str fmt "float32_to_le_bytes"
+  | Float32ToBEBytes -> pp_str fmt "float32_to_be_bytes"
+  | Float64ToLEBytes -> pp_str fmt "float64_to_le_bytes"
+  | Float64ToBEBytes -> pp_str fmt "float64_to_be_bytes"
+  | Float32FromLEBytes -> pp_str fmt "float32_from_le_bytes"
+  | Float32FromBEBytes -> pp_str fmt "float32_from_be_bytes"
+  | Float64FromLEBytes -> pp_str fmt "float64_from_le_bytes"
+  | Float64FromBEBytes -> pp_str fmt "float64_from_be_bytes"
+  | BytesToString -> pp_str fmt "bytes_to_string"
+  | Random -> pp_str fmt "random"
+  | Abs -> pp_str fmt "abs"
+  | Sqrt -> pp_str fmt "sqrt"
+  | Ceil -> pp_str fmt "ceil"
+  | Floor -> pp_str fmt "floor"
+  | Exp -> pp_str fmt "exp"
+  | Log2 -> pp_str fmt "log_2"
+  | LogE -> pp_str fmt "log_e"
+  | Log10 -> pp_str fmt "log_10"
+  | Sin -> pp_str fmt "sin"
+  | Cos -> pp_str fmt "cos"
+  | Tan -> pp_str fmt "tan"
+  | Sinh -> pp_str fmt "sinh"
+  | Cosh -> pp_str fmt "cosh"
+  | Tanh -> pp_str fmt "tanh"
+  | Asin -> pp_str fmt "asin"
+  | Acos -> pp_str fmt "acos"
+  | Atan -> pp_str fmt "atan"
+  | Utf8Decode -> pp_str fmt "utf8_decode"
+  | HexDecode -> pp_str fmt "hex_decode"
+  | ParseNumber -> pp_str fmt "parse_number"
+  | ParseString -> pp_str fmt "parse_string"
+  | ParseDate -> pp_str fmt "parse_date"
 
-let pp_of_binopt_single (fmt : Format.formatter) (op : binopt) : unit =
-  let open Format in
+let pp_of_binopt_single (fmt : Fmt.formatter) (op : binopt) : unit =
+  let open Fmt in
   match op with
-  | Plus -> fprintf fmt "+"
-  | Minus -> fprintf fmt "-"
-  | Times -> fprintf fmt "*"
-  | Div -> fprintf fmt "/"
+  | Plus -> pp_str fmt "+"
+  | Minus -> pp_str fmt "-"
+  | Times -> pp_str fmt "*"
+  | Div -> pp_str fmt "/"
   | Modulo -> fprintf fmt "%%"
-  | Pow -> fprintf fmt "**"
-  | BitwiseAnd -> fprintf fmt "&"
-  | BitwiseOr -> fprintf fmt "|"
-  | BitwiseXor -> fprintf fmt "^"
-  | ShiftLeft -> fprintf fmt "<<"
-  | ShiftRight -> fprintf fmt ">>"
-  | ShiftRightLogical -> fprintf fmt ">>>"
-  | LogicalAnd -> fprintf fmt "&&"
-  | LogicalOr -> fprintf fmt "||"
-  | Eq -> fprintf fmt "="
-  | Lt -> fprintf fmt "<"
-  | Gt -> fprintf fmt ">"
-  | Le -> fprintf fmt "<="
-  | Ge -> fprintf fmt ">="
-  | ToPrecision -> fprintf fmt "to_precision"
-  | ToExponential -> fprintf fmt "to_exponential"
-  | ToFixed -> fprintf fmt "to_fixed"
-  | ObjectMem -> fprintf fmt "in_obj"
-  | StringNth -> fprintf fmt "s_nth"
-  | StringNthU -> fprintf fmt "s_nth_u"
-  | StringSplit -> fprintf fmt "s_split"
-  | ArrayMake -> fprintf fmt "array_make"
-  | ArrayNth -> fprintf fmt "a_nth"
-  | ListMem -> fprintf fmt "in_list"
-  | ListNth -> fprintf fmt "l_nth"
-  | ListAdd -> fprintf fmt "l_add"
-  | ListPrepend -> fprintf fmt "l_prepend"
-  | ListConcat -> fprintf fmt "l_concat"
-  | ListRemove -> fprintf fmt "l_remove"
-  | ListRemoveNth -> fprintf fmt "l_remove_nth"
-  | TupleNth -> fprintf fmt "t_nth"
-  | IntToBEBytes -> fprintf fmt "int_to_be_bytes"
-  | IntFromLEBytes -> fprintf fmt "int_from_le_bytes"
-  | UintFromLEBytes -> fprintf fmt "uint_from_le_bytes"
-  | Min -> fprintf fmt "min"
-  | Max -> fprintf fmt "max"
-  | Atan2 -> fprintf fmt "atan2"
+  | Pow -> pp_str fmt "**"
+  | BitwiseAnd -> pp_str fmt "&"
+  | BitwiseOr -> pp_str fmt "|"
+  | BitwiseXor -> pp_str fmt "^"
+  | ShiftLeft -> pp_str fmt "<<"
+  | ShiftRight -> pp_str fmt ">>"
+  | ShiftRightLogical -> pp_str fmt ">>>"
+  | LogicalAnd -> pp_str fmt "&&"
+  | LogicalOr -> pp_str fmt "||"
+  | Eq -> pp_str fmt "="
+  | Lt -> pp_str fmt "<"
+  | Gt -> pp_str fmt ">"
+  | Le -> pp_str fmt "<="
+  | Ge -> pp_str fmt ">="
+  | ToPrecision -> pp_str fmt "to_precision"
+  | ToExponential -> pp_str fmt "to_exponential"
+  | ToFixed -> pp_str fmt "to_fixed"
+  | ObjectMem -> pp_str fmt "in_obj"
+  | StringNth -> pp_str fmt "s_nth"
+  | StringNthU -> pp_str fmt "s_nth_u"
+  | StringSplit -> pp_str fmt "s_split"
+  | ArrayMake -> pp_str fmt "array_make"
+  | ArrayNth -> pp_str fmt "a_nth"
+  | ListMem -> pp_str fmt "in_list"
+  | ListNth -> pp_str fmt "l_nth"
+  | ListAdd -> pp_str fmt "l_add"
+  | ListPrepend -> pp_str fmt "l_prepend"
+  | ListConcat -> pp_str fmt "l_concat"
+  | ListRemove -> pp_str fmt "l_remove"
+  | ListRemoveNth -> pp_str fmt "l_remove_nth"
+  | TupleNth -> pp_str fmt "t_nth"
+  | IntToBEBytes -> pp_str fmt "int_to_be_bytes"
+  | IntFromLEBytes -> pp_str fmt "int_from_le_bytes"
+  | UintFromLEBytes -> pp_str fmt "uint_from_le_bytes"
+  | Min -> pp_str fmt "min"
+  | Max -> pp_str fmt "max"
+  | Atan2 -> pp_str fmt "atan2"
 
-let pp_of_triopt_single (fmt : Format.formatter) (op : triopt) : unit =
-  let open Format in
+let pp_of_triopt_single (fmt : Fmt.formatter) (op : triopt) : unit =
+  let open Fmt in
   match op with
-  | ITE -> fprintf fmt "ite"
-  | StringSubstr -> fprintf fmt "s_substr"
-  | StringSubstrU -> fprintf fmt "s_substr_u"
-  | ArraySet -> fprintf fmt "a_set"
-  | ListSet -> fprintf fmt "l_set"
+  | ITE -> pp_str fmt "ite"
+  | StringSubstr -> pp_str fmt "s_substr"
+  | StringSubstrU -> pp_str fmt "s_substr_u"
+  | ArraySet -> pp_str fmt "a_set"
+  | ListSet -> pp_str fmt "l_set"
 
-let pp_of_const (fmt : Format.formatter) (c : const) : unit =
-  let open Format in
+let pp_of_const (fmt : Fmt.formatter) (c : const) : unit =
+  let open Fmt in
   match c with
-  | MAX_VALUE -> fprintf fmt "MAX_VALUE"
-  | MIN_VALUE -> fprintf fmt "MIN_VALUE"
-  | PI -> fprintf fmt "PI"
+  | MAX_VALUE -> pp_str fmt "MAX_VALUE"
+  | MIN_VALUE -> pp_str fmt "MIN_VALUE"
+  | PI -> pp_str fmt "PI"
 
-let pp_of_unopt (pp_val : 'a pp_fmt) (fmt : Format.formatter)
+let pp_of_unopt (pp_val : 'a pp_fmt) (fmt : Fmt.formatter)
   ((op, v) : unopt * 'a) : unit =
   if is_infix_unopt op then
-    Format.fprintf fmt "%a%a" pp_of_unopt_single op pp_val v
-  else Format.fprintf fmt "%a(%a)" pp_of_unopt_single op pp_val v
+    Fmt.fprintf fmt "%a%a" pp_of_unopt_single op pp_val v
+  else Fmt.fprintf fmt "%a(%a)" pp_of_unopt_single op pp_val v
 
-let pp_of_binopt (pp_val : 'a pp_fmt) (fmt : Format.formatter)
+let pp_of_binopt (pp_val : 'a pp_fmt) (fmt : Fmt.formatter)
   ((op, v1, v2) : binopt * 'a * 'a) : unit =
   if is_infix_binopt op then
-    Format.fprintf fmt "%a %a %a" pp_val v1 pp_of_binopt_single op pp_val v2
+    Fmt.fprintf fmt "%a %a %a" pp_val v1 pp_of_binopt_single op pp_val v2
   else
-    Format.fprintf fmt "%a(%a, %a)" pp_of_binopt_single op pp_val v1 pp_val v2
+    Fmt.fprintf fmt "%a(%a, %a)" pp_of_binopt_single op pp_val v1 pp_val v2
 
-let pp_of_triopt (pp_val : 'a pp_fmt) (fmt : Format.formatter)
+let pp_of_triopt (pp_val : 'a pp_fmt) (fmt : Fmt.formatter)
   ((op, v1, v2, v3) : triopt * 'a * 'a * 'a) : unit =
-  Format.fprintf fmt "%a(%a, %a, %a)" pp_of_triopt_single op pp_val v1 pp_val v2
+  Fmt.fprintf fmt "%a(%a, %a, %a)" pp_of_triopt_single op pp_val v1 pp_val v2
     pp_val v3
 
-let pp_of_nopt (pp_val : 'a pp_fmt) (fmt : Format.formatter)
+let pp_of_nopt (pp_val : 'a pp_fmt) (fmt : Fmt.formatter)
   ((op, vs) : nopt * 'a list) : unit =
-  let open Format in
-  let pp_sep sep fmt () = pp_print_string fmt sep in
-  let pp_lst sep pp fmt lst = pp_print_list ~pp_sep:(pp_sep sep) pp fmt lst in
+  let open Fmt in
   match (op, vs) with
   | (NAryLogicalAnd, _) -> fprintf fmt "%a" (pp_lst " && " pp_val) vs
   | (NAryLogicalOr, _) -> fprintf fmt "%a" (pp_lst " || " pp_val) vs
@@ -498,26 +496,26 @@ let pp_of_nopt (pp_val : 'a pp_fmt) (fmt : Format.formatter)
   | (TupleExpr, _) -> fprintf fmt "( %a )" (pp_lst ", " pp_val) vs
 
 let str_of_unopt_single (op : unopt) : string =
-  Format.asprintf "%a" pp_of_unopt_single op
+  Fmt.asprintf "%a" pp_of_unopt_single op
 
 let str_of_binopt_single (op : binopt) : string =
-  Format.asprintf "%a" pp_of_binopt_single op
+  Fmt.asprintf "%a" pp_of_binopt_single op
 
 let str_of_triopt_single (op : triopt) : string =
-  Format.asprintf "%a" pp_of_triopt_single op
+  Fmt.asprintf "%a" pp_of_triopt_single op
 
-let str_of_const (c : const) : string = Format.asprintf "%a" pp_of_const c
+let str_of_const (c : const) : string = Fmt.asprintf "%a" pp_of_const c
 
 let str_of_unopt (pp_val : 'a pp_fmt) (op : unopt) (v : 'a) : string =
-  Format.asprintf "%a" (pp_of_unopt pp_val) (op, v)
+  Fmt.asprintf "%a" (pp_of_unopt pp_val) (op, v)
 
 let str_of_binopt (pp_val : 'a pp_fmt) (op : binopt) (v1 : 'a) (v2 : 'a) :
   string =
-  Format.asprintf "%a" (pp_of_binopt pp_val) (op, v1, v2)
+  Fmt.asprintf "%a" (pp_of_binopt pp_val) (op, v1, v2)
 
 let str_of_triopt (pp_val : 'a pp_fmt) (op : triopt) (v1 : 'a) (v2 : 'a)
   (v3 : 'a) : string =
-  Format.asprintf "%a" (pp_of_triopt pp_val) (op, v1, v2, v3)
+  Fmt.asprintf "%a" (pp_of_triopt pp_val) (op, v1, v2, v3)
 
 let str_of_nopt (pp_val : 'a pp_fmt) (op : nopt) (vs : 'a list) : string =
-  Format.asprintf "%a" (pp_of_nopt pp_val) (op, vs)
+  Fmt.asprintf "%a" (pp_of_nopt pp_val) (op, vs)

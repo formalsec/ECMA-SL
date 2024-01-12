@@ -11,6 +11,7 @@
   io
   log
   err
+  fmt
   font
   counter
   syntax
