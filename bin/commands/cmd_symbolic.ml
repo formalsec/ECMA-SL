@@ -77,7 +77,7 @@ let symbolic_api_funcs =
   in
   let abort (e : value) =
     let e' = Format.asprintf "%a" Value.Pp.pp e in
-    Log.err "      abort : %s@." e';
+    Log.warn "      abort : %s@." e';
     Choice.return @@ Error (Format.asprintf {|{ "abort" : %S }|} e')
   in
   let assume (e : value) thread =
@@ -89,11 +89,8 @@ let symbolic_api_funcs =
     let pc = Thread.pc thread in
     let solver = Thread.solver thread in
     assert (Solver.check solver (e' :: pc));
-    let symbols = Encoding.Expr.get_symbols [ e' ] in
-    let model = Option.get (Solver.model ~symbols solver) in
-    match Encoding.Model.evaluate model (List.hd symbols) with
-    | Some v -> [ (Ok (Translator.expr_of_value v), thread) ]
-    | None -> assert false (* Should never happpen due to sat check above *)
+    let v = Solver.get_value solver e' in
+    [ (Ok (Translator.expr_of_value v.e), thread) ]
   in
   let optimize target opt e pc =
     Optimizer.push opt;
@@ -108,8 +105,10 @@ let symbolic_api_funcs =
     let opt = Thread.optimizer thread in
     let v = optimize Optimizer.maximize opt e' pc in
     match v with
-    | Some v -> [ (Ok (Translator.expr_of_value v), thread) ]
-    | None -> assert false
+    | Some v -> [ (Ok (Translator.expr_of_value (Val v)), thread) ]
+    | None ->
+      (* TODO: Error here *)
+      assert false
   in
   let minimize (e : value) thread =
     let e' = Translator.translate e in
@@ -117,8 +116,10 @@ let symbolic_api_funcs =
     let opt = Thread.optimizer thread in
     let v = optimize Optimizer.minimize opt e' pc in
     match v with
-    | Some v -> [ (Ok (Translator.expr_of_value v), thread) ]
-    | None -> assert false
+    | Some v -> [ (Ok (Translator.expr_of_value (Val v)), thread) ]
+    | None ->
+      (* TODO: Error here *)
+      assert false
   in
   SMap.of_seq
     (Array.to_seq
