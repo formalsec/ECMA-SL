@@ -45,8 +45,8 @@ let rec is_symbolic (e : t) : bool =
   | NOpt (_, es) | Curry (_, es) -> List.exists is_symbolic es
   | Symbolic _ -> true
 
-let rec pp (fmt : Format.formatter) (e : t) : unit =
-  let open Format in
+let rec pp (fmt : Fmt.formatter) (e : t) : unit =
+  let open Fmt in
   let pp_sep seq fmt () = pp_print_string fmt seq in
   let pp_lst seq pp fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
   match e with
@@ -59,7 +59,7 @@ let rec pp (fmt : Format.formatter) (e : t) : unit =
   | Curry (fe, es) -> fprintf fmt "{%a}@(%a)" pp fe (pp_lst ", " pp) es
   | Symbolic (t, e') -> fprintf fmt "se_mk_symbolic(%a, %a)" Type.pp t pp e'
 
-let str (e : t) : string = Format.asprintf "%a" pp e
+let str (e : t) : string = Fmt.asprintf "%a" pp e
 
 let rec vars_in_expr (e : t) : string list =
   let vars_in_lst lst = List.map vars_in_expr lst |> List.concat in

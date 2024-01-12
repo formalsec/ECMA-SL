@@ -24,10 +24,8 @@ and t' =
   | Assert of Expr.t
   | Abort of Expr.t
 
-let rec pp (fmt : Format.formatter) (s : t) : unit =
-  let open Format in
-  let pp_sep sep fmt () = pp_print_string fmt sep in
-  let pp_lst sep pp fmt lst = pp_print_list ~pp_sep:(pp_sep sep) pp fmt lst in
+let rec pp (fmt : Fmt.formatter) (s : t) : unit =
+  let open Fmt in
   match s.it with
   | Skip -> fprintf fmt "skip"
   | Merge -> fprintf fmt "merge"
@@ -50,15 +48,14 @@ let rec pp (fmt : Format.formatter) (s : t) : unit =
     fprintf fmt "%a[%a] := %a" Expr.pp oe Expr.pp fe Expr.pp e
   | FieldDelete (oe, fe) -> fprintf fmt "delete %a[%a]" Expr.pp oe Expr.pp fe
   | If (e, s1, s2) ->
-    let else_t_fun fmt = fprintf fmt " else {\n%a\n}" pp in
-    let else_t fmt s = Syntax.Option.map_default (else_t_fun fmt) () s in
-    fprintf fmt "if (%a) {\n%a\n}%a" Expr.pp e pp s1 else_t s2
+    let pp_else fmt v = fprintf fmt " else {\n%a\n}" pp v in
+    fprintf fmt "if (%a) {\n%a\n}%a" Expr.pp e pp s1 (pp_opt pp_else) s2
   | While (e, s') -> fprintf fmt "while (%a) {\n%a\n}" Expr.pp e pp s'
   | Fail e -> fprintf fmt "fail %a" Expr.pp e
   | Assert e -> fprintf fmt "assert (%a)" Expr.pp e
   | Abort e -> fprintf fmt "abort %a" Expr.pp e
 
-let str (s : t) : string = Format.asprintf "%a" pp s
+let str (s : t) : string = Fmt.asprintf "%a" pp s
 
 module Pp = struct
   let to_string (stmt : t) pp : string =

@@ -5,10 +5,10 @@ exception ImportException of string
 type token = [%import: Parser.token] [@@deriving show]
 type e_token = [%import: E_Parser.token] [@@deriving show]
 
-let print_position (outx : Format.formatter) (lexbuf : Lexing.lexbuf) : unit =
+let print_position (outx : Fmt.formatter) (lexbuf : Lexing.lexbuf) : unit =
   let pos = lexbuf.lex_curr_p in
   Printf.printf "Line number: %d. File: %s\n" pos.pos_lnum pos.pos_fname;
-  Format.fprintf outx "%s:%d:%d" pos.pos_fname pos.pos_lnum
+  Fmt.fprintf outx "%s:%d:%d" pos.pos_fname pos.pos_lnum
     (pos.pos_cnum - pos.pos_bol + 1)
 
 let e_parse start (lexbuf : Lexing.lexbuf) =
@@ -26,7 +26,7 @@ let e_parse start (lexbuf : Lexing.lexbuf) =
       | ESLMI.Rejected -> failwith "Parser rejected input"
       | ESLMI.HandlingError _e ->
         (* let csn = ESLMI.current_state_number e in *)
-        Format.eprintf "%a, last token: %s: %s.@." print_position lexbuf
+        Fmt.eprintf "%a, last token: %s: %s.@." print_position lexbuf
           (show_e_token !last_token) "Error message found";
         raise E_Parser.Error
       | _ -> failwith "Unexpected state in failure handler!" )
@@ -49,7 +49,7 @@ let parse start (lexbuf : Lexing.lexbuf) =
       | Core_ESLMI.Rejected -> failwith "Parser rejected input"
       | Core_ESLMI.HandlingError _e ->
         (* let csn = Core_ESLMI.current_state_number e in *)
-        Format.eprintf "%a, last token: %s: %s.@." print_position lexbuf
+        Fmt.eprintf "%a, last token: %s: %s.@." print_position lexbuf
           (show_token !last_token) "Error message found";
         raise Parser.Error
       | _ -> failwith "Unexpected state in failure handler!" )

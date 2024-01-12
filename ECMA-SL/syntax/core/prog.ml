@@ -23,10 +23,9 @@ let func_name (prog : t) (fn : string) : (string, string) Result.t =
 let add_func (prog : t) (fn : string) (func : Func.t) : unit =
   Hashtbl.replace prog fn func
 
-let pp (fmt : Format.formatter) (prog : t) : unit =
-  let open Format in
-  let pp_sep sep fmt () = pp_print_string fmt sep in
-  let pp_seq sep pp fmt lst = pp_print_seq ~pp_sep:(pp_sep sep) pp fmt lst in
-  fprintf fmt "%a" (pp_seq ";\n" Func.pp) (Hashtbl.to_seq_values prog)
+let pp (fmt : Fmt.formatter) (prog : t) : unit =
+  let open Fmt in
+  let pp_v fmt _ v = Func.pp fmt v in
+  fprintf fmt "%a" (pp_hashtbl ";\n" pp_v) prog
 
-let str (prog : t) : string = Format.asprintf "%a" pp prog
+let str (prog : t) : string = Fmt.asprintf "%a" pp prog

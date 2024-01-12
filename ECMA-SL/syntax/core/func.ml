@@ -15,13 +15,9 @@ let body (func : t) : Stmt.t = func.it.body
 let create (name : string) (params : string list) (body : Stmt.t) : t' =
   { name; params; body }
 
-let pp (fmt : Format.formatter) (func : t) : unit =
-  let open Format in
-  let { name; params; body } = func.it in
-  let pp_sep seq fmt () = pp_print_string fmt seq in
-  let pp_lst seq pp fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
-  fprintf fmt "function %s(%a) {\n%a\n}" name
-    (pp_lst ", " pp_print_string)
-    params Stmt.pp body
+let pp (fmt : Fmt.formatter) ({ it = { name; params; body }; _ }: t) : unit =
+  let open Fmt in
+  fprintf fmt "function %s(%a) {\n%a\n}" name (pp_lst ", " pp_str) params
+    Stmt.pp body
 
-let str (func : t) : string = Format.asprintf "%a" pp func
+let str (func : t) : string = Fmt.asprintf "%a" pp func
