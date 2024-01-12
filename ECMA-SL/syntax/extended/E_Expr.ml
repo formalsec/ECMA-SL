@@ -24,14 +24,13 @@ let rec str (e : t) : string =
   | Var x -> x
   | GVar x -> "|" ^ x ^ "|"
   | Const c -> Operator.str_of_const c
-  | UnOpt (op, e) -> Operator.str_of_unopt Format.pp_print_string op (str e)
+  | UnOpt (op, e) -> Operator.str_of_unopt Fmt.pp_print_string op (str e)
   | EBinOpt (op, e1, e2) -> E_Operator.str_of_binopt op (str e1) (str e2)
   | BinOpt (op, e1, e2) ->
-    Operator.str_of_binopt Format.pp_print_string op (str e1) (str e2)
+    Operator.str_of_binopt Fmt.pp_str op (str e1) (str e2)
   | TriOpt (op, e1, e2, e3) ->
-    Operator.str_of_triopt Format.pp_print_string op (str e1) (str e2) (str e3)
-  | NOpt (op, es) ->
-    Operator.str_of_nopt Format.pp_print_string op (List.map str es)
+    Operator.str_of_triopt Fmt.pp_str op (str e1) (str e2) (str e3)
+  | NOpt (op, es) -> Operator.str_of_nopt Fmt.pp_str op (List.map str es)
   | ECall (f, es) -> "extern " ^ f ^ "(" ^ str_es es ^ ")"
   | Call (f, es, None) -> str f ^ "(" ^ str_es es ^ ")"
   | Call (f, es, Some g) -> str f ^ "(" ^ str_es es ^ ") catch " ^ g

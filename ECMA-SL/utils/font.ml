@@ -22,8 +22,8 @@ let clean (text : string) : string =
   let escape_regex = Str.regexp "\027\\[[0-9;]*m" in
   Str.global_replace escape_regex "" text
 
-let pp_code (fmt : Format.formatter) (font_el : t) : unit =
-  let open Format in
+let pp_code (fmt : Fmt.formatter) (font_el : t) : unit =
+  let open Fmt in
   match font_el with
   | Normal -> fprintf fmt "0"
   | Bold -> fprintf fmt "1"
@@ -44,16 +44,15 @@ let pp_code (fmt : Format.formatter) (font_el : t) : unit =
   | Cyan -> fprintf fmt "36"
   | White -> fprintf fmt "37"
 
-let pp_font (fmt : Format.formatter) (font : t list) : unit =
-  let open Format in
+let pp_font (fmt : Fmt.formatter) (font : t list) : unit =
+  let open Fmt in
   let pp_sep seq fmt () = pp_print_string fmt seq in
   let pp_lst seq pp fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
   fprintf fmt "%a" (pp_lst ";" pp_code) font
 
 let pp ?(fdesc : Unix.file_descr option = None) (font : t list)
-  (pp_el : Format.formatter -> 'a -> unit) (fmt : Format.formatter) (el : 'a) :
-  unit =
-  let open Format in
+  (pp_el : Fmt.formatter -> 'a -> unit) (fmt : Fmt.formatter) (el : 'a) : unit =
+  let open Fmt in
   if not !Config.Common.colored then fprintf fmt "%a" pp_el el
   else
     match fdesc with
@@ -61,8 +60,8 @@ let pp ?(fdesc : Unix.file_descr option = None) (font : t list)
     | _ -> fprintf fmt "\027[%am%a\027[0m" pp_font font pp_el el
 
 let format ?(fdesc : Unix.file_descr option = None) (font : t list)
-  (pp_el : Format.formatter -> 'a -> unit) (el : 'a) : string =
-  Format.asprintf "%a" (pp ~fdesc font pp_el) el
+  (pp_el : Fmt.formatter -> 'a -> unit) (el : 'a) : string =
+  Fmt.asprintf "%a" (pp ~fdesc font pp_el) el
 
 let pp_out font pp_el fmt el = pp ~fdesc:(Some Unix.stdout) font pp_el fmt el
 let pp_err font pp_el fmt el = pp ~fdesc:(Some Unix.stderr) font pp_el fmt el
@@ -70,12 +69,12 @@ let format_out font pp_el el = format ~fdesc:(Some Unix.stdout) font pp_el el
 let format_err font pp_el el = format ~fdesc:(Some Unix.stderr) font pp_el el
 
 let str_pp ?(fdesc : Unix.file_descr option = None) (font : t list)
-  (fmt : Format.formatter) (s : string) =
-  pp ~fdesc font Format.pp_print_string fmt s
+  (fmt : Fmt.formatter) (s : string) =
+  pp ~fdesc font Fmt.pp_print_string fmt s
 
 let str_format ?(fdesc : Unix.file_descr option = None) (font : t list)
   (s : string) =
-  Format.asprintf "%a" (str_pp ~fdesc font) s
+  Fmt.asprintf "%a" (str_pp ~fdesc font) s
 
 let str_pp_out font fmt s = str_pp ~fdesc:(Some Unix.stdout) font fmt s
 let str_pp_err font fmt s = str_pp ~fdesc:(Some Unix.stderr) font fmt s

@@ -42,7 +42,7 @@ module M (Mon : Monitor.M) = struct
     (stack, store, heap, main)
 
   let print_val (heap : heap) (v : value) : unit =
-    let open Format in
+    let open Fmt in
     match v with
     | Str s -> printf "%s@." s
     | Loc l -> printf "%a@." (Object.pp Val.pp) (eval_loc heap l)
@@ -227,7 +227,7 @@ module M (Mon : Monitor.M) = struct
       let v = eval_boolean store e in
       if v then (Intermediate (state, cont), lbl (AssertEval true))
       else
-        let err = Format.asprintf "Assert false: %a" Expr.pp e in
+        let err = Fmt.asprintf "Assert false: %a" Expr.pp e in
         (Error (Val.Str err), lbl (AssertEval false))
     | Abort _ -> (Intermediate (state, cont), lbl AbortEval)
 
@@ -262,7 +262,7 @@ module M (Mon : Monitor.M) = struct
     match return with
     | Final _ as retval -> retval
     | Error err as retval ->
-      Format.eprintf "uncaught exception: %a@." Val.pp err;
+      Fmt.eprintf "uncaught exception: %a@." Val.pp err;
       retval
     | _ -> Eslerr.internal __FUNCTION__ (Expecting "non-intermediate state")
 end

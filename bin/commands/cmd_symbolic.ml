@@ -25,7 +25,7 @@ let fresh : string -> string =
   let counter = ref (-1) in
   fun x ->
     incr counter;
-    Format.sprintf "%s_%d" x !counter
+    Fmt.sprintf "%s_%d" x !counter
 
 let symbolic_api_funcs =
   let open Value in
@@ -130,11 +130,11 @@ let symbolic_api_funcs =
 let extern_functions =
   let open Extern_func in
   let hello () =
-    Format.printf "Hello world@.";
+    Fmt.printf "Hello world@.";
     Choice.return (Value.Val (Val.Symbol "undefined"))
   in
   let print (v : Value.value) =
-    Format.printf "extern print: %a@." Value.Pp.pp v;
+    Fmt.printf "extern print: %a@." Value.Pp.pp v;
     Choice.return (Value.Val (Val.Symbol "undefined"))
   in
   SMap.of_seq
@@ -199,27 +199,27 @@ let serialize =
     let testcase =
       Option.fold model ~none:"" ~some:(fun m ->
           let open Encoding in
-          Format.asprintf "module.exports.symbolic_map = @[<h 2>{%a@\n}@]"
-            (Format.pp_print_list
-               ~pp_sep:(fun fmt () -> Format.fprintf fmt "@\n")
+          Fmt.asprintf "module.exports.symbolic_map = @[<h 2>{%a@\n}@]"
+            (Fmt.pp_print_list
+               ~pp_sep:(fun fmt () -> Fmt.fprintf fmt "@\n")
                (fun fmt (s, v) ->
-                 Format.fprintf fmt {|"%a" : %a|} Symbol.pp s Value.pp v ) )
+                 Fmt.fprintf fmt {|"%a" : %a|} Symbol.pp s Value.pp v ) )
             (Model.get_bindings m) )
     in
-    let str_pc = Format.asprintf "%a" Encoding.Expr.pp_list pc in
-    let smt_query = Format.asprintf "%a" Encoding.Expr.pp_smt pc in
+    let str_pc = Fmt.asprintf "%a" Encoding.Expr.pp_list pc in
+    let smt_query = Fmt.asprintf "%a" Encoding.Expr.pp_smt pc in
     let prefix =
       incr counter;
       let fname = if Option.is_some witness then "witness" else "testecase" in
-      let fname = Format.sprintf "%s-%i" fname !counter in
+      let fname = Fmt.sprintf "%s-%i" fname !counter in
       Filename.concat (Filename.concat !Config.workspace "test-suite") fname
     in
-    Io.write_file ~file:(Format.sprintf "%s.js" prefix) ~data:testcase;
-    Io.write_file ~file:(Format.sprintf "%s.pc" prefix) ~data:str_pc;
-    Io.write_file ~file:(Format.sprintf "%s.smt2" prefix) ~data:smt_query;
+    Io.write_file ~file:(Fmt.sprintf "%s.js" prefix) ~data:testcase;
+    Io.write_file ~file:(Fmt.sprintf "%s.pc" prefix) ~data:str_pc;
+    Io.write_file ~file:(Fmt.sprintf "%s.smt2" prefix) ~data:smt_query;
     Option.iter
       (fun sink ->
-        Io.write_file ~file:(Format.sprintf "%s_sink.json" prefix) ~data:sink )
+        Io.write_file ~file:(Fmt.sprintf "%s_sink.json" prefix) ~data:sink )
       witness
 
 let run env entry_func =
@@ -233,12 +233,12 @@ let run env entry_func =
     (fun (ret, thread) ->
       let witness = match ret with Ok _ -> None | Error err -> Some err in
       serialize ?witness thread;
-      Format.printf "  path cond : %a@." Encoding.Expr.pp_list
-        (Thread.pc thread) )
+      Fmt.printf "  path cond : %a@." Encoding.Expr.pp_list (Thread.pc thread)
+      )
     results;
-  Format.printf "  exec time : %fs@." (Stdlib.Sys.time () -. start);
-  Format.printf "solver time : %fs@." !Batch.solver_time;
-  Format.printf "  mean time : %fms@."
+  Fmt.printf "  exec time : %fs@." (Stdlib.Sys.time () -. start);
+  Fmt.printf "solver time : %fs@." !Batch.solver_time;
+  Fmt.printf "  mean time : %fms@."
     (1000. *. !Batch.solver_time /. float !Batch.solver_count)
 
 let main (copts : Options.common_options) file target workspace =
@@ -274,7 +274,7 @@ let execute_witness env (test : string) (witness : Fpath.t) =
            | Stdout sub -> String.find_sub ~sub out |> Option.is_some
            | File file -> Sys.file_exists file )
          observable_effects )
-  | _ -> Error (`Msg (Format.sprintf "unexpected node failure: %s" out))
+  | _ -> Error (`Msg (Fmt.sprintf "unexpected node failure: %s" out))
 
 let validate (copts : Options.common_options) filename suite_path =
   if copts.debug then Logs.set_level (Some Logs.Debug);

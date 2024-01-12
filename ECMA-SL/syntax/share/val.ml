@@ -14,8 +14,6 @@ type t =
   | Type of Type.t
   | Curry of string * t list
 
-type pp_fmt = t -> Format.formatter -> unit
-
 let rec equal (v1 : t) (v2 : t) : bool =
   match (v1, v2) with
   | (Null, Null) | (Void, Void) -> true
@@ -53,18 +51,8 @@ let float_str (f : float) : string =
   if is_special_number f_str || String.contains f_str '.' then f_str
   else f_str ^ ".0"
 
-let rec pp (fmt : Format.formatter) (v : t) : unit =
-  let open Format in
-  let pp_sep seq fmt () = pp_print_string fmt seq in
-  let pp_arr seq fmt arr =
-    let is_first = ref false in
-    let pp_v v =
-      if !is_first then is_first := false else pp_sep seq fmt ();
-      pp fmt v
-    in
-    Array.iter pp_v arr
-  in
-  let pp_lst seq fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
+let rec pp (fmt : Fmt.formatter) (v : t) : unit =
+  let open Fmt in
   match v with
   | Null -> fprintf fmt "null"
   | Void -> ()
@@ -75,13 +63,13 @@ let rec pp (fmt : Format.formatter) (v : t) : unit =
   | Symbol s -> fprintf fmt "'%s" s
   | Loc l -> Loc.pp fmt l
   | Arr arr when Array.length arr = 0 -> fprintf fmt "[| |]"
-  | Arr arr -> fprintf fmt "[| %a |]" (pp_arr ", ") arr
+  | Arr arr -> fprintf fmt "[| %a |]" (pp_arr ", " pp) arr
   | List [] -> fprintf fmt "[]"
-  | List lst -> fprintf fmt "[ %a ]" (pp_lst ", ") lst
+  | List lst -> fprintf fmt "[ %a ]" (pp_lst ", " pp) lst
   | Tuple [] -> fprintf fmt "()"
-  | Tuple tup -> fprintf fmt "( %a )" (pp_lst ", ") tup
+  | Tuple tup -> fprintf fmt "( %a )" (pp_lst ", " pp) tup
   | Byte bt -> fprintf fmt "%i" bt
   | Type t -> Type.pp fmt t
-  | Curry (fn, fvs) -> fprintf fmt "{%S}@(%a)" fn (pp_lst ", ") fvs
+  | Curry (fn, fvs) -> fprintf fmt "{%S}@(%a)" fn (pp_lst ", " pp) fvs
 
-let str v = Format.asprintf "%a" pp v
+let str v = Fmt.asprintf "%a" pp v
