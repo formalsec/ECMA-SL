@@ -140,6 +140,18 @@ module M = struct
     | Ssubstr | SsubstrU -> (Some T.Substr, None)
     | _ -> (None, Some (str_of_triopt_single op))
 
+  let type_translation = function
+    | Type.IntType -> T.Ty_int
+    | Type.FltType -> T.Ty_fp T.S32
+    | Type.BoolType -> T.Ty_bool
+    | Type.StrType -> T.Ty_str
+    | Type.ListType -> T.Ty_list
+    | Type.TupleType -> T.Ty_tuple
+    | Type.ArrayType -> T.Ty_array
+    | _ -> assert false
+
+  type a = Val.t
+
   let rec eval_expr (store : store) (e : Expr.t) : (value, string) Result.t =
     match e with
     | Expr.Val v -> 
@@ -177,14 +189,19 @@ module M = struct
     | Expr.NOpt (op, es) ->
       let+ es' = list_map ~f:(eval_expr store) es in
       let op' = Operators.str_of_nopt_single op in
-      E.App (op', es') @: T.Ty_list
+      let fst = List.hd es' in
+      E.App (op', es') @: fst.E.ty
     | Expr.Curry (f, es) ->
       let* f' = eval_expr store f in
+      let s = match f'.E.e with E.Val (V.Str v) -> v | _ -> assert false in
       let+ es' = list_map ~f:(eval_expr store) es in
-      E.App (f', es') @: es'.E.ty
+      let fst = List.hd es' in
+      E.App (s, es') @: fst.E.ty
     | Expr.Symbolic (t, x) ->
       let+ x' = eval_expr store x in
-      E.Symbol (t, x') @: x'.E.ty
+      let t' = type_translation t in
+      let s = match x'.E.e with E.Val (V.Str v) -> v | _ -> assert false in
+      E.mk_symbol (Encoding.Symbol.mk_symbol t' s)
 
   module Pp = struct
     let rec pp (e : value) : string =
