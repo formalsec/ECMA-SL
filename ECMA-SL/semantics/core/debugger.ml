@@ -6,20 +6,20 @@ type stack = store Call_stack.t
 
 module Show = struct
   let header () : unit =
-    Format.printf "\n%a"
-      (Font.str_pp_out [ Font.Cyan ])
+    Fmt.printf "\n%a"
+      (Font.pp_text_out [ Font.Cyan ])
       "----------------------------------------\n\
       \       Core ECMA-SL Debug Prompt\n\
        ----------------------------------------\n"
 
   let footer () : unit =
-    Format.printf "\n%a\n@."
-      (Font.str_pp_out [ Font.Cyan ])
+    Fmt.printf "\n%a\n@."
+      (Font.pp_text_out [ Font.Cyan ])
       "----------------------------------------"
 
   let dialog () : unit =
-    Format.printf "\n%a\n%s"
-      (Font.str_pp_out [ Font.Cyan ])
+    Fmt.printf "\n%a\n%s"
+      (Font.pp_text_out [ Font.Cyan ])
       "Commands:"
       "  1: eval <var|$loc_n|obj.fld>\n\
       \  2: store\n\
@@ -31,7 +31,7 @@ module Show = struct
       \  8: exit"
 
   let prompt () : unit =
-    Format.printf "\n\n%s @?" (Font.str_format_out [ Font.Faint ] ">>>")
+    Fmt.printf "\n\n%a @?" (Font.pp_text_out [ Font.Faint ]) ">>>"
 end
 
 exception Cmd_error of string
@@ -76,23 +76,23 @@ let print_stmt (f : Func.t) (s : Stmt.t) : unit =
   let lineno_sz = String.length lineno_str in
   let lineno_indent = String.make lineno_sz ' ' in
   let pp_stmt = Font.pp_out [ Font.Cyan ] Stmt.pp_simple in
-  Format.printf "\n%s | %a\n%s |    %a\n%s | }" lineno_indent Func.pp_simple f
+  Fmt.printf "\n%s | %a\n%s |    %a\n%s | }" lineno_indent Func.pp_simple f
     lineno_str pp_stmt s lineno_indent
 
-let print_obj (obj : obj) : unit = Format.printf "%a" (Object.pp Val.pp) obj
+let print_obj (obj : obj) : unit = Fmt.printf "%a" (Object.pp Val.pp) obj
 
 let print_val (heap : heap) (res : value) : unit =
   match res with
   | Loc l ->
     !!(Heap.get heap l) |> print_obj;
-    Format.printf " %a" (Font.str_pp_out [ Font.Faint ]) ("// " ^ Loc.str l)
-  | v -> Format.printf "%a" Val.pp v
+    Fmt.printf " %a" (Font.pp_text_out [ Font.Faint ]) ("// " ^ Loc.str l)
+  | v -> Fmt.printf "%a" Val.pp v
 
 let eval_fld (heap : heap) (lv : Val.t) (fn : string) : Val.t =
   let _fld_val v_opt = Option.value ~default:(Val.Symbol "undefined") v_opt in
   match lv with
   | Loc l -> _fld_val (Heap.get_field_opt heap l fn)
-  | _ -> cmd_err (Format.asprintf "Invalid location value '%a'." Val.pp lv)
+  | _ -> cmd_err (Fmt.asprintf "Invalid location value '%a'." Val.pp lv)
 
 let eval_cmd (store : store) (heap : heap) (expr : string) () : unit =
   let args = String.split_on_char '.' expr in
@@ -109,13 +109,13 @@ let eval_cmd (store : store) (heap : heap) (expr : string) () : unit =
     List.fold_left (eval_fld heap) lv fns |> print_val heap
 
 let store_cmd (store : store) () : unit =
-  Format.printf "%a" (Store.pp_tabular Val.pp) store
+  Fmt.printf "%a" (Store.pp_tabular Val.pp) store
 
 let heap_cmd (heap : heap) () : unit =
-  Format.printf "%a" (Heap.pp_tabular (Object.pp Val.pp)) heap
+  Fmt.printf "%a" (Heap.pp_tabular (Object.pp Val.pp)) heap
 
 let stack_cmd (stack : stack) () : unit =
-  Format.printf "Currently at %a" Call_stack.pp_tabular stack
+  Fmt.printf "Currently at %a" Call_stack.pp_tabular stack
 
 let help_cmd : unit -> unit = Show.dialog
 let invalid_cmd () : unit = cmd_err "Invalid command. Try again."
@@ -136,7 +136,7 @@ let rec debug_loop (store : store) (heap : heap) (stack : stack) : cmd =
 and debug_loop_safe (store : store) (heap : heap) (stack : stack) : cmd =
   try debug_loop store heap stack
   with Cmd_error err ->
-    Format.printf "%s" err;
+    Fmt.printf "%s" err;
     debug_loop_safe store heap stack
 
 module type M = sig
@@ -175,7 +175,7 @@ module Enable : M = struct
   let show_initial_state () : unit =
     Show.header ();
     Show.dialog ();
-    Format.printf "\n"
+    Fmt.printf "\n"
 
   let show_final_state () : unit = Show.footer ()
 

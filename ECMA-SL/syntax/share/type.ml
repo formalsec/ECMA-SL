@@ -14,7 +14,7 @@ type t =
 
 let equal (t1 : t) (t2 : t) : bool = t1 = t2
 
-let pp (fmt : Fmt.formatter) (t : t) : unit =
+let pp (fmt : Fmt.t) (t : t) : unit =
   let open Fmt in
   match t with
   | NullType -> pp_str fmt "__$Null"

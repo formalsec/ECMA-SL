@@ -121,7 +121,7 @@ let expr_tkns (expr : E_Expr.t) : tkn_t list =
   | _ -> []
 
 let stmt_tkns (stmt : E_Stmt.t) : tkn_t list =
-  let threedots = Font.str_format_err [ Font.Faint ] "..." in
+  let threedots = Font.str_text_err [ Font.Faint ] "..." in
   match stmt.it with
   | Skip -> []
   (* | Fail _ -> [] *)
@@ -162,7 +162,7 @@ let func_tkns (func : E_Func.t) : tkn_t list =
   List.concat [ funcTkns; [ Lit "(" ]; paramTkns; [ Lit ")" ]; retTkn ]
 
 let pat_tkns (pat : E_Pat.t) : tkn_t list =
-  let threedots = Font.str_format_err [ Font.Faint ] "..." in
+  let threedots = Font.str_text_err [ Font.Faint ] "..." in
   let _pat_fld_tkn_f (s, patVal) = [ Str s; Lit ": "; PatVal patVal ] in
   let _pat_tkns pat =
     match pat with
@@ -297,14 +297,14 @@ let format_source (kind : kind_t) (tkn : tkn_t) (src : tkn_t) : string =
   match src with
   | NoTkn -> ""
   | _ ->
-    Font.str_format_err [ Font.Italic; Font.Faint ] (format_loc srcData.locData)
+    Font.str_text_err [ Font.Italic; Font.Faint ] (format_loc srcData.locData)
     ^ format_code srcData
-    ^ Font.str_format_err [ kind_font kind ] (format_hgl srcData)
+    ^ Font.str_text_err [ kind_font kind ] (format_hgl srcData)
 
 let format_msg (kind : kind_t) (msgs : string list) : string =
   let font = kind_font kind in
-  let terrHeader = Font.str_format_err [ font ] (kind_err kind ^ ": ") in
-  let terrCause = Font.str_format_err [ font; Font.Faint ] "Caused by: " in
+  let terrHeader = Font.str_text_err [ font ] (kind_err kind ^ ": ") in
+  let terrCause = Font.str_text_err [ font; Font.Faint ] "Caused by: " in
   match msgs with
   | [] -> terrHeader ^ "???"
   | mainErrStr :: sideErrs ->
