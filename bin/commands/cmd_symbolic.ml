@@ -120,32 +120,33 @@ let symbolic_api_funcs =
     | Some v -> [ (Ok (Translator.expr_of_value v), thread) ]
     | None -> assert false
   in
-  SMap.of_list
-    [ ("str_symbol", Extern_func (Func (Arg Res), str_symbol))
-    ; ("int_symbol", Extern_func (Func (Arg Res), int_symbol))
-    ; ("flt_symbol", Extern_func (Func (Arg Res), flt_symbol))
-    ; ("bool_symbol", Extern_func (Func (Arg Res), bool_symbol))
-    ; ("is_symbolic", Extern_func (Func (Arg Res), is_symbolic))
-    ; ("is_number", Extern_func (Func (Arg Res), is_number))
-    ; ("is_sat", Extern_func (Func (Arg Res), is_sat))
-    ; ("is_exec_sat", Extern_func (Func (Arg Res), is_exec_sat))
-    ; ("is_eval_sat", Extern_func (Func (Arg Res), is_eval_sat))
-    ; ("abort", Extern_func (Func (Arg Res), abort))
-    ; ("assume", Extern_func (Func (Arg Res), assume))
-    ; ("evaluate", Extern_func (Func (Arg Res), evaluate))
-    ; ("maximize", Extern_func (Func (Arg Res), maximize))
-    ; ("minimize", Extern_func (Func (Arg Res), minimize))
-    ]
+  SMap.of_seq
+    (Array.to_seq
+       [| ("str_symbol", Extern_func (Func (Arg Res), str_symbol))
+        ; ("int_symbol", Extern_func (Func (Arg Res), int_symbol))
+        ; ("flt_symbol", Extern_func (Func (Arg Res), flt_symbol))
+        ; ("bool_symbol", Extern_func (Func (Arg Res), bool_symbol))
+        ; ("is_symbolic", Extern_func (Func (Arg Res), is_symbolic))
+        ; ("is_number", Extern_func (Func (Arg Res), is_number))
+        ; ("is_sat", Extern_func (Func (Arg Res), is_sat))
+        ; ("is_exec_sat", Extern_func (Func (Arg Res), is_exec_sat))
+        ; ("is_eval_sat", Extern_func (Func (Arg Res), is_eval_sat))
+        ; ("abort", Extern_func (Func (Arg Res), abort))
+        ; ("assume", Extern_func (Func (Arg Res), assume))
+        ; ("evaluate", Extern_func (Func (Arg Res), evaluate))
+        ; ("maximize", Extern_func (Func (Arg Res), maximize))
+        ; ("minimize", Extern_func (Func (Arg Res), minimize))
+       |] )
 
 (* Examples *)
 let extern_functions =
   let open Extern_func in
   let hello () =
-    Format.printf "Hello world@.";
+    Fmt.printf "Hello world@.";
     Choice.return (Ok (Value.Val (Val.Symbol "undefined")))
   in
   let print (v : Value.value) =
-    Format.printf "extern print: %a@." Value.Pp.pp v;
+    Fmt.printf "extern print: %a@." Value.Pp.pp v;
     Choice.return (Ok (Value.Val (Val.Symbol "undefined")))
   in
   SMap.of_seq
