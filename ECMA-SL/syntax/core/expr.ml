@@ -45,10 +45,8 @@ let rec is_symbolic (e : t) : bool =
   | NOpt (_, es) | Curry (_, es) -> List.exists is_symbolic es
   | Symbolic _ -> true
 
-let rec pp (fmt : Fmt.formatter) (e : t) : unit =
+let rec pp (fmt : Fmt.t) (e : t) : unit =
   let open Fmt in
-  let pp_sep seq fmt () = pp_print_string fmt seq in
-  let pp_lst seq pp fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
   match e with
   | Val v -> Val.pp fmt v
   | Var x -> pp_print_string fmt x
