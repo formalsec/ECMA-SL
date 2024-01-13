@@ -51,12 +51,8 @@ let float_str (f : float) : string =
   if is_special_number f_str || String.contains f_str '.' then f_str
   else f_str ^ ".0"
 
-let rec pp (fmt : Fmt.formatter) (v : t) : unit =
+let rec pp (fmt : Fmt.t) (v : t) : unit =
   let open Fmt in
-  let pp_sep seq fmt () = pp_print_string fmt seq in
-  let pp_spaced fmt v = fprintf fmt "%a " pp v in
-  let pp_arr seq pp fmt arr = pp_print_array ~pp_sep:(pp_sep seq) pp fmt arr in
-  let pp_lst seq pp fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
   match v with
   | Null -> fprintf fmt "null"
   | Void -> ()
@@ -66,9 +62,9 @@ let rec pp (fmt : Fmt.formatter) (v : t) : unit =
   | Bool b -> fprintf fmt "%b" b
   | Symbol s -> fprintf fmt "'%s" s
   | Loc l -> Loc.pp fmt l
-  | Arr arr -> fprintf fmt "[| %a|]" (pp_arr "" pp_spaced) arr
-  | List lst -> fprintf fmt "[ %a]" (pp_lst "" pp_spaced) lst
-  | Tuple tup -> fprintf fmt "( %a)" (pp_lst "" pp_spaced) tup
+  | Arr arr -> fprintf fmt "[|%a|]" (pp_arr ", " pp) arr
+  | List lst -> fprintf fmt "[%a]" (pp_lst ", " pp) lst
+  | Tuple tup -> fprintf fmt "(%a)" (pp_lst ", " pp) tup
   | Byte bt -> fprintf fmt "%i" bt
   | Type t -> Type.pp fmt t
   | Curry (fn, fvs) -> fprintf fmt "{%S}@(%a)" fn (pp_lst ", " pp) fvs

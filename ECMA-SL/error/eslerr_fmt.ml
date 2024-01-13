@@ -1,5 +1,5 @@
 let not_implemented () : 'a = failwith "not implemented in eslerr"
-let threedots = Font.str_format_err [ Font.Faint ] "..."
+let threedots = Font.str_text_err [ Font.Faint ] "..."
 
 type token =
   | NoTkn
@@ -152,10 +152,10 @@ let format_message (error_font : Font.t) (header : string) (msgs : string list)
   : string =
   let fmt_line header msg = Printf.sprintf "\n%s %s" header msg in
   let cause_font = [ error_font; Font.Faint ] in
-  let main_header = Font.str_format_err [ error_font ] (header ^ ":") in
-  let cause_header = Font.str_format_err cause_font "Caused by:" in
+  let main_header = Font.str_text_err [ error_font ] (header ^ ":") in
+  let cause_header = Font.str_text_err cause_font "Caused by:" in
   match msgs with
-  | [] -> fmt_line main_header (Font.str_format_err [ error_font ] "???")
+  | [] -> fmt_line main_header (Font.str_text_err [ error_font ] "???")
   | main_str :: cause_msgs ->
     let fmt_cause_str_f cause_str = fmt_line cause_header cause_str in
     let cause_strs = String.concat "" (List.map fmt_cause_str_f cause_msgs) in
@@ -242,7 +242,7 @@ let format_code (srcdata : srcdata) : string =
 let format_hgl (hgl_font : Font.t) (srcdata : srcdata) : string =
   let lineno_size = String.length (string_of_int srcdata.locdata.line) in
   let err_cause_ident = String.make (lineno_size + 5) ' ' in
-  Font.str_format_err [ hgl_font ] (err_cause_ident ^ srcdata.hgl)
+  Font.str_text_err [ hgl_font ] (err_cause_ident ^ srcdata.hgl)
 
 let format_source (error_font : Font.t) (loc : token) (src : token) : string =
   let loc_font = [ Font.Italic; Font.Faint ] in
@@ -251,11 +251,11 @@ let format_source (error_font : Font.t) (loc : token) (src : token) : string =
   | (false, _) ->
     let colon = false in
     let locdata = (srcdata_init loc).locdata in
-    let loc_str = Font.str_format_err loc_font (format_loc ~colon locdata) in
+    let loc_str = Font.str_text_err loc_font (format_loc ~colon locdata) in
     Printf.sprintf "%s" loc_str
   | (true, _) ->
     let srcdata = process_source src loc in
-    let loc_str = Font.str_format_err loc_font (format_loc srcdata.locdata) in
+    let loc_str = Font.str_text_err loc_font (format_loc srcdata.locdata) in
     let code_str = format_code srcdata in
     let hgl_str = format_hgl error_font srcdata in
     Printf.sprintf "%s\n%s\n%s" loc_str code_str hgl_str

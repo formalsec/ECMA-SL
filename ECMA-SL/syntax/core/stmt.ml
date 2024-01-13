@@ -25,7 +25,7 @@ and t' =
   | Assert of Expr.t
   | Abort of Expr.t
 
-let rec pp (fmt : Fmt.formatter) (s : t) : unit =
+let rec pp (fmt : Fmt.t) (s : t) : unit =
   let open Fmt in
   match s.it with
   | Skip -> fprintf fmt "skip"
@@ -39,7 +39,7 @@ let rec pp (fmt : Fmt.formatter) (s : t) : unit =
     fprintf fmt "%s := %a(%a)" x Expr.pp fe (pp_lst ", " Expr.pp) es
   | AssignECall (x, fn, es) ->
     fprintf fmt "%s := extern %s(%a)" x fn (pp_lst ", " Expr.pp) es
-  | AssignNewObj x -> fprintf fmt "%s := { }" x
+  | AssignNewObj x -> fprintf fmt "%s := {}" x
   | AssignObjToList (x, e) -> fprintf fmt "%s := obj_to_list %a" x Expr.pp e
   | AssignObjFields (x, e) -> fprintf fmt "%s := obj_fields %a" x Expr.pp e
   | AssignInObjCheck (x, e1, e2) ->
@@ -57,7 +57,7 @@ let rec pp (fmt : Fmt.formatter) (s : t) : unit =
   | Assert e -> fprintf fmt "assert (%a)" Expr.pp e
   | Abort e -> fprintf fmt "abort %a" Expr.pp e
 
-let pp_simple (fmt : Fmt.formatter) (s : t) : unit =
+let pp_simple (fmt : Fmt.t) (s : t) : unit =
   let open Fmt in
   match s.it with
   | Block _ -> fprintf fmt "block { ... }"
@@ -91,12 +91,10 @@ module Pp = struct
     | AssignECall (x, f, es) ->
       Fmt.sprintf "%s := extern %s(%s)" x f (concat es)
     | AssignNewObj va -> Fmt.sprintf "%s := {}" va
-    | FieldLookup (va, eo, p) ->
-      Fmt.sprintf "%s := %s[%s]" va (str eo) (str p)
+    | FieldLookup (va, eo, p) -> Fmt.sprintf "%s := %s[%s]" va (str eo) (str p)
     | AssignInObjCheck (st, e1, e2) ->
       Fmt.sprintf "%s := %s in_obj %s" st (str e1) (str e2)
-    | AssignObjToList (st, e) ->
-      Fmt.sprintf "%s := obj_to_list %s" st (str e)
+    | AssignObjToList (st, e) -> Fmt.sprintf "%s := obj_to_list %s" st (str e)
     | AssignObjFields (st, e) -> Fmt.sprintf "%s := obj_fields %s" st (str e)
     | Assert e -> Fmt.sprintf "assert (%s)" (str e)
     | Abort e -> Fmt.sprintf "se_abort (%s)" (str e)

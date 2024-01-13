@@ -1,6 +1,5 @@
 type var = string
 type 'a t = (var, 'a) Hashtbl.t
-type 'a pp_fmt = Fmt.formatter -> 'a -> unit
 
 let create (var_vals : (var * 'a) list) : 'a t =
   List.to_seq var_vals |> Hashtbl.of_seq
@@ -15,27 +14,22 @@ let get (store : 'a t) (x : var) : ('a, string) Result.t =
 
 let set (store : 'a t) (x : var) (v : 'a) : unit = Hashtbl.replace store x v
 
-let pp_entry (pp_binding : Fmt.formatter -> var * 'a -> unit) (sep : string)
-  (fmt : Fmt.formatter) (store : 'a t) : unit =
+let pp (pp_val : Fmt.t -> 'a -> unit) (fmt : Fmt.t) (store : 'a t) : unit =
   let open Fmt in
-  let pp_sep fmt () = pp_print_string fmt sep in
-  let pp_seq pp fmt lst = pp_print_seq ~pp_sep pp fmt lst in
-  fprintf fmt "%a" (pp_seq pp_binding) (Hashtbl.to_seq store)
+  let pp_binding fmt x v = fprintf fmt "%s: %a" x pp_val v in
+  if Hashtbl.length store = 0 then pp_str fmt "{}"
+  else fprintf fmt "{ %a }" (pp_hashtbl ", " pp_binding) store
 
-let pp (pp_val : 'a pp_fmt) (fmt : Fmt.formatter) (store : 'a t) : unit =
-  let open Fmt in
-  let pp_binding fmt (x, v) = fprintf fmt "%s: %a" x pp_val v in
-  fprintf fmt "{ %a }" (pp_entry pp_binding ", ") store
-
-let pp_tabular (pp_val : 'a pp_fmt) (fmt : Fmt.formatter) (store : 'a t) : unit
-    =
+let pp_tabular (pp_val : Fmt.t -> 'a -> unit) (fmt : Fmt.t) (store : 'a t) :
+  unit =
   let open Fmt in
   let lengths = Hashtbl.to_seq_keys store |> Seq.map String.length in
   let max = Seq.fold_left Int.max 0 lengths in
-  let sep x = String.make (max - String.length x) ' ' in
-  let pp_binding fmt (x, v) = fprintf fmt "%s%s  <-  %a" (sep x) x pp_val v in
-  pp_entry pp_binding "\n" fmt store
+  let indent x = String.make (max - String.length x) ' ' in
+  let pp_binding fmt x v = fprintf fmt "%s%s  <-  %a" (indent x) x pp_val v in
+  fprintf fmt "%a" (pp_hashtbl "\n" pp_binding) store
 
-let str ?(tabular : bool = false) (pp_val : 'a pp_fmt) (store : 'a t) : string =
+let str ?(tabular : bool = false) (pp_val : Fmt.t -> 'a -> unit) (store : 'a t)
+  : string =
   if tabular then Fmt.asprintf "%a" (pp_tabular pp_val) store
   else Fmt.asprintf "%a" (pp pp_val) store

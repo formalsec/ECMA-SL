@@ -22,36 +22,33 @@ let clean (text : string) : string =
   let escape_regex = Str.regexp "\027\\[[0-9;]*m" in
   Str.global_replace escape_regex "" text
 
-let pp_code (fmt : Fmt.formatter) (font_el : t) : unit =
+let pp_code (fmt : Fmt.t) (font_el : t) : unit =
   let open Fmt in
   match font_el with
-  | Normal -> fprintf fmt "0"
-  | Bold -> fprintf fmt "1"
-  | Faint -> fprintf fmt "2"
-  | Italic -> fprintf fmt "3"
-  | Underline -> fprintf fmt "4"
-  | Blink -> fprintf fmt "5"
-  | Blinkfast -> fprintf fmt "6"
-  | Negative -> fprintf fmt "7"
-  | Conceal -> fprintf fmt "8"
-  | Strike -> fprintf fmt "9"
-  | Black -> fprintf fmt "30"
-  | Red -> fprintf fmt "31"
-  | Green -> fprintf fmt "32"
-  | Yellow -> fprintf fmt "33"
-  | Blue -> fprintf fmt "34"
-  | Purple -> fprintf fmt "35"
-  | Cyan -> fprintf fmt "36"
-  | White -> fprintf fmt "37"
+  | Normal -> pp_str fmt "0"
+  | Bold -> pp_str fmt "1"
+  | Faint -> pp_str fmt "2"
+  | Italic -> pp_str fmt "3"
+  | Underline -> pp_str fmt "4"
+  | Blink -> pp_str fmt "5"
+  | Blinkfast -> pp_str fmt "6"
+  | Negative -> pp_str fmt "7"
+  | Conceal -> pp_str fmt "8"
+  | Strike -> pp_str fmt "9"
+  | Black -> pp_str fmt "30"
+  | Red -> pp_str fmt "31"
+  | Green -> pp_str fmt "32"
+  | Yellow -> pp_str fmt "33"
+  | Blue -> pp_str fmt "34"
+  | Purple -> pp_str fmt "35"
+  | Cyan -> pp_str fmt "36"
+  | White -> pp_str fmt "37"
 
-let pp_font (fmt : Fmt.formatter) (font : t list) : unit =
-  let open Fmt in
-  let pp_sep seq fmt () = pp_print_string fmt seq in
-  let pp_lst seq pp fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
-  fprintf fmt "%a" (pp_lst ";" pp_code) font
+let pp_font (fmt : Fmt.t) (font : t list) : unit =
+  Fmt.(fprintf fmt "%a" (pp_lst ";" pp_code) font)
 
 let pp ?(fdesc : Unix.file_descr option = None) (font : t list)
-  (pp_el : Fmt.formatter -> 'a -> unit) (fmt : Fmt.formatter) (el : 'a) : unit =
+  (pp_el : Fmt.t -> 'a -> unit) (fmt : Fmt.t) (el : 'a) : unit =
   let open Fmt in
   if not !Config.Common.colored then fprintf fmt "%a" pp_el el
   else
@@ -59,24 +56,23 @@ let pp ?(fdesc : Unix.file_descr option = None) (font : t list)
     | Some fdesc' when not Unix.(isatty fdesc') -> fprintf fmt "%a" pp_el el
     | _ -> fprintf fmt "\027[%am%a\027[0m" pp_font font pp_el el
 
-let format ?(fdesc : Unix.file_descr option = None) (font : t list)
-  (pp_el : Fmt.formatter -> 'a -> unit) (el : 'a) : string =
+let str ?(fdesc : Unix.file_descr option = None) (font : t list)
+  (pp_el : Fmt.t -> 'a -> unit) (el : 'a) : string =
   Fmt.asprintf "%a" (pp ~fdesc font pp_el) el
+
+let pp_text ?(fdesc : Unix.file_descr option = None) (font : t list)
+  (fmt : Fmt.t) (s : string) =
+  pp ~fdesc font Fmt.pp_print_string fmt s
+
+let str_text ?(fdesc : Unix.file_descr option = None) (font : t list)
+  (s : string) =
+  Fmt.asprintf "%a" (pp_text ~fdesc font) s
 
 let pp_out font pp_el fmt el = pp ~fdesc:(Some Unix.stdout) font pp_el fmt el
 let pp_err font pp_el fmt el = pp ~fdesc:(Some Unix.stderr) font pp_el fmt el
-let format_out font pp_el el = format ~fdesc:(Some Unix.stdout) font pp_el el
-let format_err font pp_el el = format ~fdesc:(Some Unix.stderr) font pp_el el
-
-let str_pp ?(fdesc : Unix.file_descr option = None) (font : t list)
-  (fmt : Fmt.formatter) (s : string) =
-  pp ~fdesc font Fmt.pp_print_string fmt s
-
-let str_format ?(fdesc : Unix.file_descr option = None) (font : t list)
-  (s : string) =
-  Fmt.asprintf "%a" (str_pp ~fdesc font) s
-
-let str_pp_out font fmt s = str_pp ~fdesc:(Some Unix.stdout) font fmt s
-let str_pp_err font fmt s = str_pp ~fdesc:(Some Unix.stderr) font fmt s
-let str_format_out font s = str_format ~fdesc:(Some Unix.stdout) font s
-let str_format_err font s = str_format ~fdesc:(Some Unix.stderr) font s
+let str_out font pp_el el = str ~fdesc:(Some Unix.stdout) font pp_el el
+let str_err font pp_el el = str ~fdesc:(Some Unix.stderr) font pp_el el
+let pp_text_out font fmt s = pp_text ~fdesc:(Some Unix.stdout) font fmt s
+let pp_text_err font fmt s = pp_text ~fdesc:(Some Unix.stderr) font fmt s
+let str_text_out font s = str_text ~fdesc:(Some Unix.stdout) font s
+let str_text_err font s = str_text ~fdesc:(Some Unix.stderr) font s

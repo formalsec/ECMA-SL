@@ -5,7 +5,7 @@ exception ImportException of string
 type token = [%import: Parser.token] [@@deriving show]
 type e_token = [%import: E_Parser.token] [@@deriving show]
 
-let print_position (outx : Fmt.formatter) (lexbuf : Lexing.lexbuf) : unit =
+let print_position (outx : Fmt.t) (lexbuf : Lexing.lexbuf) : unit =
   let pos = lexbuf.lex_curr_p in
   Printf.printf "Line number: %d. File: %s\n" pos.pos_lnum pos.pos_fname;
   Fmt.fprintf outx "%s:%d:%d" pos.pos_fname pos.pos_lnum
