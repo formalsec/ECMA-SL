@@ -94,7 +94,7 @@ let eval_fld (heap : heap) (lv : Val.t) (fn : string) : Val.t =
   | Loc l -> _fld_val (Heap.get_field_opt heap l fn)
   | _ -> cmd_err (Format.asprintf "Invalid location value '%a'." Val.pp lv)
 
-let eval_cmd (store : store) (heap : heap) (expr : string) : unit =
+let eval_cmd (store : store) (heap : heap) (expr : string) () : unit =
   let args = String.split_on_char '.' expr in
   match args with
   | [] | [ "" ] -> cmd_err "Missing eval expression."
@@ -108,16 +108,16 @@ let eval_cmd (store : store) (heap : heap) (expr : string) : unit =
     in
     List.fold_left (eval_fld heap) lv fns |> print_val heap
 
-let store_cmd (store : store) : unit =
+let store_cmd (store : store) () : unit =
   Format.printf "%a" (Store.pp_tabular Val.pp) store
 
-let heap_cmd (heap : heap) : unit =
+let heap_cmd (heap : heap) () : unit =
   Format.printf "%a" (Heap.pp_tabular (Object.pp Val.pp)) heap
 
-let stack_cmd (stack : stack) : unit =
-  Format.printf "%a" Call_stack.pp_tabular stack
+let stack_cmd (stack : stack) () : unit =
+  Format.printf "Currently at %a" Call_stack.pp_tabular stack
 
-let help_cmd () : unit = Show.dialog ()
+let help_cmd : unit -> unit = Show.dialog
 let invalid_cmd () : unit = cmd_err "Invalid command. Try again."
 
 let rec debug_loop (store : store) (heap : heap) (stack : stack) : cmd =
@@ -125,13 +125,13 @@ let rec debug_loop (store : store) (heap : heap) (stack : stack) : cmd =
   Show.prompt ();
   let command = read_line () |> parse_command in
   match command with
-  | Some (Eval expr) -> run_cmd (fun () -> eval_cmd store heap expr)
-  | Some Store -> run_cmd (fun () -> store_cmd store)
-  | Some Heap -> run_cmd (fun () -> heap_cmd heap)
-  | Some Stack -> run_cmd (fun () -> stack_cmd stack)
-  | Some Help -> run_cmd (fun () -> help_cmd ())
+  | Some (Eval expr) -> run_cmd @@ eval_cmd store heap expr
+  | Some Store -> run_cmd @@ store_cmd store
+  | Some Heap -> run_cmd @@ heap_cmd heap
+  | Some Stack -> run_cmd @@ stack_cmd stack
+  | Some Help -> run_cmd @@ help_cmd
   | Some flow_cmd -> flow_cmd
-  | None -> run_cmd (fun () -> invalid_cmd ())
+  | None -> run_cmd @@ invalid_cmd
 
 and debug_loop_safe (store : store) (heap : heap) (stack : stack) : cmd =
   try debug_loop store heap stack

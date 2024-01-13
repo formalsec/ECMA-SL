@@ -135,7 +135,9 @@ module Make (P : Eval_functor_intf.P) :
     match stmt.it with
     | Stmt.Skip -> st locals
     | Stmt.Merge -> st locals
-    | Stmt.Debug _ -> failwith "fixme"
+    | Stmt.Debug s' ->
+      Format.eprintf "ignoring break point in line %d" stmt.at.left.line;
+      Choice.return @@ State.Continue { state with stmts = s' :: state.stmts }
     | Stmt.Fail e ->
       let e' = pp locals m e in
       Log.err "       fail : %s@." e';
