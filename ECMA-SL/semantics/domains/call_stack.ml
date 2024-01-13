@@ -60,9 +60,10 @@ let pp_entry (fmt : Format.formatter) (frame : 'store frame) : unit =
 let pp (fmt : Format.formatter) (stack : 'store t) : unit =
   let open Format in
   let frame_loc = function Toplevel loc | Intermediate (loc, _) -> loc in
+  let func_name frame = (frame_loc frame).func.it.name in
   let pp_sep seq fmt () = pp_print_string fmt seq in
   let pp_lst seq pp fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
-  let pp_binding fmt frame = fprintf fmt "%s" (frame_loc frame).func.it.name in
+  let pp_binding fmt frame = pp_print_string fmt (func_name frame) in
   fprintf fmt "{ %a }" (pp_lst " <- " pp_binding) stack
 
 let pp_tabular (fmt : Format.formatter) (stack : 'store t) : unit =
