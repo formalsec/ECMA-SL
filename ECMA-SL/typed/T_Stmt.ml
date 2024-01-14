@@ -1,4 +1,4 @@
-open E_Stmt
+open EStmt
 open Source
 open T_Err
 
@@ -9,17 +9,17 @@ let set_terr_stmt (tctx : T_Ctx.t) (tstmt_f : unit -> unit) : T_Err.t list =
 
 let type_throw (tctx : T_Ctx.t) : unit = T_Ctx.set_tstate tctx T_Ctx.Abrupt
 
-let type_return (tctx : T_Ctx.t) (expr : E_Expr.t option) : unit =
+let type_return (tctx : T_Ctx.t) (expr : EExpr.t option) : unit =
   let _type_return tret =
     match (expr, tret) with
-    | (None, E_Type.AnyType) -> ()
-    | (None, E_Type.VoidType) -> ()
-    | (None, _) -> T_Err.raise (T_Err.BadValue (tret, E_Type.VoidType))
+    | (None, EType.AnyType) -> ()
+    | (None, EType.VoidType) -> ()
+    | (None, _) -> T_Err.raise (T_Err.BadValue (tret, EType.VoidType))
     | (Some expr', _) -> ignore (T_Expr.safe_type_expr tctx expr' tret)
   in
   let _ = T_Ctx.set_tstate tctx T_Ctx.Abrupt in
   let tret =
-    Option.value ~default:E_Type.AnyType (T_Ctx.get_curr_return_t tctx)
+    Option.value ~default:EType.AnyType (T_Ctx.get_curr_return_t tctx)
   in
   try _type_return tret
   with T_Err.TypeError terr -> (
@@ -28,8 +28,8 @@ let type_return (tctx : T_Ctx.t) (expr : E_Expr.t option) : unit =
       T_Err.update terr (T_Err.BadReturn (tref, texpr))
     | _ -> T_Err.continue terr )
 
-let type_block (tctx : T_Ctx.t) (stmts : E_Stmt.t list)
-  (type_stmt_f : E_Stmt.t -> T_Err.t list) : T_Err.t list =
+let type_block (tctx : T_Ctx.t) (stmts : EStmt.t list)
+  (type_stmt_f : EStmt.t -> T_Err.t list) : T_Err.t list =
   let _type_stmt_f stmt =
     match T_Ctx.get_tstate tctx with
     | T_Ctx.EndBlock -> []
@@ -41,15 +41,15 @@ let type_block (tctx : T_Ctx.t) (stmts : E_Stmt.t list)
   in
   List.concat (List.map _type_stmt_f stmts)
 
-let type_assign (tctx : T_Ctx.t) (var : string) (tvar : E_Type.t option)
-  (expr : E_Expr.t) : unit =
+let type_assign (tctx : T_Ctx.t) (var : string) (tvar : EType.t option)
+  (expr : EExpr.t) : unit =
   let _type_assign atprev mtprev tref =
     let texpr = T_Expr.safe_type_expr tctx expr tref in
     if mtprev || atprev = tref then
       T_Ctx.create_tvar tref texpr mtprev |> T_Ctx.tenv_update tctx var
     else T_Err.raise (T_Err.BadTypeUpdate (atprev, tref))
   in
-  let default = T_Ctx.default_tvar E_Type.AnyType in
+  let default = T_Ctx.default_tvar EType.AnyType in
   let tprev = Option.value ~default (T_Ctx.tenv_find tctx var) in
   let (atprev, mtprev) = (T_Ctx.get_tvar_at tprev, T_Ctx.get_tvar_mt tprev) in
   let tref = Option.value ~default:atprev tvar in
@@ -58,8 +58,8 @@ let type_assign (tctx : T_Ctx.t) (var : string) (tvar : E_Type.t option)
     T_Ctx.create_tvar tref tref true |> T_Ctx.tenv_update tctx var |> fun () ->
     T_Err.continue terr
 
-let type_guard (tctx : T_Ctx.t) (expr : E_Expr.t) : T_Err.t list =
-  try T_Expr.safe_type_expr tctx expr E_Type.BooleanType |> fun _ -> []
+let type_guard (tctx : T_Ctx.t) (expr : EExpr.t) : T_Err.t list =
+  try T_Expr.safe_type_expr tctx expr EType.BooleanType |> fun _ -> []
   with T_Err.TypeError terr -> (
     match terr.errs with
     | T_Err.BadValue (tref, texpr) :: _ ->
@@ -75,9 +75,9 @@ let apply_constrains (tctx : T_Ctx.t) (form : T_Constraint.t) : T_Err.t list =
       set_terr_stmt tctx (fun () -> T_Err.continue terr)
     | _ -> [] )
 
-let type_ifelse (tctx : T_Ctx.t) (expr : E_Expr.t) (stmt1 : E_Stmt.t)
-  (stmt2 : E_Stmt.t option) (type_stmt_f : T_Ctx.t -> E_Stmt.t -> T_Err.t list)
-  : T_Err.t list =
+let type_ifelse (tctx : T_Ctx.t) (expr : EExpr.t) (stmt1 : EStmt.t)
+  (stmt2 : EStmt.t option) (type_stmt_f : T_Ctx.t -> EStmt.t -> T_Err.t list) :
+  T_Err.t list =
   let terrGuard = type_guard tctx expr in
   let stmt2 = Option.value ~default:(Skip @> no_region) stmt2 in
   let (tctx1, tctx2) = (T_Ctx.copy tctx, T_Ctx.copy tctx) in
@@ -95,8 +95,8 @@ let type_ifelse (tctx : T_Ctx.t) (expr : E_Expr.t) (stmt1 : E_Stmt.t)
   let _ = T_Ctx.set_tstate tctx (T_Ctx.merge_tstates tstate1 tstate2) in
   List.concat [ terrGuard; terrForm1; terrForm2; terrsStmt1; terrsStmt2 ]
 
-let type_while (tctx : T_Ctx.t) (expr : E_Expr.t) (stmt : E_Stmt.t)
-  (type_stmt_fun : T_Ctx.t -> E_Stmt.t -> T_Err.t list) : T_Err.t list =
+let type_while (tctx : T_Ctx.t) (expr : EExpr.t) (stmt : EStmt.t)
+  (type_stmt_fun : T_Ctx.t -> EStmt.t -> T_Err.t list) : T_Err.t list =
   let terrGuard = type_guard tctx expr in
   let tctx' = T_Ctx.tenv_lock (T_Ctx.copy (T_Ctx.tenv_unnarrow tctx)) in
   let form = T_Constraint.generate tctx' expr in
@@ -105,10 +105,10 @@ let type_while (tctx : T_Ctx.t) (expr : E_Expr.t) (stmt : E_Stmt.t)
   let _ = T_Ctx.set_tstate tctx (T_Ctx.get_tstate tctx') in
   List.concat [ terrGuard; terrForm; terrsStmt ]
 
-let type_fassign (tctx : T_Ctx.t) (oe : E_Expr.t) (fe : E_Expr.t)
-  (expr : E_Expr.t) : unit =
+let type_fassign (tctx : T_Ctx.t) (oe : EExpr.t) (fe : EExpr.t) (expr : EExpr.t)
+  : unit =
   let _rt_of_nt rtoe nt =
-    match rtoe with E_Type.SigmaType _ | E_Type.UnionType _ -> nt | _ -> rtoe
+    match rtoe with EType.SigmaType _ | EType.UnionType _ -> nt | _ -> rtoe
   in
   let _type_fassign fn rtoe nt =
     let tref = T_Expr.type_fld_lookup oe fe fn (_rt_of_nt rtoe nt) in
@@ -116,15 +116,15 @@ let type_fassign (tctx : T_Ctx.t) (oe : E_Expr.t) (fe : E_Expr.t)
   in
   let (rtoe, ntoe) = T_Expr.full_type_expr_resolved tctx oe in
   match (fe, ntoe) with
-  | (E_Expr.Val (Val.Str fn), E_Type.SigmaType (_, nts))
-  | (E_Expr.Val (Val.Str fn), E_Type.UnionType nts) ->
+  | (EExpr.Val (Val.Str fn), EType.SigmaType (_, nts))
+  | (EExpr.Val (Val.Str fn), EType.UnionType nts) ->
     List.iter (_type_fassign fn rtoe) nts
-  | (E_Expr.Val (Val.Str fn), _) -> List.iter (_type_fassign fn rtoe) [ ntoe ]
+  | (EExpr.Val (Val.Str fn), _) -> List.iter (_type_fassign fn rtoe) [ ntoe ]
   | _ -> ()
 
-let type_match (tctx : T_Ctx.t) (expr : E_Expr.t)
-  (pats : (E_Pat.t * E_Stmt.t) list)
-  (type_stmt_f : T_Ctx.t -> E_Stmt.t -> T_Err.t list) : T_Err.t list =
+let type_match (tctx : T_Ctx.t) (expr : EExpr.t)
+  (pats : (EPat.t * EStmt.t) list)
+  (type_stmt_f : T_Ctx.t -> EStmt.t -> T_Err.t list) : T_Err.t list =
   let _update_tvar_f tctx (x, t) =
     T_Ctx.create_tvar t t true |> T_Ctx.tenv_update tctx x
   in
@@ -133,7 +133,7 @@ let type_match (tctx : T_Ctx.t) (expr : E_Expr.t)
     | T_Pattern.Succ patUpdates ->
       List.iter (_update_tvar_f tctx) patUpdates |> fun () -> []
     | T_Pattern.Err (terr, vars) ->
-      List.map (fun v -> (v, E_Type.AnyType)) vars
+      List.map (fun v -> (v, EType.AnyType)) vars
       |> List.iter (_update_tvar_f tctx)
       |> fun () -> [ terr ]
   in
@@ -162,11 +162,11 @@ let type_match (tctx : T_Ctx.t) (expr : E_Expr.t)
   try
     let (rtexpr, ntexpr) = T_Expr.full_type_expr_resolved tctx expr in
     match (rtexpr, ntexpr) with
-    | (_, E_Type.AnyType) -> T_Ctx.set_tstate tctx T_Ctx.Abrupt |> fun () -> []
-    | (E_Type.SigmaType (d, _), E_Type.SigmaType (_, ts))
-    | (E_Type.SigmaType (d, _), E_Type.UnionType ts) ->
+    | (_, EType.AnyType) -> T_Ctx.set_tstate tctx T_Ctx.Abrupt |> fun () -> []
+    | (EType.SigmaType (d, _), EType.SigmaType (_, ts))
+    | (EType.SigmaType (d, _), EType.UnionType ts) ->
       _type_match d ts
-    | (E_Type.SigmaType (d, _), _) -> _type_match d [ ntexpr ]
+    | (EType.SigmaType (d, _), _) -> _type_match d [ ntexpr ]
     | _ ->
       set_terr_stmt tctx (fun () ->
           T_Err.raise (T_Err.BadSigma rtexpr) ~tkn:(T_Err.expr_tkn expr) )
@@ -174,7 +174,7 @@ let type_match (tctx : T_Ctx.t) (expr : E_Expr.t)
     let terr' = { terr with tkn = T_Err.expr_tkn expr } in
     set_terr_stmt tctx (fun () -> T_Err.continue terr')
 
-let rec type_stmt (tctx : T_Ctx.t) (stmt : E_Stmt.t) : T_Err.t list =
+let rec type_stmt (tctx : T_Ctx.t) (stmt : EStmt.t) : T_Err.t list =
   let _ = T_Ctx.set_stmt tctx stmt in
   match stmt.it with
   | Skip -> []
@@ -201,7 +201,7 @@ let rec type_stmt (tctx : T_Ctx.t) (stmt : E_Stmt.t) : T_Err.t list =
     set_terr_stmt tctx _fassign_f
   (* | FieldDelete (_, _) -> [] *)
   | ExprStmt e ->
-    let _expr_f () = ignore (T_Expr.safe_type_expr tctx e E_Type.AnyType) in
+    let _expr_f () = ignore (T_Expr.safe_type_expr tctx e EType.AnyType) in
     set_terr_stmt tctx _expr_f
   (* | RepeatUntil (_, _, _) -> [] *)
   | MatchWith (e, pats) -> type_match tctx e pats type_stmt

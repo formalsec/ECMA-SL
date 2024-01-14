@@ -3,7 +3,7 @@ open Lexing
 exception ImportException of string
 
 type token = [%import: Parser.token] [@@deriving show]
-type e_token = [%import: E_Parser.token] [@@deriving show]
+type e_token = [%import: EParser.token] [@@deriving show]
 
 let print_position (outx : Fmt.t) (lexbuf : Lexing.lexbuf) : unit =
   let pos = lexbuf.lex_curr_p in
@@ -12,10 +12,10 @@ let print_position (outx : Fmt.t) (lexbuf : Lexing.lexbuf) : unit =
     (pos.pos_cnum - pos.pos_bol + 1)
 
 let e_parse start (lexbuf : Lexing.lexbuf) =
-  let module ESLMI = E_Parser.MenhirInterpreter in
-  let last_token = ref E_Parser.EOF in
+  let module ESLMI = EParser.MenhirInterpreter in
+  let last_token = ref EParser.EOF in
   let lexer lexbuf =
-    let token = E_Lexer.read lexbuf in
+    let token = ELexer.read lexbuf in
     last_token := token;
     token
   in
@@ -28,7 +28,7 @@ let e_parse start (lexbuf : Lexing.lexbuf) =
         (* let csn = ESLMI.current_state_number e in *)
         Fmt.eprintf "%a, last token: %s: %s.@." print_position lexbuf
           (show_e_token !last_token) "Error message found";
-        raise E_Parser.Error
+        raise EParser.Error
       | _ -> failwith "Unexpected state in failure handler!" )
     (ESLMI.lexer_lexbuf_to_supplier lexer lexbuf)
     (start lexbuf.Lexing.lex_curr_p)
@@ -68,30 +68,30 @@ let parse_prog (str : string) : Prog.t =
   let funcs = parse Parser.Incremental.prog_target lexbuf in
   Prog.create funcs
 
-let parse_e_func (str : string) : E_Func.t =
+let parse_e_func (str : string) : EFunc.t =
   let lexbuf = Lexing.from_string str in
-  E_Parser.e_prog_e_func_target E_Lexer.read lexbuf
+  EParser.e_prog_e_func_target ELexer.read lexbuf
 
 let parse_func (str : string) : Func.t =
   let lexbuf = Lexing.from_string str in
   Parser.proc_target Lexer.read lexbuf
 
-let parse_e_expr (str : string) : E_Expr.t =
+let parse_e_expr (str : string) : EExpr.t =
   let lexbuf = Lexing.from_string str in
-  E_Parser.e_prog_e_expr_target E_Lexer.read lexbuf
+  EParser.e_prog_e_expr_target ELexer.read lexbuf
 
-let parse_e_stmt (str : string) : E_Stmt.t =
+let parse_e_stmt (str : string) : EStmt.t =
   let lexbuf = Lexing.from_string str in
-  E_Parser.e_prog_e_stmt_target E_Lexer.read lexbuf
+  EParser.e_prog_e_stmt_target ELexer.read lexbuf
 
-let parse_e_prog (fname : string) (str : string) : E_Prog.t =
+let parse_e_prog (fname : string) (str : string) : EProg.t =
   let lexbuf = init_lexbuf fname str in
-  let prog = e_parse E_Parser.Incremental.e_prog_target lexbuf in
+  let prog = e_parse EParser.Incremental.e_prog_target lexbuf in
   prog
 
 (*
   let lexbuf = Lexing.from_string str in
-  E_Parser.e_prog_target E_Lexer.read lexbuf
+  EParser.e_prog_target ELexer.read lexbuf
 *)
 
 let parse_file str : Prog.t =
@@ -100,9 +100,9 @@ let parse_file str : Prog.t =
   fs
 
 let rec resolve_imports (to_resolve : string list list) (resolved : StrSet.t)
-  (path : string list) (typedefs : (string * E_Type.t) list)
-  (funcs : E_Func.t list) (macros : E_Macro.t list) :
-  (string * E_Type.t) list * E_Func.t list * E_Macro.t list =
+  (path : string list) (typedefs : (string * EType.t) list)
+  (funcs : EFunc.t list) (macros : EMacro.t list) :
+  (string * EType.t) list * EFunc.t list * EMacro.t list =
   match (to_resolve, path) with
   | ([], _) -> (typedefs, funcs, macros)
   | ([] :: lst, file :: rest_path) ->
@@ -116,11 +116,11 @@ let rec resolve_imports (to_resolve : string list list) (resolved : StrSet.t)
     else
       let file_contents = Io.load_file file in
       let cur_prog = parse_e_prog file file_contents in
-      let cur_prog_typedefs = E_Prog.get_typedefs_list cur_prog in
-      let cur_prog_funcs = E_Prog.get_funcs cur_prog in
-      let cur_prog_macros = E_Prog.get_macros cur_prog in
+      let cur_prog_typedefs = EProg.get_typedefs_list cur_prog in
+      let cur_prog_funcs = EProg.get_funcs cur_prog in
+      let cur_prog_macros = EProg.get_macros cur_prog in
       resolve_imports
-        (E_Prog.get_imports cur_prog :: to_resolve)
+        (EProg.get_imports cur_prog :: to_resolve)
         resolved (file :: path)
         (cur_prog_typedefs @ typedefs)
         (cur_prog_funcs @ funcs) (cur_prog_macros @ macros)
@@ -129,21 +129,21 @@ let rec resolve_imports (to_resolve : string list list) (resolved : StrSet.t)
       "Error resolving imports: path is empty and still some imports to \
        resolve."
 
-let resolve_prog_imports (prog : E_Prog.t) : E_Prog.t =
-  let file_name = E_Prog.get_file_name prog in
+let resolve_prog_imports (prog : EProg.t) : EProg.t =
+  let file_name = EProg.get_file_name prog in
   let (total_typedefs, total_funcs, total_macros) =
     resolve_imports
-      [ E_Prog.get_imports prog ]
+      [ EProg.get_imports prog ]
       StrSet.empty
-      [ E_Prog.get_file_name prog ]
-      (E_Prog.get_typedefs_list prog)
-      (E_Prog.get_funcs prog) (E_Prog.get_macros prog)
+      [ EProg.get_file_name prog ]
+      (EProg.get_typedefs_list prog)
+      (EProg.get_funcs prog) (EProg.get_macros prog)
   in
-  let new_prog = E_Prog.create [] total_typedefs total_funcs total_macros in
-  E_Prog.set_file_name new_prog file_name;
+  let new_prog = EProg.create [] total_typedefs total_funcs total_macros in
+  EProg.set_file_name new_prog file_name;
   new_prog
 
-let apply_prog_macros (prog : E_Prog.t) : E_Prog.t = E_Prog.apply_macros prog
+let apply_prog_macros (prog : EProg.t) : EProg.t = EProg.apply_macros prog
 
 (*
    "1.2343434e+15" -> appropriate float
