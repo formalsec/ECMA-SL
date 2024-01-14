@@ -30,7 +30,7 @@ let rec pp (fmt : Fmt.t) (s : t) : unit =
   | Skip -> fprintf fmt "skip"
   | Merge -> fprintf fmt "merge"
   | Debug s' -> fprintf fmt "# %a" pp s'
-  | Block stmts -> fprintf fmt "%a" (pp_lst ";\n" pp) stmts
+  | Block stmts -> fprintf fmt "{\n%a\n}" (pp_lst ";\n" pp) stmts
   | Print e -> fprintf fmt "print %a" Expr.pp e
   | Return e -> fprintf fmt "return %a" Expr.pp e
   | Assign (x, e) -> fprintf fmt "%s := %a" x Expr.pp e
@@ -49,9 +49,9 @@ let rec pp (fmt : Fmt.t) (s : t) : unit =
     fprintf fmt "%a[%a] := %a" Expr.pp oe Expr.pp fe Expr.pp e
   | FieldDelete (oe, fe) -> fprintf fmt "delete %a[%a]" Expr.pp oe Expr.pp fe
   | If (e, s1, s2) ->
-    let pp_else fmt v = fprintf fmt " else {\n%a\n}" pp v in
-    fprintf fmt "if (%a) {\n%a\n}%a" Expr.pp e pp s1 (pp_opt pp_else) s2
-  | While (e, s') -> fprintf fmt "while (%a) {\n%a\n}" Expr.pp e pp s'
+    let pp_else fmt v = fprintf fmt " else %a" pp v in
+    fprintf fmt "if (%a) %a%a" Expr.pp e pp s1 (pp_opt pp_else) s2
+  | While (e, s') -> fprintf fmt "while (%a) %a" Expr.pp e pp s'
   | Fail e -> fprintf fmt "fail %a" Expr.pp e
   | Assert e -> fprintf fmt "assert (%a)" Expr.pp e
 
