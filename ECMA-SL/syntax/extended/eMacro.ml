@@ -4,9 +4,9 @@ type t =
   ; body : EStmt.t
   }
 
-let create_store (func : t) (vals : Val.t list) : EStore.t =
+let create_store (func : t) (vals : Val.t list) : Val.t Store.t =
   let varvals = List.combine func.params vals in
-  EStore.create varvals
+  Store.create varvals
 
 let create (name : string) (params : string list) (body : EStmt.t) : t =
   { name; params; body }

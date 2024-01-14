@@ -46,7 +46,6 @@
   EPat
   EPatV
   EMacro
-  EStore
   ELexer
   EParser
   ;   error

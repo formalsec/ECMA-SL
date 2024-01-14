@@ -43,10 +43,10 @@ let get_tparams (func : t) : EType.t list =
     (fun (_, t) -> Option.value ~default:EType.AnyType t)
     func.it.params_t
 
-let create_store (func : t) (vals : Val.t list) : EStore.t =
+let create_store (func : t) (vals : Val.t list) : Val.t Store.t =
   let params = get_params func in
   let varvals = List.combine params vals in
-  EStore.create varvals
+  Store.create varvals
 
 let str (func : t) : string =
   let param_str (p : string) (t : EType.t option) : string =
