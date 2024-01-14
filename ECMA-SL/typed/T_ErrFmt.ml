@@ -23,7 +23,7 @@ type tkn_t =
   | Stmt of EStmt.t
   | Func of EFunc.t
   | Pat of EPat.t
-  | PatVal of EPatV.t
+  | PatVal of EPat.pv
 
 let tkn_region (src : tkn_t) : Source.region =
   match src with
@@ -198,7 +198,7 @@ let rec tkn_str (tkn : tkn_t) : string =
   | Stmt stmt -> String.concat "" (List.map tkn_str (stmt_tkns stmt))
   | Func func -> String.concat "" (List.map tkn_str (func_tkns func))
   | Pat pat -> String.concat "" (List.map tkn_str (pat_tkns pat))
-  | PatVal pv -> EPatV.str pv
+  | PatVal pv -> EPat.pv_str pv
 
 let tkn_str_size (tkn : tkn_t) : string * int =
   let tknStr = tkn_str tkn in

@@ -1,11 +1,10 @@
 open Source
 open EPat
-open EPatV
 
 type sigmaCase_t = (string, EType.t option) Hashtbl.t
 type sigmaObject_t = EType.t * sigmaCase_t list
 type sigmaModel_t = (EType.t, sigmaObject_t) Hashtbl.t
-type patValFld_t = string * EPatV.t * EType.t option
+type patValFld_t = string * EPat.pv * EType.t option
 type patVarFld_t = string * string
 type patUpdates_t = (string * EType.t) list
 
@@ -49,12 +48,12 @@ let get_pattern_vars (pat : EPat.t) : string list =
   | ObjPat (patFlds, _) -> _get_obj_pat_vars patFlds
   | DefaultPat -> []
 
-let parse_pattern_val (patVal : EPatV.t) : EPatV.t * EType.t =
+let parse_pattern_val (patVal : EPat.pv) : EPat.pv * EType.t =
   match patVal with
   | PatVal v -> (patVal, EType.parse_literal_type v)
   | _ -> failwith "Typed ECMA-SL: T_Pattern:parse_pat_val"
 
-let test_duplicated_pattern_flds (patFlds : (string * EPatV.t) list) : unit =
+let test_duplicated_pattern_flds (patFlds : (string * EPat.pv) list) : unit =
   let _check_duplicates_f r (pn, _) =
     if not (List.mem pn r) then pn :: r
     else T_Err.raise (T_Err.DuplicatedPatternFld pn) ~tkn:(T_Err.str_tkn pn)
@@ -66,8 +65,8 @@ let get_pattern_fld (tobj : EType.t) (fn : string) : EType.tfld_t =
   | Some tfld -> tfld
   | None -> T_Err.raise (T_Err.BadLookup (fn, tobj)) ~tkn:(T_Err.str_tkn fn)
 
-let get_pattern_discriminant (patFlds : (string * EPatV.t) list) (d : string) :
-  EPatV.t * EType.t =
+let get_pattern_discriminant (patFlds : (string * EPat.pv) list) (d : string) :
+  EPat.pv * EType.t =
   let _parse_pattern_value pv =
     try parse_pattern_val pv
     with _ -> T_Err.raise (T_Err.BadDiscriminant d) ~tkn:(T_Err.patval_tkn pv)
@@ -76,7 +75,7 @@ let get_pattern_discriminant (patFlds : (string * EPatV.t) list) (d : string) :
   | Some (_, pv) -> _parse_pattern_value pv
   | None -> T_Err.raise (T_Err.MissingDiscriminant d)
 
-let split_pattern_flds (patFlds : (string * EPatV.t) list) :
+let split_pattern_flds (patFlds : (string * EPat.pv) list) :
   patValFld_t list * patVarFld_t list =
   let _get_pt pv = Some (snd (parse_pattern_val pv)) in
   let _split_pattern_f (pn, pv) (patValFlds, patVarFlds) =
@@ -131,7 +130,7 @@ let generate_pattern_updates ((tobj, sigmaCases) : sigmaObject_t)
   List.map _generate_pattern_update_f patVarFlds
 
 let type_obj_pattern (sigmaModel : sigmaModel_t) (d : string)
-  (patFlds : (string * EPatV.t) list) : patUpdates_t =
+  (patFlds : (string * EPat.pv) list) : patUpdates_t =
   let _ = test_duplicated_pattern_flds patFlds in
   let (dv, dt) = get_pattern_discriminant patFlds d in
   let (patValFlds, patVarFlds) = split_pattern_flds patFlds in

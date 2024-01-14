@@ -44,7 +44,6 @@
   EProg
   EType
   EPat
-  EPatV
   EMacro
   ELexer
   EParser
@@ -79,7 +78,7 @@
   ;   semantics (extended)
   compiler
   E_Func_Metadata
-  E_Pat_Metadata
+  EPat_metadata
   ; typed
   T_Checker
   T_Expr
