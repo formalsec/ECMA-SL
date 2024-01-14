@@ -5,18 +5,18 @@ type const =
 
 type unopt =
   | Typeof
-  (* Arithmetic Operators *)
+  (* Arithmetic operators *)
   | Neg
-  (* Bitwise Operators *)
+  (* Bitwise operators *)
   | BitwiseNot
   (* Logical *)
   | LogicalNot
-  (* Integer Operators *)
+  (* Integer operators *)
   | IntToFloat
   | IntToString
   | IntToFourHex
   | OctalToDecimal
-  (* Float Operators *)
+  (* Float operators *)
   | FloatToInt
   | FloatToString
   | ToInt
@@ -24,7 +24,7 @@ type unopt =
   | ToUint16
   | ToUint32
   | IsNaN
-  (* String Operators *)
+  (* String operators *)
   | StringToInt
   | StringToFloat
   | FromCharCode
@@ -37,12 +37,12 @@ type unopt =
   | StringLen
   | StringLenU
   | StringConcat
-  (* Object Operators *)
+  (* Object operators *)
   | ObjectToList
   | ObjectFields
-  (* Array Operators *)
+  (* Array operators *)
   | ArrayLen
-  (* List Operators *)
+  (* List operators *)
   | ListToArray
   | ListHead
   | ListTail
@@ -50,11 +50,11 @@ type unopt =
   | ListSort
   | ListReverse
   | ListRemoveLast
-  (* Tuple Operators *)
+  (* Tuple operators *)
   | TupleFirst
   | TupleSecond
   | TupleLen
-  (* Byte Operators *)
+  (* Byte operators *)
   | FloatToByte
   | Float32ToLEBytes
   | Float32ToBEBytes
@@ -65,7 +65,7 @@ type unopt =
   | Float64FromLEBytes
   | Float64FromBEBytes
   | BytesToString
-  (* Math Operators *)
+  (* Math operators *)
   | Random
   | Abs
   | Sqrt
@@ -84,7 +84,7 @@ type unopt =
   | Asin
   | Acos
   | Atan
-  (* Parse Operators *)
+  (* Parse operators *)
   | Utf8Decode
   | HexDecode
   | ParseNumber
@@ -92,43 +92,43 @@ type unopt =
   | ParseDate
 
 type binopt =
-  (* Arithmetic Operators *)
+  (* Arithmetic operators *)
   | Plus
   | Minus
   | Times
   | Div
   | Modulo
   | Pow
-  (* Bitwise Operators *)
+  (* Bitwise operators *)
   | BitwiseAnd
   | BitwiseOr
   | BitwiseXor
   | ShiftLeft
   | ShiftRight
   | ShiftRightLogical
-  (* Logical Operators *)
+  (* Logical operators *)
   | LogicalAnd
   | LogicalOr
-  (* Comparison Operators *)
+  (* Comparison operators *)
   | Eq
   | Lt
   | Gt
   | Le
   | Ge
-  (* Float Operators *)
+  (* Float operators *)
   | ToPrecision
   | ToExponential
   | ToFixed
-  (* Object Operators *)
+  (* Object operators *)
   | ObjectMem
-  (* String Operators *)
+  (* String operators *)
   | StringNth
   | StringNthU
   | StringSplit
-  (* Array Operators *)
+  (* Array operators *)
   | ArrayMake
   | ArrayNth
-  (* List Operators *)
+  (* List operators *)
   | ListMem
   | ListNth
   | ListAdd
@@ -136,37 +136,37 @@ type binopt =
   | ListConcat
   | ListRemove
   | ListRemoveNth
-  (* Tuple Operators *)
+  (* Tuple operators *)
   | TupleNth
-  (* Byte Operators *)
+  (* Byte operators *)
   | IntToBEBytes
   | IntFromLEBytes
   | UintFromLEBytes
-  (* Math Operators *)
+  (* Math operators *)
   | Min
   | Max
   | Atan2
 
 type triopt =
-  (* String Operators *)
+  (* String operators *)
   | StringSubstr
   | StringSubstrU
-  (* Array Operators *)
+  (* Array operators *)
   | ArraySet
-  (* List Operators *)
+  (* List operators *)
   | ListSet
-  (* Other Operators *)
+  (* Other operators *)
   | ITE
 
 type nopt =
-  (* Logical Operators *)
+  (* Logical operators *)
   | NAryLogicalAnd
   | NAryLogicalOr
-  (* Array Operators *)
+  (* Array operators *)
   | ArrayExpr
-  (* List Operators *)
+  (* List operators *)
   | ListExpr
-  (* Tuple Operators *)
+  (* Tuple operators *)
   | TupleExpr
 
 let is_infix_unopt (op : unopt) : bool =

@@ -1,81 +1,134 @@
-(* parser-specification file *)
-
+(* ================================= *)
+(*            Definitions            *)
+(* ================================= *)
 
 %{
-open EStmt
-open Source
-open Operator
+  open Source
+  open Operator
 
-let fresh_lambda_id_gen = String_utils.make_fresh_var_generator "__lambda__"
+  let position_to_pos position =
+    {
+      file = position.Lexing.pos_fname;
+      line = position.Lexing.pos_lnum;
+      column = position.Lexing.pos_cnum - position.Lexing.pos_bol;
+    }
 
-let position_to_pos position =
-  {
-    file = position.Lexing.pos_fname;
-    line = position.Lexing.pos_lnum;
-    column = position.Lexing.pos_cnum - position.Lexing.pos_bol;
-  }
+  let position_to_region pos1 pos2 =
+    { left = position_to_pos pos1; right = position_to_pos pos2 }
 
-let position_to_region pos1 pos2 =
-  { left = position_to_pos pos1; right = position_to_pos pos2 }
+  let at (startpos, endpos) =
+    position_to_region startpos endpos
+    
+  let fresh_lambda_id_gen = String_utils.make_fresh_var_generator "__lambda__"
 
-let at (startpos, endpos) =
-  position_to_region startpos endpos
 %}
 
-(*
-  BEGIN first section - declarations
-  - token and type specifications, precedence directives and other output directives
-*)
-%token SKIP
-%token PRINT WRAPPER
-%token DEFEQ
-%token WHILE FOREACH
+(* ========== Typed tokens ========== *)
+
+%token <int>    INT
+%token <float>  FLOAT
+%token <string> STRING
+%token <bool>   BOOLEAN
+%token <string> SYMBOL
+%token <string> LOC
+%token <string> ID
+%token <string> GVAR
+
+(* ========== Language tokens ========== *)
+
+%token NULL NONE
+%token IMPORT MACRO
+%token PRINT DELETE
+%token FUNCTION RETURN EXTERN LAMBDA
 %token IF ELSE ELIF
-%token RETURN
-%token SWITCH SDEFAULT
-%token NULL
-%token FUNCTION
-%token MACRO
-%token AT_SIGN
-(*%token LARRBRACK RARRBRACK*)
+%token WHILE FOREACH REPEAT UNTIL
+%token SWITCH CASE SDEFAULT
+%token MATCH WITH DEFAULT 
+%token THROW CATCH
+%token FAIL ASSERT
+%token WRAPPER
+
+(* ========== Symbol tokens ========== *)
+
+%token PERIOD COMMA SEMICOLON COLON
+%token DEFEQ
+%token ATSIGN HASH
 %token LPAREN RPAREN
 %token LBRACE RBRACE
 %token LBRACK RBRACK
-%token PERIOD COMMA SEMICOLON COLON
-%token DELETE
-%token REPEAT UNTIL
-%token MATCH WITH RIGHT_ARROW NONE DEFAULT CASE LAMBDA EXTERN
-%token ASSERT
-%token <float> FLOAT
-%token <int> INT
-%token <bool> BOOLEAN
-%token <string> VAR
-%token <string> GVAR
-%token <string> STRING
-%token <string> SYMBOL
-%token <string> LOC
+%token LARRBRACK RARRBRACK
+%token PLUS MINUS TIMES DIVIDE MODULO POW
+%token TILDE AMPERSAND PIPE CARET
+%token SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
+%token QUESTION EXCLAMATION
 %token LAND LOR SCLAND SCLOR
-%token PARSE_NUMBER PARSE_STRING PARSE_DATE INT_TO_FLOAT INT_TO_STRING INT_TO_FOUR_HEX HEX_DECODE UTF8_DECODE OCTAL_TO_DECIMAL
-%token INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS INT_OF_FLOAT
-%token BITWISE_NOT BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
-%token FROM_CHAR_CODE FROM_CHAR_CODE_U TO_CHAR_CODE TO_CHAR_CODE_U TO_LOWER_CASE TO_UPPER_CASE TRIM
-%token TO_INT TO_INT32 TO_UINT32 TO_UINT16
-%token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM SIN SQRT TAN PI MAX_VALUE MIN_VALUE COSH LOG_2 SINH TANH FLOAT64_TO_LE_BYTES FLOAT64_TO_BE_BYTES FLOAT32_TO_LE_BYTES FLOAT32_TO_BE_BYTES INT_TO_BE_BYTES FLOAT64_FROM_LE_BYTES FLOAT64_FROM_BE_BYTES FLOAT32_FROM_LE_BYTES FLOAT32_FROM_BE_BYTES INT_FROM_BYTES UINT_FROM_BYTES BYTES_TO_STRING FLOAT_TO_BYTE IS_NAN
-%token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST TO_PRECISION TO_EXPONENTIAL TO_FIXED
-%token NOT LLEN LNTH LREMNTH LREM LSET LADD LPREPEND LCONCAT LREVERSE HD TL TLEN TNTH FST SND LREMOVELAST LSORT SLEN SLEN_U SNTH SNTH_U SSUBSTR SSUBSTR_U ARRAY_MAKE ANTH ASET ALEN LIST_TO_ARRAY
-%token SCONCAT SSPLIT
-%token IMPORT THROW FAIL CATCH
-%token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
-%token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
-%token QUESTION
-%token HASH
+%token EQ LT GT LE GE
+%token RIGHT_ARROW
 %token EOF
-%token TYPEDEF, TYPE_ANY, TYPE_UNKNOWN, TYPE_NEVER, TYPE_UNDEFINED, TYPE_VOID, TYPE_INT, TYPE_FLOAT, TYPE_STRING, TYPE_BOOLEAN TYPE_SYMBOL, TYPE_SIGMA
 
+(* ========== Operator tokens ========== *)
 
-%left SCLAND SCLOR LAND LOR
-%left EQUAL
-%left GT LT EGT ELT IN_OBJ IN_LIST BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
+%token MAX_VALUE MIN_VALUE PI
+
+%token TYPEOF
+
+%token INT_TO_FLOAT INT_TO_STRING INT_TO_FOUR_HEX OCTAL_TO_DECIMAL
+%token FLOAT_TO_INT FLOAT_TO_STRING TO_INT TO_INT32 TO_UINT16 TO_UINT32 IS_NAN
+%token TO_PRECISION TO_EXPONENTIAL TO_FIXED
+
+%token STRING_TO_INT STRING_TO_FLOAT FROM_CHAR_CODE FROM_CHAR_CODE_U TO_CHAR_CODE TO_CHAR_CODE_U TO_LOWER_CASE TO_UPPER_CASE TRIM
+%token STRING_LEN STRING_LEN_U STRING_CONCAT
+%token STRING_NTH STRING_NTH_U STRING_SPLIT
+%token STRING_SUBSTR STRING_SUBSTR_U
+
+%token OBJECT_TO_LIST OBJECT_FIELDS 
+%token OBJECT_MEM
+
+%token ARRAY_LEN
+%token ARRAY_MAKE ARRAY_NTH
+%token ARRAY_SET
+
+%token LIST_TO_ARRAY LIST_HEAD LIST_TAIL LIST_LEN LIST_SORT LIST_REVERSE LIST_REMOVE_LAST
+%token LIST_MEM LIST_NTH LIST_ADD LIST_PREPEND LIST_CONCAT LIST_REMOVE LIST_REMOVE_NTH
+%token LIST_SET
+
+%token TUPLE_FIRST TUPLE_SECOND TUPLE_LEN
+%token TUPLE_NTH
+
+%token FLOAT_TO_BYTE
+%token FLOAT32_TO_LE_BYTES FLOAT32_TO_BE_BYTES FLOAT64_TO_LE_BYTES FLOAT64_TO_BE_BYTES
+%token FLOAT32_FROM_LE_BYTES FLOAT32_FROM_BE_BYTES FLOAT64_FROM_LE_BYTES FLOAT64_FROM_BE_BYTES
+%token BYTES_TO_STRING
+%token INT_TO_BE_BYTES INT_FROM_LE_BYTES UINT_FROM_LE_BYTES
+
+%token RANDOM ABS SQRT CEIL FLOOR EXP LOG_2 LOG_E LOG_10
+%token SIN COS TAN SINH COSH TANH ASIN ACOS ATAN
+%token MAX MIN ATAN_2
+
+%token UTF8_DECODE HEX_DECODE
+%token PARSE_NUMBER PARSE_STRING PARSE_DATE
+
+(* ========== Runtime type tokens ========== *)
+
+%token DTYPE_NULL
+%token DTYPE_INT DTYPE_FLT DTYPE_STR DTYPE_BOOL DTYPE_SYMBOL 
+%token DTYPE_LOC DTYPE_LIST DTYPE_TUPLE DTYPE_CURRY
+
+(* ========== Type system tokens ========== *)
+
+%token TYPEDEF
+%token STYPE_ANY, STYPE_UNKNOWN, STYPE_NEVER
+%token STYPE_UNDEFINED, STYPE_VOID
+%token STYPE_INT, STYPE_FLOAT, STYPE_STRING, STYPE_BOOLEAN STYPE_SYMBOL
+%token STYPE_SIGMA
+
+(* ========== Precedence and Associativity ========== *)
+
+%left LAND LOR SCLAND SCLOR 
+%left EQ
+%left LT GT LE GE 
+%left AMPERSAND PIPE CARET SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
+%left OBJECT_MEM LIST_MEM
 %left PLUS MINUS
 %left TIMES DIVIDE MODULO
 %right POW
@@ -83,44 +136,50 @@ let at (startpos, endpos) =
 %nonassoc unopt_prec
 %nonassoc PERIOD LBRACK
 
-%type <EExpr.t> e_prog_e_expr_target
-%type <EStmt.t> e_prog_e_stmt_target
-%type <EFunc.t> e_prog_e_func_target
-%type <EProg.t> e_prog_target
+(* ========== Entry Point ========== *)
 
-%start e_prog_target e_prog_e_expr_target e_prog_e_stmt_target e_prog_e_func_target
-%% (* separator line *)
-(* END first section - declarations *)
+%type <EExpr.t> entry_expr_target
+%type <EStmt.t> entry_stmt_target
+%type <EFunc.t> entry_func_target
+%type <EProg.t> entry_prog_target
 
-(*
-  BEGIN - second section - grammar and rules
-  - specifying the grammar of the language to be parsed, specifying the productions
-  - productions are organized into rules, where each rule lists all
-    the possible productions for a given nonterminal.
-*)
+%start entry_prog_target entry_func_target entry_stmt_target entry_expr_target 
 
-e_prog_e_expr_target:
-  | e = e_expr_target; EOF; { e }
-  ;
 
-e_prog_e_stmt_target:
-  | s = e_block_target; EOF; { s }
-  ;
 
-e_prog_e_func_target:
-  | f = proc_target; EOF; { f }
-  ;
 
-e_prog_target:
-  | imports = list (import_target); prog_elemts = separated_list (SEMICOLON, e_prog_elem_target); EOF;
+
+
+(* ======================================= *)
+(*            Grammar and rules            *)
+(* ======================================= *)
+
+%% 
+
+entry_expr_target:
+  | e = expr_target; EOF;   { e };
+
+entry_stmt_target:
+  | s = stmt_target; EOF;   { s };
+
+entry_func_target:
+  | f = func_target; EOF;   { f };
+
+entry_prog_target:
+  | p = prog_target; EOF;   { p };
+
+(* ==================== Program  ==================== *)
+
+prog_target:
+  | imports = list(import_target); prog_els = separated_list(SEMICOLON, e_prog_elem_target);
    {
-    let prog_elemts_split = fun el (type_decls', funcs', macros') ->
+    let split_els = fun el (type_decls', funcs', macros') ->
       match el with
         | EProg.ElementType.TypeDeclaration el' -> (el'::type_decls', funcs', macros')
         | EProg.ElementType.Procedure el' -> (type_decls', el'::funcs', macros')
         | EProg.ElementType.Macro el' -> (type_decls', funcs', el'::macros')
     in
-    let (type_decls, funcs, macros) = List.fold_right prog_elemts_split prog_elemts ([], [], []) in
+    let (type_decls, funcs, macros) = List.fold_right split_els prog_els ([], [], []) in
     EProg.create imports type_decls funcs macros
    }
   ;
@@ -131,50 +190,411 @@ import_target:
   ;
 
 e_prog_elem_target:
-  | t = type_decl_target;
+  | t = typedef_target;
     { EProg.ElementType.TypeDeclaration t }
-  | f = proc_target;
+  | f = func_target;
     { EProg.ElementType.Procedure f }
   | m = macro_target;
     { EProg.ElementType.Macro m }
 
-type_decl_target:
-  | TYPEDEF; v = VAR; DEFEQ; t = e_type_target;
+(* ==================== Type definitions ==================== *)
+
+typedef_target:
+  | TYPEDEF; v = ID; DEFEQ; t = e_type_target;
     { (v, t) }
 
-proc_target:
-  | FUNCTION; f = VAR; LPAREN; vars = proc_params_target; RPAREN; ret_t = option(e_typing_target); s = e_block_target;
-   { EFunc.create None f vars ret_t s @> at $sloc }
-  | FUNCTION; f = VAR; LPAREN; vars = proc_params_target; RPAREN; meta = metadata_target; vars_meta_opt = option(vars_metadata_target);
-    ret_t = option(e_typing_target); s = e_block_target;
-   {
-     let vars_meta = Option.value ~default:[] vars_meta_opt in
-     let metadata = E_Func_Metadata.build_func_metadata meta vars_meta in
-     EFunc.create (Some metadata) f vars ret_t s @> at $sloc  }
+(* ==================== Functions ==================== *)
 
-proc_params_target:
-  | params = separated_list (COMMA, param_target);
+func_target:
+  | FUNCTION; fn = ID; LPAREN; vars = params_target; RPAREN;
+    tret = option(e_typing_target); s = block_target;
+    { EFunc.create None fn vars tret s @> at $sloc }
+  | FUNCTION; fn = ID; LPAREN; vars = params_target; RPAREN; meta = val_metadata_target; 
+    vars_meta = vars_opt_metadata_target; tret = option(e_typing_target); s = block_target;
+    {
+      let metadata = E_Func_Metadata.build_func_metadata meta vars_meta in
+      EFunc.create (Some metadata) fn vars tret s @> at $sloc  
+    }
+
+params_target:
+  | params = separated_list(COMMA, param_target);
     { params }
-  (* | params = separated_list (COMMA, VAR); COMMA; LBRACK; fparams = separated_list(COMMA, VAR); RBRACK;
-    { params @ fparams } *)
   ;
 
 param_target:
-  | v = VAR; t = option(e_typing_target)
+  | v = ID; t = option(e_typing_target)
     { (v, t) }
 
+(* ==================== Macros ==================== *)
+
 macro_target:
-  | MACRO; m = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; s = e_block_target;
+  | MACRO; m = ID; LPAREN; vars = separated_list(COMMA, ID); RPAREN; s = block_target;
    { EMacro.create m vars s }
   ;
 
-metadata_target:
-  | LBRACK; meta = separated_list (COMMA, val_target); RBRACK;
-    { meta }
+(* ==================== Statements ==================== *)
+
+block_target:
+  | LBRACE; stmts = separated_list (SEMICOLON, stmt_target); RBRACE;
+    { if List.length stmts = 1 then List.nth stmts 0 else EStmt.Block stmts @> at $sloc }
   ;
 
-vars_metadata_target:
-  | LBRACK; meta = separated_list (COMMA, var_metadata_target); RBRACK;
+stmt_target:
+  | e = expr_target;
+    { EStmt.ExprStmt e @> at $sloc }
+  | HASH; s= stmt_target;
+    { EStmt.Debug s @> at $sloc }
+  | PRINT; e = expr_target;
+    { EStmt.Print e @> at $sloc }
+  | RETURN; e = option(expr_target);
+    { EStmt.Return e @> at $sloc }
+  | x = ID; t = option(e_typing_target); DEFEQ; e = expr_target;
+    { EStmt.Assign (x, t, e) @> at $sloc }
+  | x = GVAR; DEFEQ; e = expr_target;
+    { EStmt.GlobAssign (x, e) @> at $sloc }
+  | oe = expr_target; fe = lookup_target; DEFEQ; e = expr_target;
+    { EStmt.FieldAssign (oe, fe, e) @> at $sloc }
+  | DELETE; oe = expr_target; fe = lookup_target;
+    { EStmt.FieldDelete (oe, fe) @> at $sloc }
+  | if_case = if_target; else_case = option(else_target);
+    {
+      let (e, s1, meta1) = if_case in
+      let (s2, meta2) = match else_case with | None -> (None, []) | Some (s, meta) -> (Some s, meta) in
+      EStmt.If (e, s1, s2, meta1, meta2) @> at $sloc
+    }
+  | if_case = if_target; elif_cases = nonempty_list(elif_target); else_case = option(else_target);
+    { EStmt.EIf (if_case :: elif_cases, else_case) @> at $sloc }
+  | WHILE; LPAREN; e = expr_target; RPAREN; s = block_target;
+    { EStmt.While (e, s) @> at $sloc }
+  | FOREACH; LPAREN; x = ID; COLON; e = expr_target; RPAREN; s = block_target;
+    { EStmt.ForEach (x, e, s, [], None) @> at $sloc }
+  | FOREACH; LPAREN; x = ID; COLON; e = expr_target; RPAREN; 
+    stmt_meta = delimited(LBRACK, stmt_metadata_target, RBRACK);
+    var_meta = var_opt_metadata_target; s = block_target;
+    { EStmt.ForEach (x, e, s, stmt_meta, var_meta) @> at $sloc }
+  | REPEAT; meta = stmt_opt_metadata_target; s = block_target; e = option(until_target);
+    { EStmt.RepeatUntil (s, (Option.value ~default:(EExpr.Val (Val.Bool false)) e), meta) @> at $sloc }
+  | SWITCH; LPAREN; e = expr_target; RPAREN; meta = switch_case_opt_metadata_target; LBRACE; 
+    cases = list(switch_case_target); default_case = option(switch_case_default_target) RBRACE;
+    { EStmt.Switch (e, cases, default_case, meta) @> at $sloc }
+  | MATCH; e = expr_target; WITH; PIPE; match_cases = separated_list(PIPE, match_case_target);
+    { EStmt.MatchWith (e, match_cases) @> at $sloc }
+  | x = ID; option(e_typing_target); DEFEQ; LAMBDA; LPAREN; xs = separated_list(COMMA, ID); RPAREN;
+    LBRACK; ys = separated_list(COMMA, ID); RBRACK; s = block_target;
+    { EStmt.Lambda (x, fresh_lambda_id_gen (), xs, ys, s) @> at $sloc }
+  | ATSIGN; m = ID; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
+    { EStmt.MacroApply (m, es) @> at $sloc }
+  | THROW; e = expr_target;
+    { EStmt.Throw e @> at $sloc }
+  | FAIL; e = expr_target;
+    { EStmt.Fail e @> at $sloc }
+  | ASSERT; e = expr_target;
+    { EStmt.Assert e @> at $sloc }
+  | WRAPPER; meta = stmt_opt_metadata_target; s = block_target;
+    { EStmt.Wrapper (meta, s) @> at $sloc }
+  ;
+
+if_target:
+  | IF; LPAREN; e = expr_target; RPAREN; meta = stmt_opt_metadata_target; s = block_target;
+    { (e, s, meta) }
+  ;
+
+elif_target:
+  | ELIF; LPAREN; e = expr_target; RPAREN; meta = stmt_opt_metadata_target; s = block_target;
+    { (e, s, meta) }
+  ;
+
+else_target:
+  | ELSE; meta = stmt_opt_metadata_target; s = block_target;
+    { (s, meta) }
+  ;
+
+until_target:
+  | UNTIL; e = expr_target;
+    { e }
+  ;
+
+switch_case_target:
+  | CASE; e = expr_target; COLON; s = block_target;
+    { (e, s) }
+
+switch_case_default_target:
+  | SDEFAULT; COLON; s = stmt_target;
+    { s }
+
+(* ==================== Patterns ==================== *)
+
+match_case_target:
+  | p = pattern_target; RIGHT_ARROW; s = block_target;
+    { (p, s) }
+
+pattern_target:
+  | LBRACE; pat_binds = separated_list(COMMA, pattern_binding_target); RBRACE; meta = pattern_opt_metadata_target;
+    { EPat.ObjPat (pat_binds, meta) @> at $sloc }
+  | DEFAULT;
+    { EPat.DefaultPat @> at $sloc }
+
+pattern_binding_target:
+  | pn = ID; COLON; pv = pattern_value_target;        { (pn, pv) }
+  | pn = STRING; COLON; pv = pattern_value_target;    { (pn, pv) }
+
+pattern_value_target:
+  | v = ID;               { EPatV.PatVar v }
+  | v = val_target;       { EPatV.PatVal v }
+  | LBRACK; RBRACK;       { EPatV.PatVal (Val.List []) }
+  | NONE;                 { EPatV.PatNone }
+
+(* ==================== Expressions ==================== *)
+
+expr_target:
+  | LPAREN; e = expr_target; RPAREN;
+    { e }
+  | v = val_target;
+    { EExpr.Val v }
+  | v = ID;
+    { EExpr.Var v }
+  | v = GVAR;
+    { EExpr.GVar v }
+  | const = const_target;
+    { EExpr.Const const }
+  | unopt = unopt_infix_target; e = expr_target;   %prec unopt_prec
+    { EExpr.UnOpt (unopt, e) }
+  | unopt = unopt_call_target; e = expr_target;    %prec unopt_prec
+    { EExpr.UnOpt (unopt, e) }
+  | e1 = expr_target; binopt = binopt_infix_target; e2 = expr_target;
+    { EExpr.BinOpt (binopt, e1, e2) }
+  | e1 = expr_target; ebinopt = ebinopt_infix_target; e2 = expr_target;
+    { EExpr.EBinOpt (ebinopt, e1, e2) }
+  | binopt = binopt_call_target; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
+    { EExpr.BinOpt (binopt, e1, e2) }
+  | triopt = triopt_call_target; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; COMMA; e3 = expr_target; RPAREN;
+    { EExpr.TriOpt (triopt, e1, e2, e3) }
+  | nopt_expr = nopt_target;
+    { nopt_expr }
+  | fn = ID; LPAREN; es = separated_list(COMMA, expr_target); RPAREN; handler = option(catch_target);
+    { EExpr.Call (EExpr.Val (Val.Str fn), es, handler) }
+  | LBRACE; fe = expr_target; RBRACE; LPAREN; es = separated_list(COMMA, expr_target); RPAREN; handler = option(catch_target);
+    { EExpr.Call (fe, es, handler) }
+  | EXTERN; fn = ID; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
+    { EExpr.ECall (fn, es) }
+  | LBRACE; flds = separated_list(COMMA, fld_init_target); RBRACE;
+    { EExpr.NewObj (flds) }
+  | oe = expr_target; fe = lookup_target
+    { EExpr.Lookup (oe, fe) }
+  | LBRACE; fe = expr_target; RBRACE; ATSIGN; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
+    { EExpr.Curry (fe, es) }
+  ;
+
+nopt_target:
+  | LARRBRACK; es = separated_list (COMMA, expr_target); RARRBRACK;
+    { EExpr.NOpt (ArrayExpr, es) }
+  | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
+    { EExpr.NOpt (ListExpr, es) }
+  | LPAREN; t = tuple_target; RPAREN;
+    { EExpr.NOpt (TupleExpr, List.rev t) }
+  ;
+
+catch_target:
+  | CATCH; handler = ID
+    { handler }
+  ;
+
+fld_init_target:
+  | fn = ID; COLON; fe = expr_target;
+    { (fn, fe) }
+  | fn = STRING; COLON; fe = expr_target;
+    { (fn, fe) }
+  ;
+
+lookup_target:
+  | PERIOD; fn = ID;
+    { EExpr.Val (Val.Str fn) }
+  | LBRACK; fe = expr_target; RBRACK;
+    { fe }
+
+(* ==================== Values ==================== *)
+
+val_target:
+  | NULL;               { Val.Null }
+  | i = INT;            { Val.Int i }
+  | f = FLOAT;          { Val.Flt f }
+  | s = STRING;         { Val.Str s }
+  | b = BOOLEAN;        { Val.Bool b }
+  | s = SYMBOL;         { Val.Symbol s }
+  | l = LOC;            { Val.Loc l }
+  | t = dtype_target;   { Val.Type t }
+  ;
+
+dtype_target:
+  | DTYPE_NULL;         { Type.NullType }
+  | DTYPE_INT;          { Type.IntType }
+  | DTYPE_FLT;          { Type.FltType }
+  | DTYPE_STR;          { Type.StrType }
+  | DTYPE_BOOL;         { Type.BoolType }
+  | DTYPE_SYMBOL;       { Type.SymbolType }
+  | DTYPE_LOC;          { Type.LocType }
+  | DTYPE_LIST;         { Type.ListType }
+  | DTYPE_TUPLE;        { Type.TupleType }
+  | DTYPE_CURRY;        { Type.CurryType }
+  ;
+
+tuple_target:
+  | v1 = expr_target; COMMA; v2 = expr_target;
+    { [v2; v1] }
+  | vs = tuple_target; COMMA; v = expr_target;
+    { v :: vs }
+  ;
+
+(* ==================== Operators ==================== *)
+
+%inline const_target:
+  | MAX_VALUE;              { Operator.MAX_VALUE }
+  | MIN_VALUE;              { Operator.MIN_VALUE }
+  | PI;                     { Operator.PI }
+
+%inline unopt_infix_target:
+  | MINUS                   { Operator.Neg }
+  | EXCLAMATION             { Operator.LogicalNot }
+  | TILDE                   { Operator.BitwiseNot }
+  ;
+
+%inline binopt_infix_target:
+  | PLUS                    { Operator.Plus }
+  | MINUS                   { Operator.Minus }
+  | TIMES                   { Operator.Times }
+  | DIVIDE                  { Operator.Div }
+  | MODULO                  { Operator.Modulo }
+  | POW                     { Operator.Pow }
+  | AMPERSAND               { Operator.BitwiseAnd }
+  | PIPE                    { Operator.BitwiseOr }
+  | CARET                   { Operator.BitwiseXor }
+  | SHIFT_LEFT              { Operator.ShiftLeft }
+  | SHIFT_RIGHT             { Operator.ShiftRight }
+  | SHIFT_RIGHT_LOGICAL     { Operator.ShiftRightLogical }
+  | LAND                    { Operator.LogicalAnd }
+  | LOR                     { Operator.LogicalOr }
+  | EQ                      { Operator.Eq }
+  | LT                      { Operator.Lt }
+  | GT                      { Operator.Gt }
+  | LE                      { Operator.Le }
+  | GE                      { Operator.Ge }
+  | OBJECT_MEM              { Operator.ObjectMem }
+  | LIST_MEM                { Operator.ListMem }
+  ;
+
+%inline ebinopt_infix_target:
+  | SCLAND                  { EOperator.SCLogicalAnd }
+  | SCLOR                   { EOperator.SCLogicalOr }
+  ;
+
+%inline unopt_call_target:
+  | TYPEOF                  { Operator.Typeof }
+  | INT_TO_FLOAT            { Operator.IntToFloat }
+  | INT_TO_STRING           { Operator.IntToString }
+  | INT_TO_FOUR_HEX         { Operator.IntToFourHex }
+  | OCTAL_TO_DECIMAL        { Operator.OctalToDecimal }
+  | FLOAT_TO_INT            { Operator.FloatToInt }
+  | FLOAT_TO_STRING         { Operator.FloatToString }
+  | TO_INT                  { Operator.ToInt }
+  | TO_INT32                { Operator.ToInt32 }
+  | TO_UINT16               { Operator.ToUint16 }
+  | TO_UINT32               { Operator.ToUint32 }
+  | IS_NAN                  { Operator.IsNaN }
+  | STRING_TO_INT           { Operator.StringToInt }
+  | STRING_TO_FLOAT         { Operator.StringToFloat }
+  | FROM_CHAR_CODE          { Operator.FromCharCode }
+  | FROM_CHAR_CODE_U        { Operator.FromCharCodeU }
+  | TO_CHAR_CODE            { Operator.ToCharCode }
+  | TO_CHAR_CODE_U          { Operator.ToCharCodeU }
+  | TO_LOWER_CASE           { Operator.ToLowerCase }
+  | TO_UPPER_CASE           { Operator.ToUpperCase }
+  | TRIM                    { Operator.Trim }
+  | STRING_LEN              { Operator.StringLen }
+  | STRING_LEN_U            { Operator.StringLenU }
+  | STRING_CONCAT           { Operator.StringConcat }
+  | OBJECT_TO_LIST          { Operator.ObjectToList }
+  | OBJECT_FIELDS           { Operator.ObjectFields }
+  | ARRAY_LEN               { Operator.ArrayLen }
+  | LIST_TO_ARRAY           { Operator.ListToArray }
+  | LIST_HEAD               { Operator.ListHead }
+  | LIST_TAIL               { Operator.ListTail }
+  | LIST_LEN                { Operator.ListLen }
+  | LIST_SORT               { Operator.ListSort }
+  | LIST_REVERSE            { Operator.ListReverse }
+  | LIST_REMOVE_LAST        { Operator.ListRemoveLast }
+  | TUPLE_FIRST             { Operator.TupleFirst }
+  | TUPLE_SECOND            { Operator.TupleSecond }
+  | TUPLE_LEN               { Operator.TupleLen }
+  | FLOAT_TO_BYTE           { Operator.FloatToByte }
+  | FLOAT32_TO_LE_BYTES     { Operator.Float32ToLEBytes }
+  | FLOAT32_TO_BE_BYTES     { Operator.Float32ToBEBytes }
+  | FLOAT64_TO_LE_BYTES     { Operator.Float64ToLEBytes }
+  | FLOAT64_TO_BE_BYTES     { Operator.Float64ToBEBytes }
+  | FLOAT32_FROM_LE_BYTES   { Operator.Float32FromLEBytes }
+  | FLOAT32_FROM_BE_BYTES   { Operator.Float32FromBEBytes }
+  | FLOAT64_FROM_LE_BYTES   { Operator.Float64FromLEBytes }
+  | FLOAT64_FROM_BE_BYTES   { Operator.Float64FromBEBytes }
+  | BYTES_TO_STRING         { Operator.BytesToString }
+  | RANDOM                  { Operator.Random }
+  | ABS                     { Operator.Abs }
+  | SQRT                    { Operator.Sqrt }
+  | CEIL                    { Operator.Ceil }
+  | FLOOR                   { Operator.Floor }
+  | EXP                     { Operator.Exp }
+  | LOG_2                   { Operator.Log2 }
+  | LOG_E                   { Operator.LogE }
+  | LOG_10                  { Operator.Log10 }
+  | SIN                     { Operator.Sin }
+  | COS                     { Operator.Cos }
+  | TAN                     { Operator.Tan }
+  | SINH                    { Operator.Sinh }
+  | COSH                    { Operator.Cosh }
+  | TANH                    { Operator.Tanh }
+  | ASIN                    { Operator.Asin }
+  | ACOS                    { Operator.Acos }
+  | ATAN                    { Operator.Atan }
+  | UTF8_DECODE             { Operator.Utf8Decode }
+  | HEX_DECODE              { Operator.HexDecode }
+  | PARSE_NUMBER            { Operator.ParseNumber }
+  | PARSE_STRING            { Operator.ParseString }
+  | PARSE_DATE              { Operator.ParseDate }
+  ;
+
+%inline binopt_call_target:
+  | TO_PRECISION            { Operator.ToPrecision }
+  | TO_EXPONENTIAL          { Operator.ToExponential }
+  | TO_FIXED                { Operator.ToFixed }
+  | STRING_NTH              { Operator.StringNth }
+  | STRING_NTH_U            { Operator.StringNthU }
+  | STRING_SPLIT            { Operator.StringSplit }
+  | ARRAY_MAKE              { Operator.ArrayMake }
+  | ARRAY_NTH               { Operator.ArrayNth }
+  | LIST_NTH                { Operator.ListNth }
+  | LIST_ADD                { Operator.ListAdd }
+  | LIST_PREPEND            { Operator.ListPrepend }
+  | LIST_CONCAT             { Operator.ListConcat }
+  | LIST_REMOVE             { Operator.ListRemove }
+  | LIST_REMOVE_NTH         { Operator.ListRemoveNth }
+  | TUPLE_NTH               { Operator.TupleNth }
+  | INT_TO_BE_BYTES         { Operator.IntToBEBytes }
+  | INT_FROM_LE_BYTES       { Operator.IntFromLEBytes }
+  | UINT_FROM_LE_BYTES      { Operator.UintFromLEBytes }
+  | MIN                     { Operator.Min }
+  | MAX                     { Operator.Max }
+  | ATAN_2                  { Operator.Atan2 }
+  ;
+
+%inline triopt_call_target:
+  | STRING_SUBSTR           { Operator.StringSubstr }
+  | STRING_SUBSTR_U         { Operator.StringSubstrU }
+  | ARRAY_SET               { Operator.ArraySet }
+  | LIST_SET                { Operator.ListSet }
+  ;
+
+(* ==================== Metadata ==================== *)
+
+val_metadata_target:
+  | meta = delimited(LBRACK, separated_list(COMMA, val_target), RBRACK);
     { meta }
   ;
 
@@ -182,446 +602,13 @@ var_metadata_target:
   | meta = STRING;
     {
       let param_alt = String.split_on_char ':' meta in
-      match List.length param_alt with
-      | 2 -> ( List.nth param_alt 0, List.nth param_alt 1 )
-      | _ -> raise (Failure "Invalid function's variables metadata")
+      if List.length param_alt = 2 then ( List.nth param_alt 0, List.nth param_alt 1 )
+      else raise (Failure "Invalid function's variables metadata")
     }
   ;
 
-(*
-  The pipes separate the individual productions, and the curly braces contain a semantic action:
-    OCaml code that generates the OCaml value corresponding to the production in question.
-  Semantic actions are arbitrary OCaml expressions that are evaluated during parsing
-    to produce values that are attached to the nonterminal in the rule.
-*)
-
-tuple_target:
-  | v1 = e_expr_target; COMMA; v2 = e_expr_target;
-    { [v2; v1] }
-  | vs = tuple_target; COMMA; v = e_expr_target;
-    { v :: vs }
-  ;
-
-type_target:
-  | INT_TYPE;
-    { Type.IntType }
-  | FLT_TYPE;
-    { Type.FltType }
-  | BOOL_TYPE;
-    { Type.BoolType }
-  | STR_TYPE;
-    { Type.StrType }
-  | LOC_TYPE;
-    { Type.LocType }
-  | LIST_TYPE;
-    { Type.ListType }
-  | TUPLE_TYPE;
-    { Type.TupleType }
-  | NULL_TYPE;
-    { Type.NullType }
-  | SYMBOL_TYPE;
-    { Type.SymbolType }
-  | CURRY_TYPE;
-    { Type.CurryType }
-  ;
-
-(* v ::= f | i | b | s *)
-val_target:
-  | NULL;
-    { Val.Null }
-  | f = FLOAT;
-    { Val.Flt f }
-  | i = INT;
-    { Val.Int i }
-  | b = BOOLEAN;
-    { Val.Bool b }
-  | s = STRING;
-    (* This replaces helps on fixing errors when parsing some escape characters. *)
-    { Val.Str s }
-  | s = SYMBOL;
-    { Val.Symbol s }
-  | l = LOC;
-    { Val.Loc l }
-  | t = type_target;
-    { Val.Type t }
-  ;
-
-(* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
-e_expr_target:
-  | LBRACE; fes = separated_list (COMMA, fv_target); RBRACE;
-    { EExpr.NewObj (fes) }
-  | e = e_expr_target; PERIOD; f = VAR;
-    { EExpr.Lookup (e, EExpr.Val (Val.Str f)) }
-  | e = e_expr_target; LBRACK; f = e_expr_target; RBRACK;
-    { EExpr.Lookup (e, f) }
-  | v = val_target;
-    { EExpr.Val v }
-  | v = VAR;
-    { EExpr.Var v }
-  | v = GVAR;
-    { EExpr.GVar v }
-  | MAX_VALUE;
-    { EExpr.Const MAX_VALUE }
-  | MIN_VALUE;
-    { EExpr.Const MIN_VALUE }
-  | PI;
-    { EExpr.Const PI }
-  | EXTERN; f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
-    { EExpr.ECall (f, es) }
-  | f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN; CATCH; g = VAR;
-    { EExpr.Call (EExpr.Val (Val.Str f), es, Some g) }
-  | LBRACE; f = e_expr_target; RBRACE; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN; CATCH; g=VAR;
-    { EExpr.Call (f, es, Some g) }
-  | f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
-    { EExpr.Call (EExpr.Val (Val.Str f), es, None) }
-  | LBRACE; f = e_expr_target; RBRACE; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
-    { EExpr.Call (f, es, None) }
-  | LBRACE; f = e_expr_target; RBRACE; AT_SIGN; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
-    { EExpr.Curry (f, es) }
-  | LPAREN; e = e_expr_target; RPAREN;
-    { e }
-  | nary_op_expr = nary_op_target;
-    { nary_op_expr }
-  | pre_un_op_expr = prefix_unary_op_target;
-    { pre_un_op_expr }
-  | pre_bin_op_expr = prefix_binary_op_target;
-    { pre_bin_op_expr }
-  | pre_tri_op_expr = prefix_trinary_op_target;
-    { pre_tri_op_expr }
-  | in_bin_op_expr = infix_binary_op_target;
-    { in_bin_op_expr }
-  ;
-
-
-nary_op_target:
-  | LBRACK; es = separated_list (COMMA, e_expr_target); RBRACK;
-    { EExpr.NOpt (ListExpr, es) }
-  | LPAREN; t = tuple_target; RPAREN;
-    { EExpr.NOpt (TupleExpr, List.rev t) }
-  (*| LARRBRACK; es = separated_list (COMMA, e_expr_target); RARRBRACK;
-    { EExpr.NOpt (ArrExpr, es) }*)
-  ;
-
-prefix_unary_op_target:
-  | MINUS; e = e_expr_target;
-    { EExpr.UnOpt (Neg, e) } %prec unopt_prec
-  | NOT; e = e_expr_target;
-    { EExpr.UnOpt (LogicalNot, e) } %prec unopt_prec
-  | IS_NAN; e = e_expr_target;
-    { EExpr.UnOpt (IsNaN, e) } %prec unopt_prec
-  | BITWISE_NOT; e = e_expr_target;
-    { EExpr.UnOpt (BitwiseNot, e) } %prec unopt_prec
-  | LLEN; e = e_expr_target;
-    { EExpr.UnOpt (ListLen, e) } %prec unopt_prec
-  | TLEN; e = e_expr_target;
-    { EExpr.UnOpt (TupleLen, e) } %prec unopt_prec
-  | SLEN; e = e_expr_target;
-    { EExpr.UnOpt (StringLen, e) } %prec unopt_prec
-  | SLEN_U; e = e_expr_target;
-    { EExpr.UnOpt (StringLenU, e) } %prec unopt_prec
-  | TYPEOF; e = e_expr_target;
-    { EExpr.UnOpt (Typeof, e) } %prec unopt_prec
-  | HD; e = e_expr_target;
-    { EExpr.UnOpt (ListHead, e) } %prec unopt_prec
-  | TL; e = e_expr_target;
-    { EExpr.UnOpt (ListTail, e) } %prec unopt_prec
-  | FST; e = e_expr_target;
-    { EExpr.UnOpt (TupleFirst, e) } %prec unopt_prec
-  | SND; e = e_expr_target;
-    { EExpr.UnOpt (TupleSecond, e) } %prec unopt_prec
-  | LREMOVELAST; e = e_expr_target;
-    { EExpr.UnOpt (ListRemoveLast, e) } %prec unopt_prec
-  | LSORT; e = e_expr_target;
-    { EExpr.UnOpt (ListSort, e) } %prec unopt_prec
-  | INT_TO_FLOAT; e = e_expr_target;
-    { EExpr.UnOpt (IntToFloat, e) } %prec unopt_prec
-  | INT_TO_STRING; e = e_expr_target;
-    { EExpr.UnOpt (IntToString, e) } %prec unopt_prec
-  | INT_TO_FOUR_HEX; e = e_expr_target;
-    { EExpr.UnOpt (IntToFourHex, e) } %prec unopt_prec
-  | HEX_DECODE; e = e_expr_target;
-    { EExpr.UnOpt (HexDecode, e) } %prec unopt_prec
-  | UTF8_DECODE; e = e_expr_target;
-    { EExpr.UnOpt (Utf8Decode, e) } %prec unopt_prec
-  | OCTAL_TO_DECIMAL; e = e_expr_target;
-    { EExpr.UnOpt (OctalToDecimal, e) } %prec unopt_prec
-  | INT_OF_STRING; e = e_expr_target;
-    { EExpr.UnOpt (StringToInt, e) } %prec unopt_prec
-  | INT_OF_FLOAT; e = e_expr_target;
-    { EExpr.UnOpt (FloatToInt, e) } %prec unopt_prec
-  | FLOAT_TO_STRING; e = e_expr_target;
-    { EExpr.UnOpt (FloatToString, e) } %prec unopt_prec
-  | FLOAT_OF_STRING; e = e_expr_target;
-    { EExpr.UnOpt (StringToFloat, e) } %prec unopt_prec
-  | TO_INT; e = e_expr_target;
-    { EExpr.UnOpt (ToInt, e) } %prec unopt_prec
-  | TO_INT32; e = e_expr_target;
-    { EExpr.UnOpt (ToInt32, e) } %prec unopt_prec
-  | TO_UINT32; e = e_expr_target;
-    { EExpr.UnOpt (ToUint32, e) } %prec unopt_prec
-  | FROM_CHAR_CODE; e = e_expr_target;
-    { EExpr.UnOpt (FromCharCode, e) } %prec unopt_prec
-  | FROM_CHAR_CODE_U; e = e_expr_target;
-    { EExpr.UnOpt (FromCharCodeU, e) } %prec unopt_prec
-  | TO_CHAR_CODE; e = e_expr_target;
-    { EExpr.UnOpt (ToCharCode, e) } %prec unopt_prec
-  | TO_CHAR_CODE_U; e = e_expr_target;
-    { EExpr.UnOpt (ToCharCodeU, e) } %prec unopt_prec
-  | TO_LOWER_CASE; e = e_expr_target;
-    { EExpr.UnOpt (ToLowerCase, e) } %prec unopt_prec
-  | TO_UPPER_CASE; e = e_expr_target;
-    { EExpr.UnOpt (ToUpperCase, e) } %prec unopt_prec
-  | TRIM; e = e_expr_target;
-    { EExpr.UnOpt (Trim, e) } %prec unopt_prec
-  | TO_UINT16; e = e_expr_target;
-    { EExpr.UnOpt (ToUint16, e) } %prec unopt_prec
-  | ABS; e = e_expr_target;
-    { EExpr.UnOpt (Abs, e) } %prec unopt_prec
-  | ACOS; e = e_expr_target;
-    { EExpr.UnOpt (Acos, e) } %prec unopt_prec
-  | ASIN; e = e_expr_target;
-    { EExpr.UnOpt (Asin, e) } %prec unopt_prec
-  | ATAN; e = e_expr_target;
-    { EExpr.UnOpt (Atan, e) } %prec unopt_prec
-  | CEIL; e = e_expr_target;
-    { EExpr.UnOpt (Ceil, e) } %prec unopt_prec
-  | COS; e = e_expr_target;
-    { EExpr.UnOpt (Cos, e) } %prec unopt_prec
-  | EXP; e = e_expr_target;
-    { EExpr.UnOpt (Exp, e) } %prec unopt_prec
-  | FLOOR; e = e_expr_target;
-    { EExpr.UnOpt (Floor, e) } %prec unopt_prec
-  | LOG_E; e = e_expr_target;
-    { EExpr.UnOpt (LogE, e) } %prec unopt_prec
-  | LOG_10; e = e_expr_target;
-    { EExpr.UnOpt (Log10, e) } %prec unopt_prec
-  | RANDOM; e = e_expr_target;
-    { EExpr.UnOpt (Random, e) } %prec unopt_prec
-  | SIN; e = e_expr_target;
-    { EExpr.UnOpt (Sin, e) } %prec unopt_prec
-  | SQRT; e = e_expr_target;
-    { EExpr.UnOpt (Sqrt, e) } %prec unopt_prec
-  | TAN; e = e_expr_target;
-    { EExpr.UnOpt (Tan, e) } %prec unopt_prec
-  | OBJ_TO_LIST; e = e_expr_target;
-    { EExpr.UnOpt (ObjectToList, e) } %prec unopt_prec
-  | SCONCAT; e = e_expr_target;
-    { EExpr.UnOpt (StringConcat, e) } %prec unopt_prec
-  | OBJ_FIELDS; e = e_expr_target;
-    { EExpr.UnOpt (ObjectFields, e) } %prec unopt_prec
-  | PARSE_NUMBER; e = e_expr_target;
-    { EExpr.UnOpt (ParseNumber, e) } %prec unopt_prec
-  | PARSE_STRING; e = e_expr_target;
-    { EExpr.UnOpt (ParseString, e) } %prec unopt_prec
-  | PARSE_DATE; e = e_expr_target;
-    { EExpr.UnOpt (ParseDate, e) } %prec unopt_prec
-  | LREVERSE; e = e_expr_target;
-    { EExpr.UnOpt (ListReverse, e) } %prec unopt_prec
-  | COSH; e = e_expr_target;
-    { EExpr.UnOpt (Cosh, e) } %prec unopt_prec
-  | LOG_2; e = e_expr_target;
-    { EExpr.UnOpt (Log2, e) } %prec unopt_prec
-  | SINH; e = e_expr_target;
-    { EExpr.UnOpt (Sinh, e) } %prec unopt_prec
-  | TANH; e = e_expr_target;
-    { EExpr.UnOpt (Tanh, e) } %prec unopt_prec
-  | FLOAT64_TO_LE_BYTES; e = e_expr_target;
-    { EExpr.UnOpt (Float64ToLEBytes, e) } %prec unopt_prec
-  | FLOAT64_TO_BE_BYTES; e = e_expr_target;
-    { EExpr.UnOpt (Float64ToBEBytes, e) } %prec unopt_prec
-  | FLOAT32_TO_LE_BYTES; e = e_expr_target;
-    { EExpr.UnOpt (Float32ToLEBytes, e) } %prec unopt_prec
-  | FLOAT32_TO_BE_BYTES; e = e_expr_target;
-    { EExpr.UnOpt (Float32ToBEBytes, e) } %prec unopt_prec
-  | FLOAT64_FROM_LE_BYTES; e = e_expr_target;
-    { EExpr.UnOpt (Float64FromLEBytes, e) } %prec unopt_prec
-  | FLOAT64_FROM_BE_BYTES; e = e_expr_target;
-    { EExpr.UnOpt (Float64FromBEBytes, e) } %prec unopt_prec
-  | FLOAT32_FROM_LE_BYTES; e = e_expr_target;
-    { EExpr.UnOpt (Float32FromLEBytes, e) } %prec unopt_prec
-  | FLOAT32_FROM_BE_BYTES  e = e_expr_target;
-    { EExpr.UnOpt (Float32FromBEBytes, e) } %prec unopt_prec
-  | BYTES_TO_STRING  e = e_expr_target;
-    { EExpr.UnOpt (BytesToString, e) } %prec unopt_prec
-  | FLOAT_TO_BYTE e = e_expr_target;
-    { EExpr.UnOpt (FloatToByte, e) } %prec unopt_prec
-  | ALEN  e = e_expr_target;
-    { EExpr.UnOpt (ArrayLen, e) } %prec unopt_prec
-  |  LIST_TO_ARRAY e = e_expr_target;
-    { EExpr.UnOpt (ListToArray, e) } %prec unopt_prec
-
-
-prefix_binary_op_target:
-  | LNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (ListNth, e1, e2) }
-  | LREM; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (ListRemove, e1, e2) }
-  | LREMNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (ListRemoveNth, e1, e2) }
-  | TNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (TupleNth, e1, e2) }
-  | SNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (StringNth, e1, e2) }
-  | SNTH_U; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (StringNthU, e1, e2) }
-  | SSPLIT; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (StringSplit, e1, e2) }
-  | LADD; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (ListAdd, e1, e2) }
-  | LPREPEND; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (ListPrepend, e1, e2) }
-  | LCONCAT; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (ListConcat, e1, e2) }
-  | ATAN_2; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (Atan2, e1, e2) }
-  | MAX; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (Max, e1, e2) }
-  | MIN; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (Min, e1, e2) }
-  | TO_PRECISION; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (ToPrecision, e1, e2) }
-  | TO_EXPONENTIAL; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (ToExponential, e1, e2) }
-  | TO_FIXED; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (ToFixed, e1, e2) }
-  | ARRAY_MAKE; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (ArrayMake, e1, e2) }
-  | ANTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (ArrayNth, e1, e2) }
-  | INT_TO_BE_BYTES; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (IntToBEBytes, e1, e2) }
-  | INT_FROM_BYTES; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (IntFromLEBytes, e1, e2) }
-  | UINT_FROM_BYTES; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { EExpr.BinOpt (UintFromLEBytes, e1, e2) }
-
-prefix_trinary_op_target:
-  | SSUBSTR; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; COMMA; e3 = e_expr_target; RPAREN;
-    { EExpr.TriOpt (StringSubstr, e1, e2, e3) }
-  | SSUBSTR_U; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; COMMA; e3 = e_expr_target; RPAREN;
-    { EExpr.TriOpt (StringSubstrU, e1, e2, e3) }
-  | ASET; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; COMMA; e3 = e_expr_target; RPAREN;
-    { EExpr.TriOpt (ArraySet, e1, e2, e3) }
-  | LSET; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; COMMA; e3 = e_expr_target; RPAREN;
-    { EExpr.TriOpt (ListSet, e1, e2, e3) }
-
-infix_binary_op_target:
-  | e1 = e_expr_target; bop = op_target; e2 = e_expr_target;
-    { EExpr.BinOpt (bop, e1, e2) }
-  | e1 = e_expr_target; bop = e_op_target; e2 = e_expr_target;
-    { EExpr.EBinOpt (bop, e1, e2) }
-
-fv_target:
-  | f = VAR; COLON; e = e_expr_target;
-    { (f, e) }
-  | f = STRING; COLON; e = e_expr_target;
-    { (f, e) }
-
-(* { s1; ...; sn } *)
-e_block_target:
-  | LBRACE; stmts = separated_list (SEMICOLON, e_stmt_target); RBRACE;
-    { if List.length stmts = 1 then List.nth stmts 0
-      else EStmt.Block stmts @> at $sloc }
-
-(* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return | repeat s until e*)
-e_stmt_target:
-  | HASH; s= e_stmt_target;
-    { EStmt.Debug s @> at $sloc }
-  | PRINT; e = e_expr_target;
-    { EStmt.Print e @> at $sloc }
-  | WRAPPER; meta = e_stmt_metadata_target; s = e_block_target;
-    { EStmt.Wrapper (meta, s) @> at $sloc }
-  | ASSERT; e = e_expr_target;
-    { EStmt.Assert e @> at $sloc }
-  | e1 = e_expr_target; PERIOD; f = VAR; DEFEQ; e2 = e_expr_target;
-    { EStmt.FieldAssign (e1, EExpr.Val (Val.Str f), e2) @> at $sloc }
-  | e1 = e_expr_target; LBRACK; f = e_expr_target; RBRACK; DEFEQ; e2 = e_expr_target;
-    { EStmt.FieldAssign (e1, f, e2) @> at $sloc }
-  | DELETE; e = e_expr_target; PERIOD; f = VAR;
-    { EStmt.FieldDelete (e, EExpr.Val (Val.Str f)) @> at $sloc }
-  | DELETE; e = e_expr_target; LBRACK; f = e_expr_target; RBRACK;
-    { EStmt.FieldDelete (e, f) @> at $sloc }
-  | SKIP;
-    { EStmt.Skip @> at $sloc }
-  | v = VAR; t = option (e_typing_target); DEFEQ; e = e_expr_target;
-    { EStmt.Assign (v, t, e) @> at $sloc }
-  | v = GVAR; DEFEQ; e = e_expr_target;
-    { EStmt.GlobAssign (v, e) @> at $sloc }
-  | e_stmt = ifelse_target;
-    { e_stmt }
-  | IF; LPAREN; e1 = e_expr_target; RPAREN; meta1 = option(e_stmt_metadata_target); s1 = e_block_target;
-    es2 = elif_target; ess = list(elif_target); else_stmt = option(final_else_target);
-    {
-      let meta1' = Option.value ~default:[] meta1 in
-      let ess' = (e1, s1, meta1')::es2::ess in
-      EStmt.EIf (ess', else_stmt) @> at $sloc
-    }
-  | WHILE; LPAREN; e = e_expr_target; RPAREN; s = e_block_target;
-    { EStmt.While (e, s) @> at $sloc }
-  | FOREACH; LPAREN; x = VAR; COLON; e = e_expr_target; RPAREN; s = e_block_target;
-    { EStmt.ForEach (x, e, s, [], None) @> at $sloc }
-  | FOREACH; LPAREN; x = VAR; COLON; e = e_expr_target; RPAREN; meta = e_stmt_metadata_target; var_meta_opt = option(delimited(LBRACK, var_metadata_target, RBRACK)); s = e_block_target;
-    { EStmt.ForEach (x, e, s, meta, var_meta_opt) @> at $sloc }
-  | RETURN; e = e_expr_target;
-    { EStmt.Return (Some e) @> at $sloc }
-  | RETURN;
-    /* { EStmt.Return (EExpr.Val (Val.Void)) } */
-    { EStmt.Return None @> at $sloc }
-  | THROW; e = e_expr_target;
-    { EStmt.Throw e @> at $sloc }
-  | FAIL; e = e_expr_target;
-    { EStmt.Fail e @> at $sloc }
-  | e = e_expr_target;
-    { EStmt.ExprStmt e @> at $sloc }
-  | REPEAT; meta = option(e_stmt_metadata_target); s = e_block_target;
-    { EStmt.RepeatUntil (s, EExpr.Val (Val.Bool false), Option.value ~default:[] meta) @> at $sloc }
-  | REPEAT; meta = option(e_stmt_metadata_target); s = e_block_target; UNTIL; e = e_expr_target;
-    { EStmt.RepeatUntil (s, e, Option.value ~default:[] meta) @> at $sloc }
-  | MATCH; e = e_expr_target; WITH; PIPE; pat_stmts = separated_list (PIPE, pat_stmt_target);
-    { EStmt.MatchWith (e, pat_stmts) @> at $sloc }
-  | x = VAR; option (e_typing_target); DEFEQ; LAMBDA; LPAREN;  xs = separated_list (COMMA, VAR); RPAREN; LBRACK; ys = separated_list (COMMA, VAR); RBRACK; s = e_block_target;
-    { EStmt.Lambda (x, fresh_lambda_id_gen (), xs, ys, s) @> at $sloc }
-  | AT_SIGN; m = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
-    { EStmt.MacroApply (m, es) @> at $sloc }
-  | SWITCH; LPAREN; e=e_expr_target; RPAREN; meta = option(case_metadata_target); LBRACE; cases = list (switch_case_target); RBRACE
-    { let m = Option.value ~default:"" meta in
-      EStmt.Switch(e, cases, None, m) @> at $sloc }
-  | SWITCH; LPAREN; e=e_expr_target; RPAREN; meta = option(case_metadata_target); LBRACE; cases = list (switch_case_target); SDEFAULT; COLON; s = e_stmt_target; RBRACE
-    { let m = Option.value ~default:"" meta in
-      EStmt.Switch(e, cases, Some s, m) @> at $sloc }
-
-switch_case_target:
-  | CASE; e = e_expr_target; COLON; s = e_block_target;
-    { (e, s) }
-
-case_metadata_target:
-  | LBRACK; s = STRING; RBRACK;
-    { s }
-
-(* if (e) { s } | if (e) { s } else { s } | if (e) { s } else if (e) { s } *)
-ifelse_target:
-  | IF; LPAREN; e = e_expr_target; RPAREN; meta_if = option(e_stmt_metadata_target); s1 = e_block_target; ELSE; meta_else = option(e_stmt_metadata_target); s2 = e_block_target;
-    {
-      let meta_if' = Option.value ~default:[] meta_if in
-      let meta_else' = Option.value ~default:[] meta_else in
-      EStmt.If (e, s1, Some s2, meta_if', meta_else') @> at $sloc
-    }
-  | IF; LPAREN; e = e_expr_target; RPAREN; meta_if = option(e_stmt_metadata_target); s = e_block_target;
-    {
-      let meta_if' = Option.value ~default:[] meta_if in
-      EStmt.If (e, s, None, meta_if', []) @> at $sloc
-    }
-
-elif_target:
-  | ELIF; LPAREN; e = e_expr_target; RPAREN; meta = option(e_stmt_metadata_target); s = e_block_target;
-    { (e, s, Option.value ~default:[] meta) }
-
-final_else_target:
-  | ELSE; meta = e_stmt_metadata_target?; s = e_block_target;
-    { (s, Option.value ~default:[] meta) }
-
-e_stmt_metadata_target:
-  | LBRACK; meta = separated_list (COMMA, STRING); RBRACK;
+stmt_metadata_target:
+  | meta = separated_list(COMMA, STRING);
     { List.map (
         fun (m : string) : EStmt.metadata_t ->
           let sep_idx = String.index_opt m ':' in
@@ -633,67 +620,39 @@ e_stmt_metadata_target:
             { where; html }
       ) meta
     }
-(* { p: v | "x" ! None } [ "", ...] -> s | default -> s *)
-pat_stmt_target:
-  | p = e_pat_target; RIGHT_ARROW; s = e_block_target;
-    { (p, s) }
+  ;
 
-e_pat_target:
-  | LBRACE; pn_patv = separated_list (COMMA, e_pat_v_target); RBRACE; meta = option(pat_metadata_target);
-    { EPat.ObjPat (pn_patv, meta) @> at $sloc }
-  | DEFAULT;
-    { EPat.DefaultPat @> at $sloc }
+pattern_metadata_target:
+  | pat_meta = val_metadata_target; vars_meta = vars_opt_metadata_target;
+    { E_Pat_Metadata.build_pat_metadata pat_meta vars_meta }
+  ;
 
-pat_metadata_target:
-  | LBRACK; meta = separated_list(COMMA, val_target); RBRACK; vars_meta_opt = option(vars_metadata_target);
-    {
-      let vars_meta = Option.value ~default:[] vars_meta_opt in
-      E_Pat_Metadata.build_pat_metadata meta vars_meta
-    }
+var_opt_metadata_target:
+  | meta = option(delimited(LBRACK, var_metadata_target, RBRACK))
+    { meta }
+  ;
 
-e_pat_v_target:
-  | pn = VAR; COLON; pv = e_pat_v_pat_target;
-    { (pn, pv) }
-  | pn = STRING; COLON; pv = e_pat_v_pat_target;
-    { ( pn, pv ) }
+vars_opt_metadata_target:
+  | meta = option(delimited(LBRACK, separated_list(COMMA, var_metadata_target), RBRACK));
+    { Option.value ~default:[] meta }
+  ;
 
-e_pat_v_pat_target:
-  | v = VAR;
-    { EPatV.PatVar v }
-  | v = val_target;
-    { EPatV.PatVal v }
-  | LBRACK; RBRACK;
-    { EPatV.PatVal (Val.List []) }
-  | NONE;
-    { EPatV.PatNone }
+stmt_opt_metadata_target:
+  | meta = option(delimited(LBRACK, stmt_metadata_target, RBRACK))
+    { Option.value ~default:[] meta }
+  ;
 
-%inline op_target:
-  | MINUS   { Minus }
-  | PLUS    { Plus }
-  | TIMES   { Times }
-  | DIVIDE  { Div }
-  | MODULO  { Modulo }
-  | EQUAL   { Eq }
-  | GT      { Gt }
-  | LT      { Lt }
-  | EGT     { Ge }
-  | ELT     { Le }
-  | LAND    { LogicalAnd }
-  | LOR     { LogicalOr }
-  | BITWISE_AND { BitwiseAnd }
-  | PIPE { BitwiseOr }
-  | BITWISE_XOR { BitwiseXor }
-  | SHIFT_LEFT { ShiftLeft }
-  | SHIFT_RIGHT { ShiftRight }
-  | SHIFT_RIGHT_LOGICAL { ShiftRightLogical }
-  | IN_OBJ  { ObjectMem }
-  | IN_LIST { ListMem }
-  | POW     { Pow }
+switch_case_opt_metadata_target:
+  | meta = option(delimited(LBRACK, STRING, RBRACK))
+    { Option.value ~default:"" meta }
+  ;
 
-%inline e_op_target:
-  | SCLAND  { EOperator.SCLogicalAnd }
-  | SCLOR   { EOperator.SCLogicalOr }
+pattern_opt_metadata_target:
+  | meta = option(pattern_metadata_target)
+    { meta }
+  ;
 
+(* ==================== Type system ==================== *)
 
 e_typing_target:
   | COLON; t = e_type_target;
@@ -708,25 +667,25 @@ e_type_target:
 e_simple_type_target:
   | LPAREN; t = e_type_target; RPAREN;
     { t }
-  | TYPE_ANY;
+  | STYPE_ANY;
     { EType.AnyType }
-  | TYPE_UNKNOWN;
+  | STYPE_UNKNOWN;
     { EType.UnknownType }
-  | TYPE_NEVER;
+  | STYPE_NEVER;
     { EType.NeverType }
-  | TYPE_UNDEFINED;
+  | STYPE_UNDEFINED;
     { EType.UndefinedType }
-  | TYPE_VOID;
+  | STYPE_VOID;
     { EType.VoidType }
-  | TYPE_INT;
+  | STYPE_INT;
     { EType.IntType }
-  | TYPE_FLOAT;
+  | STYPE_FLOAT;
     { EType.FloatType }
-  | TYPE_STRING;
+  | STYPE_STRING;
     { EType.StringType }
-  | TYPE_BOOLEAN;
+  | STYPE_BOOLEAN;
     { EType.BooleanType }
-  | TYPE_SYMBOL;
+  | STYPE_SYMBOL;
     { EType.SymbolType }
   | v = val_target;
     { EType.parse_literal_type v }
@@ -736,13 +695,13 @@ e_simple_type_target:
     { EType.ListType t }
   | LBRACE; props = separated_list (COMMA, e_type_property_target); RBRACE;
     { EType.ObjectType (EType.parse_obj_type props) }
-  | v = VAR;
+  | v = ID;
     { EType.UserDefinedType v }
 
 e_nary_type_target:
   | t1 = e_simple_type_target; merge_func = e_nary_type_op_target; t2 = e_type_target;
     { merge_func t1 t2 }
-  | TYPE_SIGMA; LBRACK; d = VAR; RBRACK; option(PIPE); t = e_nary_type_target;
+  | STYPE_SIGMA; LBRACK; d = ID; RBRACK; option(PIPE); t = e_nary_type_target;
     { EType.parse_sigma_type d t }
 
 e_nary_type_op_target:
@@ -750,9 +709,9 @@ e_nary_type_op_target:
   | PIPE;         { EType.merge_union_type }
 
 e_type_property_target:
-  | v = VAR; COLON; t = e_type_target;
+  | v = ID; COLON; t = e_type_target;
     { EType.Field.NamedField (v, (t, false) ) }
-  | v = VAR; QUESTION; COLON; t = e_type_target;
+  | v = ID; QUESTION; COLON; t = e_type_target;
     { EType.Field.NamedField (v, (t, true) ) }
   | TIMES; COLON; t = e_type_target;
     { EType.Field.SumryField t }
