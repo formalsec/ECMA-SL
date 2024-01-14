@@ -14,57 +14,48 @@ type t =
   | Curry of t * t list
   | Symbolic of Type.t * t
 
-type subst_t = (string, t) Hashtbl.t
-
-let rec str (e : t) : string =
-  let str_es es = String.concat ", " (List.map str es) in
+let rec pp (fmt : Fmt.t) (e : t) : unit =
+  let open Fmt in
   match e with
-  | Val n -> Val.str n
-  | Var x -> x
-  | GVar x -> "|" ^ x ^ "|"
-  | Const c -> Operator.str_of_const c
-  | UnOpt (op, e) -> Operator.str_of_unopt Fmt.pp_print_string op (str e)
-  | BinOpt (op, e1, e2) ->
-    Operator.str_of_binopt Fmt.pp_str op (str e1) (str e2)
-  | TriOpt (op, e1, e2, e3) ->
-    Operator.str_of_triopt Fmt.pp_str op (str e1) (str e2) (str e3)
-  | NOpt (op, es) -> Operator.str_of_nopt Fmt.pp_str op (List.map str es)
-  | ECall (f, es) -> "extern " ^ f ^ "(" ^ str_es es ^ ")"
-  | Call (f, es, None) -> str f ^ "(" ^ str_es es ^ ")"
-  | Call (f, es, Some g) -> str f ^ "(" ^ str_es es ^ ") catch " ^ g
-  | NewObj fes ->
-    "{ "
-    ^ String.concat ", " (List.map (fun (f, e) -> f ^ ": " ^ str e) fes)
-    ^ " }"
-  | Lookup (e, f) -> str e ^ "[" ^ str f ^ "]"
-  | Curry (f, es) -> str f ^ "@(" ^ str_es es ^ ")"
-  | Symbolic (t, x) -> "se_mk_symbolic(" ^ Type.str t ^ ", \"" ^ str x ^ "\")"
+  | Val v -> Val.pp fmt v
+  | Var x -> pp_str fmt x
+  | GVar x -> fprintf fmt "|%s|" x
+  | Const c -> Operator.pp_of_const fmt c
+  | UnOpt (op, e') -> Operator.pp_of_unopt pp fmt (op, e')
+  | BinOpt (op, e1, e2) -> Operator.pp_of_binopt pp fmt (op, e1, e2)
+  | TriOpt (op, e1, e2, e3) -> Operator.pp_of_triopt pp fmt (op, e1, e2, e3)
+  | NOpt (op, es) -> Operator.pp_of_nopt pp fmt (op, es)
+  | Call (fe, es, ferr) ->
+    let pp_catch fmt ferr = fprintf fmt " catch %s" ferr in
+    fprintf fmt "%a(%a)%a" pp fe (pp_lst ", " pp) es (pp_opt pp_catch) ferr
+  | ECall (fn, es) -> fprintf fmt "extern %s(%a)" fn (pp_lst ", " pp) es
+  | NewObj [] -> pp_str fmt "{}"
+  | NewObj flds ->
+    let pp_fld fmt (fn, fe) = fprintf fmt "%s: %a" fn pp fe in
+    fprintf fmt "{ %a }" (pp_lst ", " pp_fld) flds
+  | Lookup (oe, fe) -> fprintf fmt "%a[%a]" pp oe pp fe
+  | Curry (fe, es) -> fprintf fmt "{%a}@(%a)" pp fe (pp_lst ", " pp) es
+  | Symbolic (t, e') -> fprintf fmt "se_mk_symbolic(%a, %a)" Type.pp t pp e'
 
-(* Used in module HTML_Extensions but not yet terminated.
-   This still contains defects. *)
-let rec pattern_match (subst : subst_t) (e1 : t) (e2 : t) : bool =
-  match (e1, e2) with
-  | (Val v1, Val v2) -> Val.equal v1 v2
-  | (Var x1, Var _x2) | (GVar x1, GVar _x2) -> (
-    let x1' = Hashtbl.find_opt subst x1 in
-    match x1' with
-    | None ->
-      Hashtbl.replace subst x1 e2;
-      true
-    | Some e2' -> e2 = e2' )
-  | (Const c1, Const c2) -> c1 = c2
-  | (UnOpt (op, e), UnOpt (op', e')) when op = op' -> pattern_match subst e e'
-  | (BinOpt (op, e1, e2), BinOpt (op', e1', e2')) when op = op' ->
-    pattern_match subst e1 e1' && pattern_match subst e2 e2'
-  | (Call (f, es, None), Call (f', es', None))
-    when List.length es = List.length es' ->
-    let b = pattern_match subst f f' in
-    if b then
-      List.for_all
-        (fun (e1, e2) -> pattern_match subst e1 e2)
-        (List.combine es es')
-    else false
-  | _ -> false
+let str (e : t) : string = Fmt.asprintf "%a" pp e
+
+let rec map (mapper : t -> t) (e : t) : t =
+  let map_fun = map mapper in
+  match e with
+  | Val _ | Var _ | GVar _ | Const _ | Symbolic _ -> mapper e
+  | UnOpt (op, e') -> UnOpt (op, map_fun e')
+  | BinOpt (op, e1, e2) -> BinOpt (op, map_fun e1, map_fun e2)
+  | TriOpt (op, e1, e2, e3) -> TriOpt (op, map_fun e1, map_fun e2, map_fun e3)
+  | NOpt (op, es) -> NOpt (op, List.map map_fun es)
+  | Call (fe, es, ferr) -> Call (map_fun fe, List.map map_fun es, ferr)
+  | ECall (fn, es) -> ECall (fn, List.map map_fun es)
+  | NewObj flds -> NewObj (List.map (fun (fn, fe) -> (fn, map_fun fe)) flds)
+  | Lookup (oe, fe) -> Lookup (map_fun oe, map_fun fe)
+  | Curry (fe, es) -> Curry (map_fun fe, List.map map_fun es)
+
+(* FIXME: Understand and optimize the subst *)
+
+type subst_t = (string, t) Hashtbl.t
 
 let make_subst (xs_es : (string * t) list) : subst_t =
   let subst = Hashtbl.create !Config.default_hashtbl_sz in
@@ -78,24 +69,6 @@ let get_subst (sbst : subst_t) (x : string) : t =
   let eo = get_subst_o sbst x in
   Option.value ~default:(Var x) eo
 
-let rec map (f : t -> t) (e : t) : t =
-  let mapf = map f in
-  let map_obj = List.map (fun (x, e) -> (x, mapf e)) in
-  let e' =
-    match e with
-    | Val _ | Var _ | Const _ | GVar _ | Symbolic _ -> e
-    | UnOpt (op, e) -> UnOpt (op, mapf e)
-    | BinOpt (op, e1, e2) -> BinOpt (op, mapf e1, mapf e2)
-    | TriOpt (op, e1, e2, e3) -> TriOpt (op, mapf e1, mapf e2, mapf e3)
-    | NOpt (op, es) -> NOpt (op, List.map mapf es)
-    | Call (ef, es, g) -> Call (mapf ef, List.map mapf es, g)
-    | ECall (f, es) -> ECall (f, List.map mapf es)
-    | NewObj fes -> NewObj (map_obj fes)
-    | Lookup (e, ef) -> Lookup (mapf e, mapf ef)
-    | Curry (e, es) -> Curry (mapf e, List.map mapf es)
-  in
-  f e'
-
 let subst (sbst : subst_t) (e : t) : t =
   (* Printf.printf "In subst expr\n"; *)
   let f e' = match e' with Var x -> get_subst sbst x | _ -> e' in
@@ -104,14 +77,3 @@ let subst (sbst : subst_t) (e : t) : t =
 let string_of_subst (sbst : subst_t) : string =
   let strs = Hashtbl.fold (fun x e ac -> (x ^ ": " ^ str e) :: ac) sbst [] in
   String.concat ", " strs
-
-let rec get_expr_name (e : t) : string option =
-  match e with
-  | Var x -> Some x
-  | GVar x -> Some ("|" ^ x ^ "|")
-  | Lookup (e, f) -> (
-    let ename = get_expr_name e in
-    match (ename, f) with
-    | (Some ename', Val (Val.Str fn)) -> Some (ename' ^ "[" ^ fn ^ "]")
-    | _ -> None )
-  | _ -> None

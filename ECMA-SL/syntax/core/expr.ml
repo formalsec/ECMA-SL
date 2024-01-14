@@ -1,9 +1,9 @@
 type t =
   | Val of Val.t
   | Var of string
-  | UnOpt of (Operator.unopt * t)
-  | BinOpt of (Operator.binopt * t * t)
-  | TriOpt of (Operator.triopt * t * t * t)
+  | UnOpt of Operator.unopt * t
+  | BinOpt of Operator.binopt * t * t
+  | TriOpt of Operator.triopt * t * t * t
   | NOpt of Operator.nopt * t list
   | Curry of t * t list
   | Symbolic of Type.t * t

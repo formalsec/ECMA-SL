@@ -369,8 +369,8 @@ expr_target:
     { EExpr.TriOpt (triopt, e1, e2, e3) }
   | nopt_expr = nopt_target;
     { nopt_expr }
-  | fn = ID; LPAREN; es = separated_list(COMMA, expr_target); RPAREN; handler = option(catch_target);
-    { EExpr.Call (EExpr.Val (Val.Str fn), es, handler) }
+  | fn = ID; LPAREN; es = separated_list(COMMA, expr_target); RPAREN; ferr = option(catch_target);
+    { EExpr.Call (EExpr.Val (Val.Str fn), es, ferr) }
   | LBRACE; fe = expr_target; RBRACE; LPAREN; es = separated_list(COMMA, expr_target); RPAREN; handler = option(catch_target);
     { EExpr.Call (fe, es, handler) }
   | EXTERN; fn = ID; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
@@ -393,8 +393,8 @@ nopt_target:
   ;
 
 catch_target:
-  | CATCH; handler = ID
-    { handler }
+  | CATCH; ferr = ID
+    { ferr }
   ;
 
 fld_init_target:

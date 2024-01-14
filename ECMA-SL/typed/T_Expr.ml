@@ -98,12 +98,12 @@ let rec type_fld_lookup (oe : EExpr.t) (fe : EExpr.t) (fn : string) (t : EType.t
   : EType.t =
   let _terr_obj msg = T_Err.raise msg ~tkn:(T_Err.expr_tkn oe) in
   let _terr_fexpr msg = T_Err.raise msg ~tkn:(T_Err.expr_tkn fe) in
-  let objName = EExpr.get_expr_name oe in
+  let _objName = failwith "TODO: Get object name" in
   match t with
   | EType.AnyType -> EType.AnyType
-  | EType.UnknownType -> _terr_obj (T_Err.BadType (objName, t))
-  | EType.UndefinedType -> _terr_obj (T_Err.BadPossibleType (objName, t))
-  | EType.NullType -> _terr_obj (T_Err.BadPossibleType (objName, t))
+  | EType.UnknownType -> _terr_obj (T_Err.BadType (_objName, t))
+  | EType.UndefinedType -> _terr_obj (T_Err.BadPossibleType (_objName, t))
+  | EType.NullType -> _terr_obj (T_Err.BadPossibleType (_objName, t))
   | EType.ObjectType tobj -> (
     match EType.find_tfld_opt tobj fn with
     | Some tfld -> EType.tfld_t tfld
