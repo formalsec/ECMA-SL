@@ -130,7 +130,7 @@
     (run %{bin:ocamllex} -ml -q -o %{target} %{deps}))))
  (menhir
   (modules parser)
-  (flags --table)))
+  (flags --table --explain)))
 
 (subdir
  syntax/extended

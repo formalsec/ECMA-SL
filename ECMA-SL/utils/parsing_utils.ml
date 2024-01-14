@@ -63,30 +63,38 @@ let init_lexbuf (fname : string) (str : string) =
 
 module StrSet = Set.Make (String)
 
-let parse_prog (str : string) : Prog.t =
+let parse_expr (str : string) : Expr.t =
   let lexbuf = Lexing.from_string str in
-  let funcs = parse Parser.Incremental.prog_target lexbuf in
-  Prog.create funcs
+  Parser.entry_expr_target Lexer.read lexbuf
 
-let parse_e_func (str : string) : EFunc.t =
+let parse_stmt (str : string) : Stmt.t =
   let lexbuf = Lexing.from_string str in
-  EParser.e_prog_e_func_target ELexer.read lexbuf
+  Parser.entry_stmt_target Lexer.read lexbuf
 
 let parse_func (str : string) : Func.t =
   let lexbuf = Lexing.from_string str in
-  Parser.proc_target Lexer.read lexbuf
+  Parser.entry_func_target Lexer.read lexbuf
+
+let parse_prog (str : string) : Prog.t =
+  let lexbuf = Lexing.from_string str in
+  let prog = parse Parser.Incremental.entry_prog_target lexbuf in
+  prog
 
 let parse_e_expr (str : string) : EExpr.t =
   let lexbuf = Lexing.from_string str in
-  EParser.e_prog_e_expr_target ELexer.read lexbuf
+  EParser.entry_expr_target ELexer.read lexbuf
 
 let parse_e_stmt (str : string) : EStmt.t =
   let lexbuf = Lexing.from_string str in
-  EParser.e_prog_e_stmt_target ELexer.read lexbuf
+  EParser.entry_stmt_target ELexer.read lexbuf
+
+let parse_e_func (str : string) : EFunc.t =
+  let lexbuf = Lexing.from_string str in
+  EParser.entry_func_target ELexer.read lexbuf
 
 let parse_e_prog (fname : string) (str : string) : EProg.t =
   let lexbuf = init_lexbuf fname str in
-  let prog = e_parse EParser.Incremental.e_prog_target lexbuf in
+  let prog = e_parse EParser.Incremental.entry_prog_target lexbuf in
   prog
 
 (*

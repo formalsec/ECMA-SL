@@ -3,10 +3,10 @@ type t =
   | Var of string
   | GVar of string
   | Const of Operator.const
-  | BinOpt of Operator.binopt * t * t
-  | TriOpt of Operator.triopt * t * t * t
-  | EBinOpt of EOperator.binopt * t * t  (** non-shared binary operators *)
   | UnOpt of Operator.unopt * t
+  | BinOpt of Operator.binopt * t * t
+  | EBinOpt of EOperator.binopt * t * t  (** non-shared binary operators *)
+  | TriOpt of Operator.triopt * t * t * t
   | NOpt of Operator.nopt * t list
   | Call of t * t list * string option
   | ECall of string * t list
