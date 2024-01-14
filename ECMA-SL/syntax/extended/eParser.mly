@@ -226,14 +226,14 @@ param_target:
 
 macro_target:
   | MACRO; m = ID; LPAREN; vars = separated_list(COMMA, ID); RPAREN; s = block_target;
-   { EMacro.create m vars s }
+   { EMacro.create m vars s @> at $sloc }
   ;
 
 (* ==================== Statements ==================== *)
 
 block_target:
   | LBRACE; stmts = separated_list (SEMICOLON, stmt_target); RBRACE;
-    { if List.length stmts = 1 then List.nth stmts 0 else EStmt.Block stmts @> at $sloc }
+    { EStmt.Block stmts @> at $sloc }
   ;
 
 stmt_target:

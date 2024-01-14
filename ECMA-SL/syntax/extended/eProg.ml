@@ -1,5 +1,3 @@
-open EMacro
-
 module ElementType = struct
   type t =
     | TypeDeclaration of (string * EType.t)
@@ -39,11 +37,11 @@ let add_funcs (prog : t) (funcs : EFunc.t list) : unit =
 let add_macros (prog : t) (macros : EMacro.t list) : unit =
   List.iter
     (fun (m : EMacro.t) ->
-      match Hashtbl.find_opt prog.macros m.name with
-      | None -> Hashtbl.replace prog.macros m.name m
+      let mn = EMacro.name m in
+      match Hashtbl.find_opt prog.macros mn with
+      | None -> Hashtbl.replace prog.macros mn m
       | Some _ ->
-        invalid_arg ("Macro \"" ^ m.name ^ "\" already exists in the program")
-      )
+        invalid_arg ("Macro \"" ^ mn ^ "\" already exists in the program") )
     macros
 
 let create (imports : string list) (typedefs : (string * EType.t) list)
