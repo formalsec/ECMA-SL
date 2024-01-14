@@ -9,7 +9,7 @@ type options =
 let options input_file output_file untyped : options =
   { input_file; output_file; untyped }
 
-let run_type_checker (prog : E_Prog.t) : E_Prog.t =
+let run_type_checker (prog : EProg.t) : EProg.t =
   if !Config.Tesl.untyped || true then prog
   else
     let terrs = T_Checker.type_program prog in

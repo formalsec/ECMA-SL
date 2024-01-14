@@ -6,7 +6,7 @@
 *)
 {
   open Lexing
-  open E_Parser
+  open EParser
 
 
   (* https://www.ocaml.org/releases/4.11/htmlman/lexyacc.html#s:lexyacc-common-errors *)

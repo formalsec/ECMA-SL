@@ -26,9 +26,9 @@
   ;   syntax (share)
   val
   loc
+  type
   object
   operator
-  type
   source
   ;   syntax (core)
   expr
@@ -38,18 +38,18 @@
   lexer
   parser
   ;   syntax (extended)
-  E_Expr
-  E_Stmt
-  E_Func
-  E_Prog
-  E_Type
-  E_Operator
-  E_Pat
-  E_Pat_v
-  E_Macro
-  E_Store
-  E_Lexer
-  E_Parser
+  EExpr
+  EStmt
+  EFunc
+  EProg
+  EType
+  EOperator
+  EPat
+  EPatV
+  EMacro
+  EStore
+  ELexer
+  EParser
   ;   error
   Eslerr
   Eslerr_type
@@ -117,15 +117,7 @@
   value_typing)
  (preprocess
   (staged_pps ppx_import ppx_deriving.std))
- (libraries
-  str
-  encoding
-  menhirLib
-  yojson
-  z3
-  bos
-  bos.setup
-  esl_share))
+ (libraries str encoding menhirLib yojson z3 bos bos.setup esl_share))
 
 (subdir
  syntax/core
@@ -143,12 +135,12 @@
 (subdir
  syntax/extended
  (rule
-  (target E_Lexer.ml)
-  (deps E_Lexer.mll)
+  (target eLexer.ml)
+  (deps eLexer.mll)
   (action
    (chdir
     %{workspace_root}
     (run %{bin:ocamllex} -ml -q -o %{target} %{deps}))))
  (menhir
-  (modules E_Parser)
+  (modules eParser)
   (flags --table --explain)))

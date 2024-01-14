@@ -9,7 +9,7 @@ let type_checker_test (file : string) (eerrs : err_t list) : bool =
   if List.length terrs != List.length eerrs then false
   else List.for_all (fun (terr, eerr) -> terr = eerr) (List.combine terrs eerrs)
 
-let obj_cons (flds : (string * E_Type.t) list) : E_Type.t =
-  let _obj_fld_f (fn, ft) = (fn, (ft, E_Type.Required)) in
+let obj_cons (flds : (string * EType.t) list) : EType.t =
+  let _obj_fld_f (fn, ft) = (fn, (ft, EType.Required)) in
   let flds = Hashtbl.of_seq (List.to_seq (List.map _obj_fld_f flds)) in
-  E_Type.ObjectType { flds; E_Type.smry = None }
+  EType.ObjectType { flds; EType.smry = None }

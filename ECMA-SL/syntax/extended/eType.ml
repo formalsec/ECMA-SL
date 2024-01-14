@@ -42,11 +42,7 @@ let rec merge_union_type (t1 : t) (t2 : t) : t =
   | _ -> if t1 = t2 then t1 else UnionType [ t1; t2 ]
 
 let merge_type (merge_fun_f : t -> t -> t) (ts : t list) : t =
-  let (tf, tr) =
-    match ts with
-    | [] -> (NeverType, [])
-    | f :: r -> (f, r)
-  in
+  let (tf, tr) = match ts with [] -> (NeverType, []) | f :: r -> (f, r) in
   List.fold_left merge_fun_f tf tr
 
 let create_tobj (flds : (string, tfld_t) Hashtbl.t) (smry : t option) : t =
@@ -55,7 +51,7 @@ let create_tobj (flds : (string, tfld_t) Hashtbl.t) (smry : t option) : t =
 let get_tobj (t : t) : tobj_t =
   match t with
   | ObjectType tobj -> tobj
-  | _ -> failwith "Typed ECMA-SL: E_Type.get_tobj"
+  | _ -> failwith "Typed ECMA-SL: EType.get_tobj"
 
 let flds (tobj : tobj_t) : (string, tfld_t) Hashtbl.t = tobj.flds
 let smry (tobj : tobj_t) : t option = tobj.smry
@@ -63,7 +59,7 @@ let smry (tobj : tobj_t) : t option = tobj.smry
 let find_tfld (tobj : tobj_t) (fn : string) : tfld_t =
   match Hashtbl.find_opt tobj.flds fn with
   | Some tfld -> tfld
-  | None -> failwith "Typed ECMA-SL: E_Type.get_tfld"
+  | None -> failwith "Typed ECMA-SL: EType.get_tfld"
 
 let find_tfld_opt (tobj : tobj_t) (fn : string) : tfld_t option =
   Hashtbl.find_opt tobj.flds fn
@@ -72,16 +68,11 @@ let tfld_t ((ft, fp) : tfld_t) : t =
   if fp = Optional then merge_union_type ft UndefinedType else ft
 
 let tfld_is_opt ((_, fp) : tfld_t) : bool =
-  match fp with
-  | Required -> false
-  | Optional -> true
+  match fp with Required -> false | Optional -> true
 
 let tfld_data (tobj : tobj_t) : (string * tfld_t) list =
   let _nflds flds = Hashtbl.fold (fun fn ft r -> (fn, ft) :: r) flds [] in
-  let _sfld = function
-    | Some tsmry -> [ ("*", (tsmry, Required)) ]
-    | _ -> []
-  in
+  let _sfld = function Some tsmry -> [ ("*", (tsmry, Required)) ] | _ -> [] in
   List.append (_nflds tobj.flds) (_sfld tobj.smry)
 
 module Field = struct
@@ -194,10 +185,7 @@ let rec unfold_type (addNonLits : bool) (t : t) : t list =
   | (false, _) -> []
 
 let fold_type (ts : t list) =
-  let _fold_bool_f = function
-    | LiteralType (Val.Bool _) -> true
-    | _ -> false
-  in
+  let _fold_bool_f = function LiteralType (Val.Bool _) -> true | _ -> false in
   let _find_bool_val ts b = List.mem (LiteralType (Val.Bool b)) ts in
   let convertToBool = _find_bool_val ts true && _find_bool_val ts false in
   if convertToBool then BooleanType :: List.filter _fold_bool_f ts else ts
@@ -221,14 +209,10 @@ let to_runtime (t : t) : t =
   | LiteralType (Val.Symbol _) -> RuntimeType Type.SymbolType
   | ObjectType _ -> RuntimeType Type.LocType
   | RuntimeType _ -> t
-  | _ -> failwith "Typed ECMA-SL: E_Type.to_runtime"
+  | _ -> failwith "Typed ECMA-SL: EType.to_runtime"
 
 let tlst (t : t) =
-  match t with
-  | UnionType ts | SigmaType (_, ts) -> ts
-  | _ -> [ t ]
+  match t with UnionType ts | SigmaType (_, ts) -> ts | _ -> [ t ]
 
 let union_to_sigma (d : string) (t : t) : t =
-  match t with
-  | UnionType ts -> SigmaType (d, ts)
-  | _ -> t
+  match t with UnionType ts -> SigmaType (d, ts) | _ -> t

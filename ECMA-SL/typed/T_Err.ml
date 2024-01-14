@@ -3,7 +3,7 @@ open T_ErrFmt
 type err_t =
   | UnknownVar of string
   | UnknownFunction of string
-  | UnknownType of E_Type.t
+  | UnknownType of EType.t
   | NExpectedElements of int * int
   | NExpectedArgs of int * int
   | DuplicatedParam of string
@@ -11,22 +11,22 @@ type err_t =
   | MissingField of string
   | ExtraField of string
   | IncompatibleField of string
-  | NoOverlapComp of E_Type.t * E_Type.t
-  | BadValue of E_Type.t * E_Type.t
-  | BadExpectedType of E_Type.t * E_Type.t
-  | BadTypeUpdate of E_Type.t * E_Type.t
-  | BadReturn of E_Type.t * E_Type.t
-  | BadArgument of E_Type.t * E_Type.t
-  | BadOperand of E_Type.t * E_Type.t
-  | BadType of string option * E_Type.t
-  | BadPossibleType of string option * E_Type.t
-  | BadLookup of string * E_Type.t
-  | BadSigma of E_Type.t
+  | NoOverlapComp of EType.t * EType.t
+  | BadValue of EType.t * EType.t
+  | BadExpectedType of EType.t * EType.t
+  | BadTypeUpdate of EType.t * EType.t
+  | BadReturn of EType.t * EType.t
+  | BadArgument of EType.t * EType.t
+  | BadOperand of EType.t * EType.t
+  | BadType of string option * EType.t
+  | BadPossibleType of string option * EType.t
+  | BadLookup of string * EType.t
+  | BadSigma of EType.t
   | BadDiscriminant of string
   | MissingDiscriminant of string
-  | UnknownDiscriminant of E_Type.t
+  | UnknownDiscriminant of EType.t
   | DuplicatedPatternFld of string
-  | BadValPattern of E_Type.t * E_Type.t
+  | BadValPattern of EType.t * EType.t
   | BadNonePattern
   | UnusedPatternCase
   | MissingPatternCase
@@ -39,7 +39,7 @@ let err_str (err : err_t) : string =
   match err with
   | UnknownVar x -> Printf.sprintf "Cannot find variable '%s'." x
   | UnknownFunction fname -> Printf.sprintf "Cannot find function '%s'." fname
-  | UnknownType t -> Printf.sprintf "Cannot find type '%s'." (E_Type.str t)
+  | UnknownType t -> Printf.sprintf "Cannot find type '%s'." (EType.str t)
   | NExpectedElements (nsource, nelements) ->
     Printf.sprintf "Expecting %d elements, but %d elements were provided."
       nsource nelements
@@ -61,41 +61,40 @@ let err_str (err : err_t) : string =
     Printf.sprintf
       "This comparison appears to be unintentional because the types '%s' and \
        '%s' have no overlap."
-      (E_Type.str t1) (E_Type.str t2)
+      (EType.str t1) (EType.str t2)
   | BadValue (tref, texpr) ->
     Printf.sprintf "Value of type '%s' is not assignable to type '%s'."
-      (E_Type.str texpr) (E_Type.str tref)
+      (EType.str texpr) (EType.str tref)
   | BadExpectedType (tref, texpr) ->
     Printf.sprintf
       "Expected value of type '%s' but a value of type '%s' was provided."
-      (E_Type.str tref) (E_Type.str texpr)
+      (EType.str tref) (EType.str texpr)
   | BadTypeUpdate (tref, texpr) ->
     Printf.sprintf "Variable of type '%s' cannot change its type to '%s'."
-      (E_Type.str tref) (E_Type.str texpr)
+      (EType.str tref) (EType.str texpr)
   | BadReturn (tret, texpr) ->
     Printf.sprintf "Value of type '%s' cannot be returned by a '%s' function."
-      (E_Type.str texpr) (E_Type.str tret)
+      (EType.str texpr) (EType.str tret)
   | BadArgument (tparam, targ) ->
     Printf.sprintf
       "Argument of type '%s' is not assignable to a parameter of type '%s'."
-      (E_Type.str targ) (E_Type.str tparam)
+      (EType.str targ) (EType.str tparam)
   | BadOperand (tparam, targ) ->
     Printf.sprintf
       "Argument of type '%s' is not assignable to a operand of type '%s'."
-      (E_Type.str targ) (E_Type.str tparam)
+      (EType.str targ) (EType.str tparam)
   | BadType (x, t) ->
     let name = Option.value ~default:"Object" x in
-    Printf.sprintf "'%s' is of type '%s'." name (E_Type.str t)
+    Printf.sprintf "'%s' is of type '%s'." name (EType.str t)
   | BadPossibleType (x, t) ->
     let name = Option.value ~default:"Object" x in
-    Printf.sprintf "'%s' is possible of type '%s'." name (E_Type.str t)
+    Printf.sprintf "'%s' is possible of type '%s'." name (EType.str t)
   | BadLookup (fn, tobj) ->
-    Printf.sprintf "Field '%s' does not exist on type '%s'." fn
-      (E_Type.str tobj)
+    Printf.sprintf "Field '%s' does not exist on type '%s'." fn (EType.str tobj)
   | BadSigma texpr ->
     Printf.sprintf
       "Expecting sigma type value but a value of type '%s' was provided."
-      (E_Type.str texpr)
+      (EType.str texpr)
   | BadDiscriminant d ->
     Printf.sprintf
       "Expecting a concrete value for the pattern-matching discriminant '%s'." d
@@ -105,7 +104,7 @@ let err_str (err : err_t) : string =
   | UnknownDiscriminant td ->
     Printf.sprintf
       "Discriminant '%s' is not associated with any pattern-matching case."
-      (E_Type.str td)
+      (EType.str td)
   | DuplicatedPatternFld fn ->
     Printf.sprintf
       "Pattern-matching cases cannot have two fields with the same name '%s'."
@@ -113,7 +112,7 @@ let err_str (err : err_t) : string =
   | BadValPattern (ft, pt) ->
     Printf.sprintf
       "A value pattern of type '%s' is not applicable to '%s' field."
-      (E_Type.str pt) (E_Type.str ft)
+      (EType.str pt) (EType.str ft)
   | BadNonePattern ->
     "The 'none' pattern cannot be applied to a non-optional field."
   | UnusedPatternCase -> "This pattern-matching case is unused."
@@ -129,12 +128,12 @@ let warning_kind () : kind_t = Warning
 let no_tkn () : tkn_t = NoTkn
 let lit_tkn (l : string) : tkn_t = Lit l
 let str_tkn (s : string) : tkn_t = Str s
-let type_tkn (t : E_Type.t) : tkn_t = Type t
-let expr_tkn (expr : E_Expr.t) : tkn_t = Expr expr
-let stmt_tkn (stmt : E_Stmt.t) : tkn_t = Stmt stmt
-let func_tkn (func : E_Func.t) : tkn_t = Func func
-let pat_tkn (pat : E_Pat.t) : tkn_t = Pat pat
-let patval_tkn (patVal : E_Pat_v.t) : tkn_t = PatVal patVal
+let type_tkn (t : EType.t) : tkn_t = Type t
+let expr_tkn (expr : EExpr.t) : tkn_t = Expr expr
+let stmt_tkn (stmt : EStmt.t) : tkn_t = Stmt stmt
+let func_tkn (func : EFunc.t) : tkn_t = Func func
+let pat_tkn (pat : EPat.t) : tkn_t = Pat pat
+let patval_tkn (patVal : EPatV.t) : tkn_t = PatVal patVal
 
 type t =
   { kind : kind_t
@@ -146,9 +145,7 @@ type t =
 exception TypeError of t
 
 let top_err (terr : t) : err_t =
-  match terr.errs with
-  | err :: _ -> err
-  | [] -> failwith "T_Err.top_err"
+  match terr.errs with err :: _ -> err | [] -> failwith "T_Err.top_err"
 
 let continue (terr : t) = raise (TypeError terr)
 

@@ -1,7 +1,7 @@
-open E_Expr
-open E_Stmt
-open E_Func
-open E_Pat
+open EExpr
+open EStmt
+open EFunc
+open EPat
 open Source
 
 type kind_t =
@@ -18,12 +18,12 @@ type tkn_t =
   | NoTkn
   | Lit of string
   | Str of string
-  | Type of E_Type.t
-  | Expr of E_Expr.t
-  | Stmt of E_Stmt.t
-  | Func of E_Func.t
-  | Pat of E_Pat.t
-  | PatVal of E_Pat_v.t
+  | Type of EType.t
+  | Expr of EExpr.t
+  | Stmt of EStmt.t
+  | Func of EFunc.t
+  | Pat of EPat.t
+  | PatVal of EPatV.t
 
 let tkn_region (src : tkn_t) : Source.region =
   match src with
@@ -36,14 +36,14 @@ let concat_tkns (tkns : tkn_t list list) (split : string) : tkn_t list =
   let _split_tkn_f r = match r with [] -> r | _r' :: _ -> Lit split :: r in
   List.fold_right (fun f r -> List.append f (_split_tkn_f r)) tkns []
 
-let type_tkns (t : E_Type.t option) : tkn_t list =
+let type_tkns (t : EType.t option) : tkn_t list =
   match t with None -> [] | Some t' -> [ Lit ": "; Type t' ]
 
-let call_tkns (fnTkn : tkn_t) (args : E_Expr.t list) : tkn_t list =
+let call_tkns (fnTkn : tkn_t) (args : EExpr.t list) : tkn_t list =
   let argTkns = concat_tkns (List.map (fun arg -> [ Expr arg ]) args) ", " in
   List.concat [ [ fnTkn ]; [ Lit "(" ]; argTkns; [ Lit ")" ] ]
 
-let unop_tkns (op : Operator.unopt) (e : E_Expr.t) : tkn_t list =
+let unop_tkns (op : Operator.unopt) (e : EExpr.t) : tkn_t list =
   let opTkn = Lit (Operator.str_of_unopt_single op) in
   match op with
   | Operator.Neg -> [ opTkn; Expr e ]
@@ -51,8 +51,8 @@ let unop_tkns (op : Operator.unopt) (e : E_Expr.t) : tkn_t list =
   | Operator.BitwiseNot -> [ opTkn; Expr e ]
   | _ -> call_tkns opTkn [ e ]
 
-let binop_tkns (op : Operator.binopt) (e1 : E_Expr.t) (e2 : E_Expr.t) :
-  tkn_t list =
+let binop_tkns (op : Operator.binopt) (e1 : EExpr.t) (e2 : EExpr.t) : tkn_t list
+    =
   let opStr = Operator.str_of_binopt_single op in
   let opTkn = Lit (" " ^ opStr ^ " ") in
   match op with
@@ -79,26 +79,26 @@ let binop_tkns (op : Operator.binopt) (e1 : E_Expr.t) (e2 : E_Expr.t) :
   | Operator.Pow -> [ Expr e1; opTkn; Expr e2 ]
   | _ -> call_tkns (Lit opStr) [ e1; e2 ]
 
-let ebinop_tkns (op : E_Operator.binopt) (e1 : E_Expr.t) (e2 : E_Expr.t) :
+let ebinop_tkns (op : EOperator.binopt) (e1 : EExpr.t) (e2 : EExpr.t) :
   tkn_t list =
-  let opStr = E_Operator.str_of_binopt_single op in
+  let opStr = EOperator.str_of_binopt_single op in
   let opTkn = Lit (" " ^ opStr ^ " ") in
   match op with
-  | E_Operator.SCLogicalAnd -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
-  | E_Operator.SCLogicalOr -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
+  | EOperator.SCLogicalAnd -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
+  | EOperator.SCLogicalOr -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
 
-let triop_tkns (op : Operator.triopt) (e1 : E_Expr.t) (e2 : E_Expr.t)
-  (e3 : E_Expr.t) : tkn_t list =
+let triop_tkns (op : Operator.triopt) (e1 : EExpr.t) (e2 : EExpr.t)
+  (e3 : EExpr.t) : tkn_t list =
   let opTkn = Lit (Operator.str_of_triopt_single op) in
   match op with _ -> call_tkns opTkn [ e1; e2; e3 ]
 
-let nopt_tkns (op : Operator.nopt) (es : E_Expr.t list) : tkn_t list =
+let nopt_tkns (op : Operator.nopt) (es : EExpr.t list) : tkn_t list =
   let exprTkns = concat_tkns (List.map (fun arg -> [ Expr arg ]) es) ", " in
   match op with
   | Operator.TupleExpr -> List.concat [ [ Lit "(" ]; exprTkns; [ Lit ")" ] ]
   | _ -> []
 
-let expr_tkns (expr : E_Expr.t) : tkn_t list =
+let expr_tkns (expr : EExpr.t) : tkn_t list =
   match expr with
   | Val v -> [ Lit (Val.str v) ]
   | Var x -> [ Str x ]
@@ -120,7 +120,7 @@ let expr_tkns (expr : E_Expr.t) : tkn_t list =
   (* | Symbolic (_, _) -> [] *)
   | _ -> []
 
-let stmt_tkns (stmt : E_Stmt.t) : tkn_t list =
+let stmt_tkns (stmt : EStmt.t) : tkn_t list =
   let threedots = Font.str_text_err [ Font.Faint ] "..." in
   match stmt.it with
   | Skip -> []
@@ -152,7 +152,7 @@ let stmt_tkns (stmt : E_Stmt.t) : tkn_t list =
   (* | Lambda (_, _, _, _, _) -> [] *)
   | _ -> []
 
-let func_tkns (func : E_Func.t) : tkn_t list =
+let func_tkns (func : EFunc.t) : tkn_t list =
   let _param_tkn_f (param, tparam) = Str param :: type_tkns tparam in
   let func' = func.it in
   let (fn, fparams, freturn) = (func'.name, func'.params_t, func'.return_t) in
@@ -161,7 +161,7 @@ let func_tkns (func : E_Func.t) : tkn_t list =
   let retTkn = type_tkns freturn in
   List.concat [ funcTkns; [ Lit "(" ]; paramTkns; [ Lit ")" ]; retTkn ]
 
-let pat_tkns (pat : E_Pat.t) : tkn_t list =
+let pat_tkns (pat : EPat.t) : tkn_t list =
   let threedots = Font.str_text_err [ Font.Faint ] "..." in
   let _pat_fld_tkn_f (s, patVal) = [ Str s; Lit ": "; PatVal patVal ] in
   let _pat_tkns pat =
@@ -202,12 +202,12 @@ let rec tkn_str (tkn : tkn_t) : string =
   | NoTkn -> ""
   | Lit l -> l
   | Str s -> s
-  | Type t -> E_Type.str t
+  | Type t -> EType.str t
   | Expr expr -> String.concat "" (List.map tkn_str (expr_tkns expr))
   | Stmt stmt -> String.concat "" (List.map tkn_str (stmt_tkns stmt))
   | Func func -> String.concat "" (List.map tkn_str (func_tkns func))
   | Pat pat -> String.concat "" (List.map tkn_str (pat_tkns pat))
-  | PatVal pv -> E_Pat_v.str pv
+  | PatVal pv -> EPatV.str pv
 
 let tkn_str_size (tkn : tkn_t) : string * int =
   let tknStr = tkn_str tkn in

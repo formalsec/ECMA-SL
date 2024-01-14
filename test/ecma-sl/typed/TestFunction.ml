@@ -1,5 +1,5 @@
 open Ecma_sl
-open E_Type
+open EType
 open T_Err
 
 let%test _ =
@@ -8,29 +8,26 @@ let%test _ =
 
 let%test _ =
   Test.type_checker_test "examples/function/call.esl"
-    [
-      NExpectedArgs (2, 1);
-      NExpectedArgs (2, 3);
-      BadArgument (IntType, StringType);
-      UnknownFunction "bar";
+    [ NExpectedArgs (2, 1)
+    ; NExpectedArgs (2, 3)
+    ; BadArgument (IntType, StringType)
+    ; UnknownFunction "bar"
     ]
 
 let%test _ =
   Test.type_checker_test "examples/function/return.esl"
-    [
-      BadReturn (VoidType, IntType);
-      BadReturn (IntType, VoidType);
-      BadReturn (StringType, IntType);
+    [ BadReturn (VoidType, IntType)
+    ; BadReturn (IntType, VoidType)
+    ; BadReturn (StringType, IntType)
     ]
 
 let%test _ =
   Test.type_checker_test "examples/function/operator.esl"
-    [
-      BadOperand (BooleanType, StringType);
-      BadOperand (IntType, FloatType);
-      BadOperand (IntType, StringType);
-      BadOperand (BooleanType, StringType);
-      BadOperand (IntType, StringType);
+    [ BadOperand (BooleanType, StringType)
+    ; BadOperand (IntType, FloatType)
+    ; BadOperand (IntType, StringType)
+    ; BadOperand (BooleanType, StringType)
+    ; BadOperand (IntType, StringType)
     ]
 
 let%test _ =

@@ -9,9 +9,7 @@ let label_of_binopt (op : binopt) : string =
   | SCLogicalOr -> "Logical.sc_or (|||)"
 
 let str_of_binopt_single (op : binopt) : string =
-  match op with
-  | SCLogicalAnd -> "&&&"
-  | SCLogicalOr -> "|||"
+  match op with SCLogicalAnd -> "&&&" | SCLogicalOr -> "|||"
 
 let str_of_binopt (op : binopt) (s1 : string) (s2 : string) : string =
   match op with
