@@ -133,7 +133,7 @@ let expr_tkn (expr : EExpr.t) : tkn_t = Expr expr
 let stmt_tkn (stmt : EStmt.t) : tkn_t = Stmt stmt
 let func_tkn (func : EFunc.t) : tkn_t = Func func
 let pat_tkn (pat : EPat.t) : tkn_t = Pat pat
-let patval_tkn (patVal : EPatV.t) : tkn_t = PatVal patVal
+let patval_tkn (patVal : EPat.pv) : tkn_t = PatVal patVal
 
 type t =
   { kind : kind_t

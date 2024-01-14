@@ -2,7 +2,6 @@ open Val
 open Expr
 open Operator
 open EPat
-open EPatV
 open EExpr
 open EStmt
 open Source
@@ -457,7 +456,7 @@ and compile_repeatuntil (stmt : EStmt.t) (expr : EExpr.t) (at : region) :
   let stmts = stmts_stmt @ stmts_expr in
   stmts @ [ Stmt.While (not_expr, Stmt.Block stmts @> stmt.at) @> at ]
 
-and compile_patv (expr : Expr.t) (pname : string) (pat_v : EPatV.t)
+and compile_patv (expr : Expr.t) (pname : string) (pat_v : EPat.pv)
   (var_b : string) (at : region) : string list * Stmt.t list * Stmt.t list =
   match pat_v with
   | PatVar v ->
@@ -476,7 +475,7 @@ and compile_patv (expr : Expr.t) (pname : string) (pat_v : EPatV.t)
     in
     ([], [ stmt ], [])
 
-and compile_pn_pat (expr : Expr.t) ((pn, patv) : string * EPatV.t) (at : region)
+and compile_pn_pat (expr : Expr.t) ((pn, patv) : string * EPat.pv) (at : region)
   : string list * Stmt.t list * Stmt.t list =
   let fresh_b = generate_fresh_var () in
   let in_stmt =

@@ -209,12 +209,9 @@ func_target:
   | FUNCTION; fn = ID; LPAREN; vars = params_target; RPAREN;
     tret = option(e_typing_target); s = block_target;
     { EFunc.create None fn vars tret s @> at $sloc }
-  | FUNCTION; fn = ID; LPAREN; vars = params_target; RPAREN; meta = val_metadata_target; 
+  | FUNCTION; fn = ID; LPAREN; vars = params_target; RPAREN; meta = delimited(LBRACK, vals_metadata_target, RBRACK); 
     vars_meta = vars_opt_metadata_target; tret = option(e_typing_target); s = block_target;
-    {
-      let metadata = E_Func_Metadata.build_func_metadata meta vars_meta in
-      EFunc.create (Some metadata) fn vars tret s @> at $sloc  
-    }
+    { EFunc.create (Some (E_Func_Metadata.build_func_metadata meta vars_meta)) fn vars tret s @> at $sloc }
 
 params_target:
   | params = separated_list(COMMA, param_target);
@@ -329,8 +326,11 @@ match_case_target:
     { (p, s) }
 
 pattern_target:
-  | LBRACE; pat_binds = separated_list(COMMA, pattern_binding_target); RBRACE; meta = pattern_opt_metadata_target;
-    { EPat.ObjPat (pat_binds, meta) @> at $sloc }
+  | LBRACE; pbs = separated_list(COMMA, pattern_binding_target); RBRACE;
+    { EPat.ObjPat (pbs, None) @> at $sloc }
+  | LBRACE; pbs = separated_list(COMMA, pattern_binding_target); RBRACE; 
+    meta = delimited(LBRACK, vals_metadata_target, RBRACK); vars_meta = vars_opt_metadata_target;
+    { EPat.ObjPat (pbs, (Some (EPat_metadata.build_pat_metadata meta vars_meta))) @> at $sloc }
   | DEFAULT;
     { EPat.DefaultPat @> at $sloc }
 
@@ -339,10 +339,10 @@ pattern_binding_target:
   | pn = STRING; COLON; pv = pattern_value_target;    { (pn, pv) }
 
 pattern_value_target:
-  | v = ID;               { EPatV.PatVar v }
-  | v = val_target;       { EPatV.PatVal v }
-  | LBRACK; RBRACK;       { EPatV.PatVal (Val.List []) }
-  | NONE;                 { EPatV.PatNone }
+  | v = ID;               { EPat.PatVar v }
+  | v = val_target;       { EPat.PatVal v }
+  | LBRACK; RBRACK;       { EPat.PatVal (Val.List []) }
+  | NONE;                 { EPat.PatNone }
 
 (* ==================== Expressions ==================== *)
 
@@ -588,8 +588,8 @@ tuple_target:
 
 (* ==================== Metadata ==================== *)
 
-val_metadata_target:
-  | meta = delimited(LBRACK, separated_list(COMMA, val_target), RBRACK);
+vals_metadata_target:
+  | meta = separated_list(COMMA, val_target);
     { meta }
   ;
 
@@ -617,11 +617,6 @@ stmt_metadata_target:
     }
   ;
 
-pattern_metadata_target:
-  | pat_meta = val_metadata_target; vars_meta = vars_opt_metadata_target;
-    { E_Pat_Metadata.build_pat_metadata pat_meta vars_meta }
-  ;
-
 var_opt_metadata_target:
   | meta = option(delimited(LBRACK, var_metadata_target, RBRACK))
     { meta }
@@ -640,11 +635,6 @@ stmt_opt_metadata_target:
 switch_case_opt_metadata_target:
   | meta = option(delimited(LBRACK, STRING, RBRACK))
     { Option.value ~default:"" meta }
-  ;
-
-pattern_opt_metadata_target:
-  | meta = option(pattern_metadata_target)
-    { meta }
   ;
 
 (* ==================== Type system ==================== *)
