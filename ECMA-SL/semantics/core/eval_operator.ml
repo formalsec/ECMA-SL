@@ -1076,6 +1076,10 @@ let eval_binopt (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | ShiftRightLogical -> shift_right_logical (v1, v2)
   | LogicalAnd -> logical_and (v1, v2)
   | LogicalOr -> logical_or (v1, v2)
+  | SCLogicalAnd ->
+    Eslerr.internal __FUNCTION__ (UnexpectedEval (Some "SCLogicalAnd"))
+  | SCLogicalOr ->
+    Eslerr.internal __FUNCTION__ (UnexpectedEval (Some "SCLogicalOr"))
   | Eq -> eq (v1, v2)
   | Lt -> lt (v1, v2)
   | Gt -> gt (v1, v2)

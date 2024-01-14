@@ -154,11 +154,6 @@ let rec type_expr ?(narrow : bool = true) (tctx : T_Ctx.t) (expr : EExpr.t) :
     let funPrototype = T_Op.type_binop op in
     let test_operand_f = test_operand (safe_type_expr tctx) in
     test_operator_call tctx args funPrototype test_operand_f
-  | EBinOpt (op, e1, e2) ->
-    let args = [ e1; e2 ] in
-    let funPrototype = T_Op.type_ebinop op in
-    let test_operand_f = test_operand (safe_type_expr tctx) in
-    test_operator_call tctx args funPrototype test_operand_f
   | TriOpt (op, e1, e2, e3) ->
     let args = [ e1; e2; e3 ] in
     let funPrototype = T_Op.type_triop op in
