@@ -10,29 +10,27 @@ type t = t' Source.phrase
 and t' =
   | Skip
   | Debug of t
-  | Fail of EExpr.t
-  | Throw of EExpr.t
+  | Block of t list
   | Print of EExpr.t
+  | ExprStmt of EExpr.t
   | Return of EExpr.t option
-  | Wrapper of metadata_t list * t
   | Assign of string * EType.t option * EExpr.t
   | GlobAssign of string * EExpr.t
-  | Block of t list
+  | FieldAssign of EExpr.t * EExpr.t * EExpr.t
+  | FieldDelete of EExpr.t * EExpr.t
   | If of EExpr.t * t * t option * metadata_t list * metadata_t list
-    (** "If" and "Else" metadata *)
   | EIf of (EExpr.t * t * metadata_t list) list * (t * metadata_t list) option
   | While of EExpr.t * t
   | ForEach of string * EExpr.t * t * metadata_t list * (string * string) option
-  | FieldAssign of EExpr.t * EExpr.t * EExpr.t
-  | FieldDelete of EExpr.t * EExpr.t
-  | ExprStmt of EExpr.t
   | RepeatUntil of t * EExpr.t * metadata_t list
-  | MatchWith of EExpr.t * (EPat.t * t) list
-  | MacroApply of string * EExpr.t list
   | Switch of EExpr.t * (EExpr.t * t) list * t option * string
-    (** metadata; just "table caption" for now. *)
+  | MatchWith of EExpr.t * (EPat.t * t) list
   | Lambda of string * string * string list * string list * t
+  | MacroApply of string * EExpr.t list
+  | Throw of EExpr.t
+  | Fail of EExpr.t
   | Assert of EExpr.t
+  | Wrapper of metadata_t list * t
 
 let is_basic (s : t) : bool =
   match s.it with
