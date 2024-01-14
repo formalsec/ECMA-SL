@@ -42,15 +42,17 @@ let compile_sc_and (x : string) (stmts_1 : Stmt.t list) (e1' : Expr.t)
   let inner_if =
     Stmt.If
       ( Expr.BinOpt (Eq, e2', Expr.Val (Val.Bool false))
-      , Stmt.Assign (x, Expr.Val (Val.Bool false)) @> at
-      , Some (Stmt.Assign (x, Expr.Val (Val.Bool true)) @> at) )
+      , Stmt.Block [ Stmt.Assign (x, Expr.Val (Val.Bool false)) @> at ] @> at
+      , Some
+          (Stmt.Block [ Stmt.Assign (x, Expr.Val (Val.Bool true)) @> at ] @> at)
+      )
     @> at
   in
 
   let outer_if =
     Stmt.If
       ( Expr.BinOpt (Eq, e1', Expr.Val (Val.Bool false))
-      , Stmt.Assign (x, Expr.Val (Val.Bool false)) @> at
+      , Stmt.Block [ Stmt.Assign (x, Expr.Val (Val.Bool false)) @> at ] @> at
       , Some (Stmt.Block (stmts_2 @ [ inner_if ]) @> at) )
     @> at
   in
@@ -79,15 +81,17 @@ let compile_sc_or (x : string) (stmts_1 : Stmt.t list) (e1' : Expr.t)
   let inner_if =
     Stmt.If
       ( Expr.BinOpt (Eq, e2', Expr.Val (Val.Bool true))
-      , Stmt.Assign (x, Expr.Val (Val.Bool true)) @> at
-      , Some (Stmt.Assign (x, Expr.Val (Val.Bool false)) @> at) )
+      , Stmt.Block [ Stmt.Assign (x, Expr.Val (Val.Bool true)) @> at ] @> at
+      , Some
+          (Stmt.Block [ Stmt.Assign (x, Expr.Val (Val.Bool false)) @> at ] @> at)
+      )
     @> at
   in
 
   let outer_if =
     Stmt.If
       ( Expr.BinOpt (Eq, e1', Expr.Val (Val.Bool true))
-      , Stmt.Assign (x, Expr.Val (Val.Bool true)) @> at
+      , Stmt.Block [ Stmt.Assign (x, Expr.Val (Val.Bool true)) @> at ] @> at
       , Some (Stmt.Block (stmts_2 @ [ inner_if ]) @> at) )
     @> at
   in
@@ -304,23 +308,26 @@ C_s({e}(e1, ..., en) catch g) =
 
 
 *)
-let build_if_throw_basic (x : string) (s_then : Stmt.t) (at : region) : Stmt.t =
+let build_if_throw_basic (x : string) (s_then : Stmt.t list) (at : region) :
+  Stmt.t =
   let guard = Expr.UnOpt (TupleFirst, Expr.Var x) in
   let s_else = Stmt.Assign (x, Expr.UnOpt (TupleSecond, Expr.Var x)) @> at in
-  let s_then' = Stmt.Block [ s_then ] @> at in
+  let s_then' = Stmt.Block s_then @> at in
   let s_else' = Stmt.Block [ s_else ] @> at in
   Stmt.If (guard, s_then', Some s_else') @> at
 
 let build_if_throw (x : string) (g : string option) (at : region) : Stmt.t =
   match g with
-  | None -> build_if_throw_basic x (Stmt.Return (Expr.Var x) @> at) at
+  | None -> build_if_throw_basic x [ Stmt.Return (Expr.Var x) @> at ] at
   | Some g ->
     let args =
       [ Expr.Var __INTERNAL_ESL_GLOBAL__; Expr.UnOpt (TupleSecond, Expr.Var x) ]
     in
     let call_stmt = Stmt.AssignCall (x, Expr.Val (Val.Str g), args) @> at in
-    let inner_if = build_if_throw_basic x (Stmt.Return (Expr.Var x) @> at) at in
-    build_if_throw_basic x (Stmt.Block [ call_stmt; inner_if ] @> at) at
+    let inner_if =
+      build_if_throw_basic x [ Stmt.Return (Expr.Var x) @> at ] at
+    in
+    build_if_throw_basic x [ call_stmt; inner_if ] at
 
 let compile_call (ret_f : Stmt.t list * Expr.t)
   (ret_args : (Stmt.t list * Expr.t) list) (g : string option) (at : region) :

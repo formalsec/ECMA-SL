@@ -38,6 +38,7 @@ let is_basic (s : t) : bool =
   | _ -> true
 
 let default () : t' = Skip
+let pp (_fmt : Fmt.t) (_s : t) : unit = failwith "TODO"
 
 let rec str (stmt : t) : string =
   let str_cases cases =
@@ -67,7 +68,7 @@ let rec str (stmt : t) : string =
     let x' = match t with None -> x | Some t' -> x ^ ": " ^ EType.str t' in
     x' ^ " := " ^ EExpr.str exp
   | GlobAssign (x, exp) -> "|" ^ x ^ "| := " ^ EExpr.str exp
-  | Block stmts -> "{ " ^ String.concat ";" (List.map str stmts) ^ " }"
+  | Block stmts -> "{\n" ^ String.concat ";" (List.map str stmts) ^ "\n}"
   | If (e, s1, s2, _, _) -> (
     let v = "if (" ^ EExpr.str e ^ ") " ^ str s1 in
     match s2 with None -> v | Some s -> v ^ " else " ^ str s )
