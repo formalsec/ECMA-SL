@@ -1,7 +1,6 @@
 open Val
 open Expr
 open Operator
-open EOperator
 open EPat
 open EPatV
 open EExpr
@@ -100,8 +99,14 @@ let compile_binopt (binop : Operator.binopt)
   ((stmts_1, e1) : Stmt.t list * Expr.t) ((stmts_2, e2) : Stmt.t list * Expr.t)
   (at : region) : Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
-  ( stmts_1 @ stmts_2 @ [ Stmt.Assign (var, Expr.BinOpt (binop, e1, e2)) @> at ]
-  , Expr.Var var )
+  match binop with
+  | SCLogicalAnd -> compile_sc_and var stmts_1 e1 stmts_2 e2 at
+  | SCLogicalOr -> compile_sc_or var stmts_1 e1 stmts_2 e2 at
+  | _ ->
+    ( stmts_1
+      @ stmts_2
+      @ [ Stmt.Assign (var, Expr.BinOpt (binop, e1, e2)) @> at ]
+    , Expr.Var var )
 
 let compile_triopt (triop : triopt) ((stmts_1, e1) : Stmt.t list * Expr.t)
   ((stmts_2, e2) : Stmt.t list * Expr.t) ((stmts_3, e3) : Stmt.t list * Expr.t)
@@ -354,16 +359,7 @@ let compile_const (c : const) : Stmt.t list * Expr.t =
   | MIN_VALUE -> ([], Expr.Val (Val.Flt 5e-324))
   | PI -> ([], Expr.Val (Val.Flt Float.pi))
 
-let rec compile_ebinopt (binop : EOperator.binopt) (e_e1 : EExpr.t)
-  (e_e2 : EExpr.t) (at : region) : Stmt.t list * Expr.t =
-  let x = generate_fresh_var () in
-  let (stmts_1, e1) = compile_expr at e_e1 in
-  let (stmts_2, e2) = compile_expr at e_e2 in
-  match binop with
-  | SCLogicalAnd -> compile_sc_and x stmts_1 e1 stmts_2 e2 at
-  | SCLogicalOr -> compile_sc_or x stmts_1 e1 stmts_2 e2 at
-
-and compile_unopt (op : unopt) (expr : EExpr.t) (at : region) :
+let rec compile_unopt (op : unopt) (expr : EExpr.t) (at : region) :
   Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
   let (stmts_expr, expr') = compile_expr at expr in
@@ -556,7 +552,6 @@ and compile_expr (at : region) (e_expr : EExpr.t) : Stmt.t list * Expr.t =
     let (stmts_2, e2') = compile_expr at e2 in
     let (stmts_3, e3') = compile_expr at e3 in
     compile_triopt op (stmts_1, e1') (stmts_2, e2') (stmts_3, e3') at
-  | EBinOpt (e_op, e_e1, e_e2) -> compile_ebinopt e_op e_e1 e_e2 at
   | UnOpt (op, e_e) -> compile_unopt op e_e at
   | NOpt (op, e_es) -> compile_nopt op e_es at
   | NewObj e_fes -> compile_newobj e_fes at

@@ -79,14 +79,6 @@ let binop_tkns (op : Operator.binopt) (e1 : EExpr.t) (e2 : EExpr.t) : tkn_t list
   | Operator.Pow -> [ Expr e1; opTkn; Expr e2 ]
   | _ -> call_tkns (Lit opStr) [ e1; e2 ]
 
-let ebinop_tkns (op : EOperator.binopt) (e1 : EExpr.t) (e2 : EExpr.t) :
-  tkn_t list =
-  let opStr = EOperator.str_of_binopt_single op in
-  let opTkn = Lit (" " ^ opStr ^ " ") in
-  match op with
-  | EOperator.SCLogicalAnd -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
-  | EOperator.SCLogicalOr -> [ Lit "("; Expr e1; opTkn; Expr e2; Lit ")" ]
-
 let triop_tkns (op : Operator.triopt) (e1 : EExpr.t) (e2 : EExpr.t)
   (e3 : EExpr.t) : tkn_t list =
   let opTkn = Lit (Operator.str_of_triopt_single op) in
@@ -106,7 +98,6 @@ let expr_tkns (expr : EExpr.t) : tkn_t list =
   | Const c -> [ Lit (Operator.str_of_const c) ]
   | UnOpt (op, e) -> unop_tkns op e
   | BinOpt (op, e1, e2) -> binop_tkns op e1 e2
-  | EBinOpt (op, e1, e2) -> ebinop_tkns op e1 e2
   | TriOpt (op, e1, e2, e3) -> triop_tkns op e1 e2 e3
   | NOpt (op, es) -> nopt_tkns op es
   | Call (Val (Val.Str fn), args, _) -> call_tkns (Str fn) args

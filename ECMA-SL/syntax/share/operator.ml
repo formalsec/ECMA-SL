@@ -109,6 +109,8 @@ type binopt =
   (* Logical operators *)
   | LogicalAnd
   | LogicalOr
+  | SCLogicalAnd
+  | SCLogicalOr
   (* Comparison operators *)
   | Eq
   | Lt
@@ -176,7 +178,8 @@ let is_infix_binopt (op : binopt) : bool =
   match op with
   | Plus | Minus | Times | Div | Modulo | Pow | BitwiseAnd | BitwiseOr
   | BitwiseXor | ShiftLeft | ShiftRight | ShiftRightLogical | LogicalAnd
-  | LogicalOr | Eq | Lt | Gt | Le | Ge | ObjectMem | ListMem ->
+  | LogicalOr | SCLogicalAnd | SCLogicalOr | Eq | Lt | Gt | Le | Ge | ObjectMem
+  | ListMem ->
     true
   | _ -> false
 
@@ -278,6 +281,8 @@ let label_of_binopt (op : binopt) : string =
   | ShiftRightLogical -> "Bitwise.shift_right_logical (>>>)"
   | LogicalAnd -> "Logical.and (&&)"
   | LogicalOr -> "Logical.or (||)"
+  | SCLogicalAnd -> "Logical.sc_and (&&&)"
+  | SCLogicalOr -> "Logical.sc_or (|||)"
   | Eq -> "Comp.eq (=)"
   | Lt -> "Comp.lt (<)"
   | Gt -> "Comp.gt (>)"
@@ -417,6 +422,8 @@ let pp_of_binopt_single (fmt : Fmt.t) (op : binopt) : unit =
   | ShiftRightLogical -> pp_str fmt ">>>"
   | LogicalAnd -> pp_str fmt "&&"
   | LogicalOr -> pp_str fmt "||"
+  | SCLogicalAnd -> pp_str fmt "&&&"
+  | SCLogicalOr -> pp_str fmt "|||"
   | Eq -> pp_str fmt "="
   | Lt -> pp_str fmt "<"
   | Gt -> pp_str fmt ">"

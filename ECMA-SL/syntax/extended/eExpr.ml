@@ -5,7 +5,6 @@ type t =
   | Const of Operator.const
   | UnOpt of Operator.unopt * t
   | BinOpt of Operator.binopt * t * t
-  | EBinOpt of EOperator.binopt * t * t  (** non-shared binary operators *)
   | TriOpt of Operator.triopt * t * t * t
   | NOpt of Operator.nopt * t list
   | Call of t * t list * string option
@@ -25,7 +24,6 @@ let rec str (e : t) : string =
   | GVar x -> "|" ^ x ^ "|"
   | Const c -> Operator.str_of_const c
   | UnOpt (op, e) -> Operator.str_of_unopt Fmt.pp_print_string op (str e)
-  | EBinOpt (op, e1, e2) -> EOperator.str_of_binopt op (str e1) (str e2)
   | BinOpt (op, e1, e2) ->
     Operator.str_of_binopt Fmt.pp_str op (str e1) (str e2)
   | TriOpt (op, e1, e2, e3) ->
@@ -87,7 +85,6 @@ let rec map (f : t -> t) (e : t) : t =
     match e with
     | Val _ | Var _ | Const _ | GVar _ | Symbolic _ -> e
     | UnOpt (op, e) -> UnOpt (op, mapf e)
-    | EBinOpt (op, e1, e2) -> EBinOpt (op, mapf e1, mapf e2)
     | BinOpt (op, e1, e2) -> BinOpt (op, mapf e1, mapf e2)
     | TriOpt (op, e1, e2, e3) -> TriOpt (op, mapf e1, mapf e2, mapf e3)
     | NOpt (op, es) -> NOpt (op, List.map mapf es)

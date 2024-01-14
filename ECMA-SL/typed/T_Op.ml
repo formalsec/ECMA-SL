@@ -117,6 +117,10 @@ let type_binop (op : Operator.binopt) : funcPrototype_t list =
     [ ([ EType.BooleanType; EType.BooleanType ], EType.BooleanType) ]
   | Operator.LogicalOr ->
     [ ([ EType.BooleanType; EType.BooleanType ], EType.BooleanType) ]
+  | Operator.SCLogicalAnd ->
+    [ ([ EType.BooleanType; EType.BooleanType ], EType.BooleanType) ]
+  | Operator.SCLogicalOr ->
+    [ ([ EType.BooleanType; EType.BooleanType ], EType.BooleanType) ]
   | Operator.Eq -> [ ([ EType.AnyType; EType.AnyType ], EType.BooleanType) ]
   | Operator.Lt -> [ ([ EType.AnyType; EType.AnyType ], EType.BooleanType) ]
   | Operator.Gt -> [ ([ EType.AnyType; EType.AnyType ], EType.BooleanType) ]
@@ -152,13 +156,6 @@ let type_binop (op : Operator.binopt) : funcPrototype_t list =
   | Operator.ListRemove -> notImplemented
   | Operator.ListRemoveNth -> notImplemented
   | Operator.TupleNth -> notImplemented
-
-let type_ebinop (op : EOperator.binopt) : funcPrototype_t list =
-  match op with
-  | EOperator.SCLogicalAnd ->
-    [ ([ EType.BooleanType; EType.BooleanType ], EType.BooleanType) ]
-  | EOperator.SCLogicalOr ->
-    [ ([ EType.BooleanType; EType.BooleanType ], EType.BooleanType) ]
 
 let type_triop (op : Operator.triopt) : funcPrototype_t list =
   let notImplemented =

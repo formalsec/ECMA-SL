@@ -363,8 +363,6 @@ expr_target:
     { EExpr.UnOpt (unopt, e) }
   | e1 = expr_target; binopt = binopt_infix_target; e2 = expr_target;
     { EExpr.BinOpt (binopt, e1, e2) }
-  | e1 = expr_target; ebinopt = ebinopt_infix_target; e2 = expr_target;
-    { EExpr.EBinOpt (ebinopt, e1, e2) }
   | binopt = binopt_call_target; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
     { EExpr.BinOpt (binopt, e1, e2) }
   | triopt = triopt_call_target; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; COMMA; e3 = expr_target; RPAREN;
@@ -473,6 +471,8 @@ tuple_target:
   | SHIFT_RIGHT_LOGICAL     { Operator.ShiftRightLogical }
   | LAND                    { Operator.LogicalAnd }
   | LOR                     { Operator.LogicalOr }
+  | SCLAND                  { Operator.SCLogicalAnd }
+  | SCLOR                   { Operator.SCLogicalOr }
   | EQ                      { Operator.Eq }
   | LT                      { Operator.Lt }
   | GT                      { Operator.Gt }
@@ -480,11 +480,6 @@ tuple_target:
   | GE                      { Operator.Ge }
   | OBJECT_MEM              { Operator.ObjectMem }
   | LIST_MEM                { Operator.ListMem }
-  ;
-
-%inline ebinopt_infix_target:
-  | SCLAND                  { EOperator.SCLogicalAnd }
-  | SCLOR                   { EOperator.SCLogicalOr }
   ;
 
 %inline unopt_call_target:
