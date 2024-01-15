@@ -1270,6 +1270,14 @@ function StringPrototyperepeat(global, this, NewTarget, strict, args){
 function StringPrototypeReplace(global, this, NewTarget, strict, args){
   n_args := l_len args;
 
+  print "Replace";
+  print this;
+  print NewTarget;
+
+  if (extern is_symbolic(this)) {
+    return extern str_symbol("app(str.replace)")
+  };
+
   if (n_args >= 1){
     searchValue := l_nth(args, 0)
   } else{
