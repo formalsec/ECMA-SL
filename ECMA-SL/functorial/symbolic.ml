@@ -131,6 +131,7 @@ module P = struct
           let thread = Thread.clone_mem thread in
           List.filter_map (return thread) locs
 
+    let pp = Memory.pp
     let pp_val = Memory.pp_val
   end
 

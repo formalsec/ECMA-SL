@@ -32,7 +32,7 @@ module M : Object_intf.S with type value = V.value = struct
     o
 
   let is_empty o = VMap.(is_empty o.fields && is_empty o.symbols)
-  let to_list o = VMap.to_list o.symbols @ VMap.to_list o.fields
+  let to_list o = VMap.bindings o.symbols @ VMap.bindings o.fields
 
   let get_fields o =
     let symbols = VMap.fold (fun key _ acc -> key :: acc) o.symbols [] in
@@ -115,15 +115,15 @@ module M : Object_intf.S with type value = V.value = struct
     | _ -> assert false
 
   let pp_map fmt v =
-    Format.pp_print_seq
-      ~pp_sep:(fun fmt () -> Format.fprintf fmt ",@ ")
+    let map_iter f m = VMap.iter (fun k d -> f (k, d)) m in
+    Fmt.pp_iter "," map_iter
       (fun fmt (key, data) ->
-        Format.fprintf fmt {|"%a": %a|} V.Pp.pp key V.Pp.pp data )
-      fmt (VMap.to_seq v)
+        Fmt.fprintf fmt {|"%a": %a|} V.Pp.pp key V.Pp.pp data )
+      fmt v
 
   let pp fmt { fields; symbols } =
-    Format.fprintf fmt "{ %a, %a }" pp_map fields pp_map symbols
+    Fmt.fprintf fmt "{ %a, %a }" pp_map fields pp_map symbols
 
-  let to_string o = Format.asprintf "%a" pp o
+  let to_string o = Fmt.asprintf "%a" pp o
   let to_json = to_string
 end
