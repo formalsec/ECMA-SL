@@ -698,7 +698,7 @@ function ObjectSeal(globalObject, this, NewTarget, strict, params) {
 
 function forbiddenSet(O, P, V, Receiver) {
   if (Receiver = getObjectPrototype(false)) {
-    se_abort("Prototype pollution detected!")
+    extern abort("Prototype pollution detected!")
   };
   return OrdinaryObjectSet(O, P, V, Receiver)
 };
