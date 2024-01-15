@@ -13,9 +13,6 @@ function createProcessObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(process, "arch", extern str_symbol("process.arch"));
   createBuiltInProperty(process, "execPath", extern str_symbol("process.execPath"));
   platform := extern str_symbol("process.platform");
-  extern assume(platform = "aix" || platform = "darwin" || platform = "freebsd"
-    || platform = "linux" || platform = "openbsd" || platform = "sunos"
-    || platform = "win32");
   createBuiltInProperty(process, "platform", platform);
 
   /* Should be a symbolic lazy object, but now it just keeps env empty */
