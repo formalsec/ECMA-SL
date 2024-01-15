@@ -10,7 +10,7 @@ module PC = struct
     let compare = compare
   end)
 
-  let to_list (s : t) = List.of_seq @@ to_seq s
+  let to_list (s : t) = elements s [@@inline]
 end
 
 module Thread = struct
@@ -33,8 +33,10 @@ module Thread = struct
   let mem t = t.mem
   let optimizer t = t.optimizer
 
-  let add_pc t (v : Encoding.Expr.t) =
-    match v.e with Val True -> t | _ -> { t with pc = PC.add v t.pc }
+  let add_pc t v =
+    match v.Encoding.Expr.e with
+    | Val True -> t
+    | _ -> { t with pc = PC.add v t.pc }
 
   let clone { solver; optimizer; pc; mem } =
     let mem = Memory.clone mem in
@@ -69,7 +71,7 @@ module List = struct
       | Val (Val.Bool b) -> [ (b, t) ]
       | _ ->
         let cond = Translator.translate v in
-        [ (Solver.check solver PC.(add cond pc |> to_list), t) ]
+        [ (Solver.check solver PC.(add cond pc |> elements), t) ]
 
   let check_add_true (v : Value.value) : bool t =
     let open Value in
@@ -80,7 +82,7 @@ module List = struct
       | Val (Val.Bool b) -> [ (b, t) ]
       | _ ->
         let cond' = Translator.translate v in
-        if Solver.check solver PC.(add cond' pc |> to_list) then
+        if Solver.check solver PC.(add cond' pc |> elements) then
           [ (true, Thread.add_pc t cond') ]
         else [ (false, t) ]
 
@@ -96,7 +98,7 @@ module List = struct
         let with_no = PC.add (Translator.translate @@ Value.Bool.not_ v) pc in
         let sat_true =
           if PC.equal with_v pc then true
-          else Solver.check solver (PC.to_list with_v)
+          else Solver.check solver (PC.elements with_v)
         in
         let sat_false =
           if PC.equal with_no pc then true

@@ -54,7 +54,7 @@ module P = struct
           let pc' = List.map Translator.translate pc in
           let pc' = PC.(union pc_thread (of_list pc')) in
           if PC.equal pc' pc_thread then Some (Some v, thread)
-          else if not (Solver.check solver (PC.to_list pc')) then None
+          else if not (Solver.check solver (PC.elements pc')) then None
           else Some (Some v, { thread with pc = pc' })
       in
       match vals with
@@ -97,7 +97,7 @@ module P = struct
           let pc' = List.map Translator.translate pc in
           let pc' = PC.(union pc_thread (of_list pc')) in
           if PC.equal pc' pc_thread then Some (Some v, thread)
-          else if not (Solver.check solver (PC.to_list pc')) then None
+          else if not (Solver.check solver (PC.elements pc')) then None
           else Some (Some v, { thread with pc = pc' })
       in
       match field_vals with
@@ -127,7 +127,7 @@ module P = struct
           let c' = Translator.translate c in
           let pc = PC.add c' pc in
           if PC.equal pc (Thread.pc thread) then Some (v, thread) else
-          if not (Solver.check solver (PC.to_list pc)) then None
+          if not (Solver.check solver (PC.elements pc)) then None
           else Some (v, { thread with pc })
       in
       match locs with
