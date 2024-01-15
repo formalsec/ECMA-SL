@@ -22,20 +22,7 @@ module M = struct
   let mk_list (_vs : value list) : value = assert false [@@inline]
   let mk_tuple (_fst, _snd) : value = assert false [@@inline]
   
-  let rec is_symbolic (v : value) : bool =
-    let open E in
-      match v.e with
-      | Val _ -> false
-      | Symbol _ -> true
-      | Unop (_, v) -> is_symbolic v
-      | Binop (_, v1, v2) -> is_symbolic v1 || is_symbolic v2
-      | Triop (_, v1, v2, v3) -> List.exists is_symbolic [ v1; v2; v3 ]
-      | Cvtop (_, v) -> is_symbolic v
-      | Relop (_, v1, v2) -> is_symbolic v1 || is_symbolic v2
-      | List vs | Tuple vs -> List.exists is_symbolic vs
-      | Array vs -> Array.exists is_symbolic vs
-      | App (_, vs) -> List.exists is_symbolic vs
-      | _ -> assert false
+  let is_symbolic (v : value) : bool = E.is_symbolic v
   
   let equal (e1 : value) (e2 : value) = E.equal e1 e2
 
@@ -80,6 +67,7 @@ module M = struct
   let rec eval_value (v : Val.t) : E.t =
     match v with
     | Val.Int n -> E.Val (V.Int n) @: T.Ty_int
+    | Val.Flt n -> E.Val (V.Real n) @: T.Ty_real
     | Val.Str s -> E.Val (V.Str s) @: T.Ty_str
     | Val.Bool true -> E.Val (V.True) @: T.Ty_bool 
     | Val.Bool false -> E.Val (V.False) @: T.Ty_bool
@@ -142,7 +130,7 @@ module M = struct
 
   let type_translation = function
     | Type.IntType -> T.Ty_int
-    | Type.FltType -> T.Ty_fp T.S32
+    | Type.FltType -> T.Ty_real
     | Type.BoolType -> T.Ty_bool
     | Type.StrType -> T.Ty_str
     | Type.ListType -> T.Ty_list
