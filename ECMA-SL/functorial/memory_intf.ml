@@ -1,3 +1,4 @@
+(* TODO: merge these type signatures *)
 module type S = sig
   type t
   type value

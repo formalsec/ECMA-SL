@@ -59,17 +59,13 @@ module Make (O : Object_intf.S with type value = V.value) = struct
         set h loc o' )
       obj
 
-  let pp_hashtbl ~pp_sep pp_v fmt v =
-    Format.pp_print_seq ~pp_sep pp_v fmt (Hashtbl.to_seq v)
-
   let rec pp fmt ({ data; parent } : t) =
-    let open Format in
-    let pp_sep fmt () = fprintf fmt ",@ " in
+    let open Fmt in
     let pp_v fmt (key, data) = fprintf fmt "%a: %a" Loc.pp key O.pp data in
-    let pp_parent fmt p =
-      pp_print_option (fun fmt h -> fprintf fmt "%a@ <-@ " pp h) fmt p
+    let pp_parent fmt v =
+      pp_opt (fun fmt h -> fprintf fmt "%a@ <-@ " pp h) fmt v
     in
-    fprintf fmt "%a{ %a }" pp_parent parent (pp_hashtbl ~pp_sep pp_v) data
+    fprintf fmt "%a{ %a }" pp_parent parent (pp_hashtbl ", " pp_v) data
 
   let rec unfold_ite ~(accum : value) (e : value) : (value option * string) list
       =
@@ -90,15 +86,15 @@ module Make (O : Object_intf.S with type value = V.value) = struct
     | TriOpt (Operator.ITE, c, Val (Val.Loc l), v) ->
       Ok ((Some c, l) :: unfold_ite ~accum:(UnOpt (Operator.LogicalNot, c)) v)
     | _ ->
-      Error (Format.asprintf "Value '%a' is not a loc expression" V.Pp.pp e)
+      Error (Fmt.asprintf "Value '%a' is not a loc expression" V.Pp.pp e)
 
   let pp_val (h : t) (e : value) : string =
     match e with
     | V.Val (Val.Loc l) -> (
       match get h l with
       | None -> l
-      | Some o -> Format.asprintf "%s -> %a" l O.pp o )
-    | _ -> Format.asprintf "%a" V.Pp.pp e
+      | Some o -> Fmt.asprintf "%s -> %a" l O.pp o )
+    | _ -> Fmt.asprintf "%a" V.Pp.pp e
 end
 
 module M :

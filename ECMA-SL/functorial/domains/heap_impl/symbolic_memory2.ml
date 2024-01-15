@@ -1,10 +1,12 @@
 module V = Symbolic_value.M
-module Object = S_object_branch_get
 open Syntax.Option
 
-module Make () : Memory_intf.S2 = struct
-  type value = V.value
-  type value2 = Encoding.Expr.t
+module Make
+    (Object : Object_intf.S2
+                with type value = V.value
+                 and type value2 = Encoding.Expr.t) : Memory_intf.S2 = struct
+  type value = Object.value
+  type value2 = Object.value2
   type object_ = Object.t
 
   type t =
@@ -71,7 +73,7 @@ module Make () : Memory_intf.S2 = struct
   let set_field heap loc ~field ~data solver pc =
     let obj = get heap loc in
     let res =
-      Option.bind obj (fun o -> Some (Object.set o field data solver pc))
+      Option.bind obj (fun o -> Some (Object.set o ~key:field ~data solver pc))
     in
     match res with
     | None -> Log.err "set Return is never none. loc: %s" loc
