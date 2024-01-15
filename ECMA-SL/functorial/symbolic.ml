@@ -5,8 +5,7 @@ module Memory = Symbolic_memory
 module Env = Link_env.Make (Memory)
 module Thread = Choice_monad.Thread
 module Translator = Value_translator
-
-let ( let* ) o f = match o with Error e -> failwith e | Ok o -> f o
+module PC = Choice_monad.PC
 
 module P = struct
   type value = Value.value
@@ -20,6 +19,8 @@ module P = struct
 
   module Choice = Choice_monad.List
   module Extern_func = Extern_func.Make (Value) (Choice)
+
+  let ( let*/ ) o f = match o with Error e -> failwith e | Ok o -> f o
 
   type extern_func = Extern_func.extern_func
   type env = extern_func Env.t
@@ -51,8 +52,10 @@ module P = struct
         | [] -> Some (Some v, thread)
         | _ ->
           let pc' = List.map Translator.translate pc in
-          if not (Solver.check solver (pc' @ pc_thread)) then None
-          else Some (Some v, List.fold_left Thread.add_pc thread pc')
+          let pc' = PC.(union pc_thread (of_list pc')) in
+          if PC.equal pc' pc_thread then Some (Some v, thread)
+          else if not (Solver.check solver (PC.to_list pc')) then None
+          else Some (Some v, { thread with pc = pc' })
       in
       match vals with
       | [] -> fun thread -> [ (None, thread) ]
@@ -61,7 +64,7 @@ module P = struct
           Option.fold ~none:[] ~some:(fun r -> [ r ]) (return thread (v, pc))
       | _ ->
         fun thread ->
-          let thread = Thread.clone_mem thread in
+          let thread = Thread.clone thread in
           List.filter_map (return thread) vals
 
     let delete o v = Object.delete o v [@@inline]
@@ -92,8 +95,10 @@ module P = struct
         | [] -> Some (Some v, thread)
         | _ ->
           let pc' = List.map Translator.translate pc in
-          if not (Solver.check solver (pc' @ pc_thread)) then None
-          else Some (Some v, List.fold_left Thread.add_pc thread pc')
+          let pc' = PC.(union pc_thread (of_list pc')) in
+          if PC.equal pc' pc_thread then Some (Some v, thread)
+          else if not (Solver.check solver (PC.to_list pc')) then None
+          else Some (Some v, { thread with pc = pc' })
       in
       match field_vals with
       | [] -> fun thread -> [ (None, thread) ]
@@ -102,7 +107,7 @@ module P = struct
           Option.fold ~none:[] ~some:(fun r -> [ r ]) (return thread (v, pc))
       | _ ->
         fun thread ->
-          let thread = Thread.clone_mem thread in
+          let thread = Thread.clone thread in
           List.filter_map (return thread) field_vals
 
     let set_field m loc ~field ~data = Memory.set_field m loc ~field ~data
@@ -112,7 +117,7 @@ module P = struct
     let to_string h = Format.asprintf "%a" Memory.pp h [@@inline]
 
     let loc v =
-      let* locs = Memory.loc v in
+      let*/ locs = Memory.loc v in
       let return thread (cond, v) =
         let pc = Thread.pc thread in
         let solver = Thread.solver thread in
@@ -120,8 +125,10 @@ module P = struct
         | None -> Some (v, thread)
         | Some c ->
           let c' = Translator.translate c in
-          if not (Solver.check solver (c' :: pc)) then None
-          else Some (v, Thread.add_pc thread c')
+          let pc = PC.add c' pc in
+          if PC.equal pc (Thread.pc thread) then Some (v, thread) else
+          if not (Solver.check solver (PC.to_list pc)) then None
+          else Some (v, { thread with pc })
       in
       match locs with
       | [] ->
@@ -133,7 +140,7 @@ module P = struct
           Option.fold ~none:[] ~some:(fun a -> [ a ]) (return thread (c, v))
       | _ ->
         fun thread ->
-          let thread = Thread.clone_mem thread in
+          let thread = Thread.clone thread in
           List.filter_map (return thread) locs
 
     let pp fmt v = Memory.pp fmt v [@@inline]

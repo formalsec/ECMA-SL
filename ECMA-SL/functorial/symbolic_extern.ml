@@ -1,5 +1,6 @@
 module Env = Symbolic.P.Env
 module SMap = Link_env.SMap
+module PC = Choice_monad.PC
 
 module type S = sig
   type extern_func
@@ -83,7 +84,7 @@ module Make () = struct
       let e' = Translator.translate e in
       let pc = Thread.pc thread in
       let solver = Thread.solver thread in
-      assert (Solver.check solver (e' :: pc));
+      assert (Solver.check solver (e' :: PC.to_list pc));
       let v = Solver.get_value solver e' in
       [ (Ok (Translator.expr_of_value v.e), thread) ]
     in
@@ -98,7 +99,7 @@ module Make () = struct
       let e' = Translator.translate e in
       let pc = Thread.pc thread in
       let opt = Thread.optimizer thread in
-      let v = optimize Optimizer.maximize opt e' pc in
+      let v = optimize Optimizer.maximize opt e' @@ PC.to_list pc in
       match v with
       | Some v -> [ (Ok (Translator.expr_of_value (Val v)), thread) ]
       | None ->
@@ -109,7 +110,7 @@ module Make () = struct
       let e' = Translator.translate e in
       let pc = Thread.pc thread in
       let opt = Thread.optimizer thread in
-      let v = optimize Optimizer.minimize opt e' pc in
+      let v = optimize Optimizer.minimize opt e' @@ PC.to_list pc in
       match v with
       | Some v -> [ (Ok (Translator.expr_of_value (Val v)), thread) ]
       | None ->
