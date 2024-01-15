@@ -95,8 +95,6 @@
   T_Constraint
   T_Pattern
   ;   symbolic
-  args_typing_unop
-  args_typing_binop
   choice_monad_intf
   choice_monad
   extern_func
@@ -113,7 +111,6 @@
   symbolic_memory2
   s_object_branch_get
   symbolic_value
-  type_of_val
   value_intf
   value_reducer
   value_translator
