@@ -507,7 +507,7 @@ function OrdinaryObjectGet(O, P, Receiver) {
     };
 
     /* Return Call(getter, Receiver). */
-    return Call(null, null, getter, Receiver, [ P ])
+    return Call(null, null, getter, Receiver, null)
 };
 
 /**
@@ -601,7 +601,7 @@ function OrdinaryObjectSet(O, P, V, Receiver) {
     };
 
     /* Let setterResult be Call(setter, Receiver, «V»). */
-    setterResult := Call(null, null, setter, Receiver, [ V, P ]);
+    setterResult := Call(null, null, setter, Receiver, [ V ]);
 
     /* ReturnIfAbrupt(setterResult). */
     @ReturnIfAbrupt(setterResult);
