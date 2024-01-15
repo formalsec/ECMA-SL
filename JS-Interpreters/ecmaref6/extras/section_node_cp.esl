@@ -1,7 +1,7 @@
 function exploit_if_symbolic(x) {
   if (extern is_symbolic(x)) {
    extern is_exec_sat(x);
-   se_abort(x)
+   extern abort(x)
   };
   return 0
 };
