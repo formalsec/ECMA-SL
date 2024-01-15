@@ -3,17 +3,27 @@ module Memory = Symbolic_memory
 module Translator = Value_translator
 module Optimizer = Encoding.Optimizer.Z3
 
+module PC = struct
+  include Set.Make (struct
+    include Encoding.Expr
+
+    let compare = compare
+  end)
+
+  let to_list (s : t) = List.of_seq @@ to_seq s
+end
+
 module Thread = struct
   type t =
     { solver : Solver.t
-    ; pc : Encoding.Expr.t list
+    ; pc : PC.t
     ; mem : Memory.t
     ; optimizer : Optimizer.t
     }
 
   let create () =
     { solver = Solver.create ()
-    ; pc = []
+    ; pc = PC.empty
     ; mem = Memory.create ()
     ; optimizer = Optimizer.create ()
     }
@@ -22,8 +32,13 @@ module Thread = struct
   let pc t = t.pc
   let mem t = t.mem
   let optimizer t = t.optimizer
-  let add_pc t v = { t with pc = v :: t.pc }
-  let clone_mem t = { t with mem = Memory.clone t.mem }
+
+  let add_pc t (v : Encoding.Expr.t) =
+    match v.e with Val True -> t | _ -> { t with pc = PC.add v t.pc }
+
+  let clone { solver; optimizer; pc; mem } =
+    let mem = Memory.clone mem in
+    { solver; optimizer; pc; mem }
 end
 
 module List = struct
@@ -54,7 +69,7 @@ module List = struct
       | Val (Val.Bool b) -> [ (b, t) ]
       | _ ->
         let cond = Translator.translate v in
-        [ (Solver.check solver (cond :: pc), t) ]
+        [ (Solver.check solver PC.(add cond pc |> to_list), t) ]
 
   let check_add_true (v : Value.value) : bool t =
     let open Value in
@@ -65,7 +80,7 @@ module List = struct
       | Val (Val.Bool b) -> [ (b, t) ]
       | _ ->
         let cond' = Translator.translate v in
-        if Solver.check solver (cond' :: pc) then
+        if Solver.check solver PC.(add cond' pc |> to_list) then
           [ (true, Thread.add_pc t cond') ]
         else [ (false, t) ]
 
@@ -77,18 +92,24 @@ module List = struct
       match v with
       | Val (Val.Bool b) -> [ (b, t) ]
       | _ -> (
-        let cond = Translator.translate v in
-        let no = Translator.translate @@ Value.Bool.not_ v in
-        let sat_true = Solver.check solver (cond :: pc) in
-        let sat_false = Solver.check solver (no :: pc) in
+        let with_v = PC.add (Translator.translate v) pc in
+        let with_no = PC.add (Translator.translate @@ Value.Bool.not_ v) pc in
+        let sat_true =
+          if PC.equal with_v pc then true
+          else Solver.check solver (PC.to_list with_v)
+        in
+        let sat_false =
+          if PC.equal with_no pc then true
+          else Solver.check solver (PC.to_list with_no)
+        in
         match (sat_true, sat_false) with
         | (false, false) -> []
-        | (true, false) -> [ (true, Thread.add_pc t cond) ]
-        | (false, true) -> [ (false, Thread.add_pc t no) ]
+        | (true, false) | (false, true) -> [ (sat_true, t) ]
         | (true, true) ->
-          let t0 = Thread.clone_mem t in
-          let t1 = Thread.clone_mem t in
-          [ (true, Thread.add_pc t0 cond); (false, Thread.add_pc t1 no) ] )
+          let t0 = Thread.clone t in
+          let t1 = Thread.clone t in
+          [ (true, { t0 with pc = with_v }); (false, { t1 with pc = with_no }) ]
+        )
 
   let select_val (v : Value.value) thread =
     match v with
