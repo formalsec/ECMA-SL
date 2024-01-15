@@ -19755,12 +19755,7 @@ body := __v19794
 __v19795 := extern is_symbolic(body);
 if (__v19795) {
 __v19796 := extern is_eval_sat(body);
-__v19797 := "se_abort"(___internal_esl_global, body);
-if (fst(__v19797)) {
-return __v19797
-} else {
-__v19797 := snd(__v19797)
-}
+__v19797 := extern abort(body)
 };
 __v19798 := "ToString"(___internal_esl_global, body);
 if (fst(__v19798)) {
@@ -25705,12 +25700,7 @@ function exploit_if_symbolic(___internal_esl_global, x) {
 __v18550 := extern is_symbolic(x);
 if (__v18550) {
 __v18551 := extern is_exec_sat(x);
-__v18552 := "se_abort"(___internal_esl_global, x);
-if (fst(__v18552)) {
-return __v18552
-} else {
-__v18552 := snd(__v18552)
-}
+__v18552 := extern abort(x)
 };
 return (false, 0)
 };
@@ -82935,12 +82925,7 @@ __v7299 := snd(__v7299)
 };
 __v7300 := Receiver = __v7299;
 if (__v7300) {
-__v7301 := "se_abort"(___internal_esl_global, "Prototype pollution detected!");
-if (fst(__v7301)) {
-return __v7301
-} else {
-__v7301 := snd(__v7301)
-}
+__v7301 := extern abort("Prototype pollution detected!")
 };
 __v7302 := "OrdinaryObjectSet"(___internal_esl_global, O, P, V, Receiver);
 if (fst(__v7302)) {
