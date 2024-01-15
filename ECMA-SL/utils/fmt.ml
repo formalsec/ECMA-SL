@@ -8,8 +8,8 @@ let pp_char (fmt : t) (c : char) : unit = pp_print_char fmt c
 let pp_str (fmt : t) (s : string) : unit = pp_print_string fmt s
 let pp_bool (fmt : t) (b : bool) : unit = pp_print_bool fmt b
 
-let pp_iter (sep : string) (iter : ('a -> 'b) -> 'c -> unit)
-  (pp_el : t -> 'a -> 'b) (fmt : t) (el : 'c) : unit =
+let pp_iter (sep : string) (iter : ('a -> unit) -> 'b -> unit)
+  (pp_el : t -> 'a -> unit) (fmt : t) (el : 'b) : unit =
   let is_first = ref true in
   let pp_el' el =
     if !is_first then is_first := false else pp_str fmt sep;
@@ -17,9 +17,10 @@ let pp_iter (sep : string) (iter : ('a -> 'b) -> 'c -> unit)
   in
   iter pp_el' el
 
-let pp_hashtbl (sep : string) (pp_el : t -> 'a -> 'b -> unit) (fmt : t)
+let pp_hashtbl (sep : string) (pp_el : t -> ('a * 'b) -> unit) (fmt : t)
   (htbl : ('a, 'b) Hashtbl.t) =
-  pp_iter sep Hashtbl.iter pp_el fmt htbl
+  let hashtbl_iter f tbl = Hashtbl.iter (fun a b -> f (a, b)) tbl in
+  pp_iter sep hashtbl_iter pp_el fmt htbl
 
 let pp_arr (sep : string) (pp_el : t -> 'a -> unit) (fmt : t) (arr : 'a array) =
   pp_iter sep Array.iter pp_el fmt arr

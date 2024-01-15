@@ -24,6 +24,7 @@ let add_func (prog : t) (fn : string) (f : Func.t) : unit =
   Hashtbl.replace prog fn f
 
 let pp (fmt : Fmt.t) (prog : t) : unit =
-  Fmt.(fprintf fmt "%a" (pp_hashtbl ";\n" (fun fmt _ v -> Func.pp fmt v)) prog)
+  Fmt.(
+    fprintf fmt "%a" (pp_hashtbl ";\n" (fun fmt (_, v) -> Func.pp fmt v)) prog )
 
 let str (prog : t) : string = Fmt.asprintf "%a" pp prog

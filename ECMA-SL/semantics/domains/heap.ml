@@ -47,7 +47,7 @@ let get_field (heap : 'a t) (l : Loc.t) (fn : string) : ('a, string) Result.t =
 
 let pp (pp_obj : Fmt.t -> 'a obj -> unit) (fmt : Fmt.t) (heap : 'a t) : unit =
   let open Fmt in
-  let pp_binding fmt x obj = fprintf fmt "%s: %a" x pp_obj obj in
+  let pp_binding fmt (x, obj) = fprintf fmt "%s: %a" x pp_obj obj in
   if Hashtbl.length heap.map = 0 then pp_str fmt "{}"
   else fprintf fmt "{ %a }" (pp_hashtbl ", " pp_binding) heap.map
 
@@ -57,7 +57,7 @@ let pp_tabular (pp_obj : Fmt.t -> 'a obj -> unit) (fmt : Fmt.t) (heap : 'a t) :
   let lengths = Hashtbl.to_seq_keys heap.map |> Seq.map String.length in
   let max = Seq.fold_left Int.max 0 lengths in
   let indent x = String.make (max - String.length x) ' ' in
-  let pp_binding fmt x v = fprintf fmt "%s%s  <-  %a" (indent x) x pp_obj v in
+  let pp_binding fmt (x, v) = fprintf fmt "%s%s  <-  %a" (indent x) x pp_obj v in
   fprintf fmt "%a" (pp_hashtbl "\n" pp_binding) heap.map
 
 let str ?(tabular : bool = false) (pp_obj : Fmt.t -> 'a obj -> unit)
