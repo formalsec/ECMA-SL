@@ -703,11 +703,6 @@ function OrdinaryObjectEnumerateAux(O) {
     }
   };
 
-<<<<<<< HEAD
-=======
-  print("debugKeys");
-  print(retKeys);
->>>>>>> 5791d9dd7 (Adds Javascript sealProperties functions)
   return retKeys
 };
 

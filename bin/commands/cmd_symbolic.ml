@@ -1,6 +1,7 @@
 open Bos
 open Ecma_sl
 open Syntax.Result
+module PC = Choice_monad.PC
 module Env = Symbolic.P.Env
 module Value = Symbolic.P.Value
 module Choice = Symbolic.P.Choice
@@ -82,7 +83,7 @@ let serialize_thread ~workspace =
   fun ?(witness :
          [> `Abort of string | `Assert_failure of Extern_func.value ] option )
     thread ->
-    let pc = Thread.pc thread in
+    let pc = PC.to_list @@ Thread.pc thread in
     Log.debug "  path cond : %a@." Encoding.Expr.pp_list pc;
     let solver = Thread.solver thread in
     assert (Solver.check solver pc);
