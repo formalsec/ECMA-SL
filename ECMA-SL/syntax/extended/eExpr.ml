@@ -14,6 +14,16 @@ type t =
   | Curry of t * t list
   | Symbolic of Type.t * t
 
+module Parser = struct
+  let parse_object_fields (flds : (string * t) list) : (string * t) list =
+    let check_duplicates checked (fn, _) =
+      if not (Hashtbl.mem checked fn) then Hashtbl.replace checked fn ()
+      else failwith "TEMP: Replace by Eslerr.Compile.DuplicateField"
+    in
+    List.iter (check_duplicates (Hashtbl.create (List.length flds))) flds;
+    flds
+end
+
 let rec pp (fmt : Fmt.t) (e : t) : unit =
   let open Fmt in
   match e with
@@ -54,16 +64,6 @@ let rec map (mapper : t -> t) (e : t) : t =
   | NewObj flds -> NewObj (List.map (fun (fn, fe) -> (fn, map' fe)) flds)
   | Lookup (oe, fe) -> Lookup (map' oe, map' fe)
   | Curry (fe, es) -> Curry (map' fe, List.map map' es)
-
-module Parser = struct
-  let parse_object_fields (flds : (string * t) list) : (string * t) list =
-    let check_duplicates checked (fn, _) =
-      if not (Hashtbl.mem checked fn) then Hashtbl.replace checked fn ()
-      else failwith "TEMP: Replace by Eslerr.Compile.DuplicateField"
-    in
-    List.iter (check_duplicates (Hashtbl.create (List.length flds))) flds;
-    flds
-end
 
 (* FIXME: Requires cleaning below *)
 type subst_t = (string, t) Hashtbl.t

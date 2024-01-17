@@ -160,6 +160,10 @@ let rec str (t : t) : string =
   | RuntimeType t' -> "runtime(" ^ Type.str t' ^ ")"
   | UserDefinedType t' -> t'
 
+let pp (fmt : Fmt.t) (t : t) =
+  (* FIXME: Change to pp formatting *)
+  Fmt.fprintf fmt "%s" (str t)
+
 let pp_tannot (fmt : Fmt.t) (t : t option) =
   let open Fmt in
   let pp_type fmt t = fprintf fmt ": %s" (str t) in
