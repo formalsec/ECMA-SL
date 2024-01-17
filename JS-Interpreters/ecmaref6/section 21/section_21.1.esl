@@ -1275,7 +1275,7 @@ function StringPrototypeReplace(global, this, NewTarget, strict, args){
   print NewTarget;
 
   if (extern is_symbolic(this)) {
-    return extern str_symbol("app(str.replace)")
+    return extern str_symbol("app str.replace")
   };
 
   if (n_args >= 1){

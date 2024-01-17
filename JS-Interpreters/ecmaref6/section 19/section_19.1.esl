@@ -961,12 +961,6 @@ function ObjectPrototypeValueOf(globalObject, this, NewTarget, strict, params) {
 
 /* Auxiliary functions */
 function getObjectPrototype(strict) {
-  /* refObj := newPropertyReference(|global|, "Object", strict);
-  ObjectObject := GetValue(refObj);
-
-  refObjProto := newPropertyReference(ObjectObject, "prototype", strict);
-  objectObjectProto := GetValue(refObjProto); */
-
   return |Intrinsics|["ObjectPrototype"]
 };
 
