@@ -263,8 +263,8 @@ stmt_target:
     meta = delimited(LBRACK, stmt_metadata_target, RBRACK);
     varmeta = var_opt_metadata_target; s = block_target;
     { EStmt.ForEach (x, e, s, meta, varmeta) @> at $sloc }
-  | REPEAT; meta = stmt_opt_metadata_target; s = block_target; e = option(until_target);
-    { EStmt.RepeatUntil (s, (Option.value ~default:(EExpr.Val (Val.Bool false)) e), meta) @> at $sloc }
+  | REPEAT; meta = stmt_opt_metadata_target; s = block_target; until = option(until_target);
+    { EStmt.RepeatUntil (s, until, meta) @> at $sloc }
   | SWITCH; LPAREN; e = expr_target; RPAREN; meta = switch_case_opt_metadata_target; LBRACE; 
     cases = list(switch_case_target); default_case = option(switch_case_default_target) RBRACE;
     { EStmt.Switch (e, cases, default_case, meta) @> at $sloc }
