@@ -23,15 +23,25 @@ module Make (O : Object_intf.S with type value = V.value) = struct
   let set ({ data = memory; _ } : t) (key : Loc.t) (data : object_) : unit =
     Hashtbl.replace memory key data
 
-  let rec get ({ parent; data } as h : t) (key : Loc.t) : object_ option =
+  let find memory l =
     let open Syntax.Option in
-    match Hashtbl.find_opt data key with
-    | Some _ as result -> result
-    | None ->
-      let* parent in
-      let+ obj = get parent key in
+    let rec aux { parent; data } l from_parent =
+      match Hashtbl.find_opt data l with
+      | Some o -> Some (o, from_parent)
+      | None ->
+        let* parent in
+        aux parent l true
+    in
+    aux memory l false
+
+  let get memory l =
+    let open Syntax.Option in
+    let+ (obj, from_parent) = find memory l in
+    match from_parent with
+    | false -> obj
+    | true ->
       let obj = O.clone obj in
-      set h key obj;
+      set memory l obj;
       obj
 
   let has_field (h : t) (loc : Loc.t) (field : value) : value =
