@@ -77,7 +77,7 @@
   NSULevel_Dep
   ;   semantics (extended)
   compiler
-  E_Func_Metadata
+  EFunc_metadata
   EPat_metadata
   ; typed
   T_Checker

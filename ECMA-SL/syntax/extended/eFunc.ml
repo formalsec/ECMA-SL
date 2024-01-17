@@ -3,69 +3,50 @@ open Source
 type t = t' Source.phrase
 
 and t' =
-  { metadata : E_Func_Metadata.t option
-  ; name : string
-  ; params_t : (string * EType.t option) list
-  ; return_t : EType.t option
-  ; (* list_param: list_param_t option; *)
-    body : EStmt.t
+  { name : string
+  ; tparams : (string * EType.t option) list
+  ; treturn : EType.t option
+  ; body : EStmt.t
+  ; metadata : EFunc_metadata.t option
   }
-
-(* type list_param_t = string list * string list * string option *)
-(* required, optionals, summary_list *)
-(* target -> list_param_t_target *)
-
-let create (metadata : E_Func_Metadata.t option) (name : string)
-  (params_t : (string * EType.t option) list) (return_t : EType.t option)
-  (body : EStmt.t) : t' =
-  { metadata; name; params_t; return_t; body }
 
 let default () : t' =
-  { metadata = None
-  ; name = ""
-  ; params_t = []
-  ; return_t = None
+  { name = ""
+  ; tparams = []
+  ; treturn = None
   ; body = EStmt.default ()
+  ; metadata = None
   }
 
-let get_name (func : t) : string = func.it.name
-let get_params_t (func : t) : (string * EType.t option) list = func.it.params_t
-let get_return_t (func : t) : EType.t option = func.it.return_t
-let get_body (func : t) : EStmt.t = func.it.body
-let get_metadata (func : t) : E_Func_Metadata.t option = func.it.metadata
-let print_list (lis : string list) : string = String.concat ", " lis
+let create (name : string) (tparams : (string * EType.t option) list)
+  (treturn : EType.t option) (body : EStmt.t)
+  (metadata : EFunc_metadata.t option) : t' =
+  { name; tparams; treturn; body; metadata }
 
-let get_params (func : t) : string list =
-  List.map (fun p -> fst p) func.it.params_t
+let name (f : t) : string = f.it.name
+let tparams (f : t) : (string * EType.t option) list = f.it.tparams
+let params (f : t) : string list = List.map fst f.it.tparams
+let treturn (f : t) : EType.t option = f.it.treturn
+let body (f : t) : EStmt.t = f.it.body
+let metadata (f : t) : EFunc_metadata.t option = f.it.metadata
 
-let get_tparams (func : t) : EType.t list =
-  List.map
-    (fun (_, t) -> Option.value ~default:EType.AnyType t)
-    func.it.params_t
+let pp_signature (fmt : Fmt.t) (f : t) : unit =
+  let open Fmt in
+  let { name; tparams; treturn; _ } = f.it in
+  let pp_tparam fmt (param, t) = fprintf fmt "%s%a" param EType.pp_tannot t in
+  fprintf fmt "function %s(%a)%a" name (pp_lst ", " pp_tparam) tparams
+    EType.pp_tannot treturn
 
-let create_store (func : t) (vals : Val.t list) : Val.t Store.t =
-  let params = get_params func in
-  let varvals = List.combine params vals in
-  Store.create varvals
+let pp (fmt : Fmt.t) (f : t) : unit =
+  Fmt.fprintf fmt "%a %a" pp_signature f EStmt.pp f.it.body
 
-let str (func : t) : string =
-  let param_str (p : string) (t : EType.t option) : string =
-    match t with None -> p | Some t' -> p ^ ": " ^ EType.str t'
-  in
-  let return_str (return_t : EType.t option) : string =
-    match return_t with
-    | None -> ""
-    | Some return_t' -> ": " ^ EType.str return_t'
-  in
-  let params_str = List.map (fun (p, t) -> param_str p t) func.it.params_t in
-  "function "
-  ^ func.it.name
-  ^ " ("
-  ^ print_list params_str
-  ^ ") "
-  ^ return_str func.it.return_t
-  ^ EStmt.str func.it.body
+let pp_simple (fmt : Fmt.t) (f : t) : unit =
+  Fmt.fprintf fmt "%a {..." pp_signature f
 
+let str ?(simple : bool = false) (f : t) : string =
+  if simple then Fmt.asprintf "%a" pp_simple f else Fmt.asprintf "%a" pp f
+
+(* FIXME: Requires cleaning below *)
 let apply_macros (f : t) (macros : string -> EMacro.t option) : t =
   let new_body = EMacro.apply_macros_stmt macros f.it.body in
   { f with it = { f.it with body = new_body } }
