@@ -253,14 +253,8 @@ stmt_target:
     { EStmt.FieldAssign (oe, fe, e) @> at $sloc }
   | DELETE; oe = expr_target; fe = lookup_target;
     { EStmt.FieldDelete (oe, fe) @> at $sloc }
-  | ifcs = if_target; elsecs = option(else_target);
-    {
-      let (e, s1, meta1) = ifcs in
-      let (s2, meta2) = match elsecs with | None -> (None, []) | Some (s, meta) -> (Some s, meta) in
-      EStmt.If (e, s1, s2, meta1, meta2) @> at $sloc
-    }
-  | ifcs = if_target; elifcss = nonempty_list(elif_target); elsecs = option(else_target);
-    { EStmt.EIf (ifcs :: elifcss, elsecs) @> at $sloc }
+  | ifcs = if_target; elifcss = list(elif_target); elsecs = option(else_target);
+    { EStmt.If (ifcs :: elifcss, elsecs) @> at $sloc }
   | WHILE; LPAREN; e = expr_target; RPAREN; s = block_target;
     { EStmt.While (e, s) @> at $sloc }
   | FOREACH; LPAREN; x = ID; COLON; e = expr_target; RPAREN; s = block_target;

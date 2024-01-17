@@ -18,8 +18,7 @@ and t' =
   | GlobAssign of string * EExpr.t
   | FieldAssign of EExpr.t * EExpr.t * EExpr.t
   | FieldDelete of EExpr.t * EExpr.t
-  | If of EExpr.t * t * t option * metadata_t list * metadata_t list
-  | EIf of (EExpr.t * t * metadata_t list) list * (t * metadata_t list) option
+  | If of (EExpr.t * t * metadata_t list) list * (t * metadata_t list) option
   | While of EExpr.t * t
   | ForEach of string * EExpr.t * t * metadata_t list * (string * string) option
   | RepeatUntil of t * EExpr.t * metadata_t list
@@ -49,12 +48,8 @@ let rec pp (fmt : Fmt.t) (s : t) : unit =
     fprintf fmt "%a[%a] := %a" EExpr.pp oe EExpr.pp emapper EExpr.pp e
   | FieldDelete (oe, emapper) ->
     fprintf fmt "delete %a[%a]" EExpr.pp oe EExpr.pp emapper
-  | If (e, s1, s2, _, _) ->
-    let pp_else fmt s2 = fprintf fmt " else %a" pp s2 in
-    fprintf fmt "if (%a) %a%a" EExpr.pp e pp s1 (pp_opt pp_else) s2
-  | EIf ([], _) ->
-    Eslerr.(internal __FUNCTION__ (Expecting "non-empty if cases"))
-  | EIf (ifcs :: elifcss, elsecs) ->
+  | If ([], _) -> Eslerr.(internal __FUNCTION__ (Expecting "non-empty if cases"))
+  | If (ifcs :: elifcss, elsecs) ->
     let pp_if fmt (e, s, _) = fprintf fmt "if (%a) %a" EExpr.pp e pp s in
     let pp_elif fmt (e, s, _) = fprintf fmt " elif (%a) %a" EExpr.pp e pp s in
     let pp_else fmt (s, _) = fprintf fmt " else %a" pp s in
@@ -105,12 +100,10 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = fun e -> e) (mapper : t -> t)
   | GlobAssign (x, e) -> GlobAssign (var_mapper x, emapper e)
   | FieldAssign (oe, fe, e) -> FieldAssign (emapper oe, emapper fe, emapper e)
   | FieldDelete (oe, fe) -> FieldDelete (emapper oe, emapper fe)
-  | If (e, s1, s2, meta1, meta2) ->
-    If (emapper e, map' s1, Option.map map' s2, meta1, meta2)
-  | EIf (ifcs, elsecs) ->
+  | If (ifcs, elsecs) ->
     let map_ifcs (e, s, meta) = (emapper e, map' s, meta) in
     let map_elsecs (s, meta) = (map' s, meta) in
-    EIf (List.map map_ifcs ifcs, Option.map map_elsecs elsecs)
+    If (List.map map_ifcs ifcs, Option.map map_elsecs elsecs)
   | While (e, s') -> While (emapper e, map' s')
   | ForEach (x, e, s', meta, var_meta) ->
     ForEach (var_mapper x, emapper e, map' s', meta, var_meta)
@@ -139,7 +132,6 @@ let subst (sbst : EExpr.subst_t) (s : t) : t =
 let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
   let f' = to_list is_rec f in
   let f_stmts stmts = List.concat (List.map f' stmts) in
-  let f_o so = Option.fold ~some:f' ~none:[] so in
   let f_pat pats = List.concat (List.map (fun (_, s) -> f' s) pats) in
   let f_cases cases = List.map (fun (_, s) -> s) cases in
   let f_if_elses if_elses = List.map (fun (_, s, _) -> s) if_elses in
@@ -154,8 +146,7 @@ let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
         []
       | Debug s' -> f' s'
       | Block stmts -> f_stmts stmts
-      | If (_e, st, sf, _, _) -> f' st @ f_o sf
-      | EIf (ifs, final_else) ->
+      | If (ifs, final_else) ->
         f_stmts
           ( f_if_elses ifs
           @ Option.fold ~some:(fun (s, _) -> [ s ]) ~none:[] final_else )
