@@ -9,7 +9,7 @@ let type_main_func (tctx : T_Ctx.t) : T_Err.t list =
   match T_Ctx.get_func_by_name tctx "main" with
   | None -> [ T_Err.create T_Err.MissingMainFunc ]
   | Some func ->
-    let params = EFunc.get_params func in
+    let params = EFunc.params func in
     if List.length params = 0 then []
     else
       let tkn = T_Err.str_tkn (List.nth params 0) in
@@ -18,7 +18,7 @@ let type_main_func (tctx : T_Ctx.t) : T_Err.t list =
 let type_function_params (tctx : T_Ctx.t) (func : EFunc.t) : unit =
   let _tparam = function None -> EType.AnyType | Some t -> t in
   let _ = T_Ctx.tenv_reset tctx in
-  let tparams = EFunc.get_params_t func in
+  let tparams = EFunc.tparams func in
   List.iter
     (fun (param, tparam) ->
       match T_Ctx.tenv_find tctx param with
@@ -34,7 +34,7 @@ let type_function_params (tctx : T_Ctx.t) (func : EFunc.t) : unit =
 let test_function_return (tctx : T_Ctx.t) (func : EFunc.t) : unit =
   if T_Ctx.get_tstate tctx = T_Ctx.Normal then
     T_Err.raise T_Err.OpenCodePath ~src:(T_Err.func_tkn func)
-      ~tkn:(T_Err.str_tkn (EFunc.get_name func))
+      ~tkn:(T_Err.str_tkn (EFunc.name func))
 
 let type_function (tctx : T_Ctx.t) (func : EFunc.t) : T_Err.t list =
   let _throwToErrLst targetFunc =
@@ -44,7 +44,7 @@ let type_function (tctx : T_Ctx.t) (func : EFunc.t) : T_Err.t list =
   let _ = T_Ctx.set_func tctx func in
   let _ = T_Ctx.set_tstate tctx T_Ctx.Normal in
   let terrsParams = _throwToErrLst type_function_params in
-  let terrsCode = T_Stmt.type_stmt tctx (EFunc.get_body func) in
+  let terrsCode = T_Stmt.type_stmt tctx (EFunc.body func) in
   let terrsReturn = _throwToErrLst test_function_return in
   List.concat [ terrsParams; terrsCode; terrsReturn ]
 

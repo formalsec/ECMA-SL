@@ -689,9 +689,9 @@ C_f(function main () { s }) =
    }
 *)
 let compile_func (e_func : EFunc.t) : Func.t =
-  let fname = EFunc.get_name e_func in
-  let fparams = EFunc.get_params e_func in
-  let fbody = EFunc.get_body e_func in
+  let fname = EFunc.name e_func in
+  let fparams = EFunc.params e_func in
+  let fbody = EFunc.body e_func in
   let stmt_list = compile_stmt fbody in
   if fname = __MAIN_FUNC__ then
     let asgn_new_obj = Stmt.AssignNewObj __INTERNAL_ESL_GLOBAL__ @> no_region in
