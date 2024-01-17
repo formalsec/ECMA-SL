@@ -93,4 +93,5 @@ import "ecmaref6/extras/section_symbolic.esl";
 
 import "ecmaref6/internal_representations/objects.esl";
 import "ecmaref6/internal_representations/lazy_object.esl";
+import "ecmaref6/internal_representations/polluted_object.esl";
 import "ecmaref6/internal_representations/descriptors.esl";

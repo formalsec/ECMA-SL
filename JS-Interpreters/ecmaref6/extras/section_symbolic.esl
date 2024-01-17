@@ -30,6 +30,10 @@ function __symLazyObject(globalObject, this, NewTarget, strict, params) {
   return newLazyObject()
 };
 
+function __symPollutedObject(globalObject, this, NewTarget, strict, params) {
+  return newPollutedObject()
+};
+
 function initESLSymbolicObject(globalObject, objectPrototype, strict) {
   realm := { globalEnv : globalObject };
   esl_symbolic := NewECMAScriptObject();
@@ -72,6 +76,11 @@ function initESLSymbolicObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(esl_symbolic, "lazy_object", apiLazyObject);
   createBuiltInProperty(esl_symbolic, "function", apiLazyObject);
   createBuiltInProperty(apiLazyObject, "prototype", objectPrototype);
+
+  apiPollutedObject := CreateBuiltInFunctionObject([], "__symPollutedObject",
+    realm, strict, null);
+  createBuiltInProperty(esl_symbolic, "polluted_object", apiPollutedObject);
+  createBuiltInProperty(apiPollutedObject, "pototoype", objectPrototype);
 
   return esl_symbolic
 }
