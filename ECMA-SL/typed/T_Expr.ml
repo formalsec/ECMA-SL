@@ -65,6 +65,10 @@ let test_nargs (_tctx : T_Ctx.t) (expr : EExpr.t) (args : EExpr.t list)
       (T_Err.NExpectedArgs (nparams, nargs))
       ~tkn:(T_Err.expr_tkn expr)
 
+let get_tparams (func : EFunc.t) : EType.t list =
+  let open EFunc in
+  List.map (fun (_, t) -> Option.value ~default:EType.AnyType t) func.it.tparams
+
 let type_named_call (tctx : T_Ctx.t) (expr : EExpr.t) (fname : string)
   (args : EExpr.t list) : EType.t list * EType.t =
   let _check_abrupt tret =
@@ -72,8 +76,8 @@ let type_named_call (tctx : T_Ctx.t) (expr : EExpr.t) (fname : string)
   in
   match T_Ctx.get_func_by_name tctx fname with
   | Some func ->
-    let tparams = EFunc.get_tparams func in
-    let tret = Option.value ~default:EType.AnyType (EFunc.get_return_t func) in
+    let tparams = get_tparams func in
+    let tret = Option.value ~default:EType.AnyType (EFunc.treturn func) in
     let _ = _check_abrupt tret in
     test_nargs tctx expr args tparams |> fun () -> (tparams, tret)
   | None -> T_Err.raise (T_Err.UnknownFunction fname) ~tkn:(T_Err.str_tkn fname)

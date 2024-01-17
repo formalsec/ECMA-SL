@@ -56,7 +56,7 @@ let set_stmt (tctx : t) (stmt : EStmt.t) : unit = tctx.stmt <- stmt
 let get_tstate (tctx : t) : tstate_t = tctx.state
 let get_tenv (tctx : t) : tenv_t = tctx.tenv
 let set_tstate (tctx : t) (state : tstate_t) : unit = tctx.state <- state
-let get_curr_return_t (tctx : t) : EType.t option = EFunc.get_return_t tctx.func
+let get_curr_return_t (tctx : t) : EType.t option = EFunc.treturn tctx.func
 
 let get_func_by_name (tctx : t) (fname : string) : EFunc.t option =
   EProg.get_func_opt tctx.prog fname

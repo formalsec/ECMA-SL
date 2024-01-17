@@ -206,21 +206,21 @@ typedef_target:
 (* ==================== Functions ==================== *)
 
 func_target:
-  | FUNCTION; fn = ID; LPAREN; vars = params_target; RPAREN;
-    tret = option(e_typing_target); s = block_target;
-    { EFunc.create None fn vars tret s @> at $sloc }
-  | FUNCTION; fn = ID; LPAREN; vars = params_target; RPAREN; meta = delimited(LBRACK, vals_metadata_target, RBRACK); 
-    vars_meta = vars_opt_metadata_target; tret = option(e_typing_target); s = block_target;
-    { EFunc.create (Some (E_Func_Metadata.build_func_metadata meta vars_meta)) fn vars tret s @> at $sloc }
+  | FUNCTION; fn = ID; LPAREN; tparams = params_target; RPAREN;
+    treturn = option(e_typing_target); s = block_target;
+    { EFunc.create fn tparams treturn s None @> at $sloc }
+  | FUNCTION; fn = ID; LPAREN; tparams = params_target; RPAREN; meta = delimited(LBRACK, vals_metadata_target, RBRACK); 
+    vars_meta = vars_opt_metadata_target; treturn = option(e_typing_target); s = block_target;
+    { EFunc.create fn tparams treturn s (Some (EFunc_metadata.build_func_metadata meta vars_meta)) @> at $sloc }
 
 params_target:
-  | params = separated_list(COMMA, param_target);
-    { params }
+  | tparams = separated_list(COMMA, param_target);
+    { tparams }
   ;
 
 param_target:
-  | v = ID; t = option(e_typing_target)
-    { (v, t) }
+  | param = ID; t = option(e_typing_target)
+    { (param, t) }
 
 (* ==================== Macros ==================== *)
 

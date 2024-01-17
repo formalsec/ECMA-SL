@@ -26,7 +26,7 @@ let add_typedefs (prog : t) (typedefs : (string * EType.t) list) =
 let add_funcs (prog : t) (funcs : EFunc.t list) : unit =
   List.iter
     (fun (f : EFunc.t) ->
-      let fname = EFunc.get_name f in
+      let fname = EFunc.name f in
       match Hashtbl.find_opt prog.funcs fname with
       | None -> Hashtbl.replace prog.funcs fname f
       | Some _ ->
