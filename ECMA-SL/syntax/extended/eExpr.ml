@@ -9,7 +9,7 @@ type t =
   | NOpt of Operator.nopt * t list
   | Call of t * t list * string option
   | ECall of string * t list
-  | NewObj of (string * t) list
+  | NewObj of (string * t) List.t
   | Lookup of t * t
   | Curry of t * t list
   | Symbolic of Type.t * t
@@ -29,10 +29,10 @@ let rec pp (fmt : Fmt.t) (e : t) : unit =
     let pp_catch fmt ferr = fprintf fmt " catch %s" ferr in
     fprintf fmt "%a(%a)%a" pp fe (pp_lst ", " pp) es (pp_opt pp_catch) ferr
   | ECall (fn, es) -> fprintf fmt "extern %s(%a)" fn (pp_lst ", " pp) es
-  | NewObj [] -> pp_str fmt "{}"
   | NewObj flds ->
     let pp_fld fmt (fn, fe) = fprintf fmt "%s: %a" fn pp fe in
-    fprintf fmt "{ %a }" (pp_lst ", " pp_fld) flds
+    if List.is_empty flds then pp_str fmt "{}"
+    else fprintf fmt "{ %a }" (pp_lst ", " pp_fld) flds
   | Lookup (oe, fe) -> fprintf fmt "%a[%a]" pp oe pp fe
   | Curry (fe, es) -> fprintf fmt "{%a}@(%a)" pp fe (pp_lst ", " pp) es
   | Symbolic (t, e') -> fprintf fmt "se_mk_symbolic(%a, %a)" Type.pp t pp e'
@@ -54,6 +54,16 @@ let rec map (mapper : t -> t) (e : t) : t =
   | NewObj flds -> NewObj (List.map (fun (fn, fe) -> (fn, map' fe)) flds)
   | Lookup (oe, fe) -> Lookup (map' oe, map' fe)
   | Curry (fe, es) -> Curry (map' fe, List.map map' es)
+
+module Parser = struct
+  let parse_object_fields (flds : (string * t) list) : (string * t) list =
+    let check_duplicates checked (fn, _) =
+      if not (Hashtbl.mem checked fn) then Hashtbl.replace checked fn ()
+      else failwith "TEMP: Replace by Eslerr.Compile.DuplicateField"
+    in
+    List.iter (check_duplicates (Hashtbl.create (List.length flds))) flds;
+    flds
+end
 
 (* FIXME: Requires cleaning below *)
 type subst_t = (string, t) Hashtbl.t
