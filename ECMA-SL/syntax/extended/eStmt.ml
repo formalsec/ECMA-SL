@@ -21,7 +21,7 @@ and t' =
   | If of (EExpr.t * t * metadata_t list) list * (t * metadata_t list) option
   | While of EExpr.t * t
   | ForEach of string * EExpr.t * t * metadata_t list * (string * string) option
-  | RepeatUntil of t * EExpr.t * metadata_t list
+  | RepeatUntil of t * EExpr.t option * metadata_t list
   | Switch of EExpr.t * (EExpr.t * t) list * t option * string
   | MatchWith of EExpr.t * (EPat.t * t) list
   | Lambda of string * string * string list * string list * t
@@ -58,7 +58,9 @@ let rec pp (fmt : Fmt.t) (s : t) : unit =
   | While (e, s') -> fprintf fmt "while (%a) %a" EExpr.pp e pp s'
   | ForEach (x, e, s', _, _) ->
     fprintf fmt "foreach (%s : %a) %a" x EExpr.pp e pp s'
-  | RepeatUntil (s', e, _) -> fprintf fmt "repeat %a until %a" pp s' EExpr.pp e
+  | RepeatUntil (s', e, _) ->
+    let pp_until fmt e = fprintf fmt " until %a" EExpr.pp e in
+    fprintf fmt "repeat %a%a" pp s' (pp_opt pp_until) e
   | Switch (e, css, dflt, _) ->
     let pp_case fmt (e, s) = fprintf fmt "\ncase %a: %a" EExpr.pp e pp s in
     let pp_default fmt s = fprintf fmt "\nsdefault: %a" pp s in
@@ -107,7 +109,8 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = fun e -> e) (mapper : t -> t)
   | While (e, s') -> While (emapper e, map' s')
   | ForEach (x, e, s', meta, var_meta) ->
     ForEach (var_mapper x, emapper e, map' s', meta, var_meta)
-  | RepeatUntil (s', e, meta) -> RepeatUntil (map' s', emapper e, meta)
+  | RepeatUntil (s', e, meta) ->
+    RepeatUntil (map' s', Option.map emapper e, meta)
   | Switch (e, css, dflt, meta) ->
     let map_cs (e, s) = (emapper e, map' s) in
     Switch (emapper e, List.map map_cs css, Option.map map' dflt, meta)

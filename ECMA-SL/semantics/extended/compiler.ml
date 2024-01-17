@@ -646,7 +646,10 @@ and compile_stmt (e_stmt : EStmt.t) : Stmt.t list =
   | FieldAssign (e_eo, e_f, e_ev) -> compile_fieldassign e_eo e_f e_ev e_stmt.at
   | FieldDelete (e_e, e_f) -> compile_fielddelete e_e e_f e_stmt.at
   | ExprStmt e_e -> compile_exprstmt e_e e_stmt.at
-  | RepeatUntil (e_s, e_e, _) -> compile_repeatuntil e_s e_e e_stmt.at
+  | RepeatUntil (e_s, e_e, _) ->
+    compile_repeatuntil e_s
+      (Option.value ~default:(EExpr.Val (Val.Bool false)) e_e)
+      e_stmt.at
   | MatchWith (e_e, e_pats_e_stmts) ->
     compile_matchwith e_e e_pats_e_stmts e_stmt.at
   | Assert e_e ->
