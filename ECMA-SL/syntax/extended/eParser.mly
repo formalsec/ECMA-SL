@@ -237,14 +237,14 @@ block_target:
   ;
 
 stmt_target:
-  | e = expr_target;
-    { EStmt.ExprStmt e @> at $sloc }
   | HASH; s= stmt_target;
     { EStmt.Debug s @> at $sloc }
   | PRINT; e = expr_target;
     { EStmt.Print e @> at $sloc }
   | RETURN; e = option(expr_target);
     { EStmt.Return e @> at $sloc }
+  | e = expr_target;
+    { EStmt.ExprStmt e @> at $sloc }
   | x = ID; t = option(e_typing_target); DEFEQ; e = expr_target;
     { EStmt.Assign (x, t, e) @> at $sloc }
   | x = GVAR; DEFEQ; e = expr_target;
@@ -253,22 +253,22 @@ stmt_target:
     { EStmt.FieldAssign (oe, fe, e) @> at $sloc }
   | DELETE; oe = expr_target; fe = lookup_target;
     { EStmt.FieldDelete (oe, fe) @> at $sloc }
-  | if_case = if_target; else_case = option(else_target);
+  | ifcs = if_target; elsecs = option(else_target);
     {
-      let (e, s1, meta1) = if_case in
-      let (s2, meta2) = match else_case with | None -> (None, []) | Some (s, meta) -> (Some s, meta) in
+      let (e, s1, meta1) = ifcs in
+      let (s2, meta2) = match elsecs with | None -> (None, []) | Some (s, meta) -> (Some s, meta) in
       EStmt.If (e, s1, s2, meta1, meta2) @> at $sloc
     }
-  | if_case = if_target; elif_cases = nonempty_list(elif_target); else_case = option(else_target);
-    { EStmt.EIf (if_case :: elif_cases, else_case) @> at $sloc }
+  | ifcs = if_target; elifcss = nonempty_list(elif_target); elsecs = option(else_target);
+    { EStmt.EIf (ifcs :: elifcss, elsecs) @> at $sloc }
   | WHILE; LPAREN; e = expr_target; RPAREN; s = block_target;
     { EStmt.While (e, s) @> at $sloc }
   | FOREACH; LPAREN; x = ID; COLON; e = expr_target; RPAREN; s = block_target;
     { EStmt.ForEach (x, e, s, [], None) @> at $sloc }
   | FOREACH; LPAREN; x = ID; COLON; e = expr_target; RPAREN; 
-    stmt_meta = delimited(LBRACK, stmt_metadata_target, RBRACK);
-    var_meta = var_opt_metadata_target; s = block_target;
-    { EStmt.ForEach (x, e, s, stmt_meta, var_meta) @> at $sloc }
+    meta = delimited(LBRACK, stmt_metadata_target, RBRACK);
+    varmeta = var_opt_metadata_target; s = block_target;
+    { EStmt.ForEach (x, e, s, meta, varmeta) @> at $sloc }
   | REPEAT; meta = stmt_opt_metadata_target; s = block_target; e = option(until_target);
     { EStmt.RepeatUntil (s, (Option.value ~default:(EExpr.Val (Val.Bool false)) e), meta) @> at $sloc }
   | SWITCH; LPAREN; e = expr_target; RPAREN; meta = switch_case_opt_metadata_target; LBRACE; 
@@ -276,9 +276,9 @@ stmt_target:
     { EStmt.Switch (e, cases, default_case, meta) @> at $sloc }
   | MATCH; e = expr_target; WITH; PIPE; match_cases = separated_list(PIPE, match_case_target);
     { EStmt.MatchWith (e, match_cases) @> at $sloc }
-  | x = ID; option(e_typing_target); DEFEQ; LAMBDA; LPAREN; xs = separated_list(COMMA, ID); RPAREN;
-    LBRACK; ys = separated_list(COMMA, ID); RBRACK; s = block_target;
-    { EStmt.Lambda (x, fresh_lambda_id_gen (), xs, ys, s) @> at $sloc }
+  | x = ID; option(e_typing_target); DEFEQ; LAMBDA; LPAREN; params = separated_list(COMMA, ID); RPAREN;
+    LBRACK; ctxvars = separated_list(COMMA, ID); RBRACK; s = block_target;
+    { EStmt.Lambda (x, fresh_lambda_id_gen (), params, ctxvars, s) @> at $sloc }
   | ATSIGN; m = ID; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
     { EStmt.MacroApply (m, es) @> at $sloc }
   | THROW; e = expr_target;

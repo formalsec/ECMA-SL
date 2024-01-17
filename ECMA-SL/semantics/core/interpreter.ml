@@ -142,7 +142,7 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
       let (db', stack', cont') = Db.run state s cont in
       let state' = (store, heap, stack', db') in
       (Intermediate (state', cont'), lbl DebugEval)
-    | Block stmts -> (Intermediate (state, stmts @ cont), lbl BlockEval)
+    | Block ss -> (Intermediate (state, ss @ cont), lbl BlockEval)
     | Print e ->
       eval_expr store e |> print_val heap;
       (Intermediate (state, cont), lbl PrintEval)
@@ -221,18 +221,18 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
       let v = eval_boolean store e in
       let s2' = Option.value ~default:(Skip @> no_region) s2 in
       match (v, s1.it, s2'.it) with
-      | (true, Block stmts, _) ->
-        let cont' = stmts @ ((Stmt.Merge @> s1.at) :: cont) in
+      | (true, Block ss, _) ->
+        let cont' = ss @ ((Stmt.Merge @> s1.at) :: cont) in
         (Intermediate (state, cont'), lbl (IfEval true))
-      | (false, _, Block stmts) ->
-        let cont' = stmts @ ((Stmt.Merge @> s2'.at) :: cont) in
+      | (false, _, Block ss) ->
+        let cont' = ss @ ((Stmt.Merge @> s2'.at) :: cont) in
         (Intermediate (state, cont'), lbl (IfEval false))
       | (false, _, Skip) -> (Intermediate (state, cont), lbl (IfEval false))
       | (true, _, _) -> Eslerr.internal __FUNCTION__ (Expecting "if block")
       | (false, _, _) -> Eslerr.internal __FUNCTION__ (Expecting "else block") )
     | While (e, s) ->
-      let stmts = [ s; Stmt.While (e, s) @> s.at ] in
-      let loop = Stmt.If (e, Stmt.Block stmts @> s.at, None) @> s.at in
+      let ss = [ s; Stmt.While (e, s) @> s.at ] in
+      let loop = Stmt.If (e, Stmt.Block ss @> s.at, None) @> s.at in
       (Intermediate (state, loop :: cont), lbl WhileEval)
     | Fail e ->
       let v = eval_expr store e in
@@ -253,8 +253,8 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
       Eslerr.(set_loc (Stmt s) exn |> set_trace trace_pp |> raise)
 
   let rec small_step_iter (prog : Prog.t) (state : state) (mon : Mon.state)
-    (stmts : Stmt.t list) : return =
-    match stmts with
+    (ss : Stmt.t list) : return =
+    match ss with
     | [] ->
       let (_, _, stack, _) = state in
       let f = Call_stack.func stack in

@@ -12,8 +12,8 @@ and t' =
   | Debug of t
   | Block of t list
   | Print of EExpr.t
-  | ExprStmt of EExpr.t
   | Return of EExpr.t option
+  | ExprStmt of EExpr.t
   | Assign of string * EType.t option * EExpr.t
   | GlobAssign of string * EExpr.t
   | FieldAssign of EExpr.t * EExpr.t * EExpr.t
@@ -32,130 +32,107 @@ and t' =
   | Assert of EExpr.t
   | Wrapper of metadata_t list * t
 
-let is_basic (s : t) : bool =
+let default () : t = Skip @> no_region
+
+let rec pp (fmt : Fmt.t) (s : t) : unit =
+  let open Fmt in
   match s.it with
-  | If _ | While _ | RepeatUntil _ | Block _ -> false
-  | _ -> true
+  | Skip -> ()
+  | Debug s' -> fprintf fmt "# %a" pp s'
+  | Block ss -> fprintf fmt "{\n%a\n}" (pp_lst ";\n" pp) ss
+  | Print e -> fprintf fmt "print %a" EExpr.pp e
+  | Return e -> fprintf fmt "return %a" (pp_opt EExpr.pp) e
+  | ExprStmt e -> EExpr.pp fmt e
+  | Assign (x, t, e) -> fprintf fmt "%s%a := %a" x EType.pp_tannot t EExpr.pp e
+  | GlobAssign (x, e) -> fprintf fmt "|%s| := %a" x EExpr.pp e
+  | FieldAssign (oe, emapper, e) ->
+    fprintf fmt "%a[%a] := %a" EExpr.pp oe EExpr.pp emapper EExpr.pp e
+  | FieldDelete (oe, emapper) ->
+    fprintf fmt "delete %a[%a]" EExpr.pp oe EExpr.pp emapper
+  | If (e, s1, s2, _, _) ->
+    let pp_else fmt s2 = fprintf fmt " else %a" pp s2 in
+    fprintf fmt "if (%a) %a%a" EExpr.pp e pp s1 (pp_opt pp_else) s2
+  | EIf ([], _) ->
+    Eslerr.(internal __FUNCTION__ (Expecting "non-empty if cases"))
+  | EIf (ifcs :: elifcss, elsecs) ->
+    let pp_if fmt (e, s, _) = fprintf fmt "if (%a) %a" EExpr.pp e pp s in
+    let pp_elif fmt (e, s, _) = fprintf fmt " elif (%a) %a" EExpr.pp e pp s in
+    let pp_else fmt (s, _) = fprintf fmt " else %a" pp s in
+    fprintf fmt "%a%a%a" pp_if ifcs (pp_lst "" pp_elif) elifcss (pp_opt pp_else)
+      elsecs
+  | While (e, s') -> fprintf fmt "while (%a) %a" EExpr.pp e pp s'
+  | ForEach (x, e, s', _, _) ->
+    fprintf fmt "foreach (%s : %a) %a" x EExpr.pp e pp s'
+  | RepeatUntil (s', e, _) -> fprintf fmt "repeat %a until %a" pp s' EExpr.pp e
+  | Switch (e, css, dflt, _) ->
+    let pp_case fmt (e, s) = fprintf fmt "\ncase %a: %a" EExpr.pp e pp s in
+    let pp_default fmt s = fprintf fmt "\nsdefault: %a" pp s in
+    fprintf fmt "switch (%a) {%a%a\n}" EExpr.pp e (pp_lst "" pp_case) css
+      (pp_opt pp_default) dflt
+  | MatchWith (e, css) ->
+    let pp_case fmt (pat, s) = fprintf fmt "\n| %a -> %a" EPat.pp pat pp s in
+    fprintf fmt "match %a with %a" EExpr.pp e (pp_lst "" pp_case) css
+  | Lambda (x, _, params, ctxvars, s') ->
+    fprintf fmt "%s := lambda (%a) [%a] %a" x (pp_lst ", " pp_str) params
+      (pp_lst ", " pp_str) ctxvars pp s'
+  | MacroApply (m, es) -> fprintf fmt "@%s (%a)" m (pp_lst ", " EExpr.pp) es
+  | Throw e -> fprintf fmt "throw %a" EExpr.pp e
+  | Fail e -> fprintf fmt "fail %a" EExpr.pp e
+  | Assert e -> fprintf fmt "assert %a" EExpr.pp e
+  | Wrapper (_, s) -> fprintf fmt "gen_wrapper %a" pp s
 
-let default () : t' = Skip
-let pp (_fmt : Fmt.t) (_s : t) : unit = failwith "TODO"
+let str (s : t) : string = Fmt.asprintf "%a" pp s
 
-let rec str (stmt : t) : string =
-  let str_cases cases =
-    let strs =
-      List.map
-        (fun (e, s) -> Printf.sprintf "case %s: %s" (EExpr.str e) (str s))
-        cases
-    in
-    String.concat "\n" strs
-  in
-
-  let str_o =
-    Option.fold ~none:"" ~some:(fun s -> Printf.sprintf "default: %s" (str s))
-  in
-
-  match stmt.it with
-  | Skip -> ""
-  | Debug s -> "# " ^ str s
-  | Fail e -> "fail " ^ EExpr.str e
-  | Throw e -> "throw " ^ EExpr.str e
-  | Print e -> "print " ^ EExpr.str e
-  | Assert e -> "assert " ^ EExpr.str e
-  | Return None -> "return"
-  | Return (Some e) -> "return " ^ EExpr.str e
-  | Wrapper (_m, s) -> str s
-  | Assign (x, t, exp) ->
-    let x' = match t with None -> x | Some t' -> x ^ ": " ^ EType.str t' in
-    x' ^ " := " ^ EExpr.str exp
-  | GlobAssign (x, exp) -> "|" ^ x ^ "| := " ^ EExpr.str exp
-  | Block stmts -> "{\n" ^ String.concat ";" (List.map str stmts) ^ "\n}"
-  | If (e, s1, s2, _, _) -> (
-    let v = "if (" ^ EExpr.str e ^ ") " ^ str s1 in
-    match s2 with None -> v | Some s -> v ^ " else " ^ str s )
-  | EIf (ifs, final_else) -> (
-    let ifs' =
-      List.map
-        (fun (e, s, _) -> Printf.sprintf "if (%s) %s" (EExpr.str e) (str s))
-        ifs
-    in
-    let if_elses = String.concat " else " ifs' in
-    match final_else with
-    | None -> if_elses
-    | Some (s, _) -> Printf.sprintf "%s else %s" if_elses (str s) )
-  | While (exp, s) -> "while (" ^ EExpr.str exp ^ ") " ^ str s
-  | ForEach (x, exp, s, _, _) ->
-    Printf.sprintf "foreach (%s, %s) %s" x (EExpr.str exp) (str s)
-  | FieldAssign (e_o, f, e_v) ->
-    EExpr.str e_o ^ "[" ^ EExpr.str f ^ "] := " ^ EExpr.str e_v
-  | FieldDelete (e, f) -> "delete " ^ EExpr.str e ^ "[" ^ EExpr.str f ^ "]"
-  | ExprStmt e -> EExpr.str e
-  | RepeatUntil (s, e, _) -> "repeat " ^ str s ^ " until " ^ EExpr.str e
-  | MatchWith (e, pats_stmts) ->
-    "match "
-    ^ EExpr.str e
-    ^ " with | "
-    ^ String.concat " | "
-        (List.map (fun (e, s) -> EPat.str e ^ ": " ^ str s) pats_stmts)
-  | MacroApply (m, es) ->
-    "@" ^ m ^ " (" ^ String.concat ", " (List.map EExpr.str es) ^ ")"
-  | Switch (e, cases, so, _) ->
-    Printf.sprintf "switch (%s) { %s %s }" (EExpr.str e) (str_cases cases)
-      (str_o so)
-  | Lambda (x, fid, xs, ys, s) ->
-    Printf.sprintf "%s := lambda <%s> (%s; %s) { %s }" x fid
-      (String.concat ", " xs) (String.concat ", " ys) (str s)
-
-let return_val (expr_opt : EExpr.t option) : EExpr.t =
-  Option.value ~default:(EExpr.Val Val.Null) expr_opt
-
-let rec map ?(fe = Fun.id) (f : t -> t) (s : t) : t =
-  let f_pat = List.map (fun (epat, s) -> (epat, map ~fe f s)) in
-  let f_cases = List.map (fun (e, s) -> (fe e, map ~fe f s)) in
-  let f_if_elses = List.map (fun (e, s, m) -> (fe e, map ~fe f s, m)) in
-
-  let fx (x : string) : string =
-    let e' = fe (EExpr.Var x) in
-    match (e' : EExpr.t) with
+let rec map ?(emapper : EExpr.t -> EExpr.t = fun e -> e) (mapper : t -> t)
+  (s : t) : t =
+  let map' = map ~emapper mapper in
+  let mapper' s' = mapper (s' @> s.at) in
+  let var_mapper x =
+    match emapper (EExpr.Var x) with
     | EExpr.Var y -> y
-    | _ -> raise (Failure "Substituting non-var expression on LHS")
+    | _ -> Eslerr.(internal __FUNCTION__ (Expecting "var expression in LHS"))
   in
+  mapper'
+  @@
+  match s.it with
+  | Skip -> Skip
+  | Debug s' -> Debug (map' s')
+  | Block ss -> Block (List.map map' ss)
+  | Print e -> Print (emapper e)
+  | Return e -> Return (Option.map emapper e)
+  | ExprStmt e -> ExprStmt (emapper e)
+  | Assign (x, t, e) -> Assign (var_mapper x, t, emapper e)
+  | GlobAssign (x, e) -> GlobAssign (var_mapper x, emapper e)
+  | FieldAssign (oe, fe, e) -> FieldAssign (emapper oe, emapper fe, emapper e)
+  | FieldDelete (oe, fe) -> FieldDelete (emapper oe, emapper fe)
+  | If (e, s1, s2, meta1, meta2) ->
+    If (emapper e, map' s1, Option.map map' s2, meta1, meta2)
+  | EIf (ifcs, elsecs) ->
+    let map_ifcs (e, s, meta) = (emapper e, map' s, meta) in
+    let map_elsecs (s, meta) = (map' s, meta) in
+    EIf (List.map map_ifcs ifcs, Option.map map_elsecs elsecs)
+  | While (e, s') -> While (emapper e, map' s')
+  | ForEach (x, e, s', meta, var_meta) ->
+    ForEach (var_mapper x, emapper e, map' s', meta, var_meta)
+  | RepeatUntil (s', e, meta) -> RepeatUntil (map' s', emapper e, meta)
+  | Switch (e, css, dflt, meta) ->
+    let map_cs (e, s) = (emapper e, map' s) in
+    Switch (emapper e, List.map map_cs css, Option.map map' dflt, meta)
+  | MatchWith (e, css) ->
+    let map_cs (pat, s) = (pat, map' s) in
+    MatchWith (emapper e, List.map map_cs css)
+  | Lambda (x, id, params, ctxvars, s') ->
+    Lambda (x, id, params, ctxvars, map' s')
+  | MacroApply (m, es) -> MacroApply (m, List.map emapper es)
+  | Throw e -> Throw (emapper e)
+  | Fail e -> Fail (emapper e)
+  | Assert e -> Assert (emapper e)
+  | Wrapper (meta, s') -> Wrapper (meta, map' s')
 
-  let s' =
-    match s.it with
-    | Skip -> Skip
-    | Debug s -> Debug s
-    | Fail e -> Fail (fe e)
-    | Throw e -> Throw (fe e)
-    | Print e -> Print (fe e)
-    | Assert e -> Assert (fe e)
-    | Return None -> Return None
-    | Return (Some e) -> Return (Some (fe e))
-    | Wrapper (m, s) -> Wrapper (m, map ~fe f s)
-    | Assign (x, t, e) -> Assign (fx x, t, fe e)
-    | GlobAssign (x, e) -> GlobAssign (fx x, fe e)
-    | Block ss -> Block (List.map (map ~fe f) ss)
-    | If (e, s1, s2, m_i, m_e) ->
-      If (fe e, map ~fe f s1, Option.map (map ~fe f) s2, m_i, m_e)
-    | EIf (ifs, final_else) ->
-      EIf
-        (f_if_elses ifs, Option.map (fun (s, m) -> (map ~fe f s, m)) final_else)
-    | While (e, s) -> While (fe e, map ~fe f s)
-    | ForEach (x, e, s, m, v_m) -> ForEach (fx x, fe e, map ~fe f s, m, v_m)
-    | FieldAssign (e_o, e_f, e_v) -> FieldAssign (fe e_o, fe e_f, fe e_v)
-    | FieldDelete (e, f) -> FieldDelete (fe e, fe f)
-    | ExprStmt e -> ExprStmt (fe e)
-    | RepeatUntil (s, e, m) -> RepeatUntil (map ~fe f s, fe e, m)
-    | MatchWith (e, pats_stmts) -> MatchWith (fe e, f_pat pats_stmts)
-    | MacroApply (m, es) -> MacroApply (m, List.map fe es)
-    | Switch (e, cases, so, meta) ->
-      Switch (fe e, f_cases cases, Option.map (map ~fe f) so, meta)
-    | Lambda (z, id, xs, ys, s) -> Lambda (z, id, xs, ys, map ~fe f s)
-  in
-  f (s' @> s.at)
-
+(* FIXME: Requires cleaning *)
 let subst (sbst : EExpr.subst_t) (s : t) : t =
   (*Printf.printf "Applying the subst: %s\nOn statement:\n%s\n" (EExpr.string_of_subst sbst) (str s); *)
-  let ret = map ~fe:(EExpr.subst sbst) (fun x -> x) s in
+  let ret = map ~emapper:(EExpr.subst sbst) (fun x -> x) s in
   (* Printf.printf "Obtained: %s\n" (str ret);  *)
   ret
 
@@ -201,3 +178,6 @@ let lambdas (s : t) : (string * string list * string list * t) list =
   in
   let f_rec _s = true in
   to_list f_rec f_l s
+
+let return_val (expr_opt : EExpr.t option) : EExpr.t =
+  Option.value ~default:(EExpr.Val Val.Null) expr_opt

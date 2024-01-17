@@ -36,7 +36,7 @@ type t =
 let create (prog : EProg.t) : t =
   { prog
   ; func = EFunc.default () @> no_region
-  ; stmt = EStmt.default () @> no_region
+  ; stmt = EStmt.default ()
   ; state = Normal
   ; tenv = Hashtbl.create !Config.default_hashtbl_sz
   }

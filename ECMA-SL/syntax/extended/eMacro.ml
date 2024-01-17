@@ -27,8 +27,8 @@ let pp_simple (fmt : Fmt.t) (m : t) : unit =
 let str ?(simple : bool = false) (f : t) : string =
   if simple then Fmt.asprintf "%a" pp_simple f else Fmt.asprintf "%a" pp f
 
+(* FIXME: Requires cleaning below *)
 let apply_macros_stmt (get_macro : string -> t option) (s : EStmt.t) : EStmt.t =
-  (* FIXME: Refactor the apply_macros_stmt function *)
   let mapper s =
     match s.Source.it with
     | EStmt.MacroApply (m, es) -> (
