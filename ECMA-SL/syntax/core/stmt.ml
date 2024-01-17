@@ -30,7 +30,7 @@ let rec pp (fmt : Fmt.t) (s : t) : unit =
   | Skip -> fprintf fmt "skip"
   | Merge -> fprintf fmt "merge"
   | Debug s' -> fprintf fmt "# %a" pp s'
-  | Block stmts -> fprintf fmt "{\n%a\n}" (pp_lst ";\n" pp) stmts
+  | Block ss -> fprintf fmt "{\n%a\n}" (pp_lst ";\n" pp) ss
   | Print e -> fprintf fmt "print %a" Expr.pp e
   | Return e -> fprintf fmt "return %a" Expr.pp e
   | Assign (x, e) -> fprintf fmt "%s := %a" x Expr.pp e
@@ -53,7 +53,7 @@ let rec pp (fmt : Fmt.t) (s : t) : unit =
     fprintf fmt "if (%a) %a%a" Expr.pp e pp s1 (pp_opt pp_else) s2
   | While (e, s') -> fprintf fmt "while (%a) %a" Expr.pp e pp s'
   | Fail e -> fprintf fmt "fail %a" Expr.pp e
-  | Assert e -> fprintf fmt "assert (%a)" Expr.pp e
+  | Assert e -> fprintf fmt "assert %a" Expr.pp e
 
 let pp_simple (fmt : Fmt.t) (s : t) : unit =
   let open Fmt in

@@ -25,7 +25,7 @@ let default () : t' =
   ; name = ""
   ; params_t = []
   ; return_t = None
-  ; body = EStmt.default () @> no_region
+  ; body = EStmt.default ()
   }
 
 let get_name (func : t) : string = func.it.name
