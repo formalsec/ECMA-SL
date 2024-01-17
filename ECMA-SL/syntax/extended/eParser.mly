@@ -370,7 +370,7 @@ expr_target:
   | EXTERN; fn = ID; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
     { EExpr.ECall (fn, es) }
   | LBRACE; flds = separated_list(COMMA, fld_init_target); RBRACE;
-    { EExpr.NewObj (flds) }
+    { EExpr.NewObj (EExpr.Parser.parse_object_fields flds) }
   | oe = expr_target; fe = lookup_target
     { EExpr.Lookup (oe, fe) }
   | LBRACE; fe = expr_target; RBRACE; ATSIGN; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
