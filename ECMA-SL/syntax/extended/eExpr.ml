@@ -40,21 +40,22 @@ let rec pp (fmt : Fmt.t) (e : t) : unit =
 let str (e : t) : string = Fmt.asprintf "%a" pp e
 
 let rec map (mapper : t -> t) (e : t) : t =
-  let map_fun = map mapper in
+  let map' = map mapper in
+  mapper
+  @@
   match e with
-  | Val _ | Var _ | GVar _ | Const _ | Symbolic _ -> mapper e
-  | UnOpt (op, e') -> UnOpt (op, map_fun e')
-  | BinOpt (op, e1, e2) -> BinOpt (op, map_fun e1, map_fun e2)
-  | TriOpt (op, e1, e2, e3) -> TriOpt (op, map_fun e1, map_fun e2, map_fun e3)
-  | NOpt (op, es) -> NOpt (op, List.map map_fun es)
-  | Call (fe, es, ferr) -> Call (map_fun fe, List.map map_fun es, ferr)
-  | ECall (fn, es) -> ECall (fn, List.map map_fun es)
-  | NewObj flds -> NewObj (List.map (fun (fn, fe) -> (fn, map_fun fe)) flds)
-  | Lookup (oe, fe) -> Lookup (map_fun oe, map_fun fe)
-  | Curry (fe, es) -> Curry (map_fun fe, List.map map_fun es)
+  | Val _ | Var _ | GVar _ | Const _ | Symbolic _ -> e
+  | UnOpt (op, e') -> UnOpt (op, map' e')
+  | BinOpt (op, e1, e2) -> BinOpt (op, map' e1, map' e2)
+  | TriOpt (op, e1, e2, e3) -> TriOpt (op, map' e1, map' e2, map' e3)
+  | NOpt (op, es) -> NOpt (op, List.map map' es)
+  | Call (fe, es, ferr) -> Call (map' fe, List.map map' es, ferr)
+  | ECall (fn, es) -> ECall (fn, List.map map' es)
+  | NewObj flds -> NewObj (List.map (fun (fn, fe) -> (fn, map' fe)) flds)
+  | Lookup (oe, fe) -> Lookup (map' oe, map' fe)
+  | Curry (fe, es) -> Curry (map' fe, List.map map' es)
 
-(* FIXME: Understand and optimize the subst *)
-
+(* FIXME: Requires cleaning below *)
 type subst_t = (string, t) Hashtbl.t
 
 let make_subst (xs_es : (string * t) list) : subst_t =

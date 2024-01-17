@@ -211,7 +211,7 @@ stmt_target:
     { Stmt.While (e, s) @> at $sloc }
   | FAIL; e = expr_target;
     { Stmt.Fail e @> at $sloc }
-  | ASSERT; LPAREN; e = expr_target; RPAREN;
+  | ASSERT; e = expr_target;
     { Stmt.Assert e @> at $sloc }
   ;
 
