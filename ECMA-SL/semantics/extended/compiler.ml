@@ -714,7 +714,7 @@ let compile_prog (e_prog : EProg.t) : Prog.t =
   let funcs =
     List.fold_left
       (fun acc func -> acc @ [ compile_func func ])
-      [] (EProg.get_funcs e_prog)
+      [] (EProg.funcs_lst e_prog)
   in
   let lambdas = EProg.lambdas e_prog in
   let lambda_funcs = List.map compile_lambda lambdas in

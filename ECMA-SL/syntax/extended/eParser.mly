@@ -171,17 +171,8 @@ entry_prog_target:
 (* ==================== Program  ==================== *)
 
 prog_target:
-  | imports = list(import_target); prog_els = separated_list(SEMICOLON, e_prog_elem_target);
-   {
-    let split_els = fun el (type_decls', funcs', macros') ->
-      match el with
-        | EProg.ElementType.TypeDeclaration el' -> (el'::type_decls', funcs', macros')
-        | EProg.ElementType.Procedure el' -> (type_decls', el'::funcs', macros')
-        | EProg.ElementType.Macro el' -> (type_decls', funcs', el'::macros')
-    in
-    let (type_decls, funcs, macros) = List.fold_right split_els prog_els ([], [], []) in
-    EProg.create imports type_decls funcs macros
-   }
+  | imports = list(import_target); prog_els = separated_list(SEMICOLON, prog_elem_target);
+   { EProg.Parser.parse_prog imports prog_els }
   ;
 
 import_target:
@@ -189,28 +180,25 @@ import_target:
     { fname }
   ;
 
-e_prog_elem_target:
-  | t = typedef_target;
-    { EProg.ElementType.TypeDeclaration t }
-  | f = func_target;
-    { EProg.ElementType.Procedure f }
-  | m = macro_target;
-    { EProg.ElementType.Macro m }
+prog_elem_target:
+  | t = tdef_target;    { EProg.Parser.parse_tdef t }
+  | f = func_target;    { EProg.Parser.parse_func f }
+  | m = macro_target;   { EProg.Parser.parse_macro m }
 
 (* ==================== Type definitions ==================== *)
 
-typedef_target:
-  | TYPEDEF; v = ID; DEFEQ; t = e_type_target;
+tdef_target:
+  | TYPEDEF; v = ID; DEFEQ; t = type_target;
     { (v, t) }
 
 (* ==================== Functions ==================== *)
 
 func_target:
   | FUNCTION; fn = ID; LPAREN; tparams = params_target; RPAREN;
-    treturn = option(e_typing_target); s = block_target;
+    treturn = option(typing_target); s = block_target;
     { EFunc.create fn tparams treturn s None @> at $sloc }
   | FUNCTION; fn = ID; LPAREN; tparams = params_target; RPAREN; meta = delimited(LBRACK, vals_metadata_target, RBRACK); 
-    vars_meta = vars_opt_metadata_target; treturn = option(e_typing_target); s = block_target;
+    vars_meta = vars_opt_metadata_target; treturn = option(typing_target); s = block_target;
     { EFunc.create fn tparams treturn s (Some (EFunc_metadata.build_func_metadata meta vars_meta)) @> at $sloc }
 
 params_target:
@@ -219,7 +207,7 @@ params_target:
   ;
 
 param_target:
-  | param = ID; t = option(e_typing_target)
+  | param = ID; t = option(typing_target)
     { (param, t) }
 
 (* ==================== Macros ==================== *)
@@ -245,7 +233,7 @@ stmt_target:
     { EStmt.Return e @> at $sloc }
   | e = expr_target;
     { EStmt.ExprStmt e @> at $sloc }
-  | x = ID; t = option(e_typing_target); DEFEQ; e = expr_target;
+  | x = ID; t = option(typing_target); DEFEQ; e = expr_target;
     { EStmt.Assign (x, t, e) @> at $sloc }
   | x = GVAR; DEFEQ; e = expr_target;
     { EStmt.GlobAssign (x, e) @> at $sloc }
@@ -270,7 +258,7 @@ stmt_target:
     { EStmt.Switch (e, cases, default_case, meta) @> at $sloc }
   | MATCH; e = expr_target; WITH; PIPE; match_cases = separated_list(PIPE, match_case_target);
     { EStmt.MatchWith (e, match_cases) @> at $sloc }
-  | x = ID; option(e_typing_target); DEFEQ; LAMBDA; LPAREN; params = separated_list(COMMA, ID); RPAREN;
+  | x = ID; option(typing_target); DEFEQ; LAMBDA; LPAREN; params = separated_list(COMMA, ID); RPAREN;
     LBRACK; ctxvars = separated_list(COMMA, ID); RBRACK; s = block_target;
     { EStmt.Lambda (x, fresh_lambda_id_gen (), params, ctxvars, s) @> at $sloc }
   | ATSIGN; m = ID; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
@@ -633,18 +621,18 @@ switch_case_opt_metadata_target:
 
 (* ==================== Type system ==================== *)
 
-e_typing_target:
-  | COLON; t = e_type_target;
+typing_target:
+  | COLON; t = type_target;
     { t }
 
-e_type_target:
-  | t = e_simple_type_target;
+type_target:
+  | t = simple_type_target;
     { t }
-  | t = e_nary_type_target;
+  | t = nary_type_target;
     { t }
 
-e_simple_type_target:
-  | LPAREN; t = e_type_target; RPAREN;
+simple_type_target:
+  | LPAREN; t = type_target; RPAREN;
     { t }
   | STYPE_ANY;
     { EType.AnyType }
@@ -670,27 +658,27 @@ e_simple_type_target:
     { EType.parse_literal_type v }
   | LBRACK; RBRACK;
     { EType.parse_literal_type (Val.List []) }
-  | LBRACK; t = e_type_target; RBRACK;
+  | LBRACK; t = type_target; RBRACK;
     { EType.ListType t }
-  | LBRACE; props = separated_list (COMMA, e_type_property_target); RBRACE;
+  | LBRACE; props = separated_list (COMMA, type_property_target); RBRACE;
     { EType.ObjectType (EType.parse_obj_type props) }
   | v = ID;
     { EType.UserDefinedType v }
 
-e_nary_type_target:
-  | t1 = e_simple_type_target; merge_func = e_nary_type_op_target; t2 = e_type_target;
+nary_type_target:
+  | t1 = simple_type_target; merge_func = nary_type_op_target; t2 = type_target;
     { merge_func t1 t2 }
-  | STYPE_SIGMA; LBRACK; d = ID; RBRACK; option(PIPE); t = e_nary_type_target;
+  | STYPE_SIGMA; LBRACK; d = ID; RBRACK; option(PIPE); t = nary_type_target;
     { EType.parse_sigma_type d t }
 
-e_nary_type_op_target:
+nary_type_op_target:
   | TIMES;        { EType.merge_tuple_type }
   | PIPE;         { EType.merge_union_type }
 
-e_type_property_target:
-  | v = ID; COLON; t = e_type_target;
+type_property_target:
+  | v = ID; COLON; t = type_target;
     { EType.Field.NamedField (v, (t, false) ) }
-  | v = ID; QUESTION; COLON; t = e_type_target;
+  | v = ID; QUESTION; COLON; t = type_target;
     { EType.Field.NamedField (v, (t, true) ) }
-  | TIMES; COLON; t = e_type_target;
+  | TIMES; COLON; t = type_target;
     { EType.Field.SumryField t }

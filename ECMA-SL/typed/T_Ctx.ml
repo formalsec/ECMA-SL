@@ -59,10 +59,9 @@ let set_tstate (tctx : t) (state : tstate_t) : unit = tctx.state <- state
 let get_curr_return_t (tctx : t) : EType.t option = EFunc.treturn tctx.func
 
 let get_func_by_name (tctx : t) (fname : string) : EFunc.t option =
-  EProg.get_func_opt tctx.prog fname
+  Hashtbl.find_opt (EProg.funcs tctx.prog) fname
 
-let get_typedefs (tctx : t) : (string, EType.t) Hashtbl.t =
-  EProg.get_typedefs tctx.prog
+let get_tdefs (tctx : t) : (string, EType.t) Hashtbl.t = EProg.tdefs tctx.prog
 
 let merge_tstates (tstate1 : tstate_t) (tstate2 : tstate_t) : tstate_t =
   match (tstate1, tstate2) with

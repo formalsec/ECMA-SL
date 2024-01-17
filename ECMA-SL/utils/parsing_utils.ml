@@ -124,11 +124,11 @@ let rec resolve_imports (to_resolve : string list list) (resolved : StrSet.t)
     else
       let file_contents = Io.load_file file in
       let cur_prog = parse_e_prog file file_contents in
-      let cur_prog_typedefs = EProg.get_typedefs_list cur_prog in
-      let cur_prog_funcs = EProg.get_funcs cur_prog in
-      let cur_prog_macros = EProg.get_macros cur_prog in
+      let cur_prog_typedefs = EProg.tdefs_lst cur_prog in
+      let cur_prog_funcs = EProg.funcs_lst cur_prog in
+      let cur_prog_macros = EProg.macros_lst cur_prog in
       resolve_imports
-        (EProg.get_imports cur_prog :: to_resolve)
+        (EProg.imports cur_prog :: to_resolve)
         resolved (file :: path)
         (cur_prog_typedefs @ typedefs)
         (cur_prog_funcs @ funcs) (cur_prog_macros @ macros)
@@ -138,17 +138,15 @@ let rec resolve_imports (to_resolve : string list list) (resolved : StrSet.t)
        resolve."
 
 let resolve_prog_imports (prog : EProg.t) : EProg.t =
-  let file_name = EProg.get_file_name prog in
+  let file_name = EProg.file prog in
   let (total_typedefs, total_funcs, total_macros) =
     resolve_imports
-      [ EProg.get_imports prog ]
+      [ EProg.imports prog ]
       StrSet.empty
-      [ EProg.get_file_name prog ]
-      (EProg.get_typedefs_list prog)
-      (EProg.get_funcs prog) (EProg.get_macros prog)
+      [ EProg.file prog ]
+      (EProg.tdefs_lst prog) (EProg.funcs_lst prog) (EProg.macros_lst prog)
   in
-  let new_prog = EProg.create [] total_typedefs total_funcs total_macros in
-  EProg.set_file_name new_prog file_name;
+  let new_prog = EProg.create file_name [] total_typedefs total_funcs total_macros in
   new_prog
 
 let apply_prog_macros (prog : EProg.t) : EProg.t = EProg.apply_macros prog

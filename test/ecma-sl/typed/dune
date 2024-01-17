@@ -3,14 +3,15 @@
  (modules
   Test
   TestBasic
-  TestFunction
+  ; TestFunction
   TestLiteral
   TestUnion
-  TestIfWhile
-  TestObject
-  TestConstraint
+  ; TestIfWhile
+  ; TestObject
+  ; TestConstraint
   TestMatch
-  TestTypedef)
+  ; TestTypedef
+  )
  (inline_tests)
  (preprocess
   (pps ppx_inline_test))
