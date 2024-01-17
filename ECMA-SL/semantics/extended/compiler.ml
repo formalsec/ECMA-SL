@@ -597,8 +597,7 @@ and compile_stmt (e_stmt : EStmt.t) : Stmt.t list =
     let (stmts_e, e') = compile_expr e_stmt.at e in
     compile_glob_assign x stmts_e e' e_stmt.at
   | Block e_stmts -> compile_block e_stmts
-  | If (e_e, e_s1, e_s2, _, _) -> compile_if e_e e_s1 e_s2 e_stmt.at
-  | EIf (ifs, final_else) ->
+  | If (ifs, final_else) ->
     let acc =
       Option.fold final_else ~some:(fun (s, _) -> compile_stmt s) ~none:[]
     in

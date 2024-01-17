@@ -192,7 +192,7 @@ let rec type_stmt (tctx : T_Ctx.t) (stmt : EStmt.t) : T_Err.t list =
     set_terr_stmt tctx _assign_f
   (* | GlobAssign (_, _) -> [] *)
   | Block stmts -> type_block tctx stmts (type_stmt tctx)
-  | If (e, s1, s2, _, _) -> type_ifelse tctx e s1 s2 type_stmt
+  (* | If (e, s1, s2, _, _) -> type_ifelse tctx e s1 s2 type_stmt *)
   (* | EIf (_, _) -> [] *)
   | While (e, s) -> type_while tctx e s type_stmt
   (* | ForEach (_, _, _, _, _) -> [] *)

@@ -128,7 +128,7 @@ let stmt_tkns (stmt : EStmt.t) : tkn_t list =
     List.concat [ [ Str x ]; typeTkns; [ Lit " := " ]; [ Expr e ] ]
   (* | GlobAssign (_, _) -> [] *)
   | Block _stmts -> []
-  | If (e, _, _, _, _) -> [ Lit "if ("; Expr e; Lit ") { "; Lit threedots ]
+  (* | If (e, _, _, _, _) -> [ Lit "if ("; Expr e; Lit ") { "; Lit threedots ] *)
   (* | EIf (_, _) -> [] *)
   | While (e, _) -> [ Lit "while ("; Expr e; Lit ") { "; Lit threedots ]
   (* | ForEach (_, _, _, _, _) -> [] *)
