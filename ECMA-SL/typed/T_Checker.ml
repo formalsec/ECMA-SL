@@ -2,7 +2,7 @@ let terrs_str (terrs : T_Err.t list) : string =
   String.concat "" (List.map T_Err.format terrs)
 
 let set_typedefs (tctx : T_Ctx.t) : unit =
-  let typedefs = T_Ctx.get_typedefs tctx in
+  let typedefs = T_Ctx.get_tdefs tctx in
   Hashtbl.add_seq !T_Typing.typedefs (Hashtbl.to_seq typedefs)
 
 let type_main_func (tctx : T_Ctx.t) : T_Err.t list =
@@ -52,5 +52,5 @@ let type_program (prog : EProg.t) : T_Err.t list =
   let tctx = T_Ctx.create prog in
   let _ = set_typedefs tctx in
   let terrMain = type_main_func tctx in
-  let terrFuncs = List.map (type_function tctx) (EProg.get_funcs prog) in
+  let terrFuncs = List.map (type_function tctx) (EProg.funcs_lst prog) in
   List.concat (List.append [ terrMain ] terrFuncs)
