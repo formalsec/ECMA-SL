@@ -72,15 +72,12 @@ let funcs_lst (p : t) : EFunc.t list =
 let macros_lst (p : t) : EMacro.t list =
   Hashtbl.fold (fun _ m acc -> m :: acc) p.macros []
 
-(* FIXME: Requires cleaning below *)
-let apply_macros (prog : t) : t =
-  let new_funcs =
-    Hashtbl.fold
-      (fun _ f ac -> EFunc.apply_macros f (Hashtbl.find_opt prog.macros) :: ac)
-      prog.funcs []
-  in
-  let tdefs = tdefs_lst prog in
-  create prog.file prog.imports tdefs new_funcs []
+let apply_macros (p : t) : t =
+  let find_macro_f = Hashtbl.find_opt p.macros in
+  let apply_macro_f _ f acc = EFunc.apply_macros find_macro_f f :: acc in
+  let funcs = Hashtbl.fold apply_macro_f p.funcs [] in
+  create p.file p.imports (tdefs_lst p) funcs []
 
+(* FIXME: Requires cleaning below *)
 let lambdas (p : t) : (string * string list * string list * EStmt.t) list =
   Hashtbl.fold (fun _ f ac -> EFunc.lambdas f @ ac) p.funcs []

@@ -46,10 +46,10 @@ let pp_simple (fmt : Fmt.t) (f : t) : unit =
 let str ?(simple : bool = false) (f : t) : string =
   if simple then Fmt.asprintf "%a" pp_simple f else Fmt.asprintf "%a" pp f
 
-(* FIXME: Requires cleaning below *)
-let apply_macros (f : t) (macros : string -> EMacro.t option) : t =
-  let new_body = EMacro.apply_macros_stmt macros f.it.body in
-  { f with it = { f.it with body = new_body } }
+let apply_macros (find_macro_f : string -> EMacro.t option) (f : t) : t =
+  let body = EStmt.map (EMacro.mapper find_macro_f) f.it.body in
+  { f with it = { f.it with body } }
 
+(* FIXME: Requires cleaning below *)
 let lambdas (f : t) : (string * string list * string list * EStmt.t) list =
   EStmt.lambdas f.it.body

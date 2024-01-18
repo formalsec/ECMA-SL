@@ -125,13 +125,11 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = fun e -> e) (mapper : t -> t)
   | Assert e -> Assert (emapper e)
   | Wrapper (meta, s') -> Wrapper (meta, map' s')
 
-(* FIXME: Requires cleaning below *)
-let subst (sbst : EExpr.subst_t) (s : t) : t =
-  (*Printf.printf "Applying the subst: %s\nOn statement:\n%s\n" (EExpr.string_of_subst sbst) (str s); *)
-  let ret = map ~emapper:(EExpr.subst sbst) (fun x -> x) s in
-  (* Printf.printf "Obtained: %s\n" (str ret);  *)
-  ret
+module Mapper = struct
+  let id (s : t) : t = s
+end
 
+(* FIXME: Requires cleaning below *)
 let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
   let f' = to_list is_rec f in
   let f_stmts stmts = List.concat (List.map f' stmts) in
