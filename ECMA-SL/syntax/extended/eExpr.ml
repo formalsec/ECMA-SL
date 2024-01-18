@@ -65,26 +65,13 @@ let rec map (mapper : t -> t) (e : t) : t =
   | Lookup (oe, fe) -> Lookup (map' oe, map' fe)
   | Curry (fe, es) -> Curry (map' fe, List.map map' es)
 
-(* FIXME: Requires cleaning below *)
-type subst_t = (string, t) Hashtbl.t
+module Mapper = struct
+  let id (e : t) : t = e
 
-let make_subst (xs_es : (string * t) list) : subst_t =
-  let subst = Hashtbl.create !Config.default_hashtbl_sz in
-  List.iter (fun (x, e) -> Hashtbl.replace subst x e) xs_es;
-  subst
-
-let get_subst_o (sbst : subst_t) (x : string) : t option =
-  Hashtbl.find_opt sbst x
-
-let get_subst (sbst : subst_t) (x : string) : t =
-  let eo = get_subst_o sbst x in
-  Option.value ~default:(Var x) eo
-
-let subst (sbst : subst_t) (e : t) : t =
-  (* Printf.printf "In subst expr\n"; *)
-  let f e' = match e' with Var x -> get_subst sbst x | _ -> e' in
-  map f e
-
-let string_of_subst (sbst : subst_t) : string =
-  let strs = Hashtbl.fold (fun x e ac -> (x ^ ": " ^ str e) :: ac) sbst [] in
-  String.concat ", " strs
+  let var (subst : (string, t) Hashtbl.t) (e : t) : t =
+    let subst_f = function
+      | Var x -> Option.value ~default:(Var x) (Hashtbl.find_opt subst x)
+      | e' -> e'
+    in
+    map subst_f e
+end

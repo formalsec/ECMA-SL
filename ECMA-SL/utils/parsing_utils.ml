@@ -146,7 +146,9 @@ let resolve_prog_imports (prog : EProg.t) : EProg.t =
       [ EProg.file prog ]
       (EProg.tdefs_lst prog) (EProg.funcs_lst prog) (EProg.macros_lst prog)
   in
-  let new_prog = EProg.create file_name [] total_typedefs total_funcs total_macros in
+  let new_prog =
+    EProg.create file_name [] total_typedefs total_funcs total_macros
+  in
   new_prog
 
 let apply_prog_macros (prog : EProg.t) : EProg.t = EProg.apply_macros prog

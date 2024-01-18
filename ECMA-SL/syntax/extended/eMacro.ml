@@ -27,20 +27,16 @@ let pp_simple (fmt : Fmt.t) (m : t) : unit =
 let str ?(simple : bool = false) (f : t) : string =
   if simple then Fmt.asprintf "%a" pp_simple f else Fmt.asprintf "%a" pp f
 
-(* FIXME: Requires cleaning below *)
-let apply_macros_stmt (get_macro : string -> t option) (s : EStmt.t) : EStmt.t =
-  let mapper s =
-    match s.Source.it with
-    | EStmt.MacroApply (m, es) -> (
-      let macro = get_macro m in
-      match macro with
-      | None -> raise (Failure ("Unknown macro " ^ m))
-      | Some { it = macro; _ } ->
-        if List.length es <> List.length macro.params then
-          raise (Failure ("Wrong Number of parameters given to: " ^ m))
-        else
-          let subst = EExpr.make_subst (List.combine macro.params es) in
-          EStmt.subst subst macro.body )
-    | _ -> s
-  in
-  EStmt.map mapper s
+let mapper (find_macro_f : string -> t option) : EStmt.t -> EStmt.t =
+ fun s ->
+  match s.it with
+  | EStmt.MacroApply (mn, es) -> (
+    match find_macro_f mn with
+    | None -> failwith "TEMP: Replace by Eslerr.Compile.UnknownMacro"
+    | Some { it = m; _ } ->
+      let subst =
+        try List.combine m.params es |> List.to_seq |> Hashtbl.of_seq
+        with _ -> failwith "TEMP: Replace by Eslerr.Compile.BadNArgs"
+      in
+      EStmt.map ~emapper:(EExpr.Mapper.var subst) EStmt.Mapper.id m.body )
+  | _ -> s
