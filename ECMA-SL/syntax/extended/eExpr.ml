@@ -18,7 +18,7 @@ module Parser = struct
   let parse_object_fields (flds : (string * t) list) : (string * t) list =
     let check_duplicates checked (fn, _) =
       if not (Hashtbl.mem checked fn) then Hashtbl.replace checked fn ()
-      else failwith "TEMP: Replace by Eslerr.Compile.DuplicateField"
+      else Eslerr.(compile (DuplicatedField fn))
     in
     List.iter (check_duplicates (Hashtbl.create (List.length flds))) flds;
     flds

@@ -7,6 +7,18 @@ module Internal = struct
     | NotImplemented of string option
 end
 
+module Compile = struct
+  type t =
+    | Default
+    | Custom of string
+    | DuplicatedTdef of string
+    | DuplicatedFunc of string
+    | DuplicatedMacro of string
+    | DuplicatedField of string
+    | UnknownMacro of string
+    | BadNArgs of int * int
+end
+
 module Runtime = struct
   type t =
     | Default
@@ -48,6 +60,31 @@ module InternalFmt : ErrFmt.ErrTypeFmt with type msg = Internal.t = struct
       match msg' with
       | None -> fprintf fmt "not implemented"
       | Some msg'' -> fprintf fmt "'%s' not implemented" msg'' )
+end
+
+module CompileFmt : ErrFmt.ErrTypeFmt with type msg = Compile.t = struct
+  type msg = Compile.t
+
+  let font () : Font.t = Font.Red
+  let header () : string = "CompileError"
+
+  let pp (fmt : Fmt.t) (msg : msg) : unit =
+    let open Fmt in
+    match msg with
+    | Default -> fprintf fmt "Generic compilation error."
+    | Custom msg' -> fprintf fmt "%s" msg'
+    | DuplicatedTdef tn ->
+      fprintf fmt "Duplicated definition for typedef '%s'." tn
+    | DuplicatedFunc fn ->
+      fprintf fmt "Duplicated definition for function '%s'." fn
+    | DuplicatedMacro mn ->
+      fprintf fmt "Duplicated definition for macro '%s'." mn
+    | DuplicatedField fn ->
+      fprintf fmt
+        "Object literals cannot have two fields with the same name '%s'." fn
+    | UnknownMacro mn -> fprintf fmt "Cannot find macro '%s'." mn
+    | BadNArgs (nparams, nargs) ->
+      fprintf fmt "Expected %d arguments, but got %d." nparams nargs
 end
 
 module RuntimeFmt : ErrFmt.ErrTypeFmt with type msg = Runtime.t = struct

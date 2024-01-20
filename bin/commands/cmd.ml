@@ -6,6 +6,15 @@ type error =
 
 exception Command_error of error
 
+let code_of_exn (exn : exn) : error =
+  let open Ecma_sl in
+  match exn with
+  | Eslerr.Internal_error _ -> Failure
+  | Eslerr.Compile_error _ -> CompileError
+  | Eslerr.Runtime_error _ -> RuntimeError
+  | Command_error err -> err
+  | _ -> Failure
+
 let error_code (error : error) : int =
   match error with
   | Failure -> 1
@@ -34,8 +43,8 @@ let eval_cmd (cmd : unit -> unit) : int =
     flush_all ();
     log "%a" Eslerr.pp exn;
     Printexc.print_backtrace stderr;
-    error_code Failure
-  | Eslerr.Runtime_error _ as exn ->
+    code_of_exn exn |> error_code
+  | (Eslerr.Compile_error _ | Eslerr.Runtime_error _) as exn ->
     log ~header:false "%a" Eslerr.pp exn;
-    error_code RuntimeError
+    code_of_exn exn |> error_code
   | Command_error err -> error_code err
