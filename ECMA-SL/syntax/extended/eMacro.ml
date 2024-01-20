@@ -32,11 +32,13 @@ let mapper (find_macro_f : string -> t option) : EStmt.t -> EStmt.t =
   match s.it with
   | EStmt.MacroApply (mn, es) -> (
     match find_macro_f mn with
-    | None -> failwith "TEMP: Replace by Eslerr.Compile.UnknownMacro"
+    | None -> Eslerr.(compile (UnknownMacro mn))
     | Some { it = m; _ } ->
       let subst =
         try List.combine m.params es |> List.to_seq |> Hashtbl.of_seq
-        with _ -> failwith "TEMP: Replace by Eslerr.Compile.BadNArgs"
+        with _ ->
+          let (nparams, nargs) = (List.length m.params, List.length es) in
+          Eslerr.(compile (BadNArgs (nparams, nargs)))
       in
       EStmt.map ~emapper:(EExpr.Mapper.var subst) EStmt.Mapper.id m.body )
   | _ -> s
