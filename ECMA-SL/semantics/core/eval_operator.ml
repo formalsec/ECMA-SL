@@ -1,9 +1,9 @@
 open Operator
 open Val
 
-let op_err (src_arg_i : int) (op_lbl : string) (rt_msg : Eslerr.runtime_msg) :
+let op_err (src_arg_i : int) (op_lbl : string) (rterr : Eslerr.rterr) :
   'a =
-  raise Eslerr.(runtime' ~src:(Index src_arg_i) [ OpEvalErr op_lbl; rt_msg ])
+  raise Eslerr.(runtime' ~src:(Index src_arg_i) [ OpEvalErr op_lbl; rterr ])
 
 let unexpected_err (src_arg_i : int) (op_lbl : string) (msg : string) : 'a =
   op_err src_arg_i op_lbl (Unexpected msg)

@@ -18,17 +18,19 @@ module Parser = struct
   let parse_tdef ((tn, t) : string * EType.t) (p : t) : unit =
     match Hashtbl.find_opt p.tdefs tn with
     | None -> Hashtbl.replace p.tdefs tn t
-    | Some _ -> failwith "TEMP: Replace by Eslerr.Compile.DuplicateTdef"
+    | Some _ -> Eslerr.(compile (DuplicatedTdef tn))
 
   let parse_func (f : EFunc.t) (p : t) : unit =
-    match Hashtbl.find_opt p.funcs (EFunc.name f) with
-    | None -> Hashtbl.replace p.funcs (EFunc.name f) f
-    | Some _ -> failwith "TEMP: Replace by Eslerr.Compile.DuplicateFunc"
+    let fn = EFunc.name f in
+    match Hashtbl.find_opt p.funcs fn with
+    | None -> Hashtbl.replace p.funcs fn f
+    | Some _ -> Eslerr.(compile (DuplicatedFunc fn))
 
   let parse_macro (m : EMacro.t) (p : t) : unit =
-    match Hashtbl.find_opt p.macros (EMacro.name m) with
-    | None -> Hashtbl.replace p.macros (EMacro.name m) m
-    | Some _ -> failwith "TEMP: Replace by Eslerr.Compile.DuplicateMacro"
+    let mn = EMacro.name m in
+    match Hashtbl.find_opt p.macros mn with
+    | None -> Hashtbl.replace p.macros mn m
+    | Some _ -> Eslerr.(compile (DuplicatedMacro mn))
 
   let parse_prog (imports : string list) (el_parsers : (t -> unit) list) : t =
     let p = { (default ()) with imports } in
