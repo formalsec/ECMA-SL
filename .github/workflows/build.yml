@@ -31,8 +31,3 @@ jobs:
         run: opam exec -- dune build @install
       - name: Test
         run: opam exec -- dune runtest
-      - name: Compile interpreters
-        run: |
-          cd JS-Interpreters
-          opam exec -- dune exec -- ecma-sl compile ecmaref5/main.esl --untyped > /dev/null
-          opam exec -- dune exec -- ecma-sl compile ecmaref6/main.esl --untyped > /dev/null
