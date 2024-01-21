@@ -38,11 +38,13 @@ To build this application, we employ [dune](https://github.com/ocaml/dune), a co
 2. Bootstrap the OCaml compiler:
 ```sh
 opam init
-opam switch create ecma-sl 5.1.0
+opam switch create ecma-sl 4.14.0
+eval $(opam env)
 ```
 
 3. Install the library dependencies:
 ```sh
+opam update
 opam install . --deps-only
 ```
 
@@ -55,6 +57,14 @@ dune runtest
 5. Install the application on your path:
 ```sh
 dune install
+```
+
+### Integrating OCaml with VSCode
+
+1. Install the [OCaml Platform](vscode:extension/ocamllabs.ocaml-platform) extension:
+2. Install the OCaml language server and code formatter.
+```
+opam install ocaml-lsp-server ocamlformat
 ```
 
 <br>
