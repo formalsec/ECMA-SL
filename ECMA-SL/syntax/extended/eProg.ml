@@ -56,9 +56,9 @@ let macros (p : t) : (string, EMacro.t) Hashtbl.t = p.macros
 let pp (fmt : Fmt.t) (p : t) : unit =
   let open Fmt in
   let pp_import fmt import = fprintf fmt "import %s\n" import in
-  let pp_tdef fmt tn t = fprintf fmt "typedef %s := %a\n" tn EType.pp t in
-  let pp_func fmt _ f = fprintf fmt "\n%a\n" EFunc.pp f in
-  let pp_macro fmt _ m = fprintf fmt "\n%a\n" EMacro.pp m in
+  let pp_tdef fmt (tn, t) = fprintf fmt "typedef %s := %a\n" tn EType.pp t in
+  let pp_func fmt (_, f) = fprintf fmt "\n%a\n" EFunc.pp f in
+  let pp_macro fmt (_, m) = fprintf fmt "\n%a\n" EMacro.pp m in
   fprintf fmt "%a\n%a%a%a" (pp_lst "" pp_import) p.imports
     (pp_hashtbl "" pp_tdef) p.tdefs (pp_hashtbl "" pp_func) p.funcs
     (pp_hashtbl "" pp_macro) p.macros
