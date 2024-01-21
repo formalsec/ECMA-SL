@@ -41,7 +41,7 @@ let rec pp (fmt : Fmt.t) (e : t) : unit =
   | ECall (fn, es) -> fprintf fmt "extern %s(%a)" fn (pp_lst ", " pp) es
   | NewObj flds ->
     let pp_fld fmt (fn, fe) = fprintf fmt "%s: %a" fn pp fe in
-    if List.is_empty flds then pp_str fmt "{}"
+    if List.length flds = 0 then pp_str fmt "{}"
     else fprintf fmt "{ %a }" (pp_lst ", " pp_fld) flds
   | Lookup (oe, fe) -> fprintf fmt "%a[%a]" pp oe pp fe
   | Curry (fe, es) -> fprintf fmt "{%a}@(%a)" pp fe (pp_lst ", " pp) es
