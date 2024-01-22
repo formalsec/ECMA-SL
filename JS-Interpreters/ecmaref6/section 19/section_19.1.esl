@@ -3,9 +3,9 @@
 /* 19.1.1 The Object Constructor */
 function initObjectConstructor(ObjectPrototype, FunctionPrototype, globalObject, strict) {
   /* The Object constructor is the %Object% intrinsic object and the initial value of the Object property of the
-     global object. When called as a constructor it creates a new ordinary object. When Object is called as a 
-     function rather than as a constructor, it performs a type conversion. 
-     
+     global object. When called as a constructor it creates a new ordinary object. When Object is called as a
+     function rather than as a constructor, it performs a type conversion.
+
      The Object constructor is designed to be subclassable. It may be used as the value of an extends clause
      of a class definition. */
 
@@ -32,10 +32,10 @@ function fillObjectConstructor(ObjectConstructor, globalObject, strict) {
   assign := CreateBuiltInFunctionObject(["target", "sources"], "ObjectAssign", globalObject, strict, 2.);
   createBuiltInProperty(ObjectConstructor, "assign", assign);
 
-  /* 19.1.2.2 Object.create ( O [ , Properties ] ) */ 
+  /* 19.1.2.2 Object.create ( O [ , Properties ] ) */
   create := CreateBuiltInFunctionObject(["O", "Properties"], "StandardObjectCreate", globalObject, strict, null);
   createBuiltInProperty(ObjectConstructor, "create", create);
-  
+
   /* 19.1.2.3 Object.defineProperties ( O, Properties ) */
   defineProperties := CreateBuiltInFunctionObject(["O", "Properties"], "StandardObjectDefineProperties", globalObject, strict, null);
   createBuiltInProperty(ObjectConstructor, "defineProperties", defineProperties);
@@ -43,22 +43,22 @@ function fillObjectConstructor(ObjectConstructor, globalObject, strict) {
   /* 19.1.2.4 Object.defineProperty ( O, P, Attributes ) */
   defineProperty := CreateBuiltInFunctionObject(["O", "P", "Attributes"], "ObjectDefineProperty", globalObject, strict, null);
   createBuiltInProperty(ObjectConstructor, "defineProperty", defineProperty);
-  
+
   /* 19.1.2.5 Object.freeze ( O ) */
   freeze := CreateBuiltInFunctionObject(["O"], "ObjectFreeze", globalObject, strict, null);
   createBuiltInProperty(ObjectConstructor, "freeze", freeze);
-  
+
   /* 19.1.2.6 Object.getOwnPropertyDescriptor ( O, P ) */
   getOwnPropertyDescriptor := CreateBuiltInFunctionObject(["O", "P"], "ObjectGetOwnPropertyDescriptor", globalObject, strict, null);
   createBuiltInProperty(ObjectConstructor, "getOwnPropertyDescriptor", getOwnPropertyDescriptor);
-  
+
   /* 19.1.2.7 Object.getOwnPropertyNames ( O ) */
   getOwnPropertyNames := CreateBuiltInFunctionObject(["O"], "ObjectGetOwnPropertyNames", globalObject, strict, null);
-  createBuiltInProperty(ObjectConstructor, "getOwnPropertyNames", getOwnPropertyNames); 
-  
+  createBuiltInProperty(ObjectConstructor, "getOwnPropertyNames", getOwnPropertyNames);
+
   /* 19.1.2.8 Object.getOwnPropertySymbols ( O )*/
   getOwnPropertySymbols := CreateBuiltInFunctionObject(["O"], "ObjectGetOwnPropertySymbols", globalObject, strict, null);
-  createBuiltInProperty(ObjectConstructor, "getOwnPropertySymbols", getOwnPropertySymbols); 
+  createBuiltInProperty(ObjectConstructor, "getOwnPropertySymbols", getOwnPropertySymbols);
 
   /* 19.1.2.9 Object.getPrototypeOf ( O ) */
   getPrototypeOf := CreateBuiltInFunctionObject(["O"], "ObjectGetPrototypeOf", globalObject, strict, null);
@@ -106,10 +106,57 @@ function initObjectPrototype() {
   /* The value of the [[Prototype]] internal property of the Object prototype object is null, the value of the [[Class]]
      internal property is "Object", and the initial value of the [[Extensible]] internal property is true. */
   objectPrototypeObject := NewECMAScriptObjectFull('null, "Object", true);
-  
+
   setAllInternalMethodsOfOrdinaryObject(objectPrototypeObject);
 
   return objectPrototypeObject
+};
+
+function protoAccessorGet(globalObject, this, NewTarget, strict, params) {
+  print "In protoAccessorGet";
+  /* 1. Let O be ? ToObject(this value). */
+  O := ToObject(this);
+
+  /* 2. Return ? O.[[GetPrototypeOf]](). */
+  proto := {O.GetPrototypeOf}(O);
+  /* HELP: do we need to ReturnIfAbrupt? or can we just return? */
+  @ReturnIfAbrupt(proto);
+
+  return proto
+};
+
+function protoAccessorSet(globalObject, this, NewTarget, strict, params) {
+  proto := l_nth(params, 0);
+
+  /* 1. Let O be ? RequireObjectCoercible(this value). */
+  print "In protoAccessorSet";
+  print this;
+  O := RequireObjectCoercible(this);
+  print O;
+  @ReturnIfAbrupt(O);
+  print O;
+
+  /* 2. If proto is not an Object and proto is not null, return undefined. */
+  if (!(Type(proto) = "Object") &&& !(proto = 'null)) {
+    return 'undefined
+  };
+
+  /* 3. If O is not an Object, return undefined. */
+  if (!(Type(O) = "Object")) {
+    return 'undefined
+  };
+
+  /* 4. Let status be ? O.[[SetPrototypeOf]](proto). */
+  status := {O.SetPrototypeOf}(O, proto);
+  @ReturnIfAbrupt(status);
+
+  /* 5. If status is false, throw a TypeError exception. */
+  if (status = false) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 6. Return undefined. */
+  return 'undefined
 };
 
 /* 19.1.3 Properties of the Object Prototype Object */
@@ -142,16 +189,23 @@ function fillObjectPrototype(objectPrototypeObject, ObjectConstructor, globalObj
   valueOf := CreateBuiltInFunctionObject([], "ObjectPrototypeValueOf", globalObject, strict, null);
   createBuiltInProperty(objectPrototypeObject, "valueOf", valueOf);
 
+  /* Normative Optional, Legacy Object.prototype.__proto__ */
+  protoAccessor := newGetAndSetAccessorPropertyDescriptorFull(
+    CreateBuiltInFunctionObject([], "protoAccessorGet", globalObject, strict, null),
+    CreateBuiltInFunctionObject([], "protoAccessorSet", globalObject, strict, null),
+    false, true);
+  createBuiltInProperty(objectPrototypeObject, "__proto__", protoAccessor);
+
   return
 };
 
 /** 19.1.1.1 Object ( [ value ] )
- *  When Object function is called with optional argument value, the following steps are taken: 
+ *  When Object function is called with optional argument value, the following steps are taken:
 */
 function ObjectConstructor(globalObject, this, NewTarget, strict, params) {
   value := getOptionalParam(params, 0);
-  ObjectPrototype := getObjectPrototype(false); 
-  
+  ObjectPrototype := getObjectPrototype(false);
+
   /* If NewTarget is neither undefined nor the active function, then */
   if ( !(NewTarget = 'undefined) &&& false) {  /* duvida em como passar o NewTarget */
     /* Return OrdinaryCreateFromConstructor(NewTarget, "%ObjectPrototype%"). */
@@ -180,11 +234,11 @@ function auxCreateList(origin) {
   };
 
   return l
-}; 
+};
 
 /**
  * 19.1.2.1 Object.assign ( target, ...sources )
- * 
+ *
  * The assign function is used to copy the values of all of the enumerable own properties from one or more
  * source objects to a target object. When the assign function is called, the following steps are taken:
 */
@@ -261,7 +315,7 @@ function ObjectAssign(globalObject, this, NewTarget, strict, params) {
 
 /**
  * 19.1.2.2 Object.create ( O [ , Properties ] )
- * 
+ *
  * The create function creates a new object with a specified prototype. When the
  * create function is called, the following steps are taken:
 */
@@ -322,7 +376,7 @@ function ObjectDefineProperties(O, Properties) {
   descriptors := [];
 
   /* 5. Repeat for each element nextKey of keys in List order, */
-  foreach( nextKey : keys ) {    
+  foreach( nextKey : keys ) {
     /* a. Let propDesc be props.[[GetOwnProperty]](nextKey). */
     propDesc := {props.GetOwnProperty}(props, nextKey);
 
@@ -330,7 +384,7 @@ function ObjectDefineProperties(O, Properties) {
     @ReturnIfAbrupt(propDesc);
 
     /* If propDesc is not undefined and propDesc.[[Enumerable]] is true, then  */
-    if ( !(propDesc = 'undefined ) &&& propDesc.Enumerable = true ) {      
+    if ( !(propDesc = 'undefined ) &&& propDesc.Enumerable = true ) {
       /* Let descObj be Get( props, nextKey). */
       descObj := Get(props, nextKey);
 
@@ -339,23 +393,23 @@ function ObjectDefineProperties(O, Properties) {
 
       /* Let desc be ToPropertyDescriptor(descObj). */
       desc := ToPropertyDescriptor(descObj);
-      
+
       /* ReturnIfAbrupt(desc). */
       @ReturnIfAbrupt(desc);
 
       /* Append the pair (a two element List) consisting of nextKey and desc to the end of descriptors. */
       descriptors := l_add(descriptors, [nextKey, desc])
-    }   
+    }
   };
 
   /* 6. For each pair from descriptors in list order, */
-  foreach(pair : descriptors) {    
+  foreach(pair : descriptors) {
     /* a. Let P be the first element of pair. */
     P := l_nth(pair, 0);
-    
+
     /* b. Let desc be the second element of pair. */
     desc := l_nth(pair, 1);
-    
+
     /* c. Let status be DefinePropertyOrThrow(O,P, desc). */
     status := DefinePropertyOrThrow(O, P, desc);
 
@@ -369,9 +423,9 @@ function ObjectDefineProperties(O, Properties) {
 
 /**
  * 19.1.2.4 Object.defineProperty ( O, P, Attributes )
- * 
+ *
  * The defineProperty function is used to add an own property and/or update the attributes of an existing
- * own property of an object. When the defineProperty function is called, the following steps are taken: 
+ * own property of an object. When the defineProperty function is called, the following steps are taken:
 */
 function ObjectDefineProperty(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
@@ -401,7 +455,7 @@ function ObjectDefineProperty(globalObject, this, NewTarget, strict, params) {
 
   /* ReturnIfAbrupt(success). */
   @ReturnIfAbrupt(success);
-  
+
   /* 5. Return O. */
   return O
 };
@@ -415,7 +469,7 @@ function ObjectFreeze(globalObject, this, NewTarget, strict, params) {
   if (!(Type(O) = "Object")) {
     return O
   };
-  
+
   /* Let status be SetIntegrityLevel( O, "frozen"). */
   status := SetIntegrityLevel(O, "frozen");
 
@@ -556,7 +610,7 @@ function ObjectIsFrozen(globalObject, this, NewTarget, strict, params) {
   if (!(Type(O) = "Object")) {
     return true
   };
-  
+
   /* Return TestIntegrityLevel(O, "frozen"). */
   return TestIntegrityLevel(O, "frozen")
 };
@@ -570,7 +624,7 @@ function ObjectIsSealed(globalObject, this, NewTarget, strict, params) {
   if (!(Type(O) = "Object")) {
     return true
   };
-  
+
   /* Return TestIntegrityLevel(O, "sealed"). */
   return TestIntegrityLevel(O, "sealed")
 };
@@ -579,7 +633,7 @@ function ObjectIsSealed(globalObject, this, NewTarget, strict, params) {
 function ObjectKeys(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
   /* When the keys function is called with argument O, the following steps are taken: */
-  
+
   /* Let obj be ToObject(O). */
   obj := ToObject(O);
 
@@ -690,7 +744,7 @@ function ObjectSetPrototypeOf(globalObject, this, NewTarget, strict, params) {
 function ObjectPrototypeHasOwnProperty(globalObject, this, NewTarget, strict, params) {
   V := l_nth(params, 0);
   /* When the hasOwnProperty method is called with argument V, the following steps are taken: */
-  
+
   /* 1. ToPropertyKey(V). */
   P := ToPropertyKey(V);
 
