@@ -1,0 +1,5 @@
+(cram
+ (deps
+  %{bin:ecma-sl}
+  __proto__.js))
+
