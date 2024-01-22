@@ -11,6 +11,7 @@ module SMap = Stdlib.Map.Make (Stdlib.String)
 module Optimizer = Choice_monad.Optimizer
 
 let ( let/ ) = Choice.bind
+let print_time = false
 
 let list_iter ~f lst =
   let exception E of Rresult.R.msg in
@@ -249,10 +250,11 @@ let run env entry_func =
       Fmt.printf "  path cond : %a@." Encoding.Expr.pp_list (Thread.pc thread)
       )
     results;
-  Fmt.printf "  exec time : %fs@." (Stdlib.Sys.time () -. start);
-  Fmt.printf "solver time : %fs@." !Solver.solver_time;
-  Fmt.printf "  mean time : %fms@."
-    (1000. *. !Solver.solver_time /. float !Solver.solver_count)
+  if print_time then (
+    Fmt.printf "  exec time : %fs@." (Stdlib.Sys.time () -. start);
+    Fmt.printf "solver time : %fs@." !Solver.solver_time;
+    Fmt.printf "  mean time : %fms@."
+      (1000. *. !Solver.solver_time /. float !Solver.solver_count) )
 
 let main (copts : Options.common_options) file target workspace =
   Log.on_debug := copts.debug;
