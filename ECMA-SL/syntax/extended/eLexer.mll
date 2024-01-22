@@ -40,8 +40,8 @@
             "gen_wrapper"             , WRAPPER;
 
             (* Program constants *)
-            "NaN"                     , FLOAT (float_of_string "nan");
-            "Infinity"                , FLOAT (float_of_string "infinity");
+            "NaN"                     , FLOAT (Float.nan);
+            "Infinity"                , FLOAT (Float.infinity);
             "MAX_VALUE"               , MAX_VALUE;
             "MIN_VALUE"               , MIN_VALUE;
             "PI"                      , PI;
