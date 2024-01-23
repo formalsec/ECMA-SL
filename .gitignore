@@ -7,6 +7,10 @@
 
 # OCaml Generated Files
 _build/
+_coverage/
 
 # Local Opam switch
 _opam/
+
+# Project
+ecma-out
