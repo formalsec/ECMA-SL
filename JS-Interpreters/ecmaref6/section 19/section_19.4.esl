@@ -8,7 +8,7 @@ function initSymbolPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "toString", descriptor);
   setJSProperty(toStringFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
   setJSProperty(toStringFunctionObject, "name", newDataPropertyDescriptorFull("toString", false, false, true));
-  
+
   /* 19.4.3.3 Symbol.prototype.valueOf () */
   valueOfFunctionObject := CreateBuiltInFunctionObject([], "symbolValueOf", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(valueOfFunctionObject, true, false, true);
@@ -52,19 +52,19 @@ function initSymbolObject(global, objectPrototype, strict) {
   setJSProperty(forFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
   setJSProperty(forFunctionObject, "name", newDataPropertyDescriptorFull("for", false, false, true));
 
-  /* 19.4.2.2 Symbol.hasInstance 
+  /* 19.4.2.2 Symbol.hasInstance
     The initial value of Symbol.hasInstance is the well known symbol @@hasInstance.
     This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   descriptor := newDataPropertyDescriptorFull(getWellKnownSymbol("Symbol.hasInstance"), false, false, false);
   setJSProperty(objSymbolConstructor, "hasInstance", descriptor);
 
-  /* 19.4.2.3 Symbol.isConcatSpreadable 
+  /* 19.4.2.3 Symbol.isConcatSpreadable
     The initial value of Symbol.isConcatSpreadable is the well known symbol @@isConcatSpreadable.
     This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   descriptor := newDataPropertyDescriptorFull(getWellKnownSymbol("Symbol.isConcatSpreadable"), false, false, false);
   setJSProperty(objSymbolConstructor, "isConcatSpreadable", descriptor);
 
-  /* 19.4.2.4 Symbol.iterator 
+  /* 19.4.2.4 Symbol.iterator
     The initial value of Symbol.iterator is the well known symbol @@iterator.
     This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   descriptor := newDataPropertyDescriptorFull(getWellKnownSymbol("Symbol.iterator"), false, false, false);
@@ -77,37 +77,37 @@ function initSymbolObject(global, objectPrototype, strict) {
   setJSProperty(keyForFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
   setJSProperty(keyForFunctionObject, "name", newDataPropertyDescriptorFull("keyFor", false, false, true));
 
-  /* 19.4.2.6 Symbol.match 
+  /* 19.4.2.6 Symbol.match
     The initial value of Symbol.match is the well known symbol @@match.
     This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   descriptor := newDataPropertyDescriptorFull(getWellKnownSymbol("Symbol.match"), false, false, false);
   setJSProperty(objSymbolConstructor, "match", descriptor);
 
-  /* 19.4.2.7 Symbol.prototype 
+  /* 19.4.2.7 Symbol.prototype
     The initial value of Symbol.prototype the intrinsic object %SymbolPrototype%.
     This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }.*/
   descriptor := newDataPropertyDescriptorFull(objSymbolPrototype, false, false, false);
   setJSProperty(objSymbolConstructor, "prototype", descriptor);
 
-  /* 19.4.2.8 Symbol.replace 
+  /* 19.4.2.8 Symbol.replace
     The initial value of Symbol.replace is the well known symbol @@replace.
     This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   descriptor := newDataPropertyDescriptorFull(getWellKnownSymbol("Symbol.replace"), false, false, false);
   setJSProperty(objSymbolConstructor, "replace", descriptor);
 
-  /* 19.4.2.9 Symbol.search 
+  /* 19.4.2.9 Symbol.search
     The initial value of Symbol.search is the well known symbol @@search.
     This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   descriptor := newDataPropertyDescriptorFull(getWellKnownSymbol("Symbol.search"), false, false, false);
   setJSProperty(objSymbolConstructor, "search", descriptor);
 
-  /* 19.4.2.10 Symbol.species 
+  /* 19.4.2.10 Symbol.species
     The initial value of Symbol.species is the well known symbol @@species.
     This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   descriptor := newDataPropertyDescriptorFull(getWellKnownSymbol("Symbol.species"), false, false, false);
   setJSProperty(objSymbolConstructor, "species", descriptor);
-  
-  /* 19.4.2.11 Symbol.split 
+
+  /* 19.4.2.11 Symbol.split
     The initial value of Symbol.split is the well known symbol @@split.
     This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   descriptor := newDataPropertyDescriptorFull(getWellKnownSymbol("Symbol.split"), false, false, false);
@@ -119,13 +119,13 @@ function initSymbolObject(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(getWellKnownSymbol("Symbol.toPrimitive"), false, false, false);
   setJSProperty(objSymbolConstructor, "toPrimitive", descriptor);
 
-  /* 19.4.2.13 Symbol.toStringTag 
+  /* 19.4.2.13 Symbol.toStringTag
     The initial value of Symbol.toStringTag is the well known symbol @@toStringTag.
     This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   descriptor := newDataPropertyDescriptorFull(getWellKnownSymbol("Symbol.toStringTag"), false, false, false);
   setJSProperty(objSymbolConstructor, "toStringTag", descriptor);
 
-  /* 19.4.2.14 Symbol.unscopables 
+  /* 19.4.2.14 Symbol.unscopables
     The initial value of Symbol.unscopables is the well known symbol @@unscopables.
     This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   descriptor := newDataPropertyDescriptorFull(getWellKnownSymbol("Symbol.unscopables"), false, false, false);
@@ -136,20 +136,20 @@ function initSymbolObject(global, objectPrototype, strict) {
 
 /* 19.4.1.1 Symbol ([description]) */
 function SymbolConstructor(global, this, NewTarget, strict, args) {
-  description := getOptionalParam(args, 0); 
+  description := getOptionalParam(args, 0);
 
-  /* 1. If NewTarget is not undefined, throw a TypeError exception. */ 
+  /* 1. If NewTarget is not undefined, throw a TypeError exception. */
   if (!(NewTarget = 'undefined)) {
     throw TypeErrorConstructorInternal()
-  }; 
-  
+  };
+
   /* 2. If description is undefined, let descString be undefined. */
-  if (description = null || description = 'undefined) { 
+  if (description = null || description = 'undefined) {
     descString := 'undefined
   } else {
     descString := ToString(description)
-  }; 
-  
+  };
+
   /* 3. ReturnIfAbrupt(descString). */
   @ReturnIfAbrupt(descString);
 
@@ -167,7 +167,7 @@ function SymbolObjectConstructor(symbolData) {
 
 /* 19.4.2.1 Symbol.for (key) */
 function symbolFor(global, this, NewTarget, strict, args) {
-  
+
   key := l_nth(args, 0);
 
   /* 1. Let stringKey be ToString(key). */
@@ -202,16 +202,11 @@ function symbolFor(global, this, NewTarget, strict, args) {
 function symbolKeyFor(global, this, NewTarget, strict, args) {
 
   sym := l_nth(args, 0);
-  
+
   /* 1. If Type(sym) is not Symbol, throw a TypeError exception. */
   if (!(Type(sym) = "Symbol")) {
     throw TypeErrorConstructorInternal()
   };
-
-  print "KEYFOR";
-  print sym;
-  print |GlobalSymbolRegistry|;
-  print |GlobalSymbolRegistry|[sym.Description].sym;
 
   /* 2. For each element e of the GlobalSymbolRegistry List (see 19.4.2.1), */
     /* 2a. If SameValue(e.[[symbol]], sym) is true, return e.[[key]]. */
@@ -270,7 +265,7 @@ function symbolDescriptiveString(sym){
 
   /* 2. Let desc be sym’s [[Description]] value. */
   desc := sym.Description;
-  
+
   /* 3. If desc is undefined, let desc be the empty string.*/
   if (desc = 'undefined){
     desc := ""
@@ -285,10 +280,10 @@ function symbolDescriptiveString(sym){
 
 /* 19.4.3.3 Symbol.prototype.valueOf () */
 function symbolValueOf(global, this, NewTarget, strict, args){
-  
+
   /* 1. Let s be the this value. */
   s := this;
-  
+
   /* 2. If Type(s) is Symbol, return s. */
   if (Type(s) = "Symbol") {
     return s
@@ -327,7 +322,7 @@ function thisSymbolValue(value){
     /* 2c. Return s. */
     return s
   };
-        
+
   /* 3. Throw a TypeError exception. */
   throw TypeErrorConstructorInternal()
 };
@@ -408,6 +403,5 @@ function checkSymbolProperties(property) {
     return false
   };
   res := s_substr_u (property, 0, 7);
-  print res;
   return (res = "Symbol(")
 }

@@ -371,7 +371,6 @@ function InitializeBindingDeclarativeRecord(envRec, N, V) {
 	/* Let envRec be the declarative Environment Record for which the method was invoked. */
 
 	/* Assert: envRec must have an uninitialized binding for N. */
-  print N;
 	assert( isUninitialisedBinding(envRec, N) );
 
 	/* Set the bound value for N in envRec to V. */

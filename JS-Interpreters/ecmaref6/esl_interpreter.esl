@@ -1362,9 +1362,8 @@ macro PropagateBlockLabelSet(Block, Stmts) {
 
 function JS_Interpreter_Stmt(s, scope) {
   /* TODO: Debug print
-   *  - Current statement
-   *  - Current Scope (Current Environment Record)
-   *  - Breakpoint
+   *  Current statement
+   *  Current Scope (Current Environment Record)
    */
   match s with
   | { type: "BlockStatement", body: StatementList } -> {

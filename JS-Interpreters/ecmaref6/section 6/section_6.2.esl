@@ -250,10 +250,7 @@ function GetValue(V) {
   base := GetBase(V);
 
   /* If IsUnresolvableReference(V), throw a ReferenceError exception. */
-  print "GetValue";
-  print V;
   if ( IsUnresolvableReference(V) ) {
-    print "UnresolvableRef";
     throw ReferenceErrorConstructorInternal()
   };
 
@@ -269,17 +266,7 @@ function GetValue(V) {
       };
 
       /* Return base.[[Get]](GetReferencedName(V), GetThisValue(V)). */
-      ref_name := GetReferencedName(V);
-
-      x := {base.Get}(base, ref_name, GetThisValue(V));
-
-      /* if (extern is_symbolic(ref_name)) {
-        print "getValue";
-        print ref_name;
-        print x
-      }; */
-      return x
-      /* return {base.Get}(base, GetReferencedName(V), GetThisValue(V)) */
+      return {base.Get}(base, GetReferencedName(V), GetThisValue(V))
   }
   /* Else base must be an Environment Record, */
   else {

@@ -24,6 +24,7 @@ function __internalLog(globalObject, this, NewTarget, strict, params) {
       str := ToPropertyKey(str)
     }
   };
+  /* Important: This is console.log, do not remove! */
   print str;
 
   return 'null

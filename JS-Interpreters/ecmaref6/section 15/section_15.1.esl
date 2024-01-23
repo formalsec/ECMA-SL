@@ -59,13 +59,6 @@ function ScriptEvaluation(script, realm) {
     /*Resume the context that is now on the top of the execution context stack as the running execution context.*/
     topExecStack().Suspend := false;
 
-   /* if ( getCompletionType(result) = 'throw ) {
-        val := getCompletionValue(result).JSProperties.message;
-        print "FIMPROG";
-        print result;
-        print val
-    };*/
-
     /*Return Completion(result).*/
     return Completion(result)
 };
@@ -105,7 +98,7 @@ function LexicallyScopedDeclarations(object) {
   if (object = 'undefined) {
     return declarations
   };
-  
+
   if ("letDeclarations" in_obj object) {
     foreach(decl : object.letDeclarations) {
       declarations := l_add(declarations, {type: "let", name: decl})
@@ -155,8 +148,8 @@ function getConstDeclarationsInCode(object) {
 */
 function GlobalDeclarationInstantiation(script, env) {
     /* Let envRec be env’s EnvironmentRecord. */
-    envRec := getEnvironmentRecord(env); 
-    
+    envRec := getEnvironmentRecord(env);
+
     /* Assert: envRec is a global Environment Record. */
 
     /* Let lexNames be the LexicallyDeclaredNames of script. */
@@ -197,7 +190,7 @@ function GlobalDeclarationInstantiation(script, env) {
     /* Let varDeclarations be the VarScopedDeclarations of script. */
     /* TODO ver a diferenca entre VarDeclaredNames e VarScopedDeclarations */
     varDeclarations := varNames;
-    
+
     /* Let functionsToInitialize be an empty List. */
     functionsToInitialize := [];
 
@@ -209,12 +202,12 @@ function GlobalDeclarationInstantiation(script, env) {
         /* If d is neither a VariableDeclaration or a ForBinding, then */
             /* Assert: d is either a FunctionDeclaration or a GeneratorDeclaration. */
             /* NOTE If there are multiple FunctionDeclarations for the same name, the last declaration is used. */
-        
+
         /* Let fn be the sole element of the BoundNames of d. */
         fn := d.id.name;
-            
+
         /* If fn is not an element of declaredFunctionNames, then */
-        
+
         /* Let fnDefinable be envRec.CanDeclareGlobalFunction(fn). */
         fnDefinable := {envRec.CanDeclareGlobalFunction}(envRec, fn);
 
@@ -260,7 +253,7 @@ function GlobalDeclarationInstantiation(script, env) {
     /* NOTE: No abnormal terminations occur after this algorithm step if the global object is an
              ordinary object. However, if the global object is a Proxy exotic object it may exhibit
              behaviours that cause abnormal terminations in some of the following steps. */
-    
+
     /* Let lexDeclarations be the LexicallyScopedDeclarations of script. */
     lexDeclarations := lexNames; /* TODO */
     /* For each element d in lexDeclarations do */
@@ -296,12 +289,12 @@ function GlobalDeclarationInstantiation(script, env) {
         /* ReturnIfAbrupt(status). */
         @ReturnIfAbrupt(status)
     };
-    
+
     /* For each String vn in declaredVarNames, in list order do */
     foreach( vn : declaredVarNames) {
         /* Let status be envRec.CreateGlobalVarBinding(vn, false). */
         status := {envRec.CreateGlobalVarBinding}(envRec, vn, false);
-        
+
         /* ReturnIfAbrupt(status). */
         @ReturnIfAbrupt(status)
     };
@@ -311,7 +304,7 @@ function GlobalDeclarationInstantiation(script, env) {
 };
 
 /*
-15.1.9 Runtime Semantics: ScriptEvaluationJob ( sourceText ) 
+15.1.9 Runtime Semantics: ScriptEvaluationJob ( sourceText )
 
 The job ScriptEvaluationJob with parameter sourceText parses, validates, and evaluates sourceText as a Script.
 */
@@ -328,7 +321,7 @@ function ScriptEvaluationJob(sourceText) {
     /*If code is an error indication, then*/
     if ( sourceText.type = "EarlySyntaxError" )  {
         /*Report or log the error(s) in an implementation dependent manner.*/
-        
+
         /* ver como reportar/log */
         if (sourceText.message = "Invalid left-hand side in assignment") {
           return NextJob( throwEmptyCompletion( ReferenceErrorConstructorInternal()))
@@ -347,7 +340,7 @@ function ScriptEvaluationJob(sourceText) {
         /*Let status be the result of ScriptEvaluation of code with argument realm.*/
         status := ScriptEvaluation(sourceText, realm)
     };
-    
+
     /*NextJob Completion(status).*/
     return NextJob(Completion(status))
     /*NOTE An implementation may parse a sourceText as a Script and analyze it for Early Error conditions prior

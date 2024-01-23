@@ -7,7 +7,7 @@
 /**
  * A RegExp object contains a regular expression and the associated flags.
  *
- * NOTE The form and functionality of regular expressions is modelled after the regular 
+ * NOTE The form and functionality of regular expressions is modelled after the regular
  * expression facility in the Perl 5 programming language.
  */
 
@@ -32,7 +32,7 @@ function initRegExpObject(globalObject, ObjectPrototype, strict){
 
    species_desc := newGetAccessorPropertyDescriptorFull(species, false, true);
    /* setJSProperty(regExpConstructor, getSpeciesPropertyName(), species_desc); */
-   setJSProperty(regExpConstructor, getSpeciesPropertyName(), species_desc);   
+   setJSProperty(regExpConstructor, getSpeciesPropertyName(), species_desc);
 
    /* 21.2.6.1 lastIndex */
    /**
@@ -71,7 +71,7 @@ function initRegExpPrototype(global, objectPrototype, objectConstructor, strict)
    flags_desc := newGetAccessorPropertyDescriptorFull(flags, false, true);
    setJSProperty(regExpPrototypeObject, "flags", flags_desc);
    /* length */
-   setJSProperty(flags, "length", newDataPropertyDescriptorFull(0., false, false, true)); 
+   setJSProperty(flags, "length", newDataPropertyDescriptorFull(0., false, false, true));
    /* name */
    setJSProperty(flags, "name", newDataPropertyDescriptorFull("get flags", false, false, true));
 
@@ -80,7 +80,7 @@ function initRegExpPrototype(global, objectPrototype, objectConstructor, strict)
    global_desc := newGetAccessorPropertyDescriptorFull(global_, false, true);
    setJSProperty(regExpPrototypeObject, "global", global_desc);
    /* length */
-   setJSProperty(global_, "length", newDataPropertyDescriptorFull(0., false, false, true)); 
+   setJSProperty(global_, "length", newDataPropertyDescriptorFull(0., false, false, true));
    /* name */
    setJSProperty(global_, "name", newDataPropertyDescriptorFull("get global", false, false, true));
 
@@ -89,7 +89,7 @@ function initRegExpPrototype(global, objectPrototype, objectConstructor, strict)
    ignoreCase_desc := newGetAccessorPropertyDescriptorFull(ignoreCase, false, true);
    setJSProperty(regExpPrototypeObject, "ignoreCase", ignoreCase_desc);
    /* length */
-   setJSProperty(ignoreCase, "length", newDataPropertyDescriptorFull(0., false, false, true)); 
+   setJSProperty(ignoreCase, "length", newDataPropertyDescriptorFull(0., false, false, true));
    /* name */
    setJSProperty(ignoreCase, "name", newDataPropertyDescriptorFull("get ignoreCase", false, false, true));
 
@@ -97,7 +97,7 @@ function initRegExpPrototype(global, objectPrototype, objectConstructor, strict)
    matchFunctionObject := CreateBuiltInFunctionObject(["string"], "RegExpPrototypematch", global, strict, null);
    createBuiltInProperty(regExpPrototypeObject, getMatchPropertyName(), matchFunctionObject);
    /* length */
-   setJSProperty(matchFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true)); 
+   setJSProperty(matchFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
    /* The value of the name property of this function is "[Symbol.match]". */
    setJSProperty(matchFunctionObject, "name", newDataPropertyDescriptorFull("[Symbol.match]", false, false, true));
 
@@ -106,7 +106,7 @@ function initRegExpPrototype(global, objectPrototype, objectConstructor, strict)
    multiline_desc := newGetAccessorPropertyDescriptorFull(multiline, false, true);
    setJSProperty(regExpPrototypeObject, "multiline", multiline_desc);
    /* length */
-   setJSProperty(multiline, "length", newDataPropertyDescriptorFull(0., false, false, true)); 
+   setJSProperty(multiline, "length", newDataPropertyDescriptorFull(0., false, false, true));
    /* name */
    setJSProperty(multiline, "name", newDataPropertyDescriptorFull("get multiline", false, false, true));
 
@@ -114,24 +114,24 @@ function initRegExpPrototype(global, objectPrototype, objectConstructor, strict)
    replaceFunctionObject := CreateBuiltInFunctionObject(["string", "replaceValue"], "RegExpPrototypereplace", global, strict, null);
    createBuiltInProperty(regExpPrototypeObject, getReplacePropertyName(), replaceFunctionObject);
    /* length */
-   setJSProperty(replaceFunctionObject, "length", newDataPropertyDescriptorFull(2., false, false, true)); 
+   setJSProperty(replaceFunctionObject, "length", newDataPropertyDescriptorFull(2., false, false, true));
    /* The value of the name property of this function is "[Symbol.replace]". */
    setJSProperty(replaceFunctionObject, "name", newDataPropertyDescriptorFull("[Symbol.replace]", false, false, true));
-  
+
    /* 21.2.5.9 RegExp.prototype [ @@search ] ( string ) */
    searchFunctionObject := CreateBuiltInFunctionObject(["string"], "RegExpPrototypesearch", global, strict, null);
    createBuiltInProperty(regExpPrototypeObject, getSearchPropertyName(), searchFunctionObject);
    /* length */
-   setJSProperty(searchFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true)); 
+   setJSProperty(searchFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
    /* The value of the name property of this function is "[Symbol.search]". */
    setJSProperty(searchFunctionObject, "name", newDataPropertyDescriptorFull("[Symbol.search]", false, false, true));
-   
+
    /* 21.2.5.10 get RegExp.prototype.source */
    source := CreateBuiltInFunctionObject([], "getRegExpSourceAccessorProperty", global, strict, null);
    source_desc := newGetAccessorPropertyDescriptorFull(source, false, true);
    setJSProperty(regExpPrototypeObject, "source", source_desc);
    /* length */
-   setJSProperty(source, "length", newDataPropertyDescriptorFull(0., false, false, true)); 
+   setJSProperty(source, "length", newDataPropertyDescriptorFull(0., false, false, true));
    /* name */
    setJSProperty(source, "name", newDataPropertyDescriptorFull("get source", false, false, true));
 
@@ -139,7 +139,7 @@ function initRegExpPrototype(global, objectPrototype, objectConstructor, strict)
    splitFunctionObject := CreateBuiltInFunctionObject(["string", "limit"], "RegExpPrototypesplit", global, strict, null);
    createBuiltInProperty(regExpPrototypeObject, getSplitPropertyName(), splitFunctionObject);
    /* The length property of the @@split method is 2. */
-   setJSProperty(splitFunctionObject, "length", newDataPropertyDescriptorFull(2., false, false, true)); 
+   setJSProperty(splitFunctionObject, "length", newDataPropertyDescriptorFull(2., false, false, true));
    /* The value of the name property of this function is "[Symbol.split]". */
    setJSProperty(splitFunctionObject, "name", newDataPropertyDescriptorFull("[Symbol.split]", false, false, true));
 
@@ -148,7 +148,7 @@ function initRegExpPrototype(global, objectPrototype, objectConstructor, strict)
    sticky_desc := newGetAccessorPropertyDescriptorFull(sticky, false, true);
    setJSProperty(regExpPrototypeObject, "sticky", sticky_desc);
    /* length */
-   setJSProperty(sticky, "length", newDataPropertyDescriptorFull(0., false, false, true)); 
+   setJSProperty(sticky, "length", newDataPropertyDescriptorFull(0., false, false, true));
    /* name */
    setJSProperty(sticky, "name", newDataPropertyDescriptorFull("get sticky", false, false, true));
 
@@ -156,7 +156,7 @@ function initRegExpPrototype(global, objectPrototype, objectConstructor, strict)
    testFunctionObject := CreateBuiltInFunctionObject(["S"], "RegExpPrototypeTest", global, strict, null);
    createBuiltInProperty(regExpPrototypeObject, "test", testFunctionObject);
    /* length */
-   setJSProperty(testFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true)); 
+   setJSProperty(testFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
    /* name */
    setJSProperty(testFunctionObject, "name", newDataPropertyDescriptorFull("test", false, false, true));
 
@@ -164,7 +164,7 @@ function initRegExpPrototype(global, objectPrototype, objectConstructor, strict)
    toStringFunctionObject := CreateBuiltInFunctionObject([], "RegExpPrototypetoString", global, strict, null);
    createBuiltInProperty(regExpPrototypeObject, "toString", toStringFunctionObject);
    /* length */
-   setJSProperty(toStringFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, true)); 
+   setJSProperty(toStringFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
    /* name */
    setJSProperty(toStringFunctionObject, "name", newDataPropertyDescriptorFull("toString", false, false, true));
 
@@ -173,14 +173,14 @@ function initRegExpPrototype(global, objectPrototype, objectConstructor, strict)
    unicode_desc := newGetAccessorPropertyDescriptorFull(unicode, false, true);
    setJSProperty(regExpPrototypeObject, "unicode", unicode_desc);
    /* length */
-   setJSProperty(unicode, "length", newDataPropertyDescriptorFull(0., false, false, true)); 
+   setJSProperty(unicode, "length", newDataPropertyDescriptorFull(0., false, false, true));
    /* name */
    setJSProperty(unicode, "name", newDataPropertyDescriptorFull("get unicode", false, false, true));
 
    /* 21.2.6.1 lastIndex */
    /**
-    * The value of the lastIndex property specifies the String index at which to start the next match. 
-    * It is coerced to an integer when used (see 21.2.5.2.2). This property shall have the attributes 
+    * The value of the lastIndex property specifies the String index at which to start the next match.
+    * It is coerced to an integer when used (see 21.2.5.2.2). This property shall have the attributes
     * { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: false }.
     */
    /*
@@ -194,7 +194,7 @@ function initRegExpPrototype(global, objectPrototype, objectConstructor, strict)
 /* 21.2.1 Patterns */
 
 /**
- * The RegExp constructor applies the following grammar to the input pattern String. 
+ * The RegExp constructor applies the following grammar to the input pattern String.
  * An error occurs if the grammar cannot interpret the String as an expansion of Pattern.
  */
 
@@ -210,7 +210,7 @@ function initRegExpPrototype(global, objectPrototype, objectConstructor, strict)
 /* 21.2.2 Pattern Semantics */
 
 /**
- * This sub-section is not in this file (for now). Using the ES5 version 
+ * This sub-section is not in this file (for now). Using the ES5 version
  * ("ES6_interpreter/section 15/section_15.10.esl").
  * If there are any differences between the ES5 and ES6 standards, they will be highlighted as such,
  * and they will also be in the ES5 version file.
@@ -221,13 +221,13 @@ function initRegExpPrototype(global, objectPrototype, objectConstructor, strict)
 /* 21.2.3 The RegExp Constructor */
 
 /**
- * The RegExp constructor is the %RegExp% intrinsic object and the initial value of the RegExp property of 
- * the global object. When RegExp is called as a function rather than as a constructor, it creates and 
- * initializes a new RegExp object. Thus the function call RegExp(...) is equivalent to the object creation 
+ * The RegExp constructor is the %RegExp% intrinsic object and the initial value of the RegExp property of
+ * the global object. When RegExp is called as a function rather than as a constructor, it creates and
+ * initializes a new RegExp object. Thus the function call RegExp(...) is equivalent to the object creation
  * expression new RegExp(...) with the same arguments.
  *
- * The RegExp constructor is designed to be subclassable. It may be used as the value of an extends clause 
- * of a class definition. Subclass constructors that intend to inherit the specified RegExp behaviour must 
+ * The RegExp constructor is designed to be subclassable. It may be used as the value of an extends clause
+ * of a class definition. Subclass constructors that intend to inherit the specified RegExp behaviour must
  * include a super call to the RegExp constructor to create and initialize subclass instances with the necessary
  * internal slots.
  */
@@ -237,7 +237,7 @@ function RegExpConstructorAsFunction(externalScope, this, NewTarget, strict, arg
 };
 /* 21.2.3.1 RegExp ( pattern, flags ) */
 /**
- * NOTE If pattern is supplied using a StringLiteral, the usual escape sequence substitutions are performed 
+ * NOTE If pattern is supplied using a StringLiteral, the usual escape sequence substitutions are performed
  * before the String is processed by RegExp. If pattern must contain an escape sequence to be recognized by
  * RegExp, any U+005C (REVERSE SOLIDUS) code points must be escaped within the StringLiteral to prevent them
  * being removed when the contents of the StringLiteral are formed.
@@ -250,7 +250,7 @@ function RegExpConstructor(externalScope, ref, F, args, NewTarget){
    } else{
       pattern := 'undefined
    };
-  
+
    if (n_args >= 2){
       flags := l_nth(args, 1)
    } else{
@@ -330,7 +330,7 @@ function RegExpConstructor(externalScope, ref, F, args, NewTarget){
       /* b. Let F be flags. */
       F := flags
    };
-      
+
    /* 8. Let O be RegExpAlloc(newTarget). */
    O := RegExpAlloc(newTarget);
 
@@ -363,17 +363,17 @@ function RegExpAlloc(newTarget){
 };
 
 /* AUXILIARY FUNCTIONS */
-function getRegExpPrototype(strict) { 
+function getRegExpPrototype(strict) {
    /* refRegExp := newPropertyReference(|global|, "RegExp", strict);
    RegExpObject := GetValue(refRegExp);
 
    refRegExpProto := newPropertyReference(RegExpObject, "prototype", strict);
    objectRegExpProto := GetValue(refRegExpProto); */
-    
+
    return |Intrinsics|["RegExpPrototype"]
 };
 
-function OrdinaryCreateFromConstructorRegExp(strict) {  
+function OrdinaryCreateFromConstructorRegExp(strict) {
    RegExpPrototype := getRegExpPrototype(strict);
 
    newlyConstructedObject := NewECMAScriptObject();
@@ -384,7 +384,7 @@ function OrdinaryCreateFromConstructorRegExp(strict) {
    setInternalProperty(newlyConstructedObject, "Class", "RegExp");
 
    return newlyConstructedObject
-}; 
+};
 
 /* 21.2.3.2.2 Runtime Semantics: RegExpInitialize (obj, pattern, flags ) */
 function RegExpInitialize(obj, pattern, flags){
@@ -412,8 +412,6 @@ function RegExpInitialize(obj, pattern, flags){
    /* 6. ReturnIfAbrupt(F). */
    @ReturnIfAbrupt(F);
 
-   print "!!!!";
-
    /* 7. If F contains any code unit other than "g", "i", "m", "u", or "y" or if it contains the same code unit more than once, throw a SyntaxError exception. */
    setFlags(obj, F);
 
@@ -425,9 +423,9 @@ function RegExpInitialize(obj, pattern, flags){
    };
 
    /* 9. If BMP is true, then */
-      /* a. Parse P using the grammars in 21.2.1 and interpreting each of its 16-bit elements as a Unicode BMP code point. 
+      /* a. Parse P using the grammars in 21.2.1 and interpreting each of its 16-bit elements as a Unicode BMP code point.
          UTF-16 decoding is not applied to the elements. The goal symbol for the parse is Pattern. Throw a SyntaxError exception
-         if P did not conform to the grammar, if any elements of P were not matched by the parse, or if any Early Error 
+         if P did not conform to the grammar, if any elements of P were not matched by the parse, or if any Early Error
          conditions exist. */
       /* b. Let patternCharacters be a List whose elements are the code unit elements of P. */
    /* 10. Else */
@@ -438,7 +436,7 @@ function RegExpInitialize(obj, pattern, flags){
 
    /* 12. Set the value of obj’s [[OriginalFlags]] internal slot to F. */
 
-   /* 13. Set obj’s [[RegExpMatcher]] internal slot to the internal procedure that evaluates the above parse of P by applying the semantics provided in 21.2.2 using patternCharacters as the pattern’s List of SourceCharacter values and F as the flag parameters. */ 
+   /* 13. Set obj’s [[RegExpMatcher]] internal slot to the internal procedure that evaluates the above parse of P by applying the semantics provided in 21.2.2 using patternCharacters as the pattern’s List of SourceCharacter values and F as the flag parameters. */
    /* 14. Let setStatus be Set(obj, "lastIndex", 0, true). */
    /* 15. ReturnIfAbrupt(setStatus). */
    /* 16. Return obj. */
@@ -460,20 +458,20 @@ function RegExpCreate(P, F){
 };
 /* 21.2.3.2.4 Runtime Semantics: EscapeRegExpPattern ( P, F ) */
 function EscapeRegExpPattern(P, F){
-   /* 1. Let S be a String in the form of a Pattern (Pattern[U] if F contains "u") equivalent to P 
-   interpreted as UTF-16 encoded Unicode code points (6.1.4), in which certain code points are 
+   /* 1. Let S be a String in the form of a Pattern (Pattern[U] if F contains "u") equivalent to P
+   interpreted as UTF-16 encoded Unicode code points (6.1.4), in which certain code points are
    escaped as described below. S may or may not be identical to P; however, the internal procedure
-   that would result from evaluating S as a Pattern (Pattern[U] if F contains "u") must behave 
-   identically to the internal procedure given by the constructed object's [[RegExpMatcher]] 
+   that would result from evaluating S as a Pattern (Pattern[U] if F contains "u") must behave
+   identically to the internal procedure given by the constructed object's [[RegExpMatcher]]
    internal slot. Multiple calls to this abstract operation using the same values for P and F must
    produce identical results. */
 
    /* 2. The code points / or any LineTerminator occurring in the pattern shall be escaped in S
    as necessary to ensure that the String value formed by concatenating the Strings "/", S, "/",
-   and F can be parsed (in an appropriate lexical context) as a RegularExpressionLiteral that 
-   behaves identically to the constructed regular expression. For example, if P is "/", then S 
-   could be "\/" or "\u002F", among other possibilities, but not "/", because /// followed by F 
-   would be parsed as a SingleLineComment rather than a RegularExpressionLiteral. If P is the 
+   and F can be parsed (in an appropriate lexical context) as a RegularExpressionLiteral that
+   behaves identically to the constructed regular expression. For example, if P is "/", then S
+   could be "\/" or "\u002F", among other possibilities, but not "/", because /// followed by F
+   would be parsed as a SingleLineComment rather than a RegularExpressionLiteral. If P is the
    empty String, this specification can be met by letting S be "(?:)". */
 
    /* 3. Return S. */
@@ -486,23 +484,23 @@ function EscapeRegExpPattern(P, F){
 /* 21.2.4 Properties of the RegExp Constructor */
 
 /**
- * The value of the [[Prototype]] internal slot of the RegExp constructor is the intrinsic object 
+ * The value of the [[Prototype]] internal slot of the RegExp constructor is the intrinsic object
  * %FunctionPrototype% (19.2.3).
  * Besides the length property (whose value is 2), the RegExp constructor has the following properties:
  */
 /* 21.2.4.1 RegExp.prototype */
 /**
- * The initial value of RegExp.prototype is the intrinsic object %RegExpPrototype% (21.2.5). This property 
+ * The initial value of RegExp.prototype is the intrinsic object %RegExpPrototype% (21.2.5). This property
  * has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }.
  */
 
 /* 21.2.4.2 get RegExp [ @@species ] */
 /**
- * RegExp[@@species] is an accessor property whose set accessor function is undefined. Its get accessor 
+ * RegExp[@@species] is an accessor property whose set accessor function is undefined. Its get accessor
  * function performs the following steps:
  *
  * The value of the name property of this function is "get [Symbol.species]".
- * NOTE RegExp prototype methods normally use their this object’s constructor to create a derived object. 
+ * NOTE RegExp prototype methods normally use their this object’s constructor to create a derived object.
  * However, a subclass constructor may over-ride that default behaviour by redefining its @@species property.
  */
 function getRegExpSpecies(global, this, NewTarget, strict, args){
@@ -515,25 +513,25 @@ function getRegExpSpecies(global, this, NewTarget, strict, args){
 /* 21.2.5 Properties of the RegExp Prototype Object */
 /**
  * The RegExp prototype object is the intrinsic object %RegExpPrototype%. The RegExp prototype object is an
- * ordinary object. It is not a RegExp instance and does not have a [[RegExpMatcher]] internal slot or any 
+ * ordinary object. It is not a RegExp instance and does not have a [[RegExpMatcher]] internal slot or any
  * of the other internal slots of RegExp instance objects.
  *
- * The value of the [[Prototype]] internal slot of the RegExp prototype object is the intrinsic object 
+ * The value of the [[Prototype]] internal slot of the RegExp prototype object is the intrinsic object
  * %ObjectPrototype% (19.1.3).
  *
- * NOTE The RegExp prototype object does not have a valueOf property of its own; however, it inherits the 
+ * NOTE The RegExp prototype object does not have a valueOf property of its own; however, it inherits the
  * valueOf property from the Object prototype object.
  */
 
 /* 21.2.5.1 RegExp.prototype.constructor */
 /**
- * The initial value of RegExp.prototype.constructor is the intrinsic object %RegExp%. 21.2.5.2 
+ * The initial value of RegExp.prototype.constructor is the intrinsic object %RegExp%. 21.2.5.2
  * RegExp.prototype.exec ( string )
  */
 
 /* 21.2.5.2 RegExp.prototype.exec ( string ) */
 /**
- * Performs a regular expression match of string against the regular expression and returns an Array object 
+ * Performs a regular expression match of string against the regular expression and returns an Array object
  * containing the results of the match, or null if string did not match.
  */
 function RegExpPrototypeexec(global, this, NewTarget, strict, args){
@@ -565,7 +563,7 @@ function RegExpPrototypeexec(global, this, NewTarget, strict, args){
 /* 21.2.5.2.1 Runtime Semantics: RegExpExec ( R, S ) */
 /**
  * NOTE If a callable exec property is not found this algorithm falls back to attempting to use the built-in
- * RegExp matching algorithm. This provides compatible behaviour for code written for prior editions where 
+ * RegExp matching algorithm. This provides compatible behaviour for code written for prior editions where
  * most built-in algorithms that use regular expressions did not perform a dynamic property lookup of exec.
  */
 function RegExpExec(R, S){
@@ -663,9 +661,9 @@ function RegExpBuiltinExec(R, S){
       if (lastIndex > length){
          /* i. Let setStatus be Set(R, "lastIndex", 0, true). */
          setStatus := Set(R, "lastIndex", 0., true);
-         
+
          /* ii. ReturnIfAbrupt(setStatus). */
-         @ReturnIfAbrupt(setStatus); 
+         @ReturnIfAbrupt(setStatus);
 
          /* iii. Return null. */
          return 'null
@@ -687,7 +685,7 @@ function RegExpBuiltinExec(R, S){
             /* 3. Return null. */
             return 'null
          };
-            
+
          /* ii. Let lastIndex be AdvanceStringIndex(S, lastIndex, fullUnicode). */
          lastIndex := AdvanceStringIndex(S, lastIndex, fullUnicode)
       }
@@ -698,9 +696,9 @@ function RegExpBuiltinExec(R, S){
 
          /* ii. Set matchSucceeded to true. */
          matchSucceeded := true
-      }   
+      }
    };
-   
+
    /* 16. Let e be r's endIndex value. */
    e := int_to_float r.endIndex;
 
@@ -711,7 +709,7 @@ function RegExpBuiltinExec(R, S){
       /* a. e is an index into the Input character list, derived from S, matched by matcher. Let eUTF be the smallest index into S that corresponds to the character at element e of Input. If e is greater than or equal to the length of Input, then eUTF is the number of code units in S. */
       /* b. Let e be eUTF. */
    };
-      
+
    /* 18. If global is true or sticky is true, */
    if ((global = true) ||| (sticky = true)){
       /* a. Let setStatus be Set(R, "lastIndex", e, true). */
@@ -836,7 +834,7 @@ function AdvanceStringIndex(S, index, unicode){
 
 /* 21.2.5.3 get RegExp.prototype.flags */
 /**
- * RegExp.prototype.flags is an accessor property whose set accessor function is undefined. Its get accessor 
+ * RegExp.prototype.flags is an accessor property whose set accessor function is undefined. Its get accessor
  * function performs the following steps:
  */
 function getRegExpFlagsAccessorProperty(global, this, NewTarget, strict, args){
@@ -897,7 +895,7 @@ function getRegExpFlagsAccessorProperty(global, this, NewTarget, strict, args){
 
    /* 16. Let sticky be ToBoolean(Get(R, "sticky")). */
    sticky := ToBoolean(Get(R, "sticky"));
-   
+
    /* 17. ReturnIfAbrupt(sticky). */
    @ReturnIfAbrupt(sticky);
 
@@ -923,7 +921,7 @@ function getRegExpGlobalAccessorProperty(global, this, NewTarget, strict, args){
    if (!(Type(R) = "Object")){
       throw TypeErrorConstructorInternal()
    };
-   
+
    /* 3. If R does not have an [[OriginalFlags]] internal slot, throw a TypeError exception. */
    if (!("OriginalFlags" in_obj R)){
       throw TypeErrorConstructorInternal()
@@ -943,7 +941,7 @@ function getRegExpGlobalAccessorProperty(global, this, NewTarget, strict, args){
 
 /* 21.2.5.5 get RegExp.prototype.ignoreCase */
 /**
- * RegExp.prototype.ignoreCase is an accessor property whose set accessor function is undefined. Its get 
+ * RegExp.prototype.ignoreCase is an accessor property whose set accessor function is undefined. Its get
  * accessor function performs the following steps:
  */
 function getRegExpIgnoreCaseAccessorProperty(global, this, NewTarget, strict, args){
@@ -978,7 +976,7 @@ function getRegExpIgnoreCaseAccessorProperty(global, this, NewTarget, strict, ar
  *
  * NOTE The @@match property is used by the IsRegExp abstract operation to identify objects that have the basic
  * behaviour of regular expressions. The absence of a @@match property or the existence of such a property whose
- * value does not Boolean coerce to true indicates that the object is not intended to be used as a regular 
+ * value does not Boolean coerce to true indicates that the object is not intended to be used as a regular
  * expression object.
  */
 function RegExpPrototypematch(global, this, NewTarget, strict, args){
@@ -1007,7 +1005,7 @@ function RegExpPrototypematch(global, this, NewTarget, strict, args){
    /* 7. If global is false, then */
    if (global_ = false){
       /* a. Return RegExpExec(rx, S). */
-      return RegExpExec(rx, S) 
+      return RegExpExec(rx, S)
    }
    /* 8. Else global is true, */
    else{
@@ -1015,11 +1013,11 @@ function RegExpPrototypematch(global, this, NewTarget, strict, args){
       fullUnicode := ToBoolean(Get(rx, "unicode"));
 
       /* b. ReturnIfAbrupt(fullUnicode). */
-      @ReturnIfAbrupt(fullUnicode); 
+      @ReturnIfAbrupt(fullUnicode);
 
       /* c. Let setStatus be Set(rx, "lastIndex", 0, true). */
       setStatus := Set(rx, "lastIndex", 0., true);
- 
+
       /* d. ReturnIfAbrupt(setStatus). */
       @ReturnIfAbrupt(setStatus);
 
@@ -1038,7 +1036,7 @@ function RegExpPrototypematch(global, this, NewTarget, strict, args){
          @ReturnIfAbrupt(result);
 
          /* iii. If result is null, then */
-         if (result = 'null){                
+         if (result = 'null){
             /* 1. If n=0, return null. */
             if (n = 0){
                return 'null
@@ -1047,7 +1045,7 @@ function RegExpPrototypematch(global, this, NewTarget, strict, args){
             else{
                return A
             }
-         } 
+         }
          /* iv. Else result is not null, */
          else{
             /* 1. Let matchStr be ToString(Get(result, "0")). */
@@ -1075,21 +1073,21 @@ function RegExpPrototypematch(global, this, NewTarget, strict, args){
 
                /* d. Let setStatus be Set(rx, "lastIndex", nextIndex, true). */
                setStatus := Set(rx, "lastIndex", nextIndex, true);
-                    
+
                /* e. ReturnIfAbrupt(setStatus). */
                @ReturnIfAbrupt(setStatus)
             };
-                    
+
             /* 6. Increment n. */
             n := n + 1
-         }   
-      }    
+         }
+      }
    }
 };
 
 /* 21.2.5.7 get RegExp.prototype.multiline */
 /**
- * RegExp.prototype.multiline is an accessor property whose set accessor function is undefined. Its get 
+ * RegExp.prototype.multiline is an accessor property whose set accessor function is undefined. Its get
  * accessor function performs the following steps:
  */
 function getRegExpMultilineAccessorProperty(global, this, NewTarget, strict, args){
@@ -1125,7 +1123,7 @@ function getRegExpMultilineAccessorProperty(global, this, NewTarget, strict, arg
 function RegExpPrototypereplace(global, this, NewTarget, strict, args){
    str := l_nth(args, 0);
    replaceValue := l_nth(args, 1);
-    
+
    /* 1. Let rx be the this value. */
    rx := this;
 
@@ -1154,9 +1152,9 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args){
       /* b. ReturnIfAbrupt(replaceValue). */
       @ReturnIfAbrupt(replaceValue)
    };
-        
+
    /* 8. Let global be ToBoolean(Get(rx, "global")). */
-   global_ := ToBoolean(Get(rx, "global")); 
+   global_ := ToBoolean(Get(rx, "global"));
 
    /* 9. ReturnIfAbrupt(global). */
    @ReturnIfAbrupt(global_);
@@ -1212,7 +1210,7 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args){
             @ReturnIfAbrupt(matchStr);
 
             /* 3. If matchStr is the empty String, then */
-            if (matchStr = ""){ 
+            if (matchStr = ""){
                /* a. Let thisIndex be ToLength(Get(rx, "lastIndex")). */
                /* thisIndex := ToLength(Get(rx, "lastIndex")); */
                thisIndex := ToLength(Get(rx, "lastIndex"));
@@ -1228,11 +1226,11 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args){
 
                /* e. ReturnIfAbrupt(setStatus). */
                @ReturnIfAbrupt(setStatus)
-            } 
-         }    
+            }
+         }
       }
    };
-        
+
    /* 14. Let accumulatedResult be the empty String value. */
    accumulatedResult := "";
 
@@ -1248,7 +1246,7 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args){
 
       /* a. Let nCaptures be ToLength(Get(result, "length")). */
       nCaptures := ToLength(Get(result, "length"));
-        
+
       /* b. ReturnIfAbrupt(nCaptures). */
       @ReturnIfAbrupt(nCaptures);
 
@@ -1295,14 +1293,14 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args){
             /* 2. ReturnIfAbrupt(capN). */
             @ReturnIfAbrupt(capN)
          };
-                
+
          /* iv. Append capN as the last element of captures. */
          captures := l_add(captures, capN);
 
          /* v. Let n be n+1 */
          n := n + 1
       };
-            
+
       /* m. If functionalReplace is true, then */
       if (functionalReplace = true){
          /* i. Let replacerArgs be «matched». */
@@ -1325,18 +1323,18 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args){
          /* i. Let replacement be GetSubstitution(matched, S, position, captures, replaceValue). */
          replacement := GetSubstitution(matched, S, int_to_float position, captures, replaceValue, global, strict)
       };
-          
+
       /* o. ReturnIfAbrupt(replacement). */
       @ReturnIfAbrupt(replacement);
 
       /* p. If position ≥ nextSourcePosition, then */
       if (position >= nextSourcePosition){
-         /* i. NOTE position should not normally move backwards. If it does, it is an indication of an ill-behaving 
-         RegExp subclass or use of an access triggered side-effect to change the global flag or other characteristics of rx. 
+         /* i. NOTE position should not normally move backwards. If it does, it is an indication of an ill-behaving
+         RegExp subclass or use of an access triggered side-effect to change the global flag or other characteristics of rx.
          In such cases, the corresponding substitution is ignored. */
 
-         /* ii. Let accumulatedResult be the String formed by concatenating the code units of the current value of 
-         accumulatedResult with the substring of S consisting of the code units from nextSourcePosition (inclusive) up to 
+         /* ii. Let accumulatedResult be the String formed by concatenating the code units of the current value of
+         accumulatedResult with the substring of S consisting of the code units from nextSourcePosition (inclusive) up to
          position (exclusive) and with the code units of replacement. */
 
          substring := substring(S, int_to_float nextSourcePosition, int_to_float position);
@@ -1345,17 +1343,17 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args){
 
          /* iii. Let nextSourcePosition be position + matchLength. */
          nextSourcePosition := position + matchLength
-      };  
+      };
 
       i := i + 1
    };
-    
+
    /* 17. If nextSourcePosition ≥ lengthS, return accumulatedResult. */
    if (nextSourcePosition >= lengthS){
       return accumulatedResult
    };
 
-   /* 18. Return the String formed by concatenating the code units of accumulatedResult with the substring of S 
+   /* 18. Return the String formed by concatenating the code units of accumulatedResult with the substring of S
    consisting of the code units from nextSourcePosition (inclusive) up through the final code unit of S (inclusive). */
    substring := substring(S, int_to_float nextSourcePosition, int_to_float(s_len_u S));
    accumulatedResult := s_concat([accumulatedResult, substring]);
@@ -1367,7 +1365,7 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args){
 /**
  * The value of the name property of this function is "[Symbol.search]".
  *
- * NOTE The lastIndex and global properties of this RegExp object are ignored when performing the search. 
+ * NOTE The lastIndex and global properties of this RegExp object are ignored when performing the search.
  * The lastIndex property is left unchanged.
  */
 function RegExpPrototypesearch(global, this, NewTarget, strict, args){
@@ -1400,14 +1398,14 @@ function RegExpPrototypesearch(global, this, NewTarget, strict, args){
    @ReturnIfAbrupt(status);
 
    /* 9. Let result be RegExpExec(rx, S). */
-   result := RegExpExec(rx, S); 
+   result := RegExpExec(rx, S);
 
    /* 10. ReturnIfAbrupt(result). */
    @ReturnIfAbrupt(result);
 
    /* 11. Let status be Set(rx, "lastIndex", previousLastIndex, true). */
    tatus := Set(rx, "lastIndex", previousLastIndex, true);
-    
+
    /* 12. ReturnIfAbrupt(status). */
    @ReturnIfAbrupt(status);
 
@@ -1422,7 +1420,7 @@ function RegExpPrototypesearch(global, this, NewTarget, strict, args){
 
 /* 21.2.5.10 get RegExp.prototype.source */
 /**
- * RegExp.prototype.source is an accessor property whose set accessor function is undefined. Its get accessor 
+ * RegExp.prototype.source is an accessor property whose set accessor function is undefined. Its get accessor
  * function performs the following steps:
  */
 function getRegExpSourceAccessorProperty(global, this, NewTarget, strict, args){
@@ -1457,19 +1455,19 @@ function getRegExpSourceAccessorProperty(global, this, NewTarget, strict, args){
 /* 21.2.5.11 RegExp.prototype [ @@split ] ( string, limit ) */
 /**
  * NOTE 1 Returns an Array object into which substrings of the result of converting string to a String have been
- * stored. The substrings are determined by searching from left to right for matches of the this value regular 
- * expression; these occurrences are not part of any substring in the returned array, but serve to divide up the 
+ * stored. The substrings are determined by searching from left to right for matches of the this value regular
+ * expression; these occurrences are not part of any substring in the returned array, but serve to divide up the
  * String value.
  * The this value may be an empty regular expression or a regular expression that can match an empty String. In
- * this case, regular expression does not match the empty substring at the beginning or end of the input String, 
- * nor does it match the empty substring at the end of the previous separator match. (For example, if the regular 
- * expression matches the empty String, the String is split up into individual code unit elements; the length of 
- * the result array equals the length of the String, and each substring contains one code unit.) Only the first 
+ * this case, regular expression does not match the empty substring at the beginning or end of the input String,
+ * nor does it match the empty substring at the end of the previous separator match. (For example, if the regular
+ * expression matches the empty String, the String is split up into individual code unit elements; the length of
+ * the result array equals the length of the String, and each substring contains one code unit.) Only the first
  * match at a given index of the this String is considered, even if backtracking could yield a non-empty-substring
- * match at that index. (For example, /a*?/[Symbol.split]("ab") evaluates to the array ["a","b"], while 
+ * match at that index. (For example, /a*?/[Symbol.split]("ab") evaluates to the array ["a","b"], while
  * /a*\/[Symbol.split]("ab") evaluates to the array["","b"].)
- * If the string is (or converts to) the empty String, the result depends on whether the regular expression can 
- * match the empty String. If it can, the result array contains no elements. Otherwise, the result array contains 
+ * If the string is (or converts to) the empty String, the result depends on whether the regular expression can
+ * match the empty String. If it can, the result array contains no elements. Otherwise, the result array contains
  * one element, which is the empty String.
  * If the regular expression that contains capturing parentheses, then each time separator is matched the results
  * (including any undefined results) of the capturing parentheses are spliced into the output array. For example,
@@ -1511,9 +1509,6 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args){
    /* 7. Let flags be ToString(Get(rx, "flags")). */
    flags := ToString(Get(rx, "flags"));
 
-   print "f::::";
-   print flags;
-
    /* 8. ReturnIfAbrupt(flags). */
    @ReturnIfAbrupt(flags);
 
@@ -1530,7 +1525,7 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args){
 
    /* 11. If flags contains "y", let newFlags be flags. */
    contains := includes(flags, "y", 0., 1., int_to_float(s_len_u flags));
-    
+
    if (contains = true){
       newFlags := flags
    }
@@ -1538,11 +1533,9 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args){
    else{
       newFlags := s_concat([flags, "y"])
    };
-   print "step 21";
 
    /* 13. Let splitter be Construct(C, «rx, newFlags»). */
    splitter := Construct(null, null, C, [rx, newFlags], null);
-   print "step 22";
 
    /* 14. ReturnIfAbrupt(splitter). */
    @ReturnIfAbrupt(splitter);
@@ -1577,8 +1570,8 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args){
    /* 22. If size = 0, then */
    if (size = 0.){
       /* a. Let z be RegExpExec(splitter, S). */
-      z := RegExpExec(splitter, S); 
-        
+      z := RegExpExec(splitter, S);
+
       /* b. ReturnIfAbrupt(z). */
       @ReturnIfAbrupt(z);
 
@@ -1604,7 +1597,7 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args){
    while (q < size){
       /* a. Let setStatus be Set(splitter, "lastIndex", q, true). */
       setStatus := Set(splitter, "lastIndex", q, true);
-       
+
       /* b. ReturnIfAbrupt(setStatus). */
       @ReturnIfAbrupt(setStatus);
 
@@ -1626,13 +1619,13 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args){
          /* ii. ReturnIfAbrupt(e). */
          @ReturnIfAbrupt(e);
 
-         /* iii. If e = p, let q be AdvanceStringIndex(S, q, unicodeMatching). */ 
+         /* iii. If e = p, let q be AdvanceStringIndex(S, q, unicodeMatching). */
          if (e = p){
             q := AdvanceStringIndex(S, q, unicodeMatching)
          }
          /* iv. Else e  p, */
          else{
-            /* 1. Let T be a String value equal to the substring of S consisting of the elements at indices p 
+            /* 1. Let T be a String value equal to the substring of S consisting of the elements at indices p
             (inclusive) through q (exclusive). */
             T := substring(S, p, q);
 
@@ -1653,13 +1646,13 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args){
             /* 6. Let p be e. */
             p := e;
 
-            /* 7. Let numberOfCaptures be ToLength(Get(z, "length")). */ 
+            /* 7. Let numberOfCaptures be ToLength(Get(z, "length")). */
             numberOfCaptures := ToLength(Get(z, "length"));
 
             /* 8. ReturnIfAbrupt(numberOfCaptures). */
             @ReturnIfAbrupt(numberOfCaptures);
 
-            /* 9. Let numberOfCaptures be max(numberOfCaptures-1, 0). */ 
+            /* 9. Let numberOfCaptures be max(numberOfCaptures-1, 0). */
             numberOfCaptures := max(numberOfCaptures - 1., 0.);
 
             /* 10. Let i be 1. */
@@ -1673,7 +1666,7 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args){
                /* b. ReturnIfAbrupt(nextCapture). */
                @ReturnIfAbrupt(nextCapture);
 
-               /* c. Perform CreateDataProperty(A, ToString(lengthA), nextCapture). */ 
+               /* c. Perform CreateDataProperty(A, ToString(lengthA), nextCapture). */
                CreateDataProperty(A, ToString(lengthA), nextCapture);
 
                /* d. Let i be i+1. */
@@ -1687,13 +1680,13 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args){
                   return A
                }
             };
-                    
+
             /* 12. Let q be p. */
             q := p
          }
       }
    };
-        
+
    /* 25. Let T be a String value equal to the substring of S consisting of the elements at indices p (inclusive) through size (exclusive). */
    T := substring(S, p, size);
 
@@ -1710,11 +1703,11 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args){
 
 /* 21.2.5.12 get RegExp.prototype.sticky */
 /**
- * RegExp.prototype.sticky is an accessor property whose set accessor function is undefined. Its get accessor 
+ * RegExp.prototype.sticky is an accessor property whose set accessor function is undefined. Its get accessor
  * function performs the following steps:
  */
 function getRegExpStickyAccessorProperty(global, this, NewTarget, strict, args){
-   /* 1. Let R be the this value. */ 
+   /* 1. Let R be the this value. */
    R := this;
 
    /* 2. If Type(R) is not Object, throw a TypeError exception. */
@@ -1779,7 +1772,7 @@ function RegExpPrototypetest(global, this, NewTarget, strict, args){
 
 /* 21.2.5.14 RegExp.prototype.toString ( ) */
 /**
- * NOTE The returned String has the form of a RegularExpressionLiteral that evaluates to another RegExp object 
+ * NOTE The returned String has the form of a RegularExpressionLiteral that evaluates to another RegExp object
  * with the same behaviour as this object.
  */
 function RegExpPrototypetoString(global, this, NewTarget, strict, args){
@@ -1816,7 +1809,7 @@ function RegExpPrototypetoString(global, this, NewTarget, strict, args){
  * function performs the following steps:
  */
 function getRegExpUnicodeAccessorProperty(global, this, NewTarget, strict, args){
-   /* 1. Let R be the this value. */ 
+   /* 1. Let R be the this value. */
    R := this;
 
    /* 2. If Type(R) is not Object, throw a TypeError exception. */
@@ -1846,11 +1839,11 @@ function getRegExpUnicodeAccessorProperty(global, this, NewTarget, strict, args)
 /* 21.2.6 Properties of RegExp Instances */
 
 /**
- * RegExp instances are ordinary objects that inherit properties from the RegExp prototype object. RegExp 
- * instances have internal slots [[RegExpMatcher]], [[OriginalSource]], and [[OriginalFlags]]. The value of the 
+ * RegExp instances are ordinary objects that inherit properties from the RegExp prototype object. RegExp
+ * instances have internal slots [[RegExpMatcher]], [[OriginalSource]], and [[OriginalFlags]]. The value of the
  * [[RegExpMatcher]] internal slot is an implementation dependent representation of the Pattern of the RegExp object.
  *
- * NOTE Prior to ECMAScript 2015, RegExp instances were specified as having the own data properties source, global, 
+ * NOTE Prior to ECMAScript 2015, RegExp instances were specified as having the own data properties source, global,
  * ignoreCase, and multiline. Those properties are now specified as accessor properties of RegExp.prototype.
  *
  * RegExp instances also have the following property:
