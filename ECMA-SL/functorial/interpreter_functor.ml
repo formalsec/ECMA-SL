@@ -157,7 +157,7 @@ module Make (P : Interpreter_functor_intf.P) :
       st @@ Store.add_exn locals x v
     | Stmt.Assert e ->
       let* e' = eval_expr locals e in
-      let/ b = Choice.check @@ Value.Bool.not_ e' in
+      let/ b = Choice.check_add_true @@ Value.Bool.not_ e' in
       if b then (
         Log.warn "     assert : failure with (%a)@." Value.Pp.pp e';
         err {|{ "assert" : "%a" }|} Value.Pp.pp e' )
