@@ -16,7 +16,7 @@ function setAllInternalMethodsOfOrdinaryObject(obj) {
   obj.DefineOwnProperty   := "OrdinaryObjectDefineOwnProperty";
   obj.HasProperty         := "OrdinaryObjectHasProperty";
   obj.Get  				  := "OrdinaryObjectGet";
-  obj.Set  				  := "OrdinaryObjectSet"; 
+  obj.Set  				  := "OrdinaryObjectSet";
   obj.Delete              := "OrdinaryObjectDelete";
   obj.Enumerate			  := "OrdinaryObjectEnumerate";
   obj.OwnPropertyKeys     := "OrdinaryObjectOwnPropertyKeys";
@@ -42,22 +42,22 @@ function EveryFieldIsAbsent(Desc) {
 
 /**
  * 9.1.1 [[GetPrototypeOf]] ( )
- * 
+ *
  * When the [[GetPrototypeOf]] internal method of O is called the following steps are taken:
 */
 function OrdinaryObjectGetPrototypeOf(O) {
 	/* When the [[GetPrototypeOf]] internal method of O is called the following steps are taken: */
-	
+
     /* Return the value of the [[Prototype]] internal slot of O */
     return O.Prototype
 };
 
 /**
  * 9.1.2 [[SetPrototypeOf]] (V)
- * 
+ *
  * When the [[SetPrototypeOf]] internal method of O is called with argument V the following steps are taken:
 */
-function OrdinaryObjectSetPrototypeOf(O, V) { 
+function OrdinaryObjectSetPrototypeOf(O, V) {
     /* Assert: Either Type(V) is Object or Type(V) is Null. */
     assert( (Type(V) = "Object") ||| (Type(V) = "Null") );
 
@@ -88,11 +88,11 @@ function OrdinaryObjectSetPrototypeOf(O, V) {
         /* If p is null, let done be true. */
         if ( p = 'null) {
         	done := true
-        } 
+        }
     	/* Else, if SameValue(p, O) is true, return false. */
         elif ( SameValue(p, O) = true ) {
         	return false
-        } 
+        }
         /* Else, */
         else {
             /* If the [[GetPrototypeOf]] internal method of p is not the ordinary object internal method defined in 9.1.1, let done be true. */
@@ -119,7 +119,7 @@ function OrdinaryObjectSetPrototypeOf(O, V) {
 
 /**
  * 9.1.3 [[IsExtensible]] ( )
- * 
+ *
  * When the [[IsExtensible]] internal method of O is called the following steps are taken:
 */
 function OrdinaryObjectIsExtensible(O) {
@@ -129,10 +129,10 @@ function OrdinaryObjectIsExtensible(O) {
 
 /**
  * 9.1.4 [[PreventExtensions]] ( )
- * 
+ *
  * When the [[PreventExtensions]] internal method of O is called the following steps are taken:
 */
-function OrdinaryObjectPreventExtensions(O) {	
+function OrdinaryObjectPreventExtensions(O) {
     /* Set the value of the [[Extensible]] internal slot of O to false. */
     O.Extensible := false;
 
@@ -142,7 +142,7 @@ function OrdinaryObjectPreventExtensions(O) {
 
 /**
  * 9.1.5.1 OrdinaryGetOwnProperty (O, P)
- * 
+ *
  * When the abstract operation OrdinaryGetOwnProperty is called with Object O and with property key P, the following steps are taken:
 */
 function OrdinaryGetOwnProperty(O, P) {
@@ -189,7 +189,7 @@ function OrdinaryGetOwnProperty(O, P) {
 
 /**
  * 9.1.5 [[GetOwnProperty]] (P)
- * 
+ *
  * When the [[GetOwnProperty]] internal method of O is called with property key P, the following steps are
  * taken:
 */
@@ -200,21 +200,21 @@ function OrdinaryObjectGetOwnProperty(O, P) {
 
 /**
  * 9.1.6.3 ValidateAndApplyPropertyDescriptor (O, P, extensible, Desc, current)
- * 
+ *
  * When the abstract operation ValidateAndApplyPropertyDescriptor is called with Object O, property key P,
  * Boolean value extensible, and Property Descriptors Desc, and current the following steps are taken:
- * 
+ *
  * This algorithm contains steps that test various fields of the Property Descriptor Desc for specific values. The
  * fields that are tested in this manner need not actually exist in Desc. If a field is absent then its value is
  * considered to be false.
- * 
+ *
  * NOTE 1 If undefined is passed as the O argument only validation is performed and no object updates are performed.
 */
-function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) { 
+function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
     /* Assert: If O is not undefined then IsPropertyKey(P) is true. */
     if (!(O = 'undefined)) {
         assert(IsPropertyKey(P) = true)
-    };    
+    };
 
     /* If current is undefined, then */
     if (current = 'undefined ) {
@@ -232,7 +232,7 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
             and [[Configurable]] attribute values are described by Desc. If the value of an attribute field of Desc is absent, the
             attribute of the newly created property is set to its default value. */
             if (!(O = 'undefined)) {
-                setJSProperty(O, P, CreateDataPropertyFrom(Desc))    
+                setJSProperty(O, P, CreateDataPropertyFrom(Desc))
             }
         }
         /* Else Desc must be an accessor Property Descriptor, */
@@ -255,7 +255,7 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
     };
 
     /* Return true, if every field in Desc also occurs in current and the value of every field in Desc is the same
-       value as the corresponding field in current when compared using the SameValue algorithm. 
+       value as the corresponding field in current when compared using the SameValue algorithm.
     */
     if ( SameValue(current, Desc) = true ) {
         return true
@@ -299,7 +299,7 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
         /* Else, */
         else {
             /* If O is not undefined, convert the property named P of object O from an accessor property to a
-               data property. Preserve the existing values of the converted property’s [[Configurable]] and 
+               data property. Preserve the existing values of the converted property’s [[Configurable]] and
                [[Enumerable]] attributes and set the rest of the property’s attributes to their default values. */
             delete current.Set;
         	delete current.Get;
@@ -376,7 +376,7 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
 
 /**
  * 9.1.6.2 IsCompatiblePropertyDescriptor (Extensible, Desc, Current)
- * 
+ *
  * When the abstract operation IsCompatiblePropertyDescriptor is called with Boolean value Extensible, and
  * Property Descriptors Desc, and Current the following steps are taken:
 */
@@ -387,11 +387,11 @@ function IsCompatiblePropertyDescriptor(Extensible, Desc, Current) {
 
 /**
  * 9.1.6.1 OrdinaryDefineOwnProperty (O, P, Desc)
- * 
+ *
  * When the abstract operation OrdinaryDefineOwnProperty is called with Object O, property key P, and Property
  * Descriptor Desc the following steps are taken:
 */
-function OrdinaryDefineOwnProperty(O, P, Desc) {	
+function OrdinaryDefineOwnProperty(O, P, Desc) {
     /* Let current be O.[[GetOwnProperty]](P). */
     current := {O.GetOwnProperty}(O,P);
 
@@ -407,7 +407,7 @@ function OrdinaryDefineOwnProperty(O, P, Desc) {
 
 /**
  * 9.1.6 [[DefineOwnProperty]] (P, Desc)
- * 
+ *
  * When the [[DefineOwnProperty]] internal method of O is called with property key P and Property Descriptor
  * Desc, the following steps are taken:
 */
@@ -418,11 +418,11 @@ function OrdinaryObjectDefineOwnProperty(O, P, Desc) {
 
 /**
  * 9.1.7.1 OrdinaryHasProperty (O, P)
- * 
+ *
  * When the abstract operation OrdinaryHasProperty is called with Object O and with property key P, the
  * following steps are taken:
 */
-function OrdinaryHasProperty(O, P) { 
+function OrdinaryHasProperty(O, P) {
     /* Assert: IsPropertyKey(P) is true. */
     assert( IsPropertyKey(P) = true );
 
@@ -452,7 +452,7 @@ function OrdinaryHasProperty(O, P) {
 
 /**
  * 9.1.7 [[HasProperty]](P)
- * 
+ *
  * When the [[HasProperty]] internal method of O is called with property key P, the following steps are taken:
 */
 function OrdinaryObjectHasProperty(O, P) {
@@ -462,7 +462,7 @@ function OrdinaryObjectHasProperty(O, P) {
 
 /**
  * 9.1.8 [[Get]] (P, Receiver)
- * 
+ *
  * When the [[Get]] internal method of O is called with property key P and ECMAScript language value Receiver
  * the following steps are taken:
 */
@@ -512,7 +512,7 @@ function OrdinaryObjectGet(O, P, Receiver) {
 
 /**
  * 9.1.9 [[Set]] ( P, V, Receiver)
- * 
+ *
  * When the [[Set]] internal method of O is called with property key P, value V, and ECMAScript language value
  * Receiver, the following steps are taken:
 */
@@ -585,7 +585,7 @@ function OrdinaryObjectSet(O, P, V, Receiver) {
         /* Else Receiver does not currently have a property P, */
         else {
             /* Return CreateDataProperty(Receiver, P, V). */
-        	return CreateDataProperty(Receiver, P, V)	
+        	return CreateDataProperty(Receiver, P, V)
         }
     };
 
@@ -612,7 +612,7 @@ function OrdinaryObjectSet(O, P, V, Receiver) {
 
 /**
  * 9.1.10 [[Delete]] (P)
- * 
+ *
  * When the [[Delete]] internal method of O is called with property key P the following steps are taken:
 */
 function OrdinaryObjectDelete(O, P) {
@@ -645,9 +645,9 @@ function OrdinaryObjectDelete(O, P) {
 
 /**
  * 9.1.11 [[Enumerate]] ()
- * 
+ *
  * When the [[Enumerate]] internal method of O is called the following steps are taken:
- * 
+ *
  * TODO falta implementar iterators
 */
 
@@ -676,14 +676,10 @@ function OrdinaryObjectEnumerateAux(O) {
 	mechanics and order of enumerating the properties is not specified but must conform to the rules
 	specified below.*/
 
-  retKeys := [];   
-  visited := {}; 
+  retKeys := [];
+  visited := {};
 
   ownKeys := {O.OwnPropertyKeys}(O);
-
-  print("debugOwnKeys");
-  print(O.OwnPropertyKeys);
-  print(ownKeys);
 
   foreach (k : ownKeys) {
     if ((typeof k) = __$Str) {
@@ -694,29 +690,27 @@ function OrdinaryObjectEnumerateAux(O) {
         retKeys := l_add (retKeys, k)
       }
     }
-  }; 
+  };
 
-  proto := O.Prototype; 
+  proto := O.Prototype;
   if ((!(proto = 'null)) &&& (!(proto = 'undefined))) {
     protoKeys := OrdinaryObjectEnumerateAux(proto);
     foreach (k : protoKeys) {
       if (!(k in_obj visited)) {
-        visited[k] := true; 
+        visited[k] := true;
         retKeys := l_add (retKeys, k)
       }
     }
   };
-  
-  print("debugKeys");
-  print(retKeys);
-  return retKeys 
+
+  return retKeys
 };
 
 function OrdinaryObjectEnumerate(O) {
     return ObjectIteratorConstructor(OrdinaryObjectEnumerateAux(O), O)
 };
 
-function initObjectIteratorPrototype(global, objectPrototype, strict) { 
+function initObjectIteratorPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObjectFull(|Intrinsics|.IteratorPrototype, "Object", true);
   setAllInternalMethodsOfOrdinaryObject(prototype);
 
@@ -729,13 +723,13 @@ function initObjectIteratorPrototype(global, objectPrototype, strict) {
 
   /* 23.2.5.2.2 %SetIteratorPrototype% [ @@toStringTag ]*/
   descriptor := newDataPropertyDescriptorFull("Object Iterator", false, false, true);
-  setJSProperty(prototype, getToStringTagPropertyName(), descriptor); 
+  setJSProperty(prototype, getToStringTagPropertyName(), descriptor);
 
   return prototype
 };
 
 function ObjectIteratorConstructor(properties, Obj){
-    
+
   /* 3. Let iterator be ObjectCreate(%SetIteratorPrototype%, «‍[[IteratedSet]], [[SetNextIndex]], [[SetIterationKind]]»). */
   iterator := ObjectCreate(|Intrinsics|.ObjectIteratorPrototype, ["IteratedObject", "ObjectNextIndex", "IteratedProperties"]);
 
@@ -744,7 +738,7 @@ function ObjectIteratorConstructor(properties, Obj){
 
   /* 5. Set iterator’s [[SetNextIndex]] internal slot to 0. */
   iterator.ObjectNextIndex := 0;
-  
+
   /* 6. Set iterator’s [[SetIterationKind]] internal slot to kind. */
   iterator.IteratedProperties := properties;
 
@@ -755,7 +749,7 @@ function objectIteratorPrototypeNext(global, this, NewTarget, strict, args) {
 
     /* 1. Let O be the this value. */
     O := this;
-    
+
     /* 2. If Type(O) is not Object, throw a TypeError exception. */
     if (!(Type(O) = "Object")){
       throw TypeErrorConstructorInternal()
@@ -777,29 +771,29 @@ function objectIteratorPrototypeNext(global, this, NewTarget, strict, args) {
     while(index < len) {
       /* a. Let e be entries[index]. */
       e := l_nth(entries, index);
-      
+
       /* b. Set index to index+1; */
       index := index + 1;
 
       /* c. Set the [[SetNextIndex]] internal slot of O to index. */
       O.ObjectNextIndex := index;
-    
-    
+
+
       if ({O.IteratedObject.HasProperty}(O.IteratedObject, e)){
         return CreateIterResultObject(e, false)
       }
-      
+
     };
-    
+
     /* 12. Return CreateIterResultObject(undefined, true). */
-    return CreateIterResultObject('undefined, true) 
+    return CreateIterResultObject('undefined, true)
 
 };
 /**
  * 9.1.12 [[OwnPropertyKeys]] ( )
- * 
+ *
  * When the [[OwnPropertyKeys]] internal method of O is called the following steps are taken:
- * 
+ *
 */
 function OrdinaryObjectOwnPropertyKeys(O) {
     /* Let keys be a new empty List. */
@@ -821,7 +815,7 @@ function OrdinaryObjectOwnPropertyKeys(O) {
             /* Add P as the last element of keys. */
             strings := l_add(strings, P)
         }
-        
+
         /* For each own property key P of O that is a Symbol, in property creation order */
         elif ( P in_list (obj_fields O.SymbolKeys) ){
             /* Add P as the last element of keys. */
@@ -839,9 +833,9 @@ function OrdinaryObjectOwnPropertyKeys(O) {
 
 /**
  * 9.1.12 [[OwnPropertyKeys]] ( )
- * 
+ *
  * When the [[OwnPropertyKeys]] internal method of O is called the following steps are taken:
- * 
+ *
 */
 function OrdinaryObjectOwnPropertyKeysUpdated(O) {
     /* Let keys be a new empty List. */
@@ -863,7 +857,7 @@ function OrdinaryObjectOwnPropertyKeysUpdated(O) {
             /* Add P as the last element of keys. */
             strings := l_add(strings, P)
         }
-        
+
         /* For each own property key P of O that is a Symbol, in property creation order */
         elif ( P in_list (obj_fields O.SymbolKeys) ){
             /* Add P as the last element of keys. */
@@ -882,11 +876,11 @@ function OrdinaryObjectOwnPropertyKeysUpdated(O) {
 
 /**
  * 9.1.13 ObjectCreate(proto, internalSlotsList)
- * 
+ *
  * The abstract operation ObjectCreate with argument proto (an object or null) is used to specify the runtime
  * creation of new ordinary objects. The optional argument internalSlotsList is a List of the names of additional
  * internal slots that must be defined as part of the object. If the list is not provided, an empty List is used.
- * 
+ *
  * This abstract operation performs the following steps:
 */
 function ObjectCreate(proto, internalSlotsList) {
@@ -897,7 +891,7 @@ function ObjectCreate(proto, internalSlotsList) {
 
     /* Let obj be a newly created object with an internal slot for each name in internalSlotsList. */
     obj := NewECMAScriptObject();
-    
+
     l_internalSlotsList := l_len(internalSlotsList);
     i := 0;
     while ( i < l_internalSlotsList ) {
@@ -921,7 +915,7 @@ function ObjectCreate(proto, internalSlotsList) {
 
 /**
  * 9.1.15 GetPrototypeFromConstructor ( constructor, intrinsicDefaultProto )
- * 
+ *
  * The abstract operation GetPrototypeFromConstructor determines the [[Prototype]] value that should be used
  * to create an object corresponding to a specific constructor. The value is retrieved from the constructor’s
  * prototype property, if it exists. Otherwise the intrinsic named by intrinsicDefaultProto is used for
@@ -932,8 +926,6 @@ function GetPrototypeFromConstructor(constructor, intrinsicDefaultProto) {
     corresponding object must be an intrinsic that is intended to be used as the [[Prototype]] value of an object. */
     assert((typeof intrinsicDefaultProto = __$Str) &&& (isIntrinsic(intrinsicDefaultProto)));
 
-    print "GETPROTO";
-    print constructor;
 
     /* Assert: IsConstructor (constructor) is true. */
     assert( IsConstructor(constructor) = true );
@@ -965,7 +957,7 @@ function GetPrototypeFromConstructor(constructor, intrinsicDefaultProto) {
 
 /**
  * 9.1.14 OrdinaryCreateFromConstructor ( constructor, intrinsicDefaultProto, internalSlotsList )
- * 
+ *
  * The abstract operation OrdinaryCreateFromConstructor creates an ordinary object whose [[Prototype]] value
  * is retrieved from a constructor’s prototype property, if it exists. Otherwise the intrinsic named by
  * intrinsicDefaultProto is used for [[Prototype]]. The optional internalSlotsList is a List of the names of additional

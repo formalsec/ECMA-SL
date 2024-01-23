@@ -54,10 +54,10 @@ function initProxyObject(global, objectPrototype, strict) {
 */
 
 function ProxyConstructor(global, this, NewTarget, strict, args) {
-    
+
     target := l_nth(args, 0);
     handler := l_nth(args, 1);
-    
+
     /* 1. If NewTarget is undefined, throw a TypeError exception. */
     if (NewTarget = 'undefined) {
         throw TypeErrorConstructorInternal()
@@ -70,7 +70,7 @@ function ProxyConstructor(global, this, NewTarget, strict, args) {
 /**
 * 26.2.2 Properties of the Proxy Constructor
 *
-*  The value of the [[Prototype]] internal slot of the Proxy constructor is 
+*  The value of the [[Prototype]] internal slot of the Proxy constructor is
 *  the intrinsic object %FunctionPrototype% (19.2.3).
 *
 *  The Proxy constructor does not have a prototype property because proxy exotic
@@ -92,8 +92,8 @@ function initProxyPrototype(global, objectPrototype, strict) {
 /**
 * 26.2.2.1 Proxy.revocable ( target, handler )
 *
-*  The Proxy.revocable function is used to create a revocable Proxy object. 
-*  When Proxy.revocable is called with arguments target 
+*  The Proxy.revocable function is used to create a revocable Proxy object.
+*  When Proxy.revocable is called with arguments target
 *  and handler the following steps are taken:
 *
 */
@@ -132,7 +132,7 @@ function proxyRevocable(global, this, NewTarget, strict, args) {
 /**
 * 26.2.2.1.1 Proxy Revocation Functions
 *
-*  A Proxy revocation function is an anonymous function that has the 
+*  A Proxy revocation function is an anonymous function that has the
 *  ability to invalidate a specific Proxy object.
 *
 *  Each Proxy revocation function has a [[RevocableProxy]] internal slot.
@@ -150,7 +150,6 @@ function ProxyRevocation(global, this, NewTarget, strict, args) {
     /* 3. Set the value of F’s [[RevocableProxy]] internal slot to null. */
     F.RevocableProxy := 'null;
     /* 4. Assert: p is a Proxy object. */
-    print p;
     assert(IsProxy(p));
     /* 5. Set the [[ProxyTarget]] internal slot of p to null. */
     p.ProxyTarget := 'null;
