@@ -1,0 +1,4 @@
+(install
+ (files (js2ecma-sl-x86_64-linux as js2ecma-sl))
+ (section bin)
+ (package js2ecma-sl))
