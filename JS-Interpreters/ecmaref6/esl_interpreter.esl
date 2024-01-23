@@ -1238,7 +1238,12 @@ function PropertyDefinitionListEvaluation(PropertyDefinitionList, object, enumer
 
 function PropertyDefinitionEvaluation(PropertyDefinition, object, enumerable, scope) {
   match PropertyDefinition with
-  | {key: PropertyName, value: IdentifierReference, kind: "init", shorthand: true, method: false} -> {
+  | { key: PropertyName
+    , value: IdentifierReference
+    , kind: "init"
+    , shorthand: true
+    , method: false
+    } -> {
     /* 12.2.6.9 PropertyDefinition : IdentifierReference */
 
     /* 1. Let propName be StringValue of IdentifierReference. */
@@ -1256,10 +1261,15 @@ function PropertyDefinitionEvaluation(PropertyDefinition, object, enumerable, sc
     /* 7. Return CreateDataPropertyOrThrow(object, propName, propValue). */
     return CreateDataPropertyOrThrow(object, propName, propValue)
   }
-  | {key: PropertyName, value: AssignmentExpression, kind: "init", shorthand: false, method: false} -> {
+  | { key: PropertyName
+    , value: AssignmentExpression
+    , kind: "init"
+    , shorthand: false
+    , method: false
+    , computed: isComputedPropertyKey
+    } -> {
     /* 12.2.6.9 PropertyDefinition : PropertyName : AssignmentExpression */
-
-    /* 1. Let propKey be the result of evaluating PropertyName. */
+    /* 1. Let propKey be ? Evaluation of PropertyName. */
     propKey := JS_Interpreter_PropertyName(PropertyName, scope);
     /* 2. ReturnIfAbrupt(propKey). */
     @ReturnIfAbrupt(propKey);
@@ -1269,7 +1279,19 @@ function PropertyDefinitionEvaluation(PropertyDefinition, object, enumerable, sc
     propValue := GetValue(exprValueRef);
     /* 5. ReturnIfAbrupt(propValue). */
     @ReturnIfAbrupt(propValue);
-    /* 6. If IsAnonymousFunctionDefinition(AssignmentExpression) is true, then */
+    /* 6. If propKey is the String value "__proto__" and
+          if IsComputedPropertyKey(propKey) is false, then */
+    if ((propKey = "__proto__") &&& (isComputedPropertyKey = false)) {
+      propValueType := Type(propValue);
+      /* a. If Type(propValue) is either Object or Null, then */
+      if ((propValueType = "Object") ||| (propValueType = "Null")) {
+        /* i. Return object.[[SetPrototypeOf]](propValue). */
+        return {object.SetPrototypeOf}(object, propValue)
+      };
+      /* b. Return NormalCompletion(empty). */
+      return NormalCompletion('empty)
+    };
+    /* 7. If IsAnonymousFunctionDefinition(AssignmentExpression) is true, then */
     if (IsAnonymousFunctionDefinition(AssignmentExpression) = true) {
       /* a. Let hasNameProperty be HasOwnProperty(propValue, "name"). */
       hasNameProperty := HasOwnProperty(propValue, "name");
@@ -1280,9 +1302,9 @@ function PropertyDefinitionEvaluation(PropertyDefinition, object, enumerable, sc
         SetFunctionName(propValue, propKey, null)
       }
     };
-    /* 7. Assert: enumerable is true. */
+    /* 8. Assert: enumerable is true. */
     assert(enumerable = true);
-    /* 8. Return CreateDataPropertyOrThrow(object, propKey, propValue). */
+    /* 9. Return CreateDataPropertyOrThrow(object, propKey, propValue). */
     return CreateDataPropertyOrThrow(object, propKey, propValue)
   }
   | { type: "SpreadElement", argument: AssignmentExpression } -> {
