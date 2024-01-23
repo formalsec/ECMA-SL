@@ -1,4 +1,0 @@
-(cram
- (deps
-  %{bin:ecma-sl}
-  (source_tree ecmaref6)))
