@@ -113,44 +113,38 @@ function initObjectPrototype() {
 };
 
 function protoAccessorGet(globalObject, this, NewTarget, strict, params) {
-  /* 1. Let O be ? ToObject(this value). */
+  /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
-  /* 2. Return ? O.[[GetPrototypeOf]](). */
-  proto := {O.GetPrototypeOf}(O);
-  /* HELP: do we need to ReturnIfAbrupt? or can we just return? */
-  @ReturnIfAbrupt(proto);
-
-  return proto
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+  /* 3. Return O.[[GetPrototypeOf]](). */
+  return {O.GetPrototypeOf}(O)
 };
 
 function protoAccessorSet(globalObject, this, NewTarget, strict, params) {
   proto := l_nth(params, 0);
-
-  /* 1. Let O be ? RequireObjectCoercible(this value). */
+  /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
+  /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
-  /* 2. If proto is not an Object and proto is not null, return undefined. */
-  if (!(Type(proto) = "Object") &&& !(proto = 'null)) {
+  /* 3. If Type(proto) is neither Object nor Null, return undefined. */
+  protoType := Type(proto);
+  if (!(protoType = "Object") &&& !(protoType = "Null")) {
     return 'undefined
   };
-
-  /* 3. If O is not an Object, return undefined. */
+  /* 4. If O is not an Object, return undefined. */
   if (!(Type(O) = "Object")) {
     return 'undefined
   };
-
-  /* 4. Let status be ? O.[[SetPrototypeOf]](proto). */
+  /* 5. Let status be O.[[SetPrototypeOf]](proto). */
   status := {O.SetPrototypeOf}(O, proto);
+  /* 6. ReturnIfAbrupt(status). */
   @ReturnIfAbrupt(status);
-
-  /* 5. If status is false, throw a TypeError exception. */
+  /* 7. If status is false, throw a TypeError exception. */
   if (status = false) {
     throw TypeErrorConstructorInternal()
   };
-
-  /* 6. Return undefined. */
+  /* 8. Return undefined. */
   return 'undefined
 };
 
