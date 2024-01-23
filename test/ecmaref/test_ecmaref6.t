@@ -1,4 +1,5 @@
 Tests compilation of ecmaref6:
+  $ cd ../../JS-Interpreters
   $ dune exec -- ecma-sl compile ecmaref6/main_sym.esl --untyped
   function JS_Interpreter_BinExpr(___internal_esl_global, e, scope) {
   __v23259 := "type" in_obj e;
