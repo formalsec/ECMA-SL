@@ -34853,18 +34853,19 @@ O := __v17094
 } else {
 
 };
-__v17097 := "Type"(___internal_esl_global, proto);
-if (fst(__v17097)) {
-return __v17097
+__v17096 := "Type"(___internal_esl_global, proto);
+if (fst(__v17096)) {
+return __v17096
 } else {
-__v17097 := snd(__v17097)
+__v17096 := snd(__v17096)
 };
-__v17098 := __v17097 = "Object";
-__v17096 := !__v17098;
-if (__v17096 = false) {
+protoType := __v17096;
+__v17098 := protoType = "Object";
+__v17097 := !__v17098;
+if (__v17097 = false) {
 __v17101 := false
 } else {
-__v17100 := proto = 'null;
+__v17100 := protoType = "Null";
 __v17099 := !__v17100;
 if (__v17099 = false) {
 __v17101 := false
@@ -104937,43 +104938,42 @@ return __v3831
 __v3831 := snd(__v3831)
 };
 O := __v3831;
-__v3832 := O["GetPrototypeOf"];
-__v3833 := __v3832(___internal_esl_global, O);
-if (fst(__v3833)) {
-return __v3833
+__v3832 := "Type"(___internal_esl_global, O);
+if (fst(__v3832)) {
+return __v3832
 } else {
-__v3833 := snd(__v3833)
+__v3832 := snd(__v3832)
 };
-proto := __v3833;
-__v3834 := "Type"(___internal_esl_global, proto);
+__v3833 := __v3832 = "Completion";
+if (__v3833) {
+__v3835 := "isAnAbruptCompletion"(___internal_esl_global, O);
+if (fst(__v3835)) {
+return __v3835
+} else {
+__v3835 := snd(__v3835)
+};
+if (__v3835) {
+return (false, O)
+} else {
+__v3834 := "getCompletionValue"(___internal_esl_global, O);
 if (fst(__v3834)) {
 return __v3834
 } else {
 __v3834 := snd(__v3834)
 };
-__v3835 := __v3834 = "Completion";
-if (__v3835) {
-__v3837 := "isAnAbruptCompletion"(___internal_esl_global, proto);
+O := __v3834
+}
+} else {
+
+};
+__v3836 := O["GetPrototypeOf"];
+__v3837 := __v3836(___internal_esl_global, O);
 if (fst(__v3837)) {
 return __v3837
 } else {
 __v3837 := snd(__v3837)
 };
-if (__v3837) {
-return (false, proto)
-} else {
-__v3836 := "getCompletionValue"(___internal_esl_global, proto);
-if (fst(__v3836)) {
-return __v3836
-} else {
-__v3836 := snd(__v3836)
-};
-proto := __v3836
-}
-} else {
-
-};
-return (false, proto)
+return (false, __v3837)
 };
 function DeletePropertyOrThrow(___internal_esl_global, O, P) {
 __v3819 := "Type"(___internal_esl_global, O);
