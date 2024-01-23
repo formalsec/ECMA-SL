@@ -2,529 +2,452 @@ Tests compilation of ecmaref6:
   $ cd ../../JS-Interpreters
   $ dune exec -- ecma-sl compile ecmaref6/main_sym.esl --untyped
   function JS_Interpreter_BinExpr(___internal_esl_global, e, scope) {
-  __v23287 := "type" in_obj e;
-  __v23289 := e["type"];
-  __v23288 := __v23289 = "BinaryExpression";
-  __v23290 := "operator" in_obj e;
-  __v23292 := e["operator"];
-  __v23291 := __v23292 = "*";
-  __v23293 := "left" in_obj e;
-  __v23294 := "right" in_obj e;
-  if (true && __v23287 && __v23288 && __v23290 && __v23291 && __v23293 && __v23294) {
+  __v23298 := "type" in_obj e;
+  __v23300 := e["type"];
+  __v23299 := __v23300 = "BinaryExpression";
+  __v23301 := "operator" in_obj e;
+  __v23303 := e["operator"];
+  __v23302 := __v23303 = "*";
+  __v23304 := "left" in_obj e;
+  __v23305 := "right" in_obj e;
+  if (true && __v23298 && __v23299 && __v23301 && __v23302 && __v23304 && __v23305) {
   MultiplicativeExpression := e["left"];
   UnaryExpression := e["right"];
-  __v23295 := "JS_Interpreter_Expr"(___internal_esl_global, MultiplicativeExpression, scope);
-  if (fst(__v23295)) {
-  return __v23295
-  } else {
-  __v23295 := snd(__v23295)
-  };
-  left := __v23295;
-  __v23296 := "GetValue"(___internal_esl_global, left);
-  if (fst(__v23296)) {
-  return __v23296
-  } else {
-  __v23296 := snd(__v23296)
-  };
-  leftValue := __v23296;
-  __v23297 := "Type"(___internal_esl_global, leftValue);
-  if (fst(__v23297)) {
-  return __v23297
-  } else {
-  __v23297 := snd(__v23297)
-  };
-  __v23298 := __v23297 = "Completion";
-  if (__v23298) {
-  __v23300 := "isAnAbruptCompletion"(___internal_esl_global, leftValue);
-  if (fst(__v23300)) {
-  return __v23300
-  } else {
-  __v23300 := snd(__v23300)
-  };
-  if (__v23300) {
-  return (false, leftValue)
-  } else {
-  __v23299 := "getCompletionValue"(___internal_esl_global, leftValue);
-  if (fst(__v23299)) {
-  return __v23299
-  } else {
-  __v23299 := snd(__v23299)
-  };
-  leftValue := __v23299
-  }
-  } else {
-  
-  };
-  __v23301 := "JS_Interpreter_Expr"(___internal_esl_global, UnaryExpression, scope);
-  if (fst(__v23301)) {
-  return __v23301
-  } else {
-  __v23301 := snd(__v23301)
-  };
-  right := __v23301;
-  __v23302 := "GetValue"(___internal_esl_global, right);
-  if (fst(__v23302)) {
-  return __v23302
-  } else {
-  __v23302 := snd(__v23302)
-  };
-  rightValue := __v23302;
-  __v23303 := "ToNumber"(___internal_esl_global, leftValue);
-  if (fst(__v23303)) {
-  return __v23303
-  } else {
-  __v23303 := snd(__v23303)
-  };
-  lnum := __v23303;
-  __v23304 := "Type"(___internal_esl_global, lnum);
-  if (fst(__v23304)) {
-  return __v23304
-  } else {
-  __v23304 := snd(__v23304)
-  };
-  __v23305 := __v23304 = "Completion";
-  if (__v23305) {
-  __v23307 := "isAnAbruptCompletion"(___internal_esl_global, lnum);
-  if (fst(__v23307)) {
-  return __v23307
-  } else {
-  __v23307 := snd(__v23307)
-  };
-  if (__v23307) {
-  return (false, lnum)
-  } else {
-  __v23306 := "getCompletionValue"(___internal_esl_global, lnum);
+  __v23306 := "JS_Interpreter_Expr"(___internal_esl_global, MultiplicativeExpression, scope);
   if (fst(__v23306)) {
   return __v23306
   } else {
   __v23306 := snd(__v23306)
   };
-  lnum := __v23306
-  }
+  left := __v23306;
+  __v23307 := "GetValue"(___internal_esl_global, left);
+  if (fst(__v23307)) {
+  return __v23307
   } else {
-  
+  __v23307 := snd(__v23307)
   };
-  __v23308 := "ToNumber"(___internal_esl_global, rightValue);
+  leftValue := __v23307;
+  __v23308 := "Type"(___internal_esl_global, leftValue);
   if (fst(__v23308)) {
   return __v23308
   } else {
   __v23308 := snd(__v23308)
   };
-  rnum := __v23308;
-  __v23309 := "Type"(___internal_esl_global, rnum);
-  if (fst(__v23309)) {
-  return __v23309
-  } else {
-  __v23309 := snd(__v23309)
-  };
-  __v23310 := __v23309 = "Completion";
-  if (__v23310) {
-  __v23312 := "isAnAbruptCompletion"(___internal_esl_global, rnum);
-  if (fst(__v23312)) {
-  return __v23312
-  } else {
-  __v23312 := snd(__v23312)
-  };
-  if (__v23312) {
-  return (false, rnum)
-  } else {
-  __v23311 := "getCompletionValue"(___internal_esl_global, rnum);
+  __v23309 := __v23308 = "Completion";
+  if (__v23309) {
+  __v23311 := "isAnAbruptCompletion"(___internal_esl_global, leftValue);
   if (fst(__v23311)) {
   return __v23311
   } else {
   __v23311 := snd(__v23311)
   };
-  rnum := __v23311
+  if (__v23311) {
+  return (false, leftValue)
+  } else {
+  __v23310 := "getCompletionValue"(___internal_esl_global, leftValue);
+  if (fst(__v23310)) {
+  return __v23310
+  } else {
+  __v23310 := snd(__v23310)
+  };
+  leftValue := __v23310
   }
   } else {
   
   };
-  __v23313 := lnum * rnum;
-  return (false, __v23313)
+  __v23312 := "JS_Interpreter_Expr"(___internal_esl_global, UnaryExpression, scope);
+  if (fst(__v23312)) {
+  return __v23312
   } else {
-  __v23314 := "type" in_obj e;
-  __v23316 := e["type"];
-  __v23315 := __v23316 = "BinaryExpression";
-  __v23317 := "operator" in_obj e;
-  __v23319 := e["operator"];
-  __v23318 := __v23319 = "/";
-  __v23320 := "left" in_obj e;
-  __v23321 := "right" in_obj e;
-  if (true && __v23314 && __v23315 && __v23317 && __v23318 && __v23320 && __v23321) {
-  MultiplicativeExpression := e["left"];
-  UnaryExpression := e["right"];
-  __v23322 := "JS_Interpreter_Expr"(___internal_esl_global, MultiplicativeExpression, scope);
-  if (fst(__v23322)) {
-  return __v23322
-  } else {
-  __v23322 := snd(__v23322)
+  __v23312 := snd(__v23312)
   };
-  left := __v23322;
-  __v23323 := "GetValue"(___internal_esl_global, left);
+  right := __v23312;
+  __v23313 := "GetValue"(___internal_esl_global, right);
+  if (fst(__v23313)) {
+  return __v23313
+  } else {
+  __v23313 := snd(__v23313)
+  };
+  rightValue := __v23313;
+  __v23314 := "ToNumber"(___internal_esl_global, leftValue);
+  if (fst(__v23314)) {
+  return __v23314
+  } else {
+  __v23314 := snd(__v23314)
+  };
+  lnum := __v23314;
+  __v23315 := "Type"(___internal_esl_global, lnum);
+  if (fst(__v23315)) {
+  return __v23315
+  } else {
+  __v23315 := snd(__v23315)
+  };
+  __v23316 := __v23315 = "Completion";
+  if (__v23316) {
+  __v23318 := "isAnAbruptCompletion"(___internal_esl_global, lnum);
+  if (fst(__v23318)) {
+  return __v23318
+  } else {
+  __v23318 := snd(__v23318)
+  };
+  if (__v23318) {
+  return (false, lnum)
+  } else {
+  __v23317 := "getCompletionValue"(___internal_esl_global, lnum);
+  if (fst(__v23317)) {
+  return __v23317
+  } else {
+  __v23317 := snd(__v23317)
+  };
+  lnum := __v23317
+  }
+  } else {
+  
+  };
+  __v23319 := "ToNumber"(___internal_esl_global, rightValue);
+  if (fst(__v23319)) {
+  return __v23319
+  } else {
+  __v23319 := snd(__v23319)
+  };
+  rnum := __v23319;
+  __v23320 := "Type"(___internal_esl_global, rnum);
+  if (fst(__v23320)) {
+  return __v23320
+  } else {
+  __v23320 := snd(__v23320)
+  };
+  __v23321 := __v23320 = "Completion";
+  if (__v23321) {
+  __v23323 := "isAnAbruptCompletion"(___internal_esl_global, rnum);
   if (fst(__v23323)) {
   return __v23323
   } else {
   __v23323 := snd(__v23323)
   };
-  leftValue := __v23323;
-  __v23324 := "Type"(___internal_esl_global, leftValue);
-  if (fst(__v23324)) {
-  return __v23324
+  if (__v23323) {
+  return (false, rnum)
   } else {
-  __v23324 := snd(__v23324)
+  __v23322 := "getCompletionValue"(___internal_esl_global, rnum);
+  if (fst(__v23322)) {
+  return __v23322
+  } else {
+  __v23322 := snd(__v23322)
   };
-  __v23325 := __v23324 = "Completion";
-  if (__v23325) {
-  __v23327 := "isAnAbruptCompletion"(___internal_esl_global, leftValue);
-  if (fst(__v23327)) {
-  return __v23327
-  } else {
-  __v23327 := snd(__v23327)
-  };
-  if (__v23327) {
-  return (false, leftValue)
-  } else {
-  __v23326 := "getCompletionValue"(___internal_esl_global, leftValue);
-  if (fst(__v23326)) {
-  return __v23326
-  } else {
-  __v23326 := snd(__v23326)
-  };
-  leftValue := __v23326
+  rnum := __v23322
   }
   } else {
   
   };
-  __v23328 := "JS_Interpreter_Expr"(___internal_esl_global, UnaryExpression, scope);
-  if (fst(__v23328)) {
-  return __v23328
+  __v23324 := lnum * rnum;
+  return (false, __v23324)
   } else {
-  __v23328 := snd(__v23328)
-  };
-  right := __v23328;
-  __v23329 := "GetValue"(___internal_esl_global, right);
-  if (fst(__v23329)) {
-  return __v23329
-  } else {
-  __v23329 := snd(__v23329)
-  };
-  rightValue := __v23329;
-  __v23330 := "ToNumber"(___internal_esl_global, leftValue);
-  if (fst(__v23330)) {
-  return __v23330
-  } else {
-  __v23330 := snd(__v23330)
-  };
-  lnum := __v23330;
-  __v23331 := "Type"(___internal_esl_global, lnum);
-  if (fst(__v23331)) {
-  return __v23331
-  } else {
-  __v23331 := snd(__v23331)
-  };
-  __v23332 := __v23331 = "Completion";
-  if (__v23332) {
-  __v23334 := "isAnAbruptCompletion"(___internal_esl_global, lnum);
-  if (fst(__v23334)) {
-  return __v23334
-  } else {
-  __v23334 := snd(__v23334)
-  };
-  if (__v23334) {
-  return (false, lnum)
-  } else {
-  __v23333 := "getCompletionValue"(___internal_esl_global, lnum);
+  __v23325 := "type" in_obj e;
+  __v23327 := e["type"];
+  __v23326 := __v23327 = "BinaryExpression";
+  __v23328 := "operator" in_obj e;
+  __v23330 := e["operator"];
+  __v23329 := __v23330 = "/";
+  __v23331 := "left" in_obj e;
+  __v23332 := "right" in_obj e;
+  if (true && __v23325 && __v23326 && __v23328 && __v23329 && __v23331 && __v23332) {
+  MultiplicativeExpression := e["left"];
+  UnaryExpression := e["right"];
+  __v23333 := "JS_Interpreter_Expr"(___internal_esl_global, MultiplicativeExpression, scope);
   if (fst(__v23333)) {
   return __v23333
   } else {
   __v23333 := snd(__v23333)
   };
-  lnum := __v23333
-  }
+  left := __v23333;
+  __v23334 := "GetValue"(___internal_esl_global, left);
+  if (fst(__v23334)) {
+  return __v23334
   } else {
-  
+  __v23334 := snd(__v23334)
   };
-  __v23335 := "ToNumber"(___internal_esl_global, rightValue);
+  leftValue := __v23334;
+  __v23335 := "Type"(___internal_esl_global, leftValue);
   if (fst(__v23335)) {
   return __v23335
   } else {
   __v23335 := snd(__v23335)
   };
-  rnum := __v23335;
-  __v23336 := "Type"(___internal_esl_global, rnum);
-  if (fst(__v23336)) {
-  return __v23336
-  } else {
-  __v23336 := snd(__v23336)
-  };
-  __v23337 := __v23336 = "Completion";
-  if (__v23337) {
-  __v23339 := "isAnAbruptCompletion"(___internal_esl_global, rnum);
-  if (fst(__v23339)) {
-  return __v23339
-  } else {
-  __v23339 := snd(__v23339)
-  };
-  if (__v23339) {
-  return (false, rnum)
-  } else {
-  __v23338 := "getCompletionValue"(___internal_esl_global, rnum);
+  __v23336 := __v23335 = "Completion";
+  if (__v23336) {
+  __v23338 := "isAnAbruptCompletion"(___internal_esl_global, leftValue);
   if (fst(__v23338)) {
   return __v23338
   } else {
   __v23338 := snd(__v23338)
   };
-  rnum := __v23338
+  if (__v23338) {
+  return (false, leftValue)
+  } else {
+  __v23337 := "getCompletionValue"(___internal_esl_global, leftValue);
+  if (fst(__v23337)) {
+  return __v23337
+  } else {
+  __v23337 := snd(__v23337)
+  };
+  leftValue := __v23337
   }
   } else {
   
   };
-  __v23340 := lnum / rnum;
-  return (false, __v23340)
+  __v23339 := "JS_Interpreter_Expr"(___internal_esl_global, UnaryExpression, scope);
+  if (fst(__v23339)) {
+  return __v23339
   } else {
-  __v23341 := "type" in_obj e;
-  __v23343 := e["type"];
-  __v23342 := __v23343 = "BinaryExpression";
-  __v23344 := "operator" in_obj e;
-  __v23346 := e["operator"];
-  __v23345 := __v23346 = "%";
-  __v23347 := "left" in_obj e;
-  __v23348 := "right" in_obj e;
-  if (true && __v23341 && __v23342 && __v23344 && __v23345 && __v23347 && __v23348) {
-  MultiplicativeExpression := e["left"];
-  UnaryExpression := e["right"];
-  __v23349 := "JS_Interpreter_Expr"(___internal_esl_global, MultiplicativeExpression, scope);
-  if (fst(__v23349)) {
-  return __v23349
-  } else {
-  __v23349 := snd(__v23349)
+  __v23339 := snd(__v23339)
   };
-  left := __v23349;
-  __v23350 := "GetValue"(___internal_esl_global, left);
+  right := __v23339;
+  __v23340 := "GetValue"(___internal_esl_global, right);
+  if (fst(__v23340)) {
+  return __v23340
+  } else {
+  __v23340 := snd(__v23340)
+  };
+  rightValue := __v23340;
+  __v23341 := "ToNumber"(___internal_esl_global, leftValue);
+  if (fst(__v23341)) {
+  return __v23341
+  } else {
+  __v23341 := snd(__v23341)
+  };
+  lnum := __v23341;
+  __v23342 := "Type"(___internal_esl_global, lnum);
+  if (fst(__v23342)) {
+  return __v23342
+  } else {
+  __v23342 := snd(__v23342)
+  };
+  __v23343 := __v23342 = "Completion";
+  if (__v23343) {
+  __v23345 := "isAnAbruptCompletion"(___internal_esl_global, lnum);
+  if (fst(__v23345)) {
+  return __v23345
+  } else {
+  __v23345 := snd(__v23345)
+  };
+  if (__v23345) {
+  return (false, lnum)
+  } else {
+  __v23344 := "getCompletionValue"(___internal_esl_global, lnum);
+  if (fst(__v23344)) {
+  return __v23344
+  } else {
+  __v23344 := snd(__v23344)
+  };
+  lnum := __v23344
+  }
+  } else {
+  
+  };
+  __v23346 := "ToNumber"(___internal_esl_global, rightValue);
+  if (fst(__v23346)) {
+  return __v23346
+  } else {
+  __v23346 := snd(__v23346)
+  };
+  rnum := __v23346;
+  __v23347 := "Type"(___internal_esl_global, rnum);
+  if (fst(__v23347)) {
+  return __v23347
+  } else {
+  __v23347 := snd(__v23347)
+  };
+  __v23348 := __v23347 = "Completion";
+  if (__v23348) {
+  __v23350 := "isAnAbruptCompletion"(___internal_esl_global, rnum);
   if (fst(__v23350)) {
   return __v23350
   } else {
   __v23350 := snd(__v23350)
   };
-  leftValue := __v23350;
-  __v23351 := "Type"(___internal_esl_global, leftValue);
-  if (fst(__v23351)) {
-  return __v23351
+  if (__v23350) {
+  return (false, rnum)
   } else {
-  __v23351 := snd(__v23351)
+  __v23349 := "getCompletionValue"(___internal_esl_global, rnum);
+  if (fst(__v23349)) {
+  return __v23349
+  } else {
+  __v23349 := snd(__v23349)
   };
-  __v23352 := __v23351 = "Completion";
-  if (__v23352) {
-  __v23354 := "isAnAbruptCompletion"(___internal_esl_global, leftValue);
-  if (fst(__v23354)) {
-  return __v23354
-  } else {
-  __v23354 := snd(__v23354)
-  };
-  if (__v23354) {
-  return (false, leftValue)
-  } else {
-  __v23353 := "getCompletionValue"(___internal_esl_global, leftValue);
-  if (fst(__v23353)) {
-  return __v23353
-  } else {
-  __v23353 := snd(__v23353)
-  };
-  leftValue := __v23353
+  rnum := __v23349
   }
   } else {
   
   };
-  __v23355 := "JS_Interpreter_Expr"(___internal_esl_global, UnaryExpression, scope);
-  if (fst(__v23355)) {
-  return __v23355
+  __v23351 := lnum / rnum;
+  return (false, __v23351)
   } else {
-  __v23355 := snd(__v23355)
-  };
-  right := __v23355;
-  __v23356 := "GetValue"(___internal_esl_global, right);
-  if (fst(__v23356)) {
-  return __v23356
-  } else {
-  __v23356 := snd(__v23356)
-  };
-  rightValue := __v23356;
-  __v23357 := "ToNumber"(___internal_esl_global, leftValue);
-  if (fst(__v23357)) {
-  return __v23357
-  } else {
-  __v23357 := snd(__v23357)
-  };
-  lnum := __v23357;
-  __v23358 := "Type"(___internal_esl_global, lnum);
-  if (fst(__v23358)) {
-  return __v23358
-  } else {
-  __v23358 := snd(__v23358)
-  };
-  __v23359 := __v23358 = "Completion";
-  if (__v23359) {
-  __v23361 := "isAnAbruptCompletion"(___internal_esl_global, lnum);
-  if (fst(__v23361)) {
-  return __v23361
-  } else {
-  __v23361 := snd(__v23361)
-  };
-  if (__v23361) {
-  return (false, lnum)
-  } else {
-  __v23360 := "getCompletionValue"(___internal_esl_global, lnum);
+  __v23352 := "type" in_obj e;
+  __v23354 := e["type"];
+  __v23353 := __v23354 = "BinaryExpression";
+  __v23355 := "operator" in_obj e;
+  __v23357 := e["operator"];
+  __v23356 := __v23357 = "%";
+  __v23358 := "left" in_obj e;
+  __v23359 := "right" in_obj e;
+  if (true && __v23352 && __v23353 && __v23355 && __v23356 && __v23358 && __v23359) {
+  MultiplicativeExpression := e["left"];
+  UnaryExpression := e["right"];
+  __v23360 := "JS_Interpreter_Expr"(___internal_esl_global, MultiplicativeExpression, scope);
   if (fst(__v23360)) {
   return __v23360
   } else {
   __v23360 := snd(__v23360)
   };
-  lnum := __v23360
-  }
+  left := __v23360;
+  __v23361 := "GetValue"(___internal_esl_global, left);
+  if (fst(__v23361)) {
+  return __v23361
   } else {
-  
+  __v23361 := snd(__v23361)
   };
-  __v23362 := "ToNumber"(___internal_esl_global, rightValue);
+  leftValue := __v23361;
+  __v23362 := "Type"(___internal_esl_global, leftValue);
   if (fst(__v23362)) {
   return __v23362
   } else {
   __v23362 := snd(__v23362)
   };
-  rnum := __v23362;
-  __v23363 := "Type"(___internal_esl_global, rnum);
-  if (fst(__v23363)) {
-  return __v23363
-  } else {
-  __v23363 := snd(__v23363)
-  };
-  __v23364 := __v23363 = "Completion";
-  if (__v23364) {
-  __v23366 := "isAnAbruptCompletion"(___internal_esl_global, rnum);
-  if (fst(__v23366)) {
-  return __v23366
-  } else {
-  __v23366 := snd(__v23366)
-  };
-  if (__v23366) {
-  return (false, rnum)
-  } else {
-  __v23365 := "getCompletionValue"(___internal_esl_global, rnum);
+  __v23363 := __v23362 = "Completion";
+  if (__v23363) {
+  __v23365 := "isAnAbruptCompletion"(___internal_esl_global, leftValue);
   if (fst(__v23365)) {
   return __v23365
   } else {
   __v23365 := snd(__v23365)
   };
-  rnum := __v23365
+  if (__v23365) {
+  return (false, leftValue)
+  } else {
+  __v23364 := "getCompletionValue"(___internal_esl_global, leftValue);
+  if (fst(__v23364)) {
+  return __v23364
+  } else {
+  __v23364 := snd(__v23364)
+  };
+  leftValue := __v23364
   }
   } else {
   
   };
-  __v23367 := lnum % rnum;
-  return (false, __v23367)
+  __v23366 := "JS_Interpreter_Expr"(___internal_esl_global, UnaryExpression, scope);
+  if (fst(__v23366)) {
+  return __v23366
   } else {
-  __v23368 := "type" in_obj e;
-  __v23370 := e["type"];
-  __v23369 := __v23370 = "BinaryExpression";
-  __v23371 := "operator" in_obj e;
-  __v23373 := e["operator"];
-  __v23372 := __v23373 = "+";
-  __v23374 := "left" in_obj e;
-  __v23375 := "right" in_obj e;
-  if (true && __v23368 && __v23369 && __v23371 && __v23372 && __v23374 && __v23375) {
-  AdditiveExpression := e["left"];
-  MultiplicativeExpression := e["right"];
-  __v23376 := "JS_Interpreter_Expr"(___internal_esl_global, AdditiveExpression, scope);
-  if (fst(__v23376)) {
-  return __v23376
-  } else {
-  __v23376 := snd(__v23376)
+  __v23366 := snd(__v23366)
   };
-  lref := __v23376;
-  __v23377 := "GetValue"(___internal_esl_global, lref);
+  right := __v23366;
+  __v23367 := "GetValue"(___internal_esl_global, right);
+  if (fst(__v23367)) {
+  return __v23367
+  } else {
+  __v23367 := snd(__v23367)
+  };
+  rightValue := __v23367;
+  __v23368 := "ToNumber"(___internal_esl_global, leftValue);
+  if (fst(__v23368)) {
+  return __v23368
+  } else {
+  __v23368 := snd(__v23368)
+  };
+  lnum := __v23368;
+  __v23369 := "Type"(___internal_esl_global, lnum);
+  if (fst(__v23369)) {
+  return __v23369
+  } else {
+  __v23369 := snd(__v23369)
+  };
+  __v23370 := __v23369 = "Completion";
+  if (__v23370) {
+  __v23372 := "isAnAbruptCompletion"(___internal_esl_global, lnum);
+  if (fst(__v23372)) {
+  return __v23372
+  } else {
+  __v23372 := snd(__v23372)
+  };
+  if (__v23372) {
+  return (false, lnum)
+  } else {
+  __v23371 := "getCompletionValue"(___internal_esl_global, lnum);
+  if (fst(__v23371)) {
+  return __v23371
+  } else {
+  __v23371 := snd(__v23371)
+  };
+  lnum := __v23371
+  }
+  } else {
+  
+  };
+  __v23373 := "ToNumber"(___internal_esl_global, rightValue);
+  if (fst(__v23373)) {
+  return __v23373
+  } else {
+  __v23373 := snd(__v23373)
+  };
+  rnum := __v23373;
+  __v23374 := "Type"(___internal_esl_global, rnum);
+  if (fst(__v23374)) {
+  return __v23374
+  } else {
+  __v23374 := snd(__v23374)
+  };
+  __v23375 := __v23374 = "Completion";
+  if (__v23375) {
+  __v23377 := "isAnAbruptCompletion"(___internal_esl_global, rnum);
   if (fst(__v23377)) {
   return __v23377
   } else {
   __v23377 := snd(__v23377)
   };
-  lval := __v23377;
-  __v23378 := "Type"(___internal_esl_global, lval);
-  if (fst(__v23378)) {
-  return __v23378
+  if (__v23377) {
+  return (false, rnum)
   } else {
-  __v23378 := snd(__v23378)
+  __v23376 := "getCompletionValue"(___internal_esl_global, rnum);
+  if (fst(__v23376)) {
+  return __v23376
+  } else {
+  __v23376 := snd(__v23376)
   };
-  __v23379 := __v23378 = "Completion";
-  if (__v23379) {
-  __v23381 := "isAnAbruptCompletion"(___internal_esl_global, lval);
-  if (fst(__v23381)) {
-  return __v23381
-  } else {
-  __v23381 := snd(__v23381)
-  };
-  if (__v23381) {
-  return (false, lval)
-  } else {
-  __v23380 := "getCompletionValue"(___internal_esl_global, lval);
-  if (fst(__v23380)) {
-  return __v23380
-  } else {
-  __v23380 := snd(__v23380)
-  };
-  lval := __v23380
+  rnum := __v23376
   }
   } else {
   
   };
-  __v23382 := "JS_Interpreter_Expr"(___internal_esl_global, MultiplicativeExpression, scope);
-  if (fst(__v23382)) {
-  return __v23382
+  __v23378 := lnum % rnum;
+  return (false, __v23378)
   } else {
-  __v23382 := snd(__v23382)
-  };
-  rref := __v23382;
-  __v23383 := "GetValue"(___internal_esl_global, rref);
-  if (fst(__v23383)) {
-  return __v23383
-  } else {
-  __v23383 := snd(__v23383)
-  };
-  rval := __v23383;
-  __v23384 := "Type"(___internal_esl_global, rval);
-  if (fst(__v23384)) {
-  return __v23384
-  } else {
-  __v23384 := snd(__v23384)
-  };
-  __v23385 := __v23384 = "Completion";
-  if (__v23385) {
-  __v23387 := "isAnAbruptCompletion"(___internal_esl_global, rval);
+  __v23379 := "type" in_obj e;
+  __v23381 := e["type"];
+  __v23380 := __v23381 = "BinaryExpression";
+  __v23382 := "operator" in_obj e;
+  __v23384 := e["operator"];
+  __v23383 := __v23384 = "+";
+  __v23385 := "left" in_obj e;
+  __v23386 := "right" in_obj e;
+  if (true && __v23379 && __v23380 && __v23382 && __v23383 && __v23385 && __v23386) {
+  AdditiveExpression := e["left"];
+  MultiplicativeExpression := e["right"];
+  __v23387 := "JS_Interpreter_Expr"(___internal_esl_global, AdditiveExpression, scope);
   if (fst(__v23387)) {
   return __v23387
   } else {
   __v23387 := snd(__v23387)
   };
-  if (__v23387) {
-  return (false, rval)
-  } else {
-  __v23386 := "getCompletionValue"(___internal_esl_global, rval);
-  if (fst(__v23386)) {
-  return __v23386
-  } else {
-  __v23386 := snd(__v23386)
-  };
-  rval := __v23386
-  }
-  } else {
-  
-  };
-  __v23388 := "ToPrimitive"(___internal_esl_global, lval, null);
+  lref := __v23387;
+  __v23388 := "GetValue"(___internal_esl_global, lref);
   if (fst(__v23388)) {
   return __v23388
   } else {
   __v23388 := snd(__v23388)
   };
-  lprim := __v23388;
-  __v23389 := "Type"(___internal_esl_global, lprim);
+  lval := __v23388;
+  __v23389 := "Type"(___internal_esl_global, lval);
   if (fst(__v23389)) {
   return __v23389
   } else {
@@ -532,334 +455,334 @@ Tests compilation of ecmaref6:
   };
   __v23390 := __v23389 = "Completion";
   if (__v23390) {
-  __v23392 := "isAnAbruptCompletion"(___internal_esl_global, lprim);
+  __v23392 := "isAnAbruptCompletion"(___internal_esl_global, lval);
   if (fst(__v23392)) {
   return __v23392
   } else {
   __v23392 := snd(__v23392)
   };
   if (__v23392) {
-  return (false, lprim)
+  return (false, lval)
   } else {
-  __v23391 := "getCompletionValue"(___internal_esl_global, lprim);
+  __v23391 := "getCompletionValue"(___internal_esl_global, lval);
   if (fst(__v23391)) {
   return __v23391
   } else {
   __v23391 := snd(__v23391)
   };
-  lprim := __v23391
+  lval := __v23391
   }
   } else {
   
   };
-  __v23393 := "ToPrimitive"(___internal_esl_global, rval, null);
+  __v23393 := "JS_Interpreter_Expr"(___internal_esl_global, MultiplicativeExpression, scope);
   if (fst(__v23393)) {
   return __v23393
   } else {
   __v23393 := snd(__v23393)
   };
-  rprim := __v23393;
-  __v23394 := "Type"(___internal_esl_global, rprim);
+  rref := __v23393;
+  __v23394 := "GetValue"(___internal_esl_global, rref);
   if (fst(__v23394)) {
   return __v23394
   } else {
   __v23394 := snd(__v23394)
   };
-  __v23395 := __v23394 = "Completion";
-  if (__v23395) {
-  __v23397 := "isAnAbruptCompletion"(___internal_esl_global, rprim);
-  if (fst(__v23397)) {
-  return __v23397
+  rval := __v23394;
+  __v23395 := "Type"(___internal_esl_global, rval);
+  if (fst(__v23395)) {
+  return __v23395
   } else {
-  __v23397 := snd(__v23397)
+  __v23395 := snd(__v23395)
   };
-  if (__v23397) {
-  return (false, rprim)
-  } else {
-  __v23396 := "getCompletionValue"(___internal_esl_global, rprim);
-  if (fst(__v23396)) {
-  return __v23396
-  } else {
-  __v23396 := snd(__v23396)
-  };
-  rprim := __v23396
-  }
-  } else {
-  
-  };
-  __v23398 := "Type"(___internal_esl_global, lprim);
+  __v23396 := __v23395 = "Completion";
+  if (__v23396) {
+  __v23398 := "isAnAbruptCompletion"(___internal_esl_global, rval);
   if (fst(__v23398)) {
   return __v23398
   } else {
   __v23398 := snd(__v23398)
   };
-  __v23399 := __v23398 = "String";
-  __v23400 := "Type"(___internal_esl_global, rprim);
+  if (__v23398) {
+  return (false, rval)
+  } else {
+  __v23397 := "getCompletionValue"(___internal_esl_global, rval);
+  if (fst(__v23397)) {
+  return __v23397
+  } else {
+  __v23397 := snd(__v23397)
+  };
+  rval := __v23397
+  }
+  } else {
+  
+  };
+  __v23399 := "ToPrimitive"(___internal_esl_global, lval, null);
+  if (fst(__v23399)) {
+  return __v23399
+  } else {
+  __v23399 := snd(__v23399)
+  };
+  lprim := __v23399;
+  __v23400 := "Type"(___internal_esl_global, lprim);
   if (fst(__v23400)) {
   return __v23400
   } else {
   __v23400 := snd(__v23400)
   };
-  __v23401 := __v23400 = "String";
-  __v23402 := __v23399 || __v23401;
-  if (__v23402) {
-  __v23403 := "ToString"(___internal_esl_global, lprim);
+  __v23401 := __v23400 = "Completion";
+  if (__v23401) {
+  __v23403 := "isAnAbruptCompletion"(___internal_esl_global, lprim);
   if (fst(__v23403)) {
   return __v23403
   } else {
   __v23403 := snd(__v23403)
   };
-  lstr := __v23403;
-  __v23404 := "Type"(___internal_esl_global, lstr);
+  if (__v23403) {
+  return (false, lprim)
+  } else {
+  __v23402 := "getCompletionValue"(___internal_esl_global, lprim);
+  if (fst(__v23402)) {
+  return __v23402
+  } else {
+  __v23402 := snd(__v23402)
+  };
+  lprim := __v23402
+  }
+  } else {
+  
+  };
+  __v23404 := "ToPrimitive"(___internal_esl_global, rval, null);
   if (fst(__v23404)) {
   return __v23404
   } else {
   __v23404 := snd(__v23404)
   };
-  __v23405 := __v23404 = "Completion";
-  if (__v23405) {
-  __v23407 := "isAnAbruptCompletion"(___internal_esl_global, lstr);
-  if (fst(__v23407)) {
-  return __v23407
+  rprim := __v23404;
+  __v23405 := "Type"(___internal_esl_global, rprim);
+  if (fst(__v23405)) {
+  return __v23405
   } else {
-  __v23407 := snd(__v23407)
+  __v23405 := snd(__v23405)
   };
-  if (__v23407) {
-  return (false, lstr)
-  } else {
-  __v23406 := "getCompletionValue"(___internal_esl_global, lstr);
-  if (fst(__v23406)) {
-  return __v23406
-  } else {
-  __v23406 := snd(__v23406)
-  };
-  lstr := __v23406
-  }
-  } else {
-  
-  };
-  __v23408 := "ToString"(___internal_esl_global, rprim);
+  __v23406 := __v23405 = "Completion";
+  if (__v23406) {
+  __v23408 := "isAnAbruptCompletion"(___internal_esl_global, rprim);
   if (fst(__v23408)) {
   return __v23408
   } else {
   __v23408 := snd(__v23408)
   };
-  rstr := __v23408;
-  __v23409 := "Type"(___internal_esl_global, rstr);
+  if (__v23408) {
+  return (false, rprim)
+  } else {
+  __v23407 := "getCompletionValue"(___internal_esl_global, rprim);
+  if (fst(__v23407)) {
+  return __v23407
+  } else {
+  __v23407 := snd(__v23407)
+  };
+  rprim := __v23407
+  }
+  } else {
+  
+  };
+  __v23409 := "Type"(___internal_esl_global, lprim);
   if (fst(__v23409)) {
   return __v23409
   } else {
   __v23409 := snd(__v23409)
   };
-  __v23410 := __v23409 = "Completion";
-  if (__v23410) {
-  __v23412 := "isAnAbruptCompletion"(___internal_esl_global, rstr);
-  if (fst(__v23412)) {
-  return __v23412
-  } else {
-  __v23412 := snd(__v23412)
-  };
-  if (__v23412) {
-  return (false, rstr)
-  } else {
-  __v23411 := "getCompletionValue"(___internal_esl_global, rstr);
+  __v23410 := __v23409 = "String";
+  __v23411 := "Type"(___internal_esl_global, rprim);
   if (fst(__v23411)) {
   return __v23411
   } else {
   __v23411 := snd(__v23411)
   };
-  rstr := __v23411
-  }
+  __v23412 := __v23411 = "String";
+  __v23413 := __v23410 || __v23412;
+  if (__v23413) {
+  __v23414 := "ToString"(___internal_esl_global, lprim);
+  if (fst(__v23414)) {
+  return __v23414
   } else {
-  
+  __v23414 := snd(__v23414)
   };
-  __v23414 := [lstr, rstr];
-  __v23413 := s_concat(__v23414);
-  return (false, __v23413)
-  } else {
-  
-  };
-  __v23415 := "ToNumber"(___internal_esl_global, lprim);
+  lstr := __v23414;
+  __v23415 := "Type"(___internal_esl_global, lstr);
   if (fst(__v23415)) {
   return __v23415
   } else {
   __v23415 := snd(__v23415)
   };
-  lnum := __v23415;
-  __v23416 := "Type"(___internal_esl_global, lnum);
-  if (fst(__v23416)) {
-  return __v23416
-  } else {
-  __v23416 := snd(__v23416)
-  };
-  __v23417 := __v23416 = "Completion";
-  if (__v23417) {
-  __v23419 := "isAnAbruptCompletion"(___internal_esl_global, lnum);
-  if (fst(__v23419)) {
-  return __v23419
-  } else {
-  __v23419 := snd(__v23419)
-  };
-  if (__v23419) {
-  return (false, lnum)
-  } else {
-  __v23418 := "getCompletionValue"(___internal_esl_global, lnum);
+  __v23416 := __v23415 = "Completion";
+  if (__v23416) {
+  __v23418 := "isAnAbruptCompletion"(___internal_esl_global, lstr);
   if (fst(__v23418)) {
   return __v23418
   } else {
   __v23418 := snd(__v23418)
   };
-  lnum := __v23418
+  if (__v23418) {
+  return (false, lstr)
+  } else {
+  __v23417 := "getCompletionValue"(___internal_esl_global, lstr);
+  if (fst(__v23417)) {
+  return __v23417
+  } else {
+  __v23417 := snd(__v23417)
+  };
+  lstr := __v23417
   }
   } else {
   
   };
-  __v23420 := "ToNumber"(___internal_esl_global, rprim);
+  __v23419 := "ToString"(___internal_esl_global, rprim);
+  if (fst(__v23419)) {
+  return __v23419
+  } else {
+  __v23419 := snd(__v23419)
+  };
+  rstr := __v23419;
+  __v23420 := "Type"(___internal_esl_global, rstr);
   if (fst(__v23420)) {
   return __v23420
   } else {
   __v23420 := snd(__v23420)
   };
-  rnum := __v23420;
-  __v23421 := "Type"(___internal_esl_global, rnum);
-  if (fst(__v23421)) {
-  return __v23421
-  } else {
-  __v23421 := snd(__v23421)
-  };
-  __v23422 := __v23421 = "Completion";
-  if (__v23422) {
-  __v23424 := "isAnAbruptCompletion"(___internal_esl_global, rnum);
-  if (fst(__v23424)) {
-  return __v23424
-  } else {
-  __v23424 := snd(__v23424)
-  };
-  if (__v23424) {
-  return (false, rnum)
-  } else {
-  __v23423 := "getCompletionValue"(___internal_esl_global, rnum);
+  __v23421 := __v23420 = "Completion";
+  if (__v23421) {
+  __v23423 := "isAnAbruptCompletion"(___internal_esl_global, rstr);
   if (fst(__v23423)) {
   return __v23423
   } else {
   __v23423 := snd(__v23423)
   };
-  rnum := __v23423
+  if (__v23423) {
+  return (false, rstr)
+  } else {
+  __v23422 := "getCompletionValue"(___internal_esl_global, rstr);
+  if (fst(__v23422)) {
+  return __v23422
+  } else {
+  __v23422 := snd(__v23422)
+  };
+  rstr := __v23422
   }
   } else {
   
   };
-  __v23425 := "applyingTheAdditionOperation"(___internal_esl_global, lnum, rnum);
-  if (fst(__v23425)) {
-  return __v23425
+  __v23425 := [lstr, rstr];
+  __v23424 := s_concat(__v23425);
+  return (false, __v23424)
   } else {
-  __v23425 := snd(__v23425)
+  
   };
-  return (false, __v23425)
+  __v23426 := "ToNumber"(___internal_esl_global, lprim);
+  if (fst(__v23426)) {
+  return __v23426
   } else {
-  __v23426 := "type" in_obj e;
-  __v23428 := e["type"];
-  __v23427 := __v23428 = "BinaryExpression";
-  __v23429 := "operator" in_obj e;
-  __v23431 := e["operator"];
-  __v23430 := __v23431 = "-";
-  __v23432 := "left" in_obj e;
-  __v23433 := "right" in_obj e;
-  if (true && __v23426 && __v23427 && __v23429 && __v23430 && __v23432 && __v23433) {
-  AdditiveExpression := e["left"];
-  MultiplicativeExpression := e["right"];
-  __v23434 := "JS_Interpreter_Expr"(___internal_esl_global, AdditiveExpression, scope);
-  if (fst(__v23434)) {
-  return __v23434
-  } else {
-  __v23434 := snd(__v23434)
+  __v23426 := snd(__v23426)
   };
-  lref := __v23434;
-  __v23435 := "GetValue"(___internal_esl_global, lref);
+  lnum := __v23426;
+  __v23427 := "Type"(___internal_esl_global, lnum);
+  if (fst(__v23427)) {
+  return __v23427
+  } else {
+  __v23427 := snd(__v23427)
+  };
+  __v23428 := __v23427 = "Completion";
+  if (__v23428) {
+  __v23430 := "isAnAbruptCompletion"(___internal_esl_global, lnum);
+  if (fst(__v23430)) {
+  return __v23430
+  } else {
+  __v23430 := snd(__v23430)
+  };
+  if (__v23430) {
+  return (false, lnum)
+  } else {
+  __v23429 := "getCompletionValue"(___internal_esl_global, lnum);
+  if (fst(__v23429)) {
+  return __v23429
+  } else {
+  __v23429 := snd(__v23429)
+  };
+  lnum := __v23429
+  }
+  } else {
+  
+  };
+  __v23431 := "ToNumber"(___internal_esl_global, rprim);
+  if (fst(__v23431)) {
+  return __v23431
+  } else {
+  __v23431 := snd(__v23431)
+  };
+  rnum := __v23431;
+  __v23432 := "Type"(___internal_esl_global, rnum);
+  if (fst(__v23432)) {
+  return __v23432
+  } else {
+  __v23432 := snd(__v23432)
+  };
+  __v23433 := __v23432 = "Completion";
+  if (__v23433) {
+  __v23435 := "isAnAbruptCompletion"(___internal_esl_global, rnum);
   if (fst(__v23435)) {
   return __v23435
   } else {
   __v23435 := snd(__v23435)
   };
-  lval := __v23435;
-  __v23436 := "Type"(___internal_esl_global, lval);
+  if (__v23435) {
+  return (false, rnum)
+  } else {
+  __v23434 := "getCompletionValue"(___internal_esl_global, rnum);
+  if (fst(__v23434)) {
+  return __v23434
+  } else {
+  __v23434 := snd(__v23434)
+  };
+  rnum := __v23434
+  }
+  } else {
+  
+  };
+  __v23436 := "applyingTheAdditionOperation"(___internal_esl_global, lnum, rnum);
   if (fst(__v23436)) {
   return __v23436
   } else {
   __v23436 := snd(__v23436)
   };
-  __v23437 := __v23436 = "Completion";
-  if (__v23437) {
-  __v23439 := "isAnAbruptCompletion"(___internal_esl_global, lval);
-  if (fst(__v23439)) {
-  return __v23439
+  return (false, __v23436)
   } else {
-  __v23439 := snd(__v23439)
-  };
-  if (__v23439) {
-  return (false, lval)
-  } else {
-  __v23438 := "getCompletionValue"(___internal_esl_global, lval);
-  if (fst(__v23438)) {
-  return __v23438
-  } else {
-  __v23438 := snd(__v23438)
-  };
-  lval := __v23438
-  }
-  } else {
-  
-  };
-  __v23440 := "JS_Interpreter_Expr"(___internal_esl_global, MultiplicativeExpression, scope);
-  if (fst(__v23440)) {
-  return __v23440
-  } else {
-  __v23440 := snd(__v23440)
-  };
-  rref := __v23440;
-  __v23441 := "GetValue"(___internal_esl_global, rref);
-  if (fst(__v23441)) {
-  return __v23441
-  } else {
-  __v23441 := snd(__v23441)
-  };
-  rval := __v23441;
-  __v23442 := "Type"(___internal_esl_global, rval);
-  if (fst(__v23442)) {
-  return __v23442
-  } else {
-  __v23442 := snd(__v23442)
-  };
-  __v23443 := __v23442 = "Completion";
-  if (__v23443) {
-  __v23445 := "isAnAbruptCompletion"(___internal_esl_global, rval);
+  __v23437 := "type" in_obj e;
+  __v23439 := e["type"];
+  __v23438 := __v23439 = "BinaryExpression";
+  __v23440 := "operator" in_obj e;
+  __v23442 := e["operator"];
+  __v23441 := __v23442 = "-";
+  __v23443 := "left" in_obj e;
+  __v23444 := "right" in_obj e;
+  if (true && __v23437 && __v23438 && __v23440 && __v23441 && __v23443 && __v23444) {
+  AdditiveExpression := e["left"];
+  MultiplicativeExpression := e["right"];
+  __v23445 := "JS_Interpreter_Expr"(___internal_esl_global, AdditiveExpression, scope);
   if (fst(__v23445)) {
   return __v23445
   } else {
   __v23445 := snd(__v23445)
   };
-  if (__v23445) {
-  return (false, rval)
-  } else {
-  __v23444 := "getCompletionValue"(___internal_esl_global, rval);
-  if (fst(__v23444)) {
-  return __v23444
-  } else {
-  __v23444 := snd(__v23444)
-  };
-  rval := __v23444
-  }
-  } else {
-  
-  };
-  __v23446 := "ToNumber"(___internal_esl_global, lval);
+  lref := __v23445;
+  __v23446 := "GetValue"(___internal_esl_global, lref);
   if (fst(__v23446)) {
   return __v23446
   } else {
   __v23446 := snd(__v23446)
   };
-  lnum := __v23446;
-  __v23447 := "Type"(___internal_esl_global, lnum);
+  lval := __v23446;
+  __v23447 := "Type"(___internal_esl_global, lval);
   if (fst(__v23447)) {
   return __v23447
   } else {
@@ -867,172 +790,172 @@ Tests compilation of ecmaref6:
   };
   __v23448 := __v23447 = "Completion";
   if (__v23448) {
-  __v23450 := "isAnAbruptCompletion"(___internal_esl_global, lnum);
+  __v23450 := "isAnAbruptCompletion"(___internal_esl_global, lval);
   if (fst(__v23450)) {
   return __v23450
   } else {
   __v23450 := snd(__v23450)
   };
   if (__v23450) {
-  return (false, lnum)
+  return (false, lval)
   } else {
-  __v23449 := "getCompletionValue"(___internal_esl_global, lnum);
+  __v23449 := "getCompletionValue"(___internal_esl_global, lval);
   if (fst(__v23449)) {
   return __v23449
   } else {
   __v23449 := snd(__v23449)
   };
-  lnum := __v23449
+  lval := __v23449
   }
   } else {
   
   };
-  __v23451 := "ToNumber"(___internal_esl_global, rval);
+  __v23451 := "JS_Interpreter_Expr"(___internal_esl_global, MultiplicativeExpression, scope);
   if (fst(__v23451)) {
   return __v23451
   } else {
   __v23451 := snd(__v23451)
   };
-  rnum := __v23451;
-  __v23452 := "Type"(___internal_esl_global, rnum);
+  rref := __v23451;
+  __v23452 := "GetValue"(___internal_esl_global, rref);
   if (fst(__v23452)) {
   return __v23452
   } else {
   __v23452 := snd(__v23452)
   };
-  __v23453 := __v23452 = "Completion";
-  if (__v23453) {
-  __v23455 := "isAnAbruptCompletion"(___internal_esl_global, rnum);
-  if (fst(__v23455)) {
-  return __v23455
+  rval := __v23452;
+  __v23453 := "Type"(___internal_esl_global, rval);
+  if (fst(__v23453)) {
+  return __v23453
   } else {
-  __v23455 := snd(__v23455)
+  __v23453 := snd(__v23453)
   };
-  if (__v23455) {
-  return (false, rnum)
-  } else {
-  __v23454 := "getCompletionValue"(___internal_esl_global, rnum);
-  if (fst(__v23454)) {
-  return __v23454
-  } else {
-  __v23454 := snd(__v23454)
-  };
-  rnum := __v23454
-  }
-  } else {
-  
-  };
-  __v23456 := "applyingTheSubtractionOperation"(___internal_esl_global, lnum, rnum);
+  __v23454 := __v23453 = "Completion";
+  if (__v23454) {
+  __v23456 := "isAnAbruptCompletion"(___internal_esl_global, rval);
   if (fst(__v23456)) {
   return __v23456
   } else {
   __v23456 := snd(__v23456)
   };
-  return (false, __v23456)
+  if (__v23456) {
+  return (false, rval)
   } else {
-  __v23457 := "type" in_obj e;
-  __v23459 := e["type"];
-  __v23458 := __v23459 = "BinaryExpression";
-  __v23460 := "operator" in_obj e;
-  __v23462 := e["operator"];
-  __v23461 := __v23462 = "<<";
-  __v23463 := "left" in_obj e;
-  __v23464 := "right" in_obj e;
-  if (true && __v23457 && __v23458 && __v23460 && __v23461 && __v23463 && __v23464) {
-  ShiftExpression := e["left"];
-  AdditiveExpression := e["right"];
-  __v23465 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
-  if (fst(__v23465)) {
-  return __v23465
+  __v23455 := "getCompletionValue"(___internal_esl_global, rval);
+  if (fst(__v23455)) {
+  return __v23455
   } else {
-  __v23465 := snd(__v23465)
+  __v23455 := snd(__v23455)
   };
-  lref := __v23465;
-  __v23466 := "GetValue"(___internal_esl_global, lref);
+  rval := __v23455
+  }
+  } else {
+  
+  };
+  __v23457 := "ToNumber"(___internal_esl_global, lval);
+  if (fst(__v23457)) {
+  return __v23457
+  } else {
+  __v23457 := snd(__v23457)
+  };
+  lnum := __v23457;
+  __v23458 := "Type"(___internal_esl_global, lnum);
+  if (fst(__v23458)) {
+  return __v23458
+  } else {
+  __v23458 := snd(__v23458)
+  };
+  __v23459 := __v23458 = "Completion";
+  if (__v23459) {
+  __v23461 := "isAnAbruptCompletion"(___internal_esl_global, lnum);
+  if (fst(__v23461)) {
+  return __v23461
+  } else {
+  __v23461 := snd(__v23461)
+  };
+  if (__v23461) {
+  return (false, lnum)
+  } else {
+  __v23460 := "getCompletionValue"(___internal_esl_global, lnum);
+  if (fst(__v23460)) {
+  return __v23460
+  } else {
+  __v23460 := snd(__v23460)
+  };
+  lnum := __v23460
+  }
+  } else {
+  
+  };
+  __v23462 := "ToNumber"(___internal_esl_global, rval);
+  if (fst(__v23462)) {
+  return __v23462
+  } else {
+  __v23462 := snd(__v23462)
+  };
+  rnum := __v23462;
+  __v23463 := "Type"(___internal_esl_global, rnum);
+  if (fst(__v23463)) {
+  return __v23463
+  } else {
+  __v23463 := snd(__v23463)
+  };
+  __v23464 := __v23463 = "Completion";
+  if (__v23464) {
+  __v23466 := "isAnAbruptCompletion"(___internal_esl_global, rnum);
   if (fst(__v23466)) {
   return __v23466
   } else {
   __v23466 := snd(__v23466)
   };
-  lval := __v23466;
-  __v23467 := "Type"(___internal_esl_global, lval);
+  if (__v23466) {
+  return (false, rnum)
+  } else {
+  __v23465 := "getCompletionValue"(___internal_esl_global, rnum);
+  if (fst(__v23465)) {
+  return __v23465
+  } else {
+  __v23465 := snd(__v23465)
+  };
+  rnum := __v23465
+  }
+  } else {
+  
+  };
+  __v23467 := "applyingTheSubtractionOperation"(___internal_esl_global, lnum, rnum);
   if (fst(__v23467)) {
   return __v23467
   } else {
   __v23467 := snd(__v23467)
   };
-  __v23468 := __v23467 = "Completion";
-  if (__v23468) {
-  __v23470 := "isAnAbruptCompletion"(___internal_esl_global, lval);
-  if (fst(__v23470)) {
-  return __v23470
+  return (false, __v23467)
   } else {
-  __v23470 := snd(__v23470)
-  };
-  if (__v23470) {
-  return (false, lval)
-  } else {
-  __v23469 := "getCompletionValue"(___internal_esl_global, lval);
-  if (fst(__v23469)) {
-  return __v23469
-  } else {
-  __v23469 := snd(__v23469)
-  };
-  lval := __v23469
-  }
-  } else {
-  
-  };
-  __v23471 := "JS_Interpreter_Expr"(___internal_esl_global, AdditiveExpression, scope);
-  if (fst(__v23471)) {
-  return __v23471
-  } else {
-  __v23471 := snd(__v23471)
-  };
-  rref := __v23471;
-  __v23472 := "GetValue"(___internal_esl_global, rref);
-  if (fst(__v23472)) {
-  return __v23472
-  } else {
-  __v23472 := snd(__v23472)
-  };
-  rval := __v23472;
-  __v23473 := "Type"(___internal_esl_global, rval);
-  if (fst(__v23473)) {
-  return __v23473
-  } else {
-  __v23473 := snd(__v23473)
-  };
-  __v23474 := __v23473 = "Completion";
-  if (__v23474) {
-  __v23476 := "isAnAbruptCompletion"(___internal_esl_global, rval);
+  __v23468 := "type" in_obj e;
+  __v23470 := e["type"];
+  __v23469 := __v23470 = "BinaryExpression";
+  __v23471 := "operator" in_obj e;
+  __v23473 := e["operator"];
+  __v23472 := __v23473 = "<<";
+  __v23474 := "left" in_obj e;
+  __v23475 := "right" in_obj e;
+  if (true && __v23468 && __v23469 && __v23471 && __v23472 && __v23474 && __v23475) {
+  ShiftExpression := e["left"];
+  AdditiveExpression := e["right"];
+  __v23476 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
   if (fst(__v23476)) {
   return __v23476
   } else {
   __v23476 := snd(__v23476)
   };
-  if (__v23476) {
-  return (false, rval)
-  } else {
-  __v23475 := "getCompletionValue"(___internal_esl_global, rval);
-  if (fst(__v23475)) {
-  return __v23475
-  } else {
-  __v23475 := snd(__v23475)
-  };
-  rval := __v23475
-  }
-  } else {
-  
-  };
-  __v23477 := "ToInt32"(___internal_esl_global, lval);
+  lref := __v23476;
+  __v23477 := "GetValue"(___internal_esl_global, lref);
   if (fst(__v23477)) {
   return __v23477
   } else {
   __v23477 := snd(__v23477)
   };
-  lnum := __v23477;
-  __v23478 := "Type"(___internal_esl_global, lnum);
+  lval := __v23477;
+  __v23478 := "Type"(___internal_esl_global, lval);
   if (fst(__v23478)) {
   return __v23478
   } else {
@@ -1040,174 +963,174 @@ Tests compilation of ecmaref6:
   };
   __v23479 := __v23478 = "Completion";
   if (__v23479) {
-  __v23481 := "isAnAbruptCompletion"(___internal_esl_global, lnum);
+  __v23481 := "isAnAbruptCompletion"(___internal_esl_global, lval);
   if (fst(__v23481)) {
   return __v23481
   } else {
   __v23481 := snd(__v23481)
   };
   if (__v23481) {
-  return (false, lnum)
+  return (false, lval)
   } else {
-  __v23480 := "getCompletionValue"(___internal_esl_global, lnum);
+  __v23480 := "getCompletionValue"(___internal_esl_global, lval);
   if (fst(__v23480)) {
   return __v23480
   } else {
   __v23480 := snd(__v23480)
   };
-  lnum := __v23480
+  lval := __v23480
   }
   } else {
   
   };
-  __v23482 := "ToUint32"(___internal_esl_global, rval);
+  __v23482 := "JS_Interpreter_Expr"(___internal_esl_global, AdditiveExpression, scope);
   if (fst(__v23482)) {
   return __v23482
   } else {
   __v23482 := snd(__v23482)
   };
-  rnum := __v23482;
-  __v23483 := "Type"(___internal_esl_global, rnum);
+  rref := __v23482;
+  __v23483 := "GetValue"(___internal_esl_global, rref);
   if (fst(__v23483)) {
   return __v23483
   } else {
   __v23483 := snd(__v23483)
   };
-  __v23484 := __v23483 = "Completion";
-  if (__v23484) {
-  __v23486 := "isAnAbruptCompletion"(___internal_esl_global, rnum);
-  if (fst(__v23486)) {
-  return __v23486
+  rval := __v23483;
+  __v23484 := "Type"(___internal_esl_global, rval);
+  if (fst(__v23484)) {
+  return __v23484
   } else {
-  __v23486 := snd(__v23486)
+  __v23484 := snd(__v23484)
   };
-  if (__v23486) {
-  return (false, rnum)
-  } else {
-  __v23485 := "getCompletionValue"(___internal_esl_global, rnum);
-  if (fst(__v23485)) {
-  return __v23485
-  } else {
-  __v23485 := snd(__v23485)
-  };
-  rnum := __v23485
-  }
-  } else {
-  
-  };
-  __v23487 := "maskOutBits"(___internal_esl_global, rnum);
+  __v23485 := __v23484 = "Completion";
+  if (__v23485) {
+  __v23487 := "isAnAbruptCompletion"(___internal_esl_global, rval);
   if (fst(__v23487)) {
   return __v23487
   } else {
   __v23487 := snd(__v23487)
   };
-  shiftCount := __v23487;
-  __v23488 := lnum << shiftCount;
-  return (false, __v23488)
+  if (__v23487) {
+  return (false, rval)
   } else {
-  __v23489 := "type" in_obj e;
-  __v23491 := e["type"];
-  __v23490 := __v23491 = "BinaryExpression";
-  __v23492 := "operator" in_obj e;
-  __v23494 := e["operator"];
-  __v23493 := __v23494 = ">>";
-  __v23495 := "left" in_obj e;
-  __v23496 := "right" in_obj e;
-  if (true && __v23489 && __v23490 && __v23492 && __v23493 && __v23495 && __v23496) {
-  ShiftExpression := e["left"];
-  AdditiveExpression := e["right"];
-  __v23497 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
+  __v23486 := "getCompletionValue"(___internal_esl_global, rval);
+  if (fst(__v23486)) {
+  return __v23486
+  } else {
+  __v23486 := snd(__v23486)
+  };
+  rval := __v23486
+  }
+  } else {
+  
+  };
+  __v23488 := "ToInt32"(___internal_esl_global, lval);
+  if (fst(__v23488)) {
+  return __v23488
+  } else {
+  __v23488 := snd(__v23488)
+  };
+  lnum := __v23488;
+  __v23489 := "Type"(___internal_esl_global, lnum);
+  if (fst(__v23489)) {
+  return __v23489
+  } else {
+  __v23489 := snd(__v23489)
+  };
+  __v23490 := __v23489 = "Completion";
+  if (__v23490) {
+  __v23492 := "isAnAbruptCompletion"(___internal_esl_global, lnum);
+  if (fst(__v23492)) {
+  return __v23492
+  } else {
+  __v23492 := snd(__v23492)
+  };
+  if (__v23492) {
+  return (false, lnum)
+  } else {
+  __v23491 := "getCompletionValue"(___internal_esl_global, lnum);
+  if (fst(__v23491)) {
+  return __v23491
+  } else {
+  __v23491 := snd(__v23491)
+  };
+  lnum := __v23491
+  }
+  } else {
+  
+  };
+  __v23493 := "ToUint32"(___internal_esl_global, rval);
+  if (fst(__v23493)) {
+  return __v23493
+  } else {
+  __v23493 := snd(__v23493)
+  };
+  rnum := __v23493;
+  __v23494 := "Type"(___internal_esl_global, rnum);
+  if (fst(__v23494)) {
+  return __v23494
+  } else {
+  __v23494 := snd(__v23494)
+  };
+  __v23495 := __v23494 = "Completion";
+  if (__v23495) {
+  __v23497 := "isAnAbruptCompletion"(___internal_esl_global, rnum);
   if (fst(__v23497)) {
   return __v23497
   } else {
   __v23497 := snd(__v23497)
   };
-  lref := __v23497;
-  __v23498 := "GetValue"(___internal_esl_global, lref);
+  if (__v23497) {
+  return (false, rnum)
+  } else {
+  __v23496 := "getCompletionValue"(___internal_esl_global, rnum);
+  if (fst(__v23496)) {
+  return __v23496
+  } else {
+  __v23496 := snd(__v23496)
+  };
+  rnum := __v23496
+  }
+  } else {
+  
+  };
+  __v23498 := "maskOutBits"(___internal_esl_global, rnum);
   if (fst(__v23498)) {
   return __v23498
   } else {
   __v23498 := snd(__v23498)
   };
-  lval := __v23498;
-  __v23499 := "Type"(___internal_esl_global, lval);
-  if (fst(__v23499)) {
-  return __v23499
+  shiftCount := __v23498;
+  __v23499 := lnum << shiftCount;
+  return (false, __v23499)
   } else {
-  __v23499 := snd(__v23499)
-  };
-  __v23500 := __v23499 = "Completion";
-  if (__v23500) {
-  __v23502 := "isAnAbruptCompletion"(___internal_esl_global, lval);
-  if (fst(__v23502)) {
-  return __v23502
-  } else {
-  __v23502 := snd(__v23502)
-  };
-  if (__v23502) {
-  return (false, lval)
-  } else {
-  __v23501 := "getCompletionValue"(___internal_esl_global, lval);
-  if (fst(__v23501)) {
-  return __v23501
-  } else {
-  __v23501 := snd(__v23501)
-  };
-  lval := __v23501
-  }
-  } else {
-  
-  };
-  __v23503 := "JS_Interpreter_Expr"(___internal_esl_global, AdditiveExpression, scope);
-  if (fst(__v23503)) {
-  return __v23503
-  } else {
-  __v23503 := snd(__v23503)
-  };
-  rref := __v23503;
-  __v23504 := "GetValue"(___internal_esl_global, rref);
-  if (fst(__v23504)) {
-  return __v23504
-  } else {
-  __v23504 := snd(__v23504)
-  };
-  rval := __v23504;
-  __v23505 := "Type"(___internal_esl_global, rval);
-  if (fst(__v23505)) {
-  return __v23505
-  } else {
-  __v23505 := snd(__v23505)
-  };
-  __v23506 := __v23505 = "Completion";
-  if (__v23506) {
-  __v23508 := "isAnAbruptCompletion"(___internal_esl_global, rval);
+  __v23500 := "type" in_obj e;
+  __v23502 := e["type"];
+  __v23501 := __v23502 = "BinaryExpression";
+  __v23503 := "operator" in_obj e;
+  __v23505 := e["operator"];
+  __v23504 := __v23505 = ">>";
+  __v23506 := "left" in_obj e;
+  __v23507 := "right" in_obj e;
+  if (true && __v23500 && __v23501 && __v23503 && __v23504 && __v23506 && __v23507) {
+  ShiftExpression := e["left"];
+  AdditiveExpression := e["right"];
+  __v23508 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
   if (fst(__v23508)) {
   return __v23508
   } else {
   __v23508 := snd(__v23508)
   };
-  if (__v23508) {
-  return (false, rval)
-  } else {
-  __v23507 := "getCompletionValue"(___internal_esl_global, rval);
-  if (fst(__v23507)) {
-  return __v23507
-  } else {
-  __v23507 := snd(__v23507)
-  };
-  rval := __v23507
-  }
-  } else {
-  
-  };
-  __v23509 := "ToInt32"(___internal_esl_global, lval);
+  lref := __v23508;
+  __v23509 := "GetValue"(___internal_esl_global, lref);
   if (fst(__v23509)) {
   return __v23509
   } else {
   __v23509 := snd(__v23509)
   };
-  lnum := __v23509;
-  __v23510 := "Type"(___internal_esl_global, lnum);
+  lval := __v23509;
+  __v23510 := "Type"(___internal_esl_global, lval);
   if (fst(__v23510)) {
   return __v23510
   } else {
@@ -1215,174 +1138,174 @@ Tests compilation of ecmaref6:
   };
   __v23511 := __v23510 = "Completion";
   if (__v23511) {
-  __v23513 := "isAnAbruptCompletion"(___internal_esl_global, lnum);
+  __v23513 := "isAnAbruptCompletion"(___internal_esl_global, lval);
   if (fst(__v23513)) {
   return __v23513
   } else {
   __v23513 := snd(__v23513)
   };
   if (__v23513) {
-  return (false, lnum)
+  return (false, lval)
   } else {
-  __v23512 := "getCompletionValue"(___internal_esl_global, lnum);
+  __v23512 := "getCompletionValue"(___internal_esl_global, lval);
   if (fst(__v23512)) {
   return __v23512
   } else {
   __v23512 := snd(__v23512)
   };
-  lnum := __v23512
+  lval := __v23512
   }
   } else {
   
   };
-  __v23514 := "ToUint32"(___internal_esl_global, rval);
+  __v23514 := "JS_Interpreter_Expr"(___internal_esl_global, AdditiveExpression, scope);
   if (fst(__v23514)) {
   return __v23514
   } else {
   __v23514 := snd(__v23514)
   };
-  rnum := __v23514;
-  __v23515 := "Type"(___internal_esl_global, rnum);
+  rref := __v23514;
+  __v23515 := "GetValue"(___internal_esl_global, rref);
   if (fst(__v23515)) {
   return __v23515
   } else {
   __v23515 := snd(__v23515)
   };
-  __v23516 := __v23515 = "Completion";
-  if (__v23516) {
-  __v23518 := "isAnAbruptCompletion"(___internal_esl_global, rnum);
-  if (fst(__v23518)) {
-  return __v23518
+  rval := __v23515;
+  __v23516 := "Type"(___internal_esl_global, rval);
+  if (fst(__v23516)) {
+  return __v23516
   } else {
-  __v23518 := snd(__v23518)
+  __v23516 := snd(__v23516)
   };
-  if (__v23518) {
-  return (false, rnum)
-  } else {
-  __v23517 := "getCompletionValue"(___internal_esl_global, rnum);
-  if (fst(__v23517)) {
-  return __v23517
-  } else {
-  __v23517 := snd(__v23517)
-  };
-  rnum := __v23517
-  }
-  } else {
-  
-  };
-  __v23519 := "maskOutBits"(___internal_esl_global, rnum);
+  __v23517 := __v23516 = "Completion";
+  if (__v23517) {
+  __v23519 := "isAnAbruptCompletion"(___internal_esl_global, rval);
   if (fst(__v23519)) {
   return __v23519
   } else {
   __v23519 := snd(__v23519)
   };
-  shiftCount := __v23519;
-  __v23520 := lnum >> shiftCount;
-  return (false, __v23520)
+  if (__v23519) {
+  return (false, rval)
   } else {
-  __v23521 := "type" in_obj e;
-  __v23523 := e["type"];
-  __v23522 := __v23523 = "BinaryExpression";
-  __v23524 := "operator" in_obj e;
-  __v23526 := e["operator"];
-  __v23525 := __v23526 = ">>>";
-  __v23527 := "left" in_obj e;
-  __v23528 := "right" in_obj e;
-  if (true && __v23521 && __v23522 && __v23524 && __v23525 && __v23527 && __v23528) {
-  ShiftExpression := e["left"];
-  AdditiveExpression := e["right"];
-  __v23529 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
+  __v23518 := "getCompletionValue"(___internal_esl_global, rval);
+  if (fst(__v23518)) {
+  return __v23518
+  } else {
+  __v23518 := snd(__v23518)
+  };
+  rval := __v23518
+  }
+  } else {
+  
+  };
+  __v23520 := "ToInt32"(___internal_esl_global, lval);
+  if (fst(__v23520)) {
+  return __v23520
+  } else {
+  __v23520 := snd(__v23520)
+  };
+  lnum := __v23520;
+  __v23521 := "Type"(___internal_esl_global, lnum);
+  if (fst(__v23521)) {
+  return __v23521
+  } else {
+  __v23521 := snd(__v23521)
+  };
+  __v23522 := __v23521 = "Completion";
+  if (__v23522) {
+  __v23524 := "isAnAbruptCompletion"(___internal_esl_global, lnum);
+  if (fst(__v23524)) {
+  return __v23524
+  } else {
+  __v23524 := snd(__v23524)
+  };
+  if (__v23524) {
+  return (false, lnum)
+  } else {
+  __v23523 := "getCompletionValue"(___internal_esl_global, lnum);
+  if (fst(__v23523)) {
+  return __v23523
+  } else {
+  __v23523 := snd(__v23523)
+  };
+  lnum := __v23523
+  }
+  } else {
+  
+  };
+  __v23525 := "ToUint32"(___internal_esl_global, rval);
+  if (fst(__v23525)) {
+  return __v23525
+  } else {
+  __v23525 := snd(__v23525)
+  };
+  rnum := __v23525;
+  __v23526 := "Type"(___internal_esl_global, rnum);
+  if (fst(__v23526)) {
+  return __v23526
+  } else {
+  __v23526 := snd(__v23526)
+  };
+  __v23527 := __v23526 = "Completion";
+  if (__v23527) {
+  __v23529 := "isAnAbruptCompletion"(___internal_esl_global, rnum);
   if (fst(__v23529)) {
   return __v23529
   } else {
   __v23529 := snd(__v23529)
   };
-  lref := __v23529;
-  __v23530 := "GetValue"(___internal_esl_global, lref);
+  if (__v23529) {
+  return (false, rnum)
+  } else {
+  __v23528 := "getCompletionValue"(___internal_esl_global, rnum);
+  if (fst(__v23528)) {
+  return __v23528
+  } else {
+  __v23528 := snd(__v23528)
+  };
+  rnum := __v23528
+  }
+  } else {
+  
+  };
+  __v23530 := "maskOutBits"(___internal_esl_global, rnum);
   if (fst(__v23530)) {
   return __v23530
   } else {
   __v23530 := snd(__v23530)
   };
-  lval := __v23530;
-  __v23531 := "Type"(___internal_esl_global, lval);
-  if (fst(__v23531)) {
-  return __v23531
+  shiftCount := __v23530;
+  __v23531 := lnum >> shiftCount;
+  return (false, __v23531)
   } else {
-  __v23531 := snd(__v23531)
-  };
-  __v23532 := __v23531 = "Completion";
-  if (__v23532) {
-  __v23534 := "isAnAbruptCompletion"(___internal_esl_global, lval);
-  if (fst(__v23534)) {
-  return __v23534
-  } else {
-  __v23534 := snd(__v23534)
-  };
-  if (__v23534) {
-  return (false, lval)
-  } else {
-  __v23533 := "getCompletionValue"(___internal_esl_global, lval);
-  if (fst(__v23533)) {
-  return __v23533
-  } else {
-  __v23533 := snd(__v23533)
-  };
-  lval := __v23533
-  }
-  } else {
-  
-  };
-  __v23535 := "JS_Interpreter_Expr"(___internal_esl_global, AdditiveExpression, scope);
-  if (fst(__v23535)) {
-  return __v23535
-  } else {
-  __v23535 := snd(__v23535)
-  };
-  rref := __v23535;
-  __v23536 := "GetValue"(___internal_esl_global, rref);
-  if (fst(__v23536)) {
-  return __v23536
-  } else {
-  __v23536 := snd(__v23536)
-  };
-  rval := __v23536;
-  __v23537 := "Type"(___internal_esl_global, rval);
-  if (fst(__v23537)) {
-  return __v23537
-  } else {
-  __v23537 := snd(__v23537)
-  };
-  __v23538 := __v23537 = "Completion";
-  if (__v23538) {
-  __v23540 := "isAnAbruptCompletion"(___internal_esl_global, rval);
+  __v23532 := "type" in_obj e;
+  __v23534 := e["type"];
+  __v23533 := __v23534 = "BinaryExpression";
+  __v23535 := "operator" in_obj e;
+  __v23537 := e["operator"];
+  __v23536 := __v23537 = ">>>";
+  __v23538 := "left" in_obj e;
+  __v23539 := "right" in_obj e;
+  if (true && __v23532 && __v23533 && __v23535 && __v23536 && __v23538 && __v23539) {
+  ShiftExpression := e["left"];
+  AdditiveExpression := e["right"];
+  __v23540 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
   if (fst(__v23540)) {
   return __v23540
   } else {
   __v23540 := snd(__v23540)
   };
-  if (__v23540) {
-  return (false, rval)
-  } else {
-  __v23539 := "getCompletionValue"(___internal_esl_global, rval);
-  if (fst(__v23539)) {
-  return __v23539
-  } else {
-  __v23539 := snd(__v23539)
-  };
-  rval := __v23539
-  }
-  } else {
-  
-  };
-  __v23541 := "ToUint32"(___internal_esl_global, lval);
+  lref := __v23540;
+  __v23541 := "GetValue"(___internal_esl_global, lref);
   if (fst(__v23541)) {
   return __v23541
   } else {
   __v23541 := snd(__v23541)
   };
-  lnum := __v23541;
-  __v23542 := "Type"(___internal_esl_global, lnum);
+  lval := __v23541;
+  __v23542 := "Type"(___internal_esl_global, lval);
   if (fst(__v23542)) {
   return __v23542
   } else {
@@ -1390,953 +1313,953 @@ Tests compilation of ecmaref6:
   };
   __v23543 := __v23542 = "Completion";
   if (__v23543) {
-  __v23545 := "isAnAbruptCompletion"(___internal_esl_global, lnum);
+  __v23545 := "isAnAbruptCompletion"(___internal_esl_global, lval);
   if (fst(__v23545)) {
   return __v23545
   } else {
   __v23545 := snd(__v23545)
   };
   if (__v23545) {
-  return (false, lnum)
+  return (false, lval)
   } else {
-  __v23544 := "getCompletionValue"(___internal_esl_global, lnum);
+  __v23544 := "getCompletionValue"(___internal_esl_global, lval);
   if (fst(__v23544)) {
   return __v23544
   } else {
   __v23544 := snd(__v23544)
   };
-  lnum := __v23544
+  lval := __v23544
   }
   } else {
   
   };
-  __v23546 := "ToUint32"(___internal_esl_global, rval);
+  __v23546 := "JS_Interpreter_Expr"(___internal_esl_global, AdditiveExpression, scope);
   if (fst(__v23546)) {
   return __v23546
   } else {
   __v23546 := snd(__v23546)
   };
-  rnum := __v23546;
-  __v23547 := "Type"(___internal_esl_global, rnum);
+  rref := __v23546;
+  __v23547 := "GetValue"(___internal_esl_global, rref);
   if (fst(__v23547)) {
   return __v23547
   } else {
   __v23547 := snd(__v23547)
   };
-  __v23548 := __v23547 = "Completion";
-  if (__v23548) {
-  __v23550 := "isAnAbruptCompletion"(___internal_esl_global, rnum);
-  if (fst(__v23550)) {
-  return __v23550
+  rval := __v23547;
+  __v23548 := "Type"(___internal_esl_global, rval);
+  if (fst(__v23548)) {
+  return __v23548
   } else {
-  __v23550 := snd(__v23550)
+  __v23548 := snd(__v23548)
   };
-  if (__v23550) {
-  return (false, rnum)
-  } else {
-  __v23549 := "getCompletionValue"(___internal_esl_global, rnum);
-  if (fst(__v23549)) {
-  return __v23549
-  } else {
-  __v23549 := snd(__v23549)
-  };
-  rnum := __v23549
-  }
-  } else {
-  
-  };
-  __v23551 := "maskOutBits"(___internal_esl_global, rnum);
+  __v23549 := __v23548 = "Completion";
+  if (__v23549) {
+  __v23551 := "isAnAbruptCompletion"(___internal_esl_global, rval);
   if (fst(__v23551)) {
   return __v23551
   } else {
   __v23551 := snd(__v23551)
   };
-  shiftCount := __v23551;
-  __v23552 := lnum >>> shiftCount;
-  return (false, __v23552)
+  if (__v23551) {
+  return (false, rval)
   } else {
-  __v23553 := "type" in_obj e;
-  __v23555 := e["type"];
-  __v23554 := __v23555 = "BinaryExpression";
-  __v23556 := "operator" in_obj e;
-  __v23558 := e["operator"];
-  __v23557 := __v23558 = "<";
-  __v23559 := "left" in_obj e;
-  __v23560 := "right" in_obj e;
-  if (true && __v23553 && __v23554 && __v23556 && __v23557 && __v23559 && __v23560) {
-  RelationalExpression := e["left"];
-  ShiftExpression := e["right"];
-  __v23561 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
+  __v23550 := "getCompletionValue"(___internal_esl_global, rval);
+  if (fst(__v23550)) {
+  return __v23550
+  } else {
+  __v23550 := snd(__v23550)
+  };
+  rval := __v23550
+  }
+  } else {
+  
+  };
+  __v23552 := "ToUint32"(___internal_esl_global, lval);
+  if (fst(__v23552)) {
+  return __v23552
+  } else {
+  __v23552 := snd(__v23552)
+  };
+  lnum := __v23552;
+  __v23553 := "Type"(___internal_esl_global, lnum);
+  if (fst(__v23553)) {
+  return __v23553
+  } else {
+  __v23553 := snd(__v23553)
+  };
+  __v23554 := __v23553 = "Completion";
+  if (__v23554) {
+  __v23556 := "isAnAbruptCompletion"(___internal_esl_global, lnum);
+  if (fst(__v23556)) {
+  return __v23556
+  } else {
+  __v23556 := snd(__v23556)
+  };
+  if (__v23556) {
+  return (false, lnum)
+  } else {
+  __v23555 := "getCompletionValue"(___internal_esl_global, lnum);
+  if (fst(__v23555)) {
+  return __v23555
+  } else {
+  __v23555 := snd(__v23555)
+  };
+  lnum := __v23555
+  }
+  } else {
+  
+  };
+  __v23557 := "ToUint32"(___internal_esl_global, rval);
+  if (fst(__v23557)) {
+  return __v23557
+  } else {
+  __v23557 := snd(__v23557)
+  };
+  rnum := __v23557;
+  __v23558 := "Type"(___internal_esl_global, rnum);
+  if (fst(__v23558)) {
+  return __v23558
+  } else {
+  __v23558 := snd(__v23558)
+  };
+  __v23559 := __v23558 = "Completion";
+  if (__v23559) {
+  __v23561 := "isAnAbruptCompletion"(___internal_esl_global, rnum);
   if (fst(__v23561)) {
   return __v23561
   } else {
   __v23561 := snd(__v23561)
   };
-  lref := __v23561;
-  __v23562 := "GetValue"(___internal_esl_global, lref);
+  if (__v23561) {
+  return (false, rnum)
+  } else {
+  __v23560 := "getCompletionValue"(___internal_esl_global, rnum);
+  if (fst(__v23560)) {
+  return __v23560
+  } else {
+  __v23560 := snd(__v23560)
+  };
+  rnum := __v23560
+  }
+  } else {
+  
+  };
+  __v23562 := "maskOutBits"(___internal_esl_global, rnum);
   if (fst(__v23562)) {
   return __v23562
   } else {
   __v23562 := snd(__v23562)
   };
-  lval := __v23562;
-  __v23563 := "Type"(___internal_esl_global, lval);
-  if (fst(__v23563)) {
-  return __v23563
+  shiftCount := __v23562;
+  __v23563 := lnum >>> shiftCount;
+  return (false, __v23563)
   } else {
-  __v23563 := snd(__v23563)
-  };
-  __v23564 := __v23563 = "Completion";
-  if (__v23564) {
-  __v23566 := "isAnAbruptCompletion"(___internal_esl_global, lval);
-  if (fst(__v23566)) {
-  return __v23566
-  } else {
-  __v23566 := snd(__v23566)
-  };
-  if (__v23566) {
-  return (false, lval)
-  } else {
-  __v23565 := "getCompletionValue"(___internal_esl_global, lval);
-  if (fst(__v23565)) {
-  return __v23565
-  } else {
-  __v23565 := snd(__v23565)
-  };
-  lval := __v23565
-  }
-  } else {
-  
-  };
-  __v23567 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
-  if (fst(__v23567)) {
-  return __v23567
-  } else {
-  __v23567 := snd(__v23567)
-  };
-  rref := __v23567;
-  __v23568 := "GetValue"(___internal_esl_global, rref);
-  if (fst(__v23568)) {
-  return __v23568
-  } else {
-  __v23568 := snd(__v23568)
-  };
-  rval := __v23568;
-  __v23569 := "AbstractRelationalComparison"(___internal_esl_global, lval, rval, true);
-  if (fst(__v23569)) {
-  return __v23569
-  } else {
-  __v23569 := snd(__v23569)
-  };
-  r := __v23569;
-  __v23570 := "Type"(___internal_esl_global, r);
-  if (fst(__v23570)) {
-  return __v23570
-  } else {
-  __v23570 := snd(__v23570)
-  };
-  __v23571 := __v23570 = "Completion";
-  if (__v23571) {
-  __v23573 := "isAnAbruptCompletion"(___internal_esl_global, r);
-  if (fst(__v23573)) {
-  return __v23573
-  } else {
-  __v23573 := snd(__v23573)
-  };
-  if (__v23573) {
-  return (false, r)
-  } else {
-  __v23572 := "getCompletionValue"(___internal_esl_global, r);
+  __v23564 := "type" in_obj e;
+  __v23566 := e["type"];
+  __v23565 := __v23566 = "BinaryExpression";
+  __v23567 := "operator" in_obj e;
+  __v23569 := e["operator"];
+  __v23568 := __v23569 = "<";
+  __v23570 := "left" in_obj e;
+  __v23571 := "right" in_obj e;
+  if (true && __v23564 && __v23565 && __v23567 && __v23568 && __v23570 && __v23571) {
+  RelationalExpression := e["left"];
+  ShiftExpression := e["right"];
+  __v23572 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
   if (fst(__v23572)) {
   return __v23572
   } else {
   __v23572 := snd(__v23572)
   };
-  r := __v23572
+  lref := __v23572;
+  __v23573 := "GetValue"(___internal_esl_global, lref);
+  if (fst(__v23573)) {
+  return __v23573
+  } else {
+  __v23573 := snd(__v23573)
+  };
+  lval := __v23573;
+  __v23574 := "Type"(___internal_esl_global, lval);
+  if (fst(__v23574)) {
+  return __v23574
+  } else {
+  __v23574 := snd(__v23574)
+  };
+  __v23575 := __v23574 = "Completion";
+  if (__v23575) {
+  __v23577 := "isAnAbruptCompletion"(___internal_esl_global, lval);
+  if (fst(__v23577)) {
+  return __v23577
+  } else {
+  __v23577 := snd(__v23577)
+  };
+  if (__v23577) {
+  return (false, lval)
+  } else {
+  __v23576 := "getCompletionValue"(___internal_esl_global, lval);
+  if (fst(__v23576)) {
+  return __v23576
+  } else {
+  __v23576 := snd(__v23576)
+  };
+  lval := __v23576
   }
   } else {
   
   };
-  __v23574 := r = 'undefined;
-  if (__v23574) {
-  return (false, false)
+  __v23578 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
+  if (fst(__v23578)) {
+  return __v23578
   } else {
-  
+  __v23578 := snd(__v23578)
   };
-  return (false, r)
+  rref := __v23578;
+  __v23579 := "GetValue"(___internal_esl_global, rref);
+  if (fst(__v23579)) {
+  return __v23579
   } else {
-  __v23575 := "type" in_obj e;
-  __v23577 := e["type"];
-  __v23576 := __v23577 = "BinaryExpression";
-  __v23578 := "operator" in_obj e;
-  __v23580 := e["operator"];
-  __v23579 := __v23580 = ">";
-  __v23581 := "left" in_obj e;
-  __v23582 := "right" in_obj e;
-  if (true && __v23575 && __v23576 && __v23578 && __v23579 && __v23581 && __v23582) {
-  RelationalExpression := e["left"];
-  ShiftExpression := e["right"];
-  __v23583 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
-  if (fst(__v23583)) {
-  return __v23583
-  } else {
-  __v23583 := snd(__v23583)
+  __v23579 := snd(__v23579)
   };
-  lref := __v23583;
-  __v23584 := "GetValue"(___internal_esl_global, lref);
+  rval := __v23579;
+  __v23580 := "AbstractRelationalComparison"(___internal_esl_global, lval, rval, true);
+  if (fst(__v23580)) {
+  return __v23580
+  } else {
+  __v23580 := snd(__v23580)
+  };
+  r := __v23580;
+  __v23581 := "Type"(___internal_esl_global, r);
+  if (fst(__v23581)) {
+  return __v23581
+  } else {
+  __v23581 := snd(__v23581)
+  };
+  __v23582 := __v23581 = "Completion";
+  if (__v23582) {
+  __v23584 := "isAnAbruptCompletion"(___internal_esl_global, r);
   if (fst(__v23584)) {
   return __v23584
   } else {
   __v23584 := snd(__v23584)
   };
-  lval := __v23584;
-  __v23585 := "Type"(___internal_esl_global, lval);
-  if (fst(__v23585)) {
-  return __v23585
+  if (__v23584) {
+  return (false, r)
   } else {
-  __v23585 := snd(__v23585)
+  __v23583 := "getCompletionValue"(___internal_esl_global, r);
+  if (fst(__v23583)) {
+  return __v23583
+  } else {
+  __v23583 := snd(__v23583)
   };
-  __v23586 := __v23585 = "Completion";
-  if (__v23586) {
-  __v23588 := "isAnAbruptCompletion"(___internal_esl_global, lval);
-  if (fst(__v23588)) {
-  return __v23588
-  } else {
-  __v23588 := snd(__v23588)
-  };
-  if (__v23588) {
-  return (false, lval)
-  } else {
-  __v23587 := "getCompletionValue"(___internal_esl_global, lval);
-  if (fst(__v23587)) {
-  return __v23587
-  } else {
-  __v23587 := snd(__v23587)
-  };
-  lval := __v23587
+  r := __v23583
   }
   } else {
   
   };
-  __v23589 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
-  if (fst(__v23589)) {
-  return __v23589
+  __v23585 := r = 'undefined;
+  if (__v23585) {
+  return (false, false)
   } else {
-  __v23589 := snd(__v23589)
+  
   };
-  rref := __v23589;
-  __v23590 := "GetValue"(___internal_esl_global, rref);
-  if (fst(__v23590)) {
-  return __v23590
-  } else {
-  __v23590 := snd(__v23590)
-  };
-  rval := __v23590;
-  __v23591 := "AbstractRelationalComparison"(___internal_esl_global, rval, lval, false);
-  if (fst(__v23591)) {
-  return __v23591
-  } else {
-  __v23591 := snd(__v23591)
-  };
-  r := __v23591;
-  __v23592 := "Type"(___internal_esl_global, r);
-  if (fst(__v23592)) {
-  return __v23592
-  } else {
-  __v23592 := snd(__v23592)
-  };
-  __v23593 := __v23592 = "Completion";
-  if (__v23593) {
-  __v23595 := "isAnAbruptCompletion"(___internal_esl_global, r);
-  if (fst(__v23595)) {
-  return __v23595
-  } else {
-  __v23595 := snd(__v23595)
-  };
-  if (__v23595) {
   return (false, r)
   } else {
-  __v23594 := "getCompletionValue"(___internal_esl_global, r);
+  __v23586 := "type" in_obj e;
+  __v23588 := e["type"];
+  __v23587 := __v23588 = "BinaryExpression";
+  __v23589 := "operator" in_obj e;
+  __v23591 := e["operator"];
+  __v23590 := __v23591 = ">";
+  __v23592 := "left" in_obj e;
+  __v23593 := "right" in_obj e;
+  if (true && __v23586 && __v23587 && __v23589 && __v23590 && __v23592 && __v23593) {
+  RelationalExpression := e["left"];
+  ShiftExpression := e["right"];
+  __v23594 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
   if (fst(__v23594)) {
   return __v23594
   } else {
   __v23594 := snd(__v23594)
   };
-  r := __v23594
+  lref := __v23594;
+  __v23595 := "GetValue"(___internal_esl_global, lref);
+  if (fst(__v23595)) {
+  return __v23595
+  } else {
+  __v23595 := snd(__v23595)
+  };
+  lval := __v23595;
+  __v23596 := "Type"(___internal_esl_global, lval);
+  if (fst(__v23596)) {
+  return __v23596
+  } else {
+  __v23596 := snd(__v23596)
+  };
+  __v23597 := __v23596 = "Completion";
+  if (__v23597) {
+  __v23599 := "isAnAbruptCompletion"(___internal_esl_global, lval);
+  if (fst(__v23599)) {
+  return __v23599
+  } else {
+  __v23599 := snd(__v23599)
+  };
+  if (__v23599) {
+  return (false, lval)
+  } else {
+  __v23598 := "getCompletionValue"(___internal_esl_global, lval);
+  if (fst(__v23598)) {
+  return __v23598
+  } else {
+  __v23598 := snd(__v23598)
+  };
+  lval := __v23598
   }
   } else {
   
   };
-  __v23596 := r = 'undefined;
-  if (__v23596) {
-  return (false, false)
+  __v23600 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
+  if (fst(__v23600)) {
+  return __v23600
   } else {
-  
+  __v23600 := snd(__v23600)
   };
-  return (false, r)
+  rref := __v23600;
+  __v23601 := "GetValue"(___internal_esl_global, rref);
+  if (fst(__v23601)) {
+  return __v23601
   } else {
-  __v23597 := "type" in_obj e;
-  __v23599 := e["type"];
-  __v23598 := __v23599 = "BinaryExpression";
-  __v23600 := "operator" in_obj e;
-  __v23602 := e["operator"];
-  __v23601 := __v23602 = "<=";
-  __v23603 := "left" in_obj e;
-  __v23604 := "right" in_obj e;
-  if (true && __v23597 && __v23598 && __v23600 && __v23601 && __v23603 && __v23604) {
-  RelationalExpression := e["left"];
-  ShiftExpression := e["right"];
-  __v23605 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
-  if (fst(__v23605)) {
-  return __v23605
-  } else {
-  __v23605 := snd(__v23605)
+  __v23601 := snd(__v23601)
   };
-  lref := __v23605;
-  __v23606 := "GetValue"(___internal_esl_global, lref);
+  rval := __v23601;
+  __v23602 := "AbstractRelationalComparison"(___internal_esl_global, rval, lval, false);
+  if (fst(__v23602)) {
+  return __v23602
+  } else {
+  __v23602 := snd(__v23602)
+  };
+  r := __v23602;
+  __v23603 := "Type"(___internal_esl_global, r);
+  if (fst(__v23603)) {
+  return __v23603
+  } else {
+  __v23603 := snd(__v23603)
+  };
+  __v23604 := __v23603 = "Completion";
+  if (__v23604) {
+  __v23606 := "isAnAbruptCompletion"(___internal_esl_global, r);
   if (fst(__v23606)) {
   return __v23606
   } else {
   __v23606 := snd(__v23606)
   };
-  lval := __v23606;
-  __v23607 := "Type"(___internal_esl_global, lval);
-  if (fst(__v23607)) {
-  return __v23607
+  if (__v23606) {
+  return (false, r)
   } else {
-  __v23607 := snd(__v23607)
+  __v23605 := "getCompletionValue"(___internal_esl_global, r);
+  if (fst(__v23605)) {
+  return __v23605
+  } else {
+  __v23605 := snd(__v23605)
   };
-  __v23608 := __v23607 = "Completion";
-  if (__v23608) {
-  __v23610 := "isAnAbruptCompletion"(___internal_esl_global, lval);
-  if (fst(__v23610)) {
-  return __v23610
-  } else {
-  __v23610 := snd(__v23610)
-  };
-  if (__v23610) {
-  return (false, lval)
-  } else {
-  __v23609 := "getCompletionValue"(___internal_esl_global, lval);
-  if (fst(__v23609)) {
-  return __v23609
-  } else {
-  __v23609 := snd(__v23609)
-  };
-  lval := __v23609
+  r := __v23605
   }
   } else {
   
   };
-  __v23611 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
-  if (fst(__v23611)) {
-  return __v23611
+  __v23607 := r = 'undefined;
+  if (__v23607) {
+  return (false, false)
   } else {
-  __v23611 := snd(__v23611)
+  
   };
-  rref := __v23611;
-  __v23612 := "GetValue"(___internal_esl_global, rref);
-  if (fst(__v23612)) {
-  return __v23612
-  } else {
-  __v23612 := snd(__v23612)
-  };
-  rval := __v23612;
-  __v23613 := "AbstractRelationalComparison"(___internal_esl_global, rval, lval, false);
-  if (fst(__v23613)) {
-  return __v23613
-  } else {
-  __v23613 := snd(__v23613)
-  };
-  r := __v23613;
-  __v23614 := "Type"(___internal_esl_global, r);
-  if (fst(__v23614)) {
-  return __v23614
-  } else {
-  __v23614 := snd(__v23614)
-  };
-  __v23615 := __v23614 = "Completion";
-  if (__v23615) {
-  __v23617 := "isAnAbruptCompletion"(___internal_esl_global, r);
-  if (fst(__v23617)) {
-  return __v23617
-  } else {
-  __v23617 := snd(__v23617)
-  };
-  if (__v23617) {
   return (false, r)
   } else {
-  __v23616 := "getCompletionValue"(___internal_esl_global, r);
+  __v23608 := "type" in_obj e;
+  __v23610 := e["type"];
+  __v23609 := __v23610 = "BinaryExpression";
+  __v23611 := "operator" in_obj e;
+  __v23613 := e["operator"];
+  __v23612 := __v23613 = "<=";
+  __v23614 := "left" in_obj e;
+  __v23615 := "right" in_obj e;
+  if (true && __v23608 && __v23609 && __v23611 && __v23612 && __v23614 && __v23615) {
+  RelationalExpression := e["left"];
+  ShiftExpression := e["right"];
+  __v23616 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
   if (fst(__v23616)) {
   return __v23616
   } else {
   __v23616 := snd(__v23616)
   };
-  r := __v23616
+  lref := __v23616;
+  __v23617 := "GetValue"(___internal_esl_global, lref);
+  if (fst(__v23617)) {
+  return __v23617
+  } else {
+  __v23617 := snd(__v23617)
+  };
+  lval := __v23617;
+  __v23618 := "Type"(___internal_esl_global, lval);
+  if (fst(__v23618)) {
+  return __v23618
+  } else {
+  __v23618 := snd(__v23618)
+  };
+  __v23619 := __v23618 = "Completion";
+  if (__v23619) {
+  __v23621 := "isAnAbruptCompletion"(___internal_esl_global, lval);
+  if (fst(__v23621)) {
+  return __v23621
+  } else {
+  __v23621 := snd(__v23621)
+  };
+  if (__v23621) {
+  return (false, lval)
+  } else {
+  __v23620 := "getCompletionValue"(___internal_esl_global, lval);
+  if (fst(__v23620)) {
+  return __v23620
+  } else {
+  __v23620 := snd(__v23620)
+  };
+  lval := __v23620
   }
   } else {
   
   };
-  __v23618 := r = true;
-  __v23619 := r = 'undefined;
-  __v23620 := __v23618 || __v23619;
-  if (__v23620) {
+  __v23622 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
+  if (fst(__v23622)) {
+  return __v23622
+  } else {
+  __v23622 := snd(__v23622)
+  };
+  rref := __v23622;
+  __v23623 := "GetValue"(___internal_esl_global, rref);
+  if (fst(__v23623)) {
+  return __v23623
+  } else {
+  __v23623 := snd(__v23623)
+  };
+  rval := __v23623;
+  __v23624 := "AbstractRelationalComparison"(___internal_esl_global, rval, lval, false);
+  if (fst(__v23624)) {
+  return __v23624
+  } else {
+  __v23624 := snd(__v23624)
+  };
+  r := __v23624;
+  __v23625 := "Type"(___internal_esl_global, r);
+  if (fst(__v23625)) {
+  return __v23625
+  } else {
+  __v23625 := snd(__v23625)
+  };
+  __v23626 := __v23625 = "Completion";
+  if (__v23626) {
+  __v23628 := "isAnAbruptCompletion"(___internal_esl_global, r);
+  if (fst(__v23628)) {
+  return __v23628
+  } else {
+  __v23628 := snd(__v23628)
+  };
+  if (__v23628) {
+  return (false, r)
+  } else {
+  __v23627 := "getCompletionValue"(___internal_esl_global, r);
+  if (fst(__v23627)) {
+  return __v23627
+  } else {
+  __v23627 := snd(__v23627)
+  };
+  r := __v23627
+  }
+  } else {
+  
+  };
+  __v23629 := r = true;
+  __v23630 := r = 'undefined;
+  __v23631 := __v23629 || __v23630;
+  if (__v23631) {
   return (false, false)
   } else {
   
   };
   return (false, true)
   } else {
-  __v23621 := "type" in_obj e;
-  __v23623 := e["type"];
-  __v23622 := __v23623 = "BinaryExpression";
-  __v23624 := "operator" in_obj e;
-  __v23626 := e["operator"];
-  __v23625 := __v23626 = ">=";
-  __v23627 := "left" in_obj e;
-  __v23628 := "right" in_obj e;
-  if (true && __v23621 && __v23622 && __v23624 && __v23625 && __v23627 && __v23628) {
+  __v23632 := "type" in_obj e;
+  __v23634 := e["type"];
+  __v23633 := __v23634 = "BinaryExpression";
+  __v23635 := "operator" in_obj e;
+  __v23637 := e["operator"];
+  __v23636 := __v23637 = ">=";
+  __v23638 := "left" in_obj e;
+  __v23639 := "right" in_obj e;
+  if (true && __v23632 && __v23633 && __v23635 && __v23636 && __v23638 && __v23639) {
   RelationalExpression := e["left"];
   ShiftExpression := e["right"];
-  __v23629 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
-  if (fst(__v23629)) {
-  return __v23629
-  } else {
-  __v23629 := snd(__v23629)
-  };
-  lref := __v23629;
-  __v23630 := "GetValue"(___internal_esl_global, lref);
-  if (fst(__v23630)) {
-  return __v23630
-  } else {
-  __v23630 := snd(__v23630)
-  };
-  lval := __v23630;
-  __v23631 := "Type"(___internal_esl_global, lval);
-  if (fst(__v23631)) {
-  return __v23631
-  } else {
-  __v23631 := snd(__v23631)
-  };
-  __v23632 := __v23631 = "Completion";
-  if (__v23632) {
-  __v23634 := "isAnAbruptCompletion"(___internal_esl_global, lval);
-  if (fst(__v23634)) {
-  return __v23634
-  } else {
-  __v23634 := snd(__v23634)
-  };
-  if (__v23634) {
-  return (false, lval)
-  } else {
-  __v23633 := "getCompletionValue"(___internal_esl_global, lval);
-  if (fst(__v23633)) {
-  return __v23633
-  } else {
-  __v23633 := snd(__v23633)
-  };
-  lval := __v23633
-  }
-  } else {
-  
-  };
-  __v23635 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
-  if (fst(__v23635)) {
-  return __v23635
-  } else {
-  __v23635 := snd(__v23635)
-  };
-  rref := __v23635;
-  __v23636 := "GetValue"(___internal_esl_global, rref);
-  if (fst(__v23636)) {
-  return __v23636
-  } else {
-  __v23636 := snd(__v23636)
-  };
-  rval := __v23636;
-  __v23637 := "AbstractRelationalComparison"(___internal_esl_global, lval, rval, true);
-  if (fst(__v23637)) {
-  return __v23637
-  } else {
-  __v23637 := snd(__v23637)
-  };
-  r := __v23637;
-  __v23638 := "Type"(___internal_esl_global, r);
-  if (fst(__v23638)) {
-  return __v23638
-  } else {
-  __v23638 := snd(__v23638)
-  };
-  __v23639 := __v23638 = "Completion";
-  if (__v23639) {
-  __v23641 := "isAnAbruptCompletion"(___internal_esl_global, r);
-  if (fst(__v23641)) {
-  return __v23641
-  } else {
-  __v23641 := snd(__v23641)
-  };
-  if (__v23641) {
-  return (false, r)
-  } else {
-  __v23640 := "getCompletionValue"(___internal_esl_global, r);
+  __v23640 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
   if (fst(__v23640)) {
   return __v23640
   } else {
   __v23640 := snd(__v23640)
   };
-  r := __v23640
+  lref := __v23640;
+  __v23641 := "GetValue"(___internal_esl_global, lref);
+  if (fst(__v23641)) {
+  return __v23641
+  } else {
+  __v23641 := snd(__v23641)
+  };
+  lval := __v23641;
+  __v23642 := "Type"(___internal_esl_global, lval);
+  if (fst(__v23642)) {
+  return __v23642
+  } else {
+  __v23642 := snd(__v23642)
+  };
+  __v23643 := __v23642 = "Completion";
+  if (__v23643) {
+  __v23645 := "isAnAbruptCompletion"(___internal_esl_global, lval);
+  if (fst(__v23645)) {
+  return __v23645
+  } else {
+  __v23645 := snd(__v23645)
+  };
+  if (__v23645) {
+  return (false, lval)
+  } else {
+  __v23644 := "getCompletionValue"(___internal_esl_global, lval);
+  if (fst(__v23644)) {
+  return __v23644
+  } else {
+  __v23644 := snd(__v23644)
+  };
+  lval := __v23644
   }
   } else {
   
   };
-  __v23642 := r = true;
-  __v23643 := r = 'undefined;
-  __v23644 := __v23642 || __v23643;
-  if (__v23644) {
+  __v23646 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
+  if (fst(__v23646)) {
+  return __v23646
+  } else {
+  __v23646 := snd(__v23646)
+  };
+  rref := __v23646;
+  __v23647 := "GetValue"(___internal_esl_global, rref);
+  if (fst(__v23647)) {
+  return __v23647
+  } else {
+  __v23647 := snd(__v23647)
+  };
+  rval := __v23647;
+  __v23648 := "AbstractRelationalComparison"(___internal_esl_global, lval, rval, true);
+  if (fst(__v23648)) {
+  return __v23648
+  } else {
+  __v23648 := snd(__v23648)
+  };
+  r := __v23648;
+  __v23649 := "Type"(___internal_esl_global, r);
+  if (fst(__v23649)) {
+  return __v23649
+  } else {
+  __v23649 := snd(__v23649)
+  };
+  __v23650 := __v23649 = "Completion";
+  if (__v23650) {
+  __v23652 := "isAnAbruptCompletion"(___internal_esl_global, r);
+  if (fst(__v23652)) {
+  return __v23652
+  } else {
+  __v23652 := snd(__v23652)
+  };
+  if (__v23652) {
+  return (false, r)
+  } else {
+  __v23651 := "getCompletionValue"(___internal_esl_global, r);
+  if (fst(__v23651)) {
+  return __v23651
+  } else {
+  __v23651 := snd(__v23651)
+  };
+  r := __v23651
+  }
+  } else {
+  
+  };
+  __v23653 := r = true;
+  __v23654 := r = 'undefined;
+  __v23655 := __v23653 || __v23654;
+  if (__v23655) {
   return (false, false)
   } else {
   
   };
   return (false, true)
   } else {
-  __v23645 := "type" in_obj e;
-  __v23647 := e["type"];
-  __v23646 := __v23647 = "BinaryExpression";
-  __v23648 := "operator" in_obj e;
-  __v23650 := e["operator"];
-  __v23649 := __v23650 = "instanceof";
-  __v23651 := "left" in_obj e;
-  __v23652 := "right" in_obj e;
-  if (true && __v23645 && __v23646 && __v23648 && __v23649 && __v23651 && __v23652) {
+  __v23656 := "type" in_obj e;
+  __v23658 := e["type"];
+  __v23657 := __v23658 = "BinaryExpression";
+  __v23659 := "operator" in_obj e;
+  __v23661 := e["operator"];
+  __v23660 := __v23661 = "instanceof";
+  __v23662 := "left" in_obj e;
+  __v23663 := "right" in_obj e;
+  if (true && __v23656 && __v23657 && __v23659 && __v23660 && __v23662 && __v23663) {
   RelationalExpression := e["left"];
   ShiftExpression := e["right"];
-  __v23653 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
-  if (fst(__v23653)) {
-  return __v23653
-  } else {
-  __v23653 := snd(__v23653)
-  };
-  lref := __v23653;
-  __v23654 := "GetValue"(___internal_esl_global, lref);
-  if (fst(__v23654)) {
-  return __v23654
-  } else {
-  __v23654 := snd(__v23654)
-  };
-  lval := __v23654;
-  __v23655 := "Type"(___internal_esl_global, lval);
-  if (fst(__v23655)) {
-  return __v23655
-  } else {
-  __v23655 := snd(__v23655)
-  };
-  __v23656 := __v23655 = "Completion";
-  if (__v23656) {
-  __v23658 := "isAnAbruptCompletion"(___internal_esl_global, lval);
-  if (fst(__v23658)) {
-  return __v23658
-  } else {
-  __v23658 := snd(__v23658)
-  };
-  if (__v23658) {
-  return (false, lval)
-  } else {
-  __v23657 := "getCompletionValue"(___internal_esl_global, lval);
-  if (fst(__v23657)) {
-  return __v23657
-  } else {
-  __v23657 := snd(__v23657)
-  };
-  lval := __v23657
-  }
-  } else {
-  
-  };
-  __v23659 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
-  if (fst(__v23659)) {
-  return __v23659
-  } else {
-  __v23659 := snd(__v23659)
-  };
-  rref := __v23659;
-  __v23660 := "GetValue"(___internal_esl_global, rref);
-  if (fst(__v23660)) {
-  return __v23660
-  } else {
-  __v23660 := snd(__v23660)
-  };
-  rval := __v23660;
-  __v23661 := "Type"(___internal_esl_global, rval);
-  if (fst(__v23661)) {
-  return __v23661
-  } else {
-  __v23661 := snd(__v23661)
-  };
-  __v23662 := __v23661 = "Completion";
-  if (__v23662) {
-  __v23664 := "isAnAbruptCompletion"(___internal_esl_global, rval);
+  __v23664 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
   if (fst(__v23664)) {
   return __v23664
   } else {
   __v23664 := snd(__v23664)
   };
-  if (__v23664) {
-  return (false, rval)
-  } else {
-  __v23663 := "getCompletionValue"(___internal_esl_global, rval);
-  if (fst(__v23663)) {
-  return __v23663
-  } else {
-  __v23663 := snd(__v23663)
-  };
-  rval := __v23663
-  }
-  } else {
-  
-  };
-  __v23665 := "InstanceofOperator"(___internal_esl_global, lval, rval);
+  lref := __v23664;
+  __v23665 := "GetValue"(___internal_esl_global, lref);
   if (fst(__v23665)) {
   return __v23665
   } else {
   __v23665 := snd(__v23665)
   };
-  return (false, __v23665)
+  lval := __v23665;
+  __v23666 := "Type"(___internal_esl_global, lval);
+  if (fst(__v23666)) {
+  return __v23666
   } else {
-  __v23666 := "type" in_obj e;
-  __v23668 := e["type"];
-  __v23667 := __v23668 = "BinaryExpression";
-  __v23669 := "operator" in_obj e;
-  __v23671 := e["operator"];
-  __v23670 := __v23671 = "in";
-  __v23672 := "left" in_obj e;
-  __v23673 := "right" in_obj e;
-  if (true && __v23666 && __v23667 && __v23669 && __v23670 && __v23672 && __v23673) {
-  RelationalExpression := e["left"];
-  ShiftExpression := e["right"];
-  __v23674 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
-  if (fst(__v23674)) {
-  return __v23674
-  } else {
-  __v23674 := snd(__v23674)
+  __v23666 := snd(__v23666)
   };
-  lref := __v23674;
-  __v23675 := "GetValue"(___internal_esl_global, lref);
+  __v23667 := __v23666 = "Completion";
+  if (__v23667) {
+  __v23669 := "isAnAbruptCompletion"(___internal_esl_global, lval);
+  if (fst(__v23669)) {
+  return __v23669
+  } else {
+  __v23669 := snd(__v23669)
+  };
+  if (__v23669) {
+  return (false, lval)
+  } else {
+  __v23668 := "getCompletionValue"(___internal_esl_global, lval);
+  if (fst(__v23668)) {
+  return __v23668
+  } else {
+  __v23668 := snd(__v23668)
+  };
+  lval := __v23668
+  }
+  } else {
+  
+  };
+  __v23670 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
+  if (fst(__v23670)) {
+  return __v23670
+  } else {
+  __v23670 := snd(__v23670)
+  };
+  rref := __v23670;
+  __v23671 := "GetValue"(___internal_esl_global, rref);
+  if (fst(__v23671)) {
+  return __v23671
+  } else {
+  __v23671 := snd(__v23671)
+  };
+  rval := __v23671;
+  __v23672 := "Type"(___internal_esl_global, rval);
+  if (fst(__v23672)) {
+  return __v23672
+  } else {
+  __v23672 := snd(__v23672)
+  };
+  __v23673 := __v23672 = "Completion";
+  if (__v23673) {
+  __v23675 := "isAnAbruptCompletion"(___internal_esl_global, rval);
   if (fst(__v23675)) {
   return __v23675
   } else {
   __v23675 := snd(__v23675)
   };
-  lval := __v23675;
-  __v23676 := "Type"(___internal_esl_global, lval);
+  if (__v23675) {
+  return (false, rval)
+  } else {
+  __v23674 := "getCompletionValue"(___internal_esl_global, rval);
+  if (fst(__v23674)) {
+  return __v23674
+  } else {
+  __v23674 := snd(__v23674)
+  };
+  rval := __v23674
+  }
+  } else {
+  
+  };
+  __v23676 := "InstanceofOperator"(___internal_esl_global, lval, rval);
   if (fst(__v23676)) {
   return __v23676
   } else {
   __v23676 := snd(__v23676)
   };
-  __v23677 := __v23676 = "Completion";
-  if (__v23677) {
-  __v23679 := "isAnAbruptCompletion"(___internal_esl_global, lval);
-  if (fst(__v23679)) {
-  return __v23679
+  return (false, __v23676)
   } else {
-  __v23679 := snd(__v23679)
-  };
-  if (__v23679) {
-  return (false, lval)
-  } else {
-  __v23678 := "getCompletionValue"(___internal_esl_global, lval);
-  if (fst(__v23678)) {
-  return __v23678
-  } else {
-  __v23678 := snd(__v23678)
-  };
-  lval := __v23678
-  }
-  } else {
-  
-  };
-  __v23680 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
-  if (fst(__v23680)) {
-  return __v23680
-  } else {
-  __v23680 := snd(__v23680)
-  };
-  rref := __v23680;
-  __v23681 := "GetValue"(___internal_esl_global, rref);
-  if (fst(__v23681)) {
-  return __v23681
-  } else {
-  __v23681 := snd(__v23681)
-  };
-  rval := __v23681;
-  __v23682 := "Type"(___internal_esl_global, rval);
-  if (fst(__v23682)) {
-  return __v23682
-  } else {
-  __v23682 := snd(__v23682)
-  };
-  __v23683 := __v23682 = "Completion";
-  if (__v23683) {
-  __v23685 := "isAnAbruptCompletion"(___internal_esl_global, rval);
+  __v23677 := "type" in_obj e;
+  __v23679 := e["type"];
+  __v23678 := __v23679 = "BinaryExpression";
+  __v23680 := "operator" in_obj e;
+  __v23682 := e["operator"];
+  __v23681 := __v23682 = "in";
+  __v23683 := "left" in_obj e;
+  __v23684 := "right" in_obj e;
+  if (true && __v23677 && __v23678 && __v23680 && __v23681 && __v23683 && __v23684) {
+  RelationalExpression := e["left"];
+  ShiftExpression := e["right"];
+  __v23685 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
   if (fst(__v23685)) {
   return __v23685
   } else {
   __v23685 := snd(__v23685)
   };
-  if (__v23685) {
-  return (false, rval)
+  lref := __v23685;
+  __v23686 := "GetValue"(___internal_esl_global, lref);
+  if (fst(__v23686)) {
+  return __v23686
   } else {
-  __v23684 := "getCompletionValue"(___internal_esl_global, rval);
-  if (fst(__v23684)) {
-  return __v23684
-  } else {
-  __v23684 := snd(__v23684)
+  __v23686 := snd(__v23686)
   };
-  rval := __v23684
-  }
-  } else {
-  
-  };
-  __v23687 := "Type"(___internal_esl_global, rval);
+  lval := __v23686;
+  __v23687 := "Type"(___internal_esl_global, lval);
   if (fst(__v23687)) {
   return __v23687
   } else {
   __v23687 := snd(__v23687)
   };
-  __v23688 := __v23687 = "Object";
-  __v23686 := !__v23688;
-  if (__v23686) {
-  __v23689 := "TypeErrorConstructorInternal"(___internal_esl_global);
+  __v23688 := __v23687 = "Completion";
+  if (__v23688) {
+  __v23690 := "isAnAbruptCompletion"(___internal_esl_global, lval);
+  if (fst(__v23690)) {
+  return __v23690
+  } else {
+  __v23690 := snd(__v23690)
+  };
+  if (__v23690) {
+  return (false, lval)
+  } else {
+  __v23689 := "getCompletionValue"(___internal_esl_global, lval);
   if (fst(__v23689)) {
   return __v23689
   } else {
   __v23689 := snd(__v23689)
   };
-  return (true, __v23689)
+  lval := __v23689
+  }
   } else {
   
   };
-  __v23690 := rval["HasProperty"];
-  __v23691 := "ToPropertyKey"(___internal_esl_global, lval);
+  __v23691 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
   if (fst(__v23691)) {
   return __v23691
   } else {
   __v23691 := snd(__v23691)
   };
-  __v23692 := __v23690(___internal_esl_global, rval, __v23691);
+  rref := __v23691;
+  __v23692 := "GetValue"(___internal_esl_global, rref);
   if (fst(__v23692)) {
   return __v23692
   } else {
   __v23692 := snd(__v23692)
   };
-  return (false, __v23692)
+  rval := __v23692;
+  __v23693 := "Type"(___internal_esl_global, rval);
+  if (fst(__v23693)) {
+  return __v23693
   } else {
-  __v23693 := "type" in_obj e;
-  __v23695 := e["type"];
-  __v23694 := __v23695 = "BinaryExpression";
-  __v23696 := "operator" in_obj e;
-  __v23698 := e["operator"];
-  __v23697 := __v23698 = "==";
-  __v23699 := "left" in_obj e;
-  __v23700 := "right" in_obj e;
-  if (true && __v23693 && __v23694 && __v23696 && __v23697 && __v23699 && __v23700) {
-  EqualityExpression := e["left"];
-  RelationalExpression := e["right"];
-  __v23701 := "JS_Interpreter_Expr"(___internal_esl_global, EqualityExpression, scope);
-  if (fst(__v23701)) {
-  return __v23701
-  } else {
-  __v23701 := snd(__v23701)
+  __v23693 := snd(__v23693)
   };
-  lref := __v23701;
-  __v23702 := "GetValue"(___internal_esl_global, lref);
+  __v23694 := __v23693 = "Completion";
+  if (__v23694) {
+  __v23696 := "isAnAbruptCompletion"(___internal_esl_global, rval);
+  if (fst(__v23696)) {
+  return __v23696
+  } else {
+  __v23696 := snd(__v23696)
+  };
+  if (__v23696) {
+  return (false, rval)
+  } else {
+  __v23695 := "getCompletionValue"(___internal_esl_global, rval);
+  if (fst(__v23695)) {
+  return __v23695
+  } else {
+  __v23695 := snd(__v23695)
+  };
+  rval := __v23695
+  }
+  } else {
+  
+  };
+  __v23698 := "Type"(___internal_esl_global, rval);
+  if (fst(__v23698)) {
+  return __v23698
+  } else {
+  __v23698 := snd(__v23698)
+  };
+  __v23699 := __v23698 = "Object";
+  __v23697 := !__v23699;
+  if (__v23697) {
+  __v23700 := "TypeErrorConstructorInternal"(___internal_esl_global);
+  if (fst(__v23700)) {
+  return __v23700
+  } else {
+  __v23700 := snd(__v23700)
+  };
+  return (true, __v23700)
+  } else {
+  
+  };
+  __v23701 := rval["HasProperty"];
+  __v23702 := "ToPropertyKey"(___internal_esl_global, lval);
   if (fst(__v23702)) {
   return __v23702
   } else {
   __v23702 := snd(__v23702)
   };
-  lval := __v23702;
-  __v23703 := "Type"(___internal_esl_global, lval);
+  __v23703 := __v23701(___internal_esl_global, rval, __v23702);
   if (fst(__v23703)) {
   return __v23703
   } else {
   __v23703 := snd(__v23703)
   };
-  __v23704 := __v23703 = "Completion";
-  if (__v23704) {
-  __v23706 := "isAnAbruptCompletion"(___internal_esl_global, lval);
-  if (fst(__v23706)) {
-  return __v23706
+  return (false, __v23703)
   } else {
-  __v23706 := snd(__v23706)
-  };
-  if (__v23706) {
-  return (false, lval)
-  } else {
-  __v23705 := "getCompletionValue"(___internal_esl_global, lval);
-  if (fst(__v23705)) {
-  return __v23705
-  } else {
-  __v23705 := snd(__v23705)
-  };
-  lval := __v23705
-  }
-  } else {
-  
-  };
-  __v23707 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
-  if (fst(__v23707)) {
-  return __v23707
-  } else {
-  __v23707 := snd(__v23707)
-  };
-  rref := __v23707;
-  __v23708 := "GetValue"(___internal_esl_global, rref);
-  if (fst(__v23708)) {
-  return __v23708
-  } else {
-  __v23708 := snd(__v23708)
-  };
-  rval := __v23708;
-  __v23709 := "Type"(___internal_esl_global, rval);
-  if (fst(__v23709)) {
-  return __v23709
-  } else {
-  __v23709 := snd(__v23709)
-  };
-  __v23710 := __v23709 = "Completion";
-  if (__v23710) {
-  __v23712 := "isAnAbruptCompletion"(___internal_esl_global, rval);
+  __v23704 := "type" in_obj e;
+  __v23706 := e["type"];
+  __v23705 := __v23706 = "BinaryExpression";
+  __v23707 := "operator" in_obj e;
+  __v23709 := e["operator"];
+  __v23708 := __v23709 = "==";
+  __v23710 := "left" in_obj e;
+  __v23711 := "right" in_obj e;
+  if (true && __v23704 && __v23705 && __v23707 && __v23708 && __v23710 && __v23711) {
+  EqualityExpression := e["left"];
+  RelationalExpression := e["right"];
+  __v23712 := "JS_Interpreter_Expr"(___internal_esl_global, EqualityExpression, scope);
   if (fst(__v23712)) {
   return __v23712
   } else {
   __v23712 := snd(__v23712)
   };
-  if (__v23712) {
-  return (false, rval)
-  } else {
-  __v23711 := "getCompletionValue"(___internal_esl_global, rval);
-  if (fst(__v23711)) {
-  return __v23711
-  } else {
-  __v23711 := snd(__v23711)
-  };
-  rval := __v23711
-  }
-  } else {
-  
-  };
-  __v23713 := "AbstractEqualityComparison"(___internal_esl_global, rval, lval);
+  lref := __v23712;
+  __v23713 := "GetValue"(___internal_esl_global, lref);
   if (fst(__v23713)) {
   return __v23713
   } else {
   __v23713 := snd(__v23713)
   };
-  return (false, __v23713)
+  lval := __v23713;
+  __v23714 := "Type"(___internal_esl_global, lval);
+  if (fst(__v23714)) {
+  return __v23714
   } else {
-  __v23714 := "type" in_obj e;
-  __v23716 := e["type"];
-  __v23715 := __v23716 = "BinaryExpression";
-  __v23717 := "operator" in_obj e;
-  __v23719 := e["operator"];
-  __v23718 := __v23719 = "!=";
-  __v23720 := "left" in_obj e;
-  __v23721 := "right" in_obj e;
-  if (true && __v23714 && __v23715 && __v23717 && __v23718 && __v23720 && __v23721) {
-  EqualityExpression := e["left"];
-  RelationalExpression := e["right"];
-  __v23722 := "JS_Interpreter_Expr"(___internal_esl_global, EqualityExpression, scope);
-  if (fst(__v23722)) {
-  return __v23722
-  } else {
-  __v23722 := snd(__v23722)
+  __v23714 := snd(__v23714)
   };
-  lref := __v23722;
-  __v23723 := "GetValue"(___internal_esl_global, lref);
+  __v23715 := __v23714 = "Completion";
+  if (__v23715) {
+  __v23717 := "isAnAbruptCompletion"(___internal_esl_global, lval);
+  if (fst(__v23717)) {
+  return __v23717
+  } else {
+  __v23717 := snd(__v23717)
+  };
+  if (__v23717) {
+  return (false, lval)
+  } else {
+  __v23716 := "getCompletionValue"(___internal_esl_global, lval);
+  if (fst(__v23716)) {
+  return __v23716
+  } else {
+  __v23716 := snd(__v23716)
+  };
+  lval := __v23716
+  }
+  } else {
+  
+  };
+  __v23718 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
+  if (fst(__v23718)) {
+  return __v23718
+  } else {
+  __v23718 := snd(__v23718)
+  };
+  rref := __v23718;
+  __v23719 := "GetValue"(___internal_esl_global, rref);
+  if (fst(__v23719)) {
+  return __v23719
+  } else {
+  __v23719 := snd(__v23719)
+  };
+  rval := __v23719;
+  __v23720 := "Type"(___internal_esl_global, rval);
+  if (fst(__v23720)) {
+  return __v23720
+  } else {
+  __v23720 := snd(__v23720)
+  };
+  __v23721 := __v23720 = "Completion";
+  if (__v23721) {
+  __v23723 := "isAnAbruptCompletion"(___internal_esl_global, rval);
   if (fst(__v23723)) {
   return __v23723
   } else {
   __v23723 := snd(__v23723)
   };
-  lval := __v23723;
-  __v23724 := "Type"(___internal_esl_global, lval);
+  if (__v23723) {
+  return (false, rval)
+  } else {
+  __v23722 := "getCompletionValue"(___internal_esl_global, rval);
+  if (fst(__v23722)) {
+  return __v23722
+  } else {
+  __v23722 := snd(__v23722)
+  };
+  rval := __v23722
+  }
+  } else {
+  
+  };
+  __v23724 := "AbstractEqualityComparison"(___internal_esl_global, rval, lval);
   if (fst(__v23724)) {
   return __v23724
   } else {
   __v23724 := snd(__v23724)
   };
-  __v23725 := __v23724 = "Completion";
-  if (__v23725) {
-  __v23727 := "isAnAbruptCompletion"(___internal_esl_global, lval);
-  if (fst(__v23727)) {
-  return __v23727
+  return (false, __v23724)
   } else {
-  __v23727 := snd(__v23727)
-  };
-  if (__v23727) {
-  return (false, lval)
-  } else {
-  __v23726 := "getCompletionValue"(___internal_esl_global, lval);
-  if (fst(__v23726)) {
-  return __v23726
-  } else {
-  __v23726 := snd(__v23726)
-  };
-  lval := __v23726
-  }
-  } else {
-  
-  };
-  __v23728 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
-  if (fst(__v23728)) {
-  return __v23728
-  } else {
-  __v23728 := snd(__v23728)
-  };
-  rref := __v23728;
-  __v23729 := "GetValue"(___internal_esl_global, rref);
-  if (fst(__v23729)) {
-  return __v23729
-  } else {
-  __v23729 := snd(__v23729)
-  };
-  rval := __v23729;
-  __v23730 := "Type"(___internal_esl_global, rval);
-  if (fst(__v23730)) {
-  return __v23730
-  } else {
-  __v23730 := snd(__v23730)
-  };
-  __v23731 := __v23730 = "Completion";
-  if (__v23731) {
-  __v23733 := "isAnAbruptCompletion"(___internal_esl_global, rval);
+  __v23725 := "type" in_obj e;
+  __v23727 := e["type"];
+  __v23726 := __v23727 = "BinaryExpression";
+  __v23728 := "operator" in_obj e;
+  __v23730 := e["operator"];
+  __v23729 := __v23730 = "!=";
+  __v23731 := "left" in_obj e;
+  __v23732 := "right" in_obj e;
+  if (true && __v23725 && __v23726 && __v23728 && __v23729 && __v23731 && __v23732) {
+  EqualityExpression := e["left"];
+  RelationalExpression := e["right"];
+  __v23733 := "JS_Interpreter_Expr"(___internal_esl_global, EqualityExpression, scope);
   if (fst(__v23733)) {
   return __v23733
   } else {
   __v23733 := snd(__v23733)
   };
-  if (__v23733) {
-  return (false, rval)
-  } else {
-  __v23732 := "getCompletionValue"(___internal_esl_global, rval);
-  if (fst(__v23732)) {
-  return __v23732
-  } else {
-  __v23732 := snd(__v23732)
-  };
-  rval := __v23732
-  }
-  } else {
-  
-  };
-  __v23734 := "AbstractEqualityComparison"(___internal_esl_global, rval, lval);
+  lref := __v23733;
+  __v23734 := "GetValue"(___internal_esl_global, lref);
   if (fst(__v23734)) {
   return __v23734
   } else {
   __v23734 := snd(__v23734)
   };
-  r := __v23734;
-  __v23735 := "Type"(___internal_esl_global, r);
+  lval := __v23734;
+  __v23735 := "Type"(___internal_esl_global, lval);
   if (fst(__v23735)) {
   return __v23735
   } else {
@@ -2344,406 +2267,406 @@ Tests compilation of ecmaref6:
   };
   __v23736 := __v23735 = "Completion";
   if (__v23736) {
-  __v23738 := "isAnAbruptCompletion"(___internal_esl_global, r);
+  __v23738 := "isAnAbruptCompletion"(___internal_esl_global, lval);
   if (fst(__v23738)) {
   return __v23738
   } else {
   __v23738 := snd(__v23738)
   };
   if (__v23738) {
-  return (false, r)
+  return (false, lval)
   } else {
-  __v23737 := "getCompletionValue"(___internal_esl_global, r);
+  __v23737 := "getCompletionValue"(___internal_esl_global, lval);
   if (fst(__v23737)) {
   return __v23737
   } else {
   __v23737 := snd(__v23737)
   };
-  r := __v23737
+  lval := __v23737
   }
   } else {
   
   };
-  __v23739 := r = true;
-  if (__v23739) {
-  return (false, false)
+  __v23739 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
+  if (fst(__v23739)) {
+  return __v23739
+  } else {
+  __v23739 := snd(__v23739)
+  };
+  rref := __v23739;
+  __v23740 := "GetValue"(___internal_esl_global, rref);
+  if (fst(__v23740)) {
+  return __v23740
+  } else {
+  __v23740 := snd(__v23740)
+  };
+  rval := __v23740;
+  __v23741 := "Type"(___internal_esl_global, rval);
+  if (fst(__v23741)) {
+  return __v23741
+  } else {
+  __v23741 := snd(__v23741)
+  };
+  __v23742 := __v23741 = "Completion";
+  if (__v23742) {
+  __v23744 := "isAnAbruptCompletion"(___internal_esl_global, rval);
+  if (fst(__v23744)) {
+  return __v23744
+  } else {
+  __v23744 := snd(__v23744)
+  };
+  if (__v23744) {
+  return (false, rval)
+  } else {
+  __v23743 := "getCompletionValue"(___internal_esl_global, rval);
+  if (fst(__v23743)) {
+  return __v23743
+  } else {
+  __v23743 := snd(__v23743)
+  };
+  rval := __v23743
+  }
   } else {
   
   };
-  return (false, true)
+  __v23745 := "AbstractEqualityComparison"(___internal_esl_global, rval, lval);
+  if (fst(__v23745)) {
+  return __v23745
   } else {
-  __v23740 := "type" in_obj e;
-  __v23742 := e["type"];
-  __v23741 := __v23742 = "BinaryExpression";
-  __v23743 := "operator" in_obj e;
-  __v23745 := e["operator"];
-  __v23744 := __v23745 = "===";
-  __v23746 := "left" in_obj e;
-  __v23747 := "right" in_obj e;
-  if (true && __v23740 && __v23741 && __v23743 && __v23744 && __v23746 && __v23747) {
-  EqualityExpression := e["left"];
-  RelationalExpression := e["right"];
-  __v23748 := "JS_Interpreter_Expr"(___internal_esl_global, EqualityExpression, scope);
-  if (fst(__v23748)) {
-  return __v23748
-  } else {
-  __v23748 := snd(__v23748)
+  __v23745 := snd(__v23745)
   };
-  lref := __v23748;
-  __v23749 := "GetValue"(___internal_esl_global, lref);
+  r := __v23745;
+  __v23746 := "Type"(___internal_esl_global, r);
+  if (fst(__v23746)) {
+  return __v23746
+  } else {
+  __v23746 := snd(__v23746)
+  };
+  __v23747 := __v23746 = "Completion";
+  if (__v23747) {
+  __v23749 := "isAnAbruptCompletion"(___internal_esl_global, r);
   if (fst(__v23749)) {
   return __v23749
   } else {
   __v23749 := snd(__v23749)
   };
-  lval := __v23749;
-  __v23750 := "Type"(___internal_esl_global, lval);
-  if (fst(__v23750)) {
-  return __v23750
+  if (__v23749) {
+  return (false, r)
   } else {
-  __v23750 := snd(__v23750)
+  __v23748 := "getCompletionValue"(___internal_esl_global, r);
+  if (fst(__v23748)) {
+  return __v23748
+  } else {
+  __v23748 := snd(__v23748)
   };
-  __v23751 := __v23750 = "Completion";
-  if (__v23751) {
-  __v23753 := "isAnAbruptCompletion"(___internal_esl_global, lval);
-  if (fst(__v23753)) {
-  return __v23753
-  } else {
-  __v23753 := snd(__v23753)
-  };
-  if (__v23753) {
-  return (false, lval)
-  } else {
-  __v23752 := "getCompletionValue"(___internal_esl_global, lval);
-  if (fst(__v23752)) {
-  return __v23752
-  } else {
-  __v23752 := snd(__v23752)
-  };
-  lval := __v23752
+  r := __v23748
   }
   } else {
   
   };
-  __v23754 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
-  if (fst(__v23754)) {
-  return __v23754
-  } else {
-  __v23754 := snd(__v23754)
-  };
-  rref := __v23754;
-  __v23755 := "GetValue"(___internal_esl_global, rref);
-  if (fst(__v23755)) {
-  return __v23755
-  } else {
-  __v23755 := snd(__v23755)
-  };
-  rval := __v23755;
-  __v23756 := "Type"(___internal_esl_global, rval);
-  if (fst(__v23756)) {
-  return __v23756
-  } else {
-  __v23756 := snd(__v23756)
-  };
-  __v23757 := __v23756 = "Completion";
-  if (__v23757) {
-  __v23759 := "isAnAbruptCompletion"(___internal_esl_global, rval);
-  if (fst(__v23759)) {
-  return __v23759
-  } else {
-  __v23759 := snd(__v23759)
-  };
-  if (__v23759) {
-  return (false, rval)
-  } else {
-  __v23758 := "getCompletionValue"(___internal_esl_global, rval);
-  if (fst(__v23758)) {
-  return __v23758
-  } else {
-  __v23758 := snd(__v23758)
-  };
-  rval := __v23758
-  }
-  } else {
-  
-  };
-  __v23760 := "StrictEqualityComparison"(___internal_esl_global, rval, lval);
-  if (fst(__v23760)) {
-  return __v23760
-  } else {
-  __v23760 := snd(__v23760)
-  };
-  return (false, __v23760)
-  } else {
-  __v23761 := "type" in_obj e;
-  __v23763 := e["type"];
-  __v23762 := __v23763 = "BinaryExpression";
-  __v23764 := "operator" in_obj e;
-  __v23766 := e["operator"];
-  __v23765 := __v23766 = "!==";
-  __v23767 := "left" in_obj e;
-  __v23768 := "right" in_obj e;
-  if (true && __v23761 && __v23762 && __v23764 && __v23765 && __v23767 && __v23768) {
-  EqualityExpression := e["left"];
-  RelationalExpression := e["right"];
-  __v23769 := "JS_Interpreter_Expr"(___internal_esl_global, EqualityExpression, scope);
-  if (fst(__v23769)) {
-  return __v23769
-  } else {
-  __v23769 := snd(__v23769)
-  };
-  lref := __v23769;
-  __v23770 := "GetValue"(___internal_esl_global, lref);
-  if (fst(__v23770)) {
-  return __v23770
-  } else {
-  __v23770 := snd(__v23770)
-  };
-  lval := __v23770;
-  __v23771 := "Type"(___internal_esl_global, lval);
-  if (fst(__v23771)) {
-  return __v23771
-  } else {
-  __v23771 := snd(__v23771)
-  };
-  __v23772 := __v23771 = "Completion";
-  if (__v23772) {
-  __v23774 := "isAnAbruptCompletion"(___internal_esl_global, lval);
-  if (fst(__v23774)) {
-  return __v23774
-  } else {
-  __v23774 := snd(__v23774)
-  };
-  if (__v23774) {
-  return (false, lval)
-  } else {
-  __v23773 := "getCompletionValue"(___internal_esl_global, lval);
-  if (fst(__v23773)) {
-  return __v23773
-  } else {
-  __v23773 := snd(__v23773)
-  };
-  lval := __v23773
-  }
-  } else {
-  
-  };
-  __v23775 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
-  if (fst(__v23775)) {
-  return __v23775
-  } else {
-  __v23775 := snd(__v23775)
-  };
-  rref := __v23775;
-  __v23776 := "GetValue"(___internal_esl_global, rref);
-  if (fst(__v23776)) {
-  return __v23776
-  } else {
-  __v23776 := snd(__v23776)
-  };
-  rval := __v23776;
-  __v23777 := "Type"(___internal_esl_global, rval);
-  if (fst(__v23777)) {
-  return __v23777
-  } else {
-  __v23777 := snd(__v23777)
-  };
-  __v23778 := __v23777 = "Completion";
-  if (__v23778) {
-  __v23780 := "isAnAbruptCompletion"(___internal_esl_global, rval);
-  if (fst(__v23780)) {
-  return __v23780
-  } else {
-  __v23780 := snd(__v23780)
-  };
-  if (__v23780) {
-  return (false, rval)
-  } else {
-  __v23779 := "getCompletionValue"(___internal_esl_global, rval);
-  if (fst(__v23779)) {
-  return __v23779
-  } else {
-  __v23779 := snd(__v23779)
-  };
-  rval := __v23779
-  }
-  } else {
-  
-  };
-  __v23781 := "StrictEqualityComparison"(___internal_esl_global, rval, lval);
-  if (fst(__v23781)) {
-  return __v23781
-  } else {
-  __v23781 := snd(__v23781)
-  };
-  r := __v23781;
-  __v23782 := r = true;
-  if (__v23782) {
+  __v23750 := r = true;
+  if (__v23750) {
   return (false, false)
   } else {
   
   };
   return (false, true)
   } else {
-  __v23783 := "type" in_obj e;
-  __v23785 := e["type"];
-  __v23784 := __v23785 = "BinaryExpression";
-  __v23786 := "operator" in_obj e;
-  __v23788 := e["operator"];
-  __v23787 := __v23788 = "**";
-  __v23789 := "left" in_obj e;
-  __v23790 := "right" in_obj e;
-  if (true && __v23783 && __v23784 && __v23786 && __v23787 && __v23789 && __v23790) {
-  LeftExpr := e["left"];
-  RightExpr := e["right"];
-  __v23791 := "JS_Interpreter_Expr"(___internal_esl_global, LeftExpr, scope);
+  __v23751 := "type" in_obj e;
+  __v23753 := e["type"];
+  __v23752 := __v23753 = "BinaryExpression";
+  __v23754 := "operator" in_obj e;
+  __v23756 := e["operator"];
+  __v23755 := __v23756 = "===";
+  __v23757 := "left" in_obj e;
+  __v23758 := "right" in_obj e;
+  if (true && __v23751 && __v23752 && __v23754 && __v23755 && __v23757 && __v23758) {
+  EqualityExpression := e["left"];
+  RelationalExpression := e["right"];
+  __v23759 := "JS_Interpreter_Expr"(___internal_esl_global, EqualityExpression, scope);
+  if (fst(__v23759)) {
+  return __v23759
+  } else {
+  __v23759 := snd(__v23759)
+  };
+  lref := __v23759;
+  __v23760 := "GetValue"(___internal_esl_global, lref);
+  if (fst(__v23760)) {
+  return __v23760
+  } else {
+  __v23760 := snd(__v23760)
+  };
+  lval := __v23760;
+  __v23761 := "Type"(___internal_esl_global, lval);
+  if (fst(__v23761)) {
+  return __v23761
+  } else {
+  __v23761 := snd(__v23761)
+  };
+  __v23762 := __v23761 = "Completion";
+  if (__v23762) {
+  __v23764 := "isAnAbruptCompletion"(___internal_esl_global, lval);
+  if (fst(__v23764)) {
+  return __v23764
+  } else {
+  __v23764 := snd(__v23764)
+  };
+  if (__v23764) {
+  return (false, lval)
+  } else {
+  __v23763 := "getCompletionValue"(___internal_esl_global, lval);
+  if (fst(__v23763)) {
+  return __v23763
+  } else {
+  __v23763 := snd(__v23763)
+  };
+  lval := __v23763
+  }
+  } else {
+  
+  };
+  __v23765 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
+  if (fst(__v23765)) {
+  return __v23765
+  } else {
+  __v23765 := snd(__v23765)
+  };
+  rref := __v23765;
+  __v23766 := "GetValue"(___internal_esl_global, rref);
+  if (fst(__v23766)) {
+  return __v23766
+  } else {
+  __v23766 := snd(__v23766)
+  };
+  rval := __v23766;
+  __v23767 := "Type"(___internal_esl_global, rval);
+  if (fst(__v23767)) {
+  return __v23767
+  } else {
+  __v23767 := snd(__v23767)
+  };
+  __v23768 := __v23767 = "Completion";
+  if (__v23768) {
+  __v23770 := "isAnAbruptCompletion"(___internal_esl_global, rval);
+  if (fst(__v23770)) {
+  return __v23770
+  } else {
+  __v23770 := snd(__v23770)
+  };
+  if (__v23770) {
+  return (false, rval)
+  } else {
+  __v23769 := "getCompletionValue"(___internal_esl_global, rval);
+  if (fst(__v23769)) {
+  return __v23769
+  } else {
+  __v23769 := snd(__v23769)
+  };
+  rval := __v23769
+  }
+  } else {
+  
+  };
+  __v23771 := "StrictEqualityComparison"(___internal_esl_global, rval, lval);
+  if (fst(__v23771)) {
+  return __v23771
+  } else {
+  __v23771 := snd(__v23771)
+  };
+  return (false, __v23771)
+  } else {
+  __v23772 := "type" in_obj e;
+  __v23774 := e["type"];
+  __v23773 := __v23774 = "BinaryExpression";
+  __v23775 := "operator" in_obj e;
+  __v23777 := e["operator"];
+  __v23776 := __v23777 = "!==";
+  __v23778 := "left" in_obj e;
+  __v23779 := "right" in_obj e;
+  if (true && __v23772 && __v23773 && __v23775 && __v23776 && __v23778 && __v23779) {
+  EqualityExpression := e["left"];
+  RelationalExpression := e["right"];
+  __v23780 := "JS_Interpreter_Expr"(___internal_esl_global, EqualityExpression, scope);
+  if (fst(__v23780)) {
+  return __v23780
+  } else {
+  __v23780 := snd(__v23780)
+  };
+  lref := __v23780;
+  __v23781 := "GetValue"(___internal_esl_global, lref);
+  if (fst(__v23781)) {
+  return __v23781
+  } else {
+  __v23781 := snd(__v23781)
+  };
+  lval := __v23781;
+  __v23782 := "Type"(___internal_esl_global, lval);
+  if (fst(__v23782)) {
+  return __v23782
+  } else {
+  __v23782 := snd(__v23782)
+  };
+  __v23783 := __v23782 = "Completion";
+  if (__v23783) {
+  __v23785 := "isAnAbruptCompletion"(___internal_esl_global, lval);
+  if (fst(__v23785)) {
+  return __v23785
+  } else {
+  __v23785 := snd(__v23785)
+  };
+  if (__v23785) {
+  return (false, lval)
+  } else {
+  __v23784 := "getCompletionValue"(___internal_esl_global, lval);
+  if (fst(__v23784)) {
+  return __v23784
+  } else {
+  __v23784 := snd(__v23784)
+  };
+  lval := __v23784
+  }
+  } else {
+  
+  };
+  __v23786 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
+  if (fst(__v23786)) {
+  return __v23786
+  } else {
+  __v23786 := snd(__v23786)
+  };
+  rref := __v23786;
+  __v23787 := "GetValue"(___internal_esl_global, rref);
+  if (fst(__v23787)) {
+  return __v23787
+  } else {
+  __v23787 := snd(__v23787)
+  };
+  rval := __v23787;
+  __v23788 := "Type"(___internal_esl_global, rval);
+  if (fst(__v23788)) {
+  return __v23788
+  } else {
+  __v23788 := snd(__v23788)
+  };
+  __v23789 := __v23788 = "Completion";
+  if (__v23789) {
+  __v23791 := "isAnAbruptCompletion"(___internal_esl_global, rval);
   if (fst(__v23791)) {
   return __v23791
   } else {
   __v23791 := snd(__v23791)
   };
-  lref := __v23791;
-  __v23792 := "GetValue"(___internal_esl_global, lref);
+  if (__v23791) {
+  return (false, rval)
+  } else {
+  __v23790 := "getCompletionValue"(___internal_esl_global, rval);
+  if (fst(__v23790)) {
+  return __v23790
+  } else {
+  __v23790 := snd(__v23790)
+  };
+  rval := __v23790
+  }
+  } else {
+  
+  };
+  __v23792 := "StrictEqualityComparison"(___internal_esl_global, rval, lval);
   if (fst(__v23792)) {
   return __v23792
   } else {
   __v23792 := snd(__v23792)
   };
-  lval := __v23792;
-  __v23793 := "JS_Interpreter_Expr"(___internal_esl_global, RightExpr, scope);
-  if (fst(__v23793)) {
-  return __v23793
+  r := __v23792;
+  __v23793 := r = true;
+  if (__v23793) {
+  return (false, false)
   } else {
-  __v23793 := snd(__v23793)
+  
   };
-  rref := __v23793;
-  __v23794 := "GetValue"(___internal_esl_global, rref);
-  if (fst(__v23794)) {
-  return __v23794
+  return (false, true)
   } else {
-  __v23794 := snd(__v23794)
+  __v23794 := "type" in_obj e;
+  __v23796 := e["type"];
+  __v23795 := __v23796 = "BinaryExpression";
+  __v23797 := "operator" in_obj e;
+  __v23799 := e["operator"];
+  __v23798 := __v23799 = "**";
+  __v23800 := "left" in_obj e;
+  __v23801 := "right" in_obj e;
+  if (true && __v23794 && __v23795 && __v23797 && __v23798 && __v23800 && __v23801) {
+  LeftExpr := e["left"];
+  RightExpr := e["right"];
+  __v23802 := "JS_Interpreter_Expr"(___internal_esl_global, LeftExpr, scope);
+  if (fst(__v23802)) {
+  return __v23802
+  } else {
+  __v23802 := snd(__v23802)
   };
-  rval := __v23794;
-  __v23795 := "ToNumber"(___internal_esl_global, lval);
-  if (fst(__v23795)) {
-  return __v23795
+  lref := __v23802;
+  __v23803 := "GetValue"(___internal_esl_global, lref);
+  if (fst(__v23803)) {
+  return __v23803
   } else {
-  __v23795 := snd(__v23795)
+  __v23803 := snd(__v23803)
   };
-  lnum := __v23795;
-  __v23796 := "ToNumber"(___internal_esl_global, rval);
-  if (fst(__v23796)) {
-  return __v23796
-  } else {
-  __v23796 := snd(__v23796)
-  };
-  rnum := __v23796;
-  __v23797 := lnum ** rnum;
-  x := __v23797;
-  return (false, x)
-  } else {
-  __v23798 := "type" in_obj e;
-  __v23800 := e["type"];
-  __v23799 := __v23800 = "BinaryExpression";
-  __v23801 := "operator" in_obj e;
-  __v23802 := "left" in_obj e;
-  __v23803 := "right" in_obj e;
-  if (true && __v23798 && __v23799 && __v23801 && __v23802 && __v23803) {
-  operator := e["operator"];
-  A := e["left"];
-  B := e["right"];
-  __v23804 := "JS_Interpreter_Expr"(___internal_esl_global, A, scope);
+  lval := __v23803;
+  __v23804 := "JS_Interpreter_Expr"(___internal_esl_global, RightExpr, scope);
   if (fst(__v23804)) {
   return __v23804
   } else {
   __v23804 := snd(__v23804)
   };
-  lref := __v23804;
-  __v23805 := "GetValue"(___internal_esl_global, lref);
+  rref := __v23804;
+  __v23805 := "GetValue"(___internal_esl_global, rref);
   if (fst(__v23805)) {
   return __v23805
   } else {
   __v23805 := snd(__v23805)
   };
-  lval := __v23805;
-  __v23806 := "Type"(___internal_esl_global, lval);
+  rval := __v23805;
+  __v23806 := "ToNumber"(___internal_esl_global, lval);
   if (fst(__v23806)) {
   return __v23806
   } else {
   __v23806 := snd(__v23806)
   };
-  __v23807 := __v23806 = "Completion";
-  if (__v23807) {
-  __v23809 := "isAnAbruptCompletion"(___internal_esl_global, lval);
-  if (fst(__v23809)) {
-  return __v23809
+  lnum := __v23806;
+  __v23807 := "ToNumber"(___internal_esl_global, rval);
+  if (fst(__v23807)) {
+  return __v23807
   } else {
-  __v23809 := snd(__v23809)
+  __v23807 := snd(__v23807)
   };
-  if (__v23809) {
-  return (false, lval)
+  rnum := __v23807;
+  __v23808 := lnum ** rnum;
+  x := __v23808;
+  return (false, x)
   } else {
-  __v23808 := "getCompletionValue"(___internal_esl_global, lval);
-  if (fst(__v23808)) {
-  return __v23808
-  } else {
-  __v23808 := snd(__v23808)
-  };
-  lval := __v23808
-  }
-  } else {
-  
-  };
-  __v23810 := "JS_Interpreter_Expr"(___internal_esl_global, B, scope);
-  if (fst(__v23810)) {
-  return __v23810
-  } else {
-  __v23810 := snd(__v23810)
-  };
-  rref := __v23810;
-  __v23811 := "GetValue"(___internal_esl_global, rref);
-  if (fst(__v23811)) {
-  return __v23811
-  } else {
-  __v23811 := snd(__v23811)
-  };
-  rval := __v23811;
-  __v23812 := "Type"(___internal_esl_global, rval);
-  if (fst(__v23812)) {
-  return __v23812
-  } else {
-  __v23812 := snd(__v23812)
-  };
-  __v23813 := __v23812 = "Completion";
-  if (__v23813) {
-  __v23815 := "isAnAbruptCompletion"(___internal_esl_global, rval);
+  __v23809 := "type" in_obj e;
+  __v23811 := e["type"];
+  __v23810 := __v23811 = "BinaryExpression";
+  __v23812 := "operator" in_obj e;
+  __v23813 := "left" in_obj e;
+  __v23814 := "right" in_obj e;
+  if (true && __v23809 && __v23810 && __v23812 && __v23813 && __v23814) {
+  operator := e["operator"];
+  A := e["left"];
+  B := e["right"];
+  __v23815 := "JS_Interpreter_Expr"(___internal_esl_global, A, scope);
   if (fst(__v23815)) {
   return __v23815
   } else {
   __v23815 := snd(__v23815)
   };
-  if (__v23815) {
-  return (false, rval)
-  } else {
-  __v23814 := "getCompletionValue"(___internal_esl_global, rval);
-  if (fst(__v23814)) {
-  return __v23814
-  } else {
-  __v23814 := snd(__v23814)
-  };
-  rval := __v23814
-  }
-  } else {
-  
-  };
-  __v23816 := "ToInt32"(___internal_esl_global, lval);
+  lref := __v23815;
+  __v23816 := "GetValue"(___internal_esl_global, lref);
   if (fst(__v23816)) {
   return __v23816
   } else {
   __v23816 := snd(__v23816)
   };
-  lnum := __v23816;
-  __v23817 := "Type"(___internal_esl_global, lnum);
+  lval := __v23816;
+  __v23817 := "Type"(___internal_esl_global, lval);
   if (fst(__v23817)) {
   return __v23817
   } else {
@@ -2751,68 +2674,145 @@ Tests compilation of ecmaref6:
   };
   __v23818 := __v23817 = "Completion";
   if (__v23818) {
-  __v23820 := "isAnAbruptCompletion"(___internal_esl_global, lnum);
+  __v23820 := "isAnAbruptCompletion"(___internal_esl_global, lval);
   if (fst(__v23820)) {
   return __v23820
   } else {
   __v23820 := snd(__v23820)
   };
   if (__v23820) {
-  return (false, lnum)
+  return (false, lval)
   } else {
-  __v23819 := "getCompletionValue"(___internal_esl_global, lnum);
+  __v23819 := "getCompletionValue"(___internal_esl_global, lval);
   if (fst(__v23819)) {
   return __v23819
   } else {
   __v23819 := snd(__v23819)
   };
-  lnum := __v23819
+  lval := __v23819
   }
   } else {
   
   };
-  __v23821 := "ToInt32"(___internal_esl_global, rval);
+  __v23821 := "JS_Interpreter_Expr"(___internal_esl_global, B, scope);
   if (fst(__v23821)) {
   return __v23821
   } else {
   __v23821 := snd(__v23821)
   };
-  rnum := __v23821;
-  __v23822 := "Type"(___internal_esl_global, rnum);
+  rref := __v23821;
+  __v23822 := "GetValue"(___internal_esl_global, rref);
   if (fst(__v23822)) {
   return __v23822
   } else {
   __v23822 := snd(__v23822)
   };
-  __v23823 := __v23822 = "Completion";
-  if (__v23823) {
-  __v23825 := "isAnAbruptCompletion"(___internal_esl_global, rnum);
-  if (fst(__v23825)) {
-  return __v23825
+  rval := __v23822;
+  __v23823 := "Type"(___internal_esl_global, rval);
+  if (fst(__v23823)) {
+  return __v23823
   } else {
-  __v23825 := snd(__v23825)
+  __v23823 := snd(__v23823)
   };
-  if (__v23825) {
-  return (false, rnum)
-  } else {
-  __v23824 := "getCompletionValue"(___internal_esl_global, rnum);
-  if (fst(__v23824)) {
-  return __v23824
-  } else {
-  __v23824 := snd(__v23824)
-  };
-  rnum := __v23824
-  }
-  } else {
-  
-  };
-  __v23826 := "applyBitwiseOperator"(___internal_esl_global, operator, lnum, rnum);
+  __v23824 := __v23823 = "Completion";
+  if (__v23824) {
+  __v23826 := "isAnAbruptCompletion"(___internal_esl_global, rval);
   if (fst(__v23826)) {
   return __v23826
   } else {
   __v23826 := snd(__v23826)
   };
-  return (false, __v23826)
+  if (__v23826) {
+  return (false, rval)
+  } else {
+  __v23825 := "getCompletionValue"(___internal_esl_global, rval);
+  if (fst(__v23825)) {
+  return __v23825
+  } else {
+  __v23825 := snd(__v23825)
+  };
+  rval := __v23825
+  }
+  } else {
+  
+  };
+  __v23827 := "ToInt32"(___internal_esl_global, lval);
+  if (fst(__v23827)) {
+  return __v23827
+  } else {
+  __v23827 := snd(__v23827)
+  };
+  lnum := __v23827;
+  __v23828 := "Type"(___internal_esl_global, lnum);
+  if (fst(__v23828)) {
+  return __v23828
+  } else {
+  __v23828 := snd(__v23828)
+  };
+  __v23829 := __v23828 = "Completion";
+  if (__v23829) {
+  __v23831 := "isAnAbruptCompletion"(___internal_esl_global, lnum);
+  if (fst(__v23831)) {
+  return __v23831
+  } else {
+  __v23831 := snd(__v23831)
+  };
+  if (__v23831) {
+  return (false, lnum)
+  } else {
+  __v23830 := "getCompletionValue"(___internal_esl_global, lnum);
+  if (fst(__v23830)) {
+  return __v23830
+  } else {
+  __v23830 := snd(__v23830)
+  };
+  lnum := __v23830
+  }
+  } else {
+  
+  };
+  __v23832 := "ToInt32"(___internal_esl_global, rval);
+  if (fst(__v23832)) {
+  return __v23832
+  } else {
+  __v23832 := snd(__v23832)
+  };
+  rnum := __v23832;
+  __v23833 := "Type"(___internal_esl_global, rnum);
+  if (fst(__v23833)) {
+  return __v23833
+  } else {
+  __v23833 := snd(__v23833)
+  };
+  __v23834 := __v23833 = "Completion";
+  if (__v23834) {
+  __v23836 := "isAnAbruptCompletion"(___internal_esl_global, rnum);
+  if (fst(__v23836)) {
+  return __v23836
+  } else {
+  __v23836 := snd(__v23836)
+  };
+  if (__v23836) {
+  return (false, rnum)
+  } else {
+  __v23835 := "getCompletionValue"(___internal_esl_global, rnum);
+  if (fst(__v23835)) {
+  return __v23835
+  } else {
+  __v23835 := snd(__v23835)
+  };
+  rnum := __v23835
+  }
+  } else {
+  
+  };
+  __v23837 := "applyBitwiseOperator"(___internal_esl_global, operator, lnum, rnum);
+  if (fst(__v23837)) {
+  return __v23837
+  } else {
+  __v23837 := snd(__v23837)
+  };
+  return (false, __v23837)
   }
   }
   }
@@ -2942,146 +2942,131 @@ Tests compilation of ecmaref6:
   __v23245 := "method" in_obj PropertyDefinition;
   __v23247 := PropertyDefinition["method"];
   __v23246 := __v23247 = false;
-  if (true && __v23237 && __v23238 && __v23239 && __v23240 && __v23242 && __v23243 && __v23245 && __v23246) {
+  __v23248 := "computed" in_obj PropertyDefinition;
+  if (true && __v23237 && __v23238 && __v23239 && __v23240 && __v23242 && __v23243 && __v23245 && __v23246 && __v23248) {
   PropertyName := PropertyDefinition["key"];
   AssignmentExpression := PropertyDefinition["value"];
-  __v23248 := "JS_Interpreter_PropertyName"(___internal_esl_global, PropertyName, scope);
-  if (fst(__v23248)) {
-  return __v23248
-  } else {
-  __v23248 := snd(__v23248)
-  };
-  propKey := __v23248;
-  __v23249 := "Type"(___internal_esl_global, propKey);
+  isComputedPropertyKey := PropertyDefinition["computed"];
+  __v23249 := "JS_Interpreter_PropertyName"(___internal_esl_global, PropertyName, scope);
   if (fst(__v23249)) {
   return __v23249
   } else {
   __v23249 := snd(__v23249)
   };
-  __v23250 := __v23249 = "Completion";
-  if (__v23250) {
-  __v23252 := "isAnAbruptCompletion"(___internal_esl_global, propKey);
-  if (fst(__v23252)) {
-  return __v23252
+  propKey := __v23249;
+  __v23250 := "Type"(___internal_esl_global, propKey);
+  if (fst(__v23250)) {
+  return __v23250
   } else {
-  __v23252 := snd(__v23252)
+  __v23250 := snd(__v23250)
   };
-  if (__v23252) {
-  return (false, propKey)
-  } else {
-  __v23251 := "getCompletionValue"(___internal_esl_global, propKey);
-  if (fst(__v23251)) {
-  return __v23251
-  } else {
-  __v23251 := snd(__v23251)
-  };
-  propKey := __v23251
-  }
-  } else {
-  
-  };
-  __v23253 := "JS_Interpreter_Expr"(___internal_esl_global, AssignmentExpression, scope);
+  __v23251 := __v23250 = "Completion";
+  if (__v23251) {
+  __v23253 := "isAnAbruptCompletion"(___internal_esl_global, propKey);
   if (fst(__v23253)) {
   return __v23253
   } else {
   __v23253 := snd(__v23253)
   };
-  exprValueRef := __v23253;
-  __v23254 := "GetValue"(___internal_esl_global, exprValueRef);
+  if (__v23253) {
+  return (false, propKey)
+  } else {
+  __v23252 := "getCompletionValue"(___internal_esl_global, propKey);
+  if (fst(__v23252)) {
+  return __v23252
+  } else {
+  __v23252 := snd(__v23252)
+  };
+  propKey := __v23252
+  }
+  } else {
+  
+  };
+  __v23254 := "JS_Interpreter_Expr"(___internal_esl_global, AssignmentExpression, scope);
   if (fst(__v23254)) {
   return __v23254
   } else {
   __v23254 := snd(__v23254)
   };
-  propValue := __v23254;
-  __v23255 := "Type"(___internal_esl_global, propValue);
+  exprValueRef := __v23254;
+  __v23255 := "GetValue"(___internal_esl_global, exprValueRef);
   if (fst(__v23255)) {
   return __v23255
   } else {
   __v23255 := snd(__v23255)
   };
-  __v23256 := __v23255 = "Completion";
-  if (__v23256) {
-  __v23258 := "isAnAbruptCompletion"(___internal_esl_global, propValue);
-  if (fst(__v23258)) {
-  return __v23258
+  propValue := __v23255;
+  __v23256 := "Type"(___internal_esl_global, propValue);
+  if (fst(__v23256)) {
+  return __v23256
   } else {
-  __v23258 := snd(__v23258)
+  __v23256 := snd(__v23256)
   };
-  if (__v23258) {
-  return (false, propValue)
-  } else {
-  __v23257 := "getCompletionValue"(___internal_esl_global, propValue);
-  if (fst(__v23257)) {
-  return __v23257
-  } else {
-  __v23257 := snd(__v23257)
-  };
-  propValue := __v23257
-  }
-  } else {
-  
-  };
-  __v23259 := "IsAnonymousFunctionDefinition"(___internal_esl_global, AssignmentExpression);
+  __v23257 := __v23256 = "Completion";
+  if (__v23257) {
+  __v23259 := "isAnAbruptCompletion"(___internal_esl_global, propValue);
   if (fst(__v23259)) {
   return __v23259
   } else {
   __v23259 := snd(__v23259)
   };
-  __v23260 := __v23259 = true;
-  if (__v23260) {
-  __v23261 := "HasOwnProperty"(___internal_esl_global, propValue, "name");
-  if (fst(__v23261)) {
-  return __v23261
+  if (__v23259) {
+  return (false, propValue)
   } else {
-  __v23261 := snd(__v23261)
+  __v23258 := "getCompletionValue"(___internal_esl_global, propValue);
+  if (fst(__v23258)) {
+  return __v23258
+  } else {
+  __v23258 := snd(__v23258)
   };
-  hasNameProperty := __v23261;
-  __v23262 := "Type"(___internal_esl_global, hasNameProperty);
-  if (fst(__v23262)) {
-  return __v23262
-  } else {
-  __v23262 := snd(__v23262)
-  };
-  __v23263 := __v23262 = "Completion";
-  if (__v23263) {
-  __v23265 := "isAnAbruptCompletion"(___internal_esl_global, hasNameProperty);
-  if (fst(__v23265)) {
-  return __v23265
-  } else {
-  __v23265 := snd(__v23265)
-  };
-  if (__v23265) {
-  return (false, hasNameProperty)
-  } else {
-  __v23264 := "getCompletionValue"(___internal_esl_global, hasNameProperty);
-  if (fst(__v23264)) {
-  return __v23264
-  } else {
-  __v23264 := snd(__v23264)
-  };
-  hasNameProperty := __v23264
+  propValue := __v23258
   }
   } else {
   
   };
-  __v23266 := hasNameProperty = false;
+  __v23260 := propKey = "__proto__";
+  if (__v23260 = false) {
+  __v23262 := false
+  } else {
+  __v23261 := isComputedPropertyKey = false;
+  if (__v23261 = false) {
+  __v23262 := false
+  } else {
+  __v23262 := true
+  }
+  };
+  if (__v23262) {
+  __v23263 := "Type"(___internal_esl_global, propValue);
+  if (fst(__v23263)) {
+  return __v23263
+  } else {
+  __v23263 := snd(__v23263)
+  };
+  propValueType := __v23263;
+  __v23264 := propValueType = "Object";
+  if (__v23264 = true) {
+  __v23266 := true
+  } else {
+  __v23265 := propValueType = "Null";
+  if (__v23265 = true) {
+  __v23266 := true
+  } else {
+  __v23266 := false
+  }
+  };
   if (__v23266) {
-  __v23267 := "SetFunctionName"(___internal_esl_global, propValue, propKey, null);
-  if (fst(__v23267)) {
-  return __v23267
+  __v23267 := object["SetPrototypeOf"];
+  __v23268 := __v23267(___internal_esl_global, object, propValue);
+  if (fst(__v23268)) {
+  return __v23268
   } else {
-  __v23267 := snd(__v23267)
-  }
-  } else {
-  
-  }
+  __v23268 := snd(__v23268)
+  };
+  return (false, __v23268)
   } else {
   
   };
-  __v23268 := enumerable = true;
-  assert __v23268;
-  __v23269 := "CreateDataPropertyOrThrow"(___internal_esl_global, object, propKey, propValue);
+  __v23269 := "NormalCompletion"(___internal_esl_global, 'empty);
   if (fst(__v23269)) {
   return __v23269
   } else {
@@ -3089,87 +3074,156 @@ Tests compilation of ecmaref6:
   };
   return (false, __v23269)
   } else {
-  __v23270 := "type" in_obj PropertyDefinition;
-  __v23272 := PropertyDefinition["type"];
-  __v23271 := __v23272 = "SpreadElement";
-  __v23273 := "argument" in_obj PropertyDefinition;
-  if (true && __v23270 && __v23271 && __v23273) {
-  AssignmentExpression := PropertyDefinition["argument"];
-  __v23274 := "JS_Interpreter_Expr"(___internal_esl_global, AssignmentExpression, scope);
-  if (fst(__v23274)) {
-  return __v23274
-  } else {
-  __v23274 := snd(__v23274)
+  
   };
-  exprValue := __v23274;
-  __v23275 := "GetValue"(___internal_esl_global, exprValue);
-  if (fst(__v23275)) {
-  return __v23275
+  __v23270 := "IsAnonymousFunctionDefinition"(___internal_esl_global, AssignmentExpression);
+  if (fst(__v23270)) {
+  return __v23270
   } else {
-  __v23275 := snd(__v23275)
+  __v23270 := snd(__v23270)
   };
-  fromValue := __v23275;
-  __v23276 := "Type"(___internal_esl_global, fromValue);
+  __v23271 := __v23270 = true;
+  if (__v23271) {
+  __v23272 := "HasOwnProperty"(___internal_esl_global, propValue, "name");
+  if (fst(__v23272)) {
+  return __v23272
+  } else {
+  __v23272 := snd(__v23272)
+  };
+  hasNameProperty := __v23272;
+  __v23273 := "Type"(___internal_esl_global, hasNameProperty);
+  if (fst(__v23273)) {
+  return __v23273
+  } else {
+  __v23273 := snd(__v23273)
+  };
+  __v23274 := __v23273 = "Completion";
+  if (__v23274) {
+  __v23276 := "isAnAbruptCompletion"(___internal_esl_global, hasNameProperty);
   if (fst(__v23276)) {
   return __v23276
   } else {
   __v23276 := snd(__v23276)
   };
-  __v23277 := __v23276 = "Completion";
-  if (__v23277) {
-  __v23279 := "isAnAbruptCompletion"(___internal_esl_global, fromValue);
-  if (fst(__v23279)) {
-  return __v23279
+  if (__v23276) {
+  return (false, hasNameProperty)
   } else {
-  __v23279 := snd(__v23279)
+  __v23275 := "getCompletionValue"(___internal_esl_global, hasNameProperty);
+  if (fst(__v23275)) {
+  return __v23275
+  } else {
+  __v23275 := snd(__v23275)
   };
-  if (__v23279) {
-  return (false, fromValue)
-  } else {
-  __v23278 := "getCompletionValue"(___internal_esl_global, fromValue);
-  if (fst(__v23278)) {
-  return __v23278
-  } else {
-  __v23278 := snd(__v23278)
-  };
-  fromValue := __v23278
+  hasNameProperty := __v23275
   }
   } else {
   
   };
-  __v23280 := [];
-  excludedNames := __v23280;
-  __v23281 := "CopyDataProperties"(___internal_esl_global, object, fromValue, excludedNames);
-  if (fst(__v23281)) {
-  return __v23281
+  __v23277 := hasNameProperty = false;
+  if (__v23277) {
+  __v23278 := "SetFunctionName"(___internal_esl_global, propValue, propKey, null);
+  if (fst(__v23278)) {
+  return __v23278
   } else {
-  __v23281 := snd(__v23281)
-  };
-  result := __v23281;
-  __v23282 := "Type"(___internal_esl_global, result);
-  if (fst(__v23282)) {
-  return __v23282
+  __v23278 := snd(__v23278)
+  }
   } else {
-  __v23282 := snd(__v23282)
+  
+  }
+  } else {
+  
   };
-  __v23283 := __v23282 = "Completion";
-  if (__v23283) {
-  __v23285 := "isAnAbruptCompletion"(___internal_esl_global, result);
+  __v23279 := enumerable = true;
+  assert __v23279;
+  __v23280 := "CreateDataPropertyOrThrow"(___internal_esl_global, object, propKey, propValue);
+  if (fst(__v23280)) {
+  return __v23280
+  } else {
+  __v23280 := snd(__v23280)
+  };
+  return (false, __v23280)
+  } else {
+  __v23281 := "type" in_obj PropertyDefinition;
+  __v23283 := PropertyDefinition["type"];
+  __v23282 := __v23283 = "SpreadElement";
+  __v23284 := "argument" in_obj PropertyDefinition;
+  if (true && __v23281 && __v23282 && __v23284) {
+  AssignmentExpression := PropertyDefinition["argument"];
+  __v23285 := "JS_Interpreter_Expr"(___internal_esl_global, AssignmentExpression, scope);
   if (fst(__v23285)) {
   return __v23285
   } else {
   __v23285 := snd(__v23285)
   };
-  if (__v23285) {
+  exprValue := __v23285;
+  __v23286 := "GetValue"(___internal_esl_global, exprValue);
+  if (fst(__v23286)) {
+  return __v23286
+  } else {
+  __v23286 := snd(__v23286)
+  };
+  fromValue := __v23286;
+  __v23287 := "Type"(___internal_esl_global, fromValue);
+  if (fst(__v23287)) {
+  return __v23287
+  } else {
+  __v23287 := snd(__v23287)
+  };
+  __v23288 := __v23287 = "Completion";
+  if (__v23288) {
+  __v23290 := "isAnAbruptCompletion"(___internal_esl_global, fromValue);
+  if (fst(__v23290)) {
+  return __v23290
+  } else {
+  __v23290 := snd(__v23290)
+  };
+  if (__v23290) {
+  return (false, fromValue)
+  } else {
+  __v23289 := "getCompletionValue"(___internal_esl_global, fromValue);
+  if (fst(__v23289)) {
+  return __v23289
+  } else {
+  __v23289 := snd(__v23289)
+  };
+  fromValue := __v23289
+  }
+  } else {
+  
+  };
+  __v23291 := [];
+  excludedNames := __v23291;
+  __v23292 := "CopyDataProperties"(___internal_esl_global, object, fromValue, excludedNames);
+  if (fst(__v23292)) {
+  return __v23292
+  } else {
+  __v23292 := snd(__v23292)
+  };
+  result := __v23292;
+  __v23293 := "Type"(___internal_esl_global, result);
+  if (fst(__v23293)) {
+  return __v23293
+  } else {
+  __v23293 := snd(__v23293)
+  };
+  __v23294 := __v23293 = "Completion";
+  if (__v23294) {
+  __v23296 := "isAnAbruptCompletion"(___internal_esl_global, result);
+  if (fst(__v23296)) {
+  return __v23296
+  } else {
+  __v23296 := snd(__v23296)
+  };
+  if (__v23296) {
   return (false, result)
   } else {
-  __v23284 := "getCompletionValue"(___internal_esl_global, result);
-  if (fst(__v23284)) {
-  return __v23284
+  __v23295 := "getCompletionValue"(___internal_esl_global, result);
+  if (fst(__v23295)) {
+  return __v23295
   } else {
-  __v23284 := snd(__v23284)
+  __v23295 := snd(__v23295)
   };
-  result := __v23284
+  result := __v23295
   }
   } else {
   
@@ -3177,13 +3231,13 @@ Tests compilation of ecmaref6:
   return (false, result)
   } else {
   if (true) {
-  __v23286 := "MethodPropertyDefinitionEvaluation"(___internal_esl_global, scope, object, enumerable, PropertyDefinition);
-  if (fst(__v23286)) {
-  return __v23286
+  __v23297 := "MethodPropertyDefinitionEvaluation"(___internal_esl_global, scope, object, enumerable, PropertyDefinition);
+  if (fst(__v23297)) {
+  return __v23297
   } else {
-  __v23286 := snd(__v23286)
+  __v23297 := snd(__v23297)
   };
-  return (false, __v23286)
+  return (false, __v23297)
   }
   }
   }
@@ -4816,13 +4870,13 @@ Tests compilation of ecmaref6:
   }
   };
   function __lambda__24(m_tl, k, ___internal_esl_global, st') {
-  __v23897 := m_tl(___internal_esl_global, st', k);
-  if (fst(__v23897)) {
-  return __v23897
+  __v23908 := m_tl(___internal_esl_global, st', k);
+  if (fst(__v23908)) {
+  return __v23908
   } else {
-  __v23897 := snd(__v23897)
+  __v23908 := snd(__v23908)
   };
-  return (false, __v23897)
+  return (false, __v23908)
   };
   function newSetAccessorPropertyDescriptorFull(___internal_esl_global, set, enumerable, configurable) {
   __v22936 := "NewPropertyDescriptor"(___internal_esl_global);
@@ -10400,44 +10454,44 @@ Tests compilation of ecmaref6:
   return (false, __v21807)
   };
   function __lambda__4(st, m, bounds, k, index, parenIndex, parenCount, ___internal_esl_global, st') {
-  __v23992 := bounds["inf"];
-  __v23993 := __v23992 = 0.0;
-  if (__v23993 = false) {
-  __v23996 := false
+  __v24003 := bounds["inf"];
+  __v24004 := __v24003 = 0.0;
+  if (__v24004 = false) {
+  __v24007 := false
   } else {
-  __v23994 := st'["endIndex"];
-  __v23995 := index = __v23994;
-  if (__v23995 = false) {
-  __v23996 := false
+  __v24005 := st'["endIndex"];
+  __v24006 := index = __v24005;
+  if (__v24006 = false) {
+  __v24007 := false
   } else {
-  __v23996 := true
+  __v24007 := true
   }
   };
-  if (__v23996) {
-  __v23997 := k(___internal_esl_global, st');
-  if (fst(__v23997)) {
-  return __v23997
+  if (__v24007) {
+  __v24008 := k(___internal_esl_global, st');
+  if (fst(__v24008)) {
+  return __v24008
   } else {
-  __v23997 := snd(__v23997)
+  __v24008 := snd(__v24008)
   };
-  return (false, __v23997)
+  return (false, __v24008)
   } else {
   
   };
-  __v23998 := "decrementBounds"(___internal_esl_global, bounds);
-  if (fst(__v23998)) {
-  return __v23998
+  __v24009 := "decrementBounds"(___internal_esl_global, bounds);
+  if (fst(__v24009)) {
+  return __v24009
   } else {
-  __v23998 := snd(__v23998)
+  __v24009 := snd(__v24009)
   };
-  bounds' := __v23998;
-  __v23999 := "JS_Interpreter_Repetition_Greedy"(___internal_esl_global, m, bounds', st', k, parenIndex, parenCount);
-  if (fst(__v23999)) {
-  return __v23999
+  bounds' := __v24009;
+  __v24010 := "JS_Interpreter_Repetition_Greedy"(___internal_esl_global, m, bounds', st', k, parenIndex, parenCount);
+  if (fst(__v24010)) {
+  return __v24010
   } else {
-  __v23999 := snd(__v23999)
+  __v24010 := snd(__v24010)
   };
-  return (false, __v23999)
+  return (false, __v24010)
   };
   function ObjectGetOwnPropertyNames(___internal_esl_global, globalObject, this, NewTarget, strict, params) {
   __v21804 := l_nth(params, 0);
@@ -11304,13 +11358,13 @@ Tests compilation of ecmaref6:
   return (false, __v21638)
   };
   function __lambda__36(executor, ___internal_esl_global, global, this, NewTarget, strict, args) {
-  __v23990 := "GetCapabilitiesExecutorFunctions"(___internal_esl_global, executor, global, this, strict, args);
-  if (fst(__v23990)) {
-  return __v23990
+  __v24001 := "GetCapabilitiesExecutorFunctions"(___internal_esl_global, executor, global, this, strict, args);
+  if (fst(__v24001)) {
+  return __v24001
   } else {
-  __v23990 := snd(__v23990)
+  __v24001 := snd(__v24001)
   };
-  return (false, __v23990)
+  return (false, __v24001)
   };
   function setContainedInStrictCode(___internal_esl_global, execCtx, strictCode) {
   execCtx["strictCode"] := strictCode;
@@ -24245,20 +24299,20 @@ Tests compilation of ecmaref6:
   return (false, O)
   };
   function __lambda__1(name, lexicalEnvironment, ___internal_esl_global, scope, this, newTarget, strict, args) {
-  __v23827 := l_nth(args, 0);
-  param := __v23827;
-  __v23828 := "getEnvironmentRecord"(___internal_esl_global, lexicalEnvironment);
-  if (fst(__v23828)) {
-  return __v23828
+  __v23838 := l_nth(args, 0);
+  param := __v23838;
+  __v23839 := "getEnvironmentRecord"(___internal_esl_global, lexicalEnvironment);
+  if (fst(__v23839)) {
+  return __v23839
   } else {
-  __v23828 := snd(__v23828)
+  __v23839 := snd(__v23839)
   };
-  envRec := __v23828;
-  __v23829 := "setBindingValue"(___internal_esl_global, envRec, name, param);
-  if (fst(__v23829)) {
-  return __v23829
+  envRec := __v23839;
+  __v23840 := "setBindingValue"(___internal_esl_global, envRec, name, param);
+  if (fst(__v23840)) {
+  return __v23840
   } else {
-  __v23829 := snd(__v23829)
+  __v23840 := snd(__v23840)
   };
   return (false, 'undefined)
   };
@@ -29537,53 +29591,53 @@ Tests compilation of ecmaref6:
   return (false, null)
   };
   function __lambda__9(___internal_esl_global, st) {
-  __v23978 := st["endIndex"];
-  e := __v23978;
-  __v23979 := e - 1;
-  __v23980 := st["str"];
-  __v23981 := "IsWordChar"(___internal_esl_global, __v23979, __v23980);
-  if (fst(__v23981)) {
-  return __v23981
+  __v23989 := st["endIndex"];
+  e := __v23989;
+  __v23990 := e - 1;
+  __v23991 := st["str"];
+  __v23992 := "IsWordChar"(___internal_esl_global, __v23990, __v23991);
+  if (fst(__v23992)) {
+  return __v23992
   } else {
-  __v23981 := snd(__v23981)
+  __v23992 := snd(__v23992)
   };
-  a := __v23981;
-  __v23982 := st["str"];
-  __v23983 := "IsWordChar"(___internal_esl_global, e, __v23982);
-  if (fst(__v23983)) {
-  return __v23983
+  a := __v23992;
+  __v23993 := st["str"];
+  __v23994 := "IsWordChar"(___internal_esl_global, e, __v23993);
+  if (fst(__v23994)) {
+  return __v23994
   } else {
-  __v23983 := snd(__v23983)
+  __v23994 := snd(__v23994)
   };
-  b := __v23983;
-  __v23984 := a = true;
-  if (__v23984 = false) {
-  __v23986 := false
+  b := __v23994;
+  __v23995 := a = true;
+  if (__v23995 = false) {
+  __v23997 := false
   } else {
-  __v23985 := b = false;
-  if (__v23985 = false) {
-  __v23986 := false
+  __v23996 := b = false;
+  if (__v23996 = false) {
+  __v23997 := false
   } else {
-  __v23986 := true
+  __v23997 := true
   }
   };
-  if (__v23986) {
+  if (__v23997) {
   return (false, false)
   } else {
   
   };
-  __v23987 := a = false;
-  if (__v23987 = false) {
-  __v23989 := false
+  __v23998 := a = false;
+  if (__v23998 = false) {
+  __v24000 := false
   } else {
-  __v23988 := b = true;
-  if (__v23988 = false) {
-  __v23989 := false
+  __v23999 := b = true;
+  if (__v23999 = false) {
+  __v24000 := false
   } else {
-  __v23989 := true
+  __v24000 := true
   }
   };
-  if (__v23989) {
+  if (__v24000) {
   return (false, false)
   } else {
   
@@ -33558,13 +33612,13 @@ Tests compilation of ecmaref6:
   return (false, __v17329)
   };
   function __lambda__19(m', bounds, ___internal_esl_global, st, k) {
-  __v23867 := "JS_Interpreter_Repetition_NonGreedy"(___internal_esl_global, m', bounds, st, k);
-  if (fst(__v23867)) {
-  return __v23867
+  __v23878 := "JS_Interpreter_Repetition_NonGreedy"(___internal_esl_global, m', bounds, st, k);
+  if (fst(__v23878)) {
+  return __v23878
   } else {
-  __v23867 := snd(__v23867)
+  __v23878 := snd(__v23878)
   };
-  return (false, __v23867)
+  return (false, __v23878)
   };
   function setConfigurability(___internal_esl_global, obj, prop, b) {
   __v17313 := "getJSProperty"(___internal_esl_global, obj, prop);
@@ -34187,35 +34241,35 @@ Tests compilation of ecmaref6:
   return (false, __v17217)
   };
   function __lambda__16(m', ___internal_esl_global, st, k) {
-  __v23860 := st["endIndex"];
-  oldIndex := __v23860;
+  __v23871 := st["endIndex"];
+  oldIndex := __v23871;
   k_id := {"__lambda__15"}@();
-  __v23861 := m'(___internal_esl_global, st, k_id);
-  if (fst(__v23861)) {
-  return __v23861
+  __v23872 := m'(___internal_esl_global, st, k_id);
+  if (fst(__v23872)) {
+  return __v23872
   } else {
-  __v23861 := snd(__v23861)
+  __v23872 := snd(__v23872)
   };
-  r := __v23861;
-  __v23862 := "isFailure"(___internal_esl_global, r);
-  if (fst(__v23862)) {
-  return __v23862
+  r := __v23872;
+  __v23873 := "isFailure"(___internal_esl_global, r);
+  if (fst(__v23873)) {
+  return __v23873
   } else {
-  __v23862 := snd(__v23862)
+  __v23873 := snd(__v23873)
   };
-  if (__v23862) {
+  if (__v23873) {
   return (false, r)
   } else {
   
   };
   r["endIndex"] := oldIndex;
-  __v23863 := k(___internal_esl_global, r);
-  if (fst(__v23863)) {
-  return __v23863
+  __v23874 := k(___internal_esl_global, r);
+  if (fst(__v23874)) {
+  return __v23874
   } else {
-  __v23863 := snd(__v23863)
+  __v23874 := snd(__v23874)
   };
-  return (false, __v23863)
+  return (false, __v23874)
   };
   function OrdinaryObjectGetPrototypeOf(___internal_esl_global, O) {
   __v17211 := O["Prototype"];
@@ -39170,36 +39224,36 @@ Tests compilation of ecmaref6:
   return (false, result)
   };
   function __lambda__28(v, ___internal_esl_global, st, k) {
-  __v23908 := "stateGetChar"(___internal_esl_global, st);
-  if (fst(__v23908)) {
-  return __v23908
+  __v23919 := "stateGetChar"(___internal_esl_global, st);
+  if (fst(__v23919)) {
+  return __v23919
   } else {
-  __v23908 := snd(__v23908)
+  __v23919 := snd(__v23919)
   };
-  c := __v23908;
-  __v23909 := c = null;
-  if (__v23909) {
+  c := __v23919;
+  __v23920 := c = null;
+  if (__v23920) {
   return (false, null)
   } else {
   
   };
-  __v23910 := hex_decode(v);
-  v := __v23910;
-  __v23911 := c = v;
-  if (__v23911) {
-  __v23912 := "stateNext"(___internal_esl_global, st);
-  if (fst(__v23912)) {
-  return __v23912
+  __v23921 := hex_decode(v);
+  v := __v23921;
+  __v23922 := c = v;
+  if (__v23922) {
+  __v23923 := "stateNext"(___internal_esl_global, st);
+  if (fst(__v23923)) {
+  return __v23923
   } else {
-  __v23912 := snd(__v23912)
+  __v23923 := snd(__v23923)
   };
-  __v23913 := k(___internal_esl_global, st);
-  if (fst(__v23913)) {
-  return __v23913
+  __v23924 := k(___internal_esl_global, st);
+  if (fst(__v23924)) {
+  return __v23924
   } else {
-  __v23913 := snd(__v23913)
+  __v23924 := snd(__v23924)
   };
-  return (false, __v23913)
+  return (false, __v23924)
   } else {
   return (false, null)
   }
@@ -40823,13 +40877,13 @@ Tests compilation of ecmaref6:
   };
   function __lambda__25(m_hd, m_tl, ___internal_esl_global, st, k) {
   k' := {"__lambda__24"}@(m_tl, k);
-  __v23896 := m_hd(___internal_esl_global, st, k');
-  if (fst(__v23896)) {
-  return __v23896
+  __v23907 := m_hd(___internal_esl_global, st, k');
+  if (fst(__v23907)) {
+  return __v23907
   } else {
-  __v23896 := snd(__v23896)
+  __v23907 := snd(__v23907)
   };
-  return (false, __v23896)
+  return (false, __v23907)
   };
   function ArrayDefineOwnProperty(___internal_esl_global, A, P, Desc) {
   __v15912 := "IsPropertyKey"(___internal_esl_global, P);
@@ -45476,22 +45530,22 @@ Tests compilation of ecmaref6:
   return (false, this)
   };
   function __lambda__35(reject, ___internal_esl_global, global, this, NewTarget, strict, args) {
-  __v23947 := "PromiseRejectFunctions"(___internal_esl_global, reject, global, this, strict, args);
-  if (fst(__v23947)) {
-  return __v23947
+  __v23958 := "PromiseRejectFunctions"(___internal_esl_global, reject, global, this, strict, args);
+  if (fst(__v23958)) {
+  return __v23958
   } else {
-  __v23947 := snd(__v23947)
+  __v23958 := snd(__v23958)
   };
-  return (false, __v23947)
+  return (false, __v23958)
   };
   function __lambda__18(m', bounds, parenIndex, parenCount, ___internal_esl_global, st, k) {
-  __v23866 := "JS_Interpreter_Repetition_Greedy"(___internal_esl_global, m', bounds, st, k, parenIndex, parenCount);
-  if (fst(__v23866)) {
-  return __v23866
+  __v23877 := "JS_Interpreter_Repetition_Greedy"(___internal_esl_global, m', bounds, st, k, parenIndex, parenCount);
+  if (fst(__v23877)) {
+  return __v23877
   } else {
-  __v23866 := snd(__v23866)
+  __v23877 := snd(__v23877)
   };
-  return (false, __v23866)
+  return (false, __v23877)
   };
   function DateNow(___internal_esl_global, globalObject, this, NewTarget, strict, args) {
   __v15004 := "getTimeValueIdentifyingCurrentTime"(___internal_esl_global);
@@ -47171,56 +47225,56 @@ Tests compilation of ecmaref6:
   }
   };
   function __lambda__31(v, ___internal_esl_global, st, k) {
-  __v23931 := "stateGetChar"(___internal_esl_global, st);
-  if (fst(__v23931)) {
-  return __v23931
-  } else {
-  __v23931 := snd(__v23931)
-  };
-  c := __v23931;
-  __v23932 := c = null;
-  if (__v23932) {
-  return (false, null)
-  } else {
-  
-  };
-  __v23934 := to_char_code_u(c);
-  __v23933 := int_to_float(__v23934);
-  c_code := __v23933;
-  __v23935 := st["ic"];
-  __v23936 := "canonicalise"(___internal_esl_global, c, c_code, __v23935);
-  if (fst(__v23936)) {
-  return __v23936
-  } else {
-  __v23936 := snd(__v23936)
-  };
-  c_code := __v23936;
-  __v23938 := to_char_code_u(v);
-  __v23937 := int_to_float(__v23938);
-  v_code := __v23937;
-  __v23939 := st["ic"];
-  __v23940 := "canonicalise"(___internal_esl_global, v, v_code, __v23939);
-  if (fst(__v23940)) {
-  return __v23940
-  } else {
-  __v23940 := snd(__v23940)
-  };
-  v_code := __v23940;
-  __v23941 := c_code = v_code;
-  if (__v23941) {
-  __v23942 := "stateNext"(___internal_esl_global, st);
+  __v23942 := "stateGetChar"(___internal_esl_global, st);
   if (fst(__v23942)) {
   return __v23942
   } else {
   __v23942 := snd(__v23942)
   };
-  __v23943 := k(___internal_esl_global, st);
-  if (fst(__v23943)) {
-  return __v23943
+  c := __v23942;
+  __v23943 := c = null;
+  if (__v23943) {
+  return (false, null)
   } else {
-  __v23943 := snd(__v23943)
+  
   };
-  return (false, __v23943)
+  __v23945 := to_char_code_u(c);
+  __v23944 := int_to_float(__v23945);
+  c_code := __v23944;
+  __v23946 := st["ic"];
+  __v23947 := "canonicalise"(___internal_esl_global, c, c_code, __v23946);
+  if (fst(__v23947)) {
+  return __v23947
+  } else {
+  __v23947 := snd(__v23947)
+  };
+  c_code := __v23947;
+  __v23949 := to_char_code_u(v);
+  __v23948 := int_to_float(__v23949);
+  v_code := __v23948;
+  __v23950 := st["ic"];
+  __v23951 := "canonicalise"(___internal_esl_global, v, v_code, __v23950);
+  if (fst(__v23951)) {
+  return __v23951
+  } else {
+  __v23951 := snd(__v23951)
+  };
+  v_code := __v23951;
+  __v23952 := c_code = v_code;
+  if (__v23952) {
+  __v23953 := "stateNext"(___internal_esl_global, st);
+  if (fst(__v23953)) {
+  return __v23953
+  } else {
+  __v23953 := snd(__v23953)
+  };
+  __v23954 := k(___internal_esl_global, st);
+  if (fst(__v23954)) {
+  return __v23954
+  } else {
+  __v23954 := snd(__v23954)
+  };
+  return (false, __v23954)
   } else {
   return (false, null)
   }
@@ -47276,34 +47330,34 @@ Tests compilation of ecmaref6:
   return (false, properties)
   };
   function __lambda__29(v, ___internal_esl_global, st, k) {
-  __v23914 := "stateGetChar"(___internal_esl_global, st);
-  if (fst(__v23914)) {
-  return __v23914
+  __v23925 := "stateGetChar"(___internal_esl_global, st);
+  if (fst(__v23925)) {
+  return __v23925
   } else {
-  __v23914 := snd(__v23914)
+  __v23925 := snd(__v23925)
   };
-  c := __v23914;
-  __v23915 := c = null;
-  if (__v23915) {
+  c := __v23925;
+  __v23926 := c = null;
+  if (__v23926) {
   return (false, null)
   } else {
   
   };
-  __v23916 := c = v;
-  if (__v23916) {
-  __v23917 := "stateNext"(___internal_esl_global, st);
-  if (fst(__v23917)) {
-  return __v23917
+  __v23927 := c = v;
+  if (__v23927) {
+  __v23928 := "stateNext"(___internal_esl_global, st);
+  if (fst(__v23928)) {
+  return __v23928
   } else {
-  __v23917 := snd(__v23917)
+  __v23928 := snd(__v23928)
   };
-  __v23918 := k(___internal_esl_global, st);
-  if (fst(__v23918)) {
-  return __v23918
+  __v23929 := k(___internal_esl_global, st);
+  if (fst(__v23929)) {
+  return __v23929
   } else {
-  __v23918 := snd(__v23918)
+  __v23929 := snd(__v23929)
   };
-  return (false, __v23918)
+  return (false, __v23929)
   } else {
   return (false, null)
   }
@@ -47465,13 +47519,13 @@ Tests compilation of ecmaref6:
   return (false, __v14693)
   };
   function __lambda__10(___internal_esl_global, st, k) {
-  __v23845 := k(___internal_esl_global, st);
-  if (fst(__v23845)) {
-  return __v23845
+  __v23856 := k(___internal_esl_global, st);
+  if (fst(__v23856)) {
+  return __v23856
   } else {
-  __v23845 := snd(__v23845)
+  __v23856 := snd(__v23856)
   };
-  return (false, __v23845)
+  return (false, __v23856)
   };
   function HasRestrictedGlobalProperty(___internal_esl_global, envRec, N) {
   __v14655 := envRec["ObjectRecord"];
@@ -50791,30 +50845,30 @@ Tests compilation of ecmaref6:
   return (false, __v14061)
   };
   function __lambda__6(___internal_esl_global, st) {
-  __v23948 := st["endIndex"];
-  e := __v23948;
-  __v23949 := e = 0;
-  if (__v23949) {
+  __v23959 := st["endIndex"];
+  e := __v23959;
+  __v23960 := e = 0;
+  if (__v23960) {
   return (false, true)
   } else {
   
   };
-  __v23955 := st["ml"];
-  __v23954 := !__v23955;
-  if (__v23954) {
+  __v23966 := st["ml"];
+  __v23965 := !__v23966;
+  if (__v23965) {
   return (false, false)
   } else {
-  __v23950 := st["str"];
-  __v23951 := e - 1;
-  __v23952 := s_nth_u(__v23950, __v23951);
-  c := __v23952;
-  __v23953 := "isLineTerminator"(___internal_esl_global, c);
-  if (fst(__v23953)) {
-  return __v23953
+  __v23961 := st["str"];
+  __v23962 := e - 1;
+  __v23963 := s_nth_u(__v23961, __v23962);
+  c := __v23963;
+  __v23964 := "isLineTerminator"(___internal_esl_global, c);
+  if (fst(__v23964)) {
+  return __v23964
   } else {
-  __v23953 := snd(__v23953)
+  __v23964 := snd(__v23964)
   };
-  return (false, __v23953)
+  return (false, __v23964)
   }
   };
   function OrdinaryObjectEnumerateAux(___internal_esl_global, O) {
@@ -51008,20 +51062,20 @@ Tests compilation of ecmaref6:
   return (false, K)
   };
   function __lambda__17(t, ___internal_esl_global, st, k) {
-  __v23864 := t(___internal_esl_global, st);
-  if (fst(__v23864)) {
-  return __v23864
+  __v23875 := t(___internal_esl_global, st);
+  if (fst(__v23875)) {
+  return __v23875
   } else {
-  __v23864 := snd(__v23864)
+  __v23875 := snd(__v23875)
   };
-  if (__v23864) {
-  __v23865 := k(___internal_esl_global, st);
-  if (fst(__v23865)) {
-  return __v23865
+  if (__v23875) {
+  __v23876 := k(___internal_esl_global, st);
+  if (fst(__v23876)) {
+  return __v23876
   } else {
-  __v23865 := snd(__v23865)
+  __v23876 := snd(__v23876)
   };
-  return (false, __v23865)
+  return (false, __v23876)
   } else {
   
   };
@@ -54580,16 +54634,16 @@ Tests compilation of ecmaref6:
   return (false, __v13378)
   };
   function __lambda__22(m', i, ___internal_esl_global, st, k) {
-  __v23883 := st["endIndex"];
-  old_i := __v23883;
+  __v23894 := st["endIndex"];
+  old_i := __v23894;
   k' := {"__lambda__21"}@(st, k, old_i, i);
-  __v23884 := m'(___internal_esl_global, st, k');
-  if (fst(__v23884)) {
-  return __v23884
+  __v23895 := m'(___internal_esl_global, st, k');
+  if (fst(__v23895)) {
+  return __v23895
   } else {
-  __v23884 := snd(__v23884)
+  __v23895 := snd(__v23895)
   };
-  return (false, __v23884)
+  return (false, __v23895)
   };
   function arrayJoin(___internal_esl_global, global, this, NewTarget, strict, args) {
   __v13319 := l_nth(args, 0);
@@ -55301,34 +55355,34 @@ Tests compilation of ecmaref6:
   return (false, true)
   };
   function __lambda__23(m_l, m_r, ___internal_esl_global, st, k) {
-  __v23892 := "copyState"(___internal_esl_global, st);
-  if (fst(__v23892)) {
-  return __v23892
+  __v23903 := "copyState"(___internal_esl_global, st);
+  if (fst(__v23903)) {
+  return __v23903
   } else {
-  __v23892 := snd(__v23892)
+  __v23903 := snd(__v23903)
   };
-  st' := __v23892;
-  __v23893 := m_l(___internal_esl_global, st, k);
-  if (fst(__v23893)) {
-  return __v23893
+  st' := __v23903;
+  __v23904 := m_l(___internal_esl_global, st, k);
+  if (fst(__v23904)) {
+  return __v23904
   } else {
-  __v23893 := snd(__v23893)
+  __v23904 := snd(__v23904)
   };
-  r := __v23893;
-  __v23894 := "isFailure"(___internal_esl_global, r);
-  if (fst(__v23894)) {
-  return __v23894
+  r := __v23904;
+  __v23905 := "isFailure"(___internal_esl_global, r);
+  if (fst(__v23905)) {
+  return __v23905
   } else {
-  __v23894 := snd(__v23894)
+  __v23905 := snd(__v23905)
   };
-  if (__v23894) {
-  __v23895 := m_r(___internal_esl_global, st', k);
-  if (fst(__v23895)) {
-  return __v23895
+  if (__v23905) {
+  __v23906 := m_r(___internal_esl_global, st', k);
+  if (fst(__v23906)) {
+  return __v23906
   } else {
-  __v23895 := snd(__v23895)
+  __v23906 := snd(__v23906)
   };
-  return (false, __v23895)
+  return (false, __v23906)
   } else {
   
   };
@@ -59477,26 +59531,26 @@ Tests compilation of ecmaref6:
   return (false, handlerProto)
   };
   function __lambda__21(st, k, old_i, i, ___internal_esl_global, st') {
-  __v23885 := st'["endIndex"];
-  __v23886 := __v23885 - old_i;
-  len := __v23886;
-  __v23887 := st'["str"];
-  __v23888 := s_substr_u(__v23887, old_i, len);
-  str := __v23888;
-  __v23889 := int_of_float(i);
-  __v23890 := "stateSetCap"(___internal_esl_global, st', __v23889, str);
-  if (fst(__v23890)) {
-  return __v23890
+  __v23896 := st'["endIndex"];
+  __v23897 := __v23896 - old_i;
+  len := __v23897;
+  __v23898 := st'["str"];
+  __v23899 := s_substr_u(__v23898, old_i, len);
+  str := __v23899;
+  __v23900 := int_of_float(i);
+  __v23901 := "stateSetCap"(___internal_esl_global, st', __v23900, str);
+  if (fst(__v23901)) {
+  return __v23901
   } else {
-  __v23890 := snd(__v23890)
+  __v23901 := snd(__v23901)
   };
-  __v23891 := k(___internal_esl_global, st');
-  if (fst(__v23891)) {
-  return __v23891
+  __v23902 := k(___internal_esl_global, st');
+  if (fst(__v23902)) {
+  return __v23902
   } else {
-  __v23891 := snd(__v23891)
+  __v23902 := snd(__v23902)
   };
-  return (false, __v23891)
+  return (false, __v23902)
   };
   function initObjectConstructor(___internal_esl_global, ObjectPrototype, FunctionPrototype, globalObject, strict) {
   __v12499 := ["value"];
@@ -59812,46 +59866,46 @@ Tests compilation of ecmaref6:
   return (false, __v12443)
   };
   function __lambda__30(v, ___internal_esl_global, st, k) {
-  __v23919 := to_upper_case(v);
-  v := __v23919;
-  __v23920 := s_nth_u(v, 2);
-  v := __v23920;
-  __v23922 := to_char_code_u(v);
-  __v23921 := int_to_float(__v23922);
-  v_code := __v23921;
-  __v23923 := v_code % 32.0;
-  v_code := __v23923;
-  __v23924 := "stateGetChar"(___internal_esl_global, st);
-  if (fst(__v23924)) {
-  return __v23924
+  __v23930 := to_upper_case(v);
+  v := __v23930;
+  __v23931 := s_nth_u(v, 2);
+  v := __v23931;
+  __v23933 := to_char_code_u(v);
+  __v23932 := int_to_float(__v23933);
+  v_code := __v23932;
+  __v23934 := v_code % 32.0;
+  v_code := __v23934;
+  __v23935 := "stateGetChar"(___internal_esl_global, st);
+  if (fst(__v23935)) {
+  return __v23935
   } else {
-  __v23924 := snd(__v23924)
+  __v23935 := snd(__v23935)
   };
-  c := __v23924;
-  __v23926 := to_char_code_u(c);
-  __v23925 := int_to_float(__v23926);
-  c_code := __v23925;
-  __v23927 := c = null;
-  if (__v23927) {
+  c := __v23935;
+  __v23937 := to_char_code_u(c);
+  __v23936 := int_to_float(__v23937);
+  c_code := __v23936;
+  __v23938 := c = null;
+  if (__v23938) {
   return (false, null)
   } else {
   
   };
-  __v23928 := c_code = v_code;
-  if (__v23928) {
-  __v23929 := "stateNext"(___internal_esl_global, st);
-  if (fst(__v23929)) {
-  return __v23929
+  __v23939 := c_code = v_code;
+  if (__v23939) {
+  __v23940 := "stateNext"(___internal_esl_global, st);
+  if (fst(__v23940)) {
+  return __v23940
   } else {
-  __v23929 := snd(__v23929)
+  __v23940 := snd(__v23940)
   };
-  __v23930 := k(___internal_esl_global, st);
-  if (fst(__v23930)) {
-  return __v23930
+  __v23941 := k(___internal_esl_global, st);
+  if (fst(__v23941)) {
+  return __v23941
   } else {
-  __v23930 := snd(__v23930)
+  __v23941 := snd(__v23941)
   };
-  return (false, __v23930)
+  return (false, __v23941)
   } else {
   return (false, null)
   }
@@ -60549,13 +60603,13 @@ Tests compilation of ecmaref6:
   return (false, "Lambda")
   };
   function __lambda__34(resolve, ___internal_esl_global, global, this, NewTarget, strict, args) {
-  __v23946 := "PromiseResolveFunctions"(___internal_esl_global, resolve, global, this, strict, args);
-  if (fst(__v23946)) {
-  return __v23946
+  __v23957 := "PromiseResolveFunctions"(___internal_esl_global, resolve, global, this, strict, args);
+  if (fst(__v23957)) {
+  return __v23957
   } else {
-  __v23946 := snd(__v23946)
+  __v23957 := snd(__v23957)
   };
-  return (false, __v23946)
+  return (false, __v23957)
   };
   function DataViewPrototypeSetUint8(___internal_esl_global, global, this, NewTarget, strict, args) {
   __v12323 := "getOptionalParam"(___internal_esl_global, args, 0);
@@ -62188,53 +62242,53 @@ Tests compilation of ecmaref6:
   return (false, false)
   };
   function __lambda__8(___internal_esl_global, st) {
-  __v23966 := st["endIndex"];
-  e := __v23966;
-  __v23967 := e - 1;
-  __v23968 := st["str"];
-  __v23969 := "IsWordChar"(___internal_esl_global, __v23967, __v23968);
-  if (fst(__v23969)) {
-  return __v23969
+  __v23977 := st["endIndex"];
+  e := __v23977;
+  __v23978 := e - 1;
+  __v23979 := st["str"];
+  __v23980 := "IsWordChar"(___internal_esl_global, __v23978, __v23979);
+  if (fst(__v23980)) {
+  return __v23980
   } else {
-  __v23969 := snd(__v23969)
+  __v23980 := snd(__v23980)
   };
-  a := __v23969;
-  __v23970 := st["str"];
-  __v23971 := "IsWordChar"(___internal_esl_global, e, __v23970);
-  if (fst(__v23971)) {
-  return __v23971
+  a := __v23980;
+  __v23981 := st["str"];
+  __v23982 := "IsWordChar"(___internal_esl_global, e, __v23981);
+  if (fst(__v23982)) {
+  return __v23982
   } else {
-  __v23971 := snd(__v23971)
+  __v23982 := snd(__v23982)
   };
-  b := __v23971;
-  __v23972 := a = true;
-  if (__v23972 = false) {
-  __v23974 := false
+  b := __v23982;
+  __v23983 := a = true;
+  if (__v23983 = false) {
+  __v23985 := false
   } else {
-  __v23973 := b = false;
-  if (__v23973 = false) {
-  __v23974 := false
+  __v23984 := b = false;
+  if (__v23984 = false) {
+  __v23985 := false
   } else {
-  __v23974 := true
+  __v23985 := true
   }
   };
-  if (__v23974) {
+  if (__v23985) {
   return (false, true)
   } else {
   
   };
-  __v23975 := a = false;
-  if (__v23975 = false) {
-  __v23977 := false
+  __v23986 := a = false;
+  if (__v23986 = false) {
+  __v23988 := false
   } else {
-  __v23976 := b = true;
-  if (__v23976 = false) {
-  __v23977 := false
+  __v23987 := b = true;
+  if (__v23987 = false) {
+  __v23988 := false
   } else {
-  __v23977 := true
+  __v23988 := true
   }
   };
-  if (__v23977) {
+  if (__v23988) {
   return (false, true)
   } else {
   
@@ -64001,36 +64055,36 @@ Tests compilation of ecmaref6:
   return (false, __v11642)
   };
   function __lambda__7(___internal_esl_global, st) {
-  __v23956 := st["endIndex"];
-  e := __v23956;
-  __v23958 := st["str"];
-  __v23957 := s_len_u(__v23958);
-  len := __v23957;
-  __v23959 := e = len;
-  if (__v23959) {
+  __v23967 := st["endIndex"];
+  e := __v23967;
+  __v23969 := st["str"];
+  __v23968 := s_len_u(__v23969);
+  len := __v23968;
+  __v23970 := e = len;
+  if (__v23970) {
   return (false, true)
   } else {
   
   };
-  __v23960 := st["ml"];
-  __v23961 := __v23960 = false;
-  if (__v23961) {
+  __v23971 := st["ml"];
+  __v23972 := __v23971 = false;
+  if (__v23972) {
   return (false, false)
   } else {
   
   };
-  __v23962 := e < len;
-  if (__v23962) {
-  __v23963 := st["str"];
-  __v23964 := s_nth_u(__v23963, e);
-  c := __v23964;
-  __v23965 := "isLineTerminator"(___internal_esl_global, c);
-  if (fst(__v23965)) {
-  return __v23965
+  __v23973 := e < len;
+  if (__v23973) {
+  __v23974 := st["str"];
+  __v23975 := s_nth_u(__v23974, e);
+  c := __v23975;
+  __v23976 := "isLineTerminator"(___internal_esl_global, c);
+  if (fst(__v23976)) {
+  return __v23976
   } else {
-  __v23965 := snd(__v23965)
+  __v23976 := snd(__v23976)
   };
-  return (false, __v23965)
+  return (false, __v23976)
   } else {
   
   };
@@ -69702,20 +69756,20 @@ Tests compilation of ecmaref6:
   return (false, __v10663)
   };
   function __lambda__5(m, bounds, k, ___internal_esl_global, st') {
-  __v23944 := "decrementBounds"(___internal_esl_global, bounds);
-  if (fst(__v23944)) {
-  return __v23944
+  __v23955 := "decrementBounds"(___internal_esl_global, bounds);
+  if (fst(__v23955)) {
+  return __v23955
   } else {
-  __v23944 := snd(__v23944)
+  __v23955 := snd(__v23955)
   };
-  bounds' := __v23944;
-  __v23945 := "JS_Interpreter_Repetition_NonGreedy"(___internal_esl_global, m, bounds', st', k);
-  if (fst(__v23945)) {
-  return __v23945
+  bounds' := __v23955;
+  __v23956 := "JS_Interpreter_Repetition_NonGreedy"(___internal_esl_global, m, bounds', st', k);
+  if (fst(__v23956)) {
+  return __v23956
   } else {
-  __v23945 := snd(__v23945)
+  __v23956 := snd(__v23956)
   };
-  return (false, __v23945)
+  return (false, __v23956)
   };
   function RegExpPrototypesearch(___internal_esl_global, global, this, NewTarget, strict, args) {
   __v10625 := l_nth(args, 0);
@@ -71387,34 +71441,34 @@ Tests compilation of ecmaref6:
   return (false, false)
   };
   function __lambda__12(cs, ___internal_esl_global, st, k) {
-  __v23851 := "stateGetChar"(___internal_esl_global, st);
-  if (fst(__v23851)) {
-  return __v23851
+  __v23862 := "stateGetChar"(___internal_esl_global, st);
+  if (fst(__v23862)) {
+  return __v23862
   } else {
-  __v23851 := snd(__v23851)
+  __v23862 := snd(__v23862)
   };
-  c := __v23851;
-  __v23852 := st["ic"];
-  __v23853 := "IsInCharacterClass"(___internal_esl_global, cs, c, __v23852);
-  if (fst(__v23853)) {
-  return __v23853
+  c := __v23862;
+  __v23863 := st["ic"];
+  __v23864 := "IsInCharacterClass"(___internal_esl_global, cs, c, __v23863);
+  if (fst(__v23864)) {
+  return __v23864
   } else {
-  __v23853 := snd(__v23853)
+  __v23864 := snd(__v23864)
   };
-  if (__v23853) {
-  __v23854 := "stateNext"(___internal_esl_global, st);
-  if (fst(__v23854)) {
-  return __v23854
+  if (__v23864) {
+  __v23865 := "stateNext"(___internal_esl_global, st);
+  if (fst(__v23865)) {
+  return __v23865
   } else {
-  __v23854 := snd(__v23854)
+  __v23865 := snd(__v23865)
   };
-  __v23855 := k(___internal_esl_global, st);
-  if (fst(__v23855)) {
-  return __v23855
+  __v23866 := k(___internal_esl_global, st);
+  if (fst(__v23866)) {
+  return __v23866
   } else {
-  __v23855 := snd(__v23855)
+  __v23866 := snd(__v23866)
   };
-  return (false, __v23855)
+  return (false, __v23866)
   } else {
   return (false, null)
   }
@@ -74395,30 +74449,30 @@ Tests compilation of ecmaref6:
   return (false, prototype)
   };
   function __lambda__3(m, k_id, nCaps, ___internal_esl_global, R, S, i) {
-  __v23834 := R["OriginalFlags"];
-  __v23833 := __v23834["gb"];
-  __v23836 := R["OriginalFlags"];
-  __v23835 := __v23836["ic"];
-  __v23838 := R["OriginalFlags"];
-  __v23837 := __v23838["ml"];
-  __v23840 := R["OriginalFlags"];
-  __v23839 := __v23840["u"];
-  __v23842 := R["OriginalFlags"];
-  __v23841 := __v23842["y"];
-  __v23843 := "initialState"(___internal_esl_global, S, i, __v23833, __v23835, __v23837, __v23839, __v23841, nCaps);
-  if (fst(__v23843)) {
-  return __v23843
+  __v23845 := R["OriginalFlags"];
+  __v23844 := __v23845["gb"];
+  __v23847 := R["OriginalFlags"];
+  __v23846 := __v23847["ic"];
+  __v23849 := R["OriginalFlags"];
+  __v23848 := __v23849["ml"];
+  __v23851 := R["OriginalFlags"];
+  __v23850 := __v23851["u"];
+  __v23853 := R["OriginalFlags"];
+  __v23852 := __v23853["y"];
+  __v23854 := "initialState"(___internal_esl_global, S, i, __v23844, __v23846, __v23848, __v23850, __v23852, nCaps);
+  if (fst(__v23854)) {
+  return __v23854
   } else {
-  __v23843 := snd(__v23843)
+  __v23854 := snd(__v23854)
   };
-  st := __v23843;
-  __v23844 := m(___internal_esl_global, st, k_id);
-  if (fst(__v23844)) {
-  return __v23844
+  st := __v23854;
+  __v23855 := m(___internal_esl_global, st, k_id);
+  if (fst(__v23855)) {
+  return __v23855
   } else {
-  __v23844 := snd(__v23844)
+  __v23855 := snd(__v23855)
   };
-  return (false, __v23844)
+  return (false, __v23855)
   };
   function createThrowTypeErrorFunctionObject(___internal_esl_global, functionPrototypeObject, strict) {
   __v9768 := "NewECMAScriptObject"(___internal_esl_global);
@@ -76666,13 +76720,13 @@ Tests compilation of ecmaref6:
   }
   };
   function __lambda__32(objArrayConstructor, ___internal_esl_global, global, this, NewTarget, strict, args) {
-  __v24000 := "ArrayConstructor"(___internal_esl_global, global, this, NewTarget, strict, args, objArrayConstructor);
-  if (fst(__v24000)) {
-  return __v24000
+  __v24011 := "ArrayConstructor"(___internal_esl_global, global, this, NewTarget, strict, args, objArrayConstructor);
+  if (fst(__v24011)) {
+  return __v24011
   } else {
-  __v24000 := snd(__v24000)
+  __v24011 := snd(__v24011)
   };
-  return (false, __v24000)
+  return (false, __v24011)
   };
   function GetFunctionRealm(___internal_esl_global, obj) {
   __v9346 := "IsCallable"(___internal_esl_global, obj);
@@ -78896,13 +78950,13 @@ Tests compilation of ecmaref6:
   return (false, __v8957)
   };
   function __lambda__37(resolveElement, ___internal_esl_global, global, this, NewTarget, strict, args) {
-  __v24003 := "PromiseAllResolveElementFunctions"(___internal_esl_global, resolveElement, global, this, strict, args);
-  if (fst(__v24003)) {
-  return __v24003
+  __v24014 := "PromiseAllResolveElementFunctions"(___internal_esl_global, resolveElement, global, this, strict, args);
+  if (fst(__v24014)) {
+  return __v24014
   } else {
-  __v24003 := snd(__v24003)
+  __v24014 := snd(__v24014)
   };
-  return (false, __v24003)
+  return (false, __v24014)
   };
   function DatePrototypeGetSeconds(___internal_esl_global, global, this, NewTarget, strict, args) {
   __v8945 := "thisTimeValue"(___internal_esl_global, this);
@@ -86221,35 +86275,35 @@ Tests compilation of ecmaref6:
   }
   };
   function __lambda__14(m', ___internal_esl_global, st, k) {
-  __v23856 := "copyState"(___internal_esl_global, st);
-  if (fst(__v23856)) {
-  return __v23856
+  __v23867 := "copyState"(___internal_esl_global, st);
+  if (fst(__v23867)) {
+  return __v23867
   } else {
-  __v23856 := snd(__v23856)
+  __v23867 := snd(__v23867)
   };
-  st2 := __v23856;
+  st2 := __v23867;
   k_id := {"__lambda__13"}@();
-  __v23857 := m'(___internal_esl_global, st2, k_id);
-  if (fst(__v23857)) {
-  return __v23857
+  __v23868 := m'(___internal_esl_global, st2, k_id);
+  if (fst(__v23868)) {
+  return __v23868
   } else {
-  __v23857 := snd(__v23857)
+  __v23868 := snd(__v23868)
   };
-  r := __v23857;
-  __v23858 := "isFailure"(___internal_esl_global, r);
-  if (fst(__v23858)) {
-  return __v23858
+  r := __v23868;
+  __v23869 := "isFailure"(___internal_esl_global, r);
+  if (fst(__v23869)) {
+  return __v23869
   } else {
-  __v23858 := snd(__v23858)
+  __v23869 := snd(__v23869)
   };
-  if (__v23858) {
-  __v23859 := k(___internal_esl_global, st);
-  if (fst(__v23859)) {
-  return __v23859
+  if (__v23869) {
+  __v23870 := k(___internal_esl_global, st);
+  if (fst(__v23870)) {
+  return __v23870
   } else {
-  __v23859 := snd(__v23859)
+  __v23870 := snd(__v23870)
   };
-  return (false, __v23859)
+  return (false, __v23870)
   } else {
   
   };
@@ -91730,20 +91784,20 @@ Tests compilation of ecmaref6:
   return (false, global)
   };
   function __lambda__0(name, lexicalEnvironment, ___internal_esl_global, scope, this, newTarget, strict, args) {
-  __v24001 := "getEnvironmentRecord"(___internal_esl_global, lexicalEnvironment);
-  if (fst(__v24001)) {
-  return __v24001
+  __v24012 := "getEnvironmentRecord"(___internal_esl_global, lexicalEnvironment);
+  if (fst(__v24012)) {
+  return __v24012
   } else {
-  __v24001 := snd(__v24001)
+  __v24012 := snd(__v24012)
   };
-  envRec := __v24001;
-  __v24002 := "getBindingValue"(___internal_esl_global, envRec, name);
-  if (fst(__v24002)) {
-  return __v24002
+  envRec := __v24012;
+  __v24013 := "getBindingValue"(___internal_esl_global, envRec, name);
+  if (fst(__v24013)) {
+  return __v24013
   } else {
-  __v24002 := snd(__v24002)
+  __v24013 := snd(__v24013)
   };
-  val := __v24002;
+  val := __v24013;
   return (false, val)
   };
   function ReferenceErrorConstructor(___internal_esl_global, globalObject, this, NewTarget, strict, params) {
@@ -97790,34 +97844,34 @@ Tests compilation of ecmaref6:
   return (false, __v5137)
   };
   function __lambda__27(c, ___internal_esl_global, st, k) {
-  __v23903 := "stateGetChar"(___internal_esl_global, st);
-  if (fst(__v23903)) {
-  return __v23903
+  __v23914 := "stateGetChar"(___internal_esl_global, st);
+  if (fst(__v23914)) {
+  return __v23914
   } else {
-  __v23903 := snd(__v23903)
+  __v23914 := snd(__v23914)
   };
-  c2 := __v23903;
-  __v23904 := c = null;
-  if (__v23904) {
+  c2 := __v23914;
+  __v23915 := c = null;
+  if (__v23915) {
   return (false, null)
   } else {
   
   };
-  __v23905 := c2 = c;
-  if (__v23905) {
-  __v23906 := "stateNext"(___internal_esl_global, st);
-  if (fst(__v23906)) {
-  return __v23906
+  __v23916 := c2 = c;
+  if (__v23916) {
+  __v23917 := "stateNext"(___internal_esl_global, st);
+  if (fst(__v23917)) {
+  return __v23917
   } else {
-  __v23906 := snd(__v23906)
+  __v23917 := snd(__v23917)
   };
-  __v23907 := k(___internal_esl_global, st);
-  if (fst(__v23907)) {
-  return __v23907
+  __v23918 := k(___internal_esl_global, st);
+  if (fst(__v23918)) {
+  return __v23918
   } else {
-  __v23907 := snd(__v23907)
+  __v23918 := snd(__v23918)
   };
-  return (false, __v23907)
+  return (false, __v23918)
   } else {
   return (false, null)
   }
@@ -108378,34 +108432,34 @@ Tests compilation of ecmaref6:
   return (false, __v3183)
   };
   function __lambda__26(cs, v, ___internal_esl_global, st, k) {
-  __v23898 := "stateGetChar"(___internal_esl_global, st);
-  if (fst(__v23898)) {
-  return __v23898
+  __v23909 := "stateGetChar"(___internal_esl_global, st);
+  if (fst(__v23909)) {
+  return __v23909
   } else {
-  __v23898 := snd(__v23898)
+  __v23909 := snd(__v23909)
   };
-  c := __v23898;
-  __v23899 := st["ic"];
-  __v23900 := "IsInCharacterClass"(___internal_esl_global, cs, c, __v23899);
-  if (fst(__v23900)) {
-  return __v23900
+  c := __v23909;
+  __v23910 := st["ic"];
+  __v23911 := "IsInCharacterClass"(___internal_esl_global, cs, c, __v23910);
+  if (fst(__v23911)) {
+  return __v23911
   } else {
-  __v23900 := snd(__v23900)
+  __v23911 := snd(__v23911)
   };
-  if (__v23900) {
-  __v23901 := "stateNext"(___internal_esl_global, st);
-  if (fst(__v23901)) {
-  return __v23901
+  if (__v23911) {
+  __v23912 := "stateNext"(___internal_esl_global, st);
+  if (fst(__v23912)) {
+  return __v23912
   } else {
-  __v23901 := snd(__v23901)
+  __v23912 := snd(__v23912)
   };
-  __v23902 := k(___internal_esl_global, st);
-  if (fst(__v23902)) {
-  return __v23902
+  __v23913 := k(___internal_esl_global, st);
+  if (fst(__v23913)) {
+  return __v23913
   } else {
-  __v23902 := snd(__v23902)
+  __v23913 := snd(__v23913)
   };
-  return (false, __v23902)
+  return (false, __v23913)
   } else {
   return (false, null)
   }
@@ -110326,12 +110380,12 @@ Tests compilation of ecmaref6:
   return (false, __v2808)
   };
   function __lambda__2(___internal_esl_global, st') {
-  __v23830 := st'["caps"];
-  caps := __v23830;
-  __v23831 := caps["len"];
-  len := __v23831;
-  __v23832 := len - 1;
-  caps["len"] := __v23832;
+  __v23841 := st'["caps"];
+  caps := __v23841;
+  __v23842 := caps["len"];
+  len := __v23842;
+  __v23843 := len - 1;
+  caps["len"] := __v23843;
   return (false, st')
   };
   function TypedArrayFilter(___internal_esl_global, global, this, NewTarget, strict, args) {
@@ -114564,61 +114618,16 @@ Tests compilation of ecmaref6:
   return (false, __v2013)
   };
   function __lambda__20(i, ___internal_esl_global, st, k) {
-  __v23868 := int_of_float(i);
-  __v23869 := "stateGetCap"(___internal_esl_global, st, __v23868);
-  if (fst(__v23869)) {
-  return __v23869
+  __v23879 := int_of_float(i);
+  __v23880 := "stateGetCap"(___internal_esl_global, st, __v23879);
+  if (fst(__v23880)) {
+  return __v23880
   } else {
-  __v23869 := snd(__v23869)
+  __v23880 := snd(__v23880)
   };
-  str_c := __v23869;
-  __v23870 := str_c = 'undefined;
-  if (__v23870) {
-  __v23871 := k(___internal_esl_global, st);
-  if (fst(__v23871)) {
-  return __v23871
-  } else {
-  __v23871 := snd(__v23871)
-  };
-  return (false, __v23871)
-  } else {
-  
-  };
-  __v23872 := s_len_u(str_c);
-  len := __v23872;
-  __v23873 := "stateGetIndex"(___internal_esl_global, st);
-  if (fst(__v23873)) {
-  return __v23873
-  } else {
-  __v23873 := snd(__v23873)
-  };
-  j1 := __v23873;
-  __v23874 := "stateGetStr"(___internal_esl_global, st);
-  if (fst(__v23874)) {
-  return __v23874
-  } else {
-  __v23874 := snd(__v23874)
-  };
-  str := __v23874;
-  __v23875 := j1 + len;
-  __v23876 := s_len_u(str);
-  __v23877 := __v23875 > __v23876;
-  if (__v23877) {
-  return (false, null)
-  } else {
-  
-  };
-  __v23878 := s_substr_u(str, j1, len);
-  str' := __v23878;
-  __v23879 := str_c = str';
-  if (__v23879) {
-  __v23880 := j1 + len;
-  __v23881 := "stateSetIndex"(___internal_esl_global, st, __v23880);
-  if (fst(__v23881)) {
-  return __v23881
-  } else {
-  __v23881 := snd(__v23881)
-  };
+  str_c := __v23880;
+  __v23881 := str_c = 'undefined;
+  if (__v23881) {
   __v23882 := k(___internal_esl_global, st);
   if (fst(__v23882)) {
   return __v23882
@@ -114626,6 +114635,51 @@ Tests compilation of ecmaref6:
   __v23882 := snd(__v23882)
   };
   return (false, __v23882)
+  } else {
+  
+  };
+  __v23883 := s_len_u(str_c);
+  len := __v23883;
+  __v23884 := "stateGetIndex"(___internal_esl_global, st);
+  if (fst(__v23884)) {
+  return __v23884
+  } else {
+  __v23884 := snd(__v23884)
+  };
+  j1 := __v23884;
+  __v23885 := "stateGetStr"(___internal_esl_global, st);
+  if (fst(__v23885)) {
+  return __v23885
+  } else {
+  __v23885 := snd(__v23885)
+  };
+  str := __v23885;
+  __v23886 := j1 + len;
+  __v23887 := s_len_u(str);
+  __v23888 := __v23886 > __v23887;
+  if (__v23888) {
+  return (false, null)
+  } else {
+  
+  };
+  __v23889 := s_substr_u(str, j1, len);
+  str' := __v23889;
+  __v23890 := str_c = str';
+  if (__v23890) {
+  __v23891 := j1 + len;
+  __v23892 := "stateSetIndex"(___internal_esl_global, st, __v23891);
+  if (fst(__v23892)) {
+  return __v23892
+  } else {
+  __v23892 := snd(__v23892)
+  };
+  __v23893 := k(___internal_esl_global, st);
+  if (fst(__v23893)) {
+  return __v23893
+  } else {
+  __v23893 := snd(__v23893)
+  };
+  return (false, __v23893)
   } else {
   
   };
@@ -124378,34 +124432,34 @@ Tests compilation of ecmaref6:
   return (false, booleanTrapResult)
   };
   function __lambda__11(cs, ___internal_esl_global, st, k) {
-  __v23846 := "stateGetChar"(___internal_esl_global, st);
-  if (fst(__v23846)) {
-  return __v23846
+  __v23857 := "stateGetChar"(___internal_esl_global, st);
+  if (fst(__v23857)) {
+  return __v23857
   } else {
-  __v23846 := snd(__v23846)
+  __v23857 := snd(__v23857)
   };
-  c := __v23846;
-  __v23847 := st["ic"];
-  __v23848 := "IsInCharacterClass"(___internal_esl_global, cs, c, __v23847);
-  if (fst(__v23848)) {
-  return __v23848
+  c := __v23857;
+  __v23858 := st["ic"];
+  __v23859 := "IsInCharacterClass"(___internal_esl_global, cs, c, __v23858);
+  if (fst(__v23859)) {
+  return __v23859
   } else {
-  __v23848 := snd(__v23848)
+  __v23859 := snd(__v23859)
   };
-  if (__v23848) {
-  __v23849 := "stateNext"(___internal_esl_global, st);
-  if (fst(__v23849)) {
-  return __v23849
+  if (__v23859) {
+  __v23860 := "stateNext"(___internal_esl_global, st);
+  if (fst(__v23860)) {
+  return __v23860
   } else {
-  __v23849 := snd(__v23849)
+  __v23860 := snd(__v23860)
   };
-  __v23850 := k(___internal_esl_global, st);
-  if (fst(__v23850)) {
-  return __v23850
+  __v23861 := k(___internal_esl_global, st);
+  if (fst(__v23861)) {
+  return __v23861
   } else {
-  __v23850 := snd(__v23850)
+  __v23861 := snd(__v23861)
   };
-  return (false, __v23850)
+  return (false, __v23861)
   } else {
   return (false, null)
   }
@@ -124440,13 +124494,13 @@ Tests compilation of ecmaref6:
   return (false, BooleanConstructor)
   };
   function __lambda__33(objTypedArrayConstructor, ___internal_esl_global, global, this, NewTarget, strict, args) {
-  __v23991 := "TypedArraySubConstructor"(___internal_esl_global, global, this, NewTarget, strict, args, objTypedArrayConstructor);
-  if (fst(__v23991)) {
-  return __v23991
+  __v24002 := "TypedArraySubConstructor"(___internal_esl_global, global, this, NewTarget, strict, args, objTypedArrayConstructor);
+  if (fst(__v24002)) {
+  return __v24002
   } else {
-  __v23991 := snd(__v23991)
+  __v24002 := snd(__v24002)
   };
-  return (false, __v23991)
+  return (false, __v24002)
   };
   function GetPrototypeFromConstructor(___internal_esl_global, constructor, intrinsicDefaultProto) {
   __v59 := typeof(intrinsicDefaultProto);
