@@ -1,4 +1,4 @@
 Test object prototype:
-  $ dune exec -- ecma-sl symbolic __proto__.js
+  $ dune exec -- ecma-sl symbolic proto.js
   The file has been saved!
   "bar"
