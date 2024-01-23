@@ -113,7 +113,6 @@ function initObjectPrototype() {
 };
 
 function protoAccessorGet(globalObject, this, NewTarget, strict, params) {
-  print "In protoAccessorGet";
   /* 1. Let O be ? ToObject(this value). */
   O := ToObject(this);
 
@@ -129,12 +128,8 @@ function protoAccessorSet(globalObject, this, NewTarget, strict, params) {
   proto := l_nth(params, 0);
 
   /* 1. Let O be ? RequireObjectCoercible(this value). */
-  print "In protoAccessorSet";
-  print this;
   O := RequireObjectCoercible(this);
-  print O;
   @ReturnIfAbrupt(O);
-  print O;
 
   /* 2. If proto is not an Object and proto is not null, return undefined. */
   if (!(Type(proto) = "Object") &&& !(proto = 'null)) {
@@ -194,7 +189,7 @@ function fillObjectPrototype(objectPrototypeObject, ObjectConstructor, globalObj
     CreateBuiltInFunctionObject([], "protoAccessorGet", globalObject, strict, null),
     CreateBuiltInFunctionObject([], "protoAccessorSet", globalObject, strict, null),
     false, true);
-  createBuiltInProperty(objectPrototypeObject, "__proto__", protoAccessor);
+  objectPrototypeObject.JSProperties.__proto__ := protoAccessor;
 
   return
 };
