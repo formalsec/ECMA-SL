@@ -21,6 +21,8 @@ Tests compilation of ecmaref5:
   __v15902 := snd(__v15902)
   };
   return (false, __v15902)
+  } else {
+  
   };
   __v15903 := s_len_u(R);
   r := __v15903;
@@ -30,6 +32,8 @@ Tests compilation of ecmaref5:
   __v15906 := __v15905 > s;
   if (__v15906) {
   return (false, null)
+  } else {
+  
   };
   i := 0;
   __v15908 := i = r;
@@ -44,6 +48,8 @@ Tests compilation of ecmaref5:
   __v15912 := !__v15913;
   if (__v15912) {
   return (false, null)
+  } else {
+  
   };
   __v15914 := i + 1;
   i := __v15914;
@@ -230,25 +236,27 @@ Tests compilation of ecmaref5:
   __v15851 := desc = 'undefined;
   __v15850 := !__v15851;
   if (__v15850) {
-  __v15852 := "IsAccessorPropertyDescriptor"(___internal_esl_global, desc);
-  if (fst(__v15852)) {
-  return __v15852
+  __v15853 := "IsAccessorPropertyDescriptor"(___internal_esl_global, desc);
+  if (fst(__v15853)) {
+  return __v15853
   } else {
-  __v15852 := snd(__v15852)
+  __v15853 := snd(__v15853)
   };
-  __v15853 := __v15852 = true;
-  if (__v15853) {
-  __v15854 := desc["Set"];
-  __v15855 := __v15854 = 'undefined;
-  if (__v15855) {
+  __v15854 := __v15853 = true;
+  if (__v15854) {
+  __v15855 := desc["Set"];
+  __v15856 := __v15855 = 'undefined;
+  if (__v15856) {
   return (false, false)
   } else {
   return (false, true)
   }
   } else {
-  __v15856 := desc["Writable"];
-  return (false, __v15856)
+  __v15852 := desc["Writable"];
+  return (false, __v15852)
   }
+  } else {
+  
   };
   __v15857 := O["Prototype"];
   proto := __v15857;
@@ -256,6 +264,8 @@ Tests compilation of ecmaref5:
   if (__v15858) {
   __v15859 := O["Extensible"];
   return (false, __v15859)
+  } else {
+  
   };
   __v15860 := proto["GetProperty"];
   __v15861 := __v15860(___internal_esl_global, proto, P);
@@ -269,30 +279,32 @@ Tests compilation of ecmaref5:
   if (__v15862) {
   __v15863 := O["Extensible"];
   return (false, __v15863)
-  };
-  __v15864 := "IsAccessorPropertyDescriptor"(___internal_esl_global, inherited);
-  if (fst(__v15864)) {
-  return __v15864
   } else {
-  __v15864 := snd(__v15864)
+  
   };
-  __v15865 := __v15864 = true;
-  if (__v15865) {
-  __v15866 := inherited["Set"];
-  __v15867 := __v15866 = 'undefined;
-  if (__v15867) {
+  __v15867 := "IsAccessorPropertyDescriptor"(___internal_esl_global, inherited);
+  if (fst(__v15867)) {
+  return __v15867
+  } else {
+  __v15867 := snd(__v15867)
+  };
+  __v15868 := __v15867 = true;
+  if (__v15868) {
+  __v15869 := inherited["Set"];
+  __v15870 := __v15869 = 'undefined;
+  if (__v15870) {
   return (false, false)
   } else {
   return (false, true)
   }
   } else {
-  __v15868 := O["Extensible"];
-  __v15869 := __v15868 = false;
-  if (__v15869) {
+  __v15865 := O["Extensible"];
+  __v15866 := __v15865 = false;
+  if (__v15866) {
   return (false, false)
   } else {
-  __v15870 := inherited["Writable"];
-  return (false, __v15870)
+  __v15864 := inherited["Writable"];
+  return (false, __v15864)
   }
   }
   };
@@ -347,19 +359,21 @@ Tests compilation of ecmaref5:
   __v15817 := snd(__v15817)
   };
   return (true, __v15817)
+  } else {
+  
   };
-  __v15819 := len = 0;
+  __v15818 := len = 0;
+  if (__v15818 = false) {
+  __v15820 := false
+  } else {
+  __v15819 := initialValue = null;
   if (__v15819 = false) {
-  __v15818 := false
+  __v15820 := false
   } else {
-  __v15820 := initialValue = null;
-  if (__v15820 = false) {
-  __v15818 := false
-  } else {
-  __v15818 := true
+  __v15820 := true
   }
   };
-  if (__v15818) {
+  if (__v15820) {
   __v15821 := "TypeErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v15821)) {
   return __v15821
@@ -367,60 +381,66 @@ Tests compilation of ecmaref5:
   __v15821 := snd(__v15821)
   };
   return (true, __v15821)
+  } else {
+  
   };
   __v15822 := len - 1.0;
   k := __v15822;
-  __v15824 := initialValue = null;
-  __v15823 := !__v15824;
-  if (__v15823) {
+  __v15836 := initialValue = null;
+  __v15835 := !__v15836;
+  if (__v15835) {
   accumulator := initialValue
   } else {
   kPresent := false;
-  __v15825 := kPresent = false;
-  __v15826 := k >= 0.0;
-  __v15827 := __v15825 && __v15826;
-  while (__v15827) {
-  __v15828 := "ToString"(___internal_esl_global, k);
+  __v15823 := kPresent = false;
+  __v15824 := k >= 0.0;
+  __v15825 := __v15823 && __v15824;
+  while (__v15825) {
+  __v15826 := "ToString"(___internal_esl_global, k);
+  if (fst(__v15826)) {
+  return __v15826
+  } else {
+  __v15826 := snd(__v15826)
+  };
+  Pk := __v15826;
+  __v15827 := O["HasProperty"];
+  __v15828 := __v15827(___internal_esl_global, O, Pk);
   if (fst(__v15828)) {
   return __v15828
   } else {
   __v15828 := snd(__v15828)
   };
-  Pk := __v15828;
-  __v15829 := O["HasProperty"];
-  __v15830 := __v15829(___internal_esl_global, O, Pk);
-  if (fst(__v15830)) {
-  return __v15830
+  kPresent := __v15828;
+  __v15829 := kPresent = true;
+  if (__v15829) {
+  __v15830 := O["Get"];
+  __v15831 := __v15830(___internal_esl_global, O, Pk);
+  if (fst(__v15831)) {
+  return __v15831
   } else {
-  __v15830 := snd(__v15830)
+  __v15831 := snd(__v15831)
   };
-  kPresent := __v15830;
-  __v15831 := kPresent = true;
-  if (__v15831) {
-  __v15832 := O["Get"];
-  __v15833 := __v15832(___internal_esl_global, O, Pk);
-  if (fst(__v15833)) {
-  return __v15833
+  accumulator := __v15831
   } else {
-  __v15833 := snd(__v15833)
+  
   };
-  accumulator := __v15833
+  __v15832 := k - 1.0;
+  k := __v15832;
+  __v15823 := kPresent = false;
+  __v15824 := k >= 0.0;
+  __v15825 := __v15823 && __v15824
   };
-  __v15834 := k - 1.0;
-  k := __v15834;
-  __v15825 := kPresent = false;
-  __v15826 := k >= 0.0;
-  __v15827 := __v15825 && __v15826
-  };
-  __v15835 := kPresent = false;
-  if (__v15835) {
-  __v15836 := "TypeErrorConstructorInternal"(___internal_esl_global);
-  if (fst(__v15836)) {
-  return __v15836
+  __v15833 := kPresent = false;
+  if (__v15833) {
+  __v15834 := "TypeErrorConstructorInternal"(___internal_esl_global);
+  if (fst(__v15834)) {
+  return __v15834
   } else {
-  __v15836 := snd(__v15836)
+  __v15834 := snd(__v15834)
   };
-  return (true, __v15836)
+  return (true, __v15834)
+  } else {
+  
   }
   };
   __v15837 := k >= 0.0;
@@ -459,6 +479,8 @@ Tests compilation of ecmaref5:
   __v15846 := snd(__v15846)
   };
   accumulator := __v15846
+  } else {
+  
   };
   __v15847 := k - 1.0;
   k := __v15847;
@@ -475,11 +497,15 @@ Tests compilation of ecmaref5:
   __v16049 := e = len;
   if (__v16049) {
   return (false, true)
+  } else {
+  
   };
   __v16050 := st["ml"];
   __v16051 := __v16050 = false;
   if (__v16051) {
   return (false, false)
+  } else {
+  
   };
   __v16052 := e < len;
   if (__v16052) {
@@ -493,6 +519,8 @@ Tests compilation of ecmaref5:
   __v16055 := snd(__v16055)
   };
   return (false, __v16055)
+  } else {
+  
   };
   return (false, false)
   };
@@ -554,6 +582,8 @@ Tests compilation of ecmaref5:
   __v15798 := snd(__v15798)
   };
   return (false, __v15798)
+  } else {
+  
   };
   __v15799 := "ImplicitThisValueObject"(___internal_esl_global, envRec);
   if (fst(__v15799)) {
@@ -606,80 +636,80 @@ Tests compilation of ecmaref5:
   __v15769 := s_len_u(That);
   ThatLen := __v15769;
   j := 0;
-  __v15771 := j < SLen;
+  __v15770 := j < SLen;
+  if (__v15770 = false) {
+  __v15772 := false
+  } else {
+  __v15771 := j < ThatLen;
   if (__v15771 = false) {
-  __v15770 := false
+  __v15772 := false
   } else {
-  __v15772 := j < ThatLen;
-  if (__v15772 = false) {
-  __v15770 := false
-  } else {
-  __v15770 := true
+  __v15772 := true
   }
   };
-  while (__v15770) {
-  __v15774 := s_nth_u(S, j);
-  __v15773 := to_char_code_u(__v15774);
-  __v15776 := s_nth_u(That, j);
-  __v15775 := to_char_code_u(__v15776);
-  __v15777 := __v15773 < __v15775;
-  if (__v15777) {
-  __v15778 := -(1.0);
-  return (false, __v15778)
-  } else {
+  while (__v15772) {
   __v15780 := s_nth_u(S, j);
   __v15779 := to_char_code_u(__v15780);
   __v15782 := s_nth_u(That, j);
   __v15781 := to_char_code_u(__v15782);
-  __v15783 := __v15779 > __v15781;
+  __v15783 := __v15779 < __v15781;
   if (__v15783) {
+  __v15784 := -(1.0);
+  return (false, __v15784)
+  } else {
+  __v15775 := s_nth_u(S, j);
+  __v15774 := to_char_code_u(__v15775);
+  __v15777 := s_nth_u(That, j);
+  __v15776 := to_char_code_u(__v15777);
+  __v15778 := __v15774 > __v15776;
+  if (__v15778) {
   return (false, 1.0)
   } else {
-  __v15784 := j + 1;
-  j := __v15784
+  __v15773 := j + 1;
+  j := __v15773
   }
   };
-  __v15771 := j < SLen;
+  __v15770 := j < SLen;
+  if (__v15770 = false) {
+  __v15772 := false
+  } else {
+  __v15771 := j < ThatLen;
   if (__v15771 = false) {
-  __v15770 := false
+  __v15772 := false
   } else {
-  __v15772 := j < ThatLen;
-  if (__v15772 = false) {
-  __v15770 := false
-  } else {
-  __v15770 := true
+  __v15772 := true
   }
   }
   };
+  __v15789 := j < SLen;
+  if (__v15789 = false) {
+  __v15792 := false
+  } else {
+  __v15791 := j < ThatLen;
+  __v15790 := !__v15791;
+  if (__v15790 = false) {
+  __v15792 := false
+  } else {
+  __v15792 := true
+  }
+  };
+  if (__v15792) {
+  __v15793 := -(1.0);
+  return (false, __v15793)
+  } else {
   __v15786 := j < SLen;
-  if (__v15786 = false) {
-  __v15785 := false
+  __v15785 := !__v15786;
+  if (__v15785 = false) {
+  __v15788 := false
   } else {
-  __v15788 := j < ThatLen;
-  __v15787 := !__v15788;
+  __v15787 := j < ThatLen;
   if (__v15787 = false) {
-  __v15785 := false
+  __v15788 := false
   } else {
-  __v15785 := true
+  __v15788 := true
   }
   };
-  if (__v15785) {
-  __v15789 := -(1.0);
-  return (false, __v15789)
-  } else {
-  __v15792 := j < SLen;
-  __v15791 := !__v15792;
-  if (__v15791 = false) {
-  __v15790 := false
-  } else {
-  __v15793 := j < ThatLen;
-  if (__v15793 = false) {
-  __v15790 := false
-  } else {
-  __v15790 := true
-  }
-  };
-  if (__v15790) {
+  if (__v15788) {
   return (false, 1.0)
   } else {
   return (false, 0.0)
@@ -720,39 +750,39 @@ Tests compilation of ecmaref5:
   };
   __v15747 := !__v15749;
   print __v15747;
-  __v15752 := "thisTimeValue"(___internal_esl_global, this);
+  __v15751 := "thisTimeValue"(___internal_esl_global, this);
+  if (fst(__v15751)) {
+  return __v15751
+  } else {
+  __v15751 := snd(__v15751)
+  };
+  __v15752 := "auxIsFinite"(___internal_esl_global, __v15751);
   if (fst(__v15752)) {
   return __v15752
   } else {
   __v15752 := snd(__v15752)
   };
-  __v15753 := "auxIsFinite"(___internal_esl_global, __v15752);
-  if (fst(__v15753)) {
-  return __v15753
+  __v15750 := !__v15752;
+  if (__v15750 = true) {
+  __v15758 := true
   } else {
-  __v15753 := snd(__v15753)
+  __v15755 := "thisTimeValue"(___internal_esl_global, this);
+  if (fst(__v15755)) {
+  return __v15755
+  } else {
+  __v15755 := snd(__v15755)
   };
-  __v15751 := !__v15753;
-  if (__v15751 = true) {
-  __v15750 := true
+  __v15754 := abs(__v15755);
+  __v15753 := int_of_float(__v15754);
+  __v15756 := 100000000 * 8640000000000000;
+  __v15757 := __v15753 > __v15756;
+  if (__v15757 = true) {
+  __v15758 := true
   } else {
-  __v15756 := "thisTimeValue"(___internal_esl_global, this);
-  if (fst(__v15756)) {
-  return __v15756
-  } else {
-  __v15756 := snd(__v15756)
-  };
-  __v15755 := abs(__v15756);
-  __v15754 := int_of_float(__v15755);
-  __v15757 := 100000000 * 8640000000000000;
-  __v15758 := __v15754 > __v15757;
-  if (__v15758 = true) {
-  __v15750 := true
-  } else {
-  __v15750 := false
+  __v15758 := false
   }
   };
-  if (__v15750) {
+  if (__v15758) {
   __v15759 := "RangeErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v15759)) {
   return __v15759
@@ -760,6 +790,8 @@ Tests compilation of ecmaref5:
   __v15759 := snd(__v15759)
   };
   return (true, __v15759)
+  } else {
+  
   };
   __v15760 := "thisTimeValue"(___internal_esl_global, this);
   if (fst(__v15760)) {
@@ -828,6 +860,8 @@ Tests compilation of ecmaref5:
   __v15742 := elem = 'undefined;
   if (__v15742) {
   return (false, true)
+  } else {
+  
   };
   __v15738 := i < lenUint
   };
@@ -837,6 +871,8 @@ Tests compilation of ecmaref5:
   __v15733 := value = null;
   if (__v15733) {
   return (false, 0.0)
+  } else {
+  
   };
   __v15734 := "ToNumber"(___internal_esl_global, value);
   if (fst(__v15734)) {
@@ -857,6 +893,8 @@ Tests compilation of ecmaref5:
   __v15730 := !__v15732;
   if (__v15730) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
   };
@@ -904,6 +942,8 @@ Tests compilation of ecmaref5:
   __v15719 := ["\"use strict\";", progStr];
   __v15718 := s_concat(__v15719);
   progStr := __v15718
+  } else {
+  
   };
   __v15720 := extern parseJS(progStr);
   prog := __v15720;
@@ -936,6 +976,8 @@ Tests compilation of ecmaref5:
   __v15716 := snd(__v15716)
   };
   return (true, __v15716)
+  } else {
+  
   };
   __v15717 := "getInternalProperty"(___internal_esl_global, O, "Prototype");
   if (fst(__v15717)) {
@@ -984,31 +1026,31 @@ Tests compilation of ecmaref5:
   }
   };
   function Call(___internal_esl_global, externalScope, ref, F, this, args) {
-  __v15664 := "Code" in_obj F;
-  if (__v15664 = false) {
-  __v15663 := false
+  __v15662 := "Code" in_obj F;
+  if (__v15662 = false) {
+  __v15666 := false
   } else {
-  __v15666 := F["Code"];
-  __v15665 := typeof(__v15666);
-  __v15667 := __v15665 = __$Str;
-  if (__v15667 = false) {
-  __v15663 := false
+  __v15664 := F["Code"];
+  __v15663 := typeof(__v15664);
+  __v15665 := __v15663 = __$Str;
+  if (__v15665 = false) {
+  __v15666 := false
   } else {
-  __v15663 := true
+  __v15666 := true
   }
   };
-  if (__v15663 = false) {
-  __v15662 := false
+  if (__v15666 = false) {
+  __v15669 := false
   } else {
-  __v15668 := F["Code"];
-  __v15669 := __v15668 = "GlobalObjectEval";
-  if (__v15669 = false) {
-  __v15662 := false
+  __v15667 := F["Code"];
+  __v15668 := __v15667 = "GlobalObjectEval";
+  if (__v15668 = false) {
+  __v15669 := false
   } else {
-  __v15662 := true
+  __v15669 := true
   }
   };
-  if (__v15662) {
+  if (__v15669) {
   __v15670 := "completeArgs"(___internal_esl_global, args, F);
   if (fst(__v15670)) {
   return __v15670
@@ -1016,23 +1058,23 @@ Tests compilation of ecmaref5:
   __v15670 := snd(__v15670)
   };
   args := __v15670;
-  __v15672 := F["strict"];
-  if (__v15672 = true) {
-  __v15671 := true
+  __v15671 := F["strict"];
+  if (__v15671 = true) {
+  __v15673 := true
   } else {
-  __v15673 := "isContainedInStrictCode"(___internal_esl_global, externalScope);
-  if (fst(__v15673)) {
-  return __v15673
+  __v15672 := "isContainedInStrictCode"(___internal_esl_global, externalScope);
+  if (fst(__v15672)) {
+  return __v15672
   } else {
-  __v15673 := snd(__v15673)
+  __v15672 := snd(__v15672)
   };
-  if (__v15673 = true) {
-  __v15671 := true
+  if (__v15672 = true) {
+  __v15673 := true
   } else {
-  __v15671 := false
+  __v15673 := false
   }
   };
-  strict := __v15671;
+  strict := __v15673;
   __v15674 := F["Code"];
   __v15675 := __v15674(___internal_esl_global, externalScope, ref, this, strict, args);
   if (fst(__v15675)) {
@@ -1041,25 +1083,27 @@ Tests compilation of ecmaref5:
   __v15675 := snd(__v15675)
   };
   return (false, __v15675)
+  } else {
+  
   };
-  __v15677 := "Code" in_obj F;
-  if (__v15677 = false) {
-  __v15676 := false
+  __v15676 := "Code" in_obj F;
+  if (__v15676 = false) {
+  __v15684 := false
   } else {
-  __v15679 := F["Code"];
-  __v15678 := typeof(__v15679);
-  __v15680 := __v15678 = __$Str;
-  __v15682 := F["Code"];
-  __v15681 := typeof(__v15682);
-  __v15683 := __v15681 = __$Curry;
-  __v15684 := __v15680 || __v15683;
-  if (__v15684 = false) {
-  __v15676 := false
+  __v15678 := F["Code"];
+  __v15677 := typeof(__v15678);
+  __v15679 := __v15677 = __$Str;
+  __v15681 := F["Code"];
+  __v15680 := typeof(__v15681);
+  __v15682 := __v15680 = __$Curry;
+  __v15683 := __v15679 || __v15682;
+  if (__v15683 = false) {
+  __v15684 := false
   } else {
-  __v15676 := true
+  __v15684 := true
   }
   };
-  if (__v15676) {
+  if (__v15684) {
   __v15685 := "completeArgs"(___internal_esl_global, args, F);
   if (fst(__v15685)) {
   return __v15685
@@ -1077,6 +1121,8 @@ Tests compilation of ecmaref5:
   __v15689 := snd(__v15689)
   };
   return (false, __v15689)
+  } else {
+  
   };
   __v15690 := "EnteringFunctionCode"(___internal_esl_global, F, this, args);
   if (fst(__v15690)) {
@@ -1085,41 +1131,41 @@ Tests compilation of ecmaref5:
   __v15690 := snd(__v15690)
   };
   funcCtx := __v15690;
-  __v15693 := "Code" in_obj F;
-  __v15692 := !__v15693;
-  if (__v15692 = true) {
-  __v15691 := true
+  __v15694 := "Code" in_obj F;
+  __v15693 := !__v15694;
+  if (__v15693 = true) {
+  __v15697 := true
   } else {
-  __v15694 := F["Code"];
-  __v15695 := "isValueAnEmptyFunctionBody"(___internal_esl_global, __v15694);
-  if (fst(__v15695)) {
-  return __v15695
-  } else {
-  __v15695 := snd(__v15695)
-  };
-  if (__v15695 = true) {
-  __v15691 := true
-  } else {
-  __v15691 := false
-  }
-  };
-  if (__v15691) {
-  __v15696 := "normalEmptyCompletion"(___internal_esl_global, 'undefined);
+  __v15695 := F["Code"];
+  __v15696 := "isValueAnEmptyFunctionBody"(___internal_esl_global, __v15695);
   if (fst(__v15696)) {
   return __v15696
   } else {
   __v15696 := snd(__v15696)
   };
-  result := __v15696
+  if (__v15696 = true) {
+  __v15697 := true
   } else {
-  __v15697 := F["Code"];
-  __v15698 := "JS_Interpreter_FunctionBody"(___internal_esl_global, __v15697, funcCtx);
+  __v15697 := false
+  }
+  };
+  if (__v15697) {
+  __v15698 := "normalEmptyCompletion"(___internal_esl_global, 'undefined);
   if (fst(__v15698)) {
   return __v15698
   } else {
   __v15698 := snd(__v15698)
   };
   result := __v15698
+  } else {
+  __v15691 := F["Code"];
+  __v15692 := "JS_Interpreter_FunctionBody"(___internal_esl_global, __v15691, funcCtx);
+  if (fst(__v15692)) {
+  return __v15692
+  } else {
+  __v15692 := snd(__v15692)
+  };
+  result := __v15692
   };
   __v15699 := "getCompletionType"(___internal_esl_global, result);
   if (fst(__v15699)) {
@@ -1136,6 +1182,8 @@ Tests compilation of ecmaref5:
   __v15701 := snd(__v15701)
   };
   return (true, __v15701)
+  } else {
+  
   };
   __v15702 := "getCompletionType"(___internal_esl_global, result);
   if (fst(__v15702)) {
@@ -1152,6 +1200,8 @@ Tests compilation of ecmaref5:
   __v15704 := snd(__v15704)
   };
   return (false, __v15704)
+  } else {
+  
   };
   return (false, 'undefined)
   };
@@ -1163,23 +1213,23 @@ Tests compilation of ecmaref5:
   __v15657 := snd(__v15657)
   };
   v := __v15657;
-  __v15659 := P = "caller";
-  if (__v15659 = false) {
-  __v15658 := false
+  __v15658 := P = "caller";
+  if (__v15658 = false) {
+  __v15660 := false
   } else {
-  __v15660 := "isStrictFunctionObject"(___internal_esl_global, F);
-  if (fst(__v15660)) {
-  return __v15660
+  __v15659 := "isStrictFunctionObject"(___internal_esl_global, F);
+  if (fst(__v15659)) {
+  return __v15659
   } else {
-  __v15660 := snd(__v15660)
+  __v15659 := snd(__v15659)
   };
-  if (__v15660 = false) {
-  __v15658 := false
+  if (__v15659 = false) {
+  __v15660 := false
   } else {
-  __v15658 := true
+  __v15660 := true
   }
   };
-  if (__v15658) {
+  if (__v15660) {
   __v15661 := "TypeErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v15661)) {
   return __v15661
@@ -1187,6 +1237,8 @@ Tests compilation of ecmaref5:
   __v15661 := snd(__v15661)
   };
   return (true, __v15661)
+  } else {
+  
   };
   return (false, v)
   };
@@ -1220,6 +1272,8 @@ Tests compilation of ecmaref5:
   __v15630 := 12.0 * __v15628;
   __v15631 := m - __v15630;
   m := __v15631
+  } else {
+  
   };
   __v15632 := "InLeapYear"(___internal_esl_global, t);
   if (fst(__v15632)) {
@@ -1279,6 +1333,8 @@ Tests compilation of ecmaref5:
   __v15613 := !__v15614;
   if (__v15613) {
   return (false, lexicalEnvironment)
+  } else {
+  
   };
   lex := lexicalEnvironment;
   __v15615 := "getOuterEnvironmentReference"(___internal_esl_global, lexicalEnvironment);
@@ -1510,169 +1566,171 @@ Tests compilation of ecmaref5:
   __v15547 := l_len(args);
   numberOfArgs := __v15547;
   __v15548 := numberOfArgs = 1;
-  assert (__v15548);
-  __v15550 := NewTarget = 'undefined;
-  __v15549 := !__v15550;
-  if (__v15549) {
-  __v15552 := "Type"(___internal_esl_global, value);
-  if (fst(__v15552)) {
-  return __v15552
-  } else {
-  __v15552 := snd(__v15552)
-  };
-  __v15553 := __v15552 = "Object";
-  if (__v15553 = false) {
-  __v15551 := false
-  } else {
-  __v15554 := "DateValue" in_obj value;
-  if (__v15554 = false) {
-  __v15551 := false
-  } else {
-  __v15551 := true
-  }
-  };
+  assert __v15548;
+  __v15552 := NewTarget = 'undefined;
+  __v15551 := !__v15552;
   if (__v15551) {
-  __v15555 := "thisTimeValue"(___internal_esl_global, value);
-  if (fst(__v15555)) {
-  return __v15555
+  __v15558 := "Type"(___internal_esl_global, value);
+  if (fst(__v15558)) {
+  return __v15558
   } else {
-  __v15555 := snd(__v15555)
+  __v15558 := snd(__v15558)
   };
-  tv := __v15555
+  __v15559 := __v15558 = "Object";
+  if (__v15559 = false) {
+  __v15561 := false
   } else {
-  print "debuging DateConstructor: 1";
-  __v15556 := "ToPrimitive"(___internal_esl_global, value, null);
-  if (fst(__v15556)) {
-  return __v15556
+  __v15560 := "DateValue" in_obj value;
+  if (__v15560 = false) {
+  __v15561 := false
   } else {
-  __v15556 := snd(__v15556)
-  };
-  v := __v15556;
-  print "debuging DateConstructor: 2";
-  __v15557 := "Type"(___internal_esl_global, v);
-  if (fst(__v15557)) {
-  return __v15557
-  } else {
-  __v15557 := snd(__v15557)
-  };
-  __v15558 := __v15557 = "String";
-  if (__v15558) {
-  print "debuging DateConstructor: 3, type = string";
-  __v15559 := "auxParseDate"(___internal_esl_global, v);
-  if (fst(__v15559)) {
-  return __v15559
-  } else {
-  __v15559 := snd(__v15559)
-  };
-  tv := __v15559
-  } else {
-  print "debuging DateConstructor: 4";
-  __v15560 := "ToNumber"(___internal_esl_global, v);
-  if (fst(__v15560)) {
-  return __v15560
-  } else {
-  __v15560 := snd(__v15560)
-  };
-  tv := __v15560;
-  print "ToNumber(v)";
-  print tv
+  __v15561 := true
   }
   };
-  __v15564 := "Type"(___internal_esl_global, tv);
-  if (fst(__v15564)) {
-  return __v15564
-  } else {
-  __v15564 := snd(__v15564)
-  };
-  __v15565 := __v15564 = "Completion";
-  __v15563 := !__v15565;
-  if (__v15563) {
-  
-  } else {
-  __v15562 := "isAnAbruptCompletion"(___internal_esl_global, tv);
+  if (__v15561) {
+  __v15562 := "thisTimeValue"(___internal_esl_global, value);
   if (fst(__v15562)) {
   return __v15562
   } else {
   __v15562 := snd(__v15562)
   };
-  if (__v15562) {
-  return (false, tv)
+  tv := __v15562
   } else {
-  __v15561 := "getCompletionValue"(___internal_esl_global, tv);
-  if (fst(__v15561)) {
-  return __v15561
+  print "debuging DateConstructor: 1";
+  __v15553 := "ToPrimitive"(___internal_esl_global, value, null);
+  if (fst(__v15553)) {
+  return __v15553
   } else {
-  __v15561 := snd(__v15561)
+  __v15553 := snd(__v15553)
   };
-  tv := __v15561
+  v := __v15553;
+  print "debuging DateConstructor: 2";
+  __v15555 := "Type"(___internal_esl_global, v);
+  if (fst(__v15555)) {
+  return __v15555
+  } else {
+  __v15555 := snd(__v15555)
+  };
+  __v15556 := __v15555 = "String";
+  if (__v15556) {
+  print "debuging DateConstructor: 3, type = string";
+  __v15557 := "auxParseDate"(___internal_esl_global, v);
+  if (fst(__v15557)) {
+  return __v15557
+  } else {
+  __v15557 := snd(__v15557)
+  };
+  tv := __v15557
+  } else {
+  print "debuging DateConstructor: 4";
+  __v15554 := "ToNumber"(___internal_esl_global, v);
+  if (fst(__v15554)) {
+  return __v15554
+  } else {
+  __v15554 := snd(__v15554)
+  };
+  tv := __v15554;
+  print "ToNumber(v)";
+  print tv
   }
   };
-  __v15566 := "OrdinaryCreateFromConstructorDate"(___internal_esl_global, global, this, strict, NewTarget);
+  __v15566 := "Type"(___internal_esl_global, tv);
   if (fst(__v15566)) {
   return __v15566
   } else {
   __v15566 := snd(__v15566)
   };
-  O := __v15566;
-  __v15570 := "Type"(___internal_esl_global, O);
-  if (fst(__v15570)) {
-  return __v15570
-  } else {
-  __v15570 := snd(__v15570)
-  };
-  __v15571 := __v15570 = "Completion";
-  __v15569 := !__v15571;
-  if (__v15569) {
+  __v15567 := __v15566 = "Completion";
+  __v15565 := !__v15567;
+  if (__v15565) {
   
   } else {
-  __v15568 := "isAnAbruptCompletion"(___internal_esl_global, O);
+  __v15564 := "isAnAbruptCompletion"(___internal_esl_global, tv);
+  if (fst(__v15564)) {
+  return __v15564
+  } else {
+  __v15564 := snd(__v15564)
+  };
+  if (__v15564) {
+  return (false, tv)
+  } else {
+  __v15563 := "getCompletionValue"(___internal_esl_global, tv);
+  if (fst(__v15563)) {
+  return __v15563
+  } else {
+  __v15563 := snd(__v15563)
+  };
+  tv := __v15563
+  }
+  };
+  __v15568 := "OrdinaryCreateFromConstructorDate"(___internal_esl_global, global, this, strict, NewTarget);
   if (fst(__v15568)) {
   return __v15568
   } else {
   __v15568 := snd(__v15568)
   };
-  if (__v15568) {
-  return (false, O)
-  } else {
-  __v15567 := "getCompletionValue"(___internal_esl_global, O);
-  if (fst(__v15567)) {
-  return __v15567
-  } else {
-  __v15567 := snd(__v15567)
-  };
-  O := __v15567
-  }
-  };
-  __v15572 := "TimeClip"(___internal_esl_global, tv);
+  O := __v15568;
+  __v15572 := "Type"(___internal_esl_global, O);
   if (fst(__v15572)) {
   return __v15572
   } else {
   __v15572 := snd(__v15572)
   };
-  O["DateValue"] := __v15572;
-  print "date constructed successfully";
+  __v15573 := __v15572 = "Completion";
+  __v15571 := !__v15573;
+  if (__v15571) {
+  
+  } else {
+  __v15570 := "isAnAbruptCompletion"(___internal_esl_global, O);
+  if (fst(__v15570)) {
+  return __v15570
+  } else {
+  __v15570 := snd(__v15570)
+  };
+  if (__v15570) {
   return (false, O)
   } else {
-  __v15573 := "getTimeValueIdentifyingCurrentTime"(___internal_esl_global);
-  if (fst(__v15573)) {
-  return __v15573
+  __v15569 := "getCompletionValue"(___internal_esl_global, O);
+  if (fst(__v15569)) {
+  return __v15569
   } else {
-  __v15573 := snd(__v15573)
+  __v15569 := snd(__v15569)
   };
-  now := __v15573;
-  __v15574 := "toDateString"(___internal_esl_global, now);
+  O := __v15569
+  }
+  };
+  __v15574 := "TimeClip"(___internal_esl_global, tv);
   if (fst(__v15574)) {
   return __v15574
   } else {
   __v15574 := snd(__v15574)
   };
-  return (false, __v15574)
+  O["DateValue"] := __v15574;
+  print "date constructed successfully";
+  return (false, O)
+  } else {
+  __v15549 := "getTimeValueIdentifyingCurrentTime"(___internal_esl_global);
+  if (fst(__v15549)) {
+  return __v15549
+  } else {
+  __v15549 := snd(__v15549)
+  };
+  now := __v15549;
+  __v15550 := "toDateString"(___internal_esl_global, now);
+  if (fst(__v15550)) {
+  return __v15550
+  } else {
+  __v15550 := snd(__v15550)
+  };
+  return (false, __v15550)
   }
   };
   function canonicalise(___internal_esl_global, c, c_cp, ic) {
   __v15536 := !ic;
   if (__v15536) {
   return (false, c_cp)
+  } else {
+  
   };
   __v15537 := to_upper_case(c);
   u := __v15537;
@@ -1681,6 +1739,8 @@ Tests compilation of ecmaref5:
   __v15538 := !__v15540;
   if (__v15538) {
   return (false, c_cp)
+  } else {
+  
   };
   __v15542 := to_char_code_u(u);
   __v15541 := int_to_float(__v15542);
@@ -1833,72 +1893,72 @@ Tests compilation of ecmaref5:
   __v15478 := snd(__v15478)
   };
   evalCode["strict"] := __v15478;
-  __v15480 := "isDirectCall"(___internal_esl_global, ref, callingExecCtx);
-  if (fst(__v15480)) {
-  return __v15480
-  } else {
-  __v15480 := snd(__v15480)
-  };
-  __v15479 := !__v15480;
-  if (__v15479) {
-  __v15481 := ___internal_esl_global["__$global"];
-  __v15482 := "InitialGlobalExecutionContext"(___internal_esl_global, __v15481, evalCode);
-  if (fst(__v15482)) {
-  return __v15482
-  } else {
-  __v15482 := snd(__v15482)
-  };
-  evalExecCtx := __v15482
-  } else {
-  __v15483 := "createExecutionContext"(___internal_esl_global);
-  if (fst(__v15483)) {
-  return __v15483
-  } else {
-  __v15483 := snd(__v15483)
-  };
-  evalExecCtx := __v15483;
-  __v15484 := "getThisBinding"(___internal_esl_global, callingExecCtx);
-  if (fst(__v15484)) {
-  return __v15484
-  } else {
-  __v15484 := snd(__v15484)
-  };
-  __v15485 := "setThisBinding"(___internal_esl_global, evalExecCtx, __v15484);
-  if (fst(__v15485)) {
-  return __v15485
-  } else {
-  __v15485 := snd(__v15485)
-  };
-  __v15486 := "getLexicalEnvironment"(___internal_esl_global, callingExecCtx);
-  if (fst(__v15486)) {
-  return __v15486
-  } else {
-  __v15486 := snd(__v15486)
-  };
-  __v15487 := "setLexicalEnvironment"(___internal_esl_global, evalExecCtx, __v15486);
-  if (fst(__v15487)) {
-  return __v15487
-  } else {
-  __v15487 := snd(__v15487)
-  };
-  __v15488 := "getVariableEnvironment"(___internal_esl_global, callingExecCtx);
-  if (fst(__v15488)) {
-  return __v15488
-  } else {
-  __v15488 := snd(__v15488)
-  };
-  __v15489 := "setVariableEnvironment"(___internal_esl_global, evalExecCtx, __v15488);
+  __v15489 := "isDirectCall"(___internal_esl_global, ref, callingExecCtx);
   if (fst(__v15489)) {
   return __v15489
   } else {
   __v15489 := snd(__v15489)
   };
-  __v15490 := evalCode["strict"];
-  __v15491 := "setContainedInStrictCode"(___internal_esl_global, evalExecCtx, __v15490);
+  __v15488 := !__v15489;
+  if (__v15488) {
+  __v15490 := ___internal_esl_global["__$global"];
+  __v15491 := "InitialGlobalExecutionContext"(___internal_esl_global, __v15490, evalCode);
   if (fst(__v15491)) {
   return __v15491
   } else {
   __v15491 := snd(__v15491)
+  };
+  evalExecCtx := __v15491
+  } else {
+  __v15479 := "createExecutionContext"(___internal_esl_global);
+  if (fst(__v15479)) {
+  return __v15479
+  } else {
+  __v15479 := snd(__v15479)
+  };
+  evalExecCtx := __v15479;
+  __v15480 := "getThisBinding"(___internal_esl_global, callingExecCtx);
+  if (fst(__v15480)) {
+  return __v15480
+  } else {
+  __v15480 := snd(__v15480)
+  };
+  __v15481 := "setThisBinding"(___internal_esl_global, evalExecCtx, __v15480);
+  if (fst(__v15481)) {
+  return __v15481
+  } else {
+  __v15481 := snd(__v15481)
+  };
+  __v15482 := "getLexicalEnvironment"(___internal_esl_global, callingExecCtx);
+  if (fst(__v15482)) {
+  return __v15482
+  } else {
+  __v15482 := snd(__v15482)
+  };
+  __v15483 := "setLexicalEnvironment"(___internal_esl_global, evalExecCtx, __v15482);
+  if (fst(__v15483)) {
+  return __v15483
+  } else {
+  __v15483 := snd(__v15483)
+  };
+  __v15484 := "getVariableEnvironment"(___internal_esl_global, callingExecCtx);
+  if (fst(__v15484)) {
+  return __v15484
+  } else {
+  __v15484 := snd(__v15484)
+  };
+  __v15485 := "setVariableEnvironment"(___internal_esl_global, evalExecCtx, __v15484);
+  if (fst(__v15485)) {
+  return __v15485
+  } else {
+  __v15485 := snd(__v15485)
+  };
+  __v15486 := evalCode["strict"];
+  __v15487 := "setContainedInStrictCode"(___internal_esl_global, evalExecCtx, __v15486);
+  if (fst(__v15487)) {
+  return __v15487
+  } else {
+  __v15487 := snd(__v15487)
   }
   };
   __v15492 := "isStrictModeCode"(___internal_esl_global, evalCode, callingExecCtx);
@@ -1933,6 +1993,8 @@ Tests compilation of ecmaref5:
   } else {
   __v15496 := snd(__v15496)
   }
+  } else {
+  
   };
   __v15497 := [];
   __v15498 := "DeclarationBindingInstantiation"(___internal_esl_global, evalCode, __v15497, evalExecCtx, null);
@@ -2048,17 +2110,25 @@ Tests compilation of ecmaref5:
   if (__v15411) {
   __v15412 := leftNum * rightNum;
   return (false, __v15412)
+  } else {
+  
   };
   __v15413 := operator = "/=";
   if (__v15413) {
   __v15414 := leftNum / rightNum;
   return (false, __v15414)
+  } else {
+  
   };
   __v15415 := operator = "%=";
   if (__v15415) {
   __v15416 := leftNum % rightNum;
   return (false, __v15416)
+  } else {
+  
   }
+  } else {
+  
   };
   __v15417 := operator = "+=";
   if (__v15417) {
@@ -2107,6 +2177,8 @@ Tests compilation of ecmaref5:
   __v15426 := [__v15427, __v15428];
   __v15425 := s_concat(__v15426);
   return (false, __v15425)
+  } else {
+  
   };
   __v15429 := "ToNumber"(___internal_esl_global, lprim);
   if (fst(__v15429)) {
@@ -2127,6 +2199,8 @@ Tests compilation of ecmaref5:
   __v15431 := snd(__v15431)
   };
   return (false, __v15431)
+  } else {
+  
   };
   __v15432 := operator = "-=";
   if (__v15432) {
@@ -2151,6 +2225,8 @@ Tests compilation of ecmaref5:
   __v15435 := snd(__v15435)
   };
   return (false, __v15435)
+  } else {
+  
   };
   __v15436 := operator = "<<=";
   __v15437 := operator = ">>=";
@@ -2183,17 +2259,25 @@ Tests compilation of ecmaref5:
   if (__v15444) {
   __v15445 := lnum << shiftCount;
   return (false, __v15445)
+  } else {
+  
   };
   __v15446 := operator = ">>=";
   if (__v15446) {
   __v15447 := lnum >> shiftCount;
   return (false, __v15447)
+  } else {
+  
   };
   __v15448 := operator = ">>>=";
   if (__v15448) {
   __v15449 := lnum >>> shiftCount;
   return (false, __v15449)
+  } else {
+  
   }
+  } else {
+  
   };
   __v15450 := operator = "&=";
   __v15451 := operator = "^=";
@@ -2223,6 +2307,8 @@ Tests compilation of ecmaref5:
   __v15458 := snd(__v15458)
   };
   return (false, __v15458)
+  } else {
+  
   }
   };
   function SecFromTime(___internal_esl_global, t) {
@@ -2387,41 +2473,41 @@ Tests compilation of ecmaref5:
   } else {
   milli := 0.0
   };
-  __v15387 := is_NaN(y);
-  __v15386 := !__v15387;
-  if (__v15386 = false) {
-  __v15385 := false
+  __v15385 := is_NaN(y);
+  __v15384 := !__v15385;
+  if (__v15384 = false) {
+  __v15388 := false
   } else {
-  __v15388 := "ToInteger"(___internal_esl_global, y);
-  if (fst(__v15388)) {
-  return __v15388
+  __v15386 := "ToInteger"(___internal_esl_global, y);
+  if (fst(__v15386)) {
+  return __v15386
   } else {
-  __v15388 := snd(__v15388)
+  __v15386 := snd(__v15386)
   };
-  __v15389 := 0.0 <= __v15388;
-  if (__v15389 = false) {
-  __v15385 := false
+  __v15387 := 0.0 <= __v15386;
+  if (__v15387 = false) {
+  __v15388 := false
   } else {
-  __v15385 := true
+  __v15388 := true
   }
   };
-  if (__v15385 = false) {
-  __v15384 := false
+  if (__v15388 = false) {
+  __v15391 := false
   } else {
-  __v15390 := "ToInteger"(___internal_esl_global, y);
-  if (fst(__v15390)) {
-  return __v15390
+  __v15389 := "ToInteger"(___internal_esl_global, y);
+  if (fst(__v15389)) {
+  return __v15389
   } else {
-  __v15390 := snd(__v15390)
+  __v15389 := snd(__v15389)
   };
-  __v15391 := __v15390 <= 99.0;
-  if (__v15391 = false) {
-  __v15384 := false
+  __v15390 := __v15389 <= 99.0;
+  if (__v15390 = false) {
+  __v15391 := false
   } else {
-  __v15384 := true
+  __v15391 := true
   }
   };
-  if (__v15384) {
+  if (__v15391) {
   __v15392 := "ToInteger"(___internal_esl_global, y);
   if (fst(__v15392)) {
   return __v15392
@@ -2492,6 +2578,8 @@ Tests compilation of ecmaref5:
   } else {
   hint := 'Number
   }
+  } else {
+  
   };
   __v15319 := hint = 'String;
   if (__v15319) {
@@ -2528,7 +2616,11 @@ Tests compilation of ecmaref5:
   };
   if (__v15327) {
   return (false, str)
+  } else {
+  
   }
+  } else {
+  
   };
   __v15328 := O["Get"];
   __v15329 := __v15328(___internal_esl_global, O, "valueOf");
@@ -2563,7 +2655,11 @@ Tests compilation of ecmaref5:
   };
   if (__v15335) {
   return (false, val)
+  } else {
+  
   }
+  } else {
+  
   };
   __v15336 := "TypeErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v15336)) {
@@ -2572,6 +2668,8 @@ Tests compilation of ecmaref5:
   __v15336 := snd(__v15336)
   };
   return (true, __v15336)
+  } else {
+  
   };
   __v15337 := hint = 'Number;
   if (__v15337) {
@@ -2608,7 +2706,11 @@ Tests compilation of ecmaref5:
   };
   if (__v15345) {
   return (false, val)
+  } else {
+  
   }
+  } else {
+  
   };
   __v15346 := O["Get"];
   __v15347 := __v15346(___internal_esl_global, O, "toString");
@@ -2643,7 +2745,11 @@ Tests compilation of ecmaref5:
   };
   if (__v15353) {
   return (false, str)
+  } else {
+  
   }
+  } else {
+  
   };
   __v15354 := "TypeErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v15354)) {
@@ -2652,6 +2758,8 @@ Tests compilation of ecmaref5:
   __v15354 := snd(__v15354)
   };
   return (true, __v15354)
+  } else {
+  
   }
   };
   function DatePrototypeSetUTCFullYear(___internal_esl_global, global, this, strict, args) {
@@ -2710,6 +2818,8 @@ Tests compilation of ecmaref5:
   __v15289 := is_NaN(t);
   if (__v15289) {
   t := 0.0
+  } else {
+  
   };
   __v15290 := "ToNumber"(___internal_esl_global, year);
   if (fst(__v15290)) {
@@ -2747,23 +2857,23 @@ Tests compilation of ecmaref5:
   y := __v15291
   }
   };
-  __v15296 := month = null;
-  if (__v15296) {
-  __v15297 := "MonthFromTime"(___internal_esl_global, t);
-  if (fst(__v15297)) {
-  return __v15297
-  } else {
-  __v15297 := snd(__v15297)
-  };
-  m := __v15297
-  } else {
-  __v15298 := "ToNumber"(___internal_esl_global, month);
+  __v15297 := month = null;
+  if (__v15297) {
+  __v15298 := "MonthFromTime"(___internal_esl_global, t);
   if (fst(__v15298)) {
   return __v15298
   } else {
   __v15298 := snd(__v15298)
   };
   m := __v15298
+  } else {
+  __v15296 := "ToNumber"(___internal_esl_global, month);
+  if (fst(__v15296)) {
+  return __v15296
+  } else {
+  __v15296 := snd(__v15296)
+  };
+  m := __v15296
   };
   __v15302 := "Type"(___internal_esl_global, m);
   if (fst(__v15302)) {
@@ -2794,23 +2904,23 @@ Tests compilation of ecmaref5:
   m := __v15299
   }
   };
-  __v15304 := date = null;
-  if (__v15304) {
-  __v15305 := "DateFromTime"(___internal_esl_global, t);
-  if (fst(__v15305)) {
-  return __v15305
-  } else {
-  __v15305 := snd(__v15305)
-  };
-  dt := __v15305
-  } else {
-  __v15306 := "ToNumber"(___internal_esl_global, date);
+  __v15305 := date = null;
+  if (__v15305) {
+  __v15306 := "DateFromTime"(___internal_esl_global, t);
   if (fst(__v15306)) {
   return __v15306
   } else {
   __v15306 := snd(__v15306)
   };
   dt := __v15306
+  } else {
+  __v15304 := "ToNumber"(___internal_esl_global, date);
+  if (fst(__v15304)) {
+  return __v15304
+  } else {
+  __v15304 := snd(__v15304)
+  };
+  dt := __v15304
   };
   __v15310 := "Type"(___internal_esl_global, dt);
   if (fst(__v15310)) {
@@ -2909,7 +3019,11 @@ Tests compilation of ecmaref5:
   };
   if (__v15220) {
   found := true
+  } else {
+  
   }
+  } else {
+  
   };
   __v15221 := found = true;
   if (__v15221) {
@@ -2949,6 +3063,8 @@ Tests compilation of ecmaref5:
   __v15228 := snd(__v15228)
   };
   V := __v15228
+  } else {
+  
   };
   __v15229 := "isAnAbruptCompletion"(___internal_esl_global, R);
   if (fst(__v15229)) {
@@ -2976,8 +3092,14 @@ Tests compilation of ecmaref5:
   __v15232 := snd(__v15232)
   };
   return (false, __v15232)
+  } else {
+  
   }
+  } else {
+  
   }
+  } else {
+  
   };
   __v15215 := "allElementsHaveNotBeenProcessed"(___internal_esl_global, A, i);
   if (fst(__v15215)) {
@@ -2990,23 +3112,23 @@ Tests compilation of ecmaref5:
   i := 0;
   __v15233 := found = false;
   if (__v15233) {
-  __v15235 := foundInB = false;
-  if (__v15235 = false) {
-  __v15234 := false
+  __v15234 := foundInB = false;
+  if (__v15234 = false) {
+  __v15236 := false
   } else {
-  __v15236 := "allElementsHaveNotBeenProcessed"(___internal_esl_global, B, i);
-  if (fst(__v15236)) {
-  return __v15236
+  __v15235 := "allElementsHaveNotBeenProcessed"(___internal_esl_global, B, i);
+  if (fst(__v15235)) {
+  return __v15235
   } else {
-  __v15236 := snd(__v15236)
+  __v15235 := snd(__v15235)
   };
-  if (__v15236 = false) {
-  __v15234 := false
+  if (__v15235 = false) {
+  __v15236 := false
   } else {
-  __v15234 := true
+  __v15236 := true
   }
   };
-  while (__v15234) {
+  while (__v15236) {
   __v15237 := "getNextCaseClause"(___internal_esl_global, B, i);
   if (fst(__v15237)) {
   return __v15237
@@ -3067,6 +3189,8 @@ Tests compilation of ecmaref5:
   __v15247 := snd(__v15247)
   };
   V := __v15247
+  } else {
+  
   };
   __v15248 := "isAnAbruptCompletion"(___internal_esl_global, R);
   if (fst(__v15248)) {
@@ -3094,26 +3218,34 @@ Tests compilation of ecmaref5:
   __v15251 := snd(__v15251)
   };
   return (false, __v15251)
+  } else {
+  
   }
+  } else {
+  
   }
+  } else {
+  
   };
-  __v15235 := foundInB = false;
+  __v15234 := foundInB = false;
+  if (__v15234 = false) {
+  __v15236 := false
+  } else {
+  __v15235 := "allElementsHaveNotBeenProcessed"(___internal_esl_global, B, i);
+  if (fst(__v15235)) {
+  return __v15235
+  } else {
+  __v15235 := snd(__v15235)
+  };
   if (__v15235 = false) {
-  __v15234 := false
+  __v15236 := false
   } else {
-  __v15236 := "allElementsHaveNotBeenProcessed"(___internal_esl_global, B, i);
-  if (fst(__v15236)) {
-  return __v15236
-  } else {
-  __v15236 := snd(__v15236)
-  };
-  if (__v15236 = false) {
-  __v15234 := false
-  } else {
-  __v15234 := true
+  __v15236 := true
   }
   }
   }
+  } else {
+  
   };
   __v15252 := foundInB = false;
   __v15253 := "hasStatementList"(___internal_esl_global, DefaultClause);
@@ -3153,6 +3285,8 @@ Tests compilation of ecmaref5:
   __v15260 := snd(__v15260)
   };
   V := __v15260
+  } else {
+  
   };
   __v15261 := "isAnAbruptCompletion"(___internal_esl_global, R);
   if (fst(__v15261)) {
@@ -3180,7 +3314,11 @@ Tests compilation of ecmaref5:
   __v15264 := snd(__v15264)
   };
   return (false, __v15264)
+  } else {
+  
   }
+  } else {
+  
   };
   __v15265 := "getNextCaseClause"(___internal_esl_global, B, i);
   if (fst(__v15265)) {
@@ -3200,6 +3338,8 @@ Tests compilation of ecmaref5:
   __v15268 := snd(__v15268)
   };
   return (false, __v15268)
+  } else {
+  
   };
   __v15269 := "hasStatementList"(___internal_esl_global, C);
   if (fst(__v15269)) {
@@ -3237,6 +3377,8 @@ Tests compilation of ecmaref5:
   __v15275 := snd(__v15275)
   };
   V := __v15275
+  } else {
+  
   };
   __v15276 := "isAnAbruptCompletion"(___internal_esl_global, R);
   if (fst(__v15276)) {
@@ -3264,7 +3406,11 @@ Tests compilation of ecmaref5:
   __v15279 := snd(__v15279)
   };
   return (false, __v15279)
+  } else {
+  
   }
+  } else {
+  
   };
   while (!false) {
   __v15265 := "getNextCaseClause"(___internal_esl_global, B, i);
@@ -3285,6 +3431,8 @@ Tests compilation of ecmaref5:
   __v15268 := snd(__v15268)
   };
   return (false, __v15268)
+  } else {
+  
   };
   __v15269 := "hasStatementList"(___internal_esl_global, C);
   if (fst(__v15269)) {
@@ -3322,6 +3470,8 @@ Tests compilation of ecmaref5:
   __v15275 := snd(__v15275)
   };
   V := __v15275
+  } else {
+  
   };
   __v15276 := "isAnAbruptCompletion"(___internal_esl_global, R);
   if (fst(__v15276)) {
@@ -3349,7 +3499,11 @@ Tests compilation of ecmaref5:
   __v15279 := snd(__v15279)
   };
   return (false, __v15279)
+  } else {
+  
   }
+  } else {
+  
   }
   }
   };
@@ -3360,31 +3514,43 @@ Tests compilation of ecmaref5:
   if (__v15203) {
   __v15204 := l_add(list, "Value");
   list := __v15204
+  } else {
+  
   };
   __v15205 := "Writable" in_obj Desc;
   if (__v15205) {
   __v15206 := l_add(list, "Writable");
   list := __v15206
+  } else {
+  
   };
   __v15207 := "Get" in_obj Desc;
   if (__v15207) {
   __v15208 := l_add(list, "Get");
   list := __v15208
+  } else {
+  
   };
   __v15209 := "Set" in_obj Desc;
   if (__v15209) {
   __v15210 := l_add(list, "Set");
   list := __v15210
+  } else {
+  
   };
   __v15211 := "Enumerable" in_obj Desc;
   if (__v15211) {
   __v15212 := l_add(list, "Enumerable");
   list := __v15212
+  } else {
+  
   };
   __v15213 := "Configurable" in_obj Desc;
   if (__v15213) {
   __v15214 := l_add(list, "Configurable");
   list := __v15214
+  } else {
+  
   };
   return (false, list)
   };
@@ -3416,6 +3582,8 @@ Tests compilation of ecmaref5:
   } else {
   __v15142 := snd(__v15142)
   }
+  } else {
+  
   };
   L := "";
   i := 0;
@@ -3434,21 +3602,21 @@ Tests compilation of ecmaref5:
   __v15149 := ___internal_esl_global["specialCasing"];
   __v15150 := l_nth(__v15149, j);
   el := __v15150;
-  __v15152 := el["code"];
-  __v15153 := c = __v15152;
+  __v15151 := el["code"];
+  __v15152 := c = __v15151;
+  if (__v15152 = false) {
+  __v15156 := false
+  } else {
+  __v15154 := el["lowercase"];
+  __v15155 := __v15154 = 'undefined;
+  __v15153 := !__v15155;
   if (__v15153 = false) {
-  __v15151 := false
+  __v15156 := false
   } else {
-  __v15155 := el["lowercase"];
-  __v15156 := __v15155 = 'undefined;
-  __v15154 := !__v15156;
-  if (__v15154 = false) {
-  __v15151 := false
-  } else {
-  __v15151 := true
+  __v15156 := true
   }
   };
-  if (__v15151) {
+  if (__v15156) {
   __v15181 := el["condition_list"];
   __v15182 := __v15181 = 'undefined;
   if (__v15182) {
@@ -3457,70 +3625,70 @@ Tests compilation of ecmaref5:
   __v15184 := sc_len + 1;
   j := __v15184
   } else {
-  __v15158 := el["condition_list"];
-  __v15159 := __v15158 = "Final_Sigma";
+  __v15157 := el["condition_list"];
+  __v15158 := __v15157 = "Final_Sigma";
+  if (__v15158 = false) {
+  __v15160 := false
+  } else {
+  __v15159 := len > 1;
   if (__v15159 = false) {
-  __v15157 := false
+  __v15160 := false
   } else {
-  __v15160 := len > 1;
-  if (__v15160 = false) {
-  __v15157 := false
-  } else {
-  __v15157 := true
+  __v15160 := true
   }
   };
-  if (__v15157) {
-  __v15161 := len - 1;
-  __v15162 := i = __v15161;
-  if (__v15162) {
-  __v15164 := len = 2;
-  if (__v15164 = false) {
-  __v15163 := false
+  if (__v15160) {
+  __v15171 := len - 1;
+  __v15172 := i = __v15171;
+  if (__v15172) {
+  __v15175 := len = 2;
+  if (__v15175 = false) {
+  __v15179 := false
   } else {
-  __v15165 := i - 1;
-  __v15166 := s_nth_u(S, __v15165);
-  __v15167 := __v15166 = "\205\133";
-  if (__v15167 = false) {
-  __v15163 := false
-  } else {
-  __v15163 := true
-  }
-  };
-  if (__v15163) {
-  __v15168 := sc_len - 1;
-  j := __v15168
-  } else {
-  __v15169 := el["lowercase"];
-  c := __v15169;
-  __v15170 := sc_len + 1;
-  j := __v15170
-  }
-  } else {
-  __v15171 := i + 1;
-  __v15172 := s_nth_u(S, __v15171);
-  nextC := __v15172;
-  __v15177 := len - 2;
-  __v15178 := i < __v15177;
+  __v15176 := i - 1;
+  __v15177 := s_nth_u(S, __v15176);
+  __v15178 := __v15177 = "\205\133";
   if (__v15178 = false) {
-  __v15176 := false
+  __v15179 := false
   } else {
-  __v15179 := nextC = "\205\133";
-  if (__v15179 = false) {
-  __v15176 := false
-  } else {
-  __v15176 := true
+  __v15179 := true
   }
   };
-  if (__v15176) {
+  if (__v15179) {
   __v15180 := sc_len - 1;
   j := __v15180
   } else {
-  __v15173 := nextC = "\205\133";
-  if (__v15173) {
-  __v15174 := el["lowercase"];
-  c := __v15174;
-  __v15175 := sc_len + 1;
-  j := __v15175
+  __v15173 := el["lowercase"];
+  c := __v15173;
+  __v15174 := sc_len + 1;
+  j := __v15174
+  }
+  } else {
+  __v15161 := i + 1;
+  __v15162 := s_nth_u(S, __v15161);
+  nextC := __v15162;
+  __v15166 := len - 2;
+  __v15167 := i < __v15166;
+  if (__v15167 = false) {
+  __v15169 := false
+  } else {
+  __v15168 := nextC = "\205\133";
+  if (__v15168 = false) {
+  __v15169 := false
+  } else {
+  __v15169 := true
+  }
+  };
+  if (__v15169) {
+  __v15170 := sc_len - 1;
+  j := __v15170
+  } else {
+  __v15163 := nextC = "\205\133";
+  if (__v15163) {
+  __v15164 := el["lowercase"];
+  c := __v15164;
+  __v15165 := sc_len + 1;
+  j := __v15165
   } else {
   
   }
@@ -3530,42 +3698,46 @@ Tests compilation of ecmaref5:
   
   }
   }
+  } else {
+  
   };
   __v15185 := j + 1;
   j := __v15185;
   __v15148 := j < sc_len
   };
-  __v15188 := j <= sc_len;
+  __v15186 := j <= sc_len;
+  if (__v15186 = false) {
+  __v15189 := false
+  } else {
+  __v15187 := ___internal_esl_global["unicodeData"];
+  __v15188 := c in_obj __v15187;
   if (__v15188 = false) {
-  __v15187 := false
+  __v15189 := false
   } else {
-  __v15189 := ___internal_esl_global["unicodeData"];
-  __v15190 := c in_obj __v15189;
+  __v15189 := true
+  }
+  };
+  if (__v15189 = false) {
+  __v15195 := false
+  } else {
+  __v15193 := ___internal_esl_global["unicodeData"];
+  __v15192 := __v15193[c];
+  __v15191 := __v15192["lowercase"];
+  __v15194 := __v15191 = 'undefined;
+  __v15190 := !__v15194;
   if (__v15190 = false) {
-  __v15187 := false
+  __v15195 := false
   } else {
-  __v15187 := true
+  __v15195 := true
   }
   };
-  if (__v15187 = false) {
-  __v15186 := false
-  } else {
-  __v15194 := ___internal_esl_global["unicodeData"];
-  __v15193 := __v15194[c];
-  __v15192 := __v15193["lowercase"];
-  __v15195 := __v15192 = 'undefined;
-  __v15191 := !__v15195;
-  if (__v15191 = false) {
-  __v15186 := false
-  } else {
-  __v15186 := true
-  }
-  };
-  if (__v15186) {
+  if (__v15195) {
   __v15198 := ___internal_esl_global["unicodeData"];
   __v15197 := __v15198[c];
   __v15196 := __v15197["lowercase"];
   c := __v15196
+  } else {
+  
   };
   __v15200 := [L, c];
   __v15199 := s_concat(__v15200);
@@ -3599,6 +3771,8 @@ Tests compilation of ecmaref5:
   if (__v15110) {
   __v15111 := (enumProps, checkedProps);
   return (false, __v15111)
+  } else {
+  
   };
   __v15112 := "JSProperties" in_obj object;
   if (__v15112) {
@@ -3623,30 +3797,36 @@ Tests compilation of ecmaref5:
   __v15120 := snd(__v15120)
   };
   if (__v15120) {
-  __v15122 := p_value["Enumerable"];
-  __v15123 := __v15122 = true;
+  __v15121 := p_value["Enumerable"];
+  __v15122 := __v15121 = true;
+  if (__v15122 = false) {
+  __v15125 := false
+  } else {
+  __v15124 := p_name in_list checkedProps;
+  __v15123 := !__v15124;
   if (__v15123 = false) {
-  __v15121 := false
+  __v15125 := false
   } else {
-  __v15125 := p_name in_list checkedProps;
-  __v15124 := !__v15125;
-  if (__v15124 = false) {
-  __v15121 := false
-  } else {
-  __v15121 := true
+  __v15125 := true
   }
   };
-  if (__v15121) {
+  if (__v15125) {
   __v15126 := l_add(enumProps, p_name);
   enumProps := __v15126
+  } else {
+  
   };
   __v15127 := l_add(checkedProps, p_name);
   checkedProps := __v15127
+  } else {
+  
   };
   __v15128 := i + 1;
   i := __v15128;
   __v15117 := llist > i
   }
+  } else {
+  
   };
   __v15129 := "Prototype" in_obj object;
   if (__v15129) {
@@ -3662,6 +3842,8 @@ Tests compilation of ecmaref5:
   enumProps := __v15132;
   __v15133 := t_nth(props, 1);
   checkedProps := __v15133
+  } else {
+  
   };
   __v15134 := (enumProps, checkedProps);
   return (false, __v15134)
@@ -3682,19 +3864,21 @@ Tests compilation of ecmaref5:
   __v15105 := snd(__v15105)
   };
   return (true, __v15105)
-  };
-  __v15106 := "Type"(___internal_esl_global, this);
-  if (fst(__v15106)) {
-  return __v15106
   } else {
-  __v15106 := snd(__v15106)
+  
   };
-  __v15107 := __v15106 = "Number";
-  if (__v15107) {
+  __v15107 := "Type"(___internal_esl_global, this);
+  if (fst(__v15107)) {
+  return __v15107
+  } else {
+  __v15107 := snd(__v15107)
+  };
+  __v15108 := __v15107 = "Number";
+  if (__v15108) {
   num := this
   } else {
-  __v15108 := this["PrimitiveValue"];
-  num := __v15108
+  __v15106 := this["PrimitiveValue"];
+  num := __v15106
   };
   __v15109 := "ToString"(___internal_esl_global, num);
   if (fst(__v15109)) {
@@ -3766,20 +3950,20 @@ Tests compilation of ecmaref5:
   return (false, __v15094)
   };
   function __lambda__4(st, m, bounds, k, index, parenIndex, parenCount, ___internal_esl_global, st') {
-  __v16029 := bounds["inf"];
-  __v16030 := __v16029 = 0.0;
-  if (__v16030 = false) {
-  __v16028 := false
+  __v16028 := bounds["inf"];
+  __v16029 := __v16028 = 0.0;
+  if (__v16029 = false) {
+  __v16032 := false
   } else {
-  __v16031 := st'["endIndex"];
-  __v16032 := index = __v16031;
-  if (__v16032 = false) {
-  __v16028 := false
+  __v16030 := st'["endIndex"];
+  __v16031 := index = __v16030;
+  if (__v16031 = false) {
+  __v16032 := false
   } else {
-  __v16028 := true
+  __v16032 := true
   }
   };
-  if (__v16028) {
+  if (__v16032) {
   __v16033 := k(___internal_esl_global, st');
   if (fst(__v16033)) {
   return __v16033
@@ -3787,6 +3971,8 @@ Tests compilation of ecmaref5:
   __v16033 := snd(__v16033)
   };
   return (false, __v16033)
+  } else {
+  
   };
   __v16034 := "decrementBounds"(___internal_esl_global, bounds);
   if (fst(__v16034)) {
@@ -3831,35 +4017,35 @@ Tests compilation of ecmaref5:
   __v15073 := snd(__v15073)
   };
   intStart := __v15073;
-  __v15074 := end = 'undefined;
-  if (__v15074) {
+  __v15075 := end = 'undefined;
+  if (__v15075) {
   intEnd := len
   } else {
-  __v15075 := "ToInteger"(___internal_esl_global, end);
-  if (fst(__v15075)) {
-  return __v15075
+  __v15074 := "ToInteger"(___internal_esl_global, end);
+  if (fst(__v15074)) {
+  return __v15074
   } else {
-  __v15075 := snd(__v15075)
+  __v15074 := snd(__v15074)
   };
-  intEnd := __v15075
+  intEnd := __v15074
   };
-  __v15076 := intStart < 0.0;
-  if (__v15076) {
-  __v15077 := len + intStart;
-  __v15078 := max(__v15077, 0.0);
-  from := __v15078
-  } else {
-  __v15079 := min(intStart, len);
+  __v15077 := intStart < 0.0;
+  if (__v15077) {
+  __v15078 := len + intStart;
+  __v15079 := max(__v15078, 0.0);
   from := __v15079
-  };
-  __v15080 := intEnd < 0.0;
-  if (__v15080) {
-  __v15081 := len + intEnd;
-  __v15082 := max(__v15081, 0.0);
-  to := __v15082
   } else {
-  __v15083 := min(intEnd, len);
+  __v15076 := min(intStart, len);
+  from := __v15076
+  };
+  __v15081 := intEnd < 0.0;
+  if (__v15081) {
+  __v15082 := len + intEnd;
+  __v15083 := max(__v15082, 0.0);
   to := __v15083
+  } else {
+  __v15080 := min(intEnd, len);
+  to := __v15080
   };
   __v15084 := to - from;
   __v15085 := max(__v15084, 0.0);
@@ -3897,6 +4083,8 @@ Tests compilation of ecmaref5:
   __v15034 := !__v15037;
   if (__v15034) {
   return (false, false)
+  } else {
+  
   };
   __v15038 := "Type"(___internal_esl_global, x);
   if (fst(__v15038)) {
@@ -3907,6 +4095,8 @@ Tests compilation of ecmaref5:
   __v15039 := __v15038 = "Undefined";
   if (__v15039) {
   return (false, true)
+  } else {
+  
   };
   __v15040 := "Type"(___internal_esl_global, x);
   if (fst(__v15040)) {
@@ -3917,6 +4107,8 @@ Tests compilation of ecmaref5:
   __v15041 := __v15040 = "Null";
   if (__v15041) {
   return (false, true)
+  } else {
+  
   };
   __v15042 := "Type"(___internal_esl_global, x);
   if (fst(__v15042)) {
@@ -3931,6 +4123,8 @@ Tests compilation of ecmaref5:
   __v15046 := __v15044 && __v15045;
   if (__v15046) {
   return (false, true)
+  } else {
+  
   };
   __v15047 := "isZero"(___internal_esl_global, x);
   if (fst(__v15047)) {
@@ -3947,6 +4141,8 @@ Tests compilation of ecmaref5:
   __v15049 := __v15047 && __v15048;
   if (__v15049) {
   return (false, false)
+  } else {
+  
   };
   __v15050 := "isMinusZero"(___internal_esl_global, x);
   if (fst(__v15050)) {
@@ -3963,6 +4159,8 @@ Tests compilation of ecmaref5:
   __v15052 := __v15050 && __v15051;
   if (__v15052) {
   return (false, false)
+  } else {
+  
   };
   __v15053 := "sameNumber"(___internal_esl_global, x, y);
   if (fst(__v15053)) {
@@ -3972,8 +4170,12 @@ Tests compilation of ecmaref5:
   };
   if (__v15053) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
+  } else {
+  
   };
   __v15054 := "Type"(___internal_esl_global, x);
   if (fst(__v15054)) {
@@ -3991,8 +4193,12 @@ Tests compilation of ecmaref5:
   };
   if (__v15056) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
+  } else {
+  
   };
   __v15057 := "Type"(___internal_esl_global, x);
   if (fst(__v15057)) {
@@ -4011,8 +4217,12 @@ Tests compilation of ecmaref5:
   __v15065 := __v15061 || __v15064;
   if (__v15065) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
+  } else {
+  
   };
   __v15066 := "sameObject"(___internal_esl_global, x, y);
   if (fst(__v15066)) {
@@ -4022,6 +4232,8 @@ Tests compilation of ecmaref5:
   };
   if (__v15066) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
   };
@@ -4044,6 +4256,8 @@ Tests compilation of ecmaref5:
   __v15032 := snd(__v15032)
   };
   return (true, __v15032)
+  } else {
+  
   };
   __v15033 := "getInternalProperty"(___internal_esl_global, O, "Extensible");
   if (fst(__v15033)) {
@@ -4072,6 +4286,8 @@ Tests compilation of ecmaref5:
   __v15015 := snd(__v15015)
   };
   return (true, __v15015)
+  } else {
+  
   };
   __v15016 := [];
   __v15017 := "ArrayConstructor"(___internal_esl_global, globalObject, this, strict, __v15016);
@@ -4171,6 +4387,8 @@ Tests compilation of ecmaref5:
   __v15003 := st["endIndex"];
   __v15004 := __v15003 + 1;
   st["endIndex"] := __v15004
+  } else {
+  
   };
   return (false, null)
   };
@@ -4214,6 +4432,8 @@ Tests compilation of ecmaref5:
   __v14845 := !__v14847;
   if (__v14845) {
   return (false, true)
+  } else {
+  
   };
   __v14848 := "IsUnresolvableReference"(___internal_esl_global, ref);
   if (fst(__v14848)) {
@@ -4240,8 +4460,52 @@ Tests compilation of ecmaref5:
   } else {
   return (false, true)
   }
+  } else {
+  
   };
-  __v14852 := "IsPropertyReference"(___internal_esl_global, ref);
+  __v14858 := "IsPropertyReference"(___internal_esl_global, ref);
+  if (fst(__v14858)) {
+  return __v14858
+  } else {
+  __v14858 := snd(__v14858)
+  };
+  __v14859 := __v14858 = true;
+  if (__v14859) {
+  __v14860 := "GetBase"(___internal_esl_global, ref);
+  if (fst(__v14860)) {
+  return __v14860
+  } else {
+  __v14860 := snd(__v14860)
+  };
+  __v14861 := "ToObject"(___internal_esl_global, __v14860);
+  if (fst(__v14861)) {
+  return __v14861
+  } else {
+  __v14861 := snd(__v14861)
+  };
+  obj := __v14861;
+  __v14862 := obj["Delete"];
+  __v14863 := "GetReferencedName"(___internal_esl_global, ref);
+  if (fst(__v14863)) {
+  return __v14863
+  } else {
+  __v14863 := snd(__v14863)
+  };
+  __v14864 := "IsStrictReference"(___internal_esl_global, ref);
+  if (fst(__v14864)) {
+  return __v14864
+  } else {
+  __v14864 := snd(__v14864)
+  };
+  __v14865 := __v14862(___internal_esl_global, obj, __v14863, __v14864);
+  if (fst(__v14865)) {
+  return __v14865
+  } else {
+  __v14865 := snd(__v14865)
+  };
+  return (false, __v14865)
+  } else {
+  __v14852 := "IsStrictReference"(___internal_esl_global, ref);
   if (fst(__v14852)) {
   return __v14852
   } else {
@@ -4249,76 +4513,36 @@ Tests compilation of ecmaref5:
   };
   __v14853 := __v14852 = true;
   if (__v14853) {
-  __v14854 := "GetBase"(___internal_esl_global, ref);
+  __v14854 := "SyntaxErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v14854)) {
   return __v14854
   } else {
   __v14854 := snd(__v14854)
   };
-  __v14855 := "ToObject"(___internal_esl_global, __v14854);
+  return (true, __v14854)
+  } else {
+  
+  };
+  __v14855 := "GetBase"(___internal_esl_global, ref);
   if (fst(__v14855)) {
   return __v14855
   } else {
   __v14855 := snd(__v14855)
   };
-  obj := __v14855;
-  __v14856 := obj["Delete"];
-  __v14857 := "GetReferencedName"(___internal_esl_global, ref);
+  bindings := __v14855;
+  __v14856 := "GetReferencedName"(___internal_esl_global, ref);
+  if (fst(__v14856)) {
+  return __v14856
+  } else {
+  __v14856 := snd(__v14856)
+  };
+  __v14857 := "DeleteBinding"(___internal_esl_global, bindings, __v14856);
   if (fst(__v14857)) {
   return __v14857
   } else {
   __v14857 := snd(__v14857)
   };
-  __v14858 := "IsStrictReference"(___internal_esl_global, ref);
-  if (fst(__v14858)) {
-  return __v14858
-  } else {
-  __v14858 := snd(__v14858)
-  };
-  __v14859 := __v14856(___internal_esl_global, obj, __v14857, __v14858);
-  if (fst(__v14859)) {
-  return __v14859
-  } else {
-  __v14859 := snd(__v14859)
-  };
-  return (false, __v14859)
-  } else {
-  __v14860 := "IsStrictReference"(___internal_esl_global, ref);
-  if (fst(__v14860)) {
-  return __v14860
-  } else {
-  __v14860 := snd(__v14860)
-  };
-  __v14861 := __v14860 = true;
-  if (__v14861) {
-  __v14862 := "SyntaxErrorConstructorInternal"(___internal_esl_global);
-  if (fst(__v14862)) {
-  return __v14862
-  } else {
-  __v14862 := snd(__v14862)
-  };
-  return (true, __v14862)
-  };
-  __v14863 := "GetBase"(___internal_esl_global, ref);
-  if (fst(__v14863)) {
-  return __v14863
-  } else {
-  __v14863 := snd(__v14863)
-  };
-  bindings := __v14863;
-  __v14864 := "GetReferencedName"(___internal_esl_global, ref);
-  if (fst(__v14864)) {
-  return __v14864
-  } else {
-  __v14864 := snd(__v14864)
-  };
-  __v14865 := "DeleteBinding"(___internal_esl_global, bindings, __v14864);
-  if (fst(__v14865)) {
-  return __v14865
-  } else {
-  __v14865 := snd(__v14865)
-  };
-  return (false, __v14865)
+  return (false, __v14857)
   }
   } else {
   __v14866 := "type" in_obj UnaryExpr;
@@ -4378,6 +4602,8 @@ Tests compilation of ecmaref5:
   __v14886 := __v14885 = true;
   if (__v14886) {
   return (false, "undefined")
+  } else {
+  
   };
   __v14887 := "GetValue"(___internal_esl_global, val);
   if (fst(__v14887)) {
@@ -4386,6 +4612,8 @@ Tests compilation of ecmaref5:
   __v14887 := snd(__v14887)
   };
   val := __v14887
+  } else {
+  
   };
   __v14888 := "typeofOperatorTable"(___internal_esl_global, val);
   if (fst(__v14888)) {
@@ -4467,6 +4695,8 @@ Tests compilation of ecmaref5:
   __v14915 := snd(__v14915)
   };
   return (true, __v14915)
+  } else {
+  
   };
   __v14916 := "GetValue"(___internal_esl_global, expr);
   if (fst(__v14916)) {
@@ -4563,6 +4793,8 @@ Tests compilation of ecmaref5:
   __v14946 := snd(__v14946)
   };
   return (true, __v14946)
+  } else {
+  
   };
   __v14947 := "GetValue"(___internal_esl_global, expr);
   if (fst(__v14947)) {
@@ -4649,6 +4881,8 @@ Tests compilation of ecmaref5:
   __v14971 := is_NaN(oldValue);
   if (__v14971) {
   return (false, nan)
+  } else {
+  
   };
   __v14972 := -(oldValue);
   return (false, __v14972)
@@ -4717,6 +4951,8 @@ Tests compilation of ecmaref5:
   __v14994 := oldValue = true;
   if (__v14994) {
   return (false, false)
+  } else {
+  
   };
   return (false, true)
   } else {
@@ -4783,6 +5019,8 @@ Tests compilation of ecmaref5:
   __v14832 := desc = 'undefined;
   if (__v14832) {
   return (false, false)
+  } else {
+  
   };
   __v14833 := "getInternalProperty"(___internal_esl_global, desc, "Enumerable");
   if (fst(__v14833)) {
@@ -4827,6 +5065,8 @@ Tests compilation of ecmaref5:
   __v14765 := snd(__v14765)
   };
   return (true, __v14765)
+  } else {
+  
   };
   __v14766 := "ToString"(___internal_esl_global, str);
   if (fst(__v14766)) {
@@ -4863,6 +5103,8 @@ Tests compilation of ecmaref5:
   } else {
   __v14774 := snd(__v14774)
   }
+  } else {
+  
   };
   __v14775 := R["Get"];
   __v14776 := __v14775(___internal_esl_global, R, "global");
@@ -4875,6 +5117,8 @@ Tests compilation of ecmaref5:
   __v14777 := global = false;
   if (__v14777) {
   i := 0
+  } else {
+  
   };
   matchSucceeded := false;
   __v14778 := matchSucceeded = false;
@@ -4891,6 +5135,8 @@ Tests compilation of ecmaref5:
   __v14783 := snd(__v14783)
   };
   return (false, 'null)
+  } else {
+  
   };
   __v14784 := R["Match"];
   __v14785 := __v14784(___internal_esl_global, R, S, i);
@@ -4927,6 +5173,8 @@ Tests compilation of ecmaref5:
   } else {
   __v14792 := snd(__v14792)
   }
+  } else {
+  
   };
   __v14795 := r["caps"];
   __v14794 := __v14795["len"];
@@ -5060,6 +5308,8 @@ Tests compilation of ecmaref5:
   __v14747 := snd(__v14747)
   };
   return (true, __v14747)
+  } else {
+  
   };
   __v14751 := "getOwnProperties"(___internal_esl_global, O);
   if (fst(__v14751)) {
@@ -5092,12 +5342,18 @@ Tests compilation of ecmaref5:
   __v14757 := __v14756 = true;
   if (__v14757) {
   return (false, false)
+  } else {
+  
   }
+  } else {
+  
   };
   __v14758 := desc["Configurable"];
   __v14759 := __v14758 = true;
   if (__v14759) {
   return (false, false)
+  } else {
+  
   };
   __v14749 := __v14749 + 1;
   __v14750 := __v14748 > __v14749
@@ -5111,6 +5367,8 @@ Tests compilation of ecmaref5:
   __v14761 := __v14760 = false;
   if (__v14761) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
   };
@@ -5129,6 +5387,8 @@ Tests compilation of ecmaref5:
   __v14742 := s = c;
   if (__v14742) {
   return (false, true)
+  } else {
+  
   };
   __v14740 := __v14740 + 1;
   __v14741 := __v14739 > __v14740
@@ -5164,31 +5424,33 @@ Tests compilation of ecmaref5:
   return (false, __v14735)
   };
   function isFunctionObject(___internal_esl_global, object) {
-  __v14728 := "Type"(___internal_esl_global, object);
-  if (fst(__v14728)) {
-  return __v14728
+  __v14727 := "Type"(___internal_esl_global, object);
+  if (fst(__v14727)) {
+  return __v14727
   } else {
-  __v14728 := snd(__v14728)
+  __v14727 := snd(__v14727)
   };
-  __v14729 := __v14728 = "Object";
-  if (__v14729 = false) {
-  __v14727 := false
+  __v14728 := __v14727 = "Object";
+  if (__v14728 = false) {
+  __v14731 := false
   } else {
-  __v14730 := "getInternalProperty"(___internal_esl_global, object, "Class");
-  if (fst(__v14730)) {
-  return __v14730
+  __v14729 := "getInternalProperty"(___internal_esl_global, object, "Class");
+  if (fst(__v14729)) {
+  return __v14729
   } else {
-  __v14730 := snd(__v14730)
+  __v14729 := snd(__v14729)
   };
-  __v14731 := __v14730 = "Function";
-  if (__v14731 = false) {
-  __v14727 := false
+  __v14730 := __v14729 = "Function";
+  if (__v14730 = false) {
+  __v14731 := false
   } else {
-  __v14727 := true
+  __v14731 := true
   }
   };
-  if (__v14727) {
+  if (__v14731) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
   };
@@ -5201,13 +5463,13 @@ Tests compilation of ecmaref5:
   __v14723["Enumerable"] := false;
   __v14723["Configurable"] := false;
   objectDefaultAttributeValues := __v14723;
-  __v14724 := propName in_obj propDesc;
-  if (__v14724) {
-  __v14725 := propDesc[propName];
-  return (false, __v14725)
-  } else {
-  __v14726 := objectDefaultAttributeValues[propName];
+  __v14725 := propName in_obj propDesc;
+  if (__v14725) {
+  __v14726 := propDesc[propName];
   return (false, __v14726)
+  } else {
+  __v14724 := objectDefaultAttributeValues[propName];
+  return (false, __v14724)
   }
   };
   function TypeErrorConstructor(___internal_esl_global, globalObject, this, strict, params) {
@@ -5222,36 +5484,36 @@ Tests compilation of ecmaref5:
   return (false, __v14722)
   };
   function EnteringGlobalCode(___internal_esl_global, program) {
-  __v14711 := "optimised" in_obj program;
-  if (__v14711 = false) {
-  __v14710 := false
+  __v14712 := "optimised" in_obj program;
+  if (__v14712 = false) {
+  __v14715 := false
   } else {
-  __v14712 := program["optimised"];
-  __v14713 := __v14712 = true;
-  if (__v14713 = false) {
-  __v14710 := false
+  __v14713 := program["optimised"];
+  __v14714 := __v14713 = true;
+  if (__v14714 = false) {
+  __v14715 := false
   } else {
-  __v14710 := true
+  __v14715 := true
   }
   };
-  if (__v14710) {
-  __v14714 := program["strict"];
-  __v14715 := "optimizeInitGlobalObject"(___internal_esl_global, __v14714);
-  if (fst(__v14715)) {
-  return __v14715
-  } else {
-  __v14715 := snd(__v14715)
-  };
-  globalObject := __v14715
-  } else {
+  if (__v14715) {
   __v14716 := program["strict"];
-  __v14717 := "initGlobalObject"(___internal_esl_global, __v14716);
+  __v14717 := "optimizeInitGlobalObject"(___internal_esl_global, __v14716);
   if (fst(__v14717)) {
   return __v14717
   } else {
   __v14717 := snd(__v14717)
   };
   globalObject := __v14717
+  } else {
+  __v14710 := program["strict"];
+  __v14711 := "initGlobalObject"(___internal_esl_global, __v14710);
+  if (fst(__v14711)) {
+  return __v14711
+  } else {
+  __v14711 := snd(__v14711)
+  };
+  globalObject := __v14711
   };
   __v14718 := "InitialGlobalExecutionContext"(___internal_esl_global, globalObject, program);
   if (fst(__v14718)) {
@@ -5291,6 +5553,8 @@ Tests compilation of ecmaref5:
   __v14691 := c = null;
   if (__v14691) {
   return (false, false)
+  } else {
+  
   };
   __v14693 := to_char_code_u(c);
   __v14692 := int_to_float(__v14693);
@@ -5312,24 +5576,28 @@ Tests compilation of ecmaref5:
   __v14699 := cs["positive"];
   __v14700 := code_str in_obj __v14699;
   ret := __v14700
+  } else {
+  
   };
   __v14702 := cs["negative"];
   __v14703 := __v14702 = null;
   __v14701 := !__v14703;
   if (__v14701) {
   if (ret = true) {
-  __v14704 := true
+  __v14707 := true
   } else {
-  __v14706 := cs["negative"];
-  __v14707 := code_str in_obj __v14706;
-  __v14705 := !__v14707;
-  if (__v14705 = true) {
-  __v14704 := true
+  __v14705 := cs["negative"];
+  __v14706 := code_str in_obj __v14705;
+  __v14704 := !__v14706;
+  if (__v14704 = true) {
+  __v14707 := true
   } else {
-  __v14704 := false
+  __v14707 := false
   }
   };
-  ret := __v14704
+  ret := __v14707
+  } else {
+  
   };
   return (false, ret)
   };
@@ -5372,32 +5640,36 @@ Tests compilation of ecmaref5:
   __v14681 := __v14680 = "Number";
   if (__v14681) {
   return (false, true)
+  } else {
+  
   };
-  __v14683 := "Type"(___internal_esl_global, arg);
-  if (fst(__v14683)) {
-  return __v14683
+  __v14682 := "Type"(___internal_esl_global, arg);
+  if (fst(__v14682)) {
+  return __v14682
   } else {
-  __v14683 := snd(__v14683)
+  __v14682 := snd(__v14682)
   };
-  __v14684 := __v14683 = "Object";
-  if (__v14684 = false) {
-  __v14682 := false
+  __v14683 := __v14682 = "Object";
+  if (__v14683 = false) {
+  __v14686 := false
   } else {
-  __v14685 := "getInternalProperty"(___internal_esl_global, arg, "Class");
-  if (fst(__v14685)) {
-  return __v14685
+  __v14684 := "getInternalProperty"(___internal_esl_global, arg, "Class");
+  if (fst(__v14684)) {
+  return __v14684
   } else {
-  __v14685 := snd(__v14685)
+  __v14684 := snd(__v14684)
   };
-  __v14686 := __v14685 = "Number";
-  if (__v14686 = false) {
-  __v14682 := false
+  __v14685 := __v14684 = "Number";
+  if (__v14685 = false) {
+  __v14686 := false
   } else {
-  __v14682 := true
+  __v14686 := true
   }
   };
-  if (__v14682) {
+  if (__v14686) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
   };
@@ -5444,18 +5716,18 @@ Tests compilation of ecmaref5:
   }
   };
   function isBuiltInFunctionBodyStrictModeCode(___internal_esl_global, bodyObj) {
-  __v14665 := "strict" in_obj bodyObj;
+  __v14664 := "strict" in_obj bodyObj;
+  if (__v14664 = false) {
+  __v14666 := false
+  } else {
+  __v14665 := bodyObj["strict"];
   if (__v14665 = false) {
-  __v14664 := false
+  __v14666 := false
   } else {
-  __v14666 := bodyObj["strict"];
-  if (__v14666 = false) {
-  __v14664 := false
-  } else {
-  __v14664 := true
+  __v14666 := true
   }
   };
-  return (false, __v14664)
+  return (false, __v14666)
   };
   function newLexicalEnvironment(___internal_esl_global) {
   __v14663 := {};
@@ -5469,6 +5741,8 @@ Tests compilation of ecmaref5:
   if (__v14653) {
   __v14654 := -(inf);
   return (false, __v14654)
+  } else {
+  
   };
   __v14655 := l_nth(params, 0);
   __v14656 := "ToNumber"(___internal_esl_global, __v14655);
@@ -5624,6 +5898,8 @@ Tests compilation of ecmaref5:
   __v14612 := snd(__v14612)
   };
   return (true, __v14612)
+  } else {
+  
   };
   __v14614 := "Construct" in_obj constructor;
   __v14613 := !__v14614;
@@ -5635,6 +5911,8 @@ Tests compilation of ecmaref5:
   __v14615 := snd(__v14615)
   };
   return (true, __v14615)
+  } else {
+  
   };
   __v14616 := constructor["Construct"];
   __v14617 := __v14616(___internal_esl_global, scope, ref, constructor, argList);
@@ -5694,6 +5972,8 @@ Tests compilation of ecmaref5:
   __v14629 := snd(__v14629)
   };
   return (true, __v14629)
+  } else {
+  
   };
   __v14630 := "IsCallable"(___internal_esl_global, func);
   if (fst(__v14630)) {
@@ -5710,6 +5990,8 @@ Tests compilation of ecmaref5:
   __v14632 := snd(__v14632)
   };
   return (true, __v14632)
+  } else {
+  
   };
   __v14633 := "Type"(___internal_esl_global, ref);
   if (fst(__v14633)) {
@@ -5719,35 +6001,35 @@ Tests compilation of ecmaref5:
   };
   __v14634 := __v14633 = "Reference";
   if (__v14634) {
-  __v14635 := "IsPropertyReference"(___internal_esl_global, ref);
-  if (fst(__v14635)) {
-  return __v14635
-  } else {
-  __v14635 := snd(__v14635)
-  };
-  __v14636 := __v14635 = true;
-  if (__v14636) {
-  __v14637 := "GetBase"(___internal_esl_global, ref);
+  __v14637 := "IsPropertyReference"(___internal_esl_global, ref);
   if (fst(__v14637)) {
   return __v14637
   } else {
   __v14637 := snd(__v14637)
   };
-  thisValue := __v14637
-  } else {
-  __v14638 := "GetBase"(___internal_esl_global, ref);
-  if (fst(__v14638)) {
-  return __v14638
-  } else {
-  __v14638 := snd(__v14638)
-  };
-  __v14639 := "ImplicitThisValue"(___internal_esl_global, __v14638);
+  __v14638 := __v14637 = true;
+  if (__v14638) {
+  __v14639 := "GetBase"(___internal_esl_global, ref);
   if (fst(__v14639)) {
   return __v14639
   } else {
   __v14639 := snd(__v14639)
   };
   thisValue := __v14639
+  } else {
+  __v14635 := "GetBase"(___internal_esl_global, ref);
+  if (fst(__v14635)) {
+  return __v14635
+  } else {
+  __v14635 := snd(__v14635)
+  };
+  __v14636 := "ImplicitThisValue"(___internal_esl_global, __v14635);
+  if (fst(__v14636)) {
+  return __v14636
+  } else {
+  __v14636 := snd(__v14636)
+  };
+  thisValue := __v14636
   }
   } else {
   thisValue := 'undefined
@@ -5860,30 +6142,30 @@ Tests compilation of ecmaref5:
   __v14565 := snd(__v14565)
   };
   fromPresent := __v14565;
-  __v14566 := fromPresent = true;
-  if (__v14566) {
-  __v14567 := O["Get"];
-  __v14568 := __v14567(___internal_esl_global, O, from);
-  if (fst(__v14568)) {
-  return __v14568
-  } else {
-  __v14568 := snd(__v14568)
-  };
-  fromValue := __v14568;
-  __v14569 := O["Put"];
-  __v14570 := __v14569(___internal_esl_global, O, to, fromValue, true);
+  __v14568 := fromPresent = true;
+  if (__v14568) {
+  __v14569 := O["Get"];
+  __v14570 := __v14569(___internal_esl_global, O, from);
   if (fst(__v14570)) {
   return __v14570
   } else {
   __v14570 := snd(__v14570)
-  }
-  } else {
-  __v14571 := O["Delete"];
-  __v14572 := __v14571(___internal_esl_global, O, to, true);
+  };
+  fromValue := __v14570;
+  __v14571 := O["Put"];
+  __v14572 := __v14571(___internal_esl_global, O, to, fromValue, true);
   if (fst(__v14572)) {
   return __v14572
   } else {
   __v14572 := snd(__v14572)
+  }
+  } else {
+  __v14566 := O["Delete"];
+  __v14567 := __v14566(___internal_esl_global, O, to, true);
+  if (fst(__v14567)) {
+  return __v14567
+  } else {
+  __v14567 := snd(__v14567)
   }
   };
   __v14573 := k - 1.0;
@@ -5974,6 +6256,8 @@ Tests compilation of ecmaref5:
   __v14548 := is_NaN(t);
   if (__v14548) {
   return (false, nan)
+  } else {
+  
   };
   __v14549 := "LocalTime"(___internal_esl_global, t);
   if (fst(__v14549)) {
@@ -5999,6 +6283,8 @@ Tests compilation of ecmaref5:
   if (__v14539) {
   __v14540 := l_nth(params, idx);
   return (false, __v14540)
+  } else {
+  
   };
   return (false, null)
   };
@@ -6024,6 +6310,8 @@ Tests compilation of ecmaref5:
   __v14534 := S = false;
   if (__v14534) {
   return (false, 'undefined)
+  } else {
+  
   };
   __v14535 := "ReferenceErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v14535)) {
@@ -6032,6 +6320,8 @@ Tests compilation of ecmaref5:
   __v14535 := snd(__v14535)
   };
   return (true, __v14535)
+  } else {
+  
   };
   __v14536 := bindings["Get"];
   __v14537 := __v14536(___internal_esl_global, bindings, N);
@@ -6122,6 +6412,8 @@ Tests compilation of ecmaref5:
   __v14443 := __v14442 = "Undefined";
   if (__v14443) {
   return (false, true)
+  } else {
+  
   };
   __v14444 := "Type"(___internal_esl_global, x);
   if (fst(__v14444)) {
@@ -6132,6 +6424,8 @@ Tests compilation of ecmaref5:
   __v14445 := __v14444 = "Null";
   if (__v14445) {
   return (false, true)
+  } else {
+  
   };
   __v14446 := "Type"(___internal_esl_global, x);
   if (fst(__v14446)) {
@@ -6144,10 +6438,14 @@ Tests compilation of ecmaref5:
   __v14448 := is_NaN(x);
   if (__v14448) {
   return (false, false)
+  } else {
+  
   };
   __v14449 := is_NaN(y);
   if (__v14449) {
   return (false, false)
+  } else {
+  
   };
   __v14450 := "sameNumber"(___internal_esl_global, x, y);
   if (fst(__v14450)) {
@@ -6157,6 +6455,8 @@ Tests compilation of ecmaref5:
   };
   if (__v14450) {
   return (false, true)
+  } else {
+  
   };
   __v14451 := "isZero"(___internal_esl_global, x);
   if (fst(__v14451)) {
@@ -6173,6 +6473,8 @@ Tests compilation of ecmaref5:
   __v14453 := __v14451 && __v14452;
   if (__v14453) {
   return (false, true)
+  } else {
+  
   };
   __v14454 := "isMinusZero"(___internal_esl_global, x);
   if (fst(__v14454)) {
@@ -6189,8 +6491,12 @@ Tests compilation of ecmaref5:
   __v14456 := __v14454 && __v14455;
   if (__v14456) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
+  } else {
+  
   };
   __v14457 := "Type"(___internal_esl_global, x);
   if (fst(__v14457)) {
@@ -6208,8 +6514,12 @@ Tests compilation of ecmaref5:
   };
   if (__v14459) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
+  } else {
+  
   };
   __v14460 := "Type"(___internal_esl_global, x);
   if (fst(__v14460)) {
@@ -6228,8 +6538,12 @@ Tests compilation of ecmaref5:
   __v14468 := __v14464 || __v14467;
   if (__v14468) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
+  } else {
+  
   };
   __v14469 := "sameObject"(___internal_esl_global, x, y);
   if (fst(__v14469)) {
@@ -6239,20 +6553,28 @@ Tests compilation of ecmaref5:
   };
   if (__v14469) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
+  } else {
+  
   };
   __v14470 := x = 'null;
   __v14471 := y = 'undefined;
   __v14472 := __v14470 && __v14471;
   if (__v14472) {
   return (false, true)
+  } else {
+  
   };
   __v14473 := x = 'undefined;
   __v14474 := y = 'null;
   __v14475 := __v14473 && __v14474;
   if (__v14475) {
   return (false, true)
+  } else {
+  
   };
   __v14476 := "Type"(___internal_esl_global, x);
   if (fst(__v14476)) {
@@ -6283,6 +6605,8 @@ Tests compilation of ecmaref5:
   __v14482 := snd(__v14482)
   };
   return (false, __v14482)
+  } else {
+  
   };
   __v14483 := "Type"(___internal_esl_global, x);
   if (fst(__v14483)) {
@@ -6313,6 +6637,8 @@ Tests compilation of ecmaref5:
   __v14489 := snd(__v14489)
   };
   return (false, __v14489)
+  } else {
+  
   };
   __v14490 := "Type"(___internal_esl_global, x);
   if (fst(__v14490)) {
@@ -6335,6 +6661,8 @@ Tests compilation of ecmaref5:
   __v14493 := snd(__v14493)
   };
   return (false, __v14493)
+  } else {
+  
   };
   __v14494 := "Type"(___internal_esl_global, y);
   if (fst(__v14494)) {
@@ -6357,6 +6685,8 @@ Tests compilation of ecmaref5:
   __v14497 := snd(__v14497)
   };
   return (false, __v14497)
+  } else {
+  
   };
   __v14498 := "Type"(___internal_esl_global, x);
   if (fst(__v14498)) {
@@ -6395,6 +6725,8 @@ Tests compilation of ecmaref5:
   __v14507 := snd(__v14507)
   };
   return (false, __v14507)
+  } else {
+  
   };
   __v14508 := "Type"(___internal_esl_global, x);
   if (fst(__v14508)) {
@@ -6433,6 +6765,8 @@ Tests compilation of ecmaref5:
   __v14517 := snd(__v14517)
   };
   return (false, __v14517)
+  } else {
+  
   };
   return (false, false)
   };
@@ -6509,6 +6843,8 @@ Tests compilation of ecmaref5:
   __v14424 := snd(__v14424)
   };
   return (false, __v14424)
+  } else {
+  
   };
   __v14425 := "JS_Interpreter_Stmt"(___internal_esl_global, Statement, scope);
   if (fst(__v14425)) {
@@ -6535,35 +6871,35 @@ Tests compilation of ecmaref5:
   __v14432 := snd(__v14432)
   };
   exprRef := __v14432;
-  __v14433 := "GetValue"(___internal_esl_global, exprRef);
-  if (fst(__v14433)) {
-  return __v14433
-  } else {
-  __v14433 := snd(__v14433)
-  };
-  __v14434 := "ToBoolean"(___internal_esl_global, __v14433);
+  __v14434 := "GetValue"(___internal_esl_global, exprRef);
   if (fst(__v14434)) {
   return __v14434
   } else {
   __v14434 := snd(__v14434)
   };
-  __v14435 := __v14434 = true;
-  if (__v14435) {
-  __v14436 := "JS_Interpreter_Stmt"(___internal_esl_global, Statement1, scope);
-  if (fst(__v14436)) {
-  return __v14436
+  __v14435 := "ToBoolean"(___internal_esl_global, __v14434);
+  if (fst(__v14435)) {
+  return __v14435
   } else {
-  __v14436 := snd(__v14436)
+  __v14435 := snd(__v14435)
   };
-  return (false, __v14436)
-  } else {
-  __v14437 := "JS_Interpreter_Stmt"(___internal_esl_global, Statement2, scope);
+  __v14436 := __v14435 = true;
+  if (__v14436) {
+  __v14437 := "JS_Interpreter_Stmt"(___internal_esl_global, Statement1, scope);
   if (fst(__v14437)) {
   return __v14437
   } else {
   __v14437 := snd(__v14437)
   };
   return (false, __v14437)
+  } else {
+  __v14433 := "JS_Interpreter_Stmt"(___internal_esl_global, Statement2, scope);
+  if (fst(__v14433)) {
+  return __v14433
+  } else {
+  __v14433 := snd(__v14433)
+  };
+  return (false, __v14433)
   }
   } else {
   if (true) {
@@ -6598,52 +6934,56 @@ Tests compilation of ecmaref5:
   };
   S := __v14369;
   sign := 1.0;
-  __v14372 := S = "";
-  __v14371 := !__v14372;
-  if (__v14371 = false) {
-  __v14370 := false
+  __v14371 := S = "";
+  __v14370 := !__v14371;
+  if (__v14370 = false) {
+  __v14374 := false
   } else {
-  __v14373 := s_nth_u(S, 0);
-  __v14374 := __v14373 = "-";
-  if (__v14374 = false) {
-  __v14370 := false
+  __v14372 := s_nth_u(S, 0);
+  __v14373 := __v14372 = "-";
+  if (__v14373 = false) {
+  __v14374 := false
   } else {
-  __v14370 := true
+  __v14374 := true
   }
   };
-  if (__v14370) {
+  if (__v14374) {
   __v14375 := -(1.0);
   sign := __v14375
+  } else {
+  
   };
-  __v14378 := S = "";
-  __v14377 := !__v14378;
-  if (__v14377 = false) {
-  __v14376 := false
+  __v14377 := S = "";
+  __v14376 := !__v14377;
+  if (__v14376 = false) {
+  __v14383 := false
+  } else {
+  __v14378 := s_nth_u(S, 0);
+  __v14379 := __v14378 = "+";
+  if (__v14379 = true) {
+  __v14382 := true
   } else {
   __v14380 := s_nth_u(S, 0);
-  __v14381 := __v14380 = "+";
+  __v14381 := __v14380 = "-";
   if (__v14381 = true) {
-  __v14379 := true
+  __v14382 := true
   } else {
-  __v14382 := s_nth_u(S, 0);
-  __v14383 := __v14382 = "-";
-  if (__v14383 = true) {
-  __v14379 := true
-  } else {
-  __v14379 := false
+  __v14382 := false
   }
   };
-  if (__v14379 = false) {
-  __v14376 := false
+  if (__v14382 = false) {
+  __v14383 := false
   } else {
-  __v14376 := true
+  __v14383 := true
   }
   };
-  if (__v14376) {
+  if (__v14383) {
   __v14384 := s_len_u(S);
   __v14385 := __v14384 - 1;
   __v14386 := s_substr_u(S, 1, __v14385);
   S := __v14386
+  } else {
+  
   };
   __v14387 := "ToInt32"(___internal_esl_global, radix);
   if (fst(__v14387)) {
@@ -6656,61 +6996,69 @@ Tests compilation of ecmaref5:
   __v14389 := R = 0.0;
   __v14388 := !__v14389;
   if (__v14388) {
-  __v14391 := R < 2.0;
+  __v14390 := R < 2.0;
+  if (__v14390 = true) {
+  __v14392 := true
+  } else {
+  __v14391 := R > 36.0;
   if (__v14391 = true) {
-  __v14390 := true
+  __v14392 := true
   } else {
-  __v14392 := R > 36.0;
-  if (__v14392 = true) {
-  __v14390 := true
-  } else {
-  __v14390 := false
+  __v14392 := false
   }
   };
-  if (__v14390) {
+  if (__v14392) {
   return (false, nan)
+  } else {
+  
   };
   __v14394 := R = 16.0;
   __v14393 := !__v14394;
   if (__v14393) {
   stripPrefix := false
+  } else {
+  
   }
   } else {
   R := 10.0
   };
   __v14395 := stripPrefix = true;
   if (__v14395) {
-  __v14397 := s_len_u(S);
-  __v14398 := __v14397 >= 2;
-  if (__v14398 = false) {
-  __v14396 := false
+  __v14396 := s_len_u(S);
+  __v14397 := __v14396 >= 2;
+  if (__v14397 = false) {
+  __v14403 := false
+  } else {
+  __v14398 := s_substr_u(S, 0, 2);
+  __v14399 := __v14398 = "0x";
+  if (__v14399 = true) {
+  __v14402 := true
   } else {
   __v14400 := s_substr_u(S, 0, 2);
-  __v14401 := __v14400 = "0x";
+  __v14401 := __v14400 = "0X";
   if (__v14401 = true) {
-  __v14399 := true
+  __v14402 := true
   } else {
-  __v14402 := s_substr_u(S, 0, 2);
-  __v14403 := __v14402 = "0X";
-  if (__v14403 = true) {
-  __v14399 := true
-  } else {
-  __v14399 := false
+  __v14402 := false
   }
   };
-  if (__v14399 = false) {
-  __v14396 := false
+  if (__v14402 = false) {
+  __v14403 := false
   } else {
-  __v14396 := true
+  __v14403 := true
   }
   };
-  if (__v14396) {
+  if (__v14403) {
   __v14404 := s_len_u(S);
   __v14405 := __v14404 - 2;
   __v14406 := s_substr_u(S, 2, __v14405);
   S := __v14406;
   R := 16.0
+  } else {
+  
   }
+  } else {
+  
   };
   __v14407 := "containsInvalidDigit"(___internal_esl_global, S, R);
   if (fst(__v14407)) {
@@ -6732,6 +7080,8 @@ Tests compilation of ecmaref5:
   __v14409 := Z = "";
   if (__v14409) {
   return (false, nan)
+  } else {
+  
   };
   __v14410 := "mathIntegerOf"(___internal_esl_global, Z, R);
   if (fst(__v14410)) {
@@ -6746,55 +7096,55 @@ Tests compilation of ecmaref5:
   };
   function BooleanPrototypeToString(___internal_esl_global, globalObject, this, strict, params) {
   B := this;
-  __v14356 := "Type"(___internal_esl_global, B);
-  if (fst(__v14356)) {
-  return __v14356
-  } else {
-  __v14356 := snd(__v14356)
-  };
-  __v14357 := __v14356 = "Boolean";
-  if (__v14357) {
-  b := B
-  } else {
-  __v14359 := "Type"(___internal_esl_global, B);
-  if (fst(__v14359)) {
-  return __v14359
-  } else {
-  __v14359 := snd(__v14359)
-  };
-  __v14360 := __v14359 = "Object";
-  if (__v14360 = false) {
-  __v14358 := false
-  } else {
-  __v14361 := "getInternalProperty"(___internal_esl_global, B, "Class");
-  if (fst(__v14361)) {
-  return __v14361
-  } else {
-  __v14361 := snd(__v14361)
-  };
-  __v14362 := __v14361 = "Boolean";
-  if (__v14362 = false) {
-  __v14358 := false
-  } else {
-  __v14358 := true
-  }
-  };
-  if (__v14358) {
-  __v14363 := "getInternalProperty"(___internal_esl_global, B, "PrimitiveValue");
+  __v14363 := "Type"(___internal_esl_global, B);
   if (fst(__v14363)) {
   return __v14363
   } else {
   __v14363 := snd(__v14363)
   };
-  b := __v14363
+  __v14364 := __v14363 = "Boolean";
+  if (__v14364) {
+  b := B
   } else {
-  __v14364 := "TypeErrorConstructorInternal"(___internal_esl_global);
-  if (fst(__v14364)) {
-  return __v14364
+  __v14357 := "Type"(___internal_esl_global, B);
+  if (fst(__v14357)) {
+  return __v14357
   } else {
-  __v14364 := snd(__v14364)
+  __v14357 := snd(__v14357)
   };
-  return (true, __v14364)
+  __v14358 := __v14357 = "Object";
+  if (__v14358 = false) {
+  __v14361 := false
+  } else {
+  __v14359 := "getInternalProperty"(___internal_esl_global, B, "Class");
+  if (fst(__v14359)) {
+  return __v14359
+  } else {
+  __v14359 := snd(__v14359)
+  };
+  __v14360 := __v14359 = "Boolean";
+  if (__v14360 = false) {
+  __v14361 := false
+  } else {
+  __v14361 := true
+  }
+  };
+  if (__v14361) {
+  __v14362 := "getInternalProperty"(___internal_esl_global, B, "PrimitiveValue");
+  if (fst(__v14362)) {
+  return __v14362
+  } else {
+  __v14362 := snd(__v14362)
+  };
+  b := __v14362
+  } else {
+  __v14356 := "TypeErrorConstructorInternal"(___internal_esl_global);
+  if (fst(__v14356)) {
+  return __v14356
+  } else {
+  __v14356 := snd(__v14356)
+  };
+  return (true, __v14356)
   }
   };
   __v14365 := b = true;
@@ -6822,6 +7172,8 @@ Tests compilation of ecmaref5:
   __v14353 := __v14352 <= idx;
   if (__v14353) {
   return (false, "None")
+  } else {
+  
   };
   __v14354 := l_nth(caseClauseItems, idx);
   return (false, __v14354)
@@ -6834,18 +7186,18 @@ Tests compilation of ecmaref5:
   __v14337 := snd(__v14337)
   };
   value := __v14337;
-  __v14339 := this = 'undefined;
+  __v14338 := this = 'undefined;
+  if (__v14338 = true) {
+  __v14340 := true
+  } else {
+  __v14339 := this = 'null;
   if (__v14339 = true) {
-  __v14338 := true
+  __v14340 := true
   } else {
-  __v14340 := this = 'null;
-  if (__v14340 = true) {
-  __v14338 := true
-  } else {
-  __v14338 := false
+  __v14340 := false
   }
   };
-  if (__v14338) {
+  if (__v14340) {
   __v14341 := "NumberConstructorCalledAsFunction"(___internal_esl_global, value);
   if (fst(__v14341)) {
   return __v14341
@@ -6853,6 +7205,8 @@ Tests compilation of ecmaref5:
   __v14341 := snd(__v14341)
   };
   return (false, __v14341)
+  } else {
+  
   };
   __v14342 := "NewECMAScriptObject"(___internal_esl_global);
   if (fst(__v14342)) {
@@ -6885,26 +7239,26 @@ Tests compilation of ecmaref5:
   } else {
   __v14346 := snd(__v14346)
   };
-  __v14347 := value = null;
-  if (__v14347) {
-  __v14348 := "setInternalProperty"(___internal_esl_global, newlyConstructedObject, "PrimitiveValue", 0.0);
-  if (fst(__v14348)) {
-  return __v14348
-  } else {
-  __v14348 := snd(__v14348)
-  }
-  } else {
-  __v14349 := "ToNumber"(___internal_esl_global, value);
-  if (fst(__v14349)) {
-  return __v14349
-  } else {
-  __v14349 := snd(__v14349)
-  };
-  __v14350 := "setInternalProperty"(___internal_esl_global, newlyConstructedObject, "PrimitiveValue", __v14349);
+  __v14349 := value = null;
+  if (__v14349) {
+  __v14350 := "setInternalProperty"(___internal_esl_global, newlyConstructedObject, "PrimitiveValue", 0.0);
   if (fst(__v14350)) {
   return __v14350
   } else {
   __v14350 := snd(__v14350)
+  }
+  } else {
+  __v14347 := "ToNumber"(___internal_esl_global, value);
+  if (fst(__v14347)) {
+  return __v14347
+  } else {
+  __v14347 := snd(__v14347)
+  };
+  __v14348 := "setInternalProperty"(___internal_esl_global, newlyConstructedObject, "PrimitiveValue", __v14347);
+  if (fst(__v14348)) {
+  return __v14348
+  } else {
+  __v14348 := snd(__v14348)
   }
   };
   __v14351 := "setInternalProperty"(___internal_esl_global, newlyConstructedObject, "Extensible", true);
@@ -6917,45 +7271,47 @@ Tests compilation of ecmaref5:
   };
   function MakeDay(___internal_esl_global, year, month, date) {
   print "in MakeDay";
-  __v14316 := "auxIsFinite"(___internal_esl_global, year);
-  if (fst(__v14316)) {
-  return __v14316
+  __v14314 := "auxIsFinite"(___internal_esl_global, year);
+  if (fst(__v14314)) {
+  return __v14314
   } else {
-  __v14316 := snd(__v14316)
+  __v14314 := snd(__v14314)
+  };
+  if (__v14314 = false) {
+  __v14316 := false
+  } else {
+  __v14315 := "auxIsFinite"(___internal_esl_global, month);
+  if (fst(__v14315)) {
+  return __v14315
+  } else {
+  __v14315 := snd(__v14315)
+  };
+  if (__v14315 = false) {
+  __v14316 := false
+  } else {
+  __v14316 := true
+  }
   };
   if (__v14316 = false) {
-  __v14315 := false
+  __v14318 := false
   } else {
-  __v14317 := "auxIsFinite"(___internal_esl_global, month);
+  __v14317 := "auxIsFinite"(___internal_esl_global, date);
   if (fst(__v14317)) {
   return __v14317
   } else {
   __v14317 := snd(__v14317)
   };
   if (__v14317 = false) {
-  __v14315 := false
+  __v14318 := false
   } else {
-  __v14315 := true
+  __v14318 := true
   }
   };
-  if (__v14315 = false) {
-  __v14314 := false
-  } else {
-  __v14318 := "auxIsFinite"(___internal_esl_global, date);
-  if (fst(__v14318)) {
-  return __v14318
-  } else {
-  __v14318 := snd(__v14318)
-  };
-  if (__v14318 = false) {
-  __v14314 := false
-  } else {
-  __v14314 := true
-  }
-  };
-  __v14313 := !__v14314;
+  __v14313 := !__v14318;
   if (__v14313) {
   return (false, nan)
+  } else {
+  
   };
   __v14319 := "ToInteger"(___internal_esl_global, year);
   if (fst(__v14319)) {
@@ -7031,6 +7387,8 @@ Tests compilation of ecmaref5:
   __v14331 := !__v14333;
   if (__v14331) {
   return (false, nan)
+  } else {
+  
   };
   __v14334 := "Day"(___internal_esl_global, t);
   if (fst(__v14334)) {
@@ -7199,6 +7557,8 @@ Tests compilation of ecmaref5:
   __v14287 := is_NaN(t);
   if (__v14287) {
   return (false, nan)
+  } else {
+  
   };
   __v14288 := "MonthFromTime"(___internal_esl_global, t);
   if (fst(__v14288)) {
@@ -7227,6 +7587,8 @@ Tests compilation of ecmaref5:
   __v14270 := snd(__v14270)
   };
   return (true, __v14270)
+  } else {
+  
   };
   __v14274 := "getOwnProperties"(___internal_esl_global, O);
   if (fst(__v14274)) {
@@ -7251,6 +7613,8 @@ Tests compilation of ecmaref5:
   __v14278 := __v14277 = true;
   if (__v14278) {
   return (false, false)
+  } else {
+  
   };
   __v14272 := __v14272 + 1;
   __v14273 := __v14271 > __v14272
@@ -7264,6 +7628,8 @@ Tests compilation of ecmaref5:
   __v14280 := __v14279 = false;
   if (__v14280) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
   };
@@ -7283,19 +7649,21 @@ Tests compilation of ecmaref5:
   __v14261 := snd(__v14261)
   };
   return (true, __v14261)
-  };
-  __v14262 := "Type"(___internal_esl_global, this);
-  if (fst(__v14262)) {
-  return __v14262
   } else {
-  __v14262 := snd(__v14262)
+  
   };
-  __v14263 := __v14262 = "Number";
-  if (__v14263) {
+  __v14263 := "Type"(___internal_esl_global, this);
+  if (fst(__v14263)) {
+  return __v14263
+  } else {
+  __v14263 := snd(__v14263)
+  };
+  __v14264 := __v14263 = "Number";
+  if (__v14264) {
   num := this
   } else {
-  __v14264 := this["PrimitiveValue"];
-  num := __v14264
+  __v14262 := this["PrimitiveValue"];
+  num := __v14262
   };
   __v14265 := "ToString"(___internal_esl_global, num);
   if (fst(__v14265)) {
@@ -7325,20 +7693,20 @@ Tests compilation of ecmaref5:
   }
   };
   function isUnicodeCasingInitialized(___internal_esl_global) {
-  __v14250 := ___internal_esl_global["unicodeData"];
-  __v14251 := __v14250 = 'undefined;
-  if (__v14251 = true) {
-  __v14249 := true
+  __v14249 := ___internal_esl_global["unicodeData"];
+  __v14250 := __v14249 = 'undefined;
+  if (__v14250 = true) {
+  __v14253 := true
   } else {
-  __v14252 := ___internal_esl_global["specialCasing"];
-  __v14253 := __v14252 = 'undefined;
-  if (__v14253 = true) {
-  __v14249 := true
+  __v14251 := ___internal_esl_global["specialCasing"];
+  __v14252 := __v14251 = 'undefined;
+  if (__v14252 = true) {
+  __v14253 := true
   } else {
-  __v14249 := false
+  __v14253 := false
   }
   };
-  __v14248 := !__v14249;
+  __v14248 := !__v14253;
   return (false, __v14248)
   };
   function Put_internal(___internal_esl_global, base, P, W, Throw) {
@@ -7370,6 +7738,8 @@ Tests compilation of ecmaref5:
   } else {
   return (false, null)
   }
+  } else {
+  
   };
   __v14232 := O["GetOwnProperty"];
   __v14233 := __v14232(___internal_esl_global, O, P);
@@ -7399,6 +7769,8 @@ Tests compilation of ecmaref5:
   } else {
   return (false, null)
   }
+  } else {
+  
   };
   __v14238 := O["GetProperty"];
   __v14239 := __v14238(___internal_esl_global, O, P);
@@ -7408,34 +7780,36 @@ Tests compilation of ecmaref5:
   __v14239 := snd(__v14239)
   };
   desc := __v14239;
-  __v14240 := "IsAccessorPropertyDescriptor"(___internal_esl_global, desc);
-  if (fst(__v14240)) {
-  return __v14240
+  __v14242 := "IsAccessorPropertyDescriptor"(___internal_esl_global, desc);
+  if (fst(__v14242)) {
+  return __v14242
   } else {
-  __v14240 := snd(__v14240)
+  __v14242 := snd(__v14242)
   };
-  __v14241 := __v14240 = true;
-  if (__v14241) {
-  __v14242 := desc["Set"];
-  setter := __v14242;
-  __v14243 := setter["Call"];
-  __v14244 := [W];
-  __v14245 := __v14243(___internal_esl_global, null, null, setter, base, __v14244);
-  if (fst(__v14245)) {
-  return __v14245
-  } else {
-  __v14245 := snd(__v14245)
-  }
-  } else {
-  __v14246 := Throw = true;
-  if (__v14246) {
-  __v14247 := "TypeErrorConstructorInternal"(___internal_esl_global);
+  __v14243 := __v14242 = true;
+  if (__v14243) {
+  __v14244 := desc["Set"];
+  setter := __v14244;
+  __v14245 := setter["Call"];
+  __v14246 := [W];
+  __v14247 := __v14245(___internal_esl_global, null, null, setter, base, __v14246);
   if (fst(__v14247)) {
   return __v14247
   } else {
   __v14247 := snd(__v14247)
+  }
+  } else {
+  __v14240 := Throw = true;
+  if (__v14240) {
+  __v14241 := "TypeErrorConstructorInternal"(___internal_esl_global);
+  if (fst(__v14241)) {
+  return __v14241
+  } else {
+  __v14241 := snd(__v14241)
   };
-  return (true, __v14247)
+  return (true, __v14241)
+  } else {
+  
   }
   };
   return (false, null)
@@ -7478,18 +7852,18 @@ Tests compilation of ecmaref5:
   __v14201 := snd(__v14201)
   };
   prototype := __v14201;
-  __v14203 := this = 'undefined;
+  __v14202 := this = 'undefined;
+  if (__v14202 = true) {
+  __v14204 := true
+  } else {
+  __v14203 := this = 'null;
   if (__v14203 = true) {
-  __v14202 := true
+  __v14204 := true
   } else {
-  __v14204 := this = 'null;
-  if (__v14204 = true) {
-  __v14202 := true
-  } else {
-  __v14202 := false
+  __v14204 := false
   }
   };
-  if (__v14202) {
+  if (__v14204) {
   __v14205 := "DateConstructorCalledAsFunction"(___internal_esl_global, prototype, strict, args);
   if (fst(__v14205)) {
   return __v14205
@@ -7497,6 +7871,8 @@ Tests compilation of ecmaref5:
   __v14205 := snd(__v14205)
   };
   return (false, __v14205)
+  } else {
+  
   };
   __v14206 := l_len(args);
   __v14207 := __v14206 = 1;
@@ -7510,6 +7886,8 @@ Tests compilation of ecmaref5:
   __v14209 := snd(__v14209)
   };
   return (false, __v14209)
+  } else {
+  
   };
   __v14210 := l_len(args);
   __v14211 := __v14210 = 0;
@@ -7521,6 +7899,8 @@ Tests compilation of ecmaref5:
   __v14212 := snd(__v14212)
   };
   return (false, __v14212)
+  } else {
+  
   };
   __v14213 := "internalNewDate"(___internal_esl_global, prototype, args);
   if (fst(__v14213)) {
@@ -7806,6 +8186,8 @@ Tests compilation of ecmaref5:
   __v14144 := is_NaN(x);
   if (__v14144) {
   return (false, "NaN")
+  } else {
+  
   };
   s := "";
   __v14145 := x < 0.0;
@@ -7813,25 +8195,29 @@ Tests compilation of ecmaref5:
   s := "-";
   __v14146 := -(x);
   x := __v14146
+  } else {
+  
   };
   __v14147 := x = inf;
   if (__v14147) {
   __v14149 := (s, "Infinity");
   __v14148 := s_concat(__v14149);
   return (false, __v14148)
-  };
-  __v14150 := fractionDigits = 'undefined;
-  if (__v14150) {
-  __v14153 := abs(x);
-  __v14152 := float_to_string(__v14153);
-  __v14151 := s_len(__v14152);
-  __v14154 := __v14151 - 1;
-  __v14155 := to_exponential(x, __v14154);
-  return (false, __v14155)
   } else {
-  __v14156 := int_of_float(fractionDigits);
+  
+  };
+  __v14152 := fractionDigits = 'undefined;
+  if (__v14152) {
+  __v14155 := abs(x);
+  __v14154 := float_to_string(__v14155);
+  __v14153 := s_len(__v14154);
+  __v14156 := __v14153 - 1;
   __v14157 := to_exponential(x, __v14156);
   return (false, __v14157)
+  } else {
+  __v14150 := int_of_float(fractionDigits);
+  __v14151 := to_exponential(x, __v14150);
+  return (false, __v14151)
   }
   };
   function getTokens(___internal_esl_global, global, this, strict, args) {
@@ -7862,23 +8248,23 @@ Tests compilation of ecmaref5:
   __v14134 := i + 1;
   i := __v14134
   } else {
-  __v14117 := c = "-";
-  if (__v14117 = true) {
-  __v14116 := true
+  __v14116 := c = "-";
+  if (__v14116 = true) {
+  __v14118 := true
   } else {
-  __v14118 := "isDigit"(___internal_esl_global, c);
-  if (fst(__v14118)) {
-  return __v14118
+  __v14117 := "isDigit"(___internal_esl_global, c);
+  if (fst(__v14117)) {
+  return __v14117
   } else {
-  __v14118 := snd(__v14118)
+  __v14117 := snd(__v14117)
   };
-  if (__v14118 = true) {
-  __v14116 := true
+  if (__v14117 = true) {
+  __v14118 := true
   } else {
-  __v14116 := false
+  __v14118 := false
   }
   };
-  if (__v14116) {
+  if (__v14118) {
   __v14120 := s_len_u(JText);
   __v14121 := __v14120 - i;
   __v14122 := s_substr_u(JText, i, __v14121);
@@ -7899,6 +8285,8 @@ Tests compilation of ecmaref5:
   __v14129 := snd(__v14129)
   };
   return (true, __v14129)
+  } else {
+  
   };
   __v14130 := i + num_len;
   i := __v14130;
@@ -7927,6 +8315,8 @@ Tests compilation of ecmaref5:
   __v14112 := snd(__v14112)
   };
   return (true, __v14112)
+  } else {
+  
   };
   __v14113 := i + str_len;
   i := __v14113;
@@ -7948,38 +8338,42 @@ Tests compilation of ecmaref5:
   if (__v14080) {
   __v14081 := s_substr_u(JText, i, 4);
   tok := __v14081;
-  __v14083 := tok = "true";
+  __v14082 := tok = "true";
+  if (__v14082 = true) {
+  __v14084 := true
+  } else {
+  __v14083 := tok = "null";
   if (__v14083 = true) {
-  __v14082 := true
+  __v14084 := true
   } else {
-  __v14084 := tok = "null";
-  if (__v14084 = true) {
-  __v14082 := true
-  } else {
-  __v14082 := false
+  __v14084 := false
   }
   };
-  if (__v14082) {
+  if (__v14084) {
   __v14085 := i + 4;
   i := __v14085;
   __v14086 := l_add(tokens, tok);
   tokens := __v14086;
   valid_tok := true
+  } else {
+  
+  }
+  } else {
+  
+  };
+  __v14087 := !valid_tok;
+  if (__v14087 = false) {
+  __v14090 := false
+  } else {
+  __v14088 := len - 5;
+  __v14089 := i < __v14088;
+  if (__v14089 = false) {
+  __v14090 := false
+  } else {
+  __v14090 := true
   }
   };
-  __v14088 := !valid_tok;
-  if (__v14088 = false) {
-  __v14087 := false
-  } else {
-  __v14089 := len - 5;
-  __v14090 := i < __v14089;
-  if (__v14090 = false) {
-  __v14087 := false
-  } else {
-  __v14087 := true
-  }
-  };
-  if (__v14087) {
+  if (__v14090) {
   __v14091 := s_substr_u(JText, i, 5);
   tok := __v14091;
   __v14092 := tok = "false";
@@ -7989,7 +8383,11 @@ Tests compilation of ecmaref5:
   __v14094 := l_add(tokens, tok);
   tokens := __v14094;
   valid_tok := true
+  } else {
+  
   }
+  } else {
+  
   };
   __v14095 := !valid_tok;
   if (__v14095) {
@@ -8004,6 +8402,8 @@ Tests compilation of ecmaref5:
   __v14100 := snd(__v14100)
   };
   return (true, __v14100)
+  } else {
+  
   }
   }
   }
@@ -8029,6 +8429,8 @@ Tests compilation of ecmaref5:
   __v14066 := snd(__v14066)
   };
   return (false, __v14066)
+  } else {
+  
   };
   __v14067 := "JS_Interpreter_Expr"(___internal_esl_global, Expression, scope);
   if (fst(__v14067)) {
@@ -8084,21 +8486,25 @@ Tests compilation of ecmaref5:
   __v14054 := abs(x);
   __v14055 := __v14054 = 1.0;
   if (__v14055) {
-  __v14057 := y = inf;
-  if (__v14057 = true) {
-  __v14056 := true
+  __v14056 := y = inf;
+  if (__v14056 = true) {
+  __v14059 := true
   } else {
-  __v14058 := -(inf);
-  __v14059 := y = __v14058;
-  if (__v14059 = true) {
-  __v14056 := true
+  __v14057 := -(inf);
+  __v14058 := y = __v14057;
+  if (__v14058 = true) {
+  __v14059 := true
   } else {
-  __v14056 := false
+  __v14059 := false
   }
   };
-  if (__v14056) {
+  if (__v14059) {
   return (false, nan)
+  } else {
+  
   }
+  } else {
+  
   };
   __v14060 := x ** y;
   return (false, __v14060)
@@ -8365,50 +8771,50 @@ Tests compilation of ecmaref5:
   s := __v14001
   }
   };
-  __v14006 := ms = null;
-  if (__v14006) {
-  __v14007 := "msFromTime"(___internal_esl_global, t);
+  __v14012 := ms = null;
+  if (__v14012) {
+  __v14013 := "msFromTime"(___internal_esl_global, t);
+  if (fst(__v14013)) {
+  return __v14013
+  } else {
+  __v14013 := snd(__v14013)
+  };
+  milli := __v14013
+  } else {
+  __v14006 := "ToNumber"(___internal_esl_global, ms);
+  if (fst(__v14006)) {
+  return __v14006
+  } else {
+  __v14006 := snd(__v14006)
+  };
+  milli := __v14006;
+  __v14010 := "Type"(___internal_esl_global, milli);
+  if (fst(__v14010)) {
+  return __v14010
+  } else {
+  __v14010 := snd(__v14010)
+  };
+  __v14011 := __v14010 = "Completion";
+  __v14009 := !__v14011;
+  if (__v14009) {
+  
+  } else {
+  __v14008 := "isAnAbruptCompletion"(___internal_esl_global, milli);
+  if (fst(__v14008)) {
+  return __v14008
+  } else {
+  __v14008 := snd(__v14008)
+  };
+  if (__v14008) {
+  return (false, milli)
+  } else {
+  __v14007 := "getCompletionValue"(___internal_esl_global, milli);
   if (fst(__v14007)) {
   return __v14007
   } else {
   __v14007 := snd(__v14007)
   };
   milli := __v14007
-  } else {
-  __v14008 := "ToNumber"(___internal_esl_global, ms);
-  if (fst(__v14008)) {
-  return __v14008
-  } else {
-  __v14008 := snd(__v14008)
-  };
-  milli := __v14008;
-  __v14012 := "Type"(___internal_esl_global, milli);
-  if (fst(__v14012)) {
-  return __v14012
-  } else {
-  __v14012 := snd(__v14012)
-  };
-  __v14013 := __v14012 = "Completion";
-  __v14011 := !__v14013;
-  if (__v14011) {
-  
-  } else {
-  __v14010 := "isAnAbruptCompletion"(___internal_esl_global, milli);
-  if (fst(__v14010)) {
-  return __v14010
-  } else {
-  __v14010 := snd(__v14010)
-  };
-  if (__v14010) {
-  return (false, milli)
-  } else {
-  __v14009 := "getCompletionValue"(___internal_esl_global, milli);
-  if (fst(__v14009)) {
-  return __v14009
-  } else {
-  __v14009 := snd(__v14009)
-  };
-  milli := __v14009
   }
   }
   };
@@ -8464,24 +8870,26 @@ Tests compilation of ecmaref5:
   };
   function RegExpConstructorCalledAsFunction(___internal_esl_global, strict, pattern, flags) {
   R := pattern;
-  __v13988 := "isRegExpObject"(___internal_esl_global, R);
-  if (fst(__v13988)) {
-  return __v13988
+  __v13987 := "isRegExpObject"(___internal_esl_global, R);
+  if (fst(__v13987)) {
+  return __v13987
   } else {
-  __v13988 := snd(__v13988)
+  __v13987 := snd(__v13987)
   };
+  if (__v13987 = false) {
+  __v13989 := false
+  } else {
+  __v13988 := flags = 'undefined;
   if (__v13988 = false) {
-  __v13987 := false
+  __v13989 := false
   } else {
-  __v13989 := flags = 'undefined;
-  if (__v13989 = false) {
-  __v13987 := false
-  } else {
-  __v13987 := true
+  __v13989 := true
   }
   };
-  if (__v13987) {
+  if (__v13989) {
   return (false, R)
+  } else {
+  
   };
   __v13990 := "newRegExp"(___internal_esl_global, strict, pattern, flags);
   if (fst(__v13990)) {
@@ -8589,7 +8997,9 @@ Tests compilation of ecmaref5:
   __v13937 := fractionDigits = 'undefined;
   if (__v13937) {
   __v13938 := f = 0;
-  assert (__v13938)
+  assert __v13938
+  } else {
+  
   };
   __v13942 := "Type"(___internal_esl_global, f);
   if (fst(__v13942)) {
@@ -8623,6 +9033,8 @@ Tests compilation of ecmaref5:
   __v13944 := is_NaN(x);
   if (__v13944) {
   return (false, "NaN")
+  } else {
+  
   };
   s := "";
   __v13945 := x < 0.0;
@@ -8630,12 +9042,16 @@ Tests compilation of ecmaref5:
   s := "-";
   __v13946 := -(x);
   x := __v13946
+  } else {
+  
   };
   __v13947 := x = inf;
   if (__v13947) {
   __v13949 := (s, "Infinity");
   __v13948 := s_concat(__v13949);
   return (false, __v13948)
+  } else {
+  
   };
   __v13950 := f < 0.0;
   __v13951 := f > 20.0;
@@ -8648,33 +9064,35 @@ Tests compilation of ecmaref5:
   __v13953 := snd(__v13953)
   };
   return (true, __v13953)
+  } else {
+  
   };
-  __v13954 := x = 0.0;
-  if (__v13954) {
+  __v13957 := x = 0.0;
+  if (__v13957) {
   m := "";
   counter := 0;
-  __v13956 := counter <= f;
-  __v13955 := !__v13956;
-  while (__v13955) {
-  __v13958 := (m, "0");
-  __v13957 := s_concat(__v13958);
-  m := __v13957;
-  __v13959 := counter + 1;
-  counter := __v13959;
-  __v13956 := counter <= f;
-  __v13955 := !__v13956
+  __v13959 := counter <= f;
+  __v13958 := !__v13959;
+  while (__v13958) {
+  __v13961 := (m, "0");
+  __v13960 := s_concat(__v13961);
+  m := __v13960;
+  __v13962 := counter + 1;
+  counter := __v13962;
+  __v13959 := counter <= f;
+  __v13958 := !__v13959
   };
   e := 0
   } else {
-  __v13961 := fractionDigits = 'undefined;
-  __v13960 := !__v13961;
-  if (__v13960) {
+  __v13955 := fractionDigits = 'undefined;
+  __v13954 := !__v13955;
+  if (__v13954) {
   
   } else {
   
   };
-  __v13962 := float_to_string(n);
-  m := __v13962
+  __v13956 := float_to_string(n);
+  m := __v13956
   };
   __v13964 := f = 0;
   __v13963 := !__v13964;
@@ -8686,9 +9104,11 @@ Tests compilation of ecmaref5:
   __v13967 := (__v13968, b);
   __v13966 := s_concat(__v13967);
   m := __v13966
+  } else {
+  
   };
-  __v13970 := e = 0;
-  if (__v13970) {
+  __v13973 := e = 0;
+  if (__v13973) {
   c := "+";
   d := "0"
   } else {
@@ -8697,11 +9117,11 @@ Tests compilation of ecmaref5:
   c := "+"
   } else {
   c := "-";
-  __v13972 := -(e);
-  e := __v13972
+  __v13970 := -(e);
+  e := __v13970
   };
-  __v13973 := float_to_string(e);
-  d := __v13973
+  __v13972 := float_to_string(e);
+  d := __v13972
   };
   __v13979 := (m, "e");
   __v13978 := s_concat(__v13979);
@@ -8725,6 +9145,8 @@ Tests compilation of ecmaref5:
   __v13907 := !__v13908;
   if (__v13907) {
   return (false, t)
+  } else {
+  
   };
   __v13909 := ___internal_esl_global["msPerDay"];
   print __v13909;
@@ -8749,65 +9171,67 @@ Tests compilation of ecmaref5:
   __v13917 := aprox = 1970.0;
   if (__v13917) {
   return (false, aprox)
+  } else {
+  
   };
   __v13919 := abs(t);
   __v13918 := -(__v13919);
   __v13920 := __v13918 / t;
   step := __v13920;
   print step;
-  __v13923 := "TimeFromYear"(___internal_esl_global, aprox);
-  if (fst(__v13923)) {
-  return __v13923
+  __v13922 := "TimeFromYear"(___internal_esl_global, aprox);
+  if (fst(__v13922)) {
+  return __v13922
   } else {
-  __v13923 := snd(__v13923)
+  __v13922 := snd(__v13922)
   };
-  __v13924 := __v13923 <= t;
-  if (__v13924 = false) {
-  __v13922 := false
+  __v13923 := __v13922 <= t;
+  if (__v13923 = false) {
+  __v13927 := false
   } else {
-  __v13925 := aprox + 1.0;
-  __v13926 := "TimeFromYear"(___internal_esl_global, __v13925);
-  if (fst(__v13926)) {
-  return __v13926
+  __v13924 := aprox + 1.0;
+  __v13925 := "TimeFromYear"(___internal_esl_global, __v13924);
+  if (fst(__v13925)) {
+  return __v13925
   } else {
-  __v13926 := snd(__v13926)
+  __v13925 := snd(__v13925)
   };
-  __v13927 := t < __v13926;
-  if (__v13927 = false) {
-  __v13922 := false
+  __v13926 := t < __v13925;
+  if (__v13926 = false) {
+  __v13927 := false
   } else {
-  __v13922 := true
+  __v13927 := true
   }
   };
-  __v13921 := !__v13922;
+  __v13921 := !__v13927;
   while (__v13921) {
   __v13928 := aprox + step;
   aprox := __v13928;
-  __v13923 := "TimeFromYear"(___internal_esl_global, aprox);
-  if (fst(__v13923)) {
-  return __v13923
+  __v13922 := "TimeFromYear"(___internal_esl_global, aprox);
+  if (fst(__v13922)) {
+  return __v13922
   } else {
-  __v13923 := snd(__v13923)
+  __v13922 := snd(__v13922)
   };
-  __v13924 := __v13923 <= t;
-  if (__v13924 = false) {
-  __v13922 := false
+  __v13923 := __v13922 <= t;
+  if (__v13923 = false) {
+  __v13927 := false
   } else {
-  __v13925 := aprox + 1.0;
-  __v13926 := "TimeFromYear"(___internal_esl_global, __v13925);
-  if (fst(__v13926)) {
-  return __v13926
+  __v13924 := aprox + 1.0;
+  __v13925 := "TimeFromYear"(___internal_esl_global, __v13924);
+  if (fst(__v13925)) {
+  return __v13925
   } else {
-  __v13926 := snd(__v13926)
+  __v13925 := snd(__v13925)
   };
-  __v13927 := t < __v13926;
-  if (__v13927 = false) {
-  __v13922 := false
+  __v13926 := t < __v13925;
+  if (__v13926 = false) {
+  __v13927 := false
   } else {
-  __v13922 := true
+  __v13927 := true
   }
   };
-  __v13921 := !__v13922
+  __v13921 := !__v13927
   };
   print "YearFromTime returns: ";
   print aprox;
@@ -8842,16 +9266,16 @@ Tests compilation of ecmaref5:
   AssignmentExpression := __v13898;
   __v13899 := l_remove_last(Expressions);
   Expressions := __v13899;
-  __v13900 := l_len(Expressions);
-  __v13901 := __v13900 = 1;
-  if (__v13901) {
-  __v13902 := l_nth(Expressions, 0);
-  Expression := __v13902
-  } else {
-  __v13903 := {};
-  __v13903["type"] := "SequenceExpression";
-  __v13903["expressions"] := Expressions;
+  __v13901 := l_len(Expressions);
+  __v13902 := __v13901 = 1;
+  if (__v13902) {
+  __v13903 := l_nth(Expressions, 0);
   Expression := __v13903
+  } else {
+  __v13900 := {};
+  __v13900["type"] := "SequenceExpression";
+  __v13900["expressions"] := Expressions;
+  Expression := __v13900
   };
   __v13904 := "JS_Interpreter_Comma_Operator_Expression_AssignmentExpression"(___internal_esl_global, Expression, AssignmentExpression, scope);
   if (fst(__v13904)) {
@@ -8878,6 +9302,8 @@ Tests compilation of ecmaref5:
   __v13888 := snd(__v13888)
   };
   return (true, __v13888)
+  } else {
+  
   };
   __v13889 := "Type"(___internal_esl_global, this);
   if (fst(__v13889)) {
@@ -8888,6 +9314,8 @@ Tests compilation of ecmaref5:
   __v13890 := __v13889 = "String";
   if (__v13890) {
   return (false, this)
+  } else {
+  
   };
   __v13891 := "getInternalProperty"(___internal_esl_global, this, "PrimitiveValue");
   if (fst(__v13891)) {
@@ -8915,69 +9343,69 @@ Tests compilation of ecmaref5:
   print numberOfArgs;
   print args;
   __v13873 := numberOfArgs = 0;
-  assert (__v13873);
-  __v13875 := NewTarget = 'undefined;
-  __v13874 := !__v13875;
-  if (__v13874) {
-  __v13876 := "OrdinaryCreateFromConstructorDate"(___internal_esl_global, global, this, strict, NewTarget);
-  if (fst(__v13876)) {
-  return __v13876
-  } else {
-  __v13876 := snd(__v13876)
-  };
-  O := __v13876;
-  __v13880 := "Type"(___internal_esl_global, O);
-  if (fst(__v13880)) {
-  return __v13880
-  } else {
-  __v13880 := snd(__v13880)
-  };
-  __v13881 := __v13880 = "Completion";
-  __v13879 := !__v13881;
-  if (__v13879) {
-  
-  } else {
-  __v13878 := "isAnAbruptCompletion"(___internal_esl_global, O);
+  assert __v13873;
+  __v13877 := NewTarget = 'undefined;
+  __v13876 := !__v13877;
+  if (__v13876) {
+  __v13878 := "OrdinaryCreateFromConstructorDate"(___internal_esl_global, global, this, strict, NewTarget);
   if (fst(__v13878)) {
   return __v13878
   } else {
   __v13878 := snd(__v13878)
   };
-  if (__v13878) {
-  return (false, O)
-  } else {
-  __v13877 := "getCompletionValue"(___internal_esl_global, O);
-  if (fst(__v13877)) {
-  return __v13877
-  } else {
-  __v13877 := snd(__v13877)
-  };
-  O := __v13877
-  }
-  };
-  __v13882 := "getTimeValueIdentifyingCurrentTime"(___internal_esl_global);
+  O := __v13878;
+  __v13882 := "Type"(___internal_esl_global, O);
   if (fst(__v13882)) {
   return __v13882
   } else {
   __v13882 := snd(__v13882)
   };
-  O["DateValue"] := __v13882;
+  __v13883 := __v13882 = "Completion";
+  __v13881 := !__v13883;
+  if (__v13881) {
+  
+  } else {
+  __v13880 := "isAnAbruptCompletion"(___internal_esl_global, O);
+  if (fst(__v13880)) {
+  return __v13880
+  } else {
+  __v13880 := snd(__v13880)
+  };
+  if (__v13880) {
   return (false, O)
   } else {
-  __v13883 := "getTimeValueIdentifyingCurrentTime"(___internal_esl_global);
-  if (fst(__v13883)) {
-  return __v13883
+  __v13879 := "getCompletionValue"(___internal_esl_global, O);
+  if (fst(__v13879)) {
+  return __v13879
   } else {
-  __v13883 := snd(__v13883)
+  __v13879 := snd(__v13879)
   };
-  now := __v13883;
-  __v13884 := "toDateString"(___internal_esl_global, 0.0);
+  O := __v13879
+  }
+  };
+  __v13884 := "getTimeValueIdentifyingCurrentTime"(___internal_esl_global);
   if (fst(__v13884)) {
   return __v13884
   } else {
   __v13884 := snd(__v13884)
   };
-  return (false, __v13884)
+  O["DateValue"] := __v13884;
+  return (false, O)
+  } else {
+  __v13874 := "getTimeValueIdentifyingCurrentTime"(___internal_esl_global);
+  if (fst(__v13874)) {
+  return __v13874
+  } else {
+  __v13874 := snd(__v13874)
+  };
+  now := __v13874;
+  __v13875 := "toDateString"(___internal_esl_global, 0.0);
+  if (fst(__v13875)) {
+  return __v13875
+  } else {
+  __v13875 := snd(__v13875)
+  };
+  return (false, __v13875)
   }
   };
   function Str(___internal_esl_global, key, holder, stack, indent, gap, PropertyList, space, ReplacerFunction) {
@@ -9022,7 +9450,11 @@ Tests compilation of ecmaref5:
   __v13830 := snd(__v13830)
   };
   value := __v13830
+  } else {
+  
   }
+  } else {
+  
   };
   __v13832 := ReplacerFunction = 'undefined;
   __v13831 := !__v13832;
@@ -9036,6 +9468,8 @@ Tests compilation of ecmaref5:
   __v13835 := snd(__v13835)
   };
   value := __v13835
+  } else {
+  
   };
   __v13836 := "Type"(___internal_esl_global, value);
   if (fst(__v13836)) {
@@ -9077,18 +9511,26 @@ Tests compilation of ecmaref5:
   }
   }
   }
+  } else {
+  
   };
   __v13847 := value = 'null;
   if (__v13847) {
   return (false, "null")
+  } else {
+  
   };
   __v13848 := value = true;
   if (__v13848) {
   return (false, "true")
+  } else {
+  
   };
   __v13849 := value = false;
   if (__v13849) {
   return (false, "false")
+  } else {
+  
   };
   __v13850 := "Type"(___internal_esl_global, value);
   if (fst(__v13850)) {
@@ -9105,6 +9547,8 @@ Tests compilation of ecmaref5:
   __v13852 := snd(__v13852)
   };
   return (false, __v13852)
+  } else {
+  
   };
   __v13853 := "Type"(___internal_esl_global, value);
   if (fst(__v13853)) {
@@ -9114,29 +9558,29 @@ Tests compilation of ecmaref5:
   };
   __v13854 := __v13853 = "Number";
   if (__v13854) {
-  __v13858 := is_NaN(value);
-  if (__v13858 = true) {
-  __v13857 := true
+  __v13856 := is_NaN(value);
+  if (__v13856 = true) {
+  __v13858 := true
   } else {
-  __v13859 := value = inf;
-  if (__v13859 = true) {
-  __v13857 := true
-  } else {
-  __v13857 := false
-  }
-  };
+  __v13857 := value = inf;
   if (__v13857 = true) {
-  __v13856 := true
+  __v13858 := true
   } else {
-  __v13860 := -(inf);
-  __v13861 := value = __v13860;
-  if (__v13861 = true) {
-  __v13856 := true
-  } else {
-  __v13856 := false
+  __v13858 := false
   }
   };
-  __v13855 := !__v13856;
+  if (__v13858 = true) {
+  __v13861 := true
+  } else {
+  __v13859 := -(inf);
+  __v13860 := value = __v13859;
+  if (__v13860 = true) {
+  __v13861 := true
+  } else {
+  __v13861 := false
+  }
+  };
+  __v13855 := !__v13861;
   if (__v13855) {
   __v13862 := "ToString"(___internal_esl_global, value);
   if (fst(__v13862)) {
@@ -9148,6 +9592,8 @@ Tests compilation of ecmaref5:
   } else {
   return (false, "null")
   }
+  } else {
+  
   };
   __v13863 := "Type"(___internal_esl_global, value);
   if (fst(__v13863)) {
@@ -9165,25 +9611,27 @@ Tests compilation of ecmaref5:
   __v13866 := __v13865 = false;
   __v13867 := __v13864 && __v13866;
   if (__v13867) {
-  __v13868 := value["Class"];
-  __v13869 := __v13868 = "Array";
-  if (__v13869) {
-  __v13870 := "JA"(___internal_esl_global, value, stack, indent, gap, PropertyList, ReplacerFunction, space);
-  if (fst(__v13870)) {
-  return __v13870
-  } else {
-  __v13870 := snd(__v13870)
-  };
-  return (false, __v13870)
-  } else {
-  __v13871 := "JO"(___internal_esl_global, value, stack, indent, gap, PropertyList, ReplacerFunction, space);
+  __v13869 := value["Class"];
+  __v13870 := __v13869 = "Array";
+  if (__v13870) {
+  __v13871 := "JA"(___internal_esl_global, value, stack, indent, gap, PropertyList, ReplacerFunction, space);
   if (fst(__v13871)) {
   return __v13871
   } else {
   __v13871 := snd(__v13871)
   };
   return (false, __v13871)
+  } else {
+  __v13868 := "JO"(___internal_esl_global, value, stack, indent, gap, PropertyList, ReplacerFunction, space);
+  if (fst(__v13868)) {
+  return __v13868
+  } else {
+  __v13868 := snd(__v13868)
+  };
+  return (false, __v13868)
   }
+  } else {
+  
   };
   return (false, 'undefined)
   };
@@ -9220,19 +9668,21 @@ Tests compilation of ecmaref5:
   __v13812 := snd(__v13812)
   };
   index := __v13812;
-  __v13814 := index = -1;
+  __v13813 := index = -1;
+  if (__v13813 = true) {
+  __v13815 := true
+  } else {
+  __v13814 := index >= radixInt;
   if (__v13814 = true) {
-  __v13813 := true
+  __v13815 := true
   } else {
-  __v13815 := index >= radixInt;
-  if (__v13815 = true) {
-  __v13813 := true
-  } else {
-  __v13813 := false
+  __v13815 := false
   }
   };
-  if (__v13813) {
+  if (__v13815) {
   return (false, true)
+  } else {
+  
   };
   __v13816 := i + 1;
   i := __v13816;
@@ -9406,6 +9856,8 @@ Tests compilation of ecmaref5:
   __v13775 := !__v13776;
   if (__v13775) {
   return (false, false)
+  } else {
+  
   };
   __v13773 := __v13773 + 1;
   __v13774 := __v13772 > __v13773
@@ -9483,6 +9935,8 @@ Tests compilation of ecmaref5:
   } else {
   return (false, false)
   }
+  } else {
+  
   };
   __v13681 := current = 'undefined;
   __v13682 := extensible = true;
@@ -9491,36 +9945,38 @@ Tests compilation of ecmaref5:
   __v13684 := O["internalSlotsList"];
   __v13685 := l_prepend(P, __v13684);
   O["internalSlotsList"] := __v13685;
-  __v13686 := "IsGenericPropertyDescriptor"(___internal_esl_global, Desc);
-  if (fst(__v13686)) {
-  return __v13686
-  } else {
-  __v13686 := snd(__v13686)
-  };
-  __v13687 := "IsDataPropertyDescriptor"(___internal_esl_global, Desc);
+  __v13687 := "IsGenericPropertyDescriptor"(___internal_esl_global, Desc);
   if (fst(__v13687)) {
   return __v13687
   } else {
   __v13687 := snd(__v13687)
   };
-  __v13688 := __v13687 = true;
-  __v13689 := __v13686 || __v13688;
-  if (__v13689) {
-  __v13690 := "createOwnDataProperty"(___internal_esl_global, O, P, Desc);
-  if (fst(__v13690)) {
-  return __v13690
+  __v13688 := "IsDataPropertyDescriptor"(___internal_esl_global, Desc);
+  if (fst(__v13688)) {
+  return __v13688
   } else {
-  __v13690 := snd(__v13690)
-  }
-  } else {
-  __v13691 := "createOwnAccessorProperty"(___internal_esl_global, O, P, Desc);
+  __v13688 := snd(__v13688)
+  };
+  __v13689 := __v13688 = true;
+  __v13690 := __v13687 || __v13689;
+  if (__v13690) {
+  __v13691 := "createOwnDataProperty"(___internal_esl_global, O, P, Desc);
   if (fst(__v13691)) {
   return __v13691
   } else {
   __v13691 := snd(__v13691)
   }
+  } else {
+  __v13686 := "createOwnAccessorProperty"(___internal_esl_global, O, P, Desc);
+  if (fst(__v13686)) {
+  return __v13686
+  } else {
+  __v13686 := snd(__v13686)
+  }
   };
   return (false, true)
+  } else {
+  
   };
   __v13692 := "EveryFieldIsAbsent"(___internal_esl_global, Desc);
   if (fst(__v13692)) {
@@ -9530,6 +9986,8 @@ Tests compilation of ecmaref5:
   };
   if (__v13692) {
   return (false, true)
+  } else {
+  
   };
   __v13693 := "everyFieldInDescAlsoOccursInCurrent"(___internal_esl_global, Desc, current);
   if (fst(__v13693)) {
@@ -9539,23 +9997,25 @@ Tests compilation of ecmaref5:
   };
   if (__v13693) {
   return (false, true)
+  } else {
+  
   };
   __v13694 := current["Configurable"];
   __v13695 := __v13694 = false;
   if (__v13695) {
-  __v13697 := "Configurable" in_obj Desc;
-  if (__v13697 = false) {
-  __v13696 := false
+  __v13696 := "Configurable" in_obj Desc;
+  if (__v13696 = false) {
+  __v13699 := false
   } else {
-  __v13698 := Desc["Configurable"];
-  __v13699 := __v13698 = true;
-  if (__v13699 = false) {
-  __v13696 := false
+  __v13697 := Desc["Configurable"];
+  __v13698 := __v13697 = true;
+  if (__v13698 = false) {
+  __v13699 := false
   } else {
-  __v13696 := true
+  __v13699 := true
   }
   };
-  if (__v13696) {
+  if (__v13699) {
   if (Throw) {
   __v13700 := "TypeErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v13700)) {
@@ -9567,22 +10027,24 @@ Tests compilation of ecmaref5:
   } else {
   return (false, false)
   }
+  } else {
+  
   };
-  __v13702 := "Enumerable" in_obj Desc;
+  __v13701 := "Enumerable" in_obj Desc;
+  if (__v13701 = false) {
+  __v13706 := false
+  } else {
+  __v13703 := current["Enumerable"];
+  __v13704 := Desc["Enumerable"];
+  __v13705 := __v13703 = __v13704;
+  __v13702 := !__v13705;
   if (__v13702 = false) {
-  __v13701 := false
+  __v13706 := false
   } else {
-  __v13704 := current["Enumerable"];
-  __v13705 := Desc["Enumerable"];
-  __v13706 := __v13704 = __v13705;
-  __v13703 := !__v13706;
-  if (__v13703 = false) {
-  __v13701 := false
-  } else {
-  __v13701 := true
+  __v13706 := true
   }
   };
-  if (__v13701) {
+  if (__v13706) {
   __v13708 := Desc["Enumerable"];
   __v13707 := !__v13708;
   __v13709 := current["Enumerable"];
@@ -9599,8 +10061,14 @@ Tests compilation of ecmaref5:
   } else {
   return (false, false)
   }
+  } else {
+  
   }
+  } else {
+  
   }
+  } else {
+  
   };
   __v13760 := "IsGenericPropertyDescriptor"(___internal_esl_global, Desc);
   if (fst(__v13760)) {
@@ -9641,26 +10109,28 @@ Tests compilation of ecmaref5:
   } else {
   return (false, false)
   }
-  };
-  __v13757 := "IsDataPropertyDescriptor"(___internal_esl_global, current);
-  if (fst(__v13757)) {
-  return __v13757
   } else {
-  __v13757 := snd(__v13757)
+  
   };
-  if (__v13757) {
-  __v13758 := "convertDataPropertyDescToAccessorPropertyDesc"(___internal_esl_global, O, P);
+  __v13758 := "IsDataPropertyDescriptor"(___internal_esl_global, current);
   if (fst(__v13758)) {
   return __v13758
   } else {
   __v13758 := snd(__v13758)
-  }
-  } else {
-  __v13759 := "convertAccessorPropertyDescToDataPropertyDesc"(___internal_esl_global, O, P);
+  };
+  if (__v13758) {
+  __v13759 := "convertDataPropertyDescToAccessorPropertyDesc"(___internal_esl_global, O, P);
   if (fst(__v13759)) {
   return __v13759
   } else {
   __v13759 := snd(__v13759)
+  }
+  } else {
+  __v13757 := "convertAccessorPropertyDescToDataPropertyDesc"(___internal_esl_global, O, P);
+  if (fst(__v13757)) {
+  return __v13757
+  } else {
+  __v13757 := snd(__v13757)
   }
   }
   } else {
@@ -9700,6 +10170,8 @@ Tests compilation of ecmaref5:
   } else {
   return (false, false)
   }
+  } else {
+  
   };
   __v13741 := current["Writable"];
   __v13742 := __v13741 = false;
@@ -9727,7 +10199,11 @@ Tests compilation of ecmaref5:
   } else {
   return (false, false)
   }
+  } else {
+  
   }
+  } else {
+  
   }
   } else {
   
@@ -9759,6 +10235,8 @@ Tests compilation of ecmaref5:
   } else {
   return (false, false)
   }
+  } else {
+  
   };
   __v13721 := "Get" in_obj Desc;
   __v13722 := Desc["Get"];
@@ -9783,7 +10261,11 @@ Tests compilation of ecmaref5:
   } else {
   return (false, false)
   }
+  } else {
+  
   }
+  } else {
+  
   }
   }
   }
@@ -9853,31 +10335,33 @@ Tests compilation of ecmaref5:
   tv := __v13653
   }
   };
-  __v13659 := "Type"(___internal_esl_global, tv);
-  if (fst(__v13659)) {
-  return __v13659
+  __v13658 := "Type"(___internal_esl_global, tv);
+  if (fst(__v13658)) {
+  return __v13658
   } else {
-  __v13659 := snd(__v13659)
+  __v13658 := snd(__v13658)
   };
-  __v13660 := __v13659 = "Number";
+  __v13659 := __v13658 = "Number";
+  if (__v13659 = false) {
+  __v13662 := false
+  } else {
+  __v13661 := "auxIsFinite"(___internal_esl_global, tv);
+  if (fst(__v13661)) {
+  return __v13661
+  } else {
+  __v13661 := snd(__v13661)
+  };
+  __v13660 := !__v13661;
   if (__v13660 = false) {
-  __v13658 := false
+  __v13662 := false
   } else {
-  __v13662 := "auxIsFinite"(___internal_esl_global, tv);
-  if (fst(__v13662)) {
-  return __v13662
-  } else {
-  __v13662 := snd(__v13662)
-  };
-  __v13661 := !__v13662;
-  if (__v13661 = false) {
-  __v13658 := false
-  } else {
-  __v13658 := true
+  __v13662 := true
   }
   };
-  if (__v13658) {
+  if (__v13662) {
   return (false, 'null)
+  } else {
+  
   };
   __v13663 := O["Get"];
   __v13664 := __v13663(___internal_esl_global, O, "toISOString");
@@ -9902,6 +10386,8 @@ Tests compilation of ecmaref5:
   __v13667 := snd(__v13667)
   };
   return (true, __v13667)
+  } else {
+  
   };
   __v13668 := toISO["Call"];
   __v13669 := [];
@@ -9942,6 +10428,8 @@ Tests compilation of ecmaref5:
   if (__v13648) {
   __v13649 := l_add(ownEnumerableProperties, pname);
   ownEnumerableProperties := __v13649
+  } else {
+  
   };
   __v13650 := i + 1;
   i := __v13650;
@@ -9975,6 +10463,8 @@ Tests compilation of ecmaref5:
   __v13622 := snd(__v13622)
   };
   return (true, __v13622)
+  } else {
+  
   };
   __v13623 := "GetBase"(___internal_esl_global, V);
   if (fst(__v13623)) {
@@ -10004,6 +10494,8 @@ Tests compilation of ecmaref5:
   __v13636 := snd(__v13636)
   };
   return (true, __v13636)
+  } else {
+  
   };
   __v13637 := ___internal_esl_global["__$global"];
   __v13638 := "GetReferencedName"(___internal_esl_global, V);
@@ -10100,6 +10592,8 @@ Tests compilation of ecmaref5:
   __v13617 := snd(__v13617)
   };
   return (false, __v13617)
+  } else {
+  
   };
   __v13618 := "internalNewArray"(___internal_esl_global, prototype, items);
   if (fst(__v13618)) {
@@ -10150,20 +10644,20 @@ Tests compilation of ecmaref5:
   return (false, __v13607)
   };
   function isParsableAsFunctionBody(___internal_esl_global, bodyObj) {
-  __v13603 := "type" in_obj bodyObj;
+  __v13602 := "type" in_obj bodyObj;
+  if (__v13602 = false) {
+  __v13606 := false
+  } else {
+  __v13604 := bodyObj["type"];
+  __v13605 := __v13604 = "EarlySyntaxError";
+  __v13603 := !__v13605;
   if (__v13603 = false) {
-  __v13602 := false
+  __v13606 := false
   } else {
-  __v13605 := bodyObj["type"];
-  __v13606 := __v13605 = "EarlySyntaxError";
-  __v13604 := !__v13606;
-  if (__v13604 = false) {
-  __v13602 := false
-  } else {
-  __v13602 := true
+  __v13606 := true
   }
   };
-  return (false, __v13602)
+  return (false, __v13606)
   };
   function JS_Interpreter_CaseBlock_CaseClauses(___internal_esl_global, caseClauses, input, scope) {
   V := 'empty;
@@ -10190,6 +10684,8 @@ Tests compilation of ecmaref5:
   __v13579 := snd(__v13579)
   };
   return (false, __v13579)
+  } else {
+  
   };
   __v13580 := "JS_Interpreter_SwitchCase"(___internal_esl_global, C, scope);
   if (fst(__v13580)) {
@@ -10234,6 +10730,8 @@ Tests compilation of ecmaref5:
   };
   if (__v13585) {
   return (false, R)
+  } else {
+  
   };
   __v13586 := "getCompletionValue"(___internal_esl_global, R);
   if (fst(__v13586)) {
@@ -10242,7 +10740,11 @@ Tests compilation of ecmaref5:
   __v13586 := snd(__v13586)
   };
   V := __v13586
+  } else {
+  
   }
+  } else {
+  
   };
   __v13575 := searching = true
   };
@@ -10265,6 +10767,8 @@ Tests compilation of ecmaref5:
   __v13590 := snd(__v13590)
   };
   return (false, __v13590)
+  } else {
+  
   };
   __v13591 := "hasStatementList"(___internal_esl_global, C);
   if (fst(__v13591)) {
@@ -10302,6 +10806,8 @@ Tests compilation of ecmaref5:
   __v13597 := snd(__v13597)
   };
   V := __v13597
+  } else {
+  
   };
   __v13598 := "isAnAbruptCompletion"(___internal_esl_global, R);
   if (fst(__v13598)) {
@@ -10329,7 +10835,11 @@ Tests compilation of ecmaref5:
   __v13601 := snd(__v13601)
   };
   return (false, __v13601)
+  } else {
+  
   }
+  } else {
+  
   };
   while (!false) {
   __v13587 := "getNextCaseClause"(___internal_esl_global, A, i);
@@ -10350,6 +10860,8 @@ Tests compilation of ecmaref5:
   __v13590 := snd(__v13590)
   };
   return (false, __v13590)
+  } else {
+  
   };
   __v13591 := "hasStatementList"(___internal_esl_global, C);
   if (fst(__v13591)) {
@@ -10387,6 +10899,8 @@ Tests compilation of ecmaref5:
   __v13597 := snd(__v13597)
   };
   V := __v13597
+  } else {
+  
   };
   __v13598 := "isAnAbruptCompletion"(___internal_esl_global, R);
   if (fst(__v13598)) {
@@ -10414,7 +10928,11 @@ Tests compilation of ecmaref5:
   __v13601 := snd(__v13601)
   };
   return (false, __v13601)
+  } else {
+  
   }
+  } else {
+  
   }
   }
   };
@@ -10500,6 +11018,8 @@ Tests compilation of ecmaref5:
   __v13566 := snd(__v13566)
   };
   return (true, __v13566)
+  } else {
+  
   };
   __v13568 := "isParsableAsFunctionBody"(___internal_esl_global, body);
   if (fst(__v13568)) {
@@ -10516,6 +11036,8 @@ Tests compilation of ecmaref5:
   __v13569 := snd(__v13569)
   };
   return (true, __v13569)
+  } else {
+  
   };
   __v13570 := "isBuiltInFunctionBodyStrictModeCode"(___internal_esl_global, body);
   if (fst(__v13570)) {
@@ -10536,6 +11058,8 @@ Tests compilation of ecmaref5:
   } else {
   __v13572 := snd(__v13572)
   }
+  } else {
+  
   };
   __v13573 := "getGlobalEnvironment"(___internal_esl_global, globalObject);
   if (fst(__v13573)) {
@@ -10946,17 +11470,17 @@ Tests compilation of ecmaref5:
   __v13478 := snd(__v13478)
   }
   } else {
-  __v13469 := !jValExists;
-  if (__v13469 = false) {
-  __v13468 := false
+  __v13468 := !jValExists;
+  if (__v13468 = false) {
+  __v13469 := false
   } else {
   if (jValNextExists = false) {
-  __v13468 := false
+  __v13469 := false
   } else {
-  __v13468 := true
+  __v13469 := true
   }
   };
-  if (__v13468) {
+  if (__v13469) {
   __v13470 := obj["Put"];
   __v13471 := __v13470(___internal_esl_global, obj, i_str, jValNext, true);
   if (fst(__v13471)) {
@@ -10973,16 +11497,16 @@ Tests compilation of ecmaref5:
   }
   } else {
   if (jValExists = false) {
-  __v13462 := false
+  __v13463 := false
   } else {
-  __v13463 := !jValNextExists;
-  if (__v13463 = false) {
-  __v13462 := false
+  __v13462 := !jValNextExists;
+  if (__v13462 = false) {
+  __v13463 := false
   } else {
-  __v13462 := true
+  __v13463 := true
   }
   };
-  if (__v13462) {
+  if (__v13463) {
   __v13464 := obj["Put"];
   __v13465 := __v13464(___internal_esl_global, obj, inext_str, jVal, true);
   if (fst(__v13465)) {
@@ -11054,18 +11578,18 @@ Tests compilation of ecmaref5:
   __v13410 := snd(__v13410)
   };
   value := __v13410;
-  __v13412 := this = 'undefined;
+  __v13411 := this = 'undefined;
+  if (__v13411 = true) {
+  __v13413 := true
+  } else {
+  __v13412 := this = 'null;
   if (__v13412 = true) {
-  __v13411 := true
+  __v13413 := true
   } else {
-  __v13413 := this = 'null;
-  if (__v13413 = true) {
-  __v13411 := true
-  } else {
-  __v13411 := false
+  __v13413 := false
   }
   };
-  if (__v13411) {
+  if (__v13413) {
   __v13414 := "StringConstructorCalledAsFunction"(___internal_esl_global, value);
   if (fst(__v13414)) {
   return __v13414
@@ -11073,6 +11597,8 @@ Tests compilation of ecmaref5:
   __v13414 := snd(__v13414)
   };
   return (false, __v13414)
+  } else {
+  
   };
   __v13415 := "NewECMAScriptObject"(___internal_esl_global);
   if (fst(__v13415)) {
@@ -11111,17 +11637,17 @@ Tests compilation of ecmaref5:
   } else {
   __v13420 := snd(__v13420)
   };
-  __v13421 := value = null;
-  if (__v13421) {
+  __v13422 := value = null;
+  if (__v13422) {
   newlyConstructedObject["PrimitiveValue"] := ""
   } else {
-  __v13422 := "ToString"(___internal_esl_global, value);
-  if (fst(__v13422)) {
-  return __v13422
+  __v13421 := "ToString"(___internal_esl_global, value);
+  if (fst(__v13421)) {
+  return __v13421
   } else {
-  __v13422 := snd(__v13422)
+  __v13421 := snd(__v13421)
   };
-  newlyConstructedObject["PrimitiveValue"] := __v13422
+  newlyConstructedObject["PrimitiveValue"] := __v13421
   };
   i := 0;
   __v13424 := newlyConstructedObject["PrimitiveValue"];
@@ -11175,6 +11701,8 @@ Tests compilation of ecmaref5:
   __v13405 := snd(__v13405)
   };
   return (true, __v13405)
+  } else {
+  
   };
   __v13406 := "ToString"(___internal_esl_global, P);
   if (fst(__v13406)) {
@@ -11322,6 +11850,8 @@ Tests compilation of ecmaref5:
   __v13376 := snd(__v13376)
   };
   return (true, __v13376)
+  } else {
+  
   };
   __v13377 := "Type"(___internal_esl_global, this);
   if (fst(__v13377)) {
@@ -11332,6 +11862,8 @@ Tests compilation of ecmaref5:
   __v13378 := __v13377 = "String";
   if (__v13378) {
   return (false, this)
+  } else {
+  
   };
   __v13379 := "getInternalProperty"(___internal_esl_global, this, "PrimitiveValue");
   if (fst(__v13379)) {
@@ -11367,6 +11899,8 @@ Tests compilation of ecmaref5:
   __v13331 := snd(__v13331)
   };
   return (false, __v13331)
+  } else {
+  
   };
   __v13332 := "JS_Interpreter_SourceElements"(___internal_esl_global, SourceElementsopt, callingExecCtx);
   if (fst(__v13332)) {
@@ -11404,6 +11938,8 @@ Tests compilation of ecmaref5:
   __v13345 := snd(__v13345)
   };
   return (false, __v13345)
+  } else {
+  
   };
   __v13346 := "SyntaxErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v13346)) {
@@ -11440,6 +11976,8 @@ Tests compilation of ecmaref5:
   __v13358 := snd(__v13358)
   };
   return (false, __v13358)
+  } else {
+  
   };
   __v13359 := "EnteringGlobalCode"(___internal_esl_global, p);
   if (fst(__v13359)) {
@@ -11488,6 +12026,8 @@ Tests compilation of ecmaref5:
   __v13371 := snd(__v13371)
   };
   return (false, __v13371)
+  } else {
+  
   };
   __v13372 := "SyntaxErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v13372)) {
@@ -11511,6 +12051,8 @@ Tests compilation of ecmaref5:
   __v13308 := callingExecCtx = null;
   if (__v13308) {
   return (false, false)
+  } else {
+  
   };
   __v13310 := "Type"(___internal_esl_global, ref);
   if (fst(__v13310)) {
@@ -11522,6 +12064,8 @@ Tests compilation of ecmaref5:
   __v13309 := !__v13311;
   if (__v13309) {
   return (false, false)
+  } else {
+  
   };
   __v13312 := "GetBase"(___internal_esl_global, ref);
   if (fst(__v13312)) {
@@ -11575,6 +12119,8 @@ Tests compilation of ecmaref5:
   };
   if (__v13283) {
   return (false, value)
+  } else {
+  
   };
   __v13284 := "isHostObject"(___internal_esl_global, value, this);
   if (fst(__v13284)) {
@@ -11590,7 +12136,11 @@ Tests compilation of ecmaref5:
   __v13285 := snd(__v13285)
   };
   return (false, __v13285)
+  } else {
+  
   }
+  } else {
+  
   };
   __v13286 := "Type"(___internal_esl_global, value);
   if (fst(__v13286)) {
@@ -11607,6 +12157,8 @@ Tests compilation of ecmaref5:
   __v13288 := snd(__v13288)
   };
   return (false, __v13288)
+  } else {
+  
   };
   __v13289 := "Type"(___internal_esl_global, value);
   if (fst(__v13289)) {
@@ -11623,6 +12175,8 @@ Tests compilation of ecmaref5:
   __v13291 := snd(__v13291)
   };
   return (false, __v13291)
+  } else {
+  
   };
   __v13292 := "Type"(___internal_esl_global, value);
   if (fst(__v13292)) {
@@ -11639,42 +12193,46 @@ Tests compilation of ecmaref5:
   __v13294 := snd(__v13294)
   };
   return (false, __v13294)
+  } else {
+  
   }
+  } else {
+  
   };
-  __v13297 := value = null;
+  __v13295 := value = null;
+  if (__v13295 = true) {
+  __v13298 := true
+  } else {
+  __v13296 := "Type"(___internal_esl_global, value);
+  if (fst(__v13296)) {
+  return __v13296
+  } else {
+  __v13296 := snd(__v13296)
+  };
+  __v13297 := __v13296 = "Null";
   if (__v13297 = true) {
-  __v13296 := true
+  __v13298 := true
   } else {
-  __v13298 := "Type"(___internal_esl_global, value);
-  if (fst(__v13298)) {
-  return __v13298
-  } else {
-  __v13298 := snd(__v13298)
-  };
-  __v13299 := __v13298 = "Null";
-  if (__v13299 = true) {
-  __v13296 := true
-  } else {
-  __v13296 := false
+  __v13298 := false
   }
   };
-  if (__v13296 = true) {
-  __v13295 := true
+  if (__v13298 = true) {
+  __v13301 := true
   } else {
-  __v13300 := "Type"(___internal_esl_global, value);
-  if (fst(__v13300)) {
-  return __v13300
+  __v13299 := "Type"(___internal_esl_global, value);
+  if (fst(__v13299)) {
+  return __v13299
   } else {
-  __v13300 := snd(__v13300)
+  __v13299 := snd(__v13299)
   };
-  __v13301 := __v13300 = "Undefined";
-  if (__v13301 = true) {
-  __v13295 := true
+  __v13300 := __v13299 = "Undefined";
+  if (__v13300 = true) {
+  __v13301 := true
   } else {
-  __v13295 := false
+  __v13301 := false
   }
   };
-  assert (__v13295);
+  assert __v13301;
   __v13302 := "NewECMAScriptObject"(___internal_esl_global);
   if (fst(__v13302)) {
   return __v13302
@@ -11816,23 +12374,23 @@ Tests compilation of ecmaref5:
   h := __v13244
   }
   };
-  __v13249 := mins = null;
-  if (__v13249) {
-  __v13250 := "MinFromTime"(___internal_esl_global, t);
-  if (fst(__v13250)) {
-  return __v13250
-  } else {
-  __v13250 := snd(__v13250)
-  };
-  m := __v13250
-  } else {
-  __v13251 := "ToNumber"(___internal_esl_global, mins);
+  __v13250 := mins = null;
+  if (__v13250) {
+  __v13251 := "MinFromTime"(___internal_esl_global, t);
   if (fst(__v13251)) {
   return __v13251
   } else {
   __v13251 := snd(__v13251)
   };
   m := __v13251
+  } else {
+  __v13249 := "ToNumber"(___internal_esl_global, mins);
+  if (fst(__v13249)) {
+  return __v13249
+  } else {
+  __v13249 := snd(__v13249)
+  };
+  m := __v13249
   };
   __v13255 := "Type"(___internal_esl_global, m);
   if (fst(__v13255)) {
@@ -11863,23 +12421,23 @@ Tests compilation of ecmaref5:
   m := __v13252
   }
   };
-  __v13257 := sec = null;
-  if (__v13257) {
-  __v13258 := "SecFromTime"(___internal_esl_global, t);
-  if (fst(__v13258)) {
-  return __v13258
-  } else {
-  __v13258 := snd(__v13258)
-  };
-  s := __v13258
-  } else {
-  __v13259 := "ToNumber"(___internal_esl_global, sec);
+  __v13258 := sec = null;
+  if (__v13258) {
+  __v13259 := "SecFromTime"(___internal_esl_global, t);
   if (fst(__v13259)) {
   return __v13259
   } else {
   __v13259 := snd(__v13259)
   };
   s := __v13259
+  } else {
+  __v13257 := "ToNumber"(___internal_esl_global, sec);
+  if (fst(__v13257)) {
+  return __v13257
+  } else {
+  __v13257 := snd(__v13257)
+  };
+  s := __v13257
   };
   __v13263 := "Type"(___internal_esl_global, s);
   if (fst(__v13263)) {
@@ -11910,23 +12468,23 @@ Tests compilation of ecmaref5:
   s := __v13260
   }
   };
-  __v13265 := ms = null;
-  if (__v13265) {
-  __v13266 := "msFromTime"(___internal_esl_global, t);
-  if (fst(__v13266)) {
-  return __v13266
-  } else {
-  __v13266 := snd(__v13266)
-  };
-  milli := __v13266
-  } else {
-  __v13267 := "ToNumber"(___internal_esl_global, ms);
+  __v13266 := ms = null;
+  if (__v13266) {
+  __v13267 := "msFromTime"(___internal_esl_global, t);
   if (fst(__v13267)) {
   return __v13267
   } else {
   __v13267 := snd(__v13267)
   };
   milli := __v13267
+  } else {
+  __v13265 := "ToNumber"(___internal_esl_global, ms);
+  if (fst(__v13265)) {
+  return __v13265
+  } else {
+  __v13265 := snd(__v13265)
+  };
+  milli := __v13265
   };
   __v13271 := "Type"(___internal_esl_global, milli);
   if (fst(__v13271)) {
@@ -12116,17 +12674,17 @@ Tests compilation of ecmaref5:
   } else {
   __v13190 := snd(__v13190)
   };
-  __v13191 := negative = true;
-  if (__v13191) {
-  __v13192 := {};
-  __v13192["positive"] := null;
-  __v13192["negative"] := cs;
-  return (false, __v13192)
-  } else {
+  __v13192 := negative = true;
+  if (__v13192) {
   __v13193 := {};
-  __v13193["positive"] := cs;
-  __v13193["negative"] := null;
+  __v13193["positive"] := null;
+  __v13193["negative"] := cs;
   return (false, __v13193)
+  } else {
+  __v13191 := {};
+  __v13191["positive"] := cs;
+  __v13191["negative"] := null;
+  return (false, __v13191)
   }
   };
   function GetBindingValue(___internal_esl_global, envRec, N, S) {
@@ -12145,6 +12703,8 @@ Tests compilation of ecmaref5:
   __v13187 := snd(__v13187)
   };
   return (false, __v13187)
+  } else {
+  
   };
   __v13188 := "GetBindingValueObject"(___internal_esl_global, envRec, N, S);
   if (fst(__v13188)) {
@@ -12507,6 +13067,8 @@ Tests compilation of ecmaref5:
   __v13119 := is_NaN(t);
   if (__v13119) {
   return (false, nan)
+  } else {
+  
   };
   __v13120 := "LocalTime"(___internal_esl_global, t);
   if (fst(__v13120)) {
@@ -12535,11 +13097,15 @@ Tests compilation of ecmaref5:
   __v13108 := !__v13110;
   if (__v13108) {
   return (false, false)
+  } else {
+  
   };
   __v13111 := arg["Class"];
   __v13112 := __v13111 = "Array";
   if (__v13112) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
   };
@@ -30573,17 +31139,17 @@ Tests compilation of ecmaref5:
   __v7221 := snd(__v7221)
   };
   cs["95"] := "_";
-  __v7222 := negative = true;
-  if (__v7222) {
-  __v7223 := {};
-  __v7223["positive"] := null;
-  __v7223["negative"] := cs;
-  return (false, __v7223)
-  } else {
+  __v7223 := negative = true;
+  if (__v7223) {
   __v7224 := {};
-  __v7224["positive"] := cs;
-  __v7224["negative"] := null;
+  __v7224["positive"] := null;
+  __v7224["negative"] := cs;
   return (false, __v7224)
+  } else {
+  __v7222 := {};
+  __v7222["positive"] := cs;
+  __v7222["negative"] := null;
+  return (false, __v7222)
   }
   };
   function JS_Interpreter_Relational_Operators(___internal_esl_global, RelationalExpr, scope) {
@@ -30636,6 +31202,8 @@ Tests compilation of ecmaref5:
   __v7130 := r = 'undefined;
   if (__v7130) {
   return (false, false)
+  } else {
+  
   };
   return (false, r)
   } else {
@@ -30688,6 +31256,8 @@ Tests compilation of ecmaref5:
   __v7144 := r = 'undefined;
   if (__v7144) {
   return (false, false)
+  } else {
+  
   };
   return (false, r)
   } else {
@@ -30742,6 +31312,8 @@ Tests compilation of ecmaref5:
   __v7160 := __v7158 || __v7159;
   if (__v7160) {
   return (false, false)
+  } else {
+  
   };
   return (false, true)
   } else {
@@ -30796,6 +31368,8 @@ Tests compilation of ecmaref5:
   __v7176 := __v7174 || __v7175;
   if (__v7176) {
   return (false, false)
+  } else {
+  
   };
   return (false, true)
   } else {
@@ -30854,6 +31428,8 @@ Tests compilation of ecmaref5:
   __v7192 := snd(__v7192)
   };
   return (true, __v7192)
+  } else {
+  
   };
   __v7194 := "HasInstance" in_obj rval;
   __v7193 := !__v7194;
@@ -30865,6 +31441,8 @@ Tests compilation of ecmaref5:
   __v7195 := snd(__v7195)
   };
   return (true, __v7195)
+  } else {
+  
   };
   __v7196 := rval["HasInstance"];
   __v7197 := __v7196(___internal_esl_global, rval, lval);
@@ -30930,6 +31508,8 @@ Tests compilation of ecmaref5:
   __v7213 := snd(__v7213)
   };
   return (true, __v7213)
+  } else {
+  
   };
   __v7214 := rval["HasProperty"];
   __v7215 := "ToString"(___internal_esl_global, lval);
@@ -30966,6 +31546,8 @@ Tests compilation of ecmaref5:
   __v7111 := Desc = 'undefined;
   if (__v7111) {
   return (false, false)
+  } else {
+  
   };
   __v7112 := "IsAccessorPropertyDescriptor"(___internal_esl_global, Desc);
   if (fst(__v7112)) {
@@ -30984,6 +31566,8 @@ Tests compilation of ecmaref5:
   __v7116 := __v7113 && __v7115;
   if (__v7116) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
   };
@@ -31052,6 +31636,8 @@ Tests compilation of ecmaref5:
   __v7031 := snd(__v7031)
   };
   V := __v7031
+  } else {
+  
   };
   __v7033 := "getCompletionType"(___internal_esl_global, stmt);
   if (fst(__v7033)) {
@@ -31094,6 +31680,8 @@ Tests compilation of ecmaref5:
   __v7044 := snd(__v7044)
   };
   return (false, __v7044)
+  } else {
+  
   };
   __v7045 := "isAnAbruptCompletion"(___internal_esl_global, stmt);
   if (fst(__v7045)) {
@@ -31103,7 +31691,11 @@ Tests compilation of ecmaref5:
   };
   if (__v7045) {
   return (false, stmt)
+  } else {
+  
   }
+  } else {
+  
   };
   __v7046 := "JS_Interpreter_Expr"(___internal_esl_global, Expression, scope);
   if (fst(__v7046)) {
@@ -31127,6 +31719,8 @@ Tests compilation of ecmaref5:
   __v7049 := __v7048 = false;
   if (__v7049) {
   iterating := false
+  } else {
+  
   };
   __v7026 := iterating = true
   };
@@ -31177,6 +31771,8 @@ Tests compilation of ecmaref5:
   __v7061 := snd(__v7061)
   };
   return (false, __v7061)
+  } else {
+  
   };
   __v7062 := "JS_Interpreter_Stmt"(___internal_esl_global, Statement, scope);
   if (fst(__v7062)) {
@@ -31206,6 +31802,8 @@ Tests compilation of ecmaref5:
   __v7066 := snd(__v7066)
   };
   V := __v7066
+  } else {
+  
   };
   __v7068 := "getCompletionType"(___internal_esl_global, stmt);
   if (fst(__v7068)) {
@@ -31248,6 +31846,8 @@ Tests compilation of ecmaref5:
   __v7079 := snd(__v7079)
   };
   return (false, __v7079)
+  } else {
+  
   };
   __v7080 := "isAnAbruptCompletion"(___internal_esl_global, stmt);
   if (fst(__v7080)) {
@@ -31257,7 +31857,11 @@ Tests compilation of ecmaref5:
   };
   if (__v7080) {
   return (false, stmt)
+  } else {
+  
   }
+  } else {
+  
   };
   while (!false) {
   __v7057 := "JS_Interpreter_Expr"(___internal_esl_global, Expression, scope);
@@ -31288,6 +31892,8 @@ Tests compilation of ecmaref5:
   __v7061 := snd(__v7061)
   };
   return (false, __v7061)
+  } else {
+  
   };
   __v7062 := "JS_Interpreter_Stmt"(___internal_esl_global, Statement, scope);
   if (fst(__v7062)) {
@@ -31317,6 +31923,8 @@ Tests compilation of ecmaref5:
   __v7066 := snd(__v7066)
   };
   V := __v7066
+  } else {
+  
   };
   __v7068 := "getCompletionType"(___internal_esl_global, stmt);
   if (fst(__v7068)) {
@@ -31359,6 +31967,8 @@ Tests compilation of ecmaref5:
   __v7079 := snd(__v7079)
   };
   return (false, __v7079)
+  } else {
+  
   };
   __v7080 := "isAnAbruptCompletion"(___internal_esl_global, stmt);
   if (fst(__v7080)) {
@@ -31368,7 +31978,11 @@ Tests compilation of ecmaref5:
   };
   if (__v7080) {
   return (false, stmt)
+  } else {
+  
   }
+  } else {
+  
   }
   }
   } else {
@@ -31459,12 +32073,16 @@ Tests compilation of ecmaref5:
   if (__v7013) {
   __v7014 := x_inf - 1.0;
   x_inf := __v7014
+  } else {
+  
   };
   __v7016 := x_sup = inf;
   __v7015 := !__v7016;
   if (__v7015) {
   __v7017 := x_sup - 1.0;
   x_sup := __v7017
+  } else {
+  
   };
   __v7018 := {};
   __v7018["inf"] := x_inf;
@@ -31488,39 +32106,41 @@ Tests compilation of ecmaref5:
   return (false, __v7009)
   };
   function isLineTerminator(___internal_esl_global, c) {
-  __v7004 := c = "\n";
-  if (__v7004 = true) {
+  __v7001 := c = "\n";
+  if (__v7001 = true) {
   __v7003 := true
   } else {
-  __v7005 := c = "\r";
-  if (__v7005 = true) {
+  __v7002 := c = "\r";
+  if (__v7002 = true) {
   __v7003 := true
   } else {
   __v7003 := false
   }
   };
   if (__v7003 = true) {
-  __v7002 := true
+  __v7005 := true
   } else {
-  __v7006 := c = "\226\128\168";
+  __v7004 := c = "\226\128\168";
+  if (__v7004 = true) {
+  __v7005 := true
+  } else {
+  __v7005 := false
+  }
+  };
+  if (__v7005 = true) {
+  __v7007 := true
+  } else {
+  __v7006 := c = "\226\128\169";
   if (__v7006 = true) {
-  __v7002 := true
+  __v7007 := true
   } else {
-  __v7002 := false
+  __v7007 := false
   }
   };
-  if (__v7002 = true) {
-  __v7001 := true
-  } else {
-  __v7007 := c = "\226\128\169";
-  if (__v7007 = true) {
-  __v7001 := true
-  } else {
-  __v7001 := false
-  }
-  };
-  if (__v7001) {
+  if (__v7007) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
   };
@@ -31560,6 +32180,8 @@ Tests compilation of ecmaref5:
   } else {
   s["labelSet"] := labelSet
   }
+  } else {
+  
   };
   __v7000 := "JS_Interpreter_StmtList"(___internal_esl_global, StatementList, scope);
   if (fst(__v7000)) {
@@ -31598,6 +32220,8 @@ Tests compilation of ecmaref5:
   __v6977 := snd(__v6977)
   };
   str := __v6977
+  } else {
+  
   };
   __v6979 := ["JS Log: ", str];
   __v6978 := s_concat(__v6979);
@@ -31639,6 +32263,8 @@ Tests compilation of ecmaref5:
   __v6971 := j + 1;
   __v6972 := s_substr_u(T, 0, __v6971);
   T := __v6972
+  } else {
+  
   };
   return (false, T)
   };
@@ -31755,22 +32381,22 @@ Tests compilation of ecmaref5:
   __v6932 := __v6931 = __$Flt;
   lenIsNumber := __v6932;
   if (lenIsNumber = false) {
-  __v6933 := false
+  __v6935 := false
   } else {
-  __v6934 := "ToUint32"(___internal_esl_global, len);
-  if (fst(__v6934)) {
-  return __v6934
+  __v6933 := "ToUint32"(___internal_esl_global, len);
+  if (fst(__v6933)) {
+  return __v6933
   } else {
-  __v6934 := snd(__v6934)
+  __v6933 := snd(__v6933)
   };
-  __v6935 := __v6934 = len;
-  if (__v6935 = false) {
-  __v6933 := false
+  __v6934 := __v6933 = len;
+  if (__v6934 = false) {
+  __v6935 := false
   } else {
-  __v6933 := true
+  __v6935 := true
   }
   };
-  if (__v6933) {
+  if (__v6935) {
   __v6936 := "ToUint32"(___internal_esl_global, len);
   if (fst(__v6936)) {
   return __v6936
@@ -31783,25 +32409,27 @@ Tests compilation of ecmaref5:
   } else {
   __v6937 := snd(__v6937)
   }
+  } else {
+  
   };
   if (lenIsNumber = false) {
-  __v6938 := false
+  __v6941 := false
   } else {
-  __v6940 := "ToUint32"(___internal_esl_global, len);
-  if (fst(__v6940)) {
-  return __v6940
+  __v6939 := "ToUint32"(___internal_esl_global, len);
+  if (fst(__v6939)) {
+  return __v6939
   } else {
-  __v6940 := snd(__v6940)
+  __v6939 := snd(__v6939)
   };
-  __v6941 := __v6940 = len;
-  __v6939 := !__v6941;
-  if (__v6939 = false) {
-  __v6938 := false
+  __v6940 := __v6939 = len;
+  __v6938 := !__v6940;
+  if (__v6938 = false) {
+  __v6941 := false
   } else {
-  __v6938 := true
+  __v6941 := true
   }
   };
-  if (__v6938) {
+  if (__v6941) {
   __v6942 := "RangeErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v6942)) {
   return __v6942
@@ -31809,6 +32437,8 @@ Tests compilation of ecmaref5:
   __v6942 := snd(__v6942)
   };
   return (true, __v6942)
+  } else {
+  
   };
   __v6943 := !lenIsNumber;
   if (__v6943) {
@@ -31830,6 +32460,8 @@ Tests compilation of ecmaref5:
   } else {
   __v6946 := snd(__v6946)
   }
+  } else {
+  
   };
   return (false, newlyConstructedObject)
   };
@@ -31859,19 +32491,21 @@ Tests compilation of ecmaref5:
   position := __v6917;
   __v6919 := s_len_u(S);
   size := __v6919;
-  __v6921 := position < 0;
+  __v6920 := position < 0;
+  if (__v6920 = true) {
+  __v6922 := true
+  } else {
+  __v6921 := position >= size;
   if (__v6921 = true) {
-  __v6920 := true
+  __v6922 := true
   } else {
-  __v6922 := position >= size;
-  if (__v6922 = true) {
-  __v6920 := true
-  } else {
-  __v6920 := false
+  __v6922 := false
   }
   };
-  if (__v6920) {
+  if (__v6922) {
   return (false, nan)
+  } else {
+  
   };
   __v6925 := s_nth_u(S, position);
   __v6924 := to_char_code_u(__v6925);
@@ -31931,6 +32565,8 @@ Tests compilation of ecmaref5:
   __v6910 := is_NaN(t);
   if (__v6910) {
   return (false, nan)
+  } else {
+  
   };
   __v6911 := "LocalTime"(___internal_esl_global, t);
   if (fst(__v6911)) {
@@ -31970,6 +32606,8 @@ Tests compilation of ecmaref5:
   __v6900 := snd(__v6900)
   };
   return (true, __v6900)
+  } else {
+  
   };
   __v6901 := target["HasInstance"];
   __v6902 := __v6901(___internal_esl_global, target, V);
@@ -32069,18 +32707,18 @@ Tests compilation of ecmaref5:
   __v6872 := snd(__v6872)
   };
   upperExists := __v6872;
-  __v6888 := lowerExists = true;
+  __v6887 := lowerExists = true;
+  if (__v6887 = false) {
+  __v6889 := false
+  } else {
+  __v6888 := upperExists = true;
   if (__v6888 = false) {
-  __v6887 := false
+  __v6889 := false
   } else {
-  __v6889 := upperExists = true;
-  if (__v6889 = false) {
-  __v6887 := false
-  } else {
-  __v6887 := true
+  __v6889 := true
   }
   };
-  if (__v6887) {
+  if (__v6889) {
   __v6890 := O["Put"];
   __v6891 := __v6890(___internal_esl_global, O, lowerP, upperValue, true);
   if (fst(__v6891)) {
@@ -32096,18 +32734,18 @@ Tests compilation of ecmaref5:
   __v6893 := snd(__v6893)
   }
   } else {
-  __v6881 := lowerExists = false;
+  __v6880 := lowerExists = false;
+  if (__v6880 = false) {
+  __v6882 := false
+  } else {
+  __v6881 := upperExists = true;
   if (__v6881 = false) {
-  __v6880 := false
+  __v6882 := false
   } else {
-  __v6882 := upperExists = true;
-  if (__v6882 = false) {
-  __v6880 := false
-  } else {
-  __v6880 := true
+  __v6882 := true
   }
   };
-  if (__v6880) {
+  if (__v6882) {
   __v6883 := O["Put"];
   __v6884 := __v6883(___internal_esl_global, O, lowerP, upperValue, true);
   if (fst(__v6884)) {
@@ -32123,18 +32761,18 @@ Tests compilation of ecmaref5:
   __v6886 := snd(__v6886)
   }
   } else {
-  __v6874 := lowerExists = true;
+  __v6873 := lowerExists = true;
+  if (__v6873 = false) {
+  __v6875 := false
+  } else {
+  __v6874 := upperExists = false;
   if (__v6874 = false) {
-  __v6873 := false
+  __v6875 := false
   } else {
-  __v6875 := upperExists = false;
-  if (__v6875 = false) {
-  __v6873 := false
-  } else {
-  __v6873 := true
+  __v6875 := true
   }
   };
-  if (__v6873) {
+  if (__v6875) {
   __v6876 := O["Delete"];
   __v6877 := __v6876(___internal_esl_global, O, lowerP, true);
   if (fst(__v6877)) {
@@ -32171,10 +32809,12 @@ Tests compilation of ecmaref5:
   __v6849 := snd(__v6849)
   };
   __v6850 := __v6849 = "Number";
-  assert (__v6850);
+  assert __v6850;
   __v6851 := is_NaN(tv);
   if (__v6851) {
   return (false, "Invalid Date")
+  } else {
+  
   };
   __v6852 := "timeValueRepresentation"(___internal_esl_global, tv);
   if (fst(__v6852)) {
@@ -32187,13 +32827,13 @@ Tests compilation of ecmaref5:
   function DatePrototypeToString(___internal_esl_global, globalObject, this, strict, args) {
   print "in DatePrototypeToString";
   O := this;
-  __v6846 := "DateValue" in_obj O;
-  __v6845 := !__v6846;
-  if (__v6845) {
+  __v6847 := "DateValue" in_obj O;
+  __v6846 := !__v6847;
+  if (__v6846) {
   tv := nan
   } else {
-  __v6847 := O["DateValue"];
-  tv := __v6847
+  __v6845 := O["DateValue"];
+  tv := __v6845
   };
   __v6848 := "toDateString"(___internal_esl_global, tv);
   if (fst(__v6848)) {
@@ -32222,32 +32862,32 @@ Tests compilation of ecmaref5:
   return (false, 'undefined)
   };
   function JS_Interpreter_CaseBlock(___internal_esl_global, caseBlock, input, scope) {
-  __v6837 := l_nth(caseBlock, 1);
-  __v6838 := __v6837 = null;
-  if (__v6838) {
-  __v6839 := l_nth(caseBlock, 0);
-  casesA := __v6839;
-  __v6840 := "JS_Interpreter_CaseBlock_CaseClauses"(___internal_esl_global, casesA, input, scope);
-  if (fst(__v6840)) {
-  return __v6840
-  } else {
-  __v6840 := snd(__v6840)
-  };
-  return (false, __v6840)
-  } else {
-  __v6841 := l_nth(caseBlock, 0);
-  clausesA := __v6841;
-  __v6842 := l_nth(caseBlock, 1);
-  defaultClause := __v6842;
-  __v6843 := l_nth(caseBlock, 2);
-  clausesB := __v6843;
-  __v6844 := "JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB"(___internal_esl_global, clausesA, defaultClause, clausesB, input, scope);
+  __v6841 := l_nth(caseBlock, 1);
+  __v6842 := __v6841 = null;
+  if (__v6842) {
+  __v6843 := l_nth(caseBlock, 0);
+  casesA := __v6843;
+  __v6844 := "JS_Interpreter_CaseBlock_CaseClauses"(___internal_esl_global, casesA, input, scope);
   if (fst(__v6844)) {
   return __v6844
   } else {
   __v6844 := snd(__v6844)
   };
   return (false, __v6844)
+  } else {
+  __v6837 := l_nth(caseBlock, 0);
+  clausesA := __v6837;
+  __v6838 := l_nth(caseBlock, 1);
+  defaultClause := __v6838;
+  __v6839 := l_nth(caseBlock, 2);
+  clausesB := __v6839;
+  __v6840 := "JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB"(___internal_esl_global, clausesA, defaultClause, clausesB, input, scope);
+  if (fst(__v6840)) {
+  return __v6840
+  } else {
+  __v6840 := snd(__v6840)
+  };
+  return (false, __v6840)
   }
   };
   function JS_Interpreter_BreakStatement(___internal_esl_global, BreakStatement, scope) {
@@ -32325,6 +32965,8 @@ Tests compilation of ecmaref5:
   __v6800 := snd(__v6800)
   };
   return (false, 'undefined)
+  } else {
+  
   };
   __v6801 := O["Get"];
   __v6802 := __v6801(___internal_esl_global, O, "0");
@@ -32360,30 +33002,30 @@ Tests compilation of ecmaref5:
   __v6808 := snd(__v6808)
   };
   fromPresent := __v6808;
-  __v6809 := fromPresent = true;
-  if (__v6809) {
-  __v6810 := O["Get"];
-  __v6811 := __v6810(___internal_esl_global, O, from);
-  if (fst(__v6811)) {
-  return __v6811
-  } else {
-  __v6811 := snd(__v6811)
-  };
-  fromVal := __v6811;
-  __v6812 := O["Put"];
-  __v6813 := __v6812(___internal_esl_global, O, to, fromVal, true);
+  __v6811 := fromPresent = true;
+  if (__v6811) {
+  __v6812 := O["Get"];
+  __v6813 := __v6812(___internal_esl_global, O, from);
   if (fst(__v6813)) {
   return __v6813
   } else {
   __v6813 := snd(__v6813)
-  }
-  } else {
-  __v6814 := O["Delete"];
-  __v6815 := __v6814(___internal_esl_global, O, to, true);
+  };
+  fromVal := __v6813;
+  __v6814 := O["Put"];
+  __v6815 := __v6814(___internal_esl_global, O, to, fromVal, true);
   if (fst(__v6815)) {
   return __v6815
   } else {
   __v6815 := snd(__v6815)
+  }
+  } else {
+  __v6809 := O["Delete"];
+  __v6810 := __v6809(___internal_esl_global, O, to, true);
+  if (fst(__v6810)) {
+  return __v6810
+  } else {
+  __v6810 := snd(__v6810)
   }
   };
   __v6816 := k + 1.0;
@@ -32417,49 +33059,51 @@ Tests compilation of ecmaref5:
   function GetBindingValueDeclarative(___internal_esl_global, declarativeEnvRec, N, S) {
   envRec := declarativeEnvRec;
   __v6789 := N in_obj envRec;
-  assert (__v6789);
-  __v6790 := "isUninitialisedBinding"(___internal_esl_global, envRec, N);
-  if (fst(__v6790)) {
-  return __v6790
+  assert __v6789;
+  __v6791 := "isUninitialisedBinding"(___internal_esl_global, envRec, N);
+  if (fst(__v6791)) {
+  return __v6791
   } else {
-  __v6790 := snd(__v6790)
+  __v6791 := snd(__v6791)
   };
-  if (__v6790) {
-  __v6791 := S = false;
   if (__v6791) {
+  __v6792 := S = false;
+  if (__v6792) {
   return (false, 'undefined)
-  };
-  __v6792 := "ReferenceErrorConstructorInternal"(___internal_esl_global);
-  if (fst(__v6792)) {
-  return __v6792
   } else {
-  __v6792 := snd(__v6792)
+  
   };
-  return (true, __v6792)
-  } else {
-  __v6793 := "getBindingValue"(___internal_esl_global, envRec, N);
+  __v6793 := "ReferenceErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v6793)) {
   return __v6793
   } else {
   __v6793 := snd(__v6793)
   };
-  return (false, __v6793)
+  return (true, __v6793)
+  } else {
+  __v6790 := "getBindingValue"(___internal_esl_global, envRec, N);
+  if (fst(__v6790)) {
+  return __v6790
+  } else {
+  __v6790 := snd(__v6790)
+  };
+  return (false, __v6790)
   }
   };
   function throwAnyApplicableExceptions(___internal_esl_global, bodyObj) {
-  __v6785 := "type" in_obj bodyObj;
-  if (__v6785 = false) {
-  __v6784 := false
+  __v6784 := "type" in_obj bodyObj;
+  if (__v6784 = false) {
+  __v6787 := false
   } else {
-  __v6786 := bodyObj["type"];
-  __v6787 := __v6786 = "EarlySyntaxError";
-  if (__v6787 = false) {
-  __v6784 := false
+  __v6785 := bodyObj["type"];
+  __v6786 := __v6785 = "EarlySyntaxError";
+  if (__v6786 = false) {
+  __v6787 := false
   } else {
-  __v6784 := true
+  __v6787 := true
   }
   };
-  if (__v6784) {
+  if (__v6787) {
   __v6788 := "SyntaxErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v6788)) {
   return __v6788
@@ -32467,6 +33111,8 @@ Tests compilation of ecmaref5:
   __v6788 := snd(__v6788)
   };
   return (true, __v6788)
+  } else {
+  
   };
   return (false, null)
   };
@@ -32493,20 +33139,20 @@ Tests compilation of ecmaref5:
   __v6768 := typeof(strict);
   __v6769 := __v6768 = __$Bool;
   if (__v6769 = false) {
-  __v6767 := false
+  __v6770 := false
   } else {
   if (strict = false) {
-  __v6767 := false
+  __v6770 := false
   } else {
-  __v6767 := true
+  __v6770 := true
   }
   };
-  if (__v6767) {
-  __v6770 := extern loadInitialHeap("globalHeap_strict.json");
-  loc_global := __v6770
-  } else {
-  __v6771 := extern loadInitialHeap("globalHeap.json");
+  if (__v6770) {
+  __v6771 := extern loadInitialHeap("globalHeap_strict.json");
   loc_global := __v6771
+  } else {
+  __v6767 := extern loadInitialHeap("globalHeap.json");
+  loc_global := __v6767
   };
   ___internal_esl_global["__$global"] := loc_global;
   ___internal_esl_global["msPerDay"] := 86400000.0;
@@ -32566,7 +33212,11 @@ Tests compilation of ecmaref5:
   __v6743 := snd(__v6743)
   };
   return (false, __v6743)
+  } else {
+  
   }
+  } else {
+  
   };
   __v6744 := "JS_Interpreter_Stmt"(___internal_esl_global, Statement, scope);
   if (fst(__v6744)) {
@@ -32596,6 +33246,8 @@ Tests compilation of ecmaref5:
   __v6748 := snd(__v6748)
   };
   V := __v6748
+  } else {
+  
   };
   __v6749 := "getCompletionType"(___internal_esl_global, stmt);
   if (fst(__v6749)) {
@@ -32620,6 +33272,8 @@ Tests compilation of ecmaref5:
   __v6754 := snd(__v6754)
   };
   return (false, __v6754)
+  } else {
+  
   };
   __v6756 := "getCompletionType"(___internal_esl_global, stmt);
   if (fst(__v6756)) {
@@ -32647,7 +33301,11 @@ Tests compilation of ecmaref5:
   };
   if (__v6762) {
   return (false, stmt)
+  } else {
+  
   }
+  } else {
+  
   };
   __v6764 := Expression2 = null;
   __v6763 := !__v6764;
@@ -32665,6 +33323,8 @@ Tests compilation of ecmaref5:
   } else {
   __v6766 := snd(__v6766)
   }
+  } else {
+  
   };
   while (!false) {
   __v6738 := Expression1 = null;
@@ -32698,7 +33358,11 @@ Tests compilation of ecmaref5:
   __v6743 := snd(__v6743)
   };
   return (false, __v6743)
+  } else {
+  
   }
+  } else {
+  
   };
   __v6744 := "JS_Interpreter_Stmt"(___internal_esl_global, Statement, scope);
   if (fst(__v6744)) {
@@ -32728,6 +33392,8 @@ Tests compilation of ecmaref5:
   __v6748 := snd(__v6748)
   };
   V := __v6748
+  } else {
+  
   };
   __v6749 := "getCompletionType"(___internal_esl_global, stmt);
   if (fst(__v6749)) {
@@ -32752,6 +33418,8 @@ Tests compilation of ecmaref5:
   __v6754 := snd(__v6754)
   };
   return (false, __v6754)
+  } else {
+  
   };
   __v6756 := "getCompletionType"(___internal_esl_global, stmt);
   if (fst(__v6756)) {
@@ -32779,7 +33447,11 @@ Tests compilation of ecmaref5:
   };
   if (__v6762) {
   return (false, stmt)
+  } else {
+  
   }
+  } else {
+  
   };
   __v6764 := Expression2 = null;
   __v6763 := !__v6764;
@@ -32797,6 +33469,8 @@ Tests compilation of ecmaref5:
   } else {
   __v6766 := snd(__v6766)
   }
+  } else {
+  
   }
   }
   }
@@ -32805,6 +33479,8 @@ Tests compilation of ecmaref5:
   __v6722 := Desc = 'undefined;
   if (__v6722) {
   return (false, false)
+  } else {
+  
   };
   __v6724 := "Value" in_obj Desc;
   __v6723 := !__v6724;
@@ -32813,6 +33489,8 @@ Tests compilation of ecmaref5:
   __v6727 := __v6723 && __v6725;
   if (__v6727) {
   return (false, false)
+  } else {
+  
   };
   return (false, true)
   };
@@ -32897,6 +33575,8 @@ Tests compilation of ecmaref5:
   __v6706 := i + 1;
   len := __v6706;
   caps["len"] := len
+  } else {
+  
   };
   return (false, null)
   };
@@ -32972,6 +33652,8 @@ Tests compilation of ecmaref5:
   __v6695 := is_NaN(t);
   if (__v6695) {
   return (false, nan)
+  } else {
+  
   };
   __v6696 := "SecFromTime"(___internal_esl_global, t);
   if (fst(__v6696)) {
@@ -33009,46 +33691,46 @@ Tests compilation of ecmaref5:
   while (__v6666) {
   __v6667 := s_nth_u(flags, index);
   flag := __v6667;
-  __v6676 := flag = "g";
+  __v6675 := flag = "g";
+  if (__v6675 = false) {
+  __v6677 := false
+  } else {
+  __v6676 := g = false;
   if (__v6676 = false) {
-  __v6675 := false
+  __v6677 := false
   } else {
-  __v6677 := g = false;
-  if (__v6677 = false) {
-  __v6675 := false
-  } else {
-  __v6675 := true
+  __v6677 := true
   }
   };
-  if (__v6675) {
+  if (__v6677) {
   g := true
   } else {
-  __v6673 := flag = "i";
+  __v6672 := flag = "i";
+  if (__v6672 = false) {
+  __v6674 := false
+  } else {
+  __v6673 := i = false;
   if (__v6673 = false) {
-  __v6672 := false
+  __v6674 := false
   } else {
-  __v6674 := i = false;
-  if (__v6674 = false) {
-  __v6672 := false
-  } else {
-  __v6672 := true
+  __v6674 := true
   }
   };
-  if (__v6672) {
+  if (__v6674) {
   i := true
   } else {
-  __v6670 := flag = "m";
+  __v6669 := flag = "m";
+  if (__v6669 = false) {
+  __v6671 := false
+  } else {
+  __v6670 := m = false;
   if (__v6670 = false) {
-  __v6669 := false
+  __v6671 := false
   } else {
-  __v6671 := m = false;
-  if (__v6671 = false) {
-  __v6669 := false
-  } else {
-  __v6669 := true
+  __v6671 := true
   }
   };
-  if (__v6669) {
+  if (__v6671) {
   m := true
   } else {
   __v6668 := "SyntaxErrorConstructorInternal"(___internal_esl_global);
@@ -33070,16 +33752,22 @@ Tests compilation of ecmaref5:
   __v6680 := [flags, "g"];
   __v6679 := s_concat(__v6680);
   flags := __v6679
+  } else {
+  
   };
   if (i) {
   __v6682 := [flags, "i"];
   __v6681 := s_concat(__v6682);
   flags := __v6681
+  } else {
+  
   };
   if (m) {
   __v6684 := [flags, "m"];
   __v6683 := s_concat(__v6684);
   flags := __v6683
+  } else {
+  
   };
   __v6685 := {};
   __v6685["gb"] := g;
@@ -33148,6 +33836,8 @@ Tests compilation of ecmaref5:
   __v6664 := snd(__v6664)
   };
   return (false, __v6664)
+  } else {
+  
   };
   return (false, R)
   }
@@ -33184,6 +33874,8 @@ Tests compilation of ecmaref5:
   __v6634 := __v6633 = false;
   if (__v6634) {
   return (false, lval)
+  } else {
+  
   };
   __v6635 := "JS_Interpreter_Expr"(___internal_esl_global, BitwiseORExpression, scope);
   if (fst(__v6635)) {
@@ -33231,6 +33923,8 @@ Tests compilation of ecmaref5:
   __v6645 := __v6644 = true;
   if (__v6645) {
   return (false, lval)
+  } else {
+  
   };
   __v6646 := "JS_Interpreter_Expr"(___internal_esl_global, LogicalANDExpression, scope);
   if (fst(__v6646)) {
@@ -33286,6 +33980,8 @@ Tests compilation of ecmaref5:
   __v6623 := snd(__v6623)
   };
   return (true, __v6623)
+  } else {
+  
   };
   return (false, "function () {}")
   };
@@ -33301,6 +33997,8 @@ Tests compilation of ecmaref5:
   __v6615 := snd(__v6615)
   };
   return (false, __v6615)
+  } else {
+  
   };
   __v6616 := l_len(VariableDeclarationList);
   __v6617 := __v6616 - 1;
@@ -33348,6 +34046,8 @@ Tests compilation of ecmaref5:
   __v6580 := !__v6582;
   if (__v6580) {
   return (false, B)
+  } else {
+  
   };
   __v6583 := "getCompletionValue"(___internal_esl_global, B);
   if (fst(__v6583)) {
@@ -33397,6 +34097,8 @@ Tests compilation of ecmaref5:
   __v6596 := __v6595 = 'normal;
   if (__v6596) {
   return (false, B)
+  } else {
+  
   };
   return (false, F)
   } else {
@@ -33457,6 +34159,8 @@ Tests compilation of ecmaref5:
   __v6610 := __v6609 = 'normal;
   if (__v6610) {
   return (false, C)
+  } else {
+  
   };
   return (false, F)
   } else {
@@ -33504,6 +34208,8 @@ Tests compilation of ecmaref5:
   __v6567 := snd(__v6567)
   };
   func := __v6567
+  } else {
+  
   };
   __v6568 := func["Call"];
   __v6569 := [];
@@ -33530,6 +34236,8 @@ Tests compilation of ecmaref5:
   __v6560 := snd(__v6560)
   };
   return (false, __v6560)
+  } else {
+  
   };
   __v6561 := "DeleteBindingObject"(___internal_esl_global, envRec, N);
   if (fst(__v6561)) {
@@ -33701,6 +34409,8 @@ Tests compilation of ecmaref5:
   __v6526 := snd(__v6526)
   };
   return (true, __v6526)
+  } else {
+  
   };
   __v6527 := "Type"(___internal_esl_global, this);
   if (fst(__v6527)) {
@@ -33711,6 +34421,8 @@ Tests compilation of ecmaref5:
   __v6528 := __v6527 = "Number";
   if (__v6528) {
   return (false, this)
+  } else {
+  
   };
   __v6529 := "getInternalProperty"(___internal_esl_global, this, "PrimitiveValue");
   if (fst(__v6529)) {
@@ -33791,6 +34503,8 @@ Tests compilation of ecmaref5:
   } else {
   __v6510 := snd(__v6510)
   }
+  } else {
+  
   };
   __v6512 := "Type"(___internal_esl_global, proto);
   if (fst(__v6512)) {
@@ -33814,6 +34528,8 @@ Tests compilation of ecmaref5:
   } else {
   __v6516 := snd(__v6516)
   }
+  } else {
+  
   };
   __v6517 := F["Call"];
   __v6518 := __v6517(___internal_esl_global, externalScope, ref, F, obj, argumentList);
@@ -33832,6 +34548,8 @@ Tests compilation of ecmaref5:
   __v6520 := __v6519 = "Object";
   if (__v6520) {
   return (false, result)
+  } else {
+  
   };
   return (false, obj)
   };
@@ -33846,6 +34564,8 @@ Tests compilation of ecmaref5:
   __v6500 := __v6498 = __v6499;
   if (__v6500) {
   return (false, i)
+  } else {
+  
   };
   __v6501 := i + 1;
   i := __v6501;
@@ -33867,20 +34587,22 @@ Tests compilation of ecmaref5:
   function satisfiesTheSyntaxOfStrUnsignedDecimalLiteral(___internal_esl_global, str) {
   __v6482 := s_len(str);
   strLen := __v6482;
-  __v6484 := strLen >= 8;
-  if (__v6484 = false) {
-  __v6483 := false
+  __v6483 := strLen >= 8;
+  if (__v6483 = false) {
+  __v6486 := false
   } else {
-  __v6485 := s_substr(str, 0, 8);
-  __v6486 := __v6485 = "Infinity";
-  if (__v6486 = false) {
-  __v6483 := false
+  __v6484 := s_substr(str, 0, 8);
+  __v6485 := __v6484 = "Infinity";
+  if (__v6485 = false) {
+  __v6486 := false
   } else {
-  __v6483 := true
+  __v6486 := true
   }
   };
-  if (__v6483) {
+  if (__v6486) {
   return (false, true)
+  } else {
+  
   };
   __v6487 := s_nth(str, 0);
   firstChar := __v6487;
@@ -33892,19 +34614,21 @@ Tests compilation of ecmaref5:
   };
   if (__v6488) {
   return (false, true)
+  } else {
+  
   };
-  __v6490 := firstChar = ".";
+  __v6489 := firstChar = ".";
+  if (__v6489 = false) {
+  __v6491 := false
+  } else {
+  __v6490 := strLen >= 2;
   if (__v6490 = false) {
-  __v6489 := false
+  __v6491 := false
   } else {
-  __v6491 := strLen >= 2;
-  if (__v6491 = false) {
-  __v6489 := false
-  } else {
-  __v6489 := true
+  __v6491 := true
   }
   };
-  if (__v6489) {
+  if (__v6491) {
   __v6492 := s_nth(str, 1);
   __v6493 := "isDecimalDigit"(___internal_esl_global, __v6492);
   if (fst(__v6493)) {
@@ -33913,6 +34637,8 @@ Tests compilation of ecmaref5:
   __v6493 := snd(__v6493)
   };
   return (false, __v6493)
+  } else {
+  
   };
   return (false, false)
   };
@@ -33927,6 +34653,8 @@ Tests compilation of ecmaref5:
   __v6474 := desc = 'undefined;
   if (__v6474) {
   return (false, desc)
+  } else {
+  
   };
   __v6475 := argumentsObject["ParameterMap"];
   map := __v6475;
@@ -33949,6 +34677,8 @@ Tests compilation of ecmaref5:
   __v6481 := snd(__v6481)
   };
   desc["Value"] := __v6481
+  } else {
+  
   };
   return (false, desc)
   };
@@ -33998,23 +34728,23 @@ Tests compilation of ecmaref5:
   __v6462 := k + searchLen;
   __v6463 := __v6462 <= len;
   while (__v6463) {
-  __v6464 := j < searchLen;
-  if (__v6464) {
-  __v6465 := k + j;
-  __v6466 := s_nth_u(S, __v6465);
-  __v6467 := s_nth_u(searchStr, j);
-  __v6468 := __v6466 = __v6467;
-  if (__v6468) {
-  __v6469 := j + 1;
-  j := __v6469
+  __v6465 := j < searchLen;
+  if (__v6465) {
+  __v6467 := k + j;
+  __v6468 := s_nth_u(S, __v6467);
+  __v6469 := s_nth_u(searchStr, j);
+  __v6470 := __v6468 = __v6469;
+  if (__v6470) {
+  __v6471 := j + 1;
+  j := __v6471
   } else {
   j := 0;
-  __v6470 := k + 1;
-  k := __v6470
+  __v6466 := k + 1;
+  k := __v6466
   }
   } else {
-  __v6471 := int_to_float(k);
-  return (false, __v6471)
+  __v6464 := int_to_float(k);
+  return (false, __v6464)
   };
   __v6462 := k + searchLen;
   __v6463 := __v6462 <= len
@@ -34141,6 +34871,8 @@ Tests compilation of ecmaref5:
   __v6436 := is_NaN(t);
   if (__v6436) {
   return (false, nan)
+  } else {
+  
   };
   __v6437 := "DateFromTime"(___internal_esl_global, t);
   if (fst(__v6437)) {
@@ -34163,44 +34895,50 @@ Tests compilation of ecmaref5:
   __v6415 := desc = 'undefined;
   if (__v6415) {
   return (false, true)
+  } else {
+  
   };
-  __v6416 := desc["Configurable"];
-  __v6417 := __v6416 = true;
-  if (__v6417) {
-  __v6418 := O["JSProperties"];
-  delete __v6418[P];
-  __v6419 := [];
-  newInternalSlotsList := __v6419;
-  __v6421 := O["internalSlotsList"];
-  __v6420 := l_len(__v6421);
-  len := __v6420;
+  __v6417 := desc["Configurable"];
+  __v6418 := __v6417 = true;
+  if (__v6418) {
+  __v6419 := O["JSProperties"];
+  delete __v6419[P];
+  __v6420 := [];
+  newInternalSlotsList := __v6420;
+  __v6422 := O["internalSlotsList"];
+  __v6421 := l_len(__v6422);
+  len := __v6421;
   i := 0;
-  __v6422 := i < len;
-  while (__v6422) {
-  __v6423 := O["internalSlotsList"];
-  __v6424 := l_nth(__v6423, i);
-  P2 := __v6424;
-  __v6426 := P2 = P;
-  __v6425 := !__v6426;
-  if (__v6425) {
-  __v6427 := l_add(newInternalSlotsList, P2);
-  newInternalSlotsList := __v6427
+  __v6423 := i < len;
+  while (__v6423) {
+  __v6424 := O["internalSlotsList"];
+  __v6425 := l_nth(__v6424, i);
+  P2 := __v6425;
+  __v6427 := P2 = P;
+  __v6426 := !__v6427;
+  if (__v6426) {
+  __v6428 := l_add(newInternalSlotsList, P2);
+  newInternalSlotsList := __v6428
+  } else {
+  
   };
-  __v6428 := i + 1;
-  i := __v6428;
-  __v6422 := i < len
+  __v6429 := i + 1;
+  i := __v6429;
+  __v6423 := i < len
   };
   O["internalSlotsList"] := newInternalSlotsList;
   return (false, true)
   } else {
   if (Throw) {
-  __v6429 := "TypeErrorConstructorInternal"(___internal_esl_global);
-  if (fst(__v6429)) {
-  return __v6429
+  __v6416 := "TypeErrorConstructorInternal"(___internal_esl_global);
+  if (fst(__v6416)) {
+  return __v6416
   } else {
-  __v6429 := snd(__v6429)
+  __v6416 := snd(__v6416)
   };
-  return (true, __v6429)
+  return (true, __v6416)
+  } else {
+  
   }
   };
   return (false, false)
@@ -34271,19 +35009,21 @@ Tests compilation of ecmaref5:
   __v6399 := pattern = null;
   if (__v6399) {
   pattern := ""
+  } else {
+  
   };
-  __v6401 := this = 'undefined;
+  __v6400 := this = 'undefined;
+  if (__v6400 = true) {
+  __v6402 := true
+  } else {
+  __v6401 := this = 'null;
   if (__v6401 = true) {
-  __v6400 := true
+  __v6402 := true
   } else {
-  __v6402 := this = 'null;
-  if (__v6402 = true) {
-  __v6400 := true
-  } else {
-  __v6400 := false
+  __v6402 := false
   }
   };
-  if (__v6400) {
+  if (__v6402) {
   __v6403 := "RegExpConstructorCalledAsFunction"(___internal_esl_global, strict, pattern, flags);
   if (fst(__v6403)) {
   return __v6403
@@ -34291,6 +35031,8 @@ Tests compilation of ecmaref5:
   __v6403 := snd(__v6403)
   };
   return (false, __v6403)
+  } else {
+  
   };
   __v6404 := "newRegExp"(___internal_esl_global, strict, pattern, flags);
   if (fst(__v6404)) {
@@ -34395,6 +35137,8 @@ Tests compilation of ecmaref5:
   __v6362 := snd(__v6362)
   };
   return (true, __v6362)
+  } else {
+  
   };
   __v6366 := "getOwnProperties"(___internal_esl_global, O);
   if (fst(__v6366)) {
@@ -34432,7 +35176,11 @@ Tests compilation of ecmaref5:
   } else {
   __v6373 := snd(__v6373)
   }
+  } else {
+  
   }
+  } else {
+  
   };
   __v6374 := desc["Configurable"];
   __v6375 := __v6374 = true;
@@ -34443,6 +35191,8 @@ Tests compilation of ecmaref5:
   } else {
   __v6376 := snd(__v6376)
   }
+  } else {
+  
   };
   __v6377 := O["DefineOwnProperty"];
   __v6378 := __v6377(___internal_esl_global, O, P, desc, true);
@@ -34603,23 +35353,23 @@ Tests compilation of ecmaref5:
   m := __v6324
   }
   };
-  __v6329 := sec = null;
-  if (__v6329) {
-  __v6330 := "SecFromTime"(___internal_esl_global, t);
-  if (fst(__v6330)) {
-  return __v6330
-  } else {
-  __v6330 := snd(__v6330)
-  };
-  s := __v6330
-  } else {
-  __v6331 := "ToNumber"(___internal_esl_global, sec);
+  __v6330 := sec = null;
+  if (__v6330) {
+  __v6331 := "SecFromTime"(___internal_esl_global, t);
   if (fst(__v6331)) {
   return __v6331
   } else {
   __v6331 := snd(__v6331)
   };
   s := __v6331
+  } else {
+  __v6329 := "ToNumber"(___internal_esl_global, sec);
+  if (fst(__v6329)) {
+  return __v6329
+  } else {
+  __v6329 := snd(__v6329)
+  };
+  s := __v6329
   };
   __v6335 := "Type"(___internal_esl_global, s);
   if (fst(__v6335)) {
@@ -34650,23 +35400,23 @@ Tests compilation of ecmaref5:
   s := __v6332
   }
   };
-  __v6337 := ms = null;
-  if (__v6337) {
-  __v6338 := "msFromTime"(___internal_esl_global, t);
-  if (fst(__v6338)) {
-  return __v6338
-  } else {
-  __v6338 := snd(__v6338)
-  };
-  milli := __v6338
-  } else {
-  __v6339 := "ToNumber"(___internal_esl_global, ms);
+  __v6338 := ms = null;
+  if (__v6338) {
+  __v6339 := "msFromTime"(___internal_esl_global, t);
   if (fst(__v6339)) {
   return __v6339
   } else {
   __v6339 := snd(__v6339)
   };
   milli := __v6339
+  } else {
+  __v6337 := "ToNumber"(___internal_esl_global, ms);
+  if (fst(__v6337)) {
+  return __v6337
+  } else {
+  __v6337 := snd(__v6337)
+  };
+  milli := __v6337
   };
   __v6343 := "Type"(___internal_esl_global, milli);
   if (fst(__v6343)) {
@@ -34785,6 +35535,8 @@ Tests compilation of ecmaref5:
   __v6278 := !__v6281;
   if (__v6278) {
   return (false, false)
+  } else {
+  
   };
   __v6282 := "Type"(___internal_esl_global, x);
   if (fst(__v6282)) {
@@ -34795,6 +35547,8 @@ Tests compilation of ecmaref5:
   __v6283 := __v6282 = "Undefined";
   if (__v6283) {
   return (false, true)
+  } else {
+  
   };
   __v6284 := "Type"(___internal_esl_global, x);
   if (fst(__v6284)) {
@@ -34805,6 +35559,8 @@ Tests compilation of ecmaref5:
   __v6285 := __v6284 = "Null";
   if (__v6285) {
   return (false, true)
+  } else {
+  
   };
   __v6286 := "Type"(___internal_esl_global, x);
   if (fst(__v6286)) {
@@ -34817,10 +35573,14 @@ Tests compilation of ecmaref5:
   __v6288 := is_NaN(x);
   if (__v6288) {
   return (false, false)
+  } else {
+  
   };
   __v6289 := is_NaN(y);
   if (__v6289) {
   return (false, false)
+  } else {
+  
   };
   __v6290 := "sameNumber"(___internal_esl_global, x, y);
   if (fst(__v6290)) {
@@ -34830,6 +35590,8 @@ Tests compilation of ecmaref5:
   };
   if (__v6290) {
   return (false, true)
+  } else {
+  
   };
   __v6291 := "isZero"(___internal_esl_global, x);
   if (fst(__v6291)) {
@@ -34846,6 +35608,8 @@ Tests compilation of ecmaref5:
   __v6293 := __v6291 && __v6292;
   if (__v6293) {
   return (false, true)
+  } else {
+  
   };
   __v6294 := "isMinusZero"(___internal_esl_global, x);
   if (fst(__v6294)) {
@@ -34862,8 +35626,12 @@ Tests compilation of ecmaref5:
   __v6296 := __v6294 && __v6295;
   if (__v6296) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
+  } else {
+  
   };
   __v6297 := "Type"(___internal_esl_global, x);
   if (fst(__v6297)) {
@@ -34881,8 +35649,12 @@ Tests compilation of ecmaref5:
   };
   if (__v6299) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
+  } else {
+  
   };
   __v6300 := "Type"(___internal_esl_global, x);
   if (fst(__v6300)) {
@@ -34901,8 +35673,12 @@ Tests compilation of ecmaref5:
   __v6308 := __v6304 || __v6307;
   if (__v6308) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
+  } else {
+  
   };
   __v6309 := "sameObject"(___internal_esl_global, x, y);
   if (fst(__v6309)) {
@@ -34912,6 +35688,8 @@ Tests compilation of ecmaref5:
   };
   if (__v6309) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
   };
@@ -34943,61 +35721,63 @@ Tests compilation of ecmaref5:
   __v6277 := desc = 'undefined;
   if (__v6277) {
   return (false, false)
+  } else {
+  
   };
   return (false, true)
   };
   function JS_Interpreter_Repetition_NonGreedy(___internal_esl_global, m, bounds, st, k) {
-  __v6262 := bounds["sup"];
-  __v6263 := __v6262 = 0.0;
-  if (__v6263) {
-  __v6264 := k(___internal_esl_global, st);
-  if (fst(__v6264)) {
-  return __v6264
-  } else {
-  __v6264 := snd(__v6264)
-  };
-  return (false, __v6264)
-  } else {
-  k' := {"__lambda__5"}@(m, bounds, k);
-  __v6265 := bounds["inf"];
-  __v6266 := __v6265 > 0.0;
-  if (__v6266) {
-  __v6267 := m(___internal_esl_global, st, k');
-  if (fst(__v6267)) {
-  return __v6267
-  } else {
-  __v6267 := snd(__v6267)
-  };
-  return (false, __v6267)
-  } else {
-  __v6268 := "copyState"(___internal_esl_global, st);
-  if (fst(__v6268)) {
-  return __v6268
-  } else {
-  __v6268 := snd(__v6268)
-  };
-  oldSt := __v6268;
-  __v6269 := k(___internal_esl_global, st);
-  if (fst(__v6269)) {
-  return __v6269
-  } else {
-  __v6269 := snd(__v6269)
-  };
-  ret := __v6269;
-  __v6270 := "isFailure"(___internal_esl_global, ret);
-  if (fst(__v6270)) {
-  return __v6270
-  } else {
-  __v6270 := snd(__v6270)
-  };
+  __v6269 := bounds["sup"];
+  __v6270 := __v6269 = 0.0;
   if (__v6270) {
-  __v6271 := m(___internal_esl_global, oldSt, k');
+  __v6271 := k(___internal_esl_global, st);
   if (fst(__v6271)) {
   return __v6271
   } else {
   __v6271 := snd(__v6271)
   };
   return (false, __v6271)
+  } else {
+  k' := {"__lambda__5"}@(m, bounds, k);
+  __v6266 := bounds["inf"];
+  __v6267 := __v6266 > 0.0;
+  if (__v6267) {
+  __v6268 := m(___internal_esl_global, st, k');
+  if (fst(__v6268)) {
+  return __v6268
+  } else {
+  __v6268 := snd(__v6268)
+  };
+  return (false, __v6268)
+  } else {
+  __v6262 := "copyState"(___internal_esl_global, st);
+  if (fst(__v6262)) {
+  return __v6262
+  } else {
+  __v6262 := snd(__v6262)
+  };
+  oldSt := __v6262;
+  __v6263 := k(___internal_esl_global, st);
+  if (fst(__v6263)) {
+  return __v6263
+  } else {
+  __v6263 := snd(__v6263)
+  };
+  ret := __v6263;
+  __v6264 := "isFailure"(___internal_esl_global, ret);
+  if (fst(__v6264)) {
+  return __v6264
+  } else {
+  __v6264 := snd(__v6264)
+  };
+  if (__v6264) {
+  __v6265 := m(___internal_esl_global, oldSt, k');
+  if (fst(__v6265)) {
+  return __v6265
+  } else {
+  __v6265 := snd(__v6265)
+  };
+  return (false, __v6265)
   } else {
   return (false, ret)
   }
@@ -35134,23 +35914,23 @@ Tests compilation of ecmaref5:
   s := __v6233
   }
   };
-  __v6238 := ms = null;
-  if (__v6238) {
-  __v6239 := "msFromTime"(___internal_esl_global, t);
-  if (fst(__v6239)) {
-  return __v6239
-  } else {
-  __v6239 := snd(__v6239)
-  };
-  milli := __v6239
-  } else {
-  __v6240 := "ToNumber"(___internal_esl_global, ms);
+  __v6239 := ms = null;
+  if (__v6239) {
+  __v6240 := "msFromTime"(___internal_esl_global, t);
   if (fst(__v6240)) {
   return __v6240
   } else {
   __v6240 := snd(__v6240)
   };
   milli := __v6240
+  } else {
+  __v6238 := "ToNumber"(___internal_esl_global, ms);
+  if (fst(__v6238)) {
+  return __v6238
+  } else {
+  __v6238 := snd(__v6238)
+  };
+  milli := __v6238
   };
   __v6244 := "Type"(___internal_esl_global, milli);
   if (fst(__v6244)) {
@@ -35363,6 +36143,8 @@ Tests compilation of ecmaref5:
   };
   s := __v6190;
   return (false, s)
+  } else {
+  
   };
   __v6191 := l_len(stmts);
   __v6192 := __v6191 - 1;
@@ -35395,6 +36177,8 @@ Tests compilation of ecmaref5:
   };
   if (__v6200) {
   return (false, sl)
+  } else {
+  
   };
   __v6201 := "JS_Interpreter_Stmt"(___internal_esl_global, Statement, scope);
   if (fst(__v6201)) {
@@ -35408,29 +36192,29 @@ Tests compilation of ecmaref5:
   __v6201 := snd(__v6201)
   };
   s := __v6201;
-  __v6202 := "getCompletionValue"(___internal_esl_global, s);
-  if (fst(__v6202)) {
-  return __v6202
+  __v6203 := "getCompletionValue"(___internal_esl_global, s);
+  if (fst(__v6203)) {
+  return __v6203
   } else {
-  __v6202 := snd(__v6202)
+  __v6203 := snd(__v6203)
   };
-  __v6203 := __v6202 = 'empty;
-  if (__v6203) {
-  __v6204 := "getCompletionValue"(___internal_esl_global, sl);
-  if (fst(__v6204)) {
-  return __v6204
-  } else {
-  __v6204 := snd(__v6204)
-  };
-  V := __v6204
-  } else {
-  __v6205 := "getCompletionValue"(___internal_esl_global, s);
+  __v6204 := __v6203 = 'empty;
+  if (__v6204) {
+  __v6205 := "getCompletionValue"(___internal_esl_global, sl);
   if (fst(__v6205)) {
   return __v6205
   } else {
   __v6205 := snd(__v6205)
   };
   V := __v6205
+  } else {
+  __v6202 := "getCompletionValue"(___internal_esl_global, s);
+  if (fst(__v6202)) {
+  return __v6202
+  } else {
+  __v6202 := snd(__v6202)
+  };
+  V := __v6202
   };
   __v6206 := "getCompletionType"(___internal_esl_global, s);
   if (fst(__v6206)) {
@@ -35460,7 +36244,7 @@ Tests compilation of ecmaref5:
   __v6184 := snd(__v6184)
   };
   __v6185 := __v6184 = "PropertyDescriptor";
-  assert (__v6185);
+  assert __v6185;
   __v6186 := desc["Enumerable"];
   return (false, __v6186)
   };
@@ -35473,41 +36257,41 @@ Tests compilation of ecmaref5:
   __v6175 := y % 4.0;
   __v6176 := __v6175 = 0.0;
   __v6174 := !__v6176;
-  __v6178 := y % 100.0;
-  __v6179 := __v6178 = 0.0;
+  __v6177 := y % 100.0;
+  __v6178 := __v6177 = 0.0;
+  if (__v6178 = false) {
+  __v6182 := false
+  } else {
+  __v6180 := y % 400.0;
+  __v6181 := __v6180 = 0.0;
+  __v6179 := !__v6181;
   if (__v6179 = false) {
-  __v6177 := false
+  __v6182 := false
   } else {
-  __v6181 := y % 400.0;
-  __v6182 := __v6181 = 0.0;
-  __v6180 := !__v6182;
-  if (__v6180 = false) {
-  __v6177 := false
-  } else {
-  __v6177 := true
+  __v6182 := true
   }
   };
-  __v6183 := __v6174 || __v6177;
+  __v6183 := __v6174 || __v6182;
   if (__v6183) {
   return (false, 365.0)
   } else {
-  __v6166 := y % 4.0;
-  __v6167 := __v6166 = 0.0;
+  __v6165 := y % 4.0;
+  __v6166 := __v6165 = 0.0;
+  if (__v6166 = false) {
+  __v6170 := false
+  } else {
+  __v6168 := y % 100.0;
+  __v6169 := __v6168 = 0.0;
+  __v6167 := !__v6169;
   if (__v6167 = false) {
-  __v6165 := false
+  __v6170 := false
   } else {
-  __v6169 := y % 100.0;
-  __v6170 := __v6169 = 0.0;
-  __v6168 := !__v6170;
-  if (__v6168 = false) {
-  __v6165 := false
-  } else {
-  __v6165 := true
+  __v6170 := true
   }
   };
   __v6171 := y % 400.0;
   __v6172 := __v6171 = 0.0;
-  __v6173 := __v6165 || __v6172;
+  __v6173 := __v6170 || __v6172;
   if (__v6173) {
   return (false, 366.0)
   } else {
@@ -35565,50 +36349,52 @@ Tests compilation of ecmaref5:
   __v6150 := snd(__v6150)
   };
   isMapped := __v6150;
-  __v6151 := isMapped = 'undefined;
-  if (__v6151) {
-  __v6152 := "Get"(___internal_esl_global, argumentObject, P);
-  if (fst(__v6152)) {
-  return __v6152
-  } else {
-  __v6152 := snd(__v6152)
-  };
-  v := __v6152;
-  __v6154 := P = "caller";
-  if (__v6154 = false) {
-  __v6153 := false
-  } else {
-  __v6155 := "isStrictFunctionObject"(___internal_esl_global, v);
-  if (fst(__v6155)) {
-  return __v6155
-  } else {
-  __v6155 := snd(__v6155)
-  };
-  if (__v6155 = false) {
-  __v6153 := false
-  } else {
-  __v6153 := true
-  }
-  };
+  __v6153 := isMapped = 'undefined;
   if (__v6153) {
-  __v6156 := "TypeErrorConstructorInternal"(___internal_esl_global);
+  __v6154 := "Get"(___internal_esl_global, argumentObject, P);
+  if (fst(__v6154)) {
+  return __v6154
+  } else {
+  __v6154 := snd(__v6154)
+  };
+  v := __v6154;
+  __v6155 := P = "caller";
+  if (__v6155 = false) {
+  __v6157 := false
+  } else {
+  __v6156 := "isStrictFunctionObject"(___internal_esl_global, v);
   if (fst(__v6156)) {
   return __v6156
   } else {
   __v6156 := snd(__v6156)
   };
-  return (true, __v6156)
-  };
-  return (false, v)
+  if (__v6156 = false) {
+  __v6157 := false
   } else {
-  __v6157 := map["Get"];
-  __v6158 := __v6157(___internal_esl_global, map, P);
+  __v6157 := true
+  }
+  };
+  if (__v6157) {
+  __v6158 := "TypeErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v6158)) {
   return __v6158
   } else {
   __v6158 := snd(__v6158)
   };
-  return (false, __v6158)
+  return (true, __v6158)
+  } else {
+  
+  };
+  return (false, v)
+  } else {
+  __v6151 := map["Get"];
+  __v6152 := __v6151(___internal_esl_global, map, P);
+  if (fst(__v6152)) {
+  return __v6152
+  } else {
+  __v6152 := snd(__v6152)
+  };
+  return (false, __v6152)
   }
   };
   function ToString(___internal_esl_global, argument) {
@@ -35628,10 +36414,14 @@ Tests compilation of ecmaref5:
   __v6143 := argument = true;
   if (__v6143) {
   return (false, "true")
+  } else {
+  
   };
   __v6144 := argument = false;
   if (__v6144) {
   return (false, "false")
+  } else {
+  
   }
   } else {
   if ("Number" = __v6142) {
@@ -35721,6 +36511,8 @@ Tests compilation of ecmaref5:
   __v6127 := snd(__v6127)
   };
   return (false, __v6127)
+  } else {
+  
   };
   __v6128 := l_len(PropertyNameAndValueList);
   __v6129 := __v6128 - 1;
@@ -35776,6 +36568,8 @@ Tests compilation of ecmaref5:
   __v6121 := is_NaN(t);
   if (__v6121) {
   return (false, nan)
+  } else {
+  
   };
   __v6122 := "LocalTime"(___internal_esl_global, t);
   if (fst(__v6122)) {
@@ -35808,6 +36602,8 @@ Tests compilation of ecmaref5:
   };
   __v6114 := __v6113 = 'throw;
   return (false, __v6114)
+  } else {
+  
   };
   return (false, false)
   };
@@ -35826,6 +36622,8 @@ Tests compilation of ecmaref5:
   __v6109 := snd(__v6109)
   };
   return (false, __v6109)
+  } else {
+  
   };
   __v6110 := "CreateMutableBindingObject"(___internal_esl_global, envRec, N, D);
   if (fst(__v6110)) {
@@ -35894,6 +36692,8 @@ Tests compilation of ecmaref5:
   __v6084 := snd(__v6084)
   };
   return (true, __v6084)
+  } else {
+  
   };
   __v6086 := thisArg = null;
   __v6085 := !__v6086;
@@ -35961,6 +36761,8 @@ Tests compilation of ecmaref5:
   } else {
   __v6101 := snd(__v6101)
   }
+  } else {
+  
   };
   __v6102 := k + 1.0;
   k := __v6102;
@@ -36027,33 +36829,37 @@ Tests compilation of ecmaref5:
   __v16073 := snd(__v16073)
   };
   b := __v16073;
-  __v16075 := a = true;
+  __v16074 := a = true;
+  if (__v16074 = false) {
+  __v16076 := false
+  } else {
+  __v16075 := b = false;
   if (__v16075 = false) {
-  __v16074 := false
+  __v16076 := false
   } else {
-  __v16076 := b = false;
-  if (__v16076 = false) {
-  __v16074 := false
-  } else {
-  __v16074 := true
+  __v16076 := true
   }
   };
-  if (__v16074) {
+  if (__v16076) {
   return (false, false)
+  } else {
+  
   };
-  __v16078 := a = false;
+  __v16077 := a = false;
+  if (__v16077 = false) {
+  __v16079 := false
+  } else {
+  __v16078 := b = true;
   if (__v16078 = false) {
-  __v16077 := false
+  __v16079 := false
   } else {
-  __v16079 := b = true;
-  if (__v16079 = false) {
-  __v16077 := false
-  } else {
-  __v16077 := true
+  __v16079 := true
   }
   };
-  if (__v16077) {
+  if (__v16079) {
   return (false, false)
+  } else {
+  
   };
   return (false, true)
   };
@@ -36077,6 +36883,8 @@ Tests compilation of ecmaref5:
   __v6062 := snd(__v6062)
   };
   return (false, __v6062)
+  } else {
+  
   };
   __v6063 := "getEnvironmentRecord"(___internal_esl_global, lex);
   if (fst(__v6063)) {
@@ -36092,30 +36900,30 @@ Tests compilation of ecmaref5:
   __v6064 := snd(__v6064)
   };
   exists := __v6064;
-  __v6065 := exists = true;
-  if (__v6065) {
-  __v6066 := "newValueReference"(___internal_esl_global, envRec, name, strict);
-  if (fst(__v6066)) {
-  return __v6066
-  } else {
-  __v6066 := snd(__v6066)
-  };
-  return (false, __v6066)
-  } else {
-  __v6067 := "getOuterEnvironmentReference"(___internal_esl_global, lex);
-  if (fst(__v6067)) {
-  return __v6067
-  } else {
-  __v6067 := snd(__v6067)
-  };
-  outer := __v6067;
-  __v6068 := "GetIdentifierReference"(___internal_esl_global, outer, name, strict);
+  __v6067 := exists = true;
+  if (__v6067) {
+  __v6068 := "newValueReference"(___internal_esl_global, envRec, name, strict);
   if (fst(__v6068)) {
   return __v6068
   } else {
   __v6068 := snd(__v6068)
   };
   return (false, __v6068)
+  } else {
+  __v6065 := "getOuterEnvironmentReference"(___internal_esl_global, lex);
+  if (fst(__v6065)) {
+  return __v6065
+  } else {
+  __v6065 := snd(__v6065)
+  };
+  outer := __v6065;
+  __v6066 := "GetIdentifierReference"(___internal_esl_global, outer, name, strict);
+  if (fst(__v6066)) {
+  return __v6066
+  } else {
+  __v6066 := snd(__v6066)
+  };
+  return (false, __v6066)
   }
   };
   function CreateFunctionObject(___internal_esl_global, FormalParameterList, FunctionBody, Scope, Strict, n) {
@@ -36137,30 +36945,32 @@ Tests compilation of ecmaref5:
   print "in MakeDate";
   print day;
   print time;
-  __v6051 := "auxIsFinite"(___internal_esl_global, day);
+  __v6050 := "auxIsFinite"(___internal_esl_global, day);
+  if (fst(__v6050)) {
+  return __v6050
+  } else {
+  __v6050 := snd(__v6050)
+  };
+  if (__v6050 = false) {
+  __v6052 := false
+  } else {
+  __v6051 := "auxIsFinite"(___internal_esl_global, time);
   if (fst(__v6051)) {
   return __v6051
   } else {
   __v6051 := snd(__v6051)
   };
   if (__v6051 = false) {
-  __v6050 := false
+  __v6052 := false
   } else {
-  __v6052 := "auxIsFinite"(___internal_esl_global, time);
-  if (fst(__v6052)) {
-  return __v6052
-  } else {
-  __v6052 := snd(__v6052)
-  };
-  if (__v6052 = false) {
-  __v6050 := false
-  } else {
-  __v6050 := true
+  __v6052 := true
   }
   };
-  __v6049 := !__v6050;
+  __v6049 := !__v6052;
   if (__v6049) {
   return (false, nan)
+  } else {
+  
   };
   print "MakeDate returns:";
   __v6053 := ___internal_esl_global["msPerDay"];
@@ -36566,30 +37376,34 @@ Tests compilation of ecmaref5:
   __v15943 := snd(__v15943)
   };
   return (false, __v15943)
+  } else {
+  
   };
   return (false, null)
   };
   function thisTimeValue(___internal_esl_global, value) {
-  __v5947 := "Type"(___internal_esl_global, value);
-  if (fst(__v5947)) {
-  return __v5947
+  __v5946 := "Type"(___internal_esl_global, value);
+  if (fst(__v5946)) {
+  return __v5946
   } else {
-  __v5947 := snd(__v5947)
+  __v5946 := snd(__v5946)
   };
-  __v5948 := __v5947 = "Object";
+  __v5947 := __v5946 = "Object";
+  if (__v5947 = false) {
+  __v5949 := false
+  } else {
+  __v5948 := "DateValue" in_obj value;
   if (__v5948 = false) {
-  __v5946 := false
+  __v5949 := false
   } else {
-  __v5949 := "DateValue" in_obj value;
-  if (__v5949 = false) {
-  __v5946 := false
-  } else {
-  __v5946 := true
+  __v5949 := true
   }
   };
-  if (__v5946) {
+  if (__v5949) {
   __v5950 := value["DateValue"];
   return (false, __v5950)
+  } else {
+  
   };
   __v5951 := "TypeErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v5951)) {
@@ -36641,6 +37455,8 @@ Tests compilation of ecmaref5:
   __v5940 := snd(__v5940)
   };
   return (true, __v5940)
+  } else {
+  
   };
   __v5941 := toString["Call"];
   __v5942 := [];
@@ -36675,51 +37491,53 @@ Tests compilation of ecmaref5:
   __v5921 := snd(__v5921)
   };
   len := __v5921;
-  __v5922 := len = 0.0;
-  if (__v5922) {
-  __v5923 := O["Put"];
-  __v5924 := __v5923(___internal_esl_global, O, "length", 0.0, true);
-  if (fst(__v5924)) {
-  return __v5924
-  } else {
-  __v5924 := snd(__v5924)
-  };
-  return (false, 'undefined)
-  } else {
-  __v5925 := len > 0.0;
-  if (__v5925) {
-  __v5926 := len - 1.0;
-  __v5927 := "ToString"(___internal_esl_global, __v5926);
-  if (fst(__v5927)) {
-  return __v5927
-  } else {
-  __v5927 := snd(__v5927)
-  };
-  indx := __v5927;
-  __v5928 := O["Get"];
-  __v5929 := __v5928(___internal_esl_global, O, indx);
-  if (fst(__v5929)) {
-  return __v5929
-  } else {
-  __v5929 := snd(__v5929)
-  };
-  element := __v5929;
-  __v5930 := O["Delete"];
-  __v5931 := __v5930(___internal_esl_global, O, indx, true);
-  if (fst(__v5931)) {
-  return __v5931
-  } else {
-  __v5931 := snd(__v5931)
-  };
-  __v5932 := O["Put"];
-  __v5933 := len - 1.0;
-  __v5934 := __v5932(___internal_esl_global, O, "length", __v5933, true);
+  __v5932 := len = 0.0;
+  if (__v5932) {
+  __v5933 := O["Put"];
+  __v5934 := __v5933(___internal_esl_global, O, "length", 0.0, true);
   if (fst(__v5934)) {
   return __v5934
   } else {
   __v5934 := snd(__v5934)
   };
+  return (false, 'undefined)
+  } else {
+  __v5922 := len > 0.0;
+  if (__v5922) {
+  __v5923 := len - 1.0;
+  __v5924 := "ToString"(___internal_esl_global, __v5923);
+  if (fst(__v5924)) {
+  return __v5924
+  } else {
+  __v5924 := snd(__v5924)
+  };
+  indx := __v5924;
+  __v5925 := O["Get"];
+  __v5926 := __v5925(___internal_esl_global, O, indx);
+  if (fst(__v5926)) {
+  return __v5926
+  } else {
+  __v5926 := snd(__v5926)
+  };
+  element := __v5926;
+  __v5927 := O["Delete"];
+  __v5928 := __v5927(___internal_esl_global, O, indx, true);
+  if (fst(__v5928)) {
+  return __v5928
+  } else {
+  __v5928 := snd(__v5928)
+  };
+  __v5929 := O["Put"];
+  __v5930 := len - 1.0;
+  __v5931 := __v5929(___internal_esl_global, O, "length", __v5930, true);
+  if (fst(__v5931)) {
+  return __v5931
+  } else {
+  __v5931 := snd(__v5931)
+  };
   return (false, element)
+  } else {
+  
   }
   }
   };
@@ -36733,32 +37551,36 @@ Tests compilation of ecmaref5:
   __v5912 := __v5911 = "String";
   if (__v5912) {
   return (false, true)
+  } else {
+  
   };
-  __v5914 := "Type"(___internal_esl_global, arg);
-  if (fst(__v5914)) {
-  return __v5914
+  __v5913 := "Type"(___internal_esl_global, arg);
+  if (fst(__v5913)) {
+  return __v5913
   } else {
-  __v5914 := snd(__v5914)
+  __v5913 := snd(__v5913)
   };
-  __v5915 := __v5914 = "Object";
-  if (__v5915 = false) {
-  __v5913 := false
+  __v5914 := __v5913 = "Object";
+  if (__v5914 = false) {
+  __v5917 := false
   } else {
-  __v5916 := "getInternalProperty"(___internal_esl_global, arg, "Class");
-  if (fst(__v5916)) {
-  return __v5916
+  __v5915 := "getInternalProperty"(___internal_esl_global, arg, "Class");
+  if (fst(__v5915)) {
+  return __v5915
   } else {
-  __v5916 := snd(__v5916)
+  __v5915 := snd(__v5915)
   };
-  __v5917 := __v5916 = "String";
-  if (__v5917 = false) {
-  __v5913 := false
+  __v5916 := __v5915 = "String";
+  if (__v5916 = false) {
+  __v5917 := false
   } else {
-  __v5913 := true
+  __v5917 := true
   }
   };
-  if (__v5913) {
+  if (__v5917) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
   };
@@ -36816,6 +37638,8 @@ Tests compilation of ecmaref5:
   __v5892 := snd(__v5892)
   };
   return (true, __v5892)
+  } else {
+  
   };
   __v5894 := thisArg = null;
   __v5893 := !__v5894;
@@ -36870,7 +37694,11 @@ Tests compilation of ecmaref5:
   __v5906 := __v5905 = true;
   if (__v5906) {
   return (false, true)
+  } else {
+  
   }
+  } else {
+  
   };
   __v5907 := k + 1.0;
   k := __v5907;
@@ -36888,6 +37716,8 @@ Tests compilation of ecmaref5:
   if (__v5882) {
   __v5883 := s_nth_u(str, i);
   return (false, __v5883)
+  } else {
+  
   };
   return (false, null)
   };
@@ -36905,20 +37735,20 @@ Tests compilation of ecmaref5:
   return (false, __v5877)
   };
   function isFunctionCode(___internal_esl_global, code) {
-  __v5873 := typeof(code);
-  __v5874 := __v5873 = __$Obj;
-  if (__v5874 = false) {
-  __v5872 := false
+  __v5872 := typeof(code);
+  __v5873 := __v5872 = __$Obj;
+  if (__v5873 = false) {
+  __v5876 := false
   } else {
-  __v5875 := code["codeType"];
-  __v5876 := __v5875 = "function";
-  if (__v5876 = false) {
-  __v5872 := false
+  __v5874 := code["codeType"];
+  __v5875 := __v5874 = "function";
+  if (__v5875 = false) {
+  __v5876 := false
   } else {
-  __v5872 := true
+  __v5876 := true
   }
   };
-  return (false, __v5872)
+  return (false, __v5876)
   };
   function RegExpPrototypeToString(___internal_esl_global, global, this, strict, args) {
   __v5856 := this["OriginalSource"];
@@ -36939,18 +37769,24 @@ Tests compilation of ecmaref5:
   __v5865 := [source, "g"];
   __v5864 := s_concat(__v5865);
   source := __v5864
+  } else {
+  
   };
   __v5866 := i = true;
   if (__v5866) {
   __v5868 := [source, "i"];
   __v5867 := s_concat(__v5868);
   source := __v5867
+  } else {
+  
   };
   __v5869 := m = true;
   if (__v5869) {
   __v5871 := [source, "m"];
   __v5870 := s_concat(__v5871);
   source := __v5870
+  } else {
+  
   };
   return (false, source)
   };
@@ -37076,31 +37912,31 @@ Tests compilation of ecmaref5:
   c2 := __v5740;
   __v5741 := to_char_code_u(c2);
   c2_code := __v5741;
-  __v5821 := c1 = "$";
+  __v5820 := c1 = "$";
+  if (__v5820 = false) {
+  __v5822 := false
+  } else {
+  __v5821 := c2 = "$";
   if (__v5821 = false) {
-  __v5820 := false
+  __v5822 := false
   } else {
-  __v5822 := c2 = "$";
-  if (__v5822 = false) {
-  __v5820 := false
-  } else {
-  __v5820 := true
+  __v5822 := true
   }
   };
-  if (__v5820) {
+  if (__v5822) {
   __v5823 := i + 1;
   __v5824 := s_substr_u(newstring, 0, __v5823);
   str1 := __v5824;
   __v5825 := i + 2;
   startIndex := __v5825;
-  __v5826 := startIndex > len;
-  if (__v5826) {
+  __v5829 := startIndex > len;
+  if (__v5829) {
   str2 := ""
   } else {
-  __v5827 := len + 1;
-  __v5828 := __v5827 - startIndex;
-  __v5829 := s_substr_u(newstring, startIndex, __v5828);
-  str2 := __v5829
+  __v5826 := len + 1;
+  __v5827 := __v5826 - startIndex;
+  __v5828 := s_substr_u(newstring, startIndex, __v5827);
+  str2 := __v5828
   };
   __v5831 := [str1, str2];
   __v5830 := s_concat(__v5831);
@@ -37108,30 +37944,30 @@ Tests compilation of ecmaref5:
   __v5832 := i + 1;
   i := __v5832
   } else {
-  __v5808 := c1 = "$";
+  __v5807 := c1 = "$";
+  if (__v5807 = false) {
+  __v5809 := false
+  } else {
+  __v5808 := c2 = "&";
   if (__v5808 = false) {
-  __v5807 := false
+  __v5809 := false
   } else {
-  __v5809 := c2 = "&";
-  if (__v5809 = false) {
-  __v5807 := false
-  } else {
-  __v5807 := true
+  __v5809 := true
   }
   };
-  if (__v5807) {
+  if (__v5809) {
   __v5810 := s_substr_u(newstring, 0, i);
   str1 := __v5810;
   __v5811 := i + 2;
   startIndex := __v5811;
-  __v5812 := startIndex > len;
-  if (__v5812) {
+  __v5815 := startIndex > len;
+  if (__v5815) {
   str2 := ""
   } else {
-  __v5813 := len + 1;
-  __v5814 := __v5813 - startIndex;
-  __v5815 := s_substr_u(newstring, startIndex, __v5814);
-  str2 := __v5815
+  __v5812 := len + 1;
+  __v5813 := __v5812 - startIndex;
+  __v5814 := s_substr_u(newstring, startIndex, __v5813);
+  str2 := __v5814
   };
   __v5817 := [str1, matchStr, str2];
   __v5816 := s_concat(__v5817);
@@ -37140,30 +37976,30 @@ Tests compilation of ecmaref5:
   __v5819 := i + __v5818;
   i := __v5819
   } else {
-  __v5795 := c1 = "$";
+  __v5794 := c1 = "$";
+  if (__v5794 = false) {
+  __v5796 := false
+  } else {
+  __v5795 := c2 = "`";
   if (__v5795 = false) {
-  __v5794 := false
+  __v5796 := false
   } else {
-  __v5796 := c2 = "`";
-  if (__v5796 = false) {
-  __v5794 := false
-  } else {
-  __v5794 := true
+  __v5796 := true
   }
   };
-  if (__v5794) {
+  if (__v5796) {
   __v5797 := s_substr_u(newstring, 0, i);
   str1 := __v5797;
   __v5798 := i + 2;
   startIndex := __v5798;
-  __v5799 := startIndex > len;
-  if (__v5799) {
+  __v5802 := startIndex > len;
+  if (__v5802) {
   str2 := ""
   } else {
-  __v5800 := len + 1;
-  __v5801 := __v5800 - startIndex;
-  __v5802 := s_substr_u(newstring, startIndex, __v5801);
-  str2 := __v5802
+  __v5799 := len + 1;
+  __v5800 := __v5799 - startIndex;
+  __v5801 := s_substr_u(newstring, startIndex, __v5800);
+  str2 := __v5801
   };
   __v5804 := [str1, beforeStr, str2];
   __v5803 := s_concat(__v5804);
@@ -37172,30 +38008,30 @@ Tests compilation of ecmaref5:
   __v5806 := i + __v5805;
   i := __v5806
   } else {
-  __v5782 := c1 = "$";
+  __v5781 := c1 = "$";
+  if (__v5781 = false) {
+  __v5783 := false
+  } else {
+  __v5782 := c2 = "'";
   if (__v5782 = false) {
-  __v5781 := false
+  __v5783 := false
   } else {
-  __v5783 := c2 = "'";
-  if (__v5783 = false) {
-  __v5781 := false
-  } else {
-  __v5781 := true
+  __v5783 := true
   }
   };
-  if (__v5781) {
+  if (__v5783) {
   __v5784 := s_substr_u(newstring, 0, i);
   str1 := __v5784;
   __v5785 := i + 2;
   startIndex := __v5785;
-  __v5786 := startIndex > len;
-  if (__v5786) {
+  __v5789 := startIndex > len;
+  if (__v5789) {
   str2 := ""
   } else {
-  __v5787 := len + 1;
-  __v5788 := __v5787 - startIndex;
-  __v5789 := s_substr_u(newstring, startIndex, __v5788);
-  str2 := __v5789
+  __v5786 := len + 1;
+  __v5787 := __v5786 - startIndex;
+  __v5788 := s_substr_u(newstring, startIndex, __v5787);
+  str2 := __v5788
   };
   __v5791 := [str1, afterStr, str2];
   __v5790 := s_concat(__v5791);
@@ -37204,28 +38040,28 @@ Tests compilation of ecmaref5:
   __v5793 := i + __v5792;
   i := __v5793
   } else {
-  __v5745 := c1 = "$";
-  if (__v5745 = false) {
-  __v5744 := false
+  __v5743 := c1 = "$";
+  if (__v5743 = false) {
+  __v5745 := false
   } else {
-  __v5746 := c2_code >= 48;
-  if (__v5746 = false) {
-  __v5744 := false
-  } else {
-  __v5744 := true
-  }
-  };
+  __v5744 := c2_code >= 48;
   if (__v5744 = false) {
-  __v5743 := false
+  __v5745 := false
   } else {
-  __v5747 := c2_code <= 57;
-  if (__v5747 = false) {
-  __v5743 := false
-  } else {
-  __v5743 := true
+  __v5745 := true
   }
   };
-  if (__v5743) {
+  if (__v5745 = false) {
+  __v5747 := false
+  } else {
+  __v5746 := c2_code <= 57;
+  if (__v5746 = false) {
+  __v5747 := false
+  } else {
+  __v5747 := true
+  }
+  };
+  if (__v5747) {
   __v5748 := i + 2;
   startIndex := __v5748;
   c3 := "";
@@ -37237,23 +38073,25 @@ Tests compilation of ecmaref5:
   c3 := __v5752;
   __v5753 := to_char_code_u(c3);
   c3_code := __v5753;
-  __v5755 := c3_code >= 48;
+  __v5754 := c3_code >= 48;
+  if (__v5754 = false) {
+  __v5756 := false
+  } else {
+  __v5755 := c3_code <= 57;
   if (__v5755 = false) {
-  __v5754 := false
+  __v5756 := false
   } else {
-  __v5756 := c3_code <= 57;
-  if (__v5756 = false) {
-  __v5754 := false
-  } else {
-  __v5754 := true
+  __v5756 := true
   }
   };
-  if (__v5754) {
+  if (__v5756) {
   __v5757 := i + 3;
   startIndex := __v5757
   } else {
   c3 := ""
   }
+  } else {
+  
   };
   __v5760 := [c2, c3];
   __v5759 := s_concat(__v5760);
@@ -37266,15 +38104,17 @@ Tests compilation of ecmaref5:
   num := __v5763;
   __v5764 := i + 2;
   startIndex := __v5764
+  } else {
+  
   };
-  __v5766 := l_len(captures);
-  __v5767 := num > __v5766;
-  __v5765 := !__v5767;
-  if (__v5765) {
-  __v5768 := s_substr_u(newstring, 0, i);
-  str1 := __v5768;
-  __v5769 := startIndex > len;
-  if (__v5769) {
+  __v5767 := l_len(captures);
+  __v5768 := num > __v5767;
+  __v5766 := !__v5768;
+  if (__v5766) {
+  __v5769 := s_substr_u(newstring, 0, i);
+  str1 := __v5769;
+  __v5773 := startIndex > len;
+  if (__v5773) {
   str2 := ""
   } else {
   __v5770 := len + 1;
@@ -37282,22 +38122,24 @@ Tests compilation of ecmaref5:
   __v5772 := s_substr_u(newstring, startIndex, __v5771);
   str2 := __v5772
   };
-  __v5773 := num - 1;
-  __v5774 := l_nth(captures, __v5773);
-  m := __v5774;
-  __v5775 := m = 'undefined;
-  if (__v5775) {
+  __v5774 := num - 1;
+  __v5775 := l_nth(captures, __v5774);
+  m := __v5775;
+  __v5776 := m = 'undefined;
+  if (__v5776) {
   m := ""
-  };
-  __v5777 := [str1, m, str2];
-  __v5776 := s_concat(__v5777);
-  newstring := __v5776;
-  __v5778 := s_len_u(m);
-  __v5779 := i + __v5778;
-  i := __v5779
   } else {
-  __v5780 := i + 1;
+  
+  };
+  __v5778 := [str1, m, str2];
+  __v5777 := s_concat(__v5778);
+  newstring := __v5777;
+  __v5779 := s_len_u(m);
+  __v5780 := i + __v5779;
   i := __v5780
+  } else {
+  __v5765 := i + 1;
+  i := __v5765
   }
   } else {
   __v5742 := i + 1;
@@ -37354,6 +38196,8 @@ Tests compilation of ecmaref5:
   __v5733 := is_NaN(t);
   if (__v5733) {
   return (false, nan)
+  } else {
+  
   };
   __v5734 := "WeekDay"(___internal_esl_global, t);
   if (fst(__v5734)) {
@@ -37377,6 +38221,8 @@ Tests compilation of ecmaref5:
   __v5725 := snd(__v5725)
   };
   return (false, __v5725)
+  } else {
+  
   };
   __v5726 := obj["JSProperties"];
   oProps := __v5726;
@@ -37389,6 +38235,8 @@ Tests compilation of ecmaref5:
   if (__v5718) {
   __v5719 := [];
   return (false, __v5719)
+  } else {
+  
   };
   __v5720 := object["variableDeclarations"];
   return (false, __v5720)
@@ -37444,6 +38292,8 @@ Tests compilation of ecmaref5:
   __v5694 := snd(__v5694)
   };
   return (true, __v5694)
+  } else {
+  
   };
   __v5696 := thisArg = null;
   __v5695 := !__v5696;
@@ -37528,7 +38378,11 @@ Tests compilation of ecmaref5:
   };
   __v5715 := to + 1.0;
   to := __v5715
+  } else {
+  
   }
+  } else {
+  
   };
   __v5716 := k + 1.0;
   k := __v5716;
@@ -37607,6 +38461,8 @@ Tests compilation of ecmaref5:
   __v5651 := snd(__v5651)
   };
   return (true, __v5651)
+  } else {
+  
   };
   __v5653 := tl(tokens);
   __v5652 := tl(__v5653);
@@ -37631,6 +38487,8 @@ Tests compilation of ecmaref5:
   __v5660 := snd(__v5660)
   };
   return (true, __v5660)
+  } else {
+  
   };
   __v5661 := l_nth(ret, 0);
   value := __v5661;
@@ -37646,34 +38504,38 @@ Tests compilation of ecmaref5:
   } else {
   __v5664 := snd(__v5664)
   };
-  __v5665 := l_len(ret);
-  __v5666 := __v5665 = 2;
-  if (__v5666) {
-  __v5667 := l_nth(ret, 1);
-  tokens := __v5667;
-  __v5668 := l_len(tokens);
-  __v5669 := __v5668 > 0;
-  if (__v5669) {
-  __v5670 := hd(tokens);
-  comma := __v5670;
-  __v5672 := comma = ",";
-  __v5671 := !__v5672;
-  if (__v5671) {
-  __v5673 := ["JSON.parse: Expected comma after JSON array value."];
-  __v5674 := "SyntaxErrorConstructor"(___internal_esl_global, global, this, strict, __v5673);
-  if (fst(__v5674)) {
-  return __v5674
+  __v5666 := l_len(ret);
+  __v5667 := __v5666 = 2;
+  if (__v5667) {
+  __v5668 := l_nth(ret, 1);
+  tokens := __v5668;
+  __v5669 := l_len(tokens);
+  __v5670 := __v5669 > 0;
+  if (__v5670) {
+  __v5671 := hd(tokens);
+  comma := __v5671;
+  __v5673 := comma = ",";
+  __v5672 := !__v5673;
+  if (__v5672) {
+  __v5674 := ["JSON.parse: Expected comma after JSON array value."];
+  __v5675 := "SyntaxErrorConstructor"(___internal_esl_global, global, this, strict, __v5674);
+  if (fst(__v5675)) {
+  return __v5675
   } else {
-  __v5674 := snd(__v5674)
+  __v5675 := snd(__v5675)
   };
-  return (true, __v5674)
+  return (true, __v5675)
+  } else {
+  
   };
-  __v5675 := tl(tokens);
-  tokens := __v5675
+  __v5676 := tl(tokens);
+  tokens := __v5676
+  } else {
+  
   }
   } else {
-  __v5676 := [];
-  tokens := __v5676
+  __v5665 := [];
+  tokens := __v5665
   };
   __v5636 := l_len(tokens);
   __v5637 := __v5636 > 2
@@ -37692,6 +38554,8 @@ Tests compilation of ecmaref5:
   __v5682 := snd(__v5682)
   };
   return (true, __v5682)
+  } else {
+  
   };
   return (false, obj)
   };
@@ -38958,6 +39822,8 @@ Tests compilation of ecmaref5:
   __v5392 := snd(__v5392)
   };
   return (true, __v5392)
+  } else {
+  
   };
   __v5393 := "getInternalProperty"(___internal_esl_global, F, "BoundArgs");
   if (fst(__v5393)) {
@@ -39029,23 +39895,27 @@ Tests compilation of ecmaref5:
   __v5363 := snd(__v5363)
   };
   S := __v5363;
-  __v5365 := S = "";
+  __v5364 := S = "";
+  if (__v5364 = true) {
+  __v5366 := true
+  } else {
+  __v5365 := S = 'undefined;
   if (__v5365 = true) {
-  __v5364 := true
+  __v5366 := true
   } else {
-  __v5366 := S = 'undefined;
-  if (__v5366 = true) {
-  __v5364 := true
-  } else {
-  __v5364 := false
+  __v5366 := false
   }
   };
-  if (__v5364) {
+  if (__v5366) {
   S := "(?:)"
+  } else {
+  
   };
   __v5367 := F = 'undefined;
   if (__v5367) {
   F := ""
+  } else {
+  
   };
   __v5369 := ["/", S, "/", F];
   __v5368 := s_concat(__v5369);
@@ -39070,6 +39940,8 @@ Tests compilation of ecmaref5:
   __v5375 := snd(__v5375)
   };
   return (true, __v5375)
+  } else {
+  
   };
   __v5377 := progObj["body"];
   __v5378 := l_nth(__v5377, 0);
@@ -39129,35 +40001,35 @@ Tests compilation of ecmaref5:
   __v5339 := snd(__v5339)
   };
   relativeStart := __v5339;
-  __v5340 := relativeStart < 0.0;
-  if (__v5340) {
-  __v5341 := len + relativeStart;
-  __v5342 := max(__v5341, 0.0);
-  k := __v5342
-  } else {
-  __v5343 := min(relativeStart, len);
+  __v5341 := relativeStart < 0.0;
+  if (__v5341) {
+  __v5342 := len + relativeStart;
+  __v5343 := max(__v5342, 0.0);
   k := __v5343
+  } else {
+  __v5340 := min(relativeStart, len);
+  k := __v5340
   };
-  __v5344 := end = 'undefined;
-  if (__v5344) {
+  __v5345 := end = 'undefined;
+  if (__v5345) {
   relativeEnd := len
   } else {
-  __v5345 := "ToInteger"(___internal_esl_global, end);
-  if (fst(__v5345)) {
-  return __v5345
+  __v5344 := "ToInteger"(___internal_esl_global, end);
+  if (fst(__v5344)) {
+  return __v5344
   } else {
-  __v5345 := snd(__v5345)
+  __v5344 := snd(__v5344)
   };
-  relativeEnd := __v5345
+  relativeEnd := __v5344
   };
-  __v5346 := relativeEnd < 0.0;
-  if (__v5346) {
-  __v5347 := len + relativeEnd;
-  __v5348 := max(__v5347, 0.0);
-  final := __v5348
-  } else {
-  __v5349 := min(relativeEnd, len);
+  __v5347 := relativeEnd < 0.0;
+  if (__v5347) {
+  __v5348 := len + relativeEnd;
+  __v5349 := max(__v5348, 0.0);
   final := __v5349
+  } else {
+  __v5346 := min(relativeEnd, len);
+  final := __v5346
   };
   n := 0.0;
   __v5350 := k < final;
@@ -39207,6 +40079,8 @@ Tests compilation of ecmaref5:
   } else {
   __v5360 := snd(__v5360)
   }
+  } else {
+  
   };
   __v5361 := k + 1.0;
   k := __v5361;
@@ -39220,6 +40094,8 @@ Tests compilation of ecmaref5:
   __v5323 := caseClause = null;
   if (__v5323) {
   return (false, false)
+  } else {
+  
   };
   __v5324 := "type" in_obj caseClause;
   __v5326 := caseClause["type"];
@@ -39243,59 +40119,65 @@ Tests compilation of ecmaref5:
   }
   };
   function JS_Interpreter_Repetition_Greedy(___internal_esl_global, m, bounds, st, k, parenIndex, parenCount) {
-  __v5299 := bounds["sup"];
-  __v5300 := __v5299 = 0.0;
-  if (__v5300) {
-  __v5301 := k(___internal_esl_global, st);
-  if (fst(__v5301)) {
-  return __v5301
+  __v5320 := bounds["sup"];
+  __v5321 := __v5320 = 0.0;
+  if (__v5321) {
+  __v5322 := k(___internal_esl_global, st);
+  if (fst(__v5322)) {
+  return __v5322
   } else {
-  __v5301 := snd(__v5301)
+  __v5322 := snd(__v5322)
   };
-  return (false, __v5301)
+  return (false, __v5322)
   } else {
-  __v5302 := st["endIndex"];
-  index := __v5302;
+  __v5299 := st["endIndex"];
+  index := __v5299;
   k' := {"__lambda__4"}@(st, m, bounds, k, index, parenIndex, parenCount);
-  __v5303 := "copyState"(___internal_esl_global, st);
-  if (fst(__v5303)) {
-  return __v5303
+  __v5300 := "copyState"(___internal_esl_global, st);
+  if (fst(__v5300)) {
+  return __v5300
   } else {
-  __v5303 := snd(__v5303)
+  __v5300 := snd(__v5300)
   };
-  st2 := __v5303;
-  __v5305 := parenIndex = 'undefined;
-  __v5304 := !__v5305;
-  if (__v5304) {
-  __v5306 := parenIndex + 1.0;
-  i := __v5306;
-  __v5307 := parenIndex + parenCount;
-  len := __v5307;
-  __v5308 := i <= len;
-  while (__v5308) {
-  __v5309 := float_to_string(i);
-  i_str := __v5309;
-  __v5310 := st2["caps"];
-  __v5311 := i_str in_obj __v5310;
-  if (__v5311) {
-  __v5312 := st2["caps"];
-  delete __v5312[i_str]
-  };
-  __v5313 := i + 1.0;
-  i := __v5313;
-  __v5308 := i <= len
-  };
-  __v5314 := bounds["inf"];
-  __v5315 := __v5314 > 0.0;
-  if (__v5315) {
-  __v5316 := m(___internal_esl_global, st2, k');
-  if (fst(__v5316)) {
-  return __v5316
+  st2 := __v5300;
+  __v5302 := parenIndex = 'undefined;
+  __v5301 := !__v5302;
+  if (__v5301) {
+  __v5303 := parenIndex + 1.0;
+  i := __v5303;
+  __v5304 := parenIndex + parenCount;
+  len := __v5304;
+  __v5305 := i <= len;
+  while (__v5305) {
+  __v5306 := float_to_string(i);
+  i_str := __v5306;
+  __v5307 := st2["caps"];
+  __v5308 := i_str in_obj __v5307;
+  if (__v5308) {
+  __v5309 := st2["caps"];
+  delete __v5309[i_str]
   } else {
-  __v5316 := snd(__v5316)
+  
   };
-  return (false, __v5316)
+  __v5310 := i + 1.0;
+  i := __v5310;
+  __v5305 := i <= len
+  };
+  __v5311 := bounds["inf"];
+  __v5312 := __v5311 > 0.0;
+  if (__v5312) {
+  __v5313 := m(___internal_esl_global, st2, k');
+  if (fst(__v5313)) {
+  return __v5313
+  } else {
+  __v5313 := snd(__v5313)
+  };
+  return (false, __v5313)
+  } else {
+  
   }
+  } else {
+  
   };
   __v5317 := bounds["inf"];
   __v5318 := __v5317 > 0.0;
@@ -39308,27 +40190,27 @@ Tests compilation of ecmaref5:
   };
   return (false, __v5319)
   } else {
-  __v5320 := m(___internal_esl_global, st2, k');
-  if (fst(__v5320)) {
-  return __v5320
+  __v5314 := m(___internal_esl_global, st2, k');
+  if (fst(__v5314)) {
+  return __v5314
   } else {
-  __v5320 := snd(__v5320)
+  __v5314 := snd(__v5314)
   };
-  ret := __v5320;
-  __v5321 := "isFailure"(___internal_esl_global, ret);
-  if (fst(__v5321)) {
-  return __v5321
+  ret := __v5314;
+  __v5315 := "isFailure"(___internal_esl_global, ret);
+  if (fst(__v5315)) {
+  return __v5315
   } else {
-  __v5321 := snd(__v5321)
+  __v5315 := snd(__v5315)
   };
-  if (__v5321) {
-  __v5322 := k(___internal_esl_global, st);
-  if (fst(__v5322)) {
-  return __v5322
+  if (__v5315) {
+  __v5316 := k(___internal_esl_global, st);
+  if (fst(__v5316)) {
+  return __v5316
   } else {
-  __v5322 := snd(__v5322)
+  __v5316 := snd(__v5316)
   };
-  return (false, __v5322)
+  return (false, __v5316)
   } else {
   return (false, ret)
   }
@@ -39407,6 +40289,8 @@ Tests compilation of ecmaref5:
   __v5292 := is_NaN(t);
   if (__v5292) {
   return (false, nan)
+  } else {
+  
   };
   __v5293 := "LocalTime"(___internal_esl_global, t);
   if (fst(__v5293)) {
@@ -39519,6 +40403,8 @@ Tests compilation of ecmaref5:
   __v5257 := r = true;
   if (__v5257) {
   return (false, false)
+  } else {
+  
   };
   return (false, true)
   } else {
@@ -39618,6 +40504,8 @@ Tests compilation of ecmaref5:
   __v5284 := r = true;
   if (__v5284) {
   return (false, false)
+  } else {
+  
   };
   return (false, true)
   } else {
@@ -39684,296 +40572,296 @@ Tests compilation of ecmaref5:
   __v5151 := l_len(args);
   numberOfArgs := __v5151;
   __v5152 := numberOfArgs >= 2;
-  assert (__v5152);
-  __v5154 := NewTarget = 'undefined;
-  __v5153 := !__v5154;
-  if (__v5153) {
-  __v5155 := "ToNumber"(___internal_esl_global, year);
-  if (fst(__v5155)) {
-  return __v5155
-  } else {
-  __v5155 := snd(__v5155)
-  };
-  y := __v5155;
-  __v5159 := "Type"(___internal_esl_global, y);
-  if (fst(__v5159)) {
-  return __v5159
-  } else {
-  __v5159 := snd(__v5159)
-  };
-  __v5160 := __v5159 = "Completion";
-  __v5158 := !__v5160;
-  if (__v5158) {
-  
-  } else {
-  __v5157 := "isAnAbruptCompletion"(___internal_esl_global, y);
+  assert __v5152;
+  __v5156 := NewTarget = 'undefined;
+  __v5155 := !__v5156;
+  if (__v5155) {
+  __v5157 := "ToNumber"(___internal_esl_global, year);
   if (fst(__v5157)) {
   return __v5157
   } else {
   __v5157 := snd(__v5157)
   };
-  if (__v5157) {
-  return (false, y)
-  } else {
-  __v5156 := "getCompletionValue"(___internal_esl_global, y);
-  if (fst(__v5156)) {
-  return __v5156
-  } else {
-  __v5156 := snd(__v5156)
-  };
-  y := __v5156
-  }
-  };
-  __v5161 := "ToNumber"(___internal_esl_global, month);
+  y := __v5157;
+  __v5161 := "Type"(___internal_esl_global, y);
   if (fst(__v5161)) {
   return __v5161
   } else {
   __v5161 := snd(__v5161)
   };
-  m := __v5161;
-  __v5165 := "Type"(___internal_esl_global, m);
-  if (fst(__v5165)) {
-  return __v5165
-  } else {
-  __v5165 := snd(__v5165)
-  };
-  __v5166 := __v5165 = "Completion";
-  __v5164 := !__v5166;
-  if (__v5164) {
+  __v5162 := __v5161 = "Completion";
+  __v5160 := !__v5162;
+  if (__v5160) {
   
   } else {
-  __v5163 := "isAnAbruptCompletion"(___internal_esl_global, m);
+  __v5159 := "isAnAbruptCompletion"(___internal_esl_global, y);
+  if (fst(__v5159)) {
+  return __v5159
+  } else {
+  __v5159 := snd(__v5159)
+  };
+  if (__v5159) {
+  return (false, y)
+  } else {
+  __v5158 := "getCompletionValue"(___internal_esl_global, y);
+  if (fst(__v5158)) {
+  return __v5158
+  } else {
+  __v5158 := snd(__v5158)
+  };
+  y := __v5158
+  }
+  };
+  __v5163 := "ToNumber"(___internal_esl_global, month);
   if (fst(__v5163)) {
   return __v5163
   } else {
   __v5163 := snd(__v5163)
   };
-  if (__v5163) {
-  return (false, m)
+  m := __v5163;
+  __v5167 := "Type"(___internal_esl_global, m);
+  if (fst(__v5167)) {
+  return __v5167
   } else {
-  __v5162 := "getCompletionValue"(___internal_esl_global, m);
-  if (fst(__v5162)) {
-  return __v5162
-  } else {
-  __v5162 := snd(__v5162)
+  __v5167 := snd(__v5167)
   };
-  m := __v5162
-  }
-  };
-  __v5168 := date = null;
-  __v5167 := !__v5168;
-  if (__v5167) {
-  __v5169 := "ToNumber"(___internal_esl_global, date);
-  if (fst(__v5169)) {
-  return __v5169
-  } else {
-  __v5169 := snd(__v5169)
-  };
-  dt := __v5169
-  } else {
-  dt := 1.0
-  };
-  __v5173 := "Type"(___internal_esl_global, dt);
-  if (fst(__v5173)) {
-  return __v5173
-  } else {
-  __v5173 := snd(__v5173)
-  };
-  __v5174 := __v5173 = "Completion";
-  __v5172 := !__v5174;
-  if (__v5172) {
+  __v5168 := __v5167 = "Completion";
+  __v5166 := !__v5168;
+  if (__v5166) {
   
   } else {
-  __v5171 := "isAnAbruptCompletion"(___internal_esl_global, dt);
+  __v5165 := "isAnAbruptCompletion"(___internal_esl_global, m);
+  if (fst(__v5165)) {
+  return __v5165
+  } else {
+  __v5165 := snd(__v5165)
+  };
+  if (__v5165) {
+  return (false, m)
+  } else {
+  __v5164 := "getCompletionValue"(___internal_esl_global, m);
+  if (fst(__v5164)) {
+  return __v5164
+  } else {
+  __v5164 := snd(__v5164)
+  };
+  m := __v5164
+  }
+  };
+  __v5170 := date = null;
+  __v5169 := !__v5170;
+  if (__v5169) {
+  __v5171 := "ToNumber"(___internal_esl_global, date);
   if (fst(__v5171)) {
   return __v5171
   } else {
   __v5171 := snd(__v5171)
   };
-  if (__v5171) {
-  return (false, dt)
+  dt := __v5171
   } else {
-  __v5170 := "getCompletionValue"(___internal_esl_global, dt);
-  if (fst(__v5170)) {
-  return __v5170
+  dt := 1.0
+  };
+  __v5175 := "Type"(___internal_esl_global, dt);
+  if (fst(__v5175)) {
+  return __v5175
   } else {
-  __v5170 := snd(__v5170)
+  __v5175 := snd(__v5175)
   };
-  dt := __v5170
-  }
-  };
-  __v5176 := hours = null;
-  __v5175 := !__v5176;
-  if (__v5175) {
-  __v5177 := "ToNumber"(___internal_esl_global, hours);
-  if (fst(__v5177)) {
-  return __v5177
-  } else {
-  __v5177 := snd(__v5177)
-  };
-  h := __v5177
-  } else {
-  h := 0.0
-  };
-  __v5181 := "Type"(___internal_esl_global, h);
-  if (fst(__v5181)) {
-  return __v5181
-  } else {
-  __v5181 := snd(__v5181)
-  };
-  __v5182 := __v5181 = "Completion";
-  __v5180 := !__v5182;
-  if (__v5180) {
+  __v5176 := __v5175 = "Completion";
+  __v5174 := !__v5176;
+  if (__v5174) {
   
   } else {
-  __v5179 := "isAnAbruptCompletion"(___internal_esl_global, h);
+  __v5173 := "isAnAbruptCompletion"(___internal_esl_global, dt);
+  if (fst(__v5173)) {
+  return __v5173
+  } else {
+  __v5173 := snd(__v5173)
+  };
+  if (__v5173) {
+  return (false, dt)
+  } else {
+  __v5172 := "getCompletionValue"(___internal_esl_global, dt);
+  if (fst(__v5172)) {
+  return __v5172
+  } else {
+  __v5172 := snd(__v5172)
+  };
+  dt := __v5172
+  }
+  };
+  __v5178 := hours = null;
+  __v5177 := !__v5178;
+  if (__v5177) {
+  __v5179 := "ToNumber"(___internal_esl_global, hours);
   if (fst(__v5179)) {
   return __v5179
   } else {
   __v5179 := snd(__v5179)
   };
-  if (__v5179) {
-  return (false, h)
+  h := __v5179
   } else {
-  __v5178 := "getCompletionValue"(___internal_esl_global, h);
-  if (fst(__v5178)) {
-  return __v5178
+  h := 0.0
+  };
+  __v5183 := "Type"(___internal_esl_global, h);
+  if (fst(__v5183)) {
+  return __v5183
   } else {
-  __v5178 := snd(__v5178)
+  __v5183 := snd(__v5183)
   };
-  h := __v5178
-  }
-  };
-  __v5184 := minutes = null;
-  __v5183 := !__v5184;
-  if (__v5183) {
-  __v5185 := "ToNumber"(___internal_esl_global, minutes);
-  if (fst(__v5185)) {
-  return __v5185
-  } else {
-  __v5185 := snd(__v5185)
-  };
-  mins := __v5185
-  } else {
-  mins := 0.0
-  };
-  __v5189 := "Type"(___internal_esl_global, mins);
-  if (fst(__v5189)) {
-  return __v5189
-  } else {
-  __v5189 := snd(__v5189)
-  };
-  __v5190 := __v5189 = "Completion";
-  __v5188 := !__v5190;
-  if (__v5188) {
+  __v5184 := __v5183 = "Completion";
+  __v5182 := !__v5184;
+  if (__v5182) {
   
   } else {
-  __v5187 := "isAnAbruptCompletion"(___internal_esl_global, mins);
+  __v5181 := "isAnAbruptCompletion"(___internal_esl_global, h);
+  if (fst(__v5181)) {
+  return __v5181
+  } else {
+  __v5181 := snd(__v5181)
+  };
+  if (__v5181) {
+  return (false, h)
+  } else {
+  __v5180 := "getCompletionValue"(___internal_esl_global, h);
+  if (fst(__v5180)) {
+  return __v5180
+  } else {
+  __v5180 := snd(__v5180)
+  };
+  h := __v5180
+  }
+  };
+  __v5186 := minutes = null;
+  __v5185 := !__v5186;
+  if (__v5185) {
+  __v5187 := "ToNumber"(___internal_esl_global, minutes);
   if (fst(__v5187)) {
   return __v5187
   } else {
   __v5187 := snd(__v5187)
   };
-  if (__v5187) {
-  return (false, mins)
+  mins := __v5187
   } else {
-  __v5186 := "getCompletionValue"(___internal_esl_global, mins);
-  if (fst(__v5186)) {
-  return __v5186
+  mins := 0.0
+  };
+  __v5191 := "Type"(___internal_esl_global, mins);
+  if (fst(__v5191)) {
+  return __v5191
   } else {
-  __v5186 := snd(__v5186)
+  __v5191 := snd(__v5191)
   };
-  mins := __v5186
-  }
-  };
-  __v5192 := seconds = null;
-  __v5191 := !__v5192;
-  if (__v5191) {
-  __v5193 := "ToNumber"(___internal_esl_global, seconds);
-  if (fst(__v5193)) {
-  return __v5193
-  } else {
-  __v5193 := snd(__v5193)
-  };
-  s := __v5193
-  } else {
-  s := 0.0
-  };
-  __v5197 := "Type"(___internal_esl_global, s);
-  if (fst(__v5197)) {
-  return __v5197
-  } else {
-  __v5197 := snd(__v5197)
-  };
-  __v5198 := __v5197 = "Completion";
-  __v5196 := !__v5198;
-  if (__v5196) {
+  __v5192 := __v5191 = "Completion";
+  __v5190 := !__v5192;
+  if (__v5190) {
   
   } else {
-  __v5195 := "isAnAbruptCompletion"(___internal_esl_global, s);
+  __v5189 := "isAnAbruptCompletion"(___internal_esl_global, mins);
+  if (fst(__v5189)) {
+  return __v5189
+  } else {
+  __v5189 := snd(__v5189)
+  };
+  if (__v5189) {
+  return (false, mins)
+  } else {
+  __v5188 := "getCompletionValue"(___internal_esl_global, mins);
+  if (fst(__v5188)) {
+  return __v5188
+  } else {
+  __v5188 := snd(__v5188)
+  };
+  mins := __v5188
+  }
+  };
+  __v5194 := seconds = null;
+  __v5193 := !__v5194;
+  if (__v5193) {
+  __v5195 := "ToNumber"(___internal_esl_global, seconds);
   if (fst(__v5195)) {
   return __v5195
   } else {
   __v5195 := snd(__v5195)
   };
-  if (__v5195) {
-  return (false, s)
+  s := __v5195
   } else {
-  __v5194 := "getCompletionValue"(___internal_esl_global, s);
-  if (fst(__v5194)) {
-  return __v5194
+  s := 0.0
+  };
+  __v5199 := "Type"(___internal_esl_global, s);
+  if (fst(__v5199)) {
+  return __v5199
   } else {
-  __v5194 := snd(__v5194)
+  __v5199 := snd(__v5199)
   };
-  s := __v5194
-  }
-  };
-  __v5200 := ms = null;
-  __v5199 := !__v5200;
-  if (__v5199) {
-  __v5201 := "ToNumber"(___internal_esl_global, ms);
-  if (fst(__v5201)) {
-  return __v5201
-  } else {
-  __v5201 := snd(__v5201)
-  };
-  milli := __v5201
-  } else {
-  milli := 0.0
-  };
-  __v5205 := "Type"(___internal_esl_global, milli);
-  if (fst(__v5205)) {
-  return __v5205
-  } else {
-  __v5205 := snd(__v5205)
-  };
-  __v5206 := __v5205 = "Completion";
-  __v5204 := !__v5206;
-  if (__v5204) {
+  __v5200 := __v5199 = "Completion";
+  __v5198 := !__v5200;
+  if (__v5198) {
   
   } else {
-  __v5203 := "isAnAbruptCompletion"(___internal_esl_global, milli);
+  __v5197 := "isAnAbruptCompletion"(___internal_esl_global, s);
+  if (fst(__v5197)) {
+  return __v5197
+  } else {
+  __v5197 := snd(__v5197)
+  };
+  if (__v5197) {
+  return (false, s)
+  } else {
+  __v5196 := "getCompletionValue"(___internal_esl_global, s);
+  if (fst(__v5196)) {
+  return __v5196
+  } else {
+  __v5196 := snd(__v5196)
+  };
+  s := __v5196
+  }
+  };
+  __v5202 := ms = null;
+  __v5201 := !__v5202;
+  if (__v5201) {
+  __v5203 := "ToNumber"(___internal_esl_global, ms);
   if (fst(__v5203)) {
   return __v5203
   } else {
   __v5203 := snd(__v5203)
   };
-  if (__v5203) {
+  milli := __v5203
+  } else {
+  milli := 0.0
+  };
+  __v5207 := "Type"(___internal_esl_global, milli);
+  if (fst(__v5207)) {
+  return __v5207
+  } else {
+  __v5207 := snd(__v5207)
+  };
+  __v5208 := __v5207 = "Completion";
+  __v5206 := !__v5208;
+  if (__v5206) {
+  
+  } else {
+  __v5205 := "isAnAbruptCompletion"(___internal_esl_global, milli);
+  if (fst(__v5205)) {
+  return __v5205
+  } else {
+  __v5205 := snd(__v5205)
+  };
+  if (__v5205) {
   return (false, milli)
   } else {
-  __v5202 := "getCompletionValue"(___internal_esl_global, milli);
-  if (fst(__v5202)) {
-  return __v5202
+  __v5204 := "getCompletionValue"(___internal_esl_global, milli);
+  if (fst(__v5204)) {
+  return __v5204
   } else {
-  __v5202 := snd(__v5202)
+  __v5204 := snd(__v5204)
   };
-  milli := __v5202
+  milli := __v5204
   }
   };
   __v5210 := is_NaN(y);
   __v5209 := !__v5210;
   if (__v5209 = false) {
-  __v5208 := false
+  __v5213 := false
   } else {
   __v5211 := "ToInteger"(___internal_esl_global, y);
   if (fst(__v5211)) {
@@ -39983,36 +40871,36 @@ Tests compilation of ecmaref5:
   };
   __v5212 := 0.0 <= __v5211;
   if (__v5212 = false) {
-  __v5208 := false
+  __v5213 := false
   } else {
-  __v5208 := true
+  __v5213 := true
   }
   };
-  if (__v5208 = false) {
-  __v5207 := false
+  if (__v5213 = false) {
+  __v5216 := false
   } else {
-  __v5213 := "ToInteger"(___internal_esl_global, y);
-  if (fst(__v5213)) {
-  return __v5213
+  __v5214 := "ToInteger"(___internal_esl_global, y);
+  if (fst(__v5214)) {
+  return __v5214
   } else {
-  __v5213 := snd(__v5213)
+  __v5214 := snd(__v5214)
   };
-  __v5214 := __v5213 <= 99.0;
-  if (__v5214 = false) {
-  __v5207 := false
+  __v5215 := __v5214 <= 99.0;
+  if (__v5215 = false) {
+  __v5216 := false
   } else {
-  __v5207 := true
+  __v5216 := true
   }
   };
-  if (__v5207) {
-  __v5215 := "ToInteger"(___internal_esl_global, y);
-  if (fst(__v5215)) {
-  return __v5215
+  if (__v5216) {
+  __v5217 := "ToInteger"(___internal_esl_global, y);
+  if (fst(__v5217)) {
+  return __v5217
   } else {
-  __v5215 := snd(__v5215)
+  __v5217 := snd(__v5217)
   };
-  __v5216 := 1900.0 + __v5215;
-  yr := __v5216
+  __v5218 := 1900.0 + __v5217;
+  yr := __v5218
   } else {
   yr := y
   };
@@ -40030,90 +40918,90 @@ Tests compilation of ecmaref5:
   print s;
   print ms;
   print milli;
-  __v5217 := "MakeDay"(___internal_esl_global, yr, m, dt);
-  if (fst(__v5217)) {
-  return __v5217
-  } else {
-  __v5217 := snd(__v5217)
-  };
-  __v5218 := "MakeTime"(___internal_esl_global, h, mins, s, milli);
-  if (fst(__v5218)) {
-  return __v5218
-  } else {
-  __v5218 := snd(__v5218)
-  };
-  __v5219 := "MakeDate"(___internal_esl_global, __v5217, __v5218);
+  __v5219 := "MakeDay"(___internal_esl_global, yr, m, dt);
   if (fst(__v5219)) {
   return __v5219
   } else {
   __v5219 := snd(__v5219)
   };
-  finalDate := __v5219;
-  __v5220 := "OrdinaryCreateFromConstructorDate"(___internal_esl_global, global, this, strict, NewTarget);
+  __v5220 := "MakeTime"(___internal_esl_global, h, mins, s, milli);
   if (fst(__v5220)) {
   return __v5220
   } else {
   __v5220 := snd(__v5220)
   };
-  O := __v5220;
-  __v5224 := "Type"(___internal_esl_global, O);
-  if (fst(__v5224)) {
-  return __v5224
-  } else {
-  __v5224 := snd(__v5224)
-  };
-  __v5225 := __v5224 = "Completion";
-  __v5223 := !__v5225;
-  if (__v5223) {
-  
-  } else {
-  __v5222 := "isAnAbruptCompletion"(___internal_esl_global, O);
-  if (fst(__v5222)) {
-  return __v5222
-  } else {
-  __v5222 := snd(__v5222)
-  };
-  if (__v5222) {
-  return (false, O)
-  } else {
-  __v5221 := "getCompletionValue"(___internal_esl_global, O);
+  __v5221 := "MakeDate"(___internal_esl_global, __v5219, __v5220);
   if (fst(__v5221)) {
   return __v5221
   } else {
   __v5221 := snd(__v5221)
   };
-  O := __v5221
-  }
+  finalDate := __v5221;
+  __v5222 := "OrdinaryCreateFromConstructorDate"(___internal_esl_global, global, this, strict, NewTarget);
+  if (fst(__v5222)) {
+  return __v5222
+  } else {
+  __v5222 := snd(__v5222)
   };
-  __v5226 := "UTC"(___internal_esl_global, finalDate);
+  O := __v5222;
+  __v5226 := "Type"(___internal_esl_global, O);
   if (fst(__v5226)) {
   return __v5226
   } else {
   __v5226 := snd(__v5226)
   };
-  __v5227 := "TimeClip"(___internal_esl_global, __v5226);
-  if (fst(__v5227)) {
-  return __v5227
+  __v5227 := __v5226 = "Completion";
+  __v5225 := !__v5227;
+  if (__v5225) {
+  
   } else {
-  __v5227 := snd(__v5227)
+  __v5224 := "isAnAbruptCompletion"(___internal_esl_global, O);
+  if (fst(__v5224)) {
+  return __v5224
+  } else {
+  __v5224 := snd(__v5224)
   };
-  O["DateValue"] := __v5227;
+  if (__v5224) {
   return (false, O)
   } else {
-  __v5228 := "getTimeValueIdentifyingCurrentTime"(___internal_esl_global);
+  __v5223 := "getCompletionValue"(___internal_esl_global, O);
+  if (fst(__v5223)) {
+  return __v5223
+  } else {
+  __v5223 := snd(__v5223)
+  };
+  O := __v5223
+  }
+  };
+  __v5228 := "UTC"(___internal_esl_global, finalDate);
   if (fst(__v5228)) {
   return __v5228
   } else {
   __v5228 := snd(__v5228)
   };
-  now := __v5228;
-  __v5229 := "toDateString"(___internal_esl_global, now);
+  __v5229 := "TimeClip"(___internal_esl_global, __v5228);
   if (fst(__v5229)) {
   return __v5229
   } else {
   __v5229 := snd(__v5229)
   };
-  return (false, __v5229)
+  O["DateValue"] := __v5229;
+  return (false, O)
+  } else {
+  __v5153 := "getTimeValueIdentifyingCurrentTime"(___internal_esl_global);
+  if (fst(__v5153)) {
+  return __v5153
+  } else {
+  __v5153 := snd(__v5153)
+  };
+  now := __v5153;
+  __v5154 := "toDateString"(___internal_esl_global, now);
+  if (fst(__v5154)) {
+  return __v5154
+  } else {
+  __v5154 := snd(__v5154)
+  };
+  return (false, __v5154)
   }
   };
   function functionPrototypeFunction(___internal_esl_global, globalObject, this, strict, params) {
@@ -40142,35 +41030,35 @@ Tests compilation of ecmaref5:
   __v5130 := snd(__v5130)
   };
   c_value := __v5130;
-  __v5133 := typeof(c_value);
-  __v5134 := __v5133 = __$Obj;
-  if (__v5134 = false) {
-  __v5132 := false
-  } else {
-  __v5135 := "Class" in_obj c_value;
-  if (__v5135 = false) {
-  __v5132 := false
-  } else {
-  __v5132 := true
-  }
-  };
+  __v5131 := typeof(c_value);
+  __v5132 := __v5131 = __$Obj;
   if (__v5132 = false) {
-  __v5131 := false
+  __v5134 := false
   } else {
-  __v5136 := "getInternalProperty"(___internal_esl_global, c_value, "Class");
-  if (fst(__v5136)) {
-  return __v5136
+  __v5133 := "Class" in_obj c_value;
+  if (__v5133 = false) {
+  __v5134 := false
   } else {
-  __v5136 := snd(__v5136)
-  };
-  __v5137 := __v5136 = "Error";
-  if (__v5137 = false) {
-  __v5131 := false
-  } else {
-  __v5131 := true
+  __v5134 := true
   }
   };
-  if (__v5131) {
+  if (__v5134 = false) {
+  __v5137 := false
+  } else {
+  __v5135 := "getInternalProperty"(___internal_esl_global, c_value, "Class");
+  if (fst(__v5135)) {
+  return __v5135
+  } else {
+  __v5135 := snd(__v5135)
+  };
+  __v5136 := __v5135 = "Error";
+  if (__v5136 = false) {
+  __v5137 := false
+  } else {
+  __v5137 := true
+  }
+  };
+  if (__v5137) {
   __v5138 := c_value["GetProperty"];
   __v5139 := __v5138(___internal_esl_global, c_value, "name");
   if (fst(__v5139)) {
@@ -40204,22 +41092,24 @@ Tests compilation of ecmaref5:
   __v5143 := snd(__v5143)
   };
   return (false, __v5143)
+  } else {
+  
   };
   return (false, ret)
   };
   function isDecimalDigit(___internal_esl_global, char) {
-  __v5126 := char >= "0";
+  __v5125 := char >= "0";
+  if (__v5125 = false) {
+  __v5127 := false
+  } else {
+  __v5126 := char <= "9";
   if (__v5126 = false) {
-  __v5125 := false
+  __v5127 := false
   } else {
-  __v5127 := char <= "9";
-  if (__v5127 = false) {
-  __v5125 := false
-  } else {
-  __v5125 := true
+  __v5127 := true
   }
   };
-  return (false, __v5125)
+  return (false, __v5127)
   };
   function NewObjectEnvironment(___internal_esl_global, O, E) {
   __v5121 := "newLexicalEnvironment"(___internal_esl_global);
@@ -40353,58 +41243,58 @@ Tests compilation of ecmaref5:
   };
   cs := __v5024
   } else {
-  __v5003 := c = "\\n";
-  if (__v5003 = true) {
-  __v5002 := true
-  } else {
-  __v5004 := c = "\\f";
-  if (__v5004 = true) {
-  __v5002 := true
-  } else {
-  __v5002 := false
-  }
-  };
-  if (__v5002 = true) {
-  __v5001 := true
-  } else {
-  __v5005 := c = "\\r";
-  if (__v5005 = true) {
-  __v5001 := true
-  } else {
-  __v5001 := false
-  }
-  };
-  if (__v5001 = true) {
+  __v4998 := c = "\\n";
+  if (__v4998 = true) {
   __v5000 := true
   } else {
-  __v5006 := c = "\\t";
-  if (__v5006 = true) {
+  __v4999 := c = "\\f";
+  if (__v4999 = true) {
   __v5000 := true
   } else {
   __v5000 := false
   }
   };
   if (__v5000 = true) {
-  __v4999 := true
+  __v5002 := true
   } else {
-  __v5007 := c = "\\v";
+  __v5001 := c = "\\r";
+  if (__v5001 = true) {
+  __v5002 := true
+  } else {
+  __v5002 := false
+  }
+  };
+  if (__v5002 = true) {
+  __v5004 := true
+  } else {
+  __v5003 := c = "\\t";
+  if (__v5003 = true) {
+  __v5004 := true
+  } else {
+  __v5004 := false
+  }
+  };
+  if (__v5004 = true) {
+  __v5006 := true
+  } else {
+  __v5005 := c = "\\v";
+  if (__v5005 = true) {
+  __v5006 := true
+  } else {
+  __v5006 := false
+  }
+  };
+  if (__v5006 = true) {
+  __v5008 := true
+  } else {
+  __v5007 := c = "\\b";
   if (__v5007 = true) {
-  __v4999 := true
+  __v5008 := true
   } else {
-  __v4999 := false
+  __v5008 := false
   }
   };
-  if (__v4999 = true) {
-  __v4998 := true
-  } else {
-  __v5008 := c = "\\b";
-  if (__v5008 = true) {
-  __v4998 := true
-  } else {
-  __v4998 := false
-  }
-  };
-  if (__v4998) {
+  if (__v5008) {
   __v5009 := "EmptyCharacterClass"(___internal_esl_global, negative);
   if (fst(__v5009)) {
   return __v5009
@@ -40730,6 +41620,8 @@ Tests compilation of ecmaref5:
   __v4977 := snd(__v4977)
   };
   return (true, __v4977)
+  } else {
+  
   };
   __v4978 := [JText];
   __v4979 := "getTokens"(___internal_esl_global, global, this, strict, __v4978);
@@ -40748,21 +41640,21 @@ Tests compilation of ecmaref5:
   ret := __v4980;
   __v4981 := l_nth(ret, 1);
   tokens := __v4981;
-  __v4983 := l_len(tokens);
-  __v4984 := __v4983 = 0;
-  __v4982 := !__v4984;
-  if (__v4982) {
-  __v4985 := ["JSON.parse: Invalid syntax."];
-  __v4986 := "SyntaxErrorConstructor"(___internal_esl_global, global, this, strict, __v4985);
-  if (fst(__v4986)) {
-  return __v4986
+  __v4984 := l_len(tokens);
+  __v4985 := __v4984 = 0;
+  __v4983 := !__v4985;
+  if (__v4983) {
+  __v4986 := ["JSON.parse: Invalid syntax."];
+  __v4987 := "SyntaxErrorConstructor"(___internal_esl_global, global, this, strict, __v4986);
+  if (fst(__v4987)) {
+  return __v4987
   } else {
-  __v4986 := snd(__v4986)
+  __v4987 := snd(__v4987)
   };
-  return (true, __v4986)
+  return (true, __v4987)
   } else {
-  __v4987 := l_nth(ret, 0);
-  return (false, __v4987)
+  __v4982 := l_nth(ret, 0);
+  return (false, __v4982)
   }
   };
   function isDeclarativeEnvironmentRecord(___internal_esl_global, envRec) {
@@ -41272,35 +42164,35 @@ Tests compilation of ecmaref5:
   __v4850 := snd(__v4850)
   };
   S := __v4850;
-  __v4852 := "Type"(___internal_esl_global, regexp);
+  __v4853 := "Type"(___internal_esl_global, regexp);
+  if (fst(__v4853)) {
+  return __v4853
+  } else {
+  __v4853 := snd(__v4853)
+  };
+  __v4854 := __v4853 = "Object";
+  if (__v4854 = false) {
+  __v4857 := false
+  } else {
+  __v4855 := regexp["Class"];
+  __v4856 := __v4855 = "RegExp";
+  if (__v4856 = false) {
+  __v4857 := false
+  } else {
+  __v4857 := true
+  }
+  };
+  if (__v4857) {
+  rx := regexp
+  } else {
+  __v4851 := [regexp, 'undefined];
+  __v4852 := "RegExpConstructor"(___internal_esl_global, global, this, strict, __v4851);
   if (fst(__v4852)) {
   return __v4852
   } else {
   __v4852 := snd(__v4852)
   };
-  __v4853 := __v4852 = "Object";
-  if (__v4853 = false) {
-  __v4851 := false
-  } else {
-  __v4854 := regexp["Class"];
-  __v4855 := __v4854 = "RegExp";
-  if (__v4855 = false) {
-  __v4851 := false
-  } else {
-  __v4851 := true
-  }
-  };
-  if (__v4851) {
-  rx := regexp
-  } else {
-  __v4856 := [regexp, 'undefined];
-  __v4857 := "RegExpConstructor"(___internal_esl_global, global, this, strict, __v4856);
-  if (fst(__v4857)) {
-  return __v4857
-  } else {
-  __v4857 := snd(__v4857)
-  };
-  rx := __v4857
+  rx := __v4852
   };
   __v4859 := rx["OriginalFlags"];
   __v4858 := __v4859["gb"];
@@ -41312,112 +42204,114 @@ Tests compilation of ecmaref5:
   __v4860 := snd(__v4860)
   };
   exec := __v4860;
-  __v4862 := global = true;
-  __v4861 := !__v4862;
-  if (__v4861) {
-  __v4863 := exec["Call"];
-  __v4864 := [S];
-  __v4865 := __v4863(___internal_esl_global, null, null, exec, rx, __v4864);
-  if (fst(__v4865)) {
-  return __v4865
+  __v4885 := global = true;
+  __v4884 := !__v4885;
+  if (__v4884) {
+  __v4886 := exec["Call"];
+  __v4887 := [S];
+  __v4888 := __v4886(___internal_esl_global, null, null, exec, rx, __v4887);
+  if (fst(__v4888)) {
+  return __v4888
   } else {
-  __v4865 := snd(__v4865)
+  __v4888 := snd(__v4888)
   };
-  return (false, __v4865)
+  return (false, __v4888)
   } else {
-  __v4866 := rx["Put"];
-  __v4867 := __v4866(___internal_esl_global, rx, "lastIndex", 0.0, true);
-  if (fst(__v4867)) {
-  return __v4867
+  __v4861 := rx["Put"];
+  __v4862 := __v4861(___internal_esl_global, rx, "lastIndex", 0.0, true);
+  if (fst(__v4862)) {
+  return __v4862
   } else {
-  __v4867 := snd(__v4867)
+  __v4862 := snd(__v4862)
   };
-  __v4868 := [];
-  __v4869 := "ArrayConstructor"(___internal_esl_global, global, this, strict, __v4868);
-  if (fst(__v4869)) {
-  return __v4869
+  __v4863 := [];
+  __v4864 := "ArrayConstructor"(___internal_esl_global, global, this, strict, __v4863);
+  if (fst(__v4864)) {
+  return __v4864
   } else {
-  __v4869 := snd(__v4869)
+  __v4864 := snd(__v4864)
   };
-  A := __v4869;
+  A := __v4864;
   previousLastIndex := 0.0;
   n := 0.0;
   lastMatch := true;
-  __v4870 := lastMatch = true;
-  while (__v4870) {
-  __v4871 := exec["Call"];
-  __v4872 := [S];
-  __v4873 := __v4871(___internal_esl_global, null, null, exec, rx, __v4872);
-  if (fst(__v4873)) {
-  return __v4873
+  __v4865 := lastMatch = true;
+  while (__v4865) {
+  __v4866 := exec["Call"];
+  __v4867 := [S];
+  __v4868 := __v4866(___internal_esl_global, null, null, exec, rx, __v4867);
+  if (fst(__v4868)) {
+  return __v4868
   } else {
-  __v4873 := snd(__v4873)
+  __v4868 := snd(__v4868)
   };
-  result := __v4873;
-  __v4874 := result = 'null;
-  if (__v4874) {
+  result := __v4868;
+  __v4883 := result = 'null;
+  if (__v4883) {
   lastMatch := false
   } else {
-  __v4875 := rx["Get"];
-  __v4876 := __v4875(___internal_esl_global, rx, "lastIndex");
-  if (fst(__v4876)) {
-  return __v4876
+  __v4869 := rx["Get"];
+  __v4870 := __v4869(___internal_esl_global, rx, "lastIndex");
+  if (fst(__v4870)) {
+  return __v4870
   } else {
-  __v4876 := snd(__v4876)
+  __v4870 := snd(__v4870)
   };
-  thisIndex := __v4876;
-  __v4877 := thisIndex = previousLastIndex;
-  if (__v4877) {
-  __v4878 := rx["Put"];
-  __v4879 := thisIndex + 1.0;
-  __v4880 := __v4878(___internal_esl_global, rx, "lastIndex", __v4879);
+  thisIndex := __v4870;
+  __v4871 := thisIndex = previousLastIndex;
+  if (__v4871) {
+  __v4872 := rx["Put"];
+  __v4873 := thisIndex + 1.0;
+  __v4874 := __v4872(___internal_esl_global, rx, "lastIndex", __v4873);
+  if (fst(__v4874)) {
+  return __v4874
+  } else {
+  __v4874 := snd(__v4874)
+  };
+  __v4875 := thisIndex + 1.0;
+  previousLastIndex := __v4875
+  } else {
+  previousLastIndex := thisIndex
+  };
+  __v4876 := result["Get"];
+  __v4877 := __v4876(___internal_esl_global, result, "0");
+  if (fst(__v4877)) {
+  return __v4877
+  } else {
+  __v4877 := snd(__v4877)
+  };
+  matchStr := __v4877;
+  __v4878 := "newDataPropertyDescriptorFull"(___internal_esl_global, matchStr, true, true, true);
+  if (fst(__v4878)) {
+  return __v4878
+  } else {
+  __v4878 := snd(__v4878)
+  };
+  descriptorMatchStr := __v4878;
+  __v4879 := A["DefineOwnProperty"];
+  __v4880 := "ToString"(___internal_esl_global, n);
   if (fst(__v4880)) {
   return __v4880
   } else {
   __v4880 := snd(__v4880)
   };
-  __v4881 := thisIndex + 1.0;
-  previousLastIndex := __v4881
+  __v4881 := __v4879(___internal_esl_global, A, __v4880, descriptorMatchStr, false);
+  if (fst(__v4881)) {
+  return __v4881
   } else {
-  previousLastIndex := thisIndex
+  __v4881 := snd(__v4881)
   };
-  __v4882 := result["Get"];
-  __v4883 := __v4882(___internal_esl_global, result, "0");
-  if (fst(__v4883)) {
-  return __v4883
-  } else {
-  __v4883 := snd(__v4883)
+  __v4882 := n + 1.0;
+  n := __v4882
   };
-  matchStr := __v4883;
-  __v4884 := "newDataPropertyDescriptorFull"(___internal_esl_global, matchStr, true, true, true);
-  if (fst(__v4884)) {
-  return __v4884
-  } else {
-  __v4884 := snd(__v4884)
-  };
-  descriptorMatchStr := __v4884;
-  __v4885 := A["DefineOwnProperty"];
-  __v4886 := "ToString"(___internal_esl_global, n);
-  if (fst(__v4886)) {
-  return __v4886
-  } else {
-  __v4886 := snd(__v4886)
-  };
-  __v4887 := __v4885(___internal_esl_global, A, __v4886, descriptorMatchStr, false);
-  if (fst(__v4887)) {
-  return __v4887
-  } else {
-  __v4887 := snd(__v4887)
-  };
-  __v4888 := n + 1.0;
-  n := __v4888
-  };
-  __v4870 := lastMatch = true
+  __v4865 := lastMatch = true
   }
   };
   __v4889 := n = 0;
   if (__v4889) {
   return (false, null)
+  } else {
+  
   };
   return (false, A)
   };
@@ -41517,6 +42411,8 @@ Tests compilation of ecmaref5:
   __v4818 := !__v4820;
   if (__v4818) {
   return (false, V)
+  } else {
+  
   };
   __v4821 := "GetBase"(___internal_esl_global, V);
   if (fst(__v4821)) {
@@ -41539,60 +42435,62 @@ Tests compilation of ecmaref5:
   __v4823 := snd(__v4823)
   };
   return (true, __v4823)
-  };
-  __v4824 := "IsPropertyReference"(___internal_esl_global, V);
-  if (fst(__v4824)) {
-  return __v4824
   } else {
-  __v4824 := snd(__v4824)
+  
   };
-  if (__v4824) {
-  __v4825 := "HasPrimitiveBase"(___internal_esl_global, V);
-  if (fst(__v4825)) {
-  return __v4825
+  __v4827 := "IsPropertyReference"(___internal_esl_global, V);
+  if (fst(__v4827)) {
+  return __v4827
   } else {
-  __v4825 := snd(__v4825)
+  __v4827 := snd(__v4827)
   };
-  __v4826 := __v4825 = false;
-  if (__v4826) {
-  __v4827 := base["Get"];
-  get := __v4827
-  } else {
-  get := "Get_internal"
-  };
-  __v4828 := "GetReferencedName"(___internal_esl_global, V);
+  if (__v4827) {
+  __v4828 := "HasPrimitiveBase"(___internal_esl_global, V);
   if (fst(__v4828)) {
   return __v4828
   } else {
   __v4828 := snd(__v4828)
   };
-  __v4829 := get(___internal_esl_global, base, __v4828);
-  if (fst(__v4829)) {
-  return __v4829
+  __v4829 := __v4828 = false;
+  if (__v4829) {
+  __v4830 := base["Get"];
+  get := __v4830
   } else {
-  __v4829 := snd(__v4829)
+  get := "Get_internal"
   };
-  return (false, __v4829)
-  } else {
-  __v4830 := "GetReferencedName"(___internal_esl_global, V);
-  if (fst(__v4830)) {
-  return __v4830
-  } else {
-  __v4830 := snd(__v4830)
-  };
-  __v4831 := "IsStrictReference"(___internal_esl_global, V);
+  __v4831 := "GetReferencedName"(___internal_esl_global, V);
   if (fst(__v4831)) {
   return __v4831
   } else {
   __v4831 := snd(__v4831)
   };
-  __v4832 := "GetBindingValue"(___internal_esl_global, base, __v4830, __v4831);
+  __v4832 := get(___internal_esl_global, base, __v4831);
   if (fst(__v4832)) {
   return __v4832
   } else {
   __v4832 := snd(__v4832)
   };
   return (false, __v4832)
+  } else {
+  __v4824 := "GetReferencedName"(___internal_esl_global, V);
+  if (fst(__v4824)) {
+  return __v4824
+  } else {
+  __v4824 := snd(__v4824)
+  };
+  __v4825 := "IsStrictReference"(___internal_esl_global, V);
+  if (fst(__v4825)) {
+  return __v4825
+  } else {
+  __v4825 := snd(__v4825)
+  };
+  __v4826 := "GetBindingValue"(___internal_esl_global, base, __v4824, __v4825);
+  if (fst(__v4826)) {
+  return __v4826
+  } else {
+  __v4826 := snd(__v4826)
+  };
+  return (false, __v4826)
   }
   };
   function isMutableBinding(___internal_esl_global, envRec, name) {
@@ -41619,6 +42517,8 @@ Tests compilation of ecmaref5:
   __v4809 := !__v4810;
   if (__v4809) {
   return (false, prop)
+  } else {
+  
   };
   __v4811 := "getInternalProperty"(___internal_esl_global, O, "Prototype");
   if (fst(__v4811)) {
@@ -41630,6 +42530,8 @@ Tests compilation of ecmaref5:
   __v4812 := proto = 'null;
   if (__v4812) {
   return (false, 'undefined)
+  } else {
+  
   };
   __v4813 := proto["GetProperty"];
   __v4814 := __v4813(___internal_esl_global, proto, P);
@@ -41647,6 +42549,8 @@ Tests compilation of ecmaref5:
   __v4784 := __v4785[P];
   __v4786 := Desc["Value"];
   __v4784["Value"] := __v4786
+  } else {
+  
   };
   __v4787 := "Writable" in_obj Desc;
   if (__v4787) {
@@ -41654,6 +42558,8 @@ Tests compilation of ecmaref5:
   __v4788 := __v4789[P];
   __v4790 := Desc["Writable"];
   __v4788["Writable"] := __v4790
+  } else {
+  
   };
   __v4791 := "Set" in_obj Desc;
   if (__v4791) {
@@ -41661,6 +42567,8 @@ Tests compilation of ecmaref5:
   __v4792 := __v4793[P];
   __v4794 := Desc["Set"];
   __v4792["Set"] := __v4794
+  } else {
+  
   };
   __v4795 := "Get" in_obj Desc;
   if (__v4795) {
@@ -41668,6 +42576,8 @@ Tests compilation of ecmaref5:
   __v4796 := __v4797[P];
   __v4798 := Desc["Get"];
   __v4796["Get"] := __v4798
+  } else {
+  
   };
   __v4799 := "Enumerable" in_obj Desc;
   if (__v4799) {
@@ -41675,6 +42585,8 @@ Tests compilation of ecmaref5:
   __v4800 := __v4801[P];
   __v4802 := Desc["Enumerable"];
   __v4800["Enumerable"] := __v4802
+  } else {
+  
   };
   __v4803 := "Configurable" in_obj Desc;
   if (__v4803) {
@@ -41682,6 +42594,8 @@ Tests compilation of ecmaref5:
   __v4804 := __v4805[P];
   __v4806 := Desc["Configurable"];
   __v4804["Configurable"] := __v4806
+  } else {
+  
   };
   return (false, null)
   };
@@ -42165,46 +43079,46 @@ Tests compilation of ecmaref5:
   while (__v4682) {
   __v4683 := s_nth_u(flags, index);
   flag := __v4683;
-  __v4692 := flag = "g";
+  __v4691 := flag = "g";
+  if (__v4691 = false) {
+  __v4693 := false
+  } else {
+  __v4692 := g = false;
   if (__v4692 = false) {
-  __v4691 := false
+  __v4693 := false
   } else {
-  __v4693 := g = false;
-  if (__v4693 = false) {
-  __v4691 := false
-  } else {
-  __v4691 := true
+  __v4693 := true
   }
   };
-  if (__v4691) {
+  if (__v4693) {
   g := true
   } else {
-  __v4689 := flag = "i";
+  __v4688 := flag = "i";
+  if (__v4688 = false) {
+  __v4690 := false
+  } else {
+  __v4689 := i = false;
   if (__v4689 = false) {
-  __v4688 := false
+  __v4690 := false
   } else {
-  __v4690 := i = false;
-  if (__v4690 = false) {
-  __v4688 := false
-  } else {
-  __v4688 := true
+  __v4690 := true
   }
   };
-  if (__v4688) {
+  if (__v4690) {
   i := true
   } else {
-  __v4686 := flag = "m";
+  __v4685 := flag = "m";
+  if (__v4685 = false) {
+  __v4687 := false
+  } else {
+  __v4686 := m = false;
   if (__v4686 = false) {
-  __v4685 := false
+  __v4687 := false
   } else {
-  __v4687 := m = false;
-  if (__v4687 = false) {
-  __v4685 := false
-  } else {
-  __v4685 := true
+  __v4687 := true
   }
   };
-  if (__v4685) {
+  if (__v4687) {
   m := true
   } else {
   __v4684 := "SyntaxErrorConstructorInternal"(___internal_esl_global);
@@ -42238,6 +43152,8 @@ Tests compilation of ecmaref5:
   __v4680 := snd(__v4680)
   };
   return (false, __v4680)
+  } else {
+  
   };
   return (false, null)
   };
@@ -42271,60 +43187,62 @@ Tests compilation of ecmaref5:
   __v4660 := snd(__v4660)
   };
   print __v4660;
-  __v4665 := "auxIsFinite"(___internal_esl_global, hour);
-  if (fst(__v4665)) {
-  return __v4665
+  __v4662 := "auxIsFinite"(___internal_esl_global, hour);
+  if (fst(__v4662)) {
+  return __v4662
   } else {
-  __v4665 := snd(__v4665)
+  __v4662 := snd(__v4662)
   };
-  if (__v4665 = false) {
+  if (__v4662 = false) {
   __v4664 := false
   } else {
-  __v4666 := "auxIsFinite"(___internal_esl_global, mins);
-  if (fst(__v4666)) {
-  return __v4666
+  __v4663 := "auxIsFinite"(___internal_esl_global, mins);
+  if (fst(__v4663)) {
+  return __v4663
   } else {
-  __v4666 := snd(__v4666)
+  __v4663 := snd(__v4663)
   };
-  if (__v4666 = false) {
+  if (__v4663 = false) {
   __v4664 := false
   } else {
   __v4664 := true
   }
   };
   if (__v4664 = false) {
-  __v4663 := false
+  __v4666 := false
   } else {
-  __v4667 := "auxIsFinite"(___internal_esl_global, sec);
+  __v4665 := "auxIsFinite"(___internal_esl_global, sec);
+  if (fst(__v4665)) {
+  return __v4665
+  } else {
+  __v4665 := snd(__v4665)
+  };
+  if (__v4665 = false) {
+  __v4666 := false
+  } else {
+  __v4666 := true
+  }
+  };
+  if (__v4666 = false) {
+  __v4668 := false
+  } else {
+  __v4667 := "auxIsFinite"(___internal_esl_global, ms);
   if (fst(__v4667)) {
   return __v4667
   } else {
   __v4667 := snd(__v4667)
   };
   if (__v4667 = false) {
-  __v4663 := false
+  __v4668 := false
   } else {
-  __v4663 := true
+  __v4668 := true
   }
   };
-  if (__v4663 = false) {
-  __v4662 := false
-  } else {
-  __v4668 := "auxIsFinite"(___internal_esl_global, ms);
-  if (fst(__v4668)) {
-  return __v4668
-  } else {
-  __v4668 := snd(__v4668)
-  };
-  if (__v4668 = false) {
-  __v4662 := false
-  } else {
-  __v4662 := true
-  }
-  };
-  __v4661 := !__v4662;
+  __v4661 := !__v4668;
   if (__v4661) {
   return (false, nan)
+  } else {
+  
   };
   __v4669 := "ToInteger"(___internal_esl_global, hour);
   if (fst(__v4669)) {
@@ -42389,6 +43307,8 @@ Tests compilation of ecmaref5:
   };
   if (__v15946) {
   return (false, r)
+  } else {
+  
   };
   r["endIndex"] := oldIndex;
   __v15947 := k(___internal_esl_global, r);
@@ -42443,6 +43363,8 @@ Tests compilation of ecmaref5:
   __v4652 := is_NaN(t);
   if (__v4652) {
   return (false, nan)
+  } else {
+  
   };
   msPerMinute := 60000.0;
   __v4653 := "LocalTime"(___internal_esl_global, t);
@@ -42474,6 +43396,8 @@ Tests compilation of ecmaref5:
   __v4632 := snd(__v4632)
   };
   return (true, __v4632)
+  } else {
+  
   };
   __v4634 := "getOwnEnumerableProperties"(___internal_esl_global, O);
   if (fst(__v4634)) {
@@ -42582,6 +43506,8 @@ Tests compilation of ecmaref5:
   __v4610 := !__v4611;
   if (__v4610) {
   return (false, nan)
+  } else {
+  
   };
   __v4612 := abs(time);
   __v4613 := 10.0 ** 15.0;
@@ -42589,6 +43515,8 @@ Tests compilation of ecmaref5:
   __v4615 := __v4612 >= __v4614;
   if (__v4615) {
   return (false, nan)
+  } else {
+  
   };
   __v4616 := "ToInteger"(___internal_esl_global, time);
   if (fst(__v4616)) {
@@ -42629,135 +43557,147 @@ Tests compilation of ecmaref5:
   };
   __v4537 := __v4536 = "Object";
   if (__v4537) {
-  __v4538 := "IsCallable"(___internal_esl_global, replacer);
-  if (fst(__v4538)) {
-  return __v4538
+  __v4573 := "IsCallable"(___internal_esl_global, replacer);
+  if (fst(__v4573)) {
+  return __v4573
   } else {
-  __v4538 := snd(__v4538)
+  __v4573 := snd(__v4573)
   };
-  __v4539 := __v4538 = true;
-  if (__v4539) {
+  __v4574 := __v4573 = true;
+  if (__v4574) {
   ReplacerFunction := replacer
   } else {
-  __v4540 := replacer["Class"];
-  __v4541 := __v4540 = "Array";
-  if (__v4541) {
-  __v4542 := [];
-  PropertyList := __v4542;
-  __v4543 := replacer["Get"];
-  __v4544 := __v4543(___internal_esl_global, replacer, "length");
-  if (fst(__v4544)) {
-  return __v4544
+  __v4538 := replacer["Class"];
+  __v4539 := __v4538 = "Array";
+  if (__v4539) {
+  __v4540 := [];
+  PropertyList := __v4540;
+  __v4541 := replacer["Get"];
+  __v4542 := __v4541(___internal_esl_global, replacer, "length");
+  if (fst(__v4542)) {
+  return __v4542
   } else {
-  __v4544 := snd(__v4544)
+  __v4542 := snd(__v4542)
   };
-  arrayLen := __v4544;
-  __v4545 := "ToUint32"(___internal_esl_global, arrayLen);
-  if (fst(__v4545)) {
-  return __v4545
+  arrayLen := __v4542;
+  __v4543 := "ToUint32"(___internal_esl_global, arrayLen);
+  if (fst(__v4543)) {
+  return __v4543
   } else {
-  __v4545 := snd(__v4545)
+  __v4543 := snd(__v4543)
   };
-  len := __v4545;
+  len := __v4543;
   k := 0.0;
-  __v4546 := k < len;
-  while (__v4546) {
-  __v4547 := replacer["Get"];
-  __v4548 := "ToString"(___internal_esl_global, k);
-  if (fst(__v4548)) {
-  return __v4548
+  __v4544 := k < len;
+  while (__v4544) {
+  __v4545 := replacer["Get"];
+  __v4546 := "ToString"(___internal_esl_global, k);
+  if (fst(__v4546)) {
+  return __v4546
   } else {
-  __v4548 := snd(__v4548)
+  __v4546 := snd(__v4546)
   };
-  __v4549 := __v4547(___internal_esl_global, replacer, __v4548);
-  if (fst(__v4549)) {
-  return __v4549
+  __v4547 := __v4545(___internal_esl_global, replacer, __v4546);
+  if (fst(__v4547)) {
+  return __v4547
   } else {
-  __v4549 := snd(__v4549)
+  __v4547 := snd(__v4547)
   };
-  v := __v4549;
-  __v4551 := v = 'undefined;
+  v := __v4547;
+  __v4549 := v = 'undefined;
+  __v4548 := !__v4549;
+  __v4551 := v = 'null;
   __v4550 := !__v4551;
-  __v4553 := v = 'null;
-  __v4552 := !__v4553;
-  __v4554 := __v4550 && __v4552;
-  if (__v4554) {
+  __v4552 := __v4548 && __v4550;
+  if (__v4552) {
   item := 'undefined;
-  __v4555 := "Type"(___internal_esl_global, v);
-  if (fst(__v4555)) {
-  return __v4555
+  __v4564 := "Type"(___internal_esl_global, v);
+  if (fst(__v4564)) {
+  return __v4564
   } else {
-  __v4555 := snd(__v4555)
+  __v4564 := snd(__v4564)
   };
-  __v4556 := __v4555 = "String";
-  if (__v4556) {
+  __v4565 := __v4564 = "String";
+  if (__v4565) {
   item := v
   } else {
-  __v4557 := "Type"(___internal_esl_global, v);
-  if (fst(__v4557)) {
-  return __v4557
+  __v4561 := "Type"(___internal_esl_global, v);
+  if (fst(__v4561)) {
+  return __v4561
   } else {
-  __v4557 := snd(__v4557)
+  __v4561 := snd(__v4561)
   };
+  __v4562 := __v4561 = "Number";
+  if (__v4562) {
+  __v4563 := "ToString"(___internal_esl_global, v);
+  if (fst(__v4563)) {
+  return __v4563
+  } else {
+  __v4563 := snd(__v4563)
+  };
+  item := __v4563
+  } else {
+  __v4553 := "Type"(___internal_esl_global, v);
+  if (fst(__v4553)) {
+  return __v4553
+  } else {
+  __v4553 := snd(__v4553)
+  };
+  __v4554 := __v4553 = "Object";
+  if (__v4554) {
+  __v4555 := v["Class"];
+  __v4556 := __v4555 = "String";
+  if (__v4556 = true) {
+  __v4559 := true
+  } else {
+  __v4557 := v["Class"];
   __v4558 := __v4557 = "Number";
-  if (__v4558) {
-  __v4559 := "ToString"(___internal_esl_global, v);
-  if (fst(__v4559)) {
-  return __v4559
+  if (__v4558 = true) {
+  __v4559 := true
   } else {
-  __v4559 := snd(__v4559)
+  __v4559 := false
+  }
   };
-  item := __v4559
-  } else {
-  __v4560 := "Type"(___internal_esl_global, v);
+  if (__v4559) {
+  __v4560 := "ToString"(___internal_esl_global, v);
   if (fst(__v4560)) {
   return __v4560
   } else {
   __v4560 := snd(__v4560)
   };
-  __v4561 := __v4560 = "Object";
-  if (__v4561) {
-  __v4563 := v["Class"];
-  __v4564 := __v4563 = "String";
-  if (__v4564 = true) {
-  __v4562 := true
+  item := __v4560
   } else {
-  __v4565 := v["Class"];
-  __v4566 := __v4565 = "Number";
-  if (__v4566 = true) {
-  __v4562 := true
-  } else {
-  __v4562 := false
+  
   }
-  };
-  if (__v4562) {
-  __v4567 := "ToString"(___internal_esl_global, v);
-  if (fst(__v4567)) {
-  return __v4567
   } else {
-  __v4567 := snd(__v4567)
-  };
-  item := __v4567
-  }
+  
   }
   }
   };
-  __v4569 := item = 'undefined;
+  __v4567 := item = 'undefined;
+  __v4566 := !__v4567;
+  __v4569 := item in_list PropertyList;
   __v4568 := !__v4569;
-  __v4571 := item in_list PropertyList;
-  __v4570 := !__v4571;
-  __v4572 := __v4568 && __v4570;
-  if (__v4572) {
-  __v4573 := l_add(PropertyList, item);
-  PropertyList := __v4573
+  __v4570 := __v4566 && __v4568;
+  if (__v4570) {
+  __v4571 := l_add(PropertyList, item);
+  PropertyList := __v4571
+  } else {
+  
   }
+  } else {
+  
   };
-  __v4574 := k + 1.0;
-  k := __v4574;
-  __v4546 := k < len
+  __v4572 := k + 1.0;
+  k := __v4572;
+  __v4544 := k < len
+  }
+  } else {
+  
   }
   }
-  }
+  } else {
+  
   };
   __v4575 := "Type"(___internal_esl_global, space);
   if (fst(__v4575)) {
@@ -42767,10 +43707,21 @@ Tests compilation of ecmaref5:
   };
   __v4576 := __v4575 = "Object";
   if (__v4576) {
+  __v4580 := space["Class"];
+  __v4581 := __v4580 = "Number";
+  if (__v4581) {
+  __v4582 := "ToNumber"(___internal_esl_global, space);
+  if (fst(__v4582)) {
+  return __v4582
+  } else {
+  __v4582 := snd(__v4582)
+  };
+  space := __v4582
+  } else {
   __v4577 := space["Class"];
-  __v4578 := __v4577 = "Number";
+  __v4578 := __v4577 = "String";
   if (__v4578) {
-  __v4579 := "ToNumber"(___internal_esl_global, space);
+  __v4579 := "ToString"(___internal_esl_global, space);
   if (fst(__v4579)) {
   return __v4579
   } else {
@@ -42778,65 +43729,58 @@ Tests compilation of ecmaref5:
   };
   space := __v4579
   } else {
-  __v4580 := space["Class"];
-  __v4581 := __v4580 = "String";
-  if (__v4581) {
-  __v4582 := "ToString"(___internal_esl_global, space);
-  if (fst(__v4582)) {
-  return __v4582
+  
+  }
+  }
   } else {
-  __v4582 := snd(__v4582)
+  
   };
-  space := __v4582
-  }
-  }
+  __v4588 := "Type"(___internal_esl_global, space);
+  if (fst(__v4588)) {
+  return __v4588
+  } else {
+  __v4588 := snd(__v4588)
   };
+  __v4589 := __v4588 = "Number";
+  if (__v4589) {
+  __v4590 := "ToInteger"(___internal_esl_global, space);
+  if (fst(__v4590)) {
+  return __v4590
+  } else {
+  __v4590 := snd(__v4590)
+  };
+  __v4591 := min(10.0, __v4590);
+  space := __v4591;
+  i := 0.0;
+  __v4592 := [];
+  lst := __v4592;
+  __v4593 := i < space;
+  while (__v4593) {
+  __v4594 := l_prepend(" ", lst);
+  lst := __v4594;
+  __v4595 := i + 1.0;
+  i := __v4595;
+  __v4593 := i < space
+  };
+  __v4596 := s_concat(lst);
+  gap := __v4596
+  } else {
   __v4583 := "Type"(___internal_esl_global, space);
   if (fst(__v4583)) {
   return __v4583
   } else {
   __v4583 := snd(__v4583)
   };
-  __v4584 := __v4583 = "Number";
+  __v4584 := __v4583 = "String";
   if (__v4584) {
-  __v4585 := "ToInteger"(___internal_esl_global, space);
-  if (fst(__v4585)) {
-  return __v4585
-  } else {
-  __v4585 := snd(__v4585)
-  };
-  __v4586 := min(10.0, __v4585);
-  space := __v4586;
-  i := 0.0;
-  __v4587 := [];
-  lst := __v4587;
-  __v4588 := i < space;
-  while (__v4588) {
-  __v4589 := l_prepend(" ", lst);
-  lst := __v4589;
-  __v4590 := i + 1.0;
-  i := __v4590;
-  __v4588 := i < space
-  };
-  __v4591 := s_concat(lst);
-  gap := __v4591
-  } else {
-  __v4592 := "Type"(___internal_esl_global, space);
-  if (fst(__v4592)) {
-  return __v4592
-  } else {
-  __v4592 := snd(__v4592)
-  };
-  __v4593 := __v4592 = "String";
-  if (__v4593) {
-  __v4594 := s_len_u(space);
-  spaceLen := __v4594;
-  __v4595 := spaceLen <= 10;
-  if (__v4595) {
+  __v4585 := s_len_u(space);
+  spaceLen := __v4585;
+  __v4587 := spaceLen <= 10;
+  if (__v4587) {
   gap := space
   } else {
-  __v4596 := s_substr_u(space, 0, 10);
-  gap := __v4596
+  __v4586 := s_substr_u(space, 0, 10);
+  gap := __v4586
   }
   } else {
   gap := ""
@@ -42874,35 +43818,35 @@ Tests compilation of ecmaref5:
   return (false, __v4603)
   };
   function isStrictModeCode(___internal_esl_global, code, execCtx) {
-  __v4528 := code = 'undefined;
-  __v4527 := !__v4528;
-  if (__v4527 = false) {
-  __v4526 := false
+  __v4526 := code = 'undefined;
+  __v4525 := !__v4526;
+  if (__v4525 = false) {
+  __v4529 := false
   } else {
-  __v4529 := code["strict"];
-  __v4530 := __v4529 = true;
-  if (__v4530 = false) {
-  __v4526 := false
+  __v4527 := code["strict"];
+  __v4528 := __v4527 = true;
+  if (__v4528 = false) {
+  __v4529 := false
   } else {
-  __v4526 := true
+  __v4529 := true
   }
   };
-  if (__v4526 = true) {
-  __v4525 := true
+  if (__v4529 = true) {
+  __v4531 := true
   } else {
-  __v4531 := "isContainedInStrictCode"(___internal_esl_global, execCtx);
-  if (fst(__v4531)) {
-  return __v4531
+  __v4530 := "isContainedInStrictCode"(___internal_esl_global, execCtx);
+  if (fst(__v4530)) {
+  return __v4530
   } else {
-  __v4531 := snd(__v4531)
+  __v4530 := snd(__v4530)
   };
-  if (__v4531 = true) {
-  __v4525 := true
+  if (__v4530 = true) {
+  __v4531 := true
   } else {
-  __v4525 := false
+  __v4531 := false
   }
   };
-  return (false, __v4525)
+  return (false, __v4531)
   };
   function arrayLastIndexOf(___internal_esl_global, global, this, strict, args) {
   __v4496 := l_nth(args, 0);
@@ -42940,6 +43884,8 @@ Tests compilation of ecmaref5:
   if (__v4502) {
   __v4503 := -(1.0);
   return (false, __v4503)
+  } else {
+  
   };
   __v4505 := fromIndex = null;
   __v4504 := !__v4505;
@@ -42954,25 +43900,25 @@ Tests compilation of ecmaref5:
   } else {
   n := len
   };
-  __v4507 := n >= 0.0;
-  if (__v4507) {
-  __v4508 := "isMinusZero"(___internal_esl_global, n);
-  if (fst(__v4508)) {
-  return __v4508
+  __v4509 := n >= 0.0;
+  if (__v4509) {
+  __v4512 := "isMinusZero"(___internal_esl_global, n);
+  if (fst(__v4512)) {
+  return __v4512
   } else {
-  __v4508 := snd(__v4508)
+  __v4512 := snd(__v4512)
   };
-  if (__v4508) {
+  if (__v4512) {
   k := 0.0
   } else {
-  __v4509 := len - 1.0;
-  __v4510 := min(n, __v4509);
-  k := __v4510
+  __v4510 := len - 1.0;
+  __v4511 := min(n, __v4510);
+  k := __v4511
   }
   } else {
-  __v4511 := abs(n);
-  __v4512 := len - __v4511;
-  k := __v4512
+  __v4507 := abs(n);
+  __v4508 := len - __v4507;
+  k := __v4508
   };
   __v4513 := k >= 0.0;
   while (__v4513) {
@@ -43016,7 +43962,11 @@ Tests compilation of ecmaref5:
   __v4522 := same = true;
   if (__v4522) {
   return (false, k)
+  } else {
+  
   }
+  } else {
+  
   };
   __v4523 := k - 1.0;
   k := __v4523;
@@ -43114,97 +44064,97 @@ Tests compilation of ecmaref5:
   m := __v4469
   }
   };
-  __v4474 := sec = null;
-  if (__v4474) {
-  __v4475 := "SecFromTime"(___internal_esl_global, t);
+  __v4480 := sec = null;
+  if (__v4480) {
+  __v4481 := "SecFromTime"(___internal_esl_global, t);
+  if (fst(__v4481)) {
+  return __v4481
+  } else {
+  __v4481 := snd(__v4481)
+  };
+  s := __v4481
+  } else {
+  __v4474 := "ToNumber"(___internal_esl_global, sec);
+  if (fst(__v4474)) {
+  return __v4474
+  } else {
+  __v4474 := snd(__v4474)
+  };
+  s := __v4474;
+  __v4478 := "Type"(___internal_esl_global, s);
+  if (fst(__v4478)) {
+  return __v4478
+  } else {
+  __v4478 := snd(__v4478)
+  };
+  __v4479 := __v4478 = "Completion";
+  __v4477 := !__v4479;
+  if (__v4477) {
+  
+  } else {
+  __v4476 := "isAnAbruptCompletion"(___internal_esl_global, s);
+  if (fst(__v4476)) {
+  return __v4476
+  } else {
+  __v4476 := snd(__v4476)
+  };
+  if (__v4476) {
+  return (false, s)
+  } else {
+  __v4475 := "getCompletionValue"(___internal_esl_global, s);
   if (fst(__v4475)) {
   return __v4475
   } else {
   __v4475 := snd(__v4475)
   };
   s := __v4475
-  } else {
-  __v4476 := "ToNumber"(___internal_esl_global, sec);
-  if (fst(__v4476)) {
-  return __v4476
-  } else {
-  __v4476 := snd(__v4476)
+  }
+  }
   };
-  s := __v4476;
-  __v4480 := "Type"(___internal_esl_global, s);
-  if (fst(__v4480)) {
-  return __v4480
+  __v4488 := ms = null;
+  if (__v4488) {
+  __v4489 := "msFromTime"(___internal_esl_global, t);
+  if (fst(__v4489)) {
+  return __v4489
   } else {
-  __v4480 := snd(__v4480)
+  __v4489 := snd(__v4489)
   };
-  __v4481 := __v4480 = "Completion";
-  __v4479 := !__v4481;
-  if (__v4479) {
+  milli := __v4489
+  } else {
+  __v4482 := "ToNumber"(___internal_esl_global, ms);
+  if (fst(__v4482)) {
+  return __v4482
+  } else {
+  __v4482 := snd(__v4482)
+  };
+  milli := __v4482;
+  __v4486 := "Type"(___internal_esl_global, milli);
+  if (fst(__v4486)) {
+  return __v4486
+  } else {
+  __v4486 := snd(__v4486)
+  };
+  __v4487 := __v4486 = "Completion";
+  __v4485 := !__v4487;
+  if (__v4485) {
   
   } else {
-  __v4478 := "isAnAbruptCompletion"(___internal_esl_global, s);
-  if (fst(__v4478)) {
-  return __v4478
+  __v4484 := "isAnAbruptCompletion"(___internal_esl_global, milli);
+  if (fst(__v4484)) {
+  return __v4484
   } else {
-  __v4478 := snd(__v4478)
+  __v4484 := snd(__v4484)
   };
-  if (__v4478) {
-  return (false, s)
+  if (__v4484) {
+  return (false, milli)
   } else {
-  __v4477 := "getCompletionValue"(___internal_esl_global, s);
-  if (fst(__v4477)) {
-  return __v4477
-  } else {
-  __v4477 := snd(__v4477)
-  };
-  s := __v4477
-  }
-  }
-  };
-  __v4482 := ms = null;
-  if (__v4482) {
-  __v4483 := "msFromTime"(___internal_esl_global, t);
+  __v4483 := "getCompletionValue"(___internal_esl_global, milli);
   if (fst(__v4483)) {
   return __v4483
   } else {
   __v4483 := snd(__v4483)
   };
   milli := __v4483
-  } else {
-  __v4484 := "ToNumber"(___internal_esl_global, ms);
-  if (fst(__v4484)) {
-  return __v4484
-  } else {
-  __v4484 := snd(__v4484)
-  };
-  milli := __v4484;
-  __v4488 := "Type"(___internal_esl_global, milli);
-  if (fst(__v4488)) {
-  return __v4488
-  } else {
-  __v4488 := snd(__v4488)
-  };
-  __v4489 := __v4488 = "Completion";
-  __v4487 := !__v4489;
-  if (__v4487) {
-  
-  } else {
-  __v4486 := "isAnAbruptCompletion"(___internal_esl_global, milli);
-  if (fst(__v4486)) {
-  return __v4486
-  } else {
-  __v4486 := snd(__v4486)
-  };
-  if (__v4486) {
-  return (false, milli)
-  } else {
-  __v4485 := "getCompletionValue"(___internal_esl_global, milli);
-  if (fst(__v4485)) {
-  return __v4485
-  } else {
-  __v4485 := snd(__v4485)
-  };
-  milli := __v4485
   }
   }
   };
@@ -43254,6 +44204,8 @@ Tests compilation of ecmaref5:
   if (__v4279) {
   m := {"__lambda__10"}@();
   return (false, m)
+  } else {
+  
   };
   __v4280 := "type" in_obj re;
   __v4282 := re["type"];
@@ -43512,39 +44464,39 @@ Tests compilation of ecmaref5:
   __v4373 := "expressions" in_obj re;
   if (true && __v4370 && __v4371 && __v4373) {
   res := re["expressions"];
-  __v4374 := l_len(res);
-  __v4375 := __v4374 = 1;
-  if (__v4375) {
-  __v4376 := l_nth(res, 0);
-  __v4377 := "JS_Interpreter_RegEx"(___internal_esl_global, __v4376, flags);
-  if (fst(__v4377)) {
-  return __v4377
-  } else {
-  __v4377 := snd(__v4377)
-  };
-  return (false, __v4377)
-  } else {
-  __v4378 := l_nth(res, 0);
-  re_hd := __v4378;
-  __v4379 := {};
-  __v4379["type"] := "Alternative";
-  __v4380 := tl(res);
-  __v4379["expressions"] := __v4380;
-  re_tl := __v4379;
-  __v4381 := "JS_Interpreter_RegEx"(___internal_esl_global, re_hd, flags);
-  if (fst(__v4381)) {
-  return __v4381
-  } else {
-  __v4381 := snd(__v4381)
-  };
-  m_hd := __v4381;
-  __v4382 := "JS_Interpreter_RegEx"(___internal_esl_global, re_tl, flags);
+  __v4379 := l_len(res);
+  __v4380 := __v4379 = 1;
+  if (__v4380) {
+  __v4381 := l_nth(res, 0);
+  __v4382 := "JS_Interpreter_RegEx"(___internal_esl_global, __v4381, flags);
   if (fst(__v4382)) {
   return __v4382
   } else {
   __v4382 := snd(__v4382)
   };
-  m_tl := __v4382;
+  return (false, __v4382)
+  } else {
+  __v4374 := l_nth(res, 0);
+  re_hd := __v4374;
+  __v4375 := {};
+  __v4375["type"] := "Alternative";
+  __v4376 := tl(res);
+  __v4375["expressions"] := __v4376;
+  re_tl := __v4375;
+  __v4377 := "JS_Interpreter_RegEx"(___internal_esl_global, re_hd, flags);
+  if (fst(__v4377)) {
+  return __v4377
+  } else {
+  __v4377 := snd(__v4377)
+  };
+  m_hd := __v4377;
+  __v4378 := "JS_Interpreter_RegEx"(___internal_esl_global, re_tl, flags);
+  if (fst(__v4378)) {
+  return __v4378
+  } else {
+  __v4378 := snd(__v4378)
+  };
+  m_tl := __v4378;
   m := {"__lambda__25"}@(m_hd, m_tl);
   return (false, m)
   }
@@ -43837,13 +44789,13 @@ Tests compilation of ecmaref5:
   argName := l_nth(names, __v4222);
   __v4224 := n + 1;
   n := __v4224;
-  __v4225 := n > argCount;
-  if (__v4225) {
+  __v4227 := n > argCount;
+  if (__v4227) {
   v := 'undefined
   } else {
-  __v4226 := n - 1;
-  __v4227 := l_nth(args, __v4226);
-  v := __v4227
+  __v4225 := n - 1;
+  __v4226 := l_nth(args, __v4225);
+  v := __v4226
   };
   __v4228 := "HasBinding"(___internal_esl_global, env, argName);
   if (fst(__v4228)) {
@@ -43860,6 +44812,8 @@ Tests compilation of ecmaref5:
   } else {
   __v4230 := snd(__v4230)
   }
+  } else {
+  
   };
   __v4231 := "SetMutableBinding"(___internal_esl_global, env, argName, v, strict);
   if (fst(__v4231)) {
@@ -43870,6 +44824,8 @@ Tests compilation of ecmaref5:
   __v4222 := __v4222 + 1;
   __v4223 := __v4221 > __v4222
   }
+  } else {
+  
   };
   __v4235 := "getFunctionDeclarationsInCode"(___internal_esl_global, code);
   if (fst(__v4235)) {
@@ -44007,34 +44963,36 @@ Tests compilation of ecmaref5:
   __v4264 := snd(__v4264)
   };
   argsObj := __v4264;
-  __v4265 := strict = true;
-  if (__v4265) {
-  __v4266 := "CreateImmutableBinding"(___internal_esl_global, env, "arguments");
-  if (fst(__v4266)) {
-  return __v4266
-  } else {
-  __v4266 := snd(__v4266)
-  };
-  __v4267 := "InitializeImmutableBinding"(___internal_esl_global, env, "arguments", argsObj);
-  if (fst(__v4267)) {
-  return __v4267
-  } else {
-  __v4267 := snd(__v4267)
-  }
-  } else {
-  __v4268 := "CreateMutableBinding"(___internal_esl_global, env, "arguments", false);
+  __v4267 := strict = true;
+  if (__v4267) {
+  __v4268 := "CreateImmutableBinding"(___internal_esl_global, env, "arguments");
   if (fst(__v4268)) {
   return __v4268
   } else {
   __v4268 := snd(__v4268)
   };
-  __v4269 := "SetMutableBinding"(___internal_esl_global, env, "arguments", argsObj, false);
+  __v4269 := "InitializeImmutableBinding"(___internal_esl_global, env, "arguments", argsObj);
   if (fst(__v4269)) {
   return __v4269
   } else {
   __v4269 := snd(__v4269)
   }
+  } else {
+  __v4265 := "CreateMutableBinding"(___internal_esl_global, env, "arguments", false);
+  if (fst(__v4265)) {
+  return __v4265
+  } else {
+  __v4265 := snd(__v4265)
+  };
+  __v4266 := "SetMutableBinding"(___internal_esl_global, env, "arguments", argsObj, false);
+  if (fst(__v4266)) {
+  return __v4266
+  } else {
+  __v4266 := snd(__v4266)
   }
+  }
+  } else {
+  
   };
   __v4273 := "getVariableDeclarationsInCode"(___internal_esl_global, code);
   if (fst(__v4273)) {
@@ -44075,6 +45033,8 @@ Tests compilation of ecmaref5:
   } else {
   __v4278 := snd(__v4278)
   }
+  } else {
+  
   };
   __v4271 := __v4271 + 1;
   __v4272 := __v4270 > __v4271
@@ -44134,6 +45094,8 @@ Tests compilation of ecmaref5:
   } else {
   __v4213 := snd(__v4213)
   }
+  } else {
+  
   };
   return (false, newlyConstructedObject)
   };
@@ -44149,6 +45111,8 @@ Tests compilation of ecmaref5:
   __v4189 := !__v4190;
   if (__v4189) {
   return (false, desc)
+  } else {
+  
   };
   __v4193 := "ToInteger"(___internal_esl_global, P);
   if (fst(__v4193)) {
@@ -44167,6 +45131,8 @@ Tests compilation of ecmaref5:
   __v4191 := !__v4195;
   if (__v4191) {
   return (false, 'undefined)
+  } else {
+  
   };
   __v4196 := S["PrimitiveValue"];
   str := __v4196;
@@ -44183,6 +45149,8 @@ Tests compilation of ecmaref5:
   __v4200 := __v4199 <= index;
   if (__v4200) {
   return (false, 'undefined)
+  } else {
+  
   };
   __v4201 := int_of_float(index);
   __v4202 := s_nth_u(str, __v4201);
@@ -44305,6 +45273,8 @@ Tests compilation of ecmaref5:
   __v15988 := c = null;
   if (__v15988) {
   return (false, null)
+  } else {
+  
   };
   __v15989 := c2 = c;
   if (__v15989) {
@@ -44341,6 +45311,8 @@ Tests compilation of ecmaref5:
   };
   if (__v4159) {
   return (false, sl)
+  } else {
+  
   };
   __v4160 := "JS_Interpreter_Stmt"(___internal_esl_global, Statement, scope);
   if (fst(__v4160)) {
@@ -44354,29 +45326,29 @@ Tests compilation of ecmaref5:
   __v4160 := snd(__v4160)
   };
   s := __v4160;
-  __v4161 := "getCompletionValue"(___internal_esl_global, s);
-  if (fst(__v4161)) {
-  return __v4161
+  __v4162 := "getCompletionValue"(___internal_esl_global, s);
+  if (fst(__v4162)) {
+  return __v4162
   } else {
-  __v4161 := snd(__v4161)
+  __v4162 := snd(__v4162)
   };
-  __v4162 := __v4161 = 'empty;
-  if (__v4162) {
-  __v4163 := "getCompletionValue"(___internal_esl_global, sl);
-  if (fst(__v4163)) {
-  return __v4163
-  } else {
-  __v4163 := snd(__v4163)
-  };
-  V := __v4163
-  } else {
-  __v4164 := "getCompletionValue"(___internal_esl_global, s);
+  __v4163 := __v4162 = 'empty;
+  if (__v4163) {
+  __v4164 := "getCompletionValue"(___internal_esl_global, sl);
   if (fst(__v4164)) {
   return __v4164
   } else {
   __v4164 := snd(__v4164)
   };
   V := __v4164
+  } else {
+  __v4161 := "getCompletionValue"(___internal_esl_global, s);
+  if (fst(__v4161)) {
+  return __v4161
+  } else {
+  __v4161 := snd(__v4161)
+  };
+  V := __v4161
   };
   __v4165 := "getCompletionType"(___internal_esl_global, s);
   if (fst(__v4165)) {
@@ -44407,94 +45379,94 @@ Tests compilation of ecmaref5:
   while (__v4115) {
   __v4116 := s_nth_u(S, i);
   c := __v4116;
-  __v4117 := c = "\\";
-  if (__v4117) {
-  __v4118 := len - 1;
-  __v4119 := i < __v4118;
-  if (__v4119) {
-  __v4120 := i + 1;
-  __v4121 := s_nth_u(S, __v4120);
-  c2 := __v4121;
-  __v4144 := c2 = "u";
-  if (__v4144) {
-  __v4145 := len - 5;
-  __v4146 := i < __v4145;
-  if (__v4146) {
-  __v4147 := s_substr_u(S, i, 6);
-  str := __v4147;
-  __v4148 := utf8_decode(str);
-  u := __v4148;
-  __v4150 := [S2, u];
-  __v4149 := s_concat(__v4150);
-  S2 := __v4149;
-  __v4151 := i + 4;
-  i := __v4151
+  __v4120 := c = "\\";
+  if (__v4120) {
+  __v4121 := len - 1;
+  __v4122 := i < __v4121;
+  if (__v4122) {
+  __v4123 := i + 1;
+  __v4124 := s_nth_u(S, __v4123);
+  c2 := __v4124;
+  __v4147 := c2 = "u";
+  if (__v4147) {
+  __v4150 := len - 5;
+  __v4151 := i < __v4150;
+  if (__v4151) {
+  __v4152 := s_substr_u(S, i, 6);
+  str := __v4152;
+  __v4153 := utf8_decode(str);
+  u := __v4153;
+  __v4155 := [S2, u];
+  __v4154 := s_concat(__v4155);
+  S2 := __v4154;
+  __v4156 := i + 4;
+  i := __v4156
   } else {
-  __v4152 := ["JSON.parse: Invalid unicode escape sequence."];
-  __v4153 := "SyntaxErrorConstructor"(___internal_esl_global, global, this, strict, __v4152);
-  if (fst(__v4153)) {
-  return __v4153
+  __v4148 := ["JSON.parse: Invalid unicode escape sequence."];
+  __v4149 := "SyntaxErrorConstructor"(___internal_esl_global, global, this, strict, __v4148);
+  if (fst(__v4149)) {
+  return __v4149
   } else {
-  __v4153 := snd(__v4153)
+  __v4149 := snd(__v4149)
   };
-  return (true, __v4153)
+  return (true, __v4149)
   }
   } else {
-  __v4139 := c2 = "\\";
-  if (__v4139 = true) {
-  __v4138 := true
-  } else {
-  __v4140 := c2 = "/";
+  __v4140 := c2 = "\\";
   if (__v4140 = true) {
-  __v4138 := true
+  __v4142 := true
   } else {
-  __v4138 := false
-  }
-  };
-  if (__v4138 = true) {
-  __v4137 := true
-  } else {
-  __v4141 := c2 = "\"";
+  __v4141 := c2 = "/";
   if (__v4141 = true) {
-  __v4137 := true
+  __v4142 := true
   } else {
-  __v4137 := false
+  __v4142 := false
   }
   };
-  if (__v4137) {
-  __v4143 := [S2, c2];
-  __v4142 := s_concat(__v4143);
-  S2 := __v4142
+  if (__v4142 = true) {
+  __v4144 := true
   } else {
-  __v4134 := c2 = "b";
+  __v4143 := c2 = "\"";
+  if (__v4143 = true) {
+  __v4144 := true
+  } else {
+  __v4144 := false
+  }
+  };
+  if (__v4144) {
+  __v4146 := [S2, c2];
+  __v4145 := s_concat(__v4146);
+  S2 := __v4145
+  } else {
+  __v4137 := c2 = "b";
+  if (__v4137) {
+  __v4139 := [S2, "\b"];
+  __v4138 := s_concat(__v4139);
+  S2 := __v4138
+  } else {
+  __v4134 := c2 = "f";
   if (__v4134) {
-  __v4136 := [S2, "\b"];
+  __v4136 := [S2, "\012"];
   __v4135 := s_concat(__v4136);
   S2 := __v4135
   } else {
-  __v4131 := c2 = "f";
+  __v4131 := c2 = "n";
   if (__v4131) {
-  __v4133 := [S2, "\012"];
+  __v4133 := [S2, "\n"];
   __v4132 := s_concat(__v4133);
   S2 := __v4132
   } else {
-  __v4128 := c2 = "n";
+  __v4128 := c2 = "r";
   if (__v4128) {
-  __v4130 := [S2, "\n"];
+  __v4130 := [S2, "\r"];
   __v4129 := s_concat(__v4130);
   S2 := __v4129
   } else {
-  __v4125 := c2 = "r";
+  __v4125 := c2 = "t";
   if (__v4125) {
-  __v4127 := [S2, "\r"];
+  __v4127 := [S2, "\t"];
   __v4126 := s_concat(__v4127);
   S2 := __v4126
-  } else {
-  __v4122 := c2 = "t";
-  if (__v4122) {
-  __v4124 := [S2, "\t"];
-  __v4123 := s_concat(__v4124);
-  S2 := __v4123
   } else {
   
   }
@@ -44504,15 +45476,17 @@ Tests compilation of ecmaref5:
   }
   }
   };
-  __v4154 := i + 2;
-  i := __v4154
+  __v4157 := i + 2;
+  i := __v4157
+  } else {
+  
   }
   } else {
-  __v4156 := [S2, c];
-  __v4155 := s_concat(__v4156);
-  S2 := __v4155;
-  __v4157 := i + 1;
-  i := __v4157
+  __v4118 := [S2, c];
+  __v4117 := s_concat(__v4118);
+  S2 := __v4117;
+  __v4119 := i + 1;
+  i := __v4119
   };
   __v4115 := i < len
   };
@@ -44566,6 +45540,8 @@ Tests compilation of ecmaref5:
   __v4110 := is_NaN(t);
   if (__v4110) {
   return (false, nan)
+  } else {
+  
   };
   __v4111 := "MinFromTime"(___internal_esl_global, t);
   if (fst(__v4111)) {
@@ -44585,6 +45561,8 @@ Tests compilation of ecmaref5:
   __v4101 := N in_obj envRec;
   if (__v4101) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
   };
@@ -44708,23 +45686,23 @@ Tests compilation of ecmaref5:
   h := __v4064
   }
   };
-  __v4069 := mins = null;
-  if (__v4069) {
-  __v4070 := "MinFromTime"(___internal_esl_global, t);
-  if (fst(__v4070)) {
-  return __v4070
-  } else {
-  __v4070 := snd(__v4070)
-  };
-  m := __v4070
-  } else {
-  __v4071 := "ToNumber"(___internal_esl_global, mins);
+  __v4070 := mins = null;
+  if (__v4070) {
+  __v4071 := "MinFromTime"(___internal_esl_global, t);
   if (fst(__v4071)) {
   return __v4071
   } else {
   __v4071 := snd(__v4071)
   };
   m := __v4071
+  } else {
+  __v4069 := "ToNumber"(___internal_esl_global, mins);
+  if (fst(__v4069)) {
+  return __v4069
+  } else {
+  __v4069 := snd(__v4069)
+  };
+  m := __v4069
   };
   __v4075 := "Type"(___internal_esl_global, m);
   if (fst(__v4075)) {
@@ -44755,23 +45733,23 @@ Tests compilation of ecmaref5:
   m := __v4072
   }
   };
-  __v4077 := sec = null;
-  if (__v4077) {
-  __v4078 := "SecFromTime"(___internal_esl_global, t);
-  if (fst(__v4078)) {
-  return __v4078
-  } else {
-  __v4078 := snd(__v4078)
-  };
-  s := __v4078
-  } else {
-  __v4079 := "ToNumber"(___internal_esl_global, sec);
+  __v4078 := sec = null;
+  if (__v4078) {
+  __v4079 := "SecFromTime"(___internal_esl_global, t);
   if (fst(__v4079)) {
   return __v4079
   } else {
   __v4079 := snd(__v4079)
   };
   s := __v4079
+  } else {
+  __v4077 := "ToNumber"(___internal_esl_global, sec);
+  if (fst(__v4077)) {
+  return __v4077
+  } else {
+  __v4077 := snd(__v4077)
+  };
+  s := __v4077
   };
   __v4083 := "Type"(___internal_esl_global, s);
   if (fst(__v4083)) {
@@ -44802,23 +45780,23 @@ Tests compilation of ecmaref5:
   s := __v4080
   }
   };
-  __v4085 := ms = null;
-  if (__v4085) {
-  __v4086 := "SecFromTime"(___internal_esl_global, t);
-  if (fst(__v4086)) {
-  return __v4086
-  } else {
-  __v4086 := snd(__v4086)
-  };
-  milli := __v4086
-  } else {
-  __v4087 := "ToNumber"(___internal_esl_global, ms);
+  __v4086 := ms = null;
+  if (__v4086) {
+  __v4087 := "SecFromTime"(___internal_esl_global, t);
   if (fst(__v4087)) {
   return __v4087
   } else {
   __v4087 := snd(__v4087)
   };
   milli := __v4087
+  } else {
+  __v4085 := "ToNumber"(___internal_esl_global, ms);
+  if (fst(__v4085)) {
+  return __v4085
+  } else {
+  __v4085 := snd(__v4085)
+  };
+  milli := __v4085
   };
   __v4091 := "Type"(___internal_esl_global, milli);
   if (fst(__v4091)) {
@@ -44908,6 +45886,8 @@ Tests compilation of ecmaref5:
   __v4037 := !__v4039;
   if (__v4037) {
   return (false, 'undefined)
+  } else {
+  
   };
   __v4040 := "NewPropertyDescriptor"(___internal_esl_global);
   if (fst(__v4040)) {
@@ -44923,22 +45903,22 @@ Tests compilation of ecmaref5:
   __v4041 := snd(__v4041)
   };
   X := __v4041;
-  __v4042 := "IsDataPropertyDescriptor"(___internal_esl_global, X);
-  if (fst(__v4042)) {
-  return __v4042
+  __v4044 := "IsDataPropertyDescriptor"(___internal_esl_global, X);
+  if (fst(__v4044)) {
+  return __v4044
   } else {
-  __v4042 := snd(__v4042)
+  __v4044 := snd(__v4044)
   };
-  if (__v4042) {
-  __v4043 := X["Value"];
-  D["Value"] := __v4043;
-  __v4044 := X["Writable"];
-  D["Writable"] := __v4044
+  if (__v4044) {
+  __v4045 := X["Value"];
+  D["Value"] := __v4045;
+  __v4046 := X["Writable"];
+  D["Writable"] := __v4046
   } else {
-  __v4045 := X["Get"];
-  D["Get"] := __v4045;
-  __v4046 := X["Set"];
-  D["Set"] := __v4046
+  __v4042 := X["Get"];
+  D["Get"] := __v4042;
+  __v4043 := X["Set"];
+  D["Set"] := __v4043
   };
   __v4047 := X["Enumerable"];
   D["Enumerable"] := __v4047;
@@ -45037,10 +46017,14 @@ Tests compilation of ecmaref5:
   __v4007 := snd(__v4007)
   };
   return (true, __v4007)
+  } else {
+  
   };
   __v4008 := is_NaN(x);
   if (__v4008) {
   return (false, "NaN")
+  } else {
+  
   };
   s := "";
   __v4009 := x < 0.0;
@@ -45048,60 +46032,66 @@ Tests compilation of ecmaref5:
   s := "-";
   __v4010 := -(x);
   x := __v4010
+  } else {
+  
   };
-  __v4011 := 10.0 ** 21.0;
-  __v4012 := x >= __v4011;
+  __v4031 := 10.0 ** 21.0;
+  __v4032 := x >= __v4031;
+  if (__v4032) {
+  __v4033 := "ToString"(___internal_esl_global, x);
+  if (fst(__v4033)) {
+  return __v4033
+  } else {
+  __v4033 := snd(__v4033)
+  };
+  m := __v4033
+  } else {
+  __v4012 := n = 0;
   if (__v4012) {
-  __v4013 := "ToString"(___internal_esl_global, x);
-  if (fst(__v4013)) {
-  return __v4013
-  } else {
-  __v4013 := snd(__v4013)
-  };
-  m := __v4013
-  } else {
-  __v4014 := n = 0;
-  if (__v4014) {
   m := "0"
   } else {
-  __v4015 := float_to_string(n);
-  m := __v4015
+  __v4011 := float_to_string(n);
+  m := __v4011
   };
-  __v4017 := f = 0;
-  __v4016 := !__v4017;
+  __v4014 := f = 0;
+  __v4013 := !__v4014;
+  if (__v4013) {
+  __v4015 := s_len_u(m);
+  k := __v4015;
+  __v4016 := k <= f;
   if (__v4016) {
-  __v4018 := s_len_u(m);
-  k := __v4018;
-  __v4019 := k <= f;
-  if (__v4019) {
   z := "";
   counter := 0;
-  __v4021 := f - k;
-  __v4022 := counter <= __v4021;
-  __v4020 := !__v4022;
-  while (__v4020) {
-  __v4024 := (z, "0");
+  __v4018 := f - k;
+  __v4019 := counter <= __v4018;
+  __v4017 := !__v4019;
+  while (__v4017) {
+  __v4021 := (z, "0");
+  __v4020 := s_concat(__v4021);
+  z := __v4020;
+  __v4022 := counter + 1;
+  counter := __v4022;
+  __v4018 := f - k;
+  __v4019 := counter <= __v4018;
+  __v4017 := !__v4019
+  };
+  __v4024 := (z, m);
   __v4023 := s_concat(__v4024);
-  z := __v4023;
-  __v4025 := counter + 1;
-  counter := __v4025;
-  __v4021 := f - k;
-  __v4022 := counter <= __v4021;
-  __v4020 := !__v4022
+  m := __v4023;
+  __v4025 := f + 1;
+  k := __v4025
+  } else {
+  
   };
-  __v4027 := (z, m);
-  __v4026 := s_concat(__v4027);
-  m := __v4026;
-  __v4028 := f + 1;
-  k := __v4028
-  };
-  __v4029 := k - f;
-  __v4030 := s_substr_u(m, 0, __v4029);
-  a := __v4030;
-  __v4031 := k - f;
-  __v4032 := s_len_u(m);
-  __v4033 := s_substr_u(m, __v4031, __v4032);
-  b := __v4033
+  __v4026 := k - f;
+  __v4027 := s_substr_u(m, 0, __v4026);
+  a := __v4027;
+  __v4028 := k - f;
+  __v4029 := s_len_u(m);
+  __v4030 := s_substr_u(m, __v4028, __v4029);
+  b := __v4030
+  } else {
+  
   }
   };
   __v4034 := l_concat(a, ".");
@@ -45127,126 +46117,128 @@ Tests compilation of ecmaref5:
   };
   __v3959 := __v3958 = "Object";
   if (__v3959) {
-  __v3960 := val["Class"];
-  __v3961 := __v3960 = "Array";
-  if (__v3961) {
+  __v3972 := val["Class"];
+  __v3973 := __v3972 = "Array";
+  if (__v3973) {
   I := 0.0;
-  __v3962 := val["Get"];
-  __v3963 := __v3962(___internal_esl_global, val, "length");
-  if (fst(__v3963)) {
-  return __v3963
+  __v3974 := val["Get"];
+  __v3975 := __v3974(___internal_esl_global, val, "length");
+  if (fst(__v3975)) {
+  return __v3975
   } else {
-  __v3963 := snd(__v3963)
+  __v3975 := snd(__v3975)
   };
-  len := __v3963;
-  __v3964 := I < len;
-  while (__v3964) {
-  __v3965 := "ToString"(___internal_esl_global, I);
-  if (fst(__v3965)) {
-  return __v3965
+  len := __v3975;
+  __v3976 := I < len;
+  while (__v3976) {
+  __v3977 := "ToString"(___internal_esl_global, I);
+  if (fst(__v3977)) {
+  return __v3977
   } else {
-  __v3965 := snd(__v3965)
+  __v3977 := snd(__v3977)
   };
-  __v3966 := "Walk"(___internal_esl_global, val, __v3965, reviver);
-  if (fst(__v3966)) {
-  return __v3966
+  __v3978 := "Walk"(___internal_esl_global, val, __v3977, reviver);
+  if (fst(__v3978)) {
+  return __v3978
   } else {
-  __v3966 := snd(__v3966)
+  __v3978 := snd(__v3978)
   };
-  newElement := __v3966;
-  __v3967 := newElement = 'undefined;
-  if (__v3967) {
-  __v3968 := val["Delete"];
-  __v3969 := "ToString"(___internal_esl_global, I);
-  if (fst(__v3969)) {
-  return __v3969
+  newElement := __v3978;
+  __v3983 := newElement = 'undefined;
+  if (__v3983) {
+  __v3984 := val["Delete"];
+  __v3985 := "ToString"(___internal_esl_global, I);
+  if (fst(__v3985)) {
+  return __v3985
   } else {
-  __v3969 := snd(__v3969)
+  __v3985 := snd(__v3985)
   };
-  __v3970 := __v3968(___internal_esl_global, val, __v3969, false);
+  __v3986 := __v3984(___internal_esl_global, val, __v3985, false);
+  if (fst(__v3986)) {
+  return __v3986
+  } else {
+  __v3986 := snd(__v3986)
+  }
+  } else {
+  __v3979 := "newDataPropertyDescriptorFull"(___internal_esl_global, newElement, true, true, true);
+  if (fst(__v3979)) {
+  return __v3979
+  } else {
+  __v3979 := snd(__v3979)
+  };
+  descriptor := __v3979;
+  __v3980 := val["DefineOwnProperty"];
+  __v3981 := "ToString"(___internal_esl_global, I);
+  if (fst(__v3981)) {
+  return __v3981
+  } else {
+  __v3981 := snd(__v3981)
+  };
+  __v3982 := __v3980(___internal_esl_global, val, __v3981, descriptor, false);
+  if (fst(__v3982)) {
+  return __v3982
+  } else {
+  __v3982 := snd(__v3982)
+  }
+  };
+  __v3987 := I + 1.0;
+  I := __v3987;
+  __v3976 := I < len
+  }
+  } else {
+  __v3960 := "getOwnEnumerablePropertiesNames"(___internal_esl_global, val);
+  if (fst(__v3960)) {
+  return __v3960
+  } else {
+  __v3960 := snd(__v3960)
+  };
+  keys := __v3960;
+  __v3961 := l_len(keys);
+  keysLen := __v3961;
+  index := 0;
+  __v3962 := index < keysLen;
+  while (__v3962) {
+  __v3963 := l_nth(keys, index);
+  P := __v3963;
+  __v3964 := "Walk"(___internal_esl_global, val, P, reviver);
+  if (fst(__v3964)) {
+  return __v3964
+  } else {
+  __v3964 := snd(__v3964)
+  };
+  newElement := __v3964;
+  __v3968 := newElement = 'undefined;
+  if (__v3968) {
+  __v3969 := val["Delete"];
+  __v3970 := __v3969(___internal_esl_global, val, P, false);
   if (fst(__v3970)) {
   return __v3970
   } else {
   __v3970 := snd(__v3970)
   }
   } else {
-  __v3971 := "newDataPropertyDescriptorFull"(___internal_esl_global, newElement, true, true, true);
-  if (fst(__v3971)) {
-  return __v3971
+  __v3965 := "newDataPropertyDescriptorFull"(___internal_esl_global, newElement, true, true, true);
+  if (fst(__v3965)) {
+  return __v3965
   } else {
-  __v3971 := snd(__v3971)
+  __v3965 := snd(__v3965)
   };
-  descriptor := __v3971;
-  __v3972 := val["DefineOwnProperty"];
-  __v3973 := "ToString"(___internal_esl_global, I);
-  if (fst(__v3973)) {
-  return __v3973
+  descriptor := __v3965;
+  __v3966 := val["DefineOwnProperty"];
+  __v3967 := __v3966(___internal_esl_global, val, P, descriptor, false);
+  if (fst(__v3967)) {
+  return __v3967
   } else {
-  __v3973 := snd(__v3973)
-  };
-  __v3974 := __v3972(___internal_esl_global, val, __v3973, descriptor, false);
-  if (fst(__v3974)) {
-  return __v3974
-  } else {
-  __v3974 := snd(__v3974)
+  __v3967 := snd(__v3967)
   }
   };
-  __v3975 := I + 1.0;
-  I := __v3975;
-  __v3964 := I < len
-  }
-  } else {
-  __v3976 := "getOwnEnumerablePropertiesNames"(___internal_esl_global, val);
-  if (fst(__v3976)) {
-  return __v3976
-  } else {
-  __v3976 := snd(__v3976)
-  };
-  keys := __v3976;
-  __v3977 := l_len(keys);
-  keysLen := __v3977;
-  index := 0;
-  __v3978 := index < keysLen;
-  while (__v3978) {
-  __v3979 := l_nth(keys, index);
-  P := __v3979;
-  __v3980 := "Walk"(___internal_esl_global, val, P, reviver);
-  if (fst(__v3980)) {
-  return __v3980
-  } else {
-  __v3980 := snd(__v3980)
-  };
-  newElement := __v3980;
-  __v3981 := newElement = 'undefined;
-  if (__v3981) {
-  __v3982 := val["Delete"];
-  __v3983 := __v3982(___internal_esl_global, val, P, false);
-  if (fst(__v3983)) {
-  return __v3983
-  } else {
-  __v3983 := snd(__v3983)
-  }
-  } else {
-  __v3984 := "newDataPropertyDescriptorFull"(___internal_esl_global, newElement, true, true, true);
-  if (fst(__v3984)) {
-  return __v3984
-  } else {
-  __v3984 := snd(__v3984)
-  };
-  descriptor := __v3984;
-  __v3985 := val["DefineOwnProperty"];
-  __v3986 := __v3985(___internal_esl_global, val, P, descriptor, false);
-  if (fst(__v3986)) {
-  return __v3986
-  } else {
-  __v3986 := snd(__v3986)
-  }
-  };
-  __v3987 := index + 1;
-  index := __v3987;
-  __v3978 := index < keysLen
+  __v3971 := index + 1;
+  index := __v3971;
+  __v3962 := index < keysLen
   }
   }
+  } else {
+  
   };
   __v3988 := reviver["Call"];
   __v3989 := [name, val];
@@ -45346,20 +46338,20 @@ Tests compilation of ecmaref5:
   }
   };
   function isEvalCode(___internal_esl_global, code) {
-  __v3933 := typeof(code);
-  __v3934 := __v3933 = __$Obj;
-  if (__v3934 = false) {
-  __v3932 := false
+  __v3932 := typeof(code);
+  __v3933 := __v3932 = __$Obj;
+  if (__v3933 = false) {
+  __v3936 := false
   } else {
-  __v3935 := code["codeType"];
-  __v3936 := __v3935 = "eval";
-  if (__v3936 = false) {
-  __v3932 := false
+  __v3934 := code["codeType"];
+  __v3935 := __v3934 = "eval";
+  if (__v3935 = false) {
+  __v3936 := false
   } else {
-  __v3932 := true
+  __v3936 := true
   }
   };
-  return (false, __v3932)
+  return (false, __v3936)
   };
   function initDateConstructor(___internal_esl_global, DatePrototype, globalObject, strict) {
   __v3908 := ["year", "month", "date", "hours", "minutes", "seconds", "ms"];
@@ -45522,53 +46514,63 @@ Tests compilation of ecmaref5:
   __v3864 := snd(__v3864)
   };
   rval := __v3864;
-  __v3868 := "Type"(___internal_esl_global, lref);
-  if (fst(__v3868)) {
-  return __v3868
+  __v3865 := "Type"(___internal_esl_global, lref);
+  if (fst(__v3865)) {
+  return __v3865
   } else {
-  __v3868 := snd(__v3868)
+  __v3865 := snd(__v3865)
   };
-  __v3869 := __v3868 = "Reference";
-  if (__v3869 = false) {
-  __v3867 := false
+  __v3866 := __v3865 = "Reference";
+  if (__v3866 = false) {
+  __v3869 := false
   } else {
-  __v3870 := "IsStrictReference"(___internal_esl_global, lref);
+  __v3867 := "IsStrictReference"(___internal_esl_global, lref);
+  if (fst(__v3867)) {
+  return __v3867
+  } else {
+  __v3867 := snd(__v3867)
+  };
+  __v3868 := __v3867 = true;
+  if (__v3868 = false) {
+  __v3869 := false
+  } else {
+  __v3869 := true
+  }
+  };
+  if (__v3869 = false) {
+  __v3873 := false
+  } else {
+  __v3870 := "GetBase"(___internal_esl_global, lref);
   if (fst(__v3870)) {
   return __v3870
   } else {
   __v3870 := snd(__v3870)
   };
-  __v3871 := __v3870 = true;
-  if (__v3871 = false) {
-  __v3867 := false
+  __v3871 := "Type"(___internal_esl_global, __v3870);
+  if (fst(__v3871)) {
+  return __v3871
   } else {
-  __v3867 := true
+  __v3871 := snd(__v3871)
+  };
+  __v3872 := __v3871 = "EnvironmentRecord";
+  if (__v3872 = false) {
+  __v3873 := false
+  } else {
+  __v3873 := true
   }
   };
-  if (__v3867 = false) {
-  __v3866 := false
+  if (__v3873 = false) {
+  __v3879 := false
   } else {
-  __v3872 := "GetBase"(___internal_esl_global, lref);
-  if (fst(__v3872)) {
-  return __v3872
+  __v3874 := "GetReferencedName"(___internal_esl_global, lref);
+  if (fst(__v3874)) {
+  return __v3874
   } else {
-  __v3872 := snd(__v3872)
+  __v3874 := snd(__v3874)
   };
-  __v3873 := "Type"(___internal_esl_global, __v3872);
-  if (fst(__v3873)) {
-  return __v3873
-  } else {
-  __v3873 := snd(__v3873)
-  };
-  __v3874 := __v3873 = "EnvironmentRecord";
-  if (__v3874 = false) {
-  __v3866 := false
-  } else {
-  __v3866 := true
-  }
-  };
-  if (__v3866 = false) {
-  __v3865 := false
+  __v3875 := __v3874 = "eval";
+  if (__v3875 = true) {
+  __v3878 := true
   } else {
   __v3876 := "GetReferencedName"(___internal_esl_global, lref);
   if (fst(__v3876)) {
@@ -45576,30 +46578,20 @@ Tests compilation of ecmaref5:
   } else {
   __v3876 := snd(__v3876)
   };
-  __v3877 := __v3876 = "eval";
+  __v3877 := __v3876 = "arguments";
   if (__v3877 = true) {
-  __v3875 := true
+  __v3878 := true
   } else {
-  __v3878 := "GetReferencedName"(___internal_esl_global, lref);
-  if (fst(__v3878)) {
-  return __v3878
-  } else {
-  __v3878 := snd(__v3878)
-  };
-  __v3879 := __v3878 = "arguments";
-  if (__v3879 = true) {
-  __v3875 := true
-  } else {
-  __v3875 := false
+  __v3878 := false
   }
   };
-  if (__v3875 = false) {
-  __v3865 := false
+  if (__v3878 = false) {
+  __v3879 := false
   } else {
-  __v3865 := true
+  __v3879 := true
   }
   };
-  if (__v3865) {
+  if (__v3879) {
   __v3880 := "SyntaxErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v3880)) {
   return __v3880
@@ -45607,6 +46599,8 @@ Tests compilation of ecmaref5:
   __v3880 := snd(__v3880)
   };
   return (true, __v3880)
+  } else {
+  
   };
   __v3881 := "PutValue"(___internal_esl_global, lref, rval);
   if (fst(__v3881)) {
@@ -45711,6 +46705,8 @@ Tests compilation of ecmaref5:
   __v3905 := snd(__v3905)
   };
   return (true, __v3905)
+  } else {
+  
   };
   __v3906 := "PutValue"(___internal_esl_global, lref, r);
   if (fst(__v3906)) {
@@ -45738,6 +46734,8 @@ Tests compilation of ecmaref5:
   if (__v3847) {
   __v3848 := [];
   return (false, __v3848)
+  } else {
+  
   };
   __v3849 := s_split(paramsStr, ",");
   params := __v3849;
@@ -45790,31 +46788,31 @@ Tests compilation of ecmaref5:
   }
   };
   function isValueAnEmptyFunctionBody(___internal_esl_global, value) {
-  __v3836 := typeof(value);
-  __v3837 := __v3836 = __$Obj;
-  if (__v3837 = false) {
-  __v3835 := false
-  } else {
-  __v3838 := "body" in_obj value;
-  if (__v3838 = false) {
-  __v3835 := false
-  } else {
-  __v3835 := true
-  }
-  };
+  __v3834 := typeof(value);
+  __v3835 := __v3834 = __$Obj;
   if (__v3835 = false) {
-  __v3834 := false
+  __v3837 := false
   } else {
-  __v3839 := value["body"];
-  __v3840 := [];
-  __v3841 := __v3839 = __v3840;
-  if (__v3841 = false) {
-  __v3834 := false
+  __v3836 := "body" in_obj value;
+  if (__v3836 = false) {
+  __v3837 := false
   } else {
-  __v3834 := true
+  __v3837 := true
   }
   };
-  return (false, __v3834)
+  if (__v3837 = false) {
+  __v3841 := false
+  } else {
+  __v3838 := value["body"];
+  __v3839 := [];
+  __v3840 := __v3838 = __v3839;
+  if (__v3840 = false) {
+  __v3841 := false
+  } else {
+  __v3841 := true
+  }
+  };
+  return (false, __v3841)
   };
   function StringPrototypetoLocaleUpperCase(___internal_esl_global, global, this, strict, args) {
   __v3793 := "CheckObjectCoercible"(___internal_esl_global, this);
@@ -45844,6 +46842,8 @@ Tests compilation of ecmaref5:
   } else {
   __v3797 := snd(__v3797)
   }
+  } else {
+  
   };
   L := "";
   i := 0;
@@ -45862,72 +46862,76 @@ Tests compilation of ecmaref5:
   __v3804 := ___internal_esl_global["specialCasing"];
   __v3805 := l_nth(__v3804, j);
   el := __v3805;
-  __v3808 := el["code"];
-  __v3809 := c = __v3808;
-  if (__v3809 = false) {
-  __v3807 := false
-  } else {
-  __v3811 := el["uppercase"];
-  __v3812 := __v3811 = 'undefined;
-  __v3810 := !__v3812;
-  if (__v3810 = false) {
-  __v3807 := false
-  } else {
-  __v3807 := true
-  }
-  };
+  __v3806 := el["code"];
+  __v3807 := c = __v3806;
   if (__v3807 = false) {
-  __v3806 := false
+  __v3811 := false
   } else {
-  __v3813 := el["condition_list"];
-  __v3814 := __v3813 = 'undefined;
-  if (__v3814 = false) {
-  __v3806 := false
+  __v3809 := el["uppercase"];
+  __v3810 := __v3809 = 'undefined;
+  __v3808 := !__v3810;
+  if (__v3808 = false) {
+  __v3811 := false
   } else {
-  __v3806 := true
+  __v3811 := true
   }
   };
-  if (__v3806) {
+  if (__v3811 = false) {
+  __v3814 := false
+  } else {
+  __v3812 := el["condition_list"];
+  __v3813 := __v3812 = 'undefined;
+  if (__v3813 = false) {
+  __v3814 := false
+  } else {
+  __v3814 := true
+  }
+  };
+  if (__v3814) {
   __v3815 := el["uppercase"];
   c := __v3815;
   __v3816 := sc_len + 1;
   j := __v3816
+  } else {
+  
   };
   __v3817 := j + 1;
   j := __v3817;
   __v3803 := j < sc_len
   };
-  __v3820 := j <= sc_len;
+  __v3818 := j <= sc_len;
+  if (__v3818 = false) {
+  __v3821 := false
+  } else {
+  __v3819 := ___internal_esl_global["unicodeData"];
+  __v3820 := c in_obj __v3819;
   if (__v3820 = false) {
-  __v3819 := false
+  __v3821 := false
   } else {
-  __v3821 := ___internal_esl_global["unicodeData"];
-  __v3822 := c in_obj __v3821;
+  __v3821 := true
+  }
+  };
+  if (__v3821 = false) {
+  __v3827 := false
+  } else {
+  __v3825 := ___internal_esl_global["unicodeData"];
+  __v3824 := __v3825[c];
+  __v3823 := __v3824["uppercase"];
+  __v3826 := __v3823 = 'undefined;
+  __v3822 := !__v3826;
   if (__v3822 = false) {
-  __v3819 := false
+  __v3827 := false
   } else {
-  __v3819 := true
+  __v3827 := true
   }
   };
-  if (__v3819 = false) {
-  __v3818 := false
-  } else {
-  __v3826 := ___internal_esl_global["unicodeData"];
-  __v3825 := __v3826[c];
-  __v3824 := __v3825["uppercase"];
-  __v3827 := __v3824 = 'undefined;
-  __v3823 := !__v3827;
-  if (__v3823 = false) {
-  __v3818 := false
-  } else {
-  __v3818 := true
-  }
-  };
-  if (__v3818) {
+  if (__v3827) {
   __v3830 := ___internal_esl_global["unicodeData"];
   __v3829 := __v3830[c];
   __v3828 := __v3829["uppercase"];
   c := __v3828
+  } else {
+  
   };
   __v3832 := [L, c];
   __v3831 := s_concat(__v3832);
@@ -45965,43 +46969,45 @@ Tests compilation of ecmaref5:
   };
   A := __v3738;
   lengthA := 0.0;
-  __v3739 := limit = 'undefined;
-  if (__v3739) {
-  __v3740 := 2.0 ** 32.0;
-  __v3741 := __v3740 - 1.0;
-  lim := __v3741
-  } else {
-  __v3742 := "ToUint32"(___internal_esl_global, limit);
-  if (fst(__v3742)) {
-  return __v3742
-  } else {
-  __v3742 := snd(__v3742)
-  };
+  __v3740 := limit = 'undefined;
+  if (__v3740) {
+  __v3741 := 2.0 ** 32.0;
+  __v3742 := __v3741 - 1.0;
   lim := __v3742
+  } else {
+  __v3739 := "ToUint32"(___internal_esl_global, limit);
+  if (fst(__v3739)) {
+  return __v3739
+  } else {
+  __v3739 := snd(__v3739)
+  };
+  lim := __v3739
   };
   __v3743 := s_len_u(S);
   s := __v3743;
   p := 0;
-  __v3744 := "isRegExpObject"(___internal_esl_global, separator);
-  if (fst(__v3744)) {
-  return __v3744
-  } else {
-  __v3744 := snd(__v3744)
-  };
-  if (__v3744) {
-  R := separator
-  } else {
-  __v3745 := "ToString"(___internal_esl_global, separator);
+  __v3745 := "isRegExpObject"(___internal_esl_global, separator);
   if (fst(__v3745)) {
   return __v3745
   } else {
   __v3745 := snd(__v3745)
   };
-  R := __v3745
+  if (__v3745) {
+  R := separator
+  } else {
+  __v3744 := "ToString"(___internal_esl_global, separator);
+  if (fst(__v3744)) {
+  return __v3744
+  } else {
+  __v3744 := snd(__v3744)
+  };
+  R := __v3744
   };
   __v3746 := lim = 0.0;
   if (__v3746) {
   return (false, A)
+  } else {
+  
   };
   __v3747 := separator = 'undefined;
   if (__v3747) {
@@ -46019,6 +47025,8 @@ Tests compilation of ecmaref5:
   __v3750 := snd(__v3750)
   };
   return (false, A)
+  } else {
+  
   };
   __v3751 := s = 0;
   if (__v3751) {
@@ -46029,31 +47037,33 @@ Tests compilation of ecmaref5:
   __v3752 := snd(__v3752)
   };
   z := __v3752;
-  __v3754 := "isFailure"(___internal_esl_global, z);
-  if (fst(__v3754)) {
-  return __v3754
-  } else {
-  __v3754 := snd(__v3754)
-  };
-  __v3753 := !__v3754;
-  if (__v3753) {
-  return (false, A)
-  } else {
-  __v3755 := A["DefineOwnProperty"];
-  __v3756 := "newDataPropertyDescriptorFull"(___internal_esl_global, S, true, true, true);
-  if (fst(__v3756)) {
-  return __v3756
-  } else {
-  __v3756 := snd(__v3756)
-  };
-  __v3757 := __v3755(___internal_esl_global, A, "0", __v3756, false);
+  __v3757 := "isFailure"(___internal_esl_global, z);
   if (fst(__v3757)) {
   return __v3757
   } else {
   __v3757 := snd(__v3757)
   };
+  __v3756 := !__v3757;
+  if (__v3756) {
+  return (false, A)
+  } else {
+  __v3753 := A["DefineOwnProperty"];
+  __v3754 := "newDataPropertyDescriptorFull"(___internal_esl_global, S, true, true, true);
+  if (fst(__v3754)) {
+  return __v3754
+  } else {
+  __v3754 := snd(__v3754)
+  };
+  __v3755 := __v3753(___internal_esl_global, A, "0", __v3754, false);
+  if (fst(__v3755)) {
+  return __v3755
+  } else {
+  __v3755 := snd(__v3755)
+  };
   return (false, A)
   }
+  } else {
+  
   };
   q := p;
   __v3759 := q = s;
@@ -46066,92 +47076,96 @@ Tests compilation of ecmaref5:
   __v3760 := snd(__v3760)
   };
   z := __v3760;
-  __v3761 := "isFailure"(___internal_esl_global, z);
-  if (fst(__v3761)) {
-  return __v3761
+  __v3785 := "isFailure"(___internal_esl_global, z);
+  if (fst(__v3785)) {
+  return __v3785
   } else {
-  __v3761 := snd(__v3761)
+  __v3785 := snd(__v3785)
   };
-  if (__v3761) {
-  __v3762 := q + 1;
-  q := __v3762
+  if (__v3785) {
+  __v3786 := q + 1;
+  q := __v3786
   } else {
-  __v3763 := z["endIndex"];
-  e := __v3763;
-  __v3764 := z["caps"];
-  cap := __v3764;
-  __v3765 := e = p;
-  if (__v3765) {
-  __v3766 := q + 1;
-  q := __v3766
+  __v3761 := z["endIndex"];
+  e := __v3761;
+  __v3762 := z["caps"];
+  cap := __v3762;
+  __v3783 := e = p;
+  if (__v3783) {
+  __v3784 := q + 1;
+  q := __v3784
   } else {
-  __v3767 := q - p;
-  __v3768 := s_substr_u(S, p, __v3767);
-  T := __v3768;
-  __v3769 := A["DefineOwnProperty"];
-  __v3770 := "ToString"(___internal_esl_global, lengthA);
-  if (fst(__v3770)) {
-  return __v3770
+  __v3763 := q - p;
+  __v3764 := s_substr_u(S, p, __v3763);
+  T := __v3764;
+  __v3765 := A["DefineOwnProperty"];
+  __v3766 := "ToString"(___internal_esl_global, lengthA);
+  if (fst(__v3766)) {
+  return __v3766
   } else {
-  __v3770 := snd(__v3770)
+  __v3766 := snd(__v3766)
   };
-  __v3771 := "newDataPropertyDescriptorFull"(___internal_esl_global, T, true, true, true);
-  if (fst(__v3771)) {
-  return __v3771
+  __v3767 := "newDataPropertyDescriptorFull"(___internal_esl_global, T, true, true, true);
+  if (fst(__v3767)) {
+  return __v3767
   } else {
-  __v3771 := snd(__v3771)
+  __v3767 := snd(__v3767)
   };
-  __v3772 := __v3769(___internal_esl_global, A, __v3770, __v3771, false);
-  if (fst(__v3772)) {
-  return __v3772
+  __v3768 := __v3765(___internal_esl_global, A, __v3766, __v3767, false);
+  if (fst(__v3768)) {
+  return __v3768
   } else {
-  __v3772 := snd(__v3772)
+  __v3768 := snd(__v3768)
   };
-  __v3773 := lengthA + 1.0;
-  lengthA := __v3773;
-  __v3774 := lengthA = lim;
-  if (__v3774) {
+  __v3769 := lengthA + 1.0;
+  lengthA := __v3769;
+  __v3770 := lengthA = lim;
+  if (__v3770) {
   return (false, A)
+  } else {
+  
   };
   p := e;
   i := 0;
-  __v3775 := cap["len"];
-  len := __v3775;
-  __v3777 := i = len;
-  __v3776 := !__v3777;
-  while (__v3776) {
-  __v3778 := i + 1;
-  i := __v3778;
-  __v3779 := int_to_string(i);
-  i_str := __v3779;
-  __v3780 := A["DefineOwnProperty"];
-  __v3781 := "ToString"(___internal_esl_global, lengthA);
-  if (fst(__v3781)) {
-  return __v3781
+  __v3771 := cap["len"];
+  len := __v3771;
+  __v3773 := i = len;
+  __v3772 := !__v3773;
+  while (__v3772) {
+  __v3774 := i + 1;
+  i := __v3774;
+  __v3775 := int_to_string(i);
+  i_str := __v3775;
+  __v3776 := A["DefineOwnProperty"];
+  __v3777 := "ToString"(___internal_esl_global, lengthA);
+  if (fst(__v3777)) {
+  return __v3777
   } else {
-  __v3781 := snd(__v3781)
+  __v3777 := snd(__v3777)
   };
-  __v3782 := cap[i_str];
-  __v3783 := "newDataPropertyDescriptorFull"(___internal_esl_global, __v3782, true, true, true);
-  if (fst(__v3783)) {
-  return __v3783
+  __v3778 := cap[i_str];
+  __v3779 := "newDataPropertyDescriptorFull"(___internal_esl_global, __v3778, true, true, true);
+  if (fst(__v3779)) {
+  return __v3779
   } else {
-  __v3783 := snd(__v3783)
+  __v3779 := snd(__v3779)
   };
-  __v3784 := __v3780(___internal_esl_global, A, __v3781, __v3783, false);
-  if (fst(__v3784)) {
-  return __v3784
+  __v3780 := __v3776(___internal_esl_global, A, __v3777, __v3779, false);
+  if (fst(__v3780)) {
+  return __v3780
   } else {
-  __v3784 := snd(__v3784)
+  __v3780 := snd(__v3780)
   };
-  __v3785 := lengthA + 1.0;
-  lengthA := __v3785;
-  __v3786 := lengthA = lim;
-  if (__v3786) {
+  __v3781 := lengthA + 1.0;
+  lengthA := __v3781;
+  __v3782 := lengthA = lim;
+  if (__v3782) {
   return (false, A)
+  } else {
+  
   };
-  __v3777 := i = len;
-  __v3776 := !__v3777
+  __v3773 := i = len;
+  __v3772 := !__v3773
   };
   q := p
   }
@@ -46200,6 +47214,8 @@ Tests compilation of ecmaref5:
   __v3679 := snd(__v3679)
   };
   return (true, __v3679)
+  } else {
+  
   };
   __v3680 := "NewPropertyDescriptor"(___internal_esl_global);
   if (fst(__v3680)) {
@@ -46232,6 +47248,8 @@ Tests compilation of ecmaref5:
   __v3686 := snd(__v3686)
   };
   desc["Enumerable"] := __v3686
+  } else {
+  
   };
   __v3687 := Obj["HasProperty"];
   __v3688 := __v3687(___internal_esl_global, Obj, "configurable");
@@ -46257,6 +47275,8 @@ Tests compilation of ecmaref5:
   __v3692 := snd(__v3692)
   };
   desc["Configurable"] := __v3692
+  } else {
+  
   };
   __v3693 := Obj["HasProperty"];
   __v3694 := __v3693(___internal_esl_global, Obj, "value");
@@ -46276,6 +47296,8 @@ Tests compilation of ecmaref5:
   };
   value := __v3697;
   desc["Value"] := value
+  } else {
+  
   };
   __v3698 := Obj["HasProperty"];
   __v3699 := __v3698(___internal_esl_global, Obj, "writable");
@@ -46301,6 +47323,8 @@ Tests compilation of ecmaref5:
   __v3703 := snd(__v3703)
   };
   desc["Writable"] := __v3703
+  } else {
+  
   };
   __v3704 := Obj["HasProperty"];
   __v3705 := __v3704(___internal_esl_global, Obj, "get");
@@ -46319,25 +47343,25 @@ Tests compilation of ecmaref5:
   __v3708 := snd(__v3708)
   };
   getter := __v3708;
-  __v3710 := "IsCallable"(___internal_esl_global, getter);
-  if (fst(__v3710)) {
-  return __v3710
+  __v3709 := "IsCallable"(___internal_esl_global, getter);
+  if (fst(__v3709)) {
+  return __v3709
   } else {
-  __v3710 := snd(__v3710)
+  __v3709 := snd(__v3709)
   };
-  __v3711 := __v3710 = false;
+  __v3710 := __v3709 = false;
+  if (__v3710 = false) {
+  __v3713 := false
+  } else {
+  __v3712 := getter = 'undefined;
+  __v3711 := !__v3712;
   if (__v3711 = false) {
-  __v3709 := false
+  __v3713 := false
   } else {
-  __v3713 := getter = 'undefined;
-  __v3712 := !__v3713;
-  if (__v3712 = false) {
-  __v3709 := false
-  } else {
-  __v3709 := true
+  __v3713 := true
   }
   };
-  if (__v3709) {
+  if (__v3713) {
   __v3714 := "TypeErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v3714)) {
   return __v3714
@@ -46345,8 +47369,12 @@ Tests compilation of ecmaref5:
   __v3714 := snd(__v3714)
   };
   return (true, __v3714)
+  } else {
+  
   };
   desc["Get"] := getter
+  } else {
+  
   };
   __v3715 := Obj["HasProperty"];
   __v3716 := __v3715(___internal_esl_global, Obj, "set");
@@ -46365,25 +47393,25 @@ Tests compilation of ecmaref5:
   __v3719 := snd(__v3719)
   };
   setter := __v3719;
-  __v3721 := "IsCallable"(___internal_esl_global, setter);
-  if (fst(__v3721)) {
-  return __v3721
+  __v3720 := "IsCallable"(___internal_esl_global, setter);
+  if (fst(__v3720)) {
+  return __v3720
   } else {
-  __v3721 := snd(__v3721)
+  __v3720 := snd(__v3720)
   };
-  __v3722 := __v3721 = false;
+  __v3721 := __v3720 = false;
+  if (__v3721 = false) {
+  __v3724 := false
+  } else {
+  __v3723 := setter = 'undefined;
+  __v3722 := !__v3723;
   if (__v3722 = false) {
-  __v3720 := false
+  __v3724 := false
   } else {
-  __v3724 := setter = 'undefined;
-  __v3723 := !__v3724;
-  if (__v3723 = false) {
-  __v3720 := false
-  } else {
-  __v3720 := true
+  __v3724 := true
   }
   };
-  if (__v3720) {
+  if (__v3724) {
   __v3725 := "TypeErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v3725)) {
   return __v3725
@@ -46391,33 +47419,37 @@ Tests compilation of ecmaref5:
   __v3725 := snd(__v3725)
   };
   return (true, __v3725)
+  } else {
+  
   };
   desc["Set"] := setter
+  } else {
+  
   };
-  __v3727 := "Get" in_obj desc;
+  __v3726 := "Get" in_obj desc;
+  if (__v3726 = true) {
+  __v3728 := true
+  } else {
+  __v3727 := "Set" in_obj desc;
   if (__v3727 = true) {
-  __v3726 := true
+  __v3728 := true
   } else {
-  __v3728 := "Set" in_obj desc;
-  if (__v3728 = true) {
-  __v3726 := true
-  } else {
-  __v3726 := false
+  __v3728 := false
   }
   };
-  if (__v3726) {
-  __v3730 := "Value" in_obj desc;
+  if (__v3728) {
+  __v3729 := "Value" in_obj desc;
+  if (__v3729 = true) {
+  __v3731 := true
+  } else {
+  __v3730 := "Writable" in_obj desc;
   if (__v3730 = true) {
-  __v3729 := true
+  __v3731 := true
   } else {
-  __v3731 := "Writable" in_obj desc;
-  if (__v3731 = true) {
-  __v3729 := true
-  } else {
-  __v3729 := false
+  __v3731 := false
   }
   };
-  if (__v3729) {
+  if (__v3731) {
   __v3732 := "TypeErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v3732)) {
   return __v3732
@@ -46425,7 +47457,11 @@ Tests compilation of ecmaref5:
   __v3732 := snd(__v3732)
   };
   return (true, __v3732)
+  } else {
+  
   }
+  } else {
+  
   };
   return (false, desc)
   };
@@ -46701,6 +47737,8 @@ Tests compilation of ecmaref5:
   __v3567 := snd(__v3567)
   };
   return (false, __v3567)
+  } else {
+  
   };
   __v3568 := "strip_final_elisions"(___internal_esl_global, ElementList);
   if (fst(__v3568)) {
@@ -46723,6 +47761,8 @@ Tests compilation of ecmaref5:
   __v3573 := snd(__v3573)
   };
   return (false, __v3573)
+  } else {
+  
   };
   __v3574 := "JS_Interpreter_ArrayLiteral_ElementList_Elisionopt"(___internal_esl_global, ElementList, Elisionopt, scope);
   if (fst(__v3574)) {
@@ -46804,6 +47844,8 @@ Tests compilation of ecmaref5:
   } else {
   __v3594 := snd(__v3594)
   }
+  } else {
+  
   };
   __v3595 := i + 1;
   i := __v3595;
@@ -46965,6 +48007,8 @@ Tests compilation of ecmaref5:
   __v3540 := is_NaN(__v3541);
   if (__v3540) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
   };
@@ -46978,6 +48022,8 @@ Tests compilation of ecmaref5:
   if (__v3513) {
   __v3514 := {};
   cs1["positive"] := __v3514
+  } else {
+  
   };
   i := 0;
   __v3516 := cs2["positive"];
@@ -46998,6 +48044,8 @@ Tests compilation of ecmaref5:
   i := __v3523;
   __v3518 := i < len
   }
+  } else {
+  
   };
   __v3525 := cs2["negative"];
   __v3526 := __v3525 = null;
@@ -47008,6 +48056,8 @@ Tests compilation of ecmaref5:
   if (__v3528) {
   __v3529 := {};
   cs1["negative"] := __v3529
+  } else {
+  
   };
   i := 0;
   __v3531 := cs2["negative"];
@@ -47028,6 +48078,8 @@ Tests compilation of ecmaref5:
   i := __v3538;
   __v3533 := i < len
   }
+  } else {
+  
   };
   return (false, null)
   };
@@ -47056,6 +48108,8 @@ Tests compilation of ecmaref5:
   __v3432 := snd(__v3432)
   };
   return (false, __v3432)
+  } else {
+  
   };
   __v3433 := ___internal_esl_global["__$global"];
   __v3434 := "isContainedInStrictCode"(___internal_esl_global, scope);
@@ -47138,6 +48192,8 @@ Tests compilation of ecmaref5:
   __v3454 := snd(__v3454)
   };
   return (true, __v3454)
+  } else {
+  
   };
   __v3455 := "IsDataPropertyDescriptor"(___internal_esl_global, previous);
   if (fst(__v3455)) {
@@ -47168,6 +48224,8 @@ Tests compilation of ecmaref5:
   __v3461 := snd(__v3461)
   };
   return (true, __v3461)
+  } else {
+  
   };
   __v3462 := "IsAccessorPropertyDescriptor"(___internal_esl_global, previous);
   if (fst(__v3462)) {
@@ -47198,6 +48256,8 @@ Tests compilation of ecmaref5:
   __v3468 := snd(__v3468)
   };
   return (true, __v3468)
+  } else {
+  
   };
   __v3469 := "IsAccessorPropertyDescriptor"(___internal_esl_global, previous);
   if (fst(__v3469)) {
@@ -47276,7 +48336,11 @@ Tests compilation of ecmaref5:
   __v3503 := snd(__v3503)
   };
   return (true, __v3503)
+  } else {
+  
   }
+  } else {
+  
   };
   __v3504 := obj["DefineOwnProperty"];
   __v3505 := "getPropertyName"(___internal_esl_global, propId);
@@ -47363,6 +48427,8 @@ Tests compilation of ecmaref5:
   };
   if (__v3412) {
   return (false, result)
+  } else {
+  
   };
   __v3413 := "getCompletionValue"(___internal_esl_global, result);
   if (fst(__v3413)) {
@@ -47419,6 +48485,8 @@ Tests compilation of ecmaref5:
   __v15993 := c = null;
   if (__v15993) {
   return (false, null)
+  } else {
+  
   };
   __v15994 := hex_decode(v);
   v := __v15994;
@@ -47474,6 +48542,8 @@ Tests compilation of ecmaref5:
   __v3369 := snd(__v3369)
   };
   return (false, __v3369)
+  } else {
+  
   };
   __v3370 := "CopyDescriptor"(___internal_esl_global, Desc);
   if (fst(__v3370)) {
@@ -47507,6 +48577,8 @@ Tests compilation of ecmaref5:
   __v3377 := snd(__v3377)
   };
   return (true, __v3377)
+  } else {
+  
   };
   newLenDesc["Value"] := newLen;
   __v3378 := newLen >= oldLen;
@@ -47518,6 +48590,8 @@ Tests compilation of ecmaref5:
   __v3379 := snd(__v3379)
   };
   return (false, __v3379)
+  } else {
+  
   };
   __v3380 := oldLenDesc["Writable"];
   __v3381 := __v3380 = false;
@@ -47533,21 +48607,23 @@ Tests compilation of ecmaref5:
   } else {
   return (false, false)
   }
+  } else {
+  
   };
-  __v3385 := "Writable" in_obj newLenDesc;
-  __v3384 := !__v3385;
-  if (__v3384 = true) {
-  __v3383 := true
+  __v3384 := "Writable" in_obj newLenDesc;
+  __v3383 := !__v3384;
+  if (__v3383 = true) {
+  __v3387 := true
   } else {
-  __v3386 := newLenDesc["Writable"];
-  __v3387 := __v3386 = true;
-  if (__v3387 = true) {
-  __v3383 := true
+  __v3385 := newLenDesc["Writable"];
+  __v3386 := __v3385 = true;
+  if (__v3386 = true) {
+  __v3387 := true
   } else {
-  __v3383 := false
+  __v3387 := false
   }
   };
-  if (__v3383) {
+  if (__v3387) {
   newWritable := true
   } else {
   newWritable := false;
@@ -47563,6 +48639,8 @@ Tests compilation of ecmaref5:
   __v3389 := succeeded = false;
   if (__v3389) {
   return (false, false)
+  } else {
+  
   };
   __v3390 := newLen < oldLen;
   while (__v3390) {
@@ -47589,6 +48667,8 @@ Tests compilation of ecmaref5:
   __v3397 := newWritable = false;
   if (__v3397) {
   newLenDesc["Writable"] := false
+  } else {
+  
   };
   __v3398 := "DefineOwnProperty"(___internal_esl_global, A, "length", newLenDesc, false);
   if (fst(__v3398)) {
@@ -47607,6 +48687,8 @@ Tests compilation of ecmaref5:
   } else {
   return (false, false)
   }
+  } else {
+  
   };
   __v3390 := newLen < oldLen
   };
@@ -47620,6 +48702,8 @@ Tests compilation of ecmaref5:
   } else {
   __v3402 := snd(__v3402)
   }
+  } else {
+  
   };
   return (false, true)
   } else {
@@ -47637,19 +48721,19 @@ Tests compilation of ecmaref5:
   __v3353 := snd(__v3353)
   };
   index := __v3353;
-  __v3355 := index >= oldLen;
-  if (__v3355 = false) {
-  __v3354 := false
+  __v3354 := index >= oldLen;
+  if (__v3354 = false) {
+  __v3357 := false
   } else {
-  __v3356 := oldLenDesc["Writable"];
-  __v3357 := __v3356 = false;
-  if (__v3357 = false) {
-  __v3354 := false
+  __v3355 := oldLenDesc["Writable"];
+  __v3356 := __v3355 = false;
+  if (__v3356 = false) {
+  __v3357 := false
   } else {
-  __v3354 := true
+  __v3357 := true
   }
   };
-  if (__v3354) {
+  if (__v3357) {
   if (Throw) {
   __v3358 := "TypeErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v3358)) {
@@ -47661,6 +48745,8 @@ Tests compilation of ecmaref5:
   } else {
   return (false, false)
   }
+  } else {
+  
   };
   __v3359 := "DefineOwnProperty"(___internal_esl_global, A, P, Desc, false);
   if (fst(__v3359)) {
@@ -47682,6 +48768,8 @@ Tests compilation of ecmaref5:
   } else {
   return (false, false)
   }
+  } else {
+  
   };
   __v3362 := index + 1.0;
   __v3363 := "ToUint32"(___internal_esl_global, __v3362);
@@ -47700,6 +48788,8 @@ Tests compilation of ecmaref5:
   } else {
   __v3365 := snd(__v3365)
   }
+  } else {
+  
   };
   return (false, true)
   } else {
@@ -47717,18 +48807,18 @@ Tests compilation of ecmaref5:
   function BooleanConstructor(___internal_esl_global, globalObject, this, strict, params) {
   __v3336 := l_nth(params, 0);
   value := __v3336;
-  __v3338 := this = 'undefined;
+  __v3337 := this = 'undefined;
+  if (__v3337 = true) {
+  __v3339 := true
+  } else {
+  __v3338 := this = 'null;
   if (__v3338 = true) {
-  __v3337 := true
+  __v3339 := true
   } else {
-  __v3339 := this = 'null;
-  if (__v3339 = true) {
-  __v3337 := true
-  } else {
-  __v3337 := false
+  __v3339 := false
   }
   };
-  if (__v3337) {
+  if (__v3339) {
   __v3340 := "BooleanConstructorCalledAsFunction"(___internal_esl_global, value);
   if (fst(__v3340)) {
   return __v3340
@@ -47736,6 +48826,8 @@ Tests compilation of ecmaref5:
   __v3340 := snd(__v3340)
   };
   return (false, __v3340)
+  } else {
+  
   };
   __v3341 := "NewECMAScriptObject"(___internal_esl_global);
   if (fst(__v3341)) {
@@ -47815,6 +48907,8 @@ Tests compilation of ecmaref5:
   __v3330 := snd(__v3330)
   };
   return (true, __v3330)
+  } else {
+  
   };
   __v3331 := "ToString"(___internal_esl_global, P);
   if (fst(__v3331)) {
@@ -47840,13 +48934,13 @@ Tests compilation of ecmaref5:
   return (false, O)
   };
   function AddCharacterPoint(___internal_esl_global, cs, c, code_str, negative) {
-  __v3321 := negative = true;
-  if (__v3321) {
-  __v3322 := cs["negative"];
-  __v3322[code_str] := c
-  } else {
-  __v3323 := cs["positive"];
+  __v3322 := negative = true;
+  if (__v3322) {
+  __v3323 := cs["negative"];
   __v3323[code_str] := c
+  } else {
+  __v3321 := cs["positive"];
+  __v3321[code_str] := c
   };
   return (false, null)
   };
@@ -47976,6 +49070,8 @@ Tests compilation of ecmaref5:
   __v3295 := lArgs >= lParams;
   if (__v3295) {
   return (false, args)
+  } else {
+  
   };
   __v3296 := lParams - lArgs;
   i := __v3296;
@@ -48002,25 +49098,27 @@ Tests compilation of ecmaref5:
   __v3282 := __v3281 = "Number";
   if (__v3282) {
   return (false, value)
-  };
-  __v3284 := "Type"(___internal_esl_global, value);
-  if (fst(__v3284)) {
-  return __v3284
   } else {
-  __v3284 := snd(__v3284)
+  
   };
-  __v3285 := __v3284 = "Object";
+  __v3283 := "Type"(___internal_esl_global, value);
+  if (fst(__v3283)) {
+  return __v3283
+  } else {
+  __v3283 := snd(__v3283)
+  };
+  __v3284 := __v3283 = "Object";
+  if (__v3284 = false) {
+  __v3286 := false
+  } else {
+  __v3285 := "PrimitiveValue" in_obj value;
   if (__v3285 = false) {
-  __v3283 := false
+  __v3286 := false
   } else {
-  __v3286 := "PrimitiveValue" in_obj value;
-  if (__v3286 = false) {
-  __v3283 := false
-  } else {
-  __v3283 := true
+  __v3286 := true
   }
   };
-  if (__v3283) {
+  if (__v3286) {
   __v3287 := value["PrimitiveValue"];
   __v3288 := "Type"(___internal_esl_global, __v3287);
   if (fst(__v3288)) {
@@ -48029,9 +49127,11 @@ Tests compilation of ecmaref5:
   __v3288 := snd(__v3288)
   };
   __v3289 := __v3288 = "Number";
-  assert (__v3289);
+  assert __v3289;
   __v3290 := value["PrimitiveValue"];
   return (false, __v3290)
+  } else {
+  
   };
   __v3291 := "TypeErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v3291)) {
@@ -48153,6 +49253,8 @@ Tests compilation of ecmaref5:
   __v3226 := snd(__v3226)
   };
   return (false, __v3226)
+  } else {
+  
   };
   __v3227 := "ToObject"(___internal_esl_global, experValue);
   if (fst(__v3227)) {
@@ -48188,6 +49290,8 @@ Tests compilation of ecmaref5:
   __v3232 := snd(__v3232)
   };
   return (false, __v3232)
+  } else {
+  
   };
   __v3233 := "JS_Interpreter_Expr"(___internal_esl_global, varName, scope);
   if (fst(__v3233)) {
@@ -48230,6 +49334,8 @@ Tests compilation of ecmaref5:
   __v3239 := snd(__v3239)
   };
   V := __v3239
+  } else {
+  
   };
   __v3240 := "getCompletionType"(___internal_esl_global, stmt);
   if (fst(__v3240)) {
@@ -48254,6 +49360,8 @@ Tests compilation of ecmaref5:
   __v3245 := snd(__v3245)
   };
   return (false, __v3245)
+  } else {
+  
   };
   __v3247 := "getCompletionType"(___internal_esl_global, stmt);
   if (fst(__v3247)) {
@@ -48281,7 +49389,11 @@ Tests compilation of ecmaref5:
   };
   if (__v3253) {
   return (false, stmt)
+  } else {
+  
   }
+  } else {
+  
   };
   while (!false) {
   __v3229 := "getNextPropertyName"(___internal_esl_global, obj_enums, i);
@@ -48302,6 +49414,8 @@ Tests compilation of ecmaref5:
   __v3232 := snd(__v3232)
   };
   return (false, __v3232)
+  } else {
+  
   };
   __v3233 := "JS_Interpreter_Expr"(___internal_esl_global, varName, scope);
   if (fst(__v3233)) {
@@ -48344,6 +49458,8 @@ Tests compilation of ecmaref5:
   __v3239 := snd(__v3239)
   };
   V := __v3239
+  } else {
+  
   };
   __v3240 := "getCompletionType"(___internal_esl_global, stmt);
   if (fst(__v3240)) {
@@ -48368,6 +49484,8 @@ Tests compilation of ecmaref5:
   __v3245 := snd(__v3245)
   };
   return (false, __v3245)
+  } else {
+  
   };
   __v3247 := "getCompletionType"(___internal_esl_global, stmt);
   if (fst(__v3247)) {
@@ -48395,7 +49513,11 @@ Tests compilation of ecmaref5:
   };
   if (__v3253) {
   return (false, stmt)
+  } else {
+  
   }
+  } else {
+  
   }
   }
   }
@@ -48473,6 +49595,8 @@ Tests compilation of ecmaref5:
   __v3176 := snd(__v3176)
   };
   return (true, __v3176)
+  } else {
+  
   };
   __v3177 := "GetValue"(___internal_esl_global, lhs);
   if (fst(__v3177)) {
@@ -48569,6 +49693,8 @@ Tests compilation of ecmaref5:
   __v3207 := snd(__v3207)
   };
   return (true, __v3207)
+  } else {
+  
   };
   __v3208 := "GetValue"(___internal_esl_global, lhs);
   if (fst(__v3208)) {
@@ -48640,22 +49766,26 @@ Tests compilation of ecmaref5:
   __v3141 := __v3140 < 2;
   if (__v3141) {
   return (false, false)
+  } else {
+  
   };
   __v3142 := s_substr(str, 0, 2);
   firstTwoChars := __v3142;
-  __v3144 := firstTwoChars = "0x";
+  __v3143 := firstTwoChars = "0x";
+  if (__v3143 = true) {
+  __v3145 := true
+  } else {
+  __v3144 := firstTwoChars = "0X";
   if (__v3144 = true) {
-  __v3143 := true
+  __v3145 := true
   } else {
-  __v3145 := firstTwoChars = "0X";
-  if (__v3145 = true) {
-  __v3143 := true
-  } else {
-  __v3143 := false
+  __v3145 := false
   }
   };
-  if (__v3143) {
+  if (__v3145) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
   };
@@ -48676,7 +49806,7 @@ Tests compilation of ecmaref5:
   __v3134 := snd(__v3134)
   };
   __v3135 := __v3134 = false;
-  assert (__v3135);
+  assert __v3135;
   __v3136 := D = true;
   if (__v3136) {
   configValue := true
@@ -48716,6 +49846,8 @@ Tests compilation of ecmaref5:
   __v3119 := snd(__v3119)
   };
   return (true, __v3119)
+  } else {
+  
   };
   __v3120 := O["Get"];
   __v3121 := __v3120(___internal_esl_global, O, "name");
@@ -48725,17 +49857,17 @@ Tests compilation of ecmaref5:
   __v3121 := snd(__v3121)
   };
   name := __v3121;
-  __v3122 := name = 'undefined;
-  if (__v3122) {
+  __v3123 := name = 'undefined;
+  if (__v3123) {
   name := "Error"
   } else {
-  __v3123 := "ToString"(___internal_esl_global, name);
-  if (fst(__v3123)) {
-  return __v3123
+  __v3122 := "ToString"(___internal_esl_global, name);
+  if (fst(__v3122)) {
+  return __v3122
   } else {
-  __v3123 := snd(__v3123)
+  __v3122 := snd(__v3122)
   };
-  name := __v3123
+  name := __v3122
   };
   __v3124 := O["Get"];
   __v3125 := __v3124(___internal_esl_global, O, "message");
@@ -48745,25 +49877,29 @@ Tests compilation of ecmaref5:
   __v3125 := snd(__v3125)
   };
   msg := __v3125;
-  __v3126 := msg = 'undefined;
-  if (__v3126) {
+  __v3127 := msg = 'undefined;
+  if (__v3127) {
   msg := ""
   } else {
-  __v3127 := "ToString"(___internal_esl_global, msg);
-  if (fst(__v3127)) {
-  return __v3127
+  __v3126 := "ToString"(___internal_esl_global, msg);
+  if (fst(__v3126)) {
+  return __v3126
   } else {
-  __v3127 := snd(__v3127)
+  __v3126 := snd(__v3126)
   };
-  msg := __v3127
+  msg := __v3126
   };
   __v3128 := name = "";
   if (__v3128) {
   return (false, msg)
+  } else {
+  
   };
   __v3129 := msg = "";
   if (__v3129) {
   return (false, name)
+  } else {
+  
   };
   __v3131 := [name, ":", " ", msg];
   __v3130 := s_concat(__v3131);
@@ -48792,6 +49928,8 @@ Tests compilation of ecmaref5:
   __v3109 := snd(__v3109)
   };
   return (true, __v3109)
+  } else {
+  
   };
   __v3110 := [];
   argList := __v3110;
@@ -48800,6 +49938,8 @@ Tests compilation of ecmaref5:
   __v3111 := !__v3113;
   if (__v3111) {
   argList := args
+  } else {
+  
   };
   __v3114 := func["Call"];
   __v3115 := __v3114(___internal_esl_global, null, null, func, thisArg, argList);
@@ -48886,6 +50026,8 @@ Tests compilation of ecmaref5:
   } else {
   __v3066 := snd(__v3066)
   }
+  } else {
+  
   };
   V := 'empty;
   __v3068 := Expression1 = null;
@@ -48919,7 +50061,11 @@ Tests compilation of ecmaref5:
   __v3073 := snd(__v3073)
   };
   return (false, __v3073)
+  } else {
+  
   }
+  } else {
+  
   };
   __v3074 := "JS_Interpreter_Stmt"(___internal_esl_global, Statement, scope);
   if (fst(__v3074)) {
@@ -48949,6 +50095,8 @@ Tests compilation of ecmaref5:
   __v3078 := snd(__v3078)
   };
   V := __v3078
+  } else {
+  
   };
   __v3079 := "getCompletionType"(___internal_esl_global, stmt);
   if (fst(__v3079)) {
@@ -48973,6 +50121,8 @@ Tests compilation of ecmaref5:
   __v3084 := snd(__v3084)
   };
   return (false, __v3084)
+  } else {
+  
   };
   __v3086 := "getCompletionType"(___internal_esl_global, stmt);
   if (fst(__v3086)) {
@@ -49000,7 +50150,11 @@ Tests compilation of ecmaref5:
   };
   if (__v3092) {
   return (false, stmt)
+  } else {
+  
   }
+  } else {
+  
   };
   __v3094 := Expression2 = null;
   __v3093 := !__v3094;
@@ -49018,6 +50172,8 @@ Tests compilation of ecmaref5:
   } else {
   __v3096 := snd(__v3096)
   }
+  } else {
+  
   };
   while (!false) {
   __v3068 := Expression1 = null;
@@ -49051,7 +50207,11 @@ Tests compilation of ecmaref5:
   __v3073 := snd(__v3073)
   };
   return (false, __v3073)
+  } else {
+  
   }
+  } else {
+  
   };
   __v3074 := "JS_Interpreter_Stmt"(___internal_esl_global, Statement, scope);
   if (fst(__v3074)) {
@@ -49081,6 +50241,8 @@ Tests compilation of ecmaref5:
   __v3078 := snd(__v3078)
   };
   V := __v3078
+  } else {
+  
   };
   __v3079 := "getCompletionType"(___internal_esl_global, stmt);
   if (fst(__v3079)) {
@@ -49105,6 +50267,8 @@ Tests compilation of ecmaref5:
   __v3084 := snd(__v3084)
   };
   return (false, __v3084)
+  } else {
+  
   };
   __v3086 := "getCompletionType"(___internal_esl_global, stmt);
   if (fst(__v3086)) {
@@ -49132,7 +50296,11 @@ Tests compilation of ecmaref5:
   };
   if (__v3092) {
   return (false, stmt)
+  } else {
+  
   }
+  } else {
+  
   };
   __v3094 := Expression2 = null;
   __v3093 := !__v3094;
@@ -49150,6 +50318,8 @@ Tests compilation of ecmaref5:
   } else {
   __v3096 := snd(__v3096)
   }
+  } else {
+  
   }
   }
   }
@@ -49167,6 +50337,8 @@ Tests compilation of ecmaref5:
   __v3036 := !__v3038;
   if (__v3036) {
   return (false, x)
+  } else {
+  
   };
   __v3039 := "parseAsProgram"(___internal_esl_global, x, strict);
   if (fst(__v3039)) {
@@ -49189,31 +50361,31 @@ Tests compilation of ecmaref5:
   __v3041 := snd(__v3041)
   };
   result := __v3041;
-  __v3043 := "getCompletionType"(___internal_esl_global, result);
-  if (fst(__v3043)) {
-  return __v3043
+  __v3042 := "getCompletionType"(___internal_esl_global, result);
+  if (fst(__v3042)) {
+  return __v3042
   } else {
-  __v3043 := snd(__v3043)
+  __v3042 := snd(__v3042)
   };
-  __v3044 := __v3043 = 'normal;
+  __v3043 := __v3042 = 'normal;
+  if (__v3043 = false) {
+  __v3047 := false
+  } else {
+  __v3045 := "getCompletionValue"(___internal_esl_global, result);
+  if (fst(__v3045)) {
+  return __v3045
+  } else {
+  __v3045 := snd(__v3045)
+  };
+  __v3046 := __v3045 = 'empty;
+  __v3044 := !__v3046;
   if (__v3044 = false) {
-  __v3042 := false
+  __v3047 := false
   } else {
-  __v3046 := "getCompletionValue"(___internal_esl_global, result);
-  if (fst(__v3046)) {
-  return __v3046
-  } else {
-  __v3046 := snd(__v3046)
-  };
-  __v3047 := __v3046 = 'empty;
-  __v3045 := !__v3047;
-  if (__v3045 = false) {
-  __v3042 := false
-  } else {
-  __v3042 := true
+  __v3047 := true
   }
   };
-  if (__v3042) {
+  if (__v3047) {
   __v3048 := "getCompletionValue"(___internal_esl_global, result);
   if (fst(__v3048)) {
   return __v3048
@@ -49221,32 +50393,36 @@ Tests compilation of ecmaref5:
   __v3048 := snd(__v3048)
   };
   return (false, __v3048)
+  } else {
+  
   };
-  __v3050 := "getCompletionType"(___internal_esl_global, result);
-  if (fst(__v3050)) {
-  return __v3050
+  __v3049 := "getCompletionType"(___internal_esl_global, result);
+  if (fst(__v3049)) {
+  return __v3049
   } else {
-  __v3050 := snd(__v3050)
+  __v3049 := snd(__v3049)
   };
-  __v3051 := __v3050 = 'normal;
-  if (__v3051 = false) {
-  __v3049 := false
+  __v3050 := __v3049 = 'normal;
+  if (__v3050 = false) {
+  __v3053 := false
   } else {
-  __v3052 := "getCompletionValue"(___internal_esl_global, result);
-  if (fst(__v3052)) {
-  return __v3052
+  __v3051 := "getCompletionValue"(___internal_esl_global, result);
+  if (fst(__v3051)) {
+  return __v3051
   } else {
-  __v3052 := snd(__v3052)
+  __v3051 := snd(__v3051)
   };
-  __v3053 := __v3052 = 'empty;
-  if (__v3053 = false) {
-  __v3049 := false
+  __v3052 := __v3051 = 'empty;
+  if (__v3052 = false) {
+  __v3053 := false
   } else {
-  __v3049 := true
+  __v3053 := true
   }
   };
-  if (__v3049) {
+  if (__v3053) {
   return (false, 'undefined)
+  } else {
+  
   };
   __v3054 := "getCompletionValue"(___internal_esl_global, result);
   if (fst(__v3054)) {
@@ -49332,6 +50508,8 @@ Tests compilation of ecmaref5:
   __v2951 := __v2950 < 2;
   if (__v2951) {
   return (false, nan)
+  } else {
+  
   };
   __v2952 := l_nth(args, 0);
   year := __v2952;
@@ -49654,41 +50832,41 @@ Tests compilation of ecmaref5:
   milli := __v3006
   }
   };
-  __v3014 := is_NaN(y);
-  __v3013 := !__v3014;
-  if (__v3013 = false) {
-  __v3012 := false
+  __v3012 := is_NaN(y);
+  __v3011 := !__v3012;
+  if (__v3011 = false) {
+  __v3015 := false
   } else {
-  __v3015 := "ToInteger"(___internal_esl_global, y);
-  if (fst(__v3015)) {
-  return __v3015
+  __v3013 := "ToInteger"(___internal_esl_global, y);
+  if (fst(__v3013)) {
+  return __v3013
   } else {
-  __v3015 := snd(__v3015)
+  __v3013 := snd(__v3013)
   };
-  __v3016 := 0.0 <= __v3015;
-  if (__v3016 = false) {
-  __v3012 := false
+  __v3014 := 0.0 <= __v3013;
+  if (__v3014 = false) {
+  __v3015 := false
   } else {
-  __v3012 := true
+  __v3015 := true
   }
   };
-  if (__v3012 = false) {
-  __v3011 := false
+  if (__v3015 = false) {
+  __v3018 := false
   } else {
-  __v3017 := "ToInteger"(___internal_esl_global, y);
-  if (fst(__v3017)) {
-  return __v3017
+  __v3016 := "ToInteger"(___internal_esl_global, y);
+  if (fst(__v3016)) {
+  return __v3016
   } else {
-  __v3017 := snd(__v3017)
+  __v3016 := snd(__v3016)
   };
-  __v3018 := __v3017 <= 99.0;
-  if (__v3018 = false) {
-  __v3011 := false
+  __v3017 := __v3016 <= 99.0;
+  if (__v3017 = false) {
+  __v3018 := false
   } else {
-  __v3011 := true
+  __v3018 := true
   }
   };
-  if (__v3011) {
+  if (__v3018) {
   print "in if DateUTC";
   __v3019 := "ToInteger"(___internal_esl_global, y);
   if (fst(__v3019)) {
@@ -49774,6 +50952,8 @@ Tests compilation of ecmaref5:
   };
   if (__v2940) {
   return (false, headResult)
+  } else {
+  
   };
   __v2941 := "JS_Interpreter_SourceElements_SourceElement"(___internal_esl_global, SourceElement, scope);
   if (fst(__v2941)) {
@@ -49782,29 +50962,29 @@ Tests compilation of ecmaref5:
   __v2941 := snd(__v2941)
   };
   tailResult := __v2941;
-  __v2942 := "getCompletionValue"(___internal_esl_global, tailResult);
-  if (fst(__v2942)) {
-  return __v2942
+  __v2943 := "getCompletionValue"(___internal_esl_global, tailResult);
+  if (fst(__v2943)) {
+  return __v2943
   } else {
-  __v2942 := snd(__v2942)
+  __v2943 := snd(__v2943)
   };
-  __v2943 := __v2942 = 'empty;
-  if (__v2943) {
-  __v2944 := "getCompletionValue"(___internal_esl_global, headResult);
-  if (fst(__v2944)) {
-  return __v2944
-  } else {
-  __v2944 := snd(__v2944)
-  };
-  V := __v2944
-  } else {
-  __v2945 := "getCompletionValue"(___internal_esl_global, tailResult);
+  __v2944 := __v2943 = 'empty;
+  if (__v2944) {
+  __v2945 := "getCompletionValue"(___internal_esl_global, headResult);
   if (fst(__v2945)) {
   return __v2945
   } else {
   __v2945 := snd(__v2945)
   };
   V := __v2945
+  } else {
+  __v2942 := "getCompletionValue"(___internal_esl_global, tailResult);
+  if (fst(__v2942)) {
+  return __v2942
+  } else {
+  __v2942 := snd(__v2942)
+  };
+  V := __v2942
   };
   __v2946 := "getCompletionType"(___internal_esl_global, tailResult);
   if (fst(__v2946)) {
@@ -49845,6 +51025,8 @@ Tests compilation of ecmaref5:
   __v2930 := desc = 'undefined;
   if (__v2930) {
   return (false, 'undefined)
+  } else {
+  
   };
   __v2931 := "IsDataPropertyDescriptor"(___internal_esl_global, desc);
   if (fst(__v2931)) {
@@ -49856,12 +51038,16 @@ Tests compilation of ecmaref5:
   if (__v2932) {
   __v2933 := desc["Value"];
   return (false, __v2933)
+  } else {
+  
   };
   __v2934 := desc["Get"];
   getter := __v2934;
   __v2935 := getter = 'undefined;
   if (__v2935) {
   return (false, 'undefined)
+  } else {
+  
   };
   __v2936 := getter["Call"];
   __v2937 := [];
@@ -49932,6 +51118,8 @@ Tests compilation of ecmaref5:
   if (__v2913) {
   __v2914 := caps[i_str];
   caps'[i_str] := __v2914
+  } else {
+  
   };
   __v2915 := i + 1;
   i := __v2915;
@@ -49940,31 +51128,33 @@ Tests compilation of ecmaref5:
   return (false, caps')
   };
   function isRegExpObject(___internal_esl_global, arg) {
-  __v2904 := "Type"(___internal_esl_global, arg);
-  if (fst(__v2904)) {
-  return __v2904
+  __v2903 := "Type"(___internal_esl_global, arg);
+  if (fst(__v2903)) {
+  return __v2903
   } else {
-  __v2904 := snd(__v2904)
+  __v2903 := snd(__v2903)
   };
-  __v2905 := __v2904 = "Object";
-  if (__v2905 = false) {
-  __v2903 := false
+  __v2904 := __v2903 = "Object";
+  if (__v2904 = false) {
+  __v2907 := false
   } else {
-  __v2906 := "getInternalProperty"(___internal_esl_global, arg, "Class");
-  if (fst(__v2906)) {
-  return __v2906
+  __v2905 := "getInternalProperty"(___internal_esl_global, arg, "Class");
+  if (fst(__v2905)) {
+  return __v2905
   } else {
-  __v2906 := snd(__v2906)
+  __v2905 := snd(__v2905)
   };
-  __v2907 := __v2906 = "RegExp";
-  if (__v2907 = false) {
-  __v2903 := false
+  __v2906 := __v2905 = "RegExp";
+  if (__v2906 = false) {
+  __v2907 := false
   } else {
-  __v2903 := true
+  __v2907 := true
   }
   };
-  if (__v2903) {
+  if (__v2907) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
   };
@@ -50084,6 +51274,8 @@ Tests compilation of ecmaref5:
   __v2884 := snd(__v2884)
   };
   return (false, __v2884)
+  } else {
+  
   };
   __v2885 := l_len(StatementList);
   __v2886 := __v2885 - 1;
@@ -50117,49 +51309,49 @@ Tests compilation of ecmaref5:
   __v2872 := snd(__v2872)
   };
   lref := __v2872;
-  __v2873 := "GetValue"(___internal_esl_global, lref);
-  if (fst(__v2873)) {
-  return __v2873
+  __v2875 := "GetValue"(___internal_esl_global, lref);
+  if (fst(__v2875)) {
+  return __v2875
   } else {
-  __v2873 := snd(__v2873)
+  __v2875 := snd(__v2875)
   };
-  __v2874 := "ToBoolean"(___internal_esl_global, __v2873);
-  if (fst(__v2874)) {
-  return __v2874
-  } else {
-  __v2874 := snd(__v2874)
-  };
-  __v2875 := __v2874 = true;
-  if (__v2875) {
-  __v2876 := "JS_Interpreter_Expr"(___internal_esl_global, firstAssignmentExpression, scope);
+  __v2876 := "ToBoolean"(___internal_esl_global, __v2875);
   if (fst(__v2876)) {
   return __v2876
   } else {
   __v2876 := snd(__v2876)
   };
-  trueRef := __v2876;
-  __v2877 := "GetValue"(___internal_esl_global, trueRef);
-  if (fst(__v2877)) {
-  return __v2877
-  } else {
-  __v2877 := snd(__v2877)
-  };
-  return (false, __v2877)
-  } else {
-  __v2878 := "JS_Interpreter_Expr"(___internal_esl_global, secondAssignmentExpression, scope);
+  __v2877 := __v2876 = true;
+  if (__v2877) {
+  __v2878 := "JS_Interpreter_Expr"(___internal_esl_global, firstAssignmentExpression, scope);
   if (fst(__v2878)) {
   return __v2878
   } else {
   __v2878 := snd(__v2878)
   };
-  falseRef := __v2878;
-  __v2879 := "GetValue"(___internal_esl_global, falseRef);
+  trueRef := __v2878;
+  __v2879 := "GetValue"(___internal_esl_global, trueRef);
   if (fst(__v2879)) {
   return __v2879
   } else {
   __v2879 := snd(__v2879)
   };
   return (false, __v2879)
+  } else {
+  __v2873 := "JS_Interpreter_Expr"(___internal_esl_global, secondAssignmentExpression, scope);
+  if (fst(__v2873)) {
+  return __v2873
+  } else {
+  __v2873 := snd(__v2873)
+  };
+  falseRef := __v2873;
+  __v2874 := "GetValue"(___internal_esl_global, falseRef);
+  if (fst(__v2874)) {
+  return __v2874
+  } else {
+  __v2874 := snd(__v2874)
+  };
+  return (false, __v2874)
   }
   } else {
   if (true) {
@@ -50183,6 +51375,8 @@ Tests compilation of ecmaref5:
   __v2829 := snd(__v2829)
   };
   return (true, __v2829)
+  } else {
+  
   };
   __v2830 := l_add(stack, value);
   stack := __v2830;
@@ -50190,18 +51384,18 @@ Tests compilation of ecmaref5:
   __v2832 := [indent, gap];
   __v2831 := s_concat(__v2832);
   indent := __v2831;
-  __v2834 := PropertyList = 'undefined;
-  __v2833 := !__v2834;
-  if (__v2833) {
+  __v2835 := PropertyList = 'undefined;
+  __v2834 := !__v2835;
+  if (__v2834) {
   K := PropertyList
   } else {
-  __v2835 := "getOwnEnumerablePropertiesNames"(___internal_esl_global, value);
-  if (fst(__v2835)) {
-  return __v2835
+  __v2833 := "getOwnEnumerablePropertiesNames"(___internal_esl_global, value);
+  if (fst(__v2833)) {
+  return __v2833
   } else {
-  __v2835 := snd(__v2835)
+  __v2833 := snd(__v2833)
   };
-  K := __v2835
+  K := __v2833
   };
   __v2836 := [];
   partial := __v2836;
@@ -50238,48 +51432,52 @@ Tests compilation of ecmaref5:
   __v2849 := [member, " "];
   __v2848 := s_concat(__v2849);
   member := __v2848
+  } else {
+  
   };
   __v2851 := [member, strP];
   __v2850 := s_concat(__v2851);
   member := __v2850;
   __v2852 := l_add(partial, member);
   partial := __v2852
+  } else {
+  
   };
   __v2853 := i + 1;
   i := __v2853;
   __v2838 := i < kLen
   };
-  __v2854 := l_len(partial);
-  __v2855 := __v2854 = 0;
-  if (__v2855) {
+  __v2863 := l_len(partial);
+  __v2864 := __v2863 = 0;
+  if (__v2864) {
   final := "{}"
   } else {
-  __v2856 := gap = "";
-  if (__v2856) {
-  __v2857 := "concatenateListStrElmsWithSeparator"(___internal_esl_global, partial, ",");
-  if (fst(__v2857)) {
-  return __v2857
+  __v2859 := gap = "";
+  if (__v2859) {
+  __v2860 := "concatenateListStrElmsWithSeparator"(___internal_esl_global, partial, ",");
+  if (fst(__v2860)) {
+  return __v2860
   } else {
-  __v2857 := snd(__v2857)
+  __v2860 := snd(__v2860)
   };
-  properties := __v2857;
-  __v2859 := ["{", properties, "}"];
-  __v2858 := s_concat(__v2859);
-  final := __v2858
+  properties := __v2860;
+  __v2862 := ["{", properties, "}"];
+  __v2861 := s_concat(__v2862);
+  final := __v2861
   } else {
-  __v2861 := [",", "\n", indent];
-  __v2860 := s_concat(__v2861);
-  separator := __v2860;
-  __v2862 := "concatenateListStrElmsWithSeparator"(___internal_esl_global, partial, separator);
-  if (fst(__v2862)) {
-  return __v2862
+  __v2855 := [",", "\n", indent];
+  __v2854 := s_concat(__v2855);
+  separator := __v2854;
+  __v2856 := "concatenateListStrElmsWithSeparator"(___internal_esl_global, partial, separator);
+  if (fst(__v2856)) {
+  return __v2856
   } else {
-  __v2862 := snd(__v2862)
+  __v2856 := snd(__v2856)
   };
-  properties := __v2862;
-  __v2864 := ["{", "\n", indent, properties, "\n", stepback, "}"];
-  __v2863 := s_concat(__v2864);
-  final := __v2863
+  properties := __v2856;
+  __v2858 := ["{", "\n", indent, properties, "\n", stepback, "}"];
+  __v2857 := s_concat(__v2858);
+  final := __v2857
   }
   };
   __v2865 := l_remove_last(stack);
@@ -50374,6 +51572,8 @@ Tests compilation of ecmaref5:
   __v2818 := is_NaN(t);
   if (__v2818) {
   return (false, nan)
+  } else {
+  
   };
   __v2819 := "YearFromTime"(___internal_esl_global, t);
   if (fst(__v2819)) {
@@ -50408,6 +51608,8 @@ Tests compilation of ecmaref5:
   __v2810 := snd(__v2810)
   };
   return (false, __v2810)
+  } else {
+  
   };
   __v2811 := "JS_Interpreter_PropertyName_NumericLiteral"(___internal_esl_global, Literal);
   if (fst(__v2811)) {
@@ -50474,463 +51676,463 @@ Tests compilation of ecmaref5:
   __v2692 := snd(__v2692)
   };
   print __v2692;
-  __v2792 := "DayWithinYear"(___internal_esl_global, t);
-  if (fst(__v2792)) {
-  return __v2792
+  __v2791 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2791)) {
+  return __v2791
   } else {
-  __v2792 := snd(__v2792)
+  __v2791 := snd(__v2791)
   };
-  __v2793 := 0.0 <= __v2792;
-  if (__v2793 = false) {
-  __v2791 := false
+  __v2792 := 0.0 <= __v2791;
+  if (__v2792 = false) {
+  __v2795 := false
   } else {
-  __v2794 := "DayWithinYear"(___internal_esl_global, t);
-  if (fst(__v2794)) {
-  return __v2794
+  __v2793 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2793)) {
+  return __v2793
   } else {
-  __v2794 := snd(__v2794)
+  __v2793 := snd(__v2793)
   };
-  __v2795 := __v2794 < 31.0;
-  if (__v2795 = false) {
-  __v2791 := false
+  __v2794 := __v2793 < 31.0;
+  if (__v2794 = false) {
+  __v2795 := false
   } else {
-  __v2791 := true
+  __v2795 := true
   }
   };
-  if (__v2791) {
+  if (__v2795) {
   return (false, 0.0)
   } else {
-  __v2785 := "DayWithinYear"(___internal_esl_global, t);
-  if (fst(__v2785)) {
-  return __v2785
+  __v2784 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2784)) {
+  return __v2784
   } else {
-  __v2785 := snd(__v2785)
+  __v2784 := snd(__v2784)
   };
-  __v2786 := 31.0 <= __v2785;
-  if (__v2786 = false) {
-  __v2784 := false
+  __v2785 := 31.0 <= __v2784;
+  if (__v2785 = false) {
+  __v2790 := false
   } else {
-  __v2787 := "DayWithinYear"(___internal_esl_global, t);
+  __v2786 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2786)) {
+  return __v2786
+  } else {
+  __v2786 := snd(__v2786)
+  };
+  __v2787 := "InLeapYear"(___internal_esl_global, t);
   if (fst(__v2787)) {
   return __v2787
   } else {
   __v2787 := snd(__v2787)
   };
-  __v2788 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2788)) {
-  return __v2788
+  __v2788 := 59.0 + __v2787;
+  __v2789 := __v2786 < __v2788;
+  if (__v2789 = false) {
+  __v2790 := false
   } else {
-  __v2788 := snd(__v2788)
-  };
-  __v2789 := 59.0 + __v2788;
-  __v2790 := __v2787 < __v2789;
-  if (__v2790 = false) {
-  __v2784 := false
-  } else {
-  __v2784 := true
+  __v2790 := true
   }
   };
-  if (__v2784) {
+  if (__v2790) {
   return (false, 1.0)
   } else {
-  __v2776 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2776)) {
-  return __v2776
+  __v2775 := "InLeapYear"(___internal_esl_global, t);
+  if (fst(__v2775)) {
+  return __v2775
   } else {
-  __v2776 := snd(__v2776)
+  __v2775 := snd(__v2775)
   };
-  __v2777 := 59.0 + __v2776;
-  __v2778 := "DayWithinYear"(___internal_esl_global, t);
-  if (fst(__v2778)) {
-  return __v2778
+  __v2776 := 59.0 + __v2775;
+  __v2777 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2777)) {
+  return __v2777
   } else {
-  __v2778 := snd(__v2778)
+  __v2777 := snd(__v2777)
   };
-  __v2779 := __v2777 <= __v2778;
-  if (__v2779 = false) {
-  __v2775 := false
+  __v2778 := __v2776 <= __v2777;
+  if (__v2778 = false) {
+  __v2783 := false
   } else {
-  __v2780 := "DayWithinYear"(___internal_esl_global, t);
+  __v2779 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2779)) {
+  return __v2779
+  } else {
+  __v2779 := snd(__v2779)
+  };
+  __v2780 := "InLeapYear"(___internal_esl_global, t);
   if (fst(__v2780)) {
   return __v2780
   } else {
   __v2780 := snd(__v2780)
   };
-  __v2781 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2781)) {
-  return __v2781
+  __v2781 := 90.0 + __v2780;
+  __v2782 := __v2779 < __v2781;
+  if (__v2782 = false) {
+  __v2783 := false
   } else {
-  __v2781 := snd(__v2781)
-  };
-  __v2782 := 90.0 + __v2781;
-  __v2783 := __v2780 < __v2782;
-  if (__v2783 = false) {
-  __v2775 := false
-  } else {
-  __v2775 := true
+  __v2783 := true
   }
   };
-  if (__v2775) {
+  if (__v2783) {
   return (false, 2.0)
   } else {
-  __v2767 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2767)) {
-  return __v2767
+  __v2766 := "InLeapYear"(___internal_esl_global, t);
+  if (fst(__v2766)) {
+  return __v2766
   } else {
-  __v2767 := snd(__v2767)
+  __v2766 := snd(__v2766)
   };
-  __v2768 := 90.0 + __v2767;
-  __v2769 := "DayWithinYear"(___internal_esl_global, t);
-  if (fst(__v2769)) {
-  return __v2769
+  __v2767 := 90.0 + __v2766;
+  __v2768 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2768)) {
+  return __v2768
   } else {
-  __v2769 := snd(__v2769)
+  __v2768 := snd(__v2768)
   };
-  __v2770 := __v2768 <= __v2769;
-  if (__v2770 = false) {
-  __v2766 := false
+  __v2769 := __v2767 <= __v2768;
+  if (__v2769 = false) {
+  __v2774 := false
   } else {
-  __v2771 := "DayWithinYear"(___internal_esl_global, t);
+  __v2770 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2770)) {
+  return __v2770
+  } else {
+  __v2770 := snd(__v2770)
+  };
+  __v2771 := "InLeapYear"(___internal_esl_global, t);
   if (fst(__v2771)) {
   return __v2771
   } else {
   __v2771 := snd(__v2771)
   };
-  __v2772 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2772)) {
-  return __v2772
+  __v2772 := 120.0 + __v2771;
+  __v2773 := __v2770 < __v2772;
+  if (__v2773 = false) {
+  __v2774 := false
   } else {
-  __v2772 := snd(__v2772)
-  };
-  __v2773 := 120.0 + __v2772;
-  __v2774 := __v2771 < __v2773;
-  if (__v2774 = false) {
-  __v2766 := false
-  } else {
-  __v2766 := true
+  __v2774 := true
   }
   };
-  if (__v2766) {
+  if (__v2774) {
   return (false, 3.0)
   } else {
-  __v2758 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2758)) {
-  return __v2758
+  __v2757 := "InLeapYear"(___internal_esl_global, t);
+  if (fst(__v2757)) {
+  return __v2757
   } else {
-  __v2758 := snd(__v2758)
+  __v2757 := snd(__v2757)
   };
-  __v2759 := 120.0 + __v2758;
-  __v2760 := "DayWithinYear"(___internal_esl_global, t);
-  if (fst(__v2760)) {
-  return __v2760
+  __v2758 := 120.0 + __v2757;
+  __v2759 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2759)) {
+  return __v2759
   } else {
-  __v2760 := snd(__v2760)
+  __v2759 := snd(__v2759)
   };
-  __v2761 := __v2759 <= __v2760;
-  if (__v2761 = false) {
-  __v2757 := false
+  __v2760 := __v2758 <= __v2759;
+  if (__v2760 = false) {
+  __v2765 := false
   } else {
-  __v2762 := "DayWithinYear"(___internal_esl_global, t);
+  __v2761 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2761)) {
+  return __v2761
+  } else {
+  __v2761 := snd(__v2761)
+  };
+  __v2762 := "InLeapYear"(___internal_esl_global, t);
   if (fst(__v2762)) {
   return __v2762
   } else {
   __v2762 := snd(__v2762)
   };
-  __v2763 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2763)) {
-  return __v2763
+  __v2763 := 151.0 + __v2762;
+  __v2764 := __v2761 < __v2763;
+  if (__v2764 = false) {
+  __v2765 := false
   } else {
-  __v2763 := snd(__v2763)
-  };
-  __v2764 := 151.0 + __v2763;
-  __v2765 := __v2762 < __v2764;
-  if (__v2765 = false) {
-  __v2757 := false
-  } else {
-  __v2757 := true
+  __v2765 := true
   }
   };
-  if (__v2757) {
+  if (__v2765) {
   return (false, 4.0)
   } else {
-  __v2749 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2749)) {
-  return __v2749
+  __v2748 := "InLeapYear"(___internal_esl_global, t);
+  if (fst(__v2748)) {
+  return __v2748
   } else {
-  __v2749 := snd(__v2749)
+  __v2748 := snd(__v2748)
   };
-  __v2750 := 151.0 + __v2749;
-  __v2751 := "DayWithinYear"(___internal_esl_global, t);
-  if (fst(__v2751)) {
-  return __v2751
+  __v2749 := 151.0 + __v2748;
+  __v2750 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2750)) {
+  return __v2750
   } else {
-  __v2751 := snd(__v2751)
+  __v2750 := snd(__v2750)
   };
-  __v2752 := __v2750 <= __v2751;
-  if (__v2752 = false) {
-  __v2748 := false
+  __v2751 := __v2749 <= __v2750;
+  if (__v2751 = false) {
+  __v2756 := false
   } else {
-  __v2753 := "DayWithinYear"(___internal_esl_global, t);
+  __v2752 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2752)) {
+  return __v2752
+  } else {
+  __v2752 := snd(__v2752)
+  };
+  __v2753 := "InLeapYear"(___internal_esl_global, t);
   if (fst(__v2753)) {
   return __v2753
   } else {
   __v2753 := snd(__v2753)
   };
-  __v2754 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2754)) {
-  return __v2754
+  __v2754 := 181.0 + __v2753;
+  __v2755 := __v2752 < __v2754;
+  if (__v2755 = false) {
+  __v2756 := false
   } else {
-  __v2754 := snd(__v2754)
-  };
-  __v2755 := 181.0 + __v2754;
-  __v2756 := __v2753 < __v2755;
-  if (__v2756 = false) {
-  __v2748 := false
-  } else {
-  __v2748 := true
+  __v2756 := true
   }
   };
-  if (__v2748) {
+  if (__v2756) {
   return (false, 5.0)
   } else {
-  __v2740 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2740)) {
-  return __v2740
+  __v2739 := "InLeapYear"(___internal_esl_global, t);
+  if (fst(__v2739)) {
+  return __v2739
   } else {
-  __v2740 := snd(__v2740)
+  __v2739 := snd(__v2739)
   };
-  __v2741 := 181.0 + __v2740;
-  __v2742 := "DayWithinYear"(___internal_esl_global, t);
-  if (fst(__v2742)) {
-  return __v2742
+  __v2740 := 181.0 + __v2739;
+  __v2741 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2741)) {
+  return __v2741
   } else {
-  __v2742 := snd(__v2742)
+  __v2741 := snd(__v2741)
   };
-  __v2743 := __v2741 <= __v2742;
-  if (__v2743 = false) {
-  __v2739 := false
+  __v2742 := __v2740 <= __v2741;
+  if (__v2742 = false) {
+  __v2747 := false
   } else {
-  __v2744 := "DayWithinYear"(___internal_esl_global, t);
+  __v2743 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2743)) {
+  return __v2743
+  } else {
+  __v2743 := snd(__v2743)
+  };
+  __v2744 := "InLeapYear"(___internal_esl_global, t);
   if (fst(__v2744)) {
   return __v2744
   } else {
   __v2744 := snd(__v2744)
   };
-  __v2745 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2745)) {
-  return __v2745
+  __v2745 := 212.0 + __v2744;
+  __v2746 := __v2743 < __v2745;
+  if (__v2746 = false) {
+  __v2747 := false
   } else {
-  __v2745 := snd(__v2745)
-  };
-  __v2746 := 212.0 + __v2745;
-  __v2747 := __v2744 < __v2746;
-  if (__v2747 = false) {
-  __v2739 := false
-  } else {
-  __v2739 := true
+  __v2747 := true
   }
   };
-  if (__v2739) {
+  if (__v2747) {
   return (false, 6.0)
   } else {
-  __v2731 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2731)) {
-  return __v2731
+  __v2730 := "InLeapYear"(___internal_esl_global, t);
+  if (fst(__v2730)) {
+  return __v2730
   } else {
-  __v2731 := snd(__v2731)
+  __v2730 := snd(__v2730)
   };
-  __v2732 := 212.0 + __v2731;
-  __v2733 := "DayWithinYear"(___internal_esl_global, t);
-  if (fst(__v2733)) {
-  return __v2733
+  __v2731 := 212.0 + __v2730;
+  __v2732 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2732)) {
+  return __v2732
   } else {
-  __v2733 := snd(__v2733)
+  __v2732 := snd(__v2732)
   };
-  __v2734 := __v2732 <= __v2733;
-  if (__v2734 = false) {
-  __v2730 := false
+  __v2733 := __v2731 <= __v2732;
+  if (__v2733 = false) {
+  __v2738 := false
   } else {
-  __v2735 := "DayWithinYear"(___internal_esl_global, t);
+  __v2734 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2734)) {
+  return __v2734
+  } else {
+  __v2734 := snd(__v2734)
+  };
+  __v2735 := "InLeapYear"(___internal_esl_global, t);
   if (fst(__v2735)) {
   return __v2735
   } else {
   __v2735 := snd(__v2735)
   };
-  __v2736 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2736)) {
-  return __v2736
+  __v2736 := 243.0 + __v2735;
+  __v2737 := __v2734 < __v2736;
+  if (__v2737 = false) {
+  __v2738 := false
   } else {
-  __v2736 := snd(__v2736)
-  };
-  __v2737 := 243.0 + __v2736;
-  __v2738 := __v2735 < __v2737;
-  if (__v2738 = false) {
-  __v2730 := false
-  } else {
-  __v2730 := true
+  __v2738 := true
   }
   };
-  if (__v2730) {
+  if (__v2738) {
   return (false, 7.0)
   } else {
-  __v2722 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2722)) {
-  return __v2722
+  __v2721 := "InLeapYear"(___internal_esl_global, t);
+  if (fst(__v2721)) {
+  return __v2721
   } else {
-  __v2722 := snd(__v2722)
+  __v2721 := snd(__v2721)
   };
-  __v2723 := 243.0 + __v2722;
-  __v2724 := "DayWithinYear"(___internal_esl_global, t);
-  if (fst(__v2724)) {
-  return __v2724
+  __v2722 := 243.0 + __v2721;
+  __v2723 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2723)) {
+  return __v2723
   } else {
-  __v2724 := snd(__v2724)
+  __v2723 := snd(__v2723)
   };
-  __v2725 := __v2723 <= __v2724;
-  if (__v2725 = false) {
-  __v2721 := false
+  __v2724 := __v2722 <= __v2723;
+  if (__v2724 = false) {
+  __v2729 := false
   } else {
-  __v2726 := "DayWithinYear"(___internal_esl_global, t);
+  __v2725 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2725)) {
+  return __v2725
+  } else {
+  __v2725 := snd(__v2725)
+  };
+  __v2726 := "InLeapYear"(___internal_esl_global, t);
   if (fst(__v2726)) {
   return __v2726
   } else {
   __v2726 := snd(__v2726)
   };
-  __v2727 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2727)) {
-  return __v2727
+  __v2727 := 273.0 + __v2726;
+  __v2728 := __v2725 < __v2727;
+  if (__v2728 = false) {
+  __v2729 := false
   } else {
-  __v2727 := snd(__v2727)
-  };
-  __v2728 := 273.0 + __v2727;
-  __v2729 := __v2726 < __v2728;
-  if (__v2729 = false) {
-  __v2721 := false
-  } else {
-  __v2721 := true
+  __v2729 := true
   }
   };
-  if (__v2721) {
+  if (__v2729) {
   return (false, 8.0)
   } else {
-  __v2713 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2713)) {
-  return __v2713
+  __v2712 := "InLeapYear"(___internal_esl_global, t);
+  if (fst(__v2712)) {
+  return __v2712
   } else {
-  __v2713 := snd(__v2713)
+  __v2712 := snd(__v2712)
   };
-  __v2714 := 273.0 + __v2713;
-  __v2715 := "DayWithinYear"(___internal_esl_global, t);
-  if (fst(__v2715)) {
-  return __v2715
+  __v2713 := 273.0 + __v2712;
+  __v2714 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2714)) {
+  return __v2714
   } else {
-  __v2715 := snd(__v2715)
+  __v2714 := snd(__v2714)
   };
-  __v2716 := __v2714 <= __v2715;
-  if (__v2716 = false) {
-  __v2712 := false
+  __v2715 := __v2713 <= __v2714;
+  if (__v2715 = false) {
+  __v2720 := false
   } else {
-  __v2717 := "DayWithinYear"(___internal_esl_global, t);
+  __v2716 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2716)) {
+  return __v2716
+  } else {
+  __v2716 := snd(__v2716)
+  };
+  __v2717 := "InLeapYear"(___internal_esl_global, t);
   if (fst(__v2717)) {
   return __v2717
   } else {
   __v2717 := snd(__v2717)
   };
-  __v2718 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2718)) {
-  return __v2718
+  __v2718 := 304.0 + __v2717;
+  __v2719 := __v2716 < __v2718;
+  if (__v2719 = false) {
+  __v2720 := false
   } else {
-  __v2718 := snd(__v2718)
-  };
-  __v2719 := 304.0 + __v2718;
-  __v2720 := __v2717 < __v2719;
-  if (__v2720 = false) {
-  __v2712 := false
-  } else {
-  __v2712 := true
+  __v2720 := true
   }
   };
-  if (__v2712) {
+  if (__v2720) {
   return (false, 9.0)
   } else {
-  __v2704 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2704)) {
-  return __v2704
+  __v2703 := "InLeapYear"(___internal_esl_global, t);
+  if (fst(__v2703)) {
+  return __v2703
   } else {
-  __v2704 := snd(__v2704)
+  __v2703 := snd(__v2703)
   };
-  __v2705 := 304.0 + __v2704;
-  __v2706 := "DayWithinYear"(___internal_esl_global, t);
-  if (fst(__v2706)) {
-  return __v2706
+  __v2704 := 304.0 + __v2703;
+  __v2705 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2705)) {
+  return __v2705
   } else {
-  __v2706 := snd(__v2706)
+  __v2705 := snd(__v2705)
   };
-  __v2707 := __v2705 <= __v2706;
-  if (__v2707 = false) {
-  __v2703 := false
+  __v2706 := __v2704 <= __v2705;
+  if (__v2706 = false) {
+  __v2711 := false
   } else {
-  __v2708 := "DayWithinYear"(___internal_esl_global, t);
+  __v2707 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2707)) {
+  return __v2707
+  } else {
+  __v2707 := snd(__v2707)
+  };
+  __v2708 := "InLeapYear"(___internal_esl_global, t);
   if (fst(__v2708)) {
   return __v2708
   } else {
   __v2708 := snd(__v2708)
   };
-  __v2709 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2709)) {
-  return __v2709
+  __v2709 := 334.0 + __v2708;
+  __v2710 := __v2707 < __v2709;
+  if (__v2710 = false) {
+  __v2711 := false
   } else {
-  __v2709 := snd(__v2709)
-  };
-  __v2710 := 334.0 + __v2709;
-  __v2711 := __v2708 < __v2710;
-  if (__v2711 = false) {
-  __v2703 := false
-  } else {
-  __v2703 := true
+  __v2711 := true
   }
   };
-  if (__v2703) {
+  if (__v2711) {
   return (false, 10.0)
   } else {
-  __v2695 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2695)) {
-  return __v2695
+  __v2694 := "InLeapYear"(___internal_esl_global, t);
+  if (fst(__v2694)) {
+  return __v2694
   } else {
-  __v2695 := snd(__v2695)
+  __v2694 := snd(__v2694)
   };
-  __v2696 := 334.0 + __v2695;
-  __v2697 := "DayWithinYear"(___internal_esl_global, t);
-  if (fst(__v2697)) {
-  return __v2697
+  __v2695 := 334.0 + __v2694;
+  __v2696 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2696)) {
+  return __v2696
   } else {
-  __v2697 := snd(__v2697)
+  __v2696 := snd(__v2696)
   };
-  __v2698 := __v2696 <= __v2697;
-  if (__v2698 = false) {
-  __v2694 := false
+  __v2697 := __v2695 <= __v2696;
+  if (__v2697 = false) {
+  __v2702 := false
   } else {
-  __v2699 := "DayWithinYear"(___internal_esl_global, t);
+  __v2698 := "DayWithinYear"(___internal_esl_global, t);
+  if (fst(__v2698)) {
+  return __v2698
+  } else {
+  __v2698 := snd(__v2698)
+  };
+  __v2699 := "InLeapYear"(___internal_esl_global, t);
   if (fst(__v2699)) {
   return __v2699
   } else {
   __v2699 := snd(__v2699)
   };
-  __v2700 := "InLeapYear"(___internal_esl_global, t);
-  if (fst(__v2700)) {
-  return __v2700
+  __v2700 := 365.0 + __v2699;
+  __v2701 := __v2698 < __v2700;
+  if (__v2701 = false) {
+  __v2702 := false
   } else {
-  __v2700 := snd(__v2700)
-  };
-  __v2701 := 365.0 + __v2700;
-  __v2702 := __v2699 < __v2701;
-  if (__v2702 = false) {
-  __v2694 := false
-  } else {
-  __v2694 := true
+  __v2702 := true
   }
   };
-  if (__v2694) {
+  if (__v2702) {
   return (false, 11.0)
   } else {
   __v2693 := is_NaN(t);
@@ -50980,6 +52182,8 @@ Tests compilation of ecmaref5:
   __v2655 := Desc = 'undefined;
   if (__v2655) {
   return (false, 'undefined)
+  } else {
+  
   };
   __v2656 := ___internal_esl_global["__$global"];
   __v2657 := [null];
@@ -50990,70 +52194,70 @@ Tests compilation of ecmaref5:
   __v2658 := snd(__v2658)
   };
   obj := __v2658;
-  __v2659 := "IsDataPropertyDescriptor"(___internal_esl_global, Desc);
-  if (fst(__v2659)) {
-  return __v2659
-  } else {
-  __v2659 := snd(__v2659)
-  };
-  __v2660 := __v2659 = true;
-  if (__v2660) {
-  __v2661 := obj["DefineOwnProperty"];
-  __v2662 := Desc["Value"];
-  __v2663 := "newDataPropertyDescriptor"(___internal_esl_global, __v2662);
-  if (fst(__v2663)) {
-  return __v2663
-  } else {
-  __v2663 := snd(__v2663)
-  };
-  __v2664 := __v2661(___internal_esl_global, obj, "value", __v2663, false);
-  if (fst(__v2664)) {
-  return __v2664
-  } else {
-  __v2664 := snd(__v2664)
-  };
-  __v2665 := obj["DefineOwnProperty"];
-  __v2666 := Desc["Writable"];
-  __v2667 := "newDataPropertyDescriptor"(___internal_esl_global, __v2666);
+  __v2667 := "IsDataPropertyDescriptor"(___internal_esl_global, Desc);
   if (fst(__v2667)) {
   return __v2667
   } else {
   __v2667 := snd(__v2667)
   };
-  __v2668 := __v2665(___internal_esl_global, obj, "writable", __v2667, false);
-  if (fst(__v2668)) {
-  return __v2668
-  } else {
-  __v2668 := snd(__v2668)
-  }
-  } else {
+  __v2668 := __v2667 = true;
+  if (__v2668) {
   __v2669 := obj["DefineOwnProperty"];
-  __v2670 := Desc["Get"];
+  __v2670 := Desc["Value"];
   __v2671 := "newDataPropertyDescriptor"(___internal_esl_global, __v2670);
   if (fst(__v2671)) {
   return __v2671
   } else {
   __v2671 := snd(__v2671)
   };
-  __v2672 := __v2669(___internal_esl_global, obj, "get", __v2671, false);
+  __v2672 := __v2669(___internal_esl_global, obj, "value", __v2671, false);
   if (fst(__v2672)) {
   return __v2672
   } else {
   __v2672 := snd(__v2672)
   };
   __v2673 := obj["DefineOwnProperty"];
-  __v2674 := Desc["Set"];
+  __v2674 := Desc["Writable"];
   __v2675 := "newDataPropertyDescriptor"(___internal_esl_global, __v2674);
   if (fst(__v2675)) {
   return __v2675
   } else {
   __v2675 := snd(__v2675)
   };
-  __v2676 := __v2673(___internal_esl_global, obj, "set", __v2675, false);
+  __v2676 := __v2673(___internal_esl_global, obj, "writable", __v2675, false);
   if (fst(__v2676)) {
   return __v2676
   } else {
   __v2676 := snd(__v2676)
+  }
+  } else {
+  __v2659 := obj["DefineOwnProperty"];
+  __v2660 := Desc["Get"];
+  __v2661 := "newDataPropertyDescriptor"(___internal_esl_global, __v2660);
+  if (fst(__v2661)) {
+  return __v2661
+  } else {
+  __v2661 := snd(__v2661)
+  };
+  __v2662 := __v2659(___internal_esl_global, obj, "get", __v2661, false);
+  if (fst(__v2662)) {
+  return __v2662
+  } else {
+  __v2662 := snd(__v2662)
+  };
+  __v2663 := obj["DefineOwnProperty"];
+  __v2664 := Desc["Set"];
+  __v2665 := "newDataPropertyDescriptor"(___internal_esl_global, __v2664);
+  if (fst(__v2665)) {
+  return __v2665
+  } else {
+  __v2665 := snd(__v2665)
+  };
+  __v2666 := __v2663(___internal_esl_global, obj, "set", __v2665, false);
+  if (fst(__v2666)) {
+  return __v2666
+  } else {
+  __v2666 := snd(__v2666)
   }
   };
   __v2677 := obj["DefineOwnProperty"];
@@ -51133,19 +52337,21 @@ Tests compilation of ecmaref5:
   __v2625 := snd(__v2625)
   };
   return (true, __v2625)
+  } else {
+  
   };
-  __v2627 := len = 0;
+  __v2626 := len = 0;
+  if (__v2626 = false) {
+  __v2628 := false
+  } else {
+  __v2627 := initialValue = null;
   if (__v2627 = false) {
-  __v2626 := false
+  __v2628 := false
   } else {
-  __v2628 := initialValue = null;
-  if (__v2628 = false) {
-  __v2626 := false
-  } else {
-  __v2626 := true
+  __v2628 := true
   }
   };
-  if (__v2626) {
+  if (__v2628) {
   __v2629 := "TypeErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v2629)) {
   return __v2629
@@ -51153,59 +52359,65 @@ Tests compilation of ecmaref5:
   __v2629 := snd(__v2629)
   };
   return (true, __v2629)
+  } else {
+  
   };
   k := 0.0;
-  __v2631 := initialValue = null;
-  __v2630 := !__v2631;
-  if (__v2630) {
+  __v2643 := initialValue = null;
+  __v2642 := !__v2643;
+  if (__v2642) {
   accumulator := initialValue
   } else {
   kPresent := false;
-  __v2632 := kPresent = false;
-  __v2633 := k < len;
-  __v2634 := __v2632 && __v2633;
-  while (__v2634) {
-  __v2635 := "ToString"(___internal_esl_global, k);
+  __v2630 := kPresent = false;
+  __v2631 := k < len;
+  __v2632 := __v2630 && __v2631;
+  while (__v2632) {
+  __v2633 := "ToString"(___internal_esl_global, k);
+  if (fst(__v2633)) {
+  return __v2633
+  } else {
+  __v2633 := snd(__v2633)
+  };
+  Pk := __v2633;
+  __v2634 := O["HasProperty"];
+  __v2635 := __v2634(___internal_esl_global, O, Pk);
   if (fst(__v2635)) {
   return __v2635
   } else {
   __v2635 := snd(__v2635)
   };
-  Pk := __v2635;
-  __v2636 := O["HasProperty"];
-  __v2637 := __v2636(___internal_esl_global, O, Pk);
-  if (fst(__v2637)) {
-  return __v2637
+  kPresent := __v2635;
+  __v2636 := kPresent = true;
+  if (__v2636) {
+  __v2637 := O["Get"];
+  __v2638 := __v2637(___internal_esl_global, O, Pk);
+  if (fst(__v2638)) {
+  return __v2638
   } else {
-  __v2637 := snd(__v2637)
+  __v2638 := snd(__v2638)
   };
-  kPresent := __v2637;
-  __v2638 := kPresent = true;
-  if (__v2638) {
-  __v2639 := O["Get"];
-  __v2640 := __v2639(___internal_esl_global, O, Pk);
-  if (fst(__v2640)) {
-  return __v2640
+  accumulator := __v2638
   } else {
-  __v2640 := snd(__v2640)
+  
   };
-  accumulator := __v2640
+  __v2639 := k + 1.0;
+  k := __v2639;
+  __v2630 := kPresent = false;
+  __v2631 := k < len;
+  __v2632 := __v2630 && __v2631
   };
-  __v2641 := k + 1.0;
-  k := __v2641;
-  __v2632 := kPresent = false;
-  __v2633 := k < len;
-  __v2634 := __v2632 && __v2633
-  };
-  __v2642 := kPresent = false;
-  if (__v2642) {
-  __v2643 := "TypeErrorConstructorInternal"(___internal_esl_global);
-  if (fst(__v2643)) {
-  return __v2643
+  __v2640 := kPresent = false;
+  if (__v2640) {
+  __v2641 := "TypeErrorConstructorInternal"(___internal_esl_global);
+  if (fst(__v2641)) {
+  return __v2641
   } else {
-  __v2643 := snd(__v2643)
+  __v2641 := snd(__v2641)
   };
-  return (true, __v2643)
+  return (true, __v2641)
+  } else {
+  
   }
   };
   __v2644 := k < len;
@@ -51244,6 +52456,8 @@ Tests compilation of ecmaref5:
   __v2653 := snd(__v2653)
   };
   accumulator := __v2653
+  } else {
+  
   };
   __v2654 := k + 1.0;
   k := __v2654;
@@ -51273,18 +52487,18 @@ Tests compilation of ecmaref5:
   start := __v2598;
   __v2599 := to_char_code_u("\237\191\191");
   end := __v2599;
-  __v2601 := code >= start;
+  __v2600 := code >= start;
+  if (__v2600 = false) {
+  __v2602 := false
+  } else {
+  __v2601 := code <= end;
   if (__v2601 = false) {
-  __v2600 := false
+  __v2602 := false
   } else {
-  __v2602 := code <= end;
-  if (__v2602 = false) {
-  __v2600 := false
-  } else {
-  __v2600 := true
+  __v2602 := true
   }
   };
-  if (__v2600) {
+  if (__v2602) {
   return (false, true)
   } else {
   return (false, false)
@@ -51391,107 +52605,109 @@ Tests compilation of ecmaref5:
   E := __v2559;
   __v2560 := tl(items);
   items := __v2560;
-  __v2562 := typeof(E);
-  __v2563 := __v2562 = __$Obj;
-  if (__v2563 = false) {
-  __v2561 := false
+  __v2566 := typeof(E);
+  __v2567 := __v2566 = __$Obj;
+  if (__v2567 = false) {
+  __v2570 := false
   } else {
-  __v2564 := E["Class"];
-  __v2565 := __v2564 = "Array";
-  if (__v2565 = false) {
-  __v2561 := false
+  __v2568 := E["Class"];
+  __v2569 := __v2568 = "Array";
+  if (__v2569 = false) {
+  __v2570 := false
   } else {
-  __v2561 := true
+  __v2570 := true
   }
   };
-  if (__v2561) {
-  __v2566 := int_to_float(0);
-  k := __v2566;
-  __v2567 := E["Get"];
-  __v2568 := __v2567(___internal_esl_global, E, "length");
-  if (fst(__v2568)) {
-  return __v2568
+  if (__v2570) {
+  __v2571 := int_to_float(0);
+  k := __v2571;
+  __v2572 := E["Get"];
+  __v2573 := __v2572(___internal_esl_global, E, "length");
+  if (fst(__v2573)) {
+  return __v2573
   } else {
-  __v2568 := snd(__v2568)
+  __v2573 := snd(__v2573)
   };
-  len := __v2568;
-  __v2569 := k < len;
-  while (__v2569) {
-  __v2570 := "ToString"(___internal_esl_global, k);
-  if (fst(__v2570)) {
-  return __v2570
-  } else {
-  __v2570 := snd(__v2570)
-  };
-  P := __v2570;
-  __v2571 := E["HasProperty"];
-  __v2572 := __v2571(___internal_esl_global, E, P);
-  if (fst(__v2572)) {
-  return __v2572
-  } else {
-  __v2572 := snd(__v2572)
-  };
-  exists := __v2572;
-  __v2573 := exists = true;
-  if (__v2573) {
-  __v2574 := E["Get"];
-  __v2575 := __v2574(___internal_esl_global, E, P);
+  len := __v2573;
+  __v2574 := k < len;
+  while (__v2574) {
+  __v2575 := "ToString"(___internal_esl_global, k);
   if (fst(__v2575)) {
   return __v2575
   } else {
   __v2575 := snd(__v2575)
   };
-  subElement := __v2575;
-  __v2576 := "newDataPropertyDescriptorFull"(___internal_esl_global, subElement, true, true, true);
-  if (fst(__v2576)) {
-  return __v2576
+  P := __v2575;
+  __v2576 := E["HasProperty"];
+  __v2577 := __v2576(___internal_esl_global, E, P);
+  if (fst(__v2577)) {
+  return __v2577
   } else {
-  __v2576 := snd(__v2576)
+  __v2577 := snd(__v2577)
   };
-  descriptor := __v2576;
-  __v2577 := A["DefineOwnProperty"];
-  __v2578 := "ToString"(___internal_esl_global, n);
-  if (fst(__v2578)) {
-  return __v2578
+  exists := __v2577;
+  __v2578 := exists = true;
+  if (__v2578) {
+  __v2579 := E["Get"];
+  __v2580 := __v2579(___internal_esl_global, E, P);
+  if (fst(__v2580)) {
+  return __v2580
   } else {
-  __v2578 := snd(__v2578)
+  __v2580 := snd(__v2580)
   };
-  __v2579 := __v2577(___internal_esl_global, A, __v2578, descriptor, false);
-  if (fst(__v2579)) {
-  return __v2579
+  subElement := __v2580;
+  __v2581 := "newDataPropertyDescriptorFull"(___internal_esl_global, subElement, true, true, true);
+  if (fst(__v2581)) {
+  return __v2581
   } else {
-  __v2579 := snd(__v2579)
-  }
+  __v2581 := snd(__v2581)
   };
-  __v2580 := n + 1.0;
-  n := __v2580;
-  __v2581 := k + 1.0;
-  k := __v2581;
-  __v2569 := k < len
-  }
+  descriptor := __v2581;
+  __v2582 := A["DefineOwnProperty"];
+  __v2583 := "ToString"(___internal_esl_global, n);
+  if (fst(__v2583)) {
+  return __v2583
   } else {
-  __v2582 := "newDataPropertyDescriptorFull"(___internal_esl_global, E, true, true, true);
-  if (fst(__v2582)) {
-  return __v2582
-  } else {
-  __v2582 := snd(__v2582)
+  __v2583 := snd(__v2583)
   };
-  descriptor := __v2582;
-  __v2583 := A["DefineOwnProperty"];
-  __v2584 := "ToString"(___internal_esl_global, n);
+  __v2584 := __v2582(___internal_esl_global, A, __v2583, descriptor, false);
   if (fst(__v2584)) {
   return __v2584
   } else {
   __v2584 := snd(__v2584)
-  };
-  __v2585 := __v2583(___internal_esl_global, A, __v2584, descriptor, false);
-  if (fst(__v2585)) {
-  return __v2585
+  }
   } else {
-  __v2585 := snd(__v2585)
+  
   };
-  __v2586 := n + 1.0;
-  n := __v2586
+  __v2585 := n + 1.0;
+  n := __v2585;
+  __v2586 := k + 1.0;
+  k := __v2586;
+  __v2574 := k < len
+  }
+  } else {
+  __v2561 := "newDataPropertyDescriptorFull"(___internal_esl_global, E, true, true, true);
+  if (fst(__v2561)) {
+  return __v2561
+  } else {
+  __v2561 := snd(__v2561)
+  };
+  descriptor := __v2561;
+  __v2562 := A["DefineOwnProperty"];
+  __v2563 := "ToString"(___internal_esl_global, n);
+  if (fst(__v2563)) {
+  return __v2563
+  } else {
+  __v2563 := snd(__v2563)
+  };
+  __v2564 := __v2562(___internal_esl_global, A, __v2563, descriptor, false);
+  if (fst(__v2564)) {
+  return __v2564
+  } else {
+  __v2564 := snd(__v2564)
+  };
+  __v2565 := n + 1.0;
+  n := __v2565
   };
   __v2557 := [];
   __v2558 := items = __v2557;
@@ -51536,6 +52752,8 @@ Tests compilation of ecmaref5:
   if (__v2538) {
   __v2540 := [];
   Statement["labelSet"] := __v2540
+  } else {
+  
   };
   __v2541 := Statement["labelSet"];
   __v2542 := Identifier["name"];
@@ -51547,6 +52765,8 @@ Tests compilation of ecmaref5:
   __v2546 := Statement["labelSet"];
   __v2547 := l_concat(__v2545, __v2546);
   Statement["labelSet"] := __v2547
+  } else {
+  
   };
   __v2548 := "JS_Interpreter_Stmt"(___internal_esl_global, Statement, scope);
   if (fst(__v2548)) {
@@ -51568,88 +52788,92 @@ Tests compilation of ecmaref5:
   }
   };
   function IsWordChar(___internal_esl_global, e, input) {
-  __v2515 := e = -1;
-  if (__v2515 = true) {
-  __v2514 := true
+  __v2514 := e = -1;
+  if (__v2514 = true) {
+  __v2517 := true
   } else {
-  __v2516 := s_len_u(input);
-  __v2517 := e = __v2516;
-  if (__v2517 = true) {
-  __v2514 := true
+  __v2515 := s_len_u(input);
+  __v2516 := e = __v2515;
+  if (__v2516 = true) {
+  __v2517 := true
   } else {
-  __v2514 := false
+  __v2517 := false
   }
   };
-  if (__v2514) {
+  if (__v2517) {
   return (false, false)
+  } else {
+  
   };
   __v2518 := s_nth_u(input, e);
   c := __v2518;
   __v2519 := to_char_code_u(c);
   code := __v2519;
-  __v2524 := code >= 48;
-  if (__v2524 = false) {
-  __v2523 := false
-  } else {
-  __v2525 := code <= 57;
-  if (__v2525 = false) {
-  __v2523 := false
-  } else {
-  __v2523 := true
-  }
-  };
-  if (__v2523 = true) {
-  __v2522 := true
-  } else {
-  __v2527 := code >= 65;
-  if (__v2527 = false) {
-  __v2526 := false
-  } else {
-  __v2528 := code <= 90;
-  if (__v2528 = false) {
-  __v2526 := false
-  } else {
-  __v2526 := true
-  }
-  };
-  if (__v2526 = true) {
-  __v2522 := true
-  } else {
+  __v2520 := code >= 48;
+  if (__v2520 = false) {
   __v2522 := false
+  } else {
+  __v2521 := code <= 57;
+  if (__v2521 = false) {
+  __v2522 := false
+  } else {
+  __v2522 := true
   }
   };
   if (__v2522 = true) {
-  __v2521 := true
+  __v2526 := true
   } else {
-  __v2530 := code >= 97;
-  if (__v2530 = false) {
+  __v2523 := code >= 65;
+  if (__v2523 = false) {
+  __v2525 := false
+  } else {
+  __v2524 := code <= 90;
+  if (__v2524 = false) {
+  __v2525 := false
+  } else {
+  __v2525 := true
+  }
+  };
+  if (__v2525 = true) {
+  __v2526 := true
+  } else {
+  __v2526 := false
+  }
+  };
+  if (__v2526 = true) {
+  __v2530 := true
+  } else {
+  __v2527 := code >= 97;
+  if (__v2527 = false) {
   __v2529 := false
   } else {
-  __v2531 := code <= 122;
-  if (__v2531 = false) {
+  __v2528 := code <= 122;
+  if (__v2528 = false) {
   __v2529 := false
   } else {
   __v2529 := true
   }
   };
   if (__v2529 = true) {
-  __v2521 := true
+  __v2530 := true
   } else {
-  __v2521 := false
+  __v2530 := false
   }
   };
-  if (__v2521 = true) {
-  __v2520 := true
+  if (__v2530 = true) {
+  __v2532 := true
   } else {
-  __v2532 := code = 95;
-  if (__v2532 = true) {
-  __v2520 := true
+  __v2531 := code = 95;
+  if (__v2531 = true) {
+  __v2532 := true
   } else {
-  __v2520 := false
+  __v2532 := false
   }
   };
-  if (__v2520) {
+  if (__v2532) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
   };
@@ -51746,6 +52970,8 @@ Tests compilation of ecmaref5:
   __v2493 := Desc = 'undefined;
   if (__v2493) {
   return (false, false)
+  } else {
+  
   };
   __v2495 := "Get" in_obj Desc;
   __v2494 := !__v2495;
@@ -51754,6 +52980,8 @@ Tests compilation of ecmaref5:
   __v2498 := __v2494 && __v2496;
   if (__v2498) {
   return (false, false)
+  } else {
+  
   };
   return (false, true)
   };
@@ -51767,6 +52995,8 @@ Tests compilation of ecmaref5:
   if (__v2486) {
   __v2488 := [];
   SwitchStatement["labelSet"] := __v2488
+  } else {
+  
   };
   __v2489 := SwitchStatement["labelSet"];
   __v2490 := l_add(__v2489, 'empty);
@@ -51847,7 +53077,7 @@ Tests compilation of ecmaref5:
   }
   };
   function hostObjectReturn(___internal_esl_global) {
-  assert (false)
+  assert false
   };
   function WeekDay(___internal_esl_global, t) {
   __v2470 := "Day"(___internal_esl_global, t);
@@ -52095,23 +53325,23 @@ Tests compilation of ecmaref5:
   }
   };
   function hasUninitialisedImmutableBinding(___internal_esl_global, envRec, name) {
-  __v2419 := name in_obj envRec;
-  if (__v2419 = false) {
-  __v2418 := false
+  __v2418 := name in_obj envRec;
+  if (__v2418 = false) {
+  __v2420 := false
   } else {
-  __v2420 := "isUninitialisedBinding"(___internal_esl_global, envRec, name);
-  if (fst(__v2420)) {
-  return __v2420
+  __v2419 := "isUninitialisedBinding"(___internal_esl_global, envRec, name);
+  if (fst(__v2419)) {
+  return __v2419
   } else {
-  __v2420 := snd(__v2420)
+  __v2419 := snd(__v2419)
   };
-  if (__v2420 = false) {
-  __v2418 := false
+  if (__v2419 = false) {
+  __v2420 := false
   } else {
-  __v2418 := true
+  __v2420 := true
   }
   };
-  return (false, __v2418)
+  return (false, __v2420)
   };
   function stateGetCap(___internal_esl_global, st, i) {
   __v2415 := int_to_string(i);
@@ -52131,6 +53361,8 @@ Tests compilation of ecmaref5:
   __v16016 := c = null;
   if (__v16016) {
   return (false, null)
+  } else {
+  
   };
   __v16018 := to_char_code_u(c);
   __v16017 := int_to_float(__v16018);
@@ -52255,6 +53487,8 @@ Tests compilation of ecmaref5:
   __v2400 := el = 'null;
   if (__v2400) {
   el := "null"
+  } else {
+  
   };
   __v2402 := [properties, el];
   __v2401 := s_concat(__v2402);
@@ -52265,6 +53499,8 @@ Tests compilation of ecmaref5:
   __v2406 := [properties, separator];
   __v2405 := s_concat(__v2406);
   properties := __v2405
+  } else {
+  
   };
   __v2407 := j + 1;
   j := __v2407;
@@ -52283,6 +53519,8 @@ Tests compilation of ecmaref5:
   __v15999 := c = null;
   if (__v15999) {
   return (false, null)
+  } else {
+  
   };
   __v16000 := c = v;
   if (__v16000) {
@@ -52330,6 +53568,8 @@ Tests compilation of ecmaref5:
   __v2380 := !__v2382;
   if (__v2380) {
   return (false, false)
+  } else {
+  
   };
   __v2383 := F["Get"];
   __v2384 := __v2383(___internal_esl_global, F, "prototype");
@@ -52355,6 +53595,8 @@ Tests compilation of ecmaref5:
   __v2388 := snd(__v2388)
   };
   return (true, __v2388)
+  } else {
+  
   };
   __v2389 := "getInternalProperty"(___internal_esl_global, V, "Prototype");
   if (fst(__v2389)) {
@@ -52366,6 +53608,8 @@ Tests compilation of ecmaref5:
   __v2390 := V = 'null;
   if (__v2390) {
   return (false, false)
+  } else {
+  
   };
   __v2391 := "sameObject"(___internal_esl_global, O, V);
   if (fst(__v2391)) {
@@ -52375,6 +53619,8 @@ Tests compilation of ecmaref5:
   };
   if (__v2391) {
   return (false, true)
+  } else {
+  
   };
   while (!false) {
   __v2389 := "getInternalProperty"(___internal_esl_global, V, "Prototype");
@@ -52387,6 +53633,8 @@ Tests compilation of ecmaref5:
   __v2390 := V = 'null;
   if (__v2390) {
   return (false, false)
+  } else {
+  
   };
   __v2391 := "sameObject"(___internal_esl_global, O, V);
   if (fst(__v2391)) {
@@ -52396,6 +53644,8 @@ Tests compilation of ecmaref5:
   };
   if (__v2391) {
   return (false, true)
+  } else {
+  
   }
   }
   };
@@ -52477,17 +53727,17 @@ Tests compilation of ecmaref5:
   t := __v2340
   }
   };
-  __v2345 := is_NaN(t);
-  if (__v2345) {
+  __v2346 := is_NaN(t);
+  if (__v2346) {
   t := 0.0
   } else {
-  __v2346 := "LocalTime"(___internal_esl_global, t);
-  if (fst(__v2346)) {
-  return __v2346
+  __v2345 := "LocalTime"(___internal_esl_global, t);
+  if (fst(__v2345)) {
+  return __v2345
   } else {
-  __v2346 := snd(__v2346)
+  __v2345 := snd(__v2345)
   };
-  t := __v2346
+  t := __v2345
   };
   __v2350 := "Type"(___internal_esl_global, t);
   if (fst(__v2350)) {
@@ -52554,23 +53804,23 @@ Tests compilation of ecmaref5:
   y := __v2353
   }
   };
-  __v2358 := month = null;
-  if (__v2358) {
-  __v2359 := "MonthFromTime"(___internal_esl_global, t);
-  if (fst(__v2359)) {
-  return __v2359
-  } else {
-  __v2359 := snd(__v2359)
-  };
-  m := __v2359
-  } else {
-  __v2360 := "ToNumber"(___internal_esl_global, month);
+  __v2359 := month = null;
+  if (__v2359) {
+  __v2360 := "MonthFromTime"(___internal_esl_global, t);
   if (fst(__v2360)) {
   return __v2360
   } else {
   __v2360 := snd(__v2360)
   };
   m := __v2360
+  } else {
+  __v2358 := "ToNumber"(___internal_esl_global, month);
+  if (fst(__v2358)) {
+  return __v2358
+  } else {
+  __v2358 := snd(__v2358)
+  };
+  m := __v2358
   };
   __v2364 := "Type"(___internal_esl_global, m);
   if (fst(__v2364)) {
@@ -52601,23 +53851,23 @@ Tests compilation of ecmaref5:
   m := __v2361
   }
   };
-  __v2366 := date = null;
-  if (__v2366) {
-  __v2367 := "DateFromTime"(___internal_esl_global, t);
-  if (fst(__v2367)) {
-  return __v2367
-  } else {
-  __v2367 := snd(__v2367)
-  };
-  dt := __v2367
-  } else {
-  __v2368 := "ToNumber"(___internal_esl_global, date);
+  __v2367 := date = null;
+  if (__v2367) {
+  __v2368 := "DateFromTime"(___internal_esl_global, t);
   if (fst(__v2368)) {
   return __v2368
   } else {
   __v2368 := snd(__v2368)
   };
   dt := __v2368
+  } else {
+  __v2366 := "ToNumber"(___internal_esl_global, date);
+  if (fst(__v2366)) {
+  return __v2366
+  } else {
+  __v2366 := snd(__v2366)
+  };
+  dt := __v2366
   };
   __v2372 := "Type"(___internal_esl_global, dt);
   if (fst(__v2372)) {
@@ -52723,6 +53973,8 @@ Tests compilation of ecmaref5:
   __v2334 := is_NaN(t);
   if (__v2334) {
   return (false, nan)
+  } else {
+  
   };
   __v2335 := "msFromTime"(___internal_esl_global, t);
   if (fst(__v2335)) {
@@ -52737,6 +53989,8 @@ Tests compilation of ecmaref5:
   __v2319 := __v2318 = 0;
   if (__v2319) {
   return (false, inf)
+  } else {
+  
   };
   __v2320 := l_nth(params, 0);
   __v2321 := "ToNumber"(___internal_esl_global, __v2320);
@@ -52792,19 +54046,21 @@ Tests compilation of ecmaref5:
   __v2294 := snd(__v2294)
   };
   return (true, __v2294)
+  } else {
+  
   };
-  __v2296 := argArray = 'null;
+  __v2295 := argArray = 'null;
+  if (__v2295 = true) {
+  __v2297 := true
+  } else {
+  __v2296 := argArray = 'undefined;
   if (__v2296 = true) {
-  __v2295 := true
+  __v2297 := true
   } else {
-  __v2297 := argArray = 'undefined;
-  if (__v2297 = true) {
-  __v2295 := true
-  } else {
-  __v2295 := false
+  __v2297 := false
   }
   };
-  if (__v2295) {
+  if (__v2297) {
   __v2298 := func["Call"];
   __v2299 := [];
   __v2300 := __v2298(___internal_esl_global, null, null, func, thisArg, __v2299);
@@ -52814,6 +54070,8 @@ Tests compilation of ecmaref5:
   __v2300 := snd(__v2300)
   };
   return (false, __v2300)
+  } else {
+  
   };
   __v2302 := "Type"(___internal_esl_global, argArray);
   if (fst(__v2302)) {
@@ -52831,6 +54089,8 @@ Tests compilation of ecmaref5:
   __v2304 := snd(__v2304)
   };
   return (true, __v2304)
+  } else {
+  
   };
   __v2305 := argArray["Get"];
   __v2306 := __v2305(___internal_esl_global, argArray, "length");
@@ -53084,6 +54344,8 @@ Tests compilation of ecmaref5:
   __v2243 := snd(__v2243)
   };
   return (false, __v2243)
+  } else {
+  
   };
   __v2244 := l_len(ArgumentList);
   __v2245 := __v2244 - 1;
@@ -53113,11 +54375,15 @@ Tests compilation of ecmaref5:
   __v2236 := !__v2237;
   if (__v2236) {
   desc["Enumerable"] := enumerable
+  } else {
+  
   };
   __v2239 := configurable = null;
   __v2238 := !__v2239;
   if (__v2238) {
   desc["Configurable"] := configurable
+  } else {
+  
   };
   return (false, desc)
   };
@@ -53140,7 +54406,7 @@ Tests compilation of ecmaref5:
   };
   __v2231 := __v2230 = "Completion";
   if (__v2231 = false) {
-  __v2229 := false
+  __v2233 := false
   } else {
   __v2232 := "isAnAbruptCompletion"(___internal_esl_global, str);
   if (fst(__v2232)) {
@@ -53149,27 +54415,27 @@ Tests compilation of ecmaref5:
   __v2232 := snd(__v2232)
   };
   if (__v2232 = false) {
-  __v2229 := false
+  __v2233 := false
   } else {
-  __v2229 := true
+  __v2233 := true
   }
   };
-  if (__v2229) {
-  __v2233 := "getCompletionValue"(___internal_esl_global, str);
-  if (fst(__v2233)) {
-  return __v2233
-  } else {
-  __v2233 := snd(__v2233)
-  };
-  return (false, __v2233)
-  } else {
-  __v2234 := "auxParseDate"(___internal_esl_global, str);
+  if (__v2233) {
+  __v2234 := "getCompletionValue"(___internal_esl_global, str);
   if (fst(__v2234)) {
   return __v2234
   } else {
   __v2234 := snd(__v2234)
   };
   return (false, __v2234)
+  } else {
+  __v2229 := "auxParseDate"(___internal_esl_global, str);
+  if (fst(__v2229)) {
+  return __v2229
+  } else {
+  __v2229 := snd(__v2229)
+  };
+  return (false, __v2229)
   }
   };
   function DayWithinYear(___internal_esl_global, t) {
@@ -53239,10 +54505,14 @@ Tests compilation of ecmaref5:
   __v2209 := argument = true;
   if (__v2209) {
   return (false, 1.0)
+  } else {
+  
   };
   __v2210 := argument = false;
   if (__v2210) {
   return (false, 0.0)
+  } else {
+  
   }
   } else {
   if ("Number" = __v2208) {
@@ -53251,6 +54521,8 @@ Tests compilation of ecmaref5:
   if (__v2212) {
   __v2213 := int_to_float(argument);
   return (false, __v2213)
+  } else {
+  
   };
   return (false, argument)
   } else {
@@ -53427,6 +54699,8 @@ Tests compilation of ecmaref5:
   } else {
   __v2192 := snd(__v2192)
   }
+  } else {
+  
   };
   return (false, newlyConstructedObject)
   };
@@ -53449,36 +54723,36 @@ Tests compilation of ecmaref5:
   __v2165 := snd(__v2165)
   };
   num := __v2165;
-  __v2172 := is_NaN(num);
-  __v2171 := !__v2172;
-  if (__v2171 = false) {
-  __v2170 := false
+  __v2170 := is_NaN(num);
+  __v2169 := !__v2170;
+  if (__v2169 = false) {
+  __v2173 := false
   } else {
-  __v2173 := "ToUint32"(___internal_esl_global, num);
-  if (fst(__v2173)) {
-  return __v2173
+  __v2171 := "ToUint32"(___internal_esl_global, num);
+  if (fst(__v2171)) {
+  return __v2171
   } else {
-  __v2173 := snd(__v2173)
+  __v2171 := snd(__v2171)
   };
-  __v2174 := __v2173 = num;
+  __v2172 := __v2171 = num;
+  if (__v2172 = false) {
+  __v2173 := false
+  } else {
+  __v2173 := true
+  }
+  };
+  if (__v2173 = false) {
+  __v2176 := false
+  } else {
+  __v2175 := P in_list num_list;
+  __v2174 := !__v2175;
   if (__v2174 = false) {
-  __v2170 := false
+  __v2176 := false
   } else {
-  __v2170 := true
+  __v2176 := true
   }
   };
-  if (__v2170 = false) {
-  __v2169 := false
-  } else {
-  __v2176 := P in_list num_list;
-  __v2175 := !__v2176;
-  if (__v2175 = false) {
-  __v2169 := false
-  } else {
-  __v2169 := true
-  }
-  };
-  if (__v2169) {
+  if (__v2176) {
   __v2177 := l_add(num_list, P);
   num_list := __v2177
   } else {
@@ -53506,10 +54780,14 @@ Tests compilation of ecmaref5:
   __v2154 := this = 'undefined;
   if (__v2154) {
   return (false, "[object Undefined]")
+  } else {
+  
   };
   __v2155 := this = 'null;
   if (__v2155) {
   return (false, "[object Null]")
+  } else {
+  
   };
   __v2156 := "ToObject"(___internal_esl_global, this);
   if (fst(__v2156)) {
@@ -53646,19 +54924,19 @@ Tests compilation of ecmaref5:
   __v2095 := [];
   obj_tokens := __v2095;
   bracketCounter := 1;
-  __v2097 := bracketCounter > 0;
-  if (__v2097 = false) {
-  __v2096 := false
+  __v2096 := bracketCounter > 0;
+  if (__v2096 = false) {
+  __v2099 := false
   } else {
-  __v2098 := l_len(tokens);
-  __v2099 := __v2098 > 0;
-  if (__v2099 = false) {
-  __v2096 := false
+  __v2097 := l_len(tokens);
+  __v2098 := __v2097 > 0;
+  if (__v2098 = false) {
+  __v2099 := false
   } else {
-  __v2096 := true
+  __v2099 := true
   }
   };
-  while (__v2096) {
+  while (__v2099) {
   __v2100 := hd(tokens);
   token := __v2100;
   __v2101 := tl(tokens);
@@ -53680,17 +54958,19 @@ Tests compilation of ecmaref5:
   if (__v2106) {
   __v2107 := l_add(obj_tokens, token);
   obj_tokens := __v2107
+  } else {
+  
   };
-  __v2097 := bracketCounter > 0;
-  if (__v2097 = false) {
-  __v2096 := false
+  __v2096 := bracketCounter > 0;
+  if (__v2096 = false) {
+  __v2099 := false
   } else {
-  __v2098 := l_len(tokens);
-  __v2099 := __v2098 > 0;
-  if (__v2099 = false) {
-  __v2096 := false
+  __v2097 := l_len(tokens);
+  __v2098 := __v2097 > 0;
+  if (__v2098 = false) {
+  __v2099 := false
   } else {
-  __v2096 := true
+  __v2099 := true
   }
   }
   };
@@ -53707,157 +54987,179 @@ Tests compilation of ecmaref5:
   return (false, __v2094)
   };
   function AbstractRelationalComparison(___internal_esl_global, x, y, LeftFirst) {
-  __v2062 := LeftFirst = true;
-  if (__v2062) {
+  __v2064 := LeftFirst = true;
+  if (__v2064) {
+  __v2065 := "ToPrimitive"(___internal_esl_global, x, 'Number);
+  if (fst(__v2065)) {
+  return __v2065
+  } else {
+  __v2065 := snd(__v2065)
+  };
+  px := __v2065;
+  __v2066 := "ToPrimitive"(___internal_esl_global, y, 'Number);
+  if (fst(__v2066)) {
+  return __v2066
+  } else {
+  __v2066 := snd(__v2066)
+  };
+  py := __v2066
+  } else {
+  __v2062 := "ToPrimitive"(___internal_esl_global, y, 'Number);
+  if (fst(__v2062)) {
+  return __v2062
+  } else {
+  __v2062 := snd(__v2062)
+  };
+  py := __v2062;
   __v2063 := "ToPrimitive"(___internal_esl_global, x, 'Number);
   if (fst(__v2063)) {
   return __v2063
   } else {
   __v2063 := snd(__v2063)
   };
-  px := __v2063;
-  __v2064 := "ToPrimitive"(___internal_esl_global, y, 'Number);
-  if (fst(__v2064)) {
-  return __v2064
-  } else {
-  __v2064 := snd(__v2064)
+  px := __v2063
   };
-  py := __v2064
+  __v2069 := "Type"(___internal_esl_global, px);
+  if (fst(__v2069)) {
+  return __v2069
   } else {
-  __v2065 := "ToPrimitive"(___internal_esl_global, y, 'Number);
-  if (fst(__v2065)) {
-  return __v2065
+  __v2069 := snd(__v2069)
+  };
+  __v2070 := __v2069 = "String";
+  __v2071 := "Type"(___internal_esl_global, py);
+  if (fst(__v2071)) {
+  return __v2071
   } else {
-  __v2065 := snd(__v2065)
+  __v2071 := snd(__v2071)
   };
-  py := __v2065;
-  __v2066 := "ToPrimitive"(___internal_esl_global, x, 'Number);
-  if (fst(__v2066)) {
-  return __v2066
-  } else {
-  __v2066 := snd(__v2066)
-  };
-  px := __v2066
-  };
-  __v2068 := "Type"(___internal_esl_global, px);
-  if (fst(__v2068)) {
-  return __v2068
-  } else {
-  __v2068 := snd(__v2068)
-  };
-  __v2069 := __v2068 = "String";
-  __v2070 := "Type"(___internal_esl_global, py);
-  if (fst(__v2070)) {
-  return __v2070
-  } else {
-  __v2070 := snd(__v2070)
-  };
-  __v2071 := __v2070 = "String";
-  __v2072 := __v2069 && __v2071;
-  __v2067 := !__v2072;
-  if (__v2067) {
-  __v2073 := "ToNumber"(___internal_esl_global, px);
-  if (fst(__v2073)) {
-  return __v2073
-  } else {
-  __v2073 := snd(__v2073)
-  };
-  nx := __v2073;
-  __v2074 := "ToNumber"(___internal_esl_global, py);
+  __v2072 := __v2071 = "String";
+  __v2073 := __v2070 && __v2072;
+  __v2068 := !__v2073;
+  if (__v2068) {
+  __v2074 := "ToNumber"(___internal_esl_global, px);
   if (fst(__v2074)) {
   return __v2074
   } else {
   __v2074 := snd(__v2074)
   };
-  ny := __v2074;
-  __v2075 := is_NaN(nx);
-  if (__v2075) {
-  return (false, 'undefined)
+  nx := __v2074;
+  __v2075 := "ToNumber"(___internal_esl_global, py);
+  if (fst(__v2075)) {
+  return __v2075
+  } else {
+  __v2075 := snd(__v2075)
   };
-  __v2076 := is_NaN(ny);
+  ny := __v2075;
+  __v2076 := is_NaN(nx);
   if (__v2076) {
   return (false, 'undefined)
-  };
-  __v2077 := "sameNumber"(___internal_esl_global, nx, ny);
-  if (fst(__v2077)) {
-  return __v2077
   } else {
-  __v2077 := snd(__v2077)
+  
   };
+  __v2077 := is_NaN(ny);
   if (__v2077) {
-  return (false, false)
+  return (false, 'undefined)
+  } else {
+  
   };
-  __v2078 := "isZero"(___internal_esl_global, nx);
+  __v2078 := "sameNumber"(___internal_esl_global, nx, ny);
   if (fst(__v2078)) {
   return __v2078
   } else {
   __v2078 := snd(__v2078)
   };
-  __v2079 := "isMinusZero"(___internal_esl_global, ny);
+  if (__v2078) {
+  return (false, false)
+  } else {
+  
+  };
+  __v2079 := "isZero"(___internal_esl_global, nx);
   if (fst(__v2079)) {
   return __v2079
   } else {
   __v2079 := snd(__v2079)
   };
-  __v2080 := __v2078 && __v2079;
-  if (__v2080) {
-  return (false, false)
-  };
-  __v2081 := "isMinusZero"(___internal_esl_global, nx);
-  if (fst(__v2081)) {
-  return __v2081
+  __v2080 := "isMinusZero"(___internal_esl_global, ny);
+  if (fst(__v2080)) {
+  return __v2080
   } else {
-  __v2081 := snd(__v2081)
+  __v2080 := snd(__v2080)
   };
-  __v2082 := "isZero"(___internal_esl_global, ny);
+  __v2081 := __v2079 && __v2080;
+  if (__v2081) {
+  return (false, false)
+  } else {
+  
+  };
+  __v2082 := "isMinusZero"(___internal_esl_global, nx);
   if (fst(__v2082)) {
   return __v2082
   } else {
   __v2082 := snd(__v2082)
   };
-  __v2083 := __v2081 && __v2082;
-  if (__v2083) {
-  return (false, false)
+  __v2083 := "isZero"(___internal_esl_global, ny);
+  if (fst(__v2083)) {
+  return __v2083
+  } else {
+  __v2083 := snd(__v2083)
   };
-  __v2084 := nx = inf;
+  __v2084 := __v2082 && __v2083;
   if (__v2084) {
   return (false, false)
-  };
-  __v2085 := ny = inf;
-  if (__v2085) {
-  return (false, true)
-  };
-  __v2086 := -(inf);
-  __v2087 := ny = __v2086;
-  if (__v2087) {
-  return (false, false)
-  };
-  __v2088 := -(inf);
-  __v2089 := nx = __v2088;
-  if (__v2089) {
-  return (false, true)
-  };
-  __v2090 := "mathematicalValue"(___internal_esl_global, nx);
-  if (fst(__v2090)) {
-  return __v2090
   } else {
-  __v2090 := snd(__v2090)
+  
   };
-  __v2091 := "mathematicalValue"(___internal_esl_global, ny);
+  __v2085 := nx = inf;
+  if (__v2085) {
+  return (false, false)
+  } else {
+  
+  };
+  __v2086 := ny = inf;
+  if (__v2086) {
+  return (false, true)
+  } else {
+  
+  };
+  __v2087 := -(inf);
+  __v2088 := ny = __v2087;
+  if (__v2088) {
+  return (false, false)
+  } else {
+  
+  };
+  __v2089 := -(inf);
+  __v2090 := nx = __v2089;
+  if (__v2090) {
+  return (false, true)
+  } else {
+  
+  };
+  __v2091 := "mathematicalValue"(___internal_esl_global, nx);
   if (fst(__v2091)) {
   return __v2091
   } else {
   __v2091 := snd(__v2091)
   };
-  __v2092 := __v2090 < __v2091;
-  if (__v2092) {
+  __v2092 := "mathematicalValue"(___internal_esl_global, ny);
+  if (fst(__v2092)) {
+  return __v2092
+  } else {
+  __v2092 := snd(__v2092)
+  };
+  __v2093 := __v2091 < __v2092;
+  if (__v2093) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
   } else {
-  __v2093 := px < py;
-  if (__v2093) {
+  __v2067 := px < py;
+  if (__v2067) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
   }
@@ -53902,6 +55204,8 @@ Tests compilation of ecmaref5:
   __v2060 := is_NaN(t);
   if (__v2060) {
   return (false, nan)
+  } else {
+  
   };
   __v2061 := "HourFromTime"(___internal_esl_global, t);
   if (fst(__v2061)) {
@@ -53941,6 +55245,8 @@ Tests compilation of ecmaref5:
   } else {
   __v2053 := snd(__v2053)
   }
+  } else {
+  
   };
   return (false, result)
   };
@@ -53984,6 +55290,8 @@ Tests compilation of ecmaref5:
   __v2023 := snd(__v2023)
   };
   return (true, __v2023)
+  } else {
+  
   };
   __v2024 := "ToObject"(___internal_esl_global, Properties);
   if (fst(__v2024)) {
@@ -54069,6 +55377,8 @@ Tests compilation of ecmaref5:
   programBody := __v2016;
   __v2017 := programBody["body"];
   return (false, __v2017)
+  } else {
+  
   };
   return (false, bodyObj)
   };
@@ -54078,49 +55388,51 @@ Tests compilation of ecmaref5:
   __v16039 := e = 0;
   if (__v16039) {
   return (false, true)
+  } else {
+  
   };
-  __v16041 := st["ml"];
-  __v16040 := !__v16041;
-  if (__v16040) {
+  __v16045 := st["ml"];
+  __v16044 := !__v16045;
+  if (__v16044) {
   return (false, false)
   } else {
-  __v16042 := st["str"];
-  __v16043 := e - 1;
-  __v16044 := s_nth_u(__v16042, __v16043);
-  c := __v16044;
-  __v16045 := "isLineTerminator"(___internal_esl_global, c);
-  if (fst(__v16045)) {
-  return __v16045
+  __v16040 := st["str"];
+  __v16041 := e - 1;
+  __v16042 := s_nth_u(__v16040, __v16041);
+  c := __v16042;
+  __v16043 := "isLineTerminator"(___internal_esl_global, c);
+  if (fst(__v16043)) {
+  return __v16043
   } else {
-  __v16045 := snd(__v16045)
+  __v16043 := snd(__v16043)
   };
-  return (false, __v16045)
+  return (false, __v16043)
   }
   };
   function auxIsFinite(___internal_esl_global, num) {
-  __v2005 := num = inf;
+  __v2003 := num = inf;
+  if (__v2003 = true) {
+  __v2006 := true
+  } else {
+  __v2004 := -(inf);
+  __v2005 := num = __v2004;
   if (__v2005 = true) {
-  __v2004 := true
+  __v2006 := true
   } else {
-  __v2006 := -(inf);
-  __v2007 := num = __v2006;
+  __v2006 := false
+  }
+  };
+  if (__v2006 = true) {
+  __v2008 := true
+  } else {
+  __v2007 := is_NaN(num);
   if (__v2007 = true) {
-  __v2004 := true
+  __v2008 := true
   } else {
-  __v2004 := false
+  __v2008 := false
   }
   };
-  if (__v2004 = true) {
-  __v2003 := true
-  } else {
-  __v2008 := is_NaN(num);
-  if (__v2008 = true) {
-  __v2003 := true
-  } else {
-  __v2003 := false
-  }
-  };
-  __v2002 := !__v2003;
+  __v2002 := !__v2008;
   return (false, __v2002)
   };
   function getOwnEnumerablePropertiesNames(___internal_esl_global, obj) {
@@ -54154,6 +55466,8 @@ Tests compilation of ecmaref5:
   if (__v1999) {
   __v2000 := l_add(K, P);
   K := __v2000
+  } else {
+  
   };
   __v2001 := index + 1;
   index := __v2001;
@@ -54176,6 +55490,8 @@ Tests compilation of ecmaref5:
   __v15949 := snd(__v15949)
   };
   return (false, __v15949)
+  } else {
+  
   };
   return (false, null)
   };
@@ -54402,6 +55718,8 @@ Tests compilation of ecmaref5:
   if (__v1929) {
   __v1930 := -(1.0);
   return (false, __v1930)
+  } else {
+  
   };
   __v1932 := fromIndex = null;
   __v1931 := !__v1932;
@@ -54420,27 +55738,31 @@ Tests compilation of ecmaref5:
   if (__v1934) {
   __v1935 := -(1.0);
   return (false, __v1935)
-  };
-  __v1936 := n >= 0.0;
-  if (__v1936) {
-  __v1937 := "isMinusZero"(___internal_esl_global, n);
-  if (fst(__v1937)) {
-  return __v1937
   } else {
-  __v1937 := snd(__v1937)
+  
   };
-  if (__v1937) {
+  __v1939 := n >= 0.0;
+  if (__v1939) {
+  __v1940 := "isMinusZero"(___internal_esl_global, n);
+  if (fst(__v1940)) {
+  return __v1940
+  } else {
+  __v1940 := snd(__v1940)
+  };
+  if (__v1940) {
   k := 0.0
   } else {
   k := n
   }
   } else {
-  __v1938 := abs(n);
-  __v1939 := len - __v1938;
-  k := __v1939;
-  __v1940 := k < 0.0;
-  if (__v1940) {
+  __v1936 := abs(n);
+  __v1937 := len - __v1936;
+  k := __v1937;
+  __v1938 := k < 0.0;
+  if (__v1938) {
   k := 0.0
+  } else {
+  
   }
   };
   __v1941 := k < len;
@@ -54485,7 +55807,11 @@ Tests compilation of ecmaref5:
   __v1950 := same = true;
   if (__v1950) {
   return (false, k)
+  } else {
+  
   }
+  } else {
+  
   };
   __v1951 := k + 1.0;
   k := __v1951;
@@ -54566,28 +55892,34 @@ Tests compilation of ecmaref5:
   __v1888 := snd(__v1888)
   };
   hask := __v1888;
-  __v1890 := hasj = false;
+  __v1889 := hasj = false;
+  if (__v1889 = false) {
+  __v1891 := false
+  } else {
+  __v1890 := hask = false;
   if (__v1890 = false) {
-  __v1889 := false
+  __v1891 := false
   } else {
-  __v1891 := hask = false;
-  if (__v1891 = false) {
-  __v1889 := false
-  } else {
-  __v1889 := true
+  __v1891 := true
   }
   };
-  if (__v1889) {
+  if (__v1891) {
   return (false, 0.0)
+  } else {
+  
   };
   __v1892 := hasj = false;
   if (__v1892) {
   return (false, 1.0)
+  } else {
+  
   };
   __v1893 := hask = false;
   if (__v1893) {
   __v1894 := -(1.0);
   return (false, __v1894)
+  } else {
+  
   };
   __v1895 := obj["Get"];
   __v1896 := __v1895(___internal_esl_global, obj, jString);
@@ -54605,28 +55937,34 @@ Tests compilation of ecmaref5:
   __v1898 := snd(__v1898)
   };
   y := __v1898;
-  __v1900 := x = 'undefined;
+  __v1899 := x = 'undefined;
+  if (__v1899 = false) {
+  __v1901 := false
+  } else {
+  __v1900 := y = 'undefined;
   if (__v1900 = false) {
-  __v1899 := false
+  __v1901 := false
   } else {
-  __v1901 := y = 'undefined;
-  if (__v1901 = false) {
-  __v1899 := false
-  } else {
-  __v1899 := true
+  __v1901 := true
   }
   };
-  if (__v1899) {
+  if (__v1901) {
   return (false, 0.0)
+  } else {
+  
   };
   __v1902 := x = 'undefined;
   if (__v1902) {
   return (false, 1.0)
+  } else {
+  
   };
   __v1903 := y = 'undefined;
   if (__v1903) {
   __v1904 := -(1.0);
   return (false, __v1904)
+  } else {
+  
   };
   __v1906 := comparefn = 'undefined;
   __v1905 := !__v1906;
@@ -54646,6 +55984,8 @@ Tests compilation of ecmaref5:
   __v1909 := snd(__v1909)
   };
   return (true, __v1909)
+  } else {
+  
   };
   __v1910 := comparefn["Call"];
   __v1911 := [x, y];
@@ -54656,6 +55996,8 @@ Tests compilation of ecmaref5:
   __v1912 := snd(__v1912)
   };
   return (false, __v1912)
+  } else {
+  
   };
   __v1913 := "ToString"(___internal_esl_global, x);
   if (fst(__v1913)) {
@@ -54675,10 +56017,14 @@ Tests compilation of ecmaref5:
   if (__v1915) {
   __v1916 := -(1.0);
   return (false, __v1916)
+  } else {
+  
   };
   __v1917 := xString > yString;
   if (__v1917) {
   return (false, 1.0)
+  } else {
+  
   };
   return (false, 0.0)
   };
@@ -54710,6 +56056,8 @@ Tests compilation of ecmaref5:
   } else {
   __v1846 := snd(__v1846)
   }
+  } else {
+  
   };
   L := "";
   i := 0;
@@ -54728,72 +56076,76 @@ Tests compilation of ecmaref5:
   __v1853 := ___internal_esl_global["specialCasing"];
   __v1854 := l_nth(__v1853, j);
   el := __v1854;
-  __v1857 := el["code"];
-  __v1858 := c = __v1857;
-  if (__v1858 = false) {
-  __v1856 := false
-  } else {
-  __v1860 := el["uppercase"];
-  __v1861 := __v1860 = 'undefined;
-  __v1859 := !__v1861;
-  if (__v1859 = false) {
-  __v1856 := false
-  } else {
-  __v1856 := true
-  }
-  };
+  __v1855 := el["code"];
+  __v1856 := c = __v1855;
   if (__v1856 = false) {
-  __v1855 := false
+  __v1860 := false
   } else {
-  __v1862 := el["condition_list"];
-  __v1863 := __v1862 = 'undefined;
-  if (__v1863 = false) {
-  __v1855 := false
+  __v1858 := el["uppercase"];
+  __v1859 := __v1858 = 'undefined;
+  __v1857 := !__v1859;
+  if (__v1857 = false) {
+  __v1860 := false
   } else {
-  __v1855 := true
+  __v1860 := true
   }
   };
-  if (__v1855) {
+  if (__v1860 = false) {
+  __v1863 := false
+  } else {
+  __v1861 := el["condition_list"];
+  __v1862 := __v1861 = 'undefined;
+  if (__v1862 = false) {
+  __v1863 := false
+  } else {
+  __v1863 := true
+  }
+  };
+  if (__v1863) {
   __v1864 := el["uppercase"];
   c := __v1864;
   __v1865 := sc_len + 1;
   j := __v1865
+  } else {
+  
   };
   __v1866 := j + 1;
   j := __v1866;
   __v1852 := j < sc_len
   };
-  __v1869 := j <= sc_len;
+  __v1867 := j <= sc_len;
+  if (__v1867 = false) {
+  __v1870 := false
+  } else {
+  __v1868 := ___internal_esl_global["unicodeData"];
+  __v1869 := c in_obj __v1868;
   if (__v1869 = false) {
-  __v1868 := false
+  __v1870 := false
   } else {
-  __v1870 := ___internal_esl_global["unicodeData"];
-  __v1871 := c in_obj __v1870;
+  __v1870 := true
+  }
+  };
+  if (__v1870 = false) {
+  __v1876 := false
+  } else {
+  __v1874 := ___internal_esl_global["unicodeData"];
+  __v1873 := __v1874[c];
+  __v1872 := __v1873["uppercase"];
+  __v1875 := __v1872 = 'undefined;
+  __v1871 := !__v1875;
   if (__v1871 = false) {
-  __v1868 := false
+  __v1876 := false
   } else {
-  __v1868 := true
+  __v1876 := true
   }
   };
-  if (__v1868 = false) {
-  __v1867 := false
-  } else {
-  __v1875 := ___internal_esl_global["unicodeData"];
-  __v1874 := __v1875[c];
-  __v1873 := __v1874["uppercase"];
-  __v1876 := __v1873 = 'undefined;
-  __v1872 := !__v1876;
-  if (__v1872 = false) {
-  __v1867 := false
-  } else {
-  __v1867 := true
-  }
-  };
-  if (__v1867) {
+  if (__v1876) {
   __v1879 := ___internal_esl_global["unicodeData"];
   __v1878 := __v1879[c];
   __v1877 := __v1878["uppercase"];
   c := __v1877
+  } else {
+  
   };
   __v1881 := [L, c];
   __v1880 := s_concat(__v1881);
@@ -54814,36 +56166,40 @@ Tests compilation of ecmaref5:
   __v1829 := snd(__v1829)
   };
   x := __v1829;
-  __v1831 := x > 0.0;
+  __v1830 := x > 0.0;
+  if (__v1830 = false) {
+  __v1832 := false
+  } else {
+  __v1831 := x < 0.5;
   if (__v1831 = false) {
-  __v1830 := false
+  __v1832 := false
   } else {
-  __v1832 := x < 0.5;
-  if (__v1832 = false) {
-  __v1830 := false
-  } else {
-  __v1830 := true
+  __v1832 := true
   }
   };
-  if (__v1830) {
+  if (__v1832) {
   return (false, 0.0)
+  } else {
+  
   };
-  __v1834 := -(0.0);
-  __v1835 := x <= __v1834;
-  if (__v1835 = false) {
-  __v1833 := false
+  __v1833 := -(0.0);
+  __v1834 := x <= __v1833;
+  if (__v1834 = false) {
+  __v1837 := false
   } else {
-  __v1836 := -(0.5);
-  __v1837 := x >= __v1836;
-  if (__v1837 = false) {
-  __v1833 := false
+  __v1835 := -(0.5);
+  __v1836 := x >= __v1835;
+  if (__v1836 = false) {
+  __v1837 := false
   } else {
-  __v1833 := true
+  __v1837 := true
   }
   };
-  if (__v1833) {
+  if (__v1837) {
   __v1838 := -(0.0);
   return (false, __v1838)
+  } else {
+  
   };
   __v1840 := x + 0.5;
   __v1839 := [__v1840];
@@ -54891,6 +56247,8 @@ Tests compilation of ecmaref5:
   } else {
   return (false, null)
   }
+  } else {
+  
   };
   __v1807 := O["GetOwnProperty"];
   __v1808 := __v1807(___internal_esl_global, O, P);
@@ -54923,6 +56281,8 @@ Tests compilation of ecmaref5:
   __v1813 := snd(__v1813)
   };
   return (false, null)
+  } else {
+  
   };
   __v1814 := O["GetProperty"];
   __v1815 := __v1814(___internal_esl_global, O, P);
@@ -54932,38 +56292,38 @@ Tests compilation of ecmaref5:
   __v1815 := snd(__v1815)
   };
   desc := __v1815;
-  __v1816 := "IsAccessorPropertyDescriptor"(___internal_esl_global, desc);
+  __v1819 := "IsAccessorPropertyDescriptor"(___internal_esl_global, desc);
+  if (fst(__v1819)) {
+  return __v1819
+  } else {
+  __v1819 := snd(__v1819)
+  };
+  __v1820 := __v1819 = true;
+  if (__v1820) {
+  __v1821 := desc["Set"];
+  setter := __v1821;
+  __v1822 := setter["Call"];
+  __v1823 := [V];
+  __v1824 := __v1822(___internal_esl_global, null, null, setter, O, __v1823);
+  if (fst(__v1824)) {
+  return __v1824
+  } else {
+  __v1824 := snd(__v1824)
+  }
+  } else {
+  __v1816 := "newDataPropertyDescriptor"(___internal_esl_global, V);
   if (fst(__v1816)) {
   return __v1816
   } else {
   __v1816 := snd(__v1816)
   };
-  __v1817 := __v1816 = true;
-  if (__v1817) {
-  __v1818 := desc["Set"];
-  setter := __v1818;
-  __v1819 := setter["Call"];
-  __v1820 := [V];
-  __v1821 := __v1819(___internal_esl_global, null, null, setter, O, __v1820);
-  if (fst(__v1821)) {
-  return __v1821
+  newDesc := __v1816;
+  __v1817 := O["DefineOwnProperty"];
+  __v1818 := __v1817(___internal_esl_global, O, P, newDesc, Throw);
+  if (fst(__v1818)) {
+  return __v1818
   } else {
-  __v1821 := snd(__v1821)
-  }
-  } else {
-  __v1822 := "newDataPropertyDescriptor"(___internal_esl_global, V);
-  if (fst(__v1822)) {
-  return __v1822
-  } else {
-  __v1822 := snd(__v1822)
-  };
-  newDesc := __v1822;
-  __v1823 := O["DefineOwnProperty"];
-  __v1824 := __v1823(___internal_esl_global, O, P, newDesc, Throw);
-  if (fst(__v1824)) {
-  return __v1824
-  } else {
-  __v1824 := snd(__v1824)
+  __v1818 := snd(__v1818)
   }
   };
   return (false, null)
@@ -55012,6 +56372,8 @@ Tests compilation of ecmaref5:
   __v1785 := desc = 'undefined;
   if (__v1785) {
   return (false, 'undefined)
+  } else {
+  
   };
   __v1786 := "IsDataPropertyDescriptor"(___internal_esl_global, desc);
   if (fst(__v1786)) {
@@ -55023,12 +56385,16 @@ Tests compilation of ecmaref5:
   if (__v1787) {
   __v1788 := desc["Value"];
   return (false, __v1788)
+  } else {
+  
   };
   __v1789 := desc["Get"];
   getter := __v1789;
   __v1790 := getter = 'undefined;
   if (__v1790) {
   return (false, 'undefined)
+  } else {
+  
   };
   __v1791 := getter["Call"];
   __v1792 := [];
@@ -55624,18 +56990,18 @@ Tests compilation of ecmaref5:
   function isDigit(___internal_esl_global, c) {
   __v1670 := to_char_code_u(c);
   c_code := __v1670;
-  __v1672 := c_code >= 48;
+  __v1671 := c_code >= 48;
+  if (__v1671 = false) {
+  __v1673 := false
+  } else {
+  __v1672 := c_code <= 57;
   if (__v1672 = false) {
-  __v1671 := false
+  __v1673 := false
   } else {
-  __v1673 := c_code <= 57;
-  if (__v1673 = false) {
-  __v1671 := false
-  } else {
-  __v1671 := true
+  __v1673 := true
   }
   };
-  return (false, __v1671)
+  return (false, __v1673)
   };
   function HasProperty(___internal_esl_global, O, P) {
   print "HasProperty";
@@ -55669,60 +57035,62 @@ Tests compilation of ecmaref5:
   __v1666 := snd(__v1666)
   };
   return (false, __v1666)
+  } else {
+  
   };
   return (false, null)
   };
   function BooleanPrototypeValueOf(___internal_esl_global, globalObject, this, strict, params) {
   B := this;
-  __v1656 := "Type"(___internal_esl_global, B);
-  if (fst(__v1656)) {
-  return __v1656
-  } else {
-  __v1656 := snd(__v1656)
-  };
-  __v1657 := __v1656 = "Boolean";
-  if (__v1657) {
-  b := B
-  } else {
-  __v1659 := "Type"(___internal_esl_global, B);
-  if (fst(__v1659)) {
-  return __v1659
-  } else {
-  __v1659 := snd(__v1659)
-  };
-  __v1660 := __v1659 = "Object";
-  if (__v1660 = false) {
-  __v1658 := false
-  } else {
-  __v1661 := "getInternalProperty"(___internal_esl_global, B, "Class");
-  if (fst(__v1661)) {
-  return __v1661
-  } else {
-  __v1661 := snd(__v1661)
-  };
-  __v1662 := __v1661 = "Boolean";
-  if (__v1662 = false) {
-  __v1658 := false
-  } else {
-  __v1658 := true
-  }
-  };
-  if (__v1658) {
-  __v1663 := "getInternalProperty"(___internal_esl_global, B, "PrimitiveValue");
+  __v1663 := "Type"(___internal_esl_global, B);
   if (fst(__v1663)) {
   return __v1663
   } else {
   __v1663 := snd(__v1663)
   };
-  b := __v1663
+  __v1664 := __v1663 = "Boolean";
+  if (__v1664) {
+  b := B
   } else {
-  __v1664 := "TypeErrorConstructorInternal"(___internal_esl_global);
-  if (fst(__v1664)) {
-  return __v1664
+  __v1657 := "Type"(___internal_esl_global, B);
+  if (fst(__v1657)) {
+  return __v1657
   } else {
-  __v1664 := snd(__v1664)
+  __v1657 := snd(__v1657)
   };
-  return (true, __v1664)
+  __v1658 := __v1657 = "Object";
+  if (__v1658 = false) {
+  __v1661 := false
+  } else {
+  __v1659 := "getInternalProperty"(___internal_esl_global, B, "Class");
+  if (fst(__v1659)) {
+  return __v1659
+  } else {
+  __v1659 := snd(__v1659)
+  };
+  __v1660 := __v1659 = "Boolean";
+  if (__v1660 = false) {
+  __v1661 := false
+  } else {
+  __v1661 := true
+  }
+  };
+  if (__v1661) {
+  __v1662 := "getInternalProperty"(___internal_esl_global, B, "PrimitiveValue");
+  if (fst(__v1662)) {
+  return __v1662
+  } else {
+  __v1662 := snd(__v1662)
+  };
+  b := __v1662
+  } else {
+  __v1656 := "TypeErrorConstructorInternal"(___internal_esl_global);
+  if (fst(__v1656)) {
+  return __v1656
+  } else {
+  __v1656 := snd(__v1656)
+  };
+  return (true, __v1656)
   }
   };
   return (false, b)
@@ -55769,6 +57137,8 @@ Tests compilation of ecmaref5:
   __v1640 := snd(__v1640)
   };
   return (true, __v1640)
+  } else {
+  
   };
   __v1644 := "getOwnProperties"(___internal_esl_global, O);
   if (fst(__v1644)) {
@@ -55798,6 +57168,8 @@ Tests compilation of ecmaref5:
   } else {
   __v1649 := snd(__v1649)
   }
+  } else {
+  
   };
   __v1650 := O["DefineOwnProperty"];
   __v1651 := __v1650(___internal_esl_global, O, P, desc, true);
@@ -55860,6 +57232,8 @@ Tests compilation of ecmaref5:
   __v1633 := is_NaN(t);
   if (__v1633) {
   return (false, nan)
+  } else {
+  
   };
   __v1634 := "LocalTime"(___internal_esl_global, t);
   if (fst(__v1634)) {
@@ -56023,51 +57397,51 @@ Tests compilation of ecmaref5:
   __v1539 := previous = 'undefined;
   __v1538 := !__v1539;
   if (__v1538) {
-  __v1542 := "isContainedInStrictCode"(___internal_esl_global, scope);
-  if (fst(__v1542)) {
-  return __v1542
+  __v1540 := "isContainedInStrictCode"(___internal_esl_global, scope);
+  if (fst(__v1540)) {
+  return __v1540
   } else {
-  __v1542 := snd(__v1542)
+  __v1540 := snd(__v1540)
   };
+  if (__v1540 = false) {
+  __v1543 := false
+  } else {
+  __v1541 := "IsDataPropertyDescriptor"(___internal_esl_global, previous);
+  if (fst(__v1541)) {
+  return __v1541
+  } else {
+  __v1541 := snd(__v1541)
+  };
+  __v1542 := __v1541 = true;
   if (__v1542 = false) {
-  __v1541 := false
+  __v1543 := false
   } else {
-  __v1543 := "IsDataPropertyDescriptor"(___internal_esl_global, previous);
-  if (fst(__v1543)) {
-  return __v1543
-  } else {
-  __v1543 := snd(__v1543)
-  };
-  __v1544 := __v1543 = true;
-  if (__v1544 = false) {
-  __v1541 := false
-  } else {
-  __v1541 := true
+  __v1543 := true
   }
   };
-  if (__v1541 = false) {
-  __v1540 := false
+  if (__v1543 = false) {
+  __v1547 := false
   } else {
-  __v1545 := "getPropertyDescriptor"(___internal_esl_global, propId);
+  __v1544 := "getPropertyDescriptor"(___internal_esl_global, propId);
+  if (fst(__v1544)) {
+  return __v1544
+  } else {
+  __v1544 := snd(__v1544)
+  };
+  __v1545 := "IsDataPropertyDescriptor"(___internal_esl_global, __v1544);
   if (fst(__v1545)) {
   return __v1545
   } else {
   __v1545 := snd(__v1545)
   };
-  __v1546 := "IsDataPropertyDescriptor"(___internal_esl_global, __v1545);
-  if (fst(__v1546)) {
-  return __v1546
+  __v1546 := __v1545 = true;
+  if (__v1546 = false) {
+  __v1547 := false
   } else {
-  __v1546 := snd(__v1546)
-  };
-  __v1547 := __v1546 = true;
-  if (__v1547 = false) {
-  __v1540 := false
-  } else {
-  __v1540 := true
+  __v1547 := true
   }
   };
-  if (__v1540) {
+  if (__v1547) {
   __v1548 := "SyntaxErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v1548)) {
   return __v1548
@@ -56075,37 +57449,39 @@ Tests compilation of ecmaref5:
   __v1548 := snd(__v1548)
   };
   return (true, __v1548)
-  };
-  __v1550 := "IsDataPropertyDescriptor"(___internal_esl_global, previous);
-  if (fst(__v1550)) {
-  return __v1550
   } else {
-  __v1550 := snd(__v1550)
+  
   };
-  __v1551 := __v1550 = true;
-  if (__v1551 = false) {
-  __v1549 := false
+  __v1549 := "IsDataPropertyDescriptor"(___internal_esl_global, previous);
+  if (fst(__v1549)) {
+  return __v1549
   } else {
-  __v1552 := "getPropertyDescriptor"(___internal_esl_global, propId);
+  __v1549 := snd(__v1549)
+  };
+  __v1550 := __v1549 = true;
+  if (__v1550 = false) {
+  __v1554 := false
+  } else {
+  __v1551 := "getPropertyDescriptor"(___internal_esl_global, propId);
+  if (fst(__v1551)) {
+  return __v1551
+  } else {
+  __v1551 := snd(__v1551)
+  };
+  __v1552 := "IsAccessorPropertyDescriptor"(___internal_esl_global, __v1551);
   if (fst(__v1552)) {
   return __v1552
   } else {
   __v1552 := snd(__v1552)
   };
-  __v1553 := "IsAccessorPropertyDescriptor"(___internal_esl_global, __v1552);
-  if (fst(__v1553)) {
-  return __v1553
+  __v1553 := __v1552 = true;
+  if (__v1553 = false) {
+  __v1554 := false
   } else {
-  __v1553 := snd(__v1553)
-  };
-  __v1554 := __v1553 = true;
-  if (__v1554 = false) {
-  __v1549 := false
-  } else {
-  __v1549 := true
+  __v1554 := true
   }
   };
-  if (__v1549) {
+  if (__v1554) {
   __v1555 := "SyntaxErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v1555)) {
   return __v1555
@@ -56113,37 +57489,39 @@ Tests compilation of ecmaref5:
   __v1555 := snd(__v1555)
   };
   return (true, __v1555)
-  };
-  __v1557 := "IsAccessorPropertyDescriptor"(___internal_esl_global, previous);
-  if (fst(__v1557)) {
-  return __v1557
   } else {
-  __v1557 := snd(__v1557)
+  
   };
-  __v1558 := __v1557 = true;
-  if (__v1558 = false) {
-  __v1556 := false
+  __v1556 := "IsAccessorPropertyDescriptor"(___internal_esl_global, previous);
+  if (fst(__v1556)) {
+  return __v1556
   } else {
-  __v1559 := "getPropertyDescriptor"(___internal_esl_global, propId);
+  __v1556 := snd(__v1556)
+  };
+  __v1557 := __v1556 = true;
+  if (__v1557 = false) {
+  __v1561 := false
+  } else {
+  __v1558 := "getPropertyDescriptor"(___internal_esl_global, propId);
+  if (fst(__v1558)) {
+  return __v1558
+  } else {
+  __v1558 := snd(__v1558)
+  };
+  __v1559 := "IsDataPropertyDescriptor"(___internal_esl_global, __v1558);
   if (fst(__v1559)) {
   return __v1559
   } else {
   __v1559 := snd(__v1559)
   };
-  __v1560 := "IsDataPropertyDescriptor"(___internal_esl_global, __v1559);
-  if (fst(__v1560)) {
-  return __v1560
+  __v1560 := __v1559 = true;
+  if (__v1560 = false) {
+  __v1561 := false
   } else {
-  __v1560 := snd(__v1560)
-  };
-  __v1561 := __v1560 = true;
-  if (__v1561 = false) {
-  __v1556 := false
-  } else {
-  __v1556 := true
+  __v1561 := true
   }
   };
-  if (__v1556) {
+  if (__v1561) {
   __v1562 := "SyntaxErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v1562)) {
   return __v1562
@@ -56151,149 +57529,151 @@ Tests compilation of ecmaref5:
   __v1562 := snd(__v1562)
   };
   return (true, __v1562)
+  } else {
+  
   };
-  __v1565 := "IsAccessorPropertyDescriptor"(___internal_esl_global, previous);
+  __v1563 := "IsAccessorPropertyDescriptor"(___internal_esl_global, previous);
+  if (fst(__v1563)) {
+  return __v1563
+  } else {
+  __v1563 := snd(__v1563)
+  };
+  __v1564 := __v1563 = true;
+  if (__v1564 = false) {
+  __v1568 := false
+  } else {
+  __v1565 := "getPropertyDescriptor"(___internal_esl_global, propId);
   if (fst(__v1565)) {
   return __v1565
   } else {
   __v1565 := snd(__v1565)
   };
-  __v1566 := __v1565 = true;
-  if (__v1566 = false) {
-  __v1564 := false
+  __v1566 := "IsAccessorPropertyDescriptor"(___internal_esl_global, __v1565);
+  if (fst(__v1566)) {
+  return __v1566
   } else {
-  __v1567 := "getPropertyDescriptor"(___internal_esl_global, propId);
-  if (fst(__v1567)) {
-  return __v1567
-  } else {
-  __v1567 := snd(__v1567)
+  __v1566 := snd(__v1566)
   };
-  __v1568 := "IsAccessorPropertyDescriptor"(___internal_esl_global, __v1567);
-  if (fst(__v1568)) {
-  return __v1568
+  __v1567 := __v1566 = true;
+  if (__v1567 = false) {
+  __v1568 := false
   } else {
-  __v1568 := snd(__v1568)
-  };
-  __v1569 := __v1568 = true;
-  if (__v1569 = false) {
-  __v1564 := false
-  } else {
-  __v1564 := true
+  __v1568 := true
   }
   };
-  if (__v1564 = false) {
-  __v1563 := false
+  if (__v1568 = false) {
+  __v1596 := false
   } else {
-  __v1574 := "Get" in_obj previous;
-  if (__v1574 = false) {
+  __v1569 := "Get" in_obj previous;
+  if (__v1569 = false) {
   __v1573 := false
   } else {
-  __v1576 := previous["Get"];
-  __v1577 := __v1576 = 'undefined;
-  __v1575 := !__v1577;
-  if (__v1575 = false) {
+  __v1571 := previous["Get"];
+  __v1572 := __v1571 = 'undefined;
+  __v1570 := !__v1572;
+  if (__v1570 = false) {
   __v1573 := false
   } else {
   __v1573 := true
   }
   };
   if (__v1573 = false) {
-  __v1572 := false
+  __v1576 := false
   } else {
-  __v1578 := "getPropertyDescriptor"(___internal_esl_global, propId);
-  if (fst(__v1578)) {
-  return __v1578
+  __v1574 := "getPropertyDescriptor"(___internal_esl_global, propId);
+  if (fst(__v1574)) {
+  return __v1574
   } else {
-  __v1578 := snd(__v1578)
+  __v1574 := snd(__v1574)
   };
-  __v1579 := "Get" in_obj __v1578;
-  if (__v1579 = false) {
-  __v1572 := false
+  __v1575 := "Get" in_obj __v1574;
+  if (__v1575 = false) {
+  __v1576 := false
   } else {
-  __v1572 := true
+  __v1576 := true
   }
   };
-  if (__v1572 = false) {
-  __v1571 := false
+  if (__v1576 = false) {
+  __v1581 := false
   } else {
-  __v1582 := "getPropertyDescriptor"(___internal_esl_global, propId);
-  if (fst(__v1582)) {
-  return __v1582
+  __v1579 := "getPropertyDescriptor"(___internal_esl_global, propId);
+  if (fst(__v1579)) {
+  return __v1579
   } else {
-  __v1582 := snd(__v1582)
+  __v1579 := snd(__v1579)
   };
-  __v1581 := __v1582["Get"];
-  __v1583 := __v1581 = 'undefined;
-  __v1580 := !__v1583;
-  if (__v1580 = false) {
-  __v1571 := false
+  __v1578 := __v1579["Get"];
+  __v1580 := __v1578 = 'undefined;
+  __v1577 := !__v1580;
+  if (__v1577 = false) {
+  __v1581 := false
   } else {
-  __v1571 := true
+  __v1581 := true
   }
   };
-  if (__v1571 = true) {
-  __v1570 := true
+  if (__v1581 = true) {
+  __v1595 := true
   } else {
-  __v1587 := "Set" in_obj previous;
-  if (__v1587 = false) {
+  __v1582 := "Set" in_obj previous;
+  if (__v1582 = false) {
   __v1586 := false
   } else {
-  __v1589 := previous["Set"];
-  __v1590 := __v1589 = 'undefined;
-  __v1588 := !__v1590;
-  if (__v1588 = false) {
+  __v1584 := previous["Set"];
+  __v1585 := __v1584 = 'undefined;
+  __v1583 := !__v1585;
+  if (__v1583 = false) {
   __v1586 := false
   } else {
   __v1586 := true
   }
   };
   if (__v1586 = false) {
-  __v1585 := false
+  __v1589 := false
   } else {
-  __v1591 := "getPropertyDescriptor"(___internal_esl_global, propId);
-  if (fst(__v1591)) {
-  return __v1591
+  __v1587 := "getPropertyDescriptor"(___internal_esl_global, propId);
+  if (fst(__v1587)) {
+  return __v1587
   } else {
-  __v1591 := snd(__v1591)
+  __v1587 := snd(__v1587)
   };
-  __v1592 := "Set" in_obj __v1591;
-  if (__v1592 = false) {
-  __v1585 := false
+  __v1588 := "Set" in_obj __v1587;
+  if (__v1588 = false) {
+  __v1589 := false
   } else {
-  __v1585 := true
+  __v1589 := true
   }
   };
-  if (__v1585 = false) {
-  __v1584 := false
+  if (__v1589 = false) {
+  __v1594 := false
   } else {
-  __v1595 := "getPropertyDescriptor"(___internal_esl_global, propId);
-  if (fst(__v1595)) {
-  return __v1595
+  __v1592 := "getPropertyDescriptor"(___internal_esl_global, propId);
+  if (fst(__v1592)) {
+  return __v1592
   } else {
-  __v1595 := snd(__v1595)
+  __v1592 := snd(__v1592)
   };
-  __v1594 := __v1595["Set"];
-  __v1596 := __v1594 = 'undefined;
-  __v1593 := !__v1596;
-  if (__v1593 = false) {
-  __v1584 := false
+  __v1591 := __v1592["Set"];
+  __v1593 := __v1591 = 'undefined;
+  __v1590 := !__v1593;
+  if (__v1590 = false) {
+  __v1594 := false
   } else {
-  __v1584 := true
+  __v1594 := true
   }
   };
-  if (__v1584 = true) {
-  __v1570 := true
+  if (__v1594 = true) {
+  __v1595 := true
   } else {
-  __v1570 := false
+  __v1595 := false
   }
   };
-  if (__v1570 = false) {
-  __v1563 := false
+  if (__v1595 = false) {
+  __v1596 := false
   } else {
-  __v1563 := true
+  __v1596 := true
   }
   };
-  if (__v1563) {
+  if (__v1596) {
   __v1597 := "SyntaxErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v1597)) {
   return __v1597
@@ -56301,7 +57681,11 @@ Tests compilation of ecmaref5:
   __v1597 := snd(__v1597)
   };
   return (true, __v1597)
+  } else {
+  
   }
+  } else {
+  
   };
   __v1598 := obj["DefineOwnProperty"];
   __v1599 := "getPropertyName"(___internal_esl_global, propId);
@@ -56352,6 +57736,8 @@ Tests compilation of ecmaref5:
   __v1511 := separator = 'undefined;
   if (__v1511) {
   separator := ","
+  } else {
+  
   };
   __v1512 := "ToString"(___internal_esl_global, separator);
   if (fst(__v1512)) {
@@ -56363,6 +57749,8 @@ Tests compilation of ecmaref5:
   __v1513 := len = 0.0;
   if (__v1513) {
   return (false, "")
+  } else {
+  
   };
   __v1514 := O["Get"];
   __v1515 := __v1514(___internal_esl_global, O, "0");
@@ -56372,19 +57760,19 @@ Tests compilation of ecmaref5:
   __v1515 := snd(__v1515)
   };
   element0 := __v1515;
-  __v1516 := element0 = 'undefined;
-  __v1517 := element0 = 'null;
-  __v1518 := __v1516 || __v1517;
-  if (__v1518) {
+  __v1517 := element0 = 'undefined;
+  __v1518 := element0 = 'null;
+  __v1519 := __v1517 || __v1518;
+  if (__v1519) {
   R := ""
   } else {
-  __v1519 := "ToString"(___internal_esl_global, element0);
-  if (fst(__v1519)) {
-  return __v1519
+  __v1516 := "ToString"(___internal_esl_global, element0);
+  if (fst(__v1516)) {
+  return __v1516
   } else {
-  __v1519 := snd(__v1519)
+  __v1516 := snd(__v1516)
   };
-  R := __v1519
+  R := __v1516
   };
   k := 1.0;
   __v1520 := k < len;
@@ -56406,19 +57794,19 @@ Tests compilation of ecmaref5:
   __v1525 := snd(__v1525)
   };
   element := __v1525;
-  __v1526 := element = 'undefined;
-  __v1527 := element = 'null;
-  __v1528 := __v1526 || __v1527;
-  if (__v1528) {
+  __v1527 := element = 'undefined;
+  __v1528 := element = 'null;
+  __v1529 := __v1527 || __v1528;
+  if (__v1529) {
   next := ""
   } else {
-  __v1529 := "ToString"(___internal_esl_global, element);
-  if (fst(__v1529)) {
-  return __v1529
+  __v1526 := "ToString"(___internal_esl_global, element);
+  if (fst(__v1526)) {
+  return __v1526
   } else {
-  __v1529 := snd(__v1529)
+  __v1526 := snd(__v1526)
   };
-  next := __v1529
+  next := __v1526
   };
   __v1531 := [S, next];
   __v1530 := s_concat(__v1531);
@@ -56445,35 +57833,35 @@ Tests compilation of ecmaref5:
   __v1491 := snd(__v1491)
   };
   str := __v1491;
-  __v1493 := "Type"(___internal_esl_global, regexp);
+  __v1494 := "Type"(___internal_esl_global, regexp);
+  if (fst(__v1494)) {
+  return __v1494
+  } else {
+  __v1494 := snd(__v1494)
+  };
+  __v1495 := __v1494 = "Object";
+  if (__v1495 = false) {
+  __v1498 := false
+  } else {
+  __v1496 := regexp["Class"];
+  __v1497 := __v1496 = "RegExp";
+  if (__v1497 = false) {
+  __v1498 := false
+  } else {
+  __v1498 := true
+  }
+  };
+  if (__v1498) {
+  rx := regexp
+  } else {
+  __v1492 := [regexp, 'undefined];
+  __v1493 := "RegExpConstructor"(___internal_esl_global, global, this, strict, __v1492);
   if (fst(__v1493)) {
   return __v1493
   } else {
   __v1493 := snd(__v1493)
   };
-  __v1494 := __v1493 = "Object";
-  if (__v1494 = false) {
-  __v1492 := false
-  } else {
-  __v1495 := regexp["Class"];
-  __v1496 := __v1495 = "RegExp";
-  if (__v1496 = false) {
-  __v1492 := false
-  } else {
-  __v1492 := true
-  }
-  };
-  if (__v1492) {
-  rx := regexp
-  } else {
-  __v1497 := [regexp, 'undefined];
-  __v1498 := "RegExpConstructor"(___internal_esl_global, global, this, strict, __v1497);
-  if (fst(__v1498)) {
-  return __v1498
-  } else {
-  __v1498 := snd(__v1498)
-  };
-  rx := __v1498
+  rx := __v1493
   };
   __v1499 := [str];
   __v1500 := "RegExpPrototypeExec"(___internal_esl_global, global, rx, strict, __v1499);
@@ -56496,21 +57884,23 @@ Tests compilation of ecmaref5:
   };
   __v1504 := __v1505["Value"];
   result := __v1504
+  } else {
+  
   };
   return (false, result)
   };
   function StringConstructorCalledAsFunction(___internal_esl_global, value) {
-  __v1487 := value = null;
-  if (__v1487) {
+  __v1488 := value = null;
+  if (__v1488) {
   return (false, "")
   } else {
-  __v1488 := "ToString"(___internal_esl_global, value);
-  if (fst(__v1488)) {
-  return __v1488
+  __v1487 := "ToString"(___internal_esl_global, value);
+  if (fst(__v1487)) {
+  return __v1487
   } else {
-  __v1488 := snd(__v1488)
+  __v1487 := snd(__v1487)
   };
-  return (false, __v1488)
+  return (false, __v1487)
   }
   };
   function arrayEvery(___internal_esl_global, global, this, strict, args) {
@@ -56560,6 +57950,8 @@ Tests compilation of ecmaref5:
   __v1471 := snd(__v1471)
   };
   return (true, __v1471)
+  } else {
+  
   };
   __v1473 := thisArg = null;
   __v1472 := !__v1473;
@@ -56614,7 +58006,11 @@ Tests compilation of ecmaref5:
   __v1485 := __v1484 = false;
   if (__v1485) {
   return (false, false)
+  } else {
+  
   }
+  } else {
+  
   };
   __v1486 := k + 1.0;
   k := __v1486;
@@ -56651,6 +58047,8 @@ Tests compilation of ecmaref5:
   __v15979 := snd(__v15979)
   };
   return (false, __v15979)
+  } else {
+  
   };
   return (false, r)
   };
@@ -56693,17 +58091,17 @@ Tests compilation of ecmaref5:
   __v1446 := snd(__v1446)
   };
   intStart := __v1446;
-  __v1447 := end = 'undefined;
-  if (__v1447) {
+  __v1448 := end = 'undefined;
+  if (__v1448) {
   intEnd := len
   } else {
-  __v1448 := "ToInteger"(___internal_esl_global, end);
-  if (fst(__v1448)) {
-  return __v1448
+  __v1447 := "ToInteger"(___internal_esl_global, end);
+  if (fst(__v1447)) {
+  return __v1447
   } else {
-  __v1448 := snd(__v1448)
+  __v1447 := snd(__v1447)
   };
-  intEnd := __v1448
+  intEnd := __v1447
   };
   __v1449 := max(intStart, 0.0);
   __v1450 := min(__v1449, len);
@@ -56740,6 +58138,8 @@ Tests compilation of ecmaref5:
   if (__v1435) {
   __v1436 := [];
   return (false, __v1436)
+  } else {
+  
   };
   __v1437 := object["functionDeclarations"];
   return (false, __v1437)
@@ -56771,6 +58171,8 @@ Tests compilation of ecmaref5:
   __v1397 := len = 0.0;
   if (__v1397) {
   return (false, "")
+  } else {
+  
   };
   __v1398 := O["Get"];
   __v1399 := __v1398(___internal_esl_global, O, "0");
@@ -56780,52 +58182,54 @@ Tests compilation of ecmaref5:
   __v1399 := snd(__v1399)
   };
   firstElement := __v1399;
-  __v1400 := firstElement = 'undefined;
-  __v1401 := firstElement = 'null;
-  __v1402 := __v1400 || __v1401;
-  if (__v1402) {
+  __v1409 := firstElement = 'undefined;
+  __v1410 := firstElement = 'null;
+  __v1411 := __v1409 || __v1410;
+  if (__v1411) {
   R := ""
   } else {
-  __v1403 := "ToObject"(___internal_esl_global, firstElement);
+  __v1400 := "ToObject"(___internal_esl_global, firstElement);
+  if (fst(__v1400)) {
+  return __v1400
+  } else {
+  __v1400 := snd(__v1400)
+  };
+  elementObj := __v1400;
+  __v1401 := elementObj["Get"];
+  __v1402 := __v1401(___internal_esl_global, elementObj, "toLocaleString");
+  if (fst(__v1402)) {
+  return __v1402
+  } else {
+  __v1402 := snd(__v1402)
+  };
+  func := __v1402;
+  __v1403 := "IsCallable"(___internal_esl_global, func);
   if (fst(__v1403)) {
   return __v1403
   } else {
   __v1403 := snd(__v1403)
   };
-  elementObj := __v1403;
-  __v1404 := elementObj["Get"];
-  __v1405 := __v1404(___internal_esl_global, elementObj, "toLocaleString");
+  __v1404 := __v1403 = false;
+  if (__v1404) {
+  __v1405 := "TypeErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v1405)) {
   return __v1405
   } else {
   __v1405 := snd(__v1405)
   };
-  func := __v1405;
-  __v1406 := "IsCallable"(___internal_esl_global, func);
-  if (fst(__v1406)) {
-  return __v1406
+  return (true, __v1405)
   } else {
-  __v1406 := snd(__v1406)
+  
   };
-  __v1407 := __v1406 = false;
-  if (__v1407) {
-  __v1408 := "TypeErrorConstructorInternal"(___internal_esl_global);
+  __v1406 := func["Call"];
+  __v1407 := [];
+  __v1408 := __v1406(___internal_esl_global, null, null, func, elementObj, __v1407);
   if (fst(__v1408)) {
   return __v1408
   } else {
   __v1408 := snd(__v1408)
   };
-  return (true, __v1408)
-  };
-  __v1409 := func["Call"];
-  __v1410 := [];
-  __v1411 := __v1409(___internal_esl_global, null, null, func, elementObj, __v1410);
-  if (fst(__v1411)) {
-  return __v1411
-  } else {
-  __v1411 := snd(__v1411)
-  };
-  R := __v1411
+  R := __v1408
   };
   k := 1.0;
   __v1412 := k < len;
@@ -56853,52 +58257,54 @@ Tests compilation of ecmaref5:
   __v1418 := snd(__v1418)
   };
   nextElement := __v1418;
-  __v1419 := nextElement = 'undefined;
-  __v1420 := nextElement = 'null;
-  __v1421 := __v1419 || __v1420;
-  if (__v1421) {
+  __v1428 := nextElement = 'undefined;
+  __v1429 := nextElement = 'null;
+  __v1430 := __v1428 || __v1429;
+  if (__v1430) {
   R := ""
   } else {
-  __v1422 := "ToObject"(___internal_esl_global, nextElement);
+  __v1419 := "ToObject"(___internal_esl_global, nextElement);
+  if (fst(__v1419)) {
+  return __v1419
+  } else {
+  __v1419 := snd(__v1419)
+  };
+  elementObj := __v1419;
+  __v1420 := elementObj["Get"];
+  __v1421 := __v1420(___internal_esl_global, elementObj, "toLocaleString");
+  if (fst(__v1421)) {
+  return __v1421
+  } else {
+  __v1421 := snd(__v1421)
+  };
+  func := __v1421;
+  __v1422 := "IsCallable"(___internal_esl_global, func);
   if (fst(__v1422)) {
   return __v1422
   } else {
   __v1422 := snd(__v1422)
   };
-  elementObj := __v1422;
-  __v1423 := elementObj["Get"];
-  __v1424 := __v1423(___internal_esl_global, elementObj, "toLocaleString");
+  __v1423 := __v1422 = false;
+  if (__v1423) {
+  __v1424 := "TypeErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v1424)) {
   return __v1424
   } else {
   __v1424 := snd(__v1424)
   };
-  func := __v1424;
-  __v1425 := "IsCallable"(___internal_esl_global, func);
-  if (fst(__v1425)) {
-  return __v1425
+  return (true, __v1424)
   } else {
-  __v1425 := snd(__v1425)
+  
   };
-  __v1426 := __v1425 = false;
-  if (__v1426) {
-  __v1427 := "TypeErrorConstructorInternal"(___internal_esl_global);
+  __v1425 := func["Call"];
+  __v1426 := [];
+  __v1427 := __v1425(___internal_esl_global, null, null, func, elementObj, __v1426);
   if (fst(__v1427)) {
   return __v1427
   } else {
   __v1427 := snd(__v1427)
   };
-  return (true, __v1427)
-  };
-  __v1428 := func["Call"];
-  __v1429 := [];
-  __v1430 := __v1428(___internal_esl_global, null, null, func, elementObj, __v1429);
-  if (fst(__v1430)) {
-  return __v1430
-  } else {
-  __v1430 := snd(__v1430)
-  };
-  R := __v1430
+  R := __v1427
   };
   __v1433 := "ToString"(___internal_esl_global, R);
   if (fst(__v1433)) {
@@ -57068,6 +58474,8 @@ Tests compilation of ecmaref5:
   __v1358 := string_len = 0;
   if (__v1358) {
   return (false, false)
+  } else {
+  
   };
   __v1359 := string_len = 1;
   if (__v1359) {
@@ -57079,23 +58487,27 @@ Tests compilation of ecmaref5:
   };
   if (__v1360) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
+  } else {
+  
   };
   __v1361 := s_nth(str, 0);
   firstChar := __v1361;
-  __v1363 := firstChar = "+";
+  __v1362 := firstChar = "+";
+  if (__v1362 = true) {
+  __v1364 := true
+  } else {
+  __v1363 := firstChar = "-";
   if (__v1363 = true) {
-  __v1362 := true
+  __v1364 := true
   } else {
-  __v1364 := firstChar = "-";
-  if (__v1364 = true) {
-  __v1362 := true
-  } else {
-  __v1362 := false
+  __v1364 := false
   }
   };
-  if (__v1362) {
+  if (__v1364) {
   __v1365 := string_len - 1;
   __v1366 := s_substr(str, 1, __v1365);
   __v1367 := "satisfiesTheSyntaxOfStrUnsignedDecimalLiteral"(___internal_esl_global, __v1366);
@@ -57105,6 +58517,8 @@ Tests compilation of ecmaref5:
   __v1367 := snd(__v1367)
   };
   return (false, __v1367)
+  } else {
+  
   };
   __v1368 := "satisfiesTheSyntaxOfStrUnsignedDecimalLiteral"(___internal_esl_global, str);
   if (fst(__v1368)) {
@@ -57139,6 +58553,8 @@ Tests compilation of ecmaref5:
   __v1348 := snd(__v1348)
   };
   return (false, __v1348)
+  } else {
+  
   };
   __v1349 := l_len(SourceElements);
   __v1350 := __v1349 - 1;
@@ -57157,48 +58573,50 @@ Tests compilation of ecmaref5:
   function GlobalObjectIsFinite(___internal_esl_global, globalObject, this, strict, params) {
   __v1335 := l_nth(params, 0);
   num := __v1335;
-  __v1339 := "ToNumber"(___internal_esl_global, num);
-  if (fst(__v1339)) {
-  return __v1339
+  __v1337 := "ToNumber"(___internal_esl_global, num);
+  if (fst(__v1337)) {
+  return __v1337
   } else {
-  __v1339 := snd(__v1339)
+  __v1337 := snd(__v1337)
   };
-  __v1338 := is_NaN(__v1339);
-  if (__v1338 = true) {
-  __v1337 := true
+  __v1336 := is_NaN(__v1337);
+  if (__v1336 = true) {
+  __v1340 := true
   } else {
-  __v1340 := "ToNumber"(___internal_esl_global, num);
-  if (fst(__v1340)) {
-  return __v1340
+  __v1338 := "ToNumber"(___internal_esl_global, num);
+  if (fst(__v1338)) {
+  return __v1338
   } else {
-  __v1340 := snd(__v1340)
+  __v1338 := snd(__v1338)
   };
-  __v1341 := __v1340 = inf;
-  if (__v1341 = true) {
-  __v1337 := true
+  __v1339 := __v1338 = inf;
+  if (__v1339 = true) {
+  __v1340 := true
   } else {
-  __v1337 := false
+  __v1340 := false
   }
   };
-  if (__v1337 = true) {
-  __v1336 := true
+  if (__v1340 = true) {
+  __v1344 := true
   } else {
-  __v1342 := "ToNumber"(___internal_esl_global, num);
-  if (fst(__v1342)) {
-  return __v1342
+  __v1341 := "ToNumber"(___internal_esl_global, num);
+  if (fst(__v1341)) {
+  return __v1341
   } else {
-  __v1342 := snd(__v1342)
+  __v1341 := snd(__v1341)
   };
-  __v1343 := -(inf);
-  __v1344 := __v1342 = __v1343;
-  if (__v1344 = true) {
-  __v1336 := true
+  __v1342 := -(inf);
+  __v1343 := __v1341 = __v1342;
+  if (__v1343 = true) {
+  __v1344 := true
   } else {
-  __v1336 := false
+  __v1344 := false
   }
   };
-  if (__v1336) {
+  if (__v1344) {
   return (false, false)
+  } else {
+  
   };
   return (false, true)
   };
@@ -57248,6 +58666,8 @@ Tests compilation of ecmaref5:
   __v1330 := len - j;
   __v1331 := s_substr_u(T, j, __v1330);
   T := __v1331
+  } else {
+  
   };
   return (false, T)
   };
@@ -57281,6 +58701,8 @@ Tests compilation of ecmaref5:
   __v1319 := !b;
   if (__v1319) {
   return (false, false)
+  } else {
+  
   };
   __v1320 := tl(lst);
   lst := __v1320;
@@ -57321,39 +58743,39 @@ Tests compilation of ecmaref5:
   elementList := __v1291;
   __v1292 := snd(ret);
   elisionOpt := __v1292;
-  __v1293 := l_len(elementList);
-  __v1294 := __v1293 = 1;
-  if (__v1294) {
-  __v1295 := {};
-  __v1295["type"] := "Base";
-  __v1296 := l_nth(elementList, 0);
-  __v1295["assignmentExpression"] := __v1296;
-  __v1295["elisionOpt"] := elisionOpt;
-  return (false, __v1295)
+  __v1301 := l_len(elementList);
+  __v1302 := __v1301 = 1;
+  if (__v1302) {
+  __v1303 := {};
+  __v1303["type"] := "Base";
+  __v1304 := l_nth(elementList, 0);
+  __v1303["assignmentExpression"] := __v1304;
+  __v1303["elisionOpt"] := elisionOpt;
+  return (false, __v1303)
   } else {
-  __v1297 := l_len(elements);
-  __v1298 := __v1297 - 1;
-  __v1299 := l_nth(elements, __v1298);
-  assignmentExpression := __v1299;
-  __v1300 := l_remove_last(elements);
-  elements := __v1300;
-  __v1301 := "strip_final_elisions"(___internal_esl_global, elements);
-  if (fst(__v1301)) {
-  return __v1301
+  __v1293 := l_len(elements);
+  __v1294 := __v1293 - 1;
+  __v1295 := l_nth(elements, __v1294);
+  assignmentExpression := __v1295;
+  __v1296 := l_remove_last(elements);
+  elements := __v1296;
+  __v1297 := "strip_final_elisions"(___internal_esl_global, elements);
+  if (fst(__v1297)) {
+  return __v1297
   } else {
-  __v1301 := snd(__v1301)
+  __v1297 := snd(__v1297)
   };
-  ret := __v1301;
-  __v1302 := fst(ret);
-  elementList := __v1302;
-  __v1303 := snd(ret);
-  elisionOpt := __v1303;
-  __v1304 := {};
-  __v1304["type"] := "Recursive";
-  __v1304["elementList"] := elementList;
-  __v1304["elisionOpt"] := elisionOpt;
-  __v1304["assignmentExpression"] := assignmentExpression;
-  return (false, __v1304)
+  ret := __v1297;
+  __v1298 := fst(ret);
+  elementList := __v1298;
+  __v1299 := snd(ret);
+  elisionOpt := __v1299;
+  __v1300 := {};
+  __v1300["type"] := "Recursive";
+  __v1300["elementList"] := elementList;
+  __v1300["elisionOpt"] := elisionOpt;
+  __v1300["assignmentExpression"] := assignmentExpression;
+  return (false, __v1300)
   }
   };
   function internalTypeErrorThrower(___internal_esl_global, globalObject, this, strict, args) {
@@ -57461,6 +58883,8 @@ Tests compilation of ecmaref5:
   __v1264 := [__v1265, __v1266];
   __v1263 := s_concat(__v1264);
   return (false, __v1263)
+  } else {
+  
   };
   __v1267 := "ToNumber"(___internal_esl_global, lprim);
   if (fst(__v1267)) {
@@ -57589,6 +59013,8 @@ Tests compilation of ecmaref5:
   __v15955 := snd(__v15955)
   };
   return (false, __v15955)
+  } else {
+  
   };
   __v15956 := s_len_u(str_c);
   len := __v15956;
@@ -57611,6 +59037,8 @@ Tests compilation of ecmaref5:
   __v15961 := __v15959 > __v15960;
   if (__v15961) {
   return (false, null)
+  } else {
+  
   };
   __v15962 := s_substr_u(str, j1, len);
   str' := __v15962;
@@ -57630,6 +59058,8 @@ Tests compilation of ecmaref5:
   __v15966 := snd(__v15966)
   };
   return (false, __v15966)
+  } else {
+  
   };
   return (false, null)
   };
@@ -57665,40 +59095,18 @@ Tests compilation of ecmaref5:
   } else {
   return (false, false)
   }
+  } else {
+  
   };
   __v1228 := isMapped = 'undefined;
   __v1227 := !__v1228;
   if (__v1227) {
-  __v1229 := "IsAccessorPropertyDescriptor"(___internal_esl_global, Desc);
-  if (fst(__v1229)) {
-  return __v1229
+  __v1239 := "IsAccessorPropertyDescriptor"(___internal_esl_global, Desc);
+  if (fst(__v1239)) {
+  return __v1239
   } else {
-  __v1229 := snd(__v1229)
+  __v1239 := snd(__v1239)
   };
-  if (__v1229) {
-  __v1230 := map["Delete"];
-  __v1231 := __v1230(___internal_esl_global, map, P, false);
-  if (fst(__v1231)) {
-  return __v1231
-  } else {
-  __v1231 := snd(__v1231)
-  }
-  } else {
-  __v1232 := "Value" in_obj Desc;
-  if (__v1232) {
-  __v1233 := map["Put"];
-  __v1234 := Desc["Value"];
-  __v1235 := __v1233(___internal_esl_global, map, P, __v1234, Throw);
-  if (fst(__v1235)) {
-  return __v1235
-  } else {
-  __v1235 := snd(__v1235)
-  }
-  };
-  __v1236 := "Writable" in_obj Desc;
-  __v1237 := Desc["Writable"];
-  __v1238 := __v1237 = false;
-  __v1239 := __v1236 && __v1238;
   if (__v1239) {
   __v1240 := map["Delete"];
   __v1241 := __v1240(___internal_esl_global, map, P, false);
@@ -57707,8 +59115,38 @@ Tests compilation of ecmaref5:
   } else {
   __v1241 := snd(__v1241)
   }
+  } else {
+  __v1229 := "Value" in_obj Desc;
+  if (__v1229) {
+  __v1230 := map["Put"];
+  __v1231 := Desc["Value"];
+  __v1232 := __v1230(___internal_esl_global, map, P, __v1231, Throw);
+  if (fst(__v1232)) {
+  return __v1232
+  } else {
+  __v1232 := snd(__v1232)
+  }
+  } else {
+  
+  };
+  __v1233 := "Writable" in_obj Desc;
+  __v1234 := Desc["Writable"];
+  __v1235 := __v1234 = false;
+  __v1236 := __v1233 && __v1235;
+  if (__v1236) {
+  __v1237 := map["Delete"];
+  __v1238 := __v1237(___internal_esl_global, map, P, false);
+  if (fst(__v1238)) {
+  return __v1238
+  } else {
+  __v1238 := snd(__v1238)
+  }
+  } else {
+  
   }
   }
+  } else {
+  
   };
   return (false, true)
   };
@@ -57853,6 +59291,8 @@ Tests compilation of ecmaref5:
   } else {
   __v1206 := snd(__v1206)
   }
+  } else {
+  
   };
   __v1207 := Strict = true;
   if (__v1207) {
@@ -57889,22 +59329,24 @@ Tests compilation of ecmaref5:
   } else {
   __v1214 := snd(__v1214)
   }
+  } else {
+  
   };
-  __v1215 := n = null;
-  if (__v1215) {
-  __v1216 := int_to_float(len);
-  __v1217 := "setInternalProperty"(___internal_esl_global, F, "internalLength", __v1216);
-  if (fst(__v1217)) {
-  return __v1217
-  } else {
-  __v1217 := snd(__v1217)
-  }
-  } else {
-  __v1218 := "setInternalProperty"(___internal_esl_global, F, "internalLength", n);
+  __v1216 := n = null;
+  if (__v1216) {
+  __v1217 := int_to_float(len);
+  __v1218 := "setInternalProperty"(___internal_esl_global, F, "internalLength", __v1217);
   if (fst(__v1218)) {
   return __v1218
   } else {
   __v1218 := snd(__v1218)
+  }
+  } else {
+  __v1215 := "setInternalProperty"(___internal_esl_global, F, "internalLength", n);
+  if (fst(__v1215)) {
+  return __v1215
+  } else {
+  __v1215 := snd(__v1215)
   }
   };
   __v1219 := "setInternalProperty"(___internal_esl_global, F, "strict", Strict);
@@ -57964,14 +59406,14 @@ Tests compilation of ecmaref5:
   __v1096 := snd(__v1096)
   };
   relativeStart := __v1096;
-  __v1097 := relativeStart < 0.0;
-  if (__v1097) {
-  __v1098 := len + relativeStart;
-  __v1099 := max(__v1098, 0.0);
-  actualStart := __v1099
-  } else {
-  __v1100 := min(relativeStart, len);
+  __v1098 := relativeStart < 0.0;
+  if (__v1098) {
+  __v1099 := len + relativeStart;
+  __v1100 := max(__v1099, 0.0);
   actualStart := __v1100
+  } else {
+  __v1097 := min(relativeStart, len);
+  actualStart := __v1097
   };
   __v1101 := "ToInteger"(___internal_esl_global, deleteCount);
   if (fst(__v1101)) {
@@ -58032,6 +59474,8 @@ Tests compilation of ecmaref5:
   } else {
   __v1116 := snd(__v1116)
   }
+  } else {
+  
   };
   __v1117 := k + 1.0;
   k := __v1117;
@@ -58071,30 +59515,30 @@ Tests compilation of ecmaref5:
   __v1147 := snd(__v1147)
   };
   fromPresent := __v1147;
-  __v1148 := fromPresent = true;
-  if (__v1148) {
-  __v1149 := O["Get"];
-  __v1150 := __v1149(___internal_esl_global, O, from);
-  if (fst(__v1150)) {
-  return __v1150
-  } else {
-  __v1150 := snd(__v1150)
-  };
-  fromValue := __v1150;
-  __v1151 := O["Put"];
-  __v1152 := __v1151(___internal_esl_global, O, to, fromValue, true);
+  __v1150 := fromPresent = true;
+  if (__v1150) {
+  __v1151 := O["Get"];
+  __v1152 := __v1151(___internal_esl_global, O, from);
   if (fst(__v1152)) {
   return __v1152
   } else {
   __v1152 := snd(__v1152)
-  }
-  } else {
-  __v1153 := O["Delete"];
-  __v1154 := __v1153(___internal_esl_global, O, to, true);
+  };
+  fromValue := __v1152;
+  __v1153 := O["Put"];
+  __v1154 := __v1153(___internal_esl_global, O, to, fromValue, true);
   if (fst(__v1154)) {
   return __v1154
   } else {
   __v1154 := snd(__v1154)
+  }
+  } else {
+  __v1148 := O["Delete"];
+  __v1149 := __v1148(___internal_esl_global, O, to, true);
+  if (fst(__v1149)) {
+  return __v1149
+  } else {
+  __v1149 := snd(__v1149)
   }
   };
   __v1155 := k + 1.0;
@@ -58160,30 +59604,30 @@ Tests compilation of ecmaref5:
   __v1130 := snd(__v1130)
   };
   fromPresent := __v1130;
-  __v1131 := fromPresent = true;
-  if (__v1131) {
-  __v1132 := O["Get"];
-  __v1133 := __v1132(___internal_esl_global, O, from);
-  if (fst(__v1133)) {
-  return __v1133
-  } else {
-  __v1133 := snd(__v1133)
-  };
-  fromValue := __v1133;
-  __v1134 := O["Put"];
-  __v1135 := __v1134(___internal_esl_global, O, to, fromValue, true);
+  __v1133 := fromPresent = true;
+  if (__v1133) {
+  __v1134 := O["Get"];
+  __v1135 := __v1134(___internal_esl_global, O, from);
   if (fst(__v1135)) {
   return __v1135
   } else {
   __v1135 := snd(__v1135)
-  }
-  } else {
-  __v1136 := O["Delete"];
-  __v1137 := __v1136(___internal_esl_global, O, to, true);
+  };
+  fromValue := __v1135;
+  __v1136 := O["Put"];
+  __v1137 := __v1136(___internal_esl_global, O, to, fromValue, true);
   if (fst(__v1137)) {
   return __v1137
   } else {
   __v1137 := snd(__v1137)
+  }
+  } else {
+  __v1131 := O["Delete"];
+  __v1132 := __v1131(___internal_esl_global, O, to, true);
+  if (fst(__v1132)) {
+  return __v1132
+  } else {
+  __v1132 := snd(__v1132)
   }
   };
   __v1138 := k - 1.0;
@@ -58252,6 +59696,8 @@ Tests compilation of ecmaref5:
   __v1082 := i < start_idx
   };
   return (false, paramList)
+  } else {
+  
   };
   __v1085 := [];
   return (false, __v1085)
@@ -58296,6 +59742,8 @@ Tests compilation of ecmaref5:
   __v1077 := is_NaN(t);
   if (__v1077) {
   return (false, nan)
+  } else {
+  
   };
   __v1078 := "LocalTime"(___internal_esl_global, t);
   if (fst(__v1078)) {
@@ -58319,17 +59767,17 @@ Tests compilation of ecmaref5:
   __v1067 := snd(__v1067)
   };
   sc := __v1067;
-  __v1068 := negative = true;
-  if (__v1068) {
-  __v1069 := {};
-  __v1069["positive"] := null;
-  __v1069["negative"] := sc;
-  return (false, __v1069)
-  } else {
+  __v1069 := negative = true;
+  if (__v1069) {
   __v1070 := {};
-  __v1070["positive"] := sc;
-  __v1070["negative"] := null;
+  __v1070["positive"] := null;
+  __v1070["negative"] := sc;
   return (false, __v1070)
+  } else {
+  __v1068 := {};
+  __v1068["positive"] := sc;
+  __v1068["negative"] := null;
+  return (false, __v1068)
   }
   };
   function getBindingValue(___internal_esl_global, envRec, name) {
@@ -58346,7 +59794,7 @@ Tests compilation of ecmaref5:
   } else {
   __v1062 := snd(__v1062)
   };
-  assert (__v1062);
+  assert __v1062;
   __v1063 := "setBindingValue"(___internal_esl_global, envRec, N, V);
   if (fst(__v1063)) {
   return __v1063
@@ -58366,32 +59814,32 @@ Tests compilation of ecmaref5:
   list := __v1039;
   print "inside parseDate if";
   print list;
-  __v1040 := -(1.0);
-  __v1041 := list = __v1040;
-  if (__v1041) {
+  __v1060 := -(1.0);
+  __v1061 := list = __v1060;
+  if (__v1061) {
   return (false, nan)
   } else {
-  __v1043 := l_nth(list, 1);
+  __v1041 := l_nth(list, 1);
+  __v1040 := float_of_string(__v1041);
+  yr := __v1040;
+  __v1043 := l_nth(list, 2);
   __v1042 := float_of_string(__v1043);
-  yr := __v1042;
-  __v1045 := l_nth(list, 2);
+  m := __v1042;
+  __v1045 := l_nth(list, 3);
   __v1044 := float_of_string(__v1045);
-  m := __v1044;
-  __v1047 := l_nth(list, 3);
+  dt := __v1044;
+  __v1047 := l_nth(list, 4);
   __v1046 := float_of_string(__v1047);
-  dt := __v1046;
-  __v1049 := l_nth(list, 4);
+  h := __v1046;
+  __v1049 := l_nth(list, 5);
   __v1048 := float_of_string(__v1049);
-  h := __v1048;
-  __v1051 := l_nth(list, 5);
+  mins := __v1048;
+  __v1051 := l_nth(list, 6);
   __v1050 := float_of_string(__v1051);
-  mins := __v1050;
-  __v1053 := l_nth(list, 6);
+  s := __v1050;
+  __v1053 := l_nth(list, 7);
   __v1052 := float_of_string(__v1053);
-  s := __v1052;
-  __v1055 := l_nth(list, 7);
-  __v1054 := float_of_string(__v1055);
-  milli := __v1054;
+  milli := __v1052;
   print yr;
   print m;
   print dt;
@@ -58399,45 +59847,45 @@ Tests compilation of ecmaref5:
   print mins;
   print s;
   print milli;
+  __v1054 := "MakeDay"(___internal_esl_global, yr, m, dt);
+  if (fst(__v1054)) {
+  return __v1054
+  } else {
+  __v1054 := snd(__v1054)
+  };
+  print __v1054;
+  __v1055 := "MakeTime"(___internal_esl_global, h, mins, s, milli);
+  if (fst(__v1055)) {
+  return __v1055
+  } else {
+  __v1055 := snd(__v1055)
+  };
+  print __v1055;
   __v1056 := "MakeDay"(___internal_esl_global, yr, m, dt);
   if (fst(__v1056)) {
   return __v1056
   } else {
   __v1056 := snd(__v1056)
   };
-  print __v1056;
   __v1057 := "MakeTime"(___internal_esl_global, h, mins, s, milli);
   if (fst(__v1057)) {
   return __v1057
   } else {
   __v1057 := snd(__v1057)
   };
-  print __v1057;
-  __v1058 := "MakeDay"(___internal_esl_global, yr, m, dt);
+  __v1058 := "MakeDate"(___internal_esl_global, __v1056, __v1057);
   if (fst(__v1058)) {
   return __v1058
   } else {
   __v1058 := snd(__v1058)
   };
-  __v1059 := "MakeTime"(___internal_esl_global, h, mins, s, milli);
+  __v1059 := "TimeClip"(___internal_esl_global, __v1058);
   if (fst(__v1059)) {
   return __v1059
   } else {
   __v1059 := snd(__v1059)
   };
-  __v1060 := "MakeDate"(___internal_esl_global, __v1058, __v1059);
-  if (fst(__v1060)) {
-  return __v1060
-  } else {
-  __v1060 := snd(__v1060)
-  };
-  __v1061 := "TimeClip"(___internal_esl_global, __v1060);
-  if (fst(__v1061)) {
-  return __v1061
-  } else {
-  __v1061 := snd(__v1061)
-  };
-  return (false, __v1061)
+  return (false, __v1059)
   }
   };
   function JS_Interpreter_IterationStatement(___internal_esl_global, IterationStatement, scope) {
@@ -58450,6 +59898,8 @@ Tests compilation of ecmaref5:
   if (__v1005) {
   __v1007 := [];
   IterationStatement["labelSet"] := __v1007
+  } else {
+  
   };
   __v1008 := IterationStatement["labelSet"];
   __v1009 := l_add(__v1008, 'empty);
@@ -58471,6 +59921,8 @@ Tests compilation of ecmaref5:
   if (__v1014) {
   __v1016 := [];
   IterationStatement["labelSet"] := __v1016
+  } else {
+  
   };
   __v1017 := IterationStatement["labelSet"];
   __v1018 := l_add(__v1017, 'empty);
@@ -58492,6 +59944,8 @@ Tests compilation of ecmaref5:
   if (__v1023) {
   __v1025 := [];
   IterationStatement["labelSet"] := __v1025
+  } else {
+  
   };
   __v1026 := IterationStatement["labelSet"];
   __v1027 := l_add(__v1026, 'empty);
@@ -58513,6 +59967,8 @@ Tests compilation of ecmaref5:
   if (__v1032) {
   __v1034 := [];
   IterationStatement["labelSet"] := __v1034
+  } else {
+  
   };
   __v1035 := IterationStatement["labelSet"];
   __v1036 := l_add(__v1035, 'empty);
@@ -58569,6 +60025,8 @@ Tests compilation of ecmaref5:
   __v998 := snd(__v998)
   };
   return (true, __v998)
+  } else {
+  
   };
   __v999 := "setInternalProperty"(___internal_esl_global, O, "Extensible", false);
   if (fst(__v999)) {
@@ -58625,6 +60083,8 @@ Tests compilation of ecmaref5:
   __v980 := snd(__v980)
   };
   return (true, __v980)
+  } else {
+  
   };
   __v982 := thisArg = null;
   __v981 := !__v982;
@@ -58669,6 +60129,8 @@ Tests compilation of ecmaref5:
   } else {
   __v992 := snd(__v992)
   }
+  } else {
+  
   };
   __v993 := k + 1.0;
   k := __v993;
@@ -58702,23 +60164,23 @@ Tests compilation of ecmaref5:
   __v966 := snd(__v966)
   };
   v := __v966;
-  __v967 := "Type"(___internal_esl_global, v);
+  __v968 := "Type"(___internal_esl_global, v);
+  if (fst(__v968)) {
+  return __v968
+  } else {
+  __v968 := snd(__v968)
+  };
+  __v969 := __v968 = "String";
+  if (__v969) {
+  fail "15.9.3.2 - new Date (value) 2.a. Not implemented"
+  } else {
+  __v967 := "ToNumber"(___internal_esl_global, v);
   if (fst(__v967)) {
   return __v967
   } else {
   __v967 := snd(__v967)
   };
-  __v968 := __v967 = "String";
-  if (__v968) {
-  fail "15.9.3.2 - new Date (value) 2.a. Not implemented"
-  } else {
-  __v969 := "ToNumber"(___internal_esl_global, v);
-  if (fst(__v969)) {
-  return __v969
-  } else {
-  __v969 := snd(__v969)
-  };
-  V := __v969
+  V := __v967
   };
   __v970 := "TimeClip"(___internal_esl_global, V);
   if (fst(__v970)) {
@@ -58739,6 +60201,8 @@ Tests compilation of ecmaref5:
   __v957 := __v956 = 0;
   if (__v957) {
   return (false, 0.0)
+  } else {
+  
   };
   __v958 := l_len(Elision);
   __v959 := __v958 = 1;
@@ -58750,6 +60214,8 @@ Tests compilation of ecmaref5:
   __v960 := snd(__v960)
   };
   return (false, __v960)
+  } else {
+  
   };
   __v961 := l_remove_last(Elision);
   Elision := __v961;
@@ -58777,34 +60243,34 @@ Tests compilation of ecmaref5:
   __v949 := DebuggerStatement["type"];
   __v948 := __v949 = "DebuggerStatement";
   if (true && __v947 && __v948) {
-  __v950 := "existsDebuggerImplementation"(___internal_esl_global);
-  if (fst(__v950)) {
-  return __v950
-  } else {
-  __v950 := snd(__v950)
-  };
-  if (__v950) {
-  __v951 := "implementationDefinedDebuggingAction"(___internal_esl_global);
+  __v951 := "existsDebuggerImplementation"(___internal_esl_global);
   if (fst(__v951)) {
   return __v951
   } else {
   __v951 := snd(__v951)
   };
-  __v952 := "implementationDefinedCompletionValue"(___internal_esl_global);
+  if (__v951) {
+  __v952 := "implementationDefinedDebuggingAction"(___internal_esl_global);
   if (fst(__v952)) {
   return __v952
   } else {
   __v952 := snd(__v952)
   };
-  result := __v952
-  } else {
-  __v953 := "normalEmptyCompletion"(___internal_esl_global, 'empty);
+  __v953 := "implementationDefinedCompletionValue"(___internal_esl_global);
   if (fst(__v953)) {
   return __v953
   } else {
   __v953 := snd(__v953)
   };
   result := __v953
+  } else {
+  __v950 := "normalEmptyCompletion"(___internal_esl_global, 'empty);
+  if (fst(__v950)) {
+  return __v950
+  } else {
+  __v950 := snd(__v950)
+  };
+  result := __v950
   };
   return (false, result)
   }
@@ -58831,6 +60297,8 @@ Tests compilation of ecmaref5:
   __v946 := snd(__v946)
   };
   return (false, __v946)
+  } else {
+  
   };
   return (false, O)
   };
@@ -58839,18 +60307,24 @@ Tests compilation of ecmaref5:
   if (__v938) {
   __v939 := lnum & rnum;
   return (false, __v939)
+  } else {
+  
   };
   __v940 := operator = "^";
   if (__v940) {
   __v941 := lnum ^ rnum;
   return (false, __v941)
+  } else {
+  
   };
   __v942 := operator = "|";
   if (__v942) {
   __v943 := lnum | rnum;
   return (false, __v943)
+  } else {
+  
   };
-  assert (false)
+  assert false
   };
   function ObjectCreate(___internal_esl_global, globalObject, this, strict, params) {
   __v918 := l_nth(params, 0);
@@ -58887,6 +60361,8 @@ Tests compilation of ecmaref5:
   __v927 := snd(__v927)
   };
   return (true, __v927)
+  } else {
+  
   };
   __v928 := [];
   __v929 := "ObjectConstructor"(___internal_esl_global, globalObject, this, strict, __v928);
@@ -58902,20 +60378,20 @@ Tests compilation of ecmaref5:
   } else {
   __v930 := snd(__v930)
   };
-  __v933 := Properties = null;
-  __v932 := !__v933;
-  if (__v932 = false) {
-  __v931 := false
+  __v932 := Properties = null;
+  __v931 := !__v932;
+  if (__v931 = false) {
+  __v935 := false
   } else {
-  __v935 := Properties = 'undefined;
-  __v934 := !__v935;
-  if (__v934 = false) {
-  __v931 := false
+  __v934 := Properties = 'undefined;
+  __v933 := !__v934;
+  if (__v933 = false) {
+  __v935 := false
   } else {
-  __v931 := true
+  __v935 := true
   }
   };
-  if (__v931) {
+  if (__v935) {
   __v936 := [obj, Properties];
   __v937 := "ObjectDefineProperties"(___internal_esl_global, globalObject, this, strict, __v936);
   if (fst(__v937)) {
@@ -58923,6 +60399,8 @@ Tests compilation of ecmaref5:
   } else {
   __v937 := snd(__v937)
   }
+  } else {
+  
   };
   return (false, obj)
   };
@@ -59001,18 +60479,18 @@ Tests compilation of ecmaref5:
   C := __v858;
   __v859 := to_char_code_u(C);
   C_code := __v859;
-  __v892 := C = "\"";
+  __v891 := C = "\"";
+  if (__v891 = true) {
+  __v893 := true
+  } else {
+  __v892 := C = "\\";
   if (__v892 = true) {
-  __v891 := true
+  __v893 := true
   } else {
-  __v893 := C = "\\";
-  if (__v893 = true) {
-  __v891 := true
-  } else {
-  __v891 := false
+  __v893 := false
   }
   };
-  if (__v891) {
+  if (__v893) {
   __v895 := [product, "\\"];
   __v894 := s_concat(__v895);
   product := __v894;
@@ -59020,48 +60498,48 @@ Tests compilation of ecmaref5:
   __v896 := s_concat(__v897);
   product := __v896
   } else {
-  __v877 := C = "\b";
-  if (__v877 = true) {
-  __v876 := true
-  } else {
-  __v878 := C = "\012";
-  if (__v878 = true) {
-  __v876 := true
-  } else {
-  __v876 := false
-  }
-  };
-  if (__v876 = true) {
+  __v873 := C = "\b";
+  if (__v873 = true) {
   __v875 := true
   } else {
-  __v879 := C = "\n";
-  if (__v879 = true) {
+  __v874 := C = "\012";
+  if (__v874 = true) {
   __v875 := true
   } else {
   __v875 := false
   }
   };
   if (__v875 = true) {
-  __v874 := true
+  __v877 := true
   } else {
-  __v880 := C = "\r";
+  __v876 := C = "\n";
+  if (__v876 = true) {
+  __v877 := true
+  } else {
+  __v877 := false
+  }
+  };
+  if (__v877 = true) {
+  __v879 := true
+  } else {
+  __v878 := C = "\r";
+  if (__v878 = true) {
+  __v879 := true
+  } else {
+  __v879 := false
+  }
+  };
+  if (__v879 = true) {
+  __v881 := true
+  } else {
+  __v880 := C = "\t";
   if (__v880 = true) {
-  __v874 := true
+  __v881 := true
   } else {
-  __v874 := false
+  __v881 := false
   }
   };
-  if (__v874 = true) {
-  __v873 := true
-  } else {
-  __v881 := C = "\t";
-  if (__v881 = true) {
-  __v873 := true
-  } else {
-  __v873 := false
-  }
-  };
-  if (__v873) {
+  if (__v881) {
   __v883 := [product, "\\"];
   __v882 := s_concat(__v883);
   product := __v882;
@@ -59095,23 +60573,23 @@ Tests compilation of ecmaref5:
   __v889 := s_concat(__v890);
   product := __v889
   } else {
-  __v863 := C_code < 32;
-  if (__v863 = true) {
-  __v862 := true
+  __v862 := C_code < 32;
+  if (__v862 = true) {
+  __v864 := true
   } else {
-  __v864 := "isUnicodeSurrogate"(___internal_esl_global, C_code);
-  if (fst(__v864)) {
-  return __v864
+  __v863 := "isUnicodeSurrogate"(___internal_esl_global, C_code);
+  if (fst(__v863)) {
+  return __v863
   } else {
-  __v864 := snd(__v864)
+  __v863 := snd(__v863)
   };
-  if (__v864 = true) {
-  __v862 := true
+  if (__v863 = true) {
+  __v864 := true
   } else {
-  __v862 := false
+  __v864 := false
   }
   };
-  if (__v862) {
+  if (__v864) {
   print "INSIDE QUOTE";
   print C_code;
   __v866 := [product, "\\"];
@@ -59154,12 +60632,16 @@ Tests compilation of ecmaref5:
   };
   if (__v846) {
   return (false, "0")
+  } else {
+  
   };
   __v849 := float_of_string(str);
   __v848 := is_NaN(__v849);
   __v847 := !__v848;
   if (__v847) {
   return (false, str)
+  } else {
+  
   };
   __v850 := subLen > 0;
   while (__v850) {
@@ -59172,6 +60654,8 @@ Tests compilation of ecmaref5:
   __v853 := !__v854;
   if (__v853) {
   return (false, subStr)
+  } else {
+  
   };
   __v850 := subLen > 0
   };
@@ -59379,23 +60863,23 @@ Tests compilation of ecmaref5:
   m := __v809
   }
   };
-  __v814 := date = null;
-  if (__v814) {
-  __v815 := "DateFromTime"(___internal_esl_global, t);
-  if (fst(__v815)) {
-  return __v815
-  } else {
-  __v815 := snd(__v815)
-  };
-  dt := __v815
-  } else {
-  __v816 := "ToNumber"(___internal_esl_global, date);
+  __v815 := date = null;
+  if (__v815) {
+  __v816 := "DateFromTime"(___internal_esl_global, t);
   if (fst(__v816)) {
   return __v816
   } else {
   __v816 := snd(__v816)
   };
   dt := __v816
+  } else {
+  __v814 := "ToNumber"(___internal_esl_global, date);
+  if (fst(__v814)) {
+  return __v814
+  } else {
+  __v814 := snd(__v814)
+  };
+  dt := __v814
   };
   __v820 := "Type"(___internal_esl_global, dt);
   if (fst(__v820)) {
@@ -59471,19 +60955,19 @@ Tests compilation of ecmaref5:
   __v785 := [];
   arr_tokens := __v785;
   bracketCounter := 1;
-  __v787 := bracketCounter > 0;
-  if (__v787 = false) {
-  __v786 := false
+  __v786 := bracketCounter > 0;
+  if (__v786 = false) {
+  __v789 := false
   } else {
-  __v788 := l_len(tokens);
-  __v789 := __v788 > 0;
-  if (__v789 = false) {
-  __v786 := false
+  __v787 := l_len(tokens);
+  __v788 := __v787 > 0;
+  if (__v788 = false) {
+  __v789 := false
   } else {
-  __v786 := true
+  __v789 := true
   }
   };
-  while (__v786) {
+  while (__v789) {
   __v790 := hd(tokens);
   token := __v790;
   __v791 := tl(tokens);
@@ -59505,17 +60989,19 @@ Tests compilation of ecmaref5:
   if (__v796) {
   __v797 := l_add(arr_tokens, token);
   arr_tokens := __v797
+  } else {
+  
   };
-  __v787 := bracketCounter > 0;
-  if (__v787 = false) {
-  __v786 := false
+  __v786 := bracketCounter > 0;
+  if (__v786 = false) {
+  __v789 := false
   } else {
-  __v788 := l_len(tokens);
-  __v789 := __v788 > 0;
-  if (__v789 = false) {
-  __v786 := false
+  __v787 := l_len(tokens);
+  __v788 := __v787 > 0;
+  if (__v788 = false) {
+  __v789 := false
   } else {
-  __v786 := true
+  __v789 := true
   }
   }
   };
@@ -59721,18 +61207,18 @@ Tests compilation of ecmaref5:
   __v751 := snd(__v751)
   };
   f := __v751;
-  __v753 := f < 0.0;
+  __v752 := f < 0.0;
+  if (__v752 = true) {
+  __v754 := true
+  } else {
+  __v753 := f > 20.0;
   if (__v753 = true) {
-  __v752 := true
+  __v754 := true
   } else {
-  __v754 := f > 20.0;
-  if (__v754 = true) {
-  __v752 := true
-  } else {
-  __v752 := false
+  __v754 := false
   }
   };
-  if (__v752) {
+  if (__v754) {
   __v755 := "RangeErrorConstructorInternal"(___internal_esl_global);
   if (fst(__v755)) {
   return __v755
@@ -59740,6 +61226,8 @@ Tests compilation of ecmaref5:
   __v755 := snd(__v755)
   };
   return (true, __v755)
+  } else {
+  
   };
   __v756 := int_of_float(f);
   __v757 := to_fixed(x, __v756);
@@ -59833,50 +61321,50 @@ Tests compilation of ecmaref5:
   m := __v725
   }
   };
-  __v730 := date = null;
-  if (__v730) {
-  __v731 := "DateFromTime"(___internal_esl_global, t);
+  __v736 := date = null;
+  if (__v736) {
+  __v737 := "DateFromTime"(___internal_esl_global, t);
+  if (fst(__v737)) {
+  return __v737
+  } else {
+  __v737 := snd(__v737)
+  };
+  dt := __v737
+  } else {
+  __v730 := "ToNumber"(___internal_esl_global, date);
+  if (fst(__v730)) {
+  return __v730
+  } else {
+  __v730 := snd(__v730)
+  };
+  dt := __v730;
+  __v734 := "Type"(___internal_esl_global, dt);
+  if (fst(__v734)) {
+  return __v734
+  } else {
+  __v734 := snd(__v734)
+  };
+  __v735 := __v734 = "Completion";
+  __v733 := !__v735;
+  if (__v733) {
+  
+  } else {
+  __v732 := "isAnAbruptCompletion"(___internal_esl_global, dt);
+  if (fst(__v732)) {
+  return __v732
+  } else {
+  __v732 := snd(__v732)
+  };
+  if (__v732) {
+  return (false, dt)
+  } else {
+  __v731 := "getCompletionValue"(___internal_esl_global, dt);
   if (fst(__v731)) {
   return __v731
   } else {
   __v731 := snd(__v731)
   };
   dt := __v731
-  } else {
-  __v732 := "ToNumber"(___internal_esl_global, date);
-  if (fst(__v732)) {
-  return __v732
-  } else {
-  __v732 := snd(__v732)
-  };
-  dt := __v732;
-  __v736 := "Type"(___internal_esl_global, dt);
-  if (fst(__v736)) {
-  return __v736
-  } else {
-  __v736 := snd(__v736)
-  };
-  __v737 := __v736 = "Completion";
-  __v735 := !__v737;
-  if (__v735) {
-  
-  } else {
-  __v734 := "isAnAbruptCompletion"(___internal_esl_global, dt);
-  if (fst(__v734)) {
-  return __v734
-  } else {
-  __v734 := snd(__v734)
-  };
-  if (__v734) {
-  return (false, dt)
-  } else {
-  __v733 := "getCompletionValue"(___internal_esl_global, dt);
-  if (fst(__v733)) {
-  return __v733
-  } else {
-  __v733 := snd(__v733)
-  };
-  dt := __v733
   }
   }
   };
@@ -59974,6 +61462,8 @@ Tests compilation of ecmaref5:
   __v696 := snd(__v696)
   };
   return (false, __v696)
+  } else {
+  
   };
   __v697 := "ToInteger"(___internal_esl_global, precision);
   if (fst(__v697)) {
@@ -60014,6 +61504,8 @@ Tests compilation of ecmaref5:
   __v703 := is_NaN(x);
   if (__v703) {
   return (false, "NaN")
+  } else {
+  
   };
   s := "";
   __v704 := x < 0.0;
@@ -60021,12 +61513,16 @@ Tests compilation of ecmaref5:
   s := "-";
   __v705 := -(x);
   x := __v705
+  } else {
+  
   };
   __v706 := x = inf;
   if (__v706) {
   __v708 := (s, "Infinity");
   __v707 := s_concat(__v708);
   return (false, __v707)
+  } else {
+  
   };
   __v709 := p < 1.0;
   __v710 := p > 21.0;
@@ -60039,6 +61535,8 @@ Tests compilation of ecmaref5:
   __v712 := snd(__v712)
   };
   return (true, __v712)
+  } else {
+  
   };
   __v713 := int_of_float(precision);
   __v714 := to_precision(x, __v713);
@@ -60097,6 +61595,8 @@ Tests compilation of ecmaref5:
   __v682 := __v681 <= idx;
   if (__v682) {
   return (false, "None")
+  } else {
+  
   };
   __v683 := l_nth(props, idx);
   return (false, __v683)
@@ -60139,6 +61639,8 @@ Tests compilation of ecmaref5:
   __v641 := snd(__v641)
   };
   return (true, __v641)
+  } else {
+  
   };
   A := args;
   __v642 := "NewECMAScriptObject"(___internal_esl_global);
@@ -60214,72 +61716,33 @@ Tests compilation of ecmaref5:
   } else {
   __v653 := snd(__v653)
   };
-  __v654 := "getInternalProperty"(___internal_esl_global, Target, "Class");
-  if (fst(__v654)) {
-  return __v654
-  } else {
-  __v654 := snd(__v654)
-  };
-  __v655 := __v654 = "Function";
-  if (__v655) {
-  __v656 := "getJSProperty"(___internal_esl_global, Target, "length");
-  if (fst(__v656)) {
-  return __v656
-  } else {
-  __v656 := snd(__v656)
-  };
-  __v657 := "getDescriptorValue"(___internal_esl_global, __v656);
+  __v657 := "getInternalProperty"(___internal_esl_global, Target, "Class");
   if (fst(__v657)) {
   return __v657
   } else {
   __v657 := snd(__v657)
   };
-  __v659 := l_len(A);
-  __v658 := int_to_float(__v659);
-  __v660 := __v657 - __v658;
-  L := __v660;
-  __v661 := L > 0.0;
-  if (__v661) {
-  __v662 := "newDataPropertyDescriptorFull"(___internal_esl_global, L, false, false, false);
-  if (fst(__v662)) {
-  return __v662
+  __v658 := __v657 = "Function";
+  if (__v658) {
+  __v659 := "getJSProperty"(___internal_esl_global, Target, "length");
+  if (fst(__v659)) {
+  return __v659
   } else {
-  __v662 := snd(__v662)
+  __v659 := snd(__v659)
   };
-  __v663 := "setJSProperty"(___internal_esl_global, F, "length", __v662);
-  if (fst(__v663)) {
-  return __v663
+  __v660 := "getDescriptorValue"(___internal_esl_global, __v659);
+  if (fst(__v660)) {
+  return __v660
   } else {
-  __v663 := snd(__v663)
+  __v660 := snd(__v660)
   };
-  __v664 := "setInternalProperty"(___internal_esl_global, F, "internalLength", L);
-  if (fst(__v664)) {
-  return __v664
-  } else {
-  __v664 := snd(__v664)
-  }
-  } else {
-  __v665 := "newDataPropertyDescriptorFull"(___internal_esl_global, 0.0, false, false, false);
-  if (fst(__v665)) {
-  return __v665
-  } else {
-  __v665 := snd(__v665)
-  };
-  __v666 := "setJSProperty"(___internal_esl_global, F, "length", __v665);
-  if (fst(__v666)) {
-  return __v666
-  } else {
-  __v666 := snd(__v666)
-  };
-  __v667 := "setInternalProperty"(___internal_esl_global, F, "internalLength", 0.0);
-  if (fst(__v667)) {
-  return __v667
-  } else {
-  __v667 := snd(__v667)
-  }
-  }
-  } else {
-  __v668 := "newDataPropertyDescriptorFull"(___internal_esl_global, 0.0, false, false, false);
+  __v662 := l_len(A);
+  __v661 := int_to_float(__v662);
+  __v663 := __v660 - __v661;
+  L := __v663;
+  __v667 := L > 0.0;
+  if (__v667) {
+  __v668 := "newDataPropertyDescriptorFull"(___internal_esl_global, L, false, false, false);
   if (fst(__v668)) {
   return __v668
   } else {
@@ -60291,11 +61754,50 @@ Tests compilation of ecmaref5:
   } else {
   __v669 := snd(__v669)
   };
-  __v670 := "setInternalProperty"(___internal_esl_global, F, "internalLength", 0.0);
+  __v670 := "setInternalProperty"(___internal_esl_global, F, "internalLength", L);
   if (fst(__v670)) {
   return __v670
   } else {
   __v670 := snd(__v670)
+  }
+  } else {
+  __v664 := "newDataPropertyDescriptorFull"(___internal_esl_global, 0.0, false, false, false);
+  if (fst(__v664)) {
+  return __v664
+  } else {
+  __v664 := snd(__v664)
+  };
+  __v665 := "setJSProperty"(___internal_esl_global, F, "length", __v664);
+  if (fst(__v665)) {
+  return __v665
+  } else {
+  __v665 := snd(__v665)
+  };
+  __v666 := "setInternalProperty"(___internal_esl_global, F, "internalLength", 0.0);
+  if (fst(__v666)) {
+  return __v666
+  } else {
+  __v666 := snd(__v666)
+  }
+  }
+  } else {
+  __v654 := "newDataPropertyDescriptorFull"(___internal_esl_global, 0.0, false, false, false);
+  if (fst(__v654)) {
+  return __v654
+  } else {
+  __v654 := snd(__v654)
+  };
+  __v655 := "setJSProperty"(___internal_esl_global, F, "length", __v654);
+  if (fst(__v655)) {
+  return __v655
+  } else {
+  __v655 := snd(__v655)
+  };
+  __v656 := "setInternalProperty"(___internal_esl_global, F, "internalLength", 0.0);
+  if (fst(__v656)) {
+  return __v656
+  } else {
+  __v656 := snd(__v656)
   }
   };
   __v671 := "setInternalProperty"(___internal_esl_global, F, "Extensible", true);
@@ -60368,6 +61870,8 @@ Tests compilation of ecmaref5:
   __v16011 := c = null;
   if (__v16011) {
   return (false, null)
+  } else {
+  
   };
   __v16012 := c_code = v_code;
   if (__v16012) {
@@ -60394,6 +61898,8 @@ Tests compilation of ecmaref5:
   __v634 := !__v635;
   if (__v634) {
   return (false, true)
+  } else {
+  
   };
   __v636 := "isBindingCannotBeDeleted"(___internal_esl_global, envRec, N);
   if (fst(__v636)) {
@@ -60403,6 +61909,8 @@ Tests compilation of ecmaref5:
   };
   if (__v636) {
   return (false, false)
+  } else {
+  
   };
   delete envRec[N];
   return (false, true)
@@ -60460,6 +61968,8 @@ Tests compilation of ecmaref5:
   __v585 := snd(__v585)
   };
   return (false, __v585)
+  } else {
+  
   };
   __v586 := "ToInteger"(___internal_esl_global, precision);
   if (fst(__v586)) {
@@ -60500,6 +62010,8 @@ Tests compilation of ecmaref5:
   __v592 := is_NaN(x);
   if (__v592) {
   return (false, "NaN")
+  } else {
+  
   };
   s := "";
   __v593 := x < 0.0;
@@ -60507,12 +62019,16 @@ Tests compilation of ecmaref5:
   s := "-";
   __v594 := -(x);
   x := __v594
+  } else {
+  
   };
   __v595 := x = inf;
   if (__v595) {
   __v597 := (s, "Infinity");
   __v596 := s_concat(__v597);
   return (false, __v596)
+  } else {
+  
   };
   __v598 := p < 1.0;
   __v599 := p > 21.0;
@@ -60525,6 +62041,8 @@ Tests compilation of ecmaref5:
   __v601 := snd(__v601)
   };
   return (true, __v601)
+  } else {
+  
   };
   __v602 := x = 0;
   if (__v602) {
@@ -60551,39 +62069,41 @@ Tests compilation of ecmaref5:
   __v611 := (s, m);
   __v610 := s_concat(__v611);
   return (false, __v610)
+  } else {
+  
   };
-  __v612 := e >= 0;
-  if (__v612) {
-  __v617 := e + 1;
-  __v618 := s_substr_u(m, 0, __v617);
-  __v616 := (__v618, ".");
-  __v615 := s_concat(__v616);
-  __v619 := e + 1;
-  __v620 := e + 1;
-  __v621 := p - __v620;
-  __v622 := s_substr_u(m, __v619, __v621);
-  __v614 := (__v615, __v622);
-  __v613 := s_concat(__v614);
-  m := __v613
+  __v621 := e >= 0;
+  if (__v621) {
+  __v626 := e + 1;
+  __v627 := s_substr_u(m, 0, __v626);
+  __v625 := (__v627, ".");
+  __v624 := s_concat(__v625);
+  __v628 := e + 1;
+  __v629 := e + 1;
+  __v630 := p - __v629;
+  __v631 := s_substr_u(m, __v628, __v630);
+  __v623 := (__v624, __v631);
+  __v622 := s_concat(__v623);
+  m := __v622
   } else {
   tmp := "";
   index := 0;
-  __v623 := -(e);
-  __v624 := index = __v623;
-  while (__v624) {
-  __v626 := (tmp, "0");
-  __v625 := s_concat(__v626);
-  tmp := __v625;
-  __v627 := index + 1;
-  index := __v627;
-  __v623 := -(e);
-  __v624 := index = __v623
+  __v612 := -(e);
+  __v613 := index = __v612;
+  while (__v613) {
+  __v615 := (tmp, "0");
+  __v614 := s_concat(__v615);
+  tmp := __v614;
+  __v616 := index + 1;
+  index := __v616;
+  __v612 := -(e);
+  __v613 := index = __v612
   };
-  __v631 := ("0.", tmp);
-  __v630 := s_concat(__v631);
-  __v629 := (__v630, m);
-  __v628 := s_concat(__v629);
-  m := __v628
+  __v620 := ("0.", tmp);
+  __v619 := s_concat(__v620);
+  __v618 := (__v619, m);
+  __v617 := s_concat(__v618);
+  m := __v617
   };
   __v633 := (s, m);
   __v632 := s_concat(__v633);
@@ -60604,6 +62124,8 @@ Tests compilation of ecmaref5:
   __v575 := snd(__v575)
   };
   return (false, __v575)
+  } else {
+  
   };
   __v576 := "HasBindingObjectEnvRecord"(___internal_esl_global, envRec, N);
   if (fst(__v576)) {
@@ -60626,27 +62148,29 @@ Tests compilation of ecmaref5:
   __v564 := i - 1;
   __v565 := l_nth(elements, __v564);
   elem := __v565;
-  __v567 := !foundAllFinalElisions;
-  if (__v567 = false) {
-  __v566 := false
-  } else {
-  __v568 := elem = null;
+  __v568 := !foundAllFinalElisions;
   if (__v568 = false) {
-  __v566 := false
+  __v570 := false
   } else {
-  __v566 := true
+  __v569 := elem = null;
+  if (__v569 = false) {
+  __v570 := false
+  } else {
+  __v570 := true
   }
   };
-  if (__v566) {
-  __v569 := l_prepend(elem, elisionOpt);
-  elisionOpt := __v569
-  } else {
-  __v570 := !foundAllFinalElisions;
   if (__v570) {
+  __v571 := l_prepend(elem, elisionOpt);
+  elisionOpt := __v571
+  } else {
+  __v566 := !foundAllFinalElisions;
+  if (__v566) {
   foundAllFinalElisions := true
+  } else {
+  
   };
-  __v571 := l_prepend(elem, elementList);
-  elementList := __v571
+  __v567 := l_prepend(elem, elementList);
+  elementList := __v567
   };
   __v572 := i - 1;
   i := __v572;
@@ -60698,7 +62222,7 @@ Tests compilation of ecmaref5:
   envRec := declarativeEnvRec;
   __v554 := N in_obj envRec;
   __v553 := !__v554;
-  assert (__v553);
+  assert __v553;
   __v555 := "createMutableBinding"(___internal_esl_global, envRec, N, 'undefined);
   if (fst(__v555)) {
   return __v555
@@ -60713,6 +62237,8 @@ Tests compilation of ecmaref5:
   } else {
   __v557 := snd(__v557)
   }
+  } else {
+  
   };
   return (false, null)
   };
@@ -60859,25 +62385,25 @@ Tests compilation of ecmaref5:
   __v522 := "body" in_obj FunctionBody;
   if (true && __v522) {
   SourceElements := FunctionBody["body"];
-  __v524 := [];
-  __v525 := SourceElements = __v524;
-  __v523 := !__v525;
-  if (__v523) {
-  __v526 := "JS_Interpreter_SourceElements"(___internal_esl_global, SourceElements, scope);
-  if (fst(__v526)) {
-  return __v526
-  } else {
-  __v526 := snd(__v526)
-  };
-  return (false, __v526)
-  } else {
-  __v527 := "normalEmptyCompletion"(___internal_esl_global, 'undefined);
+  __v525 := [];
+  __v526 := SourceElements = __v525;
+  __v524 := !__v526;
+  if (__v524) {
+  __v527 := "JS_Interpreter_SourceElements"(___internal_esl_global, SourceElements, scope);
   if (fst(__v527)) {
   return __v527
   } else {
   __v527 := snd(__v527)
   };
   return (false, __v527)
+  } else {
+  __v523 := "normalEmptyCompletion"(___internal_esl_global, 'undefined);
+  if (fst(__v523)) {
+  return __v523
+  } else {
+  __v523 := snd(__v523)
+  };
+  return (false, __v523)
   }
   }
   };
@@ -60887,18 +62413,26 @@ Tests compilation of ecmaref5:
   __v506 := v_type = __$Int;
   if (__v506) {
   return (false, "Number")
+  } else {
+  
   };
   __v507 := v_type = __$Flt;
   if (__v507) {
   return (false, "Number")
+  } else {
+  
   };
   __v508 := v_type = __$Bool;
   if (__v508) {
   return (false, "Boolean")
+  } else {
+  
   };
   __v509 := v_type = __$Str;
   if (__v509) {
   return (false, "String")
+  } else {
+  
   };
   __v510 := v_type = __$Obj;
   if (__v510) {
@@ -60910,6 +62444,8 @@ Tests compilation of ecmaref5:
   };
   if (__v511) {
   return (false, "Object")
+  } else {
+  
   };
   __v512 := "isPropertyDescriptor"(___internal_esl_global, V);
   if (fst(__v512)) {
@@ -60919,23 +62455,35 @@ Tests compilation of ecmaref5:
   };
   if (__v512) {
   return (false, "PropertyDescriptor")
+  } else {
+  
   };
   return (false, "EnvironmentRecord")
+  } else {
+  
   };
   __v513 := v_type = __$List;
   if (__v513) {
   return (false, "List")
+  } else {
+  
   };
   __v514 := v_type = __$Symbol;
   if (__v514) {
   __v515 := V = 'null;
   if (__v515) {
   return (false, "Null")
+  } else {
+  
   };
   __v516 := V = 'undefined;
   if (__v516) {
   return (false, "Undefined")
+  } else {
+  
   }
+  } else {
+  
   };
   __v517 := v_type = __$Tuple;
   if (__v517) {
@@ -60944,23 +62492,31 @@ Tests compilation of ecmaref5:
   __v519 := ft = "R";
   if (__v519) {
   return (false, "Reference")
+  } else {
+  
   };
   __v520 := ft = "C";
   if (__v520) {
   return (false, "Completion")
+  } else {
+  
   };
   __v521 := ft = "P";
   if (__v521) {
   return (false, "PropertyIdentifier")
+  } else {
+  
   }
+  } else {
+  
   };
-  assert (false)
+  assert false
   };
   function CreateImmutableBindingDeclarative(___internal_esl_global, declarativeEnvRec, N) {
   envRec := declarativeEnvRec;
   __v502 := N in_obj envRec;
   __v501 := !__v502;
-  assert (__v501);
+  assert __v501;
   __v503 := "createImmutableBinding"(___internal_esl_global, envRec, N);
   if (fst(__v503)) {
   return __v503
@@ -60985,6 +62541,8 @@ Tests compilation of ecmaref5:
   __v475 := snd(__v475)
   };
   return (true, __v475)
+  } else {
+  
   };
   __v476 := l_add(stack, value);
   stack := __v476;
@@ -61018,49 +62576,49 @@ Tests compilation of ecmaref5:
   __v484 := snd(__v484)
   };
   strP := __v484;
-  __v485 := strP = 'undefined;
-  if (__v485) {
-  __v486 := l_add(partial, 'null);
-  partial := __v486
-  } else {
-  __v487 := l_add(partial, strP);
+  __v486 := strP = 'undefined;
+  if (__v486) {
+  __v487 := l_add(partial, 'null);
   partial := __v487
+  } else {
+  __v485 := l_add(partial, strP);
+  partial := __v485
   };
   __v488 := index + 1.0;
   index := __v488;
   __v482 := index < len
   };
-  __v489 := l_len(partial);
-  __v490 := __v489 = 0;
-  if (__v490) {
+  __v498 := l_len(partial);
+  __v499 := __v498 = 0;
+  if (__v499) {
   final := "[]"
   } else {
-  __v491 := gap = "";
-  if (__v491) {
-  __v492 := "concatenateListStrElmsWithSeparator"(___internal_esl_global, partial, ",");
-  if (fst(__v492)) {
-  return __v492
+  __v494 := gap = "";
+  if (__v494) {
+  __v495 := "concatenateListStrElmsWithSeparator"(___internal_esl_global, partial, ",");
+  if (fst(__v495)) {
+  return __v495
   } else {
-  __v492 := snd(__v492)
+  __v495 := snd(__v495)
   };
-  properties := __v492;
-  __v494 := ["[", properties, "]"];
-  __v493 := s_concat(__v494);
-  final := __v493
+  properties := __v495;
+  __v497 := ["[", properties, "]"];
+  __v496 := s_concat(__v497);
+  final := __v496
   } else {
-  __v496 := [",", "\n", indent];
-  __v495 := s_concat(__v496);
-  separator := __v495;
-  __v497 := "concatenateListStrElmsWithSeparator"(___internal_esl_global, partial, separator);
-  if (fst(__v497)) {
-  return __v497
+  __v490 := [",", "\n", indent];
+  __v489 := s_concat(__v490);
+  separator := __v489;
+  __v491 := "concatenateListStrElmsWithSeparator"(___internal_esl_global, partial, separator);
+  if (fst(__v491)) {
+  return __v491
   } else {
-  __v497 := snd(__v497)
+  __v491 := snd(__v491)
   };
-  properties := __v497;
-  __v499 := ["[", "\n", indent, properties, "\n", stepback, "]"];
-  __v498 := s_concat(__v499);
-  final := __v498
+  properties := __v491;
+  __v493 := ["[", "\n", indent, properties, "\n", stepback, "]"];
+  __v492 := s_concat(__v493);
+  final := __v492
   }
   };
   __v500 := l_remove_last(stack);
@@ -61112,6 +62670,8 @@ Tests compilation of ecmaref5:
   __v460 := len - j;
   __v461 := s_substr_u(T, j, __v460);
   T := __v461
+  } else {
+  
   };
   __v463 := T = "";
   __v462 := !__v463;
@@ -61145,22 +62705,24 @@ Tests compilation of ecmaref5:
   __v472 := j + 1;
   __v473 := s_substr_u(T, 0, __v472);
   T := __v473
+  } else {
+  
   };
   return (false, T)
   };
   function EmptyCharacterClass(___internal_esl_global, negative) {
   if (negative) {
-  __v446 := {};
-  __v446["positive"] := null;
-  __v447 := {};
-  __v446["negative"] := __v447;
-  return (false, __v446)
-  } else {
   __v448 := {};
+  __v448["positive"] := null;
   __v449 := {};
-  __v448["positive"] := __v449;
-  __v448["negative"] := null;
+  __v448["negative"] := __v449;
   return (false, __v448)
+  } else {
+  __v446 := {};
+  __v447 := {};
+  __v446["positive"] := __v447;
+  __v446["negative"] := null;
+  return (false, __v446)
   }
   };
   function parseJSONArray(___internal_esl_global, global, this, strict, tokens) {
@@ -61194,6 +62756,8 @@ Tests compilation of ecmaref5:
   __v427 := snd(__v427)
   };
   return (true, __v427)
+  } else {
+  
   };
   __v428 := l_nth(ret, 0);
   value := __v428;
@@ -61217,34 +62781,38 @@ Tests compilation of ecmaref5:
   };
   __v433 := i + 1.0;
   i := __v433;
-  __v434 := l_len(ret);
-  __v435 := __v434 = 2;
-  if (__v435) {
-  __v436 := l_nth(ret, 1);
-  tokens := __v436;
-  __v437 := l_len(tokens);
-  __v438 := __v437 > 0;
-  if (__v438) {
-  __v439 := hd(tokens);
-  comma := __v439;
-  __v441 := comma = ",";
-  __v440 := !__v441;
-  if (__v440) {
-  __v442 := ["JSON.parse: Expected comma after JSON array value."];
-  __v443 := "SyntaxErrorConstructor"(___internal_esl_global, global, this, strict, __v442);
-  if (fst(__v443)) {
-  return __v443
+  __v435 := l_len(ret);
+  __v436 := __v435 = 2;
+  if (__v436) {
+  __v437 := l_nth(ret, 1);
+  tokens := __v437;
+  __v438 := l_len(tokens);
+  __v439 := __v438 > 0;
+  if (__v439) {
+  __v440 := hd(tokens);
+  comma := __v440;
+  __v442 := comma = ",";
+  __v441 := !__v442;
+  if (__v441) {
+  __v443 := ["JSON.parse: Expected comma after JSON array value."];
+  __v444 := "SyntaxErrorConstructor"(___internal_esl_global, global, this, strict, __v443);
+  if (fst(__v444)) {
+  return __v444
   } else {
-  __v443 := snd(__v443)
+  __v444 := snd(__v444)
   };
-  return (true, __v443)
+  return (true, __v444)
+  } else {
+  
   };
-  __v444 := tl(tokens);
-  tokens := __v444
+  __v445 := tl(tokens);
+  tokens := __v445
+  } else {
+  
   }
   } else {
-  __v445 := [];
-  tokens := __v445
+  __v434 := [];
+  tokens := __v434
   };
   __v421 := l_len(tokens);
   __v422 := __v421 > 0
@@ -61382,7 +62950,11 @@ Tests compilation of ecmaref5:
   } else {
   __v398 := snd(__v398)
   }
+  } else {
+  
   }
+  } else {
+  
   };
   __v399 := indx - 1;
   indx := __v399;
@@ -61421,51 +62993,13 @@ Tests compilation of ecmaref5:
   } else {
   __v406 := snd(__v406)
   }
+  } else {
+  
   };
-  __v407 := strict = false;
-  if (__v407) {
-  __v408 := obj["DefineOwnProperty"];
-  __v409 := "newDataPropertyDescriptorFull"(___internal_esl_global, func, true, false, true);
-  if (fst(__v409)) {
-  return __v409
-  } else {
-  __v409 := snd(__v409)
-  };
-  __v410 := __v408(___internal_esl_global, obj, "callee", __v409, false);
-  if (fst(__v410)) {
-  return __v410
-  } else {
-  __v410 := snd(__v410)
-  }
-  } else {
-  __v411 := "getFunctionPrototype"(___internal_esl_global, strict);
-  if (fst(__v411)) {
-  return __v411
-  } else {
-  __v411 := snd(__v411)
-  };
-  __v412 := "createThrowTypeErrorFunctionObject"(___internal_esl_global, __v411, strict);
-  if (fst(__v412)) {
-  return __v412
-  } else {
-  __v412 := snd(__v412)
-  };
-  thrower := __v412;
-  __v413 := obj["DefineOwnProperty"];
-  __v414 := "newAccessorPropertyDescriptorFull"(___internal_esl_global, thrower, thrower, false, false);
-  if (fst(__v414)) {
-  return __v414
-  } else {
-  __v414 := snd(__v414)
-  };
-  __v415 := __v413(___internal_esl_global, obj, "caller", __v414, false);
-  if (fst(__v415)) {
-  return __v415
-  } else {
-  __v415 := snd(__v415)
-  };
+  __v415 := strict = false;
+  if (__v415) {
   __v416 := obj["DefineOwnProperty"];
-  __v417 := "newAccessorPropertyDescriptorFull"(___internal_esl_global, thrower, thrower, false, false);
+  __v417 := "newDataPropertyDescriptorFull"(___internal_esl_global, func, true, false, true);
   if (fst(__v417)) {
   return __v417
   } else {
@@ -61476,6 +63010,46 @@ Tests compilation of ecmaref5:
   return __v418
   } else {
   __v418 := snd(__v418)
+  }
+  } else {
+  __v407 := "getFunctionPrototype"(___internal_esl_global, strict);
+  if (fst(__v407)) {
+  return __v407
+  } else {
+  __v407 := snd(__v407)
+  };
+  __v408 := "createThrowTypeErrorFunctionObject"(___internal_esl_global, __v407, strict);
+  if (fst(__v408)) {
+  return __v408
+  } else {
+  __v408 := snd(__v408)
+  };
+  thrower := __v408;
+  __v409 := obj["DefineOwnProperty"];
+  __v410 := "newAccessorPropertyDescriptorFull"(___internal_esl_global, thrower, thrower, false, false);
+  if (fst(__v410)) {
+  return __v410
+  } else {
+  __v410 := snd(__v410)
+  };
+  __v411 := __v409(___internal_esl_global, obj, "caller", __v410, false);
+  if (fst(__v411)) {
+  return __v411
+  } else {
+  __v411 := snd(__v411)
+  };
+  __v412 := obj["DefineOwnProperty"];
+  __v413 := "newAccessorPropertyDescriptorFull"(___internal_esl_global, thrower, thrower, false, false);
+  if (fst(__v413)) {
+  return __v413
+  } else {
+  __v413 := snd(__v413)
+  };
+  __v414 := __v412(___internal_esl_global, obj, "callee", __v413, false);
+  if (fst(__v414)) {
+  return __v414
+  } else {
+  __v414 := snd(__v414)
   }
   };
   return (false, obj)
@@ -61492,27 +63066,29 @@ Tests compilation of ecmaref5:
   while (__v352) {
   __v353 := l_nth(elements, i);
   elem := __v353;
-  __v355 := !foundAllInitialElisions;
-  if (__v355 = false) {
-  __v354 := false
-  } else {
-  __v356 := elem = null;
+  __v356 := !foundAllInitialElisions;
   if (__v356 = false) {
-  __v354 := false
+  __v358 := false
   } else {
-  __v354 := true
+  __v357 := elem = null;
+  if (__v357 = false) {
+  __v358 := false
+  } else {
+  __v358 := true
   }
   };
-  if (__v354) {
-  __v357 := l_add(elisionOpt, elem);
-  elisionOpt := __v357
-  } else {
-  __v358 := !foundAllInitialElisions;
   if (__v358) {
+  __v359 := l_add(elisionOpt, elem);
+  elisionOpt := __v359
+  } else {
+  __v354 := !foundAllInitialElisions;
+  if (__v354) {
   foundAllInitialElisions := true
+  } else {
+  
   };
-  __v359 := l_add(elementList, elem);
-  elementList := __v359
+  __v355 := l_add(elementList, elem);
+  elementList := __v355
   };
   __v360 := i + 1;
   i := __v360;
@@ -61554,17 +63130,17 @@ Tests compilation of ecmaref5:
   __v327 := snd(__v327)
   };
   numPos := __v327;
-  __v328 := is_NaN(numPos);
-  if (__v328) {
+  __v329 := is_NaN(numPos);
+  if (__v329) {
   pos := inf
   } else {
-  __v329 := "ToInteger"(___internal_esl_global, numPos);
-  if (fst(__v329)) {
-  return __v329
+  __v328 := "ToInteger"(___internal_esl_global, numPos);
+  if (fst(__v328)) {
+  return __v328
   } else {
-  __v329 := snd(__v329)
+  __v328 := snd(__v328)
   };
-  pos := __v329
+  pos := __v328
   };
   __v330 := s_len_u(S);
   len := __v330;
@@ -61579,30 +63155,30 @@ Tests compilation of ecmaref5:
   j := 0;
   __v336 := k >= 0;
   while (__v336) {
-  __v337 := j < searchLen;
-  if (__v337) {
-  __v338 := k + searchLen;
-  __v339 := __v338 <= len;
-  if (__v339) {
-  __v340 := k + j;
-  __v341 := s_nth_u(S, __v340);
-  __v342 := s_nth_u(searchStr, j);
-  __v343 := __v341 = __v342;
-  if (__v343) {
-  __v344 := j + 1;
-  j := __v344
+  __v338 := j < searchLen;
+  if (__v338) {
+  __v340 := k + searchLen;
+  __v341 := __v340 <= len;
+  if (__v341) {
+  __v343 := k + j;
+  __v344 := s_nth_u(S, __v343);
+  __v345 := s_nth_u(searchStr, j);
+  __v346 := __v344 = __v345;
+  if (__v346) {
+  __v347 := j + 1;
+  j := __v347
   } else {
   j := 0;
-  __v345 := k - 1;
-  k := __v345
+  __v342 := k - 1;
+  k := __v342
   }
   } else {
-  __v346 := k - 1;
-  k := __v346
+  __v339 := k - 1;
+  k := __v339
   }
   } else {
-  __v347 := int_to_float(k);
-  return (false, __v347)
+  __v337 := int_to_float(k);
+  return (false, __v337)
   };
   __v336 := k >= 0
   };
@@ -61649,6 +63225,8 @@ Tests compilation of ecmaref5:
   __v316 := !__v317;
   if (__v316) {
   return (false, nan)
+  } else {
+  
   };
   __v318 := "getStrDecimalLiteral"(___internal_esl_global, trimmedString);
   if (fst(__v318)) {
@@ -61712,20 +63290,22 @@ Tests compilation of ecmaref5:
   __v302 := snd(__v302)
   };
   index := __v302;
-  __v304 := index = -1;
+  __v303 := index = -1;
+  if (__v303 = true) {
+  __v305 := true
+  } else {
+  __v304 := index >= radixInt;
   if (__v304 = true) {
-  __v303 := true
+  __v305 := true
   } else {
-  __v305 := index >= radixInt;
-  if (__v305 = true) {
-  __v303 := true
-  } else {
-  __v303 := false
+  __v305 := false
   }
   };
-  if (__v303) {
+  if (__v305) {
   __v306 := s_substr_u(str, 0, i);
   return (false, __v306)
+  } else {
+  
   };
   __v307 := i + 1;
   i := __v307;
@@ -61751,196 +63331,208 @@ Tests compilation of ecmaref5:
   __v188 := snd(__v188)
   };
   str := __v188;
-  __v189 := "isRegExpObject"(___internal_esl_global, searchValue);
+  __v210 := "isRegExpObject"(___internal_esl_global, searchValue);
+  if (fst(__v210)) {
+  return __v210
+  } else {
+  __v210 := snd(__v210)
+  };
+  if (__v210) {
+  __v212 := searchValue["OriginalFlags"];
+  __v211 := __v212["gb"];
+  g := __v211;
+  __v213 := [str];
+  __v214 := "RegExpPrototypeExec"(___internal_esl_global, global, searchValue, strict, __v213);
+  if (fst(__v214)) {
+  return __v214
+  } else {
+  __v214 := snd(__v214)
+  };
+  matchArr := __v214;
+  __v215 := matchArr = 'null;
+  if (__v215) {
+  return (false, str)
+  } else {
+  
+  };
+  __v216 := matchArr["Get"];
+  __v217 := __v216(___internal_esl_global, matchArr, "length");
+  if (fst(__v217)) {
+  return __v217
+  } else {
+  __v217 := snd(__v217)
+  };
+  __v218 := __v217 - 1.0;
+  m := __v218;
+  __v219 := [matchArr];
+  matches := __v219;
+  __v220 := g = true;
+  if (__v220) {
+  __v222 := "getJSProperty"(___internal_esl_global, searchValue, "lastIndex");
+  if (fst(__v222)) {
+  return __v222
+  } else {
+  __v222 := snd(__v222)
+  };
+  __v221 := __v222["Value"];
+  prevLastIndex := __v221;
+  __v223 := prevLastIndex = 0.0;
+  if (__v223) {
+  prevLastIndex := 1.0;
+  __v224 := "newDataPropertyDescriptorFull"(___internal_esl_global, 1.0, true, false, false);
+  if (fst(__v224)) {
+  return __v224
+  } else {
+  __v224 := snd(__v224)
+  };
+  __v225 := "setJSProperty"(___internal_esl_global, searchValue, "lastIndex", __v224);
+  if (fst(__v225)) {
+  return __v225
+  } else {
+  __v225 := snd(__v225)
+  }
+  } else {
+  
+  };
+  __v227 := matchArr = 'null;
+  __v226 := !__v227;
+  while (__v226) {
+  __v228 := [str];
+  __v229 := "RegExpPrototypeExec"(___internal_esl_global, global, searchValue, strict, __v228);
+  if (fst(__v229)) {
+  return __v229
+  } else {
+  __v229 := snd(__v229)
+  };
+  matchArr := __v229;
+  __v231 := "getJSProperty"(___internal_esl_global, searchValue, "lastIndex");
+  if (fst(__v231)) {
+  return __v231
+  } else {
+  __v231 := snd(__v231)
+  };
+  __v230 := __v231["Value"];
+  lastIndex := __v230;
+  __v232 := lastIndex = prevLastIndex;
+  if (__v232) {
+  __v233 := lastIndex + 1.0;
+  lastIndex := __v233;
+  __v234 := "newDataPropertyDescriptorFull"(___internal_esl_global, lastIndex, true, false, false);
+  if (fst(__v234)) {
+  return __v234
+  } else {
+  __v234 := snd(__v234)
+  };
+  __v235 := "setJSProperty"(___internal_esl_global, searchValue, "lastIndex", __v234);
+  if (fst(__v235)) {
+  return __v235
+  } else {
+  __v235 := snd(__v235)
+  }
+  } else {
+  
+  };
+  __v237 := matchArr = 'null;
+  __v236 := !__v237;
+  if (__v236) {
+  __v238 := [matchArr];
+  __v239 := l_concat(matches, __v238);
+  matches := __v239
+  } else {
+  
+  };
+  prevLastIndex := lastIndex;
+  __v227 := matchArr = 'null;
+  __v226 := !__v227
+  }
+  } else {
+  
+  }
+  } else {
+  __v189 := "ToString"(___internal_esl_global, searchValue);
   if (fst(__v189)) {
   return __v189
   } else {
   __v189 := snd(__v189)
   };
-  if (__v189) {
-  __v191 := searchValue["OriginalFlags"];
-  __v190 := __v191["gb"];
-  g := __v190;
-  __v192 := [str];
-  __v193 := "RegExpPrototypeExec"(___internal_esl_global, global, searchValue, strict, __v192);
-  if (fst(__v193)) {
-  return __v193
+  searchString := __v189;
+  __v190 := [];
+  matches := __v190;
+  __v191 := [searchString];
+  __v192 := "StringPrototypeSearch"(___internal_esl_global, global, str, strict, __v191);
+  if (fst(__v192)) {
+  return __v192
   } else {
-  __v193 := snd(__v193)
+  __v192 := snd(__v192)
   };
-  matchArr := __v193;
-  __v194 := matchArr = 'null;
-  if (__v194) {
-  return (false, str)
-  };
-  __v195 := matchArr["Get"];
-  __v196 := __v195(___internal_esl_global, matchArr, "length");
-  if (fst(__v196)) {
-  return __v196
+  indexFound := __v192;
+  __v193 := indexFound >= 0.0;
+  if (__v193) {
+  __v194 := [];
+  __v195 := "ArrayConstructor"(___internal_esl_global, global, this, strict, __v194);
+  if (fst(__v195)) {
+  return __v195
   } else {
-  __v196 := snd(__v196)
+  __v195 := snd(__v195)
   };
-  __v197 := __v196 - 1.0;
-  m := __v197;
-  __v198 := [matchArr];
-  matches := __v198;
-  __v199 := g = true;
-  if (__v199) {
-  __v201 := "getJSProperty"(___internal_esl_global, searchValue, "lastIndex");
+  A := __v195;
+  __v196 := A["DefineOwnProperty"];
+  __v197 := "newDataPropertyDescriptorFull"(___internal_esl_global, indexFound, true, true, true);
+  if (fst(__v197)) {
+  return __v197
+  } else {
+  __v197 := snd(__v197)
+  };
+  __v198 := __v196(___internal_esl_global, A, "index", __v197, true);
+  if (fst(__v198)) {
+  return __v198
+  } else {
+  __v198 := snd(__v198)
+  };
+  __v199 := A["DefineOwnProperty"];
+  __v200 := "newDataPropertyDescriptorFull"(___internal_esl_global, str, true, true, true);
+  if (fst(__v200)) {
+  return __v200
+  } else {
+  __v200 := snd(__v200)
+  };
+  __v201 := __v199(___internal_esl_global, A, "input", __v200, true);
   if (fst(__v201)) {
   return __v201
   } else {
   __v201 := snd(__v201)
   };
-  __v200 := __v201["Value"];
-  prevLastIndex := __v200;
-  __v202 := prevLastIndex = 0.0;
-  if (__v202) {
-  prevLastIndex := 1.0;
+  __v202 := A["DefineOwnProperty"];
   __v203 := "newDataPropertyDescriptorFull"(___internal_esl_global, 1.0, true, false, false);
   if (fst(__v203)) {
   return __v203
   } else {
   __v203 := snd(__v203)
   };
-  __v204 := "setJSProperty"(___internal_esl_global, searchValue, "lastIndex", __v203);
+  __v204 := __v202(___internal_esl_global, A, "length", __v203, true);
   if (fst(__v204)) {
   return __v204
   } else {
   __v204 := snd(__v204)
-  }
   };
-  __v206 := matchArr = 'null;
-  __v205 := !__v206;
-  while (__v205) {
-  __v207 := [str];
-  __v208 := "RegExpPrototypeExec"(___internal_esl_global, global, searchValue, strict, __v207);
-  if (fst(__v208)) {
-  return __v208
+  __v205 := A["DefineOwnProperty"];
+  __v206 := "newDataPropertyDescriptorFull"(___internal_esl_global, searchString, true, true, true);
+  if (fst(__v206)) {
+  return __v206
   } else {
-  __v208 := snd(__v208)
+  __v206 := snd(__v206)
   };
-  matchArr := __v208;
-  __v210 := "getJSProperty"(___internal_esl_global, searchValue, "lastIndex");
-  if (fst(__v210)) {
-  return __v210
+  __v207 := __v205(___internal_esl_global, A, "0", __v206, true);
+  if (fst(__v207)) {
+  return __v207
   } else {
-  __v210 := snd(__v210)
+  __v207 := snd(__v207)
   };
-  __v209 := __v210["Value"];
-  lastIndex := __v209;
-  __v211 := lastIndex = prevLastIndex;
-  if (__v211) {
-  __v212 := lastIndex + 1.0;
-  lastIndex := __v212;
-  __v213 := "newDataPropertyDescriptorFull"(___internal_esl_global, lastIndex, true, false, false);
-  if (fst(__v213)) {
-  return __v213
+  __v208 := [A];
+  __v209 := l_concat(matches, __v208);
+  matches := __v209
   } else {
-  __v213 := snd(__v213)
-  };
-  __v214 := "setJSProperty"(___internal_esl_global, searchValue, "lastIndex", __v213);
-  if (fst(__v214)) {
-  return __v214
-  } else {
-  __v214 := snd(__v214)
-  }
-  };
-  __v216 := matchArr = 'null;
-  __v215 := !__v216;
-  if (__v215) {
-  __v217 := [matchArr];
-  __v218 := l_concat(matches, __v217);
-  matches := __v218
-  };
-  prevLastIndex := lastIndex;
-  __v206 := matchArr = 'null;
-  __v205 := !__v206
-  }
-  }
-  } else {
-  __v219 := "ToString"(___internal_esl_global, searchValue);
-  if (fst(__v219)) {
-  return __v219
-  } else {
-  __v219 := snd(__v219)
-  };
-  searchString := __v219;
-  __v220 := [];
-  matches := __v220;
-  __v221 := [searchString];
-  __v222 := "StringPrototypeSearch"(___internal_esl_global, global, str, strict, __v221);
-  if (fst(__v222)) {
-  return __v222
-  } else {
-  __v222 := snd(__v222)
-  };
-  indexFound := __v222;
-  __v223 := indexFound >= 0.0;
-  if (__v223) {
-  __v224 := [];
-  __v225 := "ArrayConstructor"(___internal_esl_global, global, this, strict, __v224);
-  if (fst(__v225)) {
-  return __v225
-  } else {
-  __v225 := snd(__v225)
-  };
-  A := __v225;
-  __v226 := A["DefineOwnProperty"];
-  __v227 := "newDataPropertyDescriptorFull"(___internal_esl_global, indexFound, true, true, true);
-  if (fst(__v227)) {
-  return __v227
-  } else {
-  __v227 := snd(__v227)
-  };
-  __v228 := __v226(___internal_esl_global, A, "index", __v227, true);
-  if (fst(__v228)) {
-  return __v228
-  } else {
-  __v228 := snd(__v228)
-  };
-  __v229 := A["DefineOwnProperty"];
-  __v230 := "newDataPropertyDescriptorFull"(___internal_esl_global, str, true, true, true);
-  if (fst(__v230)) {
-  return __v230
-  } else {
-  __v230 := snd(__v230)
-  };
-  __v231 := __v229(___internal_esl_global, A, "input", __v230, true);
-  if (fst(__v231)) {
-  return __v231
-  } else {
-  __v231 := snd(__v231)
-  };
-  __v232 := A["DefineOwnProperty"];
-  __v233 := "newDataPropertyDescriptorFull"(___internal_esl_global, 1.0, true, false, false);
-  if (fst(__v233)) {
-  return __v233
-  } else {
-  __v233 := snd(__v233)
-  };
-  __v234 := __v232(___internal_esl_global, A, "length", __v233, true);
-  if (fst(__v234)) {
-  return __v234
-  } else {
-  __v234 := snd(__v234)
-  };
-  __v235 := A["DefineOwnProperty"];
-  __v236 := "newDataPropertyDescriptorFull"(___internal_esl_global, searchString, true, true, true);
-  if (fst(__v236)) {
-  return __v236
-  } else {
-  __v236 := snd(__v236)
-  };
-  __v237 := __v235(___internal_esl_global, A, "0", __v236, true);
-  if (fst(__v237)) {
-  return __v237
-  } else {
-  __v237 := snd(__v237)
-  };
-  __v238 := [A];
-  __v239 := l_concat(matches, __v238);
-  matches := __v239
+  
   };
   m := 0.0
   };
@@ -62030,64 +63622,64 @@ Tests compilation of ecmaref5:
   __v274 := startOffset + matchStrLen;
   __v275 := s_substr_u(str, __v274, stringLen);
   str := __v275;
-  __v277 := "Type"(___internal_esl_global, replaceValue);
-  if (fst(__v277)) {
-  return __v277
-  } else {
-  __v277 := snd(__v277)
-  };
-  __v278 := __v277 = "Object";
-  if (__v278 = false) {
-  __v276 := false
-  } else {
-  __v279 := replaceValue["Class"];
-  __v280 := __v279 = "Function";
-  if (__v280 = false) {
-  __v276 := false
-  } else {
-  __v276 := true
-  }
-  };
-  if (__v276) {
-  __v281 := replaceValue["Call"];
-  __v282 := __v281(___internal_esl_global, null, null, replaceValue, 'undefined, args2);
-  if (fst(__v282)) {
-  return __v282
-  } else {
-  __v282 := snd(__v282)
-  };
-  newstring := __v282;
-  __v283 := "ToString"(___internal_esl_global, newstring);
+  __v283 := "Type"(___internal_esl_global, replaceValue);
   if (fst(__v283)) {
   return __v283
   } else {
   __v283 := snd(__v283)
   };
-  newstring := __v283
+  __v284 := __v283 = "Object";
+  if (__v284 = false) {
+  __v287 := false
   } else {
-  __v284 := "ToString"(___internal_esl_global, replaceValue);
-  if (fst(__v284)) {
-  return __v284
+  __v285 := replaceValue["Class"];
+  __v286 := __v285 = "Function";
+  if (__v286 = false) {
+  __v287 := false
   } else {
-  __v284 := snd(__v284)
+  __v287 := true
+  }
   };
-  newstring := __v284;
-  __v285 := s_substr_u(originalString, 0, offset);
-  beforeStr2 := __v285;
-  __v286 := offset + matchStrLen;
-  off1 := __v286;
-  __v287 := s_len_u(originalString);
-  __v288 := __v287 - off1;
-  off2 := __v288;
-  __v289 := s_substr_u(originalString, off1, off2);
-  afterStr2 := __v289;
-  __v290 := "resolveDollars"(___internal_esl_global, newstring, matchStr, beforeStr2, afterStr2, captures);
+  if (__v287) {
+  __v288 := replaceValue["Call"];
+  __v289 := __v288(___internal_esl_global, null, null, replaceValue, 'undefined, args2);
+  if (fst(__v289)) {
+  return __v289
+  } else {
+  __v289 := snd(__v289)
+  };
+  newstring := __v289;
+  __v290 := "ToString"(___internal_esl_global, newstring);
   if (fst(__v290)) {
   return __v290
   } else {
   __v290 := snd(__v290)
   };
   newstring := __v290
+  } else {
+  __v276 := "ToString"(___internal_esl_global, replaceValue);
+  if (fst(__v276)) {
+  return __v276
+  } else {
+  __v276 := snd(__v276)
+  };
+  newstring := __v276;
+  __v277 := s_substr_u(originalString, 0, offset);
+  beforeStr2 := __v277;
+  __v278 := offset + matchStrLen;
+  off1 := __v278;
+  __v279 := s_len_u(originalString);
+  __v280 := __v279 - off1;
+  off2 := __v280;
+  __v281 := s_substr_u(originalString, off1, off2);
+  afterStr2 := __v281;
+  __v282 := "resolveDollars"(___internal_esl_global, newstring, matchStr, beforeStr2, afterStr2, captures);
+  if (fst(__v282)) {
+  return __v282
+  } else {
+  __v282 := snd(__v282)
+  };
+  newstring := __v282
   };
   __v291 := [beforeStr, newstring];
   __v292 := l_concat(resultParts, __v291);
@@ -62144,6 +63736,8 @@ Tests compilation of ecmaref5:
   __v182 := is_NaN(t);
   if (__v182) {
   return (false, nan)
+  } else {
+  
   };
   __v183 := "LocalTime"(___internal_esl_global, t);
   if (fst(__v183)) {
@@ -62172,16 +63766,22 @@ Tests compilation of ecmaref5:
   __v170 := !__v171;
   if (__v170) {
   desc["Writable"] := writable
+  } else {
+  
   };
   __v173 := enumerable = null;
   __v172 := !__v173;
   if (__v172) {
   desc["Enumerable"] := enumerable
+  } else {
+  
   };
   __v175 := configurable = null;
   __v174 := !__v175;
   if (__v174) {
   desc["Configurable"] := configurable
+  } else {
+  
   };
   return (false, desc)
   };
@@ -62211,19 +63811,21 @@ Tests compilation of ecmaref5:
   position := __v162;
   __v164 := s_len_u(S);
   size := __v164;
-  __v166 := position < 0;
+  __v165 := position < 0;
+  if (__v165 = true) {
+  __v167 := true
+  } else {
+  __v166 := position >= size;
   if (__v166 = true) {
-  __v165 := true
+  __v167 := true
   } else {
-  __v167 := position >= size;
-  if (__v167 = true) {
-  __v165 := true
-  } else {
-  __v165 := false
+  __v167 := false
   }
   };
-  if (__v165) {
+  if (__v167) {
   return (false, "")
+  } else {
+  
   };
   __v168 := s_nth_u(S, position);
   return (false, __v168)
@@ -62266,6 +63868,8 @@ Tests compilation of ecmaref5:
   __v131 := snd(__v131)
   };
   return (false, __v131)
+  } else {
+  
   };
   __v132 := "ToObject"(___internal_esl_global, experValue);
   if (fst(__v132)) {
@@ -62301,6 +63905,8 @@ Tests compilation of ecmaref5:
   __v137 := snd(__v137)
   };
   return (false, __v137)
+  } else {
+  
   };
   __v138 := "JS_Interpreter_Expr"(___internal_esl_global, LeftHandSideExpression, scope);
   if (fst(__v138)) {
@@ -62343,6 +63949,8 @@ Tests compilation of ecmaref5:
   __v144 := snd(__v144)
   };
   V := __v144
+  } else {
+  
   };
   __v145 := "getCompletionType"(___internal_esl_global, stmt);
   if (fst(__v145)) {
@@ -62367,6 +63975,8 @@ Tests compilation of ecmaref5:
   __v150 := snd(__v150)
   };
   return (false, __v150)
+  } else {
+  
   };
   __v152 := "getCompletionType"(___internal_esl_global, stmt);
   if (fst(__v152)) {
@@ -62394,7 +64004,11 @@ Tests compilation of ecmaref5:
   };
   if (__v158) {
   return (false, stmt)
+  } else {
+  
   }
+  } else {
+  
   };
   while (!false) {
   __v134 := "getNextPropertyName"(___internal_esl_global, obj_enums, i);
@@ -62415,6 +64029,8 @@ Tests compilation of ecmaref5:
   __v137 := snd(__v137)
   };
   return (false, __v137)
+  } else {
+  
   };
   __v138 := "JS_Interpreter_Expr"(___internal_esl_global, LeftHandSideExpression, scope);
   if (fst(__v138)) {
@@ -62457,6 +64073,8 @@ Tests compilation of ecmaref5:
   __v144 := snd(__v144)
   };
   V := __v144
+  } else {
+  
   };
   __v145 := "getCompletionType"(___internal_esl_global, stmt);
   if (fst(__v145)) {
@@ -62481,6 +64099,8 @@ Tests compilation of ecmaref5:
   __v150 := snd(__v150)
   };
   return (false, __v150)
+  } else {
+  
   };
   __v152 := "getCompletionType"(___internal_esl_global, stmt);
   if (fst(__v152)) {
@@ -62508,7 +64128,11 @@ Tests compilation of ecmaref5:
   };
   if (__v158) {
   return (false, stmt)
+  } else {
+  
   }
+  } else {
+  
   }
   }
   }
@@ -62656,33 +64280,37 @@ Tests compilation of ecmaref5:
   __v16061 := snd(__v16061)
   };
   b := __v16061;
-  __v16063 := a = true;
+  __v16062 := a = true;
+  if (__v16062 = false) {
+  __v16064 := false
+  } else {
+  __v16063 := b = false;
   if (__v16063 = false) {
-  __v16062 := false
+  __v16064 := false
   } else {
-  __v16064 := b = false;
-  if (__v16064 = false) {
-  __v16062 := false
-  } else {
-  __v16062 := true
+  __v16064 := true
   }
   };
-  if (__v16062) {
+  if (__v16064) {
   return (false, true)
+  } else {
+  
   };
-  __v16066 := a = false;
+  __v16065 := a = false;
+  if (__v16065 = false) {
+  __v16067 := false
+  } else {
+  __v16066 := b = true;
   if (__v16066 = false) {
-  __v16065 := false
+  __v16067 := false
   } else {
-  __v16067 := b = true;
-  if (__v16067 = false) {
-  __v16065 := false
-  } else {
-  __v16065 := true
+  __v16067 := true
   }
   };
-  if (__v16065) {
+  if (__v16067) {
   return (false, true)
+  } else {
+  
   };
   return (false, false)
   };
@@ -62702,6 +64330,8 @@ Tests compilation of ecmaref5:
   __v101 := snd(__v101)
   };
   return (false, __v101)
+  } else {
+  
   };
   __v102 := "SetMutableBindingObject"(___internal_esl_global, envRec, N, V, S);
   if (fst(__v102)) {
@@ -62724,6 +64354,8 @@ Tests compilation of ecmaref5:
   __v93 := !__v95;
   if (__v93) {
   return (false, false)
+  } else {
+  
   };
   __v96 := "ToObject"(___internal_esl_global, this);
   if (fst(__v96)) {
@@ -62742,6 +64374,8 @@ Tests compilation of ecmaref5:
   __v98 := V = 'null;
   if (__v98) {
   return (false, false)
+  } else {
+  
   };
   __v99 := "sameObject"(___internal_esl_global, O, V);
   if (fst(__v99)) {
@@ -62751,6 +64385,8 @@ Tests compilation of ecmaref5:
   };
   if (__v99) {
   return (false, true)
+  } else {
+  
   };
   while (!false) {
   __v97 := "getInternalProperty"(___internal_esl_global, V, "Prototype");
@@ -62763,6 +64399,8 @@ Tests compilation of ecmaref5:
   __v98 := V = 'null;
   if (__v98) {
   return (false, false)
+  } else {
+  
   };
   __v99 := "sameObject"(___internal_esl_global, O, V);
   if (fst(__v99)) {
@@ -62772,6 +64410,8 @@ Tests compilation of ecmaref5:
   };
   if (__v99) {
   return (false, true)
+  } else {
+  
   }
   }
   };
@@ -62786,6 +64426,8 @@ Tests compilation of ecmaref5:
   __v90 := snd(__v90)
   };
   return (false, __v90)
+  } else {
+  
   };
   __v91 := "JS_Interpreter_Arguments_ArgumentList"(___internal_esl_global, ArgumentList, scope);
   if (fst(__v91)) {
@@ -62797,27 +64439,27 @@ Tests compilation of ecmaref5:
   };
   function newRegExp(___internal_esl_global, strict, pattern, flags) {
   R := pattern;
-  __v74 := "isRegExpObject"(___internal_esl_global, R);
-  if (fst(__v74)) {
-  return __v74
-  } else {
-  __v74 := snd(__v74)
-  };
-  if (__v74) {
-  __v75 := flags = 'undefined;
-  if (__v75) {
-  __v76 := R["OriginalSource"];
-  P := __v76;
-  __v78 := R["OriginalFlags"];
-  __v77 := __v78["flags"];
-  F := __v77;
-  __v79 := "parsePattern"(___internal_esl_global, P, F);
+  __v79 := "isRegExpObject"(___internal_esl_global, R);
   if (fst(__v79)) {
   return __v79
   } else {
   __v79 := snd(__v79)
   };
-  R := __v79
+  if (__v79) {
+  __v83 := flags = 'undefined;
+  if (__v83) {
+  __v84 := R["OriginalSource"];
+  P := __v84;
+  __v86 := R["OriginalFlags"];
+  __v85 := __v86["flags"];
+  F := __v85;
+  __v87 := "parsePattern"(___internal_esl_global, P, F);
+  if (fst(__v87)) {
+  return __v87
+  } else {
+  __v87 := snd(__v87)
+  };
+  R := __v87
   } else {
   __v80 := R["OriginalSource"];
   P := __v80;
@@ -62836,37 +64478,37 @@ Tests compilation of ecmaref5:
   R := __v82
   }
   } else {
-  __v83 := pattern = 'undefined;
-  if (__v83) {
+  __v75 := pattern = 'undefined;
+  if (__v75) {
   P := ""
   } else {
-  __v84 := "ToString"(___internal_esl_global, pattern);
-  if (fst(__v84)) {
-  return __v84
+  __v74 := "ToString"(___internal_esl_global, pattern);
+  if (fst(__v74)) {
+  return __v74
   } else {
-  __v84 := snd(__v84)
+  __v74 := snd(__v74)
   };
-  P := __v84
+  P := __v74
   };
-  __v85 := flags = 'undefined;
-  if (__v85) {
+  __v77 := flags = 'undefined;
+  if (__v77) {
   F := ""
   } else {
-  __v86 := "ToString"(___internal_esl_global, flags);
-  if (fst(__v86)) {
-  return __v86
+  __v76 := "ToString"(___internal_esl_global, flags);
+  if (fst(__v76)) {
+  return __v76
   } else {
-  __v86 := snd(__v86)
+  __v76 := snd(__v76)
   };
-  F := __v86
+  F := __v76
   };
-  __v87 := "parsePattern"(___internal_esl_global, P, F);
-  if (fst(__v87)) {
-  return __v87
+  __v78 := "parsePattern"(___internal_esl_global, P, F);
+  if (fst(__v78)) {
+  return __v78
   } else {
-  __v87 := snd(__v87)
+  __v78 := snd(__v78)
   };
-  R := __v87
+  R := __v78
   };
   return (false, R)
   };
@@ -62874,30 +64516,32 @@ Tests compilation of ecmaref5:
   print "SetMutableBindingDeclarative";
   envRec := declarativeEnvRec;
   __v69 := N in_obj envRec;
-  assert (__v69);
-  __v70 := "isMutableBinding"(___internal_esl_global, envRec, N);
-  if (fst(__v70)) {
-  return __v70
+  assert __v69;
+  __v72 := "isMutableBinding"(___internal_esl_global, envRec, N);
+  if (fst(__v72)) {
+  return __v72
   } else {
-  __v70 := snd(__v70)
+  __v72 := snd(__v72)
   };
-  if (__v70) {
-  __v71 := "setBindingValue"(___internal_esl_global, envRec, N, V);
-  if (fst(__v71)) {
-  return __v71
-  } else {
-  __v71 := snd(__v71)
-  }
-  } else {
-  __v72 := S = true;
   if (__v72) {
-  __v73 := "TypeErrorConstructorInternal"(___internal_esl_global);
+  __v73 := "setBindingValue"(___internal_esl_global, envRec, N, V);
   if (fst(__v73)) {
   return __v73
   } else {
   __v73 := snd(__v73)
+  }
+  } else {
+  __v70 := S = true;
+  if (__v70) {
+  __v71 := "TypeErrorConstructorInternal"(___internal_esl_global);
+  if (fst(__v71)) {
+  return __v71
+  } else {
+  __v71 := snd(__v71)
   };
-  return (true, __v73)
+  return (true, __v71)
+  } else {
+  
   }
   };
   return (false, null)
@@ -62930,6 +64574,8 @@ Tests compilation of ecmaref5:
   } else {
   __v9 := snd(__v9)
   }
+  } else {
+  
   };
   L := "";
   i := 0;
@@ -62948,21 +64594,21 @@ Tests compilation of ecmaref5:
   __v16 := ___internal_esl_global["specialCasing"];
   __v17 := l_nth(__v16, j);
   el := __v17;
-  __v19 := el["code"];
-  __v20 := c = __v19;
+  __v18 := el["code"];
+  __v19 := c = __v18;
+  if (__v19 = false) {
+  __v23 := false
+  } else {
+  __v21 := el["lowercase"];
+  __v22 := __v21 = 'undefined;
+  __v20 := !__v22;
   if (__v20 = false) {
-  __v18 := false
+  __v23 := false
   } else {
-  __v22 := el["lowercase"];
-  __v23 := __v22 = 'undefined;
-  __v21 := !__v23;
-  if (__v21 = false) {
-  __v18 := false
-  } else {
-  __v18 := true
+  __v23 := true
   }
   };
-  if (__v18) {
+  if (__v23) {
   __v48 := el["condition_list"];
   __v49 := __v48 = 'undefined;
   if (__v49) {
@@ -62971,70 +64617,70 @@ Tests compilation of ecmaref5:
   __v51 := sc_len + 1;
   j := __v51
   } else {
-  __v25 := el["condition_list"];
-  __v26 := __v25 = "Final_Sigma";
+  __v24 := el["condition_list"];
+  __v25 := __v24 = "Final_Sigma";
+  if (__v25 = false) {
+  __v27 := false
+  } else {
+  __v26 := len > 1;
   if (__v26 = false) {
-  __v24 := false
+  __v27 := false
   } else {
-  __v27 := len > 1;
-  if (__v27 = false) {
-  __v24 := false
-  } else {
-  __v24 := true
+  __v27 := true
   }
   };
-  if (__v24) {
-  __v28 := len - 1;
-  __v29 := i = __v28;
-  if (__v29) {
-  __v31 := len = 2;
-  if (__v31 = false) {
-  __v30 := false
+  if (__v27) {
+  __v38 := len - 1;
+  __v39 := i = __v38;
+  if (__v39) {
+  __v42 := len = 2;
+  if (__v42 = false) {
+  __v46 := false
   } else {
-  __v32 := i - 1;
-  __v33 := s_nth_u(S, __v32);
-  __v34 := __v33 = "\205\133";
-  if (__v34 = false) {
-  __v30 := false
-  } else {
-  __v30 := true
-  }
-  };
-  if (__v30) {
-  __v35 := sc_len - 1;
-  j := __v35
-  } else {
-  __v36 := el["lowercase"];
-  c := __v36;
-  __v37 := sc_len + 1;
-  j := __v37
-  }
-  } else {
-  __v38 := i + 1;
-  __v39 := s_nth_u(S, __v38);
-  nextC := __v39;
-  __v44 := len - 2;
-  __v45 := i < __v44;
+  __v43 := i - 1;
+  __v44 := s_nth_u(S, __v43);
+  __v45 := __v44 = "\205\133";
   if (__v45 = false) {
-  __v43 := false
+  __v46 := false
   } else {
-  __v46 := nextC = "\205\133";
-  if (__v46 = false) {
-  __v43 := false
-  } else {
-  __v43 := true
+  __v46 := true
   }
   };
-  if (__v43) {
+  if (__v46) {
   __v47 := sc_len - 1;
   j := __v47
   } else {
-  __v40 := nextC = "\205\133";
-  if (__v40) {
-  __v41 := el["lowercase"];
-  c := __v41;
-  __v42 := sc_len + 1;
-  j := __v42
+  __v40 := el["lowercase"];
+  c := __v40;
+  __v41 := sc_len + 1;
+  j := __v41
+  }
+  } else {
+  __v28 := i + 1;
+  __v29 := s_nth_u(S, __v28);
+  nextC := __v29;
+  __v33 := len - 2;
+  __v34 := i < __v33;
+  if (__v34 = false) {
+  __v36 := false
+  } else {
+  __v35 := nextC = "\205\133";
+  if (__v35 = false) {
+  __v36 := false
+  } else {
+  __v36 := true
+  }
+  };
+  if (__v36) {
+  __v37 := sc_len - 1;
+  j := __v37
+  } else {
+  __v30 := nextC = "\205\133";
+  if (__v30) {
+  __v31 := el["lowercase"];
+  c := __v31;
+  __v32 := sc_len + 1;
+  j := __v32
   } else {
   
   }
@@ -63044,42 +64690,46 @@ Tests compilation of ecmaref5:
   
   }
   }
+  } else {
+  
   };
   __v52 := j + 1;
   j := __v52;
   __v15 := j < sc_len
   };
-  __v55 := j <= sc_len;
+  __v53 := j <= sc_len;
+  if (__v53 = false) {
+  __v56 := false
+  } else {
+  __v54 := ___internal_esl_global["unicodeData"];
+  __v55 := c in_obj __v54;
   if (__v55 = false) {
-  __v54 := false
+  __v56 := false
   } else {
-  __v56 := ___internal_esl_global["unicodeData"];
-  __v57 := c in_obj __v56;
+  __v56 := true
+  }
+  };
+  if (__v56 = false) {
+  __v62 := false
+  } else {
+  __v60 := ___internal_esl_global["unicodeData"];
+  __v59 := __v60[c];
+  __v58 := __v59["lowercase"];
+  __v61 := __v58 = 'undefined;
+  __v57 := !__v61;
   if (__v57 = false) {
-  __v54 := false
+  __v62 := false
   } else {
-  __v54 := true
+  __v62 := true
   }
   };
-  if (__v54 = false) {
-  __v53 := false
-  } else {
-  __v61 := ___internal_esl_global["unicodeData"];
-  __v60 := __v61[c];
-  __v59 := __v60["lowercase"];
-  __v62 := __v59 = 'undefined;
-  __v58 := !__v62;
-  if (__v58 = false) {
-  __v53 := false
-  } else {
-  __v53 := true
-  }
-  };
-  if (__v53) {
+  if (__v62) {
   __v65 := ___internal_esl_global["unicodeData"];
   __v64 := __v65[c];
   __v63 := __v64["lowercase"];
   c := __v63
+  } else {
+  
   };
   __v67 := [L, c];
   __v66 := s_concat(__v67);
