@@ -131,11 +131,6 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
   varNames := getVariableDeclarationsInCode(body);
   /* 2. Let varDeclarations be the VarScopedDeclarations of body. */
   varDeclarations := getFunctionDeclarationsInCode(body);
-
-	print "EVALDECLINST";
-	print lexEnv;
-	print varEnv;
-
   /* 3. Let lexEnvRec be lexEnv's EnvironmentRecord. */
   lexEnvRec := lexEnv.EnvRec;
   /* 4. Let varEnvRec be varEnv's EnvironmentRecord. */

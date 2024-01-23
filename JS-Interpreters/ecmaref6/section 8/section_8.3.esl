@@ -15,7 +15,7 @@ function IdentifierResolution(Identifier, runningExecCtx) {
   } else {
     strict := false
   };
-  
+
   /* 3. Return the result of calling GetIdentifierReference function passing env, Identifier, and strict as arguments.
         The result of evaluating an identifier is always a value of type Reference with its referenced name component
         equal to the Identifier String. */
@@ -85,7 +85,7 @@ function isContainedInStrictCode(execCtx) {
   to be searched for the binding. During execution of ECMAScript code, ResolveBinding is performed
   using the following algorithm: */
 function ResolveBinding(scope, name, env)  {
-  
+
   /* If env was not passed or if env is undefined, then */
   if ( env = 'undefined ||| env = null )
   {
@@ -111,14 +111,12 @@ function ResolveBinding(scope, name, env)  {
 };
 
 /* 8.3.2 GetThisEnvironment ( )
- * 
+ *
  * The abstract operation GetThisEnvironment finds the Environment Record that currently supplies the binding of the keyword this. GetThisEnvironment performs the following steps:
  */
 function GetThisEnvironment(scope) {
   /* 1. Let lex be the running execution context’s LexicalEnvironment. */
   scope := topExecStack();
-
-  print scope;
 
   lex := getLexicalEnvironment(scope);
   /* 2. Repeat */
@@ -171,7 +169,7 @@ The abstract operation GetGlobalObject returns the global object used by the cur
 execution context. GetGlobalObject performs the following steps: */
 function GetGlobalObject(ctx) {
   /* Let ctx be the running execution context. */
-  
+
   /* Let currentRealm be ctx’s Realm. */
   currentRealm := ctx.Realm;
 

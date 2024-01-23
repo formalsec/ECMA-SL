@@ -253,9 +253,6 @@ function GlobalObjectParseInt(globalObject, this, NewTarget, strict, params) {
 
 /* 15.1.2.3 parseFloat (string) */
 function GlobalObjectParseFloat(globalObject, this, NewTarget, strict, params) {
-  print("debug1111 in parseFloat");
-  print(params);
-
   str := getOptionalParam(params, 0);
   /* The parseFloat function produces a Number value dictated by interpretation of the contents of the string
      argument as a decimal literal. */
