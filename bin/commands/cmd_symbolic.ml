@@ -12,6 +12,7 @@ module Optimizer = Choice_monad.Optimizer
 
 let ( let/ ) = Choice.bind
 let print_time = false
+let print_pc = false
 
 let list_iter ~f lst =
   let exception E of Rresult.R.msg in
@@ -247,7 +248,8 @@ let run env entry_func =
     (fun (ret, thread) ->
       let witness = match ret with Ok _ -> None | Error err -> Some err in
       serialize ?witness thread;
-      Fmt.printf "  path cond : %a@." Encoding.Expr.pp_list (Thread.pc thread)
+      if print_pc then
+        Fmt.printf "  path cond : %a@." Encoding.Expr.pp_list (Thread.pc thread)
       )
     results;
   if print_time then (
