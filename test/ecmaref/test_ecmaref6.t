@@ -34767,8 +34767,6 @@ Tests compilation of ecmaref6:
   function protoAccessorSet(___internal_esl_global, globalObject, this, NewTarget, strict, params) {
   __v17090 := l_nth(params, 0);
   proto := __v17090;
-  print "In protoAccessorSet";
-  print this;
   __v17091 := "RequireObjectCoercible"(___internal_esl_global, this);
   if (fst(__v17091)) {
   return __v17091
@@ -34776,7 +34774,6 @@ Tests compilation of ecmaref6:
   __v17091 := snd(__v17091)
   };
   O := __v17091;
-  print O;
   __v17092 := "Type"(___internal_esl_global, O);
   if (fst(__v17092)) {
   return __v17092
@@ -34805,7 +34802,6 @@ Tests compilation of ecmaref6:
   } else {
   
   };
-  print O;
   __v17097 := "Type"(___internal_esl_global, proto);
   if (fst(__v17097)) {
   return __v17097
@@ -65806,12 +65802,8 @@ Tests compilation of ecmaref6:
   __v11366 := snd(__v11366)
   };
   protoAccessor := __v11366;
-  __v11367 := "createBuiltInProperty"(___internal_esl_global, objectPrototypeObject, "__proto__", protoAccessor);
-  if (fst(__v11367)) {
-  return __v11367
-  } else {
-  __v11367 := snd(__v11367)
-  };
+  __v11367 := objectPrototypeObject["JSProperties"];
+  __v11367["__proto__"] := protoAccessor;
   return (false, null)
   };
   function dateConstructorOneArg(___internal_esl_global, global, this, NewTarget, strict, args) {
@@ -104887,7 +104879,6 @@ Tests compilation of ecmaref6:
   return (false, __v3858)
   };
   function protoAccessorGet(___internal_esl_global, globalObject, this, NewTarget, strict, params) {
-  print "In protoAccessorGet";
   __v3831 := "ToObject"(___internal_esl_global, this);
   if (fst(__v3831)) {
   return __v3831
