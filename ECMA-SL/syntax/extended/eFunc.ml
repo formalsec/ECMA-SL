@@ -10,13 +10,14 @@ and t' =
   ; metadata : EFunc_metadata.t option
   }
 
-let default () : t' =
+let default () : t =
   { name = ""
   ; tparams = []
   ; treturn = None
   ; body = EStmt.default ()
   ; metadata = None
   }
+  @> no_region
 
 let create (name : string) (tparams : (string * EType.t option) list)
   (treturn : EType.t option) (body : EStmt.t)

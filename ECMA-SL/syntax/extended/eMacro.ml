@@ -1,3 +1,5 @@
+open Source
+
 type t = t' Source.phrase
 
 and t' =
@@ -5,6 +7,9 @@ and t' =
   ; params : string list
   ; body : EStmt.t
   }
+
+let default () : t =
+  { name = ""; params = []; body = EStmt.default () } @> no_region
 
 let create (name : string) (params : string list) (body : EStmt.t) : t' =
   { name; params; body }

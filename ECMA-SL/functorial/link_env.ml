@@ -34,7 +34,7 @@ module Make (Memory : Memory_intf.S) = struct
   module Build = struct
     let empty () =
       { memory = Memory.create ()
-      ; functions = Prog.empty ()
+      ; functions = Prog.default ()
       ; extern_funcs = SMap.empty
       }
 

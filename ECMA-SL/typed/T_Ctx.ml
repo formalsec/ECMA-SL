@@ -1,5 +1,3 @@
-open Source
-
 type tenv_t = (string, tvar_t) Hashtbl.t
 
 and tvar_t =
@@ -35,7 +33,7 @@ type t =
 
 let create (prog : EProg.t) : t =
   { prog
-  ; func = EFunc.default () @> no_region
+  ; func = EFunc.default ()
   ; stmt = EStmt.default ()
   ; state = Normal
   ; tenv = Hashtbl.create !Config.default_hashtbl_sz
