@@ -103,7 +103,7 @@ let parse_e_prog (fname : string) (str : string) : EProg.t =
 *)
 
 let parse_file str : Prog.t =
-  let str = Io.load_file str in
+  let str = Io.read_file str in
   let fs = parse_prog str in
   fs
 
@@ -122,7 +122,7 @@ let rec resolve_imports (to_resolve : string list list) (resolved : StrSet.t)
     else if List.mem file path then
       failwith "Error resolving imports: Cyclic dependency"
     else
-      let file_contents = Io.load_file file in
+      let file_contents = Io.read_file file in
       let cur_prog = parse_e_prog file file_contents in
       let cur_prog_typedefs = EProg.tdefs_lst cur_prog in
       let cur_prog_funcs = EProg.funcs_lst cur_prog in

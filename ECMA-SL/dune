@@ -38,15 +38,15 @@
   lexer
   parser
   ;   syntax (extended)
-  EExpr
-  EStmt
-  EFunc
-  EProg
-  EType
-  EPat
-  EMacro
-  ELexer
-  EParser
+  eExpr
+  eStmt
+  eFunc
+  eProg
+  eType
+  ePat
+  eMacro
+  eLexer
+  eParser
   ;   error
   Eslerr
   Eslerr_type
