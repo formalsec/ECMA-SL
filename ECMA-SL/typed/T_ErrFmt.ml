@@ -91,7 +91,7 @@ let nopt_tkns (op : Operator.nopt) (es : EExpr.t list) : tkn_t list =
   | _ -> []
 
 let expr_tkns (expr : EExpr.t) : tkn_t list =
-  match expr with
+  match expr.it with
   | Val v -> [ Lit (Val.str v) ]
   | Var x -> [ Str x ]
   (* | GVar _ -> [] *)
@@ -100,7 +100,7 @@ let expr_tkns (expr : EExpr.t) : tkn_t list =
   | BinOpt (op, e1, e2) -> binop_tkns op e1 e2
   | TriOpt (op, e1, e2, e3) -> triop_tkns op e1 e2 e3
   | NOpt (op, es) -> nopt_tkns op es
-  | Call (Val (Val.Str fn), args, _) -> call_tkns (Str fn) args
+  | Call ({ it = Val (Val.Str fn); _ }, args, _) -> call_tkns (Str fn) args
   (* | ECall (_, _) -> [] *)
   | NewObj fes ->
     let _fe_tkn_f (fn, fe) = [ Str fn.it; Lit ": "; Expr fe ] in

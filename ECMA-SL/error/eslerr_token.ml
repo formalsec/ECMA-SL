@@ -49,7 +49,7 @@ let from_nopt (op : Operator.nopt) (es_tkn : t list) : t list =
   | TupleExpr -> List.concat [ [ Lit "(" ]; sep_tkns ", "; [ Lit ")" ] ]
 
 let from_expr (e : Expr.t) : t list =
-  match e with
+  match e.it with
   | Val v -> [ Val v ]
   | Var x -> [ Str x ]
   | UnOpt (op, e') -> from_unopt op (Expr e')

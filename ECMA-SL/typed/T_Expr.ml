@@ -84,7 +84,7 @@ let type_named_call (tctx : T_Ctx.t) (expr : EExpr.t) (fname : string)
 
 let type_call (tctx : T_Ctx.t) (expr : EExpr.t) (fexpr : EExpr.t)
   (args : EExpr.t list) : EType.t list * EType.t =
-  match fexpr with
+  match fexpr.it with
   | EExpr.Val (Val.Str fname) -> type_named_call tctx expr fname args
   | _ -> (List.map (fun _ -> EType.AnyType) args, EType.AnyType)
 
@@ -134,7 +134,7 @@ let rec type_lookup (narrow : bool) (tctx : T_Ctx.t) (oe : EExpr.t)
     |> EType.merge_type EType.merge_union_type
     |> fun t -> if narrow then T_Narrowing.narrow_type t else t
   in
-  match (fe, toe) with
+  match (fe.it, toe) with
   | (EExpr.Val (Val.Str fn), EType.UnionType ts) -> _type_union_lookup fn ts
   | (EExpr.Val (Val.Str fn), EType.SigmaType (d, ts)) ->
     _type_union_lookup fn ts |> EType.union_to_sigma d
@@ -145,7 +145,7 @@ let rec type_lookup (narrow : bool) (tctx : T_Ctx.t) (oe : EExpr.t)
 
 let rec type_expr ?(narrow : bool = true) (tctx : T_Ctx.t) (expr : EExpr.t) :
   EType.t =
-  match expr with
+  match expr.it with
   | Val v -> type_val v
   | Var x -> type_var narrow tctx x
   (* | GVar _ ->  *)

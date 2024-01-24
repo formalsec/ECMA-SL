@@ -50,7 +50,7 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     | _ -> printf "%a@." Val.pp v
 
   let rec eval_expr' (store : store) (e : Expr.t) : value =
-    match e with
+    match e.it with
     | Val v -> v
     | Var x -> eval_var store x
     | UnOpt (op, e') ->
