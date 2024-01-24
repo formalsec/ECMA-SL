@@ -168,13 +168,13 @@ let dispatch_file_ext on_plus on_core on_js file =
 
 let prog_of_plus file =
   let open Parsing_utils in
-  Io.load_file file
+  Io.read_file file
   |> parse_e_prog file
   |> resolve_prog_imports
   |> apply_prog_macros
   |> Compiler.compile_prog
 
-let prog_of_core file = Io.load_file file |> Parsing_utils.parse_prog
+let prog_of_core file = Io.read_file file |> Parsing_utils.parse_prog
 
 let js2ecma_sl file output =
   Cmd.(v "js2ecma-sl" % "-c" % "-i" % p file % "-o" % p output)
@@ -227,12 +227,11 @@ let serialize =
       let fname = Fmt.sprintf "%s-%i" fname !counter in
       Filename.concat (Filename.concat !Config.workspace "test-suite") fname
     in
-    Io.write_file ~file:(Fmt.sprintf "%s.js" prefix) ~data:testcase;
-    Io.write_file ~file:(Fmt.sprintf "%s.pc" prefix) ~data:str_pc;
-    Io.write_file ~file:(Fmt.sprintf "%s.smt2" prefix) ~data:smt_query;
+    Io.write_file (Fmt.sprintf "%s.js" prefix) testcase;
+    Io.write_file (Fmt.sprintf "%s.pc" prefix) str_pc;
+    Io.write_file (Fmt.sprintf "%s.smt2" prefix) smt_query;
     Option.iter
-      (fun sink ->
-        Io.write_file ~file:(Fmt.sprintf "%s_sink.json" prefix) ~data:sink )
+      (fun sink -> Io.write_file (Fmt.sprintf "%s_sink.json" prefix) sink)
       witness
 
 let run env entry_func =
