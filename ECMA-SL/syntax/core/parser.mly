@@ -178,7 +178,7 @@ stmt_target:
   | PRINT; e = expr_target;
     { Stmt.Print e @> at $sloc }
   | RETURN;
-    { Stmt.Return (Expr.Val Val.Void) @> at $sloc }
+    { Stmt.Return (Expr.Val Val.Void @> no_region) @> at $sloc }
   | RETURN; e = expr_target;
     { Stmt.Return e @> at $sloc }
   | x = id_target; DEFEQ; e = expr_target;
@@ -214,7 +214,7 @@ stmt_target:
   ;
 
 lookup_target:
-  | PERIOD; fn = id_target;             { Expr.Val (Val.Str fn.it) }
+  | PERIOD; fn = id_target;             { Expr.Val (Val.Str fn.it) @> at $sloc }
   | LBRACK; fe = expr_target; RBRACK;   { fe }
   ;
 
@@ -224,32 +224,32 @@ expr_target:
   | LPAREN; e = expr_target; RPAREN;
     { e }
   | v = val_target;
-    { Expr.Val v }
+    { Expr.Val v @> at $sloc }
   | v = ID;
-    { Expr.Var v }
+    { Expr.Var v @> at $sloc }
   | unopt = unopt_infix_target; e = expr_target;   %prec unopt_prec
-    { Expr.UnOpt (unopt, e) }
+    { Expr.UnOpt (unopt, e) @> at $sloc }
   | unopt = unopt_call_target; e = expr_target;    %prec unopt_prec
-    { Expr.UnOpt (unopt, e) }
+    { Expr.UnOpt (unopt, e) @> at $sloc }
   | e1 = expr_target; binopt = binopt_infix_target; e2 = expr_target;
-    { Expr.BinOpt (binopt, e1, e2) }
+    { Expr.BinOpt (binopt, e1, e2) @> at $sloc }
   | binopt = binopt_call_target; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
-    { Expr.BinOpt (binopt, e1, e2) }
+    { Expr.BinOpt (binopt, e1, e2) @> at $sloc }
   | triopt = triopt_call_target; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; COMMA; e3 = expr_target; RPAREN;
-    { Expr.TriOpt (triopt, e1, e2, e3) }
+    { Expr.TriOpt (triopt, e1, e2, e3) @> at $sloc }
   | nopt_expr = nopt_target;
     { nopt_expr }
   | LBRACE; fe = expr_target; RBRACE; ATSIGN; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
-    { Expr.Curry (fe, es) }
+    { Expr.Curry (fe, es) @> at $sloc }
   ;
 
 nopt_target:
   | LARRBRACK; es = separated_list (COMMA, expr_target); RARRBRACK;
-    { Expr.NOpt (ArrayExpr, es) }
+    { Expr.NOpt (ArrayExpr, es) @> at $sloc }
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
-    { Expr.NOpt (ListExpr, es) }
+    { Expr.NOpt (ListExpr, es) @> at $sloc }
   | LPAREN; t = tuple_target; RPAREN;
-    { Expr.NOpt (TupleExpr, List.rev t) }
+    { Expr.NOpt (TupleExpr, List.rev t) @> at $sloc }
   ;
 
 (* ==================== Values ==================== *)

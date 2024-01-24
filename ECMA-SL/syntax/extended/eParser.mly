@@ -330,10 +330,10 @@ pattern_binding_target:
   ;
 
 pattern_value_target:
-  | x = id_target;        { EPat.PatVar x.it }
-  | v = val_target;       { EPat.PatVal v }
-  | LBRACK; RBRACK;       { EPat.PatVal (Val.List []) }
-  | NONE;                 { EPat.PatNone }
+  | x = id_target;        { EPat.PatVar x.it @> at $sloc }
+  | v = val_target;       { EPat.PatVal v @> at $sloc }
+  | LBRACK; RBRACK;       { EPat.PatVal (Val.List []) @> at $sloc }
+  | NONE;                 { EPat.PatNone @> at $sloc }
   ;
 
 (* ==================== Expressions ==================== *)
@@ -342,46 +342,46 @@ expr_target:
   | LPAREN; e = expr_target; RPAREN;
     { e }
   | v = val_target;
-    { EExpr.Val v }
+    { EExpr.Val v @> at $sloc }
   | x = id_target;
-    { EExpr.Var x.it }
+    { EExpr.Var x.it @> at $sloc }
   | x = gid_target;
-    { EExpr.GVar x.it }
+    { EExpr.GVar x.it @> at $sloc }
   | const = const_target;
-    { EExpr.Const const }
+    { EExpr.Const const @> at $sloc }
   | unopt = unopt_infix_target; e = expr_target;   %prec unopt_prec
-    { EExpr.UnOpt (unopt, e) }
+    { EExpr.UnOpt (unopt, e) @> at $sloc }
   | unopt = unopt_call_target; e = expr_target;    %prec unopt_prec
-    { EExpr.UnOpt (unopt, e) }
+    { EExpr.UnOpt (unopt, e) @> at $sloc }
   | e1 = expr_target; binopt = binopt_infix_target; e2 = expr_target;
-    { EExpr.BinOpt (binopt, e1, e2) }
+    { EExpr.BinOpt (binopt, e1, e2) @> at $sloc }
   | binopt = binopt_call_target; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
-    { EExpr.BinOpt (binopt, e1, e2) }
+    { EExpr.BinOpt (binopt, e1, e2) @> at $sloc }
   | triopt = triopt_call_target; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; COMMA; e3 = expr_target; RPAREN;
-    { EExpr.TriOpt (triopt, e1, e2, e3) }
+    { EExpr.TriOpt (triopt, e1, e2, e3) @> at $sloc }
   | nopt_expr = nopt_target;
     { nopt_expr }
   | fn = id_target; LPAREN; es = separated_list(COMMA, expr_target); RPAREN; ferr = option(catch_target);
-    { EExpr.Call (EExpr.Val (Val.Str fn.it), es, ferr) }
+    { EExpr.Call (EExpr.Val (Val.Str fn.it) @> fn.at, es, ferr) @> at $sloc }
   | LBRACE; fe = expr_target; RBRACE; LPAREN; es = separated_list(COMMA, expr_target); RPAREN; ferr = option(catch_target);
-    { EExpr.Call (fe, es, ferr) }
+    { EExpr.Call (fe, es, ferr) @> at $sloc }
   | EXTERN; fn = id_target; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
-    { EExpr.ECall (fn, es) }
+    { EExpr.ECall (fn, es) @> at $sloc }
   | LBRACE; flds = separated_list(COMMA, field_init_target); RBRACE;
-    { EExpr.NewObj (EExpr.Parser.parse_object_fields flds) }
+    { EExpr.NewObj (EExpr.Parser.parse_object_fields flds) @> at $sloc }
   | oe = expr_target; fe = lookup_target;    
-    { EExpr.Lookup (oe, fe) }
+    { EExpr.Lookup (oe, fe) @> at $sloc }
   | LBRACE; fe = expr_target; RBRACE; ATSIGN; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
-    { EExpr.Curry (fe, es) }
+    { EExpr.Curry (fe, es) @> at $sloc }
   ;
 
 nopt_target:
   | LARRBRACK; es = separated_list (COMMA, expr_target); RARRBRACK;
-    { EExpr.NOpt (ArrayExpr, es) }
+    { EExpr.NOpt (ArrayExpr, es) @> at $sloc }
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
-    { EExpr.NOpt (ListExpr, es) }
+    { EExpr.NOpt (ListExpr, es) @> at $sloc }
   | LPAREN; t = tuple_target; RPAREN;
-    { EExpr.NOpt (TupleExpr, List.rev t) }
+    { EExpr.NOpt (TupleExpr, List.rev t) @> at $sloc }
   ;
 
 catch_target:
@@ -394,7 +394,7 @@ field_init_target:
   ;
 
 lookup_target:
-  | PERIOD; fn = id_target;                       { EExpr.Val (Val.Str fn.it) }
+  | PERIOD; fn = id_target;                       { EExpr.Val (Val.Str fn.it) @> at $sloc }
   | LBRACK; fe = expr_target; RBRACK;             { fe }
   ;
 

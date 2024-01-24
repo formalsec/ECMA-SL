@@ -41,7 +41,7 @@ let generate_sigma_model (ts : EType.t list) (d : string) : sigmaModel_t =
 
 let get_pattern_vars (pat : EPat.t) : string list =
   let _get_obj_pat_vars patFlds =
-    let _filter_f (_, pv) = match pv with PatVar s -> Some s | _ -> None in
+    let _filter_f (_, pv) = match pv.it with PatVar s -> Some s | _ -> None in
     List.filter_map _filter_f patFlds
   in
   match pat.it with
@@ -49,7 +49,7 @@ let get_pattern_vars (pat : EPat.t) : string list =
   | DefaultPat -> []
 
 let parse_pattern_val (patVal : EPat.pv) : EPat.pv * EType.t =
-  match patVal with
+  match patVal.it with
   | PatVal v -> (patVal, EType.parse_literal_type v)
   | _ -> failwith "Typed ECMA-SL: T_Pattern:parse_pat_val"
 
@@ -80,7 +80,7 @@ let split_pattern_flds (patFlds : (Id.t * EPat.pv) list) :
   patValFld_t list * patVarFld_t list =
   let _get_pt pv = Some (snd (parse_pattern_val pv)) in
   let _split_pattern_f (pn, pv) (patValFlds, patVarFlds) =
-    match pv with
+    match pv.it with
     | PatVal _v -> ((pn.it, pv, _get_pt pv) :: patValFlds, patVarFlds)
     | PatVar x -> (patValFlds, (pn.it, x) :: patVarFlds)
     | PatNone -> ((pn.it, pv, None) :: patValFlds, patVarFlds)

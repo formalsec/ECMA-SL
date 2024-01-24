@@ -1,12 +1,12 @@
 open EType
 
 let nth_expr (expr : EExpr.t) (n : int) : EExpr.t =
-  match expr with
+  match expr.it with
   | EExpr.NOpt (_, es) -> List.nth es n
   | _ -> failwith "Typed ECMA-SL: T_Typing.nth_expr"
 
 let lst_expr (expr : EExpr.t) : EExpr.t list =
-  match expr with
+  match expr.it with
   | EExpr.NOpt (_, es) -> es
   | _ -> failwith "Typed ECMA-SL: T_Typing.lst_expr"
 
@@ -22,7 +22,7 @@ let resolve_typedef (tref : EType.t) : EType.t =
   | _ -> failwith "Typed ECMA-SL: T_Typing.resolve_typedef"
 
 let literal_terr (expr : EExpr.t) (texpr : t) : t =
-  match expr with EExpr.Val _ -> EType.wide_type texpr | _ -> texpr
+  match expr.it with EExpr.Val _ -> EType.wide_type texpr | _ -> texpr
 
 let check_literal_narrowing (expr : EExpr.t) (tref : t) (texpr : t) : unit =
   match (tref, texpr) with
@@ -95,7 +95,7 @@ let check_obj_fields (expr : EExpr.t) (toref : tobj_t) (toe : tobj_t)
     | (false, None) -> T_Err.raise (T_Err.ExtraField fn) ~tkn:terrTkn
     (* FIXME: horizontal subtyping required above *)
     | (_, Some (tref, _)) -> (
-      match expr with
+      match expr.it with
       | EExpr.NewObj oe ->
         let fe = snd (List.find (fun (fn', _) -> fn'.it = fn) oe) in
         type_check_f fe tref ft
@@ -108,7 +108,7 @@ let check_obj_fields (expr : EExpr.t) (toref : tobj_t) (toe : tobj_t)
     if not (Seq.exists (fun (fn', _) -> fn' = fn) flds || tfld_is_opt tfld) then
       T_Err.raise (T_Err.MissingField fn) ~tkn:(T_Err.expr_tkn expr)
   in
-  let isLiteral = match expr with EExpr.NewObj _ -> true | _ -> false in
+  let isLiteral = match expr.it with EExpr.NewObj _ -> true | _ -> false in
   let flds = Hashtbl.to_seq toe.flds in
   Seq.iter (_check_expr_fld_f isLiteral) flds |> fun () ->
   Hashtbl.iter (_check_missing_fld_f flds) toref.flds
@@ -171,5 +171,6 @@ let rec type_check (expr : EExpr.t) (tref : t) (texpr : t) : unit =
   | _ -> T_Err.raise (T_Err.BadValue (tref, texpr)) ~tkn:(T_Err.expr_tkn expr)
 
 let is_typeable (tref : t) (texpr : t) : bool =
-  try type_check (EExpr.Val Val.Null) tref texpr |> fun _ -> true
+  let open Source in
+  try type_check (EExpr.Val Val.Null @> no_region) tref texpr |> fun _ -> true
   with T_Err.TypeError _ -> false

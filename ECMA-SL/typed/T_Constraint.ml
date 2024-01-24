@@ -6,14 +6,15 @@ type t =
   | Or of t * t
 
 let rec is_container (e : EExpr.t) : bool =
-  match e with
+  match e.it with
   | EExpr.Var _ -> true
   | EExpr.Lookup _ -> true
   | EExpr.UnOpt (Operator.Typeof, e') -> is_container e'
   | _ -> false
 
 let rec generate (tctx : T_Ctx.t) (expr : EExpr.t) : t =
-  match expr with
+  let open Source in
+  match expr.it with
   | EExpr.UnOpt (Operator.LogicalNot, e) -> Not (generate tctx e)
   | EExpr.BinOpt (Operator.LogicalAnd, e1, e2) ->
     let ce1 = generate tctx e1 in
@@ -24,7 +25,7 @@ let rec generate (tctx : T_Ctx.t) (expr : EExpr.t) : t =
     let ce2 = generate tctx e2 in
     Or (ce1, ce2)
   | EExpr.BinOpt (Operator.Eq, e1, e2) -> (
-    let revExpr = Expr (EExpr.BinOpt (Operator.Eq, e2, e1)) in
+    let revExpr = Expr (EExpr.BinOpt (Operator.Eq, e2, e1) @> no_region) in
     match (is_container e1, is_container e2) with
     | (true, true) -> And (Expr expr, revExpr)
     | _ -> Expr expr )
@@ -113,22 +114,23 @@ let create_constraint (expr : EExpr.t) (tcstr : EType.t) (isNeq : bool)
 
 let inspect_element (tctx : T_Ctx.t) (expr : EExpr.t) (isNeq : bool) : element_t
     =
+  let open Source in
   let choose_container e1 e2 =
     match (is_container e1, is_container e2) with
     | (false, true) -> (e2, e1)
     | _ -> (e1, e2)
   in
   let _eval_type expr =
-    match expr with
+    match expr.it with
     | EExpr.UnOpt (Operator.Typeof, e) ->
       EType.to_runtime (T_Expr.type_expr tctx e)
     | _ -> T_Expr.type_expr tctx expr
   in
-  match expr with
+  match expr.it with
   | EExpr.BinOpt (Operator.Eq, e1, e2) -> (
     let (tar, cstr) = choose_container e1 e2 in
     let tcstr = _eval_type cstr in
-    match tar with
+    match tar.it with
     | EExpr.Var _ -> (tar, create_constraint expr tcstr isNeq false)
     | EExpr.Lookup _ -> (tar, create_constraint expr tcstr isNeq false)
     | EExpr.UnOpt (Operator.Typeof, tar') ->
@@ -167,6 +169,7 @@ let eval_constraint (ttar : EType.t) (cstr : constraint_t) : EType.t list =
 
 let rec apply_constrain (tctx : T_Ctx.t) (target : EExpr.t list)
   (tconstraint : EType.t) : unit =
+  let open Source in
   let _test_union_case oe fe fn nt =
     let tref = T_Expr.type_fld_lookup oe fe fn nt in
     List.mem tref (EType.tlst tconstraint)
@@ -175,16 +178,16 @@ let rec apply_constrain (tctx : T_Ctx.t) (target : EExpr.t list)
     match (fexpr, ntoe) with
     | (_, EType.UserDefinedType _) ->
       _filter_union_case oe fexpr (T_Typing.resolve_typedef ntoe)
-    | (EExpr.Val (Val.Str fn), EType.UnionType nts)
-    | (EExpr.Val (Val.Str fn), EType.SigmaType (_, nts)) ->
+    | ({ it = EExpr.Val (Val.Str fn); _ }, EType.UnionType nts)
+    | ({ it = EExpr.Val (Val.Str fn); _ }, EType.SigmaType (_, nts)) ->
       List.filter (_test_union_case oe fexpr fn) nts |> fun ts ->
       T_Narrowing.narrow_type (EType.UnionType ts) |> fun t ->
       apply_constrain tctx [ oe ] t
     | _ -> ()
   in
   match target with
-  | EExpr.Var var :: [] -> T_Ctx.tenv_constrain tctx var tconstraint
-  | EExpr.Lookup (oe, fexpr) :: [] ->
+  | { it = EExpr.Var var; _ } :: [] -> T_Ctx.tenv_constrain tctx var tconstraint
+  | { it = EExpr.Lookup (oe, fexpr); _ } :: [] ->
     let ntoe = T_Expr.type_expr tctx oe in
     _filter_union_case oe fexpr ntoe
   | _ -> ()

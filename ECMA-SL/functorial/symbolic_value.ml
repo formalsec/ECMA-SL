@@ -87,7 +87,7 @@ module M = struct
   type store = Store.t
 
   let rec eval_expr (store : store) (e : Expr.t) : (value, string) Result.t =
-    match e with
+    match e.it with
     | Expr.Val v -> return (Val v)
     | Expr.Var x -> (
       match Store.find store x with

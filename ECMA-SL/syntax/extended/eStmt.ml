@@ -87,7 +87,7 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = EExpr.Mapper.id) (mapper : t -> t)
   let map' = map ~emapper mapper in
   let mapper' s' = mapper (s' @> s.at) in
   let id_mapper (x : Id.t) =
-    match emapper (EExpr.Var x.it) with
+    match (emapper (EExpr.Var x.it @> no_region)).it with
     | EExpr.Var y -> y @> x.at
     | _ -> Eslerr.(internal __FUNCTION__ (Expecting "var expression in LHS"))
   in
@@ -172,6 +172,3 @@ let lambdas (s : t) : (string * Id.t list * Id.t list * t) list =
   in
   let f_rec _s = true in
   to_list f_rec f_l s
-
-let return_val (expr_opt : EExpr.t option) : EExpr.t =
-  Option.value ~default:(EExpr.Val Val.Null) expr_opt

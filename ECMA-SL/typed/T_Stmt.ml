@@ -115,7 +115,7 @@ let type_fassign (tctx : T_Ctx.t) (oe : EExpr.t) (fe : EExpr.t) (expr : EExpr.t)
     ignore (T_Expr.safe_type_expr tctx expr tref)
   in
   let (rtoe, ntoe) = T_Expr.full_type_expr_resolved tctx oe in
-  match (fe, ntoe) with
+  match (fe.it, ntoe) with
   | (EExpr.Val (Val.Str fn), EType.SigmaType (_, nts))
   | (EExpr.Val (Val.Str fn), EType.UnionType nts) ->
     List.iter (_type_fassign fn rtoe) nts
