@@ -7,16 +7,16 @@
 
   let position_to_pos position =
     {
-      file = position.Lexing.pos_fname;
-      line = position.Lexing.pos_lnum;
+      line   = position.Lexing.pos_lnum;
       column = position.Lexing.pos_cnum - position.Lexing.pos_bol;
     }
 
-  let position_to_region pos1 pos2 =
-    { left = position_to_pos pos1; right = position_to_pos pos2 }
-
   let at (startpos, endpos) =
-    position_to_region startpos endpos
+    { 
+      file  = startpos.Lexing.pos_fname; 
+      left  = position_to_pos startpos; 
+      right = position_to_pos endpos;
+    }
 
 %}
 
