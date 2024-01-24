@@ -1,6 +1,4 @@
-module Token = Eslerr_token
-
-module type ErrTypeFmt = sig
+module type ERR_TYPE_FMT = sig
   type msg
 
   val font : unit -> Font.t
@@ -8,7 +6,7 @@ module type ErrTypeFmt = sig
   val pp : Fmt.t -> msg -> unit
 end
 
-module Msgs (ErrTypeFmt : ErrTypeFmt) = struct
+module Msgs (ErrTypeFmt : ERR_TYPE_FMT) = struct
   let pp_cause (fmt : Fmt.t) (msg : ErrTypeFmt.msg) : unit =
     Fmt.fprintf fmt "\n%a %a"
       (Font.pp_text_err [ ErrTypeFmt.font (); Font.Faint ])
@@ -28,108 +26,41 @@ module Msgs (ErrTypeFmt : ErrTypeFmt) = struct
   let str (msgs : ErrTypeFmt.msg list) : string = Fmt.asprintf "%a" pp msgs
 end
 
-module Code (ErrTypeFmt : ErrTypeFmt) = struct
-  type locdata =
-    { region : Source.region
-    ; file : string
-    ; line : int
-    ; left : int
-    ; right : int
-    }
+module Code (ErrTypeFmt : ERR_TYPE_FMT) = struct
+  open Source
+  module Src = Eslerr_comp.ErrSrc
 
-  type srcdata =
-    { code : string
-    ; hgl : string
-    ; matched : bool
-    ; locdata : locdata
-    }
-
-  let srcdata_init (loc : Token.t) : srcdata =
-    let region = Token.region loc in
-    { code = ""
-    ; hgl = ""
-    ; matched = false
-    ; locdata =
-        { region
-        ; file = region.file
-        ; line = region.left.line
-        ; left = region.left.column
-        ; right = region.right.column
-        }
-    }
-
-  let srcdata_process_empty (srcdata : srcdata) (loc : Token.t) : srcdata =
-    let loc_sz = Font.clean srcdata.code |> String.length in
-    let locdata = srcdata.locdata in
-    let hgl = String.make loc_sz '^' in
-    let left = (Token.region loc).left.column in
-    let right = left + loc_sz in
-    { srcdata with hgl; locdata = { locdata with left; right } }
-
-  let rec srcdata_process_src (srcdata : srcdata) (src : Token.t) (loc : Token.t)
-    : srcdata =
-    let write_tkn hgl_chr =
-      let (tkn_str, tkn_sz) = Token.str_size loc in
-      let code = srcdata.code ^ tkn_str in
-      let hgl = srcdata.hgl ^ String.make tkn_sz hgl_chr in
-      ({ srcdata with code; hgl }, tkn_sz)
+  let pp_location (fmt : Fmt.t) (region : region) : unit =
+    let pp_locdata fmt region =
+      Fmt.fprintf fmt "File %S, line %d, characters %d-%d" region.file
+        region.left.line region.left.column region.right.column
     in
-    if srcdata.matched then fst (write_tkn ' ')
-    else if Token.cmp loc src then
-      let (srcdata', tkn_sz) = write_tkn '^' in
-      let matched = true in
-      let right = srcdata'.locdata.left + tkn_sz - 1 in
-      { srcdata' with matched; locdata = { srcdata'.locdata with right } }
-    else if Token.is_splitable loc then
-      let split_fun srcdata' loc' = srcdata_process_src srcdata' src loc' in
-      List.fold_left split_fun srcdata (Token.split loc)
-    else
-      let (srcdata', tkn_sz) = write_tkn ' ' in
-      let left = srcdata.locdata.left + tkn_sz in
-      { srcdata' with locdata = { srcdata'.locdata with left } }
+    Font.pp_err [ Font.Italic; Font.Faint ] pp_locdata fmt region
 
-  let srcdata_process (src : Token.t) (loc : Token.t) : srcdata =
-    let srcdata = srcdata_init loc in
-    let srcdata' = srcdata_process_src srcdata src loc in
-    if not srcdata'.matched then srcdata_process_empty srcdata' loc
-    else srcdata'
+  let pp_indent (fmt : Fmt.t) ((lineno, indent) : int * int) : unit =
+    let lineno_sz = String.length (string_of_int lineno) in
+    Fmt.pp_str fmt (String.make (lineno_sz + 4 + indent) ' ')
 
-  let pp_location ?(colon : bool = true) (fmt : Fmt.t) (locdata : locdata) :
-    unit =
-    let open Fmt in
-    let colon_str = if colon then ":" else "" in
-    let locfont = [ Font.Italic; Font.Faint ] in
-    let pp_locdata fmt locdata =
-      fprintf fmt "\nFile %S, line %d, characters %d-%d%s" locdata.file
-        locdata.line locdata.left locdata.right colon_str
-    in
-    fprintf fmt "%a" (Font.pp_err locfont pp_locdata) locdata
+  let pp_highlight (fmt : Fmt.t) (size : int) : unit =
+    Font.pp_text_err [ ErrTypeFmt.font () ] fmt (String.make size '^')
 
-  let pp_code (fmt : Fmt.t) (srcdata : srcdata) : unit =
-    let open Fmt in
-    let code_header fmt () =
-      if srcdata.locdata.region = Source.no_region then fprintf fmt "      "
-      else fprintf fmt "%d |  " srcdata.locdata.line
-    in
-    fprintf fmt "\n%a%s" code_header () srcdata.code
+  let pp_region (fmt : Fmt.t) (region : region) : unit =
+    let (file, line, left, right) = unfold region in
+    let code = Code.line file line in
+    Fmt.fprintf fmt "\n%a\n%d |  %s\n%a%a" pp_location region line code
+      pp_indent (line, left) pp_highlight (right - left)
 
-  let pp_hgl (fmt : Fmt.t) (srcdata : srcdata) : unit =
-    let lineno_sz = String.length (string_of_int srcdata.locdata.line) in
-    let hgl_indent = String.make (lineno_sz + 4) ' ' in
-    let hgl_font = [ ErrTypeFmt.font () ] in
-    Fmt.fprintf fmt "\n%s%a" hgl_indent (Font.pp_text_err hgl_font) srcdata.hgl
-
-  let pp (fmt : Fmt.t) ((loc, src) : Token.t * Token.t) : unit =
-    match loc with
-    | NoTkn -> ()
-    | _ ->
-      let srcdata = srcdata_process src loc in
-      Fmt.fprintf fmt "%a%a%a" (pp_location ~colon:true) srcdata.locdata pp_code
-        srcdata pp_hgl srcdata
+  let pp (fmt : Fmt.t) (src : Src.t) : unit =
+    match src with
+    | Region region when region = no_region -> ()
+    | Region region -> pp_region fmt region
+    | _ -> ()
 end
 
-module Custom (ErrTypeFmt : ErrTypeFmt) = struct
-  let pp_trace (fmt : Fmt.t) (trace : (Fmt.t -> unit -> unit) option) : unit =
+module Custom (ErrTypeFmt : ERR_TYPE_FMT) = struct
+  open Eslerr_comp
+
+  let pp_trace (fmt : Fmt.t) (trace : RtTrace.t option) : unit =
     match trace with
     | None -> ()
     | Some trace_pp -> Fmt.fprintf fmt "\nRaised at %a" trace_pp ()
