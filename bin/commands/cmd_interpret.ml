@@ -32,11 +32,11 @@ let run_interpreter (prog : Prog.t) : unit =
   let module Interpreter = Interpreter.M (Debugger) (Verbose) (Monitor) in
   ignore (Interpreter.eval_prog prog)
 
-let interpret_core (input_file : string) : unit =
-  Io.read_file input_file |> Parsing_utils.parse_prog |> run_interpreter
+let interpret_core (file : string) : unit =
+  Io.read_file file |> Parsing_utils.parse_prog ~file |> run_interpreter
 
-let compile_and_interpret (input_file : string) : unit =
-  Cmd_compile.run_compiler input_file |> run_interpreter
+let compile_and_interpret (file : string) : unit =
+  Cmd_compile.run_compiler file |> run_interpreter
 
 let run (opts : options) : unit =
   let valid_langs = Lang.valid [ Lang.ESL; Lang.CESL ] opts.interpret_lang in
@@ -51,5 +51,4 @@ let main (copts : Options.common_options) (opts : options) : int =
   Config.Interpreter.verbose := opts.interpret_verbose;
   Config.Interpreter.debugger := opts.interpret_debugger;
   Config.Tesl.untyped := opts.untyped;
-  Config.file := opts.input_file;
   Cmd.eval_cmd (fun () -> run opts)
