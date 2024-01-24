@@ -225,7 +225,7 @@ let init_source_data (src : tkn_t) : srcData_t =
   ; hgl = ""
   ; locData =
       { region
-      ; file = region.left.file
+      ; file = region.file
       ; line = region.left.line
       ; left = region.left.column
       ; right = region.left.column

@@ -45,8 +45,8 @@ let update (stack : 'store t) (stmt : Stmt.t) : unit =
 
 let pp_loc (fmt : Fmt.t) (region : Source.region) : unit =
   let open Source in
-  let { left; right } = region in
-  Fmt.fprintf fmt "file %S, line %d, characters %d-%d" left.file left.line
+  let { file; left; right } = region in
+  Fmt.fprintf fmt "file %S, line %d, characters %d-%d" file left.line
     left.column right.column
 
 let pp_frame (fmt : Fmt.t) (frame : 'store frame) : unit =

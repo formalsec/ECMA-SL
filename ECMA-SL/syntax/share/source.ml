@@ -1,11 +1,11 @@
 type pos =
-  { file : string
-  ; line : int
+  { line : int
   ; column : int
   }
 
 type region =
-  { left : pos
+  { file : string
+  ; left : pos
   ; right : pos
   }
 
@@ -15,18 +15,19 @@ type 'a phrase =
   }
 
 let ( @> ) (x : 'a) (region : region) = { it = x; at = region }
-let no_pos = { file = ""; line = 0; column = 0 }
-let no_region = { left = no_pos; right = no_pos }
+let no_pos = { line = -1; column = -1 }
+let no_region = { file = ""; left = no_pos; right = no_pos }
 
-let string_of_pos (pos : pos) : string =
-  if pos.line = -1 then Printf.sprintf "0x%x" pos.column
-  else string_of_int pos.line ^ "." ^ string_of_int pos.column
+let pp_pos (fmt : Fmt.t) (pos : pos) : unit =
+  let open Fmt in
+  let pp_pos' fmt pos = if pos = -1 then pp_str fmt "x" else pp_int fmt pos in
+  fprintf fmt "%a.%a" pp_pos' pos.line pp_pos' pos.column
 
-let string_of_region (r : region) : string =
-  r.left.file
-  ^ ":"
-  ^ string_of_pos r.left
-  ^ if r.right = r.left then "" else "-" ^ string_of_pos r.right
+let pp_region (fmt : Fmt.t) (region : region) : unit =
+  Fmt.fprintf fmt "%S:%a-%a" region.file pp_pos region.left pp_pos region.right
+
+let pp (fmt : Fmt.t) (x : 'a phrase) = Fmt.fprintf fmt "%a" pp_region x.at
+let str (x : 'a phrase) : string = Fmt.asprintf "%a" pp x
 
 (* Source code lines loaded *)
 

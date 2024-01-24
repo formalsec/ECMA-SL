@@ -51,7 +51,7 @@ module Code (ErrTypeFmt : ErrTypeFmt) = struct
     ; matched = false
     ; locdata =
         { region
-        ; file = region.left.file
+        ; file = region.file
         ; line = region.left.line
         ; left = region.left.column
         ; right = region.right.column
