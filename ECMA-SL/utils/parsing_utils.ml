@@ -1,9 +1,9 @@
 open Lexing
 
-exception ImportException of string
-
+type 'a start = position -> 'a Parser.MenhirInterpreter.checkpoint
+type 'a estart = position -> 'a EParser.MenhirInterpreter.checkpoint
 type token = [%import: Parser.token] [@@deriving show]
-type e_token = [%import: EParser.token] [@@deriving show]
+type etoken = [%import: EParser.token] [@@deriving show]
 
 let print_position (outx : Fmt.t) (lexbuf : Lexing.lexbuf) : unit =
   let pos = lexbuf.lex_curr_p in
@@ -11,154 +11,114 @@ let print_position (outx : Fmt.t) (lexbuf : Lexing.lexbuf) : unit =
   Fmt.fprintf outx "%s:%d:%d" pos.pos_fname pos.pos_lnum
     (pos.pos_cnum - pos.pos_bol + 1)
 
-let e_parse start (lexbuf : Lexing.lexbuf) =
-  let module ESLMI = EParser.MenhirInterpreter in
-  let last_token = ref EParser.EOF in
-  let lexer lexbuf =
-    let token = ELexer.read lexbuf in
-    last_token := token;
-    token
-  in
+let lexer (last_token : token ref) (lexbuf : Lexing.lexbuf) =
+  let token = Lexer.read lexbuf in
+  last_token := token;
+  token
 
-  ESLMI.loop_handle
-    (fun result -> result)
-    (function
-      | ESLMI.Rejected -> failwith "Parser rejected input"
-      | ESLMI.HandlingError _e ->
-        (* let csn = ESLMI.current_state_number e in *)
-        Fmt.eprintf "%a, last token: %s: %s.@." print_position lexbuf
-          (show_e_token !last_token) "Error message found";
-        raise EParser.Error
-      | _ -> failwith "Unexpected state in failure handler!" )
-    (ESLMI.lexer_lexbuf_to_supplier lexer lexbuf)
-    (start lexbuf.Lexing.lex_curr_p)
+let elexer (last_token : etoken ref) (lexbuf : Lexing.lexbuf) =
+  let token = ELexer.read lexbuf in
+  last_token := token;
+  token
 
-let parse start (lexbuf : Lexing.lexbuf) =
-  lexbuf.Lexing.lex_curr_p <-
-    { lexbuf.Lexing.lex_curr_p with Lexing.pos_fname = !Config.file };
+let parser (start : 'a start) (lexbuf : Lexing.lexbuf) =
   let module Core_ESLMI = Parser.MenhirInterpreter in
   let last_token = ref Parser.EOF in
-  let lexer lexbuf =
-    let token = Lexer.read lexbuf in
-    last_token := token;
-    token
-  in
   Core_ESLMI.loop_handle
     (fun result -> result)
     (function
       | Core_ESLMI.Rejected -> failwith "Parser rejected input"
       | Core_ESLMI.HandlingError _e ->
-        (* let csn = Core_ESLMI.current_state_number e in *)
         Fmt.eprintf "%a, last token: %s: %s.@." print_position lexbuf
           (show_token !last_token) "Error message found";
         raise Parser.Error
       | _ -> failwith "Unexpected state in failure handler!" )
-    (Core_ESLMI.lexer_lexbuf_to_supplier lexer lexbuf)
+    (Core_ESLMI.lexer_lexbuf_to_supplier (lexer last_token) lexbuf)
     (start lexbuf.Lexing.lex_curr_p)
 
-let init_lexbuf (fname : string) (str : string) =
-  let lexbuf = Lexing.from_string str in
-  lexbuf.lex_curr_p <- { lexbuf.lex_curr_p with pos_fname = fname };
-  lexbuf
+let eparser (start : 'a estart) (lexbuf : Lexing.lexbuf) =
+  let module ESLMI = EParser.MenhirInterpreter in
+  let last_token = ref EParser.EOF in
+  ESLMI.loop_handle
+    (fun result -> result)
+    (function
+      | ESLMI.Rejected -> failwith "Parser rejected input"
+      | ESLMI.HandlingError _e ->
+        Fmt.eprintf "%a, last token: %s: %s.@." print_position lexbuf
+          (show_etoken !last_token) "Error message found";
+        raise EParser.Error
+      | _ -> failwith "Unexpected state in failure handler!" )
+    (ESLMI.lexer_lexbuf_to_supplier (elexer last_token) lexbuf)
+    (start lexbuf.Lexing.lex_curr_p)
 
-module StrSet = Set.Make (String)
-
-let parse_expr (str : string) : Expr.t =
+let init_lexbuf (file : string) (str : string) =
   let lexbuf = Lexing.from_string str in
+  { lexbuf with lex_curr_p = { lexbuf.lex_curr_p with pos_fname = file } }
+
+let parse_expr ?(file : string = "") (str : string) : Expr.t =
+  let lexbuf = init_lexbuf file str in
   Parser.entry_expr_target Lexer.read lexbuf
 
-let parse_stmt (str : string) : Stmt.t =
-  let lexbuf = Lexing.from_string str in
+let parse_stmt ?(file : string = "") (str : string) : Stmt.t =
+  let lexbuf = init_lexbuf file str in
   Parser.entry_stmt_target Lexer.read lexbuf
 
-let parse_func (str : string) : Func.t =
-  let lexbuf = Lexing.from_string str in
+let parse_func ?(file : string = "") (str : string) : Func.t =
+  let lexbuf = init_lexbuf file str in
   Parser.entry_func_target Lexer.read lexbuf
 
-let parse_prog (str : string) : Prog.t =
-  let lexbuf = Lexing.from_string str in
-  let prog = parse Parser.Incremental.entry_prog_target lexbuf in
-  prog
+let parse_prog ?(file : string = "") (str : string) : Prog.t =
+  let lexbuf = init_lexbuf file str in
+  parser Parser.Incremental.entry_prog_target lexbuf
 
-let parse_e_expr (str : string) : EExpr.t =
-  let lexbuf = Lexing.from_string str in
+let parse_eexpr ?(file : string = "") (str : string) : EExpr.t =
+  let lexbuf = init_lexbuf file str in
   EParser.entry_expr_target ELexer.read lexbuf
 
-let parse_e_stmt (str : string) : EStmt.t =
-  let lexbuf = Lexing.from_string str in
+let parse_estmt ?(file : string = "") (str : string) : EStmt.t =
+  let lexbuf = init_lexbuf file str in
   EParser.entry_stmt_target ELexer.read lexbuf
 
-let parse_e_func (str : string) : EFunc.t =
-  let lexbuf = Lexing.from_string str in
+let parse_efunc ?(file : string = "") (str : string) : EFunc.t =
+  let lexbuf = init_lexbuf file str in
   EParser.entry_func_target ELexer.read lexbuf
 
-let parse_e_prog (fname : string) (str : string) : EProg.t =
-  let lexbuf = init_lexbuf fname str in
-  let prog = e_parse EParser.Incremental.entry_prog_target lexbuf in
-  prog
+let parse_eprog ?(file : string = "") (str : string) : EProg.t =
+  let lexbuf = init_lexbuf file str in
+  eparser EParser.Incremental.entry_prog_target lexbuf
 
-(*
-  let lexbuf = Lexing.from_string str in
-  EParser.e_prog_target ELexer.read lexbuf
-*)
+module SSet = Set.Make (String)
 
-let parse_file str : Prog.t =
-  let str = Io.read_file str in
-  let fs = parse_prog str in
-  fs
-
-let rec resolve_imports (to_resolve : string list list) (resolved : StrSet.t)
-  (path : string list) (typedefs : (string * EType.t) list)
+let rec resolve_imports (resolved : SSet.t) (paths : string list)
+  (unresolved : string list list) (tdefs : (string * EType.t) list)
   (funcs : EFunc.t list) (macros : EMacro.t list) :
   (string * EType.t) list * EFunc.t list * EMacro.t list =
-  match (to_resolve, path) with
-  | ([], _) -> (typedefs, funcs, macros)
-  | ([] :: lst, file :: rest_path) ->
-    let resolved = StrSet.add file resolved in
-    resolve_imports lst resolved rest_path typedefs funcs macros
+  match (unresolved, paths) with
+  | ([], _) -> (tdefs, funcs, macros)
+  | ([] :: unresolved', file :: paths') ->
+    let resolved = SSet.add file resolved in
+    resolve_imports resolved paths' unresolved' tdefs funcs macros
   | ((file :: files) :: _, _) ->
-    if StrSet.mem file resolved then
-      resolve_imports [ files ] resolved path typedefs funcs macros
-    else if List.mem file path then
-      failwith "Error resolving imports: Cyclic dependency"
-    else
-      let file_contents = Io.read_file file in
-      let cur_prog = parse_e_prog file file_contents in
-      let cur_prog_typedefs = EProg.tdefs_lst cur_prog in
-      let cur_prog_funcs = EProg.funcs_lst cur_prog in
-      let cur_prog_macros = EProg.macros_lst cur_prog in
-      resolve_imports
-        (EProg.imports cur_prog :: to_resolve)
-        resolved (file :: path)
-        (cur_prog_typedefs @ typedefs)
-        (cur_prog_funcs @ funcs) (cur_prog_macros @ macros)
-  | ([] :: _, []) ->
-    invalid_arg
-      "Error resolving imports: path is empty and still some imports to \
-       resolve."
+    if SSet.mem file resolved then
+      resolve_imports resolved paths [ files ] tdefs funcs macros
+    else if not (List.mem file paths) then
+      let eprog = Io.read_file file |> parse_eprog ~file in
+      resolve_imports resolved (file :: paths)
+        (EProg.imports eprog :: unresolved)
+        (EProg.tdefs_lst eprog @ tdefs)
+        (EProg.funcs_lst eprog @ funcs)
+        (EProg.macros_lst eprog @ macros)
+    else Eslerr.(compile (CyclicDependency file))
+  | ([] :: _, []) -> Eslerr.(internal __FUNCTION__ (Expecting "non-empty path"))
 
-let resolve_prog_imports (prog : EProg.t) : EProg.t =
-  let file_name = EProg.file prog in
-  let (total_typedefs, total_funcs, total_macros) =
-    resolve_imports
-      [ EProg.imports prog ]
-      StrSet.empty
+let resolve_eprog_imports (prog : EProg.t) : EProg.t =
+  let file = EProg.file prog in
+  let (typedefs, funcs, macros) =
+    resolve_imports SSet.empty
       [ EProg.file prog ]
+      [ EProg.imports prog ]
       (EProg.tdefs_lst prog) (EProg.funcs_lst prog) (EProg.macros_lst prog)
   in
-  let new_prog =
-    EProg.create file_name [] total_typedefs total_funcs total_macros
-  in
-  new_prog
+  EProg.create file [] typedefs funcs macros
 
-let apply_prog_macros (prog : EProg.t) : EProg.t = EProg.apply_macros prog
-
-(*
-   "1.2343434e+15" -> appropriate float
-*)
-let parse_efloat (f_str : string) : float =
-  let i = String.rindex f_str 'e' in
-  let b = float_of_string (String.sub f_str 0 i) in
-  let len' = String.length f_str - i - 2 in
-  let exp = float_of_string (String.sub f_str (i + 2) len') in
-  b *. (10. ** exp)
+let apply_eprog_macros (prog : EProg.t) : EProg.t = EProg.apply_macros prog

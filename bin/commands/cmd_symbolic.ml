@@ -169,12 +169,12 @@ let dispatch_file_ext on_plus on_core on_js file =
 let prog_of_plus file =
   let open Parsing_utils in
   Io.read_file file
-  |> parse_e_prog file
-  |> resolve_prog_imports
-  |> apply_prog_macros
+  |> parse_eprog ~file
+  |> resolve_eprog_imports
+  |> apply_eprog_macros
   |> Compiler.compile_prog
 
-let prog_of_core file = Io.read_file file |> Parsing_utils.parse_prog
+let prog_of_core file = Io.read_file file |> Parsing_utils.parse_prog ~file
 
 let js2ecma_sl file output =
   Cmd.(v "js2ecma-sl" % "-c" % "-i" % p file % "-o" % p output)
@@ -255,7 +255,6 @@ let run env entry_func =
 
 let main (copts : Options.common_options) file target workspace =
   Log.on_debug := copts.debug;
-  Config.file := file;
   Config.workspace := workspace;
   (let* prog = dispatch_file_ext prog_of_plus prog_of_core prog_of_js file in
    let env = link_env prog in

@@ -18,11 +18,11 @@ let run_type_checker (prog : EProg.t) : EProg.t =
       Format.eprintf "%s" (T_Checker.terrs_str terrs);
       raise (Cmd.Command_error Cmd.Error) )
 
-let run_compiler (input_file : string) : Prog.t =
-  Io.read_file input_file
-  |> Parsing_utils.parse_e_prog input_file
-  |> Parsing_utils.resolve_prog_imports
-  |> Parsing_utils.apply_prog_macros
+let run_compiler (file : string) : Prog.t =
+  Io.read_file file
+  |> Parsing_utils.parse_eprog ~file
+  |> Parsing_utils.resolve_eprog_imports
+  |> Parsing_utils.apply_eprog_macros
   |> run_type_checker
   |> Compiler.compile_prog
 
@@ -37,5 +37,4 @@ let main (copts : Options.common_options) (opts : options) : int =
   Log.on_debug := copts.debug;
   Config.Common.colored := not copts.colorless;
   Config.Tesl.untyped := opts.untyped;
-  Config.file := opts.input_file;
   Cmd.eval_cmd (fun () -> run opts)

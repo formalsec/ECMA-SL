@@ -13,5 +13,4 @@ module Tesl = struct
   let untyped = ref false
 end
 
-let file = ref ""
 let workspace = ref "output"
