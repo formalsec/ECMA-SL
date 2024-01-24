@@ -118,7 +118,7 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
 
   let prepare_call (stack : stack) (f : Func.t) (store : store)
     (cont : Stmt.t list) (x : string) (vs : value list) : stack * store =
-    let params = Func.params f in
+    let params = Func.params' f in
     let stack' = Call_stack.push stack f store cont x in
     let store' =
       try List.combine params vs |> Store.create
@@ -157,7 +157,7 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
         let state' = (store', heap, stack', db) in
         (Intermediate (state', cont'), lbl ReturnEval) )
     | Assign (x, e) ->
-      eval_expr store e |> Store.set store x;
+      eval_expr store e |> Store.set store x.it;
       (Intermediate (state, cont), lbl AssignEval)
     | AssignCall (x, fe, es) -> (
       let (fn, fvs) = eval_func_expr store fe in
@@ -166,45 +166,45 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
       | Some lbl -> (Intermediate (state, cont), lbl)
       | None ->
         let f' = eval_func prog fn in
-        let (stack', store') = prepare_call stack f' store cont x vs in
+        let (stack', store') = prepare_call stack f' store cont x.it vs in
         let cont' = [ Func.body f' ] in
         let (db', stack'', cont'') = Db.custom_inject s db stack' cont' in
         let state' = (store', heap, stack'', db') in
         (Intermediate (state', cont''), lbl (AssignCallEval f)) )
     | AssignECall (x, fe, es) ->
       let vs = List.map (eval_expr store) es in
-      let v = External.execute prog heap fe vs in
-      Store.set store x v;
+      let v = External.execute prog heap fe.it vs in
+      Store.set store x.it v;
       (Intermediate (state, cont), lbl AssignECallEval)
     | AssignNewObj x ->
       let l = Object.create () |> Heap.insert heap in
-      Store.set store x (Val.Loc l);
+      Store.set store x.it (Val.Loc l);
       (Intermediate (state, cont), lbl (AssignNewObjEval l))
     | AssignObjToList (x, e) ->
       let fld_to_tup_f (fn, fv) = Val.Tuple [ Str fn; fv ] in
       let (_, obj) = eval_object store heap e in
       let v = Val.List (Object.fld_list obj |> List.map fld_to_tup_f) in
-      Store.set store x v;
+      Store.set store x.it v;
       (Intermediate (state, cont), lbl AssignObjToListEval)
     | AssignObjFields (x, e) ->
       let fld_to_tup_f (fn, _) = Val.Str fn in
       let (_, obj) = eval_object store heap e in
       let v = Val.List (Object.fld_list obj |> List.map fld_to_tup_f) in
-      Store.set store x v;
+      Store.set store x.it v;
       (Intermediate (state, cont), lbl AssignObjFieldsEval)
     | AssignInObjCheck (x, fe, oe) ->
       let in_obj = function Some _ -> true | None -> false in
       let (loc, obj) = eval_object store heap oe in
       let fn = eval_string store fe in
       let v = Val.Bool (Object.get obj fn |> in_obj) in
-      Store.set store x v;
+      Store.set store x.it v;
       (Intermediate (state, cont), lbl (AssignInObjCheckEval (loc, fn)))
     | FieldLookup (x, oe, fe) ->
       let fld_val v = Option.value ~default:(Val.Symbol "undefined") v in
       let (l, obj) = eval_object store heap oe in
       let fn = eval_string store fe in
       let v = Object.get obj fn |> fld_val in
-      Store.set store x v;
+      Store.set store x.it v;
       (Intermediate (state, cont), lbl (FieldLookupEval (l, fn)))
     | FieldAssign (oe, fe, e) ->
       let (l, obj) = eval_object store heap oe in
@@ -259,7 +259,7 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
       let (_, _, stack, _) = state in
       let f = Call_stack.func stack in
       let fn = Func.name f in
-      Eslerr.(runtime ~loc:(Func f) ~src:(Str fn) (MissingReturn fn))
+      Eslerr.(runtime ~loc:(Func f) ~src:(Str fn.it) (MissingReturn fn.it))
     | s :: cont -> (
       let (return, lbl) = eval_small_step_safe prog state s cont in
       let mon' = Mon.eval_small_step mon lbl |> Mon.next_state in

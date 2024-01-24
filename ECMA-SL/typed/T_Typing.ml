@@ -87,6 +87,7 @@ let check_union_type (expr : EExpr.t) (tref : t) (texpr : t)
 
 let check_obj_fields (expr : EExpr.t) (toref : tobj_t) (toe : tobj_t)
   (type_check_f : EExpr.t -> t -> t -> unit) : unit =
+  let open Source in
   let _check_expr_fld_f isLiteral (fn, (ft, _)) =
     let terrTkn = if isLiteral then T_Err.str_tkn fn else T_Err.expr_tkn expr in
     match (isLiteral, Hashtbl.find_opt toref.flds fn) with
@@ -96,7 +97,7 @@ let check_obj_fields (expr : EExpr.t) (toref : tobj_t) (toe : tobj_t)
     | (_, Some (tref, _)) -> (
       match expr with
       | EExpr.NewObj oe ->
-        let fe = snd (List.find (fun (fn', _) -> fn' = fn) oe) in
+        let fe = snd (List.find (fun (fn', _) -> fn'.it = fn) oe) in
         type_check_f fe tref ft
       | _ -> (
         try type_check_f expr tref ft (* FIXME: prevent field subtyping *)

@@ -1,6 +1,6 @@
 type t =
   | Val of Val.t
-  | Var of string
+  | Var of Id.t'
   | UnOpt of Operator.unopt * t
   | BinOpt of Operator.binopt * t * t
   | TriOpt of Operator.triopt * t * t * t

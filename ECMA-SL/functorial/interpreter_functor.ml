@@ -88,9 +88,9 @@ module Make (P : Interpreter_functor_intf.P) :
     Memory.pp_val heap v
 
   let exec_func state func args ret_var =
-    Log.debug "calling func: %s@." (Func.name func);
+    Log.debug "calling func: %s@." (Func.name' func);
     let return_state = Some (state, ret_var) in
-    let params = Func.params func in
+    let params = Func.params' func in
     let store = Store.create (List.combine params args) in
     let state' =
       State.
@@ -98,7 +98,7 @@ module Make (P : Interpreter_functor_intf.P) :
         ; locals = store
         ; stmts = [ Func.body func ]
         ; env = state.env
-        ; func = Func.name func
+        ; func = Func.name' func
         }
     in
     Choice.return @@ State.Continue state'
@@ -154,7 +154,7 @@ module Make (P : Interpreter_functor_intf.P) :
       st locals
     | Stmt.Assign (x, e) ->
       let* v = eval_expr locals e in
-      st @@ Store.add_exn locals x v
+      st @@ Store.add_exn locals x.it v
     | Stmt.Assert e ->
       let* e' = eval_expr locals e in
       let/ b = Choice.check_add_true @@ Value.Bool.not_ e' in
@@ -188,16 +188,16 @@ module Make (P : Interpreter_functor_intf.P) :
       let* func = Env.get_func env func_name in
       let* args = list_map ~f:(eval_expr locals) es in
       let args = args0 @ args in
-      exec_func state func args x
+      exec_func state func args x.it
     | Stmt.AssignECall (x, f, es) ->
-      let* func = Env.get_extern_func env f in
+      let* func = Env.get_extern_func env f.it in
       let* args = list_map ~f:(eval_expr locals) es in
-      exec_extern_func state func args x
+      exec_extern_func state func args x.it
     | Stmt.AssignNewObj x ->
       let/ heap = Env.get_memory env in
       let obj = Object.create () in
       let loc = Memory.insert heap obj in
-      st @@ Store.add_exn locals x loc
+      st @@ Store.add_exn locals x.it loc
     | Stmt.AssignInObjCheck (x, e_field, e_loc) ->
       let* field = eval_expr locals e_field in
       let* loc = eval_expr locals e_loc in
@@ -205,7 +205,7 @@ module Make (P : Interpreter_functor_intf.P) :
       (* `get_memory` comes after `Memory.loc` due to branching *)
       let/ heap = Env.get_memory env in
       let v = Memory.has_field heap loc field in
-      st @@ Store.add_exn locals x v
+      st @@ Store.add_exn locals x.it v
     | Stmt.AssignObjToList (x, e) -> (
       let* loc = eval_expr locals e in
       let/ loc = Memory.loc loc in
@@ -214,7 +214,7 @@ module Make (P : Interpreter_functor_intf.P) :
       | None -> Choice.error (Format.sprintf "'%s' not found in heap" loc)
       | Some o ->
         let v = Value.mk_list (List.map Value.mk_tuple (Object.to_list o)) in
-        st @@ Store.add_exn locals x v )
+        st @@ Store.add_exn locals x.it v )
     | Stmt.AssignObjFields (x, e) -> (
       let* loc = eval_expr locals e in
       let/ loc = Memory.loc loc in
@@ -223,7 +223,7 @@ module Make (P : Interpreter_functor_intf.P) :
       | None -> Choice.error (Format.sprintf "'%s' not found in heap" loc)
       | Some o ->
         let v = Value.mk_list @@ Object.get_fields o in
-        st @@ Store.add_exn locals x v )
+        st @@ Store.add_exn locals x.it v )
     | Stmt.FieldAssign (e_loc, e_field, e_v) ->
       let* loc = eval_expr locals e_loc in
       let* field = eval_expr locals e_field in
@@ -246,7 +246,7 @@ module Make (P : Interpreter_functor_intf.P) :
       let/ heap = Env.get_memory env in
       let/ value = Memory.get_field heap loc field in
       let value' = Option.value value ~default:(Value.mk_symbol "undefined") in
-      st @@ Store.add_exn locals x value'
+      st @@ Store.add_exn locals x.it value'
 
   let rec loop (state : State.exec_state) : State.return_result Choice.t =
     let open State in
@@ -265,5 +265,5 @@ module Make (P : Interpreter_functor_intf.P) :
   let main (env : Env.t) (f : string) : State.return_result Choice.t =
     let* f = Env.get_func env f in
     let state = State.empty_state ~env in
-    loop State.{ state with stmts = [ Func.body f ]; func = Func.name f }
+    loop State.{ state with stmts = [ Func.body f ]; func = Func.name' f }
 end

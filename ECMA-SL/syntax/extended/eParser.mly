@@ -32,7 +32,7 @@
 %token <string> SYMBOL
 %token <string> LOC
 %token <string> ID
-%token <string> GVAR
+%token <string> GID
 
 (* ========== Language tokens ========== *)
 
@@ -157,16 +157,20 @@
 %% 
 
 entry_expr_target:
-  | e = expr_target; EOF;   { e };
+  | e = expr_target; EOF;   { e }
+  ;
 
 entry_stmt_target:
-  | s = stmt_target; EOF;   { s };
+  | s = stmt_target; EOF;   { s }
+  ;
 
 entry_func_target:
-  | f = func_target; EOF;   { f };
+  | f = func_target; EOF;   { f }
+  ;
 
 entry_prog_target:
-  | p = prog_target; EOF;   { p };
+  | p = prog_target; EOF;   { p }
+  ;
 
 (* ==================== Program  ==================== *)
 
@@ -184,20 +188,22 @@ prog_elem_target:
   | t = tdef_target;    { EProg.Parser.parse_tdef t }
   | f = func_target;    { EProg.Parser.parse_func f }
   | m = macro_target;   { EProg.Parser.parse_macro m }
+  ;
 
 (* ==================== Type definitions ==================== *)
 
 tdef_target:
   | TYPEDEF; v = ID; DEFEQ; t = type_target;
     { (v, t) }
+  ;
 
 (* ==================== Functions ==================== *)
 
 func_target:
-  | FUNCTION; fn = ID; LPAREN; tparams = params_target; RPAREN;
+  | FUNCTION; fn = id_target; LPAREN; tparams = params_target; RPAREN;
     treturn = option(typing_target); s = block_target;
     { EFunc.create fn tparams treturn s None @> at $sloc }
-  | FUNCTION; fn = ID; LPAREN; tparams = params_target; RPAREN; meta = delimited(LBRACK, vals_metadata_target, RBRACK); 
+  | FUNCTION; fn = id_target; LPAREN; tparams = params_target; RPAREN; meta = delimited(LBRACK, vals_metadata_target, RBRACK); 
     vars_meta = vars_opt_metadata_target; treturn = option(typing_target); s = block_target;
     { EFunc.create fn tparams treturn s (Some (EFunc_metadata.build_func_metadata meta vars_meta)) @> at $sloc }
 
@@ -207,13 +213,14 @@ params_target:
   ;
 
 param_target:
-  | param = ID; t = option(typing_target)
+  | param = id_target; t = option(typing_target)
     { (param, t) }
+  ;
 
 (* ==================== Macros ==================== *)
 
 macro_target:
-  | MACRO; m = ID; LPAREN; vars = separated_list(COMMA, ID); RPAREN; s = block_target;
+  | MACRO; m = id_target; LPAREN; vars = separated_list(COMMA, id_target); RPAREN; s = block_target;
    { EMacro.create m vars s @> at $sloc }
   ;
 
@@ -233,9 +240,9 @@ stmt_target:
     { EStmt.Return e @> at $sloc }
   | e = expr_target;
     { EStmt.ExprStmt e @> at $sloc }
-  | x = ID; t = option(typing_target); DEFEQ; e = expr_target;
+  | x = id_target; t = option(typing_target); DEFEQ; e = expr_target;
     { EStmt.Assign (x, t, e) @> at $sloc }
-  | x = GVAR; DEFEQ; e = expr_target;
+  | x = gid_target; DEFEQ; e = expr_target;
     { EStmt.GlobAssign (x, e) @> at $sloc }
   | oe = expr_target; fe = lookup_target; DEFEQ; e = expr_target;
     { EStmt.FieldAssign (oe, fe, e) @> at $sloc }
@@ -245,9 +252,9 @@ stmt_target:
     { EStmt.If (ifcs :: elifcss, elsecs) @> at $sloc }
   | WHILE; LPAREN; e = expr_target; RPAREN; s = block_target;
     { EStmt.While (e, s) @> at $sloc }
-  | FOREACH; LPAREN; x = ID; COLON; e = expr_target; RPAREN; s = block_target;
+  | FOREACH; LPAREN; x = id_target; COLON; e = expr_target; RPAREN; s = block_target;
     { EStmt.ForEach (x, e, s, [], None) @> at $sloc }
-  | FOREACH; LPAREN; x = ID; COLON; e = expr_target; RPAREN; 
+  | FOREACH; LPAREN; x = id_target; COLON; e = expr_target; RPAREN; 
     meta = delimited(LBRACK, stmt_metadata_target, RBRACK);
     varmeta = var_opt_metadata_target; s = block_target;
     { EStmt.ForEach (x, e, s, meta, varmeta) @> at $sloc }
@@ -258,10 +265,10 @@ stmt_target:
     { EStmt.Switch (e, cases, default_case, meta) @> at $sloc }
   | MATCH; e = expr_target; WITH; PIPE; match_cases = separated_list(PIPE, match_case_target);
     { EStmt.MatchWith (e, match_cases) @> at $sloc }
-  | x = ID; option(typing_target); DEFEQ; LAMBDA; LPAREN; params = separated_list(COMMA, ID); RPAREN;
-    LBRACK; ctxvars = separated_list(COMMA, ID); RBRACK; s = block_target;
+  | x = id_target; option(typing_target); DEFEQ; LAMBDA; LPAREN; params = separated_list(COMMA, id_target); RPAREN;
+    LBRACK; ctxvars = separated_list(COMMA, id_target); RBRACK; s = block_target;
     { EStmt.Lambda (x, fresh_lambda_id_gen (), params, ctxvars, s) @> at $sloc }
-  | ATSIGN; m = ID; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
+  | ATSIGN; m = id_target; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
     { EStmt.MacroApply (m, es) @> at $sloc }
   | THROW; e = expr_target;
     { EStmt.Throw e @> at $sloc }
@@ -289,23 +296,23 @@ else_target:
   ;
 
 until_target:
-  | UNTIL; e = expr_target;
-    { e }
+  | UNTIL; e = expr_target;                             { e }
   ;
 
 switch_case_target:
-  | CASE; e = expr_target; COLON; s = block_target;
-    { (e, s) }
+  | CASE; e = expr_target; COLON; s = block_target;     { (e, s) }
+  ;
 
 switch_case_default_target:
-  | SDEFAULT; COLON; s = stmt_target;
-    { s }
+  | SDEFAULT; COLON; s = stmt_target;                   { s }
+  ;
 
 (* ==================== Patterns ==================== *)
 
 match_case_target:
   | p = pattern_target; RIGHT_ARROW; s = block_target;
     { (p, s) }
+  ;
 
 pattern_target:
   | LBRACE; pbs = separated_list(COMMA, pattern_binding_target); RBRACE;
@@ -315,16 +322,19 @@ pattern_target:
     { EPat.ObjPat (pbs, (Some (EPat_metadata.build_pat_metadata meta vars_meta))) @> at $sloc }
   | DEFAULT;
     { EPat.DefaultPat @> at $sloc }
+  ;
 
 pattern_binding_target:
-  | pn = ID; COLON; pv = pattern_value_target;        { (pn, pv) }
-  | pn = STRING; COLON; pv = pattern_value_target;    { (pn, pv) }
+  | pn = id_target; COLON; pv = pattern_value_target;       { (pn, pv) }
+  | pn = str_id_target; COLON; pv = pattern_value_target;   { (pn, pv) }
+  ;
 
 pattern_value_target:
-  | v = ID;               { EPat.PatVar v }
+  | x = id_target;        { EPat.PatVar x.it }
   | v = val_target;       { EPat.PatVal v }
   | LBRACK; RBRACK;       { EPat.PatVal (Val.List []) }
   | NONE;                 { EPat.PatNone }
+  ;
 
 (* ==================== Expressions ==================== *)
 
@@ -333,10 +343,10 @@ expr_target:
     { e }
   | v = val_target;
     { EExpr.Val v }
-  | v = ID;
-    { EExpr.Var v }
-  | v = GVAR;
-    { EExpr.GVar v }
+  | x = id_target;
+    { EExpr.Var x.it }
+  | x = gid_target;
+    { EExpr.GVar x.it }
   | const = const_target;
     { EExpr.Const const }
   | unopt = unopt_infix_target; e = expr_target;   %prec unopt_prec
@@ -351,15 +361,15 @@ expr_target:
     { EExpr.TriOpt (triopt, e1, e2, e3) }
   | nopt_expr = nopt_target;
     { nopt_expr }
-  | fn = ID; LPAREN; es = separated_list(COMMA, expr_target); RPAREN; ferr = option(catch_target);
-    { EExpr.Call (EExpr.Val (Val.Str fn), es, ferr) }
-  | LBRACE; fe = expr_target; RBRACE; LPAREN; es = separated_list(COMMA, expr_target); RPAREN; handler = option(catch_target);
-    { EExpr.Call (fe, es, handler) }
-  | EXTERN; fn = ID; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
+  | fn = id_target; LPAREN; es = separated_list(COMMA, expr_target); RPAREN; ferr = option(catch_target);
+    { EExpr.Call (EExpr.Val (Val.Str fn.it), es, ferr) }
+  | LBRACE; fe = expr_target; RBRACE; LPAREN; es = separated_list(COMMA, expr_target); RPAREN; ferr = option(catch_target);
+    { EExpr.Call (fe, es, ferr) }
+  | EXTERN; fn = id_target; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
     { EExpr.ECall (fn, es) }
-  | LBRACE; flds = separated_list(COMMA, fld_init_target); RBRACE;
+  | LBRACE; flds = separated_list(COMMA, field_init_target); RBRACE;
     { EExpr.NewObj (EExpr.Parser.parse_object_fields flds) }
-  | oe = expr_target; fe = lookup_target
+  | oe = expr_target; fe = lookup_target;    
     { EExpr.Lookup (oe, fe) }
   | LBRACE; fe = expr_target; RBRACE; ATSIGN; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
     { EExpr.Curry (fe, es) }
@@ -375,24 +385,32 @@ nopt_target:
   ;
 
 catch_target:
-  | CATCH; ferr = ID
-    { ferr }
+  | CATCH; ferr = id_target;                      { ferr }
   ;
 
-fld_init_target:
-  | fn = ID; COLON; fe = expr_target;
-    { (fn, fe) }
-  | fn = STRING; COLON; fe = expr_target;
-    { (fn, fe) }
+field_init_target:
+  | fn = id_target; COLON; fe = expr_target;      { (fn, fe) }
+  | fn = str_id_target; COLON; fe = expr_target;  { (fn, fe) }
   ;
 
 lookup_target:
-  | PERIOD; fn = ID;
-    { EExpr.Val (Val.Str fn) }
-  | LBRACK; fe = expr_target; RBRACK;
-    { fe }
+  | PERIOD; fn = id_target;                       { EExpr.Val (Val.Str fn.it) }
+  | LBRACK; fe = expr_target; RBRACK;             { fe }
+  ;
 
 (* ==================== Values ==================== *)
+
+id_target:
+  | x = ID;             { (x @> at $sloc) }
+  ;
+
+gid_target:
+  | x = GID;            { (x @> at $sloc) }
+  ;
+
+str_id_target:
+  | s = STRING;         { (s @> at $sloc) }
+  ;
 
 val_target:
   | NULL;               { Val.Null }

@@ -188,7 +188,7 @@ let rec type_stmt (tctx : T_Ctx.t) (stmt : EStmt.t) : T_Err.t list =
     set_terr_stmt tctx _return_f
   (* | Wrapper (_, _) -> [] *)
   | Assign (x, t, e) ->
-    let _assign_f () = type_assign tctx x t e in
+    let _assign_f () = type_assign tctx x.it t e in
     set_terr_stmt tctx _assign_f
   (* | GlobAssign (_, _) -> [] *)
   | Block stmts -> type_block tctx stmts (type_stmt tctx)

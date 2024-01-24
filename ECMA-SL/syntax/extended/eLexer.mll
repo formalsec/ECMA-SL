@@ -203,7 +203,7 @@ let exp           = ['e' 'E'] ['-' '+']? digit+
 let float         = digit* frac? exp?
 let bool          = "true" | "false"
 let id            = (letter | '_'* letter) (letter | digit | '_' | '\'')*
-let gvar          = '|' (id) '|'
+let gid           = '|' (id) '|'
 let symbol        = '\'' (id | int)
 let white         = (' ' | '\t')+
 let newline       = '\r' | '\n' | "\r\n"
@@ -266,7 +266,7 @@ rule read =
   | bool              { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
   | hex_literal       { INT(Stdlib.int_of_string (Lexing.lexeme lexbuf)) }
   | id as x           { try Hashtbl.find keywords x with Not_found -> ID x }
-  | gvar              { GVAR (String_utils.trim_ends (Lexing.lexeme lexbuf))}
+  | gid               { GID (String_utils.trim_ends (Lexing.lexeme lexbuf))}
   | symbol            { SYMBOL (String_utils.chop_first_char (Lexing.lexeme lexbuf)) }
   | loc               { LOC (Lexing.lexeme lexbuf) }
   | "/*"              { read_comment lexbuf }
