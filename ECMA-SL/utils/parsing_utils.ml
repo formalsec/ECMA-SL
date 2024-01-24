@@ -5,6 +5,11 @@ type 'a estart = position -> 'a EParser.MenhirInterpreter.checkpoint
 type token = [%import: Parser.token] [@@deriving show]
 type etoken = [%import: EParser.token] [@@deriving show]
 
+let load_file (file : string) : string =
+  let data = Io.read_file file in
+  Source.Code.load file data;
+  data
+
 let print_position (outx : Fmt.t) (lexbuf : Lexing.lexbuf) : unit =
   let pos = lexbuf.lex_curr_p in
   Printf.printf "Line number: %d. File: %s\n" pos.pos_lnum pos.pos_fname;
@@ -102,7 +107,7 @@ let rec resolve_imports (resolved : SSet.t) (paths : string list)
     if SSet.mem file resolved then
       resolve_imports resolved paths [ files ] tdefs funcs macros
     else if not (List.mem file paths) then
-      let eprog = Io.read_file file |> parse_eprog ~file in
+      let eprog = load_file file |> parse_eprog ~file in
       resolve_imports resolved (file :: paths)
         (EProg.imports eprog :: unresolved)
         (EProg.tdefs_lst eprog @ tdefs)

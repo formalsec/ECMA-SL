@@ -12,7 +12,7 @@ let parseJS (prog : Prog.t) (_heap : 'a Heap.t) (str : string) : Val.t =
       input_file output_file func_id
   in
   let _ = Sys.command command in
-  let parsed_str = Io.read_file output_file in
+  let parsed_str = Parsing_utils.load_file output_file in
   let f = Parsing_utils.parse_func parsed_str in
   Prog.add_func prog func_id f;
   List.iter Sys.remove [ input_file; output_file ];

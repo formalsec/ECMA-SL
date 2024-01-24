@@ -168,13 +168,14 @@ let dispatch_file_ext on_plus on_core on_js file =
 
 let prog_of_plus file =
   let open Parsing_utils in
-  Io.read_file file
+  load_file file
   |> parse_eprog ~file
   |> resolve_eprog_imports
   |> apply_eprog_macros
   |> Compiler.compile_prog
 
-let prog_of_core file = Io.read_file file |> Parsing_utils.parse_prog ~file
+let prog_of_core file =
+  Parsing_utils.load_file file |> Parsing_utils.parse_prog ~file
 
 let js2ecma_sl file output =
   Cmd.(v "js2ecma-sl" % "-c" % "-i" % p file % "-o" % p output)
