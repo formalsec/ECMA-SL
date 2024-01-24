@@ -24,6 +24,7 @@
   string_utils
   time_utils
   ;   syntax (share)
+  id
   val
   loc
   type

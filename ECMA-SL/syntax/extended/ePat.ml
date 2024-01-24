@@ -1,7 +1,7 @@
 open Source
 
 type pv =
-  | PatVar of string
+  | PatVar of Id.t'
   | PatVal of Val.t
   | PatNone
 
@@ -16,12 +16,12 @@ let pv_str (pv : pv) : string = Fmt.asprintf "%a" pv_pp pv
 type t = t' Source.phrase
 
 and t' =
-  | ObjPat of (string * pv) list * EPat_metadata.t option
+  | ObjPat of (Id.t * pv) list * EPat_metadata.t option
   | DefaultPat
 
 let pp (fmt : Fmt.t) (pat : t) : unit =
   let open Fmt in
-  let pp_pb fmt (pbn, pbv) = fprintf fmt "%s: %a" pbn pv_pp pbv in
+  let pp_pb fmt (pbn, pbv) = fprintf fmt "%a: %a" Id.pp pbn pv_pp pbv in
   match pat.it with
   | ObjPat (pbs, _) -> fprintf fmt "{ %a }" (pp_lst ", " pp_pb) pbs
   | DefaultPat -> pp_str fmt "default"

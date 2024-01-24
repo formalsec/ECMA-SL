@@ -3,25 +3,28 @@ open Source
 type t = t' Source.phrase
 
 and t' =
-  { name : string
-  ; params : string list
+  { name : Id.t
+  ; params : Id.t list
   ; body : Stmt.t
   }
 
 let default () : t =
-  { name = ""; params = []; body = Stmt.default () } @> Source.no_region
+  { name = Id.default (); params = []; body = Stmt.default () }
+  @> Source.no_region
 
-let create (name : string) (params : string list) (body : Stmt.t) : t' =
+let create (name : Id.t) (params : Id.t list) (body : Stmt.t) : t' =
   { name; params; body }
 
-let name (f : t) : string = f.it.name
-let params (f : t) : string list = f.it.params
+let name (f : t) : Id.t = f.it.name
+let name' (f : t) : string = f.it.name.it
+let params (f : t) : Id.t list = f.it.params
+let params' (f : t) : string list = List.map (fun param -> param.it) f.it.params
 let body (f : t) : Stmt.t = f.it.body
 
 let pp_signature (fmt : Fmt.t) (f : t) : unit =
   let open Fmt in
   let { name; params; _ } = f.it in
-  fprintf fmt "function %s(%a)" name (pp_lst ", " pp_str) params
+  fprintf fmt "function %a(%a)" Id.pp name (pp_lst ", " Id.pp) params
 
 let pp (fmt : Fmt.t) (f : t) : unit =
   Fmt.fprintf fmt "%a %a" pp_signature f Stmt.pp f.it.body

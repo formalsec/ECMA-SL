@@ -14,7 +14,7 @@ type 'a phrase =
   ; at : region
   }
 
-let ( @> ) (x : 'a) (region : region) = { it = x; at = region }
+let ( @> ) (x : 'a) (region : region) : 'a phrase = { it = x; at = region }
 let no_pos = { line = -1; column = -1 }
 let no_region = { file = ""; left = no_pos; right = no_pos }
 
