@@ -19,7 +19,7 @@ let run_type_checker (prog : EProg.t) : EProg.t =
       raise (Cmd.Command_error Cmd.Error) )
 
 let run_compiler (input_file : string) : Prog.t =
-  Io.load_file input_file
+  Io.read_file input_file
   |> Parsing_utils.parse_e_prog input_file
   |> Parsing_utils.resolve_prog_imports
   |> Parsing_utils.apply_prog_macros
@@ -31,7 +31,7 @@ let run (opts : options) : unit =
   let prog = run_compiler opts.input_file in
   match opts.output_file with
   | None -> print_endline (Prog.str prog)
-  | Some output_file' -> Io.write_file ~file:output_file' ~data:(Prog.str prog)
+  | Some output_file' -> Io.write_file output_file' (Prog.str prog)
 
 let main (copts : Options.common_options) (opts : options) : int =
   Log.on_debug := copts.debug;
