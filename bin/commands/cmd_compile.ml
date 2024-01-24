@@ -19,7 +19,7 @@ let run_type_checker (prog : EProg.t) : EProg.t =
       raise (Cmd.Command_error Cmd.Error) )
 
 let run_compiler (file : string) : Prog.t =
-  Io.read_file file
+  Parsing_utils.load_file file
   |> Parsing_utils.parse_eprog ~file
   |> Parsing_utils.resolve_eprog_imports
   |> Parsing_utils.apply_eprog_macros

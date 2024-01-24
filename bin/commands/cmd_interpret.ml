@@ -33,7 +33,9 @@ let run_interpreter (prog : Prog.t) : unit =
   ignore (Interpreter.eval_prog prog)
 
 let interpret_core (file : string) : unit =
-  Io.read_file file |> Parsing_utils.parse_prog ~file |> run_interpreter
+  Parsing_utils.load_file file
+  |> Parsing_utils.parse_prog ~file
+  |> run_interpreter
 
 let compile_and_interpret (file : string) : unit =
   Cmd_compile.run_compiler file |> run_interpreter

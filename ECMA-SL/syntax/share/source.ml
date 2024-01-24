@@ -27,3 +27,19 @@ let string_of_region (r : region) : string =
   ^ ":"
   ^ string_of_pos r.left
   ^ if r.right = r.left then "" else "-" ^ string_of_pos r.right
+
+(* Source code lines loaded *)
+
+module Code = struct
+  type file = string list
+  type t = (string, file) Hashtbl.t
+
+  let code : t = Hashtbl.create !Config.default_hashtbl_sz
+
+  let load (file : string) (data : string) : unit =
+    Hashtbl.replace code file (String.split_on_char '\n' data)
+
+  let line (file : string) (loc : int) : string =
+    let line' file = List.nth_opt file loc in
+    Option.bind (Hashtbl.find_opt code file) line' |> Option.value ~default:""
+end
