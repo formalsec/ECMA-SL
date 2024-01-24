@@ -8,6 +8,9 @@ and t' =
   ; body : Stmt.t
   }
 
+let default () : t =
+  { name = ""; params = []; body = Stmt.default () } @> Source.no_region
+
 let create (name : string) (params : string list) (body : Stmt.t) : t' =
   { name; params; body }
 
