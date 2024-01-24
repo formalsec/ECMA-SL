@@ -24,6 +24,8 @@ and t' =
   | Fail of Expr.t
   | Assert of Expr.t
 
+let default () : t = Skip @> no_region
+
 let rec pp (fmt : Fmt.t) (s : t) : unit =
   let open Fmt in
   match s.it with
