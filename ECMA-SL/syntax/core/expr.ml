@@ -1,4 +1,8 @@
-type t =
+open Source
+
+type t = t' Source.phrase
+
+and t' =
   | Val of Val.t
   | Var of Id.t'
   | UnOpt of Operator.unopt * t
@@ -9,7 +13,7 @@ type t =
   | Symbolic of Type.t * t
 
 let rec equal (e1 : t) (e2 : t) : bool =
-  match (e1, e2) with
+  match (e1.it, e2.it) with
   | (Val v', Val v'') -> Val.equal v' v''
   | (Var x', Var x'') -> x' = x''
   | (UnOpt (op', e'), UnOpt (op'', e'')) -> op' = op'' && equal e' e''
@@ -25,19 +29,8 @@ let rec equal (e1 : t) (e2 : t) : bool =
     Type.equal t' t'' && equal e' e''
   | _ -> false
 
-let rec copy (e : t) : t =
-  match e with
-  | Val v -> Val (Val.copy v)
-  | Var x -> Var x
-  | UnOpt (op, e) -> UnOpt (op, copy e)
-  | BinOpt (op, e1, e2) -> BinOpt (op, copy e1, copy e2)
-  | TriOpt (op, e1, e2, e3) -> TriOpt (op, copy e1, copy e2, copy e3)
-  | NOpt (op, es) -> NOpt (op, List.map copy es)
-  | Curry (fe, es) -> Curry (fe, List.map copy es)
-  | Symbolic (t, e) -> Symbolic (t, copy e)
-
 let rec is_symbolic (e : t) : bool =
-  match e with
+  match e.it with
   | Val _ | Var _ -> false
   | UnOpt (_, e') -> is_symbolic e'
   | BinOpt (_, e1, e2) -> List.exists is_symbolic [ e1; e2 ]
@@ -47,7 +40,7 @@ let rec is_symbolic (e : t) : bool =
 
 let rec pp (fmt : Fmt.t) (e : t) : unit =
   let open Fmt in
-  match e with
+  match e.it with
   | Val v -> Val.pp fmt v
   | Var x -> pp_print_string fmt x
   | UnOpt (op, e') -> Operator.pp_of_unopt pp fmt (op, e')
@@ -61,7 +54,7 @@ let str (e : t) : string = Fmt.asprintf "%a" pp e
 
 let rec vars_in_expr (e : t) : string list =
   let vars_in_lst lst = List.map vars_in_expr lst |> List.concat in
-  match e with
+  match e.it with
   | Var x -> [ x ]
   | UnOpt (_, e') -> vars_in_lst [ e' ]
   | BinOpt (_, e1, e2) -> vars_in_lst [ e1; e2 ]

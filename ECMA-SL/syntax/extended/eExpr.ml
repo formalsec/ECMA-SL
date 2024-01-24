@@ -1,6 +1,8 @@
 open Source
 
-type t =
+type t = t' Source.phrase
+
+and t' =
   | Val of Val.t
   | Var of Id.t'
   | GVar of Id.t'
@@ -28,7 +30,7 @@ end
 
 let rec pp (fmt : Fmt.t) (e : t) : unit =
   let open Fmt in
-  match e with
+  match e.it with
   | Val v -> Val.pp fmt v
   | Var x -> pp_str fmt x
   | GVar x -> fprintf fmt "|%s|" x
@@ -53,9 +55,10 @@ let str (e : t) : string = Fmt.asprintf "%a" pp e
 
 let rec map (mapper : t -> t) (e : t) : t =
   let map' = map mapper in
-  mapper
+  let mapper' e' = mapper (e' @> e.at) in
+  mapper'
   @@
-  match e with
+  match e.it with
   | (Val _ | Var _ | GVar _ | Const _ | Symbolic _) as e' -> e'
   | UnOpt (op, e') -> UnOpt (op, map' e')
   | BinOpt (op, e1, e2) -> BinOpt (op, map' e1, map' e2)
@@ -71,9 +74,11 @@ module Mapper = struct
   let id (e : t) : t = e
 
   let var (subst : (string, t) Hashtbl.t) (e : t) : t =
-    let subst_f = function
-      | Var x -> Option.value ~default:(Var x) (Hashtbl.find_opt subst x)
-      | e' -> e'
+    let find_subst x = Hashtbl.find_opt subst x in
+    let subst_f e =
+      match e.it with
+      | Var x -> (Option.value ~default:e) (find_subst x)
+      | _ -> e
     in
     map subst_f e
 end

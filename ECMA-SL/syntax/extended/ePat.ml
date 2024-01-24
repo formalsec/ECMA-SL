@@ -1,12 +1,14 @@
 open Source
 
-type pv =
+type pv = pv' Source.phrase
+
+and pv' =
   | PatVar of Id.t'
   | PatVal of Val.t
   | PatNone
 
 let pv_pp (fmt : Fmt.t) (pv : pv) : unit =
-  match pv with
+  match pv.it with
   | PatVar x -> Fmt.pp_str fmt x
   | PatVal v -> Val.pp fmt v
   | PatNone -> Fmt.pp_str fmt "None"
