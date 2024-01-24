@@ -9,6 +9,9 @@ type region =
   ; right : pos
   }
 
+let unfold (region : region) : string * int * int * int =
+  (region.file, region.left.line, region.left.column, region.right.column)
+
 type 'a phrase =
   { it : 'a
   ; at : region
@@ -41,6 +44,6 @@ module Code = struct
     Hashtbl.replace code file (String.split_on_char '\n' data)
 
   let line (file : string) (loc : int) : string =
-    let line' file = List.nth_opt file loc in
+    let line' file = List.nth_opt file (loc - 1) in
     Option.bind (Hashtbl.find_opt code file) line' |> Option.value ~default:""
 end

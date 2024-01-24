@@ -51,7 +51,7 @@
   ;   error
   Eslerr
   Eslerr_type
-  Eslerr_token
+  Eslerr_comp
   Eslerr_fmt
   ;   semantics (domains)
   store
