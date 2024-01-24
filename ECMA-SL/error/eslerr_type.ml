@@ -29,7 +29,6 @@ module Runtime = struct
     | UncaughtExn of string
     | OpEvalErr of string
     | UnknownVar of string
-    | UnknownLoc of string
     | UnknownFunc of string
     | BadNArgs of int * int
     | BadVal of string * Val.t
@@ -41,7 +40,7 @@ end
 
 module ErrFmt = Eslerr_fmt
 
-module InternalFmt : ErrFmt.ErrTypeFmt with type msg = Internal.t = struct
+module InternalFmt : ErrFmt.ERR_TYPE_FMT with type msg = Internal.t = struct
   type msg = Internal.t
 
   let font () : Font.t = Font.Red
@@ -63,7 +62,7 @@ module InternalFmt : ErrFmt.ErrTypeFmt with type msg = Internal.t = struct
       | Some msg'' -> fprintf fmt "'%s' not implemented" msg'' )
 end
 
-module CompileFmt : ErrFmt.ErrTypeFmt with type msg = Compile.t = struct
+module CompileFmt : ErrFmt.ERR_TYPE_FMT with type msg = Compile.t = struct
   type msg = Compile.t
 
   let font () : Font.t = Font.Red
@@ -90,7 +89,7 @@ module CompileFmt : ErrFmt.ErrTypeFmt with type msg = Compile.t = struct
       fprintf fmt "Expected %d arguments, but got %d." nparams nargs
 end
 
-module RuntimeFmt : ErrFmt.ErrTypeFmt with type msg = Runtime.t = struct
+module RuntimeFmt : ErrFmt.ERR_TYPE_FMT with type msg = Runtime.t = struct
   type msg = Runtime.t
 
   let font () : Font.t = Font.Red
@@ -106,7 +105,6 @@ module RuntimeFmt : ErrFmt.ErrTypeFmt with type msg = Runtime.t = struct
     | UncaughtExn msg -> fprintf fmt "Uncaught exception %s." msg
     | OpEvalErr op_lbl -> fprintf fmt "Exception in Operator.%s." op_lbl
     | UnknownVar x -> fprintf fmt "Cannot find variable '%s'." x
-    | UnknownLoc l -> fprintf fmt "Cannot find location '%s'." l
     | UnknownFunc fn -> fprintf fmt "Cannot find function '%s'." fn
     | BadNArgs (nparams, nargs) ->
       fprintf fmt "Expected %d arguments, but got %d." nparams nargs

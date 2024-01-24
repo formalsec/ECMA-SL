@@ -1,3 +1,5 @@
+open Source
+
 type location =
   { func : Func.t
   ; mutable stmt : Stmt.t
@@ -18,7 +20,7 @@ type 'store frame =
 
 type 'store t = 'store frame list
 
-let no_stmt () : Stmt.t = Source.(Stmt.Skip @> no_region)
+let no_stmt () : Stmt.t = Stmt.Skip @> no_region
 let create (func : Func.t) : 'store t = [ Toplevel { func; stmt = no_stmt () } ]
 
 let loc (stack : 'store t) : Func.t * Stmt.t =
@@ -43,11 +45,8 @@ let update (stack : 'store t) (stmt : Stmt.t) : unit =
   | [] -> Eslerr.(internal __FUNCTION__ (Expecting "non-empty call stack"))
   | Toplevel loc :: _ | Intermediate (loc, _) :: _ -> loc.stmt <- stmt
 
-let pp_loc (fmt : Fmt.t) (region : Source.region) : unit =
-  let open Source in
-  let { file; left; right } = region in
-  Fmt.fprintf fmt "file %S, line %d, characters %d-%d" file left.line
-    left.column right.column
+let pp_loc (fmt : Fmt.t) (region : region) : unit =
+  Fmt.fprintf fmt "file %S, line %d" region.file region.left.line
 
 let pp_frame (fmt : Fmt.t) (frame : 'store frame) : unit =
   let frame_loc = function Toplevel loc | Intermediate (loc, _) -> loc in

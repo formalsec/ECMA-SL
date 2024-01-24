@@ -14,26 +14,26 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     | Error of value
     | Intermediate of state * Stmt.t list
 
-  let eval_var (store : store) (x : string) : value =
+  let get_var (store : store) (x : string) (at : region) : value =
     match Store.get_opt store x with
     | Some v -> v
-    | None -> Eslerr.(runtime ~src:(Str x) (UnknownVar x))
+    | None -> Eslerr.(runtime ~src:(ErrSrc.region at) (UnknownVar x))
 
-  let eval_loc (heap : heap) (l : string) : obj =
+  let get_loc (heap : heap) (l : string) : obj =
     match Heap.get_opt heap l with
     | Some obj -> obj
-    | None -> Eslerr.(runtime ~src:(Str l) (UnknownLoc l))
+    | None -> Eslerr.(internal __FUNCTION__ (Expecting "existing location"))
 
-  let eval_func (prog : Prog.t) (fn : string) : Func.t =
+  let get_func (prog : Prog.t) (fn : string) (at : region) : Func.t =
     match Prog.func_opt prog fn with
     | Some f -> f
-    | None -> Eslerr.(runtime ~src:(Str fn) (UnknownFunc fn))
+    | None -> Eslerr.(runtime ~src:(ErrSrc.region at) (UnknownFunc fn))
 
-  let eval_operator (eval_op_fun : unit -> value) (es : Expr.t list) : value =
+  let operate (eval_op_fun : unit -> value) (es : Expr.t list) : value =
     try eval_op_fun ()
     with Eslerr.Runtime_error _ as exn ->
       let e = Eslerr.(src exn |> index_to_el es) in
-      Eslerr.(set_src (Expr e) exn |> raise)
+      Eslerr.(set_src (ErrSrc.at e) exn |> raise)
 
   let initial_state (main : Func.t) : state =
     let stack = Call_stack.create main in
@@ -46,38 +46,38 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     let open Fmt in
     match v with
     | Str s -> printf "%s@." s
-    | Loc l -> printf "%a@." (Object.pp Val.pp) (eval_loc heap l)
+    | Loc l -> printf "%a@." (Object.pp Val.pp) (get_loc heap l)
     | _ -> printf "%a@." Val.pp v
 
   let rec eval_expr' (store : store) (e : Expr.t) : value =
     match e.it with
     | Val v -> v
-    | Var x -> eval_var store x
+    | Var x -> get_var store x e.at
     | UnOpt (op, e') ->
       let v = eval_expr store e' in
       let eval_op_fun () = Eval_operator.eval_unopt op v in
-      eval_operator eval_op_fun [ e' ]
+      operate eval_op_fun [ e' ]
     | BinOpt (op, e1, e2) ->
       let v1 = eval_expr store e1 in
       let v2 = eval_expr store e2 in
       let eval_op_fun () = Eval_operator.eval_binopt op v1 v2 in
-      eval_operator eval_op_fun [ e1; e2 ]
+      operate eval_op_fun [ e1; e2 ]
     | TriOpt (op, e1, e2, e3) ->
       let v1 = eval_expr store e1 in
       let v2 = eval_expr store e2 in
       let v3 = eval_expr store e3 in
       let eval_op_fun () = Eval_operator.eval_triopt op v1 v2 v3 in
-      eval_operator eval_op_fun [ e1; e2; e3 ]
+      operate eval_op_fun [ e1; e2; e3 ]
     | NOpt (op, es) ->
       let vs = List.map (eval_expr store) es in
       let eval_op_fun () = Eval_operator.eval_nopt op vs in
-      eval_operator eval_op_fun es
+      operate eval_op_fun es
     | Curry (fe, es) -> (
       let fv = eval_expr store fe in
       let vs = List.map (eval_expr store) es in
       match fv with
       | Str fn -> Val.Curry (fn, vs)
-      | _ -> Eslerr.(runtime ~src:(Expr fe) (BadExpr ("curry", fv))) )
+      | _ -> Eslerr.(runtime ~src:(ErrSrc.at fe) (BadExpr ("curry", fv))) )
     | Symbolic (t, _) -> (
       Random.self_init ();
       match t with
@@ -93,38 +93,39 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
   let eval_string (store : store) (e : Expr.t) : string =
     match eval_expr store e with
     | Str s -> s
-    | _ as v -> Eslerr.(runtime ~src:(Expr e) (BadVal ("string", v)))
+    | _ as v -> Eslerr.(runtime ~src:(ErrSrc.at e) (BadVal ("string", v)))
 
   let eval_boolean (store : store) (e : Expr.t) : bool =
     match eval_expr store e with
     | Bool b -> b
-    | _ as v -> Eslerr.(runtime ~src:(Expr e) (BadVal ("boolean", v)))
+    | _ as v -> Eslerr.(runtime ~src:(ErrSrc.at e) (BadVal ("boolean", v)))
 
   let eval_location (store : store) (e : Expr.t) : string =
     match eval_expr store e with
     | Loc l -> l
-    | _ as v -> Eslerr.(runtime ~src:(Expr e) (BadVal ("location", v)))
+    | _ as v -> Eslerr.(runtime ~src:(ErrSrc.at e) (BadVal ("location", v)))
 
   let eval_object (store : store) (heap : heap) (expr : Expr.t) : string * obj =
     let l = eval_location store expr in
-    let obj = eval_loc heap l in
+    let obj = get_loc heap l in
     (l, obj)
 
   let eval_func_expr (store : store) (fe : Expr.t) : string * value list =
     match eval_expr store fe with
     | Val.Str fn -> (fn, [])
     | Val.Curry (fn, fvs) -> (fn, fvs)
-    | _ as v -> Eslerr.(runtime ~src:(Expr fe) (BadFuncId v))
+    | _ as v -> Eslerr.(runtime ~src:(ErrSrc.at fe) (BadFuncId v))
 
   let prepare_call (stack : stack) (f : Func.t) (store : store)
-    (cont : Stmt.t list) (x : string) (vs : value list) : stack * store =
+    (cont : Stmt.t list) (x : string) (vs : value list) (at : region) :
+    stack * store =
     let params = Func.params' f in
     let stack' = Call_stack.push stack f store cont x in
     let store' =
       try List.combine params vs |> Store.create
       with _ ->
         let (nparams, nargs) = (List.length params, List.length vs) in
-        Eslerr.(runtime (BadNArgs (nparams, nargs)))
+        Eslerr.(runtime ~src:(ErrSrc.region at) (BadNArgs (nparams, nargs)))
     in
     (stack', store')
 
@@ -165,8 +166,8 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
       match Mon.interceptor fn vs es with
       | Some lbl -> (Intermediate (state, cont), lbl)
       | None ->
-        let f' = eval_func prog fn in
-        let (stack', store') = prepare_call stack f' store cont x.it vs in
+        let f' = get_func prog fn fe.at in
+        let (stack', store') = prepare_call stack f' store cont x.it vs fe.at in
         let cont' = [ Func.body f' ] in
         let (db', stack'', cont'') = Db.custom_inject s db stack' cont' in
         let state' = (store', heap, stack'', db') in
@@ -250,16 +251,15 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     with Eslerr.Runtime_error _ as exn ->
       let (_, _, stack, _) = state in
       let trace_pp fmt () = Call_stack.pp_tabular fmt stack in
-      Eslerr.(set_loc (Stmt s) exn |> set_trace trace_pp |> raise)
+      Eslerr.(set_trace trace_pp exn |> raise)
 
   let rec small_step_iter (prog : Prog.t) (state : state) (mon : Mon.state)
     (ss : Stmt.t list) : return =
     match ss with
     | [] ->
       let (_, _, stack, _) = state in
-      let f = Call_stack.func stack in
-      let fn = Func.name f in
-      Eslerr.(runtime ~loc:(Func f) ~src:(Str fn.it) (MissingReturn fn.it))
+      let fn = Func.name (Call_stack.func stack) in
+      Eslerr.(runtime ~src:(ErrSrc.at fn) (MissingReturn fn.it))
     | s :: cont -> (
       let (return, lbl) = eval_small_step_safe prog state s cont in
       let mon' = Mon.eval_small_step mon lbl |> Mon.next_state in
@@ -269,7 +269,7 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
       | Intermediate (state', cont') -> small_step_iter prog state' mon' cont' )
 
   let eval_prog ?(main : string = "main") (prog : Prog.t) : value =
-    let f = eval_func prog main in
+    let f = get_func prog main no_region in
     let state = initial_state f in
     let mon = Mon.initial_state () in
     let return = small_step_iter prog state mon [ Func.body f ] in
