@@ -136,16 +136,20 @@
 %%
 
 entry_expr_target:
-  | e = expr_target; EOF;   { e };
+  | e = expr_target; EOF;   { e }
+  ;
 
 entry_stmt_target:
-  | s = stmt_target; EOF;   { s };
+  | s = stmt_target; EOF;   { s }
+  ;
 
 entry_func_target:
-  | f = func_target; EOF;   { f };
+  | f = func_target; EOF;   { f }
+  ;
 
 entry_prog_target:
-  | p = prog_target; EOF;   { p };
+  | p = prog_target; EOF;   { p }
+  ;
 
 (* ==================== Program  ==================== *)
 
@@ -157,7 +161,7 @@ prog_target:
 (* ==================== Functions ==================== *)
 
 func_target:
-  | FUNCTION; fn = ID; LPAREN; vars = separated_list(COMMA, ID); RPAREN; s = block_target;
+  | FUNCTION; fn = id_target; LPAREN; vars = separated_list(COMMA, id_target); RPAREN; s = block_target;
     { Func.create fn vars s @> at $sloc }
   ;
 
@@ -177,31 +181,25 @@ stmt_target:
     { Stmt.Return (Expr.Val Val.Void) @> at $sloc }
   | RETURN; e = expr_target;
     { Stmt.Return e @> at $sloc }
-  | x = ID; DEFEQ; e = expr_target;
+  | x = id_target; DEFEQ; e = expr_target;
     { Stmt.Assign (x, e) @> at $sloc }
-  | x = ID; DEFEQ; fn = expr_target; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
+  | x = id_target; DEFEQ; fn = expr_target; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
     { Stmt.AssignCall (x, fn, vs) @> at $sloc }
-  | x = ID; DEFEQ; EXTERN; fn = ID; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
+  | x = id_target; DEFEQ; EXTERN; fn = id_target; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
     { Stmt.AssignECall (x, fn, vs) @> at $sloc }
-  | x = ID; DEFEQ; LBRACE; RBRACE;
+  | x = id_target; DEFEQ; LBRACE; RBRACE;
     { Stmt.AssignNewObj x @> at $sloc }
-  | x = ID; DEFEQ; OBJECT_TO_LIST; e = expr_target;
+  | x = id_target; DEFEQ; OBJECT_TO_LIST; e = expr_target;
     { Stmt.AssignObjToList (x, e) @> at $sloc }
-  | x = ID; DEFEQ; OBJECT_FIELDS; e = expr_target;
+  | x = id_target; DEFEQ; OBJECT_FIELDS; e = expr_target;
     { Stmt.AssignObjFields (x, e) @> at $sloc }
-  | x = ID; DEFEQ; e1 = expr_target; OBJECT_MEM; e2 = expr_target;
+  | x = id_target; DEFEQ; e1 = expr_target; OBJECT_MEM; e2 = expr_target;
     { Stmt.AssignInObjCheck (x, e1, e2) @> at $sloc }
-  | x = ID; DEFEQ; oe = expr_target; PERIOD; fn = ID;
-    { Stmt.FieldLookup (x, oe, Expr.Val (Val.Str fn)) @> at $sloc }
-  | x = ID; DEFEQ; oe = expr_target; LBRACK; fe = expr_target; RBRACK;
+  | x = id_target; DEFEQ; oe = expr_target; fe = lookup_target;
     { Stmt.FieldLookup (x, oe, fe) @> at $sloc }
-  | oe = expr_target; PERIOD; fn = ID; DEFEQ; e = expr_target;
-    { Stmt.FieldAssign (oe, Expr.Val (Val.Str fn), e) @> at $sloc }
-  | oe = expr_target; LBRACK; fe = expr_target; RBRACK; DEFEQ; e = expr_target;
+  | oe = expr_target; fe = lookup_target; DEFEQ; e = expr_target;
     { Stmt.FieldAssign (oe, fe, e) @> at $sloc }
-  | DELETE; oe = expr_target; PERIOD; fn = ID;
-    { Stmt.FieldDelete (oe, Expr.Val (Val.Str fn)) @> at $sloc }
-  | DELETE; oe = expr_target; LBRACK; fe = expr_target; RBRACK;
+  | DELETE; oe = expr_target; fe = lookup_target;
     { Stmt.FieldDelete (oe, fe) @> at $sloc }
   | IF; LPAREN; e = expr_target; RPAREN; s = block_target;
     { Stmt.If (e, s, None) @> at $sloc }
@@ -213,6 +211,11 @@ stmt_target:
     { Stmt.Fail e @> at $sloc }
   | ASSERT; e = expr_target;
     { Stmt.Assert e @> at $sloc }
+  ;
+
+lookup_target:
+  | PERIOD; fn = id_target;             { Expr.Val (Val.Str fn.it) }
+  | LBRACK; fe = expr_target; RBRACK;   { fe }
   ;
 
 (* ==================== Expressions ==================== *)
@@ -250,6 +253,10 @@ nopt_target:
   ;
 
 (* ==================== Values ==================== *)
+
+id_target:
+  | x = ID;             { (x @> at $sloc) }
+  ;
 
 val_target:
   | NULL;               { Val.Null }

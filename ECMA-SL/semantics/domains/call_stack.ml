@@ -52,12 +52,12 @@ let pp_loc (fmt : Fmt.t) (region : Source.region) : unit =
 let pp_frame (fmt : Fmt.t) (frame : 'store frame) : unit =
   let frame_loc = function Toplevel loc | Intermediate (loc, _) -> loc in
   let { func; stmt } = frame_loc frame in
-  Fmt.fprintf fmt "'%s' in %a" func.it.name pp_loc stmt.at
+  Fmt.fprintf fmt "'%s' in %a" (Func.name' func) pp_loc stmt.at
 
 let pp (fmt : Fmt.t) (stack : 'store t) : unit =
   let open Fmt in
   let frame_loc = function Toplevel loc | Intermediate (loc, _) -> loc in
-  let func_name frame = (frame_loc frame).func.it.name in
+  let func_name frame = Func.name' (frame_loc frame).func in
   let pp_binding fmt frame = pp_print_string fmt (func_name frame) in
   if List.length stack = 0 then pp_str fmt "{}"
   else fprintf fmt "{ %a }" (pp_lst " <- " pp_binding) stack

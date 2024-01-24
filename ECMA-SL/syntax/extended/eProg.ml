@@ -21,13 +21,13 @@ module Parser = struct
     | Some _ -> Eslerr.(compile (DuplicatedTdef tn))
 
   let parse_func (f : EFunc.t) (p : t) : unit =
-    let fn = EFunc.name f in
+    let fn = EFunc.name' f in
     match Hashtbl.find_opt p.funcs fn with
     | None -> Hashtbl.replace p.funcs fn f
     | Some _ -> Eslerr.(compile (DuplicatedFunc fn))
 
   let parse_macro (m : EMacro.t) (p : t) : unit =
-    let mn = EMacro.name m in
+    let mn = EMacro.name' m in
     match Hashtbl.find_opt p.macros mn with
     | None -> Hashtbl.replace p.macros mn m
     | Some _ -> Eslerr.(compile (DuplicatedMacro mn))
@@ -81,5 +81,5 @@ let apply_macros (p : t) : t =
   create p.file p.imports (tdefs_lst p) funcs []
 
 (* FIXME: Requires cleaning below *)
-let lambdas (p : t) : (string * string list * string list * EStmt.t) list =
+let lambdas (p : t) : (string * Id.t list * Id.t list * EStmt.t) list =
   Hashtbl.fold (fun _ f ac -> EFunc.lambdas f @ ac) p.funcs []

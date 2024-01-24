@@ -67,20 +67,23 @@ let from_stmt (s : Stmt.t) : t list =
   | Block _ -> []
   | Print e -> [ Lit "print "; Expr e ]
   | Return e -> [ Lit "return "; Expr e ]
-  | Assign (x, e) -> [ Str x; Lit " := "; Expr e ]
+  | Assign (x, e) -> [ Str x.it; Lit " := "; Expr e ]
   | AssignCall (x, fe, es) ->
-    Str x :: Lit " := " :: from_call (Expr fe) (from_exprs es)
+    Str x.it :: Lit " := " :: from_call (Expr fe) (from_exprs es)
   | AssignECall (x, fn, es) ->
-    Str x :: Lit " := " :: Lit "extern " :: from_call (Str fn) (from_exprs es)
-  | AssignNewObj x -> [ Str x; Lit " := "; Lit "{ }" ]
+    Str x.it
+    :: Lit " := "
+    :: Lit "extern "
+    :: from_call (Str fn.it) (from_exprs es)
+  | AssignNewObj x -> [ Str x.it; Lit " := "; Lit "{ }" ]
   | AssignObjToList (x, e) ->
-    Str x :: Lit " := " :: from_unopt Operator.ObjectToList (Expr e)
+    Str x.it :: Lit " := " :: from_unopt Operator.ObjectToList (Expr e)
   | AssignObjFields (x, e) ->
-    Str x :: Lit " := " :: from_unopt Operator.ObjectFields (Expr e)
+    Str x.it :: Lit " := " :: from_unopt Operator.ObjectFields (Expr e)
   | AssignInObjCheck (x, e1, e2) ->
-    Str x :: Lit " := " :: from_binopt Operator.ObjectMem (Expr e1) (Expr e2)
+    Str x.it :: Lit " := " :: from_binopt Operator.ObjectMem (Expr e1) (Expr e2)
   | FieldLookup (x, oe, fe) ->
-    [ Str x; Lit " := "; Expr oe; Lit "["; Expr fe; Lit "]" ]
+    [ Str x.it; Lit " := "; Expr oe; Lit "["; Expr fe; Lit "]" ]
   | FieldAssign (oe, fe, e) ->
     [ Expr oe; Lit "["; Expr fe; Lit "]"; Lit " := "; Expr e ]
   | FieldDelete (oe, fe) ->
@@ -91,8 +94,8 @@ let from_stmt (s : Stmt.t) : t list =
   | Assert e -> [ Lit "assert "; Lit "("; Expr e; Lit ")" ]
 
 let from_func (f : Func.t) : t list =
-  let fn_tkn = Str f.it.name in
-  let param_tkns = List.map (fun p -> Str p) f.it.params in
+  let fn_tkn = Str (Func.name' f) in
+  let param_tkns = List.map (fun p -> Str p) (Func.params' f) in
   let end_tkns = [ Lit " { "; threedots () ] in
   Lit "function " :: (from_call fn_tkn param_tkns @ end_tkns)
 

@@ -88,11 +88,13 @@ let type_call (tctx : T_Ctx.t) (expr : EExpr.t) (fexpr : EExpr.t)
   | EExpr.Val (Val.Str fname) -> type_named_call tctx expr fname args
   | _ -> (List.map (fun _ -> EType.AnyType) args, EType.AnyType)
 
-let type_newobj (_tctx : T_Ctx.t) (tfes : (string * EType.t) list) : EType.t =
+let type_newobj (_tctx : T_Ctx.t) (tfes : (Id.t * EType.t) list) : EType.t =
+  let open Source in
   let _type_obj_field_f flds (fn, ft) =
-    match Hashtbl.find_opt flds fn with
-    | None -> Hashtbl.add flds fn (ft, EType.Required)
-    | Some _ -> T_Err.raise (T_Err.DuplicatedField fn) ~tkn:(T_Err.str_tkn fn)
+    match Hashtbl.find_opt flds fn.it with
+    | None -> Hashtbl.add flds fn.it (ft, EType.Required)
+    | Some _ ->
+      T_Err.raise (T_Err.DuplicatedField fn.it) ~tkn:(T_Err.str_tkn fn.it)
   in
   let flds = Hashtbl.create !Config.default_hashtbl_sz in
   List.iter (_type_obj_field_f flds) tfes |> fun () ->

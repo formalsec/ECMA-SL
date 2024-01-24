@@ -1,24 +1,26 @@
+open Source
+
 type t =
   | Val of Val.t
-  | Var of string
-  | GVar of string
+  | Var of Id.t'
+  | GVar of Id.t'
   | Const of Operator.const
   | UnOpt of Operator.unopt * t
   | BinOpt of Operator.binopt * t * t
   | TriOpt of Operator.triopt * t * t * t
   | NOpt of Operator.nopt * t list
-  | Call of t * t list * string option
-  | ECall of string * t list
-  | NewObj of (string * t) List.t
+  | Call of t * t list * Id.t option
+  | ECall of Id.t * t list
+  | NewObj of (Id.t * t) List.t
   | Lookup of t * t
   | Curry of t * t list
   | Symbolic of Type.t * t
 
 module Parser = struct
-  let parse_object_fields (flds : (string * t) list) : (string * t) list =
+  let parse_object_fields (flds : (Id.t * 'a) list) : (Id.t * 'a) list =
     let check_duplicates checked (fn, _) =
-      if not (Hashtbl.mem checked fn) then Hashtbl.replace checked fn ()
-      else Eslerr.(compile (DuplicatedField fn))
+      if not (Hashtbl.mem checked fn.it) then Hashtbl.replace checked fn.it ()
+      else Eslerr.(compile (DuplicatedField fn.it))
     in
     List.iter (check_duplicates (Hashtbl.create (List.length flds))) flds;
     flds
@@ -36,11 +38,11 @@ let rec pp (fmt : Fmt.t) (e : t) : unit =
   | TriOpt (op, e1, e2, e3) -> Operator.pp_of_triopt pp fmt (op, e1, e2, e3)
   | NOpt (op, es) -> Operator.pp_of_nopt pp fmt (op, es)
   | Call (fe, es, ferr) ->
-    let pp_catch fmt ferr = fprintf fmt " catch %s" ferr in
+    let pp_catch fmt ferr = fprintf fmt " catch %a" Id.pp ferr in
     fprintf fmt "%a(%a)%a" pp fe (pp_lst ", " pp) es (pp_opt pp_catch) ferr
-  | ECall (fn, es) -> fprintf fmt "extern %s(%a)" fn (pp_lst ", " pp) es
+  | ECall (fn, es) -> fprintf fmt "extern %a(%a)" Id.pp fn (pp_lst ", " pp) es
   | NewObj flds ->
-    let pp_fld fmt (fn, fe) = fprintf fmt "%s: %a" fn pp fe in
+    let pp_fld fmt (fn, fe) = fprintf fmt "%a: %a" Id.pp fn pp fe in
     if List.length flds = 0 then pp_str fmt "{}"
     else fprintf fmt "{ %a }" (pp_lst ", " pp_fld) flds
   | Lookup (oe, fe) -> fprintf fmt "%a[%a]" pp oe pp fe
@@ -54,7 +56,7 @@ let rec map (mapper : t -> t) (e : t) : t =
   mapper
   @@
   match e with
-  | Val _ | Var _ | GVar _ | Const _ | Symbolic _ -> e
+  | (Val _ | Var _ | GVar _ | Const _ | Symbolic _) as e' -> e'
   | UnOpt (op, e') -> UnOpt (op, map' e')
   | BinOpt (op, e1, e2) -> BinOpt (op, map' e1, map' e2)
   | TriOpt (op, e1, e2, e3) -> TriOpt (op, map' e1, map' e2, map' e3)

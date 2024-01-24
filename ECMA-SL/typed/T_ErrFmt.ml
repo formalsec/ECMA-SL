@@ -103,7 +103,7 @@ let expr_tkns (expr : EExpr.t) : tkn_t list =
   | Call (Val (Val.Str fn), args, _) -> call_tkns (Str fn) args
   (* | ECall (_, _) -> [] *)
   | NewObj fes ->
-    let _fe_tkn_f (fn, fe) = [ Str fn; Lit ": "; Expr fe ] in
+    let _fe_tkn_f (fn, fe) = [ Str fn.it; Lit ": "; Expr fe ] in
     let feTkns = concat_tkns (List.map _fe_tkn_f fes) ", " in
     List.concat [ [ Lit "{ " ]; feTkns; [ Lit " }" ] ]
   | Lookup (oe, fe) -> [ Expr oe; Lit "["; Expr fe; Lit "]" ]
@@ -125,7 +125,7 @@ let stmt_tkns (stmt : EStmt.t) : tkn_t list =
   (* | Wrapper (_, _) -> [] *)
   | Assign (x, t, e) ->
     let typeTkns = type_tkns t in
-    List.concat [ [ Str x ]; typeTkns; [ Lit " := " ]; [ Expr e ] ]
+    List.concat [ [ Str x.it ]; typeTkns; [ Lit " := " ]; [ Expr e ] ]
   (* | GlobAssign (_, _) -> [] *)
   | Block _stmts -> []
   (* | If (e, _, _, _, _) -> [ Lit "if ("; Expr e; Lit ") { "; Lit threedots ] *)
@@ -144,17 +144,17 @@ let stmt_tkns (stmt : EStmt.t) : tkn_t list =
   | _ -> []
 
 let func_tkns (func : EFunc.t) : tkn_t list =
-  let _param_tkn_f (param, tparam) = Str param :: type_tkns tparam in
+  let _param_tkn_f (param, tparam) = Str param.it :: type_tkns tparam in
   let func' = func.it in
   let (fn, fparams, freturn) = (func'.name, func'.tparams, func'.treturn) in
-  let funcTkns = [ Lit "function "; Str fn ] in
+  let funcTkns = [ Lit "function "; Str fn.it ] in
   let paramTkns = concat_tkns (List.map _param_tkn_f fparams) ", " in
   let retTkn = type_tkns freturn in
   List.concat [ funcTkns; [ Lit "(" ]; paramTkns; [ Lit ")" ]; retTkn ]
 
 let pat_tkns (pat : EPat.t) : tkn_t list =
   let threedots = Font.str_text_err [ Font.Faint ] "..." in
-  let _pat_fld_tkn_f (s, patVal) = [ Str s; Lit ": "; PatVal patVal ] in
+  let _pat_fld_tkn_f (s, patVal) = [ Str s.it; Lit ": "; PatVal patVal ] in
   let _pat_tkns pat =
     match pat with
     | ObjPat (patFlds, _) ->

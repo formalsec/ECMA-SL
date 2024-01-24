@@ -9,14 +9,14 @@ and t' =
   | Block of t list
   | Print of Expr.t
   | Return of Expr.t
-  | Assign of string * Expr.t
-  | AssignCall of string * Expr.t * Expr.t list
-  | AssignECall of string * string * Expr.t list
-  | AssignNewObj of string
-  | AssignObjToList of string * Expr.t
-  | AssignObjFields of string * Expr.t
-  | AssignInObjCheck of string * Expr.t * Expr.t
-  | FieldLookup of string * Expr.t * Expr.t
+  | Assign of Id.t * Expr.t
+  | AssignCall of Id.t * Expr.t * Expr.t list
+  | AssignECall of Id.t * Id.t * Expr.t list
+  | AssignNewObj of Id.t
+  | AssignObjToList of Id.t * Expr.t
+  | AssignObjFields of Id.t * Expr.t
+  | AssignInObjCheck of Id.t * Expr.t * Expr.t
+  | FieldLookup of Id.t * Expr.t * Expr.t
   | FieldAssign of Expr.t * Expr.t * Expr.t
   | FieldDelete of Expr.t * Expr.t
   | If of Expr.t * t * t option
@@ -35,18 +35,20 @@ let rec pp (fmt : Fmt.t) (s : t) : unit =
   | Block ss -> fprintf fmt "{\n%a\n}" (pp_lst ";\n" pp) ss
   | Print e -> fprintf fmt "print %a" Expr.pp e
   | Return e -> fprintf fmt "return %a" Expr.pp e
-  | Assign (x, e) -> fprintf fmt "%s := %a" x Expr.pp e
+  | Assign (x, e) -> fprintf fmt "%a := %a" Id.pp x Expr.pp e
   | AssignCall (x, fe, es) ->
-    fprintf fmt "%s := %a(%a)" x Expr.pp fe (pp_lst ", " Expr.pp) es
+    fprintf fmt "%a := %a(%a)" Id.pp x Expr.pp fe (pp_lst ", " Expr.pp) es
   | AssignECall (x, fn, es) ->
-    fprintf fmt "%s := extern %s(%a)" x fn (pp_lst ", " Expr.pp) es
-  | AssignNewObj x -> fprintf fmt "%s := {}" x
-  | AssignObjToList (x, e) -> fprintf fmt "%s := obj_to_list %a" x Expr.pp e
-  | AssignObjFields (x, e) -> fprintf fmt "%s := obj_fields %a" x Expr.pp e
+    fprintf fmt "%a := extern %a(%a)" Id.pp x Id.pp fn (pp_lst ", " Expr.pp) es
+  | AssignNewObj x -> fprintf fmt "%a := {}" Id.pp x
+  | AssignObjToList (x, e) ->
+    fprintf fmt "%a := obj_to_list %a" Id.pp x Expr.pp e
+  | AssignObjFields (x, e) ->
+    fprintf fmt "%a := obj_fields %a" Id.pp x Expr.pp e
   | AssignInObjCheck (x, e1, e2) ->
-    fprintf fmt "%s := %a in_obj %a" x Expr.pp e1 Expr.pp e2
+    fprintf fmt "%a := %a in_obj %a" Id.pp x Expr.pp e1 Expr.pp e2
   | FieldLookup (x, oe, fe) ->
-    fprintf fmt "%s := %a[%a]" x Expr.pp oe Expr.pp fe
+    fprintf fmt "%a := %a[%a]" Id.pp x Expr.pp oe Expr.pp fe
   | FieldAssign (oe, fe, e) ->
     fprintf fmt "%a[%a] := %a" Expr.pp oe Expr.pp fe Expr.pp e
   | FieldDelete (oe, fe) -> fprintf fmt "delete %a[%a]" Expr.pp oe Expr.pp fe
