@@ -4,6 +4,7 @@ module type ERR_TYPE_FMT = sig
   val font : unit -> Font.t
   val header : unit -> string
   val pp : Fmt.t -> msg -> unit
+  val str : msg -> string
 end
 
 module Msgs (ErrTypeFmt : ERR_TYPE_FMT) = struct
@@ -45,7 +46,7 @@ module Code (ErrTypeFmt : ERR_TYPE_FMT) = struct
     Font.pp_text_err [ ErrTypeFmt.font () ] fmt (String.make size '^')
 
   let pp_region (fmt : Fmt.t) (region : region) : unit =
-    let (file, line, left, right) = unfold region in
+    let (file, line, left, right) = region_unfold region in
     let code = Code.line file line in
     Fmt.fprintf fmt "\n%a\n%d |  %s\n%a%a" pp_location region line code
       pp_indent (line, left) pp_highlight (right - left)

@@ -5,20 +5,20 @@ type heap = value Heap.t
 type stack = store Call_stack.t
 
 module Show = struct
-  let header () : unit =
-    Fmt.printf "\n%a"
+  let header_pp (fmt : Fmt.t) () : unit =
+    Fmt.fprintf fmt "%a"
       (Font.pp_text_out [ Font.Cyan ])
       "----------------------------------------\n\
       \       Core ECMA-SL Debug Prompt\n\
        ----------------------------------------\n"
 
-  let footer () : unit =
-    Fmt.printf "\n%a\n@."
+  let footer_pp (fmt : Fmt.t) () : unit =
+    Fmt.fprintf fmt "%a"
       (Font.pp_text_out [ Font.Cyan ])
       "----------------------------------------"
 
-  let dialog () : unit =
-    Fmt.printf "\n%a\n%s"
+  let dialog_pp (fmt : Fmt.t) () : unit =
+    Fmt.fprintf fmt "%a\n%s"
       (Font.pp_text_out [ Font.Cyan ])
       "Commands:"
       "  1: eval <var|$loc_n|obj.fld>\n\
@@ -116,14 +116,14 @@ let heap_cmd (heap : heap) () : unit =
 let stack_cmd (stack : stack) () : unit =
   Fmt.printf "Currently at %a" Call_stack.pp_tabular stack
 
-let help_cmd : unit -> unit = Show.dialog
+let help_cmd : unit -> unit = Fmt.printf "\n%a" Show.dialog_pp
 let invalid_cmd () : unit = cmd_err "Invalid command. Try again."
 
 let rec debug_loop (store : store) (heap : heap) (stack : stack) : cmd =
   let run_cmd cmd = cmd () |> fun () -> debug_loop store heap stack in
   Show.prompt ();
-  let command = read_line () |> parse_command in
-  match command with
+  let cmd = read_line () |> parse_command in
+  match cmd with
   | Some (Eval expr) -> run_cmd @@ eval_cmd store heap expr
   | Some Store -> run_cmd @@ store_cmd store
   | Some Heap -> run_cmd @@ heap_cmd heap
@@ -172,11 +172,9 @@ module Enable : M = struct
     | Final
 
   let show_initial_state () : unit =
-    Show.header ();
-    Show.dialog ();
-    Fmt.printf "\n"
+    Fmt.printf "%a\n%a\n" Show.header_pp () Show.dialog_pp ()
 
-  let show_final_state () : unit = Show.footer ()
+  let show_final_state () : unit = Fmt.printf "%a@." Show.footer_pp ()
 
   let debug_prompt (store : store) (heap : heap) (stack : stack) (state : t)
     (s : Stmt.t) : cmd =
@@ -193,8 +191,8 @@ module Enable : M = struct
     match pop stack with
     | (Toplevel _, _) -> stack
     | (Intermediate (loc, restore), stack') ->
-      let { func; _ } = loc in
-      let { store; cont; retvar } = restore in
+      let (func, _) = Call_stack.location loc in
+      let (store, cont, retvar) = Call_stack.restore restore in
       let (stack'', cont') = inject_debug_innerscope stack' cont in
       push stack'' func store cont' retvar
 
@@ -204,8 +202,8 @@ module Enable : M = struct
     | ({ it = Skip; _ } as s) :: cont' | ({ it = Merge; _ } as s) :: cont' ->
       let (stack', cont'') = inject_debug_innerscope stack cont' in
       (stack', s :: cont'')
-    | { it = Block stmts; _ } :: cont' ->
-      let (stack', cont'') = inject_debug_innerscope stack (stmts @ cont') in
+    | { it = Block ss; _ } :: cont' ->
+      let (stack', cont'') = inject_debug_innerscope stack (ss @ cont') in
       (stack', cont'')
     | { it = Debug _; _ } :: _ -> (stack, cont)
     | s :: cont' -> (stack, Source.(Stmt.Debug s @> s.at) :: cont')

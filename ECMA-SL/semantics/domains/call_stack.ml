@@ -5,6 +5,9 @@ type location =
   ; mutable stmt : Stmt.t
   }
 
+let location (location: location): (Func.t * Stmt.t) =
+  (location.func, location.stmt)
+
 type 'store restore =
   { store : 'store
   ; cont : Stmt.t list
@@ -20,8 +23,8 @@ type 'store frame =
 
 type 'store t = 'store frame list
 
-let no_stmt () : Stmt.t = Stmt.Skip @> no_region
-let create (func : Func.t) : 'store t = [ Toplevel { func; stmt = no_stmt () } ]
+let create (func : Func.t) : 'store t =
+  [ Toplevel { func; stmt = Stmt.default () } ]
 
 let loc (stack : 'store t) : Func.t * Stmt.t =
   match stack with
@@ -38,7 +41,8 @@ let pop (stack : 'store t) : 'store frame * 'store t =
 
 let push (stack : 'store t) (func : Func.t) (store : 'store)
   (cont : Stmt.t list) (retvar : string) : 'store t =
-  Intermediate ({ func; stmt = no_stmt () }, { store; cont; retvar }) :: stack
+  Intermediate ({ func; stmt = Stmt.default () }, { store; cont; retvar })
+  :: stack
 
 let update (stack : 'store t) (stmt : Stmt.t) : unit =
   match stack with
@@ -70,5 +74,4 @@ let pp_tabular (fmt : Fmt.t) (stack : 'store t) : unit =
     fprintf fmt "%a%a" pp_frame frame (pp_lst "" pp_trace) stack'
 
 let str ?(tabular : bool = false) (stack : 'store t) : string =
-  if tabular then Fmt.asprintf "%a" pp_tabular stack
-  else Fmt.asprintf "%a" pp stack
+  Fmt.asprintf "%a" (if tabular then pp_tabular else pp) stack

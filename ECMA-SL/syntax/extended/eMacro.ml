@@ -15,9 +15,9 @@ let create (name : Id.t) (params : Id.t list) (body : EStmt.t) : t' =
   { name; params; body }
 
 let name (m : t) : Id.t = m.it.name
-let name' (m : t) : string = m.it.name.it
+let name' (m : t) : Id.t' = m.it.name.it
 let params (m : t) : Id.t list = m.it.params
-let params' (m : t) : string list = List.map (fun param -> param.it) m.it.params
+let params' (m : t) : Id.t' list = List.map (fun px -> px.it) m.it.params
 let body (m : t) : EStmt.t = m.it.body
 
 let pp_signature (fmt : Fmt.t) (m : t) : unit =
@@ -32,7 +32,7 @@ let pp_simple (fmt : Fmt.t) (m : t) : unit =
   Fmt.fprintf fmt "%a {..." pp_signature m
 
 let str ?(simple : bool = false) (f : t) : string =
-  if simple then Fmt.asprintf "%a" pp_simple f else Fmt.asprintf "%a" pp f
+  Fmt.asprintf "%a" (if simple then pp_simple else pp) f
 
 let mapper (find_macro_f : string -> t option) : EStmt.t -> EStmt.t =
  fun s ->

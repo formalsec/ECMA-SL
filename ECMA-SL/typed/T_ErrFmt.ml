@@ -120,8 +120,7 @@ let stmt_tkns (stmt : EStmt.t) : tkn_t list =
   | Print e -> [ Lit "print "; Expr e ]
   (* | Assume _ -> [] *)
   (* | Assert _ -> [] *)
-  | Return None -> [ Lit "return" ]
-  | Return (Some e) -> [ Lit "return "; Expr e ]
+  | Return e -> [ Lit "return "; Expr e ]
   (* | Wrapper (_, _) -> [] *)
   | Assign (x, t, e) ->
     let typeTkns = type_tkns t in

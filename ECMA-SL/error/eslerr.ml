@@ -47,33 +47,53 @@ let runtime' ?(src : ErrSrc.t = ErrSrc.none ()) (msgs : rterr list) : exn =
 let runtime ?(src : ErrSrc.t = ErrSrc.none ()) (msg : rterr) : 'a =
   runtime' [ msg ] ~src |> raise
 
+(* Error message retrieval *)
+
+let msg_comp = function
+  | Compile_error { msgs = msg :: _; _ } -> msg
+  | Compile_error { msgs = []; _ } ->
+    internal __FUNCTION__ (Expecting "non-empty error list")
+  | _ -> internal __FUNCTION__ (Expecting "compile error")
+
+let msg_rt = function
+  | Runtime_error { msgs = msg :: _; _ } -> msg
+  | Runtime_error { msgs = []; _ } ->
+    internal __FUNCTION__ (Expecting "non-empty error list")
+  | _ -> internal __FUNCTION__ (Expecting "runtime error")
+
+let msg = function
+  | Internal_error err -> Eslerr_type.InternalFmt.str err.msg
+  | Compile_error _ as exn -> Eslerr_type.CompileFmt.str (msg_comp exn)
+  | Runtime_error _ as exn -> Eslerr_type.RuntimeFmt.str (msg_rt exn)
+  | exn -> Printexc.to_string_default exn
+
 (* Error message update *)
 
 let push_comp (msg : comperr) = function
   | Compile_error err -> Compile_error { err with msgs = msg :: err.msgs }
-  | exn -> exn
+  | _ -> internal __FUNCTION__ (Expecting "compile error")
 
 let push_rt (msg : rterr) = function
   | Runtime_error err -> Runtime_error { err with msgs = msg :: err.msgs }
-  | exn -> exn
+  | _ -> internal __FUNCTION__ (Expecting "runtime error")
 
 (* Component functions *)
 
 let src = function
   | Compile_error err -> err.src
   | Runtime_error err -> err.src
-  | _ -> ErrSrc.none ()
+  | _ -> internal __FUNCTION__ (Expecting "error type with source component")
 
 let set_src (src : ErrSrc.t) = function
   | Compile_error err -> Compile_error { err with src }
   | Runtime_error err -> Runtime_error { err with src }
-  | exn -> exn
+  | _ -> internal __FUNCTION__ (Expecting "error type with source component")
 
 let trace = function Runtime_error err -> err.trace | _ -> None
 
 let set_trace (trace : RtTrace.t) = function
   | Runtime_error err -> Runtime_error { err with trace = Some trace }
-  | exn -> exn
+  | _ -> internal __FUNCTION__ (Expecting "error type with trace component")
 
 (* Formatting functions *)
 
@@ -101,6 +121,7 @@ let pp (fmt : Fmt.t) = function
 let str (exn : exn) = Fmt.asprintf "%a" pp exn
 
 (* Utility functions *)
+
 let index_to_el (lst : 'a list) (src : ErrSrc.t) : 'a =
   match src with
   | Index i -> (
