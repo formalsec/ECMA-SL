@@ -172,5 +172,5 @@ let rec type_check (expr : EExpr.t) (tref : t) (texpr : t) : unit =
 
 let is_typeable (tref : t) (texpr : t) : bool =
   let open Source in
-  try type_check (EExpr.Val Val.Null @> no_region) tref texpr |> fun _ -> true
+  try type_check ?@(EExpr.Val Val.Null) tref texpr |> fun _ -> true
   with T_Err.TypeError _ -> false

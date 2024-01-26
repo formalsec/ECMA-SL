@@ -29,6 +29,7 @@ type 'a phrase =
   }
 
 let ( @> ) (x : 'a) (region : region) : 'a phrase = { it = x; at = region }
+let ( ?@ ) (x : 'a) : 'a phrase = { it = x; at = no_region }
 let pp (fmt : Fmt.t) (x : 'a phrase) = Fmt.fprintf fmt "%a" pp_region x.at
 let str (x : 'a phrase) : string = Fmt.asprintf "%a" pp x
 
