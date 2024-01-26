@@ -11,6 +11,7 @@ module Compile = struct
   type t =
     | Default
     | Custom of string
+    | UnknownDependency of string
     | CyclicDependency of string
     | DuplicatedTdef of string
     | DuplicatedFunc of string
@@ -75,6 +76,7 @@ module CompileFmt : ErrFmt.ERR_TYPE_FMT with type msg = Compile.t = struct
     match msg with
     | Default -> fprintf fmt "Generic compilation error."
     | Custom msg' -> fprintf fmt "%s" msg'
+    | UnknownDependency file -> fprintf fmt "Cannot find dependency '%s'." file
     | CyclicDependency file ->
       fprintf fmt "Cyclic dependency of file '%s'." file
     | DuplicatedTdef tn ->

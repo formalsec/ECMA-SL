@@ -59,7 +59,12 @@ let get_curr_return_t (tctx : t) : EType.t option = EFunc.treturn tctx.func
 let get_func_by_name (tctx : t) (fname : string) : EFunc.t option =
   Hashtbl.find_opt (EProg.funcs tctx.prog) fname
 
-let get_tdefs (tctx : t) : (string, EType.t) Hashtbl.t = EProg.tdefs tctx.prog
+let get_tdefs (tctx : t) : (Id.t', EType.t) Hashtbl.t =
+  let open EType in
+  EProg.tdefs tctx.prog
+  |> Hashtbl.to_seq
+  |> Seq.map (fun (tn, { tval; _ }) -> (tn, tval))
+  |> Hashtbl.of_seq
 
 let merge_tstates (tstate1 : tstate_t) (tstate2 : tstate_t) : tstate_t =
   match (tstate1, tstate2) with

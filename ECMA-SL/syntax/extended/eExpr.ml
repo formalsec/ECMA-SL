@@ -22,7 +22,7 @@ module Parser = struct
   let parse_obj_flds (flds : (Id.t * 'a) list) : (Id.t * 'a) list =
     let check_dups checked (fn, _) =
       if not (Hashtbl.mem checked fn.it) then Hashtbl.replace checked fn.it ()
-      else Eslerr.(compile (DuplicatedField fn.it))
+      else Eslerr.(compile ~src:(ErrSrc.at fn) (DuplicatedField fn.it))
     in
     List.iter (check_dups (Hashtbl.create (List.length flds))) flds;
     flds
