@@ -12,7 +12,7 @@ and t' =
   | Debug of t
   | Block of t list
   | Print of EExpr.t
-  | Return of EExpr.t option
+  | Return of EExpr.t
   | ExprStmt of EExpr.t
   | Assign of Id.t * EType.t option * EExpr.t
   | GlobAssign of Id.t * EExpr.t
@@ -33,22 +33,25 @@ and t' =
 
 let default () : t = Skip @> no_region
 
+let isvoid (e : EExpr.t) : bool =
+  match e.it with EExpr.Val Val.Void -> true | _ -> false
+
 let rec pp (fmt : Fmt.t) (s : t) : unit =
   let open Fmt in
+  let pp_return fmt e = if isvoid e then () else fprintf fmt " %a" EExpr.pp e in
   match s.it with
-  | Skip -> ()
+  | Skip -> fprintf fmt "skip"
   | Debug s' -> fprintf fmt "# %a" pp s'
   | Block ss -> fprintf fmt "{\n%a\n}" (pp_lst ";\n" pp) ss
   | Print e -> fprintf fmt "print %a" EExpr.pp e
-  | Return e -> fprintf fmt "return %a" (pp_opt EExpr.pp) e
+  | Return e -> fprintf fmt "return%a" pp_return e
   | ExprStmt e -> EExpr.pp fmt e
   | Assign (x, t, e) ->
     fprintf fmt "%a%a := %a" Id.pp x EType.pp_tannot t EExpr.pp e
   | GlobAssign (x, e) -> fprintf fmt "|%a| := %a" Id.pp x EExpr.pp e
-  | FieldAssign (oe, emapper, e) ->
-    fprintf fmt "%a[%a] := %a" EExpr.pp oe EExpr.pp emapper EExpr.pp e
-  | FieldDelete (oe, emapper) ->
-    fprintf fmt "delete %a[%a]" EExpr.pp oe EExpr.pp emapper
+  | FieldAssign (oe, fe, e) ->
+    fprintf fmt "%a[%a] := %a" EExpr.pp oe EExpr.pp fe EExpr.pp e
+  | FieldDelete (oe, fe) -> fprintf fmt "delete %a[%a]" EExpr.pp oe EExpr.pp fe
   | If ([], _) -> Eslerr.(internal __FUNCTION__ (Expecting "non-empty if cases"))
   | If (ifcs :: elifcss, elsecs) ->
     let pp_if fmt (e, s, _) = fprintf fmt "if (%a) %a" EExpr.pp e pp s in
@@ -70,11 +73,11 @@ let rec pp (fmt : Fmt.t) (s : t) : unit =
   | MatchWith (e, css) ->
     let pp_case fmt (pat, s) = fprintf fmt "\n| %a -> %a" EPat.pp pat pp s in
     fprintf fmt "match %a with %a" EExpr.pp e (pp_lst "" pp_case) css
-  | Lambda (x, _, params, ctxvars, s') ->
-    fprintf fmt "%a := lambda (%a) [%a] %a" Id.pp x (pp_lst ", " Id.pp) params
+  | Lambda (x, _, pxs, ctxvars, s') ->
+    fprintf fmt "%a := lambda (%a) [%a] %a" Id.pp x (pp_lst ", " Id.pp) pxs
       (pp_lst ", " Id.pp) ctxvars pp s'
   | MacroApply (m, es) ->
-    fprintf fmt "@%a (%a)" Id.pp m (pp_lst ", " EExpr.pp) es
+    fprintf fmt "@%a(%a)" Id.pp m (pp_lst ", " EExpr.pp) es
   | Throw e -> fprintf fmt "throw %a" EExpr.pp e
   | Fail e -> fprintf fmt "fail %a" EExpr.pp e
   | Assert e -> fprintf fmt "assert %a" EExpr.pp e
@@ -98,7 +101,7 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = EExpr.Mapper.id) (mapper : t -> t)
   | Debug s' -> Debug (map' s')
   | Block ss -> Block (List.map map' ss)
   | Print e -> Print (emapper e)
-  | Return e -> Return (Option.map emapper e)
+  | Return e -> Return (emapper e)
   | ExprStmt e -> ExprStmt (emapper e)
   | Assign (x, t, e) -> Assign (id_mapper x, t, emapper e)
   | GlobAssign (x, e) -> GlobAssign (id_mapper x, emapper e)
@@ -119,8 +122,7 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = EExpr.Mapper.id) (mapper : t -> t)
   | MatchWith (e, css) ->
     let map_cs (pat, s) = (pat, map' s) in
     MatchWith (emapper e, List.map map_cs css)
-  | Lambda (x, id, params, ctxvars, s') ->
-    Lambda (x, id, params, ctxvars, map' s')
+  | Lambda (x, id, pxs, ctxvars, s') -> Lambda (x, id, pxs, ctxvars, map' s')
   | MacroApply (m, es) -> MacroApply (m, List.map emapper es)
   | Throw e -> Throw (emapper e)
   | Fail e -> Fail (emapper e)

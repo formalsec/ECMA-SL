@@ -32,9 +32,7 @@ module M (SL : NSULevel.M) = struct
 
   let check_pc (pc : sl list) : sl =
     let pc' = List.rev pc in
-    match pc' with
-    | s :: _ss' -> s
-    | _ -> raise (Except "PC list is empty!")
+    match pc' with s :: _ss' -> s | _ -> raise (Except "PC list is empty!")
 
   let expr_lvl (ssto : sl NSUStore.t) (exp : Expr.t) : sl =
     (*Criar lub entre lista de variaveis*)

@@ -751,7 +751,7 @@ and compile_stmt (e_stmt : EStmt.t) : Stmt.t list =
     let ret_so = Option.fold so ~some:compile_stmt ~none:[] in
     compile_switch ret_e ret_cases ret_so e_stmt.at
   | Return e_e ->
-    let ret = Option.value ~default:(EExpr.Val Val.Null @> no_region) e_e in
+    let ret = if isvoid e_e then EExpr.Val Val.Null @> no_region else e_e in
     let ret_e = compile_expr e_stmt.at ret in
     compile_return ret_e e_stmt.at
 

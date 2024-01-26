@@ -137,43 +137,36 @@
 
 entry_expr_target:
   | e = expr_target; EOF;   { e }
-  ;
 
 entry_stmt_target:
   | s = stmt_target; EOF;   { s }
-  ;
 
 entry_func_target:
   | f = func_target; EOF;   { f }
-  ;
 
 entry_prog_target:
   | p = prog_target; EOF;   { p }
-  ;
 
 (* ==================== Program  ==================== *)
 
 prog_target:
-  | funcs = separated_list(SEMICOLON, func_target);
-    { Prog.create funcs }
-  ;
+  | fs = separated_list(SEMICOLON, func_target);
+    { Prog.create fs }
 
 (* ==================== Functions ==================== *)
 
 func_target:
-  | FUNCTION; fn = id_target; LPAREN; vars = separated_list(COMMA, id_target); RPAREN; s = block_target;
-    { Func.create fn vars s @> at $sloc }
-  ;
+  | FUNCTION; fn = id_target; LPAREN; pxs = separated_list(COMMA, id_target); RPAREN; s = block_target;
+    { Func.create fn pxs s @> at $sloc }
 
 (* ==================== Statements ==================== *)
 
 block_target:
-  | LBRACE; stmts = separated_list (SEMICOLON, stmt_target); RBRACE;
-    { Stmt.Block stmts @> at $sloc }
-  ;
+  | LBRACE; ss = separated_list (SEMICOLON, stmt_target); RBRACE;
+    { Stmt.Block ss @> at $sloc }
 
 stmt_target:
-  | HASH; s= stmt_target;
+  | HASH; s = stmt_target;
     { Stmt.Debug (s) @> at $sloc }
   | PRINT; e = expr_target;
     { Stmt.Print e @> at $sloc }
@@ -211,12 +204,10 @@ stmt_target:
     { Stmt.Fail e @> at $sloc }
   | ASSERT; e = expr_target;
     { Stmt.Assert e @> at $sloc }
-  ;
 
 lookup_target:
   | PERIOD; fn = id_target;             { Expr.Val (Val.Str fn.it) @> at $sloc }
   | LBRACK; fe = expr_target; RBRACK;   { fe }
-  ;
 
 (* ==================== Expressions ==================== *)
 
@@ -225,8 +216,8 @@ expr_target:
     { e }
   | v = val_target;
     { Expr.Val v @> at $sloc }
-  | v = ID;
-    { Expr.Var v @> at $sloc }
+  | x = ID;
+    { Expr.Var x @> at $sloc }
   | unopt = unopt_infix_target; e = expr_target;   %prec unopt_prec
     { Expr.UnOpt (unopt, e) @> at $sloc }
   | unopt = unopt_call_target; e = expr_target;    %prec unopt_prec
@@ -248,15 +239,14 @@ nopt_target:
     { Expr.NOpt (ArrayExpr, es) @> at $sloc }
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
     { Expr.NOpt (ListExpr, es) @> at $sloc }
-  | LPAREN; t = tuple_target; RPAREN;
-    { Expr.NOpt (TupleExpr, List.rev t) @> at $sloc }
+  | LPAREN; vs = tuple_target; RPAREN;
+    { Expr.NOpt (TupleExpr, List.rev vs) @> at $sloc }
   ;
 
 (* ==================== Values ==================== *)
 
 id_target:
   | x = ID;             { (x @> at $sloc) }
-  ;
 
 val_target:
   | NULL;               { Val.Null }
@@ -267,7 +257,6 @@ val_target:
   | s = SYMBOL;         { Val.Symbol s }
   | l = LOC;            { Val.Loc l }
   | t = dtype_target;   { Val.Type t }
-  ;
 
 dtype_target:
   | DTYPE_NULL;         { Type.NullType }
@@ -280,7 +269,6 @@ dtype_target:
   | DTYPE_LIST;         { Type.ListType }
   | DTYPE_TUPLE;        { Type.TupleType }
   | DTYPE_CURRY;        { Type.CurryType }
-  ;
 
 tuple_target:
   | v1 = expr_target; COMMA; v2 = expr_target;
@@ -295,7 +283,6 @@ tuple_target:
   | MINUS                   { Operator.Neg }
   | EXCLAMATION             { Operator.LogicalNot }
   | TILDE                   { Operator.BitwiseNot }
-  ;
 
 %inline binopt_infix_target:
   | PLUS                    { Operator.Plus }
@@ -318,7 +305,6 @@ tuple_target:
   | LE                      { Operator.Le }
   | GE                      { Operator.Ge }
   | LIST_MEM                { Operator.ListMem }
-  ;
 
 %inline unopt_call_target:
   | TYPEOF                  { Operator.Typeof }
@@ -389,7 +375,6 @@ tuple_target:
   | PARSE_NUMBER            { Operator.ParseNumber }
   | PARSE_STRING            { Operator.ParseString }
   | PARSE_DATE              { Operator.ParseDate }
-  ;
 
 %inline binopt_call_target:
   | TO_PRECISION            { Operator.ToPrecision }
@@ -413,11 +398,9 @@ tuple_target:
   | MIN                     { Operator.Min }
   | MAX                     { Operator.Max }
   | ATAN_2                  { Operator.Atan2 }
-  ;
 
 %inline triopt_call_target:
   | STRING_SUBSTR           { Operator.StringSubstr }
   | STRING_SUBSTR_U         { Operator.StringSubstrU }
   | ARRAY_SET               { Operator.ArraySet }
   | LIST_SET                { Operator.ListSet }
-  ;

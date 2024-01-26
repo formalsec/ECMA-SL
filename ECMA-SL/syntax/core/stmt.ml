@@ -26,15 +26,19 @@ and t' =
 
 let default () : t = Skip @> no_region
 
+let isvoid (e : Expr.t) : bool =
+  match e.it with Expr.Val Val.Void -> true | _ -> false
+
 let rec pp (fmt : Fmt.t) (s : t) : unit =
   let open Fmt in
+  let pp_return fmt e = if isvoid e then () else fprintf fmt " %a" Expr.pp e in
   match s.it with
   | Skip -> fprintf fmt "skip"
   | Merge -> fprintf fmt "merge"
   | Debug s' -> fprintf fmt "# %a" pp s'
   | Block ss -> fprintf fmt "{\n%a\n}" (pp_lst ";\n" pp) ss
   | Print e -> fprintf fmt "print %a" Expr.pp e
-  | Return e -> fprintf fmt "return %a" Expr.pp e
+  | Return e -> fprintf fmt "return%a" pp_return e
   | Assign (x, e) -> fprintf fmt "%a := %a" Id.pp x Expr.pp e
   | AssignCall (x, fe, es) ->
     fprintf fmt "%a := %a(%a)" Id.pp x Expr.pp fe (pp_lst ", " Expr.pp) es
@@ -68,4 +72,4 @@ let pp_simple (fmt : Fmt.t) (s : t) : unit =
   | _ -> pp fmt s
 
 let str ?(simple : bool = false) (s : t) : string =
-  if simple then Fmt.asprintf "%a" pp_simple s else Fmt.asprintf "%a" pp s
+  Fmt.asprintf "%a" (if simple then pp_simple else pp) s

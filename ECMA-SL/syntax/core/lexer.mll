@@ -4,8 +4,7 @@
   open Lexing
   open Parser
 
-  let keywords = Hashtbl.create 53
-  let _ = List.iter (fun (kwd, tok) -> Hashtbl.add keywords kwd tok)
+  let keywords = Hashtbl.of_seq @@ List.to_seq
           [
             (* Language values *)
             "null"                    , NULL;

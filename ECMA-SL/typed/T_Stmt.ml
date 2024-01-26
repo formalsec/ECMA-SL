@@ -9,13 +9,14 @@ let set_terr_stmt (tctx : T_Ctx.t) (tstmt_f : unit -> unit) : T_Err.t list =
 
 let type_throw (tctx : T_Ctx.t) : unit = T_Ctx.set_tstate tctx T_Ctx.Abrupt
 
-let type_return (tctx : T_Ctx.t) (expr : EExpr.t option) : unit =
+let type_return (tctx : T_Ctx.t) (expr : EExpr.t) : unit =
   let _type_return tret =
-    match (expr, tret) with
-    | (None, EType.AnyType) -> ()
-    | (None, EType.VoidType) -> ()
-    | (None, _) -> T_Err.raise (T_Err.BadValue (tret, EType.VoidType))
-    | (Some expr', _) -> ignore (T_Expr.safe_type_expr tctx expr' tret)
+    match (expr.it, tret) with
+    | (EExpr.Val Val.Void, EType.AnyType) -> ()
+    | (EExpr.Val Val.Void, EType.VoidType) -> ()
+    | (EExpr.Val Val.Void, _) ->
+      T_Err.raise (T_Err.BadValue (tret, EType.VoidType))
+    | (_, _) -> ignore (T_Expr.safe_type_expr tctx expr tret)
   in
   let _ = T_Ctx.set_tstate tctx T_Ctx.Abrupt in
   let tret =

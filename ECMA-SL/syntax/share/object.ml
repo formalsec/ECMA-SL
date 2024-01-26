@@ -3,13 +3,13 @@ type 'a t = (string, 'a) Hashtbl.t
 let create () : 'a t = Hashtbl.create !Config.default_hashtbl_sz
 let clone (obj : 'a t) = Hashtbl.copy obj
 
-let fld_list (obj : 'a t) : (string * 'a) list =
-  let to_fld_lst_f fn fv acc = (fn, fv) :: acc in
-  Hashtbl.fold to_fld_lst_f obj []
+let fld_lst (obj : 'a t) : (string * 'a) list =
+  let fld_lst_f fn fv acc = (fn, fv) :: acc in
+  Hashtbl.fold fld_lst_f obj []
 
 let flds (obj : 'a t) : string list =
-  let fld_names_lst_f fn _ acc = fn :: acc in
-  Hashtbl.fold fld_names_lst_f obj []
+  let fld_name_lst_f fn _ acc = fn :: acc in
+  Hashtbl.fold fld_name_lst_f obj []
 
 let get (obj : 'a t) (fn : string) : 'a option = Hashtbl.find_opt obj fn
 let set (obj : 'a t) (fn : string) (fv : 'a) : unit = Hashtbl.replace obj fn fv

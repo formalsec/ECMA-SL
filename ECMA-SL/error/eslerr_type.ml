@@ -60,6 +60,8 @@ module InternalFmt : ErrFmt.ERR_TYPE_FMT with type msg = Internal.t = struct
       match msg' with
       | None -> fprintf fmt "not implemented"
       | Some msg'' -> fprintf fmt "'%s' not implemented" msg'' )
+
+  let str (msg : msg) : string = Fmt.asprintf "%a" pp msg
 end
 
 module CompileFmt : ErrFmt.ERR_TYPE_FMT with type msg = Compile.t = struct
@@ -87,6 +89,8 @@ module CompileFmt : ErrFmt.ERR_TYPE_FMT with type msg = Compile.t = struct
     | UnknownMacro mn -> fprintf fmt "Cannot find macro '%s'." mn
     | BadNArgs (nparams, nargs) ->
       fprintf fmt "Expected %d arguments, but got %d." nparams nargs
+
+  let str (msg : msg) : string = Fmt.asprintf "%a" pp msg
 end
 
 module RuntimeFmt : ErrFmt.ERR_TYPE_FMT with type msg = Runtime.t = struct
@@ -121,4 +125,6 @@ module RuntimeFmt : ErrFmt.ERR_TYPE_FMT with type msg = Runtime.t = struct
       fprintf fmt "Expecting arguments of types '%s', but got '(%a)'." texp
         (pp_lst ", " Val.pp) vals
     | MissingReturn fn -> fprintf fmt "Missing return in function '%s'." fn
+
+  let str (msg : msg) : string = Fmt.asprintf "%a" pp msg
 end
