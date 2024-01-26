@@ -42,7 +42,7 @@ let create (file : string) (imports : string list)
   (tdefs : (string * EType.t) list) (funcs : EFunc.t list)
   (macros : EMacro.t list) : t =
   let p = { (default ()) with file; imports } in
-  List.iter (fun tdef -> Parser.parse_tdef tdef p) tdefs;
+  List.iter (fun t -> Parser.parse_tdef t p) tdefs;
   List.iter (fun f -> Parser.parse_func f p) funcs;
   List.iter (fun m -> Parser.parse_macro m p) macros;
   p
@@ -57,11 +57,11 @@ let pp (fmt : Fmt.t) (p : t) : unit =
   let open Fmt in
   let pp_import fmt import = fprintf fmt "import %s\n" import in
   let pp_tdef fmt (tn, t) = fprintf fmt "typedef %s := %a\n" tn EType.pp t in
-  let pp_func fmt (_, f) = fprintf fmt "\n%a\n" EFunc.pp f in
-  let pp_macro fmt (_, m) = fprintf fmt "\n%a\n" EMacro.pp m in
+  let pp_func fmt (_, f) = fprintf fmt "\n%a" EFunc.pp f in
+  let pp_macro fmt (_, m) = fprintf fmt "\n%a" EMacro.pp m in
   fprintf fmt "%a\n%a%a%a" (pp_lst "" pp_import) p.imports
-    (pp_hashtbl "" pp_tdef) p.tdefs (pp_hashtbl "" pp_func) p.funcs
-    (pp_hashtbl "" pp_macro) p.macros
+    (pp_hashtbl "" pp_tdef) p.tdefs (pp_hashtbl "\n" pp_func) p.funcs
+    (pp_hashtbl "\n" pp_macro) p.macros
 
 let str (p : t) : string = Fmt.asprintf "%a" pp p
 

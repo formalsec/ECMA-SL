@@ -9,16 +9,15 @@ and t' =
   }
 
 let default () : t =
-  { name = Id.default (); params = []; body = Stmt.default () }
-  @> Source.no_region
+  { name = Id.default (); params = []; body = Stmt.default () } @> no_region
 
 let create (name : Id.t) (params : Id.t list) (body : Stmt.t) : t' =
   { name; params; body }
 
 let name (f : t) : Id.t = f.it.name
-let name' (f : t) : string = f.it.name.it
+let name' (f : t) : Id.t' = f.it.name.it
 let params (f : t) : Id.t list = f.it.params
-let params' (f : t) : string list = List.map (fun param -> param.it) f.it.params
+let params' (f : t) : Id.t' list = List.map (fun param -> param.it) f.it.params
 let body (f : t) : Stmt.t = f.it.body
 
 let pp_signature (fmt : Fmt.t) (f : t) : unit =
