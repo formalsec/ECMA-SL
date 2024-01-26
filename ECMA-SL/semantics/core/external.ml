@@ -1,4 +1,4 @@
-let eval_build_ast_func = String_utils.make_fresh_var_generator "eval_func_"
+let eval_build_ast_func = Utils.make_name_generator "eval_func_"
 
 let parseJS (prog : Prog.t) (_heap : 'a Heap.t) (str : string) : Val.t =
   let _ = failwith "FIXME: Check if we can remove this function" in

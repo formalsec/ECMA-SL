@@ -1,19 +1,21 @@
+type c_expr = Stmt.t list * Expr.t
+type c_stmt = Stmt.t list
+
+module Const = struct
+  let main_func = "main"
+  let internal_esl_global = "___internal_esl_global"
+  let global_var = "__$global"
+end
+
+let make_var = Utils.make_name_generator "__v"
+let nat = Source.no_region
+
 open Val
 open Operator
 open EPat
 open EExpr
 open EStmt
 open Source
-
-let make_fresh_var_generator (pref : string) : unit -> string =
-  let (next, _) = Counter.count 0 1 in
-  fun () ->
-    let x = next () in
-    pref ^ string_of_int x
-
-let __INTERNAL_ESL_GLOBAL__ = "___internal_esl_global"
-let __MAIN_FUNC__ = "main"
-let generate_fresh_var = make_fresh_var_generator "__v"
 
 (*
   C(e1) = stmts_1, e_1'
@@ -22,26 +24,22 @@ let generate_fresh_var = make_fresh_var_generator "__v"
 ------------------------
 C(e1 &&& e2) =
     stmts_1;
-    /* outer_if */
     if (e_1' = false) {
     	x := false
     } else {
         stmts_2;
-        /* inner_if */
         if (e_2' = false) {
         	x := false
         } else {
         	x := true
         }
     }, x
-
 *)
-let compile_sc_and (x : Id.t) (stmts_1 : Stmt.t list) (e1' : Expr.t)
-  (stmts_2 : Stmt.t list) (e2' : Expr.t) (at : region) : Stmt.t list * Expr.t =
+let compile_sc_and (x : Id.t) (ss1 : Stmt.t list) (e1 : Expr.t)
+  (ss2 : Stmt.t list) (e2 : Expr.t) (at : region) : c_expr =
   let inner_if =
     Stmt.If
-      ( Expr.BinOpt (Eq, e2', Expr.Val (Val.Bool false) @> no_region)
-        @> no_region
+      ( Expr.BinOpt (Eq, e2, Expr.Val (Val.Bool false) @> no_region) @> no_region
       , Stmt.Block
           [ Stmt.Assign (x, Expr.Val (Val.Bool false) @> no_region) @> at ]
         @> at
@@ -54,15 +52,14 @@ let compile_sc_and (x : Id.t) (stmts_1 : Stmt.t list) (e1' : Expr.t)
 
   let outer_if =
     Stmt.If
-      ( Expr.BinOpt (Eq, e1', Expr.Val (Val.Bool false) @> no_region)
-        @> no_region
+      ( Expr.BinOpt (Eq, e1, Expr.Val (Val.Bool false) @> no_region) @> no_region
       , Stmt.Block
           [ Stmt.Assign (x, Expr.Val (Val.Bool false) @> no_region) @> at ]
         @> at
-      , Some (Stmt.Block (stmts_2 @ [ inner_if ]) @> at) )
+      , Some (Stmt.Block (ss2 @ [ inner_if ]) @> at) )
     @> at
   in
-  (stmts_1 @ [ outer_if ], Expr.Var x.it @> no_region)
+  (ss1 @ [ outer_if ], Expr.Var x.it @> no_region)
 
 (*
   C(e1) = stmts_1, e_1'
@@ -112,7 +109,7 @@ let compile_sc_or (x : Id.t) (stmts_1 : Stmt.t list) (e1' : Expr.t)
 let compile_binopt (binop : Operator.binopt)
   ((stmts_1, e1) : Stmt.t list * Expr.t) ((stmts_2, e2) : Stmt.t list * Expr.t)
   (at : region) : Stmt.t list * Expr.t =
-  let var = generate_fresh_var () @> no_region in
+  let var = make_var () @> no_region in
   match binop with
   | SCLogicalAnd -> compile_sc_and var stmts_1 e1 stmts_2 e2 at
   | SCLogicalOr -> compile_sc_or var stmts_1 e1 stmts_2 e2 at
@@ -125,7 +122,7 @@ let compile_binopt (binop : Operator.binopt)
 let compile_triopt (triop : triopt) ((stmts_1, e1) : Stmt.t list * Expr.t)
   ((stmts_2, e2) : Stmt.t list * Expr.t) ((stmts_3, e3) : Stmt.t list * Expr.t)
   (at : region) : Stmt.t list * Expr.t =
-  let var = generate_fresh_var () @> no_region in
+  let var = make_var () @> no_region in
   ( stmts_1
     @ stmts_2
     @ stmts_3
@@ -139,17 +136,17 @@ C_e(|x|) =
    y := ___internal_esl_global["x"], y
 *)
 let compile_gvar (x : string) (at : region) : Stmt.t list * Expr.t =
-  let y = generate_fresh_var () in
+  let y = make_var () in
   let var =
     match x with
     (* Keep this in sync with Heap.ml function "str_with_global" *)
-    | "global" -> Common.global_var_compiled
+    | "global" -> Const.global_var
     | _ -> x
   in
   let f_lookup =
     Stmt.FieldLookup
       ( y @> no_region
-      , Expr.Var __INTERNAL_ESL_GLOBAL__ @> no_region
+      , Expr.Var Const.internal_esl_global @> no_region
       , Expr.Val (Val.Str var) @> no_region )
     @> at
   in
@@ -167,12 +164,12 @@ let compile_glob_assign (x : string) (stmts_e : Stmt.t list) (e : Expr.t)
   let var =
     match x with
     (* Keep this in sync with Heap.ml function "str_with_global" *)
-    | "global" -> Common.global_var_compiled
+    | "global" -> Const.global_var
     | _ -> x
   in
   let f_asgn =
     Stmt.FieldAssign
-      ( Expr.Var __INTERNAL_ESL_GLOBAL__ @> no_region
+      ( Expr.Var Const.internal_esl_global @> no_region
       , Expr.Val (Val.Str var) @> no_region
       , e )
     @> at
@@ -207,7 +204,7 @@ C(e_f@(e1, ..., en)) =
 *)
 let compile_curry ((stmts_f, e_f) : Stmt.t list * Expr.t)
   (args : (Stmt.t list * Expr.t) list) (at : region) : Stmt.t list * Expr.t =
-  let x = generate_fresh_var () @> no_region in
+  let x = make_var () @> no_region in
   let (stmtss, es) = List.split args in
   let stmts = List.concat stmtss in
   let stmts' = stmts_f @ stmts in
@@ -352,7 +349,7 @@ let build_if_throw (x : Id.t) (g : Id.t option) (at : region) : Stmt.t =
     build_if_throw_basic x [ Stmt.Return (Expr.Var x.it @> no_region) @> at ] at
   | Some g ->
     let args =
-      [ Expr.Var __INTERNAL_ESL_GLOBAL__ @> no_region
+      [ Expr.Var Const.internal_esl_global @> no_region
       ; Expr.UnOpt (TupleSecond, Expr.Var x.it @> no_region) @> no_region
       ]
     in
@@ -369,12 +366,12 @@ let build_if_throw (x : Id.t) (g : Id.t option) (at : region) : Stmt.t =
 let compile_call (ret_f : Stmt.t list * Expr.t)
   (ret_args : (Stmt.t list * Expr.t) list) (g : Id.t option) (at : region) :
   Stmt.t list * Expr.t =
-  let x = generate_fresh_var () @> no_region in
+  let x = make_var () @> no_region in
   let (fname_stmts, fname_expr) = ret_f in
   let fargs_stmts_exprs = ret_args in
   let (fargs_stmts, fargs_exprs) = List.split fargs_stmts_exprs in
   let fargs_exprs' =
-    (Expr.Var __INTERNAL_ESL_GLOBAL__ @> no_region) :: fargs_exprs
+    (Expr.Var Const.internal_esl_global @> no_region) :: fargs_exprs
   in
   let stmt_if = build_if_throw x g at in
   ( fname_stmts
@@ -393,7 +390,7 @@ x fresh
 
 let compile_e_call (f : Id.t) (ret_args : (Stmt.t list * Expr.t) list)
   (at : region) : Stmt.t list * Expr.t =
-  let x = generate_fresh_var () @> no_region in
+  let x = make_var () @> no_region in
   let (fargs_stmts, fargs_exprs) = List.split ret_args in
   ( List.concat fargs_stmts @ [ Stmt.AssignECall (x, f, fargs_exprs) @> at ]
   , Expr.Var x.it @> no_region )
@@ -406,7 +403,7 @@ let compile_const (c : const) : Stmt.t list * Expr.t =
 
 let rec compile_unopt (op : unopt) (expr : EExpr.t) (at : region) :
   Stmt.t list * Expr.t =
-  let var = generate_fresh_var () @> no_region in
+  let var = make_var () @> no_region in
   let (stmts_expr, expr') = compile_expr at expr in
   match op with
   | ObjectToList ->
@@ -419,7 +416,7 @@ let rec compile_unopt (op : unopt) (expr : EExpr.t) (at : region) :
 
 and compile_nopt (nop : nopt) (e_exprs : EExpr.t list) (at : region) :
   Stmt.t list * Expr.t =
-  let var = generate_fresh_var () @> no_region in
+  let var = make_var () @> no_region in
   let stmts_exprs = List.map (compile_expr at) e_exprs in
   let (stmts, exprs) = List.split stmts_exprs in
   ( List.concat stmts
@@ -428,7 +425,7 @@ and compile_nopt (nop : nopt) (e_exprs : EExpr.t list) (at : region) :
 
 and compile_newobj (e_fes : (Id.t * EExpr.t) list) (at : region) :
   Stmt.t list * Expr.t =
-  let var = generate_fresh_var () @> no_region in
+  let var = make_var () @> no_region in
   let newObj = Stmt.AssignNewObj var @> at in
   let stmts =
     List.map
@@ -447,7 +444,7 @@ and compile_newobj (e_fes : (Id.t * EExpr.t) list) (at : region) :
 
 and compile_lookup (expr : EExpr.t) (field : EExpr.t) (at : region) :
   Stmt.t list * Expr.t =
-  let var = generate_fresh_var () @> no_region in
+  let var = make_var () @> no_region in
   let (stmts_expr, expr') = compile_expr at expr in
   let (stmts_field, field') = compile_expr at field in
   ( stmts_expr @ stmts_field @ [ Stmt.FieldLookup (var, expr', field') @> at ]
@@ -520,8 +517,8 @@ and compile_patv (expr : Expr.t) (pname : Id.t) (pat_v : EPat.pv) (var_b : Id.t)
         @> at
       ] )
   | PatVal v ->
-    let b = generate_fresh_var () @> no_region in
-    let w = generate_fresh_var () @> no_region in
+    let b = make_var () @> no_region in
+    let w = make_var () @> no_region in
     let stmt =
       Stmt.FieldLookup (w, expr, Expr.Val (Val.Str pname.it) @> no_region) @> at
     in
@@ -545,7 +542,7 @@ and compile_patv (expr : Expr.t) (pname : Id.t) (pat_v : EPat.pv) (var_b : Id.t)
 
 and compile_pn_pat (expr : Expr.t) ((pn, patv) : Id.t * EPat.pv) (at : region) :
   string list * Stmt.t list * Stmt.t list =
-  let fresh_b = generate_fresh_var () @> no_region in
+  let fresh_b = make_var () @> no_region in
   let in_stmt =
     Stmt.AssignInObjCheck (fresh_b, Expr.Val (Val.Str pn.it) @> no_region, expr)
     @> at
@@ -681,8 +678,8 @@ and compile_stmt (e_stmt : EStmt.t) : Stmt.t list =
       acc ifs'
   | While (e_exp, e_s) -> compile_while e_exp e_s e_stmt.at
   | ForEach (x, e_e, e_s, _, _) ->
-    let len_str = generate_fresh_var () @> no_region in
-    let idx_str = generate_fresh_var () @> no_region in
+    let len_str = make_var () @> no_region in
+    let idx_str = make_var () @> no_region in
     let e_test =
       EExpr.BinOpt (Gt, Var len_str.it @> no_region, Var idx_str.it @> no_region)
       @> no_region
@@ -775,21 +772,23 @@ let compile_func (e_func : EFunc.t) : Func.t =
   let fparams = EFunc.params e_func in
   let fbody = EFunc.body e_func in
   let stmt_list = compile_stmt fbody in
-  if fname.it = __MAIN_FUNC__ then
+  if fname.it = Const.main_func then
     let asgn_new_obj =
-      Stmt.AssignNewObj (__INTERNAL_ESL_GLOBAL__ @> no_region) @> no_region
+      Stmt.AssignNewObj (Const.internal_esl_global @> no_region) @> no_region
     in
     let stmt_list' = asgn_new_obj :: stmt_list in
     Func.create fname fparams (Stmt.Block stmt_list' @> no_region) @> e_func.at
   else
-    let fparams' = (__INTERNAL_ESL_GLOBAL__ @> no_region) :: fparams in
+    let fparams' = (Const.internal_esl_global @> no_region) :: fparams in
     Func.create fname fparams' (Stmt.Block stmt_list @> no_region) @> e_func.at
 
 let compile_lambda
   ((f_id, params, params', s) : string * Id.t list * Id.t list * EStmt.t) :
   Func.t =
   let stmt_list = compile_stmt s in
-  let params'' = params @ [ __INTERNAL_ESL_GLOBAL__ @> no_region ] @ params' in
+  let params'' =
+    params @ [ Const.internal_esl_global @> no_region ] @ params'
+  in
   Func.create (f_id @> no_region) params'' (Stmt.Block stmt_list @> no_region)
   @> no_region
 

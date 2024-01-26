@@ -9,14 +9,12 @@
   share
   config
   ;  utils
-  common
   io
   log
-  err
   fmt
   font
-  counter
   syntax
+  utils
   arith_utils
   byte_utils
   date_utils
