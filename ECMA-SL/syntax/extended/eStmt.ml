@@ -31,7 +31,7 @@ and t' =
   | Assert of EExpr.t
   | Wrapper of metadata_t list * t
 
-let default () : t = Skip @> no_region
+let default () : t = ?@Skip
 
 let isvoid (e : EExpr.t) : bool =
   match e.it with EExpr.Val Val.Void -> true | _ -> false
@@ -90,7 +90,7 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = EExpr.Mapper.id) (mapper : t -> t)
   let map' = map ~emapper mapper in
   let mapper' s' = mapper (s' @> s.at) in
   let id_mapper (x : Id.t) =
-    match (emapper (EExpr.Var x.it @> no_region)).it with
+    match (emapper ?@(EExpr.Var x.it)).it with
     | EExpr.Var y -> y @> x.at
     | _ -> Eslerr.(internal __FUNCTION__ (Expecting "var expression in LHS"))
   in

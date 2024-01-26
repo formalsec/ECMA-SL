@@ -25,7 +25,7 @@ let rec generate (tctx : T_Ctx.t) (expr : EExpr.t) : t =
     let ce2 = generate tctx e2 in
     Or (ce1, ce2)
   | EExpr.BinOpt (Operator.Eq, e1, e2) -> (
-    let revExpr = Expr (EExpr.BinOpt (Operator.Eq, e2, e1) @> no_region) in
+    let revExpr = Expr ?@(EExpr.BinOpt (Operator.Eq, e2, e1)) in
     match (is_container e1, is_container e2) with
     | (true, true) -> And (Expr expr, revExpr)
     | _ -> Expr expr )

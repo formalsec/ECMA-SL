@@ -171,7 +171,7 @@ stmt_target:
   | PRINT; e = expr_target;
     { Stmt.Print e @> at $sloc }
   | RETURN;
-    { Stmt.Return (Expr.Val Val.Void @> no_region) @> at $sloc }
+    { Stmt.Return (?@(Expr.Val Val.Void)) @> at $sloc }
   | RETURN; e = expr_target;
     { Stmt.Return e @> at $sloc }
   | x = id_target; DEFEQ; e = expr_target;

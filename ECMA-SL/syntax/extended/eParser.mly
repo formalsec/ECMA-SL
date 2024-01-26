@@ -222,7 +222,7 @@ stmt_target:
   | PRINT; e = expr_target;
     { EStmt.Print e @> at $sloc }
   | RETURN;
-    { EStmt.Return (EExpr.Val Val.Void @> no_region) @> at $sloc }
+    { EStmt.Return (?@(EExpr.Val Val.Void)) @> at $sloc }
   | RETURN; e = expr_target;
     { EStmt.Return e @> at $sloc }  
   | e = expr_target;
