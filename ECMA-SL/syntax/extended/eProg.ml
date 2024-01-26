@@ -1,9 +1,9 @@
 type t =
   { file : string
-  ; imports : string list
-  ; tdefs : (string, EType.t) Hashtbl.t
-  ; funcs : (string, EFunc.t) Hashtbl.t
-  ; macros : (string, EMacro.t) Hashtbl.t
+  ; imports : Id.t list
+  ; tdefs : (Id.t', EType.tdef) Hashtbl.t
+  ; funcs : (Id.t', EFunc.t) Hashtbl.t
+  ; macros : (Id.t', EMacro.t) Hashtbl.t
   }
 
 let default () : t =
@@ -15,32 +15,32 @@ let default () : t =
   }
 
 module Parser = struct
-  let parse_tdef ((tn, t) : string * EType.t) (p : t) : unit =
-    match Hashtbl.find_opt p.tdefs tn with
-    | None -> Hashtbl.replace p.tdefs tn t
-    | Some _ -> Eslerr.(compile (DuplicatedTdef tn))
+  let parse_tdef (t : EType.tdef) (p : t) : unit =
+    let tn = EType.tdef_name t in
+    match Hashtbl.find_opt p.tdefs tn.it with
+    | None -> Hashtbl.replace p.tdefs tn.it t
+    | Some _ -> Eslerr.(compile ~src:(ErrSrc.at tn) (DuplicatedTdef tn.it))
 
   let parse_func (f : EFunc.t) (p : t) : unit =
-    let fn = EFunc.name' f in
-    match Hashtbl.find_opt p.funcs fn with
-    | None -> Hashtbl.replace p.funcs fn f
-    | Some _ -> Eslerr.(compile (DuplicatedFunc fn))
+    let fn = EFunc.name f in
+    match Hashtbl.find_opt p.funcs fn.it with
+    | None -> Hashtbl.replace p.funcs fn.it f
+    | Some _ -> Eslerr.(compile ~src:(ErrSrc.at fn) (DuplicatedFunc fn.it))
 
   let parse_macro (m : EMacro.t) (p : t) : unit =
-    let mn = EMacro.name' m in
-    match Hashtbl.find_opt p.macros mn with
-    | None -> Hashtbl.replace p.macros mn m
-    | Some _ -> Eslerr.(compile (DuplicatedMacro mn))
+    let mn = EMacro.name m in
+    match Hashtbl.find_opt p.macros mn.it with
+    | None -> Hashtbl.replace p.macros mn.it m
+    | Some _ -> Eslerr.(compile ~src:(ErrSrc.at mn) (DuplicatedMacro mn.it))
 
-  let parse_prog (imports : string list) (el_parsers : (t -> unit) list) : t =
+  let parse_prog (imports : Id.t list) (el_parsers : (t -> unit) list) : t =
     let p = { (default ()) with imports } in
     List.iter (fun el_parser -> el_parser p) el_parsers;
     p
 end
 
-let create (file : string) (imports : string list)
-  (tdefs : (string * EType.t) list) (funcs : EFunc.t list)
-  (macros : EMacro.t list) : t =
+let create (file : string) (imports : Id.t list) (tdefs : EType.tdef list)
+  (funcs : EFunc.t list) (macros : EMacro.t list) : t =
   let p = { (default ()) with file; imports } in
   List.iter (fun t -> Parser.parse_tdef t p) tdefs;
   List.iter (fun f -> Parser.parse_func f p) funcs;
@@ -48,15 +48,15 @@ let create (file : string) (imports : string list)
   p
 
 let file (p : t) : string = p.file
-let imports (p : t) : string list = p.imports
-let tdefs (p : t) : (string, EType.t) Hashtbl.t = p.tdefs
-let funcs (p : t) : (string, EFunc.t) Hashtbl.t = p.funcs
-let macros (p : t) : (string, EMacro.t) Hashtbl.t = p.macros
+let imports (p : t) : Id.t list = p.imports
+let tdefs (p : t) : (Id.t', EType.tdef) Hashtbl.t = p.tdefs
+let funcs (p : t) : (Id.t', EFunc.t) Hashtbl.t = p.funcs
+let macros (p : t) : (Id.t', EMacro.t) Hashtbl.t = p.macros
 
 let pp (fmt : Fmt.t) (p : t) : unit =
   let open Fmt in
-  let pp_import fmt import = fprintf fmt "import %s\n" import in
-  let pp_tdef fmt (tn, t) = fprintf fmt "typedef %s := %a\n" tn EType.pp t in
+  let pp_import fmt import = fprintf fmt "import %a\n" Id.pp import in
+  let pp_tdef fmt (_, t) = fprintf fmt "%a\n" EType.tdef_pp t in
   let pp_func fmt (_, f) = fprintf fmt "\n%a" EFunc.pp f in
   let pp_macro fmt (_, m) = fprintf fmt "\n%a" EMacro.pp m in
   fprintf fmt "%a\n%a%a%a" (pp_lst "" pp_import) p.imports
@@ -65,8 +65,8 @@ let pp (fmt : Fmt.t) (p : t) : unit =
 
 let str (p : t) : string = Fmt.asprintf "%a" pp p
 
-let tdefs_lst (p : t) : (string * EType.t) list =
-  Hashtbl.fold (fun tn t acc -> (tn, t) :: acc) p.tdefs []
+let tdefs_lst (p : t) : EType.tdef list =
+  Hashtbl.fold (fun _ t acc -> t :: acc) p.tdefs []
 
 let funcs_lst (p : t) : EFunc.t list =
   Hashtbl.fold (fun _ f acc -> f :: acc) p.funcs []

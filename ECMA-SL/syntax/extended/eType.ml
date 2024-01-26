@@ -225,3 +225,19 @@ let tlst (t : t) =
 
 let union_to_sigma (d : string) (t : t) : t =
   match t with UnionType ts -> SigmaType (d, ts) | _ -> t
+
+type tdef =
+  { name : Id.t
+  ; tval : t
+  }
+
+let tdef_create (name : Id.t) (tval : t) : tdef = { name; tval }
+let tdef_name (tdef : tdef) : Id.t = tdef.name
+let tdef_name' (tdef : tdef) : Id.t' = tdef.name.it
+let tdef_tval (tdef : tdef) : t = tdef.tval
+
+let tdef_pp (fmt : Fmt.t) (tdef : tdef) : unit =
+  let { name = tn; tval = tv } = tdef in
+  Fmt.fprintf fmt "typedef %a := %a" Id.pp tn pp tv
+
+let tdef_str (tdef : tdef) : string = Fmt.asprintf "%a" tdef_pp tdef
