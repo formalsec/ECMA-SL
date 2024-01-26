@@ -11,13 +11,12 @@ and t' =
   }
 
 let default () : t =
-  { name = Id.default ()
-  ; tparams = []
-  ; treturn = None
-  ; body = EStmt.default ()
-  ; metadata = None
-  }
-  @> no_region
+  ?@{ name = Id.default ()
+    ; tparams = []
+    ; treturn = None
+    ; body = EStmt.default ()
+    ; metadata = None
+    }
 
 let create (name : Id.t) (tparams : (Id.t * EType.t option) list)
   (treturn : EType.t option) (body : EStmt.t)

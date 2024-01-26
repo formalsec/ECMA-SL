@@ -24,7 +24,7 @@ and t' =
   | Fail of Expr.t
   | Assert of Expr.t
 
-let default () : t = Skip @> no_region
+let default () : t = ?@Skip
 
 let isvoid (e : Expr.t) : bool =
   match e.it with Expr.Val Val.Void -> true | _ -> false
