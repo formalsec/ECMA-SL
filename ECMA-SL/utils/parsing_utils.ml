@@ -10,6 +10,10 @@ let load_file (file : string) : string =
   Source.Code.load file data;
   data
 
+let load_dependency (file : Id.t) : string =
+  try load_file file.it
+  with _ -> Eslerr.(compile ~src:(ErrSrc.at file) (UnknownDependency file.it))
+
 let print_position (outx : Fmt.t) (lexbuf : Lexing.lexbuf) : unit =
   let pos = lexbuf.lex_curr_p in
   Printf.printf "Line number: %d. File: %s\n" pos.pos_lnum pos.pos_fname;
@@ -95,25 +99,24 @@ let parse_eprog ?(file : string = "") (str : string) : EProg.t =
 module SSet = Set.Make (String)
 
 let rec resolve_imports (resolved : SSet.t) (paths : string list)
-  (unresolved : string list list) (tdefs : (string * EType.t) list)
-  (funcs : EFunc.t list) (macros : EMacro.t list) :
-  (string * EType.t) list * EFunc.t list * EMacro.t list =
+  (unresolved : Id.t list list) (tdefs : EType.tdef list) (funcs : EFunc.t list)
+  (macros : EMacro.t list) : EType.tdef list * EFunc.t list * EMacro.t list =
   match (unresolved, paths) with
   | ([], _) -> (tdefs, funcs, macros)
   | ([] :: unresolved', file :: paths') ->
     let resolved = SSet.add file resolved in
     resolve_imports resolved paths' unresolved' tdefs funcs macros
   | ((file :: files) :: _, _) ->
-    if SSet.mem file resolved then
+    if SSet.mem file.it resolved then
       resolve_imports resolved paths [ files ] tdefs funcs macros
-    else if not (List.mem file paths) then
-      let eprog = load_file file |> parse_eprog ~file in
-      resolve_imports resolved (file :: paths)
+    else if not (List.mem file.it paths) then
+      let eprog = load_dependency file |> parse_eprog ~file:file.it in
+      resolve_imports resolved (file.it :: paths)
         (EProg.imports eprog :: unresolved)
         (EProg.tdefs_lst eprog @ tdefs)
         (EProg.funcs_lst eprog @ funcs)
         (EProg.macros_lst eprog @ macros)
-    else Eslerr.(compile (CyclicDependency file))
+    else Eslerr.(compile ~src:(ErrSrc.at file) (CyclicDependency file.it))
   | ([] :: _, []) -> Eslerr.(internal __FUNCTION__ (Expecting "non-empty path"))
 
 let resolve_eprog_imports (prog : EProg.t) : EProg.t =

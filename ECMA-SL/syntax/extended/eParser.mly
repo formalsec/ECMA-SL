@@ -175,7 +175,7 @@ prog_target:
     { EProg.Parser.parse_prog imports p_els }
 
 import_target:
-  | IMPORT; file = STRING; SEMICOLON;
+  | IMPORT; file = str_id_target; SEMICOLON;
     { file }
 
 prog_element_target:
@@ -186,8 +186,8 @@ prog_element_target:
 (* ==================== Type definitions ==================== *)
 
 tdef_target:
-  | TYPEDEF; tn = ID; DEFEQ; t = type_target;
-    { (tn, t) }
+  | TYPEDEF; tn = id_target; DEFEQ; tv = type_target;
+    { EType.tdef_create tn tv }
 
 (* ==================== Functions ==================== *)
 
