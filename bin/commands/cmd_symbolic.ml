@@ -187,7 +187,7 @@ let prog_of_js file =
   let ast_file = Fpath.(file -+ "_ast.cesl") in
   let* () = OS.Cmd.run (js2ecma_sl file ast_file) in
   let ast_chan = open_in @@ Fpath.to_string ast_file in
-  let interp_chan = open_in (Option.get (Esl_share.get_es6 ())) in
+  let interp_chan = open_in (Option.get (Share.get_es6 ())) in
   Fun.protect
     ~finally:(fun () ->
       close_in ast_chan;
@@ -294,7 +294,7 @@ let execute_witness env (test : string) (witness : Fpath.t) =
 let validate (copts : Options.common_options) filename suite_path =
   if copts.debug then Logs.set_level (Some Logs.Debug);
   Logs.app (fun m -> m "validating : %s..." filename);
-  let node_loc = List.nth Esl_share.nodejs_location 0 in
+  let node_loc = List.nth Share.nodejs_location 0 in
   let node_path = Printf.sprintf ".:%s" node_loc in
   let env = String.Map.of_list [ ("NODE_PATH", node_path) ] in
   (let* witnesses = OS.Path.matches Fpath.(v suite_path / "witness-$(n).js") in

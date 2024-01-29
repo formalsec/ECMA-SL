@@ -1,6 +1,6 @@
 Tests compilation of ecmaref5:
   $ cd ../../JS-Interpreters
-  $ dune exec -- ecma-sl compile ecmaref5/main.esl --untyped
+  $ ecma-sl compile ecmaref5/main.esl --untyped
   function newBinding(___internal_esl_global, initialised, value, deletable, modifiable) {
   __v15917 := (initialised, value, deletable, modifiable);
   return (false, __v15917)
