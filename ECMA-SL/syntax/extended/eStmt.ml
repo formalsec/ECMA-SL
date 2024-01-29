@@ -15,7 +15,7 @@ and t' =
   | Return of EExpr.t
   | ExprStmt of EExpr.t
   | Assign of Id.t * EType.t option * EExpr.t
-  | GlobAssign of Id.t * EExpr.t
+  | GAssign of Id.t * EExpr.t
   | FieldAssign of EExpr.t * EExpr.t * EExpr.t
   | FieldDelete of EExpr.t * EExpr.t
   | If of (EExpr.t * t * metadata_t list) list * (t * metadata_t list) option
@@ -33,12 +33,11 @@ and t' =
 
 let default () : t = ?@Skip
 
-let isvoid (e : EExpr.t) : bool =
-  match e.it with EExpr.Val Val.Void -> true | _ -> false
-
 let rec pp (fmt : Fmt.t) (s : t) : unit =
   let open Fmt in
-  let pp_return fmt e = if isvoid e then () else fprintf fmt " %a" EExpr.pp e in
+  let pp_return fmt e =
+    if EExpr.isvoid e then () else fprintf fmt " %a" EExpr.pp e
+  in
   match s.it with
   | Skip -> fprintf fmt "skip"
   | Debug s' -> fprintf fmt "# %a" pp s'
@@ -48,7 +47,7 @@ let rec pp (fmt : Fmt.t) (s : t) : unit =
   | ExprStmt e -> EExpr.pp fmt e
   | Assign (x, t, e) ->
     fprintf fmt "%a%a := %a" Id.pp x EType.pp_tannot t EExpr.pp e
-  | GlobAssign (x, e) -> fprintf fmt "|%a| := %a" Id.pp x EExpr.pp e
+  | GAssign (x, e) -> fprintf fmt "|%a| := %a" Id.pp x EExpr.pp e
   | FieldAssign (oe, fe, e) ->
     fprintf fmt "%a[%a] := %a" EExpr.pp oe EExpr.pp fe EExpr.pp e
   | FieldDelete (oe, fe) -> fprintf fmt "delete %a[%a]" EExpr.pp oe EExpr.pp fe
@@ -104,7 +103,7 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = EExpr.Mapper.id) (mapper : t -> t)
   | Return e -> Return (emapper e)
   | ExprStmt e -> ExprStmt (emapper e)
   | Assign (x, t, e) -> Assign (id_mapper x, t, emapper e)
-  | GlobAssign (x, e) -> GlobAssign (id_mapper x, emapper e)
+  | GAssign (x, e) -> GAssign (id_mapper x, emapper e)
   | FieldAssign (oe, fe, e) -> FieldAssign (emapper oe, emapper fe, emapper e)
   | FieldDelete (oe, fe) -> FieldDelete (emapper oe, emapper fe)
   | If (ifcs, elsecs) ->
@@ -145,7 +144,7 @@ let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
   else
     let ret_rec =
       match s.it with
-      | Skip | Print _ | Wrapper _ | Assign _ | GlobAssign _ | Return _
+      | Skip | Print _ | Wrapper _ | Assign _ | GAssign _ | Return _
       | FieldAssign _ | FieldDelete _ | ExprStmt _ | Throw _ | Fail _ | Assert _
         ->
         []

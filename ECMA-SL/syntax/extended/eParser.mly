@@ -230,7 +230,7 @@ stmt_target:
   | x = id_target; t = option(tannot_target); DEFEQ; e = expr_target;
     { EStmt.Assign (x, t, e) @> at $sloc }
   | x = gid_target; DEFEQ; e = expr_target;
-    { EStmt.GlobAssign (x, e) @> at $sloc }
+    { EStmt.GAssign (x, e) @> at $sloc }
   | oe = expr_target; fe = lookup_target; DEFEQ; e = expr_target;
     { EStmt.FieldAssign (oe, fe, e) @> at $sloc }
   | DELETE; oe = expr_target; fe = lookup_target;

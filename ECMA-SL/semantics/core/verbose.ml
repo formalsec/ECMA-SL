@@ -13,11 +13,11 @@ end
 
 module Enable : M = struct
   let eval_expr_val (e : Expr.t) (v : Val.t) : unit =
-    Fmt.eprintf "» | %a | --> %a@." Expr.pp e Val.pp v
+    Fmt.eprintf "» | %a | --> %a @@ %a @." Expr.pp e Val.pp v Source.pp e
 
   let eval_small_step (f : Func.t) (s : Stmt.t) : unit =
     if log_stmt s then
       let divider = "----------------------------------------" in
-      Fmt.eprintf "%s\nEvaluating >>>> %a() [line=%d]: %a@." divider Id.pp
-        (Func.name f) s.at.left.line Stmt.pp_simple s
+      Fmt.eprintf "%s\nEvaluating >>>> %a() [line=%d]: %a @@ %a@." divider Id.pp
+        (Func.name f) s.at.left.line Stmt.pp_simple s Source.pp s
 end
