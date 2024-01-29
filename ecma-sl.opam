@@ -24,6 +24,7 @@ depends: [
   "menhirLib"
   "encoding" {>= "0.0.3"}
   "yojson"
+  "dune-site"
 ]
 build: [
   ["dune" "subst"] {dev}

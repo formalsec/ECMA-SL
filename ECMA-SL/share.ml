@@ -1,5 +1,5 @@
-let interpreters_location : string list = Esl_site.Sites.interpreters
-let nodejs_location : string list = Esl_site.Sites.nodejs
+let interpreters_location : string list = Site.Sites.interpreters
+let nodejs_location : string list = Site.Sites.nodejs
 
 let find file =
   List.find_map

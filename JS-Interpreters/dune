@@ -1,0 +1,17 @@
+(rule
+ (targets es6.cesl es5.cesl)
+ (deps
+  %{bin:ecma-sl}
+  (source_tree ecmaref5)
+  (source_tree ecmaref6))
+ (action
+  (progn
+   (run ecma-sl compile ecmaref5/main.esl --untyped -o es5.cesl)
+   (run ecma-sl compile ecmaref6/main_sym.esl --untyped -o es6.cesl))))
+
+(install
+ (package ecma-sl)
+ (section
+  (site
+   (ecma-sl interpreters)))
+ (files es5.cesl es6.cesl))
