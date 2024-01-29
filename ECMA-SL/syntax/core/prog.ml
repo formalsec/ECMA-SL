@@ -8,7 +8,7 @@ let create (fs : Func.t list) : t =
   p
 
 let add_func (p : t) (name : string) (func : Func.t) : unit =
-  Hashtbl.add p name func
+  Hashtbl.replace p name func
 
 let funcs (p : t) : (string, Func.t) Hashtbl.t = p
 let func_opt (p : t) (fn : string) : Func.t option = Hashtbl.find_opt p fn
