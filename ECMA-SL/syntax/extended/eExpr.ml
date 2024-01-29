@@ -52,6 +52,7 @@ let rec pp (fmt : Fmt.t) (e : t) : unit =
   | Symbolic (t, e') -> fprintf fmt "se_mk_symbolic(%a, %a)" Type.pp t pp e'
 
 let str (e : t) : string = Fmt.asprintf "%a" pp e
+let isvoid (e : t) : bool = match e.it with Val Val.Void -> true | _ -> false
 
 let rec map (mapper : t -> t) (e : t) : t =
   let map' = map mapper in
