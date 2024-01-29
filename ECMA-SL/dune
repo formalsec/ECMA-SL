@@ -5,6 +5,8 @@
  (name ecma_sl)
  (modules
   ;  general
+  site
+  share
   config
   ;  utils
   common
@@ -114,7 +116,7 @@
   value_typing)
  (preprocess
   (staged_pps ppx_import ppx_deriving.std))
- (libraries str encoding menhirLib yojson z3 bos bos.setup esl_share))
+ (libraries str encoding menhirLib yojson z3 bos bos.setup dune-site))
 
 (subdir
  syntax/core
@@ -141,3 +143,7 @@
  (menhir
   (modules eParser)
   (flags --table --explain)))
+
+(generate_sites_module
+ (module site)
+ (sites ecma-sl))

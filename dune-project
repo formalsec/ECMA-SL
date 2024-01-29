@@ -38,15 +38,11 @@
   menhirLib
   (encoding
    (>= 0.0.3))
-  yojson)
+  yojson
+  dune-site)
  (tags
-  (ECMAScript "Specification Language" "Reference Interpreters" "OCaml")))
-
-(package
- (name ecma-sl-share)
- (synopsis "Ecma-sl-share")
- (depends dune-site)
- (sites
+  (ECMAScript "Specification Language" "Reference Interpreters" "OCaml"))
+(sites
   (share interpreters)
   (share nodejs)))
 
