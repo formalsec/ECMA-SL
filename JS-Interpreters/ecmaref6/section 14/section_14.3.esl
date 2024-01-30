@@ -9,12 +9,12 @@ function DefineMethodAlt(scope, object, method, functionPrototype){
 /**
  * 14.3.8 Runtime Semantics: DefineMethod
  *
- * With parameters object and optional parameter functionPrototype. 
+ * With parameters object and optional parameter functionPrototype.
  */
 function DefineMethodProperty(scope, object, propertyName, func, functionPrototype){
-  
+
   /* 1. Let propKey be the result of evaluating PropertyName. */
-  propKey := JS_Interpreter_PropertyName(propertyName, scope);
+  propKey := JS_Interpreter_PropertyName(propertyName, scope, false);
 
   /* 2. ReturnIfAbrupt(propKey). */
   @ReturnIfAbrupt(propKey);
@@ -32,9 +32,9 @@ function DefineMethodProperty(scope, object, propertyName, func, functionPrototy
 	  kind := "Method"
   };
 
-  /* 6. Let closure be FunctionCreate(kind, StrictFormalParameters, 
-     FunctionBody, scope, strict). If functionPrototype was passed as a 
-     parameter then pass its value as the functionPrototype optional 
+  /* 6. Let closure be FunctionCreate(kind, StrictFormalParameters,
+     FunctionBody, scope, strict). If functionPrototype was passed as a
+     parameter then pass its value as the functionPrototype optional
      argument of FunctionCreate. */
   closure := FunctionCreate(kind, func.params, func.body, lexEnv, true, functionPrototype);
 
@@ -75,7 +75,7 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
         /* 5. Let formalParameterList be the production FormalParameters : [empty] */
         formalParameterList := [];
 
-        /* 6. Let closure be FunctionCreate(Method, formalParameterList, 
+        /* 6. Let closure be FunctionCreate(Method, formalParameterList,
             FunctionBody, scope, strict). */
         closure := FunctionCreate("Method", func.params, func.body, lexEnv, strict, null);
 
@@ -86,7 +86,7 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
         SetFunctionName(closure, propKey, "get");
         delete closure.JSProperties["caller"];
 
-        /* 9. Let desc be the PropertyDescriptor{[[Get]]: closure, [[Enumerable]]: 
+        /* 9. Let desc be the PropertyDescriptor{[[Get]]: closure, [[Enumerable]]:
             enumerable, [[Configurable]]: true} */
         desc := newGetAccessorPropertyDescriptorFull(closure, enumerable, true);
 
@@ -114,7 +114,7 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
         /* 4. Let scope be the running execution context’s LexicalEnvironment. */
         lexEnv := getLexicalEnvironment(scope);
 
-        /* 5. Let closure be FunctionCreate(Method, formalParameterList, 
+        /* 5. Let closure be FunctionCreate(Method, formalParameterList,
             FunctionBody, scope, strict). */
         closure := FunctionCreate("Method", func.params, func.body, lexEnv, strict, null);
         delete closure.JSProperties["caller"];
@@ -125,7 +125,7 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
         /* 7. Perform SetFunctionName(closure, propKey, "get"). */
         SetFunctionName(closure, propKey, "set");
 
-        /* 8. Let desc be the PropertyDescriptor{[[Set]]: closure, [[Enumerable]]: 
+        /* 8. Let desc be the PropertyDescriptor{[[Set]]: closure, [[Enumerable]]:
             enumerable, [[Configurable]]: true} */
         desc := newSetAccessorPropertyDescriptorFull(closure, enumerable, true);
 
@@ -136,7 +136,7 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
     | { key: key, value: func} -> {
         /* 1. Let methodDef be DefineMethod of MethodDefinition with argument object. */
         methodDef := DefineMethodProperty(scope, object, key, func, null);
-        
+
         /* 2. ReturnIfAbrupt(methodDef). */
         @ReturnIfAbrupt(methodDef);
 
