@@ -1,4 +1,4 @@
-/* 
+/*
   Functions For BindingInitialization of BindingPattern
   and also for expression parameters
  */
@@ -190,7 +190,7 @@ function BindingInitializationObjectPattern(param, value, environment) {
         BindingInitializationObjectPattern(argument, value, environment)
       }
     } else {
-      key := JS_Interpreter_PropertyName(property.key, environment);
+      key := JS_Interpreter_PropertyName(property.key, environment, false);
       @ReturnIfAbrupt(key);
       property_name := GetPropertyName(key);
       status := InitializeSingleObjectBinding(property, property_name, value, environment);
