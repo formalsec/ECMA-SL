@@ -2,7 +2,7 @@ type c_expr = Stmt.t list * Expr.t
 type c_stmt = Stmt.t list
 
 module Const = struct
-  let main_func = "main"
+  let original_main = "main"
   let internal_esl_global = "___internal_esl_global"
 end
 
@@ -204,7 +204,7 @@ let rec compile_stmt (s : EStmt.t) : c_stmt =
   | RepeatUntil (s', e, _) -> compile_repeatuntil s' e
   | Switch (e, css, dflt, _) -> compile_switch e css dflt
   | MatchWith (e, css) -> compile_matchwith e css
-  | Lambda (x, id, _, ctxvars, _) -> compile_lambdacall s.at x id ctxvars
+  | Lambda (x, lid, _, ctxvars, _) -> compile_lambdacall s.at x lid ctxvars
   | MacroApply (_, _) ->
     Eslerr.(internal __FUNCTION__ (UnexpectedEval (Some "MacroApply")))
   | Throw e -> compile_throw s.at e
@@ -362,52 +362,24 @@ and compile_assert (at : region) (e : EExpr.t) : c_stmt =
   let (e_s, e_e) = compile_expr_of_stmt e in
   e_s @ [ Stmt.Assert e_e @> at ]
 
-(*
-C(s) = s', _
----------------------------------------
-C_f(function f (x1, ..., xn) { s }) =
-   function f (___internal_esl_global, x1, ..., xn) { s' }
-
-
-C(s) = s', _
----------------------------------------
-C_f(function main () { s }) =
-   function f () {
-      ___internal_esl_global := {};
-      s'
-   }
-*)
-let compile_func (e_func : EFunc.t) : Func.t =
-  let fname = EFunc.name e_func in
-  let fparams = EFunc.params e_func in
-  let fbody = EFunc.body e_func in
-  let stmt_list = compile_stmt fbody in
-  if fname.it = Const.main_func then
-    let asgn_new_obj =
-      Stmt.AssignNewObj (Const.internal_esl_global @> no_region) @> no_region
-    in
-    let stmt_list' = asgn_new_obj :: stmt_list in
-    Func.create fname fparams (Stmt.Block stmt_list' @> no_region) @> no_region
+let compile_func (f : EFunc.t) : Func.t =
+  let (name, params, body) = EFunc.(name f, params f, body f) in
+  let s_s = compile_stmt body in
+  if name.it = Const.original_main then
+    let s_s' = ?@(Stmt.AssignNewObj ?@Const.internal_esl_global) :: s_s in
+    Func.create name params (Stmt.Block s_s' @> body.at) @> f.at
   else
-    let fparams' = (Const.internal_esl_global @> no_region) :: fparams in
-    Func.create fname fparams' (Stmt.Block stmt_list @> no_region) @> no_region
+    let params' = ?@Const.internal_esl_global :: params in
+    Func.create name params' (Stmt.Block s_s @> body.at) @> f.at
 
 let compile_lambda
-  ((f_id, params, params', s) : string * Id.t list * Id.t list * EStmt.t) :
-  Func.t =
-  let stmt_list = compile_stmt s in
-  let params'' =
-    params @ [ Const.internal_esl_global @> no_region ] @ params'
-  in
-  Func.create (f_id @> no_region) params'' (Stmt.Block stmt_list @> no_region)
-  @> no_region
+  ((id, pxs, ctxvars, s) : string * Id.t list * Id.t list * EStmt.t) : Func.t =
+  let s_s = compile_stmt s in
+  let params = ctxvars @ (?@Const.internal_esl_global :: pxs) in
+  ?@(Func.create ?@id params (Stmt.Block s_s @> s.at))
 
-let compile_prog (e_prog : EProg.t) : Prog.t =
-  let funcs =
-    List.fold_left
-      (fun acc func -> acc @ [ compile_func func ])
-      [] (EProg.funcs_lst e_prog)
-  in
-  let lambdas = EProg.lambdas e_prog in
-  let lambda_funcs = List.map compile_lambda lambdas in
-  Prog.create (lambda_funcs @ funcs)
+let compile_prog (p : EProg.t) : Prog.t =
+  let funcs_f acc f = acc @ [ compile_func f ] in
+  let funcs = List.fold_left funcs_f [] (EProg.funcs_lst p) in
+  let lambdas = List.map compile_lambda (EProg.lambdas p) in
+  Prog.create (lambdas @ funcs)
