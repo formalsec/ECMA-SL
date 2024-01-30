@@ -1270,7 +1270,7 @@ function PropertyDefinitionEvaluation(PropertyDefinition, object, enumerable, sc
     } -> {
     /* 12.2.6.9 PropertyDefinition : PropertyName : AssignmentExpression */
     /* 1. Let propKey be ? Evaluation of PropertyName. */
-    propKey := JS_Interpreter_PropertyName(PropertyName, scope);
+    propKey := JS_Interpreter_PropertyName(PropertyName, scope, isComputedPropertyKey);
     /* 2. ReturnIfAbrupt(propKey). */
     @ReturnIfAbrupt(propKey);
     /* 3. Let exprValueRef be the result of evaluating AssignmentExpression. */
