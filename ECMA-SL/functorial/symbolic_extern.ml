@@ -15,6 +15,7 @@ module Make () = struct
   module Thread = Choice_monad.Thread
   module Translator = Value_translator
   module Optimizer = Choice_monad.Optimizer
+  module PC = Choice_monad.PC
 
   let ( let/ ) = Choice.bind
   let fresh_i = Utils.make_name_generator "i"
@@ -82,9 +83,9 @@ module Make () = struct
     in
     let evaluate (e : value) thread =
       let e' = Translator.translate e in
-      let pc = Thread.pc thread in
+      let pc = Thread.pc thread |> PC.to_list in
       let solver = Thread.solver thread in
-      assert (Solver.check solver (e' :: PC.to_list pc));
+      assert (Solver.check solver (e' :: pc));
       let v = Solver.get_value solver e' in
       [ (Ok (Translator.expr_of_value v.e), thread) ]
     in
@@ -97,9 +98,9 @@ module Make () = struct
     in
     let maximize (e : value) thread =
       let e' = Translator.translate e in
-      let pc = Thread.pc thread in
+      let pc = Thread.pc thread |> PC.to_list in
       let opt = Thread.optimizer thread in
-      let v = optimize Optimizer.maximize opt e' @@ PC.to_list pc in
+      let v = optimize Optimizer.maximize opt e' pc in
       match v with
       | Some v -> [ (Ok (Translator.expr_of_value (Val v)), thread) ]
       | None ->
@@ -108,9 +109,9 @@ module Make () = struct
     in
     let minimize (e : value) thread =
       let e' = Translator.translate e in
-      let pc = Thread.pc thread in
+      let pc = Thread.pc thread |> PC.to_list in
       let opt = Thread.optimizer thread in
-      let v = optimize Optimizer.minimize opt e' @@ PC.to_list pc in
+      let v = optimize Optimizer.minimize opt e' pc in
       match v with
       | Some v -> [ (Ok (Translator.expr_of_value (Val v)), thread) ]
       | None ->
