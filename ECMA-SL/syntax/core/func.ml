@@ -9,7 +9,7 @@ and t' =
   }
 
 let default () : t =
-  ?@{ name = Id.default (); params = []; body = Stmt.default () }
+  { name = Id.default (); params = []; body = Stmt.default () } @> no_region
 
 let create (name : Id.t) (params : Id.t list) (body : Stmt.t) : t' =
   { name; params; body }

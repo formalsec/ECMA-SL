@@ -11,12 +11,13 @@ and t' =
   }
 
 let default () : t =
-  ?@{ name = Id.default ()
-    ; tparams = []
-    ; treturn = None
-    ; body = EStmt.default ()
-    ; metadata = None
-    }
+  { name = Id.default ()
+  ; tparams = []
+  ; treturn = None
+  ; body = EStmt.default ()
+  ; metadata = None
+  }
+  @> no_region
 
 let create (name : Id.t) (tparams : (Id.t * EType.t option) list)
   (treturn : EType.t option) (body : EStmt.t)
@@ -52,10 +53,10 @@ let apply_macros (find_macro_f : Id.t' -> EMacro.t option) (f : t) : t =
   let body = EStmt.map (EMacro.mapper find_macro_f) f.it.body in
   { f with it = { f.it with body } }
 
-let lambdas (f : t) : (string * Id.t list * Id.t list * EStmt.t) list =
+let lambdas (f : t) : (region * string * Id.t list * Id.t list * EStmt.t) list =
   let to_list_f s =
     match s.it with
-    | EStmt.Lambda (_, id, pxs, ctxvars, s) -> [ (id, pxs, ctxvars, s) ]
+    | EStmt.Lambda (_, id, pxs, ctxvars, s) -> [ (s.at, id, pxs, ctxvars, s) ]
     | _ -> []
   in
   EStmt.to_list ~recursion:true to_list_f (body f)
