@@ -12,12 +12,17 @@ module Disable : M = struct
 end
 
 module Enable : M = struct
+  let print_source (fmt : Fmt.t) (at : Source.region) : unit =
+    if !Config.Interpreter.verbose_at then
+      Fmt.fprintf fmt " @@ %a" Source.pp_region at
+    else ()
+
   let eval_expr_val (e : Expr.t) (v : Val.t) : unit =
-    Fmt.eprintf "» | %a | --> %a @@ %a @." Expr.pp e Val.pp v Source.pp e
+    Fmt.eprintf "» | %a | --> %a%a@." Expr.pp e Val.pp v print_source e.at
 
   let eval_small_step (f : Func.t) (s : Stmt.t) : unit =
     if log_stmt s then
       let divider = "----------------------------------------" in
-      Fmt.eprintf "%s\nEvaluating >>>> %a() [line=%d]: %a @@ %a@." divider Id.pp
-        (Func.name f) s.at.left.line Stmt.pp_simple s Source.pp s
+      Fmt.eprintf "%s\nEvaluating >>>> %a() [line=%d]: %a%a@." divider Id.pp
+        (Func.name f) s.at.left.line Stmt.pp_simple s print_source s.at
 end
