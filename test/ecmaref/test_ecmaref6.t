@@ -42035,7 +42035,7 @@ Tests compilation of ecmaref6:
       }
     }
   };
-  function JS_Interpreter_PropertyName(___internal_esl_global, PropertyName, scope, computed) {
+  function JS_Interpreter_PropertyName(___internal_esl_global, PropertyName, scope, isComputed) {
     __v8421 := PropertyName["type"];
     switch (__v8421) {
   case "MemberExpression": {
@@ -42116,7 +42116,7 @@ Tests compilation of ecmaref6:
       __v8422 := "name" in_obj PropertyName;
       if (__v8422) {
         IdentifierName := PropertyName["name"];
-        if (computed) {
+        if (isComputed) {
           __v8423 := "JS_Interpreter_Expr"(___internal_esl_global, PropertyName, scope);
           if (fst(__v8423)) {
             return __v8423
@@ -42124,8 +42124,6 @@ Tests compilation of ecmaref6:
             __v8423 := snd(__v8423)
           };
           exprValue := __v8423;
-          print "Interpret PropertyName";
-          print exprValue;
           __v8424 := "GetValue"(___internal_esl_global, exprValue);
           if (fst(__v8424)) {
             return __v8424
@@ -58289,9 +58287,6 @@ Tests compilation of ecmaref6:
   function StringPrototypeReplace(___internal_esl_global, global, this, NewTarget, strict, args) {
     __v11535 := l_len(args);
     n_args := __v11535;
-    print "Replace";
-    print this;
-    print NewTarget;
     __v11536 := extern is_symbolic(this);
     if (__v11536) {
       __v11537 := extern str_symbol("app str.replace");
