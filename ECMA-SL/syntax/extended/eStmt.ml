@@ -128,48 +128,34 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = EExpr.Mapper.id) (mapper : t -> t)
   | Assert e -> Assert (emapper e)
   | Wrapper (meta, s') -> Wrapper (meta, map' s')
 
+let rec to_list ?(recursion : bool = false) (to_list_f : t -> 'a list) (s : t) :
+  'a list =
+  let to_list_s = to_list ~recursion to_list_f in
+  let to_list_ss stmts = List.concat (List.map to_list_s stmts) in
+  let to_list_recursive () =
+    match s.it with
+    | Skip | Print _ | Return _ | ExprStmt _ | Assign _ | GAssign _
+    | FieldAssign _ | FieldDelete _ | MacroApply _ | Throw _ | Fail _ | Assert _
+    | Wrapper _ ->
+      []
+    | Debug s' -> to_list_s s'
+    | Block ss -> to_list_ss ss
+    | If (ifcss, elsecs) ->
+      to_list_ss
+        ( List.map (fun (_, s, _) -> s) ifcss
+        @ Option.fold ~none:[] ~some:(fun (s, _) -> [ s ]) elsecs )
+    | While (_, s') -> to_list_s s'
+    | ForEach (_, _, s', _, _) -> to_list_s s'
+    | RepeatUntil (s', _, _) -> to_list_s s'
+    | Switch (_, css, dlft, _) ->
+      to_list_ss
+        ( List.map (fun (_, s) -> s) css
+        @ Option.fold ~none:[] ~some:(fun s -> [ s ]) dlft )
+    | MatchWith (_, css) -> to_list_ss (List.map (fun (_, s) -> s) css)
+    | Lambda (_, _, _, _, s) -> to_list_s s
+  in
+  to_list_f s @ if not recursion then [] else to_list_recursive ()
+
 module Mapper = struct
   let id (s : t) : t = s
 end
-
-(* FIXME: Requires cleaning below *)
-let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
-  let f' = to_list is_rec f in
-  let f_stmts stmts = List.concat (List.map f' stmts) in
-  let f_pat pats = List.concat (List.map (fun (_, s) -> f' s) pats) in
-  let f_cases cases = List.map (fun (_, s) -> s) cases in
-  let f_if_elses if_elses = List.map (fun (_, s, _) -> s) if_elses in
-  let ret = f s in
-  if not (is_rec s) then ret
-  else
-    let ret_rec =
-      match s.it with
-      | Skip | Print _ | Wrapper _ | Assign _ | GAssign _ | Return _
-      | FieldAssign _ | FieldDelete _ | ExprStmt _ | Throw _ | Fail _ | Assert _
-        ->
-        []
-      | Debug s' -> f' s'
-      | Block stmts -> f_stmts stmts
-      | If (ifs, final_else) ->
-        f_stmts
-          ( f_if_elses ifs
-          @ Option.fold ~some:(fun (s, _) -> [ s ]) ~none:[] final_else )
-      | While (_e, s) -> f' s
-      | ForEach (_x, _e, s, _, _) -> f' s
-      | RepeatUntil (s, _e, _) -> f' s
-      | MatchWith (_e, pats) -> f_pat pats
-      | Lambda (_, _, _, _, s) -> f' s
-      | MacroApply _ -> failwith "EStmt.to_list on MacroApply"
-      | Switch (_, cases, so, _) ->
-        f_stmts (f_cases cases @ Option.fold ~some:(fun x -> [ x ]) ~none:[] so)
-    in
-    ret @ ret_rec
-
-let lambdas (s : t) : (string * Id.t list * Id.t list * t) list =
-  let f_l s =
-    match s.it with
-    | Lambda (_, fid, xs, ys, s) -> [ (fid, ys, xs, s) ]
-    | _ -> []
-  in
-  let f_rec _s = true in
-  to_list f_rec f_l s
