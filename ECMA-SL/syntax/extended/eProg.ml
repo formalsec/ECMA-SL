@@ -1,3 +1,5 @@
+open Source
+
 type t =
   { file : string
   ; imports : Id.t list
@@ -80,5 +82,5 @@ let apply_macros (p : t) : t =
   let funcs = Hashtbl.fold apply_macro_f p.funcs [] in
   create p.file p.imports (tdefs_lst p) funcs []
 
-let lambdas (p : t) : (string * Id.t list * Id.t list * EStmt.t) list =
+let lambdas (p : t) : (region * string * Id.t list * Id.t list * EStmt.t) list =
   Hashtbl.fold (fun _ f acc -> EFunc.lambdas f @ acc) p.funcs []
