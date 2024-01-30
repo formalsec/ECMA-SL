@@ -1326,10 +1326,18 @@ function PropertyDefinitionEvaluation(PropertyDefinition, object, enumerable, sc
   }
 };
 
-function JS_Interpreter_PropertyName(PropertyName, scope) {
+function JS_Interpreter_PropertyName(PropertyName, scope, computed) {
   match PropertyName : type with
   /* The production PropertyName : IdentifierName is evaluated as follows: */
   | { type: "Identifier", name: IdentifierName } -> {
+    if (computed) {
+      exprValue := JS_Interpreter_Expr(PropertyName, scope);
+      print "Interpret PropertyName";
+      print exprValue;
+      propName := GetValue(exprValue);
+      @ReturnIfAbrupt(propName);
+      return ToPropertyKey(propName)
+    };
     /* 1. Return the String value containing the same sequence of characters as the IdentifierName. */
     return IdentifierName
   }
