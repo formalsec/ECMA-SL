@@ -3,7 +3,7 @@ const esprima = require("esprima-next");
 const yargs = require("yargs");
 const fs = require("fs");
 const translator = require("./ECMA-SL/translator");
-const { ParseRegExps } = require("./ECMA-SL/utils/parse_regexp");
+const ParseRegExps = require("./ECMA-SL/utils/parse_regexp");
 const { processClasses } = require("./ECMA-SL/utils/processClasses");
 const { processTailCalls } = require("./ECMA-SL/utils/processTailCalls");
 
