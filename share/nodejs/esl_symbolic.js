@@ -13,15 +13,17 @@ if (symbolic_map === undefined) {
 
 function get(x) { return symbolic_map[x]; }
 function ignore(_x) { }
-function is_symbolic(_x) { }
+function is_symbolic(_x) { return false }
 function lazy_object() { return {}; }
 
-module.exports.any = get;
-module.exports.number = get;
-module.exports.string = get;
-module.exports.boolean = get;
-module.exports.function = function(_x) { return function() {}; }
-module.exports.lazy_object = lazy_object
-module.exports.assume = ignore;
-module.exports.assert = ignore;
-module.exports.is_symbolic = is_symbolic;
+module.exports =
+  { any: get
+  , number: get
+  , string: get
+  , boolean: get
+  , function: function(_x) { return function() { }; }
+  , lazy_object: lazy_object
+  , assume: ignore
+  , assert: ignore
+  , is_symbolic: is_symbolic
+  }
