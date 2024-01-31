@@ -1,7 +1,7 @@
 open Cmdliner
 
 module AppInfo = struct
-  let version = "%%VERSION%%"
+  let version = "1.0.0"
   let doc = "Executable specification of the ECMAScript standard"
   let sdocs = Manpage.s_common_options
 
