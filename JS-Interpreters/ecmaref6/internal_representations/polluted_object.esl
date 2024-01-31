@@ -28,18 +28,27 @@
   * leaving the object `polluted` empty.
   */
 
-function newPollutedObject() {
+function newPollutedObject(depth) {
   proto := getObjectPrototype(false);
 
   inner_object := ObjectCreate(proto, null);
-  CreateDataPropertyOrThrow(inner_object, "polluted", "yup");
-
-  middle_object := ObjectCreate(proto, null);
-  middle_property := extern str_symbol("");
-  CreateDataPropertyOrThrow(middle_object, middle_property, inner_object);
+  toString := extern str_symbol("");
+  extern assume(toString = "toString");
+  CreateDataPropertyOrThrow(inner_object, toString, "polluted");
 
   outer_object := ObjectCreate(proto, null);
-  outer_property := extern str_symbol("");
-  CreateDataPropertyOrThrow(outer_object, outer_property, middle_object);
+  if (depth > 2) {
+    middle_object := ObjectCreate(proto, null);
+    prototype := extern str_symbol("");
+    extern assume(prototype = "prototype");
+    CreateDataPropertyOrThrow(middle_object, prototype, inner_object);
+    constructor := extern str_symbol("");
+    extern assume(constructor = "constructor");
+    CreateDataPropertyOrThrow(outer_object, constructor, middle_object)
+  } else {
+    proto := extern str_symbol("");
+    extern assume(proto = "__proto__");
+    CreateDataPropertyOrThrow(outer_object, proto, inner_object)
+  };
   return outer_object
 }
