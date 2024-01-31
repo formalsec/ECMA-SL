@@ -88,6 +88,16 @@ module Interpret = struct
        indicated by a '#' preceding the statement."
     in
     Arg.(value & flag & info [ "db"; "debugger" ] ~doc)
+
+  let main_func =
+    let docv = "FUNC" in
+    let doc =
+      "The designated entry point function for the interpreter. Caution: \
+       modifying this function can lead to unforeseen outcomes during \
+       interpretation, as certain constraints enforced by the ECMA-SL compiler \
+       (e.g., accesses to global variables) may be affected."
+    in
+    Arg.(value & opt string "main" & info [ "main" ] ~doc ~docv)
 end
 
 (* Other options - TODO *)
