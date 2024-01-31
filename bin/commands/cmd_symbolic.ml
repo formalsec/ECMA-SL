@@ -124,8 +124,8 @@ let run env entry_func =
     Fmt.printf "  mean time : %fms@."
       (1000. *. !Solver.solver_time /. float !Solver.solver_count) )
 
-let main (copts : Options.common_options) file target workspace =
-  Log.on_debug := copts.debug;
+let main (copts : Options.Common.t) file target workspace =
+  Options.Common.set copts;
   Config.workspace := workspace;
   (let* prog = dispatch_file_ext prog_of_plus prog_of_core prog_of_js file in
    let env = link_env prog in
@@ -157,7 +157,7 @@ let execute_witness env (test : string) (witness : Fpath.t) =
          observable_effects )
   | _ -> Error (`Msg (Fmt.sprintf "unexpected node failure: %s" out))
 
-let validate (copts : Options.common_options) filename suite_path =
+let validate (copts : Options.Common.t) filename suite_path =
   if copts.debug then Logs.set_level (Some Logs.Debug);
   Logs.app (fun m -> m "validating : %s..." filename);
   let node_loc = List.nth Share.nodejs_location 0 in

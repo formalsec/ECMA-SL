@@ -12,6 +12,6 @@ let man_xrefs = []
 let term =
   Term.(
     const Cmd_symbolic.validate
-    $ Options.common_options
-    $ Options.input_file
+    $ Options.Common.options
+    $ Options.File.input
     $ Options.testsuit_dir )

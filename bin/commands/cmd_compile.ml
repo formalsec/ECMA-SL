@@ -6,9 +6,6 @@ type options =
   ; untyped : bool
   }
 
-let options input_file output_file untyped : options =
-  { input_file; output_file; untyped }
-
 let run_type_checker (prog : EProg.t) : EProg.t =
   if !Config.Tesl.untyped || true then prog
   else
@@ -33,8 +30,7 @@ let run (opts : options) : unit =
   | None -> print_endline (Prog.str prog)
   | Some output_file' -> Io.write_file output_file' (Prog.str prog)
 
-let main (copts : Options.common_options) (opts : options) : int =
-  Log.on_debug := copts.debug;
-  Config.Common.colored := not copts.colorless;
+let main (copts : Options.Common.t) (opts : options) : int =
+  Options.Common.set copts;
   Config.Tesl.untyped := opts.untyped;
   Cmd.eval_cmd (fun () -> run opts)

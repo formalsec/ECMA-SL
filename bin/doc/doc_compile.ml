@@ -1,5 +1,4 @@
 open Cmdliner
-open Options
 
 let doc = "Compiles an ECMA-SL program to Core ECMA-SL"
 let sdocs = Manpage.s_common_options
@@ -19,8 +18,14 @@ let exits =
     ; Cmd.Exit.info ~doc:"on compilation error" 3
     ]
 
+let cmd_options input_file output_file untyped : Cmd_compile.options =
+  { input_file; output_file; untyped }
+
 let options =
   Term.(
-    const Cmd_compile.options $ input_file $ output_file $ compile_untyped_flag )
+    const cmd_options
+    $ Options.File.input
+    $ Options.File.output
+    $ Options.Compile.untyped )
 
-let term = Term.(const Cmd_compile.main $ common_options $ options)
+let term = Term.(const Cmd_compile.main $ Options.Common.options $ options)

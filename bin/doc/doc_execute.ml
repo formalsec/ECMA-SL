@@ -27,8 +27,8 @@ let man_xrefs = []
 let term =
   Term.(
     const Cmd_execute.main
-    $ Options.common_options
-    $ Options.input_file
+    $ Options.Common.options
+    $ Options.File.input
     $ Options.execution_lang
     $ Options.ecmaref_version
     $ Options.ecmaref_builder )
