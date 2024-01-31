@@ -27,7 +27,7 @@ let run_compiler (file : string) : Prog.t =
   |> Compiler.compile_prog
 
 let run (opts : options) : unit =
-  ignore (Cmd.test_file_lang opts.input_file [ Lang.ESL ]);
+  ignore (Cmd.test_file_ext [ Lang.ESL ] opts.input_file);
   let prog = run_compiler opts.input_file in
   match opts.output_file with
   | None -> print_endline (Prog.str prog)

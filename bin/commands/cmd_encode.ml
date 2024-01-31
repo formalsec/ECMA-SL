@@ -1,6 +1,6 @@
 let run (input_file : string) (_output_file : string option)
   (_encode_esl : bool) (_builder_func : string) : unit =
-  ignore (Cmd.test_file_lang input_file [ Lang.JS ]);
+  ignore (Cmd.test_file_ext [ Lang.JS ] input_file);
   print_endline "NOT IMPLEMENTED!"
 
 let main (_copts : Options.common_options) (input_file : string)

@@ -26,8 +26,8 @@ let log ?(header : bool = true) msg_fmt =
   let header_str = if header then "ecma-sl: " else "" in
   Format.(kdprintf (eprintf "%s%t@." header_str) msg_fmt)
 
-let test_file_lang (filename : string) (langs : Lang.t list) : Lang.t =
-  match Lang.of_file (Filename.extension filename) langs with
+let test_file_ext (langs : Lang.t list) (file : string) : Lang.t =
+  match Lang.test_file_ext langs (Filename.extension file) with
   | Some lang -> lang
   | None ->
     let open Format in
