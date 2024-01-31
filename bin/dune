@@ -10,7 +10,6 @@
   doc_interpret
   doc_encode
   doc_execute
-  doc_build
   doc_symbolic
   doc_replay
   cmd
@@ -18,7 +17,6 @@
   cmd_interpret
   cmd_encode
   cmd_execute
-  cmd_build
   cmd_symbolic
   lang
   ecmaref)
