@@ -14,7 +14,7 @@ let man_xrefs = []
 let term =
   Term.(
     const Cmd_symbolic.main
-    $ Options.common_options
-    $ Options.input_file
+    $ Options.Common.options
+    $ Options.File.input
     $ Options.target_func
     $ Options.workspace_dir )

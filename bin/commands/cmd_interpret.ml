@@ -9,16 +9,6 @@ type options =
   ; untyped : bool
   }
 
-let options input_file interpret_lang interpret_verbose interpret_verbose_at
-  interpret_debugger untyped : options =
-  { input_file
-  ; interpret_lang
-  ; interpret_verbose
-  ; interpret_verbose_at
-  ; interpret_debugger
-  ; untyped
-  }
-
 let langs : Lang.t list =
   [ Lang.Auto; Lang.ESL; Lang.CESL; Lang.CESLUnattached ]
 
@@ -67,9 +57,8 @@ let run (opts : options) : unit =
   | Lang.CESLUnattached -> interpret_core no_exit_checker opts.input_file
   | _ -> raise Cmd.(Command_error Failure)
 
-let main (copts : Options.common_options) (opts : options) : int =
-  Log.on_debug := copts.debug;
-  Config.Common.colored := not copts.colorless;
+let main (copts : Options.Common.t) (opts : options) : int =
+  Options.Common.set copts;
   Config.Interpreter.verbose := opts.interpret_verbose;
   Config.Interpreter.verbose_at := opts.interpret_verbose_at;
   Config.Interpreter.debugger := opts.interpret_debugger;

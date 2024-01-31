@@ -1,17 +1,16 @@
 open Cmdliner
-open Options
 
 let doc = "Interprets a Core ECMA-SL program"
 let sdocs = Manpage.s_common_options
 
 let description =
-  [ "Given an ECMA-SL (.cesl) or Core ECMA-SL (.cesl) file, this command \
-     executes the program using the concrete interpreter for Core ECMA-SL. If \
-     the program is written in ECMA-SL (.esl), the command defaults to \
-     compiling program into Core ECMA-SL (.cesl)."
+  [ "Given an ECMA-SL (.cesl) or Core ECMA-SL (.cesl) file, executes the \
+     program using the concrete interpreter for Core ECMA-SL. When provided \
+     with an ECMA-SL (.esl) file, defaults to compiling the program into Core \
+     ECMA-SL (.cesl) before execution."
   ; "Some of the options from the 'compile' command are also available when \
-     running the command on an ECMA-SL (.esl) file. When running the \
-     interpreter directly on a Core ECMA-SL file, these options are ignored."
+     interpreting an ECMA-SL (.esl) file. When running the interpreter \
+     directly on a Core ECMA-SL file, these options are ignored."
   ]
 
 let man =
@@ -30,14 +29,24 @@ let exits =
     ; Cmd.Exit.info ~doc:"on interpretation runtime error" 4
     ]
 
+let cmd_options input_file interpret_lang interpret_verbose interpret_verbose_at
+  interpret_debugger untyped : Cmd_interpret.options =
+  { input_file
+  ; interpret_lang
+  ; interpret_verbose
+  ; interpret_verbose_at
+  ; interpret_debugger
+  ; untyped
+  }
+
 let options =
   Term.(
-    const Cmd_interpret.options
-    $ input_file
-    $ interpret_lang Cmd_interpret.langs
-    $ interpret_verbose_flag
-    $ interpret_verbose_at_flag
-    $ interpret_debugger_flag
-    $ compile_untyped_flag )
+    const cmd_options
+    $ Options.File.input
+    $ Options.Interpret.lang Cmd_interpret.langs
+    $ Options.Interpret.verbose
+    $ Options.Interpret.verbose_at
+    $ Options.Interpret.debugger
+    $ Options.Compile.untyped )
 
-let term = Term.(const Cmd_interpret.main $ common_options $ options)
+let term = Term.(const Cmd_interpret.main $ Options.Common.options $ options)

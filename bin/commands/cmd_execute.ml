@@ -3,8 +3,9 @@ let run (_input_file : string) (_execution_lang : Lang.t)
   unit =
   print_endline "NOT IMPLEMENTED!"
 
-let main (_copts : Options.common_options) (input_file : string)
+let main (copts : Options.Common.t) (input_file : string)
   (execution_lang : Lang.t) (ecmaref_version : Ecmaref.version)
   (ecmaref_builder : Ecmaref.builder) : int =
+  Options.Common.set copts;
   let run' () = run input_file execution_lang ecmaref_version ecmaref_builder in
   Cmd.eval_cmd run'

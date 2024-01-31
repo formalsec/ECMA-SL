@@ -84,7 +84,7 @@ let cmd_list =
 let main_cmd =
   let open AppInfo in
   let default_fun _ = `Help (`Pager, None) in
-  let default = Term.(ret (const default_fun $ Options.common_options)) in
+  let default = Term.(ret (const default_fun $ Options.Common.options)) in
   let info = Cmd.info "ecma-sl" ~version ~doc ~sdocs ~man ~man_xrefs ~exits in
   Cmd.group info ~default cmd_list
 
