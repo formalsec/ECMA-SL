@@ -5,7 +5,8 @@
 (rule
  (target js2ecma-sl)
  (deps
-  (source_tree .))
+  package.json
+  (source_tree src))
  (action
   (run ./script.exe ./src/index.js -o %{target})))
 
