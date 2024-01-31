@@ -31,7 +31,11 @@ function __symLazyObject(globalObject, this, NewTarget, strict, params) {
 };
 
 function __symPollutedObject(globalObject, this, NewTarget, strict, params) {
-  return newPollutedObject()
+  depth := 0;
+  if (l_len(params) > 0) {
+    depth := l_nth(params, 0)
+  };
+  return newPollutedObject(depth)
 };
 
 function initESLSymbolicObject(globalObject, objectPrototype, strict) {
