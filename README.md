@@ -29,6 +29,8 @@ The combination of these tools results in a mechanism to execute JavaScript prog
 
 
 
+
+
 # Installation
 
 The ECMA-SL platform is accessed through the `ecma-sl` application, which is written in the [OCaml](https://ocaml.org/) programming language.
@@ -72,48 +74,59 @@ opam install ocaml-lsp-server ocamlformat
 
 
 
+
+
 # ECMA-SL Reference Execution
 
 The `ecma-sl` application provides the following commands, among others:
 
-- `compile` to compile an ECMA-SL program (`.esl`) into Core ECMA-SL (`.cesl`)
-- `interpret` to interpreter a Core ECMA-SL program
-<!-- - `encode` to encode a JavaScript (`.js`) program in Core ECMA-SL (`.cesl`) -->
-<!-- - `execute` to execute a JavaScript (`.js`) program using the reference interpreters for JavaScript -->
-<!-- - `build` to create the reference interpreters for JavaScript -->
+- **compile:** to compile an ECMA-SL (`.esl`) program into Core ECMA-SL (`.cesl`).
+- **interpret:** to interpret a Core ECMA-SL (`.cesl`) program.
+- **encode:** to encode a JavaScript (`.js`) program in Core ECMA-SL (`.cesl`)
 - ...
 
-Use `ecma-sl --help` for more information on the overall application, or `ecma-sl <command> --help` for more information on a specific command.
+Use `ecma-sl --help` for more information about the entire application, or `ecma-sl <command> --help` for in-depth information regarding a specific command, including a comprehensive list of available options.
 
 <br>
 
 ## Compile and Interpret an ECMA-SL Program
 
-- Compile an ECMA-SL `(.esl)` program into Core ECMA-SL (`.cesl`), and execute the Core ECMA-SL program:
+- Compile an ECMA-SL `(.esl)` program into Core ECMA-SL (`.cesl`), and interpret the Core ECMA-SL program:
 ```sh
-ecma-sl compile <input.esl> -o <output-cesl>
+ecma-sl compile <input.esl> -o <output.cesl>
 ecma-sl interpret <output.cesl>
 ```
 
-- Execute an ECMA-SL `(.esl)` program directly (the application extrapolates the language based on the file extension):
+- Interpret an ECMA-SL `(.esl)` program directly (the application extrapolates the language of the program based on the file extension, and compiles the ECMA-SL program to ECMA-SL if needed):
 ```sh
 ecma-sl interpret <input.esl>
 ```
 
 ### Verbose / Debug Interpretation
 
-- Execute an ECMA-SL `(.esl)` program in verbose mode (all interpretation steps are shown)
+- Interpret an ECMA-SL `(.esl)` program in verbose mode (all intermediate interpreter steps are logged):
 ```sh
 ecma-sl interpret <input.esl> --verbose
 ```
 
-- Execute an ECMA-SL `(.esl)` program with the debug prompt (breakpoints can be added to `(.esl)` code by preceding the instruction with a `#` character):
+- Execute an ECMA-SL `(.esl)` program with the debug prompt (breakpoints can be added to `(.esl)` code by preceding the instruction with `#`):
 ```sh
 ecma-sl interpret <input.esl> --db
 ```
 
 <br>
+
+## Encode and execute a JavaScript Program
+
+- Encode a JavaScript `(.js)` program in Core ECMA-SL `(.cesl)`: 
+```sh
+ecma-sl encode <input.js> -o <output.cesl>
+```
+
 <br>
+<br>
+
+
 
 
 
@@ -129,12 +142,16 @@ ecma-sl interpret <input.esl> --db
 
 
 
+
+
 # Issues
 
 For the list containing all current issues, please consult our [issue-tracker](https://github.com/formalsec/ECMA-SL/issues).
 
 <br>
 <br>
+
+
 
 
 
