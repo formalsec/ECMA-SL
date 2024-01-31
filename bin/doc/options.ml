@@ -100,6 +100,17 @@ module Interpret = struct
     Arg.(value & opt string "main" & info [ "main" ] ~doc ~docv)
 end
 
+module Encode = struct
+  let builder =
+    let docv = "FUNC" in
+    let doc =
+      "The name of the function responsible for reconstructing the Abstract \
+       Syntax Tree (AST) of the JavaScript program within the memory of \
+       ECMA-SL."
+    in
+    Arg.(value & opt (some string) None & info [ "builder" ] ~doc ~docv)
+end
+
 (* Other options - TODO *)
 
 let execution_lang =
@@ -127,10 +138,6 @@ let encode_esl_flag =
 let target_func =
   let doc = "The start function of the analysis." in
   Arg.(value & opt string "main" & info [ "target"; "t" ] ~doc)
-
-let builder_func =
-  let doc = "Name of the function that builds the AST." in
-  Arg.(value & opt string "Build_AST" & info [ "builder" ] ~doc)
 
 let workspace_dir =
   let doc = "The workspace directory for the results of the analysis." in

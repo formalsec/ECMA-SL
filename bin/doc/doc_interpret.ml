@@ -29,9 +29,9 @@ let exits =
     ; Cmd.Exit.info ~doc:"on interpretation runtime error" 4
     ]
 
-let cmd_options input_file interpret_lang interpret_verbose interpret_verbose_at
+let cmd_options input interpret_lang interpret_verbose interpret_verbose_at
   interpret_debugger interpret_main untyped : Cmd_interpret.options =
-  { input_file
+  { input
   ; interpret_lang
   ; interpret_verbose
   ; interpret_verbose_at

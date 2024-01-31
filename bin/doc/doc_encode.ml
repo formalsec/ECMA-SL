@@ -15,11 +15,21 @@ let description =
 let man = [ `S Manpage.s_description; `P (List.nth description 0) ]
 let man_xrefs = []
 
-let term =
+let exits =
+  List.append Cmd.Exit.defaults
+    [ Cmd.Exit.info ~doc:"on application failure" 1
+    ; Cmd.Exit.info ~doc:"on generic execution error" 2
+    ; Cmd.Exit.info ~doc:"on encoding error" 3
+    ]
+
+let cmd_options input output builder : Cmd_encode.options =
+  { input; output; builder }
+
+let options =
   Term.(
-    const Cmd_encode.main
-    $ Options.Common.options
+    const cmd_options
     $ Options.File.input
     $ Options.File.output
-    $ Options.encode_esl_flag
-    $ Options.builder_func )
+    $ Options.Encode.builder )
+
+let term = Term.(const Cmd_encode.main $ Options.Common.options $ options)
