@@ -1,4 +1,3 @@
-Object.sealProperties(Object.prototype);
 
 function extend(target, obj) {
   Object.keys(obj).forEach(function (key) {
@@ -22,8 +21,8 @@ function extend(target, obj) {
   return target
 }
 
-let obj1 = {};
-let obj2 = { ['__proto__'] : { "polluted" : true } };
-// let obj3 = { '__proto__' : { "polluted" : true } };
-extend(obj1, obj2);
-console.log(({}).polluted);
+Object.sealProperties(Object.prototype);
+let esl_symbolic = require('esl_symbolic');
+let p = esl_symbolic.polluted_object(depth=2);
+extend({}, p);
+console.log(({}).toString);

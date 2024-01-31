@@ -1,9 +1,6 @@
-let esl_symbolic = require("esl_symbolic");
-
-Object.sealProperties(Object.prototype);
 
 function merge(a, b) {
-  for (const p in b) {
+  for (var p in b) {
     try {
       if (b[p].constructor === Object) {
         a[p] = merge(a[p], b[p]);
@@ -17,6 +14,8 @@ function merge(a, b) {
   return a;
 }
 
-let polluted = esl_symbolic.polluted_object();
+Object.sealProperties(Object.prototype);
+let esl_symbolic = require('esl_symbolic');
+let polluted = esl_symbolic.polluted_object(depth=3);
 merge({}, polluted);
-console.log(({}).status);
+console.log(({}).toString);
