@@ -30,12 +30,13 @@ let exits =
     ]
 
 let cmd_options input_file interpret_lang interpret_verbose interpret_verbose_at
-  interpret_debugger untyped : Cmd_interpret.options =
+  interpret_debugger interpret_main untyped : Cmd_interpret.options =
   { input_file
   ; interpret_lang
   ; interpret_verbose
   ; interpret_verbose_at
   ; interpret_debugger
+  ; interpret_main
   ; untyped
   }
 
@@ -47,6 +48,7 @@ let options =
     $ Options.Interpret.verbose
     $ Options.Interpret.verbose_at
     $ Options.Interpret.debugger
+    $ Options.Interpret.main_func
     $ Options.Compile.untyped )
 
 let term = Term.(const Cmd_interpret.main $ Options.Common.options $ options)
