@@ -62,11 +62,6 @@ let execute_cmd =
   let info = Cmd.info "execute" ~doc ~sdocs ~man ~man_xrefs in
   Cmd.v info term
 
-let build_cmd =
-  let open Doc_build in
-  let info = Cmd.info "build" ~doc ~sdocs ~man ~man_xrefs in
-  Cmd.v info term
-
 let symbolic_cmd =
   let open Doc_symbolic in
   let info = Cmd.info "symbolic" ~doc ~sdocs ~man ~man_xrefs in
@@ -82,7 +77,6 @@ let cmd_list =
   ; interpret_cmd
   ; encode_cmd
   ; execute_cmd
-  ; build_cmd
   ; symbolic_cmd
   ; replay_cmd
   ]
