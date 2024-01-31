@@ -1,8 +1,8 @@
 open Ecma_sl
 
 type options =
-  { input_file : string
-  ; output_file : string option
+  { input : string
+  ; output : string option
   ; untyped : bool
   }
 
@@ -24,9 +24,9 @@ let run_compiler (file : string) : Prog.t =
   |> Compiler.compile_prog
 
 let run (opts : options) : unit =
-  ignore (Cmd.test_file_ext [ Lang.ESL ] opts.input_file);
-  let prog = run_compiler opts.input_file in
-  match opts.output_file with
+  ignore (Cmd.test_file_ext [ Lang.ESL ] opts.input);
+  let prog = run_compiler opts.input in
+  match opts.output with
   | None -> print_endline (Prog.str prog)
   | Some output_file' -> Io.write_file output_file' (Prog.str prog)
 

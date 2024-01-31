@@ -18,8 +18,8 @@ let exits =
     ; Cmd.Exit.info ~doc:"on compilation error" 3
     ]
 
-let cmd_options input_file output_file untyped : Cmd_compile.options =
-  { input_file; output_file; untyped }
+let cmd_options input output untyped : Cmd_compile.options =
+  { input; output; untyped }
 
 let options =
   Term.(
