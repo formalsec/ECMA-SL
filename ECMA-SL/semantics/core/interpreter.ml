@@ -273,10 +273,7 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     let mon = Mon.initial_state () in
     let return = small_step_iter prog state mon [ Func.body f ] in
     match return with
-    | Final (Val.Tuple [ Val.Bool false; retval ]) -> retval
-    | Final (Val.Tuple [ Val.Bool true; err ]) ->
-      Eslerr.(runtime (UncaughtExn (Val.str err)))
-    | Final _ -> Eslerr.internal __FUNCTION__ (Custom "invalid return format")
+    | Final v -> v
     | Error err -> Eslerr.(runtime (Failure (Val.str err)))
     | _ -> Eslerr.internal __FUNCTION__ (Expecting "non-intermediate state")
 end

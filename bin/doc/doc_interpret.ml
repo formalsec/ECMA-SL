@@ -5,12 +5,12 @@ let doc = "Interprets a Core ECMA-SL program"
 let sdocs = Manpage.s_common_options
 
 let description =
-  [ "Given a Core ECMA-SL (.cesl) file, this command executes the program \
-     using the concrete interpreter for Core ECMA-SL. If the program is \
-     instead written in ECMA-SL (.esl), the '--esl' flag can be used with this \
-     command to first compile the program to Core ECMA-SL before execution."
-  ; "Some of the options from the 'compile' command are also available to be \
-     used together with the '--esl' flag (.e.g, --untyped). When running the \
+  [ "Given an ECMA-SL (.cesl) or Core ECMA-SL (.cesl) file, this command \
+     executes the program using the concrete interpreter for Core ECMA-SL. If \
+     the program is written in ECMA-SL (.esl), the command defaults to \
+     compiling program into Core ECMA-SL (.cesl)."
+  ; "Some of the options from the 'compile' command are also available when \
+     running the command on an ECMA-SL (.esl) file. When running the \
      interpreter directly on a Core ECMA-SL file, these options are ignored."
   ]
 
@@ -34,7 +34,7 @@ let options =
   Term.(
     const Cmd_interpret.options
     $ input_file
-    $ interpret_lang
+    $ interpret_lang Cmd_interpret.langs
     $ interpret_verbose_flag
     $ interpret_verbose_at_flag
     $ interpret_debugger_flag

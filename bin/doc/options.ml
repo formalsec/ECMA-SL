@@ -31,26 +31,46 @@ let output_file =
 (* Compile options *)
 
 let compile_untyped_flag =
-  let doc = "Run the ECMA-SL compiler without typechecking." in
+  let doc =
+    "Execute the ECMA-SL compiler without typechecking. In this mode, all type \
+     annotations are disregarded."
+  in
   Arg.(value & flag & info [ "untyped" ] ~doc)
 
 (* Interpret options *)
-let interpret_lang =
-  let open Lang in
-  let doc = "Language of the program to be interpreted." in
-  let langs_enum = Arg.enum [ auto; esl; cesl ] in
-  Arg.(value & opt langs_enum Auto & info [ "lang" ] ~doc)
+let interpret_lang langs =
+  let doc =
+    "The language of the program to be interpreted. Options include: (1) \
+     'auto' (default, inferring the language from the file extension); (2) \
+     'esl' for ECMA-SL (.esl) files; (3) 'cesl' for Core ECMA-SL (.cesl) \
+     files; and (4) 'cesl-unattached' for executing Core ECMA-SL (.cesl) \
+     without certain restrictions imposed by the ECMA-SL compiler (e.g., \
+     forced format of return values)."
+  in
+  let langs' = Lang.args langs in
+  Arg.(value & opt (Arg.enum langs') Lang.Auto & info [ "lang" ] ~doc)
 
 let interpret_verbose_flag =
-  let doc = "Display intermediate interpreter information." in
+  let doc =
+    "Show intermediate interpreter details, encompassing the evaluation \
+     process of statements and expressions throughout the execution."
+  in
   Arg.(value & flag & info [ "verbose" ] ~doc)
 
 let interpret_verbose_at_flag =
-  let doc = "Display source locations in verbose prints." in
+  let doc =
+    "Include the source regions in verbose prints, revealing the location of \
+     the statement/expression being evaluated during."
+  in
   Arg.(value & flag & info [ "verbose-at" ] ~doc)
 
 let interpret_debugger_flag =
-  let doc = "Enable the Core ECMA-SL debugger." in
+  let doc =
+    "Enable the Core ECMA-SL debugger. To utilize the debugger, insert a \
+     breakpoint in the ECMA-SL (.esl) or Core ECMA-SL (.cesl) program, \
+     indicated by a '#' preceding the statement."
+  in
+
   Arg.(value & flag & info [ "db"; "debugger" ] ~doc)
 
 (* TODO *)
@@ -58,8 +78,8 @@ let interpret_debugger_flag =
 let execution_lang =
   let open Lang in
   let doc = "Language of the program to be executed." in
-  let langs_enum = Arg.enum [ auto; js; esl; cesl ] in
-  Arg.(value & opt langs_enum Auto & info [ "lang" ] ~doc)
+  let langs = Lang.args [ Auto; JS; ESL; CESL ] in
+  Arg.(value & opt (Arg.enum langs) Auto & info [ "lang" ] ~doc)
 
 let ecmaref_version =
   let open Ecmaref in

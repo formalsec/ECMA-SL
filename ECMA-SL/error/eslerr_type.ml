@@ -26,6 +26,7 @@ module Runtime = struct
     | Default
     | Custom of string
     | Unexpected of string
+    | UnexpectedExitFmt of Val.t
     | Failure of string
     | UncaughtExn of string
     | OpEvalErr of string
@@ -107,6 +108,7 @@ module RuntimeFmt : ErrFmt.ERR_TYPE_FMT with type msg = Runtime.t = struct
     | Default -> fprintf fmt "Generic runtime error."
     | Custom msg' -> fprintf fmt "%s" msg'
     | Unexpected msg -> fprintf fmt "Unexpected %s." msg
+    | UnexpectedExitFmt v -> fprintf fmt "Unexpected exit value '%a'." Val.pp v
     | Failure msg -> fprintf fmt "Failure %s." msg
     | UncaughtExn msg -> fprintf fmt "Uncaught exception %s." msg
     | OpEvalErr op_lbl -> fprintf fmt "Exception in Operator.%s." op_lbl
