@@ -1,7 +1,7 @@
 open Ecma_sl
 
 type options =
-  { input_file : string
+  { input : string
   ; interpret_lang : Lang.t
   ; interpret_verbose : bool
   ; interpret_verbose_at : bool
@@ -53,8 +53,7 @@ let compile_and_interpret (file : string) (main : string) : unit =
   Cmd_compile.run_compiler file |> run_interpreter esl_exit_checker main
 
 let run (opts : options) : unit =
-  let input = opts.input_file in
-  let main = opts.interpret_main in
+  let (input, main) = (opts.input, opts.interpret_main) in
   let valid_langs = Lang.valid langs opts.interpret_lang in
   match Cmd.test_file_ext valid_langs input with
   | Lang.ESL -> compile_and_interpret input main
