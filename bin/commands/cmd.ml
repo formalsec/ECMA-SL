@@ -23,7 +23,7 @@ let error_code (error : error) : int =
   | RuntimeError -> 4
 
 let log ?(header : bool = true) msg_fmt =
-  let header_str = if header then "ecma-sl: " else "" in
+  let header_str = if header then "\necma-sl: " else "" in
   Format.(kdprintf (eprintf "%s%t@." header_str) msg_fmt)
 
 let esl_internal_err (exn : exn) : int =
