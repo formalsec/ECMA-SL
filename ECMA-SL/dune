@@ -103,6 +103,7 @@
   memory_intf
   solver
   symbolic
+  symbolic_extern
   symbolic_interpreter
   symbolic_object
   symbolic_object2
