@@ -25,6 +25,12 @@ const argv = yargs
     type: "boolean",
     default: false,
   })
+  .option("silent", {
+    alias: "s",
+    description: "Does not print anything to the console",
+    type: "boolean",
+    default: false,
+  })
   .option("optimised", {
     description: 'Adds the "optimised" property to the AST',
     type: "boolean",
@@ -66,7 +72,7 @@ fs.readFile(argv.input, "utf-8", (err, data) => {
   if (argv.output) {
     fs.writeFile(argv.output, func.toString(), "utf8", (err) => {
       if (err) throw err;
-      console.log("The file has been saved!");
+      if (!argv.silent) console.log("The file has been saved!");
     });
   } else {
     console.log(func.toString());
