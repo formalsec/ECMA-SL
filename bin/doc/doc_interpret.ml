@@ -6,8 +6,8 @@ let sdocs = Manpage.s_common_options
 let description =
   [ "Given an ECMA-SL (.cesl) or Core ECMA-SL (.cesl) file, executes the \
      program using the concrete interpreter for Core ECMA-SL. When provided \
-     with an ECMA-SL (.esl) file, defaults to compiling the program into Core \
-     ECMA-SL (.cesl) before execution."
+     with an ECMA-SL (.esl) file, the default behaviour is  to compile the \
+     program into Core ECMA-SL (.cesl) before execution."
   ; "Some of the options from the 'compile' command are also available when \
      interpreting an ECMA-SL (.esl) file. When running the interpreter \
      directly on a Core ECMA-SL file, these options are ignored."

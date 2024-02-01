@@ -107,6 +107,8 @@ module Interpret = struct
     Arg.(value & flag & info [ "show-result" ] ~doc)
 end
 
+(* Encode options *)
+
 module Encode = struct
   let builder =
     let docv = "FUNC" in
@@ -118,6 +120,26 @@ module Encode = struct
     Arg.(value & opt (some string) None & info [ "builder" ] ~doc ~docv)
 end
 
+(* Execute options *)
+
+module Execute = struct
+  let lang langs =
+    let docv = "LANG" in
+    let doc =
+      "The language of the program to be executed. Options include: (1) 'auto' \
+       (default, inferring the language from the file extension); (2) 'js' for \
+       JavaScript (.js) files; and (3) 'cesl' for Core ECMA-SL (.cesl) files."
+    in
+    let langs' = Arg.enum (Lang.args langs) in
+    Arg.(value & opt langs' Lang.Auto & info [ "lang" ] ~doc ~docv)
+
+  let version versions =
+    let docv = "ECMAREF" in
+    let doc = "Version of the reference interpreter." in
+    let versions' = Arg.enum (Ecmaref.args versions) in
+    Arg.(value & opt versions' Ecmaref.Main & info [ "interp" ] ~doc ~docv)
+end
+
 (* Other options - TODO *)
 
 let execution_lang =
@@ -125,18 +147,6 @@ let execution_lang =
   let doc = "Language of the program to be executed." in
   let langs = Lang.args [ Auto; JS; ESL; CESL ] in
   Arg.(value & opt (Arg.enum langs) Auto & info [ "lang" ] ~doc)
-
-let ecmaref_version =
-  let open Ecmaref in
-  let doc = "Version of the reference interpreter." in
-  let ecmaref_version_enum = Arg.enum [ latest; toyecma; ecmaref5; ecmaref6 ] in
-  Arg.(value & opt ecmaref_version_enum Latest & info [ "ecmaref" ] ~doc)
-
-let ecmaref_builder =
-  let open Ecmaref in
-  let doc = "Building options for the reference interpreter." in
-  let ecmaref_builder_enum = Arg.enum [ never; if_missing; always ] in
-  Arg.(value & opt ecmaref_builder_enum Never & info [ "ecmaref-builder" ] ~doc)
 
 let encode_esl_flag =
   let doc = "Encode the program in ECMA-SL (.esl)." in

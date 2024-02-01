@@ -19,17 +19,20 @@ module JS2ECMA_SL = struct
 
   let cmd (input : string) (output : string option) (builder : string option) :
     Cmd.t =
-    Cmd.(v "js2ecma-sl" % "-c" % "-i" % input)
+    Cmd.(v "js2ecma-sl" % "-s" % "-c" % "-i" % input)
     |> set_output output
     |> set_builder builder
 end
 
-let run (opts : options) : unit =
-  let (input, output, builder) = (opts.input, opts.output, opts.builder) in
-  ignore (Cmd.test_file_ext [ Lang.JS ] input);
+let encode (input : string) (output : string option) (builder : string option) :
+  unit =
   match Bos_setup.OS.Cmd.run (JS2ECMA_SL.cmd input output builder) with
   | Ok _ -> ()
   | Error _ -> raise (Cmd.Command_error Error)
+
+let run (opts : options) : unit =
+  ignore (Cmd.test_file_ext [ Lang.JS ] opts.input);
+  encode opts.input opts.output opts.builder
 
 let main (copts : Options.Common.t) (opts : options) : int =
   Options.Common.set copts;

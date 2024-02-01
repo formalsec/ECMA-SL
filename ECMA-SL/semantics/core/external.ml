@@ -33,4 +33,3 @@ let execute (prog : Prog.t) (heap : 'a Heap.t) (f : string) (vs : Val.t list) :
   | _ ->
     Format.eprintf "UNKNOWN %s external function@." f;
     Val.Symbol "undefined"
-

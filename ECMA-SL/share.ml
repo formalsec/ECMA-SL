@@ -8,5 +8,7 @@ let find file =
       if Sys.file_exists filename then Some filename else None )
     interpreters_location
 
+let get_es5 () = find "es5.cesl"
 let get_es6 () = find "es6.cesl"
+let get_es6_sym () = find "es6-sym.cesl"
 let get_esl_symbolic () = find "esl_symbolic.js"
