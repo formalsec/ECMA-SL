@@ -76,7 +76,7 @@ let pp_model fmt v =
       ~pp_sep:(fun fmt () -> Fmt.fprintf fmt "@\n, ")
       pp_mapping fmt v
   in
-  Fmt.fprintf fmt "module.exports.symbolic_map = @[<h 2>{%a@\n}@]" pp_vars
+  Fmt.fprintf fmt "@[<v 2>module.exports.symbolic_map =@ { %a@\n}@]" pp_vars
     (Model.get_bindings v)
 
 let serialize =
@@ -161,7 +161,7 @@ let validate (copts : Options.common_options) filename suite_path =
   if copts.debug then Logs.set_level (Some Logs.Debug);
   Logs.app (fun m -> m "validating : %s..." filename);
   let node_loc = List.nth Share.nodejs_location 0 in
-  let node_path = Printf.sprintf ".:%s" node_loc in
+  let node_path = Fmt.sprintf ".:%s" node_loc in
   let env = String.Map.of_list [ ("NODE_PATH", node_path) ] in
   (let* witnesses = OS.Path.matches Fpath.(v suite_path / "witness-$(n).js") in
    let* () =
