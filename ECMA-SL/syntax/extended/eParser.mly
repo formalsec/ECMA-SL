@@ -81,6 +81,8 @@
 %token STRING_NTH STRING_NTH_U STRING_SPLIT
 %token STRING_SUBSTR STRING_SUBSTR_U
 
+%token ITE
+
 %token OBJECT_TO_LIST OBJECT_FIELDS 
 %token OBJECT_MEM
 
@@ -546,6 +548,7 @@ tuple_target:
   | STRING_SUBSTR_U         { Operator.StringSubstrU }
   | ARRAY_SET               { Operator.ArraySet }
   | LIST_SET                { Operator.ListSet }
+  | ITE                     { Operator.ITE }
 
 (* ==================== Metadata ==================== *)
 

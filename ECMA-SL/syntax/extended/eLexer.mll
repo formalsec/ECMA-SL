@@ -85,6 +85,9 @@
             "s_substr"                , STRING_SUBSTR;
             "s_substr_u"              , STRING_SUBSTR_U;
 
+            (* Constraints *)
+            "ite"                     , ITE;
+
             (* Object operators *)
             "obj_to_list"             , OBJECT_TO_LIST;
             "obj_fields"              , OBJECT_FIELDS;
