@@ -7,6 +7,7 @@ end
 module Interpreter = struct
   let debugger = ref false
   let verbose = ref false
+  let verbose_at = ref false
 end
 
 module Tesl = struct

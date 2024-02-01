@@ -36,6 +36,7 @@ let options =
     $ input_file
     $ interpret_lang
     $ interpret_verbose_flag
+    $ interpret_verbose_at_flag
     $ interpret_debugger_flag
     $ compile_untyped_flag )
 

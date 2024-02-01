@@ -19,7 +19,7 @@
       right = position_to_pos endpos;
     }
     
-  let fresh_lambda_id_gen = String_utils.make_fresh_var_generator "__lambda__"
+  let fresh_lambda_id_gen = Utils.make_name_generator "__lambda__"
 
 %}
 
@@ -224,7 +224,7 @@ stmt_target:
   | PRINT; e = expr_target;
     { EStmt.Print e @> at $sloc }
   | RETURN;
-    { EStmt.Return (EExpr.Val Val.Void @> no_region) @> at $sloc }
+    { EStmt.Return (EExpr.Val Val.Void @> at $sloc) @> at $sloc }
   | RETURN; e = expr_target;
     { EStmt.Return e @> at $sloc }  
   | e = expr_target;
@@ -232,7 +232,7 @@ stmt_target:
   | x = id_target; t = option(tannot_target); DEFEQ; e = expr_target;
     { EStmt.Assign (x, t, e) @> at $sloc }
   | x = gid_target; DEFEQ; e = expr_target;
-    { EStmt.GlobAssign (x, e) @> at $sloc }
+    { EStmt.GAssign (x, e) @> at $sloc }
   | oe = expr_target; fe = lookup_target; DEFEQ; e = expr_target;
     { EStmt.FieldAssign (oe, fe, e) @> at $sloc }
   | DELETE; oe = expr_target; fe = lookup_target;

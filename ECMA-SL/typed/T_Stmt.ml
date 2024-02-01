@@ -84,7 +84,7 @@ let type_ifelse (tctx : T_Ctx.t) (expr : EExpr.t) (stmt1 : EStmt.t)
   let (tctx1, tctx2) = (T_Ctx.copy tctx, T_Ctx.copy tctx) in
   let form1 = T_Constraint.generate tctx expr in
   let form2 =
-    if stmt2 <> Skip @> no_region then T_Constraint.Not form1
+    if stmt2 <> (Skip @> no_region) then T_Constraint.Not form1
     else T_Constraint.NoConstraint
   in
   let terrForm1 = apply_constrains tctx1 form1 in

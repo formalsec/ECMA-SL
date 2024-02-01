@@ -3,12 +3,6 @@ open Syntax.Result
 
 let ( let* ) o f = match o with Error e -> failwith e | Ok o -> f o
 
-module Crash = Err.Make ()
-module Invalid_arg = Err.Make ()
-
-exception Crash = Crash.Error
-exception Invalid_arg = Invalid_arg.Error
-
 module Make (P : Interpreter_functor_intf.P) :
   Interpreter_functor_intf.S
     with type env := P.env

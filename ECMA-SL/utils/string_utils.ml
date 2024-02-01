@@ -287,13 +287,6 @@ let trim (s : string) : string =
 
 let chop_first_char (s : string) : string = String.sub s 1 (String.length s - 1)
 
-let make_fresh_var_generator (pref : string) : unit -> string =
-  let count = ref 0 in
-  fun () ->
-    let x = !count in
-    count := x + 1;
-    pref ^ string_of_int x
-
 (* Taken from: https://stackoverflow.com/a/42431362/3049315 *)
 let utf8encode s =
   let prefs = [| 0x0; 0xc0; 0xe0; 0xf0 |] in

@@ -231,9 +231,8 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
       | (false, _, Skip) -> (Intermediate (state, cont), lbl (IfEval false))
       | (true, _, _) -> Eslerr.internal __FUNCTION__ (Expecting "if block")
       | (false, _, _) -> Eslerr.internal __FUNCTION__ (Expecting "else block") )
-    | While (e, s) ->
-      let ss = [ s; Stmt.While (e, s) @> s.at ] in
-      let loop = Stmt.If (e, Stmt.Block ss @> s.at, None) @> s.at in
+    | While (e, s') ->
+      let loop = Stmt.If (e, Stmt.Block [ s'; s ] @> s'.at, None) @> s.at in
       (Intermediate (state, loop :: cont), lbl WhileEval)
     | Fail e ->
       let v = eval_expr store e in

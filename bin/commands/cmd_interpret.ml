@@ -4,13 +4,20 @@ type options =
   { input_file : string
   ; interpret_lang : Lang.t
   ; interpret_verbose : bool
+  ; interpret_verbose_at : bool
   ; interpret_debugger : bool
   ; untyped : bool
   }
 
-let options input_file interpret_lang interpret_verbose interpret_debugger
-  untyped : options =
-  { input_file; interpret_lang; interpret_verbose; interpret_debugger; untyped }
+let options input_file interpret_lang interpret_verbose interpret_verbose_at
+  interpret_debugger untyped : options =
+  { input_file
+  ; interpret_lang
+  ; interpret_verbose
+  ; interpret_verbose_at
+  ; interpret_debugger
+  ; untyped
+  }
 
 let configure_debugger () : (module Debugger.M) =
   match !Config.Interpreter.debugger with
@@ -51,6 +58,7 @@ let main (copts : Options.common_options) (opts : options) : int =
   Log.on_debug := copts.debug;
   Config.Common.colored := not copts.colorless;
   Config.Interpreter.verbose := opts.interpret_verbose;
+  Config.Interpreter.verbose_at := opts.interpret_verbose_at;
   Config.Interpreter.debugger := opts.interpret_debugger;
   Config.Tesl.untyped := opts.untyped;
   Cmd.eval_cmd (fun () -> run opts)
