@@ -49,7 +49,7 @@ let prog_of_js file =
   let ast_file = Fpath.(file -+ "_ast.cesl") in
   let* () = OS.Cmd.run (js2ecma_sl file ast_file) in
   let ast_chan = open_in @@ Fpath.to_string ast_file in
-  let interp_chan = open_in (Option.get (Share.get_es6 ())) in
+  let interp_chan = open_in (Option.get (Share.get_es6_sym ())) in
   Fun.protect
     ~finally:(fun () ->
       close_in ast_chan;

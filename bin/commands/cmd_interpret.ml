@@ -46,7 +46,7 @@ let esl_exit_checker (retval : Val.t) : Val.t =
 let process_result (check_result_f : Val.t -> Val.t) (show_result : bool)
   (retval : Val.t) : unit =
   let retval' = check_result_f retval in
-  if show_result then Cmd.log "[FINAL RETURN] -> %a" Ecma_sl.Val.pp retval'
+  if show_result then Cmd.log "retval = %a" Ecma_sl.Val.pp retval'
 
 let interpret_core (check_result_f : Val.t -> Val.t) (opts : options) : unit =
   Parsing_utils.load_file opts.input
