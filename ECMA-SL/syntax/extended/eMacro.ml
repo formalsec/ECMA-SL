@@ -34,7 +34,7 @@ let pp_simple (fmt : Fmt.t) (m : t) : unit =
 let str ?(simple : bool = false) (f : t) : string =
   Fmt.asprintf "%a" (if simple then pp_simple else pp) f
 
-let mapper (find_macro_f : string -> t option) : EStmt.t -> EStmt.t =
+let mapper (find_macro_f : Id.t' -> t option) : EStmt.t -> EStmt.t =
  fun s ->
   match s.it with
   | EStmt.MacroApply (mn, es) -> (

@@ -15,7 +15,7 @@ and t' =
   | Return of EExpr.t
   | ExprStmt of EExpr.t
   | Assign of Id.t * EType.t option * EExpr.t
-  | GlobAssign of Id.t * EExpr.t
+  | GAssign of Id.t * EExpr.t
   | FieldAssign of EExpr.t * EExpr.t * EExpr.t
   | FieldDelete of EExpr.t * EExpr.t
   | If of (EExpr.t * t * metadata_t list) list * (t * metadata_t list) option
@@ -33,12 +33,11 @@ and t' =
 
 let default () : t = Skip @> no_region
 
-let isvoid (e : EExpr.t) : bool =
-  match e.it with EExpr.Val Val.Void -> true | _ -> false
-
 let rec pp (fmt : Fmt.t) (s : t) : unit =
   let open Fmt in
-  let pp_return fmt e = if isvoid e then () else fprintf fmt " %a" EExpr.pp e in
+  let pp_return fmt e =
+    if EExpr.isvoid e then () else fprintf fmt " %a" EExpr.pp e
+  in
   match s.it with
   | Skip -> fprintf fmt "skip"
   | Debug s' -> fprintf fmt "# %a" pp s'
@@ -48,7 +47,7 @@ let rec pp (fmt : Fmt.t) (s : t) : unit =
   | ExprStmt e -> EExpr.pp fmt e
   | Assign (x, t, e) ->
     fprintf fmt "%a%a := %a" Id.pp x EType.pp_tannot t EExpr.pp e
-  | GlobAssign (x, e) -> fprintf fmt "|%a| := %a" Id.pp x EExpr.pp e
+  | GAssign (x, e) -> fprintf fmt "|%a| := %a" Id.pp x EExpr.pp e
   | FieldAssign (oe, fe, e) ->
     fprintf fmt "%a[%a] := %a" EExpr.pp oe EExpr.pp fe EExpr.pp e
   | FieldDelete (oe, fe) -> fprintf fmt "delete %a[%a]" EExpr.pp oe EExpr.pp fe
@@ -104,7 +103,7 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = EExpr.Mapper.id) (mapper : t -> t)
   | Return e -> Return (emapper e)
   | ExprStmt e -> ExprStmt (emapper e)
   | Assign (x, t, e) -> Assign (id_mapper x, t, emapper e)
-  | GlobAssign (x, e) -> GlobAssign (id_mapper x, emapper e)
+  | GAssign (x, e) -> GAssign (id_mapper x, emapper e)
   | FieldAssign (oe, fe, e) -> FieldAssign (emapper oe, emapper fe, emapper e)
   | FieldDelete (oe, fe) -> FieldDelete (emapper oe, emapper fe)
   | If (ifcs, elsecs) ->
@@ -129,48 +128,34 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = EExpr.Mapper.id) (mapper : t -> t)
   | Assert e -> Assert (emapper e)
   | Wrapper (meta, s') -> Wrapper (meta, map' s')
 
+let rec to_list ?(recursion : bool = false) (to_list_f : t -> 'a list) (s : t) :
+  'a list =
+  let to_list_s = to_list ~recursion to_list_f in
+  let to_list_ss stmts = List.concat (List.map to_list_s stmts) in
+  let to_list_recursive () =
+    match s.it with
+    | Skip | Print _ | Return _ | ExprStmt _ | Assign _ | GAssign _
+    | FieldAssign _ | FieldDelete _ | MacroApply _ | Throw _ | Fail _ | Assert _
+    | Wrapper _ ->
+      []
+    | Debug s' -> to_list_s s'
+    | Block ss -> to_list_ss ss
+    | If (ifcss, elsecs) ->
+      to_list_ss
+        ( List.map (fun (_, s, _) -> s) ifcss
+        @ Option.fold ~none:[] ~some:(fun (s, _) -> [ s ]) elsecs )
+    | While (_, s') -> to_list_s s'
+    | ForEach (_, _, s', _, _) -> to_list_s s'
+    | RepeatUntil (s', _, _) -> to_list_s s'
+    | Switch (_, css, dlft, _) ->
+      to_list_ss
+        ( List.map (fun (_, s) -> s) css
+        @ Option.fold ~none:[] ~some:(fun s -> [ s ]) dlft )
+    | MatchWith (_, css) -> to_list_ss (List.map (fun (_, s) -> s) css)
+    | Lambda (_, _, _, _, s) -> to_list_s s
+  in
+  to_list_f s @ if not recursion then [] else to_list_recursive ()
+
 module Mapper = struct
   let id (s : t) : t = s
 end
-
-(* FIXME: Requires cleaning below *)
-let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
-  let f' = to_list is_rec f in
-  let f_stmts stmts = List.concat (List.map f' stmts) in
-  let f_pat pats = List.concat (List.map (fun (_, s) -> f' s) pats) in
-  let f_cases cases = List.map (fun (_, s) -> s) cases in
-  let f_if_elses if_elses = List.map (fun (_, s, _) -> s) if_elses in
-  let ret = f s in
-  if not (is_rec s) then ret
-  else
-    let ret_rec =
-      match s.it with
-      | Skip | Print _ | Wrapper _ | Assign _ | GlobAssign _ | Return _
-      | FieldAssign _ | FieldDelete _ | ExprStmt _ | Throw _ | Fail _ | Assert _
-        ->
-        []
-      | Debug s' -> f' s'
-      | Block stmts -> f_stmts stmts
-      | If (ifs, final_else) ->
-        f_stmts
-          ( f_if_elses ifs
-          @ Option.fold ~some:(fun (s, _) -> [ s ]) ~none:[] final_else )
-      | While (_e, s) -> f' s
-      | ForEach (_x, _e, s, _, _) -> f' s
-      | RepeatUntil (s, _e, _) -> f' s
-      | MatchWith (_e, pats) -> f_pat pats
-      | Lambda (_, _, _, _, s) -> f' s
-      | MacroApply _ -> failwith "EStmt.to_list on MacroApply"
-      | Switch (_, cases, so, _) ->
-        f_stmts (f_cases cases @ Option.fold ~some:(fun x -> [ x ]) ~none:[] so)
-    in
-    ret @ ret_rec
-
-let lambdas (s : t) : (string * Id.t list * Id.t list * t) list =
-  let f_l s =
-    match s.it with
-    | Lambda (_, fid, xs, ys, s) -> [ (fid, ys, xs, s) ]
-    | _ -> []
-  in
-  let f_rec _s = true in
-  to_list f_rec f_l s

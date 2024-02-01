@@ -26,12 +26,11 @@ and t' =
 
 let default () : t = Skip @> no_region
 
-let isvoid (e : Expr.t) : bool =
-  match e.it with Expr.Val Val.Void -> true | _ -> false
-
 let rec pp (fmt : Fmt.t) (s : t) : unit =
   let open Fmt in
-  let pp_return fmt e = if isvoid e then () else fprintf fmt " %a" Expr.pp e in
+  let pp_return fmt e =
+    if Expr.isvoid e then () else fprintf fmt " %a" Expr.pp e
+  in
   match s.it with
   | Skip -> fprintf fmt "skip"
   | Merge -> fprintf fmt "merge"
