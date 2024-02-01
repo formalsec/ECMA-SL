@@ -7,10 +7,7 @@ module Choice = Symbolic.P.Choice
 module Thread = Choice_monad.Thread
 module Translator = Value_translator
 module Extern_func = Symbolic.P.Extern_func
-module SMap = Stdlib.Map.Make (Stdlib.String)
-module Optimizer = Choice_monad.Optimizer
 
-let ( let/ ) = Choice.bind
 let print_time = false
 let print_pc = false
 
@@ -22,141 +19,6 @@ let list_iter ~f lst =
       lst;
     Ok ()
   with E s -> Error s
-
-let fresh : string -> string =
-  let counter = ref (-1) in
-  fun x ->
-    incr counter;
-    Fmt.sprintf "%s_%d" x !counter
-
-let symbolic_api_funcs =
-  let open Value in
-  let open Extern_func in
-  let str_symbol (x : value) =
-    Choice.return (Ok (Symbolic (Type.StrType, x)))
-  in
-  let int_symbol (x : value) = Choice.return (Ok (Value.int_symbol x)) in
-  let flt_symbol (x : value) =
-    Choice.return (Ok (Symbolic (Type.FltType, x)))
-  in
-  let bool_symbol (x : value) =
-    Choice.return (Ok (Symbolic (Type.BoolType, x)))
-  in
-  let is_symbolic (n : value) =
-    Choice.return (Ok (Val (Val.Bool (Value.is_symbolic n))))
-  in
-  let is_number (n : value) =
-    let is_number =
-      match Value_typing.type_of n with
-      | Some Type.IntType | Some Type.FltType -> true
-      | _ -> false
-    in
-    Choice.return (Ok (Val (Val.Bool is_number)))
-  in
-  let is_sat (e : value) =
-    let/ b = Choice.check e in
-    Choice.return (Ok (Val (Val.Bool b)))
-  in
-  let is_exec_sat (e : value) =
-    (* TODO: more fine-grained exploit analysis *)
-    let i = Value.int_symbol_s (fresh "i") in
-    let len = Value.int_symbol_s (fresh "len") in
-    let sub = TriOpt (Operator.StringSubstr, e, i, len) in
-    let query = BinOpt (Operator.Eq, sub, Val (Val.Str "; touch success #")) in
-    let/ b = Choice.check_add_true query in
-    Choice.return (Ok (Val (Val.Bool b)))
-  in
-  let is_eval_sat (e : value) =
-    (* TODO: more fine-grained exploit analysis *)
-    let i = Value.int_symbol_s (fresh "i") in
-    let len = Value.int_symbol_s (fresh "len") in
-    let sub = TriOpt (Operator.StringSubstr, e, i, len) in
-    let query =
-      BinOpt (Operator.Eq, sub, Val (Val.Str ";console.log('success')//"))
-    in
-    let/ b = Choice.check_add_true query in
-    Choice.return (Ok (Val (Val.Bool b)))
-  in
-  let abort (e : value) =
-    let e' = Format.asprintf "%a" Value.Pp.pp e in
-    Log.warn "      abort : %s@." e';
-    Choice.return @@ Error (Format.asprintf {|{ "abort" : %S }|} e')
-  in
-  let assume (e : value) thread =
-    let e' = Translator.translate e in
-    [ (Ok (Val (Val.Symbol "undefined")), Thread.add_pc thread e') ]
-  in
-  let evaluate (e : value) thread =
-    let e' = Translator.translate e in
-    let pc = Thread.pc thread in
-    let solver = Thread.solver thread in
-    assert (Solver.check solver (e' :: pc));
-    let v = Solver.get_value solver e' in
-    [ (Ok (Translator.expr_of_value v.e), thread) ]
-  in
-  let optimize target opt e pc =
-    Optimizer.push opt;
-    Optimizer.add opt pc;
-    let v = target opt e in
-    Optimizer.pop opt;
-    v
-  in
-  let maximize (e : value) thread =
-    let e' = Translator.translate e in
-    let pc = Thread.pc thread in
-    let opt = Thread.optimizer thread in
-    let v = optimize Optimizer.maximize opt e' pc in
-    match v with
-    | Some v -> [ (Ok (Translator.expr_of_value (Val v)), thread) ]
-    | None ->
-      (* TODO: Error here *)
-      assert false
-  in
-  let minimize (e : value) thread =
-    let e' = Translator.translate e in
-    let pc = Thread.pc thread in
-    let opt = Thread.optimizer thread in
-    let v = optimize Optimizer.minimize opt e' pc in
-    match v with
-    | Some v -> [ (Ok (Translator.expr_of_value (Val v)), thread) ]
-    | None ->
-      (* TODO: Error here *)
-      assert false
-  in
-  SMap.of_seq
-    (Array.to_seq
-       [| ("str_symbol", Extern_func (Func (Arg Res), str_symbol))
-        ; ("int_symbol", Extern_func (Func (Arg Res), int_symbol))
-        ; ("flt_symbol", Extern_func (Func (Arg Res), flt_symbol))
-        ; ("bool_symbol", Extern_func (Func (Arg Res), bool_symbol))
-        ; ("is_symbolic", Extern_func (Func (Arg Res), is_symbolic))
-        ; ("is_number", Extern_func (Func (Arg Res), is_number))
-        ; ("is_sat", Extern_func (Func (Arg Res), is_sat))
-        ; ("is_exec_sat", Extern_func (Func (Arg Res), is_exec_sat))
-        ; ("is_eval_sat", Extern_func (Func (Arg Res), is_eval_sat))
-        ; ("abort", Extern_func (Func (Arg Res), abort))
-        ; ("assume", Extern_func (Func (Arg Res), assume))
-        ; ("evaluate", Extern_func (Func (Arg Res), evaluate))
-        ; ("maximize", Extern_func (Func (Arg Res), maximize))
-        ; ("minimize", Extern_func (Func (Arg Res), minimize))
-       |] )
-
-(* Examples *)
-let extern_functions =
-  let open Extern_func in
-  let hello () =
-    Fmt.printf "Hello world@.";
-    Choice.return (Ok (Value.Val (Val.Symbol "undefined")))
-  in
-  let print (v : Value.value) =
-    Fmt.printf "extern print: %a@." Value.Pp.pp v;
-    Choice.return (Ok (Value.Val (Val.Symbol "undefined")))
-  in
-  SMap.of_seq
-    (Array.to_seq
-       [| ("hello", Extern_func (Func (UArg Res), hello))
-        ; ("value", Extern_func (Func (Arg Res), print))
-       |] )
 
 let plus_ext = ".esl"
 let core_ext = ".cesl"
@@ -202,32 +64,36 @@ let prog_of_js file =
 let link_env prog =
   Env.Build.empty ()
   |> Env.Build.add_functions prog
-  |> Env.Build.add_extern_functions extern_functions
-  |> Env.Build.add_extern_functions symbolic_api_funcs
+  |> Env.Build.add_extern_functions Symbolic_extern.api
+
+let pp_model fmt v =
+  let open Encoding in
+  let pp_mapping fmt (s, v) =
+    Fmt.fprintf fmt {|"%a" : %a|} Symbol.pp s Value.pp v
+  in
+  let pp_vars fmt v =
+    Fmt.pp_print_list
+      ~pp_sep:(fun fmt () -> Fmt.fprintf fmt "@\n, ")
+      pp_mapping fmt v
+  in
+  Fmt.fprintf fmt "module.exports.symbolic_map = @[<h 2>{%a@\n}@]" pp_vars
+    (Model.get_bindings v)
 
 let serialize =
-  let counter = ref 0 in
+  let (next_int, _) = Utils.make_counter 0 1 in
   fun ?(witness : string option) thread ->
     let pc = Thread.pc thread in
     let solver = Thread.solver thread in
     assert (Solver.check solver pc);
     let model = Solver.model solver in
     let testcase =
-      Option.fold model ~none:"" ~some:(fun m ->
-          let open Encoding in
-          Fmt.asprintf "module.exports.symbolic_map = @[<h 2>{%a@\n}@]"
-            (Fmt.pp_print_list
-               ~pp_sep:(fun fmt () -> Fmt.fprintf fmt "@\n")
-               (fun fmt (s, v) ->
-                 Fmt.fprintf fmt {|"%a" : %a|} Symbol.pp s Value.pp v ) )
-            (Model.get_bindings m) )
+      Option.fold model ~none:"" ~some:(Fmt.asprintf "%a" pp_model)
     in
     let str_pc = Fmt.asprintf "%a" Encoding.Expr.pp_list pc in
     let smt_query = Fmt.asprintf "%a" Encoding.Expr.pp_smt pc in
     let prefix =
-      incr counter;
       let fname = if Option.is_some witness then "witness" else "testecase" in
-      let fname = Fmt.sprintf "%s-%i" fname !counter in
+      let fname = Fmt.sprintf "%s-%i" fname (next_int ()) in
       Filename.concat (Filename.concat !Config.workspace "test-suite") fname
     in
     Io.write_file (Fmt.sprintf "%s.js" prefix) testcase;
