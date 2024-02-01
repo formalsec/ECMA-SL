@@ -98,6 +98,13 @@ module Interpret = struct
        (e.g., accesses to global variables) may be affected."
     in
     Arg.(value & opt string "main" & info [ "main" ] ~doc ~docv)
+
+  let show_result =
+    let doc =
+      "Display the value returned by the top-level function, typically the \
+       'main' function, at the end of the interpretation process."
+    in
+    Arg.(value & flag & info [ "show-result" ] ~doc)
 end
 
 module Encode = struct
