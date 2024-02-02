@@ -37,11 +37,12 @@
 %token FUNCTION RETURN EXTERN
 %token IF ELSE 
 %token WHILE
+%token SWITCH CASE SDEFAULT
 %token FAIL ASSERT
 
 (* ========== Symbol tokens ========== *)
 
-%token PERIOD COMMA SEMICOLON
+%token PERIOD COMMA SEMICOLON COLON
 %token DEFEQ
 %token ATSIGN HASH
 %token LPAREN RPAREN
@@ -200,6 +201,9 @@ stmt_target:
     { Stmt.If (e, s1, Some s2) @> at $sloc }
   | WHILE; LPAREN; e = expr_target; RPAREN; s = block_target;
     { Stmt.While (e, s) @> at $sloc }
+  | SWITCH; LPAREN; e = expr_target; RPAREN; LBRACE; 
+    css = list(switch_case_target); dflt = option(switch_default_target) RBRACE;
+    { Stmt.Switch (e, (Stmt.Parser.parse_switch_cases css), dflt) @> at $sloc }
   | FAIL; e = expr_target;
     { Stmt.Fail e @> at $sloc }
   | ASSERT; e = expr_target;
@@ -208,6 +212,12 @@ stmt_target:
 lookup_target:
   | PERIOD; fn = id_target;             { Expr.Val (Val.Str fn.it) @> at $sloc }
   | LBRACK; fe = expr_target; RBRACK;   { fe }
+
+switch_case_target:
+  | CASE; v = val_target; COLON; s = block_target;     { (v @> at $sloc, s) }
+
+switch_default_target:
+  | SDEFAULT; COLON; s = stmt_target;                  { s }
 
 (* ==================== Expressions ==================== *)
 

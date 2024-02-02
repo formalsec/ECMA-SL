@@ -17,6 +17,7 @@ module Compile = struct
     | DuplicatedFunc of string
     | DuplicatedMacro of string
     | DuplicatedField of string
+    | DuplicatedSwitchCase of Val.t
     | UnknownMacro of string
     | BadNArgs of int * int
 end
@@ -89,6 +90,10 @@ module CompileFmt : ErrFmt.ERR_TYPE_FMT with type msg = Compile.t = struct
     | DuplicatedField fn ->
       fprintf fmt
         "Object literals cannot have two fields with the same name '%s'." fn
+    | DuplicatedSwitchCase v ->
+      fprintf fmt
+        "Switch statements cannot have two cases with the same value '%a'."
+        Val.pp v
     | UnknownMacro mn -> fprintf fmt "Cannot find macro '%s'." mn
     | BadNArgs (nparams, nargs) ->
       fprintf fmt "Expected %d arguments, but got %d." nparams nargs
