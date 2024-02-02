@@ -285,7 +285,7 @@ switch_case_target:
   | CASE; e = expr_target; COLON; s = block_target;     { (e, s) }
 
 switch_default_target:
-  | SDEFAULT; COLON; s = stmt_target;                   { s }
+  | SDEFAULT; COLON; s = block_target;                  { s }
 
 (* ==================== Patterns ==================== *)
 
