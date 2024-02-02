@@ -17,6 +17,7 @@ type stmt_eval =
   | FieldDeleteEval of string * string
   | IfEval of bool
   | WhileEval
+  | SwitchEval of Val.t
   | FailEval
   | AssertEval of bool
   | AbortEval

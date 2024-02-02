@@ -234,8 +234,15 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     | While (e, s') ->
       let loop = Stmt.If (e, Stmt.Block [ s'; s ] @> s'.at, None) @> s.at in
       (Intermediate (state, loop :: cont), lbl WhileEval)
-    | Switch _ ->
-      Eslerr.(internal __FUNCTION__ (NotImplemented (Some "SwitchTable")))
+    | Switch (e, css, dflt) -> (
+      let v = eval_expr store e in
+      match (Hashtbl.find_opt css v, dflt) with
+      | (Some { it = Block ss; at }, _) | (None, Some { it = Block ss; at }) ->
+        let cont' = ss @ ((Stmt.Merge @> at) :: cont) in
+        (Intermediate (state, cont'), lbl (SwitchEval v))
+      | (Some _, _) -> Eslerr.internal __FUNCTION__ (Expecting "switch block")
+      | (None, Some _) -> Eslerr.internal __FUNCTION__ (Expecting "sdflt block")
+      | (None, None) -> (Intermediate (state, cont), lbl (SwitchEval v)) )
     | Fail e ->
       let v = eval_expr store e in
       (Error v, lbl FailEval)
