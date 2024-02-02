@@ -4,6 +4,7 @@ type const =
   | PI
 
 type unopt =
+  (* General operators *)
   | Typeof
   (* Arithmetic operators *)
   | Neg
@@ -150,6 +151,8 @@ type binopt =
   | Atan2
 
 type triopt =
+  (* General operators *)
+  | ITE
   (* String operators *)
   | StringSubstr
   | StringSubstrU
@@ -157,8 +160,6 @@ type triopt =
   | ArraySet
   (* List operators *)
   | ListSet
-  (* Other operators *)
-  | ITE
 
 type nopt =
   (* Logical operators *)
