@@ -36,8 +36,8 @@ let rec pp (fmt : Fmt.t) (s : t) : unit =
   | Merge -> fprintf fmt "merge"
   | Debug s' -> fprintf fmt "# %a" pp s'
   | Block ss ->
-    Format.fprintf fmt "{@\n@[<v 2>  %a@]@\n}"
-      (Fmt.pp_print_list ~pp_sep:(fun fmt () -> fprintf fmt ";@\n") pp)
+    fprintf fmt "{@\n@[<v 2>  %a@]@\n}"
+      (pp_print_list ~pp_sep:(fun fmt () -> fprintf fmt ";@\n") pp)
       ss
   | Print e -> fprintf fmt "print %a" Expr.pp e
   | Return e -> fprintf fmt "return%a" pp_return e
