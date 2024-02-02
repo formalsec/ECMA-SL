@@ -52,6 +52,6 @@ macro checkLoopCompletion(c) {
 macro checkReturnCompletion(c, retVal) {
   switch (getCompletionType(c)) {
     case 'Throw: { return c }
-    sdefault: return NormalCompletion(retVal)
+    sdefault: { return NormalCompletion(retVal) }
   }
 }
