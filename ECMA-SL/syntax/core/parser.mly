@@ -217,7 +217,7 @@ switch_case_target:
   | CASE; v = val_target; COLON; s = block_target;     { (v @> at $sloc, s) }
 
 switch_default_target:
-  | SDEFAULT; COLON; s = stmt_target;                  { s }
+  | SDEFAULT; COLON; s = block_target;                 { s }
 
 (* ==================== Expressions ==================== *)
 
