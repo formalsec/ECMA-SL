@@ -18,6 +18,9 @@
             "if"                      , IF;
             "else"                    , ELSE;
             "while"                   , WHILE;
+            "switch"                  , SWITCH;
+            "case"                    , CASE;
+            "sdefault"                , SDEFAULT;
             "fail"                    , FAIL;
             "assert"                  , ASSERT;
 
@@ -182,6 +185,7 @@ rule read =
   | '.'               { PERIOD }
   | ','               { COMMA }
   | ';'               { SEMICOLON }
+  | ':'               { COLON }
   | ":="              { DEFEQ }
   | "@"               { ATSIGN }
   | "#"               { HASH }

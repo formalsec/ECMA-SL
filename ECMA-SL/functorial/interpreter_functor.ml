@@ -235,6 +235,8 @@ module Make (P : Interpreter_functor_intf.P) :
       let* value = Memory.get_field heap loc field in
       let value' = Option.value value ~default:(Value.mk_symbol "undefined") in
       ok { state with locals = Store.add_exn locals x.it value' }
+    | Stmt.Switch _ ->
+      Eslerr.(internal __FUNCTION__ (NotImplemented (Some "SwitchTable")))
 
   let rec loop (state : State.exec_state) : State.return_result Choice.t =
     let open State in

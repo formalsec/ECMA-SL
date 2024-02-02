@@ -21,8 +21,21 @@ and t' =
   | FieldDelete of Expr.t * Expr.t
   | If of Expr.t * t * t option
   | While of Expr.t * t
+  | Switch of Expr.t * (Val.t, t) Hashtbl.t * t option
   | Fail of Expr.t
   | Assert of Expr.t
+
+module Parser = struct
+  let parse_switch_cases (css : (Val.t phrase * 'a) list) :
+    (Val.t, 'a) Hashtbl.t =
+    let set_cs css (v, s) =
+      if not (Hashtbl.mem css v.it) then Hashtbl.replace css v.it s
+      else Eslerr.(compile ~src:(ErrSrc.at v) (DuplicatedSwitchCase v.it))
+    in
+    let parsed_css = Hashtbl.create (List.length css) in
+    List.iter (set_cs parsed_css) css;
+    parsed_css
+end
 
 let default () : t = Skip @> no_region
 
@@ -62,6 +75,11 @@ let rec pp (fmt : Fmt.t) (s : t) : unit =
     let pp_else fmt v = fprintf fmt " else %a" pp v in
     fprintf fmt "if (%a) %a%a" Expr.pp e pp s1 (pp_opt pp_else) s2
   | While (e, s') -> fprintf fmt "while (%a) %a" Expr.pp e pp s'
+  | Switch (e, css, dflt) ->
+    let pp_case fmt (v, s) = fprintf fmt "\ncase %a: %a" Val.pp v pp s in
+    let pp_default fmt s = fprintf fmt "\nsdefault: %a" pp s in
+    fprintf fmt "switch (%a) {%a%a\n}" Expr.pp e (pp_hashtbl "" pp_case) css
+      (pp_opt pp_default) dflt
   | Fail e -> fprintf fmt "fail %a" Expr.pp e
   | Assert e -> fprintf fmt "assert %a" Expr.pp e
 

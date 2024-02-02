@@ -234,6 +234,8 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     | While (e, s') ->
       let loop = Stmt.If (e, Stmt.Block [ s'; s ] @> s'.at, None) @> s.at in
       (Intermediate (state, loop :: cont), lbl WhileEval)
+    | Switch _ ->
+      Eslerr.(internal __FUNCTION__ (NotImplemented (Some "SwitchTable")))
     | Fail e ->
       let v = eval_expr store e in
       (Error v, lbl FailEval)
