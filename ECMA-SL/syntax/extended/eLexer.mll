@@ -47,6 +47,7 @@
 
             (* General operators *)
             "typeof"                  , TYPEOF;
+            "ite"                     , ITE;
 
             (* Integer operators *)
             "int_to_float"            , INT_TO_FLOAT;
@@ -84,9 +85,6 @@
             "s_split"                 , STRING_SPLIT;
             "s_substr"                , STRING_SUBSTR;
             "s_substr_u"              , STRING_SUBSTR_U;
-
-            (* Constraints *)
-            "ite"                     , ITE;
 
             (* Object operators *)
             "obj_to_list"             , OBJECT_TO_LIST;

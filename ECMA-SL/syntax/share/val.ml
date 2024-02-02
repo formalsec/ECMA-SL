@@ -14,21 +14,13 @@ type t =
   | Type of Type.t
   | Curry of string * t list
 
-let type_of = function
-  | Void -> None
-  | Null -> Some Type.NullType
-  | Int _ -> Some Type.IntType
-  | Flt _ -> Some Type.FltType
-  | Bool _ -> Some Type.BoolType
-  | Str _ -> Some Type.StrType
-  | Loc _ -> Some Type.LocType
-  | List _ -> Some Type.ListType
-  | Arr _ -> Some Type.ArrayType
-  | Tuple _ -> Some Type.TupleType
-  | Curry _ -> Some Type.CurryType
-  | Byte _ -> Some Type.IntType
-  | Type _ -> Some Type.TypeType
-  | Symbol _ -> Some Type.SymbolType
+let rec copy (v : t) : t =
+  match v with
+  | Arr arr -> Arr (Array.copy arr)
+  | List lst -> List (List.map copy lst)
+  | Tuple tup -> Tuple (List.map copy tup)
+  | Curry (fn, fvs) -> Curry (fn, List.map copy fvs)
+  | _ -> v
 
 let rec equal (v1 : t) (v2 : t) : bool =
   match (v1, v2) with
@@ -49,13 +41,22 @@ let rec equal (v1 : t) (v2 : t) : bool =
     String.equal fn1 fn2 && List.equal equal fvs1 fvs2
   | _ -> false
 
-let rec copy (v : t) : t =
+let type_of (v : t) : Type.t option =
   match v with
-  | Arr arr -> Arr (Array.copy arr)
-  | List lst -> List (List.map copy lst)
-  | Tuple tup -> Tuple (List.map copy tup)
-  | Curry (fn, fvs) -> Curry (fn, List.map copy fvs)
-  | _ -> v
+  | Void -> None
+  | Null -> Some Type.NullType
+  | Int _ -> Some Type.IntType
+  | Flt _ -> Some Type.FltType
+  | Bool _ -> Some Type.BoolType
+  | Str _ -> Some Type.StrType
+  | Loc _ -> Some Type.LocType
+  | List _ -> Some Type.ListType
+  | Arr _ -> Some Type.ArrayType
+  | Tuple _ -> Some Type.TupleType
+  | Curry _ -> Some Type.CurryType
+  | Byte _ -> Some Type.IntType
+  | Type _ -> Some Type.TypeType
+  | Symbol _ -> Some Type.SymbolType
 
 let is_special_number (s : string) : bool =
   List.mem s [ "nan"; "inf"; "-inf" ]

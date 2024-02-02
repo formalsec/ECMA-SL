@@ -70,7 +70,7 @@
 
 %token MAX_VALUE MIN_VALUE PI
 
-%token TYPEOF
+%token TYPEOF ITE
 
 %token INT_TO_FLOAT INT_TO_STRING INT_TO_FOUR_HEX OCTAL_TO_DECIMAL
 %token FLOAT_TO_INT FLOAT_TO_STRING TO_INT TO_INT32 TO_UINT16 TO_UINT32 IS_NAN
@@ -80,8 +80,6 @@
 %token STRING_LEN STRING_LEN_U STRING_CONCAT
 %token STRING_NTH STRING_NTH_U STRING_SPLIT
 %token STRING_SUBSTR STRING_SUBSTR_U
-
-%token ITE
 
 %token OBJECT_TO_LIST OBJECT_FIELDS 
 %token OBJECT_MEM
@@ -544,11 +542,11 @@ tuple_target:
   | ATAN_2                  { Operator.Atan2 }
 
 %inline triopt_call_target:
+  | ITE                     { Operator.ITE }
   | STRING_SUBSTR           { Operator.StringSubstr }
   | STRING_SUBSTR_U         { Operator.StringSubstrU }
   | ARRAY_SET               { Operator.ArraySet }
   | LIST_SET                { Operator.ListSet }
-  | ITE                     { Operator.ITE }
 
 (* ==================== Metadata ==================== *)
 
