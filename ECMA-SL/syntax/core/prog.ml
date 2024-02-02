@@ -19,6 +19,8 @@ let func_name (p : t) (fn : string) : (string, string) Result.t =
   Result.map Func.name' (func p fn)
 
 let pp (fmt : Fmt.t) (p : t) : unit =
-  Fmt.(fprintf fmt "%a" (pp_hashtbl ";\n" (fun fmt (_, f) -> Func.pp fmt f)) p)
+  let iter f tbl = Hashtbl.iter (fun _ func -> f func) tbl in
+  let pp_sep fmt () = Fmt.fprintf fmt ";@\n" in
+  Fmt.pp_iter pp_sep iter Func.pp fmt p
 
 let str (p : t) : string = Fmt.asprintf "%a" pp p
