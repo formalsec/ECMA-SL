@@ -82,7 +82,7 @@ module Make (P : Interpreter_functor_intf.P) :
     Memory.pp_val heap v
 
   let exec_func state func args ret_var =
-    Log.debug "calling func: %s@." (Func.name' func);
+    Log.debug1 "calling func: %s@." (Func.name' func);
     let return_state = Some (state, ret_var) in
     let params = Func.params' func in
     let store = Store.create (List.combine params args) in
@@ -131,8 +131,8 @@ module Make (P : Interpreter_functor_intf.P) :
         fmt
     in
     let/ m = Env.get_memory env in
-    Log.debug "      store : %s@." (Value.Pp.Store.to_string locals);
-    Log.debug "running stmt: %a@." Stmt.pp stmt;
+    Log.debug2 "      store : %a@." Value.Pp.Store.pp locals;
+    Log.debug2 "running stmt: %a@." Stmt.pp_simple stmt;
     match stmt.it with
     | Stmt.Skip -> st locals
     | Stmt.Merge -> st locals

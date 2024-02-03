@@ -116,7 +116,9 @@ module M : Object_intf.S with type value = V.value = struct
 
   let pp_map fmt v =
     let map_iter f m = VMap.iter (fun k d -> f (k, d)) m in
-    Fmt.pp_iter (fun fmt () -> Fmt.pp_str fmt ",") map_iter
+    Fmt.pp_iter
+      (fun fmt () -> Fmt.pp_str fmt ",")
+      map_iter
       (fun fmt (key, data) ->
         Fmt.fprintf fmt {|"%a": %a|} V.Pp.pp key V.Pp.pp data )
       fmt v
