@@ -19,21 +19,29 @@ module Make () = struct
 
   let ( let/ ) = Choice.bind
   let fresh_i = Utils.make_name_generator "i"
+  let fresh_x = Utils.make_name_generator "x"
   let fresh_len = Utils.make_name_generator "len"
   let fresh_func = Utils.make_name_generator "eval_func_"
 
   let api env =
     let open Value in
     let open Extern_func in
-    let str_symbol (x : value) =
-      Choice.return (Ok (Symbolic (Type.StrType, x)))
+    let non_empty = function
+      | Val (Str "") -> Val (Str (fresh_x ()))
+      | Val (Str _) as x -> x
+      | x -> Log.err "'%a' is not a valid string symbol" Value.pp x
     in
-    let int_symbol (x : value) = Choice.return (Ok (Value.int_symbol x)) in
+    let str_symbol (x : value) =
+      Choice.return (Ok (Symbolic (Type.StrType, non_empty x)))
+    in
+    let int_symbol (x : value) =
+      Choice.return (Ok (Value.int_symbol (non_empty x)))
+    in
     let flt_symbol (x : value) =
-      Choice.return (Ok (Symbolic (Type.FltType, x)))
+      Choice.return (Ok (Symbolic (Type.FltType, non_empty x)))
     in
     let bool_symbol (x : value) =
-      Choice.return (Ok (Symbolic (Type.BoolType, x)))
+      Choice.return (Ok (Symbolic (Type.BoolType, non_empty x)))
     in
     let is_symbolic (n : value) =
       Choice.return (Ok (Val (Val.Bool (Value.is_symbolic n))))
