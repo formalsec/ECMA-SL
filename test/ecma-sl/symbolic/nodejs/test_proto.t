@@ -1,5 +1,5 @@
 Test object prototype:
-  $ ecma-sl symbolic proto.js
+  $ ecma-sl symbolic test_proto.js
   "bar"
   "undefined"
   "baz"
