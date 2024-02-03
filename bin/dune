@@ -12,6 +12,7 @@
   doc_test
   doc_symbolic
   doc_replay
+  doc_explodejs
   cmd
   cmd_compile
   cmd_interpret
@@ -20,6 +21,7 @@
   cmd_test
   cmd_symbolic
   cmd_replay
+  cmd_explodejs
   options
   enums
   dir)
