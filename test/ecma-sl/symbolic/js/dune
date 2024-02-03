@@ -1,8 +1,0 @@
-(cram
- (deps
-  (package ecma-sl)
-  %{bin:ecma-sl}
-  pollution_1.js
-  pollution_2.js
-  pollution_3.js
-  proto.js))
