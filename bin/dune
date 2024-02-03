@@ -12,6 +12,7 @@
   doc_execute
   doc_symbolic
   doc_replay
+  doc_explodejs
   cmd
   cmd_compile
   cmd_interpret
@@ -19,6 +20,7 @@
   cmd_execute
   cmd_symbolic
   cmd_replay
+  cmd_explodejs
   lang
   ecmaref)
  (libraries ecma_sl bos cmdliner)
