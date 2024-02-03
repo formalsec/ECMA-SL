@@ -30,4 +30,7 @@ let execute (prog : Prog.t) (heap : 'a Heap.t) (f : string) (vs : Val.t list) :
   | ("loadInitialHeap", [ Val.Str file ]) ->
     let loc = loadInitialHeap prog heap file in
     loc
-  | _ -> failwith "UNKNOWN external function"
+  | _ ->
+    Format.eprintf "UNKNOWN %s external function@." f;
+    Val.Symbol "undefined"
+
