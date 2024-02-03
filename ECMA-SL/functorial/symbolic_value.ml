@@ -154,18 +154,22 @@ module M = struct
       | Symbolic (_t, x) -> pp fmt x
 
     module Store = struct
+      open Fmt
+
       type t = Store.t
 
       module SMap = Store.SMap
 
-      let to_string (store : t) : string =
-        let start = "{ ... " in
-        SMap.fold
-          (fun key data acc ->
-            if String.starts_with ~prefix:"__" key then acc
-            else Format.asprintf "%s; %s -> %a" acc key pp data )
-          store start
-        ^ " }"
+      let pp fmt store =
+        let pp_sep fmt () = fprintf fmt ";@ " in
+        let iter f m =
+          SMap.iter
+            (fun k v ->
+              if not @@ String.starts_with ~prefix:"__" k then f (k, v) )
+            m
+        in
+        let pp_v fmt (k, v) = fprintf fmt "%s -> %a" k pp v in
+        fprintf fmt "{ ... %a }" (pp_iter pp_sep iter pp_v) store
     end
   end
 end

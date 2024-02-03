@@ -32,7 +32,7 @@ module type T = sig
     val pp : Format.formatter -> value -> unit
 
     module Store : sig
-      val to_string : Store.t -> string
+      val pp : Fmt.t -> store -> unit
     end
   end
 end
