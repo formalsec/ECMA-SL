@@ -1,7 +1,8 @@
 No pollution:
   $ ecma-sl symbolic pollution_1.js
-  The file has been saved!
+Test pollution with depth = 3
   $ ecma-sl symbolic pollution_2.js
-  The file has been saved!
+        abort : "Prototype pollution detected!"
+Test pollution with depth = 2
   $ ecma-sl symbolic pollution_3.js
-  The file has been saved!
+        abort : "Prototype pollution detected!"
