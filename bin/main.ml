@@ -77,6 +77,11 @@ let replay_cmd =
   let info = Cmd.info "replay" ~doc ~sdocs ~man ~man_xrefs in
   Cmd.v info term
 
+let explode_cmd =
+  let open Doc_explodejs in
+  let info = Cmd.info "explode-js" ~doc ~sdocs ~man ~man_xrefs in
+  Cmd.v info term
+
 let cmd_list =
   [ compile_cmd
   ; interpret_cmd
@@ -85,6 +90,7 @@ let cmd_list =
   ; test_cmd
   ; symbolic_cmd
   ; replay_cmd
+  ; explode_cmd
   ]
 
 let main_cmd =
