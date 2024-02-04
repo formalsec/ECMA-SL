@@ -92,10 +92,6 @@ function fillObjectConstructor(ObjectConstructor, globalObject, strict) {
   seal := CreateBuiltInFunctionObject(["O"], "ObjectSeal", globalObject, strict, null);
   createBuiltInProperty(ObjectConstructor, "seal", seal);
 
-  sealProperties :=
-    CreateBuiltInFunctionObject(["O"], "ObjectSealProperties", globalObject, strict, null);
-  createBuiltInProperty(ObjectConstructor, "sealProperties", sealProperties);
-
   /* 19.1.2.18 Object.setPrototypeOf ( O, proto ) */
   setPrototypeOf := CreateBuiltInFunctionObject(["O", "proto"], "ObjectSetPrototypeOf", globalObject, strict, null);
   createBuiltInProperty(ObjectConstructor, "setPrototypeOf", setPrototypeOf);
@@ -685,39 +681,6 @@ function ObjectSeal(globalObject, this, NewTarget, strict, params) {
   status := SetIntegrityLevel(O, "sealed");
 
   /* ReturnIfAbrupt(status). */
-  @ReturnIfAbrupt(status);
-
-  /* If status is false, throw a TypeError exception. */
-  if (status = false) {
-    throw TypeErrorConstructorInternal()
-  };
-
-  /* 4. Return O. */
-  return O
-};
-
-function forbiddenSet(O, P, V, Receiver) {
-  if (Receiver = getObjectPrototype(false)) {
-    extern abort("Prototype pollution detected!")
-  };
-  return OrdinaryObjectSet(O, P, V, Receiver)
-};
-
-/* 19.1.2.17 Object.seal ( O ) */
-function ObjectSealProperties(globalObject, this, NewTarget, strict, params) {
-  O := l_nth(params, 0);
-
-  /* 1. If Type(O) is not Object, return O. */
-  if (!(Type(O) = "Object")) {
-    return O
-  };
-
-  O.Set := "forbiddenSet";
-
-  /* Let status be SetIntegrityLevel( O, "sealed"). */
-  status := SetIntegrityLevel(O, "sealed");
-
- /* ReturnIfAbrupt(status). */
   @ReturnIfAbrupt(status);
 
   /* If status is false, throw a TypeError exception. */
