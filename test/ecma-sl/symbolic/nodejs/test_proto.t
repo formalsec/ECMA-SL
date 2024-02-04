@@ -5,3 +5,4 @@ Test object prototype:
   "baz"
   "undefined"
   "qux"
+  All Ok!
