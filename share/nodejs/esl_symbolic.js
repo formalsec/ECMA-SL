@@ -26,4 +26,5 @@ module.exports =
   , assume: ignore
   , assert: ignore
   , is_symbolic: is_symbolic
+  , sealProperties: ignore
   }

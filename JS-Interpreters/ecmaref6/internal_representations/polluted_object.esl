@@ -51,4 +51,36 @@ function newPollutedObject(depth) {
     CreateDataPropertyOrThrow(outer_object, proto, inner_object)
   };
   return outer_object
+};
+
+function forbiddenSet(O, P, V, Receiver) {
+  if (Receiver = getObjectPrototype(false)) {
+    extern abort("Prototype pollution detected!")
+  };
+  return OrdinaryObjectSet(O, P, V, Receiver)
+};
+
+function sealProperties(globalObject, this, NewTarget, strict, params) {
+  O := l_nth(params, 0);
+
+  /* 1. If Type(O) is not Object, return O. */
+  if (!(Type(O) = "Object")) {
+    return O
+  };
+
+  O.Set := "forbiddenSet";
+
+  /* Let status be SetIntegrityLevel( O, "sealed"). */
+  status := SetIntegrityLevel(O, "sealed");
+
+ /* ReturnIfAbrupt(status). */
+  @ReturnIfAbrupt(status);
+
+  /* If status is false, throw a TypeError exception. */
+  if (status = false) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 4. Return O. */
+  return O
 }
