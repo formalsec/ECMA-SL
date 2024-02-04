@@ -21,8 +21,8 @@ function extend(target, obj) {
   return target
 }
 
-Object.sealProperties(Object.prototype);
 let esl_symbolic = require('esl_symbolic');
+esl_symbolic.sealProperties(Object.prototype);
 let p = esl_symbolic.polluted_object(depth=2);
 extend({}, p);
 console.log(({}).toString);

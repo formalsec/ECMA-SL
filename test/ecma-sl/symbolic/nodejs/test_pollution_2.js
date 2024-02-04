@@ -14,8 +14,8 @@ function merge(a, b) {
   return a;
 }
 
-Object.sealProperties(Object.prototype);
-let esl_symbolic = require('esl_symbolic');
+let esl_symbolic = require("esl_symbolic");
+esl_symbolic.sealProperties(Object.prototype);
 let polluted = esl_symbolic.polluted_object(depth=3);
 merge({}, polluted);
 console.log(({}).toString);

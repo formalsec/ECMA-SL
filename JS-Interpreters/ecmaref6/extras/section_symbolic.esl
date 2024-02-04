@@ -86,6 +86,11 @@ function initESLSymbolicObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(esl_symbolic, "polluted_object", apiPollutedObject);
   createBuiltInProperty(apiPollutedObject, "pototoype", objectPrototype);
 
+  apiSealProp := CreateBuiltInFunctionObject([], "sealProperties",
+    realm, strict, null);
+  createBuiltInProperty(esl_symbolic, "sealProperties", apiSealProp);
+  createBuiltInProperty(apiSealProp, "prototype", objectPrototype);
+
   return esl_symbolic
 }
 
