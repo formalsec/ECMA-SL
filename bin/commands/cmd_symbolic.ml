@@ -150,6 +150,9 @@ let run ~workspace filename entry_func =
         Ok witness )
       results
   in
+  let n = List.length problems in
+  if n = 0 then Fmt.printf "All Ok!@."
+  else Fmt.printf "Found %d problems!@." n;
   Log.debug "  exec time : %fs@." exec_time;
   Log.debug "solver time : %fs@." solv_time;
   write_report ~workspace filename exec_time solv_time solv_cnt problems
