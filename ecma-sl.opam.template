@@ -1,0 +1,4 @@
+depexts: [
+  ["nodejs"] {os-family = "debian"}
+  ["node"] {os-family = "homebrew"}
+]
