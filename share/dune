@@ -1,5 +1,4 @@
 (install
- (package ecma-sl)
  (section
   (site
    (ecma-sl nodejs)))
