@@ -1,6 +1,5 @@
 (cram
  (deps
   (package ecma-sl)
-  (package js2ecma-sl)
   %{bin:ecma-sl}
   (source_tree ../../JS-Interpreters)))
