@@ -11,6 +11,5 @@
   (run ./script.exe ./src/index.js -o %{target})))
 
 (install
- (package js2ecma-sl)
  (section bin)
  (files js2ecma-sl))

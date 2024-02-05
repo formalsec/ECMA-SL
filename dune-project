@@ -45,7 +45,3 @@
 (sites
   (share interpreters)
   (share nodejs)))
-
-(package
- (name js2ecma-sl)
- (synopsis "JavaScript to ecma-sl compiler"))

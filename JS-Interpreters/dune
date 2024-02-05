@@ -10,7 +10,6 @@
    (run ecma-sl compile ecmaref6/main_sym.esl --untyped -o es6.cesl))))
 
 (install
- (package ecma-sl)
  (section
   (site
    (ecma-sl interpreters)))
