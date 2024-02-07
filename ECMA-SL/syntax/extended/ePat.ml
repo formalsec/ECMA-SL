@@ -21,6 +21,13 @@ and t' =
   | ObjPat of (Id.t * pv) list * EPat_metadata.t option
   | DefaultPat
 
+let pbval_opt (pat : t) (id : Id.t) : pv option =
+  let is_pbn (pbn, _) = id.it = pbn.it in
+  let get_pbv (_, pbv) = pbv in
+  match pat.it with
+  | ObjPat (pbs, _) -> Option.map get_pbv (List.find_opt is_pbn pbs)
+  | DefaultPat -> None
+
 let pp (fmt : Fmt.t) (pat : t) : unit =
   let open Fmt in
   let pp_pb fmt (pbn, pbv) = fprintf fmt "%a: %a" Id.pp pbn pv_pp pbv in
