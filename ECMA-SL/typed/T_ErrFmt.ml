@@ -136,7 +136,7 @@ let stmt_tkns (stmt : EStmt.t) : tkn_t list =
   (* | FieldDelete (_, _) -> [] *)
   | ExprStmt expr -> [ Expr expr ]
   (* | RepeatUntil (_, _, _) -> [] *)
-  | MatchWith (e, _) -> [ Lit "match "; Expr e; Lit " with "; Lit threedots ]
+  | MatchWith (e, _, _) -> [ Lit "match "; Expr e; Lit " with "; Lit threedots ]
   (* | MacroApply (_, _) -> [] *)
   (* | Switch (_, _, _, _) -> [] *)
   (* | Lambda (_, _, _, _, _) -> [] *)
