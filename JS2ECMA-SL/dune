@@ -1,6 +1,7 @@
 (executable
  (name script)
- (modules script))
+ (modules script)
+ (libraries unix))
 
 (rule
  (target js2ecma-sl)

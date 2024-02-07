@@ -2,12 +2,23 @@ let () =
   if Array.length Sys.argv < 2 then
     Format.ksprintf failwith "Usage: %s <js script>@." Sys.argv.(0)
 
+let set_npm_bin () =
+  let in_chan = Unix.open_process_in "npm config get prefix" in
+  let prefix =
+    Fun.protect
+      ~finally:(fun () -> close_in in_chan)
+      (fun () -> input_line in_chan)
+  in
+  let path = Unix.getenv "PATH" in
+  Format.ksprintf (Unix.putenv "PATH") "%s/bin:%s" prefix path
+
 let () =
   let code = Sys.command "npm -v > /dev/null 2>&1" in
   if code <> 0 then begin
     Format.eprintf "Please install 'npm'@\n";
     exit code
   end;
+  set_npm_bin ();
   let pkg_v = "pkg -v > /dev/null 2>&1" in
   let code = Sys.command pkg_v in
   if code <> 0 then begin
