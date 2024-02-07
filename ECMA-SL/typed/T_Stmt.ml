@@ -205,7 +205,7 @@ let rec type_stmt (tctx : T_Ctx.t) (stmt : EStmt.t) : T_Err.t list =
     let _expr_f () = ignore (T_Expr.safe_type_expr tctx e EType.AnyType) in
     set_terr_stmt tctx _expr_f
   (* | RepeatUntil (_, _, _) -> [] *)
-  | MatchWith (e, pats) -> type_match tctx e pats type_stmt
+  | MatchWith (e, _, pats) -> type_match tctx e pats type_stmt
   (* | MacroApply (_, _) -> [] *)
   | Switch (_, _, _, _) -> T_Ctx.set_tstate tctx T_Ctx.Abrupt |> fun () -> []
   (* | Lambda (_, _, _, _, _) -> [] *)

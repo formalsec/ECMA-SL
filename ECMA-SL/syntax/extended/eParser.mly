@@ -250,8 +250,9 @@ stmt_target:
   | SWITCH; LPAREN; e = expr_target; RPAREN; meta = str_opt_metadata_target; LBRACE; 
     css = list(switch_case_target); dflt = option(switch_default_target) RBRACE;
     { EStmt.Switch (e, css, dflt, meta) @> at $sloc }
-  | MATCH; e = expr_target; WITH; PIPE; css = separated_list(PIPE, match_case_target);
-    { EStmt.MatchWith (e, css) @> at $sloc }
+  | MATCH; e = expr_target; dsc = option(match_discrm_target); WITH; 
+    PIPE; css = separated_list(PIPE, match_case_target);
+    { EStmt.MatchWith (e, dsc, css) @> at $sloc }
   | x = id_target; option(tannot_target); DEFEQ; LAMBDA; LPAREN; pxs = separated_list(COMMA, id_target); RPAREN;
     LBRACK; ctxvars = separated_list(COMMA, id_target); RBRACK; s = block_target;
     { EStmt.Lambda (x, fresh_lambda_id_gen (), pxs, ctxvars, s) @> at $sloc }
@@ -279,19 +280,21 @@ else_target:
     { (s, meta) }
 
 until_target:
-  | UNTIL; e = expr_target;                             { e }
+  | UNTIL; e = expr_target;                                 { e }
 
 switch_case_target:
-  | CASE; e = expr_target; COLON; s = block_target;     { (e, s) }
+  | CASE; e = expr_target; COLON; s = block_target;         { (e, s) }
 
 switch_default_target:
-  | SDEFAULT; COLON; s = block_target;                  { s }
+  | SDEFAULT; COLON; s = block_target;                      { s }
 
-(* ==================== Patterns ==================== *)
+match_discrm_target:
+  | COLON; dsc = id_target;                                 { dsc }
 
 match_case_target:
-  | pat = pattern_target; RIGHT_ARROW; s = block_target;
-    { (pat, s) }
+  | pat = pattern_target; RIGHT_ARROW; s = block_target;    { (pat, s) }
+
+(* ==================== Patterns ==================== *)
 
 pattern_target:
   | LBRACE; pbs = separated_nonempty_list(COMMA, pattern_binding_target); RBRACE;
