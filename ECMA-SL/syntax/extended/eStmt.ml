@@ -23,7 +23,7 @@ and t' =
   | ForEach of Id.t * EExpr.t * t * metadata_t list * (string * string) option
   | RepeatUntil of t * EExpr.t option * metadata_t list
   | Switch of EExpr.t * (EExpr.t * t) list * t option * string
-  | MatchWith of EExpr.t * (EPat.t * t) list
+  | MatchWith of EExpr.t * Id.t option * (EPat.t * t) list
   | Lambda of Id.t * string * Id.t list * Id.t list * t
   | MacroApply of Id.t * EExpr.t list
   | Throw of EExpr.t
@@ -69,9 +69,11 @@ let rec pp (fmt : Fmt.t) (s : t) : unit =
     let pp_default fmt s = fprintf fmt "\nsdefault: %a" pp s in
     fprintf fmt "switch (%a) {%a%a\n}" EExpr.pp e (pp_lst "" pp_case) css
       (pp_opt pp_default) dflt
-  | MatchWith (e, css) ->
+  | MatchWith (e, dsc, css) ->
+    let pp_discrim fmt dsc = fprintf fmt ": %a" Id.pp dsc in
     let pp_case fmt (pat, s) = fprintf fmt "\n| %a -> %a" EPat.pp pat pp s in
-    fprintf fmt "match %a with %a" EExpr.pp e (pp_lst "" pp_case) css
+    fprintf fmt "match %a%a with %a" EExpr.pp e (pp_opt pp_discrim) dsc
+      (pp_lst "" pp_case) css
   | Lambda (x, _, pxs, ctxvars, s') ->
     fprintf fmt "%a := lambda (%a) [%a] %a" Id.pp x (pp_lst ", " Id.pp) pxs
       (pp_lst ", " Id.pp) ctxvars pp s'
@@ -118,9 +120,9 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = EExpr.Mapper.id) (mapper : t -> t)
   | Switch (e, css, dflt, meta) ->
     let map_cs (e, s) = (emapper e, map' s) in
     Switch (emapper e, List.map map_cs css, Option.map map' dflt, meta)
-  | MatchWith (e, css) ->
+  | MatchWith (e, dsc, css) ->
     let map_cs (pat, s) = (pat, map' s) in
-    MatchWith (emapper e, List.map map_cs css)
+    MatchWith (emapper e, Option.map id_mapper dsc, List.map map_cs css)
   | Lambda (x, id, pxs, ctxvars, s') -> Lambda (x, id, pxs, ctxvars, map' s')
   | MacroApply (m, es) -> MacroApply (m, List.map emapper es)
   | Throw e -> Throw (emapper e)
@@ -151,7 +153,7 @@ let rec to_list ?(recursion : bool = false) (to_list_f : t -> 'a list) (s : t) :
       to_list_ss
         ( List.map (fun (_, s) -> s) css
         @ Option.fold ~none:[] ~some:(fun s -> [ s ]) dlft )
-    | MatchWith (_, css) -> to_list_ss (List.map (fun (_, s) -> s) css)
+    | MatchWith (_, _, css) -> to_list_ss (List.map (fun (_, s) -> s) css)
     | Lambda (_, _, _, _, s) -> to_list_s s
   in
   to_list_f s @ if not recursion then [] else to_list_recursive ()
