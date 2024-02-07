@@ -28,12 +28,12 @@ and t' =
 module Parser = struct
   let parse_switch_cases (css : (Val.t phrase * 'a) list) :
     (Val.t, 'a) Hashtbl.t =
-    let set_cs css (v, s) =
+    let set_case css (v, s) =
       if not (Hashtbl.mem css v.it) then Hashtbl.replace css v.it s
       else Eslerr.(compile ~src:(ErrSrc.at v) (DuplicatedSwitchCase v.it))
     in
     let parsed_css = Hashtbl.create (List.length css) in
-    List.iter (set_cs parsed_css) css;
+    List.iter (set_case parsed_css) css;
     parsed_css
 end
 
