@@ -1,18 +1,18 @@
+open Source
+open Operator
+
 type c_expr = Stmt.t list * Expr.t
 type c_stmt = Stmt.t list
-
-module Const = struct
-  let original_main = "main"
-  let esl_globals = "___internal_esl_global"
-end
 
 let ( ?@ ) (e : Expr.t) : Id.t =
   match e.it with
   | Var x -> { it = x; at = e.at }
   | _ -> Eslerr.(internal __FUNCTION__ (Expecting "var expression"))
 
-open Source
-open Operator
+module Const = struct
+  let original_main = "main"
+  let esl_globals = "___internal_esl_global"
+end
 
 module Builder = struct
   let var_id = Utils.make_name_generator "__v"
@@ -24,14 +24,14 @@ module Builder = struct
   let block ?(at : region = no_region) (ss : Stmt.t list) : Stmt.t =
     Stmt.Block ss @> at
 
-  let else_block ?(at : region = no_region) (ss : Stmt.t list) : Stmt.t option =
+  let block_opt ?(at : region = no_region) (ss : Stmt.t list) : Stmt.t option =
     match ss with [] -> None | ss -> Some (Stmt.Block ss @> at)
 
   let throw_checker (res : Expr.t) (sthen : Stmt.t list) : Stmt.t =
     let iserror = Expr.UnOpt (TupleFirst, res) @> res.at in
     let value = Expr.UnOpt (TupleSecond, res) @> res.at in
     let selse = Stmt.Assign (?@res, value) @> res.at in
-    Stmt.If (iserror, block sthen, else_block [ selse ]) @> res.at
+    Stmt.If (iserror, block sthen, block_opt [ selse ]) @> res.at
 
   let call_checker (res : Expr.t) (ferr : Id.t option) : Stmt.t =
     let sreturn = Stmt.Return res @> res.at in
@@ -47,6 +47,28 @@ module Builder = struct
       throw_checker res [ sferr; sferr_checker ]
 end
 
+module SwitchOptimizer = struct
+  let is_optimizable (css : (EExpr.t * EStmt.t) list) : bool =
+    match fst (List.split css) with
+    | { it = EExpr.Val _; _ } :: { it = EExpr.Val _; _ } :: _ -> true
+    | _ -> false
+
+  let compile (at : region) (compile_stmt_f : EStmt.t -> c_stmt)
+    (compile_rest_f : (EExpr.t * EStmt.t) list -> Stmt.t option) (e_e : Expr.t)
+    (css : (EExpr.t * EStmt.t) list) : c_stmt =
+    let rec hash_cases hashed_css = function
+      | ({ it = EExpr.Val v; _ }, _) :: css' when Hashtbl.mem hashed_css v ->
+        hash_cases hashed_css css'
+      | ({ it = EExpr.Val v; _ }, s) :: css' ->
+        Hashtbl.replace hashed_css v (Builder.block ~at:s.at (compile_stmt_f s));
+        hash_cases hashed_css css'
+      | css' -> css'
+    in
+    let hashed_css = Hashtbl.create !Config.default_hashtbl_sz in
+    let css' = hash_cases hashed_css css in
+    [ Stmt.Switch (e_e, hashed_css, compile_rest_f css') @> at ]
+end
+
 let compile_sc_and (res : Expr.t) (e1_s : Stmt.t list) (e1_e : Expr.t)
   (e2_s : Stmt.t list) (e2_e : Expr.t) : c_expr =
   let open Builder in
@@ -55,7 +77,7 @@ let compile_sc_and (res : Expr.t) (e1_s : Stmt.t list) (e1_e : Expr.t)
   let e1_test = Expr.BinOpt (Operator.Eq, e1_e, efalse e1_e) @> e1_e.at in
   let e2_test = Expr.BinOpt (Operator.Eq, e2_e, efalse e2_e) @> e2_e.at in
   let e2_if = Stmt.If (e2_test, rfalse e2_e, Some (rtrue e2_e)) @> e2_e.at in
-  let e1_else = Builder.else_block (e2_s @ [ e2_if ]) in
+  let e1_else = Builder.block_opt (e2_s @ [ e2_if ]) in
   let e1_if = Stmt.If (e1_test, rfalse e1_e, e1_else) @> e1_e.at in
   (e1_s @ [ e1_if ], res)
 
@@ -67,7 +89,7 @@ let compile_sc_or (res : Expr.t) (e1_s : Stmt.t list) (e1_e : Expr.t)
   let e1_test = Expr.BinOpt (Operator.Eq, e1_e, etrue e1_e) @> e1_e.at in
   let e2_test = Expr.BinOpt (Operator.Eq, e2_e, etrue e2_e) @> e2_e.at in
   let e2_if = Stmt.If (e2_test, rtrue e2_e, Some (rfalse e2_e)) @> e2_e.at in
-  let e1_else = Builder.else_block (e2_s @ [ e2_if ]) in
+  let e1_else = Builder.block_opt (e2_s @ [ e2_if ]) in
   let e1_if = Stmt.If (e1_test, rtrue e1_e, e1_else) @> e1_e.at in
   (e1_s @ [ e1_if ], res)
 
@@ -208,7 +230,7 @@ let rec compile_stmt (s : EStmt.t) : c_stmt =
   | While (e, s') -> compile_while s.at e s'
   | ForEach (x, e, s', _, _) -> compile_foreach s.at x e s'
   | RepeatUntil (s', e, _) -> compile_repeatuntil s.at s' e
-  | Switch (e, css, dflt, _) -> compile_switch e css dflt
+  | Switch (e, css, dflt, _) -> compile_switch s.at e css dflt
   | MatchWith (e, css) -> compile_matchwith e css
   | Lambda (x, lid, _, ctxvars, _) -> compile_lambdacall s.at x lid ctxvars
   | MacroApply (_, _) ->
@@ -261,7 +283,7 @@ and compile_if (ifcss : (EExpr.t * EStmt.t * EStmt.metadata_t list) list)
   let compile_ifcs_f (e, s, _) acc =
     let (e_s, e_e) = compile_expr e in
     let sblock = Builder.block ~at:s.at (compile_stmt s) in
-    e_s @ [ Stmt.If (e_e, sblock, Builder.else_block acc) @> e_e.at ]
+    e_s @ [ Stmt.If (e_e, sblock, Builder.block_opt acc) @> e_e.at ]
   in
   List.fold_right compile_ifcs_f ifcss
     (Option.fold ~none:[] ~some:(fun (s, _) -> compile_stmt s) elsecs)
@@ -297,17 +319,20 @@ and compile_repeatuntil (at : region) (s : EStmt.t) (e : EExpr.t option) :
   let block = s_s @ e_s in
   block @ [ Stmt.While (guard, Builder.block ~at:s.at block) @> at ]
 
-and compile_switch (e : EExpr.t) (css : (EExpr.t * EStmt.t) list)
+and compile_switch (at : region) (e : EExpr.t) (css : (EExpr.t * EStmt.t) list)
   (dflt : EStmt.t option) : c_stmt =
-  let compile_cs_f e_e (ei, si) acc =
-    let (ei_s, ei_e) = compile_expr ei in
-    let guard = Expr.BinOpt (Eq, ei_e, e_e) @> ei.at in
-    let sblock = Builder.block ~at:si.at (compile_stmt si) in
-    ei_s @ [ Stmt.If (guard, sblock, Builder.else_block acc) @> ei.at ]
-  in
+  let rec compile_switch' e_e = function
+    | [] -> Option.fold dflt ~none:[] ~some:compile_stmt
+    | css when SwitchOptimizer.is_optimizable css ->
+      SwitchOptimizer.compile at compile_stmt (compile_rest_f e_e) e_e css
+    | (ei, si) :: css' ->
+      let (ei_s, ei_e) = compile_expr ei in
+      let guard = Expr.BinOpt (Eq, e_e, ei_e) @> ei.at in
+      let sblock = Builder.block ~at:si.at (compile_stmt si) in
+      ei_s @ [ Stmt.If (guard, sblock, compile_rest_f e_e css') @> ei.at ]
+  and compile_rest_f e_e css = Builder.block_opt (compile_switch' e_e css) in
   let (e_s, e_e) = compile_expr e in
-  let dflt_s = Option.fold dflt ~none:[] ~some:compile_stmt in
-  e_s @ List.fold_right (compile_cs_f e_e) css dflt_s
+  e_s @ compile_switch' e_e css
 
 and compile_patv (e_e : Expr.t) (inobj : Expr.t) (pbn : Id.t) (pbv : EPat.pv) :
   c_stmt * Expr.t list * c_stmt =
@@ -343,13 +368,16 @@ and compile_pat (e_e : Expr.t) (pat : EPat.t) : c_stmt * Expr.t * c_stmt =
     (pre_s, guard, pat_s)
 
 and compile_matchwith (e : EExpr.t) (css : (EPat.t * EStmt.t) list) : c_stmt =
-  let compile_cs e_e (pat, s) acc =
-    let (pre_s, guard_e, pat_s) = compile_pat e_e pat in
-    let sblock = Builder.block ~at:s.at (pat_s @ compile_stmt s) in
-    pre_s @ [ Stmt.If (guard_e, sblock, Builder.else_block acc) @> pat.at ]
+  let rec compile_matchwith' e_e = function
+    | [] -> []
+    | (pat, s) :: css' ->
+      let (pre_s, guard_e, pat_s) = compile_pat e_e pat in
+      let sblock = Builder.block ~at:s.at (pat_s @ compile_stmt s) in
+      let selse = Builder.block_opt (compile_matchwith' e_e css') in
+      pre_s @ [ Stmt.If (guard_e, sblock, selse) @> pat.at ]
   in
   let (e_s, e_e) = compile_expr e in
-  e_s @ List.fold_right (compile_cs e_e) css []
+  e_s @ compile_matchwith' e_e css
 
 and compile_lambdacall (at : region) (x : Id.t) (id : string)
   (ctxvars : Id.t list) : c_stmt =
