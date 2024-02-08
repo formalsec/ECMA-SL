@@ -118,9 +118,15 @@ ecma-sl interpret <input.esl> --db
 
 ## Encode and execute a JavaScript Program
 
-- Encode a JavaScript `(.js)` program in Core ECMA-SL `(.cesl)`: 
+- Encode a JavaScript `(.js)` program in Core ECMA-SL `(.cesl)`, and execute the encoded program using the default reference interpreter. 
 ```sh
 ecma-sl encode <input.js> -o <output.cesl>
+ecma-sl execute <output.cesl> 
+```
+
+- Execute a JavaScript `(.js)` program directly (the application extrapolates the language of the program based on the file extension, and encodes the JavaScript program in Core ECMA-SL if needed):
+```sh
+ecma-sl execute <input.js>
 ```
 
 <br>
