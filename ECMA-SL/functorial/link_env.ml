@@ -25,9 +25,10 @@ module Make (Memory : Memory_intf.S) = struct
   let get_func (env : 'a t) id = Prog.func env.functions id
 
   let get_extern_func (env : 'a t) id =
-    match SMap.find_opt id env.extern_funcs with
-    | Some f -> Ok f
-    | None -> Error (Format.sprintf "unable to find external function '%s'" id)
+    match SMap.find id env.extern_funcs with
+    | exception Not_found ->
+      Error (Format.sprintf "unable to find external function '%s'" id)
+    | f -> Ok f
 
   let add_memory (env : 'a t) memory = { env with memory }
 

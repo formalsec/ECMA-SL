@@ -120,7 +120,7 @@ module M : Object_intf.S with type value = V.value = struct
       (fun fmt () -> Fmt.pp_str fmt ",")
       map_iter
       (fun fmt (key, data) ->
-        Fmt.fprintf fmt {|"%a": %a|} V.Pp.pp key V.Pp.pp data )
+        Fmt.fprintf fmt {|"%a": %a|} V.pp key V.pp data )
       fmt v
 
   let pp fmt { fields; symbols } =

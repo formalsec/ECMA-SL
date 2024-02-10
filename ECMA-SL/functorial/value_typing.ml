@@ -188,4 +188,4 @@ let rec type_of (v : Symbolic_value.M.value) : Type.t option =
   | NOpt (Operator.TupleExpr, _) -> Some Type.TupleType
   | NOpt (Operator.ArrayExpr, _) -> Some Type.ArrayType
   | Curry _ -> Some Type.CurryType
-  | _ -> Log.err "%a: Not typed!" Pp.pp v
+  | _ -> Log.err "%a: Not typed!" pp v
