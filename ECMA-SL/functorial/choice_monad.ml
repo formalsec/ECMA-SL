@@ -31,7 +31,6 @@ module List = struct
   type 'a t = thread -> ('a * thread) list
 
   let return (v : 'a) : 'a t = fun t -> [ (v, t) ]
-
   let run (v : 'a t) (thread : thread) = v thread
 
   let bind (v : 'a t) (f : 'a -> 'b t) : 'b t =
@@ -43,9 +42,7 @@ module List = struct
     | _ -> List.concat_map (fun (r, t') -> run (f r) t') lst
 
   let ( let* ) v f = bind v f
-
   let map (v : 'a t) (f : 'a -> 'b) : 'b t = bind v (fun a -> return (f a))
-
   let ( let+ ) v f = map v f
 
   let check (v : Value.value) : bool t =
@@ -92,10 +89,6 @@ module List = struct
           let t0 = Thread.clone_mem t in
           let t1 = Thread.clone_mem t in
           [ (true, Thread.add_pc t0 cond); (false, Thread.add_pc t1 no) ] )
-
-  let error (v : string) : 'a t =
-    Format.printf "%s@." v;
-    fun _ -> []
 end
 
 module P : Choice_monad_intf.Complete with module V := Value = List
