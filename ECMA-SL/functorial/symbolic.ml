@@ -122,7 +122,10 @@ module P = struct
           else Some (v, Thread.add_pc thread c')
       in
       match locs with
-      | [] -> Choice.error "no loc"
+      | [] ->
+        fun _thread ->
+          Log.warn "no loc";
+          []
       | [ (c, v) ] ->
         fun thread ->
           Option.fold ~none:[] ~some:(fun a -> [ a ]) (return thread (c, v))

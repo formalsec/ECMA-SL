@@ -9,9 +9,8 @@ let description =
 let man = [ `S Manpage.s_description; `P (List.assoc `P0 description) ]
 let man_xrefs = []
 
-let term =
+let options =
   Term.(
-    const Cmd_symbolic.validate
-    $ Options.common_options
-    $ Options.fpath_input_file
-    $ Options.testsuit_dir )
+    const Cmd_replay.options $ Options.fpath_input_file $ Options.testsuit_dir )
+
+let term = Term.(const Cmd_replay.main $ Options.common_options $ options)

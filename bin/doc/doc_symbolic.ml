@@ -11,10 +11,11 @@ let description =
 let man = [ `S Manpage.s_description; `P (List.nth description 0) ]
 let man_xrefs = []
 
-let term =
+let options =
   Term.(
-    const Cmd_symbolic.main
-    $ Options.common_options
+    const Cmd_symbolic.options
     $ Options.fpath_input_file
     $ Options.target_func
     $ Options.workspace_dir )
+
+let term = Term.(const Cmd_symbolic.main $ Options.common_options $ options)

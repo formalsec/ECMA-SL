@@ -20,6 +20,7 @@
   cmd_execute
   cmd_build
   cmd_symbolic
+  cmd_replay
   lang
   ecmaref)
  (libraries ecma_sl bos cmdliner))
