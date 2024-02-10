@@ -23,7 +23,7 @@ let pp_pos (fmt : Fmt.t) (pos : pos) : unit =
 let pp_region (fmt : Fmt.t) (region : region) : unit =
   Fmt.fprintf fmt "%S:%a-%a" region.file pp_pos region.left pp_pos region.right
 
-type 'a phrase =
+type +'a phrase =
   { it : 'a
   ; at : region
   }
