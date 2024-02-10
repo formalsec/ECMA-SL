@@ -70,7 +70,7 @@ let pp_model fmt v =
   Fmt.fprintf fmt "@[<v 2>module.exports.symbolic_map =@ { %a@\n}@]" pp_vars
     (Model.get_bindings v)
 
-let serialize ~workspace =
+let serialize_thread ~workspace =
   let module Term = Encoding.Expr in
   let (next_int, _) = Utils.make_counter 0 1 in
   fun ?(witness : string option) thread ->
@@ -92,6 +92,20 @@ let serialize ~workspace =
     | None -> Ok ()
     | Some witness -> OS.File.writef Fpath.(f + "_sink.json") "%s" witness
 
+let write_report ~workspace filename exec_time solver_time solver_count
+  num_problems =
+  let json : Yojson.t =
+    `Assoc
+      [ ("filename", `String (Fpath.to_string filename))
+      ; ("execution_time", `Float exec_time)
+      ; ("solver_time", `Float solver_time)
+      ; ("solver_queries", `Int solver_count)
+      ; ("num_problems", `Int num_problems)
+      ]
+  in
+  let rpath = Fpath.(workspace / "report.json") in
+  OS.File.writef rpath "%a" (Yojson.pretty_print ~std:true) json
+
 let run ~workspace filename entry_func =
   let open Syntax.Result in
   let* prog = dispatch_file_ext prog_of_plus prog_of_core prog_of_js filename in
@@ -102,17 +116,24 @@ let run ~workspace filename entry_func =
   let results = Choice.run result thread in
   let exec_time = Stdlib.Sys.time () -. start in
   let solv_time = !Solver.solver_time in
+  let solv_cnt = !Solver.solver_count in
   let testsuite = Fpath.(workspace / "test-suite") in
-  let+ _ = OS.Dir.create ~path:true testsuite in
-  List.iter
-    (fun (ret, thread) ->
-      let witness = match ret with Ok _ -> None | Error err -> Some err in
-      match serialize ~workspace ?witness thread with
-      | Error (`Msg msg) -> Log.warn "%s" msg
-      | Ok () -> () )
-    results;
+  let* _ = OS.Dir.create ~path:true testsuite in
+  let problems =
+    List.filter
+      (fun (ret, thread) ->
+        let witness = match ret with Ok _ -> None | Error err -> Some err in
+        match serialize_thread ~workspace ?witness thread with
+        | Error (`Msg msg) ->
+          Log.warn "%s" msg;
+          true
+        | Ok () -> false )
+      results
+  in
   Log.debug1 "  exec time : %fs@." exec_time;
-  Log.debug1 "solver time : %fs@." solv_time
+  Log.debug1 "solver time : %fs@." solv_time;
+  write_report ~workspace filename exec_time solv_time solv_cnt
+    (List.length problems)
 
 let main (copts : Options.common_options) opt =
   Log.on_debug := copts.debug;
