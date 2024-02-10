@@ -92,15 +92,17 @@ let serialize_thread ~workspace =
     | None -> Ok ()
     | Some witness -> OS.File.writef Fpath.(f + "_sink.json") "%s" witness
 
-let write_report ~workspace filename exec_time solver_time solver_count
-  num_problems =
+let write_report ~workspace filename exec_time solver_time solver_count problems
+    =
+  let sinks = List.map (fun s -> `Assoc [ ("sink", `String s) ]) problems in
   let json : Yojson.t =
     `Assoc
       [ ("filename", `String (Fpath.to_string filename))
       ; ("execution_time", `Float exec_time)
       ; ("solver_time", `Float solver_time)
       ; ("solver_queries", `Int solver_count)
-      ; ("num_problems", `Int num_problems)
+      ; ("num_problems", `Int (List.length sinks))
+      ; ("problems", `List sinks)
       ]
   in
   let rpath = Fpath.(workspace / "report.json") in
@@ -120,20 +122,18 @@ let run ~workspace filename entry_func =
   let testsuite = Fpath.(workspace / "test-suite") in
   let* _ = OS.Dir.create ~path:true testsuite in
   let problems =
-    List.filter
+    List.filter_map
       (fun (ret, thread) ->
         let witness = match ret with Ok _ -> None | Error err -> Some err in
-        match serialize_thread ~workspace ?witness thread with
-        | Error (`Msg msg) ->
-          Log.warn "%s" msg;
-          true
-        | Ok () -> false )
+        ( match serialize_thread ~workspace ?witness thread with
+        | Error (`Msg msg) -> Log.warn "%s" msg
+        | Ok () -> () );
+        witness )
       results
   in
   Log.debug1 "  exec time : %fs@." exec_time;
   Log.debug1 "solver time : %fs@." solv_time;
-  write_report ~workspace filename exec_time solv_time solv_cnt
-    (List.length problems)
+  write_report ~workspace filename exec_time solv_time solv_cnt problems
 
 let main (copts : Options.Common.t) opt =
   Options.Common.set copts;
