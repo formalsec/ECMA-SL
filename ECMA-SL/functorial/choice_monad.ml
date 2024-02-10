@@ -32,13 +32,17 @@ module List = struct
 
   let return (v : 'a) : 'a t = fun t -> [ (v, t) ]
 
+  let run (v : 'a t) (thread : thread) = v thread
+
   let bind (v : 'a t) (f : 'a -> 'b t) : 'b t =
    fun t ->
-    let lst = v t in
+    let lst = run v t in
     match lst with
     | [] -> []
-    | [ (r, t') ] -> (f r) t'
-    | _ -> List.concat_map (fun (r, t') -> (f r) t') lst
+    | [ (r, t') ] -> run (f r) t'
+    | _ -> List.concat_map (fun (r, t') -> run (f r) t') lst
+
+  let map (v : 'a t) (f : 'a -> 'b) : 'b t = bind v (fun a -> return (f a))
 
   let check (v : Value.value) : bool t =
     let open Value in
@@ -77,15 +81,13 @@ module List = struct
         let sat_true = Solver.check solver (cond :: pc) in
         let sat_false = Solver.check solver (no :: pc) in
         match (sat_true, sat_false) with
-        | false, false -> []
-        | true, false -> [ (true, Thread.add_pc t cond) ]
-        | false, true -> [ (false, Thread.add_pc t no) ]
-        | true, true ->
+        | (false, false) -> []
+        | (true, false) -> [ (true, Thread.add_pc t cond) ]
+        | (false, true) -> [ (false, Thread.add_pc t no) ]
+        | (true, true) ->
           let t0 = Thread.clone_mem t in
           let t1 = Thread.clone_mem t in
           [ (true, Thread.add_pc t0 cond); (false, Thread.add_pc t1 no) ] )
-
-  let run (v : 'a t) (thread : thread) = v thread
 
   let error (v : string) : 'a t =
     Format.printf "%s@." v;
