@@ -42,7 +42,11 @@ module List = struct
     | [ (r, t') ] -> run (f r) t'
     | _ -> List.concat_map (fun (r, t') -> run (f r) t') lst
 
+  let ( let* ) v f = bind v f
+
   let map (v : 'a t) (f : 'a -> 'b) : 'b t = bind v (fun a -> return (f a))
+
+  let ( let+ ) v f = map v f
 
   let check (v : Value.value) : bool t =
     let open Value in

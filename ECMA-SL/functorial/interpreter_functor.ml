@@ -1,7 +1,4 @@
 open Source
-open Syntax.Result
-
-let ( let* ) o f = match o with Error e -> failwith e | Ok o -> f o
 
 module Make (P : Interpreter_functor_intf.P) :
   Interpreter_functor_intf.S
@@ -16,15 +13,14 @@ module Make (P : Interpreter_functor_intf.P) :
   module Env = P.Env
   module Choice = P.Choice
   module Reducer = P.Reducer
+  open Choice
 
   type value = P.value
   type store = P.store
 
-  let ( let/ ) = Choice.bind
-
   module State = struct
     type store = Store.t
-    type nonrec env = P.env
+    type env = P.env
 
     type exec_state =
       { return_state : (exec_state * string) option
@@ -61,11 +57,10 @@ module Make (P : Interpreter_functor_intf.P) :
         Continue { state' with locals; env = state.env }
   end
 
-  let eval_expr (sto : store) (e : Expr.t) : (value, string) Result.t =
-    let+ e' = Value.eval_expr sto e in
+  let eval_expr (sto : store) (e : Expr.t) : value =
     (* TODO: decouple Reducer from abstract values *)
     (* Reduce is only used on Sym_value.M.value *)
-    Reducer.reduce e'
+    Value.eval_expr sto e |> Reducer.reduce
 
   let pp locals heap e =
     (* TODO: Print function in sym_value *)
@@ -78,8 +73,7 @@ module Make (P : Interpreter_functor_intf.P) :
     (*   | _ -> Expr.str e' *)
     (* in *)
     (* Printf.printf "print:%s\npc:%s\nheap id:%d\n" s (Encoding.Expression.string_of_pc pc) (Memory.get_id heap); *)
-    let* v = eval_expr locals e in
-    Memory.pp_val heap v
+    eval_expr locals e |> Memory.pp_val heap
 
   let exec_func state func args ret_var =
     Log.debug1 "calling func: %s@." (Func.name' func);
@@ -114,139 +108,142 @@ module Make (P : Interpreter_functor_intf.P) :
       | Res -> f
     in
     let (Extern_func (Func atype, func)) = f in
-    let/ v = apply args atype func in
+    let+ v = apply args atype func in
     match v with
-    | Error _ as err -> Choice.return @@ State.Return err
+    | Error _ as err -> State.Return err
     | Ok v ->
       let locals = Store.add_exn state.State.locals ret_var v in
-      Choice.return @@ State.Continue State.{ state with locals }
+      State.Continue State.{ state with locals }
 
   let exec_stmt stmt (state : State.exec_state) : State.stmt_result Choice.t =
     let open State in
     let { locals; env; _ } = state in
-    let st locals = Choice.return @@ State.Continue { state with locals } in
-    let err fmt =
+    let ok st = Choice.return @@ State.Continue st in
+    let error fmt =
       Format.kasprintf
         (fun msg -> Choice.return @@ State.Return (Error msg))
         fmt
     in
-    let/ m = Env.get_memory env in
-    Log.debug2 "      store : %a@." Value.Pp.Store.pp locals;
+    let* m = Env.get_memory env in
+    Log.debug2 "      store : %a@." Value.Store.pp locals;
     Log.debug2 "running stmt: %a@." Stmt.pp_simple stmt;
     match stmt.it with
-    | Stmt.Skip -> st locals
-    | Stmt.Merge -> st locals
-    | Stmt.Debug s' ->
+    | Stmt.Skip -> ok state
+    | Stmt.Merge -> ok state
+    | Stmt.Debug stmt ->
       Format.eprintf "ignoring break point in line %d" stmt.at.left.line;
-      Choice.return @@ State.Continue { state with stmts = s' :: state.stmts }
+      ok { state with stmts = stmt :: state.stmts }
     | Stmt.Fail e ->
       let e' = pp locals m e in
       Log.warn "       fail : %s@." e';
-      err {|{ "fail" : "%S" }|} e'
+      error {|{ "fail" : "%S" }|} e'
     | Stmt.Print e ->
       Format.printf "%s@." (pp locals m e);
-      st locals
+      ok state
     | Stmt.Assign (x, e) ->
-      let* v = eval_expr locals e in
-      st @@ Store.add_exn locals x.it v
+      let v = eval_expr locals e in
+      ok { state with locals = Store.add_exn locals x.it v }
     | Stmt.Assert e ->
-      let* e' = eval_expr locals e in
-      let/ b = Choice.check_add_true @@ Value.Bool.not_ e' in
+      let e' = eval_expr locals e in
+      let* b = Choice.check_add_true @@ Value.Bool.not_ e' in
       if b then (
-        Log.warn "     assert : failure with (%a)@." Value.Pp.pp e';
-        err {|{ "assert" : "%a" }|} Value.Pp.pp e' )
-      else st locals
-    | Stmt.Block blk ->
-      Choice.return @@ State.Continue { state with stmts = blk @ state.stmts }
+        Log.warn "     assert : failure with (%a)@." Value.pp e';
+        error {|{ "assert" : "%a" }|} Value.pp e' )
+      else ok state
+    | Stmt.Block blk -> ok { state with stmts = blk @ state.stmts }
     | Stmt.If (br, blk1, blk2) ->
-      let* br = eval_expr locals br in
-      let/ b = Choice.branch br in
+      let br = eval_expr locals br in
+      let* b = Choice.branch br in
       let stmts =
         if b then blk1 :: state.stmts
         else
-          Option.fold blk2 ~none:state.stmts ~some:(fun st -> st :: state.stmts)
+          match blk2 with
+          | None -> state.stmts
+          | Some stmt -> stmt :: state.stmts
       in
-      Choice.return @@ State.Continue { state with stmts }
+      ok { state with stmts }
     | Stmt.While (br, blk) ->
-      let blk' =
-        Stmt.Block (blk :: [ Stmt.While (br, blk) @> stmt.at ]) @> blk.at
-      in
+      let blk' = Stmt.Block (blk :: [ stmt ]) @> blk.at in
       let stmts = (Stmt.If (br, blk', None) @> stmt.at) :: state.stmts in
-      Choice.return @@ State.Continue { state with stmts }
+      ok { state with stmts }
     | Stmt.Return e ->
-      let* v = eval_expr locals e in
-      Choice.return @@ State.return state ~value:v
-    | Stmt.AssignCall (x, f, es) ->
-      let* f' = eval_expr locals f in
-      let* (func_name, args0) = Value.get_func_name f' in
-      let* func = Env.get_func env func_name in
-      let* args = list_map ~f:(eval_expr locals) es in
-      let args = args0 @ args in
-      exec_func state func args x.it
-    | Stmt.AssignECall (x, f, es) ->
-      let* func = Env.get_extern_func env f.it in
-      let* args = list_map ~f:(eval_expr locals) es in
-      exec_extern_func state func args x.it
+      Choice.return @@ State.return state ~value:(eval_expr locals e)
+    | Stmt.AssignCall (x, f, es) -> (
+      match Value.func (eval_expr locals f) with
+      | Error msg -> error "%s" msg
+      | Ok (func_name, args0) -> (
+        match Env.get_func env func_name with
+        | Error msg -> error "%s" msg
+        | Ok func ->
+          let args = List.map (eval_expr locals) es in
+          let args = args0 @ args in
+          exec_func state func args x.it ) )
+    | Stmt.AssignECall (x, f, es) -> (
+      match Env.get_extern_func env f.it with
+      | Error msg -> error "%s" msg
+      | Ok func ->
+        let args = List.map (eval_expr locals) es in
+        exec_extern_func state func args x.it )
     | Stmt.AssignNewObj x ->
-      let/ heap = Env.get_memory env in
+      let* heap = Env.get_memory env in
       let obj = Object.create () in
       let loc = Memory.insert heap obj in
-      st @@ Store.add_exn locals x.it loc
+      ok { state with locals = Store.add_exn locals x.it loc }
     | Stmt.AssignInObjCheck (x, e_field, e_loc) ->
-      let* field = eval_expr locals e_field in
-      let* loc = eval_expr locals e_loc in
-      let/ loc = Memory.loc loc in
+      let field = eval_expr locals e_field in
+      let loc = eval_expr locals e_loc in
+      let* loc = Memory.loc loc in
       (* `get_memory` comes after `Memory.loc` due to branching *)
-      let/ heap = Env.get_memory env in
+      let* heap = Env.get_memory env in
       let v = Memory.has_field heap loc field in
-      st @@ Store.add_exn locals x.it v
+      ok { state with locals = Store.add_exn locals x.it v }
     | Stmt.AssignObjToList (x, e) -> (
-      let* loc = eval_expr locals e in
-      let/ loc = Memory.loc loc in
-      let/ heap = Env.get_memory env in
+      let loc = eval_expr locals e in
+      let* loc = Memory.loc loc in
+      let* heap = Env.get_memory env in
       match Memory.get heap loc with
-      | None -> Choice.error (Format.sprintf "'%s' not found in heap" loc)
+      | None -> error "'%s' not found in heap" loc
       | Some o ->
         let v = Value.mk_list (List.map Value.mk_tuple (Object.to_list o)) in
-        st @@ Store.add_exn locals x.it v )
+        ok { state with locals = Store.add_exn locals x.it v } )
     | Stmt.AssignObjFields (x, e) -> (
-      let* loc = eval_expr locals e in
-      let/ loc = Memory.loc loc in
-      let/ heap = Env.get_memory env in
+      let loc = eval_expr locals e in
+      let* loc = Memory.loc loc in
+      let* heap = Env.get_memory env in
       match Memory.get heap loc with
-      | None -> Choice.error (Format.sprintf "'%s' not found in heap" loc)
+      | None -> error "'%s' not found in heap" loc
       | Some o ->
         let v = Value.mk_list @@ Object.get_fields o in
-        st @@ Store.add_exn locals x.it v )
+        ok { state with locals = Store.add_exn locals x.it v } )
     | Stmt.FieldAssign (e_loc, e_field, e_v) ->
-      let* loc = eval_expr locals e_loc in
-      let* field = eval_expr locals e_field in
-      let* v = eval_expr locals e_v in
-      let/ loc = Memory.loc loc in
-      let/ heap = Env.get_memory env in
+      let loc = eval_expr locals e_loc in
+      let field = eval_expr locals e_field in
+      let v = eval_expr locals e_v in
+      let* loc = Memory.loc loc in
+      let* heap = Env.get_memory env in
       Memory.set_field heap loc ~field ~data:v;
-      st locals
+      ok state
     | Stmt.FieldDelete (e_loc, e_field) ->
-      let* loc = eval_expr locals e_loc in
-      let* field = eval_expr locals e_field in
-      let/ loc = Memory.loc loc in
-      let/ heap = Env.get_memory env in
+      let loc = eval_expr locals e_loc in
+      let field = eval_expr locals e_field in
+      let* loc = Memory.loc loc in
+      let* heap = Env.get_memory env in
       Memory.delete_field heap loc field;
-      st locals
+      ok state
     | Stmt.FieldLookup (x, e_loc, e_field) ->
-      let* loc = eval_expr locals e_loc in
-      let* field = eval_expr locals e_field in
-      let/ loc = Memory.loc loc in
-      let/ heap = Env.get_memory env in
-      let/ value = Memory.get_field heap loc field in
+      let loc = eval_expr locals e_loc in
+      let field = eval_expr locals e_field in
+      let* loc = Memory.loc loc in
+      let* heap = Env.get_memory env in
+      let* value = Memory.get_field heap loc field in
       let value' = Option.value value ~default:(Value.mk_symbol "undefined") in
-      st @@ Store.add_exn locals x.it value'
+      ok { state with locals = Store.add_exn locals x.it value' }
 
   let rec loop (state : State.exec_state) : State.return_result Choice.t =
     let open State in
     match state.stmts with
     | stmt :: stmts -> (
-      let/ state = exec_stmt stmt { state with stmts } in
+      let* state = exec_stmt stmt { state with stmts } in
       match state with
       | State.Continue state -> loop state
       | State.Return ret -> Choice.return ret )
@@ -257,7 +254,9 @@ module Make (P : Interpreter_functor_intf.P) :
       | State.Return ret -> Choice.return ret )
 
   let main (env : Env.t) (f : string) : State.return_result Choice.t =
-    let* f = Env.get_func env f in
-    let state = State.empty_state ~env in
-    loop State.{ state with stmts = [ Func.body f ]; func = Func.name' f }
+    match Env.get_func env f with
+    | Error _ as err -> Choice.return err
+    | Ok f ->
+      let state = State.empty_state ~env in
+      loop State.{ state with stmts = [ Func.body f ]; func = Func.name' f }
 end

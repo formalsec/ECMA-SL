@@ -44,7 +44,7 @@ struct
   let set_concrete_field (o : t) (key : value) (data : value) : unit =
     match key with
     | V.Val (Val.Str field) -> Hashtbl.replace o.concrete_fields field data
-    | _ -> Format.kasprintf failwith "bad field: %a" V.Pp.pp key
+    | _ -> Log.err "bad field: %a" V.pp key
 
   let has_concrete_key (o : t) (key : string) : bool =
     Hashtbl.mem o.concrete_fields key

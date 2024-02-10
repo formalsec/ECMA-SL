@@ -47,7 +47,7 @@ module Make
     let obj = get heap l in
     let res = Option.bind obj (fun o -> Some (Object.get o field solver pc)) in
     match res with
-    | None -> Log.err "get Return is never none. loc: %s %a" l V.Pp.pp field
+    | None -> Log.err "get Return is never none. loc: %s %a" l V.pp field
     | Some objs -> (
       (* Don't clone heap unless necessary *)
       match objs with

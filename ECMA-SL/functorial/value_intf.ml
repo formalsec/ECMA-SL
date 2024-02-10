@@ -2,12 +2,13 @@ module type T = sig
   type value
   type store
 
+  val equal : value -> value -> bool
   val mk_symbol : string -> value
   val mk_list : value list -> value
   val mk_tuple : value * value -> value
   val is_symbolic : value -> bool
-  val equal : value -> value -> bool
-  val get_func_name : value -> (string * value list, string) Result.t
+  val func : value -> (string * value list, string) Result.t
+  val pp : Fmt.t -> value -> unit
 
   module Bool : sig
     val const : bool -> value
@@ -24,15 +25,8 @@ module type T = sig
     val mem : t -> bind -> bool
     val add_exn : t -> bind -> value -> t
     val find : t -> bind -> value option
+    val pp : Fmt.t -> t -> unit
   end
 
-  val eval_expr : store -> Expr.t -> (value, string) Result.t
-
-  module Pp : sig
-    val pp : Format.formatter -> value -> unit
-
-    module Store : sig
-      val pp : Fmt.t -> store -> unit
-    end
-  end
+  val eval_expr : store -> Expr.t -> value
 end

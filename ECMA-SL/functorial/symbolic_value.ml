@@ -1,7 +1,3 @@
-open Syntax.Result
-
-let return = Result.ok
-
 module M = struct
   type value =
     | Val of Val.t
@@ -52,7 +48,35 @@ module M = struct
       equal x1 x2 && List.equal equal es1 es2
     | _ -> false
 
-  let get_func_name (v : value) =
+  (* FIXME: Proper pp *)
+  let rec pp fmt =
+    let open Format in
+    let pp_list fmt es =
+      pp_print_list ~pp_sep:(fun fmt () -> pp_print_string fmt ", ") pp fmt es
+    in
+    let pp_str e = asprintf "%a" pp e in
+    function
+    | Val n -> fprintf fmt "%s" (Val.str n)
+    | UnOpt (op, e) ->
+      let e = pp_str e in
+      fprintf fmt "%s" (Operator.str_of_unopt Format.pp_print_string op e)
+    | BinOpt (op, e1, e2) ->
+      let e1 = pp_str e1 in
+      let e2 = pp_str e2 in
+      fprintf fmt "%s" (Operator.str_of_binopt Format.pp_print_string op e1 e2)
+    | TriOpt (op, e1, e2, e3) ->
+      let e1 = pp_str e1 in
+      let e2 = pp_str e2 in
+      let e3 = pp_str e3 in
+      fprintf fmt "%s"
+        (Operator.str_of_triopt Format.pp_print_string op e1 e2 e3)
+    | NOpt (op, es) ->
+      fprintf fmt "%s"
+        (Operator.str_of_nopt Format.pp_print_string op (List.map pp_str es))
+    | Curry (f, es) -> fprintf fmt "{%a}@(%a)" pp f pp_list es
+    | Symbolic (_t, x) -> pp fmt x
+
+  let func (v : value) =
     match v with
     | Val (Val.Str x) -> Ok (x, [])
     | Curry (Val (Val.Str x), vs) -> Ok (x, vs)
@@ -82,96 +106,56 @@ module M = struct
       SMap.add key data store
 
     let find (store : t) (x : bind) : value option = SMap.find_opt x store
+
+    let pp fmt store =
+      let open Fmt in
+      let pp_sep fmt () = fprintf fmt ";@ " in
+      let iter f m =
+        SMap.iter
+          (fun k v -> if not @@ String.starts_with ~prefix:"__" k then f (k, v))
+          m
+      in
+      let pp_v fmt (k, v) = fprintf fmt "%s -> %a" k pp v in
+      fprintf fmt "{ ... %a }" (pp_iter pp_sep iter pp_v) store
   end
 
   type store = Store.t
 
-  let rec eval_expr (store : store) (e : Expr.t) : (value, string) Result.t =
+  let rec eval_expr (store : store) (e : Expr.t) : value =
     match e.it with
-    | Expr.Val v -> return (Val v)
+    | Expr.Val v -> Val v
     | Expr.Var x -> (
       match Store.find store x with
-      | Some v -> return v
-      | None -> Error (Format.sprintf "Cannot find var '%s'" x) )
+      | Some v -> v
+      | None -> Log.err "Cannot find var '%s'" x )
     | Expr.UnOpt (op, e) -> (
-      let+ e' = eval_expr store e in
+      let e' = eval_expr store e in
       match e' with
       | Val v -> Val (Eval_operator.eval_unopt op v)
       | _ -> UnOpt (op, e') )
     | Expr.BinOpt (op, e1, e2) -> (
-      let* e1' = eval_expr store e1 in
-      let+ e2' = eval_expr store e2 in
+      let e1' = eval_expr store e1 in
+      let e2' = eval_expr store e2 in
       match (e1', e2') with
       | (Val v1, Val v2) -> Val (Eval_operator.eval_binopt op v1 v2)
       | _ -> BinOpt (op, e1', e2') )
     | Expr.TriOpt (op, e1, e2, e3) -> (
-      let* e1' = eval_expr store e1 in
-      let* e2' = eval_expr store e2 in
-      let+ e3' = eval_expr store e3 in
+      let e1' = eval_expr store e1 in
+      let e2' = eval_expr store e2 in
+      let e3' = eval_expr store e3 in
       match (e1', e2', e3') with
       | (Val v1, Val v2, Val v3) -> Val (Eval_operator.eval_triopt op v1 v2 v3)
       | _ -> TriOpt (op, e1', e2', e3') )
     | Expr.NOpt (op, es) ->
-      let+ es' = list_map ~f:(eval_expr store) es in
+      let es' = List.map (eval_expr store) es in
       NOpt (op, es')
     | Expr.Curry (f, es) ->
-      let* f' = eval_expr store f in
-      let+ es' = list_map ~f:(eval_expr store) es in
+      let f' = eval_expr store f in
+      let es' = List.map (eval_expr store) es in
       Curry (f', es')
     | Expr.Symbolic (t, x) ->
-      let+ x' = eval_expr store x in
+      let x' = eval_expr store x in
       Symbolic (t, x')
-
-  module Pp = struct
-    open Format
-
-    (* FIXME: Proper pp *)
-    let rec pp fmt =
-      let pp_list fmt es =
-        pp_print_list ~pp_sep:(fun fmt () -> pp_print_string fmt ", ") pp fmt es
-      in
-      let pp_str e = asprintf "%a" pp e in
-      function
-      | Val n -> fprintf fmt "%s" (Val.str n)
-      | UnOpt (op, e) ->
-        let e = pp_str e in
-        fprintf fmt "%s" (Operator.str_of_unopt Format.pp_print_string op e)
-      | BinOpt (op, e1, e2) ->
-        let e1 = pp_str e1 in
-        let e2 = pp_str e2 in
-        fprintf fmt "%s"
-          (Operator.str_of_binopt Format.pp_print_string op e1 e2)
-      | TriOpt (op, e1, e2, e3) ->
-        let e1 = pp_str e1 in
-        let e2 = pp_str e2 in
-        let e3 = pp_str e3 in
-        fprintf fmt "%s"
-          (Operator.str_of_triopt Format.pp_print_string op e1 e2 e3)
-      | NOpt (op, es) ->
-        fprintf fmt "%s"
-          (Operator.str_of_nopt Format.pp_print_string op (List.map pp_str es))
-      | Curry (f, es) -> fprintf fmt "{%a}@(%a)" pp f pp_list es
-      | Symbolic (_t, x) -> pp fmt x
-
-    module Store = struct
-      open Fmt
-
-      type t = Store.t
-
-      module SMap = Store.SMap
-
-      let pp fmt store =
-        let pp_sep fmt () = fprintf fmt ";@ " in
-        let iter f m =
-          SMap.iter
-            (fun k v ->
-              if not @@ String.starts_with ~prefix:"__" k then f (k, v) )
-            m
-        in
-        let pp_v fmt (k, v) = fprintf fmt "%s -> %a" k pp v in
-        fprintf fmt "{ ... %a }" (pp_iter pp_sep iter pp_v) store
-    end
-  end
 end
 
 module M' : Value_intf.T = M

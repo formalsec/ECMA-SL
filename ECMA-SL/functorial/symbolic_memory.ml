@@ -86,7 +86,7 @@ module Make (O : Object_intf.S with type value = V.value) = struct
     | TriOpt (Operator.ITE, c, Val (Val.Loc l), v) ->
       Ok ((Some c, l) :: unfold_ite ~accum:(UnOpt (Operator.LogicalNot, c)) v)
     | _ ->
-      Error (Fmt.asprintf "Value '%a' is not a loc expression" V.Pp.pp e)
+      Error (Fmt.asprintf "Value '%a' is not a loc expression" V.pp e)
 
   let pp_val (h : t) (e : value) : string =
     match e with
@@ -94,7 +94,7 @@ module Make (O : Object_intf.S with type value = V.value) = struct
       match get h l with
       | None -> l
       | Some o -> Fmt.asprintf "%s -> %a" l O.pp o )
-    | _ -> Fmt.asprintf "%a" V.Pp.pp e
+    | _ -> Fmt.asprintf "%a" V.pp e
 end
 
 module M :
