@@ -184,7 +184,7 @@ let translate_triop (t1 : Type.t option) (t2 : Type.t option)
   | _ -> failwith "translate_triop: ill-typed or unsupported operator!"
 
 let rec translate ?(b = false) (v : value) : Expr.t =
-  if b then Format.printf "\n\ntranslating: %a\n\n" Pp.pp v;
+  if b then Format.printf "\n\ntranslating: %a\n\n" pp v;
   match v with
   | Val v -> translate_val v
   | Symbolic (t, Val (Val.Str x)) -> translate_symbol t x
@@ -213,4 +213,4 @@ let rec translate ?(b = false) (v : value) : Expr.t =
     and e2' = translate ~b:false e2
     and e3' = translate ~b:false e3 in
     translate_triop ty1 ty2 ty3 op e1' e2' e3'
-  | _ -> Format.kasprintf failwith "%a: Not translated!" Pp.pp v
+  | _ -> Log.err "%a: Not translated!" pp v

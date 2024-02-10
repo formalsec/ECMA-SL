@@ -7,7 +7,9 @@ module type Base = sig
   val return : 'a -> 'a t
   val run : 'a t -> thread -> ('a * thread) list
   val bind : 'a t -> ('a -> 'b t) -> 'b t
+  val ( let* ) : 'a t -> ('a -> 'b t) -> 'b t
   val map : 'a t -> ('a -> 'b) -> 'b t
+  val ( let+ ) : 'a t -> ('a -> 'b) -> 'b t
 end
 
 module type Complete = sig
@@ -16,5 +18,4 @@ module type Complete = sig
   val check : V.value -> bool t
   val check_add_true : V.value -> bool t
   val branch : V.value -> bool t
-  val error : string -> 'a t
 end

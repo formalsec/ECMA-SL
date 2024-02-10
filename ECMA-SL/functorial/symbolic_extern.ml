@@ -69,7 +69,7 @@ module Make () = struct
       Choice.return (Ok (Val (Val.Bool b)))
     in
     let abort (e : value) =
-      let e' = Format.asprintf "%a" Value.Pp.pp e in
+      let e' = Format.asprintf "%a" Value.pp e in
       Log.warn "      abort : %s@." e';
       Choice.return @@ Error (Format.asprintf {|{ "abort" : %S }|} e')
     in
