@@ -15,6 +15,6 @@ let term =
   Term.(
     const Cmd_symbolic.main
     $ Options.Common.options
-    $ Options.File.input
+    $ Options.Fpath_.input
     $ Options.target_func
     $ Options.workspace_dir )
