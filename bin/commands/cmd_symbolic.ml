@@ -24,14 +24,15 @@ let plus_ext = ".esl"
 let core_ext = ".cesl"
 let js_ext = ".js"
 
-let dispatch_file_ext on_plus on_core on_js file =
-  if Filename.check_suffix file plus_ext then Ok (on_plus file)
-  else if Filename.check_suffix file core_ext then Ok (on_core file)
-  else if Filename.check_suffix file js_ext then on_js file
-  else Error (`Msg (file ^ " :unreconized file type"))
+let dispatch_file_ext on_plus on_core on_js (file : Fpath.t) =
+  if Fpath.has_ext plus_ext file then Ok (on_plus file)
+  else if Fpath.has_ext core_ext file then Ok (on_core file)
+  else if Fpath.has_ext js_ext file then on_js file
+  else Error (`Msg (Format.asprintf "%a :unreconized file type" Fpath.pp file))
 
 let prog_of_plus file =
   let open Parsing_utils in
+  let file = Fpath.to_string file in
   load_file file
   |> parse_eprog ~file
   |> resolve_eprog_imports
@@ -39,27 +40,20 @@ let prog_of_plus file =
   |> Compiler.compile_prog
 
 let prog_of_core file =
+  let file = Fpath.to_string file in
   Parsing_utils.load_file file |> Parsing_utils.parse_prog ~file
 
 let js2ecma_sl file output =
   Cmd.(v "js2ecma-sl" % "-c" % "-i" % p file % "-o" % p output)
 
 let prog_of_js file =
-  let* file = OS.File.must_exist (Fpath.v file) in
   let ast_file = Fpath.(file -+ "_ast.cesl") in
   let* () = OS.Cmd.run (js2ecma_sl file ast_file) in
-  let ast_chan = open_in @@ Fpath.to_string ast_file in
-  let interp_chan = open_in (Option.get (Share.get_es6 ())) in
-  Fun.protect
-    ~finally:(fun () ->
-      close_in ast_chan;
-      close_in interp_chan )
-    (fun () ->
-      let ast_str = In_channel.input_all ast_chan in
-      let interp = In_channel.input_all interp_chan in
-      let program = String.concat ~sep:";\n" [ ast_str; interp ] in
-      let* () = OS.File.delete ast_file in
-      Ok (Parsing_utils.parse_prog program) )
+  let* ast = OS.File.read ast_file in
+  let* es6 = OS.File.read (Fpath.v (Option.get (Share.get_es6 ()))) in
+  let program = String.concat ~sep:";\n" [ ast; es6 ] in
+  let* () = OS.File.delete ast_file in
+  Ok (Parsing_utils.parse_prog program)
 
 let link_env prog =
   Env.Build.empty ()
@@ -79,61 +73,62 @@ let pp_model fmt v =
   Fmt.fprintf fmt "@[<v 2>module.exports.symbolic_map =@ { %a@\n}@]" pp_vars
     (Model.get_bindings v)
 
-let serialize =
+let serialize ~workspace =
   let (next_int, _) = Utils.make_counter 0 1 in
   fun ?(witness : string option) thread ->
+    let module Term = Encoding.Expr in
     let pc = Thread.pc thread in
     let solver = Thread.solver thread in
     assert (Solver.check solver pc);
-    let model = Solver.model solver in
-    let testcase =
-      Option.fold model ~none:"" ~some:(Fmt.asprintf "%a" pp_model)
+    let m = Solver.model solver in
+    let f =
+      Fmt.ksprintf
+        Fpath.(add_seg (workspace / "test-suite"))
+        (match witness with None -> "testcase-%d" | Some _ -> "witness-%d")
+        (next_int ())
     in
-    let str_pc = Fmt.asprintf "%a" Encoding.Expr.pp_list pc in
-    let smt_query = Fmt.asprintf "%a" Encoding.Expr.pp_smt pc in
-    let prefix =
-      let fname = if Option.is_some witness then "witness" else "testecase" in
-      let fname = Fmt.sprintf "%s-%i" fname (next_int ()) in
-      Filename.concat (Filename.concat !Config.workspace "test-suite") fname
-    in
-    Io.write_file (Fmt.sprintf "%s.js" prefix) testcase;
-    Io.write_file (Fmt.sprintf "%s.pc" prefix) str_pc;
-    Io.write_file (Fmt.sprintf "%s.smt2" prefix) smt_query;
-    Option.iter
-      (fun sink -> Io.write_file (Fmt.sprintf "%s_sink.json" prefix) sink)
-      witness
+    let* () = OS.File.writef Fpath.(f + ".js") "%a" (Fmt.pp_opt pp_model) m in
+    let* () = OS.File.writef Fpath.(f + ".pc") "%a" Term.pp_list pc in
+    let* () = OS.File.writef Fpath.(f + ".smtml") "%a" Term.pp_smt pc in
+    match witness with
+    | None -> Ok ()
+    | Some witness -> OS.File.writef Fpath.(f + "_sink.json") "%s" witness
 
-let run env entry_func =
-  let testsuite_path = Filename.concat !Config.workspace "test-suite" in
-  Io.safe_mkdir testsuite_path;
+let run ~workspace env entry_func =
   let start = Stdlib.Sys.time () in
   let thread = Choice_monad.Thread.create () in
   let result = Symbolic_interpreter.main env entry_func in
   let results = Choice.run result thread in
+  let testsuite_path = Fpath.(workspace / "test-suite") in
+  ( match OS.Dir.create ~path:true testsuite_path with
+  | Ok _ -> ()
+  | Error (`Msg s) -> Log.err "%s" s );
   List.iter
     (fun (ret, thread) ->
       let witness = match ret with Ok _ -> None | Error err -> Some err in
-      serialize ?witness thread;
+      Log.on_err Fun.id @@ serialize ~workspace ?witness thread;
       if print_pc then
-        Fmt.printf "  path cond : %a@." Encoding.Expr.pp_list (Thread.pc thread)
-      )
+        Log.app "  path cond : %a@." Encoding.Expr.pp_list (Thread.pc thread) )
     results;
   if print_time then (
-    Fmt.printf "  exec time : %fs@." (Stdlib.Sys.time () -. start);
-    Fmt.printf "solver time : %fs@." !Solver.solver_time;
-    Fmt.printf "  mean time : %fms@."
+    Log.app "  exec time : %fs@." (Stdlib.Sys.time () -. start);
+    Log.app "solver time : %fs@." !Solver.solver_time;
+    Log.app "  mean time : %fms@."
       (1000. *. !Solver.solver_time /. float !Solver.solver_count) )
 
-let main (copts : Options.common_options) file target workspace =
+let main (copts : Options.common_options) (file : Fpath.t) (target : string)
+  (workspace : Fpath.t) =
   Log.on_debug := copts.debug;
-  Config.workspace := workspace;
-  (let* prog = dispatch_file_ext prog_of_plus prog_of_core prog_of_js file in
-   let env = link_env prog in
-   run env target;
-   Ok 0 )
-  |> Logs.on_error_msg ~use:(fun () -> 1)
+  match dispatch_file_ext prog_of_plus prog_of_core prog_of_js file with
+  | Error (`Msg s) ->
+    Log.warn "%s" s;
+    1
+  | Ok prog ->
+    let env = link_env prog in
+    run ~workspace env target;
+    0
 
-let node test witness = Cmd.(v "node" % test % p witness)
+let node test witness = Cmd.(v "node" % p test % p witness)
 
 type observable =
   | Stdout of string
@@ -141,9 +136,9 @@ type observable =
 
 let observable_effects = [ Stdout "success"; File "success" ]
 
-let execute_witness env (test : string) (witness : Fpath.t) =
+let execute_witness env (test : Fpath.t) (witness : Fpath.t) =
   let open OS in
-  Logs.app (fun m -> m " running : %s" @@ Fpath.to_string witness);
+  Log.app " running : %s" @@ Fpath.to_string witness;
   let cmd = node test witness in
   let* (out, status) = Cmd.(run_out ~env ~err:err_run_out cmd |> out_string) in
   match status with
@@ -159,25 +154,25 @@ let execute_witness env (test : string) (witness : Fpath.t) =
 
 let validate (copts : Options.common_options) filename suite_path =
   if copts.debug then Logs.set_level (Some Logs.Debug);
-  Logs.app (fun m -> m "validating : %s..." filename);
+  Log.app "validating : %a..." Fpath.pp filename;
   let node_loc = List.nth Share.nodejs_location 0 in
   let node_path = Fmt.sprintf ".:%s" node_loc in
   let env = String.Map.of_list [ ("NODE_PATH", node_path) ] in
-  (let* witnesses = OS.Path.matches Fpath.(v suite_path / "witness-$(n).js") in
+  (let* witnesses = OS.Path.matches Fpath.(suite_path / "witness-$(n).js") in
    let* () =
      list_iter witnesses ~f:(fun witness ->
          let* effect = execute_witness env filename witness in
          match effect with
          | Some (Stdout msg) ->
-           Logs.app (fun m -> m " status : true (\"%s\" in output)" msg);
+           Log.app " status : true (\"%s\" in output)" msg;
            Ok ()
          | Some (File file) ->
            let* () = OS.Path.delete @@ Fpath.v file in
-           Logs.app (fun m -> m " status : true (created file \"%s\")" file);
+           Log.app " status : true (created file \"%s\")" file;
            Ok ()
          | None ->
-           Logs.app (fun m -> m " status : false (no side effect)");
+           Log.app " status : false (no side effect)";
            Ok () )
    in
    Ok 0 )
-  |> Logs.on_error_msg ~use:(fun () -> 1)
+  |> Log.on_err (fun () -> 1)

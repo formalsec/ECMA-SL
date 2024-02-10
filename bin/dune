@@ -22,4 +22,4 @@
   cmd_symbolic
   lang
   ecmaref)
- (libraries ecma_sl cmdliner))
+ (libraries ecma_sl bos cmdliner))
