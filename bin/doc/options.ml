@@ -27,6 +27,26 @@ module Common = struct
 end
 
 (* File options *)
+module Fpath_ = struct
+  let parse_fpath str is_something =
+    let file = Fpath.v str in
+    match is_something file with
+    | Ok true -> `Ok file
+    | Ok false -> `Error (Format.asprintf "File '%s' not found!" str)
+    | Error (`Msg err) -> `Error err
+
+  let non_dir_fpath =
+    let parse str = parse_fpath str Bos.OS.File.exists in
+    (parse, Fpath.pp)
+
+  let fpath =
+    let parse str = `Ok (Fpath.v str) in
+    (parse, Fpath.pp)
+
+  let input =
+    let doc = "Name of the input file." in
+    Arg.(required & pos 0 (some non_dir_fpath) None & info [] ~doc ~docv:"FILE")
+end
 
 module File = struct
   let input =
@@ -158,8 +178,11 @@ let target_func =
 
 let workspace_dir =
   let doc = "The workspace directory for the results of the analysis." in
-  Arg.(value & opt string "ecma-out" & info [ "workspace"; "w" ] ~doc)
+  Arg.(
+    value
+    & opt Fpath_.fpath (Fpath.v "ecma-out")
+    & info [ "workspace"; "w" ] ~doc )
 
 let testsuit_dir =
   let doc = "Search $(docv) for concrete testsuites to validate." in
-  Arg.(required & pos 1 (some file) None & info [] ~docv:"DIR" ~doc)
+  Arg.(required & pos 1 (some Fpath_.fpath) None & info [] ~docv:"DIR" ~doc)
