@@ -1,5 +1,3 @@
-open Source
-
 module Make (P : Interpreter_functor_intf.P) :
   Interpreter_functor_intf.S
     with type env := P.env
@@ -14,6 +12,8 @@ module Make (P : Interpreter_functor_intf.P) :
   module Choice = P.Choice
   module Reducer = P.Reducer
   open Choice
+
+  let ( @> ) = Source.( @> )
 
   type value = P.value
   type store = P.store
