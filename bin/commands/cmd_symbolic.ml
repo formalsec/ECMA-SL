@@ -70,10 +70,18 @@ let pp_model fmt v =
   Fmt.fprintf fmt "@[<v 2>module.exports.symbolic_map =@ { %a@\n}@]" pp_vars
     (Model.get_bindings v)
 
+let err_to_json = function
+  | `Abort msg -> `Assoc [ ("type", `String "Abort"); ("sink", `String msg) ]
+  | `Assert_failure v ->
+    let v = Fmt.asprintf "%a" Value.pp v in
+    `Assoc [ ("type", `String "Assert failure"); ("sink", `String v) ]
+  | `Failure msg ->
+    `Assoc [ ("type", `String "Failure"); ("sink", `String msg) ]
+
 let serialize_thread ~workspace =
   let module Term = Encoding.Expr in
   let (next_int, _) = Utils.make_counter 0 1 in
-  fun ?(witness : string option) thread ->
+  fun ?witness thread ->
     let pc = Thread.pc thread in
     Log.debug2 "  path cond : %a@." Encoding.Expr.pp_list pc;
     let solver = Thread.solver thread in
@@ -90,19 +98,23 @@ let serialize_thread ~workspace =
     let* () = OS.File.writef Fpath.(f + ".smtml") "%a" Term.pp_smt pc in
     match witness with
     | None -> Ok ()
-    | Some witness -> OS.File.writef Fpath.(f + "_sink.json") "%s" witness
+    | Some witness ->
+      OS.File.writef
+        Fpath.(f + "_sink.json")
+        "%a"
+        (Yojson.pretty_print ~std:true)
+        (err_to_json witness)
 
 let write_report ~workspace filename exec_time solver_time solver_count problems
     =
-  let sinks = List.map (fun s -> `Assoc [ ("sink", `String s) ]) problems in
   let json : Yojson.t =
     `Assoc
       [ ("filename", `String (Fpath.to_string filename))
       ; ("execution_time", `Float exec_time)
       ; ("solver_time", `Float solver_time)
       ; ("solver_queries", `Int solver_count)
-      ; ("num_problems", `Int (List.length sinks))
-      ; ("problems", `List sinks)
+      ; ("num_problems", `Int (List.length problems))
+      ; ("problems", `List (List.map err_to_json problems))
       ]
   in
   let rpath = Fpath.(workspace / "report.json") in

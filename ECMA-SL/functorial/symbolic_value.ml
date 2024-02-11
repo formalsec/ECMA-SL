@@ -56,7 +56,7 @@ module M = struct
     in
     let pp_str e = asprintf "%a" pp e in
     function
-    | Val n -> fprintf fmt "%s" (Val.str n)
+    | Val n -> Val.pp fmt n
     | UnOpt (op, e) ->
       let e = pp_str e in
       fprintf fmt "%s" (Operator.str_of_unopt Format.pp_print_string op e)
@@ -74,7 +74,8 @@ module M = struct
       fprintf fmt "%s"
         (Operator.str_of_nopt Format.pp_print_string op (List.map pp_str es))
     | Curry (f, es) -> fprintf fmt "{%a}@(%a)" pp f pp_list es
-    | Symbolic (_t, x) -> pp fmt x
+    | Symbolic (_t, x) -> (
+      match x with Val (Str x) -> fprintf fmt "#%s" x | _ -> pp fmt x )
 
   let func (v : value) =
     match v with
