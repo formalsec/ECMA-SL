@@ -71,7 +71,7 @@ module Make () = struct
     let abort (e : value) =
       let e' = Format.asprintf "%a" Value.pp e in
       Log.warn "      abort : %s@." e';
-      Choice.return @@ Error (Format.asprintf {|{ "abort" : %S }|} e')
+      Choice.return @@ Error (`Abort e')
     in
     let assume (e : value) thread =
       let e' = Translator.translate e in
