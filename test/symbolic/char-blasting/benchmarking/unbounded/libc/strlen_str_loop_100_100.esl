@@ -9,7 +9,7 @@ function main() {
     len := s_len(str);
 
     if(len = 50){
-      print "len == 5"
+      print "len == 50"
     };
 
     i := i - 1
