@@ -21,6 +21,7 @@ module Make (P : Interpreter_functor_intf.P) :
   module State = struct
     type store = Store.t
     type env = P.env
+    type err = Extern_func.err
 
     type exec_state =
       { return_state : (exec_state * string) option
@@ -38,7 +39,7 @@ module Make (P : Interpreter_functor_intf.P) :
       ; func = ""
       }
 
-    type return_result = (value list, string) Result.t
+    type return_result = (value list, err) Result.t
 
     type stmt_result =
       | Return of return_result
@@ -98,7 +99,7 @@ module Make (P : Interpreter_functor_intf.P) :
          value list
       -> a Extern_func.atype
       -> a
-      -> (value, string) Result.t Choice.t =
+      -> (value, Extern_func.err) Result.t Choice.t =
      fun args ty f ->
       match ty with
       | UArg ty' -> apply args ty' (f ())
@@ -110,7 +111,7 @@ module Make (P : Interpreter_functor_intf.P) :
     let (Extern_func (Func atype, func)) = f in
     let+ v = apply args atype func in
     match v with
-    | Error _ as err -> State.Return err
+    | Error msg -> State.Return (Error msg)
     | Ok v ->
       let locals = Store.add_exn state.State.locals ret_var v in
       State.Continue State.{ state with locals }
@@ -119,11 +120,7 @@ module Make (P : Interpreter_functor_intf.P) :
     let open State in
     let { locals; env; _ } = state in
     let ok st = Choice.return @@ State.Continue st in
-    let error fmt =
-      Format.kasprintf
-        (fun msg -> Choice.return @@ State.Return (Error msg))
-        fmt
-    in
+    let error err = Choice.return @@ State.Return (Error err) in
     let* m = Env.get_memory env in
     Log.debug2 "      store : %a@." Value.Store.pp locals;
     Log.debug2 "running stmt: %a@." Stmt.pp_simple stmt;
@@ -136,7 +133,7 @@ module Make (P : Interpreter_functor_intf.P) :
     | Stmt.Fail e ->
       let e' = pp locals m e in
       Log.warn "       fail : %s@." e';
-      error {|{ "fail" : "%S" }|} e'
+      error (`Failure (Fmt.sprintf "%s" e'))
     | Stmt.Print e ->
       Format.printf "%s@." (pp locals m e);
       ok state
@@ -148,7 +145,7 @@ module Make (P : Interpreter_functor_intf.P) :
       let* b = Choice.check_add_true @@ Value.Bool.not_ e' in
       if b then (
         Log.warn "     assert : failure with (%a)@." Value.pp e';
-        error {|{ "assert" : "%a" }|} Value.pp e' )
+        error (`Assert_failure e') )
       else ok state
     | Stmt.Block blk -> ok { state with stmts = blk @ state.stmts }
     | Stmt.If (br, blk1, blk2) ->
@@ -170,17 +167,17 @@ module Make (P : Interpreter_functor_intf.P) :
       Choice.return @@ State.return state ~value:(eval_expr locals e)
     | Stmt.AssignCall (x, f, es) -> (
       match Value.func (eval_expr locals f) with
-      | Error msg -> error "%s" msg
+      | Error msg -> error (`Failure (Fmt.sprintf "%s" msg))
       | Ok (func_name, args0) -> (
         match Env.get_func env func_name with
-        | Error msg -> error "%s" msg
+        | Error msg -> error (`Failure (Fmt.sprintf "%s" msg))
         | Ok func ->
           let args = List.map (eval_expr locals) es in
           let args = args0 @ args in
           exec_func state func args x.it ) )
     | Stmt.AssignECall (x, f, es) -> (
       match Env.get_extern_func env f.it with
-      | Error msg -> error "%s" msg
+      | Error msg -> error (`Failure (Fmt.sprintf "%s" msg))
       | Ok func ->
         let args = List.map (eval_expr locals) es in
         exec_extern_func state func args x.it )
@@ -202,7 +199,7 @@ module Make (P : Interpreter_functor_intf.P) :
       let* loc = Memory.loc loc in
       let* heap = Env.get_memory env in
       match Memory.get heap loc with
-      | None -> error "'%s' not found in heap" loc
+      | None -> error (`Failure (Fmt.sprintf "'%s' not found in heap" loc))
       | Some o ->
         let v = Value.mk_list (List.map Value.mk_tuple (Object.to_list o)) in
         ok { state with locals = Store.add_exn locals x.it v } )
@@ -211,7 +208,7 @@ module Make (P : Interpreter_functor_intf.P) :
       let* loc = Memory.loc loc in
       let* heap = Env.get_memory env in
       match Memory.get heap loc with
-      | None -> error "'%s' not found in heap" loc
+      | None -> error (`Failure (Fmt.sprintf "'%s' not found in heap" loc))
       | Some o ->
         let v = Value.mk_list @@ Object.get_fields o in
         ok { state with locals = Store.add_exn locals x.it v } )
@@ -255,7 +252,7 @@ module Make (P : Interpreter_functor_intf.P) :
 
   let main (env : Env.t) (f : string) : State.return_result Choice.t =
     match Env.get_func env f with
-    | Error _ as err -> Choice.return err
+    | Error msg -> Choice.return (Error (`Failure msg))
     | Ok f ->
       let state = State.empty_state ~env in
       loop State.{ state with stmts = [ Func.body f ]; func = Func.name' f }

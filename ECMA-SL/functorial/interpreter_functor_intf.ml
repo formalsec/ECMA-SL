@@ -83,7 +83,14 @@ module type S = sig
   module State : sig
     type store
     type env
-    type return_result = (value list, string) Result.t
+
+    type err =
+      [ `Abort of string
+      | `Assert_failure of value
+      | `Failure of string
+      ]
+
+    type return_result = (value list, err) Result.t
     type exec_state
   end
 
