@@ -85,9 +85,20 @@ module M = struct
 
   module Bool = struct
     let const b = Val (Val.Bool b) [@@inline]
-    let not_ e = UnOpt (Operator.LogicalNot, e) [@@inline]
-    let and_ e1 e2 = BinOpt (Operator.LogicalAnd, e1, e2) [@@inline]
-    let or_ e1 e2 = BinOpt (Operator.LogicalOr, e1, e2) [@@inline]
+
+    let not_ = function
+      | Val (Val.Bool b) -> Val (Val.Bool (not b))
+      | e -> UnOpt (Operator.LogicalNot, e)
+
+    let and_ e1 e2 =
+      match (e1, e2) with
+      | (Val (Val.Bool b1), Val (Bool b2)) -> Val (Bool (b1 && b2))
+      | _ -> BinOpt (Operator.LogicalAnd, e1, e2)
+
+    let or_ e1 e2 =
+      match (e1, e2) with
+      | (Val (Val.Bool b1), Val (Bool b2)) -> Val (Bool (b1 || b2))
+      | _ -> BinOpt (Operator.LogicalOr, e1, e2)
   end
 
   module Store = struct
