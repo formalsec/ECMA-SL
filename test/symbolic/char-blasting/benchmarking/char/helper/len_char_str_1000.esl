@@ -36,10 +36,6 @@ function main() {
 
   cs := mk_char_str(1000, "str");
   len := cs_len(cs);
-
-  if(len = 500){
-    print "len == 500"
-  };
-  
+ 
   return 0
 }

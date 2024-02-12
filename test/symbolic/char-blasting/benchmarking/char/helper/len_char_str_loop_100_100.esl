@@ -39,9 +39,6 @@ function main() {
     cs := mk_char_str(100, "str");
     len := cs_len(cs);
 
-    if(len = 50){
-      print "len == 50"
-    };
     i := i - 1
   };
 
