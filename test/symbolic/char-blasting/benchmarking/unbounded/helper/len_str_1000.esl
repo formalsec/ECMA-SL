@@ -6,9 +6,5 @@ function main() {
 
   len := s_len(str);
   
-  if(len = 500){
-    print "len == 500"
-  };
-
   return 0
 }
