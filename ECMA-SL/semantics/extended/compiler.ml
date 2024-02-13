@@ -75,22 +75,22 @@ end
 module MatchWithOptimizer = struct
   type case = EPat.t * EStmt.t
 
-  let pbval_opt (dsc : Id.t) (pat : EPat.t) : Val.t option =
+  let pbval_opt (pat : EPat.t) (id : Id.t) : Val.t option =
     let get_pbv' = function { it = EPat.PatVal v; _ } -> Some v | _ -> None in
-    Option.bind (EPat.pbval_opt pat dsc) get_pbv'
+    Option.bind (EPat.patval_opt pat id) get_pbv'
 
-  let pbval (dsc : Id.t) (pat : EPat.t) : Val.t =
-    match pbval_opt dsc pat with
-    | Some v -> v
-    | None -> Eslerr.(internal __FUNCTION__ (Expecting "pattern binding value"))
+  let pbval_remove (pat : EPat.t) (id : Id.t) : EPat.t * Val.t =
+    let v = Option.get (pbval_opt pat id) in
+    let pat' = EPat.patval_remove pat id in
+    (pat', v)
 
   let is_pat_optimizable (dsc : Id.t) (pat : EPat.t) : bool =
-    Option.is_some (pbval_opt dsc pat)
+    Option.is_some (pbval_opt pat dsc)
 
   let is_optimizable (dsc : Id.t) (css : case list) : bool =
+    let optimizable' = is_pat_optimizable dsc in
     match css with
-    | (pat1, _) :: (pat2, _) :: _ ->
-      is_pat_optimizable dsc pat1 && is_pat_optimizable dsc pat2
+    | (pat1, _) :: (pat2, _) :: _ -> optimizable' pat1 && optimizable' pat2
     | _ -> false
 
   let compile (at : region)
@@ -116,9 +116,9 @@ module MatchWithOptimizer = struct
     in
     let rec hash_cases hashed_css = function
       | (pat, s) :: css' when is_pat_optimizable dsc pat ->
-        let v = pbval dsc pat in
-        let compiled_case = compile_case_f e_e (pat, s) (fun () -> None) in
-        let scase = Builder.block ~at:pat.at compiled_case in
+        let (pat', v) = pbval_remove pat dsc in
+        let compiled_case = compile_case_f e_e (pat', s) (fun () -> None) in
+        let scase = Builder.block ~at:pat'.at compiled_case in
         set_case hashed_css v scase;
         hash_cases hashed_css css'
       | css' -> css'
