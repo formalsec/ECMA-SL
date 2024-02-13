@@ -293,7 +293,7 @@ let rec compile_stmt (s : EStmt.t) : c_stmt =
   | ForEach (x, e, s', _, _) -> compile_foreach s.at x e s'
   | RepeatUntil (s', e, _) -> compile_repeatuntil s.at s' e
   | Switch (e, css, dflt, _) -> compile_switch s.at e css dflt
-  | MatchWith (e, disc, css) -> compile_matchwith s.at e disc css
+  | MatchWith (e, dsc, css) -> compile_matchwith s.at e dsc css
   | Lambda (x, lid, _, ctxvars, _) -> compile_lambdacall s.at x lid ctxvars
   | MacroApply (_, _) ->
     Eslerr.(internal __FUNCTION__ (UnexpectedEval (Some "MacroApply")))
