@@ -25,7 +25,7 @@ type observable =
   | Stdout of string
   | File of string
 
-let observable_effects = [ Stdout "success"; File "success" ]
+let observable_effects = [ Stdout "success"; Stdout "polluted"; File "success" ]
 
 let env () =
   let node_path = Fmt.sprintf ".:%s" (List.hd Share.nodejs_location) in
