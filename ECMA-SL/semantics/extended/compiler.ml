@@ -52,8 +52,7 @@ module SwitchOptimizer = struct
 
   let is_optimizable (css : case list) : bool =
     match fst (List.split css) with
-    | { it = EExpr.Val _; _ } :: { it = EExpr.Val _; _ } :: _ ->
-      true && false (* TEMP *)
+    | { it = EExpr.Val _; _ } :: { it = EExpr.Val _; _ } :: _ -> true
     | _ -> false
 
   let compile (at : region) (compile_stmt_f : EStmt.t -> c_stmt)
