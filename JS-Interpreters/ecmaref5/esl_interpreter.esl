@@ -5,7 +5,7 @@ function JS_Interpreter_Program(p, callingExecCtx) {
   print "primeiro print de debug 123";
 
   /* 14 Program */
-  match p with
+  match p : type with
   | { sourceType: "script", type: "Program", codeType: "eval", body: SourceElementsopt, strict: strict } -> {
     if (SourceElementsopt = []) {
       return normalEmptyCompletion('empty)
@@ -127,7 +127,7 @@ function JS_Interpreter_Expr(Expression, scope) {
 
 /* 11.1 Primary Expressions */
 function JS_Interpreter_PrimaryExpression(PrimaryExpression, scope) {
-  match PrimaryExpression with
+  match PrimaryExpression : type with
   /* 11.1.1 The this Keyword */
   | { type: "ThisExpression" } -> {
     /* The this keyword evaluates to the value of the ThisBinding of the current execution context. */
@@ -244,7 +244,7 @@ function JS_Interpreter_Grouping(Expression, scope) {
 
 /* 11.2 Left-Hand-Side Expressions */
 function JS_Interpreter_LeftHandSide_Expressions(LeftHandSideExpression, scope) {
-  match LeftHandSideExpression with
+  match LeftHandSideExpression : type with
   /* 11.2.1 Property Accessors */
   | { type: "MemberExpression", object: MemberExpression, property: Expression } -> {
     /* The production MemberExpression : MemberExpression [ Expression ] is evaluated as follows: */
@@ -358,7 +358,7 @@ function JS_Interpreter_LeftHandSide_Expressions(LeftHandSideExpression, scope) 
 
 /* 11.3 Postfix Expressions */
 function JS_Interpreter_Postfix_Expressions(PostfixExpression, scope) {
-  match PostfixExpression with
+  match PostfixExpression : type with
   /* 11.3.1 Postfix Increment Operator */
   | { type: "UpdateExpression", operator: "++", argument: LeftHandSideExpression, prefix: false } -> {
     /* The production PostfixExpression : LeftHandSideExpression [no LineTerminator here] ++ is evaluated as follows: */
@@ -424,7 +424,7 @@ function JS_Interpreter_Postfix_Expressions(PostfixExpression, scope) {
 
 /* 11.4 Unary Operators */
 function JS_Interpreter_Unary_Operators(UnaryExpr, scope) {
-  match UnaryExpr with
+  match UnaryExpr : type with
   /* 11.4.1 The delete Operator */
   | { type: "UnaryExpression", operator: "delete", argument: UnaryExpression } -> {
     /* The production UnaryExpression : delete UnaryExpression is evaluated as follows: */
@@ -619,7 +619,7 @@ function JS_Interpreter_Unary_Operators(UnaryExpr, scope) {
 
 /* 11.5 Multiplicative Operators */
 function JS_Interpreter_Multiplicative_Operators(MultiplicativeExpr, scope) {
-  match MultiplicativeExpr with
+  match MultiplicativeExpr : type with
   | { type: "BinaryExpression", operator: "*", left: MultiplicativeExpression, right: UnaryExpression } -> {
     /* The production MultiplicativeExpression : MultiplicativeExpression @ UnaryExpression, where @ stands for one
        of the operators in the above definitions, is evaluated as follows: */
@@ -684,7 +684,7 @@ function JS_Interpreter_Multiplicative_Operators(MultiplicativeExpr, scope) {
 
 /* 11.6 Additive Operators */
 function JS_Interpreter_Additive_Operators(AdditiveExpr, scope) {
-  match AdditiveExpr with
+  match AdditiveExpr : type with
   /* 11.6.1 The Addition operator ( + ) */
   | { type: "BinaryExpression", operator: "+", left: AdditiveExpression, right: MultiplicativeExpression } -> {
     /* The addition operator either performs string concatenation or numeric addition. */
@@ -745,7 +745,7 @@ function JS_Interpreter_Additive_Operators(AdditiveExpr, scope) {
 
 /* 11.7 Bitwise Shift Operators */
 function JS_Interpreter_Bitwise_Shift_Operators (ShiftExpr, scope) {
-  match ShiftExpr with
+  match ShiftExpr : type with
   /* 11.7.1 The Left Shift Operator ( << ) */
   | { type: "BinaryExpression", operator: "<<", left: ShiftExpression, right: AdditiveExpression } -> {
     /* Performs a bitwise left shift operation on the left operand by the amount specified by the right operand. */
@@ -831,7 +831,7 @@ function JS_Interpreter_Bitwise_Shift_Operators (ShiftExpr, scope) {
   productions except that the contained RelationalExpressionNoIn is evaluated instead of the contained
   RelationalExpression. */
 function JS_Interpreter_Relational_Operators(RelationalExpr, scope) {
-  match RelationalExpr with
+  match RelationalExpr : type with
   /* 11.8.1 The Less-than Operator ( < ) */
   | { type: "BinaryExpression", operator: "<", left: RelationalExpression, right: ShiftExpression } -> {
     /* The production RelationalExpression : RelationalExpression < ShiftExpression is evaluated as follows: */
@@ -971,7 +971,7 @@ function JS_Interpreter_Relational_Operators(RelationalExpr, scope) {
   productions except that the contained EqualityExpressionNoIn and RelationalExpressionNoIn are evaluated
   instead of the contained EqualityExpression and RelationalExpression, respectively. */
 function JS_Interpreter_Equality_Operators(EqualityExpr, scope) {
-  match EqualityExpr with
+  match EqualityExpr : type with
   /* 11.9.1 The Equals Operator ( == ) */
   | { type: "BinaryExpression", operator: "==", left: EqualityExpression, right: RelationalExpression } -> {
     /* The production EqualityExpression : EqualityExpression == RelationalExpression is evaluated as follows: */
@@ -1049,7 +1049,7 @@ function JS_Interpreter_Equality_Operators(EqualityExpr, scope) {
 
 /* 11.10 Binary Bitwise Operators */
 function JS_Interpreter_Binary_Bitwise_Operators(BitwiseExpression, scope) {
-  match BitwiseExpression with
+  match BitwiseExpression : type with
   /* 11.10 Binary Bitwise Operators */
   | { type: "BinaryExpression", operator: operator, left: A, right: B } -> {
     /* The production A : A @ B, where @ is one of the bitwise operators in the productions above, is evaluated as
@@ -1077,7 +1077,7 @@ function JS_Interpreter_Binary_Bitwise_Operators(BitwiseExpression, scope) {
 
 /* 11.11 Binary Logical Operators */
 function JS_Interpreter_Binary_Logical_Operators(LogicalExpression, scope) {
-  match LogicalExpression with
+  match LogicalExpression : type with
   | { operator: "&&", left: LogicalANDExpression, right: BitwiseORExpression } -> {
     /* The production LogicalANDExpression : LogicalANDExpression && BitwiseORExpression is evaluated as follows:
 
@@ -1117,7 +1117,7 @@ function JS_Interpreter_Binary_Logical_Operators(LogicalExpression, scope) {
 
 /* 11.12 Conditional Operator ( ? : ) */
 function JS_Interpreter_Conditional_Operator(ConditionalExpression, scope) {
-  match ConditionalExpression with
+  match ConditionalExpression : type with
   | { type: "ConditionalExpression", test: LogicalORExpression, consequent: firstAssignmentExpression, alternate: secondAssignmentExpression } -> {
     /* The production ConditionalExpression : LogicalORExpression ? AssignmentExpression : AssignmentExpression is
        evaluated as follows: */
@@ -1158,7 +1158,7 @@ function JS_Interpreter_Conditional_Operator(ConditionalExpression, scope) {
     productions except that the contained ConditionalExpressionNoIn and AssignmentExpressionNoIn are evaluated
     instead of the contained ConditionalExpression and AssignmentExpression, respectively. */
 function JS_Interpreter_Assignment_Operators(AssignmentExpr, scope) {
-  match AssignmentExpr with
+  match AssignmentExpr : type with
   /* 11.13.1 Simple Assignment ( = ) */
   | { operator: "=", left: LeftHandSideExpression, right: AssignmentExpression } -> {
     /* The production AssignmentExpression : LeftHandSideExpression = AssignmentExpression is evaluated as follows: */
@@ -1233,7 +1233,7 @@ function JS_Interpreter_Assignment_Operators(AssignmentExpr, scope) {
 
 /* 11.14 Comma Operator ( , ) */
 function JS_Interpreter_Comma_Operator(Expression, scope) {
-  match Expression with
+  match Expression : type with
   | { type: "SequenceExpression", expressions: Expressions } -> {
     AssignmentExpression := l_nth (Expressions, l_len Expressions - 1);
     Expressions := l_remove_last Expressions;
@@ -1324,7 +1324,7 @@ function JS_Interpreter_Elision_Recursive(Elision) {
 
 function JS_Interpreter_ElementList(Elements, scope) {
   obj := rearrange_elementList(Elements);
-  match obj with
+  match obj : type with
   | { type: "Base", elisionOpt: Elision, assignmentExpression: AssignmentExpression } -> {
     /* The production ElementList : Elisionopt AssignmentExpression is evaluated as follows: */
 
@@ -1445,7 +1445,7 @@ function JS_Interpreter_ArgumentList_ArgumentList_AssignmentExpression(ArgumentL
 function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
   print "JS_Interpreter_FunctionDeclaration";
   /* 13 Function Definition */
-  match FunctionDeclaration with
+  match FunctionDeclaration : type with
   | { id: Identifier, params: FormalParameterListopt, body: FunctionBody } -> {
     /* The production FunctionDeclaration : function Identifier ( FormalParameterListopt ) { FunctionBody }
        is evaluated as follows: */
@@ -1460,7 +1460,7 @@ function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
 
 function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
   /* 13 Function Definition */
-  match FunctionExpression with
+  match FunctionExpression : type with
   | { id: null, params: FormalParameterList, body: FunctionBody } -> {
     /* The production FunctionExpression : function ( FormalParameterList opt ) { FunctionBody }
        is evaluated as follows: */
@@ -1502,7 +1502,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
 };
 
 function JS_Interpreter_FunctionBody(FunctionBody, scope) {
-  match FunctionBody with
+  match FunctionBody : type with
   | { body: SourceElements } -> {
     /* The production FunctionBody : SourceElements opt is evaluated as follows: */
 
@@ -1526,7 +1526,7 @@ function JS_Interpreter_FunctionBody(FunctionBody, scope) {
 /* TODO Old version that does not follow the standard as-is. To Remove? */
 function JS_Interpreter_ObjectInitializer_old(objExpr, scope) {
   /* 11.1.5 Object Initialiser */
-  match objExpr with
+  match objExpr : type with
   | { type: "ObjectExpression", properties: PropertyNameAndValueList } -> {
     /* The production ObjectLiteral : { } is evaluated as follows: */
     /* Return a new object created as if by the expression new Object() where Object
@@ -1668,7 +1668,7 @@ function JS_Interpreter_PropertyNameAndValueList_PropertyNameAndValueList_Proper
 };
 
 function JS_Interpreter_PropertyAssignment (PropertyAssignment, scope) {
-  match PropertyAssignment with
+  match PropertyAssignment : type with
   /* The production PropertyAssignment : PropertyName : AssignmentExpression is evaluated as follows: */
   | { type: "Property", key: PropertyName, value: AssignmentExpression, kind: "init" } -> {
     /* 1. Let propName be the result of evaluating PropertyName. */
@@ -1714,7 +1714,7 @@ function JS_Interpreter_PropertyAssignment (PropertyAssignment, scope) {
 };
 
 function JS_Interpreter_PropertyName(PropertyName, scope) {
-  match PropertyName with
+  match PropertyName : type with
   /* The production PropertyName : IdentifierName is evaluated as follows: */
   | { type: "Identifier", name: IdentifierName } -> {
     /* 1. Return the String value containing the same sequence of characters as the IdentifierName. */
@@ -1745,7 +1745,7 @@ function JS_Interpreter_PropertyName_NumericLiteral(NumericLiteral) {
 };
 
 function JS_Interpreter_Stmt(s, scope) {
-  match s with
+  match s : type with
   /* 12.1 Block */
   | { type: "BlockStatement" } -> {
     return JS_Interpreter_Block(s, scope)
@@ -1761,7 +1761,7 @@ function JS_Interpreter_Stmt(s, scope) {
 
 /* 12.3 Empty Statement */
 function JS_Interpreter_EmptyStatement(EmptyStatement, scope) {
-  match EmptyStatement with
+  match EmptyStatement : type with
   | { type: "EmptyStatement" } -> {
     return normalEmptyCompletion('empty)
   }
@@ -1772,7 +1772,7 @@ function JS_Interpreter_EmptyStatement(EmptyStatement, scope) {
 
 /* 12.4 Expression Statement */
 function JS_Interpreter_ExpressionStatement(ExpressionStatement, scope) {
-  match ExpressionStatement with
+  match ExpressionStatement : type with
   | { type: "ExpressionStatement", expression: Expression } -> {
     /* 1. Let exprRef be the result of evaluating Expression. */
     exprRef := JS_Interpreter_Expr(Expression, scope);
@@ -1788,7 +1788,7 @@ function JS_Interpreter_ExpressionStatement(ExpressionStatement, scope) {
 /* Each else for which the choice of associated if is ambiguous shall be associated with the nearest possible
     if that would otherwise have no corresponding else. */
 function JS_Interpreter_IfStatement(IfStatement, scope) {
-  match IfStatement with
+  match IfStatement : type with
   /* The production IfStatement : if ( Expression ) Statement is evaluated as follows: */
   | { type: "IfStatement", test: Expression, consequent: Statement, alternate: null } -> {
     /* 1. Let exprRef be the result of evaluating Expression. */
@@ -1822,7 +1822,7 @@ function JS_Interpreter_IfStatement(IfStatement, scope) {
 
 /* 12.6 Iteration Statements */
 function JS_Interpreter_IterationStatement(IterationStatement, scope) {
-  match IterationStatement with
+  match IterationStatement : type with
   /* The label set of an IterationStatement or a SwitchStatement initially contains the single element empty. */
   /* 12.6 Iteration Statements */
   | { type: "DoWhileStatement" } -> {
@@ -1871,7 +1871,7 @@ function JS_Interpreter_IterationStatement(IterationStatement, scope) {
 
 /* 12.7 The continue Statement */
 function JS_Interpreter_ContinueStatement(ContinueStatement, scope) {
-  match ContinueStatement with
+  match ContinueStatement : type with
   /* A ContinueStatement without an Identifier is evaluated as follows: */
   | { type: "ContinueStatement", label: null } -> {
     /* 1. Return (continue, empty, empty). */
@@ -1889,7 +1889,7 @@ function JS_Interpreter_ContinueStatement(ContinueStatement, scope) {
 
 /* 12.8 The break Statement */
 function JS_Interpreter_BreakStatement(BreakStatement, scope) {
-  match BreakStatement with
+  match BreakStatement : type with
   /* A BreakStatement without an Identifier is evaluated as follows: */
   | { type: "BreakStatement", label: null } -> {
     /* 1. Return (break, empty, empty). */
@@ -1907,7 +1907,7 @@ function JS_Interpreter_BreakStatement(BreakStatement, scope) {
 
 /* 12.9 The return Statement */
 function JS_Interpreter_ReturnStatement(ReturnStatement, scope) {
-  match ReturnStatement with
+  match ReturnStatement : type with
   | { type: "ReturnStatement", argument: Expression } -> {
     /* 1. If the Expression is not present, return (return, undefined, empty). */
     if (Expression = null) {
@@ -1928,7 +1928,7 @@ function JS_Interpreter_ReturnStatement(ReturnStatement, scope) {
     the current execution context. It then executes a statement using this augmented lexical environment.
     Finally, it restores the original lexical environment. */
 function JS_Interpreter_WithStatement(WithStatement, scope) {
-  match WithStatement with
+  match WithStatement : type with
   /* The production WithStatement : with ( Expression ) Statement is evaluated as follows: */
   | { type: "WithStatement", object: Expression, body: Statement } -> {
     /* 1. Let val be the result of evaluating Expression. */
@@ -1958,7 +1958,7 @@ function JS_Interpreter_WithStatement(WithStatement, scope) {
 
 /* 12.11 The switch Statement */
 function JS_Interpreter_SwitchStatement(SwitchStatement, scope) {
-  match SwitchStatement with
+  match SwitchStatement : type with
   /* The label set of an IterationStatement or a SwitchStatement initially contains the single element empty. */
   | { type: "SwitchStatement" } -> {
     if (!("labelSet" in_obj SwitchStatement)) {
@@ -1976,7 +1976,7 @@ function JS_Interpreter_SwitchStatement(SwitchStatement, scope) {
 
 /* 12.12 Labelled Statements */
 function JS_Interpreter_LabeledStatement(LabeledStatement, scope) {
-  match LabeledStatement with
+  match LabeledStatement : type with
   | { type: "LabeledStatement", label: Identifier, body: Statement } -> {
     /* The production Identifier : Statement is evaluated by adding Identifier to the label set of Statement
       and then evaluating Statement. */
@@ -1999,7 +1999,7 @@ function JS_Interpreter_LabeledStatement(LabeledStatement, scope) {
 
 /* 12.13 The throw Statement */
 function JS_Interpreter_ThrowStatement(ThrowStatement, scope) {
-  match ThrowStatement with
+  match ThrowStatement : type with
   | { type: "ThrowStatement", argument: Expression } -> {
     /* 1. Let exprRef be the result of evaluating Expression. */
     exprRef := JS_Interpreter_Expr(Expression, scope);
@@ -2016,7 +2016,7 @@ function JS_Interpreter_ThrowStatement(ThrowStatement, scope) {
     error or a throw statement. The catch clause provides the exception-handling code. When a catch clause
     catches an exception, its Identifier is bound to that exception. */
 function JS_Interpreter_TryStatement(TryStatement, scope) {
-  match TryStatement with
+  match TryStatement : type with
   /* The production TryStatement : try Block Catch is evaluated as follows: */
   | { type: "TryStatement", block: Block, handler: Catch, finalizer: null } -> {
     /* 1. Let B be the result of evaluating Block. */
@@ -2073,7 +2073,7 @@ function JS_Interpreter_TryStatement(TryStatement, scope) {
 /* Evaluating the DebuggerStatement production may allow an implementation to cause a breakpoint when run
     under a debugger. If a debugger is not present or active this statement has no observable effect. */
 function JS_Interpreter_DebuggerStatement(DebuggerStatement, scope) {
-  match DebuggerStatement with
+  match DebuggerStatement : type with
   /* The production DebuggerStatement : debugger ; is evaluated as follows: */
   | { type: "DebuggerStatement" } -> {
     /* 1. If an implementation defined debugging facility is available and enabled, then */
@@ -2094,7 +2094,7 @@ function JS_Interpreter_DebuggerStatement(DebuggerStatement, scope) {
 };
 
 function JS_Interpreter_Catch(Catch, parameter, scope) {
-  match Catch with
+  match Catch : type with
   | { type: "CatchClause", param: Identifier, body: Block } -> {
     /* The production Catch : catch ( Identifier ) Block is evaluated as follows: */
     Identifier := Identifier.name;
@@ -2142,7 +2142,7 @@ macro PropagateBlockLabelSet(Block, Stmts) {
 };
 
 function JS_Interpreter_Block(Block, scope) {
-  match Block with
+  match Block : type with
   /* The production Block : {} is evaluated as follows: */
   | { type: "BlockStatement", body: [] } -> {
     /* 1. Return (normal, empty, empty). */
@@ -2249,7 +2249,7 @@ function JS_Interpreter_StatementList_StatementList_Statement(StatementList, Sta
 };
 
 function JS_Interpreter_VariableStatement(VariableStatement, scope) {
-  match VariableStatement with
+  match VariableStatement : type with
   /* The production VariableStatement : var VariableDeclarationList ; is evaluated as follows: */
   | { type: "VariableDeclaration", declarations: VariableDeclarationList } -> {
     /* 1. Evaluate VariableDeclarationList. */
@@ -2288,7 +2288,7 @@ function JS_Interpreter_VariableDeclarationList_VariableDeclarationList_Variable
 };
 
 function JS_Interpreter_VariableDeclaration(VariableDeclaration, scope) {
-  match VariableDeclaration with
+  match VariableDeclaration : type with
   /* The production VariableDeclaration : Identifier is evaluated as follows: */
   | { type: "VariableDeclarator", id: Identifier, init: null } -> {
     /* 1. Return a String value containing the same sequence of characters as in the Identifier. */
@@ -2330,7 +2330,7 @@ function JS_Interpreter_Initialiser(AssignmentExpression, scope) {
 
 /* 12.6 Iteration Statements */
 function JS_Interpreter_IterationStatement_LabelSet(iterStmt, scope) {
-  match iterStmt with
+  match iterStmt : type with
   /* 12.6.1 The do-while Statement */
   | { type: "DoWhileStatement", test: Expression, body: Statement, labelSet: currentLabelSet } -> {
     /* 1. Let V = empty. */
@@ -2403,7 +2403,7 @@ function JS_Interpreter_IterationStatement_LabelSet(iterStmt, scope) {
       return JS_Interpreter_ForStmt_Expr(iterStmt, scope)
   }
   | { type: "ForStatement", init: Expr_or_VarDecl_or_Null } -> {
-    match Expr_or_VarDecl_or_Null with
+    match Expr_or_VarDecl_or_Null : type with
     | { type: "VariableDeclaration" } -> {
       return JS_Interpreter_ForStmt_VarDecl(iterStmt, scope)
     }
@@ -2413,7 +2413,7 @@ function JS_Interpreter_IterationStatement_LabelSet(iterStmt, scope) {
   }
   /* 12.6.4 The for-in Statement */
   | { type: "ForInStatement", left: lhsExpr_or_VarDecl } -> {
-    match lhsExpr_or_VarDecl with
+    match lhsExpr_or_VarDecl : type with
     | { type: "VariableDeclarator" } -> {
       /* production IterationStatement : for ( var VariableDeclarationNoIn in Expression ) Statement */
       return JS_Interpreter_ForInStmt_VarDecl(iterStmt, scope)
@@ -2426,7 +2426,7 @@ function JS_Interpreter_IterationStatement_LabelSet(iterStmt, scope) {
 };
 
 function JS_Interpreter_ForInStmt_lhsExpr(forInStmt, scope) {
-  match forInStmt with
+  match forInStmt : type with
   /* The production IterationStatement : for ( LeftHandSideExpression in Expression ) Statement is evaluated as follows: */
   | { type: "ForInStatement", left: LeftHandSideExpression, right: Expression, body: Statement, labelSet: currentLabelSet } -> {
     /* 1. Let exprRef be the result of evaluating the Expression. */
@@ -2478,7 +2478,7 @@ function JS_Interpreter_ForInStmt_lhsExpr(forInStmt, scope) {
 };
 
 function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
-  match forInStmt with
+  match forInStmt : type with
   /* The production IterationStatement : for ( var VariableDeclarationNoIn in Expression ) Statement is evaluated as follows: */
   | { type: "ForInStatement", left: VariableDeclarationNoIn, right: Expression, body: Statement, labelSet: currentLabelSet } -> {
     /* 1. Let varName be the result of evaluating VariableDeclarationNoIn. */
@@ -2533,7 +2533,7 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
 };
 
 function JS_Interpreter_ForStmt_Expr(forStmt, scope) {
-  match forStmt with
+  match forStmt : type with
   | { type: "ForStatement", init: ExpressionNoIn, test: Expression1, update: Expression2, body: Statement, labelSet: currentLabelSet } -> {
     /* 12.6.3 The for Statement
        The production IterationStatement : for (ExpressionNoIn opt ; Expression opt ; Expression opt ) Statement
@@ -2588,7 +2588,7 @@ function JS_Interpreter_ForStmt_Expr(forStmt, scope) {
 };
 
 function JS_Interpreter_ForStmt_VarDecl(forStmt, scope) {
-  match forStmt with
+  match forStmt : type with
   | { type: "ForStatement", init: VariableDeclarationListNoIn, test: Expression1, update: Expression2, body: Statement, labelSet: currentLabelSet } -> {
     /* 12.6.3 The for Statement
        The production IterationStatement : for ( var VariableDeclarationListNoIn ; Expression opt ; Expression opt ) Statement
@@ -2639,7 +2639,7 @@ function JS_Interpreter_ForStmt_VarDecl(forStmt, scope) {
 
 /* 12.11 The switch Statement */
 function JS_Interpreter_SwitchStatement_LabelSet(switchStmt, scope) {
-  match switchStmt with
+  match switchStmt : type with
   | { type: "SwitchStatement", discriminant: Expression, cases: CaseBlock, labelSet: currentLabelSet } -> {
     /* 1. Let exprRef be the result of evaluating Expression. */
     exprRef := JS_Interpreter_Expr(Expression, scope);
@@ -2838,7 +2838,7 @@ function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, Defa
 };
 
 function JS_Interpreter_SwitchCase(switchCase, scope) {
-  match switchCase with
+  match switchCase : type with
   /* The production CaseClause : case Expression : StatementListopt is evaluated as follows: */
   | { type: "SwitchCase", test: Expression } -> {
     /* 1. Let exprRef be the result of evaluating Expression. */
