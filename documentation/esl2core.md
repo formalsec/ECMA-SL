@@ -601,7 +601,7 @@ compile <repeat {s}> =
 
 <br>
 
-### Switch Statement $\rightarrow$ `switch(e) { case (e1): {s1} }`
+### Switch Statement *(without optimization)* $\rightarrow$ `switch(e) { case (e1): {s1} }`
 - **[R1]:** Compile the switch-expr expression `e`.
 - **[R2]:** Compile the case-test `e1`.
 - **[R3]:** Compile the consequent `s1`.
@@ -676,7 +676,7 @@ compile <switch(e) { case (e1): {s1} case (e2): {s2} sdefault {s'} }> =
 
 <br>
 
-### Match With Statement $\rightarrow$ `match e with | pat -> {s}`
+### Match With Statement *(without optimization)* $\rightarrow$ `match e with | pat -> {s}`
 - **[R1]:** Compile the matched expression `e`.
 - **[R2]:** Compile the pattern `pat` using the custom pattern compiler.
 - **[R3]:** Compile the consequent statement `s`.
