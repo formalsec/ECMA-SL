@@ -96,16 +96,7 @@ let serialize_thread ~workspace =
         (next_int ())
     in
     let* () = OS.File.writef Fpath.(f + ".js") "%a" (Fmt.pp_opt pp_model) m in
-    let* () = OS.File.writef Fpath.(f + ".pc") "%a" Term.pp_list pc in
-    let* () = OS.File.writef Fpath.(f + ".smtml") "%a" Term.pp_smt pc in
-    match witness with
-    | None -> Ok ()
-    | Some witness ->
-      OS.File.writef
-        Fpath.(f + "_sink.json")
-        "%a"
-        (Yojson.pretty_print ~std:true)
-        (err_to_json witness)
+    OS.File.writef Fpath.(f + ".smtml") "%a" Term.pp_smt pc
 
 let write_report ~workspace filename exec_time solver_time solver_count problems
     =
@@ -152,8 +143,7 @@ let run ~workspace filename entry_func =
       results
   in
   let n = List.length problems in
-  if n = 0 then Fmt.printf "All Ok!@."
-  else Fmt.printf "Found %d problems!@." n;
+  if n = 0 then Fmt.printf "All Ok!@." else Fmt.printf "Found %d problems!@." n;
   Log.debug1 "  exec time : %fs@." exec_time;
   Log.debug1 "solver time : %fs@." solv_time;
   write_report ~workspace filename exec_time solv_time solv_cnt problems
