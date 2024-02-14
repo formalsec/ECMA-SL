@@ -160,7 +160,7 @@ Tests compilation of ecmaref5:
     __v15667 := "id" in_obj FunctionDeclaration;
     __v15668 := "params" in_obj FunctionDeclaration;
     __v15669 := "body" in_obj FunctionDeclaration;
-    if (true && __v15667 && __v15668 && __v15669) {
+    if (__v15667 && __v15668 && __v15669) {
       Identifier := FunctionDeclaration["id"];
       FormalParameterListopt := FunctionDeclaration["params"];
       FunctionBody := FunctionDeclaration["body"];
@@ -865,7 +865,7 @@ Tests compilation of ecmaref5:
     __v15511 := ExpressionStatement["type"];
     __v15512 := __v15511 = "ExpressionStatement";
     __v15513 := "expression" in_obj ExpressionStatement;
-    if (true && __v15510 && __v15512 && __v15513) {
+    if (__v15510 && __v15512 && __v15513) {
       Expression := ExpressionStatement["expression"];
       __v15514 := "JS_Interpreter_Expr"(___internal_esl_global, Expression, scope);
       if (fst(__v15514)) {
@@ -888,15 +888,13 @@ Tests compilation of ecmaref5:
       };
       return (false, __v15516)
     } else {
-      if (true) {
-        __v15517 := "JS_Interpreter_IfStatement"(___internal_esl_global, ExpressionStatement, scope);
-        if (fst(__v15517)) {
-          return __v15517
-        } else {
-          __v15517 := snd(__v15517)
-        };
-        return (false, __v15517)
-      }
+      __v15517 := "JS_Interpreter_IfStatement"(___internal_esl_global, ExpressionStatement, scope);
+      if (fst(__v15517)) {
+        return __v15517
+      } else {
+        __v15517 := snd(__v15517)
+      };
+      return (false, __v15517)
     }
   };
   function parseAsProgram(___internal_esl_global, progStr, strict) {
@@ -1255,7 +1253,7 @@ Tests compilation of ecmaref5:
     __v15410 := VariableStatement["type"];
     __v15411 := __v15410 = "VariableDeclaration";
     __v15412 := "declarations" in_obj VariableStatement;
-    if (true && __v15409 && __v15411 && __v15412) {
+    if (__v15409 && __v15411 && __v15412) {
       VariableDeclarationList := VariableStatement["declarations"];
       __v15413 := "JS_Interpreter_VariableDeclarationList"(___internal_esl_global, VariableDeclarationList, scope);
       if (fst(__v15413)) {
@@ -1701,7 +1699,7 @@ Tests compilation of ecmaref5:
       __v15298 := "kind" in_obj PropertyAssignment;
       __v15299 := PropertyAssignment["kind"];
       __v15300 := __v15299 = "init";
-      if (true && __v15296 && __v15297 && __v15298 && __v15300) {
+      if (__v15296 && __v15297 && __v15298 && __v15300) {
         PropertyName := PropertyAssignment["key"];
         AssignmentExpression := PropertyAssignment["value"];
         __v15301 := "JS_Interpreter_PropertyName"(___internal_esl_global, PropertyName, scope);
@@ -1745,7 +1743,7 @@ Tests compilation of ecmaref5:
         __v15308 := "kind" in_obj PropertyAssignment;
         __v15309 := PropertyAssignment["kind"];
         __v15310 := __v15309 = "get";
-        if (true && __v15306 && __v15307 && __v15308 && __v15310) {
+        if (__v15306 && __v15307 && __v15308 && __v15310) {
           PropertyName := PropertyAssignment["key"];
           FunctionExpression := PropertyAssignment["value"];
           __v15311 := "JS_Interpreter_PropertyName"(___internal_esl_global, PropertyName, scope);
@@ -1782,7 +1780,7 @@ Tests compilation of ecmaref5:
           __v15317 := "kind" in_obj PropertyAssignment;
           __v15318 := PropertyAssignment["kind"];
           __v15319 := __v15318 = "set";
-          if (true && __v15315 && __v15316 && __v15317 && __v15319) {
+          if (__v15315 && __v15316 && __v15317 && __v15319) {
             PropertyName := PropertyAssignment["key"];
             FunctionExpression := PropertyAssignment["value"];
             __v15320 := "JS_Interpreter_PropertyName"(___internal_esl_global, PropertyName, scope);
@@ -4185,7 +4183,7 @@ Tests compilation of ecmaref5:
       __v14661 := UnaryExpr["operator"];
       __v14662 := __v14661 = "delete";
       __v14663 := "argument" in_obj UnaryExpr;
-      if (true && __v14660 && __v14662 && __v14663) {
+      if (__v14660 && __v14662 && __v14663) {
         UnaryExpression := UnaryExpr["argument"];
         __v14664 := "JS_Interpreter_Expr"(___internal_esl_global, UnaryExpression, scope);
         if (fst(__v14664)) {
@@ -4315,7 +4313,7 @@ Tests compilation of ecmaref5:
         __v14687 := UnaryExpr["operator"];
         __v14688 := __v14687 = "void";
         __v14689 := "argument" in_obj UnaryExpr;
-        if (true && __v14686 && __v14688 && __v14689) {
+        if (__v14686 && __v14688 && __v14689) {
           UnaryExpression := UnaryExpr["argument"];
           __v14690 := "JS_Interpreter_Expr"(___internal_esl_global, UnaryExpression, scope);
           if (fst(__v14690)) {
@@ -4336,7 +4334,7 @@ Tests compilation of ecmaref5:
           __v14693 := UnaryExpr["operator"];
           __v14694 := __v14693 = "typeof";
           __v14695 := "argument" in_obj UnaryExpr;
-          if (true && __v14692 && __v14694 && __v14695) {
+          if (__v14692 && __v14694 && __v14695) {
             UnaryExpression := UnaryExpr["argument"];
             __v14696 := "JS_Interpreter_Expr"(___internal_esl_global, UnaryExpression, scope);
             if (fst(__v14696)) {
@@ -4383,7 +4381,7 @@ Tests compilation of ecmaref5:
             __v14760 := UnaryExpr["operator"];
             __v14761 := __v14760 = "+";
             __v14762 := "argument" in_obj UnaryExpr;
-            if (true && __v14759 && __v14761 && __v14762) {
+            if (__v14759 && __v14761 && __v14762) {
               UnaryExpression := UnaryExpr["argument"];
               __v14763 := "JS_Interpreter_Expr"(___internal_esl_global, UnaryExpression, scope);
               if (fst(__v14763)) {
@@ -4410,7 +4408,7 @@ Tests compilation of ecmaref5:
               __v14767 := UnaryExpr["operator"];
               __v14768 := __v14767 = "-";
               __v14769 := "argument" in_obj UnaryExpr;
-              if (true && __v14766 && __v14768 && __v14769) {
+              if (__v14766 && __v14768 && __v14769) {
                 UnaryExpression := UnaryExpr["argument"];
                 __v14770 := "JS_Interpreter_Expr"(___internal_esl_global, UnaryExpression, scope);
                 if (fst(__v14770)) {
@@ -4443,7 +4441,7 @@ Tests compilation of ecmaref5:
                 __v14776 := UnaryExpr["operator"];
                 __v14777 := __v14776 = "~";
                 __v14778 := "argument" in_obj UnaryExpr;
-                if (true && __v14775 && __v14777 && __v14778) {
+                if (__v14775 && __v14777 && __v14778) {
                   UnaryExpression := UnaryExpr["argument"];
                   __v14779 := "JS_Interpreter_Expr"(___internal_esl_global, UnaryExpression, scope);
                   if (fst(__v14779)) {
@@ -4472,7 +4470,7 @@ Tests compilation of ecmaref5:
                   __v14784 := UnaryExpr["operator"];
                   __v14785 := __v14784 = "!";
                   __v14786 := "argument" in_obj UnaryExpr;
-                  if (true && __v14783 && __v14785 && __v14786) {
+                  if (__v14783 && __v14785 && __v14786) {
                     UnaryExpression := UnaryExpr["argument"];
                     __v14787 := "JS_Interpreter_Expr"(___internal_esl_global, UnaryExpression, scope);
                     if (fst(__v14787)) {
@@ -4515,7 +4513,7 @@ Tests compilation of ecmaref5:
       __v14707 := "prefix" in_obj UnaryExpr;
       __v14708 := UnaryExpr["prefix"];
       __v14709 := __v14708 = true;
-      if (true && __v14703 && __v14705 && __v14706 && __v14707 && __v14709) {
+      if (__v14703 && __v14705 && __v14706 && __v14707 && __v14709) {
         UnaryExpression := UnaryExpr["argument"];
         __v14710 := "JS_Interpreter_Expr"(___internal_esl_global, UnaryExpression, scope);
         if (fst(__v14710)) {
@@ -4608,7 +4606,7 @@ Tests compilation of ecmaref5:
         __v14735 := "prefix" in_obj UnaryExpr;
         __v14736 := UnaryExpr["prefix"];
         __v14737 := __v14736 = true;
-        if (true && __v14731 && __v14733 && __v14734 && __v14735 && __v14737) {
+        if (__v14731 && __v14733 && __v14734 && __v14735 && __v14737) {
           UnaryExpression := UnaryExpr["argument"];
           __v14738 := "JS_Interpreter_Expr"(___internal_esl_global, UnaryExpression, scope);
           if (fst(__v14738)) {
@@ -4697,15 +4695,13 @@ Tests compilation of ecmaref5:
       }
     }
   sdefault: {
-      if (true) {
-        __v14791 := "JS_Interpreter_Multiplicative_Operators"(___internal_esl_global, UnaryExpr, scope);
-        if (fst(__v14791)) {
-          return __v14791
-        } else {
-          __v14791 := snd(__v14791)
-        };
-        return (false, __v14791)
-      }
+      __v14791 := "JS_Interpreter_Multiplicative_Operators"(___internal_esl_global, UnaryExpr, scope);
+      if (fst(__v14791)) {
+        return __v14791
+      } else {
+        __v14791 := snd(__v14791)
+      };
+      return (false, __v14791)
     }
   }
   };
@@ -5378,7 +5374,7 @@ Tests compilation of ecmaref5:
       __v14495 := "label" in_obj ContinueStatement;
       __v14496 := ContinueStatement["label"];
       __v14497 := __v14496 = null;
-      if (true && __v14495 && __v14497) {
+      if (__v14495 && __v14497) {
         __v14498 := "newCompletion"(___internal_esl_global, 'continue, 'empty, 'empty);
         if (fst(__v14498)) {
           return __v14498
@@ -5388,7 +5384,7 @@ Tests compilation of ecmaref5:
         return (false, __v14498)
       } else {
         __v14499 := "label" in_obj ContinueStatement;
-        if (true && __v14499) {
+        if (__v14499) {
           Identifier := ContinueStatement["label"];
           __v14500 := "newCompletion"(___internal_esl_global, 'continue, 'empty, Identifier);
           if (fst(__v14500)) {
@@ -5401,15 +5397,13 @@ Tests compilation of ecmaref5:
       }
     }
   sdefault: {
-      if (true) {
-        __v14501 := "JS_Interpreter_BreakStatement"(___internal_esl_global, ContinueStatement, scope);
-        if (fst(__v14501)) {
-          return __v14501
-        } else {
-          __v14501 := snd(__v14501)
-        };
-        return (false, __v14501)
-      }
+      __v14501 := "JS_Interpreter_BreakStatement"(___internal_esl_global, ContinueStatement, scope);
+      if (fst(__v14501)) {
+        return __v14501
+      } else {
+        __v14501 := snd(__v14501)
+      };
+      return (false, __v14501)
     }
   }
   };
@@ -5486,7 +5480,7 @@ Tests compilation of ecmaref5:
   case "NewExpression": {
       __v14437 := "callee" in_obj LeftHandSideExpression;
       __v14438 := "arguments" in_obj LeftHandSideExpression;
-      if (true && __v14437 && __v14438) {
+      if (__v14437 && __v14438) {
         MemberExpression := LeftHandSideExpression["callee"];
         Arguments := LeftHandSideExpression["arguments"];
         __v14439 := "JS_Interpreter_Expr"(___internal_esl_global, MemberExpression, scope);
@@ -5551,7 +5545,7 @@ Tests compilation of ecmaref5:
   case "MemberExpression": {
       __v14427 := "object" in_obj LeftHandSideExpression;
       __v14428 := "property" in_obj LeftHandSideExpression;
-      if (true && __v14427 && __v14428) {
+      if (__v14427 && __v14428) {
         MemberExpression := LeftHandSideExpression["object"];
         Expression := LeftHandSideExpression["property"];
         __v14429 := "JS_Interpreter_Expr"(___internal_esl_global, MemberExpression, scope);
@@ -5618,7 +5612,7 @@ Tests compilation of ecmaref5:
   case "CallExpression": {
       __v14451 := "callee" in_obj LeftHandSideExpression;
       __v14452 := "arguments" in_obj LeftHandSideExpression;
-      if (true && __v14451 && __v14452) {
+      if (__v14451 && __v14452) {
         MemberExpression := LeftHandSideExpression["callee"];
         Arguments := LeftHandSideExpression["arguments"];
         __v14453 := "JS_Interpreter_Expr"(___internal_esl_global, MemberExpression, scope);
@@ -5734,7 +5728,7 @@ Tests compilation of ecmaref5:
       __v14472 := "id" in_obj LeftHandSideExpression;
       __v14473 := "params" in_obj LeftHandSideExpression;
       __v14474 := "body" in_obj LeftHandSideExpression;
-      if (true && __v14472 && __v14473 && __v14474) {
+      if (__v14472 && __v14473 && __v14474) {
         Identifier := LeftHandSideExpression["id"];
         FormalParameterList := LeftHandSideExpression["params"];
         FunctionBody := LeftHandSideExpression["body"];
@@ -5748,15 +5742,13 @@ Tests compilation of ecmaref5:
       }
     }
   sdefault: {
-      if (true) {
-        __v14476 := "JS_Interpreter_Postfix_Expressions"(___internal_esl_global, LeftHandSideExpression, scope);
-        if (fst(__v14476)) {
-          return __v14476
-        } else {
-          __v14476 := snd(__v14476)
-        };
-        return (false, __v14476)
-      }
+      __v14476 := "JS_Interpreter_Postfix_Expressions"(___internal_esl_global, LeftHandSideExpression, scope);
+      if (fst(__v14476)) {
+        return __v14476
+      } else {
+        __v14476 := snd(__v14476)
+      };
+      return (false, __v14476)
     }
   }
   };
@@ -6445,7 +6437,7 @@ Tests compilation of ecmaref5:
       __v14258 := "alternate" in_obj IfStatement;
       __v14259 := IfStatement["alternate"];
       __v14260 := __v14259 = null;
-      if (true && __v14256 && __v14257 && __v14258 && __v14260) {
+      if (__v14256 && __v14257 && __v14258 && __v14260) {
         Expression := IfStatement["test"];
         Statement := IfStatement["consequent"];
         __v14261 := "JS_Interpreter_Expr"(___internal_esl_global, Expression, scope);
@@ -6488,7 +6480,7 @@ Tests compilation of ecmaref5:
         __v14267 := "test" in_obj IfStatement;
         __v14268 := "consequent" in_obj IfStatement;
         __v14269 := "alternate" in_obj IfStatement;
-        if (true && __v14267 && __v14268 && __v14269) {
+        if (__v14267 && __v14268 && __v14269) {
           Expression := IfStatement["test"];
           Statement1 := IfStatement["consequent"];
           Statement2 := IfStatement["alternate"];
@@ -6533,15 +6525,13 @@ Tests compilation of ecmaref5:
       }
     }
   sdefault: {
-      if (true) {
-        __v14276 := "JS_Interpreter_IterationStatement"(___internal_esl_global, IfStatement, scope);
-        if (fst(__v14276)) {
-          return __v14276
-        } else {
-          __v14276 := snd(__v14276)
-        };
-        return (false, __v14276)
-      }
+      __v14276 := "JS_Interpreter_IterationStatement"(___internal_esl_global, IfStatement, scope);
+      if (fst(__v14276)) {
+        return __v14276
+      } else {
+        __v14276 := snd(__v14276)
+      };
+      return (false, __v14276)
     }
   }
   };
@@ -7985,7 +7975,7 @@ Tests compilation of ecmaref5:
     __v13905 := ReturnStatement["type"];
     __v13906 := __v13905 = "ReturnStatement";
     __v13907 := "argument" in_obj ReturnStatement;
-    if (true && __v13904 && __v13906 && __v13907) {
+    if (__v13904 && __v13906 && __v13907) {
       Expression := ReturnStatement["argument"];
       __v13908 := Expression = null;
       if (__v13908) {
@@ -8018,15 +8008,13 @@ Tests compilation of ecmaref5:
       };
       return (false, __v13912)
     } else {
-      if (true) {
-        __v13913 := "JS_Interpreter_WithStatement"(___internal_esl_global, ReturnStatement, scope);
-        if (fst(__v13913)) {
-          return __v13913
-        } else {
-          __v13913 := snd(__v13913)
-        };
-        return (false, __v13913)
-      }
+      __v13913 := "JS_Interpreter_WithStatement"(___internal_esl_global, ReturnStatement, scope);
+      if (fst(__v13913)) {
+        return __v13913
+      } else {
+        __v13913 := snd(__v13913)
+      };
+      return (false, __v13913)
     }
   };
   function MathPow(___internal_esl_global, globalObject, this, stric, params) {
@@ -8794,7 +8782,7 @@ Tests compilation of ecmaref5:
     __v13736 := Expression["type"];
     __v13737 := __v13736 = "SequenceExpression";
     __v13738 := "expressions" in_obj Expression;
-    if (true && __v13735 && __v13737 && __v13738) {
+    if (__v13735 && __v13737 && __v13738) {
       Expressions := Expression["expressions"];
       __v13739 := l_len(Expressions);
       __v13740 := __v13739 - 1;
@@ -9375,19 +9363,17 @@ Tests compilation of ecmaref5:
     __v13611 := caseClause["type"];
     __v13612 := __v13611 = "SwitchCase";
     __v13613 := "consequent" in_obj caseClause;
-    if (true && __v13610 && __v13612 && __v13613) {
+    if (__v13610 && __v13612 && __v13613) {
       StatementList := caseClause["consequent"];
       return (false, StatementList)
     } else {
-      if (true) {
-        __v13614 := "SyntaxErrorConstructorInternal"(___internal_esl_global);
-        if (fst(__v13614)) {
-          return __v13614
-        } else {
-          __v13614 := snd(__v13614)
-        };
-        return (true, __v13614)
-      }
+      __v13614 := "SyntaxErrorConstructorInternal"(___internal_esl_global);
+      if (fst(__v13614)) {
+        return __v13614
+      } else {
+        __v13614 := snd(__v13614)
+      };
+      return (true, __v13614)
     }
   };
   function JS_Interpreter_Arguments_Empty(___internal_esl_global) {
@@ -10581,7 +10567,7 @@ Tests compilation of ecmaref5:
       __v13337 := __v13336 = "<<";
       __v13338 := "left" in_obj ShiftExpr;
       __v13339 := "right" in_obj ShiftExpr;
-      if (true && __v13335 && __v13337 && __v13338 && __v13339) {
+      if (__v13335 && __v13337 && __v13338 && __v13339) {
         ShiftExpression := ShiftExpr["left"];
         AdditiveExpression := ShiftExpr["right"];
         __v13340 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
@@ -10641,7 +10627,7 @@ Tests compilation of ecmaref5:
         __v13350 := __v13349 = ">>";
         __v13351 := "left" in_obj ShiftExpr;
         __v13352 := "right" in_obj ShiftExpr;
-        if (true && __v13348 && __v13350 && __v13351 && __v13352) {
+        if (__v13348 && __v13350 && __v13351 && __v13352) {
           ShiftExpression := ShiftExpr["left"];
           AdditiveExpression := ShiftExpr["right"];
           __v13353 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
@@ -10701,7 +10687,7 @@ Tests compilation of ecmaref5:
           __v13363 := __v13362 = ">>>";
           __v13364 := "left" in_obj ShiftExpr;
           __v13365 := "right" in_obj ShiftExpr;
-          if (true && __v13361 && __v13363 && __v13364 && __v13365) {
+          if (__v13361 && __v13363 && __v13364 && __v13365) {
             ShiftExpression := ShiftExpr["left"];
             AdditiveExpression := ShiftExpr["right"];
             __v13366 := "JS_Interpreter_Expr"(___internal_esl_global, ShiftExpression, scope);
@@ -10760,15 +10746,13 @@ Tests compilation of ecmaref5:
       }
     }
   sdefault: {
-      if (true) {
-        __v13374 := "JS_Interpreter_Relational_Operators"(___internal_esl_global, ShiftExpr, scope);
-        if (fst(__v13374)) {
-          return __v13374
-        } else {
-          __v13374 := snd(__v13374)
-        };
-        return (false, __v13374)
-      }
+      __v13374 := "JS_Interpreter_Relational_Operators"(___internal_esl_global, ShiftExpr, scope);
+      if (fst(__v13374)) {
+        return __v13374
+      } else {
+        __v13374 := snd(__v13374)
+      };
+      return (false, __v13374)
     }
   }
   };
@@ -11300,7 +11284,7 @@ Tests compilation of ecmaref5:
       __v13186 := __v13185 = "eval";
       __v13187 := "body" in_obj p;
       __v13188 := "strict" in_obj p;
-      if (true && __v13181 && __v13183 && __v13184 && __v13186 && __v13187 && __v13188) {
+      if (__v13181 && __v13183 && __v13184 && __v13186 && __v13187 && __v13188) {
         SourceElementsopt := p["body"];
         strict := p["strict"];
         __v13189 := [];
@@ -11328,7 +11312,7 @@ Tests compilation of ecmaref5:
         __v13207 := __v13206 = "script";
         __v13208 := "body" in_obj p;
         __v13209 := "strict" in_obj p;
-        if (true && __v13205 && __v13207 && __v13208 && __v13209) {
+        if (__v13205 && __v13207 && __v13208 && __v13209) {
           SourceElements := p["body"];
           strict := p["strict"];
           __v13210 := [];
@@ -11369,7 +11353,7 @@ Tests compilation of ecmaref5:
       __v13197 := p["codeType"];
       __v13198 := __v13197 = "eval";
       __v13199 := "message" in_obj p;
-      if (true && __v13193 && __v13195 && __v13196 && __v13198 && __v13199) {
+      if (__v13193 && __v13195 && __v13196 && __v13198 && __v13199) {
         message := p["message"];
         __v13200 := message = "Invalid left-hand side in assignment";
         if (__v13200) {
@@ -11405,7 +11389,7 @@ Tests compilation of ecmaref5:
         __v13216 := p["sourceType"];
         __v13217 := __v13216 = "script";
         __v13218 := "message" in_obj p;
-        if (true && __v13215 && __v13217 && __v13218) {
+        if (__v13215 && __v13217 && __v13218) {
           message := p["message"];
           __v13219 := "EnteringGlobalCode"(___internal_esl_global, p);
           if (fst(__v13219)) {
@@ -30533,7 +30517,7 @@ Tests compilation of ecmaref5:
       __v6999 := __v6998 = "<";
       __v7000 := "left" in_obj RelationalExpr;
       __v7001 := "right" in_obj RelationalExpr;
-      if (true && __v6997 && __v6999 && __v7000 && __v7001) {
+      if (__v6997 && __v6999 && __v7000 && __v7001) {
         RelationalExpression := RelationalExpr["left"];
         ShiftExpression := RelationalExpr["right"];
         __v7002 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
@@ -30582,7 +30566,7 @@ Tests compilation of ecmaref5:
         __v7010 := __v7009 = ">";
         __v7011 := "left" in_obj RelationalExpr;
         __v7012 := "right" in_obj RelationalExpr;
-        if (true && __v7008 && __v7010 && __v7011 && __v7012) {
+        if (__v7008 && __v7010 && __v7011 && __v7012) {
           RelationalExpression := RelationalExpr["left"];
           ShiftExpression := RelationalExpr["right"];
           __v7013 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
@@ -30631,7 +30615,7 @@ Tests compilation of ecmaref5:
           __v7021 := __v7020 = "<=";
           __v7022 := "left" in_obj RelationalExpr;
           __v7023 := "right" in_obj RelationalExpr;
-          if (true && __v7019 && __v7021 && __v7022 && __v7023) {
+          if (__v7019 && __v7021 && __v7022 && __v7023) {
             RelationalExpression := RelationalExpr["left"];
             ShiftExpression := RelationalExpr["right"];
             __v7024 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
@@ -30682,7 +30666,7 @@ Tests compilation of ecmaref5:
             __v7034 := __v7033 = ">=";
             __v7035 := "left" in_obj RelationalExpr;
             __v7036 := "right" in_obj RelationalExpr;
-            if (true && __v7032 && __v7034 && __v7035 && __v7036) {
+            if (__v7032 && __v7034 && __v7035 && __v7036) {
               RelationalExpression := RelationalExpr["left"];
               ShiftExpression := RelationalExpr["right"];
               __v7037 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
@@ -30733,7 +30717,7 @@ Tests compilation of ecmaref5:
               __v7047 := __v7046 = "instanceof";
               __v7048 := "left" in_obj RelationalExpr;
               __v7049 := "right" in_obj RelationalExpr;
-              if (true && __v7045 && __v7047 && __v7048 && __v7049) {
+              if (__v7045 && __v7047 && __v7048 && __v7049) {
                 RelationalExpression := RelationalExpr["left"];
                 ShiftExpression := RelationalExpr["right"];
                 __v7050 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
@@ -30806,7 +30790,7 @@ Tests compilation of ecmaref5:
                 __v7065 := __v7064 = "in";
                 __v7066 := "left" in_obj RelationalExpr;
                 __v7067 := "right" in_obj RelationalExpr;
-                if (true && __v7063 && __v7065 && __v7066 && __v7067) {
+                if (__v7063 && __v7065 && __v7066 && __v7067) {
                   RelationalExpression := RelationalExpr["left"];
                   ShiftExpression := RelationalExpr["right"];
                   __v7068 := "JS_Interpreter_Expr"(___internal_esl_global, RelationalExpression, scope);
@@ -30876,15 +30860,13 @@ Tests compilation of ecmaref5:
       }
     }
   sdefault: {
-      if (true) {
-        __v7079 := "JS_Interpreter_Equality_Operators"(___internal_esl_global, RelationalExpr, scope);
-        if (fst(__v7079)) {
-          return __v7079
-        } else {
-          __v7079 := snd(__v7079)
-        };
-        return (false, __v7079)
-      }
+      __v7079 := "JS_Interpreter_Equality_Operators"(___internal_esl_global, RelationalExpr, scope);
+      if (fst(__v7079)) {
+        return __v7079
+      } else {
+        __v7079 := snd(__v7079)
+      };
+      return (false, __v7079)
     }
   }
   };
@@ -30940,12 +30922,12 @@ Tests compilation of ecmaref5:
     switch (__v6913) {
   case "ForInStatement": {
       __v6979 := "left" in_obj iterStmt;
-      if (true && __v6979) {
+      if (__v6979) {
         lhsExpr_or_VarDecl := iterStmt["left"];
         __v6980 := "type" in_obj lhsExpr_or_VarDecl;
         __v6981 := lhsExpr_or_VarDecl["type"];
         __v6982 := __v6981 = "VariableDeclarator";
-        if (true && __v6980 && __v6982) {
+        if (__v6980 && __v6982) {
           __v6983 := "JS_Interpreter_ForInStmt_VarDecl"(___internal_esl_global, iterStmt, scope);
           if (fst(__v6983)) {
             return __v6983
@@ -30954,15 +30936,13 @@ Tests compilation of ecmaref5:
           };
           return (false, __v6983)
         } else {
-          if (true) {
-            __v6984 := "JS_Interpreter_ForInStmt_lhsExpr"(___internal_esl_global, iterStmt, scope);
-            if (fst(__v6984)) {
-              return __v6984
-            } else {
-              __v6984 := snd(__v6984)
-            };
-            return (false, __v6984)
-          }
+          __v6984 := "JS_Interpreter_ForInStmt_lhsExpr"(___internal_esl_global, iterStmt, scope);
+          if (fst(__v6984)) {
+            return __v6984
+          } else {
+            __v6984 := snd(__v6984)
+          };
+          return (false, __v6984)
         }
       }
     }
@@ -30970,7 +30950,7 @@ Tests compilation of ecmaref5:
       __v6914 := "test" in_obj iterStmt;
       __v6915 := "body" in_obj iterStmt;
       __v6916 := "labelSet" in_obj iterStmt;
-      if (true && __v6914 && __v6915 && __v6916) {
+      if (__v6914 && __v6915 && __v6916) {
         Expression := iterStmt["test"];
         Statement := iterStmt["body"];
         currentLabelSet := iterStmt["labelSet"];
@@ -31097,7 +31077,7 @@ Tests compilation of ecmaref5:
       __v6969 := "init" in_obj iterStmt;
       __v6970 := iterStmt["init"];
       __v6971 := __v6970 = null;
-      if (true && __v6969 && __v6971) {
+      if (__v6969 && __v6971) {
         __v6972 := "JS_Interpreter_ForStmt_Expr"(___internal_esl_global, iterStmt, scope);
         if (fst(__v6972)) {
           return __v6972
@@ -31107,12 +31087,12 @@ Tests compilation of ecmaref5:
         return (false, __v6972)
       } else {
         __v6973 := "init" in_obj iterStmt;
-        if (true && __v6973) {
+        if (__v6973) {
           Expr_or_VarDecl_or_Null := iterStmt["init"];
           __v6974 := "type" in_obj Expr_or_VarDecl_or_Null;
           __v6975 := Expr_or_VarDecl_or_Null["type"];
           __v6976 := __v6975 = "VariableDeclaration";
-          if (true && __v6974 && __v6976) {
+          if (__v6974 && __v6976) {
             __v6977 := "JS_Interpreter_ForStmt_VarDecl"(___internal_esl_global, iterStmt, scope);
             if (fst(__v6977)) {
               return __v6977
@@ -31121,15 +31101,13 @@ Tests compilation of ecmaref5:
             };
             return (false, __v6977)
           } else {
-            if (true) {
-              __v6978 := "JS_Interpreter_ForStmt_Expr"(___internal_esl_global, iterStmt, scope);
-              if (fst(__v6978)) {
-                return __v6978
-              } else {
-                __v6978 := snd(__v6978)
-              };
-              return (false, __v6978)
-            }
+            __v6978 := "JS_Interpreter_ForStmt_Expr"(___internal_esl_global, iterStmt, scope);
+            if (fst(__v6978)) {
+              return __v6978
+            } else {
+              __v6978 := snd(__v6978)
+            };
+            return (false, __v6978)
           }
         }
       }
@@ -31138,7 +31116,7 @@ Tests compilation of ecmaref5:
       __v6942 := "test" in_obj iterStmt;
       __v6943 := "body" in_obj iterStmt;
       __v6944 := "labelSet" in_obj iterStmt;
-      if (true && __v6942 && __v6943 && __v6944) {
+      if (__v6942 && __v6943 && __v6944) {
         Expression := iterStmt["test"];
         Statement := iterStmt["body"];
         currentLabelSet := iterStmt["labelSet"];
@@ -31450,7 +31428,7 @@ Tests compilation of ecmaref5:
       __v6882 := "body" in_obj Block;
       __v6883 := Block["body"];
       __v6884 := __v6883 = [];
-      if (true && __v6882 && __v6884) {
+      if (__v6882 && __v6884) {
         __v6885 := "normalEmptyCompletion"(___internal_esl_global, 'empty);
         if (fst(__v6885)) {
           return __v6885
@@ -31460,7 +31438,7 @@ Tests compilation of ecmaref5:
         return (false, __v6885)
       } else {
         __v6886 := "body" in_obj Block;
-        if (true && __v6886) {
+        if (__v6886) {
           StatementList := Block["body"];
           __v6887 := "labelSet" in_obj Block;
           if (__v6887) {
@@ -32173,7 +32151,7 @@ Tests compilation of ecmaref5:
       __v6728 := "label" in_obj BreakStatement;
       __v6729 := BreakStatement["label"];
       __v6730 := __v6729 = null;
-      if (true && __v6728 && __v6730) {
+      if (__v6728 && __v6730) {
         __v6731 := "newCompletion"(___internal_esl_global, 'break, 'empty, 'empty);
         if (fst(__v6731)) {
           return __v6731
@@ -32183,7 +32161,7 @@ Tests compilation of ecmaref5:
         return (false, __v6731)
       } else {
         __v6732 := "label" in_obj BreakStatement;
-        if (true && __v6732) {
+        if (__v6732) {
           Identifier := BreakStatement["label"];
           __v6733 := "newCompletion"(___internal_esl_global, 'break, 'empty, Identifier);
           if (fst(__v6733)) {
@@ -32196,15 +32174,13 @@ Tests compilation of ecmaref5:
       }
     }
   sdefault: {
-      if (true) {
-        __v6734 := "JS_Interpreter_ReturnStatement"(___internal_esl_global, BreakStatement, scope);
-        if (fst(__v6734)) {
-          return __v6734
-        } else {
-          __v6734 := snd(__v6734)
-        };
-        return (false, __v6734)
-      }
+      __v6734 := "JS_Interpreter_ReturnStatement"(___internal_esl_global, BreakStatement, scope);
+      if (fst(__v6734)) {
+        return __v6734
+      } else {
+        __v6734 := snd(__v6734)
+      };
+      return (false, __v6734)
     }
   }
   };
@@ -32438,7 +32414,7 @@ Tests compilation of ecmaref5:
     __v6636 := "update" in_obj forStmt;
     __v6637 := "body" in_obj forStmt;
     __v6638 := "labelSet" in_obj forStmt;
-    if (true && __v6631 && __v6633 && __v6634 && __v6635 && __v6636 && __v6637 && __v6638) {
+    if (__v6631 && __v6633 && __v6634 && __v6635 && __v6636 && __v6637 && __v6638) {
       VariableDeclarationListNoIn := forStmt["init"];
       Expression1 := forStmt["test"];
       Expression2 := forStmt["update"];
@@ -33011,7 +32987,7 @@ Tests compilation of ecmaref5:
     __v6555 := "discriminant" in_obj switchStmt;
     __v6556 := "cases" in_obj switchStmt;
     __v6557 := "labelSet" in_obj switchStmt;
-    if (true && __v6552 && __v6554 && __v6555 && __v6556 && __v6557) {
+    if (__v6552 && __v6554 && __v6555 && __v6556 && __v6557) {
       Expression := switchStmt["discriminant"];
       CaseBlock := switchStmt["cases"];
       currentLabelSet := switchStmt["labelSet"];
@@ -33074,7 +33050,7 @@ Tests compilation of ecmaref5:
     __v6531 := __v6530 = "&&";
     __v6532 := "left" in_obj LogicalExpression;
     __v6533 := "right" in_obj LogicalExpression;
-    if (true && __v6529 && __v6531 && __v6532 && __v6533) {
+    if (__v6529 && __v6531 && __v6532 && __v6533) {
       LogicalANDExpression := LogicalExpression["left"];
       BitwiseORExpression := LogicalExpression["right"];
       __v6534 := "JS_Interpreter_Expr"(___internal_esl_global, LogicalANDExpression, scope);
@@ -33121,7 +33097,7 @@ Tests compilation of ecmaref5:
       __v6542 := __v6541 = "||";
       __v6543 := "left" in_obj LogicalExpression;
       __v6544 := "right" in_obj LogicalExpression;
-      if (true && __v6540 && __v6542 && __v6543 && __v6544) {
+      if (__v6540 && __v6542 && __v6543 && __v6544) {
         LogicalORExpression := LogicalExpression["left"];
         LogicalANDExpression := LogicalExpression["right"];
         __v6545 := "JS_Interpreter_Expr"(___internal_esl_global, LogicalORExpression, scope);
@@ -33163,15 +33139,13 @@ Tests compilation of ecmaref5:
         };
         return (false, __v6550)
       } else {
-        if (true) {
-          __v6551 := "JS_Interpreter_Conditional_Operator"(___internal_esl_global, LogicalExpression, scope);
-          if (fst(__v6551)) {
-            return __v6551
-          } else {
-            __v6551 := snd(__v6551)
-          };
-          return (false, __v6551)
-        }
+        __v6551 := "JS_Interpreter_Conditional_Operator"(___internal_esl_global, LogicalExpression, scope);
+        if (fst(__v6551)) {
+          return __v6551
+        } else {
+          __v6551 := snd(__v6551)
+        };
+        return (false, __v6551)
       }
     }
   };
@@ -33244,7 +33218,7 @@ Tests compilation of ecmaref5:
       __v6485 := "finalizer" in_obj TryStatement;
       __v6486 := TryStatement["finalizer"];
       __v6487 := __v6486 = null;
-      if (true && __v6483 && __v6484 && __v6485 && __v6487) {
+      if (__v6483 && __v6484 && __v6485 && __v6487) {
         Block := TryStatement["block"];
         Catch := TryStatement["handler"];
         __v6488 := "JS_Interpreter_Block"(___internal_esl_global, Block, scope);
@@ -33284,7 +33258,7 @@ Tests compilation of ecmaref5:
         __v6496 := TryStatement["handler"];
         __v6497 := __v6496 = null;
         __v6498 := "finalizer" in_obj TryStatement;
-        if (true && __v6494 && __v6495 && __v6497 && __v6498) {
+        if (__v6494 && __v6495 && __v6497 && __v6498) {
           Block := TryStatement["block"];
           Finally := TryStatement["finalizer"];
           __v6499 := "JS_Interpreter_Block"(___internal_esl_global, Block, scope);
@@ -33316,7 +33290,7 @@ Tests compilation of ecmaref5:
           __v6503 := "block" in_obj TryStatement;
           __v6504 := "handler" in_obj TryStatement;
           __v6505 := "finalizer" in_obj TryStatement;
-          if (true && __v6503 && __v6504 && __v6505) {
+          if (__v6503 && __v6504 && __v6505) {
             Block := TryStatement["block"];
             Catch := TryStatement["handler"];
             Finally := TryStatement["finalizer"];
@@ -33374,15 +33348,13 @@ Tests compilation of ecmaref5:
       }
     }
   sdefault: {
-      if (true) {
-        __v6514 := "JS_Interpreter_DebuggerStatement"(___internal_esl_global, TryStatement, scope);
-        if (fst(__v6514)) {
-          return __v6514
-        } else {
-          __v6514 := snd(__v6514)
-        };
-        return (false, __v6514)
-      }
+      __v6514 := "JS_Interpreter_DebuggerStatement"(___internal_esl_global, TryStatement, scope);
+      if (fst(__v6514)) {
+        return __v6514
+      } else {
+        __v6514 := snd(__v6514)
+      };
+      return (false, __v6514)
     }
   }
   };
@@ -36080,7 +36052,7 @@ Tests compilation of ecmaref5:
       __v5925 := __v5924 = "*";
       __v5926 := "left" in_obj MultiplicativeExpr;
       __v5927 := "right" in_obj MultiplicativeExpr;
-      if (true && __v5923 && __v5925 && __v5926 && __v5927) {
+      if (__v5923 && __v5925 && __v5926 && __v5927) {
         MultiplicativeExpression := MultiplicativeExpr["left"];
         UnaryExpression := MultiplicativeExpr["right"];
         __v5928 := "JS_Interpreter_Expr"(___internal_esl_global, MultiplicativeExpression, scope);
@@ -36138,7 +36110,7 @@ Tests compilation of ecmaref5:
         __v5937 := __v5936 = "/";
         __v5938 := "left" in_obj MultiplicativeExpr;
         __v5939 := "right" in_obj MultiplicativeExpr;
-        if (true && __v5935 && __v5937 && __v5938 && __v5939) {
+        if (__v5935 && __v5937 && __v5938 && __v5939) {
           MultiplicativeExpression := MultiplicativeExpr["left"];
           UnaryExpression := MultiplicativeExpr["right"];
           __v5940 := "JS_Interpreter_Expr"(___internal_esl_global, MultiplicativeExpression, scope);
@@ -36196,7 +36168,7 @@ Tests compilation of ecmaref5:
           __v5949 := __v5948 = "%";
           __v5950 := "left" in_obj MultiplicativeExpr;
           __v5951 := "right" in_obj MultiplicativeExpr;
-          if (true && __v5947 && __v5949 && __v5950 && __v5951) {
+          if (__v5947 && __v5949 && __v5950 && __v5951) {
             MultiplicativeExpression := MultiplicativeExpr["left"];
             UnaryExpression := MultiplicativeExpr["right"];
             __v5952 := "JS_Interpreter_Expr"(___internal_esl_global, MultiplicativeExpression, scope);
@@ -36253,15 +36225,13 @@ Tests compilation of ecmaref5:
       }
     }
   sdefault: {
-      if (true) {
-        __v5959 := "JS_Interpreter_Additive_Operators"(___internal_esl_global, MultiplicativeExpr, scope);
-        if (fst(__v5959)) {
-          return __v5959
-        } else {
-          __v5959 := snd(__v5959)
-        };
-        return (false, __v5959)
-      }
+      __v5959 := "JS_Interpreter_Additive_Operators"(___internal_esl_global, MultiplicativeExpr, scope);
+      if (fst(__v5959)) {
+        return __v5959
+      } else {
+        __v5959 := snd(__v5959)
+      };
+      return (false, __v5959)
     }
   }
   };
@@ -36384,37 +36354,31 @@ Tests compilation of ecmaref5:
     __v5884 := s["type"];
     switch (__v5884) {
   case "VariableDeclaration": {
-      if (true) {
-        __v5886 := "JS_Interpreter_VariableStatement"(___internal_esl_global, s, scope);
-        if (fst(__v5886)) {
-          return __v5886
-        } else {
-          __v5886 := snd(__v5886)
-        };
-        return (false, __v5886)
-      }
+      __v5886 := "JS_Interpreter_VariableStatement"(___internal_esl_global, s, scope);
+      if (fst(__v5886)) {
+        return __v5886
+      } else {
+        __v5886 := snd(__v5886)
+      };
+      return (false, __v5886)
     }
   case "BlockStatement": {
-      if (true) {
-        __v5885 := "JS_Interpreter_Block"(___internal_esl_global, s, scope);
-        if (fst(__v5885)) {
-          return __v5885
-        } else {
-          __v5885 := snd(__v5885)
-        };
-        return (false, __v5885)
-      }
+      __v5885 := "JS_Interpreter_Block"(___internal_esl_global, s, scope);
+      if (fst(__v5885)) {
+        return __v5885
+      } else {
+        __v5885 := snd(__v5885)
+      };
+      return (false, __v5885)
     }
   sdefault: {
-      if (true) {
-        __v5887 := "JS_Interpreter_EmptyStatement"(___internal_esl_global, s, scope);
-        if (fst(__v5887)) {
-          return __v5887
-        } else {
-          __v5887 := snd(__v5887)
-        };
-        return (false, __v5887)
-      }
+      __v5887 := "JS_Interpreter_EmptyStatement"(___internal_esl_global, s, scope);
+      if (fst(__v5887)) {
+        return __v5887
+      } else {
+        __v5887 := snd(__v5887)
+      };
+      return (false, __v5887)
     }
   }
   };
@@ -36921,7 +36885,7 @@ Tests compilation of ecmaref5:
     __v5760 := ThrowStatement["type"];
     __v5761 := __v5760 = "ThrowStatement";
     __v5762 := "argument" in_obj ThrowStatement;
-    if (true && __v5759 && __v5761 && __v5762) {
+    if (__v5759 && __v5761 && __v5762) {
       Expression := ThrowStatement["argument"];
       __v5763 := "JS_Interpreter_Expr"(___internal_esl_global, Expression, scope);
       if (fst(__v5763)) {
@@ -36944,15 +36908,13 @@ Tests compilation of ecmaref5:
       };
       return (false, __v5765)
     } else {
-      if (true) {
-        __v5766 := "JS_Interpreter_TryStatement"(___internal_esl_global, ThrowStatement, scope);
-        if (fst(__v5766)) {
-          return __v5766
-        } else {
-          __v5766 := snd(__v5766)
-        };
-        return (false, __v5766)
-      }
+      __v5766 := "JS_Interpreter_TryStatement"(___internal_esl_global, ThrowStatement, scope);
+      if (fst(__v5766)) {
+        return __v5766
+      } else {
+        __v5766 := snd(__v5766)
+      };
+      return (false, __v5766)
     }
   };
   function setVariableEnvironment(___internal_esl_global, runningExecCtx, variableEnvironment) {
@@ -39120,21 +39082,19 @@ Tests compilation of ecmaref5:
     __v5249 := caseClause["type"];
     __v5250 := __v5249 = "SwitchCase";
     __v5251 := "consequent" in_obj caseClause;
-    if (true && __v5248 && __v5250 && __v5251) {
+    if (__v5248 && __v5250 && __v5251) {
       StatementList := caseClause["consequent"];
       __v5252 := l_len(StatementList);
       __v5253 := __v5252 > 0;
       return (false, __v5253)
     } else {
-      if (true) {
-        __v5254 := "SyntaxErrorConstructorInternal"(___internal_esl_global);
-        if (fst(__v5254)) {
-          return __v5254
-        } else {
-          __v5254 := snd(__v5254)
-        };
-        return (true, __v5254)
-      }
+      __v5254 := "SyntaxErrorConstructorInternal"(___internal_esl_global);
+      if (fst(__v5254)) {
+        return __v5254
+      } else {
+        __v5254 := snd(__v5254)
+      };
+      return (true, __v5254)
     }
   };
   function JS_Interpreter_Repetition_Greedy(___internal_esl_global, m, bounds, st, k, parenIndex, parenCount) {
@@ -39326,7 +39286,7 @@ Tests compilation of ecmaref5:
       __v5169 := __v5168 = "==";
       __v5170 := "left" in_obj EqualityExpr;
       __v5171 := "right" in_obj EqualityExpr;
-      if (true && __v5167 && __v5169 && __v5170 && __v5171) {
+      if (__v5167 && __v5169 && __v5170 && __v5171) {
         EqualityExpression := EqualityExpr["left"];
         RelationalExpression := EqualityExpr["right"];
         __v5172 := "JS_Interpreter_Expr"(___internal_esl_global, EqualityExpression, scope);
@@ -39370,7 +39330,7 @@ Tests compilation of ecmaref5:
         __v5179 := __v5178 = "!=";
         __v5180 := "left" in_obj EqualityExpr;
         __v5181 := "right" in_obj EqualityExpr;
-        if (true && __v5177 && __v5179 && __v5180 && __v5181) {
+        if (__v5177 && __v5179 && __v5180 && __v5181) {
           EqualityExpression := EqualityExpr["left"];
           RelationalExpression := EqualityExpr["right"];
           __v5182 := "JS_Interpreter_Expr"(___internal_esl_global, EqualityExpression, scope);
@@ -39419,7 +39379,7 @@ Tests compilation of ecmaref5:
           __v5190 := __v5189 = "===";
           __v5191 := "left" in_obj EqualityExpr;
           __v5192 := "right" in_obj EqualityExpr;
-          if (true && __v5188 && __v5190 && __v5191 && __v5192) {
+          if (__v5188 && __v5190 && __v5191 && __v5192) {
             EqualityExpression := EqualityExpr["left"];
             RelationalExpression := EqualityExpr["right"];
             __v5193 := "JS_Interpreter_Expr"(___internal_esl_global, EqualityExpression, scope);
@@ -39463,7 +39423,7 @@ Tests compilation of ecmaref5:
             __v5200 := __v5199 = "!==";
             __v5201 := "left" in_obj EqualityExpr;
             __v5202 := "right" in_obj EqualityExpr;
-            if (true && __v5198 && __v5200 && __v5201 && __v5202) {
+            if (__v5198 && __v5200 && __v5201 && __v5202) {
               EqualityExpression := EqualityExpr["left"];
               RelationalExpression := EqualityExpr["right"];
               __v5203 := "JS_Interpreter_Expr"(___internal_esl_global, EqualityExpression, scope);
@@ -39512,15 +39472,13 @@ Tests compilation of ecmaref5:
       }
     }
   sdefault: {
-      if (true) {
-        __v5209 := "JS_Interpreter_Binary_Bitwise_Operators"(___internal_esl_global, EqualityExpr, scope);
-        if (fst(__v5209)) {
-          return __v5209
-        } else {
-          __v5209 := snd(__v5209)
-        };
-        return (false, __v5209)
-      }
+      __v5209 := "JS_Interpreter_Binary_Bitwise_Operators"(___internal_esl_global, EqualityExpr, scope);
+      if (fst(__v5209)) {
+        return __v5209
+      } else {
+        __v5209 := snd(__v5209)
+      };
+      return (false, __v5209)
     }
   }
   };
@@ -40176,7 +40134,7 @@ Tests compilation of ecmaref5:
     __v4928 := "kind" in_obj el;
     __v4929 := el["kind"];
     __v4930 := __v4929 = "meta";
-    if (true && __v4923 && __v4925 && __v4926 && __v4927 && __v4928 && __v4930) {
+    if (__v4923 && __v4925 && __v4926 && __v4927 && __v4928 && __v4930) {
       c := el["value"];
       code := el["codePoint"];
       __v4970 := c = "\\d";
@@ -40380,7 +40338,7 @@ Tests compilation of ecmaref5:
       __v4976 := "kind" in_obj el;
       __v4977 := el["kind"];
       __v4978 := __v4977 = "decimal";
-      if (true && __v4972 && __v4974 && __v4975 && __v4976 && __v4978) {
+      if (__v4972 && __v4974 && __v4975 && __v4976 && __v4978) {
         c := el["value"];
         __v4979 := "EmptyCharacterClass"(___internal_esl_global, negative);
         if (fst(__v4979)) {
@@ -40416,7 +40374,7 @@ Tests compilation of ecmaref5:
         __v4992 := "kind" in_obj el;
         __v4993 := el["kind"];
         __v4994 := __v4993 = "hex";
-        if (true && __v4988 && __v4990 && __v4991 && __v4992 && __v4994) {
+        if (__v4988 && __v4990 && __v4991 && __v4992 && __v4994) {
           c := el["value"];
           __v4995 := "EmptyCharacterClass"(___internal_esl_global, negative);
           if (fst(__v4995)) {
@@ -40446,7 +40404,7 @@ Tests compilation of ecmaref5:
           __v5004 := "kind" in_obj el;
           __v5005 := el["kind"];
           __v5006 := __v5005 = "unicode";
-          if (true && __v5000 && __v5002 && __v5003 && __v5004 && __v5006) {
+          if (__v5000 && __v5002 && __v5003 && __v5004 && __v5006) {
             c := el["value"];
             __v5007 := "EmptyCharacterClass"(___internal_esl_global, negative);
             if (fst(__v5007)) {
@@ -40476,7 +40434,7 @@ Tests compilation of ecmaref5:
             __v5016 := "kind" in_obj el;
             __v5017 := el["kind"];
             __v5018 := __v5017 = "control";
-            if (true && __v5012 && __v5014 && __v5015 && __v5016 && __v5018) {
+            if (__v5012 && __v5014 && __v5015 && __v5016 && __v5018) {
               c := el["value"];
               __v5019 := to_upper_case(c);
               c := __v5019;
@@ -40509,7 +40467,7 @@ Tests compilation of ecmaref5:
               __v5029 := __v5028 = "Char";
               __v5030 := "value" in_obj el;
               __v5031 := "codePoint" in_obj el;
-              if (true && __v5027 && __v5029 && __v5030 && __v5031) {
+              if (__v5027 && __v5029 && __v5030 && __v5031) {
                 c := el["value"];
                 code := el["codePoint"];
                 __v5032 := "canonicalise"(___internal_esl_global, c, code, ic);
@@ -40541,7 +40499,7 @@ Tests compilation of ecmaref5:
                 __v5038 := __v5037 = "ClassRange";
                 __v5039 := "from" in_obj el;
                 __v5040 := "to" in_obj el;
-                if (true && __v5036 && __v5038 && __v5039 && __v5040) {
+                if (__v5036 && __v5038 && __v5039 && __v5040) {
                   from := el["from"];
                   to := el["to"];
                   __v5041 := from["value"];
@@ -40588,9 +40546,7 @@ Tests compilation of ecmaref5:
                   };
                   return (false, cs)
                 } else {
-                  if (true) {
-                    return (true, "CharacterClass Not Supported!!")
-                  }
+                  return (true, "CharacterClass Not Supported!!")
                 }
               }
             }
@@ -43149,7 +43105,7 @@ Tests compilation of ecmaref5:
     __v4219 := re["negative"];
     __v4220 := __v4219 = true;
     __v4221 := "expressions" in_obj re;
-    if (true && __v4215 && __v4217 && __v4218 && __v4220 && __v4221) {
+    if (__v4215 && __v4217 && __v4218 && __v4220 && __v4221) {
       res := re["expressions"];
       __v4222 := "EmptyCharacterClass"(___internal_esl_global, true);
       if (fst(__v4222)) {
@@ -43191,7 +43147,7 @@ Tests compilation of ecmaref5:
       __v4231 := re["type"];
       __v4232 := __v4231 = "CharacterClass";
       __v4233 := "expressions" in_obj re;
-      if (true && __v4230 && __v4232 && __v4233) {
+      if (__v4230 && __v4232 && __v4233) {
         res := re["expressions"];
         __v4234 := "EmptyCharacterClass"(___internal_esl_global, false);
         if (fst(__v4234)) {
@@ -43239,7 +43195,7 @@ Tests compilation of ecmaref5:
         __v4249 := re["negative"];
         __v4250 := __v4249 = true;
         __v4251 := "assertion" in_obj re;
-        if (true && __v4242 && __v4244 && __v4245 && __v4247 && __v4248 && __v4250 && __v4251) {
+        if (__v4242 && __v4244 && __v4245 && __v4247 && __v4248 && __v4250 && __v4251) {
           re' := re["assertion"];
           __v4252 := "JS_Interpreter_RegEx"(___internal_esl_global, re', flags);
           if (fst(__v4252)) {
@@ -43258,7 +43214,7 @@ Tests compilation of ecmaref5:
           __v4257 := re["kind"];
           __v4258 := __v4257 = "Lookahead";
           __v4259 := "assertion" in_obj re;
-          if (true && __v4253 && __v4255 && __v4256 && __v4258 && __v4259) {
+          if (__v4253 && __v4255 && __v4256 && __v4258 && __v4259) {
             re' := re["assertion"];
             __v4260 := "JS_Interpreter_RegEx"(___internal_esl_global, re', flags);
             if (fst(__v4260)) {
@@ -43274,7 +43230,7 @@ Tests compilation of ecmaref5:
             __v4262 := re["type"];
             __v4263 := __v4262 = "Assertion";
             __v4264 := "kind" in_obj re;
-            if (true && __v4261 && __v4263 && __v4264) {
+            if (__v4261 && __v4263 && __v4264) {
               kind := re["kind"];
               __v4265 := "JS_Interpreter_Assertion"(___internal_esl_global, re);
               if (fst(__v4265)) {
@@ -43291,7 +43247,7 @@ Tests compilation of ecmaref5:
               __v4268 := __v4267 = "Repetition";
               __v4269 := "expression" in_obj re;
               __v4270 := "quantifier" in_obj re;
-              if (true && __v4266 && __v4268 && __v4269 && __v4270) {
+              if (__v4266 && __v4268 && __v4269 && __v4270) {
                 re' := re["expression"];
                 qt := re["quantifier"];
                 __v4271 := "JS_Interpreter_RegEx"(___internal_esl_global, re', flags);
@@ -43325,7 +43281,7 @@ Tests compilation of ecmaref5:
                 __v4278 := re["type"];
                 __v4279 := __v4278 = "Backreference";
                 __v4280 := "number" in_obj re;
-                if (true && __v4277 && __v4279 && __v4280) {
+                if (__v4277 && __v4279 && __v4280) {
                   i := re["number"];
                   m := {"__lambda__20"}@(i);
                   return (false, m)
@@ -43338,7 +43294,7 @@ Tests compilation of ecmaref5:
                   __v4286 := __v4285 = true;
                   __v4287 := "number" in_obj re;
                   __v4288 := "expression" in_obj re;
-                  if (true && __v4281 && __v4283 && __v4284 && __v4286 && __v4287 && __v4288) {
+                  if (__v4281 && __v4283 && __v4284 && __v4286 && __v4287 && __v4288) {
                     i := re["number"];
                     re' := re["expression"];
                     __v4289 := "JS_Interpreter_RegEx"(___internal_esl_global, re', flags);
@@ -43358,7 +43314,7 @@ Tests compilation of ecmaref5:
                     __v4294 := re["capturing"];
                     __v4295 := __v4294 = false;
                     __v4296 := "expression" in_obj re;
-                    if (true && __v4290 && __v4292 && __v4293 && __v4295 && __v4296) {
+                    if (__v4290 && __v4292 && __v4293 && __v4295 && __v4296) {
                       re' := re["expression"];
                       __v4297 := "JS_Interpreter_RegEx"(___internal_esl_global, re', flags);
                       if (fst(__v4297)) {
@@ -43373,7 +43329,7 @@ Tests compilation of ecmaref5:
                       __v4300 := __v4299 = "Disjunction";
                       __v4301 := "left" in_obj re;
                       __v4302 := "right" in_obj re;
-                      if (true && __v4298 && __v4300 && __v4301 && __v4302) {
+                      if (__v4298 && __v4300 && __v4301 && __v4302) {
                         re_l := re["left"];
                         re_r := re["right"];
                         __v4303 := "JS_Interpreter_RegEx"(___internal_esl_global, re_l, flags);
@@ -43397,7 +43353,7 @@ Tests compilation of ecmaref5:
                         __v4306 := re["type"];
                         __v4307 := __v4306 = "Alternative";
                         __v4308 := "expressions" in_obj re;
-                        if (true && __v4305 && __v4307 && __v4308) {
+                        if (__v4305 && __v4307 && __v4308) {
                           res := re["expressions"];
                           __v4314 := l_len(res);
                           __v4315 := __v4314 = 1;
@@ -43443,7 +43399,7 @@ Tests compilation of ecmaref5:
                           __v4322 := "kind" in_obj re;
                           __v4323 := re["kind"];
                           __v4324 := __v4323 = "meta";
-                          if (true && __v4318 && __v4320 && __v4321 && __v4322 && __v4324) {
+                          if (__v4318 && __v4320 && __v4321 && __v4322 && __v4324) {
                             v := re["value"];
                             __v4325 := {};
                             cs := __v4325;
@@ -43582,7 +43538,7 @@ Tests compilation of ecmaref5:
                             __v4356 := "kind" in_obj re;
                             __v4357 := re["kind"];
                             __v4358 := __v4357 = "decimal";
-                            if (true && __v4352 && __v4354 && __v4355 && __v4356 && __v4358) {
+                            if (__v4352 && __v4354 && __v4355 && __v4356 && __v4358) {
                               c := re["value"];
                               __v4359 := s_len_u(c);
                               len := __v4359;
@@ -43604,7 +43560,7 @@ Tests compilation of ecmaref5:
                               __v4369 := "kind" in_obj re;
                               __v4370 := re["kind"];
                               __v4371 := __v4370 = "hex";
-                              if (true && __v4365 && __v4367 && __v4368 && __v4369 && __v4371) {
+                              if (__v4365 && __v4367 && __v4368 && __v4369 && __v4371) {
                                 v := re["value"];
                                 m := {"__lambda__28"}@(v);
                                 return (false, m)
@@ -43616,7 +43572,7 @@ Tests compilation of ecmaref5:
                                 __v4376 := "kind" in_obj re;
                                 __v4377 := re["kind"];
                                 __v4378 := __v4377 = "unicode";
-                                if (true && __v4372 && __v4374 && __v4375 && __v4376 && __v4378) {
+                                if (__v4372 && __v4374 && __v4375 && __v4376 && __v4378) {
                                   v := re["value"];
                                   __v4379 := utf8_decode(v);
                                   v := __v4379;
@@ -43630,7 +43586,7 @@ Tests compilation of ecmaref5:
                                   __v4384 := "kind" in_obj re;
                                   __v4385 := re["kind"];
                                   __v4386 := __v4385 = "control";
-                                  if (true && __v4380 && __v4382 && __v4383 && __v4384 && __v4386) {
+                                  if (__v4380 && __v4382 && __v4383 && __v4384 && __v4386) {
                                     v := re["value"];
                                     m := {"__lambda__30"}@(v);
                                     return (false, m)
@@ -43642,14 +43598,12 @@ Tests compilation of ecmaref5:
                                     __v4391 := "kind" in_obj re;
                                     __v4392 := re["kind"];
                                     __v4393 := __v4392 = "simple";
-                                    if (true && __v4387 && __v4389 && __v4390 && __v4391 && __v4393) {
+                                    if (__v4387 && __v4389 && __v4390 && __v4391 && __v4393) {
                                       v := re["value"];
                                       m := {"__lambda__31"}@(v);
                                       return (false, m)
                                     } else {
-                                      if (true) {
-                                        return (true, "Regex Not Supported!!")
-                                      }
+                                      return (true, "Regex Not Supported!!")
                                     }
                                   }
                                 }
@@ -45145,7 +45099,7 @@ Tests compilation of ecmaref5:
     __v3874 := __v3873 = null;
     __v3875 := "params" in_obj FunctionExpression;
     __v3876 := "body" in_obj FunctionExpression;
-    if (true && __v3872 && __v3874 && __v3875 && __v3876) {
+    if (__v3872 && __v3874 && __v3875 && __v3876) {
       FormalParameterList := FunctionExpression["params"];
       FunctionBody := FunctionExpression["body"];
       __v3877 := "getLexicalEnvironment"(___internal_esl_global, scope);
@@ -45171,7 +45125,7 @@ Tests compilation of ecmaref5:
       __v3880 := "id" in_obj FunctionExpression;
       __v3881 := "params" in_obj FunctionExpression;
       __v3882 := "body" in_obj FunctionExpression;
-      if (true && __v3880 && __v3881 && __v3882) {
+      if (__v3880 && __v3881 && __v3882) {
         Identifier := FunctionExpression["id"];
         FormalParameterListopt := FunctionExpression["params"];
         FunctionBody := FunctionExpression["body"];
@@ -45379,7 +45333,7 @@ Tests compilation of ecmaref5:
     __v3794 := __v3793 = "=";
     __v3795 := "left" in_obj AssignmentExpr;
     __v3796 := "right" in_obj AssignmentExpr;
-    if (true && __v3792 && __v3794 && __v3795 && __v3796) {
+    if (__v3792 && __v3794 && __v3795 && __v3796) {
       LeftHandSideExpression := AssignmentExpr["left"];
       AssignmentExpression := AssignmentExpr["right"];
       __v3797 := "JS_Interpreter_Expr"(___internal_esl_global, LeftHandSideExpression, scope);
@@ -45500,7 +45454,7 @@ Tests compilation of ecmaref5:
       __v3817 := "operator" in_obj AssignmentExpr;
       __v3818 := "left" in_obj AssignmentExpr;
       __v3819 := "right" in_obj AssignmentExpr;
-      if (true && __v3817 && __v3818 && __v3819) {
+      if (__v3817 && __v3818 && __v3819) {
         AssignmentOperator := AssignmentExpr["operator"];
         LeftHandSideExpression := AssignmentExpr["left"];
         AssignmentExpression := AssignmentExpr["right"];
@@ -45601,15 +45555,13 @@ Tests compilation of ecmaref5:
         };
         return (false, r)
       } else {
-        if (true) {
-          __v3842 := "JS_Interpreter_Comma_Operator"(___internal_esl_global, AssignmentExpr, scope);
-          if (fst(__v3842)) {
-            return __v3842
-          } else {
-            __v3842 := snd(__v3842)
-          };
-          return (false, __v3842)
-        }
+        __v3842 := "JS_Interpreter_Comma_Operator"(___internal_esl_global, AssignmentExpr, scope);
+        if (fst(__v3842)) {
+          return __v3842
+        } else {
+          __v3842 := snd(__v3842)
+        };
+        return (false, __v3842)
       }
     }
   };
@@ -46370,7 +46322,7 @@ Tests compilation of ecmaref5:
       __v3589 := "elementList" in_obj obj;
       __v3590 := "elisionOpt" in_obj obj;
       __v3591 := "assignmentExpression" in_obj obj;
-      if (true && __v3589 && __v3590 && __v3591) {
+      if (__v3589 && __v3590 && __v3591) {
         ElementList := obj["elementList"];
         Elision := obj["elisionOpt"];
         AssignmentExpression := obj["assignmentExpression"];
@@ -46442,7 +46394,7 @@ Tests compilation of ecmaref5:
   case "Base": {
       __v3576 := "elisionOpt" in_obj obj;
       __v3577 := "assignmentExpression" in_obj obj;
-      if (true && __v3576 && __v3577) {
+      if (__v3576 && __v3577) {
         Elision := obj["elisionOpt"];
         AssignmentExpression := obj["assignmentExpression"];
         __v3578 := ___internal_esl_global["global"];
@@ -46512,7 +46464,7 @@ Tests compilation of ecmaref5:
       __v3553 := "properties" in_obj PrimaryExpression;
       __v3554 := PrimaryExpression["properties"];
       __v3555 := __v3554 = [];
-      if (true && __v3553 && __v3555) {
+      if (__v3553 && __v3555) {
         __v3556 := ___internal_esl_global["global"];
         __v3557 := "isContainedInStrictCode"(___internal_esl_global, scope);
         if (fst(__v3557)) {
@@ -46530,7 +46482,7 @@ Tests compilation of ecmaref5:
         return (false, __v3559)
       } else {
         __v3560 := "properties" in_obj PrimaryExpression;
-        if (true && __v3560) {
+        if (__v3560) {
           PropertyNameAndValueList := PrimaryExpression["properties"];
           __v3561 := "JS_Interpreter_PropertyNameAndValueList"(___internal_esl_global, PropertyNameAndValueList, scope);
           if (fst(__v3561)) {
@@ -46544,7 +46496,7 @@ Tests compilation of ecmaref5:
     }
   case "ESLPrint": {
       __v3568 := "value" in_obj PrimaryExpression;
-      if (true && __v3568) {
+      if (__v3568) {
         Argument := PrimaryExpression["value"];
         __v3569 := "JS_Interpreter_Expr"(___internal_esl_global, Argument, scope);
         if (fst(__v3569)) {
@@ -46567,20 +46519,18 @@ Tests compilation of ecmaref5:
       }
     }
   case "ThisExpression": {
-      if (true) {
-        __v3512 := "getThisBinding"(___internal_esl_global, scope);
-        if (fst(__v3512)) {
-          return __v3512
-        } else {
-          __v3512 := snd(__v3512)
-        };
-        return (false, __v3512)
-      }
+      __v3512 := "getThisBinding"(___internal_esl_global, scope);
+      if (fst(__v3512)) {
+        return __v3512
+      } else {
+        __v3512 := snd(__v3512)
+      };
+      return (false, __v3512)
     }
   case "Literal": {
       __v3515 := "regex" in_obj PrimaryExpression;
       __v3516 := "source" in_obj PrimaryExpression;
-      if (true && __v3515 && __v3516) {
+      if (__v3515 && __v3516) {
         re := PrimaryExpression["regex"];
         source := PrimaryExpression["source"];
         __v3517 := "JS_Interpreter_RegEx_TopLevel"(___internal_esl_global, re, source);
@@ -46592,7 +46542,7 @@ Tests compilation of ecmaref5:
         return (false, __v3517)
       } else {
         __v3518 := "value" in_obj PrimaryExpression;
-        if (true && __v3518) {
+        if (__v3518) {
           value := PrimaryExpression["value"];
           __v3519 := "formingTheValueOfTheNumericLiteral"(___internal_esl_global, value);
           if (fst(__v3519)) {
@@ -46607,7 +46557,7 @@ Tests compilation of ecmaref5:
   case "ProtoAssignment": {
       __v3562 := "object" in_obj PrimaryExpression;
       __v3563 := "value" in_obj PrimaryExpression;
-      if (true && __v3562 && __v3563) {
+      if (__v3562 && __v3563) {
         Object := PrimaryExpression["object"];
         Expression := PrimaryExpression["value"];
         __v3564 := "JS_Interpreter_Expr"(___internal_esl_global, Object, scope);
@@ -46644,7 +46594,7 @@ Tests compilation of ecmaref5:
     }
   case "ArrayExpression": {
       __v3520 := "elements" in_obj PrimaryExpression;
-      if (true && __v3520) {
+      if (__v3520) {
         ElementList := PrimaryExpression["elements"];
         __v3521 := "is_elisionopt_list"(___internal_esl_global, ElementList);
         if (fst(__v3521)) {
@@ -46692,7 +46642,7 @@ Tests compilation of ecmaref5:
         return (false, __v3529)
       } else {
         __v3530 := "elements" in_obj PrimaryExpression;
-        if (true && __v3530) {
+        if (__v3530) {
           ElementList := PrimaryExpression["elements"];
           __v3531 := "getArrayPrototype"(___internal_esl_global, false);
           if (fst(__v3531)) {
@@ -46792,7 +46742,7 @@ Tests compilation of ecmaref5:
     }
   case "Identifier": {
       __v3513 := "name" in_obj PrimaryExpression;
-      if (true && __v3513) {
+      if (__v3513) {
         name := PrimaryExpression["name"];
         __v3514 := "IdentifierResolution"(___internal_esl_global, name, scope);
         if (fst(__v3514)) {
@@ -46804,15 +46754,13 @@ Tests compilation of ecmaref5:
       }
     }
   sdefault: {
-      if (true) {
-        __v3573 := "JS_Interpreter_LeftHandSide_Expressions"(___internal_esl_global, PrimaryExpression, scope);
-        if (fst(__v3573)) {
-          return __v3573
-        } else {
-          __v3573 := snd(__v3573)
-        };
-        return (false, __v3573)
-      }
+      __v3573 := "JS_Interpreter_LeftHandSide_Expressions"(___internal_esl_global, PrimaryExpression, scope);
+      if (fst(__v3573)) {
+        return __v3573
+      } else {
+        __v3573 := snd(__v3573)
+      };
+      return (false, __v3573)
     }
   }
   };
@@ -46899,7 +46847,7 @@ Tests compilation of ecmaref5:
     __v3393 := objExpr["type"];
     __v3394 := __v3393 = "ObjectExpression";
     __v3395 := "properties" in_obj objExpr;
-    if (true && __v3392 && __v3394 && __v3395) {
+    if (__v3392 && __v3394 && __v3395) {
       PropertyNameAndValueList := objExpr["properties"];
       __v3396 := l_len(PropertyNameAndValueList);
       __v3397 := __v3396 = 0;
@@ -47977,7 +47925,7 @@ Tests compilation of ecmaref5:
     __v3186 := "right" in_obj forInStmt;
     __v3187 := "body" in_obj forInStmt;
     __v3188 := "labelSet" in_obj forInStmt;
-    if (true && __v3182 && __v3184 && __v3185 && __v3186 && __v3187 && __v3188) {
+    if (__v3182 && __v3184 && __v3185 && __v3186 && __v3187 && __v3188) {
       VariableDeclarationNoIn := forInStmt["left"];
       Expression := forInStmt["right"];
       Statement := forInStmt["body"];
@@ -48272,7 +48220,7 @@ Tests compilation of ecmaref5:
       __v3129 := "prefix" in_obj PostfixExpression;
       __v3130 := PostfixExpression["prefix"];
       __v3131 := __v3130 = false;
-      if (true && __v3125 && __v3127 && __v3128 && __v3129 && __v3131) {
+      if (__v3125 && __v3127 && __v3128 && __v3129 && __v3131) {
         LeftHandSideExpression := PostfixExpression["argument"];
         __v3132 := "JS_Interpreter_Expr"(___internal_esl_global, LeftHandSideExpression, scope);
         if (fst(__v3132)) {
@@ -48365,7 +48313,7 @@ Tests compilation of ecmaref5:
         __v3157 := "prefix" in_obj PostfixExpression;
         __v3158 := PostfixExpression["prefix"];
         __v3159 := __v3158 = false;
-        if (true && __v3153 && __v3155 && __v3156 && __v3157 && __v3159) {
+        if (__v3153 && __v3155 && __v3156 && __v3157 && __v3159) {
           LeftHandSideExpression := PostfixExpression["argument"];
           __v3160 := "JS_Interpreter_Expr"(___internal_esl_global, LeftHandSideExpression, scope);
           if (fst(__v3160)) {
@@ -48454,15 +48402,13 @@ Tests compilation of ecmaref5:
       }
     }
   sdefault: {
-      if (true) {
-        __v3181 := "JS_Interpreter_Unary_Operators"(___internal_esl_global, PostfixExpression, scope);
-        if (fst(__v3181)) {
-          return __v3181
-        } else {
-          __v3181 := snd(__v3181)
-        };
-        return (false, __v3181)
-      }
+      __v3181 := "JS_Interpreter_Unary_Operators"(___internal_esl_global, PostfixExpression, scope);
+      if (fst(__v3181)) {
+        return __v3181
+      } else {
+        __v3181 := snd(__v3181)
+      };
+      return (false, __v3181)
     }
   }
   };
@@ -48725,7 +48671,7 @@ Tests compilation of ecmaref5:
     __v3034 := "update" in_obj forStmt;
     __v3035 := "body" in_obj forStmt;
     __v3036 := "labelSet" in_obj forStmt;
-    if (true && __v3029 && __v3031 && __v3032 && __v3033 && __v3034 && __v3035 && __v3036) {
+    if (__v3029 && __v3031 && __v3032 && __v3033 && __v3034 && __v3035 && __v3036) {
       ExpressionNoIn := forStmt["init"];
       Expression1 := forStmt["test"];
       Expression2 := forStmt["update"];
@@ -49962,7 +49908,7 @@ Tests compilation of ecmaref5:
     __v2843 := "test" in_obj ConditionalExpression;
     __v2844 := "consequent" in_obj ConditionalExpression;
     __v2845 := "alternate" in_obj ConditionalExpression;
-    if (true && __v2840 && __v2842 && __v2843 && __v2844 && __v2845) {
+    if (__v2840 && __v2842 && __v2843 && __v2844 && __v2845) {
       LogicalORExpression := ConditionalExpression["test"];
       firstAssignmentExpression := ConditionalExpression["consequent"];
       secondAssignmentExpression := ConditionalExpression["alternate"];
@@ -50018,15 +49964,13 @@ Tests compilation of ecmaref5:
         return (false, __v2848)
       }
     } else {
-      if (true) {
-        __v2854 := "JS_Interpreter_Assignment_Operators"(___internal_esl_global, ConditionalExpression, scope);
-        if (fst(__v2854)) {
-          return __v2854
-        } else {
-          __v2854 := snd(__v2854)
-        };
-        return (false, __v2854)
-      }
+      __v2854 := "JS_Interpreter_Assignment_Operators"(___internal_esl_global, ConditionalExpression, scope);
+      if (fst(__v2854)) {
+        return __v2854
+      } else {
+        __v2854 := snd(__v2854)
+      };
+      return (false, __v2854)
     }
   };
   function JO(___internal_esl_global, value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
@@ -50244,7 +50188,7 @@ Tests compilation of ecmaref5:
     switch (__v2779) {
   case "Literal": {
       __v2781 := "value" in_obj PropertyName;
-      if (true && __v2781) {
+      if (__v2781) {
         Literal := PropertyName["value"];
         __v2782 := typeof(Literal);
         __v2783 := __v2782 = __$Str;
@@ -50268,7 +50212,7 @@ Tests compilation of ecmaref5:
     }
   case "Identifier": {
       __v2780 := "name" in_obj PropertyName;
-      if (true && __v2780) {
+      if (__v2780) {
         IdentifierName := PropertyName["name"];
         return (false, IdentifierName)
       }
@@ -50810,7 +50754,7 @@ Tests compilation of ecmaref5:
     __v2664 := "type" in_obj EmptyStatement;
     __v2665 := EmptyStatement["type"];
     __v2666 := __v2665 = "EmptyStatement";
-    if (true && __v2664 && __v2666) {
+    if (__v2664 && __v2666) {
       __v2667 := "normalEmptyCompletion"(___internal_esl_global, 'empty);
       if (fst(__v2667)) {
         return __v2667
@@ -50819,15 +50763,13 @@ Tests compilation of ecmaref5:
       };
       return (false, __v2667)
     } else {
-      if (true) {
-        __v2668 := "JS_Interpreter_ExpressionStatement"(___internal_esl_global, EmptyStatement, scope);
-        if (fst(__v2668)) {
-          return __v2668
-        } else {
-          __v2668 := snd(__v2668)
-        };
-        return (false, __v2668)
-      }
+      __v2668 := "JS_Interpreter_ExpressionStatement"(___internal_esl_global, EmptyStatement, scope);
+      if (fst(__v2668)) {
+        return __v2668
+      } else {
+        __v2668 := snd(__v2668)
+      };
+      return (false, __v2668)
     }
   };
   function FromPropertyDescriptor(___internal_esl_global, Desc) {
@@ -51377,7 +51319,7 @@ Tests compilation of ecmaref5:
     __v2514 := __v2513 = "LabeledStatement";
     __v2515 := "label" in_obj LabeledStatement;
     __v2516 := "body" in_obj LabeledStatement;
-    if (true && __v2512 && __v2514 && __v2515 && __v2516) {
+    if (__v2512 && __v2514 && __v2515 && __v2516) {
       Identifier := LabeledStatement["label"];
       Statement := LabeledStatement["body"];
       __v2517 := "labelSet" in_obj Statement;
@@ -51405,15 +51347,13 @@ Tests compilation of ecmaref5:
       };
       return (false, __v2527)
     } else {
-      if (true) {
-        __v2528 := "JS_Interpreter_ThrowStatement"(___internal_esl_global, LabeledStatement, scope);
-        if (fst(__v2528)) {
-          return __v2528
-        } else {
-          __v2528 := snd(__v2528)
-        };
-        return (false, __v2528)
-      }
+      __v2528 := "JS_Interpreter_ThrowStatement"(___internal_esl_global, LabeledStatement, scope);
+      if (fst(__v2528)) {
+        return __v2528
+      } else {
+        __v2528 := snd(__v2528)
+      };
+      return (false, __v2528)
     }
   };
   function IsWordChar(___internal_esl_global, e, input) {
@@ -51610,7 +51550,7 @@ Tests compilation of ecmaref5:
     __v2462 := "type" in_obj SwitchStatement;
     __v2463 := SwitchStatement["type"];
     __v2464 := __v2463 = "SwitchStatement";
-    if (true && __v2462 && __v2464) {
+    if (__v2462 && __v2464) {
       __v2465 := "labelSet" in_obj SwitchStatement;
       __v2466 := !__v2465;
       if (__v2466) {
@@ -51628,15 +51568,13 @@ Tests compilation of ecmaref5:
       };
       return (false, __v2470)
     } else {
-      if (true) {
-        __v2471 := "JS_Interpreter_LabeledStatement"(___internal_esl_global, SwitchStatement, scope);
-        if (fst(__v2471)) {
-          return __v2471
-        } else {
-          __v2471 := snd(__v2471)
-        };
-        return (false, __v2471)
-      }
+      __v2471 := "JS_Interpreter_LabeledStatement"(___internal_esl_global, SwitchStatement, scope);
+      if (fst(__v2471)) {
+        return __v2471
+      } else {
+        __v2471 := snd(__v2471)
+      };
+      return (false, __v2471)
     }
   };
   function initNumberConstructor(___internal_esl_global, NumberPrototype, globalObject, strict) {
@@ -51900,13 +51838,13 @@ Tests compilation of ecmaref5:
       __v2407 := "init" in_obj VariableDeclaration;
       __v2408 := VariableDeclaration["init"];
       __v2409 := __v2408 = null;
-      if (true && __v2406 && __v2407 && __v2409) {
+      if (__v2406 && __v2407 && __v2409) {
         Identifier := VariableDeclaration["id"];
         return (false, Identifier)
       } else {
         __v2410 := "id" in_obj VariableDeclaration;
         __v2411 := "init" in_obj VariableDeclaration;
-        if (true && __v2410 && __v2411) {
+        if (__v2410 && __v2411) {
           Identifier := VariableDeclaration["id"];
           Initialiser := VariableDeclaration["init"];
           __v2412 := "JS_Interpreter_Expr"(___internal_esl_global, Identifier, scope);
@@ -53146,7 +53084,7 @@ Tests compilation of ecmaref5:
     __v2181 := "operator" in_obj BitwiseExpression;
     __v2182 := "left" in_obj BitwiseExpression;
     __v2183 := "right" in_obj BitwiseExpression;
-    if (true && __v2178 && __v2180 && __v2181 && __v2182 && __v2183) {
+    if (__v2178 && __v2180 && __v2181 && __v2182 && __v2183) {
       operator := BitwiseExpression["operator"];
       A := BitwiseExpression["left"];
       B := BitwiseExpression["right"];
@@ -53200,15 +53138,13 @@ Tests compilation of ecmaref5:
       };
       return (false, __v2190)
     } else {
-      if (true) {
-        __v2191 := "JS_Interpreter_Binary_Logical_Operators"(___internal_esl_global, BitwiseExpression, scope);
-        if (fst(__v2191)) {
-          return __v2191
-        } else {
-          __v2191 := snd(__v2191)
-        };
-        return (false, __v2191)
-      }
+      __v2191 := "JS_Interpreter_Binary_Logical_Operators"(___internal_esl_global, BitwiseExpression, scope);
+      if (fst(__v2191)) {
+        return __v2191
+      } else {
+        __v2191 := snd(__v2191)
+      };
+      return (false, __v2191)
     }
   };
   function getCompletionType(___internal_esl_global, completion) {
@@ -53378,7 +53314,7 @@ Tests compilation of ecmaref5:
     __v2099 := qt["kind"];
     __v2100 := __v2099 = "*";
     __v2101 := "greedy" in_obj qt;
-    if (true && __v2095 && __v2097 && __v2098 && __v2100 && __v2101) {
+    if (__v2095 && __v2097 && __v2098 && __v2100 && __v2101) {
       b := qt["greedy"];
       __v2102 := {};
       __v2102["inf"] := 0.0;
@@ -53394,7 +53330,7 @@ Tests compilation of ecmaref5:
       __v2107 := qt["kind"];
       __v2108 := __v2107 = "+";
       __v2109 := "greedy" in_obj qt;
-      if (true && __v2103 && __v2105 && __v2106 && __v2108 && __v2109) {
+      if (__v2103 && __v2105 && __v2106 && __v2108 && __v2109) {
         b := qt["greedy"];
         __v2110 := {};
         __v2110["inf"] := 1.0;
@@ -53410,7 +53346,7 @@ Tests compilation of ecmaref5:
         __v2115 := qt["kind"];
         __v2116 := __v2115 = "?";
         __v2117 := "greedy" in_obj qt;
-        if (true && __v2111 && __v2113 && __v2114 && __v2116 && __v2117) {
+        if (__v2111 && __v2113 && __v2114 && __v2116 && __v2117) {
           b := qt["greedy"];
           __v2118 := {};
           __v2118["inf"] := 0.0;
@@ -53428,7 +53364,7 @@ Tests compilation of ecmaref5:
           __v2125 := "from" in_obj qt;
           __v2126 := "to" in_obj qt;
           __v2127 := "greedy" in_obj qt;
-          if (true && __v2119 && __v2121 && __v2122 && __v2124 && __v2125 && __v2126 && __v2127) {
+          if (__v2119 && __v2121 && __v2122 && __v2124 && __v2125 && __v2126 && __v2127) {
             from := qt["from"];
             to := qt["to"];
             b := qt["greedy"];
@@ -53447,7 +53383,7 @@ Tests compilation of ecmaref5:
             __v2134 := __v2133 = "Range";
             __v2135 := "from" in_obj qt;
             __v2136 := "greedy" in_obj qt;
-            if (true && __v2129 && __v2131 && __v2132 && __v2134 && __v2135 && __v2136) {
+            if (__v2129 && __v2131 && __v2132 && __v2134 && __v2135 && __v2136) {
               from := qt["from"];
               b := qt["greedy"];
               __v2137 := {};
@@ -53457,9 +53393,7 @@ Tests compilation of ecmaref5:
               bounds := __v2137;
               return (false, bounds)
             } else {
-              if (true) {
-                return (true, "Quantifier Not Supported!!")
-              }
+              return (true, "Quantifier Not Supported!!")
             }
           }
         }
@@ -54116,7 +54050,7 @@ Tests compilation of ecmaref5:
     __v1940 := __v1939 = "WithStatement";
     __v1941 := "object" in_obj WithStatement;
     __v1942 := "body" in_obj WithStatement;
-    if (true && __v1938 && __v1940 && __v1941 && __v1942) {
+    if (__v1938 && __v1940 && __v1941 && __v1942) {
       Expression := WithStatement["object"];
       Statement := WithStatement["body"];
       __v1943 := "JS_Interpreter_Expr"(___internal_esl_global, Expression, scope);
@@ -54185,15 +54119,13 @@ Tests compilation of ecmaref5:
       };
       return (false, C)
     } else {
-      if (true) {
-        __v1952 := "JS_Interpreter_SwitchStatement"(___internal_esl_global, WithStatement, scope);
-        if (fst(__v1952)) {
-          return __v1952
-        } else {
-          __v1952 := snd(__v1952)
-        };
-        return (false, __v1952)
-      }
+      __v1952 := "JS_Interpreter_SwitchStatement"(___internal_esl_global, WithStatement, scope);
+      if (fst(__v1952)) {
+        return __v1952
+      } else {
+        __v1952 := snd(__v1952)
+      };
+      return (false, __v1952)
     }
   };
   function newImmutableBinding(___internal_esl_global, value) {
@@ -57224,7 +57156,7 @@ Tests compilation of ecmaref5:
       __v1236 := __v1235 = "+";
       __v1237 := "left" in_obj AdditiveExpr;
       __v1238 := "right" in_obj AdditiveExpr;
-      if (true && __v1234 && __v1236 && __v1237 && __v1238) {
+      if (__v1234 && __v1236 && __v1237 && __v1238) {
         AdditiveExpression := AdditiveExpr["left"];
         MultiplicativeExpression := AdditiveExpr["right"];
         __v1239 := "JS_Interpreter_Expr"(___internal_esl_global, AdditiveExpression, scope);
@@ -57326,7 +57258,7 @@ Tests compilation of ecmaref5:
         __v1259 := __v1258 = "-";
         __v1260 := "left" in_obj AdditiveExpr;
         __v1261 := "right" in_obj AdditiveExpr;
-        if (true && __v1257 && __v1259 && __v1260 && __v1261) {
+        if (__v1257 && __v1259 && __v1260 && __v1261) {
           AdditiveExpression := AdditiveExpr["left"];
           MultiplicativeExpression := AdditiveExpr["right"];
           __v1262 := "JS_Interpreter_Expr"(___internal_esl_global, AdditiveExpression, scope);
@@ -57382,15 +57314,13 @@ Tests compilation of ecmaref5:
       }
     }
   sdefault: {
-      if (true) {
-        __v1269 := "JS_Interpreter_Bitwise_Shift_Operators"(___internal_esl_global, AdditiveExpr, scope);
-        if (fst(__v1269)) {
-          return __v1269
-        } else {
-          __v1269 := snd(__v1269)
-        };
-        return (false, __v1269)
-      }
+      __v1269 := "JS_Interpreter_Bitwise_Shift_Operators"(___internal_esl_global, AdditiveExpr, scope);
+      if (fst(__v1269)) {
+        return __v1269
+      } else {
+        __v1269 := snd(__v1269)
+      };
+      return (false, __v1269)
     }
   }
   };
@@ -58281,95 +58211,85 @@ Tests compilation of ecmaref5:
     __v1002 := IterationStatement["type"];
     switch (__v1002) {
   case "ForInStatement": {
-      if (true) {
-        __v1021 := "labelSet" in_obj IterationStatement;
-        __v1022 := !__v1021;
-        if (__v1022) {
-          __v1023 := [];
-          IterationStatement["labelSet"] := __v1023
-        };
-        __v1024 := IterationStatement["labelSet"];
-        __v1025 := l_add(__v1024, 'empty);
-        IterationStatement["labelSet"] := __v1025;
-        __v1026 := "JS_Interpreter_IterationStatement_LabelSet"(___internal_esl_global, IterationStatement, scope);
-        if (fst(__v1026)) {
-          return __v1026
-        } else {
-          __v1026 := snd(__v1026)
-        };
-        return (false, __v1026)
-      }
+      __v1021 := "labelSet" in_obj IterationStatement;
+      __v1022 := !__v1021;
+      if (__v1022) {
+        __v1023 := [];
+        IterationStatement["labelSet"] := __v1023
+      };
+      __v1024 := IterationStatement["labelSet"];
+      __v1025 := l_add(__v1024, 'empty);
+      IterationStatement["labelSet"] := __v1025;
+      __v1026 := "JS_Interpreter_IterationStatement_LabelSet"(___internal_esl_global, IterationStatement, scope);
+      if (fst(__v1026)) {
+        return __v1026
+      } else {
+        __v1026 := snd(__v1026)
+      };
+      return (false, __v1026)
     }
   case "DoWhileStatement": {
-      if (true) {
-        __v1003 := "labelSet" in_obj IterationStatement;
-        __v1004 := !__v1003;
-        if (__v1004) {
-          __v1005 := [];
-          IterationStatement["labelSet"] := __v1005
-        };
-        __v1006 := IterationStatement["labelSet"];
-        __v1007 := l_add(__v1006, 'empty);
-        IterationStatement["labelSet"] := __v1007;
-        __v1008 := "JS_Interpreter_IterationStatement_LabelSet"(___internal_esl_global, IterationStatement, scope);
-        if (fst(__v1008)) {
-          return __v1008
-        } else {
-          __v1008 := snd(__v1008)
-        };
-        return (false, __v1008)
-      }
+      __v1003 := "labelSet" in_obj IterationStatement;
+      __v1004 := !__v1003;
+      if (__v1004) {
+        __v1005 := [];
+        IterationStatement["labelSet"] := __v1005
+      };
+      __v1006 := IterationStatement["labelSet"];
+      __v1007 := l_add(__v1006, 'empty);
+      IterationStatement["labelSet"] := __v1007;
+      __v1008 := "JS_Interpreter_IterationStatement_LabelSet"(___internal_esl_global, IterationStatement, scope);
+      if (fst(__v1008)) {
+        return __v1008
+      } else {
+        __v1008 := snd(__v1008)
+      };
+      return (false, __v1008)
     }
   case "ForStatement": {
-      if (true) {
-        __v1015 := "labelSet" in_obj IterationStatement;
-        __v1016 := !__v1015;
-        if (__v1016) {
-          __v1017 := [];
-          IterationStatement["labelSet"] := __v1017
-        };
-        __v1018 := IterationStatement["labelSet"];
-        __v1019 := l_add(__v1018, 'empty);
-        IterationStatement["labelSet"] := __v1019;
-        __v1020 := "JS_Interpreter_IterationStatement_LabelSet"(___internal_esl_global, IterationStatement, scope);
-        if (fst(__v1020)) {
-          return __v1020
-        } else {
-          __v1020 := snd(__v1020)
-        };
-        return (false, __v1020)
-      }
+      __v1015 := "labelSet" in_obj IterationStatement;
+      __v1016 := !__v1015;
+      if (__v1016) {
+        __v1017 := [];
+        IterationStatement["labelSet"] := __v1017
+      };
+      __v1018 := IterationStatement["labelSet"];
+      __v1019 := l_add(__v1018, 'empty);
+      IterationStatement["labelSet"] := __v1019;
+      __v1020 := "JS_Interpreter_IterationStatement_LabelSet"(___internal_esl_global, IterationStatement, scope);
+      if (fst(__v1020)) {
+        return __v1020
+      } else {
+        __v1020 := snd(__v1020)
+      };
+      return (false, __v1020)
     }
   case "WhileStatement": {
-      if (true) {
-        __v1009 := "labelSet" in_obj IterationStatement;
-        __v1010 := !__v1009;
-        if (__v1010) {
-          __v1011 := [];
-          IterationStatement["labelSet"] := __v1011
-        };
-        __v1012 := IterationStatement["labelSet"];
-        __v1013 := l_add(__v1012, 'empty);
-        IterationStatement["labelSet"] := __v1013;
-        __v1014 := "JS_Interpreter_IterationStatement_LabelSet"(___internal_esl_global, IterationStatement, scope);
-        if (fst(__v1014)) {
-          return __v1014
-        } else {
-          __v1014 := snd(__v1014)
-        };
-        return (false, __v1014)
-      }
+      __v1009 := "labelSet" in_obj IterationStatement;
+      __v1010 := !__v1009;
+      if (__v1010) {
+        __v1011 := [];
+        IterationStatement["labelSet"] := __v1011
+      };
+      __v1012 := IterationStatement["labelSet"];
+      __v1013 := l_add(__v1012, 'empty);
+      IterationStatement["labelSet"] := __v1013;
+      __v1014 := "JS_Interpreter_IterationStatement_LabelSet"(___internal_esl_global, IterationStatement, scope);
+      if (fst(__v1014)) {
+        return __v1014
+      } else {
+        __v1014 := snd(__v1014)
+      };
+      return (false, __v1014)
     }
   sdefault: {
-      if (true) {
-        __v1027 := "JS_Interpreter_ContinueStatement"(___internal_esl_global, IterationStatement, scope);
-        if (fst(__v1027)) {
-          return __v1027
-        } else {
-          __v1027 := snd(__v1027)
-        };
-        return (false, __v1027)
-      }
+      __v1027 := "JS_Interpreter_ContinueStatement"(___internal_esl_global, IterationStatement, scope);
+      if (fst(__v1027)) {
+        return __v1027
+      } else {
+        __v1027 := snd(__v1027)
+      };
+      return (false, __v1027)
     }
   }
   };
@@ -58610,7 +58530,7 @@ Tests compilation of ecmaref5:
     __v947 := "type" in_obj DebuggerStatement;
     __v948 := DebuggerStatement["type"];
     __v949 := __v948 = "DebuggerStatement";
-    if (true && __v947 && __v949) {
+    if (__v947 && __v949) {
       __v951 := "existsDebuggerImplementation"(___internal_esl_global);
       if (fst(__v951)) {
         return __v951
@@ -59062,7 +58982,7 @@ Tests compilation of ecmaref5:
     __v830 := __v829 = "CatchClause";
     __v831 := "param" in_obj Catch;
     __v832 := "body" in_obj Catch;
-    if (true && __v828 && __v830 && __v831 && __v832) {
+    if (__v828 && __v830 && __v831 && __v832) {
       Identifier := Catch["param"];
       Block := Catch["body"];
       __v833 := Identifier["name"];
@@ -60660,7 +60580,7 @@ Tests compilation of ecmaref5:
     __v529 := switchCase["type"];
     __v530 := __v529 = "SwitchCase";
     __v531 := "test" in_obj switchCase;
-    if (true && __v528 && __v530 && __v531) {
+    if (__v528 && __v530 && __v531) {
       Expression := switchCase["test"];
       __v532 := "JS_Interpreter_Expr"(___internal_esl_global, Expression, scope);
       if (fst(__v532)) {
@@ -60680,7 +60600,7 @@ Tests compilation of ecmaref5:
   };
   function JS_Interpreter_FunctionBody(___internal_esl_global, FunctionBody, scope) {
     __v522 := "body" in_obj FunctionBody;
-    if (true && __v522) {
+    if (__v522) {
       SourceElements := FunctionBody["body"];
       __v524 := [];
       __v525 := SourceElements = __v524;
@@ -62059,7 +61979,7 @@ Tests compilation of ecmaref5:
     __v123 := "right" in_obj forInStmt;
     __v124 := "body" in_obj forInStmt;
     __v125 := "labelSet" in_obj forInStmt;
-    if (true && __v119 && __v121 && __v122 && __v123 && __v124 && __v125) {
+    if (__v119 && __v121 && __v122 && __v123 && __v124 && __v125) {
       LeftHandSideExpression := forInStmt["left"];
       Expression := forInStmt["right"];
       Statement := forInStmt["body"];
