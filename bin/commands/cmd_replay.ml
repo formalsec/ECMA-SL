@@ -33,7 +33,7 @@ let env () =
 
 let execute_witness ~env (test : Fpath.t) (witness : Fpath.t) =
   let open OS in
-  Log.app "    running : %s@." @@ Fpath.to_string witness;
+  Log.app "    running : %s@\n" @@ Fpath.to_string witness;
   let cmd = node test witness in
   let* (out, status) = Cmd.(run_out ~env ~err:err_run_out cmd |> out_string) in
   match status with
@@ -48,27 +48,27 @@ let execute_witness ~env (test : Fpath.t) (witness : Fpath.t) =
   | _ -> Error (`Msg (Fmt.sprintf "unexpected node failure: %s" out))
 
 let replay filename testsuite =
-  Log.app "  replaying : %a...@." Fpath.pp filename;
+  Log.app "  replaying : %a...@\n" Fpath.pp filename;
   let env = env () in
   let* witnesses = OS.Path.matches Fpath.(testsuite / "witness-$(n).js") in
   list_iter witnesses ~f:(fun witness ->
       let* effect = execute_witness ~env filename witness in
       match effect with
       | Some (Stdout msg) ->
-        Log.app "     status : true (\"%s\" in output)@." msg;
+        Log.app "     status : true (\"%s\" in output)@\n" msg;
         Ok ()
       | Some (File file) ->
         let* () = OS.Path.delete @@ Fpath.v file in
-        Log.app "     status : true (created file \"%s\")@." file;
+        Log.app "     status : true (created file \"%s\")@\n" file;
         Ok ()
       | None ->
-        Log.app "     status : false (no side effect)@.";
+        Log.app "     status : false (no side effect)@\n";
         Ok () )
 
 let main (copts : Options.Common.t) opt =
   Options.Common.set copts;
   match replay opt.filename opt.testsuite with
   | Error (`Msg msg) ->
-    Log.warn "%s" msg;
+    Log.warn "%s@\n" msg;
     1
   | Ok () -> 0
