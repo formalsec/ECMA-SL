@@ -415,6 +415,7 @@ and compile_patv (e_e : Expr.t) (inobj : Expr.t) (pbn : Id.t) (pbv : EPat.pv) :
     ([ fnone_s ], [], [])
 
 and compile_pat (e_e : Expr.t) (pat : EPat.t) : c_stmt * Expr.t * c_stmt =
+  let guard guards = Expr.NOpt (NAryLogicalAnd, guards) @> pat.at in
   let compile_pbs (pre_s, guards, pat_s) (pbn, pbv) =
     let pbn' = Expr.Val (Val.Str pbn.it) @> pbn.at in
     let inobj = Builder.var pbn.at in
@@ -422,20 +423,25 @@ and compile_pat (e_e : Expr.t) (pat : EPat.t) : c_stmt * Expr.t * c_stmt =
     let (pre_s', guards', pat_s') = compile_patv e_e inobj pbn pbv in
     (pre_s @ (sinobj :: pre_s'), guards @ (inobj :: guards'), pat_s @ pat_s')
   in
-  let etrue = Expr.Val (Val.Bool true) @> pat.at in
   match pat.it with
-  | DefaultPat -> ([], etrue, [])
+  | DefaultPat -> ([], guard [], [])
   | ObjPat (pbs, _) ->
     let (pre_s, guards, pat_s) = List.fold_left compile_pbs ([], [], []) pbs in
-    let guard = Expr.NOpt (NAryLogicalAnd, etrue :: guards) @> pat.at in
-    (pre_s, guard, pat_s)
+    (pre_s, guard guards, pat_s)
 
 and compile_matchwith (at : region) (e : EExpr.t) (dsc : Id.t option)
   (css : (EPat.t * EStmt.t) list) : c_stmt =
+  let is_empty_guard = function
+    | { it = Expr.NOpt (NAryLogicalAnd, []); _ } -> true
+    | _ -> false
+  in
   let compile_case e_e (pat, s) compile_rest_f =
     let (pre_s, guard_e, pat_s) = compile_pat e_e pat in
-    let sblock = Builder.block ~at:s.at (pat_s @ compile_stmt s) in
-    pre_s @ [ Stmt.If (guard_e, sblock, compile_rest_f ()) @> pat.at ]
+    let s_s = compile_stmt s in
+    if is_empty_guard guard_e then pre_s @ pat_s @ s_s
+    else
+      let sblock = Builder.block ~at:s.at (pat_s @ s_s) in
+      pre_s @ [ Stmt.If (guard_e, sblock, compile_rest_f ()) @> pat.at ]
   in
   let rec compile_matchwith' e_e dsc = function
     | [] -> []
