@@ -109,7 +109,7 @@ let write_report ~workspace filename exec_time solver_time solver_count problems
       ; ("problems", `List (List.map err_to_json problems))
       ]
   in
-  let rpath = Fpath.(workspace / "report.json") in
+  let rpath = Fpath.(workspace / "symbolic-execution.json") in
   OS.File.writef rpath "%a" (Yojson.pretty_print ~std:true) json
 
 let run ~workspace filename entry_func =
