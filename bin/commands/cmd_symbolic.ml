@@ -42,7 +42,7 @@ let prog_of_core file =
 
 let prog_of_js file =
   let js2ecma_sl file output =
-    Cmd.(v "js2ecma-sl" % "-c" % "-i" % p file % "-o" % p output)
+    Cmd.(v "js2ecma-sl" % "-s" % "-c" % "-i" % p file % "-o" % p output)
   in
   let ast_file = Fpath.(file -+ "_ast.cesl") in
   let* () = OS.Cmd.run (js2ecma_sl file ast_file) in
