@@ -18,4 +18,5 @@ module type Complete = sig
   val check : V.value -> bool t
   val check_add_true : V.value -> bool t
   val branch : V.value -> bool t
+  val select_val : V.value -> Val.t t
 end

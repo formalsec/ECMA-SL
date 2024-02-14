@@ -89,6 +89,11 @@ module List = struct
           let t0 = Thread.clone_mem t in
           let t1 = Thread.clone_mem t in
           [ (true, Thread.add_pc t0 cond); (false, Thread.add_pc t1 no) ] )
+
+  let select_val (v : Value.value) thread =
+    match v with
+    | Val v -> [ (v, thread) ]
+    | _ -> Log.err "Unable to select value from %a" Value.pp v
 end
 
 module P : Choice_monad_intf.Complete with module V := Value = List

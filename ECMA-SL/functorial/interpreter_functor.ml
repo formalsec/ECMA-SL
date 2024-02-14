@@ -235,8 +235,22 @@ module Make (P : Interpreter_functor_intf.P) :
       let* value = Memory.get_field heap loc field in
       let value' = Option.value value ~default:(Value.mk_symbol "undefined") in
       ok { state with locals = Store.add_exn locals x.it value' }
-    | Stmt.Switch _ ->
-      Eslerr.(internal __FUNCTION__ (NotImplemented (Some "SwitchTable")))
+    | Stmt.Switch (cond, cases, default) -> (
+      let cond = eval_expr locals cond in
+      let* id = Choice.select_val cond in
+      match (Hashtbl.find_opt cases id, default) with
+      | (Some { it = Block ss; at }, _) | (None, Some { it = Block ss; at }) ->
+        let stmts = ss @ ((Stmt.Merge @> at) :: state.stmts) in
+        ok { state with stmts }
+      | (Some _, _) ->
+        (* TODO: *)
+        (* Eslerr.internal __FUNCTION__ (Expecting "switch block") *)
+        error (`Failure "Expecting switch block")
+      | (None, Some _) ->
+        (* TODO: *)
+        (* Eslerr.internal __FUNCTION__ (Expecting "sdflt block") *)
+        error (`Failure "Expecting sdflt block")
+      | (None, None) -> ok state )
 
   let rec loop (state : State.exec_state) : State.return_result Choice.t =
     let open State in
