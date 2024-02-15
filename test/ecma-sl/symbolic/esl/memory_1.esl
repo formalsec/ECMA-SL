@@ -1,13 +1,13 @@
 
 function main() {
   o := {};
-  x := se_mk_symbolic(__$Str, "x");
-  y := se_mk_symbolic(__$Str, "y");
+  x := extern str_symbol("x");
+  y := extern str_symbol("y");
 
   o["key"] := 1;
   o["key2"] := 2;
 
-  se_assume((x = "key") || (x = "key2"));
+  extern assume((x = "key") || (x = "key2"));
 
   print(o[x] + o["key"]);
 

@@ -1,5 +1,0 @@
-function main () {
-  extern hello();
-  extern value(2);
-  return 1
-}

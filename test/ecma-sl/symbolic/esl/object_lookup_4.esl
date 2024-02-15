@@ -6,9 +6,6 @@ function main() {
   y[x] := 1.0;
 
   z := y["test"];
-  print z;
-  print z = 1.0;
-  print z = 'undefined;
   assert(z = 'undefined || z = 1.0);
   return 0
 }
