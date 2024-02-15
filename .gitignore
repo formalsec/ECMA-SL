@@ -8,6 +8,7 @@
 # OCaml Generated Files
 _build/
 _coverage/
+*.coverage
 
 # Local Opam switch
 _opam/
