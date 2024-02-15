@@ -1,9 +1,9 @@
 function main() {
   o := {};
-  x := se_mk_symbolic(__$Str, "x");
-  y := se_mk_symbolic(__$Str, "y");
-  z := se_mk_symbolic(__$Str, "z");
-  w := se_mk_symbolic(__$Str, "w");
+  x := extern str_symbol("x");
+  y := extern str_symbol("y");
+  z := extern str_symbol("z");
+  w := extern str_symbol("w");
 
   i := 0;
   cap := 10;

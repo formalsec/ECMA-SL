@@ -1,6 +1,6 @@
 function main() {
   o := {};
-  x := se_mk_symbolic(__$Str, "x");
+  x := extern str_symbol("x");
 
   o[x] := 1;
   delete o[x];
