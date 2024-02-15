@@ -39,7 +39,8 @@
   (encoding
    (>= 0.0.3))
   yojson
-  dune-site)
+  dune-site
+  (bisect_ppx (and :with-test (>= "2.5.0") :dev)))
  (tags
   (ECMAScript "Specification Language" "Reference Interpreters" "OCaml"))
 (sites
