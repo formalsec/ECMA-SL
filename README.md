@@ -47,7 +47,7 @@ eval $(opam env)
 3. Install the library dependencies:
 ```sh
 opam update
-opam install . --deps-only
+opam install . --deps-only --with-test
 ```
 
 4. Build the application and run the available test suit:
@@ -56,7 +56,14 @@ dune build
 dune runtest
 ```
 
-5. Install the application on your path:
+5. (Optional) Generate code coverage summary/report:
+```sh
+BISECT_FILE=`pwd`/bisect dune runtest --force --instrument-with bisect_ppx
+bisect-ppx-report summary # Shell summary
+bisect-ppx-report html    # Detailed Report in _coverage/index.html
+```
+
+6. Install the application on your path:
 ```sh
 dune install
 ```
@@ -118,10 +125,10 @@ ecma-sl interpret <input.esl> --db
 
 ## Encode and execute a JavaScript Program
 
-- Encode a JavaScript `(.js)` program in Core ECMA-SL `(.cesl)`, and execute the encoded program using the default reference interpreter. 
+- Encode a JavaScript `(.js)` program in Core ECMA-SL `(.cesl)`, and execute the encoded program using the default reference interpreter.
 ```sh
 ecma-sl encode <input.js> -o <output.cesl>
-ecma-sl execute <output.cesl> 
+ecma-sl execute <output.cesl>
 ```
 
 - Execute a JavaScript `(.js)` program directly (the application extrapolates the language of the program based on the file extension, and encodes the JavaScript program in Core ECMA-SL if needed):
