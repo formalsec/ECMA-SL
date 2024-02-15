@@ -81,7 +81,9 @@ let err_to_json = function
 let serialize_thread ~workspace =
   let module Term = Encoding.Expr in
   let (next_int, _) = Utils.make_counter 0 1 in
-  fun ?witness thread ->
+  fun ?(witness :
+         [> `Abort of string | `Assert_failure of Extern_func.value ] option )
+    thread ->
     let pc = Thread.pc thread in
     Log.debug2 "  path cond : %a@." Encoding.Expr.pp_list pc;
     let solver = Thread.solver thread in
@@ -133,14 +135,20 @@ let run ~workspace filename entry_func =
   let solv_cnt = !Solver.solver_count in
   let testsuite = Fpath.(workspace / "test-suite") in
   let* _ = OS.Dir.create ~path:true testsuite in
-  let problems =
-    List.filter_map
-      (fun (ret, thread) ->
-        let witness = match ret with Ok _ -> None | Error err -> Some err in
+  let* problems =
+    list_filter_map
+      ~f:(fun (ret, thread) ->
+        let* witness =
+          match ret with
+          | Ok _ -> Ok None
+          | Error (`Abort _ as err) | Error (`Assert_failure _ as err) ->
+            Ok (Some err)
+          | Error (`Failure msg) -> Error (`Msg msg)
+        in
         ( match serialize_thread ~workspace ?witness thread with
         | Error (`Msg msg) -> Log.warn "%s" msg
         | Ok () -> () );
-        witness )
+        Ok witness )
       results
   in
   Log.debug1 "  exec time : %fs@." exec_time;
@@ -151,6 +159,6 @@ let main (copts : Options.Common.t) opt =
   Options.Common.set copts;
   match run ~workspace:opt.workspace opt.filename opt.entry_func with
   | Error (`Msg s) ->
-    Log.warn "%s" s;
+    Log.warn "%s@." s;
     1
   | Ok () -> 0
