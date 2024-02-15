@@ -116,7 +116,9 @@
   value_typing)
  (preprocess
   (staged_pps ppx_import ppx_deriving.std))
- (libraries str encoding menhirLib yojson z3 bos bos.setup dune-site))
+ (libraries str encoding menhirLib yojson z3 bos bos.setup dune-site)
+ (instrumentation
+  (backend bisect_ppx)))
 
 (subdir
  syntax/core

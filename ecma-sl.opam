@@ -25,6 +25,7 @@ depends: [
   "encoding" {>= "0.0.3"}
   "yojson"
   "dune-site"
+  "bisect_ppx" {with-test & >= "2.5.0" & dev}
 ]
 build: [
   ["dune" "subst"] {dev}

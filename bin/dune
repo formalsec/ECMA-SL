@@ -21,4 +21,6 @@
   cmd_replay
   lang
   ecmaref)
- (libraries ecma_sl bos cmdliner))
+ (libraries ecma_sl bos cmdliner)
+ (instrumentation
+  (backend bisect_ppx)))
