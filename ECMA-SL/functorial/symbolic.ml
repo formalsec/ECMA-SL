@@ -28,19 +28,19 @@ module P = struct
     type bind = string
     type t = store
 
-    let create = Store.create
-    let mem = Store.mem
-    let add_exn = Store.add_exn
-    let find = Store.find
+    let create lst = Store.create lst [@@inline]
+    let mem store = Store.mem store [@@inline]
+    let add_exn store key data = Store.add_exn store key data [@@inline]
+    let find store v = Store.find store v [@@inline]
   end
 
   module Object = struct
     type t = object_
     type nonrec value = value
 
-    let create = Object.create
-    let to_string = Object.to_string
-    let set = Object.set
+    let create () = Object.create () [@@inline]
+    let to_string o = Object.to_string o [@@inline]
+    let set o ~key ~data = Object.set o ~key ~data [@@inline]
 
     let get o key =
       let vals = Object.get o key in
@@ -64,10 +64,10 @@ module P = struct
           let thread = Thread.clone_mem thread in
           List.filter_map (return thread) vals
 
-    let delete = Object.delete
-    let to_list = Object.to_list
-    let has_field = Object.has_field
-    let get_fields = Object.get_fields
+    let delete o v = Object.delete o v [@@inline]
+    let to_list o = Object.to_list o [@@inline]
+    let has_field o v = Object.has_field o v [@@inline]
+    let get_fields o = Object.get_fields o [@@inline]
   end
 
   module Memory = struct
@@ -75,13 +75,13 @@ module P = struct
     type nonrec object_ = object_
     type nonrec value = value
 
-    let create = Memory.create
-    let clone = Memory.clone
-    let insert = Memory.insert
-    let remove = Memory.remove
-    let set = Memory.set
-    let get = Memory.get
-    let has_field = Memory.has_field
+    let create () = Memory.create () [@@inline]
+    let clone m = Memory.clone m [@@inline]
+    let insert m o = Memory.insert m o [@@inline]
+    let remove m loc = Memory.remove m loc [@@inline]
+    let set m loc o = Memory.set m loc o [@@inline]
+    let get m loc = Memory.get m loc [@@inline]
+    let has_field m x v = Memory.has_field m x v [@@inline]
 
     let get_field h loc v =
       let field_vals = Memory.get_field h loc v in
@@ -105,9 +105,11 @@ module P = struct
           let thread = Thread.clone_mem thread in
           List.filter_map (return thread) field_vals
 
-    let set_field = Memory.set_field
-    let delete_field = Memory.delete_field
-    let to_string h = Format.asprintf "%a" Memory.pp h
+    let set_field m loc ~field ~data = Memory.set_field m loc ~field ~data
+    [@@inline]
+
+    let delete_field m loc v = Memory.delete_field m loc v [@@inline]
+    let to_string h = Format.asprintf "%a" Memory.pp h [@@inline]
 
     let loc v =
       let* locs = Memory.loc v in
@@ -134,34 +136,38 @@ module P = struct
           let thread = Thread.clone_mem thread in
           List.filter_map (return thread) locs
 
-    let pp = Memory.pp
-    let pp_val = Memory.pp_val
+    let pp fmt v = Memory.pp fmt v [@@inline]
+    let pp_val m v = Memory.pp_val m v [@@inline]
   end
 
   module Env = struct
     type t = env
     type nonrec memory = memory
 
-    let clone = Env.clone
+    let clone env = Env.clone env [@@inline]
 
     let get_memory _env thread =
       (* Env.get_memory env *)
       [ (Thread.mem thread, thread) ]
+    [@@inline]
 
-    let get_func = Env.get_func
-    let get_extern_func = Env.get_extern_func
-    let add_memory = Env.add_memory
+    let get_func env func_id = Env.get_func env func_id [@@inline]
+    let get_extern_func env func_id = Env.get_extern_func env func_id [@@inline]
+    let add_memory env mem = Env.add_memory env mem [@@inline]
 
     module Build = struct
-      let empty = Env.Build.empty
-      let add_memory = Env.Build.add_memory
-      let add_functions = Env.Build.add_functions
-      let add_extern_functions = Env.Build.add_extern_functions
+      let empty () = Env.Build.empty () [@@inline]
+      let add_memory m env = Env.Build.add_memory m env [@@inline]
+      let add_functions funcs env = Env.Build.add_functions funcs env [@@inline]
+
+      let add_extern_functions funcs env =
+        Env.Build.add_extern_functions funcs env
+      [@@inline]
     end
   end
 
   module Reducer = struct
-    let reduce = Value_reducer.reduce
+    let reduce v = Value_reducer.reduce v [@@inline]
   end
 end
 
