@@ -120,32 +120,6 @@
  (instrumentation
   (backend bisect_ppx)))
 
-(subdir
- syntax/core
- (rule
-  (target lexer.ml)
-  (deps lexer.mll)
-  (action
-   (chdir
-    %{workspace_root}
-    (run %{bin:ocamllex} -ml -q -o %{target} %{deps}))))
- (menhir
-  (modules parser)
-  (flags --table --explain)))
-
-(subdir
- syntax/extended
- (rule
-  (target eLexer.ml)
-  (deps eLexer.mll)
-  (action
-   (chdir
-    %{workspace_root}
-    (run %{bin:ocamllex} -ml -q -o %{target} %{deps}))))
- (menhir
-  (modules eParser)
-  (flags --table --explain)))
-
 (generate_sites_module
  (module site)
  (sites ecma-sl))
