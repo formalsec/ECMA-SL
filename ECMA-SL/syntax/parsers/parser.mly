@@ -95,39 +95,33 @@
 
 %%
 
-entry_expr_target:
-  | e = expr_target; EOF;   { e }
+let entry_expr_target := ~ = expr_target; EOF; <>
 
-entry_stmt_target:
-  | s = stmt_target; EOF;   { s }
+let entry_stmt_target := ~ = stmt_target; EOF; <>
 
-entry_func_target:
-  | f = func_target; EOF;   { f }
+let entry_func_target := ~ = func_target; EOF; <>
 
-entry_prog_target:
-  | p = prog_target; EOF;   { p }
+let entry_prog_target := ~ = prog_target; EOF; <>
 
 (* ==================== Program  ==================== *)
 
-prog_target:
-  | fs = separated_list(SEMICOLON, func_target);
-    { Prog.create fs }
+let prog_target := ~ = separated_list(SEMICOLON, func_target); < Prog.create >
 
 (* ==================== Functions ==================== *)
 
-func_target:
+let func_target :=
   | FUNCTION; fn = id_target; LPAREN; pxs = separated_list(COMMA, id_target); RPAREN; s = block_target;
     { Func.create fn pxs s @> at $sloc }
 
 (* ==================== Statements ==================== *)
 
-block_target:
+let block_target :=
   | LBRACE; ss = separated_list (SEMICOLON, stmt_target); RBRACE;
     { Stmt.Block ss @> at $sloc }
 
-stmt_target:
+let stmt_target :=
   | HASH; s = stmt_target;
-    { Stmt.Debug (s) @> at $sloc }
+    { Stmt.Debug s @> at $sloc }
   | PRINT; e = expr_target;
     { Stmt.Print e @> at $sloc }
   | RETURN;
@@ -161,28 +155,28 @@ stmt_target:
   | WHILE; LPAREN; e = expr_target; RPAREN; s = block_target;
     { Stmt.While (e, s) @> at $sloc }
   | SWITCH; LPAREN; e = expr_target; RPAREN; LBRACE;
-    css = list(switch_case_target); dflt = option(switch_default_target) RBRACE;
+    css = list(switch_case_target); dflt = switch_default_target?; RBRACE;
     { Stmt.Switch (e, (Stmt.Parser.parse_switch_cases css), dflt) @> at $sloc }
   | FAIL; e = expr_target;
     { Stmt.Fail e @> at $sloc }
   | ASSERT; e = expr_target;
     { Stmt.Assert e @> at $sloc }
 
-lookup_target:
+let lookup_target :=
   | PERIOD; fn = id_target;             { Expr.Val (Val.Str fn.it) @> at $sloc }
   | LBRACK; fe = expr_target; RBRACK;   { fe }
 
-switch_case_target:
+let switch_case_target :=
   | CASE; v = val_target; COLON; s = block_target;     { (v @> at $sloc, s) }
 
-switch_default_target:
+let switch_default_target :=
   | SDEFAULT; COLON; s = block_target;                 { s }
 
 (* ==================== Expressions ==================== *)
 
-expr_target:
-  | LPAREN; e = expr_target; RPAREN;
-    { e }
+let expr_target :=
+  | LPAREN; ~ = expr_target; RPAREN;
+    <>
   | v = val_target;
     { Expr.Val v @> at $sloc }
   | x = ID;
@@ -197,44 +191,41 @@ expr_target:
     { Expr.BinOpt (binopt, e1, e2) @> at $sloc }
   | triopt = core_triopt; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; COMMA; e3 = expr_target; RPAREN;
     { Expr.TriOpt (triopt, e1, e2, e3) @> at $sloc }
-  | nopt_expr = nopt_target;
-    { nopt_expr }
+  | ~ = nopt_target;
+    <>
   | LBRACE; fe = expr_target; RBRACE; ATSIGN; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
     { Expr.Curry (fe, es) @> at $sloc }
-  ;
 
-nopt_target:
+let nopt_target :=
   | LARRBRACK; es = separated_list (COMMA, expr_target); RARRBRACK;
     { Expr.NOpt (ArrayExpr, es) @> at $sloc }
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
     { Expr.NOpt (ListExpr, es) @> at $sloc }
   | LPAREN; v = expr_target; COMMA; vs = separated_nonempty_list(COMMA, expr_target); RPAREN;
     { Expr.NOpt (TupleExpr, v :: vs) @> at $sloc }
-  ;
 
 (* ==================== Values ==================== *)
 
-id_target:
-  | x = ID;             { (x @> at $sloc) }
+let id_target := x = ID; { (x @> at $sloc) }
 
-val_target:
-  | NULL;               { Val.Null }
-  | i = INT;            { Val.Int i }
-  | f = FLOAT;          { Val.Flt f }
-  | s = STRING;         { Val.Str s }
-  | b = BOOLEAN;        { Val.Bool b }
-  | s = SYMBOL;         { Val.Symbol s }
-  | l = LOC;            { Val.Loc l }
-  | t = dtype_target;   { Val.Type t }
+let val_target :=
+  | NULL;                { Val.Null }
+  | i = INT;             < Val.Int >
+  | f = FLOAT;           < Val.Flt >
+  | s = STRING;          < Val.Str >
+  | b = BOOLEAN;         < Val.Bool >
+  | s = SYMBOL;          < Val.Symbol >
+  | l = LOC;             < Val.Loc >
+  | t = dtype_target;    < Val.Type >
 
-dtype_target:
-  | DTYPE_NULL;         { Type.NullType }
-  | DTYPE_INT;          { Type.IntType }
-  | DTYPE_FLT;          { Type.FltType }
-  | DTYPE_STR;          { Type.StrType }
-  | DTYPE_BOOL;         { Type.BoolType }
-  | DTYPE_SYMBOL;       { Type.SymbolType }
-  | DTYPE_LOC;          { Type.LocType }
-  | DTYPE_LIST;         { Type.ListType }
-  | DTYPE_TUPLE;        { Type.TupleType }
-  | DTYPE_CURRY;        { Type.CurryType }
+let dtype_target :=
+  | DTYPE_NULL;          { Type.NullType }
+  | DTYPE_INT;           { Type.IntType }
+  | DTYPE_FLT;           { Type.FltType }
+  | DTYPE_STR;           { Type.StrType }
+  | DTYPE_BOOL;          { Type.BoolType }
+  | DTYPE_SYMBOL;        { Type.SymbolType }
+  | DTYPE_LOC;           { Type.LocType }
+  | DTYPE_LIST;          { Type.ListType }
+  | DTYPE_TUPLE;         { Type.TupleType }
+  | DTYPE_CURRY;         { Type.CurryType }
