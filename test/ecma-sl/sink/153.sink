@@ -1,1 +1,7 @@
-s_concat(["\"%s\" \"%s\" %s", `process_execPath, `__dirname, "../scripts/dns-lookup-script", `hostname])
+s_concat([
+  "\"%s\" \"%s\" %s",
+  (`process_execPath : __$Str),
+  (`__dirname : __$Str),
+  "../scripts/dns-lookup-script",
+  (`hostname : __$Str)
+  ])
