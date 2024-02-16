@@ -105,7 +105,20 @@ let reduce_unop (op : unopt) (v : value) : value =
   | (Typeof, op) ->
     let t = Value_typing.type_of op in
     Val (Type (Option.get t))
-  | (StringConcat, NOpt (ListExpr, vs)) -> reduce_sconcat vs
+  | (StringConcat, NOpt (ListExpr, vs)) ->
+    let flatten vs =
+      let queue = Queue.create () in
+      let rec dfs vs =
+        List.iter
+          (function
+            | UnOpt (StringConcat, NOpt (ListExpr, vs')) -> dfs vs'
+            | v -> Queue.push v queue )
+          vs
+      in
+      dfs vs;
+      Queue.to_seq queue
+    in
+    reduce_sconcat (List.of_seq @@ flatten vs)
   | (StringToFloat, UnOpt (FloatToString, x)) -> x
   (* Unsound *)
   | (FloatToString, UnOpt (ToUint32, v)) -> v
