@@ -321,8 +321,8 @@ nopt_target:
     { EExpr.NOpt (ArrayExpr, es) @> at $sloc }
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
     { EExpr.NOpt (ListExpr, es) @> at $sloc }
-  | LPAREN; vs = tuple_target; RPAREN;
-    { EExpr.NOpt (TupleExpr, List.rev vs) @> at $sloc }
+  | LPAREN; v = expr_target; COMMA; vs = separated_nonempty_list(COMMA, expr_target); RPAREN;
+    { EExpr.NOpt (TupleExpr, v :: vs) @> at $sloc }
 
 catch_target:
   | CATCH; ferr = id_target;                      { ferr }
@@ -367,13 +367,6 @@ dtype_target:
   | DTYPE_LIST;         { Type.ListType }
   | DTYPE_TUPLE;        { Type.TupleType }
   | DTYPE_CURRY;        { Type.CurryType }
-
-tuple_target:
-  | v1 = expr_target; COMMA; v2 = expr_target;
-    { [v2; v1] }
-  | vs = tuple_target; COMMA; v = expr_target;
-    { v :: vs }
-  ;
 
 (* ==================== Operators ==================== *)
 
