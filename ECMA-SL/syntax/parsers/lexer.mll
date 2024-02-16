@@ -246,8 +246,8 @@ and read_string buf =
   | '\\' '\"'             { Buffer.add_char buf '\"'; read_string buf lexbuf }
   | '\\' '\''             { Buffer.add_char buf '\''; read_string buf lexbuf }
   | '\\' '0'              { Buffer.add_char buf '\000'; read_string buf lexbuf }
-  | '\\' (three_d as c)   { 
-                            Buffer.add_char buf (Char.chr (int_of_string c)); 
+  | '\\' (three_d as c)   {
+                            Buffer.add_char buf (Char.chr (int_of_string c));
                             read_string buf lexbuf
                           }
   | char_code char_code   {
