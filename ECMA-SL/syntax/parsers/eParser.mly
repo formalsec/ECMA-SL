@@ -52,7 +52,7 @@
 
 %token PERIOD COMMA SEMICOLON COLON
 %token DEFEQ
-%token ATSIGN HASH
+%token ATSIGN HASH BACKTICK
 %token LPAREN RPAREN
 %token LBRACE RBRACE
 %token LBRACK RBRACK
@@ -308,6 +308,8 @@ let expr_target :=
     { EExpr.Lookup (oe, fe) @> at $sloc }
   | LBRACE; fe = expr_target; RBRACE; ATSIGN; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
     { EExpr.Curry (fe, es) @> at $sloc }
+  | BACKTICK; id = ID ; COLON; ty = dtype_target;
+    { EExpr.Symbolic (ty, EExpr.Val (Str id) @> at $sloc) @> at $sloc }
 
 let nopt_target :=
   | LARRBRACK; es = separated_list (COMMA, expr_target); RARRBRACK;

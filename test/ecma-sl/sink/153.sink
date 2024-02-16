@@ -1,0 +1,1 @@
+s_concat(["\"%s\" \"%s\" %s", `process_execPath, `__dirname, "../scripts/dns-lookup-script", `hostname])

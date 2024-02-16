@@ -225,6 +225,7 @@ rule read =
   | ':'               { COLON }
   | ":="              { DEFEQ }
   | "@"               { ATSIGN }
+  | "`"               { BACKTICK }
   | "#"               { HASH }
   | '('               { LPAREN }
   | ')'               { RPAREN }

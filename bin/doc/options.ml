@@ -46,6 +46,10 @@ module Fpath_ = struct
   let input =
     let doc = "Name of the input file." in
     Arg.(required & pos 0 (some non_dir_fpath) None & info [] ~doc ~docv:"FILE")
+
+  let input2 =
+    let doc = "Name of the input file." in
+    Arg.(required & pos 0 (some fpath) None & info [] ~doc ~docv:"FILE")
 end
 
 module File = struct

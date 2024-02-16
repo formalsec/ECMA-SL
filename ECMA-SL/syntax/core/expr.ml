@@ -22,7 +22,7 @@ let rec pp (fmt : Fmt.t) (e : t) : unit =
   | TriOpt (op, e1, e2, e3) -> Operator.pp_of_triopt pp fmt (op, e1, e2, e3)
   | NOpt (op, es) -> Operator.pp_of_nopt pp fmt (op, es)
   | Curry (fe, es) -> fprintf fmt "{%a}@(%a)" pp fe (pp_lst ", " pp) es
-  | Symbolic (t, e') -> fprintf fmt "se_mk_symbolic(%a, %a)" Type.pp t pp e'
+  | Symbolic (t, e') -> fprintf fmt "(`%a : %a)" pp e' Type.pp t
 
 let str (e : t) : string = Fmt.asprintf "%a" pp e
 let isvoid (e : t) : bool = match e.it with Val Val.Void -> true | _ -> false

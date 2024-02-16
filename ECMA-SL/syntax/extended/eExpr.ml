@@ -49,7 +49,7 @@ let rec pp (fmt : Fmt.t) (e : t) : unit =
     else fprintf fmt "{ %a }" (pp_lst ", " pp_fld) flds
   | Lookup (oe, fe) -> fprintf fmt "%a[%a]" pp oe pp fe
   | Curry (fe, es) -> fprintf fmt "{%a}@(%a)" pp fe (pp_lst ", " pp) es
-  | Symbolic (t, e') -> fprintf fmt "se_mk_symbolic(%a, %a)" Type.pp t pp e'
+  | Symbolic (t, e') -> fprintf fmt "(`%a : %a)" pp e' Type.pp t
 
 let str (e : t) : string = Fmt.asprintf "%a" pp e
 let isvoid (e : t) : bool = match e.it with Val Val.Void -> true | _ -> false

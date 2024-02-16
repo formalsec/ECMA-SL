@@ -72,6 +72,12 @@ let replay_cmd =
   let info = Cmd.info "replay" ~doc ~sdocs ~man ~man_xrefs in
   Cmd.v info term
 
+(* TODO: find a better name *)
+let sink_cmd =
+  let open Doc_sink in
+  let info = Cmd.info "sink" ~doc ~sdocs ~man ~man_xrefs in
+  Cmd.v info term
+
 let cmd_list =
   [ compile_cmd
   ; interpret_cmd
@@ -79,6 +85,7 @@ let cmd_list =
   ; execute_cmd
   ; symbolic_cmd
   ; replay_cmd
+  ; sink_cmd
   ]
 
 let main_cmd =
