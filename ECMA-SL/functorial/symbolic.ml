@@ -102,9 +102,9 @@ module P = struct
       in
       match field_vals with
       | [] -> fun thread -> [ (None, thread) ]
-      | [ (v, pc) ] ->
+      | [ (v, pc) ] -> (
         fun thread ->
-          Option.fold ~none:[] ~some:(fun r -> [ r ]) (return thread (v, pc))
+          match return thread (v, pc) with None -> [] | Some a -> [ a ] )
       | _ ->
         fun thread ->
           let thread = Thread.clone thread in
@@ -126,18 +126,18 @@ module P = struct
         | Some c ->
           let c' = Translator.translate c in
           let pc = PC.add c' pc in
-          if PC.equal pc (Thread.pc thread) then Some (v, thread) else
-          if not (Solver.check solver (PC.elements pc)) then None
+          if PC.equal pc (Thread.pc thread) then Some (v, thread)
+          else if not (Solver.check solver (PC.elements pc)) then None
           else Some (v, { thread with pc })
       in
       match locs with
       | [] ->
         fun _thread ->
-          Log.warn "no loc";
+          Log.warn "no loc@.";
           []
-      | [ (c, v) ] ->
+      | [ (c, v) ] -> (
         fun thread ->
-          Option.fold ~none:[] ~some:(fun a -> [ a ]) (return thread (c, v))
+          match return thread (c, v) with None -> [] | Some a -> [ a ] )
       | _ ->
         fun thread ->
           let thread = Thread.clone thread in

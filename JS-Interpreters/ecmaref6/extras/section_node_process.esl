@@ -5,9 +5,9 @@ function __process_cwd(globalObject, this, newTarget, strict, params) {
 function createProcessObject(globalObject, objectPrototype, strict) {
   realm := { globalEnv : globalObject };
   newTarget := |Intrinsics|["Array"];
-  process := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(process);
-  setInternalProperty(process, "Prototype", objectPrototype);
+  process := newLazyObject();
+  /* setAllInternalMethodsOfOrdinaryObject(process); */
+  setInternalProperty(process, "prototype", objectPrototype);
 
   /* Properties: */
   createBuiltInProperty(process, "arch", extern str_symbol("process_arch"));
@@ -16,9 +16,9 @@ function createProcessObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(process, "platform", platform);
 
   /* Should be a symbolic lazy object, but now it just keeps env empty */
-  env := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(env);
-  setInternalProperty(env, "Prototype", objectPrototype);
+  env := newLazyObject();
+  /* setAllInternalMethodsOfOrdinaryObject(env); */
+  setInternalProperty(env, "prototype", objectPrototype);
   createBuiltInProperty(process, "env", env);
 
   items :=
