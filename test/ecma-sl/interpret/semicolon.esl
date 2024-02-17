@@ -1,9 +1,9 @@
 function one() {
-  return 1
+  return 1;
 }
 
 function zero() {
-  return 0
+  return 0;
 }
 
 function main() {
