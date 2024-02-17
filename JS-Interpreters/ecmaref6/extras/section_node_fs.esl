@@ -32,32 +32,31 @@ function __fs_createreadstream(globalObject, this, newTarget, strict, params) {
 
 function createFSObject(globalObject, objectPrototype, strict) {
   realm := { globalEnv : globalObject };
-  fs := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(fs);
-  setInternalProperty(fs, "Prototype", objectPrototype);
+  fs := newLazyObject();
+  /* setAllInternalMethodsOfOrdinaryObject(fs); */
+  setInternalProperty(fs, "prototype", objectPrototype);
 
   /* Functions: */
-  readFile := CreateBuiltInFunctionObject(["path"], "__fs_readfile", realm,
-    strict, null);
+  readFile := CreateBuiltInFunctionObject([], "__fs_readfile", realm, strict, null);
   createBuiltInProperty(fs, "readFile", readFile);
   createBuiltInProperty(readFile, "prototype", objectPrototype);
 
-  readFileSync := CreateBuiltInFunctionObject(["path"], "__fs_readfilesync", realm,
+  readFileSync := CreateBuiltInFunctionObject([], "__fs_readfilesync", realm,
     strict, null);
   createBuiltInProperty(fs, "readFileSync", readFileSync);
   createBuiltInProperty(readFileSync, "prototype", objectPrototype);
 
-  writeFile := CreateBuiltInFunctionObject(["path"], "__fs_writefile", realm,
+  writeFile := CreateBuiltInFunctionObject([], "__fs_writefile", realm,
     strict, null);
   createBuiltInProperty(fs, "writeFile", writeFile);
   createBuiltInProperty(writeFile, "prototype", objectPrototype);
 
-  writeFileSync := CreateBuiltInFunctionObject(["path"], "__fs_writefilesync", realm,
+  writeFileSync := CreateBuiltInFunctionObject([], "__fs_writefilesync", realm,
     strict, null);
   createBuiltInProperty(fs, "writeFileSync", writeFileSync);
   createBuiltInProperty(writeFileSync, "prototype", objectPrototype);
 
-  createReadStream := CreateBuiltInFunctionObject(["path"], "__fs_createreadstream", realm,
+  createReadStream := CreateBuiltInFunctionObject([], "__fs_createreadstream", realm,
     strict, null);
   createBuiltInProperty(fs, "createReadStream", createReadStream);
   createBuiltInProperty(createReadStream, "prototype", objectPrototype);
