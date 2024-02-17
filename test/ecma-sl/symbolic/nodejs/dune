@@ -9,4 +9,5 @@
   test_pollution_1.js
   test_pollution_2.js
   test_pollution_3.js
-  test_proto.js))
+  test_proto.js
+  test_lazy.js))

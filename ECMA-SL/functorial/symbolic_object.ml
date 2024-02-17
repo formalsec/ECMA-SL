@@ -61,7 +61,8 @@ module M : Object_intf.S with type value = V.value = struct
 
   let set o ~key ~data =
     match key with
-    | V.Val v -> { o with fields = VMap.add (V.Val v) data o.fields }
+    | V.Val _ ->
+      { o with fields = VMap.add key data o.fields }
     | _ ->
       { fields = map_ite o.fields ~key ~data
       ; symbols = map_ite o.symbols ~key ~data |> VMap.add key data
@@ -119,8 +120,7 @@ module M : Object_intf.S with type value = V.value = struct
     Fmt.pp_iter
       (fun fmt () -> Fmt.pp_str fmt ",")
       map_iter
-      (fun fmt (key, data) ->
-        Fmt.fprintf fmt {|"%a": %a|} V.pp key V.pp data )
+      (fun fmt (key, data) -> Fmt.fprintf fmt {|"%a": %a|} V.pp key V.pp data)
       fmt v
 
   let pp fmt { fields; symbols } =
