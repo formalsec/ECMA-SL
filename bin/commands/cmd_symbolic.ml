@@ -47,7 +47,7 @@ let prog_of_js file =
   let ast_file = Fpath.(file -+ "_ast.cesl") in
   let* () = OS.Cmd.run (js2ecma_sl file ast_file) in
   let* ast = OS.File.read ast_file in
-  let* es6 = OS.File.read (Fpath.v (Option.get (Share.get_es6 ()))) in
+  let* es6 = OS.File.read (Fpath.v (Option.get (Share.get_es6_sym ()))) in
   let program = String.concat ";\n" [ ast; es6 ] in
   let* () = OS.File.delete ast_file in
   Ok (Parsing_utils.parse_prog program)
