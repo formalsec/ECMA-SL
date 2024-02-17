@@ -168,8 +168,14 @@ let macro_target :=
 (* ==================== Statements ==================== *)
 
 let block_target :=
-  | LBRACE; ss = separated_list (SEMICOLON, stmt_target); RBRACE;
+  | LBRACE; ss = loption(block_list_target); RBRACE;
     { EStmt.Block ss @> at $sloc }
+
+let block_list_target :=
+  | stmt = stmt_target; SEMICOLON?;
+    { [ stmt ] }
+  | stmt = stmt_target; SEMICOLON; stmts = block_list_target;
+    { stmt :: stmts }
 
 let stmt_target :=
   | HASH; s = stmt_target;
