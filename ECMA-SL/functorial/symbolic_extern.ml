@@ -20,7 +20,6 @@ module Make () = struct
   let ( let/ ) = Choice.bind
   let fresh_i = Utils.make_name_generator "i"
   let fresh_x = Utils.make_name_generator "x"
-  let fresh_len = Utils.make_name_generator "len"
   let fresh_func = Utils.make_name_generator "eval_func_"
 
   let api env =
@@ -61,7 +60,7 @@ module Make () = struct
     let is_exec_sat (e : value) =
       (* TODO: more fine-grained exploit analysis *)
       let i = Value.int_symbol_s (fresh_i ()) in
-      let len = Value.int_symbol_s (fresh_len ()) in
+      let len = Value.Val (Int 17) in
       let sub = TriOpt (Operator.StringSubstr, e, i, len) in
       let query =
         BinOpt (Operator.Eq, sub, Val (Val.Str "; touch success #"))
@@ -72,7 +71,7 @@ module Make () = struct
     let is_eval_sat (e : value) =
       (* TODO: more fine-grained exploit analysis *)
       let i = Value.int_symbol_s (fresh_i ()) in
-      let len = Value.int_symbol_s (fresh_len ()) in
+      let len = Value.Val (Int 25) in
       let sub = TriOpt (Operator.StringSubstr, e, i, len) in
       let query =
         BinOpt (Operator.Eq, sub, Val (Val.Str ";console.log('success')//"))
