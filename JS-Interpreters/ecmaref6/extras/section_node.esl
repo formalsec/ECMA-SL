@@ -37,7 +37,7 @@ function __NodeRequire(globalObject, this, newTarget, strict, params) {
     }
     sdefault: { return newLazyObject() }
   }
-};
+}
 
 function initNodeGlobalObject(globalObject, objectPrototype, strict) {
   realm := { globalEnv : globalObject };

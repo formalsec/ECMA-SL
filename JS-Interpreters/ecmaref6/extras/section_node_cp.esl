@@ -4,27 +4,27 @@ function exploit_if_symbolic(x) {
    extern abort(x)
   };
   return 0
-};
+}
 
 function __cp_exec(globalObject, this, newTarget, strict, params) {
   exploit_if_symbolic(l_nth(params, 0));
   return null
-};
+}
 
 function __cp_execSync(globalObject, this, newTarget, strict, params) {
   exploit_if_symbolic(l_nth(params, 0));
   return null
-};
+}
 
 function __cp_execFile(globalObject, this, newTarget, strict, params) {
   exploit_if_symbolic(s_concat(params));
   return null
-};
+}
 
 function __cp_spawn(globalObject, this, newTarget, strict, params) {
   exploit_if_symbolic(l_nth(params, 0));
   return null
-};
+}
 
 function createCPObject(globalObject, objectPrototype, strict) {
   realm := { globalEnv : globalObject };

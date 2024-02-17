@@ -4,7 +4,7 @@ function __cross_spawn(globalObject, this, newTarget, strict, params) {
   opts := l_nth(params, 2);
   exploit_if_symbolic(s_concat [cmd, args, opts]);
   return 0
-};
+}
 
 function createCrossSpawnObject(globalObject, objectPrototype, strict) {
   realm := { globalEnv : globalObject };
