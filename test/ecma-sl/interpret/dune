@@ -1,4 +1,5 @@
 (cram
  (deps
   %{bin:ecma-sl}
-  tuple.esl))
+  tuple.esl
+  semicolon.esl))
