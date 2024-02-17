@@ -2,9 +2,8 @@ Esl tests:
   $ ecma-sl symbolic assume.esl
   All Ok!
   $ ecma-sl symbolic extern.esl
-  #x
-  [ecma-sl] unable to find external function 'i_dont_exist'
-  
+  (`x : __$Int)
+  unable to find external function 'i_dont_exist'
   [1]
   $ ecma-sl symbolic func.esl
   All Ok!
