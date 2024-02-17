@@ -31745,21 +31745,21 @@ Tests compilation of ecmaref6:
     } else {
       __v17314 := snd(__v17314)
     };
-    __v17315 := extern str_symbol("process.arch");
+    __v17315 := extern str_symbol("process_arch");
     __v17316 := "createBuiltInProperty"(___internal_esl_global, process, "arch", __v17315);
     if (fst(__v17316)) {
       return __v17316
     } else {
       __v17316 := snd(__v17316)
     };
-    __v17317 := extern str_symbol("process.execPath");
+    __v17317 := extern str_symbol("process_execPath");
     __v17318 := "createBuiltInProperty"(___internal_esl_global, process, "execPath", __v17317);
     if (fst(__v17318)) {
       return __v17318
     } else {
       __v17318 := snd(__v17318)
     };
-    __v17319 := extern str_symbol("process.platform");
+    __v17319 := extern str_symbol("process_platform");
     platform := __v17319;
     __v17320 := "createBuiltInProperty"(___internal_esl_global, process, "platform", platform);
     if (fst(__v17320)) {
@@ -37933,7 +37933,7 @@ Tests compilation of ecmaref6:
     return (false, __v16086)
   };
   function __os_platform(___internal_esl_global, globalObject, this, newTarget, strict, params) {
-    __v16069 := extern str_symbol("os.platform");
+    __v16069 := extern str_symbol("os_platform");
     platform := __v16069;
     __v16070 := platform = "aix";
     __v16071 := platform = "darwin";
@@ -118403,7 +118403,7 @@ Tests compilation of ecmaref6:
     return (false, __v117)
   };
   function __process_cwd(___internal_esl_global, globalObject, this, newTarget, strict, params) {
-    __v112 := extern str_symbol("process.cwd");
+    __v112 := extern str_symbol("process_cwd");
     return (false, __v112)
   };
   function Completion(___internal_esl_global, completionRecord) {
