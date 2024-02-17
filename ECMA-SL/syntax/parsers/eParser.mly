@@ -130,7 +130,7 @@ let entry_prog_target := ~ = prog_target; EOF; <>
 (* ==================== Program  ==================== *)
 
 let prog_target :=
-  | imports = import_target*; p_els = separated_list(SEMICOLON, prog_element_target);
+  | imports = import_target*; p_els = separated_list(SEMICOLON?, prog_element_target);
     { EProg.Parser.parse_prog imports p_els }
 
 let import_target := IMPORT; ~ = str_id_target; SEMICOLON; <>
