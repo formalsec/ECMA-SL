@@ -1,24 +1,24 @@
 Test Function:
   $ ecma-sl symbolic test_sink_Function.js
-        abort : #body
+        abort : (`body : __$Str)
   Found 1 problems!
 
 Test argv:
   $ ecma-sl symbolic test_sink_argv.js
-  #argv2
+  (`argv2 : __$Str)
   All Ok!
 
 Test eval:
   $ ecma-sl symbolic test_sink_eval.js
-        abort : #source
+        abort : (`source : __$Str)
   Found 1 problems!
 
 Test exec:
   $ ecma-sl symbolic test_sink_exec.js
-        abort : #source
+        abort : s_concat(["git fetch ", (`remote : __$Str)])
   Found 1 problems!
 
 Test fs:
   $ ecma-sl symbolic test_sink_fs.js
-        abort : #source
+        abort : (`source : __$Str)
   Found 1 problems!

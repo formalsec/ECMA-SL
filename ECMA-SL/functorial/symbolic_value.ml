@@ -74,8 +74,10 @@ module M = struct
       fprintf fmt "%s"
         (Operator.str_of_nopt Format.pp_print_string op (List.map pp_str es))
     | Curry (f, es) -> fprintf fmt "{%a}@(%a)" pp f pp_list es
-    | Symbolic (_t, x) -> (
-      match x with Val (Str x) -> fprintf fmt "#%s" x | _ -> pp fmt x )
+    | Symbolic (t, x) -> (
+      match x with
+      | Val (Str x) -> fprintf fmt "(`%s : %a)" x Type.pp t
+      | _ -> fprintf fmt "(`%a : %a)" pp x Type.pp t )
 
   let func (v : value) =
     match v with

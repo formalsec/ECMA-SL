@@ -1,6 +1,6 @@
 Test eval explode :
   $ ecma-sl explode-js test_sink_eval.js
-        abort : #source
+        abort : (`source : __$Str)
   Found 1 problems!
     replaying : test_sink_eval.js...
       running : ecma-out/test-suite/witness-0.js
@@ -8,11 +8,11 @@ Test eval explode :
 
 Test exec explode:
   $ ecma-sl explode-js test_sink_exec.js
-        abort : #source
+        abort : s_concat(["git fetch ", (`remote : __$Str)])
   Found 1 problems!
     replaying : test_sink_exec.js...
       running : ecma-out/test-suite/witness-0.js
-       status : false (no side effect)
+       status : true (created file "success")
 
 Test polluted explode:
   $ ecma-sl explode-js test_pollution_2.js
