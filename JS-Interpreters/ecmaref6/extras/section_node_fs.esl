@@ -3,32 +3,32 @@ function abort_if_symbolic(x) {
     extern abort(x)
   };
   return 0
-};
+}
 
 function __fs_readfile(globalObject, this, newTarget, strict, params) {
   abort_if_symbolic(l_nth(params, 0));
   return null
-};
+}
 
 function __fs_readfilesync(globalObject, this, newTarget, strict, params) {
   abort_if_symbolic(l_nth(params, 0));
   return null
-};
+}
 
 function __fs_writefile(globalObject, this, newTarget, strict, params) {
   abort_if_symbolic(l_nth(params, 0));
   return null
-};
+}
 
 function __fs_writefilesync(globalObject, this, newTarget, strict, params) {
   abort_if_symbolic(l_nth(params, 0));
   return null
-};
+}
 
 function __fs_createreadstream(globalObject, this, newTarget, strict, params) {
   abort_if_symbolic(l_nth(params, 0));
   return null
-};
+}
 
 function createFSObject(globalObject, objectPrototype, strict) {
   realm := { globalEnv : globalObject };

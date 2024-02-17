@@ -1,10 +1,10 @@
 function __os_platform(globalObject, this, newTarget, strict, params) {
-  platform := extern str_symbol("os.platform");
+  platform := extern str_symbol("os_platform");
   extern assume(platform = "aix" || platform = "darwin"
     || platform = "freebsd" || platform = "linux" || platform = "openbsd"
     || platform = "sunos" || platform = "win32" || platform = "android");
   return platform
-};
+}
 
 function createOSObject(globalObject, objectPrototype, strict) {
   realm := { globalEnv : globalObject };
@@ -17,7 +17,6 @@ function createOSObject(globalObject, objectPrototype, strict) {
     strict, null);
   createBuiltInProperty(os, "platform", platform);
   createBuiltInProperty(platform, "prototype", objectPrototype);
-
 
   return os
 }

@@ -31703,21 +31703,21 @@ Tests compilation of ecmaref6:
     } else {
       __v6320 := snd(__v6320)
     };
-    __v6321 := extern str_symbol("process.arch");
+    __v6321 := extern str_symbol("process_arch");
     __v6322 := "createBuiltInProperty"(___internal_esl_global, process, "arch", __v6321);
     if (fst(__v6322)) {
       return __v6322
     } else {
       __v6322 := snd(__v6322)
     };
-    __v6323 := extern str_symbol("process.execPath");
+    __v6323 := extern str_symbol("process_execPath");
     __v6324 := "createBuiltInProperty"(___internal_esl_global, process, "execPath", __v6323);
     if (fst(__v6324)) {
       return __v6324
     } else {
       __v6324 := snd(__v6324)
     };
-    __v6325 := extern str_symbol("process.platform");
+    __v6325 := extern str_symbol("process_platform");
     platform := __v6325;
     __v6326 := "createBuiltInProperty"(___internal_esl_global, process, "platform", platform);
     if (fst(__v6326)) {
@@ -37870,7 +37870,7 @@ Tests compilation of ecmaref6:
     return (false, __v7561)
   };
   function __os_platform(___internal_esl_global, globalObject, this, newTarget, strict, params) {
-    __v7562 := extern str_symbol("os.platform");
+    __v7562 := extern str_symbol("os_platform");
     platform := __v7562;
     __v7563 := platform = "aix";
     __v7564 := platform = "darwin";
@@ -118471,7 +118471,7 @@ Tests compilation of ecmaref6:
     return (false, __v23556)
   };
   function __process_cwd(___internal_esl_global, globalObject, this, newTarget, strict, params) {
-    __v23557 := extern str_symbol("process.cwd");
+    __v23557 := extern str_symbol("process_cwd");
     return (false, __v23557)
   };
   function IsExtensibleProxy(___internal_esl_global, O) {
