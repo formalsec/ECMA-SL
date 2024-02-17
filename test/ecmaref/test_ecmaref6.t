@@ -57966,7 +57966,7 @@ Tests compilation of ecmaref6:
       } else {
         __v12195 := snd(__v12195)
       };
-      __v12196 := "newDataPropertyDescriptor"(___internal_esl_global, __v12195);
+      __v12196 := "newDataPropertyDescriptorFull"(___internal_esl_global, __v12195, true, true, true);
       if (fst(__v12196)) {
         return __v12196
       } else {
@@ -98456,7 +98456,7 @@ Tests compilation of ecmaref6:
       __v4141 := snd(__v4141)
     };
     toPrimitive := __v4141;
-    __v4142 := "newDataPropertyDescriptor"(___internal_esl_global, toPrimitive);
+    __v4142 := "newDataPropertyDescriptorFull"(___internal_esl_global, toPrimitive, false, false, true);
     if (fst(__v4142)) {
       return __v4142
     } else {
