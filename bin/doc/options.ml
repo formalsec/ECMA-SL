@@ -22,8 +22,8 @@ module Common = struct
 
   let set (copts : t) : unit =
     let open Ecma_sl in
-    Config.Common.colored := not copts.colorless;
-    Log.on_debug := copts.debug
+    Config.Common.debug := copts.debug;
+    Config.Common.colored := not copts.colorless
 end
 
 (* File options *)
