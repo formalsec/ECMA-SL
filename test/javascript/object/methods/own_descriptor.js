@@ -14,6 +14,5 @@ obj.foo = 20;
 let foo = Object.getOwnPropertyDescriptor(obj, "foo");
 let bar = Object.getOwnPropertyDescriptor(obj, "bar");
 
-let x = (foo.value === 20);
-let y = (bar === undefined);
-AssertTrue(x && y);
+AssertEquals(foo.value, 20);
+AssertEquals(bar, undefined);
