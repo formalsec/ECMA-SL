@@ -4,11 +4,20 @@
  * Harness for the simple javascript tests.
 */
 
-function AssertEquals(x, y) {
-	return x === y;
+function AssertTrue(val) {
+	return val === true;
 }
 
-function CompareArrays(x, y) {
-	return x.length === y.length &&
-		x.every((element, index) => element === y[index]);
+function AssertEquals(val, exp) {
+	return val === exp;
+}
+
+function AssertArray(arr, exp) {
+	return arr.length === exp.length &&
+		arr.every((element, index) => element === exp[index]);
+}
+
+function AssertObject(obj, exp) {
+	return Object.keys(obj).length === Object.keys(exp).length &&
+		Object.keys(obj).every((fld, _) => obj[fld] === exp[fld])
 }

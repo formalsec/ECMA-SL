@@ -23,6 +23,5 @@ function isPrime(value) {
 
 let x = isPrime(10);
 let y = isPrime(23);
-let z = (x === false && y === true);
 
-AssertEquals(z, true);
+AssertTrue(x === false && y === true);
