@@ -14,6 +14,5 @@ let numberArray = [7, 10, 5, 2, 1];
 stringArray.sort();
 numberArray.sort(numberSorter);
 
-let x = (AssertArray(stringArray, [1, 10, 2, 5, 7]));
-let y = (AssertArray(numberArray, [1, 2, 5, 7, 10]));
-AssertTrue(x && y);
+AssertArray(stringArray, [1, 10, 2, 5, 7]);
+AssertArray(numberArray, [1, 2, 5, 7, 10]);

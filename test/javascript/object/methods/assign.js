@@ -10,7 +10,6 @@ var source = { foo: 1, bar: 4 };
 var target = { bar: 2, baz: 5 };
 var newTarget = Object.assign(target, source);
 
-let x = AssertObject(source, { foo: 1, bar: 4 });
-let y = AssertObject(target, { foo: 1, bar: 4, baz: 5 });
-let z = AssertObject(newTarget, { foo: 1, bar: 4, baz: 5 });
-AssertTrue(x && y && z);
+AssertObject(source, { foo: 1, bar: 4 });
+AssertObject(target, { foo: 1, bar: 4, baz: 5 });
+AssertObject(newTarget, { foo: 1, bar: 4, baz: 5 });
