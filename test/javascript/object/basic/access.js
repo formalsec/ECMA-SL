@@ -11,7 +11,6 @@ obj.foo = 10;
 obj.bar = "abc";
 obj.baz = { qux: true };
 
-let x = (obj.foo = 10);
-let y = (obj.bar = "abc");
-let z = (obj.baz.qux = true);
-AssertTrue(x && y && z);
+AssertEquals(obj.foo, 10);
+AssertEquals(obj.bar, "abc");
+AssertEquals(obj.baz.qux, true);

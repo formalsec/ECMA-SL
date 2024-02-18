@@ -13,6 +13,5 @@ Object.defineProperties(obj, {
   "bar": { value: "abc", writable: false }
 });
 
-let x = (obj.foo == 20);
-let y = (obj.bar == "abc");
-AssertTrue(x && y);
+AssertEquals(obj.foo, 20);
+AssertEquals(obj.bar, "abc");

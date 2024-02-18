@@ -10,6 +10,5 @@ let obj = {};
 
 Object.setPrototypeOf(obj, proto);
 
-let x = (obj.foo === 10);
-let y = (obj.bar === "abc");
-AssertTrue(x && y);
+AssertEquals(obj.foo, 10);
+AssertEquals(obj.bar, "abc");

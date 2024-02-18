@@ -21,7 +21,5 @@ function isPrime(value) {
 	return primes[value];
 }
 
-let x = isPrime(10);
-let y = isPrime(23);
-
-AssertTrue(x === false && y === true);
+AssertEquals(isPrime(10), false);
+AssertEquals(isPrime(23), true);
