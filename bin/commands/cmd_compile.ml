@@ -12,7 +12,7 @@ let run_type_checker (prog : EProg.t) : EProg.t =
     let terrs = T_Checker.type_program prog in
     if terrs = [] then prog
     else (
-      Format.eprintf "%s" (T_Checker.terrs_str terrs);
+      Fmt.eprintf "%s" (T_Checker.terrs_str terrs);
       raise (Cmd.Command_error Cmd.Error) )
 
 let run_compiler (file : string) : Prog.t =
