@@ -2,7 +2,6 @@
  * * javascript/simple/map.js
  * 
  * Simple implementation of a concrete map with functions to store and retrieve bindings. 
- * @return true
 */
 
 function Map() {
@@ -39,6 +38,10 @@ let map = new Map();
 map.put("foo", 10);
 map.put("bar", 20);
 
-let total = map.get("foo") + map.get("bar");
+let foo = map.get("foo");
+console.log("Key 'foo': " + foo);
+AssertEquals(foo, 10);
 
-AssertEquals(total, 30);
+let bar = map.get("bar");
+console.log("Key 'bar': " + bar);
+AssertEquals(bar, 20);
