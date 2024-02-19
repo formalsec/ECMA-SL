@@ -2,7 +2,6 @@
  * * javascript/simple/primes.js
  * 
  * Function that checks if a number is prime. 
- * @return true
 */
 
 function isPrime(value) {
@@ -21,5 +20,10 @@ function isPrime(value) {
 	return primes[value];
 }
 
-AssertEquals(isPrime(10), false);
-AssertEquals(isPrime(23), true);
+let isPrime10 = isPrime(10);
+console.log("isPrime(10): " + isPrime10);
+AssertEquals(isPrime10, false);
+
+let isPrime23 = isPrime(23);
+console.log("isPrime(23): " + isPrime23);
+AssertEquals(isPrime23, true);

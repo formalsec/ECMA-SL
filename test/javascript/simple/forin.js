@@ -2,13 +2,13 @@
  * * javascript/simple/forin.js
  * 
  * For-in loop statement that sums all the properties of an object. 
- * @return true
 */
 
 function sumProps(obj) {
 	let total = 0;
 	for (let fld in obj) {
 		total += obj[fld];
+		console.log("Added field '" + fld +  "': " + total);
 	}
 	return total;
 }

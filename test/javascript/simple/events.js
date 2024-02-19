@@ -2,7 +2,6 @@
  * * javascript/simple/events.js
  * 
  * Object with three recursive mathematical operations stored as events.  
- * @return true
 */
 
 let math = {
@@ -33,7 +32,15 @@ let math = {
 
 let total = 0;
 total += math["sum"](4);
+console.log("Event 'sum' called");
+console.log("Total: " + total);
+
 total += math["fib"](4);
+console.log("Event 'fib' called");
+console.log("Total: " + total);
+
 total += math["fact"](4);
+console.log("Event 'fact' called");
+console.log("Total: " + total);
 
 AssertEquals(total, 37);

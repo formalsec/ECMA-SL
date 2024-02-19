@@ -2,7 +2,6 @@
  * * javascript/simple/string.js
  * 
  * Simple consecutive string operations applied to string variables. 
- * @return true
 */
 
 function getEvenChars(text) {
@@ -27,5 +26,10 @@ let x = "abc";
 let y = getEvenChars(x + "def");
 let z = checkStart(y, "ac");
 let w = z + z.charCodeAt(0);
+
+console.log("x: " + x);
+console.log("y: " + y);
+console.log("z: " + z);
+console.log("w: " + z);
 
 AssertEquals(w, "ace-good97");

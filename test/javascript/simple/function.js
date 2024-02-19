@@ -2,7 +2,6 @@
  * * javascript/simple/function.js
  * 
  * Function that returns a context-dependent inner function.
- * @return true
 */
 
 function foo(x) {
@@ -12,7 +11,10 @@ function foo(x) {
 	};
 }
 
+console.log("Function 'foo' called");
 let func = foo(10);
+console.log("Function 'func' called");
 let ret = func();
+console.log("Ret: " + ret);
 
 AssertEquals(ret, 20);
