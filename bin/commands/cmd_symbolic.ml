@@ -24,7 +24,7 @@ let dispatch_file_ext on_plus on_core on_js (file : Fpath.t) =
   if Fpath.has_ext ext_esl file then on_plus file
   else if Fpath.has_ext ext_cesl file then on_core file
   else if Fpath.has_ext ext_js file then on_js file
-  else Error (`Msg (Format.asprintf "%a :unreconized file type" Fpath.pp file))
+  else Error (`Msg (Fmt.asprintf "%a :unreconized file type" Fpath.pp file))
 
 let prog_of_plus file =
   let open Parsing_utils in
@@ -85,7 +85,7 @@ let serialize_thread ~workspace =
          [> `Abort of string | `Assert_failure of Extern_func.value ] option )
     thread ->
     let pc = Thread.pc thread in
-    Log.debug2 "  path cond : %a@." Encoding.Expr.pp_list pc;
+    Log.debug "  path cond : %a@." Encoding.Expr.pp_list pc;
     let solver = Thread.solver thread in
     assert (Solver.check solver pc);
     let m = Solver.model solver in
@@ -151,8 +151,8 @@ let run ~workspace filename entry_func =
         Ok witness )
       results
   in
-  Log.debug1 "  exec time : %fs@." exec_time;
-  Log.debug1 "solver time : %fs@." solv_time;
+  Log.debug "  exec time : %fs@." exec_time;
+  Log.debug "solver time : %fs@." solv_time;
   write_report ~workspace filename exec_time solv_time solv_cnt problems
 
 let main (copts : Options.Common.t) opt =

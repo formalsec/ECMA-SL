@@ -4,13 +4,16 @@ open Cmdliner
 
 module Common = struct
   type t =
-    { debug : bool
+    { debug : Enums.DebugLvl.t
     ; colorless : bool
     }
 
   let debug =
-    let doc = "Run and generate debug output." in
-    Arg.(value & flag & info [ "debug" ] ~doc)
+    let open Enums.DebugLvl in
+    let docv = "LEVEL" in
+    let doc = "Debug level of the ECMA-SL application" in
+    let levels = Arg.enum (args all) in
+    Arg.(value & opt levels None & info [ "debug" ] ~doc ~docv)
 
   let colorless =
     let doc = "Generate colorless output." in
@@ -22,7 +25,9 @@ module Common = struct
 
   let set (copts : t) : unit =
     let open Ecma_sl in
-    Config.Common.debug := copts.debug;
+    let open Enums.DebugLvl in
+    Config.Common.warns := value copts.debug >= value Warn;
+    Config.Common.debugs := value copts.debug >= value Full;
     Config.Common.colored := not copts.colorless
 end
 
@@ -32,7 +37,7 @@ module Fpath_ = struct
     let file = Fpath.v str in
     match is_something file with
     | Ok true -> `Ok file
-    | Ok false -> `Error (Format.asprintf "File '%s' not found!" str)
+    | Ok false -> `Error (Ecma_sl.Fmt.asprintf "File '%s' not found!" str)
     | Error (`Msg err) -> `Error err
 
   let non_dir_fpath =
