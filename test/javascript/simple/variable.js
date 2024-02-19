@@ -2,9 +2,8 @@
  * * javascript/simple/variable.js
  * 
  * Assignment expression of a simple value to a variable.
- * @return true
 */
 
 let x = 10;
-
+console.log("x: " + x);
 AssertEquals(x, 10);

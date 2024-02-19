@@ -2,7 +2,6 @@
  * * javascript/simple/object.js
  * 
  * Object with three recursive mathematical operations stored properties. 
- * @return true
 */
 
 function Math(base) {
@@ -35,8 +34,16 @@ function Math(base) {
 	this.total = function total() {
 		let total = 0;
 		total += math.sum(this.base);
+		console.log("Method 'sum' called");
+		console.log("Total: " + total);
+
 		total += math.fib(this.base);
+		console.log("Method 'fib' called");
+		console.log("Total: " + total);
+
 		total += math.fact(this.base);
+		console.log("Method 'fact' called");
+		console.log("Total: " + total);
 		return total;
 	};
 

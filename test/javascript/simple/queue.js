@@ -3,7 +3,6 @@
  * 
  * Simple implementation of a priority queue with functions to enqueue and
  * dequeue elements. 
- * @return true
 */
 
 let PriorityQueue = function () {
@@ -60,5 +59,5 @@ queue.enqueue(3, "bar");
 queue.enqueue(2, "baz");
 
 let res = queue.dequeue();
-
+console.log("Dequeued: " + res.value);
 AssertEquals(res.value, "bar");
