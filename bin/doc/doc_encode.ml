@@ -22,13 +22,13 @@ let exits =
     ; Cmd.Exit.info ~doc:"on encoding error" 3
     ]
 
-let cmd_options input output builder : Cmd_encode.options =
-  { input; output; builder }
+let cmd_options inputs output builder : Cmd_encode.options =
+  { inputs; output; builder }
 
 let options =
   Term.(
     const cmd_options
-    $ Options.File.input
+    $ Options.File.inputs
     $ Options.File.output
     $ Options.Encode.builder )
 

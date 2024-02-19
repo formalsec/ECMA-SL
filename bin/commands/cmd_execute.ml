@@ -37,7 +37,7 @@ let execute (opts : options) : unit =
 let encode_and_execute (opts : options) : unit =
   let input = merge_input_harness opts in
   let output = "/tmp/ecmasl-ast.cesl" in
-  Cmd_encode.encode input (Some output) None;
+  Cmd_encode.encode None input (Some output);
   execute { opts with input = output }
 
 let run (opts : options) : unit =
