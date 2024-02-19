@@ -1,5 +1,5 @@
 type options =
-  { input : string
+  { inputs : string
   ; output : string option
   ; builder : string option
   }
@@ -24,15 +24,19 @@ module JS2ECMA_SL = struct
     |> set_builder builder
 end
 
-let encode (input : string) (output : string option) (builder : string option) :
+let encode (builder : string option) (input : string) (output : string option) :
   unit =
   match Bos_setup.OS.Cmd.run (JS2ECMA_SL.cmd input output builder) with
-  | Ok _ -> ()
   | Error _ -> raise (Cmd.Command_error Error)
+  | Ok _ -> Ecma_sl.Log.debug "File '%s' has been encoded." input
 
 let run (opts : options) : unit =
-  ignore (Cmd.test_file_ext [ Enums.Lang.JS ] opts.input);
-  encode opts.input opts.output opts.builder
+  let open Enums.Lang in
+  let run_single input output =
+    ignore (Cmd.test_file_ext [ JS ] input);
+    encode opts.builder input output
+  in
+  Dir.exec run_single opts.inputs opts.output (str CESL)
 
 let main (copts : Options.Common.t) (opts : options) : int =
   Options.Common.set copts;
