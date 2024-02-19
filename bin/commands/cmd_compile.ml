@@ -24,7 +24,7 @@ let run_compiler (file : string) : Prog.t =
   |> Compiler.compile_prog
 
 let run (opts : options) : unit =
-  ignore (Cmd.test_file_ext [ Lang.ESL ] opts.input);
+  ignore (Cmd.test_file_ext [ Enums.Lang.ESL ] opts.input);
   let prog = run_compiler opts.input in
   match opts.output with
   | None -> print_endline (Prog.str prog)

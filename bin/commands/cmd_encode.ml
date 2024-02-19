@@ -31,7 +31,7 @@ let encode (input : string) (output : string option) (builder : string option) :
   | Error _ -> raise (Cmd.Command_error Error)
 
 let run (opts : options) : unit =
-  ignore (Cmd.test_file_ext [ Lang.JS ] opts.input);
+  ignore (Cmd.test_file_ext [ Enums.Lang.JS ] opts.input);
   encode opts.input opts.output opts.builder
 
 let main (copts : Options.Common.t) (opts : options) : int =
