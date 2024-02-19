@@ -63,6 +63,11 @@ module File = struct
     let docv = "FILE" in
     let doc = "Name of the output file." in
     Arg.(value & opt (some string) None & info [ "o"; "output" ] ~doc ~docv)
+
+  let harness =
+    let docv = "FILE" in
+    let doc = "Name of the harness file." in
+    Arg.(value & opt (some non_dir_file) None & info [ "harness" ] ~doc ~docv)
 end
 
 (* Compile options *)

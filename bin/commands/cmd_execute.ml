@@ -2,6 +2,7 @@ open Ecma_sl
 
 type options =
   { input : string
+  ; harness : string option
   ; execute_lang : Enums.Lang.t
   ; execute_version : Enums.ECMARef.t
   ; interpret_verbose : bool
@@ -11,6 +12,16 @@ type options =
   }
 
 let langs : Enums.Lang.t list = Enums.Lang.[ Auto; JS; CESL ]
+
+let merge_input_harness (opts : options) : string =
+  match opts.harness with
+  | None -> opts.input
+  | Some harness ->
+    let input_code = Io.read_file opts.input in
+    let harness_code = Io.read_file harness in
+    let file = "/tmp/ecmasl-ast.js" in
+    Io.write_file file (harness_code ^ input_code);
+    file
 
 let execute (opts : options) : unit =
   let open Ecma_sl in
@@ -24,8 +35,9 @@ let execute (opts : options) : unit =
        opts.interpret_show_result
 
 let encode_and_execute (opts : options) : unit =
+  let input = merge_input_harness opts in
   let output = "/tmp/ecmasl-ast.cesl" in
-  Cmd_encode.encode opts.input (Some output) None;
+  Cmd_encode.encode input (Some output) None;
   execute { opts with input = output }
 
 let run (opts : options) : unit =
