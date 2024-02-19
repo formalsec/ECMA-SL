@@ -75,6 +75,7 @@ end
 
 module Interpret = struct
   let lang langs =
+    let open Enums.Lang in
     let docv = "LANG" in
     let doc =
       "The language of the program to be interpreted. Options include: (1) \
@@ -84,8 +85,8 @@ module Interpret = struct
        without certain restrictions imposed by the ECMA-SL compiler (e.g., \
        forced format of return values)."
     in
-    let langs' = Lang.args langs in
-    Arg.(value & opt (Arg.enum langs') Lang.Auto & info [ "lang" ] ~doc ~docv)
+    let langs' = args langs in
+    Arg.(value & opt (Arg.enum langs') Auto & info [ "lang" ] ~doc ~docv)
 
   let verbose =
     let doc =
@@ -144,33 +145,25 @@ end
 
 module Execute = struct
   let lang langs =
+    let open Enums.Lang in
     let docv = "LANG" in
     let doc =
       "The language of the program to be executed. Options include: (1) 'auto' \
        (default, inferring the language from the file extension); (2) 'js' for \
        JavaScript (.js) files; and (3) 'cesl' for Core ECMA-SL (.cesl) files."
     in
-    let langs' = Arg.enum (Lang.args langs) in
-    Arg.(value & opt langs' Lang.Auto & info [ "lang" ] ~doc ~docv)
+    let langs' = Arg.enum (args langs) in
+    Arg.(value & opt langs' Auto & info [ "lang" ] ~doc ~docv)
 
-  let version versions =
+  let version =
+    let open Enums.ECMARef in
     let docv = "ECMAREF" in
     let doc = "Version of the reference interpreter." in
-    let versions' = Arg.enum (Ecmaref.args versions) in
-    Arg.(value & opt versions' Ecmaref.Main & info [ "interp" ] ~doc ~docv)
+    let versions = Arg.enum (args all) in
+    Arg.(value & opt versions Main & info [ "interp" ] ~doc ~docv)
 end
 
 (* Other options - TODO *)
-
-let execution_lang =
-  let open Lang in
-  let doc = "Language of the program to be executed." in
-  let langs = Lang.args [ Auto; JS; ESL; CESL ] in
-  Arg.(value & opt (Arg.enum langs) Auto & info [ "lang" ] ~doc)
-
-let encode_esl_flag =
-  let doc = "Encode the program in ECMA-SL (.esl)." in
-  Arg.(value & flag & info [ "esl" ] ~doc)
 
 let target_func =
   let doc = "The start function of the analysis." in

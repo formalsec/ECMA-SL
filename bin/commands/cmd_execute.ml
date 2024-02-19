@@ -2,19 +2,19 @@ open Ecma_sl
 
 type options =
   { input : string
-  ; execute_lang : Lang.t
-  ; execute_version : Ecmaref.t
+  ; execute_lang : Enums.Lang.t
+  ; execute_version : Enums.ECMARef.t
   ; interpret_verbose : bool
   ; interpret_verbose_at : bool
   ; interpret_debugger : bool
   ; interpret_show_result : bool
   }
 
-let langs : Lang.t list = [ Lang.Auto; Lang.JS; Lang.CESL ]
+let langs : Enums.Lang.t list = Enums.Lang.[ Auto; JS; CESL ]
 
 let execute (opts : options) : unit =
   let open Ecma_sl in
-  let finterp = Ecmaref.interp opts.execute_version in
+  let finterp = Enums.ECMARef.interp opts.execute_version in
   let interp = Parsing_utils.load_file finterp in
   let ast = Parsing_utils.load_file opts.input in
   String.concat ";\n" [ ast; interp ]
@@ -29,10 +29,11 @@ let encode_and_execute (opts : options) : unit =
   execute { opts with input = output }
 
 let run (opts : options) : unit =
-  let valid_langs = Lang.valid langs opts.execute_lang in
+  let open Enums.Lang in
+  let valid_langs = valid langs opts.execute_lang in
   match Cmd.test_file_ext valid_langs opts.input with
-  | Lang.JS -> encode_and_execute opts
-  | Lang.CESL -> execute opts
+  | JS -> encode_and_execute opts
+  | CESL -> execute opts
   | _ -> raise Cmd.(Command_error Failure)
 
 let main (copts : Options.Common.t) (opts : options) : int =

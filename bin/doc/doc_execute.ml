@@ -52,7 +52,7 @@ let options =
     const cmd_options
     $ Options.File.input
     $ Options.Execute.lang Cmd_execute.langs
-    $ Options.Execute.version Ecmaref.all
+    $ Options.Execute.version
     $ Options.Interpret.verbose
     $ Options.Interpret.verbose_at
     $ Options.Interpret.debugger

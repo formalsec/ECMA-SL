@@ -2,7 +2,7 @@ open Ecma_sl
 
 type options =
   { input : string
-  ; interpret_lang : Lang.t
+  ; interpret_lang : Enums.Lang.t
   ; interpret_verbose : bool
   ; interpret_verbose_at : bool
   ; interpret_debugger : bool
@@ -11,8 +11,7 @@ type options =
   ; untyped : bool
   }
 
-let langs : Lang.t list =
-  [ Lang.Auto; Lang.ESL; Lang.CESL; Lang.CESLUnattached ]
+let langs : Enums.Lang.t list = Enums.Lang.[ Auto; ESL; CESL; CESLUnattached ]
 
 let configure_debugger () : (module Debugger.M) =
   match !Config.Interpreter.debugger with
@@ -60,11 +59,12 @@ let compile_and_interpret (opts : options) : unit =
   |> process_result esl_exit_checker opts.interpret_show_result
 
 let run (opts : options) : unit =
-  let valid_langs = Lang.valid langs opts.interpret_lang in
+  let open Enums.Lang in
+  let valid_langs = valid langs opts.interpret_lang in
   match Cmd.test_file_ext valid_langs opts.input with
-  | Lang.ESL -> compile_and_interpret opts
-  | Lang.CESL -> interpret_core esl_exit_checker opts
-  | Lang.CESLUnattached -> interpret_core no_exit_checker opts
+  | ESL -> compile_and_interpret opts
+  | CESL -> interpret_core esl_exit_checker opts
+  | CESLUnattached -> interpret_core no_exit_checker opts
   | _ -> raise Cmd.(Command_error Failure)
 
 let main (copts : Options.Common.t) (opts : options) : int =

@@ -44,12 +44,12 @@ let eval_cmd (cmd : unit -> unit) : int =
   | Eslerr.Runtime_error _ as exn -> esl_default_err exn
   | Command_error err -> error_code err
 
-let test_file_ext (langs : Lang.t list) (file : string) : Lang.t =
-  match Lang.test_file_ext langs (Filename.extension file) with
+let test_file_ext (langs : Enums.Lang.t list) (file : string) : Enums.Lang.t =
+  match Enums.Lang.test_file_ext langs (Filename.extension file) with
   | Some lang -> lang
   | None ->
     let open Format in
     let pp_sep seq fmt () = pp_print_string fmt seq in
     let pp_lst seq pp fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
-    log "expecting file extensions: { %a }" (pp_lst " ; " Lang.pp) langs;
+    log "expecting file extensions: { %a }" (pp_lst " ; " Enums.Lang.pp) langs;
     raise (Command_error Error)
