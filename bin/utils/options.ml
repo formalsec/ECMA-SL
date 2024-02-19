@@ -59,6 +59,11 @@ module File = struct
     let doc = "Name of the input file." in
     Arg.(required & pos 0 (some non_dir_file) None & info [] ~doc ~docv)
 
+  let inputs =
+    let docv = "FILE/DIR" in
+    let doc = "Name of the input file or input directory." in
+    Arg.(required & pos 0 (some file) None & info [] ~doc ~docv)
+
   let output =
     let docv = "FILE" in
     let doc = "Name of the output file." in

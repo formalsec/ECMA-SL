@@ -42,6 +42,8 @@ module Lang = struct
     | CESL -> Fmt.pp_str fmt ".cesl"
     | CESLUnattached -> Fmt.pp_str fmt ".cesl"
 
+  let str (lang : t) : string = Fmt.asprintf "%a" pp lang
+
   let args (langs : t list) : (string * t) list =
     let to_arg = function
       | Auto as lang -> ("auto", lang)
@@ -79,6 +81,8 @@ module ECMARef = struct
     | Latest -> Fmt.pp_str fmt "latest"
     | ECMARef5 -> Fmt.pp_str fmt "ecmaref5"
     | ECMARef6 -> Fmt.pp_str fmt "ecmaref6"
+
+  let str (version : t) : string = Fmt.asprintf "%a" pp version
 
   let args (versions : t list) : (string * t) list =
     let to_arg = function
