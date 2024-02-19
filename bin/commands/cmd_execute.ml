@@ -32,9 +32,9 @@ let run (opts : options) : unit =
   let open Enums.Lang in
   let valid_langs = valid langs opts.execute_lang in
   match Cmd.test_file_ext valid_langs opts.input with
-  | JS -> encode_and_execute opts
-  | CESL -> execute opts
-  | _ -> raise Cmd.(Command_error Failure)
+  | Some JS -> encode_and_execute opts
+  | Some CESL -> execute opts
+  | _ -> encode_and_execute opts
 
 let main (copts : Options.Common.t) (opts : options) : int =
   Options.Common.set copts;

@@ -1,3 +1,5 @@
+open Ecma_sl
+
 type error =
   | Failure
   | Error
@@ -22,18 +24,14 @@ let error_code (error : error) : int =
   | CompileError -> 3
   | RuntimeError -> 4
 
-let log ?(header : bool = true) msg_fmt =
-  let header_str = if header then "\necma-sl: " else "" in
-  Format.(kdprintf (eprintf "%s%t@." header_str) msg_fmt)
-
 let esl_internal_err (exn : exn) : int =
   flush_all ();
-  log "%a" Ecma_sl.Eslerr.pp exn;
+  Log.log "%a" Eslerr.pp exn;
   Printexc.print_backtrace stderr;
   code_of_exn exn |> error_code
 
 let esl_default_err (exn : exn) : int =
-  log ~header:false "%a" Ecma_sl.Eslerr.pp exn;
+  Log.log ~header:false "%a" Eslerr.pp exn;
   code_of_exn exn |> error_code
 
 let eval_cmd (cmd : unit -> unit) : int =
@@ -44,12 +42,11 @@ let eval_cmd (cmd : unit -> unit) : int =
   | Eslerr.Runtime_error _ as exn -> esl_default_err exn
   | Command_error err -> error_code err
 
-let test_file_ext (langs : Enums.Lang.t list) (file : string) : Enums.Lang.t =
-  match Enums.Lang.test_file_ext langs (Filename.extension file) with
-  | Some lang -> lang
+let test_file_ext (langs : Enums.Lang.t list) (file : string) :
+  Enums.Lang.t option =
+  let open Enums.Lang in
+  match resolve_file_ext langs (Filename.extension file) with
+  | Some lang -> Some lang
   | None ->
-    let open Format in
-    let pp_sep seq fmt () = pp_print_string fmt seq in
-    let pp_lst seq pp fmt lst = pp_print_list ~pp_sep:(pp_sep seq) pp fmt lst in
-    log "expecting file extensions: { %a }" (pp_lst " ; " Enums.Lang.pp) langs;
-    raise (Command_error Error)
+    Log.warn "expecting file extensions: { %a }" (Fmt.pp_lst " ; " pp) langs;
+    None

@@ -1,3 +1,31 @@
+open Ecma_sl
+
+module DebugLvl = struct
+  type t =
+    | None
+    | Warn
+    | Full
+
+  let all = [ None; Warn; Full ]
+
+  let pp (fmt : Fmt.t) (level : t) : unit =
+    match level with
+    | None -> Fmt.pp_str fmt "none"
+    | Warn -> Fmt.pp_str fmt "warn"
+    | Full -> Fmt.pp_str fmt "full"
+
+  let args (levels : t list) : (string * t) list =
+    let to_arg = function
+      | None as level -> ("none", level)
+      | Warn as level -> ("warn", level)
+      | Full as level -> ("full", level)
+    in
+    List.map to_arg levels
+
+  let value (level : t) : int =
+    match level with None -> 0 | Warn -> 1 | Full -> 2
+end
+
 module Lang = struct
   type t =
     | Auto
@@ -6,14 +34,13 @@ module Lang = struct
     | CESL
     | CESLUnattached
 
-  let pp (fmt : Format.formatter) (lang : t) : unit =
-    let open Format in
+  let pp (fmt : Fmt.t) (lang : t) : unit =
     match lang with
-    | Auto -> pp_print_string fmt "auto"
-    | JS -> pp_print_string fmt ".js"
-    | ESL -> pp_print_string fmt ".esl"
-    | CESL -> pp_print_string fmt ".cesl"
-    | CESLUnattached -> pp_print_string fmt ".cesl"
+    | Auto -> Fmt.pp_str fmt "auto"
+    | JS -> Fmt.pp_str fmt ".js"
+    | ESL -> Fmt.pp_str fmt ".esl"
+    | CESL -> Fmt.pp_str fmt ".cesl"
+    | CESLUnattached -> Fmt.pp_str fmt ".cesl"
 
   let args (langs : t list) : (string * t) list =
     let to_arg = function
@@ -28,7 +55,7 @@ module Lang = struct
   let valid (langs : t list) (user_lang : t) : t list =
     match user_lang with Auto -> langs | _ -> [ user_lang ]
 
-  let test_file_ext (langs : t list) (ext : string) : t option =
+  let resolve_file_ext (langs : t list) (ext : string) : t option =
     match ext with
     | ".js" when List.mem JS langs -> Some JS
     | ".esl" when List.mem ESL langs -> Some ESL
@@ -46,13 +73,12 @@ module ECMARef = struct
 
   let all = [ Main; Latest; ECMARef5; ECMARef6 ]
 
-  let pp (fmt : Format.formatter) (version : t) : unit =
-    let open Format in
+  let pp (fmt : Fmt.t) (version : t) : unit =
     match version with
-    | Main -> pp_print_string fmt "main"
-    | Latest -> pp_print_string fmt "latest"
-    | ECMARef5 -> pp_print_string fmt "ecmaref5"
-    | ECMARef6 -> pp_print_string fmt "ecmaref6"
+    | Main -> Fmt.pp_str fmt "main"
+    | Latest -> Fmt.pp_str fmt "latest"
+    | ECMARef5 -> Fmt.pp_str fmt "ecmaref5"
+    | ECMARef6 -> Fmt.pp_str fmt "ecmaref6"
 
   let args (versions : t list) : (string * t) list =
     let to_arg = function
@@ -66,8 +92,8 @@ module ECMARef = struct
   let interp (version : t) : string =
     Option.get
       ( match version with
-      | Main -> Ecma_sl.Share.get_es6 ()
-      | Latest -> Ecma_sl.Share.get_es6 ()
-      | ECMARef5 -> Ecma_sl.Share.get_es5 ()
-      | ECMARef6 -> Ecma_sl.Share.get_es6 () )
+      | Main -> Share.get_es6 ()
+      | Latest -> Share.get_es6 ()
+      | ECMARef5 -> Share.get_es5 ()
+      | ECMARef6 -> Share.get_es6 () )
 end

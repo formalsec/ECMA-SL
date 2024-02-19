@@ -45,7 +45,7 @@ let esl_exit_checker (retval : Val.t) : Val.t =
 let process_result (check_result_f : Val.t -> Val.t) (show_result : bool)
   (retval : Val.t) : unit =
   let retval' = check_result_f retval in
-  if show_result then Cmd.log "retval = %a" Ecma_sl.Val.pp retval'
+  if show_result then Log.app "» exit value: %a" Ecma_sl.Val.pp retval'
 
 let interpret_core (check_result_f : Val.t -> Val.t) (opts : options) : unit =
   Parsing_utils.load_file opts.input
@@ -62,10 +62,10 @@ let run (opts : options) : unit =
   let open Enums.Lang in
   let valid_langs = valid langs opts.interpret_lang in
   match Cmd.test_file_ext valid_langs opts.input with
-  | ESL -> compile_and_interpret opts
-  | CESL -> interpret_core esl_exit_checker opts
-  | CESLUnattached -> interpret_core no_exit_checker opts
-  | _ -> raise Cmd.(Command_error Failure)
+  | Some ESL -> compile_and_interpret opts
+  | Some CESL -> interpret_core esl_exit_checker opts
+  | Some CESLUnattached -> interpret_core no_exit_checker opts
+  | _ -> compile_and_interpret opts
 
 let main (copts : Options.Common.t) (opts : options) : int =
   Options.Common.set copts;

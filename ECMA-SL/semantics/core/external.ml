@@ -1,7 +1,7 @@
 let eval_build_ast_func = Utils.make_name_generator "eval_func_"
 
 let parseJS (prog : Prog.t) (_heap : 'a Heap.t) (str : string) : Val.t =
-  let _ = failwith "FIXME: Check if we can remove this function" in
+  let _ = Log.err "FIXME: Check if we can remove this function" in
   let base = Filename.basename "" in
   let input_file = "__parse_in_" ^ base ^ "__.js"
   and output_file = "__parse_out_" ^ base ^ "__.js" in
@@ -31,5 +31,5 @@ let execute (prog : Prog.t) (heap : 'a Heap.t) (f : string) (vs : Val.t list) :
     let loc = loadInitialHeap prog heap file in
     loc
   | _ ->
-    Format.eprintf "UNKNOWN %s external function@." f;
+    Log.warn "UNKNOWN %s external function" f;
     Val.Symbol "undefined"
