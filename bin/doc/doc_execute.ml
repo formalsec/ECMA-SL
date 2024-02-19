@@ -35,10 +35,11 @@ let exits =
     ; Cmd.Exit.info ~doc:"on interpretation runtime error" 4
     ]
 
-let cmd_options input execute_lang execute_version interpret_verbose
+let cmd_options input harness execute_lang execute_version interpret_verbose
   interpret_verbose_at interpret_debugger interpret_show_result :
   Cmd_execute.options =
   { input
+  ; harness
   ; execute_lang
   ; execute_version
   ; interpret_verbose
@@ -51,6 +52,7 @@ let options =
   Term.(
     const cmd_options
     $ Options.File.input
+    $ Options.File.harness
     $ Options.Execute.lang Cmd_execute.langs
     $ Options.Execute.version
     $ Options.Interpret.verbose
