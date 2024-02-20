@@ -136,6 +136,11 @@ ecma-sl execute <output.cesl>
 ecma-sl execute <input.js>
 ```
 
+- Test a JavaScript `(.js)` program using a test harness:
+```sh
+ecma-sl test --harness=<harness.js> <input.js>
+```
+
 <br>
 <br>
 
