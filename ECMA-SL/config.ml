@@ -7,6 +7,7 @@ module Common = struct
 end
 
 module Interpreter = struct
+  let hide_prints = ref false
   let debugger = ref false
   let verbose = ref false
   let verbose_at = ref false

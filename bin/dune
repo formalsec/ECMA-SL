@@ -9,6 +9,7 @@
   doc_interpret
   doc_encode
   doc_execute
+  doc_test
   doc_symbolic
   doc_replay
   cmd
@@ -16,6 +17,7 @@
   cmd_interpret
   cmd_encode
   cmd_execute
+  cmd_test
   cmd_symbolic
   cmd_replay
   options

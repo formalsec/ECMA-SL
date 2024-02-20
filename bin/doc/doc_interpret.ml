@@ -30,8 +30,8 @@ let exits =
     ]
 
 let cmd_options input interpret_lang interpret_verbose interpret_verbose_at
-  interpret_debugger interpret_main interpret_show_result untyped :
-  Cmd_interpret.options =
+  interpret_debugger interpret_main interpret_show_result interpret_hide_prints
+  untyped : Cmd_interpret.options =
   { input
   ; interpret_lang
   ; interpret_verbose
@@ -39,6 +39,7 @@ let cmd_options input interpret_lang interpret_verbose interpret_verbose_at
   ; interpret_debugger
   ; interpret_main
   ; interpret_show_result
+  ; interpret_hide_prints
   ; untyped
   }
 
@@ -52,6 +53,7 @@ let options =
     $ Options.Interpret.debugger
     $ Options.Interpret.main_func
     $ Options.Interpret.show_result
+    $ Options.Interpret.hide_prints
     $ Options.Compile.untyped )
 
 let term = Term.(const Cmd_interpret.main $ Options.Common.options $ options)

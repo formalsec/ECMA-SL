@@ -44,10 +44,11 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
 
   let print_val (heap : heap) (v : value) : unit =
     let open Fmt in
-    match v with
-    | Str s -> printf "%s@." s
-    | Loc l -> printf "%a@." (Object.pp Val.pp) (get_loc heap l)
-    | _ -> printf "%a@." Val.pp v
+    match (!Config.Interpreter.hide_prints, v) with
+    | (true, _) -> ()
+    | (false, Str s) -> printf "%s@." s
+    | (false, Loc l) -> printf "%a@." (Object.pp Val.pp) (get_loc heap l)
+    | (false, _) -> printf "%a@." Val.pp v
 
   let rec eval_expr' (store : store) (e : Expr.t) : value =
     match e.it with
