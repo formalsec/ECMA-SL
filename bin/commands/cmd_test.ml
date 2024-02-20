@@ -6,25 +6,39 @@ type options =
   ; ecmaref : Enums.ECMARef.t
   }
 
-let jsreturn_checker (input : Fpath.t) (retval : Val.t) : unit =
+module Test = struct
+  let sucessful (input : Fpath.t) (retval : Val.t) : Val.t =
+    Fmt.printf "Test Sucessful:           %a@." Fpath.pp input;
+    retval
+
+  let failure (input : Fpath.t) (retval : Val.t) : Val.t =
+    Fmt.printf "Test Failure:             %a@." Fpath.pp input;
+    retval
+
+  let ecmaref_fail (input : Fpath.t) (retval : Val.t) : Val.t =
+    Fmt.printf "Test Interpreter Failure: %a@." Fpath.pp input;
+    retval
+
+  let internal_fail (input : Fpath.t) : unit =
+    Fmt.printf "Test Internal Failure:    %a@." Fpath.pp input
+end
+
+let jsreturn_checker (input : Fpath.t) (retval : Val.t) : Val.t =
   match retval with
-  | Val.Tuple [ _; Val.Symbol "normal"; _; _ ] ->
-    Fmt.printf "Test Sucessful: %a@." Fpath.pp input
-  | _ -> Fmt.printf "Test Failure: %a@." Fpath.pp input
+  | Val.Tuple [ _; Val.Symbol "normal"; _; _ ] -> Test.sucessful input retval
+  | _ -> Test.failure input retval
 
 let exitval_checker_test (input : Fpath.t) (retval : Val.t) : Val.t =
   match retval with
-  | Val.Tuple [ Val.Bool false; retval' ] ->
-    jsreturn_checker input retval';
-    retval'
-  | Val.Tuple [ Val.Bool true; err ] ->
-    Eslerr.(runtime (UncaughtExn (Val.str err)))
-  | _ -> Eslerr.runtime (UnexpectedExitFmt retval)
+  | Val.Tuple [ Val.Bool false; retval' ] -> jsreturn_checker input retval'
+  | Val.Tuple [ Val.Bool true; _ ] -> Test.ecmaref_fail input retval
+  | _ -> Test.ecmaref_fail input retval
 
 let run_single (opts : options) (input : Fpath.t) (_ : Fpath.t option) : unit =
   ignore Enums.Lang.(resolve_file_lang [ JS ] input);
-  let resolve_exitval_f = exitval_checker_test input in
-  Cmd_execute.execute_js resolve_exitval_f input opts.harness opts.ecmaref false
+  let exitval_f = exitval_checker_test input in
+  try Cmd_execute.execute_js exitval_f input opts.harness opts.ecmaref false
+  with _ -> Test.internal_fail input
 
 let run (opts : options) : unit = Dir.exec (run_single opts) opts.inputs None ""
 
