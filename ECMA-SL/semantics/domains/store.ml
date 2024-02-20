@@ -4,7 +4,6 @@ type 'a t = (var, 'a) Hashtbl.t
 let create (var_vals : (var * 'a) list) : 'a t =
   List.to_seq var_vals |> Hashtbl.of_seq
 
-let clone (store : 'a t) : 'a t = Hashtbl.copy store
 let get_opt (store : 'a t) (x : var) : 'a option = Hashtbl.find_opt store x
 
 let get (store : 'a t) (x : var) : ('a, string) Result.t =
