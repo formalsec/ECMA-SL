@@ -179,7 +179,8 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
       Store.set store x.it v;
       (Intermediate (state, cont), lbl AssignECallEval)
     | AssignNewObj x ->
-      let l = Object.create () |> Heap.insert heap in
+      let l = Loc.create () in
+      Heap.set heap l (Object.create ());
       Store.set store x.it (Val.Loc l);
       (Intermediate (state, cont), lbl (AssignNewObjEval l))
     | AssignObjToList (x, e) ->

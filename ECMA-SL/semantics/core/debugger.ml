@@ -90,7 +90,8 @@ let print_val (heap : heap) (res : value) : unit =
 let eval_fld (heap : heap) (lv : Val.t) (fn : string) : Val.t =
   let _fld_val v_opt = Option.value ~default:(Val.Symbol "undefined") v_opt in
   match lv with
-  | Loc l -> _fld_val (Heap.get_field_opt heap l fn)
+  | Loc l ->
+    _fld_val (Option.bind (Heap.get_opt heap l) (fun obj -> Object.get obj fn))
   | _ -> cmd_err (Fmt.asprintf "Invalid location value '%a'." Val.pp lv)
 
 let eval_cmd (store : store) (heap : heap) (expr : string) () : unit =
