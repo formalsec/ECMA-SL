@@ -29,17 +29,16 @@ let exits =
     ; Cmd.Exit.info ~doc:"on interpretation runtime error" 4
     ]
 
-let cmd_options input interpret_lang interpret_verbose interpret_verbose_at
-  interpret_debugger interpret_main interpret_show_result interpret_hide_prints
-  untyped : Cmd_interpret.options =
+let cmd_options input lang verbose verbose_at debugger main show_exitval
+  hide_prints untyped : Cmd_interpret.options =
   { input
-  ; interpret_lang
-  ; interpret_verbose
-  ; interpret_verbose_at
-  ; interpret_debugger
-  ; interpret_main
-  ; interpret_show_result
-  ; interpret_hide_prints
+  ; lang
+  ; verbose
+  ; verbose_at
+  ; debugger
+  ; main
+  ; show_exitval
+  ; hide_prints
   ; untyped
   }
 
@@ -52,7 +51,7 @@ let options =
     $ Options.Interpret.verbose_at
     $ Options.Interpret.debugger
     $ Options.Interpret.main_func
-    $ Options.Interpret.show_result
+    $ Options.Interpret.show_exitval
     $ Options.Interpret.hide_prints
     $ Options.Compile.untyped )
 

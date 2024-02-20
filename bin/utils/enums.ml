@@ -14,6 +14,8 @@ module DebugLvl = struct
     | Warn -> Fmt.pp_str fmt "warn"
     | Full -> Fmt.pp_str fmt "full"
 
+  let str (level : t) : string = Fmt.asprintf "%a" pp level
+
   let args (levels : t list) : (string * t) list =
     let to_arg = function
       | None as level -> ("none", level)
@@ -54,16 +56,23 @@ module Lang = struct
     in
     List.map to_arg langs
 
-  let valid (langs : t list) (user_lang : t) : t list =
-    match user_lang with Auto -> langs | _ -> [ user_lang ]
+  let valid_langs (valid_langs : t list) (user_lang : t) : t list =
+    match user_lang with Auto -> valid_langs | _ -> [ user_lang ]
 
-  let resolve_file_ext (langs : t list) (ext : string) : t option =
-    match ext with
-    | ".js" when List.mem JS langs -> Some JS
-    | ".esl" when List.mem ESL langs -> Some ESL
-    | ".cesl" when List.mem CESL langs -> Some CESL
-    | ".cesl" when List.mem CESLUnattached langs -> Some CESLUnattached
+  let resolve_file_ext (valid_langs : t list) (fpath : Fpath.t) : t option =
+    match Fpath.get_ext fpath with
+    | ".js" when List.mem JS valid_langs -> Some JS
+    | ".esl" when List.mem ESL valid_langs -> Some ESL
+    | ".cesl" when List.mem CESL valid_langs -> Some CESL
+    | ".cesl" when List.mem CESLUnattached valid_langs -> Some CESLUnattached
     | _ -> None
+
+  let resolve_file_lang (valid_langs : t list) (fpath : Fpath.t) : t option =
+    match resolve_file_ext valid_langs fpath with
+    | Some lang -> Some lang
+    | None ->
+      Log.warn "expecting file extensions: %a" (Fmt.pp_lst " | " pp) valid_langs;
+      None
 end
 
 module ECMARef = struct

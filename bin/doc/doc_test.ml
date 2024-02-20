@@ -32,15 +32,14 @@ let exits =
     ; Cmd.Exit.info ~doc:"on test error" 5
     ]
 
-let cmd_options inputs harness execute_lang execute_version : Cmd_test.options =
-  { inputs; harness; execute_lang; execute_version }
+let cmd_options inputs harness ecmaref : Cmd_test.options =
+  { inputs; harness; ecmaref }
 
 let options =
   Term.(
     const cmd_options
     $ Options.File.inputs
     $ Options.File.harness
-    $ Options.Execute.lang Cmd_execute.langs
-    $ Options.Execute.version )
+    $ Options.Execute.ecmaref )
 
 let term = Term.(const Cmd_test.main $ Options.Common.options $ options)
