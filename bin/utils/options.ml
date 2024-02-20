@@ -141,6 +141,13 @@ module Interpret = struct
        'main' function, at the end of the interpretation process."
     in
     Arg.(value & flag & info [ "show-result" ] ~doc)
+
+  let hide_prints =
+    let doc =
+      "Ignore the prints within the ECMA-SL (.esl) or Core ECA-SL (.cesl) \
+       program."
+    in
+    Arg.(value & flag & info [ "ignore-prints" ] ~doc)
 end
 
 (* Encode options *)

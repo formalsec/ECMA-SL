@@ -157,6 +157,7 @@ let run ~workspace filename entry_func =
 
 let main (copts : Options.Common.t) opt =
   Options.Common.set copts;
+  Ecma_sl.Config.Common.warns := true;
   match run ~workspace:opt.workspace opt.filename opt.entry_func with
   | Error (`Msg s) ->
     Log.warn "%s@." s;

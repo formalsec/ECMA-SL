@@ -54,12 +54,17 @@ let interpret_cmd =
 
 let encode_cmd =
   let open Doc_encode in
-  let info = Cmd.info "encode" ~doc ~sdocs ~man  ~man_xrefs ~exits in
+  let info = Cmd.info "encode" ~doc ~sdocs ~man ~man_xrefs ~exits in
   Cmd.v info term
 
 let execute_cmd =
   let open Doc_execute in
-  let info = Cmd.info "execute" ~doc ~sdocs ~man  ~man_xrefs ~exits in
+  let info = Cmd.info "execute" ~doc ~sdocs ~man ~man_xrefs ~exits in
+  Cmd.v info term
+
+let test_cmd =
+  let open Doc_test in
+  let info = Cmd.info "test" ~doc ~sdocs ~man ~man_xrefs ~exits in
   Cmd.v info term
 
 let symbolic_cmd =
@@ -77,6 +82,7 @@ let cmd_list =
   ; interpret_cmd
   ; encode_cmd
   ; execute_cmd
+  ; test_cmd
   ; symbolic_cmd
   ; replay_cmd
   ]

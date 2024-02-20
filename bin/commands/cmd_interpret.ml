@@ -8,6 +8,7 @@ type options =
   ; interpret_debugger : bool
   ; interpret_main : string
   ; interpret_show_result : bool
+  ; interpret_hide_prints : bool
   ; untyped : bool
   }
 
@@ -72,5 +73,6 @@ let main (copts : Options.Common.t) (opts : options) : int =
   Config.Interpreter.verbose := opts.interpret_verbose;
   Config.Interpreter.verbose_at := opts.interpret_verbose_at;
   Config.Interpreter.debugger := opts.interpret_debugger;
+  Config.Interpreter.hide_prints := opts.interpret_hide_prints;
   Config.Tesl.untyped := opts.untyped;
   Cmd.eval_cmd (fun () -> run opts)
