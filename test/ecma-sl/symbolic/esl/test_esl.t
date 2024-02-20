@@ -2,7 +2,8 @@ Esl tests:
   $ ecma-sl symbolic assume.esl
   $ ecma-sl symbolic extern.esl
   #x
-  unable to find external function 'i_dont_exist'
+  [ecma-sl] unable to find external function 'i_dont_exist'
+  
   [1]
   $ ecma-sl symbolic func.esl
   $ ecma-sl symbolic if.esl

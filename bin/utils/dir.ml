@@ -1,25 +1,24 @@
-let make_base (file : string) : string =
-  Filename.dirname file ^ "/" ^ Filename.basename file ^ "/"
+let make_dir (fpath : Fpath.t) : unit =
+  match Bos.OS.Dir.create fpath with
+  | Ok _ -> ()
+  | Error (`Msg err) -> failwith err
 
-let make_fin (base : string) (file : string) : string = base ^ file
+let dir_contents (fpath : Fpath.t) : Fpath.t list =
+  match Bos.OS.Dir.contents fpath with
+  | Ok files -> files
+  | Error (`Msg err) -> failwith err
 
-let make_fout (base : string) (file : string) (ext : string) : string =
-  base ^ Filename.remove_extension file ^ ext
+let make_fout (dir : Fpath.t) (fin : Fpath.t) (ext : string) : Fpath.t =
+  Fpath.((dir / filename fin) + ext)
 
-let exec (exec_f : string -> string option -> unit) (input : string)
-  (output : string option) (outext : string) : unit =
-  match (Filename.extension input, output) with
-  | ("", Some output') when Filename.extension output' = "" ->
-    let base_in = make_base input in
-    let base_out = make_base output' in
-    let make_fin' fin = make_fin base_in fin in
-    let make_fout' fin = Some (make_fout base_out fin outext) in
-    let exec_f' fin = exec_f (make_fin' fin) (make_fout' fin) in
-    Ecma_sl.Io.safe_mkdir base_out;
-    Array.iter exec_f' (Sys.readdir input)
-  | ("", _) ->
-    let base_in = make_base input in
-    let make_fin' fin = make_fin base_in fin in
-    let exec_f' fin = exec_f (make_fin' fin) output in
-    Array.iter exec_f' (Sys.readdir input)
-  | _ -> exec_f input output
+let exec (exec_f : Fpath.t -> Fpath.t option -> unit) (input : Fpath.t)
+  (output : Fpath.t option) (outext : string) : unit =
+  match (Fpath.is_dir_path input, output) with
+  | (false, _) -> exec_f input output
+  | (true, Some outdir) when Fpath.is_dir_path outdir ->
+    make_dir outdir;
+    let exec_f' fin = exec_f fin (Some (make_fout outdir fin outext)) in
+    List.iter exec_f' (dir_contents input)
+  | (true, _) ->
+    let exec_f' fin = exec_f fin output in
+    List.iter exec_f' (dir_contents input)

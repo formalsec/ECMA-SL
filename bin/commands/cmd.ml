@@ -43,12 +43,3 @@ let eval_cmd (cmd : unit -> unit) : int =
   | Eslerr.Compile_error _ as exn -> esl_default_err exn
   | Eslerr.Runtime_error _ as exn -> esl_default_err exn
   | Command_error err -> error_code err
-
-let test_file_ext (langs : Enums.Lang.t list) (file : string) :
-  Enums.Lang.t option =
-  let open Enums.Lang in
-  match resolve_file_ext langs (Filename.extension file) with
-  | Some lang -> Some lang
-  | None ->
-    Log.warn "expecting file extensions: { %a }" (Fmt.pp_lst " ; " pp) langs;
-    None

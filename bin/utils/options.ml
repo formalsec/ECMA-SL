@@ -32,47 +32,38 @@ module Common = struct
 end
 
 (* File options *)
-module Fpath_ = struct
-  let parse_fpath str is_something =
+module File = struct
+  let parse_fpath str test_f =
     let file = Fpath.v str in
-    match is_something file with
+    match test_f file with
     | Ok true -> `Ok file
     | Ok false -> `Error (Ecma_sl.Fmt.asprintf "File '%s' not found!" str)
     | Error (`Msg err) -> `Error err
 
-  let non_dir_fpath =
-    let parse str = parse_fpath str Bos.OS.File.exists in
-    (parse, Fpath.pp)
+  let fpath = ((fun str -> `Ok (Fpath.v str)), Fpath.pp)
+  let valid_fpath = ((fun str -> parse_fpath str Bos.OS.Path.exists), Fpath.pp)
+  let non_dir_fpath = ((fun str -> parse_fpath str Bos.OS.File.exists), Fpath.pp)
+  let dir_fpath = ((fun str -> parse_fpath str Bos.OS.Dir.exists), Fpath.pp)
 
-  let fpath =
-    let parse str = `Ok (Fpath.v str) in
-    (parse, Fpath.pp)
-
-  let input =
-    let doc = "Name of the input file." in
-    Arg.(required & pos 0 (some non_dir_fpath) None & info [] ~doc ~docv:"FILE")
-end
-
-module File = struct
   let input =
     let docv = "FILE" in
     let doc = "Name of the input file." in
-    Arg.(required & pos 0 (some non_dir_file) None & info [] ~doc ~docv)
+    Arg.(required & pos 0 (some non_dir_fpath) None & info [] ~doc ~docv)
 
   let inputs =
     let docv = "FILE/DIR" in
     let doc = "Name of the input file or input directory." in
-    Arg.(required & pos 0 (some file) None & info [] ~doc ~docv)
+    Arg.(required & pos 0 (some valid_fpath) None & info [] ~doc ~docv)
 
   let output =
     let docv = "FILE" in
     let doc = "Name of the output file." in
-    Arg.(value & opt (some string) None & info [ "o"; "output" ] ~doc ~docv)
+    Arg.(value & opt (some fpath) None & info [ "o"; "output" ] ~doc ~docv)
 
   let harness =
     let docv = "FILE" in
     let doc = "Name of the harness file." in
-    Arg.(value & opt (some non_dir_file) None & info [ "harness" ] ~doc ~docv)
+    Arg.(value & opt (some non_dir_fpath) None & info [ "harness" ] ~doc ~docv)
 end
 
 (* Compile options *)
@@ -135,7 +126,7 @@ module Interpret = struct
     in
     Arg.(value & opt string "main" & info [ "main" ] ~doc ~docv)
 
-  let show_result =
+  let show_exitval =
     let doc =
       "Display the value returned by the top-level function, typically the \
        'main' function, at the end of the interpretation process."
@@ -177,12 +168,12 @@ module Execute = struct
     let langs' = Arg.enum (args langs) in
     Arg.(value & opt langs' Auto & info [ "lang" ] ~doc ~docv)
 
-  let version =
+  let ecmaref =
     let open Enums.ECMARef in
     let docv = "ECMAREF" in
     let doc = "Version of the reference interpreter." in
-    let versions = Arg.enum (args all) in
-    Arg.(value & opt versions Main & info [ "interp" ] ~doc ~docv)
+    let ecmarefs = Arg.enum (args all) in
+    Arg.(value & opt ecmarefs Main & info [ "interp" ] ~doc ~docv)
 end
 
 (* Other options - TODO *)
@@ -194,10 +185,8 @@ let target_func =
 let workspace_dir =
   let doc = "The workspace directory for the results of the analysis." in
   Arg.(
-    value
-    & opt Fpath_.fpath (Fpath.v "ecma-out")
-    & info [ "workspace"; "w" ] ~doc )
+    value & opt File.fpath (Fpath.v "ecma-out") & info [ "workspace"; "w" ] ~doc )
 
 let testsuit_dir =
   let doc = "Search $(docv) for concrete testsuites to validate." in
-  Arg.(required & pos 1 (some Fpath_.fpath) None & info [] ~docv:"DIR" ~doc)
+  Arg.(required & pos 1 (some File.fpath) None & info [] ~docv:"DIR" ~doc)

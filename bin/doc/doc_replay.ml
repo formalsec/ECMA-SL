@@ -10,7 +10,6 @@ let man = [ `S Manpage.s_description; `P (List.assoc `P0 description) ]
 let man_xrefs = []
 
 let options =
-  Term.(
-    const Cmd_replay.options $ Options.Fpath_.input $ Options.testsuit_dir )
+  Term.(const Cmd_replay.options $ Options.File.input $ Options.testsuit_dir)
 
 let term = Term.(const Cmd_replay.main $ Options.Common.options $ options)

@@ -1,12 +1,12 @@
 open Ecma_sl
 
 type options =
-  { input : string
-  ; output : string option
+  { input : Fpath.t
+  ; output : Fpath.t option
   ; untyped : bool
   }
 
-let run_type_checker (prog : EProg.t) : EProg.t =
+let type_check (prog : EProg.t) : EProg.t =
   if !Config.Tesl.untyped || true then prog
   else
     let terrs = T_Checker.type_program prog in
@@ -15,20 +15,22 @@ let run_type_checker (prog : EProg.t) : EProg.t =
       Fmt.eprintf "%s" (T_Checker.terrs_str terrs);
       raise (Cmd.Command_error Cmd.Error) )
 
-let run_compiler (file : string) : Prog.t =
-  Parsing_utils.load_file file
-  |> Parsing_utils.parse_eprog ~file
+let compile (input : Fpath.t) : Prog.t =
+  let input' = Fpath.to_string input in
+  Parsing_utils.load_file input'
+  |> Parsing_utils.parse_eprog ~file:input'
   |> Parsing_utils.resolve_eprog_imports
   |> Parsing_utils.apply_eprog_macros
-  |> run_type_checker
+  |> type_check
   |> Compiler.compile_prog
 
 let run (opts : options) : unit =
-  ignore (Cmd.test_file_ext [ Enums.Lang.ESL ] opts.input);
-  let prog = run_compiler opts.input in
+  ignore Enums.Lang.(resolve_file_lang [ ESL ] opts.input);
+  let prog = compile opts.input in
   match opts.output with
   | None -> print_endline (Prog.str prog)
-  | Some output_file' -> Io.write_file output_file' (Prog.str prog)
+  | Some output_file' ->
+    Io.write_file (Fpath.to_string output_file') (Prog.str prog)
 
 let main (copts : Options.Common.t) (opts : options) : int =
   Options.Common.set copts;
