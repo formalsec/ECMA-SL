@@ -37,7 +37,7 @@ let execute_witness ~env (test : Fpath.t) (witness : Fpath.t) =
   let cmd = node test witness in
   let* (out, status) = Cmd.(run_out ~env ~err:err_run_out cmd |> out_string) in
   match status with
-  | (_, `Exited _) ->
+  | (_, `Exited 0) ->
     Ok
       (List.find_opt
          (fun effect ->
@@ -45,7 +45,7 @@ let execute_witness ~env (test : Fpath.t) (witness : Fpath.t) =
            | Stdout sub -> String.find_sub ~sub out |> Option.is_some
            | File file -> Sys.file_exists file )
          observable_effects )
-  | (_, `Signaled _) ->
+  | (_, `Exited _) | (_, `Signaled _) ->
     Error (`Msg (Fmt.sprintf "unexpected node failure: %s" out))
 
 let replay filename testsuite =
