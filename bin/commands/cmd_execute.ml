@@ -9,6 +9,7 @@ type options =
   ; interpret_verbose_at : bool
   ; interpret_debugger : bool
   ; interpret_show_result : bool
+  ; interpret_hide_prints : bool
   }
 
 let langs : Enums.Lang.t list = Enums.Lang.[ Auto; JS; CESL ]
@@ -23,7 +24,8 @@ let merge_input_harness (opts : options) : string =
     Io.write_file file (harness_code ^ input_code);
     file
 
-let execute (opts : options) : unit =
+let execute ?(exit_checker_f : Val.t -> Val.t = Cmd_interpret.esl_exit_checker)
+  (opts : options) : unit =
   let open Ecma_sl in
   let finterp = Enums.ECMARef.interp opts.execute_version in
   let interp = Parsing_utils.load_file finterp in
@@ -31,26 +33,27 @@ let execute (opts : options) : unit =
   String.concat ";\n" [ ast; interp ]
   |> Parsing_utils.parse_prog
   |> Cmd_interpret.run_interpreter "main"
-  |> Cmd_interpret.process_result Cmd_interpret.esl_exit_checker
-       opts.interpret_show_result
+  |> Cmd_interpret.process_result exit_checker_f opts.interpret_show_result
 
-let encode_and_execute (opts : options) : unit =
+let encode_and_execute
+  ?(exit_checker_f : Val.t -> Val.t = Cmd_interpret.esl_exit_checker)
+  (opts : options) : unit =
   let input = merge_input_harness opts in
   let output = "/tmp/ecmasl-ast.cesl" in
   Cmd_encode.encode None input (Some output);
-  execute { opts with input = output }
+  execute ~exit_checker_f { opts with input = output }
 
 let run (opts : options) : unit =
   let open Enums.Lang in
   let valid_langs = valid langs opts.execute_lang in
   match Cmd.test_file_ext valid_langs opts.input with
-  | Some JS -> encode_and_execute opts
   | Some CESL -> execute opts
-  | _ -> encode_and_execute opts
+  | Some JS | _ -> encode_and_execute opts
 
 let main (copts : Options.Common.t) (opts : options) : int =
   Options.Common.set copts;
   Config.Interpreter.verbose := opts.interpret_verbose;
   Config.Interpreter.verbose_at := opts.interpret_verbose_at;
   Config.Interpreter.debugger := opts.interpret_debugger;
+  Config.Interpreter.hide_prints := opts.interpret_hide_prints;
   Cmd.eval_cmd (fun () -> run opts)
