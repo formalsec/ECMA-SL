@@ -14,9 +14,9 @@ function __path_dirname(globalObject, this, NewTarget, strict, params) {
 
 function createPathObject(globalObject, objectPrototype, strict) {
   realm := { globalEnv : globalObject };
-  path := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(path);
-  setInternalProperty(path, "Prototype", objectPrototype);
+  path := newLazyObject();
+  /* setAllInternalMethodsOfOrdinaryObject(path); */
+  setInternalProperty(path, "prototype", objectPrototype);
 
   /* Functions: */
   join := CreateBuiltInFunctionObject(["path"], "__path_join", realm,
