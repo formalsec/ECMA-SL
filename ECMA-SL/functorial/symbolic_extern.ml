@@ -60,10 +60,10 @@ module Make () = struct
     let is_exec_sat (e : value) =
       (* TODO: more fine-grained exploit analysis *)
       let i = Value.int_symbol_s (fresh_i ()) in
-      let len = Value.Val (Int 17) in
+      let len = Value.Val (Int 18) in
       let sub = TriOpt (Operator.StringSubstr, e, i, len) in
       let query =
-        BinOpt (Operator.Eq, sub, Val (Val.Str "; touch success #"))
+        BinOpt (Operator.Eq, sub, Val (Val.Str "A; touch success #"))
       in
       let/ b = Choice.check_add_true query in
       Choice.return (Ok (Val (Val.Bool b)))
