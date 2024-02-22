@@ -20,7 +20,7 @@ let merge_input_harness (input : Fpath.t) (harness : Fpath.t option) : Fpath.t =
   | Some harness ->
     let input_code = Io.read_file (Fpath.to_string input) in
     let harness_code = Io.read_file (Fpath.to_string harness) in
-    let file = "/tmp/ecmasl-ast.js" in
+    let file = Filename.temp_file "ecmasl" "js_wharness.js" in
     Io.write_file file (harness_code ^ input_code);
     Fpath.v file
 
@@ -39,7 +39,7 @@ let execute_js (resolve_exitval_f : Val.t -> Val.t) (input : Fpath.t)
   (harness : Fpath.t option) (ecmaref : Enums.ECMARef.t) (show_exitval : bool) :
   unit =
   let input' = merge_input_harness input harness in
-  let output' = Fpath.v "/tmp/ecmasl-ast.cesl" in
+  let output' = Fpath.v (Filename.temp_file "ecmasl" "ast.js") in
   Cmd_encode.encode None input' (Some output');
   execute_cesl resolve_exitval_f output' ecmaref show_exitval
 
