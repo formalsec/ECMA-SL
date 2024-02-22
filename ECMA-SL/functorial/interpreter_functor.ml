@@ -132,7 +132,7 @@ module Make (P : Interpreter_functor_intf.P) :
       ok { state with stmts = stmt :: state.stmts }
     | Stmt.Fail e ->
       let e' = pp locals m e in
-      Log.warn "       fail : %s@." e';
+      Log.log ~header:false "       fail : %s" e';
       error (`Failure (Fmt.sprintf "%s" e'))
     | Stmt.Print e ->
       Format.printf "%s@." (pp locals m e);
@@ -144,7 +144,7 @@ module Make (P : Interpreter_functor_intf.P) :
       let e' = eval_expr locals e in
       let* b = Choice.check_add_true @@ Value.Bool.not_ e' in
       if b then (
-        Log.warn "     assert : failure with (%a)@." Value.pp e';
+        Log.log ~header:false "     assert : failure with (%a)" Value.pp e';
         error (`Assert_failure e') )
       else ok state
     | Stmt.Block blk -> ok { state with stmts = blk @ state.stmts }
@@ -261,7 +261,8 @@ module Make (P : Interpreter_functor_intf.P) :
       | State.Continue state -> loop state
       | State.Return ret -> Choice.return ret )
     | [] -> (
-      Format.printf "    warning : %s: missing a return statement!@." state.func;
+      Log.log ~header:false "    warning : %s: missing a return statement!@."
+        state.func;
       match State.return state with
       | State.Continue state -> loop state
       | State.Return ret -> Choice.return ret )
