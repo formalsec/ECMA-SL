@@ -1,6 +1,15 @@
 open Source
 open Stmt
 
+module Config = struct
+  type t =
+    { main : string
+    ; resolve_exitval : bool
+    }
+
+  let default : t = { main = "main"; resolve_exitval = true }
+end
+
 module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
   type value = Val.t
   type obj = value Object.t
@@ -277,13 +286,21 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
       | Error v -> Error v
       | Intermediate (state', cont') -> small_step_iter prog state' mon' cont' )
 
-  let eval_prog ?(main : string = "main") (prog : Prog.t) : value =
-    let f = get_func prog main no_region in
+  let resolve_exitval (retval : value) : value =
+    match retval with
+    | Val.Tuple [ Val.Bool false; retval' ] -> retval'
+    | Val.Tuple [ Val.Bool true; err ] ->
+      Eslerr.(runtime (UncaughtExn (Val.str err)))
+    | _ -> Eslerr.runtime (UnexpectedExitVal retval)
+
+  let eval_prog ?(config : Config.t = Config.default) (prog : Prog.t) : value =
+    let f = get_func prog config.main no_region in
     let state = initial_state f in
     let mon = Mon.initial_state () in
     let return = small_step_iter prog state mon [ Func.body f ] in
     match return with
-    | Final v -> v
+    | Final retval when config.resolve_exitval -> resolve_exitval retval
+    | Final retval -> retval
     | Error err -> Eslerr.(runtime (Failure (Val.str err)))
     | _ -> Eslerr.internal __FUNCTION__ (Expecting "non-intermediate state")
 end

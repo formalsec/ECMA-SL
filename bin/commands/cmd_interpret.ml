@@ -27,50 +27,36 @@ module InterpreterConfig = struct
   let monitor () : (module Monitor.M) = (module Monitor.Default : Monitor.M)
 end
 
-let exitval_checker_none (retval : Val.t) : Val.t = retval
-
-let exitval_checker_esl (retval : Val.t) : Val.t =
-  match retval with
-  | Val.Tuple [ Val.Bool false; retval' ] -> retval'
-  | Val.Tuple [ Val.Bool true; err ] ->
-    Eslerr.(runtime (UncaughtExn (Val.str err)))
-  | _ -> Eslerr.runtime (UnexpectedExitFmt retval)
-
-let interpret (main : string) (prog : Prog.t) : Val.t =
+let interpret (config : Interpreter.Config.t) (prog : Prog.t) : Val.t =
   let module Debugger = (val InterpreterConfig.debugger ()) in
   let module Verbose = (val InterpreterConfig.verbose ()) in
   let module Monitor = (val InterpreterConfig.monitor ()) in
   let module Interpreter = Interpreter.M (Debugger) (Verbose) (Monitor) in
-  Interpreter.eval_prog ~main prog
+  Interpreter.eval_prog ~config prog
 
-let process_exitval (resolve_exitval_f : Val.t -> Val.t) (show_exitval : bool)
-  (exitval : Val.t) : unit =
-  let exitval' = resolve_exitval_f exitval in
-  if show_exitval then Log.app "» exit value: %a\n" Ecma_sl.Val.pp exitval'
-
-let interpret_cesl (resolve_exitval_f : Val.t -> Val.t) (input : Fpath.t)
-  (main : string) (show_exitval : bool) : unit =
+let interpret_cesl (config : Interpreter.Config.t) (input : Fpath.t) : Val.t =
   let input' = Fpath.to_string input in
   Parsing_utils.load_file input'
   |> Parsing_utils.parse_prog ~file:input'
-  |> interpret main
-  |> process_exitval resolve_exitval_f show_exitval
+  |> interpret config
 
-let interpret_esl (input : Fpath.t) (main : string) (show_exitval : bool) : unit
-    =
-  Cmd_compile.compile input
-  |> interpret main
-  |> process_exitval exitval_checker_esl show_exitval
+let interpret_esl (config : Interpreter.Config.t) (input : Fpath.t) : Val.t =
+  Cmd_compile.compile input |> interpret config
+
+let process_exitval (show_exitval : bool) (exitval : Val.t) : unit =
+  if show_exitval then Log.app "» exit value: %a\n" Ecma_sl.Val.pp exitval
 
 let run (opts : options) : unit =
   let valid_langs = Enums.Lang.valid_langs langs opts.lang in
+  let interp_config = { Interpreter.Config.default with main = opts.main } in
+  process_exitval opts.show_exitval
+  @@
   match Enums.Lang.resolve_file_lang valid_langs opts.input with
-  | Some ESL -> interpret_esl opts.input opts.main opts.show_exitval
-  | Some CESL ->
-    interpret_cesl exitval_checker_esl opts.input opts.main opts.show_exitval
+  | Some ESL -> interpret_esl interp_config opts.input
+  | Some CESL -> interpret_cesl interp_config opts.input
   | Some CESLUnattached ->
-    interpret_cesl exitval_checker_none opts.input opts.main opts.show_exitval
-  | _ -> interpret_esl opts.input opts.main opts.show_exitval
+    interpret_cesl { interp_config with resolve_exitval = false } opts.input
+  | _ -> interpret_esl interp_config opts.input
 
 let main (copts : Options.Common.t) (opts : options) : int =
   Options.Common.set copts;
