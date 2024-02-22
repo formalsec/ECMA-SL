@@ -1,8 +1,7 @@
 open Operator
 open Val
 
-let op_err (src_arg_i : int) (op_lbl : string) (rterr : Eslerr.rterr) :
-  'a =
+let op_err (src_arg_i : int) (op_lbl : string) (rterr : Eslerr.rterr) : 'a =
   raise Eslerr.(runtime' ~src:(Index src_arg_i) [ OpEvalErr op_lbl; rterr ])
 
 let unexpected_err (src_arg_i : int) (op_lbl : string) (msg : string) : 'a =
@@ -221,13 +220,13 @@ let list_to_array (v : Val.t) : Val.t =
 let list_head (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt ListHead in
   match v with
-  | List lst -> List.hd lst
-  | _ -> bad_arg_err 1 op_lbl "list" [ v ]
+  | List (_ :: _ as lst) -> List.hd lst
+  | _ -> bad_arg_err 1 op_lbl "non-empty list" [ v ]
 
 let list_tail (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt ListTail in
   match v with
-  | List lst -> List (List.tl lst)
+  | List (_ :: _ as lst) -> List (List.tl lst)
   | _ -> bad_arg_err 1 op_lbl "list" [ v ]
 
 let list_len (v : Val.t) : Val.t =
