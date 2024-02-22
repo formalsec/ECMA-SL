@@ -9,7 +9,6 @@ type options =
   ; verbose_at : bool
   ; debugger : bool
   ; show_exitval : bool
-  ; hide_prints : bool
   }
 
 let langs : Enums.Lang.t list = Enums.Lang.[ Auto; JS; CESL ]
@@ -61,5 +60,4 @@ let main (copts : Options.Common.t) (opts : options) : int =
   Config.Interpreter.verbose := opts.verbose;
   Config.Interpreter.verbose_at := opts.verbose_at;
   Config.Interpreter.debugger := opts.debugger;
-  Config.Interpreter.hide_prints := opts.hide_prints;
   Cmd.eval_cmd (fun () -> run opts)

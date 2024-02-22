@@ -35,17 +35,8 @@ let exits =
     ]
 
 let cmd_options input harness lang ecmaref verbose verbose_at debugger
-  show_exitval hide_prints : Cmd_execute.options =
-  { input
-  ; harness
-  ; lang
-  ; ecmaref
-  ; verbose
-  ; verbose_at
-  ; debugger
-  ; show_exitval
-  ; hide_prints
-  }
+  show_exitval : Cmd_execute.options =
+  { input; harness; lang; ecmaref; verbose; verbose_at; debugger; show_exitval }
 
 let options =
   Term.(
@@ -57,7 +48,6 @@ let options =
     $ Options.Interpret.verbose
     $ Options.Interpret.verbose_at
     $ Options.Interpret.debugger
-    $ Options.Interpret.show_exitval
-    $ Options.Interpret.hide_prints )
+    $ Options.Interpret.show_exitval )
 
 let term = Term.(const Cmd_execute.main $ Options.Common.options $ options)
