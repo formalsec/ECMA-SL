@@ -1,6 +1,7 @@
 (cram
  (deps
   %{bin:ecma-sl}
+  (package ecma-sl)
   test_sink_Function.js
   test_sink_argv.js
   test_sink_eval.js
