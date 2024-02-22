@@ -6,70 +6,61 @@ type options =
   ; ecmaref : Enums.ECMARef.t
   }
 
-module Output = struct
-  open Unix
-
-  type t =
-    { out : file_descr
-    ; err : file_descr
-    ; devnull : file_descr
+module Test = struct
+  type out_channels =
+    { out : Unix.file_descr
+    ; err : Unix.file_descr
+    ; devnull : Unix.file_descr
     }
 
-  let hide () : t =
-    let out = dup stdout in
-    let err = dup stderr in
-    let devnull = openfile "/dev/null" [ O_WRONLY ] 0o666 in
+  let hide_out_channels () : out_channels =
+    let out = Unix.dup Unix.stdout in
+    let err = Unix.dup Unix.stderr in
+    let devnull = Unix.openfile "/dev/null" [ O_WRONLY ] 0o666 in
     let old_channels = { out; err; devnull } in
-    dup2 devnull stdout;
-    dup2 devnull stderr;
+    Unix.dup2 devnull Unix.stdout;
+    Unix.dup2 devnull Unix.stderr;
     old_channels
 
-  let restore (old_channels : t) : unit =
-    dup2 old_channels.out Unix.stdout;
-    dup2 old_channels.err Unix.stderr;
-    close old_channels.out;
-    close old_channels.err;
-    close old_channels.devnull
-end
+  let restore_out_channels (channels : out_channels) : unit =
+    Unix.dup2 channels.out Unix.stdout;
+    Unix.dup2 channels.err Unix.stderr;
+    Unix.close channels.out;
+    Unix.close channels.err;
+    Unix.close channels.devnull
 
-module Test = struct
-  let sucessful (input : Fpath.t) (retval : Val.t) : Val.t =
-    Fmt.printf "Test Sucessful:           %a@." Fpath.pp input;
-    retval
+  let sucessful (out_channels : out_channels) (input : Fpath.t) : unit =
+    restore_out_channels out_channels;
+    Fmt.printf "Test Sucessful:           %a@." Fpath.pp input
 
-  let failure (input : Fpath.t) (retval : Val.t) : Val.t =
-    Fmt.printf "Test Failure:             %a@." Fpath.pp input;
-    retval
+  let failure (out_channels : out_channels) (input : Fpath.t) : unit =
+    restore_out_channels out_channels;
+    Fmt.printf "Test Failure:             %a@." Fpath.pp input
 
-  let ecmaref_fail (input : Fpath.t) (retval : Val.t) : Val.t =
-    Fmt.printf "Test Interpreter Failure: %a@." Fpath.pp input;
-    retval
+  let ecmaref_fail (out_channels : out_channels) (input : Fpath.t) : unit =
+    restore_out_channels out_channels;
+    Fmt.printf "Test Interpreter Failure: %a@." Fpath.pp input
 
-  let internal_fail (input : Fpath.t) : unit =
+  let internal_fail (out_channels : out_channels) (input : Fpath.t) : unit =
+    restore_out_channels out_channels;
     Fmt.printf "Test Internal Failure:    %a@." Fpath.pp input
 end
 
-let jsreturn_checker (input : Fpath.t) (retval : Val.t) : Val.t =
+let test_input (out_channels : Test.out_channels) (opts : options)
+  (input : Fpath.t) : unit =
+  let retval = Cmd_execute.execute_js input opts.harness opts.ecmaref in
   match retval with
-  | Val.Tuple [ _; Val.Symbol "normal"; _; _ ] -> Test.sucessful input retval
-  | _ -> Test.failure input retval
-
-let exitval_checker_test (out_channels : Output.t) (input : Fpath.t)
-  (retval : Val.t) : Val.t =
-  Output.restore out_channels;
-  match retval with
-  | Val.Tuple [ Val.Bool false; retval' ] -> jsreturn_checker input retval'
-  | Val.Tuple [ Val.Bool true; _ ] -> Test.ecmaref_fail input retval
-  | _ -> Test.ecmaref_fail input retval
-
-let run_test (opts : options) (input : Fpath.t) : unit =
-  let out_channels = Output.hide () in
-  let exitval_f = exitval_checker_test out_channels input in
-  Cmd_execute.execute_js exitval_f input opts.harness opts.ecmaref false
+  | Val.Tuple [ _; Val.Symbol "normal"; _; _ ] ->
+    Test.sucessful out_channels input
+  | _ -> Test.failure out_channels input
 
 let run_single (opts : options) (input : Fpath.t) (_ : Fpath.t option) : unit =
   ignore Enums.Lang.(resolve_file_lang [ JS ] input);
-  try run_test opts input with _ -> Test.internal_fail input
+  let out_channels = Test.hide_out_channels () in
+  try test_input out_channels opts input with
+  | Eslerr.Runtime_error { msgs = UncaughtExn _ :: []; _ } ->
+    Test.ecmaref_fail out_channels input
+  | _ -> Test.internal_fail out_channels input
 
 let run (opts : options) : unit = Dir.exec (run_single opts) opts.inputs None ""
 
