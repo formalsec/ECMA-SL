@@ -136,7 +136,7 @@ let run ~workspace filename entry_func =
           | Error (`Failure msg) -> Error (`Msg msg)
         in
         ( match serialize_thread ~workspace ?witness thread with
-        | Error (`Msg msg) -> Log.warn "%s" msg
+        | Error (`Msg msg) -> Log.log ~header:false "%s" msg
         | Ok () -> () );
         Ok witness )
       results
@@ -152,6 +152,6 @@ let main (copts : Options.Common.t) opt =
   Ecma_sl.Config.Common.warns := true;
   match run ~workspace:opt.workspace opt.filename opt.entry_func with
   | Error (`Msg s) ->
-    Log.warn "%s@." s;
+    Log.log ~header:false "%s" s;
     1
   | Ok () -> 0
