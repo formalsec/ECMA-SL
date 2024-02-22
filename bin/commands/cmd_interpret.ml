@@ -27,12 +27,16 @@ module InterpreterConfig = struct
   let monitor () : (module Monitor.M) = (module Monitor.Default : Monitor.M)
 end
 
-let interpret (config : Interpreter.Config.t) (prog : Prog.t) : Val.t =
+let interpret_partial (config : Interpreter.Config.t) (prog : Prog.t) :
+  Val.t * Val.t Heap.t =
   let module Debugger = (val InterpreterConfig.debugger ()) in
   let module Verbose = (val InterpreterConfig.verbose ()) in
   let module Monitor = (val InterpreterConfig.monitor ()) in
   let module Interpreter = Interpreter.M (Debugger) (Verbose) (Monitor) in
-  Interpreter.eval_prog ~config prog
+  Interpreter.eval_partial config prog
+
+let interpret (config : Interpreter.Config.t) (prog : Prog.t) : Val.t =
+  fst (interpret_partial config prog)
 
 let interpret_cesl (config : Interpreter.Config.t) (input : Fpath.t) : Val.t =
   let input' = Fpath.to_string input in

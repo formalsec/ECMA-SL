@@ -46,23 +46,26 @@ module Test = struct
     Fmt.printf "Test Internal Failure:    %a@." Fpath.pp input
 end
 
-let test_input (out_channels : Test.out_channels) (opts : options)
-  (input : Fpath.t) : unit =
-  let retval = Cmd_execute.execute_js input opts.harness opts.ecmaref in
+let test_input (out_channels : Test.out_channels)
+  (setup : Prog.t * Val.t Heap.t option) (input : Fpath.t) : unit =
+  let retval = Cmd_execute.execute_js setup input in
   match retval with
   | Val.Tuple [ _; Val.Symbol "normal"; _; _ ] ->
     Test.sucessful out_channels input
   | _ -> Test.failure out_channels input
 
-let run_single (opts : options) (input : Fpath.t) (_ : Fpath.t option) : unit =
+let run_single (setup : Prog.t * Val.t Heap.t option) (input : Fpath.t)
+  (_ : Fpath.t option) : unit =
   ignore Enums.Lang.(resolve_file_lang [ JS ] input);
   let out_channels = Test.hide_out_channels () in
-  try test_input out_channels opts input with
+  try test_input out_channels setup input with
   | Eslerr.Runtime_error { msgs = UncaughtExn _ :: []; _ } ->
     Test.ecmaref_fail out_channels input
   | _ -> Test.internal_fail out_channels input
 
-let run (opts : options) : unit = Dir.exec (run_single opts) opts.inputs None ""
+let run (opts : options) : unit =
+  let setup = Cmd_execute.setup_execution opts.ecmaref opts.harness in
+  Dir.exec (run_single setup) opts.inputs None ""
 
 let main (copts : Options.Common.t) (opts : options) : int =
   Options.Common.set copts;
