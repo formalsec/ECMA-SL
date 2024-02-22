@@ -133,7 +133,7 @@ module P = struct
       match locs with
       | [] ->
         fun _thread ->
-          Log.warn "no loc@.";
+          Log.log ~header:false "   symbolic : no loc";
           []
       | [ (c, v) ] -> (
         fun thread ->

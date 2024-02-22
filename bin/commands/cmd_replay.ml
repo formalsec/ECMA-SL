@@ -70,6 +70,6 @@ let main (copts : Options.Common.t) opt =
   Options.Common.set copts;
   match replay opt.filename opt.testsuite with
   | Error (`Msg msg) ->
-    Log.warn "%s@\n" msg;
+    Log.log ~header:false "%s" msg;
     1
   | Ok () -> 0
