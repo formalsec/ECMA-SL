@@ -5,9 +5,11 @@ module Config = struct
   type t =
     { main : string
     ; resolve_exitval : bool
+    ; static_heap : Val.t Heap.t option
     }
 
-  let default : t = { main = "main"; resolve_exitval = true }
+  let default : t =
+    { main = "main"; resolve_exitval = true; static_heap = None }
 end
 
 module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
@@ -38,18 +40,24 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     | None -> Eslerr.(runtime ~src:(ErrSrc.region at) (UnknownFunc fn))
     | Some f -> f
 
+  let set_global_var (store : store) (heap : heap) : unit =
+    let open Compiler.Const in
+    if Option.is_some (Heap.get_opt heap esl_globals_loc) then
+      Store.set store esl_globals_obj (Val.Loc esl_globals_loc)
+
+  let initial_state (main : Func.t) (s_heap : heap option) : state =
+    let store = Store.create [] in
+    let heap = Option.fold ~none:(Heap.create ()) ~some:Heap.extend s_heap in
+    let stack = Call_stack.create main in
+    let db = Db.initialize () in
+    set_global_var store heap;
+    (store, heap, stack, db)
+
   let operate (eval_op_fun : unit -> value) (es : Expr.t list) : value =
     try eval_op_fun ()
     with Eslerr.Runtime_error _ as exn ->
       let e = Eslerr.(src exn |> index_to_el es) in
       Eslerr.(set_src (ErrSrc.at e) exn |> raise)
-
-  let initial_state (main : Func.t) : state =
-    let store = Store.create [] in
-    let heap = Heap.create () in
-    let stack = Call_stack.create main in
-    let db = Db.initialize () in
-    (store, heap, stack, db)
 
   let print_val (heap : heap) (v : value) : unit =
     let open Fmt in
@@ -125,17 +133,19 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     | Val.Curry (fn, fvs) -> (fn, fvs)
     | _ as v -> Eslerr.(runtime ~src:(ErrSrc.at fe) (BadFuncId v))
 
+  let prepare_store_binds (pxs : string list) (vs : Val.t list) (at : region) :
+    (string * Val.t) list =
+    try List.combine pxs vs
+    with _ ->
+      let (xpxs, nargs) = (List.length pxs, List.length vs) in
+      Eslerr.(runtime ~src:(ErrSrc.region at) (BadNArgs (xpxs, nargs)))
+
   let prepare_call (stack : stack) (f : Func.t) (store : store)
     (cont : Stmt.t list) (x : string) (vs : value list) (at : region) :
     stack * store =
     let pxs = Func.params' f in
     let stack' = Call_stack.push stack f store cont x in
-    let store' =
-      try List.combine pxs vs |> Store.create
-      with _ ->
-        let (xpxs, nargs) = (List.length pxs, List.length vs) in
-        Eslerr.(runtime ~src:(ErrSrc.region at) (BadNArgs (xpxs, nargs)))
-    in
+    let store' = Store.create (prepare_store_binds pxs vs at) in
     (stack', store')
 
   let eval_small_step (p : Prog.t) (state : state) (s : Stmt.t)
@@ -293,14 +303,18 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
       Eslerr.(runtime (UncaughtExn (Val.str err)))
     | _ -> Eslerr.runtime (UnexpectedExitVal retval)
 
-  let eval_prog ?(config : Config.t = Config.default) (prog : Prog.t) : value =
+  let eval_partial (config : Config.t) (prog : Prog.t) : value * heap =
     let f = get_func prog config.main no_region in
-    let state = initial_state f in
+    let state = initial_state f config.static_heap in
     let mon = Mon.initial_state () in
     let return = small_step_iter prog state mon [ Func.body f ] in
+    let (_, heap, _, _) = state in
     match return with
-    | Final retval when config.resolve_exitval -> resolve_exitval retval
-    | Final retval -> retval
+    | Final retval when config.resolve_exitval -> (resolve_exitval retval, heap)
+    | Final retval -> (retval, heap)
     | Error err -> Eslerr.(runtime (Failure (Val.str err)))
     | _ -> Eslerr.internal __FUNCTION__ (Expecting "non-intermediate state")
+
+  let eval_prog ?(config : Config.t = Config.default) (prog : Prog.t) : value =
+    fst (eval_partial config prog)
 end
