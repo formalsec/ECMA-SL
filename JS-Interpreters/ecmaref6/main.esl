@@ -3,8 +3,17 @@ import "ecmaref6/esl_interpreter.esl";
 function main() {
   x := buildAST();
   ret := ECMAScriptInitialization(x);
-  c_value := getCompletionValue(ret);
+  return mainReturn(ret)
+};
 
+function mainPartial() {
+  x := buildAST();
+  ret := ECMAScriptPartialInitialization(x);
+  return mainReturn(ret)
+};
+
+function mainReturn(ret) {
+  c_value := getCompletionValue(ret);
   if ((typeof c_value = __$Obj) &&& ("ErrorData" in_obj c_value) ) {
     error_name := {c_value.Get}(c_value, "name", c_value);
     return newCompletion(getCompletionType(ret), error_name, getCompletionTarget(ret))

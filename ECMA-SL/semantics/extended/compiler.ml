@@ -11,14 +11,15 @@ let ( ?@ ) (e : Expr.t) : Id.t =
 
 module Const = struct
   let original_main = "main"
-  let esl_globals = "___internal_esl_global"
+  let esl_globals_loc = "$loc_1"
+  let esl_globals_obj = "___internal_esl_global"
 end
 
 module Builder = struct
   let var_id = Utils.make_name_generator "__v"
   let etrue (x : 'a phrase) : Expr.t = Expr.Val (Val.Bool true) @> x.at
   let efalse (x : 'a phrase) : Expr.t = Expr.Val (Val.Bool false) @> x.at
-  let global (x : 'a phrase) : Expr.t = Expr.Var Const.esl_globals @> x.at
+  let global (x : 'a phrase) : Expr.t = Expr.Var Const.esl_globals_obj @> x.at
   let var (at : region) : Expr.t = Expr.Var (var_id ()) @> at
 
   let block ?(at : region = no_region) (ss : Stmt.t list) : Stmt.t =
@@ -477,7 +478,7 @@ and compile_assert (at : region) (e : EExpr.t) : c_stmt =
 
 let compile_func (f : EFunc.t) : Func.t =
   let (fn, pxs, s) = EFunc.(name f, params f, body f) in
-  let global = Const.esl_globals @> fn.at in
+  let global = Const.esl_globals_obj @> fn.at in
   let s_s = compile_stmt s in
   if fn.it = Const.original_main then
     let s_s' = (Stmt.AssignNewObj global @> fn.at) :: s_s in
@@ -489,7 +490,7 @@ let compile_func (f : EFunc.t) : Func.t =
 let compile_lambda
   ((at, id, pxs, ctxvars, s) : region * string * Id.t list * Id.t list * EStmt.t)
   : Func.t =
-  let global = Const.esl_globals @> at in
+  let global = Const.esl_globals_obj @> at in
   let s_s = compile_stmt s in
   let params = ctxvars @ (global :: pxs) in
   Func.create (id @> at) params (Builder.block ~at:s.at s_s) @> at

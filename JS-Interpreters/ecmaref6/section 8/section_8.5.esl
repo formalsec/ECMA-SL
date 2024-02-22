@@ -27,7 +27,7 @@ function initGlobalVars() {
     return
 };
 
-/* 8.5 ECMAScript Initialization()
+/* 8.5 ECMAScript Initialization(sourceText)
 
 An ECMAScript implementation performs the following steps prior to the execution of any Jobs or
 the evaluation of any ECMAScript code: */
@@ -62,6 +62,8 @@ function ECMAScriptInitialization(sourceText) {
         return
     };
 
+    |realm| := realm;
+
     /* In an implementation dependent manner, obtain the ECMAScript source texts (see clause 10)
        for zero or more ECMAScript scripts and/or ECMAScript modules. For each such sourceText
        do, */
@@ -72,6 +74,20 @@ function ECMAScriptInitialization(sourceText) {
             /* Perform EnqueueJob("ScriptJobs", TopLevelModuleEvaluationJob, « sourceText »). */
     
     /* NextJob NormalCompletion(undefined). */
+    return NextJob( NormalCompletion('undefined) )
+};
+
+/* ECMAScriptPartialInitialization (sourceText)
+
+This function consists of a simplified version of the ECMAScriptInitialization function.
+For details check its implementation. */
+function ECMAScriptPartialInitialization(sourceText) {
+    newContext := createExecutionContext();
+    newContext.Function := 'null;
+    newContext.Realm := |realm|;
+    pushExecStack(newContext);
+
+    EnqueueJob("ScriptJobs", "ScriptEvaluationJob", [sourceText]);
     return NextJob( NormalCompletion('undefined) )
 };
 
