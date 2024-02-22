@@ -5,7 +5,7 @@ type options =
   }
 
 module JS2ECMA_SL = struct
-  open Bos_setup
+  open Bos
 
   let set_output (output : string option) (cmd : Cmd.t) : Cmd.t =
     match output with
@@ -28,7 +28,7 @@ let encode (builder : string option) (input : Fpath.t) (output : Fpath.t option)
   : unit =
   let input' = Fpath.to_string input in
   let output' = Option.map Fpath.to_string output in
-  match Bos_setup.OS.Cmd.run (JS2ECMA_SL.cmd input' output' builder) with
+  match Bos.OS.Cmd.run (JS2ECMA_SL.cmd input' output' builder) with
   | Error _ -> raise (Cmd.Command_error Error)
   | Ok _ -> Ecma_sl.Log.debug "File '%s' has been encoded." input'
 

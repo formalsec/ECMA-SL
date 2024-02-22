@@ -69,7 +69,7 @@ module Lang = struct
 
   let resolve_file_lang (valid_langs : t list) (fpath : Fpath.t) : t option =
     match resolve_file_ext valid_langs fpath with
-    | Some lang -> Some lang
+    | Some _ as lang -> lang
     | None ->
       Log.warn "expecting file extensions: %a" (Fmt.pp_lst " | " pp) valid_langs;
       None
