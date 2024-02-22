@@ -131,7 +131,7 @@ module Interpret = struct
       "Display the value returned by the top-level function, typically the \
        'main' function, at the end of the interpretation process."
     in
-    Arg.(value & flag & info [ "show-result" ] ~doc)
+    Arg.(value & flag & info [ "show-exitval" ] ~doc)
 end
 
 (* Encode options *)
