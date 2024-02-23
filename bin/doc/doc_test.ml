@@ -29,7 +29,6 @@ let exits =
     ; Cmd.Exit.info ~doc:"on generic execution error" 2
     ; Cmd.Exit.info ~doc:"on encoding error" 3
     ; Cmd.Exit.info ~doc:"on interpretation runtime error" 4
-    ; Cmd.Exit.info ~doc:"on test error" 5
     ]
 
 let cmd_options inputs harness ecmaref : Cmd_test.options =

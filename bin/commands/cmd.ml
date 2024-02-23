@@ -5,17 +5,16 @@ type error =
   | Error
   | CompileError
   | RuntimeError
-  | TestError
 
 exception Command_error of error
 
 let code_of_exn (exn : exn) : error =
   let open Ecma_sl in
   match exn with
+  | Command_error err -> err
   | Eslerr.Internal_error _ -> Failure
   | Eslerr.Compile_error _ -> CompileError
   | Eslerr.Runtime_error _ -> RuntimeError
-  | Command_error err -> err
   | _ -> Failure
 
 let error_code (error : error) : int =
@@ -24,7 +23,6 @@ let error_code (error : error) : int =
   | Error -> 2
   | CompileError -> 3
   | RuntimeError -> 4
-  | TestError -> 5
 
 let esl_internal_err (exn : exn) : int =
   flush_all ();
