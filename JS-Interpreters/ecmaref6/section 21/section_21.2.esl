@@ -1797,8 +1797,7 @@ function RegExpPrototypetoString(global, this, NewTarget, strict, args){
    @ReturnIfAbrupt(flags);
 
    /* 7. Let result be the String value formed by concatenating "/", pattern, and "/", and flags. */
-   result_ := s_concat(["/", pattern]);
-   result := s_concat([result_, "/"]);
+   result := s_concat(["/", pattern, "/", flags]);
 
    return result
 };
