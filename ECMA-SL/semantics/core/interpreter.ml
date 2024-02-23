@@ -191,9 +191,9 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
         let (db', stack'', cont'') = Db.custom_inject s db stack' cont' in
         let state' = (store', heap, stack'', db') in
         (Intermediate (state', cont''), lbl (AssignCallEval f)) )
-    | AssignECall (x, fe, es) ->
+    | AssignECall (x, fn, es) ->
       let vs = List.map (eval_expr store) es in
-      let v = External.execute p heap fe.it vs in
+      let v = External.execute p store heap fn.it vs in
       Store.set store x.it v;
       (Intermediate (state, cont), lbl AssignECallEval)
     | AssignNewObj x ->

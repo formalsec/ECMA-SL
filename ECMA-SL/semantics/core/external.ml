@@ -1,35 +1,31 @@
+type store = Val.t Store.t
+type heap = Val.t Heap.t
+
 let eval_build_ast_func = Utils.make_name_generator "eval_func_"
 
-let parseJS (prog : Prog.t) (_heap : 'a Heap.t) (str : string) : Val.t =
-  let _ = Log.err "FIXME: Check if we can remove this function" in
-  let base = Filename.basename "" in
-  let input_file = "__parse_in_" ^ base ^ "__.js"
-  and output_file = "__parse_out_" ^ base ^ "__.js" in
-  Io.write_file input_file str;
-  let func_id = eval_build_ast_func () in
-  let command =
-    Printf.sprintf "node ../JS2ECMA-SL/src/index.js -c -i %s -o %s -n %s"
-      input_file output_file func_id
+let parseJS (prog : Prog.t) (code : string) : Val.t =
+  let parse input output builder =
+    match Bos.OS.Cmd.run (Js2ecmasl.cmd input (Some output) (Some builder)) with
+    | Error _ -> Eslerr.(internal __FUNCTION__ (Custom "error in JS2ECMA-SL"))
+    | Ok _ -> ()
   in
-  let _ = Sys.command command in
-  let parsed_str = Parsing_utils.load_file output_file in
-  let f = Parsing_utils.parse_func parsed_str in
-  Hashtbl.replace prog func_id f;
-  List.iter Sys.remove [ input_file; output_file ];
-  Val.Str func_id
+  let input = Filename.temp_file "ecmasl" "eval_func.js" in
+  let output = Filename.temp_file "ecmasl" "eval_func.cesl" in
+  let eval_func_id = eval_build_ast_func () in
+  try
+    Io.write_file input code;
+    parse input output eval_func_id;
+    let ast = Io.read_file output in
+    let eval_func = Parsing_utils.parse_func ast in
+    Hashtbl.replace (Prog.funcs prog) eval_func_id eval_func;
+    Val.Str eval_func_id
+  with _ -> Eslerr.(internal __FUNCTION__ (Custom "error in ParseJS"))
 
-let loadInitialHeap (_prog : Prog.t) (heap : 'a Heap.t) (file : string) : Val.t
-    =
-  Val.Loc (Parsing_heap_utils.parse_and_update heap file)
-
-let execute (prog : Prog.t) (heap : 'a Heap.t) (f : string) (vs : Val.t list) :
-  Val.t =
-  match (f, vs) with
+let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
+  (fn : Id.t') (vs : Val.t list) : Val.t =
+  match (fn, vs) with
   | ("is_symbolic", _) -> Val.Bool false
-  | ("parseJS", [ Val.Str str ]) -> parseJS prog heap str
-  | ("loadInitialHeap", [ Val.Str file ]) ->
-    let loc = loadInitialHeap prog heap file in
-    loc
+  | ("parseJS", [ Val.Str code ]) -> parseJS prog code
   | _ ->
-    Log.warn "UNKNOWN %s external function" f;
+    Log.warn "UNKNOWN %s external function" fn;
     Val.Symbol "undefined"
