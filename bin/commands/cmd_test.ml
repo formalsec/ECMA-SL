@@ -29,21 +29,31 @@ module Test = struct
     Unix.close channels.err;
     Unix.close channels.devnull
 
-  let sucessful (out_channels : out_channels) (input : Fpath.t) : unit =
+  let header () : unit =
+    Fmt.printf "%a@."
+      (Font.pp_text_out [ Font.Cyan ])
+      "----------------------------------------\n\
+      \              ECMA-SL Test\n\
+       ----------------------------------------"
+
+  let log (out_channels : out_channels) (input : Fpath.t) (font : Font.t list)
+    (header : string) : unit =
     restore_out_channels out_channels;
-    Fmt.printf "Test Sucessful:           %a@." Fpath.pp input
+    Fmt.printf "%a %a@." (Font.pp_text_out font) header
+      (Font.pp_out [ Faint ] Fpath.pp)
+      input
+
+  let sucessful (out_channels : out_channels) (input : Fpath.t) : unit =
+    log out_channels input [ Font.Green ] "Test Successful:"
 
   let failure (out_channels : out_channels) (input : Fpath.t) : unit =
-    restore_out_channels out_channels;
-    Fmt.printf "Test Failure:             %a@." Fpath.pp input
+    log out_channels input [ Red ] "Test Failure:"
 
   let ecmaref_fail (out_channels : out_channels) (input : Fpath.t) : unit =
-    restore_out_channels out_channels;
-    Fmt.printf "Test Interpreter Failure: %a@." Fpath.pp input
+    log out_channels input [ Purple ] "Interpreter Failure:"
 
   let internal_fail (out_channels : out_channels) (input : Fpath.t) : unit =
-    restore_out_channels out_channels;
-    Fmt.printf "Test Internal Failure:    %a@." Fpath.pp input
+    log out_channels input [ Purple ] "Internal Failure:"
 end
 
 let test_input (out_channels : Test.out_channels)
@@ -64,6 +74,7 @@ let run_single (setup : Prog.t * Val.t Heap.t option) (input : Fpath.t)
   | _ -> Test.internal_fail out_channels input
 
 let run (opts : options) : unit =
+  Test.header ();
   let setup = Cmd_execute.setup_execution opts.ecmaref opts.harness in
   Dir.exec (run_single setup) opts.inputs None ""
 
