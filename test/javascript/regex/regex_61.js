@@ -7,4 +7,4 @@
 let regex = new RegExp(/\n+/gim);
 let expected = /\n+/gim;
 
-AssertEquals(r.source, expected.source);
+AssertEquals(regex.source, expected.source);
