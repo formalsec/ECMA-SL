@@ -8,6 +8,7 @@
   site
   share
   config
+  js2ecmasl
   ;  utils
   io
   log
