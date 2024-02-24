@@ -1,0 +1,16 @@
+(cram
+ (deps
+  %{bin:js2esl}
+  do_while.js
+  exprs.js
+  for_loop.js
+  forin_loop.js
+  func_shadowing.js
+  function.js
+  if_stmt.js
+  input.switch.js
+  input.try_catch.js
+  input.while.js
+  input.with.js
+  obj_init.js
+  prop_accessors.js))
