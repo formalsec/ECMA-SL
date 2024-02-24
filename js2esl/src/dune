@@ -1,0 +1,5 @@
+(executable
+ (public_name js2esl)
+ (name main)
+ (modules main)
+ (libraries cmdliner))
