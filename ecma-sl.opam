@@ -26,6 +26,7 @@ depends: [
   "yojson"
   "dune-site"
   "bisect_ppx" {with-test & >= "2.5.0" & dev}
+  "flow_parser"
 ]
 build: [
   ["dune" "subst"] {dev}
