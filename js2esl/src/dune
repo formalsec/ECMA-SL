@@ -1,5 +1,10 @@
+(library
+ (name js2esl)
+ (modules types js_parser json_translator)
+ (libraries flow_parser yojson))
+
 (executable
  (public_name js2esl)
  (name main)
  (modules main)
- (libraries cmdliner))
+ (libraries js2esl cmdliner))
