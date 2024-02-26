@@ -3,16 +3,6 @@ Run regex js tests:
                 ECMA-SL Test
   ----------------------------------------
   ----------------------------------------
-  Internal Failure: ./regex_51.js
-  Internal Failure: ./regex_52.js
-  Internal Failure: ./regex_55.js
-  Internal Failure: ./regex_56.js
-  Internal Failure: ./regex_58.js
-  Internal Failure: ./regex_59.js
-  Internal Failure: ./regex_61.js
-  Internal Failure: ./regex_64.js
-  Internal Failure: ./regex_65.js
-  Test Failure: ./regex_42.js
   Test Failure: ./regex_utf16.js
   Test Successful: ./regex_1.js
   Test Successful: ./regex_10.js
@@ -50,6 +40,7 @@ Run regex js tests:
   Test Successful: ./regex_4.js
   Test Successful: ./regex_40.js
   Test Successful: ./regex_41.js
+  Test Successful: ./regex_42.js
   Test Successful: ./regex_43.js
   Test Successful: ./regex_44.js
   Test Successful: ./regex_45.js
@@ -59,13 +50,22 @@ Run regex js tests:
   Test Successful: ./regex_49.js
   Test Successful: ./regex_5.js
   Test Successful: ./regex_50.js
+  Test Successful: ./regex_51.js
+  Test Successful: ./regex_52.js
   Test Successful: ./regex_53.js
   Test Successful: ./regex_54.js
+  Test Successful: ./regex_55.js
+  Test Successful: ./regex_56.js
   Test Successful: ./regex_57.js
+  Test Successful: ./regex_58.js
+  Test Successful: ./regex_59.js
   Test Successful: ./regex_6.js
   Test Successful: ./regex_60.js
+  Test Successful: ./regex_61.js
   Test Successful: ./regex_62.js
   Test Successful: ./regex_63.js
+  Test Successful: ./regex_64.js
+  Test Successful: ./regex_65.js
   Test Successful: ./regex_66.js
   Test Successful: ./regex_67.js
   Test Successful: ./regex_68.js
