@@ -26,12 +26,12 @@ let error_code (error : error) : int =
 
 let esl_internal_err (exn : exn) : int =
   flush_all ();
-  Log.log "%a" Eslerr.pp exn;
+  Log.elog "%a" Eslerr.pp exn;
   Printexc.print_backtrace stderr;
   code_of_exn exn |> error_code
 
 let esl_default_err (exn : exn) : int =
-  Log.log ~header:false "%a" Eslerr.pp exn;
+  Log.elog ~header:false "%a" Eslerr.pp exn;
   code_of_exn exn |> error_code
 
 let eval_cmd (cmd : unit -> unit) : int =

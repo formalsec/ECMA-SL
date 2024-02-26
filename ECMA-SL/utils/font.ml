@@ -18,6 +18,12 @@ type t =
   | Cyan
   | White
 
+let colored (fdesc : Unix.file_descr option) : bool =
+  match (!Config.Common.colored, fdesc) with
+  | (false, _) -> false
+  | (true, Some fdesc') when not Unix.(isatty fdesc') -> false
+  | (true, _) -> true
+
 let clean (text : string) : string =
   let escape_regex = Str.regexp "\027\\[[0-9;]*m" in
   Str.global_replace escape_regex "" text
@@ -45,16 +51,17 @@ let pp_code (fmt : Fmt.t) (font_el : t) : unit =
   | White -> pp_str fmt "37"
 
 let pp_font (fmt : Fmt.t) (font : t list) : unit =
-  Fmt.(fprintf fmt "%a" (pp_lst ";" pp_code) font)
+  Fmt.(fprintf fmt "\027[%am" (pp_lst ";" pp_code) font)
+
+let pp_font_safe ?(fdesc : Unix.file_descr option = None) (fmt : Fmt.t)
+  (font : t list) : unit =
+  if colored fdesc then pp_font fmt font else ()
 
 let pp ?(fdesc : Unix.file_descr option = None) (font : t list)
   (pp_el : Fmt.t -> 'a -> unit) (fmt : Fmt.t) (el : 'a) : unit =
   let open Fmt in
-  if not !Config.Common.colored then fprintf fmt "%a" pp_el el
-  else
-    match fdesc with
-    | Some fdesc' when not Unix.(isatty fdesc') -> fprintf fmt "%a" pp_el el
-    | _ -> fprintf fmt "\027[%am%a\027[0m" pp_font font pp_el el
+  if not (colored fdesc) then fprintf fmt "%a" pp_el el
+  else fprintf fmt "%a%a%a" pp_font font pp_el el pp_font [ Normal ]
 
 let str ?(fdesc : Unix.file_descr option = None) (font : t list)
   (pp_el : Fmt.t -> 'a -> unit) (el : 'a) : string =
