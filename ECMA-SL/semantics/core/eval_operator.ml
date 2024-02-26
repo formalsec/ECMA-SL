@@ -220,13 +220,13 @@ let list_to_array (v : Val.t) : Val.t =
 let list_head (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt ListHead in
   match v with
-  | List (_ :: _ as lst) -> List.hd lst
+  | List (hd :: _) -> hd
   | _ -> bad_arg_err 1 op_lbl "non-empty list" [ v ]
 
 let list_tail (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt ListTail in
   match v with
-  | List (_ :: _ as lst) -> List (List.tl lst)
+  | List (_ :: tl) -> List tl
   | _ -> bad_arg_err 1 op_lbl "list" [ v ]
 
 let list_len (v : Val.t) : Val.t =
