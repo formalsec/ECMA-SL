@@ -1,15 +1,18 @@
 Run simple js tests:
   $ cd simple && ecma-sl test --harness ../harness.js . | sort -h
-  Test Sucessful:           ./catch.js
-  Test Sucessful:           ./events.js
-  Test Sucessful:           ./flow.js
-  Test Sucessful:           ./forin.js
-  Test Sucessful:           ./function.js
-  Test Sucessful:           ./json.js
-  Test Sucessful:           ./log.js
-  Test Sucessful:           ./map.js
-  Test Sucessful:           ./object.js
-  Test Sucessful:           ./primes.js
-  Test Sucessful:           ./queue.js
-  Test Sucessful:           ./string.js
-  Test Sucessful:           ./variable.js
+                ECMA-SL Test
+  ----------------------------------------
+  ----------------------------------------
+  Test Successful: ./catch.js
+  Test Successful: ./events.js
+  Test Successful: ./flow.js
+  Test Successful: ./forin.js
+  Test Successful: ./function.js
+  Test Successful: ./json.js
+  Test Successful: ./log.js
+  Test Successful: ./map.js
+  Test Successful: ./object.js
+  Test Successful: ./primes.js
+  Test Successful: ./queue.js
+  Test Successful: ./string.js
+  Test Successful: ./variable.js
