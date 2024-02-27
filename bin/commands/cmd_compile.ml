@@ -19,8 +19,8 @@ let compile (input : Fpath.t) : Prog.t =
   let input' = Fpath.to_string input in
   Parsing_utils.load_file input'
   |> Parsing_utils.parse_eprog ~file:input'
-  |> Parsing_utils.resolve_eprog_imports
-  |> Parsing_utils.apply_eprog_macros
+  |> Preprocessor.Imports.resolve_imports
+  |> Preprocessor.Macros.apply_macros
   |> type_check
   |> Compiler.compile_prog
 

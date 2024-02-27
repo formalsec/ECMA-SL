@@ -91,18 +91,3 @@ let parse_efunc ?(file : string = "") (str : string) : EFunc.t =
 let parse_eprog ?(file : string = "") (str : string) : EProg.t =
   let lexbuf = init_lexbuf file str in
   eparser EParser.Incremental.entry_prog_target lexbuf
-
-let load_dependency (file : Id.t) : EProg.t =
-  try load_file file.it |> parse_eprog ~file:file.it
-  with _ -> Eslerr.(compile ~src:(ErrSrc.at file) (UnknownDependency file))
-
-let resolve_eprog_imports (p : EProg.t) : EProg.t =
-  Preprocessor.Imports.resolve_imports load_dependency p
-    (Hashtbl.create !Config.default_hashtbl_sz)
-    [ EProg.file p ]
-    [ EProg.imports p ];
-  { p with imports = [] }
-
-let apply_eprog_macros (p : EProg.t) : EProg.t =
-  Preprocessor.Macros.apply_macros p;
-  { p with macros = Hashtbl.create !Config.default_hashtbl_sz }
