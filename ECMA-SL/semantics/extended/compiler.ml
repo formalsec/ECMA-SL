@@ -496,7 +496,7 @@ let compile_lambda
   Func.create (id @> at) params (Builder.block ~at:s.at s_s) @> at
 
 let compile_prog (p : EProg.t) : Prog.t =
-  let funcs_f acc f = acc @ [ compile_func f ] in
-  let funcs = List.fold_left funcs_f [] (EProg.funcs_lst p) in
+  let funcs_f _ f acc = compile_func f :: acc in
+  let funcs = Hashtbl.fold funcs_f (EProg.funcs p) [] in
   let lambdas = List.map compile_lambda (EProg.lambdas p) in
   Prog.create (lambdas @ funcs)

@@ -80,6 +80,7 @@
   NSULevel2
   NSULevel_Dep
   ;   semantics (extended)
+  preprocessor
   compiler
   EFunc_metadata
   EPat_metadata
