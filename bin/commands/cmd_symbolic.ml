@@ -27,13 +27,12 @@ let dispatch_file_ext on_plus on_core on_js (file : Fpath.t) =
   else Error (`Msg (Fmt.asprintf "%a :unreconized file type" Fpath.pp file))
 
 let prog_of_plus file =
-  let open Parsing_utils in
   let file = Fpath.to_string file in
   Ok
-    ( load_file file
-    |> parse_eprog ~file
-    |> resolve_eprog_imports
-    |> apply_eprog_macros
+    ( Parsing_utils.load_file file
+    |> Parsing_utils.parse_eprog ~file
+    |> Preprocessor.Imports.resolve_imports
+    |> Preprocessor.Macros.apply_macros
     |> Compiler.compile_prog )
 
 let prog_of_core file =
