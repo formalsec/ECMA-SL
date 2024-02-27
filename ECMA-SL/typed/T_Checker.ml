@@ -53,5 +53,9 @@ let type_program (prog : EProg.t) : T_Err.t list =
   let tctx = T_Ctx.create prog in
   let _ = set_typedefs tctx in
   let terrMain = type_main_func tctx in
-  let terrFuncs = List.map (type_function tctx) (EProg.funcs_lst prog) in
+  let terrFuncs =
+    Hashtbl.fold
+      (fun _ f acc -> type_function tctx f :: acc)
+      (EProg.funcs prog) []
+  in
   List.concat (List.append [ terrMain ] terrFuncs)

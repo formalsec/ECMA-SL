@@ -49,10 +49,6 @@ let pp_simple (fmt : Fmt.t) (f : t) : unit =
 let str ?(simple : bool = false) (f : t) : string =
   Fmt.asprintf "%a" (if simple then pp_simple else pp) f
 
-let apply_macros (find_macro_f : Id.t' -> EMacro.t option) (f : t) : t =
-  let body = EStmt.map (EMacro.mapper find_macro_f) f.it.body in
-  { f with it = { f.it with body } }
-
 let lambdas (f : t) : (region * string * Id.t list * Id.t list * EStmt.t) list =
   let to_list_f s =
     match s.it with

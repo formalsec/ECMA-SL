@@ -10,10 +10,6 @@ let load_file (file : string) : string =
   Source.Code.load file data;
   data
 
-let load_dependency (file : Id.t) : string =
-  try load_file file.it
-  with _ -> Eslerr.(compile ~src:(ErrSrc.at file) (UnknownDependency file.it))
-
 let print_position (outx : Fmt.t) (lexbuf : Lexing.lexbuf) : unit =
   let pos = lexbuf.lex_curr_p in
   Printf.printf "Line number: %d. File: %s\n" pos.pos_lnum pos.pos_fname;
@@ -96,37 +92,17 @@ let parse_eprog ?(file : string = "") (str : string) : EProg.t =
   let lexbuf = init_lexbuf file str in
   eparser EParser.Incremental.entry_prog_target lexbuf
 
-module SSet = Set.Make (String)
+let load_dependency (file : Id.t) : EProg.t =
+  try load_file file.it |> parse_eprog ~file:file.it
+  with _ -> Eslerr.(compile ~src:(ErrSrc.at file) (UnknownDependency file.it))
 
-let rec resolve_imports (resolved : SSet.t) (paths : string list)
-  (unresolved : Id.t list list) (tdefs : EType.tdef list) (funcs : EFunc.t list)
-  (macros : EMacro.t list) : EType.tdef list * EFunc.t list * EMacro.t list =
-  match (unresolved, paths) with
-  | ([], _) -> (tdefs, funcs, macros)
-  | ([] :: unresolved', file :: paths') ->
-    let resolved = SSet.add file resolved in
-    resolve_imports resolved paths' unresolved' tdefs funcs macros
-  | ((file :: files) :: _, _) ->
-    if SSet.mem file.it resolved then
-      resolve_imports resolved paths [ files ] tdefs funcs macros
-    else if not (List.mem file.it paths) then
-      let eprog = load_dependency file |> parse_eprog ~file:file.it in
-      resolve_imports resolved (file.it :: paths)
-        (EProg.imports eprog :: unresolved)
-        (EProg.tdefs_lst eprog @ tdefs)
-        (EProg.funcs_lst eprog @ funcs)
-        (EProg.macros_lst eprog @ macros)
-    else Eslerr.(compile ~src:(ErrSrc.at file) (CyclicDependency file.it))
-  | ([] :: _, []) -> Eslerr.(internal __FUNCTION__ (Expecting "non-empty path"))
+let resolve_eprog_imports (p : EProg.t) : EProg.t =
+  Preprocessor.Imports.resolve_imports load_dependency p
+    (Hashtbl.create !Config.default_hashtbl_sz)
+    [ EProg.file p ]
+    [ EProg.imports p ];
+  { p with imports = [] }
 
-let resolve_eprog_imports (prog : EProg.t) : EProg.t =
-  let file = EProg.file prog in
-  let (typedefs, funcs, macros) =
-    resolve_imports SSet.empty
-      [ EProg.file prog ]
-      [ EProg.imports prog ]
-      (EProg.tdefs_lst prog) (EProg.funcs_lst prog) (EProg.macros_lst prog)
-  in
-  EProg.create file [] typedefs funcs macros
-
-let apply_eprog_macros (prog : EProg.t) : EProg.t = EProg.apply_macros prog
+let apply_eprog_macros (p : EProg.t) : EProg.t =
+  Preprocessor.Macros.apply_macros p;
+  { p with macros = Hashtbl.create !Config.default_hashtbl_sz }

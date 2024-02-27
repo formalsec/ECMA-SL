@@ -129,14 +129,14 @@ let entry_prog_target := ~ = prog_target; EOF; <>
 
 let prog_target :=
   | imports = import_target*; p_els = separated_list(SEMICOLON?, prog_element_target);
-    { EProg.Parser.parse_prog imports p_els }
+    { EParsing_helper.EProg.parse_prog imports p_els }
 
 let import_target := IMPORT; ~ = str_id_target; SEMICOLON; <>
 
 let prog_element_target :=
-  | ~ = tdef_target;    < EProg.Parser.parse_tdef >
-  | ~ = func_target;    < EProg.Parser.parse_func >
-  | ~ = macro_target;   < EProg.Parser.parse_macro >
+  | ~ = tdef_target;    < EParsing_helper.EProg.parse_tdef >
+  | ~ = func_target;    < EParsing_helper.EProg.parse_func >
+  | ~ = macro_target;   < EParsing_helper.EProg.parse_macro >
 
 (* ==================== Type definitions ==================== *)
 

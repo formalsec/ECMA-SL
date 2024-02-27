@@ -33,19 +33,3 @@ let pp_simple (fmt : Fmt.t) (m : t) : unit =
 
 let str ?(simple : bool = false) (f : t) : string =
   Fmt.asprintf "%a" (if simple then pp_simple else pp) f
-
-let mapper (find_macro_f : Id.t' -> t option) : EStmt.t -> EStmt.t =
- fun s ->
-  match s.it with
-  | EStmt.MacroApply (mn, es) -> (
-    match find_macro_f mn.it with
-    | None -> Eslerr.(compile ~src:(ErrSrc.at mn) (UnknownMacro mn.it))
-    | Some m ->
-      let subst =
-        try List.combine (params' m) es |> List.to_seq |> Hashtbl.of_seq
-        with _ ->
-          let (npxs, nargs) = (List.length (params m), List.length es) in
-          Eslerr.(compile ~src:(ErrSrc.at s) (BadNArgs (npxs, nargs)))
-      in
-      EStmt.map ~emapper:(EExpr.Mapper.var subst) EStmt.Mapper.id (body m) )
-  | _ -> s
