@@ -2,13 +2,9 @@ module ErrSrc = Eslerr_comp.ErrSrc
 module RtTrace = Eslerr_comp.RtTrace
 
 (* Error types *)
-module InternalErr = Eslerr_type.Internal
-module CompileErr = Eslerr_type.Compile
-module RuntimeErr = Eslerr_type.Runtime
-
-type interr = InternalErr.t
-type comperr = CompileErr.t
-type rterr = RuntimeErr.t
+type interr = Eslerr_type.Internal.t
+type comperr = Eslerr_type.Compile.t
+type rterr = Eslerr_type.Runtime.t
 
 type internal =
   { msg : interr
@@ -32,40 +28,14 @@ exception Runtime_error of runtime
 
 (* Error generation *)
 
-let internal' (msg : interr) (loc : string) : exn = Internal_error { msg; loc }
-let internal (loc : string) (msg : interr) : 'a = internal' msg loc |> raise
-
-let compile' ?(src : ErrSrc.t = ErrSrc.none ()) (msgs : comperr list) : exn =
-  Compile_error { msgs; src }
+let internal (loc : string) (msg : interr) : 'a =
+  raise @@ Internal_error { msg; loc }
 
 let compile ?(src : ErrSrc.t = ErrSrc.none ()) (msg : comperr) : 'a =
-  compile' [ msg ] ~src |> raise
-
-let runtime' ?(src : ErrSrc.t = ErrSrc.none ()) (msgs : rterr list) : exn =
-  Runtime_error { msgs; src; trace = None }
+  raise @@ Compile_error { msgs = [ msg ]; src }
 
 let runtime ?(src : ErrSrc.t = ErrSrc.none ()) (msg : rterr) : 'a =
-  runtime' [ msg ] ~src |> raise
-
-(* Error message retrieval *)
-
-let msg_comp = function
-  | Compile_error { msgs = msg :: _; _ } -> msg
-  | Compile_error { msgs = []; _ } ->
-    internal __FUNCTION__ (Expecting "non-empty error list")
-  | _ -> internal __FUNCTION__ (Expecting "compile error")
-
-let msg_rt = function
-  | Runtime_error { msgs = msg :: _; _ } -> msg
-  | Runtime_error { msgs = []; _ } ->
-    internal __FUNCTION__ (Expecting "non-empty error list")
-  | _ -> internal __FUNCTION__ (Expecting "runtime error")
-
-let msg = function
-  | Internal_error err -> Eslerr_type.InternalFmt.str err.msg
-  | Compile_error _ as exn -> Eslerr_type.CompileFmt.str (msg_comp exn)
-  | Runtime_error _ as exn -> Eslerr_type.RuntimeFmt.str (msg_rt exn)
-  | exn -> Printexc.to_string_default exn
+  raise @@ Runtime_error { msgs = [ msg ]; src; trace = None }
 
 (* Error message update *)
 
@@ -89,7 +59,9 @@ let set_src (src : ErrSrc.t) = function
   | Runtime_error err -> Runtime_error { err with src }
   | _ -> internal __FUNCTION__ (Expecting "error type with source component")
 
-let trace = function Runtime_error err -> err.trace | _ -> None
+let trace = function
+  | Runtime_error err -> err.trace
+  | _ -> internal __FUNCTION__ (Expecting "error type with trace component")
 
 let set_trace (trace : RtTrace.t) = function
   | Runtime_error err -> Runtime_error { err with trace = Some trace }
