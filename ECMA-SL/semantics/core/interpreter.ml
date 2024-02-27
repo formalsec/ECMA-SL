@@ -287,7 +287,7 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     | [] ->
       let (_, _, stack, _) = state in
       let fn = Func.name (Call_stack.func stack) in
-      Eslerr.(runtime ~src:(ErrSrc.at fn) (MissingReturn fn.it))
+      Eslerr.(runtime ~src:(ErrSrc.at fn) (MissingReturn fn))
     | s :: cont -> (
       let (return, lbl) = eval_small_step_safe prog state s cont in
       let mon' = Mon.eval_small_step mon lbl |> Mon.next_state in

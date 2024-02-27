@@ -11,14 +11,14 @@ module Compile = struct
   type t =
     | Default
     | Custom of string
-    | UnknownDependency of string
-    | CyclicDependency of string
-    | DuplicatedTdef of string
-    | DuplicatedFunc of string
-    | DuplicatedMacro of string
-    | DuplicatedField of string
+    | UnknownDependency of Id.t
+    | CyclicDependency of Id.t
+    | DuplicatedTdef of Id.t
+    | DuplicatedFunc of Id.t
+    | DuplicatedMacro of Id.t
+    | DuplicatedField of Id.t
     | DuplicatedSwitchCase of Val.t
-    | UnknownMacro of string
+    | UnknownMacro of Id.t
     | BadNArgs of int * int
 end
 
@@ -31,14 +31,14 @@ module Runtime = struct
     | Failure of string
     | UncaughtExn of string
     | OpEvalErr of string
-    | UnknownVar of string
-    | UnknownFunc of string
+    | UnknownVar of Id.t'
+    | UnknownFunc of Id.t'
     | BadNArgs of int * int
     | BadVal of string * Val.t
     | BadExpr of string * Val.t
     | BadFuncId of Val.t
     | BadOpArgs of string * Val.t list
-    | MissingReturn of string
+    | MissingReturn of Id.t
 end
 
 module ErrFmt = Eslerr_fmt
@@ -78,23 +78,21 @@ module CompileFmt : ErrFmt.ERR_TYPE_FMT with type msg = Compile.t = struct
     match msg with
     | Default -> fprintf fmt "Generic compilation error."
     | Custom msg' -> fprintf fmt "%s" msg'
-    | UnknownDependency file -> fprintf fmt "Cannot find dependency '%s'." file
+    | UnknownDependency file ->
+      fprintf fmt "Cannot find dependency '%a'." Id.pp file
     | CyclicDependency file ->
-      fprintf fmt "Cyclic dependency of file '%s'." file
+      fprintf fmt "Cyclic dependency of file '%a'." Id.pp file
     | DuplicatedTdef tn ->
-      fprintf fmt "Duplicated definition for typedef '%s'." tn
+      fprintf fmt "Duplicated definition for typedef '%a'." Id.pp tn
     | DuplicatedFunc fn ->
-      fprintf fmt "Duplicated definition for function '%s'." fn
+      fprintf fmt "Duplicated definition for function '%a'." Id.pp fn
     | DuplicatedMacro mn ->
-      fprintf fmt "Duplicated definition for macro '%s'." mn
+      fprintf fmt "Duplicated definition for macro '%a'." Id.pp mn
     | DuplicatedField fn ->
-      fprintf fmt
-        "Object literals cannot have two fields with the same name '%s'." fn
+      fprintf fmt "Duplicated field name '%a' for object literal." Id.pp fn
     | DuplicatedSwitchCase v ->
-      fprintf fmt
-        "Switch statements cannot have two cases with the same value '%a'."
-        Val.pp v
-    | UnknownMacro mn -> fprintf fmt "Cannot find macro '%s'." mn
+      fprintf fmt "Duplicated case value '%a' for switch statement." Val.pp v
+    | UnknownMacro mn -> fprintf fmt "Cannot find macro '%a'." Id.pp mn
     | BadNArgs (nparams, nargs) ->
       fprintf fmt "Expected %d arguments, but got %d." nparams nargs
 
@@ -133,7 +131,8 @@ module RuntimeFmt : ErrFmt.ERR_TYPE_FMT with type msg = Runtime.t = struct
     | BadOpArgs (texp, vals) ->
       fprintf fmt "Expecting arguments of types '%s', but got '(%a)'." texp
         (pp_lst ", " Val.pp) vals
-    | MissingReturn fn -> fprintf fmt "Missing return in function '%s'." fn
+    | MissingReturn fn ->
+      fprintf fmt "Missing return in function '%a'." Id.pp fn
 
   let str (msg : msg) : string = Fmt.asprintf "%a" pp msg
 end

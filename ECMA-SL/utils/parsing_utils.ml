@@ -94,7 +94,7 @@ let parse_eprog ?(file : string = "") (str : string) : EProg.t =
 
 let load_dependency (file : Id.t) : EProg.t =
   try load_file file.it |> parse_eprog ~file:file.it
-  with _ -> Eslerr.(compile ~src:(ErrSrc.at file) (UnknownDependency file.it))
+  with _ -> Eslerr.(compile ~src:(ErrSrc.at file) (UnknownDependency file))
 
 let resolve_eprog_imports (p : EProg.t) : EProg.t =
   Preprocessor.Imports.resolve_imports load_dependency p
