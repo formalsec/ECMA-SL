@@ -17,7 +17,6 @@
       left  = position_to_pos startpos;
       right = position_to_pos endpos;
     }
-
 %}
 
 (* ========== Typed tokens ========== *)
@@ -156,7 +155,7 @@ let stmt_target :=
     { Stmt.While (e, s) @> at $sloc }
   | SWITCH; LPAREN; e = expr_target; RPAREN; LBRACE;
     css = list(switch_case_target); dflt = switch_default_target?; RBRACE;
-    { Stmt.Switch (e, (Stmt.Parser.parse_switch_cases css), dflt) @> at $sloc }
+    { Stmt.Switch (e, (Parsing_helper.Stmt.parse_switch_cases css), dflt) @> at $sloc }
   | FAIL; e = expr_target;
     { Stmt.Fail e @> at $sloc }
   | ASSERT; e = expr_target;

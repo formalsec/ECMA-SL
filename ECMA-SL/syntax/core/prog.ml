@@ -15,9 +15,6 @@ let func (p : t) (fn : string) : (Func.t, string) Result.t =
   | None -> Result.error (Printf.sprintf "Cannot find function '%s'." fn)
   | Some f -> Result.ok f
 
-let func_name (p : t) (fn : string) : (string, string) Result.t =
-  Result.map Func.name' (func p fn)
-
 let pp (fmt : Fmt.t) (p : t) : unit =
   let iter f tbl = Hashtbl.iter (fun _ func -> f func) tbl in
   let pp_sep fmt () = Fmt.fprintf fmt ";@\n" in
