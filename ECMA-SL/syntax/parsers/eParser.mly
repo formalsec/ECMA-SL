@@ -4,7 +4,6 @@
 
 %{
   open Source
-  open Operator
 
   let position_to_pos position =
     {
@@ -20,7 +19,6 @@
     }
 
   let fresh_lambda_id_gen = Utils.make_name_generator "__lambda__"
-
 %}
 
 (* ========== Typed tokens ========== *)
@@ -303,7 +301,7 @@ let expr_target :=
   | EXTERN; fn = id_target; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
     { EExpr.ECall (fn, es) @> at $sloc }
   | LBRACE; flds = separated_list(COMMA, field_init_target); RBRACE;
-    { EExpr.NewObj (EExpr.Parser.parse_obj_flds flds) @> at $sloc }
+    { EExpr.NewObj (EParsing_helper.EExpr.parse_object_fields flds) @> at $sloc }
   | oe = expr_target; fe = lookup_target;
     { EExpr.Lookup (oe, fe) @> at $sloc }
   | LBRACE; fe = expr_target; RBRACE; ATSIGN; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;

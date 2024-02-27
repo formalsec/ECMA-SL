@@ -25,18 +25,6 @@ and t' =
   | Fail of Expr.t
   | Assert of Expr.t
 
-module Parser = struct
-  let parse_switch_cases (css : (Val.t phrase * 'a) list) :
-    (Val.t, 'a) Hashtbl.t =
-    let set_case css (v, s) =
-      if not (Hashtbl.mem css v.it) then Hashtbl.replace css v.it s
-      else Eslerr.(compile ~src:(ErrSrc.at v) (DuplicatedSwitchCase v.it))
-    in
-    let parsed_css = Hashtbl.create (List.length css) in
-    List.iter (set_case parsed_css) css;
-    parsed_css
-end
-
 let default () : t = Skip @> no_region
 
 let rec pp (fmt : Fmt.t) (s : t) : unit =
