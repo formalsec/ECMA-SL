@@ -39,6 +39,7 @@
   prog
   lexer
   parser
+  parsing_helper
   ;   syntax (extended)
   eExpr
   eStmt
@@ -49,6 +50,7 @@
   eMacro
   eLexer
   eParser
+  eParsing_helper
   ;   error
   Eslerr
   Eslerr_type
