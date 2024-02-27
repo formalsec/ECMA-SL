@@ -18,7 +18,7 @@ module Imports = struct
         Hashtbl.iter (fun _ f -> parse_func f p) (EProg.funcs dependency);
         Hashtbl.iter (fun _ m -> parse_macro m p) (EProg.macros dependency);
         resolve_imports' (file.it :: paths) unresolved' )
-      else Eslerr.(compile ~src:(ErrSrc.at file) (CyclicDependency file.it))
+      else Eslerr.(compile ~src:(ErrSrc.at file) (CyclicDependency file))
     | ([] :: _, []) ->
       Eslerr.(internal __FUNCTION__ (Expecting "non-empty path"))
 end
@@ -29,7 +29,7 @@ module Macros = struct
     match s.it with
     | EStmt.MacroApply (mn, es) -> (
       match Hashtbl.find_opt (EProg.macros p) mn.it with
-      | None -> Eslerr.(compile ~src:(ErrSrc.at mn) (UnknownMacro mn.it))
+      | None -> Eslerr.(compile ~src:(ErrSrc.at mn) (UnknownMacro mn))
       | Some m ->
         let pxs = EMacro.params' m in
         let subst =
