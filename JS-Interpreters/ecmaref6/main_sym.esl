@@ -1,8 +1,47 @@
+import "ecmaref6/symbolic/api.esl";
+import "ecmaref6/symbolic/lazy_object.esl";
+import "ecmaref6/symbolic/polluted_object.esl";
+import "ecmaref6/node/global.esl";
+import "ecmaref6/node/fs.esl";
+import "ecmaref6/node/cp.esl";
+import "ecmaref6/node/os.esl";
+import "ecmaref6/node/path.esl";
+import "ecmaref6/node/shelljs.esl";
+import "ecmaref6/node/cross-spawn.esl";
+import "ecmaref6/node/process.esl";
 import "ecmaref6/esl_interpreter.esl";
+
+/* Redefine this functions because we need to initialize the node global obj */
+function ECMAScriptNodeInitialization(sourceText) {
+    initGlobalVars();
+    realm := CreateRealm();
+    newContext := createExecutionContext();
+    newContext.Function := 'null;
+    newContext.Realm := realm;
+    pushExecStack(newContext);
+    status := InitializeNodeHostDefinedRealm(realm);
+    if (isAnAbruptCompletion(status)) {
+        assert( realm = null );
+        return
+    };
+    |realm| := realm;
+    EnqueueJob("ScriptJobs", "ScriptEvaluationJob", [sourceText]);
+    return NextJob(NormalCompletion('undefined))
+}
+
+function InitializeNodeHostDefinedRealm(realm) {
+    intrinsics := realm.intrinsics;
+    global := intrinsics.GlobalObject;
+    SetRealmGlobalObject(realm, global);
+    globalObj := SetDefaultGlobalBindings(realm);
+    initNodeGlobalObject(globalObj, intrinsics.ObjectPrototype, false);
+    @ReturnIfAbrupt(globalObj);
+    return NormalCompletion('undefined)
+}
 
 function main() {
   x := buildAST();
-  ret := ECMAScriptInitialization(x);
+  ret := ECMAScriptNodeInitialization(x);
   c_value := getCompletionValue(ret);
 
   if ((typeof c_value = __$Obj) &&& ("ErrorData" in_obj c_value) ) {
