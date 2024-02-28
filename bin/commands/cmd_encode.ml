@@ -12,9 +12,10 @@ let encode (builder : string option) (input : Fpath.t) (output : Fpath.t option)
   let output' = Option.map Fpath.to_string output in
   match Bos.OS.Cmd.run (Js2ecmasl.cmd input' output' builder) with
   | Error _ -> raise (Cmd.Command_error Error)
-  | Ok _ -> Ecma_sl.Log.debug "File '%s' has been encoded." input'
+  | Ok _ -> Log.debug "Sucessfuly encoded file '%a'." Fpath.pp input
 
-let run_single (opts : options) (input : Fpath.t) (output : Fpath.t option) =
+let run_single (opts : options) (input : Fpath.t) (output : Fpath.t option) :
+  unit =
   ignore Enums.Lang.(resolve_file_lang [ JS ] input);
   encode opts.builder input output
 

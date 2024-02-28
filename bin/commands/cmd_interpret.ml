@@ -36,7 +36,9 @@ let interpret_partial (config : Interpreter.Config.t) (prog : Prog.t) :
   Interpreter.eval_partial config prog
 
 let interpret (config : Interpreter.Config.t) (prog : Prog.t) : Val.t =
-  fst (interpret_partial config prog)
+  let retval = fst (interpret_partial config prog) in
+  Log.debug "Sucessfuly evaluated program with return '%a'." Val.pp retval;
+  retval
 
 let interpret_cesl (config : Interpreter.Config.t) (input : Fpath.t) : Val.t =
   let input' = Fpath.to_string input in
@@ -58,9 +60,8 @@ let run (opts : options) : unit =
   match Enums.Lang.resolve_file_lang valid_langs opts.input with
   | Some ESL -> interpret_esl interp_config opts.input
   | Some CESL -> interpret_cesl interp_config opts.input
-  | Some CESLUnattached ->
+  | Some CESLUnattached | _ ->
     interpret_cesl { interp_config with resolve_exitval = false } opts.input
-  | _ -> interpret_esl interp_config opts.input
 
 let main (copts : Options.Common.t) (opts : options) : int =
   Options.Common.set copts;

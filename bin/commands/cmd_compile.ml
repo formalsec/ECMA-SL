@@ -16,13 +16,17 @@ let type_check (prog : EProg.t) : EProg.t =
       raise (Cmd.Command_error Cmd.Error) )
 
 let compile (input : Fpath.t) : Prog.t =
-  let input' = Fpath.to_string input in
-  Parsing_utils.load_file input'
-  |> Parsing_utils.parse_eprog ~file:input'
-  |> Preprocessor.Imports.resolve_imports
-  |> Preprocessor.Macros.apply_macros
-  |> type_check
-  |> Compiler.compile_prog
+  let compile' file =
+    Parsing_utils.load_file file
+    |> Parsing_utils.parse_eprog ~file
+    |> Preprocessor.Imports.resolve_imports
+    |> Preprocessor.Macros.apply_macros
+    |> type_check
+    |> Compiler.compile_prog
+  in
+  let prog = compile' (Fpath.to_string input) in
+  Log.debug "Sucessfuly compiled program '%a'." Fpath.pp input;
+  prog
 
 let run (opts : options) : unit =
   ignore Enums.Lang.(resolve_file_lang [ ESL ] opts.input);
