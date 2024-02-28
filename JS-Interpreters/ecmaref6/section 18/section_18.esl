@@ -144,8 +144,6 @@ function initGlobalObject(globalObject, intrinsic) {
   ConsoleObject := initConsoleObject(globalObject, intrinsic.ObjectPrototype, false);
   createBuiltInProperty(globalObject, "console", ConsoleObject);
 
-  initNodeGlobalObject(globalObject, intrinsic.ObjectPrototype, false);
-
   test262Object := initTest262Object(globalObject, intrinsic.ObjectPrototype, false);
   createBuiltInProperty(globalObject, "$262", test262Object);
 

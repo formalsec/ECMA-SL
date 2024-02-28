@@ -2,8 +2,8 @@
 /* Before it is evaluated, all ECMAScript code must be associated with a Realm. Conceptually, a realm
    consists of a set of intrinsic objects, an ECMAScript global environment, all of the ECMAScript code
    that is loaded within the scope of that global environment, and other associated state and resources.
-   
-   A Realm is specified as a Record with the fields specified in Table 21: 
+
+   A Realm is specified as a Record with the fields specified in Table 21:
 */
 
 /* 8.2.1 CreateRealm ( ) */
@@ -11,19 +11,19 @@
 function CreateRealm() {
     /* Let realmRec be a new Record. */
     realmRec := {};
-    
+
     /* Perform CreateIntrinsics(realmRec). */
     CreateIntrinsics(realmRec);
-    
+
     /* Set realmRec.[[globalThis]] to undefined. */
     realmRec.globalThis := 'undefined;
-    
+
     /* Set realmRec.[[globalEnv]] to undefined. */
     realmRec.globalEnv := 'undefined;
-    
+
     /* Set realmRec.[[templateMap]] to a new empty List. */
     realmRec.templateMap := [];
-    
+
     /* Return realmRec. */
     return realmRec
 };
@@ -32,7 +32,7 @@ function CreateRealm() {
 function CreateIntrinsics(realmRec) {
     /* Initializing global symbols */
     initWellKnownSymbols();
-    
+
     /* Let intrinsics be a new Record. */
     intrinsics := {};
     |Intrinsics| := intrinsics;
@@ -49,7 +49,7 @@ function CreateIntrinsics(realmRec) {
     /* Set intrinsics.[[%ObjectPrototype%]] to ObjectPrototype. */
     /* ObjectPrototype := initObjectPrototype(); */
     ObjectPrototype := ObjectCreate('null, null);
-    
+
     intrinsics.ObjectPrototype := ObjectPrototype;
     setInternalProperty(globalObject, "Prototype", ObjectPrototype);
 
@@ -82,7 +82,7 @@ function CreateIntrinsics(realmRec) {
 
     /* Initializing Intrinsics */
     initIntrinsics(intrinsics, realmRec, false);
-    
+
     /* Return intrinsics. */
     return intrinsics
 };
@@ -129,7 +129,7 @@ function SetDefaultGlobalBindings(realmRec) {
     /* For each property of the Global Object specified in clause 18, do */
         /* Let name be the String value of the property name. */
 
-        
+
         /* Let desc be the fully populated data property descriptor for the property containing the
            specified attributes for the property. For properties listed in 18.2, 18.3, or 18.4 the value
            of the [[Value]] attribute is the corresponding intrinsic object from realmRec. */
