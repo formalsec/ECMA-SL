@@ -28,9 +28,11 @@ let execute_partial (config : Interpreter.Config.t) (interp : Prog.t)
 
 let setup_harness (interp : Prog.t) (harness : Fpath.t) : Val.t Heap.t =
   ignore Enums.Lang.(resolve_file_lang [ JS ] harness);
-  let harness_ast = Fpath.v (Filename.temp_file "ecmasl" "harness.cesl") in
-  Cmd_encode.encode None harness (Some harness_ast);
-  snd (execute_partial Interpreter.Config.default interp harness_ast)
+  let ast = Fpath.v (Filename.temp_file "ecmasl" "harness.cesl") in
+  Cmd_encode.encode None harness (Some ast);
+  let heap = snd (execute_partial Interpreter.Config.default interp ast) in
+  Log.debug "Sucessfuly linked JS harness '%a' to interpreter." Fpath.pp harness;
+  heap
 
 let setup_execution (ecmaref : Enums.ECMARef.t) (harness : Fpath.t option) :
   Prog.t * Val.t Heap.t option =
@@ -44,7 +46,9 @@ let execute_js ((interp, static_heap) : Prog.t * Val.t Heap.t option)
   Cmd_encode.encode None input (Some ast);
   let main = "mainPartial" in
   let config = { Interpreter.Config.default with main; static_heap } in
-  fst (execute_partial config interp ast)
+  let retval = fst (execute_partial config interp ast) in
+  Log.debug "Sucessfuly evaluated program with return '%a'." Val.pp retval;
+  retval
 
 let run (opts : options) : unit =
   let valid_langs = Enums.Lang.valid_langs langs opts.lang in
@@ -53,6 +57,7 @@ let run (opts : options) : unit =
   @@
   match Enums.Lang.resolve_file_lang valid_langs opts.input with
   | Some JS -> execute_js setup opts.input
+  (* FIXME: Allow the execution of pre-encoded js files *)
   (* | Some CESL -> execute_cesl opts.input opts.ecmaref *)
   | _ -> execute_js setup opts.input
 

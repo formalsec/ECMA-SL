@@ -26,7 +26,7 @@ let elexer (last_token : etoken ref) (lexbuf : Lexing.lexbuf) =
   last_token := token;
   token
 
-let parser (start : 'a start) (lexbuf : Lexing.lexbuf) =
+let parser (start : 'a start) (lexbuf : Lexing.lexbuf) : Prog.t =
   let module Core_ESLMI = Parser.MenhirInterpreter in
   let last_token = ref Parser.EOF in
   Core_ESLMI.loop_handle
@@ -41,7 +41,7 @@ let parser (start : 'a start) (lexbuf : Lexing.lexbuf) =
     (Core_ESLMI.lexer_lexbuf_to_supplier (lexer last_token) lexbuf)
     (start lexbuf.Lexing.lex_curr_p)
 
-let eparser (start : 'a estart) (lexbuf : Lexing.lexbuf) =
+let eparser (start : 'a estart) (lexbuf : Lexing.lexbuf) : EProg.t =
   let module ESLMI = EParser.MenhirInterpreter in
   let last_token = ref EParser.EOF in
   ESLMI.loop_handle
@@ -90,4 +90,5 @@ let parse_efunc ?(file : string = "") (str : string) : EFunc.t =
 
 let parse_eprog ?(file : string = "") (str : string) : EProg.t =
   let lexbuf = init_lexbuf file str in
-  eparser EParser.Incremental.entry_prog_target lexbuf
+  let p = eparser EParser.Incremental.entry_prog_target lexbuf in
+  { p with file }
