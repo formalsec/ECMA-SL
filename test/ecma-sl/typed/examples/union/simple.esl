@@ -1,9 +1,0 @@
-function main() {
-  foo: int | any := "abc";        /* Valid */
-  bar: int | never := 10;         /* Valid */
-  baz: int | unknown := "abc";    /* Valid */
-  qux: int | string := 10;        /* Valid */
-  fred: int | string := "abc";    /* Valid */
-  thud: int | string := true;     /* BadValue: int | string <- boolean */
-  return 0
-}

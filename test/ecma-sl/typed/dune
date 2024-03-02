@@ -1,17 +1,6 @@
 (library
  (name typed_ecmasl_tests)
- (modules
-  Test
-  TestBasic
-  ; TestFunction
-  TestLiteral
-  TestUnion
-  ; TestIfWhile
-  ; TestObject
-  ; TestConstraint
-  TestMatch
-  ; TestTypedef
-  )
+ (modules test)
  (inline_tests)
  (preprocess
   (pps ppx_inline_test))

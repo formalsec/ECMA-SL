@@ -85,17 +85,17 @@
   EFunc_metadata
   EPat_metadata
   ; typed
-  T_Checker
-  T_Expr
-  T_Stmt
-  T_Op
-  T_Ctx
-  T_Err
-  T_ErrFmt
-  T_Typing
-  T_Narrowing
-  T_Constraint
-  T_Pattern
+  ; T_Checker
+  ; T_Expr
+  ; T_Stmt
+  ; T_Op
+  ; T_Ctx
+  ; T_Err
+  ; T_ErrFmt
+  ; T_Typing
+  ; T_Narrowing
+  ; T_Constraint
+  ; T_Pattern
   ;   symbolic
   choice_monad_intf
   choice_monad
