@@ -23,6 +23,10 @@ type compile =
   | UnexpectedSigmaDiscriminant
   | UnexpectedSigmaCase
 
+type typing =
+  | Default
+  | Custom of string
+
 type runtime =
   | Default
   | Custom of string
@@ -132,6 +136,22 @@ module Compile : ERR_TYPE with type t = compile = struct
       fprintf fmt "Expecting literal type for sigma case discriminant."
     | UnexpectedSigmaCase ->
       fprintf fmt "Expecting union of object types for sigma type."
+
+  let str (msg : t) : string = Fmt.asprintf "%a" pp msg
+end
+
+module Typing : ERR_TYPE with type t = typing = struct
+  type t = typing
+
+  let font () : Font.t = Font.Red
+  let header () : string = "TypeError"
+  let equal (msg1 : t) (msg2 : t) : bool = msg1 = msg2
+
+  let pp (fmt : Fmt.t) (msg : t) : unit =
+    let open Fmt in
+    match msg with
+    | Default -> fprintf fmt "Generic type error."
+    | Custom msg' -> fprintf fmt "%s" msg'
 
   let str (msg : t) : string = Fmt.asprintf "%a" pp msg
 end
