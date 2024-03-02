@@ -47,19 +47,23 @@ module Log = struct
 end
 
 module Syntax = struct
-  let test (syntax : string) (expected : (t, Eslerr.comperr) Result.t) : bool =
-    let module CompileErr = Eslerr_type.Compile in
+  module Err = Eslerr_type.Compile
+
+  type err = Eslerr.comperr
+
+  let test (syntax : string) (expected : (t, err list) Result.t) : bool =
+    let err_str msgs = List.map Err.str msgs |> String.concat " ; " in
     let result =
       try Ok (Parsing_utils.parse_etype syntax) with
-      | Eslerr.Compile_error _ as exn -> Error (Eslerr.msg_comp exn)
+      | Eslerr.Compile_error err -> Error err.msgs
       | exn -> raise exn
     in
     match (expected, result) with
     | (Ok t1, Ok t2) ->
       if equal t1 t2 then true else Log.expected (str t1) (str t2)
-    | (Error err1, Error err2) ->
-      if CompileErr.equal err1 err2 then true
-      else Log.expected (CompileErr.str err1) (CompileErr.str err2)
-    | (Ok t, Error err) -> Log.expected (str t) (CompileErr.str err)
-    | (Error err, Ok t) -> Log.expected (CompileErr.str err) (str t)
+    | (Error msgs1, Error msgs2) ->
+      if List.equal Err.equal msgs1 msgs2 then true
+      else Log.expected (err_str msgs1) (err_str msgs2)
+    | (Ok t1, Error msgs2) -> Log.expected (str t1) (err_str msgs2)
+    | (Error msgs1, Ok t2) -> Log.expected (err_str msgs1) (str t2)
 end

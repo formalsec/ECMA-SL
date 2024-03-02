@@ -64,6 +64,11 @@ let%test "syntax_complete_object_type_test" =
   Syntax.test "{ foo: int, bar?: string, *: boolean }"
     (Ok (t_obj [ foo; bar; baz ]))
 
+(* Bad object types *)
+
+let%test "syntax_duplicate_diff_field_object_type_test" =
+  Syntax.test "{ foo: int, foo: string }" (Error [ DuplicatedTField ~@"foo" ])
+
 (* List types *)
 
 let%test "syntax_integer_list_type_test" =
@@ -161,3 +166,23 @@ let%test "syntax_two_case_sigma_type_test" =
   let case_2 = t_obj [ t_fld "type" (lt_integer 10) ] in
   Syntax.test "sigma[type] { type: \"foo\" } | { type: 10 }"
     (Ok (t_sigma "type" [ case_1; case_2 ]))
+
+(* Bad sigma types *)
+
+let%test "syntax_unexpected_sigma_cases_test" =
+  Syntax.test "sigma[type] int" (Error [ UnexpectedSigmaCase ])
+
+let%test "syntax_unexpected_sigma_case_test" =
+  Syntax.test "sigma[type] { type: \"foo\" } | int"
+    (Error [ UnexpectedSigmaCase ])
+
+let%test "syntax_missing_discriminant_sigma_type_test" =
+  Syntax.test "sigma[type] { foo: \"foo\" }"
+    (Error [ MissingSigmaDiscriminant ~@"type" ])
+
+let%test "syntax_unexpected_discriminant_sigma_type_test" =
+  Syntax.test "sigma[type] { type: int }" (Error [ UnexpectedSigmaDiscriminant ])
+
+let%test "syntax_duplicated_discriminant_sigma_type_test" =
+  Syntax.test "sigma[type] { type: \"foo\" } | { type: \"foo\" }"
+    (Error [ DuplicatedSigmaDiscriminant (lt_string "foo") ])
