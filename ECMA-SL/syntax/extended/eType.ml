@@ -52,6 +52,39 @@ let tliteral_to_val (lt : tliteral) : Val.t =
   | BooleanLit b -> Val.Bool b
   | SymbolLit s -> Val.Symbol s
 
+let rec equal (t1 : t) (t2 : t) : bool =
+  let tfld_equal (fn1, ft1, fs1) (fn2, ft2, fs2) =
+    fn1.it = fn2.it && equal ft1 ft2 && fs1 = fs2
+  in
+  match (t1.it, t2.it) with
+  | (AnyType, AnyType)
+  | (UnknownType, UnknownType)
+  | (NeverType, NeverType)
+  | (UndefinedType, UndefinedType)
+  | (NullType, NullType)
+  | (VoidType, VoidType)
+  | (IntType, IntType)
+  | (FloatType, FloatType)
+  | (StringType, StringType)
+  | (BooleanType, BooleanType)
+  | (SymbolType, SymbolType) ->
+    true
+  | (LiteralType lt1, LiteralType lt2) ->
+    Val.equal (tliteral_to_val lt1) (tliteral_to_val lt2)
+  | (ObjectType tobj1, ObjectType tobj2) ->
+    let tflds1 = Hashtbl.to_seq_values tobj1.flds in
+    let tflds2 = Hashtbl.to_seq_values tobj2.flds in
+    tobj1.kind = tobj2.kind
+    && Seq.length tflds1 == Seq.length tflds2
+    && Seq.for_all (fun tfld1 -> Seq.exists (tfld_equal tfld1) tflds2) tflds1
+  | (ListType t1, ListType t2) -> equal t1 t2
+  | (TupleType ts1, TupleType ts2) -> List.equal equal ts1 ts2
+  | (UnionType ts1, UnionType ts2) -> List.equal equal ts1 ts2
+  | (SigmaType (dsc1, ts1), SigmaType (dsc2, ts2)) ->
+    dsc1.it = dsc2.it && List.equal equal ts1 ts2
+  | (UserDefinedType tvar1, UserDefinedType tvar2) -> tvar1 = tvar2
+  | _ -> false
+
 let rec pp (fmt : Fmt.t) (t : t) : unit =
   let open Fmt in
   match t.it with
