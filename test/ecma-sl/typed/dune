@@ -1,6 +1,6 @@
 (library
- (name typed_ecmasl_tests)
- (modules test)
+ (name ecmasl_typed_tests)
+ (modules test test_syntax)
  (inline_tests)
  (preprocess
   (pps ppx_inline_test))
