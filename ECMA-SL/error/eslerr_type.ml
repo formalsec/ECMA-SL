@@ -10,13 +10,18 @@ type compile =
   | Custom of string
   | UnknownDependency of Id.t
   | CyclicDependency of Id.t
-  | DuplicatedTdef of Id.t
+  | DuplicatedField of Id.t
+  | DuplicatedTDef of Id.t
   | DuplicatedFunc of Id.t
   | DuplicatedMacro of Id.t
-  | DuplicatedField of Id.t
-  | DuplicatedSwitchCase of Val.t
   | UnknownMacro of Id.t
   | BadNArgs of int * int
+  | DuplicatedSwitchCase of Val.t
+  | DuplicatedTField of Id.t
+  | DuplicatedSigmaDiscriminant of EType.t
+  | MissingSigmaDiscriminant of Id.t
+  | UnexpectedSigmaDiscriminant
+  | UnexpectedSigmaCase
 
 type runtime =
   | Default
@@ -80,12 +85,17 @@ module Compile : ERR_TYPE with type t = compile = struct
     match (msg1, msg2) with
     | (UnknownDependency file1, UnknownDependency file2) -> file1.it = file2.it
     | (CyclicDependency file1, CyclicDependency file2) -> file1.it = file2.it
-    | (DuplicatedTdef tn1, DuplicatedTdef tn2) -> tn1.it = tn2.it
+    | (DuplicatedField fn1, DuplicatedField fn2) -> fn1.it = fn2.it
+    | (DuplicatedTDef tn1, DuplicatedTDef tn2) -> tn1.it = tn2.it
     | (DuplicatedFunc fn1, DuplicatedFunc fn2) -> fn1.it = fn2.it
     | (DuplicatedMacro mn1, DuplicatedMacro mn2) -> mn1.it = mn2.it
-    | (DuplicatedField fn1, DuplicatedField fn2) -> fn1.it = fn2.it
-    | (DuplicatedSwitchCase v1, DuplicatedSwitchCase v2) -> Val.equal v1 v2
     | (UnknownMacro mn1, UnknownMacro mn2) -> mn1.it = mn2.it
+    | (DuplicatedSwitchCase v1, DuplicatedSwitchCase v2) -> Val.equal v1 v2
+    | (DuplicatedTField fn1, DuplicatedTField fn2) -> fn1.it = fn2.it
+    | (DuplicatedSigmaDiscriminant lt1, DuplicatedSigmaDiscriminant lt2) ->
+      EType.equal lt1 lt2
+    | (MissingSigmaDiscriminant dsc1, MissingSigmaDiscriminant dsc2) ->
+      dsc1.it = dsc2.it
     | _ -> msg1 = msg2
 
   let pp (fmt : Fmt.t) (msg : t) : unit =
@@ -97,19 +107,31 @@ module Compile : ERR_TYPE with type t = compile = struct
       fprintf fmt "Cannot find dependency '%a'." Id.pp file
     | CyclicDependency file ->
       fprintf fmt "Cyclic dependency of file '%a'." Id.pp file
-    | DuplicatedTdef tn ->
+    | DuplicatedField fn ->
+      fprintf fmt "Duplicated field name '%a' for object literal." Id.pp fn
+    | DuplicatedTDef tn ->
       fprintf fmt "Duplicated definition for typedef '%a'." Id.pp tn
     | DuplicatedFunc fn ->
       fprintf fmt "Duplicated definition for function '%a'." Id.pp fn
     | DuplicatedMacro mn ->
       fprintf fmt "Duplicated definition for macro '%a'." Id.pp mn
-    | DuplicatedField fn ->
-      fprintf fmt "Duplicated field name '%a' for object literal." Id.pp fn
-    | DuplicatedSwitchCase v ->
-      fprintf fmt "Duplicated case value '%a' for switch statement." Val.pp v
     | UnknownMacro mn -> fprintf fmt "Cannot find macro '%a'." Id.pp mn
     | BadNArgs (nparams, nargs) ->
       fprintf fmt "Expected %d arguments, but got %d." nparams nargs
+    | DuplicatedSwitchCase v ->
+      fprintf fmt "Duplicated case value '%a' for switch statement." Val.pp v
+    | DuplicatedTField fn ->
+      fprintf fmt "Duplicated field name '%a' for object type." Id.pp fn
+    | DuplicatedSigmaDiscriminant lt ->
+      fprintf fmt "Duplicated discriminant '%a' for multiple sigma type cases."
+        EType.pp lt
+    | MissingSigmaDiscriminant dsc ->
+      fprintf fmt "Missing discriminant '%a' from the sigma type case." Id.pp
+        dsc
+    | UnexpectedSigmaDiscriminant ->
+      fprintf fmt "Expecting literal type for sigma case discriminant."
+    | UnexpectedSigmaCase ->
+      fprintf fmt "Expecting union of object types for sigma type."
 
   let str (msg : t) : string = Fmt.asprintf "%a" pp msg
 end
