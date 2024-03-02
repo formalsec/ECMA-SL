@@ -67,3 +67,11 @@ module Syntax = struct
     | (Ok t1, Error msgs2) -> Log.expected (str t1) (err_str msgs2)
     | (Error msgs1, Ok t2) -> Log.expected (err_str msgs1) (str t2)
 end
+
+(* module TypeCheck = struct
+  type err = Eslerr.tperr
+
+  let test (type_check_fun : unit -> unit) (expected : (t, err list) Result.t) :
+    bool =
+    true
+end *)
