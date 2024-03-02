@@ -2,9 +2,9 @@ module ErrSrc = Eslerr_comp.ErrSrc
 module RtTrace = Eslerr_comp.RtTrace
 
 (* Error types *)
-type interr = Eslerr_type.Internal.t
-type comperr = Eslerr_type.Compile.t
-type rterr = Eslerr_type.Runtime.t
+type interr = Eslerr_type.internal
+type comperr = Eslerr_type.compile
+type rterr = Eslerr_type.runtime
 
 type internal =
   { msg : interr
@@ -70,17 +70,17 @@ let set_trace (trace : RtTrace.t) = function
 (* Formatting functions *)
 
 let pp_int (fmt : Fmt.t) (err : internal) : unit =
-  Fmt.fprintf fmt "(%s) %a" err.loc Eslerr_type.InternalFmt.pp err.msg
+  Fmt.fprintf fmt "(%s) %a" err.loc Eslerr_type.Internal.pp err.msg
 
 let pp_comp (fmt : Fmt.t) (err : compile) : unit =
-  let module MsgFmt = Eslerr_fmt.Msgs (Eslerr_type.CompileFmt) in
-  let module CodeFmt = Eslerr_fmt.Code (Eslerr_type.CompileFmt) in
+  let module MsgFmt = Eslerr_fmt.Msgs (Eslerr_type.Compile) in
+  let module CodeFmt = Eslerr_fmt.Code (Eslerr_type.Compile) in
   Fmt.fprintf fmt "%a%a" MsgFmt.pp err.msgs CodeFmt.pp err.src
 
 let pp_rt (fmt : Fmt.t) (err : runtime) : unit =
-  let module MsgFmt = Eslerr_fmt.Msgs (Eslerr_type.RuntimeFmt) in
-  let module CodeFmt = Eslerr_fmt.Code (Eslerr_type.RuntimeFmt) in
-  let module CustomFmt = Eslerr_fmt.Custom (Eslerr_type.RuntimeFmt) in
+  let module MsgFmt = Eslerr_fmt.Msgs (Eslerr_type.Runtime) in
+  let module CodeFmt = Eslerr_fmt.Code (Eslerr_type.Runtime) in
+  let module CustomFmt = Eslerr_fmt.Custom (Eslerr_type.Runtime) in
   Fmt.fprintf fmt "%a%a%a" MsgFmt.pp err.msgs CodeFmt.pp err.src
     CustomFmt.pp_trace err.trace
 
