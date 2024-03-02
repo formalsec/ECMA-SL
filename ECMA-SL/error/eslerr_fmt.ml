@@ -1,35 +1,26 @@
-module type ERR_TYPE_FMT = sig
-  type msg
-
-  val font : unit -> Font.t
-  val header : unit -> string
-  val pp : Fmt.t -> msg -> unit
-  val str : msg -> string
-end
-
-module Msgs (ErrTypeFmt : ERR_TYPE_FMT) = struct
-  let pp_cause (fmt : Fmt.t) (msg : ErrTypeFmt.msg) : unit =
+module Msgs (ErrType : Eslerr_type.ERR_TYPE) = struct
+  let pp_cause (fmt : Fmt.t) (msg : ErrType.t) : unit =
     Fmt.fprintf fmt "\n%a %a"
-      (Font.pp_text_err [ ErrTypeFmt.font (); Font.Faint ])
-      "Caused by:" ErrTypeFmt.pp msg
+      (Font.pp_text_err [ ErrType.font (); Font.Faint ])
+      "Caused by:" ErrType.pp msg
 
-  let pp (fmt : Fmt.t) (msgs : ErrTypeFmt.msg list) : unit =
+  let pp (fmt : Fmt.t) (msgs : ErrType.t list) : unit =
     let open Fmt in
-    let header = ErrTypeFmt.header () ^ ":" in
-    let font = [ ErrTypeFmt.font () ] in
+    let header = ErrType.header () ^ ":" in
+    let font = [ ErrType.font () ] in
     let err_msgs fmt = function
       | [] -> fprintf fmt "%a" (Font.pp_text_err font) "???"
       | main :: causes ->
-        fprintf fmt "%a%a" ErrTypeFmt.pp main (pp_lst "" pp_cause) causes
+        fprintf fmt "%a%a" ErrType.pp main (pp_lst "" pp_cause) causes
     in
     fprintf fmt "\n%a %a" (Font.pp_text_err font) header err_msgs msgs
 
-  let str (msgs : ErrTypeFmt.msg list) : string = Fmt.asprintf "%a" pp msgs
+  let str (msgs : ErrType.t list) : string = Fmt.asprintf "%a" pp msgs
 end
 
-module Code (ErrTypeFmt : ERR_TYPE_FMT) = struct
-  open Source
+module Code (ErrType : Eslerr_type.ERR_TYPE) = struct
   module Src = Eslerr_comp.ErrSrc
+  open Source
 
   let format_code (code : string) : int * string =
     let start = Str.(search_forward (regexp "[^ \t\r\n]") code 0) in
@@ -50,7 +41,7 @@ module Code (ErrTypeFmt : ERR_TYPE_FMT) = struct
     unit =
     let base = Str.(global_replace (regexp "[^ \t\r\n]") " " code) in
     Fmt.fprintf fmt "%s%a" (String.sub base 0 left)
-      (Font.pp_text_err [ ErrTypeFmt.font () ])
+      (Font.pp_text_err [ ErrType.font () ])
       (String.make (right - left) '^')
 
   let pp_region (fmt : Fmt.t) (region : region) : unit =
@@ -67,8 +58,8 @@ module Code (ErrTypeFmt : ERR_TYPE_FMT) = struct
     | _ -> ()
 end
 
-module Custom (ErrTypeFmt : ERR_TYPE_FMT) = struct
-  open Eslerr_comp
+module Custom (ErrType : Eslerr_type.ERR_TYPE) = struct
+  module RtTrace = Eslerr_comp.RtTrace
 
   let pp_trace (fmt : Fmt.t) (trace : RtTrace.t option) : unit =
     match trace with
