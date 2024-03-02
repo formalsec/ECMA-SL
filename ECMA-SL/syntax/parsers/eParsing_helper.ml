@@ -1,6 +1,6 @@
 open Source
 
-module EExpr = struct
+module Expr = struct
   open EExpr
 
   let parse_object_fields (flds : (Id.t * t) list) : (Id.t * t) list =
@@ -12,11 +12,50 @@ module EExpr = struct
     flds
 end
 
-module EProg = struct
+module Type = struct
+  open EType
+
+  let parse_tobject (flds : (Id.t * t * tfldstyle) list) : tobject =
+    let parse_tobjfld_f tflds (fn, ft, fs) =
+      if not (Hashtbl.mem tflds fn.it) then
+        Hashtbl.replace tflds fn.it (fn, ft, fs)
+      else failwith "Replace with: duplicate field type error"
+    in
+    let tflds = Hashtbl.create (List.length flds) in
+    List.iter (parse_tobjfld_f tflds) flds;
+    { kind = ObjLit; flds = tflds }
+
+  let parse_tsigma (dsc : Id.t) (t : t) : t list =
+    let parse_dsc dsc_checked ot =
+      match Hashtbl.find_opt ot.flds dsc.it with
+      | Some (_, { it = LiteralType lt; _ }, _)
+        when not (Hashtbl.mem dsc_checked lt) ->
+        Hashtbl.replace dsc_checked lt ()
+      | Some (_, { it = LiteralType _lt; _ }, _) ->
+        failwith "Replace with: duplicate discriminant"
+      | Some (_, _, _) ->
+        failwith "Replace with: expecting literal discriminant"
+      | None -> failwith "Replace with: Missing discriminant field"
+    in
+    let parse_case_f dsc_checked = function
+      | { it = ObjectType ot; _ } -> parse_dsc dsc_checked ot
+      | _ -> failwith "Replace with: expecting union of objects for sigma"
+    in
+    let sigma_cases = function
+      | { it = UnionType ts; _ } -> ts
+      | { it = ObjectType _; _ } as t -> [ t ]
+      | _ -> failwith "Replace with: expecting union of objects for sigma"
+    in
+    let ts = sigma_cases t in
+    List.iter (parse_case_f (Hashtbl.create (List.length ts))) ts;
+    ts
+end
+
+module Prog = struct
   open EProg
 
-  let parse_tdef (t : EType.tdef) (p : t) : unit =
-    let tn = EType.tdef_name t in
+  let parse_tdef (t : EType.TDef.t) (p : t) : unit =
+    let tn = EType.TDef.name t in
     match Hashtbl.find_opt p.tdefs tn.it with
     | None -> Hashtbl.replace p.tdefs tn.it t
     | Some _ -> Eslerr.(compile ~src:(ErrSrc.at tn) (DuplicatedTdef tn))

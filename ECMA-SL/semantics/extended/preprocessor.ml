@@ -6,7 +6,7 @@ module Imports = struct
 
   let rec import_resolver (p : EProg.t) (resolved : (string, unit) Hashtbl.t)
     (paths : string list) (unresolved : Id.t list list) : unit =
-    let open EParsing_helper.EProg in
+    let open EParsing_helper.Prog in
     match (unresolved, paths) with
     | ([], _) -> ()
     | ([] :: unresolved', path :: paths) ->

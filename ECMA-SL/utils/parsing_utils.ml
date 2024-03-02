@@ -88,6 +88,10 @@ let parse_efunc ?(file : string = "") (str : string) : EFunc.t =
   let lexbuf = init_lexbuf file str in
   EParser.entry_func_target ELexer.read lexbuf
 
+let parse_etype ?(file : string = "") (str : string) : EType.t =
+  let lexbuf = init_lexbuf file str in
+  EParser.entry_type_target ELexer.read lexbuf
+
 let parse_eprog ?(file : string = "") (str : string) : EProg.t =
   let lexbuf = init_lexbuf file str in
   let p = eparser EParser.Incremental.entry_prog_target lexbuf in

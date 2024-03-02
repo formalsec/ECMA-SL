@@ -167,17 +167,17 @@
 
             (* Type system *)
             "typedef"                 , TYPEDEF;
-            "any"                     , STYPE_ANY;
-            "unknown"                 , STYPE_UNKNOWN;
-            "never"                   , STYPE_NEVER;
-            "undefined"               , STYPE_UNDEFINED;
-            "void"                    , STYPE_VOID;
-            "int"                     , STYPE_INT;
-            "float"                   , STYPE_FLOAT;
-            "string"                  , STYPE_STRING;
-            "boolean"                 , STYPE_BOOLEAN;
-            "symbol"                  , STYPE_SYMBOL;
-            "sigma"                   , STYPE_SIGMA;
+            "any"                     , TYPE_ANY;
+            "unknown"                 , TYPE_UNKNOWN;
+            "never"                   , TYPE_NEVER;
+            "undefined"               , TYPE_UNDEFINED;
+            "void"                    , TYPE_VOID;
+            "int"                     , TYPE_INT;
+            "float"                   , TYPE_FLOAT;
+            "string"                  , TYPE_STRING;
+            "boolean"                 , TYPE_BOOLEAN;
+            "symbol"                  , TYPE_SYMBOL;
+            "sigma"                   , TYPE_SIGMA;
           ]
 
   exception Syntax_error of string

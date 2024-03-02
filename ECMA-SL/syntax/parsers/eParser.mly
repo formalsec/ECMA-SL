@@ -78,12 +78,14 @@
 (* ========== Type system tokens ========== *)
 
 %token TYPEDEF
-%token STYPE_ANY, STYPE_UNKNOWN, STYPE_NEVER
-%token STYPE_UNDEFINED, STYPE_VOID
-%token STYPE_INT, STYPE_FLOAT, STYPE_STRING, STYPE_BOOLEAN STYPE_SYMBOL
-%token STYPE_SIGMA
+%token TYPE_ANY, TYPE_UNKNOWN, TYPE_NEVER
+%token TYPE_UNDEFINED, TYPE_VOID
+%token TYPE_INT, TYPE_FLOAT, TYPE_STRING, TYPE_BOOLEAN TYPE_SYMBOL
+%token TYPE_SIGMA
 
 (* ========== Precedence and Associativity ========== *)
+
+%right nary_type_prec
 
 %left LAND LOR SCLAND SCLOR
 %left EQ
@@ -102,12 +104,15 @@
 %type <EExpr.t> entry_expr_target
 %type <EStmt.t> entry_stmt_target
 %type <EFunc.t> entry_func_target
+%type <EType.t> entry_type_target
 %type <EProg.t> entry_prog_target
 
-%start entry_prog_target entry_func_target entry_stmt_target entry_expr_target
-
-
-
+%start
+entry_expr_target
+entry_stmt_target
+entry_func_target
+entry_type_target
+entry_prog_target
 
 
 
@@ -118,44 +123,42 @@
 %%
 
 let entry_expr_target := ~ = expr_target; EOF; <>
-
 let entry_stmt_target := ~ = stmt_target; EOF; <>
-
 let entry_func_target := ~ = func_target; EOF; <>
-
+let entry_type_target := ~ = type_target; EOF; <>
 let entry_prog_target := ~ = prog_target; EOF; <>
 
 (* ==================== Program  ==================== *)
 
 let prog_target :=
   | imports = import_target*; p_els = separated_list(SEMICOLON?, prog_element_target);
-    { EParsing_helper.EProg.parse_prog imports p_els }
+    { EParsing_helper.Prog.parse_prog imports p_els }
 
 let import_target := IMPORT; ~ = str_id_target; SEMICOLON; <>
 
 let prog_element_target :=
-  | ~ = tdef_target;    < EParsing_helper.EProg.parse_tdef >
-  | ~ = func_target;    < EParsing_helper.EProg.parse_func >
-  | ~ = macro_target;   < EParsing_helper.EProg.parse_macro >
+  | ~ = tdef_target;    < EParsing_helper.Prog.parse_tdef >
+  | ~ = func_target;    < EParsing_helper.Prog.parse_func >
+  | ~ = macro_target;   < EParsing_helper.Prog.parse_macro >
 
 (* ==================== Type definitions ==================== *)
 
 let tdef_target :=
   | TYPEDEF; tn = id_target; DEFEQ; tv = type_target;
-    { EType.tdef_create tn tv }
+    { EType.TDef.create tn tv }
 
 (* ==================== Functions ==================== *)
 
 let func_target :=
   | FUNCTION; fn = id_target; LPAREN; pxs = separated_list(COMMA, param_target); RPAREN;
-    tret = tannot_target?; s = block_target;
+    tret = typing_target?; s = block_target;
     { EFunc.create fn pxs tret s None @> at $sloc }
   | FUNCTION; fn = id_target; LPAREN; pxs = separated_list(COMMA, param_target); RPAREN;
     vals_meta = delimited(LBRACK, vals_metadata_target, RBRACK); vars_meta = vars_opt_metadata_target;
-    tret = tannot_target?; s = block_target;
+    tret = typing_target?; s = block_target;
     { EFunc.create fn pxs tret s (Some (EFunc_metadata.build_func_metadata vals_meta vars_meta)) @> at $sloc }
 
-let param_target := ~ = id_target; ~ = tannot_target?; <>
+let param_target := ~ = id_target; ~ = typing_target?; <>
 
 (* ==================== Macros ==================== *)
 
@@ -186,7 +189,7 @@ let stmt_target :=
     { EStmt.Return e @> at $sloc }
   | e = expr_target;
     { EStmt.ExprStmt e @> at $sloc }
-  | x = id_target; t = option(tannot_target); DEFEQ; e = expr_target;
+  | x = id_target; t = option(typing_target); DEFEQ; e = expr_target;
     { EStmt.Assign (x, t, e) @> at $sloc }
   | x = gid_target; DEFEQ; e = expr_target;
     { EStmt.GAssign (x, e) @> at $sloc }
@@ -212,7 +215,7 @@ let stmt_target :=
   | MATCH; e = expr_target; dsc = match_discrm_target?; WITH;
     PIPE; css = separated_list(PIPE, match_case_target);
     { EStmt.MatchWith (e, dsc, css) @> at $sloc }
-  | x = id_target; tannot_target?; DEFEQ; LAMBDA; LPAREN; pxs = separated_list(COMMA, id_target); RPAREN;
+  | x = id_target; typing_target?; DEFEQ; LAMBDA; LPAREN; pxs = separated_list(COMMA, id_target); RPAREN;
     LBRACK; ctxvars = separated_list(COMMA, id_target); RBRACK; s = block_target;
     { EStmt.Lambda (x, fresh_lambda_id_gen (), pxs, ctxvars, s) @> at $sloc }
   | ATSIGN; mn = id_target; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
@@ -301,7 +304,7 @@ let expr_target :=
   | EXTERN; fn = id_target; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
     { EExpr.ECall (fn, es) @> at $sloc }
   | LBRACE; flds = separated_list(COMMA, field_init_target); RBRACE;
-    { EExpr.NewObj (EParsing_helper.EExpr.parse_object_fields flds) @> at $sloc }
+    { EExpr.NewObj (EParsing_helper.Expr.parse_object_fields flds) @> at $sloc }
   | oe = expr_target; fe = lookup_target;
     { EExpr.Lookup (oe, fe) @> at $sloc }
   | LBRACE; fe = expr_target; RBRACE; ATSIGN; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
@@ -332,6 +335,8 @@ let id_target := x = ID;          { (x @> at $sloc) }
 let gid_target := x = GID;        { (x @> at $sloc) }
 
 let str_id_target := s = STRING;  { (s @> at $sloc) }
+
+let times_id_target := TIMES;     { ("*" @> at $sloc) }
 
 let val_target :=
   | NULL;               { Val.Null }
@@ -421,60 +426,53 @@ let str_opt_metadata_target :=
 
 (* ==================== Type system ==================== *)
 
-let tannot_target := COLON; t = type_target; <>
+let typing_target := COLON; t = type_target; <>
 
 let type_target :=
-  | ~ = simple_type_target; <>
-  | ~ = nary_type_target; <>
+  | LPAREN; t = type_target; RPAREN;      { t }
+  | TYPE_ANY;                             { EType.AnyType @> at $sloc }
+  | TYPE_UNKNOWN;                         { EType.UnknownType @> at $sloc }
+  | TYPE_NEVER;                           { EType.NeverType @> at $sloc }
+  | TYPE_UNDEFINED;                       { EType.UndefinedType @> at $sloc }
+  | NULL;                                 { EType.NullType @> at $sloc }
+  | TYPE_VOID;                            { EType.VoidType @> at $sloc }
+  | TYPE_INT;                             { EType.IntType @> at $sloc }
+  | TYPE_FLOAT;                           { EType.FloatType @> at $sloc }
+  | TYPE_STRING;                          { EType.StringType @> at $sloc }
+  | TYPE_BOOLEAN;                         { EType.BooleanType @> at $sloc }
+  | TYPE_SYMBOL;                          { EType.SymbolType @> at $sloc }
+  | lt = literal_type_target;             { EType.LiteralType lt @> at $sloc }
+  | ot = object_type_target;              { EType.ObjectType ot @> at $sloc }
+  | t = type_target; LBRACK; RBRACK;      { EType.ListType t @> at $sloc }
+  | ts = rev(tuple_type_target);          { EType.TupleType(ts) @> at $sloc }               %prec nary_type_prec
+  | ts = rev(union_type_target);          { EType.UnionType(ts) @> at $sloc }               %prec nary_type_prec
+  | t = sigma_type_target;                { t @> at $sloc }
+  | tvar = id_target;                     { EType.UserDefinedType tvar.it @> at $sloc }
 
-let simple_type_target :=
-  | LPAREN; t = type_target; RPAREN;
-    { t }
-  | STYPE_ANY;
-    { EType.AnyType }
-  | STYPE_UNKNOWN;
-    { EType.UnknownType }
-  | STYPE_NEVER;
-    { EType.NeverType }
-  | STYPE_UNDEFINED;
-    { EType.UndefinedType }
-  | STYPE_VOID;
-    { EType.VoidType }
-  | STYPE_INT;
-    { EType.IntType }
-  | STYPE_FLOAT;
-    { EType.FloatType }
-  | STYPE_STRING;
-    { EType.StringType }
-  | STYPE_BOOLEAN;
-    { EType.BooleanType }
-  | STYPE_SYMBOL;
-    { EType.SymbolType }
-  | v = val_target;
-    { EType.parse_literal_type v }
-  | LBRACK; RBRACK;
-    { EType.parse_literal_type (Val.List []) }
-  | LBRACK; t = type_target; RBRACK;
-    { EType.ListType t }
-  | LBRACE; props = separated_list (COMMA, type_property_target); RBRACE;
-    { EType.ObjectType (EType.parse_obj_type props) }
-  | v = ID;
-    { EType.UserDefinedType v }
+let literal_type_target :=
+  | i = INT;                              { EType.IntegerLit i }
+  | f = FLOAT;                            { EType.FloatLit f }
+  | s = STRING;                           { EType.StringLit s }
+  | b = BOOLEAN;                          { EType.BooleanLit b }
+  | s = SYMBOL;                           { EType.SymbolLit s }
 
-let nary_type_target :=
-  | t1 = simple_type_target; merge_func = nary_type_op_target; t2 = type_target;
-    { merge_func t1 t2 }
-  | STYPE_SIGMA; LBRACK; d = ID; RBRACK; PIPE?; t = nary_type_target;
-    { EType.parse_sigma_type d t }
+let object_type_target :=
+  | LBRACE; props = separated_list (COMMA, object_type_prop_target); RBRACE;
+    { EParsing_helper.Type.parse_tobject props }
 
-let nary_type_op_target :=
-  | TIMES;        { EType.merge_tuple_type }
-  | PIPE;         { EType.merge_union_type }
+let object_type_prop_target :=
+  | fn = id_target; COLON; t = type_target;             { (fn, t, EType.FldReq) }
+  | fn = id_target; QUESTION; COLON; t = type_target;   { (fn, t, EType.FldOpt) }
+  | fn = times_id_target; COLON; t = type_target;       { (fn, t, EType.FldReq) }
 
-let type_property_target :=
-  | v = ID; COLON; t = type_target;
-    { EType.Field.NamedField (v, (t, false) ) }
-  | v = ID; QUESTION; COLON; t = type_target;
-    { EType.Field.NamedField (v, (t, true) ) }
-  | TIMES; COLON; t = type_target;
-    { EType.Field.SumryField t }
+let tuple_type_target :=
+| t1 = type_target; TIMES; t2 = type_target;            { [t2 ; t1] }
+| ts = tuple_type_target; TIMES; t = type_target;       { t :: ts }
+
+let union_type_target :=
+| t1 = type_target; PIPE; t2 = type_target;             { [t2 ; t1] }
+| ts = union_type_target; PIPE; t = type_target;        { t :: ts }
+
+let sigma_type_target :=
+  | TYPE_SIGMA; LBRACK; dsc = id_target; RBRACK; PIPE?; t = type_target;                    %prec nary_type_prec
+    { EType.SigmaType (dsc, (EParsing_helper.Type.parse_tsigma dsc t)) }
