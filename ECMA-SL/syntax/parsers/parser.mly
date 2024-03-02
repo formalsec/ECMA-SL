@@ -81,10 +81,11 @@
 %type <Func.t> entry_func_target
 %type <Prog.t> entry_prog_target
 
-%start entry_prog_target entry_func_target entry_stmt_target entry_expr_target
-
-
-
+%start
+entry_expr_target
+entry_stmt_target
+entry_func_target
+entry_prog_target
 
 
 
@@ -95,11 +96,8 @@
 %%
 
 let entry_expr_target := ~ = expr_target; EOF; <>
-
 let entry_stmt_target := ~ = stmt_target; EOF; <>
-
 let entry_func_target := ~ = func_target; EOF; <>
-
 let entry_prog_target := ~ = prog_target; EOF; <>
 
 (* ==================== Program  ==================== *)
