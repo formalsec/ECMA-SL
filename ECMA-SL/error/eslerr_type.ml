@@ -26,6 +26,8 @@ type compile =
 type typing =
   | Default
   | Custom of string
+  | BadCongruency of EType.t * EType.t
+  | BadSubtyping of EType.t * EType.t
 
 type runtime =
   | Default
@@ -145,13 +147,26 @@ module Typing : ERR_TYPE with type t = typing = struct
 
   let font () : Font.t = Font.Red
   let header () : string = "TypeError"
-  let equal (msg1 : t) (msg2 : t) : bool = msg1 = msg2
+
+  let equal (msg1 : t) (msg2 : t) : bool =
+    match (msg1, msg2) with
+    | (BadCongruency (tref1, tsrc1), BadCongruency (tref2, tsrc2)) ->
+      EType.equal tref1 tref2 && EType.equal tsrc1 tsrc2
+    | (BadSubtyping (tref1, tsrc1), BadSubtyping (tref2, tsrc2)) ->
+      EType.equal tref1 tref2 && EType.equal tsrc1 tsrc2
+    | _ -> msg1 = msg2
 
   let pp (fmt : Fmt.t) (msg : t) : unit =
     let open Fmt in
     match msg with
     | Default -> fprintf fmt "Generic type error."
     | Custom msg' -> fprintf fmt "%s" msg'
+    | BadCongruency (tref, tsrc) ->
+      fprintf fmt "Value of type '%a' is not congruent with type '%a'." EType.pp
+        tsrc EType.pp tref
+    | BadSubtyping (tref, tsrc) ->
+      fprintf fmt "Value of type '%a' is not assignable to type '%a'." EType.pp
+        tsrc EType.pp tref
 
   let str (msg : t) : string = Fmt.asprintf "%a" pp msg
 end

@@ -85,6 +85,7 @@
   EFunc_metadata
   EPat_metadata
   ; typed
+  tSubtyping
   ; T_Checker
   ; T_Expr
   ; T_Stmt
