@@ -22,17 +22,12 @@ let lt_symbol (s : string) : t = ~@(LiteralType (SymbolLit s))
 let t_fld ?(opt : bool = false) (fn : Id.t') (ft : t) : tobjfld =
   (~@fn, ft, if opt then FldOpt else FldReq)
 
-let t_obj ?(kind : tobjkind = ObjLit) ?(sfld : t option = None)
-  (nflds : tobjfld list) : t =
-  let flds nflds = function
-    | Some tsmry -> (~@"*", tsmry, FldReq) :: nflds
-    | None -> nflds
-  in
-  let flds = EParsing_helper.Type.parse_tobject (flds nflds sfld) in
-  ~@(ObjectType { flds with kind })
+let t_obj ?(kind : tobjkind = ObjLit) (flds : tobjfld list) : t =
+  let tobj = EParsing_helper.Type.parse_tobject flds in
+  ~@(ObjectType { tobj with kind })
 
-let t_objlit ?sfld nflds = t_obj ~kind:ObjLit ?sfld nflds
-let t_objsto ?sfld nflds = t_obj ~kind:ObjSto ?sfld nflds
+let t_objlit (flds : tobjfld list) : t = t_obj ~kind:ObjLit flds
+let t_objsto (flds : tobjfld list) : t = t_obj ~kind:ObjSto flds
 let t_list (t : t) : t = ~@(ListType t)
 let t_tuple (ts : t list) : t = ~@(TupleType ts)
 let t_union (ts : t list) : t = ~@(UnionType ts)
@@ -68,10 +63,32 @@ module Syntax = struct
     | (Error msgs1, Ok t2) -> Log.expected (err_str msgs1) (str t2)
 end
 
-(* module TypeCheck = struct
+module TypeCheck = struct
+  module Err = Eslerr_type.Typing
+
   type err = Eslerr.tperr
 
-  let test (type_check_fun : unit -> unit) (expected : (t, err list) Result.t) :
-    bool =
-    true
-end *)
+  let test (congruency : bool) ((tref, tsrc) : EType.t * EType.t)
+    (expected : (unit, err list) Result.t) : bool =
+    let err_str msgs = List.map Err.str msgs |> String.concat "\n\t - " in
+    let result =
+      try Ok (TSubtyping.type_check ~congruency tref tsrc) with
+      | Eslerr.Typing_error err -> Error err.msgs
+      | exn -> raise exn
+    in
+    match (expected, result) with
+    | (Ok (), Ok ()) -> true
+    | (Error msgs1, Error msgs2) ->
+      if List.equal Err.equal msgs1 msgs2 then true
+      else Log.expected (err_str msgs1) (err_str msgs2)
+    | (Ok (), Error msgs2) -> Log.expected "success" (err_str msgs2)
+    | (Error msgs1, Ok ()) -> Log.expected (err_str msgs1) "success"
+
+  let test_congruency ((tref, tsrc) : EType.t * EType.t)
+    (expected : (unit, err list) Result.t) : bool =
+    test true (tref, tsrc) expected
+
+  let test_subtyping ((tref, tsrc) : EType.t * EType.t)
+    (expected : (unit, err list) Result.t) : bool =
+    test false (tref, tsrc) expected
+end

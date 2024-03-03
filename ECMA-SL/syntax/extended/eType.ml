@@ -54,22 +54,12 @@ let tliteral_to_val (lt : tliteral) : Val.t =
   | SymbolLit s -> Val.Symbol s
 
 let rec equal (t1 : t) (t2 : t) : bool =
+  let tsmry_get smry = Option.map (fun (_, tsmry) -> tsmry.it) smry in
   let tfld_equal (fn1, ft1, fs1) (fn2, ft2, fs2) =
     fn1.it = fn2.it && equal ft1 ft2 && fs1 = fs2
   in
   match (t1.it, t2.it) with
-  | (AnyType, AnyType)
-  | (UnknownType, UnknownType)
-  | (NeverType, NeverType)
-  | (UndefinedType, UndefinedType)
-  | (NullType, NullType)
-  | (VoidType, VoidType)
-  | (IntType, IntType)
-  | (FloatType, FloatType)
-  | (StringType, StringType)
-  | (BooleanType, BooleanType)
-  | (SymbolType, SymbolType) ->
-    true
+  | (_, _) when t1.it = t2.it -> true
   | (LiteralType lt1, LiteralType lt2) ->
     Val.equal (tliteral_to_val lt1) (tliteral_to_val lt2)
   | (ObjectType tobj1, ObjectType tobj2) ->
@@ -78,6 +68,7 @@ let rec equal (t1 : t) (t2 : t) : bool =
     tobj1.kind = tobj2.kind
     && Seq.length tflds1 == Seq.length tflds2
     && Seq.for_all (fun tfld1 -> Seq.exists (tfld_equal tfld1) tflds2) tflds1
+    && tsmry_get tobj1.smry = tsmry_get tobj2.smry
   | (ListType t1, ListType t2) -> equal t1 t2
   | (TupleType ts1, TupleType ts2) -> List.equal equal ts1 ts2
   | (UnionType ts1, UnionType ts2) -> List.equal equal ts1 ts2
@@ -101,10 +92,13 @@ let rec pp (fmt : Fmt.t) (t : t) : unit =
   | BooleanType -> pp_str fmt "boolean"
   | SymbolType -> pp_str fmt "symbol"
   | LiteralType tl -> Val.pp fmt (tliteral_to_val tl)
-  | ObjectType tobj ->
+  | ObjectType { flds; smry; _ } when Hashtbl.length flds = 0 ->
+    let pp_smry fmt (_, tsmry) = fprintf fmt " *: %a " pp tsmry in
+    fprintf fmt "{%a}" (pp_opt pp_smry) smry
+  | ObjectType { flds; smry; _ } ->
     let pp_tfld fmt (_, tfld) = pp_tobjfld fmt tfld in
-    if Hashtbl.length tobj.flds = 0 then pp_str fmt "{}"
-    else fprintf fmt "{ %a }" (pp_hashtbl ", " pp_tfld) tobj.flds
+    let pp_smry fmt (_, tsmry) = fprintf fmt ", *: %a" pp tsmry in
+    fprintf fmt "{ %a%a }" (pp_hashtbl ", " pp_tfld) flds (pp_opt pp_smry) smry
   | ListType t' -> fprintf fmt "%a[]" pp t'
   | TupleType ts -> fprintf fmt "(%a)" (pp_lst " * " pp) ts
   | UnionType ts -> fprintf fmt "(%a)" (pp_lst " | " pp) ts
