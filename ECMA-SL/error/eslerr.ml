@@ -49,35 +49,44 @@ let runtime ?(src : ErrSrc.t = ErrSrc.none ()) (msg : rterr) : 'a =
 
 (* Error message update *)
 
-let push_comp (msg : comperr) = function
+let push_comp (msg : comperr) (exn : exn) : exn =
+  match exn with
   | Compile_error err -> Compile_error { err with msgs = msg :: err.msgs }
   | _ -> internal __FUNCTION__ (Expecting "compile error")
 
-let push_tp (msg : tperr) = function
+let push_tp (msg : tperr) (exn : exn) : exn =
+  match exn with
   | Typing_error err -> Typing_error { err with msgs = msg :: err.msgs }
   | _ -> internal __FUNCTION__ (Expecting "type error")
 
-let push_rt (msg : rterr) = function
+let push_rt (msg : rterr) (exn : exn) : exn =
+  match exn with
   | Runtime_error err -> Runtime_error { err with msgs = msg :: err.msgs }
   | _ -> internal __FUNCTION__ (Expecting "runtime error")
 
 (* Component functions *)
 
-let src = function
+let src (exn : exn) : ErrSrc.t =
+  match exn with
   | Compile_error err -> err.src
+  | Typing_error err -> err.src
   | Runtime_error err -> err.src
   | _ -> internal __FUNCTION__ (Expecting "error type with source component")
 
-let set_src (src : ErrSrc.t) = function
+let set_src (src : ErrSrc.t) (exn : exn) : exn =
+  match exn with
   | Compile_error err -> Compile_error { err with src }
+  | Typing_error err -> Typing_error { err with src }
   | Runtime_error err -> Runtime_error { err with src }
   | _ -> internal __FUNCTION__ (Expecting "error type with source component")
 
-let trace = function
+let trace (exn : exn) : RtTrace.t option =
+  match exn with
   | Runtime_error err -> err.trace
   | _ -> internal __FUNCTION__ (Expecting "error type with trace component")
 
-let set_trace (trace : RtTrace.t) = function
+let set_trace (trace : RtTrace.t) (exn : exn) : exn =
+  match exn with
   | Runtime_error err -> Runtime_error { err with trace = Some trace }
   | _ -> internal __FUNCTION__ (Expecting "error type with trace component")
 
