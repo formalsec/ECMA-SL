@@ -31,7 +31,8 @@ and tliteral =
 
 and tobject =
   { kind : tobjkind
-  ; flds : (string, tobjfld) Hashtbl.t
+  ; flds : (Id.t', tobjfld) Hashtbl.t
+  ; smry : (Id.t * t) option
   }
 
 and tobjkind =
