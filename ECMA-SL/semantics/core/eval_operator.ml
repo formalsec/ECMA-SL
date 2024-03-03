@@ -3,7 +3,8 @@ open Val
 
 let op_err (src_arg_i : int) (op_lbl : string) (rterr : Eslerr.rterr) : 'a =
   try Eslerr.(runtime ~src:(Index src_arg_i) rterr)
-  with exn -> Eslerr.push_rt (OpEvalErr op_lbl) exn |> raise
+  with Eslerr.Runtime_error _ as exn ->
+    Eslerr.push_rt (OpEvalErr op_lbl) exn |> raise
 
 let unexpected_err (src_arg_i : int) (op_lbl : string) (msg : string) : 'a =
   op_err src_arg_i op_lbl (Unexpected msg)

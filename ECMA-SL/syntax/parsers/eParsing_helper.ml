@@ -21,9 +21,16 @@ module Type = struct
         Hashtbl.replace tflds fn.it (fn, ft, fs)
       else Eslerr.(compile ~src:(ErrSrc.at fn) (DuplicatedTField fn))
     in
+    let retrieve_smry_field tflds =
+      let make_smry (fn, ft, _) = (fn, ft) in
+      let smry = Option.map make_smry (Hashtbl.find_opt tflds "*") in
+      Hashtbl.remove tflds "*";
+      smry
+    in
     let tflds = Hashtbl.create (List.length flds) in
     List.iter (parse_tobjfld_f tflds) flds;
-    { kind = ObjLit; flds = tflds }
+    let smry = retrieve_smry_field tflds in
+    { kind = ObjLit; flds = tflds; smry }
 
   let parse_tsigma (dsc : Id.t) (t : t) : t list =
     let parse_dsc dsc_checked ot at =
