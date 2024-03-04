@@ -152,3 +152,107 @@ let%test "congruency_literal_badtype" =
   test_congruency
     (lt_integer 10, lt_string "abc")
     (Error [ BadCongruency (lt_integer 10, lt_string "abc") ])
+
+(* ========== List Type ========== *)
+
+let%test "congruency_list_eq" =
+  let tref = t_list t_int in
+  let tsrc = t_list t_int in
+  test_congruency (tref, tsrc) (Ok ())
+
+let%test "congruency_list_incompatible" =
+  let tref = t_list t_int in
+  let tsrc = t_list t_null in
+  test_congruency (tref, tsrc)
+    (Error [ BadCongruency (tref, tsrc); BadCongruency (t_int, t_null) ])
+
+let%test "congruency_list_congruency" =
+  let tref = t_list t_unknown in
+  let tsrc = t_list t_int in
+  test_congruency (tref, tsrc)
+    (Error [ BadCongruency (tref, tsrc); BadCongruency (t_unknown, t_int) ])
+
+(* ========== Tuple Type ========== *)
+
+let%test "congruency_tuple_eq" =
+  let tref = t_tuple [ t_int; t_string ] in
+  let tsrc = t_tuple [ t_int; t_string ] in
+  test_congruency (tref, tsrc) (Ok ())
+
+let%test "congruency_tuple_incompatible" =
+  let tref = t_tuple [ t_int; t_string ] in
+  let tsrc = t_tuple [ t_int; t_boolean ] in
+  test_congruency (tref, tsrc)
+    (Error
+       [ BadCongruency (tref, tsrc)
+       ; IncompatibleElement 2
+       ; BadCongruency (t_string, t_boolean)
+       ] )
+
+let%test "congruency_tuple_congruency" =
+  let tref = t_tuple [ t_int; t_unknown ] in
+  let tsrc = t_tuple [ t_int; t_string ] in
+  test_congruency (tref, tsrc)
+    (Error
+       [ BadCongruency (tref, tsrc)
+       ; IncompatibleElement 2
+       ; BadCongruency (t_unknown, t_string)
+       ] )
+
+let%test "congruency_tuple_missing" =
+  let tref = t_tuple [ t_int; t_string; t_boolean ] in
+  let tsrc = t_tuple [ t_int; t_string ] in
+  test_congruency (tref, tsrc)
+    (Error [ BadCongruency (tref, tsrc); NExpectedElements (3, 2) ])
+
+let%test "congruency_tuple_extra" =
+  let tref = t_tuple [ t_int; t_string ] in
+  let tsrc = t_tuple [ t_int; t_string; t_boolean ] in
+  test_congruency (tref, tsrc)
+    (Error [ BadCongruency (tref, tsrc); NExpectedElements (2, 3) ])
+
+(* ========== Union Type ========== *)
+
+let%test "congruency_union_eq" =
+  let tref = t_union [ t_int; t_string ] in
+  let tsrc = t_union [ t_int; t_string ] in
+  test_congruency (tref, tsrc) (Ok ())
+
+let%test "congruency_union_order" =
+  let tref = t_union [ t_int; t_string ] in
+  let tsrc = t_union [ t_string; t_int ] in
+  test_congruency (tref, tsrc) (Ok ())
+
+let%test "congruency_union_extra_ref" =
+  let tref = t_union [ t_int; t_string; t_boolean ] in
+  let tsrc = t_union [ t_int; t_string ] in
+  test_congruency (tref, tsrc)
+    (Error [ BadCongruency (tref, tsrc); BadCongruency (tsrc, t_boolean) ])
+
+let%test "congruency_union_extra_src" =
+  let tref = t_union [ t_int; t_string ] in
+  let tsrc = t_union [ t_int; t_string; t_boolean ] in
+  test_congruency (tref, tsrc)
+    (Error [ BadCongruency (tref, tsrc); BadCongruency (tref, t_boolean) ])
+
+let%test "congruency_union_incompatible" =
+  let tref = t_union [ t_int; t_string ] in
+  let tsrc = t_union [ t_int; t_boolean ] in
+  test_congruency (tref, tsrc)
+    (Error [ BadCongruency (tref, tsrc); BadCongruency (tref, t_boolean) ])
+
+let%test "congruency_union_congruency" =
+  let tref = t_union [ t_int; t_unknown ] in
+  let tsrc = t_union [ t_int; t_string; t_boolean ] in
+  test_congruency (tref, tsrc)
+    (Error [ BadCongruency (tref, tsrc); BadCongruency (tref, t_string) ])
+
+let%test "congruency_union_any_ref" =
+  let tref = t_union [ t_int; t_any; t_null ] in
+  let tsrc = t_union [ t_int; t_string; t_boolean ] in
+  test_congruency (tref, tsrc) (Ok ())
+
+let%test "congruency_union_any_src" =
+  let tref = t_union [ t_int; t_string; t_boolean ] in
+  let tsrc = t_union [ t_int; t_any; t_null ] in
+  test_congruency (tref, tsrc) (Ok ())

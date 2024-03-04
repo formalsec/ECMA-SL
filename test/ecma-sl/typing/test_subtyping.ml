@@ -136,3 +136,99 @@ let%test "subtyping_literal_badtype" =
   test_subtyping
     (lt_integer 10, lt_string "abc")
     (Error [ BadSubtyping (lt_integer 10, lt_string "abc") ])
+
+(* ========== List Type ========== *)
+
+let%test "subtyping_list_eq" =
+  let tref = t_list t_int in
+  let tsrc = t_list t_int in
+  test_subtyping (tref, tsrc) (Ok ())
+
+let%test "subtyping_list_incompatible" =
+  let tref = t_list t_int in
+  let tsrc = t_list t_null in
+  test_subtyping (tref, tsrc)
+    (Error [ BadSubtyping (tref, tsrc); BadSubtyping (t_int, t_null) ])
+
+let%test "subtyping_list_congruency" =
+  let tref = t_list t_unknown in
+  let tsrc = t_list t_int in
+  test_subtyping (tref, tsrc) (Ok ())
+
+(* ========== Tuple Type ========== *)
+
+let%test "subtyping_tuple_eq" =
+  let tref = t_tuple [ t_int; t_string ] in
+  let tsrc = t_tuple [ t_int; t_string ] in
+  test_subtyping (tref, tsrc) (Ok ())
+
+let%test "subtyping_tuple_incompatible" =
+  let tref = t_tuple [ t_int; t_string ] in
+  let tsrc = t_tuple [ t_int; t_boolean ] in
+  test_subtyping (tref, tsrc)
+    (Error
+       [ BadSubtyping (tref, tsrc)
+       ; IncompatibleElement 2
+       ; BadSubtyping (t_string, t_boolean)
+       ] )
+
+let%test "subtyping_tuple_congruency" =
+  let tref = t_tuple [ t_int; t_unknown ] in
+  let tsrc = t_tuple [ t_int; t_string ] in
+  test_subtyping (tref, tsrc) (Ok ())
+
+let%test "subtyping_tuple_missing" =
+  let tref = t_tuple [ t_int; t_string; t_boolean ] in
+  let tsrc = t_tuple [ t_int; t_string ] in
+  test_subtyping (tref, tsrc)
+    (Error [ BadSubtyping (tref, tsrc); NExpectedElements (3, 2) ])
+
+let%test "subtyping_tuple_extra" =
+  let tref = t_tuple [ t_int; t_string ] in
+  let tsrc = t_tuple [ t_int; t_string; t_boolean ] in
+  test_subtyping (tref, tsrc)
+    (Error [ BadSubtyping (tref, tsrc); NExpectedElements (2, 3) ])
+
+(* ========== Union Type ========== *)
+
+let%test "subtyping_union_eq" =
+  let tref = t_union [ t_int; t_string ] in
+  let tsrc = t_union [ t_int; t_string ] in
+  test_subtyping (tref, tsrc) (Ok ())
+
+let%test "subtyping_union_order" =
+  let tref = t_union [ t_int; t_string ] in
+  let tsrc = t_union [ t_string; t_int ] in
+  test_subtyping (tref, tsrc) (Ok ())
+
+let%test "subtyping_union_extra_ref" =
+  let tref = t_union [ t_int; t_string; t_boolean ] in
+  let tsrc = t_union [ t_int; t_string ] in
+  test_subtyping (tref, tsrc) (Ok ())
+
+let%test "subtyping_union_extra_src" =
+  let tref = t_union [ t_int; t_string ] in
+  let tsrc = t_union [ t_int; t_string; t_boolean ] in
+  test_subtyping (tref, tsrc)
+    (Error [ BadSubtyping (tref, tsrc); BadSubtyping (tref, t_boolean) ])
+
+let%test "subtyping_union_incompatible" =
+  let tref = t_union [ t_int; t_string ] in
+  let tsrc = t_union [ t_int; t_boolean ] in
+  test_subtyping (tref, tsrc)
+    (Error [ BadSubtyping (tref, tsrc); BadSubtyping (tref, t_boolean) ])
+
+let%test "subtyping_union_congruency" =
+  let tref = t_union [ t_int; t_unknown ] in
+  let tsrc = t_union [ t_int; t_string; t_boolean ] in
+  test_subtyping (tref, tsrc) (Ok ())
+
+let%test "subtyping_union_any_ref" =
+  let tref = t_union [ t_int; t_any; t_null ] in
+  let tsrc = t_union [ t_int; t_string; t_boolean ] in
+  test_subtyping (tref, tsrc) (Ok ())
+
+let%test "subtyping_union_any_src" =
+  let tref = t_union [ t_int; t_string; t_boolean ] in
+  let tsrc = t_union [ t_int; t_any; t_null ] in
+  test_subtyping (tref, tsrc) (Ok ())
