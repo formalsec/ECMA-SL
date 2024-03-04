@@ -28,6 +28,8 @@ type typing =
   | Custom of string
   | BadCongruency of EType.t * EType.t
   | BadSubtyping of EType.t * EType.t
+  | NExpectedElements of int * int
+  | IncompatibleElement of int
 
 type runtime =
   | Default
@@ -167,6 +169,11 @@ module Typing : ERR_TYPE with type t = typing = struct
     | BadSubtyping (tref, tsrc) ->
       fprintf fmt "Value of type '%a' is not assignable to type '%a'." EType.pp
         tsrc EType.pp tref
+    | NExpectedElements (ntsref, ntssrc) ->
+      fprintf fmt "Expecting %d elements, but %d were provided." ntsref ntssrc
+    | IncompatibleElement i ->
+      fprintf fmt "Types of the %s element are incompatible."
+        (String_utils.ordinal_suffix i)
 
   let str (msg : t) : string = Fmt.asprintf "%a" pp msg
 end

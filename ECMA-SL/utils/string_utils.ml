@@ -306,16 +306,23 @@ let utf8decode s =
   let subst = function
     | Str.Delim u -> utf8encode (String.sub u 3 (String.length u - 4))
     | Str.Text _ ->
-        let re2 =
-          Str.regexp "\\\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]"
-        in
-        let subst2 = function
-          | Str.Delim u2 -> utf8encode (String.sub u2 2 (String.length u2 - 2))
-          | Str.Text t2 -> t2
-        in
-        String.concat "" (List.map subst2 (Str.full_split re2 s))
+      let re2 =
+        Str.regexp "\\\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]"
+      in
+      let subst2 = function
+        | Str.Delim u2 -> utf8encode (String.sub u2 2 (String.length u2 - 2))
+        | Str.Text t2 -> t2
+      in
+      String.concat "" (List.map subst2 (Str.full_split re2 s))
   in
   String.concat "" (List.map subst (Str.full_split re s))
 
 let hexdecode s =
   from_char_code_u (Stdlib.int_of_string ("0x" ^ String.sub s 2 2))
+
+let ordinal_suffix (n : int) : string =
+  let suffix =
+    if n mod 100 / 10 = 1 then "th"
+    else match n mod 10 with 1 -> "st" | 2 -> "nd" | 3 -> "rd" | _ -> "th"
+  in
+  string_of_int n ^ suffix
