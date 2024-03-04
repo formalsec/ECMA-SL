@@ -70,7 +70,7 @@ module TypeCheck = struct
 
   let test (congruency : bool) ((tref, tsrc) : EType.t * EType.t)
     (expected : (unit, err list) Result.t) : bool =
-    let err_str msgs = List.map Err.str msgs |> String.concat "\n\t - " in
+    let err_str msgs = List.map Err.str msgs |> String.concat "\n\t  " in
     let result =
       try Ok (TSubtyping.type_check ~congruency tref tsrc) with
       | Eslerr.Typing_error err -> Error err.msgs
