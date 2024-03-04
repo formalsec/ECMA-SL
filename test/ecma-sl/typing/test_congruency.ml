@@ -153,6 +153,225 @@ let%test "congruency_literal_badtype" =
     (lt_integer 10, lt_string "abc")
     (Error [ BadCongruency (lt_integer 10, lt_string "abc") ])
 
+(* ========== Object Types ========== *)
+
+let%test "congruency_object_empty" =
+  let otref = t_obj [] in
+  let otsrc = t_obj [] in
+  test_congruency (otref, otsrc) (Ok ())
+
+let%test "congruency_object_one_field" =
+  let otref = t_obj [ t_fld "foo" t_int ] in
+  let otsrc = t_obj [ t_fld "foo" t_int ] in
+  test_congruency (otref, otsrc) (Ok ())
+
+let%test "congruency_object_multiple_fields" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  test_congruency (otref, otsrc) (Ok ())
+
+let%test "congruency_object_innerobj_field" =
+  let otref_inner = t_obj [ t_fld "baz" t_string ] in
+  let otsrc_inner = t_obj [ t_fld "baz" t_string ] in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" otref_inner ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "bar" otsrc_inner ] in
+  test_congruency (otref, otsrc) (Ok ())
+
+let%test "congruency_object_missing_field" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int ] in
+  test_congruency (otref, otsrc)
+    (Error [ BadCongruency (otref, otsrc); MissingField ~@"bar" ])
+
+let%test "congruency_object_extra_field" =
+  let otref = t_obj [ t_fld "foo" t_int ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  test_congruency (otref, otsrc)
+    (Error [ BadCongruency (otref, otsrc); ExtraField ~@"bar" ])
+
+let%test "congruency_object_incompatible_field" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "bar" t_boolean ] in
+  test_congruency (otref, otsrc)
+    (Error
+       [ BadCongruency (otref, otsrc)
+       ; IncompatibleField ~@"bar"
+       ; BadCongruency (t_string, t_boolean)
+       ] )
+
+let%test "congruency_object_incompatible_innerobj_field" =
+  let otref_inner = t_obj [ t_fld "baz" t_string ] in
+  let otsrc_inner = t_obj [ t_fld "baz" t_boolean ] in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" otref_inner ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "bar" otsrc_inner ] in
+  test_congruency (otref, otsrc)
+    (Error
+       [ BadCongruency (otref, otsrc)
+       ; IncompatibleField ~@"bar"
+       ; BadCongruency (otref_inner, otsrc_inner)
+       ; IncompatibleField ~@"baz"
+       ; BadCongruency (t_string, t_boolean)
+       ] )
+
+let%test "congruency_object_covariant_field" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" t_unknown ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  test_congruency (otref, otsrc)
+    (Error
+       [ BadCongruency (otref, otsrc)
+       ; IncompatibleField ~@"bar"
+       ; BadCongruency (t_unknown, t_string)
+       ] )
+
+let%test "congruency_object_optional_field_eq" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  test_congruency (otref, otsrc) (Ok ())
+
+let%test "congruency_object_optional_field_ref" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  test_congruency (otref, otsrc)
+    (Error
+       [ BadCongruency (otref, otsrc)
+       ; IncompatibleOptionalField ~@"bar"
+       ; BadCongruency (t_union [ t_string; t_undefined ], t_string)
+       ] )
+
+let%test "congruency_object_optional_field_src" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  test_congruency (otref, otsrc)
+    (Error
+       [ BadCongruency (otref, otsrc)
+       ; IncompatibleOptionalField ~@"bar"
+       ; BadCongruency (t_string, t_union [ t_string; t_undefined ])
+       ] )
+
+let%test "congruency_object_optional_field_covariant" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_unknown ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_boolean ] in
+  test_congruency (otref, otsrc)
+    (Error
+       [ BadCongruency (otref, otsrc)
+       ; IncompatibleField ~@"bar"
+       ; BadCongruency (t_unknown, t_boolean)
+       ] )
+
+let%test "congruency_object_optional_field_different" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_boolean ] in
+  test_congruency (otref, otsrc)
+    (Error
+       [ BadCongruency (otref, otsrc)
+       ; IncompatibleField ~@"bar"
+       ; BadCongruency (t_string, t_boolean)
+       ] )
+
+let%test "congruency_object_optional_field_undefined" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "bar" t_undefined ] in
+  test_congruency (otref, otsrc)
+    (Error
+       [ BadCongruency (otref, otsrc)
+       ; IncompatibleOptionalField ~@"bar"
+       ; BadCongruency (t_union [ t_string; t_undefined ], t_undefined)
+       ] )
+
+let%test "congruency_object_optional_field_missing" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int ] in
+  test_congruency (otref, otsrc)
+    (Error [ BadCongruency (otref, otsrc); MissingField ~@"bar" ])
+
+let%test "congruency_object_optional_field_incompatible" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "bar" t_boolean ] in
+  test_congruency (otref, otsrc)
+    (Error
+       [ BadCongruency (otref, otsrc)
+       ; IncompatibleOptionalField ~@"bar"
+       ; BadCongruency (t_union [ t_string; t_undefined ], t_boolean)
+       ] )
+
+let%test "congruency_object_optional_field_union" =
+  let union = t_union [ t_string; t_undefined ] in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "bar" union ] in
+  test_congruency (otref, otsrc) (Ok ())
+
+let%test "congruency_object_summary_field_eq" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  test_congruency (otref, otsrc) (Ok ())
+
+let%test "congruency_object_summary_field_ref" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int ] in
+  test_congruency (otref, otsrc)
+    (Error [ BadCongruency (otref, otsrc); MissingSummaryField t_string ])
+
+let%test "congruency_object_summary_field_src" =
+  let otref = t_obj [ t_fld "foo" t_int ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  test_congruency (otref, otsrc)
+    (Error [ BadCongruency (otref, otsrc); ExtraSummaryField ])
+
+let%test "congruency_object_summary_field_covariant" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_unknown ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "*" t_boolean ] in
+  test_congruency (otref, otsrc)
+    (Error
+       [ BadCongruency (otref, otsrc)
+       ; IncompatibleField ~@"*"
+       ; BadCongruency (t_unknown, t_boolean)
+       ] )
+
+let%test "congruency_object_summary_field_different" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "*" t_boolean ] in
+  test_congruency (otref, otsrc)
+    (Error
+       [ BadCongruency (otref, otsrc)
+       ; IncompatibleField ~@"*"
+       ; BadCongruency (t_string, t_boolean)
+       ] )
+
+let%test "congruency_object_summary_field_compatible" =
+  let extra = t_fld "bar" t_string in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "*" t_string; extra ] in
+  test_congruency (otref, otsrc)
+    (Error [ BadCongruency (otref, otsrc); ExtraField ~@"bar" ])
+
+let%test "congruency_object_summary_field_undefined" =
+  let extra = t_fld "bar" t_undefined in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "*" t_string; extra ] in
+  test_congruency (otref, otsrc)
+    (Error [ BadCongruency (otref, otsrc); ExtraField ~@"bar" ])
+
+let%test "congruency_object_summary_field_incompatible" =
+  let extra = t_fld "bar" t_boolean in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "*" t_string; extra ] in
+  test_congruency (otref, otsrc)
+    (Error [ BadCongruency (otref, otsrc); ExtraField ~@"bar" ])
+
+let%test "congruency_object_summary_field_union" =
+  let extra = t_fld "bar" (t_union [ t_string; t_undefined ]) in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "*" t_string; extra ] in
+  test_congruency (otref, otsrc)
+    (Error [ BadCongruency (otref, otsrc); ExtraField ~@"bar" ])
+
+let%test "congruency_object_summary_field_option" =
+  let extra = t_fld "bar" ~opt:true t_string in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "*" t_string; extra ] in
+  test_congruency (otref, otsrc)
+    (Error [ BadCongruency (otref, otsrc); ExtraField ~@"bar" ])
+
 (* ========== List Type ========== *)
 
 let%test "congruency_list_eq" =

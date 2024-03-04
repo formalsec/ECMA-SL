@@ -137,6 +137,432 @@ let%test "subtyping_literal_badtype" =
     (lt_integer 10, lt_string "abc")
     (Error [ BadSubtyping (lt_integer 10, lt_string "abc") ])
 
+(* ========== Object Types (Literal) ========== *)
+
+let%test "subtyping_literal_object_empty" =
+  let otref = t_obj [] in
+  let otsrc = t_obj [] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_literal_object_one_field" =
+  let otref = t_obj [ t_fld "foo" t_int ] in
+  let otsrc = t_obj [ t_fld "foo" t_int ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_literal_object_multiple_fields" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_literal_object_innerobj_field" =
+  let otref_inner = t_obj [ t_fld "baz" t_string ] in
+  let otsrc_inner = t_obj [ t_fld "baz" t_string ] in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" otref_inner ] in
+  let otsrc = t_obj [ t_fld "foo" t_int; t_fld "bar" otsrc_inner ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_literal_object_missing_field" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int ] in
+  test_subtyping (otref, otsrc)
+    (Error [ BadSubtyping (otref, otsrc); MissingField ~@"bar" ])
+
+let%test "subtyping_literal_object_extra_field" =
+  let otref = t_obj [ t_fld "foo" t_int ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  test_subtyping (otref, otsrc)
+    (Error [ BadSubtyping (otref, otsrc); ExtraField ~@"bar" ])
+
+let%test "subtyping_literal_object_incompatible_field" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld "bar" t_boolean ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleField ~@"bar"
+       ; BadSubtyping (t_string, t_boolean)
+       ] )
+
+let%test "subtyping_literal_object_incompatible_innerobj_field" =
+  let otref_inner = t_obj [ t_fld "baz" t_string ] in
+  let otsrc_inner = t_objlit [ t_fld "baz" t_boolean ] in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" otref_inner ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld "bar" otsrc_inner ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleField ~@"bar"
+       ; BadSubtyping (otref_inner, otsrc_inner)
+       ; IncompatibleField ~@"baz"
+       ; BadSubtyping (t_string, t_boolean)
+       ] )
+
+let%test "subtyping_literal_object_covariant_field" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" t_unknown ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_literal_object_optional_field_eq" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_literal_object_optional_field_ref" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_literal_object_optional_field_src" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleOptionalField ~@"bar"
+       ; BadSubtyping (t_string, t_union [ t_string; t_undefined ])
+       ; BadSubtyping (t_string, t_undefined)
+       ] )
+
+let%test "subtyping_literal_object_optional_field_covariant" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_unknown ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_boolean ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_literal_object_optional_field_different" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_boolean ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleField ~@"bar"
+       ; BadSubtyping (t_string, t_boolean)
+       ] )
+
+let%test "subtyping_literal_object_optional_field_undefined" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld "bar" t_undefined ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_literal_object_optional_field_missing" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_literal_object_optional_field_incompatible" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld "bar" t_boolean ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleOptionalField ~@"bar"
+       ; BadSubtyping (t_union [ t_string; t_undefined ], t_boolean)
+       ] )
+
+let%test "subtyping_literal_object_optional_field_union" =
+  let union = t_union [ t_string; t_undefined ] in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld "bar" union ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_literal_object_summary_field_eq" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_literal_object_summary_field_ref" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_literal_object_summary_field_src" =
+  let otref = t_obj [ t_fld "foo" t_int ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_literal_object_summary_field_covariant" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_unknown ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld "*" t_boolean ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_literal_object_summary_field_different" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld "*" t_boolean ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleField ~@"*"
+       ; BadSubtyping (t_string, t_boolean)
+       ] )
+
+let%test "subtyping_literal_object_summary_field_compatible" =
+  let extra = t_fld "bar" t_string in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld "*" t_string; extra ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_literal_object_summary_field_undefined" =
+  let extra = t_fld "bar" t_undefined in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld "*" t_string; extra ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_literal_object_summary_field_incompatible" =
+  let extra = t_fld "bar" t_boolean in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld "*" t_string; extra ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleSummaryField ~@"bar"
+       ; BadSubtyping (t_union [ t_string; t_undefined ], t_boolean)
+       ] )
+
+let%test "subtyping_literal_object_summary_field_union" =
+  let extra = t_fld "bar" (t_union [ t_string; t_undefined ]) in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld "*" t_string; extra ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_literal_object_summary_field_option" =
+  let extra = t_fld "bar" ~opt:true t_string in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_objlit [ t_fld "foo" t_int; t_fld "*" t_string; extra ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+(* ========== Object Type (Stored) ========== *)
+
+let%test "subtyping_stored_object_empty" =
+  let otref = t_obj [] in
+  let otsrc = t_objsto [] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_stored_object_one_field" =
+  let otref = t_obj [ t_fld "foo" t_int ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_stored_object_multiple_fields" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_stored_object_innerobj_field" =
+  let otref_inner = t_obj [ t_fld "baz" t_string ] in
+  let otsrc_inner = t_objsto [ t_fld "baz" t_string ] in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" otref_inner ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "bar" otsrc_inner ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_stored_object_missing_field" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int ] in
+  test_subtyping (otref, otsrc)
+    (Error [ BadSubtyping (otref, otsrc); MissingField ~@"bar" ])
+
+let%test "subtyping_stored_object_extra_field" =
+  let otref = t_obj [ t_fld "foo" t_int ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_stored_object_incompatible_field" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "bar" t_boolean ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleField ~@"bar"
+       ; BadCongruency (t_string, t_boolean)
+       ] )
+
+let%test "subtyping_stored_object_incompatible_innerobj_field" =
+  let otref_inner = t_obj [ t_fld "baz" t_string ] in
+  let otsrc_inner = t_objsto [ t_fld "baz" t_boolean ] in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" otref_inner ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "bar" otsrc_inner ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleField ~@"bar"
+       ; BadSubtyping (otref_inner, otsrc_inner)
+       ; IncompatibleField ~@"baz"
+       ; BadCongruency (t_string, t_boolean)
+       ] )
+
+let%test "subtyping_stored_object_covariant_field" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" t_unknown ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleField ~@"bar"
+       ; BadCongruency (t_unknown, t_string)
+       ] )
+
+let%test "subtyping_stored_object_covariant_object_field" =
+  let otref_inner = t_obj [ t_fld "baz" t_string ] in
+  let otsrc_inner = t_objsto [ t_fld "baz" t_string; t_fld "qux" t_boolean ] in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" otref_inner ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "bar" otsrc_inner ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_stored_object_optional_field_eq" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_stored_object_optional_field_ref" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleOptionalField ~@"bar"
+       ; BadCongruency (t_union [ t_string; t_undefined ], t_string)
+       ] )
+
+let%test "subtyping_stored_object_optional_field_src" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "bar" t_string ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleOptionalField ~@"bar"
+       ; BadCongruency (t_string, t_union [ t_string; t_undefined ])
+       ] )
+
+let%test "subtyping_stored_object_optional_field_covariant" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_unknown ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_boolean ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleField ~@"bar"
+       ; BadCongruency (t_unknown, t_boolean)
+       ] )
+
+let%test "subtyping_stored_object_optional_field_different" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_boolean ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleField ~@"bar"
+       ; BadCongruency (t_string, t_boolean)
+       ] )
+
+let%test "subtyping_stored_object_optional_field_undefined" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "bar" t_undefined ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleOptionalField ~@"bar"
+       ; BadCongruency (t_union [ t_string; t_undefined ], t_undefined)
+       ] )
+
+let%test "subtyping_stored_object_optional_field_missing" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int ] in
+  test_subtyping (otref, otsrc)
+    (Error [ BadSubtyping (otref, otsrc); MissingField ~@"bar" ])
+
+let%test "subtyping_stored_object_optional_field_incompatible" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "bar" t_boolean ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleOptionalField ~@"bar"
+       ; BadCongruency (t_union [ t_string; t_undefined ], t_boolean)
+       ] )
+
+let%test "subtyping_stored_object_optional_field_union" =
+  let union = t_union [ t_string; t_undefined ] in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld ~opt:true "bar" t_string ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "bar" union ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_stored_object_summary_field_eq" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_stored_object_summary_field_ref" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int ] in
+  test_subtyping (otref, otsrc)
+    (Error [ BadSubtyping (otref, otsrc); MissingSummaryField t_string ])
+
+let%test "subtyping_stored_object_summary_field_src" =
+  let otref = t_obj [ t_fld "foo" t_int ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_stored_object_summary_field_covariant" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_unknown ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "*" t_boolean ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleField ~@"*"
+       ; BadCongruency (t_unknown, t_boolean)
+       ] )
+
+let%test "subtyping_stored_object_summary_field_different" =
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "*" t_boolean ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleField ~@"*"
+       ; BadCongruency (t_string, t_boolean)
+       ] )
+
+let%test "subtyping_stored_object_summary_field_compatible" =
+  let extra = t_fld "bar" t_string in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "*" t_string; extra ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleSummaryField ~@"bar"
+       ; BadCongruency (t_union [ t_string; t_undefined ], t_string)
+       ] )
+
+let%test "subtyping_stored_object_summary_field_undefined" =
+  let extra = t_fld "bar" t_undefined in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "*" t_string; extra ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleSummaryField ~@"bar"
+       ; BadCongruency (t_union [ t_string; t_undefined ], t_undefined)
+       ] )
+
+let%test "subtyping_stored_object_summary_field_incompatible" =
+  let extra = t_fld "bar" t_boolean in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "*" t_string; extra ] in
+  test_subtyping (otref, otsrc)
+    (Error
+       [ BadSubtyping (otref, otsrc)
+       ; IncompatibleSummaryField ~@"bar"
+       ; BadCongruency (t_union [ t_string; t_undefined ], t_boolean)
+       ] )
+
+let%test "subtyping_stored_object_summary_field_union" =
+  let extra = t_fld "bar" (t_union [ t_string; t_undefined ]) in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "*" t_string; extra ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
+let%test "subtyping_stored_object_summary_field_option" =
+  let extra = t_fld "bar" ~opt:true t_string in
+  let otref = t_obj [ t_fld "foo" t_int; t_fld "*" t_string ] in
+  let otsrc = t_objsto [ t_fld "foo" t_int; t_fld "*" t_string; extra ] in
+  test_subtyping (otref, otsrc) (Ok ())
+
 (* ========== List Type ========== *)
 
 let%test "subtyping_list_eq" =
