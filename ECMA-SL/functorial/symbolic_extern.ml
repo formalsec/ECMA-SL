@@ -136,7 +136,7 @@ module Make () = struct
       begin
         match
           Bos.OS.Cmd.run
-            (Utils.js2ecma_sl ~id:fid (Fpath.v input_file) (Fpath.v output_file))
+            (Js2ecmasl.cmd input_file (Some output_file) (Some fid))
         with
         | Error (`Msg msg) -> Log.err "%s" msg
         | Ok () -> ()
