@@ -28,6 +28,13 @@ type typing =
   | Custom of string
   | BadCongruency of EType.t * EType.t
   | BadSubtyping of EType.t * EType.t
+  | MissingField of Id.t
+  | ExtraField of Id.t
+  | IncompatibleField of Id.t
+  | IncompatibleOptionalField of Id.t
+  | IncompatibleSummaryField of Id.t
+  | MissingSummaryField of EType.t
+  | ExtraSummaryField
   | NExpectedElements of int * int
   | IncompatibleElement of int
 
@@ -156,6 +163,12 @@ module Typing : ERR_TYPE with type t = typing = struct
       EType.equal tref1 tref2 && EType.equal tsrc1 tsrc2
     | (BadSubtyping (tref1, tsrc1), BadSubtyping (tref2, tsrc2)) ->
       EType.equal tref1 tref2 && EType.equal tsrc1 tsrc2
+    | (ExtraField fn1, ExtraField fn2)
+    | (IncompatibleField fn1, IncompatibleField fn2)
+    | (IncompatibleOptionalField fn1, IncompatibleOptionalField fn2)
+    | (IncompatibleSummaryField fn1, IncompatibleSummaryField fn2) ->
+      fn1.it = fn2.it
+    | (MissingSummaryField ft1, MissingSummaryField ft2) -> EType.equal ft1 ft2
     | _ -> msg1 = msg2
 
   let pp (fmt : Fmt.t) (msg : t) : unit =
@@ -169,6 +182,22 @@ module Typing : ERR_TYPE with type t = typing = struct
     | BadSubtyping (tref, tsrc) ->
       fprintf fmt "Value of type '%a' is not assignable to type '%a'." EType.pp
         tsrc EType.pp tref
+    | MissingField fn ->
+      fprintf fmt "Field '%a' is missing from the object's type." Id.pp fn
+    | ExtraField fn ->
+      fprintf fmt "Field '%a' is not defined in the object's type." Id.pp fn
+    | IncompatibleField fn ->
+      fprintf fmt "Types of field '%a' are incompatible." Id.pp fn
+    | IncompatibleOptionalField fn ->
+      fprintf fmt "Types of optional field '%a' are incompatible." Id.pp fn
+    | IncompatibleSummaryField fn ->
+      fprintf fmt "Type of field '%a' is incompatible with the summary type."
+        Id.pp fn
+    | MissingSummaryField ft ->
+      fprintf fmt "Summary field '%a' is missing from the object's type."
+        EType.pp ft
+    | ExtraSummaryField ->
+      fprintf fmt "Summary field is not defined in the object's type."
     | NExpectedElements (ntsref, ntssrc) ->
       fprintf fmt "Expecting %d elements, but %d were provided." ntsref ntssrc
     | IncompatibleElement i ->
