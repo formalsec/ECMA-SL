@@ -60,6 +60,7 @@ and check_object_fields (congruency : bool) (tobjkind : EType.tobjkind)
   (tobjref : EType.tobject) (_ : Id.t')
   ((sfn, sft, sfs) : Id.t * EType.t * EType.tfldstyle) : unit =
   let is_obj = function ObjectType _ -> true | _ -> false in
+  let fld_congruency rft = Source.(tobjkind == ObjSto && not (is_obj rft.it)) in
   let fld_err msg = Eslerr.(typing ~src:(ErrSrc.at sfn) msg) in
   let tfldref = Hashtbl.find_opt tobjref.flds sfn.it in
   match (congruency, tfldref, tobjref.smry) with
@@ -68,13 +69,11 @@ and check_object_fields (congruency : bool) (tobjkind : EType.tobjkind)
     check_field_type true sfn (rft, rfs) (sft, sfs)
   | (false, None, None) -> if tobjkind = ObjLit then fld_err (ExtraField sfn)
   | (false, Some (_, rft, rfs), _) ->
-    let congruency' = tobjkind = ObjSto && not (is_obj rft.it) in
-    check_field_type congruency' sfn (rft, rfs) (sft, sfs)
+    check_field_type (fld_congruency rft) sfn (rft, rfs) (sft, sfs)
   | (false, None, Some (_, rft)) ->
     let resolve_sft = function FldReq -> sft | FldOpt -> resolve_optfld sft in
-    let congruency' = tobjkind = ObjSto && not (is_obj rft.it) in
     let (rft', sft') = (resolve_optfld rft, resolve_sft sfs) in
-    type_check_werr ~congruency:congruency' rft' sft'
+    type_check_werr ~congruency:(fld_congruency rft) rft' sft'
       (IncompatibleSummaryField sfn)
 
 and check_field_type (congruency : bool) (fn : Id.t)
@@ -93,19 +92,18 @@ and check_missing_fields (at : Source.region) (congruency : bool)
   (tobjsrc : EType.tobject) (_ : Id.t')
   ((rfn, _, rfs) : Id.t * EType.t * EType.tfldstyle) : unit =
   if not (Hashtbl.mem tobjsrc.flds rfn.it) then
-    if congruency || tobjsrc.kind = ObjSto || rfs = FldReq then
+    if congruency || tobjsrc.kind == ObjSto || rfs == FldReq then
       Eslerr.(typing ~src:(ErrSrc.region at) (MissingField rfn))
 
 and check_summary_type (at : Source.region) (congruency : bool)
   (tobjref : EType.tobject) (tobjsrc : EType.tobject) : unit =
   let smry_err msg = Eslerr.(typing ~src:(ErrSrc.region at) msg) in
+  let congruency' = congruency || tobjsrc.kind == ObjSto in
   match (tobjref.smry, tobjsrc.smry) with
   | (None, None) -> ()
-  | (Some (_, ft), None) ->
-    if congruency || tobjsrc.kind = ObjSto then smry_err (MissingSummaryField ft)
+  | (Some (_, ft), None) -> if congruency' then smry_err (MissingSummaryField ft)
   | (None, Some _) -> if congruency then smry_err ExtraSummaryField
   | (Some (_, rft), Some (sfn, sft)) ->
-    let congruency' = congruency || tobjsrc.kind = ObjSto in
     type_check_werr ~congruency:congruency' rft sft (IncompatibleField sfn)
 
 and check_list (congruency : bool) (tref : EType.t) (tsrc : EType.t) : unit =
@@ -138,7 +136,7 @@ and check_tuple_elements (at : Source.region) (congruency : bool)
 
 and check_union_congruency (tref : EType.t) (tsrc : EType.t) : unit =
   let err_src (isref, ttar) t = Eslerr.ErrSrc.at (if isref then t else ttar) in
-  let has_any ts = List.exists (fun t -> Source.(t.it = AnyType)) ts in
+  let has_any ts = List.exists (fun t -> Source.(t.it == AnyType)) ts in
   let check_congruency_f (isref, ttar) ts t =
     try ignore (List.find (is_typeable ~congruency:true t) ts)
     with Not_found ->
@@ -158,7 +156,7 @@ and check_union_congruency (tref : EType.t) (tsrc : EType.t) : unit =
 
 and check_union_subtyping_src (tref : EType.t) (tsrc : EType.t) : unit =
   let open Source in
-  let has_any ts = List.exists (fun t -> Source.(t.it = AnyType)) ts in
+  let has_any ts = List.exists (fun t -> Source.(t.it == AnyType)) ts in
   let check_src_types tssrc = List.iter (type_check tref) tssrc in
   match (tref.it, tsrc.it) with
   | (_, UnionType tssrc) when has_any tssrc -> ()

@@ -444,8 +444,8 @@ let type_target :=
   | lt = literal_type_target;             { EType.LiteralType lt @> at $sloc }
   | ot = object_type_target;              { EType.ObjectType ot @> at $sloc }
   | t = type_target; LBRACK; RBRACK;      { EType.ListType t @> at $sloc }
-  | ts = rev(tuple_type_target);          { EType.TupleType(ts) @> at $sloc }               %prec nary_type_prec
-  | ts = rev(union_type_target);          { EType.UnionType(ts) @> at $sloc }               %prec nary_type_prec
+  | ts = rev(tuple_type_target);          { EType.TupleType(ts) @> at $sloc }     %prec nary_type_prec
+  | ts = rev(union_type_target);          { EType.UnionType(ts) @> at $sloc }     %prec nary_type_prec
   | t = sigma_type_target;                { t @> at $sloc }
   | tvar = id_target;                     { EType.UserDefinedType tvar.it @> at $sloc }
 
@@ -466,13 +466,13 @@ let object_type_prop_target :=
   | fn = times_id_target; COLON; t = type_target;       { (fn, t, EType.FldReq) }
 
 let tuple_type_target :=
-| t1 = type_target; TIMES; t2 = type_target;            { [t2 ; t1] }
-| ts = tuple_type_target; TIMES; t = type_target;       { t :: ts }
+  | t1 = type_target; TIMES; t2 = type_target;          { [t2 ; t1] }
+  | ts = tuple_type_target; TIMES; t = type_target;     { t :: ts }
 
 let union_type_target :=
-| t1 = type_target; PIPE; t2 = type_target;             { [t2 ; t1] }
-| ts = union_type_target; PIPE; t = type_target;        { t :: ts }
+  | t1 = type_target; PIPE; t2 = type_target;           { [t2 ; t1] }
+  | ts = union_type_target; PIPE; t = type_target;      { t :: ts }
 
 let sigma_type_target :=
-  | TYPE_SIGMA; LBRACK; dsc = id_target; RBRACK; PIPE?; t = type_target;                    %prec nary_type_prec
+  | TYPE_SIGMA; LBRACK; dsc = id_target; RBRACK; PIPE?; t = type_target;          %prec nary_type_prec
     { EType.SigmaType (dsc, (EParsing_helper.Type.parse_tsigma dsc t)) }
