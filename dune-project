@@ -37,7 +37,7 @@
   menhir
   menhirLib
   (encoding
-   (>= 0.0.3))
+   (>= 0.0.4))
   yojson
   dune-site
   (bisect_ppx (and :with-test (>= "2.5.0") :dev)))
