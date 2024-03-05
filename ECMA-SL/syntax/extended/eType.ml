@@ -59,7 +59,17 @@ let rec equal (t1 : t) (t2 : t) : bool =
     fn1.it = fn2.it && equal ft1 ft2 && fs1 = fs2
   in
   match (t1.it, t2.it) with
-  | (_, _) when t1.it = t2.it -> true
+  | (AnyType, AnyType) -> true
+  | (UnknownType, UnknownType) -> true
+  | (NeverType, NeverType) -> true
+  | (UndefinedType, UndefinedType) -> true
+  | (NullType, NullType) -> true
+  | (VoidType, VoidType) -> true
+  | (IntType, IntType) -> true
+  | (FloatType, FloatType) -> true
+  | (StringType, StringType) -> true
+  | (BooleanType, BooleanType) -> true
+  | (SymbolType, SymbolType) -> true
   | (LiteralType lt1, LiteralType lt2) ->
     Val.equal (tliteral_to_val lt1) (tliteral_to_val lt2)
   | (ObjectType tobj1, ObjectType tobj2) ->

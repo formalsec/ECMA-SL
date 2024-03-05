@@ -70,7 +70,16 @@ module Internal : ERR_TYPE with type t = internal = struct
 
   let font () : Font.t = Font.Red
   let header () : string = "InternalError"
-  let equal (msg1 : t) (msg2 : t) : bool = msg1 = msg2
+
+  let equal (msg1 : t) (msg2 : t) : bool =
+    match (msg1, msg2) with
+    | (Default, Default) -> true
+    | (Custom msg1', Custom msg2') | (Expecting msg1', Expecting msg2') ->
+      String.equal msg1' msg2'
+    | (UnexpectedEval msg1', UnexpectedEval msg2')
+    | (NotImplemented msg1', NotImplemented msg2') ->
+      Option.equal String.equal msg1' msg2'
+    | _ -> false
 
   let pp (fmt : Fmt.t) (msg : t) : unit =
     let open Fmt in
@@ -98,20 +107,26 @@ module Compile : ERR_TYPE with type t = compile = struct
 
   let equal (msg1 : t) (msg2 : t) : bool =
     match (msg1, msg2) with
-    | (UnknownDependency file1, UnknownDependency file2) -> file1.it = file2.it
-    | (CyclicDependency file1, CyclicDependency file2) -> file1.it = file2.it
-    | (DuplicatedField fn1, DuplicatedField fn2) -> fn1.it = fn2.it
-    | (DuplicatedTDef tn1, DuplicatedTDef tn2) -> tn1.it = tn2.it
-    | (DuplicatedFunc fn1, DuplicatedFunc fn2) -> fn1.it = fn2.it
-    | (DuplicatedMacro mn1, DuplicatedMacro mn2) -> mn1.it = mn2.it
-    | (UnknownMacro mn1, UnknownMacro mn2) -> mn1.it = mn2.it
+    | (Default, Default) -> true
+    | (Custom msg1', Custom msg2') -> String.equal msg1' msg2'
+    | (UnknownDependency file1, UnknownDependency file2) -> Id.equal file1 file2
+    | (CyclicDependency file1, CyclicDependency file2) -> Id.equal file1 file2
+    | (DuplicatedField fn1, DuplicatedField fn2) -> Id.equal fn1 fn2
+    | (DuplicatedTDef tn1, DuplicatedTDef tn2) -> Id.equal tn1 tn2
+    | (DuplicatedFunc fn1, DuplicatedFunc fn2) -> Id.equal fn1 fn2
+    | (DuplicatedMacro mn1, DuplicatedMacro mn2) -> Id.equal mn1 mn2
+    | (UnknownMacro mn1, UnknownMacro mn2) -> Id.equal mn1 mn2
+    | (BadNArgs (npxs1, nargs1), BadNArgs (npxs2, nargs2)) ->
+      Int.equal npxs1 npxs2 && Int.equal nargs1 nargs2
     | (DuplicatedSwitchCase v1, DuplicatedSwitchCase v2) -> Val.equal v1 v2
-    | (DuplicatedTField fn1, DuplicatedTField fn2) -> fn1.it = fn2.it
+    | (DuplicatedTField fn1, DuplicatedTField fn2) -> Id.equal fn1 fn2
     | (DuplicatedSigmaDiscriminant lt1, DuplicatedSigmaDiscriminant lt2) ->
       EType.equal lt1 lt2
     | (MissingSigmaDiscriminant dsc1, MissingSigmaDiscriminant dsc2) ->
-      dsc1.it = dsc2.it
-    | _ -> msg1 = msg2
+      Id.equal dsc1 dsc2
+    | (UnexpectedSigmaDiscriminant, UnexpectedSigmaDiscriminant) -> true
+    | (UnexpectedSigmaCase, UnexpectedSigmaCase) -> true
+    | _ -> false
 
   let pp (fmt : Fmt.t) (msg : t) : unit =
     let open Fmt in
@@ -131,8 +146,8 @@ module Compile : ERR_TYPE with type t = compile = struct
     | DuplicatedMacro mn ->
       fprintf fmt "Duplicated definition for macro '%a'." Id.pp mn
     | UnknownMacro mn -> fprintf fmt "Cannot find macro '%a'." Id.pp mn
-    | BadNArgs (nparams, nargs) ->
-      fprintf fmt "Expected %d arguments, but got %d." nparams nargs
+    | BadNArgs (npxs, nargs) ->
+      fprintf fmt "Expected %d arguments, but got %d." npxs nargs
     | DuplicatedSwitchCase v ->
       fprintf fmt "Duplicated case value '%a' for switch statement." Val.pp v
     | DuplicatedTField fn ->
@@ -159,17 +174,24 @@ module Typing : ERR_TYPE with type t = typing = struct
 
   let equal (msg1 : t) (msg2 : t) : bool =
     match (msg1, msg2) with
-    | (BadCongruency (tref1, tsrc1), BadCongruency (tref2, tsrc2)) ->
-      EType.equal tref1 tref2 && EType.equal tsrc1 tsrc2
+    | (Default, Default) -> true
+    | (Custom msg1', Custom msg2') -> String.equal msg1' msg2'
+    | (BadCongruency (tref1, tsrc1), BadCongruency (tref2, tsrc2))
     | (BadSubtyping (tref1, tsrc1), BadSubtyping (tref2, tsrc2)) ->
       EType.equal tref1 tref2 && EType.equal tsrc1 tsrc2
+    | (MissingField fn1, MissingField fn2)
     | (ExtraField fn1, ExtraField fn2)
     | (IncompatibleField fn1, IncompatibleField fn2)
     | (IncompatibleOptionalField fn1, IncompatibleOptionalField fn2)
     | (IncompatibleSummaryField fn1, IncompatibleSummaryField fn2) ->
-      fn1.it = fn2.it
+      Id.equal fn1 fn2
     | (MissingSummaryField ft1, MissingSummaryField ft2) -> EType.equal ft1 ft2
-    | _ -> msg1 = msg2
+    | (ExtraSummaryField, ExtraSummaryField) -> true
+    | ( NExpectedElements (ntsref1, ntssrc1)
+      , NExpectedElements (ntsref2, ntssrc2) ) ->
+      Int.equal ntsref1 ntsref2 && Int.equal ntssrc1 ntssrc2
+    | (IncompatibleElement i1, IncompatibleElement i2) -> Int.equal i1 i2
+    | _ -> false
 
   let pp (fmt : Fmt.t) (msg : t) : unit =
     let open Fmt in
@@ -215,16 +237,26 @@ module Runtime : ERR_TYPE with type t = runtime = struct
 
   let equal (msg1 : t) (msg2 : t) : bool =
     match (msg1, msg2) with
+    | (Default, Default) -> true
+    | (Custom msg1', Custom msg2') -> String.equal msg1' msg2'
+    | (Unexpected msg1', Unexpected msg2') -> String.equal msg1' msg2'
     | (UnexpectedExitVal v1, UnexpectedExitVal v2) -> Val.equal v1 v2
+    | (Failure msg1', Failure msg2') -> String.equal msg1' msg2'
+    | (UncaughtExn msg1', UncaughtExn msg2') -> String.equal msg1' msg2'
+    | (OpEvalErr oplbl1, OpEvalErr oplbl2) -> String.equal oplbl1 oplbl2
+    | (UnknownVar x1, UnknownVar x2) -> String.equal x1 x2
+    | (UnknownFunc fn1, UnknownFunc fn2) -> String.equal fn1 fn2
+    | (BadNArgs (npxs1, nargs1), BadNArgs (npxs2, nargs2)) ->
+      Int.equal npxs1 npxs2 && Int.equal nargs1 nargs2
     | (BadVal (texpr1, v1), BadVal (texpr2, v2)) ->
-      texpr1 = texpr2 && Val.equal v1 v2
+      String.equal texpr1 texpr2 && Val.equal v1 v2
     | (BadExpr (texpr1, v1), BadExpr (texpr2, v2)) ->
-      texpr1 = texpr2 && Val.equal v1 v2
+      String.equal texpr1 texpr2 && Val.equal v1 v2
     | (BadFuncId v1, BadFuncId v2) -> Val.equal v1 v2
     | (BadOpArgs (texpr1, vs1), BadOpArgs (texpr2, vs2)) ->
-      texpr1 = texpr2 && List.equal Val.equal vs1 vs2
-    | (MissingReturn fn1, MissingReturn fn2) -> fn1.it = fn2.it
-    | _ -> msg1 = msg2
+      String.equal texpr1 texpr2 && List.equal Val.equal vs1 vs2
+    | (MissingReturn fn1, MissingReturn fn2) -> Id.equal fn1 fn2
+    | _ -> false
 
   let pp (fmt : Fmt.t) (msg : t) : unit =
     let open Fmt in
@@ -235,11 +267,11 @@ module Runtime : ERR_TYPE with type t = runtime = struct
     | UnexpectedExitVal v -> fprintf fmt "Unexpected exit value '%a'." Val.pp v
     | Failure msg -> fprintf fmt "Failure %s." msg
     | UncaughtExn msg -> fprintf fmt "Uncaught exception %s." msg
-    | OpEvalErr op_lbl -> fprintf fmt "Exception in Operator.%s." op_lbl
+    | OpEvalErr oplbl -> fprintf fmt "Exception in Operator.%s." oplbl
     | UnknownVar x -> fprintf fmt "Cannot find variable '%s'." x
     | UnknownFunc fn -> fprintf fmt "Cannot find function '%s'." fn
-    | BadNArgs (nparams, nargs) ->
-      fprintf fmt "Expected %d arguments, but got %d." nparams nargs
+    | BadNArgs (npxs, nargs) ->
+      fprintf fmt "Expected %d arguments, but got %d." npxs nargs
     | BadVal (texpr, v) ->
       fprintf fmt "Expecting %s value, but got '%a'." texpr Val.pp v
     | BadExpr (texpr, v) ->
