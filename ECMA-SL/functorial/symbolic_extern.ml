@@ -94,7 +94,7 @@ module Make () = struct
       let solver = Thread.solver thread in
       assert (Solver.check solver (e' :: pc));
       let v = Solver.get_value solver e' in
-      [ (Ok (Translator.expr_of_value v.e), thread) ]
+      [ (Ok (Translator.expr_of_value v.node.e), thread) ]
     in
     let optimize target opt e pc =
       Optimizer.push opt;

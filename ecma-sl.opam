@@ -22,7 +22,7 @@ depends: [
   "ppx_inline_test" {with-test}
   "menhir"
   "menhirLib"
-  "encoding" {>= "0.0.3"}
+  "encoding" {>= "0.0.4"}
   "yojson"
   "dune-site"
   "bisect_ppx" {with-test & >= "2.5.0" & dev}

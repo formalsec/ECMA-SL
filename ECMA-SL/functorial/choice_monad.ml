@@ -33,8 +33,8 @@ module Thread = struct
   let mem t = t.mem
   let optimizer t = t.optimizer
 
-  let add_pc t v =
-    match v.Encoding.Expr.e with
+  let add_pc t (v : Encoding.Expr.t) =
+    match v.node.e with
     | Val True -> t
     | _ -> { t with pc = PC.add v t.pc }
 
