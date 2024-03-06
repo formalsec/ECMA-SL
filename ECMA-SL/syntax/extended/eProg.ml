@@ -1,7 +1,8 @@
 open Source
 
 type t =
-  { file : string
+  { file : Id.t'
+  ; path : Id.t'
   ; imports : Id.t list
   ; tdefs : (Id.t', EType.TDef.t) Hashtbl.t
   ; funcs : (Id.t', EFunc.t) Hashtbl.t
@@ -10,18 +11,20 @@ type t =
 
 let default () : t =
   { file = ""
+  ; path = ""
   ; imports = []
   ; tdefs = Hashtbl.create !Config.default_hashtbl_sz
   ; funcs = Hashtbl.create !Config.default_hashtbl_sz
   ; macros = Hashtbl.create !Config.default_hashtbl_sz
   }
 
-let create (file : string) (imports : Id.t list)
+let create (file : Id.t') (path : string) (imports : Id.t list)
   (tdefs : (Id.t', EType.TDef.t) Hashtbl.t) (funcs : (Id.t', EFunc.t) Hashtbl.t)
   (macros : (Id.t', EMacro.t) Hashtbl.t) : t =
-  { file; imports; tdefs; funcs; macros }
+  { file; path; imports; tdefs; funcs; macros }
 
-let file (p : t) : string = p.file
+let file (p : t) : Id.t' = p.file
+let path (p : t) : string = p.path
 let imports (p : t) : Id.t list = p.imports
 let tdefs (p : t) : (Id.t', EType.TDef.t) Hashtbl.t = p.tdefs
 let funcs (p : t) : (Id.t', EFunc.t) Hashtbl.t = p.funcs
@@ -39,5 +42,5 @@ let pp (fmt : Fmt.t) (p : t) : unit =
 
 let str (p : t) : string = Fmt.asprintf "%a" pp p
 
-let lambdas (p : t) : (region * string * Id.t list * Id.t list * EStmt.t) list =
+let lambdas (p : t) : (region * Id.t' * Id.t list * Id.t list * EStmt.t) list =
   Hashtbl.fold (fun _ f acc -> EFunc.lambdas f @ acc) p.funcs []

@@ -1,4 +1,4 @@
-import "ecmaref5/esl_interpreter.esl";
+import "esl_interpreter.esl";
 
 function main() {
   x := buildAST();

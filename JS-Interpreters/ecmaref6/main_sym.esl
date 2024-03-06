@@ -1,15 +1,15 @@
-import "ecmaref6/symbolic/api.esl";
-import "ecmaref6/symbolic/lazy_object.esl";
-import "ecmaref6/symbolic/polluted_object.esl";
-import "ecmaref6/node/global.esl";
-import "ecmaref6/node/fs.esl";
-import "ecmaref6/node/cp.esl";
-import "ecmaref6/node/os.esl";
-import "ecmaref6/node/path.esl";
-import "ecmaref6/node/shelljs.esl";
-import "ecmaref6/node/cross-spawn.esl";
-import "ecmaref6/node/process.esl";
-import "ecmaref6/esl_interpreter.esl";
+import "symbolic/api.esl";
+import "symbolic/lazy_object.esl";
+import "symbolic/polluted_object.esl";
+import "node/global.esl";
+import "node/fs.esl";
+import "node/cp.esl";
+import "node/os.esl";
+import "node/path.esl";
+import "node/shelljs.esl";
+import "node/cross-spawn.esl";
+import "node/process.esl";
+import "esl_interpreter.esl";
 
 /* Redefine this functions because we need to initialize the node global obj */
 function ECMAScriptNodeInitialization(sourceText) {
