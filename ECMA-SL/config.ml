@@ -1,7 +1,7 @@
 let default_hashtbl_sz = ref 16
 
 module Common = struct
-  let warns = ref false
+  let warns = ref true
   let debugs = ref false
   let colored = ref true
 end
