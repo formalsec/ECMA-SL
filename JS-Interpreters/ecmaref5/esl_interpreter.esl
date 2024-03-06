@@ -1,4 +1,4 @@
-import "ecmaref5/esl_sections.esl";
+import "esl_sections.esl";
 
 function JS_Interpreter_Program(p, callingExecCtx) {
 

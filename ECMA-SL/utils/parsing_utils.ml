@@ -5,9 +5,10 @@ type 'a estart = position -> 'a EParser.MenhirInterpreter.checkpoint
 type token = [%import: Parser.token] [@@deriving show]
 type etoken = [%import: EParser.token] [@@deriving show]
 
-let load_file (file : string) : string =
-  let data = Io.read_file file in
-  Source.Code.load file data;
+let load_file ?(file : string option = None) (path : string) : string =
+  let file' = Option.value ~default:path file in
+  let data = Io.read_file path in
+  Source.Code.load file' data;
   data
 
 let print_position (outx : Fmt.t) (lexbuf : Lexing.lexbuf) : unit =
@@ -92,7 +93,7 @@ let parse_etype ?(file : string = "") (str : string) : EType.t =
   let lexbuf = init_lexbuf file str in
   EParser.entry_type_target ELexer.read lexbuf
 
-let parse_eprog ?(file : string = "") (str : string) : EProg.t =
+let parse_eprog ?(file : string = "") (path : string) (str : string) : EProg.t =
   let lexbuf = init_lexbuf file str in
   let p = eparser EParser.Incremental.entry_prog_target lexbuf in
-  { p with file }
+  { p with file; path }

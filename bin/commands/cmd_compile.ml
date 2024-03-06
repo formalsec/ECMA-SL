@@ -17,15 +17,15 @@ let type_check (prog : EProg.t) : EProg.t =
 (* raise (Cmd.Command_error Cmd.Error) ) *)
 
 let compile (input : Fpath.t) : Prog.t =
-  let compile' file =
-    Parsing_utils.load_file file
-    |> Parsing_utils.parse_eprog ~file
+  let compile' file path =
+    Parsing_utils.load_file ~file:(Some file) path
+    |> Parsing_utils.parse_eprog ~file path
     |> Preprocessor.Imports.resolve_imports
     |> Preprocessor.Macros.apply_macros
     |> type_check
     |> Compiler.compile_prog
   in
-  let prog = compile' (Fpath.to_string input) in
+  let prog = compile' (Fpath.filename input) (Fpath.to_string input) in
   Log.debug "Sucessfuly compiled program '%a'." Fpath.pp input;
   prog
 

@@ -49,7 +49,7 @@ let pp_simple (fmt : Fmt.t) (f : t) : unit =
 let str ?(simple : bool = false) (f : t) : string =
   Fmt.asprintf "%a" (if simple then pp_simple else pp) f
 
-let lambdas (f : t) : (region * string * Id.t list * Id.t list * EStmt.t) list =
+let lambdas (f : t) : (region * Id.t' * Id.t list * Id.t list * EStmt.t) list =
   let to_list_f s =
     match s.it with
     | EStmt.Lambda (_, id, pxs, ctxvars, s) -> [ (s.at, id, pxs, ctxvars, s) ]
