@@ -5,8 +5,6 @@
  (name ecma_sl)
  (modules
   ;  general
-  site
-  share
   config
   js2ecmasl
   ;  utils
@@ -124,7 +122,3 @@
  (libraries str encoding menhirLib yojson z3 bos bos.setup dune-site)
  (instrumentation
   (backend bisect_ppx)))
-
-(generate_sites_module
- (module site)
- (sites ecma-sl))

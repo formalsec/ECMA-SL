@@ -5,6 +5,8 @@
  (name main)
  (modules
   main
+  share
+  site
   doc_compile
   doc_interpret
   doc_encode
@@ -28,3 +30,7 @@
  (libraries ecma_sl bos cmdliner)
  (instrumentation
   (backend bisect_ppx)))
+
+(generate_sites_module
+ (module site)
+ (sites ecma-sl))
