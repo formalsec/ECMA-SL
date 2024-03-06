@@ -13,7 +13,7 @@ module Common = struct
     let docv = "LEVEL" in
     let doc = "Debug level of the ECMA-SL application" in
     let levels = Arg.enum (args all) in
-    Arg.(value & opt levels None & info [ "debug" ] ~doc ~docv)
+    Arg.(value & opt levels Warn & info [ "debug" ] ~doc ~docv)
 
   let colorless =
     let doc = "Generate colorless output." in
