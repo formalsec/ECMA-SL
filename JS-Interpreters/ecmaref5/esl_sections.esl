@@ -1,54 +1,54 @@
-import "ecmaref5/section 6/section_6.2.esl";
+import "section 6/section_6.2.esl";
 
-import "ecmaref5/section 7/section_7.8.esl";
+import "section 7/section_7.8.esl";
 
-import "ecmaref5/section 8/section_8.esl";
-import "ecmaref5/section 8/section_8.6.esl";
-import "ecmaref5/section 8/section_8.7.esl";
-import "ecmaref5/section 8/section_8.9.esl";
-import "ecmaref5/section 8/section_8.10.esl";
-import "ecmaref5/section 8/section_8.12.esl";
+import "section 8/section_8.esl";
+import "section 8/section_8.6.esl";
+import "section 8/section_8.7.esl";
+import "section 8/section_8.9.esl";
+import "section 8/section_8.10.esl";
+import "section 8/section_8.12.esl";
 
-import "ecmaref5/section 9/section_9.esl";
-import "ecmaref5/section 9/section_9.3.esl";
-import "ecmaref5/section 9/section_9.12.esl";
+import "section 9/section_9.esl";
+import "section 9/section_9.3.esl";
+import "section 9/section_9.12.esl";
 
-import "ecmaref5/section 10/section_10.2.esl";
-import "ecmaref5/section 10/section_10.3.esl";
-import "ecmaref5/section 10/section_10.4.esl";
-import "ecmaref5/section 10/section_10.5.esl";
-import "ecmaref5/section 10/section_10.6.esl";
+import "section 10/section_10.2.esl";
+import "section 10/section_10.3.esl";
+import "section 10/section_10.4.esl";
+import "section 10/section_10.5.esl";
+import "section 10/section_10.6.esl";
 
-import "ecmaref5/section 11/section_11.1.esl";
-import "ecmaref5/section 11/section_11.5.esl";
-import "ecmaref5/section 11/section_11.6.esl";
-import "ecmaref5/section 11/section_11.7.esl";
-import "ecmaref5/section 11/section_11.8.esl";
-import "ecmaref5/section 11/section_11.9.esl";
-import "ecmaref5/section 11/section_11.10.esl";
-import "ecmaref5/section 11/section_11.13.esl";
+import "section 11/section_11.1.esl";
+import "section 11/section_11.5.esl";
+import "section 11/section_11.6.esl";
+import "section 11/section_11.7.esl";
+import "section 11/section_11.8.esl";
+import "section 11/section_11.9.esl";
+import "section 11/section_11.10.esl";
+import "section 11/section_11.13.esl";
 
-import "ecmaref5/section 12/section_12.6.esl";
-import "ecmaref5/section 12/section_12.11.esl";
-import "ecmaref5/section 12/section_12.15.esl";
+import "section 12/section_12.6.esl";
+import "section 12/section_12.11.esl";
+import "section 12/section_12.15.esl";
 
-import "ecmaref5/section 13/section_13.esl";
+import "section 13/section_13.esl";
 
-import "ecmaref5/section 15/section_15.esl";
-import "ecmaref5/section 15/section_15.1.esl";
-import "ecmaref5/section 15/section_15.2.esl";
-import "ecmaref5/section 15/section_15.3.esl";
-import "ecmaref5/section 15/section_15.4.esl";
-import "ecmaref5/section 15/unicode_casing.esl";
-import "ecmaref5/section 15/section_15.5.esl";
-import "ecmaref5/section 15/section_15.6.esl";
-import "ecmaref5/section 15/section_15.7.esl";
-import "ecmaref5/section 15/section_15.8.esl";
-/* import "ecmaref5/section 15/section_15.9.esl"; */
+import "section 15/section_15.esl";
+import "section 15/section_15.1.esl";
+import "section 15/section_15.2.esl";
+import "section 15/section_15.3.esl";
+import "section 15/section_15.4.esl";
+import "section 15/unicode_casing.esl";
+import "section 15/section_15.5.esl";
+import "section 15/section_15.6.esl";
+import "section 15/section_15.7.esl";
+import "section 15/section_15.8.esl";
+/* import "section 15/section_15.9.esl"; */
 /* Temporarily using the ES6 version of the Date built-in object */
-import "ecmaref5/section 15/section_15.9_alt.esl";
-import "ecmaref5/section 15/section_15.10.esl";
-import "ecmaref5/section 15/section_15.11.esl";
-import "ecmaref5/section 15/section_15.12.esl";
+import "section 15/section_15.9_alt.esl";
+import "section 15/section_15.10.esl";
+import "section 15/section_15.11.esl";
+import "section 15/section_15.12.esl";
 
-import "ecmaref5/extras/section_extras.esl";
+import "extras/section_extras.esl";

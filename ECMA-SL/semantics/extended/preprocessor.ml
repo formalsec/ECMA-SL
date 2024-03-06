@@ -1,34 +1,46 @@
 module Imports = struct
-  let load_dependency (file : Id.t) : EProg.t =
+  let load_dependency (file : Id.t) (path : string) : EProg.t =
     let open Parsing_utils in
-    try load_file file.it |> parse_eprog ~file:file.it
-    with _ -> Eslerr.(compile ~src:(ErrSrc.at file) (UnknownDependency file))
+    try load_file ~file:(Some file.it) path |> parse_eprog ~file:file.it path
+    with Not_found ->
+      Eslerr.(compile ~src:(ErrSrc.at file) (UnknownDependency file))
 
-  let rec import_resolver (p : EProg.t) (resolved : (string, unit) Hashtbl.t)
-    (paths : string list) (unresolved : Id.t list list) : unit =
-    let open EParsing_helper.Prog in
-    match (unresolved, paths) with
-    | ([], _) -> ()
-    | ([] :: unresolved', path :: paths) ->
-      Hashtbl.replace resolved path ();
-      import_resolver p resolved paths unresolved'
-    | ((file :: files') :: _, _) ->
-      if Hashtbl.mem resolved file.it then
-        import_resolver p resolved paths [ files' ]
-      else if not (List.mem file.it paths) then (
-        let dependency = load_dependency file in
-        let unresolved' = EProg.imports dependency :: unresolved in
+  let dirname (path : string) : string =
+    match Filename.dirname path with "." -> "" | dirname -> dirname ^ "/"
+
+  let relativize (file : Id.t') (imports : Id.t list) : Id.t list =
+    let open Source in
+    let relativize_f dirname import = (dirname ^ import.it) @> import.at in
+    List.map (relativize_f (dirname file)) imports
+
+  let rec import_resolver (workspace : string) (p : EProg.t)
+    (resolved : (Id.t', unit) Hashtbl.t) (unresolved : (Id.t' * Id.t list) list)
+    : unit =
+    match unresolved with
+    | [] -> ()
+    | (source, []) :: unresolved' ->
+      Hashtbl.replace resolved source ();
+      import_resolver workspace p resolved unresolved'
+    | (source, import :: imports') :: unresolved' ->
+      if Hashtbl.mem resolved import.it then
+        import_resolver workspace p resolved ((source, imports') :: unresolved')
+      else if List.exists (fun (path, _) -> path = import.it) unresolved then
+        Eslerr.(compile ~src:(ErrSrc.at import) (CyclicDependency import))
+      else
+        let open EParsing_helper.Prog in
+        let dependency = load_dependency import (workspace ^ import.it) in
+        let dependency_imports = relativize source (EProg.imports dependency) in
+        let new_dependencies = (import.it, dependency_imports) in
         Hashtbl.iter (fun _ t -> parse_tdef t p) (EProg.tdefs dependency);
         Hashtbl.iter (fun _ f -> parse_func f p) (EProg.funcs dependency);
         Hashtbl.iter (fun _ m -> parse_macro m p) (EProg.macros dependency);
-        import_resolver p resolved (file.it :: paths) unresolved' )
-      else Eslerr.(compile ~src:(ErrSrc.at file) (CyclicDependency file))
-    | ([] :: _, []) ->
-      Eslerr.(internal __FUNCTION__ (Expecting "non-empty path"))
+        import_resolver workspace p resolved (new_dependencies :: unresolved)
 
   let resolve_imports (p : EProg.t) : EProg.t =
+    let workspace = dirname (EProg.path p) in
     let resolved = Hashtbl.create !Config.default_hashtbl_sz in
-    import_resolver p resolved [ EProg.file p ] [ EProg.imports p ];
+    let relative_imports = relativize (EProg.file p) (EProg.imports p) in
+    import_resolver workspace p resolved [ (EProg.file p, relative_imports) ];
     { p with imports = [] }
 end
 
