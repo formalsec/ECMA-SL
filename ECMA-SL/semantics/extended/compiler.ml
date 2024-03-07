@@ -192,6 +192,7 @@ and compile_unopt (at : region) (op : unopt) (e : EExpr.t) : c_expr =
   let sres =
     match op with
     | ObjectToList -> Stmt.AssignObjToList (?@res, e_e) @> at
+    | ObjectFields -> Stmt.AssignObjFields (?@res, e_e) @> at
     | _ ->
       let unopt = Expr.UnOpt (op, e_e) @> at in
       Stmt.Assign (?@res, unopt) @> at
@@ -206,6 +207,8 @@ and compile_binopt (at : region) (op : Operator.binopt) (e1 : EExpr.t)
   match op with
   | SCLogicalAnd -> compile_sc_and res e1_s e1_e e2_s e2_e
   | SCLogicalOr -> compile_sc_or res e1_s e1_e e2_s e2_e
+  | ObjectMem ->
+    (e1_s @ e2_s @ [ Stmt.AssignInObjCheck (?@res, e1_e, e2_e) @> at ], res)
   | _ ->
     let binopt = Expr.BinOpt (op, e1_e, e2_e) @> at in
     let sres = Stmt.Assign (?@res, binopt) @> at in
