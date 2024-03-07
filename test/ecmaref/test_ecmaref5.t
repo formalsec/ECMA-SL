@@ -3630,7 +3630,7 @@ Tests compilation of ecmaref5:
     if (__v784) {
       __v785 := object["JSProperties"];
       namedPropertiesObj := __v785;
-      __v786 := obj_fields(namedPropertiesObj);
+      __v786 := obj_fields namedPropertiesObj;
       __v787 := l_sort(__v786);
       list := __v787;
       __v788 := l_len(list);
@@ -8658,7 +8658,7 @@ Tests compilation of ecmaref5:
   };
   function getOwnProperties(___internal_esl_global, object) {
     __v1931 := object["JSProperties"];
-    __v1932 := obj_fields(__v1931);
+    __v1932 := obj_fields __v1931;
     __v1933 := l_sort(__v1932);
     return (false, __v1933)
   };
@@ -32776,7 +32776,7 @@ Tests compilation of ecmaref5:
     __v9094 := {};
     newDesc := __v9094;
     i := 0;
-    __v9095 := obj_fields(Desc);
+    __v9095 := obj_fields Desc;
     list := __v9095;
     __v9096 := l_len(list);
     llist := __v9096;
@@ -46470,7 +46470,7 @@ Tests compilation of ecmaref5:
       };
       i := 0;
       __v12138 := cs2["positive"];
-      __v12139 := obj_fields(__v12138);
+      __v12139 := obj_fields __v12138;
       list := __v12139;
       __v12140 := l_len(list);
       len := __v12140;
@@ -46500,7 +46500,7 @@ Tests compilation of ecmaref5:
       };
       i := 0;
       __v12153 := cs2["negative"];
-      __v12154 := obj_fields(__v12153);
+      __v12154 := obj_fields __v12153;
       list := __v12154;
       __v12155 := l_len(list);
       len := __v12155;
