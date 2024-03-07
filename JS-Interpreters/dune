@@ -1,17 +1,21 @@
 (rule
- (targets es5.cesl es6.cesl es6-sym.cesl)
+ (targets source-es5 source-es6 source-es6-sym es6-sym.cesl)
  (deps
   %{bin:ecma-sl}
   (source_tree ecmaref5)
   (source_tree ecmaref6))
  (action
   (progn
-   (run ecma-sl compile ecmaref5/main.esl --untyped -o es5.cesl)
-   (run ecma-sl compile ecmaref6/main.esl --untyped -o es6.cesl)
+   (system
+    "realpath ../../../JS-Interpreters/ecmaref5/main.esl > source-es5")
+   (system
+    "realpath ../../../JS-Interpreters/ecmaref6/main.esl > source-es6")
+   (system
+    "realpath ../../../JS-Interpreters/ecmaref6/main_sym.esl > source-es6-sym")
    (run ecma-sl compile ecmaref6/main_sym.esl --untyped -o es6-sym.cesl))))
 
 (install
  (section
   (site
    (ecma-sl interpreters)))
- (files es5.cesl es6.cesl es6-sym.cesl))
+ (files source-es5 source-es6 source-es6-sym es6-sym.cesl))

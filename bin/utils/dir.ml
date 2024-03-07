@@ -26,3 +26,20 @@ let exec ?(recursive : bool = true) (exec_f : Fpath.t -> Fpath.t option -> unit)
   | (true, _) ->
     let exec_f' fin = exec_f fin output in
     List.iter exec_f' (dir_contents recursive input)
+
+module Sites = struct
+  let search (dirs : Fpath.t list) (file : Fpath.t) : Fpath.t option =
+    List.find_map
+      (fun dir ->
+        let path = Fpath.(dir // file) in
+        match Bos.OS.File.exists path with
+        | Ok true -> Some path
+        | Ok false -> None
+        | Error (`Msg err) -> failwith err )
+      dirs
+
+  let resolve (path : Fpath.t) : string =
+    match Bos.OS.File.read path with
+    | Ok text -> String.trim text
+    | Error (`Msg err) -> failwith err
+end
