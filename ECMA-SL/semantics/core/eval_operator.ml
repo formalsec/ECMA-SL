@@ -1120,8 +1120,8 @@ let eval_triopt (op : triopt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) : Val.t =
 
 let eval_nopt (op : nopt) (vals : Val.t list) : Val.t =
   match op with
-  | NAryLogicalAnd -> Val.Bool true
-  | NAryLogicalOr -> Val.Bool true
+  | NAryLogicalAnd -> nary_logical_and vals
+  | NAryLogicalOr -> nary_logical_or vals
   | ArrayExpr -> Val.Arr (Array.of_list vals)
   | ListExpr -> Val.List vals
   | TupleExpr -> Val.Tuple vals
