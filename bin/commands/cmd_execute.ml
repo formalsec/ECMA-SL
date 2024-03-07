@@ -13,9 +13,9 @@ type options =
 
 let langs : Enums.Lang.t list = Enums.Lang.[ Auto; JS; CESL ]
 
-let parse_interp (ecmaref : Enums.ECMARef.t) : Prog.t =
-  let finterp = Enums.ECMARef.interp ecmaref in
-  Parsing_utils.load_file finterp |> Parsing_utils.parse_prog ~file:finterp
+let compile_interp (ecmaref : Enums.ECMARef.t) : Prog.t =
+  let interp_path = Enums.ECMARef.interp ecmaref in
+  Cmd_compile.compile (Fpath.v interp_path)
 
 let parse_ast (file : string) : Func.t =
   Parsing_utils.load_file file |> Parsing_utils.parse_func ~file
@@ -36,7 +36,7 @@ let setup_harness (interp : Prog.t) (harness : Fpath.t) : Val.t Heap.t =
 
 let setup_execution (ecmaref : Enums.ECMARef.t) (harness : Fpath.t option) :
   Prog.t * Val.t Heap.t option =
-  let interp = parse_interp ecmaref in
+  let interp = compile_interp ecmaref in
   let static_heap = Option.map (setup_harness interp) harness in
   (interp, static_heap)
 
@@ -44,7 +44,7 @@ let execute_js ((interp, static_heap) : Prog.t * Val.t Heap.t option)
   (input : Fpath.t) : Val.t =
   let ast = Fpath.v (Filename.temp_file "ecmasl" "ast.js") in
   Cmd_encode.encode None input (Some ast);
-  let main = "mainPartial" in
+  let main = if Option.is_some static_heap then "mainPartial" else "main" in
   let config = { Interpreter.Config.default with main; static_heap } in
   let retval = fst (execute_partial config interp ast) in
   Log.debug "Sucessfuly evaluated program with return '%a'." Val.pp retval;

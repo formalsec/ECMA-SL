@@ -5,8 +5,6 @@
  (name main)
  (modules
   main
-  share
-  site
   doc_compile
   doc_interpret
   doc_encode
@@ -26,7 +24,8 @@
   cmd_explodejs
   options
   enums
-  dir)
+  dir
+  site)
  (libraries ecma_sl bos cmdliner)
  (instrumentation
   (backend bisect_ppx)))
