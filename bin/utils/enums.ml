@@ -81,6 +81,7 @@ module ECMARef = struct
     | Latest
     | ECMARef5
     | ECMARef6
+    | ECMARef6Sym
 
   let all = [ Main; Latest; ECMARef5; ECMARef6 ]
 
@@ -90,6 +91,7 @@ module ECMARef = struct
     | Latest -> Fmt.pp_str fmt "latest"
     | ECMARef5 -> Fmt.pp_str fmt "ecmaref5"
     | ECMARef6 -> Fmt.pp_str fmt "ecmaref6"
+    | ECMARef6Sym -> Fmt.pp_str fmt "ecmaref6-symbolic"
 
   let str (version : t) : string = Fmt.asprintf "%a" pp version
 
@@ -99,14 +101,21 @@ module ECMARef = struct
       | Latest -> ("latest", Latest)
       | ECMARef5 -> ("ecmaref5", ECMARef5)
       | ECMARef6 -> ("ecmaref6", ECMARef6)
+      | ECMARef6Sym -> ("ecmaref6-sym", ECMARef6Sym)
     in
     List.map to_arg versions
 
+  let interp_src (version : t) : string =
+    match version with
+    | Main -> "source-es6"
+    | Latest -> "source-es6"
+    | ECMARef5 -> "source-es5"
+    | ECMARef6 -> "source-es6"
+    | ECMARef6Sym -> "source-es6-sym"
+
   let interp (version : t) : string =
-    Option.get
-      ( match version with
-      | Main -> Share.get_es6 ()
-      | Latest -> Share.get_es6 ()
-      | ECMARef5 -> Share.get_es5 ()
-      | ECMARef6 -> Share.get_es6 () )
+    let locations = List.map Fpath.v Site.Sites.interpreters in
+    let fintep = Fpath.v (interp_src version) in
+    let interp_symlink = Option.get (Dir.Sites.search locations fintep) in
+    Dir.Sites.resolve interp_symlink
 end
