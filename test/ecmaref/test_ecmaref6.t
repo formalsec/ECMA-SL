@@ -16936,7 +16936,7 @@ Tests compilation of ecmaref6:
           __v3419 := false
         } else {
           __v3416 := O["JSProperties"];
-          __v3417 := obj_fields(__v3416);
+          __v3417 := obj_fields __v3416;
           __v3418 := P in_list __v3417;
           if (__v3418 = false) {
             __v3419 := false
@@ -16949,7 +16949,7 @@ Tests compilation of ecmaref6:
           strings := __v3420
         } else {
           __v3404 := O["SymbolKeys"];
-          __v3405 := obj_fields(__v3404);
+          __v3405 := obj_fields __v3404;
           __v3406 := P in_list __v3405;
           if (__v3406) {
             __v3407 := O["SymbolKeys"];
@@ -17224,7 +17224,7 @@ Tests compilation of ecmaref6:
       __v3488 := i < len
     };
     __v3495 := O["JSProperties"];
-    __v3496 := obj_fields(__v3495);
+    __v3496 := obj_fields __v3495;
     __v3493 := 0;
     __v3494 := l_len(__v3496);
     __v3497 := __v3494 > __v3493;
@@ -17262,7 +17262,7 @@ Tests compilation of ecmaref6:
       __v3497 := __v3494 > __v3493
     };
     __v3507 := O["JSPropertiesSymbols"];
-    __v3508 := obj_fields(__v3507);
+    __v3508 := obj_fields __v3507;
     __v3505 := 0;
     __v3506 := l_len(__v3508);
     __v3509 := __v3506 > __v3505;
@@ -23369,7 +23369,7 @@ Tests compilation of ecmaref6:
     __v4712 := {};
     newDesc := __v4712;
     i := 0;
-    __v4713 := obj_fields(Desc);
+    __v4713 := obj_fields Desc;
     list := __v4713;
     __v4714 := l_len(list);
     llist := __v4714;
@@ -23657,7 +23657,7 @@ Tests compilation of ecmaref6:
           __v4796 := false
         } else {
           __v4793 := O["JSProperties"];
-          __v4794 := obj_fields(__v4793);
+          __v4794 := obj_fields __v4793;
           __v4795 := P in_list __v4794;
           if (__v4795 = false) {
             __v4796 := false
@@ -23670,7 +23670,7 @@ Tests compilation of ecmaref6:
           strings := __v4797
         } else {
           __v4781 := O["SymbolKeys"];
-          __v4782 := obj_fields(__v4781);
+          __v4782 := obj_fields __v4781;
           __v4783 := P in_list __v4782;
           if (__v4783) {
             __v4784 := O["SymbolKeys"];
@@ -29721,7 +29721,7 @@ Tests compilation of ecmaref6:
   function InternalMapClear(___internal_esl_global, map) {
     __v5943 := map["entries"];
     entries := __v5943;
-    __v5946 := obj_fields(entries);
+    __v5946 := obj_fields entries;
     __v5944 := 0;
     __v5945 := l_len(__v5946);
     __v5947 := __v5945 > __v5944;
@@ -35862,7 +35862,7 @@ Tests compilation of ecmaref6:
       };
       i := 0;
       __v7172 := cs2["positive"];
-      __v7173 := obj_fields(__v7172);
+      __v7173 := obj_fields __v7172;
       list := __v7173;
       __v7174 := l_len(list);
       len := __v7174;
@@ -35892,7 +35892,7 @@ Tests compilation of ecmaref6:
       };
       i := 0;
       __v7187 := cs2["negative"];
-      __v7188 := obj_fields(__v7187);
+      __v7188 := obj_fields __v7187;
       list := __v7188;
       __v7189 := l_len(list);
       len := __v7189;
@@ -70286,13 +70286,13 @@ Tests compilation of ecmaref6:
   };
   function getOwnProperties(___internal_esl_global, object) {
     __v13863 := object["JSProperties"];
-    __v13864 := obj_fields(__v13863);
+    __v13864 := obj_fields __v13863;
     __v13865 := l_sort(__v13864);
     props := __v13865;
     __v13866 := [];
     syms := __v13866;
     __v13869 := object["SymbolKeys"];
-    __v13870 := obj_fields(__v13869);
+    __v13870 := obj_fields __v13869;
     __v13867 := 0;
     __v13868 := l_len(__v13870);
     __v13871 := __v13868 > __v13867;
@@ -113813,7 +113813,7 @@ Tests compilation of ecmaref6:
           __v22605 := false
         } else {
           __v22602 := O["JSProperties"];
-          __v22603 := obj_fields(__v22602);
+          __v22603 := obj_fields __v22602;
           __v22604 := P in_list __v22603;
           if (__v22604 = false) {
             __v22605 := false
@@ -113826,7 +113826,7 @@ Tests compilation of ecmaref6:
           strings := __v22606
         } else {
           __v22590 := O["SymbolKeys"];
-          __v22591 := obj_fields(__v22590);
+          __v22591 := obj_fields __v22590;
           __v22592 := P in_list __v22591;
           if (__v22592) {
             __v22593 := O["SymbolKeys"];
