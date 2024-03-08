@@ -26,6 +26,7 @@ depends: [
   "yojson"
   "dune-site"
   "bisect_ppx" {with-test & >= "2.5.0" & dev}
+  "conf-npm"
 ]
 build: [
   ["dune" "subst"] {dev}
@@ -44,7 +45,3 @@ build: [
   ["dune" "install" "-p" name "--create-install-files" name]
 ]
 dev-repo: "git+https://github.com/formalsec/ECMA-SL.git"
-depexts: [
-  ["nodejs"] {os-family = "debian"}
-  ["node"] {os-family = "homebrew"}
-]
