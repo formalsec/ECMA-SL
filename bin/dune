@@ -25,6 +25,7 @@
   options
   enums
   dir
+  share
   site)
  (libraries ecma_sl bos cmdliner)
  (instrumentation

@@ -5,7 +5,7 @@ type 'a estart = position -> 'a EParser.MenhirInterpreter.checkpoint
 type token = [%import: Parser.token] [@@deriving show]
 type etoken = [%import: EParser.token] [@@deriving show]
 
-let load_file ?(file : string option = None) (path : string) : string =
+let load_file ?(file : string option) (path : string) : string =
   let file' = Option.value ~default:path file in
   let data = Io.read_file path in
   Source.Code.load file' data;

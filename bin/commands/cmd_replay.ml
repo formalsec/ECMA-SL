@@ -28,7 +28,7 @@ type observable =
 let observable_effects = [ Stdout "success"; Stdout "polluted"; File "success" ]
 
 let env () =
-  let node_path = Fmt.sprintf ".:%s" (List.hd Site.Sites.nodejs) in
+  let node_path = Fmt.sprintf ".:%s" (List.hd Share.Location.nodejs) in
   String.Map.of_list [ ("NODE_PATH", node_path) ]
 
 let execute_witness ~env (test : Fpath.t) (witness : Fpath.t) =
