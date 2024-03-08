@@ -9,7 +9,7 @@
   package.json
   (source_tree src))
  (action
-  (run ./script.exe ./src/index.js -o %{target})))
+  (run ./script.exe ./src/index.js)))
 
 (install
  (section bin)
