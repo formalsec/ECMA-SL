@@ -105,17 +105,13 @@ module ECMARef = struct
     in
     List.map to_arg versions
 
-  let interp_src (version : t) : string =
-    match version with
-    | Main -> "source-es6"
-    | Latest -> "source-es6"
-    | ECMARef5 -> "source-es5"
-    | ECMARef6 -> "source-es6"
-    | ECMARef6Sym -> "source-es6-sym"
-
   let interp (version : t) : string =
-    let locations = List.map Fpath.v Site.Sites.interpreters in
-    let fintep = Fpath.v (interp_src version) in
-    let interp_symlink = Option.get (Dir.Sites.search locations fintep) in
-    Dir.Sites.resolve interp_symlink
+    ( match version with
+    | Main -> Share.es6_config ()
+    | Latest -> Share.es6_config ()
+    | ECMARef5 -> Share.es5_config ()
+    | ECMARef6 -> Share.es6_config ()
+    | ECMARef6Sym -> Share.es6_sym_config () )
+    |> Option.get
+    |> Share.resolve_config
 end

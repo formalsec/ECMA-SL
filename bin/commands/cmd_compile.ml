@@ -18,7 +18,7 @@ let type_check (prog : EProg.t) : EProg.t =
 
 let compile (input : Fpath.t) : Prog.t =
   let compile' file path =
-    Parsing_utils.load_file ~file:(Some file) path
+    Parsing_utils.load_file ~file path
     |> Parsing_utils.parse_eprog ~file path
     |> Preprocessor.Imports.resolve_imports
     |> Preprocessor.Macros.apply_macros

@@ -1,17 +1,14 @@
 module Imports = struct
   let load_dependency (file : Id.t) (path : string) : EProg.t =
     let open Parsing_utils in
-    try load_file ~file:(Some file.it) path |> parse_eprog ~file:file.it path
+    try load_file ~file:file.it path |> parse_eprog ~file:file.it path
     with Not_found ->
       Eslerr.(compile ~src:(ErrSrc.at file) (UnknownDependency file))
 
-  let dirname (path : string) : string =
-    match Filename.dirname path with "." -> "" | dirname -> dirname ^ "/"
-
   let relativize (file : Id.t') (imports : Id.t list) : Id.t list =
     let open Source in
-    let relativize_f dirname import = (dirname ^ import.it) @> import.at in
-    List.map (relativize_f (dirname file)) imports
+    let relativize_f dir import = Filename.concat dir import.it @> import.at in
+    List.map (relativize_f (Filename.dirname file)) imports
 
   let rec import_resolver (workspace : string) (p : EProg.t)
     (resolved : (Id.t', unit) Hashtbl.t) (unresolved : (Id.t' * Id.t list) list)
@@ -28,7 +25,8 @@ module Imports = struct
         Eslerr.(compile ~src:(ErrSrc.at import) (CyclicDependency import))
       else
         let open EParsing_helper.Prog in
-        let dependency = load_dependency import (workspace ^ import.it) in
+        let dependency_path = Filename.concat workspace import.it in
+        let dependency = load_dependency import dependency_path in
         let dependency_imports = relativize source (EProg.imports dependency) in
         let new_dependencies = (import.it, dependency_imports) in
         Hashtbl.iter (fun _ t -> parse_tdef t p) (EProg.tdefs dependency);
@@ -37,7 +35,7 @@ module Imports = struct
         import_resolver workspace p resolved (new_dependencies :: unresolved)
 
   let resolve_imports (p : EProg.t) : EProg.t =
-    let workspace = dirname (EProg.path p) in
+    let workspace = Filename.dirname (EProg.path p) in
     let resolved = Hashtbl.create !Config.default_hashtbl_sz in
     let relative_imports = relativize (EProg.file p) (EProg.imports p) in
     import_resolver workspace p resolved [ (EProg.file p, relative_imports) ];
