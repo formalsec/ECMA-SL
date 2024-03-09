@@ -13,6 +13,21 @@ let resolve_optfld (t : t) : t =
   | UndefinedType -> t
   | _ -> UnionType [ t; t_undefined ] @> t.at
 
+let resolve_sigma_case_discriminant (at : Source.region) (dsc : Id.t)
+  (tobj : tobject) : t =
+  match Hashtbl.find_opt tobj.flds dsc.it with
+  | Some (_, ft, _) -> ft
+  | None ->
+    Eslerr.(typing ~src:(ErrSrc.region at) (MissingSigmaCaseDiscriminant dsc))
+
+let unfold_sigma_case (dsc : Id.t) (t : t) : t * t =
+  match t.it with
+  | ObjectType tobj -> (
+    try (resolve_sigma_case_discriminant t.at dsc tobj, t)
+    with Eslerr.Typing_error _ ->
+      Eslerr.(internal __FUNCTION__ (Expecting "Discriminant field")) )
+  | _ -> Eslerr.(internal __FUNCTION__ (Expecting "Object type"))
+
 let rec type_check ?(congruency : bool = false) (tref : t) (tsrc : t) : unit =
   match (congruency, tref.it, tsrc.it) with
   | (_, _, _) when EType.equal tref tsrc -> ()
@@ -21,9 +36,11 @@ let rec type_check ?(congruency : bool = false) (tref : t) (tsrc : t) : unit =
   | (_, ObjectType _, ObjectType _) -> check_object congruency tref tsrc
   | (_, ListType _, ListType _) -> check_list congruency tref tsrc
   | (_, TupleType _, TupleType _) -> check_tuple congruency tref tsrc
+  | (_, SigmaType _, SigmaType _) -> check_sigma congruency tref tsrc
   | (true, UnionType _, UnionType _) -> check_union_congruency tref tsrc
   | (false, _, UnionType _) -> check_union_subtyping_src tref tsrc
   | (false, UnionType _, _) -> check_union_subtyping_ref tref tsrc
+  | (false, SigmaType _, ObjectType _) -> check_sigma_folding tref tsrc
   | (false, UnknownType, _) -> ()
   | (false, _, NeverType) -> ()
   | (false, IntType, LiteralType (IntegerLit _)) -> ()
@@ -91,8 +108,8 @@ and check_field_type (congruency : bool) (fn : Id.t)
 and check_missing_fields (at : Source.region) (congruency : bool)
   (tobjsrc : EType.tobject) (_ : Id.t')
   ((rfn, _, rfs) : Id.t * EType.t * EType.tfldstyle) : unit =
-  if not (Hashtbl.mem tobjsrc.flds rfn.it) then
-    if congruency || tobjsrc.kind == ObjSto || rfs == FldReq then
+  if congruency || tobjsrc.kind == ObjSto || rfs == FldReq then
+    if not (Hashtbl.mem tobjsrc.flds rfn.it) then
       Eslerr.(typing ~src:(ErrSrc.region at) (MissingField rfn))
 
 and check_summary_type (at : Source.region) (congruency : bool)
@@ -174,3 +191,66 @@ and check_union_subtyping_ref (tref : EType.t) (tsrc : EType.t) : unit =
     with Not_found ->
       Eslerr.(typing ~src:(ErrSrc.at tsrc)) (BadSubtyping (tref, tsrc)) )
   | _ -> failwith "T_Subtyping.check_union_subtyping_ref"
+
+and check_sigma (congruency : bool) (tref : t) (tsrc : t) : unit =
+  let check_sigma_type (dscref, cssref) (dscsrc, csssrc) =
+    check_sigma_discriminant dscref dscsrc;
+    let cssref' = List.map (unfold_sigma_case dscref) cssref in
+    let csssrc' = List.map (unfold_sigma_case dscsrc) csssrc in
+    let sigcss = combine_sigma_cases tsrc.at congruency cssref' csssrc' in
+    List.iter (check_sigma_case congruency) sigcss
+  in
+  match (tref.it, tsrc.it) with
+  | (SigmaType (dscref, cssref), SigmaType (dscsrc, csssrc)) -> (
+    try check_sigma_type (dscref, cssref) (dscsrc, csssrc)
+    with Eslerr.Typing_error _ as exn ->
+      Eslerr.(push_tp (terr_msg congruency tref tsrc) exn |> raise) )
+  | _ -> Eslerr.(internal __FUNCTION__ (Expecting "Sigma type"))
+
+and check_sigma_discriminant (dscref : Id.t) (dscsrc : Id.t) =
+  let open Source in
+  if not (String.equal dscref.it dscsrc.it) then
+    Eslerr.(typing ~src:(ErrSrc.at dscsrc) IncompatibleSigmaDiscriminant)
+
+and combine_sigma_cases (at : Source.region) (congruency : bool)
+  (cssref : (t * t) list) (csssrc : (t * t) list) : (t * t * t) list =
+  let match_cs_f tdsc1 (tdsc2, _) = EType.equal tdsc1 tdsc2 in
+  let find_cs (tdscsrc, tcssrc) =
+    try snd (List.find (match_cs_f tdscsrc) cssref)
+    with Not_found ->
+      Eslerr.(typing ~src:(ErrSrc.at tcssrc) (ExtraSigmaCase tdscsrc))
+  in
+  let check_missing_css (tdscref, _) =
+    if not (List.exists (match_cs_f tdscref) csssrc) then
+      Eslerr.(typing ~src:(ErrSrc.region at) (MissingSigmaCase tdscref))
+  in
+  let combine_cs_f (tdsc, tcssrc) = (tdsc, find_cs (tdsc, tcssrc), tcssrc) in
+  let sigcss = List.map combine_cs_f csssrc in
+  if congruency then List.iter check_missing_css cssref;
+  sigcss
+
+and check_sigma_case (congruency : bool) ((dsc, csref, cssrc) : t * t * t) :
+  unit =
+  try type_check ~congruency csref cssrc
+  with Eslerr.Typing_error _ as exn ->
+    Eslerr.(push_tp (IncompatibleSigmaCase dsc) exn |> raise)
+
+and check_sigma_folding (tref : t) (tsrc : t) : unit =
+  let check_sigma_case (dscref, cssref) tobjsrc =
+    let cssref' = List.map (unfold_sigma_case dscref) cssref in
+    let tdscsrc = resolve_sigma_case_discriminant tsrc.at dscref tobjsrc in
+    let csref = match_sigma_case cssref' (tdscsrc, tsrc) in
+    check_sigma_case false (tdscsrc, csref, tsrc)
+  in
+  match (tref.it, tsrc.it) with
+  | (SigmaType (dscref, cssref), ObjectType tobjsrc) -> (
+    try check_sigma_case (dscref, cssref) tobjsrc
+    with Eslerr.Typing_error _ as exn ->
+      Eslerr.(push_tp (terr_msg false tref tsrc) exn |> raise) )
+  | _ -> Eslerr.(internal __FUNCTION__ (Expecting "Sigma|Object type"))
+
+and match_sigma_case (cssref : (t * t) list) ((tdscsrc, tsrc) : t * t) : t =
+  let match_cs_f tdsc1 (tdsc2, _) = EType.equal tdsc1 tdsc2 in
+  try snd (List.find (match_cs_f tdscsrc) cssref)
+  with Not_found ->
+    Eslerr.(typing ~src:(ErrSrc.at tsrc) (UnknownSigmaCaseDiscriminant tdscsrc))

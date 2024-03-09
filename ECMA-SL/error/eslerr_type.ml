@@ -37,6 +37,12 @@ type typing =
   | ExtraSummaryField
   | NExpectedElements of int * int
   | IncompatibleElement of int
+  | IncompatibleSigmaDiscriminant
+  | MissingSigmaCase of EType.t
+  | ExtraSigmaCase of EType.t
+  | IncompatibleSigmaCase of EType.t
+  | MissingSigmaCaseDiscriminant of Id.t
+  | UnknownSigmaCaseDiscriminant of EType.t
 
 type runtime =
   | Default
@@ -191,6 +197,16 @@ module Typing : ERR_TYPE with type t = typing = struct
       , NExpectedElements (ntsref2, ntssrc2) ) ->
       Int.equal ntsref1 ntsref2 && Int.equal ntssrc1 ntssrc2
     | (IncompatibleElement i1, IncompatibleElement i2) -> Int.equal i1 i2
+    | (IncompatibleSigmaDiscriminant, IncompatibleSigmaDiscriminant) -> true
+    | (MissingSigmaCase tdsc1, MissingSigmaCase tdsc2) ->
+      EType.equal tdsc1 tdsc2
+    | (ExtraSigmaCase tdsc1, ExtraSigmaCase tdsc2) -> EType.equal tdsc1 tdsc2
+    | (IncompatibleSigmaCase tdsc1, IncompatibleSigmaCase tdsc2) ->
+      EType.equal tdsc1 tdsc2
+    | (MissingSigmaCaseDiscriminant dsc1, MissingSigmaCaseDiscriminant dsc2) ->
+      Id.equal dsc1 dsc2
+    | (UnknownSigmaCaseDiscriminant t1, UnknownSigmaCaseDiscriminant t2) ->
+      EType.equal t1 t2
     | _ -> false
 
   let pp (fmt : Fmt.t) (msg : t) : unit =
@@ -225,6 +241,25 @@ module Typing : ERR_TYPE with type t = typing = struct
     | IncompatibleElement i ->
       fprintf fmt "Types of the %s element are incompatible."
         (String_utils.ordinal_suffix i)
+    | IncompatibleSigmaDiscriminant ->
+      fprintf fmt "Discriminant fields are incompatible."
+    | MissingSigmaCase tdsc ->
+      fprintf fmt
+        "Sigma case with discriminant '%a' is missing from the sigma type."
+        EType.pp tdsc
+    | ExtraSigmaCase tdsc ->
+      fprintf fmt
+        "Sigma case with discriminant '%a' is not defined in the sigma type."
+        EType.pp tdsc
+    | IncompatibleSigmaCase tdsc ->
+      fprintf fmt "Sigma cases with discriminants '%a' are incompatible."
+        EType.pp tdsc
+    | MissingSigmaCaseDiscriminant dsc ->
+      fprintf fmt "Missing discriminant '%a' from the sigma type case." Id.pp
+        dsc
+    | UnknownSigmaCaseDiscriminant tdsc ->
+      fprintf fmt "Cannot find discriminant '%a' in the sigma type." EType.pp
+        tdsc
 
   let str (msg : t) : string = Fmt.asprintf "%a" pp msg
 end
