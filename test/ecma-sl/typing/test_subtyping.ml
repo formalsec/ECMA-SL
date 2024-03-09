@@ -658,3 +658,199 @@ let%test "subtyping_union_any_src" =
   let tref = t_union [ t_int; t_string; t_boolean ] in
   let tsrc = t_union [ t_int; t_any; t_null ] in
   test_subtyping (tref, tsrc) (Ok ())
+
+(* ========== Sigma Types ========== *)
+
+let%test "subtyping_sigma_one_case" =
+  let foo = lt_string "foo" in
+  let otref = t_obj [ t_fld "type" foo ] in
+  let otsrc = t_obj [ t_fld "type" foo ] in
+  let tref = t_sigma "type" [ otref ] in
+  let tsrc = t_sigma "type" [ otsrc ] in
+  test_subtyping (tref, tsrc) (Ok ())
+
+let%test "subtyping_sigma_two_cases" =
+  let (foo, bar) = (lt_string "foo", lt_string "bar") in
+  let otref_foo = t_obj [ t_fld "type" foo ] in
+  let otsrc_foo = t_obj [ t_fld "type" foo ] in
+  let otref_bar = t_obj [ t_fld "type" bar ] in
+  let otsrc_bar = t_obj [ t_fld "type" bar ] in
+  let tref = t_sigma "type" [ otref_foo; otref_bar ] in
+  let tsrc = t_sigma "type" [ otsrc_foo; otsrc_bar ] in
+  test_subtyping (tref, tsrc) (Ok ())
+
+let%test "subtyping_sigma_two_cases_order" =
+  let (foo, bar) = (lt_string "foo", lt_string "bar") in
+  let otref_foo = t_obj [ t_fld "type" foo ] in
+  let otref_bar = t_obj [ t_fld "type" bar ] in
+  let otsrc_foo = t_obj [ t_fld "type" foo ] in
+  let otsrc_bar = t_obj [ t_fld "type" bar ] in
+  let tref = t_sigma "type" [ otref_foo; otref_bar ] in
+  let tsrc = t_sigma "type" [ otsrc_bar; otsrc_foo ] in
+  test_subtyping (tref, tsrc) (Ok ())
+
+let%test "subtyping_sigma_complex" =
+  let (foo, bar) = (lt_string "foo", lt_string "bar") in
+  let otref_foo = t_obj [ t_fld "type" foo; t_fld "foo" t_int ] in
+  let otref_bar = t_obj [ t_fld "type" bar; t_fld "bar" t_string ] in
+  let otsrc_foo = t_obj [ t_fld "type" foo; t_fld "foo" t_int ] in
+  let otsrc_bar = t_obj [ t_fld "type" bar; t_fld "bar" t_string ] in
+  let tref = t_sigma "type" [ otref_foo; otref_bar ] in
+  let tsrc = t_sigma "type" [ otsrc_foo; otsrc_bar ] in
+  test_subtyping (tref, tsrc) (Ok ())
+
+let%test "subtyping_sigma_incompatible_discriminants" =
+  let foo = lt_string "foo" in
+  let otref = t_obj [ t_fld "type" foo ] in
+  let otsrc = t_obj [ t_fld "disc" foo ] in
+  let tref = t_sigma "type" [ otref ] in
+  let tsrc = t_sigma "disc" [ otsrc ] in
+  test_subtyping (tref, tsrc)
+    (Error [ BadSubtyping (tref, tsrc); IncompatibleSigmaDiscriminant ])
+
+let%test "subtyping_sigma_missing_case" =
+  let (foo, bar) = (lt_string "foo", lt_string "bar") in
+  let otref_foo = t_obj [ t_fld "type" foo ] in
+  let otref_bar = t_obj [ t_fld "type" bar ] in
+  let otsrc_foo = t_obj [ t_fld "type" foo ] in
+  let tref = t_sigma "type" [ otref_foo; otref_bar ] in
+  let tsrc = t_sigma "type" [ otsrc_foo ] in
+  test_subtyping (tref, tsrc) (Ok ())
+
+let%test "subtyping_sigma_extra_case" =
+  let (foo, bar) = (lt_string "foo", lt_string "bar") in
+  let otref_foo = t_obj [ t_fld "type" foo ] in
+  let otsrc_foo = t_obj [ t_fld "type" foo ] in
+  let otsrc_bar = t_obj [ t_fld "type" bar ] in
+  let tref = t_sigma "type" [ otref_foo ] in
+  let tsrc = t_sigma "type" [ otsrc_foo; otsrc_bar ] in
+  test_subtyping (tref, tsrc)
+    (Error [ BadSubtyping (tref, tsrc); ExtraSigmaCase bar ])
+
+let%test "subtyping_sigma_incompatible_case" =
+  let (foo, bar) = (lt_string "foo", lt_string "bar") in
+  let otref_foo = t_obj [ t_fld "type" foo; t_fld "foo" t_int ] in
+  let otref_bar = t_obj [ t_fld "type" bar; t_fld "bar" t_string ] in
+  let otsrc_foo = t_obj [ t_fld "type" foo; t_fld "foo" t_int ] in
+  let otsrc_bar = t_obj [ t_fld "type" bar; t_fld "bar" t_boolean ] in
+  let tref = t_sigma "type" [ otref_foo; otref_bar ] in
+  let tsrc = t_sigma "type" [ otsrc_foo; otsrc_bar ] in
+  test_subtyping (tref, tsrc)
+    (Error
+       [ BadSubtyping (tref, tsrc)
+       ; IncompatibleSigmaCase bar
+       ; BadSubtyping (otref_bar, otsrc_bar)
+       ; IncompatibleField ~@"bar"
+       ; BadCongruency (t_string, t_boolean)
+       ] )
+
+let%test "subtyping_sigma_covariant_case_literal" =
+  let (foo, bar) = (lt_string "foo", lt_string "bar") in
+  let otref_foo = t_objlit [ t_fld "type" foo; t_fld "foo" t_int ] in
+  let otref_bar = t_objlit [ t_fld "type" bar; t_fld "bar" t_unknown ] in
+  let otsrc_foo = t_objlit [ t_fld "type" foo; t_fld "foo" t_int ] in
+  let otsrc_bar = t_objlit [ t_fld "type" bar; t_fld "bar" t_string ] in
+  let tref = t_sigma "type" [ otref_foo; otref_bar ] in
+  let tsrc = t_sigma "type" [ otsrc_foo; otsrc_bar ] in
+  test_subtyping (tref, tsrc) (Ok ())
+
+let%test "subtyping_sigma_covariant_case_stored" =
+  let (foo, bar) = (lt_string "foo", lt_string "bar") in
+  let otref_foo = t_objsto [ t_fld "type" foo; t_fld "foo" t_int ] in
+  let otref_bar = t_objsto [ t_fld "type" bar; t_fld "bar" t_unknown ] in
+  let otsrc_foo = t_objsto [ t_fld "type" foo; t_fld "foo" t_int ] in
+  let otsrc_bar = t_objsto [ t_fld "type" bar; t_fld "bar" t_string ] in
+  let tref = t_sigma "type" [ otref_foo; otref_bar ] in
+  let tsrc = t_sigma "type" [ otsrc_foo; otsrc_bar ] in
+  test_subtyping (tref, tsrc)
+    (Error
+       [ BadSubtyping (tref, tsrc)
+       ; IncompatibleSigmaCase bar
+       ; BadSubtyping (otref_bar, otsrc_bar)
+       ; IncompatibleField ~@"bar"
+       ; BadCongruency (t_unknown, t_string)
+       ] )
+
+(* ========== Sigma Unfolding ========== *)
+
+let%test "subtyping_sigma_one_case_unfolding" =
+  let foo = lt_string "foo" in
+  let otref = t_obj [ t_fld "type" foo ] in
+  let tref = t_sigma "type" [ otref ] in
+  let tsrc = t_obj [ t_fld "type" foo ] in
+  test_subtyping (tref, tsrc) (Ok ())
+
+let%test "subtyping_sigma_two_cases_unfolding" =
+  let (foo, bar) = (lt_string "foo", lt_string "bar") in
+  let otref_foo = t_obj [ t_fld "type" foo ] in
+  let otref_bar = t_obj [ t_fld "type" bar ] in
+  let tref = t_sigma "type" [ otref_foo; otref_bar ] in
+  let tsrc = t_obj [ t_fld "type" foo ] in
+  test_subtyping (tref, tsrc) (Ok ())
+
+let%test "subtyping_sigma_second_unfolding" =
+  let (foo, bar) = (lt_string "foo", lt_string "bar") in
+  let otref_foo = t_obj [ t_fld "type" foo ] in
+  let otref_bar = t_obj [ t_fld "type" bar ] in
+  let tref = t_sigma "type" [ otref_foo; otref_bar ] in
+  let tsrc = t_obj [ t_fld "type" bar ] in
+  test_subtyping (tref, tsrc) (Ok ())
+
+let%test "subtyping_sigma_complex_unfolding" =
+  let (foo, bar) = (lt_string "foo", lt_string "bar") in
+  let otref_foo = t_obj [ t_fld "type" foo; t_fld "foo" t_int ] in
+  let otref_bar = t_obj [ t_fld "type" bar; t_fld "bar" t_string ] in
+  let tref = t_sigma "type" [ otref_foo; otref_bar ] in
+  let tsrc = t_obj [ t_fld "type" foo; t_fld "foo" t_int ] in
+  test_subtyping (tref, tsrc) (Ok ())
+
+let%test "subtyping_sigma_missing_discriminant_unfolding" =
+  let foo = lt_string "foo" in
+  let otref = t_obj [ t_fld "type" foo ] in
+  let tref = t_sigma "type" [ otref ] in
+  let tsrc = t_obj [ t_fld "dsc" foo ] in
+  test_subtyping (tref, tsrc)
+    (Error [ BadSubtyping (tref, tsrc); MissingSigmaCaseDiscriminant ~@"type" ])
+
+let%test "subtyping_sigma_unknown_discriminant_unfolding" =
+  let (foo, bar) = (lt_string "foo", lt_string "bar") in
+  let otref = t_obj [ t_fld "type" foo ] in
+  let tref = t_sigma "type" [ otref ] in
+  let tsrc = t_obj [ t_fld "type" bar ] in
+  test_subtyping (tref, tsrc)
+    (Error [ BadSubtyping (tref, tsrc); UnknownSigmaCaseDiscriminant bar ])
+
+let%test "subtyping_sigma_incompatible_unfolding" =
+  let foo = lt_string "foo" in
+  let otref = t_obj [ t_fld "type" foo; t_fld "foo" t_int ] in
+  let tref = t_sigma "type" [ otref ] in
+  let tsrc = t_obj [ t_fld "type" foo; t_fld "foo" t_string ] in
+  test_subtyping (tref, tsrc)
+    (Error
+       [ BadSubtyping (tref, tsrc)
+       ; IncompatibleSigmaCase foo
+       ; BadSubtyping (otref, tsrc)
+       ; IncompatibleField ~@"foo"
+       ; BadCongruency (t_int, t_string)
+       ] )
+
+let%test "subtyping_sigma_covariant_literal_unfolding" =
+  let foo = lt_string "foo" in
+  let otref = t_obj [ t_fld "type" foo; t_fld "foo" t_unknown ] in
+  let tref = t_sigma "type" [ otref ] in
+  let tsrc = t_objlit [ t_fld "type" foo; t_fld "foo" t_int ] in
+  test_subtyping (tref, tsrc) (Ok ())
+
+let%test "subtyping_sigma_covariant_stored_unfolding" =
+  let foo = lt_string "foo" in
+  let otref = t_obj [ t_fld "type" foo; t_fld "foo" t_unknown ] in
+  let tref = t_sigma "type" [ otref ] in
+  let tsrc = t_objsto [ t_fld "type" foo; t_fld "foo" t_int ] in
+  test_subtyping (tref, tsrc)
+    (Error
+       [ BadSubtyping (tref, tsrc)
+       ; IncompatibleSigmaCase foo
+       ; BadSubtyping (otref, tsrc)
+       ; IncompatibleField ~@"foo"
+       ; BadCongruency (t_unknown, t_int)
+       ] )

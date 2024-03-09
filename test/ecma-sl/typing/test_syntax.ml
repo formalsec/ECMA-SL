@@ -36,33 +36,33 @@ let%test "syntax_symbol_literal_type_test" =
 
 (* Simple object types *)
 
-let%test "syntax_empty_object_type_test" = Syntax.test "{}" (Ok (t_obj []))
+let%test "syntax_empty_object_type_test" = Syntax.test "{}" (Ok (t_objlit []))
 
 let%test "syntax_one_field_object_type_test" =
-  Syntax.test "{ foo: int }" (Ok (t_obj [ t_fld "foo" t_int ]))
+  Syntax.test "{ foo: int }" (Ok (t_objlit [ t_fld "foo" t_int ]))
 
 let%test "syntax_two_field_object_type_test" =
   Syntax.test "{ foo: int, bar: string }"
-    (Ok (t_obj [ t_fld "foo" t_int; t_fld "bar" t_string ]))
+    (Ok (t_objlit [ t_fld "foo" t_int; t_fld "bar" t_string ]))
 
 let%test "syntax_inner_object_type_test" =
   Syntax.test "{ foo: { bar: string } }"
-    (Ok (t_obj [ t_fld "foo" (t_obj [ t_fld "bar" t_string ]) ]))
+    (Ok (t_objlit [ t_fld "foo" (t_objlit [ t_fld "bar" t_string ]) ]))
 
 (* Custom field object types *)
 
 let%test "syntax_optional_field_object_type_test" =
-  Syntax.test "{ foo?: int }" (Ok (t_obj [ t_fld "foo" t_int ~opt:true ]))
+  Syntax.test "{ foo?: int }" (Ok (t_objlit [ t_fld "foo" t_int ~opt:true ]))
 
 let%test "syntax_summary_field_object_type_test" =
-  Syntax.test "{ *: string }" (Ok (t_obj [ t_fld "*" t_string ]))
+  Syntax.test "{ *: string }" (Ok (t_objlit [ t_fld "*" t_string ]))
 
 let%test "syntax_complete_object_type_test" =
   let foo = t_fld "foo" t_int in
   let bar = t_fld "bar" t_string ~opt:true in
   let baz = t_fld "*" t_boolean in
   Syntax.test "{ foo: int, bar?: string, *: boolean }"
-    (Ok (t_obj [ foo; bar; baz ]))
+    (Ok (t_objlit [ foo; bar; baz ]))
 
 (* Bad object types *)
 
@@ -150,20 +150,20 @@ let%test "syntax_list_of_union_test" =
 
 let%test "syntax_no_bar_sigma_type_test" =
   Syntax.test "sigma[type] { type: \"foo\" }"
-    (Ok (t_sigma "type" [ t_obj [ t_fld "type" (lt_string "foo") ] ]))
+    (Ok (t_sigma "type" [ t_objlit [ t_fld "type" (lt_string "foo") ] ]))
 
 let%test "syntax_one_case_sigma_type_test" =
   Syntax.test "sigma[type] | { type: \"foo\" }"
-    (Ok (t_sigma "type" [ t_obj [ t_fld "type" (lt_string "foo") ] ]))
+    (Ok (t_sigma "type" [ t_objlit [ t_fld "type" (lt_string "foo") ] ]))
 
 let%test "syntax_one_case_two_fields_sigma_type_test" =
-  let case_1 = t_obj [ t_fld "type" (lt_string "foo"); t_fld "foo" t_int ] in
+  let case_1 = t_objlit [ t_fld "type" (lt_string "foo"); t_fld "foo" t_int ] in
   Syntax.test "sigma[type] | { type: \"foo\", foo: int }"
     (Ok (t_sigma "type" [ case_1 ]))
 
 let%test "syntax_two_case_sigma_type_test" =
-  let case_1 = t_obj [ t_fld "type" (lt_string "foo") ] in
-  let case_2 = t_obj [ t_fld "type" (lt_integer 10) ] in
+  let case_1 = t_objlit [ t_fld "type" (lt_string "foo") ] in
+  let case_2 = t_objlit [ t_fld "type" (lt_integer 10) ] in
   Syntax.test "sigma[type] { type: \"foo\" } | { type: 10 }"
     (Ok (t_sigma "type" [ case_1; case_2 ]))
 
@@ -171,6 +171,9 @@ let%test "syntax_two_case_sigma_type_test" =
 
 let%test "syntax_unexpected_sigma_cases_test" =
   Syntax.test "sigma[type] int" (Error [ UnexpectedSigmaCase ])
+
+let%test "syntax_unexpected_any_sigma_cases_test" =
+  Syntax.test "sigma[type] any" (Error [ UnexpectedSigmaCase ])
 
 let%test "syntax_unexpected_sigma_case_test" =
   Syntax.test "sigma[type] { type: \"foo\" } | int"

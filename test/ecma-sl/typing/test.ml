@@ -22,7 +22,7 @@ let lt_symbol (s : string) : t = ~@(LiteralType (SymbolLit s))
 let t_fld ?(opt : bool = false) (fn : Id.t') (ft : t) : tobjfld =
   (~@fn, ft, if opt then FldOpt else FldReq)
 
-let t_obj ?(kind : tobjkind = ObjLit) (flds : tobjfld list) : t =
+let t_obj ?(kind : tobjkind = ObjSto) (flds : tobjfld list) : t =
   let tobj = EParsing_helper.Type.parse_tobject flds in
   ~@(ObjectType { tobj with kind })
 
