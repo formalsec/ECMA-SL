@@ -1,3 +1,4 @@
+open EslCore
 open Cmdliner
 
 (* Common options *)
@@ -24,11 +25,10 @@ module Common = struct
     Term.(const options' $ debug $ colorless)
 
   let set (copts : t) : unit =
-    let open Ecma_sl in
     let open Enums.DebugLvl in
-    Config.Common.warns := value copts.debug >= value Warn;
-    Config.Common.debugs := value copts.debug >= value Full;
-    Config.Common.colored := not copts.colorless
+    Log.Config.warns := value copts.debug >= value Warn;
+    Log.Config.debugs := value copts.debug >= value Full;
+    Font.Config.colored := not copts.colorless
 end
 
 (* File options *)
@@ -37,7 +37,7 @@ module File = struct
     let file = Fpath.v str in
     match test_f file with
     | Ok true -> `Ok file
-    | Ok false -> `Error (Ecma_sl.Fmt.asprintf "File '%s' not found!" str)
+    | Ok false -> `Error (Fmt.asprintf "File '%s' not found!" str)
     | Error (`Msg err) -> `Error err
 
   let fpath = ((fun str -> `Ok (Fpath.v str)), Fpath.pp)

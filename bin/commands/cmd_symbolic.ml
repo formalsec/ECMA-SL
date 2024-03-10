@@ -1,5 +1,6 @@
 open Bos
 open Ecma_sl
+open EslCore
 open Syntax.Result
 module PC = Choice_monad.PC
 module Env = Symbolic.P.Env
@@ -149,7 +150,6 @@ let run ~workspace filename entry_func =
 
 let main (copts : Options.Common.t) opt =
   Options.Common.set copts;
-  Ecma_sl.Config.Common.warns := true;
   match run ~workspace:opt.workspace opt.filename opt.entry_func with
   | Error (`Msg s) ->
     Log.log ~header:false "%s" s;

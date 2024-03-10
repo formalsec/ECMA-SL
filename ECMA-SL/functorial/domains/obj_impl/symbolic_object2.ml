@@ -1,3 +1,4 @@
+open EslCore
 module V = Symbolic_value.M
 module Reducer = Value_reducer
 module Translator = Value_translator

@@ -1,3 +1,5 @@
+open EslCore
+
 type store = Val.t Store.t
 type heap = Val.t Heap.t
 

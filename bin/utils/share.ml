@@ -11,7 +11,7 @@ let search_file (location : string list) (file : string) : string option =
     location
 
 let resolve_config (file : string) : string =
-  String.trim (Ecma_sl.Io.read_file file)
+  String.trim (EslCore.Io.read_file file)
 
 let es5_config () = search_file Location.interpreters "es5.include"
 let es6_config () = search_file Location.interpreters "es6.include"

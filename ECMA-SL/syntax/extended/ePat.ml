@@ -1,3 +1,4 @@
+open EslCore
 open Source
 
 type pv = pv' Source.phrase

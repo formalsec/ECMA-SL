@@ -1,3 +1,5 @@
+open EslCore
+
 type internal =
   | Default
   | Custom of string

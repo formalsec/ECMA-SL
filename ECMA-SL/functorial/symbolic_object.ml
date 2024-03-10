@@ -1,3 +1,4 @@
+open EslCore
 module V = Symbolic_value.M
 
 let eq v1 v2 = V.BinOpt (Operator.Eq, v1, v2)
@@ -61,8 +62,7 @@ module M : Object_intf.S with type value = V.value = struct
 
   let set o ~key ~data =
     match key with
-    | V.Val _ ->
-      { o with fields = VMap.add key data o.fields }
+    | V.Val _ -> { o with fields = VMap.add key data o.fields }
     | _ ->
       { fields = map_ite o.fields ~key ~data
       ; symbols = map_ite o.symbols ~key ~data |> VMap.add key data

@@ -1,3 +1,4 @@
+open EslCore
 module ErrSrc = Eslerr_comp.ErrSrc
 module RtTrace = Eslerr_comp.RtTrace
 

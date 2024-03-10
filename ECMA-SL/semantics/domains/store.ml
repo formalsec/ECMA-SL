@@ -1,3 +1,5 @@
+open EslCore
+
 type var = string
 type 'a t = (var, 'a) Hashtbl.t
 
