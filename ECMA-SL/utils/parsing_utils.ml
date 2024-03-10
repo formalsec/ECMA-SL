@@ -1,3 +1,4 @@
+open EslCore
 open Lexing
 
 type 'a start = position -> 'a Parser.MenhirInterpreter.checkpoint

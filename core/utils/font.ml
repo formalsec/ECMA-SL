@@ -1,3 +1,7 @@
+module Config = struct
+  let colored = ref true
+end
+
 type t =
   | Normal
   | Bold
@@ -19,7 +23,7 @@ type t =
   | White
 
 let colored (fdesc : Unix.file_descr option) : bool =
-  match (!Config.Common.colored, fdesc) with
+  match (!Config.colored, fdesc) with
   | (false, _) -> false
   | (true, Some fdesc') when not Unix.(isatty fdesc') -> false
   | (true, _) -> true

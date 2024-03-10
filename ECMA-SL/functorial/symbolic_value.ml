@@ -1,3 +1,5 @@
+open EslCore
+
 module M = struct
   type value =
     | Val of Val.t

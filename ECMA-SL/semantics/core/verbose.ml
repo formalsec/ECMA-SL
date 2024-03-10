@@ -1,3 +1,5 @@
+open EslCore
+
 let log_stmt (s : Stmt.t) : bool =
   match s.it with Skip | Merge | Block _ -> false | _ -> true
 

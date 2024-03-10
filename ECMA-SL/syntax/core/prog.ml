@@ -1,3 +1,5 @@
+open EslCore
+
 type t = (Id.t', Func.t) Hashtbl.t
 
 let default () : t = Hashtbl.create !Config.default_hashtbl_sz

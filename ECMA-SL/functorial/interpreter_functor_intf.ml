@@ -1,3 +1,5 @@
+open EslCore
+
 module type P = sig
   type value
   type env

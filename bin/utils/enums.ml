@@ -1,4 +1,4 @@
-open Ecma_sl
+open EslCore
 
 module DebugLvl = struct
   type t =

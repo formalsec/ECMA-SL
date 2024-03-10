@@ -1,3 +1,8 @@
+module Config = struct
+  let warns = ref true
+  let debugs = ref false
+end
+
 open Fmt
 
 let make_log ?(header : bool = true) ?(font : Font.t list = [ Font.Normal ])
@@ -20,6 +25,6 @@ let elog ?(test = true) ?(header = true) ?(font = [ Font.Normal ]) fmt =
   conditional_log test (make_log ~header ~font Unix.stderr) fmt
 
 let err fmt = kasprintf failwith fmt
-let warn fmt = elog ~test:!Config.Common.warns ~font:[ Font.Yellow ] fmt
-let debug fmt = elog ~test:!Config.Common.debugs ~font:[ Font.Cyan ] fmt
+let warn fmt = elog ~test:!Config.warns ~font:[ Font.Yellow ] fmt
+let debug fmt = elog ~test:!Config.debugs ~font:[ Font.Cyan ] fmt
 let app fmt = log ~header:false fmt

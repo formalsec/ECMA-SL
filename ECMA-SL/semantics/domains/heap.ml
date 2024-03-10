@@ -1,3 +1,5 @@
+open EslCore
+
 type 'a obj = 'a Object.t
 
 type 'a t =

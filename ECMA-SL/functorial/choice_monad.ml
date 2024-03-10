@@ -1,3 +1,4 @@
+open EslCore
 module Value = Symbolic_value.M
 module Memory = Symbolic_memory
 module Translator = Value_translator
@@ -34,9 +35,7 @@ module Thread = struct
   let optimizer t = t.optimizer
 
   let add_pc t (v : Encoding.Expr.t) =
-    match v.node.e with
-    | Val True -> t
-    | _ -> { t with pc = PC.add v t.pc }
+    match v.node.e with Val True -> t | _ -> { t with pc = PC.add v t.pc }
 
   let clone { solver; optimizer; pc; mem } =
     let mem = Memory.clone mem in

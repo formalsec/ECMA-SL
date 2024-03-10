@@ -1,5 +1,5 @@
 open Bos
-open Ecma_sl
+open EslCore
 open Syntax.Result
 module String = Astring.String
 

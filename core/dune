@@ -1,0 +1,9 @@
+(include_subdirs unqualified)
+
+(library
+ (public_name ecma-sl.core)
+ (name eslCore)
+ (modules io log fmt font syntax utils)
+ (libraries unix str)
+ (instrumentation
+  (backend bisect_ppx)))

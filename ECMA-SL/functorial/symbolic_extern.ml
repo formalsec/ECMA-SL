@@ -1,3 +1,4 @@
+open EslCore
 module Env = Symbolic.P.Env
 module SMap = Link_env.SMap
 module PC = Choice_monad.PC

@@ -18,7 +18,7 @@
       right = position_to_pos endpos;
     }
 
-  let fresh_lambda_id_gen = Utils.make_name_generator "__lambda__"
+  let fresh_lambda_id_gen = EslCore.Utils.make_name_generator "__lambda__"
 %}
 
 (* ========== Typed tokens ========== *)

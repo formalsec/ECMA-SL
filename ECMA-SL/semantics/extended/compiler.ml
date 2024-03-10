@@ -1,3 +1,4 @@
+open EslCore
 open Source
 open Operator
 
@@ -11,7 +12,7 @@ let ( ?@ ) (e : Expr.t) : Id.t =
 
 module Const = struct
   let original_main = "main"
-  let esl_globals_loc = "$loc_1"
+  let esl_globals_loc = "$loc_0"
   let esl_globals_obj = "___internal_esl_global"
 end
 

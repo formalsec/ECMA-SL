@@ -1,3 +1,4 @@
+open EslCore
 module Value = Symbolic_value.M
 (* TODO: this is to remove when we mirgate to the encoding values *)
 

@@ -1,3 +1,5 @@
+open EslCore
+
 module ErrSrc = struct
   open Source
 

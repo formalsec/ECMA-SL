@@ -1,3 +1,5 @@
+open EslCore
+
 module Make (P : Interpreter_functor_intf.P) :
   Interpreter_functor_intf.S
     with type env := P.env

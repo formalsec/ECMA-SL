@@ -1,3 +1,5 @@
+open EslCore
+
 module type T = sig
   type value
   type store

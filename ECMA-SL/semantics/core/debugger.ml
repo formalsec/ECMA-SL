@@ -1,3 +1,5 @@
+open EslCore
+
 type value = Val.t
 type obj = value Object.t
 type store = value Store.t

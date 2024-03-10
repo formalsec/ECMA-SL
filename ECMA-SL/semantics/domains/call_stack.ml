@@ -1,3 +1,4 @@
+open EslCore
 open Source
 
 type location =
@@ -5,7 +6,7 @@ type location =
   ; mutable stmt : Stmt.t
   }
 
-let location (location: location): (Func.t * Stmt.t) =
+let location (location : location) : Func.t * Stmt.t =
   (location.func, location.stmt)
 
 type 'store restore =

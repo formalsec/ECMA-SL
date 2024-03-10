@@ -1,3 +1,5 @@
+open EslCore
+
 type t =
   | Null
   | Void

@@ -1,3 +1,4 @@
+open EslCore
 module V = Symbolic_value.M
 
 module Make (O : Object_intf.S with type value = V.value) = struct
@@ -95,8 +96,7 @@ module Make (O : Object_intf.S with type value = V.value) = struct
     | Val (Val.Loc l) -> Ok [ (None, l) ]
     | TriOpt (Operator.ITE, c, Val (Val.Loc l), v) ->
       Ok ((Some c, l) :: unfold_ite ~accum:(UnOpt (Operator.LogicalNot, c)) v)
-    | _ ->
-      Error (Fmt.asprintf "Value '%a' is not a loc expression" V.pp e)
+    | _ -> Error (Fmt.asprintf "Value '%a' is not a loc expression" V.pp e)
 
   let pp_val (h : t) (e : value) : string =
     match e with

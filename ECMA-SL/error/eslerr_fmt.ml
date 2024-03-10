@@ -1,3 +1,5 @@
+open EslCore
+
 module Msgs (ErrType : Eslerr_type.ERR_TYPE) = struct
   let pp_cause (fmt : Fmt.t) (msg : ErrType.t) : unit =
     Fmt.fprintf fmt "\n%a %a"

@@ -1,3 +1,5 @@
+open EslCore
+
 type const =
   | MAX_VALUE
   | MIN_VALUE

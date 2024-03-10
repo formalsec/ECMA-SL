@@ -1,3 +1,4 @@
+open EslCore
 open Source
 
 type metadata_t =
