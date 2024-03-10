@@ -8,12 +8,6 @@
   config
   js2ecmasl
   ;  utils
-  io
-  log
-  fmt
-  font
-  syntax
-  utils
   arith_utils
   byte_utils
   date_utils
@@ -116,6 +110,6 @@
   value_typing)
  (preprocess
   (staged_pps ppx_import ppx_deriving.std))
- (libraries bos menhirLib str encoding)
+ (libraries eslCore bos menhirLib encoding)
  (instrumentation
   (backend bisect_ppx)))

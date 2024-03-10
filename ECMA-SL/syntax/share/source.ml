@@ -1,3 +1,5 @@
+open EslCore
+
 type pos =
   { line : int
   ; column : int

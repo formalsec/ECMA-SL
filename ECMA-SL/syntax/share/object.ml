@@ -1,3 +1,5 @@
+open EslCore
+
 type 'a t = (string, 'a) Hashtbl.t
 
 let create () : 'a t = Hashtbl.create !Config.default_hashtbl_sz
