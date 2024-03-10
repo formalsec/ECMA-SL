@@ -18,10 +18,7 @@
   byte_utils
   date_utils
   parsing_utils
-  parsing_heap_utils
-  parsing_number_utils
   string_utils
-  time_utils
   ;   syntax (share)
   id
   val
@@ -119,6 +116,6 @@
   value_typing)
  (preprocess
   (staged_pps ppx_import ppx_deriving.std))
- (libraries str encoding menhirLib yojson z3 bos bos.setup dune-site)
+ (libraries bos menhirLib str encoding)
  (instrumentation
   (backend bisect_ppx)))
