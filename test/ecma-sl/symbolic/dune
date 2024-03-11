@@ -1,7 +1,7 @@
 (library
  (name ecmasl_symbolic_tests)
- (modules )
+ (modules)
  (inline_tests)
  (preprocess
   (pps ppx_inline_test))
- (libraries ecma-sl))
+ (libraries ecma_sl))

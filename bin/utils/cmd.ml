@@ -1,5 +1,5 @@
 open EslCore
-open Ecma_sl
+open EslSemantics
 
 type error =
   | Failure
@@ -31,7 +31,6 @@ let runtime_err (err : Runtime_error.t) : int =
   error_code RuntimeError
 
 let eval_cmd (cmd : unit -> unit) : int =
-  let open Ecma_sl in
   try cmd () |> fun () -> 0 with
   | Internal_error.Error err -> internal_err err
   | Compile_error.Error err -> compile_err err
