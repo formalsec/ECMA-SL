@@ -78,7 +78,7 @@ struct
     (pc : value2 list) : bool =
     let eq0 = mk_eq k1 k2 in
     let eq = Reducer.reduce eq0 |> Translator.translate in
-    Solver.check solver (eq :: pc)
+    `Sat = Solver.check solver (eq :: pc)
 
   let get_possible_fields_concrete (o : t) (key : value) (solver : Solver.t)
     (pc : value2 list) : (value * value) list =
@@ -145,7 +145,7 @@ struct
         (* update current object with the condition of not
            being equal to any of the existing fields *)
         let new_pc = create_not_pct lst key in
-        if Solver.check solver (new_pc @ pc) then (
+        if `Sat = Solver.check solver (new_pc @ pc) then (
           let o' = clone o in
           Hashtbl.replace o'.concrete_fields s data;
           (o', new_pc) :: rets )
@@ -180,7 +180,7 @@ struct
         in
         let new_pc = create_not_pct (concrete_conds @ symbolic_conds) key in
         let check = Solver.check solver (new_pc @ pc) in
-        if check then
+        if `Sat = check then
           let o' = clone o in
           let _ = Hashtbl.replace o'.symbolic_fields key data in
           (o', new_pc) :: rets
@@ -214,7 +214,7 @@ struct
           in
           (* Does not match any symbolic value, create new pct *)
           let new_pc = create_not_pct l key in
-          if Solver.check solver (new_pc @ pc) then
+          if `Sat = Solver.check solver (new_pc @ pc) then
             let o' = clone o in
             (o', new_pc, None) :: obj_list
           else obj_list )
@@ -248,7 +248,7 @@ struct
         (* Does not match any symbolic value, create new pct *)
         let new_pc = create_not_pct cond_list key in
         let rets =
-          if Solver.check solver (new_pc @ pc) then
+          if `Sat = Solver.check solver (new_pc @ pc) then
             let o' = clone o in
             (o', new_pc, None) :: rets
           else rets
@@ -277,7 +277,7 @@ struct
         (* update current object with the condition of not
            being equal to any of the existing fields *)
         let new_pc = create_not_pct lst key in
-        if Solver.check solver (new_pc @ pc) then
+        if `Sat = Solver.check solver (new_pc @ pc) then
           let o' = clone o in
           (o', new_pc) :: rets
         else rets
@@ -316,7 +316,7 @@ struct
         in
         (* Does not match any symbolic value, create new pct *)
         let new_pc = create_not_pct (symbolic_list @ concrete_list) key in
-        if Solver.check solver (new_pc @ pc) then
+        if `Sat = Solver.check solver (new_pc @ pc) then
           let o' = clone o in
           (o', new_pc) :: rets
         else rets )

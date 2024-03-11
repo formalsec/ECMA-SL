@@ -1,6 +1,6 @@
 Test eval explode :
   $ ecma-sl explode-js test_sink_eval.js
-        abort : (`source : __$Str)
+         eval : (`source : __$Str)
   Found 1 problems!
     replaying : test_sink_eval.js...
       running : ecma-out/test-suite/witness-0.js
@@ -8,7 +8,7 @@ Test eval explode :
 
 Test exec explode:
   $ ecma-sl explode-js test_sink_exec.js
-        abort : s_concat(["git fetch ", (`remote : __$Str)])
+         exec : s_concat(["git fetch ", (`remote : __$Str)])
   Found 1 problems!
     replaying : test_sink_exec.js...
       running : ecma-out/test-suite/witness-0.js

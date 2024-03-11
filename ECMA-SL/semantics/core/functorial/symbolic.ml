@@ -51,12 +51,14 @@ module P = struct
         let solver = Thread.solver thread in
         match pc with
         | [] -> Some (Some v, thread)
-        | _ ->
+        | _ -> (
           let pc' = List.map Translator.translate pc in
           let pc' = PC.(union pc_thread (of_list pc')) in
           if PC.equal pc' pc_thread then Some (Some v, thread)
-          else if not (Solver.check solver (PC.elements pc')) then None
-          else Some (Some v, { thread with pc = pc' })
+          else
+            match Solver.check solver (PC.elements pc') with
+            | `Sat -> Some (Some v, { thread with pc = pc' })
+            | `Unsat | `Unknown -> None )
       in
       match vals with
       | [] -> fun thread -> [ (None, thread) ]
@@ -94,12 +96,14 @@ module P = struct
         let solver = Thread.solver thread in
         match pc with
         | [] -> Some (Some v, thread)
-        | _ ->
+        | _ -> (
           let pc' = List.map Translator.translate pc in
           let pc' = PC.(union pc_thread (of_list pc')) in
           if PC.equal pc' pc_thread then Some (Some v, thread)
-          else if not (Solver.check solver (PC.elements pc')) then None
-          else Some (Some v, { thread with pc = pc' })
+          else
+            match Solver.check solver (PC.elements pc') with
+            | `Sat -> Some (Some v, { thread with pc = pc' })
+            | `Unsat | `Unknown -> None )
       in
       match field_vals with
       | [] -> fun thread -> [ (None, thread) ]
@@ -124,12 +128,14 @@ module P = struct
         let solver = Thread.solver thread in
         match cond with
         | None -> Some (v, thread)
-        | Some c ->
+        | Some c -> (
           let c' = Translator.translate c in
           let pc = PC.add c' pc in
           if PC.equal pc (Thread.pc thread) then Some (v, thread)
-          else if not (Solver.check solver (PC.elements pc)) then None
-          else Some (v, { thread with pc })
+          else
+            match Solver.check solver (PC.elements pc) with
+            | `Sat -> Some (v, { thread with pc })
+            | `Unsat | `Unknown -> None )
       in
       match locs with
       | [] ->

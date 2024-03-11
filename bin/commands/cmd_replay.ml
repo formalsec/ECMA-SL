@@ -36,17 +36,17 @@ let execute_witness ~env (test : Fpath.t) (witness : Fpath.t) =
   Log.app "    running : %s" @@ Fpath.to_string witness;
   let cmd = node test witness in
   let* (out, status) = Cmd.(run_out ~env ~err:err_run_out cmd |> out_string) in
-  match status with
-  | (_, `Exited 0) ->
-    Ok
-      (List.find_opt
-         (fun effect ->
-           match effect with
-           | Stdout sub -> String.find_sub ~sub out |> Option.is_some
-           | File file -> Sys.file_exists file )
-         observable_effects )
+  ( match status with
+  | (_, `Exited 0) -> ()
   | (_, `Exited _) | (_, `Signaled _) ->
-    Error (`Msg (Fmt.sprintf "unexpected node failure: %s" out))
+    Fmt.printf "unexpected node failure: %s" out );
+  Ok
+    (List.find_opt
+       (fun effect ->
+         match effect with
+         | Stdout sub -> String.find_sub ~sub out |> Option.is_some
+         | File file -> Sys.file_exists file )
+       observable_effects )
 
 let replay filename testsuite =
   Log.app "  replaying : %a..." Fpath.pp filename;

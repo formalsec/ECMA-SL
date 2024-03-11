@@ -24,7 +24,8 @@ module Thread = struct
     }
 
   let create () =
-    { solver = Solver.create ()
+    { solver =
+        Solver.create ~params:Encoding.Params.(default () $ (Timeout, 60000)) ()
     ; pc = PC.empty
     ; mem = Memory.create ()
     ; optimizer = Optimizer.create ()
@@ -36,7 +37,9 @@ module Thread = struct
   let optimizer t = t.optimizer
 
   let add_pc t (v : Encoding.Expr.t) =
-    match v.node.e with Val True -> t | _ -> { t with pc = PC.add v t.pc }
+    match Encoding.Expr.view v with
+    | Val True -> t
+    | _ -> { t with pc = PC.add v t.pc }
 
   let clone { solver; optimizer; pc; mem } =
     let mem = Memory.clone mem in
@@ -69,9 +72,15 @@ module List = struct
       let pc = Thread.pc t in
       match v with
       | Val (Val.Bool b) -> [ (b, t) ]
-      | _ ->
+      | _ -> (
         let cond = Translator.translate v in
-        [ (Solver.check solver PC.(add cond pc |> elements), t) ]
+        let pc = PC.(add cond pc |> elements) in
+        match Solver.check solver pc with
+        | `Sat -> [ (true, t) ]
+        | `Unsat -> [ (false, t) ]
+        | `Unknown ->
+          Format.eprintf "Unknown pc: %a@." Encoding.Expr.pp_list pc;
+          [] )
 
   let check_add_true (v : Value.value) : bool t =
     let open Value in
@@ -80,11 +89,15 @@ module List = struct
       let pc = Thread.pc t in
       match v with
       | Val (Val.Bool b) -> [ (b, t) ]
-      | _ ->
+      | _ -> (
         let cond' = Translator.translate v in
-        if Solver.check solver PC.(add cond' pc |> elements) then
-          [ (true, Thread.add_pc t cond') ]
-        else [ (false, t) ]
+        let pc = PC.(add cond' pc |> elements) in
+        match Solver.check solver pc with
+        | `Sat -> [ (true, Thread.add_pc t cond') ]
+        | `Unsat -> [ (false, t) ]
+        | `Unknown ->
+          Format.eprintf "Unknown pc: %a@." Encoding.Expr.pp_list pc;
+          [] )
 
   let branch (v : Value.value) : bool t =
     let open Value in
@@ -98,11 +111,11 @@ module List = struct
         let with_no = PC.add (Translator.translate @@ Value.Bool.not_ v) pc in
         let sat_true =
           if PC.equal with_v pc then true
-          else Solver.check solver (PC.elements with_v)
+          else `Sat = Solver.check solver (PC.elements with_v)
         in
         let sat_false =
           if PC.equal with_no pc then true
-          else Solver.check solver (PC.to_list with_no)
+          else `Sat = Solver.check solver (PC.to_list with_no)
         in
         match (sat_true, sat_false) with
         | (false, false) -> []

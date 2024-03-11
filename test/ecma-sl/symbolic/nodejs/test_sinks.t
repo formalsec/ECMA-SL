@@ -1,6 +1,6 @@
 Test Function:
   $ ecma-sl symbolic test_sink_Function.js
-        abort : (`body : __$Str)
+         eval : (`body : __$Str)
   Found 1 problems!
 
 Test argv:
@@ -10,12 +10,12 @@ Test argv:
 
 Test eval:
   $ ecma-sl symbolic test_sink_eval.js
-        abort : (`source : __$Str)
+         eval : (`source : __$Str)
   Found 1 problems!
 
 Test exec:
   $ ecma-sl symbolic test_sink_exec.js
-        abort : s_concat(["git fetch ", (`remote : __$Str)])
+         exec : s_concat(["git fetch ", (`remote : __$Str)])
   Found 1 problems!
 
 Test fs:

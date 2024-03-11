@@ -35,6 +35,9 @@ function __NodeRequire(globalObject, this, newTarget, strict, params) {
     case "gray-matter": {
       return createCrossSpawnObject(globalObject, objectPrototype, strict)
     }
+    case "execa": {
+      return createExecaObject(globalObject, objectPrototype, strict)
+    }
     sdefault: { return newLazyObject() }
   }
 }

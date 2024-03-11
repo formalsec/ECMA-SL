@@ -96,6 +96,7 @@ let type_of_unop (op : Operator.unopt) (ty : Type.t) : Type.t option =
   | Operator.TupleLen -> type_of_len Type.TupleType ty
   | Operator.IntToFloat -> on_int ~return:Type.FltType ty
   | Operator.IntToString -> on_int ~return:Type.StrType ty
+  | Operator.FloatToInt -> on_float ~return:Type.IntType ty
   | Operator.FloatToString -> on_float ~return:Type.StrType ty
   | Operator.StringToFloat -> Some Type.FltType
   | Operator.ToUint32 -> Some Type.FltType
@@ -115,6 +116,7 @@ let type_of_unop (op : Operator.unopt) (ty : Type.t) : Type.t option =
   | Operator.Trim -> Some Type.StrType
   | Operator.ListLen -> Some Type.IntType
   | Operator.ListSort -> Some Type.ListType
+  | Operator.ToCharCodeU -> Some Type.StrType
   | _ ->
     Log.err
       "Typing Error: [type_of_unop] -> unsuported typing for unary operation %a"

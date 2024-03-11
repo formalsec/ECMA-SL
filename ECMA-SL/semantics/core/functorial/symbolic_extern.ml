@@ -59,27 +59,34 @@ module Make () = struct
       let/ b = Choice.check e in
       Choice.return (Ok (Val (Val.Bool b)))
     in
-    let is_exec_sat (e : value) =
+    let exec (e : value) thread =
       (* TODO: more fine-grained exploit analysis *)
-      let i = Value.int_symbol_s (fresh_i ()) in
-      let len = Value.Val (Int 18) in
-      let sub = TriOpt (Operator.StringSubstr, e, i, len) in
-      let query =
-        BinOpt (Operator.Eq, sub, Val (Val.Str "A; touch success #"))
-      in
-      let/ b = Choice.check_add_true query in
-      Choice.return (Ok (Val (Val.Bool b)))
+      if not @@ Value.is_symbolic e then
+        [ (Ok (Val (Val.Symbol "undefined")), thread) ]
+      else
+        let open Encoding.Expr in
+        let v = Translator.translate e in
+        let query =
+          binop Ty_str Seq_contains v (make (Val (Str "A; touch success #")))
+        in
+        let e' = Format.asprintf "%a" Value.pp e in
+        Log.log ~header:false "       exec : %s" e';
+        [ (Error (`Abort e'), Thread.add_pc thread query) ]
     in
-    let is_eval_sat (e : value) =
+    let eval (e : value) thread =
       (* TODO: more fine-grained exploit analysis *)
-      let i = Value.int_symbol_s (fresh_i ()) in
-      let len = Value.Val (Int 25) in
-      let sub = TriOpt (Operator.StringSubstr, e, i, len) in
-      let query =
-        BinOpt (Operator.Eq, sub, Val (Val.Str ";console.log('success')//"))
-      in
-      let/ b = Choice.check_add_true query in
-      Choice.return (Ok (Val (Val.Bool b)))
+      if not @@ Value.is_symbolic e then
+        [ (Ok (Val (Val.Symbol "undefined")), thread) ]
+      else
+        let open Encoding.Expr in
+        let v = Translator.translate e in
+        let query =
+          binop Ty_str Seq_contains v
+            (make (Val (Str ";console.log('success')//")))
+        in
+        let e' = Format.asprintf "%a" Value.pp e in
+        Log.log ~header:false "       eval : %s" e';
+        [ (Error (`Abort e'), Thread.add_pc thread query) ]
     in
     let abort (e : value) =
       let e' = Format.asprintf "%a" Value.pp e in
@@ -94,9 +101,9 @@ module Make () = struct
       let e' = Translator.translate e in
       let pc = Thread.pc thread |> PC.to_list in
       let solver = Thread.solver thread in
-      assert (Solver.check solver (e' :: pc));
+      assert (`Sat = Solver.check solver (e' :: pc));
       let v = Solver.get_value solver e' in
-      [ (Ok (Translator.expr_of_value v.node.e), thread) ]
+      [ (Ok (Translator.expr_of_value (Encoding.Expr.view v)), thread) ]
     in
     let optimize target opt e pc =
       Optimizer.push opt;
@@ -150,6 +157,36 @@ module Make () = struct
       Fmt.printf "extern print: %a@." Value.pp v;
       Choice.return (Ok (Value.Val (Val.Symbol "undefined")))
     in
+    let str_replace (s : Value.value) (t : Value.value) (t' : Value.value)
+      thread =
+      let open Encoding.Expr in
+      let x = fresh_x () in
+      let sym = Encoding.Symbol.(x @: Ty_str) in
+      let s = Translator.translate s in
+      let t = Translator.translate t in
+      let t' = Translator.translate t' in
+      let replace_str = triop Ty_str Seq_replace s t t' in
+      let cond = relop Ty_bool Eq (mk_symbol sym) replace_str in
+      [ (Ok (Symbolic (Type.StrType, Val (Str x))), Thread.add_pc thread cond) ]
+    in
+    let str_indexOf (s : Value.value) (t : Value.value) (_i : Value.value)
+      thread =
+      let open Encoding.Expr in
+      let index0 = fresh_x () in
+      let index1 = fresh_x () in
+      let sym0 = mk_symbol Encoding.Symbol.(index0 @: Ty_int) in
+      let sym1 = mk_symbol Encoding.Symbol.(index1 @: Ty_real) in
+      let s = Translator.translate s in
+      let t = Translator.translate t in
+      (* let i = Translator.translate i in *)
+      let i = make (Val (Int 0)) in
+      let indexOf = triop Ty_str Seq_index s t i in
+      let cond0 = relop Ty_bool Eq sym0 indexOf in
+      let cond1 = relop Ty_bool Eq sym0 (cvtop Ty_int Reinterpret_float sym1) in
+      [ ( Ok (Symbolic (Type.FltType, Val (Str index1)))
+        , Thread.add_pc (Thread.add_pc thread cond0) cond1 )
+      ]
+    in
     SMap.of_seq
       (Array.to_seq
          [| ("str_symbol", Extern_func (Func (Arg Res), str_symbol))
@@ -159,8 +196,8 @@ module Make () = struct
           ; ("is_symbolic", Extern_func (Func (Arg Res), is_symbolic))
           ; ("is_number", Extern_func (Func (Arg Res), is_number))
           ; ("is_sat", Extern_func (Func (Arg Res), is_sat))
-          ; ("is_exec_sat", Extern_func (Func (Arg Res), is_exec_sat))
-          ; ("is_eval_sat", Extern_func (Func (Arg Res), is_eval_sat))
+          ; ("exec", Extern_func (Func (Arg Res), exec))
+          ; ("eval", Extern_func (Func (Arg Res), eval))
           ; ("abort", Extern_func (Func (Arg Res), abort))
           ; ("assume", Extern_func (Func (Arg Res), assume))
           ; ("evaluate", Extern_func (Func (Arg Res), evaluate))
@@ -168,6 +205,10 @@ module Make () = struct
           ; ("minimize", Extern_func (Func (Arg Res), minimize))
           ; ("parseJS", Extern_func (Func (Arg Res), parseJS))
           ; ("value", Extern_func (Func (Arg Res), print))
+          ; ( "str_replace"
+            , Extern_func (Func (Arg (Arg (Arg Res))), str_replace) )
+          ; ( "str_indexOf"
+            , Extern_func (Func (Arg (Arg (Arg Res))), str_indexOf) )
          |] )
 end
 

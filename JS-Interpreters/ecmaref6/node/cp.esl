@@ -1,29 +1,21 @@
-function exploit_if_symbolic(x) {
-  if (extern is_symbolic(x)) {
-   extern is_exec_sat(x);
-   extern abort(x)
-  };
-  return 0
+function exec_wrapper(x) {
+  return extern exec(x)
 }
 
 function __cp_exec(globalObject, this, newTarget, strict, params) {
-  exploit_if_symbolic(l_nth(params, 0));
-  return null
+  return exec_wrapper(l_nth(params, 0))
 }
 
 function __cp_execSync(globalObject, this, newTarget, strict, params) {
-  exploit_if_symbolic(l_nth(params, 0));
-  return null
+  return exec_wrapper(l_nth(params, 0))
 }
 
 function __cp_execFile(globalObject, this, newTarget, strict, params) {
-  exploit_if_symbolic(s_concat(params));
-  return null
+  return exec_wrapper(s_concat(params))
 }
 
 function __cp_spawn(globalObject, this, newTarget, strict, params) {
-  exploit_if_symbolic(l_nth(params, 0));
-  return null
+  return exec_wrapper(l_nth(params, 0))
 }
 
 function createCPObject(globalObject, objectPrototype, strict) {

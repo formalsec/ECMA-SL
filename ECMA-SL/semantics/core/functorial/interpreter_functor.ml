@@ -53,9 +53,9 @@ module Make (P : Interpreter_functor_intf.P) :
       | None -> Return (Ok (Option.to_list value))
       | Some (state', ret_v) ->
         let v =
-          Option.value
-            ~default:Value.(mk_tuple (Bool.const false, mk_symbol "undefined"))
-            value
+          match value with
+          | None -> Value.(mk_tuple (Bool.const false, mk_symbol "undefined"))
+          | Some v -> v
         in
         let locals = Store.add_exn state'.locals ret_v v in
         Continue { state' with locals; env = state.env }
@@ -66,21 +66,14 @@ module Make (P : Interpreter_functor_intf.P) :
     (* Reduce is only used on Sym_value.M.value *)
     Value.eval_expr sto e |> Reducer.reduce
 
-  let pp locals heap e =
-    (* TODO: Print function in sym_value *)
-    (* let s = *)
-    (*   match e' with *)
-    (*   | Expr.Val (Val.Loc l) -> *)
-    (*     let heap = Env.get_memory env in *)
-    (*     let o = Memory.get heap l in *)
-    (*     Object.str (Option.value_exn o) Expr.str *)
-    (*   | _ -> Expr.str e' *)
-    (* in *)
-    (* Printf.printf "print:%s\npc:%s\nheap id:%d\n" s (Encoding.Expression.string_of_pc pc) (Memory.get_id heap); *)
-    eval_expr locals e |> Memory.pp_val heap
+  let pp locals heap e = eval_expr locals e |> Memory.pp_val heap
+
+  (* Somehow using the functions in Log seems to considerably slowdown exec *)
+  let debug1 fmt a = if !Log.Config.debugs then Fmt.eprintf fmt a
+  let debug2 fmt a b = if !Log.Config.debugs then Fmt.eprintf fmt a b
 
   let exec_func state func args ret_var =
-    Log.debug "calling func: %s@." (Func.name' func);
+    debug1 "calling func: %s@." (Func.name' func);
     let return_state = Some (state, ret_var) in
     let params = Func.params' func in
     let store = Store.create (List.combine params args) in
@@ -119,14 +112,14 @@ module Make (P : Interpreter_functor_intf.P) :
       let locals = Store.add_exn state.State.locals ret_var v in
       State.Continue State.{ state with locals }
 
-  let exec_stmt stmt (state : State.exec_state) : State.stmt_result Choice.t =
+  let exec_stmt stmt ({ locals; env; _ } as state : State.exec_state) :
+    State.stmt_result Choice.t =
     let open State in
-    let { locals; env; _ } = state in
     let ok st = Choice.return @@ State.Continue st in
     let error err = Choice.return @@ State.Return (Error err) in
     let* m = Env.get_memory env in
-    Log.debug "      store : %a@." Value.Store.pp locals;
-    Log.debug "running stmt: %a@." Stmt.pp_simple stmt;
+    debug2 "      store : %a@." Value.Store.pp locals;
+    debug2 "running stmt: %a@." Stmt.pp_simple stmt;
     match stmt.it with
     | Stmt.Skip -> ok state
     | Stmt.Merge -> ok state
