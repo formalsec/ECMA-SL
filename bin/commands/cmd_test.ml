@@ -37,7 +37,7 @@ module Test = struct
       \              ECMA-SL Test\n\
        ----------------------------------------"
 
-  let log (out_channels : out_channels) (input : Fpath.t) (font : Font.t list)
+  let log (out_channels : out_channels) (input : Fpath.t) (font : Font.t)
     (header : string) : unit =
     restore_out_channels out_channels;
     Fmt.printf "%a %a@." (Font.pp_text_out font) header
@@ -45,7 +45,7 @@ module Test = struct
       input
 
   let sucessful (out_channels : out_channels) (input : Fpath.t) : unit =
-    log out_channels input [ Font.Green ] "Test Successful:"
+    log out_channels input [ Green ] "Test Successful:"
 
   let failure (out_channels : out_channels) (input : Fpath.t) : unit =
     log out_channels input [ Red ] "Test Failure:"
@@ -70,7 +70,7 @@ let run_single (setup : Prog.t * Val.t Heap.t option) (input : Fpath.t)
   ignore Enums.Lang.(resolve_file_lang [ JS ] input);
   let out_channels = Test.hide_out_channels () in
   try test_input out_channels setup input with
-  | Eslerr.Runtime_error { msgs = UncaughtExn _ :: []; _ } ->
+  | Runtime_error.Error { msgs = UncaughtExn _ :: []; _ } ->
     Test.ecmaref_fail out_channels input
   | _ -> Test.internal_fail out_channels input
 

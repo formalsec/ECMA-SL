@@ -2,7 +2,9 @@ module Config = struct
   let colored = ref true
 end
 
-type t =
+type t = t' list
+
+and t' =
   | Normal
   | Bold
   | Faint
@@ -32,7 +34,7 @@ let clean (text : string) : string =
   let escape_regex = Str.regexp "\027\\[[0-9;]*m" in
   Str.global_replace escape_regex "" text
 
-let pp_code (fmt : Fmt.t) (font_el : t) : unit =
+let pp_code (fmt : Fmt.t) (font_el : t') : unit =
   let open Fmt in
   match font_el with
   | Normal -> pp_str fmt "0"
@@ -54,29 +56,28 @@ let pp_code (fmt : Fmt.t) (font_el : t) : unit =
   | Cyan -> pp_str fmt "36"
   | White -> pp_str fmt "37"
 
-let pp_font (fmt : Fmt.t) (font : t list) : unit =
+let pp_font (fmt : Fmt.t) (font : t) : unit =
   Fmt.(fprintf fmt "\027[%am" (pp_lst ";" pp_code) font)
 
 let pp_font_safe ?(fdesc : Unix.file_descr option = None) (fmt : Fmt.t)
-  (font : t list) : unit =
+  (font : t) : unit =
   if colored fdesc then pp_font fmt font else ()
 
-let pp ?(fdesc : Unix.file_descr option = None) (font : t list)
+let pp ?(fdesc : Unix.file_descr option = None) (font : t)
   (pp_el : Fmt.t -> 'a -> unit) (fmt : Fmt.t) (el : 'a) : unit =
   let open Fmt in
   if not (colored fdesc) then fprintf fmt "%a" pp_el el
   else fprintf fmt "%a%a%a" pp_font font pp_el el pp_font [ Normal ]
 
-let str ?(fdesc : Unix.file_descr option = None) (font : t list)
+let str ?(fdesc : Unix.file_descr option = None) (font : t)
   (pp_el : Fmt.t -> 'a -> unit) (el : 'a) : string =
   Fmt.asprintf "%a" (pp ~fdesc font pp_el) el
 
-let pp_text ?(fdesc : Unix.file_descr option = None) (font : t list)
-  (fmt : Fmt.t) (s : string) =
+let pp_text ?(fdesc : Unix.file_descr option = None) (font : t) (fmt : Fmt.t)
+  (s : string) =
   pp ~fdesc font Fmt.pp_print_string fmt s
 
-let str_text ?(fdesc : Unix.file_descr option = None) (font : t list)
-  (s : string) =
+let str_text ?(fdesc : Unix.file_descr option = None) (font : t) (s : string) =
   Fmt.asprintf "%a" (pp_text ~fdesc font) s
 
 let pp_out font pp_el fmt el = pp ~fdesc:(Some Unix.stdout) font pp_el fmt el

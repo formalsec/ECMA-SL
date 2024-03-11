@@ -5,7 +5,7 @@ end
 
 open Fmt
 
-let make_log ?(header : bool = true) ?(font : Font.t list = [ Font.Normal ])
+let make_log ?(header : bool = true) ?(font : Font.t = [ Font.Normal ])
   (fdesc : Unix.file_descr) (fmt : ('a, t, unit, unit) format4) : 'a =
   let reset = [ Font.Normal ] in
   let pp_font = Font.pp_font_safe ~fdesc:(Some fdesc) in

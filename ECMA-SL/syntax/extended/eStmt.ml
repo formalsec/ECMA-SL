@@ -52,7 +52,8 @@ let rec pp (fmt : Fmt.t) (s : t) : unit =
   | FieldAssign (oe, fe, e) ->
     fprintf fmt "%a[%a] := %a" EExpr.pp oe EExpr.pp fe EExpr.pp e
   | FieldDelete (oe, fe) -> fprintf fmt "delete %a[%a]" EExpr.pp oe EExpr.pp fe
-  | If ([], _) -> Eslerr.(internal __FUNCTION__ (Expecting "non-empty if cases"))
+  | If ([], _) ->
+    Internal_error.(throw __FUNCTION__ (Expecting "non-empty if cases"))
   | If (ifcs :: elifcss, elsecs) ->
     let pp_if fmt (e, s, _) = fprintf fmt "if (%a) %a" EExpr.pp e pp s in
     let pp_elif fmt (e, s, _) = fprintf fmt " elif (%a) %a" EExpr.pp e pp s in
@@ -94,7 +95,8 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = EExpr.Mapper.id) (mapper : t -> t)
   let id_mapper (x : Id.t) =
     match (emapper (EExpr.Var x.it @> no_region)).it with
     | EExpr.Var y -> y @> x.at
-    | _ -> Eslerr.(internal __FUNCTION__ (Expecting "var expression in LHS"))
+    | _ ->
+      Internal_error.(throw __FUNCTION__ (Expecting "var expression in LHS"))
   in
   mapper'
   @@

@@ -41,10 +41,11 @@
   eParser
   eParsing_helper
   ;   error
-  Eslerr
-  Eslerr_type
-  Eslerr_comp
-  Eslerr_fmt
+  Error_source
+  Error_trace
+  Compile_error
+  Typing_error
+  Runtime_error
   ;   semantics (domains)
   store
   heap
