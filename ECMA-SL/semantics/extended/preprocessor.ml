@@ -1,9 +1,10 @@
+open Compile_error
+
 module Imports = struct
   let load_dependency (file : Id.t) (path : string) : EProg.t =
     let open Parsing_utils in
     try load_file ~file:file.it path |> parse_eprog ~file:file.it path
-    with Not_found ->
-      Eslerr.(compile ~src:(ErrSrc.at file) (UnknownDependency file))
+    with Not_found -> throw ~src:(ErrSrc.at file) (UnknownDependency file)
 
   let relativize (file : Id.t') (imports : Id.t list) : Id.t list =
     let open Source in
@@ -22,7 +23,7 @@ module Imports = struct
       if Hashtbl.mem resolved import.it then
         import_resolver workspace p resolved ((source, imports') :: unresolved')
       else if List.exists (fun (path, _) -> path = import.it) unresolved then
-        Eslerr.(compile ~src:(ErrSrc.at import) (CyclicDependency import))
+        throw ~src:(ErrSrc.at import) (CyclicDependency import)
       else
         let open EParsing_helper.Prog in
         let dependency_path = Filename.concat workspace import.it in
@@ -48,14 +49,14 @@ module Macros = struct
     match s.it with
     | EStmt.MacroApply (mn, es) -> (
       match Hashtbl.find_opt (EProg.macros p) mn.it with
-      | None -> Eslerr.(compile ~src:(ErrSrc.at mn) (UnknownMacro mn))
+      | None -> throw ~src:(ErrSrc.at mn) (UnknownMacro mn)
       | Some m ->
         let pxs = EMacro.params' m in
         let subst =
           try List.combine pxs es |> List.to_seq |> Hashtbl.of_seq
           with _ ->
             let (npxs, nargs) = (List.length pxs, List.length es) in
-            Eslerr.(compile ~src:(ErrSrc.at s) (BadNArgs (npxs, nargs)))
+            throw ~src:(ErrSrc.at s) (BadNArgs (npxs, nargs))
         in
         EStmt.map ~emapper:(EExpr.Mapper.var subst) EStmt.Mapper.id
           (EMacro.body m) )

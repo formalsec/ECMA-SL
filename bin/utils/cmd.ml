@@ -9,15 +9,6 @@ type error =
 
 exception Command_error of error
 
-let code_of_exn (exn : exn) : error =
-  let open Ecma_sl in
-  match exn with
-  | Command_error err -> err
-  | Eslerr.Internal_error _ -> Failure
-  | Eslerr.Compile_error _ -> CompileError
-  | Eslerr.Runtime_error _ -> RuntimeError
-  | _ -> Failure
-
 let error_code (error : error) : int =
   match error with
   | Failure -> 1
@@ -25,20 +16,24 @@ let error_code (error : error) : int =
   | CompileError -> 3
   | RuntimeError -> 4
 
-let esl_internal_err (exn : exn) : int =
+let internal_err (err : Internal_error.t) : int =
   flush_all ();
-  Log.elog "%a" Eslerr.pp exn;
+  Log.elog "%a" Internal_error.pp err;
   Printexc.print_backtrace stderr;
-  code_of_exn exn |> error_code
+  error_code Failure
 
-let esl_default_err (exn : exn) : int =
-  Log.elog ~header:false "%a" Eslerr.pp exn;
-  code_of_exn exn |> error_code
+let compile_err (err : Compile_error.t) : int =
+  Log.elog ~header:false "%a" Compile_error.pp err;
+  error_code CompileError
+
+let runtime_err (err : Runtime_error.t) : int =
+  Log.elog ~header:false "%a" Runtime_error.pp err;
+  error_code RuntimeError
 
 let eval_cmd (cmd : unit -> unit) : int =
   let open Ecma_sl in
   try cmd () |> fun () -> 0 with
-  | Eslerr.Internal_error _ as exn -> esl_internal_err exn
-  | Eslerr.Compile_error _ as exn -> esl_default_err exn
-  | Eslerr.Runtime_error _ as exn -> esl_default_err exn
+  | Internal_error.Error err -> internal_err err
+  | Compile_error.Error err -> compile_err err
+  | Runtime_error.Error err -> runtime_err err
   | Command_error err -> error_code err

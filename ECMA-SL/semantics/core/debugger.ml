@@ -223,7 +223,7 @@ module Enable : M = struct
       inject_debug_outerscope stack |> fun stack' -> (Normal, stack', s :: cont)
     | (Continue, _) -> (Normal, stack, s :: cont)
     | (Exit, _) -> (Final, stack, s :: cont)
-    | _ -> Eslerr.(internal __FUNCTION__ (Expecting "termination cmd"))
+    | _ -> Internal_error.(throw __FUNCTION__ (Expecting "termination cmd"))
 
   let initialize () : t = Initial
 

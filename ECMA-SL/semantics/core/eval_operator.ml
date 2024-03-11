@@ -1,10 +1,11 @@
+open EslCore
 open Operator
-open Val
 
-let op_err (src_arg_i : int) (op_lbl : string) (rterr : Eslerr.rterr) : 'a =
-  try Eslerr.(runtime ~src:(Index src_arg_i) rterr)
-  with Eslerr.Runtime_error _ as exn ->
-    Eslerr.push_rt (OpEvalErr op_lbl) exn |> raise
+let op_err (src_arg_i : int) (op_lbl : string) (rterr : Runtime_error.msg) : 'a
+    =
+  try Runtime_error.(throw ~src:(Index src_arg_i) rterr)
+  with Runtime_error.Error _ as exn ->
+    Runtime_error.push (OpEvalErr op_lbl) exn |> raise
 
 let unexpected_err (src_arg_i : int) (op_lbl : string) (msg : string) : 'a =
   op_err src_arg_i op_lbl (Unexpected msg)
@@ -28,7 +29,7 @@ let typeof (v : Val.t) : Val.t =
   | List _ -> Type Type.ListType
   | Tuple _ -> Type Type.TupleType
   | Type _ -> Type Type.TypeType
-  | Byte _ -> Eslerr.internal __FUNCTION__ (NotImplemented (Some "byte"))
+  | Byte _ -> Internal_error.(throw __FUNCTION__ (NotImplemented (Some "byte")))
   | Curry _ -> Type Type.CurryType
 
 let neg (v : Val.t) : Val.t =
@@ -189,7 +190,7 @@ let string_len_u (v : Val.t) : Val.t =
   | Str s -> Int (String_utils.s_len_u s)
   | _ -> bad_arg_err 1 op_lbl "string" [ v ]
 
-let string_concat_aux (lst : t list) : string list option =
+let string_concat_aux (lst : Val.t list) : string list option =
   let concat_f acc v =
     match (acc, v) with
     | (Some strs, Val.Str s) -> Some (strs @ [ s ])
@@ -282,6 +283,7 @@ let tuple_len (v : Val.t) : Val.t =
   | _ -> bad_arg_err 1 op_lbl "tuple" [ v ]
 
 let unpack_bytes_aux (op_lbl : string) (v : Val.t) : int array =
+  let open Val in
   let unpack_bt_f = function Int i -> i | Byte bt -> bt | _ -> raise Exit in
   try
     match v with
@@ -654,22 +656,26 @@ let eq ((v1, v2) : Val.t * Val.t) : Val.t =
   | (Arr arr1, Arr arr2) -> Bool (arr1 == arr2)
   | _ -> Bool (v1 = v2)
 
-let lt = function
+let lt ((v1, v2) : Val.t * Val.t) : Val.t =
+  match (v1, v2) with
   | (Flt f, Int i) -> Bool (f < float i)
   | (Int i, Flt f) -> Bool (float i < f)
   | (v1, v2) -> Bool (v1 < v2)
 
-let gt = function
+let gt ((v1, v2) : Val.t * Val.t) : Val.t =
+  match (v1, v2) with
   | (Flt f, Int i) -> Bool (f > float i)
   | (Int i, Flt f) -> Bool (float i > f)
   | (v1, v2) -> Bool (v1 > v2)
 
-let le = function
+let le ((v1, v2) : Val.t * Val.t) : Val.t =
+  match (v1, v2) with
   | (Flt f, Int i) -> Bool (f <= float i)
   | (Int i, Flt f) -> Bool (float i <= f)
   | (v1, v2) -> Bool (v1 <= v2)
 
-let ge = function
+let ge ((v1, v2) : Val.t * Val.t) : Val.t =
+  match (v1, v2) with
   | (Flt f, Int i) -> Bool (f >= float i)
   | (Int i, Flt f) -> Bool (float i >= f)
   | (v1, v2) -> Bool (v1 >= v2)
@@ -1013,9 +1019,9 @@ let eval_unopt (op : unopt) (v : Val.t) : Val.t =
   | StringLenU -> string_len_u v
   | StringConcat -> string_concat v
   | ObjectToList ->
-    Eslerr.internal __FUNCTION__ (UnexpectedEval (Some "ObjectToList"))
+    Internal_error.(throw __FUNCTION__ (UnexpectedEval (Some "ObjectToList")))
   | ObjectFields ->
-    Eslerr.internal __FUNCTION__ (UnexpectedEval (Some "ObjectFields"))
+    Internal_error.(throw __FUNCTION__ (UnexpectedEval (Some "ObjectFields")))
   | ArrayLen -> array_len v
   | ListToArray -> list_to_array v
   | ListHead -> list_head v
@@ -1078,9 +1084,9 @@ let eval_binopt (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | LogicalAnd -> logical_and (v1, v2)
   | LogicalOr -> logical_or (v1, v2)
   | SCLogicalAnd ->
-    Eslerr.internal __FUNCTION__ (UnexpectedEval (Some "SCLogicalAnd"))
+    Internal_error.(throw __FUNCTION__ (UnexpectedEval (Some "SCLogicalAnd")))
   | SCLogicalOr ->
-    Eslerr.internal __FUNCTION__ (UnexpectedEval (Some "SCLogicalOr"))
+    Internal_error.(throw __FUNCTION__ (UnexpectedEval (Some "SCLogicalOr")))
   | Eq -> eq (v1, v2)
   | Lt -> lt (v1, v2)
   | Gt -> gt (v1, v2)
@@ -1089,7 +1095,8 @@ let eval_binopt (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | ToPrecision -> to_precision (v1, v2)
   | ToExponential -> to_exponential (v1, v2)
   | ToFixed -> to_fixed (v1, v2)
-  | ObjectMem -> Eslerr.internal __FUNCTION__ (UnexpectedEval (Some "ObjectMem"))
+  | ObjectMem ->
+    Internal_error.(throw __FUNCTION__ (UnexpectedEval (Some "ObjectMem")))
   | StringNth -> string_nth (v1, v2)
   | StringNthU -> string_nth_u (v1, v2)
   | StringSplit -> string_split (v1, v2)

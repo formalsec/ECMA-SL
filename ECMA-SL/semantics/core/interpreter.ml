@@ -28,17 +28,17 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
 
   let get_var (store : store) (x : string) (at : region) : value =
     match Store.get_opt store x with
-    | None -> Eslerr.(runtime ~src:(ErrSrc.region at) (UnknownVar x))
+    | None -> Runtime_error.(throw ~src:(ErrSrc.region at) (UnknownVar x))
     | Some v -> v
 
   let get_loc (heap : heap) (l : string) : obj =
     match Heap.get_opt heap l with
-    | None -> Eslerr.(internal __FUNCTION__ (Expecting "existing location"))
+    | None -> Internal_error.(throw __FUNCTION__ (Expecting "existing location"))
     | Some obj -> obj
 
   let get_func (prog : Prog.t) (fn : string) (at : region) : Func.t =
     match Prog.func_opt prog fn with
-    | None -> Eslerr.(runtime ~src:(ErrSrc.region at) (UnknownFunc fn))
+    | None -> Runtime_error.(throw ~src:(ErrSrc.region at) (UnknownFunc fn))
     | Some f -> f
 
   let set_global_var (store : store) (heap : heap) : unit =
@@ -56,9 +56,9 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
 
   let operate (eval_op_fun : unit -> value) (es : Expr.t list) : value =
     try eval_op_fun ()
-    with Eslerr.Runtime_error _ as exn ->
-      let e = Eslerr.(src exn |> index_to_el es) in
-      Eslerr.(set_src (ErrSrc.at e) exn |> raise)
+    with Runtime_error.Error _ as exn ->
+      let e = Runtime_error.(src exn |> ErrSrc.index_to_el es) in
+      Runtime_error.(set_src (ErrSrc.at e) exn |> raise)
 
   let print_val (heap : heap) (v : value) : unit =
     let open Fmt in
@@ -95,13 +95,14 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
       let vs = List.map (eval_expr store) es in
       match fv with
       | Str fn -> Val.Curry (fn, vs)
-      | _ -> Eslerr.(runtime ~src:(ErrSrc.at fe) (BadExpr ("curry", fv))) )
+      | _ -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadExpr ("curry", fv))) )
     | Symbolic (t, _) -> (
       Random.self_init ();
       match t with
       | Type.IntType -> Val.Int (Random.int 128)
       | Type.FltType -> Val.Flt (Random.float 128.0)
-      | _ -> Eslerr.internal __FUNCTION__ (NotImplemented (Some "symbolic")) )
+      | _ ->
+        Internal_error.(throw __FUNCTION__ (NotImplemented (Some "symbolic"))) )
 
   and eval_expr (store : store) (e : Expr.t) : value =
     let v = eval_expr' store e in
@@ -111,17 +112,17 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
   let eval_string (store : store) (e : Expr.t) : string =
     match eval_expr store e with
     | Str s -> s
-    | _ as v -> Eslerr.(runtime ~src:(ErrSrc.at e) (BadVal ("string", v)))
+    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("string", v)))
 
   let eval_boolean (store : store) (e : Expr.t) : bool =
     match eval_expr store e with
     | Bool b -> b
-    | _ as v -> Eslerr.(runtime ~src:(ErrSrc.at e) (BadVal ("boolean", v)))
+    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("boolean", v)))
 
   let eval_location (store : store) (e : Expr.t) : string =
     match eval_expr store e with
     | Loc l -> l
-    | _ as v -> Eslerr.(runtime ~src:(ErrSrc.at e) (BadVal ("location", v)))
+    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("location", v)))
 
   let eval_object (store : store) (heap : heap) (e : Expr.t) : string * obj =
     let l = eval_location store e in
@@ -132,14 +133,14 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     match eval_expr store fe with
     | Val.Str fn -> (fn, [])
     | Val.Curry (fn, fvs) -> (fn, fvs)
-    | _ as v -> Eslerr.(runtime ~src:(ErrSrc.at fe) (BadFuncId v))
+    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadFuncId v))
 
   let prepare_store_binds (pxs : string list) (vs : Val.t list) (at : region) :
     (string * Val.t) list =
     try List.combine pxs vs
     with _ ->
       let (xpxs, nargs) = (List.length pxs, List.length vs) in
-      Eslerr.(runtime ~src:(ErrSrc.region at) (BadNArgs (xpxs, nargs)))
+      Runtime_error.(throw ~src:(ErrSrc.region at) (BadNArgs (xpxs, nargs)))
 
   let prepare_call (stack : stack) (f : Func.t) (store : store)
     (cont : Stmt.t list) (x : string) (vs : value list) (at : region) :
@@ -250,8 +251,10 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
         let cont' = ss @ ((Stmt.Merge @> s2'.at) :: cont) in
         (Intermediate (state, cont'), lbl (IfEval false))
       | (false, _, Skip) -> (Intermediate (state, cont), lbl (IfEval false))
-      | (true, _, _) -> Eslerr.internal __FUNCTION__ (Expecting "if block")
-      | (false, _, _) -> Eslerr.internal __FUNCTION__ (Expecting "else block") )
+      | (true, _, _) ->
+        Internal_error.(throw __FUNCTION__ (Expecting "if block"))
+      | (false, _, _) ->
+        Internal_error.(throw __FUNCTION__ (Expecting "else block")) )
     | While (e, s') ->
       let loop = Stmt.If (e, Stmt.Block [ s'; s ] @> s'.at, None) @> s.at in
       (Intermediate (state, loop :: cont), lbl WhileEval)
@@ -261,8 +264,10 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
       | (Some { it = Block ss; at }, _) | (None, Some { it = Block ss; at }) ->
         let cont' = ss @ ((Stmt.Merge @> at) :: cont) in
         (Intermediate (state, cont'), lbl (SwitchEval v))
-      | (Some _, _) -> Eslerr.internal __FUNCTION__ (Expecting "switch block")
-      | (None, Some _) -> Eslerr.internal __FUNCTION__ (Expecting "sdflt block")
+      | (Some _, _) ->
+        Internal_error.(throw __FUNCTION__ (Expecting "switch block"))
+      | (None, Some _) ->
+        Internal_error.(throw __FUNCTION__ (Expecting "sdflt block"))
       | (None, None) -> (Intermediate (state, cont), lbl (SwitchEval v)) )
     | Fail e ->
       let v = eval_expr store e in
@@ -277,10 +282,9 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
   let eval_small_step_safe (prog : Prog.t) (state : state) (s : Stmt.t)
     (cont : Stmt.t list) : return * Mon.sl_label =
     try eval_small_step prog state s cont
-    with Eslerr.Runtime_error _ as exn ->
+    with Runtime_error.Error _ as exn ->
       let (_, _, stack, _) = state in
-      let trace_pp fmt () = Call_stack.pp_tabular fmt stack in
-      Eslerr.(set_trace trace_pp exn |> raise)
+      Runtime_error.(set_trace stack exn |> raise)
 
   let rec small_step_iter (prog : Prog.t) (state : state) (mon : Mon.state)
     (ss : Stmt.t list) : return =
@@ -288,7 +292,7 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     | [] ->
       let (_, _, stack, _) = state in
       let fn = Func.name (Call_stack.func stack) in
-      Eslerr.(runtime ~src:(ErrSrc.at fn) (MissingReturn fn))
+      Runtime_error.(throw ~src:(ErrSrc.at fn) (MissingReturn fn))
     | s :: cont -> (
       let (return, lbl) = eval_small_step_safe prog state s cont in
       let mon' = Mon.eval_small_step mon lbl |> Mon.next_state in
@@ -301,8 +305,8 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     match retval with
     | Val.Tuple [ Val.Bool false; retval' ] -> retval'
     | Val.Tuple [ Val.Bool true; err ] ->
-      Eslerr.(runtime (UncaughtExn (Val.str err)))
-    | _ -> Eslerr.runtime (UnexpectedExitVal retval)
+      Runtime_error.(throw (UncaughtExn (Val.str err)))
+    | _ -> Runtime_error.(throw (UnexpectedExitVal retval))
 
   let eval_partial (config : Config.t) (prog : Prog.t) : value * heap =
     let f = get_func prog config.main no_region in
@@ -313,8 +317,9 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     match return with
     | Final retval when config.resolve_exitval -> (resolve_exitval retval, heap)
     | Final retval -> (retval, heap)
-    | Error err -> Eslerr.(runtime (Failure (Val.str err)))
-    | _ -> Eslerr.internal __FUNCTION__ (Expecting "non-intermediate state")
+    | Error err -> Runtime_error.(throw (Failure (Val.str err)))
+    | _ ->
+      Internal_error.(throw __FUNCTION__ (Expecting "non-intermediate state"))
 
   let eval_prog ?(config : Config.t = Config.default) (prog : Prog.t) : value =
     fst (eval_partial config prog)

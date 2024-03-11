@@ -29,7 +29,7 @@ let create (func : Func.t) : 'store t =
 
 let loc (stack : 'store t) : Func.t * Stmt.t =
   match stack with
-  | [] -> Eslerr.(internal __FUNCTION__ (Expecting "non-empty call stack"))
+  | [] -> Internal_error.(throw __FUNCTION__ (Expecting "non-empty call stack"))
   | Toplevel loc :: _ | Intermediate (loc, _) :: _ -> (loc.func, loc.stmt)
 
 let func (stack : 'store t) : Func.t = fst (loc stack)
@@ -37,7 +37,7 @@ let stmt (stack : 'store t) : Stmt.t = snd (loc stack)
 
 let pop (stack : 'store t) : 'store frame * 'store t =
   match stack with
-  | [] -> Eslerr.(internal __FUNCTION__ (Expecting "non-empty call stack"))
+  | [] -> Internal_error.(throw __FUNCTION__ (Expecting "non-empty call stack"))
   | frame :: stack' -> (frame, stack')
 
 let push (stack : 'store t) (func : Func.t) (store : 'store)
@@ -47,7 +47,7 @@ let push (stack : 'store t) (func : Func.t) (store : 'store)
 
 let update (stack : 'store t) (stmt : Stmt.t) : unit =
   match stack with
-  | [] -> Eslerr.(internal __FUNCTION__ (Expecting "non-empty call stack"))
+  | [] -> Internal_error.(throw __FUNCTION__ (Expecting "non-empty call stack"))
   | Toplevel loc :: _ | Intermediate (loc, _) :: _ -> loc.stmt <- stmt
 
 let pp_loc (fmt : Fmt.t) (region : region) : unit =

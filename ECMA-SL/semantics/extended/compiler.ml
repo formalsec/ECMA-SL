@@ -8,7 +8,7 @@ type c_stmt = Stmt.t list
 let ( ?@ ) (e : Expr.t) : Id.t =
   match e.it with
   | Var x -> { it = x; at = e.at }
-  | _ -> Eslerr.(internal __FUNCTION__ (Expecting "var expression"))
+  | _ -> Internal_error.(throw __FUNCTION__ (Expecting "var expression"))
 
 module Const = struct
   let original_main = "main"
@@ -101,14 +101,14 @@ module MatchWithOptimizer = struct
     let rec case_replace scase = function
       | { it = Stmt.Block ss; at } ->
         { it = Stmt.Block (case_replace_ss scase ss); at }
-      | _ -> Eslerr.(internal __FUNCTION__ (Expecting "if statement"))
+      | _ -> Internal_error.(throw __FUNCTION__ (Expecting "if statement"))
     and case_replace_ss scase = function
       | { it = Stmt.If (e, s, None); at } :: [] ->
         [ { it = Stmt.If (e, s, Some scase); at } ]
       | { it = Stmt.If (e, s, Some sif); _ } :: [] ->
         [ { it = Stmt.If (e, s, Some (case_replace scase sif)); at } ]
       | s :: ss' -> s :: case_replace_ss scase ss'
-      | _ -> Eslerr.(internal __FUNCTION__ (Expecting "if statement"))
+      | _ -> Internal_error.(throw __FUNCTION__ (Expecting "if statement"))
     in
     let set_case hashed_css v scase =
       match Hashtbl.find_opt hashed_css v with
@@ -301,7 +301,7 @@ let rec compile_stmt (s : EStmt.t) : c_stmt =
   | MatchWith (e, dsc, css) -> compile_matchwith s.at e dsc css
   | Lambda (x, lid, _, ctxvars, _) -> compile_lambdacall s.at x lid ctxvars
   | MacroApply (_, _) ->
-    Eslerr.(internal __FUNCTION__ (UnexpectedEval (Some "MacroApply")))
+    Internal_error.(throw __FUNCTION__ (UnexpectedEval (Some "MacroApply")))
   | Throw e -> compile_throw s.at e
   | Fail e -> compile_fail s.at e
   | Assert e -> compile_assert s.at e
@@ -309,7 +309,7 @@ let rec compile_stmt (s : EStmt.t) : c_stmt =
 
 and compile_debug (at : region) (s : EStmt.t) : c_stmt =
   match compile_stmt s with
-  | [] -> Eslerr.(internal __FUNCTION__ (Expecting "non-empty statement list"))
+  | [] -> Internal_error.(throw __FUNCTION__ (Expecting "non-empty stmt list"))
   | s1_s :: ss_s -> (Stmt.Debug s1_s @> at) :: ss_s
 
 and compile_print (at : region) (e : EExpr.t) : c_stmt =

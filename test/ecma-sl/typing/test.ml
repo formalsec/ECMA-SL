@@ -42,15 +42,13 @@ module Log = struct
 end
 
 module Syntax = struct
-  module Err = Eslerr_type.Compile
+  module Err = Compile_error.CompileErr
 
-  type err = Eslerr.comperr
-
-  let test (syntax : string) (expected : (t, err list) Result.t) : bool =
+  let test (syntax : string) (expected : (t, Err.t list) Result.t) : bool =
     let err_str msgs = List.map Err.str msgs |> String.concat " ; " in
     let result =
       try Ok (Parsing_utils.parse_etype syntax) with
-      | Eslerr.Compile_error err -> Error err.msgs
+      | Compile_error.Error err -> Error err.msgs
       | exn -> raise exn
     in
     match (expected, result) with
@@ -64,16 +62,14 @@ module Syntax = struct
 end
 
 module TypeCheck = struct
-  module Err = Eslerr_type.Typing
-
-  type err = Eslerr.tperr
+  module Err = Typing_error.TypingErr
 
   let test (congruency : bool) ((tref, tsrc) : EType.t * EType.t)
-    (expected : (unit, err list) Result.t) : bool =
+    (expected : (unit, Err.t list) Result.t) : bool =
     let err_str msgs = List.map Err.str msgs |> String.concat "\n\t  " in
     let result =
       try Ok (TSubtyping.type_check ~congruency tref tsrc) with
-      | Eslerr.Typing_error err -> Error err.msgs
+      | Typing_error.Error err -> Error err.msgs
       | exn -> raise exn
     in
     match (expected, result) with
@@ -85,10 +81,10 @@ module TypeCheck = struct
     | (Error msgs1, Ok ()) -> Log.expected (err_str msgs1) "success"
 
   let test_congruency ((tref, tsrc) : EType.t * EType.t)
-    (expected : (unit, err list) Result.t) : bool =
+    (expected : (unit, Err.t list) Result.t) : bool =
     test true (tref, tsrc) expected
 
   let test_subtyping ((tref, tsrc) : EType.t * EType.t)
-    (expected : (unit, err list) Result.t) : bool =
+    (expected : (unit, Err.t list) Result.t) : bool =
     test false (tref, tsrc) expected
 end
