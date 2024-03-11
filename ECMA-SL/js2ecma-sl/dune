@@ -1,0 +1,9 @@
+(include_subdirs unqualified)
+
+(library
+ (public_name ecma-sl.js2ecmasl)
+ (name eslJSParser)
+ (modules api)
+ (libraries bos)
+ (instrumentation
+  (backend bisect_ppx)))

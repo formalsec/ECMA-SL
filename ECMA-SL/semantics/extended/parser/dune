@@ -1,0 +1,13 @@
+(ocamllex
+ (modules eLexer))
+
+(menhir
+ (modules op_parser eParser)
+ (merge_into eParser)
+ (flags --table --explain))
+
+(rule
+ (targets op_parser.mly)
+ (deps ../../core/parser/op_parser.mly)
+ (action
+  (copy %{deps} %{targets})))

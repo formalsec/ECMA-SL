@@ -1,7 +1,7 @@
 open Bos
-open Ecma_sl
 open EslCore
-open Syntax.Result
+open EslCore.Syntax.Result
+open EslSemantics
 module PC = Choice_monad.PC
 module Env = Symbolic.P.Env
 module Value = Symbolic.P.Value
@@ -31,15 +31,15 @@ let dispatch_file_ext on_plus on_core on_js (file : Fpath.t) =
 let prog_of_plus file =
   let (file, path) = (Fpath.filename file, Fpath.to_string file) in
   Ok
-    ( Parsing_utils.load_file ~file path
-    |> Parsing_utils.parse_eprog ~file path
+    ( EParsing.load_file ~file path
+    |> EParsing.parse_eprog ~file path
     |> Preprocessor.Imports.resolve_imports
     |> Preprocessor.Macros.apply_macros
     |> Compiler.compile_prog )
 
 let prog_of_core file =
   let file = Fpath.to_string file in
-  Ok (Parsing_utils.load_file file |> Parsing_utils.parse_prog ~file)
+  Ok (Parsing.load_file file |> Parsing.parse_prog ~file)
 
 let prog_of_js file =
   let js2ecma_sl file output =
@@ -51,7 +51,7 @@ let prog_of_js file =
   let* es6 = OS.File.read (Fpath.v (Option.get (Share.es6_interp ()))) in
   let program = String.concat ";\n" [ ast; es6 ] in
   let* () = OS.File.delete ast_file in
-  Ok (Parsing_utils.parse_prog program)
+  Ok (Parsing.parse_prog program)
 
 let link_env ~extern prog =
   let env0 = Env.Build.empty () |> Env.Build.add_functions prog in
@@ -80,7 +80,7 @@ let err_to_json = function
 
 let serialize_thread ~workspace =
   let module Term = Encoding.Expr in
-  let (next_int, _) = Utils.make_counter 0 1 in
+  let (next_int, _) = Base.make_counter 0 1 in
   fun ?(witness :
          [> `Abort of string | `Assert_failure of Extern_func.value ] option )
     thread ->

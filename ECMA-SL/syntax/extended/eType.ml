@@ -88,6 +88,10 @@ let rec equal (t1 : t) (t2 : t) : bool =
   | (UserDefinedType tvar1, UserDefinedType tvar2) -> tvar1 = tvar2
   | _ -> false
 
+let pp_tobjfld (fmt : Fmt.t) ((fn, ft, fs) : tobjfld) : unit =
+  let str_opt = function FldOpt -> "?" | _ -> "" in
+  Fmt.fprintf fmt "%a%s: %a" Id.pp fn (str_opt fs) pp ft
+
 let rec pp (fmt : Fmt.t) (t : t) : unit =
   let open Fmt in
   match t.it with
@@ -117,14 +121,10 @@ let rec pp (fmt : Fmt.t) (t : t) : unit =
     fprintf fmt "sigma [%a] | %a" Id.pp dsc (pp_lst " | " pp) ts
   | UserDefinedType tvar -> pp_str fmt tvar
 
-and pp_tobjfld (fmt : Fmt.t) ((fn, ft, fs) : tobjfld) : unit =
-  let str_opt = function FldOpt -> "?" | _ -> "" in
-  Fmt.fprintf fmt "%a%s: %a" Id.pp fn (str_opt fs) pp ft
-
-let pp_tannot (fmt : Fmt.t) (t : t option) =
-  Fmt.(fprintf fmt "%a" (pp_opt (fun fmt t -> fprintf fmt ": %a" pp t)) t)
-
 let str (t : t) : string = Fmt.asprintf "%a" pp t
+
+let tannot_pp (fmt : Fmt.t) (t : t option) =
+  Fmt.(fprintf fmt "%a" (pp_opt (fun fmt t -> fprintf fmt ": %a" pp t)) t)
 
 module TDef = struct
   type tval = t

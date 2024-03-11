@@ -1,10 +1,6 @@
 open EslCore
 open Source
-
-type metadata_t =
-  { where : string
-  ; html : string
-  }
+module Meta = EStmt_metadata
 
 type t = t' Source.phrase
 
@@ -19,10 +15,10 @@ and t' =
   | GAssign of Id.t * EExpr.t
   | FieldAssign of EExpr.t * EExpr.t * EExpr.t
   | FieldDelete of EExpr.t * EExpr.t
-  | If of (EExpr.t * t * metadata_t list) list * (t * metadata_t list) option
+  | If of (EExpr.t * t * Meta.t list) list * (t * Meta.t list) option
   | While of EExpr.t * t
-  | ForEach of Id.t * EExpr.t * t * metadata_t list * (string * string) option
-  | RepeatUntil of t * EExpr.t option * metadata_t list
+  | ForEach of Id.t * EExpr.t * t * Meta.t list * (string * string) option
+  | RepeatUntil of t * EExpr.t option * Meta.t list
   | Switch of EExpr.t * (EExpr.t * t) list * t option * string
   | MatchWith of EExpr.t * Id.t option * (EPat.t * t) list
   | Lambda of Id.t * string * Id.t list * Id.t list * t
@@ -30,7 +26,7 @@ and t' =
   | Throw of EExpr.t
   | Fail of EExpr.t
   | Assert of EExpr.t
-  | Wrapper of metadata_t list * t
+  | Wrapper of Meta.t list * t
 
 let default () : t = Skip @> no_region
 
@@ -47,7 +43,7 @@ let rec pp (fmt : Fmt.t) (s : t) : unit =
   | Return e -> fprintf fmt "return%a" pp_return e
   | ExprStmt e -> EExpr.pp fmt e
   | Assign (x, t, e) ->
-    fprintf fmt "%a%a := %a" Id.pp x EType.pp_tannot t EExpr.pp e
+    fprintf fmt "%a%a := %a" Id.pp x EType.tannot_pp t EExpr.pp e
   | GAssign (x, e) -> fprintf fmt "|%a| := %a" Id.pp x EExpr.pp e
   | FieldAssign (oe, fe, e) ->
     fprintf fmt "%a[%a] := %a" EExpr.pp oe EExpr.pp fe EExpr.pp e
@@ -95,8 +91,7 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = EExpr.Mapper.id) (mapper : t -> t)
   let id_mapper (x : Id.t) =
     match (emapper (EExpr.Var x.it @> no_region)).it with
     | EExpr.Var y -> y @> x.at
-    | _ ->
-      Internal_error.(throw __FUNCTION__ (Expecting "var expression in LHS"))
+    | _ -> Internal_error.(throw __FUNCTION__ (Expecting "var in LHS"))
   in
   mapper'
   @@

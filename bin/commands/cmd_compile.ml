@@ -1,5 +1,6 @@
 open EslCore
-open Ecma_sl
+open EslSyntax
+open EslSemantics
 
 type options =
   { input : Fpath.t
@@ -7,8 +8,7 @@ type options =
   ; untyped : bool
   }
 
-let type_check (prog : EProg.t) : EProg.t =
-  if !Config.Tesl.untyped then prog else prog
+let type_check (prog : EProg.t) : EProg.t = if true then prog else prog
 (* Uncomment once the type system is working properly *)
 (* else *)
 (* let terrs = T_Checker.type_program prog in *)
@@ -19,8 +19,8 @@ let type_check (prog : EProg.t) : EProg.t =
 
 let compile (input : Fpath.t) : Prog.t =
   let compile' file path =
-    Parsing_utils.load_file ~file path
-    |> Parsing_utils.parse_eprog ~file path
+    EParsing.load_file ~file path
+    |> EParsing.parse_eprog ~file path
     |> Preprocessor.Imports.resolve_imports
     |> Preprocessor.Macros.apply_macros
     |> type_check
@@ -40,5 +40,5 @@ let run (opts : options) : unit =
 
 let main (copts : Options.Common.t) (opts : options) : int =
   Options.Common.set copts;
-  Config.Tesl.untyped := opts.untyped;
+  (* Config.Tesl.untyped := opts.untyped; *)
   Cmd.eval_cmd (fun () -> run opts)

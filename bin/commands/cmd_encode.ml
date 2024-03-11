@@ -10,7 +10,7 @@ let encode (builder : string option) (input : Fpath.t) (output : Fpath.t option)
   : unit =
   let input' = Fpath.to_string input in
   let output' = Option.map Fpath.to_string output in
-  match Bos.OS.Cmd.run (Ecma_sl.Js2ecmasl.cmd input' output' builder) with
+  match Bos.OS.Cmd.run (EslJSParser.Api.cmd input' output' builder) with
   | Error _ -> raise (Cmd.Command_error Error)
   | Ok _ -> Log.debug "Sucessfuly encoded file '%a'." Fpath.pp input
 

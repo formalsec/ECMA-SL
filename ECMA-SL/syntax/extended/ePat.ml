@@ -1,5 +1,6 @@
 open EslCore
 open Source
+module Meta = EPat_metadata
 
 type pv = pv' Source.phrase
 
@@ -19,7 +20,7 @@ let pv_str (pv : pv) : string = Fmt.asprintf "%a" pv_pp pv
 type t = t' Source.phrase
 
 and t' =
-  | ObjPat of (Id.t * pv) list * EPat_metadata.t option
+  | ObjPat of (Id.t * pv) list * Meta.t option
   | DefaultPat
 
 let pp (fmt : Fmt.t) (pat : t) : unit =

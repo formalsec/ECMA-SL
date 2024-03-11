@@ -1,5 +1,6 @@
 open EslCore
-open Ecma_sl
+open EslSyntax
+open EslSemantics
 
 type options =
   { input : Fpath.t
@@ -16,12 +17,12 @@ let langs : Enums.Lang.t list = Enums.Lang.[ Auto; ESL; CESL; CESLUnattached ]
 
 module InterpreterConfig = struct
   let debugger () : (module Debugger.M) =
-    match !Config.Interpreter.debugger with
+    match !Interpreter.Config.debugger with
     | true -> (module Debugger.Enable : Debugger.M)
     | false -> (module Debugger.Disable : Debugger.M)
 
   let verbose () : (module Verbose.M) =
-    match !Config.Interpreter.verbose with
+    match !Interpreter.Config.verbose with
     | true -> (module Verbose.Enable : Verbose.M)
     | false -> (module Verbose.Disable : Verbose.M)
 
@@ -43,15 +44,15 @@ let interpret (config : Interpreter.Config.t) (prog : Prog.t) : Val.t =
 
 let interpret_cesl (config : Interpreter.Config.t) (input : Fpath.t) : Val.t =
   let input' = Fpath.to_string input in
-  Parsing_utils.load_file input'
-  |> Parsing_utils.parse_prog ~file:input'
+  Parsing.load_file input'
+  |> Parsing.parse_prog ~file:input'
   |> interpret config
 
 let interpret_esl (config : Interpreter.Config.t) (input : Fpath.t) : Val.t =
   Cmd_compile.compile input |> interpret config
 
 let process_exitval (show_exitval : bool) (exitval : Val.t) : unit =
-  if show_exitval then Log.app "» exit value: %a\n" Ecma_sl.Val.pp exitval
+  if show_exitval then Log.app "» exit value: %a\n" Val.pp exitval
 
 let run (opts : options) : unit =
   let valid_langs = Enums.Lang.valid_langs langs opts.lang in
@@ -66,8 +67,8 @@ let run (opts : options) : unit =
 
 let main (copts : Options.Common.t) (opts : options) : int =
   Options.Common.set copts;
-  Config.Interpreter.verbose := opts.verbose;
-  Config.Interpreter.verbose_at := opts.verbose_at;
-  Config.Interpreter.debugger := opts.debugger;
-  Config.Tesl.untyped := opts.untyped;
+  Interpreter.Config.verbose := opts.verbose;
+  Verbose.Config.verbose_at := opts.verbose_at;
+  Interpreter.Config.debugger := opts.debugger;
+  (* Config.Tesl.untyped := opts.untyped; *)
   Cmd.eval_cmd (fun () -> run opts)
