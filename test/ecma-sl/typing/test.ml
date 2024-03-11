@@ -1,5 +1,6 @@
-open Ecma_sl
-open EType
+open EslSyntax
+open EslSyntax.EType
+open EslSemantics
 
 let ( ~@ ) (x : 'a) : 'a Source.phrase = Source.(x @> no_region)
 let t_any : t = ~@AnyType
@@ -47,7 +48,7 @@ module Syntax = struct
   let test (syntax : string) (expected : (t, Err.t list) Result.t) : bool =
     let err_str msgs = List.map Err.str msgs |> String.concat " ; " in
     let result =
-      try Ok (Parsing_utils.parse_etype syntax) with
+      try Ok (EParsing.parse_etype syntax) with
       | Compile_error.Error err -> Error err.msgs
       | exn -> raise exn
     in

@@ -1,0 +1,85 @@
+(include_subdirs unqualified)
+
+(library
+ (public_name ecma-sl.semantics)
+ (name eslSemantics)
+ (modules
+  ; error
+  error_source
+  error_trace
+  compile_error
+  typing_error
+  runtime_error
+  ; core parsers
+  lexer
+  parser
+  parsing
+  parsing_helper
+  ; extended parsers
+  eLexer
+  eParser
+  eParsing
+  eParsing_helper
+  ; concrete interpreter
+  interpreter
+  eval_operator
+  external
+  monitor
+  ; concrete interpreter (domains)
+  store
+  heap
+  call_stack
+  ; concrete interpreter (tools)
+  verbose
+  debugger
+  ; concrete interpreter (monitors)
+  NSUMonitor
+  NSUException
+  NSUObject
+  NSUStore
+  NSUHeap
+  NSUCallStack
+  NSULabel
+  NSUTopLevel
+  NSULevel
+  NSULevel2
+  NSULevel_Dep
+  ; functorial interpreter
+  choice_monad_intf
+  choice_monad
+  extern_func
+  interpreter_functor_intf
+  interpreter_functor
+  link_env
+  memory_intf
+  object_intf
+  solver
+  symbolic_extern
+  symbolic_interpreter
+  symbolic_memory
+  symbolic_object
+  symbolic_value
+  symbolic
+  value_intf
+  value_reducer
+  value_translator
+  value_typing
+  ; functorial interpreter (domains)
+  symbolic_object2
+  symbolic_memory2
+  ; compiler
+  preprocessor
+  compiler
+  ; compiler (type system)
+  tSubtyping
+  ;  utils
+  arith_utils
+  byte_utils
+  date_utils
+  parsing_utils
+  string_utils)
+ (preprocess
+  (staged_pps ppx_import ppx_deriving.std))
+ (libraries eslCore eslSyntax eslJSParser menhirLib encoding)
+ (instrumentation
+  (backend bisect_ppx)))

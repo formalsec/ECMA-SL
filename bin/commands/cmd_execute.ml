@@ -1,5 +1,6 @@
 open EslCore
-open Ecma_sl
+open EslSyntax
+open EslSemantics
 
 type options =
   { input : Fpath.t
@@ -19,7 +20,7 @@ let compile_interp (ecmaref : Enums.ECMARef.t) : Prog.t =
   Cmd_compile.compile (Fpath.v interp_path)
 
 let parse_ast (file : string) : Func.t =
-  Parsing_utils.load_file file |> Parsing_utils.parse_func ~file
+  Parsing.load_file file |> Parsing.parse_func ~file
 
 let execute_partial (config : Interpreter.Config.t) (interp : Prog.t)
   (input : Fpath.t) : Val.t * Val.t Heap.t =
@@ -64,7 +65,7 @@ let run (opts : options) : unit =
 
 let main (copts : Options.Common.t) (opts : options) : int =
   Options.Common.set copts;
-  Config.Interpreter.verbose := opts.verbose;
-  Config.Interpreter.verbose_at := opts.verbose_at;
-  Config.Interpreter.debugger := opts.debugger;
+  Interpreter.Config.verbose := opts.verbose;
+  Verbose.Config.verbose_at := opts.verbose_at;
+  Interpreter.Config.debugger := opts.debugger;
   Cmd.eval_cmd (fun () -> run opts)

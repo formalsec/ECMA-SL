@@ -2,7 +2,7 @@ open EslCore
 
 type 'a t = (string, 'a) Hashtbl.t
 
-let create () : 'a t = Hashtbl.create !Config.default_hashtbl_sz
+let create () : 'a t = Hashtbl.create !Base.default_hashtbl_sz
 let clone (obj : 'a t) = Hashtbl.copy obj
 
 let fld_lst (obj : 'a t) : (string * 'a) list =

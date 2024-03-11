@@ -1,5 +1,6 @@
 open EslCore
-open Ecma_sl
+open EslSyntax
+open EslSemantics
 
 type options =
   { inputs : Fpath.t
@@ -81,7 +82,7 @@ let run (opts : options) : unit =
 
 let main (copts : Options.Common.t) (opts : options) : int =
   Options.Common.set copts;
-  Config.Interpreter.verbose := false;
-  Config.Interpreter.verbose_at := false;
-  Config.Interpreter.debugger := false;
+  Interpreter.Config.verbose := false;
+  Verbose.Config.verbose_at := false;
+  Interpreter.Config.debugger := false;
   Cmd.eval_cmd (fun () -> run opts)

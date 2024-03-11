@@ -14,9 +14,9 @@ let default () : t =
   { file = ""
   ; path = ""
   ; imports = []
-  ; tdefs = Hashtbl.create !Config.default_hashtbl_sz
-  ; funcs = Hashtbl.create !Config.default_hashtbl_sz
-  ; macros = Hashtbl.create !Config.default_hashtbl_sz
+  ; tdefs = Hashtbl.create !Base.default_hashtbl_sz
+  ; funcs = Hashtbl.create !Base.default_hashtbl_sz
+  ; macros = Hashtbl.create !Base.default_hashtbl_sz
   }
 
 let create (file : Id.t') (path : string) (imports : Id.t list)

@@ -38,7 +38,7 @@ module Code = struct
   type file = string list
   type t = (string, file) Hashtbl.t
 
-  let code : t = Hashtbl.create !Config.default_hashtbl_sz
+  let code : t = Hashtbl.create !Base.default_hashtbl_sz
 
   let load (file : string) (data : string) : unit =
     Hashtbl.replace code file (String.split_on_char '\n' data)
