@@ -86,16 +86,18 @@ let serialize_thread ~workspace =
     let pc = PC.to_list @@ Thread.pc thread in
     Log.debug "  path cond : %a@." Encoding.Expr.pp_list pc;
     let solver = Thread.solver thread in
-    assert (Solver.check solver pc);
-    let m = Solver.model solver in
-    let f =
-      Fmt.ksprintf
-        Fpath.(add_seg (workspace / "test-suite"))
-        (match witness with None -> "testcase-%d" | Some _ -> "witness-%d")
-        (next_int ())
-    in
-    let* () = OS.File.writef Fpath.(f + ".js") "%a" (Fmt.pp_opt pp_model) m in
-    OS.File.writef Fpath.(f + ".smtml") "%a" Term.pp_smt pc
+    match Solver.check solver pc with
+    | false -> Ok ()
+    | true ->
+      let m = Solver.model solver in
+      let f =
+        Fmt.ksprintf
+          Fpath.(add_seg (workspace / "test-suite"))
+          (match witness with None -> "testcase-%d" | Some _ -> "witness-%d")
+          (next_int ())
+      in
+      let* () = OS.File.writef Fpath.(f + ".js") "%a" (Fmt.pp_opt pp_model) m in
+      OS.File.writef Fpath.(f + ".smtml") "%a" Term.pp_smt pc
 
 let write_report ~workspace filename exec_time solver_time solver_count problems
     =

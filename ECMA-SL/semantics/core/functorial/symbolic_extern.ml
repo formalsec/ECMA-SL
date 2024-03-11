@@ -59,27 +59,31 @@ module Make () = struct
       let/ b = Choice.check e in
       Choice.return (Ok (Val (Val.Bool b)))
     in
-    let is_exec_sat (e : value) =
+    let exec (e : value) thread =
       (* TODO: more fine-grained exploit analysis *)
       let i = Value.int_symbol_s (fresh_i ()) in
       let len = Value.Val (Int 18) in
       let sub = TriOpt (Operator.StringSubstr, e, i, len) in
       let query =
-        BinOpt (Operator.Eq, sub, Val (Val.Str "A; touch success #"))
+        Translator.translate
+        @@ BinOpt (Operator.Eq, sub, Val (Val.Str "A; touch success #"))
       in
-      let/ b = Choice.check_add_true query in
-      Choice.return (Ok (Val (Val.Bool b)))
+      let e' = Format.asprintf "%a" Value.pp e in
+      Log.log ~header:false "       exec : %s" e';
+      [ (Error (`Abort e'), Thread.add_pc thread query) ]
     in
-    let is_eval_sat (e : value) =
+    let eval (e : value) thread =
       (* TODO: more fine-grained exploit analysis *)
       let i = Value.int_symbol_s (fresh_i ()) in
       let len = Value.Val (Int 25) in
       let sub = TriOpt (Operator.StringSubstr, e, i, len) in
       let query =
-        BinOpt (Operator.Eq, sub, Val (Val.Str ";console.log('success')//"))
+        Translator.translate
+        @@ BinOpt (Operator.Eq, sub, Val (Val.Str ";console.log('success')//"))
       in
-      let/ b = Choice.check_add_true query in
-      Choice.return (Ok (Val (Val.Bool b)))
+      let e' = Format.asprintf "%a" Value.pp e in
+      Log.log ~header:false "       eval : %s" e';
+      [ (Error (`Abort e'), Thread.add_pc thread query) ]
     in
     let abort (e : value) =
       let e' = Format.asprintf "%a" Value.pp e in
@@ -159,8 +163,8 @@ module Make () = struct
           ; ("is_symbolic", Extern_func (Func (Arg Res), is_symbolic))
           ; ("is_number", Extern_func (Func (Arg Res), is_number))
           ; ("is_sat", Extern_func (Func (Arg Res), is_sat))
-          ; ("is_exec_sat", Extern_func (Func (Arg Res), is_exec_sat))
-          ; ("is_eval_sat", Extern_func (Func (Arg Res), is_eval_sat))
+          ; ("exec", Extern_func (Func (Arg Res), exec))
+          ; ("eval", Extern_func (Func (Arg Res), eval))
           ; ("abort", Extern_func (Func (Arg Res), abort))
           ; ("assume", Extern_func (Func (Arg Res), assume))
           ; ("evaluate", Extern_func (Func (Arg Res), evaluate))

@@ -138,8 +138,7 @@ function FunctionConstructor(globalObject, this, NewTarget, strict, params) {
   };
 
   if (extern is_symbolic(body)) {
-    extern is_eval_sat(body);
-    extern abort(body)
+    extern eval(body)
   };
 
   /* 6. Let body be ToString(body). */
