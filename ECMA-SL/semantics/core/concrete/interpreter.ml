@@ -245,10 +245,10 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
       let s2' = Option.value ~default:(Stmt.Skip @> no_region) s2 in
       match (v, s1.it, s2'.it) with
       | (true, Block ss, _) ->
-        let cont' = ss @ ((Stmt.Merge @> s1.at) :: cont) in
+        let cont' = ss @ ((Stmt.Merge @?> s1.at) :: cont) in
         (Intermediate (state, cont'), lbl (IfEval true))
       | (false, _, Block ss) ->
-        let cont' = ss @ ((Stmt.Merge @> s2'.at) :: cont) in
+        let cont' = ss @ ((Stmt.Merge @?> s2'.at) :: cont) in
         (Intermediate (state, cont'), lbl (IfEval false))
       | (false, _, Skip) -> (Intermediate (state, cont), lbl (IfEval false))
       | (true, _, _) ->
@@ -256,13 +256,13 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
       | (false, _, _) ->
         Internal_error.(throw __FUNCTION__ (Expecting "else block")) )
     | While (e, s') ->
-      let loop = Stmt.If (e, Stmt.Block [ s'; s ] @> s'.at, None) @> s.at in
+      let loop = Stmt.If (e, Stmt.Block [ s'; s ] @?> s'.at, None) @?> s.at in
       (Intermediate (state, loop :: cont), lbl WhileEval)
     | Switch (e, css, dflt) -> (
       let v = eval_expr store e in
       match (Hashtbl.find_opt css v, dflt) with
       | (Some { it = Block ss; at }, _) | (None, Some { it = Block ss; at }) ->
-        let cont' = ss @ ((Stmt.Merge @> at) :: cont) in
+        let cont' = ss @ ((Stmt.Merge @?> at) :: cont) in
         (Intermediate (state, cont'), lbl (SwitchEval v))
       | (Some _, _) ->
         Internal_error.(throw __FUNCTION__ (Expecting "switch block"))
