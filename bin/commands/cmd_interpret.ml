@@ -2,27 +2,33 @@ open EslCore
 open EslSyntax
 open EslSemantics
 
-type options =
-  { input : Fpath.t
-  ; lang : Enums.Lang.t
-  ; verbose : bool
-  ; verbose_at : bool
-  ; debugger : bool
-  ; main : string
-  ; show_exitval : bool
-  ; untyped : bool
-  }
+module Options = struct
+  let langs : Lang.t list = Lang.[ Auto; ESL; CESL; CESLUnattached ]
+  let debugger = ref false
+  let verbose = ref false
 
-let langs : Enums.Lang.t list = Enums.Lang.[ Auto; ESL; CESL; CESLUnattached ]
+  type t =
+    { input : Fpath.t
+    ; lang : Lang.t
+    ; main : string
+    ; show_exitval : bool
+    }
+
+  let set_options input lang verbose' debugger' main show_exitval untyped' =
+    Cmd_compile.Options.untyped := untyped';
+    debugger := debugger';
+    verbose := verbose';
+    { input; lang; main; show_exitval }
+end
 
 module InterpreterConfig = struct
   let debugger () : (module Debugger.M) =
-    match !Interpreter.Config.debugger with
+    match !Options.debugger with
     | true -> (module Debugger.Enable : Debugger.M)
     | false -> (module Debugger.Disable : Debugger.M)
 
   let verbose () : (module Verbose.M) =
-    match !Interpreter.Config.verbose with
+    match !Options.verbose with
     | true -> (module Verbose.Enable : Verbose.M)
     | false -> (module Verbose.Disable : Verbose.M)
 
@@ -54,21 +60,15 @@ let interpret_esl (config : Interpreter.Config.t) (input : Fpath.t) : Val.t =
 let process_exitval (show_exitval : bool) (exitval : Val.t) : unit =
   if show_exitval then Log.app "» exit value: %a\n" Val.pp exitval
 
-let run (opts : options) : unit =
-  let valid_langs = Enums.Lang.valid_langs langs opts.lang in
-  let interp_config = { Interpreter.Config.default with main = opts.main } in
+let run (opts : Options.t) : unit =
+  let valid_langs = Lang.valid_langs Options.langs opts.lang in
+  let config = { Interpreter.Config.default with main = opts.main } in
   process_exitval opts.show_exitval
   @@
-  match Enums.Lang.resolve_file_lang valid_langs opts.input with
-  | Some ESL -> interpret_esl interp_config opts.input
-  | Some CESL -> interpret_cesl interp_config opts.input
+  match Lang.resolve_file_lang valid_langs opts.input with
+  | Some ESL -> interpret_esl config opts.input
+  | Some CESL -> interpret_cesl config opts.input
   | Some CESLUnattached | _ ->
-    interpret_cesl { interp_config with resolve_exitval = false } opts.input
+    interpret_cesl { config with resolve_exitval = false } opts.input
 
-let main (copts : Options.Common.t) (opts : options) : int =
-  Options.Common.set copts;
-  Interpreter.Config.verbose := opts.verbose;
-  Verbose.Config.verbose_at := opts.verbose_at;
-  Interpreter.Config.debugger := opts.debugger;
-  (* Config.Tesl.untyped := opts.untyped; *)
-  Cmd.eval_cmd (fun () -> run opts)
+let main () (opts : Options.t) : int = Cmd.eval_cmd (fun () -> run opts)

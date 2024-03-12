@@ -3,9 +3,6 @@ open EslSyntax
 open EslSyntax.Source
 
 module Config = struct
-  let debugger = ref false
-  let verbose = ref false
-
   type t =
     { main : string
     ; resolve_exitval : bool

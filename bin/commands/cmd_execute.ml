@@ -2,43 +2,43 @@ open EslCore
 open EslSyntax
 open EslSemantics
 
-type options =
-  { input : Fpath.t
-  ; harness : Fpath.t option
-  ; lang : Enums.Lang.t
-  ; ecmaref : Enums.ECMARef.t
-  ; verbose : bool
-  ; verbose_at : bool
-  ; debugger : bool
-  ; show_exitval : bool
-  }
+module Options = struct
+  let langs : Lang.t list = Lang.[ Auto; JS ]
 
-let langs : Enums.Lang.t list = Enums.Lang.[ Auto; JS; CESL ]
+  type t =
+    { input : Fpath.t
+    ; harness : Fpath.t option
+    ; lang : Lang.t
+    ; ecmaref : Ecmaref.t
+    ; show_exitval : bool
+    }
 
-let compile_interp (ecmaref : Enums.ECMARef.t) : Prog.t =
-  let interp_path = Enums.ECMARef.interp ecmaref in
-  Cmd_compile.compile (Fpath.v interp_path)
-
-let parse_ast (file : string) : Func.t =
-  Parsing.load_file file |> Parsing.parse_func ~file
+  let set_options input harness lang ecmaref verbose' debugger' show_exitval =
+    Cmd_compile.Options.untyped := false;
+    Cmd_interpret.Options.verbose := verbose';
+    Cmd_interpret.Options.debugger := debugger';
+    { input; harness; lang; ecmaref; show_exitval }
+end
 
 let execute_partial (config : Interpreter.Config.t) (interp : Prog.t)
   (input : Fpath.t) : Val.t * Val.t Heap.t =
-  let ast = parse_ast (Fpath.to_string input) in
+  let file = Fpath.to_string input in
+  let ast = Parsing.load_file file |> Parsing.parse_func ~file in
   Hashtbl.replace (Prog.funcs interp) (Func.name' ast) ast;
   Cmd_interpret.interpret_partial config interp
 
 let setup_harness (interp : Prog.t) (harness : Fpath.t) : Val.t Heap.t =
-  ignore Enums.Lang.(resolve_file_lang [ JS ] harness);
+  ignore Lang.(resolve_file_lang [ JS ] harness);
   let ast = Fpath.v (Filename.temp_file "ecmasl" "harness.cesl") in
   Cmd_encode.encode None harness (Some ast);
   let heap = snd (execute_partial Interpreter.Config.default interp ast) in
   Log.debug "Sucessfuly linked JS harness '%a' to interpreter." Fpath.pp harness;
   heap
 
-let setup_execution (ecmaref : Enums.ECMARef.t) (harness : Fpath.t option) :
+let setup_execution (ecmaref : Ecmaref.t) (harness : Fpath.t option) :
   Prog.t * Val.t Heap.t option =
-  let interp = compile_interp ecmaref in
+  let finterp = Ecmaref.interp ecmaref in
+  let interp = Cmd_compile.compile (Fpath.v finterp) in
   let static_heap = Option.map (setup_harness interp) harness in
   (interp, static_heap)
 
@@ -52,20 +52,13 @@ let execute_js ((interp, static_heap) : Prog.t * Val.t Heap.t option)
   Log.debug "Sucessfuly evaluated program with return '%a'." Val.pp retval;
   retval
 
-let run (opts : options) : unit =
-  let valid_langs = Enums.Lang.valid_langs langs opts.lang in
+let run (opts : Options.t) : unit =
+  let valid_langs = Lang.valid_langs Options.langs opts.lang in
   let setup = setup_execution opts.ecmaref opts.harness in
   Cmd_interpret.process_exitval opts.show_exitval
   @@
-  match Enums.Lang.resolve_file_lang valid_langs opts.input with
+  match Lang.resolve_file_lang valid_langs opts.input with
   | Some JS -> execute_js setup opts.input
-  (* FIXME: Allow the execution of pre-encoded js files *)
-  (* | Some CESL -> execute_cesl opts.input opts.ecmaref *)
   | _ -> execute_js setup opts.input
 
-let main (copts : Options.Common.t) (opts : options) : int =
-  Options.Common.set copts;
-  Interpreter.Config.verbose := opts.verbose;
-  Verbose.Config.verbose_at := opts.verbose_at;
-  Interpreter.Config.debugger := opts.debugger;
-  Cmd.eval_cmd (fun () -> run opts)
+let main () (opts : Options.t) : int = Cmd.eval_cmd (fun () -> run opts)
