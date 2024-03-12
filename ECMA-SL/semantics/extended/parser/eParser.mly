@@ -17,6 +17,7 @@
       file  = startpos.Lexing.pos_fname;
       left  = position_to_pos startpos;
       right = position_to_pos endpos;
+      real  = true;
     }
 
   let fresh_lambda_id_gen = EslBase.Base.make_name_generator "__lambda__"
