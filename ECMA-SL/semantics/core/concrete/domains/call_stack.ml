@@ -1,4 +1,4 @@
-open EslCore
+open EslBase
 open EslSyntax.Source
 module Stmt = EslSyntax.Stmt
 module Func = EslSyntax.Func

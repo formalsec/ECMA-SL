@@ -3,6 +3,8 @@
 (library
  (public_name ecma-sl)
  (name ecma_sl)
- (libraries eslCore eslSyntax eslSemantics eslJSParser)
+ (modules ecma_sl)
+ (wrapped false)
+ (libraries eslBase eslSyntax eslSemantics eslJSParser)
  (instrumentation
   (backend bisect_ppx)))

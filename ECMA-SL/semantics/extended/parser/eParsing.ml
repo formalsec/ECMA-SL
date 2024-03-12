@@ -1,4 +1,4 @@
-open EslCore
+open EslBase
 open EslSyntax
 include Parsing_utils
 

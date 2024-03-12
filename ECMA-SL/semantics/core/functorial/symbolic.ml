@@ -1,4 +1,4 @@
-open EslCore
+open EslBase
 module Value = Symbolic_value.M
 module Store = Value.Store
 module Object = Symbolic_object.M

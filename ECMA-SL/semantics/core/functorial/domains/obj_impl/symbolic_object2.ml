@@ -1,4 +1,4 @@
-open EslCore
+open EslBase
 open EslSyntax
 module V = Symbolic_value.M
 module Reducer = Value_reducer

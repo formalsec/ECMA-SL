@@ -1,4 +1,4 @@
-open EslCore
+open EslBase
 open EslSyntax
 
 let load_file ?(file : string option) (path : string) : string =

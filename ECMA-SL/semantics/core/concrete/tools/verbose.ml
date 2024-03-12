@@ -1,4 +1,4 @@
-open EslCore
+open EslBase
 open EslSyntax
 
 let log_stmt (s : Stmt.t) : bool =

@@ -1,8 +1,8 @@
 (include_subdirs unqualified)
 
 (library
- (public_name ecma-sl.core)
- (name eslCore)
+ (public_name ecma-sl.base)
+ (name eslBase)
  (modules base io fmt font log syntax error_type internal_error)
  (libraries unix str)
  (instrumentation

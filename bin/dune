@@ -5,7 +5,7 @@
  (name main)
  (modules
   main
-  options
+  ; documentation
   doc_compile
   doc_interpret
   doc_encode
@@ -14,7 +14,8 @@
   doc_symbolic
   doc_replay
   doc_explodejs
-  cmd
+  options
+  ; commands
   cmd_compile
   cmd_interpret
   cmd_encode
@@ -23,13 +24,15 @@
   cmd_symbolic
   cmd_replay
   cmd_explodejs
-  dir
-  share
-  site
-  ; temp
+  cmd
+  ; enums
   debug_lvl
   lang
-  ecmaref)
+  ecmaref
+  ; utils
+  dir
+  share
+  site)
  (libraries ecma-sl cmdliner bos yojson dune-site)
  (instrumentation
   (backend bisect_ppx)))

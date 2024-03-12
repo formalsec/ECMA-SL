@@ -1,6 +1,5 @@
-open EslSyntax
-open EslSyntax.EType
-open EslSemantics
+open Ecma_sl
+open Ecma_sl.EType
 
 let ( ~@ ) (x : 'a) : 'a Source.phrase = Source.(x @> no_region)
 let t_any : t = ~@AnyType

@@ -1,6 +1,4 @@
-open EslCore
-open EslSyntax
-open EslSemantics
+open Ecma_sl
 
 module Options = struct
   let untyped = ref false
