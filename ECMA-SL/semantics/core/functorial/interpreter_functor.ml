@@ -1,4 +1,4 @@
-open EslCore
+open EslBase
 open EslSyntax
 
 module Make (P : Interpreter_functor_intf.P) :

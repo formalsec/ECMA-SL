@@ -1,4 +1,4 @@
-open EslCore
+open EslBase
 open Source
 
 type t = t' Source.phrase

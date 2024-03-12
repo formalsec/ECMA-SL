@@ -1,4 +1,4 @@
-open EslCore
+open EslBase
 
 type t = (Id.t', Func.t) Hashtbl.t
 

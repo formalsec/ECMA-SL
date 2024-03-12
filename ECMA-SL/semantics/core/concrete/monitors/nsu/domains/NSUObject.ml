@@ -1,4 +1,4 @@
-open EslCore
+open EslBase
 
 type 'sl t = (string, 'sl * 'sl) Hashtbl.t
 

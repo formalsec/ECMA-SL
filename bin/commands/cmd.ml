@@ -1,5 +1,4 @@
-open EslCore
-open EslSemantics
+open Ecma_sl
 
 type status =
   | Success

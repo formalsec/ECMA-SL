@@ -1,4 +1,4 @@
-open EslCore
+open EslBase
 open EslSyntax
 
 type 'sl t = (Loc.t, 'sl NSUObject.t * 'sl * 'sl) Hashtbl.t

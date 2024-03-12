@@ -1,4 +1,4 @@
-open EslCore
+open EslBase
 open EslSyntax
 module Env = Symbolic.P.Env
 module SMap = Link_env.SMap

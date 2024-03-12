@@ -1,6 +1,6 @@
 open Bos
-open EslCore
-open Syntax.Result
+open Ecma_sl
+open Ecma_sl.Syntax.Result
 module String = Astring.String
 
 type options =

@@ -1,4 +1,4 @@
-open EslCore
+open Ecma_sl
 open Cmdliner
 
 (* Common Options *)

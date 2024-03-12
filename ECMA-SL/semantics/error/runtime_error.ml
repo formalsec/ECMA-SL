@@ -1,4 +1,4 @@
-open EslCore
+open EslBase
 open EslSyntax
 module ErrSrc = Error_source
 module RtTrace = Error_trace
