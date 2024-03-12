@@ -1,4 +1,4 @@
-open EslCore
+open EslBase
 open EslSyntax
 module Value = Symbolic_value.M
 module Memory = Symbolic_memory

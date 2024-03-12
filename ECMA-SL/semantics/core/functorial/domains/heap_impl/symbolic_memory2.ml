@@ -1,5 +1,5 @@
-open EslCore
-open EslCore.Syntax.Option
+open EslBase
+open EslBase.Syntax.Option
 open EslSyntax
 module V = Symbolic_value.M
 

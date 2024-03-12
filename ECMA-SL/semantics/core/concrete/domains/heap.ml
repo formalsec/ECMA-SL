@@ -1,4 +1,4 @@
-open EslCore
+open EslBase
 open EslSyntax
 
 type 'a obj = 'a Object.t

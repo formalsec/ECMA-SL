@@ -1,4 +1,4 @@
-open EslCore
+open EslBase
 
 type pos =
   { line : int

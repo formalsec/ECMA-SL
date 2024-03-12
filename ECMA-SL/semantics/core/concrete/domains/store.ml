@@ -1,4 +1,4 @@
-open EslCore
+open EslBase
 
 type var = string
 type 'a t = (var, 'a) Hashtbl.t
