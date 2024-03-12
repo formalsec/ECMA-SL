@@ -9,10 +9,11 @@ type region =
   { file : string
   ; left : pos
   ; right : pos
+  ; real : bool
   }
 
 let no_pos = { line = -1; column = -1 }
-let no_region = { file = ""; left = no_pos; right = no_pos }
+let no_region = { file = ""; left = no_pos; right = no_pos; real = false }
 
 let region_unfold (region : region) : string * int * int * int =
   (region.file, region.left.line, region.left.column, region.right.column)
@@ -31,6 +32,10 @@ type +'a phrase =
   }
 
 let ( @> ) (x : 'a) (region : region) : 'a phrase = { it = x; at = region }
+
+let ( @?> ) (x : 'a) (region : region) : 'a phrase =
+  { it = x; at = { region with real = false } }
+
 let pp (fmt : Fmt.t) (x : 'a phrase) = Fmt.fprintf fmt "%a" pp_region x.at
 let str (x : 'a phrase) : string = Fmt.asprintf "%a" pp x
 

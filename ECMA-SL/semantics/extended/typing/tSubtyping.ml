@@ -8,12 +8,12 @@ let terr_msg (congruency : bool) (tref : EType.t) (tsrc : EType.t) :
 
 let resolve_optfld (t : t) : t =
   let open Source in
-  let t_undefined = UndefinedType @> no_region in
+  let t_undefined = UndefinedType @?> no_region in
   match t.it with
   | UnionType ts when List.exists (fun t' -> t'.it = UndefinedType) ts -> t
-  | UnionType ts -> UnionType (List.append ts [ t_undefined ]) @> t.at
+  | UnionType ts -> UnionType (List.append ts [ t_undefined ]) @?> t.at
   | UndefinedType -> t
-  | _ -> UnionType [ t; t_undefined ] @> t.at
+  | _ -> UnionType [ t; t_undefined ] @?> t.at
 
 let resolve_sigma_case_discriminant (at : Source.region) (dsc : Id.t)
   (tobj : tobject) : t =
