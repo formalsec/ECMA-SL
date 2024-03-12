@@ -2,11 +2,20 @@ open EslCore
 open EslSyntax
 open EslSemantics
 
-type options =
-  { inputs : Fpath.t
-  ; harness : Fpath.t option
-  ; ecmaref : Enums.ECMARef.t
-  }
+module Options = struct
+  type t =
+    { inputs : Fpath.t
+    ; harness : Fpath.t option
+    ; lang : Lang.t
+    ; ecmaref : Ecmaref.t
+    }
+
+  let set_options inputs harness lang ecmaref =
+    Cmd_compile.Options.untyped := false;
+    Cmd_interpret.Options.verbose := false;
+    Cmd_interpret.Options.debugger := false;
+    { inputs; harness; lang; ecmaref }
+end
 
 module Test = struct
   type out_channels =
@@ -60,29 +69,23 @@ end
 
 let test_input (out_channels : Test.out_channels)
   (setup : Prog.t * Val.t Heap.t option) (input : Fpath.t) : unit =
-  let retval = Cmd_execute.execute_js setup input in
-  match retval with
+  match Cmd_execute.execute_js setup input with
   | Val.Tuple [ _; Val.Symbol "normal"; _; _ ] ->
     Test.sucessful out_channels input
   | _ -> Test.failure out_channels input
 
 let run_single (setup : Prog.t * Val.t Heap.t option) (input : Fpath.t)
   (_ : Fpath.t option) : unit =
-  ignore Enums.Lang.(resolve_file_lang [ JS ] input);
+  ignore Lang.(resolve_file_lang [ JS ] input);
   let out_channels = Test.hide_out_channels () in
   try test_input out_channels setup input with
   | Runtime_error.Error { msgs = UncaughtExn _ :: []; _ } ->
     Test.ecmaref_fail out_channels input
   | _ -> Test.internal_fail out_channels input
 
-let run (opts : options) : unit =
+let run (opts : Options.t) : unit =
   Test.header ();
   let setup = Cmd_execute.setup_execution opts.ecmaref opts.harness in
   Dir.exec (run_single setup) opts.inputs None ""
 
-let main (copts : Options.Common.t) (opts : options) : int =
-  Options.Common.set copts;
-  Interpreter.Config.verbose := false;
-  Verbose.Config.verbose_at := false;
-  Interpreter.Config.debugger := false;
-  Cmd.eval_cmd (fun () -> run opts)
+let main () (opts : Options.t) : int = Cmd.eval_cmd (fun () -> run opts)
