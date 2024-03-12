@@ -1,10 +1,6 @@
 open EslCore
 open EslSyntax
 
-module Config = struct
-  let verbose_at = ref false
-end
-
 let log_stmt (s : Stmt.t) : bool =
   match s.it with Skip | Merge | Block _ -> false | _ -> true
 
@@ -20,8 +16,7 @@ end
 
 module Enable : M = struct
   let print_source (fmt : Fmt.t) (at : Source.region) : unit =
-    if !Config.verbose_at then Fmt.fprintf fmt " @@ %a" Source.pp_region at
-    else ()
+    if false then Fmt.fprintf fmt " @@ %a" Source.pp_region at else ()
 
   let eval_expr_val (e : Expr.t) (v : Val.t) : unit =
     Fmt.eprintf "» | %a | --> %a%a@." Expr.pp e Val.pp v print_source e.at

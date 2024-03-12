@@ -5,6 +5,7 @@
  (name main)
  (modules
   main
+  options
   doc_compile
   doc_interpret
   doc_encode
@@ -22,11 +23,13 @@
   cmd_symbolic
   cmd_replay
   cmd_explodejs
-  options
-  enums
   dir
   share
-  site)
+  site
+  ; temp
+  debug_lvl
+  lang
+  ecmaref)
  (libraries ecma-sl cmdliner bos yojson dune-site)
  (instrumentation
   (backend bisect_ppx)))

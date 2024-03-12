@@ -148,8 +148,7 @@ let run ~workspace filename entry_func =
   Log.debug "solver time : %fs@." solv_time;
   write_report ~workspace filename exec_time solv_time solv_cnt problems
 
-let main (copts : Options.Common.t) opt =
-  Options.Common.set copts;
+let main () opt =
   match run ~workspace:opt.workspace opt.filename opt.entry_func with
   | Error (`Msg s) ->
     Log.log ~header:false "%s" s;

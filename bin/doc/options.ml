@@ -1,37 +1,39 @@
 open EslCore
 open Cmdliner
 
-(* Common options *)
+(* Common Options *)
 
 module Common = struct
-  type t =
-    { debug : Enums.DebugLvl.t
-    ; colorless : bool
-    }
-
   let debug =
-    let open Enums.DebugLvl in
+    let docs = Manpage.s_common_options in
     let docv = "LEVEL" in
-    let doc = "Debug level of the ECMA-SL application" in
-    let levels = Arg.enum (args all) in
-    Arg.(value & opt levels Warn & info [ "debug" ] ~doc ~docv)
+    let doc =
+      "Debug level used within the ECMA-SL application. Options include: (1) \
+       'none' for hiding all ECMA-SL logs; (2) 'warn' [default] for showing \
+       ECMA-SL warnings; and (3) 'full' to show all, including debug prints."
+    in
+    let levels = Arg.enum Debug_lvl.(args all) in
+    Arg.(value & opt levels Warn & info [ "debug" ] ~docs ~doc ~docv)
 
   let colorless =
-    let doc = "Generate colorless output." in
-    Arg.(value & flag & info [ "colorless" ] ~doc)
+    let docs = Manpage.s_common_options in
+    let doc =
+      "Generate colorless output. This flag might be necessary for terminals \
+       lacking 16-ANSI-color support."
+    in
+    Arg.(value & flag & info [ "colorless" ] ~docs ~doc)
 
-  let options =
-    let options' debug colorless = { debug; colorless } in
-    Term.(const options' $ debug $ colorless)
+  let set_options debug colorless =
+    let open Debug_lvl in
+    Log.Config.warns := value debug >= value Warn;
+    Log.Config.debugs := value debug >= value Full;
+    Font.Config.colored := not colorless
 
-  let set (copts : t) : unit =
-    let open Enums.DebugLvl in
-    Log.Config.warns := value copts.debug >= value Warn;
-    Log.Config.debugs := value copts.debug >= value Full;
-    Font.Config.colored := not copts.colorless
+  let options = Term.(const set_options $ debug $ colorless)
 end
 
-(* File options *)
+(* File Options *)
+
 module File = struct
   let parse_fpath str test_f =
     let file = Fpath.v str in
@@ -71,8 +73,8 @@ end
 module Compile = struct
   let untyped =
     let doc =
-      "Execute the ECMA-SL compiler without typechecking. In this mode, all \
-       type annotations are disregarded."
+      "Run the ECMA-SL compiler without performing static type checking. In \
+       this mode, all type annotations are ignored."
     in
     Arg.(value & flag & info [ "untyped" ] ~doc)
 end
@@ -81,18 +83,17 @@ end
 
 module Interpret = struct
   let lang langs =
-    let open Enums.Lang in
     let docv = "LANG" in
     let doc =
-      "The language of the program to be interpreted. Options include: (1) \
-       'auto' (default, inferring the language from the file extension); (2) \
+      "Language of the program to be interpreted. Options include: (1) 'auto' \
+       [default] for inferring the language based on the file extension; (2) \
        'esl' for ECMA-SL (.esl) files; (3) 'cesl' for Core ECMA-SL (.cesl) \
        files; and (4) 'cesl-unattached' for executing Core ECMA-SL (.cesl) \
-       without certain restrictions imposed by the ECMA-SL compiler (e.g., \
-       forced format of return values)."
+       without certain restrictions imposed by the ECMA-SL compiler, such as \
+       predefined return value format."
     in
-    let langs' = args langs in
-    Arg.(value & opt (Arg.enum langs') Auto & info [ "lang" ] ~doc ~docv)
+    let langs' = Arg.enum Lang.(args langs) in
+    Arg.(value & opt langs' Auto & info [ "lang" ] ~doc ~docv)
 
   let verbose =
     let doc =
@@ -101,28 +102,21 @@ module Interpret = struct
     in
     Arg.(value & flag & info [ "verbose" ] ~doc)
 
-  let verbose_at =
-    let doc =
-      "Include the source regions in verbose prints, revealing the location of \
-       the statement/expression being evaluated during."
-    in
-    Arg.(value & flag & info [ "verbose-at" ] ~doc)
-
   let debugger =
     let doc =
-      "Enable the Core ECMA-SL debugger. To utilize the debugger, insert a \
-       breakpoint in the ECMA-SL (.esl) or Core ECMA-SL (.cesl) program, \
-       indicated by a '#' preceding the statement."
+      "Enable the ECMA-SL debugger. To open the debugger, insert a breakpoint \
+       in the ECMA-SL (.esl) or Core ECMA-SL (.cesl) program. This is done by \
+       preceding the statement with a '#' character."
     in
     Arg.(value & flag & info [ "db"; "debugger" ] ~doc)
 
   let main_func =
     let docv = "FUNC" in
     let doc =
-      "The designated entry point function for the interpreter. Caution: \
-       modifying this function can lead to unforeseen outcomes during \
-       interpretation, as certain constraints enforced by the ECMA-SL compiler \
-       (e.g., accesses to global variables) may be affected."
+      "Designated entry point function for the interpreter. Caution: modifying \
+       this function can lead to unforeseen outcomes during interpretation, as \
+       certain constraints enforced by the ECMA-SL compiler may be affected \
+       (e.g., accesses to global variables)."
     in
     Arg.(value & opt string "main" & info [ "main" ] ~doc ~docv)
 
@@ -140,9 +134,8 @@ module Encode = struct
   let builder =
     let docv = "FUNC" in
     let doc =
-      "The name of the function responsible for reconstructing the Abstract \
-       Syntax Tree (AST) of the JavaScript program within the memory of \
-       ECMA-SL."
+      "Name of the function responsible for reconstructing the Abstract Syntax \
+       Tree (AST) of the JavaScript program in the ECMA-SL memory."
     in
     Arg.(value & opt (some string) None & info [ "builder" ] ~doc ~docv)
 end
@@ -151,21 +144,20 @@ end
 
 module Execute = struct
   let lang langs =
-    let open Enums.Lang in
     let docv = "LANG" in
     let doc =
-      "The language of the program to be executed. Options include: (1) 'auto' \
-       (default, inferring the language from the file extension); (2) 'js' for \
-       JavaScript (.js) files; and (3) 'cesl' for Core ECMA-SL (.cesl) files."
+      "Language of the program to be executed. Options include: (1) 'auto' \
+       [default] for inferring the language based on the file extension; (2) \
+       'js' for JavaScript (.js) files; and (3) 'cesl' for Core ECMA-SL \
+       (.cesl) files."
     in
-    let langs' = Arg.enum (args langs) in
+    let langs' = Arg.enum Lang.(args langs) in
     Arg.(value & opt langs' Auto & info [ "lang" ] ~doc ~docv)
 
   let ecmaref =
-    let open Enums.ECMARef in
     let docv = "ECMAREF" in
     let doc = "Version of the reference interpreter." in
-    let ecmarefs = Arg.enum (args all) in
+    let ecmarefs = Arg.enum Ecmaref.(args all) in
     Arg.(value & opt ecmarefs Main & info [ "interp" ] ~doc ~docv)
 end
 

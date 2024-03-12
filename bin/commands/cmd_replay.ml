@@ -66,8 +66,7 @@ let replay filename testsuite =
         Log.app "     status : false (no side effect)";
         Ok () )
 
-let main (copts : Options.Common.t) opt =
-  Options.Common.set copts;
+let main () opt =
   match replay opt.filename opt.testsuite with
   | Error (`Msg msg) ->
     Log.log ~header:false "%s" msg;
