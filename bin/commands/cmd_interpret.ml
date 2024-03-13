@@ -22,26 +22,30 @@ module Options = struct
     { input; lang; main; show_exitval }
 end
 
-module InterpreterConfig = struct
-  let debugger () : (module Debugger.M) =
-    match !Options.debugger with
-    | true -> (module Debugger.Enable : Debugger.M)
-    | false -> (module Debugger.Disable : Debugger.M)
-
+module InterpreterInstrument = struct
   let tracer () : (module Tracer.M) =
     match false with
     | true -> (module Tracer.Enable : Tracer.M)
     | false -> (module Tracer.Disable : Tracer.M)
 
+  let debugger () : (module Debugger.M) =
+    match !Options.debugger with
+    | true -> (module Debugger.Enable : Debugger.M)
+    | false -> (module Debugger.Disable : Debugger.M)
+
   let monitor () : (module Monitor.M) = (module Monitor.Default : Monitor.M)
+
+  let intrument () : (module Instrument.M) =
+    let module Tracer = (val tracer ()) in
+    let module Debugger = (val debugger ()) in
+    let module Monitor = (val monitor ()) in
+    (module Instrument.Default (Tracer) (Debugger) (Monitor))
 end
 
 let interpret_partial (entry : Interpreter.EntryPoint.t) (prog : Prog.t) :
   Val.t * Val.t Heap.t =
-  let module Debugger = (val InterpreterConfig.debugger ()) in
-  let module Verbose = (val InterpreterConfig.tracer ()) in
-  let module Monitor = (val InterpreterConfig.monitor ()) in
-  let module Interpreter = Interpreter.M (Debugger) (Verbose) (Monitor) in
+  let module Instrument = (val InterpreterInstrument.intrument ()) in
+  let module Interpreter = Interpreter.M (Instrument) in
   Interpreter.eval_partial entry prog
 
 let interpret (entry : Interpreter.EntryPoint.t) (prog : Prog.t) : Val.t =

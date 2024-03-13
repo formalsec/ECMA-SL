@@ -33,6 +33,7 @@ module type M = sig
 
   val parse_lvl : string -> sl
   val initial_state : unit -> state
+  val initial_label : unit -> sl_label
   val generate_label : Stmt.t -> stmt_eval -> sl_label
   val eval_small_step : state -> sl_label -> return
   val next_state : return -> state
@@ -48,6 +49,7 @@ module Default : M = struct
 
   let parse_lvl (_ : string) : sl = ()
   let initial_state () : state = ()
+  let initial_label () : sl_label = ()
   let generate_label (_ : Stmt.t) (_ : stmt_eval) : sl_label = ()
   let eval_small_step (_ : state) (_ : sl_label) : return = ()
   let next_state (_ : return) : state = ()
