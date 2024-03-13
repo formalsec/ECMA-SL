@@ -30,7 +30,7 @@
   heap
   call_stack
   ; concrete interpreter (tools)
-  verbose
+  tracer
   debugger
   ; concrete interpreter (monitors)
   NSUMonitor
