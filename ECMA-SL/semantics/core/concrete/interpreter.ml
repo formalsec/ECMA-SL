@@ -2,7 +2,7 @@ open EslBase
 open EslSyntax
 open EslSyntax.Source
 
-module Config = struct
+module EntryPoint = struct
   type t =
     { main : string
     ; resolve_exitval : bool
@@ -308,19 +308,20 @@ module M (Db : Debugger.M) (Tr : Tracer.M) (Mon : Monitor.M) = struct
       Runtime_error.(throw (UncaughtExn (Val.str err)))
     | _ -> Runtime_error.(throw (UnexpectedExitVal retval))
 
-  let eval_partial (config : Config.t) (prog : Prog.t) : value * heap =
-    let f = get_func prog config.main no_region in
-    let state = initial_state f config.static_heap in
+  let eval_partial (entry : EntryPoint.t) (prog : Prog.t) : value * heap =
+    let f = get_func prog entry.main no_region in
+    let state = initial_state f entry.static_heap in
     let mon = Mon.initial_state () in
     let return = small_step_iter prog state mon [ Func.body f ] in
     let (_, heap, _, _) = state in
     match return with
-    | Final retval when config.resolve_exitval -> (resolve_exitval retval, heap)
+    | Final retval when entry.resolve_exitval -> (resolve_exitval retval, heap)
     | Final retval -> (retval, heap)
     | Error err -> Runtime_error.(throw (Failure (Val.str err)))
     | _ ->
       Internal_error.(throw __FUNCTION__ (Expecting "non-intermediate state"))
 
-  let eval_prog ?(config : Config.t = Config.default) (prog : Prog.t) : value =
-    fst (eval_partial config prog)
+  let eval_prog ?(entry : EntryPoint.t = EntryPoint.default) (prog : Prog.t) :
+    value =
+    fst (eval_partial entry prog)
 end
