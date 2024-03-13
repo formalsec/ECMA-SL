@@ -36,34 +36,32 @@ module InterpreterConfig = struct
   let monitor () : (module Monitor.M) = (module Monitor.Default : Monitor.M)
 end
 
-let interpret_partial (config : Interpreter.Config.t) (prog : Prog.t) :
+let interpret_partial (entry : Interpreter.EntryPoint.t) (prog : Prog.t) :
   Val.t * Val.t Heap.t =
   let module Debugger = (val InterpreterConfig.debugger ()) in
   let module Verbose = (val InterpreterConfig.tracer ()) in
   let module Monitor = (val InterpreterConfig.monitor ()) in
   let module Interpreter = Interpreter.M (Debugger) (Verbose) (Monitor) in
-  Interpreter.eval_partial config prog
+  Interpreter.eval_partial entry prog
 
-let interpret (config : Interpreter.Config.t) (prog : Prog.t) : Val.t =
-  let retval = fst (interpret_partial config prog) in
+let interpret (entry : Interpreter.EntryPoint.t) (prog : Prog.t) : Val.t =
+  let retval = fst (interpret_partial entry prog) in
   Log.debug "Sucessfuly evaluated program with return '%a'." Val.pp retval;
   retval
 
-let interpret_cesl (config : Interpreter.Config.t) (input : Fpath.t) : Val.t =
-  let input' = Fpath.to_string input in
-  Parsing.load_file input'
-  |> Parsing.parse_prog ~file:input'
-  |> interpret config
+let interpret_cesl (entry : Interpreter.EntryPoint.t) (file : Fpath.t) : Val.t =
+  let file' = Fpath.to_string file in
+  Parsing.load_file file' |> Parsing.parse_prog ~file:file' |> interpret entry
 
-let interpret_esl (config : Interpreter.Config.t) (input : Fpath.t) : Val.t =
-  Cmd_compile.compile input |> interpret config
+let interpret_esl (entry : Interpreter.EntryPoint.t) (file : Fpath.t) : Val.t =
+  Cmd_compile.compile file |> interpret entry
 
 let process_exitval (show_exitval : bool) (exitval : Val.t) : unit =
   if show_exitval then Log.app "» exit value: %a\n" Val.pp exitval
 
 let run (opts : Options.t) : unit =
   let valid_langs = Lang.valid_langs Options.langs opts.lang in
-  let config = { Interpreter.Config.default with main = opts.main } in
+  let config = { Interpreter.EntryPoint.default with main = opts.main } in
   process_exitval opts.show_exitval
   @@
   match Lang.resolve_file_lang valid_langs opts.input with

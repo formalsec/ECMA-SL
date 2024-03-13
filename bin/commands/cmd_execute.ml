@@ -20,18 +20,18 @@ module Options = struct
     { input; harness; lang; ecmaref; show_exitval }
 end
 
-let execute_partial (config : Interpreter.Config.t) (interp : Prog.t)
+let execute_partial (entry : Interpreter.EntryPoint.t) (interp : Prog.t)
   (input : Fpath.t) : Val.t * Val.t Heap.t =
   let file = Fpath.to_string input in
   let ast = Parsing.load_file file |> Parsing.parse_func ~file in
   Hashtbl.replace (Prog.funcs interp) (Func.name' ast) ast;
-  Cmd_interpret.interpret_partial config interp
+  Cmd_interpret.interpret_partial entry interp
 
 let setup_harness (interp : Prog.t) (harness : Fpath.t) : Val.t Heap.t =
   ignore Lang.(resolve_file_lang [ JS ] harness);
   let ast = Fpath.v (Filename.temp_file "ecmasl" "harness.cesl") in
   Cmd_encode.encode None harness (Some ast);
-  let heap = snd (execute_partial Interpreter.Config.default interp ast) in
+  let heap = snd (execute_partial Interpreter.EntryPoint.default interp ast) in
   Log.debug "Sucessfuly linked JS harness '%a' to interpreter." Fpath.pp harness;
   heap
 
@@ -47,8 +47,8 @@ let execute_js ((interp, static_heap) : Prog.t * Val.t Heap.t option)
   let ast = Fpath.v (Filename.temp_file "ecmasl" "ast.js") in
   Cmd_encode.encode None input (Some ast);
   let main = if Option.is_some static_heap then "mainPartial" else "main" in
-  let config = { Interpreter.Config.default with main; static_heap } in
-  let retval = fst (execute_partial config interp ast) in
+  let entry = { Interpreter.EntryPoint.default with main; static_heap } in
+  let retval = fst (execute_partial entry interp ast) in
   Log.debug "Sucessfuly evaluated program with return '%a'." Val.pp retval;
   retval
 
