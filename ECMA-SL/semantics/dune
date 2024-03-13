@@ -24,14 +24,15 @@
   interpreter
   eval_operator
   external
-  monitor
+  instrument
   ; concrete interpreter (domains)
   store
   heap
   call_stack
-  ; concrete interpreter (tools)
+  ; concrete interpreter (instrumentation)
   tracer
   debugger
+  monitor
   ; concrete interpreter (monitors)
   NSUMonitor
   NSUException
