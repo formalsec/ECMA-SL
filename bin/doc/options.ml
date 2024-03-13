@@ -95,12 +95,24 @@ module Interpret = struct
     let langs' = Arg.enum Lang.(args langs) in
     Arg.(value & opt langs' Auto & info [ "lang" ] ~doc ~docv)
 
-  let verbose =
+  let trace =
     let doc =
-      "Show intermediate interpreter details, encompassing the evaluation \
-       process of statements and expressions throughout the execution."
+      "Show the interpretation steps, including the evaluation of statements \
+       and expressions. Options include: (1) 'none' [default] for no trace \
+       information; (2) 'call' for tracing function calls and return values; \
+       (3) 'step' for tracing ECMA-SL statements; (4) 'full' for tracing \
+       ECMA-SL statements and expression evaluations; and (5) 'core' for \
+       tracing Core ECMA-SL intermediate steps."
     in
-    Arg.(value & flag & info [ "verbose" ] ~doc)
+    let tracers = Arg.enum Interp_tracer.(args all) in
+    Arg.(value & opt tracers None & info [ "trace" ] ~doc)
+
+  let trace_at =
+    let doc =
+      "Show the locations of every language construct under evaluation. This \
+       option is only active when a trace mode is set."
+    in
+    Arg.(value & flag & info [ "trace-at" ] ~doc)
 
   let debugger =
     let doc =

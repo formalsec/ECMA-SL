@@ -13,7 +13,7 @@ module Config = struct
     { main = "main"; resolve_exitval = true; static_heap = None }
 end
 
-module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
+module M (Db : Debugger.M) (Tr : Tracer.M) (Mon : Monitor.M) = struct
   type value = Val.t
   type obj = value Object.t
   type store = value Store.t
@@ -106,7 +106,7 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
 
   and eval_expr (store : store) (e : Expr.t) : value =
     let v = eval_expr' store e in
-    Vb.eval_expr_val e v;
+    Tr.eval_expr_val e v;
     v
 
   let eval_string (store : store) (e : Expr.t) : string =
@@ -156,7 +156,7 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     let (store, heap, stack, db) = state in
     let f = Call_stack.func stack in
     Call_stack.update stack s;
-    Vb.eval_small_step f s;
+    Tr.eval_small_step f s;
     match s.it with
     | Skip -> (Intermediate (state, cont), lbl SkipEval)
     | Merge -> (Intermediate (state, cont), lbl MergeEval)
