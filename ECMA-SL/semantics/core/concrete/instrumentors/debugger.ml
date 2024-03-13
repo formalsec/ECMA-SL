@@ -147,25 +147,24 @@ and debug_loop_safe (store : store) (heap : heap) (stack : stack) : cmd =
 module type M = sig
   type t
 
-  val initialize : unit -> t
+  val intial_state : unit -> t
 
   val run :
     store * heap * stack * t -> Stmt.t -> Stmt.t list -> t * stack * Stmt.t list
 
-  val custom_inject :
-    Stmt.t -> t -> stack -> Stmt.t list -> t * stack * Stmt.t list
+  val inject : Stmt.t -> t -> stack -> Stmt.t list -> t * stack * Stmt.t list
 end
 
 module Disable : M = struct
   type t = unit
 
-  let initialize () : t = ()
+  let intial_state () : t = ()
 
   let run ((_, _, stack, _) : store * heap * stack * t) (s : Stmt.t)
     (cont : Stmt.t list) : t * stack * Stmt.t list =
     ((), stack, s :: cont)
 
-  let custom_inject (_ : Stmt.t) (_ : t) (stack : stack) (cont : Stmt.t list) :
+  let inject (_ : Stmt.t) (_ : t) (stack : stack) (cont : Stmt.t list) :
     t * stack * Stmt.t list =
     ((), stack, cont)
 end
@@ -228,14 +227,14 @@ module Enable : M = struct
     | (Exit, _) -> (Final, stack, s :: cont)
     | _ -> Internal_error.(throw __FUNCTION__ (Expecting "termination cmd"))
 
-  let initialize () : t = Initial
+  let intial_state () : t = Initial
 
   let run ((store, heap, stack, db) : store * heap * stack * t) (s : Stmt.t)
     (cont : Stmt.t list) : t * stack * Stmt.t list =
     let cmd = debug_prompt store heap stack db s in
     update_prog cmd stack s cont
 
-  let custom_inject (s : Stmt.t) (db : t) (stack : stack) (cont : Stmt.t list) :
+  let inject (s : Stmt.t) (db : t) (stack : stack) (cont : Stmt.t list) :
     t * stack * Stmt.t list =
     match (db, s) with
     | (Call, { it = AssignCall _; _ }) ->
