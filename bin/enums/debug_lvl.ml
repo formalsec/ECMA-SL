@@ -16,12 +16,7 @@ let pp (fmt : Fmt.t) (level : t) : unit =
 let str (level : t) : string = Fmt.asprintf "%a" pp level
 
 let args (levels : t list) : (string * t) list =
-  let to_arg = function
-    | None -> ("none", None)
-    | Warn -> ("warn", Warn)
-    | Full -> ("full", Full)
-  in
-  List.map to_arg levels
+  List.map (fun level -> (str level, level)) levels
 
 let value (level : t) : int =
   match level with None -> 0 | Warn -> 1 | Full -> 2

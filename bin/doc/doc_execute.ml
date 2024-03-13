@@ -43,7 +43,8 @@ let options =
     $ Options.File.harness
     $ Options.Execute.lang Cmd_execute.Options.langs
     $ Options.Execute.ecmaref
-    $ Options.Interpret.verbose
+    $ Options.Interpret.trace
+    $ Options.Interpret.trace_at
     $ Options.Interpret.debugger
     $ Options.Interpret.show_exitval )
 

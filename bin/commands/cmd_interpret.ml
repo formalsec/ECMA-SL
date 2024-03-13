@@ -2,8 +2,9 @@ open Ecma_sl
 
 module Options = struct
   let langs : Lang.t list = Lang.[ Auto; ESL; CESL; CESLUnattached ]
+  let trace = ref Interp_tracer.None
+  let trace_at = ref false
   let debugger = ref false
-  let verbose = ref false
 
   type t =
     { input : Fpath.t
@@ -12,10 +13,12 @@ module Options = struct
     ; show_exitval : bool
     }
 
-  let set_options input lang verbose' debugger' main show_exitval untyped' =
+  let set_options input lang trace' trace_at' debugger' main show_exitval
+    untyped' =
     Cmd_compile.Options.untyped := untyped';
+    trace := trace';
+    trace_at := trace_at';
     debugger := debugger';
-    verbose := verbose';
     { input; lang; main; show_exitval }
 end
 
@@ -25,10 +28,10 @@ module InterpreterConfig = struct
     | true -> (module Debugger.Enable : Debugger.M)
     | false -> (module Debugger.Disable : Debugger.M)
 
-  let verbose () : (module Verbose.M) =
-    match !Options.verbose with
-    | true -> (module Verbose.Enable : Verbose.M)
-    | false -> (module Verbose.Disable : Verbose.M)
+  let tracer () : (module Tracer.M) =
+    match false with
+    | true -> (module Tracer.Enable : Tracer.M)
+    | false -> (module Tracer.Disable : Tracer.M)
 
   let monitor () : (module Monitor.M) = (module Monitor.Default : Monitor.M)
 end
@@ -36,7 +39,7 @@ end
 let interpret_partial (config : Interpreter.Config.t) (prog : Prog.t) :
   Val.t * Val.t Heap.t =
   let module Debugger = (val InterpreterConfig.debugger ()) in
-  let module Verbose = (val InterpreterConfig.verbose ()) in
+  let module Verbose = (val InterpreterConfig.tracer ()) in
   let module Monitor = (val InterpreterConfig.monitor ()) in
   let module Interpreter = Interpreter.M (Debugger) (Verbose) (Monitor) in
   Interpreter.eval_partial config prog

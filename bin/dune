@@ -29,6 +29,7 @@
   debug_lvl
   lang
   ecmaref
+  interp_tracer
   ; utils
   dir
   share
