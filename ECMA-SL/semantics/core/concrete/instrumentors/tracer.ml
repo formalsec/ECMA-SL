@@ -1,29 +1,53 @@
-open EslBase
 open EslSyntax
 
-let log_stmt (s : Stmt.t) : bool =
-  match s.it with Skip | Merge | Block _ -> false | _ -> true
+type obj = Val.t Object.t
+type heap = Val.t Heap.t
+type heapval = heap * Val.t
 
 module type M = sig
-  val eval_expr_val : Expr.t -> Val.t -> unit
-  val eval_small_step : Func.t -> Stmt.t -> unit
+  val trace_at : bool ref
+  val trace_expr : Expr.t -> heapval -> unit
+  val trace_stmt : Stmt.t -> unit
+  val trace_call : int -> Expr.t -> Expr.t list -> unit
+  val trace_return : Func.t option -> heapval -> unit
 end
 
 module Disable : M = struct
-  let eval_expr_val (_ : Expr.t) (_ : Val.t) : unit = ()
-  let eval_small_step (_ : Func.t) (_ : Stmt.t) : unit = ()
+  let trace_at = ref false
+  let trace_expr (_ : Expr.t) (_ : heapval) : unit = ()
+  let trace_stmt (_ : Stmt.t) : unit = ()
+  let trace_call (_ : int) (_ : Expr.t) (_ : Expr.t list) : unit = ()
+  let trace_return (_ : Func.t option) (_ : heapval) : unit = ()
 end
 
-module Enable : M = struct
-  let print_source (fmt : Fmt.t) (at : Source.region) : unit =
-    if false then Fmt.fprintf fmt " @@ %a" Source.pp_region at else ()
+module Call : M = struct
+  let trace_at = ref false
+  let trace_expr (_ : Expr.t) (_ : heapval) : unit = ()
+  let trace_stmt (_ : Stmt.t) : unit = ()
+  let trace_call (_ : int) (_ : Expr.t) (_ : Expr.t list) : unit = ()
+  let trace_return (_ : Func.t option) (_ : heapval) : unit = ()
+end
 
-  let eval_expr_val (e : Expr.t) (v : Val.t) : unit =
-    Fmt.eprintf "» | %a | --> %a%a@." Expr.pp e Val.pp v print_source e.at
+module Step : M = struct
+  let trace_at = ref false
+  let trace_expr (_ : Expr.t) (_ : heapval) : unit = ()
+  let trace_stmt (_ : Stmt.t) : unit = ()
+  let trace_call (_ : int) (_ : Expr.t) (_ : Expr.t list) : unit = ()
+  let trace_return (_ : Func.t option) (_ : heapval) : unit = ()
+end
 
-  let eval_small_step (f : Func.t) (s : Stmt.t) : unit =
-    if log_stmt s then
-      let divider = "----------------------------------------" in
-      Fmt.eprintf "%s\nEvaluating >>>> %a() [line=%d]: %a%a@." divider Id.pp
-        (Func.name f) s.at.left.line Stmt.pp_simple s print_source s.at
+module Full : M = struct
+  let trace_at = ref false
+  let trace_expr (_ : Expr.t) (_ : heapval) : unit = ()
+  let trace_stmt (_ : Stmt.t) : unit = ()
+  let trace_call (_ : int) (_ : Expr.t) (_ : Expr.t list) : unit = ()
+  let trace_return (_ : Func.t option) (_ : heapval) : unit = ()
+end
+
+module Core : M = struct
+  let trace_at = ref false
+  let trace_expr (_ : Expr.t) (_ : heapval) : unit = ()
+  let trace_stmt (_ : Stmt.t) : unit = ()
+  let trace_call (_ : int) (_ : Expr.t) (_ : Expr.t list) : unit = ()
+  let trace_return (_ : Func.t option) (_ : heapval) : unit = ()
 end

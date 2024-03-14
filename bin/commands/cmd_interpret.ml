@@ -24,9 +24,12 @@ end
 
 module InterpreterInstrument = struct
   let tracer () : (module Tracer.M) =
-    match false with
-    | true -> (module Tracer.Enable : Tracer.M)
-    | false -> (module Tracer.Disable : Tracer.M)
+    match !Options.trace with
+    | None -> (module Tracer.Disable : Tracer.M)
+    | Call -> (module Tracer.Call : Tracer.M)
+    | Step -> (module Tracer.Step : Tracer.M)
+    | Full -> (module Tracer.Full : Tracer.M)
+    | Core -> (module Tracer.Core : Tracer.M)
 
   let debugger () : (module Debugger.M) =
     match !Options.debugger with
@@ -39,6 +42,7 @@ module InterpreterInstrument = struct
     let module Tracer = (val tracer ()) in
     let module Debugger = (val debugger ()) in
     let module Monitor = (val monitor ()) in
+    Tracer.trace_at := !Options.trace_at;
     (module Instrument.Default (Tracer) (Debugger) (Monitor))
 end
 
