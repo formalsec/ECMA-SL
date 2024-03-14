@@ -15,10 +15,10 @@ and t' =
   | GAssign of Id.t * EExpr.t
   | FieldAssign of EExpr.t * EExpr.t * EExpr.t
   | FieldDelete of EExpr.t * EExpr.t
-  | If of (EExpr.t * t * Meta.t list) list * (t * Meta.t list) option
+  | If of (EExpr.t * t * Meta.t list * region) list * (t * Meta.t list) option
   | While of EExpr.t * t
   | ForEach of Id.t * EExpr.t * t * Meta.t list * (string * string) option
-  | RepeatUntil of t * EExpr.t option * Meta.t list
+  | RepeatUntil of t * (EExpr.t * region) option * Meta.t list
   | Switch of EExpr.t * (EExpr.t * t) list * t option * string
   | MatchWith of EExpr.t * Id.t option * (EPat.t * t) list
   | Lambda of Id.t * string * Id.t list * Id.t list * t
@@ -51,17 +51,18 @@ let rec pp (fmt : Fmt.t) (s : t) : unit =
   | If ([], _) ->
     Internal_error.(throw __FUNCTION__ (Expecting "non-empty if cases"))
   | If (ifcs :: elifcss, elsecs) ->
-    let pp_if fmt (e, s, _) = fprintf fmt "if (%a) %a" EExpr.pp e pp s in
-    let pp_elif fmt (e, s, _) = fprintf fmt " elif (%a) %a" EExpr.pp e pp s in
+    let pp_case fmt (e, s) = fprintf fmt "(%a) %a" EExpr.pp e pp s in
+    let pp_if fmt (e, s, _, _) = fprintf fmt "if %a" pp_case (e, s) in
+    let pp_elif fmt (e, s, _, _) = fprintf fmt " elif %a" pp_case (e, s) in
     let pp_else fmt (s, _) = fprintf fmt " else %a" pp s in
     fprintf fmt "%a%a%a" pp_if ifcs (pp_lst "" pp_elif) elifcss (pp_opt pp_else)
       elsecs
   | While (e, s') -> fprintf fmt "while (%a) %a" EExpr.pp e pp s'
   | ForEach (x, e, s', _, _) ->
     fprintf fmt "foreach (%a : %a) %a" Id.pp x EExpr.pp e pp s'
-  | RepeatUntil (s', e, _) ->
-    let pp_until fmt e = fprintf fmt " until %a" EExpr.pp e in
-    fprintf fmt "repeat %a%a" pp s' (pp_opt pp_until) e
+  | RepeatUntil (s', until, _) ->
+    let pp_until fmt (e, _) = fprintf fmt " until %a" EExpr.pp e in
+    fprintf fmt "repeat %a%a" pp s' (pp_opt pp_until) until
   | Switch (e, css, dflt, _) ->
     let pp_case fmt (e, s) = fprintf fmt "\ncase %a: %a" EExpr.pp e pp s in
     let pp_default fmt s = fprintf fmt "\nsdefault: %a" pp s in
@@ -107,14 +108,15 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = EExpr.Mapper.id) (mapper : t -> t)
   | FieldAssign (oe, fe, e) -> FieldAssign (emapper oe, emapper fe, emapper e)
   | FieldDelete (oe, fe) -> FieldDelete (emapper oe, emapper fe)
   | If (ifcs, elsecs) ->
-    let map_ifcs (e, s, meta) = (emapper e, map' s, meta) in
+    let map_ifcs (e, s, meta, at) = (emapper e, map' s, meta, at) in
     let map_elsecs (s, meta) = (map' s, meta) in
     If (List.map map_ifcs ifcs, Option.map map_elsecs elsecs)
   | While (e, s') -> While (emapper e, map' s')
   | ForEach (x, e, s', meta, var_meta) ->
     ForEach (id_mapper x, emapper e, map' s', meta, var_meta)
-  | RepeatUntil (s', e, meta) ->
-    RepeatUntil (map' s', Option.map emapper e, meta)
+  | RepeatUntil (s', until, meta) ->
+    let map_until (e, at) = (emapper e, at) in
+    RepeatUntil (map' s', Option.map map_until until, meta)
   | Switch (e, css, dflt, meta) ->
     let map_cs (e, s) = (emapper e, map' s) in
     Switch (emapper e, List.map map_cs css, Option.map map' dflt, meta)
@@ -142,7 +144,7 @@ let rec to_list ?(recursion : bool = false) (to_list_f : t -> 'a list) (s : t) :
     | Block ss -> to_list_ss ss
     | If (ifcss, elsecs) ->
       to_list_ss
-        ( List.map (fun (_, s, _) -> s) ifcss
+        ( List.map (fun (_, s, _, _) -> s) ifcss
         @ Option.fold ~none:[] ~some:(fun (s, _) -> [ s ]) elsecs )
     | While (_, s') -> to_list_s s'
     | ForEach (_, _, s', _, _) -> to_list_s s'
