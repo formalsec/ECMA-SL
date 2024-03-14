@@ -6,8 +6,7 @@ module type M = sig
   module Monitor : Monitor.M
 
   type t =
-    { tr : unit
-    ; db : Debugger.t
+    { db : Debugger.t
     ; mon_state : Monitor.state
     ; mon_label : Monitor.sl_label
     }
@@ -21,15 +20,13 @@ module Default (Tr : Tracer.M) (Db : Debugger.M) (Mon : Monitor.M) : M = struct
   module Monitor = Mon
 
   type t =
-    { tr : unit
-    ; db : Debugger.t
+    { db : Debugger.t
     ; mon_state : Monitor.state
     ; mon_label : Monitor.sl_label
     }
 
   let intial_state () : t =
-    { tr = ()
-    ; db = Debugger.intial_state ()
+    { db = Debugger.intial_state ()
     ; mon_state = Monitor.initial_state ()
     ; mon_label = Monitor.initial_label ()
     }

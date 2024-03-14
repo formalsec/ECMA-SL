@@ -1,10 +1,9 @@
 open EslBase
 open EslSyntax
 
-type value = Val.t
-type obj = value Object.t
-type store = value Store.t
-type heap = value Heap.t
+type obj = Val.t Object.t
+type store = Val.t Store.t
+type heap = Val.t Heap.t
 type stack = store Call_stack.t
 
 module Show = struct
@@ -83,7 +82,7 @@ let print_stmt (f : Func.t) (s : Stmt.t) : unit =
 
 let print_obj (obj : obj) : unit = Fmt.printf "%a" (Object.pp Val.pp) obj
 
-let print_val (heap : heap) (res : value) : unit =
+let print_val (heap : heap) (res : Val.t) : unit =
   match res with
   | Loc l ->
     !!(Heap.get heap l) |> print_obj;
@@ -95,7 +94,7 @@ let eval_fld (heap : heap) (lv : Val.t) (fn : string) : Val.t =
   match lv with
   | Loc l ->
     _fld_val (Option.bind (Heap.get_opt heap l) (fun obj -> Object.get obj fn))
-  | _ -> cmd_err (Fmt.asprintf "Invalid location value '%a'." Val.pp lv)
+  | _ -> cmd_err (Fmt.asprintf "Invalid location Val.t '%a'." Val.pp lv)
 
 let eval_cmd (store : store) (heap : heap) (expr : string) () : unit =
   let args = String.split_on_char '.' expr in
