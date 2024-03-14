@@ -233,17 +233,18 @@ let stmt_target :=
 
 let if_target :=
   | IF; LPAREN; e = expr_target; RPAREN; meta = stmt_opt_metadata_target; s = block_target;
-    { (e, s, meta) }
+    { (e, s, meta, at $sloc) }
 
 let elif_target :=
   | ELIF; LPAREN; e = expr_target; RPAREN; meta = stmt_opt_metadata_target; s = block_target;
-    { (e, s, meta) }
+    { (e, s, meta, at $sloc) }
 
 let else_target :=
   | ELSE; meta = stmt_opt_metadata_target; s = block_target;
     { (s, meta) }
 
-let until_target := UNTIL; ~ = expr_target; <>
+let until_target :=
+  | UNTIL; e = expr_target;   { e, at $sloc }
 
 let switch_case_target := CASE; ~ = expr_target; COLON; ~ = block_target; <>
 
