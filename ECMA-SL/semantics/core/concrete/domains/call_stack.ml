@@ -36,6 +36,7 @@ let loc (stack : 'store t) : Func.t * Stmt.t =
 
 let func (stack : 'store t) : Func.t = fst (loc stack)
 let stmt (stack : 'store t) : Stmt.t = snd (loc stack)
+let level (stack : 'store t) : int = List.length stack
 
 let pop (stack : 'store t) : 'store frame * 'store t =
   match stack with
