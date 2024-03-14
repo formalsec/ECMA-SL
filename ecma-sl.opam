@@ -45,3 +45,6 @@ build: [
   ["dune" "install" "-p" name "--create-install-files" name]
 ]
 dev-repo: "git+https://github.com/formalsec/ECMA-SL.git"
+pin-depends: [
+  [ "encoding.dev" "git+https://github.com/formalsec/encoding#e564a570b1e3d8b75e99dd95fdd98f0d58e5087c"]
+]

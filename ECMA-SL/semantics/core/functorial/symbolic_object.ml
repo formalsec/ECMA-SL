@@ -12,8 +12,6 @@ module Value_key = struct
   type t = V.value
 
   let hash (e : t) = Hashtbl.hash e
-  let t_of_sexp _ = assert false
-  let sexp_of_t _ = assert false
   let compare (e1 : t) (e2 : t) = compare (Hashtbl.hash e1) (Hashtbl.hash e2)
 end
 
