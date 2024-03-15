@@ -9,6 +9,7 @@ import "node/path.esl";
 import "node/shelljs.esl";
 import "node/cross-spawn.esl";
 import "node/process.esl";
+import "node/execa.esl";
 import "esl_interpreter.esl";
 
 /* Redefine this functions because we need to initialize the node global obj */
