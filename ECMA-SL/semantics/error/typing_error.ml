@@ -92,7 +92,7 @@ module TypingErr : Error_type.ERROR_TYPE with type t = msg = struct
       fprintf fmt "Expecting %d elements, but %d were provided." ntsref ntssrc
     | IncompatibleElement i ->
       fprintf fmt "Types of the %s element are incompatible."
-        (String_utils.ordinal_suffix i)
+        (String.ordinal_suffix i)
     | IncompatibleSigmaDiscriminant ->
       fprintf fmt "Discriminant fields are incompatible."
     | MissingSigmaCase tdsc ->

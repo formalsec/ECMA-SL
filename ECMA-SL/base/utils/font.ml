@@ -1,5 +1,8 @@
 module Config = struct
   let colored = ref true
+  let supported = Terminal.colored ()
+  let supported_stdout = Terminal.is_terminal Unix.stdout
+  let supported_stderr = Terminal.is_terminal Unix.stderr
 end
 
 type t = t' list
@@ -25,10 +28,13 @@ and t' =
   | White
 
 let colored (fdesc : Unix.file_descr option) : bool =
-  match (!Config.colored, fdesc) with
-  | (false, _) -> false
-  | (true, Some fdesc') when not Unix.(isatty fdesc') -> false
-  | (true, _) -> true
+  let supported_fdesc fdesc =
+    if fdesc == Unix.stdout then Config.supported_stdout
+    else if fdesc == Unix.stderr then Config.supported_stderr
+    else false
+  in
+  if not (!Config.colored && Config.supported) then false
+  else Option.fold ~none:false ~some:supported_fdesc fdesc
 
 let clean (text : string) : string =
   let escape_regex = Str.regexp "\027\\[[0-9;]*m" in

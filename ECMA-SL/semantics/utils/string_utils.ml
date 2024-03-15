@@ -319,10 +319,3 @@ let utf8decode s =
 
 let hexdecode s =
   from_char_code_u (Stdlib.int_of_string ("0x" ^ String.sub s 2 2))
-
-let ordinal_suffix (n : int) : string =
-  let suffix =
-    if n mod 100 / 10 = 1 then "th"
-    else match n mod 10 with 1 -> "st" | 2 -> "nd" | 3 -> "rd" | _ -> "th"
-  in
-  string_of_int n ^ suffix
