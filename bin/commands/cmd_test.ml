@@ -11,7 +11,8 @@ module Options = struct
   let set_options inputs harness lang ecmaref =
     Cmd_compile.Options.untyped := false;
     Cmd_interpret.Options.trace := None;
-    Cmd_interpret.Options.trace_at := false;
+    Cmd_interpret.Options.trace_loc := false;
+    Cmd_interpret.Options.trace_depth := 0;
     Cmd_interpret.Options.debugger := false;
     { inputs; harness; lang; ecmaref }
 end

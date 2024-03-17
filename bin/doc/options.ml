@@ -107,12 +107,19 @@ module Interpret = struct
     let tracers = Arg.enum Interp_tracer.(args all) in
     Arg.(value & opt tracers None & info [ "trace" ] ~doc)
 
-  let trace_at =
+  let trace_loc =
     let doc =
       "Show the locations of every language construct under evaluation. This \
        option is only active when a trace mode is set."
     in
-    Arg.(value & flag & info [ "trace-at" ] ~doc)
+    Arg.(value & flag & info [ "trace-loc" ] ~doc)
+
+  let trace_depth =
+    let doc =
+      "Specifies the maximum call stack depth to be logged by the tracer. \
+       Non-positive depth values are ignored by the command."
+    in
+    Arg.(value & opt int 0 & info [ "trace-depth" ] ~doc)
 
   let debugger =
     let doc =

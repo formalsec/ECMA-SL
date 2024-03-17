@@ -11,11 +11,12 @@ module Options = struct
     ; show_exitval : bool
     }
 
-  let set_options input harness lang ecmaref trace trace_at debugger
-    show_exitval =
+  let set_options input harness lang ecmaref trace trace_loc trace_depth
+    debugger show_exitval =
     Cmd_compile.Options.untyped := false;
     Cmd_interpret.Options.trace := trace;
-    Cmd_interpret.Options.trace_at := trace_at;
+    Cmd_interpret.Options.trace_loc := trace_loc;
+    Cmd_interpret.Options.trace_depth := trace_depth;
     Cmd_interpret.Options.debugger := debugger;
     { input; harness; lang; ecmaref; show_exitval }
 end
