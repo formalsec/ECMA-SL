@@ -20,7 +20,8 @@ module M (Instrument : Instrument.M) = struct
   type stack = store Call_stack.t
 
   type state =
-    { store : store
+    { lvl : int
+    ; store : store
     ; heap : heap
     ; stack : stack
     }
@@ -50,12 +51,12 @@ module M (Instrument : Instrument.M) = struct
     if Option.is_some (Heap.get_opt heap esl_globals_loc) then
       Store.set store esl_globals_obj (Loc esl_globals_loc)
 
-  let initial_state (main : Func.t) (s_heap : heap option) : state =
+  let initial_state (fmain : Func.t) (s_heap : heap option) : state =
     let store = Store.create [] in
     let heap = Option.fold ~none:(Heap.create ()) ~some:Heap.extend s_heap in
-    let stack = Call_stack.create main in
+    let stack = Call_stack.create fmain in
     set_global_var store heap;
-    { store; heap; stack }
+    { lvl = 0; store; heap; stack }
 
   let operate (eval_op_fun : unit -> Val.t) (es : Expr.t list) : Val.t =
     try eval_op_fun ()
@@ -109,7 +110,7 @@ module M (Instrument : Instrument.M) = struct
 
   and eval_expr (state : state) (e : Expr.t) : Val.t =
     let v = eval_expr' state e in
-    Instrument.Tracer.trace_expr e (state.heap, v);
+    Instrument.Tracer.trace_expr state.lvl e (state.heap, v);
     v
 
   let eval_string (state : state) (e : Expr.t) : string =
@@ -161,7 +162,7 @@ module M (Instrument : Instrument.M) = struct
     (s : Stmt.t) (cont : Stmt.t list) : return * Instrument.t =
     let lbl inst s_eval = update_mon_label inst s s_eval in
     Call_stack.update state.stack s;
-    Instrument.Tracer.trace_stmt s;
+    Instrument.Tracer.trace_stmt state.lvl s;
     match s.it with
     | Skip -> (Intermediate (state, cont), lbl inst SkipEval)
     | Merge -> (Intermediate (state, cont), lbl inst MergeEval)
@@ -177,17 +178,17 @@ module M (Instrument : Instrument.M) = struct
       (Intermediate (state, cont), lbl inst PrintEval)
     | Return e -> (
       let v = eval_expr state e in
+      let f = Call_stack.func state.stack in
+      Instrument.Tracer.trace_return state.lvl f s (state.heap, v);
       let (frame, stack') = Call_stack.pop state.stack in
       match frame with
-      | Call_stack.Toplevel _ ->
-        Instrument.Tracer.trace_return None (state.heap, v);
-        (Final v, lbl inst ReturnEval)
+      | Call_stack.Toplevel _ -> (Final v, lbl inst ReturnEval)
       | Call_stack.Intermediate (_, restore) ->
         let (store', cont', x) = Call_stack.restore restore in
-        let state' = { state with store = store'; stack = stack' } in
-        let fret = Call_stack.func stack' in
+        let lvl = state.lvl - 1 in
+        let state' = { state with lvl; store = store'; stack = stack' } in
         Store.set store' x v;
-        Instrument.Tracer.trace_return (Some fret) (state.heap, v);
+        Instrument.Tracer.trace_restore lvl (Call_stack.func stack');
         (Intermediate (state', cont'), lbl inst ReturnEval) )
     | Assign (x, e) ->
       eval_expr state e |> Store.set state.store x.it;
@@ -204,9 +205,10 @@ module M (Instrument : Instrument.M) = struct
         let cont' = [ Func.body f ] in
         let inject_res = Instrument.Debugger.inject s inst.db stack' cont' in
         let (db', stack'', cont'') = inject_res in
-        let state' = { state with store = store'; stack = stack'' } in
+        let lvl = state.lvl + 1 in
+        let state' = { state with lvl; store = store'; stack = stack'' } in
         let inst' = { inst with db = db' } in
-        Instrument.Tracer.trace_call (Call_stack.level stack'') fe es;
+        Instrument.Tracer.trace_call lvl f s;
         (Intermediate (state', cont''), lbl inst' (AssignCallEval f)) )
     | AssignECall (x, fn, es) ->
       let vs = List.map (eval_expr state) es in
@@ -325,10 +327,11 @@ module M (Instrument : Instrument.M) = struct
     | _ -> Runtime_error.(throw (UnexpectedExitVal retval))
 
   let eval_partial (entry : EntryPoint.t) (p : Prog.t) : Val.t * heap =
-    let f = get_func p entry.main no_region in
-    let state = initial_state f entry.static_heap in
+    let fmain = get_func p entry.main no_region in
+    let state = initial_state fmain entry.static_heap in
     let inst = Instrument.intial_state () in
-    let return = small_step_iter p state inst [ Func.body f ] in
+    Instrument.Tracer.trace_restore (-1) fmain;
+    let return = small_step_iter p state inst [ Func.body fmain ] in
     match return with
     | Final v when entry.resolve_exitval -> (resolve_exitval v, state.heap)
     | Final v -> (v, state.heap)

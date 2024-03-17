@@ -48,10 +48,3 @@ let pp_opt (pp_el : t -> 'a -> unit) (fmt : t) (el : 'a option) =
 
 let pp_cond (cond : bool) (pp_el : t -> 'a -> unit) (fmt : t) (el : 'a) =
   if cond then pp_el fmt el
-
-let pp_truncate ?(extra : string option) (limit : int) (pp_el : t -> 'a -> unit)
-  (fmt : t) (el : 'a) : unit =
-  let text = asprintf "%a" pp_el el in
-  match extra with
-  | None -> fprintf fmt "%s" (String.truncate limit text)
-  | Some extra' -> fprintf fmt "%s" (String.truncate ~extra:extra' limit text)
