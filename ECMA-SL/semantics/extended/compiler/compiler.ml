@@ -12,7 +12,7 @@ let ( ?@ ) (e : Expr.t) : Id.t =
 
 module Const = struct
   let original_main = "main"
-  let esl_globals_loc = "$loc_0"
+  let esl_globals_loc = 0
   let esl_globals_obj = "___internal_esl_global"
 end
 

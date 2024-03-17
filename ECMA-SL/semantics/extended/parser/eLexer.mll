@@ -207,7 +207,7 @@ let gid           = '|' (id) '|'
 let symbol        = '\'' (id | int)
 let white         = (' ' | '\t')+
 let newline       = '\r' | '\n' | "\r\n"
-let loc           = "$loc_" (digit | letter | '_')+
+let loc           = "$loc_" digit+
 let hex_digit     = (digit | ['a' - 'f' 'A' - 'F'])
 let hex_literal   = "0x" hex_digit hex_digit? hex_digit? hex_digit? hex_digit? hex_digit?
 
@@ -268,7 +268,7 @@ rule read =
   | id as x           { try Hashtbl.find keywords x with Not_found -> ID x }
   | gid               { GID (String_utils.trim_ends (Lexing.lexeme lexbuf))}
   | symbol            { SYMBOL (String_utils.chop_first_char (Lexing.lexeme lexbuf)) }
-  | loc               { LOC (Lexing.lexeme lexbuf) }
+  | loc               { LOC (Parsing_utils.parse_loc @@ Lexing.lexeme lexbuf) }
   | "/*"              { read_comment lexbuf }
   | _                 { raise (create_syntax_error "Unexpected char" lexbuf) }
   | eof               { EOF }

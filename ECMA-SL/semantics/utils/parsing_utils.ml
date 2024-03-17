@@ -16,3 +16,10 @@ let print_position (outx : Fmt.t) (lexbuf : Lexing.lexbuf) : unit =
 let init_lexbuf (file : string) (str : string) =
   let lexbuf = Lexing.from_string str in
   { lexbuf with lex_curr_p = { lexbuf.lex_curr_p with pos_fname = file } }
+
+let parse_loc =
+  let re = Str.regexp {|\$loc_([0-9]+)|} in
+  fun (x : string) : Loc.t ->
+    match Str.string_match re x 0 with
+    | true -> int_of_string (Str.matched_group 1 x)
+    | false -> Log.err "parse_loc: unable to parse location: '%s'" x
