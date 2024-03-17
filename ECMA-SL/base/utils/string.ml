@@ -14,7 +14,9 @@ let ordinal_suffix (n : int) : string =
 
 let truncate ?(extra : string option) (limit : int) (text : string) : string =
   let truncate_line line truncated =
-    if length line > limit then (sub line 0 limit, true) else (line, truncated)
+    try
+      if length line > limit then (sub line 0 limit, true) else (line, truncated)
+    with Invalid_argument _ -> ("", true)
   in
   let add_extra (line, truncated) =
     if truncated then line ^ Option.value ~default:"" extra else line
