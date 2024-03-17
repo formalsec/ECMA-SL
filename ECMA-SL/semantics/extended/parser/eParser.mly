@@ -25,11 +25,11 @@
 (* ========== Typed tokens ========== *)
 
 %token <int>    INT
+%token <int>    LOC
 %token <float>  FLOAT
 %token <string> STRING
 %token <bool>   BOOLEAN
 %token <string> SYMBOL
-%token <string> LOC
 %token <string> ID
 %token <string> GID
 

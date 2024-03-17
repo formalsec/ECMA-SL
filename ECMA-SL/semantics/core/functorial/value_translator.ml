@@ -16,7 +16,7 @@ let translate_val (v : Val.t) : Expr.t =
   | Val.Flt x -> Val (Value.Real x) @: Ty_real
   | Val.Str x -> Val (Value.Str x) @: Ty_str
   | Val.Bool x -> Val (if x then Value.True else Value.False) @: Ty_bool
-  | Val.Loc x -> Val (Value.Str x) @: Ty_str
+  | Val.Loc x -> Val (Value.Str (Loc.str x)) @: Ty_str
   | _ -> failwith ("translate_val: unsupported value '" ^ Val.str v ^ "'")
 
 let translate_symbol (t : Type.t) (x : string) : Expr.t =

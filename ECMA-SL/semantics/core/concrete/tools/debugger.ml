@@ -102,11 +102,13 @@ let eval_cmd (store : store) (heap : heap) (expr : string) () : unit =
   match args with
   | [] | [ "" ] -> cmd_err "Missing eval expression."
   | [ x ] ->
-    if String.starts_with ~prefix:"$" x then !!(Heap.get heap x) |> print_obj
+    if String.starts_with ~prefix:"$" x then
+      !!(Heap.get heap (Parsing_utils.parse_loc x)) |> print_obj
     else !!(Store.get store x) |> print_val heap
   | oe :: fns ->
     let lv =
-      if String.starts_with ~prefix:"$" oe then Val.Loc oe
+      if String.starts_with ~prefix:"$" oe then
+        Val.Loc (Parsing_utils.parse_loc oe)
       else !!(Store.get store oe)
     in
     List.fold_left (eval_fld heap) lv fns |> print_val heap
