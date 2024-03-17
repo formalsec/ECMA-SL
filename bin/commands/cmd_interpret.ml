@@ -3,7 +3,8 @@ open Ecma_sl
 module Options = struct
   let langs : Lang.t list = Lang.[ Auto; ESL; CESL; CESLUnattached ]
   let trace = ref Interp_tracer.None
-  let trace_at = ref false
+  let trace_loc = ref false
+  let trace_depth = ref 0
   let debugger = ref false
 
   type t =
@@ -13,18 +14,21 @@ module Options = struct
     ; show_exitval : bool
     }
 
-  let set_options input lang trace' trace_at' debugger' main show_exitval
-    untyped' =
+  let set_options input lang trace' trace_loc' trace_depth' debugger' main
+    show_exitval untyped' =
     Cmd_compile.Options.untyped := untyped';
     trace := trace';
-    trace_at := trace_at';
+    trace_loc := trace_loc';
+    trace_depth := trace_depth';
     debugger := debugger';
     { input; lang; main; show_exitval }
 end
 
 module InterpreterInstrument = struct
   let tracer () : (module Tracer.M) =
-    Tracer.Config.trace_at := !Options.trace_at;
+    Tracer.Config.trace_loc := !Options.trace_loc;
+    Tracer.Config.trace_depth :=
+      if !Options.trace_depth > 0 then Some !Options.trace_depth else None;
     match !Options.trace with
     | None -> (module Tracer.Disable : Tracer.M)
     | Call -> (module Tracer.Call : Tracer.M)

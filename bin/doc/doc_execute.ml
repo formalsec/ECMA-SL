@@ -44,7 +44,8 @@ let options =
     $ Options.Execute.lang Cmd_execute.Options.langs
     $ Options.Execute.ecmaref
     $ Options.Interpret.trace
-    $ Options.Interpret.trace_at
+    $ Options.Interpret.trace_loc
+    $ Options.Interpret.trace_depth
     $ Options.Interpret.debugger
     $ Options.Interpret.show_exitval )
 

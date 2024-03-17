@@ -36,7 +36,8 @@ let options =
     $ Options.File.input
     $ Options.Interpret.lang Cmd_interpret.Options.langs
     $ Options.Interpret.trace
-    $ Options.Interpret.trace_at
+    $ Options.Interpret.trace_loc
+    $ Options.Interpret.trace_depth
     $ Options.Interpret.debugger
     $ Options.Interpret.main_func
     $ Options.Interpret.show_exitval
