@@ -31,7 +31,7 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     | None -> Runtime_error.(throw ~src:(ErrSrc.region at) (UnknownVar x))
     | Some v -> v
 
-  let get_loc (heap : heap) (l : string) : obj =
+  let get_loc (heap : heap) (l : Loc.t) : obj =
     match Heap.get_opt heap l with
     | None -> Internal_error.(throw __FUNCTION__ (Expecting "existing location"))
     | Some obj -> obj
@@ -119,12 +119,12 @@ module M (Db : Debugger.M) (Vb : Verbose.M) (Mon : Monitor.M) = struct
     | Bool b -> b
     | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("boolean", v)))
 
-  let eval_location (store : store) (e : Expr.t) : string =
+  let eval_location (store : store) (e : Expr.t) : Loc.t =
     match eval_expr store e with
     | Loc l -> l
     | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("location", v)))
 
-  let eval_object (store : store) (heap : heap) (e : Expr.t) : string * obj =
+  let eval_object (store : store) (heap : heap) (e : Expr.t) : Loc.t * obj =
     let l = eval_location store e in
     let obj = get_loc heap l in
     (l, obj)

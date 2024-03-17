@@ -7,28 +7,28 @@ module Make (O : Object_intf.S with type value = V.value) = struct
 
   type t =
     { parent : t option
-    ; data : (Loc.t, object_) Hashtbl.t
+    ; data : object_ Loc.Tbl.t
     }
 
   type value = V.value
 
-  let create () : t = { parent = None; data = Hashtbl.create 512 }
-  let clone (m : t) : t = { parent = Some m; data = Hashtbl.create 16 }
+  let create () : t = { parent = None; data = Loc.Tbl.create 512 }
+  let clone (m : t) : t = { parent = Some m; data = Loc.Tbl.create 16 }
 
   let insert ({ data = memory; _ } : t) (o : object_) : value =
     let loc = Loc.create () in
-    Hashtbl.replace memory loc o;
+    Loc.Tbl.replace memory loc o;
     V.Val (Val.Loc loc)
 
-  let remove (m : t) (l : Loc.t) : unit = Hashtbl.remove m.data l
+  let remove (m : t) (l : Loc.t) : unit = Loc.Tbl.remove m.data l
 
   let set ({ data = memory; _ } : t) (key : Loc.t) (data : object_) : unit =
-    Hashtbl.replace memory key data
+    Loc.Tbl.replace memory key data
 
   let find memory l =
     let open Syntax.Option in
     let rec aux { parent; data } l from_parent =
-      match Hashtbl.find_opt data l with
+      match Loc.Tbl.find_opt data l with
       | Some o -> Some (o, from_parent)
       | None ->
         let* parent in
@@ -77,21 +77,22 @@ module Make (O : Object_intf.S with type value = V.value) = struct
     let pp_parent fmt v =
       pp_opt (fun fmt h -> fprintf fmt "%a@ <-@ " pp h) fmt v
     in
-    fprintf fmt "%a{ %a }" pp_parent parent (pp_hashtbl ", " pp_v) data
+    fprintf fmt "%a{ %a }" pp_parent parent (Loc.Tbl.pp ", " pp_v) data
 
-  let rec unfold_ite ~(accum : value) (e : value) : (value option * string) list
+  let rec unfold_ite ~(accum : value) (e : value) : (value option * int) list
       =
     let open V in
     let open Operator in
     match e with
-    | Val (Val.Loc x) | Val (Val.Symbol x) -> [ (Some accum, x) ]
+    | Val (Val.Loc x) -> [ (Some accum, x) ]
+    | Val (Val.Symbol _x) -> [ (Some accum, ~-1) ]
     | TriOpt (ITE, c, Val (Val.Loc l), e) ->
       let accum' = BinOpt (LogicalAnd, accum, UnOpt (LogicalNot, c)) in
       let tl = unfold_ite ~accum:accum' e in
       (Some (BinOpt (LogicalAnd, accum, c)), l) :: tl
     | _ -> assert false
 
-  let loc (e : value) : ((value option * string) list, string) Result.t =
+  let loc (e : value) : ((value option * int) list, string) Result.t =
     let open V in
     match e with
     | Val (Val.Loc l) -> Ok [ (None, l) ]
@@ -103,8 +104,8 @@ module Make (O : Object_intf.S with type value = V.value) = struct
     match e with
     | V.Val (Val.Loc l) -> (
       match get h l with
-      | None -> l
-      | Some o -> Fmt.asprintf "%s -> %a" l O.pp o )
+      | None -> Loc.str l
+      | Some o -> Fmt.asprintf "%a -> %a" Loc.pp l O.pp o )
     | _ -> Fmt.asprintf "%a" V.pp e
 end
 

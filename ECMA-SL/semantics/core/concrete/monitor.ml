@@ -10,13 +10,13 @@ type stmt_eval =
   | AssignEval
   | AssignCallEval of Func.t
   | AssignECallEval
-  | AssignNewObjEval of string
+  | AssignNewObjEval of Loc.t
   | AssignObjToListEval
   | AssignObjFieldsEval
-  | AssignInObjCheckEval of string * string
-  | FieldLookupEval of string * string
-  | FieldAssignEval of string * string
-  | FieldDeleteEval of string * string
+  | AssignInObjCheckEval of Loc.t * string
+  | FieldLookupEval of Loc.t * string
+  | FieldAssignEval of Loc.t * string
+  | FieldDeleteEval of Loc.t * string
   | IfEval of bool
   | WhileEval
   | SwitchEval of Val.t

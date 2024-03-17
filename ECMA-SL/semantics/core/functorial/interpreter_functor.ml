@@ -202,7 +202,8 @@ module Make (P : Interpreter_functor_intf.P) :
       let* loc = Memory.loc loc in
       let* heap = Env.get_memory env in
       match Memory.get heap loc with
-      | None -> error (`Failure (Fmt.sprintf "'%s' not found in heap" loc))
+      | None ->
+        error (`Failure (Fmt.asprintf "'%a' not found in heap" Loc.pp loc))
       | Some o ->
         let v = Value.mk_list (List.map Value.mk_tuple (Object.to_list o)) in
         ok { state with locals = Store.add_exn locals x.it v } )
@@ -211,7 +212,8 @@ module Make (P : Interpreter_functor_intf.P) :
       let* loc = Memory.loc loc in
       let* heap = Env.get_memory env in
       match Memory.get heap loc with
-      | None -> error (`Failure (Fmt.sprintf "'%s' not found in heap" loc))
+      | None ->
+        error (`Failure (Fmt.asprintf "'%a' not found in heap" Loc.pp loc))
       | Some o ->
         let v = Value.mk_list @@ Object.get_fields o in
         ok { state with locals = Store.add_exn locals x.it v } )
