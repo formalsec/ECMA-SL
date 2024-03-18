@@ -88,3 +88,23 @@ module TypeCheck = struct
     (expected : (unit, Err.t list) Result.t) : bool =
     test false (tref, tsrc) expected
 end
+
+module TypeExpr = struct
+  module Err = Typing_error.TypingErr
+
+  let test (e : EExpr.t) (expected : (t, Err.t list) Result.t) : bool =
+    let err_str msgs = List.map Err.str msgs |> String.concat " ; " in
+    let result =
+      try Ok (TExpr.type_expr e) with
+      | Typing_error.Error err -> Error err.msgs
+      | exn -> raise exn
+    in
+    match (expected, result) with
+    | (Ok t1, Ok t2) ->
+      if equal t1 t2 then true else Log.expected (str t1) (str t2)
+    | (Error msgs1, Error msgs2) ->
+      if List.equal Err.equal msgs1 msgs2 then true
+      else Log.expected (err_str msgs1) (err_str msgs2)
+    | (Ok t1, Error msgs2) -> Log.expected (str t1) (err_str msgs2)
+    | (Error msgs1, Ok t2) -> Log.expected (err_str msgs1) (str t2)
+end
