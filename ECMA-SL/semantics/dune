@@ -73,6 +73,7 @@
   compiler
   ; compiler (type system)
   tSubtyping
+  tOperator
   tExpr
   ;  utils
   arith_utils

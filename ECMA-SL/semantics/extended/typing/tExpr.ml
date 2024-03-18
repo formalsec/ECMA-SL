@@ -2,22 +2,25 @@ open EslBase
 open EslSyntax
 open EslSyntax.Source
 
-let rec type_expr (e : EExpr.t) : EType.t =
+let rec type_expr (e : EExpr.t) : EType.t = type_expr' e @> e.at
+
+and type_expr' (e : EExpr.t) : EType.t' =
+  let texprs es = List.map type_expr es in
   match e.it with
-  | Val v -> type_val v @> e.at
-  | Var _ -> EType.AnyType @> e.at (* TODO *)
-  | GVar _ -> EType.AnyType @> e.at (* TODO *)
-  | Const _ -> EType.AnyType @> e.at (* TODO *)
-  | UnOpt _ -> EType.AnyType @> e.at (* TODO *)
-  | BinOpt _ -> EType.AnyType @> e.at (* TODO *)
-  | TriOpt _ -> EType.AnyType @> e.at (* TODO *)
-  | NOpt _ -> EType.AnyType @> e.at (* TODO *)
-  | Call _ -> EType.AnyType @> e.at (* TODO *)
-  | ECall _ -> EType.AnyType @> e.at (* TODO *)
-  | NewObj _ -> EType.AnyType @> e.at (* TODO *)
-  | Lookup _ -> EType.AnyType @> e.at (* TODO *)
-  | Curry _ -> EType.AnyType @> e.at (* TODO *)
-  | Symbolic _ -> EType.AnyType @> e.at (* TODO *)
+  | Val v -> type_val v
+  | Var _ -> EType.AnyType (* TODO *)
+  | GVar _ -> EType.AnyType (* TODO *)
+  | Const c -> TOperator.type_const c
+  | UnOpt (op, e') -> texprs [ e' ] |> TOperator.type_unopt op
+  | BinOpt (op, e1, e2) -> texprs [ e1; e2 ] |> TOperator.type_binopt op
+  | TriOpt (op, e1, e2, e3) -> texprs [ e1; e2; e3 ] |> TOperator.type_triopt op
+  | NOpt (op, es) -> texprs es |> TOperator.type_nopt op
+  | Call _ -> EType.AnyType (* TODO *)
+  | ECall _ -> EType.AnyType (* TODO *)
+  | NewObj _ -> EType.AnyType (* TODO *)
+  | Lookup _ -> EType.AnyType (* TODO *)
+  | Curry _ -> EType.AnyType (* TODO *)
+  | Symbolic _ -> EType.AnyType (* TODO *)
 
 and type_val (v : Val.t) : EType.t' =
   let err v = Internal_error.UnexpectedEval (Some (v ^ " val")) in

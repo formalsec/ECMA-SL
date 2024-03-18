@@ -5,8 +5,6 @@ module ErrSrc = Error_source
 type msg =
   | Default
   | Custom of string
-  | BadCongruency of EType.t * EType.t
-  | BadSubtyping of EType.t * EType.t
   | MissingField of Id.t
   | ExtraField of Id.t
   | IncompatibleField of Id.t
@@ -22,6 +20,9 @@ type msg =
   | IncompatibleSigmaCase of EType.t
   | MissingSigmaCaseDiscriminant of Id.t
   | UnknownSigmaCaseDiscriminant of EType.t
+  | BadCongruency of EType.t * EType.t
+  | BadSubtyping of EType.t * EType.t
+  | BadOperand of EType.t * EType.t
 
 module TypingErr : Error_type.ERROR_TYPE with type t = msg = struct
   type t = msg
@@ -33,10 +34,6 @@ module TypingErr : Error_type.ERROR_TYPE with type t = msg = struct
     match (msg1, msg2) with
     | (Default, Default) -> true
     | (Custom msg1', Custom msg2') -> String.equal msg1' msg2'
-    | (BadCongruency (tref1, tsrc1), BadCongruency (tref2, tsrc2)) ->
-      EType.equal tref1 tref2 && EType.equal tsrc1 tsrc2
-    | (BadSubtyping (tref1, tsrc1), BadSubtyping (tref2, tsrc2)) ->
-      EType.equal tref1 tref2 && EType.equal tsrc1 tsrc2
     | (MissingField fn1, MissingField fn2) -> Id.equal fn1 fn2
     | (ExtraField fn1, ExtraField fn2) -> Id.equal fn1 fn2
     | (IncompatibleField fn1, IncompatibleField fn2) -> Id.equal fn1 fn2
@@ -59,6 +56,12 @@ module TypingErr : Error_type.ERROR_TYPE with type t = msg = struct
       Id.equal dsc1 dsc2
     | (UnknownSigmaCaseDiscriminant t1, UnknownSigmaCaseDiscriminant t2) ->
       EType.equal t1 t2
+    | (BadCongruency (tref1, tsrc1), BadCongruency (tref2, tsrc2)) ->
+      EType.equal tref1 tref2 && EType.equal tsrc1 tsrc2
+    | (BadSubtyping (tref1, tsrc1), BadSubtyping (tref2, tsrc2)) ->
+      EType.equal tref1 tref2 && EType.equal tsrc1 tsrc2
+    | (BadOperand (tpx1, targ1), BadOperand (tpx2, targ2)) ->
+      EType.equal tpx1 tpx2 && EType.equal targ1 targ2
     | _ -> false
 
   let pp (fmt : Fmt.t) (msg : t) : unit =
@@ -66,12 +69,6 @@ module TypingErr : Error_type.ERROR_TYPE with type t = msg = struct
     match msg with
     | Default -> fprintf fmt "Generic type error."
     | Custom msg' -> fprintf fmt "%s" msg'
-    | BadCongruency (tref, tsrc) ->
-      fprintf fmt "Value of type '%a' is not congruent with type '%a'." EType.pp
-        tsrc EType.pp tref
-    | BadSubtyping (tref, tsrc) ->
-      fprintf fmt "Value of type '%a' is not assignable to type '%a'." EType.pp
-        tsrc EType.pp tref
     | MissingField fn ->
       fprintf fmt "Field '%a' is missing from the object's type." Id.pp fn
     | ExtraField fn ->
@@ -112,6 +109,16 @@ module TypingErr : Error_type.ERROR_TYPE with type t = msg = struct
     | UnknownSigmaCaseDiscriminant tdsc ->
       fprintf fmt "Cannot find discriminant '%a' in the sigma type." EType.pp
         tdsc
+    | BadCongruency (tref, tsrc) ->
+      fprintf fmt "Value of type '%a' is not congruent with type '%a'." EType.pp
+        tsrc EType.pp tref
+    | BadSubtyping (tref, tsrc) ->
+      fprintf fmt "Value of type '%a' is not assignable to type '%a'." EType.pp
+        tsrc EType.pp tref
+    | BadOperand (tpx, targ) ->
+      fprintf fmt
+        "Argument of type '%a' is not assignable to parameter of type '%a'."
+        EType.pp targ EType.pp tpx
 
   let str (msg : t) : string = Fmt.asprintf "%a" pp msg
 end
@@ -139,6 +146,12 @@ let str (err : t) = Fmt.asprintf "%a" pp err
 let push (msg : msg) (exn : exn) : exn =
   match exn with
   | Error err -> Error { err with msgs = msg :: err.msgs }
+  | _ -> Internal_error.(throw __FUNCTION__ (Expecting "typing error"))
+
+let update (msg : msg) (exn : exn) : exn =
+  match exn with
+  | Error err when err.msgs == [] -> Error { err with msgs = [ msg ] }
+  | Error err -> Error { err with msgs = msg :: List.tl err.msgs }
   | _ -> Internal_error.(throw __FUNCTION__ (Expecting "typing error"))
 
 let src (exn : exn) : ErrSrc.t =
