@@ -10,6 +10,8 @@ on:
 
 jobs:
   build:
+    env:
+      TERM: screen-256color
     strategy:
       fail-fast: false
       matrix:

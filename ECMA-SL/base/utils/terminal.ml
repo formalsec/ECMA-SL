@@ -5,11 +5,13 @@ end
 
 let is_terminal (fdesc : Unix.file_descr) : bool = Unix.isatty fdesc
 
-let colored () : bool =
-  let ic = Unix.open_process_in "tput colors" in
-  let colors = int_of_string (input_line ic) in
-  close_in ic;
-  colors >= 256
+let colored (fdesc : Unix.file_descr) : bool =
+  if is_terminal fdesc then (
+    let ic = Unix.open_process_in "tput colors" in
+    let colors = int_of_string (input_line ic) in
+    close_in ic;
+    colors >= 256 )
+  else false
 
 let width (fdesc : Unix.file_descr) : int =
   if is_terminal fdesc then (
