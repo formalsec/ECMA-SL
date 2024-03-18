@@ -1,8 +1,7 @@
 module Config = struct
   let colored = ref true
-  let supported = Terminal.colored ()
-  let supported_stdout = Terminal.is_terminal Unix.stdout
-  let supported_stderr = Terminal.is_terminal Unix.stderr
+  let supported_stdout = Terminal.colored Unix.stdout
+  let supported_stderr = Terminal.colored Unix.stderr
 end
 
 type t = t' list
@@ -33,7 +32,7 @@ let colored (fdesc : Unix.file_descr option) : bool =
     else if fdesc == Unix.stderr then Config.supported_stderr
     else false
   in
-  if not (!Config.colored && Config.supported) then false
+  if not !Config.colored then false
   else Option.fold ~none:false ~some:supported_fdesc fdesc
 
 let clean (text : string) : string =
