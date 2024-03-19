@@ -60,9 +60,9 @@ module M (Instrument : Instrument.M) = struct
 
   let operate (eval_op_fun : unit -> Val.t) (es : Expr.t list) : Val.t =
     try eval_op_fun ()
-    with Runtime_error.Error _ as exn ->
-      let e = Runtime_error.(src exn |> ErrSrc.index_to_el es) in
-      Runtime_error.(set_src (ErrSrc.at e) exn |> raise)
+    with Runtime_error.Error err ->
+      let e = Runtime_error.(src err |> ErrSrc.index_to_el es) in
+      Runtime_error.(set_src (ErrSrc.at e) err |> raise)
 
   let print_val (heap : heap) (v : Val.t) : unit =
     let open Fmt in
@@ -299,8 +299,8 @@ module M (Instrument : Instrument.M) = struct
   let eval_small_step_safe (p : Prog.t) (state : state) (inst : Instrument.t)
     (s : Stmt.t) (cont : Stmt.t list) : return * Instrument.t =
     try eval_small_step p state inst s cont
-    with Runtime_error.Error _ as exn ->
-      Runtime_error.(set_trace state.stack exn |> raise)
+    with Runtime_error.Error err ->
+      Runtime_error.(set_trace state.stack err |> raise)
 
   let rec small_step_iter (p : Prog.t) (state : state) (inst : Instrument.t)
     (ss : Stmt.t list) : return =

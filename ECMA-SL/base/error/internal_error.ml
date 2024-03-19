@@ -44,7 +44,8 @@ type t =
 
 exception Error of t
 
-let create (loc : string) (msg : msg) : exn = Error { msg; loc }
+let raise (err : t) : 'a = Stdlib.raise (Error err)
+let create (loc : string) (msg : msg) : t = { msg; loc }
 let throw (loc : string) (msg : msg) : 'a = raise @@ create loc msg
 
 let pp (fmt : Fmt.t) (err : t) : unit =

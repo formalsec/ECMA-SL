@@ -60,7 +60,7 @@ and is_typeable ?(congruency : bool = false) (tref : t) (tsrc : t) : bool =
 and type_check_werr ?(congruency : bool = false) (tref : t) (tsrc : t)
   (msg : Typing_error.msg) : unit =
   try type_check ~congruency tref tsrc
-  with Typing_error.Error _ as exn -> Typing_error.(push msg exn |> raise)
+  with Typing_error.Error err -> Typing_error.(push msg err |> raise)
 
 and check_object (congruency : bool) (tref : t) (tsrc : t) : unit =
   let check_object_type otref otsrc =
@@ -71,8 +71,8 @@ and check_object (congruency : bool) (tref : t) (tsrc : t) : unit =
   match (tref.it, tsrc.it) with
   | (ObjectType tobjref, ObjectType tobjsrc) -> (
     try check_object_type tobjref tobjsrc
-    with Typing_error.Error _ as exn ->
-      Typing_error.(push (terr_msg congruency tref tsrc) exn |> raise) )
+    with Typing_error.Error err ->
+      Typing_error.(push (terr_msg congruency tref tsrc) err |> raise) )
   | _ -> Internal_error.(throw __FUNCTION__ (Expecting "object type"))
 
 and check_object_fields (congruency : bool) (tobjkind : EType.tobjkind)
@@ -135,8 +135,8 @@ and check_tuple (congruency : bool) (tref : EType.t) (tsrc : EType.t) : unit =
   match (tref.it, tsrc.it) with
   | (TupleType tsref, TupleType tssrc) -> (
     try check_tuple_elements tsrc.at congruency tsref tssrc
-    with Typing_error.Error _ as exn ->
-      Typing_error.(push (terr_msg congruency tref tsrc) exn) |> raise )
+    with Typing_error.Error err ->
+      Typing_error.(push (terr_msg congruency tref tsrc) err |> raise) )
   | _ -> Internal_error.(throw __FUNCTION__ (Expecting "tuple type"))
 
 and check_tuple_elements (at : Source.region) (congruency : bool)
@@ -152,13 +152,12 @@ and check_tuple_elements (at : Source.region) (congruency : bool)
     throw ~src:(ErrSrc.region at) (NExpectedElements (nref, nsrc))
 
 and check_union_congruency (tref : EType.t) (tsrc : EType.t) : unit =
-  let open Typing_error in
-  let err_src (isref, ttar) t = ErrSrc.at (if isref then t else ttar) in
   let has_any ts = List.exists (fun t -> Source.(t.it == AnyType)) ts in
   let check_congruency_f (isref, ttar) ts t =
     try ignore (List.find (is_typeable ~congruency:true t) ts)
     with Not_found ->
-      throw ~src:(err_src (isref, ttar) t) (BadCongruency (ttar, t))
+      let err_src = if isref then t else ttar in
+      Typing_error.(throw ~src:(ErrSrc.at err_src) (BadCongruency (ttar, t)))
   in
   let is_congruent tsref tssrc =
     if not (has_any tsref || has_any tssrc) then (
@@ -168,7 +167,8 @@ and check_union_congruency (tref : EType.t) (tsrc : EType.t) : unit =
   match (tref.it, tsrc.it) with
   | (UnionType tsref, UnionType tssrc) -> (
     try is_congruent tsref tssrc
-    with Error _ as exn -> push (BadCongruency (tref, tsrc)) exn |> raise )
+    with Typing_error.Error err ->
+      Typing_error.(push (BadCongruency (tref, tsrc)) err |> raise) )
   | _ -> Internal_error.(throw __FUNCTION__ (Expecting "union type"))
 
 and check_union_subtyping_src (tref : EType.t) (tsrc : EType.t) : unit =
@@ -179,8 +179,8 @@ and check_union_subtyping_src (tref : EType.t) (tsrc : EType.t) : unit =
   | (_, UnionType tssrc) when has_any tssrc -> ()
   | (_, UnionType tssrc) -> (
     try check_src_types tssrc
-    with Typing_error.Error _ as exn ->
-      Typing_error.(push (BadSubtyping (tref, tsrc)) exn |> raise) )
+    with Typing_error.Error err ->
+      Typing_error.(push (BadSubtyping (tref, tsrc)) err |> raise) )
   | _ -> Internal_error.(throw __FUNCTION__ (Expecting "union type source"))
 
 and check_union_subtyping_ref (tref : EType.t) (tsrc : EType.t) : unit =
@@ -203,8 +203,8 @@ and check_sigma (congruency : bool) (tref : t) (tsrc : t) : unit =
   match (tref.it, tsrc.it) with
   | (SigmaType (dscref, cssref), SigmaType (dscsrc, csssrc)) -> (
     try check_sigma_type (dscref, cssref) (dscsrc, csssrc)
-    with Typing_error.Error _ as exn ->
-      Typing_error.(push (terr_msg congruency tref tsrc) exn |> raise) )
+    with Typing_error.Error err ->
+      Typing_error.(push (terr_msg congruency tref tsrc) err |> raise) )
   | _ -> Internal_error.(throw __FUNCTION__ (Expecting "sigma type"))
 
 and check_sigma_discriminant (dscref : Id.t) (dscsrc : Id.t) =
@@ -231,8 +231,8 @@ and combine_sigma_cases (at : Source.region) (congruency : bool)
 and check_sigma_case (congruency : bool) ((dsc, csref, cssrc) : t * t * t) :
   unit =
   try type_check ~congruency csref cssrc
-  with Typing_error.Error _ as exn ->
-    Typing_error.(push (IncompatibleSigmaCase dsc) exn |> raise)
+  with Typing_error.Error err ->
+    Typing_error.(push (IncompatibleSigmaCase dsc) err |> raise)
 
 and check_sigma_folding (tref : t) (tsrc : t) : unit =
   let check_sigma_case (dscref, cssref) tobjsrc =
@@ -244,8 +244,8 @@ and check_sigma_folding (tref : t) (tsrc : t) : unit =
   match (tref.it, tsrc.it) with
   | (SigmaType (dscref, cssref), ObjectType tobjsrc) -> (
     try check_sigma_case (dscref, cssref) tobjsrc
-    with Typing_error.Error _ as exn ->
-      Typing_error.(push (terr_msg false tref tsrc) exn |> raise) )
+    with Typing_error.Error err ->
+      Typing_error.(push (terr_msg false tref tsrc) err |> raise) )
   | _ -> Internal_error.(throw __FUNCTION__ (Expecting "sigma|object type"))
 
 and match_sigma_case (cssref : (t * t) list) ((tdscsrc, tsrc) : t * t) : t =

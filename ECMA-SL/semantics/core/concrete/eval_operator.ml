@@ -4,8 +4,8 @@ open EslSyntax.Operator
 
 let op_err (arg : int) (op_lbl : string) (rterr : Runtime_error.msg) : 'a =
   try Runtime_error.(throw ~src:(Index arg) rterr)
-  with Runtime_error.Error _ as exn ->
-    Runtime_error.push (OpEvalErr op_lbl) exn |> raise
+  with Runtime_error.Error err ->
+    Runtime_error.(push (OpEvalErr op_lbl) err |> raise)
 
 let unexpected_err (arg : int) (op_lbl : string) (msg : string) : 'a =
   op_err arg op_lbl (Unexpected msg)
