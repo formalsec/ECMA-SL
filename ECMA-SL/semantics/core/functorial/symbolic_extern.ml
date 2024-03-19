@@ -67,7 +67,7 @@ module Make () = struct
         let open Encoding.Expr in
         let v = Translator.translate e in
         let query =
-          binop Ty_str Seq_contains v (make (Val (Str "A; touch success #")))
+          binop Ty_str Seq_contains v (make (Val (Str "`touch success`")))
         in
         Log.log ~header:false "       exec : %a" Value.pp e;
         [ (Error (`Exec_failure e), Thread.add_pc thread query) ]
