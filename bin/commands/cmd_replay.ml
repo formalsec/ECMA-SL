@@ -15,7 +15,7 @@ type observable =
   | Stdout of string
   | File of string
 
-let observable_effects = [ Stdout "success"; Stdout "polluted"; File "success" ]
+let observable_effects = [ File "success"; Stdout "success"; Stdout "polluted" ]
 
 let env testsuite =
   let ws = Unix.realpath @@ Fpath.to_string testsuite in
