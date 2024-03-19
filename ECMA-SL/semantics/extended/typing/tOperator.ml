@@ -8,8 +8,8 @@ type op_signature = (EType.t' list * EType.t') list
 let type_check_signature (targs : EType.t list) (tpxs : EType.t' list) : unit =
   let type_check_operand (tpx, targ) =
     try TSubtyping.type_check ~@tpx targ
-    with Typing_error.Error _ as exn ->
-      Typing_error.(update (BadOperand (~@tpx, targ)) exn |> raise)
+    with Typing_error.Error err ->
+      Typing_error.(update (BadOperand (~@tpx, targ)) err |> raise)
   in
   List.combine tpxs targs |> List.iter type_check_operand
 

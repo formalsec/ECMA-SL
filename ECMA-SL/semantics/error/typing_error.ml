@@ -130,11 +130,23 @@ type t =
 
 exception Error of t
 
-let create ?(src : ErrSrc.t = ErrSrc.none ()) (msgs : msg list) : exn =
-  Error { msgs; src }
+let raise (err : t) : 'a = Stdlib.raise_notrace (Error err)
+
+let create ?(src : ErrSrc.t = ErrSrc.none ()) (msgs : msg list) : t =
+  { msgs; src }
 
 let throw ?(src : ErrSrc.t = ErrSrc.none ()) (msg : msg) : 'a =
   raise @@ create ~src [ msg ]
+
+let push (msg : msg) (err : t) : t = { err with msgs = msg :: err.msgs }
+
+let update (msg : msg) (err : t) : t =
+  match err.msgs with
+  | [] -> { err with msgs = [ msg ] }
+  | _ :: msgs -> { err with msgs = msg :: msgs }
+
+let src (err : t) : ErrSrc.t = err.src
+let set_src (src : ErrSrc.t) (err : t) : t = { err with src }
 
 let pp (fmt : Fmt.t) (err : t) : unit =
   let module MsgFmt = Error_type.ErrorTypeFmt (TypingErr) in
@@ -142,24 +154,3 @@ let pp (fmt : Fmt.t) (err : t) : unit =
   Fmt.fprintf fmt "%a%a" MsgFmt.pp err.msgs ErrSrcFmt.pp err.src
 
 let str (err : t) = Fmt.asprintf "%a" pp err
-
-let push (msg : msg) (exn : exn) : exn =
-  match exn with
-  | Error err -> Error { err with msgs = msg :: err.msgs }
-  | _ -> Internal_error.(throw __FUNCTION__ (Expecting "typing error"))
-
-let update (msg : msg) (exn : exn) : exn =
-  match exn with
-  | Error err when err.msgs == [] -> Error { err with msgs = [ msg ] }
-  | Error err -> Error { err with msgs = msg :: List.tl err.msgs }
-  | _ -> Internal_error.(throw __FUNCTION__ (Expecting "typing error"))
-
-let src (exn : exn) : ErrSrc.t =
-  match exn with
-  | Error err -> err.src
-  | _ -> Internal_error.(throw __FUNCTION__ (Expecting "typing error"))
-
-let set_src (src : ErrSrc.t) (exn : exn) : exn =
-  match exn with
-  | Error err -> Error { err with src }
-  | _ -> Internal_error.(throw __FUNCTION__ (Expecting "typing error"))
