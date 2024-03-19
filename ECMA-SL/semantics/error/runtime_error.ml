@@ -89,11 +89,19 @@ type t =
 
 exception Error of t
 
-let create ?(src : ErrSrc.t = ErrSrc.none ()) (msgs : msg list) : exn =
-  Error { msgs; src; trace = None }
+let raise (err : t) : 'a = Stdlib.raise_notrace (Error err)
+
+let create ?(src : ErrSrc.t = ErrSrc.none ()) (msgs : msg list) : t =
+  { msgs; src; trace = None }
 
 let throw ?(src : ErrSrc.t = ErrSrc.none ()) (msg : msg) : 'a =
   raise @@ create ~src [ msg ]
+
+let push (msg : msg) (err : t) : t = { err with msgs = msg :: err.msgs }
+let src (err : t) : ErrSrc.t = err.src
+let set_src (src : ErrSrc.t) (err : t) : t = { err with src }
+let trace (err : t) : RtTrace.t option = err.trace
+let set_trace (tr : RtTrace.t) (err : t) : t = { err with trace = Some tr }
 
 let pp (fmt : Fmt.t) (err : t) : unit =
   let open Fmt in
@@ -104,28 +112,3 @@ let pp (fmt : Fmt.t) (err : t) : unit =
     (pp_opt RtTraceFmt.pp) err.trace
 
 let str (err : t) = Fmt.asprintf "%a" pp err
-
-let push (msg : msg) (exn : exn) : exn =
-  match exn with
-  | Error err -> Error { err with msgs = msg :: err.msgs }
-  | _ -> Internal_error.(throw __FUNCTION__ (Expecting "trace error"))
-
-let src (exn : exn) : ErrSrc.t =
-  match exn with
-  | Error err -> err.src
-  | _ -> Internal_error.(throw __FUNCTION__ (Expecting "trace error"))
-
-let set_src (src : ErrSrc.t) (exn : exn) : exn =
-  match exn with
-  | Error err -> Error { err with src }
-  | _ -> Internal_error.(throw __FUNCTION__ (Expecting "trace error"))
-
-let trace (exn : exn) : RtTrace.t option =
-  match exn with
-  | Error err -> err.trace
-  | _ -> Internal_error.(throw __FUNCTION__ (Expecting "trace error"))
-
-let set_trace (trace : RtTrace.t) (exn : exn) : exn =
-  match exn with
-  | Error err -> Error { err with trace = Some trace }
-  | _ -> Internal_error.(throw __FUNCTION__ (Expecting "trace error"))
