@@ -18,4 +18,4 @@ let options =
     $ Options.target_func
     $ Options.workspace_dir )
 
-let term = Term.(const Cmd_symbolic.main $ Options.Common.options $ options)
+let term = Term.(const Cmd_symbolic.main $ options $ Options.Common.options)

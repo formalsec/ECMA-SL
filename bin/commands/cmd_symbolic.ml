@@ -22,23 +22,22 @@ type options =
 let options filename entry_func workspace = { filename; entry_func; workspace }
 
 let dispatch_file_ext on_plus on_core on_js (file : Fpath.t) =
-  if Fpath.has_ext ext_esl file then on_plus file
-  else if Fpath.has_ext ext_cesl file then on_core file
+  if Fpath.has_ext ext_esl file then Ok (on_plus file)
+  else if Fpath.has_ext ext_cesl file then Ok (on_core file)
   else if Fpath.has_ext ext_js file then on_js file
   else Error (`Msg (Fmt.asprintf "%a :unreconized file type" Fpath.pp file))
 
 let prog_of_plus file =
   let (file, path) = (Fpath.filename file, Fpath.to_string file) in
-  Ok
-    ( EParsing.load_file ~file path
-    |> EParsing.parse_eprog ~file path
-    |> Preprocessor.Imports.resolve_imports
-    |> Preprocessor.Macros.apply_macros
-    |> Compiler.compile_prog )
+  EParsing.load_file ~file path
+  |> EParsing.parse_eprog ~file path
+  |> Preprocessor.Imports.resolve_imports
+  |> Preprocessor.Macros.apply_macros
+  |> Compiler.compile_prog
 
 let prog_of_core file =
   let file = Fpath.to_string file in
-  Ok (Parsing.load_file file |> Parsing.parse_prog ~file)
+  Parsing.load_file file |> Parsing.parse_prog ~file
 
 let prog_of_js file =
   let js2ecma_sl file output =
@@ -49,8 +48,8 @@ let prog_of_js file =
   let* ast = OS.File.read ast_file in
   let* es6 = OS.File.read (Fpath.v (Option.get (Share.es6_interp ()))) in
   let program = String.concat ";\n" [ ast; es6 ] in
-  let* () = OS.File.delete ast_file in
-  Ok (Parsing.parse_prog program)
+  let+ () = OS.File.delete ast_file in
+  Parsing.parse_prog program
 
 let link_env ~extern prog =
   let env0 = Env.Build.empty () |> Env.Build.add_functions prog in
@@ -74,6 +73,12 @@ let err_to_json = function
   | `Assert_failure v ->
     let v = Fmt.asprintf "%a" Value.pp v in
     `Assoc [ ("type", `String "Assert failure"); ("sink", `String v) ]
+  | `Eval_failure v ->
+    let v = Fmt.asprintf "%a" Value.pp v in
+    `Assoc [ ("type", `String "Eval failure"); ("sink", `String v) ]
+  | `Exec_failure v ->
+    let v = Fmt.asprintf "%a" Value.pp v in
+    `Assoc [ ("type", `String "Exec failure"); ("sink", `String v) ]
   | `Failure msg ->
     `Assoc [ ("type", `String "Failure"); ("sink", `String msg) ]
 
@@ -81,8 +86,12 @@ let serialize_thread ~workspace =
   let module Term = Encoding.Expr in
   let (next_int, _) = Base.make_counter 0 1 in
   fun ?(witness :
-         [> `Abort of string | `Assert_failure of Extern_func.value ] option )
-    thread ->
+         [> `Abort of string
+         | `Assert_failure of Extern_func.value
+         | `Eval_failure of Extern_func.value
+         | `Exec_failure of Extern_func.value
+         ]
+         option ) thread ->
     let pc = PC.to_list @@ Thread.pc thread in
     let solver = Thread.solver thread in
     match Solver.check solver pc with
@@ -129,17 +138,19 @@ let run ~workspace filename entry_func =
   let* problems =
     list_filter_map
       ~f:(fun (ret, thread) ->
-        let* witness =
+        let+ witness =
           match ret with
           | Ok _ -> Ok None
-          | Error (`Abort _ as err) | Error (`Assert_failure _ as err) ->
+          | Error
+              ( ( `Abort _ | `Assert_failure _ | `Eval_failure _
+                | `Exec_failure _ ) as err ) ->
             Ok (Some err)
           | Error (`Failure msg) -> Error (`Msg msg)
         in
         ( match serialize_thread ~workspace ?witness thread with
         | Error (`Msg msg) -> Log.log ~header:false "%s" msg
         | Ok () -> () );
-        Ok witness )
+        witness )
       results
   in
   let n = List.length problems in
@@ -148,8 +159,8 @@ let run ~workspace filename entry_func =
   Log.debug "solver time : %fs@." solv_time;
   write_report ~workspace filename exec_time solv_time solv_cnt problems
 
-let main () opt =
-  match run ~workspace:opt.workspace opt.filename opt.entry_func with
+let main { filename; entry_func; workspace } () =
+  match run ~workspace filename entry_func with
   | Error (`Msg s) ->
     Log.log ~header:false "%s" s;
     1

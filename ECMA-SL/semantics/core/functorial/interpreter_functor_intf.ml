@@ -88,11 +88,7 @@ module type S = sig
     type store
     type env
 
-    type err =
-      [ `Abort of string
-      | `Assert_failure of value
-      | `Failure of string
-      ]
+    type nonrec err = value Extern_func.err
 
     type return_result = (value list, err) Result.t
     type exec_state

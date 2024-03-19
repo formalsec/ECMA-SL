@@ -35,7 +35,7 @@ end
 (* File Options *)
 
 module File = struct
-  let parse_fpath str test_f =
+  let parse_fpath test_f str =
     let file = Fpath.v str in
     match test_f file with
     | Ok true -> `Ok file
@@ -43,9 +43,9 @@ module File = struct
     | Error (`Msg err) -> `Error err
 
   let fpath = ((fun str -> `Ok (Fpath.v str)), Fpath.pp)
-  let valid_fpath = ((fun str -> parse_fpath str Bos.OS.Path.exists), Fpath.pp)
-  let non_dir_fpath = ((fun str -> parse_fpath str Bos.OS.File.exists), Fpath.pp)
-  let dir_fpath = ((fun str -> parse_fpath str Bos.OS.Dir.exists), Fpath.pp)
+  let valid_fpath = (parse_fpath Bos.OS.Path.exists, Fpath.pp)
+  let non_dir_fpath = (parse_fpath Bos.OS.File.exists, Fpath.pp)
+  let dir_fpath = (parse_fpath Bos.OS.Dir.exists, Fpath.pp)
 
   let input =
     let docv = "FILE" in

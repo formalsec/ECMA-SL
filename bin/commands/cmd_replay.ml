@@ -5,20 +5,10 @@ module String = Astring.String
 
 type options =
   { filename : Fpath.t
-  ; testsuite : Fpath.t
+  ; workspace : Fpath.t
   }
 
-let options filename testsuite = { filename; testsuite }
-
-let list_iter ~f lst =
-  let exception E of Rresult.R.msg in
-  try
-    List.iter
-      (fun v -> match f v with Error s -> raise (E s) | Ok () -> ())
-      lst;
-    Ok ()
-  with E s -> Error s
-
+let options filename workspace = { filename; workspace }
 let node test witness = Cmd.(v "node" % p test % p witness)
 
 type observable =
@@ -27,30 +17,32 @@ type observable =
 
 let observable_effects = [ Stdout "success"; Stdout "polluted"; File "success" ]
 
-let env () =
-  let node_path = Fmt.sprintf ".:%s" (List.hd Share.Location.nodejs) in
+let env testsuite =
+  let ws = Unix.realpath @@ Fpath.to_string testsuite in
+  let sharejs = List.hd Share.Location.nodejs in
+  let node_path = Fmt.asprintf ".:%s:%s" ws sharejs in
   String.Map.of_list [ ("NODE_PATH", node_path) ]
 
 let execute_witness ~env (test : Fpath.t) (witness : Fpath.t) =
   let open OS in
-  Log.app "    running : %s" @@ Fpath.to_string witness;
+  Log.app "    running : %a" Fpath.pp witness;
   let cmd = node test witness in
-  let* (out, status) = Cmd.(run_out ~env ~err:err_run_out cmd |> out_string) in
+  let+ (out, status) = Cmd.(run_out ~env ~err:err_run_out cmd |> out_string) in
   ( match status with
   | (_, `Exited 0) -> ()
   | (_, `Exited _) | (_, `Signaled _) ->
     Fmt.printf "unexpected node failure: %s" out );
-  Ok
-    (List.find_opt
-       (fun effect ->
-         match effect with
-         | Stdout sub -> String.find_sub ~sub out |> Option.is_some
-         | File file -> Sys.file_exists file )
-       observable_effects )
+  List.find_opt
+    (fun effect ->
+      match effect with
+      | Stdout sub -> String.find_sub ~sub out |> Option.is_some
+      | File file -> Sys.file_exists file )
+    observable_effects
 
-let replay filename testsuite =
+let replay filename workspace =
   Log.app "  replaying : %a..." Fpath.pp filename;
-  let env = env () in
+  let* testsuite = OS.Dir.must_exist Fpath.(workspace / "test-suite") in
+  let env = env testsuite in
   let* witnesses = OS.Path.matches Fpath.(testsuite / "witness-$(n).js") in
   list_iter witnesses ~f:(fun witness ->
       let* effect = execute_witness ~env filename witness in
@@ -66,8 +58,8 @@ let replay filename testsuite =
         Log.app "     status : false (no side effect)";
         Ok () )
 
-let main () opt =
-  match replay opt.filename opt.testsuite with
+let main { filename; workspace } () =
+  match replay filename workspace with
   | Error (`Msg msg) ->
     Log.log ~header:false "%s" msg;
     1

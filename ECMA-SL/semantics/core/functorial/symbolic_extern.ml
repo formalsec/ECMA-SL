@@ -69,9 +69,8 @@ module Make () = struct
         let query =
           binop Ty_str Seq_contains v (make (Val (Str "A; touch success #")))
         in
-        let e' = Format.asprintf "%a" Value.pp e in
-        Log.log ~header:false "       exec : %s" e';
-        [ (Error (`Abort e'), Thread.add_pc thread query) ]
+        Log.log ~header:false "       exec : %a" Value.pp e;
+        [ (Error (`Exec_failure e), Thread.add_pc thread query) ]
     in
     let eval (e : value) thread =
       (* TODO: more fine-grained exploit analysis *)
@@ -84,9 +83,8 @@ module Make () = struct
           binop Ty_str Seq_contains v
             (make (Val (Str ";console.log('success')//")))
         in
-        let e' = Format.asprintf "%a" Value.pp e in
-        Log.log ~header:false "       eval : %s" e';
-        [ (Error (`Abort e'), Thread.add_pc thread query) ]
+        Log.log ~header:false "       eval : %a" Value.pp e;
+        [ (Error (`Eval_failure e), Thread.add_pc thread query) ]
     in
     let abort (e : value) =
       let e' = Format.asprintf "%a" Value.pp e in

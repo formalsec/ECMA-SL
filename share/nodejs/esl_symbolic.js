@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 
 const witness = process.argv[2];
 if (!fs.existsSync(witness)) {
@@ -6,7 +7,8 @@ if (!fs.existsSync(witness)) {
   process.exit(1);
 }
 
-const symbolic_map = require(witness).symbolic_map;
+let witness_mod = path.parse(witness).name;
+const symbolic_map = require(witness_mod).symbolic_map;
 if (symbolic_map === undefined) {
   console.log(`Unable to load symbolic_map from '${witness}'`)
   process.exit(1);

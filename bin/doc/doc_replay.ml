@@ -12,4 +12,4 @@ let man_xrefs = []
 let options =
   Term.(const Cmd_replay.options $ Options.File.input $ Options.testsuit_dir)
 
-let term = Term.(const Cmd_replay.main $ Options.Common.options $ options)
+let term = Term.(const Cmd_replay.main $ options $ Options.Common.options)
