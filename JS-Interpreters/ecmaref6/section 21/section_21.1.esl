@@ -1018,6 +1018,10 @@ function StringPrototypelastIndexOf(global, this, NewTarget, strict, args) {
   /* 5. ReturnIfAbrupt(searchString). */
   @ReturnIfAbrupt(searchStr);
 
+  if (extern is_symbolic(S)) {
+    return extern str_lastIndexOf(S, searchStr)
+  };
+
   /* 6. Let numPos be ToNumber(position). (If position is undefined, this step produces the value NaN). */
   numPos := ToNumber(position);
 
@@ -2032,6 +2036,11 @@ function StringPrototypesubstring(global, this, NewTarget, strict, args){
     intEnd := len
   } else{
     intEnd := ToInteger(end)
+  };
+
+  if (extern is_symbolic(S)) {
+    length := len - intStart + 1;
+    return extern str_sub(S, intStart, length)
   };
 
   /* 8. ReturnIfAbrupt(intEnd). */

@@ -3,6 +3,7 @@ type 'a err =
   | `Assert_failure of 'a
   | `Eval_failure of 'a
   | `Exec_failure of 'a
+  | `ReadFile_failure of 'a
   | `Failure of string
   ]
 

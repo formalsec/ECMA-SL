@@ -11,7 +11,7 @@ function createProcessObject(globalObject, objectPrototype, strict) {
 
   /* Properties: */
   createBuiltInProperty(process, "arch", extern str_symbol("process_arch"));
-  createBuiltInProperty(process, "execPath", extern str_symbol("process_execPath"));
+  createBuiltInProperty(process, "execPath", "node");
   platform := extern str_symbol("process_platform");
   createBuiltInProperty(process, "platform", platform);
 

@@ -51,9 +51,9 @@ let prog_of_js file =
   let+ () = OS.File.delete ast_file in
   Parsing.parse_prog program
 
-let link_env ~extern prog =
+let link_env ~extern filename prog =
   let env0 = Env.Build.empty () |> Env.Build.add_functions prog in
-  Env.Build.add_extern_functions (extern env0) env0
+  Env.Build.add_extern_functions (extern filename env0) env0
 
 let pp_model fmt v =
   let open Encoding in
@@ -79,6 +79,9 @@ let err_to_json = function
   | `Exec_failure v ->
     let v = Fmt.asprintf "%a" Value.pp v in
     `Assoc [ ("type", `String "Exec failure"); ("sink", `String v) ]
+  | `ReadFile_failure v ->
+    let v = Fmt.asprintf "%a" Value.pp v in
+    `Assoc [ ("type", `String "ReadFile failure"); ("sink", `String v) ]
   | `Failure msg ->
     `Assoc [ ("type", `String "Failure"); ("sink", `String msg) ]
 
@@ -90,6 +93,7 @@ let serialize_thread ~workspace =
          | `Assert_failure of Extern_func.value
          | `Eval_failure of Extern_func.value
          | `Exec_failure of Extern_func.value
+         | `ReadFile_failure of Extern_func.value
          ]
          option ) thread ->
     let pc = PC.to_list @@ Thread.pc thread in
@@ -125,7 +129,7 @@ let write_report ~workspace filename exec_time solver_time solver_count problems
 let run ~workspace filename entry_func =
   let open Syntax.Result in
   let* prog = dispatch_file_ext prog_of_plus prog_of_core prog_of_js filename in
-  let env = link_env ~extern:Symbolic_extern.api prog in
+  let env = link_env ~extern:Symbolic_extern.api filename prog in
   let start = Stdlib.Sys.time () in
   let thread = Choice_monad.Thread.create () in
   let result = Symbolic_interpreter.main env entry_func in
@@ -143,7 +147,7 @@ let run ~workspace filename entry_func =
           | Ok _ -> Ok None
           | Error
               ( ( `Abort _ | `Assert_failure _ | `Eval_failure _
-                | `Exec_failure _ ) as err ) ->
+                | `Exec_failure _ | `ReadFile_failure _) as err ) ->
             Ok (Some err)
           | Error (`Failure msg) -> Error (`Msg msg)
         in

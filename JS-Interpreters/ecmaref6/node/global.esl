@@ -44,8 +44,8 @@ function __NodeRequire(globalObject, this, newTarget, strict, params) {
 
 function initNodeGlobalObject(globalObject, objectPrototype, strict) {
   realm := { globalEnv : globalObject };
-  dirname := extern str_symbol("__dirname");
-  filename := extern str_symbol("__filename");
+  dirname := extern __dirname();
+  filename := extern __filename();
   createBuiltInProperty(globalObject, "__dirname", dirname);
   createBuiltInProperty(globalObject, "__filename", filename);
 

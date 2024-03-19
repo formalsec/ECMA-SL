@@ -20,5 +20,5 @@ Test exec:
 
 Test fs:
   $ ecma-sl symbolic test_sink_fs.js
-        abort : (`source : __$Str)
+     readFile : (`source : __$Str)
   Found 1 problems!

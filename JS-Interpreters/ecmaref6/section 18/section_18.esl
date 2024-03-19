@@ -182,6 +182,9 @@ function GlobalObjectParseInt(globalObject, this, NewTarget, strict, params) {
 
   /* 1. Let inputString be ToString(string). */
   inputString := ToString(str);
+  if (extern is_symbolic(inputString)) {
+    return extern str_parseInt(inputString)
+  };
   /* 2. Let S be a newly created substring of inputString consisting of the first character that is not a
         StrWhiteSpaceChar and all characters following that character. (In other words, remove leading white
         space.) If inputString does not contain any such characters, let S be the empty string. */

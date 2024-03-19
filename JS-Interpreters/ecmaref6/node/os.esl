@@ -8,9 +8,9 @@ function __os_platform(globalObject, this, newTarget, strict, params) {
 
 function createOSObject(globalObject, objectPrototype, strict) {
   realm := { globalEnv : globalObject };
-  os := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(os);
-  setInternalProperty(os, "Prototype", objectPrototype);
+  os := newLazyObject();
+  /* setAllInternalMethodsOfOrdinaryObject(os); */
+  setInternalProperty(os, "prototype", objectPrototype);
 
   /* Functions: */
   platform := CreateBuiltInFunctionObject([""], "__os_platform", realm,

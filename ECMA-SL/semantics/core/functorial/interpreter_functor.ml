@@ -118,7 +118,7 @@ module Make (P : Interpreter_functor_intf.P) :
     let ok st = Choice.return @@ State.Continue st in
     let error err = Choice.return @@ State.Return (Error err) in
     let* m = Env.get_memory env in
-    debug2 "      store : %a@." Value.Store.pp locals;
+    (* debug2 "      store : %a@." Value.Store.pp locals; *)
     debug2 "running stmt: %a@." Stmt.pp_simple stmt;
     match stmt.it with
     | Stmt.Skip -> ok state

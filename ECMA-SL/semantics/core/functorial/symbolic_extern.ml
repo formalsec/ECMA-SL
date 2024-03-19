@@ -7,7 +7,7 @@ module PC = Choice_monad.PC
 module type S = sig
   type extern_func
 
-  val api : Env.t -> extern_func SMap.t
+  val api : Fpath.t -> Env.t -> extern_func SMap.t
 end
 
 module Make () = struct
@@ -24,7 +24,7 @@ module Make () = struct
   let fresh_x = Base.make_name_generator "x"
   let fresh_func = Base.make_name_generator "eval_func_"
 
-  let api env =
+  let api filename env =
     let open Value in
     let open Extern_func in
     let non_empty = function
@@ -67,7 +67,7 @@ module Make () = struct
         let open Encoding.Expr in
         let v = Translator.translate e in
         let query =
-          binop Ty_str Seq_contains v (make (Val (Str "`touch success`")))
+          binop Ty_str Seq_contains v (value (Str "`touch success`"))
         in
         Log.log ~header:false "       exec : %a" Value.pp e;
         [ (Error (`Exec_failure e), Thread.add_pc thread query) ]
@@ -80,11 +80,20 @@ module Make () = struct
         let open Encoding.Expr in
         let v = Translator.translate e in
         let query =
-          binop Ty_str Seq_contains v
-            (make (Val (Str ";console.log('success')//")))
+          binop Ty_str Seq_contains v (value (Str ";console.log('success')//"))
         in
         Log.log ~header:false "       eval : %a" Value.pp e;
         [ (Error (`Eval_failure e), Thread.add_pc thread query) ]
+    in
+    let readFile (e : value) thread =
+      if not @@ Value.is_symbolic e then
+        [ (Ok (Val (Val.Symbol "undefined")), thread) ]
+      else
+        let open Encoding.Expr in
+        let v = Translator.translate e in
+        let query = binop Ty_str Seq_contains v (value (Str "./exploited")) in
+        Log.log ~header:false "   readFile : %a" Value.pp e;
+        [ (Error (`ReadFile_failure e), Thread.add_pc thread query) ]
     in
     let abort (e : value) =
       let e' = Format.asprintf "%a" Value.pp e in
@@ -167,23 +176,65 @@ module Make () = struct
       let cond = relop Ty_bool Eq (mk_symbol sym) replace_str in
       [ (Ok (Symbolic (Type.StrType, Val (Str x))), Thread.add_pc thread cond) ]
     in
-    let str_indexOf (s : Value.value) (t : Value.value) (_i : Value.value)
+    let str_indexof (s : Value.value) (t : Value.value) (_i : Value.value)
       thread =
       let open Encoding.Expr in
-      let index0 = fresh_x () in
-      let index1 = fresh_x () in
-      let sym0 = mk_symbol Encoding.Symbol.(index0 @: Ty_int) in
-      let sym1 = mk_symbol Encoding.Symbol.(index1 @: Ty_real) in
+      let index = fresh_x () in
+      let sym = mk_symbol Encoding.Symbol.(index @: Ty_real) in
       let s = Translator.translate s in
       let t = Translator.translate t in
       (* let i = Translator.translate i in *)
       let i = make (Val (Int 0)) in
       let indexOf = triop Ty_str Seq_index s t i in
-      let cond0 = relop Ty_bool Eq sym0 indexOf in
-      let cond1 = relop Ty_bool Eq sym0 (cvtop Ty_int Reinterpret_float sym1) in
-      [ ( Ok (Symbolic (Type.FltType, Val (Str index1)))
-        , Thread.add_pc (Thread.add_pc thread cond0) cond1 )
+      let indexOf2real = cvtop Ty_real Reinterpret_int indexOf in
+      let cond = relop Ty_bool Eq sym indexOf2real in
+      [ ( Ok (Symbolic (Type.FltType, Val (Str index)))
+        , Thread.add_pc thread cond )
       ]
+    in
+    let str_lastIndexOf (s : Value.value) (t : Value.value) thread =
+      let open Encoding.Expr in
+      let index = fresh_x () in
+      let sym = mk_symbol Encoding.Symbol.(index @: Ty_real) in
+      let s = Translator.translate s in
+      let t = Translator.translate t in
+      (* let i = Translator.translate i in *)
+      let indexOf = binop Ty_str Seq_last_index s t in
+      let indexOf2real = cvtop Ty_real Reinterpret_int indexOf in
+      let cond = relop Ty_bool Eq sym indexOf2real in
+      [ ( Ok (Symbolic (Type.FltType, Val (Str index)))
+        , Thread.add_pc thread cond )
+      ]
+    in
+    let str_sub (s : Value.value) (start : Value.value) (len : Value.value)
+      thread =
+      let open Encoding.Expr in
+      let x = fresh_x () in
+      let sym = mk_symbol Encoding.Symbol.(x @: Ty_str) in
+      let s = Translator.translate s in
+      let start = Translator.translate start in
+      let len = Translator.translate len in
+      let substr = triop Ty_str Seq_extract s start len in
+      let cond = relop Ty_bool Eq sym substr in
+      [ (Ok (Symbolic (Type.StrType, Val (Str x))), Thread.add_pc thread cond) ]
+    in
+    let str_parse_int (str : Value.value) thread =
+      let open Encoding.Expr in
+      let x = fresh_x () in
+      let sym = mk_symbol Encoding.Symbol.(x @: Ty_real) in
+      let str = Translator.translate str in
+      let str2int = cvtop Ty_str String_to_int str in
+      let int2real = cvtop Ty_real Reinterpret_int str2int in
+      let cond = relop Ty_bool Eq sym int2real in
+      [ (Ok (Symbolic (Type.FltType, Val (Str x))), Thread.add_pc thread cond) ]
+    in
+    let dirname () =
+      let (dirname, _) = Fpath.split_base filename in
+      Choice.return (Ok (Val (Val.Str (Fpath.to_string dirname))))
+    in
+    let filename () =
+      let filename = Fpath.to_string filename in
+      Choice.return (Ok (Val (Val.Str filename)))
     in
     SMap.of_seq
       (Array.to_seq
@@ -196,6 +247,7 @@ module Make () = struct
           ; ("is_sat", Extern_func (Func (Arg Res), is_sat))
           ; ("exec", Extern_func (Func (Arg Res), exec))
           ; ("eval", Extern_func (Func (Arg Res), eval))
+          ; ("readFile", Extern_func (Func (Arg Res), readFile))
           ; ("abort", Extern_func (Func (Arg Res), abort))
           ; ("assume", Extern_func (Func (Arg Res), assume))
           ; ("evaluate", Extern_func (Func (Arg Res), evaluate))
@@ -206,10 +258,14 @@ module Make () = struct
           ; ( "str_replace"
             , Extern_func (Func (Arg (Arg (Arg Res))), str_replace) )
           ; ( "str_indexOf"
-            , Extern_func (Func (Arg (Arg (Arg Res))), str_indexOf) )
+            , Extern_func (Func (Arg (Arg (Arg Res))), str_indexof) )
+          ; ( "str_lastIndexOf"
+            , Extern_func (Func (Arg (Arg Res)), str_lastIndexOf) )
+          ; ("str_sub", Extern_func (Func (Arg (Arg (Arg Res))), str_sub))
+          ; ("str_parseInt", Extern_func (Func (Arg Res), str_parse_int))
+          ; ("__dirname", Extern_func (Func (UArg Res), dirname))
+          ; ("__filename", Extern_func (Func (UArg Res), filename))
          |] )
 end
 
-include (
-  Make () :
-    S with type extern_func := Symbolic.P.Extern_func.extern_func )
+include (Make () : S with type extern_func := Symbolic.P.Extern_func.extern_func)
