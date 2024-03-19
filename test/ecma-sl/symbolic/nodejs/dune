@@ -12,4 +12,6 @@
   test_pollution_3.js
   test_proto.js
   test_lazy_1.js
-  test_lazy_2.js))
+  test_lazy_2.js
+  test_vfunexported.js
+  test_vfunexported.json))

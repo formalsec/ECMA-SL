@@ -41,7 +41,8 @@
   yojson
   dune-site
   (bisect_ppx (and :with-test (>= "2.5.0") :dev))
-  conf-npm)
+  conf-npm
+  instrumentation2)
  (tags
   (ECMAScript "Specification Language" "Reference Interpreters" "OCaml"))
 (sites

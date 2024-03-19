@@ -27,6 +27,7 @@ depends: [
   "dune-site"
   "bisect_ppx" {with-test & >= "2.5.0" & dev}
   "conf-npm"
+  "instrumentation2"
 ]
 build: [
   ["dune" "subst"] {dev}
@@ -47,4 +48,5 @@ build: [
 dev-repo: "git+https://github.com/formalsec/ECMA-SL.git"
 pin-depends: [
   [ "encoding.dev" "git+https://github.com/formalsec/encoding#26a3d81a8a570a1ed19edc2e74e845d4b4564486"]
+  [ "instrumentation2.dev" "git+https://github.com/formalsec/instrumentation2.git" ]
 ]

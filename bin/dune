@@ -34,7 +34,7 @@
   dir
   share
   site)
- (libraries ecma-sl cmdliner bos yojson dune-site)
+ (libraries ecma-sl cmdliner bos yojson dune-site instrumentation2)
  (instrumentation
   (backend bisect_ppx)))
 

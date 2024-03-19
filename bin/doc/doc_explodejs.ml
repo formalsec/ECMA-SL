@@ -8,9 +8,8 @@ let man_xrefs = []
 
 let options =
   Term.(
-    const Cmd_symbolic.options
+    const Cmd_explodejs.options
     $ Options.File.input
-    $ Options.target_func
     $ Options.workspace_dir )
 
-let term = Term.(const Cmd_explodejs.main $ Options.Common.options $ options)
+let term = Term.(const Cmd_explodejs.main $ options $ Options.Common.options)
