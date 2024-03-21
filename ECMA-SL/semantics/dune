@@ -72,9 +72,11 @@
   preprocessor
   compiler
   ; compiler (type system)
+  tChecker
   tSubtyping
   tOperator
   tExpr
+  tCtx
   ;  utils
   arith_utils
   byte_utils
