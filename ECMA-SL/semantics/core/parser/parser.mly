@@ -110,7 +110,7 @@ let prog_target := ~ = separated_list(SEMICOLON, func_target); < Prog.create >
 
 let func_target :=
   | FUNCTION; fn = id_target; LPAREN; pxs = separated_list(COMMA, id_target); RPAREN; s = block_target;
-    { Func.create fn pxs s @> at $sloc }
+    { Func.create fn (Parsing_helper.Prog.parse_params pxs) s @> at $sloc }
 
 (* ==================== Statements ==================== *)
 

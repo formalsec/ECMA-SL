@@ -14,3 +14,13 @@ module Stmt = struct
     List.iter (set_case css) switch_cases;
     css
 end
+
+module Prog = struct
+  let parse_params (pxs : Id.t list) : Id.t list =
+    let check_dups checked px =
+      if not (Hashtbl.mem checked px.it) then Hashtbl.replace checked px.it ()
+      else Compile_error.(throw ~src:(ErrSrc.at px) (DuplicatedParam px))
+    in
+    List.iter (check_dups (Hashtbl.create (List.length pxs))) pxs;
+    pxs
+end

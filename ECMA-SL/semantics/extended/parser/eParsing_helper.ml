@@ -60,6 +60,15 @@ end
 module Prog = struct
   open EslSyntax.EProg
 
+  let parse_params (tpxs : (Id.t * EType.t option) list) :
+    (Id.t * EType.t option) list =
+    let check_dups checked (px, _) =
+      if not (Hashtbl.mem checked px.it) then Hashtbl.replace checked px.it ()
+      else Compile_error.(throw ~src:(ErrSrc.at px) (DuplicatedParam px))
+    in
+    List.iter (check_dups (Hashtbl.create (List.length tpxs))) tpxs;
+    tpxs
+
   let parse_tdef (t : EType.TDef.t) (p : t) : unit =
     let tn = EType.TDef.name t in
     match Hashtbl.find_opt p.tdefs tn.it with
