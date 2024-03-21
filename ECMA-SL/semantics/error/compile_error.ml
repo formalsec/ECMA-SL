@@ -8,6 +8,7 @@ type msg =
   | UnknownDependency of Id.t
   | CyclicDependency of Id.t
   | DuplicatedField of Id.t
+  | DuplicatedParam of Id.t
   | DuplicatedTDef of Id.t
   | DuplicatedFunc of Id.t
   | DuplicatedMacro of Id.t
@@ -33,6 +34,7 @@ module CompileErr : Error_type.ERROR_TYPE with type t = msg = struct
     | (UnknownDependency file1, UnknownDependency file2) -> Id.equal file1 file2
     | (CyclicDependency file1, CyclicDependency file2) -> Id.equal file1 file2
     | (DuplicatedField fn1, DuplicatedField fn2) -> Id.equal fn1 fn2
+    | (DuplicatedParam px1, DuplicatedParam px2) -> Id.equal px1 px2
     | (DuplicatedTDef tn1, DuplicatedTDef tn2) -> Id.equal tn1 tn2
     | (DuplicatedFunc fn1, DuplicatedFunc fn2) -> Id.equal fn1 fn2
     | (DuplicatedMacro mn1, DuplicatedMacro mn2) -> Id.equal mn1 mn2
@@ -60,6 +62,8 @@ module CompileErr : Error_type.ERROR_TYPE with type t = msg = struct
       fprintf fmt "Cyclic dependency of file '%a'." Id.pp file
     | DuplicatedField fn ->
       fprintf fmt "Duplicated field name '%a' for object literal." Id.pp fn
+    | DuplicatedParam px ->
+      fprintf fmt "Duplicated parameter '%a' for function definition." Id.pp px
     | DuplicatedTDef tn ->
       fprintf fmt "Duplicated definition for typedef '%a'." Id.pp tn
     | DuplicatedFunc fn ->
