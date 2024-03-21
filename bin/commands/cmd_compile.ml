@@ -13,15 +13,10 @@ module Options = struct
     { input; output }
 end
 
-let type_check (prog : EProg.t) : EProg.t =
-  if !Options.untyped then prog else prog
-(* Uncomment once the type system is working properly *)
-(* else *)
-(* let terrs = T_Checker.type_program prog in *)
-(* if terrs = [] then prog *)
-(* else ( *)
-(* Fmt.eprintf "%s" (T_Checker.terrs_str terrs); *)
-(* raise (Cmd.Command_error Cmd.Error) ) *)
+let type_check (p : EProg.t) : EProg.t =
+  if !Options.untyped then p
+  else if TChecker.type_prog p then p
+  else raise (Cmd.Command_error Cmd.CompileError)
 
 let compile_pipeline (file : string) (path : string) : Prog.t =
   EParsing.load_file ~file path
