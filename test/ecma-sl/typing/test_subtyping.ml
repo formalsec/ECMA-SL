@@ -1,6 +1,6 @@
 open Test
 
-let test_subtyping = TypeCheck.test_subtyping
+let test_subtyping = Typing.test_subtyping
 
 (* ========== Any Type ========== *)
 

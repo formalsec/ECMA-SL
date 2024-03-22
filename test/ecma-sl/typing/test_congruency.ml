@@ -1,6 +1,6 @@
 open Test
 
-let test_congruency = TypeCheck.test_congruency
+let test_congruency = Typing.test_congruency
 
 (* ========== Any Type ========== *)
 
