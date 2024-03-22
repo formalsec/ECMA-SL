@@ -583,7 +583,7 @@ function MathExpM1(globalObject, this, NewTarget, strict, params) {
   if (x = (- Infinity)) {
     return -(1.)
   };
-  return exp(x) - 1
+  return exp(x) - 1.0
 };
 
 /* 20.2.2.16 Math.floor ( x ) */

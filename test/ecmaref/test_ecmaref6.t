@@ -58010,7 +58010,7 @@ Tests compilation of ecmaref6:
       return (false, __v11466)
     };
     __v11467 := exp(x);
-    __v11468 := __v11467 - 1;
+    __v11468 := __v11467 - 1.0;
     return (false, __v11468)
   };
   function getFunctionPrototype(___internal_esl_global, strict) {
@@ -117586,3 +117586,6 @@ Tests compilation of ecmaref6:
     __v23341 := s_concat(__v23340);
     return (false, __v23341)
   }
+<<<<<<< HEAD
+=======
+>>>>>>> 5088042c8 (fix(tesl): invalid operator typing with any operands)
