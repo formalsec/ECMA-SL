@@ -2,9 +2,7 @@ open EslBase
 open EslSyntax
 
 let type_func_params (f : EFunc.t) (tctx : TCtx.t) : TCtx.t =
-  let open EslSyntax.Source in
-  let tparam' = function Some t -> t | None -> EType.AnyType @> no_region in
-  let tparam pt = TCtx.tvar_create pt (tparam' pt) in
+  let tparam pt = TCtx.tvar_create pt (EType.resolve_topt pt) in
   let set_param (px, pt) =
     match TCtx.tenv_find tctx px with
     | Some _ -> Internal_error.(throw __FUNCTION__ (Expecting "non-dup param"))
@@ -16,7 +14,8 @@ let type_func_params (f : EFunc.t) (tctx : TCtx.t) : TCtx.t =
   tctx
 
 let type_func (_ : Id.t') (f : EFunc.t) (tctx : TCtx.t) : TCtx.t =
-  type_func_params f tctx
+  let tctx' = TCtx.set_func f tctx in
+  type_func_params f tctx' |> TStmt.type_stmt (EFunc.body f)
 
 let type_prog (p : EProg.t) : bool =
   let tctx = TCtx.create p in
