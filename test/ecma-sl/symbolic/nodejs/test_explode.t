@@ -4,7 +4,7 @@ Test eval explode :
   Found 1 problems!
     replaying : test_sink_eval.js...
       running : ecma-out/test_sink_eval/test-suite/witness-0.js
-       status : true ("success" in output)
+       status : true ("success" in stdout)
 
 Test exec explode:
   $ ecma-sl explode-js test_sink_exec.js
@@ -20,7 +20,7 @@ Test polluted explode:
   Found 1 problems!
     replaying : test_pollution_2.js...
       running : ecma-out/test_pollution_2/test-suite/witness-0.js
-       status : true ("polluted" in output)
+       status : true ("polluted" in stdout)
 
 Tests full:
   $ ecma-sl explode-js test_vfunexported.json
