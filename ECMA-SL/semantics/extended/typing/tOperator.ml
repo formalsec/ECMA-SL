@@ -1,7 +1,7 @@
 open EslBase
 open EslSyntax
 
-let ( ~@ ) (t : EType.t') : EType.t = Source.(t @> no_region)
+let ( ~@ ) (t : EType.t') : EType.t = Source.(t @?> no_region)
 
 type op_signature = (EType.t' list * EType.t') list
 
@@ -13,15 +13,21 @@ let type_check_signature (targs : EType.t list) (tpxs : EType.t' list) : unit =
   in
   List.combine tpxs targs |> List.iter type_check_operand
 
-let rec type_operator ?(exn : exn option = None) (targs : EType.t list)
-  (op_sig : op_signature) : EType.t' =
-  match (op_sig, exn) with
+let rec type_operator_strict ?(err : Typing_error.t option = None)
+  (targs : EType.t list) (op_sig : op_signature) : EType.t' =
+  match (op_sig, err) with
   | ([], None) -> Internal_error.(throw __FUNCTION__ (Expecting "type error"))
-  | ([], Some exn) -> raise exn
-  | ((tpxs, tret) :: op_sig', exn) -> (
+  | ([], Some err') -> Typing_error.raise err'
+  | ((tpxs, tret) :: op_sig', _) -> (
     try type_check_signature targs tpxs |> fun () -> tret
-    with Typing_error.Error _ as exn' ->
-      type_operator ~exn:(Some (Option.value ~default:exn' exn)) targs op_sig' )
+    with Typing_error.Error err' ->
+      let err = Some (Option.value ~default:err' err) in
+      type_operator_strict ~err targs op_sig' )
+
+let type_operator (targs : EType.t list) (op_sig : op_signature) : EType.t' =
+  let has_tany_f = EType.equal ~@AnyType in
+  if List.length op_sig > 1 && List.exists has_tany_f targs then AnyType
+  else type_operator_strict targs op_sig
 
 let type_const (c : Operator.const) : EType.t' =
   match c with
