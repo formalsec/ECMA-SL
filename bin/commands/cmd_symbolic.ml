@@ -135,8 +135,6 @@ let run ~workspace filename entry_func =
   let result = Symbolic_interpreter.main env entry_func in
   let results = Choice.run result thread in
   let exec_time = Stdlib.Sys.time () -. start in
-  let solv_time = !Solver.solver_time in
-  let solv_cnt = !Solver.solver_count in
   let testsuite = Fpath.(workspace / "test-suite") in
   let* _ = OS.Dir.create ~path:true testsuite in
   let* problems =
@@ -159,6 +157,8 @@ let run ~workspace filename entry_func =
   in
   let n = List.length problems in
   if n = 0 then Fmt.printf "All Ok!@." else Fmt.printf "Found %d problems!@." n;
+  let solv_time = !Solver.solver_time in
+  let solv_cnt = !Solver.solver_count in
   Log.debug "  exec time : %fs@." exec_time;
   Log.debug "solver time : %fs@." solv_time;
   write_report ~workspace filename exec_time solv_time solv_cnt problems
