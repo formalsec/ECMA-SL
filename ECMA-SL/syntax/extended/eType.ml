@@ -46,6 +46,9 @@ and tfldstyle =
   | FldReq
   | FldOpt
 
+let resolve_topt (t : t option) : t =
+  match t with Some t' -> t' | None -> AnyType @> no_region
+
 let tliteral_to_val (lt : tliteral) : Val.t =
   match lt with
   | IntegerLit i -> Val.Int i
@@ -57,7 +60,7 @@ let tliteral_to_val (lt : tliteral) : Val.t =
 let rec equal (t1 : t) (t2 : t) : bool =
   let tsmry_get smry = Option.map (fun (_, tsmry) -> tsmry.it) smry in
   let tfld_equal (fn1, ft1, fs1) (fn2, ft2, fs2) =
-    fn1.it = fn2.it && equal ft1 ft2 && fs1 = fs2
+    String.equal fn1.it fn2.it && equal ft1 ft2 && fs1 == fs2
   in
   match (t1.it, t2.it) with
   | (AnyType, AnyType) -> true

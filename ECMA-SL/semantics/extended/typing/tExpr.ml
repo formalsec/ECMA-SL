@@ -28,7 +28,7 @@ and type_val (v : Val.t) : EType.t' =
   let err v = Internal_error.UnexpectedEval (Some (v ^ " val")) in
   match v with
   | Null -> NullType
-  | Void -> Internal_error.(throw __FUNCTION__ (err "void"))
+  | Void -> VoidType
   | Int i -> LiteralType (IntegerLit i)
   | Flt f -> LiteralType (FloatLit f)
   | Str s -> LiteralType (StringLit s)

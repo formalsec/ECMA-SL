@@ -76,6 +76,7 @@
   tSubtyping
   tOperator
   tExpr
+  tStmt
   tCtx
   ;  utils
   arith_utils
