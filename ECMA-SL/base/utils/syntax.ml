@@ -7,34 +7,28 @@ module Result = struct
   let ( let* ) v f = Result.bind v f
   let ( let+ ) v f = Result.map f v
 
-  (* Taken from: https://github.com/OCamlPro/owi/blob/main/src/syntax.ml *)
-  let list_map ~f l =
-    let exit = ref None in
-    let exception Exit in
-    try
-      Ok
-        (List.map
-           (fun v ->
-             match f v with
-             | Error err ->
-               exit := Some err;
-               raise Exit
-             | Ok v -> v )
-           l )
-    with Exit -> Error (Stdlib.Option.get !exit)
+  let rec list_iter ~f = function
+    | [] -> Ok ()
+    | hd :: tl -> (
+      match f hd with Error _ as err -> err | Ok () -> list_iter ~f tl )
 
-  let list_filter_map ~f l =
-    let exit = ref None in
-    let exception Exit in
-    try
-      Ok
-        (List.filter_map
-           (fun v ->
-             match f v with
-             | Error err ->
-               exit := Some err;
-               raise Exit
-             | Ok v -> v )
-           l )
-    with Exit -> Error (Stdlib.Option.get !exit)
+  let rec list_map ~f = function
+    | [] -> Ok []
+    | hd :: tl -> (
+      match f hd with
+      | Error _ as err -> err
+      | Ok v ->
+        let+ tl = list_map ~f tl in
+        v :: tl )
+
+  let list_filter_map ~f list =
+    let rec aux acc = function
+      | [] -> Ok (List.rev acc)
+      | hd :: tl -> (
+        match f hd with
+        | Error _ as err -> err
+        | Ok None -> aux acc tl
+        | Ok (Some v) -> aux (v :: acc) tl )
+    in
+    aux [] list
 end
