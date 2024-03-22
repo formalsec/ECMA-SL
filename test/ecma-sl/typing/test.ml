@@ -61,7 +61,7 @@ module Syntax = struct
     | (Error msgs1, Ok t2) -> Log.expected (err_str msgs1) (str t2)
 end
 
-module TypeCheck = struct
+module Typing = struct
   module Err = Typing_error.TypingErr
 
   let test (congruency : bool) ((tref, tsrc) : EType.t * EType.t)

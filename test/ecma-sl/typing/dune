@@ -12,7 +12,8 @@
   (pps ppx_inline_test))
  (libraries ecma-sl))
 
-(alias
- (name runtest)
+(cram
  (deps
+  %{bin:ecma-sl}
+  (package ecma-sl)
   (source_tree examples)))
