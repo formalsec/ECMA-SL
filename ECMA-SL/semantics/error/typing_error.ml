@@ -23,6 +23,7 @@ type msg =
   | BadCongruency of EType.t * EType.t
   | BadSubtyping of EType.t * EType.t
   | BadOperand of EType.t * EType.t
+  | BadReturn of EType.t * EType.t
 
 module TypingErr : Error_type.ERROR_TYPE with type t = msg = struct
   type t = msg
@@ -62,6 +63,8 @@ module TypingErr : Error_type.ERROR_TYPE with type t = msg = struct
       EType.equal tref1 tref2 && EType.equal tsrc1 tsrc2
     | (BadOperand (tpx1, targ1), BadOperand (tpx2, targ2)) ->
       EType.equal tpx1 tpx2 && EType.equal targ1 targ2
+    | (BadReturn (tret1, tsrc1), BadReturn (tret2, tsrc2)) ->
+      EType.equal tret1 tret2 && EType.equal tsrc1 tsrc2
     | _ -> false
 
   let pp (fmt : Fmt.t) (msg : t) : unit =
@@ -116,9 +119,11 @@ module TypingErr : Error_type.ERROR_TYPE with type t = msg = struct
       fprintf fmt "Value of type '%a' is not assignable to type '%a'." EType.pp
         tsrc EType.pp tref
     | BadOperand (tpx, targ) ->
-      fprintf fmt
-        "Argument of type '%a' is not assignable to parameter of type '%a'."
+      fprintf fmt "Argument of type '%a' is not assignable to '%a' operand."
         EType.pp targ EType.pp tpx
+    | BadReturn (tret, tsrc) ->
+      fprintf fmt "Value of type '%a' cannot be returned by a '%a' function."
+        EType.pp tsrc EType.pp tret
 
   let str (msg : t) : string = Fmt.asprintf "%a" pp msg
 end
