@@ -16,13 +16,16 @@ function main() {
 
 	/* Untyped assignment propagation */
 	baseUntypedVar := 10;
-	untypedVarPropagation: int := baseUntypedVar;					/* Valid */
-	untypedBadVarPropagation: string := baseUntypedVar;		/* BadValue: string <- int */
+	baseUntypedVar := "abc";															/* Valid */
+	untypedVarPropagationEq: int := baseUntypedVar;				/* Valid */
+	untypedVarPropagationDiff: string := baseUntypedVar;	/* Valid */
 	
 	/* Typed assignment propagation */
 	baseTypedVar: int := 10;
-	typedVarPropagation: int := baseTypedVar;							/* Valid */
-	typedBadVarPropagation: string := baseTypedVar;				/* BadValue: string <- int */
+	baseTypedVar := "abc";																/* BadValue: int <- string */
+	baseTypedVar: string := "abc";												/* Valid */
+	typedVarPropagation: string := baseTypedVar;					/* Valid */
+	typedBadVarPropagation: int := baseTypedVar;					/* BadValue: string <- int */
 
 	return 0
 }
