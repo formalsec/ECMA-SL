@@ -447,7 +447,7 @@ let type_target :=
   | TYPE_STRING;                          { EType.StringType @> at $sloc }
   | TYPE_BOOLEAN;                         { EType.BooleanType @> at $sloc }
   | TYPE_SYMBOL;                          { EType.SymbolType @> at $sloc }
-  | lt = literal_type_target;             { EType.LiteralType lt @> at $sloc }
+  | lt = literal_type_target;             { EType.LiteralType (LitStrong, lt) @> at $sloc }
   | ot = object_type_target;              { EType.ObjectType ot @> at $sloc }
   | t = type_target; LBRACK; RBRACK;      { EType.ListType t @> at $sloc }
   | ts = rev(tuple_type_target);          { EType.TupleType(ts) @> at $sloc }     %prec nary_type_prec

@@ -6,6 +6,14 @@ let terr_msg (congruency : bool) (tref : EType.t) (tsrc : EType.t) :
   Typing_error.msg =
   if congruency then BadCongruency (tref, tsrc) else BadSubtyping (tref, tsrc)
 
+let rec wide_literal (tref : t) : bool =
+  match tref.it with
+  | LiteralType _ -> false
+  | UnionType ts -> List.exists wide_literal ts
+  | UserDefinedType _ ->
+    Internal_error.(throw __FUNCTION__ (Expecting "literal type"))
+  | _ -> true
+
 let resolve_optfld (t : t) : t =
   let open Source in
   let t_undefined = UndefinedType @?> no_region in
@@ -45,11 +53,7 @@ let rec type_check ?(congruency : bool = false) (tref : t) (tsrc : t) : unit =
   | (false, SigmaType _, ObjectType _) -> check_sigma_folding tref tsrc
   | (false, UnknownType, _) -> ()
   | (false, _, NeverType) -> ()
-  | (false, IntType, LiteralType (IntegerLit _)) -> ()
-  | (false, FloatType, LiteralType (FloatLit _)) -> ()
-  | (false, StringType, LiteralType (StringLit _)) -> ()
-  | (false, BooleanType, LiteralType (BooleanLit _)) -> ()
-  | (false, SymbolType, LiteralType (SymbolLit _)) -> ()
+  | (false, _, LiteralType _) -> check_literal_subtyping tref tsrc
   | (_, _, _) ->
     Typing_error.(throw ~src:(ErrSrc.at tsrc) (terr_msg congruency tref tsrc))
 
@@ -61,6 +65,19 @@ and type_check_werr ?(congruency : bool = false) (tref : t) (tsrc : t)
   (msg : Typing_error.msg) : unit =
   try type_check ~congruency tref tsrc
   with Typing_error.Error err -> Typing_error.(push msg err |> raise)
+
+and check_literal_subtyping (tref : t) (tsrc : t) : unit =
+  let open Source in
+  match (tref.it, tsrc.it) with
+  | (IntType, LiteralType (_, IntegerLit _)) -> ()
+  | (FloatType, LiteralType (_, FloatLit _)) -> ()
+  | (StringType, LiteralType (_, StringLit _)) -> ()
+  | (BooleanType, LiteralType (_, BooleanLit _)) -> ()
+  | (SymbolType, LiteralType (_, SymbolLit _)) -> ()
+  | (_, LiteralType (LitWeak, lt)) when wide_literal tref ->
+    let tsrc = EType.tliteral_to_wide lt @?> tsrc.at in
+    Typing_error.(throw ~src:(ErrSrc.at tsrc) (terr_msg false tref tsrc))
+  | _ -> Typing_error.(throw ~src:(ErrSrc.at tsrc) (terr_msg false tref tsrc))
 
 and check_object (congruency : bool) (tref : t) (tsrc : t) : unit =
   let check_object_type otref otsrc =

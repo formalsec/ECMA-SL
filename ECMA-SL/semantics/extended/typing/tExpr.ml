@@ -30,12 +30,12 @@ and type_val (v : Val.t) : EType.t' =
   match v with
   | Null -> NullType
   | Void -> VoidType
-  | Int i -> LiteralType (IntegerLit i)
-  | Flt f -> LiteralType (FloatLit f)
-  | Str s -> LiteralType (StringLit s)
-  | Bool b -> LiteralType (BooleanLit b)
+  | Int i -> LiteralType (LitWeak, IntegerLit i)
+  | Flt f -> LiteralType (LitWeak, FloatLit f)
+  | Str s -> LiteralType (LitWeak, StringLit s)
+  | Bool b -> LiteralType (LitWeak, BooleanLit b)
   | Symbol "undefined" -> UndefinedType
-  | Symbol s -> LiteralType (SymbolLit s)
+  | Symbol s -> LiteralType (LitWeak, SymbolLit s)
   | Loc _ -> Internal_error.(throw __FUNCTION__ (err "loc"))
   | Arr _ -> Internal_error.(throw __FUNCTION__ (err "array"))
   | List _ -> Internal_error.(throw __FUNCTION__ (err "list"))
