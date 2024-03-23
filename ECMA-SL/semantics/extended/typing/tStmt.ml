@@ -1,4 +1,5 @@
 open EslSyntax
+open EslSyntax.Source
 
 let rec type_stmt (s : EStmt.t) (tctx : TCtx.t) : TCtx.t =
   TCtx.safe_exec (type_stmt' s) tctx
@@ -11,7 +12,7 @@ and type_stmt' (s : EStmt.t) (tctx : TCtx.t) : TCtx.t =
   | ExprStmt e -> type_expr_stmt e tctx
   | Print e -> type_print e tctx
   | Return e -> type_return e tctx
-  | Assign (x, t, e) -> type_assign x t e tctx
+  | Assign (x, tx, e) -> type_assign x tx e tctx
   | GAssign _ -> tctx
   | FieldAssign _ -> tctx
   | FieldDelete _ -> tctx
@@ -44,16 +45,12 @@ and type_return (e : EExpr.t) (tctx : TCtx.t) : TCtx.t =
   with Typing_error.Error err ->
     Typing_error.(update (BadReturn (tref, tsrc)) err |> raise)
 
-and type_assign (x : Id.t) (t : EType.t option) (e : EExpr.t) (tctx : TCtx.t) :
+and type_assign (x : Id.t) (tx : EType.t option) (e : EExpr.t) (tctx : TCtx.t) :
   TCtx.t =
-  let update_tenv tref = TCtx.(tvar_create t tref |> tenv_set tctx x) in
-  let typecheck tref tsrc =
-    try TSubtyping.type_check tref tsrc
-    with Typing_error.Error err ->
-      update_tenv tref |> fun () -> Typing_error.(raise err)
-  in
-  let tref = EType.resolve_topt t in
+  let update_tenv tref = TCtx.(tvar_create tx tref |> tenv_set tctx x) in
+  let tdefault = TCtx.tvar_create None (EType.AnyType @?> no_region) in
+  let tprev = Option.value ~default:tdefault (TCtx.tenv_find tctx x) in
+  let tref = Option.value ~default:(tprev.tref @?> x.at) tx in
   let tsrc = TExpr.type_expr tctx e in
-  typecheck tref tsrc;
-  update_tenv tsrc;
-  tctx
+  update_tenv tref;
+  TSubtyping.type_check tref tsrc |> fun () -> tctx
