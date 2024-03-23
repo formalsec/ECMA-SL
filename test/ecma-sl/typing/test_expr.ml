@@ -20,6 +20,19 @@ let%test "value_boolean" =
 let%test "value_symbol" =
   TypeExpr.test ~@(EExpr.Val (Val.Symbol "a")) (Ok (lt_symbol "a"))
 
+(* ========== Variable Expressions ========== *)
+
+let%test "variable_integer" =
+  let tctx = TypeExpr.tctx [ (~@"foo", t_int) ] in
+  TypeExpr.test ~tctx ~@(EExpr.Var "foo") (Ok t_int)
+
+let%test "variable_string" =
+  let tctx = TypeExpr.tctx [ (~@"foo", t_string) ] in
+  TypeExpr.test ~tctx ~@(EExpr.Var "foo") (Ok t_string)
+
+let%test "variable_missing" =
+  TypeExpr.test ~@(EExpr.Var "foo") (Error [ UnknownVar "foo" ])
+
 (* ========== Generic Operator Call ========== *)
 
 let%test "operator_call_ok" =
