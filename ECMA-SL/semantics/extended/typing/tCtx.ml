@@ -5,10 +5,11 @@ type tenv = (Id.t', tvar) Hashtbl.t
 
 and tvar =
   { tsig : EType.t option
-  ; tref : EType.t
+  ; tref : EType.t'
   }
 
-let tvar_create (tsig : EType.t option) (tref : EType.t) : tvar = { tsig; tref }
+let tvar_create (tsig : EType.t option) (tref : EType.t) : tvar =
+  { tsig; tref = tref.it }
 
 type t =
   { prog : EProg.t
@@ -17,13 +18,14 @@ type t =
   ; tsafe : bool
   }
 
-let create (p : EProg.t) : t =
-  { prog = p
+let default () : t =
+  { prog = EProg.default ()
   ; func = EFunc.default ()
   ; tenv = Hashtbl.create !Base.default_hashtbl_sz
   ; tsafe = true
   }
 
+let create (p : EProg.t) : t = { (default ()) with prog = p }
 let prog (tctx : t) : EProg.t = tctx.prog
 let func (tctx : t) : EFunc.t = tctx.func
 let set_func (f : EFunc.t) (tctx : t) : t = { tctx with func = f }
