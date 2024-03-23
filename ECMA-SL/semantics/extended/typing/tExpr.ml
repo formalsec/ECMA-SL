@@ -2,14 +2,15 @@ open EslBase
 open EslSyntax
 open EslSyntax.Source
 
-let rec type_expr (e : EExpr.t) : EType.t = type_expr' e @> e.at
+let rec type_expr (tctx : TCtx.t) (e : EExpr.t) : EType.t =
+  type_expr' tctx e @?> e.at
 
-and type_expr' (e : EExpr.t) : EType.t' =
-  let texprs es = List.map type_expr es in
-  let tflds flds = List.map (fun (fn, fe) -> (fn, type_expr fe)) flds in
+and type_expr' (tctx : TCtx.t) (e : EExpr.t) : EType.t' =
+  let texprs es = List.map (type_expr tctx) es in
+  let tflds flds = List.map (fun (fn, fe) -> (fn, (type_expr tctx) fe)) flds in
   match e.it with
   | Val v -> type_val v
-  | Var _ -> AnyType (* TODO: variables *)
+  | Var x -> type_var tctx (x @?> e.at)
   | GVar _ -> AnyType (* TODO: global variables *)
   | Const c -> TOperator.type_const c
   | UnOpt (op, e') -> texprs [ e' ] |> TOperator.type_unopt op
@@ -33,6 +34,7 @@ and type_val (v : Val.t) : EType.t' =
   | Flt f -> LiteralType (FloatLit f)
   | Str s -> LiteralType (StringLit s)
   | Bool b -> LiteralType (BooleanLit b)
+  | Symbol "undefined" -> UndefinedType
   | Symbol s -> LiteralType (SymbolLit s)
   | Loc _ -> Internal_error.(throw __FUNCTION__ (err "loc"))
   | Arr _ -> Internal_error.(throw __FUNCTION__ (err "array"))
@@ -41,6 +43,11 @@ and type_val (v : Val.t) : EType.t' =
   | Byte _ -> Internal_error.(throw __FUNCTION__ (err "byte"))
   | Type _ -> AnyType (* TODO *)
   | Curry _ -> AnyType (* TODO *)
+
+and type_var (tctx : TCtx.t) (x : Id.t) : EType.t' =
+  match TCtx.tenv_find tctx x with
+  | None -> Typing_error.(throw ~src:(ErrSrc.at x) (UnknownVar x.it))
+  | Some t -> t.tref
 
 and type_object (flds : (Id.t * EType.t) list) : EType.t' =
   let set_object_field_f tflds (fn, ft) =

@@ -5,6 +5,7 @@ module ErrSrc = Error_source
 type msg =
   | Default
   | Custom of string
+  | UnknownVar of Id.t'
   | MissingField of Id.t
   | ExtraField of Id.t
   | IncompatibleField of Id.t
@@ -35,6 +36,7 @@ module TypingErr : Error_type.ERROR_TYPE with type t = msg = struct
     match (msg1, msg2) with
     | (Default, Default) -> true
     | (Custom msg1', Custom msg2') -> String.equal msg1' msg2'
+    | (UnknownVar x1, UnknownVar x2) -> String.equal x1 x2
     | (MissingField fn1, MissingField fn2) -> Id.equal fn1 fn2
     | (ExtraField fn1, ExtraField fn2) -> Id.equal fn1 fn2
     | (IncompatibleField fn1, IncompatibleField fn2) -> Id.equal fn1 fn2
@@ -72,6 +74,7 @@ module TypingErr : Error_type.ERROR_TYPE with type t = msg = struct
     match msg with
     | Default -> fprintf fmt "Generic type error."
     | Custom msg' -> fprintf fmt "%s" msg'
+    | UnknownVar x -> fprintf fmt "Cannot find variable '%s'." x
     | MissingField fn ->
       fprintf fmt "Field '%a' is missing from the object's type." Id.pp fn
     | ExtraField fn ->

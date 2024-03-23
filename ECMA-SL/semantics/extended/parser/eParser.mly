@@ -186,14 +186,14 @@ let block_list_target :=
 let stmt_target :=
   | HASH; s = stmt_target;
     { EStmt.Debug s @> at $sloc }
+  | e = expr_target;
+    { EStmt.ExprStmt e @> at $sloc }
   | PRINT; e = expr_target;
     { EStmt.Print e @> at $sloc }
   | RETURN;
     { EStmt.Return (EExpr.Val Val.Void @> at $sloc) @> at $sloc }
   | RETURN; e = expr_target;
     { EStmt.Return e @> at $sloc }
-  | e = expr_target;
-    { EStmt.ExprStmt e @> at $sloc }
   | x = id_target; t = option(typing_target); DEFEQ; e = expr_target;
     { EStmt.Assign (x, t, e) @> at $sloc }
   | x = gid_target; DEFEQ; e = expr_target;
