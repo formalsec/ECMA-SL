@@ -1,7 +1,7 @@
 open Ecma_sl
 open Ecma_sl.EType
 
-let ( ~@ ) (x : 'a) : 'a Source.phrase = Source.(x @> no_region)
+let ( ~@ ) (x : 'a) : 'a Source.phrase = Source.(x @?> no_region)
 let t_any : t = ~@AnyType
 let t_unknown : t = ~@UnknownType
 let t_never : t = ~@NeverType
@@ -13,11 +13,11 @@ let t_float : t = ~@FloatType
 let t_string : t = ~@StringType
 let t_boolean : t = ~@BooleanType
 let t_symbol : t = ~@SymbolType
-let lt_integer (i : int) : t = ~@(LiteralType (IntegerLit i))
-let lt_float (f : float) : t = ~@(LiteralType (FloatLit f))
-let lt_string (s : string) : t = ~@(LiteralType (StringLit s))
-let lt_boolean (b : bool) : t = ~@(LiteralType (BooleanLit b))
-let lt_symbol (s : string) : t = ~@(LiteralType (SymbolLit s))
+let lt_integer (i : int) : t = ~@(LiteralType (LitStrong, IntegerLit i))
+let lt_float (f : float) : t = ~@(LiteralType (LitStrong, FloatLit f))
+let lt_string (s : string) : t = ~@(LiteralType (LitStrong, StringLit s))
+let lt_boolean (b : bool) : t = ~@(LiteralType (LitStrong, BooleanLit b))
+let lt_symbol (s : string) : t = ~@(LiteralType (LitStrong, SymbolLit s))
 
 let t_fld ?(opt : bool = false) (fn : Id.t') (ft : t) : tobjfld =
   (~@fn, ft, if opt then FldOpt else FldReq)
@@ -92,10 +92,18 @@ end
 module TypeExpr = struct
   module Err = Typing_error.TypingErr
 
-  let test (e : EExpr.t) (expected : (t, Err.t list) Result.t) : bool =
+  let tctx (vars : (Id.t * EType.t) list) : TCtx.t =
+    let tvar t = TCtx.tvar_create None t in
+    let tctx = TCtx.default () in
+    List.iter (fun (x, t) -> TCtx.tenv_set tctx x (tvar t)) vars;
+    tctx
+
+  let test ?(tctx : TCtx.t option) (e : EExpr.t)
+    (expected : (t, Err.t list) Result.t) : bool =
     let err_str msgs = List.map Err.str msgs |> String.concat " ; " in
+    let tctx' = Option.value ~default:(TCtx.default ()) tctx in
     let result =
-      try Ok (TExpr.type_expr e) with
+      try Ok (TExpr.type_expr tctx' e) with
       | Typing_error.Error err -> Error err.msgs
       | exn -> raise exn
     in
