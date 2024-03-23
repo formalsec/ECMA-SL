@@ -15,13 +15,17 @@ and t' =
   | StringType
   | BooleanType
   | SymbolType
-  | LiteralType of tliteral
+  | LiteralType of tlitkind * tliteral
   | ObjectType of tobject
   | ListType of t
   | TupleType of t list
   | UnionType of t list
   | SigmaType of Id.t * t list
   | UserDefinedType of Id.t'
+
+and tlitkind =
+  | LitWeak
+  | LitStrong
 
 and tliteral =
   | IntegerLit of int
@@ -57,6 +61,14 @@ let tliteral_to_val (lt : tliteral) : Val.t =
   | BooleanLit b -> Val.Bool b
   | SymbolLit s -> Val.Symbol s
 
+let tliteral_to_wide (lt : tliteral) : t' =
+  match lt with
+  | IntegerLit _ -> IntType
+  | FloatLit _ -> FloatType
+  | StringLit _ -> StringType
+  | BooleanLit _ -> BooleanType
+  | SymbolLit _ -> SymbolType
+
 let rec equal (t1 : t) (t2 : t) : bool =
   let tsmry_get smry = Option.map (fun (_, tsmry) -> tsmry.it) smry in
   let tfld_equal (fn1, ft1, fs1) (fn2, ft2, fs2) =
@@ -74,7 +86,7 @@ let rec equal (t1 : t) (t2 : t) : bool =
   | (StringType, StringType) -> true
   | (BooleanType, BooleanType) -> true
   | (SymbolType, SymbolType) -> true
-  | (LiteralType lt1, LiteralType lt2) ->
+  | (LiteralType (_, lt1), LiteralType (_, lt2)) ->
     Val.equal (tliteral_to_val lt1) (tliteral_to_val lt2)
   | (ObjectType tobj1, ObjectType tobj2) ->
     let tflds1 = Hashtbl.to_seq_values tobj1.flds in
@@ -109,7 +121,7 @@ let rec pp (fmt : Fmt.t) (t : t) : unit =
   | StringType -> pp_str fmt "string"
   | BooleanType -> pp_str fmt "boolean"
   | SymbolType -> pp_str fmt "symbol"
-  | LiteralType tl -> Val.pp fmt (tliteral_to_val tl)
+  | LiteralType (_, tl) -> Val.pp fmt (tliteral_to_val tl)
   | ObjectType { flds; smry; _ } when Hashtbl.length flds = 0 ->
     let pp_smry fmt (_, tsmry) = fprintf fmt " *: %a " pp tsmry in
     fprintf fmt "{%a}" (pp_opt pp_smry) smry
