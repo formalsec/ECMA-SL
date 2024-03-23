@@ -37,7 +37,7 @@ module Type = struct
     let open Compile_error in
     let parse_dsc checked ot at =
       match Hashtbl.find_opt ot.flds dsc.it with
-      | Some (_, ({ it = LiteralType lt; _ } as tdsc), _) ->
+      | Some (_, ({ it = LiteralType (LitStrong, lt); _ } as tdsc), _) ->
         if not (Hashtbl.mem checked lt) then Hashtbl.replace checked lt ()
         else throw ~src:(ErrSrc.at tdsc) (DuplicatedSigmaDiscriminant tdsc)
       | Some (_, t', _) -> throw ~src:(ErrSrc.at t') UnexpectedSigmaDiscriminant
