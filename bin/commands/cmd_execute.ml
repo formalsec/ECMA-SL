@@ -13,7 +13,7 @@ module Options = struct
 
   let set_options input harness lang ecmaref trace trace_loc trace_depth
     debugger show_exitval =
-    Cmd_compile.Options.untyped := false;
+    Cmd_compile.Options.untyped := true;
     Cmd_interpret.Options.trace := trace;
     Cmd_interpret.Options.trace_loc := trace_loc;
     Cmd_interpret.Options.trace_depth := trace_depth;

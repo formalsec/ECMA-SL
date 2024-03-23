@@ -8,9 +8,9 @@ and t' =
   | Skip
   | Debug of t
   | Block of t list
+  | ExprStmt of EExpr.t
   | Print of EExpr.t
   | Return of EExpr.t
-  | ExprStmt of EExpr.t
   | Assign of Id.t * EType.t option * EExpr.t
   | GAssign of Id.t * EExpr.t
   | FieldAssign of EExpr.t * EExpr.t * EExpr.t
@@ -39,9 +39,9 @@ let rec pp (fmt : Fmt.t) (s : t) : unit =
   | Skip -> fprintf fmt "skip"
   | Debug s' -> fprintf fmt "# %a" pp s'
   | Block ss -> fprintf fmt "{\n%a\n}" (pp_lst ";\n" pp) ss
+  | ExprStmt e -> EExpr.pp fmt e
   | Print e -> fprintf fmt "print %a" EExpr.pp e
   | Return e -> fprintf fmt "return%a" pp_return e
-  | ExprStmt e -> EExpr.pp fmt e
   | Assign (x, t, e) ->
     fprintf fmt "%a%a := %a" Id.pp x EType.tannot_pp t EExpr.pp e
   | GAssign (x, e) -> fprintf fmt "|%a| := %a" Id.pp x EExpr.pp e
@@ -100,17 +100,17 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = EExpr.Mapper.id) (mapper : t -> t)
   | Skip -> Skip
   | Debug s' -> Debug (map' s')
   | Block ss -> Block (List.map map' ss)
+  | ExprStmt e -> ExprStmt (emapper e)
   | Print e -> Print (emapper e)
   | Return e -> Return (emapper e)
-  | ExprStmt e -> ExprStmt (emapper e)
   | Assign (x, t, e) -> Assign (id_mapper x, t, emapper e)
   | GAssign (x, e) -> GAssign (id_mapper x, emapper e)
   | FieldAssign (oe, fe, e) -> FieldAssign (emapper oe, emapper fe, emapper e)
   | FieldDelete (oe, fe) -> FieldDelete (emapper oe, emapper fe)
-  | If (ifcs, elsecs) ->
+  | If (ifcss, elsecs) ->
     let map_ifcs (e, s, meta, at) = (emapper e, map' s, meta, at) in
     let map_elsecs (s, meta) = (map' s, meta) in
-    If (List.map map_ifcs ifcs, Option.map map_elsecs elsecs)
+    If (List.map map_ifcs ifcss, Option.map map_elsecs elsecs)
   | While (e, s') -> While (emapper e, map' s')
   | ForEach (x, e, s', meta, var_meta) ->
     ForEach (id_mapper x, emapper e, map' s', meta, var_meta)
@@ -136,7 +136,7 @@ let rec to_list ?(recursion : bool = false) (to_list_f : t -> 'a list) (s : t) :
   let to_list_ss stmts = List.concat (List.map to_list_s stmts) in
   let to_list_recursive () =
     match s.it with
-    | Skip | Print _ | Return _ | ExprStmt _ | Assign _ | GAssign _
+    | Skip | ExprStmt _ | Print _ | Return _ | Assign _ | GAssign _
     | FieldAssign _ | FieldDelete _ | MacroApply _ | Throw _ | Fail _ | Assert _
     | Wrapper _ ->
       []
