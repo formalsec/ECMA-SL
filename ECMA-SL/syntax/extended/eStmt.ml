@@ -42,8 +42,8 @@ let rec pp (fmt : Fmt.t) (s : t) : unit =
   | ExprStmt e -> EExpr.pp fmt e
   | Print e -> fprintf fmt "print %a" EExpr.pp e
   | Return e -> fprintf fmt "return%a" pp_return e
-  | Assign (x, t, e) ->
-    fprintf fmt "%a%a := %a" Id.pp x EType.tannot_pp t EExpr.pp e
+  | Assign (x, tx, e) ->
+    fprintf fmt "%a%a := %a" Id.pp x EType.tannot_pp tx EExpr.pp e
   | GAssign (x, e) -> fprintf fmt "|%a| := %a" Id.pp x EExpr.pp e
   | FieldAssign (oe, fe, e) ->
     fprintf fmt "%a[%a] := %a" EExpr.pp oe EExpr.pp fe EExpr.pp e
@@ -103,7 +103,7 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = EExpr.Mapper.id) (mapper : t -> t)
   | ExprStmt e -> ExprStmt (emapper e)
   | Print e -> Print (emapper e)
   | Return e -> Return (emapper e)
-  | Assign (x, t, e) -> Assign (id_mapper x, t, emapper e)
+  | Assign (x, tx, e) -> Assign (id_mapper x, tx, emapper e)
   | GAssign (x, e) -> GAssign (id_mapper x, emapper e)
   | FieldAssign (oe, fe, e) -> FieldAssign (emapper oe, emapper fe, emapper e)
   | FieldDelete (oe, fe) -> FieldDelete (emapper oe, emapper fe)
