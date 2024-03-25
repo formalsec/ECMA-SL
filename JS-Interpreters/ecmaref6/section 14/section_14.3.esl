@@ -51,7 +51,7 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
     match methodPropertyDefinition with
     | { kind: "get", key: key, value: func} -> {
         /* 1. Let propKey be the result of evaluating PropertyName. */
-        /* propKey := JS_Interpreter_PropertyName(key, scope);
+        propKey := JS_Interpreter_PropertyName(key, scope, false);
 
         exprValue := JS_Interpreter_Expr(key, scope);
         if (key.type = "Identifier" &&&  GetBase(exprValue) = 'undefined) {
