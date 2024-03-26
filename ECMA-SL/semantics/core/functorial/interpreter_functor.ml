@@ -68,7 +68,7 @@ module Make (P : Interpreter_functor_intf.P) :
 
   let pp locals heap e = eval_expr locals e |> Memory.pp_val heap
 
-  (* Somehow using the functions in Log seems to considerably slowdown exec *)
+  (* FIXME: Somehow using the functions in Log seems to considerably slowdown exec *)
   let debug1 fmt a = if !Log.Config.debugs then Fmt.eprintf fmt a
   let debug2 fmt a b = if !Log.Config.debugs then Fmt.eprintf fmt a b
 
@@ -121,30 +121,30 @@ module Make (P : Interpreter_functor_intf.P) :
     (* debug2 "      store : %a@." Value.Store.pp locals; *)
     debug2 "running stmt: %a@." Stmt.pp_simple stmt;
     match stmt.it with
-    | Stmt.Skip -> ok state
-    | Stmt.Merge -> ok state
-    | Stmt.Debug stmt ->
+    | Skip -> ok state
+    | Merge -> ok state
+    | Debug stmt ->
       Format.eprintf "ignoring break point in line %d" stmt.at.left.line;
       ok { state with stmts = stmt :: state.stmts }
-    | Stmt.Fail e ->
+    | Fail e ->
       let e' = pp locals m e in
       Log.log ~header:false "       fail : %s" e';
       error (`Failure (Fmt.sprintf "%s" e'))
-    | Stmt.Print e ->
+    | Print e ->
       Format.printf "%s@." (pp locals m e);
       ok state
-    | Stmt.Assign (x, e) ->
+    | Assign (x, e) ->
       let v = eval_expr locals e in
       ok { state with locals = Store.add_exn locals x.it v }
-    | Stmt.Assert e ->
+    | Assert e ->
       let e' = eval_expr locals e in
       let* b = Choice.check_add_true @@ Value.Bool.not_ e' in
       if b then (
         Log.log ~header:false "     assert : failure with (%a)" Value.pp e';
         error (`Assert_failure e') )
       else ok state
-    | Stmt.Block blk -> ok { state with stmts = blk @ state.stmts }
-    | Stmt.If (br, blk1, blk2) ->
+    | Block blk -> ok { state with stmts = blk @ state.stmts }
+    | If (br, blk1, blk2) ->
       let br = eval_expr locals br in
       let* b = Choice.branch br in
       let stmts =
@@ -155,13 +155,13 @@ module Make (P : Interpreter_functor_intf.P) :
           | Some stmt -> stmt :: state.stmts
       in
       ok { state with stmts }
-    | Stmt.While (br, blk) ->
+    | While (br, blk) ->
       let blk' = Stmt.Block (blk :: [ stmt ]) @> blk.at in
       let stmts = (Stmt.If (br, blk', None) @> stmt.at) :: state.stmts in
       ok { state with stmts }
-    | Stmt.Return e ->
+    | Return e ->
       Choice.return @@ State.return state ~value:(eval_expr locals e)
-    | Stmt.AssignCall (x, f, es) -> (
+    | AssignCall (x, f, es) -> (
       match Value.func (eval_expr locals f) with
       | Error msg -> error (`Failure (Fmt.sprintf "%s" msg))
       | Ok (func_name, args0) -> (
@@ -171,18 +171,18 @@ module Make (P : Interpreter_functor_intf.P) :
           let args = List.map (eval_expr locals) es in
           let args = args0 @ args in
           exec_func state func args x.it ) )
-    | Stmt.AssignECall (x, f, es) -> (
+    | AssignECall (x, f, es) -> (
       match Env.get_extern_func env f.it with
       | Error msg -> error (`Failure (Fmt.sprintf "%s" msg))
       | Ok func ->
         let args = List.map (eval_expr locals) es in
         exec_extern_func state func args x.it )
-    | Stmt.AssignNewObj x ->
+    | AssignNewObj x ->
       let* heap = Env.get_memory env in
       let obj = Object.create () in
       let loc = Memory.insert heap obj in
       ok { state with locals = Store.add_exn locals x.it loc }
-    | Stmt.AssignInObjCheck (x, e_field, e_loc) ->
+    | AssignInObjCheck (x, e_field, e_loc) ->
       let field = eval_expr locals e_field in
       let loc = eval_expr locals e_loc in
       let* loc = Memory.loc loc in
@@ -190,7 +190,7 @@ module Make (P : Interpreter_functor_intf.P) :
       let* heap = Env.get_memory env in
       let v = Memory.has_field heap loc field in
       ok { state with locals = Store.add_exn locals x.it v }
-    | Stmt.AssignObjToList (x, e) -> (
+    | AssignObjToList (x, e) -> (
       let loc = eval_expr locals e in
       let* loc = Memory.loc loc in
       let* heap = Env.get_memory env in
@@ -200,7 +200,7 @@ module Make (P : Interpreter_functor_intf.P) :
       | Some o ->
         let v = Value.mk_list (List.map Value.mk_tuple (Object.to_list o)) in
         ok { state with locals = Store.add_exn locals x.it v } )
-    | Stmt.AssignObjFields (x, e) -> (
+    | AssignObjFields (x, e) -> (
       let loc = eval_expr locals e in
       let* loc = Memory.loc loc in
       let* heap = Env.get_memory env in
@@ -210,7 +210,7 @@ module Make (P : Interpreter_functor_intf.P) :
       | Some o ->
         let v = Value.mk_list @@ Object.get_fields o in
         ok { state with locals = Store.add_exn locals x.it v } )
-    | Stmt.FieldAssign (e_loc, e_field, e_v) ->
+    | FieldAssign (e_loc, e_field, e_v) ->
       let loc = eval_expr locals e_loc in
       let field = eval_expr locals e_field in
       let v = eval_expr locals e_v in
@@ -218,14 +218,14 @@ module Make (P : Interpreter_functor_intf.P) :
       let* heap = Env.get_memory env in
       Memory.set_field heap loc ~field ~data:v;
       ok state
-    | Stmt.FieldDelete (e_loc, e_field) ->
+    | FieldDelete (e_loc, e_field) ->
       let loc = eval_expr locals e_loc in
       let field = eval_expr locals e_field in
       let* loc = Memory.loc loc in
       let* heap = Env.get_memory env in
       Memory.delete_field heap loc field;
       ok state
-    | Stmt.FieldLookup (x, e_loc, e_field) ->
+    | FieldLookup (x, e_loc, e_field) ->
       let loc = eval_expr locals e_loc in
       let field = eval_expr locals e_field in
       let* loc = Memory.loc loc in
@@ -233,7 +233,7 @@ module Make (P : Interpreter_functor_intf.P) :
       let* value = Memory.get_field heap loc field in
       let value' = Option.value value ~default:(Value.mk_symbol "undefined") in
       ok { state with locals = Store.add_exn locals x.it value' }
-    | Stmt.Switch (cond, cases, default) -> (
+    | Switch (cond, cases, default) -> (
       let cond = eval_expr locals cond in
       let* id = Choice.select_val cond in
       match (Hashtbl.find_opt cases id, default) with
@@ -256,14 +256,14 @@ module Make (P : Interpreter_functor_intf.P) :
     | stmt :: stmts -> (
       let* state = exec_stmt stmt { state with stmts } in
       match state with
-      | State.Continue state -> loop state
-      | State.Return ret -> Choice.return ret )
+      | Continue state -> loop state
+      | Return ret -> Choice.return ret )
     | [] -> (
       Log.log ~header:false "    warning : %s: missing a return statement!@."
         state.func;
       match State.return state with
-      | State.Continue state -> loop state
-      | State.Return ret -> Choice.return ret )
+      | Continue state -> loop state
+      | Return ret -> Choice.return ret )
 
   let main (env : Env.t) (f : string) : State.return_result Choice.t =
     match Env.get_func env f with
