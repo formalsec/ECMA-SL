@@ -251,7 +251,7 @@ function GetValue(V) {
 
   /* If IsUnresolvableReference(V), throw a ReferenceError exception. */
   if ( IsUnresolvableReference(V) ) {
-    throw ReferenceErrorConstructorInternal()
+    throw ReferenceError(GetReferencedName(V) + " is not defined")
   };
 
   /* If IsPropertyReference(V), then */
@@ -299,7 +299,7 @@ function PutValue(V, W) {
         /* If IsStrictReference(V) is true, then */
         if ( IsStrictReference(V) = true ) {
             /* Throw ReferenceError exception. */
-            throw ReferenceErrorConstructorInternal()
+            throw ReferenceError(GetReferencedName(V) + " is not defined")
         };
 
         /* Let globalObj be GetGlobalObject(). */
