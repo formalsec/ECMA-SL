@@ -549,9 +549,13 @@ let plus ((v1, v2) : Val.t * Val.t) : Val.t =
   match (v1, v2) with
   | (Int i1, Int i2) -> Int (i1 + i2)
   | (Flt f1, Flt f2) -> Flt (f1 +. f2)
-  | (Int _, _) | (Flt _, _) ->
-    bad_arg_err 2 op_lbl "(integer, integer) or (float, float)" [ v1; v2 ]
-  | _ -> bad_arg_err 1 op_lbl "(integer, integer) or (float, float)" [ v1; v2 ]
+  | (Str s1, Str s2) -> Str (s1 ^ s2)
+  | ((Int _ | Flt _ | Str _), _) ->
+    bad_arg_err 2 op_lbl
+      "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
+  | _ ->
+    bad_arg_err 1 op_lbl
+      "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
 
 let minus ((v1, v2) : Val.t * Val.t) : Val.t =
   let op_lbl = label_of_binopt Minus in

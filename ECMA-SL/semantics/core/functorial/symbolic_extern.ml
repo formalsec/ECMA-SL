@@ -172,5 +172,5 @@ module Make () = struct
 end
 
 include (
-  Make (struct end) :
+  Make () :
     S with type extern_func := Symbolic.P.Extern_func.extern_func )

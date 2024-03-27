@@ -30,13 +30,13 @@ subclass instances with a [[ErrorData]] internal slot.
 function initErrorConstructor(ErrorPrototype, globalObject, strict) {
    /*
  19.5.2 Properties of the Error Constructor
- 
+
  The value of the [[Prototype]] internal slot of the Error constructor is the intrinsic object %FunctionPrototype% (19.2.3).
- 
+
  Besides the length property (whose value is 1), the Error constructor has the following properties:
  */
   ErrorConstructor := CreateGeneralBuiltInFunction(getFunctionPrototype(strict), ["message"], "ErrorConstructor", globalObject, strict, null);
- 
+
   setJSProperty(ErrorConstructor, "length", newDataPropertyDescriptorFull(1., false, false, true));
   setInternalProperty(ErrorConstructor, "ErrorData", 'undefined);
 
@@ -54,7 +54,7 @@ function initErrorPrototype(ObjectPrototype, global, strict) {
   setAllInternalMethodsOfOrdinaryObject(errorPrototypeObject);
 
   /* 19.5.3.2 Error.prototype.message */
-  setJSProperty(errorPrototypeObject, "message", newDataPropertyDescriptorFull("", true, false, true));  
+  setJSProperty(errorPrototypeObject, "message", newDataPropertyDescriptorFull("", true, false, true));
 
   /* 19.5.3.3 Error.prototype.name */
   setJSProperty(errorPrototypeObject, "name", newDataPropertyDescriptorFull("Error", true, false, true));
@@ -114,7 +114,7 @@ function ErrorConstructor(globalObject, this, NewTarget, strict, params) {
 };
 
 
-/* 
+/*
 19.5.3.4 Error.prototype.toString ( )
 
 The following steps are taken:
@@ -173,7 +173,7 @@ function ErrorToString(globalObject, this, NewTarget, strict, params) {
     };
 
     /*Return the result of concatenating name, the code unit 0x003A (COLON), the code unit 0x0020 (SPACE), and msg.*/
-    return s_concat([name, ": ", msg])
+    return name + ": " + msg
 };
 
 /*
@@ -183,7 +183,7 @@ A new instance of one of the NativeError objects below is thrown when a runtime 
 detected. All of these objects share the same structure, as described in 19.5.6.
 */
 
-/* 
+/*
 19.5.5.1 EvalError
 
 This exception is not currently used within this specification. This object remains
@@ -227,13 +227,19 @@ Indicate that an invalid reference value has been detected.
 function initReferenceErrorObject(globalObject, ErrorPrototype, strict) {
   return initNativeErrorObject(ErrorPrototype, "ReferenceError", "ReferenceErrorConstructor", globalObject, strict)
 };
+
 function ReferenceErrorConstructor(globalObject, this, NewTarget, strict, params) {
   message := l_nth(params, 0);
 
   return NativeErrorConstructor(message, "ReferenceError", NewTarget)
 };
+
 function ReferenceErrorConstructorInternal() {
   return NativeErrorConstructor('undefined, "ReferenceError", |Intrinsics|["ReferenceError"])
+};
+
+function ReferenceError(msg) {
+  return NativeErrorConstructor(msg, "ReferenceError", |Intrinsics|["ReferenceError"])
 };
 
 /*
@@ -254,7 +260,7 @@ function SyntaxErrorConstructorInternal() {
 };
 
 function getSyntaxErrorConstructor() {
-  return |Intrinsics|["SyntaxError"] 
+  return |Intrinsics|["SyntaxError"]
 };
 
 /*
@@ -331,7 +337,7 @@ initialize subclass instances with a [[ErrorData]] internal slot.
 function initNativeErrorConstructor(NativeErrorPrototype, nativeErrorName, constructorFunction, globalObject, strict) {
   /*
   19.5.6.2 Properties of the NativeError Constructors
-  
+
   The value of the [[Prototype]] internal slot of a NativeError constructor is the intrinsic object %Error% (19.5.1).
   Besides the length property (whose value is 1), each NativeError constructor has the following properties:
   */
@@ -339,10 +345,10 @@ function initNativeErrorConstructor(NativeErrorPrototype, nativeErrorName, const
 
   /*
   19.5.6.2.1 NativeError.prototype
-  
+
   The initial value of NativeError.prototype is a NativeError prototype object (19.5.6.3). Each
   NativeError constructor has a distinct prototype object.
-  
+
   This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }.
   */
   createBuiltInPropertyWithFullDescriptor(NativeErrorConstructor, "prototype", NativeErrorPrototype, false, false, false);
@@ -377,13 +383,13 @@ function initNativeErrorPrototype(errorPrototypeObject, nativeErrorName) {
   return nativeErrorPrototypeObject
 };
 
-/* 
+/*
 19.5.6.1.1 NativeError ( message )
 
 When a NativeError function is called with argument message the following steps are taken:
 */
 function NativeErrorConstructor(message, nativeErrorName, NewTarget) {
-    
+
     /*If NewTarget is undefined, let newTarget be the active function object, else let newTarget be NewTarget.*/
     if ( NewTarget = 'undefined ) {
         newTarget := topExecStack().Function

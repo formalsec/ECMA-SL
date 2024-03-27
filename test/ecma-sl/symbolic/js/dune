@@ -1,0 +1,6 @@
+(cram
+ (deps
+  %{bin:ecma-sl}
+  (package ecma-sl)
+  reference_error_1.js
+  reference_error_2.js))
