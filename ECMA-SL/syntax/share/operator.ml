@@ -116,6 +116,7 @@ type binopt =
   | SCLogicalOr
   (* Comparison operators *)
   | Eq
+  | NE
   | Lt
   | Gt
   | Le
@@ -287,6 +288,7 @@ let label_of_binopt (op : binopt) : string =
   | SCLogicalAnd -> "Logical.sc_and (&&&)"
   | SCLogicalOr -> "Logical.sc_or (|||)"
   | Eq -> "Comp.eq (=)"
+  | NE -> "Comp.ne (!=)"
   | Lt -> "Comp.lt (<)"
   | Gt -> "Comp.gt (>)"
   | Le -> "Comp.le (<=)"
@@ -428,6 +430,7 @@ let pp_of_binopt_single (fmt : Fmt.t) (op : binopt) : unit =
   | SCLogicalAnd -> pp_str fmt "&&&"
   | SCLogicalOr -> pp_str fmt "|||"
   | Eq -> pp_str fmt "="
+  | NE -> pp_str fmt "!="
   | Lt -> pp_str fmt "<"
   | Gt -> pp_str fmt ">"
   | Le -> pp_str fmt "<="
