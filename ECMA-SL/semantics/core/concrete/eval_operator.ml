@@ -654,30 +654,31 @@ let logical_or ((v1, v2) : Val.t * Val.t) : Val.t =
   | (Bool _, _) -> bad_arg_err 2 op_lbl "(boolean, boolean)" [ v1; v2 ]
   | _ -> bad_arg_err 1 op_lbl "(boolean, boolean)" [ v1; v2 ]
 
-let eq ((v1, v2) : Val.t * Val.t) : Val.t =
-  match (v1, v2) with
-  | (Flt f1, Flt f2) -> Bool (Float.equal f1 f2)
-  | (Arr arr1, Arr arr2) -> Bool (arr1 == arr2)
-  | _ -> Bool (v1 = v2)
+let eq ((v1, v2) : Val.t * Val.t) : Val.t = Bool (Val.equal v1 v2)
+let ne ((v1, v2) : Val.t * Val.t) : Val.t = Bool (not @@ Val.equal v1 v2)
 
+(* TODO: This should be defined using Val.compare *)
 let lt ((v1, v2) : Val.t * Val.t) : Val.t =
   match (v1, v2) with
   | (Flt f, Int i) -> Bool (f < float i)
   | (Int i, Flt f) -> Bool (float i < f)
   | (v1, v2) -> Bool (v1 < v2)
 
+(* TODO: This should be defined using Val.compare *)
 let gt ((v1, v2) : Val.t * Val.t) : Val.t =
   match (v1, v2) with
   | (Flt f, Int i) -> Bool (f > float i)
   | (Int i, Flt f) -> Bool (float i > f)
   | (v1, v2) -> Bool (v1 > v2)
 
+(* TODO: This should be defined using Val.compare *)
 let le ((v1, v2) : Val.t * Val.t) : Val.t =
   match (v1, v2) with
   | (Flt f, Int i) -> Bool (f <= float i)
   | (Int i, Flt f) -> Bool (float i <= f)
   | (v1, v2) -> Bool (v1 <= v2)
 
+(* TODO: This should be defined using Val.compare *)
 let ge ((v1, v2) : Val.t * Val.t) : Val.t =
   match (v1, v2) with
   | (Flt f, Int i) -> Bool (f >= float i)
@@ -1092,6 +1093,7 @@ let eval_binopt (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | SCLogicalOr ->
     Internal_error.(throw __FUNCTION__ (UnexpectedEval (Some "SCLogicalOr")))
   | Eq -> eq (v1, v2)
+  | NE -> ne (v1, v2)
   | Lt -> lt (v1, v2)
   | Gt -> gt (v1, v2)
   | Le -> le (v1, v2)

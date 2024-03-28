@@ -254,6 +254,7 @@ rule read =
   | "|||"             { SCLOR }
   | "&&&"             { SCLAND }
   | '='               { EQ }
+  | "!="              { NEQ }
   | '<'               { LT }
   | '>'               { GT }
   | "<="              { LE }

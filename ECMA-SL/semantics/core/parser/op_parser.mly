@@ -9,7 +9,7 @@
 %token CARET
 %token SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
 %token LAND LOR
-%token EQ LT GT LE GE
+%token EQ NEQ LT GT LE GE
 
 %token TYPEOF
 
@@ -78,6 +78,7 @@
   | LAND;                   { Operator.LogicalAnd }
   | LOR;                    { Operator.LogicalOr }
   | EQ;                     { Operator.Eq }
+  | NEQ;                    { Operator.NE }
   | LT;                     { Operator.Lt }
   | GT;                     { Operator.Gt }
   | LE;                     { Operator.Le }
