@@ -90,7 +90,7 @@
 %right nary_type_prec
 
 %left LAND LOR SCLAND SCLOR
-%left EQ
+%left EQ NEQ
 %left LT GT LE GE
 %left AMPERSAND PIPE CARET SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
 %left OBJECT_MEM LIST_MEM
@@ -158,9 +158,9 @@ let func_target :=
   | FUNCTION; fn = id_target; LPAREN; pxs = separated_list(COMMA, param_target); RPAREN;
     vals_meta = delimited(LBRACK, vals_metadata_target, RBRACK); vars_meta = vars_opt_metadata_target;
     tret = typing_target?; s = block_target;
-    { 
-      EFunc.create fn (EParsing_helper.Prog.parse_params pxs) tret s 
-      (Some (EFunc_metadata.build_func_metadata vals_meta vars_meta)) @> at $sloc 
+    {
+      EFunc.create fn (EParsing_helper.Prog.parse_params pxs) tret s
+      (Some (EFunc_metadata.build_func_metadata vals_meta vars_meta)) @> at $sloc
     }
 
 let param_target := ~ = id_target; ~ = typing_target?; <>

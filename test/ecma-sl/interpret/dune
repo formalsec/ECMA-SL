@@ -2,4 +2,5 @@
  (deps
   %{bin:ecma-sl}
   tuple.esl
-  semicolon.esl))
+  semicolon.esl
+  distinct.esl))
