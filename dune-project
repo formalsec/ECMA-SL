@@ -44,6 +44,7 @@
   (bisect_ppx (and :with-test (>= "2.5.0") :dev)))
  (tags
   (ECMAScript "Specification Language" "Reference Interpreters" "OCaml"))
-(sites
+ (sites
   (share interpreters)
-  (share nodejs)))
+  (share nodejs)
+  (share stdlib)))
