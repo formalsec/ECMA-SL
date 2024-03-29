@@ -66,8 +66,6 @@
 
 %token MAX_VALUE MIN_VALUE PI
 
-%token ITE
-
 %token OBJECT_TO_LIST OBJECT_FIELDS
 %token OBJECT_MEM
 
@@ -96,6 +94,8 @@
 %left OBJECT_MEM LIST_MEM
 %left MINUS PLUS
 %left TIMES DIVIDE MODULO
+%left QUESTION
+%right COLON
 %right POW
 
 %nonassoc unopt_prec
@@ -301,6 +301,8 @@ let expr_target :=
     { EExpr.BinOpt (binopt, e1, e2) @> at $sloc }
   | triopt = triopt_call_target; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; COMMA; e3 = expr_target; RPAREN;
     { EExpr.TriOpt (triopt, e1, e2, e3) @> at $sloc }
+  | e1 = expr_target; QUESTION; e2 = expr_target; COLON; e3 = expr_target;
+    { EExpr.TriOpt (ITE, e1, e2, e3) @> at $sloc }
   | ~ = nopt_target;
     <>
   | fn = id_target; LPAREN; es = separated_list(COMMA, expr_target); RPAREN; ferr = catch_target?;
@@ -386,7 +388,6 @@ let unopt_call_target ==
 
 let triopt_call_target ==
   | ~ = core_triopt;        <>
-  | ITE;                    { Operator.ITE }
 
 (* ==================== Metadata ==================== *)
 
