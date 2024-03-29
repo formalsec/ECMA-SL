@@ -43,7 +43,7 @@
 
 %token INT_TO_BE_BYTES INT_FROM_LE_BYTES UINT_FROM_LE_BYTES
 
-%token RANDOM ABS SQRT CEIL FLOOR EXP LOG_2 LOG_E LOG_10
+%token RANDOM ABS SQRT CEIL FLOOR TRUNC EXP LOG_2 LOG_E LOG_10
 %token SIN COS TAN SINH COSH TANH ASIN ACOS ATAN
 %token MAX MIN ATAN_2
 
@@ -136,6 +136,7 @@
   | SQRT;                   { Operator.Sqrt }
   | CEIL;                   { Operator.Ceil }
   | FLOOR;                  { Operator.Floor }
+  | TRUNC;                  { Operator.Trunc }
   | EXP;                    { Operator.Exp }
   | LOG_2;                  { Operator.Log2 }
   | LOG_E;                  { Operator.LogE }
