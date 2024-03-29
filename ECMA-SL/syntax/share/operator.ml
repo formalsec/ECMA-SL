@@ -74,6 +74,7 @@ type unopt =
   | Sqrt
   | Ceil
   | Floor
+  | Trunc
   | Exp
   | Log2
   | LogE
@@ -250,6 +251,7 @@ let label_of_unopt (op : unopt) : string =
   | Sqrt -> "Math.sqrt"
   | Ceil -> "Math.ceil"
   | Floor -> "Math.floor"
+  | Trunc -> "Math.trunc"
   | Exp -> "Math.exp"
   | Log2 -> "Math.log_2"
   | LogE -> "Math.log_e"
@@ -391,6 +393,7 @@ let pp_of_unopt_single (fmt : Fmt.t) (op : unopt) : unit =
   | Sqrt -> pp_str fmt "sqrt"
   | Ceil -> pp_str fmt "ceil"
   | Floor -> pp_str fmt "floor"
+  | Trunc -> pp_str fmt "trunc"
   | Exp -> pp_str fmt "exp"
   | Log2 -> pp_str fmt "log_2"
   | LogE -> pp_str fmt "log_e"

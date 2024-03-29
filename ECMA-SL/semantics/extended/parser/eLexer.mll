@@ -141,6 +141,7 @@
             "sqrt"                    , SQRT;
             "ceil"                    , CEIL;
             "floor"                   , FLOOR;
+            "trunc"                   , TRUNC;
             "exp"                     , EXP;
             "log_2"                   , LOG_2;
             "log_e"                   , LOG_E;

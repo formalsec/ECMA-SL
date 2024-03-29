@@ -94,6 +94,7 @@ let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
   | Sqrt -> type_op [ ([ FloatType ], FloatType) ]
   | Ceil -> type_op [ ([ FloatType ], FloatType) ]
   | Floor -> type_op [ ([ FloatType ], FloatType) ]
+  | Trunc -> type_op [ ([ FloatType ], FloatType) ]
   | Exp -> type_op [ ([ FloatType ], FloatType) ]
   | Log2 -> type_op [ ([ FloatType ], FloatType) ]
   | LogE -> type_op [ ([ FloatType ], FloatType) ]
