@@ -182,8 +182,8 @@ let is_infix_binopt (op : binopt) : bool =
   match op with
   | Plus | Minus | Times | Div | Modulo | Pow | BitwiseAnd | BitwiseOr
   | BitwiseXor | ShiftLeft | ShiftRight | ShiftRightLogical | LogicalAnd
-  | LogicalOr | SCLogicalAnd | SCLogicalOr | Eq | Lt | Gt | Le | Ge | ObjectMem
-  | ListMem ->
+  | LogicalOr | SCLogicalAnd | SCLogicalOr | Eq | NE | Lt | Gt | Le | Ge
+  | ObjectMem | ListMem ->
     true
   | _ -> false
 
