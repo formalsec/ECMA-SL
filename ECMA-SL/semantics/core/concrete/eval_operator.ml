@@ -398,6 +398,12 @@ let floor (v : Val.t) : Val.t =
   | Flt f -> Flt (Float.floor f)
   | _ -> bad_arg_err 1 op_lbl "float" [ v ]
 
+let trunc (v : Val.t) : Val.t =
+  let op_lbl = label_of_unopt Trunc in
+  match v with
+  | Flt f -> Flt (Float.trunc f)
+  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
+
 let exp (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt Exp in
   match v with
@@ -1053,6 +1059,7 @@ let eval_unopt (op : unopt) (v : Val.t) : Val.t =
   | Sqrt -> sqrt v
   | Ceil -> ceil v
   | Floor -> floor v
+  | Trunc -> trunc v
   | Exp -> exp v
   | Log2 -> log_2 v
   | LogE -> log_e v
