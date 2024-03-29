@@ -1,6 +1,7 @@
 module Location = struct
   let interpreters : string list = Site.Sites.interpreters
   let nodejs : string list = Site.Sites.nodejs
+  let stdlib : string list = Site.Sites.stdlib
 end
 
 let search_file (location : string list) (file : string) : string option =
@@ -13,6 +14,7 @@ let search_file (location : string list) (file : string) : string option =
 let resolve_config (file : string) : string =
   String.trim (Ecma_sl.Io.read_file file)
 
+let std_path = List.hd Location.stdlib
 let es5_config () = search_file Location.interpreters "es5.include"
 let es6_config () = search_file Location.interpreters "es6.include"
 let es6_sym_config () = search_file Location.interpreters "es6-sym.include"

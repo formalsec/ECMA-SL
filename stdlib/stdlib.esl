@@ -1,0 +1,116 @@
+/* TODO: Separate this into smaller files */
+
+/* Float operators */
+function is_int(f : float) : boolean {
+  return (trunc f) = f
+}
+
+/* FIXME: to replace `is_NaN` */
+function is_nan(n : float) : boolean {
+  return n != n
+}
+
+function is_inf(n : float) : boolean {
+  return 1.0 / n = 0.0
+}
+
+/* FIXME: to replace `to_int` */
+function to_int_(n : float) : float {
+  if (is_nan(n)) {
+    return 0.0
+  } elif (n = 0.0 || is_inf(n)) {
+    return n
+  };
+  sign := n < 0.0 ? -(1.0) : 1.0;
+  return sign * (floor (abs n))
+}
+
+/* FIXME: to replace `to_int32` */
+function to_int32_(n : float) : float {
+  if (is_nan(n) || n = 0.0 || is_inf(n)) {
+    return 0.0
+  };
+  sign := n < 0.0 ? -(1.0) : 1.0;
+  posInt := sign * (floor (abs n));
+  int32bit := posInt % 4294967296.0;
+  return ((int32bit >= 2147483648.0) ? int32bit - 4294967296.0 : int32bit)
+}
+
+/* FIXME: to replace `to_uint32` */
+function to_uint32_(n : float) : float {
+  if (is_nan(n) || n = 0.0 || is_inf(n)) {
+    return 0.0
+  };
+  sign := n < 0.0 ? -(1.0) : 1.0;
+  posInt := sign * (floor (abs n));
+  return (posInt % 4294967296.0)
+}
+
+/* FIXME: to replace `to_uint16` */
+function to_uint16_(n : float) : float {
+  if (is_nan(n) || n = 0.0 || is_inf(n)) {
+    return 0.0
+  };
+  sign := n < 0.0 ? -(1.0) : 1.0;
+  posInt := sign * (floor (abs n));
+  return (posInt % 65536.0)
+}
+
+/* Math operators */
+/* FIXME: to replace `min` */
+function min_(x : float, y : float) : float {
+  if (y > x) {
+    return (is_nan(y) ? y : x)
+  };
+  return (is_nan(x) ? x : y)
+}
+
+/* FIXME: to replace `max` */
+function max_(x : float, y : float) : float {
+  if (y > x) {
+    return (is_nan(x) ? x : y)
+  };
+  return (is_nan(y) ? y : x)
+}
+
+/* List operatos */
+function iter(f, lst) : void {
+  foreach (v : lst) {
+    {f}(v)
+  };
+  return
+}
+
+function map(f, lst) : list {
+  result := [];
+  foreach (v : lst) {
+    result := l_concat(result, [ {f}(v) ])
+  };
+  return result
+}
+
+function bind(f, lst) : list {
+  result := [];
+  foreach (elt : lst) {
+    result := l_concat(result, {f}(elt))
+  };
+  return result
+}
+
+function fold(f, initial, lst) {
+  result := initial;
+  foreach (elt : lst) {
+    result := {f}(result, elt)
+  };
+  return result
+}
+
+function filter(f, lst) {
+  result := [];
+  foreach (elt : lst) {
+    if ({f}(elt)) {
+      result := l_prepend(elt, result)
+    }
+  };
+  return result
+}
