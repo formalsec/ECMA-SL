@@ -47,7 +47,6 @@
 
             (* General operators *)
             "typeof"                  , TYPEOF;
-            "ite"                     , ITE;
 
             (* Integer operators *)
             "int_to_float"            , INT_TO_FLOAT;
