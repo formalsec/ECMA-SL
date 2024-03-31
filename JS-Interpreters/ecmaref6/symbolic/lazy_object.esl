@@ -1,38 +1,55 @@
-/* TODO:Move to summaries file? */
+/* TODO: move __concatStringList to summaries file */
 function __concatStringList(globalObject, this, NewTarget, strict, params) {
   return s_concat(params)
 }
 
+function newFunctionObject(target, realm) {
+  return CreateBuiltInFunctionObject([], target, realm, false, null)
+}
+
 function newLazyObject() {
   realm := { globalEnv : |global| };
-  lazyObject := CreateBuiltInFunctionObject([], "lazyConstructor", realm, false, null);
+  lazyObject := newFunctionObject("lazyConstructor", realm);
   lazyObject.Get := "lazyGet";
+  /* lazyObject.Call := "lazyCall"; */
+  lazyObject.History := [];
 
-  toPrimitive := CreateBuiltInFunctionObject([], "lazyToPrimitive", realm, false, null);
-  toPrimitiveDesc := newDataPropertyDescriptorFull(toPrimitive, false, false, true);
-  toPrimitiveProp := getToPrimitivePropertyName();
-  setJSProperty(lazyObject, toPrimitiveProp, toPrimitiveDesc);
+  toPrim := newFunctionObject("lazyToPrimitive", realm);
+  toPrimDesc := newDataPropertyDescriptorFull(toPrim, false, false, true);
+  toPrimProp := getToPrimitivePropertyName();
+  setJSProperty(lazyObject, toPrimProp, toPrimDesc);
 
-  format := CreateBuiltInFunctionObject(["..."], "__concatStringList", realm,
-    false, null);
+  format := newFunctionObject("__concatStringList", realm);
   createBuiltInProperty(lazyObject, "format", format);
+
+  ph := newFunctionObject("lazyPrintHistory", realm);
+  createBuiltInProperty(lazyObject, "printHistory", ph);
 
   return lazyObject
 }
 
 function lazyConstructor(globalObject, this, NewTarget, strict, params) {
-  return newLazyObject()
+  F := topExecStack().Function;
+  newObj := newLazyObject();
+  newObj.History := l_prepend(("call", params), F.History);
+  return newObj
 }
 
 function lazyGet(O, P, Receiver) {
   desc := getJSProperty(O, P);
-  if (desc = 'undefined) {
-    desc := newDataPropertyDescriptorFull(newLazyObject(), true, true, true);
-    setJSProperty(O, P, desc);
+  if (desc != 'undefined) {
     return desc.Value
-  } else {
-    return desc.Value
-  }
+  };
+  newObj := newLazyObject();
+  newObj.History := l_prepend(P, O.History);
+  newObjDesc := newDataPropertyDescriptorFull(newObj, true, true, true);
+  setJSProperty(O, P, newObjDesc);
+  return newObj
+}
+
+function lazyPrintHistory(globalObject, this, NewTarget, strict, params) {
+  print this.History;
+  return
 }
 
 function lazyToPrimitive(globalObject, this, NewTarget, strict, params) {
@@ -42,7 +59,7 @@ function lazyToPrimitive(globalObject, this, NewTarget, strict, params) {
   } elif (hint = "number") {
     return extern flt_symbol("")
   } else {
-    print s_concat ["lazyToPrimitive: invalid hint: '", hint, "'"];
+    print ("lazyToPrimitive: invalid hint: '" + hint + "'");
     assert false
   }
 }
