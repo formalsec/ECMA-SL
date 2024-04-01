@@ -32,6 +32,8 @@
   ; concrete interpreter (instrumentation)
   tracer
   debugger
+  debugger_tui
+  debugger_tui_helper
   monitor
   ; concrete interpreter (monitors)
   NSUMonitor
@@ -86,6 +88,6 @@
   string_utils)
  (preprocess
   (staged_pps ppx_import ppx_deriving.std))
- (libraries eslBase eslSyntax eslJSParser menhirLib encoding)
+ (libraries eslBase eslSyntax eslJSParser menhirLib curses encoding)
  (instrumentation
   (backend bisect_ppx)))
