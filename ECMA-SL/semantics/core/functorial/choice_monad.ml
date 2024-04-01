@@ -116,7 +116,7 @@ module List = struct
   let select_val (v : Value.value) thread =
     match v with
     | Val v -> [ (v, thread) ]
-    | _ -> Log.err "Unable to select value from %a" Value.pp v
+    | _ -> Log.fail "Unable to select value from %a" Value.pp v
 end
 
 module P : Choice_monad_intf.Complete with module V := Value = List

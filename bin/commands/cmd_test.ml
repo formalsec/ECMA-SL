@@ -18,70 +18,47 @@ module Options = struct
 end
 
 module Test = struct
-  type out_channels =
-    { out : Unix.file_descr
-    ; err : Unix.file_descr
-    ; devnull : Unix.file_descr
-    }
-
-  let hide_out_channels () : out_channels =
-    let out = Unix.dup Unix.stdout in
-    let err = Unix.dup Unix.stderr in
-    let devnull = Unix.openfile "/dev/null" [ O_WRONLY ] 0o666 in
-    let old_channels = { out; err; devnull } in
-    Unix.dup2 devnull Unix.stdout;
-    Unix.dup2 devnull Unix.stderr;
-    old_channels
-
-  let restore_out_channels (channels : out_channels) : unit =
-    Unix.dup2 channels.out Unix.stdout;
-    Unix.dup2 channels.err Unix.stderr;
-    Unix.close channels.out;
-    Unix.close channels.err;
-    Unix.close channels.devnull
-
   let header () : unit =
-    Fmt.printf "%a@."
+    Log.out "%a@."
       (Font.pp_text_out [ Font.Cyan ])
       "----------------------------------------\n\
       \              ECMA-SL Test\n\
        ----------------------------------------"
 
-  let log (out_channels : out_channels) (input : Fpath.t) (font : Font.t)
+  let log (streams : Log.Redirect.t) (input : Fpath.t) (font : Font.t)
     (header : string) : unit =
-    restore_out_channels out_channels;
-    Fmt.printf "%a %a@." (Font.pp_text_out font) header
+    Log.Redirect.restore streams;
+    Log.out "%a %a@." (Font.pp_text_out font) header
       (Font.pp_out [ Faint ] Fpath.pp)
       input
 
-  let sucessful (out_channels : out_channels) (input : Fpath.t) : unit =
-    log out_channels input [ Green ] "Test Successful:"
+  let sucessful (streams : Log.Redirect.t) (input : Fpath.t) : unit =
+    log streams input [ Green ] "Test Successful:"
 
-  let failure (out_channels : out_channels) (input : Fpath.t) : unit =
-    log out_channels input [ Red ] "Test Failure:"
+  let failure (streams : Log.Redirect.t) (input : Fpath.t) : unit =
+    log streams input [ Red ] "Test Failure:"
 
-  let ecmaref_fail (out_channels : out_channels) (input : Fpath.t) : unit =
-    log out_channels input [ Purple ] "Interpreter Failure:"
+  let ecmaref_fail (streams : Log.Redirect.t) (input : Fpath.t) : unit =
+    log streams input [ Purple ] "Interpreter Failure:"
 
-  let internal_fail (out_channels : out_channels) (input : Fpath.t) : unit =
-    log out_channels input [ Purple ] "Internal Failure:"
+  let internal_fail (streams : Log.Redirect.t) (input : Fpath.t) : unit =
+    log streams input [ Purple ] "Internal Failure:"
 end
 
-let test_input (out_channels : Test.out_channels)
-  (setup : Prog.t * Val.t Heap.t option) (input : Fpath.t) : unit =
+let test_input (streams : Log.Redirect.t) (setup : Prog.t * Val.t Heap.t option)
+  (input : Fpath.t) : unit =
   match Cmd_execute.execute_js setup input with
-  | Val.Tuple [ _; Val.Symbol "normal"; _; _ ] ->
-    Test.sucessful out_channels input
-  | _ -> Test.failure out_channels input
+  | Val.Tuple [ _; Val.Symbol "normal"; _; _ ] -> Test.sucessful streams input
+  | _ -> Test.failure streams input
 
 let run_single (setup : Prog.t * Val.t Heap.t option) (input : Fpath.t)
   (_ : Fpath.t option) : unit =
   ignore Lang.(resolve_file_lang [ JS ] input);
-  let out_channels = Test.hide_out_channels () in
-  try test_input out_channels setup input with
+  let streams = Log.Redirect.capture Null in
+  try test_input streams setup input with
   | Runtime_error.Error { msgs = UncaughtExn _ :: []; _ } ->
-    Test.ecmaref_fail out_channels input
-  | _ -> Test.internal_fail out_channels input
+    Test.ecmaref_fail streams input
+  | _ -> Test.internal_fail streams input
 
 let run (opts : Options.t) : unit =
   Test.header ();

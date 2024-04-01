@@ -116,7 +116,7 @@ let type_of_unop (op : Operator.unopt) (ty : Type.t) : Type.t option =
   | Operator.ListLen -> Some Type.IntType
   | Operator.ListSort -> Some Type.ListType
   | _ ->
-    Log.err
+    Log.fail
       "Typing Error: [type_of_unop] -> unsuported typing for unary operation %a"
       Operator.pp_of_unopt_single op
 
@@ -149,7 +149,7 @@ let type_of_binop (op : Operator.binopt) (v1 : Value.value) (v2 : Value.value)
   | Operator.ShiftLeft | Operator.ShiftRight | Operator.ShiftRightLogical ->
     bitwise_operators_typing_logic ty1 ty2
   | _ ->
-    Log.err "Typing Error: [type_of_binop] -> unsuported typing for %a"
+    Log.fail "Typing Error: [type_of_binop] -> unsuported typing for %a"
       Operator.pp_of_binopt_single op
 
 let type_of_triop (op : Operator.triopt) (_ : Type.t) (ty2 : Type.t)
@@ -166,7 +166,7 @@ let type_of_triop (op : Operator.triopt) (_ : Type.t) (ty2 : Type.t)
       | (_, Type.SymbolType) -> Some ty2
       | (Type.SymbolType, _) -> Some ty3
       | _ ->
-        Log.err "types don't match for ITE: %a %a@." Type.pp ty2 Type.pp ty3 )
+        Log.fail "types don't match for ITE: %a %a@." Type.pp ty2 Type.pp ty3 )
 
 let rec type_of (v : Symbolic_value.M.value) : Type.t option =
   let open Value in
@@ -190,4 +190,4 @@ let rec type_of (v : Symbolic_value.M.value) : Type.t option =
   | NOpt (Operator.TupleExpr, _) -> Some Type.TupleType
   | NOpt (Operator.ArrayExpr, _) -> Some Type.ArrayType
   | Curry _ -> Some Type.CurryType
-  | _ -> Log.err "%a: Not typed!" pp v
+  | _ -> Log.fail "%a: Not typed!" pp v

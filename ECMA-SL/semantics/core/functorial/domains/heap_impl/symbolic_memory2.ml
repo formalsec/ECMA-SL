@@ -49,7 +49,7 @@ module Make
     let obj = get heap l in
     let res = Option.bind obj (fun o -> Some (Object.get o field solver pc)) in
     match res with
-    | None -> Log.err "get Return is never none. loc: %a %a" Loc.pp l V.pp field
+    | None -> Log.fail "get Return is never none. loc: %a %a" Loc.pp l V.pp field
     | Some objs -> (
       (* Don't clone heap unless necessary *)
       match objs with
@@ -78,7 +78,7 @@ module Make
       Option.bind obj (fun o -> Some (Object.set o ~key:field ~data solver pc))
     in
     match res with
-    | None -> Log.err "set Return is never none. loc: %a" Loc.pp loc
+    | None -> Log.fail "set Return is never none. loc: %a" Loc.pp loc
     | Some objs -> (
       (* Don't clone heap unless necessary *)
       match objs with
@@ -99,7 +99,7 @@ module Make
       Option.bind obj (fun o -> Some (Object.delete o field solver pc))
     in
     match res with
-    | None -> Log.err "delete Return is never none. loc: %a" Loc.pp loc
+    | None -> Log.fail "delete Return is never none. loc: %a" Loc.pp loc
     | Some objs -> (
       (* Don't clone heap unless necessary *)
       match objs with

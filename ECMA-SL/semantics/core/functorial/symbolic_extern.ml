@@ -30,7 +30,7 @@ module Make () = struct
     let non_empty = function
       | Val (Str "") -> Val (Str (fresh_x ()))
       | Val (Str _) as x -> x
-      | x -> Log.err "'%a' is not a valid string symbol" Value.pp x
+      | x -> Log.fail "'%a' is not a valid string symbol" Value.pp x
     in
     let str_symbol (x : value) =
       Choice.return (Ok (Symbolic (Type.StrType, non_empty x)))
@@ -83,7 +83,7 @@ module Make () = struct
     in
     let abort (e : value) =
       let e' = Format.asprintf "%a" Value.pp e in
-      Log.log ~header:false "      abort : %s" e';
+      Log.out "      abort : %s@." e';
       Choice.return @@ Error (`Abort e')
     in
     let assume (e : value) thread =
@@ -147,7 +147,7 @@ module Make () = struct
       Choice.return (Ok (Value.Val (Val.Str fid)))
     in
     let print (v : Value.value) =
-      Fmt.printf "extern print: %a@." Value.pp v;
+      Log.out "extern print: %a@." Value.pp v;
       Choice.return (Ok (Value.Val (Val.Symbol "undefined")))
     in
     SMap.of_seq
@@ -171,6 +171,4 @@ module Make () = struct
          |] )
 end
 
-include (
-  Make () :
-    S with type extern_func := Symbolic.P.Extern_func.extern_func )
+include (Make () : S with type extern_func := Symbolic.P.Extern_func.extern_func)

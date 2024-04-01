@@ -49,6 +49,6 @@ let create (loc : string) (msg : msg) : t = { msg; loc }
 let throw (loc : string) (msg : msg) : 'a = raise @@ create loc msg
 
 let pp (fmt : Fmt.t) (err : t) : unit =
-  Fmt.fprintf fmt "(%s) %a" err.loc InternalErr.pp err.msg
+  Fmt.fprintf fmt "[ecma-sl] (%s) %a" err.loc InternalErr.pp err.msg
 
 let str (err : t) = Fmt.asprintf "%a" pp err

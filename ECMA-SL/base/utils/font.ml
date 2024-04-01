@@ -64,10 +64,6 @@ let pp_code (fmt : Fmt.t) (font_el : t') : unit =
 let pp_font (fmt : Fmt.t) (font : t) : unit =
   Fmt.(fprintf fmt "\027[%am" (pp_lst ";" pp_code) font)
 
-let pp_font_safe ?(fdesc : Unix.file_descr option = None) (fmt : Fmt.t)
-  (font : t) : unit =
-  if colored fdesc then pp_font fmt font else ()
-
 let pp ?(fdesc : Unix.file_descr option = None) (font : t)
   (pp_el : Fmt.t -> 'a -> unit) (fmt : Fmt.t) (el : 'a) : unit =
   let open Fmt in
@@ -85,6 +81,7 @@ let pp_text ?(fdesc : Unix.file_descr option = None) (font : t) (fmt : Fmt.t)
 let str_text ?(fdesc : Unix.file_descr option = None) (font : t) (s : string) =
   Fmt.asprintf "%a" (pp_text ~fdesc font) s
 
+let pp_none _font pp_el fmt el = pp_el fmt el
 let pp_out font pp_el fmt el = pp ~fdesc:(Some Unix.stdout) font pp_el fmt el
 let pp_err font pp_el fmt el = pp ~fdesc:(Some Unix.stderr) font pp_el fmt el
 let str_out font pp_el el = str ~fdesc:(Some Unix.stdout) font pp_el el

@@ -37,7 +37,7 @@ let t_sigma (dsc : Id.t') (ts : t list) : t =
 
 module Log = struct
   let expected (msg1 : string) (msg2 : string) : bool =
-    Printf.printf "Expected: %s\nResult:   %s\n" msg1 msg2;
+    Log.err "Expected: %s\nResult:   %s@." msg1 msg2;
     false
 end
 
