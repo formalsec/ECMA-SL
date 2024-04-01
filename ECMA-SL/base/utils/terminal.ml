@@ -1,22 +1,32 @@
 module Config = struct
+  let required_colors = 256
   let min_width = 60
-  let max_width = 9999
+  let min_height = 10
+  let max_width = Int.max_int
+  let max_height = Int.max_int
 end
 
-let is_terminal (fdesc : Unix.file_descr) : bool = Unix.isatty fdesc
+let terminal_cmd (fdesc : Unix.file_descr) (cmd : string) : string option =
+  if Unix.isatty fdesc then (
+    let ic = Unix.open_process_in cmd in
+    let result = input_line ic in
+    close_in ic;
+    Some result )
+  else None
 
 let colored (fdesc : Unix.file_descr) : bool =
-  if is_terminal fdesc then (
-    let ic = Unix.open_process_in "tput colors" in
-    let colors = int_of_string (input_line ic) in
-    close_in ic;
-    colors >= 256 )
-  else false
+  let cmd = terminal_cmd fdesc "tput colors" in
+  let colored' res = int_of_string res >= Config.required_colors in
+  Option.fold ~none:false ~some:colored' cmd
 
 let width (fdesc : Unix.file_descr) : int =
-  if is_terminal fdesc then (
-    let ic = Unix.open_process_in "tput cols" in
-    let width = int_of_string (input_line ic) in
-    close_in ic;
-    max width Config.min_width )
-  else Config.max_width
+  let cmd = terminal_cmd fdesc "tput cols" in
+  let width' res = max (int_of_string res) Config.min_width in
+  Option.fold ~none:Config.max_width ~some:width' cmd
+
+let height (fdesc : Unix.file_descr) : int =
+  let cmd = terminal_cmd fdesc "tput lines" in
+  let height' res = max (int_of_string res) Config.min_height in
+  Option.fold ~none:Config.max_height ~some:height' cmd
+
+let size (fdesc : Unix.file_descr) : int * int = (width fdesc, height fdesc)
