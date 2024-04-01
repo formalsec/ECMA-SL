@@ -1,0 +1,6 @@
+(cram
+ (deps
+  %{bin:ecma-sl}
+  (package ecma-sl)
+  test_import.esl
+  test_list.esl))
