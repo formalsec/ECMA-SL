@@ -36,7 +36,7 @@ let curr_treturn (tctx : t) : EType.t =
 let safe_exec (f : t -> t) (tctx : t) : t =
   try f tctx
   with Typing_error.Error err ->
-    Fmt.eprintf "%a@." Typing_error.pp err;
+    Log.err "%a@." Typing_error.pp err;
     { tctx with tsafe = false }
 
 let tenv_reset (tctx : t) : unit = Hashtbl.reset tctx.tenv

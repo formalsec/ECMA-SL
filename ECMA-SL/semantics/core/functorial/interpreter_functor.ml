@@ -76,7 +76,7 @@ module Make (P : Interpreter_functor_intf.P) :
     (*     Object.str (Option.value_exn o) Expr.str *)
     (*   | _ -> Expr.str e' *)
     (* in *)
-    (* Printf.printf "print:%s\npc:%s\nheap id:%d\n" s (Encoding.Expression.string_of_pc pc) (Memory.get_id heap); *)
+    (* Log.out "print:%s\npc:%s\nheap id:%d\n" s (Encoding.Expression.string_of_pc pc) (Memory.get_id heap); *)
     eval_expr locals e |> Memory.pp_val heap
 
   let exec_func state func args ret_var =
@@ -131,14 +131,14 @@ module Make (P : Interpreter_functor_intf.P) :
     | Stmt.Skip -> ok state
     | Stmt.Merge -> ok state
     | Stmt.Debug stmt ->
-      Format.eprintf "ignoring break point in line %d" stmt.at.left.line;
+      Log.err "ignoring break point in line %d" stmt.at.left.line;
       ok { state with stmts = stmt :: state.stmts }
     | Stmt.Fail e ->
       let e' = pp locals m e in
-      Log.log ~header:false "       fail : %s" e';
+      Log.out "       fail : %s@." e';
       error (`Failure (Fmt.sprintf "%s" e'))
     | Stmt.Print e ->
-      Format.printf "%s@." (pp locals m e);
+      Log.out "%s@." (pp locals m e);
       ok state
     | Stmt.Assign (x, e) ->
       let v = eval_expr locals e in
@@ -147,7 +147,7 @@ module Make (P : Interpreter_functor_intf.P) :
       let e' = eval_expr locals e in
       let* b = Choice.check_add_true @@ Value.Bool.not_ e' in
       if b then (
-        Log.log ~header:false "     assert : failure with (%a)" Value.pp e';
+        Log.out "     assert : failure with (%a)@." Value.pp e';
         error (`Assert_failure e') )
       else ok state
     | Stmt.Block blk -> ok { state with stmts = blk @ state.stmts }
@@ -266,8 +266,7 @@ module Make (P : Interpreter_functor_intf.P) :
       | State.Continue state -> loop state
       | State.Return ret -> Choice.return ret )
     | [] -> (
-      Log.log ~header:false "    warning : %s: missing a return statement!@."
-        state.func;
+      Log.out "    warning : %s: missing a return statement!@." state.func;
       match State.return state with
       | State.Continue state -> loop state
       | State.Return ret -> Choice.return ret )

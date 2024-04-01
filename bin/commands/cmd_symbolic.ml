@@ -136,13 +136,13 @@ let run ~workspace filename entry_func =
           | Error (`Failure msg) -> Error (`Msg msg)
         in
         ( match serialize_thread ~workspace ?witness thread with
-        | Error (`Msg msg) -> Log.log ~header:false "%s" msg
+        | Error (`Msg msg) -> Log.out "%s@." msg
         | Ok () -> () );
         Ok witness )
       results
   in
   let n = List.length problems in
-  if n = 0 then Fmt.printf "All Ok!@." else Fmt.printf "Found %d problems!@." n;
+  if n = 0 then Log.out "All Ok!@." else Log.out "Found %d problems!@." n;
   Log.debug "  exec time : %fs@." exec_time;
   Log.debug "solver time : %fs@." solv_time;
   write_report ~workspace filename exec_time solv_time solv_cnt problems
@@ -150,6 +150,6 @@ let run ~workspace filename entry_func =
 let main () opt =
   match run ~workspace:opt.workspace opt.filename opt.entry_func with
   | Error (`Msg s) ->
-    Log.log ~header:false "%s" s;
+    Log.out "%s@." s;
     1
   | Ok () -> 0

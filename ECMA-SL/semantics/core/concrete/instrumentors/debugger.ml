@@ -33,7 +33,7 @@ module Show = struct
       \  8: exit"
 
   let prompt () : unit =
-    Fmt.printf "\n\n%a @?" (Font.pp_text_out [ Font.Faint ]) ">>>"
+    Log.out "\n\n%a @?" (Font.pp_text_out [ Font.Faint ]) ">>>"
 end
 
 exception Cmd_error of string
@@ -77,17 +77,17 @@ let print_stmt (f : Func.t) (s : Stmt.t) : unit =
   let lineno_sz = String.length lineno_str in
   let lineno_indent = String.make lineno_sz ' ' in
   let pp_stmt = Font.pp_out [ Font.Cyan ] Stmt.pp_simple in
-  Fmt.printf "\n%s | %a\n%s |    %a\n%s | }" lineno_indent Func.pp_simple f
+  Log.out "\n%s | %a\n%s |    %a\n%s | }" lineno_indent Func.pp_simple f
     lineno_str pp_stmt s lineno_indent
 
-let print_obj (obj : obj) : unit = Fmt.printf "%a" (Object.pp Val.pp) obj
+let print_obj (obj : obj) : unit = Log.out "%a" (Object.pp Val.pp) obj
 
 let print_val (heap : heap) (res : Val.t) : unit =
   match res with
   | Loc l ->
     !!(Heap.get heap l) |> print_obj;
-    Fmt.printf " %a" (Font.pp_text_out [ Font.Faint ]) ("// " ^ Loc.str l)
-  | v -> Fmt.printf "%a" Val.pp v
+    Log.out " %a" (Font.pp_text_out [ Font.Faint ]) ("// " ^ Loc.str l)
+  | v -> Log.out "%a" Val.pp v
 
 let eval_fld (heap : heap) (lv : Val.t) (fn : string) : Val.t =
   let _fld_val v_opt = Option.value ~default:(Val.Symbol "undefined") v_opt in
@@ -113,15 +113,15 @@ let eval_cmd (store : store) (heap : heap) (expr : string) () : unit =
     List.fold_left (eval_fld heap) lv fns |> print_val heap
 
 let store_cmd (store : store) () : unit =
-  Fmt.printf "%a" (Store.pp_tabular Val.pp) store
+  Log.out "%a" (Store.pp_tabular Val.pp) store
 
 let heap_cmd (heap : heap) () : unit =
-  Fmt.printf "%a" (Heap.pp_tabular (Object.pp Val.pp)) heap
+  Log.out "%a" (Heap.pp_tabular (Object.pp Val.pp)) heap
 
 let stack_cmd (stack : stack) () : unit =
-  Fmt.printf "Currently at %a" Call_stack.pp_tabular stack
+  Log.out "Currently at %a" Call_stack.pp_tabular stack
 
-let help_cmd : unit -> unit = Fmt.printf "\n%a" Show.dialog_pp
+let help_cmd : unit -> unit = Log.out "\n%a" Show.dialog_pp
 let invalid_cmd () : unit = cmd_err "Invalid command. Try again."
 
 let rec debug_loop (store : store) (heap : heap) (stack : stack) : cmd =
@@ -140,7 +140,7 @@ let rec debug_loop (store : store) (heap : heap) (stack : stack) : cmd =
 and debug_loop_safe (store : store) (heap : heap) (stack : stack) : cmd =
   try debug_loop store heap stack
   with Cmd_error err ->
-    Fmt.printf "%s" err;
+    Log.out "%s" err;
     debug_loop_safe store heap stack
 
 module type M = sig
@@ -176,9 +176,9 @@ module Enable : M = struct
     | Final
 
   let show_initial_state () : unit =
-    Fmt.printf "%a\n%a\n" Show.header_pp () Show.dialog_pp ()
+    Log.out "%a\n%a\n" Show.header_pp () Show.dialog_pp ()
 
-  let show_final_state () : unit = Fmt.printf "%a@." Show.footer_pp ()
+  let show_final_state () : unit = Log.out "%a@." Show.footer_pp ()
 
   let debug_prompt (store : store) (heap : heap) (stack : stack) (state : t)
     (s : Stmt.t) : cmd =

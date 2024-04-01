@@ -101,11 +101,11 @@ let main_cmd =
   Cmd.group info ~default cmd_list
 
 let () =
+  let open Ecma_sl in
   Printexc.record_backtrace true;
   try exit (Cmdliner.Cmd.eval' main_cmd)
   with exn ->
     flush_all ();
-    Format.eprintf "%s: uncaught exception %s@." Sys.argv.(0)
-      (Printexc.to_string exn);
+    Log.err "%s: uncaught exception %s@." Sys.argv.(0) (Printexc.to_string exn);
     Printexc.print_backtrace stderr;
     exit 1
