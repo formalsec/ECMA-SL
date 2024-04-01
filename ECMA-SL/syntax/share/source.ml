@@ -36,6 +36,7 @@ let ( @> ) (x : 'a) (region : region) : 'a phrase = { it = x; at = region }
 let ( @?> ) (x : 'a) (region : region) : 'a phrase =
   { it = x; at = { region with real = false } }
 
+let map (f : 'a -> 'b) (x : 'a phrase) : 'b phrase = { x with it = f x.it }
 let pp (fmt : Fmt.t) (x : 'a phrase) = Fmt.fprintf fmt "%a" pp_region x.at
 let str (x : 'a phrase) : string = Fmt.asprintf "%a" pp x
 
