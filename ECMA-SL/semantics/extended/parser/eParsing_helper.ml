@@ -87,7 +87,7 @@ module Prog = struct
     | None -> Hashtbl.replace p.macros mn.it m
     | Some _ -> Compile_error.(throw ~src:(ErrSrc.at mn) (DuplicatedMacro mn))
 
-  let parse_prog (imports : Id.t list) (el_parsers : (t -> unit) list) : t =
+  let parse_prog (imports : import list) (el_parsers : (t -> unit) list) : t =
     let p = { (default ()) with imports } in
     List.iter (fun el_parser -> el_parser p) el_parsers;
     p

@@ -136,7 +136,9 @@ let prog_target :=
   | imports = import_target*; p_els = separated_list(SEMICOLON?, prog_element_target);
     { EParsing_helper.Prog.parse_prog imports p_els }
 
-let import_target := IMPORT; ~ = str_id_target; SEMICOLON; <>
+let import_target :=
+  | IMPORT; ~ = str_id_target; SEMICOLON?; <`File>
+  | IMPORT; ~ = id_target; SEMICOLON?; <`Module>
 
 let prog_element_target :=
   | ~ = tdef_target;    < EParsing_helper.Prog.parse_tdef >

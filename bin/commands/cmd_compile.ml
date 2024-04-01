@@ -21,7 +21,7 @@ let type_check (p : EProg.t) : EProg.t =
 let compile_pipeline (file : string) (path : string) : Prog.t =
   EParsing.load_file ~file path
   |> EParsing.parse_eprog ~file path
-  |> Preprocessor.Imports.resolve_imports
+  |> Preprocessor.Imports.resolve_imports ~stdlib:Share.std_path
   |> Preprocessor.Macros.apply_macros
   |> type_check
   |> Compiler.compile_prog
