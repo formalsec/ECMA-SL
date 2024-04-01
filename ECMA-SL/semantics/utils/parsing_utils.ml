@@ -9,7 +9,7 @@ let load_file ?(file : string option) (path : string) : string =
 
 let print_position (outx : Fmt.t) (lexbuf : Lexing.lexbuf) : unit =
   let pos = lexbuf.lex_curr_p in
-  Printf.printf "Line number: %d. File: %s\n" pos.pos_lnum pos.pos_fname;
+  Log.out "Line number: %d. File: %s@." pos.pos_lnum pos.pos_fname;
   Fmt.fprintf outx "%s:%d:%d" pos.pos_fname pos.pos_lnum
     (pos.pos_cnum - pos.pos_bol + 1)
 
@@ -22,4 +22,4 @@ let parse_loc =
   fun (x : string) : Loc.t ->
     match Str.string_match re x 0 with
     | true -> int_of_string (Str.matched_group 1 x)
-    | false -> Log.err "parse_loc: unable to parse location: '%s'" x
+    | false -> Log.fail "parse_loc: unable to parse location: '%s'" x

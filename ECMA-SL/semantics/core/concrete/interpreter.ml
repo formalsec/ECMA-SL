@@ -65,11 +65,10 @@ module M (Instrument : Instrument.M) = struct
       Runtime_error.(set_src (ErrSrc.at e) err |> raise)
 
   let print_val (heap : heap) (v : Val.t) : unit =
-    let open Fmt in
     match v with
-    | Str s -> printf "%s@." s
-    | Loc l -> printf "%a@." (Object.pp Val.pp) (get_loc heap l)
-    | _ -> printf "%a@." Val.pp v
+    | Str s -> Log.out "%s@." s
+    | Loc l -> Log.out "%a@." (Object.pp Val.pp) (get_loc heap l)
+    | _ -> Log.out "%a@." Val.pp v
 
   let rec eval_expr' (state : state) (e : Expr.t) : Val.t =
     match e.it with

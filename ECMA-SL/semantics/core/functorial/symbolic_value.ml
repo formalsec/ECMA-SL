@@ -144,7 +144,7 @@ module M = struct
     | Expr.Var x -> (
       match Store.find store x with
       | Some v -> v
-      | None -> Log.err "Cannot find var '%s'" x )
+      | None -> Log.fail "Cannot find var '%s'" x )
     | Expr.UnOpt (op, e) -> (
       let e' = eval_expr store e in
       match e' with

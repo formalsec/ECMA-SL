@@ -174,14 +174,14 @@ module Call : M = struct
   let trace_stmt (_ : int) (_ : Stmt.t) : unit = ()
 
   let trace_restore (lvl : int) (f : Func.t) : unit =
-    if lvl == -1 then eprintf "%a@." pp_func_restore f
+    if lvl == -1 then Log.err "%a@." pp_func_restore f
 
   let trace_call (lvl : int) (_ : Func.t) (s : Stmt.t) : unit =
-    if log_level lvl then eprintf "%a@." pp_func_call (lvl, s)
+    if log_level lvl then Log.err "%a@." pp_func_call (lvl, s)
 
   let trace_return (lvl : int) (f : Func.t) (s : Stmt.t) ((heap, v) : heapval) :
     unit =
-    if log_level lvl then eprintf "%a@." (pp_func_return heap) (lvl, f, s, v)
+    if log_level lvl then Log.err "%a@." (pp_func_return heap) (lvl, f, s, v)
 end
 
 module Step : M = struct
@@ -191,20 +191,20 @@ module Step : M = struct
   let trace_expr (_ : int) (_ : Expr.t) (_ : heapval) : unit = ()
 
   let trace_stmt (lvl : int) (s : Stmt.t) : unit =
-    if log_level lvl && log_stmt s then eprintf "%a@." pp_stmt (lvl, s)
+    if log_level lvl && log_stmt s then Log.err "%a@." pp_stmt (lvl, s)
 
   let trace_restore (lvl : int) (f : Func.t) : unit =
     match lvl with
-    | -1 -> eprintf "%a@." (pp_func "starting on function") (0, f)
+    | -1 -> Log.err "%a@." (pp_func "starting on function") (0, f)
     | _ ->
       if log_level lvl then
-        eprintf "%a@." (pp_func "returning to function") (lvl, f)
+        Log.err "%a@." (pp_func "returning to function") (lvl, f)
 
   let trace_call (lvl : int) (f : Func.t) (_ : Stmt.t) : unit =
-    if log_level lvl then eprintf "%a@." (pp_func "entering function") (lvl, f)
+    if log_level lvl then Log.err "%a@." (pp_func "entering function") (lvl, f)
 
   let trace_return (lvl : int) (f : Func.t) (_ : Stmt.t) (_ : heapval) : unit =
-    if log_level lvl then eprintf "%a@." (pp_func "exiting function") (lvl, f)
+    if log_level lvl then Log.err "%a@." (pp_func "exiting function") (lvl, f)
 end
 
 module Full : M = struct
@@ -212,7 +212,7 @@ module Full : M = struct
   open CodeFmt
 
   let trace_expr (lvl : int) (e : Expr.t) ((heap, v) : heapval) : unit =
-    if log_level lvl && log_expr e then eprintf "%a@." (pp_expr heap) (lvl, e, v)
+    if log_level lvl && log_expr e then Log.err "%a@." (pp_expr heap) (lvl, e, v)
 
   let trace_stmt (lvl : int) (s : Stmt.t) : unit = Step.trace_stmt lvl s
   let trace_restore (lvl : int) (f : Func.t) : unit = Step.trace_restore lvl f
@@ -229,21 +229,21 @@ module Core : M = struct
   open CodeFmt
 
   let trace_expr (lvl : int) (e : Expr.t) ((heap, v) : heapval) : unit =
-    if log_level lvl && log_expr e then eprintf "%a@." (pp_expr heap) (lvl, e, v)
+    if log_level lvl && log_expr e then Log.err "%a@." (pp_expr heap) (lvl, e, v)
 
   let trace_stmt (lvl : int) (s : Stmt.t) : unit =
-    if log_level lvl && log_stmt s then eprintf "%a@." pp_stmt (lvl, s)
+    if log_level lvl && log_stmt s then Log.err "%a@." pp_stmt (lvl, s)
 
   let trace_restore (lvl : int) (f : Func.t) : unit =
     match lvl with
-    | -1 -> eprintf "%a@." (pp_func "starting on function") (0, f)
+    | -1 -> Log.err "%a@." (pp_func "starting on function") (0, f)
     | _ ->
       if log_level lvl then
-        eprintf "%a@." (pp_func "returning to function") (lvl, f)
+        Log.err "%a@." (pp_func "returning to function") (lvl, f)
 
   let trace_call (lvl : int) (f : Func.t) (_ : Stmt.t) : unit =
-    if log_level lvl then eprintf "%a@." (pp_func "entering function") (lvl, f)
+    if log_level lvl then Log.err "%a@." (pp_func "entering function") (lvl, f)
 
   let trace_return (lvl : int) (f : Func.t) (_ : Stmt.t) (_ : heapval) : unit =
-    if log_level lvl then eprintf "%a@." (pp_func "exiting function") (lvl, f)
+    if log_level lvl then Log.err "%a@." (pp_func "exiting function") (lvl, f)
 end

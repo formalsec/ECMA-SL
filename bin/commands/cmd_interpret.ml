@@ -69,7 +69,7 @@ let interpret_esl (entry : Interpreter.EntryPoint.t) (file : Fpath.t) : Val.t =
   Cmd_compile.compile file |> interpret entry
 
 let process_exitval (show_exitval : bool) (exitval : Val.t) : unit =
-  if show_exitval then Log.app "» exit value: %a\n" Val.pp exitval
+  if show_exitval then Log.out "» exit value: %a@." Val.pp exitval
 
 let run (opts : Options.t) : unit =
   let valid_langs = Lang.valid_langs Options.langs opts.lang in

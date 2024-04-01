@@ -1,3 +1,5 @@
+open EslBase
+
 let float64_to_le_bytes (x : float) : int64 list =
   let v = Int64.bits_of_float x in
   let lst = ref [] in
@@ -31,9 +33,9 @@ let float32_to_be_bytes (x : float) : int32 list =
   !lst
 
 let int_to_be_bytes ((x, n) : float * int) : int list =
-  Printf.printf "debug 42: int_to_be_bytes x: %f, n: %d\n" x n;
+  Log.debug "debug 42: int_to_be_bytes x: %f, n: %d\n" x n;
   let rec loop (lst : int list) (value : int) (j : int) =
-    Printf.printf "debug 42: int_to_be_bytes value: %d, j: %d\n" value j;
+    Log.debug "debug 42: int_to_be_bytes value: %d, j: %d\n" value j;
     if j < n then
       loop ([ Int.logand value 255 ] @ lst) (Int.shift_right value 8) (j + 1)
     else lst
@@ -41,10 +43,10 @@ let int_to_be_bytes ((x, n) : float * int) : int list =
   loop [] (Float.to_int x) 0
 
 let uint_from_le_bytes ((arr, n) : int array * int) : float =
-  Printf.printf "debug 42: uint_from_le_bytes n: %d\n" n;
+  Log.debug "debug 42: uint_from_le_bytes n: %d\n" n;
   let len = Array.length arr in
   let rec loop (value : int) (j : int) =
-    Printf.printf "debug 42: uint_from_le_bytes value: %d, j: %d\n" value j;
+    Log.debug "debug 42: uint_from_le_bytes value: %d, j: %d\n" value j;
     if j >= 0 then loop ((value * 256) + Array.get arr j) (j - 1) else value
   in
   Int.to_float (loop 0 (len - 1))
@@ -73,8 +75,7 @@ let float32_from_le_bytes (bytes : int32 array) : float =
   let res = ref 0l in
   for i = 0 to 3 do
     res := Int32.add !res (Int32.shift_left (Array.get bytes i) (i * 8));
-    Printf.printf "in float32_from_le_bytes loop, i = %d; byte = %d; res = %f\n"
-      i
+    Log.debug "in float32_from_le_bytes loop, i = %d; byte = %d; res = %f\n" i
       (Int32.to_int (Array.get bytes i))
       (Int32.float_of_bits !res)
   done;
