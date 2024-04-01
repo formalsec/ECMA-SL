@@ -2,45 +2,59 @@ open EslBase
 open EslSyntax
 
 module Imports = struct
+  type import = EProg.import
+
   let load_dependency (file : Id.t) (path : string) : EProg.t =
     try EParsing.(load_file ~file:file.it path |> parse_eprog ~file:file.it path)
     with Not_found ->
       Compile_error.(throw ~src:(ErrSrc.at file) (UnknownDependency file))
 
-  let relativize (file : Id.t') (imports : Id.t list) : Id.t list =
-    let open Source in
-    let relativize_f dir import = Filename.concat dir import.it @> import.at in
+  let relativize (file : Id.t') (imports : import list) : import list =
+    let relativize_f dir = function
+      | `File import -> `File (Source.map (Filename.concat dir) import)
+      | `Module _ as m -> m
+    in
     List.map (relativize_f (Filename.dirname file)) imports
 
-  let rec import_resolver (workspace : string) (p : EProg.t)
-    (resolved : (Id.t', unit) Hashtbl.t) (unresolved : (Id.t' * Id.t list) list)
-    : unit =
-    match unresolved with
-    | [] -> ()
-    | (source, []) :: unresolved' ->
-      Hashtbl.replace resolved source ();
-      import_resolver workspace p resolved unresolved'
-    | (source, import :: imports') :: unresolved' ->
-      if Hashtbl.mem resolved import.it then
-        import_resolver workspace p resolved ((source, imports') :: unresolved')
-      else if List.exists (fun (path, _) -> path = import.it) unresolved then
-        Compile_error.(throw ~src:(ErrSrc.at import) (CyclicDependency import))
-      else
-        let open EParsing_helper.Prog in
-        let dependency_path = Filename.concat workspace import.it in
-        let dependency = load_dependency import dependency_path in
-        let dependency_imports = relativize source (EProg.imports dependency) in
-        let new_dependencies = (import.it, dependency_imports) in
-        Hashtbl.iter (fun _ t -> parse_tdef t p) (EProg.tdefs dependency);
-        Hashtbl.iter (fun _ f -> parse_func f p) (EProg.funcs dependency);
-        Hashtbl.iter (fun _ m -> parse_macro m p) (EProg.macros dependency);
-        import_resolver workspace p resolved (new_dependencies :: unresolved)
+  let import_resolver ~stdlib (workspace : string) (p : EProg.t)
+    (resolved : (Id.t', unit) Hashtbl.t)
+    (unresolved : (Id.t' * import list) list) : unit =
+    let rec loop =
+      let open Source in
+      function
+      | [] -> ()
+      | (source, []) :: unresolved' ->
+        Hashtbl.replace resolved source ();
+        loop unresolved'
+      | (source, import :: imports') :: unresolved' as unresolved ->
+        let (import, dependency_path) =
+          match import with
+          | `File import -> (import, Filename.concat workspace import.it)
+          | `Module import ->
+            (import, Filename.concat stdlib (import.it ^ ".esl"))
+        in
+        if Hashtbl.mem resolved import.it then
+          loop ((source, imports') :: unresolved')
+        else
+          let open EParsing_helper.Prog in
+          let dependency = load_dependency import dependency_path in
+          let dependency_imports =
+            relativize source (EProg.imports dependency)
+          in
+          let new_dependencies = (import.it, dependency_imports) in
+          Hashtbl.iter (fun _ t -> parse_tdef t p) (EProg.tdefs dependency);
+          Hashtbl.iter (fun _ f -> parse_func f p) (EProg.funcs dependency);
+          Hashtbl.iter (fun _ m -> parse_macro m p) (EProg.macros dependency);
+          loop (new_dependencies :: unresolved)
+    in
+    loop unresolved
 
-  let resolve_imports (p : EProg.t) : EProg.t =
+  let resolve_imports ~stdlib (p : EProg.t) : EProg.t =
     let workspace = Filename.dirname (EProg.path p) in
     let resolved = Hashtbl.create !Base.default_hashtbl_sz in
     let relative_imports = relativize (EProg.file p) (EProg.imports p) in
-    import_resolver workspace p resolved [ (EProg.file p, relative_imports) ];
+    import_resolver ~stdlib workspace p resolved
+      [ (EProg.file p, relative_imports) ];
     { p with imports = [] }
 end
 

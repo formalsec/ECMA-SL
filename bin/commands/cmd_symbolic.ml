@@ -32,7 +32,7 @@ let prog_of_plus file =
   Ok
     ( EParsing.load_file ~file path
     |> EParsing.parse_eprog ~file path
-    |> Preprocessor.Imports.resolve_imports
+    |> Preprocessor.Imports.resolve_imports ~stdlib:Share.std_path
     |> Preprocessor.Macros.apply_macros
     |> Compiler.compile_prog )
 
