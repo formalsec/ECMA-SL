@@ -29,19 +29,19 @@
    (>= "4.14.0"))
   (odoc :with-doc)
   dune
-  cmdliner
+  dune-site
   bos
+  cmdliner
+  curses
+  menhir
+  menhirLib
+  yojson
+  conf-npm
+  (encoding (>= 0.0.4))
   ppx_import
   ppx_deriving
   (ppx_inline_test :with-test)
-  menhir
-  menhirLib
-  (encoding
-   (>= 0.0.4))
-  yojson
-  dune-site
-  (bisect_ppx (and :with-test (>= "2.5.0") :dev))
-  conf-npm)
+  (bisect_ppx (and :with-test (>= "2.5.0") :dev)))
  (tags
   (ECMAScript "Specification Language" "Reference Interpreters" "OCaml"))
 (sites

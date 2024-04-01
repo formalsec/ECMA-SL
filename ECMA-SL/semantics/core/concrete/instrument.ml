@@ -11,7 +11,8 @@ module type M = sig
     ; mon_label : Monitor.sl_label
     }
 
-  val intial_state : unit -> t
+  val initial_state : unit -> t
+  val cleanup : t -> unit
 end
 
 module Default (Tr : Tracer.M) (Db : Debugger.M) (Mon : Monitor.M) : M = struct
@@ -25,9 +26,11 @@ module Default (Tr : Tracer.M) (Db : Debugger.M) (Mon : Monitor.M) : M = struct
     ; mon_label : Monitor.sl_label
     }
 
-  let intial_state () : t =
-    { db = Debugger.intial_state ()
+  let initial_state () : t =
+    { db = Debugger.initial_state ()
     ; mon_state = Monitor.initial_state ()
     ; mon_label = Monitor.initial_label ()
     }
+
+  let cleanup (inst : t) : unit = Debugger.cleanup inst.db
 end

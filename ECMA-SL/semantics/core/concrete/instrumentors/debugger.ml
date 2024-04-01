@@ -1,243 +1,58 @@
 open EslBase
-open EslSyntax
-
-type obj = Val.t Object.t
-type store = Val.t Store.t
-type heap = Val.t Heap.t
-type stack = store Call_stack.t
-
-module Show = struct
-  let header_pp (fmt : Fmt.t) () : unit =
-    Fmt.fprintf fmt "%a"
-      (Font.pp_text_out [ Font.Cyan ])
-      "----------------------------------------\n\
-      \       Core ECMA-SL Debug Prompt\n\
-       ----------------------------------------\n"
-
-  let footer_pp (fmt : Fmt.t) () : unit =
-    Fmt.fprintf fmt "%a"
-      (Font.pp_text_out [ Font.Cyan ])
-      "----------------------------------------"
-
-  let dialog_pp (fmt : Fmt.t) () : unit =
-    Fmt.fprintf fmt "%a\n%s"
-      (Font.pp_text_out [ Font.Cyan ])
-      "Commands:"
-      "  1: eval <var|$loc_n|obj.fld>\n\
-      \  2: store\n\
-      \  3: heap\n\
-      \  4: stack\n\
-      \  5: help\n\
-      \  6: step [in|out]\n\
-      \  7: continue\n\
-      \  8: exit"
-
-  let prompt () : unit =
-    Log.out "\n\n%a @?" (Font.pp_text_out [ Font.Faint ]) ">>>"
-end
-
-exception Cmd_error of string
-
-let cmd_err (msg : string) : 'a = raise (Cmd_error msg)
-
-let ( !! ) (res : ('a, string) Result.t) : 'a =
-  match res with Ok v -> v | Error msg -> cmd_err msg
-
-type cmd =
-  | Eval of string
-  | Store
-  | Heap
-  | Stack
-  | Help
-  | Step
-  | StepIn
-  | StepOut
-  | Continue
-  | Exit
-
-let parse_command (line : string) : cmd option =
-  let tkns = String.split_on_char ' ' line in
-  match tkns with
-  | [] -> None
-  | [ "eval" ] -> Some (Eval "")
-  | [ "eval"; expr ] -> Some (Eval expr)
-  | [ "store" ] -> Some Store
-  | [ "heap" ] -> Some Heap
-  | [ "stack" ] -> Some Stack
-  | [ "help" ] -> Some Help
-  | [ "step" ] -> Some Step
-  | [ "step"; "in" ] -> Some StepIn
-  | [ "step"; "out" ] -> Some StepOut
-  | [ "continue" ] -> Some Continue
-  | [ "exit" ] -> Some Exit
-  | _ -> None
-
-let print_stmt (f : Func.t) (s : Stmt.t) : unit =
-  let lineno_str = string_of_int s.at.left.line in
-  let lineno_sz = String.length lineno_str in
-  let lineno_indent = String.make lineno_sz ' ' in
-  let pp_stmt = Font.pp_out [ Font.Cyan ] Stmt.pp_simple in
-  Log.out "\n%s | %a\n%s |    %a\n%s | }" lineno_indent Func.pp_simple f
-    lineno_str pp_stmt s lineno_indent
-
-let print_obj (obj : obj) : unit = Log.out "%a" (Object.pp Val.pp) obj
-
-let print_val (heap : heap) (res : Val.t) : unit =
-  match res with
-  | Loc l ->
-    !!(Heap.get heap l) |> print_obj;
-    Log.out " %a" (Font.pp_text_out [ Font.Faint ]) ("// " ^ Loc.str l)
-  | v -> Log.out "%a" Val.pp v
-
-let eval_fld (heap : heap) (lv : Val.t) (fn : string) : Val.t =
-  let _fld_val v_opt = Option.value ~default:(Val.Symbol "undefined") v_opt in
-  match lv with
-  | Loc l ->
-    _fld_val (Option.bind (Heap.get_opt heap l) (fun obj -> Object.get obj fn))
-  | _ -> cmd_err (Fmt.asprintf "Invalid location Val.t '%a'." Val.pp lv)
-
-let eval_cmd (store : store) (heap : heap) (expr : string) () : unit =
-  let args = String.split_on_char '.' expr in
-  match args with
-  | [] | [ "" ] -> cmd_err "Missing eval expression."
-  | [ x ] ->
-    if String.starts_with ~prefix:"$" x then
-      !!(Heap.get heap (Parsing_utils.parse_loc x)) |> print_obj
-    else !!(Store.get store x) |> print_val heap
-  | oe :: fns ->
-    let lv =
-      if String.starts_with ~prefix:"$" oe then
-        Val.Loc (Parsing_utils.parse_loc oe)
-      else !!(Store.get store oe)
-    in
-    List.fold_left (eval_fld heap) lv fns |> print_val heap
-
-let store_cmd (store : store) () : unit =
-  Log.out "%a" (Store.pp_tabular Val.pp) store
-
-let heap_cmd (heap : heap) () : unit =
-  Log.out "%a" (Heap.pp_tabular (Object.pp Val.pp)) heap
-
-let stack_cmd (stack : stack) () : unit =
-  Log.out "Currently at %a" Call_stack.pp_tabular stack
-
-let help_cmd : unit -> unit = Log.out "\n%a" Show.dialog_pp
-let invalid_cmd () : unit = cmd_err "Invalid command. Try again."
-
-let rec debug_loop (store : store) (heap : heap) (stack : stack) : cmd =
-  let run_cmd cmd = cmd () |> fun () -> debug_loop store heap stack in
-  Show.prompt ();
-  let cmd = read_line () |> parse_command in
-  match cmd with
-  | Some (Eval expr) -> run_cmd @@ eval_cmd store heap expr
-  | Some Store -> run_cmd @@ store_cmd store
-  | Some Heap -> run_cmd @@ heap_cmd heap
-  | Some Stack -> run_cmd @@ stack_cmd stack
-  | Some Help -> run_cmd @@ help_cmd
-  | Some flow_cmd -> flow_cmd
-  | None -> run_cmd @@ invalid_cmd
-
-and debug_loop_safe (store : store) (heap : heap) (stack : stack) : cmd =
-  try debug_loop store heap stack
-  with Cmd_error err ->
-    Log.out "%s" err;
-    debug_loop_safe store heap stack
+module DebuggerTUI = Debugger_tui
 
 module type M = sig
   type t
 
-  val intial_state : unit -> t
-
-  val run :
-    store * heap * stack * t -> Stmt.t -> Stmt.t list -> t * stack * Stmt.t list
-
-  val inject : Stmt.t -> t -> stack -> Stmt.t list -> t * stack * Stmt.t list
+  val initial_state : unit -> t
+  val cleanup : t -> unit
+  val run : t -> t
 end
 
 module Disable : M = struct
   type t = unit
 
-  let intial_state () : t = ()
-
-  let run ((_, _, stack, _) : store * heap * stack * t) (s : Stmt.t)
-    (cont : Stmt.t list) : t * stack * Stmt.t list =
-    ((), stack, s :: cont)
-
-  let inject (_ : Stmt.t) (_ : t) (stack : stack) (cont : Stmt.t list) :
-    t * stack * Stmt.t list =
-    ((), stack, cont)
+  let initial_state () : t = ()
+  let cleanup (_ : t) : unit = ()
+  let run (_ : t) : t = ()
 end
 
 module Enable : M = struct
+  type t' =
+    { streams : Log.Redirect.t
+    ; tui : DebuggerTUI.t
+    }
+
   type t =
     | Initial
-    | Normal
-    | Call
+    | Step of t'
     | Final
 
-  let show_initial_state () : unit =
-    Log.out "%a\n%a\n" Show.header_pp () Show.dialog_pp ()
+  let initialize_debug_tui () : t' =
+    let streams = Log.Redirect.capture Shared in
+    let tui = DebuggerTUI.initialize () in
+    DebuggerTUI.draw tui;
+    { streams; tui }
 
-  let show_final_state () : unit = Log.out "%a@." Show.footer_pp ()
+  let terminate_debug_tui (db : t') : unit =
+    DebuggerTUI.terminate ();
+    Log.Redirect.restore ~log:true db.streams
 
-  let debug_prompt (store : store) (heap : heap) (stack : stack) (state : t)
-    (s : Stmt.t) : cmd =
-    if state = Final then Exit
-    else (
-      if state = Initial then show_initial_state ();
-      print_stmt (Call_stack.func stack) s;
-      let cmd = debug_loop_safe store heap stack in
-      if cmd = Exit then show_final_state ();
-      cmd )
+  let run_debug_tui (db : t') : t =
+    ignore (Curses.getch ());
+    Step db
 
-  let rec inject_debug_outerscope (stack : stack) : stack =
-    let open Call_stack in
-    match pop stack with
-    | (Toplevel _, _) -> stack
-    | (Intermediate (loc, restore), stack') ->
-      let (func, _) = Call_stack.location loc in
-      let (store, cont, retvar) = Call_stack.restore restore in
-      let (stack'', cont') = inject_debug_innerscope stack' cont in
-      push stack'' func store cont' retvar
+  let initial_state () : t = Initial
 
-  and inject_debug_innerscope (stack : stack) (cont : Stmt.t list) :
-    stack * Stmt.t list =
-    match cont with
-    | ({ it = Skip; _ } as s) :: cont' | ({ it = Merge; _ } as s) :: cont' ->
-      let (stack', cont'') = inject_debug_innerscope stack cont' in
-      (stack', s :: cont'')
-    | { it = Block ss; _ } :: cont' ->
-      let (stack', cont'') = inject_debug_innerscope stack (ss @ cont') in
-      (stack', cont'')
-    | { it = Debug _; _ } :: _ -> (stack, cont)
-    | s :: cont' -> (stack, Source.(Stmt.Debug s @> s.at) :: cont')
-    | [] -> (inject_debug_outerscope stack, cont)
+  let cleanup (db : t) : unit =
+    match db with
+    | Initial -> ()
+    | Step db' -> terminate_debug_tui db'
+    | Final -> ()
 
-  let update_prog (cmd : cmd) (stack : stack) (s : Stmt.t) (cont : Stmt.t list)
-    : t * stack * Stmt.t list =
-    match (cmd, s) with
-    | (StepIn, { it = AssignCall _; _ }) -> (Call, stack, s :: cont)
-    | (Step, _) | (StepIn, _) ->
-      inject_debug_innerscope stack cont |> fun (stack', cont') ->
-      (Normal, stack', s :: cont')
-    | (StepOut, _) ->
-      inject_debug_outerscope stack |> fun stack' -> (Normal, stack', s :: cont)
-    | (Continue, _) -> (Normal, stack, s :: cont)
-    | (Exit, _) -> (Final, stack, s :: cont)
-    | _ -> Internal_error.(throw __FUNCTION__ (Expecting "termination cmd"))
-
-  let intial_state () : t = Initial
-
-  let run ((store, heap, stack, db) : store * heap * stack * t) (s : Stmt.t)
-    (cont : Stmt.t list) : t * stack * Stmt.t list =
-    let cmd = debug_prompt store heap stack db s in
-    update_prog cmd stack s cont
-
-  let inject (s : Stmt.t) (db : t) (stack : stack) (cont : Stmt.t list) :
-    t * stack * Stmt.t list =
-    match (db, s) with
-    | (Call, { it = AssignCall _; _ }) ->
-      inject_debug_innerscope stack cont |> fun (stack', cont') ->
-      (Normal, stack', cont')
-    | _ -> (db, stack, cont)
+  let run (db : t) : t =
+    match db with
+    | Initial -> initialize_debug_tui () |> run_debug_tui
+    | Step tui -> run_debug_tui tui
+    | Final -> Final
 end
