@@ -117,12 +117,14 @@ let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
 let type_binopt (op : Operator.binopt) (targs : EType.t list) : EType.t' =
   let not_implemented = EType.AnyType in
   let type_op = type_operator targs in
+  let int_arith = EType.([ IntType; IntType ], IntType) in
   let float_arith = EType.([ FloatType; FloatType ], FloatType) in
   match op with
-  | Plus -> type_op [ ([ IntType; IntType ], IntType); float_arith ]
-  | Minus -> type_op [ ([ IntType; IntType ], IntType); float_arith ]
-  | Times -> type_op [ ([ IntType; IntType ], IntType); float_arith ]
-  | Div -> type_op [ ([ IntType; IntType ], IntType); float_arith ]
+  | Plus ->
+    type_op [ int_arith; float_arith; ([ StringType; StringType ], StringType) ]
+  | Minus -> type_op [ int_arith; float_arith ]
+  | Times -> type_op [ int_arith; float_arith ]
+  | Div -> type_op [ int_arith; float_arith ]
   | Modulo -> type_op [ float_arith ]
   | Pow -> type_op [ float_arith ]
   | BitwiseAnd -> type_op [ float_arith ]
