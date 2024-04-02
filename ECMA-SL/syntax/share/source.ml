@@ -48,6 +48,11 @@ module Code = struct
   let load (file : string) (data : string) : unit =
     Hashtbl.replace code file (String.split_on_char '\n' data)
 
+  let get_file (path : string) : file option = Hashtbl.find_opt code path
+
+  let get_file_size (file : file option) : int =
+    Option.map List.length file |> Option.value ~default:(-1)
+
   let get_line (file : file option) (loc : int) : string =
     let line' file = List.nth_opt file (loc - 1) in
     Option.bind file line' |> Option.value ~default:""
@@ -78,7 +83,7 @@ module Code = struct
     trim_lines (get_lines (Hashtbl.find_opt code at.file) start nlines)
 
   let pp (fmt : Fmt.t) (at : region) : unit =
-    Fmt.(fprintf fmt "%a" (pp_lst "\n" pp_str) (codeblock at))
+    Fmt.(pp_lst "\n" pp_str) fmt (codeblock at)
 
   let str (at : region) : string = Fmt.asprintf "%a" pp at
 end

@@ -166,12 +166,12 @@ module M (Instrument : Instrument.M) = struct
     match s.it with
     | Skip -> (Intermediate (state, cont), lbl SkipEval)
     | Merge -> (Intermediate (state, cont), lbl MergeEval)
-    | Debug _s ->
+    | Debug s ->
       (* let args = (state.store, state.heap, state.stack, inst.db) in *)
       (* let (db', stack', cont') = Instrument.Debugger.run args s cont in *)
       (* let state' = { state with stack = stack' } in *)
       (* (Intermediate (state', cont), lbl' DebugEval) *)
-      let db' = Instrument.Debugger.run !inst.db in
+      let db' = Instrument.Debugger.run !inst.db s in
       inst := { !inst with db = db' };
       (Intermediate (state, cont), lbl DebugEval)
     | Block ss -> (Intermediate (state, ss @ cont), lbl BlockEval)
