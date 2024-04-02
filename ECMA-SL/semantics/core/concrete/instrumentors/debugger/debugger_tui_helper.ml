@@ -15,15 +15,15 @@ let proportional_sz ?(remainder : bool = false) (total : int) (factor : int)
 module Win = struct
   type t =
     { w : window
-    ; x : int
     ; y : int
-    ; xz : int
+    ; x : int
     ; yz : int
+    ; xz : int
     }
 
-  let mk (basewin : t) (x : int) (y : int) (xz : int) (yz : int) : t =
+  let mk (basewin : t) (y : int) (x : int) (yz : int) (xz : int) : t =
     let w = derwin basewin.w yz xz y x in
-    { w; x; y; xz; yz }
+    { w; y; x; yz; xz }
 
   let refresh (win : t) : unit = !!(wrefresh win.w)
 end
@@ -57,10 +57,10 @@ module FrameWin = struct
     ; br = acs.lrcorner
     }
 
-  let mk ?(frame : frame option) (acs : Acs.acs) (basewin : Win.t) (x : int)
-    (y : int) (xz : int) (yz : int) : t =
-    let wbox = Win.mk basewin x y xz yz in
-    let wregion = Win.mk wbox 1 1 (xz - 2) (yz - 2) in
+  let mk ?(frame : frame option) (acs : Acs.acs) (basewin : Win.t) (y : int)
+    (x : int) (yz : int) (xz : int) : t =
+    let wbox = Win.mk basewin y x yz xz in
+    let wregion = Win.mk wbox 1 1 (yz - 2) (xz - 2) in
     let frame = Option.value ~default:(default_frame acs) frame in
     { wregion; wframe = wbox; frame }
 
