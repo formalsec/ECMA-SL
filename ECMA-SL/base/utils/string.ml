@@ -12,14 +12,12 @@ let ordinal_suffix (n : int) : string =
   in
   string_of_int n ^ suffix
 
-let truncate ?(extra : string option) (limit : int) (text : string) : string =
-  let extra' = Option.value ~default:"" extra in
-  let add_extra (line, trunc) = line ^ if trunc then extra' else "" in
+let truncate (limit : int) (text : string) : string * bool =
   let truncate_line line trunc =
     try if length line > limit then (sub line 0 limit, true) else (line, trunc)
     with Invalid_argument _ -> ("", true)
   in
   match split_on_char '\n' text with
-  | [] -> ""
-  | line :: [] -> truncate_line line false |> add_extra
-  | line :: _ -> truncate_line line true |> add_extra
+  | [] -> ("", false)
+  | line :: [] -> truncate_line line false
+  | line :: _ -> truncate_line line true

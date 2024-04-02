@@ -1,4 +1,5 @@
 open EslBase
+open EslSyntax
 module DebuggerTUI = Debugger_tui
 
 module type M = sig
@@ -6,7 +7,7 @@ module type M = sig
 
   val initial_state : unit -> t
   val cleanup : t -> unit
-  val run : t -> t
+  val run : t -> Stmt.t -> t
 end
 
 module Disable : M = struct
@@ -14,7 +15,7 @@ module Disable : M = struct
 
   let initial_state () : t = ()
   let cleanup (_ : t) : unit = ()
-  let run (_ : t) : t = ()
+  let run (_ : t) (_ : Stmt.t) : t = ()
 end
 
 module Enable : M = struct
@@ -30,17 +31,23 @@ module Enable : M = struct
 
   let initialize_debug_tui () : t' =
     let streams = Log.Redirect.capture Shared in
-    let tui = DebuggerTUI.initialize () in
-    DebuggerTUI.draw tui;
-    { streams; tui }
+    try
+      let tui = DebuggerTUI.initialize () in
+      DebuggerTUI.draw_static tui;
+      { streams; tui }
+    with exn ->
+      Log.Redirect.restore ~log:true streams;
+      raise exn
 
   let terminate_debug_tui (db : t') : unit =
     DebuggerTUI.terminate ();
     Log.Redirect.restore ~log:true db.streams
 
-  let run_debug_tui (db : t') : t =
+  let run_debug_tui (s : Stmt.t) (db : t') : t =
+    let tui = DebuggerTUI.data db.tui s in
+    DebuggerTUI.render tui;
     ignore (Curses.getch ());
-    Step db
+    Step { db with tui }
 
   let initial_state () : t = Initial
 
@@ -50,9 +57,9 @@ module Enable : M = struct
     | Step db' -> terminate_debug_tui db'
     | Final -> ()
 
-  let run (db : t) : t =
+  let run (db : t) (s : Stmt.t) : t =
     match db with
-    | Initial -> initialize_debug_tui () |> run_debug_tui
-    | Step tui -> run_debug_tui tui
+    | Initial -> initialize_debug_tui () |> run_debug_tui s
+    | Step tui -> run_debug_tui s tui
     | Final -> Final
 end
