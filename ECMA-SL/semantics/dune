@@ -32,10 +32,15 @@
   ; concrete interpreter (instrumentation)
   tracer
   debugger
+  monitor
+  ; concrete interpreter (instrumentation - debugger)
   debugger_tui
   debugger_tui_helper
-  monitor
-  ; concrete interpreter (monitors)
+  Debugger_tui_code
+  Debugger_tui_view
+  Debugger_tui_execution
+  Debugger_tui_terminal
+  ; concrete interpreter (instrumentation - monitors)
   NSUMonitor
   NSUException
   NSUObject
