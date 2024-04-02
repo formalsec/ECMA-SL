@@ -4,8 +4,9 @@ module Stmt = EslSyntax.Stmt
 module Func = EslSyntax.Func
 
 type location =
-  { func : Func.t
-  ; mutable stmt : Stmt.t
+  { lvl : int
+  ; func : Func.t
+  ; stmt : Stmt.t
   }
 
 let location (location : location) : Func.t * Stmt.t =
@@ -27,16 +28,16 @@ type 'store frame =
 type 'store t = 'store frame list
 
 let create (func : Func.t) : 'store t =
-  [ Toplevel { func; stmt = Stmt.default () } ]
+  [ Toplevel { lvl = 0; func; stmt = Stmt.default () } ]
 
-let loc (stack : 'store t) : Func.t * Stmt.t =
+let loc (stack : 'store t) : location =
   match stack with
   | [] -> Internal_error.(throw __FUNCTION__ (Expecting "non-empty call stack"))
-  | Toplevel loc :: _ | Intermediate (loc, _) :: _ -> (loc.func, loc.stmt)
+  | Toplevel loc :: _ | Intermediate (loc, _) :: _ -> loc
 
-let func (stack : 'store t) : Func.t = fst (loc stack)
-let stmt (stack : 'store t) : Stmt.t = snd (loc stack)
-let level (stack : 'store t) : int = List.length stack - 1
+let level (stack : 'store t) : int = (loc stack).lvl
+let func (stack : 'store t) : Func.t = (loc stack).func
+let stmt (stack : 'store t) : Stmt.t = (loc stack).stmt
 
 let pop (stack : 'store t) : 'store frame * 'store t =
   match stack with
@@ -45,20 +46,24 @@ let pop (stack : 'store t) : 'store frame * 'store t =
 
 let push (stack : 'store t) (func : Func.t) (store : 'store)
   (cont : Stmt.t list) (retvar : string) : 'store t =
-  Intermediate ({ func; stmt = Stmt.default () }, { store; cont; retvar })
-  :: stack
+  let loc = { lvl = level stack + 1; func; stmt = Stmt.default () } in
+  let restore = { store; cont; retvar } in
+  Intermediate (loc, restore) :: stack
 
-let update (stack : 'store t) (stmt : Stmt.t) : unit =
+let update (stack : 'store t) (stmt : Stmt.t) : 'store t =
+  let loc_f loc = { loc with stmt } in
   match stack with
   | [] -> Internal_error.(throw __FUNCTION__ (Expecting "non-empty call stack"))
-  | Toplevel loc :: _ | Intermediate (loc, _) :: _ -> loc.stmt <- stmt
+  | Toplevel loc :: [] -> [ Toplevel { loc with stmt } ]
+  | Intermediate (loc, r) :: frames -> Intermediate (loc_f loc, r) :: frames
+  | _ -> Internal_error.(throw __FUNCTION__ (Expecting "valid call stack"))
 
 let pp_loc (fmt : Fmt.t) (region : region) : unit =
   Fmt.fprintf fmt "file %S, line %d" region.file region.left.line
 
 let pp_frame (fmt : Fmt.t) (frame : 'store frame) : unit =
   let frame_loc = function Toplevel loc | Intermediate (loc, _) -> loc in
-  let { func; stmt } = frame_loc frame in
+  let { func; stmt; _ } = frame_loc frame in
   Fmt.fprintf fmt "'%s' in %a" (Func.name' func) pp_loc stmt.at
 
 let pp (fmt : Fmt.t) (stack : 'store t) : unit =
