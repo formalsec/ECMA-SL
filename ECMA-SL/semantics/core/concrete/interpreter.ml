@@ -20,8 +20,7 @@ module M (Instrument : Instrument.M) = struct
   type stack = store Call_stack.t
 
   type state =
-    { lvl : int
-    ; store : store
+    { store : store
     ; heap : heap
     ; stack : stack
     }
@@ -56,7 +55,7 @@ module M (Instrument : Instrument.M) = struct
     let heap = Option.fold ~none:(Heap.create ()) ~some:Heap.extend s_heap in
     let stack = Call_stack.create fmain in
     set_global_var store heap;
-    { lvl = 0; store; heap; stack }
+    { store; heap; stack }
 
   let operate (eval_op_fun : unit -> Val.t) (es : Expr.t list) : Val.t =
     try eval_op_fun ()
@@ -109,7 +108,8 @@ module M (Instrument : Instrument.M) = struct
 
   and eval_expr (state : state) (e : Expr.t) : Val.t =
     let v = eval_expr' state e in
-    Instrument.Tracer.trace_expr state.lvl e (state.heap, v);
+    let lvl = Call_stack.level state.stack in
+    Instrument.Tracer.trace_expr lvl e (state.heap, v);
     v
 
   let eval_string (state : state) (e : Expr.t) : string =
@@ -161,8 +161,8 @@ module M (Instrument : Instrument.M) = struct
   let eval_small_step (p : Prog.t) (state : state) (inst : Instrument.t ref)
     (s : Stmt.t) (cont : Stmt.t list) : return * unit =
     let lbl s_eval = update_mon_label inst s s_eval in
-    Call_stack.update state.stack s;
-    Instrument.Tracer.trace_stmt state.lvl s;
+    let lvl = Call_stack.level state.stack in
+    Instrument.Tracer.trace_stmt lvl s;
     match s.it with
     | Skip -> (Intermediate (state, cont), lbl SkipEval)
     | Merge -> (Intermediate (state, cont), lbl MergeEval)
@@ -181,16 +181,15 @@ module M (Instrument : Instrument.M) = struct
     | Return e -> (
       let v = eval_expr state e in
       let f = Call_stack.func state.stack in
-      Instrument.Tracer.trace_return state.lvl f s (state.heap, v);
+      Instrument.Tracer.trace_return lvl f s (state.heap, v);
       let (frame, stack') = Call_stack.pop state.stack in
       match frame with
       | Call_stack.Toplevel _ -> (Final v, lbl ReturnEval)
       | Call_stack.Intermediate (_, restore) ->
         let (store', cont', x) = Call_stack.restore restore in
-        let lvl = state.lvl - 1 in
-        let state' = { state with lvl; store = store'; stack = stack' } in
+        let state' = { state with store = store'; stack = stack' } in
         Store.set store' x v;
-        Instrument.Tracer.trace_restore lvl (Call_stack.func stack');
+        Instrument.Tracer.trace_restore (lvl - 1) (Call_stack.func stack');
         (Intermediate (state', cont'), lbl ReturnEval) )
     | Assign (x, e) ->
       eval_expr state e |> Store.set state.store x.it;
@@ -209,10 +208,9 @@ module M (Instrument : Instrument.M) = struct
         let cont' = [ Func.body f ] in
         (* let inject_res = Instrument.Debugger.inject s inst.db stack' cont' in *)
         (* let (db', stack'', cont'') = inject_res in *)
-        let lvl = state.lvl + 1 in
-        let state' = { state with lvl; store = store'; stack = stack' } in
+        let state' = { state with store = store'; stack = stack' } in
         inst := { !inst with db = !inst.db };
-        Instrument.Tracer.trace_call lvl f s;
+        Instrument.Tracer.trace_call (lvl + 1) f s;
         (Intermediate (state', cont'), lbl (AssignCallEval f)) )
     | AssignECall (x, fn, es) ->
       let vs = List.map (eval_expr state) es in
@@ -302,7 +300,8 @@ module M (Instrument : Instrument.M) = struct
 
   let eval_small_step_safe (p : Prog.t) (state : state)
     (inst : Instrument.t ref) (s : Stmt.t) (cont : Stmt.t list) : return =
-    try fst (eval_small_step p state inst s cont)
+    let state' = { state with stack = Call_stack.update state.stack s } in
+    try fst (eval_small_step p state' inst s cont)
     with Runtime_error.Error err ->
       Runtime_error.(set_trace state.stack err |> raise)
 
