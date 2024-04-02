@@ -20,16 +20,16 @@ let status_code (status : status) : int =
 
 let internal_err (err : Internal_error.t) : int =
   flush_all ();
-  Log.err "%a" Internal_error.pp err;
+  Log.err "%a@." Internal_error.pp err;
   Printexc.print_backtrace stderr;
   status_code Failure
 
 let compile_err (err : Compile_error.t) : int =
-  Log.err "%a" Compile_error.pp err;
+  Log.err "%a@." Compile_error.pp err;
   status_code CompileError
 
 let runtime_err (err : Runtime_error.t) : int =
-  Log.err "%a" Runtime_error.pp err;
+  Log.err "%a@." Runtime_error.pp err;
   status_code RuntimeError
 
 let eval_cmd (cmd : unit -> unit) : int =
