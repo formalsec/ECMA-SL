@@ -21,7 +21,8 @@ module Truncate = struct
   let pp (lim : int) (pp_el : t -> 'a -> unit) (fmt : Fmt.t) (el : 'a) : unit =
     let extra = Font.str_text_err [ Font.Faint ] "..." in
     let text = asprintf "%a" pp_el el in
-    pp_str fmt (String.truncate ~extra (lim - 3) text)
+    let (text', trunc) = String.truncate (lim - 3) text in
+    pp_str fmt (if trunc then text' ^ extra else text')
 end
 
 type obj = Val.t Object.t
