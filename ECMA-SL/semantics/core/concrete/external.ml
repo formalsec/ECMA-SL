@@ -22,11 +22,18 @@ let parseJS (prog : Prog.t) (code : string) : Val.t =
       Val.Str eval_func_id
     with _ -> Internal_error.(throw __FUNCTION__ (Custom "er in ParseJS")) )
 
+let int_to_four_hex (v : Val.t) : Val.t =
+  let op_lbl = "int_to_four_hex_external" in
+  match v with
+  | Int i -> Str (Printf.sprintf "%04x" i)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "integer" [ v ]
+
 let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   (fn : Id.t') (vs : Val.t list) : Val.t =
   match (fn, vs) with
   | ("is_symbolic", _) -> Val.Bool false
   | ("parseJS", [ Val.Str code ]) -> parseJS prog code
+  | ("int_to_four_hex_external", [ v ]) -> int_to_four_hex v
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
     Val.Symbol "undefined"

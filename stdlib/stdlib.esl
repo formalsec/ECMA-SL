@@ -1,5 +1,10 @@
 /* TODO: Separate this into smaller files */
 
+/* Int operators */
+function int_to_four_hex(n : int) : string {
+  return extern int_to_four_hex_external(n)
+}
+
 /* Float operators */
 function is_int(f : float) : boolean {
   return (trunc f) = f
