@@ -32,7 +32,6 @@ let%test "unopt_bitwise_not" = test_unopt (BitwiseNot, Flt 10.1) t_float
 let%test "unopt_LogicalNot" = test_unopt (LogicalNot, Bool true) t_boolean
 let%test "unopt_int_to_float" = test_unopt (IntToFloat, Int 10) t_float
 let%test "unopt_int_to_string" = test_unopt (IntToString, Int 10) t_string
-let%test "unopt_int_to_four_hex" = test_unopt (IntToFourHex, Int 10) t_string
 let%test "unopt_octal_to_decimal" = test_unopt (OctalToDecimal, Int 10) t_int
 let%test "unopt_float_to_int" = test_unopt (FloatToInt, Flt 10.1) t_int
 let%test "unopt_float_to_string" = test_unopt (FloatToString, Flt 10.1) t_string
