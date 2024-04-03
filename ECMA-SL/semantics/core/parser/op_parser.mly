@@ -13,7 +13,7 @@
 
 %token TYPEOF
 
-%token INT_TO_FLOAT INT_TO_STRING INT_TO_FOUR_HEX OCTAL_TO_DECIMAL
+%token INT_TO_FLOAT INT_TO_STRING OCTAL_TO_DECIMAL
 %token FLOAT_TO_INT FLOAT_TO_STRING TO_INT TO_INT32 TO_UINT16 TO_UINT32 IS_NAN
 
 %token STRING_TO_INT STRING_TO_FLOAT FROM_CHAR_CODE FROM_CHAR_CODE_U TO_CHAR_CODE TO_CHAR_CODE_U TO_LOWER_CASE TO_UPPER_CASE TRIM
@@ -89,7 +89,6 @@
   | TYPEOF;                 { Operator.Typeof }
   | INT_TO_FLOAT;           { Operator.IntToFloat }
   | INT_TO_STRING;          { Operator.IntToString }
-  | INT_TO_FOUR_HEX;        { Operator.IntToFourHex }
   | OCTAL_TO_DECIMAL;       { Operator.OctalToDecimal }
   | FLOAT_TO_INT;           { Operator.FloatToInt }
   | FLOAT_TO_STRING;        { Operator.FloatToString }

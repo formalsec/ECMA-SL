@@ -30,7 +30,6 @@
             (* Integer operators *)
             "int_to_float"            , INT_TO_FLOAT;
             "int_to_string"           , INT_TO_STRING;
-            "int_to_four_hex"         , INT_TO_FOUR_HEX;
             "octal_to_decimal"        , OCTAL_TO_DECIMAL;
 
             (* Float operators *)
