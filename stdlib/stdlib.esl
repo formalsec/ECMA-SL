@@ -9,7 +9,6 @@ function octal_to_decimal(n: int) : int{
   return extern octal_to_decimal_external(n)
 }
 
-
 /* Float operators */
 function is_int(f : float) : boolean {
   return (trunc f) = f
@@ -66,6 +65,9 @@ function to_uint16_(n : float) : float {
   return (posInt % 65536.0)
 }
 
+function to_precision (x : float, y : int) : string {
+  return extern to_precision_external(x, y)
+}
 /* Math operators */
 /* FIXME: to replace `min` */
 function min_(x : float, y : float) : float {
