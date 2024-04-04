@@ -45,4 +45,4 @@ Run ecma-sl type checking tests:
   File "return.esl", line 12, characters 45-47
   12 |   function badValueVoidReturn(): void { return 10 }				/* BadReturn: void <- int */
                                                       ^^
-  [123]
+  [1]
