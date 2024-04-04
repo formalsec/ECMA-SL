@@ -45,7 +45,6 @@ let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
   | LogicalNot -> type_op [ ([ BooleanType ], BooleanType) ]
   | IntToFloat -> type_op [ ([ IntType ], FloatType) ]
   | IntToString -> type_op [ ([ IntType ], StringType) ]
-  | OctalToDecimal -> type_op [ ([ IntType ], IntType) ]
   | FloatToInt -> type_op [ ([ FloatType ], IntType) ]
   | FloatToString -> type_op [ ([ FloatType ], StringType) ]
   | ToInt -> type_op [ ([ FloatType ], FloatType) ]

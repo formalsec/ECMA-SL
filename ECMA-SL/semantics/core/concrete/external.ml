@@ -28,12 +28,27 @@ let int_to_four_hex (v : Val.t) : Val.t =
   | Int i -> Str (Printf.sprintf "%04x" i)
   | _ -> Eval_operator.bad_arg_err 1 op_lbl "integer" [ v ]
 
+
+let octal_to_decimal (v : Val.t) : Val.t =
+  let op_lbl = "octal_to_decimal_external" in
+  match v with
+  | Int o ->
+    let rec loop dec_value base temp =
+      if temp = 0 then dec_value
+      else
+        let dec_value = dec_value + (temp mod 10 * base) in
+        loop dec_value (base * 8) (temp / 10)
+    in
+    Int (loop 0 1 o)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "integer" [ v ]
+
 let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   (fn : Id.t') (vs : Val.t list) : Val.t =
   match (fn, vs) with
   | ("is_symbolic", _) -> Val.Bool false
   | ("parseJS", [ Val.Str code ]) -> parseJS prog code
   | ("int_to_four_hex_external", [ v ]) -> int_to_four_hex v
+  | ("octal_to_decimal_external", [ v ]) -> octal_to_decimal v
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
     Val.Symbol "undefined"
