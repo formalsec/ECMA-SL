@@ -51,7 +51,6 @@
             (* Integer operators *)
             "int_to_float"            , INT_TO_FLOAT;
             "int_to_string"           , INT_TO_STRING;
-            "octal_to_decimal"        , OCTAL_TO_DECIMAL;
 
             (* Float operators *)
             "int_of_float"            , FLOAT_TO_INT;
