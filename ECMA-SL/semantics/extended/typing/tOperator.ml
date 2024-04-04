@@ -140,7 +140,6 @@ let type_binopt (op : Operator.binopt) (targs : EType.t list) : EType.t' =
   | Gt -> type_op [ ([ UnknownType; UnknownType ], BooleanType) ]
   | Le -> type_op [ ([ UnknownType; UnknownType ], BooleanType) ]
   | Ge -> type_op [ ([ UnknownType; UnknownType ], BooleanType) ]
-  | ToPrecision -> type_op [ ([ FloatType; IntType ], StringType) ]
   | ToExponential -> type_op [ ([ FloatType; IntType ], StringType) ]
   | ToFixed -> type_op [ ([ FloatType; IntType ], StringType) ]
   | ObjectMem -> not_implemented (* TODO: custom object typing function *)

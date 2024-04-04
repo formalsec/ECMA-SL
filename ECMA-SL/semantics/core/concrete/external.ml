@@ -42,6 +42,51 @@ let octal_to_decimal (v : Val.t) : Val.t =
     Int (loop 0 1 o)
   | _ -> Eval_operator.bad_arg_err 1 op_lbl "integer" [ v ]
 
+  let to_precision ((v1, v2) : Val.t * Val.t) : Val.t =
+    let op_lbl = "to_precision_external" in
+    match (v1, v2) with
+    | (Flt x, Int y) ->
+      let z = Float.to_int (Float.log10 x) + 1 in
+      if y < z then
+        let exp = Float.log10 x in
+        if exp >= 0. then
+          let num =
+            Float.round
+              (x /. (10. ** Float.trunc exp) *. (10. ** Float.of_int (y - 1)))
+            /. (10. ** Float.of_int (y - 1))
+          in
+          if Float.is_integer num && y = 1 then
+            Str
+              ( string_of_int (Float.to_int num)
+              ^ "e+"
+              ^ Int.to_string (Float.to_int exp) )
+          else Str (string_of_float num ^ "e+" ^ Int.to_string (Float.to_int exp))
+        else
+          let num =
+            Float.round
+              (x /. (10. ** Float.floor exp) *. (10. ** Float.of_int (y - 1)))
+            /. (10. ** Float.of_int (y - 1))
+          in
+          if Float.is_integer num && y = 1 then
+            Str
+              ( string_of_int (Float.to_int num)
+              ^ "e"
+              ^ Int.to_string (Float.to_int (Float.floor exp)) )
+          else
+            Str
+              ( string_of_float num
+              ^ "e"
+              ^ Int.to_string (Float.to_int (Float.floor exp)) )
+      else
+        let res =
+          Float.round (x *. (10. ** float_of_int (y - 1)))
+          /. (10. ** float_of_int (y - 1))
+        in
+        Str (Float.to_string res)
+    | (Flt _, _) -> Eval_operator.bad_arg_err 2 op_lbl "(float, integer)" [ v1; v2 ]
+    | _ -> Eval_operator.bad_arg_err 1 op_lbl "(float, integer)" [ v1; v2 ]
+
+
 let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   (fn : Id.t') (vs : Val.t list) : Val.t =
   match (fn, vs) with
@@ -49,6 +94,7 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("parseJS", [ Val.Str code ]) -> parseJS prog code
   | ("int_to_four_hex_external", [ v ]) -> int_to_four_hex v
   | ("octal_to_decimal_external", [ v ]) -> octal_to_decimal v
+  | ("to_precision_external", [ v1 ; v2 ]) -> to_precision (v1, v2)
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
     Val.Symbol "undefined"
