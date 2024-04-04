@@ -17,7 +17,6 @@ type unopt =
   (* Integer operators *)
   | IntToFloat
   | IntToString
-  | OctalToDecimal
   (* Float operators *)
   | FloatToInt
   | FloatToString
@@ -201,7 +200,6 @@ let label_of_unopt (op : unopt) : string =
   | LogicalNot -> "Logical.not (!)"
   | IntToFloat -> "Integer.int_to_float"
   | IntToString -> "Integer.int_to_string"
-  | OctalToDecimal -> "Integer.octal_to_decimal"
   | FloatToInt -> "Float.float_to_int"
   | FloatToString -> "Float.float_to_string"
   | ToInt -> "Float.to_int"
@@ -342,7 +340,6 @@ let pp_of_unopt_single (fmt : Fmt.t) (op : unopt) : unit =
   | LogicalNot -> pp_str fmt "!"
   | IntToFloat -> pp_str fmt "int_to_float"
   | IntToString -> pp_str fmt "int_to_string"
-  | OctalToDecimal -> pp_str fmt "octal_to_decimal"
   | FloatToInt -> pp_str fmt "int_of_float"
   | FloatToString -> pp_str fmt "float_to_string"
   | ToInt -> pp_str fmt "to_int"

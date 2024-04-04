@@ -5,6 +5,11 @@ function int_to_four_hex(n : int) : string {
   return extern int_to_four_hex_external(n)
 }
 
+function octal_to_decimal(n: int) : int{
+  return extern octal_to_decimal_external(n)
+}
+
+
 /* Float operators */
 function is_int(f : float) : boolean {
   return (trunc f) = f

@@ -63,19 +63,6 @@ let int_to_string (v : Val.t) : Val.t =
   | Int i -> Str (string_of_int i)
   | _ -> bad_arg_err 1 op_lbl "integer" [ v ]
 
-let octal_to_decimal (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt OctalToDecimal in
-  match v with
-  | Int o ->
-    let rec loop dec_value base temp =
-      if temp = 0 then dec_value
-      else
-        let dec_value = dec_value + (temp mod 10 * base) in
-        loop dec_value (base * 8) (temp / 10)
-    in
-    Int (loop 0 1 o)
-  | _ -> bad_arg_err 1 op_lbl "integer" [ v ]
-
 let float_to_int (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt FloatToInt in
   match v with
@@ -1002,7 +989,6 @@ let eval_unopt (op : unopt) (v : Val.t) : Val.t =
   | LogicalNot -> logical_not v
   | IntToFloat -> int_to_float v
   | IntToString -> int_to_string v
-  | OctalToDecimal -> octal_to_decimal v
   | FloatToInt -> float_to_int v
   | FloatToString -> float_to_string v
   | ToInt -> to_int v
