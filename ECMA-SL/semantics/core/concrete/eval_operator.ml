@@ -672,50 +672,6 @@ let ge ((v1, v2) : Val.t * Val.t) : Val.t =
   | (Int i, Flt f) -> Bool (float i >= f)
   | (v1, v2) -> Bool (v1 >= v2)
 
-let to_precision ((v1, v2) : Val.t * Val.t) : Val.t =
-  let op_lbl = label_of_binopt ToPrecision in
-  match (v1, v2) with
-  | (Flt x, Int y) ->
-    let z = Float.to_int (Float.log10 x) + 1 in
-    if y < z then
-      let exp = Float.log10 x in
-      if exp >= 0. then
-        let num =
-          Float.round
-            (x /. (10. ** Float.trunc exp) *. (10. ** Float.of_int (y - 1)))
-          /. (10. ** Float.of_int (y - 1))
-        in
-        if Float.is_integer num && y = 1 then
-          Str
-            ( string_of_int (Float.to_int num)
-            ^ "e+"
-            ^ Int.to_string (Float.to_int exp) )
-        else Str (string_of_float num ^ "e+" ^ Int.to_string (Float.to_int exp))
-      else
-        let num =
-          Float.round
-            (x /. (10. ** Float.floor exp) *. (10. ** Float.of_int (y - 1)))
-          /. (10. ** Float.of_int (y - 1))
-        in
-        if Float.is_integer num && y = 1 then
-          Str
-            ( string_of_int (Float.to_int num)
-            ^ "e"
-            ^ Int.to_string (Float.to_int (Float.floor exp)) )
-        else
-          Str
-            ( string_of_float num
-            ^ "e"
-            ^ Int.to_string (Float.to_int (Float.floor exp)) )
-    else
-      let res =
-        Float.round (x *. (10. ** float_of_int (y - 1)))
-        /. (10. ** float_of_int (y - 1))
-      in
-      Str (Float.to_string res)
-  | (Flt _, _) -> bad_arg_err 2 op_lbl "(float, integer)" [ v1; v2 ]
-  | _ -> bad_arg_err 1 op_lbl "(float, integer)" [ v1; v2 ]
-
 let to_exponential ((v1, v2) : Val.t * Val.t) : Val.t =
   let op_lbl = label_of_binopt ToExponential in
   match (v1, v2) with
@@ -1084,7 +1040,6 @@ let eval_binopt (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | Gt -> gt (v1, v2)
   | Le -> le (v1, v2)
   | Ge -> ge (v1, v2)
-  | ToPrecision -> to_precision (v1, v2)
   | ToExponential -> to_exponential (v1, v2)
   | ToFixed -> to_fixed (v1, v2)
   | ObjectMem ->
