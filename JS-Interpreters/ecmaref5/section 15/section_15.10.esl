@@ -384,7 +384,7 @@ function RegExpPrototypeExec(global, this, strict, args) {
   /* 2. Let S be the value of ToString(string). */
   S := ToString(str);
   /* 3. Let length be the length of S. */
-  length := s_len_u S;
+  length := s_len_u (S);
   /* 4. Let lastIndex be the result of calling the [[Get]]
     internal method of R with argument "lastIndex".. */
   lastIndex := {R.Get}(R, "lastIndex");
@@ -635,7 +635,7 @@ function validateFlags(flags) {
   i := false;
   m := false;
 
-  len := s_len_u flags;
+  len := s_len_u (flags);
   index := 0;
   while (index < len) {
     flag := s_nth_u(flags, index);
@@ -661,7 +661,7 @@ function setFlags(obj, flags) {
   i := false;
   m := false;
 
-  len := s_len_u flags;
+  len := s_len_u (flags);
   index := 0;
   while (index < len) {
     flag := s_nth_u(flags, index);
@@ -712,14 +712,14 @@ function stateGetChar(st) {
   i := st.endIndex;
   str := st.str;
 
-  if (i < (s_len_u str)) {
+  if (i < (s_len_u (str))) {
     return s_nth_u(str, i)
   };
   return null
 };
 
 function stateNext(st) {
-  len := s_len_u st.str;
+  len := s_len_u (st.str);
   if (st.endIndex < len) {
     st.endIndex := st.endIndex + 1
   };
@@ -969,7 +969,7 @@ function JS_Interpreter_Assertion(ba) {
       /* 1. Let e be x's endIndex. */
       e := st.endIndex;
       /* 2. If e is equal to InputLength, return true. */
-      len := s_len_u st.str;
+      len := s_len_u (st.str);
       if (e = len) {
         return true
       };
@@ -1057,7 +1057,7 @@ function isLineTerminator(c) {
  */
 function IsWordChar(e, input) {
   /* 1. If e == –1 or e == InputLength, return false. */
-  if ((e = -1) ||| (e = (s_len_u input))) {
+  if ((e = -1) ||| (e = (s_len_u (input)))) {
     return false
   };
   /* 2. Let c be the character Input[e]. */
@@ -1159,7 +1159,7 @@ function canonicalise(c, c_cp, ic) {
   };
 
   u := to_upper_case (c);
-  if (!((s_len_u u) = 1)) {
+  if (!((s_len_u (u)) = 1)) {
     return c_cp
   };
   u_cp := int_to_float (to_char_code_u (u));
@@ -1222,7 +1222,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
     cs := EmptyCharacterClass(negative);
 
     /* remove \ */
-    len := s_len_u c;
+    len := s_len_u (c);
     c := s_substr_u(c, 1, len - 1);
     dec_code := octal_to_decimal (int_of_string c);
     dec_code_str := int_to_string dec_code;
@@ -1591,10 +1591,10 @@ function JS_Interpreter_RegEx(re, flags) {
       if (str_c = 'undefined) {
         return {k}(st)
       };
-      len := s_len_u str_c;
+      len := s_len_u (str_c);
       j1 := stateGetIndex(st);
       str := stateGetStr(st);
-      if ((j1 + len) > (s_len_u str)) {
+      if ((j1 + len) > (s_len_u (str))) {
         return null
       };
       str' := s_substr_u(str, j1, len);
@@ -1728,7 +1728,7 @@ function JS_Interpreter_RegEx(re, flags) {
   | { type: "Char", value: c, kind: "decimal" } -> {
 
     /* remove \ */
-    len := s_len_u c;
+    len := s_len_u (c);
     c := s_substr_u(c, 1, len - 1);
 
     dec_code := octal_to_decimal (int_of_string c);

@@ -17,7 +17,7 @@
 %token FLOAT_TO_INT FLOAT_TO_STRING TO_INT TO_INT32 TO_UINT16 TO_UINT32 IS_NAN
 
 %token STRING_TO_INT STRING_TO_FLOAT FROM_CHAR_CODE TO_CHAR_CODE 
-%token STRING_LEN STRING_LEN_U STRING_CONCAT
+%token STRING_LEN STRING_CONCAT
 
 %token STRING_NTH STRING_NTH_U STRING_SPLIT
 %token STRING_SUBSTR STRING_SUBSTR_U
@@ -99,7 +99,6 @@
   | FROM_CHAR_CODE;         { Operator.FromCharCode }
   | TO_CHAR_CODE;           { Operator.ToCharCode }
   | STRING_LEN;             { Operator.StringLen }
-  | STRING_LEN_U;           { Operator.StringLenU }
   | STRING_CONCAT;          { Operator.StringConcat }
   | ARRAY_LEN;              { Operator.ArrayLen }
   | LIST_TO_ARRAY;          { Operator.ListToArray }

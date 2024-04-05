@@ -135,12 +135,6 @@ let string_len (v : Val.t) : Val.t =
   | Str s -> Int (String.length s)
   | _ -> bad_arg_err 1 op_lbl "string" [ v ]
 
-let string_len_u (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt StringLenU in
-  match v with
-  | Str s -> Int (String_utils.s_len_u s)
-  | _ -> bad_arg_err 1 op_lbl "string" [ v ]
-
 let string_concat_aux (lst : Val.t list) : string list option =
   let concat_f acc v =
     match (acc, v) with
@@ -887,7 +881,6 @@ let eval_unopt (op : unopt) (v : Val.t) : Val.t =
   | FromCharCode -> from_char_code v
   | ToCharCode -> to_char_code v
   | StringLen -> string_len v
-  | StringLenU -> string_len_u v
   | StringConcat -> string_concat v
   | ObjectToList ->
     Internal_error.(throw __FUNCTION__ (Unexpected "ObjectToList operator"))

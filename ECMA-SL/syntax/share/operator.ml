@@ -31,7 +31,6 @@ type unopt =
   | FromCharCode
   | ToCharCode
   | StringLen
-  | StringLenU
   | StringConcat
   (* Object operators *)
   | ObjectToList
@@ -203,7 +202,6 @@ let label_of_unopt (op : unopt) : string =
   | FromCharCode -> "String.from_char_code"
   | ToCharCode -> "String.to_char_code_u"
   | StringLen -> "String.s_len"
-  | StringLenU -> "String.s_len_u"
   | StringConcat -> "String.s_concat"
   | ObjectToList -> "Object.obj_to_list"
   | ObjectFields -> "Object.obj_fields"
@@ -335,7 +333,6 @@ let pp_of_unopt_single (fmt : Fmt.t) (op : unopt) : unit =
   | FromCharCode -> pp_str fmt "from_char_code"
   | ToCharCode -> pp_str fmt "to_char_code"
   | StringLen -> pp_str fmt "s_len"
-  | StringLenU -> pp_str fmt "s_len_u"
   | StringConcat -> pp_str fmt "s_concat"
   | ObjectToList -> pp_str fmt "obj_to_list"
   | ObjectFields -> pp_str fmt "obj_fields"

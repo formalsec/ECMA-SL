@@ -98,6 +98,10 @@ function trim(s : string) : string {
   return extern trim_external(s)
 }
 
+function s_len_u(s : string) : int {
+  return extern s_len_u_external(s)
+}
+
 /* Math operators */
 /* FIXME: to replace `min` */
 function min_(x : float, y : float) : float {

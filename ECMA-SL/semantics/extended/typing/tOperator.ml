@@ -57,7 +57,6 @@ let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
   | FromCharCode -> type_op [ ([ IntType ], StringType) ]
   | ToCharCode -> type_op [ ([ StringType ], IntType) ]
   | StringLen -> type_op [ ([ StringType ], IntType) ]
-  | StringLenU -> type_op [ ([ StringType ], IntType) ]
   | StringConcat -> not_implemented (* TODO: list typing *)
   | ObjectToList -> not_implemented (* TODO: custom object typing function *)
   | ObjectFields -> not_implemented (* TODO: custom object typing function *)
