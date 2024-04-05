@@ -2181,7 +2181,7 @@ function StringPrototypetrim(global, this, NewTarget, strict, args) {
 
 /* AUXILIARY FUNCTIONS */
 function trim_str(S){
-  T := trim S;
+  T := trim (S);
 
   len := s_len_u T;
   beginning := true;

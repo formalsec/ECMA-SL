@@ -30,7 +30,6 @@ type unopt =
   | StringToFloat
   | FromCharCode
   | ToCharCode
-  | Trim
   | StringLen
   | StringLenU
   | StringConcat
@@ -203,7 +202,6 @@ let label_of_unopt (op : unopt) : string =
   | StringToFloat -> "String.string_to_float"
   | FromCharCode -> "String.from_char_code"
   | ToCharCode -> "String.to_char_code_u"
-  | Trim -> "String.trim"
   | StringLen -> "String.s_len"
   | StringLenU -> "String.s_len_u"
   | StringConcat -> "String.s_concat"
@@ -336,7 +334,6 @@ let pp_of_unopt_single (fmt : Fmt.t) (op : unopt) : unit =
   | StringToFloat -> pp_str fmt "float_of_string"
   | FromCharCode -> pp_str fmt "from_char_code"
   | ToCharCode -> pp_str fmt "to_char_code"
-  | Trim -> pp_str fmt "trim"
   | StringLen -> pp_str fmt "s_len"
   | StringLenU -> pp_str fmt "s_len_u"
   | StringConcat -> pp_str fmt "s_concat"

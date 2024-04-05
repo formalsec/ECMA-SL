@@ -352,7 +352,7 @@ function optimizeInitGlobalObject(strict) {
 };
 
 function removeLeadingWhitespace(str) {
-  T := trim str;
+  T := trim (str);
   /* Remove leading spaces */
   if (!(T = "")) {
     len := s_len_u T;
@@ -374,7 +374,7 @@ function removeLeadingWhitespace(str) {
 };
 
 function removeTrailingWhitespace(str) {
-  T := trim str;
+  T := trim (str);
   /* Remove trailing spaces */
   if (!(T = "")) {
     len := s_len_u T;
