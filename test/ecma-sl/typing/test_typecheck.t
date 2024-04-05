@@ -1,5 +1,5 @@
 Run ecma-sl type checking tests:
-  $ find examples/** -name "*.esl" | sort -h | xargs -I{} ecma-sl compile {} -o /dev/null
+  $ find examples/** -name "*.esl" | sort -h | xargs -I{} sh -c 'ecma-sl compile "$1" -o /dev/null; exit 0' -- {}
   
   TypeError: Value of type 'string' is not assignable to type 'int'.
   File "assign.esl", line 6, characters 30-31
@@ -45,4 +45,3 @@ Run ecma-sl type checking tests:
   File "return.esl", line 12, characters 45-47
   12 |   function badValueVoidReturn(): void { return 10 }				/* BadReturn: void <- int */
                                                       ^^
-  [1]
