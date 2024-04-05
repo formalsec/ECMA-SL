@@ -171,7 +171,7 @@ function getTokens(global, this, strict, args) {
 
   tokens := [];
   i := 0;
-  len := s_len_u JText;
+  len := s_len_u (JText);
   while (i < len) {
     c := s_nth_u(JText, i);
 
@@ -198,8 +198,8 @@ function getTokens(global, this, strict, args) {
        */
       /*re := "-?\\(0\\|[1-9][0-9]*\\)\\(\\.[0-9]+\\)?\\([eE][+-]?[0-9]+\\)?";
       num := re_exec (re, JText, i);*/
-      num := parse_number (s_substr_u (JText, i, (s_len_u JText) - i));
-      num_len := s_len_u num;
+      num := parse_number (s_substr_u (JText, i, (s_len_u (JText)) - i));
+      num_len := s_len_u (num);
       if (num_len = 0) {
         throw SyntaxErrorConstructor(global, this, strict,
           [s_concat(["JSON.parse: Unexpected token ", c, " in JSON at position ", (int_to_string i)])])
@@ -215,8 +215,8 @@ function getTokens(global, this, strict, args) {
        */
       /*re := "\x22\\(\\\\\\([\x22\\\/bfnrt]\\|u[a-fA-F0-9]{4}\\)\\|[^\x22\\\0-\x1F\x7F]+\\)*\x22";
       str := re_exec (re, JText, i);*/
-      str := parse_string (s_substr_u (JText, i, (s_len_u JText) - i));
-      str_len := s_len_u str;
+      str := parse_string (s_substr_u (JText, i, (s_len_u (JText)) - i));
+      str_len := s_len_u (str);
 
       if (str_len = 0) {
         throw SyntaxErrorConstructor(global, this, strict,
@@ -232,7 +232,7 @@ function getTokens(global, this, strict, args) {
       tok := re_exec (re, JText, i);*/
 
       valid_tok := false;
-      len := s_len_u JText;
+      len := s_len_u (JText);
       if (i < (len - 4)) {
         tok := s_substr_u (JText, i, 4);
         if ((tok = "true") ||| (tok = "null")) {
@@ -273,7 +273,7 @@ function parseJSONValue(global, this, strict, tokens) {
     num := ToNumber(token);
     return [num, tokens]
   } elif ((s_nth_u(token, 0)) = "\"") {
-    str := ToString(s_substr_u(token, 1, ((s_len_u token) - 2)));
+    str := ToString(s_substr_u(token, 1, ((s_len_u (token)) - 2)));
     return [str, tokens]
   } elif (token = "{") {
     ret := findClosingCurlyBracket(tokens);
@@ -299,7 +299,7 @@ function parseJSONObject(global, this, strict, tokens) {
   while ((l_len tokens) > 2) {
 
     key := ToString(hd tokens);
-    key := ToString(s_substr_u(key, 1, ((s_len_u key) - 2)));
+    key := ToString(s_substr_u(key, 1, ((s_len_u (key)) - 2)));
     
     colon := hd (tl tokens);
     if (!(colon = ":")) {
@@ -687,7 +687,7 @@ function jsonStringify(global, this, strict, args) {
     if (Type(space) = "String") {
       /* a. If the number of characters in space is 10 or less, set gap to space
             otherwise set gap to a String consisting of the first 10 characters of space. */
-      spaceLen := s_len_u space;
+      spaceLen := s_len_u (space);
       if (spaceLen <= 10) {
         gap := space
       } else {
@@ -869,7 +869,7 @@ function Quote(value) {
   /* 1. Let product be the double quote character. */
   product := "\"";
   /* 2. For each character C in value */
-  valueLen := s_len_u value;
+  valueLen := s_len_u (value);
   i := 0;
   while (i < valueLen) {
     C := s_nth_u(value, i);

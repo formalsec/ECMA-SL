@@ -399,7 +399,7 @@ function removeLeadingWhitespace(str) {
   T := trim (str);
   /* Remove leading spaces */
   if (!(T = "")) {
-    len := s_len_u T;
+    len := s_len_u (T);
     i := 0;
     j := 0;
     while (i < len) {
@@ -419,7 +419,7 @@ function removeLeadingWhitespace(str) {
 
 function containsInvalidDigit(str, radix) {
   radixInt := int_of_float radix;
-  str_len := s_len_u str;
+  str_len := s_len_u (str);
   i := 0;
 
   while (i < str_len) {
@@ -493,7 +493,7 @@ function indexOfChar(char) {
 };
 
 function mathIntegerOf(str, radix) {
-  str_len := s_len_u str;
+  str_len := s_len_u (str);
   i := str_len;
   value := 0.;
 
@@ -511,7 +511,7 @@ function mathIntegerOf(str, radix) {
 
 function stripInvalidChars(str, radix) {
   radixInt := int_of_float radix;
-  str_len := s_len_u str;
+  str_len := s_len_u (str);
   i := 0;
 
   while (i < str_len) {

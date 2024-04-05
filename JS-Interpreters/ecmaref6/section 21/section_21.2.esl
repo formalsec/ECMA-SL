@@ -416,7 +416,7 @@ function RegExpInitialize(obj, pattern, flags){
    setFlags(obj, F);
 
    /* 8. If F contains "u", let BMP be false; else let BMP be true. */
-   if (includes(F, "u", 0., 1., int_to_float(s_len_u F)) = true){
+   if (includes(F, "u", 0., 1., int_to_float(s_len_u (F))) = true){
       BMP := false
    } else{
       BMP := true
@@ -614,7 +614,7 @@ function RegExpBuiltinExec(R, S){
    assert(Type(S) = "String");
 
    /* 3. Let length be the number of code units in S. */
-   length := int_to_float (s_len_u S);
+   length := int_to_float (s_len_u (S));
 
    /* 4. Let lastIndex be ToLength(Get(R,"lastIndex")). */
    lastIndex := ToLength(Get(R, "lastIndex"));
@@ -646,7 +646,7 @@ function RegExpBuiltinExec(R, S){
    flags := R.OriginalFlags.flags;
 
    /* 13. If flags contains "u", let fullUnicode be true, else let fullUnicode be false. */
-   if (includes(flags, "u", 0., 1., int_to_float(s_len_u flags)) = true){
+   if (includes(flags, "u", 0., 1., int_to_float(s_len_u (flags))) = true){
       fullUnicode := true
    } else{
       fullUnicode := false
@@ -805,7 +805,7 @@ function AdvanceStringIndex(S, index, unicode){
    };
 
    /* 5. Let length be the number of code units in S. */
-   length := int_to_float (s_len_u S);
+   length := int_to_float (s_len_u (S));
 
    /* 6. If index+1 ≥ length, return index+1. */
    if (index + 1. >= length){
@@ -931,7 +931,7 @@ function getRegExpGlobalAccessorProperty(global, this, NewTarget, strict, args){
    flags := R.OriginalFlags.flags;
 
    /* 5. If flags contains the code unit "g", return true. */
-   if (includes(flags, "g", 0., 1., int_to_float(s_len_u flags)) = true){
+   if (includes(flags, "g", 0., 1., int_to_float(s_len_u (flags))) = true){
       return true
    };
 
@@ -962,7 +962,7 @@ function getRegExpIgnoreCaseAccessorProperty(global, this, NewTarget, strict, ar
    flags := R.OriginalFlags.flags;
 
    /* 5. If flags contains the code unit "i", return true. */
-   if (includes(flags, "i", 0., 1., int_to_float(s_len_u flags)) = true){
+   if (includes(flags, "i", 0., 1., int_to_float(s_len_u (flags))) = true){
       return true
    };
 
@@ -1108,7 +1108,7 @@ function getRegExpMultilineAccessorProperty(global, this, NewTarget, strict, arg
    flags := R.OriginalFlags.flags;
 
    /* 5. If flags contains the code unit "m", return true. */
-   if (includes(flags, "m", 0., 1., int_to_float(s_len_u flags)) = true){
+   if (includes(flags, "m", 0., 1., int_to_float(s_len_u (flags))) = true){
       return true
    };
 
@@ -1139,7 +1139,7 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args){
    @ReturnIfAbrupt(S);
 
    /* 5. Let lengthS be the number of code unit elements in S. */
-   lengthS := s_len_u S;
+   lengthS := s_len_u (S);
 
    /* 6. Let functionalReplace be IsCallable(replaceValue). */
    functionalReplace := IsCallable(replaceValue);
@@ -1260,7 +1260,7 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args){
       @ReturnIfAbrupt(matched);
 
       /* f. Let matchLength be the number of code units in matched. */
-      matchLength := s_len_u matched;
+      matchLength := s_len_u (matched);
 
       /* g. Let position be ToInteger(Get(result, "index")). */
       position := ToInteger(Get(result, "index"));
@@ -1355,7 +1355,7 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args){
 
    /* 18. Return the String formed by concatenating the code units of accumulatedResult with the substring of S
    consisting of the code units from nextSourcePosition (inclusive) up through the final code unit of S (inclusive). */
-   substring := substring(S, int_to_float nextSourcePosition, int_to_float(s_len_u S));
+   substring := substring(S, int_to_float nextSourcePosition, int_to_float(s_len_u (S)));
    accumulatedResult := s_concat([accumulatedResult, substring]);
 
    return accumulatedResult
@@ -1513,7 +1513,7 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args){
    @ReturnIfAbrupt(flags);
 
    /* 9. If flags contains "u", let unicodeMatching be true. */
-   contains := includes(flags, "u", 0., 1., int_to_float(s_len_u flags));
+   contains := includes(flags, "u", 0., 1., int_to_float(s_len_u (flags)));
 
    if (contains = true){
       unicodeMatching := true
@@ -1524,7 +1524,7 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args){
    };
 
    /* 11. If flags contains "y", let newFlags be flags. */
-   contains := includes(flags, "y", 0., 1., int_to_float(s_len_u flags));
+   contains := includes(flags, "y", 0., 1., int_to_float(s_len_u (flags)));
 
    if (contains = true){
       newFlags := flags
@@ -1557,7 +1557,7 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args){
    @ReturnIfAbrupt(lim);
 
    /* 19. Let size be the number of elements in S. */
-   size := int_to_float (s_len_u S);
+   size := int_to_float (s_len_u (S));
 
    /* 20. Let p be 0. */
    p := 0.;
@@ -1724,7 +1724,7 @@ function getRegExpStickyAccessorProperty(global, this, NewTarget, strict, args){
    flags := R.OriginalFlags.flags;
 
    /* 5. If flags contains the code unit "y", return true. */
-   if (includes(flags, "y", 0., 1., int_to_float(s_len_u flags)) = true){
+   if (includes(flags, "y", 0., 1., int_to_float(s_len_u (flags))) = true){
       return true
    };
 
@@ -1825,7 +1825,7 @@ function getRegExpUnicodeAccessorProperty(global, this, NewTarget, strict, args)
    flags := R.OriginalFlags.flags;
 
    /* 5. If flags contains the code unit "u", return true. */
-   if (includes(flags, "u", 0., 1., int_to_float(s_len_u flags)) = true){
+   if (includes(flags, "u", 0., 1., int_to_float(s_len_u (flags))) = true){
       return true
    };
 
