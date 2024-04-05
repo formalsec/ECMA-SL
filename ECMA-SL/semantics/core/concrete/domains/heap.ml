@@ -8,6 +8,9 @@ type 'a t =
   ; map : 'a obj Loc.Tbl.t
   }
 
+let default () : 'a t =
+  { parent = None; map = Loc.Tbl.create !Base.default_hashtbl_sz }
+
 let create () : 'a t =
   { parent = None; map = Loc.Tbl.create !Base.default_hashtbl_sz }
 
