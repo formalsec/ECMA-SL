@@ -145,7 +145,6 @@ type triopt =
   | ITE
   (* String operators *)
   | StringSubstr
-  | StringSubstrU
   (* Array operators *)
   | ArraySet
   (* List operators *)
@@ -296,7 +295,6 @@ let label_of_triopt (op : triopt) : string =
   match op with
   | ITE -> "IfThenElse"
   | StringSubstr -> "String.s_substr"
-  | StringSubstrU -> "String.s_substr_u"
   | ArraySet -> "Array.a_set"
   | ListSet -> "List.l_set"
 
@@ -427,7 +425,6 @@ let pp_of_triopt_single (fmt : Fmt.t) (op : triopt) : unit =
   match op with
   | ITE -> pp_str fmt "ite"
   | StringSubstr -> pp_str fmt "s_substr"
-  | StringSubstrU -> pp_str fmt "s_substr_u"
   | ArraySet -> pp_str fmt "a_set"
   | ListSet -> pp_str fmt "l_set"
 

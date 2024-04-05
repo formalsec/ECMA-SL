@@ -170,7 +170,7 @@ let translate_triop (t1 : Type.t option) (t2 : Type.t option)
   let open Operator in
   let str_triop (op : Operator.triopt) e1 e2 e3 =
     match op with
-    | StringSubstrU | StringSubstr -> Triop (Substr, e1, e2, e3) @: Ty_str
+    (* | StringSubstrU *) | StringSubstr -> Triop (Substr, e1, e2, e3) @: Ty_str
     | _ -> assert false
   in
   let bool_triop (op : Operator.triopt) e1 e2 e3 =

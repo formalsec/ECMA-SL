@@ -181,6 +181,16 @@ let s_split ((v1, v2) : Val.t * Val.t) : Val.t =
   | (Str _, _) -> Eval_operator.bad_arg_err 2 op_lbl "(string, string)" [ v1; v2 ]
   | _ -> Eval_operator.bad_arg_err 1 op_lbl "(string, string)" [ v1; v2 ]
 
+let s_substr_u ((v1, v2, v3) : Val.t * Val.t * Val.t) : Val.t =
+  let op_lbl = "s_substr_u_external" in
+  let err_msg = "(string, integer, integer)" in
+  let arg_err i = Eval_operator.bad_arg_err i op_lbl err_msg [ v1; v2; v3 ] in
+  match (v1, v2, v3) with
+  | (Str s, Int i, Int j) -> Str (String_utils.s_substr_u s i j)
+  | (Str _, Int _, _) -> arg_err 3
+  | (Str _, _, _) -> arg_err 2
+  | _ -> arg_err 1
+
 let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   (fn : Id.t') (vs : Val.t list) : Val.t =
   match (fn, vs) with
@@ -199,6 +209,7 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("s_len_u_external", [ v ]) -> s_len_u v
   | ("s_nth_u_external", [ v1 ; v2 ]) -> s_nth_u (v1, v2)
   | ("s_split_external", [ v1 ; v2 ]) -> s_split (v1, v2)
+  | ("s_substr_u_external", [ v1 ; v2 ; v3 ]) -> s_substr_u (v1, v2, v3)
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
     Val.Symbol "undefined"

@@ -796,16 +796,6 @@ let s_substr ((v1, v2, v3) : Val.t * Val.t * Val.t) : Val.t =
   | (Str _, _, _) -> arg_err 2
   | _ -> arg_err 1
 
-let s_substr_u ((v1, v2, v3) : Val.t * Val.t * Val.t) : Val.t =
-  let op_lbl = label_of_triopt StringSubstr in
-  let err_msg = "(string, integer, integer)" in
-  let arg_err i = bad_arg_err i op_lbl err_msg [ v1; v2; v3 ] in
-  match (v1, v2, v3) with
-  | (Str s, Int i, Int j) -> Str (String_utils.s_substr_u s i j)
-  | (Str _, Int _, _) -> arg_err 3
-  | (Str _, _, _) -> arg_err 2
-  | _ -> arg_err 1
-
 let array_set ((v1, v2, v3) : Val.t * Val.t * Val.t) : Val.t =
   let op_lbl = label_of_triopt ArraySet in
   match (v1, v2) with
@@ -964,7 +954,6 @@ let eval_triopt (op : triopt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) : Val.t =
   match op with
   | ITE -> ite (v1, v2, v3)
   | StringSubstr -> s_substr (v1, v2, v3)
-  | StringSubstrU -> s_substr_u (v1, v2, v3)
   | ArraySet -> array_set (v1, v2, v3)
   | ListSet -> list_set (v1, v2, v3)
 
