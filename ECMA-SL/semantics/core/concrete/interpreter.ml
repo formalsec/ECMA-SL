@@ -104,7 +104,8 @@ module M (Instrument : Instrument.M) = struct
       | Type.IntType -> Val.Int (Random.int 128)
       | Type.FltType -> Val.Flt (Random.float 128.0)
       | _ ->
-        Internal_error.(throw __FUNCTION__ (NotImplemented (Some "symbolic"))) )
+        let msg = "symbolic " ^ Type.str t in
+        Internal_error.(throw __FUNCTION__ (NotImplemented msg)) )
 
   and eval_expr (state : state) (e : Expr.t) : Val.t =
     let v = eval_expr' state e in
@@ -339,7 +340,7 @@ module M (Instrument : Instrument.M) = struct
     | Final v when entry.resolve_exitval -> (resolve_exitval v, state.heap)
     | Final v -> (v, state.heap)
     | Error err -> Runtime_error.(throw (Failure (Val.str err)))
-    | _ -> Internal_error.(throw __FUNCTION__ (Expecting "final/error state"))
+    | _ -> Internal_error.(throw __FUNCTION__ (Unexpected "intermediate state"))
 
   let eval_partial (entry : EntryPoint.t) (p : Prog.t) : Val.t * heap =
     let inst = ref (Instrument.initial_state ()) in

@@ -16,12 +16,12 @@ let parser (start : 'a start) (lexbuf : Lexing.lexbuf) : Prog.t =
   Core_ESLMI.loop_handle
     (fun result -> result)
     (function
-      | Core_ESLMI.Rejected -> failwith "Parser rejected input"
+      | Core_ESLMI.Rejected -> Log.fail "Parser rejected input"
       | Core_ESLMI.HandlingError _e ->
         Log.err "%a, last token: %s: %s.@." print_position lexbuf
           (show_token !last_token) "Error message found";
         raise Parser.Error
-      | _ -> failwith "Unexpected state in failure handler!" )
+      | _ -> Log.fail "Unexpected state in failure handler!" )
     (Core_ESLMI.lexer_lexbuf_to_supplier (lexer last_token) lexbuf)
     (start lexbuf.Lexing.lex_curr_p)
 

@@ -1,9 +1,10 @@
 type msg =
   | Default
   | Custom of string
+  | Invariant of string
   | Expecting of string
-  | UnexpectedEval of string option
-  | NotImplemented of string option
+  | Unexpected of string
+  | NotImplemented of string
 
 module InternalErr : Error_type.ERROR_TYPE with type t = msg = struct
   type t = msg
@@ -15,11 +16,10 @@ module InternalErr : Error_type.ERROR_TYPE with type t = msg = struct
     match (msg1, msg2) with
     | (Default, Default) -> true
     | (Custom msg1', Custom msg2') -> String.equal msg1' msg2'
+    | (Invariant msg1', Invariant msg2') -> String.equal msg1' msg2'
     | (Expecting msg1', Expecting msg2') -> String.equal msg1' msg2'
-    | (UnexpectedEval msg1', UnexpectedEval msg2') ->
-      Option.equal String.equal msg1' msg2'
-    | (NotImplemented msg1', NotImplemented msg2') ->
-      Option.equal String.equal msg1' msg2'
+    | (Unexpected msg1', Unexpected msg2') -> String.equal msg1' msg2'
+    | (NotImplemented msg1', NotImplemented msg2') -> String.equal msg1' msg2'
     | _ -> false
 
   let pp (fmt : Fmt.t) (msg : t) : unit =
@@ -27,12 +27,10 @@ module InternalErr : Error_type.ERROR_TYPE with type t = msg = struct
     match msg with
     | Default -> fprintf fmt "generic internal error"
     | Custom msg' -> fprintf fmt "%s" msg'
+    | Invariant msg' -> fprintf fmt "invariant %s" msg'
     | Expecting msg' -> fprintf fmt "expecting %s" msg'
-    | UnexpectedEval None -> fprintf fmt "unexpected evaluation"
-    | UnexpectedEval (Some msg') ->
-      fprintf fmt "unexpected evaluation of '%s'" msg'
-    | NotImplemented None -> fprintf fmt "not implemented"
-    | NotImplemented (Some msg') -> fprintf fmt "'%s' not implemented" msg'
+    | Unexpected msg' -> fprintf fmt "unexpected '%s'" msg'
+    | NotImplemented msg' -> fprintf fmt "'%s' not implemented" msg'
 
   let str (msg : t) : string = Fmt.asprintf "%a" pp msg
 end

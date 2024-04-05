@@ -26,7 +26,7 @@ and type_expr' (tctx : TCtx.t) (e : EExpr.t) : EType.t' =
   | Symbolic _ -> AnyType (* TODO: symbolic expression *)
 
 and type_val (v : Val.t) : EType.t' =
-  let err v = Internal_error.UnexpectedEval (Some (v ^ " val")) in
+  let err v = Internal_error.Unexpected (v ^ " val") in
   match v with
   | Null -> NullType
   | Void -> VoidType
@@ -53,7 +53,7 @@ and type_object (flds : (Id.t * EType.t) list) : EType.t' =
   let set_object_field_f tflds (fn, ft) =
     if not (Hashtbl.mem tflds fn.it) then
       Hashtbl.replace tflds fn.it (fn, ft, EType.FldReq)
-    else Internal_error.(throw __FUNCTION__ (Expecting "non-dup object flds"))
+    else Internal_error.(throw __FUNCTION__ (Unexpected "dup object fld"))
   in
   let tflds = Hashtbl.create !Base.default_hashtbl_sz in
   List.iter (set_object_field_f tflds) flds;
