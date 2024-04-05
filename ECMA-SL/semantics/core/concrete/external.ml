@@ -133,6 +133,11 @@ let from_char_code_u (v : Val.t) : Val.t =
   | Int n -> Str (String_utils.from_char_code_u n)
   | _ -> Eval_operator.bad_arg_err 1 op_lbl "integer" [ v ]
   
+let to_char_code_u (v : Val.t) : Val.t =
+  let op_lbl = "to_char_code_u_external" in
+  match v with
+  | Str s -> Int (String_utils.to_char_code_u s)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "string" [ v ]
 
 let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   (fn : Id.t') (vs : Val.t list) : Val.t =
@@ -145,6 +150,7 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("to_exponential_external", [ v1 ; v2 ]) -> to_exponential (v1, v2)
   | ("to_fixed_external", [ v1 ; v2 ]) -> to_fixed (v1, v2)
   | ("from_char_code_u_external", [ v ]) -> from_char_code_u v
+  | ("to_char_code_u_external", [ v ]) -> from_char_code_u v
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
     Val.Symbol "undefined"

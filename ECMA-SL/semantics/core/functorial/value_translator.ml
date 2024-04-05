@@ -64,7 +64,7 @@ let translate_unop (t : Type.t option) (op : Operator.unopt) (e : Expr.t) :
     | StringLen | StringLenU -> Unop (Len, e) @: Ty_str
     | Trim -> Unop (Trim, e) @: Ty_str
     | StringToFloat -> Cvtop (OfString, e) @: Ty_real
-    | ToCharCode | ToCharCodeU -> Cvtop (String_to_code, e) @: Ty_str
+    | ToCharCode (* | ToCharCodeU *) -> Cvtop (String_to_code, e) @: Ty_str
     | _ ->
       Log.out "op: %s, e: %a@." (Operator.str_of_unopt_single op) Expr.pp e;
       assert false

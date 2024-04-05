@@ -1066,7 +1066,7 @@ function IsWordChar(e, input) {
     a b c d e f g h i j k l m n o p q r s t u v w x y z
     A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
     0 1 2 3 4 5 6 7 8 9 _ */
-  code := to_char_code_u c;
+  code := to_char_code_u (c);
 
   if (((code >= 48) &&& (code <= 57)) ||| ((code >= 65) &&& (code <= 90)) |||
       ((code >= 97) &&& (code <= 122)) ||| (code = 95)) {
@@ -1129,7 +1129,7 @@ function IsInCharacterClass(cs, c, ic) {
   if (c = null) {
     return false
   };
-  code := int_to_float (to_char_code_u c);
+  code := int_to_float (to_char_code_u (c));
   code := canonicalise(c, code, ic);
   code_str := float_to_string code;
   ret := false;
@@ -1162,7 +1162,7 @@ function canonicalise(c, c_cp, ic) {
   if (!((s_len_u u) = 1)) {
     return c_cp
   };
-  u_cp := int_to_float (to_char_code_u u);
+  u_cp := int_to_float (to_char_code_u (u));
 
   if ((c_cp >= 128.) && (u_cp < 128.)) {
     return c_cp
@@ -1236,7 +1236,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
 
     cs := EmptyCharacterClass(negative);
     c := hex_decode c;
-    code := to_char_code_u c;
+    code := to_char_code_u (c);
     code_str := int_to_string code;
     AddCharacterPoint(cs, c, code_str, negative);
 
@@ -1248,7 +1248,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
 
     c := utf8_decode c;
 
-    code := to_char_code_u c;
+    code := to_char_code_u (c);
     code_str := int_to_string code;
 
     AddCharacterPoint(cs, c, code_str, negative);
@@ -1259,7 +1259,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
 
     c := to_upper_case c;
     c := s_nth_u(c, 2);
-    code := int_to_float (to_char_code_u c);
+    code := int_to_float (to_char_code_u (c));
     code := code % 32.;
     code_str := float_to_string code;
 
@@ -1799,11 +1799,11 @@ function JS_Interpreter_RegEx(re, flags) {
 
       v := to_upper_case v;
       v := s_nth_u(v, 2);
-      v_code := int_to_float (to_char_code_u v);
+      v_code := int_to_float (to_char_code_u (v));
       v_code := v_code % 32.;
 
       c := stateGetChar(st);
-      c_code := int_to_float (to_char_code_u c);
+      c_code := int_to_float (to_char_code_u (c));
       if (c = null) {
         return null
       };
@@ -1827,10 +1827,10 @@ function JS_Interpreter_RegEx(re, flags) {
         return null
       };
 
-      c_code := int_to_float (to_char_code_u c);
+      c_code := int_to_float (to_char_code_u (c));
       c_code := canonicalise(c, c_code, st.ic);
 
-      v_code := int_to_float (to_char_code_u v);
+      v_code := int_to_float (to_char_code_u (v));
       v_code := canonicalise(v, v_code, st.ic);
 
       if (c_code = v_code) {
