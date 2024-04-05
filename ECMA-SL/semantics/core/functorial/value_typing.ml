@@ -144,7 +144,7 @@ let type_of_binop (op : Operator.binopt) (v1 : Value.value) (v2 : Value.value)
   | Operator.ListAdd -> None
   | Operator.Pow -> bin_args_typing_pow ty1 ty2
   | Operator.StringNth -> Some Type.StrType
-  | Operator.StringNthU -> Some Type.StrType
+  (* | Operator.StringNthU -> Some Type.StrType *)
   | Operator.BitwiseAnd | Operator.BitwiseOr | Operator.BitwiseXor
   | Operator.ShiftLeft | Operator.ShiftRight | Operator.ShiftRightLogical ->
     bitwise_operators_typing_logic ty1 ty2

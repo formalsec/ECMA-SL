@@ -102,6 +102,10 @@ function s_len_u(s : string) : int {
   return extern s_len_u_external(s)
 }
 
+function s_nth_u(s : string, n : int) : string {
+  return extern s_nth_u_external(s, n)
+}
+
 /* Math operators */
 /* FIXME: to replace `min` */
 function min_(x : float, y : float) : float {

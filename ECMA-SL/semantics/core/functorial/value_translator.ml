@@ -133,7 +133,7 @@ let translate_binop (t1 : Type.t option) (t2 : Type.t option)
   in
   let str_binop op e1 e2 =
     match op with
-    | StringNth | StringNthU -> Binop (Nth, e1, e2) @: Ty_str
+    | StringNth (* | StringNthU *) -> Binop (Nth, e1, e2) @: Ty_str
     | Eq -> Relop (Eq, e1, e2) @: Ty_str
     | _ ->
       Log.out "op: %s\n" (Operator.str_of_binopt_single op);

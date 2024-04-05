@@ -118,7 +118,6 @@ type binopt =
   | ObjectMem
   (* String operators *)
   | StringNth
-  | StringNthU
   | StringSplit
   (* Array operators *)
   | ArrayMake
@@ -277,7 +276,6 @@ let label_of_binopt (op : binopt) : string =
   | Ge -> "Comp.ge (>=)"
   | ObjectMem -> "Object.in_obj"
   | StringNth -> "String.s_nth"
-  | StringNthU -> "String.s_nth_u"
   | StringSplit -> "String.s_split"
   | ArrayMake -> "Array.array_make"
   | ArrayNth -> "Array.a_nth"
@@ -409,7 +407,6 @@ let pp_of_binopt_single (fmt : Fmt.t) (op : binopt) : unit =
   | Ge -> pp_str fmt ">="
   | ObjectMem -> pp_str fmt "in_obj"
   | StringNth -> pp_str fmt "s_nth"
-  | StringNthU -> pp_str fmt "s_nth_u"
   | StringSplit -> pp_str fmt "s_split"
   | ArrayMake -> pp_str fmt "array_make"
   | ArrayNth -> pp_str fmt "a_nth"
