@@ -5,6 +5,15 @@ let substr ?(left : int option) ?(right : int option) (text : string) : string =
   let right' = Option.value ~default:(length text) right in
   sub text left' (right' - left')
 
+let split_at_index (i : int) (text : string) : string * string =
+  (substr ~right:i text, substr ~left:i text)
+
+let rec split_at_length (len : int) (text : string) : string list =
+  if length text > len then
+    let (left, right) = split_at_index len text in
+    left :: split_at_length len right
+  else [ text ]
+
 let ordinal_suffix (n : int) : string =
   let suffix =
     if n mod 100 / 10 = 1 then "th"
