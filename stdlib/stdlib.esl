@@ -106,6 +106,10 @@ function s_nth_u(s : string, n : int) : string {
   return extern s_nth_u_external(s, n)
 }
 
+function s_split(s1 : string, s2 : string) : string {
+  return extern s_split_external(s1, s2)
+}
+
 /* Math operators */
 /* FIXME: to replace `min` */
 function min_(x : float, y : float) : float {

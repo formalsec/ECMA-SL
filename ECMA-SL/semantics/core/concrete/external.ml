@@ -171,7 +171,16 @@ let s_nth_u ((v1, v2) : Val.t * Val.t) : Val.t =
     with _ -> Eval_operator.unexpected_err 2 op_lbl "index out of bounds" )
   | (Str _, _) -> Eval_operator.bad_arg_err 2 op_lbl "(string, integer)" [ v1; v2 ]
   | _ -> Eval_operator.bad_arg_err 1 op_lbl "(string, integer)" [ v1; v2 ]
-    
+
+let s_split ((v1, v2) : Val.t * Val.t) : Val.t =
+  let op_lbl = "s_split_external" in
+  match (v1, v2) with
+  | (_, Str "") -> Eval_operator.unexpected_err 2 op_lbl "empty separator"
+  | (Str str, Str sep) ->
+    Val.List (List.map (fun s -> Val.Str s) (Str.split (Str.regexp sep) str))
+  | (Str _, _) -> Eval_operator.bad_arg_err 2 op_lbl "(string, string)" [ v1; v2 ]
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "(string, string)" [ v1; v2 ]
+
 let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   (fn : Id.t') (vs : Val.t list) : Val.t =
   match (fn, vs) with
@@ -189,6 +198,7 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("trim_external", [ v ]) -> trim v
   | ("s_len_u_external", [ v ]) -> s_len_u v
   | ("s_nth_u_external", [ v1 ; v2 ]) -> s_nth_u (v1, v2)
+  | ("s_split_external", [ v1 ; v2 ]) -> s_split (v1, v2)
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
     Val.Symbol "undefined"
