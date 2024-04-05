@@ -55,7 +55,6 @@ let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
   | StringToInt -> type_op [ ([ StringType ], IntType) ]
   | StringToFloat -> type_op [ ([ StringType ], FloatType) ]
   | FromCharCode -> type_op [ ([ IntType ], StringType) ]
-  | FromCharCodeU -> type_op [ ([ IntType ], StringType) ]
   | ToCharCode -> type_op [ ([ StringType ], IntType) ]
   | ToCharCodeU -> type_op [ ([ StringType ], IntType) ]
   | ToLowerCase -> type_op [ ([ StringType ], StringType) ]

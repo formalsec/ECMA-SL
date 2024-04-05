@@ -397,7 +397,7 @@ function Encode(str, unescapedSet){
 			/* iv. Let Octets be the array of octets resulting by applying the UTF-8 transformation to V, and let L be the array size. */
 			Octets := [];
 			/* V to UTF-8 string */
-			V_Str := from_char_code_u V;
+			V_Str := from_char_code_u (V);
 			/* Obtain number of bytes of V_Str */
 			V_Str_len_b := s_len V_Str;
 			i := 0;

@@ -127,7 +127,13 @@ let to_fixed ((v1, v2) : Val.t * Val.t) : Val.t =
   | (Flt _, _) -> Eval_operator.bad_arg_err 2 op_lbl "(float, integer)" [ v1; v2 ]
   | _ -> Eval_operator.bad_arg_err 1 op_lbl "(float, integer)" [ v1; v2 ]
 
-      
+let from_char_code_u (v : Val.t) : Val.t =
+  let op_lbl = "from_char_code_u_external" in
+  match v with
+  | Int n -> Str (String_utils.from_char_code_u n)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "integer" [ v ]
+  
+
 let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   (fn : Id.t') (vs : Val.t list) : Val.t =
   match (fn, vs) with
@@ -138,6 +144,7 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("to_precision_external", [ v1 ; v2 ]) -> to_precision (v1, v2)
   | ("to_exponential_external", [ v1 ; v2 ]) -> to_exponential (v1, v2)
   | ("to_fixed_external", [ v1 ; v2 ]) -> to_fixed (v1, v2)
+  | ("from_char_code_u_external", [ v ]) -> from_char_code_u v
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
     Val.Symbol "undefined"
