@@ -56,7 +56,7 @@ let update (stack : 'store t) (stmt : Stmt.t) : 'store t =
   | [] -> Internal_error.(throw __FUNCTION__ (Expecting "non-empty call stack"))
   | Toplevel loc :: [] -> [ Toplevel { loc with stmt } ]
   | Intermediate (loc, r) :: frames -> Intermediate (loc_f loc, r) :: frames
-  | _ -> Internal_error.(throw __FUNCTION__ (Expecting "valid call stack"))
+  | _ -> Internal_error.(throw __FUNCTION__ (Unexpected "call stack format"))
 
 let pp_loc (fmt : Fmt.t) (region : region) : unit =
   Fmt.fprintf fmt "file %S, line %d" region.file region.left.line

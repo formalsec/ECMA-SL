@@ -289,7 +289,7 @@ and compile_symbolic (s_at : region) (e_at : region) (t : Type.t) (e : EExpr.t)
 let rec compile_stmt (s : EStmt.t) : c_stmt =
   let ( !! ) = real in
   match s.it with
-  | Skip -> Internal_error.(throw __FUNCTION__ (UnexpectedEval (Some "Skip")))
+  | Skip -> Internal_error.(throw __FUNCTION__ (Unexpected "skip stmt"))
   | Debug s' -> !!(compile_debug s.at s')
   | Block ss -> List.concat (List.map compile_stmt ss)
   | ExprStmt e -> !!(fst (compile_expr s.at e))
@@ -307,7 +307,7 @@ let rec compile_stmt (s : EStmt.t) : c_stmt =
   | MatchWith (e, dsc, css) -> !!(compile_matchwith s.at e dsc css)
   | Lambda (x, lid, _, ctxvars, _) -> !!(compile_lambdacall s.at x lid ctxvars)
   | MacroApply (_, _) ->
-    Internal_error.(throw __FUNCTION__ (UnexpectedEval (Some "MacroApply")))
+    Internal_error.(throw __FUNCTION__ (Unexpected "macro apply stmt"))
   | Throw e -> !!(compile_throw s.at e)
   | Fail e -> !!(compile_fail s.at e)
   | Assert e -> !!(compile_assert s.at e)
