@@ -1761,7 +1761,7 @@ function StringPrototypeTrim (global, this, strict, args) {
   S := ToString(this);
   /* Let T be a String value that is a copy of S with both leading and trailing white space removed.
      The definition of white space is the union of WhiteSpace and LineTerminator. */
-  /*T := trim S;*/
+  /*T := trim (S);*/
 
   T := S;
   /* TODO: use the auxiliary functions created in section_15.1 */

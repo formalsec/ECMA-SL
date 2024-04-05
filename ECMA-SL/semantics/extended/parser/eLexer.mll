@@ -66,7 +66,6 @@
             "float_of_string"         , STRING_TO_FLOAT;
             "from_char_code"          , FROM_CHAR_CODE;
             "to_char_code"            , TO_CHAR_CODE;
-            "trim"                    , TRIM;
             "s_len"                   , STRING_LEN;
             "s_len_u"                 , STRING_LEN_U;
             "s_concat"                , STRING_CONCAT;

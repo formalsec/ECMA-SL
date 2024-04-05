@@ -125,7 +125,7 @@ let reduce_unop (op : unopt) (v : value) : value =
   | (FloatToString, UnOpt (ToUint32, v)) -> v
   (* | ToUint32, Symbolic (Type.FltType, x) -> Symbolic (Type.FltType, x) *)
   | (ListSort, NOpt (ListExpr, l)) when List.length l <= 1 -> NOpt (ListExpr, l)
-  | (Trim, UnOpt (FloatToString, v)) -> UnOpt (FloatToString, v)
+  (* | (Trim, UnOpt (FloatToString, v)) -> UnOpt (FloatToString, v) *)
   | (op', v1') -> UnOpt (op', v1')
 
 let is_loc = function Val (Loc _) -> true | _ -> false

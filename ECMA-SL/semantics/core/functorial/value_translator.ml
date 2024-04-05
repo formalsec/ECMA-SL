@@ -62,7 +62,7 @@ let translate_unop (t : Type.t option) (op : Operator.unopt) (e : Expr.t) :
   let str_unop (op : Operator.unopt) e =
     match op with
     | StringLen | StringLenU -> Unop (Len, e) @: Ty_str
-    | Trim -> Unop (Trim, e) @: Ty_str
+    (* | Trim -> Unop (Trim, e) @: Ty_str *)
     | StringToFloat -> Cvtop (OfString, e) @: Ty_real
     | ToCharCode (* | ToCharCodeU *) -> Cvtop (String_to_code, e) @: Ty_str
     | _ ->

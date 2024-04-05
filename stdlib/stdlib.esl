@@ -94,6 +94,10 @@ function to_upper_case(s : string) : string {
   return extern to_upper_case_external(s)
 }
 
+function trim(s : string) : string {
+  return extern trim_external(s)
+}
+
 /* Math operators */
 /* FIXME: to replace `min` */
 function min_(x : float, y : float) : float {
