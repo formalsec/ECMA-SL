@@ -482,7 +482,7 @@ function indexOfChar(char) {
   i := 0;
 
   while(i < 36) {
-    if (to_lower_case char = l_nth(chars, i)) {
+    if (to_lower_case (char) = l_nth(chars, i)) {
       return i
     };
 

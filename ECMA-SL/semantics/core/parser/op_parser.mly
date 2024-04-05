@@ -16,7 +16,7 @@
 %token INT_TO_FLOAT INT_TO_STRING
 %token FLOAT_TO_INT FLOAT_TO_STRING TO_INT TO_INT32 TO_UINT16 TO_UINT32 IS_NAN
 
-%token STRING_TO_INT STRING_TO_FLOAT FROM_CHAR_CODE TO_CHAR_CODE TO_LOWER_CASE TO_UPPER_CASE TRIM
+%token STRING_TO_INT STRING_TO_FLOAT FROM_CHAR_CODE TO_CHAR_CODE  TRIM
 %token STRING_LEN STRING_LEN_U STRING_CONCAT
 
 %token STRING_NTH STRING_NTH_U STRING_SPLIT
@@ -98,8 +98,6 @@
   | STRING_TO_FLOAT;        { Operator.StringToFloat }
   | FROM_CHAR_CODE;         { Operator.FromCharCode }
   | TO_CHAR_CODE;           { Operator.ToCharCode }
-  | TO_LOWER_CASE;          { Operator.ToLowerCase }
-  | TO_UPPER_CASE;          { Operator.ToUpperCase }
   | TRIM;                   { Operator.Trim }
   | STRING_LEN;             { Operator.StringLen }
   | STRING_LEN_U;           { Operator.StringLenU }
