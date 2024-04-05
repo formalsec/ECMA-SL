@@ -136,7 +136,6 @@ let type_binopt (op : Operator.binopt) (targs : EType.t list) : EType.t' =
   | Ge -> type_op [ ([ UnknownType; UnknownType ], BooleanType) ]
   | ObjectMem -> not_implemented (* TODO: custom object typing function *)
   | StringNth -> type_op [ ([ StringType; IntType ], StringType) ]
-  | StringNthU -> type_op [ ([ StringType; IntType ], StringType) ]
   | StringSplit -> type_op [ ([ StringType; StringType ], StringType) ]
   | ArrayMake -> not_implemented (* TODO: array typing *)
   | ArrayNth -> not_implemented (* TODO: array typing *)
