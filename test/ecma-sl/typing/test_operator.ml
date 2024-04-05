@@ -46,7 +46,6 @@ let%test "unopt_string_to_float" = test_unopt (StringToFloat, Str "abc") t_float
 let%test "unopt_from_char_code" = test_unopt (FromCharCode, Int 10) t_string
 let%test "unopt_to_char_code" = test_unopt (ToCharCode, Str "abc") t_int
 let%test "unopt_string_len" = test_unopt (StringLen, Str "abc") t_int
-let%test "unopt_string_len_u" = test_unopt (StringLenU, Str "abc") t_int
 let%test "unopt_random" = test_unopt (Random, Flt 10.1) t_float
 let%test "unopt_abs" = test_unopt (Abs, Flt 10.1) t_float
 let%test "unopt_sqrt" = test_unopt (Sqrt, Flt 10.1) t_float

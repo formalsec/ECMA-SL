@@ -67,7 +67,6 @@
             "from_char_code"          , FROM_CHAR_CODE;
             "to_char_code"            , TO_CHAR_CODE;
             "s_len"                   , STRING_LEN;
-            "s_len_u"                 , STRING_LEN_U;
             "s_concat"                , STRING_CONCAT;
             "s_nth"                   , STRING_NTH;
             "s_nth_u"                 , STRING_NTH_U;

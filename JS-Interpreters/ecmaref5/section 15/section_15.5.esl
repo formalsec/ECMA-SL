@@ -204,7 +204,7 @@ function StringConstructor (global, this, strict, args) {
      "String". String instances also have a [[PrimitiveValue]] internal property, a length property, and a set of
      enumerable properties with array index names. */
   i := 0;
-  len := s_len_u newlyConstructedObject.PrimitiveValue;
+  len := s_len_u (newlyConstructedObject.PrimitiveValue);
   while (i < len) {
     i_str := int_to_string i;
     createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, i_str, s_nth_u (newlyConstructedObject.PrimitiveValue, i), false, true, false);
@@ -218,7 +218,7 @@ function StringConstructor (global, this, strict, args) {
   /* The number of characters in the String value represented by this String object. */
   /* Once a String object is created, this property is unchanging. It has the attributes { [[Writable]]: false,
      [[Enumerable]]: false, [[Configurable]]: false }. */
-  createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", int_to_float (s_len_u newlyConstructedObject.PrimitiveValue), false, false, false);
+  createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", int_to_float (s_len_u (newlyConstructedObject.PrimitiveValue)), false, false, false);
 
   return newlyConstructedObject
 };
@@ -612,8 +612,8 @@ function StringPrototypelocaleCompare (global, this, strict, args) {
   That := ToString(that);
   /* The result is intended to order String values and
   will be negative, zero, or positive, depending on whether S comes before That in the sort order*/
-  SLen := s_len_u S;
-  ThatLen := s_len_u That;
+  SLen := s_len_u (S);
+  ThatLen := s_len_u (That);
   j := 0;
   while ((j < SLen) &&& (j < ThatLen)) {
     if (to_char_code_u(s_nth_u(S, j)) < to_char_code_u(s_nth_u(That, j))) {
@@ -879,8 +879,8 @@ function StringPrototypeReplace(global, this, strict, args) {
     startOffset := offset - prevOffset;
 
     beforeStr := s_substr_u(str, 0, startOffset);
-    matchStrLen := s_len_u matchStr;
-    stringLen := (s_len_u str) - (s_len_u beforeStr) - matchStrLen;
+    matchStrLen := s_len_u (matchStr);
+    stringLen := (s_len_u (str)) - (s_len_u (beforeStr)) - matchStrLen;
     str := s_substr_u(str, startOffset + matchStrLen, stringLen);
 
     if ((Type(replaceValue) = "Object") &&& (replaceValue.Class = "Function")) {
@@ -893,7 +893,7 @@ function StringPrototypeReplace(global, this, strict, args) {
       newstring := ToString(replaceValue);
       beforeStr2 := s_substr_u(originalString, 0, offset);
       off1 := offset + matchStrLen;
-      off2 := (s_len_u originalString) - off1;
+      off2 := (s_len_u (originalString)) - off1;
       afterStr2 := s_substr_u(originalString, off1, off2);
       newstring := resolveDollars(newstring, matchStr, beforeStr2, afterStr2, captures)
     };
@@ -917,7 +917,7 @@ function StringPrototypeReplace(global, this, strict, args) {
 
 
 function resolveDollars(newstring, matchStr, beforeStr, afterStr, captures) {
-  len := (s_len_u newstring) - 1;
+  len := (s_len_u (newstring)) - 1;
   i := 0;
   while (i < len) {
     c1 := s_nth_u(newstring, i);
@@ -943,7 +943,7 @@ function resolveDollars(newstring, matchStr, beforeStr, afterStr, captures) {
         str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex)
       };
       newstring := s_concat [str1, matchStr, str2];
-      i := i + (s_len_u matchStr)
+      i := i + (s_len_u (matchStr))
 
     } elif ((c1 = "$") &&& (c2 = "`")) {
       str1 := s_substr_u(newstring, 0, i);
@@ -954,7 +954,7 @@ function resolveDollars(newstring, matchStr, beforeStr, afterStr, captures) {
         str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex)
       };
       newstring := s_concat [str1, beforeStr, str2];
-      i := i + (s_len_u beforeStr)
+      i := i + (s_len_u (beforeStr))
 
     } elif ((c1 = "$") &&& (c2 = "'")) {
       str1 := s_substr_u(newstring, 0, i);
@@ -965,7 +965,7 @@ function resolveDollars(newstring, matchStr, beforeStr, afterStr, captures) {
         str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex)
       };
       newstring := s_concat [str1, afterStr, str2];
-      i := i + (s_len_u afterStr)
+      i := i + (s_len_u (afterStr))
 
     } elif ((c1 = "$") &&& (c2_code >= 48) &&& (c2_code <= 57)) {
       startIndex := i + 2;
@@ -996,14 +996,14 @@ function resolveDollars(newstring, matchStr, beforeStr, afterStr, captures) {
           m := ""
         };
         newstring := s_concat [str1, m, str2];
-        i := i + (s_len_u m)
+        i := i + (s_len_u (m))
       } else {
         i := i + 1
       }
     } else {
       i := i + 1
     };
-    len := (s_len_u newstring) - 1
+    len := (s_len_u (newstring)) - 1
   };
   return newstring
 };
@@ -1177,7 +1177,7 @@ function StringPrototypeSplit (global, this, strict, args) {
     lim := ToUint32(limit)
   };
   /* 6. Let s be the number of characters in S. */
-  s := s_len_u S;
+  s := s_len_u (S);
   /* 7. Let p = 0. */
   p := 0;
   /* 8. If separator is a RegExp object (its [[Class]] is "RegExp"),
@@ -1313,9 +1313,9 @@ function SplitMatch (S, q, R) {
     return {R.Match}(R, S, q)
   };
   /* 2. Type(R) must be String. Let r be the number of characters in R. */
-  r := s_len_u R;
+  r := s_len_u (R);
   /* 3. Let s be the number of characters in S. */
-  s := s_len_u S;
+  s := s_len_u (S);
   /* 4. If q+r > s then return the MatchResult failure. */
   if ((q + r) > s) {
     return null
@@ -1462,7 +1462,7 @@ function StringPrototypetoLowerCase (global, this, strict, args) {
 
   L := "";
   i := 0;
-  len := s_len_u S;
+  len := s_len_u (S);
   while (i < len) {
 
     c := s_nth_u(S, i);
@@ -1545,7 +1545,7 @@ function StringPrototypetoLocaleLowerCase (global, this, strict, args) {
 
   L := "";
   i := 0;
-  len := s_len_u S;
+  len := s_len_u (S);
   while (i < len) {
 
     c := s_nth_u(S, i);
@@ -1622,7 +1622,7 @@ function StringPrototypetoUpperCase (global, this, strict, args) {
 
   L := "";
   i := 0;
-  len := s_len_u S;
+  len := s_len_u (S);
   while (i < len) {
 
     c := s_nth_u(S, i);
@@ -1682,7 +1682,7 @@ function StringPrototypetoLocaleUpperCase (global, this, strict, args) {
 
   L := "";
   i := 0;
-  len := s_len_u S;
+  len := s_len_u (S);
   while (i < len) {
 
     c := s_nth_u(S, i);
@@ -1767,7 +1767,7 @@ function StringPrototypeTrim (global, this, strict, args) {
   /* TODO: use the auxiliary functions created in section_15.1 */
   /* Remove leading spaces */
   if (!(T = "")) {
-    len := s_len_u T;
+    len := s_len_u (T);
     i := 0;
     j := 0;
     while (i < len) {
@@ -1785,7 +1785,7 @@ function StringPrototypeTrim (global, this, strict, args) {
   /* TODO: use the auxiliary functions created in section_15.1 */
   /* Remove trailing spaces */
   if (!(T = "")) {
-    len := s_len_u T;
+    len := s_len_u (T);
     i := len - 1;
     j := len - 1;
     while (i >= 0) {

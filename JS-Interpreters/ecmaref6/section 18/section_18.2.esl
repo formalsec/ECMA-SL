@@ -345,7 +345,7 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
  */
 function Encode(str, unescapedSet){
 	/* 1. Let strLen be the number of code units in string. */
-	strLen := s_len_u str;
+	strLen := s_len_u (str);
 
 	/* 2. Let R be the empty String. */
 	R := "";
@@ -364,7 +364,7 @@ function Encode(str, unescapedSet){
 		C := s_nth_u(str, k);
 
 		/* c. If C is in unescapedSet, then */
-		if (includes(unescapedSet, C, 0., 1., int_to_float(s_len_u unescapedSet)) = true){
+		if (includes(unescapedSet, C, 0., 1., int_to_float(s_len_u (unescapedSet))) = true){
 			/* i. Let S be a String containing only the code unit C. */
 			S := C;
 
@@ -487,7 +487,7 @@ function is_hexa(c){
 function HexToBin(s){
 	/* https://www.geeksforgeeks.org/program-to-convert-hexadecimal-number-to-binary/ */
 	k := 0;
-	lim := s_len_u s;
+	lim := s_len_u (s);
 
 	res := "";
 
@@ -560,7 +560,7 @@ function BinToDec(s){
  */
 function Decode(str, reservedSet){
 	/* 1. Let strLen be the number of code units in string. */
-	strLen := s_len_u str;
+	strLen := s_len_u (str);
 
 	/* 2. Let R be the empty String. */
 	R := "";
@@ -614,7 +614,7 @@ function Decode(str, reservedSet){
 				C := from_char_code_u(BinToDec(B));
 
 				/* 2. If C is not in reservedSet, then */
-				if (includes(reservedSet, C, 0., 1., int_to_float(s_len_u reservedSet)) = false){
+				if (includes(reservedSet, C, 0., 1., int_to_float(s_len_u (reservedSet))) = false){
 					/* a. Let S be the String containing only the code unit C. */
 					S := C
 				}

@@ -672,7 +672,7 @@ function StringPrototypecodePointAt(global, this, NewTarget, strict, args){
   @ReturnIfAbrupt(position);
 
   /* 6. Let size be the number of elements in S. */
-  size := int_to_float(s_len_u S);
+  size := int_to_float(s_len_u (S));
 
   /* 7. If position < 0 or position ≥ size, return undefined. */
   if ((position < 0.) || (position >= size)){
@@ -781,7 +781,7 @@ function StringPrototypeendsWith(global, this, NewTarget, strict, args){
   @ReturnIfAbrupt(searchStr);
 
   /* 9. Let len be the number of elements in S. */
-  len := int_to_float(s_len_u S);
+  len := int_to_float(s_len_u (S));
 
   /* 10. If endPosition is undefined, let pos be len, else let pos be ToInteger(endPosition). */
   if (endPosition = 'undefined){
@@ -797,7 +797,7 @@ function StringPrototypeendsWith(global, this, NewTarget, strict, args){
   end := min(max(pos, 0.), len);
 
   /* 13. Let searchLength be the number of elements in searchStr. */
-  searchLength := int_to_float(s_len_u searchStr);
+  searchLength := int_to_float(s_len_u (searchStr));
 
   /* 14. Let start be end - searchLength. */
   start := end - searchLength;
@@ -880,13 +880,13 @@ function StringPrototypeincludes(global, this, NewTarget, strict, args){
   @ReturnIfAbrupt(pos);
 
   /* 11. Let len be the number of elements in S. */
-  len := int_to_float (s_len_u S);
+  len := int_to_float (s_len_u (S));
 
    /* 12. Let start be min(max(pos, 0), len). */
   start :=  min(max(pos, 0.), len);
 
   /* 13. Let searchLength be the number of elements in searchStr. */
-  searchLength := int_to_float (s_len_u searchStr);
+  searchLength := int_to_float (s_len_u (searchStr));
 
   /* 14. If there exists any integer k not smaller than start such that k + searchLen is not greater than len,
   and for all nonnegative integers j less than searchLen, the code unit at index k+j of S is the same as the code
@@ -952,13 +952,13 @@ function StringPrototypeindexOf(global, this, NewTarget, strict, args){
   @ReturnIfAbrupt(pos);
 
   /* 8. Let len be the number of elements in S. */
-  len := int_to_float (s_len_u S);
+  len := int_to_float (s_len_u (S));
 
   /* 9. Let start be min(max(pos, 0), len). */
   start := min(max(pos, 0.), len);
 
   /* 10. Let searchLen be the number of elements in searchStr. */
-  searchLen := int_to_float (s_len_u searchStr);
+  searchLen := int_to_float (s_len_u (searchStr));
 
   /* 11. Return the smallest possible integer k not smaller than start such that k+ searchLen is not greater
   than len, and for all nonnegative integers j less than searchLen, the code unit at index k+j of S is the
@@ -1027,13 +1027,13 @@ function StringPrototypelastIndexOf(global, this, NewTarget, strict, args) {
   };
 
   /* 9. Let len be the number of elements in S. */
-  len := int_to_float(s_len_u S);
+  len := int_to_float(s_len_u (S));
 
   /* 10. Let start be min(max(pos, 0), len). */
   start := min(max(pos, 0.), len);
 
   /* 11. Let searchLen be the number of elements in searchStr. */
-  searchLen := int_to_float(s_len_u searchStr);
+  searchLen := int_to_float(s_len_u (searchStr));
 
   /* 12. Return the largest possible nonnegative integer k not larger than start such that k+ searchLen
   is not greater than len, and for all nonnegative integers j less than searchLen, the code unit at
@@ -1097,8 +1097,8 @@ function StringPrototypelocaleCompare(global, this, NewTarget, strict, args) {
     * order, the Strings are equal, or S comes after That in the sort order
     * , respectively.
   **/
-  SLen := s_len_u S;
-  ThatLen := s_len_u That;
+  SLen := s_len_u (S);
+  ThatLen := s_len_u (That);
   j := 0;
 
   while ((j < SLen) &&& (j < ThatLen)) {
@@ -1368,7 +1368,7 @@ function StringPrototypeReplace(global, this, NewTarget, strict, args){
   };
 
   /* 13. Let tailPos be pos + the number of code units in matched. */
-  tailPos := pos + int_to_float(s_len_u matched);
+  tailPos := pos + int_to_float(s_len_u (matched));
 
   /* 14. Let newString be the String formed by concatenating the first pos
   code units of string, replStr, and the trailing substring of string
@@ -1379,7 +1379,7 @@ function StringPrototypeReplace(global, this, NewTarget, strict, args){
   } else{
     first := ""
   };
-  last := substring(str, tailPos, int_to_float(s_len_u str));
+  last := substring(str, tailPos, int_to_float(s_len_u (str)));
 
   newString := first;
   newString := s_concat([newString, replStr]);
@@ -1395,13 +1395,13 @@ function GetSubstitution(matched, str, position, captures, replacement, global, 
   assert(Type(matched) = "String");
 
   /* 2. Let matchLength be the number of code units in matched. */
-  matchLength := s_len_u matched;
+  matchLength := s_len_u (matched);
 
   /* 3. Assert: Type(str) is String. */
   assert(Type(str) = "String");
 
   /* 4. Let stringLength be the number of code units in str. */
-  stringLength := s_len_u str;
+  stringLength := s_len_u (str);
 
   /* 5. Assert: position is a nonnegative integer. */
   assert((Type(position) = "Number") && (position >= 0.));
@@ -1465,12 +1465,12 @@ function GetSubstitution(matched, str, position, captures, replacement, global, 
   if (tailPos >= stringLength){
     after := ""
   } else{
-    after := substring(str, int_to_float tailPos,  int_to_float (s_len_u str))
+    after := substring(str, int_to_float tailPos,  int_to_float (s_len_u (str)))
   };
 
   result := "";
 
-  len := s_len_u replacement;
+  len := s_len_u (replacement);
   i := 0;
   put := true;
 
@@ -1649,7 +1649,7 @@ function StringPrototypeSlice(global, this, NewTarget, strict, args) {
   @ReturnIfAbrupt(S);
 
   /* 4. Let len be the number of elements in S. */
-  len := int_to_float (s_len_u S);
+  len := int_to_float (s_len_u (S));
 
   /* 5. Let intStart be ToInteger(start). */
   intStart := ToInteger(start);
@@ -1760,7 +1760,7 @@ function StringPrototypeSplit(global, this, NewTarget, strict, args){
   @ReturnIfAbrupt(lim);
 
   /* 10. Let s be the number of elements in S. */
-  s := int_to_float (s_len_u S);
+  s := int_to_float (s_len_u (S));
 
   /* 11. Let p = 0. */
   p := 0.;
@@ -1876,10 +1876,10 @@ function SplitMatch(S, q, R){
   assert(Type(R) = "String");
 
   /* 2. Let r be the number of code units in R. */
-  r := int_to_float (s_len_u R);
+  r := int_to_float (s_len_u (R));
 
   /* 3. Let s be the number of code units in S. */
-  s := int_to_float (s_len_u S);
+  s := int_to_float (s_len_u (S));
 
   /* 4. If q+r > s, return false. */
   if (q + r > s){
@@ -1951,13 +1951,13 @@ function StringPrototypestartsWith(global, this, NewTarget, strict, args){
   @ReturnIfAbrupt(pos);
 
   /* 11. Let len be the number of elements in S. */
-  len := int_to_float(s_len_u S);
+  len := int_to_float(s_len_u (S));
 
   /* 12. Let start be min(max(pos, 0), len). */
   start := min(max(pos, 0.), len);
 
   /* 13. Let searchLength be the number of elements in searchStr. */
-  searchLength := int_to_float (s_len_u searchStr);
+  searchLength := int_to_float (s_len_u (searchStr));
 
   /* 14. If searchLength+start is greater than len, return false. */
   if (searchLength + start > len){
@@ -2014,7 +2014,7 @@ function StringPrototypesubstring(global, this, NewTarget, strict, args){
   @ReturnIfAbrupt(S);
 
   /* 4. Let len be the number of elements in S. */
-  len := int_to_float (s_len_u S);
+  len := int_to_float (s_len_u (S));
 
   /* 5. Let intStart be ToInteger(start). */
   intStart := ToInteger(start);
@@ -2055,7 +2055,7 @@ function StringPrototypesubstring(global, this, NewTarget, strict, args){
 };
 
 function substring(S, intStart, intEnd){
-  len := int_to_float (s_len_u S);
+  len := int_to_float (s_len_u (S));
 
   finalStart := min(max(intStart, 0.), len);
   finalEnd := min(max(intEnd, 0.), len);
@@ -2183,7 +2183,7 @@ function StringPrototypetrim(global, this, NewTarget, strict, args) {
 function trim_str(S){
   T := trim (S);
 
-  len := s_len_u T;
+  len := s_len_u (T);
   beginning := true;
 
   while ((len >= 2) &&& (beginning = true)){
@@ -2193,17 +2193,17 @@ function trim_str(S){
     isWSorLT := begwhiteSpace_or_lineTerminator(c1, c2);
 
     if (isWSorLT = 0.){
-      T := substring(T, 1., int_to_float(s_len_u T));
+      T := substring(T, 1., int_to_float(s_len_u (T)));
       len := len - 1
     } elif (isWSorLT = 1.){
-      T := substring(T, 2., int_to_float(s_len_u T));
+      T := substring(T, 2., int_to_float(s_len_u (T)));
       len := len - 2
     } else {
       beginning := false
     }
   };
 
-  len := s_len_u T;
+  len := s_len_u (T);
   ending := true;
   while ((len >= 2) &&& (ending = true)){
     c1 := s_nth_u(T, (len - 1));
@@ -2401,7 +2401,7 @@ function stringIteratorNext(global, this, NewTarget, strict, args){
   position := int_of_float O.StringIteratorNextIndex;
 
   /* 7. Let len be the number of elements in s. */
-  len := s_len_u s;
+  len := s_len_u (s);
 
   /* 8. If position ≥ len, then */
   if (position >= len){
@@ -2439,7 +2439,7 @@ function stringIteratorNext(global, this, NewTarget, strict, args){
   };
 
   /* 12. Let resultSize be the number of code units in resultString. */
-  resultSize := s_len_u resultString;
+  resultSize := s_len_u (resultString);
 
   /* 13. Set the value of the [[StringIteratorNextIndex]] internal slot of O to position+ resultSize. */
   O.StringIteratorNextIndex := int_to_float(position + resultSize);

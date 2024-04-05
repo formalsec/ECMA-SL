@@ -134,14 +134,14 @@ let reduce_binop (op : binopt) (v1 : value) (v2 : value) : value =
   match (op, v1, v2) with
   | (op, Val v1, Val v2) -> Val (Eval_operator.eval_binopt op v1 v2)
   (* int_to_float(s_len_u(symbolic (__$Str, "s1"))) < 0.  *)
-  | ( Lt
+  (* | ( Lt
     , UnOpt (IntToFloat, UnOpt (StringLenU, Symbolic (Type.StrType, _)))
     , Val (Flt 0.0) ) ->
-    Val (Bool false)
-  | ( Ge
+    Val (Bool false) *)
+  (* | ( Ge
     , UnOpt (IntToFloat, UnOpt (StringLenU, Symbolic (Type.StrType, _)))
     , Val (Flt 4294967296.0) ) ->
-    Val (Bool false)
+    Val (Bool false) *)
   | (Eq, NOpt (_v1_t, list1), NOpt (_v2_t, list2)) ->
     reduce_list_compare list1 list2
   | (Eq, v, Val (Symbol _)) when is_symbolic v -> Val (Bool false)
