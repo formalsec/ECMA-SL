@@ -156,7 +156,7 @@ let type_of_triop (op : Operator.triopt) (_ : Type.t) (ty2 : Type.t)
   (ty3 : Type.t) : Type.t option =
   match op with
   | Operator.StringSubstr -> Some Type.StrType
-  | Operator.StringSubstrU -> Some Type.StrType
+  (* | Operator.StringSubstrU -> Some Type.StrType *)
   | Operator.ListSet -> Some Type.ListType
   | Operator.ArraySet -> Some Type.ArrayType
   | Operator.ITE -> (

@@ -159,7 +159,6 @@ let type_triopt (op : Operator.triopt) (targs : EType.t list) : EType.t' =
   match op with
   | ITE -> not_implemented (* TODO: custom if-then-else typing function *)
   | StringSubstr -> type_op [ ([ StringType; IntType; IntType ], StringType) ]
-  | StringSubstrU -> type_op [ ([ StringType; IntType; IntType ], StringType) ]
   | ArraySet -> not_implemented (* TODO: array typing *)
   | ListSet -> not_implemented (* TODO: list typing *)
 

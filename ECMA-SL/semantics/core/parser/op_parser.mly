@@ -20,7 +20,7 @@
 %token STRING_LEN STRING_CONCAT
 
 %token STRING_NTH
-%token STRING_SUBSTR STRING_SUBSTR_U
+%token STRING_SUBSTR
 
 %token ARRAY_MAKE
 %token ARRAY_NTH
@@ -166,6 +166,5 @@
 
 %public let core_triopt ==
   | STRING_SUBSTR;          { Operator.StringSubstr }
-  | STRING_SUBSTR_U;        { Operator.StringSubstrU }
   | ARRAY_SET;              { Operator.ArraySet }
   | LIST_SET;               { Operator.ListSet }
