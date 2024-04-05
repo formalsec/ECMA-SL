@@ -167,14 +167,12 @@ module M (Instrument : Instrument.M) = struct
     match s.it with
     | Skip -> (Intermediate (state, cont), lbl SkipEval)
     | Merge -> (Intermediate (state, cont), lbl MergeEval)
-    | Debug s ->
-      (* let args = (state.store, state.heap, state.stack, inst.db) in *)
-      (* let (db', stack', cont') = Instrument.Debugger.run args s cont in *)
-      (* let state' = { state with stack = stack' } in *)
-      (* (Intermediate (state', cont), lbl' DebugEval) *)
-      let db' = Instrument.Debugger.run !inst.db s in
+    | Debug s' ->
+      let db_state = (state.store, state.heap, state.stack) in
+      let db_res = Instrument.Debugger.run !inst.db db_state cont s' in
+      let (db', (store, heap, stack), cont') = db_res in
       inst := { !inst with db = db' };
-      (Intermediate (state, cont), lbl DebugEval)
+      (Intermediate ({ store; heap; stack }, s' :: cont'), lbl DebugEval)
     | Block ss -> (Intermediate (state, ss @ cont), lbl BlockEval)
     | Print e ->
       eval_expr state e |> print_val state.heap;
@@ -207,12 +205,12 @@ module M (Instrument : Instrument.M) = struct
         let (stack, store) = (state.stack, state.store) in
         let (stack', store') = prepare_call stack f store cont x.it vs fe.at in
         let cont' = [ Func.body f ] in
-        (* let inject_res = Instrument.Debugger.inject s inst.db stack' cont' in *)
-        (* let (db', stack'', cont'') = inject_res in *)
-        let state' = { state with store = store'; stack = stack' } in
-        inst := { !inst with db = !inst.db };
+        let db_res = Instrument.Debugger.call !inst.db stack' cont' in
+        let (db', stack'', cont'') = db_res in
+        let state' = { state with store = store'; stack = stack'' } in
+        inst := { !inst with db = db' };
         Instrument.Tracer.trace_call (lvl + 1) f s;
-        (Intermediate (state', cont'), lbl (AssignCallEval f)) )
+        (Intermediate (state', cont''), lbl (AssignCallEval f)) )
     | AssignECall (x, fn, es) ->
       let vs = List.map (eval_expr state) es in
       let v = External.execute p state.store state.heap fn.it vs in
@@ -344,6 +342,8 @@ module M (Instrument : Instrument.M) = struct
 
   let eval_partial (entry : EntryPoint.t) (p : Prog.t) : Val.t * heap =
     let inst = ref (Instrument.initial_state ()) in
+    let eval_expr_db (store, heap, stack) = eval_expr { store; heap; stack } in
+    Instrument.Debugger.set_expr_evaluator eval_expr_db;
     let execute () = eval_instrumented entry p inst in
     let finally () = Instrument.cleanup !inst in
     Fun.protect ~finally execute

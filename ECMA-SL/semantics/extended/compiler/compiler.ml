@@ -50,7 +50,7 @@ module Builder = struct
       let args = [ global ferr'; err ] in
       let sferr = Stmt.AssignCall (?@res', ferr'', args) @?> ferr'.at in
       let sferr_checker = throw_checker at res' [ sreturn ] in
-      throw_checker at res [ sferr; sferr_checker ]
+      throw_checker at res (real [ sferr; sferr_checker ])
 end
 
 module SwitchOptimizer = struct
@@ -240,7 +240,7 @@ and compile_call (s_at : region) (e_at : region) (fe : EExpr.t)
   let res = Builder.var e_at in
   let sres = Stmt.AssignCall (?@res, fe_e, global :: es_e) @?> s_at in
   let sthrow = Builder.call_checker s_at (res.it @?> res.at) ferr in
-  (fe_s @ List.concat es_s @ (sres :: real [ sthrow ]), res)
+  (fe_s @ List.concat es_s @ (sres :: [ sthrow ]), res)
 
 and compile_ecall (s_at : region) (e_at : region) (fn : Id.t) (es : EExpr.t list)
   : c_expr =

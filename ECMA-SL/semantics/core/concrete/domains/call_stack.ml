@@ -27,6 +27,8 @@ type 'store frame =
 
 type 'store t = 'store frame list
 
+let default () : 'store t = []
+
 let create (func : Func.t) : 'store t =
   [ Toplevel { lvl = 0; func; stmt = Stmt.default () } ]
 

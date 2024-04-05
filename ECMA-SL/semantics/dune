@@ -40,6 +40,8 @@
   Debugger_tui_view
   Debugger_tui_execution
   Debugger_tui_terminal
+  Debugger_cmd
+  Debugger_types
   ; concrete interpreter (instrumentation - monitors)
   NSUMonitor
   NSUException

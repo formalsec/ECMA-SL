@@ -3,6 +3,8 @@ open EslBase
 type var = string
 type 'a t = (var, 'a) Hashtbl.t
 
+let default () : 'a t = Hashtbl.create !Base.default_hashtbl_sz
+
 let create (var_vals : (var * 'a) list) : 'a t =
   List.to_seq var_vals |> Hashtbl.of_seq
 

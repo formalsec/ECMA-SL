@@ -1,7 +1,7 @@
 module Config = struct
   let required_colors = 256
-  let min_width = 60
-  let min_height = 10
+  let min_width = 40
+  let min_height = 1
   let max_width = Int.max_int
   let max_height = Int.max_int
 end
