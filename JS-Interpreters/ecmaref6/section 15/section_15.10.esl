@@ -1147,7 +1147,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
     c := s_substr_u(c, 1, len - 1);
     dec_code := octal_to_decimal (int_of_string c);
     dec_code_str := int_to_string dec_code;
-    c := from_char_code_u dec_code;
+    c := from_char_code_u (dec_code);
 
     AddCharacterPoint(cs, c, dec_code_str, negative);
 
@@ -1296,7 +1296,7 @@ function getSpaceCharacters() {
 function getCharacterRangeASCII(cs, from_code, to_code) {
   while (from_code <= to_code) {
     code_str := int_to_string from_code;
-    char_str := from_char_code_u from_code;
+    char_str := from_char_code_u (from_code);
     cs[code_str] := char_str;
     from_code := from_code + 1
   };
@@ -1653,7 +1653,7 @@ function JS_Interpreter_RegEx(re, flags) {
     c := s_substr_u(c, 1, len - 1);
 
     dec_code := octal_to_decimal (int_of_string c);
-    c := from_char_code_u dec_code;
+    c := from_char_code_u (dec_code);
 
     m := lambda (st, k) [c] {
       c2 := stateGetChar(st);

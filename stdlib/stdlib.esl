@@ -77,6 +77,11 @@ function to_fixed(x : float, y : int) : string {
   return extern to_fixed_external(x, y)
 }
 
+/* String operators */
+function from_char_code_u(n : int) : string {
+  return extern from_char_code_u_external(n)
+}
+
 /* Math operators */
 /* FIXME: to replace `min` */
 function min_(x : float, y : float) : float {

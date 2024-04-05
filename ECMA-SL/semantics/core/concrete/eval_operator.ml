@@ -123,12 +123,6 @@ let from_char_code (v : Val.t) : Val.t =
   | Int n -> Str (String_utils.from_char_code n)
   | _ -> bad_arg_err 1 op_lbl "integer" [ v ]
 
-let from_char_code_u (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt FromCharCodeU in
-  match v with
-  | Int n -> Str (String_utils.from_char_code_u n)
-  | _ -> bad_arg_err 1 op_lbl "integer" [ v ]
-
 let to_char_code (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt ToCharCode in
   match v with
@@ -915,7 +909,6 @@ let eval_unopt (op : unopt) (v : Val.t) : Val.t =
   | StringToInt -> string_to_int v
   | StringToFloat -> string_to_float v
   | FromCharCode -> from_char_code v
-  | FromCharCodeU -> from_char_code_u v
   | ToCharCode -> to_char_code v
   | ToCharCodeU -> to_char_code_u v
   | ToLowerCase -> to_lower_case v
