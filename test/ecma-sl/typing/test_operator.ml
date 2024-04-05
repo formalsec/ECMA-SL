@@ -135,11 +135,6 @@ let%test "binopt_le_int" = test_binopt (Le, Int 10, Int 10) t_boolean
 let%test "binopt_le_float" = test_binopt (Le, Flt 10.1, Flt 10.1) t_boolean
 let%test "binopt_le_null" = test_binopt (Le, Null, Null) t_boolean
 
-let%test "binopt_to_exponential" =
-  test_binopt (ToExponential, Flt 10.1, Int 10) t_string
-
-let%test "binopt_to_fixed" = test_binopt (ToFixed, Flt 10.1, Int 10) t_string
-
 let%test "binopt_string_nth" =
   test_binopt (StringNth, Str "abc", Int 10) t_string
 

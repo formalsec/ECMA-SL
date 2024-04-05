@@ -39,8 +39,6 @@
             "to_uint16"               , TO_UINT16;
             "to_uint32"               , TO_UINT32;
             "is_NaN"                  , IS_NAN;
-            "to_exponential"          , TO_EXPONENTIAL;
-            "to_fixed"                , TO_FIXED;
 
             (* String operators *)
             "int_of_string"           , STRING_TO_INT;

@@ -65,9 +65,18 @@ function to_uint16_(n : float) : float {
   return (posInt % 65536.0)
 }
 
-function to_precision (x : float, y : int) : string {
+function to_precision(x : float, y : int) : string {
   return extern to_precision_external(x, y)
 }
+
+function to_exponential(x : float, y : int) : string {
+  return extern to_exponential_external(x, y)
+}
+
+function to_fixed(x : float, y : int) : string {
+  return extern to_fixed_external(x, y)
+}
+
 /* Math operators */
 /* FIXME: to replace `min` */
 function min_(x : float, y : float) : float {

@@ -672,46 +672,6 @@ let ge ((v1, v2) : Val.t * Val.t) : Val.t =
   | (Int i, Flt f) -> Bool (float i >= f)
   | (v1, v2) -> Bool (v1 >= v2)
 
-let to_exponential ((v1, v2) : Val.t * Val.t) : Val.t =
-  let op_lbl = label_of_binopt ToExponential in
-  match (v1, v2) with
-  | (Flt x, Int y) ->
-    let exp = Float.log10 x in
-    if exp >= 0. then
-      let num =
-        Float.round (x /. (10. ** Float.trunc exp) *. (10. ** Float.of_int y))
-        /. (10. ** Float.of_int y)
-      in
-      if Float.is_integer num then
-        Str
-          ( string_of_int (Float.to_int num)
-          ^ "e+"
-          ^ Int.to_string (Float.to_int exp) )
-      else Str (string_of_float num ^ "e+" ^ Int.to_string (Float.to_int exp))
-    else
-      let num =
-        Float.round (x /. (10. ** Float.floor exp) *. (10. ** Float.of_int y))
-        /. (10. ** Float.of_int y)
-      in
-      if Float.is_integer num then
-        Str
-          ( string_of_int (Float.to_int num)
-          ^ "e"
-          ^ Int.to_string (Float.to_int (Float.floor exp)) )
-      else
-        Str
-          ( string_of_float num
-          ^ "e"
-          ^ Int.to_string (Float.to_int (Float.floor exp)) )
-  | (Flt _, _) -> bad_arg_err 2 op_lbl "(float, integer)" [ v1; v2 ]
-  | _ -> bad_arg_err 1 op_lbl "(float, integer)" [ v1; v2 ]
-
-let to_fixed ((v1, v2) : Val.t * Val.t) : Val.t =
-  let op_lbl = label_of_binopt ToFixed in
-  match (v1, v2) with
-  | (Flt x, Int y) -> Str (Printf.sprintf "%0.*f" y x)
-  | (Flt _, _) -> bad_arg_err 2 op_lbl "(float, integer)" [ v1; v2 ]
-  | _ -> bad_arg_err 1 op_lbl "(float, integer)" [ v1; v2 ]
 
 let string_nth ((v1, v2) : Val.t * Val.t) : Val.t =
   let op_lbl = label_of_binopt StringNth in
@@ -1040,8 +1000,6 @@ let eval_binopt (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | Gt -> gt (v1, v2)
   | Le -> le (v1, v2)
   | Ge -> ge (v1, v2)
-  | ToExponential -> to_exponential (v1, v2)
-  | ToFixed -> to_fixed (v1, v2)
   | ObjectMem ->
     Internal_error.(throw __FUNCTION__ (Unexpected "ObjectMem operator"))
   | StringNth -> string_nth (v1, v2)
