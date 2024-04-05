@@ -83,7 +83,7 @@ function from_char_code_u(n : int) : string {
 }
 
 function to_char_code_u(s : string) : int {
-  return extern to_char_code_u_external(n)
+  return extern to_char_code_u_external(s)
 }
 
 /* Math operators */

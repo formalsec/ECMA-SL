@@ -150,7 +150,7 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("to_exponential_external", [ v1 ; v2 ]) -> to_exponential (v1, v2)
   | ("to_fixed_external", [ v1 ; v2 ]) -> to_fixed (v1, v2)
   | ("from_char_code_u_external", [ v ]) -> from_char_code_u v
-  | ("to_char_code_u_external", [ v ]) -> from_char_code_u v
+  | ("to_char_code_u_external", [ v ]) -> to_char_code_u v
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
     Val.Symbol "undefined"
