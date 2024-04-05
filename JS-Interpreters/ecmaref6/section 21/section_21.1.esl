@@ -1477,7 +1477,7 @@ function GetSubstitution(matched, str, position, captures, replacement, global, 
   while ((i + 1) < len){
     c1 := s_nth_u(replacement, i);
     c2 := s_nth_u(replacement, i + 1);
-    c2_code := to_char_code_u c2;
+    c2_code := to_char_code_u (c2);
 
     if ((c1 = "$") &&& (c2 = "$")){
       result := s_concat([result, c1]);
@@ -1494,7 +1494,7 @@ function GetSubstitution(matched, str, position, captures, replacement, global, 
     } elif ((c1 = "$") &&& (c2_code >= 48) &&& (c2_code <= 57)){
       if ((i + 2) < len){
         c3 := s_nth_u(replacement, i + 2);
-        c3_code := to_char_code_u c3;
+        c3_code := to_char_code_u (c3);
 
         if ((c3_code >= 48) &&& (c3_code <= 57)){
           n := int_of_string(s_concat([c2, c3]));

@@ -30,7 +30,6 @@ type unopt =
   | StringToFloat
   | FromCharCode
   | ToCharCode
-  | ToCharCodeU
   | ToLowerCase
   | ToUpperCase
   | Trim
@@ -206,7 +205,6 @@ let label_of_unopt (op : unopt) : string =
   | StringToFloat -> "String.string_to_float"
   | FromCharCode -> "String.from_char_code"
   | ToCharCode -> "String.to_char_code_u"
-  | ToCharCodeU -> "String.to_char_code_u"
   | ToLowerCase -> "String.to_lower_case"
   | ToUpperCase -> "String.to_upper_case"
   | Trim -> "String.trim"
@@ -342,7 +340,6 @@ let pp_of_unopt_single (fmt : Fmt.t) (op : unopt) : unit =
   | StringToFloat -> pp_str fmt "float_of_string"
   | FromCharCode -> pp_str fmt "from_char_code"
   | ToCharCode -> pp_str fmt "to_char_code"
-  | ToCharCodeU -> pp_str fmt "to_char_code_u"
   | ToLowerCase -> pp_str fmt "to_lower_case"
   | ToUpperCase -> pp_str fmt "to_upper_case"
   | Trim -> pp_str fmt "trim"

@@ -120,7 +120,7 @@ function parseJSONText(global, this, NewTarget, strict, args) {
 };
 
 function isDigit(c) {
-  c_code := to_char_code_u c;
+  c_code := to_char_code_u (c);
   return ((c_code >= 48) &&& (c_code <= 57))
 };
 
@@ -876,8 +876,8 @@ function SerializeJSONProperty(key, holder, stack, indent, gap, PropertyList, sp
   * 0xDFFF (defined as a trailing surrogate, or more formally as a low-surrogate code unit) 
   */
 function isLeadingSurrogate(code) {
-  start := to_char_code_u "\u{D800}";
-  end := to_char_code_u "\u{D8FF}";
+  start := to_char_code_u ("\u{D800}");
+  end := to_char_code_u ("\u{D8FF}");
   if ((code >= start) &&& (code <= end)) {
     return true
   } else {
@@ -899,7 +899,7 @@ function QuoteJSONString(value) {
   i := 0;
   while (i < valueLen) {
     C := s_nth_u(value, i);
-    C_code := to_char_code_u C;
+    C_code := to_char_code_u (C);
 
     /* a. If C is 0x0022 (QUOTATION MARK) or 0x005C (REVERSE SOLIDUS), then */
     if ((C = "\"") ||| (C = "\\")) {
@@ -942,7 +942,7 @@ function QuoteJSONString(value) {
       /* iii. Let hex be the string result of converting the numeric code unit 
               value of C to a String of four hexadecimal digits. 
               Alphabetic hexadecimal digits are presented as lowercase Latin letters. */
-      hex := int_to_four_hex (to_char_code_u C);
+      hex := int_to_four_hex (to_char_code_u (C));
       /* iv. Let product be the concatenation of product and hex. */
       product := s_concat([product, hex])
     }

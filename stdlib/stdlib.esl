@@ -82,6 +82,10 @@ function from_char_code_u(n : int) : string {
   return extern from_char_code_u_external(n)
 }
 
+function to_char_code_u(s : string) : int {
+  return extern to_char_code_u_external(n)
+}
+
 /* Math operators */
 /* FIXME: to replace `min` */
 function min_(x : float, y : float) : float {
