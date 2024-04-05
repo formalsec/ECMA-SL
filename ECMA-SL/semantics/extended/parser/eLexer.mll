@@ -66,7 +66,6 @@
             "float_of_string"         , STRING_TO_FLOAT;
             "from_char_code"          , FROM_CHAR_CODE;
             "to_char_code"            , TO_CHAR_CODE;
-            "to_char_code_u"          , TO_CHAR_CODE_U;
             "to_lower_case"           , TO_LOWER_CASE;
             "to_upper_case"           , TO_UPPER_CASE;
             "trim"                    , TRIM;

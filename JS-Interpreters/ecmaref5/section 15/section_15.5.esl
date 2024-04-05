@@ -922,7 +922,7 @@ function resolveDollars(newstring, matchStr, beforeStr, afterStr, captures) {
   while (i < len) {
     c1 := s_nth_u(newstring, i);
     c2 := s_nth_u(newstring, i + 1);
-    c2_code := to_char_code_u c2;
+    c2_code := to_char_code_u (c2);
     if ((c1 = "$") &&& (c2 = "$")) {
       str1 := s_substr_u(newstring, 0, i + 1);
       startIndex := i + 2;
@@ -972,7 +972,7 @@ function resolveDollars(newstring, matchStr, beforeStr, afterStr, captures) {
       c3 := "";
       if ((i + 2) <= len) {
         c3 := s_nth_u(newstring, i + 2);
-        c3_code := to_char_code_u c3;
+        c3_code := to_char_code_u (c3);
         if ((c3_code >= 48) &&& (c3_code <= 57)) {
           startIndex := i + 3
         } else {

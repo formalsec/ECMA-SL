@@ -419,7 +419,7 @@ function Encode(str, unescapedSet){
 				jOctet := l_nth(Octets, j);
 
 				/* 2. Let S be a String containing three code units "%XY" where XY are two uppercase hexadecimal digits encoding the value of jOctet. */
-				XY_ := int_to_four_hex (to_char_code_u jOctet);
+				XY_ := int_to_four_hex (to_char_code_u (jOctet));
 				X := s_nth_u(XY_, 2);
 				Y := s_nth_u(XY_, 3);
 				XY := s_concat([X, Y]);
