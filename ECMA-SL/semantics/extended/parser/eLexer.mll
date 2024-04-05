@@ -70,7 +70,6 @@
             "s_concat"                , STRING_CONCAT;
             "s_nth"                   , STRING_NTH;
             "s_substr"                , STRING_SUBSTR;
-            "s_substr_u"              , STRING_SUBSTR_U;
 
             (* Object operators *)
             "obj_to_list"             , OBJECT_TO_LIST;

@@ -140,6 +140,3 @@ let%test "binopt_atan2" = test_binopt (Atan2, Flt 10.1, Flt 10.1) t_float
 
 let%test "StringSubstr" =
   test_triopt (StringSubstr, Str "abc", Int 10, Int 10) t_string
-
-let%test "StringSubstrU" =
-  test_triopt (StringSubstrU, Str "abc", Int 10, Int 10) t_string

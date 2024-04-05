@@ -110,6 +110,10 @@ function s_split(s1 : string, s2 : string) : string {
   return extern s_split_external(s1, s2)
 }
 
+function s_substr_u(s : string, n1 : int, n2 : int) : string {
+  return extern s_substr_u_external(s, n1, n2)
+}
+
 /* Math operators */
 /* FIXME: to replace `min` */
 function min_(x : float, y : float) : float {
