@@ -86,6 +86,14 @@ function to_char_code_u(s : string) : int {
   return extern to_char_code_u_external(s)
 }
 
+function to_lower_case(s : string) : string {
+  return extern to_lower_case_external(s)
+}
+
+function to_upper_case(s : string) : string {
+  return extern to_upper_case_external(s)
+}
+
 /* Math operators */
 /* FIXME: to replace `min` */
 function min_(x : float, y : float) : float {

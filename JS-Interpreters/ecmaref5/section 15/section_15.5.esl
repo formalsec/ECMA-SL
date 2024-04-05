@@ -1454,7 +1454,7 @@ function StringPrototypetoLowerCase (global, this, strict, args) {
   /*Let L be a String where each character of L is either the Unicode lowercase equivalent
     of the corresponding character of S or the actual corresponding character of S
     if no Unicode lowercase equivalent exists. */
-  /*L := to_lower_case S;*/
+  /*L := to_lower_case (S);*/
 
   if (!isUnicodeCasingInitialized()) {
     initializeUnicodeCasing()
@@ -1535,7 +1535,7 @@ function StringPrototypetoLocaleLowerCase (global, this, strict, args) {
   /*Let L be a String where each character of L is either the Unicode lowercase equivalent
     of the corresponding character of S or the actual corresponding character of S
     if no Unicode lowercase equivalent exists. */
-  /*L := to_lower_case S;*/
+  /*L := to_lower_case (S);*/
   
   /* TO DO -> Passar isto tendo em conta a linguagem do ambiente */
 
@@ -1614,7 +1614,7 @@ function StringPrototypetoUpperCase (global, this, strict, args) {
   /*Let L be a String where each character of L is either the Unicode uppercase equivalent
     of the corresponding character of S or the actual corresponding character of S
     if no Unicode uppercase equivalent exists. */
-  /*L := to_upper_case S;*/
+  /*L := to_upper_case (S);*/
 
   if (!isUnicodeCasingInitialized()) {
     initializeUnicodeCasing()
@@ -1673,7 +1673,7 @@ function StringPrototypetoLocaleUpperCase (global, this, strict, args) {
   /*Let L be a String where each character of L is either the Unicode lowercase equivalent
     of the corresponding character of S or the actual corresponding character of S
     if no Unicode lowercase equivalent exists. */
-  /*L := to_upper_case S;*/
+  /*L := to_upper_case (S);*/
   
   /* TO DO -> Passar isto tendo em conta a linguagem do ambiente */
   if (!isUnicodeCasingInitialized()) {

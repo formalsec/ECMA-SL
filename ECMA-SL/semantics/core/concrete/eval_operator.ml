@@ -129,19 +129,6 @@ let to_char_code (v : Val.t) : Val.t =
   | Str s -> Int (String_utils.to_char_code s)
   | _ -> bad_arg_err 1 op_lbl "string" [ v ]
 
-
-let to_lower_case (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt ToLowerCase in
-  match v with
-  | Str s -> Str (String_utils.to_lower_case s)
-  | _ -> bad_arg_err 1 op_lbl "string" [ v ]
-
-let to_upper_case (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt ToUpperCase in
-  match v with
-  | Str s -> Str (String_utils.to_upper_case s)
-  | _ -> bad_arg_err 1 op_lbl "string" [ v ]
-
 let trim (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt Trim in
   match v with
@@ -905,8 +892,6 @@ let eval_unopt (op : unopt) (v : Val.t) : Val.t =
   | StringToFloat -> string_to_float v
   | FromCharCode -> from_char_code v
   | ToCharCode -> to_char_code v
-  | ToLowerCase -> to_lower_case v
-  | ToUpperCase -> to_upper_case v
   | Trim -> trim v
   | StringLen -> string_len v
   | StringLenU -> string_len_u v
