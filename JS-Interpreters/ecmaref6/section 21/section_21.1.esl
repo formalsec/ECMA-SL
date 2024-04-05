@@ -2086,7 +2086,7 @@ function StringPrototypetoLocaleLowerCase(global, this, NewTarget, strict, args)
 
   @ReturnIfAbrupt(S);
 
-  L := to_lower_case S;
+  L := to_lower_case (S);
 
   return L
 };
@@ -2105,7 +2105,7 @@ function StringPrototypetoLocaleUpperCase(global, this, NewTarget, strict, args)
 
   @ReturnIfAbrupt(S);
 
-  L := to_upper_case S;
+  L := to_upper_case (S);
 
   return L
 };
@@ -2129,7 +2129,7 @@ function StringPrototypetoLowerCase(global, this, NewTarget, strict, args) {
   S := ToString(O);
   @ReturnIfAbrupt(S);
 
-  L := to_lower_case S;
+  L := to_lower_case (S);
 
   return L
 };
@@ -2151,7 +2151,7 @@ function StringPrototypetoUpperCase(global, this, NewTarget, strict, args) {
 
   @ReturnIfAbrupt(S);
 
-  L := to_upper_case S;
+  L := to_upper_case (S);
 
   return L
 };

@@ -1158,7 +1158,7 @@ function canonicalise(c, c_cp, ic) {
     return c_cp
   };
 
-  u := to_upper_case c;
+  u := to_upper_case (c);
   if (!((s_len_u u) = 1)) {
     return c_cp
   };
@@ -1257,7 +1257,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
   }
   | { type: "Char", value: c, kind: "control" } -> {
 
-    c := to_upper_case c;
+    c := to_upper_case (c);
     c := s_nth_u(c, 2);
     code := int_to_float (to_char_code_u (c));
     code := code % 32.;
@@ -1797,7 +1797,7 @@ function JS_Interpreter_RegEx(re, flags) {
 
     m := lambda (st, k) [v] {
 
-      v := to_upper_case v;
+      v := to_upper_case (v);
       v := s_nth_u(v, 2);
       v_code := int_to_float (to_char_code_u (v));
       v_code := v_code % 32.;
