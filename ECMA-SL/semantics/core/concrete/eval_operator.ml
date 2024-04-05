@@ -29,7 +29,7 @@ let typeof (v : Val.t) : Val.t =
   | List _ -> Type ListType
   | Tuple _ -> Type TupleType
   | Type _ -> Type TypeType
-  | Byte _ -> Internal_error.(throw __FUNCTION__ (NotImplemented (Some "byte")))
+  | Byte _ -> Internal_error.(throw __FUNCTION__ (NotImplemented "byte typeof"))
   | Curry _ -> Type CurryType
 
 let neg (v : Val.t) : Val.t =
@@ -1024,9 +1024,9 @@ let eval_unopt (op : unopt) (v : Val.t) : Val.t =
   | StringLenU -> string_len_u v
   | StringConcat -> string_concat v
   | ObjectToList ->
-    Internal_error.(throw __FUNCTION__ (UnexpectedEval (Some "ObjectToList")))
+    Internal_error.(throw __FUNCTION__ (Unexpected "ObjectToList operator"))
   | ObjectFields ->
-    Internal_error.(throw __FUNCTION__ (UnexpectedEval (Some "ObjectFields")))
+    Internal_error.(throw __FUNCTION__ (Unexpected "ObjectFields operator"))
   | ArrayLen -> array_len v
   | ListToArray -> list_to_array v
   | ListHead -> list_head v
@@ -1089,9 +1089,9 @@ let eval_binopt (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | LogicalAnd -> logical_and (v1, v2)
   | LogicalOr -> logical_or (v1, v2)
   | SCLogicalAnd ->
-    Internal_error.(throw __FUNCTION__ (UnexpectedEval (Some "SCLogicalAnd")))
+    Internal_error.(throw __FUNCTION__ (Unexpected "SCLogicalAnd operator"))
   | SCLogicalOr ->
-    Internal_error.(throw __FUNCTION__ (UnexpectedEval (Some "SCLogicalOr")))
+    Internal_error.(throw __FUNCTION__ (Unexpected "SCLogicalOr operator"))
   | Eq -> eq (v1, v2)
   | NE -> ne (v1, v2)
   | Lt -> lt (v1, v2)
@@ -1102,7 +1102,7 @@ let eval_binopt (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | ToExponential -> to_exponential (v1, v2)
   | ToFixed -> to_fixed (v1, v2)
   | ObjectMem ->
-    Internal_error.(throw __FUNCTION__ (UnexpectedEval (Some "ObjectMem")))
+    Internal_error.(throw __FUNCTION__ (Unexpected "ObjectMem operator"))
   | StringNth -> string_nth (v1, v2)
   | StringNthU -> string_nth_u (v1, v2)
   | StringSplit -> string_split (v1, v2)

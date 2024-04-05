@@ -1,14 +1,14 @@
 let make_dir (fpath : Fpath.t) : unit =
   match Bos.OS.Dir.create fpath with
   | Ok _ -> ()
-  | Error (`Msg err) -> failwith err
+  | Error (`Msg err) -> EslBase.Log.fail "%s" err
 
 let dir_contents (recursive : bool) (dir : Fpath.t) : Fpath.t list =
   let traverse = if recursive then `Any else `None in
   let fold fpath acc = fpath :: acc in
   match Bos.OS.Dir.fold_contents ~elements:`Files ~traverse fold [] dir with
   | Ok fpaths -> fpaths
-  | Error (`Msg err) -> failwith err
+  | Error (`Msg err) -> EslBase.Log.fail "%s" err
 
 let make_fout (dir : Fpath.t) (fin : Fpath.t) (ext : string) : Fpath.t =
   let fpath = Fpath.((dir // rem_ext fin) + ext) in
