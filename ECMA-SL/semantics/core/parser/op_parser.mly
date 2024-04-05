@@ -19,8 +19,6 @@
 %token STRING_TO_INT STRING_TO_FLOAT FROM_CHAR_CODE FROM_CHAR_CODE_U TO_CHAR_CODE TO_CHAR_CODE_U TO_LOWER_CASE TO_UPPER_CASE TRIM
 %token STRING_LEN STRING_LEN_U STRING_CONCAT
 
-%token TO_EXPONENTIAL TO_FIXED
-
 %token STRING_NTH STRING_NTH_U STRING_SPLIT
 %token STRING_SUBSTR STRING_SUBSTR_U
 
@@ -155,8 +153,6 @@
   | PARSE_DATE;             { Operator.ParseDate }
 
 %public let core_binopt_call ==
-  | TO_EXPONENTIAL;         { Operator.ToExponential }
-  | TO_FIXED;               { Operator.ToFixed }
   | STRING_NTH;             { Operator.StringNth }
   | STRING_NTH_U;           { Operator.StringNthU }
   | STRING_SPLIT;           { Operator.StringSplit }

@@ -120,9 +120,6 @@ type binopt =
   | Gt
   | Le
   | Ge
-  (* Float operators *)
-  | ToExponential
-  | ToFixed
   (* Object operators *)
   | ObjectMem
   (* String operators *)
@@ -290,8 +287,6 @@ let label_of_binopt (op : binopt) : string =
   | Gt -> "Comp.gt (>)"
   | Le -> "Comp.le (<=)"
   | Ge -> "Comp.ge (>=)"
-  | ToExponential -> "Float.to_exponential"
-  | ToFixed -> "Float.to_fixed"
   | ObjectMem -> "Object.in_obj"
   | StringNth -> "String.s_nth"
   | StringNthU -> "String.s_nth_u"
@@ -430,8 +425,6 @@ let pp_of_binopt_single (fmt : Fmt.t) (op : binopt) : unit =
   | Gt -> pp_str fmt ">"
   | Le -> pp_str fmt "<="
   | Ge -> pp_str fmt ">="
-  | ToExponential -> pp_str fmt "to_exponential"
-  | ToFixed -> pp_str fmt "to_fixed"
   | ObjectMem -> pp_str fmt "in_obj"
   | StringNth -> pp_str fmt "s_nth"
   | StringNthU -> pp_str fmt "s_nth_u"
