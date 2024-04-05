@@ -7,11 +7,11 @@ module Config = struct
 end
 
 let terminal_cmd (fdesc : Unix.file_descr) (cmd : string) : string option =
-  if Unix.isatty fdesc then (
+  if Unix.isatty fdesc then
     let ic = Unix.open_process_in cmd in
-    let result = input_line ic in
-    close_in ic;
-    Some result )
+    let finally () = close_in ic in
+    let execute () = input_line ic in
+    Some (Fun.protect ~finally execute)
   else None
 
 let colored (fdesc : Unix.file_descr) : bool =
