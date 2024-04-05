@@ -69,7 +69,6 @@
             "s_len"                   , STRING_LEN;
             "s_concat"                , STRING_CONCAT;
             "s_nth"                   , STRING_NTH;
-            "s_split"                 , STRING_SPLIT;
             "s_substr"                , STRING_SUBSTR;
             "s_substr_u"              , STRING_SUBSTR_U;
 

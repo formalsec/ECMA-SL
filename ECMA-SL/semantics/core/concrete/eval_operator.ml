@@ -645,14 +645,6 @@ let string_nth ((v1, v2) : Val.t * Val.t) : Val.t =
     with _ -> unexpected_err 2 op_lbl "index out of bounds" )
   | (Str _, _) -> bad_arg_err 2 op_lbl "(string, integer)" [ v1; v2 ]
   | _ -> bad_arg_err 1 op_lbl "(string, integer)" [ v1; v2 ]
-let string_split ((v1, v2) : Val.t * Val.t) : Val.t =
-  let op_lbl = label_of_binopt StringSplit in
-  match (v1, v2) with
-  | (_, Str "") -> unexpected_err 2 op_lbl "empty separator"
-  | (Str str, Str sep) ->
-    Val.List (List.map (fun s -> Val.Str s) (Str.split (Str.regexp sep) str))
-  | (Str _, _) -> bad_arg_err 2 op_lbl "(string, string)" [ v1; v2 ]
-  | _ -> bad_arg_err 1 op_lbl "(string, string)" [ v1; v2 ]
 
 let array_make ((v1, v2) : Val.t * Val.t) : Val.t =
   let op_lbl = label_of_binopt ArrayMake in
@@ -951,7 +943,6 @@ let eval_binopt (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | ObjectMem ->
     Internal_error.(throw __FUNCTION__ (Unexpected "ObjectMem operator"))
   | StringNth -> string_nth (v1, v2)
-  | StringSplit -> string_split (v1, v2)
   | ArrayMake -> array_make (v1, v2)
   | ArrayNth -> array_nth (v1, v2)
   | ListMem -> list_mem (v1, v2)
