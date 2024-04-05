@@ -35,8 +35,6 @@ type unopt =
   (* Object operators *)
   | ObjectToList
   | ObjectFields
-  (* Array operators *)
-  | ArrayLen
   (* List operators *)
   | ListToArray
   | ListHead
@@ -118,9 +116,6 @@ type binopt =
   | ObjectMem
   (* String operators *)
   | StringNth
-  (* Array operators *)
-  | ArrayMake
-  | ArrayNth
   (* List operators *)
   | ListMem
   | ListNth
@@ -145,8 +140,6 @@ type triopt =
   | ITE
   (* String operators *)
   | StringSubstr
-  (* Array operators *)
-  | ArraySet
   (* List operators *)
   | ListSet
 
@@ -202,7 +195,6 @@ let label_of_unopt (op : unopt) : string =
   | StringConcat -> "String.s_concat"
   | ObjectToList -> "Object.obj_to_list"
   | ObjectFields -> "Object.obj_fields"
-  | ArrayLen -> "Array.a_len"
   | ListToArray -> "List.list_to_array"
   | ListHead -> "List.hd"
   | ListTail -> "List.tl"
@@ -274,8 +266,6 @@ let label_of_binopt (op : binopt) : string =
   | Ge -> "Comp.ge (>=)"
   | ObjectMem -> "Object.in_obj"
   | StringNth -> "String.s_nth"
-  | ArrayMake -> "Array.array_make"
-  | ArrayNth -> "Array.a_nth"
   | ListMem -> "List.in_list"
   | ListNth -> "List.l_nth"
   | ListAdd -> "List.l_add"
@@ -295,7 +285,6 @@ let label_of_triopt (op : triopt) : string =
   match op with
   | ITE -> "IfThenElse"
   | StringSubstr -> "String.s_substr"
-  | ArraySet -> "Array.a_set"
   | ListSet -> "List.l_set"
 
 let label_of_nopt (op : nopt) : string =
@@ -330,7 +319,6 @@ let pp_of_unopt_single (fmt : Fmt.t) (op : unopt) : unit =
   | StringConcat -> pp_str fmt "s_concat"
   | ObjectToList -> pp_str fmt "obj_to_list"
   | ObjectFields -> pp_str fmt "obj_fields"
-  | ArrayLen -> pp_str fmt "a_len"
   | ListToArray -> pp_str fmt "list_to_array"
   | ListHead -> pp_str fmt "hd"
   | ListTail -> pp_str fmt "tl"
@@ -403,8 +391,6 @@ let pp_of_binopt_single (fmt : Fmt.t) (op : binopt) : unit =
   | Ge -> pp_str fmt ">="
   | ObjectMem -> pp_str fmt "in_obj"
   | StringNth -> pp_str fmt "s_nth"
-  | ArrayMake -> pp_str fmt "array_make"
-  | ArrayNth -> pp_str fmt "a_nth"
   | ListMem -> pp_str fmt "in_list"
   | ListNth -> pp_str fmt "l_nth"
   | ListAdd -> pp_str fmt "l_add"
@@ -425,7 +411,6 @@ let pp_of_triopt_single (fmt : Fmt.t) (op : triopt) : unit =
   match op with
   | ITE -> pp_str fmt "ite"
   | StringSubstr -> pp_str fmt "s_substr"
-  | ArraySet -> pp_str fmt "a_set"
   | ListSet -> pp_str fmt "l_set"
 
 let pp_of_const (fmt : Fmt.t) (c : const) : unit =

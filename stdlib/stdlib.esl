@@ -114,6 +114,23 @@ function s_substr_u(s : string, n1 : int, n2 : int) : string {
   return extern s_substr_u_external(s, n1, n2)
 }
 
+/* Array operators */
+function a_len(a : array) : int {
+  return extern a_len_external(a)
+}
+
+function array_make(n : int, v) : string {
+  return extern array_make_external(n, v)
+}
+
+function a_nth(a : array, n : int) {
+  return extern a_nth_external(a, n)
+}
+
+function a_set(a : array, n : int, v) {
+  return extern a_set_external(a, n, v)
+}
+
 /* Math operators */
 /* FIXME: to replace `min` */
 function min_(x : float, y : float) : float {

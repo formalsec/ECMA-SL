@@ -22,11 +22,6 @@
 %token STRING_NTH
 %token STRING_SUBSTR
 
-%token ARRAY_MAKE
-%token ARRAY_NTH
-%token ARRAY_LEN
-%token ARRAY_SET
-
 %token LIST_TO_ARRAY LIST_HEAD LIST_TAIL LIST_LEN LIST_SORT LIST_REVERSE LIST_REMOVE_LAST
 %token LIST_NTH LIST_ADD LIST_PREPEND LIST_CONCAT LIST_REMOVE LIST_REMOVE_NTH
 %token LIST_MEM LIST_SET
@@ -100,7 +95,6 @@
   | TO_CHAR_CODE;           { Operator.ToCharCode }
   | STRING_LEN;             { Operator.StringLen }
   | STRING_CONCAT;          { Operator.StringConcat }
-  | ARRAY_LEN;              { Operator.ArrayLen }
   | LIST_TO_ARRAY;          { Operator.ListToArray }
   | LIST_HEAD;              { Operator.ListHead }
   | LIST_TAIL;              { Operator.ListTail }
@@ -148,8 +142,6 @@
 
 %public let core_binopt_call ==
   | STRING_NTH;             { Operator.StringNth }
-  | ARRAY_MAKE;             { Operator.ArrayMake }
-  | ARRAY_NTH;              { Operator.ArrayNth }
   | LIST_NTH;               { Operator.ListNth }
   | LIST_ADD;               { Operator.ListAdd }
   | LIST_PREPEND;           { Operator.ListPrepend }
@@ -166,5 +158,4 @@
 
 %public let core_triopt ==
   | STRING_SUBSTR;          { Operator.StringSubstr }
-  | ARRAY_SET;              { Operator.ArraySet }
   | LIST_SET;               { Operator.ListSet }
