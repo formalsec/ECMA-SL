@@ -132,9 +132,6 @@ let%test "binopt_le_null" = test_binopt (Le, Null, Null) t_boolean
 let%test "binopt_string_nth" =
   test_binopt (StringNth, Str "abc", Int 10) t_string
 
-let%test "binopt_string_split" =
-  test_binopt (StringSplit, Str "abc", Str "abc") t_string
-
 let%test "binopt_min" = test_binopt (Min, Flt 10.1, Flt 10.1) t_float
 let%test "binopt_max" = test_binopt (Max, Flt 10.1, Flt 10.1) t_float
 let%test "binopt_atan2" = test_binopt (Atan2, Flt 10.1, Flt 10.1) t_float

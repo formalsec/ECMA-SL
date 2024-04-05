@@ -19,7 +19,7 @@
 %token STRING_TO_INT STRING_TO_FLOAT FROM_CHAR_CODE TO_CHAR_CODE 
 %token STRING_LEN STRING_CONCAT
 
-%token STRING_NTH STRING_SPLIT
+%token STRING_NTH
 %token STRING_SUBSTR STRING_SUBSTR_U
 
 %token ARRAY_MAKE
@@ -148,7 +148,6 @@
 
 %public let core_binopt_call ==
   | STRING_NTH;             { Operator.StringNth }
-  | STRING_SPLIT;           { Operator.StringSplit }
   | ARRAY_MAKE;             { Operator.ArrayMake }
   | ARRAY_NTH;              { Operator.ArrayNth }
   | LIST_NTH;               { Operator.ListNth }
