@@ -476,7 +476,7 @@ function parseParams(paramsStr) {
   ret := [];
   while(i < lparams) {
     param := l_nth(params, i);
-    ret := l_add(ret, trim param);
+    ret := l_add(ret, trim (param));
     i := i + 1
   };
 

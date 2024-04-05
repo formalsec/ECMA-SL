@@ -139,7 +139,6 @@ let to_char_code_u (v : Val.t) : Val.t =
   | Str s -> Int (String_utils.to_char_code_u s)
   | _ -> Eval_operator.bad_arg_err 1 op_lbl "string" [ v ]
 
-
 let to_lower_case (v : Val.t) : Val.t =
   let op_lbl = "to_lower_case_external" in
   match v with
@@ -150,6 +149,12 @@ let to_upper_case (v : Val.t) : Val.t =
   let op_lbl = "to_upper_case_external" in
   match v with
   | Str s -> Str (String_utils.to_upper_case s)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "string" [ v ]
+
+let trim (v : Val.t) : Val.t =
+  let op_lbl = "trim_external" in
+  match v with
+  | Str s -> Str (String_utils.trim s)
   | _ -> Eval_operator.bad_arg_err 1 op_lbl "string" [ v ]
 
 
@@ -167,6 +172,7 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("to_char_code_u_external", [ v ]) -> to_char_code_u v
   | ("to_lower_case_external", [ v ]) -> to_lower_case v
   | ("to_upper_case_external", [ v ]) -> to_upper_case v
+  | ("trim_external", [ v ]) -> trim v
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
     Val.Symbol "undefined"
