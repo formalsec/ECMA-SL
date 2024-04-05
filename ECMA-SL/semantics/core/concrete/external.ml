@@ -191,6 +191,38 @@ let s_substr_u ((v1, v2, v3) : Val.t * Val.t * Val.t) : Val.t =
   | (Str _, _, _) -> arg_err 2
   | _ -> arg_err 1
 
+let array_len (v : Val.t) : Val.t =
+  let op_lbl = "a_len_external" in
+  match v with
+  | Arr arr -> Val.Int (Array.length arr)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "array" [ v ]
+
+let array_make ((v1, v2) : Val.t * Val.t) : Val.t =
+  let op_lbl = "array_make_external" in
+  match (v1, v2) with
+  | (Int n, v) ->
+    if n > 0 then Val.Arr (Array.make n v)
+    else Eval_operator.unexpected_err 1 op_lbl "non-positive array size"
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "(integer, any)" [ v1; v2 ]
+
+let array_nth ((v1, v2) : Val.t * Val.t) : Val.t =
+  let op_lbl = "a_nth_external" in
+  match (v1, v2) with
+  | (Arr arr, Int i) -> (
+    try Array.get arr i
+    with _ -> Eval_operator.unexpected_err 2 op_lbl "index out of bounds" )
+  | (Arr _, _) -> Eval_operator.bad_arg_err 2 op_lbl "(array, integer)" [ v1; v2 ]
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "(array, integer)" [ v1; v2 ]
+  
+let array_set ((v1, v2, v3) : Val.t * Val.t * Val.t) : Val.t =
+  let op_lbl = "a_set_external" in
+  match (v1, v2) with
+  | (Arr arr, Int i) -> (
+    try Array.set arr i v3 |> fun () -> Val.Null
+    with _ -> Eval_operator.unexpected_err 2 op_lbl "index out of bounds" )
+  | (Arr _, _) -> Eval_operator.bad_arg_err 2 op_lbl "(array, integer, any)" [ v1; v2; v3 ]
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "(array, integer, any)" [ v1; v2; v3 ]
+
 let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   (fn : Id.t') (vs : Val.t list) : Val.t =
   match (fn, vs) with
@@ -210,6 +242,10 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("s_nth_u_external", [ v1 ; v2 ]) -> s_nth_u (v1, v2)
   | ("s_split_external", [ v1 ; v2 ]) -> s_split (v1, v2)
   | ("s_substr_u_external", [ v1 ; v2 ; v3 ]) -> s_substr_u (v1, v2, v3)
+  | ("a_len_external", [ v ]) -> array_len v
+  | ("array_make_external", [ v1 ; v2]) -> array_make (v1, v2)
+  | ("a_nth_external", [ v1 ; v2]) -> array_nth (v1, v2)
+  | ("a_set_external", [ v1 ; v2 ; v3 ]) -> array_set (v1, v2, v3)
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
     Val.Symbol "undefined"

@@ -55,12 +55,6 @@
             "obj_fields"              , OBJECT_FIELDS;
             "in_obj"                  , OBJECT_MEM;
 
-            (* Array operators *)
-            "a_len"                   , ARRAY_LEN;
-            "array_make"              , ARRAY_MAKE;
-            "a_nth"                   , ARRAY_NTH;
-            "a_set"                   , ARRAY_SET;
-
             (* List operators *)
             "list_to_array"           , LIST_TO_ARRAY;
             "hd"                      , LIST_HEAD;

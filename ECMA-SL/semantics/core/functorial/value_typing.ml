@@ -158,7 +158,7 @@ let type_of_triop (op : Operator.triopt) (_ : Type.t) (ty2 : Type.t)
   | Operator.StringSubstr -> Some Type.StrType
   (* | Operator.StringSubstrU -> Some Type.StrType *)
   | Operator.ListSet -> Some Type.ListType
-  | Operator.ArraySet -> Some Type.ArrayType
+  (* | Operator.ArraySet -> Some Type.ArrayType *)
   | Operator.ITE -> (
     if ty2 = ty3 then Some ty2
     else

@@ -153,12 +153,6 @@ let string_concat (v : Val.t) : Val.t =
     | None -> bad_arg_err 1 op_lbl "string list" [ v ] )
   | _ -> bad_arg_err 1 op_lbl "string list" [ v ]
 
-let array_len (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt ArrayLen in
-  match v with
-  | Arr arr -> Val.Int (Array.length arr)
-  | _ -> bad_arg_err 1 op_lbl "array" [ v ]
-
 let list_to_array (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt ListToArray in
   match v with
@@ -636,7 +630,6 @@ let ge ((v1, v2) : Val.t * Val.t) : Val.t =
   | (Int i, Flt f) -> Bool (float i >= f)
   | (v1, v2) -> Bool (v1 >= v2)
 
-
 let string_nth ((v1, v2) : Val.t * Val.t) : Val.t =
   let op_lbl = label_of_binopt StringNth in
   match (v1, v2) with
@@ -645,23 +638,6 @@ let string_nth ((v1, v2) : Val.t * Val.t) : Val.t =
     with _ -> unexpected_err 2 op_lbl "index out of bounds" )
   | (Str _, _) -> bad_arg_err 2 op_lbl "(string, integer)" [ v1; v2 ]
   | _ -> bad_arg_err 1 op_lbl "(string, integer)" [ v1; v2 ]
-
-let array_make ((v1, v2) : Val.t * Val.t) : Val.t =
-  let op_lbl = label_of_binopt ArrayMake in
-  match (v1, v2) with
-  | (Int n, v) ->
-    if n > 0 then Val.Arr (Array.make n v)
-    else unexpected_err 1 op_lbl "non-positive array size"
-  | _ -> bad_arg_err 1 op_lbl "(integer, any)" [ v1; v2 ]
-
-let array_nth ((v1, v2) : Val.t * Val.t) : Val.t =
-  let op_lbl = label_of_binopt ArrayNth in
-  match (v1, v2) with
-  | (Arr arr, Int i) -> (
-    try Array.get arr i
-    with _ -> unexpected_err 2 op_lbl "index out of bounds" )
-  | (Arr _, _) -> bad_arg_err 2 op_lbl "(array, integer)" [ v1; v2 ]
-  | _ -> bad_arg_err 1 op_lbl "(array, integer)" [ v1; v2 ]
 
 let list_nth ((v1, v2) : Val.t * Val.t) : Val.t =
   let op_lbl = label_of_binopt ListNth in
@@ -796,15 +772,6 @@ let s_substr ((v1, v2, v3) : Val.t * Val.t * Val.t) : Val.t =
   | (Str _, _, _) -> arg_err 2
   | _ -> arg_err 1
 
-let array_set ((v1, v2, v3) : Val.t * Val.t * Val.t) : Val.t =
-  let op_lbl = label_of_triopt ArraySet in
-  match (v1, v2) with
-  | (Arr arr, Int i) -> (
-    try Array.set arr i v3 |> fun () -> Val.Null
-    with _ -> unexpected_err 2 op_lbl "index out of bounds" )
-  | (Arr _, _) -> bad_arg_err 2 op_lbl "(array, integer, any)" [ v1; v2; v3 ]
-  | _ -> bad_arg_err 1 op_lbl "(array, integer, any)" [ v1; v2; v3 ]
-
 let list_set ((v1, v2, v3) : Val.t * Val.t * Val.t) : Val.t =
   let op_lbl = label_of_triopt ListSet in
   let rec _set_aux lst i v =
@@ -858,7 +825,6 @@ let eval_unopt (op : unopt) (v : Val.t) : Val.t =
     Internal_error.(throw __FUNCTION__ (Unexpected "ObjectToList operator"))
   | ObjectFields ->
     Internal_error.(throw __FUNCTION__ (Unexpected "ObjectFields operator"))
-  | ArrayLen -> array_len v
   | ListToArray -> list_to_array v
   | ListHead -> list_head v
   | ListTail -> list_tail v
@@ -933,8 +899,6 @@ let eval_binopt (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | ObjectMem ->
     Internal_error.(throw __FUNCTION__ (Unexpected "ObjectMem operator"))
   | StringNth -> string_nth (v1, v2)
-  | ArrayMake -> array_make (v1, v2)
-  | ArrayNth -> array_nth (v1, v2)
   | ListMem -> list_mem (v1, v2)
   | ListNth -> list_nth (v1, v2)
   | ListAdd -> list_add (v1, v2)
@@ -954,7 +918,6 @@ let eval_triopt (op : triopt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) : Val.t =
   match op with
   | ITE -> ite (v1, v2, v3)
   | StringSubstr -> s_substr (v1, v2, v3)
-  | ArraySet -> array_set (v1, v2, v3)
   | ListSet -> list_set (v1, v2, v3)
 
 let eval_nopt (op : nopt) (vals : Val.t list) : Val.t =
