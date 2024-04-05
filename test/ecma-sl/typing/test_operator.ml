@@ -44,7 +44,6 @@ let%test "unopt_is_nan_null" = test_unopt (IsNaN, Null) t_boolean
 let%test "unopt_string_to_int" = test_unopt (StringToInt, Str "abc") t_int
 let%test "unopt_string_to_float" = test_unopt (StringToFloat, Str "abc") t_float
 let%test "unopt_from_char_code" = test_unopt (FromCharCode, Int 10) t_string
-let%test "unopt_from_char_code_u" = test_unopt (FromCharCodeU, Int 10) t_string
 let%test "unopt_to_char_code" = test_unopt (ToCharCode, Str "abc") t_int
 let%test "unopt_to_char_code_u" = test_unopt (ToCharCodeU, Str "abc") t_int
 let%test "unopt_to_lower_case" = test_unopt (ToLowerCase, Str "abc") t_string
