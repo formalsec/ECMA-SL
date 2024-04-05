@@ -60,7 +60,6 @@ let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
   | StringConcat -> not_implemented (* TODO: list typing *)
   | ObjectToList -> not_implemented (* TODO: custom object typing function *)
   | ObjectFields -> not_implemented (* TODO: custom object typing function *)
-  | ArrayLen -> not_implemented (* TODO: array typing *)
   | ListToArray -> not_implemented (* TODO: array typing *)
   | ListHead -> not_implemented (* TODO: list typing *)
   | ListTail -> not_implemented (* TODO: list typing *)
@@ -136,8 +135,6 @@ let type_binopt (op : Operator.binopt) (targs : EType.t list) : EType.t' =
   | Ge -> type_op [ ([ UnknownType; UnknownType ], BooleanType) ]
   | ObjectMem -> not_implemented (* TODO: custom object typing function *)
   | StringNth -> type_op [ ([ StringType; IntType ], StringType) ]
-  | ArrayMake -> not_implemented (* TODO: array typing *)
-  | ArrayNth -> not_implemented (* TODO: array typing *)
   | ListMem -> not_implemented (* TODO: list typing *)
   | ListNth -> not_implemented (* TODO: list typing *)
   | ListAdd -> not_implemented (* TODO: list typing *)
@@ -159,7 +156,6 @@ let type_triopt (op : Operator.triopt) (targs : EType.t list) : EType.t' =
   match op with
   | ITE -> not_implemented (* TODO: custom if-then-else typing function *)
   | StringSubstr -> type_op [ ([ StringType; IntType; IntType ], StringType) ]
-  | ArraySet -> not_implemented (* TODO: array typing *)
   | ListSet -> not_implemented (* TODO: list typing *)
 
 let type_nopt (op : Operator.nopt) (_targs : EType.t list) : EType.t' =
