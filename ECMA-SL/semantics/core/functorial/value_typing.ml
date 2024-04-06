@@ -102,8 +102,8 @@ let type_of_unop (op : Operator.unopt) (ty : Type.t) : Type.t option =
   | Operator.Typeof -> Some Type.TypeType
   | Operator.StringConcat -> type_of_sconcat ty
   | Operator.Exp -> on_float ~return:Type.FltType ty
-  | Operator.LogE -> on_float ~return:Type.FltType ty
-  | Operator.Log10 -> on_float ~return:Type.FltType ty
+  (* | Operator.LogE -> on_float ~return:Type.FltType ty *)
+  (* | Operator.Log10 -> on_float ~return:Type.FltType ty *)
   | Operator.Ceil -> on_float ~return:Type.FltType ty
   | Operator.Floor -> on_float ~return:Type.FltType ty
   | Operator.Abs -> on_float ~return:Type.FltType ty
