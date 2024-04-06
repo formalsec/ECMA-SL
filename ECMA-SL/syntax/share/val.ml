@@ -28,7 +28,7 @@ let rec equal (v1 : t) (v2 : t) : bool =
   match (v1, v2) with
   | (Null, Null) | (Void, Void) -> true
   | (Int i1, Int i2) -> Int.equal i1 i2
-  | (Flt f1, Flt f2) -> Float.equal f1 f2
+  | (Flt f1, Flt f2) -> f1 = f2
   | (Str s1, Str s2) -> String.equal s1 s2
   | (Bool b1, Bool b2) -> Bool.equal b1 b2
   | (Symbol s1, Symbol s2) -> String.equal s1 s2
