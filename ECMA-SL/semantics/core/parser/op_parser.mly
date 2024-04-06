@@ -14,7 +14,7 @@
 %token TYPEOF
 
 %token INT_TO_FLOAT INT_TO_STRING
-%token FLOAT_TO_INT FLOAT_TO_STRING TO_INT TO_INT32 TO_UINT16 TO_UINT32 IS_NAN
+%token FLOAT_TO_INT FLOAT_TO_STRING TO_INT TO_INT32 TO_UINT16 TO_UINT32
 
 %token STRING_TO_INT STRING_TO_FLOAT FROM_CHAR_CODE TO_CHAR_CODE 
 %token STRING_LEN STRING_CONCAT
@@ -76,7 +76,6 @@
   | TO_INT32;               { Operator.ToInt32 }
   | TO_UINT16;              { Operator.ToUint16 }
   | TO_UINT32;              { Operator.ToUint32 }
-  | IS_NAN;                 { Operator.IsNaN }
   | STRING_TO_INT;          { Operator.StringToInt }
   | STRING_TO_FLOAT;        { Operator.StringToFloat }
   | FROM_CHAR_CODE;         { Operator.FromCharCode }

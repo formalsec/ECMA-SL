@@ -49,7 +49,7 @@ let translate_unop (t : Type.t option) (op : Operator.unopt) (e : Expr.t) :
     | ToUint32 ->
       (* Real.mk_to_uint32 *)
       assert false
-    | IsNaN -> Val Value.False @: Ty_bool
+    (* | IsNaN -> Val Value.False @: Ty_bool *)
     | FloatToString -> Cvtop (ToString, e) @: Ty_real
     | StringToFloat -> Cvtop (OfString, e) @: Ty_real
     | Ceil -> Unop (Ceil, e) @: Ty_real

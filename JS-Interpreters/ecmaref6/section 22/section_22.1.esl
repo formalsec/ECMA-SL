@@ -3615,7 +3615,7 @@ function SortCompare(comparefn, x, y) {
       @ReturnIfAbrupt(v);
 
       /* c. If v is NaN, return +0. */
-      if (is_NaN v) {
+      if (is_NaN (v)) {
         return 0.
       };
 

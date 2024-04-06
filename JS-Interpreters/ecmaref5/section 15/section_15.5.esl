@@ -548,7 +548,7 @@ function StringPrototypelastIndexOf(global, this, strict, args) {
   /*  Let numPos be ToNumber(position). (If position is undefined, this step produces the value NaN). */
   numPos := ToNumber(position);
   /*  If numPos is NaN, let pos be +∞; otherwise, let pos be ToInteger(numPos).*/
-  if (is_NaN numPos) {
+  if (is_NaN (numPos)) {
     pos := Infinity
   } else {
     pos := ToInteger(numPos)

@@ -59,7 +59,6 @@
             "to_int32"                , TO_INT32;
             "to_uint16"               , TO_UINT16;
             "to_uint32"               , TO_UINT32;
-            "is_NaN"                  , IS_NAN;
 
             (* String operators *)
             "int_of_string"           , STRING_TO_INT;

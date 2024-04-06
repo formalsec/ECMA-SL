@@ -109,7 +109,7 @@ let type_of_unop (op : Operator.unopt) (ty : Type.t) : Type.t option =
   | Operator.Abs -> on_float ~return:Type.FltType ty
   | Operator.ToInt -> on_float ~return:Type.FltType ty
   | Operator.Sqrt -> on_float ~return:Type.FltType ty
-  | Operator.IsNaN -> on_float ~return:Type.BoolType ty
+  (* | Operator.IsNaN -> on_float ~return:Type.BoolType ty *)
   | Operator.StringLen -> Some Type.IntType
   (* | Operator.StringLenU -> Some Type.IntType *)
   (* | Operator.Trim -> Some Type.StrType *)

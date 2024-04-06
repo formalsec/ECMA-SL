@@ -51,7 +51,6 @@ let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
   | ToInt32 -> type_op [ ([ FloatType ], FloatType) ]
   | ToUint16 -> type_op [ ([ FloatType ], FloatType) ]
   | ToUint32 -> type_op [ ([ FloatType ], FloatType) ]
-  | IsNaN -> type_op [ ([ UnknownType ], BooleanType) ]
   | StringToInt -> type_op [ ([ StringType ], IntType) ]
   | StringToFloat -> type_op [ ([ StringType ], FloatType) ]
   | FromCharCode -> type_op [ ([ IntType ], StringType) ]

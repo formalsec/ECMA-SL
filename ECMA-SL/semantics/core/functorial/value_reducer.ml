@@ -86,7 +86,7 @@ let reduce_unop (op : unopt) (v : value) : value =
   match (op, v) with
   | (op, Val v) -> Val (Eval_operator.eval_unopt op v)
   | (Neg, Symbolic (_, _)) -> UnOpt (Neg, v)
-  | (IsNaN, Symbolic _) -> Val (Bool false)
+  (* | (IsNaN, Symbolic _) -> Val (Bool false) *)
   | (LogicalNot, _v') -> UnOpt (LogicalNot, v)
   | (ListHead, NOpt (ListExpr, l)) -> List.hd l
   | (ListTail, NOpt (ListExpr, _ :: tl)) -> NOpt (ListExpr, tl)

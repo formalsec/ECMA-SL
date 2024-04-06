@@ -3392,22 +3392,22 @@ function TypedArraySortCompare(x, y, comparefn, buffer) {
       throw TypeErrorConstructorInternal()
     };
     /* d. If v is NaN, return +0. */
-    if (is_NaN v) {
+    if (is_NaN (v)) {
       return 0.
     };
     /* e. Return v. */
     return v
   };
   /* 3. If x and y are both NaN, return +0. */
-  if ((is_NaN x) &&& (is_NaN y)) {
+  if ((is_NaN (x)) &&& (is_NaN (y))) {
     return 0.
   };
   /* 4. If x is NaN, return 1. */
-  if (is_NaN x) {
+  if (is_NaN (x)) {
     return 1.
   };
   /* 5. If y is NaN, return −1. */
-  if (is_NaN y) {
+  if (is_NaN (y)) {
     return -(1.)
   };
   /* 6. If x < y, return −1. */

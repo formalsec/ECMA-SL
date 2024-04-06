@@ -14,8 +14,7 @@ function is_int(f : float) : boolean {
   return (trunc f) = f
 }
 
-/* FIXME: to replace `is_NaN` */
-function is_nan(n : float) : boolean {
+function is_NaN(n : float) : boolean {
   return n != n
 }
 
