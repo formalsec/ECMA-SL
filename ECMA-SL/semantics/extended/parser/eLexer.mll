@@ -55,9 +55,6 @@
             (* Float operators *)
             "int_of_float"            , FLOAT_TO_INT;
             "float_to_string"         , FLOAT_TO_STRING;
-            "to_int32"                , TO_INT32;
-            "to_uint16"               , TO_UINT16;
-            "to_uint32"               , TO_UINT32;
 
             (* String operators *)
             "int_of_string"           , STRING_TO_INT;
@@ -99,8 +96,6 @@
             "floor"                   , FLOOR;
             "trunc"                   , TRUNC;
             "exp"                     , EXP;
-            "min"                     , MIN;
-            "max"                     , MAX;
 
             (* Type system *)
             "typedef"                 , TYPEDEF;

@@ -46,9 +46,9 @@ let translate_unop (t : Type.t option) (op : Operator.unopt) (e : Expr.t) :
     | Neg -> Unop (Neg, e) @: Ty_real
     | Abs -> Unop (Neg, e) @: Ty_real
     | Sqrt -> Unop (Neg, e) @: Ty_real
-    | ToUint32 ->
+    (* | ToUint32 ->
       (* Real.mk_to_uint32 *)
-      assert false
+      assert false *)
     (* | IsNaN -> Val Value.False @: Ty_bool *)
     | FloatToString -> Cvtop (ToString, e) @: Ty_real
     | StringToFloat -> Cvtop (OfString, e) @: Ty_real
@@ -117,8 +117,8 @@ let translate_binop (t1 : Type.t option) (t2 : Type.t option)
     | Minus -> Binop (Sub, e1, e2) @: Ty_real
     | Times -> Binop (Mul, e1, e2) @: Ty_real
     | Div -> Binop (Div, e1, e2) @: Ty_real
-    | Min -> Binop (Min, e1, e2) @: Ty_real
-    | Max -> Binop (Max, e1, e2) @: Ty_real
+    (* | Min -> Binop (Min, e1, e2) @: Ty_real *)
+    (* | Max -> Binop (Max, e1, e2) @: Ty_real *)
     (* TODO: rewrite using `Real` constructors -- fails se we don't introduce
              encoding errors *)
     | BitwiseAnd -> assert false

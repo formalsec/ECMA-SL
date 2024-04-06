@@ -34,9 +34,6 @@ let%test "unopt_int_to_float" = test_unopt (IntToFloat, Int 10) t_float
 let%test "unopt_int_to_string" = test_unopt (IntToString, Int 10) t_string
 let%test "unopt_float_to_int" = test_unopt (FloatToInt, Flt 10.1) t_int
 let%test "unopt_float_to_string" = test_unopt (FloatToString, Flt 10.1) t_string
-let%test "unopt_to_int32" = test_unopt (ToInt32, Flt 10.1) t_float
-let%test "unopt_to_uint16" = test_unopt (ToUint16, Flt 10.1) t_float
-let%test "unopt_to_uint32" = test_unopt (ToUint32, Flt 10.1) t_float
 let%test "unopt_string_to_int" = test_unopt (StringToInt, Str "abc") t_int
 let%test "unopt_string_to_float" = test_unopt (StringToFloat, Str "abc") t_float
 let%test "unopt_from_char_code" = test_unopt (FromCharCode, Int 10) t_string
@@ -110,9 +107,6 @@ let%test "binopt_le_null" = test_binopt (Le, Null, Null) t_boolean
 
 let%test "binopt_string_nth" =
   test_binopt (StringNth, Str "abc", Int 10) t_string
-
-let%test "binopt_min" = test_binopt (Min, Flt 10.1, Flt 10.1) t_float
-let%test "binopt_max" = test_binopt (Max, Flt 10.1, Flt 10.1) t_float
 
 (* ========== Simple Ternary Operators ========== *)
 

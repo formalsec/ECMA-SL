@@ -47,9 +47,6 @@ let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
   | IntToString -> type_op [ ([ IntType ], StringType) ]
   | FloatToInt -> type_op [ ([ FloatType ], IntType) ]
   | FloatToString -> type_op [ ([ FloatType ], StringType) ]
-  | ToInt32 -> type_op [ ([ FloatType ], FloatType) ]
-  | ToUint16 -> type_op [ ([ FloatType ], FloatType) ]
-  | ToUint32 -> type_op [ ([ FloatType ], FloatType) ]
   | StringToInt -> type_op [ ([ StringType ], IntType) ]
   | StringToFloat -> type_op [ ([ StringType ], FloatType) ]
   | FromCharCode -> type_op [ ([ IntType ], StringType) ]
@@ -108,8 +105,6 @@ let type_binopt (op : Operator.binopt) (targs : EType.t list) : EType.t' =
   | ListPrepend -> not_implemented (* TODO: list typing *)
   | ListConcat -> not_implemented (* TODO: list typing *)
   | TupleNth -> not_implemented (* TODO: tuple typing *)
-  | Min -> type_op [ float_arith ]
-  | Max -> type_op [ float_arith ]
 
 let type_triopt (op : Operator.triopt) (targs : EType.t list) : EType.t' =
   let not_implemented = EType.AnyType in
