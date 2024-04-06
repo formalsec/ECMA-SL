@@ -195,92 +195,6 @@ let tuple_len (v : Val.t) : Val.t =
   | Tuple tup -> Val.Int (List.length tup)
   | _ -> bad_arg_err 1 op_lbl "tuple" [ v ]
 
-let unpack_bytes_aux (op_lbl : string) (v : Val.t) : int array =
-  let open Val in
-  let unpack_bt_f = function Int i -> i | Byte bt -> bt | _ -> raise Exit in
-  try
-    match v with
-    | Arr bytes -> Array.map unpack_bt_f bytes
-    | _ -> bad_arg_err 1 op_lbl "byte array" [ v ]
-  with _ -> bad_arg_err 1 op_lbl "byte array" [ v ]
-
-let float_to_byte (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt FloatToByte in
-  match v with
-  | Flt x -> Val.Byte (Int64.to_int (Int64.bits_of_float x))
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
-let float32_to_le_bytes (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Float32ToLEBytes in
-  match v with
-  | Flt x ->
-    let bytes = Byte_utils.float32_to_le_bytes x in
-    let val_bytes = List.map (fun b -> Val.Byte (Int32.to_int b)) bytes in
-    List val_bytes
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
-let float32_to_be_bytes (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Float32ToBEBytes in
-  match v with
-  | Flt x ->
-    let bytes = Byte_utils.float32_to_be_bytes x in
-    let val_bytes = List.map (fun b -> Val.Byte (Int32.to_int b)) bytes in
-    List val_bytes
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
-let float64_to_le_bytes (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Float64ToLEBytes in
-  match v with
-  | Flt x ->
-    let bytes = Byte_utils.float64_to_le_bytes x in
-    let val_bytes = List.map (fun b -> Val.Byte (Int64.to_int b)) bytes in
-    List val_bytes
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
-let float64_to_be_bytes (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Float64ToBEBytes in
-  match v with
-  | Flt x ->
-    let bytes = Byte_utils.float64_to_be_bytes x in
-    let val_bytes = List.map (fun b -> Val.Byte (Int64.to_int b)) bytes in
-    List val_bytes
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
-let float32_from_le_bytes (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Float32FromLEBytes in
-  let int_bytes = unpack_bytes_aux op_lbl v in
-  let int32_bytes = Array.map Int32.of_int int_bytes in
-  let f = Byte_utils.float32_from_le_bytes int32_bytes in
-  Flt f
-
-let float32_from_be_bytes (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Float32FromBEBytes in
-  let int_bytes = unpack_bytes_aux op_lbl v in
-  let int32_bytes = Array.map Int32.of_int int_bytes in
-  let f = Byte_utils.float32_from_be_bytes int32_bytes in
-  Flt f
-
-let float64_from_le_bytes (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Float64FromLEBytes in
-  let int_bytes = unpack_bytes_aux op_lbl v in
-  let int64_bytes = Array.map Int64.of_int int_bytes in
-  let f = Byte_utils.float64_from_le_bytes int64_bytes in
-  Flt f
-
-let float64_from_be_bytes (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Float64FromBEBytes in
-  let int_bytes = unpack_bytes_aux op_lbl v in
-  let int64_bytes = Array.map Int64.of_int int_bytes in
-  let f = Byte_utils.float64_from_be_bytes int64_bytes in
-  Flt f
-
-let bytes_to_string (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt BytesToString in
-  let int_bytes = unpack_bytes_aux op_lbl v in
-  let str_bytes = Array.map string_of_int int_bytes |> Array.to_list in
-  let bytes_string = "[" ^ String.concat "; " str_bytes ^ "]" in
-  Str bytes_string
-
 let random (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt Random in
   match v with
@@ -654,36 +568,6 @@ let tuple_nth ((v1, v2) : Val.t * Val.t) : Val.t =
   | (Tuple _, _) -> bad_arg_err 2 op_lbl "(tuple, integer)" [ v1; v2 ]
   | _ -> bad_arg_err 1 op_lbl "(tuple, integer)" [ v1; v2 ]
 
-let int_to_be_bytes ((v1, v2) : Val.t * Val.t) : Val.t =
-  let op_lbl = label_of_binopt IntToBEBytes in
-  match (v1, v2) with
-  | (Flt x, Int n) ->
-    let bytes = Byte_utils.int_to_be_bytes (x, n) in
-    let val_bytes = List.map (fun b -> Val.Byte b) bytes in
-    List val_bytes
-  | (Flt _, _) -> bad_arg_err 2 op_lbl "(float, integer)" [ v1; v2 ]
-  | _ -> bad_arg_err 1 op_lbl "(float, integer)" [ v1; v2 ]
-
-let int_from_le_bytes ((v1, v2) : Val.t * Val.t) : Val.t =
-  let op_lbl = label_of_binopt IntFromLEBytes in
-  let int_bytes =
-    try unpack_bytes_aux op_lbl v1
-    with _ -> bad_arg_err 1 op_lbl "(byte array, integer)" [ v1; v2 ]
-  in
-  match v2 with
-  | Int n -> Flt (Byte_utils.int_from_le_bytes (int_bytes, n))
-  | _ -> bad_arg_err 2 op_lbl "(byte array, integer)" [ v1; v2 ]
-
-let uint_from_le_bytes ((v1, v2) : Val.t * Val.t) : Val.t =
-  let op_lbl = label_of_binopt UintFromLEBytes in
-  let int_bytes =
-    try unpack_bytes_aux op_lbl v1
-    with _ -> bad_arg_err 1 op_lbl "(byte array, integer)" [ v1; v2 ]
-  in
-  match v2 with
-  | Int n -> Flt (Byte_utils.uint_from_le_bytes (int_bytes, n))
-  | _ -> bad_arg_err 2 op_lbl "(byte array, integer)" [ v1; v2 ]
-
 let min ((v1, v2) : Val.t * Val.t) : Val.t =
   let op_lbl = label_of_binopt Min in
   match (v1, v2) with
@@ -781,16 +665,6 @@ let eval_unopt (op : unopt) (v : Val.t) : Val.t =
   | TupleFirst -> tuple_first v
   | TupleSecond -> tuple_second v
   | TupleLen -> tuple_len v
-  | FloatToByte -> float_to_byte v
-  | Float32ToLEBytes -> float32_to_le_bytes v
-  | Float32ToBEBytes -> float32_to_be_bytes v
-  | Float64ToLEBytes -> float64_to_le_bytes v
-  | Float64ToBEBytes -> float64_to_be_bytes v
-  | Float32FromLEBytes -> float32_from_le_bytes v
-  | Float32FromBEBytes -> float32_from_be_bytes v
-  | Float64FromLEBytes -> float64_from_le_bytes v
-  | Float64FromBEBytes -> float64_from_be_bytes v
-  | BytesToString -> bytes_to_string v
   | Random -> random v
   | Abs -> abs v
   | Sqrt -> sqrt v
@@ -851,9 +725,6 @@ let eval_binopt (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | ListPrepend -> list_prepend (v1, v2)
   | ListConcat -> list_concat (v1, v2)
   | TupleNth -> tuple_nth (v1, v2)
-  | IntToBEBytes -> int_to_be_bytes (v1, v2)
-  | IntFromLEBytes -> int_from_le_bytes (v1, v2)
-  | UintFromLEBytes -> uint_from_le_bytes (v1, v2)
   | Min -> min (v1, v2)
   | Max -> max (v1, v2)
   | Atan2 -> atan2 (v1, v2)

@@ -273,6 +273,122 @@ let list_remove_nth ((v1, v2) : Val.t * Val.t) : Val.t =
   | (List lst, Int i) -> List (_remove_nth_aux lst i)
   | (List _, _) -> Eval_operator.bad_arg_err 2 op_lbl "(list, integer)" [ v1; v2 ]
   | _ -> Eval_operator.bad_arg_err 1 op_lbl "(list, integer)" [ v1; v2 ]
+
+let float_to_byte (v : Val.t) : Val.t =
+  let op_lbl = "float_to_byte_external" in
+  match v with
+  | Flt x -> Val.Byte (Int64.to_int (Int64.bits_of_float x))
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "float" [ v ]
+
+let float32_to_le_bytes (v : Val.t) : Val.t =
+  let op_lbl = "float32_to_le_bytes_external" in
+  match v with
+  | Flt x ->
+    let bytes = Byte_utils.float32_to_le_bytes x in
+    let val_bytes = List.map (fun b -> Val.Byte (Int32.to_int b)) bytes in
+    List val_bytes
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "float" [ v ]
+
+let float32_to_be_bytes (v : Val.t) : Val.t =
+  let op_lbl = "float32_to_be_bytes_external" in
+  match v with
+  | Flt x ->
+    let bytes = Byte_utils.float32_to_be_bytes x in
+    let val_bytes = List.map (fun b -> Val.Byte (Int32.to_int b)) bytes in
+    List val_bytes
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "float" [ v ]
+
+let float64_to_le_bytes (v : Val.t) : Val.t =
+  let op_lbl = "float64_to_le_bytes_external" in
+  match v with
+  | Flt x ->
+    let bytes = Byte_utils.float64_to_le_bytes x in
+    let val_bytes = List.map (fun b -> Val.Byte (Int64.to_int b)) bytes in
+    List val_bytes
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "float" [ v ]
+
+let float64_to_be_bytes (v : Val.t) : Val.t =
+  let op_lbl = "float64_to_be_bytes_external" in
+  match v with
+  | Flt x ->
+    let bytes = Byte_utils.float64_to_be_bytes x in
+    let val_bytes = List.map (fun b -> Val.Byte (Int64.to_int b)) bytes in
+    List val_bytes
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "float" [ v ]
+
+let unpack_bytes_aux (op_lbl : string) (v : Val.t) : int array =
+  let open Val in
+  let unpack_bt_f = function Int i -> i | Byte bt -> bt | _ -> raise Exit in
+  try
+    match v with
+    | Arr bytes -> Array.map unpack_bt_f bytes
+    | _ -> Eval_operator.bad_arg_err 1 op_lbl "byte array" [ v ]
+  with _ -> Eval_operator.bad_arg_err 1 op_lbl "byte array" [ v ]
+  
+let float32_from_le_bytes (v : Val.t) : Val.t =
+  let op_lbl = "float32_from_le_bytes_external" in
+  let int_bytes = unpack_bytes_aux op_lbl v in
+  let int32_bytes = Array.map Int32.of_int int_bytes in
+  let f = Byte_utils.float32_from_le_bytes int32_bytes in
+  Flt f
+
+let float32_from_be_bytes (v : Val.t) : Val.t =
+  let op_lbl = "float32_from_be_bytes_external" in
+  let int_bytes = unpack_bytes_aux op_lbl v in
+  let int32_bytes = Array.map Int32.of_int int_bytes in
+  let f = Byte_utils.float32_from_be_bytes int32_bytes in
+  Flt f
+
+let float64_from_le_bytes (v : Val.t) : Val.t =
+  let op_lbl = "float64_from_le_bytes_external" in
+  let int_bytes = unpack_bytes_aux op_lbl v in
+  let int64_bytes = Array.map Int64.of_int int_bytes in
+  let f = Byte_utils.float64_from_le_bytes int64_bytes in
+  Flt f
+
+let float64_from_be_bytes (v : Val.t) : Val.t =
+  let op_lbl = "float64_from_be_bytes_external" in
+  let int_bytes = unpack_bytes_aux op_lbl v in
+  let int64_bytes = Array.map Int64.of_int int_bytes in
+  let f = Byte_utils.float64_from_be_bytes int64_bytes in
+  Flt f
+
+let bytes_to_string (v : Val.t) : Val.t =
+  let op_lbl = "bytes_to_string_external" in
+  let int_bytes = unpack_bytes_aux op_lbl v in
+  let str_bytes = Array.map string_of_int int_bytes |> Array.to_list in
+  let bytes_string = "[" ^ String.concat "; " str_bytes ^ "]" in
+  Str bytes_string
+
+let int_to_be_bytes ((v1, v2) : Val.t * Val.t) : Val.t =
+  let op_lbl = "int_to_be_bytes_external" in
+  match (v1, v2) with
+  | (Flt x, Int n) ->
+    let bytes = Byte_utils.int_to_be_bytes (x, n) in
+    let val_bytes = List.map (fun b -> Val.Byte b) bytes in
+    List val_bytes
+  | (Flt _, _) -> Eval_operator.bad_arg_err 2 op_lbl "(float, integer)" [ v1; v2 ]
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "(float, integer)" [ v1; v2 ]
+
+let int_from_le_bytes ((v1, v2) : Val.t * Val.t) : Val.t =
+  let op_lbl = "int_from_le_bytes_external" in
+  let int_bytes =
+    try unpack_bytes_aux op_lbl v1
+    with _ -> Eval_operator.bad_arg_err 1 op_lbl "(byte array, integer)" [ v1; v2 ]
+  in
+  match v2 with
+  | Int n -> Flt (Byte_utils.int_from_le_bytes (int_bytes, n))
+  | _ -> Eval_operator.bad_arg_err 2 op_lbl "(byte array, integer)" [ v1; v2 ]
+
+let uint_from_le_bytes ((v1, v2) : Val.t * Val.t) : Val.t =
+  let op_lbl = "uint_from_le_bytes_external" in
+  let int_bytes =
+    try unpack_bytes_aux op_lbl v1
+    with _ -> Eval_operator.bad_arg_err 1 op_lbl "(byte array, integer)" [ v1; v2 ]
+  in
+  match v2 with
+  | Int n -> Flt (Byte_utils.uint_from_le_bytes (int_bytes, n))
+  | _ -> Eval_operator.bad_arg_err 2 op_lbl "(byte array, integer)" [ v1; v2 ]
   
 let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   (fn : Id.t') (vs : Val.t list) : Val.t =
@@ -294,14 +410,27 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("s_split_external", [ v1 ; v2 ]) -> s_split (v1, v2)
   | ("s_substr_u_external", [ v1 ; v2 ; v3 ]) -> s_substr_u (v1, v2, v3)
   | ("a_len_external", [ v ]) -> array_len v
-  | ("array_make_external", [ v1 ; v2]) -> array_make (v1, v2)
-  | ("a_nth_external", [ v1 ; v2]) -> array_nth (v1, v2)
+  | ("array_make_external", [ v1 ; v2 ]) -> array_make (v1, v2)
+  | ("a_nth_external", [ v1 ; v2 ]) -> array_nth (v1, v2)
   | ("a_set_external", [ v1 ; v2 ; v3 ]) -> array_set (v1, v2, v3)
   | ("list_to_array_external", [ v ]) -> list_to_array v
   | ("l_sort_external", [ v ]) -> list_sort v
   | ("l_remove_last_external", [ v ]) -> list_remove_last v
-  | ("l_remove_external", [ v1 ; v2]) -> list_remove (v1, v2)
-  | ("l_remove_nth_external", [ v1 ; v2]) -> list_remove_nth (v1, v2)
+  | ("l_remove_external", [ v1 ; v2 ]) -> list_remove (v1, v2)
+  | ("l_remove_nth_external", [ v1 ; v2 ]) -> list_remove_nth (v1, v2)
+  | ("float_to_byte_external", [ v ]) -> float_to_byte v
+  | ("float32_to_le_bytes_external", [ v ]) -> float32_to_le_bytes v
+  | ("float32_to_be_bytes_external", [ v ]) -> float32_to_be_bytes v
+  | ("float64_to_le_bytes_external", [ v ]) -> float64_to_le_bytes v
+  | ("float64_to_be_bytes_external", [ v ]) -> float64_to_be_bytes v
+  | ("float32_from_le_bytes_external", [ v ]) -> float32_from_le_bytes v
+  | ("float32_from_be_bytes_external", [ v ]) -> float32_from_be_bytes v
+  | ("float64_from_le_bytes_external", [ v ]) -> float64_from_le_bytes v
+  | ("float64_from_be_bytes_external", [ v ]) -> float64_from_be_bytes v
+  | ("bytes_to_string_external", [ v ]) -> bytes_to_string v
+  | ("int_to_be_bytes_external", [ v1 ; v2 ]) -> int_to_be_bytes (v1, v2)
+  | ("int_from_le_bytes_external", [ v1 ; v2 ]) -> int_from_le_bytes (v1, v2)
+  | ("uint_from_le_bytes_external", [ v1 ; v2 ]) -> uint_from_le_bytes (v1, v2)
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
     Val.Symbol "undefined"

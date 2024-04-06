@@ -73,21 +73,6 @@
             "t_len"                   , TUPLE_LEN;
             "t_nth"                   , TUPLE_NTH;
 
-            (* Byte operators *)
-            "float_to_byte"           , FLOAT_TO_BYTE;
-            "float32_to_le_bytes"     , FLOAT32_TO_LE_BYTES;
-            "float32_to_be_bytes"     , FLOAT32_TO_BE_BYTES;
-            "float64_to_le_bytes"     , FLOAT64_TO_LE_BYTES;
-            "float64_to_be_bytes"     , FLOAT64_TO_BE_BYTES;
-            "float32_from_le_bytes"   , FLOAT32_FROM_LE_BYTES;
-            "float32_from_be_bytes"   , FLOAT32_FROM_BE_BYTES;
-            "float64_from_le_bytes"   , FLOAT64_FROM_LE_BYTES;
-            "float64_from_be_bytes"   , FLOAT64_FROM_BE_BYTES;
-            "bytes_to_string"         , BYTES_TO_STRING;
-            "int_to_be_bytes"         , INT_TO_BE_BYTES;
-            "int_from_le_bytes"       , INT_FROM_LE_BYTES;
-            "uint_from_le_bytes"      , UINT_FROM_LE_BYTES;
-
             (* Math operators *)
             "random"                  , RANDOM;
             "abs"                     , ABS;
