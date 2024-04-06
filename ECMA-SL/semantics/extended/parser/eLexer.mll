@@ -55,7 +55,6 @@
             (* Float operators *)
             "int_of_float"            , FLOAT_TO_INT;
             "float_to_string"         , FLOAT_TO_STRING;
-            "to_int"                  , TO_INT;
             "to_int32"                , TO_INT32;
             "to_uint16"               , TO_UINT16;
             "to_uint32"               , TO_UINT32;

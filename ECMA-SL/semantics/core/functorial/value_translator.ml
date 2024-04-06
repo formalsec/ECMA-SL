@@ -54,7 +54,7 @@ let translate_unop (t : Type.t option) (op : Operator.unopt) (e : Expr.t) :
     | StringToFloat -> Cvtop (OfString, e) @: Ty_real
     | Ceil -> Unop (Ceil, e) @: Ty_real
     | Floor -> Unop (Floor, e) @: Ty_real
-    | FloatToInt | ToInt -> Cvtop (Reinterpret_float, e) @: Ty_int
+    | FloatToInt (* | ToInt *) -> Cvtop (Reinterpret_float, e) @: Ty_int
     | _ ->
       Log.err "op: %s\n" (Operator.str_of_unopt_single op);
       assert false
