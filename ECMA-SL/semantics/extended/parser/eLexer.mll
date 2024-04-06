@@ -105,13 +105,6 @@
             "min"                     , MIN;
             "max"                     , MAX;
 
-            (* Parse operators *)
-            "utf8_decode"             , UTF8_DECODE;
-            "hex_decode"              , HEX_DECODE;
-            "parse_number"            , PARSE_NUMBER;
-            "parse_string"            , PARSE_STRING;
-            "parse_date"              , PARSE_DATE;
-
             (* Type system *)
             "typedef"                 , TYPEDEF;
             "any"                     , TYPE_ANY;

@@ -237,74 +237,6 @@ let exp (v : Val.t) : Val.t =
   | Flt f -> Flt (Float.exp f)
   | _ -> bad_arg_err 1 op_lbl "float" [ v ]
 
-let utf8_decode (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Utf8Decode in
-  match v with
-  | Str s -> Str (String_utils.utf8decode s)
-  | _ -> bad_arg_err 1 op_lbl "string" [ v ]
-
-let hex_decode (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt HexDecode in
-  match v with
-  | Str s -> Str (String_utils.hexdecode s)
-  | _ -> bad_arg_err 1 op_lbl "string" [ v ]
-
-(** * JSON number regex: https://stackoverflow.com/a/13340826/3049315 *
-    Recognized Regexp constructs in OCaml Str: https://ocaml.org/api/Str.html *)
-let parse_number (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt ParseNumber in
-  match v with
-  | Str s ->
-    let regex =
-      Str.regexp "-?\\(0\\|[1-9][0-9]*\\)\\(\\.[0-9]+\\)?\\([eE][+-]?[0-9]+\\)?"
-    in
-    let matched = Str.string_match regex s 0 in
-    if matched then Str (Str.matched_string s) else Str ""
-  | _ -> bad_arg_err 1 op_lbl "string" [ v ]
-
-(** * JSON string regex: https://stackoverflow.com/a/32155765/3049315 *)
-let parse_string (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt ParseString in
-  match v with
-  | Str s ->
-    let regex =
-      Str.regexp
-        "\"\\(\\\\\\([\"\\\\\\/bfnrt]\\|u[a-fA-F0-9][a-fA-F0-9][a-fA-F0-9][a-fA-F0-9]\\)\\|[^\"\\\\\000-\031\127]+\\)*\""
-    in
-    let matched = Str.string_match regex s 0 in
-    if matched then Str (Str.matched_string s) else Str ""
-  | _ -> bad_arg_err 1 op_lbl "string" [ v ]
-
-let parse_date (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt ParseDate in
-  let remove_sign s = String.sub s 1 (String.length s - 1) in
-  let signed_year year_neg year = if year_neg then -.year else year in
-  let parse_date year_neg date =
-    match date with
-    | None -> Val.Flt (-1.)
-    | Some ([ year; month; day; hour; min; sec; msec ], tz) ->
-      Val.List
-        [ Val.Flt (signed_year year_neg year)
-        ; Val.Flt month
-        ; Val.Flt day
-        ; Val.Flt hour
-        ; Val.Flt min
-        ; Val.Flt sec
-        ; Val.Flt msec
-        ; Val.Str tz
-        ]
-    | _ -> unexpected_err 1 op_lbl "date format"
-  in
-  match v with
-  | Str s ->
-    let year_sign = s.[0] in
-    if year_sign == '-' then
-      remove_sign s |> Date_utils.parse_date |> parse_date true
-    else if year_sign == '+' then
-      remove_sign s |> Date_utils.parse_date |> parse_date false
-    else Date_utils.parse_date s |> parse_date false
-  | _ -> bad_arg_err 1 op_lbl "string" [ v ]
-
 let plus ((v1, v2) : Val.t * Val.t) : Val.t =
   let op_lbl = label_of_binopt Plus in
   match (v1, v2) with
@@ -593,11 +525,6 @@ let eval_unopt (op : unopt) (v : Val.t) : Val.t =
   | Floor -> floor v
   | Trunc -> trunc v
   | Exp -> exp v
-  | Utf8Decode -> utf8_decode v
-  | HexDecode -> hex_decode v
-  | ParseNumber -> parse_number v
-  | ParseString -> parse_string v
-  | ParseDate -> parse_date v
 
 let eval_binopt (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   match op with

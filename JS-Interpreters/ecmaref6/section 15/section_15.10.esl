@@ -1156,7 +1156,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
   | { type: "Char", value: c, kind: "hex" } -> {
 
     cs := EmptyCharacterClass(negative);
-    c := hex_decode c;
+    c := hex_decode (c);
     code := to_char_code_u (c);
     code_str := int_to_string code;
     AddCharacterPoint(cs, c, code_str, negative);
@@ -1167,7 +1167,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
 
     cs := EmptyCharacterClass(negative);
 
-    c := utf8_decode c;
+    c := utf8_decode (c);
 
     code := to_char_code_u (c);
     code_str := int_to_string code;
@@ -1680,7 +1680,7 @@ function JS_Interpreter_RegEx(re, flags) {
         return null
       };
 
-      v := hex_decode v;
+      v := hex_decode (v);
 
       if (c = v) {
         stateNext(st);
@@ -1695,7 +1695,7 @@ function JS_Interpreter_RegEx(re, flags) {
   /* Unicode Character (e.g.: '\\u0041') */
   | { type: "Char", value: v, kind: "unicode" } -> {
 
-    v := utf8_decode v;
+    v := utf8_decode (v);
 
     m := lambda (st, k) [v] {
       c := stateGetChar(st);
