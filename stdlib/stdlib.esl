@@ -209,3 +209,56 @@ function l_remove(lst : list, v) : list {
 function l_remove_nth(lst : list, n : int) : list {
   return extern l_remove_nth_external(lst, n)
 }
+
+/* Byte operators */
+function float_to_byte(f : float) {
+  return extern float_to_byte_external(f)
+}
+
+function float32_to_le_bytes(f : float) {
+  return extern float32_to_le_bytes_external(f)
+}
+
+function float32_to_be_bytes(f : float) {
+  return extern float32_to_be_bytes_external(f)
+}
+
+function float64_to_le_bytes(f : float) {
+  return extern float64_to_le_bytes_external(f)
+}
+
+function float64_to_be_bytes(f : float) {
+  return extern float64_to_be_bytes_external(f)
+}
+
+function float32_from_le_bytes(b) : float {
+  return extern float32_from_le_bytes_external(b)
+}
+
+function float32_from_be_bytes(b) : float {
+  return extern float32_from_be_bytes_external(b)
+}
+
+function float64_from_le_bytes(b) : float {
+  return extern float64_from_le_bytes_external(b)
+}
+
+function float64_from_be_bytes(b) : float {
+  return extern float64_from_be_bytes_external(b)
+}
+
+function bytes_to_string(b) : string {
+  return extern bytes_to_string_external(b)
+}
+
+function int_to_be_bytes(f : float, n : int) {
+  return extern int_to_be_bytes_external(f, n)
+}
+
+function int_from_le_bytes(b, n : int) : float{
+  return extern int_from_le_bytes_external(b, n)
+}
+
+function uint_from_le_bytes(b, n : int) : float {
+  return extern uint_from_le_bytes_external(b, n)
+}

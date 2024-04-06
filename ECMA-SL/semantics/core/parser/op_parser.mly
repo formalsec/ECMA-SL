@@ -29,13 +29,6 @@
 %token TUPLE_FIRST TUPLE_SECOND TUPLE_LEN
 %token TUPLE_NTH
 
-%token FLOAT_TO_BYTE
-%token FLOAT32_TO_LE_BYTES FLOAT32_TO_BE_BYTES FLOAT64_TO_LE_BYTES FLOAT64_TO_BE_BYTES
-%token FLOAT32_FROM_LE_BYTES FLOAT32_FROM_BE_BYTES FLOAT64_FROM_LE_BYTES FLOAT64_FROM_BE_BYTES
-%token BYTES_TO_STRING
-
-%token INT_TO_BE_BYTES INT_FROM_LE_BYTES UINT_FROM_LE_BYTES
-
 %token RANDOM ABS SQRT CEIL FLOOR TRUNC EXP LOG_2 LOG_E LOG_10
 %token SIN COS TAN SINH COSH TANH ASIN ACOS ATAN
 %token MAX MIN ATAN_2
@@ -102,16 +95,6 @@
   | TUPLE_FIRST;            { Operator.TupleFirst }
   | TUPLE_SECOND;           { Operator.TupleSecond }
   | TUPLE_LEN;              { Operator.TupleLen }
-  | FLOAT_TO_BYTE;          { Operator.FloatToByte }
-  | FLOAT32_TO_LE_BYTES;    { Operator.Float32ToLEBytes }
-  | FLOAT32_TO_BE_BYTES;    { Operator.Float32ToBEBytes }
-  | FLOAT64_TO_LE_BYTES;    { Operator.Float64ToLEBytes }
-  | FLOAT64_TO_BE_BYTES;    { Operator.Float64ToBEBytes }
-  | FLOAT32_FROM_LE_BYTES;  { Operator.Float32FromLEBytes }
-  | FLOAT32_FROM_BE_BYTES;  { Operator.Float32FromBEBytes }
-  | FLOAT64_FROM_LE_BYTES;  { Operator.Float64FromLEBytes }
-  | FLOAT64_FROM_BE_BYTES;  { Operator.Float64FromBEBytes }
-  | BYTES_TO_STRING;        { Operator.BytesToString }
   | RANDOM;                 { Operator.Random }
   | ABS;                    { Operator.Abs }
   | SQRT;                   { Operator.Sqrt }
@@ -144,9 +127,6 @@
   | LIST_PREPEND;           { Operator.ListPrepend }
   | LIST_CONCAT;            { Operator.ListConcat }
   | TUPLE_NTH;              { Operator.TupleNth }
-  | INT_TO_BE_BYTES;        { Operator.IntToBEBytes }
-  | INT_FROM_LE_BYTES;      { Operator.IntFromLEBytes }
-  | UINT_FROM_LE_BYTES;     { Operator.UintFromLEBytes }
   | MIN;                    { Operator.Min }
   | MAX;                    { Operator.Max }
   | ATAN_2;                 { Operator.Atan2 }
