@@ -189,3 +189,23 @@ function filter(f, lst) {
   };
   return result
 }
+
+function list_to_array(lst : list) : array {
+  return extern list_to_array_external(lst)
+}
+
+function l_sort(lst : list) : list {
+  return extern l_sort_external(lst)
+}
+
+function l_remove_last(lst : list) : list {
+  return extern l_remove_last_external(lst)
+}
+
+function l_remove(lst : list, v) : list {
+  return extern l_remove_external(lst, v)
+}
+
+function l_remove_nth(lst : list, n : int) : list {
+  return extern l_remove_nth_external(lst, n)
+}

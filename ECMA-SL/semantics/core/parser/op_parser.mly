@@ -22,8 +22,8 @@
 %token STRING_NTH
 %token STRING_SUBSTR
 
-%token LIST_TO_ARRAY LIST_HEAD LIST_TAIL LIST_LEN LIST_SORT LIST_REVERSE LIST_REMOVE_LAST
-%token LIST_NTH LIST_ADD LIST_PREPEND LIST_CONCAT LIST_REMOVE LIST_REMOVE_NTH
+%token LIST_HEAD LIST_TAIL LIST_LEN LIST_REVERSE
+%token LIST_NTH LIST_ADD LIST_PREPEND LIST_CONCAT
 %token LIST_MEM LIST_SET
 
 %token TUPLE_FIRST TUPLE_SECOND TUPLE_LEN
@@ -95,13 +95,10 @@
   | TO_CHAR_CODE;           { Operator.ToCharCode }
   | STRING_LEN;             { Operator.StringLen }
   | STRING_CONCAT;          { Operator.StringConcat }
-  | LIST_TO_ARRAY;          { Operator.ListToArray }
   | LIST_HEAD;              { Operator.ListHead }
   | LIST_TAIL;              { Operator.ListTail }
   | LIST_LEN;               { Operator.ListLen }
-  | LIST_SORT;              { Operator.ListSort }
   | LIST_REVERSE;           { Operator.ListReverse }
-  | LIST_REMOVE_LAST;       { Operator.ListRemoveLast }
   | TUPLE_FIRST;            { Operator.TupleFirst }
   | TUPLE_SECOND;           { Operator.TupleSecond }
   | TUPLE_LEN;              { Operator.TupleLen }
@@ -146,8 +143,6 @@
   | LIST_ADD;               { Operator.ListAdd }
   | LIST_PREPEND;           { Operator.ListPrepend }
   | LIST_CONCAT;            { Operator.ListConcat }
-  | LIST_REMOVE;            { Operator.ListRemove }
-  | LIST_REMOVE_NTH;        { Operator.ListRemoveNth }
   | TUPLE_NTH;              { Operator.TupleNth }
   | INT_TO_BE_BYTES;        { Operator.IntToBEBytes }
   | INT_FROM_LE_BYTES;      { Operator.IntFromLEBytes }

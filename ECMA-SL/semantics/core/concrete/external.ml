@@ -223,6 +223,57 @@ let array_set ((v1, v2, v3) : Val.t * Val.t * Val.t) : Val.t =
   | (Arr _, _) -> Eval_operator.bad_arg_err 2 op_lbl "(array, integer, any)" [ v1; v2; v3 ]
   | _ -> Eval_operator.bad_arg_err 1 op_lbl "(array, integer, any)" [ v1; v2; v3 ]
 
+let list_to_array (v : Val.t) : Val.t =
+  let op_lbl = "list_to_array_external" in
+  match v with
+  | List lst -> Val.Arr (Array.of_list lst)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "list" [ v ]
+
+let list_sort (v : Val.t) : Val.t =
+  let op_lbl = "l_sort_external" in
+  let str_f s = Val.Str s in
+  match v with
+  | List lst -> (
+    let strs = Eval_operator.string_concat_aux lst in
+    match strs with
+    | Some strs -> List (List.map str_f (List.fast_sort String.compare strs))
+    | None -> Eval_operator.bad_arg_err 1 op_lbl "string list" [ v ] )
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "string list" [ v ]
+
+let list_remove_last (v : Val.t) : Val.t =
+  let op_lbl =  "l_remove_last_external" in
+  let rec _remove_last lst =
+    match lst with [] -> [] | _ :: [] -> [] | _ :: tl -> _remove_last tl
+  in
+  match v with
+  | List lst -> List (_remove_last lst)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "list" [ v ]
+  
+let list_remove ((v1, v2) : Val.t * Val.t) : Val.t =
+  let rec _remove_aux lst el =
+    match lst with
+    | [] -> []
+    | hd :: tl when hd = el -> tl
+    | hd :: tl -> hd :: _remove_aux tl el
+  in
+  let op_lbl = "l_remove_external" in
+  match (v1, v2) with
+  | (List lst, el) -> List (_remove_aux lst el)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "(list, any)" [ v1; v2 ]
+
+let list_remove_nth ((v1, v2) : Val.t * Val.t) : Val.t =
+  let op_lbl = "l_remove_nth_external" in
+  let rec _remove_nth_aux lst i =
+    match (lst, i) with
+    | ([], _) -> Eval_operator.unexpected_err 2 op_lbl "index out of bounds"
+    | (_ :: tl, 0) -> tl
+    | (hd :: tl, _) -> hd :: _remove_nth_aux tl (i - 1)
+  in
+  match (v1, v2) with
+  | (List lst, Int i) -> List (_remove_nth_aux lst i)
+  | (List _, _) -> Eval_operator.bad_arg_err 2 op_lbl "(list, integer)" [ v1; v2 ]
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "(list, integer)" [ v1; v2 ]
+  
 let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   (fn : Id.t') (vs : Val.t list) : Val.t =
   match (fn, vs) with
@@ -246,6 +297,11 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("array_make_external", [ v1 ; v2]) -> array_make (v1, v2)
   | ("a_nth_external", [ v1 ; v2]) -> array_nth (v1, v2)
   | ("a_set_external", [ v1 ; v2 ; v3 ]) -> array_set (v1, v2, v3)
+  | ("list_to_array_external", [ v ]) -> list_to_array v
+  | ("l_sort_external", [ v ]) -> list_sort v
+  | ("l_remove_last_external", [ v ]) -> list_remove_last v
+  | ("l_remove_external", [ v1 ; v2]) -> list_remove (v1, v2)
+  | ("l_remove_nth_external", [ v1 ; v2]) -> list_remove_nth (v1, v2)
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
     Val.Symbol "undefined"
