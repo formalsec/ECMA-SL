@@ -8,7 +8,7 @@
 function EvaluateNew(constructProduction, arguments, scope) {
   /* 1. Assert: constructProduction is either a NewExpression or a MemberExpression. */
   memberExpressionTypes := ["NewExpression", "MemberExpression", "Identifier", "CallExpression", "FunctionExpression", "ClassExpression", "Literal"];
-  /* assert(constructProduction.type in_list memberExpressionTypes); */
+  /* assert(in_list(constructProduction.type, memberExpressionTypes)); */
   /* 2. Assert: arguments is either empty or an Arguments production. */
   assert(arguments = 'empty ||| Type(arguments) = "List");
   /* 3. Let ref be the result of evaluating constructProduction. */

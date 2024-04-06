@@ -75,7 +75,7 @@ function setJSProperty(object, pname, pvalue) {
   };
 
   /* para ter ordem de insercao */
-  if ( !(pname in_list object.internalSlotsList) ) {
+  if ( !(in_list(pname, object.internalSlotsList)) ) {
     object.internalSlotsList := l_add(object.internalSlotsList, pname)
   };
    

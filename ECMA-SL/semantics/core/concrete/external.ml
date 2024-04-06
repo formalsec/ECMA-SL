@@ -240,6 +240,12 @@ let list_sort (v : Val.t) : Val.t =
     | None -> Eval_operator.bad_arg_err 1 op_lbl "string list" [ v ] )
   | _ -> Eval_operator.bad_arg_err 1 op_lbl "string list" [ v ]
 
+let list_mem ((v1, v2) : Val.t * Val.t) : Val.t =
+  let op_lbl = "in_list_external" in
+  match v2 with
+  | List lst -> Bool (List.mem v1 lst)
+  | _ -> Eval_operator.bad_arg_err 2 op_lbl "(any, list)" [ v1; v2 ]
+    
 let list_remove_last (v : Val.t) : Val.t =
   let op_lbl =  "l_remove_last_external" in
   let rec _remove_last lst =
@@ -542,11 +548,14 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   match (fn, vs) with
   | ("is_symbolic", _) -> Val.Bool false
   | ("parseJS", [ Val.Str code ]) -> parseJS prog code
+  (* int *)
   | ("int_to_four_hex_external", [ v ]) -> int_to_four_hex v
   | ("octal_to_decimal_external", [ v ]) -> octal_to_decimal v
+  (* float *)
   | ("to_precision_external", [ v1 ; v2 ]) -> to_precision (v1, v2)
   | ("to_exponential_external", [ v1 ; v2 ]) -> to_exponential (v1, v2)
   | ("to_fixed_external", [ v1 ; v2 ]) -> to_fixed (v1, v2)
+  (* string *)
   | ("from_char_code_u_external", [ v ]) -> from_char_code_u v
   | ("to_char_code_u_external", [ v ]) -> to_char_code_u v
   | ("to_lower_case_external", [ v ]) -> to_lower_case v
@@ -556,15 +565,19 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("s_nth_u_external", [ v1 ; v2 ]) -> s_nth_u (v1, v2)
   | ("s_split_external", [ v1 ; v2 ]) -> s_split (v1, v2)
   | ("s_substr_u_external", [ v1 ; v2 ; v3 ]) -> s_substr_u (v1, v2, v3)
+  (* array *)
   | ("a_len_external", [ v ]) -> array_len v
   | ("array_make_external", [ v1 ; v2 ]) -> array_make (v1, v2)
   | ("a_nth_external", [ v1 ; v2 ]) -> array_nth (v1, v2)
   | ("a_set_external", [ v1 ; v2 ; v3 ]) -> array_set (v1, v2, v3)
+  (* list *)
   | ("list_to_array_external", [ v ]) -> list_to_array v
   | ("l_sort_external", [ v ]) -> list_sort v
+  | ("in_list_external", [ v1 ; v2 ]) -> list_mem (v1, v2)
   | ("l_remove_last_external", [ v ]) -> list_remove_last v
   | ("l_remove_external", [ v1 ; v2 ]) -> list_remove (v1, v2)
   | ("l_remove_nth_external", [ v1 ; v2 ]) -> list_remove_nth (v1, v2)
+  (* byte *)
   | ("float_to_byte_external", [ v ]) -> float_to_byte v
   | ("float32_to_le_bytes_external", [ v ]) -> float32_to_le_bytes v
   | ("float32_to_be_bytes_external", [ v ]) -> float32_to_be_bytes v
@@ -578,6 +591,7 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("int_to_be_bytes_external", [ v1 ; v2 ]) -> int_to_be_bytes (v1, v2)
   | ("int_from_le_bytes_external", [ v1 ; v2 ]) -> int_from_le_bytes (v1, v2)
   | ("uint_from_le_bytes_external", [ v1 ; v2 ]) -> uint_from_le_bytes (v1, v2)
+  (* math *)
   | ("log_2_external", [ v ]) -> log_2 v
   | ("log_e_external", [ v ]) -> log_e v
   | ("log_10_external", [ v ]) -> log_10 v
@@ -591,6 +605,7 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("acos_external", [ v ]) -> acos v
   | ("atan_external", [ v ]) -> atan v
   | ("atan2_external", [ v1 ; v2 ]) -> atan2 (v1, v2)
+  (* parse *)
   | ("utf8_decode_external", [ v ]) -> utf8_decode v
   | ("hex_decode_external", [ v ]) -> hex_decode v
   | ("parse_number_external", [ v ]) -> parse_number v

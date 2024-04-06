@@ -1133,7 +1133,7 @@ function OwnPropertyKeysProxy(O) {
     /* 21. Repeat, for each key that is an element of targetNonconfigurableKeys, */
     foreach (key : targetNonconfigurableKeys) {
         /* a. If key is not an element of uncheckedResultKeys, throw a TypeError exception. */
-        if (!(key in_list uncheckedResultKeys)) {
+        if (!(in_list(key, uncheckedResultKeys))) {
             throw TypeErrorConstructorInternal()
         };
         /* b. Remove key from uncheckedResultKeys */
@@ -1147,7 +1147,7 @@ function OwnPropertyKeysProxy(O) {
     /* 23. Repeat, for each key that is an element of targetConfigurableKeys, */
     foreach (key : targetConfigurableKeys) {
         /* a. If key is not an element of uncheckedResultKeys, throw a TypeError exception. */
-        if (!(key in_list uncheckedResultKeys)) {
+        if (!(in_list(key, uncheckedResultKeys))) {
             throw TypeErrorConstructorInternal()
         };
         /* b. Remove key from uncheckedResultKeys */

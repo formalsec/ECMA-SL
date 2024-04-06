@@ -303,7 +303,7 @@ function restElementObjectInitializer(resultingObjExpr, objectValue, scope, init
 
   props := getOwnEnumerableProperties(obj);
   foreach (P : props) {
-    if (!(P in_list initialized_keys)) {
+    if (!(in_list(P, initialized_keys))) {
       desc := {obj.GetOwnProperty}(obj, P);
       if (IsAccessorDescriptor(desc)) {
         getter := desc.Get;

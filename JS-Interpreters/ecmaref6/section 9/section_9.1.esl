@@ -811,13 +811,13 @@ function OrdinaryObjectOwnPropertyKeys(O) {
         }
 
         /* For each own property key P of O that is a String but is not an integer index, in property creation order */
-        elif ( Type(P) = "String" &&& !(Type(P) = "Number") &&& P in_list (obj_fields O.JSProperties) ) {
+        elif ( Type(P) = "String" &&& !(Type(P) = "Number") &&& in_list(P, obj_fields O.JSProperties) ) {
             /* Add P as the last element of keys. */
             strings := l_add(strings, P)
         }
 
         /* For each own property key P of O that is a Symbol, in property creation order */
-        elif ( P in_list (obj_fields O.SymbolKeys) ){
+        elif ( in_list(P, (obj_fields O.SymbolKeys)) ){
             /* Add P as the last element of keys. */
             symbols := l_add(symbols, O.SymbolKeys[P])
         }
@@ -853,13 +853,13 @@ function OrdinaryObjectOwnPropertyKeysUpdated(O) {
         }
 
         /* For each own property key P of O that is a String but is not an integer index, in property creation order */
-        elif ( Type(P) = "String" &&& !(Type(P) = "Number") &&& P in_list (obj_fields O.JSProperties) ) {
+        elif ( Type(P) = "String" &&& !(Type(P) = "Number") &&& in_list(P, obj_fields O.JSProperties) ) {
             /* Add P as the last element of keys. */
             strings := l_add(strings, P)
         }
 
         /* For each own property key P of O that is a Symbol, in property creation order */
-        elif ( P in_list (obj_fields O.SymbolKeys) ){
+        elif ( in_list(P, (obj_fields O.SymbolKeys)) ){
             /* Add P as the last element of keys. */
             symbols := l_add(symbols, O.SymbolKeys[P])
         }

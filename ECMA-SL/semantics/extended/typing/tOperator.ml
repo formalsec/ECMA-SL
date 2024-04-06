@@ -105,7 +105,6 @@ let type_binopt (op : Operator.binopt) (targs : EType.t list) : EType.t' =
   | Ge -> type_op [ ([ UnknownType; UnknownType ], BooleanType) ]
   | ObjectMem -> not_implemented (* TODO: custom object typing function *)
   | StringNth -> type_op [ ([ StringType; IntType ], StringType) ]
-  | ListMem -> not_implemented (* TODO: list typing *)
   | ListNth -> not_implemented (* TODO: list typing *)
   | ListAdd -> not_implemented (* TODO: list typing *)
   | ListPrepend -> not_implemented (* TODO: list typing *)

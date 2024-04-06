@@ -2346,9 +2346,9 @@ function JS_Interpreter_IterationStatement_LabelSet(iterStmt, scope) {
         V := getCompletionValue(stmt)
       };
       /* c. If stmt.type is not continue || stmt.target is not in the current label set, then */
-      if (!(getCompletionType(stmt) = 'continue) || (!(getCompletionTarget(stmt) in_list currentLabelSet))) {
+      if (!(getCompletionType(stmt) = 'continue) || (!(in_list(getCompletionTarget(stmt), currentLabelSet)))) {
         /* i. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
-        if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
+        if ((getCompletionType(stmt) = 'break) && (in_list(getCompletionTarget(stmt), currentLabelSet))) {
           return normalEmptyCompletion(V)
         };
         /* ii. If stmt is an abrupt completion, return stmt. */
@@ -2385,9 +2385,9 @@ function JS_Interpreter_IterationStatement_LabelSet(iterStmt, scope) {
         V := getCompletionValue(stmt)
       };
       /* e. If stmt.type is not continue || stmt.target is not in the current label set, then */
-      if (!(getCompletionType(stmt) = 'continue) || (!(getCompletionTarget(stmt) in_list currentLabelSet))) {
+      if (!(getCompletionType(stmt) = 'continue) || (!(in_list(getCompletionTarget(stmt), currentLabelSet)))) {
         /* i. If stmt.type is break and stmt.target is in the current label set, then */
-        if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
+        if ((getCompletionType(stmt) = 'break) && (in_list(getCompletionTarget(stmt), currentLabelSet))) {
           /* 1. Return (normal, V, empty). */
           return normalEmptyCompletion(V)
         };
@@ -2463,11 +2463,11 @@ function JS_Interpreter_ForInStmt_lhsExpr(forInStmt, scope) {
         V := getCompletionValue(stmt)
       };
       /* f. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
-      if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
+      if ((getCompletionType(stmt) = 'break) && (in_list(getCompletionTarget(stmt), currentLabelSet))) {
         return normalEmptyCompletion(V)
       };
       /* g. If stmt.type is not continue || stmt.target is not in the current label set, then */
-      if (!(getCompletionType(stmt) = 'continue) || !(getCompletionTarget(stmt) in_list currentLabelSet)) {
+      if (!(getCompletionType(stmt) = 'continue) || !(in_list(getCompletionTarget(stmt), currentLabelSet))) {
         /* i. If stmt is an abrupt completion, return stmt. */
         if (isAnAbruptCompletion(stmt)) {
           return stmt
@@ -2518,11 +2518,11 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
         V := getCompletionValue(stmt)
       };
       /* f. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
-      if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
+      if ((getCompletionType(stmt) = 'break) && (in_list(getCompletionTarget(stmt), currentLabelSet))) {
         return normalEmptyCompletion(V)
       };
       /* g. If stmt.type is not continue || stmt.target is not in the current label set, then */
-      if (!(getCompletionType(stmt) = 'continue) || !(getCompletionTarget(stmt) in_list currentLabelSet)) {
+      if (!(getCompletionType(stmt) = 'continue) || !(in_list(getCompletionTarget(stmt), currentLabelSet))) {
         /* i. If stmt is an abrupt completion, return stmt. */
         if (isAnAbruptCompletion(stmt)) {
           return stmt
@@ -2566,11 +2566,11 @@ function JS_Interpreter_ForStmt_Expr(forStmt, scope) {
         V := getCompletionValue(stmt)
       };
       /* d. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
-      if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
+      if ((getCompletionType(stmt) = 'break) && (in_list(getCompletionTarget(stmt), currentLabelSet))) {
         return normalEmptyCompletion(V)
       };
       /* e. If stmt.type is not continue || stmt.target is not in the current label set, then */
-      if (!(getCompletionType(stmt) = 'continue) || !((getCompletionTarget(stmt) in_list currentLabelSet))) {
+      if (!(getCompletionType(stmt) = 'continue) || !((in_list(getCompletionTarget(stmt), currentLabelSet)))) {
         /* i. If stmt is an abrupt completion, return stmt. */
         if (isAnAbruptCompletion(stmt)) {
           return stmt
@@ -2616,11 +2616,11 @@ function JS_Interpreter_ForStmt_VarDecl(forStmt, scope) {
         V := getCompletionValue(stmt)
       };
       /* d. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
-      if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
+      if ((getCompletionType(stmt) = 'break) && (in_list(getCompletionTarget(stmt), currentLabelSet))) {
         return normalEmptyCompletion(V)
       };
       /* e. If stmt.type is not continue || stmt.target is not in the current label set, then */
-      if (!(getCompletionType(stmt) = 'continue) || !((getCompletionTarget(stmt) in_list currentLabelSet))) {
+      if (!(getCompletionType(stmt) = 'continue) || !((in_list(getCompletionTarget(stmt), currentLabelSet)))) {
         /* i. If stmt is an abrupt completion, return stmt. */
         if (isAnAbruptCompletion(stmt)) {
           return stmt
@@ -2646,7 +2646,7 @@ function JS_Interpreter_SwitchStatement_LabelSet(switchStmt, scope) {
     /* 2. Let R be the result of evaluating CaseBlock, passing it GetValue(exprRef) as a parameter. */
     R := JS_Interpreter_CaseBlock(CaseBlock, GetValue(exprRef), scope);
     /* 3. If R.type is break and R.target is in the current label set, return (normal, R.value, empty). */
-    if ((getCompletionType(R) = 'break) && (getCompletionTarget(R) in_list currentLabelSet)) {
+    if ((getCompletionType(R) = 'break) && (in_list(getCompletionTarget(R), currentLabelSet)) {
       return normalEmptyCompletion(getCompletionValue(R))
     };
     /* 4. Return R. */
