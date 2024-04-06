@@ -67,16 +67,6 @@ let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
   | TupleFirst -> not_implemented (* TODO: tuple typing *)
   | TupleSecond -> not_implemented (* TODO: tuple typing *)
   | TupleLen -> not_implemented (* TODO: tuple typing *)
-  | FloatToByte -> not_implemented (* TODO: byte typing *)
-  | Float32ToLEBytes -> not_implemented (* TODO: byte typing *)
-  | Float32ToBEBytes -> not_implemented (* TODO: byte typing *)
-  | Float64ToLEBytes -> not_implemented (* TODO: byte typing *)
-  | Float64ToBEBytes -> not_implemented (* TODO: byte typing *)
-  | Float32FromLEBytes -> not_implemented (* TODO: byte typing *)
-  | Float32FromBEBytes -> not_implemented (* TODO: byte typing *)
-  | Float64FromLEBytes -> not_implemented (* TODO: byte typing *)
-  | Float64FromBEBytes -> not_implemented (* TODO: byte typing *)
-  | BytesToString -> not_implemented (* TODO: byte typing *)
   | Random -> type_op [ ([ FloatType ], FloatType) ]
   | Abs -> type_op [ ([ FloatType ], FloatType) ]
   | Sqrt -> type_op [ ([ FloatType ], FloatType) ]
@@ -138,9 +128,6 @@ let type_binopt (op : Operator.binopt) (targs : EType.t list) : EType.t' =
   | ListPrepend -> not_implemented (* TODO: list typing *)
   | ListConcat -> not_implemented (* TODO: list typing *)
   | TupleNth -> not_implemented (* TODO: tuple typing *)
-  | IntToBEBytes -> not_implemented (* TODO: byste typing *)
-  | IntFromLEBytes -> not_implemented (* TODO: byte typing *)
-  | UintFromLEBytes -> not_implemented (* TODO: byte typing *)
   | Min -> type_op [ float_arith ]
   | Max -> type_op [ float_arith ]
   | Atan2 -> type_op [ float_arith ]

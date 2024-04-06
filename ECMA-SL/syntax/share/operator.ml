@@ -44,17 +44,6 @@ type unopt =
   | TupleFirst
   | TupleSecond
   | TupleLen
-  (* Byte operators *)
-  | FloatToByte
-  | Float32ToLEBytes
-  | Float32ToBEBytes
-  | Float64ToLEBytes
-  | Float64ToBEBytes
-  | Float32FromLEBytes
-  | Float32FromBEBytes
-  | Float64FromLEBytes
-  | Float64FromBEBytes
-  | BytesToString
   (* Math operators *)
   | Random
   | Abs
@@ -121,10 +110,6 @@ type binopt =
   | ListConcat
   (* Tuple operators *)
   | TupleNth
-  (* Byte operators *)
-  | IntToBEBytes
-  | IntFromLEBytes
-  | UintFromLEBytes
   (* Math operators *)
   | Min
   | Max
@@ -197,16 +182,6 @@ let label_of_unopt (op : unopt) : string =
   | TupleFirst -> "Tuple.fst"
   | TupleSecond -> "Tuple.snd"
   | TupleLen -> "Tup.t_len"
-  | FloatToByte -> "Byte.float_to_byte"
-  | Float32ToLEBytes -> "Byte.float32_to_le_bytes"
-  | Float32ToBEBytes -> "Byte.float32_to_be_bytes"
-  | Float64ToLEBytes -> "Byte.float64_to_le_bytes"
-  | Float64ToBEBytes -> "Byte.float64_to_be_bytes"
-  | Float32FromLEBytes -> "Byte.float32_from_le_bytes"
-  | Float32FromBEBytes -> "Byte.float32_from_be_bytes"
-  | Float64FromLEBytes -> "Byte.float64_from_le_bytes"
-  | Float64FromBEBytes -> "Byte.float64_from_be_bytes"
-  | BytesToString -> "Byte.bytes_to_string"
   | Random -> "Math.random"
   | Abs -> "Math.abs"
   | Sqrt -> "Math.sqrt"
@@ -264,9 +239,6 @@ let label_of_binopt (op : binopt) : string =
   | ListPrepend -> "List.l_prepend"
   | ListConcat -> "List.l_concat"
   | TupleNth -> "Tuple.t_nth"
-  | IntToBEBytes -> "Byte.int_to_be_bytes"
-  | IntFromLEBytes -> "Byte.int_from_le_bytes"
-  | UintFromLEBytes -> "Byte.uint_from_le_bytes"
   | Min -> "Math.min"
   | Max -> "Math.max"
   | Atan2 -> "Math.atan2"
@@ -316,16 +288,6 @@ let pp_of_unopt_single (fmt : Fmt.t) (op : unopt) : unit =
   | TupleFirst -> pp_str fmt "fst"
   | TupleSecond -> pp_str fmt "snd"
   | TupleLen -> pp_str fmt "t_len"
-  | FloatToByte -> pp_str fmt "float_to_byte"
-  | Float32ToLEBytes -> pp_str fmt "float32_to_le_bytes"
-  | Float32ToBEBytes -> pp_str fmt "float32_to_be_bytes"
-  | Float64ToLEBytes -> pp_str fmt "float64_to_le_bytes"
-  | Float64ToBEBytes -> pp_str fmt "float64_to_be_bytes"
-  | Float32FromLEBytes -> pp_str fmt "float32_from_le_bytes"
-  | Float32FromBEBytes -> pp_str fmt "float32_from_be_bytes"
-  | Float64FromLEBytes -> pp_str fmt "float64_from_le_bytes"
-  | Float64FromBEBytes -> pp_str fmt "float64_from_be_bytes"
-  | BytesToString -> pp_str fmt "bytes_to_string"
   | Random -> pp_str fmt "random"
   | Abs -> pp_str fmt "abs"
   | Sqrt -> pp_str fmt "sqrt"
@@ -384,9 +346,6 @@ let pp_of_binopt_single (fmt : Fmt.t) (op : binopt) : unit =
   | ListPrepend -> pp_str fmt "l_prepend"
   | ListConcat -> pp_str fmt "l_concat"
   | TupleNth -> pp_str fmt "t_nth"
-  | IntToBEBytes -> pp_str fmt "int_to_be_bytes"
-  | IntFromLEBytes -> pp_str fmt "int_from_le_bytes"
-  | UintFromLEBytes -> pp_str fmt "uint_from_le_bytes"
   | Min -> pp_str fmt "min"
   | Max -> pp_str fmt "max"
   | Atan2 -> pp_str fmt "atan2"
