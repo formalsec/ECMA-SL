@@ -35,12 +35,12 @@ function setValuePropertiesOfMathObject(mathObject) {
   /* 20.2.1.2 Math.LN10 */
   /* The Number value for the natural logarithm of 10, which is approximately 2.302585092994046. */
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
-  createBuiltInPropertyWithFullDescriptor(mathObject, "LN10", log_e 10., false, false, false);
+  createBuiltInPropertyWithFullDescriptor(mathObject, "LN10", log_e (10.), false, false, false);
 
   /* 20.2.1.3 Math.LN2 */
   /* The Number value for the natural logarithm of 2, which is approximately 0.6931471805599453. */
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
-  createBuiltInPropertyWithFullDescriptor(mathObject, "LN2", log_e 2., false, false, false);
+  createBuiltInPropertyWithFullDescriptor(mathObject, "LN2", log_e (2.), false, false, false);
 
   /* 20.2.1.4 Math.LOG10E */
   /* The Number value for the base-10 logarithm of e, the base of the natural logarithms; this value is approximately 0.4342944819032518. */
@@ -51,7 +51,7 @@ function setValuePropertiesOfMathObject(mathObject) {
   /* 20.2.1.5 Math.LOG2E */
   /* The Number value for the base-2 logarithm of e, the base of the natural logarithms; this value is approximately 1.4426950408889634. */
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
-  createBuiltInPropertyWithFullDescriptor(mathObject, "LOG2E", (log_10 (exp 1.)) / (log_10 2.), false, false, false);
+  createBuiltInPropertyWithFullDescriptor(mathObject, "LOG2E", (log_10 (exp 1.)) / (log_10 (2.)), false, false, false);
   /* NOTE The value of Math.LOG2E is approximately the reciprocal of the value of Math.LN2. */
 
   /* 20.2.1.6 Math.PI */
@@ -702,7 +702,7 @@ function MathLog(globalObject, this, NewTarget, stric, params) {
   /* If x is +0 or −0, the result is −∞. */
   /* If x is 1, the result is +0. */
   /* If x is +∞, the result is +∞. */
-  return log_e x
+  return log_e (x)
 };
 
 /* 20.2.2.21 Math.log1p ( x ) */
@@ -751,7 +751,7 @@ function MathLog10(globalObject, this, NewTarget, strict, params) {
   /* If x is −0, the result is −∞. */
   /* If x is 1, the result is +0. */
   /* If x is +∞, the result is +∞. */
-  return log_10 x
+  return log_10 (x)
 };
 
 /* 20.2.2.23 Math.log2 ( x ) */
@@ -766,7 +766,7 @@ function MathLog2(globalObject, this, NewTarget, strict, params) {
   /* If x is −0, the result is −∞. */
   /* If x is 1, the result is +0. */
   /* If x is +∞, the result is +∞. */
-  return log_2 x
+  return log_2 (x)
 };
 
 /* 20.2.2.24 Math.max ( value1, value2 , …values ) */

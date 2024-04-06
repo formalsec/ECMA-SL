@@ -148,6 +148,18 @@ function max_(x : float, y : float) : float {
   return (is_nan(y) ? y : x)
 }
 
+function log_2(f : float) : float {
+  return extern log_2_external(f)
+}
+
+function log_e(f : float) : float {
+  return extern log_e_external(f)
+}
+
+function log_10(f : float) : float {
+  return extern log_10_external(f)
+}
+
 /* List operatos */
 function iter(f, lst) : void {
   foreach (v : lst) {

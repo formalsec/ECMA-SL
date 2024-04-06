@@ -52,9 +52,6 @@ type unopt =
   | Floor
   | Trunc
   | Exp
-  | Log2
-  | LogE
-  | Log10
   | Sin
   | Cos
   | Tan
@@ -189,9 +186,6 @@ let label_of_unopt (op : unopt) : string =
   | Floor -> "Math.floor"
   | Trunc -> "Math.trunc"
   | Exp -> "Math.exp"
-  | Log2 -> "Math.log_2"
-  | LogE -> "Math.log_e"
-  | Log10 -> "Math.log_10"
   | Sin -> "Math.sin"
   | Cos -> "Math.cos"
   | Tan -> "Math.tan"
@@ -295,9 +289,6 @@ let pp_of_unopt_single (fmt : Fmt.t) (op : unopt) : unit =
   | Floor -> pp_str fmt "floor"
   | Trunc -> pp_str fmt "trunc"
   | Exp -> pp_str fmt "exp"
-  | Log2 -> pp_str fmt "log_2"
-  | LogE -> pp_str fmt "log_e"
-  | Log10 -> pp_str fmt "log_10"
   | Sin -> pp_str fmt "sin"
   | Cos -> pp_str fmt "cos"
   | Tan -> pp_str fmt "tan"

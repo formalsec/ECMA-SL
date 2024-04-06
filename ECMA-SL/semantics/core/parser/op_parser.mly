@@ -29,7 +29,7 @@
 %token TUPLE_FIRST TUPLE_SECOND TUPLE_LEN
 %token TUPLE_NTH
 
-%token RANDOM ABS SQRT CEIL FLOOR TRUNC EXP LOG_2 LOG_E LOG_10
+%token RANDOM ABS SQRT CEIL FLOOR TRUNC EXP
 %token SIN COS TAN SINH COSH TANH ASIN ACOS ATAN
 %token MAX MIN ATAN_2
 
@@ -102,9 +102,6 @@
   | FLOOR;                  { Operator.Floor }
   | TRUNC;                  { Operator.Trunc }
   | EXP;                    { Operator.Exp }
-  | LOG_2;                  { Operator.Log2 }
-  | LOG_E;                  { Operator.LogE }
-  | LOG_10;                 { Operator.Log10 }
   | SIN;                    { Operator.Sin }
   | COS;                    { Operator.Cos }
   | TAN;                    { Operator.Tan }

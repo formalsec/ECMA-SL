@@ -237,24 +237,6 @@ let exp (v : Val.t) : Val.t =
   | Flt f -> Flt (Float.exp f)
   | _ -> bad_arg_err 1 op_lbl "float" [ v ]
 
-let log_2 (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Log2 in
-  match v with
-  | Flt f -> Flt (Float.log2 f)
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
-let log_e (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt LogE in
-  match v with
-  | Flt f -> Flt (Float.log f)
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
-let log_10 (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Log10 in
-  match v with
-  | Flt f -> Flt (Float.log10 f)
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
 let sin (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt Sin in
   match v with
@@ -672,9 +654,6 @@ let eval_unopt (op : unopt) (v : Val.t) : Val.t =
   | Floor -> floor v
   | Trunc -> trunc v
   | Exp -> exp v
-  | Log2 -> log_2 v
-  | LogE -> log_e v
-  | Log10 -> log_10 v
   | Sin -> sin v
   | Cos -> cos v
   | Tan -> tan v
