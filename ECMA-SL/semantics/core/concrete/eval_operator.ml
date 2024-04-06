@@ -75,24 +75,6 @@ let float_to_string (v : Val.t) : Val.t =
   | Flt i -> Str (Arith_utils.float_to_string_inner i)
   | _ -> bad_arg_err 1 op_lbl "float" [ v ]
 
-let to_int32 (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt ToInt32 in
-  match v with
-  | Flt n -> Flt (Arith_utils.to_int32 n)
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
-let to_uint16 (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt ToUint16 in
-  match v with
-  | Flt n -> Flt (Arith_utils.to_uint16 n)
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
-let to_uint32 (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt ToUint32 in
-  match v with
-  | Flt n -> Flt (Arith_utils.to_uint32 n)
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
 let string_to_int (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt StringToInt in
   match v with
@@ -276,7 +258,7 @@ let modulo ((v1, v2) : Val.t * Val.t) : Val.t =
   | _ -> bad_arg_err 1 op_lbl "(float, float)" [ v1; v2 ]
 
 let pow ((v1, v2) : Val.t * Val.t) : Val.t =
-  let op_lbl = label_of_binopt Max in
+  let op_lbl = label_of_binopt Pow in
   match (v1, v2) with
   | (Flt f1, Flt f2) -> Flt (Float.pow f1 f2)
   | (Flt _, _) -> bad_arg_err 2 op_lbl "(float, float)" [ v1; v2 ]
@@ -413,20 +395,6 @@ let tuple_nth ((v1, v2) : Val.t * Val.t) : Val.t =
   | (Tuple _, _) -> bad_arg_err 2 op_lbl "(tuple, integer)" [ v1; v2 ]
   | _ -> bad_arg_err 1 op_lbl "(tuple, integer)" [ v1; v2 ]
 
-let min ((v1, v2) : Val.t * Val.t) : Val.t =
-  let op_lbl = label_of_binopt Min in
-  match (v1, v2) with
-  | (Flt f1, Flt f2) -> Flt (Float.min f1 f2)
-  | (Flt _, _) -> bad_arg_err 2 op_lbl "(float, float)" [ v1; v2 ]
-  | _ -> bad_arg_err 1 op_lbl "(float, float)" [ v1; v2 ]
-
-let max ((v1, v2) : Val.t * Val.t) : Val.t =
-  let op_lbl = label_of_binopt Max in
-  match (v1, v2) with
-  | (Flt f1, Flt f2) -> Flt (Float.max f1 f2)
-  | (Flt _, _) -> bad_arg_err 2 op_lbl "(float, float)" [ v1; v2 ]
-  | _ -> bad_arg_err 1 op_lbl "(float, float)" [ v1; v2 ]
-
 let ite ((v1, v2, v3) : Val.t * Val.t * Val.t) : Val.t =
   let op_lbl = label_of_triopt ITE in
   match v1 with
@@ -481,9 +449,6 @@ let eval_unopt (op : unopt) (v : Val.t) : Val.t =
   | IntToString -> int_to_string v
   | FloatToInt -> float_to_int v
   | FloatToString -> float_to_string v
-  | ToInt32 -> to_int32 v
-  | ToUint16 -> to_uint16 v
-  | ToUint32 -> to_uint32 v
   | StringToInt -> string_to_int v
   | StringToFloat -> string_to_float v
   | FromCharCode -> from_char_code v
@@ -543,8 +508,6 @@ let eval_binopt (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | ListPrepend -> list_prepend (v1, v2)
   | ListConcat -> list_concat (v1, v2)
   | TupleNth -> tuple_nth (v1, v2)
-  | Min -> min (v1, v2)
-  | Max -> max (v1, v2)
 
 let eval_triopt (op : triopt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) : Val.t =
   match op with

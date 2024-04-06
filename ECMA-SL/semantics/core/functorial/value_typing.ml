@@ -98,7 +98,7 @@ let type_of_unop (op : Operator.unopt) (ty : Type.t) : Type.t option =
   | Operator.IntToString -> on_int ~return:Type.StrType ty
   | Operator.FloatToString -> on_float ~return:Type.StrType ty
   | Operator.StringToFloat -> Some Type.FltType
-  | Operator.ToUint32 -> Some Type.FltType
+  (* | Operator.ToUint32 -> Some Type.FltType *)
   | Operator.Typeof -> Some Type.TypeType
   | Operator.StringConcat -> type_of_sconcat ty
   | Operator.Exp -> on_float ~return:Type.FltType ty
@@ -135,8 +135,8 @@ let type_of_binop (op : Operator.binopt) (v1 : Value.value) (v2 : Value.value)
   | Operator.Ge -> type_of_relop ty1 ty2
   | Operator.LogicalAnd -> type_of_binary_logic ty1 ty2
   | Operator.LogicalOr -> type_of_binary_logic ty1 ty2
-  | Operator.Min -> type_of_binary_arith ty1 ty2
-  | Operator.Max -> type_of_binary_arith ty1 ty2
+  (* | Operator.Min -> type_of_binary_arith ty1 ty2 *)
+  (* | Operator.Max -> type_of_binary_arith ty1 ty2 *)
   | Operator.TupleNth -> None
   | Operator.ListNth -> bin_args_typing_lnth v1 v2
   (* | Operator.ListMem -> bin_args_typing_inlist ty1 *)

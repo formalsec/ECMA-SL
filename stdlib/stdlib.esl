@@ -32,9 +32,8 @@ function to_int(n : float) : float {
   return sign * (floor (abs n))
 }
 
-/* FIXME: to replace `to_int32` */
-function to_int32_(n : float) : float {
-  if (is_nan(n) || n = 0.0 || is_inf(n)) {
+function to_int32(n : float) : float {
+  if (is_NaN(n) || n = 0.0 || is_inf(n)) {
     return 0.0
   };
   sign := (n < 0.0) ? -(1.0) : 1.0;
@@ -43,9 +42,8 @@ function to_int32_(n : float) : float {
   return ((int32bit >= 2147483648.0) ? int32bit - 4294967296.0 : int32bit)
 }
 
-/* FIXME: to replace `to_uint32` */
-function to_uint32_(n : float) : float {
-  if (is_nan(n) || n = 0.0 || is_inf(n)) {
+function to_uint32(n : float) : float {
+  if (is_NaN(n) || n = 0.0 || is_inf(n)) {
     return 0.0
   };
   sign := (n < 0.0) ? -(1.0) : 1.0;
@@ -53,9 +51,8 @@ function to_uint32_(n : float) : float {
   return (posInt % 4294967296.0)
 }
 
-/* FIXME: to replace `to_uint16` */
-function to_uint16_(n : float) : float {
-  if (is_nan(n) || n = 0.0 || is_inf(n)) {
+function to_uint16(n : float) : float {
+  if (is_NaN(n) || n = 0.0 || is_inf(n)) {
     return 0.0
   };
   sign := (n < 0.0) ? -(1.0) : 1.0;
@@ -130,20 +127,18 @@ function a_set(a : array, n : int, v) {
 }
 
 /* Math operators */
-/* FIXME: to replace `min` */
-function min_(x : float, y : float) : float {
+function min(x : float, y : float) : float {
   if (y > x) {
-    return (is_nan(y) ? y : x)
+    return (is_NaN(y) ? y : x)
   };
-  return (is_nan(x) ? x : y)
+  return (is_NaN(x) ? x : y)
 }
 
-/* FIXME: to replace `max` */
-function max_(x : float, y : float) : float {
+function max(x : float, y : float) : float {
   if (y > x) {
-    return (is_nan(x) ? x : y)
+    return (is_NaN(x) ? x : y)
   };
-  return (is_nan(y) ? y : x)
+  return (is_NaN(y) ? y : x)
 }
 
 function log_2(f : float) : float {

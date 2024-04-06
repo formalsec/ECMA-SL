@@ -122,7 +122,7 @@ let reduce_unop (op : unopt) (v : value) : value =
     reduce_sconcat (List.of_seq @@ flatten vs)
   | (StringToFloat, UnOpt (FloatToString, x)) -> x
   (* Unsound *)
-  | (FloatToString, UnOpt (ToUint32, v)) -> v
+  (* | (FloatToString, UnOpt (ToUint32, v)) -> v *)
   (* | ToUint32, Symbolic (Type.FltType, x) -> Symbolic (Type.FltType, x) *)
   (* | (ListSort, NOpt (ListExpr, l)) when List.length l <= 1 -> NOpt (ListExpr, l) *)
   (* | (Trim, UnOpt (FloatToString, v)) -> UnOpt (FloatToString, v) *)

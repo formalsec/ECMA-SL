@@ -20,9 +20,6 @@ type unopt =
   (* Float operators *)
   | FloatToInt
   | FloatToString
-  | ToInt32
-  | ToUint16
-  | ToUint32
   (* String operators *)
   | StringToInt
   | StringToFloat
@@ -89,9 +86,6 @@ type binopt =
   | ListConcat
   (* Tuple operators *)
   | TupleNth
-  (* Math operators *)
-  | Min
-  | Max
 
 type triopt =
   (* General operators *)
@@ -140,9 +134,6 @@ let label_of_unopt (op : unopt) : string =
   | IntToString -> "Integer.int_to_string"
   | FloatToInt -> "Float.float_to_int"
   | FloatToString -> "Float.float_to_string"
-  | ToInt32 -> "Float.to_int32"
-  | ToUint16 -> "Float.to_uint16"
-  | ToUint32 -> "Float.to_uint32"
   | StringToInt -> "String.string_to_int"
   | StringToFloat -> "String.string_to_float"
   | FromCharCode -> "String.from_char_code"
@@ -197,8 +188,6 @@ let label_of_binopt (op : binopt) : string =
   | ListPrepend -> "List.l_prepend"
   | ListConcat -> "List.l_concat"
   | TupleNth -> "Tuple.t_nth"
-  | Min -> "Math.min"
-  | Max -> "Math.max"
 
 let label_of_triopt (op : triopt) : string =
   match op with
@@ -225,9 +214,6 @@ let pp_of_unopt_single (fmt : Fmt.t) (op : unopt) : unit =
   | IntToString -> pp_str fmt "int_to_string"
   | FloatToInt -> pp_str fmt "int_of_float"
   | FloatToString -> pp_str fmt "float_to_string"
-  | ToInt32 -> pp_str fmt "to_int32"
-  | ToUint16 -> pp_str fmt "to_uint16"
-  | ToUint32 -> pp_str fmt "to_uint32"
   | StringToInt -> pp_str fmt "int_of_string"
   | StringToFloat -> pp_str fmt "float_of_string"
   | FromCharCode -> pp_str fmt "from_char_code"
@@ -282,8 +268,6 @@ let pp_of_binopt_single (fmt : Fmt.t) (op : binopt) : unit =
   | ListPrepend -> pp_str fmt "l_prepend"
   | ListConcat -> pp_str fmt "l_concat"
   | TupleNth -> pp_str fmt "t_nth"
-  | Min -> pp_str fmt "min"
-  | Max -> pp_str fmt "max"
 
 let pp_of_triopt_single (fmt : Fmt.t) (op : triopt) : unit =
   let open Fmt in
