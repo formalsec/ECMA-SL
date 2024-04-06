@@ -52,15 +52,6 @@ let%test "unopt_sqrt" = test_unopt (Sqrt, Flt 10.1) t_float
 let%test "unopt_ceil" = test_unopt (Ceil, Flt 10.1) t_float
 let%test "unopt_floor" = test_unopt (Floor, Flt 10.1) t_float
 let%test "unopt_exp" = test_unopt (Exp, Flt 10.1) t_float
-let%test "unopt_sin" = test_unopt (Sin, Flt 10.1) t_float
-let%test "unopt_cos" = test_unopt (Cos, Flt 10.1) t_float
-let%test "unopt_tan" = test_unopt (Tan, Flt 10.1) t_float
-let%test "unopt_sinh" = test_unopt (Sinh, Flt 10.1) t_float
-let%test "unopt_cosh" = test_unopt (Cosh, Flt 10.1) t_float
-let%test "unopt_tanh" = test_unopt (Tanh, Flt 10.1) t_float
-let%test "unopt_asin" = test_unopt (Asin, Flt 10.1) t_float
-let%test "unopt_acos" = test_unopt (Acos, Flt 10.1) t_float
-let%test "unopt_atan" = test_unopt (Atan, Flt 10.1) t_float
 let%test "unopt_utf8_decode" = test_unopt (Utf8Decode, Str "abc") t_string
 let%test "unopt_hex_decode" = test_unopt (HexDecode, Str "abc") t_string
 let%test "unopt_parse_number" = test_unopt (ParseNumber, Str "abc") t_string
@@ -131,7 +122,6 @@ let%test "binopt_string_nth" =
 
 let%test "binopt_min" = test_binopt (Min, Flt 10.1, Flt 10.1) t_float
 let%test "binopt_max" = test_binopt (Max, Flt 10.1, Flt 10.1) t_float
-let%test "binopt_atan2" = test_binopt (Atan2, Flt 10.1, Flt 10.1) t_float
 
 (* ========== Simple Ternary Operators ========== *)
 

@@ -160,6 +160,46 @@ function log_10(f : float) : float {
   return extern log_10_external(f)
 }
 
+function sin(f : float) : float {
+  return extern sin_external(f)
+}
+
+function cos(f : float) : float {
+  return extern cos_external(f)
+}
+
+function tan(f : float) : float {
+  return extern tan_external(f)
+}
+
+function sinh(f : float) : float {
+  return extern sinh_external(f)
+}
+
+function cosh(f : float) : float {
+  return extern cosh_external(f)
+}
+
+function tanh(f : float) : float {
+  return extern tanh_external(f)
+}
+
+function asin(f : float) : float {
+  return extern asin_external(f)
+}
+
+function acos(f : float) : float {
+  return extern acos_external(f)
+}
+
+function atan(f : float) : float {
+  return extern atan_external(f)
+}
+
+function atan2(x : float, y : float) : float {
+  return extern atan2_external(x, y)
+}
+
 /* List operatos */
 function iter(f, lst) : void {
   foreach (v : lst) {

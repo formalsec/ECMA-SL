@@ -102,18 +102,8 @@
             "floor"                   , FLOOR;
             "trunc"                   , TRUNC;
             "exp"                     , EXP;
-            "sin"                     , SIN;
-            "cos"                     , COS;
-            "tan"                     , TAN;
-            "sinh"                    , SINH;
-            "cosh"                    , COSH;
-            "tanh"                    , TANH;
-            "asin"                    , ASIN;
-            "acos"                    , ACOS;
-            "atan"                    , ATAN;
             "min"                     , MIN;
             "max"                     , MAX;
-            "atan2"                   , ATAN_2;
 
             (* Parse operators *)
             "utf8_decode"             , UTF8_DECODE;

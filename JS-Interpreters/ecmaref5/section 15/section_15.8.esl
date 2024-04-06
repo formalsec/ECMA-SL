@@ -179,7 +179,7 @@ function MathACos(globalObject, this, stric, params) {
   /* If x is less than -1, the result is NaN. */
   /* If x is exactly 1, the result is +0. */
 
-  return acos x
+  return acos (x)
 };
 
 /* 15.8.2.3 asin (x) */
@@ -195,7 +195,7 @@ function MathASin(globalObject, this, stric, params) {
   /* If x is +0, the result is +0. */
   /* If x is -0, the result is -0. */
 
-  return asin x
+  return asin (x)
 };
 
 /* 15.8.2.4 atan (x) */
@@ -211,7 +211,7 @@ function MathATan(globalObject, this, stric, params) {
   /* If x is +Infinity, the result is an implementation-dependent approximation to +pi/2. */
   /* If x is -Infinity, the result is an implementation-dependent approximation to -pi/2. */
 
-  return atan x
+  return atan (x)
 };
 
 /* 15.8.2.5 atan2 (y, x) */
@@ -281,7 +281,7 @@ function MathCos(globalObject, this, stric, params) {
   /* If x is +Infinity, the result is NaN. */
   /* If x is -Infinity, the result is NaN. */
 
-  return cos x
+  return cos (x)
 };
 
 /* 15.8.2.8 exp (x) */
@@ -508,5 +508,5 @@ function MathTan(globalObject, this, stric, params) {
   /* If x is -0, the result is -0. */
   /* If x is +Infinity or -Infinity, the result is NaN. */
 
-  return tan x
+  return tan (x)
 }

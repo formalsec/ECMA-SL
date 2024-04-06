@@ -52,15 +52,6 @@ type unopt =
   | Floor
   | Trunc
   | Exp
-  | Sin
-  | Cos
-  | Tan
-  | Sinh
-  | Cosh
-  | Tanh
-  | Asin
-  | Acos
-  | Atan
   (* Parse operators *)
   | Utf8Decode
   | HexDecode
@@ -110,7 +101,6 @@ type binopt =
   (* Math operators *)
   | Min
   | Max
-  | Atan2
 
 type triopt =
   (* General operators *)
@@ -186,15 +176,6 @@ let label_of_unopt (op : unopt) : string =
   | Floor -> "Math.floor"
   | Trunc -> "Math.trunc"
   | Exp -> "Math.exp"
-  | Sin -> "Math.sin"
-  | Cos -> "Math.cos"
-  | Tan -> "Math.tan"
-  | Sinh -> "Math.sinh"
-  | Cosh -> "Math.cosh"
-  | Tanh -> "Math.tanh"
-  | Acos -> "Math.acos"
-  | Asin -> "Math.asin"
-  | Atan -> "Math.atan"
   | Utf8Decode -> "Parse.utf8_decode"
   | HexDecode -> "Parse.hex_decode"
   | ParseNumber -> "Parse.parse_number"
@@ -235,7 +216,6 @@ let label_of_binopt (op : binopt) : string =
   | TupleNth -> "Tuple.t_nth"
   | Min -> "Math.min"
   | Max -> "Math.max"
-  | Atan2 -> "Math.atan2"
 
 let label_of_triopt (op : triopt) : string =
   match op with
@@ -289,15 +269,6 @@ let pp_of_unopt_single (fmt : Fmt.t) (op : unopt) : unit =
   | Floor -> pp_str fmt "floor"
   | Trunc -> pp_str fmt "trunc"
   | Exp -> pp_str fmt "exp"
-  | Sin -> pp_str fmt "sin"
-  | Cos -> pp_str fmt "cos"
-  | Tan -> pp_str fmt "tan"
-  | Sinh -> pp_str fmt "sinh"
-  | Cosh -> pp_str fmt "cosh"
-  | Tanh -> pp_str fmt "tanh"
-  | Asin -> pp_str fmt "asin"
-  | Acos -> pp_str fmt "acos"
-  | Atan -> pp_str fmt "atan"
   | Utf8Decode -> pp_str fmt "utf8_decode"
   | HexDecode -> pp_str fmt "hex_decode"
   | ParseNumber -> pp_str fmt "parse_number"
@@ -339,7 +310,6 @@ let pp_of_binopt_single (fmt : Fmt.t) (op : binopt) : unit =
   | TupleNth -> pp_str fmt "t_nth"
   | Min -> pp_str fmt "min"
   | Max -> pp_str fmt "max"
-  | Atan2 -> pp_str fmt "atan2"
 
 let pp_of_triopt_single (fmt : Fmt.t) (op : triopt) : unit =
   let open Fmt in

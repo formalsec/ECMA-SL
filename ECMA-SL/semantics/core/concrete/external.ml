@@ -408,6 +408,67 @@ let log_10 (v : Val.t) : Val.t =
   | Flt f -> Flt (Float.log10 f)
   | _ -> Eval_operator.bad_arg_err 1 op_lbl "float" [ v ]
   
+let sin (v : Val.t) : Val.t =
+  let op_lbl = "sin_external" in
+  match v with
+  | Flt f -> Flt (Float.sin f)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "float" [ v ]
+
+let cos (v : Val.t) : Val.t =
+  let op_lbl = "cos_external" in
+  match v with
+  | Flt f -> Flt (Float.cos f)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "float" [ v ]
+
+let tan (v : Val.t) : Val.t =
+  let op_lbl = "tan_external" in
+  match v with
+  | Flt f -> Flt (Float.tan f)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "float" [ v ]
+
+let sinh (v : Val.t) : Val.t =
+  let op_lbl = "sinh_external" in
+  match v with
+  | Flt f -> Flt (Float.sinh f)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "float" [ v ]
+
+let cosh (v : Val.t) : Val.t =
+  let op_lbl = "cosh_external" in
+  match v with
+  | Flt f -> Flt (Float.cosh f)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "float" [ v ]
+
+let tanh (v : Val.t) : Val.t =
+  let op_lbl = "tanh_external" in
+  match v with
+  | Flt f -> Flt (Float.tanh f)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "float" [ v ]
+
+let asin (v : Val.t) : Val.t =
+  let op_lbl = "asin_external" in
+  match v with
+  | Flt f -> Flt (Float.asin f)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "float" [ v ]
+
+let acos (v : Val.t) : Val.t =
+  let op_lbl = "acos_external" in
+  match v with
+  | Flt f -> Flt (Float.acos f)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "float" [ v ]
+
+let atan (v : Val.t) : Val.t =
+  let op_lbl = "atan_external" in
+  match v with
+  | Flt f -> Flt (Float.atan f)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "float" [ v ]
+  
+let atan2 ((v1, v2) : Val.t * Val.t) : Val.t =
+  let op_lbl = "atan2_external" in
+  match (v1, v2) with
+  | (Flt f1, Flt f2) -> Flt (Float.atan2 f1 f2)
+  | (Flt _, _) -> Eval_operator.bad_arg_err 2 op_lbl "(float, float)" [ v1; v2 ]
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "(float, float)" [ v1; v2 ]
+  
 let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   (fn : Id.t') (vs : Val.t list) : Val.t =
   match (fn, vs) with
@@ -452,6 +513,16 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("log_2_external", [ v ]) -> log_2 v
   | ("log_e_external", [ v ]) -> log_e v
   | ("log_10_external", [ v ]) -> log_10 v
+  | ("sin_external", [ v ]) -> sin v
+  | ("cos_external", [ v ]) -> cos v
+  | ("tan_external", [ v ]) -> tan v
+  | ("sinh_external", [ v ]) -> sinh v
+  | ("cosh_external", [ v ]) -> cosh v
+  | ("tanh_external", [ v ]) -> tanh v
+  | ("asin_external", [ v ]) -> asin v
+  | ("acos_external", [ v ]) -> acos v
+  | ("atan_external", [ v ]) -> atan v
+  | ("atan2_external", [ v1 ; v2 ]) -> atan2 (v1, v2)
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
     Val.Symbol "undefined"
