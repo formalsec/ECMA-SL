@@ -180,7 +180,7 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
   while (i >= 0) {
 	  f := l_nth(varDeclarations, i);
 	  fn := f.id.name;
-	  if (!(fn in_list declaredFunctionNames)) {
+	  if (!(in_list(fn, declaredFunctionNames))) {
 		  if  (isGlobalEnvRec) {
 			  /* TODO */
 		  };
@@ -196,11 +196,11 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
   i := 0;
   while (i < varNames_l) {
 	  vn := l_nth(varNames, i);
-	  if (!(vn in_list declaredFunctionNames)) {
+	  if (!(in_list(vn, declaredFunctionNames))) {
 		  if (isGlobalEnvRec) {
 			  /* TODO */
 		  };
-		  if (!(vn in_list declaredVarNames)) {
+		  if (!(in_list(vn, declaredVarNames))) {
 			  declaredVarNames := l_add(declaredVarNames, vn)
 		  }
 	  };

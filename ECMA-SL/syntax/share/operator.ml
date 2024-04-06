@@ -85,7 +85,6 @@ type binopt =
   (* String operators *)
   | StringNth
   (* List operators *)
-  | ListMem
   | ListNth
   | ListAdd
   | ListPrepend
@@ -123,7 +122,7 @@ let is_infix_binopt (op : binopt) : bool =
   | Plus | Minus | Times | Div | Modulo | Pow | BitwiseAnd | BitwiseOr
   | BitwiseXor | ShiftLeft | ShiftRight | ShiftRightLogical | LogicalAnd
   | LogicalOr | SCLogicalAnd | SCLogicalOr | Eq | NE | Lt | Gt | Le | Ge
-  | ObjectMem | ListMem ->
+  | ObjectMem ->
     true
   | _ -> false
 
@@ -197,7 +196,6 @@ let label_of_binopt (op : binopt) : string =
   | Ge -> "Comp.ge (>=)"
   | ObjectMem -> "Object.in_obj"
   | StringNth -> "String.s_nth"
-  | ListMem -> "List.in_list"
   | ListNth -> "List.l_nth"
   | ListAdd -> "List.l_add"
   | ListPrepend -> "List.l_prepend"
@@ -285,7 +283,6 @@ let pp_of_binopt_single (fmt : Fmt.t) (op : binopt) : unit =
   | Ge -> pp_str fmt ">="
   | ObjectMem -> pp_str fmt "in_obj"
   | StringNth -> pp_str fmt "s_nth"
-  | ListMem -> pp_str fmt "in_list"
   | ListNth -> pp_str fmt "l_nth"
   | ListAdd -> pp_str fmt "l_add"
   | ListPrepend -> pp_str fmt "l_prepend"

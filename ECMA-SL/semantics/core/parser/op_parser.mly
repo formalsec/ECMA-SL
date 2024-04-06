@@ -24,7 +24,7 @@
 
 %token LIST_HEAD LIST_TAIL LIST_LEN LIST_REVERSE
 %token LIST_NTH LIST_ADD LIST_PREPEND LIST_CONCAT
-%token LIST_MEM LIST_SET
+%token LIST_SET
 
 %token TUPLE_FIRST TUPLE_SECOND TUPLE_LEN
 %token TUPLE_NTH
@@ -65,7 +65,6 @@
   | GT;                     { Operator.Gt }
   | LE;                     { Operator.Le }
   | GE;                     { Operator.Ge }
-  | LIST_MEM;               { Operator.ListMem }
 
 %public let core_unopt_call ==
   | TYPEOF;                 { Operator.Typeof }

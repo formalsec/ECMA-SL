@@ -10,9 +10,9 @@ function sortProprtiesES6(internalSlotsList) {
     P := l_nth(internalSlotsList, i);
     num := ToNumber(P);
     /* Only positive integer numbers are */
-    if (!(num = NaN) &&& (ToUint32(num) = num) &&& !(P in_list num_list)) {
+    if (!(num = NaN) &&& (ToUint32(num) = num) &&& !(in_list(P, num_list))) {
       num_list := l_add(num_list, P)
-    } elif (!(P in_list str_list)) {
+    } elif (!(in_list(P, str_list))) {
       str_list := l_add(str_list, P)
     };
     i := i + 1
@@ -179,12 +179,12 @@ function getTokens(global, this, NewTarget, strict, args) {
     c := s_nth_u(JText, i);
 
     /* allowed white-spaces */
-    if (c in_list whitespaces) {
+    if (in_list(c, whitespaces)) {
       /* ignore */
       i := i + 1
     }
     /* structural tokens */
-    elif (c in_list structural_tokens) {
+    elif (in_list(c, structural_tokens)) {
       tokens := l_add(tokens, c);
       i := i + 1
     }
@@ -663,7 +663,7 @@ function jsonStringify(global, this, NewTarget, strict, args) {
             @ReturnIfAbrupt(item)
           };
           /* g. If item is not undefined and item is not currently an element of PropertyList, then */
-          if ( !(item = 'undefined) &&& !(item in_list PropertyList)) {
+          if ( !(item = 'undefined) &&& !(in_list(item, PropertyList))) {
             /* i. Append item to the end of PropertyList. */
             PropertyList := l_add(PropertyList, item)
           };
@@ -971,7 +971,7 @@ function QuoteJSONString(value) {
  */
 function SerializeJSONObject(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
   /* 1.If stack contains value, throw a TypeError exception because the structure is cyclical. */
-  if (value in_list stack) {
+  if (in_list(value,stack)) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. Append value to stack. */
@@ -1072,7 +1072,7 @@ function SerializeJSONObject(value, stack, indent, gap, PropertyList, ReplacerFu
 function SerializeJSONArray(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
   /* 1. If stack contains value, throw a TypeError exception because
         the structure is cyclical. */
-  if (value in_list stack) {
+  if (in_list(value,stack)) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. Append value to stack. */

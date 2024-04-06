@@ -179,7 +179,7 @@ let reduce_binop (op : binopt) (v1 : value) (v2 : value) : value =
   | (ListConcat, NOpt (ListExpr, []), lst) -> lst
   | (ListPrepend, v1, NOpt (ListExpr, vs)) -> NOpt (ListExpr, v1 :: vs)
   | (ListAdd, NOpt (ListExpr, vs), v2) -> NOpt (ListExpr, vs @ [ v2 ])
-  | (ListMem, v1, NOpt (ListExpr, vs)) -> Val (Bool (Stdlib.List.mem v1 vs))
+  (* | (ListMem, v1, NOpt (ListExpr, vs)) -> Val (Bool (Stdlib.List.mem v1 vs)) *)
   | (op', v1', v2') -> BinOpt (op', v1', v2')
 
 let reduce_triop (op : triopt) (v1 : value) (v2 : value) (v3 : value) : value =

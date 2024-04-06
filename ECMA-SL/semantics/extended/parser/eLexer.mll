@@ -81,7 +81,6 @@
             "tl"                      , LIST_TAIL;
             "l_len"                   , LIST_LEN;
             "l_reverse"               , LIST_REVERSE;
-            "in_list"                 , LIST_MEM;
             "l_nth"                   , LIST_NTH;
             "l_add"                   , LIST_ADD;
             "l_prepend"               , LIST_PREPEND;

@@ -889,7 +889,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
     while(i < lvarNames) {
       element := l_nth(varNames, i);
       /* i. If n is not an element of instantiatedVarNames, then */
-      if (!(element in_list instantiatedVarNames)) {
+      if (!(in_list(element, instantiatedVarNames))) {
         /* 1. Append n to instantiatedVarNames. */
         instantiatedVarNames := l_add(instantiatedVarNames, element);
 
@@ -932,7 +932,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
     while(i < lvarNames) {
       element := l_nth(varNames, i);
       /* i. If n is not an element of instantiatedVarNames, then */
-      if (!(element in_list instantiatedVarNames)) {
+      if (!(in_list(element, instantiatedVarNames))) {
         /* 1. Append n to instantiatedVarNames. */
         instantiatedVarNames := l_add(instantiatedVarNames, element);
 
@@ -944,7 +944,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
 
         /* 4. If n is not an element of parameterNames or if n is an element of functionNames
               let initialValue be undefined. */
-        if (!(element in_list parameterNames) ||| (element in_list functionNames)) {
+        if (!(in_list(element, parameterNames)) ||| (in_list(element, functionNames))) {
           initialValue := 'undefined
         } else {
           /* 5. Else, let initialValue be the result of performing

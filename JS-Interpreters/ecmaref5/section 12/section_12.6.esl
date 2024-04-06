@@ -26,7 +26,7 @@ function getEnumerablePropertiesRecursive(object, enumProps, checkedProps) {
       p_name := l_nth(list, i);
       p_value := namedPropertiesObj[p_name];
       if (isPropertyDescriptor(p_value)) {
-        if ((p_value.Enumerable = true) &&& !(p_name in_list checkedProps)) {
+        if ((p_value.Enumerable = true) &&& !(in_list(p_name,checkedProps))) {
           enumProps := l_add(enumProps, p_name)
         };
         checkedProps := l_add(checkedProps, p_name)
