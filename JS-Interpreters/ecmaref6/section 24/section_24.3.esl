@@ -136,7 +136,7 @@ function unescapeJSONString(S) {
         if (c2 = "u") {
           if (i < (len - 5)) {
             str := s_substr_u(S, i, 6);
-            u := utf8_decode str;
+            u := utf8_decode (str);
             S2 := s_concat([S2, u]);
             i := i + 4
           } else {

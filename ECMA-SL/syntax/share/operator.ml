@@ -52,12 +52,6 @@ type unopt =
   | Floor
   | Trunc
   | Exp
-  (* Parse operators *)
-  | Utf8Decode
-  | HexDecode
-  | ParseNumber
-  | ParseString
-  | ParseDate
 
 type binopt =
   (* Arithmetic operators *)
@@ -176,11 +170,6 @@ let label_of_unopt (op : unopt) : string =
   | Floor -> "Math.floor"
   | Trunc -> "Math.trunc"
   | Exp -> "Math.exp"
-  | Utf8Decode -> "Parse.utf8_decode"
-  | HexDecode -> "Parse.hex_decode"
-  | ParseNumber -> "Parse.parse_number"
-  | ParseString -> "Parse.parse_string"
-  | ParseDate -> "Parse.parse_date"
 
 let label_of_binopt (op : binopt) : string =
   match op with
@@ -269,12 +258,6 @@ let pp_of_unopt_single (fmt : Fmt.t) (op : unopt) : unit =
   | Floor -> pp_str fmt "floor"
   | Trunc -> pp_str fmt "trunc"
   | Exp -> pp_str fmt "exp"
-  | Utf8Decode -> pp_str fmt "utf8_decode"
-  | HexDecode -> pp_str fmt "hex_decode"
-  | ParseNumber -> pp_str fmt "parse_number"
-  | ParseString -> pp_str fmt "parse_string"
-  | ParseDate -> pp_str fmt "parse_date"
-
 let pp_of_binopt_single (fmt : Fmt.t) (op : binopt) : unit =
   let open Fmt in
   match op with

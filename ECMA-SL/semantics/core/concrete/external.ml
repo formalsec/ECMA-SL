@@ -469,6 +469,74 @@ let atan2 ((v1, v2) : Val.t * Val.t) : Val.t =
   | (Flt _, _) -> Eval_operator.bad_arg_err 2 op_lbl "(float, float)" [ v1; v2 ]
   | _ -> Eval_operator.bad_arg_err 1 op_lbl "(float, float)" [ v1; v2 ]
   
+let utf8_decode (v : Val.t) : Val.t =
+  let op_lbl = "utf8_decode_external" in
+  match v with
+  | Str s -> Str (String_utils.utf8decode s)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "string" [ v ]
+
+let hex_decode (v : Val.t) : Val.t =
+  let op_lbl = "hex_decode_external" in
+  match v with
+  | Str s -> Str (String_utils.hexdecode s)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "string" [ v ]
+
+(** * JSON number regex: https://stackoverflow.com/a/13340826/3049315 *
+    Recognized Regexp constructs in OCaml Str: https://ocaml.org/api/Str.html *)
+let parse_number (v : Val.t) : Val.t =
+  let op_lbl = "parse_number_external" in
+  match v with
+  | Str s ->
+    let regex =
+      Str.regexp "-?\\(0\\|[1-9][0-9]*\\)\\(\\.[0-9]+\\)?\\([eE][+-]?[0-9]+\\)?"
+    in
+    let matched = Str.string_match regex s 0 in
+    if matched then Str (Str.matched_string s) else Str ""
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "string" [ v ]
+
+(** * JSON string regex: https://stackoverflow.com/a/32155765/3049315 *)
+let parse_string (v : Val.t) : Val.t =
+  let op_lbl = "parse_string_external" in
+  match v with
+  | Str s ->
+    let regex =
+      Str.regexp
+        "\"\\(\\\\\\([\"\\\\\\/bfnrt]\\|u[a-fA-F0-9][a-fA-F0-9][a-fA-F0-9][a-fA-F0-9]\\)\\|[^\"\\\\\000-\031\127]+\\)*\""
+    in
+    let matched = Str.string_match regex s 0 in
+    if matched then Str (Str.matched_string s) else Str ""
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "string" [ v ]
+
+let parse_date (v : Val.t) : Val.t =
+  let op_lbl = "parse_date_external" in
+  let remove_sign s = String.sub s 1 (String.length s - 1) in
+  let signed_year year_neg year = if year_neg then -.year else year in
+  let parse_date year_neg date =
+    match date with
+    | None -> Val.Flt (-1.)
+    | Some ([ year; month; day; hour; min; sec; msec ], tz) ->
+      Val.List
+        [ Val.Flt (signed_year year_neg year)
+        ; Val.Flt month
+        ; Val.Flt day
+        ; Val.Flt hour
+        ; Val.Flt min
+        ; Val.Flt sec
+        ; Val.Flt msec
+        ; Val.Str tz
+        ]
+    | _ -> Eval_operator.unexpected_err 1 op_lbl "date format"
+  in
+  match v with
+  | Str s ->
+    let year_sign = s.[0] in
+    if year_sign == '-' then
+      remove_sign s |> Date_utils.parse_date |> parse_date true
+    else if year_sign == '+' then
+      remove_sign s |> Date_utils.parse_date |> parse_date false
+    else Date_utils.parse_date s |> parse_date false
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "string" [ v ]
+  
 let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   (fn : Id.t') (vs : Val.t list) : Val.t =
   match (fn, vs) with
@@ -523,6 +591,11 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("acos_external", [ v ]) -> acos v
   | ("atan_external", [ v ]) -> atan v
   | ("atan2_external", [ v1 ; v2 ]) -> atan2 (v1, v2)
+  | ("utf8_decode_external", [ v ]) -> utf8_decode v
+  | ("hex_decode_external", [ v ]) -> hex_decode v
+  | ("parse_number_external", [ v ]) -> parse_number v
+  | ("parse_string_external", [ v ]) -> parse_string v
+  | ("parse_date_external", [ v ]) -> parse_date v
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
     Val.Symbol "undefined"

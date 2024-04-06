@@ -52,11 +52,6 @@ let%test "unopt_sqrt" = test_unopt (Sqrt, Flt 10.1) t_float
 let%test "unopt_ceil" = test_unopt (Ceil, Flt 10.1) t_float
 let%test "unopt_floor" = test_unopt (Floor, Flt 10.1) t_float
 let%test "unopt_exp" = test_unopt (Exp, Flt 10.1) t_float
-let%test "unopt_utf8_decode" = test_unopt (Utf8Decode, Str "abc") t_string
-let%test "unopt_hex_decode" = test_unopt (HexDecode, Str "abc") t_string
-let%test "unopt_parse_number" = test_unopt (ParseNumber, Str "abc") t_string
-let%test "unopt_parse_string" = test_unopt (ParseString, Str "abc") t_string
-let%test "unopt_parse_date" = test_unopt (ParseDate, Str "abc") t_string
 
 (* ========== Simple Binary Operators ========== *)
 

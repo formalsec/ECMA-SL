@@ -32,9 +32,6 @@
 %token RANDOM ABS SQRT CEIL FLOOR TRUNC EXP
 %token MAX MIN
 
-%token UTF8_DECODE HEX_DECODE
-%token PARSE_NUMBER PARSE_STRING PARSE_DATE
-
 %token EXCLAMATION
 %token TILDE
 
@@ -101,11 +98,6 @@
   | FLOOR;                  { Operator.Floor }
   | TRUNC;                  { Operator.Trunc }
   | EXP;                    { Operator.Exp }
-  | UTF8_DECODE;            { Operator.Utf8Decode }
-  | HEX_DECODE;             { Operator.HexDecode }
-  | PARSE_NUMBER;           { Operator.ParseNumber }
-  | PARSE_STRING;           { Operator.ParseString }
-  | PARSE_DATE;             { Operator.ParseDate }
 
 %public let core_binopt_call ==
   | STRING_NTH;             { Operator.StringNth }
