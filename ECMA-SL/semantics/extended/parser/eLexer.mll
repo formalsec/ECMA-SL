@@ -102,9 +102,6 @@
             "floor"                   , FLOOR;
             "trunc"                   , TRUNC;
             "exp"                     , EXP;
-            "log_2"                   , LOG_2;
-            "log_e"                   , LOG_E;
-            "log_10"                  , LOG_10;
             "sin"                     , SIN;
             "cos"                     , COS;
             "tan"                     , TAN;

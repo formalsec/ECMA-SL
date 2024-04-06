@@ -390,6 +390,24 @@ let uint_from_le_bytes ((v1, v2) : Val.t * Val.t) : Val.t =
   | Int n -> Flt (Byte_utils.uint_from_le_bytes (int_bytes, n))
   | _ -> Eval_operator.bad_arg_err 2 op_lbl "(byte array, integer)" [ v1; v2 ]
   
+let log_2 (v : Val.t) : Val.t =
+  let op_lbl = "log_2_external" in
+  match v with
+  | Flt f -> Flt (Float.log2 f)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "float" [ v ]
+
+let log_e (v : Val.t) : Val.t =
+  let op_lbl = "log_e_external" in
+  match v with
+  | Flt f -> Flt (Float.log f)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "float" [ v ]
+
+let log_10 (v : Val.t) : Val.t =
+  let op_lbl = "log_10_external" in
+  match v with
+  | Flt f -> Flt (Float.log10 f)
+  | _ -> Eval_operator.bad_arg_err 1 op_lbl "float" [ v ]
+  
 let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   (fn : Id.t') (vs : Val.t list) : Val.t =
   match (fn, vs) with
@@ -431,6 +449,9 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("int_to_be_bytes_external", [ v1 ; v2 ]) -> int_to_be_bytes (v1, v2)
   | ("int_from_le_bytes_external", [ v1 ; v2 ]) -> int_from_le_bytes (v1, v2)
   | ("uint_from_le_bytes_external", [ v1 ; v2 ]) -> uint_from_le_bytes (v1, v2)
+  | ("log_2_external", [ v ]) -> log_2 v
+  | ("log_e_external", [ v ]) -> log_e v
+  | ("log_10_external", [ v ]) -> log_10 v
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
     Val.Symbol "undefined"
