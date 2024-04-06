@@ -297,7 +297,7 @@ function MathACos(globalObject, this, NewTarget, stric, params) {
   /* If x is greater than 1, the result is NaN. */
   /* If x is less than -1, the result is NaN. */
   /* If x is exactly 1, the result is +0. */
-  return acos x
+  return acos (x)
 };
 
 /* 20.2.2.3 Math.acosh( x ) */
@@ -325,7 +325,7 @@ function MathASin(globalObject, this, NewTarget, stric, params) {
   /* If x is less than –1, the result is NaN. */
   /* If x is +0, the result is +0. */
   /* If x is −0, the result is −0. */
-  return asin x
+  return asin (x)
 };
 
 /* 20.2.2.5 Math.asinh( x ) */
@@ -369,7 +369,7 @@ function MathATan(globalObject, this, NewTarget, stric, params) {
   /* If x is −0, the result is −0. */
   /* If x is +∞, the result is an implementation-dependent approximation to +π/2. */
   /* If x is −∞, the result is an implementation-dependent approximation to −π/2. */
-  return atan x
+  return atan (x)
 };
 
 /* 20.2.2.7 Math.atanh( x ) */
@@ -523,7 +523,7 @@ function MathCos(globalObject, this, NewTarget, stric, params) {
   /* If x is −0, the result is 1. */
   /* If x is +∞, the result is NaN. */
   /* If x is −∞, the result is NaN. */
-  return cos x
+  return cos (x)
 };
 
 /* 20.2.2.13 Math.cosh ( x ) */
@@ -539,7 +539,7 @@ function MathCosh(globalObject, this, NewTarget, strict, params) {
   /* If x is −∞, the result is +∞. */
   /* NOTE
   The value of cosh(x) is the same as (exp(x) + exp(-x))/2. */
-  return cosh x
+  return cosh (x)
 };
 
 /* 20.2.2.14 Math.exp ( x ) */
@@ -952,7 +952,7 @@ function MathSin(globalObject, this, NewTarget, stric, params) {
   /* If x is +0, the result is +0. */
   /* If x is −0, the result is −0. */
   /* If x is +∞ or −∞, the result is NaN. */
-  return sin x
+  return sin (x)
 };
 
 /* 20.2.2.31 Math.sinh( x ) */
@@ -966,7 +966,7 @@ function MathSinh(globalObject, this, NewTarget, strict, params) {
   /* If x is −0, the result is −0. */
   /* If x is +∞, the result is +∞. */
   /* If x is −∞, the result is −∞. */
-  return sinh x
+  return sinh (x)
 };
 
 /* 20.2.2.32 Math.sqrt ( x ) */
@@ -993,7 +993,7 @@ function MathTan(globalObject, this, NewTarget, stric, params) {
   /* If x is +0, the result is +0. */
   /* If x is -0, the result is -0. */
   /* If x is +Infinity or -Infinity, the result is NaN. */
-  return tan x
+  return tan (x)
 };
 
 /* 20.2.2.34 Math.tanh ( x ) */
@@ -1009,7 +1009,7 @@ function MathTanh(globalObject, this, NewTarget, strict, params) {
   /* If x is −∞, the result is -1. */
   /* NOTE
   The value of tanh(x) is the same as (exp(x) - exp(-x))/(exp(x) + exp(-x)). */
-  return tanh x
+  return tanh (x)
 };
 
 /* 20.2.2.35 Math.trunc ( x ) */

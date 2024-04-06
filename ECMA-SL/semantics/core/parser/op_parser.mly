@@ -30,8 +30,7 @@
 %token TUPLE_NTH
 
 %token RANDOM ABS SQRT CEIL FLOOR TRUNC EXP
-%token SIN COS TAN SINH COSH TANH ASIN ACOS ATAN
-%token MAX MIN ATAN_2
+%token MAX MIN
 
 %token UTF8_DECODE HEX_DECODE
 %token PARSE_NUMBER PARSE_STRING PARSE_DATE
@@ -102,15 +101,6 @@
   | FLOOR;                  { Operator.Floor }
   | TRUNC;                  { Operator.Trunc }
   | EXP;                    { Operator.Exp }
-  | SIN;                    { Operator.Sin }
-  | COS;                    { Operator.Cos }
-  | TAN;                    { Operator.Tan }
-  | SINH;                   { Operator.Sinh }
-  | COSH;                   { Operator.Cosh }
-  | TANH;                   { Operator.Tanh }
-  | ASIN;                   { Operator.Asin }
-  | ACOS;                   { Operator.Acos }
-  | ATAN;                   { Operator.Atan }
   | UTF8_DECODE;            { Operator.Utf8Decode }
   | HEX_DECODE;             { Operator.HexDecode }
   | PARSE_NUMBER;           { Operator.ParseNumber }
@@ -126,7 +116,6 @@
   | TUPLE_NTH;              { Operator.TupleNth }
   | MIN;                    { Operator.Min }
   | MAX;                    { Operator.Max }
-  | ATAN_2;                 { Operator.Atan2 }
 
 %public let core_triopt ==
   | STRING_SUBSTR;          { Operator.StringSubstr }

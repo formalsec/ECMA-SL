@@ -237,60 +237,6 @@ let exp (v : Val.t) : Val.t =
   | Flt f -> Flt (Float.exp f)
   | _ -> bad_arg_err 1 op_lbl "float" [ v ]
 
-let sin (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Sin in
-  match v with
-  | Flt f -> Flt (Float.sin f)
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
-let cos (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Cos in
-  match v with
-  | Flt f -> Flt (Float.cos f)
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
-let tan (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Tan in
-  match v with
-  | Flt f -> Flt (Float.tan f)
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
-let sinh (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Sinh in
-  match v with
-  | Flt f -> Flt (Float.sinh f)
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
-let cosh (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Cosh in
-  match v with
-  | Flt f -> Flt (Float.cosh f)
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
-let tanh (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Tanh in
-  match v with
-  | Flt f -> Flt (Float.tanh f)
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
-let asin (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Asin in
-  match v with
-  | Flt f -> Flt (Float.asin f)
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
-let acos (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Acos in
-  match v with
-  | Flt f -> Flt (Float.acos f)
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
-let atan (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt Atan in
-  match v with
-  | Flt f -> Flt (Float.atan f)
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
 let utf8_decode (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt Utf8Decode in
   match v with
@@ -564,13 +510,6 @@ let max ((v1, v2) : Val.t * Val.t) : Val.t =
   | (Flt _, _) -> bad_arg_err 2 op_lbl "(float, float)" [ v1; v2 ]
   | _ -> bad_arg_err 1 op_lbl "(float, float)" [ v1; v2 ]
 
-let atan2 ((v1, v2) : Val.t * Val.t) : Val.t =
-  let op_lbl = label_of_binopt Atan2 in
-  match (v1, v2) with
-  | (Flt f1, Flt f2) -> Flt (Float.atan2 f1 f2)
-  | (Flt _, _) -> bad_arg_err 2 op_lbl "(float, float)" [ v1; v2 ]
-  | _ -> bad_arg_err 1 op_lbl "(float, float)" [ v1; v2 ]
-
 let ite ((v1, v2, v3) : Val.t * Val.t * Val.t) : Val.t =
   let op_lbl = label_of_triopt ITE in
   match v1 with
@@ -654,15 +593,6 @@ let eval_unopt (op : unopt) (v : Val.t) : Val.t =
   | Floor -> floor v
   | Trunc -> trunc v
   | Exp -> exp v
-  | Sin -> sin v
-  | Cos -> cos v
-  | Tan -> tan v
-  | Sinh -> sinh v
-  | Cosh -> cosh v
-  | Tanh -> tanh v
-  | Asin -> asin v
-  | Acos -> acos v
-  | Atan -> atan v
   | Utf8Decode -> utf8_decode v
   | HexDecode -> hex_decode v
   | ParseNumber -> parse_number v
@@ -706,7 +636,6 @@ let eval_binopt (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | TupleNth -> tuple_nth (v1, v2)
   | Min -> min (v1, v2)
   | Max -> max (v1, v2)
-  | Atan2 -> atan2 (v1, v2)
 
 let eval_triopt (op : triopt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) : Val.t =
   match op with
