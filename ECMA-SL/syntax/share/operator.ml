@@ -20,7 +20,6 @@ type unopt =
   (* Float operators *)
   | FloatToInt
   | FloatToString
-  | ToInt
   | ToInt32
   | ToUint16
   | ToUint32
@@ -141,7 +140,6 @@ let label_of_unopt (op : unopt) : string =
   | IntToString -> "Integer.int_to_string"
   | FloatToInt -> "Float.float_to_int"
   | FloatToString -> "Float.float_to_string"
-  | ToInt -> "Float.to_int"
   | ToInt32 -> "Float.to_int32"
   | ToUint16 -> "Float.to_uint16"
   | ToUint32 -> "Float.to_uint32"
@@ -227,7 +225,6 @@ let pp_of_unopt_single (fmt : Fmt.t) (op : unopt) : unit =
   | IntToString -> pp_str fmt "int_to_string"
   | FloatToInt -> pp_str fmt "int_of_float"
   | FloatToString -> pp_str fmt "float_to_string"
-  | ToInt -> pp_str fmt "to_int"
   | ToInt32 -> pp_str fmt "to_int32"
   | ToUint16 -> pp_str fmt "to_uint16"
   | ToUint32 -> pp_str fmt "to_uint32"

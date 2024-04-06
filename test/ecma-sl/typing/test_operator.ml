@@ -34,7 +34,6 @@ let%test "unopt_int_to_float" = test_unopt (IntToFloat, Int 10) t_float
 let%test "unopt_int_to_string" = test_unopt (IntToString, Int 10) t_string
 let%test "unopt_float_to_int" = test_unopt (FloatToInt, Flt 10.1) t_int
 let%test "unopt_float_to_string" = test_unopt (FloatToString, Flt 10.1) t_string
-let%test "unopt_to_int" = test_unopt (ToInt, Flt 10.1) t_float
 let%test "unopt_to_int32" = test_unopt (ToInt32, Flt 10.1) t_float
 let%test "unopt_to_uint16" = test_unopt (ToUint16, Flt 10.1) t_float
 let%test "unopt_to_uint32" = test_unopt (ToUint32, Flt 10.1) t_float

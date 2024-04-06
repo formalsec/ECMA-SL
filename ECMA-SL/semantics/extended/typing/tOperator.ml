@@ -47,7 +47,6 @@ let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
   | IntToString -> type_op [ ([ IntType ], StringType) ]
   | FloatToInt -> type_op [ ([ FloatType ], IntType) ]
   | FloatToString -> type_op [ ([ FloatType ], StringType) ]
-  | ToInt -> type_op [ ([ FloatType ], FloatType) ]
   | ToInt32 -> type_op [ ([ FloatType ], FloatType) ]
   | ToUint16 -> type_op [ ([ FloatType ], FloatType) ]
   | ToUint32 -> type_op [ ([ FloatType ], FloatType) ]
