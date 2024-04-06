@@ -916,7 +916,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     /* 3. ReturnIfAbrupt(oldValue). */
     @ReturnIfAbrupt(oldValue);
     /* 4. If oldValue is NaN, */
-    if (is_NaN oldValue) {
+    if (is_NaN (oldValue)) {
       return NaN
     };
     /* 5. Return the result of negating oldValue that is, compute a Number with

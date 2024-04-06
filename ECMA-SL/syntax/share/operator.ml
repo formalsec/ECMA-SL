@@ -24,7 +24,6 @@ type unopt =
   | ToInt32
   | ToUint16
   | ToUint32
-  | IsNaN
   (* String operators *)
   | StringToInt
   | StringToFloat
@@ -146,7 +145,6 @@ let label_of_unopt (op : unopt) : string =
   | ToInt32 -> "Float.to_int32"
   | ToUint16 -> "Float.to_uint16"
   | ToUint32 -> "Float.to_uint32"
-  | IsNaN -> "Float.is_NaN"
   | StringToInt -> "String.string_to_int"
   | StringToFloat -> "String.string_to_float"
   | FromCharCode -> "String.from_char_code"
@@ -233,7 +231,6 @@ let pp_of_unopt_single (fmt : Fmt.t) (op : unopt) : unit =
   | ToInt32 -> pp_str fmt "to_int32"
   | ToUint16 -> pp_str fmt "to_uint16"
   | ToUint32 -> pp_str fmt "to_uint32"
-  | IsNaN -> pp_str fmt "is_NaN"
   | StringToInt -> pp_str fmt "int_of_string"
   | StringToFloat -> pp_str fmt "float_of_string"
   | FromCharCode -> pp_str fmt "from_char_code"

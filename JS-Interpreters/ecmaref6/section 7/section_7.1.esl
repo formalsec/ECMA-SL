@@ -238,7 +238,7 @@ function ToInteger( argument ) {
 	@ReturnIfAbrupt(num);
 
 	/* If number is NaN, return +0. */
-	if ( is_NaN num ) {
+	if ( is_NaN (num) ) {
 		return 0.
 	};
 
@@ -568,7 +568,7 @@ function _ToInt32(argument) {
   /* 2. ReturnIfAbrupt(number). */
   @ReturnIfAbrupt(num);
   /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (is_NaN num ||| num = Infinity ||| num = -Infinity
+  if (is_NaN (num) ||| num = Infinity ||| num = -Infinity
         ||| isZero(num) ||| isMinusZero(num)) {
     return 0.
   };
@@ -612,7 +612,7 @@ function _ToUint32(argument) {
   /* 2. ReturnIfAbrupt(number). */
   @ReturnIfAbrupt(num);
   /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (is_NaN num ||| num = Infinity ||| num = -Infinity
+  if (is_NaN (num) ||| num = Infinity ||| num = -Infinity
         ||| isZero(num) ||| isMinusZero(num)) {
     return 0.
   };
@@ -644,7 +644,7 @@ function _ToUint16(argument) {
   /* 2. ReturnIfAbrupt(number). */
   @ReturnIfAbrupt(num);
   /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (is_NaN num ||| num = Infinity ||| num = -Infinity
+  if (is_NaN (num) ||| num = Infinity ||| num = -Infinity
         ||| isZero(num) ||| isMinusZero(num)) {
     return 0.
   };
@@ -671,7 +671,7 @@ function ToInt8(argument) {
   /* 2. ReturnIfAbrupt(number). */
   @ReturnIfAbrupt(num);
   /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (is_NaN num ||| num = Infinity ||| num = -Infinity
+  if (is_NaN (num) ||| num = Infinity ||| num = -Infinity
         ||| isZero(num) ||| isMinusZero(num)) {
     return 0.
   };
@@ -701,7 +701,7 @@ function ToUint8(argument) {
   /* 2. ReturnIfAbrupt(number). */
   @ReturnIfAbrupt(num);
   /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (is_NaN num ||| num = Infinity ||| num = -Infinity
+  if (is_NaN (num) ||| num = Infinity ||| num = -Infinity
         ||| isZero(num) ||| isMinusZero(num)) {
     return 0.
   };
@@ -733,7 +733,7 @@ function ToUint8Clamp(argument) {
     /* 2. ReturnIfAbrupt(number). */
     @ReturnIfAbrupt(num);
     /* 3. If number is NaN, return +0. */
-    if (is_NaN num){
+    if (is_NaN (num)){
         return 0.
     };
     /* 4. If number ≤ 0, return +0. */

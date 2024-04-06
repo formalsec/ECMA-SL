@@ -99,9 +99,6 @@ let to_uint32 (v : Val.t) : Val.t =
   | Flt n -> Flt (Arith_utils.to_uint32 n)
   | _ -> bad_arg_err 1 op_lbl "float" [ v ]
 
-let is_nan (v : Val.t) : Val.t =
-  match v with Flt v -> Bool (Float.is_nan v) | _ -> Bool false
-
 let string_to_int (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt StringToInt in
   match v with
@@ -494,7 +491,6 @@ let eval_unopt (op : unopt) (v : Val.t) : Val.t =
   | ToInt32 -> to_int32 v
   | ToUint16 -> to_uint16 v
   | ToUint32 -> to_uint32 v
-  | IsNaN -> is_nan v
   | StringToInt -> string_to_int v
   | StringToFloat -> string_to_float v
   | FromCharCode -> from_char_code v
