@@ -39,9 +39,9 @@ function AbstractRelationalComparison(x, y, LeftFirst) {
     /* b. Let ny be the result of calling ToNumber(py). */
     ny := ToNumber(py);
     /* c. If nx is NaN, return undefined. */
-    if (is_NaN nx) { return 'undefined };
+    if (is_NaN (nx)) { return 'undefined };
     /* d. If ny is NaN, return undefined. */
-    if (is_NaN ny) { return 'undefined };
+    if (is_NaN (ny)) { return 'undefined };
     /* e. If nx and ny are the same Number value, return false. */
     if (sameNumber(nx, ny)) { return false };
     /* f. If nx is +0 and ny is -0, return false. */

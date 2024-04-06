@@ -461,7 +461,7 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
 
     value := float32_from_le_bytes(rawValue);
     /* b. If value is an IEEE 754-2008 binary32 NaN value, return the NaN Number value */
-    if (is_NaN value) {
+    if (is_NaN (value)) {
       return NaN
     };
     /* c. Return the Number value that corresponds to value. */
@@ -474,7 +474,7 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
        binary64 value. */
     value := float64_from_le_bytes(rawValue);
     /* b. If value is an IEEE 754-2008 binary64 NaN value, return the NaN Number value */
-    if (is_NaN value) {
+    if (is_NaN (value)) {
       return NaN
     };
     /* c. Return the Number value that corresponds to value. */
@@ -573,7 +573,7 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
     to any implementation chosen IEEE 754-2008 binary64 format
     Not-a-Number encoding. An implementation must always choose the same
     encoding for each implementation distinguishable NaN value. */
-    if (is_NaN value) {
+    if (is_NaN (value)) {
       /* 0 1111 1111 1 1000 0000 0000 0000 0000 00 - QNaN - https://steve.hollasch.net/cgindex/coding/ieeefloat.html */
       /*              01111111 11100000 00000000 00000000 */
       /* rawBytes := [127,     224,     0,       0] /* big endian */
@@ -597,7 +597,7 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
     /* TODO If value is NaN, rawValue may be set to any implementation chosen IEEE 754-2008 binary32 format
     Not-a-Number encoding. An implementation must always choose the same encoding for
     each implementation distinguishable NaN value. */
-    if (is_NaN value) {
+    if (is_NaN (value)) {
       /**
        Using the OCaml NaN representation since I'm assuming it conforms to the IEEE floating-point standard.
        https://steve.hollasch.net/cgindex/coding/ieeefloat.html has information on how NaN is represented in case it is needed. */

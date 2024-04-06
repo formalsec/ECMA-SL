@@ -296,7 +296,7 @@ function GlobalObjectIsNaN(globalObject, this, strict, params) {
   /* Returns true if the argument coerces to NaN, and otherwise returns false. */
 
   /* 1. If ToNumber(number) is NaN, return true. */
-  if (is_NaN ToNumber(num)) {
+  if (is_NaN (ToNumber(num))) {
     return true
   };
   /* 2. Otherwise, return false. */
@@ -312,7 +312,7 @@ function GlobalObjectIsFinite(globalObject, this, strict, params) {
   /* Returns false if the argument coerces to NaN, +Infinity, or -Infinity, and otherwise returns true. */
 
   /* 1. If ToNumber(number) is NaN, +Infinity, or -Infinity, return false.*/
-  if ((is_NaN ToNumber(num)) ||| (ToNumber(num) = Infinity) ||| (ToNumber(num) = -Infinity)) {
+  if ((is_NaN (ToNumber(num))) ||| (ToNumber(num) = Infinity) ||| (ToNumber(num) = -Infinity)) {
     return false
   };
   /* 2. Otherwise, return true. */

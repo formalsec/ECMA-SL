@@ -579,7 +579,7 @@ function JS_Interpreter_Unary_Operators(UnaryExpr, scope) {
     /* 2. Let oldValue be ToNumber(GetValue(expr)). */
     oldValue := ToNumber(GetValue(expr));
     /* 3. If oldValue is NaN, return NaN. */
-    if (is_NaN oldValue) {
+    if (is_NaN (oldValue)) {
       return NaN
     };
     /* 4. Return the result of negating oldValue; that is, compute a Number with the same magnitude but opposite

@@ -1020,7 +1020,7 @@ function StringPrototypelastIndexOf(global, this, NewTarget, strict, args) {
   @ReturnIfAbrupt(numPos);
 
   /* 8. If numPos is NaN, let pos be +∞; otherwise, let pos be ToInteger(numPos). */
-  if (is_NaN numPos){
+  if (is_NaN (numPos)){
     pos := Infinity
   } else{
     pos := ToInteger(numPos)

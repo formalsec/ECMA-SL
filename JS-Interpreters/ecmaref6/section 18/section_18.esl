@@ -335,7 +335,7 @@ function GlobalObjectIsNaN(globalObject, this, NewTarget, strict, params) {
   /* 2. ReturnIfAbrupt(num). */
   @ReturnIfAbrupt(num);
   /* 3. If num is NaN, return true. */
-  if (is_NaN num) {
+  if (is_NaN (num)) {
     return true
   };
   /* 4. Otherwise, return false. */
@@ -358,7 +358,7 @@ function GlobalObjectIsFinite(globalObject, this, NewTarget, strict, params) {
   /* 2. ReturnIfAbrupt(num). */
   @ReturnIfAbrupt(num);
   /* 3. If num is NaN, +∞, or −∞, return false. */
-  if ((is_NaN num) ||| (num = Infinity) ||| (num = -Infinity)) {
+  if ((is_NaN (num)) ||| (num = Infinity) ||| (num = -Infinity)) {
     return false
   };
   /* 4. Otherwise, return true. */

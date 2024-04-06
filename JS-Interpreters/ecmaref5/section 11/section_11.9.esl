@@ -16,9 +16,9 @@ function AbstractEqualityComparison(x, y) {
     /* c. If Type(x) is Number, then */
     if (Type(x) = "Number") {
       /* i. If x is NaN, return false. */
-      if (is_NaN x) { return false };
+      if (is_NaN (x)) { return false };
       /* ii. If y is NaN, return false. */
-      if (is_NaN y) { return false };
+      if (is_NaN (y)) { return false };
       /* iii. If x is the same Number value as y, return true. */
       if (sameNumber(x, y)) { return true };
       /* iv. If x is +0 and y is -0, return true. */
@@ -123,9 +123,9 @@ function StrictEqualityComparison(x, y) {
   /* 4. If Type(x) is Number, then */
   if (Type(x) = "Number") {
     /* a. If x is NaN, return false. */
-    if (is_NaN x) { return false };
+    if (is_NaN (x)) { return false };
     /* b. If y is NaN, return false. */
-    if (is_NaN y) { return false };
+    if (is_NaN (y)) { return false };
     /* c. If x is the same Number value as y, return true. */
     if (sameNumber(x, y)) { return true };
     /* d. If x is +0 and y is -0, return true. */

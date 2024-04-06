@@ -201,7 +201,7 @@ function NumberConstructorIsFinite(global, this, NewTarget, strict, items) {
     return false
   };
   /* 2. If number is NaN, +∞, or −∞, return false. */
-  if (is_NaN num ||| num = Infinity ||| num = -Infinity) {
+  if (is_NaN (num) ||| num = Infinity ||| num = -Infinity) {
     return false
   };
   /* 3. Otherwise, return true. */
@@ -218,7 +218,7 @@ function NumberConstructorIsInteger(global, this, NewTarget, strict, items) {
     return false
   };
   /* 2. f number is NaN, +∞, or −∞, return false. */
-  if (is_NaN num ||| num = Infinity ||| num = -Infinity) {
+  if (is_NaN (num) ||| num = Infinity ||| num = -Infinity) {
     return false
   };
   /* 3. Let integer be ToInteger(number). */
@@ -240,7 +240,7 @@ function NumberConstructorIsNaN(global, this, NewTarget, strict, items) {
     return false
   };
   /* 2. If number is NaN, return true. */
-  if (is_NaN num) {
+  if (is_NaN (num)) {
     return true
   };
   /* 3. Otherwise, return false. */
@@ -256,7 +256,7 @@ function NumberConstructorIsSafeInteger(global, this, NewTarget, strict, items) 
     return false
   };
   /* 2. If number is NaN, +∞, or −∞, return false. */
-  if (is_NaN num ||| num = Infinity ||| num = -Infinity) {
+  if (is_NaN (num) ||| num = Infinity ||| num = -Infinity) {
     return false
   };
   /* 3. Let integer be ToInteger(number). */
@@ -287,7 +287,7 @@ function NumberPrototypeToExponential(global, this, NewTarget, strict, items) {
   /* 5. ReturnIfAbrupt(f). */
   @ReturnIfAbrupt(f);
   /* 6. If x is NaN, return the String "NaN". */
-  if (is_NaN x) {
+  if (is_NaN (x)) {
     return "NaN"
   };
   /* 7. Let s be the empty String. */
@@ -334,7 +334,7 @@ function NumberPrototypeToExponentialAlt(global, this, NewTarget, strict, items)
   /* 5. ReturnIfAbrupt(f). */
   @ReturnIfAbrupt(f);
   /* 6. If x is NaN, return the String "NaN". */
-  if (is_NaN x) {
+  if (is_NaN (x)) {
     return "NaN"
   };
   /* 7. Let s be the empty String. */
@@ -441,7 +441,7 @@ function NumberPrototypeToFixed(global, this, NewTarget, strict, items) {
     throw RangeErrorConstructorInternal()
   };
   /* 6. If x is NaN, return the String "NaN". */
-  if (is_NaN x) {
+  if (is_NaN (x)) {
     return "NaN"
   };
   return to_fixed(x, int_of_float(f))
@@ -468,7 +468,7 @@ function NumberPrototypeToFixedAlt(global, this, NewTarget, strict, items) {
     throw RangeErrorConstructorInternal()
   };
   /* 6. If x is NaN, return the String "NaN". */
-  if (is_NaN x) {
+  if (is_NaN (x)) {
     return "NaN"
   };
   /* 7. Let s be the empty String. */
@@ -557,7 +557,7 @@ function NumberPrototypeToPrecision(global, this, NewTarget, strict, items) {
   /* 5. ReturnIfAbrupt(p). */
   @ReturnIfAbrupt(p);
   /* 6. If x is NaN, return the String "NaN". */
-  if (is_NaN x) {
+  if (is_NaN (x)) {
     return "NaN"
   };
   /* 9. If x = +∞, then */
@@ -594,7 +594,7 @@ function NumberPrototypeToPrecisionAlt(global, this, NewTarget, strict, items) {
   /* 5. ReturnIfAbrupt(p). */
   @ReturnIfAbrupt(p);
   /* 6. If x is NaN, return the String "NaN". */
-  if (is_NaN x) {
+  if (is_NaN (x)) {
     return "NaN"
   };
   /* 7. Let s be the empty String. */

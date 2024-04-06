@@ -22,7 +22,7 @@ function ToBoolean(argument) {
     case "Null": { return false }
     case "Boolean": { return argument }
     case "Number": {
-      if ((argument = 0.) || (argument = -(0.)) || (is_NaN argument)) {
+      if ((argument = 0.) || (argument = -(0.)) || (is_NaN (argument))) {
         return false
       } else {
         return true
