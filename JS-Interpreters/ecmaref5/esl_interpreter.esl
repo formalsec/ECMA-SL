@@ -62,7 +62,7 @@ function JS_Interpreter_SourceElements(SourceElements, scope) {
   };
 
   SourceElement := l_nth (SourceElements, l_len SourceElements - 1);
-  SourceElements := l_remove_last SourceElements;
+  SourceElements := l_remove_last (SourceElements);
   return JS_Interpreter_SourceElements_SourceElements_SourceElement(SourceElements, SourceElement, scope)
 };
 
@@ -1236,7 +1236,7 @@ function JS_Interpreter_Comma_Operator(Expression, scope) {
   match Expression : type with
   | { type: "SequenceExpression", expressions: Expressions } -> {
     AssignmentExpression := l_nth (Expressions, l_len Expressions - 1);
-    Expressions := l_remove_last Expressions;
+    Expressions := l_remove_last (Expressions);
     if (l_len Expressions = 1) {
       Expression := l_nth(Expressions, 0)
     } else {
@@ -1304,7 +1304,7 @@ function JS_Interpreter_Elision(Elision) {
     return JS_Interpreter_Elision_Base(Elision)
   };
 
-  Elision := l_remove_last Elision;
+  Elision := l_remove_last (Elision);
   return JS_Interpreter_Elision_Recursive(Elision)
 };
 
@@ -1415,7 +1415,7 @@ function JS_Interpreter_ArgumentList(ArgumentList, scope) {
   };
 
   AssignmentExpression := l_nth(ArgumentList, l_len (ArgumentList) - 1);
-  ArgumentList := l_remove_last ArgumentList;
+  ArgumentList := l_remove_last (ArgumentList);
   return JS_Interpreter_ArgumentList_ArgumentList_AssignmentExpression(ArgumentList, AssignmentExpression, scope)
 };
 
@@ -1605,7 +1605,7 @@ function JS_Interpreter_PropertyNameAndValueList(PropertyNameAndValueList, scope
   };
 
   PropertyAssignment := l_nth(PropertyNameAndValueList, l_len (PropertyNameAndValueList) - 1);
-  PropertyNameAndValueList := l_remove_last PropertyNameAndValueList;
+  PropertyNameAndValueList := l_remove_last (PropertyNameAndValueList);
   return JS_Interpreter_PropertyNameAndValueList_PropertyNameAndValueList_PropertyAssignment(PropertyNameAndValueList, PropertyAssignment, scope)
 };
 
@@ -2206,7 +2206,7 @@ function JS_Interpreter_StmtList(StatementList, scope) {
   };
 
   Statement := l_nth(StatementList, l_len(StatementList) - 1);
-  StatementList := l_remove_last StatementList;
+  StatementList := l_remove_last (StatementList);
   return JS_Interpreter_StatementList_StatementList_Statement(StatementList, Statement, scope)
 };
 
@@ -2265,7 +2265,7 @@ function JS_Interpreter_VariableDeclarationList(VariableDeclarationList, scope) 
   };
 
   VariableDeclaration := l_nth(VariableDeclarationList, l_len VariableDeclarationList - 1);
-  VariableDeclarationList := l_remove_last VariableDeclarationList;
+  VariableDeclarationList := l_remove_last (VariableDeclarationList);
   return JS_Interpreter_VariableDeclarationList_VariableDeclarationList_VariableDeclaration(VariableDeclarationList, VariableDeclaration, scope)
 };
 

@@ -58,7 +58,7 @@ function rearrange_elementList(elements) {
     }
   } else {
     assignmentExpression := l_nth(elements, (l_len elements) - 1);
-    elements := l_remove_last elements;
+    elements := l_remove_last (elements);
     ret := strip_final_elisions(elements);
     elementList := fst ret;
     elisionOpt := snd ret;
