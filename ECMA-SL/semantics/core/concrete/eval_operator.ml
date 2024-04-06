@@ -395,12 +395,6 @@ let list_nth ((v1, v2) : Val.t * Val.t) : Val.t =
   | (List _, _) -> bad_arg_err 2 op_lbl "(list, integer)" [ v1; v2 ]
   | _ -> bad_arg_err 1 op_lbl "(list, integer)" [ v1; v2 ]
 
-let list_mem ((v1, v2) : Val.t * Val.t) : Val.t =
-  let op_lbl = label_of_binopt ListMem in
-  match v2 with
-  | List lst -> Bool (List.mem v1 lst)
-  | _ -> bad_arg_err 2 op_lbl "(any, list)" [ v1; v2 ]
-
 let list_add ((v1, v2) : Val.t * Val.t) : Val.t =
   let op_lbl = label_of_binopt ListAdd in
   match v1 with
@@ -555,7 +549,6 @@ let eval_binopt (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | ObjectMem ->
     Internal_error.(throw __FUNCTION__ (Unexpected "ObjectMem operator"))
   | StringNth -> string_nth (v1, v2)
-  | ListMem -> list_mem (v1, v2)
   | ListNth -> list_nth (v1, v2)
   | ListAdd -> list_add (v1, v2)
   | ListPrepend -> list_prepend (v1, v2)

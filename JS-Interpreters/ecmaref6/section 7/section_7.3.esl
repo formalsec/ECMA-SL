@@ -602,7 +602,7 @@ function CreateListFromArrayLike(obj, elementTypes) {
     	@ReturnIfAbrupt(next);
 
     	/* If Type(next) is not an element of elementTypes, throw a TypeError exception. */
-    	if ( !(Type(next) in_list elementTypes) ) {
+    	if ( !(in_list(Type(next), elementTypes)) ) {
     		throw TypeErrorConstructorInternal()
     	};
 

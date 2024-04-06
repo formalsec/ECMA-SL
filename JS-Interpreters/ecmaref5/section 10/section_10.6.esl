@@ -46,7 +46,7 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
       /* i. Let name be the element of names at 0-origined list position indx. */
       name := l_nth(names, indx);
       /* ii. If strict is false and name is not an element of mappedNames, then */
-      if ((strict = false) && !(name in_list mappedNames)) {
+      if ((strict = false) && !(in_list(name, mappedNames))) {
         /* 1. Add name as an element of the list mappedNames. */
         mappedNames := l_add(mappedNames, name);
         /* 2. Let g be the result of calling the MakeArgGetter abstract operation with arguments

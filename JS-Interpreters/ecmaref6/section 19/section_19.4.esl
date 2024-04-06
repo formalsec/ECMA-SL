@@ -219,7 +219,7 @@ function symbolKeyFor(global, this, NewTarget, strict, args) {
   };
 
   /* 3. Assert: GlobalSymbolRegistry does not currently contain an entry for sym. */
-  /* assert(!(sym in_list |GlobalSymbolRegistry|)); *//* Just checked. */
+  /* assert(!(in_list(sym, |GlobalSymbolRegistry|))); *//* Just checked. */
 
   /* 4. Return undefined. */
   return 'undefined

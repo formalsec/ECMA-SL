@@ -1865,7 +1865,7 @@ function JS_Interpreter_TryStatement(TryStatement, scope) {
     /* 7. If F.[[value]] is not empty, return NormalCompletion(F.[[value]]). */
     if (!(getCompletionValue(F) = 'empty)) {
       /* Non empty continue/break is lost wihout this check */
-      if (getCompletionType(F) in_list ['continue, 'break]){
+      if (in_list(getCompletionType(F), ['continue, 'break])){
         return Completion(F)
       };
       return NormalCompletion(getCompletionValue(F))
@@ -3175,7 +3175,7 @@ function LoopContinues(completion, labelSet) {
     return true
   };
   /* 4. If completion.[[target]] is an element of labelSet, */
-  if (getCompletionTarget(completion) in_list labelSet) {
+  if (in_list(getCompletionTarget(completion), labelSet)) {
     /* return true */
     return true
   };
@@ -3839,7 +3839,7 @@ function IsDestructuring(arg){
     arg := arg.id
   };
 
-  return (arg.type in_list ["ArrayPattern", "ObjectPattern", "AssignmentPattern"])
+  return (in_list(arg.type, ["ArrayPattern", "ObjectPattern", "AssignmentPattern"]))
 
 };
 /**
@@ -3893,7 +3893,7 @@ function IsAnonymousFunctionDefinition(production) {
 };
 
 function IsFunctionDefinition(expression){
-  return (expression.type in_list ["ArrowFunctionExpression", "FunctionExpression", "ClassExpression"])
+  return (in_list(expression.type, ["ArrowFunctionExpression", "FunctionExpression", "ClassExpression"]))
 };
 
 function HasName(expression){

@@ -230,7 +230,7 @@ function GlobalDeclarationInstantiation(script, env) {
         /* For each String vn in the BoundNames of d, do */
         vn := d;
         /* If vn is not an element of declaredFunctionNames, then */
-        if (!(vn in_list declaredFunctionNames)) {
+        if (!(in_list(vn, declaredFunctionNames))) {
             /* Let vnDefinable be envRec.CanDeclareGlobalVar(vn). */
             vnDefinable := {envRec.CanDeclareGlobalVar}(envRec, vn);
 
@@ -243,7 +243,7 @@ function GlobalDeclarationInstantiation(script, env) {
             };
 
             /* If vn is not an element of declaredVarNames, then */
-            if (!(vn in_list declaredVarNames)) {
+            if (!(in_list(vn, declaredVarNames))) {
                 /* Append vn to declaredVarNames. */
                 declaredVarNames := l_add(declaredVarNames, vn)
             }

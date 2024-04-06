@@ -154,11 +154,11 @@ function IteratorDestructuringAssignmentEvaluation(elements, iteratorRecord, env
   while (i < l_elements) {
     /*If DestructuringAssignmentTarget is neither an ObjectLiteral nor an ArrayLiteral, then */
     element := l_nth(elements, i);
-    if (!(element = null) &&& ("type" in_obj element) &&& (!(element.type in_list DESTRUCTURING_PATTERNS))) {
+    if (!(element = null) &&& ("type" in_obj element) &&& (!(in_list(element.type, DESTRUCTURING_PATTERNS)))) {
       match element with
       | { type: "RestElement" } -> {
         element := element.argument;
-        if (!(element = null) &&& ("type" in_obj element) &&& (!(element.type in_list DESTRUCTURING_PATTERNS))) {
+        if (!(element = null) &&& ("type" in_obj element) &&& (!(in_list(element.type, DESTRUCTURING_PATTERNS)))) {
           lref := JS_Interpreter_Expr(element, environment);
           @ReturnIfAbrupt(lref)
         }

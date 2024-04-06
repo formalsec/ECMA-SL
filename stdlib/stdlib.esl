@@ -254,6 +254,10 @@ function l_remove_last(lst : list) : list {
   return extern l_remove_last_external(lst)
 }
 
+function in_list(v, lst : list) : boolean {
+  return extern in_list_external(v, lst)
+}
+
 function l_remove(lst : list, v) : list {
   return extern l_remove_external(lst, v)
 }

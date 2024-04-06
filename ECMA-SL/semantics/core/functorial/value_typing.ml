@@ -139,7 +139,7 @@ let type_of_binop (op : Operator.binopt) (v1 : Value.value) (v2 : Value.value)
   | Operator.Max -> type_of_binary_arith ty1 ty2
   | Operator.TupleNth -> None
   | Operator.ListNth -> bin_args_typing_lnth v1 v2
-  | Operator.ListMem -> bin_args_typing_inlist ty1
+  (* | Operator.ListMem -> bin_args_typing_inlist ty1 *)
   | Operator.ListPrepend -> None
   | Operator.ListAdd -> None
   | Operator.Pow -> bin_args_typing_pow ty1 ty2
