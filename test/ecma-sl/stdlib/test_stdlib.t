@@ -1,5 +1,6 @@
 Tests include:
   $ ecma-sl interpret test_import.esl
+  $ ecma-sl interpret test_float.esl
 Tests list operators:
   $ ecma-sl interpret test_list.esl
   Initial list:
