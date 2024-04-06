@@ -74,15 +74,6 @@ let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
   | Floor -> type_op [ ([ FloatType ], FloatType) ]
   | Trunc -> type_op [ ([ FloatType ], FloatType) ]
   | Exp -> type_op [ ([ FloatType ], FloatType) ]
-  | Sin -> type_op [ ([ FloatType ], FloatType) ]
-  | Cos -> type_op [ ([ FloatType ], FloatType) ]
-  | Tan -> type_op [ ([ FloatType ], FloatType) ]
-  | Sinh -> type_op [ ([ FloatType ], FloatType) ]
-  | Cosh -> type_op [ ([ FloatType ], FloatType) ]
-  | Tanh -> type_op [ ([ FloatType ], FloatType) ]
-  | Asin -> type_op [ ([ FloatType ], FloatType) ]
-  | Acos -> type_op [ ([ FloatType ], FloatType) ]
-  | Atan -> type_op [ ([ FloatType ], FloatType) ]
   | Utf8Decode -> type_op [ ([ StringType ], StringType) ]
   | HexDecode -> type_op [ ([ StringType ], StringType) ]
   | ParseNumber -> type_op [ ([ StringType ], StringType) ]
@@ -127,7 +118,6 @@ let type_binopt (op : Operator.binopt) (targs : EType.t list) : EType.t' =
   | TupleNth -> not_implemented (* TODO: tuple typing *)
   | Min -> type_op [ float_arith ]
   | Max -> type_op [ float_arith ]
-  | Atan2 -> type_op [ float_arith ]
 
 let type_triopt (op : Operator.triopt) (targs : EType.t list) : EType.t' =
   let not_implemented = EType.AnyType in
