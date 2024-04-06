@@ -1,0 +1,7 @@
+import stdlib
+
+function main() {
+  assert (!is_NaN(0.0));
+  assert (is_NaN(NaN));
+  return 0
+}
