@@ -74,11 +74,6 @@ let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
   | Floor -> type_op [ ([ FloatType ], FloatType) ]
   | Trunc -> type_op [ ([ FloatType ], FloatType) ]
   | Exp -> type_op [ ([ FloatType ], FloatType) ]
-  | Utf8Decode -> type_op [ ([ StringType ], StringType) ]
-  | HexDecode -> type_op [ ([ StringType ], StringType) ]
-  | ParseNumber -> type_op [ ([ StringType ], StringType) ]
-  | ParseString -> type_op [ ([ StringType ], StringType) ]
-  | ParseDate -> type_op [ ([ StringType ], StringType) ]
 
 let type_binopt (op : Operator.binopt) (targs : EType.t list) : EType.t' =
   let not_implemented = EType.AnyType in

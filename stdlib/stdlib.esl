@@ -314,3 +314,24 @@ function int_from_le_bytes(b, n : int) : float{
 function uint_from_le_bytes(b, n : int) : float {
   return extern uint_from_le_bytes_external(b, n)
 }
+
+/* Parse operators */
+function utf8_decode(s : string) : string {
+  return extern utf8_decode_external(s)
+}
+
+function hex_decode(s : string) : string {
+  return extern hex_decode_external(s)
+}
+
+function parse_number(s : string) : string {
+  return extern parse_number_external(s)
+}
+
+function parse_string(s : string) : string {
+  return extern parse_string_external(s)
+}
+
+function parse_date(s : string) : string {
+  return extern parse_date_external(s)
+}
