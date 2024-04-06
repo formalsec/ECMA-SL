@@ -75,12 +75,6 @@ let float_to_string (v : Val.t) : Val.t =
   | Flt i -> Str (Arith_utils.float_to_string_inner i)
   | _ -> bad_arg_err 1 op_lbl "float" [ v ]
 
-let to_int (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt ToInt in
-  match v with
-  | Flt n -> Flt (Arith_utils.to_int n)
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-
 let to_int32 (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt ToInt32 in
   match v with
@@ -487,7 +481,6 @@ let eval_unopt (op : unopt) (v : Val.t) : Val.t =
   | IntToString -> int_to_string v
   | FloatToInt -> float_to_int v
   | FloatToString -> float_to_string v
-  | ToInt -> to_int v
   | ToInt32 -> to_int32 v
   | ToUint16 -> to_uint16 v
   | ToUint32 -> to_uint32 v
