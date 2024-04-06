@@ -93,11 +93,11 @@ let reduce_unop (op : unopt) (v : value) : value =
   | (TupleFirst, NOpt (TupleExpr, l)) -> List.hd l
   | (TupleSecond, NOpt (TupleExpr, _ :: b :: _)) -> b
   | (ListLen, NOpt (ListExpr, vs)) -> Val (Int (List.length vs))
-  | (ListLen, UnOpt (ListSort, NOpt (ListExpr, vs))) ->
-    Val (Int (List.length vs))
-  | (ListLen, UnOpt (ListSort, lst)) -> UnOpt (ListLen, lst)
+  (* | (ListLen, UnOpt (ListSort, NOpt (ListExpr, vs))) ->
+    Val (Int (List.length vs)) *)
+  (* | (ListLen, UnOpt (ListSort, lst)) -> UnOpt (ListLen, lst) *)
   | (TupleLen, NOpt (TupleExpr, vs)) -> Val (Int (List.length vs))
-  | (ListSort, NOpt (ListExpr, [])) -> NOpt (ListExpr, [])
+  (* | (ListSort, NOpt (ListExpr, [])) -> NOpt (ListExpr, []) *)
   | (Typeof, Symbolic (t, _)) -> Val (Type t)
   | (Typeof, NOpt (ListExpr, _)) -> Val (Type Type.ListType)
   | (Typeof, NOpt (TupleExpr, _)) -> Val (Type Type.TupleType)
@@ -124,7 +124,7 @@ let reduce_unop (op : unopt) (v : value) : value =
   (* Unsound *)
   | (FloatToString, UnOpt (ToUint32, v)) -> v
   (* | ToUint32, Symbolic (Type.FltType, x) -> Symbolic (Type.FltType, x) *)
-  | (ListSort, NOpt (ListExpr, l)) when List.length l <= 1 -> NOpt (ListExpr, l)
+  (* | (ListSort, NOpt (ListExpr, l)) when List.length l <= 1 -> NOpt (ListExpr, l) *)
   (* | (Trim, UnOpt (FloatToString, v)) -> UnOpt (FloatToString, v) *)
   | (op', v1') -> UnOpt (op', v1')
 

@@ -36,13 +36,10 @@ type unopt =
   | ObjectToList
   | ObjectFields
   (* List operators *)
-  | ListToArray
   | ListHead
   | ListTail
   | ListLen
-  | ListSort
   | ListReverse
-  | ListRemoveLast
   (* Tuple operators *)
   | TupleFirst
   | TupleSecond
@@ -122,8 +119,6 @@ type binopt =
   | ListAdd
   | ListPrepend
   | ListConcat
-  | ListRemove
-  | ListRemoveNth
   (* Tuple operators *)
   | TupleNth
   (* Byte operators *)
@@ -195,13 +190,10 @@ let label_of_unopt (op : unopt) : string =
   | StringConcat -> "String.s_concat"
   | ObjectToList -> "Object.obj_to_list"
   | ObjectFields -> "Object.obj_fields"
-  | ListToArray -> "List.list_to_array"
   | ListHead -> "List.hd"
   | ListTail -> "List.tl"
   | ListLen -> "List.l_len"
-  | ListSort -> "List.l_sort"
   | ListReverse -> "List.l_reverse"
-  | ListRemoveLast -> "List.l_remove"
   | TupleFirst -> "Tuple.fst"
   | TupleSecond -> "Tuple.snd"
   | TupleLen -> "Tup.t_len"
@@ -271,8 +263,6 @@ let label_of_binopt (op : binopt) : string =
   | ListAdd -> "List.l_add"
   | ListPrepend -> "List.l_prepend"
   | ListConcat -> "List.l_concat"
-  | ListRemove -> "List.l_remove"
-  | ListRemoveNth -> "List.l_remove_nth"
   | TupleNth -> "Tuple.t_nth"
   | IntToBEBytes -> "Byte.int_to_be_bytes"
   | IntFromLEBytes -> "Byte.int_from_le_bytes"
@@ -319,13 +309,10 @@ let pp_of_unopt_single (fmt : Fmt.t) (op : unopt) : unit =
   | StringConcat -> pp_str fmt "s_concat"
   | ObjectToList -> pp_str fmt "obj_to_list"
   | ObjectFields -> pp_str fmt "obj_fields"
-  | ListToArray -> pp_str fmt "list_to_array"
   | ListHead -> pp_str fmt "hd"
   | ListTail -> pp_str fmt "tl"
   | ListLen -> pp_str fmt "l_len"
-  | ListSort -> pp_str fmt "l_sort"
   | ListReverse -> pp_str fmt "l_reverse"
-  | ListRemoveLast -> pp_str fmt "l_remove_last"
   | TupleFirst -> pp_str fmt "fst"
   | TupleSecond -> pp_str fmt "snd"
   | TupleLen -> pp_str fmt "t_len"
@@ -396,8 +383,6 @@ let pp_of_binopt_single (fmt : Fmt.t) (op : binopt) : unit =
   | ListAdd -> pp_str fmt "l_add"
   | ListPrepend -> pp_str fmt "l_prepend"
   | ListConcat -> pp_str fmt "l_concat"
-  | ListRemove -> pp_str fmt "l_remove"
-  | ListRemoveNth -> pp_str fmt "l_remove_nth"
   | TupleNth -> pp_str fmt "t_nth"
   | IntToBEBytes -> pp_str fmt "int_to_be_bytes"
   | IntFromLEBytes -> pp_str fmt "int_from_le_bytes"

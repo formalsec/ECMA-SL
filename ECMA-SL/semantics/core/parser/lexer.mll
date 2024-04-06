@@ -56,20 +56,15 @@
             "in_obj"                  , OBJECT_MEM;
 
             (* List operators *)
-            "list_to_array"           , LIST_TO_ARRAY;
             "hd"                      , LIST_HEAD;
             "tl"                      , LIST_TAIL;
             "l_len"                   , LIST_LEN;
-            "l_sort"                  , LIST_SORT;
             "l_reverse"               , LIST_REVERSE;
-            "l_remove_last"           , LIST_REMOVE_LAST;
             "in_list"                 , LIST_MEM;
             "l_nth"                   , LIST_NTH;
             "l_add"                   , LIST_ADD;
             "l_prepend"               , LIST_PREPEND;
             "l_concat"                , LIST_CONCAT;
-            "l_remove"                , LIST_REMOVE;
-            "l_remove_nth"            , LIST_REMOVE_NTH;
             "l_set"                   , LIST_SET;
 
             (* Tuple operators *)

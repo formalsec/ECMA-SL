@@ -153,12 +153,6 @@ let string_concat (v : Val.t) : Val.t =
     | None -> bad_arg_err 1 op_lbl "string list" [ v ] )
   | _ -> bad_arg_err 1 op_lbl "string list" [ v ]
 
-let list_to_array (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt ListToArray in
-  match v with
-  | List lst -> Val.Arr (Array.of_list lst)
-  | _ -> bad_arg_err 1 op_lbl "list" [ v ]
-
 let list_head (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt ListHead in
   match v with
@@ -177,30 +171,10 @@ let list_len (v : Val.t) : Val.t =
   | List lst -> Val.Int (List.length lst)
   | _ -> bad_arg_err 1 op_lbl "list" [ v ]
 
-let list_sort (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt ListSort in
-  let str_f s = Val.Str s in
-  match v with
-  | List lst -> (
-    let strs = string_concat_aux lst in
-    match strs with
-    | Some strs -> List (List.map str_f (List.fast_sort String.compare strs))
-    | None -> bad_arg_err 1 op_lbl "string list" [ v ] )
-  | _ -> bad_arg_err 1 op_lbl "string list" [ v ]
-
 let list_reverse (v : Val.t) : Val.t =
   let op_lbl = label_of_unopt ListReverse in
   match v with
   | List lst -> Val.List (List.rev lst)
-  | _ -> bad_arg_err 1 op_lbl "list" [ v ]
-
-let list_remove_last (v : Val.t) : Val.t =
-  let op_lbl = label_of_unopt ListRemoveLast in
-  let rec _remove_last lst =
-    match lst with [] -> [] | _ :: [] -> [] | _ :: tl -> _remove_last tl
-  in
-  match v with
-  | List lst -> List (_remove_last lst)
   | _ -> bad_arg_err 1 op_lbl "list" [ v ]
 
 let tuple_first (v : Val.t) : Val.t =
@@ -672,31 +646,6 @@ let list_concat ((v1, v2) : Val.t * Val.t) : Val.t =
   | (List _, _) -> bad_arg_err 2 op_lbl "(list, list)" [ v1; v2 ]
   | _ -> bad_arg_err 1 op_lbl "(list, list)" [ v1; v2 ]
 
-let list_remove ((v1, v2) : Val.t * Val.t) : Val.t =
-  let rec _remove_aux lst el =
-    match lst with
-    | [] -> []
-    | hd :: tl when hd = el -> tl
-    | hd :: tl -> hd :: _remove_aux tl el
-  in
-  let op_lbl = label_of_binopt ListRemove in
-  match (v1, v2) with
-  | (List lst, el) -> List (_remove_aux lst el)
-  | _ -> bad_arg_err 1 op_lbl "(list, any)" [ v1; v2 ]
-
-let list_remove_nth ((v1, v2) : Val.t * Val.t) : Val.t =
-  let op_lbl = label_of_binopt ListRemoveNth in
-  let rec _remove_nth_aux lst i =
-    match (lst, i) with
-    | ([], _) -> unexpected_err 2 op_lbl "index out of bounds"
-    | (_ :: tl, 0) -> tl
-    | (hd :: tl, _) -> hd :: _remove_nth_aux tl (i - 1)
-  in
-  match (v1, v2) with
-  | (List lst, Int i) -> List (_remove_nth_aux lst i)
-  | (List _, _) -> bad_arg_err 2 op_lbl "(list, integer)" [ v1; v2 ]
-  | _ -> bad_arg_err 1 op_lbl "(list, integer)" [ v1; v2 ]
-
 let tuple_nth ((v1, v2) : Val.t * Val.t) : Val.t =
   let op_lbl = label_of_binopt TupleNth in
   match (v1, v2) with
@@ -825,13 +774,10 @@ let eval_unopt (op : unopt) (v : Val.t) : Val.t =
     Internal_error.(throw __FUNCTION__ (Unexpected "ObjectToList operator"))
   | ObjectFields ->
     Internal_error.(throw __FUNCTION__ (Unexpected "ObjectFields operator"))
-  | ListToArray -> list_to_array v
   | ListHead -> list_head v
   | ListTail -> list_tail v
   | ListLen -> list_len v
-  | ListSort -> list_sort v
   | ListReverse -> list_reverse v
-  | ListRemoveLast -> list_remove_last v
   | TupleFirst -> tuple_first v
   | TupleSecond -> tuple_second v
   | TupleLen -> tuple_len v
@@ -904,8 +850,6 @@ let eval_binopt (op : binopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | ListAdd -> list_add (v1, v2)
   | ListPrepend -> list_prepend (v1, v2)
   | ListConcat -> list_concat (v1, v2)
-  | ListRemove -> list_remove (v1, v2)
-  | ListRemoveNth -> list_remove_nth (v1, v2)
   | TupleNth -> tuple_nth (v1, v2)
   | IntToBEBytes -> int_to_be_bytes (v1, v2)
   | IntFromLEBytes -> int_from_le_bytes (v1, v2)

@@ -114,7 +114,7 @@ let type_of_unop (op : Operator.unopt) (ty : Type.t) : Type.t option =
   (* | Operator.StringLenU -> Some Type.IntType *)
   (* | Operator.Trim -> Some Type.StrType *)
   | Operator.ListLen -> Some Type.IntType
-  | Operator.ListSort -> Some Type.ListType
+  (* | Operator.ListSort -> Some Type.ListType *)
   | _ ->
     Log.fail
       "Typing Error: [type_of_unop] -> unsuported typing for unary operation %a"
