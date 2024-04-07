@@ -52,9 +52,11 @@ let prog_of_js file =
   let* () = OS.File.delete ast_file in
   Ok (Parsing.parse_prog program)
 
-let link_env ~extern prog =
+let link_env prog =
   let env0 = Env.Build.empty () |> Env.Build.add_functions prog in
-  Env.Build.add_extern_functions (extern env0) env0
+  Env.Build.add_extern_functions (Symbolic_extern.extern_cmds env0) env0
+  |> Env.Build.add_extern_functions Symbolic_extern.concrete_api
+  |> Env.Build.add_extern_functions Symbolic_extern.symbolic_api
 
 let pp_model fmt v =
   let open Encoding in
@@ -115,7 +117,7 @@ let write_report ~workspace filename exec_time solver_time solver_count problems
 let run ~workspace filename entry_func =
   let open Syntax.Result in
   let* prog = dispatch_file_ext prog_of_plus prog_of_core prog_of_js filename in
-  let env = link_env ~extern:Symbolic_extern.api prog in
+  let env = link_env prog in
   let start = Stdlib.Sys.time () in
   let thread = Choice_monad.Thread.create () in
   let result = Symbolic_interpreter.main env entry_func in
