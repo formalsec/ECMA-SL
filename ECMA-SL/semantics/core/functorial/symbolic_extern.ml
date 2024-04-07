@@ -52,9 +52,19 @@ module Make () = struct
     of_array [| ("parseJS", Extern_func (Func (Arg Res), parseJS)) |]
 
   let concrete_api =
+    let open Value in
     let open Extern_func in
-    let int_to_four_hex _v = assert false in
-    let octal_to_decimal _v = assert false in
+    let open External.Impl in
+    let ok_v v = Choice.return (Ok (Val v)) in
+    let err v = Choice.return (Error (`Failure v)) in
+    let int_to_four_hex = function
+      | Val v -> ok_v (int_to_four_hex v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let octal_to_decimal = function
+      | Val v -> ok_v (octal_to_decimal v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
     let to_precision _v1 _v2 = assert false in
     let to_exponential _v1 _v2 = assert false in
     let to_fixed _v1 _v2 = assert false in
@@ -73,7 +83,12 @@ module Make () = struct
     let array_set _v1 _v2 _v3 = assert false in
     let list_to_array _v = assert false in
     let list_sort _v = assert false in
-    let list_mem _v1 _v2 = assert false in
+    let list_mem v1 v2 =
+      match (v1, v2) with
+      | (Val v1, Val v2) -> ok_v (list_mem (v1, v2))
+      | (_, NOpt (ListExpr, lst)) -> ok_v (Bool (List.mem v1 lst))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
     let list_remove_last _v = assert false in
     let list_remove _v1 _v2 = assert false in
     let list_remove_nth _v1 _v2 = assert false in
@@ -91,7 +106,10 @@ module Make () = struct
     let int_from_le_bytes _v1 _v2 = assert false in
     let uint_from_le_bytes _v1 _v2 = assert false in
     let log_2 _v = assert false in
-    let log_e _v = assert false in
+    let log_e = function
+      | Val v -> ok_v (log_e v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
     let log_10 _v = assert false in
     let sin _v = assert false in
     let cos _v = assert false in
