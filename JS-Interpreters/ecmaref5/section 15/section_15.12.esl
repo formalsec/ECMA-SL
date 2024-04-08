@@ -269,7 +269,7 @@ function parseJSONValue(global, this, strict, tokens) {
     return [true, tokens]
   } elif (token = "false") {
     return [false, tokens]
-  } elif (!(is_NaN (ToNumber)(token))) {
+  } elif (!(is_NaN(ToNumber(token)))) {
     num := ToNumber(token);
     return [num, tokens]
   } elif ((s_nth_u(token, 0)) = "\"") {
@@ -300,7 +300,7 @@ function parseJSONObject(global, this, strict, tokens) {
 
     key := ToString(hd tokens);
     key := ToString(s_substr_u(key, 1, ((s_len_u (key)) - 2)));
-    
+
     colon := hd (tl tokens);
     if (!(colon = ":")) {
       throw SyntaxErrorConstructor(global, this, strict, [s_concat(["JSON.parse: Invalid syntax. Expected colon after object key."])])
@@ -449,7 +449,7 @@ function jsonParse(global, this, strict, args) {
         either an ArrayLiteral or an ObjectLiteral. */
 
   unfiltered := objJSON;
-  
+
   /* 4. If IsCallable(reviver) is true, then */
   if (IsCallable(reviver) = true) {
     /* a. Let root be a new object created as if by the expression new Object(),
@@ -759,7 +759,7 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
         of holder with argument key. */
   value := {holder.Get}(holder, key);
   /*value := value.Value;*/
-  
+
   /* 2. If Type(value) is Object, then */
   if (Type(value) = "Object") {
     /* a. Let toJSON be the result of calling the [[Get]] internal
@@ -847,7 +847,7 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
   * every code unit with a numeric value in the inclusive range 0xD800 to 0xDBFF (defined
   * by the Unicode Standard as a leading surrogate, or more formally as a high-surrogate
   * code unit) and every code unit with a numeric value in the inclusive range 0xDC00 to
-  * 0xDFFF (defined as a trailing surrogate, or more formally as a low-surrogate code unit) 
+  * 0xDFFF (defined as a trailing surrogate, or more formally as a low-surrogate code unit)
   */
 function isUnicodeSurrogate(code) {
   start := to_char_code_u ("\u{D800}");

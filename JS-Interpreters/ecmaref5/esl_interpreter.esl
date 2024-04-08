@@ -2646,7 +2646,7 @@ function JS_Interpreter_SwitchStatement_LabelSet(switchStmt, scope) {
     /* 2. Let R be the result of evaluating CaseBlock, passing it GetValue(exprRef) as a parameter. */
     R := JS_Interpreter_CaseBlock(CaseBlock, GetValue(exprRef), scope);
     /* 3. If R.type is break and R.target is in the current label set, return (normal, R.value, empty). */
-    if ((getCompletionType(R) = 'break) && (in_list(getCompletionTarget(R), currentLabelSet)) {
+    if ((getCompletionType(R) = 'break) && (in_list(getCompletionTarget(R), currentLabelSet))) {
       return normalEmptyCompletion(getCompletionValue(R))
     };
     /* 4. Return R. */
