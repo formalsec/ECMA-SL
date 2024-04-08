@@ -1,5 +1,6 @@
 open Debugger_types
 module DebuggerTUI = Debugger_tui
+module InterpreterCallbacks = Debugger_cmd.InterpreterCallbacks
 
 module BreakpointInjector = struct
   let rec inject_debug_innerscope (stack : stack) (cont : cont) : stack * cont =
@@ -30,7 +31,7 @@ module type M = sig
 
   val initial_state : unit -> t
   val cleanup : t -> unit
-  val set_expr_evaluator : (state -> Expr.t -> Val.t) -> unit
+  val set_interp_callbacks : InterpreterCallbacks.t -> unit
   val run : t -> state -> cont -> Stmt.t -> t * state * cont
   val call : t -> stack -> cont -> t * stack * cont
 end
@@ -40,7 +41,7 @@ module Disable : M = struct
 
   let initial_state () : t = ()
   let cleanup (_ : t) : unit = ()
-  let set_expr_evaluator (_ : state -> Expr.t -> Val.t) : unit = ()
+  let set_interp_callbacks (_ : InterpreterCallbacks.t) : unit = ()
 
   let run (db : t) (st : state) (cont : cont) (_ : Stmt.t) : t * state * cont =
     (db, st, cont)
@@ -111,8 +112,9 @@ module Enable : M = struct
     | CallBreak db' -> terminate_debug_tui db'
     | Final -> ()
 
-  let set_expr_evaluator (expr_eval_f : state -> Expr.t -> Val.t) : unit =
-    Debugger_cmd.Interpreter.expr_eval_f := expr_eval_f
+  let set_interp_callbacks (interp_callbacks : InterpreterCallbacks.t) : unit =
+    InterpreterCallbacks.val_pp := interp_callbacks.val_pp;
+    InterpreterCallbacks.eval_expr := interp_callbacks.eval_expr
 
   let run (db : t) (st : state) (cont : cont) (s : Stmt.t) : t * state * cont =
     let run_debug_tui' = run_debug_tui st s in

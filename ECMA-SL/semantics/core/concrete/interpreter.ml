@@ -30,6 +30,18 @@ module M (Instrument : Instrument.M) = struct
     | Error of Val.t
     | Intermediate of state * Stmt.t list
 
+  let set_global_var (store : store) (heap : heap) : unit =
+    let open Compiler.Const in
+    if Option.is_some (Heap.get_opt heap esl_globals_loc) then
+      Store.set store esl_globals_obj (Loc esl_globals_loc)
+
+  let initial_state (fmain : Func.t) (s_heap : heap option) : state =
+    let store = Store.create [] in
+    let heap = Option.fold ~none:(Heap.create ()) ~some:Heap.extend s_heap in
+    let stack = Call_stack.create fmain in
+    set_global_var store heap;
+    { store; heap; stack }
+
   let get_var (store : store) (x : string) (at : region) : Val.t =
     match Store.get_opt store x with
     | None -> Runtime_error.(throw ~src:(ErrSrc.region at) (UnknownVar x))
@@ -44,18 +56,6 @@ module M (Instrument : Instrument.M) = struct
     match Prog.func_opt p fn with
     | None -> Runtime_error.(throw ~src:(ErrSrc.region at) (UnknownFunc fn))
     | Some f -> f
-
-  let set_global_var (store : store) (heap : heap) : unit =
-    let open Compiler.Const in
-    if Option.is_some (Heap.get_opt heap esl_globals_loc) then
-      Store.set store esl_globals_obj (Loc esl_globals_loc)
-
-  let initial_state (fmain : Func.t) (s_heap : heap option) : state =
-    let store = Store.create [] in
-    let heap = Option.fold ~none:(Heap.create ()) ~some:Heap.extend s_heap in
-    let stack = Call_stack.create fmain in
-    set_global_var store heap;
-    { store; heap; stack }
 
   let eval_operator (eval_op_fun : unit -> Val.t) (es : Expr.t list) : Val.t =
     try eval_op_fun ()
@@ -344,8 +344,8 @@ module M (Instrument : Instrument.M) = struct
 
   let eval_partial (entry : EntryPoint.t) (p : Prog.t) : Val.t * heap =
     let inst = ref (Instrument.initial_state ()) in
-    let eval_expr_db (store, heap, stack) = eval_expr { store; heap; stack } in
-    Instrument.Debugger.set_expr_evaluator eval_expr_db;
+    let eval_expr (store, heap, stack) = eval_expr { store; heap; stack } in
+    Instrument.Debugger.set_interp_callbacks { val_pp = heapval_pp; eval_expr };
     let execute () = eval_instrumented entry p inst in
     let finally () = Instrument.cleanup !inst in
     Fun.protect ~finally execute

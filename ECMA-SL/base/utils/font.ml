@@ -33,7 +33,7 @@ let colored (fdesc : Unix.file_descr option) : bool =
     else false
   in
   if not !Config.colored then false
-  else Option.fold ~none:false ~some:supported_fdesc fdesc
+  else Option.fold ~none:true ~some:supported_fdesc fdesc
 
 let clean (text : string) : string =
   let escape_regex = Str.regexp "\027\\[[0-9;]*m" in
