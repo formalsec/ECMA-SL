@@ -16,9 +16,22 @@ module Message = struct
   let invalid = "Unknown command. Try 'help' for more information."
 end
 
-module Interpreter = struct
-  let expr_eval_f : (state -> Expr.t -> Val.t) ref =
-    ref (fun _ _ -> Val.Str "Unable to evaluate expressions")
+module InterpreterCallbacks = struct
+  type val_pp = heap -> Fmt.t -> Val.t -> unit
+  type eval_expr = state -> Expr.t -> Val.t
+
+  type t =
+    { val_pp : val_pp
+    ; eval_expr : eval_expr
+    }
+
+  let val_pp : val_pp ref =
+    let err = "debugger value printer not initialized" in
+    ref (fun _ _ _ -> Internal_error.(throw __FUNCTION__ (Custom err)))
+
+  let eval_expr : eval_expr ref =
+    let err = "debugger expression evaluator not initialized" in
+    ref (fun _ _ -> Internal_error.(throw __FUNCTION__ (Custom err)))
 end
 
 type t =
@@ -31,19 +44,23 @@ type t =
   | Exit
 
 let eval_cmd (state : state) (e_tkns : string list) : string =
+  let (_, heap, _) = state in
   if e_tkns == [] then Message.missing_expr
   else
-    let e_str = String.concat " " e_tkns in
-    try Parsing.parse_expr e_str |> !Interpreter.expr_eval_f state |> Val.str
+    try
+      let e_str = String.concat " " e_tkns in
+      let e = Parsing.parse_expr e_str in
+      let v = !InterpreterCallbacks.eval_expr state e in
+      Fmt.asprintf "%a" (!InterpreterCallbacks.val_pp heap) v
     with _ -> Message.invalid_expr
 
 let locals_cmd (state : state) : string =
-  let locals_f fmt (x, v) =
+  let (store, heap, _) = state in
+  let local_f fmt (x, v) =
     if not (String.starts_with ~prefix:"__" x) then
-      Fmt.fprintf fmt "%s: %a\n" x Val.pp v
+      Fmt.fprintf fmt "%s: %a\n" x (!InterpreterCallbacks.val_pp heap) v
   in
-  let (store, _, _) = state in
-  Fmt.(asprintf "%a" (pp_hashtbl "" locals_f) store)
+  Fmt.(asprintf "%a" (pp_hashtbl "" local_f) store)
 
 let step_cmd (step_args : string list) : t =
   match step_args with
