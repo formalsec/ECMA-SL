@@ -57,17 +57,11 @@ module M (Instrument : Instrument.M) = struct
     set_global_var store heap;
     { store; heap; stack }
 
-  let operate (eval_op_fun : unit -> Val.t) (es : Expr.t list) : Val.t =
+  let eval_operator (eval_op_fun : unit -> Val.t) (es : Expr.t list) : Val.t =
     try eval_op_fun ()
     with Runtime_error.Error err ->
       let e = Runtime_error.(src err |> ErrSrc.index_to_el es) in
       Runtime_error.(set_src (ErrSrc.at e) err |> raise)
-
-  let print_val (heap : heap) (v : Val.t) : unit =
-    match v with
-    | Str s -> Log.out "%s@." s
-    | Loc l -> Log.out "%a@." (Object.pp Val.pp) (get_loc heap l)
-    | _ -> Log.out "%a@." Val.pp v
 
   let rec eval_expr' (state : state) (e : Expr.t) : Val.t =
     match e.it with
@@ -76,22 +70,22 @@ module M (Instrument : Instrument.M) = struct
     | UnOpt (op, e') ->
       let v = eval_expr state e' in
       let eval_op_fun () = Eval_operator.eval_unopt op v in
-      operate eval_op_fun [ e' ]
+      eval_operator eval_op_fun [ e' ]
     | BinOpt (op, e1, e2) ->
       let v1 = eval_expr state e1 in
       let v2 = eval_expr state e2 in
       let eval_op_fun () = Eval_operator.eval_binopt op v1 v2 in
-      operate eval_op_fun [ e1; e2 ]
+      eval_operator eval_op_fun [ e1; e2 ]
     | TriOpt (op, e1, e2, e3) ->
       let v1 = eval_expr state e1 in
       let v2 = eval_expr state e2 in
       let v3 = eval_expr state e3 in
       let eval_op_fun () = Eval_operator.eval_triopt op v1 v2 v3 in
-      operate eval_op_fun [ e1; e2; e3 ]
+      eval_operator eval_op_fun [ e1; e2; e3 ]
     | NOpt (op, es) ->
       let vs = List.map (eval_expr state) es in
       let eval_op_fun () = Eval_operator.eval_nopt op vs in
-      operate eval_op_fun es
+      eval_operator eval_op_fun es
     | Curry (fe, es) -> (
       let fv = eval_expr state fe in
       let vs = List.map (eval_expr state) es in
@@ -139,6 +133,14 @@ module M (Instrument : Instrument.M) = struct
     | Val.Curry (fn, fvs) -> (fn, fvs)
     | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadFuncId v))
 
+  let rec heapval_pp (heap : heap) (fmt : Fmt.t) (v : Val.t) : unit =
+    match v with
+    | Loc l -> (Object.pp (heapval_pp heap)) fmt (get_loc heap l)
+    | _ -> Val.pp fmt v
+
+  let print_pp (heap : heap) (fmt : Fmt.t) (v : Val.t) : unit =
+    match v with Str s -> Fmt.pp_str fmt s | _ -> heapval_pp heap fmt v
+
   let prepare_store_binds (pxs : string list) (vs : Val.t list) (at : region) :
     (string * Val.t) list =
     try List.combine pxs vs
@@ -175,7 +177,7 @@ module M (Instrument : Instrument.M) = struct
       (Intermediate ({ store; heap; stack }, s' :: cont'), lbl DebugEval)
     | Block ss -> (Intermediate (state, ss @ cont), lbl BlockEval)
     | Print e ->
-      eval_expr state e |> print_val state.heap;
+      eval_expr state e |> Log.out "%a@." (print_pp state.heap);
       (Intermediate (state, cont), lbl PrintEval)
     | Return e -> (
       let v = eval_expr state e in
