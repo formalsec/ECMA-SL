@@ -85,17 +85,17 @@ let err_to_json = function
   | `Failure msg ->
     `Assoc [ ("type", `String "Failure"); ("sink", `String msg) ]
 
-let serialize_thread ~workspace =
+let serialize_thread =
   let module Term = Encoding.Expr in
   let (next_int, _) = Base.make_counter 0 1 in
   fun ?(witness :
-         [> `Abort of string
+         [ `Abort of string
          | `Assert_failure of Extern_func.value
          | `Eval_failure of Extern_func.value
          | `Exec_failure of Extern_func.value
          | `ReadFile_failure of Extern_func.value
          ]
-         option ) thread ->
+         option ) workspace thread ->
     let pc = PC.to_list @@ Thread.pc thread in
     let solver = Thread.solver thread in
     match Solver.check solver pc with
@@ -149,7 +149,7 @@ let run ~workspace filename entry_func =
             Ok (Some err)
           | Error (`Failure msg) -> Error (`Msg msg)
         in
-        ( match serialize_thread ~workspace ?witness thread with
+        ( match serialize_thread ?witness workspace thread with
         | Error (`Msg msg) -> Log.log ~header:false "%s" msg
         | Ok () -> () );
         witness )

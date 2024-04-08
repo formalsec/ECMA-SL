@@ -13,6 +13,9 @@ module M = struct
 
   let int_symbol (x : value) : value = Symbolic (Type.IntType, x) [@@inline]
 
+  let str_symbol (x : string) : value = Symbolic (Type.StrType, Val (Val.Str x))
+  [@@inline]
+
   let int_symbol_s (x : string) : value = int_symbol (Val (Val.Str x))
   [@@inline]
 

@@ -1798,6 +1798,17 @@ function StringPrototypeSplit(global, this, NewTarget, strict, args){
     return A
   };
 
+  if (extern is_symbolic(S)) {
+    matches := extern summ_string_split(S, R);
+    i := 0;
+    len_matches := l_len matches;
+    while (i < len_matches) {
+      CreateDataProperty(A, int_to_string i, l_nth(matches, i));
+      i := i + 1
+    };
+    return A
+  };
+
   /* 16. If s = 0, then */
   if (s = 0.){
     /* a. Let z be SplitMatch(S, 0, R). */
