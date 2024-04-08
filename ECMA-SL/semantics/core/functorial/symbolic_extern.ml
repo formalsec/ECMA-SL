@@ -65,67 +65,236 @@ module Make () = struct
       | Val v -> ok_v (octal_to_decimal v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let to_precision _v1 _v2 = assert false in
-    let to_exponential _v1 _v2 = assert false in
-    let to_fixed _v1 _v2 = assert false in
-    let from_char_code_u _v = assert false in
-    let to_char_code_u _v = assert false in
-    let to_lower_case _v = assert false in
-    let to_upper_case _v = assert false in
-    let trim _v = assert false in
-    let s_len_u _v = assert false in
-    let s_nth_u _v1 _v2 = assert false in
-    let s_split _v1 _v2 = assert false in
-    let s_substr_u _v1 _v2 _v3 = assert false in
-    let array_len _v = assert false in
-    let array_make _v1 _v2 = assert false in
-    let array_nth _v1 _v2 = assert false in
-    let array_set _v1 _v2 _v3 = assert false in
-    let list_to_array _v = assert false in
-    let list_sort _v = assert false in
+    let to_precision v1 v2 =
+      match (v1, v2) with
+      | (Val v1, Val v2) -> ok_v (to_precision (v1, v2))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let to_exponential v1 v2 =
+      match (v1, v2) with
+      | (Val v1, Val v2) -> ok_v (to_exponential (v1, v2))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let to_fixed v1 v2 =
+      match (v1, v2) with
+      | (Val v1, Val v2) -> ok_v (to_fixed (v1, v2))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let from_char_code_u = function
+      | Val v -> ok_v (from_char_code_u v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let to_char_code_u = function
+      | Val v -> ok_v (to_char_code_u v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let to_lower_case = function
+      | Val v -> ok_v (to_lower_case v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let to_upper_case = function
+      | Val v -> ok_v (to_upper_case v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let trim = function
+      | Val v -> ok_v (trim v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let s_len_u = function
+      | Val v -> ok_v (s_len_u v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let s_nth_u v1 v2 =
+      match (v1, v2) with
+      | (Val v1, Val v2) -> ok_v (s_nth_u (v1, v2))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let s_split v1 v2 =
+      match (v1, v2) with
+      | (Val v1, Val v2) -> ok_v (s_split (v1, v2))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let s_substr_u v1 v2 v3 =
+      match (v1, v2, v3) with
+      | (Val v1, Val v2, Val v3) -> ok_v (s_substr_u (v1, v2, v3))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let array_len = function
+      | Val v -> ok_v (array_len v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let array_make v1 v2 =
+      match (v1, v2) with
+      | (Val v1, Val v2) -> ok_v (array_make (v1, v2))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let array_nth v1 v2 =
+      match (v1, v2) with
+      | (Val v1, Val v2) -> ok_v (array_nth (v1, v2))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let array_set v1 v2 v3 =
+      match (v1, v2, v3) with
+      | (Val v1, Val v2, Val v3) -> ok_v (array_set (v1, v2, v3))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let list_to_array = function
+      | Val v -> ok_v (list_to_array v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let list_sort = function
+      | Val v -> ok_v (list_sort v)
+      | NOpt (ListExpr, lst) -> ok (NOpt (ListExpr, List.sort compare lst))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
     let list_mem v1 v2 =
       match (v1, v2) with
       | (Val v1, Val v2) -> ok_v (list_mem (v1, v2))
       | (_, NOpt (ListExpr, lst)) -> ok_v (Bool (List.mem v1 lst))
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let list_remove_last _v = assert false in
-    let list_remove _v1 _v2 = assert false in
-    let list_remove_nth _v1 _v2 = assert false in
-    let float_to_byte _v = assert false in
-    let float32_to_le_bytes _v = assert false in
-    let float32_to_be_bytes _v = assert false in
-    let float64_to_le_bytes _v = assert false in
-    let float64_to_be_bytes _v = assert false in
-    let float32_from_le_bytes _v = assert false in
-    let float32_from_be_bytes _v = assert false in
-    let float64_from_le_bytes _v = assert false in
-    let float64_from_be_bytes _v = assert false in
-    let bytes_to_string _v = assert false in
-    let int_to_be_bytes _v1 _v2 = assert false in
-    let int_from_le_bytes _v1 _v2 = assert false in
-    let uint_from_le_bytes _v1 _v2 = assert false in
-    let log_2 _v = assert false in
+    let list_remove_last = function
+      | Val v -> ok_v (list_remove_last v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let list_remove v1 v2 =
+      match (v1, v2) with
+      | (Val v1, Val v2) -> ok_v (list_remove (v1, v2))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let list_remove_nth v1 v2 =
+      match (v1, v2) with
+      | (Val v1, Val v2) -> ok_v (list_remove_nth (v1, v2))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let float_to_byte = function
+      | Val v -> ok_v (float_to_byte v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let float32_to_le_bytes = function
+      | Val v -> ok_v (float32_to_le_bytes v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let float32_to_be_bytes = function
+      | Val v -> ok_v (float32_to_be_bytes v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let float64_to_le_bytes = function
+      | Val v -> ok_v (float64_to_le_bytes v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let float64_to_be_bytes = function
+      | Val v -> ok_v (float64_to_be_bytes v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let float32_from_le_bytes = function
+      | Val v -> ok_v (float32_from_le_bytes v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let float32_from_be_bytes = function
+      | Val v -> ok_v (float32_from_be_bytes v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let float64_from_le_bytes = function
+      | Val v -> ok_v (float64_from_le_bytes v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let float64_from_be_bytes = function
+      | Val v -> ok_v (float64_from_be_bytes v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let bytes_to_string = function
+      | Val v -> ok_v (bytes_to_string v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let int_to_be_bytes v1 v2 =
+      match (v1, v2) with
+      | (Val v1, Val v2) -> ok_v (int_to_be_bytes (v1, v2))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let int_from_le_bytes v1 v2 =
+      match (v1, v2) with
+      | (Val v1, Val v2) -> ok_v (int_from_le_bytes (v1, v2))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let uint_from_le_bytes v1 v2 =
+      match (v1, v2) with
+      | (Val v1, Val v2) -> ok_v (uint_from_le_bytes (v1, v2))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let log_2 = function
+      | Val v -> ok_v (log_2 v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
     let log_e = function
       | Val v -> ok_v (log_e v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let log_10 _v = assert false in
-    let sin _v = assert false in
-    let cos _v = assert false in
-    let tan _v = assert false in
-    let sinh _v = assert false in
-    let cosh _v = assert false in
-    let tanh _v = assert false in
-    let asin _v = assert false in
-    let acos _v = assert false in
-    let atan _v = assert false in
-    let atan2 _v1 _v2 = assert false in
-    let utf8_decode _v = assert false in
-    let hex_decode _v = assert false in
-    let parse_number _v = assert false in
-    let parse_string _v = assert false in
-    let parse_date _v = assert false in
+    let log_10 = function
+      | Val v -> ok_v (log_10 v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let sin = function
+      | Val v -> ok_v (sin v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let cos = function
+      | Val v -> ok_v (cos v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let tan = function
+      | Val v -> ok_v (tan v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let sinh = function
+      | Val v -> ok_v (sinh v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let cosh = function
+      | Val v -> ok_v (cosh v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let tanh = function
+      | Val v -> ok_v (tanh v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let asin = function
+      | Val v -> ok_v (asin v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let acos = function
+      | Val v -> ok_v (acos v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let atan = function
+      | Val v -> ok_v (atan v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let atan2 v1 v2 =
+      match (v1, v2) with
+      | (Val v1, Val v2) -> ok_v (atan2 (v1, v2))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let utf8_decode = function
+      | Val v -> ok_v (utf8_decode v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let hex_decode = function
+      | Val v -> ok_v (hex_decode v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let parse_number = function
+      | Val v -> ok_v (parse_number v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let parse_string = function
+      | Val v -> ok_v (parse_string v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let parse_date = function
+      | Val v -> ok_v (parse_date v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
     of_array
       [| (* int *)
          ( "int_to_four_hex_external"
@@ -164,7 +333,7 @@ module Make () = struct
          , Extern_func (Func (Arg Res), list_remove_last) )
        ; ("l_remove_external", Extern_func (Func (Arg (Arg Res)), list_remove))
        ; ( "l_remove_nth_external"
-         , Extern_func (Func (Arg (Arg (Arg Res))), list_remove_nth) )
+         , Extern_func (Func (Arg (Arg Res)), list_remove_nth) )
          (* byte *)
        ; ("float_to_byte_external", Extern_func (Func (Arg Res), float_to_byte))
        ; ( "float32_to_le_bytes_external"
