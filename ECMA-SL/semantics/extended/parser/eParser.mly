@@ -137,8 +137,8 @@ let prog_target :=
     { EParsing_helper.Prog.parse_prog imports p_els }
 
 let import_target :=
-  | IMPORT; ~ = str_id_target; SEMICOLON?; <`File>
-  | IMPORT; ~ = id_target; SEMICOLON?; <`Module>
+  | IMPORT; ~ = str_id_target; SEMICOLON?; <`User>
+  | IMPORT; ~ = id_target; SEMICOLON?; <`Standard>
 
 let prog_element_target :=
   | ~ = tdef_target;    < EParsing_helper.Prog.parse_tdef >

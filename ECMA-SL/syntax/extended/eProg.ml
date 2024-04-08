@@ -2,8 +2,8 @@ open EslBase
 open Source
 
 type import =
-  [ `File of Id.t
-  | `Module of Id.t
+  [ `User of Id.t
+  | `Standard of Id.t
   ]
 
 type t =
@@ -39,8 +39,8 @@ let macros (p : t) : (Id.t', EMacro.t) Hashtbl.t = p.macros
 let pp (fmt : Fmt.t) (p : t) : unit =
   let open Fmt in
   let pp_import fmt = function
-    | `File import -> fprintf fmt "import \"%a\"@\n" Id.pp import
-    | `Module import -> fprintf fmt "import %a@\n" Id.pp import
+    | `User import -> fprintf fmt "import \"%a\"@\n" Id.pp import
+    | `Standard import -> fprintf fmt "import %a@\n" Id.pp import
   in
   let pp_tdef fmt (_, t) = fprintf fmt "%a\n" EType.TDef.pp t in
   let pp_func fmt (_, f) = fprintf fmt "\n%a" EFunc.pp f in
