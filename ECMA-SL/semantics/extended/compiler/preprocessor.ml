@@ -9,14 +9,19 @@ module Imports = struct
     with Not_found ->
       Compile_error.(throw ~src:(ErrSrc.at file) (UnknownDependency file))
 
+  let set_import_prefix (stdlib : string) (workspace : string) :
+    import -> Id.t * string = function
+    | `User import -> (import, Filename.concat workspace import.it)
+    | `Standard import -> (import, Filename.concat stdlib (import.it ^ ".esl"))
+
   let relativize (file : Id.t') (imports : import list) : import list =
     let relativize_f dir = function
-      | `File import -> `File (Source.map (Filename.concat dir) import)
-      | `Module _ as m -> m
+      | `User import -> `User (Source.map (Filename.concat dir) import)
+      | `Standard _ as m -> m
     in
     List.map (relativize_f (Filename.dirname file)) imports
 
-  let import_resolver ~stdlib (workspace : string) (p : EProg.t)
+  let import_resolver ~(stdlib : string) (workspace : string) (p : EProg.t)
     (resolved : (Id.t', unit) Hashtbl.t)
     (unresolved : (Id.t' * import list) list) : unit =
     let rec loop =
@@ -28,10 +33,7 @@ module Imports = struct
         loop unresolved'
       | (source, import :: imports') :: unresolved' as unresolved ->
         let (import, dependency_path) =
-          match import with
-          | `File import -> (import, Filename.concat workspace import.it)
-          | `Module import ->
-            (import, Filename.concat stdlib (import.it ^ ".esl"))
+          set_import_prefix stdlib workspace import
         in
         if Hashtbl.mem resolved import.it then
           loop ((source, imports') :: unresolved')
@@ -49,7 +51,7 @@ module Imports = struct
     in
     loop unresolved
 
-  let resolve_imports ~stdlib (p : EProg.t) : EProg.t =
+  let resolve_imports ~(stdlib : string) (p : EProg.t) : EProg.t =
     let workspace = Filename.dirname (EProg.path p) in
     let resolved = Hashtbl.create !Base.default_hashtbl_sz in
     let relative_imports = relativize (EProg.file p) (EProg.imports p) in
