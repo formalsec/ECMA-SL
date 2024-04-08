@@ -62,6 +62,11 @@ module List = struct
   let map (v : 'a t) (f : 'a -> 'b) : 'b t = bind v (fun a -> return (f a))
   let ( let+ ) v f = map v f
 
+  let with_thread (f : thread -> 'a) : 'a t =
+   fun t ->
+    let v = f t in
+    [ (v, t) ]
+
   let check (v : Value.value) : bool t =
     let open Value in
     fun t ->

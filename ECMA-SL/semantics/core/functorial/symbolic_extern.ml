@@ -22,14 +22,17 @@ module Make () = struct
   module Translator = Value_translator
   module Optimizer = Choice_monad.Optimizer
   module PC = Choice_monad.PC
+  open Extern_func
 
   let ( let/ ) = Choice.bind
   let fresh_i = Base.make_name_generator "i"
   let fresh_x = Base.make_name_generator "x"
   let fresh_func = Base.make_name_generator "eval_func_"
+  let ok v = Choice.return (Ok v)
+  let ok_v v = ok (Value.Val v)
+  let err v = Choice.return (Error (`Failure v))
 
   let extern_cmds env =
-    let open Extern_func in
     let parseJS data =
       let open EslJSParser.Api in
       let data =
@@ -47,16 +50,13 @@ module Make () = struct
       let data = Io.read_file output_file in
       let func = Parsing.parse_func data in
       Env.add_func env fid func;
-      Choice.return (Ok (Value.Val (Val.Str fid)))
+      ok_v (Val.Str fid)
     in
     of_array [| ("parseJS", Extern_func (Func (Arg Res), parseJS)) |]
 
   let concrete_api =
     let open Value in
-    let open Extern_func in
     let open External.Impl in
-    let ok_v v = Choice.return (Ok (Val v)) in
-    let err v = Choice.return (Error (`Failure v)) in
     let int_to_four_hex = function
       | Val v -> ok_v (int_to_four_hex v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
@@ -221,32 +221,21 @@ module Make () = struct
       | Val (Str _) as x -> x
       | x -> Log.fail "'%a' is not a valid string symbol" Value.pp x
     in
-    let str_symbol (x : value) =
-      Choice.return (Ok (Symbolic (Type.StrType, non_empty x)))
-    in
-    let int_symbol (x : value) =
-      Choice.return (Ok (Value.int_symbol (non_empty x)))
-    in
-    let flt_symbol (x : value) =
-      Choice.return (Ok (Symbolic (Type.FltType, non_empty x)))
-    in
-    let bool_symbol (x : value) =
-      Choice.return (Ok (Symbolic (Type.BoolType, non_empty x)))
-    in
-    let is_symbolic (n : value) =
-      Choice.return (Ok (Val (Val.Bool (Value.is_symbolic n))))
-    in
+    let str_symbol (x : value) = ok (Symbolic (Type.StrType, non_empty x)) in
+    let int_symbol (x : value) = ok (Value.int_symbol (non_empty x)) in
+    let flt_symbol (x : value) = ok (Symbolic (Type.FltType, non_empty x)) in
+    let bool_symbol (x : value) = ok (Symbolic (Type.BoolType, non_empty x)) in
+    let is_symbolic (n : value) = ok_v (Val.Bool (Value.is_symbolic n)) in
     let is_number (n : value) =
-      let is_number =
-        match Value_typing.type_of n with
-        | Some Type.IntType | Some Type.FltType -> true
-        | _ -> false
-      in
-      Choice.return (Ok (Val (Val.Bool is_number)))
+      ok_v
+        (Val.Bool
+           ( match Value_typing.type_of n with
+           | Some Type.IntType | Some Type.FltType -> true
+           | _ -> false ) )
     in
     let is_sat (e : value) =
       let/ b = Choice.check e in
-      Choice.return (Ok (Val (Val.Bool b)))
+      ok_v (Val.Bool b)
     in
     let is_exec_sat (e : value) =
       (* TODO: more fine-grained exploit analysis *)
@@ -257,7 +246,7 @@ module Make () = struct
         BinOpt (Operator.Eq, sub, Val (Val.Str "A; touch success #"))
       in
       let/ b = Choice.check_add_true query in
-      Choice.return (Ok (Val (Val.Bool b)))
+      ok_v (Val.Bool b)
     in
     let is_eval_sat (e : value) =
       (* TODO: more fine-grained exploit analysis *)
@@ -268,7 +257,7 @@ module Make () = struct
         BinOpt (Operator.Eq, sub, Val (Val.Str ";console.log('success')//"))
       in
       let/ b = Choice.check_add_true query in
-      Choice.return (Ok (Val (Val.Bool b)))
+      ok_v (Val.Bool b)
     in
     let abort (e : value) =
       let e' = Format.asprintf "%a" Value.pp e in
@@ -279,13 +268,14 @@ module Make () = struct
       let e' = Translator.translate e in
       [ (Ok (Val (Val.Symbol "undefined")), Thread.add_pc thread e') ]
     in
-    let evaluate (e : value) thread =
-      let e' = Translator.translate e in
-      let pc = Thread.pc thread |> PC.to_list in
-      let solver = Thread.solver thread in
-      assert (Solver.check solver (e' :: pc));
-      let v = Solver.get_value solver e' in
-      [ (Ok (Translator.expr_of_value v.node.e), thread) ]
+    let evaluate (e : value) =
+      Choice.with_thread (fun thread ->
+          let e' = Translator.translate e in
+          let pc = Thread.pc thread |> PC.to_list in
+          let solver = Thread.solver thread in
+          assert (Solver.check solver (e' :: pc));
+          let v = Solver.get_value solver e' in
+          Ok (Translator.expr_of_value v.node.e) )
     in
     let optimize target opt e pc =
       Optimizer.push opt;
@@ -294,31 +284,33 @@ module Make () = struct
       Optimizer.pop opt;
       v
     in
-    let maximize (e : value) thread =
-      let e' = Translator.translate e in
-      let pc = Thread.pc thread |> PC.to_list in
-      let opt = Thread.optimizer thread in
-      let v = optimize Optimizer.maximize opt e' pc in
-      match v with
-      | Some v -> [ (Ok (Translator.expr_of_value (Val v)), thread) ]
-      | None ->
-        (* TODO: Error here *)
-        assert false
+    let maximize (e : value) =
+      Choice.with_thread (fun thread ->
+          let e' = Translator.translate e in
+          let pc = Thread.pc thread |> PC.to_list in
+          let opt = Thread.optimizer thread in
+          let v = optimize Optimizer.maximize opt e' pc in
+          match v with
+          | Some v -> Ok (Translator.expr_of_value (Val v))
+          | None ->
+            (* TODO: Error here *)
+            assert false )
     in
-    let minimize (e : value) thread =
-      let e' = Translator.translate e in
-      let pc = Thread.pc thread |> PC.to_list in
-      let opt = Thread.optimizer thread in
-      let v = optimize Optimizer.minimize opt e' pc in
-      match v with
-      | Some v -> [ (Ok (Translator.expr_of_value (Val v)), thread) ]
-      | None ->
-        (* TODO: Error here *)
-        assert false
+    let minimize (e : value) =
+      Choice.with_thread (fun thread ->
+          let e' = Translator.translate e in
+          let pc = Thread.pc thread |> PC.to_list in
+          let opt = Thread.optimizer thread in
+          let v = optimize Optimizer.minimize opt e' pc in
+          match v with
+          | Some v -> Ok (Translator.expr_of_value (Val v))
+          | None ->
+            (* TODO: Error here *)
+            assert false )
     in
     let print (v : Value.value) =
       Log.out "extern print: %a@." Value.pp v;
-      Choice.return (Ok (Value.Val (Val.Symbol "undefined")))
+      ok_v (Val.Symbol "undefined")
     in
     of_array
       [| ("str_symbol", Extern_func (Func (Arg Res), str_symbol))
