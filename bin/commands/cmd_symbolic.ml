@@ -51,9 +51,9 @@ let link_env (prog : Prog.t) : Extern_func.extern_func Symbolic.Env.t =
   |> Env.Build.add_extern_functions Symbolic_extern.concrete_api
   |> Env.Build.add_extern_functions Symbolic_extern.symbolic_api
 
-let pp_model (ppf : Fmt.t) (model : Encoding.Model.t) : unit =
+let pp_model (ppf : Fmt.t) (model : Smtml.Model.t) : unit =
   let open Fmt in
-  let open Encoding in
+  let open Smtml in
   let pp_map ppf (s, v) = format ppf {|"%a" : %a|} Symbol.pp s Value.pp v in
   let pp_vars ppf v = pp_lst !>"@\n, " pp_map ppf v in
   format ppf "@[<v 2>module.exports.symbolic_map =@ { %a@\n}@]" pp_vars
@@ -66,14 +66,14 @@ type witness =
 
 let serialize_thread (workspace : Fpath.t) :
   witness option -> Thread.t -> unit Result.t =
-  let module Term = Encoding.Expr in
+  let module Term = Smtml.Expr in
   let (next, _) = Base.make_counter 0 1 in
   fun witness thread ->
     let open Fpath in
     let pc = PC.to_list @@ Thread.pc thread in
     Log.debug "  path cond : %a@." Term.pp_list pc;
     let solver = Thread.solver thread in
-    assert (Solver.check solver pc);
+    assert (`Sat = Solver.check solver pc);
     let model = Solver.model solver in
     let path =
       Fmt.ksprintf

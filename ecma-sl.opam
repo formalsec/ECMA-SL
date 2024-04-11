@@ -23,7 +23,7 @@ depends: [
   "menhirLib"
   "yojson"
   "conf-npm"
-  "encoding" {>= "0.0.4"}
+  "smtml" {>= "0.0.4"}
   "ppx_import"
   "ppx_deriving"
   "ppx_inline_test" {with-test}
@@ -46,3 +46,7 @@ build: [
   ["dune" "install" "-p" name "--create-install-files" name]
 ]
 dev-repo: "git+https://github.com/formalsec/ECMA-SL.git"
+
+pin-depends: [
+  [ "smtml.dev" "git+https://github.com/formalsec/smtml#extend_ops"]
+]
