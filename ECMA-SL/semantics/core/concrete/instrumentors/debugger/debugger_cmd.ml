@@ -1,3 +1,4 @@
+open Smtml
 open Debugger_types
 
 module Message = struct
@@ -17,8 +18,8 @@ module Message = struct
 end
 
 module InterpreterCallbacks = struct
-  type heapval_pp = (Loc.t, unit) Hashtbl.t -> heap -> Fmt.t -> Val.t -> unit
-  type eval_expr = state -> Expr.t -> Val.t
+  type heapval_pp = (Loc.t, unit) Hashtbl.t -> heap -> Fmt.t -> Value.t -> unit
+  type eval_expr = state -> Expr.t -> Value.t
 
   type t =
     { heapval_pp : heapval_pp
@@ -41,7 +42,7 @@ type t =
   | Continue
   | Exit
 
-let heapval_pp (heap : heap) : Fmt.t -> Val.t -> unit =
+let heapval_pp (heap : heap) : Fmt.t -> Value.t -> unit =
   let visited = Hashtbl.create !Base.default_hashtbl_sz in
   !InterpreterCallbacks.heapval_pp visited heap
 

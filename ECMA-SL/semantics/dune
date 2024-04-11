@@ -24,6 +24,7 @@
   ; concrete interpreter
   interpreter
   eval_operator
+  eval_op
   external
   instrument
   ; concrete interpreter (domains)
@@ -57,28 +58,28 @@
   NSULevel2
   NSULevel_Dep
   ; functorial interpreter
-  choice_monad_intf
-  choice_monad
-  extern_func
-  interpreter_functor_intf
-  interpreter_functor
-  link_env
-  memory_intf
-  object_intf
-  solver
-  symbolic_extern
-  symbolic_interpreter
-  symbolic_memory
-  symbolic_object
-  symbolic_value
-  symbolic
-  value_intf
-  value_reducer
-  value_translator
-  value_typing
+  ;x choice_monad_intf
+  ;x choice_monad
+  ;x extern_func
+  ;x interpreter_functor_intf
+  ;x interpreter_functor
+  ;x link_env
+  ;x memory_intf
+  ;x object_intf
+  ;x solver
+  ;x symbolic_extern
+  ;x symbolic_interpreter
+  ;x symbolic_memory
+  ;x symbolic_object
+  ;x symbolic_value
+  ;x symbolic
+  ;x value_intf
+  ;x value_reducer
+  ;x value_translator
+  ;x value_typing
   ; functorial interpreter (domains)
-  symbolic_object2
-  symbolic_memory2
+  ;x symbolic_object2
+  ;x symbolic_memory2
   ; compiler
   preprocessor
   compiler

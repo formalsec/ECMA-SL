@@ -1,3 +1,4 @@
+open Smtml
 open Ecma_sl
 open Syntax.Result
 
@@ -141,7 +142,7 @@ let interpret (entry : Interpreter.entry) (config : Options.config)
   Result.esl_exec @@ fun () ->
   let result = interpret_partial entry config prog in
   let retval = result.retval in
-  Log.debug "Sucessfuly evaluated program with return '%a'." Val.pp retval;
+  Log.debug "Sucessfuly evaluated program with return '%a'." Value.pp retval;
   Ok result
 
 let interpret_cesl (entry : Interpreter.entry) (config : Options.config)

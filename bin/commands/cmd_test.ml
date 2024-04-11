@@ -1,3 +1,4 @@
+open Smtml
 open Ecma_sl
 open Syntax.Result
 
@@ -36,9 +37,9 @@ module TestRecord = struct
     ; sections : string list
     ; test : string
     ; flags : string list
-    ; error : Val.t option
+    ; error : Value.t option
     ; streams : Log.Redirect.t option
-    ; retval : Val.t Result.t
+    ; retval : Value.t Result.t
     ; result : result
     ; time : float
     ; metrics : Yojson.Basic.t
@@ -53,7 +54,7 @@ module TestRecord = struct
     ; flags = []
     ; error = None
     ; streams = None
-    ; retval = Ok Null
+    ; retval = Ok (App (`Op "null", []))
     ; result = Skipped
     ; time = Base.time ()
     ; metrics = `Null
@@ -65,11 +66,11 @@ module TestRecord = struct
     let dots = if len < limit then String.make (limit - len) '.' else "" in
     Fmt.format ppf "%s %s" path' dots
 
-  let pp_error (ppf : Fmt.t) (error : Val.t option) : unit =
-    match error with None -> Fmt.pp_str ppf "none" | Some v -> Val.pp ppf v
+  let pp_error (ppf : Fmt.t) (error : Value.t option) : unit =
+    match error with None -> Fmt.pp_str ppf "none" | Some v -> Value.pp ppf v
 
-  let pp_retval (ppf : Fmt.t) (retval : Val.t Result.t) : unit =
-    match retval with Ok v -> Val.pp ppf v | Error _ -> Fmt.pp_str ppf "-"
+  let pp_retval (ppf : Fmt.t) (retval : Value.t Result.t) : unit =
+    match retval with Ok v -> Value.pp ppf v | Error _ -> Fmt.pp_str ppf "-"
 
   let pp_result (ppf : Fmt.t) (result : result) : unit =
     match result with
@@ -249,8 +250,8 @@ module TestParser = struct
     let flags = regex "^flags: ?\\[\\(.+\\)\\]$" metadata in
     Option.fold ~none:[] ~some:(String.split_on_char ',') flags
 
-  let parse_test262_error (metadata : string) : Val.t option =
-    let neg_f = Option.map (fun err -> Some (Val.Str err)) in
+  let parse_test262_error (metadata : string) : Value.t option =
+    let neg_f = Option.map (fun err -> Some (Value.Str err)) in
     let negative_f md = regex "^negative: ?\\(.+\\)$" md |> neg_f in
     let errtype_f md = regex "^ +type: ?\\(.+\\)$" md |> neg_f in
     Option.value (negative_f metadata)
@@ -302,29 +303,29 @@ module TestRunner = struct
       Ok input
 
   let unfold_result (result : Interpreter.result Result.t) :
-    Val.t Result.t * Yojson.Basic.t =
+    Value.t Result.t * Yojson.Basic.t =
     let retval_f res = res.Interpreter.retval in
     let metrics_f res = res.Interpreter.metrics in
     let retval = map retval_f result in
     let metrics = fold ~ok:metrics_f ~error:(fun _ -> `Null) result in
     (retval, metrics)
 
-  let check_result (error : Val.t option) (retval : Val.t Result.t) :
+  let check_result (error : Value.t option) (retval : Value.t Result.t) :
     TestRecord.result =
     match (retval, error) with
-    | (Ok (Tuple [ _; Symbol "normal"; _; _ ]), None) -> Success
-    | (Ok (Tuple [ _; Symbol "throw"; e1; _ ]), Some e2) when Val.equal e1 e2 ->
+    | (Ok (List [ _; App (`Op "symbol", [Str "normal"]); _; _ ]), None) -> Success
+    | (Ok (List [ _; App (`Op "symbol", [Str "throw"]); e1; _ ]), Some e2) when Value.equal e1 e2 ->
       Success
-    | (Ok (Tuple [ _; _; _; _ ]), _) -> Failure
+    | (Ok (List [ _; _; _; _ ]), _) -> Failure
     | (_, _) -> Anomaly
 
-  let execute_js_test (env : Prog.t * Val.t Heap.t option)
+  let execute_js_test (env : Prog.t * Value.t Heap.t option)
     (interp_config : Cmd_interpret.Options.config) (input : Fpath.t) :
     Interpreter.result Result.t =
     try Cmd_execute.execute_js env interp_config input
     with exn -> Result.error (`Generic (Printexc.to_string exn))
 
-  let execute (env : Prog.t * Val.t Heap.t option) (record : TestRecord.t)
+  let execute (env : Prog.t * Value.t Heap.t option) (record : TestRecord.t)
     (interp_profiler : Enums.InterpProfiler.t) : TestRecord.t Result.t =
     Log.debug "Starting test '%a'." Fpath.pp record.input;
     let interp_config = interp_config interp_profiler in
@@ -372,7 +373,7 @@ let record (workspace : Fpath.t) (input : Fpath.t) (output : Files.output) :
   let* test = Result.bos (Bos.OS.File.read input) in
   Ok { (TestRecord.default ()) with input; output; name; sections; test }
 
-let process_record (opts : Options.t) (env : Prog.t * Val.t Heap.t option)
+let process_record (opts : Options.t) (env : Prog.t * Value.t Heap.t option)
   (workspace : Fpath.t) (input : Fpath.t) (output : Files.output) :
   TestRecord.t Result.t =
   let* record = record workspace input output in
@@ -382,7 +383,7 @@ let process_record (opts : Options.t) (env : Prog.t * Val.t Heap.t option)
     TestRunner.execute env record' opts.interp_profiler
   | _ -> Ok { record with result = Skipped }
 
-let run_single (opts : Options.t) (env : Prog.t * Val.t Heap.t option)
+let run_single (opts : Options.t) (env : Prog.t * Value.t Heap.t option)
   (tree : TestTree.t) (workspace : Fpath.t) (input : Fpath.t)
   (output : Files.output) : unit Result.t =
   let* record = process_record opts env workspace input output in

@@ -1,9 +1,10 @@
+open Smtml
 open EslBase
 
 type t = t' Source.phrase
 
 and t' =
-  | Val of Val.t
+  | Val of Value.t
   | Var of Id.t'
   | UnOpt of Operator.unopt * t
   | BinOpt of Operator.binopt * t * t
@@ -15,7 +16,7 @@ and t' =
 let rec pp (ppf : Fmt.t) (e : t) : unit =
   let open Fmt in
   match e.it with
-  | Val v -> Val.pp ppf v
+  | Val v -> Value.pp ppf v
   | Var x -> pp_str ppf x
   | UnOpt (op, e') -> Operator.pp_of_unopt pp ppf (op, e')
   | BinOpt (op, e1, e2) -> Operator.pp_of_binopt pp ppf (op, e1, e2)
@@ -25,7 +26,7 @@ let rec pp (ppf : Fmt.t) (e : t) : unit =
   | Symbolic (t, e') -> format ppf "se_mk_symbolic(%a, %a)" Type.pp t pp e'
 
 let str (e : t) : string = Fmt.str "%a" pp e
-let isvoid (e : t) : bool = match e.it with Val Val.Void -> true | _ -> false
+let isvoid (e : t) : bool = match e.it with Val App (`Op "void", []) -> true | _ -> false
 
 let rec vars_in_expr (e : t) : Id.t' list =
   let vars_in_lst lst = List.map vars_in_expr lst |> List.concat in

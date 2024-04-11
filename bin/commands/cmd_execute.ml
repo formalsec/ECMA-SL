@@ -1,3 +1,4 @@
+open Smtml
 open Ecma_sl
 open Syntax.Result
 
@@ -35,13 +36,13 @@ let execute_partial (entry : Interpreter.entry) (config : Options.interp_config)
 
 let check_harness_return (result : Interpreter.result) : unit Result.t =
   match result.retval with
-  | Tuple [ _; Symbol "normal"; _; _ ] -> Ok ()
+  | List [ _; App (`Op "symbol", [Str "normal"]); _; _ ] -> Ok ()
   | _ ->
-    let err = Fmt.str "Unable to setup harness: %a" Val.pp result.retval in
+    let err = Fmt.str "Unable to setup harness: %a" Value.pp result.retval in
     Result.error (`Execute err)
 
 let setup_program_harness (interp : Prog.t) (harness : Fpath.t) :
-  Val.t Heap.t Result.t =
+  Value.t Heap.t Result.t =
   ignore Enums.Lang.(resolve_file_lang [ JS ] harness);
   let ast = Fpath.v (Filename.temp_file "ecmasl" "harness.cesl") in
   let entry = Interpreter.entry_default () in
@@ -53,7 +54,7 @@ let setup_program_harness (interp : Prog.t) (harness : Fpath.t) :
   Ok result.heap
 
 let setup_execution (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option) :
-  (Prog.t * Val.t Heap.t option) Result.t =
+  (Prog.t * Value.t Heap.t option) Result.t =
   let finterp = Enums.JSInterp.interp jsinterp in
   let* interp = Cmd_compile.compile true (Fpath.v finterp) in
   match harness with
@@ -62,7 +63,7 @@ let setup_execution (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option) :
     let* static_heap = setup_program_harness interp harness' in
     Ok (interp, Some static_heap)
 
-let execute_cesl ((interp, static_heap) : Prog.t * Val.t Heap.t option)
+let execute_cesl ((interp, static_heap) : Prog.t * Value.t Heap.t option)
   (config : Options.interp_config) (input : Fpath.t) :
   Interpreter.result Result.t =
   let pre_initialized = Option.is_some static_heap in
@@ -70,10 +71,10 @@ let execute_cesl ((interp, static_heap) : Prog.t * Val.t Heap.t option)
   let entry = Interpreter.{ main; static_heap } in
   let* result = execute_partial entry config interp input in
   let retval = result.retval in
-  Log.debug "Sucessfuly evaluated program with return '%a'." Val.pp retval;
+  Log.debug "Sucessfuly evaluated program with return '%a'." Value.pp retval;
   Ok result
 
-let execute_js (setup : Prog.t * Val.t Heap.t option)
+let execute_js (setup : Prog.t * Value.t Heap.t option)
   (config : Options.interp_config) (input : Fpath.t) :
   Interpreter.result Result.t =
   let ast = Fpath.v (Filename.temp_file "ecmasl" "ast.cesl") in

@@ -1,3 +1,4 @@
+open Smtml
 open EslSyntax
 
 type 'sl t =
@@ -48,52 +49,52 @@ let str (_sl_printer : 'sl -> string) (label : 'sl t) : string =
   | SetTopLab st -> Printf.sprintf "TopLevelLab (%s)" st
   | AllowFlowLab (st1, st2) -> Printf.sprintf "AllowFlowLab (%s, %s)" st1 st2
 
-let interceptor (parse_sl : string -> 'sl) (func : string) (vs : Val.t list)
+let interceptor (parse_sl : string -> 'sl) (func : string) (vs : Value.t list)
   (es : Expr.t list) : 'sl t option =
   let open Source in
   match (func, vs, es) with
   | ( "upgVar"
-    , [ Val.Str x; Val.Str lvl_str ]
+    , [ Value.Str x; Value.Str lvl_str ]
     , [ { it = Expr.Val (Str x'); _ }; { it = Expr.Val (Str lvl_str'); _ } ] )
     when x = x' && lvl_str = lvl_str' ->
     Some (UpgVarLab (x, parse_sl lvl_str))
   | ( "upgPropExists"
-    , [ Val.Loc loc; Val.Str x; Val.Str lvl_str ]
+    , [ App (`Op "loc", [Int loc]); Value.Str x; Value.Str lvl_str ]
     , [ e_o; e_f; { it = Expr.Val (Str lvl_str'); _ } ] )
     when lvl_str = lvl_str' ->
     Some (UpgPropExistsLab (loc, x, e_o, e_f, parse_sl lvl_str))
   | ( "upgPropExists"
-    , [ Val.Loc _loc; Val.Str _x; Val.Str _lvl_str ]
+    , [ App (`Op "loc", [Int _loc]); Value.Str _x; Value.Str _lvl_str ]
     , [ _; _; _ ] ) ->
     raise (NSUException.Except "Level is not a literal")
   | ( "upgPropVal"
-    , [ Val.Loc loc; Val.Str x; Val.Str lvl_str ]
+    , [ App (`Op "loc", [Int loc]); Value.Str x; Value.Str lvl_str ]
     , [ e_o; e_f; { it = Expr.Val (Str lvl_str'); _ } ] )
     when lvl_str = lvl_str' ->
     Some (UpgPropValLab (loc, x, e_o, e_f, parse_sl lvl_str))
-  | ("upgPropVal", [ Val.Loc _; Val.Str _x; Val.Str _lvl_str ], [ _; _; _ ]) ->
+  | ("upgPropVal", [ App (`Op "loc", [Int _]); Value.Str _x; Value.Str _lvl_str ], [ _; _; _ ]) ->
     raise (NSUException.Except "Level is not a literal")
   | ( "upgStruct"
-    , [ Val.Loc loc; Val.Str lvl_str ]
+    , [ App (`Op "loc", [Int loc]); Value.Str lvl_str ]
     , [ e_o; { it = Expr.Val (Str lvl_str'); _ } ] )
     when lvl_str = lvl_str' ->
     Some (UpgStructLab (loc, e_o, parse_sl lvl_str))
-  | ("upgStruct", [ Val.Loc _loc; Val.Str _lvl_str ], [ _e_o; _ ]) ->
+  | ("upgStruct", [ App (`Op "loc", [Int _loc]); Value.Str _lvl_str ], [ _e_o; _ ]) ->
     raise (NSUException.Except "Level is not a literal")
   | ( "upgObject"
-    , [ Val.Loc loc; Val.Str lvl_str ]
+    , [ App (`Op "loc", [Int loc]); Value.Str lvl_str ]
     , [ e_o; { it = Expr.Val (Str lvl_str'); _ } ] )
     when lvl_str = lvl_str' ->
     Some (UpgObjectLab (loc, e_o, parse_sl lvl_str))
-  | ("upgObject", [ Val.Loc _loc; Val.Str _lvl_str ], [ _e_o; _ ]) ->
+  | ("upgObject", [ App (`Op "loc", [Int _loc]); Value.Str _lvl_str ], [ _e_o; _ ]) ->
     raise (NSUException.Except "Level is not a literal ")
-  | ("setTop", [ Val.Str str ], [ { it = Expr.Val (Str str'); _ } ])
+  | ("setTop", [ Value.Str str ], [ { it = Expr.Val (Str str'); _ } ])
     when str = str' ->
     Some (SetTopLab str)
-  | ("setTop", [ Val.Str _str ], [ _ ]) ->
+  | ("setTop", [ Value.Str _str ], [ _ ]) ->
     raise (NSUException.Except "Level is not a string")
   | ( "allowFlow"
-    , [ Val.Str str1; Val.Str str2 ]
+    , [ Value.Str str1; Value.Str str2 ]
     , [ { it = Expr.Val (Str str1'); _ }; { it = Expr.Val (Str str2'); _ } ] )
     when str1 = str1' && str2 = str2' ->
     Some (AllowFlowLab (str1, str2))

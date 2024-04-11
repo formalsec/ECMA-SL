@@ -3,6 +3,7 @@
 (* ================================= *)
 
 %{
+  open Smtml
   open EslSyntax
   open EslSyntax.Source
 
@@ -193,7 +194,7 @@ let stmt_target :=
   | PRINT; e = expr_target;
     { EStmt.Print e @> at $sloc }
   | RETURN;
-    { EStmt.Return (EExpr.Val Val.Void @> at $sloc) @> at $sloc }
+    { EStmt.Return (EExpr.Val (Value.App (`Op "void", [])) @> at $sloc) @> at $sloc }
   | RETURN; e = expr_target;
     { EStmt.Return e @> at $sloc }
   | x = id_target; t = option(typing_target); DEFEQ; e = expr_target;
@@ -277,7 +278,7 @@ let pattern_binding_target :=
 let pattern_value_target :=
   | x = id_target;        { EPat.PatVar x.it @> at $sloc }
   | v = val_target;       { EPat.PatVal v @> at $sloc }
-  | LBRACK; RBRACK;       { EPat.PatVal (Val.List []) @> at $sloc }
+  | LBRACK; RBRACK;       { EPat.PatVal (Value.List []) @> at $sloc }
   | NONE;                 { EPat.PatNone @> at $sloc }
 
 (* ==================== Expressions ==================== *)
@@ -308,7 +309,7 @@ let expr_target :=
   | ~ = nopt_target;
     <>
   | fn = id_target; LPAREN; es = separated_list(COMMA, expr_target); RPAREN; ferr = catch_target?;
-    { EExpr.Call (EExpr.Val (Val.Str fn.it) @> fn.at, es, ferr) @> at $sloc }
+    { EExpr.Call (EExpr.Val (Value.Str fn.it) @> fn.at, es, ferr) @> at $sloc }
   | LBRACE; fe = expr_target; RBRACE; LPAREN; es = separated_list(COMMA, expr_target); RPAREN; ferr = catch_target?;
     { EExpr.Call (fe, es, ferr) @> at $sloc }
   | EXTERN; fn = id_target; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
@@ -335,7 +336,7 @@ let field_init_target :=
   | ~ = str_id_target; COLON; ~ = expr_target; <>
 
 let lookup_target :=
-  | PERIOD; fn = id_target;                       { EExpr.Val (Val.Str fn.it) @> at $sloc }
+  | PERIOD; fn = id_target;                       { EExpr.Val (Value.Str fn.it) @> at $sloc }
   | LBRACK; fe = expr_target; RBRACK;             { fe }
 
 (* ==================== Values ==================== *)
@@ -349,26 +350,26 @@ let str_id_target := s = STRING;  { (s @> at $sloc) }
 let times_id_target := TIMES;     { ("*" @> at $sloc) }
 
 let val_target :=
-  | NULL;               { Val.Null }
-  | i = INT;            < Val.Int >
-  | f = FLOAT;          < Val.Flt >
-  | s = STRING;         < Val.Str >
-  | b = BOOLEAN;        < Val.Bool >
-  | s = SYMBOL;         < Val.Symbol >
-  | l = LOC;            < Val.Loc >
-  | t = dtype_target;   < Val.Type >
+  | NULL;                { Value.App (`Op "null", []) }
+  | i = INT;             < Value.Int >
+  | f = FLOAT;           < Value.Real >
+  | s = STRING;          < Value.Str >
+  | b = BOOLEAN;         { if b then Value.True else Value.False }
+  | s = SYMBOL;          { Value.App (`Op "symbol", [Value.Str s])}
+  | l = LOC;             { Value.App (`Op "loc", [Value.Int l])}
+  | t = dtype_target;    { Value.App (`Op t, []) }
 
 let dtype_target :=
-  | DTYPE_NULL;         { Type.NullType }
-  | DTYPE_INT;          { Type.IntType }
-  | DTYPE_FLT;          { Type.FltType }
-  | DTYPE_STR;          { Type.StrType }
-  | DTYPE_BOOL;         { Type.BoolType }
-  | DTYPE_SYMBOL;       { Type.SymbolType }
-  | DTYPE_LOC;          { Type.LocType }
-  | DTYPE_LIST;         { Type.ListType }
-  | DTYPE_TUPLE;        { Type.TupleType }
-  | DTYPE_CURRY;        { Type.CurryType }
+  | DTYPE_NULL;          { "NullType" }
+  | DTYPE_INT;           { "IntType" }
+  | DTYPE_FLT;           { "RealType" }
+  | DTYPE_STR;           { "StrType" }
+  | DTYPE_BOOL;          { "BoolType" }
+  | DTYPE_SYMBOL;        { "SymbolType" }
+  | DTYPE_LOC;           { "LocType" }
+  | DTYPE_LIST;          { "ListType" }
+  | DTYPE_TUPLE;         { "TupleType" }
+  | DTYPE_CURRY;         { "CurryType" }
 
 (* ==================== Operators ==================== *)
 

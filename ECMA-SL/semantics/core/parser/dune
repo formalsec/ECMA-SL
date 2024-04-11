@@ -1,7 +1,7 @@
 (ocamllex
  (modules lexer))
 
-(menhir
- (modules op_parser parser)
- (merge_into parser)
- (flags --table --explain))
+ (menhir
+  (modules op_parser parser)
+  (merge_into parser)
+  (flags --table --explain))

@@ -1,4 +1,4 @@
-open Val
+open Smtml
 
 type t =
   { production_number : string
@@ -18,7 +18,7 @@ let get_production_number (meta : t) : string = meta.production_number
 let get_production_name (meta : t) : string option = meta.production_name
 let get_meta_params (meta : t) : (string * string) list = meta.meta_params
 
-let build_pat_metadata (metadata : Val.t list)
+let build_pat_metadata (metadata : Value.t list)
   (params_alternatives : (string * string) list) : t =
   let production_number =
     match List.nth_opt metadata 0 with
@@ -59,7 +59,7 @@ let build_pat_metadata (metadata : Val.t list)
   let production_name =
     match List.nth_opt metadata 4 with
     | None -> Some ""
-    | Some Null -> None
+    | Some App (`Op "null", []) -> None
     | Some (Str s) -> Some s
     | _ ->
       invalid_arg

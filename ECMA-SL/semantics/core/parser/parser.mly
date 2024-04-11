@@ -3,6 +3,7 @@
 (* ================================= *)
 
 %{
+  open Smtml
   open EslSyntax
   open EslSyntax.Source
 
@@ -123,7 +124,7 @@ let stmt_target :=
   | PRINT; e = expr_target;
     { Stmt.Print e @> at $sloc }
   | RETURN;
-    { Stmt.Return (Expr.Val Val.Void @> at $sloc) @> at $sloc }
+    { Stmt.Return (Expr.Val (Value.App (`Op "void", [])) @> at $sloc) @> at $sloc }
   | RETURN; e = expr_target;
     { Stmt.Return e @> at $sloc }
   | x = id_target; DEFEQ; e = expr_target;
@@ -161,7 +162,7 @@ let stmt_target :=
     { Stmt.Assert e @> at $sloc }
 
 let lookup_target :=
-  | PERIOD; fn = id_target;             { Expr.Val (Val.Str fn.it) @> at $sloc }
+  | PERIOD; fn = id_target;             { Expr.Val (Value.Str fn.it) @> at $sloc }
   | LBRACK; fe = expr_target; RBRACK;   { fe }
 
 let switch_case_target :=
@@ -207,23 +208,23 @@ let nopt_target :=
 let id_target := x = ID; { (x @> at $sloc) }
 
 let val_target :=
-  | NULL;                { Val.Null }
-  | i = INT;             < Val.Int >
-  | f = FLOAT;           < Val.Flt >
-  | s = STRING;          < Val.Str >
-  | b = BOOLEAN;         < Val.Bool >
-  | s = SYMBOL;          < Val.Symbol >
-  | l = LOC;             < Val.Loc >
-  | t = dtype_target;    < Val.Type >
+  | NULL;                { Value.App (`Op "null", []) }
+  | i = INT;             < Value.Int >
+  | f = FLOAT;           < Value.Real >
+  | s = STRING;          < Value.Str >
+  | b = BOOLEAN;         { if b then Value.True else Value.False }
+  | s = SYMBOL;          { Value.App (`Op "symbol", [Value.Str s])}
+  | l = LOC;             { Value.App (`Op "loc", [Value.Int l])}
+  | t = dtype_target;    { Value.App (`Op t, []) }
 
 let dtype_target :=
-  | DTYPE_NULL;          { Type.NullType }
-  | DTYPE_INT;           { Type.IntType }
-  | DTYPE_FLT;           { Type.FltType }
-  | DTYPE_STR;           { Type.StrType }
-  | DTYPE_BOOL;          { Type.BoolType }
-  | DTYPE_SYMBOL;        { Type.SymbolType }
-  | DTYPE_LOC;           { Type.LocType }
-  | DTYPE_LIST;          { Type.ListType }
-  | DTYPE_TUPLE;         { Type.TupleType }
-  | DTYPE_CURRY;         { Type.CurryType }
+  | DTYPE_NULL;          { "NullType" }
+  | DTYPE_INT;           { "IntType" }
+  | DTYPE_FLT;           { "RealType" }
+  | DTYPE_STR;           { "StrType" }
+  | DTYPE_BOOL;          { "BoolType" }
+  | DTYPE_SYMBOL;        { "SymbolType" }
+  | DTYPE_LOC;           { "LocType" }
+  | DTYPE_LIST;          { "ListType" }
+  | DTYPE_TUPLE;         { "TupleType" }
+  | DTYPE_CURRY;         { "CurryType" }
