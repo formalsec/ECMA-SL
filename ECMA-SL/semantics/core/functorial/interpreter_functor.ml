@@ -76,7 +76,7 @@ module Make (P : Interpreter_functor_intf.P) :
     (*     Object.str (Option.value_exn o) Expr.str *)
     (*   | _ -> Expr.str e' *)
     (* in *)
-    (* Log.stdout "print:%s\npc:%s\nheap id:%d\n" s (Encoding.Expression.string_of_pc pc) (Memory.get_id heap); *)
+    (* Log.stdout "print:%s\npc:%s\nheap id:%d\n" s (Smtml.Expression.string_of_pc pc) (Memory.get_id heap); *)
     eval_expr locals e |> Memory.pp_val heap
 
   let exec_func state func args ret_var =

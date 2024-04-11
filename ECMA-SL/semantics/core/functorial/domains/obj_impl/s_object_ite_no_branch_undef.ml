@@ -2,7 +2,7 @@ open Core
 
 type vt = Expr.t
 type pct = Expr.t
-type encoded_pct = Encoding.Expression.t
+type encoded_pct = Smtml.Expression.t
 
 let counter = ref 0
 

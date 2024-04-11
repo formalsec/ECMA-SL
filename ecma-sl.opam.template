@@ -1,0 +1,4 @@
+
+pin-depends: [
+  [ "smtml.dev" "git+https://github.com/formalsec/smtml#extend_ops"]
+]

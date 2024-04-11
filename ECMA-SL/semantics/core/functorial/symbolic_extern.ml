@@ -442,9 +442,9 @@ module Make () = struct
           let e' = Translator.translate e in
           let pc = Thread.pc thread |> PC.to_list in
           let solver = Thread.solver thread in
-          assert (Solver.check solver (e' :: pc));
+          assert (`Sat = Solver.check solver (e' :: pc));
           let v = Solver.get_value solver e' in
-          Ok (Translator.expr_of_value v.node.e) )
+          Ok (Translator.expr_of_value (Smtml.Expr.view v)) )
     in
     let optimize target opt e pc =
       Optimizer.push opt;

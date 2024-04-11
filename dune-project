@@ -37,7 +37,7 @@
   menhirLib
   yojson
   conf-npm
-  (encoding (>= 0.0.4))
+  (smtml (>= 0.0.4))
   ppx_import
   ppx_deriving
   (ppx_inline_test :with-test)
