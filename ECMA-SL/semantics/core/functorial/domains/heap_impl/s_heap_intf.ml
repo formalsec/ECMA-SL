@@ -1,5 +1,5 @@
 module type SymbolicHeap = sig
-  type encoded_pct = Encoding.Expression.t
+  type encoded_pct = Smtml.Expression.t
   type obj
   type t
 

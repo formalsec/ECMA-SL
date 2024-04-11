@@ -1,7 +1,7 @@
 open Core
 module Object = S_object_list_undef
 
-type encoded_pct = Encoding.Expression.t
+type encoded_pct = Smtml.Expression.t
 type obj = Object.t
 
 type t =
