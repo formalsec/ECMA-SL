@@ -51,7 +51,7 @@ type unopt =
 type binopt =
   (* Arithmetic operators *)
   | Plus
-  | Minus 
+  | Minus
   | Times
   | Div
   | Modulo
