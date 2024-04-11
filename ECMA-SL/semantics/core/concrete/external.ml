@@ -7,8 +7,8 @@ type heap = Value.t Heap.t
 
 let eval_build_ast_func = Base.make_name_generator "eval_func_"
 
-let parseJS (_prog : Prog.t) (_code : string) : Value.t =assert false
-  (* TODO:x let input = Filename.temp_file "ecmasl" "eval_func.js" in
+let parseJS (prog : Prog.t) (code : string) : Value.t =
+  let input = Filename.temp_file "ecmasl" "eval_func.js" in
   let output = Filename.temp_file "ecmasl" "eval_func.cesl" in
   let eval_func_id = eval_build_ast_func () in
   Io.write_file input code;
@@ -20,8 +20,8 @@ let parseJS (_prog : Prog.t) (_code : string) : Value.t =assert false
       let ast_func = Io.read_file output in
       let eval_func = Parsing.parse_func ast_func in
       Hashtbl.replace (Prog.funcs prog) eval_func_id eval_func;
-      Val.Str eval_func_id
-    with _ -> Log.fail "err in ParseJS" ) *)
+      Value.Str eval_func_id
+    with _ -> Log.fail "err in ParseJS" )
 
 module Impl = struct
   let bad_arg_err (_arg : int) (_op_lbl : string) (_types : string)
@@ -588,11 +588,11 @@ end
 
 include Impl
 
-let execute (_prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
+let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   (fn : Id.t') (vs : Value.t list) : Value.t =
   match (fn, vs) with
   | ("is_symbolic", _) -> Value.False
-  | ("parseJS", [ Value.Str _code ]) -> (* TODO:x parseJS prog code *) assert false
+  | ("parseJS", [ Value.Str code ]) -> parseJS prog code
   (* int *)
   | ("int_to_four_hex_external", [ v ]) -> int_to_four_hex v
   | ("octal_to_decimal_external", [ v ]) -> octal_to_decimal v
@@ -657,6 +657,5 @@ let execute (_prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("parse_string_external", [ v ]) -> parse_string v
   | ("parse_date_external", [ v ]) -> parse_date v
   | _ ->
-    (* TODO:x Log.warn "UNKNOWN %s external function" fn;
-    Value.Symbol "undefined" *)
-    failwith "UNKNOWN external function"
+    Log.warn "UNKNOWN %s external function" fn;
+    Value.App (`Op "symbol", [Str "undefined"])
