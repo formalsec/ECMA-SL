@@ -105,8 +105,7 @@ module M (Instrument : Instrument.M) = struct
       let vs = List.map (eval_expr state) es in
       match fv with
       | Str fn -> Value.App (`Op fn,vs)
-      | _ -> (* Runtime_error.(throw ~src:(ErrSrc.at fe) (BadExpr ("curry", fv))) ) *) 
-      failwith "interpreter: curry not implemented")
+      | _ -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadExpr ("curry", fv))) ) 
     | Symbolic (t, _) -> (
       (* TODO:x *)
       Random.self_init ();
@@ -125,15 +124,13 @@ module M (Instrument : Instrument.M) = struct
   let eval_str (state : state) (e : Expr.t) : string =
     match eval_expr state e with
     | Str s -> s
-    | _  -> (* TODO:x Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("string", v))) *) 
-    failwith "Interpreter.eval_string: not implemented"
+    | _ as v  -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("string", v))) 
 
   let eval_bool (state : state) (e : Expr.t) : bool =
     match eval_expr state e with
     | Value.True -> true
     | Value.False -> false
-    | _ -> (* TODO:x Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("boolean", v))) *)
-    failwith "Interpreter.eval_boolean: bad value - boolean"
+    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("boolean", v)))
 
   let eval_loc (state : state) (e : Expr.t) : Loc.t =
     match eval_expr state e with
@@ -149,8 +146,7 @@ module M (Instrument : Instrument.M) = struct
     match eval_expr state fe with
     | Value.Str fn -> (fn, [])
     | Value.App (`Op fn, fvs) -> (fn, fvs)
-    | _ -> (* Runtime_error.(throw ~src:(ErrSrc.at fe) (BadFuncId v)) *)
-    failwith "Interpreter.eval_func_expr: bad function id"
+    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadFuncId v))
 
   let rec heapval_pp (depth : int option) (visited : (Loc.t, unit) Hashtbl.t)
     (heap : heap) (ppf : Fmt.t) (v : Value.t) : unit =
