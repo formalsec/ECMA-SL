@@ -22,7 +22,7 @@ and t' =
   | FieldDelete of Expr.t * Expr.t
   | If of Expr.t * t * t option
   | While of Expr.t * t
-  | Switch of Expr.t * (Val.t, t) Hashtbl.t * t option
+  | Switch of Expr.t * (Smtml.Value.t, t) Hashtbl.t * t option
   | Fail of Expr.t
   | Assert of Expr.t
 
@@ -66,7 +66,7 @@ let rec pp (ppf : Fmt.t) (s : t) : unit =
     format ppf "if (%a) %a%a" Expr.pp e pp s1 (pp_opt pp_else) s2
   | While (e, s') -> format ppf "while (%a) %a" Expr.pp e pp s'
   | Switch (e, css, dflt) ->
-    let pp_case ppf (v, s) = format ppf "\ncase %a: %a" Val.pp v pp s in
+    let pp_case ppf (v, s) = format ppf "\ncase %a: %a" Smtml.Value.pp v pp s in
     let pp_default ppf s = format ppf "\nsdefault: %a" pp s in
     format ppf "switch (%a) {%a%a\n}" Expr.pp e (pp_hashtbl !>"" pp_case) css
       (pp_opt pp_default) dflt

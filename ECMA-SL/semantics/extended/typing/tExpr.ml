@@ -1,3 +1,4 @@
+open Smtml
 open EslBase
 open EslSyntax
 open EslSyntax.Source
@@ -25,23 +26,24 @@ and type_expr' (tctx : TCtx.t) (e : EExpr.t) : EType.t' =
   | Curry _ -> AnyType (* TODO: curry expressions *)
   | Symbolic _ -> AnyType (* TODO: symbolic expression *)
 
-and type_val (v : Val.t) : EType.t' =
+and type_val (v : Value.t) : EType.t' =
   match v with
-  | Null -> NullType
-  | Void -> VoidType
+  | App (`Op "null", []) -> NullType
+  | App (`Op "void", []) -> VoidType
   | Int i -> LiteralType (LitWeak, IntegerLit i)
-  | Flt f -> LiteralType (LitWeak, FloatLit f)
+  | Real f -> LiteralType (LitWeak, FloatLit f)
   | Str s -> LiteralType (LitWeak, StringLit s)
-  | Bool b -> LiteralType (LitWeak, BooleanLit b)
-  | Symbol "undefined" -> UndefinedType
-  | Symbol s -> LiteralType (LitWeak, SymbolLit s)
-  | Loc _ -> Log.fail "loc val"
-  | Arr _ -> Log.fail "array val"
+  | True -> LiteralType (LitWeak, BooleanLit true)
+  | False -> LiteralType (LitWeak, BooleanLit false)
+  | App (`Op "symbol", [Str "undefined"]) -> UndefinedType
+  | App (`Op "symbol", [Str s]) -> LiteralType (LitWeak, SymbolLit s)
+  | App (`Op "loc", [Int _]) -> Log.fail "loc val"
+  (* TODO:x | Arr _ -> Log.fail "array val" *)
   | List _ -> Log.fail "list val"
-  | Tuple _ -> Log.fail "tuple val"
-  | Byte _ -> Log.fail "byte val"
-  | Type _ -> AnyType (* TODO *)
-  | Curry _ -> AnyType (* TODO *)
+  (* | Type _ -> AnyType (* TODO *) *)
+  (* | Curry _ -> AnyType (* TODO *) *)
+  | _ -> AnyType
+
 
 and type_var (tctx : TCtx.t) (x : Id.t) : EType.t' =
   match TCtx.tenv_find tctx x with

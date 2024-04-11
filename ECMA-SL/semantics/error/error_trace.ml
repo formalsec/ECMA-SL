@@ -1,7 +1,7 @@
 open EslBase
-open EslSyntax
+open Smtml
 
-type t = Val.t Store.t Call_stack.t
+type t = Value.t Store.t Call_stack.t
 
 module RtTraceFmt (ErrorType : Error_type.ERROR_TYPE) = struct
   let pp (ppf : Fmt.t) (trace : t) : unit =

@@ -1,3 +1,4 @@
+open Smtml
 open EslBase
 open EslSyntax
 open EslSyntax.Source
@@ -22,8 +23,8 @@ let real ?(at : region option) (ss : c_stmt) : c_stmt =
 
 module Builder = struct
   let var_id = Base.make_name_generator "__v"
-  let etrue (x : 'a phrase) : Expr.t = Expr.Val (Val.Bool true) @?> x.at
-  let efalse (x : 'a phrase) : Expr.t = Expr.Val (Val.Bool false) @?> x.at
+  let etrue (x : 'a phrase) : Expr.t = Expr.Val (Value.True) @?> x.at
+  let efalse (x : 'a phrase) : Expr.t = Expr.Val (Value.False) @?> x.at
   let global (x : 'a phrase) : Expr.t = Expr.Var Const.esl_globals_obj @?> x.at
   let var (at : region) : Expr.t = Expr.Var (var_id ()) @> at
 
@@ -45,7 +46,7 @@ module Builder = struct
     | None -> throw_checker at res [ sreturn ]
     | Some ferr' ->
       let res' = res.it @?> ferr'.at in
-      let ferr'' = Expr.Val (Val.Str ferr'.it) @?> ferr'.at in
+      let ferr'' = Expr.Val (Value.Str ferr'.it) @?> ferr'.at in
       let err = Expr.(UnOpt (TupleSecond, res')) @?> ferr'.at in
       let args = [ global ferr'; err ] in
       let sferr = Stmt.AssignCall (?@res', ferr'', args) @?> ferr'.at in
@@ -80,11 +81,11 @@ end
 module MatchWithOptimizer = struct
   type case = EPat.t * EStmt.t
 
-  let pbval_opt (pat : EPat.t) (id : Id.t) : Val.t option =
+  let pbval_opt (pat : EPat.t) (id : Id.t) : Value.t option =
     let get_pbv' = function { it = EPat.PatVal v; _ } -> Some v | _ -> None in
     Option.bind (EPat.patval_opt pat id) get_pbv'
 
-  let pbval_remove (pat : EPat.t) (id : Id.t) : EPat.t * Val.t =
+  let pbval_remove (pat : EPat.t) (id : Id.t) : EPat.t * Value.t =
     let v = Option.get (pbval_opt pat id) in
     let pat' = EPat.patval_remove pat id in
     (pat', v)
@@ -129,7 +130,7 @@ module MatchWithOptimizer = struct
       | css' -> css'
     in
     let hashed_css = Hashtbl.create !Base.default_hashtbl_sz in
-    let dsc_fld = Expr.Val (Val.Str dsc.it) @?> dsc.at in
+    let dsc_fld = Expr.Val (Value.Str dsc.it) @?> dsc.at in
     let dsc_lookup = Builder.var at in
     let css' = hash_cases hashed_css css in
     [ Stmt.FieldLookup (?@dsc_lookup, e_e, dsc_fld) @?> at
@@ -181,15 +182,15 @@ let rec compile_expr (s_at : region) (e : EExpr.t) : c_expr =
 and compile_gvar (s_at : region) (e : EExpr.t) (x : Id.t') : c_expr =
   let res = Builder.var e.at in
   let global = Builder.global e in
-  let entry = Expr.Val (Val.Str x) @?> e.at in
+  let entry = Expr.Val (Value.Str x) @?> e.at in
   let sres = Stmt.FieldLookup (?@res, global, entry) @?> s_at in
   ([ sres ], res)
 
 and compile_const (e_at : region) (c : Operator.const) : c_expr =
   match c with
-  | MAX_VALUE -> ([], Expr.Val (Val.Flt Float.max_float) @> e_at)
-  | MIN_VALUE -> ([], Expr.Val (Val.Flt 5e-324) @> e_at)
-  | PI -> ([], Expr.Val (Val.Flt Float.pi) @> e_at)
+  | MAX_VALUE -> ([], Expr.Val (Value.Real Float.max_float) @> e_at)
+  | MIN_VALUE -> ([], Expr.Val (Value.Real 5e-324) @> e_at)
+  | PI -> ([], Expr.Val (Value.Real Float.pi) @> e_at)
 
 and compile_unopt (s_at : region) (e_at : region) (op : Operator.unopt)
   (e : EExpr.t) : c_expr =
@@ -254,7 +255,7 @@ and compile_newobj (s_at : region) (e_at : region) (flds : (Id.t * EExpr.t) list
   let build_fld res (fn, fe) =
     let (fe_s, fe_e) = compile_expr s_at fe in
     let oe = res.it @?> fn.at in
-    let fe = Expr.Val (Val.Str fn.it) @?> fn.at in
+    let fe = Expr.Val (Value.Str fn.it) @?> fn.at in
     let sfassign = Stmt.FieldAssign (oe, fe, fe_e) @?> s_at in
     fe_s @ [ sfassign ]
   in
@@ -322,7 +323,7 @@ and compile_print (at : region) (e : EExpr.t) : c_stmt =
   e_s @ [ Stmt.Print e_e @?> at ]
 
 and compile_return (at : region) (e : EExpr.t) : c_stmt =
-  let e' = if EExpr.isvoid e then EExpr.Val Val.Null @?> at else e in
+  let e' = if EExpr.isvoid e then EExpr.Val (Value.App (`Op "null", []))@?> at else e in
   let (e_s, e_e) = compile_expr at e' in
   let err = Builder.efalse e' in
   let ret = Expr.NOpt (TupleExpr, [ err; e_e ]) @?> e'.at in
@@ -335,7 +336,7 @@ and compile_assign (at : region) (x : Id.t) (e : EExpr.t) : c_stmt =
 and compile_gassign (at : region) (x : Id.t) (e : EExpr.t) : c_stmt =
   let (e_s, e_e) = compile_expr at e in
   let global = Builder.global e in
-  let entry = Expr.Val (Val.Str x.it) @?> x.at in
+  let entry = Expr.Val (Value.Str x.it) @?> x.at in
   e_s @ [ Stmt.FieldAssign (global, entry, e_e) @?> at ]
 
 and compile_fieldassign (at : region) (oe : EExpr.t) (fe : EExpr.t) (e : EExpr.t)
@@ -374,8 +375,8 @@ and compile_foreach (at : region) (x : Id.t) (e : EExpr.t) (s : EStmt.t) :
   let (e_s, e_e) = compile_expr at e in
   let s_s = compile_stmt s in
   let e_e' = e_e.it @?> e_e.at in
-  let inc = Expr.Val (Val.Int 1) @?> at in
-  let sinit = Stmt.Assign (?@i, Expr.Val (Int 0) @?> at) @?> at in
+  let inc = Expr.Val (Value.Int 1) @?> at in
+  let sinit = Stmt.Assign (?@i, Expr.Val (Value.Int 0) @?> at) @?> at in
   let slen = Stmt.Assign (?@len, Expr.UnOpt (ListLen, e_e') @?> at) @?> at in
   let snth = Stmt.Assign (x, Expr.BinOpt (ListNth, e_e, i) @?> at) @?> at in
   let sinc = Stmt.Assign (?@i, Expr.BinOpt (Plus, i, inc) @?> at) @?> at in
@@ -384,7 +385,7 @@ and compile_foreach (at : region) (x : Id.t) (e : EExpr.t) (s : EStmt.t) :
 
 and compile_repeatuntil (at : region) (s : EStmt.t)
   (until : (EExpr.t * region) option) : c_stmt =
-  let default = (EExpr.Val (Val.Bool false) @?> at, { at with real = false }) in
+  let default = (EExpr.Val (Value.False) @?> at, { at with real = false }) in
   let (e, at') = Option.value ~default until in
   let s_s = compile_stmt s in
   let (e_s, e_e) = compile_expr at' e in
@@ -413,7 +414,7 @@ and compile_patv (e_e : Expr.t) (pbn : Expr.t) (pbv : EPat.pv) (inobj : Expr.t)
   match pbv.it with
   | PatVar x ->
     ([], [], [ Stmt.FieldLookup (x @?> pbv.at, e_e, pbn) @?> pbn.at ])
-  | PatVal v ->
+  | PatVal v -> 
     let fval = Builder.var pbn.at in
     let feq = Builder.var pbv.at in
     let fval_s = Stmt.FieldLookup (?@fval, e_e, pbn) @?> pbn.at in
@@ -428,7 +429,7 @@ and compile_patv (e_e : Expr.t) (pbn : Expr.t) (pbv : EPat.pv) (inobj : Expr.t)
 and compile_pat (e_e : Expr.t) (pat : EPat.t) : c_stmt * Expr.t * c_stmt =
   let guard guards = Expr.NOpt (NAryLogicalAnd, guards) @> pat.at in
   let compile_pbs (pre_s, guards, pat_s) (pbn, pbv) =
-    let pbn' = Expr.Val (Val.Str pbn.it) @?> pbn.at in
+    let pbn' = Expr.Val (Value.Str pbn.it) @?> pbn.at in
     let pbv' = pbv.it @?> pbv.at in
     let e_e' = e_e.it @?> e_e.at in
     let inobj = Builder.var pbn'.at in
@@ -473,7 +474,7 @@ and compile_matchwith (at : region) (e : EExpr.t) (dsc : Id.t option)
 and compile_lambdacall (at : region) (x : Id.t) (id : string)
   (ctxvars : Id.t list) : c_stmt =
   let ctxvars' = List.map (fun x -> Expr.Var x.it @> x.at) ctxvars in
-  let curry = Expr.Curry (Expr.Val (Val.Str id) @?> at, ctxvars') @> at in
+  let curry = Expr.Curry (Expr.Val (Value.Str id) @?> at, ctxvars') @> at in
   [ Stmt.Assign (x, curry) @?> at ]
 
 and compile_throw (at : region) (e : EExpr.t) : c_stmt =

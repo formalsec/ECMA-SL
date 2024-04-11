@@ -28,6 +28,6 @@
   ePat_metadata
   eMacro
   eType)
- (libraries eslBase)
+ (libraries eslBase smtml)
  (instrumentation
   (backend bisect_ppx)))

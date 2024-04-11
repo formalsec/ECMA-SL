@@ -1,3 +1,4 @@
+open Smtml
 open EslBase
 open EslSyntax
 open EslBase.Fmt
@@ -25,9 +26,9 @@ module Truncate = struct
     pp_str ppf (if trunc then text' ^ extra else text')
 end
 
-type obj = Val.t Object.t
-type heap = Val.t Heap.t
-type heapval = heap * Val.t
+type obj = Value.t Object.t
+type heap = Value.t Heap.t
+type heapval = heap * Value.t
 
 let indent_pp (ppf : Fmt.t) (lvl : int) : unit =
   let indent = Array.make lvl "| " |> Array.to_list |> String.concat "" in
@@ -43,19 +44,19 @@ let cond_region_pp (lvl : int) (ppf : Fmt.t) (at : Source.region) : unit =
   let pp ppf () = format ppf "\n%a%a" indent_pp lvl (region_pp limit) at in
   if !Config.trace_loc then pp ppf ()
 
-let rec heapval_pp ?(depth : int = 0) (heap : heap) (ppf : Fmt.t) (v : Val.t) :
+let rec heapval_pp ?(depth : int = 0) (heap : heap) (ppf : Fmt.t) (v : Value.t) :
   unit =
   match v with
-  | Loc l when depth < Config.max_obj_depth -> (
+  | App (`Op "loc", [Int l]) when depth < Config.max_obj_depth -> (
     match Heap.get heap l with
     | Ok obj -> Object.pp (heapval_pp ~depth:(depth + 1) heap) ppf obj
     | _ -> pp_str ppf "{ ??? }" )
-  | _ -> Val.pp ppf v
+  | _ -> Value.pp ppf v
 
 let val_pp (limit : int) (ppf : Fmt.t) (v_str : string) : unit =
   (Font.pp_err [ Cyan ] (Truncate.pp limit pp_str)) ppf v_str
 
-let heapval (heap : heap) (v : Val.t) : string =
+let heapval (heap : heap) (v : Value.t) : string =
   asprintf "%a" (heapval_pp heap) v
 
 module CallFmt = struct
@@ -72,14 +73,14 @@ module CallFmt = struct
       (cond_region_pp (lvl + 1))
       s.at
 
-  let retval_format (v : Val.t) : string * Val.t =
+  let retval_format (v : Value.t) : string * Value.t =
     match v with
-    | Tuple [ Bool false; v' ] -> ("returned ", v')
-    | Tuple [ Bool true; err ] -> ("throwed ", err)
+    | Value.List  [ Value.False ; v' ] -> ("returned ", v')
+    | Value.List  [ Value.True ; err ] -> ("throwed ", err)
     | _ -> ("returned ", v)
 
   let pp_func_return (heap : heap) (ppf : Fmt.t)
-    ((lvl, f, s, v) : int * Func.t * Stmt.t * Val.t) : unit =
+    ((lvl, f, s, v) : int * Func.t * Stmt.t * Value.t) : unit =
     let (retval_header, v') = retval_format v in
     let (fn_str, fn_len) = Truncate.prepare Func.name' f in
     let (v_str, v_len) = Truncate.prepare (heapval heap) v' in
@@ -101,7 +102,7 @@ end
 module DefaultFmt (CodeFmt : CODE_FMT) = struct
   module CodeFmt = CodeFmt
 
-  let pp_expr (heap : heap) (ppf : Fmt.t) ((lvl, e, v) : int * Expr.t * Val.t) :
+  let pp_expr (heap : heap) (ppf : Fmt.t) ((lvl, e, v) : int * Expr.t * Value.t) :
     unit =
     let lvl' = lvl + 1 in
     let (e_str, e_len) = Truncate.prepare CodeFmt.expr_str e in

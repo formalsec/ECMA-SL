@@ -1,3 +1,4 @@
+open Smtml
 open EslSyntax
 
 type stmt_eval =
@@ -19,7 +20,7 @@ type stmt_eval =
   | FieldDeleteEval of Loc.t * string
   | IfEval of bool
   | WhileEval
-  | SwitchEval of Val.t
+  | SwitchEval of Value.t
   | FailEval
   | AssertEval of bool
   | AbortEval
@@ -39,7 +40,7 @@ module type M = sig
   val set_label : t -> sl label -> unit
   val update_label : t -> Stmt.t -> stmt_eval -> unit
   val eval_small_step : t -> unit
-  val interceptor : string -> Val.t list -> Expr.t list -> sl label option
+  val interceptor : string -> Value.t list -> Expr.t list -> sl label option
 end
 
 module Default : M = struct
@@ -58,7 +59,7 @@ module Default : M = struct
   let update_label (_ : t) (_ : Stmt.t) (_ : stmt_eval) : unit = ()
   let eval_small_step (_ : t) : unit = ()
 
-  let interceptor (_ : string) (_ : Val.t list) (_ : Expr.t list) :
+  let interceptor (_ : string) (_ : Value.t list) (_ : Expr.t list) :
     sl label option =
     None
 end

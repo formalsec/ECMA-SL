@@ -1,24 +1,27 @@
+open Smtml
 open EslBase
 open EslSyntax
 open EslSyntax.Source
 
 type entry =
   { main : string
-  ; static_heap : Val.t Heap.t option
+  ; static_heap : Value.t Heap.t option
   }
 
 let entry_default () : entry = { main = "main"; static_heap = None }
 
 type result =
-  { retval : Val.t
-  ; heap : Val.t Heap.t
+  { retval : Value.t
+  ; heap : Value.t Heap.t
   ; metrics : Yojson.Basic.t
   }
 
 module M (Instrument : Instrument.M) = struct
-  type obj = Val.t Object.t
-  type store = Val.t Store.t
-  type heap = Val.t Heap.t
+  module E = Smtml.Expr
+
+  type obj = Value.t Object.t
+  type store = Value.t Store.t
+  type heap = Value.t Heap.t
   type stack = store Call_stack.t
 
   type state =
@@ -29,8 +32,8 @@ module M (Instrument : Instrument.M) = struct
     }
 
   type return =
-    | Final of Val.t
-    | Error of Val.t
+    | Final of Value.t
+    | Error of Value.t
     | Intermediate of state * Stmt.t list
 
   module Config = struct
@@ -42,7 +45,7 @@ module M (Instrument : Instrument.M) = struct
   let set_global_var (store : store) (heap : heap) : unit =
     let open Compiler.Const in
     if Option.is_some (Heap.get_opt heap esl_globals_loc) then
-      Store.set store esl_globals_obj (Loc esl_globals_loc)
+      Store.set store esl_globals_obj (Int esl_globals_loc)
 
   let initial_state (fmain : Func.t) (s_heap : heap option)
     (inst : Instrument.t ref) : state =
@@ -52,7 +55,7 @@ module M (Instrument : Instrument.M) = struct
     set_global_var store heap;
     { store; heap; stack; inst }
 
-  let get_var (store : store) (x : string) (at : region) : Val.t =
+  let get_var (store : store) (x : string) (at : region) : Value.t =
     match Store.get_opt store x with
     | None -> Runtime_error.(throw ~src:(ErrSrc.region at) (UnknownVar x))
     | Some v -> v
@@ -67,49 +70,52 @@ module M (Instrument : Instrument.M) = struct
     | None -> Runtime_error.(throw ~src:(ErrSrc.region at) (UnknownFunc fn))
     | Some f -> f
 
-  let eval_operator (eval_op_fun : unit -> Val.t) (es : Expr.t list) : Val.t =
+  let eval_operator (eval_op_fun : unit -> Value.t) (es : Expr.t list) : Value.t =
     try eval_op_fun ()
     with Runtime_error.Error err ->
       let e = Runtime_error.(src err |> ErrSrc.index_to_el es) in
       Runtime_error.(set_src (ErrSrc.at e) err |> raise)
 
-  let rec eval_expr' (state : state) (e : Expr.t) : Val.t =
+
+  let rec eval_expr' (state : state) (e : Expr.t) : Value.t =
     match e.it with
     | Val v -> v
     | Var x -> get_var state.store x e.at
     | UnOpt (op, e') ->
       let v = eval_expr state e' in
-      let eval_op_fun () = Eval_operator.eval_unopt op v in
+      let eval_op_fun () = Eval_op.unop_semantics op v in
       eval_operator eval_op_fun [ e' ]
     | BinOpt (op, e1, e2) ->
       let v1 = eval_expr state e1 in
       let v2 = eval_expr state e2 in
-      let eval_op_fun () = Eval_operator.eval_binopt op v1 v2 in
+      let eval_op_fun () = Eval_op.binop_semantics op v1 v2 in
       eval_operator eval_op_fun [ e1; e2 ]
     | TriOpt (op, e1, e2, e3) ->
       let v1 = eval_expr state e1 in
       let v2 = eval_expr state e2 in
       let v3 = eval_expr state e3 in
-      let eval_op_fun () = Eval_operator.eval_triopt op v1 v2 v3 in
+      let eval_op_fun () = Eval_op.triop_semantics op v1 v2 v3 in
       eval_operator eval_op_fun [ e1; e2; e3 ]
     | NOpt (op, es) ->
       let vs = List.map (eval_expr state) es in
-      let eval_op_fun () = Eval_operator.eval_nopt op vs in
+      let eval_op_fun () = Eval_op.eval_nopt op vs in
       eval_operator eval_op_fun es
     | Curry (fe, es) -> (
       let fv = eval_expr state fe in
       let vs = List.map (eval_expr state) es in
       match fv with
-      | Str fn -> Val.Curry (fn, vs)
-      | _ -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadExpr ("curry", fv))) )
+      | Str fn -> Value.App (`Op fn,vs)
+      | _ -> (* Runtime_error.(throw ~src:(ErrSrc.at fe) (BadExpr ("curry", fv))) ) *) 
+      failwith "interpreter: curry not implemented")
     | Symbolic (t, _) -> (
+      (* TODO:x *)
       Random.self_init ();
       match t with
-      | Type.IntType -> Val.Int (Random.int 128)
-      | Type.FltType -> Val.Flt (Random.float 128.0)
+      | Type.IntType -> Value.Int (Random.int 128)
+      | Type.FltType -> Value.Real (Random.float 128.0)
       | _ -> Log.fail "not implemented: symbolic %a" Type.pp t )
 
-  and eval_expr (state : state) (e : Expr.t) : Val.t =
+  and eval_expr (state : state) (e : Expr.t) : Value.t =
     let v = eval_expr' state e in
     let lvl = Call_stack.level state.stack in
     Instrument.Profiler.count !(state.inst).pf `Expr;
@@ -119,16 +125,19 @@ module M (Instrument : Instrument.M) = struct
   let eval_str (state : state) (e : Expr.t) : string =
     match eval_expr state e with
     | Str s -> s
-    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("string", v)))
+    | _  -> (* TODO:x Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("string", v))) *) 
+    failwith "Interpreter.eval_string: not implemented"
 
   let eval_bool (state : state) (e : Expr.t) : bool =
     match eval_expr state e with
-    | Bool b -> b
-    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("boolean", v)))
+    | Value.True -> true
+    | Value.False -> false
+    | _ -> (* TODO:x Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("boolean", v))) *)
+    failwith "Interpreter.eval_boolean: bad value - boolean"
 
   let eval_loc (state : state) (e : Expr.t) : Loc.t =
     match eval_expr state e with
-    | Loc l -> l
+    | App (`Op "loc", [Int l]) -> l
     | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("location", v)))
 
   let eval_obj (state : state) (heap : heap) (e : Expr.t) : Loc.t * obj =
@@ -136,45 +145,46 @@ module M (Instrument : Instrument.M) = struct
     let obj = get_loc heap l in
     (l, obj)
 
-  let eval_func_expr (state : state) (fe : Expr.t) : string * Val.t list =
+  let eval_func_expr (state : state) (fe : Expr.t) : string * Value.t list =
     match eval_expr state fe with
-    | Val.Str fn -> (fn, [])
-    | Val.Curry (fn, fvs) -> (fn, fvs)
-    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadFuncId v))
+    | Value.Str fn -> (fn, [])
+    | Value.App (`Op fn, fvs) -> (fn, fvs)
+    | _ -> (* Runtime_error.(throw ~src:(ErrSrc.at fe) (BadFuncId v)) *)
+    failwith "Interpreter.eval_func_expr: bad function id"
 
   let rec heapval_pp (depth : int option) (visited : (Loc.t, unit) Hashtbl.t)
-    (heap : heap) (ppf : Fmt.t) (v : Val.t) : unit =
+    (heap : heap) (ppf : Fmt.t) (v : Value.t) : unit =
     let valid_depth = Option.fold ~none:true ~some:(fun d -> d > 0) depth in
     let visited_loc = Hashtbl.mem visited in
     let incr_depth = Option.map (fun d -> d - 1) in
     let heapval_pp' = heapval_pp (incr_depth depth) visited heap in
     match v with
-    | Loc l when (not valid_depth) || visited_loc l -> Fmt.format ppf "{...}"
-    | Arr _ when not valid_depth -> Fmt.format ppf "[|...|]"
+    | App (`Op "loc", [Int l]) when (not valid_depth) || visited_loc l -> Fmt.format ppf "{...}"
+    (* | Arr _ when not valid_depth -> Fmt.format ppf "[|...|]" *)
     | List _ when not valid_depth -> Fmt.format ppf "[...]"
-    | Tuple _ when not valid_depth -> Fmt.format ppf "(...)"
-    | Loc l ->
+    (* | Tuple _ when not valid_depth -> Fmt.format ppf "(...)" *)
+    | App (`Op "loc", [Int l]) ->
       Hashtbl.add visited l ();
       (Object.pp heapval_pp') ppf (get_loc heap l);
       Hashtbl.remove visited l
     | _ -> Val.pp_custom_inner heapval_pp' ppf v
 
-  let print_pp (heap : heap) (ppf : Fmt.t) (v : Val.t) : unit =
+  let print_pp (heap : heap) (ppf : Fmt.t) (v : Value.t) : unit =
     match v with
     | Str s -> Fmt.pp_str ppf s
     | _ ->
       let visited = Hashtbl.create !Base.default_hashtbl_sz in
       heapval_pp !Config.print_depth visited heap ppf v
 
-  let prepare_store_binds (pxs : string list) (vs : Val.t list) (at : region) :
-    (string * Val.t) list =
+  let prepare_store_binds (pxs : string list) (vs : Value.t list) (at : region) :
+    (string * Value.t) list =
     try List.combine pxs vs
     with Invalid_argument _ ->
       let (xpxs, nargs) = (List.length pxs, List.length vs) in
       Runtime_error.(throw ~src:(ErrSrc.region at) (BadNArgs (xpxs, nargs)))
 
   let prepare_call (stack : stack) (f : Func.t) (store : store)
-    (cont : Stmt.t list) (x : string) (vs : Val.t list) (at : region) :
+    (cont : Stmt.t list) (x : string) (vs : Value.t list) (at : region) :
     stack * store =
     let pxs = Func.params' f in
     let stack' = Call_stack.push stack f store cont x in
@@ -243,29 +253,29 @@ module M (Instrument : Instrument.M) = struct
     | AssignNewObj x ->
       let l = Loc.create () in
       Heap.set state.heap l (Object.create ());
-      Store.set state.store x.it (Val.Loc l);
+      Store.set state.store x.it (App (`Op "loc", [Int l]));
       Intermediate (state, cont) $$ AssignNewObjEval l
     | AssignObjToList (x, e) ->
-      let fld_to_tup_f (fn, fv) = Val.Tuple [ Str fn; fv ] in
+      let fld_to_tup_f (fn, fv) = Value.List [ Str fn; fv ] in
       let (_, obj) = eval_obj state state.heap e in
-      let v = Val.List (Object.fld_lst obj |> List.map fld_to_tup_f) in
+      let v = Value.List (Object.fld_lst obj |> List.map fld_to_tup_f) in
       Store.set state.store x.it v;
       Intermediate (state, cont) $$ AssignObjToListEval
     | AssignObjFields (x, e) ->
-      let fld_to_tup_f (fn, _) = Val.Str fn in
+      let fld_to_tup_f (fn, _) = Value.Str fn in
       let (_, obj) = eval_obj state state.heap e in
-      let v = Val.List (Object.fld_lst obj |> List.map fld_to_tup_f) in
+      let v = Value.List (Object.fld_lst obj |> List.map fld_to_tup_f) in
       Store.set state.store x.it v;
       Intermediate (state, cont) $$ AssignObjFieldsEval
     | AssignInObjCheck (x, fe, oe) ->
       let in_obj = function Some _ -> true | None -> false in
       let (loc, obj) = eval_obj state state.heap oe in
       let fn = eval_str state fe in
-      let v = Val.Bool (Object.get obj fn |> in_obj) in
+      let v = if (Object.get obj fn |> in_obj) then Value.True else Value.False in
       Store.set state.store x.it v;
       Intermediate (state, cont) $$ AssignInObjCheckEval (loc, fn)
     | FieldLookup (x, oe, fe) ->
-      let fld_val v = Option.value ~default:(Val.Symbol "undefined") v in
+      let fld_val v = Option.value ~default:(Value.App (`Op "symbol", [Str "undefined"])) v in
       let (l, obj) = eval_obj state state.heap oe in
       let fn = eval_str state fe in
       let v = Object.get obj fn |> fld_val in
@@ -315,7 +325,7 @@ module M (Instrument : Instrument.M) = struct
       if v then Intermediate (state, cont) $$ AssertEval true
       else
         let err = Fmt.str "Assert false: %a" Expr.pp e in
-        Error (Val.Str err) $$ AssertEval false
+        Error (Value.Str err) $$ AssertEval false
 
   let eval_small_step_safe (p : Prog.t) (state : state) (s : Stmt.t)
     (cont : Stmt.t list) : return =
@@ -345,21 +355,21 @@ module M (Instrument : Instrument.M) = struct
     let eval_expr state = eval_expr @@ state_conv state in
     Instrument.Debugger.set_interp_callbacks { heapval_pp; eval_expr }
 
-  let resolve_exitval (retval : Val.t) : Val.t =
+  let resolve_exitval (retval : Value.t) : Value.t =
     if not !Config.resolve_exitval then retval
     else
       match retval with
-      | Val.Tuple [ Val.Bool false; retval' ] -> retval'
-      | Val.Tuple [ Val.Bool true; err ] ->
-        Runtime_error.(throw (UncaughtExn (Val.str err)))
+      | Value.List [ Value.False; retval' ] -> retval'
+      | Value.List [ Value.True; err ] ->
+        Runtime_error.(throw (UncaughtExn (Value.to_string err)))
       | _ -> Runtime_error.(throw (UnexpectedExitVal retval))
 
-  let show_exitval (heap : heap) (retval : Val.t) : unit =
+  let show_exitval (heap : heap) (retval : Value.t) : unit =
     let visited = Hashtbl.create !Base.default_hashtbl_sz in
     let heapval_pp' = heapval_pp !Config.print_depth visited heap in
     if !Config.show_exitval then Log.esl "exit value: %a" heapval_pp' retval
 
-  let result (v : Val.t) (heap : heap) (inst : Instrument.t ref) : result =
+  let result (v : Value.t) (heap : heap) (inst : Instrument.t ref) : result =
     let metrics = Instrument.Profiler.json !inst.pf in
     let retval = resolve_exitval v in
     show_exitval heap retval;
@@ -375,7 +385,7 @@ module M (Instrument : Instrument.M) = struct
     Instrument.Profiler.stop !(state.inst).pf state.heap;
     match return with
     | Final v -> result v state.heap inst
-    | Error err -> Runtime_error.(throw (Failure (Val.str err)))
+    | Error err -> Runtime_error.(throw (Failure (Value.to_string err)))
     | _ -> Log.fail "unexpected intermediate state"
 
   let eval_prog (entry : entry) (p : Prog.t) : result =
