@@ -1,3 +1,4 @@
+open Smtml
 open EslBase
 open Source
 
@@ -53,13 +54,13 @@ and tfldstyle =
 let resolve_topt (t : t option) : t =
   match t with Some t' -> t' | None -> AnyType @> no_region
 
-let tliteral_to_val (lt : tliteral) : Val.t =
+let tliteral_to_val (lt : tliteral) : Value.t =
   match lt with
-  | IntegerLit i -> Val.Int i
-  | FloatLit f -> Val.Flt f
-  | StringLit s -> Val.Str s
-  | BooleanLit b -> Val.Bool b
-  | SymbolLit s -> Val.Symbol s
+  | IntegerLit i -> Value.Int i
+  | FloatLit f -> Value.Real f
+  | StringLit s -> Value.Str s
+  | BooleanLit b -> if b then Value.True else Value.False
+  | SymbolLit s -> Value.App (`Op "symbol", [Value.Str s])
 
 let tliteral_to_wide (lt : tliteral) : t' =
   match lt with
@@ -87,7 +88,7 @@ let rec equal (t1 : t) (t2 : t) : bool =
   | (BooleanType, BooleanType) -> true
   | (SymbolType, SymbolType) -> true
   | (LiteralType (_, lt1), LiteralType (_, lt2)) ->
-    Val.equal (tliteral_to_val lt1) (tliteral_to_val lt2)
+    Value.equal (tliteral_to_val lt1) (tliteral_to_val lt2)
   | (ObjectType tobj1, ObjectType tobj2) ->
     let tflds1 = Hashtbl.to_seq_values tobj1.flds in
     let tflds2 = Hashtbl.to_seq_values tobj2.flds in
@@ -121,7 +122,7 @@ let rec pp (ppf : Fmt.t) (t : t) : unit =
   | StringType -> pp_str ppf "string"
   | BooleanType -> pp_str ppf "boolean"
   | SymbolType -> pp_str ppf "symbol"
-  | LiteralType (_, tl) -> Val.pp ppf (tliteral_to_val tl)
+  | LiteralType (_, tl) -> Value.pp ppf (tliteral_to_val tl)
   | ObjectType { flds; smry; _ } when Hashtbl.length flds = 0 ->
     let pp_smry ppf (_, tsmry) = format ppf " *: %a " pp tsmry in
     format ppf "{%a}" (pp_opt pp_smry) smry

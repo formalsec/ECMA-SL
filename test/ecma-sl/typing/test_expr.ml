@@ -1,24 +1,25 @@
+open Smtml
 open Ecma_sl
 open Test
 
 (* ========== Value Expression ========== *)
 
-let%test "value_null" = TypeExpr.test ~@(EExpr.Val Val.Null) (Ok t_null)
+let%test "value_null" = TypeExpr.test ~@(EExpr.Val (Value.App (`Op "null", []))) (Ok t_null)
 
 let%test "value_integer" =
-  TypeExpr.test ~@(EExpr.Val (Val.Int 10)) (Ok (lt_integer 10))
+  TypeExpr.test ~@(EExpr.Val (Value.Int 10)) (Ok (lt_integer 10))
 
 let%test "value_float" =
-  TypeExpr.test ~@(EExpr.Val (Val.Flt 10.1)) (Ok (lt_float 10.1))
+  TypeExpr.test ~@(EExpr.Val (Value.Real 10.1)) (Ok (lt_float 10.1))
 
 let%test "value_string" =
-  TypeExpr.test ~@(EExpr.Val (Val.Str "abc")) (Ok (lt_string "abc"))
+  TypeExpr.test ~@(EExpr.Val (Value.Str "abc")) (Ok (lt_string "abc"))
 
 let%test "value_boolean" =
-  TypeExpr.test ~@(EExpr.Val (Val.Bool true)) (Ok (lt_boolean true))
+  TypeExpr.test ~@(EExpr.Val (Value.True)) (Ok (lt_boolean true))
 
 let%test "value_symbol" =
-  TypeExpr.test ~@(EExpr.Val (Val.Symbol "a")) (Ok (lt_symbol "a"))
+  TypeExpr.test ~@(EExpr.Val (Value.App (`Op "symbol", [Str "a"]))) (Ok (lt_symbol "a"))
 
 (* ========== Variable Expressions ========== *)
 
@@ -40,7 +41,7 @@ let%test "operator_call_ok" =
   TypeExpr.test op (Ok t_int)
 
 let%test "operator_call_sigcase" =
-  let op = ~@EExpr.(BinOpt (Plus, ~@(Val (Flt 10.1)), ~@(Val (Flt 10.1)))) in
+  let op = ~@EExpr.(BinOpt (Plus, ~@(Val (Real 10.1)), ~@(Val (Real 10.1)))) in
   TypeExpr.test op (Ok t_float)
 
 let%test "operator_call_incompatible_first" =
@@ -48,7 +49,7 @@ let%test "operator_call_incompatible_first" =
   TypeExpr.test op (Error [ BadOperand (t_int, lt_string "abc") ])
 
 let%test "operator_call_incompatible_second" =
-  let op = ~@EExpr.(BinOpt (Plus, ~@(Val (Int 10)), ~@(Val (Flt 10.1)))) in
+  let op = ~@EExpr.(BinOpt (Plus, ~@(Val (Int 10)), ~@(Val (Real 10.1)))) in
   TypeExpr.test op (Error [ BadOperand (t_int, lt_float 10.1) ])
 
 (* ========== Object Expression  ========== *)

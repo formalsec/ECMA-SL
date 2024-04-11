@@ -1,3 +1,4 @@
+open Smtml
 open EslBase
 open EslSyntax
 module ErrSrc = Error_source
@@ -7,17 +8,17 @@ type msg =
   | Default
   | Custom of string
   | Unexpected of string
-  | UnexpectedExitVal of Val.t
+  | UnexpectedExitVal of Value.t
   | Failure of string
   | UncaughtExn of string
   | OpEvalErr of string
   | UnknownVar of Id.t'
   | UnknownFunc of Id.t'
   | BadNArgs of int * int
-  | BadVal of string * Val.t
-  | BadExpr of string * Val.t
-  | BadFuncId of Val.t
-  | BadOpArgs of string * Val.t list
+  | BadVal of string * Value.t
+  | BadExpr of string * Value.t
+  | BadFuncId of Value.t
+  | BadOpArgs of string * Value.t list
   | MissingReturn of Id.t
 
 module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
@@ -31,7 +32,7 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
     | (Default, Default) -> true
     | (Custom msg1', Custom msg2') -> String.equal msg1' msg2'
     | (Unexpected msg1', Unexpected msg2') -> String.equal msg1' msg2'
-    | (UnexpectedExitVal v1, UnexpectedExitVal v2) -> Val.equal v1 v2
+    | (UnexpectedExitVal v1, UnexpectedExitVal v2) -> Value.equal v1 v2
     | (Failure msg1', Failure msg2') -> String.equal msg1' msg2'
     | (UncaughtExn msg1', UncaughtExn msg2') -> String.equal msg1' msg2'
     | (OpEvalErr oplbl1, OpEvalErr oplbl2) -> String.equal oplbl1 oplbl2
@@ -40,12 +41,12 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
     | (BadNArgs (npxs1, nargs1), BadNArgs (npxs2, nargs2)) ->
       Int.equal npxs1 npxs2 && Int.equal nargs1 nargs2
     | (BadVal (texpr1, v1), BadVal (texpr2, v2)) ->
-      String.equal texpr1 texpr2 && Val.equal v1 v2
+      String.equal texpr1 texpr2 && Value.equal v1 v2
     | (BadExpr (texpr1, v1), BadExpr (texpr2, v2)) ->
-      String.equal texpr1 texpr2 && Val.equal v1 v2
-    | (BadFuncId v1, BadFuncId v2) -> Val.equal v1 v2
+      String.equal texpr1 texpr2 && Value.equal v1 v2
+    | (BadFuncId v1, BadFuncId v2) -> Value.equal v1 v2
     | (BadOpArgs (texpr1, vs1), BadOpArgs (texpr2, vs2)) ->
-      String.equal texpr1 texpr2 && List.equal Val.equal vs1 vs2
+      String.equal texpr1 texpr2 && List.equal Value.equal vs1 vs2
     | (MissingReturn fn1, MissingReturn fn2) -> Id.equal fn1 fn2
     | _ -> false
 
@@ -55,7 +56,7 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
     | Default -> format ppf "Generic runtime error."
     | Custom msg' -> format ppf "%s" msg'
     | Unexpected msg -> format ppf "Unexpected %s." msg
-    | UnexpectedExitVal v -> format ppf "Unexpected exit value '%a'." Val.pp v
+    | UnexpectedExitVal v -> format ppf "Unexpected exit value '%a'." Value.pp v
     | Failure msg -> format ppf "Failure %s." msg
     | UncaughtExn msg -> format ppf "Uncaught exception %s." msg
     | OpEvalErr oplbl -> format ppf "Exception in Operator.%s." oplbl
@@ -64,17 +65,17 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
     | BadNArgs (npxs, nargs) ->
       format ppf "Expected %d arguments, but got %d." npxs nargs
     | BadVal (texpr, v) ->
-      format ppf "Expecting %s value, but got '%a'." texpr Val.pp v
+      format ppf "Expecting %s value, but got '%a'." texpr Value.pp v
     | BadExpr (texpr, v) ->
-      format ppf "Expecting %s expression, but got '%a'." texpr Val.pp v
+      format ppf "Expecting %s expression, but got '%a'." texpr Value.pp v
     | BadFuncId v ->
-      format ppf "Expecting a function identifier, but got '%a'." Val.pp v
+      format ppf "Expecting a function identifier, but got '%a'." Value.pp v
     | BadOpArgs (texpr, vs) when List.length vs = 1 ->
       format ppf "Expecting argument of type '%s', but got '%a'." texpr
-        (pp_lst !>", " Val.pp) vs
+        (pp_lst !>", " Value.pp) vs
     | BadOpArgs (texpr, vs) ->
       format ppf "Expecting arguments of types '%s', but got '(%a)'." texpr
-        (pp_lst !>", " Val.pp) vs
+        (pp_lst !>", " Value.pp) vs
     | MissingReturn fn ->
       format ppf "Missing return in function '%a'." Id.pp fn
 

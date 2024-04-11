@@ -70,25 +70,33 @@ let float_str (f : float) : string =
   if is_special_number f_str || String.contains f_str '.' then f_str
   else f_str ^ ".0"
 
-let pp_custom_inner (pp_inner_val : Fmt.t -> t -> unit) (ppf : Fmt.t) (v : t) :
+(* TODO:x move this function*)
+let pp_custom_inner (pp_inner_val : Fmt.t -> Smtml.Value.t -> unit) (ppf : Fmt.t) (v : Smtml.Value.t) :
   unit =
   let open Fmt in
   match v with
-  | Null -> format ppf "null"
-  | Void -> ()
+  | App (`Op "null", []) -> format ppf "null"
+  | App (`Op "void", []) -> ()
   | Int i -> format ppf "%i" i
-  | Flt f -> format ppf "%s" (float_str f)
+  | Real f -> format ppf "%s" (float_str f)
   | Str s -> format ppf "%S" s
-  | Bool b -> format ppf "%b" b
-  | Symbol s -> format ppf "'%s" s
-  | Loc l -> Loc.pp ppf l
-  | Arr arr -> format ppf "[|%a|]" (pp_arr !>", " pp_inner_val) arr
+  | True -> format ppf "true"
+  | False -> format ppf "false"
+  | App (`Op "symbol", [Str s]) -> format ppf "'%s" s
+  | App (`Op "loc", [Int l]) -> Loc.pp ppf l
   | List lst -> format ppf "[%a]" (pp_lst !>", " pp_inner_val) lst
-  | Tuple tup -> format ppf "(%a)" (pp_lst !>", " pp_inner_val) tup
-  | Byte bt -> format ppf "%i" bt
-  | Type t -> Type.pp ppf t
-  | Curry (fn, fvs) ->
+  | App (`Op "NullType" , []) -> format ppf "__$Null" 
+  | App (`Op "IntType" , []) -> format ppf "__$Int" 
+  | App (`Op "RealType" , []) -> format ppf "__$Flt" 
+  | App (`Op "StrType" , []) -> format ppf "__$Str" 
+  | App (`Op "BoolType" , []) -> format ppf "__$Bool" 
+  | App (`Op "SymbolType" , []) -> format ppf "__$Symbol" 
+  | App (`Op "LocType" , []) -> format ppf "__$Obj" 
+  | App (`Op "ListType" , []) -> format ppf "__$List" 
+  | App (`Op "CurryType" , []) -> format ppf "__$Curry" 
+  | App (`Op fn, fvs) ->
     format ppf "{%S}@(%a)" fn (pp_lst !>", " pp_inner_val) fvs
+  | _ -> failwith "Val.pp_custom_inner: unexpected case"
 
-let rec pp (ppf : Fmt.t) (v : t) : unit = pp_custom_inner pp ppf v
+let (* rec *) pp (_ppf : Fmt.t) (_v : t) : unit = (* pp_custom_inner pp ppf v *) failwith "Val.pp not implemented"
 let str v = Fmt.str "%a" pp v

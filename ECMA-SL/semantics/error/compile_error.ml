@@ -1,3 +1,4 @@
+open Smtml
 open EslBase
 open EslSyntax
 module ErrSrc = Error_source
@@ -14,7 +15,7 @@ type msg =
   | DuplicatedMacro of Id.t
   | UnknownMacro of Id.t
   | BadNArgs of int * int
-  | DuplicatedSwitchCase of Val.t
+  | DuplicatedSwitchCase of Value.t
   | DuplicatedTField of Id.t
   | DuplicatedSigmaDiscriminant of EType.t
   | MissingSigmaDiscriminant of Id.t
@@ -41,7 +42,7 @@ module CompileErr : Error_type.ERROR_TYPE with type t = msg = struct
     | (UnknownMacro mn1, UnknownMacro mn2) -> Id.equal mn1 mn2
     | (BadNArgs (npxs1, nargs1), BadNArgs (npxs2, nargs2)) ->
       Int.equal npxs1 npxs2 && Int.equal nargs1 nargs2
-    | (DuplicatedSwitchCase v1, DuplicatedSwitchCase v2) -> Val.equal v1 v2
+    | (DuplicatedSwitchCase v1, DuplicatedSwitchCase v2) -> Value.equal v1 v2
     | (DuplicatedTField fn1, DuplicatedTField fn2) -> Id.equal fn1 fn2
     | (DuplicatedSigmaDiscriminant lt1, DuplicatedSigmaDiscriminant lt2) ->
       EType.equal lt1 lt2
@@ -74,7 +75,7 @@ module CompileErr : Error_type.ERROR_TYPE with type t = msg = struct
     | BadNArgs (npxs, nargs) ->
       format ppf "Expected %d arguments, but got %d." npxs nargs
     | DuplicatedSwitchCase v ->
-      format ppf "Duplicated case value '%a' for switch statement." Val.pp v
+      format ppf "Duplicated case value '%a' for switch statement." Value.pp v
     | DuplicatedTField fn ->
       format ppf "Duplicated field name '%a' for object type." Id.pp fn
     | DuplicatedSigmaDiscriminant lt ->

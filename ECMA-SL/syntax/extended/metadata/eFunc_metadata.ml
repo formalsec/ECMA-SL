@@ -1,4 +1,4 @@
-open Val
+open Smtml
 
 type t =
   { section_number : string
@@ -16,7 +16,7 @@ let get_section_number (meta : t) : string = meta.section_number
 let get_section_name (meta : t) : string option = meta.section_name
 let get_meta_params (meta : t) : (string * string) list = meta.meta_params
 
-let build_func_metadata (metadata : Val.t list)
+let build_func_metadata (metadata : Value.t list)
   (params_alternatives : (string * string) list) : t =
   let section_number =
     match List.nth_opt metadata 0 with
@@ -48,7 +48,7 @@ let build_func_metadata (metadata : Val.t list)
   let section_name =
     match List.nth_opt metadata 3 with
     | None -> Some ""
-    | Some Null -> None
+    | Some App (`Op "null", []) -> None
     | Some (Str s) -> Some s
     | _ ->
       invalid_arg

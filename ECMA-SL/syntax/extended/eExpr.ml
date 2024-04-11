@@ -1,10 +1,11 @@
+open Smtml
 open EslBase
 open Source
 
 type t = t' Source.phrase
 
 and t' =
-  | Val of Val.t
+  | Val of Value.t
   | Var of Id.t'
   | GVar of Id.t'
   | Const of Operator.const
@@ -22,7 +23,7 @@ and t' =
 let rec pp (ppf : Fmt.t) (e : t) : unit =
   let open Fmt in
   match e.it with
-  | Val v -> Val.pp ppf v
+  | Val v -> Value.pp ppf v
   | Var x -> pp_str ppf x
   | GVar x -> format ppf "|%s|" x
   | Const c -> Operator.pp_of_const ppf c
@@ -43,7 +44,7 @@ let rec pp (ppf : Fmt.t) (e : t) : unit =
   | Symbolic (t, e') -> format ppf "se_mk_symbolic(%a, %a)" Type.pp t pp e'
 
 let str (e : t) : string = Fmt.str "%a" pp e
-let isvoid (e : t) : bool = match e.it with Val Val.Void -> true | _ -> false
+let isvoid (e : t) : bool = match e.it with Val Value.App (`Op "void", []) -> true | _ -> false
 
 let rec map (mapper : t -> t) (e : t) : t =
   let map' = map mapper in
