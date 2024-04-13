@@ -414,7 +414,7 @@ and compile_patv (e_e : Expr.t) (pbn : Expr.t) (pbv : EPat.pv) (inobj : Expr.t)
   match pbv.it with
   | PatVar x ->
     ([], [], [ Stmt.FieldLookup (x @?> pbv.at, e_e, pbn) @?> pbn.at ])
-  | PatVal v -> 
+  | PatVal v ->
     let fval = Builder.var pbn.at in
     let feq = Builder.var pbv.at in
     let fval_s = Stmt.FieldLookup (?@fval, e_e, pbn) @?> pbn.at in
