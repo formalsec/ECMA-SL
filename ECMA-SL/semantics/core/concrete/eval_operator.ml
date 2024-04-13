@@ -16,7 +16,7 @@ let bad_arg_err (arg : int) (op_lbl : string) (types : string)
 
 let typeof (_v : Value.t) : Value.t =
   (* TODO:x *)
-  assert false
+  failwith "typeof"
 
   (* let op_lbl = label_of_unopt Typeof in
   match v with

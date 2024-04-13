@@ -23,7 +23,6 @@
   eParsing_helper
   ; concrete interpreter
   interpreter
-  eval_operator
   eval_op
   external
   instrument
