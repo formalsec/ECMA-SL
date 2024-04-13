@@ -75,7 +75,6 @@ let unop_semantics (op : Operator.unopt) =
   | ListReverse -> (function
             | Value.List _ as v -> Eval.(unop Ty_list Ty.Reverse v)
             | _ as v -> bad_arg_err 1 "unop_semantics.listReverse" "list" [ v ])
-  | Random -> (* TODO:x check external function or keep? *) failwith "unop_semantics.random"
   | Abs -> (function
             | Value.Real _ as v -> Eval.(unop Ty_real Ty.Abs v)
             | _ as v -> bad_arg_err 1 "unop_semantics.abs" "float" [ v ])

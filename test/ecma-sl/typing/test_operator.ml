@@ -40,7 +40,6 @@ let%test "unopt_string_to_float" = test_unopt (StringToFloat, Str "abc") t_float
 let%test "unopt_from_char_code" = test_unopt (FromCharCode, Int 10) t_string
 let%test "unopt_to_char_code" = test_unopt (ToCharCode, Str "abc") t_int
 let%test "unopt_string_len" = test_unopt (StringLen, Str "abc") t_int
-let%test "unopt_random" = test_unopt (Random, Real 10.1) t_float
 let%test "unopt_abs" = test_unopt (Abs, Real 10.1) t_float
 let%test "unopt_sqrt" = test_unopt (Sqrt, Real 10.1) t_float
 let%test "unopt_ceil" = test_unopt (Ceil, Real 10.1) t_float

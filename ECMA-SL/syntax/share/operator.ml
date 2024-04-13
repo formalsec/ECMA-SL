@@ -40,7 +40,6 @@ type unopt =
   | TupleSecond
   | TupleLen
   (* Math operators *)
-  | Random
   | Abs
   | Sqrt
   | Ceil
@@ -149,7 +148,6 @@ let label_of_unopt (op : unopt) : string =
   | TupleFirst -> "Tuple.fst"
   | TupleSecond -> "Tuple.snd"
   | TupleLen -> "Tup.t_len"
-  | Random -> "Math.random"
   | Abs -> "Math.abs"
   | Sqrt -> "Math.sqrt"
   | Ceil -> "Math.ceil"
@@ -229,7 +227,6 @@ let pp_of_unopt_single (ppf : Fmt.t) (op : unopt) : unit =
   | TupleFirst -> pp_str ppf "fst"
   | TupleSecond -> pp_str ppf "snd"
   | TupleLen -> pp_str ppf "t_len"
-  | Random -> pp_str ppf "random"
   | Abs -> pp_str ppf "abs"
   | Sqrt -> pp_str ppf "sqrt"
   | Ceil -> pp_str ppf "ceil"
