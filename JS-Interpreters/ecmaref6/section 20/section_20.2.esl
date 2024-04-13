@@ -860,7 +860,7 @@ function MathRandom(globalObject, this, NewTarget, stric, params) {
   using an implementation-dependent algorithm or strategy. This function takes no arguments. */
   /* Each Math.random function created for distinct code Realms must produce a distinct sequence of
   values from successive calls. */
-  return random 1.
+  return random (1.)
 };
 
 /* 20.2.2.28 Math.round ( x ) */

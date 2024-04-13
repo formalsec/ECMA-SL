@@ -62,7 +62,6 @@ let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
   | TupleFirst -> not_implemented (* TODO: tuple typing *)
   | TupleSecond -> not_implemented (* TODO: tuple typing *)
   | TupleLen -> not_implemented (* TODO: tuple typing *)
-  | Random -> type_op [ ([ FloatType ], FloatType) ]
   | Abs -> type_op [ ([ FloatType ], FloatType) ]
   | Sqrt -> type_op [ ([ FloatType ], FloatType) ]
   | Ceil -> type_op [ ([ FloatType ], FloatType) ]

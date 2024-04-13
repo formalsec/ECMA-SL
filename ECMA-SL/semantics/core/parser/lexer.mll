@@ -69,7 +69,6 @@
             "t_nth"                   , TUPLE_NTH;
 
             (* Math operators *)
-            "random"                  , RANDOM;
             "abs"                     , ABS;
             "sqrt"                    , SQRT;
             "ceil"                    , CEIL;
