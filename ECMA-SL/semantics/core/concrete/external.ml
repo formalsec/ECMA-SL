@@ -24,6 +24,18 @@ let parseJS (prog : Prog.t) (code : string) : Value.t =
     with _ -> Log.fail "err in ParseJS" )
 
 module Impl = struct
+
+  let arr_map = Hashtbl.create 128
+  let arr_count = ref 0
+
+  let op_err (arg : int) (op_lbl : string) (rterr : Runtime_error.msg) : 'a =
+    try Runtime_error.(throw ~src:(Index arg) rterr)
+    with Runtime_error.Error err ->
+      Runtime_error.(push (OpEvalErr op_lbl) err |> raise)
+
+  let unexpected_err (arg : int) (op_lbl : string) (msg : string) : 'a =
+    op_err arg op_lbl (Unexpected msg)
+
   let bad_arg_err (_arg : int) (_op_lbl : string) (_types : string)
   (_vals : Value.t list) : 'a =
   failwith "bad_arg_err"
@@ -177,7 +189,7 @@ module Impl = struct
     match (v1, v2) with
     | (Str s, Int i) -> (
       try Str (String_utils.s_nth_u s i)
-      with _ -> Eval_operator.unexpected_err 2 op_lbl "index out of bounds" )
+      with _ -> unexpected_err 2 op_lbl "index out of bounds" )
     | (Str _, _) ->
       bad_arg_err 2 op_lbl "(string, integer)" [ v1; v2 ]
     | _ -> bad_arg_err 1 op_lbl "(string, integer)" [ v1; v2 ]
@@ -185,7 +197,7 @@ module Impl = struct
   let s_split ((v1, v2) : Value.t * Value.t) : Value.t =
     let op_lbl = "s_split_external" in
     match (v1, v2) with
-    | (_, Str "") -> Eval_operator.unexpected_err 2 op_lbl "empty separator"
+    | (_, Str "") -> unexpected_err 2 op_lbl "empty separator"
     | (Str str, Str sep) ->
       Value.List (List.map (fun s -> Value.Str s) (Str.split (Str.regexp sep) str))
     | (Str _, _) ->
@@ -202,57 +214,63 @@ module Impl = struct
     | (Str _, _, _) -> arg_err 2
     | _ -> arg_err 1
 
-  let array_len (_v : Value.t) : Value.t = 
-    (* TODO:x arr *)
-    assert false
-    (* let op_lbl = "a_len_external" in
+  let array_len (v : Value.t) : Value.t = 
+    let op_lbl = "a_len_external" in
     match v with
-    | Arr arr -> Value.Int (Array.length arr)
-    | _ -> bad_arg_err 1 op_lbl "array" [ v ] *)
+    | Int l -> (
+      try let arr = Hashtbl.find arr_map l in Value.Int (Array.length arr) with 
+      | Not_found -> unexpected_err 1 op_lbl "array not found")
+    | _ -> bad_arg_err 1 op_lbl "array" [ v ]
 
-  let array_make ((_v1, _v2) : Value.t * Value.t) : Value.t =
-    (* TODO:x arr *)
-    
-    assert false
-    (* let op_lbl = "array_make_external" in
+  let array_make ((v1, v2) : Value.t * Value.t) : Value.t =
+    let op_lbl = "array_make_external" in
     match (v1, v2) with
     | (Int n, v) ->
-      if n > 0 then Val.Arr (Array.make n v)
-      else Eval_operator.unexpected_err 1 op_lbl "non-positive array size"
-    | _ -> bad_arg_err 1 op_lbl "(integer, any)" [ v1; v2 ] *)
+      if n > 0 then (
+        let index = !arr_count in
+        Hashtbl.add arr_map index (Array.make n v);
+        arr_count := !arr_count + 1;
+        Int index
+      )
+      else unexpected_err 1 op_lbl "non-positive array size"
+    | _ -> bad_arg_err 1 op_lbl "(integer, any)" [ v1; v2 ]
 
-  let array_nth ((_v1, _v2) : Value.t * Value.t) : Value.t =
-    (* TODO:x arr *)
-    assert false
-    (* let op_lbl = "a_nth_external" in
+  let array_nth ((v1, v2) : Value.t * Value.t) : Value.t =
+    let op_lbl = "a_nth_external" in
     match (v1, v2) with
-    | (Arr arr, Int i) -> (
-      try Array.get arr i
-      with _ -> Eval_operator.unexpected_err 2 op_lbl "index out of bounds" )
-    | (Arr _, _) ->
-      bad_arg_err 2 op_lbl "(array, integer)" [ v1; v2 ]
-    | _ -> bad_arg_err 1 op_lbl "(array, integer)" [ v1; v2 ] *)
+    | (Int l, Int i) -> (
+      try (let arr = Hashtbl.find arr_map l in Array.get arr i) with 
+      | Not_found -> unexpected_err 1 op_lbl "array not found"
+      | _ -> unexpected_err 2 op_lbl "index out of bounds" )
+    | (Int _, _) ->
+      bad_arg_err 2 op_lbl "(integer, integer)" [ v1; v2 ]
+    | _ -> bad_arg_err 1 op_lbl "(integer, integer)" [ v1; v2 ]
 
-  let array_set ((_v1, _v2, _v3) : Value.t * Value.t * Value.t) : Value.t =
-    (* TODO:x arr *)
-    assert false
-    (* let op_lbl = "a_set_external" in
+  let array_set ((v1, v2, v3) : Value.t * Value.t * Value.t) : Value.t =
+    let op_lbl = "a_set_external" in
     match (v1, v2) with
-    | (Arr arr, Int i) -> (
-      try Array.set arr i v3 |> fun () -> Val.Null
-      with _ -> Eval_operator.unexpected_err 2 op_lbl "index out of bounds" )
-    | (Arr _, _) ->
-      bad_arg_err 2 op_lbl "(array, integer, any)" [ v1; v2; v3 ]
+    | (Int l, Int i) -> (
+      try (
+        let arr = Hashtbl.find arr_map l in 
+        Array.set arr i v3; 
+        Hashtbl.replace arr_map l arr 
+        |> fun () -> Value.App (`Op "null", []))
+      with _ -> unexpected_err 2 op_lbl "index out of bounds" )
+    | (Int _, _) ->
+      bad_arg_err 2 op_lbl "(integer, integer, any)" [ v1; v2; v3 ]
     | _ ->
-      bad_arg_err 1 op_lbl "(array, integer, any)" [ v1; v2; v3 ] *)
+      bad_arg_err 1 op_lbl "(integer, integer, any)" [ v1; v2; v3 ]
 
-  let list_to_array (_v : Value.t) : Value.t =
-    (* TODO:x arr *)
-    assert false
-    (* let op_lbl = "list_to_array_external" in
+  let list_to_array (v : Value.t) : Value.t =
+    let op_lbl = "list_to_array_external" in
     match v with
-    | List lst -> Val.Arr (Array.of_list lst)
-    | _ -> bad_arg_err 1 op_lbl "list" [ v ] *)
+    | List lst -> 
+      let arr = Array.of_list lst in
+      let loc = !arr_count in
+      Hashtbl.add arr_map loc arr;
+      arr_count := !arr_count + 1;
+      Int loc
+    | _ -> bad_arg_err 1 op_lbl "list" [ v ]
 
 
   let string_concat_aux (lst : Value.t list) : string list option =
@@ -305,7 +323,7 @@ module Impl = struct
     let op_lbl = "l_remove_nth_external" in
     let rec _remove_nth_aux lst i =
       match (lst, i) with
-      | ([], _) -> Eval_operator.unexpected_err 2 op_lbl "index out of bounds"
+      | ([], _) -> unexpected_err 2 op_lbl "index out of bounds"
       | (_ :: tl, 0) -> tl
       | (hd :: tl, _) -> hd :: _remove_nth_aux tl (i - 1)
     in
@@ -357,16 +375,16 @@ module Impl = struct
       List val_bytes
     | _ -> bad_arg_err 1 op_lbl "float" [ v ]
 
-  let unpack_bytes_aux (_op_lbl : string) (_v : Value.t) : int array =
-    (* TODO:x arr *)
-    assert false
-    (* let open Val in
-    let unpack_bt_f = function Int i -> i | Byte bt -> bt | _ -> raise Exit in
+  let unpack_bytes_aux (op_lbl : string) (v : Value.t) : int array =
+    let unpack_bt_f = function Value.Int i -> i | _ -> raise Exit in
     try
       match v with
-      | Arr bytes -> Array.map unpack_bt_f bytes
+      | Int l -> 
+        (try (let bytes = Hashtbl.find arr_map l in
+        Array.map unpack_bt_f bytes)
+        with Not_found -> unexpected_err 1 op_lbl "array not found")
       | _ -> bad_arg_err 1 op_lbl "byte array" [ v ]
-    with _ -> bad_arg_err 1 op_lbl "byte array" [ v ] *)
+    with _ -> bad_arg_err 1 op_lbl "byte array" [ v ]
 
   let float32_from_le_bytes (v : Value.t) : Value.t =
     let op_lbl = "float32_from_le_bytes_external" in
@@ -573,7 +591,7 @@ module Impl = struct
           ; Value.Real msec
           ; Value.Str tz
           ]
-      | _ -> Eval_operator.unexpected_err 1 op_lbl "date format"
+      | _ -> unexpected_err 1 op_lbl "date format"
     in
     match v with
     | Str s ->

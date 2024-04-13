@@ -107,7 +107,7 @@ module M (Instrument : Instrument.M) = struct
       | Str fn -> Value.App (`Op fn,vs)
       | _ -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadExpr ("curry", fv))) ) 
     | Symbolic (t, _) -> (
-      (* TODO:x *)
+      (* TODO:x should change?*)
       Random.self_init ();
       match t with
       | Type.IntType -> Value.Int (Random.int 128)
