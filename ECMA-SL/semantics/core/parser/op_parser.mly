@@ -29,7 +29,7 @@
 %token TUPLE_FIRST TUPLE_SECOND TUPLE_LEN
 %token TUPLE_NTH
 
-%token RANDOM ABS SQRT CEIL FLOOR TRUNC EXP
+%token ABS SQRT CEIL FLOOR TRUNC EXP
 
 %token EXCLAMATION
 %token TILDE
@@ -84,7 +84,6 @@
   | TUPLE_FIRST;            { Operator.TupleFirst }
   | TUPLE_SECOND;           { Operator.TupleSecond }
   | TUPLE_LEN;              { Operator.TupleLen }
-  | RANDOM;                 { Operator.Random }
   | ABS;                    { Operator.Abs }
   | SQRT;                   { Operator.Sqrt }
   | CEIL;                   { Operator.Ceil }

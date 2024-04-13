@@ -434,7 +434,7 @@ function MathRandom(globalObject, this, stric, params) {
   /* Returns a Number value with positive sign, greater than or equal to 0 but less than 1, chosen randomly or
      pseudo randomly with approximately uniform distribution over that range, using an implementation-dependent
      algorithm or strategy. This function takes no arguments. */
-  return random 1.
+  return random (1.)
 };
 
 /* 15.8.2.15 round (x) */
