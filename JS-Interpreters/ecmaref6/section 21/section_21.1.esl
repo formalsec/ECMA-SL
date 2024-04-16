@@ -1152,6 +1152,19 @@ function StringPrototypeMatch(global, this, NewTarget, strict, args) {
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
 
+  if (extern is_symbolic(O)) {
+    /* Returns a list with a string that is contained insided S */
+    matches := extern str_match(O);
+    i := 0;
+    len_matches := l_len matches;
+    result := ArrayCreate(0.0, null);
+    while (i < len_matches) {
+      CreateDataProperty(result, int_to_string i, l_nth(matches, i));
+      i := i + 1
+    };
+    return result
+  };
+
   /* 3. If regexp is neither undefined nor null, then */
   if (!(regexp = 'undefined) && !(regexp = null) && !(regexp = 'null)){
     /* a. Let matcher be GetMethod(regexp, @@match). */
@@ -1278,7 +1291,6 @@ function StringPrototyperepeat(global, this, NewTarget, strict, args){
 /* 21.1.3.14 String.prototype.replace (searchValue, replaceValue ) */
 function StringPrototypeReplace(global, this, NewTarget, strict, args){
   n_args := l_len args;
-
 
   if (n_args >= 1){
     searchValue := l_nth(args, 0)
@@ -1693,6 +1705,10 @@ function StringPrototypeSlice(global, this, NewTarget, strict, args) {
   /* 11. Let span be max(to – from,0). */
   span := max(to - from, 0.);
 
+  if (extern is_symbolic(S)) {
+    return extern str_sub(S, int_of_float from, int_of_float span)
+  };
+
   /* 12. Return a String value containing span consecutive elements from S beginning with the element at index from. */
   substring := "";
   j := 0.;
@@ -2050,7 +2066,8 @@ function StringPrototypesubstring(global, this, NewTarget, strict, args){
   };
 
   if (extern is_symbolic(S)) {
-    length := len - intStart + 1;
+    intStart := int_of_float intStart;
+    length := (int_of_float len) - intStart + 1;
     return extern str_sub(S, intStart, length)
   };
 

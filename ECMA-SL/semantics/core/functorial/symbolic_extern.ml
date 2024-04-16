@@ -101,8 +101,11 @@ module Make () = struct
       Choice.return @@ Error (`Abort e')
     in
     let assume (e : value) thread =
+      let open Encoding in
       let e' = Translator.translate e in
-      [ (Ok (Val (Val.Symbol "undefined")), Thread.add_pc thread e') ]
+      match Expr.view e' with
+      | Val Value.False -> []
+      | _ -> [ (Ok (Val (Val.Symbol "undefined")), Thread.add_pc thread e') ]
     in
     let evaluate (e : value) thread =
       let e' = Translator.translate e in
@@ -230,28 +233,32 @@ module Make () = struct
     in
     let str_split (s : Value.value) (r : Value.value) thread =
       let x1 = fresh_x ()
-      and x2 = fresh_x ()
-      and x3 = fresh_x () in
+      and x2 = fresh_x () in
       let cond =
         let open Encoding in
         let x1 = Expr.mk_symbol Symbol.(x1 @: Ty_str) in
         let x2 = Expr.mk_symbol Symbol.(x2 @: Ty_str) in
-        let x3 = Expr.mk_symbol Symbol.(x3 @: Ty_str) in
         let sep = Translator.translate r in
         let s = Translator.translate s in
-        let s' =
-          Expr.binop Ty_str Seq_concat x1 sep |> fun acc ->
-          Expr.binop Ty_str Seq_concat acc x2 |> fun acc ->
-          Expr.binop Ty_str Seq_concat acc sep |> fun acc ->
-          Expr.binop Ty_str Seq_concat acc x3
-        in
+        Expr.binop Ty_str Seq_concat x1 sep |> fun acc ->
+        Expr.binop Ty_str Seq_concat acc x2 |> fun s' ->
         Expr.relop Ty_bool Eq s s'
       in
-      let result =
-        Value.(mk_list [ str_symbol x1; str_symbol x2; str_symbol x3 ])
-      in
+      let result = Value.(mk_list [ str_symbol x1; str_symbol x2 ]) in
       [ (Ok result, Thread.add_pc thread cond) ]
     in
+    let str_match (s : Value.value) thread =
+      let x = fresh_x () in
+      let cond =
+        let open Encoding in
+        let x = Expr.mk_symbol Symbol.(x @: Ty_str) in
+        let s = Translator.translate s in
+        Expr.binop Ty_str Seq_contains s x
+      in
+      let result = Value.(mk_list [ str_symbol x ]) in
+      [ (Ok result, Thread.add_pc thread cond) ]
+    in
+
     let dirname () =
       let (dirname, _) = Fpath.split_base filename in
       Choice.return (Ok (Val (Val.Str (Fpath.to_string dirname))))
@@ -287,6 +294,7 @@ module Make () = struct
             , Extern_func (Func (Arg (Arg Res)), str_lastIndexOf) )
           ; ("str_sub", Extern_func (Func (Arg (Arg (Arg Res))), str_sub))
           ; ("str_parseInt", Extern_func (Func (Arg Res), str_parse_int))
+          ; ("str_match", Extern_func (Func (Arg Res), str_match))
           ; ("__dirname", Extern_func (Func (UArg Res), dirname))
           ; ("__filename", Extern_func (Func (UArg Res), filename))
           ; ("summ_string_split", Extern_func (Func (Arg (Arg Res)), str_split))
