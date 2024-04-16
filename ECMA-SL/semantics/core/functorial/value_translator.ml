@@ -23,64 +23,45 @@ let translate_val (v : Val.t) : Expr.t =
 
 let translate_symbol (t : Type.t) (x : string) : Expr.t =
   match t with
-  | Type.IntType -> Expr.mk_symbol Symbol.(x @: Ty_int)
-  | Type.FltType -> Expr.mk_symbol Symbol.(x @: Ty_real)
-  | Type.StrType -> Expr.mk_symbol Symbol.(x @: Ty_str)
-  | Type.BoolType -> Expr.mk_symbol Symbol.(x @: Ty_bool)
+  | Type.IntType -> mk_symbol (Symbol.make Ty_int x)
+  | Type.FltType -> mk_symbol (Symbol.make Ty_real x)
+  | Type.StrType -> mk_symbol (Symbol.make Ty_str x)
+  | Type.BoolType -> mk_symbol (Symbol.make Ty_bool x)
   | _ -> Log.err "translate_symbol: unsupported symbol type '%a'" Type.pp t
+
+let of_type =
+  let open Type in
+  function
+  | Some IntType -> Ty_int
+  | Some FltType -> Ty_real
+  | Some StrType -> Ty_str
+  | Some BoolType -> Ty_bool
+  | None | _ -> Log.err "of_type: no type@."
 
 let translate_unop (t : Type.t option) (op : Operator.unopt) (e : Expr.t) :
   Expr.t =
-  let open Type in
   let open Operator in
-  let int_unop (op : Operator.unopt) e =
-    match op with
-    | Neg -> unop Ty_int Neg e
-    | IntToFloat -> cvtop Ty_real Reinterpret_int e
-    | IntToString -> cvtop Ty_str String_from_int e
-    | _ -> Log.err "int unop: %a@." Operator.pp_of_unopt_single op
-  in
-  let flt_unop (op : Operator.unopt) e =
-    match op with
-    | Neg -> unop Ty_real Neg e
-    | Abs -> unop Ty_real Abs e
-    | Sqrt -> unop Ty_real Sqrt e
-    | ToUint32 ->
-      (* Real.mk_to_uint32 *)
-      assert false
-    | IsNaN -> value Value.False
-    | Ceil -> unop Ty_real Ceil e
-    | Floor -> unop Ty_real Floor e
-    | FloatToString -> cvtop Ty_real ToString e
-    | StringToFloat -> cvtop Ty_real OfString e
-    | FloatToInt | ToInt -> cvtop Ty_int Reinterpret_float e
-    | _ -> Log.err "real unop: %a@." Operator.pp_of_unopt_single op
-  in
-  let str_unop (op : Operator.unopt) e =
-    match op with
-    | StringLen | StringLenU -> unop Ty_str Seq_length e
-    | Trim -> unop Ty_str Trim e
-    | StringToFloat -> cvtop Ty_real OfString e
-    | ToCharCode | ToCharCodeU -> cvtop Ty_str String_to_code e
-    | StringToInt -> cvtop Ty_str String_to_int e
-    | _ ->
-      Log.err "str unop: %a and e: %a @." Operator.pp_of_unopt_single op Expr.pp
-        e
-  in
-
-  let bool_unop (op : Operator.unopt) e =
-    match op with
-    | LogicalNot -> Expr.Bool.not e
-    | _ -> Log.err "bool unop: %a@." Operator.pp_of_unopt_single op
-  in
-  (* dispatch *)
-  match t with
-  | Some IntType -> int_unop op e
-  | Some FltType -> flt_unop op e
-  | Some StrType -> str_unop op e
-  | Some BoolType -> bool_unop op e
-  | Some _ -> Log.err "translate_unop: ill-typed or unsupported operator!"
-  | None -> Log.err "translate_unop: untyped operator!"
+  match op with
+  | Neg -> unop (of_type t) Neg e
+  | Abs -> unop Ty_real Abs e
+  | Sqrt -> unop Ty_real Sqrt e
+  | IsNaN -> value False
+  | Ceil -> unop Ty_real Ceil e
+  | Floor -> unop Ty_real Floor e
+  | IntToFloat -> cvtop Ty_real Reinterpret_int e
+  | IntToString -> cvtop Ty_str String_from_int e
+  | FloatToString -> cvtop Ty_real ToString e
+  | StringToFloat -> cvtop Ty_real OfString e
+  | FloatToInt -> cvtop Ty_int Reinterpret_float e
+  | ToInt | ToUint32 -> unop Ty_real Trunc e
+  | StringLen | StringLenU -> unop Ty_str Seq_length e
+  | Trim -> unop Ty_str Trim e
+  | ToCharCode | ToCharCodeU -> cvtop Ty_str String_to_code e
+  | StringToInt -> cvtop Ty_str String_to_int e
+  | LogicalNot -> Expr.Bool.not e
+  | _ ->
+    Log.err "translate_unop: unsupported operator '%a'!"
+      Operator.pp_of_unopt_single op
 
 let translate_binop (t1 : Type.t option) (t2 : Type.t option)
   (op : Operator.binopt) (e1 : Expr.t) (e2 : Expr.t) : Expr.t =
@@ -88,7 +69,7 @@ let translate_binop (t1 : Type.t option) (t2 : Type.t option)
   let open Operator in
   let int_binop (op : Operator.binopt) e1 e2 =
     match op with
-    | Eq -> relop Ty_int Eq e1 e2
+    | Eq -> relop Ty_bool Eq e1 e2
     | Gt -> relop Ty_int Gt e1 e2
     | Ge -> relop Ty_int Ge e1 e2
     | Lt -> relop Ty_int Lt e1 e2
@@ -102,7 +83,7 @@ let translate_binop (t1 : Type.t option) (t2 : Type.t option)
   let flt_binop op e1 e2 =
     match op with
     | Modulo -> assert false
-    | Eq -> relop Ty_real Eq e1 e2
+    | Eq -> relop Ty_bool Eq e1 e2
     | Gt -> relop Ty_real Gt e1 e2
     | Ge -> relop Ty_real Ge e1 e2
     | Lt -> relop Ty_real Lt e1 e2

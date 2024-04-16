@@ -36,6 +36,7 @@ let type_of_binary_arith (ty1 : Type.t) (ty2 : Type.t) : Type.t option =
   | (Type.FltType, Type.IntType) -> Some Type.FltType
   | (Type.IntType, Type.FltType) -> Some Type.FltType
   | (Type.FltType, Type.FltType) -> Some Type.FltType
+  | (Type.StrType, Type.StrType) -> Some Type.StrType
   | _ -> None
 
 let type_of_eq (ty1 : Type.t) (ty2 : Type.t) : Type.t option =
@@ -116,7 +117,7 @@ let type_of_unop (op : Operator.unopt) (ty : Type.t) : Type.t option =
   | Operator.Trim -> Some Type.StrType
   | Operator.ListLen -> Some Type.IntType
   | Operator.ListSort -> Some Type.ListType
-  | Operator.ToCharCodeU -> Some Type.StrType
+  | Operator.ToCharCodeU -> Some Type.IntType
   | _ ->
     Log.err
       "Typing Error: [type_of_unop] -> unsuported typing for unary operation %a"

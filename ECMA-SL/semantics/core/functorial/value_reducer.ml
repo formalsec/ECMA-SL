@@ -97,15 +97,23 @@ let reduce_unop (op : unopt) (v : value) : value =
     Val (Int (List.length vs))
   | (ListLen, UnOpt (ListSort, lst)) -> UnOpt (ListLen, lst)
   | (TupleLen, NOpt (TupleExpr, vs)) -> Val (Int (List.length vs))
-  | (ListSort, NOpt (ListExpr, [])) -> NOpt (ListExpr, [])
+  | (ListSort, NOpt (ListExpr, vs)) -> (
+    match vs with
+    | [] | [ _ ] -> NOpt (ListExpr, vs)
+    | _ ->
+      (* FIXME: This is wrong due to symbolic values *)
+      NOpt (ListExpr, List.sort compare vs) )
   | (Typeof, Symbolic (t, _)) -> Val (Type t)
   | (Typeof, NOpt (ListExpr, _)) -> Val (Type Type.ListType)
   | (Typeof, NOpt (TupleExpr, _)) -> Val (Type Type.TupleType)
   | (Typeof, NOpt (ArrayExpr, _)) -> Val (Type Type.ArrayType)
   | (Typeof, Curry (_, _)) -> Val (Type Type.CurryType)
-  | (Typeof, op) ->
-    let t = Value_typing.type_of op in
-    Val (Type (Option.get t))
+  | (Typeof, op) -> (
+    match Value_typing.type_of op with
+    | Some t -> Val (Type t)
+    | None ->
+      Format.printf "Typeof: unknown type of %a@." Value.pp op;
+      assert false )
   | (StringConcat, NOpt (ListExpr, vs)) ->
     let flatten vs =
       let queue = Queue.create () in
@@ -124,7 +132,6 @@ let reduce_unop (op : unopt) (v : value) : value =
   (* Unsound *)
   | (FloatToString, UnOpt (ToUint32, v)) -> v
   (* | ToUint32, Symbolic (Type.FltType, x) -> Symbolic (Type.FltType, x) *)
-  | (ListSort, NOpt (ListExpr, l)) when List.length l <= 1 -> NOpt (ListExpr, l)
   | (Trim, UnOpt (FloatToString, v)) -> UnOpt (FloatToString, v)
   | (op', v1') -> UnOpt (op', v1')
 
@@ -144,12 +151,13 @@ let reduce_binop (op : binopt) (v1 : value) (v2 : value) : value =
     Val (Bool false)
   | (Eq, NOpt (_v1_t, list1), NOpt (_v2_t, list2)) ->
     reduce_list_compare list1 list2
-  | (Eq, v, Val (Symbol _)) when is_symbolic v -> Val (Bool false)
-  | (Eq, v, Val (Flt x))
-    when is_symbolic v
-         && (Float.is_infinite x || Float.(x = neg_infinity) || Float.is_nan x)
-    ->
+  | (Eq, _, Val (Flt x))
+    when Float.is_infinite x || Float.(x = neg_infinity) || Float.is_nan x ->
     Val (Bool false)
+  | (Eq, Symbolic (t, _), Val v) ->
+    if Some t = Val.type_of v then BinOpt (Eq, v1, v2) else Val (Bool false)
+  | (Eq, NOpt _, Val (Bool _)) -> Val (Bool false)
+  | (Eq, _, Val (Symbol _)) -> Val (Bool false)
   | (Eq, NOpt (_, _), Val Null) -> Val (Bool false)
   | (Eq, v, Val Null) when Stdlib.not (is_loc v) -> Val (Bool false)
   | ( Eq
@@ -159,8 +167,6 @@ let reduce_binop (op : binopt) (v1 : value) (v2 : value) : value =
     | ([ pre1; target1 ], [ pre2; target2 ]) when Value.equal pre1 pre2 ->
       BinOpt (Eq, target1, target2)
     | (_, _) -> BinOpt (Eq, v1, v2) )
-  | (Eq, v1, v2) when Stdlib.not (is_symbolic v1 || is_symbolic v2) ->
-    Val (Bool (Value.equal v1 v2))
   | ( Eq
     , UnOpt (FloatToString, Symbolic (Type.FltType, n1))
     , UnOpt (FloatToString, Symbolic (Type.FltType, n2)) ) ->
@@ -175,8 +181,9 @@ let reduce_binop (op : binopt) (v1 : value) (v2 : value) : value =
   | (ListNth, NOpt (ListExpr, vs), Val (Int i)) -> List.nth vs i
   | (ListConcat, NOpt (ListExpr, vs1), NOpt (ListExpr, vs2)) ->
     NOpt (ListExpr, vs1 @ vs2)
-  | (ListConcat, lst, NOpt (ListExpr, [])) -> lst
-  | (ListConcat, NOpt (ListExpr, []), lst) -> lst
+  | (ListConcat, lst, NOpt (ListExpr, []))
+  | (ListConcat, NOpt (ListExpr, []), lst) ->
+    lst
   | (ListPrepend, v1, NOpt (ListExpr, vs)) -> NOpt (ListExpr, v1 :: vs)
   | (ListAdd, NOpt (ListExpr, vs), v2) -> NOpt (ListExpr, vs @ [ v2 ])
   | (ListMem, v1, NOpt (ListExpr, vs)) -> Val (Bool (Stdlib.List.mem v1 vs))

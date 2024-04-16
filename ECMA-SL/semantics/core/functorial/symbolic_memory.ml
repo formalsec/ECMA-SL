@@ -79,8 +79,7 @@ module Make (O : Object_intf.S with type value = V.value) = struct
     in
     fprintf fmt "%a{ %a }" pp_parent parent (Loc.Tbl.pp ", " pp_v) data
 
-  let rec unfold_ite ~(accum : value) (e : value) : (value option * int) list
-      =
+  let rec unfold_ite ~(accum : value) (e : value) : (value option * int) list =
     let open V in
     let open Operator in
     match e with
@@ -98,7 +97,9 @@ module Make (O : Object_intf.S with type value = V.value) = struct
     | Val (Val.Loc l) -> Ok [ (None, l) ]
     | TriOpt (Operator.ITE, c, Val (Val.Loc l), v) ->
       Ok ((Some c, l) :: unfold_ite ~accum:(UnOpt (Operator.LogicalNot, c)) v)
-    | _ -> Error (Fmt.asprintf "Value '%a' is not a loc expression" V.pp e)
+    | _ ->
+      Fmt.eprintf "Value '%a' is not a loc expression" V.pp e;
+      Ok []
 
   let pp_val (h : t) (e : value) : string =
     match e with

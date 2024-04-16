@@ -114,7 +114,7 @@ module M : Object_intf.S with type value = V.value = struct
   let delete o key =
     match key with
     | V.Val _ -> { o with fields = VMap.remove key o.fields }
-    | _ -> assert false
+    | _ -> o
 
   let pp_map fmt v =
     let map_iter f m = VMap.iter (fun k d -> f (k, d)) m in
