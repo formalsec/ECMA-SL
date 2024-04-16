@@ -61,6 +61,11 @@ function main() {
   c_value := getCompletionValue(ret);
 
   if ((typeof c_value = __$Obj) &&& ("ErrorData" in_obj c_value) ) {
+    name := Get(c_value, "name");
+    if (name = "TypeError") {
+      print "Uncaught TypeError";
+      extern assume(false)
+    };
     error := stringOfError(c_value);
     extern abort(error)
   };
