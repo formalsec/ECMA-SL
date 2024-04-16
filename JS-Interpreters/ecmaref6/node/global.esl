@@ -67,5 +67,7 @@ function initNodeGlobalObject(globalObject, objectPrototype, strict) {
 
   process := createProcessObject(globalObject, objectPrototype, strict);
   createBuiltInProperty(globalObject, "process", process);
+
+  createBuiltInProperty(globalObject, "global", globalObject);
   return 'null
 }
