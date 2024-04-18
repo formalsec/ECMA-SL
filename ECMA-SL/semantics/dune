@@ -86,6 +86,6 @@
   string_utils)
  (preprocess
   (staged_pps ppx_import ppx_deriving.std))
- (libraries eslBase eslSyntax eslJSParser menhirLib encoding)
+ (libraries eslBase eslSyntax eslJSParser menhirLib smtml)
  (instrumentation
   (backend bisect_ppx)))

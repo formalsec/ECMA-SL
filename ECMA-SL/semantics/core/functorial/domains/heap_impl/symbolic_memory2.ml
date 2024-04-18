@@ -6,7 +6,7 @@ module V = Symbolic_value.M
 module Make
     (Object : Object_intf.S2
                 with type value = V.value
-                 and type value2 = Encoding.Expr.t) : Memory_intf.S2 = struct
+                 and type value2 = Smtml.Expr.t) : Memory_intf.S2 = struct
   type value = Object.value
   type value2 = Object.value2
   type object_ = Object.t

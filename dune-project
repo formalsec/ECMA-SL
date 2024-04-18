@@ -36,8 +36,7 @@
   (ppx_inline_test :with-test)
   menhir
   menhirLib
-  (encoding
-   (>= 0.0.4))
+  smtml
   yojson
   dune-site
   (bisect_ppx (and :with-test (>= "2.5.0") :dev))

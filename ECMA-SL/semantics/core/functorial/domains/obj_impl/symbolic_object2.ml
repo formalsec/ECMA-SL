@@ -5,10 +5,10 @@ module Reducer = Value_reducer
 module Translator = Value_translator
 
 module M :
-  Object_intf.S2 with type value = V.value and type value2 = Encoding.Expr.t =
+  Object_intf.S2 with type value = V.value and type value2 = Smtml.Expr.t =
 struct
   type value = V.value
-  type value2 = Encoding.Expr.t
+  type value2 = Smtml.Expr.t
 
   type t =
     { concrete_fields : (string, value) Hashtbl.t

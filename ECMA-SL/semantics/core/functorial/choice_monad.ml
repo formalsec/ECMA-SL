@@ -3,11 +3,11 @@ open EslSyntax
 module Value = Symbolic_value.M
 module Memory = Symbolic_memory
 module Translator = Value_translator
-module Optimizer = Encoding.Optimizer.Z3
+module Optimizer = Smtml.Optimizer.Z3
 
 module PC = struct
   include Set.Make (struct
-    include Encoding.Expr
+    include Smtml.Expr
 
     let compare = compare
   end)
@@ -25,7 +25,7 @@ module Thread = struct
 
   let create () =
     { solver =
-        Solver.create ~params:Encoding.Params.(default () $ (Timeout, 60000)) ()
+        Solver.create ~params:Smtml.Params.(default () $ (Timeout, 60000)) ()
     ; pc = PC.empty
     ; mem = Memory.create ()
     ; optimizer = Optimizer.create ()
@@ -36,8 +36,8 @@ module Thread = struct
   let mem t = t.mem
   let optimizer t = t.optimizer
 
-  let add_pc t (v : Encoding.Expr.t) =
-    match Encoding.Expr.view v with
+  let add_pc t (v : Smtml.Expr.t) =
+    match Smtml.Expr.view v with
     | Val True -> t
     | _ -> { t with pc = PC.add v t.pc }
 
@@ -79,7 +79,7 @@ module List = struct
         | `Sat -> [ (true, t) ]
         | `Unsat -> [ (false, t) ]
         | `Unknown ->
-          Format.eprintf "Unknown pc: %a@." Encoding.Expr.pp_list pc;
+          Format.eprintf "Unknown pc: %a@." Smtml.Expr.pp_list pc;
           [] )
 
   let check_add_true (v : Value.value) : bool t =
@@ -96,7 +96,7 @@ module List = struct
         | `Sat -> [ (true, Thread.add_pc t cond') ]
         | `Unsat -> [ (false, t) ]
         | `Unknown ->
-          Format.eprintf "Unknown pc: %a@." Encoding.Expr.pp_list pc;
+          Format.eprintf "Unknown pc: %a@." Smtml.Expr.pp_list pc;
           [] )
 
   let branch (v : Value.value) : bool t =

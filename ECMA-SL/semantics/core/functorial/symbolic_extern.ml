@@ -64,7 +64,7 @@ module Make () = struct
       if not @@ Value.is_symbolic e then
         [ (Ok (Val (Val.Symbol "undefined")), thread) ]
       else
-        let open Encoding.Expr in
+        let open Smtml.Expr in
         let v = Translator.translate e in
         let query =
           binop Ty_str Seq_contains v (value (Str "`touch success`"))
@@ -77,7 +77,7 @@ module Make () = struct
       if not @@ Value.is_symbolic e then
         [ (Ok (Val (Val.Symbol "undefined")), thread) ]
       else
-        let open Encoding.Expr in
+        let open Smtml.Expr in
         let v = Translator.translate e in
         let query =
           binop Ty_str Seq_contains v (value (Str ";console.log('success')//"))
@@ -89,7 +89,7 @@ module Make () = struct
       if not @@ Value.is_symbolic e then
         [ (Ok (Val (Val.Symbol "undefined")), thread) ]
       else
-        let open Encoding.Expr in
+        let open Smtml.Expr in
         let v = Translator.translate e in
         let query = binop Ty_str Seq_contains v (value (Str "./exploited")) in
         Log.log ~header:false "   readFile : %a" Value.pp e;
@@ -101,7 +101,7 @@ module Make () = struct
       Choice.return @@ Error (`Abort e')
     in
     let assume (e : value) thread =
-      let open Encoding in
+      let open Smtml in
       let e' = Translator.translate e in
       match Expr.view e' with
       | Val Value.False -> []
@@ -113,7 +113,7 @@ module Make () = struct
       let solver = Thread.solver thread in
       assert (`Sat = Solver.check solver (e' :: pc));
       let v = Solver.get_value solver e' in
-      [ (Ok (Translator.expr_of_value (Encoding.Expr.view v)), thread) ]
+      [ (Ok (Translator.expr_of_value (Smtml.Expr.view v)), thread) ]
     in
     let optimize target opt e pc =
       Optimizer.push opt;
@@ -169,9 +169,9 @@ module Make () = struct
     in
     let str_replace (s : Value.value) (t : Value.value) (t' : Value.value)
       thread =
-      let open Encoding.Expr in
+      let open Smtml.Expr in
       let x = fresh_x () in
-      let sym = Encoding.Symbol.(x @: Ty_str) in
+      let sym = Smtml.Symbol.(x @: Ty_str) in
       let s = Translator.translate s in
       let t = Translator.translate t in
       let t' = Translator.translate t' in
@@ -181,9 +181,9 @@ module Make () = struct
     in
     let str_indexof (s : Value.value) (t : Value.value) (_i : Value.value)
       thread =
-      let open Encoding.Expr in
+      let open Smtml.Expr in
       let index = fresh_x () in
-      let sym = mk_symbol Encoding.Symbol.(index @: Ty_real) in
+      let sym = mk_symbol Smtml.Symbol.(index @: Ty_real) in
       let s = Translator.translate s in
       let t = Translator.translate t in
       (* let i = Translator.translate i in *)
@@ -196,9 +196,9 @@ module Make () = struct
       ]
     in
     let str_lastIndexOf (s : Value.value) (t : Value.value) thread =
-      let open Encoding.Expr in
+      let open Smtml.Expr in
       let index = fresh_x () in
-      let sym = mk_symbol Encoding.Symbol.(index @: Ty_real) in
+      let sym = mk_symbol Smtml.Symbol.(index @: Ty_real) in
       let s = Translator.translate s in
       let t = Translator.translate t in
       (* let i = Translator.translate i in *)
@@ -211,9 +211,9 @@ module Make () = struct
     in
     let str_sub (s : Value.value) (start : Value.value) (len : Value.value)
       thread =
-      let open Encoding.Expr in
+      let open Smtml.Expr in
       let x = fresh_x () in
-      let sym = mk_symbol Encoding.Symbol.(x @: Ty_str) in
+      let sym = mk_symbol Smtml.Symbol.(x @: Ty_str) in
       let s = Translator.translate s in
       let start = Translator.translate start in
       let len = Translator.translate len in
@@ -222,9 +222,9 @@ module Make () = struct
       [ (Ok (Symbolic (Type.StrType, Val (Str x))), Thread.add_pc thread cond) ]
     in
     let str_parse_int (str : Value.value) thread =
-      let open Encoding.Expr in
+      let open Smtml.Expr in
       let x = fresh_x () in
-      let sym = mk_symbol Encoding.Symbol.(x @: Ty_real) in
+      let sym = mk_symbol Smtml.Symbol.(x @: Ty_real) in
       let str = Translator.translate str in
       let str2int = cvtop Ty_str String_to_int str in
       let int2real = cvtop Ty_real Reinterpret_int str2int in
@@ -235,7 +235,7 @@ module Make () = struct
       let x1 = fresh_x ()
       and x2 = fresh_x () in
       let cond =
-        let open Encoding in
+        let open Smtml in
         let x1 = Expr.mk_symbol Symbol.(x1 @: Ty_str) in
         let x2 = Expr.mk_symbol Symbol.(x2 @: Ty_str) in
         let sep = Translator.translate r in
@@ -250,7 +250,7 @@ module Make () = struct
     let str_match (s : Value.value) thread =
       let x = fresh_x () in
       let cond =
-        let open Encoding in
+        let open Smtml in
         let x = Expr.mk_symbol Symbol.(x @: Ty_str) in
         let s = Translator.translate s in
         Expr.binop Ty_str Seq_contains s x

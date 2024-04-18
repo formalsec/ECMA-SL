@@ -56,7 +56,7 @@ let link_env ~extern filename prog =
   Env.Build.add_extern_functions (extern filename env0) env0
 
 let pp_model fmt v =
-  let open Encoding in
+  let open Smtml in
   let pp_mapping fmt (s, v) =
     Fmt.fprintf fmt {|"%a" : %a|} Symbol.pp s Value.pp v
   in
@@ -86,7 +86,7 @@ let err_to_json = function
     `Assoc [ ("type", `String "Failure"); ("sink", `String msg) ]
 
 let serialize_thread =
-  let module Term = Encoding.Expr in
+  let module Term = Smtml.Expr in
   let (next_int, _) = Base.make_counter 0 1 in
   fun ?(witness :
          [ `Abort of string

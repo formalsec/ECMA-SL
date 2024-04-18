@@ -22,7 +22,7 @@ depends: [
   "ppx_inline_test" {with-test}
   "menhir"
   "menhirLib"
-  "encoding" {>= "0.0.4"}
+  "smtml"
   "yojson"
   "dune-site"
   "bisect_ppx" {with-test & >= "2.5.0" & dev}
@@ -47,6 +47,6 @@ build: [
 ]
 dev-repo: "git+https://github.com/formalsec/ECMA-SL.git"
 pin-depends: [
-  [ "encoding.dev" "git+https://github.com/formalsec/encoding.git"]
+  [ "smtml.dev" "git+https://github.com/formalsec/smtml.git"]
   [ "instrumentation2.dev" "git+https://github.com/formalsec/instrumentation2.git" ]
 ]

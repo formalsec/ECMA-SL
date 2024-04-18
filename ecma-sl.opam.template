@@ -1,4 +1,4 @@
 pin-depends: [
-  [ "encoding.dev" "git+https://github.com/formalsec/encoding.git"]
+  [ "smtml.dev" "git+https://github.com/formalsec/smtml.git"]
   [ "instrumentation2.dev" "git+https://github.com/formalsec/instrumentation2.git" ]
 ]
