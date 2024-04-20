@@ -42,12 +42,12 @@ function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
      of F. thisArgument is the this value, argumentsList provides the named
      parameters, and the NewTarget value is undefined. */
   result := 'undefined;
-  if (("ECMAScriptCode" in_obj F) &&& (typeof F.ECMAScriptCode = __$Str)
+  if (("ECMAScriptCode" in_obj F) &&& (typeof (F.ECMAScriptCode) = "string")
 		&&& ((F.ECMAScriptCode = "FunctionPrototypeCall") ||| (F.ECMAScriptCode = "TypedArraySubConstructor"))) {
 	  args := completeArgs(argumentsList, F);
 	  result := {F.ECMAScriptCode}(externalScope, V, NewTarget, F.strict, args) catch BuiltInCall_Handler
 	}
-	elif (("ECMAScriptCode" in_obj F) &&& ((typeof F.ECMAScriptCode = __$Str) ||| (typeof F.ECMAScriptCode = __$Curry))) {
+	elif (("ECMAScriptCode" in_obj F) &&& ((typeof (F.ECMAScriptCode) = "string") ||| (typeof (F.ECMAScriptCode) = "curry"))) {
 	  args := completeArgs(argumentsList, F);
 	  result := {F.ECMAScriptCode}(F.Environment, V, NewTarget, F.strict, args) catch BuiltInCall_Handler
 	};

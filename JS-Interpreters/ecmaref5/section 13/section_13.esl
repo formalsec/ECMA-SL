@@ -56,7 +56,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
   {F.DefineOwnProperty}(F, "length", newDataPropertyDescriptorFull(int_to_float len, false, false, true), false);
   /* 16. Let proto be the result of creating a new object as would be constructed by the expression new Object()
         where Object is the standard built-in constructor with that name. */
-  if (!(typeof FunctionBody = __$Str)) {
+  if (!(typeof (FunctionBody) = "string")) {
     proto := ObjectConstructor(|global|, 'null, Strict, [null]);
     /* 17. Call the [[DefineOwnProperty]] internal method of proto with arguments "constructor", Property Descriptor
           {[[Value]]: F, { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false. */
@@ -91,12 +91,12 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
 
 /* 13.2.1 [[Call]] */
 function Call(externalScope, ref, F, this, args) {
-  if (("Code" in_obj F) &&& (typeof F.Code = __$Str) &&& (F.Code = "GlobalObjectEval")) {
+  if (("Code" in_obj F) &&& (typeof (F.Code) = "string") &&& (F.Code = "GlobalObjectEval")) {
     args := completeArgs(args, F);
     strict := F.strict ||| isContainedInStrictCode(externalScope);
     return {F.Code}(externalScope, ref, this, strict, args)
   };
-  if (("Code" in_obj F) &&& ((typeof F.Code = __$Str) || (typeof F.Code = __$Curry))) {
+  if (("Code" in_obj F) &&& ((typeof (F.Code) = "string") || (typeof (F.Code) = "curry"))) {
     args := completeArgs(args, F);
     return {F.Code}(F.Scope, this, F.strict, args)
   };
@@ -261,5 +261,5 @@ function numberOfFormalParameters(formalParametersList) {
 };
 
 function isValueAnEmptyFunctionBody(value) {
-  return ((typeof value = __$Obj) &&& ("body" in_obj value) &&& (value.body = []))
+  return ((typeof (value) = "object") &&& ("body" in_obj value) &&& (value.body = []))
 }

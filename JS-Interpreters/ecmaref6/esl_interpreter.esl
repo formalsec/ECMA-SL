@@ -1343,7 +1343,7 @@ function JS_Interpreter_PropertyName(PropertyName, scope, isComputed) {
   /* The production PropertyName : StringLiteral is evaluated as follows: */
   | { type: "Literal", value: Literal } -> {
     /* Return the SV of the StringLiteral. */
-    if (typeof Literal = __$Str) {
+    if (typeof (Literal) = "string") {
       return Literal
     };
     /* The production PropertyName : NumericLiteral is evaluated as follows: */
