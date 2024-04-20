@@ -14,6 +14,7 @@
   doc_symbolic
   doc_replay
   doc_explodejs
+  doc_exploit
   options
   ; commands
   cmd_compile
@@ -24,6 +25,7 @@
   cmd_symbolic
   cmd_replay
   cmd_explodejs
+  cmd_exploit
   cmd
   ; enums
   debug_lvl

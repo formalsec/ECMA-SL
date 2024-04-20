@@ -1,5 +1,5 @@
 Test eval explode :
-  $ ecma-sl explode-js test_sink_eval.js
+  $ ecma-sl exploit test_sink_eval.js
          eval : (`source : __$Str)
   Found 1 problems!
     replaying : test_sink_eval.js...
@@ -7,7 +7,7 @@ Test eval explode :
        status : true ("success" in stdout)
 
 Test exec explode:
-  $ ecma-sl explode-js test_sink_exec.js
+  $ ecma-sl exploit test_sink_exec.js
          exec : s_concat(["git fetch ", (`remote : __$Str)])
   Found 1 problems!
     replaying : test_sink_exec.js...
@@ -15,7 +15,7 @@ Test exec explode:
        status : true (created file "success")
 
 Test polluted explode:
-  $ ecma-sl explode-js test_pollution_2.js
+  $ ecma-sl exploit test_pollution_2.js
         abort : "Prototype pollution detected!"
   Found 1 problems!
     replaying : test_pollution_2.js...
