@@ -45,7 +45,6 @@ type unopt =
   | Ceil
   | Floor
   | Trunc
-  | Exp
 
 type binopt =
   (* Arithmetic operators *)
@@ -153,7 +152,6 @@ let label_of_unopt (op : unopt) : string =
   | Ceil -> "Math.ceil"
   | Floor -> "Math.floor"
   | Trunc -> "Math.trunc"
-  | Exp -> "Math.exp"
 
 let label_of_binopt (op : binopt) : string =
   match op with
@@ -232,7 +230,6 @@ let pp_of_unopt_single (ppf : Fmt.t) (op : unopt) : unit =
   | Ceil -> pp_str ppf "ceil"
   | Floor -> pp_str ppf "floor"
   | Trunc -> pp_str ppf "trunc"
-  | Exp -> pp_str ppf "exp"
 
 let pp_of_binopt_single (ppf : Fmt.t) (op : binopt) : unit =
   let open Fmt in

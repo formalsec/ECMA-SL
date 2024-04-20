@@ -44,7 +44,6 @@ let%test "unopt_abs" = test_unopt (Abs, Real 10.1) t_float
 let%test "unopt_sqrt" = test_unopt (Sqrt, Real 10.1) t_float
 let%test "unopt_ceil" = test_unopt (Ceil, Real 10.1) t_float
 let%test "unopt_floor" = test_unopt (Floor, Real 10.1) t_float
-let%test "unopt_exp" = test_unopt (Exp, Real 10.1) t_float
 
 (* ========== Simple Binary Operators ========== *)
 

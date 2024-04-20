@@ -30,7 +30,7 @@ function setValuePropertiesOfMathObject(mathObject) {
   /* 20.2.1.1 Math.E */
   /* The Number value for e, the base of the natural logarithms, which is approximately 2.7182818284590452354. */
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
-  createBuiltInPropertyWithFullDescriptor(mathObject, "E", exp 1., false, false, false);
+  createBuiltInPropertyWithFullDescriptor(mathObject, "E", exp (1.), false, false, false);
 
   /* 20.2.1.2 Math.LN10 */
   /* The Number value for the natural logarithm of 10, which is approximately 2.302585092994046. */
@@ -45,13 +45,13 @@ function setValuePropertiesOfMathObject(mathObject) {
   /* 20.2.1.4 Math.LOG10E */
   /* The Number value for the base-10 logarithm of e, the base of the natural logarithms; this value is approximately 0.4342944819032518. */
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
-  createBuiltInPropertyWithFullDescriptor(mathObject, "LOG10E", log_10 (exp 1.), false, false, false);
+  createBuiltInPropertyWithFullDescriptor(mathObject, "LOG10E", log_10 (exp (1.)), false, false, false);
   /* NOTE The value of Math.LOG10E is approximately the reciprocal of the value of Math.LN10. */
 
   /* 20.2.1.5 Math.LOG2E */
   /* The Number value for the base-2 logarithm of e, the base of the natural logarithms; this value is approximately 1.4426950408889634. */
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
-  createBuiltInPropertyWithFullDescriptor(mathObject, "LOG2E", (log_10 (exp 1.)) / (log_10 (2.)), false, false, false);
+  createBuiltInPropertyWithFullDescriptor(mathObject, "LOG2E", (log_10 (exp (1.))) / (log_10 (2.)), false, false, false);
   /* NOTE The value of Math.LOG2E is approximately the reciprocal of the value of Math.LN2. */
 
   /* 20.2.1.6 Math.PI */
@@ -553,7 +553,7 @@ function MathExp(globalObject, this, NewTarget, stric, params) {
   /* If x is −0, the result is 1. */
   /* If x is +∞, the result is +∞. */
   /* If x is −∞, the result is +0. */
-  return exp x
+  return exp (x)
 };
 
 /* 20.2.2.15 Math.expm1 ( x ) */

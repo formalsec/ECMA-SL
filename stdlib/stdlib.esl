@@ -145,6 +145,10 @@ function random(f : float) : float {
   return extern random_external(f)
 }
 
+function exp(f : float) : float{
+  return extern exp_external(f)
+}
+
 function log_2(f : float) : float {
   return extern log_2_external(f)
 }

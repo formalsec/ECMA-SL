@@ -94,7 +94,6 @@
             "ceil"                    , CEIL;
             "floor"                   , FLOOR;
             "trunc"                   , TRUNC;
-            "exp"                     , EXP;
 
             (* Type system *)
             "typedef"                 , TYPEDEF;
