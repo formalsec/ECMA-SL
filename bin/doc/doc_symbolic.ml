@@ -4,11 +4,10 @@ let doc = "Performs symbolic analysis on an ECMA-SL program"
 let sdocs = Manpage.s_common_options
 
 let description =
-  [ "Given an JavaScript (.js), ECMA-SL (.esl), or Core ECMA-SL (.cesl) file, \
-     runs the program using the ECMA-SL symbolic engine."
-  ]
+  "Given an JavaScript (.js), ECMA-SL (.esl), or Core ECMA-SL (.cesl) file, \
+   runs the program using the ECMA-SL symbolic engine."
 
-let man = [ `S Manpage.s_description; `P (List.nth description 0) ]
+let man = [ `S Manpage.s_description; `P description ]
 let man_xrefs = []
 
 let options =

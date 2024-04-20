@@ -4,20 +4,20 @@ open EslBase.Syntax.Result
 exception Out_of_time
 
 type options =
-  { filename : Fpath.t
+  { config : Fpath.t
+  ; filename : Fpath.t option
   ; workspace : Fpath.t
   ; time_limit : float
   }
 
-let options filename workspace = { filename; workspace; time_limit = 300. }
+let options config filename workspace time_limit =
+  { config; filename; workspace; time_limit }
 
-let get_tests ~workspace (filename : Fpath.t) =
-  match Fpath.has_ext ".js" filename with
-  | true -> Ok [ filename ]
-  | false ->
-    let config = Fpath.to_string filename in
-    let output = Fpath.(to_string @@ (workspace / "symbolic_test")) in
-    Run.run ~config ~output ()
+let get_tests ~workspace (config : Fpath.t) (filename : Fpath.t option) =
+  let file = Option.map Fpath.to_string filename in
+  let config = Fpath.to_string config in
+  let output = Fpath.(to_string @@ (workspace / "symbolic_test")) in
+  Run.run ?file ~config ~output ()
 
 let run_with_timeout limit f =
   let set_timer limit =
@@ -34,8 +34,7 @@ let run_with_timeout limit f =
   let f () = try `Ok (f ()) with Out_of_time -> `Timeout in
   Fun.protect f ~finally:unset
 
-let run_single ?(time_limit = 0.) ~(workspace : Fpath.t) (filename : Fpath.t) :
-  int =
+let run_single ~time_limit ~(workspace : Fpath.t) (filename : Fpath.t) : int =
   let result =
     run_with_timeout time_limit (fun () ->
         let n =
@@ -46,12 +45,12 @@ let run_single ?(time_limit = 0.) ~(workspace : Fpath.t) (filename : Fpath.t) :
   match result with
   | `Ok n -> n
   | `Timeout ->
-    Format.printf "Reached time_limit@.";
-    1
+    Format.eprintf "warning: Reached time limit@.";
+    4
 
-let run_all ({ filename; workspace; time_limit } : options) =
+let run_all ({ config; filename; workspace; time_limit } : options) =
   let* _ = Bos.OS.Dir.create workspace in
-  let* symbolic_tests = get_tests ~workspace filename in
+  let* symbolic_tests = get_tests ~workspace config filename in
   let rec loop = function
     | [] -> Ok 0
     | test :: remaning ->
@@ -64,9 +63,11 @@ let run_all ({ filename; workspace; time_limit } : options) =
 let main opts () =
   match run_all opts with
   | Ok n -> n
-  | Error (`Status n) ->
-    Format.eprintf "error: Failed during symbolic execution/confirmation@.";
-    n
-  | Error (`Msg msg) ->
-    Format.eprintf "error: %s@." msg;
-    1
+  | Error err -> (
+    match err with
+    | #I2.Result.err as error ->
+      Format.eprintf "error: %a@." I2.Result.pp error;
+      I2.Result.to_code error
+    | `Status n ->
+      Format.eprintf "error: Failed during symbolic execution/confirmation@.";
+      n )

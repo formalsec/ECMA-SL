@@ -79,7 +79,7 @@ let replay_cmd =
 
 let explode_cmd =
   let open Doc_explodejs in
-  let info = Cmd.info "explode-js" ~doc ~sdocs ~man ~man_xrefs in
+  let info = Cmd.info "explode-js" ~doc ~sdocs ~man ~man_xrefs ~exits in
   Cmd.v info term
 
 let exploit_cmd =

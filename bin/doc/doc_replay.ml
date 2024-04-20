@@ -2,11 +2,8 @@ open Cmdliner
 
 let doc = "Validates the symbolic testsuit"
 let sdocs = Manpage.s_common_options
-
-let description =
-  [ (`P0, "Replays concrete testsuites generated in symbolic execution.") ]
-
-let man = [ `S Manpage.s_description; `P (List.assoc `P0 description) ]
+let description = "Replays concrete testsuites generated in symbolic execution."
+let man = [ `S Manpage.s_description; `P description ]
 let man_xrefs = []
 
 let options =
