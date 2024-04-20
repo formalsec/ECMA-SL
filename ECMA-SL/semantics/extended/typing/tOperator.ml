@@ -67,7 +67,6 @@ let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
   | Ceil -> type_op [ ([ FloatType ], FloatType) ]
   | Floor -> type_op [ ([ FloatType ], FloatType) ]
   | Trunc -> type_op [ ([ FloatType ], FloatType) ]
-  | Exp -> type_op [ ([ FloatType ], FloatType) ]
 
 let type_binopt (op : Operator.binopt) (targs : EType.t list) : EType.t' =
   let not_implemented = EType.AnyType in

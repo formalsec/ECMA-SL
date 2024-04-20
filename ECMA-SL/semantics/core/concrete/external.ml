@@ -460,6 +460,12 @@ module Impl = struct
     | Real f -> Real (Random.float f)
     | _ -> bad_arg_err 1 op_lbl "float" [ v ]
     
+  let exp (v : Value.t) : Value.t =
+    let op_lbl = "exp_external" in
+    match v with
+    | Real f -> Real (Float.exp f)
+    | _ -> bad_arg_err 1 op_lbl "float" [ v ]
+    
   let log_2 (v : Value.t) : Value.t =
     let op_lbl = "log_2_external" in
     match v with
@@ -662,6 +668,7 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("uint_from_le_bytes_external", [ v1; v2 ]) -> uint_from_le_bytes (v1, v2)
   (* math *)
   | ("random_external", [ v ]) -> random v
+  | ("exp_external", [ v ]) -> exp v
   | ("log_2_external", [ v ]) -> log_2 v
   | ("log_e_external", [ v ]) -> log_e v
   | ("log_10_external", [ v ]) -> log_10 v
