@@ -40,6 +40,25 @@ module Impl = struct
   (_vals : Value.t list) : 'a =
   failwith "bad_arg_err"
 
+  let typeof (v : Value.t) : Value.t =
+    let op_lbl = "typeof_external" in
+    match v with
+    | App (`Op "null", _) -> Str "null"
+    | App (`Op "void", _) -> unexpected_err 1 op_lbl "void value"
+    | Int _ -> Str "int"
+    | Real _ -> Str "float"
+    | True| False -> Str "bool"
+    | Str _ -> Str "string"
+    | App (`Op "symbol", _) -> Str "symbol"
+    | App (`Op "loc", _) -> Str "object"
+    (* TODO:x | Arr _ -> Type ArrayType *)
+    | List _ -> Str "list"
+    (* | Tuple _ -> Type TupleType *)
+    (* | Type _ -> Type TypeType *)
+    (* | Byte _ -> Internal_error.(throw __FUNCTION__ (NotImplemented "byte typeof")) *)
+    | App (`Op _, _) -> Str "curry"
+    | _ -> unexpected_err 1 op_lbl "value type"
+
   let int_to_four_hex (v : Value.t) : Value.t =
     let op_lbl = "int_to_four_hex_external" in
     match v with
@@ -623,6 +642,7 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   match (fn, vs) with
   | ("is_symbolic", _) -> Value.False
   | ("parseJS", [ Value.Str code ]) -> parseJS prog code
+  | ("typeof_external", [ v ]) -> typeof v
   (* int *)
   | ("int_to_four_hex_external", [ v ]) -> int_to_four_hex v
   | ("octal_to_decimal_external", [ v ]) -> octal_to_decimal v

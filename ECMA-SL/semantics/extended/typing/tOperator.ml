@@ -39,7 +39,6 @@ let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
   let not_implemented = EType.AnyType in
   let type_op = type_operator targs in
   match op with
-  | Typeof -> not_implemented
   | Neg -> type_op [ ([ IntType ], IntType); ([ FloatType ], FloatType) ]
   | BitwiseNot -> type_op [ ([ FloatType ], FloatType) ]
   | LogicalNot -> type_op [ ([ BooleanType ], BooleanType) ]

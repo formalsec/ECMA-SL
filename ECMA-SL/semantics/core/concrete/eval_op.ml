@@ -34,7 +34,6 @@ let string_concat (v : Value.t) : Value.t =
 
 let unop_semantics (op : Operator.unopt) = 
   match op with
-  | Typeof -> (* TODO:x *) failwith "unop_semantics.typeof"
   | Neg -> (function
             | Value.Int _ as v -> Eval.(unop Ty_int Ty.Neg v)
             | Value.Real _ as v -> Eval.(unop Ty_real Ty.Neg v)

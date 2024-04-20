@@ -54,7 +54,7 @@ function ToNumber(argument) {
       }
     }
     case "Number": {
-      if (typeof argument = __$Int) {
+      if (typeof (argument) = "int") {
         return int_to_float argument
       };
       return argument

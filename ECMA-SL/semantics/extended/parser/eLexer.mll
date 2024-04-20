@@ -45,9 +45,6 @@
             "MIN_VALUE"               , MIN_VALUE;
             "PI"                      , PI;
 
-            (* General operators *)
-            "typeof"                  , TYPEOF;
-
             (* Integer operators *)
             "int_to_float"            , INT_TO_FLOAT;
             "int_to_string"           , INT_TO_STRING;

@@ -11,7 +11,7 @@
 %token LAND LOR
 %token EQ NEQ LT GT LE GE
 
-%token TYPEOF ITE
+%token ITE
 
 %token INT_TO_FLOAT INT_TO_STRING
 %token FLOAT_TO_INT FLOAT_TO_STRING
@@ -66,7 +66,6 @@
   | GE;                     { Operator.Ge }
 
 %public let core_unopt_call ==
-  | TYPEOF;                 { Operator.Typeof }
   | INT_TO_FLOAT;           { Operator.IntToFloat }
   | INT_TO_STRING;          { Operator.IntToString }
   | FLOAT_TO_INT;           { Operator.FloatToInt }

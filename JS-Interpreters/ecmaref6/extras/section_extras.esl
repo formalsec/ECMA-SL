@@ -17,7 +17,7 @@ function initConsoleObject(globalObject, objectPrototype, strict) {
 function __internalLog(globalObject, this, NewTarget, strict, params) {
   str := l_nth(params, 0);
 
-  if (!(typeof str = __$Str)) {
+  if (!(typeof (str) = "string")) {
     if (Type(str) = "Symbol") {
       str := symbolDescriptiveString(str)
     } else {
@@ -33,7 +33,7 @@ function __internalLog(globalObject, this, NewTarget, strict, params) {
 function __internalLogObject(globalObject, this, NewTarget, strict, params) {
   obj := l_nth(params, 0);
 
-  if (!((typeof obj) = __$Obj)) {
+  if (!((typeof (obj)) = "object")) {
     return __internalLog(globalObject, this, NewTarget, strict, params)
   };
 

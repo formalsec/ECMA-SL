@@ -682,7 +682,7 @@ function OrdinaryObjectEnumerateAux(O) {
   ownKeys := {O.OwnPropertyKeys}(O);
 
   foreach (k : ownKeys) {
-    if ((typeof k) = __$Str) {
+    if ((typeof (k)) = "string") {
     /*if (Type(k) = "String") {*/
       desc_k := {O.GetOwnProperty}(O, k);
       visited[k] := true;
@@ -924,7 +924,7 @@ function ObjectCreate(proto, internalSlotsList) {
 function GetPrototypeFromConstructor(constructor, intrinsicDefaultProto) {
     /* Assert: intrinsicDefaultProto is a String value that is this specification’s name of an intrinsic object. The
     corresponding object must be an intrinsic that is intended to be used as the [[Prototype]] value of an object. */
-    assert((typeof intrinsicDefaultProto = __$Str) &&& (isIntrinsic(intrinsicDefaultProto)));
+    assert((typeof (intrinsicDefaultProto) = "string") &&& (isIntrinsic(intrinsicDefaultProto)));
 
 
     /* Assert: IsConstructor (constructor) is true. */

@@ -8,12 +8,12 @@ function InternalFunction(name: string): JSInternalFunction_t {
 
 function esl_symbolic_number(args: any): any {			/* FIXME: replace by list type */
 	name: string := l_nth(args, 0);
-	return se_mk_symbolic(__$Flt, name)
+	return se_mk_symbolic("float", name)
 };
 
 function esl_symbolic_string(args): any {					/* FIXME: replace by list type */
 	name: string := l_nth(args, 0);
-	return se_mk_symbolic(__$Str, name)
+	return se_mk_symbolic("string", name)
 };
 
 function esl_symbolic_assert(args): int {					/* FIXME: replace by list type */

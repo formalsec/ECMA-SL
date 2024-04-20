@@ -2,20 +2,20 @@
  * 6.1 Types
  */
 function Type(V) {
-  v_type := typeof V;
-  if (v_type = __$Int) { return "Number" };
-  if (v_type = __$Flt) { return "Number" };
-  if (v_type = __$Bool) { return "Boolean" };
-  if (v_type = __$Str) { return "String" };
-  if (v_type = __$Obj) {
+  v_type := typeof (V);
+  if (v_type = "int") { return "Number" };
+  if (v_type = "float") { return "Number" };
+  if (v_type = "bool") { return "Boolean" };
+  if (v_type = "string") { return "String" };
+  if (v_type = "object") {
     if (isJavaScriptSymbol(V)) { return "Symbol" };
     if (isJavaScriptObject(V)) { return "Object" };
     if (isPropertyDescriptor(V)) { return "PropertyDescriptor" };
     if (isCodeObject(V)) { return "Object" };
     return "EnvironmentRecord"
   };
-  if (v_type = __$List) { return "List" };
-  if (v_type = __$Symbol) {
+  if (v_type = "list") { return "List" };
+  if (v_type = "symbol") {
     if (V = 'null) { return "Null" };
     if (V = 'undefined) { return "Undefined" }
   };
@@ -25,7 +25,7 @@ function Type(V) {
     if (ft = "C") { return "Completion" };
     if (ft = "P") { return "PropertyIdentifier" }
   };
-  if (v_type = __$Null) { return "Null" };
+  if (v_type = "null") { return "Null" };
   if (V = 'empty) { return null };
   return "Lambda"
 };
