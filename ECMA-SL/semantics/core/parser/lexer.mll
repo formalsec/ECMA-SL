@@ -25,7 +25,6 @@
             "assert"                  , ASSERT;
 
             (* General operators *)
-            "typeof"                  , TYPEOF;
             "ite"                     , ITE;
 
             (* Integer operators *)

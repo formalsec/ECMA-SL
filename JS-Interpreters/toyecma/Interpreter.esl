@@ -133,7 +133,7 @@ function interpreter(scope, s) {
 					} else {
 						propVal := prop.name
 					};
-					if (!(typeof objVal = __$Obj)) {
+					if (!(typeof (objVal) = "object")) {
     				raiseError("Unable to update property from a non object value.", objVal)
   				};
 					oldVal := {objVal.resolveProperty}(objVal, propVal);
@@ -185,7 +185,7 @@ function interpreter(scope, s) {
 			} else {
 				propVal := prop.name
 			};
-			if (!(typeof objVal = __$Obj)) {
+			if (!(typeof (objVal) = "object")) {
     		raiseError("Unable to access property from a non object value.", objVal)
   		};
 			val := {objVal.resolveProperty}(objVal, propVal);

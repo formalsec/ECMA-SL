@@ -210,7 +210,7 @@ function IsPropertyReference (V) {
   };
 
   return false
-  /* return (typeof V = __$Tuple) && (t_nth(V, 0) = "R") && (t_nth(V, 1) = "P") */
+  /* return (typeof (V) = __$Tuple) && (t_nth(V, 0) = "R") && (t_nth(V, 1) = "P") */
 };
 
 /* Returns true if the base value is undefined and false otherwise. */

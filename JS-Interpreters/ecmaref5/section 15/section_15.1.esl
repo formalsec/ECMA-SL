@@ -338,7 +338,7 @@ function parseAsProgram(progStr, strict) {
 };
 
 function optimizeInitGlobalObject(strict) {
-  if ((typeof strict = __$Bool) &&& strict) {
+  if ((typeof (strict) = "bool") &&& strict) {
     loc_global := extern loadInitialHeap("globalHeap_strict.json")
   } else {
     loc_global := extern loadInitialHeap("globalHeap.json")

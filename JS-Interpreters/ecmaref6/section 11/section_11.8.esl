@@ -1,6 +1,6 @@
 /* Section 11.8: Literals */
 function formingTheValueOfTheNumericLiteral(literal) {
-  if ((typeof literal = __$Int)) {
+  if ((typeof (literal) = "int")) {
     return int_to_float literal
   } else {
     return literal

@@ -1722,7 +1722,7 @@ function JS_Interpreter_PropertyName(PropertyName, scope) {
   }
   | { type: "Literal", value: Literal } -> {
     /* The production PropertyName : StringLiteral is evaluated as follows: */
-    if (typeof Literal = __$Str) {
+    if (typeof (Literal) = "string") {
       return JS_Interpreter_PropertyName_StringLiteral(Literal)
     };
     /* The production PropertyName : NumericLiteral is evaluated as follows: */

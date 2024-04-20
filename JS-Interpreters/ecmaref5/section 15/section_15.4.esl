@@ -342,7 +342,7 @@ function internalNewArrayLen(arrayPrototype, len) {
       set to "Array". */
   setInternalProperty(newlyConstructedObject, "Class", "Array");
 
-  lenIsNumber := (typeof len = __$Flt);
+  lenIsNumber := (typeof (len) = "float");
   /* If the argument len is a Number and ToUint32(len) is equal to len, then
      the length property of the newly constructed object is set to ToUint32(len). */
   if (lenIsNumber &&& ((ToUint32(len) = len))) {
@@ -562,7 +562,7 @@ function arrayConcat(global, this, strict, items) {
 
     /* b. If the value of the [[Class]] internal property of E is "Array",
           then */
-    if ((typeof E = __$Obj) &&& (E.Class = "Array")) {
+    if ((typeof (E) = "object") &&& (E.Class = "Array")) {
       /* i. Let k be 0. */
       k := int_to_float 0;
       /* ii. Let len be the result of calling the [[Get]] internal method

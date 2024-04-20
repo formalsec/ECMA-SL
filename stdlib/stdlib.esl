@@ -1,5 +1,9 @@
 /* TODO: Separate this into smaller files */
 
+function typeof(v) : string {
+  return extern typeof_external(v)
+}
+
 /* Int operators */
 function int_to_four_hex(n : int) : string {
   return extern int_to_four_hex_external(n)

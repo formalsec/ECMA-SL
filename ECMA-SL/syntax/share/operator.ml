@@ -6,8 +6,6 @@ type const =
   | PI
 
 type unopt =
-  (* General operators *)
-  | Typeof
   (* Arithmetic operators *)
   | Neg
   (* Bitwise operators *)
@@ -124,7 +122,6 @@ let label_of_const (c : const) : string =
 
 let label_of_unopt (op : unopt) : string =
   match op with
-  | Typeof -> "typeof"
   | Neg -> "Arith.neg (-)"
   | BitwiseNot -> "Bitwise.not (~)"
   | LogicalNot -> "Logical.not (!)"
@@ -202,7 +199,6 @@ let label_of_nopt (op : nopt) : string =
 let pp_of_unopt_single (ppf : Fmt.t) (op : unopt) : unit =
   let open Fmt in
   match op with
-  | Typeof -> pp_str ppf "typeof"
   | Neg -> pp_str ppf "-"
   | BitwiseNot -> pp_str ppf "~"
   | LogicalNot -> pp_str ppf "!"
