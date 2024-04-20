@@ -73,7 +73,6 @@
             "sqrt"                    , SQRT;
             "ceil"                    , CEIL;
             "floor"                   , FLOOR;
-            "exp"                     , EXP;
 
           ]
 

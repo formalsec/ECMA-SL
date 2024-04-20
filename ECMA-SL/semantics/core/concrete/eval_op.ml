@@ -14,6 +14,23 @@ let bad_arg_err (arg : int) (op_lbl : string) (types : string)
   (vals : Value.t list) : 'a =
   op_err arg op_lbl (BadOpArgs (types, vals))
 
+let string_concat_aux (lst : Value.t list) : string list option =
+  let concat_f acc v =
+    match (acc, v) with
+    | (Some strs, Value.Str s) -> Some (strs @ [ s ])
+    | _ -> None
+  in
+  List.fold_left concat_f (Some []) lst
+  
+let string_concat (v : Value.t) : Value.t =
+  let op_lbl = label_of_unopt StringConcat in
+  match v with
+  | List lst -> (
+    let strs = string_concat_aux lst in
+    match strs with
+    | Some strs -> Str (String.concat "" strs)
+    | None -> bad_arg_err 1 op_lbl "string list" [ v ] )
+  | _ -> bad_arg_err 1 op_lbl "string list" [ v ]
 
 let unop_semantics (op : Operator.unopt) = 
   match op with
@@ -55,13 +72,9 @@ let unop_semantics (op : Operator.unopt) =
   | StringLen -> (function
             | Value.Str _ as v -> Eval.(unop Ty_str Ty.Length v)
             | _ as v -> bad_arg_err 1 "unop_semantics.stringLen" "string" [ v ])
-  (* TODO:x tocheck StringConcat *)
-  | StringConcat -> (* (function
-            | Value.List _ as v -> Eval.(unop Ty_list Ty.Concat v)
-            | _ -> failwith "unop_semantics.stringConcat") *)
-            assert false
   | ObjectToList -> failwith "unop_semantics.objectToList"
   | ObjectFields -> failwith "unop_semantics.objectFields"
+  | StringConcat -> string_concat 
   | ListHead | TupleFirst -> (function
             | Value.List _ as v -> Eval.(unop Ty_list Ty.Head v)
             | _ as v -> bad_arg_err 1 "unop_semantics.listHead/tupleFirst" "non-empty list/tuple" [ v ])
@@ -90,7 +103,6 @@ let unop_semantics (op : Operator.unopt) =
   | Trunc -> (function
             | Value.Real _ as v -> Eval.(unop Ty_real Ty.Trunc v)
             | _ as v -> bad_arg_err 1 "unop_semantics.trunc" "float" [ v ])
-  | Exp -> (* TODO:x check external function or keep? *) failwith "unop_semantics.exp"
   
 let binop_semantics (op : Operator.binopt) =
   let make_bool b = if b then Value.True else Value.False in
@@ -129,7 +141,7 @@ let binop_semantics (op : Operator.binopt) =
             | Value.Real _ , Value.Real _  -> Eval.(binop Ty_real Ty.Pow v1 v2)
             | (Real _, _) -> bad_arg_err 2 "binop_semantics.pow" "(float, float)" [ v1; v2 ]
             | _ -> bad_arg_err 1 "binop_semantics.pow" "(float, float)" [ v1; v2 ])
-  (* FIXME: check if bitwise operators are correct (float vs int) *)
+  (* FIXME: need do change to Ty_int after smtml has implemented*)
   | BitwiseAnd -> (fun v1 v2 -> match v1, v2 with
             | Value.Int _ , Value.Int _  -> Eval.(binop (Ty_bitv 32) Ty.And v1 v2)
             | (Int _, _) -> bad_arg_err 2 "binop_semantics.bitwiseAnd" "(integer, integer)" [ v1; v2 ]
@@ -166,10 +178,7 @@ let binop_semantics (op : Operator.binopt) =
   | SCLogicalOr -> failwith "binop_semantics.scLogicalOr"
   | Eq -> ( fun v1 v2 -> make_bool (not @@ Value.equal v1 v2))
   | NE -> ( fun v1 v2 -> make_bool (not @@ Value.equal v1 v2))
-  (* TODO:x how to deal? *)
   | Lt -> (fun v1 v2 -> match v1, v2 with
-            | Value.Real _ , Value.Int i  -> make_bool Eval.(relop Ty_real Ty.Lt v1 (Real (float i)))
-            | Value.Int i , Value.Real _  -> make_bool Eval.(relop Ty_real Ty.Lt (Real (float i)) v2)
             | Value.Int _ , Value.Int _  -> make_bool Eval.(relop Ty_int Ty.Lt v1 v2)
             | Value.Real _ , Value.Real _  -> make_bool Eval.(relop Ty_real Ty.Lt v1 v2)
             | _ -> failwith "binop_semantics.lt")
@@ -215,7 +224,7 @@ let triop_semantics (op: Operator.triopt) =
             | Value.List _, Value.Int _-> Eval.(triop Ty_list Ty.List_set v1 v2 v3)
             | List _, _ -> bad_arg_err 2 "triopt_semantics.listSet" "(list, integer, any)" [ v1; v2; v3 ]
             | _ -> bad_arg_err 1 "triopt_semantics.listSet" "(list, integer, any)" [ v1; v2; v3 ])
-
+  
 let to_bool_aux (v : Value.t) : bool =
   match v with 
   | Value.True -> true

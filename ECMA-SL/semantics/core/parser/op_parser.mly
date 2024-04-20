@@ -29,7 +29,7 @@
 %token TUPLE_FIRST TUPLE_SECOND TUPLE_LEN
 %token TUPLE_NTH
 
-%token ABS SQRT CEIL FLOOR TRUNC EXP
+%token ABS SQRT CEIL FLOOR TRUNC
 
 %token EXCLAMATION
 %token TILDE
@@ -89,7 +89,6 @@
   | CEIL;                   { Operator.Ceil }
   | FLOOR;                  { Operator.Floor }
   | TRUNC;                  { Operator.Trunc }
-  | EXP;                    { Operator.Exp }
 
 %public let core_binopt_call ==
   | STRING_NTH;             { Operator.StringNth }
