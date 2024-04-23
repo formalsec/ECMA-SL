@@ -1,7 +1,7 @@
 open Ecma_sl
 
 module Options = struct
-  let langs : Enums.Lang.t list = Enums.Lang.[ Auto; JS ]
+  let langs : Enums.Lang.t list = Enums.Lang.[ Auto; JS; CESL ]
 
   type instrument = Cmd_interpret.Options.instrument
 
@@ -48,15 +48,19 @@ let setup_execution (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option)
   let static_heap = Option.map (setup_harness instrument interp) harness in
   (interp, static_heap)
 
-let execute_js ((interp, static_heap) : Prog.t * Val.t Heap.t option)
+let execute_cesl ((interp, static_heap) : Prog.t * Val.t Heap.t option)
+  (instrument : Options.instrument) (input : Fpath.t) : Val.t =
+  let main = if Option.is_some static_heap then "mainPartial" else "main" in
+  let entry = { Interpreter.EntryPoint.default with main; static_heap } in
+  let retval = fst (execute_partial entry instrument interp input) in
+  Log.debug "Sucessfuly evaluated program with return '%a'." Val.pp retval;
+  retval
+
+let execute_js (setup : Prog.t * Val.t Heap.t option)
   (instrument : Options.instrument) (input : Fpath.t) : Val.t =
   let ast = Fpath.v (Filename.temp_file "ecmasl" "ast.cesl") in
   Cmd_encode.encode None input (Some ast);
-  let main = if Option.is_some static_heap then "mainPartial" else "main" in
-  let entry = { Interpreter.EntryPoint.default with main; static_heap } in
-  let retval = fst (execute_partial entry instrument interp ast) in
-  Log.debug "Sucessfuly evaluated program with return '%a'." Val.pp retval;
-  retval
+  execute_cesl setup instrument ast
 
 let run () (opts : Options.t) : unit =
   let valid_langs = Enums.Lang.valid_langs Options.langs opts.lang in
@@ -65,4 +69,5 @@ let run () (opts : Options.t) : unit =
   @@
   match Enums.Lang.resolve_file_lang valid_langs opts.input with
   | Some JS -> execute_js setup opts.instrument opts.input
+  | Some CESL -> execute_cesl setup opts.instrument opts.input
   | _ -> execute_js setup opts.instrument opts.input
