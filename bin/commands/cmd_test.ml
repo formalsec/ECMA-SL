@@ -34,7 +34,7 @@ module Test = struct
   let failure (streams : Log.Redirect.t) (input : Fpath.t) : unit =
     log streams input [ Red ] "Test Failure:"
 
-  let jsinterp_fail (streams : Log.Redirect.t) (input : Fpath.t) : unit =
+  let interp_fail (streams : Log.Redirect.t) (input : Fpath.t) : unit =
     log streams input [ Purple ] "Interpreter Failure:"
 
   let internal_fail (streams : Log.Redirect.t) (input : Fpath.t) : unit =
@@ -54,7 +54,7 @@ let run_single (setup : Prog.t * Val.t Heap.t option) (input : Fpath.t)
   let streams = Log.Redirect.capture Null in
   try test_input streams setup input with
   | Runtime_error.Error { msgs = UncaughtExn _ :: []; _ } ->
-    Test.jsinterp_fail streams input
+    Test.interp_fail streams input
   | _ -> Test.internal_fail streams input
 
 let setup_tests (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option) :
