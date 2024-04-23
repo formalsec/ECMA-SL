@@ -1,12 +1,17 @@
 open Cmdliner
 
-let set (debug : Enums.DebugLvl.t) (colorless : bool) : unit =
+let cmd (cmd_fun : unit -> 'a -> unit) : (unit -> 'a -> int) Term.t =
+  Term.const (Exec.eval_cmd cmd_fun)
+
+let set_copts (debug : Enums.DebugLvl.t) (colorless : bool) : unit =
   let open Ecma_sl in
   Log.Config.warns := debug >= Warn;
   Log.Config.debugs := debug >= Full;
   Font.Config.colored := not colorless
 
-let copts = Term.(const set $ Docs.CommonOpts.debug $ Docs.CommonOpts.colorless)
+let copts =
+  let open Term in
+  const set_copts $ Docs.CommonOpts.debug $ Docs.CommonOpts.colorless
 
 let compile_opts =
   let open Term in
@@ -18,7 +23,7 @@ let compile_opts =
 let compile_cmd =
   let open Docs.CompileCmd in
   let info = Cmd.(info "compile" ~sdocs ~doc ~man ~man_xrefs ~exits) in
-  let term = Term.(const Cmd_compile.main $ copts $ compile_opts) in
+  let term = Term.(cmd Cmd_compile.run $ copts $ compile_opts) in
   Cmd.v info term
 
 let interpret_opts =
@@ -37,7 +42,7 @@ let interpret_opts =
 let interpret_cmd =
   let open Docs.CompileCmd in
   let info = Cmd.(info "interpret" ~sdocs ~doc ~man ~man_xrefs ~exits) in
-  let term = Term.(const Cmd_interpret.main $ copts $ interpret_opts) in
+  let term = Term.(cmd Cmd_interpret.run $ copts $ interpret_opts) in
   Cmd.v info term
 
 let encode_opts =
@@ -50,7 +55,7 @@ let encode_opts =
 let encode_cmd =
   let open Docs.EncodeCmd in
   let info = Cmd.(info "encode" ~sdocs ~doc ~man ~man_xrefs ~exits) in
-  let term = Term.(const Cmd_encode.main $ copts $ encode_opts) in
+  let term = Term.(cmd Cmd_encode.run $ copts $ encode_opts) in
   Cmd.v info term
 
 let execute_opts =
@@ -69,7 +74,7 @@ let execute_opts =
 let execute_cmd =
   let open Docs.ExecuteCmd in
   let info = Cmd.(info "execute" ~sdocs ~doc ~man ~man_xrefs ~exits) in
-  let term = Term.(const Cmd_execute.main $ copts $ execute_opts) in
+  let term = Term.(cmd Cmd_execute.run $ copts $ execute_opts) in
   Cmd.v info term
 
 let test_opts =
@@ -83,7 +88,7 @@ let test_opts =
 let test_cmd =
   let open Docs.TestCmd in
   let info = Cmd.(info "test" ~sdocs ~doc ~man ~man_xrefs ~exits) in
-  let term = Term.(const Cmd_test.main $ copts $ test_opts) in
+  let term = Term.(cmd Cmd_test.run $ copts $ test_opts) in
   Cmd.v info term
 
 let symbolic_opts =
@@ -96,7 +101,7 @@ let symbolic_opts =
 let symbolic_cmd =
   let open Docs.SymbolicCmd in
   let info = Cmd.(info "symbolic" ~sdocs ~doc ~man ~man_xrefs ~exits) in
-  let term = Term.(const Cmd_symbolic.main $ copts $ symbolic_opts) in
+  let term = Term.(cmd Cmd_symbolic.run $ copts $ symbolic_opts) in
   Cmd.v info term
 
 let replay_opts =
@@ -106,7 +111,7 @@ let replay_opts =
 let replay_cmd =
   let open Docs.ReplayCmd in
   let info = Cmd.(info "replay" ~sdocs ~doc ~man ~man_xrefs ~exits) in
-  let term = Term.(const Cmd_replay.main $ copts $ replay_opts) in
+  let term = Term.(cmd Cmd_replay.run $ copts $ replay_opts) in
   Cmd.v info term
 
 let explode_opts = symbolic_opts
@@ -114,7 +119,7 @@ let explode_opts = symbolic_opts
 let explode_cmd =
   let open Docs.ExplodeJSCmd in
   let info = Cmd.(info "explode-js" ~sdocs ~doc ~man ~man_xrefs ~exits) in
-  let term = Term.(const Cmd_explodejs.main $ copts $ explode_opts) in
+  let term = Term.(cmd Cmd_explodejs.run $ copts $ explode_opts) in
   Cmd.v info term
 
 let cmd_list =
@@ -143,4 +148,4 @@ let () =
     flush_all ();
     Log.err "%s: uncaught exception %s@." Sys.argv.(0) (Printexc.to_string exn);
     Printexc.print_backtrace stderr;
-    exit 1
+    exit Exec.(status_code Failure)
