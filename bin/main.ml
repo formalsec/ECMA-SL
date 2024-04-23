@@ -93,7 +93,7 @@ let test_cmd =
 
 let symbolic_opts =
   let open Term in
-  const Cmd_symbolic.options
+  const Cmd_symbolic.Options.set
   $ Docs.FileOpts.input
   $ Docs.SymbolicOpts.target
   $ Docs.SymbolicOpts.workspace

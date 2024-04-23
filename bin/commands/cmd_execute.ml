@@ -50,7 +50,7 @@ let setup_execution (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option)
 
 let execute_js ((interp, static_heap) : Prog.t * Val.t Heap.t option)
   (instrument : Options.instrument) (input : Fpath.t) : Val.t =
-  let ast = Fpath.v (Filename.temp_file "ecmasl" "ast.js") in
+  let ast = Fpath.v (Filename.temp_file "ecmasl" "ast.cesl") in
   Cmd_encode.encode None input (Some ast);
   let main = if Option.is_some static_heap then "mainPartial" else "main" in
   let entry = { Interpreter.EntryPoint.default with main; static_heap } in
