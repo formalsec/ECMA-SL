@@ -70,5 +70,5 @@ let run () opt =
   match replay opt.filename opt.testsuite with
   | Error (`Msg msg) ->
     Log.out "%s@." msg;
-    () (* error *)
-  | Ok () -> () (* success *)
+    raise Exec.(Command_error Failure)
+  | Ok () -> ()

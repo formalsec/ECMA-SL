@@ -129,7 +129,7 @@ module InterpretOpts = struct
     in
     Arg.(value & opt string "main" & info [ "main" ] ~docv ~doc)
 
-  let exitval =
+  let show_exitval =
     let doc =
       "Display the value returned by the top-level function, typically the \
        'main' function, at the end of the program interpretation."

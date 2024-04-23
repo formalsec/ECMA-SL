@@ -153,5 +153,5 @@ let run () opt =
   match run' ~workspace:opt.workspace opt.filename opt.entry_func with
   | Error (`Msg s) ->
     Log.out "%s@." s;
-    () (* error *)
-  | Ok () -> () (* success *)
+    raise Exec.(Command_error Failure)
+  | Ok () -> ()
