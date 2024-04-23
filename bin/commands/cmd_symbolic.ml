@@ -32,7 +32,7 @@ let prog_of_plus file =
   Ok
     ( EParsing.load_file ~file path
     |> EParsing.parse_eprog ~file path
-    |> Preprocessor.Imports.resolve_imports ~stdlib:Share.std_path
+    |> Preprocessor.Imports.resolve_imports ~stdlib:Share.stdlib
     |> Preprocessor.Macros.apply_macros
     |> Compiler.compile_prog )
 
@@ -47,7 +47,7 @@ let prog_of_js file =
   let ast_file = Fpath.(file -+ "_ast.cesl") in
   let* () = OS.Cmd.run (js2ecma_sl file ast_file) in
   let* ast = OS.File.read ast_file in
-  let* es6 = OS.File.read (Fpath.v (Option.get (Share.es6_interp ()))) in
+  let es6 = Share.es6_sym_interp () in
   let program = String.concat ";\n" [ ast; es6 ] in
   let* () = OS.File.delete ast_file in
   Ok (Parsing.parse_prog program)
