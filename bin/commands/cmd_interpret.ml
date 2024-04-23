@@ -1,21 +1,21 @@
 open Ecma_sl
 
 module Options = struct
-  let langs : Lang.t list = Lang.[ Auto; ESL; CESL; CESLUnattached ]
-  let trace = ref Interp_tracer.None
+  let langs : Enums.Lang.t list = Enums.Lang.[ Auto; ESL; CESL; CESLUnattached ]
+  let trace = ref Enums.InterpTracer.None
   let trace_loc = ref false
   let trace_depth = ref 0
   let debugger = ref false
 
   type t =
     { input : Fpath.t
-    ; lang : Lang.t
+    ; lang : Enums.Lang.t
     ; main : string
     ; show_exitval : bool
     }
 
-  let set_options input lang trace' trace_loc' trace_depth' debugger' main
-    show_exitval untyped' =
+  let set input lang trace' trace_loc' trace_depth' debugger' main show_exitval
+    untyped' =
     Cmd_compile.Options.untyped := untyped';
     trace := trace';
     trace_loc := trace_loc';
@@ -72,11 +72,11 @@ let process_exitval (show_exitval : bool) (exitval : Val.t) : unit =
   if show_exitval then Log.out "» exit value: %a@." Val.pp exitval
 
 let run (opts : Options.t) : unit =
-  let valid_langs = Lang.valid_langs Options.langs opts.lang in
+  let valid_langs = Enums.Lang.valid_langs Options.langs opts.lang in
   let config = { Interpreter.EntryPoint.default with main = opts.main } in
   process_exitval opts.show_exitval
   @@
-  match Lang.resolve_file_lang valid_langs opts.input with
+  match Enums.Lang.resolve_file_lang valid_langs opts.input with
   | Some ESL -> interpret_esl config opts.input
   | Some CESL -> interpret_cesl config opts.input
   | Some CESLUnattached | _ ->

@@ -1,85 +1,120 @@
 open Cmdliner
 
-module AppInfo = struct
-  let version = "1.0.0"
-  let doc = "Executable specification of the ECMAScript standard"
-  let sdocs = Manpage.s_common_options
+let set (debug : Enums.DebugLvl.t) (colorless : bool) : unit =
+  let open Ecma_sl in
+  Log.Config.warns := debug >= Warn;
+  Log.Config.debugs := debug >= Full;
+  Font.Config.colored := not colorless
 
-  let description =
-    [ "ECMA-SL is a comprehensive platform designed for the specification and \
-       execution of the ECMAScript standard, commonly known as JavaScript. The \
-       platform introduces an intermediate language, ECMA-SL, which serves as \
-       a bridge between JavaScript and its execution environment. This \
-       intermediate language is used to provide a reference implementation of \
-       the ECMAScript standard that adheres to JavaScript's specification."
-    ; "Key features of the platform include a JavaScript-to-ECMA-SL \
-       (JS2ECMA-SL) parser, allowing the conversion of JavaScript code into \
-       the ECMA-SL language. Additionally, ECMA-SL incorporates a compiler \
-       from ECMA-SL to Core ECMA-SL, a simplified version of the platform's \
-       language, as well as an interpreter for Core ECMA-SL. By combining \
-       these tools, one can execute a JavaScript program using the reference \
-       interpreters for JavaScript."
-    ; "Use ecma-sl <command> --help for more information on a specific command."
-    ]
+let copts = Term.(const set $ Docs.CommonOpts.debug $ Docs.CommonOpts.colorless)
 
-  let man =
-    [ `S Cmdliner.Manpage.s_description
-    ; `P (List.nth description 0)
-    ; `P (List.nth description 1)
-    ; `P (List.nth description 2)
-    ; `S Manpage.s_common_options
-    ; `P "These options are common to all commands."
-    ; `S Manpage.s_bugs
-    ; `P "Check bug reports at https://github.com/formalsec/ECMA-SL/issues."
-    ]
-
-  let man_xrefs = []
-
-  let exits =
-    List.append Cmd.Exit.defaults
-      [ Cmd.Exit.info ~doc:"on application failure" 1
-      ; Cmd.Exit.info ~doc:"on generic execution error" 2
-      ]
-end
+let compile_opts =
+  let open Term in
+  const Cmd_compile.Options.set
+  $ Docs.FileOpts.input
+  $ Docs.FileOpts.output
+  $ Docs.CompileOpts.untyped
 
 let compile_cmd =
-  let open Doc_compile in
-  let info = Cmd.info "compile" ~doc ~sdocs ~man ~man_xrefs ~exits in
+  let open Docs.CompileCmd in
+  let info = Cmd.(info "compile" ~sdocs ~doc ~man ~man_xrefs ~exits) in
+  let term = Term.(const Cmd_compile.main $ copts $ compile_opts) in
   Cmd.v info term
+
+let interpret_opts =
+  let open Term in
+  const Cmd_interpret.Options.set
+  $ Docs.FileOpts.input
+  $ Docs.InterpretOpts.lang
+  $ Docs.InterpretOpts.tracer
+  $ Docs.InterpretOpts.tracer_loc
+  $ Docs.InterpretOpts.tracer_depth
+  $ Docs.InterpretOpts.debugger
+  $ Docs.InterpretOpts.main
+  $ Docs.InterpretOpts.exitval
+  $ Docs.CompileOpts.untyped
 
 let interpret_cmd =
-  let open Doc_interpret in
-  let info = Cmd.info "interpret" ~doc ~sdocs ~man ~man_xrefs ~exits in
+  let open Docs.CompileCmd in
+  let info = Cmd.(info "interpret" ~sdocs ~doc ~man ~man_xrefs ~exits) in
+  let term = Term.(const Cmd_interpret.main $ copts $ interpret_opts) in
   Cmd.v info term
+
+let encode_opts =
+  let open Term in
+  const Cmd_encode.Options.set
+  $ Docs.FileOpts.inputs
+  $ Docs.FileOpts.output
+  $ Docs.EncodeOpts.builder
 
 let encode_cmd =
-  let open Doc_encode in
-  let info = Cmd.info "encode" ~doc ~sdocs ~man ~man_xrefs ~exits in
+  let open Docs.EncodeCmd in
+  let info = Cmd.(info "encode" ~sdocs ~doc ~man ~man_xrefs ~exits) in
+  let term = Term.(const Cmd_encode.main $ copts $ encode_opts) in
   Cmd.v info term
+
+let execute_opts =
+  let open Term in
+  const Cmd_execute.Options.set
+  $ Docs.FileOpts.input
+  $ Docs.ExecuteOpts.lang
+  $ Docs.ExecuteOpts.jsinterp
+  $ Docs.ExecuteOpts.harness
+  $ Docs.InterpretOpts.tracer
+  $ Docs.InterpretOpts.tracer_loc
+  $ Docs.InterpretOpts.tracer_depth
+  $ Docs.InterpretOpts.debugger
+  $ Docs.InterpretOpts.exitval
 
 let execute_cmd =
-  let open Doc_execute in
-  let info = Cmd.info "execute" ~doc ~sdocs ~man ~man_xrefs ~exits in
+  let open Docs.ExecuteCmd in
+  let info = Cmd.(info "execute" ~sdocs ~doc ~man ~man_xrefs ~exits) in
+  let term = Term.(const Cmd_execute.main $ copts $ execute_opts) in
   Cmd.v info term
+
+let test_opts =
+  let open Term in
+  const Cmd_test.Options.set
+  $ Docs.FileOpts.inputs
+  $ Docs.ExecuteOpts.lang
+  $ Docs.ExecuteOpts.jsinterp
+  $ Docs.ExecuteOpts.harness
 
 let test_cmd =
-  let open Doc_test in
-  let info = Cmd.info "test" ~doc ~sdocs ~man ~man_xrefs ~exits in
+  let open Docs.TestCmd in
+  let info = Cmd.(info "test" ~sdocs ~doc ~man ~man_xrefs ~exits) in
+  let term = Term.(const Cmd_test.main $ copts $ test_opts) in
   Cmd.v info term
+
+let symbolic_opts =
+  let open Term in
+  const Cmd_symbolic.options
+  $ Docs.FileOpts.input
+  $ Docs.SymbolicOpts.target
+  $ Docs.SymbolicOpts.workspace
 
 let symbolic_cmd =
-  let open Doc_symbolic in
-  let info = Cmd.info "symbolic" ~doc ~sdocs ~man ~man_xrefs in
+  let open Docs.SymbolicCmd in
+  let info = Cmd.(info "symbolic" ~sdocs ~doc ~man ~man_xrefs ~exits) in
+  let term = Term.(const Cmd_symbolic.main $ copts $ symbolic_opts) in
   Cmd.v info term
+
+let replay_opts =
+  let open Term in
+  const Cmd_replay.options $ Docs.FileOpts.input $ Docs.ReplayOpts.testsuit
 
 let replay_cmd =
-  let open Doc_replay in
-  let info = Cmd.info "replay" ~doc ~sdocs ~man ~man_xrefs in
+  let open Docs.ReplayCmd in
+  let info = Cmd.(info "replay" ~sdocs ~doc ~man ~man_xrefs ~exits) in
+  let term = Term.(const Cmd_replay.main $ copts $ replay_opts) in
   Cmd.v info term
 
+let explode_opts = symbolic_opts
+
 let explode_cmd =
-  let open Doc_explodejs in
-  let info = Cmd.info "explode-js" ~doc ~sdocs ~man ~man_xrefs in
+  let open Docs.ExplodeJSCmd in
+  let info = Cmd.(info "explode-js" ~sdocs ~doc ~man ~man_xrefs ~exits) in
+  let term = Term.(const Cmd_explodejs.main $ copts $ explode_opts) in
   Cmd.v info term
 
 let cmd_list =
@@ -94,10 +129,10 @@ let cmd_list =
   ]
 
 let main_cmd =
-  let open AppInfo in
+  let open Docs.Application in
   let default_fun _ = `Help (`Pager, None) in
-  let default = Term.(ret (const default_fun $ Options.Common.options)) in
-  let info = Cmd.info "ecma-sl" ~version ~doc ~sdocs ~man ~man_xrefs ~exits in
+  let default = Term.(ret (const default_fun $ copts)) in
+  let info = Cmd.info "ecma-sl" ~sdocs ~doc ~version ~man ~man_xrefs ~exits in
   Cmd.group info ~default cmd_list
 
 let () =

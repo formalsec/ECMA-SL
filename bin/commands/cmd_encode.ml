@@ -7,7 +7,7 @@ module Options = struct
     ; builder : string option
     }
 
-  let set_options inputs output builder = { inputs; output; builder }
+  let set inputs output builder = { inputs; output; builder }
 end
 
 let encode (builder : string option) (input : Fpath.t) (output : Fpath.t option)
@@ -20,10 +20,11 @@ let encode (builder : string option) (input : Fpath.t) (output : Fpath.t option)
 
 let run_single (builder : string option) (input : Fpath.t)
   (output : Fpath.t option) : unit =
-  ignore Lang.(resolve_file_lang [ JS ] input);
+  ignore Enums.Lang.(resolve_file_lang [ JS ] input);
   encode builder input output
 
 let run (opts : Options.t) : unit =
-  Dir.exec (run_single opts.builder) opts.inputs opts.output (Lang.str CESL)
+  Files.exec (run_single opts.builder) opts.inputs opts.output
+    (Enums.Lang.str CESL)
 
 let main () (opts : Options.t) : int = Cmd.eval_cmd (fun () -> run opts)
