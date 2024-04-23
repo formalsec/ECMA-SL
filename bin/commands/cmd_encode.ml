@@ -7,7 +7,9 @@ module Options = struct
     ; builder : string option
     }
 
-  let set inputs output builder = { inputs; output; builder }
+  let set (inputs : Fpath.t) (output : Fpath.t option) (builder : string option)
+    : t =
+    { inputs; output; builder }
 end
 
 let encode (builder : string option) (input : Fpath.t) (output : Fpath.t option)
