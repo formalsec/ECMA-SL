@@ -1,40 +1,38 @@
 open Ecma_sl
 
 module Options = struct
-  let untyped = ref false
-
   type t =
     { input : Fpath.t
     ; output : Fpath.t option
+    ; untyped : bool
     }
 
-  let set input output untyped' =
-    untyped := untyped';
-    { input; output }
+  let set (input : Fpath.t) (output : Fpath.t option) (untyped : bool) : t =
+    { input; output; untyped }
 end
 
-let type_check (p : EProg.t) : EProg.t =
-  if !Options.untyped then p
+let type_check (untyped : bool) (p : EProg.t) : EProg.t =
+  if untyped then p
   else if TChecker.type_prog p then p
   else raise (Exec.Command_error Exec.CompileError)
 
-let compile_pipeline (file : string) (path : string) : Prog.t =
+let compile_pipeline (untyped : bool) (file : string) (path : string) : Prog.t =
   EParsing.load_file ~file path
   |> EParsing.parse_eprog ~file path
   |> Preprocessor.Imports.resolve_imports ~stdlib:Share.stdlib
   |> Preprocessor.Macros.apply_macros
-  |> type_check
+  |> type_check untyped
   |> Compiler.compile_prog
 
-let compile (file : Fpath.t) : Prog.t =
+let compile (untyped : bool) (file : Fpath.t) : Prog.t =
   let (fname, path) = (Fpath.filename file, Fpath.to_string file) in
-  let prog = compile_pipeline fname path in
+  let prog = compile_pipeline untyped fname path in
   Log.debug "Sucessfuly compiled program '%a'." Fpath.pp file;
   prog
 
 let run () (opts : Options.t) : unit =
   ignore Enums.Lang.(resolve_file_lang [ ESL ] opts.input);
-  let prog = compile opts.input in
+  let prog = compile opts.untyped opts.input in
   match opts.output with
-  | None -> print_endline (Prog.str prog)
+  | None -> Log.out "%a@." Prog.pp prog
   | Some output -> Io.write_file (Fpath.to_string output) (Prog.str prog)

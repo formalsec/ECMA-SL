@@ -36,7 +36,7 @@ let interpret_opts =
   $ Docs.InterpretOpts.tracer_depth
   $ Docs.InterpretOpts.debugger
   $ Docs.InterpretOpts.main
-  $ Docs.InterpretOpts.exitval
+  $ Docs.InterpretOpts.show_exitval
   $ Docs.CompileOpts.untyped
 
 let interpret_cmd =
@@ -69,7 +69,7 @@ let execute_opts =
   $ Docs.InterpretOpts.tracer_loc
   $ Docs.InterpretOpts.tracer_depth
   $ Docs.InterpretOpts.debugger
-  $ Docs.InterpretOpts.exitval
+  $ Docs.InterpretOpts.show_exitval
 
 let execute_cmd =
   let open Docs.ExecuteCmd in
