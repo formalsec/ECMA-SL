@@ -321,18 +321,42 @@ module SymbolicOpts = struct
 end
 
 module SymbolicCmd = struct
-  (* Improve the command documentation *)
   let sdocs = Manpage.s_common_options
   let doc = "Performs symbolic analysis on an ECMA-SL program"
 
   let description =
-    [| "Given an JavaScript (.js), ECMA-SL (.esl), or Core ECMA-SL (.cesl) \
-        file, runs the program using the ECMA-SL symbolic engine."
+    [| "Given an JavaScript program encoded in Core ECMA-SL (.cesl), runs the \
+        program using the ECMA-SL symbolic engine. When provided with an \
+        unencoded JavaScript (.js) program, defaults to encoding the program \
+        into Core ECMA-SL (.cesl) before execution. Similarly, when provided \
+        with an ECMA-SL program (.esl), defaults to compiling the program."
+     ; "The JavaScript symbolic interpreter (ecmaref-sym interpreters) are \
+        written in ECMA-SL, and extend the concrete interpreters with symbolic \
+        calls. The option '--target' specifies the entry point of the symbolic \
+        analysis. Additionally, the '--workspace' option can be used to set \
+        the directory where the result of the analysis will be stored."
     |]
 
-  let man = [ `S Manpage.s_description; `P (Array.get description 0) ]
-  let man_xrefs = []
-  let exits = List.append Cmd.Exit.defaults []
+  let man =
+    [ `S Manpage.s_description
+    ; `P (Array.get description 0)
+    ; `P (Array.get description 1)
+    ]
+
+  let man_xrefs =
+    [ `Page ("ecma-sl compile", 1)
+    ; `Page ("ecma-sl encode", 2)
+    ; `Page ("ecma-sl execute", 3)
+    ]
+
+  let exits =
+    List.append Cmd.Exit.defaults
+      [ Cmd.Exit.info ~doc:"on application failure" 1
+      ; Cmd.Exit.info ~doc:"on generic execution error" 2
+      ; Cmd.Exit.info ~doc:"on compilation error" 3
+      ; Cmd.Exit.info ~doc:"on interpretation runtime error" 4
+      ; Cmd.Exit.info ~doc:"on encoding error" 5
+      ]
 end
 
 module ReplayOpts = struct

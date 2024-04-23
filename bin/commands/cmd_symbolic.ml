@@ -9,52 +9,41 @@ module Thread = Choice_monad.Thread
 module Translator = Value_translator
 module Extern_func = Symbolic.P.Extern_func
 
-let ext_esl = ".esl"
-let ext_cesl = ".cesl"
-let ext_js = ".js"
+module Options = struct
+  type t =
+    { input : Fpath.t
+    ; target : string
+    ; workspace : Fpath.t
+    }
 
-type options =
-  { filename : Fpath.t
-  ; entry_func : string
-  ; workspace : Fpath.t
-  }
+  let set (input : Fpath.t) (target : string) (workspace : Fpath.t) : t =
+    { input; target; workspace }
+end
 
-let options filename entry_func workspace = { filename; entry_func; workspace }
+let prog_of_core (file : Fpath.t) : Prog.t =
+  let file' = Fpath.to_string file in
+  Parsing.load_file file' |> Parsing.parse_prog ~file:file'
 
-let dispatch_file_ext on_plus on_core on_js (file : Fpath.t) =
-  if Fpath.has_ext ext_esl file then on_plus file
-  else if Fpath.has_ext ext_cesl file then on_core file
-  else if Fpath.has_ext ext_js file then on_js file
+let prog_of_plus (file : Fpath.t) : Prog.t = Cmd_compile.compile true file
+
+let prog_of_js (file : Fpath.t) : Prog.t =
+  let ast_file = Fpath.v (Filename.temp_file "ecmasl" "ast.cesl") in
+  Cmd_encode.encode None file (Some ast_file);
+  let ast_file' = Fpath.to_string ast_file in
+  let ast = Parsing.load_file ast_file' |> Parsing.parse_func ~file:ast_file' in
+  let interp = Share.es6_sym_interp () |> Parsing.parse_prog in
+  Hashtbl.replace (Prog.funcs interp) (Func.name' ast) ast;
+  interp
+
+let dispatch_file_ext (file : Fpath.t) : (Prog.t, 'a) result =
+  if Fpath.has_ext ".cesl" file then Ok (prog_of_core file)
+  else if Fpath.has_ext ".esl" file then Ok (prog_of_plus file)
+  else if Fpath.has_ext ".js" file then Ok (prog_of_js file)
   else Error (`Msg (Fmt.asprintf "%a :unreconized file type" Fpath.pp file))
 
-let prog_of_plus file =
-  let (file, path) = (Fpath.filename file, Fpath.to_string file) in
-  Ok
-    ( EParsing.load_file ~file path
-    |> EParsing.parse_eprog ~file path
-    |> Preprocessor.Imports.resolve_imports ~stdlib:Share.stdlib
-    |> Preprocessor.Macros.apply_macros
-    |> Compiler.compile_prog )
-
-let prog_of_core file =
-  let file = Fpath.to_string file in
-  Ok (Parsing.load_file file |> Parsing.parse_prog ~file)
-
-let prog_of_js file =
-  let js2ecma_sl file output =
-    Cmd.(v "js2ecma-sl" % "-s" % "-c" % "-i" % p file % "-o" % p output)
-  in
-  let ast_file = Fpath.(file -+ "_ast.cesl") in
-  let* () = OS.Cmd.run (js2ecma_sl file ast_file) in
-  let* ast = OS.File.read ast_file in
-  let es6 = Share.es6_sym_interp () in
-  let program = String.concat ";\n" [ ast; es6 ] in
-  let* () = OS.File.delete ast_file in
-  Ok (Parsing.parse_prog program)
-
-let link_env prog =
-  let env0 = Env.Build.empty () |> Env.Build.add_functions prog in
-  Env.Build.add_extern_functions (Symbolic_extern.extern_cmds env0) env0
+let link_env (prog : Prog.t) : Extern_func.extern_func Symbolic.Env.t =
+  let env = Env.Build.empty () |> Env.Build.add_functions prog in
+  Env.Build.add_extern_functions (Symbolic_extern.extern_cmds env) env
   |> Env.Build.add_extern_functions Symbolic_extern.concrete_api
   |> Env.Build.add_extern_functions Symbolic_extern.symbolic_api
 
@@ -114,13 +103,12 @@ let write_report ~workspace filename exec_time solver_time solver_count problems
   let rpath = Fpath.(workspace / "symbolic-execution.json") in
   OS.File.writef rpath "%a" (Yojson.pretty_print ~std:true) json
 
-let run' ~workspace filename entry_func =
-  let open Syntax.Result in
-  let* prog = dispatch_file_ext prog_of_plus prog_of_core prog_of_js filename in
+let execute (target : string) (workspace : Fpath.t) (input : Fpath.t) =
+  let* prog = dispatch_file_ext input in
   let env = link_env prog in
   let start = Stdlib.Sys.time () in
   let thread = Choice_monad.Thread.create () in
-  let result = Symbolic_interpreter.main env entry_func in
+  let result = Symbolic_interpreter.main env target in
   let results = Choice.run result thread in
   let exec_time = Stdlib.Sys.time () -. start in
   let solv_time = !Solver.solver_time in
@@ -147,11 +135,11 @@ let run' ~workspace filename entry_func =
   if n = 0 then Log.out "All Ok!@." else Log.out "Found %d problems!@." n;
   Log.debug "  exec time : %fs@." exec_time;
   Log.debug "solver time : %fs@." solv_time;
-  write_report ~workspace filename exec_time solv_time solv_cnt problems
+  write_report ~workspace input exec_time solv_time solv_cnt problems
 
-let run () opt =
-  match run' ~workspace:opt.workspace opt.filename opt.entry_func with
-  | Error (`Msg s) ->
-    Log.out "%s@." s;
-    raise Exec.(Command_error Failure)
+let run () (opts : Options.t) : unit =
+  match execute opts.target opts.workspace opts.input with
   | Ok () -> ()
+  | Error (`Msg s) ->
+    Log.err "%s@." s;
+    raise Exec.(Command_error Failure)
