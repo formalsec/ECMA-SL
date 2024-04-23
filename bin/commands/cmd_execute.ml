@@ -1,18 +1,18 @@
 open Ecma_sl
 
 module Options = struct
-  let langs : Lang.t list = Lang.[ Auto; JS ]
+  let langs : Enums.Lang.t list = Enums.Lang.[ Auto; JS ]
 
   type t =
     { input : Fpath.t
     ; harness : Fpath.t option
-    ; lang : Lang.t
-    ; ecmaref : Ecmaref.t
+    ; lang : Enums.Lang.t
+    ; ecmaref : Enums.JSInterp.t
     ; show_exitval : bool
     }
 
-  let set_options input harness lang ecmaref trace trace_loc trace_depth
-    debugger show_exitval =
+  let set input lang ecmaref harness trace trace_loc trace_depth debugger
+    show_exitval =
     Cmd_compile.Options.untyped := true;
     Cmd_interpret.Options.trace := trace;
     Cmd_interpret.Options.trace_loc := trace_loc;
@@ -29,16 +29,16 @@ let execute_partial (entry : Interpreter.EntryPoint.t) (interp : Prog.t)
   Cmd_interpret.interpret_partial entry interp
 
 let setup_harness (interp : Prog.t) (harness : Fpath.t) : Val.t Heap.t =
-  ignore Lang.(resolve_file_lang [ JS ] harness);
+  ignore Enums.Lang.(resolve_file_lang [ JS ] harness);
   let ast = Fpath.v (Filename.temp_file "ecmasl" "harness.cesl") in
   Cmd_encode.encode None harness (Some ast);
   let heap = snd (execute_partial Interpreter.EntryPoint.default interp ast) in
   Log.debug "Sucessfuly linked JS harness '%a' to interpreter." Fpath.pp harness;
   heap
 
-let setup_execution (ecmaref : Ecmaref.t) (harness : Fpath.t option) :
+let setup_execution (ecmaref : Enums.JSInterp.t) (harness : Fpath.t option) :
   Prog.t * Val.t Heap.t option =
-  let finterp = Ecmaref.interp ecmaref in
+  let finterp = Enums.JSInterp.interp ecmaref in
   let interp = Cmd_compile.compile (Fpath.v finterp) in
   let static_heap = Option.map (setup_harness interp) harness in
   (interp, static_heap)
@@ -54,11 +54,11 @@ let execute_js ((interp, static_heap) : Prog.t * Val.t Heap.t option)
   retval
 
 let run (opts : Options.t) : unit =
-  let valid_langs = Lang.valid_langs Options.langs opts.lang in
+  let valid_langs = Enums.Lang.valid_langs Options.langs opts.lang in
   let setup = setup_execution opts.ecmaref opts.harness in
   Cmd_interpret.process_exitval opts.show_exitval
   @@
-  match Lang.resolve_file_lang valid_langs opts.input with
+  match Enums.Lang.resolve_file_lang valid_langs opts.input with
   | Some JS -> execute_js setup opts.input
   | _ -> execute_js setup opts.input
 

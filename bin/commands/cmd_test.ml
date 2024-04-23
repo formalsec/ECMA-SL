@@ -4,17 +4,17 @@ module Options = struct
   type t =
     { inputs : Fpath.t
     ; harness : Fpath.t option
-    ; lang : Lang.t
-    ; ecmaref : Ecmaref.t
+    ; lang : Enums.Lang.t
+    ; ecmaref : Enums.JSInterp.t
     }
 
-  let set_options inputs harness lang ecmaref =
+  let set inputs lang ecmaref harness =
     Cmd_compile.Options.untyped := true;
     Cmd_interpret.Options.trace := None;
     Cmd_interpret.Options.trace_loc := false;
     Cmd_interpret.Options.trace_depth := 0;
     Cmd_interpret.Options.debugger := false;
-    { inputs; harness; lang; ecmaref }
+    { inputs; lang; ecmaref; harness }
 end
 
 module Test = struct
@@ -53,7 +53,7 @@ let test_input (streams : Log.Redirect.t) (setup : Prog.t * Val.t Heap.t option)
 
 let run_single (setup : Prog.t * Val.t Heap.t option) (input : Fpath.t)
   (_ : Fpath.t option) : unit =
-  ignore Lang.(resolve_file_lang [ JS ] input);
+  ignore Enums.Lang.(resolve_file_lang [ JS ] input);
   let streams = Log.Redirect.capture Null in
   try test_input streams setup input with
   | Runtime_error.Error { msgs = UncaughtExn _ :: []; _ } ->
@@ -63,6 +63,6 @@ let run_single (setup : Prog.t * Val.t Heap.t option) (input : Fpath.t)
 let run (opts : Options.t) : unit =
   Test.header ();
   let setup = Cmd_execute.setup_execution opts.ecmaref opts.harness in
-  Dir.exec (run_single setup) opts.inputs None ""
+  Files.exec (run_single setup) opts.inputs None ""
 
 let main () (opts : Options.t) : int = Cmd.eval_cmd (fun () -> run opts)

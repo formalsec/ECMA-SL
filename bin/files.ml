@@ -1,3 +1,15 @@
+let parse_fpath str test_f =
+  let file = Fpath.v str in
+  match test_f file with
+  | Ok true -> `Ok file
+  | Ok false -> `Error (Format.asprintf "File '%s' not found!" str)
+  | Error (`Msg err) -> `Error err
+
+let fpath = ((fun str -> `Ok (Fpath.v str)), Fpath.pp)
+let valid_fpath = ((fun str -> parse_fpath str Bos.OS.Path.exists), Fpath.pp)
+let non_dir_fpath = ((fun str -> parse_fpath str Bos.OS.File.exists), Fpath.pp)
+let dir_fpath = ((fun str -> parse_fpath str Bos.OS.Dir.exists), Fpath.pp)
+
 let make_dir (fpath : Fpath.t) : unit =
   match Bos.OS.Dir.create fpath with
   | Ok _ -> ()
