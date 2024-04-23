@@ -238,7 +238,6 @@ end
 module Interface = struct
   type 'a t =
     { active : bool
-    ; cursor : 'a -> unit
     ; callback : 'a -> int -> 'a
     ; el : 'a element
     }
@@ -248,9 +247,9 @@ module Interface = struct
     flushinp ();
     input
 
-  let mk ?(active : bool = false) (cursor : 'a -> unit)
-    (callback : 'a -> int -> 'a) (el : 'a element) : 'a t =
-    { active; cursor; callback; el }
+  let mk ?(active : bool = false) (callback : 'a -> int -> 'a) (el : 'a element)
+    : 'a t =
+    { active; callback; el }
 
   let window (intf : 'a t) : window = intf.el.window intf.el.v
   let refresh (intf : 'a t) : unit = intf.el.refresh intf.el.v
@@ -262,8 +261,6 @@ module Interface = struct
     if intf.active then
       { intf with el = intf.el.element (intf.callback intf.el.v input) }
     else intf
-
-  let cursor (intf : 'a t) : unit = intf.cursor intf.el.v
 end
 
 module Color = struct

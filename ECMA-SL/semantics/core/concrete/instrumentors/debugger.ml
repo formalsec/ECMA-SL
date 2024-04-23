@@ -83,7 +83,6 @@ module Enable : M = struct
   let run_debug_tui (st : state) (s : Stmt.t) (db : t') : t' =
     let tui = DebuggerTUI.set_data db.tui st s in
     DebuggerTUI.render tui;
-    DebuggerTUI.cursor tui;
     { db with tui = run_debug_tui_loop tui }
 
   let initial_state () : t = Initial

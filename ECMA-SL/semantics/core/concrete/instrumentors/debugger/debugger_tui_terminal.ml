@@ -43,7 +43,7 @@ let render_background (scrlpad : ScrollPad.t) (colors : colors) : unit =
 
 let render_prompt (scrlpad : ScrollPad.t) (colors : colors) : unit =
   wattr_set scrlpad.w WA.(combine [ dim; standout ]) colors.main;
-  !!(mvwaddstr scrlpad.w (scrlpad.first + scrlpad.yz - 1) 0 ">>>")
+  !!(mvwaddstr scrlpad.w (scrlpad.first + scrlpad.yz - 1) 0 ">>> ")
 
 let render_static (term : t) : unit =
   render_background term.prompt.scrlpad term.colors;
@@ -55,20 +55,19 @@ let print (prompt : Prompt.t) (msg : string) : unit =
     if String.length line < prompt.scrlpad.xz then Prompt.scrldown prompt
     else Prompt.scrldown_fill prompt 1
   in
-
   String.trim msg
   |> String.split_on_char '\n'
   |> List.map (String.split_at_length prompt.scrlpad.xz)
   |> List.flatten
   |> List.iter print_line
 
-let update (term : t) (prompt : Prompt.t) (cmd : Command.t) : t =
-  (match cmd with Print msg -> print prompt msg | _ -> ());
-  { term with prompt; last_cmd = cmd }
-
 let cursor (term : t) : unit =
   !!(wmove term.prompt.scrlpad.w term.prompt.y term.prompt.x);
   !!(curs_set 1)
+
+let update (term : t) (prompt : Prompt.t) (cmd : Command.t) : t =
+  (match cmd with Print msg -> print prompt msg | _ -> ());
+  { term with prompt; last_cmd = cmd }
 
 let enter (term : t) : t =
   Prompt.scrldown term.prompt;
@@ -77,7 +76,6 @@ let enter (term : t) : t =
   let term' = update term prompt cmd in
   Prompt.scrldown term'.prompt;
   render_prompt term'.prompt.scrlpad term'.colors;
-  cursor term';
   term'
 
 let process_input (term : t) (input : int) : t =
@@ -90,5 +88,6 @@ let callback (term : t) (input : int) : t =
   let scrlpad = term.prompt.scrlpad in
   wattr_set scrlpad.w WA.(combine [ dim; standout ]) term.colors.main;
   let term' = process_input term input in
+  cursor term';
   refresh term';
   term'

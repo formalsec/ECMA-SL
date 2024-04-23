@@ -31,6 +31,7 @@ let initialize () : t =
     test_term_size yz xz;
     !!(cbreak ());
     !!(noecho ());
+    !!(curs_set 1);
     !!(intrflush consolewin.w false);
     !!(keypad consolewin.w true);
     !!(start_color ());
@@ -41,7 +42,7 @@ let initialize () : t =
     let view = View.create acs consolewin code.frame.framewin in
     let exec = Execution.create acs consolewin code.frame.framewin in
     let term' = Terminal.create consolewin exec.frame.framewin in
-    let term = Terminal.(mk ~active:true cursor callback (element term')) in
+    let term = Terminal.(mk ~active:true callback (element term')) in
     { acs; consolewin; code; view; exec; term; running = true }
   with exn -> endwin () |> fun () -> raise exn
 
@@ -54,7 +55,7 @@ let resize (tui : t) : t =
   let view = View.resize tui.view consolewin code.frame.framewin in
   let exec = Execution.resize tui.exec consolewin code.frame.framewin in
   let term' = Terminal.resize tui.term.el.v consolewin exec.frame.framewin in
-  let term = Terminal.(mk ~active:true cursor callback (element term')) in
+  let term = Terminal.(mk ~active:true callback (element term')) in
   { tui with consolewin; code; view; exec; term }
 
 let terminate () : unit = endwin ()
@@ -88,15 +89,13 @@ let render (tui : t) : unit =
   Code.render tui.code;
   refresh tui
 
-let cursor (tui : t) : unit = if tui.term.active then Interface.cursor tui.term
-
 let resize_cmd (tui : t) : t =
   flushinp ();
   erase ();
   let tui' = resize tui in
   render_static tui';
   render tui';
-  cursor tui';
+  refresh tui';
   tui'
 
 let update_running (tui : t) : t =
@@ -109,4 +108,5 @@ let update (tui : t) : t =
   if input == Key.resize then resize_cmd tui
   else
     let term = Interface.update tui.term input in
-    update_running { tui with term }
+    let tui' = { tui with term } in
+    update_running tui'
