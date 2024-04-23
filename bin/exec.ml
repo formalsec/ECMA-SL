@@ -32,8 +32,8 @@ let runtime_err (err : Runtime_error.t) : int =
   Log.err "%a@." Runtime_error.pp err;
   status_code RuntimeError
 
-let eval_cmd (cmd : unit -> unit) : int =
-  try cmd () |> fun () -> 0 with
+let eval_cmd (cmd_fun : unit -> 'a -> unit) () (opts : 'a) : int =
+  try cmd_fun () opts |> fun () -> 0 with
   | Internal_error.Error err -> internal_err err
   | Compile_error.Error err -> compile_err err
   | Runtime_error.Error err -> runtime_err err

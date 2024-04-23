@@ -53,7 +53,7 @@ let execute_js ((interp, static_heap) : Prog.t * Val.t Heap.t option)
   Log.debug "Sucessfuly evaluated program with return '%a'." Val.pp retval;
   retval
 
-let run (opts : Options.t) : unit =
+let run () (opts : Options.t) : unit =
   let valid_langs = Enums.Lang.valid_langs Options.langs opts.lang in
   let setup = setup_execution opts.ecmaref opts.harness in
   Cmd_interpret.process_exitval opts.show_exitval
@@ -61,5 +61,3 @@ let run (opts : Options.t) : unit =
   match Enums.Lang.resolve_file_lang valid_langs opts.input with
   | Some JS -> execute_js setup opts.input
   | _ -> execute_js setup opts.input
-
-let main () (opts : Options.t) : int = Cmd.eval_cmd (fun () -> run opts)

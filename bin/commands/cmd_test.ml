@@ -60,9 +60,7 @@ let run_single (setup : Prog.t * Val.t Heap.t option) (input : Fpath.t)
     Test.ecmaref_fail streams input
   | _ -> Test.internal_fail streams input
 
-let run (opts : Options.t) : unit =
+let run () (opts : Options.t) : unit =
   Test.header ();
   let setup = Cmd_execute.setup_execution opts.ecmaref opts.harness in
   Files.exec (run_single setup) opts.inputs None ""
-
-let main () (opts : Options.t) : int = Cmd.eval_cmd (fun () -> run opts)

@@ -71,7 +71,7 @@ let interpret_esl (entry : Interpreter.EntryPoint.t) (file : Fpath.t) : Val.t =
 let process_exitval (show_exitval : bool) (exitval : Val.t) : unit =
   if show_exitval then Log.out "» exit value: %a@." Val.pp exitval
 
-let run (opts : Options.t) : unit =
+let run () (opts : Options.t) : unit =
   let valid_langs = Enums.Lang.valid_langs Options.langs opts.lang in
   let config = { Interpreter.EntryPoint.default with main = opts.main } in
   process_exitval opts.show_exitval
@@ -81,5 +81,3 @@ let run (opts : Options.t) : unit =
   | Some CESL -> interpret_cesl config opts.input
   | Some CESLUnattached | _ ->
     interpret_cesl { config with resolve_exitval = false } opts.input
-
-let main () (opts : Options.t) : int = Cmd.eval_cmd (fun () -> run opts)
