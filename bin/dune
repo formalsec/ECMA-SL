@@ -6,6 +6,7 @@
  (modules
   main
   docs
+  exec
   enums
   files
   share
@@ -18,8 +19,7 @@
   cmd_test
   cmd_symbolic
   cmd_replay
-  cmd_explodejs
-  cmd)
+  cmd_explodejs)
  (libraries ecma-sl cmdliner bos yojson dune-site)
  (instrumentation
   (backend bisect_ppx)))

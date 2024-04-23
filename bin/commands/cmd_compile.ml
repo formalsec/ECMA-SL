@@ -16,7 +16,7 @@ end
 let type_check (p : EProg.t) : EProg.t =
   if !Options.untyped then p
   else if TChecker.type_prog p then p
-  else raise (Cmd.Command_error Cmd.CompileError)
+  else raise (Exec.Command_error Exec.CompileError)
 
 let compile_pipeline (file : string) (path : string) : Prog.t =
   EParsing.load_file ~file path
@@ -32,11 +32,9 @@ let compile (file : Fpath.t) : Prog.t =
   Log.debug "Sucessfuly compiled program '%a'." Fpath.pp file;
   prog
 
-let run (opts : Options.t) : unit =
+let run () (opts : Options.t) : unit =
   ignore Enums.Lang.(resolve_file_lang [ ESL ] opts.input);
   let prog = compile opts.input in
   match opts.output with
   | None -> print_endline (Prog.str prog)
   | Some output -> Io.write_file (Fpath.to_string output) (Prog.str prog)
-
-let main () (opts : Options.t) : int = Cmd.eval_cmd (fun () -> run opts)

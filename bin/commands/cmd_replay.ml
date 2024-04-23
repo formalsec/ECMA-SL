@@ -66,9 +66,9 @@ let replay filename testsuite =
         Log.out "     status : false (no side effect)@.";
         Ok () )
 
-let main () opt =
+let run () opt =
   match replay opt.filename opt.testsuite with
   | Error (`Msg msg) ->
     Log.out "%s@." msg;
-    1
-  | Ok () -> 0
+    () (* error *)
+  | Ok () -> () (* success *)
