@@ -24,11 +24,11 @@ module Options = struct
 end
 
 let execute_partial (entry : Interpreter.EntryPoint.t)
-  (instrument : Options.instrument) (interp : Prog.t) (input : Fpath.t) :
+  (instrument : Options.instrument) (interp : Prog.t) (ast : Fpath.t) :
   Val.t * Val.t Heap.t =
-  let file = Fpath.to_string input in
-  let ast = Parsing.load_file file |> Parsing.parse_func ~file in
-  Hashtbl.replace (Prog.funcs interp) (Func.name' ast) ast;
+  let ast' = Fpath.to_string ast in
+  let build_ast = Parsing.load_file ast' |> Parsing.parse_func ~file:ast' in
+  Hashtbl.replace (Prog.funcs interp) (Func.name' build_ast) build_ast;
   Cmd_interpret.interpret_partial entry instrument interp
 
 let setup_harness (instrument : Options.instrument) (interp : Prog.t)

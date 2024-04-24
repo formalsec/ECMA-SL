@@ -3,23 +3,19 @@ open Ecma_sl
 open Ecma_sl.Syntax.Result
 module String = Astring.String
 
-type options =
-  { filename : Fpath.t
-  ; testsuite : Fpath.t
-  }
+module Options = struct
+  type t =
+    { input : Fpath.t
+    ; testsuite : Fpath.t
+    }
 
-let options filename testsuite = { filename; testsuite }
+  let set (input : Fpath.t) (testsuite : Fpath.t) : t = { input; testsuite }
+end
 
 let list_iter ~f lst =
   let exception E of Rresult.R.msg in
-  try
-    List.iter
-      (fun v -> match f v with Error s -> raise (E s) | Ok () -> ())
-      lst;
-    Ok ()
-  with E s -> Error s
-
-let node test witness = Cmd.(v "node" % p test % p witness)
+  let list_f v = match f v with Error s -> raise (E s) | Ok () -> () in
+  try List.iter list_f lst |> fun () -> Ok () with E s -> Error s
 
 type observable =
   | Stdout of string
@@ -31,7 +27,9 @@ let env () =
   let node_path = Fmt.sprintf ".:%s" Share.nodejs in
   String.Map.of_list [ ("NODE_PATH", node_path) ]
 
-let execute_witness ~env (test : Fpath.t) (witness : Fpath.t) =
+let node test witness = Cmd.(v "node" % p test % p witness)
+
+let execute_witness (env : OS.Env.t) (test : Fpath.t) (witness : Fpath.t) =
   let open OS in
   Log.out "    running : %s@." @@ Fpath.to_string witness;
   let cmd = node test witness in
@@ -48,12 +46,12 @@ let execute_witness ~env (test : Fpath.t) (witness : Fpath.t) =
   | (_, `Exited _) | (_, `Signaled _) ->
     Error (`Msg (Fmt.sprintf "unexpected node failure: %s" out))
 
-let replay filename testsuite =
-  Log.out "  replaying : %a...@." Fpath.pp filename;
+let replay (input : Fpath.t) (testsuite : Fpath.t) =
+  Log.out "  replaying : %a...@." Fpath.pp input;
   let env = env () in
   let* witnesses = OS.Path.matches Fpath.(testsuite / "witness-$(n).js") in
   list_iter witnesses ~f:(fun witness ->
-      let* effect = execute_witness ~env filename witness in
+      let* effect = execute_witness env input witness in
       match effect with
       | Some (Stdout msg) ->
         Log.out "     status : true (\"%s\" in output)@." msg;
@@ -66,9 +64,9 @@ let replay filename testsuite =
         Log.out "     status : false (no side effect)@.";
         Ok () )
 
-let run () opt =
-  match replay opt.filename opt.testsuite with
+let run () (opts : Options.t) : unit =
+  match replay opts.input opts.testsuite with
+  | Ok () -> ()
   | Error (`Msg msg) ->
     Log.out "%s@." msg;
-    raise Exec.(Command_error Failure)
-  | Ok () -> ()
+    raise (Exec.Command_error Failure)

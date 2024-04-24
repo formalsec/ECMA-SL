@@ -27,19 +27,20 @@ let prog_of_core (file : Fpath.t) : Prog.t =
 let prog_of_plus (file : Fpath.t) : Prog.t = Cmd_compile.compile true file
 
 let prog_of_js (file : Fpath.t) : Prog.t =
-  let ast_file = Fpath.v (Filename.temp_file "ecmasl" "ast.cesl") in
-  Cmd_encode.encode None file (Some ast_file);
-  let ast_file' = Fpath.to_string ast_file in
-  let ast = Parsing.load_file ast_file' |> Parsing.parse_func ~file:ast_file' in
+  let ast = Fpath.v (Filename.temp_file "ecmasl" "ast.cesl") in
+  Cmd_encode.encode None file (Some ast);
+  let ast' = Fpath.to_string ast in
+  let build_ast = Parsing.load_file ast' |> Parsing.parse_func ~file:ast' in
   let interp = Share.es6_sym_interp () |> Parsing.parse_prog in
-  Hashtbl.replace (Prog.funcs interp) (Func.name' ast) ast;
+  Hashtbl.replace (Prog.funcs interp) (Func.name' build_ast) build_ast;
   interp
 
-let dispatch_file_ext (file : Fpath.t) : (Prog.t, 'a) result =
-  if Fpath.has_ext ".cesl" file then Ok (prog_of_core file)
-  else if Fpath.has_ext ".esl" file then Ok (prog_of_plus file)
-  else if Fpath.has_ext ".js" file then Ok (prog_of_js file)
-  else Error (`Msg (Fmt.asprintf "%a :unreconized file type" Fpath.pp file))
+let dispatch_file_ext (input : Fpath.t) : (Prog.t, 'a) result =
+  match Enums.Lang.resolve_file_lang [ JS; ESL; CESL ] input with
+  | Some JS -> Ok (prog_of_js input)
+  | Some ESL -> Ok (prog_of_plus input)
+  | Some CESL -> Ok (prog_of_core input)
+  | _ -> Error (`Msg (Fmt.asprintf "%a :unreconized file type" Fpath.pp input))
 
 let link_env (prog : Prog.t) : Extern_func.extern_func Symbolic.Env.t =
   let env = Env.Build.empty () |> Env.Build.add_functions prog in
@@ -49,15 +50,11 @@ let link_env (prog : Prog.t) : Extern_func.extern_func Symbolic.Env.t =
 
 let pp_model fmt v =
   let open Encoding in
-  let pp_mapping fmt (s, v) =
-    Fmt.fprintf fmt {|"%a" : %a|} Symbol.pp s Value.pp v
-  in
-  let pp_vars fmt v =
-    Fmt.pp_print_list
-      ~pp_sep:(fun fmt () -> Fmt.fprintf fmt "@\n, ")
-      pp_mapping fmt v
-  in
-  Fmt.fprintf fmt "@[<v 2>module.exports.symbolic_map =@ { %a@\n}@]" pp_vars
+  let open Fmt in
+  let pp_map fmt (s, v) = fprintf fmt {|"%a" : %a|} Symbol.pp s Value.pp v in
+  let pp_sep fmt () = fprintf fmt "@\n, " in
+  let pp_vars fmt v = pp_print_list ~pp_sep pp_map fmt v in
+  fprintf fmt "@[<v 2>module.exports.symbolic_map =@ { %a@\n}@]" pp_vars
     (Model.get_bindings v)
 
 let err_to_json = function
@@ -68,7 +65,7 @@ let err_to_json = function
   | `Failure msg ->
     `Assoc [ ("type", `String "Failure"); ("sink", `String msg) ]
 
-let serialize_thread ~workspace =
+let serialize_thread (workspace : Fpath.t) =
   let module Term = Encoding.Expr in
   let (next_int, _) = Base.make_counter 0 1 in
   fun ?(witness :
@@ -88,9 +85,21 @@ let serialize_thread ~workspace =
     let* () = OS.File.writef Fpath.(f + ".js") "%a" (Fmt.pp_opt pp_model) m in
     OS.File.writef Fpath.(f + ".smtml") "%a" Term.pp_smt pc
 
-let write_report ~workspace filename exec_time solver_time solver_count problems
-    =
-  let json : Yojson.t =
+let process_result (workspace : Fpath.t) (ret, thread) =
+  let* witness =
+    match ret with
+    | Ok _ -> Ok None
+    | Error (`Abort _ as err) | Error (`Assert_failure _ as err) -> Ok (Some err)
+    | Error (`Failure msg) -> Error (`Msg msg)
+  in
+  ( match serialize_thread workspace ?witness thread with
+  | Ok () -> ()
+  | Error (`Msg msg) -> Log.out "%s@." msg );
+  Ok witness
+
+let write_report (workspace : Fpath.t) (filename : Fpath.t) (exec_time : float)
+  (solver_time : float) (solver_count : int) problems =
+  let json =
     `Assoc
       [ ("filename", `String (Fpath.to_string filename))
       ; ("execution_time", `Float exec_time)
@@ -114,28 +123,14 @@ let execute (target : string) (workspace : Fpath.t) (input : Fpath.t) =
   let solv_time = !Solver.solver_time in
   let solv_cnt = !Solver.solver_count in
   let testsuite = Fpath.(workspace / "test-suite") in
-  let* _ = OS.Dir.create ~path:true testsuite in
-  let* problems =
-    list_filter_map
-      ~f:(fun (ret, thread) ->
-        let* witness =
-          match ret with
-          | Ok _ -> Ok None
-          | Error (`Abort _ as err) | Error (`Assert_failure _ as err) ->
-            Ok (Some err)
-          | Error (`Failure msg) -> Error (`Msg msg)
-        in
-        ( match serialize_thread ~workspace ?witness thread with
-        | Error (`Msg msg) -> Log.out "%s@." msg
-        | Ok () -> () );
-        Ok witness )
-      results
-  in
-  let n = List.length problems in
-  if n = 0 then Log.out "All Ok!@." else Log.out "Found %d problems!@." n;
+  Files.make_dir testsuite;
+  let* problems = list_filter_map ~f:(process_result workspace) results in
+  let nproblems = List.length problems in
+  if nproblems = 0 then Log.out "All Ok!@."
+  else Log.out "Found %d problems!@." nproblems;
   Log.debug "  exec time : %fs@." exec_time;
   Log.debug "solver time : %fs@." solv_time;
-  write_report ~workspace input exec_time solv_time solv_cnt problems
+  write_report workspace input exec_time solv_time solv_cnt problems
 
 let run () (opts : Options.t) : unit =
   match execute opts.target opts.workspace opts.input with
