@@ -2,13 +2,13 @@ open Ecma_sl
 
 module Options = struct
   type t =
-    { inputs : Fpath.t
+    { inputs : Fpath.t list
     ; output : Fpath.t option
     ; builder : string option
     }
 
-  let set (inputs : Fpath.t) (output : Fpath.t option) (builder : string option)
-    : t =
+  let set (inputs : Fpath.t list) (output : Fpath.t option)
+    (builder : string option) : t =
     { inputs; output; builder }
 end
 
@@ -26,5 +26,5 @@ let run_single (builder : string option) (input : Fpath.t)
   encode builder input output
 
 let run () (opts : Options.t) : unit =
-  Files.exec (run_single opts.builder) opts.inputs opts.output
+  Files.exec_multiple (run_single opts.builder) opts.inputs opts.output
     (Enums.Lang.str CESL)
