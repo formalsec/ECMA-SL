@@ -30,8 +30,8 @@ module FileOpts = struct
 
   let inputs =
     let docv = "FILE/DIR" in
-    let doc = "Name of the input file or input directory." in
-    Arg.(required & pos 0 (some valid_fpath) None & info [] ~docv ~doc)
+    let doc = "Name of the input fileS or input directories." in
+    Arg.(non_empty & pos_all valid_fpath [] & info [] ~docv ~doc)
 
   let output =
     let docv = "FILE" in
