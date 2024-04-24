@@ -106,7 +106,7 @@ let symbolic_cmd =
 
 let replay_opts =
   let open Term in
-  const Cmd_replay.options $ Docs.FileOpts.input $ Docs.ReplayOpts.testsuit
+  const Cmd_replay.Options.set $ Docs.FileOpts.input $ Docs.ReplayOpts.testsuit
 
 let replay_cmd =
   let open Docs.ReplayCmd in
