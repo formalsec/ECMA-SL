@@ -2,14 +2,14 @@ open Ecma_sl
 
 module Options = struct
   type t =
-    { inputs : Fpath.t
+    { inputs : Fpath.t list
     ; lang : Enums.Lang.t
     ; jsinterp : Enums.JSInterp.t
     ; harness : Fpath.t option
     }
 
-  let set (inputs : Fpath.t) (lang : Enums.Lang.t) (jsinterp : Enums.JSInterp.t)
-    (harness : Fpath.t option) : t =
+  let set (inputs : Fpath.t list) (lang : Enums.Lang.t)
+    (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option) : t =
     { inputs; lang; jsinterp; harness }
 end
 
@@ -65,4 +65,4 @@ let setup_tests (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option) :
 let run () (opts : Options.t) : unit =
   Test.header ();
   let setup = setup_tests opts.jsinterp opts.harness in
-  Files.exec (run_single setup) opts.inputs None ""
+  Files.exec_multiple (run_single setup) opts.inputs None ""
