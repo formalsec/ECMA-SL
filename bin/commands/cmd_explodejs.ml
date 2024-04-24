@@ -1,8 +1,10 @@
-let run () (opt : Cmd_symbolic.Options.t) =
-  let n = Cmd_symbolic.run () opt in
-  (* if n <> 0 then n *)
-  if n <> () then ()
-  else
-    let filename = opt.input in
-    let testsuite = Fpath.(opt.workspace / "test-suite") in
-    Cmd_replay.run () { filename; testsuite }
+let replay (opts : Cmd_symbolic.Options.t) : unit =
+  let input = opts.input in
+  let testsuite = Fpath.(opts.workspace / "test-suite") in
+  Cmd_replay.run () { input; testsuite }
+
+let run () (opts : Cmd_symbolic.Options.t) : unit =
+  try
+    Cmd_symbolic.run () opts;
+    replay opts
+  with _ -> ()
