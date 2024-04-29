@@ -74,16 +74,15 @@ let unop_semantics (op : Operator.unopt) =
   | ObjectToList -> failwith "unop_semantics.objectToList"
   | ObjectFields -> failwith "unop_semantics.objectFields"
   | StringConcat -> string_concat 
-  | ListHead | TupleFirst -> (function
+  | ListHead -> (function
             | Value.List _ as v -> Eval.(unop Ty_list Ty.Head v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.listHead/tupleFirst" "non-empty list/tuple" [ v ])
-  (* FIXME: Problems with TupleSecond when using List, because it returns an list instead of the element *)
-            | ListTail | TupleSecond -> (function
+            | _ as v -> bad_arg_err 1 "unop_semantics.listHead" "non-empty list" [ v ])
+  | ListTail -> (function
             | Value.List _ as v -> Eval.(unop Ty_list Ty.Tail v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.listTail/tupleSecond" "list/tuple" [ v ])
-  | ListLen | TupleLen -> (function
+            | _ as v -> bad_arg_err 1 "unop_semantics.listTail" "list" [ v ])
+  | ListLen -> (function
             | Value.List _ as v -> Eval.(unop Ty_list Ty.Length v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.listLen/tupleLen" "list/tuple" [ v ])
+            | _ as v -> bad_arg_err 1 "unop_semantics.listLen" "list" [ v ])
   | ListReverse -> (function
             | Value.List _ as v -> Eval.(unop Ty_list Ty.Reverse v)
             | _ as v -> bad_arg_err 1 "unop_semantics.listReverse" "list" [ v ])
@@ -199,10 +198,10 @@ let binop_semantics (op : Operator.binopt) =
             | Value.Str _, Value.Int _ -> Eval.(binop Ty_str Ty.At v1 v2)
             | (Str _, _) -> bad_arg_err 2 "binop_semantics.stringNth" "(string, integer)" [ v1; v2 ]
             | _ -> bad_arg_err 1 "binop_semantics.stringNth" "(string, integer)" [ v1; v2 ])
-  | ListNth | TupleNth -> (fun v1 v2 -> match v1, v2 with
+  | ListNth -> (fun v1 v2 -> match v1, v2 with
             | Value.List _, Value.Int _ -> Eval.(binop Ty_list Ty.At v1 v2)
-            | (List _, _) -> bad_arg_err 2 "binop_semantics.listNth/tupleNth" "(list/tuple, integer)" [ v1; v2 ]
-            | _ -> bad_arg_err 1 "binop_semantics.listNth/tupleNth" "(list/tuple, integer)" [ v1; v2 ])
+            | (List _, _) -> bad_arg_err 2 "binop_semantics.listNth" "(list, integer)" [ v1; v2 ]
+            | _ -> bad_arg_err 1 "binop_semantics.listNth" "(list, integer)" [ v1; v2 ])
   | ListAdd -> (fun v1 v2 -> match v1, v2 with
             | Value.List _, Value.List _ -> Eval.(binop Ty_list Ty.List_append_last v1 v2)
             | _ -> bad_arg_err 1 "binop_semantics.ListAdd" "(list, any)" [ v1; v2 ])
@@ -248,4 +247,3 @@ let eval_nopt (op : nopt) (vals : Value.t list) : Value.t =
   | NAryLogicalOr -> nary_logical_or vals
   | ArrayExpr -> (* TODO:x Value.Arr (Array.of_list vals) *) failwith "eval_nopt.arrayExpr"
   | ListExpr -> Value.List vals
-  | TupleExpr -> Value.List vals

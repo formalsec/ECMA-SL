@@ -58,9 +58,6 @@ let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
   | ListTail -> not_implemented (* TODO: list typing *)
   | ListLen -> not_implemented (* TODO: list typing *)
   | ListReverse -> not_implemented (* TODO: list typing *)
-  | TupleFirst -> not_implemented (* TODO: tuple typing *)
-  | TupleSecond -> not_implemented (* TODO: tuple typing *)
-  | TupleLen -> not_implemented (* TODO: tuple typing *)
   | Abs -> type_op [ ([ FloatType ], FloatType) ]
   | Sqrt -> type_op [ ([ FloatType ], FloatType) ]
   | Ceil -> type_op [ ([ FloatType ], FloatType) ]
@@ -101,7 +98,6 @@ let type_binopt (op : Operator.binopt) (targs : EType.t list) : EType.t' =
   | ListAdd -> not_implemented (* TODO: list typing *)
   | ListPrepend -> not_implemented (* TODO: list typing *)
   | ListConcat -> not_implemented (* TODO: list typing *)
-  | TupleNth -> not_implemented (* TODO: tuple typing *)
 
 let type_triopt (op : Operator.triopt) (targs : EType.t list) : EType.t' =
   let not_implemented = EType.AnyType in
@@ -118,4 +114,3 @@ let type_nopt (op : Operator.nopt) (_targs : EType.t list) : EType.t' =
   | NAryLogicalOr -> not_implemented (* TODO: nopt typing *)
   | ArrayExpr -> not_implemented (* TODO: nopt typing *)
   | ListExpr -> not_implemented (* TODO: nopt typing *)
-  | TupleExpr -> not_implemented (* TODO: nopt typing *)

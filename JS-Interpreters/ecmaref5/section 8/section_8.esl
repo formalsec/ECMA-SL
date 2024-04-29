@@ -30,17 +30,26 @@ function Type(V) {
     if (isPropertyDescriptor(V)) { return "PropertyDescriptor" };
     return "EnvironmentRecord"
   };
-  if (v_type = "list") { return "List" };
+  if (v_type = "list") {
+    if (l_len V > 0) {
+      el := hd V;
+      if (el = "R") { return "Reference" }
+      elif (el = "C") { return "Completion" }
+      elif (el = "P") { return "PropertyIdentifier" }
+      else { return "List" }
+    };
+    return "List"  
+  };
   if (v_type = "symbol") {
     if (V = 'null) { return "Null" };
     if (V = 'undefined) { return "Undefined" }
   };
-  if (v_type = __$Tuple) {
-    ft := fst V;
+  /* if (v_type = __$Tuple) {
+    ft := hd V;
     if (ft = "R") { return "Reference" };
     if (ft = "C") { return "Completion" };
     if (ft = "P") { return "PropertyIdentifier" }
-  };
+  }; */
 
   assert false
 };

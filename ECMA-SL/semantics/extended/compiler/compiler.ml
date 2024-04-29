@@ -35,8 +35,8 @@ module Builder = struct
     match ss with [] -> None | ss -> Some (Stmt.Block ss @> at)
 
   let throw_checker (at : region) (res : Expr.t) (sthen : c_stmt) : Stmt.t =
-    let iserror = Expr.UnOpt (TupleFirst, res) @?> res.at in
-    let value = Expr.UnOpt (TupleSecond, res) @?> res.at in
+    let iserror = Expr.UnOpt (ListHead, res) @?> res.at in
+    let value = Expr.BinOpt (ListNth, res, (Expr.Val (Int 1)) @?> at) @?> res.at in
     let selse = Stmt.Assign (?@res, value) @?> at in
     Stmt.If (iserror, block ~at sthen, block_opt ~at [ selse ]) @?> at
 
@@ -47,7 +47,7 @@ module Builder = struct
     | Some ferr' ->
       let res' = res.it @?> ferr'.at in
       let ferr'' = Expr.Val (Value.Str ferr'.it) @?> ferr'.at in
-      let err = Expr.(UnOpt (TupleSecond, res')) @?> ferr'.at in
+      let err = Expr.BinOpt (ListNth, res', (Expr.Val (Int 1)) @?> at) @?> ferr'.at in
       let args = [ global ferr'; err ] in
       let sferr = Stmt.AssignCall (?@res', ferr'', args) @?> ferr'.at in
       let sferr_checker = throw_checker at res' [ sreturn ] in
@@ -326,7 +326,7 @@ and compile_return (at : region) (e : EExpr.t) : c_stmt =
   let e' = if EExpr.isvoid e then EExpr.Val (Value.App (`Op "null", []))@?> at else e in
   let (e_s, e_e) = compile_expr at e' in
   let err = Builder.efalse e' in
-  let ret = Expr.NOpt (TupleExpr, [ err; e_e ]) @?> e'.at in
+  let ret = Expr.NOpt (ListExpr, [ err; e_e ]) @?> e'.at in
   e_s @ [ Stmt.Return ret @?> at ]
 
 and compile_assign (at : region) (x : Id.t) (e : EExpr.t) : c_stmt =
@@ -480,7 +480,7 @@ and compile_lambdacall (at : region) (x : Id.t) (id : string)
 and compile_throw (at : region) (e : EExpr.t) : c_stmt =
   let (e_s, e_e) = compile_expr at e in
   let err = Builder.etrue e in
-  let ret = Expr.NOpt (TupleExpr, [ err; e_e ]) @?> e.at in
+  let ret = Expr.NOpt (ListExpr, [ err; e_e ]) @?> e.at in
   e_s @ [ Stmt.Return ret @?> at ]
 
 and compile_fail (at : region) (e : EExpr.t) : c_stmt =

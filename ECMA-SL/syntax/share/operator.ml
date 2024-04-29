@@ -33,10 +33,6 @@ type unopt =
   | ListTail
   | ListLen
   | ListReverse
-  (* Tuple operators *)
-  | TupleFirst
-  | TupleSecond
-  | TupleLen
   (* Math operators *)
   | Abs
   | Sqrt
@@ -80,8 +76,6 @@ type binopt =
   | ListAdd
   | ListPrepend
   | ListConcat
-  (* Tuple operators *)
-  | TupleNth
 
 type triopt =
   (* General operators *)
@@ -99,8 +93,6 @@ type nopt =
   | ArrayExpr
   (* List operators *)
   | ListExpr
-  (* Tuple operators *)
-  | TupleExpr
 
 let is_infix_unopt (op : unopt) : bool =
   match op with BitwiseNot | LogicalNot -> true | _ -> false
@@ -141,9 +133,6 @@ let label_of_unopt (op : unopt) : string =
   | ListTail -> "List.tl"
   | ListLen -> "List.l_len"
   | ListReverse -> "List.l_reverse"
-  | TupleFirst -> "Tuple.fst"
-  | TupleSecond -> "Tuple.snd"
-  | TupleLen -> "Tup.t_len"
   | Abs -> "Math.abs"
   | Sqrt -> "Math.sqrt"
   | Ceil -> "Math.ceil"
@@ -180,7 +169,6 @@ let label_of_binopt (op : binopt) : string =
   | ListAdd -> "List.l_add"
   | ListPrepend -> "List.l_prepend"
   | ListConcat -> "List.l_concat"
-  | TupleNth -> "Tuple.t_nth"
 
 let label_of_triopt (op : triopt) : string =
   match op with
@@ -194,7 +182,6 @@ let label_of_nopt (op : nopt) : string =
   | NAryLogicalOr -> "Logical.nary_or"
   | ArrayExpr -> "Array.a_expr"
   | ListExpr -> "List.l_expr"
-  | TupleExpr -> "Tuple.t_expr"
 
 let pp_of_unopt_single (ppf : Fmt.t) (op : unopt) : unit =
   let open Fmt in
@@ -218,9 +205,6 @@ let pp_of_unopt_single (ppf : Fmt.t) (op : unopt) : unit =
   | ListTail -> pp_str ppf "tl"
   | ListLen -> pp_str ppf "l_len"
   | ListReverse -> pp_str ppf "l_reverse"
-  | TupleFirst -> pp_str ppf "fst"
-  | TupleSecond -> pp_str ppf "snd"
-  | TupleLen -> pp_str ppf "t_len"
   | Abs -> pp_str ppf "abs"
   | Sqrt -> pp_str ppf "sqrt"
   | Ceil -> pp_str ppf "ceil"
@@ -258,7 +242,6 @@ let pp_of_binopt_single (ppf : Fmt.t) (op : binopt) : unit =
   | ListAdd -> pp_str ppf "l_add"
   | ListPrepend -> pp_str ppf "l_prepend"
   | ListConcat -> pp_str ppf "l_concat"
-  | TupleNth -> pp_str ppf "t_nth"
 
 let pp_of_triopt_single (ppf : Fmt.t) (op : triopt) : unit =
   let open Fmt in
@@ -299,7 +282,6 @@ let pp_of_nopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   | NAryLogicalOr -> format ppf "%a" (pp_lst !>" || " pp_val) vs
   | ArrayExpr -> format ppf "[|%a|]" (pp_lst !>", " pp_val) vs
   | ListExpr -> format ppf "[%a]" (pp_lst !>", " pp_val) vs
-  | TupleExpr -> format ppf "(%a)" (pp_lst !>", " pp_val) vs
 
 let str_of_unopt_single (op : unopt) : string =
   Fmt.str "%a" pp_of_unopt_single op

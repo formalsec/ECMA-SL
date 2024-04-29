@@ -9,7 +9,7 @@
 function getEnumerableProperties(object) {
   props := getEnumerablePropertiesRecursive(object, [], []);
 
-  return fst props
+  return hd props
 };
 
 function getEnumerablePropertiesRecursive(object, enumProps, checkedProps) {
@@ -36,8 +36,8 @@ function getEnumerablePropertiesRecursive(object, enumProps, checkedProps) {
   };
   if ("Prototype" in_obj object) {
     props := getEnumerablePropertiesRecursive(object.Prototype, enumProps, checkedProps);
-    enumProps := fst props;
-    checkedProps := t_nth(props, 1)
+    enumProps := hd props;
+    checkedProps := l_nth(props, 1)
   };
 
   return (enumProps, checkedProps)
