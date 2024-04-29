@@ -126,11 +126,11 @@ function newPropertyIdentifier(name, desc) {
 };
 
 function getPropertyName(propertyIdentifier) {
-  return t_nth(propertyIdentifier, 1)
+  return l_nth(propertyIdentifier, 1)
 };
 
 function getPropertyDescriptor(propertyIdentifier) {
-  return t_nth(propertyIdentifier, 2)
+  return l_nth(propertyIdentifier, 2)
 };
 
 

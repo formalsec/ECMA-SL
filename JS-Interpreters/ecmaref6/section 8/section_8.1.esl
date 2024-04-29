@@ -166,7 +166,7 @@ function createImmutableBinding(declarativeEnvRec, name) {
 };
 
 function newBinding(initialised, value, deletable, modifiable, strict) {
-  return (initialised, value, deletable, modifiable, strict)
+  return [initialised, value, deletable, modifiable, strict]
 };
 
 function newMutableBinding(value) {
@@ -179,27 +179,27 @@ function newImmutableBinding(value) {
 
 function isUninitialisedBinding(envRec, name) {
   binding := envRec[name];
-  return !(t_nth(binding, 0))
+  return !(l_nth(binding, 0))
 };
 
 function getBindingValue(envRec, name) {
   binding := envRec[name];
-  return t_nth(binding, 1)
+  return l_nth(binding, 1)
 };
 
 function isMutableBinding(envRec, name) {
   binding := envRec[name];
-  return t_nth(binding, 3)
+  return l_nth(binding, 3)
 };
 
 function isStrictBinding(envRec, name) {
   binding := envRec[name];
-  return t_nth(binding, 4)
+  return l_nth(binding, 4)
 };
 
 function setBindingValue(envRec, name, value) {
   binding := envRec[name];
-  newBinding := newBinding(t_nth(binding, 0), value, t_nth(binding, 2), t_nth(binding, 3), t_nth(binding, 4));
+  newBinding := newBinding(l_nth(binding, 0), value, l_nth(binding, 2), l_nth(binding, 3), l_nth(binding, 4));
 
   envRec[name] := newBinding;
 
@@ -208,7 +208,7 @@ function setBindingValue(envRec, name, value) {
 
 function setBindingInitialised(envRec, name, initialised) {
   binding := envRec[name];
-  newBinding := newBinding(initialised, t_nth(binding, 1), t_nth(binding, 2), t_nth(binding, 3), t_nth(binding, 4));
+  newBinding := newBinding(initialised, l_nth(binding, 1), l_nth(binding, 2), l_nth(binding, 3), l_nth(binding, 4));
 
   envRec[name] := newBinding;
 
@@ -217,7 +217,7 @@ function setBindingInitialised(envRec, name, initialised) {
 
 function setBindingDeletable(envRec, name, deletable) {
   binding := envRec[name];
-  newBinding := newBinding(t_nth(binding, 0), t_nth(binding, 1), deletable, t_nth(binding, 3), t_nth(binding, 4));
+  newBinding := newBinding(l_nth(binding, 0), l_nth(binding, 1), deletable, l_nth(binding, 3), l_nth(binding, 4));
 
   envRec[name] := newBinding;
 
@@ -226,7 +226,7 @@ function setBindingDeletable(envRec, name, deletable) {
 
 function setBindingStrict(envRec, name, strict) {
   binding := envRec[name];
-  newBinding := newBinding(t_nth(binding, 0), t_nth(binding, 1), t_nth(binding, 2), t_nth(binding, 3), strict);
+  newBinding := newBinding(l_nth(binding, 0), l_nth(binding, 1), l_nth(binding, 2), l_nth(binding, 3), strict);
 
   envRec[name] := newBinding;
 
@@ -239,7 +239,7 @@ function hasUninitialisedImmutableBinding(envRec, name) {
 
 function isBindingCannotBeDeleted(envRec, name) {
   binding := envRec[name];
-  return !t_nth(binding, 2)
+  return !l_nth(binding, 2)
 };
 
 

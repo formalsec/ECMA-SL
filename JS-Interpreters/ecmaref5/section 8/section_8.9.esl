@@ -23,13 +23,13 @@ function isErrorCompletion(completion) {
   return false
 };
 function getCompletionType(completion) {
-  return t_nth(completion, 1)
+  return l_nth(completion, 1)
 };
 function getCompletionValue(completion) {
-  return t_nth(completion, 2)
+  return l_nth(completion, 2)
 };
 function getCompletionTarget(completion) {
-  return t_nth(completion, 3)
+  return l_nth(completion, 3)
 };
 
 function newCompletion(type, value, target) {

@@ -155,8 +155,8 @@ function JS_Interpreter_PrimaryExpression(PrimaryExpression, scope) {
     };
 
     ret := strip_final_elisions(ElementList);
-    ElementList := fst ret;
-    Elisionopt := snd ret;
+    ElementList := hd ret;
+    Elisionopt := l_nth(ret, 1);
     if (l_len Elisionopt = 0) {
       return JS_Interpreter_ArrayLiteral_ElementList(ElementList, scope)
     };

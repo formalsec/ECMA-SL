@@ -20,11 +20,11 @@ function ThrowCompletion(v: unknown): Completion_t {
 
 
 function getCompletionType(c: Completion_t): CompletionType_t {
-  return t_nth(c, 0)
+  return l_nth(c, 0)
 };
 
 function getCompletionValue(c: Completion_t): unknown {
-  return t_nth(c, 1)
+  return l_nth(c, 1)
 };
 
 function isAbruptCompletion(c: Completion_t): boolean {

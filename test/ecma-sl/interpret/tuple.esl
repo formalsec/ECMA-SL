@@ -1,5 +1,5 @@
 function main() {
-  tup := (1, 2., "string", 'undefined);
+  tup := [1, 2., "string", 'undefined];
   print tup;
   return 0
 }

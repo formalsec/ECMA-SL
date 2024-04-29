@@ -26,9 +26,6 @@
 %token LIST_NTH LIST_ADD LIST_PREPEND LIST_CONCAT
 %token LIST_SET
 
-%token TUPLE_FIRST TUPLE_SECOND TUPLE_LEN
-%token TUPLE_NTH
-
 %token ABS SQRT CEIL FLOOR TRUNC
 
 %token EXCLAMATION
@@ -80,9 +77,6 @@
   | LIST_TAIL;              { Operator.ListTail }
   | LIST_LEN;               { Operator.ListLen }
   | LIST_REVERSE;           { Operator.ListReverse }
-  | TUPLE_FIRST;            { Operator.TupleFirst }
-  | TUPLE_SECOND;           { Operator.TupleSecond }
-  | TUPLE_LEN;              { Operator.TupleLen }
   | ABS;                    { Operator.Abs }
   | SQRT;                   { Operator.Sqrt }
   | CEIL;                   { Operator.Ceil }
@@ -95,7 +89,6 @@
   | LIST_ADD;               { Operator.ListAdd }
   | LIST_PREPEND;           { Operator.ListPrepend }
   | LIST_CONCAT;            { Operator.ListConcat }
-  | TUPLE_NTH;              { Operator.TupleNth }
 
 %public let core_triopt ==
   | STRING_SUBSTR;          { Operator.StringSubstr }
