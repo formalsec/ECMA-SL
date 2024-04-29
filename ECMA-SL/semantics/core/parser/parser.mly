@@ -200,8 +200,7 @@ let nopt_target :=
     { Expr.NOpt (ArrayExpr, es) @> at $sloc }
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
     { Expr.NOpt (ListExpr, es) @> at $sloc }
-  | LPAREN; v = expr_target; COMMA; vs = separated_nonempty_list(COMMA, expr_target); RPAREN;
-    { Expr.NOpt (TupleExpr, v :: vs) @> at $sloc }
+    /* TODO:x */
 
 (* ==================== Values ==================== *)
 

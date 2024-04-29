@@ -47,8 +47,8 @@ function strip_final_elisions(elements) {
 
 function rearrange_elementList(elements) {
   ret := strip_initial_elisions(elements);
-  elementList := fst ret;
-  elisionOpt := snd ret;
+  elementList := hd ret;
+  elisionOpt := l_nth(ret, 1);
 
   if (l_len elementList = 1) {
     return {
@@ -60,8 +60,8 @@ function rearrange_elementList(elements) {
     assignmentExpression := l_nth(elements, (l_len elements) - 1);
     elements := l_remove_last (elements);
     ret := strip_final_elisions(elements);
-    elementList := fst ret;
-    elisionOpt := snd ret;
+    elementList := hd ret;
+    elisionOpt := l_nth(ret, 1);
 
     return {
       type: "Recursive",

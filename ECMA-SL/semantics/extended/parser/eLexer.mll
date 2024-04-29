@@ -79,12 +79,6 @@
             "l_concat"                , LIST_CONCAT;
             "l_set"                   , LIST_SET;
 
-            (* Tuple operators *)
-            "fst"                     , TUPLE_FIRST;
-            "snd"                     , TUPLE_SECOND;
-            "t_len"                   , TUPLE_LEN;
-            "t_nth"                   , TUPLE_NTH;
-
             (* Math operators *)
             "abs"                     , ABS;
             "sqrt"                    , SQRT;
