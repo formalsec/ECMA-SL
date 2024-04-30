@@ -1,104 +1,114 @@
-open Bos
 open Ecma_sl
 open Ecma_sl.Syntax.Result
 module PC = Choice_monad.PC
+module Thread = Choice_monad.Thread
 module Env = Symbolic.P.Env
 module Value = Symbolic.P.Value
 module Choice = Symbolic.P.Choice
-module Thread = Choice_monad.Thread
-module Translator = Value_translator
 module Extern_func = Symbolic.P.Extern_func
+module Translator = Value_translator
+module State = Symbolic_interpreter.State
 
 module Options = struct
+  let langs : Enums.Lang.t list = Enums.Lang.[ Auto; JS; ESL; CESL ]
+
   type t =
     { input : Fpath.t
+    ; lang : Enums.Lang.t
     ; target : string
     ; workspace : Fpath.t
     }
 
-  let set (input : Fpath.t) (target : string) (workspace : Fpath.t) : t =
-    { input; target; workspace }
+  let set (input : Fpath.t) (lang : Enums.Lang.t) (target : string)
+    (workspace : Fpath.t) : t =
+    { input; lang; target; workspace }
 end
 
-let prog_of_core (file : Fpath.t) : Prog.t =
-  let file' = Fpath.to_string file in
-  Parsing.load_file file' |> Parsing.parse_prog ~file:file'
-
-let prog_of_plus (file : Fpath.t) : Prog.t = Cmd_compile.compile true file
-
-let prog_of_js (file : Fpath.t) : Prog.t =
-  let ast = Fpath.v (Filename.temp_file "ecmasl" "ast.cesl") in
-  Cmd_encode.encode None file (Some ast);
-  let ast' = Fpath.to_string ast in
-  let build_ast = Parsing.load_file ast' |> Parsing.parse_func ~file:ast' in
+let prog_of_js (fpath : Fpath.t) : Prog.t Result.t =
   let interp = Share.es6_sym_interp () |> Parsing.parse_prog in
+  (* We can use interpreter will all the metadata once the value_translator can handle nary operators *)
+  (* let instrument = Cmd_interpret.Options.default_instrument () in *)
+  (* let* (interp, _) = Cmd_execute.setup_execution ECMARef6Sym None instrument in *)
+  let ast = Fpath.v (Filename.temp_file "ecmasl" "ast.cesl") in
+  let* () = Cmd_encode.encode None fpath (Some ast) in
+  let* build_ast = Cmd_execute.build_ast ast in
   Hashtbl.replace (Prog.funcs interp) (Func.name' build_ast) build_ast;
-  interp
+  Ok interp
 
-let dispatch_file_ext (input : Fpath.t) : (Prog.t, 'a) result =
-  match Enums.Lang.resolve_file_lang [ JS; ESL; CESL ] input with
-  | Some JS -> Ok (prog_of_js input)
-  | Some ESL -> Ok (prog_of_plus input)
-  | Some CESL -> Ok (prog_of_core input)
-  | _ -> Error (`Msg (Fmt.asprintf "%a :unreconized file type" Fpath.pp input))
+let dispatch_prog (lang : Enums.Lang.t) (fpath : Fpath.t) : Prog.t Result.t =
+  let valid_langs = Enums.Lang.valid_langs Options.langs lang in
+  match Enums.Lang.resolve_file_lang valid_langs fpath with
+  | Some CESL -> Cmd_compile.load fpath
+  | Some ESL -> Cmd_compile.compile true fpath
+  | Some JS -> prog_of_js fpath
+  | _ ->
+    let msg = Fmt.asprintf "%a :unreconized file type" Fpath.pp fpath in
+    Result.error (`Generic msg)
 
 let link_env (prog : Prog.t) : Extern_func.extern_func Symbolic.Env.t =
-  let env = Env.Build.empty () |> Env.Build.add_functions prog in
-  Env.Build.add_extern_functions (Symbolic_extern.extern_cmds env) env
+  let env0 = Env.Build.empty () |> Env.Build.add_functions prog in
+  Env.Build.add_extern_functions (Symbolic_extern.extern_cmds env0) env0
   |> Env.Build.add_extern_functions Symbolic_extern.concrete_api
   |> Env.Build.add_extern_functions Symbolic_extern.symbolic_api
 
-let pp_model fmt v =
-  let open Encoding in
+let pp_model (fmt : Fmt.t) (model : Encoding.Model.t) : unit =
   let open Fmt in
+  let open Encoding in
   let pp_map fmt (s, v) = fprintf fmt {|"%a" : %a|} Symbol.pp s Value.pp v in
   let pp_sep fmt () = fprintf fmt "@\n, " in
   let pp_vars fmt v = pp_print_list ~pp_sep pp_map fmt v in
   fprintf fmt "@[<v 2>module.exports.symbolic_map =@ { %a@\n}@]" pp_vars
-    (Model.get_bindings v)
+    (Model.get_bindings model)
 
-let err_to_json = function
-  | `Abort msg -> `Assoc [ ("type", `String "Abort"); ("sink", `String msg) ]
-  | `Assert_failure v ->
-    let v = Fmt.asprintf "%a" Value.pp v in
-    `Assoc [ ("type", `String "Assert failure"); ("sink", `String v) ]
-  | `Failure msg ->
-    `Assoc [ ("type", `String "Failure"); ("sink", `String msg) ]
+type witness =
+  [ `SymAbort of string
+  | `SymAssertFailure of Extern_func.value
+  ]
 
-let serialize_thread (workspace : Fpath.t) =
+let serialize_thread (workspace : Fpath.t) :
+  witness option -> Thread.t -> unit Result.t =
   let module Term = Encoding.Expr in
-  let (next_int, _) = Base.make_counter 0 1 in
-  fun ?(witness :
-         [> `Abort of string | `Assert_failure of Extern_func.value ] option )
-    thread ->
+  let (next, _) = Base.make_counter 0 1 in
+  fun witness thread ->
+    let open Fpath in
     let pc = PC.to_list @@ Thread.pc thread in
-    Log.debug "  path cond : %a@." Encoding.Expr.pp_list pc;
+    Log.debug "  path cond : %a@." Term.pp_list pc;
     let solver = Thread.solver thread in
     assert (Solver.check solver pc);
-    let m = Solver.model solver in
-    let f =
+    let model = Solver.model solver in
+    let path =
       Fmt.ksprintf
-        Fpath.(add_seg (workspace / "test-suite"))
+        (add_seg (workspace / "test-suite"))
         (match witness with None -> "testcase-%d" | Some _ -> "witness-%d")
-        (next_int ())
+        (next ())
     in
-    let* () = OS.File.writef Fpath.(f + ".js") "%a" (Fmt.pp_opt pp_model) m in
-    OS.File.writef Fpath.(f + ".smtml") "%a" Term.pp_smt pc
+    let pp = Fmt.pp_opt pp_model in
+    let* () = Result.bos (Bos.OS.File.writef (path + ".js") "%a" pp model) in
+    Result.bos (Bos.OS.File.writef (path + ".smtml") "%a" Term.pp_smt pc)
 
-let process_result (workspace : Fpath.t) (ret, thread) =
-  let* witness =
-    match ret with
+let process_result (workspace : Fpath.t)
+  ((res, thread) : State.return_result * Thread.t) : witness option Result.t =
+  let process_witness = function
     | Ok _ -> Ok None
-    | Error (`Abort _ as err) | Error (`Assert_failure _ as err) -> Ok (Some err)
-    | Error (`Failure msg) -> Error (`Msg msg)
+    | Error (`Abort msg) -> Ok (Some (`SymAbort msg))
+    | Error (`Assert_failure v) -> Ok (Some (`SymAssertFailure v))
+    | Error (`Failure msg) -> Result.error (`SymFailure msg)
   in
-  ( match serialize_thread workspace ?witness thread with
-  | Ok () -> ()
-  | Error (`Msg msg) -> Log.out "%s@." msg );
+  let* witness = process_witness res in
+  let* () = serialize_thread workspace witness thread in
   Ok witness
 
+let err_to_json = function
+  | `SymAbort msg -> `Assoc [ ("type", `String "Abort"); ("sink", `String msg) ]
+  | `SymAssertFailure v ->
+    let v = Fmt.asprintf "%a" Value.pp v in
+    `Assoc [ ("type", `String "Assert failure"); ("sink", `String v) ]
+  | `SymFailure msg ->
+    `Assoc [ ("type", `String "Failure"); ("sink", `String msg) ]
+
 let write_report (workspace : Fpath.t) (filename : Fpath.t) (exec_time : float)
-  (solver_time : float) (solver_count : int) problems =
+  (solver_time : float) (solver_count : int) (problems : witness list) :
+  unit Result.t =
   let json =
     `Assoc
       [ ("filename", `String (Fpath.to_string filename))
@@ -109,32 +119,25 @@ let write_report (workspace : Fpath.t) (filename : Fpath.t) (exec_time : float)
       ; ("problems", `List (List.map err_to_json problems))
       ]
   in
-  let rpath = Fpath.(workspace / "symbolic-execution.json") in
-  OS.File.writef rpath "%a" (Yojson.pretty_print ~std:true) json
+  let path = Fpath.(workspace / "symbolic-execution.json") in
+  Result.bos (Bos.OS.File.writef path "%a" (Yojson.pretty_print ~std:true) json)
 
-let execute (target : string) (workspace : Fpath.t) (input : Fpath.t) =
-  let* prog = dispatch_file_ext input in
-  let env = link_env prog in
+let run () (opts : Options.t) : unit Result.t =
+  let* p = dispatch_prog opts.lang opts.input in
+  let env = link_env p in
   let start = Stdlib.Sys.time () in
   let thread = Choice_monad.Thread.create () in
-  let result = Symbolic_interpreter.main env target in
+  let result = Symbolic_interpreter.main env opts.target in
   let results = Choice.run result thread in
   let exec_time = Stdlib.Sys.time () -. start in
   let solv_time = !Solver.solver_time in
   let solv_cnt = !Solver.solver_count in
-  let testsuite = Fpath.(workspace / "test-suite") in
-  Files.make_dir testsuite;
-  let* problems = list_filter_map ~f:(process_result workspace) results in
+  let testsuite = Fpath.(opts.workspace / "test-suite") in
+  let* _ = Result.bos (Bos.OS.Dir.create testsuite) in
+  let* problems = list_filter_map ~f:(process_result opts.workspace) results in
   let nproblems = List.length problems in
   if nproblems = 0 then Log.out "All Ok!@."
   else Log.out "Found %d problems!@." nproblems;
   Log.debug "  exec time : %fs@." exec_time;
   Log.debug "solver time : %fs@." solv_time;
-  write_report workspace input exec_time solv_time solv_cnt problems
-
-let run () (opts : Options.t) : unit =
-  match execute opts.target opts.workspace opts.input with
-  | Ok () -> ()
-  | Error (`Msg s) ->
-    Log.err "%s@." s;
-    raise Exec.(Command_error Failure)
+  write_report opts.workspace opts.input exec_time solv_time solv_cnt problems

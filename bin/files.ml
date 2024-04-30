@@ -1,3 +1,4 @@
+open Ecma_sl
 open Fpath
 
 let parse_fpath (path : string)
@@ -14,35 +15,42 @@ let valid_fpath = ((fun str -> parse_fpath str Bos.OS.Path.exists), pp)
 let non_dir_fpath = ((fun str -> parse_fpath str Bos.OS.File.exists), pp)
 let dir_fpath = ((fun str -> parse_fpath str Bos.OS.Dir.exists), pp)
 
-let make_dir (fpath : t) : unit =
-  match Bos.OS.Dir.create fpath with
-  | Error (`Msg err) -> EslBase.Log.fail "%s" err
-  | Ok _ -> ()
-
-let dir_contents (recursive : bool) (dir : t) : t list =
+let dir_contents (recursive : bool) (dir : t) : t list Result.t =
   let fold_f fpath acc = fpath :: acc in
   let traverse = if recursive then `Any else `None in
-  match Bos.OS.Dir.fold_contents ~elements:`Files ~traverse fold_f [] dir with
-  | Error (`Msg err) -> EslBase.Log.fail "%s" err
-  | Ok fpaths -> fpaths
+  Result.bos (Bos.OS.Dir.fold_contents ~elements:`Files ~traverse fold_f [] dir)
 
-let make_fout (dir : t) (fin : t) (outext : string) : t =
-  let fpath = (dir // rem_ext fin) + outext in
-  make_dir (parent fpath);
-  fpath
+let read_dir (recursive : bool) (fpath : t) : (t * t) list Result.t =
+  let open Syntax.Result in
+  if is_dir_path fpath then
+    let* contents = dir_contents recursive fpath in
+    Ok (List.map (fun fpath' -> (parent fpath, fpath')) contents)
+  else Ok [ (parent fpath, fpath) ]
 
-let exec ?(recursive : bool = true) (exec_f : t -> t option -> unit) (input : t)
-  (output : t option) (outext : string) : unit =
-  match (is_dir_path input, output) with
-  | (false, _) -> exec_f input output
-  | (true, Some outdir) when is_dir_path outdir ->
-    let rel fpath = Option.get (relativize ~root:input fpath) in
-    let exec_f' fin = exec_f fin (Some (make_fout outdir (rel fin) outext)) in
-    List.iter exec_f' (dir_contents recursive input)
-  | (true, _) ->
-    let exec_f' fin = exec_f fin output in
-    List.iter exec_f' (dir_contents recursive input)
+let make_subdir (outdir : t) (base : t) (input : t) (outext : string) :
+  t option Result.t =
+  let rel_input = Option.get (relativize ~root:base input) in
+  let fpath = (outdir // rem_ext rel_input) + outext in
+  match Bos.OS.Dir.create (parent fpath) with
+  | Ok _ -> Ok (Some fpath)
+  | Error (`Msg err) -> Result.error (`Generic err)
 
-let exec_multiple ?(recursive : bool = true) (exec_f : t -> t option -> unit)
-  (inputs : t list) (output : t option) (outext : string) : unit =
-  List.iter (fun input -> exec ~recursive exec_f input output outext) inputs
+let make_fout (output : t option) (base : t) (input : t) (outext : string) :
+  t option Result.t =
+  match output with
+  | Some outdir when is_dir_path outdir -> make_subdir outdir base input outext
+  | _ -> Ok output
+
+let exec_multiple ?(recursive : bool = true)
+  (exec_f : t -> t option -> unit Result.t) (inputs : t list)
+  (output : t option) (outext : string) : unit Result.t =
+  let open Syntax.Result in
+  let fold_f acc (base, input) =
+    let* output' = make_fout output base input outext in
+    match (acc, exec_f input output') with
+    | (Ok (), Error err) -> Error err
+    | _ -> acc
+  in
+  let* inputs' = list_map ~f:(read_dir recursive) inputs in
+  let inputs'' = List.flatten inputs' in
+  List.fold_left fold_f (Ok ()) inputs''

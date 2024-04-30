@@ -1,4 +1,3 @@
-open Bos
 open Ecma_sl
 open Ecma_sl.Syntax.Result
 module String = Astring.String
@@ -12,8 +11,8 @@ module Options = struct
   let set (input : Fpath.t) (testsuite : Fpath.t) : t = { input; testsuite }
 end
 
-let list_iter ~f lst =
-  let exception E of Rresult.R.msg in
+let list_iter ~(f : 'a -> unit Result.t) (lst : 'a list) : unit Result.t =
+  let exception E of Result.cmderr in
   let list_f v = match f v with Error s -> raise (E s) | Ok () -> () in
   try List.iter list_f lst |> fun () -> Ok () with E s -> Error s
 
@@ -23,50 +22,36 @@ type observable =
 
 let observable_effects = [ Stdout "success"; Stdout "polluted"; File "success" ]
 
-let env () =
-  let node_path = Fmt.sprintf ".:%s" Share.nodejs in
-  String.Map.of_list [ ("NODE_PATH", node_path) ]
+let find_effect (out : string) (effect : observable) : bool =
+  match effect with
+  | Stdout sub -> String.find_sub ~sub out |> Option.is_some
+  | File file -> Sys.file_exists file
 
-let node test witness = Cmd.(v "node" % p test % p witness)
-
-let execute_witness (env : OS.Env.t) (test : Fpath.t) (witness : Fpath.t) =
-  let open OS in
+let execute_witness (env : Bos.OS.Env.t) (test : Fpath.t) (witness : Fpath.t) :
+  observable option Result.t =
   Log.out "    running : %s@." @@ Fpath.to_string witness;
-  let cmd = node test witness in
-  let* (out, status) = Cmd.(run_out ~env ~err:err_run_out cmd |> out_string) in
+  let cmd = Bos.Cmd.(v "node" % p test % p witness) in
+  let cmd_res = Bos.OS.Cmd.(run_out ~env ~err:err_run_out cmd |> out_string) in
+  let* (out, status) = Result.bos cmd_res in
   match status with
-  | (_, `Exited 0) ->
-    Ok
-      (List.find_opt
-         (fun effect ->
-           match effect with
-           | Stdout sub -> String.find_sub ~sub out |> Option.is_some
-           | File file -> Sys.file_exists file )
-         observable_effects )
-  | (_, `Exited _) | (_, `Signaled _) ->
-    Error (`Msg (Fmt.sprintf "unexpected node failure: %s" out))
+  | (_, `Exited 0) -> Ok (List.find_opt (find_effect out) observable_effects)
+  | (_, `Exited _) | (_, `Signaled _) -> Result.error (`SymNodeJS out)
 
-let replay (input : Fpath.t) (testsuite : Fpath.t) =
-  Log.out "  replaying : %a...@." Fpath.pp input;
-  let env = env () in
-  let* witnesses = OS.Path.matches Fpath.(testsuite / "witness-$(n).js") in
-  list_iter witnesses ~f:(fun witness ->
-      let* effect = execute_witness env input witness in
-      match effect with
-      | Some (Stdout msg) ->
-        Log.out "     status : true (\"%s\" in output)@." msg;
-        Ok ()
-      | Some (File file) ->
-        let* () = OS.Path.delete @@ Fpath.v file in
-        Log.out "     status : true (created file \"%s\")@." file;
-        Ok ()
-      | None ->
-        Log.out "     status : false (no side effect)@.";
-        Ok () )
+let process_witness (env : string String.map) (input : Fpath.t)
+  (witness : Fpath.t) : unit Result.t =
+  let* effect = execute_witness env input witness in
+  match effect with
+  | Some (Stdout msg) ->
+    Ok (Log.out "     status : true (\"%s\" in output)@." msg)
+  | Some (File file) ->
+    let* () = Result.bos (Bos.OS.Path.delete @@ Fpath.v file) in
+    Ok (Log.out "     status : true (created file \"%s\")@." file)
+  | None -> Ok (Log.out "     status : false (no side effect)@.")
 
-let run () (opts : Options.t) : unit =
-  match replay opts.input opts.testsuite with
-  | Ok () -> ()
-  | Error (`Msg msg) ->
-    Log.out "%s@." msg;
-    raise (Exec.Command_error Failure)
+let run () (opts : Options.t) : unit Result.t =
+  Log.out "  replaying : %a...@." Fpath.pp opts.input;
+  let env_map = [ ("NODE_PATH", Fmt.sprintf ".:%s" Share.nodejs) ] in
+  let env = String.Map.of_list env_map in
+  let witnesses_path = Fpath.(opts.testsuite / "witness-$(n).js") in
+  let* witnesses = Result.bos (Bos.OS.Path.matches witnesses_path) in
+  list_iter ~f:(process_witness env opts.input) witnesses

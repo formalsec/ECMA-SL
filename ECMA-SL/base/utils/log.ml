@@ -13,9 +13,10 @@ module EslLog = struct
     else if ppf == !Config.err_ppf then Font.pp_err
     else Font.pp_none
 
-  let mk ?(font : Font.t = [ Font.Normal ]) (ppf : Fmt.t)
+  let mk ?(font : Font.t = [ Font.Normal ]) ?(nl : bool = false) (ppf : Fmt.t)
     (fmt : ('a, t, unit, unit) format4) : 'a =
-    let pp_log ppf fmt = fprintf ppf "[ecma-sl] %t" fmt in
+    let pp_nl ppf nl = if nl then fprintf ppf "\n" else () in
+    let pp_log ppf fmt = fprintf ppf "%a[ecma-sl] %t" pp_nl nl fmt in
     kdprintf (fun fmt -> fprintf ppf "%a@." ((pp_font ppf) font pp_log) fmt) fmt
 
   let conditional (test : bool) ?(font : Font.t option) (ppf : Fmt.t)
@@ -26,6 +27,7 @@ end
 let out fmt = kdprintf (fprintf !Config.out_ppf "%t") fmt [@@inline]
 let err fmt = kdprintf (fprintf !Config.err_ppf "%t") fmt [@@inline]
 let fail fmt = kasprintf failwith fmt [@@inline]
+let esl ?(nl = false) fmt = EslLog.mk ~nl !Config.out_ppf fmt [@@inline]
 let error fmt = EslLog.mk ~font:[ Red ] !Config.err_ppf fmt [@@inline]
 
 let warn fmt =
