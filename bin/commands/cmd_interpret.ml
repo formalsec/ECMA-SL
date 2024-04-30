@@ -1,4 +1,5 @@
 open Ecma_sl
+open Syntax.Result
 
 module Options = struct
   let langs : Enums.Lang.t list = Enums.Lang.[ Auto; ESL; CESL; CESLUnattached ]
@@ -67,33 +68,36 @@ let interpret_partial (entry : Interpreter.EntryPoint.t)
   Interpreter.eval_partial entry prog
 
 let interpret (entry : Interpreter.EntryPoint.t)
-  (instrument : Options.instrument) (prog : Prog.t) : Val.t =
-  let retval = fst (interpret_partial entry instrument prog) in
+  (instrument : Options.instrument) (prog : Prog.t) : Val.t Result.t =
+  Result.esl_exec @@ fun () ->
+  let (retval, _) = interpret_partial entry instrument prog in
   Log.debug "Sucessfuly evaluated program with return '%a'." Val.pp retval;
-  retval
+  Ok retval
 
 let interpret_cesl (entry : Interpreter.EntryPoint.t)
-  (instrument : Options.instrument) (file : Fpath.t) : Val.t =
-  let file' = Fpath.to_string file in
-  Parsing.load_file file'
-  |> Parsing.parse_prog ~file:file'
-  |> interpret entry instrument
+  (instrument : Options.instrument) (file : Fpath.t) : Val.t Result.t =
+  let* p = Cmd_compile.load file in
+  interpret entry instrument p
 
 let interpret_esl (entry : Interpreter.EntryPoint.t)
-  (instrument : Options.instrument) (untyped : bool) (file : Fpath.t) : Val.t =
-  Cmd_compile.compile untyped file |> interpret entry instrument
+  (instrument : Options.instrument) (untyped : bool) (file : Fpath.t) :
+  Val.t Result.t =
+  let* p = Cmd_compile.compile untyped file in
+  interpret entry instrument p
 
-let process_exitval (show_exitval : bool) (exitval : Val.t) : unit =
-  if show_exitval then Log.out "» exit value: %a@." Val.pp exitval
-
-let run () (opts : Options.t) : unit =
+let run_interpreter (opts : Options.t) : Val.t Result.t =
   let valid_langs = Enums.Lang.valid_langs Options.langs opts.lang in
   let entry = { Interpreter.EntryPoint.default with main = opts.main } in
-  process_exitval opts.show_exitval
-  @@
   match Enums.Lang.resolve_file_lang valid_langs opts.input with
   | Some ESL -> interpret_esl entry opts.instrument opts.untyped opts.input
   | Some CESL -> interpret_cesl entry opts.instrument opts.input
   | Some CESLUnattached | _ ->
     let entry' = { entry with resolve_exitval = false } in
     interpret_cesl entry' opts.instrument opts.input
+
+let show_exitval (show_exitval : bool) (exitval : Val.t) : unit Result.t =
+  Ok (if show_exitval then Log.esl ~nl:true "exit value: %a" Val.pp exitval)
+
+let run () (opts : Options.t) : unit Result.t =
+  let* exitval = run_interpreter opts in
+  show_exitval opts.show_exitval exitval

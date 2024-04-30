@@ -1,4 +1,5 @@
 open Ecma_sl
+open Syntax.Result
 
 module Options = struct
   type t =
@@ -11,28 +12,38 @@ module Options = struct
     { input; output; untyped }
 end
 
-let type_check (untyped : bool) (p : EProg.t) : EProg.t =
-  if untyped then p
-  else if TChecker.type_prog p then p
-  else raise (Exec.Command_error Exec.CompileError)
+let type_check (untyped : bool) (p : EProg.t) : EProg.t Result.t =
+  if untyped then Ok p else if TChecker.type_prog p then Ok p else Error `Typing
 
-let compile_pipeline (untyped : bool) (file : string) (path : string) : Prog.t =
-  EParsing.load_file ~file path
-  |> EParsing.parse_eprog ~file path
+let compile_pipeline (untyped : bool) (fname : string) (fpath : string) :
+  Prog.t Result.t =
+  EParsing.load_file ~file:fname fpath
+  |> EParsing.parse_eprog ~file:fname fpath
   |> Preprocessor.Imports.resolve_imports ~stdlib:Share.stdlib
   |> Preprocessor.Macros.apply_macros
   |> type_check untyped
-  |> Compiler.compile_prog
+  |> Syntax.Result.map Compiler.compile_prog
 
-let compile (untyped : bool) (file : Fpath.t) : Prog.t =
-  let (fname, path) = (Fpath.filename file, Fpath.to_string file) in
-  let prog = compile_pipeline untyped fname path in
+let load (file : Fpath.t) : Prog.t Result.t =
+  Result.esl_exec @@ fun () ->
+  let fpath = Fpath.to_string file in
+  let p = Parsing.load_file fpath |> Parsing.parse_prog ~file:fpath in
+  Log.debug "Sucessfuly loaded program '%a'." Fpath.pp file;
+  Ok p
+
+let compile (untyped : bool) (file : Fpath.t) : Prog.t Result.t =
+  Result.esl_exec @@ fun () ->
+  let (fname, fpath) = (Fpath.filename file, Fpath.to_string file) in
+  let* p = compile_pipeline untyped fname fpath in
   Log.debug "Sucessfuly compiled program '%a'." Fpath.pp file;
-  prog
+  Ok p
 
-let run () (opts : Options.t) : unit =
+let show_program (output : Fpath.t option) (p : Prog.t) : unit Result.t =
+  match output with
+  | None -> Ok (Log.out "%a@." Prog.pp p)
+  | Some output' -> Result.bos (Bos.OS.File.writef output' "%a" Prog.pp p)
+
+let run () (opts : Options.t) : unit Result.t =
   ignore Enums.Lang.(resolve_file_lang [ ESL ] opts.input);
-  let prog = compile opts.untyped opts.input in
-  match opts.output with
-  | None -> Log.out "%a@." Prog.pp prog
-  | Some output -> Io.write_file (Fpath.to_string output) (Prog.str prog)
+  let* p = compile opts.untyped opts.input in
+  show_program opts.output p

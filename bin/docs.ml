@@ -1,6 +1,52 @@
 open Cmdliner
 open Files
 
+module ExitCodes = struct
+  let ok = Cmdliner.Cmd.Exit.ok
+  let esl = 1
+  let compile = 2
+  let typing = 3
+  let interpret = 4
+  let encode = 5
+  let execute = 6
+  let test = 7
+  let sym_abort = 20
+  let sym_assert_failure = 21
+  let sym_failure = 22
+  let sym_nodejs = 23
+  let generic = 40
+  let term = 122
+  let client = Cmdliner.Cmd.Exit.cli_error
+  let internal = Cmdliner.Cmd.Exit.internal_error
+end
+
+module Exits = struct
+  open Cmdliner.Cmd.Exit
+
+  let app = info ~doc:"on term error" ExitCodes.term :: defaults
+
+  let common =
+    List.append app
+      [ info ~doc:"on generic ECMA-SL library error" ExitCodes.esl
+      ; info ~doc:"on generic application error" ExitCodes.generic
+      ]
+
+  let compile = info ~doc:"on ECMA-SL compiling error" ExitCodes.compile
+  let typing = info ~doc:"on ECMA-SL typing error" ExitCodes.typing
+  let interpret = info ~doc:"on ECMA-SL runtime error" ExitCodes.internal
+  let encoding = info ~doc:"on JavaScript encoding error" ExitCodes.encode
+  let execute = info ~doc:"on JavaScript execution error" ExitCodes.execute
+  let test = info ~doc:"on JavaScript test error" ExitCodes.test
+
+  let symbolic =
+    [ info ~doc:"on symbolic execution abortion" ExitCodes.sym_abort
+    ; info ~doc:"on symbolic assertion failure" ExitCodes.sym_assert_failure
+    ; info ~doc:"on symbolic execution failure" ExitCodes.sym_failure
+    ]
+
+  let nodejs = info ~doc:"on unexpected NodeJS failure" ExitCodes.sym_nodejs
+end
+
 module CommonOpts = struct
   let debug =
     let docs = Manpage.s_common_options in
@@ -59,13 +105,7 @@ module CompileCmd = struct
 
   let man = [ `S Manpage.s_description; `P (Array.get description 0) ]
   let man_xrefs = []
-
-  let exits =
-    List.append Cmd.Exit.defaults
-      [ Cmd.Exit.info ~doc:"on application failure" 1
-      ; Cmd.Exit.info ~doc:"on generic execution error" 2
-      ; Cmd.Exit.info ~doc:"on compilation error" 3
-      ]
+  let exits = Exits.compile :: Exits.typing :: Exits.common
 end
 
 module InterpretOpts = struct
@@ -159,14 +199,7 @@ module InterpretCmd = struct
     ]
 
   let man_xrefs = [ `Page ("ecma-sl compile", 1) ]
-
-  let exits =
-    List.append Cmd.Exit.defaults
-      [ Cmd.Exit.info ~doc:"on application failure" 1
-      ; Cmd.Exit.info ~doc:"on generic execution error" 2
-      ; Cmd.Exit.info ~doc:"on compilation error" 3
-      ; Cmd.Exit.info ~doc:"on interpretation runtime error" 4
-      ]
+  let exits = Exits.compile :: Exits.typing :: Exits.interpret :: Exits.common
 end
 
 module EncodeOpts = struct
@@ -195,13 +228,7 @@ module EncodeCmd = struct
 
   let man = [ `S Manpage.s_description; `P (Array.get description 0) ]
   let man_xrefs = []
-
-  let exits =
-    List.append Cmd.Exit.defaults
-      [ Cmd.Exit.info ~doc:"on application failure" 1
-      ; Cmd.Exit.info ~doc:"on generic execution error" 2
-      ; Cmd.Exit.info ~doc:"on encoding error" 5
-      ]
+  let exits = Exits.encoding :: Exits.common
 end
 
 module ExecuteOpts = struct
@@ -211,7 +238,7 @@ module ExecuteOpts = struct
       "Language of the program to be executed. Options include: (1) 'auto' \
        [default] for inferring the language based on the file extension; (2) \
        'js' for JavaScript (.js) files; and (3) 'cesl' for Core ECMA-SL \
-       (.cesl) "
+       (.cesl) files."
     in
     let langs = Arg.enum Enums.Lang.(args Cmd_execute.Options.langs) in
     Arg.(value & opt langs Auto & info [ "lang" ] ~docv ~doc)
@@ -267,13 +294,12 @@ module ExecuteCmd = struct
     [ `Page ("ecma-sl encode", 1); `Page ("ecma-sl interpret", 2) ]
 
   let exits =
-    List.append Cmd.Exit.defaults
-      [ Cmd.Exit.info ~doc:"on application failure" 1
-      ; Cmd.Exit.info ~doc:"on generic execution error" 2
-      ; Cmd.Exit.info ~doc:"on compilation error" 3
-      ; Cmd.Exit.info ~doc:"on interpretation runtime error" 4
-      ; Cmd.Exit.info ~doc:"on encoding error" 5
-      ]
+    Exits.compile
+    :: Exits.typing
+    :: Exits.interpret
+    :: Exits.encoding
+    :: Exits.execute
+    :: Exits.common
 end
 
 module TestCmd = struct
@@ -301,13 +327,27 @@ module TestCmd = struct
   let man_xrefs = [ `Page ("ecma-sl execute", 1) ]
 
   let exits =
-    List.append Cmd.Exit.defaults
-      [ Cmd.Exit.info ~doc:"on application failure" 1
-      ; Cmd.Exit.info ~doc:"on generic execution error" 2
-      ]
+    Exits.compile
+    :: Exits.typing
+    :: Exits.interpret
+    :: Exits.encoding
+    :: Exits.execute
+    :: Exits.test
+    :: Exits.common
 end
 
 module SymbolicOpts = struct
+  let lang =
+    let docv = "LANG" in
+    let doc =
+      "Language of the program to be executed. Options include: (1) 'auto' \
+       [default] for inferring the language based on the file extension; (2) \
+       'js' for JavaScript (.js) files; (3) 'esl' for ECMA-SL (.esl) files; \
+       and (3) 'cesl' for Core ECMA-SL (.cesl) files."
+    in
+    let langs = Arg.enum Enums.Lang.(args Cmd_symbolic.Options.langs) in
+    Arg.(value & opt langs Auto & info [ "lang" ] ~docv ~doc)
+
   let target =
     let docv = "FUNC" in
     let doc = "Designated entry point for the analysis." in
@@ -350,13 +390,12 @@ module SymbolicCmd = struct
     ]
 
   let exits =
-    List.append Cmd.Exit.defaults
-      [ Cmd.Exit.info ~doc:"on application failure" 1
-      ; Cmd.Exit.info ~doc:"on generic execution error" 2
-      ; Cmd.Exit.info ~doc:"on compilation error" 3
-      ; Cmd.Exit.info ~doc:"on interpretation runtime error" 4
-      ; Cmd.Exit.info ~doc:"on encoding error" 5
-      ]
+    Exits.compile
+    :: Exits.typing
+    :: Exits.interpret
+    :: Exits.encoding
+    :: Exits.symbolic
+    @ Exits.common
 end
 
 module ReplayOpts = struct
@@ -367,7 +406,7 @@ module ReplayOpts = struct
 end
 
 module ReplayCmd = struct
-  (* Improve the command documentation *)
+  (* TODO: Fix the command documentation *)
 
   let sdocs = Manpage.s_common_options
   let doc = "Validates the symbolic testsuit"
@@ -377,18 +416,34 @@ module ReplayCmd = struct
 
   let man = [ `S Manpage.s_description; `P (Array.get description 0) ]
   let man_xrefs = []
-  let exits = List.append Cmd.Exit.defaults []
+
+  let exits =
+    Exits.compile
+    :: Exits.typing
+    :: Exits.interpret
+    :: Exits.encoding
+    :: Exits.nodejs
+    :: Exits.symbolic
+    @ Exits.common
 end
 
 module ExplodeJSCmd = struct
-  (* Improve the command documentation *)
+  (* TODO: Fix the command documentation *)
 
   let sdocs = Manpage.s_common_options
   let doc = "Explode.js symbolic vulnerability confirmation engine"
   let description = [| "Tries to blow stuff up" |]
   let man = [ `S Manpage.s_description; `P (Array.get description 0) ]
-  let man_xrefs = []
-  let exits = List.append Cmd.Exit.defaults []
+  let man_xrefs = [ `Page ("ecma-sl symbolic", 1); `Page ("ecma-sl replay", 2) ]
+
+  let exits =
+    Exits.compile
+    :: Exits.typing
+    :: Exits.interpret
+    :: Exits.encoding
+    :: Exits.nodejs
+    :: Exits.symbolic
+    @ Exits.common
 end
 
 module Application = struct
@@ -427,10 +482,5 @@ module Application = struct
     ]
 
   let man_xrefs = []
-
-  let exits =
-    List.append Cmd.Exit.defaults
-      [ Cmd.Exit.info ~doc:"on application failure" 1
-      ; Cmd.Exit.info ~doc:"on generic execution error" 2
-      ]
+  let exits = Exits.app
 end

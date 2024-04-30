@@ -1,11 +1,15 @@
 module Option = struct
-  let ( let* ) v f = Option.bind v f
-  let ( let+ ) v f = Option.map f v
+  include Option
+
+  let ( let* ) v f = bind v f
+  let ( let+ ) v f = map f v
 end
 
 module Result = struct
-  let ( let* ) v f = Result.bind v f
-  let ( let+ ) v f = Result.map f v
+  include Result
+
+  let ( let* ) v f = bind v f
+  let ( let+ ) v f = map f v
 
   (* Taken from: https://github.com/OCamlPro/owi/blob/main/src/syntax.ml *)
   let list_map ~f l =

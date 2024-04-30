@@ -13,18 +13,18 @@ module Options = struct
 end
 
 let encode (builder : string option) (input : Fpath.t) (output : Fpath.t option)
-  : unit =
+  : unit Result.t =
   let input' = Fpath.to_string input in
   let output' = Option.map Fpath.to_string output in
   match Bos.OS.Cmd.run (EslJSParser.Api.cmd input' output' builder) with
-  | Ok _ -> Log.debug "Sucessfuly encoded file '%a'." Fpath.pp input
-  | Error _ -> raise (Exec.Command_error Error)
+  | Ok () -> Ok (Log.debug "Sucessfuly encoded file '%a'." Fpath.pp input)
+  | Error (`Msg msg) -> Result.error (`Encode msg)
 
 let run_single (builder : string option) (input : Fpath.t)
-  (output : Fpath.t option) : unit =
+  (output : Fpath.t option) : unit Result.t =
   ignore Enums.Lang.(resolve_file_lang [ JS ] input);
   encode builder input output
 
-let run () (opts : Options.t) : unit =
+let run () (opts : Options.t) : unit Result.t =
   Files.exec_multiple (run_single opts.builder) opts.inputs opts.output
     (Enums.Lang.str CESL)

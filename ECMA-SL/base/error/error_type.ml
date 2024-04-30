@@ -24,7 +24,7 @@ module ErrorTypeFmt (ErrorType : ERROR_TYPE) = struct
   let pp (fmt : Fmt.t) (msgs : ErrorType.t list) : unit =
     let header = ErrorType.header ^ ":" in
     let font = ErrorType.font in
-    Fmt.fprintf fmt "\n%a %a" (Font.pp_text_err font) header pp_msgs msgs
+    Fmt.fprintf fmt "%a %a" (Font.pp_text_err font) header pp_msgs msgs
 
   let str (msgs : ErrorType.t list) : string = Fmt.asprintf "%a" pp msgs
 end
