@@ -4,7 +4,7 @@ Esl tests:
   $ ecma-sl symbolic extern.esl
   (`x : __$Int)
   unable to find external function 'i_dont_exist'
-  [1]
+  [22]
   $ ecma-sl symbolic func.esl
   All Ok!
   $ ecma-sl symbolic if.esl
