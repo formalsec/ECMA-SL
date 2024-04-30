@@ -6,7 +6,7 @@
  (modules
   main
   docs
-  exec
+  result
   enums
   files
   share
