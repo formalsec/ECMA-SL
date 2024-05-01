@@ -2,6 +2,8 @@
 
 (using menhir 2.1)
 
+(using mdx 0.2)
+
 (using dune_site 0.1)
 
 (name ecma-sl)
@@ -34,6 +36,7 @@
   ppx_import
   ppx_deriving
   (ppx_inline_test :with-test)
+  (mdx :with-test)
   menhir
   menhirLib
   smtml
