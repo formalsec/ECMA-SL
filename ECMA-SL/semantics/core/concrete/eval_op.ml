@@ -32,78 +32,47 @@ let string_concat (v : Value.t) : Value.t =
     | None -> bad_arg_err 1 op_lbl "string list" [ v ] )
   | _ -> bad_arg_err 1 op_lbl "string list" [ v ]
 
-let unop_semantics (op : Operator.unopt) = 
+  let bad_arg_err (arg : int) (op_lbl : string) (types : string)
+  (vals : Value.t list) : 'a =
+  op_err arg op_lbl (BadOpArgs (types, vals))
+
+let unop_semantics (op : Operator.unopt) : Value.t -> Value.t = 
+  try
   match op with
-  | Neg -> (function
-            | Value.Int _ as v -> Eval.(unop Ty_int Ty.Neg v)
-            | Value.Real _ as v -> Eval.(unop Ty_real Ty.Neg v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.neg" "integer or float" [ v ])
-  | BitwiseNot -> (function 
-            | Value.Int _ as v -> Eval.(unop Ty_int Ty.Not v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.bitwiseNot" "int" [ v ])
-  | LogicalNot -> (function 
-            | (Value.True | Value.False) as v -> Eval.(unop Ty_bool Ty.Not v)
-            | _ as v-> bad_arg_err 1 "unop_semantics.logicalNot" "boolean" [ v ])
-  | IntToFloat -> (function 
-            | Value.Int _ as v -> Eval.(cvtop Ty_int Ty.Reinterpret_int v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.intToFloat" "integer" [ v ])
-  | IntToString -> (function
-            | Value.Int _ as v -> Eval.(cvtop Ty_str Ty.String_from_int v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.intToString" "integer" [ v ])
-  | FloatToInt -> (function
-            | Value.Real _ as v -> Eval.(cvtop Ty_real Ty.Reinterpret_float v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.floatToInt" "float" [ v ])
-  | FloatToString -> (function
-            | Value.Real _ as v -> Eval.(cvtop Ty_real Ty.ToString v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.floatToString" "float" [ v ])
-  | StringToInt -> (function
-            | Value.Str _ as v -> Eval.(cvtop Ty_str Ty.String_to_int v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.stringToInt" "string" [ v ])
-  | StringToFloat -> (function
-            | Value.Str _ as v -> Eval.(cvtop Ty_str Ty.String_to_float v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.stringToFloat" "string" [ v ])
-  | FromCharCode -> (function
-            | Value.Int _ as v -> Eval.(cvtop Ty_str Ty.String_from_code v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.fromCharCode" "integer" [ v ])
-  | ToCharCode -> (function
-            | Value.Str _ as v -> Eval.(cvtop Ty_str Ty.String_to_code v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.toCharCode" "string" [ v ])
-  | StringLen -> (function
-            | Value.Str _ as v -> Eval.(unop Ty_str Ty.Length v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.stringLen" "string" [ v ])
+  | Neg -> ( function
+            | Value.Int _ as v  -> Eval.(unop Ty_int Ty.Neg) v
+            | Value.Real _ as v -> Eval.(unop Ty_real Ty.Neg) v
+            | _ as v -> bad_arg_err 1 "Neg" "integer or float" [ v ])
+  | BitwiseNot -> Eval.(unop Ty_int Ty.Not)
+  | LogicalNot -> Eval.(unop Ty_bool Ty.Not)
+  | IntToFloat -> Eval.(cvtop Ty_int Ty.Reinterpret_int)
+  | IntToString -> Eval.(cvtop Ty_str Ty.String_from_int)
+  | FloatToInt -> Eval.(cvtop Ty_real Ty.Reinterpret_float)
+  | FloatToString -> Eval.(cvtop Ty_real Ty.ToString)
+  | StringToInt -> Eval.(cvtop Ty_str Ty.String_to_int)
+  | StringToFloat -> Eval.(cvtop Ty_str Ty.String_to_float)
+  | FromCharCode -> Eval.(cvtop Ty_str Ty.String_from_code)
+  | ToCharCode -> Eval.(cvtop Ty_str Ty.String_to_code)
+  | StringLen -> Eval.(unop Ty_str Ty.Length)
   | ObjectToList -> failwith "unop_semantics.objectToList"
   | ObjectFields -> failwith "unop_semantics.objectFields"
-  | StringConcat -> string_concat 
-  | ListHead -> (function
-            | Value.List _ as v -> Eval.(unop Ty_list Ty.Head v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.listHead" "non-empty list" [ v ])
-  | ListTail -> (function
-            | Value.List _ as v -> Eval.(unop Ty_list Ty.Tail v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.listTail" "list" [ v ])
-  | ListLen -> (function
-            | Value.List _ as v -> Eval.(unop Ty_list Ty.Length v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.listLen" "list" [ v ])
-  | ListReverse -> (function
-            | Value.List _ as v -> Eval.(unop Ty_list Ty.Reverse v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.listReverse" "list" [ v ])
-  | Abs -> (function
-            | Value.Real _ as v -> Eval.(unop Ty_real Ty.Abs v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.abs" "float" [ v ])
-  | Sqrt -> (function
-            | Value.Real _ as v -> Eval.(unop Ty_real Ty.Sqrt v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.sqrt" "float" [ v ])
-  | Ceil -> (function
-            | Value.Real _ as v -> Eval.(unop Ty_real Ty.Ceil v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.ceil" "float" [ v ])
-  | Floor -> (function
-            | Value.Real _ as v -> Eval.(unop Ty_real Ty.Floor v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.floor" "float" [ v ])
-  | Trunc -> (function
-            | Value.Real _ as v -> Eval.(unop Ty_real Ty.Trunc v)
-            | _ as v -> bad_arg_err 1 "unop_semantics.trunc" "float" [ v ])
+  | StringConcat -> (* TODO:x Eval.(naryop Ty_str Ty.Concat) *) failwith "unop_semantics.objectFields"
+  | ListHead -> Eval.(unop Ty_list Ty.Head)
+  | ListTail -> Eval.(unop Ty_list Ty.Tail)
+  | ListLen -> Eval.(unop Ty_list Ty.Length)
+  | ListReverse -> Eval.(unop Ty_list Ty.Reverse)
+  | Abs -> Eval.(unop Ty_real Ty.Abs)
+  | Sqrt -> Eval.(unop Ty_real Ty.Sqrt)
+  | Ceil -> Eval.(unop Ty_real Ty.Ceil)
+  | Floor -> Eval.(unop Ty_real Ty.Floor)
+  | Trunc -> Eval.(unop Ty_real Ty.Trunc)
+  with
+  | Smtml.Eval.TypeError {index; value; ty; _} -> Format.printf "index: %a, value: %a, ty: %a" Fmt.int index Value.pp value Ty.pp ty;
+    failwith "unop_semantics"
   
 let binop_semantics (op : Operator.binopt) =
   let make_bool b = if b then Value.True else Value.False in
+  try
   match op with
   | Plus -> (fun v1 v2 -> match v1, v2 with 
             | Value.Int _ , Value.Int _  -> Eval.(binop Ty_int Ty.Add v1 v2)
@@ -131,52 +100,22 @@ let binop_semantics (op : Operator.binopt) =
             | (Int _, _) | (Real _, _) ->
               bad_arg_err 2 "binop_semantics.div" "(integer, integer) or (float, float)" [ v1; v2 ]
             | _ -> bad_arg_err 1 "binop_semantics.div" "(integer, integer) or (float, float)" [ v1; v2 ])
-  | Modulo -> (fun v1 v2 -> match v1, v2 with
-            | Value.Real _ , Value.Real _  -> Eval.(binop Ty_real Ty.Rem v1 v2)
-            | (Real _, _) -> bad_arg_err 2 "binop_semantics.mod" "(float, float)" [ v1; v2 ]
-            | _ -> bad_arg_err 1 "binop_semantics.mod" "(float, float)" [ v1; v2 ])
-  | Pow -> (fun v1 v2 -> match v1, v2 with
-            | Value.Real _ , Value.Real _  -> Eval.(binop Ty_real Ty.Pow v1 v2)
-            | (Real _, _) -> bad_arg_err 2 "binop_semantics.pow" "(float, float)" [ v1; v2 ]
-            | _ -> bad_arg_err 1 "binop_semantics.pow" "(float, float)" [ v1; v2 ])
+  | Modulo -> Eval.(binop Ty_real Ty.Rem)
+  | Pow -> Eval.(binop Ty_real Ty.Pow)
   (* FIXME: need do change to Ty_int after smtml has implemented*)
-  | BitwiseAnd -> (fun v1 v2 -> match v1, v2 with
-            | Value.Int _ , Value.Int _  -> Eval.(binop (Ty_bitv 32) Ty.And v1 v2)
-            | (Int _, _) -> bad_arg_err 2 "binop_semantics.bitwiseAnd" "(integer, integer)" [ v1; v2 ]
-            | _ -> bad_arg_err 1 "binop_semantics.bitwiseAnd" "(integer, integer)" [ v1; v2 ])
-  | BitwiseOr -> (fun v1 v2 -> match v1, v2 with
-            | Value.Int _ , Value.Int _  -> Eval.(binop (Ty_bitv 32) Ty.Or v1 v2)
-            | (Int _, _) -> bad_arg_err 2 "binop_semantics.bitwiseOr" "(integer, integer)" [ v1; v2 ]
-            | _ -> bad_arg_err 1 "binop_semantics.bitwiseOr" "(integer, integer)" [ v1; v2 ])
-  | BitwiseXor -> (fun v1 v2 -> match v1, v2 with
-            | Value.Int _ , Value.Int _  -> Eval.(binop (Ty_bitv 32) Ty.Xor v1 v2)
-            | (Int _, _) -> bad_arg_err 2 "binop_semantics.bitwiseXor" "(integer, integer)" [ v1; v2 ]
-            | _ -> bad_arg_err 1 "binop_semantics.bitwiseXor" "(integer, integer)" [ v1; v2 ])
-  | ShiftLeft -> (fun v1 v2 -> match v1, v2 with
-            | Value.Int _ , Value.Int _  -> Eval.(binop (Ty_bitv 32)  Ty.Shl v1 v2)
-            | (Int _, _) -> bad_arg_err 2 "binop_semantics.shiftLeft" "(integer, integer)" [ v1; v2 ]
-            | _ -> bad_arg_err 1 "binop_semantics.shiftLeft" "(integer, integer)" [ v1; v2 ])
-  | ShiftRight -> (fun v1 v2 -> match v1, v2 with
-            | Value.Int _ , Value.Int _  -> Eval.(binop (Ty_bitv 32)  Ty.ShrA v1 v2)
-            | (Int _, _) -> bad_arg_err 2 "binop_semantics.shiftRight" "(integer, integer)" [ v1; v2 ]
-            | _ -> bad_arg_err 1 "binop_semantics.shiftRight" "(integer, integer)" [ v1; v2 ])
-  | ShiftRightLogical -> (fun v1 v2 -> match v1, v2 with
-            | Value.Int _ , Value.Int _  -> Eval.(binop (Ty_bitv 32)  Ty.ShrL v1 v2)
-            | (Int _, _) -> bad_arg_err 2 "binop_semantics.shiftRightExt" "(integer, integer)" [ v1; v2 ]
-            | _ -> bad_arg_err 1 "binop_semantics.shiftRightExt" "(integer, integer)" [ v1; v2 ])
-  | LogicalAnd -> (fun v1 v2 -> match v1, v2 with
-            | (Value.True | Value.False), (Value.True | Value.False) -> Eval.(binop Ty_bool Ty.And v1 v2)
-            | ((Value.True | Value.False), _) -> bad_arg_err 2 "binop_semantics.logicalAnd" "(boolean, boolean)" [ v1; v2 ]
-            | _ -> bad_arg_err 1 "binop_semantics.logicalAnd" "(boolean, boolean)" [ v1; v2 ])
-  | LogicalOr -> (fun v1 v2 -> match v1, v2 with
-            | (Value.True | Value.False), (Value.True | Value.False) -> Eval.(binop Ty_bool Ty.Or v1 v2)
-            | ((Value.True | Value.False), _) -> bad_arg_err 2 "binop_semantics.logicalOr" "(boolean, boolean)" [ v1; v2 ]
-            | _ -> bad_arg_err 1 "binop_semantics.logicalOr" "(boolean, boolean)" [ v1; v2 ])
+  | BitwiseAnd -> Eval.(binop (Ty_bitv 32) Ty.And)
+  | BitwiseOr -> Eval.(binop (Ty_bitv 32) Ty.Or)
+  | BitwiseXor -> Eval.(binop (Ty_bitv 32) Ty.Xor)
+  | ShiftLeft -> Eval.(binop (Ty_bitv 32) Ty.Shl)
+  | ShiftRight -> Eval.(binop (Ty_bitv 32) Ty.ShrA)
+  | ShiftRightLogical -> Eval.(binop (Ty_bitv 32) Ty.ShrL)
+  | LogicalAnd -> Eval.(binop Ty_bool Ty.And)
+  | LogicalOr -> Eval.(binop Ty_bool Ty.Or)
   | SCLogicalAnd -> failwith "binop_semantics.scLogicalAnd"
   | SCLogicalOr -> failwith "binop_semantics.scLogicalOr"
   | Eq -> ( fun v1 v2 -> make_bool (not @@ Value.equal v1 v2))
   | NE -> ( fun v1 v2 -> make_bool (not @@ Value.equal v1 v2))
-  | Lt -> (fun v1 v2 -> match v1, v2 with
+  | Lt -> ( fun v1 v2 -> match v1, v2 with
             | Value.Int _ , Value.Int _  -> make_bool Eval.(relop Ty_int Ty.Lt v1 v2)
             | Value.Real _ , Value.Real _  -> make_bool Eval.(relop Ty_real Ty.Lt v1 v2)
             | _ -> failwith "binop_semantics.lt")
@@ -194,35 +133,24 @@ let binop_semantics (op : Operator.binopt) =
             | _ -> failwith "binop_semantics.ge")
   | ObjectMem -> failwith "binop_semantics.objectMem"
   (* TODO:x index out of bounds *)
-  | StringNth -> (fun v1 v2 -> match v1, v2 with
-            | Value.Str _, Value.Int _ -> Eval.(binop Ty_str Ty.At v1 v2)
-            | (Str _, _) -> bad_arg_err 2 "binop_semantics.stringNth" "(string, integer)" [ v1; v2 ]
-            | _ -> bad_arg_err 1 "binop_semantics.stringNth" "(string, integer)" [ v1; v2 ])
-  | ListNth -> (fun v1 v2 -> match v1, v2 with
-            | Value.List _, Value.Int _ -> Eval.(binop Ty_list Ty.At v1 v2)
-            | (List _, _) -> bad_arg_err 2 "binop_semantics.listNth" "(list, integer)" [ v1; v2 ]
-            | _ -> bad_arg_err 1 "binop_semantics.listNth" "(list, integer)" [ v1; v2 ])
-  | ListAdd -> (fun v1 v2 -> match v1, v2 with
-            | Value.List _, Value.List _ -> Eval.(binop Ty_list Ty.List_append_last v1 v2)
-            | _ -> bad_arg_err 1 "binop_semantics.ListAdd" "(list, any)" [ v1; v2 ])
-  | ListPrepend -> (fun v1 v2 -> match v2 with
-            | Value.List _ -> Eval.(binop Ty_list Ty.List_append v2 v1)
-            | _ -> bad_arg_err 1 "binop_semantics.ListPrepend" "(list, any)" [ v1; v2 ])
-  | ListConcat -> (fun v1 v2 -> match v1, v2 with
-            | Value.List _, Value.List _ -> Eval.(naryop Ty_list Ty.Concat [v1;v2])
-            | _ -> bad_arg_err 1 "binop_semantics.ListConcat" "(list, list)" [ v1; v2 ])
+  | StringNth -> Eval.(binop Ty_str Ty.At)
+  | ListNth -> Eval.(binop Ty_list Ty.At) 
+  | ListAdd -> Eval.(binop Ty_list Ty.List_append_last)
+  | ListPrepend -> Eval.(binop Ty_list Ty.List_append)
+  | ListConcat -> (* TOOD:x Eval.(naryop Ty_list Ty.Concat) *) failwith "binop_semantics.listConcat"
+  with
+| Smtml.Eval.TypeError {index; value; ty; _} -> Format.printf "index: %a, value: %a, ty: %a" Fmt.int index Value.pp value Ty.pp ty;
+  failwith "binop_semantics"
 
 let triop_semantics (op: Operator.triopt) =
+  try 
   match op with
-  | ITE -> (fun v1 v2 v3 -> Eval.triop Ty_bool Ty.Ite v1 v2 v3)
-  | StringSubstr -> (fun v1 v2 v3 -> match v1, v2, v3 with
-            | Value.Str _, Value.Int _, Value.Int _ -> Eval.(triop Ty_str Ty.String_extract v1 v2 v3)
-            | _ -> bad_arg_err 1 "triopt_semantics.stringSubstr" "(boolean, any, any)" [ v1; v2; v3 ])
-  | ListSet -> (fun v1 v2 v3 -> match v1, v2 with
-            | Value.List _, Value.Int _-> Eval.(triop Ty_list Ty.List_set v1 v2 v3)
-            | List _, _ -> bad_arg_err 2 "triopt_semantics.listSet" "(list, integer, any)" [ v1; v2; v3 ]
-            | _ -> bad_arg_err 1 "triopt_semantics.listSet" "(list, integer, any)" [ v1; v2; v3 ])
-  
+  | ITE -> Eval.triop Ty_bool Ty.Ite
+  | StringSubstr -> Eval.(triop Ty_str Ty.String_extract)
+  | ListSet -> Eval.(triop Ty_list Ty.List_set)
+with
+| Smtml.Eval.TypeError {index; value; ty; _} -> Format.printf "index: %a, value: %a, ty: %a" Fmt.int index Value.pp value Ty.pp ty;
+  failwith "binop_semantics"
 let to_bool_aux (v : Value.t) : bool =
   match v with 
   | Value.True -> true
