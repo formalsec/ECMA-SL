@@ -1,20 +1,24 @@
 open EslBase
 
 type t =
-  | Null
-  | Void
-  | Int of int
-  | Flt of (float[@unboxed])
-  | Str of string
-  | Bool of bool
-  | Symbol of string
-  | Loc of Loc.t
-  | Arr of t array
-  | List of t list
-  | Tuple of t list
-  | Byte of int
-  | Type of Type.t
-  | Curry of string * t list
+  | Null (* -> App "null" [] *)
+  | Void (* -> App "void" [] *)
+  | Int of int (* -> Int *)
+  | Flt of (float[@unboxed]) (* -> Real *)
+  | Str of string  (* -> Str *)
+  | Bool of bool  (* -> True | False *)
+  | Symbol of string (* -> App "symbol" [Str s] *)
+  | Loc of Loc.t (* -> App "loc" [Int l] *)
+  | Arr of t array (* int (pointer to array) *)
+  | List of t list (* -> List l *)
+  | Tuple of t list (* -> List l *)
+  | Byte of int (* int *)
+  | Type of Type.t  
+    (* -> App t [] *) 
+    (* t := "NullType" | "IntType"    | "RealType" | "StrType" 
+          | "BoolType" | "SymbolType" | "LocType"  | "ListType" 
+          | "TupleType"| "CurryType" *)
+  | Curry of string * t list  (* -> App fn fvs *)
 
 let rec copy (v : t) : t =
   match v with
