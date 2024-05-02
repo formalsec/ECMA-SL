@@ -33,7 +33,7 @@ function getCompletionTarget(completion) {
 };
 
 function newCompletion(type, value, target) {
-  return ("C", type, value, target)
+  return ["C", type, value, target]
 };
 function normalEmptyCompletion(V) {
   return newCompletion('normal, V, 'empty)

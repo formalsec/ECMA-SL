@@ -1,10 +1,10 @@
 /* Auxiliary functions created for the purposes of accessing the values of the triple that form the reference type. */
 /* The functions are those that are not explicitly specified in the standard */
 function newValueReference(base, referencedName, strict) {
-  return ("R", "V", base, referencedName, strict)
+  return ["R", "V", base, referencedName, strict]
 };
 function newPropertyReference(base, referencedName, strict) {
-  return ("R", "P", base, referencedName, strict)
+  return ["R", "P", base, referencedName, strict]
 };
 
 
