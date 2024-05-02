@@ -133,13 +133,19 @@ module M (Instrument : Instrument.M) = struct
     | Val.Curry (fn, fvs) -> (fn, fvs)
     | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadFuncId v))
 
-  let rec heapval_pp (heap : heap) (fmt : Fmt.t) (v : Val.t) : unit =
+  let rec heapval_pp (visited : (Loc.t, unit) Hashtbl.t) (heap : heap)
+    (fmt : Fmt.t) (v : Val.t) : unit =
     match v with
-    | Loc l -> (Object.pp (heapval_pp heap)) fmt (get_loc heap l)
+    | Loc l when not (Hashtbl.mem visited l) ->
+      Hashtbl.add visited l ();
+      (Object.pp (heapval_pp visited heap)) fmt (get_loc heap l)
+    | Loc _ -> Fmt.fprintf fmt "{...}"
     | _ -> Val.pp fmt v
 
   let print_pp (heap : heap) (fmt : Fmt.t) (v : Val.t) : unit =
-    match v with Str s -> Fmt.pp_str fmt s | _ -> heapval_pp heap fmt v
+    match v with
+    | Str s -> Fmt.pp_str fmt s
+    | _ -> heapval_pp (Hashtbl.create !Base.default_hashtbl_sz) heap fmt v
 
   let prepare_store_binds (pxs : string list) (vs : Val.t list) (at : region) :
     (string * Val.t) list =
@@ -345,7 +351,7 @@ module M (Instrument : Instrument.M) = struct
   let eval_partial (entry : EntryPoint.t) (p : Prog.t) : Val.t * heap =
     let inst = ref (Instrument.initial_state ()) in
     let eval_expr (store, heap, stack) = eval_expr { store; heap; stack } in
-    Instrument.Debugger.set_interp_callbacks { val_pp = heapval_pp; eval_expr };
+    Instrument.Debugger.set_interp_callbacks { heapval_pp; eval_expr };
     let execute () = eval_instrumented entry p inst in
     let finally () = Instrument.cleanup !inst in
     Fun.protect ~finally execute

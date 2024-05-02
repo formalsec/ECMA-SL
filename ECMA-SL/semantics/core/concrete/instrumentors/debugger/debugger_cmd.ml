@@ -17,15 +17,15 @@ module Message = struct
 end
 
 module InterpreterCallbacks = struct
-  type val_pp = heap -> Fmt.t -> Val.t -> unit
+  type heapval_pp = (Loc.t, unit) Hashtbl.t -> heap -> Fmt.t -> Val.t -> unit
   type eval_expr = state -> Expr.t -> Val.t
 
   type t =
-    { val_pp : val_pp
+    { heapval_pp : heapval_pp
     ; eval_expr : eval_expr
     }
 
-  let val_pp : val_pp ref =
+  let heapval_pp : heapval_pp ref =
     let err = "debugger value printer not initialized" in
     ref (fun _ _ _ -> Internal_error.(throw __FUNCTION__ (Custom err)))
 
@@ -43,6 +43,10 @@ type t =
   | Continue
   | Exit
 
+let heapval_pp (heap : heap) : Fmt.t -> Val.t -> unit =
+  let visited = Hashtbl.create !Base.default_hashtbl_sz in
+  !InterpreterCallbacks.heapval_pp visited heap
+
 let eval_cmd (state : state) (e_tkns : string list) : string =
   let (_, heap, _) = state in
   if e_tkns == [] then Message.missing_expr
@@ -51,14 +55,14 @@ let eval_cmd (state : state) (e_tkns : string list) : string =
       let e_str = String.concat " " e_tkns in
       let e = Parsing.parse_expr e_str in
       let v = !InterpreterCallbacks.eval_expr state e in
-      Fmt.asprintf "%a" (!InterpreterCallbacks.val_pp heap) v
+      Fmt.asprintf "%a" (heapval_pp heap) v
     with _ -> Message.invalid_expr
 
 let locals_cmd (state : state) : string =
   let (store, heap, _) = state in
   let local_f fmt (x, v) =
     if not (String.starts_with ~prefix:"__" x) then
-      Fmt.fprintf fmt "%s: %a\n" x (!InterpreterCallbacks.val_pp heap) v
+      Fmt.fprintf fmt "%s: %a\n" x (heapval_pp heap) v
   in
   Fmt.(asprintf "%a" (pp_hashtbl "" local_f) store)
 
