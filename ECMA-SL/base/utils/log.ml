@@ -15,7 +15,7 @@ module EslLog = struct
 
   let mk ?(font : Font.t = [ Font.Normal ]) ?(nl : bool = false) (ppf : Fmt.t)
     (fmt : ('a, t, unit, unit) format4) : 'a =
-    let pp_nl ppf nl = if nl then fprintf ppf "\n" else () in
+    let pp_nl ppf nl = if nl then fprintf ppf "@;" else () in
     let pp_log ppf fmt = fprintf ppf "%a[ecma-sl] %t" pp_nl nl fmt in
     kdprintf (fun fmt -> fprintf ppf "%a@." ((pp_font ppf) font pp_log) fmt) fmt
 
