@@ -95,9 +95,9 @@ let run_interpreter (opts : Options.t) : Val.t Result.t =
     let entry' = { entry with resolve_exitval = false } in
     interpret_cesl entry' opts.instrument opts.input
 
-let show_exitval (show_exitval : bool) (exitval : Val.t) : unit Result.t =
-  Ok (if show_exitval then Log.esl ~nl:true "exit value: %a" Val.pp exitval)
+let show_exitval (show_exitval : bool) (exitval : Val.t) : unit =
+  if show_exitval then Log.esl ~nl:true "exit value: %a" Val.pp exitval
 
 let run () (opts : Options.t) : unit Result.t =
-  let* exitval = run_interpreter opts in
+  let+ exitval = run_interpreter opts in
   show_exitval opts.show_exitval exitval

@@ -81,5 +81,5 @@ let run_executer (opts : Options.t) : Val.t Result.t =
   | _ -> execute_js setup opts.instrument opts.input
 
 let run () (opts : Options.t) : unit Result.t =
-  let* exitval = run_executer opts in
+  let+ exitval = run_executer opts in
   Cmd_interpret.show_exitval opts.show_exitval exitval
