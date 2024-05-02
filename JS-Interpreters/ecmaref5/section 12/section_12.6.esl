@@ -14,7 +14,7 @@ function getEnumerableProperties(object) {
 
 function getEnumerablePropertiesRecursive(object, enumProps, checkedProps) {
   if (object = 'null) {
-    return (enumProps, checkedProps)
+    return [enumProps, checkedProps]
   };
   if ("JSProperties" in_obj object) {
     namedPropertiesObj := object.JSProperties;
@@ -40,7 +40,7 @@ function getEnumerablePropertiesRecursive(object, enumProps, checkedProps) {
     checkedProps := l_nth(props, 1)
   };
 
-  return (enumProps, checkedProps)
+  return [enumProps, checkedProps]
 };
 
 function getNextPropertyName(props, idx) {
