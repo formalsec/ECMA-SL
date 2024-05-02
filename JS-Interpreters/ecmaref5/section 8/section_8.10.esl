@@ -122,7 +122,7 @@ function getDescriptorValue(desc) {
 
 /* Auxiliary functions created for the purposes of dealing with the Property Identifier type. */
 function newPropertyIdentifier(name, desc) {
-  return ("P", name, desc)
+  return ["P", name, desc]
 };
 
 function getPropertyName(propertyIdentifier) {

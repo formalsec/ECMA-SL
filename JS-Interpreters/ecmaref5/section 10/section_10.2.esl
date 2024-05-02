@@ -603,7 +603,7 @@ function createImmutableBinding(declarativeEnvRec, name) {
 };
 
 function newBinding(initialised, value, deletable, modifiable) {
-  return (initialised, value, deletable, modifiable)
+  return [initialised, value, deletable, modifiable]
 };
 
 function newMutableBinding(value) {
