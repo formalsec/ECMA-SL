@@ -112,7 +112,7 @@ module Enable : M = struct
     | Final -> ()
 
   let set_interp_callbacks (interp_callbacks : InterpreterCallbacks.t) : unit =
-    InterpreterCallbacks.val_pp := interp_callbacks.val_pp;
+    InterpreterCallbacks.heapval_pp := interp_callbacks.heapval_pp;
     InterpreterCallbacks.eval_expr := interp_callbacks.eval_expr
 
   let run (db : t) (st : state) (cont : cont) (s : Stmt.t) : t * state * cont =
