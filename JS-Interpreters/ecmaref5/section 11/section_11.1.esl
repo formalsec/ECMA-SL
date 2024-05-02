@@ -19,7 +19,7 @@ function strip_initial_elisions(elements) {
     i := i + 1
   };
 
-  return (elementList, elisionOpt)
+  return [elementList, elisionOpt]
 };
 
 function strip_final_elisions(elements) {
@@ -42,7 +42,7 @@ function strip_final_elisions(elements) {
     i := i - 1
   };
 
-  return (elementList, elisionOpt)
+  return [elementList, elisionOpt]
 };
 
 function rearrange_elementList(elements) {
