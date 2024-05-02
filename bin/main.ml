@@ -23,18 +23,28 @@ let compile_cmd =
   let term = Term.(const Cmd_compile.run $ copts $ compile_opts) in
   Cmd.v info term
 
+let interpreter_instrument =
+  let open Term in
+  const Cmd_interpret.Options.set_instrument
+  $ Docs.InterpretOpts.tracer
+  $ Docs.InterpretOpts.tracer_loc
+  $ Docs.InterpretOpts.tracer_depth
+  $ Docs.InterpretOpts.debugger
+
+let interpreter_config =
+  let open Term in
+  const Cmd_interpret.Options.set_config
+  $ Docs.InterpretOpts.show_exitval
+  $ interpreter_instrument
+
 let interpret_opts =
   let open Term in
   const Cmd_interpret.Options.set
   $ Docs.FileOpts.input
   $ Docs.InterpretOpts.lang
-  $ Docs.InterpretOpts.tracer
-  $ Docs.InterpretOpts.tracer_loc
-  $ Docs.InterpretOpts.tracer_depth
-  $ Docs.InterpretOpts.debugger
   $ Docs.InterpretOpts.main
-  $ Docs.InterpretOpts.show_exitval
   $ Docs.CompileOpts.untyped
+  $ interpreter_config
 
 let interpret_cmd =
   let open Docs.InterpretCmd in
@@ -62,11 +72,7 @@ let execute_opts =
   $ Docs.ExecuteOpts.lang
   $ Docs.ExecuteOpts.jsinterp
   $ Docs.ExecuteOpts.harness
-  $ Docs.InterpretOpts.tracer
-  $ Docs.InterpretOpts.tracer_loc
-  $ Docs.InterpretOpts.tracer_depth
-  $ Docs.InterpretOpts.debugger
-  $ Docs.InterpretOpts.show_exitval
+  $ interpreter_config
 
 let execute_cmd =
   let open Docs.ExecuteCmd in
