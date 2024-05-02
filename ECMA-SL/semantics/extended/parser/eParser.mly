@@ -326,6 +326,8 @@ let nopt_target :=
     { EExpr.NOpt (ArrayExpr, es) @> at $sloc }
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
     { EExpr.NOpt (ListExpr, es) @> at $sloc }
+  | LPAREN; v = expr_target; COMMA; vs = separated_nonempty_list(COMMA, expr_target); RPAREN;
+    { EExpr.NOpt (ListExpr, v :: vs) @> at $sloc }
 
 let catch_target := CATCH; ~ = id_target; <>
 
