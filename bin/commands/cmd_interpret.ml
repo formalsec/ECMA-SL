@@ -21,18 +21,24 @@ module Options = struct
     { tracer = { mode; loc; depth }; debugger }
 
   type config =
-    { resolve_exitval : bool
+    { print_depth : int option
+    ; resolve_exitval : bool
     ; show_exitval : bool
     ; instrument : instrument
     }
 
   let default_config () : config =
     let tracer = { mode = None; loc = false; depth = 0 } in
-    let instrument = { tracer; debugger = false } in
-    { resolve_exitval = true; show_exitval = false; instrument }
+    { print_depth = None
+    ; resolve_exitval = true
+    ; show_exitval = false
+    ; instrument = { tracer; debugger = false }
+    }
 
-  let set_config (show_exitval : bool) (instrument : instrument) : config =
-    { resolve_exitval = true; show_exitval; instrument }
+  let set_config (print_depth : int option) (show_exitval : bool)
+    (instrument : instrument) : config =
+    let resolve_exitval = true in
+    { print_depth; resolve_exitval; show_exitval; instrument }
 
   type t =
     { input : Fpath.t
@@ -77,6 +83,7 @@ let interpret_partial (entry : Interpreter.EntryPoint.t)
   let instrument = config.instrument in
   let module Instrument = (val InterpreterInstrument.intrument instrument) in
   let module Interpreter = Interpreter.M (Instrument) in
+  Interpreter.Config.print_depth := config.print_depth;
   Interpreter.Config.resolve_exitval := config.resolve_exitval;
   Interpreter.Config.show_exitval := config.show_exitval;
   Interpreter.eval_partial entry prog

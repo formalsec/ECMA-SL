@@ -29,6 +29,7 @@ module M (Instrument : Instrument.M) = struct
     | Intermediate of state * Stmt.t list
 
   module Config = struct
+    let print_depth : int option ref = ref None
     let resolve_exitval : bool ref = ref true
     let show_exitval : bool ref = ref false
   end
@@ -136,19 +137,23 @@ module M (Instrument : Instrument.M) = struct
     | Val.Curry (fn, fvs) -> (fn, fvs)
     | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadFuncId v))
 
-  let rec heapval_pp (visited : (Loc.t, unit) Hashtbl.t) (heap : heap)
-    (fmt : Fmt.t) (v : Val.t) : unit =
+  let rec heapval_pp (depth : int option) (visited : (Loc.t, unit) Hashtbl.t)
+    (heap : heap) (fmt : Fmt.t) (v : Val.t) : unit =
+    let valid_depth = Option.fold ~none:true ~some:(fun d -> d > 0) in
     match v with
-    | Loc l when not (Hashtbl.mem visited l) ->
+    | Loc l when valid_depth depth && not (Hashtbl.mem visited l) ->
+      let depth' = Option.map (fun d -> d - 1) depth in
       Hashtbl.add visited l ();
-      (Object.pp (heapval_pp visited heap)) fmt (get_loc heap l)
+      (Object.pp (heapval_pp depth' visited heap)) fmt (get_loc heap l)
     | Loc _ -> Fmt.fprintf fmt "{...}"
     | _ -> Val.pp fmt v
 
   let print_pp (heap : heap) (fmt : Fmt.t) (v : Val.t) : unit =
     match v with
     | Str s -> Fmt.pp_str fmt s
-    | _ -> heapval_pp (Hashtbl.create !Base.default_hashtbl_sz) heap fmt v
+    | _ ->
+      let visited = Hashtbl.create !Base.default_hashtbl_sz in
+      heapval_pp !Config.print_depth visited heap fmt v
 
   let prepare_store_binds (pxs : string list) (vs : Val.t list) (at : region) :
     (string * Val.t) list =
@@ -363,6 +368,7 @@ module M (Instrument : Instrument.M) = struct
   let eval_partial (entry : EntryPoint.t) (p : Prog.t) : Val.t * heap =
     let inst = ref (Instrument.initial_state ()) in
     let eval_expr (store, heap, stack) = eval_expr { store; heap; stack } in
+    let heapval_pp = heapval_pp !Config.print_depth in
     Instrument.Debugger.set_interp_callbacks { heapval_pp; eval_expr };
     let execute () = eval_instrumented entry p inst in
     let finally () = Instrument.cleanup !inst in

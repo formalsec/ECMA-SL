@@ -144,9 +144,10 @@ module InterpretOpts = struct
 
   let tracer_depth =
     let doc =
-      "Specifies the maximum call stack depth logged by the tracer. \
-       Non-positive depth values are ignored by the command. This option is \
-       only used when the trace mode is not set to 'none'."
+      "Maximum call stack depth logged by the tracer. Non-positive depth \
+       values are ignored by the command. Depth value 0 [default] represents \
+       unlimited trace depth. Note that this option is only used when the \
+       trace mode is not set to 'none'."
     in
     Arg.(value & opt int 0 & info [ "trace-depth" ] ~doc)
 
@@ -168,6 +169,15 @@ module InterpretOpts = struct
        (e.g., accesses to global variables)."
     in
     Arg.(value & opt string "main" & info [ "main" ] ~docv ~doc)
+
+  let print_depth =
+    let doc =
+      "Maximum print depth of the Core ECMA-SL (.cesl) interpreter when \
+       recursively printing objects values. Negative depth values are ignored \
+       by the command. Depth value 0 prints all objects as {...}. Not \
+       specifying a depth [default] results in unlimited object print depth."
+    in
+    Arg.(value & opt (some int) None & info [ "print-depth" ] ~doc)
 
   let show_exitval =
     let doc =

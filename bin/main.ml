@@ -34,6 +34,7 @@ let interpreter_instrument =
 let interpreter_config =
   let open Term in
   const Cmd_interpret.Options.set_config
+  $ Docs.InterpretOpts.print_depth
   $ Docs.InterpretOpts.show_exitval
   $ interpreter_instrument
 
