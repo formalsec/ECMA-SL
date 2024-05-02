@@ -5,12 +5,10 @@ open EslSyntax.Source
 module EntryPoint = struct
   type t =
     { main : string
-    ; resolve_exitval : bool
     ; static_heap : Val.t Heap.t option
     }
 
-  let default : t =
-    { main = "main"; resolve_exitval = true; static_heap = None }
+  let default : t = { main = "main"; static_heap = None }
 end
 
 module M (Instrument : Instrument.M) = struct
@@ -29,6 +27,11 @@ module M (Instrument : Instrument.M) = struct
     | Final of Val.t
     | Error of Val.t
     | Intermediate of state * Stmt.t list
+
+  module Config = struct
+    let resolve_exitval : bool ref = ref true
+    let show_exitval : bool ref = ref false
+  end
 
   let set_global_var (store : store) (heap : heap) : unit =
     let open Compiler.Const in
@@ -330,11 +333,21 @@ module M (Instrument : Instrument.M) = struct
       | Intermediate (state', cont') -> small_step_iter p state' inst cont' )
 
   let resolve_exitval (retval : Val.t) : Val.t =
-    match retval with
-    | Val.Tuple [ Val.Bool false; retval' ] -> retval'
-    | Val.Tuple [ Val.Bool true; err ] ->
-      Runtime_error.(throw (UncaughtExn (Val.str err)))
-    | _ -> Runtime_error.(throw (UnexpectedExitVal retval))
+    if not !Config.resolve_exitval then retval
+    else
+      match retval with
+      | Val.Tuple [ Val.Bool false; retval' ] -> retval'
+      | Val.Tuple [ Val.Bool true; err ] ->
+        Runtime_error.(throw (UncaughtExn (Val.str err)))
+      | _ -> Runtime_error.(throw (UnexpectedExitVal retval))
+
+  let show_exitval (retval : Val.t) : unit =
+    if !Config.show_exitval then Log.esl ~nl:true "exit value: %a" Val.pp retval
+
+  let eval_exitval (retval : Val.t) : Val.t =
+    let retval' = resolve_exitval retval in
+    show_exitval retval';
+    retval'
 
   let eval_instrumented (entry : EntryPoint.t) (p : Prog.t)
     (inst : Instrument.t ref) : Val.t * heap =
@@ -343,8 +356,7 @@ module M (Instrument : Instrument.M) = struct
     Instrument.Tracer.trace_restore (-1) fmain;
     let return = small_step_iter p state inst [ Func.body fmain ] in
     match return with
-    | Final v when entry.resolve_exitval -> (resolve_exitval v, state.heap)
-    | Final v -> (v, state.heap)
+    | Final v -> (eval_exitval v, state.heap)
     | Error err -> Runtime_error.(throw (Failure (Val.str err)))
     | _ -> Internal_error.(throw __FUNCTION__ (Unexpected "intermediate state"))
 

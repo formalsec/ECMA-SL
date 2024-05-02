@@ -15,25 +15,36 @@ module Options = struct
     ; debugger : bool
     }
 
-  let default_instrument () : instrument =
-    { tracer = { mode = None; loc = false; depth = 0 }; debugger = false }
+  let set_instrument (tracer_mode : Enums.InterpTracer.t) (tracer_loc : bool)
+    (tracer_depth : int) (debugger : bool) : instrument =
+    let (mode, loc, depth) = (tracer_mode, tracer_loc, tracer_depth) in
+    { tracer = { mode; loc; depth }; debugger }
+
+  type config =
+    { resolve_exitval : bool
+    ; show_exitval : bool
+    ; instrument : instrument
+    }
+
+  let default_config () : config =
+    let tracer = { mode = None; loc = false; depth = 0 } in
+    let instrument = { tracer; debugger = false } in
+    { resolve_exitval = true; show_exitval = false; instrument }
+
+  let set_config (show_exitval : bool) (instrument : instrument) : config =
+    { resolve_exitval = true; show_exitval; instrument }
 
   type t =
     { input : Fpath.t
     ; lang : Enums.Lang.t
-    ; instrument : instrument
     ; main : string
-    ; show_exitval : bool
     ; untyped : bool
+    ; config : config
     }
 
-  let set (input : Fpath.t) (lang : Enums.Lang.t)
-    (tracer_mode : Enums.InterpTracer.t) (tracer_loc : bool)
-    (tracer_depth : int) (debugger : bool) (main : string) (show_exitval : bool)
-    (untyped : bool) : t =
-    let (mode, loc, depth) = (tracer_mode, tracer_loc, tracer_depth) in
-    let instrument = { tracer = { mode; loc; depth }; debugger } in
-    { input; lang; instrument; main; show_exitval; untyped }
+  let set (input : Fpath.t) (lang : Enums.Lang.t) (main : string)
+    (untyped : bool) (config : config) : t =
+    { input; lang; main; untyped; config }
 end
 
 module InterpreterInstrument = struct
@@ -62,42 +73,39 @@ module InterpreterInstrument = struct
 end
 
 let interpret_partial (entry : Interpreter.EntryPoint.t)
-  (instrument : Options.instrument) (prog : Prog.t) : Val.t * Val.t Heap.t =
+  (config : Options.config) (prog : Prog.t) : Val.t * Val.t Heap.t =
+  let instrument = config.instrument in
   let module Instrument = (val InterpreterInstrument.intrument instrument) in
   let module Interpreter = Interpreter.M (Instrument) in
+  Interpreter.Config.resolve_exitval := config.resolve_exitval;
+  Interpreter.Config.show_exitval := config.show_exitval;
   Interpreter.eval_partial entry prog
 
-let interpret (entry : Interpreter.EntryPoint.t)
-  (instrument : Options.instrument) (prog : Prog.t) : Val.t Result.t =
+let interpret (entry : Interpreter.EntryPoint.t) (config : Options.config)
+  (prog : Prog.t) : Val.t Result.t =
   Result.esl_exec @@ fun () ->
-  let (retval, _) = interpret_partial entry instrument prog in
+  let (retval, _) = interpret_partial entry config prog in
   Log.debug "Sucessfuly evaluated program with return '%a'." Val.pp retval;
   Ok retval
 
-let interpret_cesl (entry : Interpreter.EntryPoint.t)
-  (instrument : Options.instrument) (file : Fpath.t) : Val.t Result.t =
+let interpret_cesl (entry : Interpreter.EntryPoint.t) (config : Options.config)
+  (file : Fpath.t) : Val.t Result.t =
   let* p = Cmd_compile.load file in
-  interpret entry instrument p
+  interpret entry config p
 
-let interpret_esl (entry : Interpreter.EntryPoint.t)
-  (instrument : Options.instrument) (untyped : bool) (file : Fpath.t) :
-  Val.t Result.t =
+let interpret_esl (entry : Interpreter.EntryPoint.t) (config : Options.config)
+  (untyped : bool) (file : Fpath.t) : Val.t Result.t =
   let* p = Cmd_compile.compile untyped file in
-  interpret entry instrument p
-
-let run_interpreter (opts : Options.t) : Val.t Result.t =
-  let valid_langs = Enums.Lang.valid_langs Options.langs opts.lang in
-  let entry = { Interpreter.EntryPoint.default with main = opts.main } in
-  match Enums.Lang.resolve_file_lang valid_langs opts.input with
-  | Some ESL -> interpret_esl entry opts.instrument opts.untyped opts.input
-  | Some CESL -> interpret_cesl entry opts.instrument opts.input
-  | Some CESLUnattached | _ ->
-    let entry' = { entry with resolve_exitval = false } in
-    interpret_cesl entry' opts.instrument opts.input
-
-let show_exitval (show_exitval : bool) (exitval : Val.t) : unit =
-  if show_exitval then Log.esl ~nl:true "exit value: %a" Val.pp exitval
+  interpret entry config p
 
 let run () (opts : Options.t) : unit Result.t =
-  let+ exitval = run_interpreter opts in
-  show_exitval opts.show_exitval exitval
+  let valid_langs = Enums.Lang.valid_langs Options.langs opts.lang in
+  let entry = { Interpreter.EntryPoint.default with main = opts.main } in
+  Syntax.Result.map ignore
+  @@
+  match Enums.Lang.resolve_file_lang valid_langs opts.input with
+  | Some ESL -> interpret_esl entry opts.config opts.untyped opts.input
+  | Some CESL -> interpret_cesl entry opts.config opts.input
+  | Some CESLUnattached | _ ->
+    let config = { opts.config with resolve_exitval = false } in
+    interpret_cesl entry config opts.input

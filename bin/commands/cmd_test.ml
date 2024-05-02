@@ -54,13 +54,13 @@ end
 
 let setup_tests (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option) :
   (Prog.t * Val.t Heap.t option) Result.t =
-  let instrument = Cmd_interpret.Options.default_instrument () in
-  Cmd_execute.setup_execution jsinterp harness instrument
+  let interp_config = Cmd_interpret.Options.default_config () in
+  Cmd_execute.setup_execution jsinterp harness interp_config
 
 let test_input (streams : Log.Redirect.t) (setup : Prog.t * Val.t Heap.t option)
   (ftest : Fpath.t) : unit Result.t =
-  let instrument = Cmd_interpret.Options.default_instrument () in
-  match Cmd_execute.execute_js setup instrument ftest with
+  let interp_config = Cmd_interpret.Options.default_config () in
+  match Cmd_execute.execute_js setup interp_config ftest with
   | Ok (Tuple [ _; Symbol "normal"; _; _ ]) -> Test.sucessful streams ftest
   | Ok _ -> Test.failure streams ftest
   | Error (`Internal _) -> Test.internal_failure streams ftest

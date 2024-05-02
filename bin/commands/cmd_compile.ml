@@ -38,12 +38,9 @@ let compile (untyped : bool) (file : Fpath.t) : Prog.t Result.t =
   Log.debug "Sucessfuly compiled program '%a'." Fpath.pp file;
   Ok p
 
-let show_program (output : Fpath.t option) (p : Prog.t) : unit Result.t =
-  match output with
-  | None -> Ok (Log.out "%a@." Prog.pp p)
-  | Some output' -> Result.bos (Bos.OS.File.writef output' "%a" Prog.pp p)
-
 let run () (opts : Options.t) : unit Result.t =
   ignore Enums.Lang.(resolve_file_lang [ ESL ] opts.input);
   let* p = compile opts.untyped opts.input in
-  show_program opts.output p
+  match opts.output with
+  | None -> Ok (Log.out "%a@." Prog.pp p)
+  | Some output' -> Result.bos (Bos.OS.File.writef output' "%a" Prog.pp p)
