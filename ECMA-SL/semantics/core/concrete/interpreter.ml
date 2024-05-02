@@ -144,7 +144,8 @@ module M (Instrument : Instrument.M) = struct
     | Loc l when valid_depth depth && not (Hashtbl.mem visited l) ->
       let depth' = Option.map (fun d -> d - 1) depth in
       Hashtbl.add visited l ();
-      (Object.pp (heapval_pp depth' visited heap)) fmt (get_loc heap l)
+      (Object.pp (heapval_pp depth' visited heap)) fmt (get_loc heap l);
+      Hashtbl.remove visited l
     | Loc _ -> Fmt.fprintf fmt "{...}"
     | _ -> Val.pp fmt v
 
