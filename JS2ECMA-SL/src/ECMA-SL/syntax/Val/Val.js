@@ -13,7 +13,6 @@ var PrimitiveVal = require("./PrimitiveVal")(Val);
 var LocationVal = require("./LocationVal")(Val);
 var ListVal = require("./ListVal")(Val);
 var TypeVal = require("./TypeVal")(Val);
-var TupleVal = require("./TupleVal")(Val);
 var VoidVal = require("./VoidVal")(Val);
 var SymbolVal = require("./SymbolVal")(Val);
 
@@ -44,7 +43,6 @@ Val.fromJSON = function(obj){
     case "location": return LocationVal.fromJSON(obj.value);
     case "list": return ListVal.fromJSON(obj.value);
     case "type": return TypeVal.fromJSON(obj.value);
-    case "tuple": return TupleVal.fromJSON(obj.value);
     case "void": return VoidVal.fromJSON();
     case "symbol": return SymbolVal.fromJSON(obj.value);
     default : throw new Error("Unsupported value: "+obj.type);
@@ -58,7 +56,6 @@ module.exports = {
   LocationVal,
   PrimitiveVal,
   SymbolVal,
-  TupleVal,
   TypeVal,
   Val,
   VoidVal

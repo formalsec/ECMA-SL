@@ -53,12 +53,6 @@ function MakeNOptExpr(Expr){
     }
   }
 
-  NOptExpr.TupleExpr = class {
-    toString(elements) {
-      return `( ${elements.join(", ")} )`
-    }
-  }
-
   return NOptExpr;
 }
 

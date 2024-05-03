@@ -3,7 +3,6 @@ const ValModule = require("./Val/Val");
 const Val = ValModule.Val;
 const PrimitiveVal = ValModule.PrimitiveVal;
 const ListVal = ValModule.ListVal;
-const TupleVal = ValModule.TupleVal;
 
 var binary_dictionary = {
   "Plus": "+", 
@@ -65,7 +64,6 @@ class Oper{
   		case "InObj": return new PrimitiveVal(true); //TODO //Extended ECMA-SL
   		case "InList": return new PrimitiveVal(val1.value.includes(val2.value));
   		case "Lnth": return val1.list[val2.value];//TODO
-  		case "Tnth":return new PrimitiveVal(true);//TODO
   		case "Ladd":return new PrimitiveVal(true);//TODO
   		case "Lconcat": return new ListVal(val1.value.concat(val2.value))
   		//UnOpt
@@ -73,17 +71,13 @@ class Oper{
   		case "Not": return new PrimitiveVal(!(val1.value));
   		case "Typeof": return new PrimitiveVal(typeof val1.value);
   		case "ListLen": return new PrimitiveVal(val1.list.length);
-  		case "TupleLen": return new PrimitiveVal(val1.value.length); // JS does not have tuples
   		case "Head": return val1.getMember(0);
   		case "Tail": return val1.getTail();
-  		case "First": return new Val(val1.value[0]); //JS does not have tuples
-  		case "Second": return new Val(val1.value.slice(1)); // JS does not have tuples
   		case "IntToFloat": return new PrimitiveVal(0.0 + val1.value);
   		case "FloatToString": return new PrimitiveVal(String.valueOf(val1.value));
   		case "ObjToList": return new ListVal([]);//TODO
   		//NOpt
   		case "ListExpr":  return new ListVal(val1);
-  		case "TupleExpr": return new TupleVal(val1);
   		case "NAry_And":  var reducer = (accumulator, value) => accumulator && value;
   						          return new PrimitiveVal(val1.reduce(reducer, true));
   		case "NAry_Or": var reducer = (accumulator, value) => accumulator || value; 
@@ -176,7 +170,6 @@ class Oper{
         return this.callExpression(e1,e2);
 
       case "Lnth": 
-      case "Tnth":
         return this.memberExpression(e1,e2);
       //UnOpt
       case "Neg": 
@@ -203,7 +196,6 @@ class Oper{
         return acc;
 
       case "ListLen":
-      case "TupleLen": 
         return {
           "type": "MemberExpression",
           "computed": false,
@@ -213,21 +205,13 @@ class Oper{
             "name": "length"
           }
         }; 
-      case "First":
       case "Head": 
         e2 = {
           "type": "Literal",
           "value": 0,
           "raw": "0"
         };
-        return this.memberExpression(e1,e2); //JS does not have tuples
-      case "Second": 
-        e2 = {
-          "type": "Literal",
-          "value": 1,
-          "raw": "1"
-        };
-        return this.memberExpression(e1,e2);// JS does not have tuples
+        return this.memberExpression(e1,e2);
       case "FloatToString": 
         e2 = {
             "type": "Literal",
@@ -237,7 +221,6 @@ class Oper{
         return this.binaryExpression(e2,e1);
       //NOpt
       case "ListExpr":  
-      case "TupleExpr": 
         var expr_list_js = e1.map((expr) => expr.toJS());
         return {
           "type": "ArrayExpression",
