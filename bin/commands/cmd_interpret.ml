@@ -69,13 +69,15 @@ module InterpreterInstrument = struct
     | true -> (module Debugger.Enable : Debugger.M)
     | false -> (module Debugger.Disable : Debugger.M)
 
+  let profiler () : (module Profiler.M) = (module Profiler.Disable : Profiler.M)
   let monitor () : (module Monitor.M) = (module Monitor.Default : Monitor.M)
 
   let intrument (instrument : Options.instrument) : (module Instrument.M) =
     let module Tracer = (val tracer instrument.tracer) in
     let module Debugger = (val debugger instrument.debugger) in
+    let module Profiler = (val profiler ()) in
     let module Monitor = (val monitor ()) in
-    (module Instrument.Default (Tracer) (Debugger) (Monitor))
+    (module Instrument.Default (Tracer) (Debugger) (Profiler) (Monitor))
 end
 
 let interpret_partial (entry : Interpreter.EntryPoint.t)
