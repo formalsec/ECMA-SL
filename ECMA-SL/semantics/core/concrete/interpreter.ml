@@ -21,6 +21,7 @@ module M (Instrument : Instrument.M) = struct
     { store : store
     ; heap : heap
     ; stack : stack
+    ; inst : Instrument.t ref
     }
 
   type return =
@@ -39,12 +40,13 @@ module M (Instrument : Instrument.M) = struct
     if Option.is_some (Heap.get_opt heap esl_globals_loc) then
       Store.set store esl_globals_obj (Loc esl_globals_loc)
 
-  let initial_state (fmain : Func.t) (s_heap : heap option) : state =
+  let initial_state (fmain : Func.t) (s_heap : heap option)
+    (inst : Instrument.t ref) : state =
     let store = Store.create [] in
     let heap = Option.fold ~none:(Heap.create ()) ~some:Heap.extend s_heap in
     let stack = Call_stack.create fmain in
     set_global_var store heap;
-    { store; heap; stack }
+    { store; heap; stack; inst }
 
   let get_var (store : store) (x : string) (at : region) : Val.t =
     match Store.get_opt store x with
@@ -67,33 +69,32 @@ module M (Instrument : Instrument.M) = struct
       let e = Runtime_error.(src err |> ErrSrc.index_to_el es) in
       Runtime_error.(set_src (ErrSrc.at e) err |> raise)
 
-  let rec eval_expr' (state : state) (inst : Instrument.t ref) (e : Expr.t) :
-    Val.t =
+  let rec eval_expr' (state : state) (e : Expr.t) : Val.t =
     match e.it with
     | Val v -> v
     | Var x -> get_var state.store x e.at
     | UnOpt (op, e') ->
-      let v = eval_expr state inst e' in
+      let v = eval_expr state e' in
       let eval_op_fun () = Eval_operator.eval_unopt op v in
       eval_operator eval_op_fun [ e' ]
     | BinOpt (op, e1, e2) ->
-      let v1 = eval_expr state inst e1 in
-      let v2 = eval_expr state inst e2 in
+      let v1 = eval_expr state e1 in
+      let v2 = eval_expr state e2 in
       let eval_op_fun () = Eval_operator.eval_binopt op v1 v2 in
       eval_operator eval_op_fun [ e1; e2 ]
     | TriOpt (op, e1, e2, e3) ->
-      let v1 = eval_expr state inst e1 in
-      let v2 = eval_expr state inst e2 in
-      let v3 = eval_expr state inst e3 in
+      let v1 = eval_expr state e1 in
+      let v2 = eval_expr state e2 in
+      let v3 = eval_expr state e3 in
       let eval_op_fun () = Eval_operator.eval_triopt op v1 v2 v3 in
       eval_operator eval_op_fun [ e1; e2; e3 ]
     | NOpt (op, es) ->
-      let vs = List.map (eval_expr state inst) es in
+      let vs = List.map (eval_expr state) es in
       let eval_op_fun () = Eval_operator.eval_nopt op vs in
       eval_operator eval_op_fun es
     | Curry (fe, es) -> (
-      let fv = eval_expr state inst fe in
-      let vs = List.map (eval_expr state inst) es in
+      let fv = eval_expr state fe in
+      let vs = List.map (eval_expr state) es in
       match fv with
       | Str fn -> Val.Curry (fn, vs)
       | _ -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadExpr ("curry", fv))) )
@@ -106,37 +107,35 @@ module M (Instrument : Instrument.M) = struct
         let msg = "symbolic " ^ Type.str t in
         Internal_error.(throw __FUNCTION__ (NotImplemented msg)) )
 
-  and eval_expr (state : state) (inst : Instrument.t ref) (e : Expr.t) : Val.t =
-    let v = eval_expr' state inst e in
+  and eval_expr (state : state) (e : Expr.t) : Val.t =
+    let v = eval_expr' state e in
     let lvl = Call_stack.level state.stack in
-    inst := { !inst with pf = Instrument.Profiler.count !inst.pf `Expr };
+    Instrument.Profiler.count !(state.inst).pf `Expr;
     Instrument.Tracer.trace_expr lvl e (state.heap, v);
     v
 
-  let eval_str (state : state) (inst : Instrument.t ref) (e : Expr.t) : string =
-    match eval_expr state inst e with
+  let eval_str (state : state) (e : Expr.t) : string =
+    match eval_expr state e with
     | Str s -> s
     | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("string", v)))
 
-  let eval_bool (state : state) (inst : Instrument.t ref) (e : Expr.t) : bool =
-    match eval_expr state inst e with
+  let eval_bool (state : state) (e : Expr.t) : bool =
+    match eval_expr state e with
     | Bool b -> b
     | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("boolean", v)))
 
-  let eval_loc (state : state) (inst : Instrument.t ref) (e : Expr.t) : Loc.t =
-    match eval_expr state inst e with
+  let eval_loc (state : state) (e : Expr.t) : Loc.t =
+    match eval_expr state e with
     | Loc l -> l
     | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("location", v)))
 
-  let eval_obj (state : state) (inst : Instrument.t ref) (heap : heap)
-    (e : Expr.t) : Loc.t * obj =
-    let l = eval_loc state inst e in
+  let eval_obj (state : state) (heap : heap) (e : Expr.t) : Loc.t * obj =
+    let l = eval_loc state e in
     let obj = get_loc heap l in
     (l, obj)
 
-  let eval_func_expr (state : state) (inst : Instrument.t ref) (fe : Expr.t) :
-    string * Val.t list =
-    match eval_expr state inst fe with
+  let eval_func_expr (state : state) (fe : Expr.t) : string * Val.t list =
+    match eval_expr state fe with
     | Val.Str fn -> (fn, [])
     | Val.Curry (fn, fvs) -> (fn, fvs)
     | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadFuncId v))
@@ -175,180 +174,173 @@ module M (Instrument : Instrument.M) = struct
     let store' = Store.create (prepare_store_binds pxs vs at) in
     (stack', store')
 
-  let update_mon_label (inst : Instrument.t ref) (s : Stmt.t)
-    (s_eval : Monitor.stmt_eval) : unit =
-    let mon_label = Instrument.Monitor.generate_label s s_eval in
-    inst := { !inst with mon_label }
-
-  let eval_small_step (p : Prog.t) (state : state) (inst : Instrument.t ref)
-    (s : Stmt.t) (cont : Stmt.t list) : return * unit =
-    let lbl s_eval = update_mon_label inst s s_eval in
+  let eval_small_step (p : Prog.t) (state : state) (s : Stmt.t)
+    (cont : Stmt.t list) : return =
+    let inst = !(state.inst) in
+    let lbl = Instrument.Monitor.update_label in
+    let ( $$ ) v s_eval = lbl inst.mon s s_eval |> fun () -> v in
     let lvl = Call_stack.level state.stack in
     Instrument.Tracer.trace_stmt lvl s;
-    inst := { !inst with pf = Instrument.Profiler.count !inst.pf `Stmt };
+    Instrument.Profiler.count inst.pf `Stmt;
     match s.it with
-    | Skip -> (Intermediate (state, cont), lbl SkipEval)
-    | Merge -> (Intermediate (state, cont), lbl MergeEval)
+    | Skip -> Intermediate (state, cont) $$ SkipEval
+    | Merge -> Intermediate (state, cont) $$ MergeEval
     | Debug s' ->
       let db_state = (state.store, state.heap, state.stack) in
-      let db_res = Instrument.Debugger.run !inst.db db_state cont s' in
-      let (db', (store, heap, stack), cont') = db_res in
-      inst := { !inst with db = db' };
-      (Intermediate ({ store; heap; stack }, s' :: cont'), lbl DebugEval)
-    | Block ss -> (Intermediate (state, ss @ cont), lbl BlockEval)
+      let db_res = Instrument.Debugger.run inst.db db_state cont s' in
+      let ((store, heap, stack), cont') = db_res in
+      Intermediate ({ state with store; heap; stack }, s' :: cont') $$ DebugEval
+    | Block ss -> Intermediate (state, ss @ cont) $$ BlockEval
     | Print e ->
-      eval_expr state inst e |> Log.out "%a@." (print_pp state.heap);
-      (Intermediate (state, cont), lbl PrintEval)
+      Log.out "%a@." (print_pp state.heap) (eval_expr state e);
+      Intermediate (state, cont) $$ PrintEval
     | Return e -> (
-      let v = eval_expr state inst e in
+      let v = eval_expr state e in
       let f = Call_stack.func state.stack in
       Instrument.Tracer.trace_return lvl f s (state.heap, v);
       let (frame, stack') = Call_stack.pop state.stack in
       match frame with
-      | Call_stack.Toplevel _ -> (Final v, lbl ReturnEval)
+      | Call_stack.Toplevel _ -> Final v $$ ReturnEval
       | Call_stack.Intermediate (_, restore) ->
         let (store', cont', x) = Call_stack.restore restore in
         let state' = { state with store = store'; stack = stack' } in
         Store.set store' x v;
         Instrument.Tracer.trace_restore (lvl - 1) (Call_stack.func stack');
-        (Intermediate (state', cont'), lbl ReturnEval) )
+        Intermediate (state', cont') $$ ReturnEval )
     | Assign (x, e) ->
-      eval_expr state inst e |> Store.set state.store x.it;
-      (Intermediate (state, cont), lbl AssignEval)
+      Store.set state.store x.it (eval_expr state e);
+      Intermediate (state, cont) $$ AssignEval
     | AssignCall (x, fe, es) -> (
-      let (fn, fvs) = eval_func_expr state inst fe in
-      let vs = fvs @ List.map (eval_expr state inst) es in
+      let (fn, fvs) = eval_func_expr state fe in
+      let vs = fvs @ List.map (eval_expr state) es in
       match Instrument.Monitor.interceptor fn vs es with
       | Some lbl ->
-        inst := { !inst with mon_label = lbl };
-        (Intermediate (state, cont), ())
+        Instrument.Monitor.set_label inst.mon lbl;
+        Intermediate (state, cont)
       | None ->
         let f = get_func p fn fe.at in
         let (stack, store) = (state.stack, state.store) in
         let (stack', store') = prepare_call stack f store cont x.it vs fe.at in
         let cont' = [ Func.body f ] in
-        let db_res = Instrument.Debugger.call !inst.db stack' cont' in
-        let (db', stack'', cont'') = db_res in
+        let db_res = Instrument.Debugger.call inst.db stack' cont' in
+        let (stack'', cont'') = db_res in
         let state' = { state with store = store'; stack = stack'' } in
-        inst := { !inst with db = db' };
-        inst := { !inst with pf = Instrument.Profiler.count !inst.pf `Call };
+        Instrument.Profiler.count inst.pf `Call;
         Instrument.Tracer.trace_call (lvl + 1) f s;
-        (Intermediate (state', cont''), lbl (AssignCallEval f)) )
+        Intermediate (state', cont'') $$ AssignCallEval f )
     | AssignECall (x, fn, es) ->
-      let vs = List.map (eval_expr state inst) es in
+      let vs = List.map (eval_expr state) es in
       let v = External.execute p state.store state.heap fn.it vs in
       Store.set state.store x.it v;
-      (Intermediate (state, cont), lbl AssignECallEval)
+      Intermediate (state, cont) $$ AssignECallEval
     | AssignNewObj x ->
       let l = Loc.create () in
       Heap.set state.heap l (Object.create ());
       Store.set state.store x.it (Val.Loc l);
-      inst := { !inst with pf = Instrument.Profiler.count !inst.pf `Obj };
-      (Intermediate (state, cont), lbl (AssignNewObjEval l))
+      Instrument.Profiler.count inst.pf `Obj;
+      Intermediate (state, cont) $$ AssignNewObjEval l
     | AssignObjToList (x, e) ->
       let fld_to_tup_f (fn, fv) = Val.Tuple [ Str fn; fv ] in
-      let (_, obj) = eval_obj state inst state.heap e in
+      let (_, obj) = eval_obj state state.heap e in
       let v = Val.List (Object.fld_lst obj |> List.map fld_to_tup_f) in
       Store.set state.store x.it v;
-      (Intermediate (state, cont), lbl AssignObjToListEval)
+      Intermediate (state, cont) $$ AssignObjToListEval
     | AssignObjFields (x, e) ->
       let fld_to_tup_f (fn, _) = Val.Str fn in
-      let (_, obj) = eval_obj state inst state.heap e in
+      let (_, obj) = eval_obj state state.heap e in
       let v = Val.List (Object.fld_lst obj |> List.map fld_to_tup_f) in
       Store.set state.store x.it v;
-      (Intermediate (state, cont), lbl AssignObjFieldsEval)
+      Intermediate (state, cont) $$ AssignObjFieldsEval
     | AssignInObjCheck (x, fe, oe) ->
       let in_obj = function Some _ -> true | None -> false in
-      let (loc, obj) = eval_obj state inst state.heap oe in
-      let fn = eval_str state inst fe in
+      let (loc, obj) = eval_obj state state.heap oe in
+      let fn = eval_str state fe in
       let v = Val.Bool (Object.get obj fn |> in_obj) in
       Store.set state.store x.it v;
-      (Intermediate (state, cont), lbl (AssignInObjCheckEval (loc, fn)))
+      Intermediate (state, cont) $$ AssignInObjCheckEval (loc, fn)
     | FieldLookup (x, oe, fe) ->
       let fld_val v = Option.value ~default:(Val.Symbol "undefined") v in
-      let (l, obj) = eval_obj state inst state.heap oe in
-      let fn = eval_str state inst fe in
+      let (l, obj) = eval_obj state state.heap oe in
+      let fn = eval_str state fe in
       let v = Object.get obj fn |> fld_val in
       Store.set state.store x.it v;
-      (Intermediate (state, cont), lbl (FieldLookupEval (l, fn)))
+      Intermediate (state, cont) $$ FieldLookupEval (l, fn)
     | FieldAssign (oe, fe, e) ->
-      let (l, obj) = eval_obj state inst state.heap oe in
-      let fn = eval_str state inst fe in
-      let v = eval_expr state inst e in
+      let (l, obj) = eval_obj state state.heap oe in
+      let fn = eval_str state fe in
+      let v = eval_expr state e in
       Object.set obj fn v;
-      (Intermediate (state, cont), lbl (FieldAssignEval (l, fn)))
+      Intermediate (state, cont) $$ FieldAssignEval (l, fn)
     | FieldDelete (oe, fe) ->
-      let (l, obj) = eval_obj state inst state.heap oe in
-      let fn = eval_str state inst fe in
+      let (l, obj) = eval_obj state state.heap oe in
+      let fn = eval_str state fe in
       Object.delete obj fn;
-      (Intermediate (state, cont), lbl (FieldDeleteEval (l, fn)))
+      Intermediate (state, cont) $$ FieldDeleteEval (l, fn)
     | If (e, s1, s2) -> (
-      let v = eval_bool state inst e in
+      let v = eval_bool state e in
       let s2' = Option.value ~default:(Stmt.Skip @> no_region) s2 in
       match (v, s1.it, s2'.it) with
       | (true, Block ss, _) ->
         let cont' = ss @ ((Stmt.Merge @?> s1.at) :: cont) in
-        (Intermediate (state, cont'), lbl (IfEval true))
+        Intermediate (state, cont') $$ IfEval true
       | (false, _, Block ss) ->
         let cont' = ss @ ((Stmt.Merge @?> s2'.at) :: cont) in
-        (Intermediate (state, cont'), lbl (IfEval false))
-      | (false, _, Skip) -> (Intermediate (state, cont), lbl (IfEval false))
+        Intermediate (state, cont') $$ IfEval false
+      | (false, _, Skip) -> Intermediate (state, cont) $$ IfEval false
       | (true, _, _) ->
         Internal_error.(throw __FUNCTION__ (Expecting "if block"))
       | (false, _, _) ->
         Internal_error.(throw __FUNCTION__ (Expecting "else block")) )
     | While (e, s') ->
       let loop = Stmt.If (e, Stmt.Block [ s'; s ] @?> s'.at, None) @?> s.at in
-      (Intermediate (state, loop :: cont), lbl WhileEval)
+      Intermediate (state, loop :: cont) $$ WhileEval
     | Switch (e, css, dflt) -> (
-      let v = eval_expr state inst e in
+      let v = eval_expr state e in
       match (Hashtbl.find_opt css v, dflt) with
       | (Some { it = Block ss; at }, _) | (None, Some { it = Block ss; at }) ->
         let cont' = ss @ ((Stmt.Merge @?> at) :: cont) in
-        (Intermediate (state, cont'), lbl (SwitchEval v))
+        Intermediate (state, cont') $$ SwitchEval v
       | (Some _, _) ->
         Internal_error.(throw __FUNCTION__ (Expecting "switch block"))
       | (None, Some _) ->
         Internal_error.(throw __FUNCTION__ (Expecting "sdflt block"))
-      | (None, None) -> (Intermediate (state, cont), lbl (SwitchEval v)) )
+      | (None, None) -> Intermediate (state, cont) $$ SwitchEval v )
     | Fail e ->
-      let v = eval_expr state inst e in
-      (Error v, lbl FailEval)
+      let v = eval_expr state e in
+      Error v $$ FailEval
     | Assert e ->
-      let v = eval_bool state inst e in
-      if v then (Intermediate (state, cont), lbl (AssertEval true))
+      let v = eval_bool state e in
+      if v then Intermediate (state, cont) $$ AssertEval true
       else
         let err = Fmt.asprintf "Assert false: %a" Expr.pp e in
-        (Error (Val.Str err), lbl (AssertEval false))
+        Error (Val.Str err) $$ AssertEval false
 
-  let eval_small_step_safe (p : Prog.t) (state : state)
-    (inst : Instrument.t ref) (s : Stmt.t) (cont : Stmt.t list) : return =
+  let eval_small_step_safe (p : Prog.t) (state : state) (s : Stmt.t)
+    (cont : Stmt.t list) : return =
     let state' = { state with stack = Call_stack.update state.stack s } in
-    try fst (eval_small_step p state' inst s cont)
+    try eval_small_step p state' s cont
     with Runtime_error.Error err ->
       Runtime_error.(set_trace state.stack err |> raise)
 
-  let rec small_step_iter (p : Prog.t) (state : state) (inst : Instrument.t ref)
-    (ss : Stmt.t list) : return =
+  let rec small_step_iter (p : Prog.t) (state : state) (ss : Stmt.t list) :
+    return =
     match ss with
     | [] ->
       let fn = Func.name (Call_stack.func state.stack) in
       Runtime_error.(throw ~src:(ErrSrc.at fn) (MissingReturn fn))
     | s :: cont -> (
-      let return = eval_small_step_safe p state inst s cont in
-      let module Mon = Instrument.Monitor in
-      let mon_return = Mon.eval_small_step !inst.mon_state !inst.mon_label in
-      let mon_state' = Mon.next_state mon_return in
-      inst := { !inst with mon_state = mon_state' };
+      let return = eval_small_step_safe p state s cont in
+      Instrument.Monitor.eval_small_step !(state.inst).mon;
       match return with
       | Final v -> Final v
       | Error v -> Error v
-      | Intermediate (state', cont') -> small_step_iter p state' inst cont' )
+      | Intermediate (state', cont') -> small_step_iter p state' cont' )
 
   let debugger_interp_callbacks () : unit =
-    let plh = ref (Instrument.initial_state ()) in
+    let inst = ref (Instrument.initial_state ()) in
     let heapval_pp = heapval_pp !Config.print_depth in
-    let eval_expr (store, heap, stack) = eval_expr { store; heap; stack } plh in
+    let state_conv (store, heap, stack) = { store; heap; stack; inst } in
+    let eval_expr state = eval_expr @@ state_conv state in
     Instrument.Debugger.set_interp_callbacks { heapval_pp; eval_expr }
 
   let resolve_exitval (retval : Val.t) : Val.t =
@@ -371,11 +363,11 @@ module M (Instrument : Instrument.M) = struct
   let eval_instrumented (entry : EntryPoint.t) (p : Prog.t)
     (inst : Instrument.t ref) : Val.t * heap =
     let fmain = get_func p entry.main no_region in
-    let state = initial_state fmain entry.static_heap in
+    let state = initial_state fmain entry.static_heap inst in
     Instrument.Tracer.trace_restore (-1) fmain;
-    inst := { !inst with pf = Instrument.Profiler.start !inst.pf };
-    let return = small_step_iter p state inst [ Func.body fmain ] in
-    inst := { !inst with pf = Instrument.Profiler.stop !inst.pf };
+    Instrument.Profiler.start !(state.inst).pf;
+    let return = small_step_iter p state [ Func.body fmain ] in
+    Instrument.Profiler.stop !(state.inst).pf;
     match return with
     | Final v -> (eval_exitval v, state.heap)
     | Error err -> Runtime_error.(throw (Failure (Val.str err)))

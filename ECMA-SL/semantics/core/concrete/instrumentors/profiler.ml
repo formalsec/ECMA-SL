@@ -48,59 +48,70 @@ module ProgCounter = struct
 end
 
 module type M = sig
-  type t
+  type t'
+  type t = t' ref
 
   val initial_state : unit -> t
-  val start : t -> t
-  val stop : t -> t
-  val count : t -> ProgCounter.item -> t
+  val start : t -> unit
+  val stop : t -> unit
+  val count : t -> ProgCounter.item -> unit
 end
 
 module Disable : M = struct
-  type t = unit
+  type t' = unit
+  type t = t' ref
 
-  let initial_state () : t = ()
-  let start (metrics : t) : t = metrics
-  let stop (metrics : t) : t = metrics
-  let count (metrics : t) (_ : ProgCounter.item) : t = metrics
+  let initial_state () : t = ref ()
+  let start (_ : t) : unit = ()
+  let stop (_ : t) : unit = ()
+  let count (_ : t) (_ : ProgCounter.item) : unit = ()
 end
 
 module Time : M = struct
-  type t = { exec_time : ExecutionTime.t }
+  type t' = { exec_time : ExecutionTime.t }
+  type t = t' ref
 
-  let initial_state () : t = { exec_time = ExecutionTime.create () }
+  let initial_state' () : t' = { exec_time = ExecutionTime.create () }
+  let initial_state () : t = ref (initial_state' ())
 
-  let start (metrics : t) : t =
-    { exec_time = ExecutionTime.start metrics.exec_time }
+  let start (metrics : t) : unit =
+    let exec_time = ExecutionTime.start !metrics.exec_time in
+    metrics := { exec_time }
 
-  let stop (metrics : t) : t =
-    { exec_time = ExecutionTime.stop metrics.exec_time }
+  let stop (metrics : t) : unit =
+    let exec_time = ExecutionTime.stop !metrics.exec_time in
+    metrics := { exec_time }
 
-  let count (metrics : t) (_ : ProgCounter.item) : t = metrics
+  let count (_ : t) (_ : ProgCounter.item) : unit = ()
 end
 
 module Full : M = struct
-  type t =
+  type t' =
     { exec_time : ExecutionTime.t
     ; mem_usage : MemoryUsage.t
     ; counter : ProgCounter.t
     }
 
-  let initial_state () : t =
+  type t = t' ref
+
+  let initial_state' () : t' =
     { exec_time = ExecutionTime.create ()
     ; mem_usage = MemoryUsage.create ()
     ; counter = ProgCounter.create ()
     }
 
-  let start (metrics : t) : t =
-    { metrics with exec_time = ExecutionTime.start metrics.exec_time }
+  let initial_state () : t = ref (initial_state' ())
 
-  let stop (metrics : t) : t =
-    { metrics with
-      exec_time = ExecutionTime.stop metrics.exec_time
-    ; mem_usage = MemoryUsage.calculate metrics.mem_usage
-    }
+  let start (metrics : t) : unit =
+    let exec_time = ExecutionTime.start !metrics.exec_time in
+    metrics := { !metrics with exec_time }
 
-  let count (metrics : t) (item : ProgCounter.item) : t =
-    { metrics with counter = ProgCounter.count metrics.counter item }
+  let stop (metrics : t) : unit =
+    let exec_time = ExecutionTime.stop !metrics.exec_time in
+    let mem_usage = MemoryUsage.calculate !metrics.mem_usage in
+    metrics := { !metrics with exec_time; mem_usage }
+
+  let count (metrics : t) (item : ProgCounter.item) : unit =
+    let counter = ProgCounter.count !metrics.counter item in
+    metrics := { !metrics with counter }
 end

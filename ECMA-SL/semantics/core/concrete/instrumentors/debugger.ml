@@ -3,6 +3,9 @@ module DebuggerTUI = Debugger_tui
 module InterpreterCallbacks = Debugger_cmd.InterpreterCallbacks
 
 module BreakpointInjector = struct
+  let inject_debug_none (stack : stack) (cont : cont) : stack * cont =
+    (stack, cont)
+
   let rec inject_debug_innerscope (stack : stack) (cont : cont) : stack * cont =
     match cont with
     | { it; at } :: cont' when not at.real ->
@@ -27,42 +30,45 @@ module BreakpointInjector = struct
 end
 
 module type M = sig
-  type t
+  type t'
+  type t = t' ref
 
   val initial_state : unit -> t
   val cleanup : t -> unit
   val set_interp_callbacks : InterpreterCallbacks.t -> unit
-  val run : t -> state -> cont -> Stmt.t -> t * state * cont
-  val call : t -> stack -> cont -> t * stack * cont
+  val run : t -> state -> cont -> Stmt.t -> state * cont
+  val call : t -> stack -> cont -> stack * cont
 end
 
 module Disable : M = struct
-  type t = unit
+  type t' = unit
+  type t = t' ref
 
-  let initial_state () : t = ()
+  let initial_state () : t = ref ()
   let cleanup (_ : t) : unit = ()
   let set_interp_callbacks (_ : InterpreterCallbacks.t) : unit = ()
 
-  let run (db : t) (st : state) (cont : cont) (_ : Stmt.t) : t * state * cont =
-    (db, st, cont)
+  let run (_ : t) (st : state) (cont : cont) (_ : Stmt.t) : state * cont =
+    (st, cont)
 
-  let call (db : t) (stack : stack) (cont : cont) : t * stack * cont =
-    (db, stack, cont)
+  let call (_ : t) (stack : stack) (cont : cont) : stack * cont = (stack, cont)
 end
 
 module Enable : M = struct
-  type t' =
+  type dbdata =
     { streams : Log.Redirect.t
     ; tui : DebuggerTUI.t
     }
 
-  type t =
+  type t' =
     | Initial
-    | StmtBreak of t'
-    | CallBreak of t'
+    | StmtBreak of dbdata
+    | CallBreak of dbdata
     | Final
 
-  let initialize_debug_tui () : t' =
+  type t = t' ref
+
+  let initialize_debug_tui () : dbdata =
     let streams = Log.Redirect.capture Shared in
     try
       let tui = DebuggerTUI.initialize () in
@@ -72,40 +78,24 @@ module Enable : M = struct
       Log.Redirect.restore ~log:true streams;
       raise exn
 
-  let terminate_debug_tui (db : t') : unit =
+  let terminate_debug_tui (data : dbdata) : unit =
     DebuggerTUI.terminate ();
-    Log.Redirect.restore ~log:true db.streams
+    Log.Redirect.restore ~log:true data.streams
 
-  let rec run_debug_tui_loop (tui : DebuggerTUI.t) : DebuggerTUI.t =
-    let tui' = DebuggerTUI.update tui in
-    if tui'.running then run_debug_tui_loop tui' else tui'
-
-  let run_debug_tui (st : state) (s : Stmt.t) (db : t') : t' =
-    let tui = DebuggerTUI.set_data db.tui st s in
-    DebuggerTUI.render tui;
-    { db with tui = run_debug_tui_loop tui }
-
-  let initial_state () : t = Initial
-
-  let next_state (st : state) (cont : cont) (s : Stmt.t) (db : t') :
-    t * state * cont =
-    let open BreakpointInjector in
-    let ( <@ ) inject_f (db, st, cont) =
-      let (store, heap, stack) = st in
-      let (stack', cont') = inject_f stack cont in
-      (db, (store, heap, stack'), cont')
+  let run_debug_tui (st : state) (s : Stmt.t) (dbdata : dbdata) : dbdata =
+    let rec run_debug_tui_loop tui =
+      let tui' = DebuggerTUI.update tui in
+      if tui'.running then run_debug_tui_loop tui' else tui'
     in
-    match (DebuggerTUI.get_last_cmd db.tui, s) with
-    | (Step, _) -> inject_debug_innerscope <@ (StmtBreak db, st, cont)
-    | (StepIn, { it = AssignCall _; _ }) -> (CallBreak db, st, cont)
-    | (StepIn, _) -> inject_debug_innerscope <@ (StmtBreak db, st, cont)
-    | (StepOut, _) -> inject_debug_outerscope <@ (StmtBreak db, st, cont)
-    | (Continue, _) -> (StmtBreak db, st, cont)
-    | (Exit, _) -> terminate_debug_tui db |> fun () -> (Final, st, cont)
-    | _ -> Internal_error.(throw __FUNCTION__ (Expecting "debugger flow action"))
+    let tui = DebuggerTUI.set_data dbdata.tui st s in
+    DebuggerTUI.render tui;
+    let tui' = run_debug_tui_loop tui in
+    { dbdata with tui = tui' }
+
+  let initial_state () : t = ref Initial
 
   let cleanup (db : t) : unit =
-    match db with
+    match !db with
     | Initial -> ()
     | StmtBreak db' -> terminate_debug_tui db'
     | CallBreak db' -> terminate_debug_tui db'
@@ -115,20 +105,42 @@ module Enable : M = struct
     InterpreterCallbacks.heapval_pp := interp_callbacks.heapval_pp;
     InterpreterCallbacks.eval_expr := interp_callbacks.eval_expr
 
-  let run (db : t) (st : state) (cont : cont) (s : Stmt.t) : t * state * cont =
+  let next_state (db : t) (st : state) (cont : cont) (s : Stmt.t)
+    (dbdata : dbdata) : state * cont =
+    let ( <@ ) inject_f (db', st, cont) =
+      let (store, heap, stack) = st in
+      let (stack', cont') = inject_f stack cont in
+      db := db';
+      ((store, heap, stack'), cont')
+    in
+    let none = BreakpointInjector.inject_debug_none in
+    let inerscope = BreakpointInjector.inject_debug_innerscope in
+    let outerscope = BreakpointInjector.inject_debug_outerscope in
+    let terminate = terminate_debug_tui dbdata |> fun () -> none in
+    match (DebuggerTUI.get_last_cmd dbdata.tui, s) with
+    | (Step, _) -> inerscope <@ (StmtBreak dbdata, st, cont)
+    | (StepIn, { it = AssignCall _; _ }) -> none <@ (CallBreak dbdata, st, cont)
+    | (StepIn, _) -> inerscope <@ (StmtBreak dbdata, st, cont)
+    | (StepOut, _) -> outerscope <@ (StmtBreak dbdata, st, cont)
+    | (Continue, _) -> none <@ (StmtBreak dbdata, st, cont)
+    | (Exit, _) -> terminate <@ (Final, st, cont)
+    | _ -> Internal_error.(throw __FUNCTION__ (Expecting "debugger flow action"))
+
+  let run (db : t) (st : state) (cont : cont) (s : Stmt.t) : state * cont =
     let run_debug_tui' = run_debug_tui st s in
-    let next_state' = next_state st cont s in
-    match db with
+    let next_state' = next_state db st cont s in
+    match !db with
     | Initial -> initialize_debug_tui () |> run_debug_tui' |> next_state'
     | StmtBreak tui -> run_debug_tui' tui |> next_state'
     | CallBreak tui -> run_debug_tui' tui |> next_state'
-    | Final -> (Final, st, cont)
+    | Final -> (st, cont)
 
-  let call (db : t) (stack : stack) (cont : cont) : t * stack * cont =
+  let call (db : t) (stack : stack) (cont : cont) : stack * cont =
     let open BreakpointInjector in
-    match db with
-    | CallBreak db' ->
+    match !db with
+    | CallBreak dbdata ->
       let (stack', cont') = inject_debug_innerscope stack cont in
-      (StmtBreak db', stack', cont')
-    | _ -> (db, stack, cont)
+      db := StmtBreak dbdata;
+      (stack', cont')
+    | _ -> (stack, cont)
 end
