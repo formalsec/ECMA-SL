@@ -97,6 +97,26 @@ module InterpTracer = struct
     List.map (fun tracer -> (str tracer, tracer)) tracers
 end
 
+module InterpProfiler = struct
+  type t =
+    | None
+    | Time
+    | Full
+
+  let all () : t list = [ None; Time; Full ]
+
+  let pp (fmt : Fmt.t) (profiler : t) : unit =
+    match profiler with
+    | None -> Fmt.pp_str fmt "none"
+    | Time -> Fmt.pp_str fmt "time"
+    | Full -> Fmt.pp_str fmt "full"
+
+  let str (profiler : t) : string = Fmt.asprintf "%a" pp profiler
+
+  let args (profilers : t list) : (string * t) list =
+    List.map (fun profiler -> (str profiler, profiler)) profilers
+end
+
 module JSInterp = struct
   type t =
     | Main

@@ -123,7 +123,6 @@ module InterpretOpts = struct
     Arg.(value & opt langs Auto & info [ "lang" ] ~docv ~doc)
 
   let tracer =
-    let docv = "TRACER" in
     let doc =
       "Show the interpretation steps, including the evaluation of statements \
        and expressions. Options include: (1) 'none' [default] for no trace \
@@ -133,7 +132,7 @@ module InterpretOpts = struct
        tracing Core ECMA-SL intermediate steps."
     in
     let tracers = Arg.enum Enums.InterpTracer.(args @@ all ()) in
-    Arg.(value & opt tracers None & info [ "trace" ] ~docv ~doc)
+    Arg.(value & opt tracers None & info [ "trace" ] ~doc)
 
   let tracer_loc =
     let doc =
@@ -153,12 +152,23 @@ module InterpretOpts = struct
 
   let debugger =
     let doc =
-      "Enable the ECMA-SL debugger. The debug prompt will on encountering the \
-       first  breakpoint. Breakpoints can be inserted in ECMA-SL (.esl) or \
-       Core ECMA-SL (.cesl) code by preceding any statement with the '#' \
-       character."
+      "Enable the ECMA-SL debugger. The debug prompt will start after \
+       encountering the first breakpoint. Breakpoints can be inserted in \
+       ECMA-SL (.esl) or Core ECMA-SL (.cesl) code by preceding any statement \
+       with the '#' character."
     in
     Arg.(value & flag & info [ "db"; "debugger" ] ~doc)
+
+  let profiler =
+    let doc =
+      "Show profiling information, including execution times, memory usage, \
+       and the number of expressions/statements evaluated. Options include (1) \
+       'none' [default] for no profilling information; (2) 'time' for \
+       execution time information only; and (3) 'full' for complete profilling \
+       information."
+    in
+    let profilers = Arg.enum Enums.InterpProfiler.(args @@ all ()) in
+    Arg.(value & opt profilers None & info [ "profiler" ] ~doc)
 
   let main =
     let docv = "FUNC" in
