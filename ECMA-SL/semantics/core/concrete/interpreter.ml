@@ -45,7 +45,7 @@ module M (Instrument : Instrument.M) = struct
   let set_global_var (store : store) (heap : heap) : unit =
     let open Compiler.Const in
     if Option.is_some (Heap.get_opt heap esl_globals_loc) then
-      Store.set store esl_globals_obj (Int esl_globals_loc)
+      Store.set store esl_globals_obj (App (`Op "loc", [Int esl_globals_loc]))
 
   let initial_state (fmain : Func.t) (s_heap : heap option)
     (inst : Instrument.t ref) : state =

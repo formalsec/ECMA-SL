@@ -56,7 +56,9 @@ let unop_semantics (op : Operator.unopt) : Value.t -> Value.t =
   | StringLen -> Eval.(unop Ty_str Ty.Length)
   | ObjectToList -> failwith "unop_semantics.objectToList"
   | ObjectFields -> failwith "unop_semantics.objectFields"
-  | StringConcat -> (* TODO:x Eval.(naryop Ty_str Ty.Concat) *) failwith "unop_semantics.objectFields"
+  | StringConcat -> (function
+                  | Value.List lst -> Eval.(naryop Ty_str Ty.Concat) lst
+                  | _ as v -> bad_arg_err 1 "StringConcat" "string list" [ v ])
   | ListHead -> Eval.(unop Ty_list Ty.Head)
   | ListTail -> Eval.(unop Ty_list Ty.Tail)
   | ListLen -> Eval.(unop Ty_list Ty.Length)
@@ -137,7 +139,10 @@ let binop_semantics (op : Operator.binopt) =
   | ListNth -> Eval.(binop Ty_list Ty.At) 
   | ListAdd -> Eval.(binop Ty_list Ty.List_append_last)
   | ListPrepend -> Eval.(binop Ty_list Ty.List_append)
-  | ListConcat -> (* TOOD:x Eval.(naryop Ty_list Ty.Concat) *) failwith "binop_semantics.listConcat"
+  | ListConcat -> 
+    (fun v1 v2 -> match v1, v2 with
+                  | Value.List l1, Value.List l2 -> Eval.(naryop Ty_list Ty.Concat) (l1@l2)
+                  | _ -> failwith "binop_semantics.listConcat")
   with
 | Smtml.Eval.TypeError {index; value; ty; _} -> Format.printf "index: %a, value: %a, ty: %a" Fmt.int index Value.pp value Ty.pp ty;
   failwith "binop_semantics"
