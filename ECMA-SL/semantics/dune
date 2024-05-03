@@ -32,6 +32,7 @@
   ; concrete interpreter (instrumentation)
   tracer
   debugger
+  profiler
   monitor
   ; concrete interpreter (instrumentation - debugger)
   debugger_tui
