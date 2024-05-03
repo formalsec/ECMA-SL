@@ -9,8 +9,7 @@ module type M = sig
   type t =
     { db : Debugger.t
     ; pf : Profiler.t
-    ; mon_state : Monitor.state
-    ; mon_label : Monitor.sl_label
+    ; mon : Monitor.t
     }
 
   val initial_state : unit -> t
@@ -30,15 +29,13 @@ module Default
   type t =
     { db : Debugger.t
     ; pf : Profiler.t
-    ; mon_state : Monitor.state
-    ; mon_label : Monitor.sl_label
+    ; mon : Monitor.t
     }
 
   let initial_state () : t =
     { db = Debugger.initial_state ()
     ; pf = Profiler.initial_state ()
-    ; mon_state = Monitor.initial_state ()
-    ; mon_label = Monitor.initial_label ()
+    ; mon = Monitor.initial_state ()
     }
 
   let cleanup (inst : t) : unit = Debugger.cleanup inst.db
