@@ -13,12 +13,14 @@ module Options = struct
   type instrument =
     { tracer : tracer
     ; debugger : bool
+    ; profiler : Enums.InterpProfiler.t
     }
 
   let set_instrument (tracer_mode : Enums.InterpTracer.t) (tracer_loc : bool)
-    (tracer_depth : int) (debugger : bool) : instrument =
+    (tracer_depth : int) (debugger : bool) (profiler : Enums.InterpProfiler.t) :
+    instrument =
     let (mode, loc, depth) = (tracer_mode, tracer_loc, tracer_depth) in
-    { tracer = { mode; loc; depth }; debugger }
+    { tracer = { mode; loc; depth }; debugger; profiler }
 
   type config =
     { print_depth : int option
@@ -32,7 +34,7 @@ module Options = struct
     { print_depth = None
     ; resolve_exitval = true
     ; show_exitval = false
-    ; instrument = { tracer; debugger = false }
+    ; instrument = { tracer; debugger = false; profiler = None }
     }
 
   let set_config (print_depth : int option) (show_exitval : bool)
@@ -69,13 +71,18 @@ module InterpreterInstrument = struct
     | true -> (module Debugger.Enable : Debugger.M)
     | false -> (module Debugger.Disable : Debugger.M)
 
-  let profiler () : (module Profiler.M) = (module Profiler.Disable : Profiler.M)
+  let profiler (profiler : Enums.InterpProfiler.t) : (module Profiler.M) =
+    match profiler with
+    | None -> (module Profiler.Disable : Profiler.M)
+    | Time -> (module Profiler.Time : Profiler.M)
+    | Full -> (module Profiler.Full : Profiler.M)
+
   let monitor () : (module Monitor.M) = (module Monitor.Default : Monitor.M)
 
   let intrument (instrument : Options.instrument) : (module Instrument.M) =
     let module Tracer = (val tracer instrument.tracer) in
     let module Debugger = (val debugger instrument.debugger) in
-    let module Profiler = (val profiler ()) in
+    let module Profiler = (val profiler instrument.profiler) in
     let module Monitor = (val monitor ()) in
     (module Instrument.Default (Tracer) (Debugger) (Profiler) (Monitor))
 end
