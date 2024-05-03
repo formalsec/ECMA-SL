@@ -145,7 +145,7 @@ function createReturnStmt(expression, compileToCore) {
     // This returning pair complies with the return statement that is expected by the Core Interpreter.
     // The first element of the pair indicates that the returning expression (second element of the pair)
     // is not part of a thrown exception.
-    const return_pair = new NOpt(new NOpt.TupleExpr(), [
+    const return_pair = new NOpt(new NOpt.ListExpr(), [
       new ValExpr(new Val(new PrimitiveVal(false))),
       expression,
     ]);
