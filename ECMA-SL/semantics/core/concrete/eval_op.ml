@@ -56,7 +56,18 @@ let op_error index value ty op =
   | `Triop Ite -> bad_arg_err index (label_of_triopt ITE) "(boolean, any, any)" [ value ]
   | `Triop String_extract -> bad_arg_err index (label_of_triopt StringSubstr) "(string, integer, integer)" [ value ]
   | `Triop List_set -> bad_arg_err index (label_of_triopt ListSet) "(list, integer, any)" [ value ]
-  | _ -> unexpected_err index "op_error" "unexpected operator"
+  (* other errors *)
+  | `Unop op' -> unexpected_err index (Format.asprintf "%a" pp_unop op') (Format.asprintf "unop with type %a" pp ty)
+  | `Binop op' -> unexpected_err index (Format.asprintf "%a" pp_binop op') (Format.asprintf "binop with type %a" pp ty)
+  | `Relop op' -> unexpected_err index (Format.asprintf "%a" pp_relop op') (Format.asprintf "relop with type %a" pp ty)
+  | `Triop op' -> unexpected_err index (Format.asprintf "%a" pp_triop op') (Format.asprintf "triop with type %a" pp ty)
+  | `Cvtop op' -> unexpected_err index (Format.asprintf "%a" pp_cvtop op') (Format.asprintf "cvtop with type %a" pp ty)
+  | `Naryop op' -> unexpected_err index (Format.asprintf "%a" pp_naryop op') (Format.asprintf "naryop with type %a %d" pp ty index)
+let float_to_string (v : Value.t) : Value.t =
+  let op_lbl = label_of_unopt FloatToString in
+  match v with
+  | Real i -> Str (Arith_utils.float_to_string_inner i)
+  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
 
 let unop_semantics (op : Operator.unopt) : Value.t -> Value.t = 
   match op with
@@ -69,16 +80,20 @@ let unop_semantics (op : Operator.unopt) : Value.t -> Value.t =
   | IntToFloat -> Eval.(cvtop Ty_int Ty.Reinterpret_int)
   | IntToString -> Eval.(cvtop Ty_str Ty.String_from_int)
   | FloatToInt -> Eval.(cvtop Ty_real Ty.Reinterpret_float)
-  | FloatToString -> Eval.(cvtop Ty_real Ty.ToString)
+  | FloatToString -> float_to_string
   | StringToInt -> Eval.(cvtop Ty_str Ty.String_to_int)
-  | StringToFloat -> Eval.(cvtop Ty_str Ty.String_to_float)
+  (* TODO:x needs to catch the error when string is not a number -> needs to return nan *)
+  | StringToFloat -> (function 
+                    | Value.Str _ as v -> (try Eval.(cvtop Ty_str Ty.String_to_float) v with
+                    | _ -> Real nan)
+                    | _ as v -> bad_arg_err 1 (label_of_unopt StringToFloat) "string" [ v ])
   | FromCharCode -> Eval.(cvtop Ty_str Ty.String_from_code)
   | ToCharCode -> Eval.(cvtop Ty_str Ty.String_to_code)
   | StringLen -> Eval.(unop Ty_str Ty.Length)
   | ObjectToList -> failwith "unop_semantics.objectToList"
   | ObjectFields -> failwith "unop_semantics.objectFields"
   | StringConcat -> (function
-                  | Value.List lst -> Eval.(naryop Ty_str Ty.Concat) lst
+                  | Value.List lst -> Eval.(naryop Ty_str Ty.Concat) lst 
                   | _ as v -> bad_arg_err 1 (label_of_unopt StringConcat) "string list" [ v ])
   | ListHead -> Eval.(unop Ty_list Ty.Head)
   | ListTail -> Eval.(unop Ty_list Ty.Tail)
@@ -169,7 +184,7 @@ let binop_semantics (op : Operator.binopt) =
                   | _ -> bad_arg_err 1 (label_of_binopt ListPrepend) "(any, list)" [ v1; v2 ])
   | ListConcat -> 
     (fun v1 v2 -> match v1, v2 with
-                  | Value.List l1, Value.List l2 -> Eval.(naryop Ty_list Ty.Concat) (l1@l2)
+                  | Value.List _, Value.List _ -> Eval.(naryop Ty_list Ty.Concat) [ v1; v2 ]
                   | (List _, _) -> bad_arg_err 2 (label_of_binopt ListConcat) "(list, list)" [ v1; v2 ]
                   | _ -> bad_arg_err 1 (label_of_binopt ListConcat) "(list, list)" [ v1; v2 ])
 

@@ -13,7 +13,7 @@ and pv' =
 let pv_pp (ppf : Fmt.t) (pv : pv) : unit =
   match pv.it with
   | PatVar x -> Fmt.pp_str ppf x
-  | PatVal v -> Value.pp ppf v
+  | PatVal v -> EExpr.pp_val ppf v
   | PatNone -> Fmt.pp_str ppf "None"
 
 let pv_str (pv : pv) : string = Fmt.str "%a" pv_pp pv

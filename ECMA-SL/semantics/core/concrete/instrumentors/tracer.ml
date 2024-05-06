@@ -51,7 +51,7 @@ let rec heapval_pp ?(depth : int = 0) (heap : heap) (ppf : Fmt.t) (v : Value.t) 
     match Heap.get heap l with
     | Ok obj -> Object.pp (heapval_pp ~depth:(depth + 1) heap) ppf obj
     | _ -> pp_str ppf "{ ??? }" )
-  | _ -> Value.pp ppf v
+  | _ -> EExpr.pp_val ppf v
 
 let val_pp (limit : int) (ppf : Fmt.t) (v_str : string) : unit =
   (Font.pp_err [ Cyan ] (Truncate.pp limit pp_str)) ppf v_str
