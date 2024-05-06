@@ -14,6 +14,7 @@ let default () : 'a t =
 let create () : 'a t =
   { parent = None; map = Loc.Tbl.create !Base.default_hashtbl_sz }
 
+let length (heap : 'a t) : int = Loc.Tbl.length heap.map
 let extend (heap : 'a t) : 'a t = { (create ()) with parent = Some heap }
 let shrunk (heap : 'a t) : 'a t = Option.value ~default:heap heap.parent
 

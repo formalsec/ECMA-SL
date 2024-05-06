@@ -87,36 +87,37 @@ module InterpreterInstrument = struct
     (module Instrument.Default (Tracer) (Debugger) (Profiler) (Monitor))
 end
 
-let interpret_partial (entry : Interpreter.EntryPoint.t)
-  (config : Options.config) (prog : Prog.t) : Val.t * Val.t Heap.t =
+let interpret_partial (entry : Interpreter.entry) (config : Options.config)
+  (prog : Prog.t) : Interpreter.result =
   let instrument = config.instrument in
   let module Instrument = (val InterpreterInstrument.intrument instrument) in
   let module Interpreter = Interpreter.M (Instrument) in
   Interpreter.Config.print_depth := config.print_depth;
   Interpreter.Config.resolve_exitval := config.resolve_exitval;
   Interpreter.Config.show_exitval := config.show_exitval;
-  Interpreter.eval_partial entry prog
+  Interpreter.eval_prog entry prog
 
-let interpret (entry : Interpreter.EntryPoint.t) (config : Options.config)
+let interpret (entry : Interpreter.entry) (config : Options.config)
   (prog : Prog.t) : Val.t Result.t =
   Result.esl_exec @@ fun () ->
-  let (retval, _) = interpret_partial entry config prog in
+  let result = interpret_partial entry config prog in
+  let retval = result.retval in
   Log.debug "Sucessfuly evaluated program with return '%a'." Val.pp retval;
   Ok retval
 
-let interpret_cesl (entry : Interpreter.EntryPoint.t) (config : Options.config)
+let interpret_cesl (entry : Interpreter.entry) (config : Options.config)
   (file : Fpath.t) : Val.t Result.t =
   let* p = Cmd_compile.load file in
   interpret entry config p
 
-let interpret_esl (entry : Interpreter.EntryPoint.t) (config : Options.config)
+let interpret_esl (entry : Interpreter.entry) (config : Options.config)
   (untyped : bool) (file : Fpath.t) : Val.t Result.t =
   let* p = Cmd_compile.compile untyped file in
   interpret entry config p
 
 let run () (opts : Options.t) : unit Result.t =
   let valid_langs = Enums.Lang.valid_langs Options.langs opts.lang in
-  let entry = { Interpreter.EntryPoint.default with main = opts.main } in
+  let entry = { (Interpreter.entry_default ()) with main = opts.main } in
   Syntax.Result.map ignore
   @@
   match Enums.Lang.resolve_file_lang valid_langs opts.input with
