@@ -9,7 +9,7 @@ module ExecutionTime = struct
   let start (ts : t) : t = { ts with start = Sys.time () } [@@inline]
   let diff (ts : t) : t = { ts with diff = ts.stop -. ts.start } [@@inline]
   let stop (ts : t) : t = diff @@ { ts with stop = Sys.time () } [@@inline]
-  let json (ts : t) : Yojson.t = `Assoc [ ("exec_time", `Float ts.diff) ]
+  let json (ts : t) : Yojson.Basic.t = `Assoc [ ("exec_time", `Float ts.diff) ]
 end
 
 module MemoryUsage = struct
@@ -25,9 +25,8 @@ module MemoryUsage = struct
     let heap_sz = Obj.(reachable_words (repr heap.map)) in
     { heap_n; heap_sz }
 
-  let json (mem : t) : Yojson.t =
-    `Assoc
-      [ ("objs_allocated", `Int mem.heap_n); ("heap_size", `Int mem.heap_sz) ]
+  let json (mem : t) : Yojson.Basic.t =
+    `Assoc [ ("heap_objs", `Int mem.heap_n); ("heap_size", `Int mem.heap_sz) ]
 end
 
 module ProgCounter = struct
@@ -51,7 +50,7 @@ module ProgCounter = struct
     | `Stmt -> { ctr with stmts = ctr.stmts + 1 }
     | `Expr -> { ctr with exprs = ctr.exprs + 1 }
 
-  let json (ctr : t) : Yojson.t =
+  let json (ctr : t) : Yojson.Basic.t =
     `Assoc
       [ ("func_calls", `Int ctr.calls)
       ; ("stmt_evals", `Int ctr.stmts)
@@ -67,7 +66,7 @@ module type M = sig
   val start : t -> unit
   val stop : t -> 'a Heap.t -> unit
   val count : t -> ProgCounter.item -> unit
-  val json : t -> Yojson.t
+  val json : t -> Yojson.Basic.t
 end
 
 module Disable : M = struct
@@ -78,7 +77,7 @@ module Disable : M = struct
   let start (_ : t) : unit = ()
   let stop (_ : t) (_ : 'a Heap.t) : unit = ()
   let count (_ : t) (_ : ProgCounter.item) : unit = ()
-  let json (_ : t) : Yojson.t = `Assoc []
+  let json (_ : t) : Yojson.Basic.t = `Assoc []
 end
 
 module Time : M = struct
@@ -98,7 +97,7 @@ module Time : M = struct
 
   let count (_ : t) (_ : ProgCounter.item) : unit = ()
 
-  let json (metrics : t) : Yojson.t =
+  let json (metrics : t) : Yojson.Basic.t =
     `Assoc [ ("timer", ExecutionTime.json !metrics.timer) ]
 end
 
@@ -132,7 +131,7 @@ module Full : M = struct
     let counter = ProgCounter.count !metrics.counter item in
     metrics := { !metrics with counter }
 
-  let json (metrics : t) : Yojson.t =
+  let json (metrics : t) : Yojson.Basic.t =
     `Assoc
       [ ("timer", ExecutionTime.json !metrics.timer)
       ; ("memory", MemoryUsage.json !metrics.memory)

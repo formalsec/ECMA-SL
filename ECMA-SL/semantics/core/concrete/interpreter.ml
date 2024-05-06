@@ -12,7 +12,7 @@ let entry_default () : entry = { main = "main"; static_heap = None }
 type result =
   { retval : Val.t
   ; heap : Val.t Heap.t
-  ; metrics : Yojson.t
+  ; metrics : Yojson.Basic.t
   }
 
 module M (Instrument : Instrument.M) = struct

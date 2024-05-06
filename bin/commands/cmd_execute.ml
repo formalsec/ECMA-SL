@@ -40,6 +40,7 @@ let setup_harness (config : Options.interp_config) (interp : Prog.t)
   let* () = Cmd_encode.encode None harness (Some ast) in
   let* result = execute_partial entry config interp ast in
   Log.debug "Sucessfuly linked JS harness '%a' to interpreter." Fpath.pp harness;
+  Cmd_interpret.InterpreterMetrics.log config.instrument.profiler result.metrics;
   Ok result.heap
 
 let setup_execution (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option)
@@ -59,6 +60,7 @@ let execute_cesl ((interp, static_heap) : Prog.t * Val.t Heap.t option)
   let* result = execute_partial entry config interp input in
   let retval = result.retval in
   Log.debug "Sucessfuly evaluated program with return '%a'." Val.pp retval;
+  Cmd_interpret.InterpreterMetrics.log config.instrument.profiler result.metrics;
   Ok retval
 
 let execute_js (setup : Prog.t * Val.t Heap.t option)
