@@ -50,6 +50,7 @@ let payload_to_json (witness, effect) =
     ]
 
 let write_report ~workspace filename effectful_payloads =
+  let mode = 0o666 in
   let json :> Yojson.t =
     `Assoc
       [ ("filename", `String (Fpath.to_string filename))
@@ -58,7 +59,7 @@ let write_report ~workspace filename effectful_payloads =
       ]
   in
   let report_path = Fpath.(workspace / "confirmation.json") in
-  OS.File.writef report_path "%a" (Yojson.pretty_print ~std:true) json
+  OS.File.writef ~mode report_path "%a" (Yojson.pretty_print ~std:true) json
 
 let replay filename workspace =
   Log.app "  replaying : %a..." Fpath.pp filename;

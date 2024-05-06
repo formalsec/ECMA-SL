@@ -17,7 +17,7 @@ let get_tests ~workspace (config : Fpath.t) (filename : Fpath.t option) =
   let file = Option.map Fpath.to_string filename in
   let config = Fpath.to_string config in
   let output = Fpath.(to_string @@ (workspace / "symbolic_test")) in
-  Run.run ?file ~config ~output ()
+  Run.run ~mode:0o666 ?file ~config ~output ()
 
 let run_with_timeout limit f =
   let set_timer limit =
@@ -49,7 +49,7 @@ let run_single ~time_limit ~(workspace : Fpath.t) (filename : Fpath.t) : int =
     4
 
 let run_all ({ config; filename; workspace; time_limit } : options) =
-  let* _ = Bos.OS.Dir.create workspace in
+  let* _ = Bos.OS.Dir.create ~mode:0o777 workspace in
   let* symbolic_tests = get_tests ~workspace config filename in
   let rec loop = function
     | [] -> Ok 0

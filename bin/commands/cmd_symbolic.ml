@@ -87,6 +87,7 @@ let err_to_json = function
 
 let serialize_thread =
   let module Term = Smtml.Expr in
+  let mode = 0o666 in
   let (next_int, _) = Base.make_counter 0 1 in
   fun ?(witness :
          [ `Abort of string
@@ -108,11 +109,14 @@ let serialize_thread =
           (match witness with None -> "testcase-%d" | Some _ -> "witness-%d")
           (next_int ())
       in
-      let* () = OS.File.writef Fpath.(f + ".js") "%a" (Fmt.pp_opt pp_model) m in
-      OS.File.writef Fpath.(f + ".smtml") "%a" Term.pp_smt pc
+      let* () =
+        OS.File.writef ~mode Fpath.(f + ".js") "%a" (Fmt.pp_opt pp_model) m
+      in
+      OS.File.writef ~mode Fpath.(f + ".smtml") "%a" Term.pp_smt pc
 
 let write_report ~workspace filename exec_time solver_time solver_count problems
     =
+  let mode = 0o666 in
   let json : Yojson.t =
     `Assoc
       [ ("filename", `String (Fpath.to_string filename))
@@ -124,7 +128,7 @@ let write_report ~workspace filename exec_time solver_time solver_count problems
       ]
   in
   let rpath = Fpath.(workspace / "symbolic-execution.json") in
-  OS.File.writef rpath "%a" (Yojson.pretty_print ~std:true) json
+  OS.File.writef ~mode rpath "%a" (Yojson.pretty_print ~std:true) json
 
 let run ~workspace filename entry_func =
   let open Syntax.Result in
@@ -136,7 +140,7 @@ let run ~workspace filename entry_func =
   let results = Choice.run result thread in
   let exec_time = Stdlib.Sys.time () -. start in
   let testsuite = Fpath.(workspace / "test-suite") in
-  let* _ = OS.Dir.create ~path:true testsuite in
+  let* _ = OS.Dir.create ~mode:0o777 ~path:true testsuite in
   let* problems =
     list_filter_map
       ~f:(fun (ret, thread) ->
@@ -145,7 +149,7 @@ let run ~workspace filename entry_func =
           | Ok _ -> Ok None
           | Error
               ( ( `Abort _ | `Assert_failure _ | `Eval_failure _
-                | `Exec_failure _ | `ReadFile_failure _) as err ) ->
+                | `Exec_failure _ | `ReadFile_failure _ ) as err ) ->
             Ok (Some err)
           | Error (`Failure msg) -> Error (`Msg msg)
         in
