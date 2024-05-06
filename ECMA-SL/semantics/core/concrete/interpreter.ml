@@ -72,9 +72,12 @@ module M (Instrument : Instrument.M) = struct
 
   let eval_operator (eval_op_fun : unit -> Value.t) (es : Expr.t list) : Value.t =
     try eval_op_fun ()
-    with Runtime_error.Error err ->
+    with 
+    | Runtime_error.Error err ->
       let e = Runtime_error.(src err |> ErrSrc.index_to_el es) in
       Runtime_error.(set_src (ErrSrc.at e) err |> raise)
+    | Smtml.Eval.TypeError {index; value; ty; op} -> Eval_op.op_error index value ty op
+
 
 
   let rec eval_expr' (state : state) (e : Expr.t) : Value.t =
