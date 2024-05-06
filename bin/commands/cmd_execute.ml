@@ -26,9 +26,8 @@ let build_ast (file : Fpath.t) : Func.t Result.t =
   Log.debug "Sucessfuly loaded AST builder '%a'." Fpath.pp file;
   Ok p
 
-let execute_partial (entry : Interpreter.EntryPoint.t)
-  (config : Options.interp_config) (interp : Prog.t) (ast : Fpath.t) :
-  (Val.t * Val.t Heap.t) Result.t =
+let execute_partial (entry : Interpreter.entry) (config : Options.interp_config)
+  (interp : Prog.t) (ast : Fpath.t) : Interpreter.result Result.t =
   let* build_ast = build_ast ast in
   Hashtbl.replace (Prog.funcs interp) (Func.name' build_ast) build_ast;
   Ok (Cmd_interpret.interpret_partial entry config interp)
@@ -37,11 +36,11 @@ let setup_harness (config : Options.interp_config) (interp : Prog.t)
   (harness : Fpath.t) : Val.t Heap.t Result.t =
   ignore Enums.Lang.(resolve_file_lang [ JS ] harness);
   let ast = Fpath.v (Filename.temp_file "ecmasl" "harness.cesl") in
-  let entry = Interpreter.EntryPoint.default in
+  let entry = Interpreter.entry_default () in
   let* () = Cmd_encode.encode None harness (Some ast) in
-  let* (_, static_heap) = execute_partial entry config interp ast in
+  let* result = execute_partial entry config interp ast in
   Log.debug "Sucessfuly linked JS harness '%a' to interpreter." Fpath.pp harness;
-  Ok static_heap
+  Ok result.heap
 
 let setup_execution (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option)
   (config : Options.interp_config) : (Prog.t * Val.t Heap.t option) Result.t =
@@ -56,8 +55,9 @@ let setup_execution (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option)
 let execute_cesl ((interp, static_heap) : Prog.t * Val.t Heap.t option)
   (config : Options.interp_config) (input : Fpath.t) : Val.t Result.t =
   let main = if Option.is_some static_heap then "mainPartial" else "main" in
-  let entry = Interpreter.EntryPoint.{ main; static_heap } in
-  let* (retval, _) = execute_partial entry config interp input in
+  let entry = Interpreter.{ main; static_heap } in
+  let* result = execute_partial entry config interp input in
+  let retval = result.retval in
   Log.debug "Sucessfuly evaluated program with return '%a'." Val.pp retval;
   Ok retval
 

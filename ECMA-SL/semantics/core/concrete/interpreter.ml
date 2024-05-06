@@ -2,14 +2,18 @@ open EslBase
 open EslSyntax
 open EslSyntax.Source
 
-module EntryPoint = struct
-  type t =
-    { main : string
-    ; static_heap : Val.t Heap.t option
-    }
+type entry =
+  { main : string
+  ; static_heap : Val.t Heap.t option
+  }
 
-  let default : t = { main = "main"; static_heap = None }
-end
+let entry_default () : entry = { main = "main"; static_heap = None }
+
+type result =
+  { retval : Val.t
+  ; heap : Val.t Heap.t
+  ; metrics : Yojson.t
+  }
 
 module M (Instrument : Instrument.M) = struct
   type obj = Val.t Object.t
@@ -237,7 +241,6 @@ module M (Instrument : Instrument.M) = struct
       let l = Loc.create () in
       Heap.set state.heap l (Object.create ());
       Store.set state.store x.it (Val.Loc l);
-      Instrument.Profiler.count inst.pf `Obj;
       Intermediate (state, cont) $$ AssignNewObjEval l
     | AssignObjToList (x, e) ->
       let fld_to_tup_f (fn, fv) = Val.Tuple [ Str fn; fv ] in
@@ -355,31 +358,28 @@ module M (Instrument : Instrument.M) = struct
   let show_exitval (retval : Val.t) : unit =
     if !Config.show_exitval then Log.esl ~nl:true "exit value: %a" Val.pp retval
 
-  let eval_exitval (retval : Val.t) : Val.t =
-    let retval' = resolve_exitval retval in
-    show_exitval retval';
-    retval'
+  let result (v : Val.t) (heap : heap) (inst : Instrument.t ref) : result =
+    let metrics = Instrument.Profiler.json !inst.pf in
+    let retval = resolve_exitval v in
+    show_exitval retval;
+    { retval; heap; metrics }
 
-  let eval_instrumented (entry : EntryPoint.t) (p : Prog.t)
-    (inst : Instrument.t ref) : Val.t * heap =
+  let eval_instrumented (entry : entry) (p : Prog.t) (inst : Instrument.t ref) :
+    result =
     let fmain = get_func p entry.main no_region in
     let state = initial_state fmain entry.static_heap inst in
     Instrument.Tracer.trace_restore (-1) fmain;
     Instrument.Profiler.start !(state.inst).pf;
     let return = small_step_iter p state [ Func.body fmain ] in
-    Instrument.Profiler.stop !(state.inst).pf;
+    Instrument.Profiler.stop !(state.inst).pf state.heap;
     match return with
-    | Final v -> (eval_exitval v, state.heap)
+    | Final v -> result v state.heap inst
     | Error err -> Runtime_error.(throw (Failure (Val.str err)))
     | _ -> Internal_error.(throw __FUNCTION__ (Unexpected "intermediate state"))
 
-  let eval_partial (entry : EntryPoint.t) (p : Prog.t) : Val.t * heap =
+  let eval_prog (entry : entry) (p : Prog.t) : result =
     let inst = ref (Instrument.initial_state ()) in
     let execute () = eval_instrumented entry p inst in
     let finally () = Instrument.cleanup !inst in
     Fun.protect ~finally execute
-
-  let eval_prog ?(entry : EntryPoint.t = EntryPoint.default) (p : Prog.t) :
-    Val.t =
-    fst (eval_partial entry p)
 end
