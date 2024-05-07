@@ -17,9 +17,9 @@
   cmd_encode
   cmd_execute
   cmd_test
-  ;x cmd_symbolic
+  cmd_symbolic
   cmd_replay
-  ;x cmd_explodejs
+  cmd_explodejs
   )
  (libraries ecma-sl cmdliner bos yojson dune-site)
  (instrumentation

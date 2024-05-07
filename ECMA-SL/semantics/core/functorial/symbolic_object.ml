@@ -1,19 +1,18 @@
 open EslBase
-open EslSyntax
+open Smtml
 module V = Symbolic_value.M
+module E = Symbolic_value.E
 
-let eq v1 v2 = V.BinOpt (Operator.Eq, v1, v2)
-let ne v1 v2 = V.UnOpt (Operator.LogicalNot, eq v1 v2)
-let ite c v1 v2 = V.TriOpt (Operator.ITE, c, v1, v2)
-let undef = V.Val (Val.Symbol "undefined")
-let is_val = function V.Val _ -> true | _ -> false
+let eq v1 v2 = E.(relop Ty_bool Ty.Eq v1 v2)
+let ne v1 v2 = E.(unop Ty.Ty_bool Ty.Not (eq v1 v2))
+let ite c v1 v2 = Expr.(Bool.ite c v1 v2)
+let undef = Expr.(make @@ Symbol Symbol.("undefined" @: Ty.Ty_str))
+let is_val e = match E.view e with Val _ -> true | _ -> false
 
 module Value_key = struct
   type t = V.value
 
   let hash (e : t) = Hashtbl.hash e
-  let t_of_sexp _ = assert false
-  let sexp_of_t _ = assert false
   let compare (e1 : t) (e2 : t) = compare (Hashtbl.hash e1) (Hashtbl.hash e2)
 end
 
@@ -43,8 +42,8 @@ module M : Object_intf.S with type value = V.value = struct
   let has_field o k =
     if VMap.is_empty o.fields && VMap.is_empty o.symbols then V.Bool.const false
     else
-      match k with
-      | V.Val _ as v -> V.Bool.const (VMap.mem v o.fields)
+      match E.view k with
+      | Val _ -> V.Bool.const (VMap.mem k o.fields)
       | _ ->
         let r0 =
           VMap.fold
@@ -62,8 +61,8 @@ module M : Object_intf.S with type value = V.value = struct
       m
 
   let set o ~key ~data =
-    match key with
-    | V.Val _ -> { o with fields = VMap.add key data o.fields }
+    match Expr.view key with
+    | Val _ -> { o with fields = VMap.add key data o.fields }
     | _ ->
       { fields = map_ite o.fields ~key ~data
       ; symbols = map_ite o.symbols ~key ~data |> VMap.add key data
@@ -77,8 +76,8 @@ module M : Object_intf.S with type value = V.value = struct
 
   (* FIXME: @174 *)
   let get { fields; symbols } key =
-    match key with
-    | V.Val _ -> (
+    match E.view key with
+    | Val _ -> (
       match VMap.find_opt key fields with
       | Some v -> [ (v, []) ]
       | None -> (
@@ -112,8 +111,8 @@ module M : Object_intf.S with type value = V.value = struct
           [ (v, []); (undef, neg_conds) ] ) )
 
   let delete o key =
-    match key with
-    | V.Val _ -> { o with fields = VMap.remove key o.fields }
+    match Expr.view key with
+    | Val _ -> { o with fields = VMap.remove key o.fields }
     | _ -> assert false
 
   let pp_map ppf v =

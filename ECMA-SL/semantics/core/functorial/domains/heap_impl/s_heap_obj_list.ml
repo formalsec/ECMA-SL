@@ -47,10 +47,8 @@ let apply_op_get (h : t) (loc : Expr.t) (cond : Expr.t) (left : Expr.t)
   (right : Expr.t) (solver : Batch.t)
   (op : Expr.t -> encoded_pct list -> Expr.t) (pc : encoded_pct list)
   (store : S_store.t) : 'a =
-  let encoded_guard = Translator.translate cond in
-  let pc_left = encoded_guard :: pc in
-  let encoded_guard = Translator.translate (mk_not cond) in
-  let pc_right = encoded_guard :: pc in
+  let pc_left = cond :: pc in
+  let pc_right = mk_not cond :: pc in
   let cs = Batch.check solver in
 
   match (cs pc_left, cs pc_right) with
@@ -71,18 +69,17 @@ let apply_op_set (h : t) (loc : Expr.t) (cond : Expr.t) (left : Expr.t)
     -> t
     -> (t * encoded_pct list) list ) (pc : encoded_pct list) (store : S_store.t)
   : (t * encoded_pct list) list =
-  let encoded_guard_l = Translator.translate cond in
-  let pc_l = encoded_guard_l :: pc in
-  let encoded_guard_r = Translator.translate (mk_not cond) in
-  let pc_r = encoded_guard_r :: pc in
+  let not_cond = mk_not cond in
+  let pc_l = cond :: pc in
+  let pc_r = not_cond :: pc in
   let cs = Batch.check solver in
 
   match (cs pc_l, cs pc_r) with
   | (true, true) ->
-    op left pc_l (Some encoded_guard_l) (clone h)
-    @ op right pc_r (Some encoded_guard_r) (clone h)
-  | (true, false) -> op left pc_l (Some encoded_guard_l) (clone h)
-  | (false, true) -> op right pc_r (Some encoded_guard_r) (clone h)
+    op left pc_l (Some cond) (clone h)
+    @ op right pc_r (Some not_cond) (clone h)
+  | (true, false) -> op left pc_l (Some cond) (clone h)
+  | (false, true) -> op right pc_r (Some not_cond) (clone h)
   | _ -> failwith "No path is valid in Set."
 
 let rec assign_obj_fields (h : t) (loc : Expr.t) (solver : Batch.t)

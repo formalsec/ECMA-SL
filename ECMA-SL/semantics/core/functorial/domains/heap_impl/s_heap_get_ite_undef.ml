@@ -54,10 +54,8 @@ let apply_op_get (h : t) (loc : Expr.t) (cond : Expr.t) (left : Expr.t)
   (right : Expr.t) (solver : Batch.t)
   (op : Expr.t -> encoded_pct list -> Expr.t) (pc : encoded_pct list)
   (store : S_store.t) : 'a =
-  let encoded_guard = Translator.translate cond in
-  let pc_left = encoded_guard :: pc in
-  let encoded_guard = Translator.translate (mk_not cond) in
-  let pc_right = encoded_guard :: pc in
+  let pc_left = cond :: pc in
+  let pc_right = (mk_not cond) :: pc in
   let cs = Batch.check solver in
 
   match (cs pc_left, cs pc_right) with
@@ -78,18 +76,17 @@ let apply_op_set (h : t) (loc : Expr.t) (cond : Expr.t) (left : Expr.t)
     -> t
     -> (t * encoded_pct list) list ) (pc : encoded_pct list) (store : S_store.t)
   : (t * encoded_pct list) list =
-  let encoded_guard_l = Translator.translate cond in
-  let pc_l = encoded_guard_l :: pc in
-  let encoded_guard_r = Translator.translate (mk_not cond) in
-  let pc_r = encoded_guard_r :: pc in
+  let not_cond = mk_not cond in
+  let pc_l = cond :: pc in
+  let pc_r = not_cond :: pc in
   let cs = Batch.check solver in
 
   match (cs pc_l, cs pc_r) with
   | (true, true) ->
-    op left pc_l (Some encoded_guard_l) (clone h)
-    @ op right pc_r (Some encoded_guard_r) (clone h)
-  | (true, false) -> op left pc_l (Some encoded_guard_l) (clone h)
-  | (false, true) -> op right pc_r (Some encoded_guard_r) (clone h)
+    op left pc_l (Some cond) (clone h)
+    @ op right pc_r (Some not_cond) (clone h)
+  | (true, false) -> op left pc_l (Some cond) (clone h)
+  | (false, true) -> op right pc_r (Some not_cond) (clone h)
   | _ -> failwith "No path is valid in Set."
 
 let rec assign_obj_fields (h : t) (loc : Expr.t) (solver : Batch.t)
@@ -176,10 +173,8 @@ let rec get_field_aux ?(guard = None) (heap : t) (loc : Expr.t) (field : Expr.t)
   | Expr.TriOpt (Operators.ITE, cond, left, right) -> (
     let op l pc guard = get_field_aux ~guard heap l field solver pc store in
     let not_cond = mk_not cond in
-    let encoded_guard = Translator.translate cond in
-    let pc_left = encoded_guard :: pc in
-    let encoded_guard = Translator.translate not_cond in
-    let pc_right = encoded_guard :: pc in
+    let pc_left = cond :: pc in
+    let pc_right = not_cond :: pc in
     let cs = Batch.check solver in
     match (cs pc_left, cs pc_right) with
     | (true, true) ->
@@ -225,8 +220,8 @@ let get_field (heap : t) (loc : Expr.t) (field : Expr.t) (solver : Batch.t)
     [ (heap, [], Some v_ite) ]
   else
     (* let _ = Printf.printf ("i shouldnt get here both %s undef\n") (Expr.str v_ite) in *)
-    [ (clone heap, [ Translator.translate (mk_not pc_undef) ], Some v_ite)
-    ; (clone heap, [ Translator.translate pc_undef ], None)
+    [ (clone heap, [ (mk_not pc_undef) ], Some v_ite)
+    ; (clone heap, [ pc_undef ], None)
     ]
 
 let set_field_exec (heap : t) (loc : Loc.t) (field : Expr.t) (v : 'a)

@@ -13,7 +13,6 @@ module Make (P : Interpreter_functor_intf.P) :
   module Memory = P.Memory
   module Env = P.Env
   module Choice = P.Choice
-  module Reducer = P.Reducer
   open Choice
 
   let ( @> ) = Source.( @> )
@@ -64,7 +63,7 @@ module Make (P : Interpreter_functor_intf.P) :
   let eval_expr (sto : store) (e : Expr.t) : value =
     (* TODO: decouple Reducer from abstract values *)
     (* Reduce is only used on Sym_value.M.value *)
-    Value.eval_expr sto e |> Reducer.reduce
+    Value.eval_expr sto e
 
   let pp locals heap e =
     (* TODO: Print function in sym_value *)

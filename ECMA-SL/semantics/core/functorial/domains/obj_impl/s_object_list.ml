@@ -97,20 +97,20 @@ let mk_not e1 = Expr.UnOpt (Operators.Not, e1)
 let is_key_possible (k1 : Expr.t) (k2 : Expr.t) (solver : Batch.t)
   (pc : encoded_pct list) (store : S_store.t) : bool =
   let eq0 = mk_eq k1 k2 in
-  let eq = Reducer.reduce_expr store eq0 |> Translator.translate in
+  let eq = Reducer.reduce_expr store eq0 in
   Batch.check solver (eq :: pc)
 
 let create_not_pct (l : (pct * Expr.t) list) (key : pct) (store : S_store.t) :
   encoded_pct list =
   List.fold l ~init:[] ~f:(fun acc (pc, _) ->
       let ne = Expr.UnOpt (Operators.Not, mk_eq key pc) in
-      let expr = Reducer.reduce_expr store ne |> Translator.translate in
+      let expr = Reducer.reduce_expr store ne  in
       expr :: acc )
 
 let create_object (o : t) (k1 : pct) (k2 : pct) (store : S_store.t) :
   t * encoded_pct list =
   let o' = clone o in
-  let eq = Reducer.reduce_expr store (mk_eq k1 k2) |> Translator.translate in
+  let eq = Reducer.reduce_expr store (mk_eq k1 k2)  in
   (o', [ eq ])
 
 let create_ite (lst : (pct * pct) list) (key : Expr.t) (pc : encoded_pct list)
@@ -126,7 +126,6 @@ let create_ite (lst : (pct * pct) list) (key : Expr.t) (pc : encoded_pct list)
   in
 
   let not_new = mk_not new_pc in
-  let not_new = Translator.translate not_new in
 
   if Batch.check solver (not_new :: pc) then ite
   else
@@ -158,8 +157,7 @@ let get_prop_rec (o_rec : obj_record) (prop : Expr.t)
     | Some (prop', v) when Expr.equal prop' prop -> ([], Some v)
     | Some (prop', v) ->
       let eq = Reducer.reduce_expr store (mk_eq prop' prop) in
-      let new_pc = Translator.translate eq in
-      if is_key_possible prop' prop solver (new_pc :: pc) store then
+      if is_key_possible prop' prop solver (eq :: pc) store then
         ([ (eq, get_val v) ], None)
       else ([], None)
   in
@@ -203,7 +201,6 @@ let rec get_prop_aux ?(default_val = Expr.Val (Val.Bool false)) (o : t)
             if Expr.equal false_e acc then eq else mk_or acc eq )
       in
       let not_new = mk_not new_pc in
-      let not_new = Translator.translate not_new in
 
       if Batch.check solver (not_new :: pc) then
         get_prop_aux ~default_val o_rest prop get_val (lst' :: lst) solver
