@@ -26,5 +26,5 @@ let run_single (builder : string option) (input : Fpath.t)
   encode builder input output
 
 let run () (opts : Options.t) : unit Result.t =
-  Files.exec_multiple (run_single opts.builder) opts.inputs opts.output
-    (Enums.Lang.str CESL)
+  Files.exec_multiple ~outext:(Enums.Lang.str CESL) (run_single opts.builder)
+    opts.inputs opts.output
