@@ -59,8 +59,7 @@ module ProgCounter = struct
 end
 
 module type M = sig
-  type t'
-  type t = t' ref
+  type t
 
   val initial_state : unit -> t
   val start : t -> unit
@@ -70,10 +69,9 @@ module type M = sig
 end
 
 module Disable : M = struct
-  type t' = unit
-  type t = t' ref
+  type t = unit
 
-  let initial_state () : t = ref ()
+  let initial_state () : t = ()
   let start (_ : t) : unit = ()
   let stop (_ : t) (_ : 'a Heap.t) : unit = ()
   let count (_ : t) (_ : ProgCounter.item) : unit = ()
@@ -81,60 +79,49 @@ module Disable : M = struct
 end
 
 module Time : M = struct
-  type t' = { timer : ExecutionTime.t }
-  type t = t' ref
+  type t = { mutable timer : ExecutionTime.t }
 
-  let initial_state' () : t' = { timer = ExecutionTime.create () }
-  let initial_state () : t = ref (initial_state' ())
+  let initial_state () : t = { timer = ExecutionTime.create () }
 
   let start (metrics : t) : unit =
-    let timer = ExecutionTime.start !metrics.timer in
-    metrics := { timer }
+    metrics.timer <- ExecutionTime.start metrics.timer
 
   let stop (metrics : t) (_ : 'a Heap.t) : unit =
-    let timer = ExecutionTime.stop !metrics.timer in
-    metrics := { timer }
+    metrics.timer <- ExecutionTime.stop metrics.timer
 
   let count (_ : t) (_ : ProgCounter.item) : unit = ()
 
   let json (metrics : t) : Yojson.Basic.t =
-    `Assoc [ ("timer", ExecutionTime.json !metrics.timer) ]
+    `Assoc [ ("timer", ExecutionTime.json metrics.timer) ]
 end
 
 module Full : M = struct
-  type t' =
-    { timer : ExecutionTime.t
-    ; memory : MemoryUsage.t
-    ; counter : ProgCounter.t
+  type t =
+    { mutable timer : ExecutionTime.t
+    ; mutable memory : MemoryUsage.t
+    ; mutable counter : ProgCounter.t
     }
 
-  type t = t' ref
-
-  let initial_state' () : t' =
+  let initial_state () : t =
     { timer = ExecutionTime.create ()
     ; memory = MemoryUsage.create ()
     ; counter = ProgCounter.create ()
     }
 
-  let initial_state () : t = ref (initial_state' ())
-
   let start (metrics : t) : unit =
-    let timer = ExecutionTime.start !metrics.timer in
-    metrics := { !metrics with timer }
+    metrics.timer <- ExecutionTime.start metrics.timer
 
   let stop (metrics : t) (heap : 'a Heap.t) : unit =
-    let timer = ExecutionTime.stop !metrics.timer in
-    let memory = MemoryUsage.calculate heap in
-    metrics := { !metrics with timer; memory }
+    metrics.timer <- ExecutionTime.stop metrics.timer;
+    metrics.memory <- MemoryUsage.calculate heap
 
   let count (metrics : t) (item : ProgCounter.item) : unit =
-    let counter = ProgCounter.count !metrics.counter item in
-    metrics := { !metrics with counter }
+    metrics.counter <- ProgCounter.count metrics.counter item
 
   let json (metrics : t) : Yojson.Basic.t =
     `Assoc
-      [ ("timer", ExecutionTime.json !metrics.timer)
-      ; ("memory", MemoryUsage.json !metrics.memory)
-      ; ("counter", ProgCounter.json !metrics.counter)
+      [ ("timer", ExecutionTime.json metrics.timer)
+      ; ("memory", MemoryUsage.json metrics.memory)
+      ; ("counter", ProgCounter.json metrics.counter)
       ]
 end

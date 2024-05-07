@@ -181,8 +181,8 @@ module M (Instrument : Instrument.M) = struct
   let eval_small_step (p : Prog.t) (state : state) (s : Stmt.t)
     (cont : Stmt.t list) : return =
     let inst = !(state.inst) in
-    let lbl = Instrument.Monitor.update_label in
-    let ( $$ ) v s_eval = lbl inst.mon s s_eval |> fun () -> v in
+    let lbl_f = Instrument.Monitor.update_label in
+    let ( $$ ) v s_eval = lbl_f inst.mon s s_eval |> fun () -> v in
     let lvl = Call_stack.level state.stack in
     Instrument.Tracer.trace_stmt lvl s;
     Instrument.Profiler.count inst.pf `Stmt;
