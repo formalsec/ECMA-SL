@@ -374,7 +374,7 @@ module TestCmd = struct
     :: Exits.common
 end
 
-(* TODO:x module SymbolicOpts = struct
+module SymbolicOpts = struct
   let lang =
     let docv = "LANG" in
     let doc =
@@ -434,7 +434,7 @@ module SymbolicCmd = struct
     :: Exits.encoding
     :: Exits.symbolic
     @ Exits.common
-end *)
+end
 
 module ReplayOpts = struct
   let testsuit =

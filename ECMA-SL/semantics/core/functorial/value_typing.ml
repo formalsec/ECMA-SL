@@ -72,12 +72,13 @@ let bitwise_operators_typing_logic (ty1 : Type.t) (ty2 : Type.t) : Type.t option
 let bin_args_typing_inlist (arg1_t : Type.t) : Type.t option =
   match arg1_t with Type.ListType -> Some Type.BoolType | _ -> None
 
-let bin_args_typing_lnth (arg1 : Value.value) (arg2 : Value.value) :
-  Type.t option =
-  let open Value in
+let bin_args_typing_lnth (_arg1 : Value.value) (_arg2 : Value.value) :
+  Type.t option = assert false
+
+  (* TODO:x let open Value in
   match (arg1, arg2) with
   | (Val (Val.List l), Val (Val.Int i)) -> Val.type_of (List.nth l i)
-  | (_, _) -> None
+  | (_, _) -> None *)
 
 let bin_args_typing_pow (arg1_t : Type.t) (arg2_t : Type.t) : Type.t option =
   match (arg1_t, arg2_t) with
@@ -91,17 +92,12 @@ let type_of_unop (op : Operator.unopt) (ty : Type.t) : Type.t option =
   | Operator.BitwiseNot -> type_of_bitwise_not ty
   | Operator.ListHead -> None
   | Operator.ListTail -> None
-  | Operator.TupleFirst -> None
-  | Operator.TupleSecond -> None
-  | Operator.TupleLen -> type_of_len Type.TupleType ty
   | Operator.IntToFloat -> on_int ~return:Type.FltType ty
   | Operator.IntToString -> on_int ~return:Type.StrType ty
   | Operator.FloatToString -> on_float ~return:Type.StrType ty
   | Operator.StringToFloat -> Some Type.FltType
   (* | Operator.ToUint32 -> Some Type.FltType *)
-  | Operator.Typeof -> Some Type.TypeType
   | Operator.StringConcat -> type_of_sconcat ty
-  | Operator.Exp -> on_float ~return:Type.FltType ty
   (* | Operator.LogE -> on_float ~return:Type.FltType ty *)
   (* | Operator.Log10 -> on_float ~return:Type.FltType ty *)
   | Operator.Ceil -> on_float ~return:Type.FltType ty
@@ -137,7 +133,6 @@ let type_of_binop (op : Operator.binopt) (v1 : Value.value) (v2 : Value.value)
   | Operator.LogicalOr -> type_of_binary_logic ty1 ty2
   (* | Operator.Min -> type_of_binary_arith ty1 ty2 *)
   (* | Operator.Max -> type_of_binary_arith ty1 ty2 *)
-  | Operator.TupleNth -> None
   | Operator.ListNth -> bin_args_typing_lnth v1 v2
   (* | Operator.ListMem -> bin_args_typing_inlist ty1 *)
   | Operator.ListPrepend -> None
@@ -168,7 +163,8 @@ let type_of_triop (op : Operator.triopt) (_ : Type.t) (ty2 : Type.t)
       | _ ->
         Log.fail "types don't match for ITE: %a %a@." Type.pp ty2 Type.pp ty3 )
 
-let rec type_of (v : Symbolic_value.M.value) : Type.t option =
+let (* rec *) type_of (_v : Symbolic_value.M.value) : Type.t option = assert false
+(* TODO:x
   let open Value in
   let open Syntax.Option in
   match v with
@@ -191,3 +187,4 @@ let rec type_of (v : Symbolic_value.M.value) : Type.t option =
   | NOpt (Operator.ArrayExpr, _) -> Some Type.ArrayType
   | Curry _ -> Some Type.CurryType
   | _ -> Log.fail "%a: Not typed!" pp v
+ *)

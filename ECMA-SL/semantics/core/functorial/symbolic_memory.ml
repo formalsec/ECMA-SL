@@ -1,6 +1,8 @@
 open EslBase
 open EslSyntax
+open Smtml
 module V = Symbolic_value.M
+module E = Smtml.Expr
 
 module Make (O : Object_intf.S with type value = V.value) = struct
   type object_ = O.t
@@ -18,7 +20,7 @@ module Make (O : Object_intf.S with type value = V.value) = struct
   let insert ({ data = memory; _ } : t) (o : object_) : value =
     let loc = Loc.create () in
     Loc.Tbl.replace memory loc o;
-    V.Val (Val.Loc loc)
+    E.(make @@ Val (App (`Op "loc", [Int loc])))
 
   let remove (m : t) (l : Loc.t) : unit = Loc.Tbl.remove m.data l
 
@@ -80,28 +82,36 @@ module Make (O : Object_intf.S with type value = V.value) = struct
     format ppf "%a{ %a }" pp_parent parent (Loc.Tbl.pp ", " pp_v) data
 
   let rec unfold_ite ~(accum : value) (e : value) : (value option * int) list =
-    let open V in
-    let open Operator in
-    match e with
-    | Val (Val.Loc x) -> [ (Some accum, x) ]
-    | Val (Val.Symbol _x) -> [ (Some accum, ~-1) ]
-    | TriOpt (ITE, c, Val (Val.Loc l), e) ->
-      let accum' = BinOpt (LogicalAnd, accum, UnOpt (LogicalNot, c)) in
-      let tl = unfold_ite ~accum:accum' e in
-      (Some (BinOpt (LogicalAnd, accum, c)), l) :: tl
+    match E.view e with
+    | Val (App (`Op "loc", [Int x])) -> [ (Some accum, x) ]
+    (* TODO:x | Val (Val.Symbol _x) -> [ (Some accum, ~-1) ] *)
+    | Triop (_, Ty.Ite, c, a, e) -> (
+      match E.view a with
+      | Val (App (`Op "loc", [Int l])) ->
+          let accum' =
+            E.(binop Ty.Ty_bool Ty.And accum (unop Ty.Ty_bool Ty.Not c))
+          in
+          let tl = unfold_ite ~accum:accum' e in
+          (Some E.(binop Ty.Ty_bool Ty.And accum c), l) :: tl
+      | _ -> assert false)
     | _ -> assert false
 
   let loc (e : value) : ((value option * int) list, string) Result.t =
-    let open V in
-    match e with
-    | Val (Val.Loc l) -> Ok [ (None, l) ]
-    | TriOpt (Operator.ITE, c, Val (Val.Loc l), v) ->
-      Ok ((Some c, l) :: unfold_ite ~accum:(UnOpt (Operator.LogicalNot, c)) v)
+    match E.view e with
+    | Val (App (`Op "loc", [Int l])) -> Ok [ (None, l) ]
+    | Triop (_, Ty.Ite, c, a, v) -> (
+      match Expr.view a with
+      | Val (App (`Op "loc", [Int l])) ->
+          Ok
+            ((Some c, l)
+            :: unfold_ite ~accum:Expr.(unop Ty.Ty_bool Ty.Not c) v)
+      | _ ->
+          Error (Fmt.str "Value '%a' is not a loc expression" Expr.pp e))
     | _ -> Error (Fmt.str "Value '%a' is not a loc expression" V.pp e)
 
   let pp_val (h : t) (e : value) : string =
-    match e with
-    | V.Val (Val.Loc l) -> (
+    match E.view e with
+    | Val (App (`Op "loc", [Int l])) -> (
       match get h l with
       | None -> Loc.str l
       | Some o -> Fmt.str "%a -> %a" Loc.pp l O.pp o )

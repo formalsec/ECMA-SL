@@ -80,13 +80,13 @@ let create_not_pct (l : (pct * Expr.t) list) (key : pct) (store : S_store.t) :
   encoded_pct list =
   List.fold l ~init:[] ~f:(fun acc (pc, _) ->
       let ne = Expr.UnOpt (Operators.Not, mk_eq key pc) in
-      let expr = Reducer.reduce_expr store ne |> Translator.translate in
+      let expr = Reducer.reduce_expr store ne  in
       expr :: acc )
 
 let create_object (o : t) (k1 : pct) (k2 : pct) (store : S_store.t) :
   t * encoded_pct list =
   let o' = clone o in
-  let eq = Reducer.reduce_expr store (mk_eq k1 k2) |> Translator.translate in
+  let eq = Reducer.reduce_expr store (mk_eq k1 k2) in
   (o', [ eq ])
 
 let create_ite (lst : (pct * pct) list) (key : Expr.t) (pc : encoded_pct list)
@@ -109,16 +109,15 @@ let create_ite (lst : (pct * pct) list) (key : Expr.t) (pc : encoded_pct list)
 
   (* Printf.printf "created ite: %s\n" (Expr.str ite); *)
   let not_new = mk_not new_pc in
-  let not_new_encoded = Translator.translate not_new in
 
-  if Batch.check solver (not_new_encoded :: pc) then
+  if Batch.check solver (not_new :: pc) then
     ((ite, Some new_pc), Some (undef, Some not_new))
   else ((ite, Some new_pc), None)
 
 let is_key_possible (k1 : Expr.t) (k2 : Expr.t) (solver : Batch.t)
   (pc : encoded_pct list) (store : S_store.t) : bool =
   let eq0 = mk_eq k1 k2 in
-  let eq = Reducer.reduce_expr store eq0 |> Translator.translate in
+  let eq = Reducer.reduce_expr store eq0 in
   Batch.check solver (eq :: pc)
 
 let get_possible_fields_concrete (o : t) (key : Expr.t) (solver : Batch.t)

@@ -5,12 +5,6 @@ open Expr
 open Ty
 open Symbolic_value.M
 
-let expr_of_value : Expr.expr -> value = function
-  | Val (Value.Int x) -> Val (Val.Int x)
-  | Val (Value.Str x) -> Val (Val.Str x)
-  | Val (Value.Real x) -> Val (Val.Flt x)
-  | _ -> assert false
-
 let translate_val (v : Val.t) : Expr.t =
   match v with
   | Val.Int x -> value (Value.Int x)
@@ -171,8 +165,9 @@ let translate_triop (t1 : Type.t option) (t2 : Type.t option)
       ^ Operator.str_of_triopt Format.pp_print_string op "e1" "e2" "e3" )
   | _ -> failwith "translate_triop: ill-typed or unsupported operator!"
 
-let rec translate ?(b = false) (v : value) : Expr.t =
-  if b then Log.stdout "\n\ntranslating: %a\n\n" pp v;
+let (* rec *) translate ?(_b = false) (_v : value) : Expr.t =
+    failwith "translate not implemented"
+  (* TODO:x if b then Log.stdout "\n\ntranslating: %a\n\n" pp v;
   match v with
   | Val v -> translate_val v
   | Symbolic (t, Val (Val.Str x)) -> translate_symbol t x
@@ -200,4 +195,4 @@ let rec translate ?(b = false) (v : value) : Expr.t =
     and e2' = translate e2
     and e3' = translate e3 in
     translate_triop ty1 ty2 ty3 op e1' e2' e3'
-  | _ -> Log.fail "%a: Not translated!" pp v
+  | _ -> Log.fail "%a: Not translated!" pp v *)

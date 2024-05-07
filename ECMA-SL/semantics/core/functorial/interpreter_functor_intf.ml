@@ -74,9 +74,6 @@ module type P = sig
     val add_func : t -> string -> Func.t -> unit
   end
 
-  module Reducer : sig
-    val reduce : value -> value
-  end
 end
 
 module type S = sig
