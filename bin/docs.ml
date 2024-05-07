@@ -1,5 +1,5 @@
 open Cmdliner
-open Files
+open Files.Parser
 
 module ExitCodes = struct
   let ok = Cmdliner.Cmd.Exit.ok
