@@ -2,10 +2,11 @@ open EslBase
 open EslBase.Syntax.Option
 open EslSyntax
 module V = Symbolic_value.M
+module E = Smtml.Expr
 
 module Make
     (Object : Object_intf.S2
-                with type value = V.value
+                with type value = Smtml.Expr.t
                  and type value2 = Smtml.Expr.t) : Memory_intf.S2 = struct
   type value = Object.value
   type value2 = Object.value2
@@ -22,7 +23,7 @@ module Make
   let insert { map; _ } obj =
     let loc = Loc.create () in
     Hashtbl.add map loc obj;
-    V.Val (Val.Loc loc)
+    E.(make @@ Val (App (`Op "loc", [Int loc])))
 
   let remove h l = Hashtbl.remove h.map l
   let set h key data = Hashtbl.replace h.map key data
@@ -68,7 +69,7 @@ module Make
     let res = get_field heap loc field solver pc in
     List.map
       (fun (new_heap, new_pc, v) ->
-        let v' = V.Val (Val.Bool (Option.is_some v)) in
+        let v' = E.Bool.v (Option.is_some v) in
         (new_heap, new_pc, v') )
       res
 

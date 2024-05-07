@@ -65,19 +65,17 @@ struct
     List.fold_left
       (fun acc (pc, _) ->
         let ne = V.UnOpt (Operator.LogicalNot, mk_eq key pc) in
-        let expr = Reducer.reduce ne |> Translator.translate in
-        expr :: acc )
+        ne :: acc )
       [] l
 
   let create_object (o : t) (k1 : value) (k2 : value) : t * value2 list =
     let o' = clone o in
-    let eq = Reducer.reduce (mk_eq k1 k2) |> Translator.translate in
+    let eq = (mk_eq k1 k2) in
     (o', [ eq ])
 
   let is_key_possible (k1 : value) (k2 : value) (solver : Solver.t)
     (pc : value2 list) : bool =
-    let eq0 = mk_eq k1 k2 in
-    let eq = Reducer.reduce eq0 |> Translator.translate in
+    let eq = mk_eq k1 k2 in
     `Sat = Solver.check solver (eq :: pc)
 
   let get_possible_fields_concrete (o : t) (key : value) (solver : Solver.t)

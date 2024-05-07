@@ -1,109 +1,41 @@
 open EslBase
 open EslSyntax
 
+module E = Smtml.Expr
+module Ty = Smtml.Ty
+module Value = Smtml.Value
+module Symbol = Smtml.Symbol
+
 module M = struct
-  type value =
-    | Val of Val.t
-    | UnOpt of Operator.unopt * value
-    | BinOpt of Operator.binopt * value * value
-    | TriOpt of Operator.triopt * value * value * value
-    | NOpt of Operator.nopt * value list
-    | Curry of value * value list
-    | Symbolic of Type.t * value
+  type value = E.t
 
-  let int_symbol (x : value) : value = Symbolic (Type.IntType, x) [@@inline]
+  let equal (e1 : value) (e2 : value) : bool = E.equal e1 e2 [@@inline]
+  let hash (e : value) = E.hash e [@@inline]
+  let compare (e1 : value) (e2 : value) = compare (hash e1) (hash e2)
+  let pp fmt v = E.pp fmt v [@@inline]
 
-  let int_symbol_s (x : string) : value = int_symbol (Val (Val.Str x))
+  let int_symbol_s (x : string) : value = E.mk_symbol (Symbol.make Ty_int x)
   [@@inline]
 
-  let mk_symbol (x : string) : value = Val (Val.Symbol x) [@@inline]
+  let mk_symbol (x : string) : value =  E.mk_symbol (Symbol.make Ty_str x) [@@inline]
 
-  let mk_list (vs : value list) : value = NOpt (Operator.ListExpr, vs)
+  let mk_list (vs : value list) : value = E.(make (List vs))
   [@@inline]
 
-  let mk_tuple (fst, snd) : value = NOpt (Operator.TupleExpr, [ fst; snd ])
+  let mk_tuple (fst, snd) : value = E.(make (List [fst; snd]))
   [@@inline]
 
-  let rec is_symbolic (v : value) : bool =
-    match v with
-    | Val _ -> false
-    | Symbolic _ -> true
-    | UnOpt (_, v) -> is_symbolic v
-    | BinOpt (_, v1, v2) -> is_symbolic v1 || is_symbolic v2
-    | TriOpt (_, v1, v2, v3) -> List.exists is_symbolic [ v1; v2; v3 ]
-    | NOpt (_, es) | Curry (_, es) ->
-      List.length es <> 0 && List.exists is_symbolic es
-
-  let rec equal (e1 : value) (e2 : value) : bool =
-    match (e1, e2) with
-    | (Val v1, Val v2) -> Val.equal v1 v2
-    | (Symbolic (t1, e1'), Symbolic (t2, e2')) ->
-      Type.equal t1 t2 && equal e1' e2'
-    | (UnOpt (op1, e1'), UnOpt (op2, e2')) ->
-      Stdlib.( = ) op1 op2 && equal e1' e2'
-    | (BinOpt (op1, e1', e2'), BinOpt (op2, e3', e4')) ->
-      Stdlib.( = ) op1 op2 && equal e1' e3' && equal e2' e4'
-    | (TriOpt (op1, e1', e2', e3'), TriOpt (op2, e4', e5', e6')) ->
-      Stdlib.( = ) op1 op2 && equal e1' e4' && equal e2' e5' && equal e3' e6'
-    | (NOpt (op1, es1), NOpt (op2, es2)) ->
-      Stdlib.( = ) op1 op2 && List.equal equal es1 es2
-    | (Curry (x1, es1), Curry (x2, es2)) ->
-      equal x1 x2 && List.equal equal es1 es2
-    | _ -> false
-
-  (* FIXME: Proper pp *)
-  let rec pp ppf =
-    let open Fmt in
-    let pp_list ppf es =
-      pp_print_list ~pp_sep:(fun ppf () -> pp_print_string ppf ", ") pp ppf es
-    in
-    let pp_str e = asprintf "%a" pp e in
-    function
-    | Val n -> Val.pp ppf n
-    | UnOpt (op, e) ->
-      let e = pp_str e in
-      format ppf "%s" (Operator.str_of_unopt Format.pp_print_string op e)
-    | BinOpt (op, e1, e2) ->
-      let e1 = pp_str e1 in
-      let e2 = pp_str e2 in
-      format ppf "%s" (Operator.str_of_binopt Format.pp_print_string op e1 e2)
-    | TriOpt (op, e1, e2, e3) ->
-      let e1 = pp_str e1 in
-      let e2 = pp_str e2 in
-      let e3 = pp_str e3 in
-      format ppf "%s"
-        (Operator.str_of_triopt Format.pp_print_string op e1 e2 e3)
-    | NOpt (op, es) ->
-      format ppf "%s"
-        (Operator.str_of_nopt Format.pp_print_string op (List.map pp_str es))
-    | Curry (f, es) -> format ppf "{%a}@(%a)" pp f pp_list es
-    | Symbolic (t, x) -> (
-      match x with
-      | Val (Str x) -> format ppf "(`%s : %a)" x Type.pp t
-      | _ -> format ppf "(`%a : %a)" pp x Type.pp t )
+  let is_symbolic (v : value) : bool = E.is_symbolic v
 
   let func (v : value) =
-    match v with
-    | Val (Val.Str x) -> Ok (x, [])
-    | Curry (Val (Val.Str x), vs) -> Ok (x, vs)
+    match E.view v with
+    | Val (Value.Str x) -> Ok (x, [])
     | _ -> Error "Value is not a function identifier"
 
   module Bool = struct
-    let const b = Val (Val.Bool b) [@@inline]
-
-    let not_ = function
-      | Val (Val.Bool b) -> Val (Val.Bool (not b))
-      | e -> UnOpt (Operator.LogicalNot, e)
-
-    let and_ e1 e2 =
-      match (e1, e2) with
-      | (Val (Val.Bool b1), Val (Bool b2)) -> Val (Bool (b1 && b2))
-      | _ -> BinOpt (Operator.LogicalAnd, e1, e2)
-
-    let or_ e1 e2 =
-      match (e1, e2) with
-      | (Val (Val.Bool b1), Val (Bool b2)) -> Val (Bool (b1 || b2))
-      | _ -> BinOpt (Operator.LogicalOr, e1, e2)
+    include E.Bool
+    let const b = v b [@@inline]
+    let not_ e = not e [@@inline]
   end
 
   module Store = struct
@@ -137,41 +69,185 @@ module M = struct
 
   type store = Store.t
 
+  let eval_unop (op: Operator.unopt) = 
+    match op with
+  | Neg -> 
+    (fun v -> 
+      let t = E.ty v in
+      match t with 
+      | Ty_int -> E.(unop Ty_int Neg v)
+      | Ty_real -> E.(unop Ty_real Neg v)
+      | _ -> failwith "TODO:x Neg")
+  | BitwiseNot -> E.(unop Ty_int Not)
+  | LogicalNot -> E.(unop Ty_bool Not)
+  | IntToFloat -> E.(cvtop Ty_int Reinterpret_int)
+  | IntToString -> E.(cvtop Ty_int String_from_int)
+  | FloatToInt -> E.(cvtop Ty_real Reinterpret_float)
+  | FloatToString -> E.(cvtop Ty_real ToString)
+  | StringToInt -> E.(cvtop Ty_str String_to_int)
+  | StringToFloat -> E.(cvtop Ty_str String_to_float)
+  | FromCharCode -> E.(cvtop Ty_str String_from_code)
+  | ToCharCode -> E.(cvtop Ty_str String_to_code)
+  | StringLen -> E.(unop Ty_str Length)
+  | StringConcat -> (* TODO:x `Naryop Ty.(Ty_str, Concat) *) assert false
+  | ObjectToList -> assert false
+  | ObjectFields -> assert false
+  | ListHead -> E.(unop Ty_list Head)
+  | ListTail -> E.(unop Ty_list Tail)
+  | ListLen -> E.(unop Ty_list Length)
+  | ListReverse -> E.(unop Ty_list Reverse)
+  | Abs -> E.(unop Ty_real Abs)
+  | Sqrt -> E.(unop Ty_real Sqrt)
+  | Ceil -> E.(unop Ty_real Ceil)
+  | Floor -> E.(unop Ty_real Floor)
+  | Trunc -> E.(unop Ty_real Trunc)
+
+
+  let eval_binop (op: Operator.binopt) = 
+    match op with
+    | Plus ->  
+      (fun v1 v2 -> 
+        let t1, t2 = E.ty v1, E.ty v2 in
+        match t1, t2 with
+        | Ty_int, Ty_int -> E.(binop Ty_int Add v1 v2)
+        | Ty_real, Ty_real -> E.(binop Ty_real Add v1 v2)
+        | Ty_str, Ty_str -> E.(naryop Ty_str Concat [ v1; v2 ])
+        | _ -> failwith "TODO:x Plus")
+    | Minus -> 
+      (fun v1 v2 -> 
+        let t1, t2 = E.ty v1, E.ty v2 in
+        match t1, t2 with
+        | Ty_int, Ty_int -> E.(binop Ty_int Sub v1 v2)
+        | Ty_real, Ty_real -> E.(binop Ty_real Sub v1 v2)
+        | _ -> failwith "TODO:x Minus")
+    | Times -> 
+      (fun v1 v2 -> 
+        let t1, t2 = E.ty v1, E.ty v2 in
+        match t1, t2 with
+        | Ty_int, Ty_int -> E.(binop Ty_int Mul v1 v2)
+        | Ty_real, Ty_real -> E.(binop Ty_real Mul v1 v2)
+        | _ -> failwith "TODO:x Times")
+    | Div ->
+      (fun v1 v2 -> 
+        let t1, t2 = E.ty v1, E.ty v2 in
+        match t1, t2 with
+        | Ty_int, Ty_int -> E.(binop Ty_int Div v1 v2)
+        | Ty_real, Ty_real -> E.(binop Ty_real Div v1 v2)
+        | _ -> failwith "TODO:x Div")
+    | Modulo -> E.(binop Ty_real Rem)
+    | Pow -> E.(binop Ty_real Pow)
+    | BitwiseAnd -> E.(binop Ty_int And)
+    | BitwiseOr -> E.(binop Ty_int Or)
+    | BitwiseXor -> E.(binop Ty_int Xor)
+    | ShiftLeft -> E.(binop Ty_int Shl)
+    | ShiftRight -> E.(binop Ty_int ShrA)
+    | ShiftRightLogical -> E.(binop Ty_int ShrL)
+    | LogicalAnd -> E.(binop Ty_bool And)
+    | LogicalOr -> E.(binop Ty_bool Or)
+    | SCLogicalAnd -> assert false
+    | SCLogicalOr -> assert false
+    | Eq -> E.(relop Ty_bool Eq)
+    | NE -> E.(relop Ty_bool Ne)
+    | Lt -> 
+      (fun v1 v2 -> 
+        let t1, t2 = E.ty v1, E.ty v2 in
+        match t1, t2 with
+        | Ty_int, Ty_int -> E.(relop Ty_int Lt v1 v2)
+        | Ty_real, Ty_real -> E.(relop Ty_real Lt v1 v2)
+        | _ -> failwith "TODO:x Lt")
+    | Le -> 
+      (fun v1 v2 -> 
+        let t1, t2 = E.ty v1, E.ty v2 in
+        match t1, t2 with
+        | Ty_int, Ty_int -> E.(relop Ty_int Le v1 v2)
+        | Ty_real, Ty_real -> E.(relop Ty_real Le v1 v2)
+        | _ -> failwith "TODO:x Le")
+    | Gt -> 
+      (fun v1 v2 -> 
+        let t1, t2 = E.ty v1, E.ty v2 in
+        match t1, t2 with
+        | Ty_int, Ty_int -> E.(relop Ty_int Gt v1 v2)
+        | Ty_real, Ty_real -> E.(relop Ty_real Gt v1 v2)
+        | _ -> failwith "TODO:x Gt")
+    | Ge -> 
+      (fun v1 v2 -> 
+        let t1, t2 = E.ty v1, E.ty v2 in
+        match t1, t2 with
+        | Ty_int, Ty_int -> E.(relop Ty_int Ge v1 v2)
+        | Ty_real, Ty_real -> E.(relop Ty_real Ge v1 v2)
+        | _ -> failwith "TODO:x Ge")
+    | ObjectMem -> assert false
+    | StringNth -> E.(binop Ty_str At)
+    | ListNth -> E.(binop Ty_list At)
+    | ListAdd -> E.(binop Ty_list List_append_last)
+    | ListPrepend -> E.(binop Ty_list List_append)
+    | ListConcat -> (* TODO:x `Naryop Ty.(Ty_list, Concat) *) failwith "ListConcat"
+
+  let eval_triop (op: Operator.triopt) = 
+    match op with
+    | ITE -> E.(triop Ty_bool Ite)
+    | StringSubstr -> E.(triop Ty_str String_extract)
+    | ListSet -> E.(triop Ty_list List_set)
+    
+  let eval_nop (op: Operator.nopt) = 
+    match op with
+    | NAryLogicalAnd -> E.(naryop Ty_bool Logand)
+    | NAryLogicalOr -> E.(naryop Ty_bool Logor)
+    | ListExpr -> (* TODO:x to check if this is right *)
+      (fun vs -> E.(make (List vs)))
+    | ArrayExpr -> assert false
+   
+  let eval_type (t : Type.t) =
+    let open Ty in
+    match t with
+    | NullType -> failwith "eval_type null"
+    | IntType -> Ty_int
+    | FltType -> Ty_real
+    | StrType -> Ty_str
+    | BoolType -> Ty_bool
+    | SymbolType -> failwith "eval_type symbol"
+    | LocType -> failwith "eval_type loc"
+    | ArrayType -> failwith "eval_type array"
+    | ListType -> Ty_list
+    | TupleType -> failwith "eval_type tuple"
+    | TypeType -> failwith "eval_type type"
+    | CurryType -> Ty_app
+
+
   let rec eval_expr (store : store) (e : Expr.t) : value =
     match e.it with
-    | Expr.Val v -> Val v
-    | Expr.Var x -> (
+    | Val v -> E.(make (Val v))
+    | Var x -> (
       match Store.find store x with
       | Some v -> v
       | None -> Log.fail "Cannot find var '%s'" x )
-    | Expr.UnOpt (op, e) -> (
+    | UnOpt (op, e) -> (
       let e' = eval_expr store e in
-      match e' with
-      | Val v -> Val (Eval_operator.eval_unopt op v)
-      | _ -> UnOpt (op, e') )
-    | Expr.BinOpt (op, e1, e2) -> (
+      eval_unop op e')
+    | BinOpt (op, e1, e2) -> (
       let e1' = eval_expr store e1 in
       let e2' = eval_expr store e2 in
-      match (e1', e2') with
-      | (Val v1, Val v2) -> Val (Eval_operator.eval_binopt op v1 v2)
-      | _ -> BinOpt (op, e1', e2') )
-    | Expr.TriOpt (op, e1, e2, e3) -> (
+      eval_binop op e1' e2')
+    | TriOpt (op, e1, e2, e3) -> (
       let e1' = eval_expr store e1 in
       let e2' = eval_expr store e2 in
       let e3' = eval_expr store e3 in
-      match (e1', e2', e3') with
-      | (Val v1, Val v2, Val v3) -> Val (Eval_operator.eval_triopt op v1 v2 v3)
-      | _ -> TriOpt (op, e1', e2', e3') )
-    | Expr.NOpt (op, es) ->
+      eval_triop op e1' e2' e3')
+    | NOpt (op, es) ->
       let es' = List.map (eval_expr store) es in
-      NOpt (op, es')
-    | Expr.Curry (f, es) ->
-      let f' = eval_expr store f in
+      eval_nop op es'
+    | Curry (f, es) ->
+      (let f' = eval_expr store f in
       let es' = List.map (eval_expr store) es in
-      Curry (f', es')
-    | Expr.Symbolic (t, x) ->
+      match E.view f' with
+      | Val Value.Str f' -> E.(make (App (`Op f', es')))
+      | _ -> failwith "error")
+    | Symbolic (t, x) ->
       let x' = eval_expr store x in
-      Symbolic (t, x')
+      let t = eval_type t in
+      match E.view x' with
+      | Val Value.Str x' -> E.(make (Symbol (Symbol.make t x')))
+      | _ -> failwith "error"
 end
 
 module M' : Value_intf.T = M

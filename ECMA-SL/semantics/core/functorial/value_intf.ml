@@ -6,12 +6,14 @@ module type T = sig
   type store
 
   val equal : value -> value -> bool
+  val hash : value -> int
+  val compare : value -> value -> int
+  val pp : Fmt.t -> value -> unit
   val mk_symbol : string -> value
   val mk_list : value list -> value
   val mk_tuple : value * value -> value
   val is_symbolic : value -> bool
   val func : value -> (string * value list, string) Result.t
-  val pp : Fmt.t -> value -> unit
 
   module Bool : sig
     val const : bool -> value

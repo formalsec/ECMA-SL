@@ -5,7 +5,6 @@ module Object = Symbolic_object.M
 module Memory = Symbolic_memory
 module Env = Link_env.Make (Memory)
 module Thread = Choice_monad.Thread
-module Translator = Value_translator
 module PC = Choice_monad.PC
 
 module P = struct
@@ -52,8 +51,7 @@ module P = struct
         match pc with
         | [] -> Some (Some v, thread)
         | _ ->
-          let pc' = List.map Translator.translate pc in
-          let pc' = PC.(union pc_thread (of_list pc')) in
+          let pc' = PC.(union pc_thread (of_list pc)) in
           if PC.equal pc' pc_thread then Some (Some v, thread)
           else if (`Unsat = Solver.check solver (PC.elements pc')) then None
           else Some (Some v, { thread with pc = pc' })
@@ -95,8 +93,7 @@ module P = struct
         match pc with
         | [] -> Some (Some v, thread)
         | _ ->
-          let pc' = List.map Translator.translate pc in
-          let pc' = PC.(union pc_thread (of_list pc')) in
+          let pc' = PC.(union pc_thread (of_list pc)) in
           if PC.equal pc' pc_thread then Some (Some v, thread)
           else if (`Unsat = Solver.check solver (PC.elements pc')) then None
           else Some (Some v, { thread with pc = pc' })
@@ -125,8 +122,7 @@ module P = struct
         match cond with
         | None -> Some (v, thread)
         | Some c ->
-          let c' = Translator.translate c in
-          let pc = PC.add c' pc in
+          let pc = PC.add c pc in
           if PC.equal pc (Thread.pc thread) then Some (v, thread)
           else if (`Unsat = Solver.check solver (PC.elements pc)) then None
           else Some (v, { thread with pc })
@@ -175,9 +171,6 @@ module P = struct
     end
   end
 
-  module Reducer = struct
-    let reduce v = Value_reducer.reduce v [@@inline]
-  end
 end
 
 module P' : Interpreter_functor_intf.P = P

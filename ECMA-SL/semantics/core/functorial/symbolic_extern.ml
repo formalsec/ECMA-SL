@@ -1,8 +1,11 @@
 open EslBase
-open EslSyntax
+(* open EslSyntax *)
 module Env = Symbolic.P.Env
 module SMap = Link_env.SMap
 module PC = Choice_monad.PC
+module E = Smtml.Expr
+module V = Smtml.Value
+module S = Smtml.Symbol
 
 let of_array l = Array.fold_left (fun m (k, v) -> SMap.add k v m) SMap.empty l
 
@@ -19,7 +22,6 @@ module Make () = struct
   module Choice = Symbolic.P.Choice
   module Extern_func = Symbolic.P.Extern_func
   module Thread = Choice_monad.Thread
-  module Translator = Value_translator
   module Optimizer = Choice_monad.Optimizer
   module PC = Choice_monad.PC
   open Extern_func
@@ -29,14 +31,14 @@ module Make () = struct
   let fresh_x = Base.make_name_generator "x"
   let fresh_func = Base.make_name_generator "eval_func_"
   let ok v = Choice.return (Ok v)
-  let ok_v v = ok (Value.Val v)
+  let ok_v v = ok (Smtml.Expr.(make @@ Val v))
   let err v = Choice.return (Error (`Failure v))
 
   let extern_cmds env =
     let parseJS data =
       let open EslJSParser.Api in
       let data =
-        match data with Value.Val (Val.Str data) -> data | _ -> assert false
+        match E.view data with Val (Str data) -> data | _ -> assert false
       in
       let input_file = Filename.temp_file "__parse_in_" "__.js" in
       let output_file = Filename.temp_file "__parse_out_" "__.js" in
@@ -50,248 +52,286 @@ module Make () = struct
       let data = Io.read_file output_file in
       let func = Parsing.parse_func data in
       Env.add_func env fid func;
-      ok_v (Val.Str fid)
+      ok_v (Str fid)
     in
     of_array [| ("parseJS", Extern_func (Func (Arg Res), parseJS)) |]
 
   let concrete_api =
-    let open Value in
     let open External.Impl in
-    let int_to_four_hex = function
+    let int_to_four_hex v = 
+      match E.view v with 
       | Val v -> ok_v (int_to_four_hex v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let octal_to_decimal = function
+    let octal_to_decimal v = 
+      match E.view v with 
       | Val v -> ok_v (octal_to_decimal v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let to_precision v1 v2 =
-      match (v1, v2) with
+      match (E.view v1, E.view v2) with
       | (Val v1, Val v2) -> ok_v (to_precision (v1, v2))
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let to_exponential v1 v2 =
-      match (v1, v2) with
+      match (E.view v1, E.view v2) with
       | (Val v1, Val v2) -> ok_v (to_exponential (v1, v2))
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let to_fixed v1 v2 =
-      match (v1, v2) with
+      match (E.view v1, E.view v2) with
       | (Val v1, Val v2) -> ok_v (to_fixed (v1, v2))
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let from_char_code_u = function
+    let from_char_code_u v = 
+      match E.view v with
       | Val v -> ok_v (from_char_code_u v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let to_char_code_u = function
+    let to_char_code_u v = 
+      match E.view v with
       | Val v -> ok_v (to_char_code_u v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let to_lower_case = function
+    let to_lower_case v = 
+      match E.view v with
       | Val v -> ok_v (to_lower_case v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let to_upper_case = function
+    let to_upper_case v = 
+      match E.view v with
       | Val v -> ok_v (to_upper_case v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let trim = function
+    let trim v = 
+      match E.view v with
       | Val v -> ok_v (trim v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let s_len_u = function
+    let s_len_u v = 
+      match E.view v with
       | Val v -> ok_v (s_len_u v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let s_nth_u v1 v2 =
-      match (v1, v2) with
+      match (E.view v1, E.view v2) with
       | (Val v1, Val v2) -> ok_v (s_nth_u (v1, v2))
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let s_split v1 v2 =
-      match (v1, v2) with
+      match (E.view v1, E.view v2) with
       | (Val v1, Val v2) -> ok_v (s_split (v1, v2))
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let s_substr_u v1 v2 v3 =
-      match (v1, v2, v3) with
+      match (E.view v1, E.view v2, E.view v3) with
       | (Val v1, Val v2, Val v3) -> ok_v (s_substr_u (v1, v2, v3))
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let array_len = function
+    let array_len v = 
+      match E.view v with
       | Val v -> ok_v (array_len v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let array_make v1 v2 =
-      match (v1, v2) with
+      match (E.view v1, E.view v2) with
       | (Val v1, Val v2) -> ok_v (array_make (v1, v2))
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let array_nth v1 v2 =
-      match (v1, v2) with
+      match (E.view v1, E.view v2) with
       | (Val v1, Val v2) -> ok_v (array_nth (v1, v2))
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let array_set v1 v2 v3 =
-      match (v1, v2, v3) with
+      match (E.view v1, E.view v2, E.view v3) with
       | (Val v1, Val v2, Val v3) -> ok_v (array_set (v1, v2, v3))
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let list_to_array = function
+    let list_to_array v = 
+      match E.view v with
       | Val v -> ok_v (list_to_array v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let list_sort = function
+    let list_sort v = 
+      match E.view v with
       | Val v -> ok_v (list_sort v)
-      | NOpt (ListExpr, lst) -> ok (NOpt (ListExpr, List.sort compare lst))
+      (* TODO:x | NOpt (ListExpr, lst) ->  ok (NOpt (ListExpr, List.sort compare lst)) *)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let list_mem v1 v2 =
-      match (v1, v2) with
+      match (E.view v1, E.view v2) with
       | (Val v1, Val v2) -> ok_v (list_mem (v1, v2))
-      | (_, NOpt (ListExpr, lst)) -> ok_v (Bool (List.mem v1 lst))
+      (* TODO:x| (_, NOpt (ListExpr, lst)) -> ok_v (Bool (List.mem v1 lst)) *)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let list_remove_last = function
+    let list_remove_last v = 
+      match E.view v with
       | Val v -> ok_v (list_remove_last v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let list_remove v1 v2 =
-      match (v1, v2) with
+      match (E.view v1, E.view v2) with
       | (Val v1, Val v2) -> ok_v (list_remove (v1, v2))
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let list_remove_nth v1 v2 =
-      match (v1, v2) with
+      match (E.view v1, E.view v2) with
       | (Val v1, Val v2) -> ok_v (list_remove_nth (v1, v2))
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let float_to_byte = function
+    let float_to_byte v = 
+      match E.view v with
       | Val v -> ok_v (float_to_byte v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let float32_to_le_bytes = function
+    let float32_to_le_bytes v = 
+      match E.view v with
       | Val v -> ok_v (float32_to_le_bytes v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let float32_to_be_bytes = function
+    let float32_to_be_bytes v = 
+      match E.view v with
       | Val v -> ok_v (float32_to_be_bytes v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let float64_to_le_bytes = function
+    let float64_to_le_bytes v = 
+      match E.view v with
       | Val v -> ok_v (float64_to_le_bytes v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let float64_to_be_bytes = function
+    let float64_to_be_bytes v = 
+      match E.view v with
       | Val v -> ok_v (float64_to_be_bytes v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let float32_from_le_bytes = function
+    let float32_from_le_bytes v = 
+      match E.view v with
       | Val v -> ok_v (float32_from_le_bytes v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let float32_from_be_bytes = function
+    let float32_from_be_bytes v = 
+      match E.view v with
       | Val v -> ok_v (float32_from_be_bytes v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let float64_from_le_bytes = function
+    let float64_from_le_bytes v = 
+      match E.view v with
       | Val v -> ok_v (float64_from_le_bytes v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let float64_from_be_bytes = function
+    let float64_from_be_bytes v = 
+      match E.view v with
       | Val v -> ok_v (float64_from_be_bytes v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let bytes_to_string = function
+    let bytes_to_string v = 
+      match E.view v with
       | Val v -> ok_v (bytes_to_string v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let int_to_be_bytes v1 v2 =
-      match (v1, v2) with
+      match (E.view v1, E.view v2) with
       | (Val v1, Val v2) -> ok_v (int_to_be_bytes (v1, v2))
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let int_from_le_bytes v1 v2 =
-      match (v1, v2) with
+      match (E.view v1, E.view v2) with
       | (Val v1, Val v2) -> ok_v (int_from_le_bytes (v1, v2))
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let uint_from_le_bytes v1 v2 =
-      match (v1, v2) with
+      match (E.view v1, E.view v2) with
       | (Val v1, Val v2) -> ok_v (uint_from_le_bytes (v1, v2))
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let log_2 = function
+    let log_2 v = 
+      match E.view v with
       | Val v -> ok_v (log_2 v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let log_e = function
+    let log_e v = 
+      match E.view v with
       | Val v -> ok_v (log_e v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let log_10 = function
+    let log_10 v = 
+      match E.view v with
       | Val v -> ok_v (log_10 v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let sin = function
+    let sin v = 
+      match E.view v with
       | Val v -> ok_v (sin v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let cos = function
+    let cos v = 
+      match E.view v with
       | Val v -> ok_v (cos v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let tan = function
+    let tan v = 
+      match E.view v with
       | Val v -> ok_v (tan v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let sinh = function
+    let sinh v = 
+      match E.view v with
       | Val v -> ok_v (sinh v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let cosh = function
+    let cosh v = 
+      match E.view v with
       | Val v -> ok_v (cosh v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let tanh = function
+    let tanh v = 
+      match E.view v with
       | Val v -> ok_v (tanh v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let asin = function
+    let asin v = 
+      match E.view v with
       | Val v -> ok_v (asin v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let acos = function
+    let acos v = 
+      match E.view v with
       | Val v -> ok_v (acos v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let atan = function
+    let atan v = 
+      match E.view v with
       | Val v -> ok_v (atan v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let atan2 v1 v2 =
-      match (v1, v2) with
+      match (E.view v1, E.view v2) with
       | (Val v1, Val v2) -> ok_v (atan2 (v1, v2))
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let utf8_decode = function
+    let utf8_decode v = 
+      match E.view v with
       | Val v -> ok_v (utf8_decode v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let hex_decode = function
+    let hex_decode v = 
+      match E.view v with
       | Val v -> ok_v (hex_decode v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let parse_number = function
+    let parse_number v = 
+      match E.view v with
       | Val v -> ok_v (parse_number v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let parse_string = function
+    let parse_string v = 
+      match E.view v with
       | Val v -> ok_v (parse_string v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let parse_date = function
+    let parse_date v = 
+      match E.view v with
       | Val v -> ok_v (parse_date v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
@@ -382,51 +422,51 @@ module Make () = struct
        ; ("parse_date_external", Extern_func (Func (Arg Res), parse_date))
       |]
 
-  let symbolic_api =
-    let open Value in
+  let symbolic_api = 
     let open Extern_func in
-    let non_empty = function
-      | Val (Str "") -> Val (Str (fresh_x ()))
-      | Val (Str _) as x -> x
-      | x -> Log.fail "'%a' is not a valid string symbol" Value.pp x
+    let non_empty v = 
+      match E.view v with
+      | Val (Str "") -> fresh_x ()
+      | Val (Str s) -> s
+      | _ -> Log.fail "'%a' is not a valid string symbol" Value.pp v
     in
-    let str_symbol (x : value) = ok (Symbolic (Type.StrType, non_empty x)) in
-    let int_symbol (x : value) = ok (Value.int_symbol (non_empty x)) in
-    let flt_symbol (x : value) = ok (Symbolic (Type.FltType, non_empty x)) in
-    let bool_symbol (x : value) = ok (Symbolic (Type.BoolType, non_empty x)) in
-    let is_symbolic (n : value) = ok_v (Val.Bool (Value.is_symbolic n)) in
+    let str_symbol (x : value) = ok (E.mk_symbol (S.make Ty_str (non_empty x))) in
+    let int_symbol (x : value) = ok (Value.int_symbol_s (non_empty x)) in
+    let flt_symbol (x : value) = ok (E.mk_symbol (S.make Ty_real (non_empty x))) in
+    let bool_symbol (x : value) = ok (E.mk_symbol (S.make Ty_bool (non_empty x))) in
+    let is_symbolic (n : value) = ok_v (if Value.is_symbolic n then V.True else V.False) in
     let is_number (n : value) =
       ok_v
-        (Val.Bool
-           ( match Value_typing.type_of n with
-           | Some Type.IntType | Some Type.FltType -> true
-           | _ -> false ) )
+      (* TODO:x check is this is right *)
+           ( match E.ty n with
+           | Ty_int | Ty_real -> V.True
+           | _ -> V.False ) 
     in
     let is_sat (e : value) =
       let/ b = Choice.check e in
-      ok_v (Val.Bool b)
+      ok_v (if b then V.True else V.False)
     in
     let is_exec_sat (e : value) =
       (* TODO: more fine-grained exploit analysis *)
       let i = Value.int_symbol_s (fresh_i ()) in
-      let len = Value.Val (Int 18) in
-      let sub = TriOpt (Operator.StringSubstr, e, i, len) in
+      let len = E.(make @@ Val (Int 18)) in
+      let sub = E.(triop Ty_str String_extract e i len) in
       let query =
-        BinOpt (Operator.Eq, sub, Val (Val.Str "A; touch success #"))
+        E.(relop Ty_bool Eq sub (make @@ Val (V.Str "A; touch success #")))
       in
       let/ b = Choice.check_add_true query in
-      ok_v (Val.Bool b)
+      ok_v (if b then V.True else V.False)
     in
     let is_eval_sat (e : value) =
       (* TODO: more fine-grained exploit analysis *)
       let i = Value.int_symbol_s (fresh_i ()) in
-      let len = Value.Val (Int 25) in
-      let sub = TriOpt (Operator.StringSubstr, e, i, len) in
+      let len = E.(make @@ Val (Int 25)) in
+      let sub = E.(triop Ty_str String_extract e i len) in
       let query =
-        BinOpt (Operator.Eq, sub, Val (Val.Str ";console.log('success')//"))
+        E.(relop Ty_bool Eq sub (make @@ Val (V.Str ";console.log('success')//")))
       in
       let/ b = Choice.check_add_true query in
-      ok_v (Val.Bool b)
+      ok_v (if b then V.True else V.False)
     in
     let abort (e : value) =
       let e' = Format.asprintf "%a" Value.pp e in
@@ -434,17 +474,15 @@ module Make () = struct
       Choice.return @@ Error (`Abort e')
     in
     let assume (e : value) thread =
-      let e' = Translator.translate e in
-      [ (Ok (Val (Val.Symbol "undefined")), Thread.add_pc thread e') ]
+      [ (Ok (Value.mk_symbol "undefined"), Thread.add_pc thread e) ]
     in
     let evaluate (e : value) =
       Choice.with_thread (fun thread ->
-          let e' = Translator.translate e in
           let pc = Thread.pc thread |> PC.to_list in
           let solver = Thread.solver thread in
-          assert (`Sat = Solver.check solver (e' :: pc));
-          let v = Solver.get_value solver e' in
-          Ok (Translator.expr_of_value (Smtml.Expr.view v)) )
+          assert (`Sat = Solver.check solver (e :: pc));
+          let v = Solver.get_value solver e in
+          Ok v)
     in
     let optimize target opt e pc =
       Optimizer.push opt;
@@ -455,31 +493,29 @@ module Make () = struct
     in
     let maximize (e : value) =
       Choice.with_thread (fun thread ->
-          let e' = Translator.translate e in
           let pc = Thread.pc thread |> PC.to_list in
           let opt = Thread.optimizer thread in
-          let v = optimize Optimizer.maximize opt e' pc in
+          let v = optimize Optimizer.maximize opt e pc in
           match v with
-          | Some v -> Ok (Translator.expr_of_value (Val v))
+          | Some v -> Ok  (E.(make @@ Val v))
           | None ->
             (* TODO: Error here *)
             assert false )
     in
     let minimize (e : value) =
       Choice.with_thread (fun thread ->
-          let e' = Translator.translate e in
           let pc = Thread.pc thread |> PC.to_list in
           let opt = Thread.optimizer thread in
-          let v = optimize Optimizer.minimize opt e' pc in
+          let v = optimize Optimizer.minimize opt e pc in
           match v with
-          | Some v -> Ok (Translator.expr_of_value (Val v))
+          | Some v -> Ok  (E.(make @@ Val v))
           | None ->
             (* TODO: Error here *)
             assert false )
     in
     let print (v : Value.value) =
       Log.stdout "extern print: %a@." Value.pp v;
-      ok_v (Val.Symbol "undefined")
+      ok_v (App (`Op "symbol", [Str "undefined"]))
     in
     of_array
       [| ("str_symbol", Extern_func (Func (Arg Res), str_symbol))

@@ -1,11 +1,11 @@
 open EslSyntax
 open Operator
-open Val
 module Value = Symbolic_value.M
+module E = Symbolic_value.E
 open Value
 
-let reduce_sconcat (vs : value list) : value =
-  let s =
+let reduce_sconcat (_vs : value list) : value = failwith "reduce_sconcat not implemented"
+  (* TODO:x let s =
     List.fold_left
       (fun acc v ->
         match acc with
@@ -26,10 +26,11 @@ let reduce_sconcat (vs : value list) : value =
   match s with
   | [] -> Val (Str "")
   | [ v ] -> v
-  | _ -> UnOpt (StringConcat, NOpt (ListExpr, s))
+  | _ -> UnOpt (StringConcat, NOpt (ListExpr, s)) *)
 
-let reduce_list_compare (list1 : value list) (list2 : value list) : value =
-  if List.length list1 = List.length list2 then
+let reduce_list_compare (_list1 : value list) (_list2 : value list) : value =
+  failwith "reduce_list_compare not implemented"
+  (* TODO:x if List.length list1 = List.length list2 then
     let comp val1 val2 =
       match (val1, val2) with
       | (Symbolic (_tp1, n1), Symbolic (_tp2, n2)) -> BinOpt (Eq, n1, n2)
@@ -60,10 +61,11 @@ let reduce_list_compare (list1 : value list) (list2 : value list) : value =
     in
 
     fold_until list1 list2 (Val (Bool true))
-  else Val (Bool false)
+  else Val (Bool false) *)
 
-let reduce_list_set (list : value list) (idx : int) (newVal : value) : value =
-  let rec list_set_aux ((v1, v2, v3, v4) : value list * Val.t * value * Val.t) :
+let reduce_list_set (_list : value list) (_idx : int) (_newVal : value) : value =
+  failwith "reduce_list_set not implemented"
+  (* let rec list_set_aux ((v1, v2, v3, v4) : value list * Val.t * value * Val.t) :
     value list =
     match (v1, v2, v3, v4) with
     | (head :: tail, Int idx, x, Int n) ->
@@ -80,10 +82,11 @@ let reduce_list_set (list : value list) (idx : int) (newVal : value) : value =
   else
     invalid_arg
       "Exception in Oper.list_set: this operation is only applicable to List, \
-       Int greater or equal to 0 and Any arguments"
+       Int greater or equal to 0 and Any arguments" *)
 
-let reduce_unop (op : unopt) (v : value) : value =
-  match (op, v) with
+let reduce_unop (_op : unopt) (_v : value) : value =
+  failwith "reduce_unop not implemented"
+  (* TODO:x match (op, v) with
   | (op, Val v) -> Val (Eval_operator.eval_unopt op v)
   | (Neg, Symbolic (_, _)) -> UnOpt (Neg, v)
   (* | (IsNaN, Symbolic _) -> Val (Bool false) *)
@@ -126,12 +129,13 @@ let reduce_unop (op : unopt) (v : value) : value =
   (* | ToUint32, Symbolic (Type.FltType, x) -> Symbolic (Type.FltType, x) *)
   (* | (ListSort, NOpt (ListExpr, l)) when List.length l <= 1 -> NOpt (ListExpr, l) *)
   (* | (Trim, UnOpt (FloatToString, v)) -> UnOpt (FloatToString, v) *)
-  | (op', v1') -> UnOpt (op', v1')
+  | (op', v1') -> UnOpt (op', v1') *)
 
-let is_loc = function Val (Loc _) -> true | _ -> false
+let is_loc e = match e with E.(Val (App (`Op "loc", [_]))) -> true | _ -> false
 
-let reduce_binop (op : binopt) (v1 : value) (v2 : value) : value =
-  match (op, v1, v2) with
+let reduce_binop (_op : binopt) (_v1 : value) (_v2 : value) : value =
+  failwith "reduce_binop not implemented"
+  (* TODO:x match (op, v1, v2) with
   | (op, Val v1, Val v2) -> Val (Eval_operator.eval_binopt op v1 v2)
   (* int_to_float(s_len_u(symbolic (__$Str, "s1"))) < 0.  *)
   (* | ( Lt
@@ -180,20 +184,22 @@ let reduce_binop (op : binopt) (v1 : value) (v2 : value) : value =
   | (ListPrepend, v1, NOpt (ListExpr, vs)) -> NOpt (ListExpr, v1 :: vs)
   | (ListAdd, NOpt (ListExpr, vs), v2) -> NOpt (ListExpr, vs @ [ v2 ])
   (* | (ListMem, v1, NOpt (ListExpr, vs)) -> Val (Bool (Stdlib.List.mem v1 vs)) *)
-  | (op', v1', v2') -> BinOpt (op', v1', v2')
+  | (op', v1', v2') -> BinOpt (op', v1', v2') *)
 
-let reduce_triop (op : triopt) (v1 : value) (v2 : value) (v3 : value) : value =
-  match (op, v1, v2, v3) with
+let reduce_triop (_op : triopt) (_v1 : value) (_v2 : value) (_v3 : value) : value =
+  failwith "reduce_triop not implemented"
+  (* TODO:x match (op, v1, v2, v3) with
   | (op, Val v1, Val v2, Val v3) -> Val (Eval_operator.eval_triopt op v1 v2 v3)
   | (ListSet, NOpt (ListExpr, vs), Val (Int v2'), _) ->
     reduce_list_set vs v2' v3
   | (ITE, _, v2, v3) when Value.equal v2 v3 -> v2
-  | _ -> TriOpt (op, v1, v2, v3)
+  | _ -> TriOpt (op, v1, v2, v3) *)
 
-let reduce_nop (op : nopt) (vs : value list) : value = NOpt (op, vs)
+let reduce_nop (_op : nopt) (_vs : value list) : value = failwith "reduce_nop not implemented"(* TODO:x NOpt (op, vs) *)
 
-let rec reduce (e : value) : value =
-  match e with
+let (* rec *) reduce (_e : value) : value =
+  failwith "reduce not implemented"
+  (* TODO:x match e with
   | Val v -> Val v
   | UnOpt (op, e) ->
     let v = reduce e in
@@ -212,4 +218,4 @@ let rec reduce (e : value) : value =
     let vs = List.map reduce es in
     reduce_nop op vs
   | Curry (f, es) -> Curry (f, List.map reduce es)
-  | Symbolic (t, x) -> Symbolic (t, reduce x)
+  | Symbolic (t, x) -> Symbolic (t, reduce x) *)
