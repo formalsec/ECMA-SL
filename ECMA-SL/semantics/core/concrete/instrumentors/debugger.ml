@@ -30,8 +30,7 @@ module BreakpointInjector = struct
 end
 
 module type M = sig
-  type t'
-  type t = t' ref
+  type t
 
   val initial_state : unit -> t
   val cleanup : t -> unit
@@ -41,10 +40,9 @@ module type M = sig
 end
 
 module Disable : M = struct
-  type t' = unit
-  type t = t' ref
+  type t = unit
 
-  let initial_state () : t = ref ()
+  let initial_state () : t = ()
   let cleanup (_ : t) : unit = ()
   let set_interp_callbacks (_ : InterpreterCallbacks.t) : unit = ()
 
