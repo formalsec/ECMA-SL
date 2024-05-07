@@ -30,12 +30,10 @@ module type M = sig
   type return
   type 'a label
 
-  type t' =
-    { state : state
-    ; label : sl label
+  type t =
+    { mutable state : state
+    ; mutable label : sl label
     }
-
-  type t = t' ref
 
   val initial_state : unit -> t
   val set_label : t -> sl label -> unit
@@ -50,15 +48,13 @@ module Default : M = struct
   type return = unit
   type 'a label = unit
 
-  type t' =
-    { state : state
-    ; label : sl label
+  type t =
+    { mutable state : state
+    ; mutable label : sl label
     }
 
-  type t = t' ref
-
-  let initial_state () : t = ref { state = (); label = () }
-  let set_label (mon : t) (label : sl label) : unit = mon := { !mon with label }
+  let initial_state () : t = { state = (); label = () }
+  let set_label (mon : t) (label : sl label) : unit = mon.label <- label
   let update_label (_ : t) (_ : Stmt.t) (_ : stmt_eval) : unit = ()
   let eval_small_step (_ : t) : unit = ()
 
