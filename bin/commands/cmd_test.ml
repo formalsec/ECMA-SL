@@ -76,4 +76,4 @@ let run_single (setup : Prog.t * Val.t Heap.t option) (ftest : Fpath.t)
 let run () (opts : Options.t) : unit Result.t =
   Test.header ();
   let* setup = setup_tests opts.jsinterp opts.harness in
-  Files.exec_multiple (run_single setup) opts.inputs None ""
+  Files.exec_multiple (run_single setup) opts.inputs None
