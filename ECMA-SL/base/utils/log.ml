@@ -42,51 +42,43 @@ module Redirect = struct
   type t =
     { old_out : Fmt.t
     ; old_err : Fmt.t
-    ; new_out : (out_channel * string) option
-    ; new_err : (out_channel * string) option
+    ; new_out : Buffer.t option
+    ; new_err : Buffer.t option
     }
 
   type capture_mode =
-    | Null
     | Out
     | Err
     | OutErr
     | Shared
 
-  let stream (ppf_ref : Fmt.t ref) (fstream : string) :
-    (out_channel * string) option =
-    let fd = Unix.openfile fstream [ O_WRONLY ] 0o666 in
-    let oc = Unix.out_channel_of_descr fd in
-    ppf_ref := formatter_of_out_channel oc;
-    Some (oc, fstream)
+  let capture (ppf_ref : Fmt.t ref) (buffer : Buffer.t) : Buffer.t =
+    ppf_ref := Fmt.formatter_of_buffer buffer;
+    buffer
 
-  let close (log : bool) (ppf : Fmt.t) ((oc, fstream) : out_channel * string) :
-    unit =
-    close_out oc;
-    if log then fprintf ppf "%s@?" (Io.read_file fstream)
-
-  let capture_to ~(out : string option) ~(err : string option) : t =
+  let capture_to ~(out : Buffer.t option) ~(err : Buffer.t option) : t =
     let (old_out, old_err) = (!Config.out_ppf, !Config.err_ppf) in
-    let new_out = Option.fold ~none:None ~some:(stream Config.out_ppf) out in
-    let new_err = Option.fold ~none:None ~some:(stream Config.err_ppf) err in
+    let new_out = Option.map (capture Config.out_ppf) out in
+    let new_err = Option.map (capture Config.err_ppf) err in
     { old_out; old_err; new_out; new_err }
 
   let capture (mode : capture_mode) : t =
-    let temp_file ext = Some (Filename.temp_file "ecma-sl" ("logger_" ^ ext)) in
+    let buffer () = Some (Buffer.create 1024) in
     match mode with
-    | Null -> capture_to ~out:(Some Filename.null) ~err:(Some Filename.null)
-    | Out -> capture_to ~out:(temp_file "out") ~err:None
-    | Err -> capture_to ~out:None ~err:(temp_file "err")
-    | OutErr -> capture_to ~out:(temp_file "out") ~err:(temp_file "err")
+    | Out -> capture_to ~out:(buffer ()) ~err:None
+    | Err -> capture_to ~out:None ~err:(buffer ())
+    | OutErr -> capture_to ~out:(buffer ()) ~err:(buffer ())
     | Shared ->
-      let streams = capture_to ~out:(temp_file "shared") ~err:None in
+      let streams = capture_to ~out:(buffer ()) ~err:None in
       let old_err = !Config.err_ppf in
       Config.err_ppf := !Config.out_ppf;
       { streams with old_err; new_err = None }
 
   let restore ?(log : bool = false) (streams : t) : unit =
+    let open Fmt in
+    let log ppf buf = if log then fprintf ppf "%s@?" (Buffer.contents buf) in
     Config.out_ppf := streams.old_out;
     Config.err_ppf := streams.old_err;
-    ignore (Option.map (close log !Config.out_ppf) streams.new_out);
-    ignore (Option.map (close log !Config.err_ppf) streams.new_err)
+    Option.fold ~none:() ~some:(log !Config.out_ppf) streams.new_out;
+    Option.fold ~none:() ~some:(log !Config.err_ppf) streams.new_err
 end
