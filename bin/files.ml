@@ -34,28 +34,28 @@ let flat_inputs (inputs : (t * t) list list) : (t * t) list Result.t =
   if inputs' != [] then Ok inputs'
   else Result.error (`Generic "Empty input list")
 
-let make_subdir (dir : t) (base : t) (input : t) (outext : string) :
+let make_subdir (dir : t) (workspace : t) (input : t) (outext : string) :
   t option Result.t =
-  let rel_input = Option.get (relativize ~root:base input) in
+  let rel_input = Option.get (relativize ~root:workspace input) in
   let output = (dir // rem_ext rel_input) + outext in
   match Bos.OS.Dir.create (parent output) with
   | Ok _ -> Ok (Some output)
   | Error (`Msg err) -> Result.error (`Generic err)
 
-let make_fout (output : t option) (base : t) (input : t) (outext : string option)
-  : t option Result.t =
+let make_fout (output : t option) (workspace : t) (input : t)
+  (outext : string option) : t option Result.t =
   let outext = Option.value ~default:(get_ext input) outext in
   match output with
-  | Some dir when is_dir_path dir -> make_subdir dir base input outext
+  | Some dir when is_dir_path dir -> make_subdir dir workspace input outext
   | _ -> Ok output
 
 let exec_multiple ?(recursive : bool = true) ?(outext : string option)
-  (exec_f : t -> t option -> unit Result.t) (inputs : t list) (output : t option)
-  : unit Result.t =
+  (exec_f : t -> t -> t option -> unit Result.t) (inputs : t list)
+  (output : t option) : unit Result.t =
   let open Syntax.Result in
-  let process_input_f acc (base, input) =
-    let* output' = make_fout output base input outext in
-    match (acc, exec_f input output') with
+  let process_input_f acc (workspace, input) =
+    let* output' = make_fout output workspace input outext in
+    match (acc, exec_f workspace input output') with
     | (Ok (), Error err) -> Error err
     | _ -> acc
   in

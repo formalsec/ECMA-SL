@@ -59,26 +59,19 @@ module InterpreterMetrics = struct
   open Yojson.Basic
   open Yojson.Basic.Util
 
-  let format_bytes (bytes : int) : float * string =
-    let units = [| "bytes"; "kb"; "mb"; "gb"; "tb" |] in
-    let rec expbt sz i = if sz < 1024 then i else expbt (sz / 1024) (i + 1) in
-    let i = expbt bytes 0 in
-    (float_of_int bytes /. (1024.0 ** float_of_int i), units.(i))
-
   let pp_el (pp : Fmt.t -> t -> unit) (fmt : Fmt.t) (member : t) : unit =
     if member != `Null then pp fmt member
 
   let pp_timer (fmt : Fmt.t) (timer : t) : unit =
     let exec_time = member "exec_time" timer |> to_float in
-    let secs = int_of_float @@ floor exec_time in
-    let millis = int_of_float @@ Float.round (exec_time *. 1000.0) in
+    let (secs, millis) = Base.format_time exec_time in
     Fmt.fprintf fmt "@\nexec time:  %ds%0.3dms" secs millis
 
   let pp_memory (fmt : Fmt.t) (memory : t) : unit =
     let heap_n = member "heap_objs" memory |> to_int in
     let heap_sz = member "heap_size" memory |> to_int in
     let heap_sz_bytes = heap_sz * Sys.word_size in
-    let (heap_sz_fmt, heap_sz_unit) = format_bytes heap_sz_bytes in
+    let (heap_sz_fmt, heap_sz_unit) = Base.format_bytes heap_sz_bytes in
     Fmt.fprintf fmt "@\nobj allocs: %d@\nheap size:  %d bytes (~%0.2f %s)"
       heap_n heap_sz_bytes heap_sz_fmt heap_sz_unit
 
@@ -144,28 +137,32 @@ let interpret_partial (entry : Interpreter.entry) (config : Options.config)
   Interpreter.eval_prog entry prog
 
 let interpret (entry : Interpreter.entry) (config : Options.config)
-  (prog : Prog.t) : Val.t Result.t =
+  (prog : Prog.t) : Interpreter.result Result.t =
   Result.esl_exec @@ fun () ->
   let result = interpret_partial entry config prog in
   let retval = result.retval in
   Log.debug "Sucessfuly evaluated program with return '%a'." Val.pp retval;
-  InterpreterMetrics.log config.instrument.profiler result.metrics;
-  Ok retval
+  Ok result
 
 let interpret_cesl (entry : Interpreter.entry) (config : Options.config)
-  (file : Fpath.t) : Val.t Result.t =
+  (file : Fpath.t) : Interpreter.result Result.t =
   let* p = Cmd_compile.load file in
   interpret entry config p
 
 let interpret_esl (entry : Interpreter.entry) (config : Options.config)
-  (untyped : bool) (file : Fpath.t) : Val.t Result.t =
+  (untyped : bool) (file : Fpath.t) : Interpreter.result Result.t =
   let* p = Cmd_compile.compile untyped file in
   interpret entry config p
+
+let log_metrics (profiler : Enums.InterpProfiler.t)
+  (result : Interpreter.result Result.t) : unit Result.t =
+  let* result' = result in
+  Ok (InterpreterMetrics.log profiler result'.metrics)
 
 let run () (opts : Options.t) : unit Result.t =
   let valid_langs = Enums.Lang.valid_langs Options.langs opts.lang in
   let entry = { (Interpreter.entry_default ()) with main = opts.main } in
-  Syntax.Result.map ignore
+  log_metrics opts.config.instrument.profiler
   @@
   match Enums.Lang.resolve_file_lang valid_langs opts.input with
   | Some ESL -> interpret_esl entry opts.config opts.untyped opts.input

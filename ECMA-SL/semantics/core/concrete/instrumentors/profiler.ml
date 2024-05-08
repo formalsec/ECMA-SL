@@ -1,3 +1,5 @@
+open EslBase
+
 module ExecutionTime = struct
   type t =
     { start : float
@@ -6,9 +8,9 @@ module ExecutionTime = struct
     }
 
   let create () : t = { start = -1.0; stop = -1.0; diff = -1.0 } [@@inline]
-  let start (ts : t) : t = { ts with start = Sys.time () } [@@inline]
+  let start (ts : t) : t = { ts with start = Base.time () } [@@inline]
   let diff (ts : t) : t = { ts with diff = ts.stop -. ts.start } [@@inline]
-  let stop (ts : t) : t = diff @@ { ts with stop = Sys.time () } [@@inline]
+  let stop (ts : t) : t = diff @@ { ts with stop = Base.time () } [@@inline]
   let json (ts : t) : Yojson.Basic.t = `Assoc [ ("exec_time", `Float ts.diff) ]
 end
 
