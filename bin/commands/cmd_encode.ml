@@ -20,7 +20,7 @@ let encode (builder : string option) (input : Fpath.t) (output : Fpath.t option)
   | Ok () -> Ok (Log.debug "Sucessfuly encoded file '%a'." Fpath.pp input)
   | Error (`Msg msg) -> Result.error (`Encode msg)
 
-let run_single (builder : string option) (input : Fpath.t)
+let run_single (builder : string option) (_ : Fpath.t) (input : Fpath.t)
   (output : Fpath.t option) : unit Result.t =
   ignore Enums.Lang.(resolve_file_lang [ JS ] input);
   encode builder input output
