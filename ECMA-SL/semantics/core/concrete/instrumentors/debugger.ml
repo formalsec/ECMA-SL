@@ -114,14 +114,14 @@ module Enable : M = struct
     let none = BreakpointInjector.inject_debug_none in
     let inerscope = BreakpointInjector.inject_debug_innerscope in
     let outerscope = BreakpointInjector.inject_debug_outerscope in
-    let terminate = terminate_debug_tui dbdata |> fun () -> none in
+    let terminate () = terminate_debug_tui dbdata |> fun () -> none in
     match (DebuggerTUI.get_last_cmd dbdata.tui, s) with
     | (Step, _) -> inerscope <@ (StmtBreak dbdata, st, cont)
     | (StepIn, { it = AssignCall _; _ }) -> none <@ (CallBreak dbdata, st, cont)
     | (StepIn, _) -> inerscope <@ (StmtBreak dbdata, st, cont)
     | (StepOut, _) -> outerscope <@ (StmtBreak dbdata, st, cont)
     | (Continue, _) -> none <@ (StmtBreak dbdata, st, cont)
-    | (Exit, _) -> terminate <@ (Final, st, cont)
+    | (Exit, _) -> terminate () <@ (Final, st, cont)
     | _ -> Internal_error.(throw __FUNCTION__ (Expecting "debugger flow action"))
 
   let run (db : t) (st : state) (cont : cont) (s : Stmt.t) : state * cont =
