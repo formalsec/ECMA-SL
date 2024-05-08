@@ -28,6 +28,7 @@ let build_ast (file : Fpath.t) : Func.t Result.t =
 
 let execute_partial (entry : Interpreter.entry) (config : Options.interp_config)
   (interp : Prog.t) (ast : Fpath.t) : Interpreter.result Result.t =
+  Result.esl_exec @@ fun () ->
   let* build_ast = build_ast ast in
   Hashtbl.replace (Prog.funcs interp) (Func.name' build_ast) build_ast;
   Ok (Cmd_interpret.interpret_partial entry config interp)
@@ -54,17 +55,18 @@ let setup_execution (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option)
     Ok (interp, Some static_heap)
 
 let execute_cesl ((interp, static_heap) : Prog.t * Val.t Heap.t option)
-  (config : Options.interp_config) (input : Fpath.t) : Val.t Result.t =
+  (config : Options.interp_config) (input : Fpath.t) :
+  Interpreter.result Result.t =
   let main = if Option.is_some static_heap then "mainPartial" else "main" in
   let entry = Interpreter.{ main; static_heap } in
   let* result = execute_partial entry config interp input in
   let retval = result.retval in
   Log.debug "Sucessfuly evaluated program with return '%a'." Val.pp retval;
-  Cmd_interpret.InterpreterMetrics.log config.instrument.profiler result.metrics;
-  Ok retval
+  Ok result
 
 let execute_js (setup : Prog.t * Val.t Heap.t option)
-  (config : Options.interp_config) (input : Fpath.t) : Val.t Result.t =
+  (config : Options.interp_config) (input : Fpath.t) :
+  Interpreter.result Result.t =
   let ast = Fpath.v (Filename.temp_file "ecmasl" "ast.cesl") in
   let* () = Cmd_encode.encode None input (Some ast) in
   execute_cesl setup config ast
@@ -72,7 +74,7 @@ let execute_js (setup : Prog.t * Val.t Heap.t option)
 let run () (opts : Options.t) : unit Result.t =
   let valid_langs = Enums.Lang.valid_langs Options.langs opts.lang in
   let* setup = setup_execution opts.jsinterp opts.harness opts.interp_config in
-  Syntax.Result.map ignore
+  Cmd_interpret.log_metrics opts.interp_config.instrument.profiler
   @@
   match Enums.Lang.resolve_file_lang valid_langs opts.input with
   | Some JS -> execute_js setup opts.interp_config opts.input

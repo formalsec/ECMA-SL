@@ -26,14 +26,16 @@ and t' =
   | Cyan
   | White
 
-let colored (fdesc : Unix.file_descr option) : bool =
+let colored (fdesc : Unix.file_descr option) (fmt : Fmt.t) : bool =
   let supported_fdesc fdesc =
     if fdesc == Unix.stdout then Config.supported_stdout
     else if fdesc == Unix.stderr then Config.supported_stderr
     else false
   in
   if not !Config.colored then false
-  else Option.fold ~none:true ~some:supported_fdesc fdesc
+  else
+    Option.fold ~none:true ~some:supported_fdesc fdesc
+    && (fmt == Fmt.std_formatter || fmt == Fmt.err_formatter)
 
 let clean (text : string) : string =
   let escape_regex = Str.regexp "\027\\[[0-9;]*m" in
@@ -67,7 +69,7 @@ let pp_font (fmt : Fmt.t) (font : t) : unit =
 let pp ?(fdesc : Unix.file_descr option = None) (font : t)
   (pp_el : Fmt.t -> 'a -> unit) (fmt : Fmt.t) (el : 'a) : unit =
   let open Fmt in
-  if not (colored fdesc) then fprintf fmt "%a" pp_el el
+  if not (colored fdesc fmt) then fprintf fmt "%a" pp_el el
   else fprintf fmt "%a%a%a" pp_font font pp_el el pp_font [ Normal ]
 
 let str ?(fdesc : Unix.file_descr option = None) (font : t)
