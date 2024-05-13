@@ -134,7 +134,7 @@ let rec mk_ite_expr_aux (accs : (Expr.t * Expr.t option) list) (acc_pc : Expr.t)
   (conds : (Expr.t * Expr.t) list list) (solver : Batch.t) (store : S_store.t) :
   (Expr.t * Expr.t option) list * Expr.t =
   let false_e = Expr.Val (Val.Bool false) in
-  let undef = Expr.Val (Val.Symbol "undefined") in
+  let undef = Expr.Val (App (`Op "symbol", [Str "undefined"])) in
   let (ite, new_pc, new_default) =
     List.fold
       ~init:(default_val, default_pc, undef)
@@ -165,7 +165,7 @@ let rec mk_ite_expr_aux (accs : (Expr.t * Expr.t option) list) (acc_pc : Expr.t)
 let mk_ite_expr_get (prop : Expr.t) (conds : (Expr.t * Expr.t) list list)
   (default_val : Expr.t * Expr.t option) (pc : encoded_pct list)
   (solver : Batch.t) (store : S_store.t) : (Expr.t * pct option) list =
-  let undef = Expr.Val (Val.Symbol "undefined") in
+  let undef = Expr.Val (App (`Op "symbol", [Str "undefined"])) in
   let false_e = Expr.Val (Val.Bool false) in
   let (default_val, default_pc) = default_val in
 
@@ -305,7 +305,7 @@ let set (o : t) (key : vt) (data : Expr.t) (solver : Batch.t)
 
 let get (o : t) (key : vt) (solver : Batch.t) (pc : encoded_pct list)
   (store : S_store.t) : (Expr.t * pct option) list =
-  let undef = Expr.Val (Val.Symbol "undefined") in
+  let undef = Expr.Val (App (`Op "symbol", [Str "undefined"])) in
   let get_val v =
     match v with
     | Some v -> v

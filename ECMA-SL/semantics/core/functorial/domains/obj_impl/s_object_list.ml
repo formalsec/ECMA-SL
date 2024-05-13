@@ -115,7 +115,7 @@ let create_object (o : t) (k1 : pct) (k2 : pct) (store : S_store.t) :
 
 let create_ite (lst : (pct * pct) list) (key : Expr.t) (pc : encoded_pct list)
   (solver : Batch.t) (store : S_store.t) : Expr.t =
-  let undef = Expr.Val (Val.Symbol "undefined") in
+  let undef = Expr.Val (App (`Op "symbol", [Str "undefined"])) in
   let false_e = Expr.Val (Val.Bool true) in
   let (ite, new_pc) =
     List.fold lst ~init:(undef, false_e) ~f:(fun (acc_val, acc_pc) (k, d) ->
@@ -249,7 +249,7 @@ let set (o : t) (key : vt) (data : Expr.t) (solver : Batch.t)
 
 let get (o : t) (key : vt) (solver : Batch.t) (pc : encoded_pct list)
   (store : S_store.t) : Expr.t =
-  let undef = Expr.Val (Val.Symbol "undefined") in
+  let undef = Expr.Val (App (`Op "symbol", [Str "undefined"])) in
   let get_val v =
     match v with
     | Some v -> v
