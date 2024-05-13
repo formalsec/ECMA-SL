@@ -6,7 +6,7 @@ module E = Symbolic_value.E
 let eq v1 v2 = E.(relop Ty_bool Ty.Eq v1 v2)
 let ne v1 v2 = E.(unop Ty.Ty_bool Ty.Not (eq v1 v2))
 let ite c v1 v2 = Expr.(Bool.ite c v1 v2)
-let undef = Expr.(make @@ Symbol Symbol.("undefined" @: Ty.Ty_str))
+let undef = V.mk_symbol "undefined"
 let is_val e = match E.view e with Val _ -> true | _ -> false
 
 module Value_key = struct
