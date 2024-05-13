@@ -17,7 +17,7 @@ module M = struct
   let int_symbol_s (x : string) : value = E.mk_symbol (Symbol.make Ty_int x)
   [@@inline]
 
-  let mk_symbol (x : string) : value =  E.mk_symbol (Symbol.make Ty_str x) [@@inline]
+  let mk_symbol (x : string) : value =  E.(make @@ Val (App (`Op "symbol", [Str x]))) [@@inline]
 
   let mk_list (vs : value list) : value = E.(make (List vs))
   [@@inline]

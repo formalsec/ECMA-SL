@@ -58,6 +58,11 @@ module Make () = struct
 
   let concrete_api =
     let open External.Impl in
+    let typeof v = 
+      match E.view v with
+      | Val v -> ok_v (typeof v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in 
     let int_to_four_hex v = 
       match E.view v with 
       | Val v -> ok_v (int_to_four_hex v)
@@ -156,13 +161,13 @@ module Make () = struct
     let list_sort v = 
       match E.view v with
       | Val v -> ok_v (list_sort v)
-      (* TODO:x | NOpt (ListExpr, lst) ->  ok (NOpt (ListExpr, List.sort compare lst)) *)
+      (* TODO:x | List lst -> ok_v (List (List.sort compare lst)) *)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let list_mem v1 v2 =
       match (E.view v1, E.view v2) with
       | (Val v1, Val v2) -> ok_v (list_mem (v1, v2))
-      (* TODO:x| (_, NOpt (ListExpr, lst)) -> ok_v (Bool (List.mem v1 lst)) *)
+      | (_, List lst) -> ok_v (if (List.mem v1 lst) then V.True else V.False)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let list_remove_last v = 
@@ -336,7 +341,11 @@ module Make () = struct
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     of_array
-      [| (* int *)
+      [| 
+         ( "typeof_external"
+         , Extern_func (Func (Arg Res), typeof) )
+       ;
+         (* int *)
          ( "int_to_four_hex_external"
          , Extern_func (Func (Arg Res), int_to_four_hex) )
        ; ( "octal_to_decimal_external"
