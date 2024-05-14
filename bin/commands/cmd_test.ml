@@ -40,7 +40,7 @@ module TestRecord = struct
     ; streams : Log.Redirect.t option
     ; retval : Val.t Result.t
     ; result : result
-    ; exec_time : float
+    ; time : float
     ; metrics : Yojson.Basic.t
     }
 
@@ -55,7 +55,7 @@ module TestRecord = struct
     ; streams = None
     ; retval = Ok Null
     ; result = Skipped
-    ; exec_time = Base.time ()
+    ; time = Base.time ()
     ; metrics = `Null
     }
 
@@ -82,7 +82,7 @@ module TestRecord = struct
     let open Fmt in
     let limit = !Options.term_width - 20 in
     let path = Fpath.to_string record.input in
-    let (_, _, secs, millis) = Base.format_time record.exec_time in
+    let (_, _, secs, millis) = Base.format_time record.time in
     let pp_time fmt (secs, millis) = fprintf fmt "[%02d.%03ds]" secs millis in
     let pp_cond_time = pp_cond (record.result != Skipped) pp_time in
     fprintf fmt "%a " (Font.pp_out [ Faint ] (pp_path limit)) path;
@@ -103,8 +103,7 @@ module TestRecord = struct
     fprintf fmt "error: %a@\n@\n" pp_error record.error;
     fprintf fmt "retval: %a@\n" pp_retval record.retval;
     fprintf fmt "result: %a@\n" pp_result record.result;
-    if record.result != Skipped then
-      fprintf fmt "time: %0.2fs@\n" record.exec_time;
+    if record.result != Skipped then fprintf fmt "time: %0.2fs@\n" record.time;
     if record.metrics != `Null then
       fprintf fmt "%a" Cmd_interpret.InterpreterMetrics.pp record.metrics
 end
@@ -116,6 +115,7 @@ module TestTree = struct
 
   and t =
     { section : string
+    ; mutable time : float
     ; mutable success : int
     ; mutable failure : int
     ; mutable anomaly : int
@@ -124,9 +124,9 @@ module TestTree = struct
     }
 
   let create (section : string) : t =
-    let (success, failure, anomaly, skipped) = (0, 0, 0, 0) in
+    let (time, success, failure, anomaly, skipped) = (0.0, 0, 0, 0, 0) in
     let items = Hashtbl.create !Base.default_hashtbl_sz in
-    { section; success; failure; anomaly; skipped; items }
+    { section; time; success; failure; anomaly; skipped; items }
 
   let total (tree : t) : int =
     tree.success + tree.failure + tree.anomaly + tree.skipped
@@ -166,19 +166,20 @@ module TestTree = struct
         add tree' record secs
     end
 
-  let rec count_item (item : t') : int * int * int * int =
+  let rec count_item (item : t') : float * int * int * int * int =
     match item with
-    | Test { result = Success; _ } -> (1, 0, 0, 0)
-    | Test { result = Failure; _ } -> (0, 1, 0, 0)
-    | Test { result = Anomaly; _ } -> (0, 0, 1, 0)
-    | Test { result = Skipped; _ } -> (0, 0, 0, 1)
+    | Test { time; result = Success; _ } -> (time, 1, 0, 0, 0)
+    | Test { time; result = Failure; _ } -> (time, 0, 1, 0, 0)
+    | Test { time; result = Anomaly; _ } -> (time, 0, 0, 1, 0)
+    | Test { result = Skipped; _ } -> (0.0, 0, 0, 0, 1)
     | Tree tree ->
-      count tree;
-      (tree.success, tree.failure, tree.anomaly, tree.skipped)
+      count_results tree;
+      (tree.time, tree.success, tree.failure, tree.anomaly, tree.skipped)
 
-  and count (tree : t) : unit =
+  and count_results (tree : t) : unit =
     let count_f tree _ item =
-      let (success, failure, anomaly, skipped) = count_item item in
+      let (time, success, failure, anomaly, skipped) = count_item item in
+      tree.time <- tree.time +. time;
       tree.success <- tree.success + success;
       tree.failure <- tree.failure + failure;
       tree.anomaly <- tree.anomaly + anomaly;
@@ -218,23 +219,23 @@ module TestTree = struct
     in
     fprintf fmt "%a%a" pp_curr_section tree (pp_hashtbl "" pp_item) tree.items
 
-  let pp_total ((_, mins, secs, millis) : Base.formated_time) (fmt : Fmt.t)
-    (tree : t) : unit =
+  let pp_total (fmt : Fmt.t) (tree : t) : unit =
     let open Fmt in
     let total = total tree in
     let ratio = float_of_int tree.success *. 100.0 /. float_of_int total in
+    let (_, mins, secs, millis) = Base.format_time tree.time in
     fprintf fmt "Tests Successful: %d / %d (%.2f%%) | " tree.success total ratio;
     fprintf fmt "Time elapsed: %dm %ds %dms@\n" mins secs millis;
     fprintf fmt "Failures: %d, Anomalies: %d, Skipped: %d" tree.failure
       tree.anomaly tree.skipped
 
-  let pp_summary (time : Base.formated_time) (fmt : Fmt.t) (tree : t) : unit =
+  let pp_summary (fmt : Fmt.t) (tree : t) : unit =
     Fmt.fprintf fmt "@\n%a@\n%a@\n%a" pp_summary_header () (pp_section 0) tree
-      (pp_total time) tree
+      pp_total tree
 
-  let pp (time : Base.formated_time) (fmt : Fmt.t) (tree : t) : unit =
-    Fmt.fprintf fmt "%a@\n%a%a" pp_status_header () pp_status tree
-      (pp_summary time) tree
+  let pp (fmt : Fmt.t) (tree : t) : unit =
+    Fmt.fprintf fmt "%a@\n%a%a" pp_status_header () pp_status tree pp_summary
+      tree
 end
 
 module TestParser = struct
@@ -333,8 +334,8 @@ module TestRunner = struct
     let streams = Some streams in
     let (retval, metrics) = unfold_result interp_result in
     let result = check_result record.error retval in
-    let exec_time = Base.time () -. record.exec_time in
-    Ok { record with streams; retval; result; exec_time; metrics }
+    let time = Base.time () -. record.time in
+    Ok { record with streams; retval; result; time; metrics }
 end
 
 let get_logging_width (inputs : (Fpath.t * Fpath.t) list) : int =
@@ -350,19 +351,17 @@ let dump_record_report (output : Files.output) (record : TestRecord.t) :
   | (_, `Generated path) -> Result.bos (Bos.OS.File.writef path "%a" pp record)
   | (_, _) -> Ok ()
 
-let rec dump_section_summary (dir : Fpath.t) (time : Base.formated_time)
-  (tree : TestTree.t) : unit Result.t =
+let rec dump_section_smry (dir : Fpath.t) (tree : TestTree.t) : unit Result.t =
   let open Fpath in
-  let dump_summary_f _ item acc =
+  let dump_smry_f _ item acc =
     match ((item : TestTree.t'), acc) with
     | (_, (Error _ as err)) -> err
     | (Test _, Ok ()) -> Ok ()
-    | (Tree tree', Ok ()) ->
-      dump_section_summary (dir / tree'.section) time tree'
+    | (Tree tree', Ok ()) -> dump_section_smry (dir / tree'.section) tree'
   in
-  let* () = Hashtbl.fold dump_summary_f tree.items (Ok ()) in
+  let* () = Hashtbl.fold dump_smry_f tree.items (Ok ()) in
   let path = (dir / "report") + Enums.Lang.str TestSummary in
-  Result.bos (Bos.OS.File.writef path "%a@." (TestTree.pp time) tree)
+  Result.bos (Bos.OS.File.writef path "%a@." TestTree.pp tree)
 
 let record (workspace : Fpath.t) (input : Fpath.t) (output : Files.output) :
   TestRecord.t Result.t =
@@ -393,13 +392,11 @@ let run_single (opts : Options.t) (env : Prog.t * Val.t Heap.t option)
 
 let test_summary (output : Fpath.t option) (total_time : float)
   (tree : TestTree.t) : unit Result.t =
-  TestTree.count tree;
-  let time = Base.format_time total_time in
-  Log.out "%a@." (TestTree.pp time) tree;
+  TestTree.count_results tree;
+  Log.out "%a@." TestTree.pp_summary { tree with time = total_time };
   match output with
-  | Some dir when Fpath.is_dir_path dir -> dump_section_summary dir time tree
-  | Some path ->
-    Result.bos (Bos.OS.File.writef path "%a@." (TestTree.pp time) tree)
+  | Some dir when Fpath.is_dir_path dir -> dump_section_smry dir tree
+  | Some path -> Result.bos (Bos.OS.File.writef path "%a@." TestTree.pp tree)
   | _ -> Ok ()
 
 let run () (opts : Options.t) : unit Result.t =

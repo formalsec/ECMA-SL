@@ -3,29 +3,28 @@ open Syntax.Result
 open Fpath
 
 module Parser = struct
-  let fix_fpath (fpath : t) : [> `Ok of t | `Error of string ] =
-    match Bos.OS.Dir.exists fpath with
-    | Ok true -> `Ok (to_dir_path fpath)
-    | Ok false -> `Ok fpath
-    | Error (`Msg err) -> `Error err
-
-  let parse_fpath (str : string)
-    (test_f : t -> (bool, [< `Msg of string ]) result) :
+  let parse (str : string) (test_f : t -> (bool, [< `Msg of string ]) result) :
     [> `Ok of t | `Error of string ] =
     let fpath = v str in
-    match fix_fpath fpath with
+    match test_f fpath with
+    | Ok true -> `Ok fpath
+    | Ok false -> `Error (Format.asprintf "File '%s' not found!" str)
+    | Error (`Msg err) -> `Error err
+
+  let fix_dir (fpath : [> `Ok of t | `Error of string ]) :
+    [> `Ok of t | `Error of string ] =
+    match fpath with
+    | `Ok fpath' -> (
+      match Bos.OS.Dir.exists fpath' with
+      | Ok true -> `Ok (to_dir_path fpath')
+      | Ok false -> `Ok fpath'
+      | Error (`Msg err) -> `Error err )
     | `Error _ as err -> err
-    | `Ok fpath' -> begin
-      match test_f fpath' with
-      | Ok true -> `Ok fpath'
-      | Ok false -> `Error (Format.asprintf "File '%s' not found!" str)
-      | Error (`Msg err) -> `Error err
-    end
 
   let fpath = ((fun str -> `Ok (v str)), pp)
-  let valid_fpath = ((fun str -> parse_fpath str Bos.OS.Path.exists), pp)
-  let non_dir_fpath = ((fun str -> parse_fpath str Bos.OS.File.exists), pp)
-  let dir_fpath = ((fun str -> parse_fpath str Bos.OS.Dir.exists), pp)
+  let valid_fpath = ((fun str -> parse str Bos.OS.Path.exists |> fix_dir), pp)
+  let non_dir_fpath = ((fun str -> parse str Bos.OS.File.exists), pp)
+  let dir_fpath = ((fun str -> parse str Bos.OS.Dir.exists), pp)
 end
 
 type output =
