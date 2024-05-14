@@ -89,6 +89,9 @@ let test_opts =
   $ Docs.ExecuteOpts.lang
   $ Docs.ExecuteOpts.jsinterp
   $ Docs.ExecuteOpts.harness
+  $ Docs.TestOpts.test_type
+  $ Docs.TestOpts.report
+  $ Docs.InterpretOpts.profiler
 
 let test_cmd =
   let open Docs.TestCmd in
@@ -146,29 +149,38 @@ let main_cmd =
   let info = Cmd.info "ecma-sl" ~sdocs ~doc ~version ~man ~man_xrefs ~exits in
   Cmd.group info ~default cmd_list
 
-let exit_code =
+let exit_code () =
   match Cmdliner.Cmd.eval_value main_cmd with
-    | Ok (`Help | `Version) -> Docs.ExitCodes.ok
-    | Ok (`Ok (Ok ())) -> Docs.ExitCodes.ok
-    | Ok (`Ok (Error err)) -> begin
-      match err with
-      | `Internal _ -> Docs.ExitCodes.internal
-      | `Compile _ -> Docs.ExitCodes.compile
-      | `Runtime _ -> Docs.ExitCodes.interpret
-      | `Typing -> Docs.ExitCodes.typing
-      | `Encode _ -> Docs.ExitCodes.encode
-      | `Test -> Docs.ExitCodes.test
-      | `SymAbort _ -> Docs.ExitCodes.sym_abort
-      | `SymAssertFailure _ -> Docs.ExitCodes.sym_assert_failure
-      | `SymFailure _ -> Docs.ExitCodes.sym_failure
-      | `SymNodeJS _ -> Docs.ExitCodes.sym_nodejs
-      | `Generic _ -> Docs.ExitCodes.generic
-    end
-    | Error err -> begin
-      match err with
-      | `Term -> Docs.ExitCodes.term
-      | `Parse -> Docs.ExitCodes.client
-      | `Exn -> Docs.ExitCodes.internal
-    end
+  | Ok (`Help | `Version) -> Docs.ExitCodes.ok
+  | Ok (`Ok (Ok ())) -> Docs.ExitCodes.ok
+  | Ok (`Ok (Error err)) -> begin
+    match err with
+    | `Internal _ -> Docs.ExitCodes.internal
+    | `Compile _ -> Docs.ExitCodes.compile
+    | `Runtime _ -> Docs.ExitCodes.interpret
+    | `Typing -> Docs.ExitCodes.typing
+    | `Encode _ -> Docs.ExitCodes.encode
+    | `Test -> Docs.ExitCodes.test
+    | `TestFmt _ -> Docs.ExitCodes.test
+    | `SymAbort _ -> Docs.ExitCodes.sym_abort
+    | `SymAssertFailure _ -> Docs.ExitCodes.sym_assert_failure
+    | `SymFailure _ -> Docs.ExitCodes.sym_failure
+    | `SymNodeJS _ -> Docs.ExitCodes.sym_nodejs
+    | `Generic _ -> Docs.ExitCodes.generic
+  end
+  | Error err -> begin
+    match err with
+    | `Term -> Docs.ExitCodes.term
+    | `Parse -> Docs.ExitCodes.client
+    | `Exn -> Docs.ExitCodes.internal
+  end
 
-let () = exit exit_code
+let () =
+  Printexc.record_backtrace true;
+  try exit (exit_code ())
+  with exn ->
+    flush_all ();
+    Format.eprintf "%s: uncaught exception %s@." Sys.argv.(0)
+      (Printexc.to_string exn);
+    Printexc.print_backtrace stderr;
+    exit Docs.ExitCodes.internal

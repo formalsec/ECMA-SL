@@ -64,8 +64,8 @@ module InterpreterMetrics = struct
 
   let pp_timer (fmt : Fmt.t) (timer : t) : unit =
     let exec_time = member "exec_time" timer |> to_float in
-    let (secs, millis) = Base.format_time exec_time in
-    Fmt.fprintf fmt "@\nexec time:  %ds%0.3dms" secs millis
+    let (_, _, secs, millis) = Base.format_time exec_time in
+    Fmt.fprintf fmt "@\nexec time:  %ds%.3dms" secs millis
 
   let pp_memory (fmt : Fmt.t) (memory : t) : unit =
     let heap_n = member "heap_objs" memory |> to_int in

@@ -33,6 +33,8 @@ module Lang = struct
     | ESL
     | CESL
     | CESLUnattached
+    | TestReport
+    | TestSummary
 
   let pp (fmt : Fmt.t) (lang : t) : unit =
     match lang with
@@ -41,6 +43,8 @@ module Lang = struct
     | ESL -> Fmt.pp_str fmt ".esl"
     | CESL -> Fmt.pp_str fmt ".cesl"
     | CESLUnattached -> Fmt.pp_str fmt ".cesl"
+    | TestReport -> Fmt.pp_str fmt ".trp"
+    | TestSummary -> Fmt.pp_str fmt ".tsmry"
 
   let str (lang : t) : string = Fmt.asprintf "%a" pp lang
 
@@ -51,6 +55,8 @@ module Lang = struct
     | ESL -> "esl"
     | CESL -> "cesl"
     | CESLUnattached -> "cesl-unattached"
+    | TestReport -> "trp"
+    | TestSummary -> "tsmry"
 
   let args (langs : t list) : (string * t) list =
     List.map (fun lang -> (description lang, lang)) langs
@@ -64,11 +70,14 @@ module Lang = struct
     | ".esl" when List.mem ESL valid_langs -> Some ESL
     | ".cesl" when List.mem CESL valid_langs -> Some CESL
     | ".cesl" when List.mem CESLUnattached valid_langs -> Some CESLUnattached
+    | ".trp" when List.mem TestReport valid_langs -> Some TestReport
+    | ".tsmry" when List.mem TestSummary valid_langs -> Some TestSummary
     | _ -> None
 
-  let resolve_file_lang (valid_langs : t list) (fpath : Fpath.t) : t option =
+  let resolve_file_lang ?(warn : bool = true) (valid_langs : t list)
+    (fpath : Fpath.t) : t option =
     let lang = resolve_file_ext valid_langs fpath in
-    if Option.is_none lang then
+    if Option.is_none lang && warn then
       Log.warn "expecting file extensions: %a" (Fmt.pp_lst " | " pp) valid_langs;
     lang
 end
@@ -147,4 +156,24 @@ module JSInterp = struct
     | ECMARef5 -> Share.es5_config ()
     | ECMARef6 -> Share.es6_config ()
     | ECMARef6Sym -> Share.es6_sym_config ()
+end
+
+module JSTest = struct
+  type t =
+    | Auto
+    | Simple
+    | Test262
+
+  let all () : t list = [ Auto; Simple; Test262 ]
+
+  let pp (fmt : Fmt.t) (kind : t) : unit =
+    match kind with
+    | Auto -> Fmt.pp_str fmt "auto"
+    | Simple -> Fmt.pp_str fmt "simple"
+    | Test262 -> Fmt.pp_str fmt "test262"
+
+  let str (kind : t) : string = Fmt.asprintf "%a" pp kind
+
+  let args (kinds : t list) : (string * t) list =
+    List.map (fun kind -> (str kind, kind)) kinds
 end

@@ -9,6 +9,7 @@ type cmderr =
   | `Typing
   | `Encode of string
   | `Test
+  | `TestFmt of string
   | `SymAbort of string
   | `SymAssertFailure of Symbolic.P.Extern_func.value
   | `SymFailure of string
@@ -24,13 +25,14 @@ let log_error (err : cmderr) : unit =
   | `Compile (pp, msg) -> Log.err "%a@." pp msg
   | `Runtime (pp, msg) -> Log.err "%a@." pp msg
   | `Typing -> ()
-  | `Encode msg -> Log.err "%s@." msg
+  | `Encode msg -> Log.error "%s@." msg
   | `Test -> ()
+  | `TestFmt msg -> Log.error "%s@." msg
   | `SymAbort _ -> ()
   | `SymAssertFailure _ -> ()
-  | `SymFailure msg -> Log.err "%s@." msg
-  | `SymNodeJS out -> Log.err "unexpected node failure: %s@." out
-  | `Generic msg -> Log.err "%s@." msg
+  | `SymFailure msg -> Log.error "%s@." msg
+  | `SymNodeJS out -> Log.error "unexpected node failure: %s@." out
+  | `Generic msg -> Log.error "%s@." msg
 
 let error (err : cmderr) : 'a t =
   log_error err;
