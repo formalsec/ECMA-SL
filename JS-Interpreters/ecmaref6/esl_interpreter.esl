@@ -2094,6 +2094,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     right := JS_Interpreter_Expr(UnaryExpression, scope);
     /* 5. Let rightValue be GetValue(right). */
     rightValue := GetValue(right);
+     @ReturnIfAbrupt(rightValue);
     /* 6. Let lnum be ToNumber(leftValue). */
     lnum := ToNumber(leftValue);
     /* 7. ReturnIfAbrupt(lnum). */
@@ -2134,6 +2135,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     right := JS_Interpreter_Expr(UnaryExpression, scope);
     /* 5. Let rightValue be GetValue(right). */
     rightValue := GetValue(right);
+    @ReturnIfAbrupt(rightValue);
     /* 6. Let lnum be ToNumber(leftValue). */
     lnum := ToNumber(leftValue);
     /* 7. ReturnIfAbrupt(lnum). */
