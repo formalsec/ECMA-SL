@@ -74,6 +74,11 @@ module Redirect = struct
       Config.err_ppf := !Config.out_ppf;
       { streams with old_err; new_err = None }
 
+  let pp_captured (ppf : Fmt.t) (streams : t) : unit =
+    let log ppf buf = pp_str ppf (Buffer.contents buf) in
+    Option.fold ~none:() ~some:(log ppf) streams.new_out;
+    Option.fold ~none:() ~some:(log ppf) streams.new_err
+
   let restore ?(log : bool = false) (streams : t) : unit =
     let open Fmt in
     let log ppf buf = if log then fprintf ppf "%s@?" (Buffer.contents buf) in

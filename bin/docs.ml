@@ -76,7 +76,7 @@ module FileOpts = struct
 
   let inputs =
     let docv = "FILE/DIR" in
-    let doc = "Name of the input fileS or input directories." in
+    let doc = "Name of the input files or input directories." in
     Arg.(non_empty & pos_all valid_fpath [] & info [] ~docv ~doc)
 
   let output =
@@ -322,6 +322,25 @@ module ExecuteCmd = struct
     :: Exits.common
 end
 
+module TestOpts = struct
+  let test_type =
+    let doc =
+      "The type of the test that will be executed. Options include: (1) 'auto' \
+       [default] that automatically identifies the test kind based on the its \
+       contents; (2) 'simple' for simple JavaScript tests that never throw \
+       errors; and (3) 'test262' tests from the official JavaScript \
+       conformance testsuit (https://github.com/tc39/test262). Note that the \
+       'auto' test kind may not always yield the correct result."
+    in
+    let test_types = Arg.enum Enums.JSTest.(args @@ all ()) in
+    Arg.(value & opt test_types Auto & info [ "type" ] ~doc)
+
+  let report =
+    let docv = "FILE/DIR" in
+    let doc = "Name of the file or directory for storing the test report." in
+    Arg.(value & opt (some fpath) None & info [ "report" ] ~docv ~doc)
+end
+
 module TestCmd = struct
   let sdocs = Manpage.s_common_options
   let doc = "Executes an encoded JavaScript test"
@@ -333,15 +352,21 @@ module TestCmd = struct
         Core ECMA-SL (.cesl) before execution."
      ; "Running a JavaScript test is similar to executing a regular JavaScript \
         program with the following distinctions. All JavaScript logs (prints) \
-        are discarded, and the test's final return value is analyzed to \
+        are redirected, and the test's final return value is analyzed to \
         determine if the test ran successfully or not. As a result, most of \
         the options from the 'execute' command are also available."
+     ; "Additionally, it is possible to run tests with custom formats, \
+        according to the options of the '--kind' option. This formats include \
+        the 'test262' format for tests from the official JavaScript \
+        conformance testsuit. Detailed test results can be redirected to a \
+        directory with the '--report' option."
     |]
 
   let man =
     [ `S Manpage.s_description
     ; `P (Array.get description 0)
     ; `P (Array.get description 1)
+    ; `P (Array.get description 2)
     ]
 
   let man_xrefs = [ `Page ("ecma-sl execute", 1) ]
