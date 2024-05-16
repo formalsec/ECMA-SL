@@ -81,7 +81,7 @@ module M = struct
   | BitwiseNot -> E.(unop Ty_int Not)
   | LogicalNot -> E.(unop Ty_bool Not)
   | IntToFloat -> E.(cvtop Ty_int Reinterpret_int)
-  | IntToString -> E.(cvtop Ty_int String_from_int)
+  | IntToString -> (* TODO:x erro in type *) E.(cvtop Ty_str String_from_int)
   | FloatToInt -> E.(cvtop Ty_real Reinterpret_float)
   | FloatToString -> E.(cvtop Ty_real ToString)
   | StringToInt -> E.(cvtop Ty_str String_to_int)
@@ -89,7 +89,10 @@ module M = struct
   | FromCharCode -> E.(cvtop Ty_str String_from_code)
   | ToCharCode -> E.(cvtop Ty_str String_to_code)
   | StringLen -> E.(unop Ty_str Length)
-  | StringConcat -> (* TODO:x `Naryop Ty.(Ty_str, Concat) *) assert false
+  | StringConcat -> (fun v1 -> match E.view v1 with 
+  | E.Val (Value.List _) -> E.(naryop Ty_str Concat [v1])
+  | E.List lst -> E.(naryop Ty_str Concat lst)
+  | _-> failwith "TODO:x StringConcat")
   | ObjectToList -> assert false
   | ObjectFields -> assert false
   | ListHead -> E.(unop Ty_list Head)
@@ -154,6 +157,7 @@ module M = struct
         match t1, t2 with
         | Ty_int, Ty_int -> E.(relop Ty_int Lt v1 v2)
         | Ty_real, Ty_real -> E.(relop Ty_real Lt v1 v2)
+        | Ty_str, Ty_str -> E.(relop Ty_str Lt v1 v2)
         | _ -> failwith "TODO:x Lt")
     | Le -> 
       (fun v1 v2 -> 
@@ -161,6 +165,7 @@ module M = struct
         match t1, t2 with
         | Ty_int, Ty_int -> E.(relop Ty_int Le v1 v2)
         | Ty_real, Ty_real -> E.(relop Ty_real Le v1 v2)
+        | Ty_str, Ty_str -> E.(relop Ty_str Le v1 v2)
         | _ -> failwith "TODO:x Le")
     | Gt -> 
       (fun v1 v2 -> 
@@ -168,6 +173,7 @@ module M = struct
         match t1, t2 with
         | Ty_int, Ty_int -> E.(relop Ty_int Gt v1 v2)
         | Ty_real, Ty_real -> E.(relop Ty_real Gt v1 v2)
+        | Ty_str, Ty_str -> E.(relop Ty_str Gt v1 v2)
         | _ -> failwith "TODO:x Gt")
     | Ge -> 
       (fun v1 v2 -> 
@@ -175,13 +181,16 @@ module M = struct
         match t1, t2 with
         | Ty_int, Ty_int -> E.(relop Ty_int Ge v1 v2)
         | Ty_real, Ty_real -> E.(relop Ty_real Ge v1 v2)
+        | Ty_str, Ty_str -> E.(relop Ty_str Ge v1 v2)
         | _ -> failwith "TODO:x Ge")
     | ObjectMem -> assert false
     | StringNth -> E.(binop Ty_str At)
     | ListNth -> E.(binop Ty_list At)
     | ListAdd -> E.(binop Ty_list List_append_last)
     | ListPrepend -> E.(binop Ty_list List_append)
-    | ListConcat -> (* TODO:x `Naryop Ty.(Ty_list, Concat) *) failwith "ListConcat"
+    | ListConcat -> (fun v1 v2  -> match E.view v1, E.view v2 with 
+    | E.List l1, E.List l2 -> E.(naryop Ty_list Concat (l1@l2))
+    | _-> failwith "TODO:x ListConcat")
 
   let eval_triop (op: Operator.triopt) = 
     match op with
