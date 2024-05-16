@@ -1,3 +1,13 @@
+import "extras/node/os.esl";
+import "extras/node/fs.esl";
+import "extras/node/vm.esl";
+import "extras/node/cp.esl";
+import "extras/node/cross-spawn.esl";
+import "extras/node/execa.esl";
+import "extras/node/path.esl";
+import "extras/node/process.esl";
+import "extras/node/shelljs.esl";
+
 function __NodeRequire(globalObject, this, newTarget, strict, params) {
   path := l_nth(params, 0);
   objectPrototype := |Intrinsics|["ObjectPrototype"];
@@ -37,6 +47,9 @@ function __NodeRequire(globalObject, this, newTarget, strict, params) {
     }
     case "execa": {
       return createExecaObject(globalObject, objectPrototype, strict)
+    }
+    case "vm": {
+      return createVMObject(globalObject, objectPrototype, strict)
     }
     sdefault: { return newLazyObject() }
   }

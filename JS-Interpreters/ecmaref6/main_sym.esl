@@ -1,32 +1,28 @@
-import "symbolic/api.esl";
-import "symbolic/lazy_object.esl";
-import "symbolic/polluted_object.esl";
-import "node/global.esl";
-import "node/fs.esl";
-import "node/cp.esl";
-import "node/os.esl";
-import "node/path.esl";
-import "node/shelljs.esl";
-import "node/cross-spawn.esl";
-import "node/process.esl";
-import "node/execa.esl";
+import "extras/symbolic/api.esl";
+import "extras/symbolic/lazy_object.esl";
+import "extras/symbolic/polluted_object.esl";
+import "extras/section_node.esl";
 import "esl_interpreter.esl";
 
 /* Redefine this functions because we need to initialize the node global obj */
 function ECMAScriptNodeInitialization(sourceText) {
     initGlobalVars();
     realm := CreateRealm();
+
     newContext := createExecutionContext();
     newContext.Function := 'null;
     newContext.Realm := realm;
     pushExecStack(newContext);
+
     status := InitializeNodeHostDefinedRealm(realm);
     if (isAnAbruptCompletion(status)) {
         assert( realm = null );
         return
     };
+
     |realm| := realm;
-    EnqueueJob("ScriptJobs", "ScriptEvaluationJob", [sourceText]);
+
+    EnqueueJob("ScriptJobs", "ScriptEvaluationJob", [ sourceText ]);
     return NextJob(NormalCompletion('undefined))
 }
 
@@ -34,9 +30,11 @@ function InitializeNodeHostDefinedRealm(realm) {
     intrinsics := realm.intrinsics;
     global := intrinsics.GlobalObject;
     SetRealmGlobalObject(realm, global);
+
     globalObj := SetDefaultGlobalBindings(realm);
-    initNodeGlobalObject(globalObj, intrinsics.ObjectPrototype, false);
     @ReturnIfAbrupt(globalObj);
+
+    initNodeGlobalObject(globalObj, intrinsics.ObjectPrototype, false);
     return NormalCompletion('undefined)
 }
 
@@ -59,7 +57,6 @@ function main() {
   x := buildAST();
   ret := ECMAScriptNodeInitialization(x);
   c_value := getCompletionValue(ret);
-
   if ((typeof c_value = __$Obj) &&& ("ErrorData" in_obj c_value) ) {
     name := Get(c_value, "name");
     if (name = "TypeError") {
@@ -69,6 +66,5 @@ function main() {
     error := stringOfError(c_value);
     extern abort(error)
   };
-
   return ret
 }
