@@ -230,48 +230,52 @@ let binop_semantics (op : Operator.binopt) =
       | (Value.Int _, Value.Int _) -> make_bool Eval.(relop Ty_int Ty.Lt v1 v2)
       | (Value.Real _, Value.Real _) ->
         make_bool Eval.(relop Ty_real Ty.Lt v1 v2)
+      | (Value.Str _, Value.Str _) -> make_bool Eval.(relop Ty_str Ty.Lt v1 v2)
       | (Int _, _) | (Real _, _) ->
         bad_arg_err 2 (label_of_binopt Lt)
-          "(integer, integer) or (float, float)" [ v1; v2 ]
+          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
       | _ ->
         bad_arg_err 1 (label_of_binopt Lt)
-          "(integer, integer) or (float, float)" [ v1; v2 ] )
+          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ] )
   | Le -> (
     fun v1 v2 ->
       match (v1, v2) with
       | (Value.Int _, Value.Int _) -> make_bool Eval.(relop Ty_int Ty.Le v1 v2)
       | (Value.Real _, Value.Real _) ->
         make_bool Eval.(relop Ty_real Ty.Le v1 v2)
+      | (Value.Str _, Value.Str _) -> make_bool Eval.(relop Ty_str Ty.Le v1 v2)
       | (Int _, _) | (Real _, _) ->
         bad_arg_err 2 (label_of_binopt Le)
-          "(integer, integer) or (float, float)" [ v1; v2 ]
+          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
       | _ ->
         bad_arg_err 1 (label_of_binopt Le)
-          "(integer, integer) or (float, float)" [ v1; v2 ] )
+          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ] )
   | Gt -> (
     fun v1 v2 ->
       match (v1, v2) with
       | (Value.Int _, Value.Int _) -> make_bool Eval.(relop Ty_int Ty.Gt v1 v2)
       | (Value.Real _, Value.Real _) ->
         make_bool Eval.(relop Ty_real Ty.Gt v1 v2)
+      | (Value.Str _, Value.Str _) -> make_bool Eval.(relop Ty_str Ty.Gt v1 v2)
       | (Int _, _) | (Real _, _) ->
         bad_arg_err 2 (label_of_binopt Gt)
-          "(integer, integer) or (float, float)" [ v1; v2 ]
+          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
       | _ ->
         bad_arg_err 1 (label_of_binopt Gt)
-          "(integer, integer) or (float, float)" [ v1; v2 ] )
+          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ] )
   | Ge -> (
     fun v1 v2 ->
       match (v1, v2) with
       | (Value.Int _, Value.Int _) -> make_bool Eval.(relop Ty_int Ty.Ge v1 v2)
       | (Value.Real _, Value.Real _) ->
         make_bool Eval.(relop Ty_real Ty.Ge v1 v2)
+      | (Value.Str _, Value.Str _) -> make_bool Eval.(relop Ty_str Ty.Ge v1 v2)
       | (Int _, _) | (Real _, _) ->
         bad_arg_err 2 (label_of_binopt Ge)
-          "(integer, integer) or (float, float)" [ v1; v2 ]
+          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
       | _ ->
         bad_arg_err 1 (label_of_binopt Ge)
-          "(integer, integer) or (float, float)" [ v1; v2 ] )
+          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ] )
   | ObjectMem -> failwith "binop_semantics.objectMem"
   | StringNth -> (
     fun v1 v2 ->

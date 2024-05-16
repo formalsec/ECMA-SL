@@ -315,6 +315,11 @@ module Make () = struct
       | (Val v1, Val v2) -> ok_v (atan2 (v1, v2))
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
+    let exp v = 
+      match E.view v with
+      | Val v -> ok_v (exp v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in 
     let utf8_decode v = 
       match E.view v with
       | Val v -> ok_v (utf8_decode v)
@@ -423,6 +428,7 @@ module Make () = struct
        ; ("acos_external", Extern_func (Func (Arg Res), acos))
        ; ("atan_external", Extern_func (Func (Arg Res), atan))
        ; ("atan2_external", Extern_func (Func (Arg (Arg Res)), atan2))
+       ; ("exp_external", Extern_func (Func (Arg Res), exp))
          (* parse *)
        ; ("utf8_decode_external", Extern_func (Func (Arg Res), utf8_decode))
        ; ("hex_decode_external", Extern_func (Func (Arg Res), hex_decode))
