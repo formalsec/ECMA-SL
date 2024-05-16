@@ -41,7 +41,7 @@ module Imports = struct
           let open EParsing_helper.Prog in
           let dependency = load_dependency import dependency_path in
           let dependency_imports =
-            relativize source (EProg.imports dependency)
+            relativize import.it (EProg.imports dependency)
           in
           let new_dependencies = (import.it, dependency_imports) in
           Hashtbl.iter (fun _ t -> parse_tdef t p) (EProg.tdefs dependency);
