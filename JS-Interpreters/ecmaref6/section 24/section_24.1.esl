@@ -482,6 +482,7 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
   };
   /* 11. If the first code unit of type is "U", then */
 
+  intValue := null;
   if (s_nth(type, 0) = "U") {
   /* a. Let intValue be the byte elements of rawValue concatenated and
    interpreted as a bit string encoding of an unsigned little-endian
@@ -529,6 +530,7 @@ function arrayBufferGetValueFromBufferObject(global, this, NewTarget, strict, ar
  * steps:
  */
 function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
+  rawBytes := null;
   tvalue := Type(value);
 
   /* 1. Assert: IsDetachedBuffer(arrayBuffer) is false. */

@@ -898,6 +898,7 @@ function arrayFrom(global, this, NewTarget, strict, args) {
   @ReturnIfAbrupt(len);
 
   /* 12. If IsConstructor(C) is true, then */
+  A := null;
   if (IsConstructor(C) = true) {
     /* a. Let A be Construct(C, «len»). */
     A := Construct(null, null, C, [len], null)
@@ -987,16 +988,18 @@ function isArray(global, this, NewTarget, strict, args) {
 *
 *  NOTE 1 The items argument is assumed to be a well-formed rest argument value.
 *
-*  NOTE 2 The of function is an intentionally generic factory method; it does not 
+*  NOTE 2 The of function is an intentionally generic factory method; it does not
 *  require that its this value be the Array constructor. Therefore it can be transferred
 *  to or inherited by other constructors that may be called with a single numeric argument.
 *
 */
 function arrayOf(global, this, NewTarget, strict, args) {
+  /* Initialize `A` so typechecker is happy. */
+  A := null;
 
   /* 1. Let len be the actual number of arguments passed to this function. */
   len := l_len args;
-  
+
   /* 2. Let items be the List of arguments passed to this function. */
   items := args;
 
@@ -2183,12 +2186,7 @@ function arrayJoin(global, this, NewTarget, strict, args) {
 
   /* 10. If element0 is undefined or null, let R be the empty String;
         otherwise, Let R be ToString(element0). */
-  if ((element0 = 'undefined) || (element0 = 'null)) {
-    R := ""
-  } else {
-    R := ToString(element0)
-  };
-
+  R := ((element0 = 'undefined) || (element0 = 'null)) ? "" : ToString(element0);
 
   /* 11. ReturnIfAbrupt(R). */
   @ReturnIfAbrupt(R);
@@ -2654,6 +2652,8 @@ function arrayPush(global, this, NewTarget, strict, items) {
  * following steps are taken:
  */
 function arrayReduce(global, this, NewTarget, strict, args) {
+  /* Initialize `accumulator` to keep typechecker happy */
+  accumulator := null;
   callbackfn := l_nth(args, 0);
   initialValue := getOptionalParam(args, 1);
 
@@ -2799,6 +2799,8 @@ function arrayReduce(global, this, NewTarget, strict, args) {
  * the following steps are taken:
  */
 function arrayReduceRight(global, this, NewTarget, strict, args) {
+  /* Initialize `accumulator` to keep typechecker happy. */
+  accumulator := null;
   callbackfn := l_nth(args, 0);
   initialValue := getOptionalParam(args, 1);
 
@@ -3694,11 +3696,7 @@ function arraySplice(global, this, NewTarget, strict, args) {
 
   /* 7. If relativeStart is negative, let actualStart be max((len + relativeStart),0);
         else let actualStart be min(relativeStart, len). */
-  if (relativeStart < 0.) {
-    actualStart := max((len + relativeStart), 0.)
-  } else {
-    actualStart := min(relativeStart, len)
-  };
+  actualStart := (relativeStart < 0.) ? max((len + relativeStart), 0.) : min(relativeStart, len);
 
   n_args := l_len args;
 
@@ -3987,6 +3985,7 @@ function arrayToLocaleString(global, this, NewTarget, strict, args) {
   /* 8. ReturnIfAbrupt(firstElement). */
   @ReturnIfAbrupt(firstElement);
 
+  R := null;
   /* 9. If firstElement is undefined or null, then */
   if ((firstElement = 'undefined) || (firstElement = 'null)) {
     /* a. Let R be the empty String. */

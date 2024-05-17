@@ -1225,6 +1225,7 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
 };
 
 function PropertyDefinitionListEvaluation(PropertyDefinitionList, object, enumerable, scope) {
+  status := null;
   /* PropertyDefinitionList : PropertyDefinitionList , PropertyDefinition */
   foreach(PropertyDefinition : PropertyDefinitionList) {
     /* 1. Let status be the result of performing PropertyDefinitionEvaluation of PropertyDefinitionList with arguments object and enumerable. */
@@ -1709,6 +1710,7 @@ function JS_Interpreter_Stmt(s, scope) {
 };
 
 function JS_Interpreter_BindingList(BindingList, scope) {
+  next := null;
   /* 13.3.1.4 BindingList : BindingList , LexicalBinding */
   foreach (LexicalBinding : BindingList) {
     /* 1. Let next be the result of evaluating BindingList. */
