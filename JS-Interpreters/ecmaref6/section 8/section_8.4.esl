@@ -45,11 +45,11 @@ function executeJob(job) {
 };
 
 function newPendingJob(Job, Arguments, realm, HostDefined) {
-  return { 
+  return {
     Job: Job,
     Arguments: Arguments,
     Realm: realm,
-    HostDefined: HostDefined 
+    HostDefined: HostDefined
   }
 };
 
@@ -137,6 +137,6 @@ function NextJob(result) {
 
     /* Perform the abstract operation named by nextPending.[[Job]] using the elements of nextPending.[[Arguments]] as its arguments. */
     result := executeJob(nextPending);
-    
+
     return result
 }

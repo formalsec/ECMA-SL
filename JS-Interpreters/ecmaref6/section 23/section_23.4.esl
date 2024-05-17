@@ -77,12 +77,12 @@ function WeakSetConstructor(global, this, NewTarget, strict, items) {
 
     /* 1. If NewTarget is undefined, throw a TypeError exception. */
     if (NewTarget = 'undefined) {
-        throw TypeErrorConstructorInternal() 
+        throw TypeErrorConstructorInternal()
     };
-    
+
     /* 2. Let set be OrdinaryCreateFromConstructor(NewTarget, "%WeakSetPrototype%", «‍[[WeakSetData]]» ). */
     set := OrdinaryCreateFromConstructor(NewTarget, "WeakSetPrototype", ["WeakSetData"]);
-    
+
     /* 3. ReturnIfAbrupt(set). */
     @ReturnIfAbrupt(set);
 
@@ -103,7 +103,7 @@ function WeakSetConstructor(global, this, NewTarget, strict, items) {
 
         /* a. Let adder be Get(set, "add"). */
         adder := Get(set, "add");
-        
+
         /* b. ReturnIfAbrupt(adder). */
         @ReturnIfAbrupt(adder);
 
@@ -133,7 +133,7 @@ function WeakSetConstructor(global, this, NewTarget, strict, items) {
 
         /* b. ReturnIfAbrupt(next). */
         @ReturnIfAbrupt(next);
-        
+
         /* c. If next is false, return set. */
         if (next = false) {
             return set
@@ -189,7 +189,7 @@ function weakSetAdd(global, this, NewTarget, strict, args) {
 
     while (i < len) {
         e := l_nth(entries, i);
-        
+
         /* a. If e is not empty and SameValue(e, value) is true, then */
         if (!(e = 'empty) &&& (SameValue(e, value) = true)) {
             /* i. Return S. */
@@ -201,7 +201,7 @@ function weakSetAdd(global, this, NewTarget, strict, args) {
 
     /* 7. Append value as the last element of entries. */
     S.WeakSetData := l_add(S.WeakSetData, value);
-    
+
     /* 8. Return S. */
     return S
 };
@@ -212,7 +212,7 @@ function weakSetAdd(global, this, NewTarget, strict, args) {
 */
 
 function weakSetDelete(global, this, NewTarget, strict, args) {
-    
+
     value := l_nth(args, 0);
 
     /* 1. Let S be the this value. */
@@ -245,10 +245,10 @@ function weakSetDelete(global, this, NewTarget, strict, args) {
 
     while (i < len) {
         e := l_nth(entries, i);
-        
+
         /* a. If e is not empty and SameValue(e, value) is true, then */
         if (!(e = 'empty) &&& (SameValue(e, value) = true)) {
-            
+
             /* i. Replace the element of entries whose value is e with an element whose value is empty.
             ii .Return true. */
             removed := true
@@ -269,7 +269,7 @@ function weakSetDelete(global, this, NewTarget, strict, args) {
 * 23.4.3.4 WeakSet.prototype.has ( value )
 */
 function weakSetHas(global, this, NewTarget, strict, args) {
-    
+
     value := l_nth(args, 0);
 
     /* 1. Let S be the this value. */
@@ -299,7 +299,7 @@ function weakSetHas(global, this, NewTarget, strict, args) {
 
     while (i < len) {
         e := l_nth(entries, i);
-        
+
         /* a. If e is not empty and SameValue(e, value) is true, return true. */
         if (!(e = 'empty) &&& (SameValue(e, value) = true)) {
             return true

@@ -17,25 +17,25 @@
 *            |    Internal Method  	 |       Handler Method       |
 *            ------------------------|-----------------------------
 *            | [[GetPrototypeOf]] 	 |       getPrototypeOf       |
-*            | [[SetPrototypeOf]]  	 |        setPrototypeOf      |    
-*            | [[IsExtensible]] 	 |        isExtensible        |    
-*            | [[PreventExtensions]] |      preventExtensions     |    
-*            | [[GetOwnProperty]] 	 |   getOwnPropertyDescriptor |    
-*            | [[HasProperty]] 	     |             has            |     
-*            | [[Get]] 	             |             get            |     
-*            | [[Set]] 	             |             set            |         
-*            | [[Delete]] 	         |        deleteProperty      |         
-*            | [[DefineOwnProperty]] | 	     defineProperty       |         
-*            | [[Enumerate]]      	 |          enumerate         |     
-*            | [[OwnPropertyKeys]] 	 |           ownKeys          |     
-*            | [[Call]] 	         |            apply           |     
-*            | [[Construct]] 	     |          construct         |     
+*            | [[SetPrototypeOf]]  	 |        setPrototypeOf      |
+*            | [[IsExtensible]] 	 |        isExtensible        |
+*            | [[PreventExtensions]] |      preventExtensions     |
+*            | [[GetOwnProperty]] 	 |   getOwnPropertyDescriptor |
+*            | [[HasProperty]] 	     |             has            |
+*            | [[Get]] 	             |             get            |
+*            | [[Set]] 	             |             set            |
+*            | [[Delete]] 	         |        deleteProperty      |
+*            | [[DefineOwnProperty]] | 	     defineProperty       |
+*            | [[Enumerate]]      	 |          enumerate         |
+*            | [[OwnPropertyKeys]] 	 |           ownKeys          |
+*            | [[Call]] 	         |            apply           |
+*            | [[Construct]] 	     |          construct         |
 *            ------------------------------------------------------
 *
-*  When a handler method is called to provide the implementation of a proxy object internal method, the handler method 
-*  is passed the proxy’s target object as a parameter. A proxy’s handler object does not necessarily have a method 
+*  When a handler method is called to provide the implementation of a proxy object internal method, the handler method
+*  is passed the proxy’s target object as a parameter. A proxy’s handler object does not necessarily have a method
 *  corresponding to every essential internal method. Invoking an internal method on the proxy results in the invocation
-*  of the corresponding internal method on the proxy’s target object if the handler object does not have a method 
+*  of the corresponding internal method on the proxy’s target object if the handler object does not have a method
 *  corresponding to the internal trap.
 *
 *  The [[ProxyHandler]] and [[ProxyTarget]] internal slots of a proxy object are always initialized when the object is
@@ -45,7 +45,7 @@
 *
 *  Because proxy objects permit the implementation of internal methods to be provided by arbitrary ECMAScript code, it is
 *  possible to define a proxy object whose handler methods violates the invariants defined in 6.1.7.3. Some of the
-*  internal method invariants defined in 6.1.7.3 are essential integrity invariants. These invariants are explicitly 
+*  internal method invariants defined in 6.1.7.3 are essential integrity invariants. These invariants are explicitly
 *  enforced by the proxy object internal methods specified in this section. An ECMAScript implementation must be robust
 *  in the presence of all possible invariant violations.
 *
@@ -62,7 +62,7 @@ function IsProxy(O) {
 /**
 * 9.5.1 [[GetPrototypeOf]] ( )
 *
-*  When the [[GetPrototypeOf]] internal method of a Proxy exotic object O 
+*  When the [[GetPrototypeOf]] internal method of a Proxy exotic object O
 *  is called the following steps are taken:
 *
 */
@@ -228,7 +228,7 @@ function SetPrototypeOfProxy (O, V) {
 /**
 * 9.5.3 [[IsExtensible]] ( )
 *
-*  When the [[IsExtensible]] internal method of a Proxy exotic object O is 
+*  When the [[IsExtensible]] internal method of a Proxy exotic object O is
 *  called the following steps are taken:
 */
 
@@ -268,7 +268,7 @@ function IsExtensibleProxy (O) {
 
     /* 10. Let targetResult be target.[[IsExtensible]](). */
     targetResult := {target.IsExtensible}(target);
-    
+
     /* 11. ReturnIfAbrupt(targetResult). */
     @ReturnIfAbrupt(targetResult);
 
@@ -448,7 +448,7 @@ function GetOwnPropertyProxy (O, P) {
         if (extensibleTarget = false) {
             throw TypeErrorConstructorInternal()
         };
-        
+
         /* g. Return undefined. */
         return 'undefined
     };
@@ -494,7 +494,7 @@ function GetOwnPropertyProxy (O, P) {
 *
 *  The result of [[GetOwnProperty]] must be either an Object or undefined.
 *
-*  A property cannot be reported as non-existent, if it exists as a 
+*  A property cannot be reported as non-existent, if it exists as a
 *  non-configurable own property of the target object.
 *
 *  A property cannot be reported as non-existent, if it exists as an own property
@@ -512,7 +512,7 @@ function GetOwnPropertyProxy (O, P) {
 
 
 /**
-* 
+*
 * 9.5.6 [[DefineOwnProperty]] (P, Desc)
 *
 *  When the [[DefineOwnProperty]] internal method of a Proxy exotic object O is called
@@ -576,7 +576,7 @@ function DefineOwnPropertyProxy (O, P, Desc) {
 
     /* 16. ReturnIfAbrupt(extensibleTarget). */
     @ReturnIfAbrupt(extensibleTarget);
-    
+
     /* 17. If Desc has a [[Configurable]] field and if Desc.[[Configurable]] is false, then */
     if (("Configurable" in_obj Desc) &&& (Desc.Configurable = false)) {
         /* a. Let settingConfigFalse be true. */
@@ -602,7 +602,7 @@ function DefineOwnPropertyProxy (O, P, Desc) {
 
         /* 20. Else targetDesc is not undefined, */
     } else {
-        
+
         /* a. If IsCompatiblePropertyDescriptor(extensibleTarget, Desc , targetDesc) is false, throw a TypeError exception. */
         if (IsCompatiblePropertyDescriptor(extensibleTarget, Desc, targetDesc) = false) {
             throw TypeErrorConstructorInternal()
@@ -643,7 +643,7 @@ function DefineOwnPropertyProxy (O, P, Desc) {
 */
 
 function HasPropertyProxy (O, P) {
-    
+
     /* 1. Assert: IsPropertyKey(P) is true. */
     assert(IsPropertyKey(P) = true);
 
@@ -672,7 +672,7 @@ function HasPropertyProxy (O, P) {
         /* a. Return target.[[HasProperty]](P). */
         return {target.HasProperty}(target, P)
     };
-    
+
     /* 9. Let booleanTrapResult be ToBoolean(Call(trap, handler, «target, P»)). */
     booleanTrapResult := ToBoolean(Call(null, null, trap, handler, [target, P]));
 
@@ -680,7 +680,7 @@ function HasPropertyProxy (O, P) {
     @ReturnIfAbrupt(booleanTrapResult);
 
     /* 11. If booleanTrapResult is false, then */
-    if (booleanTrapResult = false) {        
+    if (booleanTrapResult = false) {
 
         /* a. Let targetDesc be target.[[GetOwnProperty]](P). */
         targetDesc := {target.GetOwnProperty}(target, P);
@@ -701,7 +701,7 @@ function HasPropertyProxy (O, P) {
 
             /* iii. ReturnIfAbrupt(extensibleTarget). */
             @ReturnIfAbrupt(extensibleTarget);
-            
+
             /* iv. If extensibleTarget is false, throw a TypeError exception. */
             if (extensibleTarget = false) {
                 throw TypeErrorConstructorInternal()
@@ -713,12 +713,12 @@ function HasPropertyProxy (O, P) {
     return booleanTrapResult
 };
 
-/** 
+/**
 * NOTE [[HasProperty]] for proxy objects enforces the following invariants:
 *
 *  The result of [[HasProperty]] is a Boolean value.
 *
-*  A property cannot be reported as non-existent, if it exists as a 
+*  A property cannot be reported as non-existent, if it exists as a
 *  non-configurable own property of the target object.
 *
 *  A property cannot be reported as non-existent, if it exists as an own
@@ -731,7 +731,7 @@ function HasPropertyProxy (O, P) {
 /**
 * 9.5.8 [[Get]] (P, Receiver)
 *
-*  When the [[Get]] internal method of a Proxy exotic object O is called with property 
+*  When the [[Get]] internal method of a Proxy exotic object O is called with property
 *  key P and ECMAScript language value Receiver the following steps are taken:
 *
 */
@@ -806,7 +806,7 @@ function GetProxy (O, P, Receiver) {
 /*
 * NOTE [[Get]] for proxy objects enforces the following invariants:
 *
-*  The value reported for a property must be the same as the value of the corresponding target object 
+*  The value reported for a property must be the same as the value of the corresponding target object
 *  property if the target object property is a non-writable, non-configurable own data property.
 *
 *  The value reported for a property must be undefined if the corresponding target object property
@@ -820,8 +820,8 @@ function GetProxy (O, P, Receiver) {
 *
 * 9.5.9 [[Set]] ( P, V, Receiver)
 *
-*  When the [[Set]] internal method of a Proxy exotic object O is 
-*  called with property key P, value V, and ECMAScript language 
+*  When the [[Set]] internal method of a Proxy exotic object O is
+*  called with property key P, value V, and ECMAScript language
 *  value Receiver, the following steps are taken:
 *
 */
@@ -904,7 +904,7 @@ function SetProxy (O, P, V, Receiver) {
 *  The result of [[Set]] is a Boolean value.
 *
 *  Cannot change the value of a property to be different from the value of
-*  the corresponding target object property if the corresponding target object 
+*  the corresponding target object property if the corresponding target object
 *  property is a non-writable, non-configurable own data property.
 *
 *  Cannot set the value of a property if the corresponding target object
@@ -920,7 +920,7 @@ function SetProxy (O, P, V, Receiver) {
 *
 *  When the [[Delete]] internal method of a Proxy exotic object O is
 *  called with property key P the following steps are taken:
-* 
+*
 */
 
 function DeleteProxy (O, P) {
@@ -1000,7 +1000,7 @@ function DeleteProxy (O, P) {
 /**
 * 9.5.11 [[Enumerate]] ()
 *
-*  When the [[Enumerate]] internal method of a Proxy exotic object O 
+*  When the [[Enumerate]] internal method of a Proxy exotic object O
 *  is called the following steps are taken:
 *
 */
@@ -1018,7 +1018,7 @@ function EnumerateProxy (O) {
     /* 3. Assert: Type(handler) is Object. */
     assert(Type(handler) = "Object");
 
-    /* 4. Let target be the value of the [[ProxyTarget]] internal slot of O. */  
+    /* 4. Let target be the value of the [[ProxyTarget]] internal slot of O. */
     target := O.ProxyTarget;
 
     /* 5. Let trap be GetMethod(handler, "enumerate"). */
@@ -1030,7 +1030,7 @@ function EnumerateProxy (O) {
     /* 7. If trap is undefined, then */
     if (trap = 'undefined) {
         /* a. Return target.[[Enumerate]](). */
-        return {target.Enumerate}(target)     
+        return {target.Enumerate}(target)
     };
 
     /* 8. Let trapResult be Call(trap, handler, «target»). */
@@ -1045,7 +1045,7 @@ function EnumerateProxy (O) {
     };
 
     /* 12. Return trapResult. */
-    return trapResult     
+    return trapResult
 };
 
 /*
@@ -1271,19 +1271,19 @@ function ConstructProxy(externalScope, ref, O, argumentsList, newTarget) {
 /**
 * 9.5.15 ProxyCreate(target, handler)
 *
-*  The abstract operation ProxyCreate with arguments target and handler is used to specify the creation 
+*  The abstract operation ProxyCreate with arguments target and handler is used to specify the creation
 *  of new Proxy exotic objects. It performs the following steps:
 *
 */
 
 function ProxyCreate(target, handler) {
-    
+
     /* 1. If Type(target) is not Object, throw a TypeError exception. */
     if (!(Type(target) = "Object")) {
         throw TypeErrorConstructorInternal()
     };
 
-    /* 2. If target is a Proxy exotic object and the value of the [[ProxyHandler]] internal slot 
+    /* 2. If target is a Proxy exotic object and the value of the [[ProxyHandler]] internal slot
           of target is null, throw a TypeError exception. */
     if (IsProxy(target) &&& (target.ProxyHandler = 'null)) {
         throw TypeErrorConstructorInternal()
@@ -1294,7 +1294,7 @@ function ProxyCreate(target, handler) {
         throw TypeErrorConstructorInternal()
     };
 
-    /* 4. If handler is a Proxy exotic object and the value of the [[ProxyHandler]] internal slot 
+    /* 4. If handler is a Proxy exotic object and the value of the [[ProxyHandler]] internal slot
           of handler is null, throw a TypeError exception. */
     if (IsProxy(handler) &&& (handler.ProxyHandler = 'null)) {
         throw TypeErrorConstructorInternal()

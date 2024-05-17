@@ -129,7 +129,7 @@ function BooleanPrototypeToString(globalObject, this, NewTarget, strict, params)
 
 /* 19.3.3.2 Boolean.prototype.toString ( ) */
 function booleanToString(globalObject, this, strict, args) {
-  
+
   /* 1. Let b be thisBooleanValue(this value). */
   b := thisBooleanValue(this);
 
@@ -159,18 +159,18 @@ function thisBooleanValue(value) {
   /* 1. If Type(value) is Boolean, return value. */
   if (type = "Boolean") {
     return value
-  };  
-  
+  };
+
   /* 2. If Type(value) is Object and value has a [[BooleanData]] internal slot, then */
   if (type = "Object" &&& "BooleanData" in_obj value) {
 
     /* 2a. Assert: value’s [[BooleanData]] internal slot is a Boolean value. */
     assert(Type(value.BooleanData) = "Boolean");
-    
+
     /* 2b. Return the value of value’s [[BooleanData]] internal slot. */
     return value.BooleanData
   };
-  
+
   /* 3. Throw a TypeError exception. */
   throw TypeErrorConstructorInternal()
 };

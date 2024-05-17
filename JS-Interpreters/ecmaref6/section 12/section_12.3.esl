@@ -69,7 +69,7 @@ function EvaluateDirectCall(func, thisValue, arguments, tailPosition, scope) {
     /* perform PrepareForTailCall() */
     PrepareForTailCall()
   };
-  
+
   /* 6. Let result be Call(func, thisValue, argList). */
   result := Call(scope, null, func, thisValue, argList);
 

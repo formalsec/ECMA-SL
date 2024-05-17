@@ -12,7 +12,7 @@ function initReflectObject(global, objectPrototype, strict) {
     /* Name */
     descName := newDataPropertyDescriptorFull("apply", false, false, true);
     setJSProperty(applyObj, "name", descName);
-    
+
     /* 26.1.2 Reflect.construct ( target, argumentsList [, newTarget] ) */
     constructObj := CreateBuiltInFunctionObject(["target", "argumentsList"], "ReflectConstruct", global, strict, null);
     constructDesc := newDataPropertyDescriptorFull(constructObj, true, false, true);
@@ -23,7 +23,7 @@ function initReflectObject(global, objectPrototype, strict) {
     /* Name */
     descName := newDataPropertyDescriptorFull("construct", false, false, true);
     setJSProperty(constructObj, "name", descName);
-    
+
     /* 26.1.3 Reflect.defineProperty ( target, propertyKey, attributes ) */
     definePropertyObj := CreateBuiltInFunctionObject(["target", "propertyKey", "attributes"], "ReflectDefineProperty", global, strict, null);
     definePropertyDesc := newDataPropertyDescriptorFull(definePropertyObj, true, false, true);
@@ -34,7 +34,7 @@ function initReflectObject(global, objectPrototype, strict) {
     /* Name */
     descName := newDataPropertyDescriptorFull("defineProperty", false, false, true);
     setJSProperty(definePropertyObj, "name", descName);
-    
+
     /* 26.1.4 Reflect.deleteProperty ( target, propertyKey ) */
     deletePropertyObj := CreateBuiltInFunctionObject(["target", "propertyKey"], "ReflectDeleteProperty", global, strict, null);
     deletePropertyDesc := newDataPropertyDescriptorFull(deletePropertyObj, true, false, true);
@@ -45,7 +45,7 @@ function initReflectObject(global, objectPrototype, strict) {
     /* Name */
     descName := newDataPropertyDescriptorFull("deleteProperty", false, false, true);
     setJSProperty(deletePropertyObj, "name", descName);
-    
+
     /* 26.1.5 Reflect.enumerate ( target ) */
     enumerateObj := CreateBuiltInFunctionObject(["target"], "ReflectEnumerate", global, strict, null);
     enumerateDesc := newDataPropertyDescriptorFull(enumerateObj, true, false, true);
@@ -56,7 +56,7 @@ function initReflectObject(global, objectPrototype, strict) {
     /* Name */
     descName := newDataPropertyDescriptorFull("enumerate", false, false, true);
     setJSProperty(enumerateObj, "name", descName);
-    
+
     /* 26.1.6 Reflect.get ( target, propertyKey [ , receiver ]) */
     getObj := CreateBuiltInFunctionObject(["target", "propertyKey"], "ReflectGet", global, strict, null);
     getDesc := newDataPropertyDescriptorFull(getObj, true, false, true);
@@ -67,7 +67,7 @@ function initReflectObject(global, objectPrototype, strict) {
     /* Name */
     descName := newDataPropertyDescriptorFull("get", false, false, true);
     setJSProperty(getObj, "name", descName);
-    
+
     /* 26.1.7 Reflect.getOwnPropertyDescriptor ( target, propertyKey ) */
     getOwnPropertyDescriptorObj := CreateBuiltInFunctionObject(["target", "propertyKey"], "ReflectGetOwnPropertyDescriptor", global, strict, null);
     getOwnPropertyDescriptorDesc := newDataPropertyDescriptorFull(getOwnPropertyDescriptorObj, true, false, true);
@@ -78,7 +78,7 @@ function initReflectObject(global, objectPrototype, strict) {
     /* Name */
     descName := newDataPropertyDescriptorFull("getOwnPropertyDescriptor", false, false, true);
     setJSProperty(getOwnPropertyDescriptorObj, "name", descName);
-    
+
     /* 26.1.8 Reflect.getPrototypeOf ( target ) */
     getPrototypeOfObj := CreateBuiltInFunctionObject(["target"], "ReflectGetPrototypeOf", global, strict, null);
     getPrototypeOfDesc := newDataPropertyDescriptorFull(getPrototypeOfObj, true, false, true);
@@ -89,7 +89,7 @@ function initReflectObject(global, objectPrototype, strict) {
     /* Name */
     descName := newDataPropertyDescriptorFull("getPrototypeOf", false, false, true);
     setJSProperty(getPrototypeOfObj, "name", descName);
-    
+
     /* 26.1.9 Reflect.has ( target, propertyKey ) */
     hasObj := CreateBuiltInFunctionObject(["target", "propertyKey"], "ReflectHas", global, strict, null);
     hasDesc := newDataPropertyDescriptorFull(hasObj, true, false, true);
@@ -100,7 +100,7 @@ function initReflectObject(global, objectPrototype, strict) {
     /* Name */
     descName := newDataPropertyDescriptorFull("has", false, false, true);
     setJSProperty(hasObj, "name", descName);
-    
+
     /* 26.1.10 Reflect.isExtensible (target) */
     isExtensibleObj := CreateBuiltInFunctionObject(["target"], "ReflectIsExtensible", global, strict, null);
     isExtensibleDesc := newDataPropertyDescriptorFull(isExtensibleObj, true, false, true);
@@ -111,7 +111,7 @@ function initReflectObject(global, objectPrototype, strict) {
     /* Name */
     descName := newDataPropertyDescriptorFull("isExtensible", false, false, true);
     setJSProperty(isExtensibleObj, "name", descName);
-    
+
     /* 26.1.11 Reflect.ownKeys ( target ) */
     ownKeysObj := CreateBuiltInFunctionObject(["target"], "ReflectOwnKeys", global, strict, null);
     ownKeysDesc := newDataPropertyDescriptorFull(ownKeysObj, true, false, true);
@@ -122,7 +122,7 @@ function initReflectObject(global, objectPrototype, strict) {
     /* Name */
     descName := newDataPropertyDescriptorFull("ownKeys", false, false, true);
     setJSProperty(ownKeysObj, "name", descName);
-    
+
     /* 26.1.12 Reflect.preventExtensions ( target ) */
     preventExtensionsObj := CreateBuiltInFunctionObject(["target"], "ReflectPreventExtensions", global, strict, null);
     preventExtensionsDesc := newDataPropertyDescriptorFull(preventExtensionsObj, true, false, true);
@@ -133,7 +133,7 @@ function initReflectObject(global, objectPrototype, strict) {
     /* Name */
     descName := newDataPropertyDescriptorFull("preventExtensions", false, false, true);
     setJSProperty(preventExtensionsObj, "name", descName);
-    
+
     /* 26.1.13 Reflect.set ( target, propertyKey, V [ , receiver ] ) */
     setObj := CreateBuiltInFunctionObject(["target", "propertyKey", "V"], "ReflectSet", global, strict, null);
     setDesc := newDataPropertyDescriptorFull(setObj, true, false, true);
@@ -144,7 +144,7 @@ function initReflectObject(global, objectPrototype, strict) {
     /* Name */
     descName := newDataPropertyDescriptorFull("set", false, false, true);
     setJSProperty(setObj, "name", descName);
-    
+
     /* 26.1.14 Reflect.setPrototypeOf ( target, proto ) */
     setPrototypeOfObj := CreateBuiltInFunctionObject(["target", "proto"], "ReflectSetPrototypeOf", global, strict, null);
     setPrototypeOfDesc := newDataPropertyDescriptorFull(setPrototypeOfObj, true, false, true);

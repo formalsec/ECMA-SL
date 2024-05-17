@@ -2,7 +2,7 @@
 
 function pushExecStack(newExecCtx) {
    |ctxStack| := l_prepend(newExecCtx, |ctxStack|);
-   return 
+   return
 };
 
 function popExecStack() {
@@ -21,7 +21,7 @@ function execStackIsEmpty() {
 function initGlobalVars() {
     |ctxStack| := [];
     initJobQueue();
-    |__CUR__SYMB__| := 0; 
+    |__CUR__SYMB__| := 0;
     |GlobalSymbolRegistry| := {};
 
     return
@@ -72,7 +72,7 @@ function ECMAScriptInitialization(sourceText) {
     EnqueueJob("ScriptJobs", "ScriptEvaluationJob", [sourceText]);
         /* Else sourceText is the source code of a module, */
             /* Perform EnqueueJob("ScriptJobs", TopLevelModuleEvaluationJob, « sourceText »). */
-    
+
     /* NextJob NormalCompletion(undefined). */
     return NextJob( NormalCompletion('undefined) )
 };
