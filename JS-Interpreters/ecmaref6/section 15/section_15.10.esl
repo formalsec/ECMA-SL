@@ -96,7 +96,7 @@ function parsePattern(P, F) {
     "\u002F", among other possibilities, but not "/", because /// followed by
     F would be parsed as a SingleLineComment rather than a RegularExpressionLiteral.
     If P is the empty String, this specification can be met by letting S be "(?:)". */
-  
+
   S := escapePattern(P);
 
   if ((S = "") ||| (S = 'undefined)) {
@@ -138,7 +138,7 @@ function newRegExp(strict, pattern, flags) {
     /* ES6 - test implementation/test/test262/tests/built-ins/RegExp/new-regexp/15.10.4.1-1.js */
     else {
       P := R.OriginalSource;
-      
+
       R := parsePattern(P, ToString(flags))
     }
     /* If pattern is an object R whose [[Class]] internal property is "RegExp"
@@ -259,7 +259,7 @@ function getRegExpPrototypeExec(strict) {
  */
 function RegExpPrototypeExec(global, this, NewTarget, strict, args) {
   str := l_nth (args, 0);
-  
+
   /* 1. Let R be this RegExp object. */
   R := this;
 
@@ -439,7 +439,7 @@ function RegExpPrototypeTest(global, this, NewTarget, strict, args) {
  * ignoreCase property is true, and "m" if the multiline property is true.
  *
  * NOTE The returned String has the form of a RegularExpressionLiteral that
- * evaluates to another RegExp object with the same behaviour as this object. 
+ * evaluates to another RegExp object with the same behaviour as this object.
  */
 function RegExpPrototypeToString(global, this, NewTarget, strict, args) {
   source := s_concat(["/", this.OriginalSource, "/"]);
@@ -570,7 +570,7 @@ function setFlags(obj, flags) {
   m := false;
   y := false;
   u := false;
-  
+
   len := s_len_u (flags);
   index := 0;
   while (index < len) {
@@ -586,7 +586,7 @@ function setFlags(obj, flags) {
       y := true
     } elif ((flag = "u") &&& (u = false)) {
       u := true
-    } 
+    }
     else {
       throw SyntaxErrorConstructorInternal()
     };
@@ -606,7 +606,7 @@ function setFlags(obj, flags) {
   if (m) { flags := s_concat [flags, "m"] };
   if (u) { flags := s_concat [flags, "u"] };
   if (y) { flags := s_concat [flags, "y"] };
-  
+
   setJSProperty(obj, "flags", newDataPropertyDescriptorFull(flags, false, false, false));
   /* ES6? - test implementation/test/test262/tests/built-ins/RegExp/new-regexp/S15.10.4.1_A1_T1.js */
 
@@ -705,7 +705,7 @@ function copyCaps(caps) {
     };
     i := i + 1
   };
-  
+
   return caps'
 };
 
@@ -743,7 +743,7 @@ function JS_Interpreter_Quant(qt) {
     bounds := { inf: 0., sup: 1., greedy: b };
     return bounds
   }
-  /* The production QuantifierPrefix :: { DecimalDigits } evaluates as follows: 
+  /* The production QuantifierPrefix :: { DecimalDigits } evaluates as follows:
      1. Let i be the MV of DecimalDigits (see 7.8.3).
      2. Return the two results i and i. */
   /* The production QuantifierPrefix :: { DecimalDigits , DecimalDigits }
@@ -767,7 +767,7 @@ function JS_Interpreter_Quant(qt) {
   }
 };
 
-/* 
+/*
 m = matcher
 k = continuation
 st = state
@@ -789,7 +789,7 @@ function JS_Interpreter_Repetition_Greedy(m, bounds, st, k, parenIndex, parenCou
     };
 
     st2 := copyState(st);
-    
+
     if (!(parenIndex = 'undefined)) {
       i := parenIndex + 1.;
       len := parenIndex + parenCount;
@@ -1060,7 +1060,7 @@ function IsInCharacterClass(cs, c, ic) {
   if (!(cs.negative = null)) {
     ret := (ret ||| !(code_str in_obj cs.negative))
   };
-  return ret  
+  return ret
 };
 
 
@@ -1130,7 +1130,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
     };
 
     /**
-     * NOTE A ClassAtom can use any of the escape sequences that are allowed in the 
+     * NOTE A ClassAtom can use any of the escape sequences that are allowed in the
      * rest of the regular expression except for \b, \B, and backreferences.
      * Inside a CharacterClass, \b means the backspace character, while \B and backreferences
      * raise errors. Using a backreference inside a ClassAtom causes an error.
@@ -1585,7 +1585,7 @@ function JS_Interpreter_RegEx(re, flags) {
       m_hd := JS_Interpreter_RegEx(re_hd, flags);
       m_tl := JS_Interpreter_RegEx(re_tl, flags);
 
-      m := lambda (st, k) [m_hd, m_tl] { 
+      m := lambda (st, k) [m_hd, m_tl] {
         k' := lambda (st') [m_tl, k] {
           return {m_tl}(st', k)
         };

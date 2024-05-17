@@ -48,7 +48,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   /* Name */
   descName := newDataPropertyDescriptorFull("copyWithin", false, false, true);
   setJSProperty(copyWithinObj, "name", descName);
-  
+
   /* 22.2.3.6 %TypedArray%.prototype.entries ( ) */
   entriesObj := CreateBuiltInFunctionObject([], "TypedArrayEntries", global, strict, null);
   entriesDesc := newDataPropertyDescriptorFull(entriesObj, true, false, true);
@@ -445,16 +445,16 @@ function initTypedArrayPrototype(global, typedArrayPrototype, strict, typeOfArra
 function initTypedArrayObject(global, strict, typeOfArray, typedArray) {
   typedArrayPrototype := getJSProperty(typedArray, "prototype").Value;
   objTypedArrayPrototype := initTypedArrayPrototype(global, typedArrayPrototype, strict, typeOfArray);
-  
+
   name := s_concat([typeOfArray, "Array"]);
   objTypedArrayConstructor := CreateBuiltInConstructorObject(typedArray, [], "TypedArraySubConstructor", global, strict, 0., name);
-  
+
   objectTypedArrayFun := lambda(global, this, NewTarget, strict, args)[objTypedArrayConstructor] {
     return TypedArraySubConstructor(global, this, NewTarget, strict, args, objTypedArrayConstructor)
   };
 
-  objTypedArrayConstructor.ECMAScriptCode := objectTypedArrayFun; 
-  
+  objTypedArrayConstructor.ECMAScriptCode := objectTypedArrayFun;
+
   /* 22.2.5 */
   /* Length */
   descLen := newDataPropertyDescriptorFull(3., false, false, true);
@@ -480,7 +480,7 @@ function initTypedArrayObject(global, strict, typeOfArray, typedArray) {
  *                                     *
  ***************************************/
 function TypedArrayConstructor(global, this, NewTarget, strict, items) {
-  len := l_len items; 
+  len := l_len items;
   if (len = 0) {
     /* 22.2.1.1 */
     return TypedArrayConstructorEmpty(global, this, NewTarget, strict, items)
@@ -586,16 +586,16 @@ function TypedArrayConstructorLength(global, this, NewTarget, strict, length) {
 function AllocateTypedArray(newTarget, length, strict) {
   /* 1. Assert: IsConstructor(newTarget) is true. */
   assert(IsConstructor(newTarget) = true);
-  
+
   /* 2. If SameValue(%TypedArray%, newTarget) is true, throw a TypeError exception */
   if (SameValue(|Intrinsics|.TypedArray, newTarget) = true) {
     throw TypeErrorConstructorInternal()
   };
-  
+
   /* 3. NOTE %TypedArray% throws an exception when invoked via either a
      function call or the new operator. It can only be successfully invoked
      by a SuperCall. */
-  
+
   /* 4. Let constructorName be undefined. */
   constructorName := 'undefined;
   /* 5. Let subclass be newTarget. */
@@ -619,10 +619,10 @@ function AllocateTypedArray(newTarget, length, strict) {
     /* e. ReturnIfAbrupt(subclass). */
     @ReturnIfAbrupt(subclass)
   };
-  /* 7. Let proto be GetPrototypeFromConstructor(newTarget, "%TypedArrayPrototype%"). */    
+  /* 7. Let proto be GetPrototypeFromConstructor(newTarget, "%TypedArrayPrototype%"). */
   proto := GetPrototypeFromConstructor(newTarget, "TypedArrayPrototype");
-  /* 8. ReturnIfAbrupt(proto). */ 
-  @ReturnIfAbrupt(proto);        
+  /* 8. ReturnIfAbrupt(proto). */
+  @ReturnIfAbrupt(proto);
   /* 9. Let obj be IntegerIndexedObjectCreate (proto, «‍[[ViewedArrayBuffer]],
      [[TypedArrayName]], [[ByteLength]], [[ByteOffset]], [[ArrayLength]]»
      ). */
@@ -630,7 +630,7 @@ function AllocateTypedArray(newTarget, length, strict) {
   /* 10. Assert: The [[ViewedArrayBuffer]] internal slot of obj is undefined. */
   assert(getInternalProperty(obj, "ViewedArrayBuffer") = 'undefined);
   /* 11. Set obj's [[TypedArrayName]] internal slot to constructorName. */
-  obj.TypedArrayName := constructorName;        
+  obj.TypedArrayName := constructorName;
   /* 12. If length was not passed, then */
   if (length = 'undefined) {
     /* a. Set obj's [[ByteLength]] internal slot to 0. */
@@ -658,7 +658,7 @@ function AllocateTypedArray(newTarget, length, strict) {
     /* Set obj’s [[ArrayLength]] internal slot to length. */
     obj.ArrayLength := length
   };
-  /* 14. Return obj. */         
+  /* 14. Return obj. */
   return obj
 };
 
@@ -1132,7 +1132,7 @@ function getTypedArrayBuffer(global, this, NewTarget, strict, args) {
   };
   /* Let buffer be the value of O’s [[ViewedArrayBuffer]] internal slot. */
   buffer := getInternalProperty(O, "ViewedArrayBuffer");
-  /* Return buffer. */  
+  /* Return buffer. */
   return buffer
 };
 
@@ -1195,14 +1195,14 @@ function getTypedArrayByteOffset(global, this, NewTarget, strict, args) {
  * The implementation of the algorithm may be optimized with the knowledge that the this value
  * is an object that has a fixed length and whose integer indexed properties are not sparse.
  * However, such optimization must not introduce any observable changes in the specified behaviour of the algorithm.
- * 
+ *
  * This function is not generic. ValidateTypedArray is applied to the this value prior to evaluating the algorithm.
  * If its result is an abrupt completion that exception is thrown instead of evaluating the algorithm.
- * 
+ *
  * The length property of the copyWithin method is 2.
- * 
- * 
- * 
+ *
+ *
+ *
  *
  * 22.1.3.3 Array.prototype.copyWithin (target, start [ , end ] )
  *
@@ -1237,7 +1237,7 @@ function TypedArrayCopyWithin(global, this, NewTarget, strict, args) {
   if (relativeTarget < 0.) {
     /* let to be max((len + relativeTarget),0) */
     to := max((len + relativeTarget), 0.)
-  } 
+  }
   /* else let to be min(relativeTarget, len) */
   else {
     to := min(relativeTarget, len)
@@ -1311,7 +1311,7 @@ function TypedArrayCopyWithin(global, this, NewTarget, strict, args) {
       setStatus := Set(O, toKey, fromVal, true);
       /* iv. ReturnIfAbrupt(setStatus). */
       @ReturnIfAbrupt(setStatus)
-    } 
+    }
     /* f. Else fromPresent is false, */
     else {
       /* i. Let deleteStatus be DeletePropertyOrThrow(O, toKey). */
@@ -1391,7 +1391,7 @@ function TypedArrayEntries(global, this, NewTarget, strict, args) {
  * This function is not generic.
  * ValidateTypedArray is applied to the this value prior to evaluating the algorithm.
  * If its result is an abrupt completion that exception is thrown instead of evaluating the algorithm.
- * 
+ *
  * The length property of the every method is 1.
  *
  *
@@ -1502,7 +1502,7 @@ function TypedArrayEvery(global, this, NewTarget, strict, args) {
  *
  * This function is not generic. ValidateTypedArray is applied to the this value prior to evaluating the algorithm.
  * If its result is an abrupt completion that exception is thrown instead of evaluating the algorithm.
- * 
+ *
  * The length property of the fill method is 1.
  *
  *
@@ -1678,14 +1678,14 @@ function TypedArrayFilter(global, this, NewTarget, strict, args) {
 
 /**
  * 22.2.3.10 %TypedArray%.prototype.find (predicate [ , thisArg ] )
- * 
+ *
  * %TypedArray%.prototype.find is a distinct function that implements the same algorithm as Array.prototype.find as defined in 22.1.3.8
  * except that the this object’s [[ArrayLength]] internal slot is accessed in place of performing a [[Get]] of "length".
  * The implementation of the algorithm may be optimized with the knowledge that the this value is an object that has
  * a fixed length and whose integer indexed properties are not sparse.
  * However, such optimization must not introduce any observable changes in the specified behaviour of the algorithm
  * and must take into account the possibility that calls to predicate may cause the this value to become detached.
- * 
+ *
  * This function is not generic. ValidateTypedArray is applied to the this value prior to evaluating the algorithm.
  * If its result is an abrupt completion that exception is thrown instead of evaluating the algorithm.
  *
@@ -1778,7 +1778,7 @@ function TypedArrayFind(global, this, NewTarget, strict, args) {
 
 /**
  * 22.2.3.11 %TypedArray%.prototype.findIndex ( predicate [ , thisArg ] )
- * 
+ *
  * %TypedArray%.prototype.findIndex is a distinct function that implements the
  * same algorithm as Array.prototype.findIndex as defined in 22.1.3.9 except
  * that the this object’s [[ArrayLength]] internal slot is accessed in place
@@ -1792,7 +1792,7 @@ function TypedArrayFind(global, this, NewTarget, strict, args) {
  * This function is not generic. ValidateTypedArray is applied to the this
  * value prior to evaluating the algorithm. If its result is an abrupt completion
  * that exception is thrown instead of evaluating the algorithm.
- * 
+ *
  * The length property of the findIndex method is 1.
  *
  *
@@ -1895,7 +1895,7 @@ function TypedArrayFindIndex(global, this, NewTarget, strict, args) {
  * This function is not generic. ValidateTypedArray is applied to the this value
  * prior to evaluating the algorithm. If its result is an abrupt completion that
  * exception is thrown instead of evaluating the algorithm.
- * 
+ *
  * The length property of the forEach method is 1.
  *
  *
@@ -1980,7 +1980,7 @@ function TypedArrayForEach(global, this, NewTarget, strict, args) {
 
 /**
  * 22.2.3.13 %TypedArray%.prototype.indexOf (searchElement [ , fromIndex ] )
- * 
+ *
  * %TypedArray%.prototype.indexOf is a distinct function that implements the same
  * algorithm as Array.prototype.indexOf as defined in 22.1.3.11 except that the
  * this object’s [[ArrayLength]] internal slot is accessed in place of performing a [[Get]] of "length".
@@ -1988,11 +1988,11 @@ function TypedArrayForEach(global, this, NewTarget, strict, args) {
  * this value is an object that has a fixed length and whose integer indexed
  * properties are not sparse. However, such optimization must not introduce
  * any observable changes in the specified behaviour of the algorithm.
- * 
+ *
  * This function is not generic. ValidateTypedArray is applied to the this
  * value prior to evaluating the algorithm. If its result is an abrupt completion
  * that exception is thrown instead of evaluating the algorithm.
- * 
+ *
  * The length property of the indexOf method is 1.
  *
  *
@@ -2090,7 +2090,7 @@ function TypedArrayIndexOf(global, this, NewTarget, strict, args) {
 
 /**
  * 22.2.3.14 %TypedArray%.prototype.join ( separator )
- * 
+ *
  * %TypedArray%.prototype.join is a distinct function that implements the same
  * algorithm as Array.prototype.join as defined in 22.1.3.12 except that the
  * this object’s [[ArrayLength]] internal slot is accessed in place of performing a [[Get]] of "length".
@@ -2098,7 +2098,7 @@ function TypedArrayIndexOf(global, this, NewTarget, strict, args) {
  * the this value is an object that has a fixed length and whose integer indexed
  * properties are not sparse. However, such optimization must not introduce any
  * observable changes in the specified behaviour of the algorithm.
- * 
+ *
  * This function is not generic. ValidateTypedArray is applied to the this value
  * prior to evaluating the algorithm. If its result is an abrupt completion that
  * exception is thrown instead of evaluating the algorithm.
@@ -2204,11 +2204,11 @@ function TypedArrayKeys(global, this, NewTarget, strict, args) {
  * length and whose integer indexed properties are not sparse. However, such
  * optimization must not introduce any observable changes in the specified
  * behaviour of the algorithm.
- * 
+ *
  * This function is not generic. ValidateTypedArray is applied to the this value
  * prior to evaluating the algorithm. If its result is an abrupt completion that
  * exception is thrown instead of evaluating the algorithm.
- * 
+ *
  * The length property of the lastIndexOf method is 1.
  *
  *
@@ -2286,7 +2286,7 @@ function TypedArrayLastIndexOf(global, this, NewTarget, strict, args) {
       if (same) {
         return k
       }
-    }; 
+    };
     /* d. Decrease k by 1. */
     k := k - 1.
   };
@@ -2412,11 +2412,11 @@ function TypedArrayMap(global, this, NewTarget, strict, args) {
  * However, such optimization must not introduce any observable changes in the
  * specified behaviour of the algorithm and must take into account the
  * possibility that calls to callbackfn may cause the this value to become detached.
- * 
+ *
  * This function is not generic. ValidateTypedArray is applied to the this value prior
  * to evaluating the algorithm. If its result is an abrupt completion that exception
  * is thrown instead of evaluating the algorithm.
- * 
+ *
  * The length property of the reduce method is 1.
  *
  *
@@ -2549,11 +2549,11 @@ function TypedArrayReduce(global, this, NewTarget, strict, args) {
  * However, such optimization must not introduce any observable changes in the specified behaviour
  * of the algorithm and must take into account the possibility that calls to
  * callbackfn may cause the this value to become detached.
- * 
+ *
  * This function is not generic. ValidateTypedArray is applied to the this value prior
  * to evaluating the algorithm. If its result is an abrupt completion that exception
  * is thrown instead of evaluating the algorithm.
- * 
+ *
  * The length property of the reduceRight method is 1.
  *
  *
@@ -2679,7 +2679,7 @@ function TypedArrayReduceRight(global, this, NewTarget, strict, args) {
 
 /**
  * 22.2.3.21 %TypedArray%.prototype.reverse ( )
- * 
+ *
  * %TypedArray%.prototype.reverse is a distinct function that
  * implements the same algorithm as Array.prototype.reverse as
  * defined in 22.1.3.20 except that the this object’s
@@ -2688,7 +2688,7 @@ function TypedArrayReduceRight(global, this, NewTarget, strict, args) {
  * this value is an object that has a fixed length and whose integer indexed properties
  * are not sparse. However, such optimization must not introduce any observable
  * changes in the specified behaviour of the algorithm.
- * 
+ *
  * This function is not generic. ValidateTypedArray is applied to the this value prior
  * to evaluating the algorithm. If its result is an abrupt completion that exception
  * is thrown instead of evaluating the algorithm.
@@ -2708,7 +2708,7 @@ function TypedArrayReduceRight(global, this, NewTarget, strict, args) {
 function TypedArrayReverse(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
-  
+
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
   /* 2. ReturnIfAbrupt(O). */
@@ -2799,10 +2799,10 @@ function TypedArrayReverse(global, this, NewTarget, strict, args) {
  *
  * %TypedArray%.prototype.set is a single function whose behaviour
  * is overloaded based upon the type of its first argument.
- * 
+ *
  * This function is not generic. The this value must be an
  * object with a [[TypedArrayName]] internal slot.
- * 
+ *
  * The length property of the set method is 1.
  */
 function TypedArraySet(global, this, NewTarget, strict, args) {
@@ -3093,7 +3093,7 @@ function TypedArraySlice(global, this, NewTarget, strict, args) {
   };
   /* 8. If end is undefined, */
   if (end = 'undefined) {
-    /* let relativeEnd be len */ 
+    /* let relativeEnd be len */
     relativeEnd := len
   }
   /* else let relativeEnd be ToInteger(end) */
@@ -3210,11 +3210,11 @@ function TypedArraySlice(global, this, NewTarget, strict, args) {
  * introduce any observable changes in the specified behaviour of the algorithm and
  * must take into account the possibility that calls to callbackfn may cause the
  * this value to become detached.
- * 
+ *
  * This function is not generic. ValidateTypedArray is applied to the this value
  * prior to evaluating the algorithm. If its result is an abrupt completion that
  * exception is thrown instead of evaluating the algorithm.
- * 
+ *
  * The length property of the some method is 1.
  *
  *
@@ -3370,11 +3370,11 @@ function TypedArraySort(global, this, NewTarget, strict, args) {
 
 /**
  * 22.2.3.25 SortCompare
- * 
+ *
  * The following version of SortCompare is used by %TypedArray%.prototype.sort.
  * It performs a numeric comparison rather than the string comparison used in 22.1.3.24.
  * SortCompare has access to the comparefn and buffer values of the current invocation of the sort method.
- * 
+ *
  * When the TypedArray SortCompare abstract operation is called with two arguments x and y, the following steps are taken:
  */
 function TypedArraySortCompare(x, y, comparefn, buffer) {
@@ -3540,11 +3540,11 @@ function TypedArraySubarray(global, this, NewTarget, strict, args) {
  * length and whose integer indexed properties are not sparse. However, such
  * optimization must not introduce any observable changes in the specified behaviour
  * of the algorithm.
- * 
+ *
  * This function is not generic. ValidateTypedArray is applied to the this value prior
  * to evaluating the algorithm. If its result is an abrupt completion that exception
  * is thrown instead of evaluating the algorithm.
- * 
+ *
  * NOTE   If the ECMAScript implementation includes the ECMA-402 Internationalization
  *        API this function is based upon the algorithm for Array.prototype.toLocaleString
  *        that is in the ECMA-402 specification.
@@ -3713,13 +3713,13 @@ function getTypedArrayToStringTag(global, this, NewTarget, strict, args) {
  *                                     *
  ***************************************/
 /**
- * Each of the TypedArray constructor objects is an intrinsic object that has the 
+ * Each of the TypedArray constructor objects is an intrinsic object that has the
  * structure described below, differing only in the name used as the constructor
  * name instead of TypedArray, in Table 49.
- * 
+ *
  * The TypedArray constructors are not intended to be called as a function and
  * will throw an exception when called in that manner.
- * 
+ *
  * The TypedArray constructors are designed to be subclassable. They may be used
  * as the value of an extends clause of a class definition. Subclass constructors
  * that intend to inherit the specified TypedArray behaviour must include a super
