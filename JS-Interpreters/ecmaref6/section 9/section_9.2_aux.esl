@@ -18,12 +18,11 @@ function IteratorBindingInitialization(params, listIterator, scope, func) {
 };
 
 function getParameterIteratorValue(param, listIterator, environment) {
+  v := null;
   /* Check if parameter has some initializer */
   initializer := null;
   if (param.type = "AssignmentPattern") {
     initializer := param.right
-  } else {
-    initializer := null
   };
 
   /* If iteratorRecord.[[done]] is false, then */

@@ -454,15 +454,11 @@ function StringFromCodePoint(global, this, NewTarget, strict, args){
 
 /* 21.1.2.4 String.raw ( template , ...substitutions ) */
 function StringRaw(global, this, NewTarget, strict, args){
-  template  := hd args;
+  template := hd args;
 
   /* 1. Let substitutions be a List consisting of all of the arguments passed to this function,
   starting with the second argument. If fewer than two arguments were passed, the List is empty. */
-  if (l_len args >= 2) {
-    substitutions := tl args
-  } else{
-    substitutions := []
-  };
+  substitutions := (l_len args >= 2) ? tl args : [];
 
   /* 2. Let numberOfSubstitutions be the number of elements in substitutions. */
   numberOfSubstitutions := int_to_float l_len substitutions;
@@ -1347,6 +1343,7 @@ function StringPrototypeReplace(global, this, NewTarget, strict, args){
     return str
   };
 
+  replStr := null;
   /* 11. If functionalReplace is true, then */
   if (functionalReplace = true){
     /* a. Let replValue be Call(replaceValue, undefined,«matched, pos, and string»). */
@@ -1374,11 +1371,7 @@ function StringPrototypeReplace(global, this, NewTarget, strict, args){
   code units of string, replStr, and the trailing substring of string
   starting at index tailPos. If pos is 0, the first element of the
   concatenation will be the empty String. */
-  if (pos > 0.){
-    first := substring(str, 0. , pos)
-  } else{
-    first := ""
-  };
+  first := (pos > 0.) ? substring(str, 0., pos) : "";
   last := substring(str, tailPos, int_to_float(s_len_u (str)));
 
   newString := first;
@@ -1395,19 +1388,19 @@ function GetSubstitution(matched, str, position, captures, replacement, global, 
   assert(Type(matched) = "String");
 
   /* 2. Let matchLength be the number of code units in matched. */
-  matchLength := s_len_u (matched);
+  matchLength := s_len_u(matched);
 
   /* 3. Assert: Type(str) is String. */
   assert(Type(str) = "String");
 
   /* 4. Let stringLength be the number of code units in str. */
-  stringLength := s_len_u (str);
+  stringLength := s_len_u(str);
 
   /* 5. Assert: position is a nonnegative integer. */
   assert((Type(position) = "Number") && (position >= 0.));
 
   /* 6. Assert: position ≤ stringLength. */
-  assert(position <= stringLength);
+  assert(int_of_float position <= stringLength);
 
   /* 7. Assert: captures is a possibly empty List of Strings. */
   assert(Type(captures) = "List");
