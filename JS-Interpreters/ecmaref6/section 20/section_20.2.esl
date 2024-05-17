@@ -15,7 +15,7 @@ function initMathObject(global, objectPrototype, strict) {
 
   /* The Math object is not a function object. It does not have a [[Construct]] internal method; it is not possible to use the Math object as a constructor with the new operator. The Math
   object also does not have a [[Call]] internal method; it is not possible to invoke the Math object as a function. */
-  
+
   /* 20.2.1.9 Math [ @@toStringTag ] */
   descriptor := newDataPropertyDescriptorFull("Math", false, false, true);
   setJSProperty(MathObject, getToStringTagPropertyName(), descriptor);
@@ -47,7 +47,7 @@ function setValuePropertiesOfMathObject(mathObject) {
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   createBuiltInPropertyWithFullDescriptor(mathObject, "LOG10E", log_10 (exp 1.), false, false, false);
   /* NOTE The value of Math.LOG10E is approximately the reciprocal of the value of Math.LN10. */
-  
+
   /* 20.2.1.5 Math.LOG2E */
   /* The Number value for the base-2 logarithm of e, the base of the natural logarithms; this value is approximately 1.4426950408889634. */
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
@@ -75,14 +75,14 @@ function setValuePropertiesOfMathObject(mathObject) {
 
 /* 20.2.2 Function Properties of the Math Object */
 function setFunctionPropertiesOfMathObject(mathObject, globalObject, strict) {
-  /* Each of the following Math object functions applies the ToNumber abstract operation to each of its arguments 
+  /* Each of the following Math object functions applies the ToNumber abstract operation to each of its arguments
   (in left-to-right order if there is more than one). If ToNumber returns an abrupt completion, that Completion Record
-  is immediately returned. Otherwise, the function performs a computation on the resulting Number value(s). 
+  is immediately returned. Otherwise, the function performs a computation on the resulting Number value(s).
   The value returned by each function is a Number. */
 
   /* In the function descriptions below, the symbols NaN, −0, +0, −∞ and +∞ refer to the Number values described in 6.1.6. */
 
-  /* 
+  /*
   NOTE
   The behaviour of the functions acos, acosh, asin, asinh, atan, atanh, atan2, cbrt, cos, cosh, exp, expm1, hypot, log,log1p, log2, log10, pow, random, sin,
   sinh, sqrt, tan, and tanh is not precisely specified here except to require specific results for certain argument values that represent boundary cases of interest. For other argument
@@ -291,7 +291,7 @@ function MathACos(globalObject, this, NewTarget, stric, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
-  /* Returns an implementation-dependent approximation to the arc cosine of x. 
+  /* Returns an implementation-dependent approximation to the arc cosine of x.
   The result is expressed in radians and ranges from +0 to +pi. */
   /* If x is NaN, the result is NaN. */
   /* If x is greater than 1, the result is NaN. */
@@ -305,7 +305,7 @@ function MathACosh(globalObject, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
-  /* Returns an implementation-dependent approximation 
+  /* Returns an implementation-dependent approximation
   to the inverse hyperbolic cosine of x. */
   /* If x is NaN, the result is NaN. */
   /* If x is less than 1, the result is NaN. */
@@ -415,8 +415,8 @@ function MathATan2(globalObject, this, NewTarget, stric, params) {
   x := getOptionalParam(params, 1);
   y := ToNumber(y);
   x := ToNumber(x);
-  /* Returns an implementation-dependent approximation to the arc tangent of the quotient y/x of the arguments y and x, where the signs of y and x are used to determine the quadrant of 
-  the result. Note that it is intentional and traditional for the two-argument arc tangent function that the argument named y be first and the argument named x be second. The result is 
+  /* Returns an implementation-dependent approximation to the arc tangent of the quotient y/x of the arguments y and x, where the signs of y and x are used to determine the quadrant of
+  the result. Note that it is intentional and traditional for the two-argument arc tangent function that the argument named y be first and the argument named x be second. The result is
   expressed in radians and ranges from −π to +π. */
   /* If either x or y is NaN, the result is NaN. */
   /* If y>0 and x is +0, the result is an implementation-dependent approximation to +π/2. */
@@ -598,7 +598,7 @@ function MathFloor(globalObject, this, NewTarget, stric, params) {
   /* If x is +∞, the result is +∞. */
   /* If x is −∞, the result is −∞. */
   /* If x is greater than 0 but less than 1, the result is +0. */
-  /* NOTE 
+  /* NOTE
   The value of Math.floor(x) is the same as the value of -Math.ceil(-x). */
   return -(ceil (-x))
 };
@@ -625,10 +625,10 @@ function MathFRound(globalObject, this, NewTarget, strict, params) {
 /* 20.2.2.18 Math.hypot ( value1 , value2 , …values ) */
 function MathHypot(globalObject, this, NewTarget, strict, params) {
   /* Math.hypot returns an implementation-dependent approximation of the square root of the sum of squares of its arguments. */
-  /* 
-  NOTE 
+  /*
+  NOTE
   Implementations should take care to avoid the loss of precision from overflows and underflows that are prone to occur in naive
-  implementations when this function is called with two or more arguments. 
+  implementations when this function is called with two or more arguments.
   */
   /* If no arguments are passed, the result is +0. */
   value := getOptionalParam(params, 0);
@@ -710,7 +710,7 @@ function MathLog1P(globalObject, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
-  /* Returns an implementation-dependent approximation to the natural logarithm of 1 + x. 
+  /* Returns an implementation-dependent approximation to the natural logarithm of 1 + x.
   The result is computed in a way that is accurate even when the value of x is close to zero. */
   /* If x is NaN, the result is NaN. */
   if (is_NaN (x)) {
@@ -855,10 +855,10 @@ function MathPow(globalObject, this, NewTarget, stric, params) {
 
 /* 20.2.2.27 Math.random ( ) */
 function MathRandom(globalObject, this, NewTarget, stric, params) {
-  /* Returns a Number value with positive sign, greater than or equal to 0 but less than 1, 
-  chosen randomly or pseudo randomly with approximately uniform distribution over that range, 
+  /* Returns a Number value with positive sign, greater than or equal to 0 but less than 1,
+  chosen randomly or pseudo randomly with approximately uniform distribution over that range,
   using an implementation-dependent algorithm or strategy. This function takes no arguments. */
-  /* Each Math.random function created for distinct code Realms must produce a distinct sequence of 
+  /* Each Math.random function created for distinct code Realms must produce a distinct sequence of
   values from successive calls. */
   return random 1.
 };
@@ -868,8 +868,8 @@ function MathRound(globalObject, this, NewTarget, stric, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
-  /* Returns the Number value that is closest to x and is equal to a mathematical integer. 
-  If two integer Number values are equally close to x, then the result is the Number value that is closer to +∞. 
+  /* Returns the Number value that is closest to x and is equal to a mathematical integer.
+  If two integer Number values are equally close to x, then the result is the Number value that is closer to +∞.
   If x is already an integer, the result is x. */
   /* If x is NaN, the result is NaN. */
   if (is_NaN (x)) {
@@ -899,12 +899,12 @@ function MathRound(globalObject, this, NewTarget, stric, params) {
   if ((x < 0.) &&& (x >= -(0.5))) {
     return -(0.)
   };
-  /* NOTE 1 
+  /* NOTE 1
   Math.round(3.5) returns 4, but Math.round(–3.5) returns –3. */
-  /* NOTE 2 
-  The value of Math.round(x) is not always the same as the value of Math.floor(x+0.5). When x is −0 or is less than 0 but greater than or equal to -0.5, Math.round(x) 
-  returns −0, but Math.floor(x+0.5) returns +0. Math.round(x) may also differ from the value of Math.floor(x+0.5)because of internal rounding when computing x+0.5. */ 
-  
+  /* NOTE 2
+  The value of Math.round(x) is not always the same as the value of Math.floor(x+0.5). When x is −0 or is less than 0 but greater than or equal to -0.5, Math.round(x)
+  returns −0, but Math.floor(x+0.5) returns +0. Math.round(x) may also differ from the value of Math.floor(x+0.5)because of internal rounding when computing x+0.5. */
+
   ceil_number := ceil(x);
   floor_number := -ceil (-(x));
 
@@ -914,7 +914,7 @@ function MathRound(globalObject, this, NewTarget, stric, params) {
   else {
     return floor_number
   }
-  
+
   /*return -(ceil (-(x + 0.5)))*/
 };
 

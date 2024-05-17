@@ -43,15 +43,15 @@ function IsIterable(obj) {
  * NOTE 1 Arguments may be passed to the next function but their interpretation and validity is dependent upon the target Iterator.
  *        The for-of statement and other common users of Iterators do not pass any arguments, so Iterator objects that expect to be
  *        used in such a manner must be prepared to deal with being called with no arguments.
- * 
+ *
  * Table 54 — Iterator Interface Optional Properties
- * 
+ *
  * ------------------------------------------------------------------------------------------------------------------------
  * | Property | Value                     | Requirements                                                                  |
  * |----------|---------------------------|-------------------------------------------------------------------------------|
  * | return	  | A function that returns   | The returned object must conform to the IteratorResult interface.             |
  * |          | an IteratorResult object. |	Invoking this method notifies the Iterator object that the caller             |
- * |          |                           | does not intend to make any more next method calls to the Iterator.           | 
+ * |          |                           | does not intend to make any more next method calls to the Iterator.           |
  * |          |                           | The returned IteratorResult object will typically have a done property        |
  * |          |                           | whose value is true, and a value property with the value passed as            |
  * |          |                           | the argument of the return method. However, this requirement is not enforced. |
@@ -64,7 +64,7 @@ function IsIterable(obj) {
  * |          |                           | If the method does not throw, the returned IteratorResult object              |
  * |          |                           | will typically have a done property whose value is true.                      |
  * ------------------------------------------------------------------------------------------------------------------------
- * 
+ *
  * NOTE 2 Typically callers of these methods should check for their existence before invoking them. Certain ECMAScript language features including for-of, yield*, and array destructuring call these methods after performing an existence check. Most ECMAScript library functions that accept Iterable objects as arguments also conditionally call them.
  */
 function IsIterator(iterator) {
@@ -84,7 +84,7 @@ function initIteratorPrototype(global, objectPrototype, strict) {
     proto.Prototype := objectPrototype;
     setAllInternalMethodsOfOrdinaryObject(proto);
     proto.Extensible := true;
-    
+
     /* 25.1.2.1 %IteratorPrototype% [ @@iterator ] ( ) */
     iteratorObj := CreateBuiltInFunctionObject([], "IteratorPrototypeIterator", global, strict, null);
     iteratorDesc := newDataPropertyDescriptorFull(iteratorObj, true, false, true);
@@ -106,7 +106,7 @@ function initIteratorPrototype(global, objectPrototype, strict) {
 function IteratorPrototypeIterator(global, this, NewTarget, strict, args) {
     /* 1. Return the this value. */
     return this
-} 
+}
 /**
  * The value of the name property of this function is "[Symbol.iterator]".
  */

@@ -322,9 +322,9 @@ function ArraySetLength(A, Desc) {
  */
 
 /* 9.4.3 String Exotic Objects */
- 
+
 /**
- * 9.4.3.4 StringCreate( value, prototype) 
+ * 9.4.3.4 StringCreate( value, prototype)
  *
  * The abstract operation StringCreate with arguments value and prototype is used to specify
  * the creation of new exotic String objects. It performs the following steps:
@@ -333,13 +333,13 @@ function ArraySetLength(A, Desc) {
 
     /* 1. ReturnIfAbrupt(prototype). */
     @ReturnIfAbrupt(prototype);
-    
+
     /* 2. Assert: Type(value) is String. */
     assert(Type(value) = "String");
 
     /* 3. Let S be a newly created String exotic object. */
     S := NewECMAScriptObject();
-    setAllInternalMethodsOfOrdinaryObject(S); 
+    setAllInternalMethodsOfOrdinaryObject(S);
     /* setInternalProperty(S, "Class", "String"); */
 
     /* 4. Set the [[StringData]] internal slot of S to value. */
@@ -348,22 +348,22 @@ function ArraySetLength(A, Desc) {
     /* 5. Set S’s essential internal methods to the default ordinary object definitions specified in 9.1. */
     setStringInternals(S);
     /**
-     * All ordinary objects have an internal slot called [[Prototype]]. The value of this internal slot is 
-     * either null or an object and is used for implementing inheritance. Data properties of the 
+     * All ordinary objects have an internal slot called [[Prototype]]. The value of this internal slot is
+     * either null or an object and is used for implementing inheritance. Data properties of the
      * [[Prototype]] object are inherited (are visible as properties of the child object) for the purposes
-     * of get access, but not for set access. Accessor properties are inherited for both get access and 
+     * of get access, but not for set access. Accessor properties are inherited for both get access and
      * set access.
      *
-     * Every ordinary object has a Boolean-valued [[Extensible]] internal slot that controls whether or 
-     * not properties may be added to the object. If the value of the [[Extensible]] internal slot is 
-     * false then additional properties may not be added to the object. In addition, if [[Extensible]] 
+     * Every ordinary object has a Boolean-valued [[Extensible]] internal slot that controls whether or
+     * not properties may be added to the object. If the value of the [[Extensible]] internal slot is
+     * false then additional properties may not be added to the object. In addition, if [[Extensible]]
      * is false the value of the [[Prototype]] internal slot of the object may not be modified. Once the
      * value of an object’s [[Extensible]] internal slot has been set to false it may not be subsequently
      * changed to true.
      *
      * In the following algorithm descriptions, assume O is an ordinary object, P is a property key value,
      * V is any ECMAScript language value, and Desc is a Property Descriptor record.
-     */ 
+     */
 
     /* 6. Set the [[GetOwnProperty]] internal method of S as specified in 9.4.3.1. */
     setInternalProperty(S, "GetOwnProperty", "GetOwnPropertyString");
@@ -373,7 +373,7 @@ function ArraySetLength(A, Desc) {
 
     /* 8. Set the [[OwnPropertyKeys]] internal method of S as specified in 9.4.3.3. */
     setInternalProperty(S, "OwnPropertyKeys", "OwnPropertyKeysString");
-    
+
     /* 9. Set the [[Prototype]] internal slot of S to prototype. */
     setInternalProperty(S, "Prototype", prototype);
 
@@ -395,7 +395,7 @@ function ArraySetLength(A, Desc) {
       assert(!isAnAbruptCompletion(status))
     };
     */
-    
+
     /* 14. Return S. */
     return S
 };
@@ -456,7 +456,7 @@ function GetOwnPropertyString(S, P){
 };
 
 /* 9.4.3.1.1 StringGetIndexProperty (S, P) */
-function StringGetIndexProperty(S, P){  
+function StringGetIndexProperty(S, P){
   /* 1. If Type(P) is not String, return undefined. */
   if (!(Type(P) = "String")){
     return 'undefined
@@ -517,18 +517,18 @@ function HasPropertyString(S, P){
   /* 3. Return OrdinaryHasProperty(S, P). */
   return OrdinaryHasProperty(S, P)
 };
- 
+
 /* 9.4.3.3 [[OwnPropertyKeys]] ( ) */
 function OwnPropertyKeysString(O){
   /* 1. Let keys be a new empty List. */
   keys := [];
-  
+
   /* 2. Let str be the String value of the [[StringData]] internal slot of O. */
   str := ToString(O.StringData);
 
   /* 3. Let len be the number of elements in str. */
   len := int_to_float(s_len_u (str));
-  
+
   /* 4. For each integer i starting with 0 such that i < len, in ascending order, */
   i := 0.;
   while (i < len){
@@ -542,7 +542,7 @@ function OwnPropertyKeysString(O){
   strings := [];
   symbols := [];
 
-  /* 5. For each own property key P of O such that P is an integer index and ToInteger(P) ≥ len, in ascending numeric index order, */    
+  /* 5. For each own property key P of O such that P is an integer index and ToInteger(P) ≥ len, in ascending numeric index order, */
   foreach ( P : O.internalSlotsList ) {
     if ( IsArrayIndex(P) &&& (ToInteger(P) >= len) ) {
         /* Add P as the last element of keys. */
@@ -554,14 +554,14 @@ function OwnPropertyKeysString(O){
         /* Add P as the last element of keys. */
         strings := l_add(strings, P)
     }
-    
+
     /* For each own property key P of O that is a Symbol, in property creation order */
     elif ( in_list(P, (obj_fields O.SymbolKeys)) ){
         /* Add P as the last element of keys. */
         symbols := l_add(symbols, O.SymbolKeys[P])
     }
   };
-    
+
   numbers := l_sort(numbers);
   keys := l_concat(keys, numbers);
   keys := l_concat(keys, strings);

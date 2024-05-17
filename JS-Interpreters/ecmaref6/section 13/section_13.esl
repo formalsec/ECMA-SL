@@ -40,15 +40,15 @@ function createThrowTypeErrorFunctionObject(functionPrototypeObject, strict) {
 /**
  * 13.2.14 Runtime Semantics: BlockDeclarationInstantiation (code, env)
  *
- * NOTE When a Block or CaseBlock production is evaluated a new declarative 
- * Environment Record is created and bindings for each block scoped variable, 
- * constant, function, generator function, or class declared in the block are 
- * instantiated in the Environment Record. 
+ * NOTE When a Block or CaseBlock production is evaluated a new declarative
+ * Environment Record is created and bindings for each block scoped variable,
+ * constant, function, generator function, or class declared in the block are
+ * instantiated in the Environment Record.
  *
- * BlockDeclarationInstantiation is performed as follows using arguments code 
- * and env. code is the grammar production corresponding to the body of the 
- * block. env is the declarative Environment Record in which bindings are to be 
- * created. 
+ * BlockDeclarationInstantiation is performed as follows using arguments code
+ * and env. code is the grammar production corresponding to the body of the
+ * block. env is the declarative Environment Record in which bindings are to be
+ * created.
  */
 function BlockDeclarationInstantiation(code, env) {
   /* 1. Let declarations be the LexicallyScopedDeclarations of code. */
@@ -61,7 +61,7 @@ function BlockDeclarationInstantiation(code, env) {
       if (IsConstantDeclaration(d)) {
         /* 1. Let status be env.CreateImmutableBinding(dn, true). */
         status := {env.CreateImmutableBinding}(env, d.name, true)
-      }      
+      }
       /* ii. Else, */
       else {
         /* 1. Let status be env.CreateMutableBinding(dn, false). */
@@ -107,7 +107,7 @@ function setAllInternalMethodsExceptGet(obj) {
   obj.Enumerate			    := "OrdinaryObjectEnumerate";
 
   obj.internalSlotsList := [];
-  
+
   return obj
 };
 
@@ -125,7 +125,7 @@ function WrappedCall(externalScope, ref, F, this, args) {
 
 function WrappedInvoke(externalScope, ref, F, this, args) {
   invokeResult := Invoke(externalScope, ref, F, this, args) catch CallHandler;
-  
+
   if (!(Type(invokeResult) = "Completion")) {
     return NormalCompletion(invokeResult)
   };

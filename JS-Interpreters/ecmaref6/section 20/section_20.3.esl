@@ -4,10 +4,10 @@ function initDateObject(globalObject, ObjectPrototype, strict) {
   /* datePrototype := initDatePrototype(globalObject, ObjectPrototype, strict); */
   datePrototypeObject := NewECMAScriptObjectFull(ObjectPrototype, "Object", true);
   setAllInternalMethodsOfOrdinaryObject(datePrototypeObject);
-  
+
   dateConstructor := initDateConstructor(datePrototypeObject, globalObject, strict);
 
-  fillDatePrototype(datePrototypeObject, dateConstructor, globalObject, strict); 
+  fillDatePrototype(datePrototypeObject, dateConstructor, globalObject, strict);
 
   descriptor := newDataPropertyDescriptorFull(datePrototypeObject, false, false, false);
   setJSProperty(dateConstructor, "prototype", descriptor);
@@ -116,7 +116,7 @@ function YearFromTime(t) {
     aprox := aprox + step /*- 1. /* - abs(t) / t  */
   };
 
- 
+
   return aprox
 };
 
@@ -194,14 +194,14 @@ function MonthFromTime(t) {
    elif (334. + inLeapYear <= dayWithinYear &&& dayWithinYear< 365. + inLeapYear) {
       return 11.
    }
-   /* Note that, in every case, if any argument to 
+   /* Note that, in every case, if any argument to
     one of these functions is NaN, the result will be NaN.*/
-   elif(is_NaN (t)) { 
+   elif(is_NaN (t)) {
      return NaN
    }
 };
 
-function DayWithinYear(t) { 
+function DayWithinYear(t) {
   return Day(t)-DayFromYear(YearFromTime(t)) };
 
 /* 20.3.1.5 Date Number */
@@ -260,10 +260,10 @@ function DateFromTime(t) {
   elif (MonthFromTime = 11.) {
      return DayWithinYear - 333. - InLeapYear
   }
-  /* Note that, in every case, if any argument to 
+  /* Note that, in every case, if any argument to
   one of these functions is NaN, the result will be NaN.*/
   elif(is_NaN (t)) {
-    return NaN 
+    return NaN
   }
 };
 
@@ -297,7 +297,7 @@ function WeekDay(t) { return (Day(t) + 4.) % 7. };
 function DaylightSavingTA(t) {return 0. /* TODO */};
 
 /* 20.3.1.9 Local Time */
-/* The abstract operation LocalTime with argument t converts t from UTC 
+/* The abstract operation LocalTime with argument t converts t from UTC
    to local time by performing the following steps: */
 function LocalTime(t) {
   /* 1. ReturnIfAbrupt(t). */
@@ -339,7 +339,7 @@ function HourFromTime(t) {
    msPerHour := 3600000.;
    return floor(t / msPerHour) % HoursPerDay
 };
-function MinFromTime(t) { 
+function MinFromTime(t) {
    msPerMinute := 60000.;
    MinutesPerHour := 60.;
    return floor(t / msPerMinute) % MinutesPerHour
@@ -349,10 +349,10 @@ function SecFromTime(t) {
    SecondsPerMinute := 60.;
    return (floor(t / msPerSecond) % SecondsPerMinute)
 };
-function msFromTime(t) { 
+function msFromTime(t) {
   msPerSecond := 1000.;
-  
-   
+
+
   return t % msPerSecond
 };
 
@@ -381,10 +381,10 @@ function MakeTime(hour, mins, sec, ms) {
   msPerMinute := 60000.;
   msPerHour := 3600000.;
 
-  /* 6. Let t be h * msPerHour + m * msPerMinute + s * msPerSecond + milli, 
+  /* 6. Let t be h * msPerHour + m * msPerMinute + s * msPerSecond + milli,
    TODO ?? performing the arithmetic according to IEEE 754-2008 rules ?? (that is, as if using the ECMAScript operators * and +). */
   t := (h * msPerHour) + (m * msPerMinute) + (s * msPerSecond) + milli;
-  
+
   /* 7. Return t. */
    return t
 };
@@ -395,7 +395,7 @@ function MakeTime(hour, mins, sec, ms) {
  * which must be ECMAScript Number values.
  */
 function MakeDay(year, month, date) {
-  
+
   /* 1. If year is not finite or month is not finite or date is not finite, return NaN. */
   if (!(auxIsFinite(year) &&& auxIsFinite(month) &&& auxIsFinite(date))) {
      return NaN
@@ -407,18 +407,18 @@ function MakeDay(year, month, date) {
   m := ToInteger(month);
   /* 4. Let dt be ToInteger(date). */
   dt := ToInteger(date);
-  
+
   /* 5. Let ym be y + floor(m /12). */
-  
+
   ym := y + floor(m/12.);
 
   /* 6. Let mn be m modulo 12. */
   mn := m % 12.;
-  
+
   /* 7. Find a value t such that YearFromTime(t) == ym and MonthFromTime(t) == mn and DateFromTime(t) == 1;
         but if this is not possible (because some argument is out of range), return NaN. */
-  
-  
+
+
   t := TimeFromYear(ym);
   t := t + TimeFromMonth(mn, t);
   if(!(DateFromTime(t) = 1.)) {
@@ -432,9 +432,9 @@ function MakeDay(year, month, date) {
 
 /**
  * 20.3.1.14 MakeDate (day, time)
- * The abstract operation MakeDate calculates a number of milliseconds from its two arguments, 
+ * The abstract operation MakeDate calculates a number of milliseconds from its two arguments,
  * which must be ECMAScript Number values.
- */ 
+ */
 function MakeDate(day, time) {
   /* 1. If day is not finite or time is not finite, return NaN. */
   if (!(auxIsFinite(day) &&& auxIsFinite(time))){
@@ -444,12 +444,12 @@ function MakeDate(day, time) {
   return day * |msPerDay| + time
 };
 
-/** 
- * 20.3.1.15 TimeClip (time) 
+/**
+ * 20.3.1.15 TimeClip (time)
  * The abstract operation TimeClip calculates a number of milliseconds from its argument, which must be an ECMAScript Number value.
  * NOTE  The point of step 3 is that an implementation is permitted a choice of internal representations of time values,
  *       for example as a 64-bit signed integer or as a 64-bit floating-point value. Depending on the implementation,
- *       this internalrepresentation may or may not distinguish -0 and +0. 
+ *       this internalrepresentation may or may not distinguish -0 and +0.
  */
 function TimeClip(time) {
   /* 1. If time is not finite, return NaN. */
@@ -466,7 +466,7 @@ function TimeClip(time) {
   /* 3. Return an implementation-dependent choice of either ToInteger(time) or ToInteger(time) + (+0).
   (Adding a positive zero converts -0 to +0.) */
    return ToInteger(time) + (0.)
-  
+
 };
 
 /* 20.3.1.16 Date Time String Format */
@@ -573,7 +573,7 @@ function newDateConstructor(global, this, NewTarget, strict, args) {
    if (numberOfArgs >= 2) {
       return dateConstructorMultipleArgs(global, this, NewTarget, strict, args)
    }
-   elif (numberOfArgs = 0) { 
+   elif (numberOfArgs = 0) {
       return dateConstructorNoArgs(global, this, NewTarget, strict, args)
    }
    elif (numberOfArgs = 1) {
@@ -589,7 +589,7 @@ function newDateConstructor(global, this, NewTarget, strict, args) {
  * This description applies only if the Date constructor is called with at least two arguments.
  */
 function dateConstructorMultipleArgs(global, this, NewTarget, strict, args){
-  
+
   year := l_nth(args, 0);
   month := l_nth(args, 1);
   date := getOptionalParam(args, 2);
@@ -677,13 +677,13 @@ function dateConstructorMultipleArgs(global, this, NewTarget, strict, args){
     else {
        yr := y
     };
-    
+
     /* p. Let finalDate be MakeDate(MakeDay(yr, m, dt), MakeTime(h, min, s, milli)). */
     finalDate := MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli));
 
     /* q. Let O be OrdinaryCreateFromConstructor(NewTarget, "%DatePrototype%", «‍ [[DateValue]]»). */
     O := OrdinaryCreateFromConstructor(NewTarget, "DatePrototype", ["DateValue"]);
-    
+
     /* r. ReturnIfAbrupt(O). */
     @ReturnIfAbrupt(O);
 
@@ -697,7 +697,7 @@ function dateConstructorMultipleArgs(global, this, NewTarget, strict, args){
   else {
     /* a. Let now be the Number that is the time value (UTC) identifying the current time. */
     now := getTimeValueIdentifyingCurrentTime();
-  
+
       /* b. Return ToDateString (now). */
     return toDateString(now)
   }
@@ -732,10 +732,10 @@ function dateConstructorOneArg(global, this, NewTarget, strict, args) {
 
       /* ii. If Type(v) is String, then */
       if (Type(v) = "String") {
-        /* 1. Let tv be the result of parsing v as a date, in exactly the same manner as for the parse method (20.3.3.2). 
+        /* 1. Let tv be the result of parsing v as a date, in exactly the same manner as for the parse method (20.3.3.2).
         If the parse resulted in an abrupt completion, tv is the Completion Record. */
         tv := auxParseDate(v)
-      }  
+      }
       /* iii. Else, */
       else {
         /* 1. Let tv be ToNumber(v). */
@@ -767,13 +767,13 @@ function dateConstructorOneArg(global, this, NewTarget, strict, args) {
   }
 };
 /**
- * 
+ *
  * 20.3.2.3 Date ( )
- * 
+ *
  * This description applies only if the Date constructor is called with no arguments.
- * 
+ *
  * When the Date function is called the following steps are taken:
- * 
+ *
  *     1. Let numberOfArgs be the number of arguments passed to this function call.
  *     2. Assert: numberOfArgs = 0.
  *     3. If NewTarget is not undefined, then
@@ -791,36 +791,36 @@ function dateConstructorNoArgs(global, this, NewTarget, strict, args){
 
    /* 2. Assert: numberOfArgs = 0. */
    assert(numberOfArgs = 0);
-   
+
    /* 3. If NewTarget is not undefined, then */
    if (!(NewTarget = 'undefined)) {
       /* a. Let O be OrdinaryCreateFromConstructor(NewTarget, "%DatePrototype%", «‍ [[DateValue]]»). */
       O := OrdinaryCreateFromConstructor(NewTarget, "DatePrototype", ["DateValue"]);
-      
+
       /* b. ReturnIfAbrupt(O). */
       @ReturnIfAbrupt(O);
-      
+
       /* c. Set the [[DateValue]] internal slot of O to the time value (UTC) identifying the current time. */
       O.DateValue := getTimeValueIdentifyingCurrentTime();
-      
+
       /* d. Return O. */
       return O
    }
    /* 4. Else, */
-   else {   
+   else {
       /* a. Let now be the Number that is the time value (UTC) identifying the current time. */
       now := getTimeValueIdentifyingCurrentTime();
 
       /*b. Return ToDateString (now). */
-      return (toDateString(now))      
+      return (toDateString(now))
    }
 };
 
 
 /**
- * 
+ *
  * 20.3.3.1 Date.now ( )
- * 
+ *
  * The now function returns a Number value that is the time value designating the UTC date and time of the occurrence of the call to now.
  */
 function DateNow(globalObject, this, NewTarget, strict, args) {
@@ -831,7 +831,7 @@ function DateNow(globalObject, this, NewTarget, strict, args) {
 /**
  * 20.3.3.2 Date.parse ( string )
 
-The parse function applies the ToString operator to its argument. 
+The parse function applies the ToString operator to its argument.
 If ToString results in an abrupt completion the Completion Record is immediately returned. Otherwise, parse interprets the resulting String as a date and time; it returns a Number, the UTC time value corresponding to the date and time. The String may be interpreted as a local time, a UTC time, or a time in some other time zone, depending on the contents of the String. The function first attempts to parse the format of the String according to the rules (including extended years) called out in Date Time String Format (20.3.1.16). If the String does not conform to that format the function may fall back to any implementation-specific heuristics or implementation-specific date formats. Unrecognizable Strings or dates containing illegal element values in the format String shall cause Date.parse to return NaN.
 
 If x is any Date object whose milliseconds amount is zero within a particular implementation of ECMAScript, then all of the following expressions should produce the same numeric value in that implementation, if all the properties referenced have their initial values:
@@ -860,7 +860,7 @@ function DateParse(global, this, NewTarget, strict, args) {
   if ((Type(str) = "Completion") &&& isAnAbruptCompletion(str)) {
     return getCompletionValue(str)
   }
-  /* Otherwise, parse interprets the resulting String as a date and time; it returns a Number, the UTC time value corresponding to the date and time. 
+  /* Otherwise, parse interprets the resulting String as a date and time; it returns a Number, the UTC time value corresponding to the date and time.
   The String may be interpreted as a local time, a UTC time, or a time in some other time zone, depending on the contents of the String. The function first attempts to parse the format of the String according to the rules (including extended years) called out in Date Time String Format (20.3.1.16). If the String does not conform to that format the function may fall back to any implementation-specific heuristics or implementation-specific date formats. Unrecognizable Strings or dates containing illegal element values in the format String shall cause Date.parse to return NaN. */
   else {
     return auxParseDate(str)
@@ -871,19 +871,19 @@ function DateParse(global, this, NewTarget, strict, args) {
 
 /**
  * 20.3.3.4 Date.UTC ( year, month [ , date [ , hours [ , minutes [ , seconds [ , ms ] ] ] ] ] )
- * 
- * When the UTC function is called with fewer than two arguments, the behaviour is implementation-dependent. 
+ *
+ * When the UTC function is called with fewer than two arguments, the behaviour is implementation-dependent.
  * When the UTC function is called with two to seven arguments, it computes the date from year, month and (optionally) date, hours, minutes, seconds and ms.
  * The following steps are taken:
- * 
+ *
  * The length property of the UTC function is 7.
  *
- * NOTE The UTC function differs from the Date constructor in two ways: 
- * it returns a time value as a Number, rather than creating a Date object, 
+ * NOTE The UTC function differs from the Date constructor in two ways:
+ * it returns a time value as a Number, rather than creating a Date object,
  * and it interprets the arguments in UTC rather than as local time.
  */
 function DateUTC(global, this, NewTarget, strict, args) {
- 
+
   year := l_nth(args, 0);
   month := l_nth(args, 1);
   date := getOptionalParam(args, 2);
@@ -919,7 +919,7 @@ function DateUTC(global, this, NewTarget, strict, args) {
   if (!(hours = null)) { h := ToNumber(hours) } else { h := 0. };
   /* 8. ReturnIfAbrupt(h). */
   @ReturnIfAbrupt(h);
-  
+
   /* 9. If minutes is supplied, let min be ToNumber(minutes); else let min be 0. */
   if (!(minutes = null)) { mins := ToNumber(minutes) } else { mins := 0. };
   /* 10. ReturnIfAbrupt(min). */
@@ -954,7 +954,7 @@ function DateUTC(global, this, NewTarget, strict, args) {
 function DatePrototypeGetDate(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-  
+
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
 
@@ -974,7 +974,7 @@ function DatePrototypeGetDate(global, this, NewTarget, strict, args) {
 function DatePrototypeGetDay(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-  
+
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
 
@@ -993,7 +993,7 @@ function DatePrototypeGetDay(global, this, NewTarget, strict, args) {
 function DatePrototypeGetFullYear(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-  
+
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
 
@@ -1013,7 +1013,7 @@ function DatePrototypeGetFullYear(global, this, NewTarget, strict, args) {
 function DatePrototypeGetHours(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-  
+
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
   /* 3. If t is NaN, return NaN. */
@@ -1032,7 +1032,7 @@ function DatePrototypeGetHours(global, this, NewTarget, strict, args) {
 function DatePrototypeGetMilliseconds(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-  
+
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
 
@@ -1052,7 +1052,7 @@ function DatePrototypeGetMilliseconds(global, this, NewTarget, strict, args) {
 function DatePrototypeGetMinutes(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-  
+
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
 
@@ -1072,7 +1072,7 @@ function DatePrototypeGetMinutes(global, this, NewTarget, strict, args) {
 function DatePrototypeGetMonth(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-  
+
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
 
@@ -1092,7 +1092,7 @@ function DatePrototypeGetMonth(global, this, NewTarget, strict, args) {
 function DatePrototypeGetSeconds(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-  
+
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
 
@@ -1123,11 +1123,11 @@ function  DatePrototypeGetTime(global, this, NewTarget, strict, args) {
 function  DatePrototypeGetTimezoneOffset(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-  
-   
+
+
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-   
+
   /* 3. If t is NaN, return NaN. */
   if (is_NaN (t)) {
      return NaN
@@ -1147,10 +1147,10 @@ function  DatePrototypeGetTimezoneOffset(global, this, NewTarget, strict, args) 
 function  DatePrototypeGetUTCDate(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-   
+
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-   
+
   /* 3. If t is NaN, return NaN. */
   if (is_NaN (t)) {
      return NaN
@@ -1169,10 +1169,10 @@ function  DatePrototypeGetUTCDate(global, this, NewTarget, strict, args) {
 function  DatePrototypeGetUTCDay(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-   
+
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-   
+
   /* 3. If t is NaN, return NaN. */
   if (is_NaN (t)) {
      return NaN
@@ -1191,10 +1191,10 @@ function  DatePrototypeGetUTCDay(global, this, NewTarget, strict, args) {
 function  DatePrototypeGetUTCFullYear(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-   
+
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-   
+
   /* 3. If t is NaN, return NaN. */
   if (is_NaN (t)) {
      return NaN
@@ -1213,10 +1213,10 @@ function  DatePrototypeGetUTCFullYear(global, this, NewTarget, strict, args) {
 function  DatePrototypeGetUTCHours(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-   
+
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-   
+
   /* 3. If t is NaN, return NaN. */
   if (is_NaN (t)) {
      return NaN
@@ -1236,10 +1236,10 @@ function  DatePrototypeGetUTCHours(global, this, NewTarget, strict, args) {
 function  DatePrototypeGetUTCMilliseconds(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-   
+
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-   
+
   /* 3. If t is NaN, return NaN. */
   if (is_NaN (t)) {
      return NaN
@@ -1258,10 +1258,10 @@ function  DatePrototypeGetUTCMilliseconds(global, this, NewTarget, strict, args)
 function  DatePrototypeGetUTCMinutes(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-   
+
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-   
+
   /* 3. If t is NaN, return NaN. */
   if (is_NaN (t)) {
      return NaN
@@ -1280,10 +1280,10 @@ function  DatePrototypeGetUTCMinutes(global, this, NewTarget, strict, args) {
 function  DatePrototypeGetUTCMonth(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-   
+
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-   
+
   /* 3. If t is NaN, return NaN. */
   if (is_NaN (t)) {
      return NaN
@@ -1302,10 +1302,10 @@ function  DatePrototypeGetUTCMonth(global, this, NewTarget, strict, args) {
 function  DatePrototypeGetUTCSeconds(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-   
+
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-   
+
   /* 3. If t is NaN, return NaN. */
   if (is_NaN (t)) {
      return NaN
@@ -1326,16 +1326,16 @@ function DatePrototypeSetDate(global, this, NewTarget, strict, args) {
 
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-   
+
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-   
+
   /* 3. Let dt be ToNumber(date). */
   dt := ToNumber(date);
 
   /* 4. ReturnIfAbrupt(dt). */
   @ReturnIfAbrupt(dt);
-  
+
   /* 5. Let newDate be MakeDate(MakeDay(YearFromTime(t), MonthFromTime(t), dt), TimeWithinDay(t)). */
   newDate := MakeDate(MakeDay(YearFromTime(t), MonthFromTime(t), dt), TimeWithinDay(t));
 
@@ -1354,14 +1354,14 @@ function DatePrototypeSetDate(global, this, NewTarget, strict, args) {
  * 20.3.4.21 Date.prototype.setFullYear ( year [ , month [ , date ] ] )
  *
  * The length property of the setFullYear method is 3.
- * NOTE If month is not specified, this method behaves as if month were specified with the value getMonth(). 
+ * NOTE If month is not specified, this method behaves as if month were specified with the value getMonth().
  *      If date is not specified, it behaves as if date were specified with the value getDate().
  */
 function DatePrototypeSetFullYear(global, this, NewTarget, strict, args) {
   year := l_nth(args, 0);
   month := getOptionalParam(args, 1);
   date := getOptionalParam(args, 2);
-  
+
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
   /* 2. ReturnIfAbrupt(t). */
@@ -1381,7 +1381,7 @@ function DatePrototypeSetFullYear(global, this, NewTarget, strict, args) {
   y := ToNumber(year);
   /* 6. ReturnIfAbrupt(y). */
   @ReturnIfAbrupt(y);
-  
+
   /* 7. If month is not specified, let m be MonthFromTime(t); otherwise, let m be ToNumber(month). */
   if (month = null) {
     m := MonthFromTime(t)
@@ -1401,7 +1401,7 @@ function DatePrototypeSetFullYear(global, this, NewTarget, strict, args) {
   };
   /* 10. ReturnIfAbrupt(dt). */
   @ReturnIfAbrupt(dt);
-  
+
   /* 11. Let newDate be MakeDate(MakeDay(y, m, dt), TimeWithinDay(t)). */
   newDate := MakeDate(MakeDay(y, m, dt), TimeWithinDay(t));
 
@@ -1421,11 +1421,11 @@ function DatePrototypeSetFullYear(global, this, NewTarget, strict, args) {
  *
  * The length property of the setHours method is 4.
  *
- * NOTE If min is not specified, this method behaves as if 
- *      min were specified with the value getMinutes(). 
+ * NOTE If min is not specified, this method behaves as if
+ *      min were specified with the value getMinutes().
  *      If sec is not specified, it behaves as if sec were specified
- *      with the value getSeconds(). 
- *      If ms is not specified, it behaves as if ms were specified 
+ *      with the value getSeconds().
+ *      If ms is not specified, it behaves as if ms were specified
  *      with the value getMilliseconds().
  */
 function DatePrototypeSetHours(global, this, NewTarget, strict, args) {
@@ -1443,7 +1443,7 @@ function DatePrototypeSetHours(global, this, NewTarget, strict, args) {
   h := ToNumber(hour);
   /* 4. ReturnIfAbrupt(h). */
   @ReturnIfAbrupt(h);
-  
+
   /* 5. If min is not specified, let m be MinFromTime(t); otherwise, let m be ToNumber(min). */
   if (mins = null) {
     m := MinFromTime(t)
@@ -1463,7 +1463,7 @@ function DatePrototypeSetHours(global, this, NewTarget, strict, args) {
   };
   /* 8. ReturnIfAbrupt(s). */
   @ReturnIfAbrupt(s);
-  
+
   /* 9. If ms is not specified, let milli be msFromTime(t); otherwise, let milli be ToNumber(ms). */
   if (ms = null) {
     milli := msFromTime(t)
@@ -1494,7 +1494,7 @@ function DatePrototypeSetHours(global, this, NewTarget, strict, args) {
  */
 function DatePrototypeSetMilliseconds(global, this, NewTarget, strict, args) {
   ms := l_nth(args, 0);
-  
+
   /* 1. Let t be LocalTime(this time value). */
   t := LocalTime(thisTimeValue(this));
   /* 2. ReturnIfAbrupt(t). */
@@ -1504,7 +1504,7 @@ function DatePrototypeSetMilliseconds(global, this, NewTarget, strict, args) {
   ms := ToNumber(ms);
   /* 4. ReturnIfAbrupt(ms). */
   @ReturnIfAbrupt(ms);
-  
+
   /* 5. Let time be MakeTime(HourFromTime(t), MinFromTime(t), SecFromTime(t), ms). */
   time := MakeTime(HourFromTime(t), MinFromTime(t), SecFromTime(t), ms);
 
@@ -1524,9 +1524,9 @@ function DatePrototypeSetMilliseconds(global, this, NewTarget, strict, args) {
  *
  * The length property of the setMinutes method is 3.
  *
- * NOTE  If sec is not specified, this method behaves as if 
- *       sec were specified with the value getSeconds(). 
- *       If ms is not specified, this behaves as if 
+ * NOTE  If sec is not specified, this method behaves as if
+ *       sec were specified with the value getSeconds().
+ *       If ms is not specified, this behaves as if
  *       ms were specified with the value getMilliseconds().
  */
 function DatePrototypeSetMinutes(global, this, NewTarget, strict, args) {
@@ -1543,7 +1543,7 @@ function DatePrototypeSetMinutes(global, this, NewTarget, strict, args) {
   m := ToNumber(mins);
   /* 4. ReturnIfAbrupt(m). */
   @ReturnIfAbrupt(m);
-  
+
 
   /* 5. If sec is not specified, let s be SecFromTime(t); otherwise, let s be ToNumber(sec). */
   if (sec = null) {
@@ -1554,7 +1554,7 @@ function DatePrototypeSetMinutes(global, this, NewTarget, strict, args) {
   };
   /* 6. ReturnIfAbrupt(s). */
   @ReturnIfAbrupt(s);
-  
+
   /* 7. If ms is not specified, let milli be msFromTime(t); otherwise, let milli be ToNumber(ms). */
   if (ms = null) {
     milli := msFromTime(t)
@@ -1600,7 +1600,7 @@ function DatePrototypeSetMonth(global, this, NewTarget, strict, args) {
   m := ToNumber(month);
   /* 4. ReturnIfAbrupt(m). */
   @ReturnIfAbrupt(m);
-  
+
 
   /* 5. If date is not specified, let dt be DateFromTime(t); otherwise, let dt be ToNumber(date). */
   if (date = null) {
@@ -1611,7 +1611,7 @@ function DatePrototypeSetMonth(global, this, NewTarget, strict, args) {
   };
   /* 6. ReturnIfAbrupt(dt). */
   @ReturnIfAbrupt(dt);
-  
+
   /* 7. Let newDate be MakeDate(MakeDay(YearFromTime(t), m, dt), TimeWithinDay(t)). */
   newDate := MakeDate(MakeDay(YearFromTime(t), m, dt), TimeWithinDay(t));
 
@@ -1648,7 +1648,7 @@ function DatePrototypeSetSeconds(global, this, NewTarget, strict, args) {
   s := ToNumber(sec);
   /* 4. ReturnIfAbrupt(s). */
   @ReturnIfAbrupt(s);
-  
+
 
   /* 5. If ms is not specified, let milli be msFromTime(t); otherwise, let milli be ToNumber(ms). */
   if (ms = null) {
@@ -1680,13 +1680,13 @@ function DatePrototypeSetSeconds(global, this, NewTarget, strict, args) {
  */
 function DatePrototypeSetTime(global, this, NewTarget, strict, args) {
   time := l_nth(args, 0);
-  
+
   /* 1. Let valueNotUsed be this time value. */
   valueNotUsed := thisTimeValue(this);
 
   /* 2. ReturnIfAbrupt(valueNotUsed). */
   @ReturnIfAbrupt(valueNotUsed);
-  
+
   /* 3. Let t be ToNumber(time). */
   t := ToNumber(time);
 
@@ -1727,12 +1727,12 @@ function DatePrototypeSetUTCDate(global, this, NewTarget, strict, args) {
 
   /* 6. Let v be TimeClip(newDate). */
   v := TimeClip(newDate);
-  
+
   /* 7. Set the [[DateValue]] internal slot of this Date object to v. */
   this.DateValue := v;
 
   /* 8. Return v. */
-  return v 
+  return v
 };
 
 
@@ -1742,8 +1742,8 @@ function DatePrototypeSetUTCDate(global, this, NewTarget, strict, args) {
  * The length property of the setUTCFullYear method is 3.
  *
  * NOTE If month is not specified, this method behaves as if
- *      month were specified with the value getUTCMonth(). 
- *      If date is not specified, it behaves as if 
+ *      month were specified with the value getUTCMonth().
+ *      If date is not specified, it behaves as if
  *      date were specified with the value getUTCDate().
 
  */
@@ -1764,9 +1764,9 @@ function DatePrototypeSetUTCFullYear(global, this, NewTarget, strict, args) {
   };
 
   /* 4. Let y be ToNumber(year). */
-  
+
   y := ToNumber(year);
-  
+
   /* 5. ReturnIfAbrupt(y). */
   @ReturnIfAbrupt(y);
 
@@ -1810,10 +1810,10 @@ function DatePrototypeSetUTCFullYear(global, this, NewTarget, strict, args) {
  * The length property of the setUTCHours method is 4.
  *
  * NOTE if min is not specified, this method behaves as if
- *      min were specified with the value getUTCMinutes(). 
- *      If sec is not specified, it behaves as if sec were 
- *      specified with the value getUTCSeconds(). 
- *      If ms is not specified, it behaves as if ms were 
+ *      min were specified with the value getUTCMinutes().
+ *      If sec is not specified, it behaves as if sec were
+ *      specified with the value getUTCSeconds().
+ *      If ms is not specified, it behaves as if ms were
  *      specified with the value getUTCMilliseconds().
  *
  */
@@ -1830,9 +1830,9 @@ function DatePrototypeSetUTCHours(global, this, NewTarget, strict, args) {
   @ReturnIfAbrupt(t);
 
   /* 3. Let h be ToNumber(hour). */
-  
+
   h := ToNumber(hour);
-  
+
   /* 4. ReturnIfAbrupt(h). */
   @ReturnIfAbrupt(h);
 
@@ -1865,7 +1865,7 @@ function DatePrototypeSetUTCHours(global, this, NewTarget, strict, args) {
   };
   /* 10. ReturnIfAbrupt(milli). */
   @ReturnIfAbrupt(milli);
-  
+
   /* 11. Let newDate be MakeDate(Day(t), MakeTime(h, m, s, milli)). */
   newDate := MakeDate(Day(t), MakeTime(h, m, s, milli));
 
@@ -1886,7 +1886,7 @@ function DatePrototypeSetUTCHours(global, this, NewTarget, strict, args) {
  */
 function DatePrototypeSetUTCMilliseconds(global, this, NewTarget, strict, args) {
   ms := l_nth(args, 0);
-  
+
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
   /* 2. ReturnIfAbrupt(t). */
@@ -1896,7 +1896,7 @@ function DatePrototypeSetUTCMilliseconds(global, this, NewTarget, strict, args) 
   milli := ToNumber(ms);
   /* 4. ReturnIfAbrupt(milli). */
   @ReturnIfAbrupt(milli);
-  
+
   /* 5. Let time be MakeTime(HourFromTime(t), MinFromTime(t), SecFromTime(t), milli). */
   time := MakeTime(HourFromTime(t), MinFromTime(t), SecFromTime(t), milli);
 
@@ -1911,13 +1911,13 @@ function DatePrototypeSetUTCMilliseconds(global, this, NewTarget, strict, args) 
 };
 
 
-/** 
+/**
  * 20.3.4.32 Date.prototype.setUTCMinutes ( min [ , sec [, ms ] ] )
  *
  * The length property of the setUTCMinutes method is 3.
  *
- * NOTE If sec is not specified, this method behaves as if sec were 
- *      specified with the value getUTCSeconds(). 
+ * NOTE If sec is not specified, this method behaves as if sec were
+ *      specified with the value getUTCSeconds().
  *      If ms is not specified, it function behaves as if ms were
  *      specified with the value return by getUTCMilliseconds().
  *
@@ -1936,7 +1936,7 @@ function DatePrototypeSetUTCMinutes(global, this, NewTarget, strict, args) {
   m := ToNumber(mins);
   /* 4. ReturnIfAbrupt(m). */
   @ReturnIfAbrupt(m);
-  
+
 
   /* 5. If sec is not specified, let s be SecFromTime(t). */
   if (sec = null) {
@@ -1947,9 +1947,9 @@ function DatePrototypeSetUTCMinutes(global, this, NewTarget, strict, args) {
     /* a. Let s be ToNumber(sec). */
     s := ToNumber(sec);
     /* b. ReturnIfAbrupt(s). */
-    @ReturnIfAbrupt(s)    
+    @ReturnIfAbrupt(s)
   };
-  
+
   /* 7. If ms is not specified, let milli be msFromTime(t). */
   if (ms = null) {
     milli := msFromTime(t)
@@ -1959,7 +1959,7 @@ function DatePrototypeSetUTCMinutes(global, this, NewTarget, strict, args) {
     /* a. Let milli be ToNumber(ms). */
     milli := ToNumber(ms);
     /* b. ReturnIfAbrupt(milli). */
-    @ReturnIfAbrupt(milli) 
+    @ReturnIfAbrupt(milli)
   };
 
   /* 9. Let date be MakeDate(Day(t), MakeTime(HourFromTime(t), m, s, milli)). */
@@ -1976,7 +1976,7 @@ function DatePrototypeSetUTCMinutes(global, this, NewTarget, strict, args) {
 };
 
 
-/** 
+/**
  * 20.3.4.33 Date.prototype.setUTCMonth ( month [ , date ] )
  *
  * The length property of the setUTCMonth method is 2.
@@ -1997,7 +1997,7 @@ function DatePrototypeSetUTCMonth(global, this, NewTarget, strict, args) {
   m := ToNumber(month);
   /* 4. ReturnIfAbrupt(m). */
   @ReturnIfAbrupt(m);
-  
+
 
   /* 5. If date is not specified, let dt be DateFromTime(t). */
   if (date = null) {
@@ -2011,7 +2011,7 @@ function DatePrototypeSetUTCMonth(global, this, NewTarget, strict, args) {
     /* b. ReturnIfAbrupt(dt). */
     @ReturnIfAbrupt(dt)
   };
-  
+
 
   /* 7. Let newDate be MakeDate(MakeDay(YearFromTime(t), m, dt), TimeWithinDay(t)). */
   newDate := MakeDate(MakeDay(YearFromTime(t), m, dt), TimeWithinDay(t));
@@ -2029,7 +2029,7 @@ function DatePrototypeSetUTCMonth(global, this, NewTarget, strict, args) {
 /**
  * 20.3.4.34 Date.prototype.setUTCSeconds ( sec [ , ms ] )
  *
- * The length property of the setUTCSeconds method is 2. 
+ * The length property of the setUTCSeconds method is 2.
  *
  * NOTE If ms is not specified, this method behaves as if ms were specified with the value getUTCMilliseconds().
  *
@@ -2080,15 +2080,15 @@ function DatePrototypeSetUTCSeconds (global, this, stric, args) {
 /**
  *
  * 20.3.4.35 Date.prototype.toDateString ( )
- * 
- * This function returns a String value. 
- * The contents of the String are implementation-dependent, 
- * but are intended to represent the “date” portion of the Date in the current time zone 
+ *
+ * This function returns a String value.
+ * The contents of the String are implementation-dependent,
+ * but are intended to represent the “date” portion of the Date in the current time zone
  * in a convenient, human-readable form.
- * 
+ *
  */
 function DatePrototypeToDateString(globalObject, this, NewTarget, strict, args){
-   
+
    return toDateString(thisTimeValue(this))
 };
 
@@ -2096,13 +2096,13 @@ function DatePrototypeToDateString(globalObject, this, NewTarget, strict, args){
 /**
  *
  * 20.3.4.36 Date.prototype.toISOString ( )
- * This function returns a String value representing the 
- * instance in time corresponding to this time value. 
- * The format of the String is the Date Time string format defined in 20.3.1.16. 
- * All fields are present in the String. 
- * The time zone is always UTC, denoted by the suffix Z. 
+ * This function returns a String value representing the
+ * instance in time corresponding to this time value.
+ * The format of the String is the Date Time string format defined in 20.3.1.16.
+ * All fields are present in the String.
+ * The time zone is always UTC, denoted by the suffix Z.
  * If this time value is not a finite Number or if the year is not a value that can be represented in that format (if necessary using extended year format), a RangeError exception is thrown.
- * 
+ *
  */
 function DatePrototypeToISOString(globalObject, this, NewTarget, strict, args) {
   /* If this time value is not a finite Number or if the year is not a
@@ -2121,9 +2121,9 @@ function DatePrototypeToISOString(globalObject, this, NewTarget, strict, args) {
  * This function provides a String representation of a Date object for use by JSON.stringify (24.3.2)
  *
  * NOTE 1 The argument is ignored.
- * NOTE 2 The toJSON function is intentionally generic; 
- *  it does not require that its this value be a Date object. 
- *  Therefore, it can be transferred to other kinds of objects for use as a method. 
+ * NOTE 2 The toJSON function is intentionally generic;
+ *  it does not require that its this value be a Date object.
+ *  Therefore, it can be transferred to other kinds of objects for use as a method.
  *  However, it does require that any such object have a toISOString method.
  */
 function DatePrototypeToJSON(globalObject, this, NewTarget, strict, args){
@@ -2133,13 +2133,13 @@ function DatePrototypeToJSON(globalObject, this, NewTarget, strict, args){
 
   /* 2. Let tv be ToPrimitive(O, hint Number). */
   tv := ToPrimitive(O, 'Number);
-  
+
   /* 3. ReturnIfAbrupt(tv). */
   @ReturnIfAbrupt(tv);
 
   /* 4. If Type(tv) is Number and tv is not finite, return null. */
   if ((Type(tv) = "Number") &&& (!(auxIsFinite(tv)))) {
-    return 'null  
+    return 'null
   };
 
   /* 5. Return Invoke(O, "toISOString"). */
@@ -2148,7 +2148,7 @@ function DatePrototypeToJSON(globalObject, this, NewTarget, strict, args){
 
 
 /**
- * 20.3.4.41  Date.prototype.toString ( ) 
+ * 20.3.4.41  Date.prototype.toString ( )
  *
  * NOTE 1 For any Date object d whose milliseconds amount is zero, the result of Date.parse(d.toString()) is equal to d.valueOf(). See 20.3.3.2.
  *
@@ -2156,7 +2156,7 @@ function DatePrototypeToJSON(globalObject, this, NewTarget, strict, args){
  *
  */
 function DatePrototypeToString(globalObject, this, NewTarget, strict, args) {
-  
+
    /* 1. Let O be this Date object. */
    O := this;
 
@@ -2183,12 +2183,12 @@ function DatePrototypeToString(globalObject, this, NewTarget, strict, args) {
 function toDateString(tv){
    /* 1. Assert: Type(tv) is Number. */
    assert((Type(tv) = "Number"));
-  
+
    /* 2. If tv is NaN, return "Invalid Date". */
    if (is_NaN (tv)) {
       return "Invalid Date"
    };
-   
+
    /* 3. Return an implementation-dependent String value that represents tv as a date and time in the current time zone using a convenient, human-readable form.*/
    return timeValueRepresentation(tv)
 };
@@ -2220,18 +2220,18 @@ function DatePrototypeToUTCString(globalObject, this, NewTarget, strict, args) {
   year := padding(YearFromTime(tv), 4);
 
   month := l_nth(months, int_of_float (MonthFromTime(tv)));
-  
+
   day := padding(DateFromTime(tv), 2);
-  
+
   weekday := l_nth(week, int_of_float (WeekDay(tv)));
-  
-  
+
+
   hours := padding(HourFromTime(tv), 2);
   minutes := padding(MinFromTime(tv), 2);
   seconds := padding(SecFromTime(tv), 2);
-  
+
   repr := s_concat[weekday, ", ", day, " ", month, " ", year, " ", hours, ":", minutes, ":", seconds, " GMT"];
-  
+
   return repr
 };
 
@@ -2247,11 +2247,11 @@ function DatePrototypeValueOf (globalObject, this, NewTarget, strict, args) {
 /**
  * 20.3.4.45 Date.prototype [ @@toPrimitive ] ( hint )
  *
- * This function is called by ECMAScript language operators to 
- * convert a Date object to a primitive value. 
- * The allowed values for hint are "default", "number", and "string". 
- * Date objects, are unique among built-in ECMAScript object in that they 
- * treat "default" as being equivalent to "string", 
+ * This function is called by ECMAScript language operators to
+ * convert a Date object to a primitive value.
+ * The allowed values for hint are "default", "number", and "string".
+ * Date objects, are unique among built-in ECMAScript object in that they
+ * treat "default" as being equivalent to "string",
  * All other built-in ECMAScript objects treat "default" as being equivalent to "number".
  *
  */
@@ -2267,7 +2267,7 @@ function DatePrototypeToPrimitive (globalObject, this, NewTarget, strict, args) 
   /* 3. If hint is the String value "string" or the String value "default" , then */
   if (hint = "string" ||| hint = "default") {
     /* a. Let tryFirst be "string". */
-    tryFirst := "string" 
+    tryFirst := "string"
   }
   /* 4. Else if hint is the String value "number", then */
   elif (hint = "number") {
@@ -2278,7 +2278,7 @@ function DatePrototypeToPrimitive (globalObject, this, NewTarget, strict, args) 
   else {
     throw TypeErrorConstructorInternal()
   };
-  
+
   /* 6. Return OrdinaryToPrimitive(O, tryFirst). */
   return OrdinaryToPrimitive(O, tryFirst)
 };
@@ -2414,7 +2414,7 @@ function initDateConstructor(DatePrototype, globalObject, strict) {
   return DateConstructor
 };
 
-/** 
+/**
  * thisTimeValue(value)
  * The abstract operation thisTimeValue(value) performs the following steps:
  *
@@ -2424,7 +2424,7 @@ function initDateConstructor(DatePrototype, globalObject, strict) {
  */
 function thisTimeValue(value) {
   /* 1. If Type(value) is Object and value has a [[DateValue]] internal slot, then */
-  if (Type(value) = "Object" &&& "DateValue" in_obj value ) { 
+  if (Type(value) = "Object" &&& "DateValue" in_obj value ) {
     /* a. Return the value of value’s [[DateValue]] internal slot. */
     return value.DateValue
   };
@@ -2439,9 +2439,9 @@ function fillDatePrototype(datePrototypeObject, dateConstructor, globalObject, s
   setAllInternalMethodsOfOrdinaryObject(datePrototypeObject); */
 
   /* In following descriptions of functions that are properties of the Date prototype object,
-   the phrase “this Date object” refers to the object that is the this value 
-   for the invocation of the function. 
-   If the Type of the this value is not Object, a TypeError exception is thrown. 
+   the phrase “this Date object” refers to the object that is the this value
+   for the invocation of the function.
+   If the Type of the this value is not Object, a TypeError exception is thrown.
    The phrase “this time value” within the specification of a method refers to the result
    returned by calling the abstract operation thisTimeValue with the this value of the method invocation passed as the argument. */
 
@@ -2502,7 +2502,7 @@ function fillDatePrototype(datePrototypeObject, dateConstructor, globalObject, s
   createBuiltInProperty(datePrototypeObject, "getTime", getTime);
   setJSProperty(getTime, "length", newDataPropertyDescriptorFull(0., false, false, true));
   setJSProperty(getTime, "name", newDataPropertyDescriptorFull("getTime", false, false, true));
- 
+
   /* 20.3.4.11 Date.prototype.getTimezoneOffset ( ) */
   getTimezoneOffset := CreateBuiltInFunctionObject([], "DatePrototypeGetTimezoneOffset", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "getTimezoneOffset", getTimezoneOffset);
@@ -2610,7 +2610,7 @@ function fillDatePrototype(datePrototypeObject, dateConstructor, globalObject, s
   createBuiltInProperty(datePrototypeObject, "setUTCDate", setUTCDate);
   setJSProperty(setUTCDate, "length", newDataPropertyDescriptorFull(1., false, false, true));
   setJSProperty(setUTCDate, "name", newDataPropertyDescriptorFull("setUTCDate", false, false, true));
-  
+
   /* 20.3.4.29 Date.prototype.setUTCFullYear (year [, month [, date ] ] ) */
   setUTCFullYear := CreateBuiltInFunctionObject(["year", "month", "date"], "DatePrototypeSetUTCFullYear", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setUTCFullYear", setUTCFullYear);
@@ -2652,7 +2652,7 @@ function fillDatePrototype(datePrototypeObject, dateConstructor, globalObject, s
   createBuiltInProperty(datePrototypeObject, "toDateString", toDateString);
   setJSProperty(toDateString, "length", newDataPropertyDescriptorFull(0., false, false, true));
   setJSProperty(toDateString, "name", newDataPropertyDescriptorFull("toDateString", false, false, true));
-  
+
   /* 20.3.4.36 Date.prototype.toISOString ( ) */
   toISOString := CreateBuiltInFunctionObject([], "DatePrototypeToISOString", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "toISOString", toISOString);
@@ -2676,7 +2676,7 @@ function fillDatePrototype(datePrototypeObject, dateConstructor, globalObject, s
   createBuiltInProperty(datePrototypeObject, "toLocaleString", toLocaleString);
   setJSProperty(toLocaleString, "length", newDataPropertyDescriptorFull(0., false, false, true));
   setJSProperty(toLocaleString, "name", newDataPropertyDescriptorFull("toLocaleString", false, false, true));
-  
+
   /* 20.3.4.40 Date.prototype.toLocaleTimeString ( ) */
   toLocaleTimeString := CreateBuiltInFunctionObject([], "DatePrototypeToLocaleTimeString", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "toLocaleTimeString", toLocaleTimeString);
@@ -2688,7 +2688,7 @@ function fillDatePrototype(datePrototypeObject, dateConstructor, globalObject, s
   createBuiltInProperty(datePrototypeObject, "toString", toString);
   setJSProperty(toString, "length", newDataPropertyDescriptorFull(0., false, false, true));
   setJSProperty(toString, "name", newDataPropertyDescriptorFull("toString", false, false, true));
-   
+
   /* 20.3.4.42 Date.prototype.toTimeString ( ) */
   toTimeString := CreateBuiltInFunctionObject([], "DatePrototypeToTimeString", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "toTimeString", toTimeString);
@@ -2700,7 +2700,7 @@ function fillDatePrototype(datePrototypeObject, dateConstructor, globalObject, s
   createBuiltInProperty(datePrototypeObject, "toUTCString", toUTCString);
   setJSProperty(toUTCString, "length", newDataPropertyDescriptorFull(0., false, false, true));
   setJSProperty(toUTCString, "name", newDataPropertyDescriptorFull("toUTCString", false, false, true));
-   
+
   /* 20.3.4.44 Date.prototype.valueOf ( ) */
   valueOf := CreateBuiltInFunctionObject([], "DatePrototypeValueOf", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "valueOf", valueOf);
@@ -2746,9 +2746,9 @@ function timeValueRepresentation(tv) {
   year := padding(YearFromTime(tv), 4);
   month := padding(MonthFromTime(tv) + 1., 2);
   day := padding(DateFromTime(tv), 2);
-  
+
   /*2021-08-05T18:09:30.607Z*/
-  
+
   hours := padding(HourFromTime(tv), 2);
   minutes := padding(MinFromTime(tv), 2);
   seconds := padding(SecFromTime(tv), 2);
@@ -2761,33 +2761,33 @@ function padding(num, size) {
   str := float_to_string(num);
 
   pad := size - s_len(str);
-  
+
   i := 0;
   while (i < pad) {
     str := s_concat["0", str];
     i := i + 1
   };
-  
+
   return  str
 };
 
 /** TimeFromMonth
- * Calculates time value of a month, also receives time value of the year 
+ * Calculates time value of a month, also receives time value of the year
  */
 function TimeFromMonth(m, t) {
 
   /* TODO add real modulo*/
   if (m < 0.) {
-    m := m - 12. * floor(m / 12.) 
+    m := m - 12. * floor(m / 12.)
   };
 
   leapYear := InLeapYear(t);
-  
+
   daysInMonths := [0., 31., 59. + leapYear, 90. + leapYear, 120. + leapYear, 151. + leapYear,
    181. + leapYear, 212. + leapYear, 243. + leapYear, 273. + leapYear, 304. + leapYear, 334. + leapYear];
-  
-  
-  
+
+
+
 
   return (l_nth(daysInMonths, int_of_float(m)) * |msPerDay|)
 };
@@ -2800,7 +2800,7 @@ function auxParseDate(str) {
   else {
 
     yr := l_nth(list, 0);
-    m := l_nth(list, 1) - 1.; 
+    m := l_nth(list, 1) - 1.;
     dt := l_nth(list, 2);
     h := l_nth(list, 3);
     mins := l_nth(list, 4);

@@ -89,7 +89,7 @@ function initJsonObject(globalObject, ObjectPrototype, strict) {
 
   /* 24.3.3 JSON [ @@toStringTag ] */
   descriptor := newDataPropertyDescriptorFull("JSON", false, false, true);
-  setJSProperty(JsonObject, getToStringTagPropertyName(), descriptor); 
+  setJSProperty(JsonObject, getToStringTagPropertyName(), descriptor);
 
   return JsonObject
 };
@@ -105,7 +105,7 @@ function parseJSONText(global, this, NewTarget, strict, args) {
     return JText
   };*/
 
-  
+
   if (s_len JText = 0) {
     throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, ["JSON.parse: Unexpected end of JSON input"])
   };
@@ -255,7 +255,7 @@ function getTokens(global, this, NewTarget, strict, args) {
       };
 
       if (!valid_tok) {
-        throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, 
+        throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict,
           [s_concat(["JSON.parse: Unexpected token ", c, " in JSON at position ", (int_to_string i)])])
       }
     }
@@ -435,28 +435,28 @@ function jsonParse(global, this, NewTarget, strict, args) {
   JText := ToString(text);
   /* 2. ReturnIfAbrupt(JText). */
   @ReturnIfAbrupt(JText);
-  
-  /* 3. Parse JText interpreted as UTF-16 encoded Unicode points (6.1.4) 
-    as a JSON text as specified in ECMA-404. 
+
+  /* 3. Parse JText interpreted as UTF-16 encoded Unicode points (6.1.4)
+    as a JSON text as specified in ECMA-404.
     Throw a SyntaxError exception if JText is not a valid JSON text as defined in that specification. */
   objJSON := parseJSONText(global, this, 'undefined, strict, [JText]);
 
   /* 4. Let scriptText be the result of concatenating "(", JText, and ");". */
   scriptText := s_concat(["(", JText, ")"]);
 
-  /* 5. Let completion be the result of parsing and evaluating scriptText as 
-    if it was the source text of an ECMAScript Script. 
-    but using the alternative definition of DoubleStringCharacter provided below. 
-    The extended PropertyDefinitionEvaluation semantics defined in B.3.1 must not 
+  /* 5. Let completion be the result of parsing and evaluating scriptText as
+    if it was the source text of an ECMAScript Script.
+    but using the alternative definition of DoubleStringCharacter provided below.
+    The extended PropertyDefinitionEvaluation semantics defined in B.3.1 must not
     be used during the evaluation. */
 /*TODO*/
   /* 6. Let unfiltered be completion.[[value]].*/
   unfiltered := objJSON; /*TODO*/
-  
-  /* 7. Assert: unfiltered will be either a primitive value or an object that is 
+
+  /* 7. Assert: unfiltered will be either a primitive value or an object that is
       defined by either an ArrayLiteral or an ObjectLiteral. */
   /* TODO */
-  
+
 
   /* 8. If IsCallable(reviver) is true, then */
   if (IsCallable(reviver) = true) {
@@ -497,10 +497,10 @@ function jsonParse(global, this, NewTarget, strict, args) {
  * function.
  *
  * It is not permitted for a conforming implementation of JSON.parse to extend theJSON grammars.
- * If an implementation wishes to support a modified or extended JSON interchange format 
+ * If an implementation wishes to support a modified or extended JSON interchange format
  * it must do so by defining a different parse function.
  *
- * NOTE In the case where there are duplicate name Strings within an object, 
+ * NOTE In the case where there are duplicate name Strings within an object,
  * lexically preceding values for the same key shall be overwritten.
 
  */
@@ -510,7 +510,7 @@ function InternalizeJSONProperty(holder, name, reviver) {
   /* 2. ReturnIfAbrupt(val). */
   @ReturnIfAbrupt(val);
   /* 3. If val is an object, then */
-  if (Type(val) = "Object") { 
+  if (Type(val) = "Object") {
     /* a. Let isArray be IsArray(val). */
     isArray := IsArray(val);
     /* b. ReturnIfAbrupt(isArray). */
@@ -539,12 +539,12 @@ function InternalizeJSONProperty(holder, name, reviver) {
         else {
           /* a. Let status be CreateDataProperty(val, ToString(I), newElement). */
           status := CreateDataProperty(val, ToString(I), newElement)
-          /* b. NOTE This algorithm intentionally does not throw an exception 
+          /* b. NOTE This algorithm intentionally does not throw an exception
                 if status is false.*/
         };
-        
+
         /* 5. ReturnIfAbrupt(status). */
-        @ReturnIfAbrupt(status); 
+        @ReturnIfAbrupt(status);
         /* 6. Add 1 to I. */
         I := I + 1.
       }
@@ -873,7 +873,7 @@ function SerializeJSONProperty(key, holder, stack, indent, gap, PropertyList, sp
   * every code unit with a numeric value in the inclusive range 0xD800 to 0xDBFF (defined
   * by the Unicode Standard as a leading surrogate, or more formally as a high-surrogate
   * code unit) and every code unit with a numeric value in the inclusive range 0xDC00 to
-  * 0xDFFF (defined as a trailing surrogate, or more formally as a low-surrogate code unit) 
+  * 0xDFFF (defined as a trailing surrogate, or more formally as a low-surrogate code unit)
   */
 function isLeadingSurrogate(code) {
   start := to_char_code_u ("\u{D800}");
@@ -888,7 +888,7 @@ function isLeadingSurrogate(code) {
 
 
 /**
- * The abstract operation QuoteJSONString(value) wraps a String value in 
+ * The abstract operation QuoteJSONString(value) wraps a String value in
  * QUOTATION MARK code units and escapes certain other code units within it.
  */
 function QuoteJSONString(value) {
@@ -908,7 +908,7 @@ function QuoteJSONString(value) {
       /* ii. Let product be the concatenation of product and C. */
       product := s_concat([product, C])
     }
-    /* Else if C is 0x0008 (BACKSPACE), 0x000C (FORM FEED), 0x000A (LINE FEED), 
+    /* Else if C is 0x0008 (BACKSPACE), 0x000C (FORM FEED), 0x000A (LINE FEED),
         0x000D( CARRIAGE RETURN), or 0x000B (LINE TABULATION), then */
     elif ((C = "\b") ||| (C = "\f") ||| (C = "\n") ||| (C = "\r") ||| (C = "\t")) {
       /* i. Let product be the concatenation of product and code unit 0x005C (REVERSE SOLIDUS). */
@@ -939,8 +939,8 @@ function QuoteJSONString(value) {
       product := s_concat([product, "\\"]);
       /* ii. Let product be the concatenation of product and "u". */
       product := s_concat([product, "u"]);
-      /* iii. Let hex be the string result of converting the numeric code unit 
-              value of C to a String of four hexadecimal digits. 
+      /* iii. Let hex be the string result of converting the numeric code unit
+              value of C to a String of four hexadecimal digits.
               Alphabetic hexadecimal digits are presented as lowercase Latin letters. */
       hex := int_to_four_hex (to_char_code_u (C));
       /* iv. Let product be the concatenation of product and hex. */
@@ -965,7 +965,7 @@ function QuoteJSONString(value) {
 
 /**
  * The abstract operation SerializeJSONObject with argument value serializes an object.
- * It has access to the stack, indent, gap, and PropertyList values of the current 
+ * It has access to the stack, indent, gap, and PropertyList values of the current
  * invocation of the stringify method.
  *
  */
@@ -984,7 +984,7 @@ function SerializeJSONObject(value, stack, indent, gap, PropertyList, ReplacerFu
   if (!(PropertyList = 'undefined)) {
     /* a. Let K be PropertyList. */
     K := PropertyList
-  }  
+  }
   /* 6. Else */
   else {
     /* a. Let K be EnumerableOwnNames(value). */
@@ -1059,14 +1059,14 @@ function SerializeJSONObject(value, stack, indent, gap, PropertyList, ReplacerFu
 
 
 /**
- * The abstract operation SerializeJSONArray with argument value serializes an array. 
- * It has access to the stack, indent, and gap values of the 
+ * The abstract operation SerializeJSONArray with argument value serializes an array.
+ * It has access to the stack, indent, and gap values of the
  * current invocation of the stringify method.
  *
- * NOTE The representation of arrays includes only the elements 
- * between zero and array.length – 1 inclusive. 
- * Properties whose keys are not array indexes are excluded from the stringification. 
- * An array is stringified as an opening LEFT SQUARE BRACKET, elements separated by COMMA, 
+ * NOTE The representation of arrays includes only the elements
+ * between zero and array.length – 1 inclusive.
+ * Properties whose keys are not array indexes are excluded from the stringification.
+ * An array is stringified as an opening LEFT SQUARE BRACKET, elements separated by COMMA,
  * and a closing RIGHT SQUARE BRACKET.
  *
  */
@@ -1129,7 +1129,7 @@ function SerializeJSONArray(value, stack, indent, gap, PropertyList, ReplacerFun
     }
     /* b. Else */
     else {
-      /* i. Let separator be the result of concatenating 
+      /* i. Let separator be the result of concatenating
           code unit 0x002C (COMMA), code unit 0x000A (LINE FEED), and indent. */
       separator := s_concat([",", "\n", indent]);
       /* ii. Let properties be a String formed by concatenating all the element

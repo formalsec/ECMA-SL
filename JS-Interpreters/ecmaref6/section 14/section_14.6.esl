@@ -1,11 +1,11 @@
-/* 
-14.6.1 Static Semantics: IsInTailPosition(nonterminal) 
+/*
+14.6.1 Static Semantics: IsInTailPosition(nonterminal)
 
 The abstract operation IsInTailPosition with argument nonterminal performs the following steps:
 */
 function IsInTailPosition(nonterminal) {
     /*Assert: nonterminal is a parsed grammar production.*/
-    
+
     /*If the source code matching nonterminal is not strict code, return false.*/
 
 
@@ -27,7 +27,7 @@ function IsInTailPosition(nonterminal) {
 /*
 14.6.2 Static Semantics: HasProductionInTailPosition
 
-With parameter nonterminal. 
+With parameter nonterminal.
 */
 function HasProductionInTailPosition(nonterminal) {
     return ("is_tail_call" in_obj nonterminal) &&& (nonterminal.is_tail_call = true)

@@ -1,16 +1,16 @@
 /* CreateIterResultObject ( value, done )*/
 function CreateIterResultObject ( value, done ) {
     /* 1. Let obj be ObjectCreate(%ObjectPrototype%). */
-    obj := ObjectCreate(|ObjectPrototype|, null); 
+    obj := ObjectCreate(|ObjectPrototype|, null);
 
     /* 2. Perform CreateDataProperty(obj, "value", value). */
-    CreateDataProperty(obj, "value", value); 
+    CreateDataProperty(obj, "value", value);
 
     /* 3. Perform CreateDataProperty(obj, "done", done). */
     CreateDataProperty(obj, "done", done);
 
     /* 4. Return obj. */
-    return obj 
+    return obj
 };
 
 /*
@@ -39,8 +39,8 @@ function GetIterator(obj, method) {
 
     /* If Type(iterator) is not Object, throw a TypeError exception. */
     if (!(Type(iterator) = "Object")) {
-        throw TypeErrorConstructorInternal() 
-    }; 
+        throw TypeErrorConstructorInternal()
+    };
 
     /* Return iterator. */
     return iterator
@@ -49,7 +49,7 @@ function GetIterator(obj, method) {
 function CallNew (externalScope, ref, F, this, args) {
 
     if (F = 'undefined) {
-        return throwEmptyCompletion(TypeErrorConstructorInternal()) 
+        return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
 
     return Call(externalScope, ref, F, this, args)
@@ -65,7 +65,7 @@ function IteratorClose(iterator, completion) {
 
     /* 2. Assert: completion is a Completion Record. */
     assert(Type(completion) = "Completion");
-    
+
     /* 3. Let return be GetMethod(iterator, "return"). */
     returnVar := GetMethod(iterator, "return");
     /* 4. ReturnIfAbrupt(return). */
@@ -136,10 +136,10 @@ function IteratorComplete(iterResult) {
 * 7.4.4 IteratorValue ( iterResult )
 */
 function IteratorValue(iterResult) {
-    
+
     /* 1. Assert: Type(iterResult) is Object. */
     assert Type(iterResult) = "Object";
-    
+
     /* 2. Return Get(iterResult, "value"). */
     return Get(iterResult, "value")
 };
@@ -148,25 +148,25 @@ function IteratorValue(iterResult) {
 * 7.4.5 IteratorStep ( iterator )
 */
 function IteratorStep(iterator) {
-    
+
     /* 1. Let result be IteratorNext(iterator). */
     result := IteratorNext(iterator, null);
-    
+
     /* 2. ReturnIfAbrupt(result). */
     @ReturnIfAbrupt(result);
-    
+
     /* 3. Let done be IteratorComplete(result). */
     done := IteratorComplete(result);
-    
+
     /* 4. ReturnIfAbrupt(done). */
     @ReturnIfAbrupt(done);
-    
+
     /* 5. If done is true, return false. */
     if (done = true) {
         return false
     };
-    
-    /* 6. Return result. */ 
+
+    /* 6. Return result. */
     return result
 };
 
@@ -229,7 +229,7 @@ function ListIteratornext(scope, V, NewTarget, strict, args) {
 
   /* 5. If SameValue(f, next) is false, throw a TypeError exception. */
   if (SameValue(f, next) = false) {
-    throw TypeErrorConstructorInternal() 
+    throw TypeErrorConstructorInternal()
   };
 
   /* 6. If O does not have a [[IteratedList]] internal slot, */
