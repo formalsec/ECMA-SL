@@ -101,6 +101,8 @@ function IteratorClose(iterator, completion) {
 * 7.4.2 IteratorNext ( iterator, value )
 */
 function IteratorNext(iterator, value) {
+    /* Initialize `result` to keep typechecker happy */
+    result := null;
     /* 1. If value was not passed, then */
     if (value = null) {
         /* a. Let result be Invoke(iterator, "next", «‍ »). */

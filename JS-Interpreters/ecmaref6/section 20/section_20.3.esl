@@ -2312,17 +2312,17 @@ function internalNewDate(datePrototypeObject, args) {
   /* 2. Let m be ToNumber(month). */
   m := ToNumber(month);
   /* 3. If date is supplied then let dt be ToNumber(date); else let dt be 1. */
-  if (!(date = null)) { dt := ToNumber(date) } else { dt := 1. };
+  dt := (date != null) ? ToNumber(date) : 1.;
   /* 4. If hours is supplied then let h be ToNumber(hours); else let h be 0. */
-  if (!(hours = null)) { h := ToNumber(hours) } else { h := 0. };
+  h := (hours != null) ? ToNumber(hours) : 0.;
   /* 5. If minutes is supplied then let min be ToNumber(minutes); else let min be 0. */
-  if (!(minutes = null)) { mins := ToNumber(minutes) } else { mins := 0. };
+  mins := (minutes != null) ? ToNumber(minutes) : 0.;
   /* 6. If seconds is supplied then let s be ToNumber(seconds); else let s be 0. */
-  if (!(seconds = null)) { s := ToNumber(seconds) } else { s := 0. };
+  s := (seconds != null) ? ToNumber(seconds) : 0.;
   /* 7. If ms is supplied then let milli be ToNumber(ms); else let milli be 0. */
-  if (!(ms = null)) { milli := ToNumber(ms) } else { milli := 0. };
+  milli := (ms != null) ? ToNumber(ms) : 0.;
   /* 8. If y is not NaN and 0 <= ToInteger(y) <= 99, then let yr be 1900+ToInteger(y); otherwise, let yr be y. */
-  if (!(is_NaN (y)) &&& (0. <= ToInteger(y)) &&& (ToInteger(y) <= 99.)) { yr := 1900. + ToInteger(y) } else { yr := y };
+  yr := (!(is_NaN (y)) &&& (0. <= ToInteger(y)) &&& (ToInteger(y) <= 99.)) ? 1900. + ToInteger(y) : y;
   /* 9. Let finalDate be MakeDate(MakeDay(yr, m, dt), MakeTime(h, min, s, milli)). */
   finalDate := MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli));
   /* 10. Set the [[PrimitiveValue]] internal property of the newly constructed object to TimeClip(UTC(finalDate)). */
@@ -2333,6 +2333,8 @@ function internalNewDate(datePrototypeObject, args) {
 
 /* 15.9.3.2 new Date (value) */
 function internalNewDateWithValue(datePrototypeObject, value) {
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
   /* The [[Prototype]] internal property of the newly constructed object is set to the original Date prototype object,
     the one that is the initial value of Date.prototype (15.9.4.1). */
   setInternalProperty(newlyConstructedObject, "Prototype", datePrototypeObject);
@@ -2362,6 +2364,8 @@ function internalNewDateWithValue(datePrototypeObject, value) {
 
 /* 15.9.3.3 new Date ( ) */
 function internalNewDateWithoutValue(datePrototypeObject) {
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
   /* The [[Prototype]] internal property of the newly constructed object is set to the original Date prototype object,
     the one that is the initial value of Date.prototype (15.9.4.1). */
   setInternalProperty(newlyConstructedObject, "Prototype", datePrototypeObject);
