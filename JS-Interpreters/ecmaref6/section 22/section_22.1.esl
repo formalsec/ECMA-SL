@@ -898,6 +898,7 @@ function arrayFrom(global, this, NewTarget, strict, args) {
   @ReturnIfAbrupt(len);
 
   /* 12. If IsConstructor(C) is true, then */
+  A := null;
   if (IsConstructor(C) = true) {
     /* a. Let A be Construct(C, «len»). */
     A := Construct(null, null, C, [len], null)
@@ -2654,6 +2655,8 @@ function arrayPush(global, this, NewTarget, strict, items) {
  * following steps are taken:
  */
 function arrayReduce(global, this, NewTarget, strict, args) {
+  /* Initialize `accumulator` to keep typechecker happy */
+  accumulator := null;
   callbackfn := l_nth(args, 0);
   initialValue := getOptionalParam(args, 1);
 
@@ -2799,6 +2802,8 @@ function arrayReduce(global, this, NewTarget, strict, args) {
  * the following steps are taken:
  */
 function arrayReduceRight(global, this, NewTarget, strict, args) {
+  /* Initialize `accumulator` to keep typechecker happy. */
+  accumulator := null;
   callbackfn := l_nth(args, 0);
   initialValue := getOptionalParam(args, 1);
 
@@ -3694,11 +3699,7 @@ function arraySplice(global, this, NewTarget, strict, args) {
 
   /* 7. If relativeStart is negative, let actualStart be max((len + relativeStart),0);
         else let actualStart be min(relativeStart, len). */
-  if (relativeStart < 0.) {
-    actualStart := max((len + relativeStart), 0.)
-  } else {
-    actualStart := min(relativeStart, len)
-  };
+  actualStart := (relativeStart < 0.) ? max((len + relativeStart), 0.) : min(relativeStart, len);
 
   n_args := l_len args;
 
@@ -3987,6 +3988,7 @@ function arrayToLocaleString(global, this, NewTarget, strict, args) {
   /* 8. ReturnIfAbrupt(firstElement). */
   @ReturnIfAbrupt(firstElement);
 
+  R := null;
   /* 9. If firstElement is undefined or null, then */
   if ((firstElement = 'undefined) || (firstElement = 'null)) {
     /* a. Let R be the empty String. */

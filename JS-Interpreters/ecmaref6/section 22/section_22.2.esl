@@ -2145,14 +2145,11 @@ function TypedArrayJoin(global, this, NewTarget, strict, args) {
   /* 9. Let element0 be Get(O, "0"). */
   element0 := Get(O, "0");
   /* 10. If element0 is undefined or null, */
-  if ((element0 = 'undefined) || (element0 = 'null)) {
+  R := ((element0 = 'undefined) || (element0 = 'null)) ?
     /* let R be the empty String */
-    R := "" /* "" or O ???? */
-  }
-  /* otherwise, let R be ToString(element0) */
-  else {
-    R := ToString(element0)
-  };
+    "" :
+    /* otherwise, let R be ToString(element0) */
+    ToString(element0);
   /* 11. ReturnIfAbrupt(R). */
   @ReturnIfAbrupt(R);
   /* 12. Let k be 1. */
@@ -2457,6 +2454,7 @@ function TypedArrayMap(global, this, NewTarget, strict, args) {
  * steps are taken:
  */
 function TypedArrayReduce(global, this, NewTarget, strict, args) {
+  accumulator := null;
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
 
@@ -2595,6 +2593,7 @@ function TypedArrayReduce(global, this, NewTarget, strict, args) {
  * following steps are taken:
  */
 function TypedArrayReduceRight(global, this, NewTarget, strict, args) {
+  accumulator := null;
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
 
@@ -3440,6 +3439,8 @@ function TypedArraySortCompare(x, y, comparefn, buffer) {
  * end of the array, as opposed to from the beginning.
  */
 function TypedArraySubarray(global, this, NewTarget, strict, args) {
+  /* Initiliaze `beginIndex` to keep typechecker happy. */
+  beginIndex := 0.;
   begin := getOptionalParam(args, 0);
   end := getOptionalParam(args, 1);
   if (end = null) {

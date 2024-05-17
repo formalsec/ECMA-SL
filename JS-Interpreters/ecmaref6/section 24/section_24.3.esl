@@ -1015,6 +1015,7 @@ function SerializeJSONObject(value, stack, indent, gap, PropertyList, ReplacerFu
       partial := l_add(partial, member)
     }
   };
+  final := null;
   /* 9. If partial is empty, then */
   if ((l_len partial) = 0) {
     /* a. Let final be "{}". */
@@ -1108,6 +1109,7 @@ function SerializeJSONArray(value, stack, indent, gap, PropertyList, ReplacerFun
     /* e. Increment index by 1. */
     index := index + 1.
   };
+  final := null;
   /* 10. If partial is empty, then */
   if ((l_len partial) = 0) {
     /* a. Let final be "[]". */

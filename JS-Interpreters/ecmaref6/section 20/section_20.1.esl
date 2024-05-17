@@ -320,6 +320,7 @@ function NumberPrototypeToExponential(global, this, NewTarget, strict, items) {
 
 /* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
 function NumberPrototypeToExponentialAlt(global, this, NewTarget, strict, items) {
+  m := null; c := null; d := null;
   fractionDigits := getOptionalParam(items, 0);
   /* 1. Let x be thisNumberValue(this value). */
   x := thisNumberValue(this);
@@ -449,6 +450,8 @@ function NumberPrototypeToFixed(global, this, NewTarget, strict, items) {
 
 /* 20.1.3.3 Number.prototype.toFixed ( fractionDigits ) */
 function NumberPrototypeToFixedAlt(global, this, NewTarget, strict, items) {
+  /* initialize `a` and `b` to keep the typechecker happy. */
+  a := null; b := null;
   fractionDigits := getOptionalParam(items, 0);
   /* 1. Let x be thisNumberValue(this value). */
   x := thisNumberValue(this);
@@ -520,6 +523,7 @@ function NumberPrototypeToFixedAlt(global, this, NewTarget, strict, items) {
       b := s_substr_u(m, k - f, s_len_u(m))
     }
   };
+  /* FIXME: 'a' and 'b' can be null here */
   /* iv. Let m be the concatenation of the three Strings a, ".", and b. */
   m := l_concat(l_concat(a, "."), b);
   /* 11. Return the concatenation of the Strings s and m. */
@@ -580,6 +584,7 @@ function NumberPrototypeToPrecision(global, this, NewTarget, strict, items) {
 
 /* 20.1.3.5 Number.prototype.toPrecision ( precision ) */
 function NumberPrototypeToPrecisionAlt(global, this, NewTarget, strict, items) {
+  m := ""; /* initialize m so typechecker doesn't complain */
   precision := getOptionalParam(items, 0);
   /* 1. Let x be thisNumberValue(this value). */
   x := thisNumberValue(this);
@@ -638,16 +643,16 @@ function NumberPrototypeToPrecisionAlt(global, this, NewTarget, strict, items) {
   };
   /* 13. If e = p–1, return the concatenation of the Strings s and m. */
   if (e = (p - 1)) {
-    return s_concat([s, m])
+    return s_concat([ s, m ])
   };
   /* 14. If e ≥ 0, then */
   if (e >= 0) {
-    /* a. Let m be the concatenation of the first e+1 elements of m, 
+    /* a. Let m be the concatenation of the first e+1 elements of m,
     the code unit 0x002E (FULL STOP), and the remaining p – (e+1) elements of m. */
     m := s_concat([s_concat([s_substr_u(m, 0, e + 1), "."]), s_substr_u(m, e + 1, p - (e + 1))])
   /* 15. Else e < 0, */
   } else {
-    /* a. Let m be the String formed by the concatenation of code unit 0x0030 (DIGIT ZERO), 
+    /* a. Let m be the String formed by the concatenation of code unit 0x0030 (DIGIT ZERO),
     code unit 0x002E (FULL STOP), –(e+1) occurrences of code unit 0x0030 (DIGIT ZERO), and the String m. */
     tmp := "";
     index := 0;
@@ -658,7 +663,7 @@ function NumberPrototypeToPrecisionAlt(global, this, NewTarget, strict, items) {
     m := s_concat([s_concat(["0.", tmp]), m])
   };
   /* 16. Return the String that is the concatenation of s and m. */
-  return s_concat([s, m])
+  return s_concat([ s, m ])
 };
 
 function isNumberOrNumberObject(arg) {

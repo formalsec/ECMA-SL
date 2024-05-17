@@ -13,10 +13,10 @@ function UTF16Encoding(cp){
     };
 
     /* 3. Let cu1 be floor((cp – 65536) / 1024) + 0xD800. */
-    cu1 := floor((cp - 65536) / 1024.) + 0xD800;
+    cu1 := floor((cp - 65536.) / 1024.) + (int_to_float 0xD800);
 
     /* 4. Let cu2 be ((cp – 65536) modulo 1024) + 0xDC00. */
-    cu2 := ((cp - 65536) % 1024.) + 0xDC00;
+    cu2 := ((cp - 65536.) % 1024.) + (int_to_float 0xDC00);
 
     /* 5. Return the code unit sequence consisting of cu1 followed by cu2. */
     return s_concat([cu1, cu2])
