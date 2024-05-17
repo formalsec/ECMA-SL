@@ -120983,3 +120983,8919 @@ Tests compilation of ecmaref6:
     __v23531 := s_concat(__v23530);
     return [false, __v23531]
   }
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
+<<<<<<< HEAD
+=======
+>>>>>>> c6e99419e (Fixes type errors in ecmaref6 (Closes #106))
