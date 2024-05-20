@@ -33,25 +33,33 @@ let execute_partial (entry : Interpreter.entry) (config : Options.interp_config)
   Hashtbl.replace (Prog.funcs interp) (Func.name' build_ast) build_ast;
   Ok (Cmd_interpret.interpret_partial entry config interp)
 
-let setup_harness (config : Options.interp_config) (interp : Prog.t)
-  (harness : Fpath.t) : Val.t Heap.t Result.t =
+let check_harness_return (result : Interpreter.result) : unit Result.t =
+  match result.retval with
+  | Tuple [ _; Symbol "normal"; _; _ ] -> Ok ()
+  | _ ->
+    let err = Fmt.asprintf "Unable to setup harness: %a" Val.pp result.retval in
+    Result.error (`Execute err)
+
+let setup_program_harness (interp : Prog.t) (harness : Fpath.t) :
+  Val.t Heap.t Result.t =
   ignore Enums.Lang.(resolve_file_lang [ JS ] harness);
   let ast = Fpath.v (Filename.temp_file "ecmasl" "harness.cesl") in
   let entry = Interpreter.entry_default () in
+  let config = Cmd_interpret.Options.default_config () in
   let* () = Cmd_encode.encode None harness (Some ast) in
   let* result = execute_partial entry config interp ast in
+  let* () = check_harness_return result in
   Log.debug "Sucessfuly linked JS harness '%a' to interpreter." Fpath.pp harness;
-  Cmd_interpret.InterpreterMetrics.log config.instrument.profiler result.metrics;
   Ok result.heap
 
-let setup_execution (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option)
-  (config : Options.interp_config) : (Prog.t * Val.t Heap.t option) Result.t =
+let setup_execution (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option) :
+  (Prog.t * Val.t Heap.t option) Result.t =
   let finterp = Enums.JSInterp.interp jsinterp in
   let* interp = Cmd_compile.compile true (Fpath.v finterp) in
   match harness with
   | None -> Ok (interp, None)
   | Some harness' ->
-    let* static_heap = setup_harness config interp harness' in
+    let* static_heap = setup_program_harness interp harness' in
     Ok (interp, Some static_heap)
 
 let execute_cesl ((interp, static_heap) : Prog.t * Val.t Heap.t option)
@@ -73,7 +81,7 @@ let execute_js (setup : Prog.t * Val.t Heap.t option)
 
 let run () (opts : Options.t) : unit Result.t =
   let valid_langs = Enums.Lang.valid_langs Options.langs opts.lang in
-  let* setup = setup_execution opts.jsinterp opts.harness opts.interp_config in
+  let* setup = setup_execution opts.jsinterp opts.harness in
   Cmd_interpret.log_metrics opts.interp_config.instrument.profiler
   @@
   match Enums.Lang.resolve_file_lang valid_langs opts.input with
