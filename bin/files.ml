@@ -53,7 +53,7 @@ let read_inputs (recursive : bool) (input : t) : (t * t) list Result.t =
 let flat_inputs (inputs : (t * t) list list) : (t * t) list Result.t =
   let inputs' = List.flatten inputs in
   if inputs' != [] then Ok inputs'
-  else Result.error (`Generic "Empty input list")
+  else Result.error (`Generic "Empty input list.")
 
 let make_subdir (dir : t) (workspace : t) (input : t) (outext : string) :
   output Result.t =

@@ -8,6 +8,7 @@ type cmderr =
   | `Runtime of Runtime_error.t pp
   | `Typing
   | `Encode of string
+  | `Execute of string
   | `Test
   | `TestFmt of string
   | `SymAbort of string
@@ -26,6 +27,7 @@ let log_error (err : cmderr) : unit =
   | `Runtime (pp, msg) -> Log.err "%a@." pp msg
   | `Typing -> ()
   | `Encode msg -> Log.error "%s@." msg
+  | `Execute msg -> Log.error "%s@." msg
   | `Test -> ()
   | `TestFmt msg -> Log.error "%s@." msg
   | `SymAbort _ -> ()
