@@ -361,13 +361,16 @@ module M (Instrument : Instrument.M) = struct
         Runtime_error.(throw (UncaughtExn (Val.str err)))
       | _ -> Runtime_error.(throw (UnexpectedExitVal retval))
 
-  let show_exitval (retval : Val.t) : unit =
-    if !Config.show_exitval then Log.esl ~nl:true "exit value: %a" Val.pp retval
+  let show_exitval (heap : heap) (retval : Val.t) : unit =
+    let visited = Hashtbl.create !Base.default_hashtbl_sz in
+    let heapval_pp' = heapval_pp !Config.print_depth visited heap in
+    if !Config.show_exitval then
+      Log.esl ~nl:true "exit value: %a" heapval_pp' retval
 
   let result (v : Val.t) (heap : heap) (inst : Instrument.t ref) : result =
     let metrics = Instrument.Profiler.json !inst.pf in
     let retval = resolve_exitval v in
-    show_exitval retval;
+    show_exitval heap retval;
     { retval; heap; metrics }
 
   let eval_instrumented (entry : entry) (p : Prog.t) (inst : Instrument.t ref) :
