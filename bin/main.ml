@@ -160,6 +160,7 @@ let exit_code () =
     | `Runtime _ -> Docs.ExitCodes.interpret
     | `Typing -> Docs.ExitCodes.typing
     | `Encode _ -> Docs.ExitCodes.encode
+    | `Execute _ -> Docs.ExitCodes.execute
     | `Test -> Docs.ExitCodes.test
     | `TestFmt _ -> Docs.ExitCodes.test
     | `SymAbort _ -> Docs.ExitCodes.sym_abort

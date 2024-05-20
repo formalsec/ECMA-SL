@@ -288,11 +288,6 @@ module TestRunner = struct
     let instrument = { interp_config.instrument with profiler } in
     { interp_config with instrument }
 
-  let setup_environment (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option)
-    : (Prog.t * Val.t Heap.t option) Result.t =
-    let interp_config = Cmd_interpret.Options.default_config () in
-    Cmd_execute.setup_execution jsinterp harness interp_config
-
   let set_input_flags (record : TestRecord.t) : Fpath.t Result.t =
     let rec flag_appends = function
       | [] -> ""
@@ -404,7 +399,7 @@ let run () (opts : Options.t) : unit Result.t =
   let* inputs = Files.generate_input_list opts.inputs in
   Options.term_width := get_logging_width inputs;
   Log.out "%a@." TestTree.pp_status_header ();
-  let* env = TestRunner.setup_environment opts.jsinterp opts.harness in
+  let* env = Cmd_execute.setup_execution opts.jsinterp opts.harness in
   let tree = TestTree.create "" in
   let outext = Enums.Lang.str TestReport in
   let run_single' = run_single opts env tree in

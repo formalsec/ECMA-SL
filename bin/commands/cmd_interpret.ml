@@ -91,7 +91,8 @@ module InterpreterMetrics = struct
       (pp_el pp_counter) counter
 
   let log (profiler : Enums.InterpProfiler.t) (metrics : t) : unit =
-    match profiler with None -> () | _ -> Log.out "%a@." pp metrics
+    if profiler == None then ()
+    else Log.esl ~nl:true "Execution metrics:%a" pp metrics
 end
 
 module InterpreterInstrument = struct
@@ -156,8 +157,9 @@ let interpret_esl (entry : Interpreter.entry) (config : Options.config)
 
 let log_metrics (profiler : Enums.InterpProfiler.t)
   (result : Interpreter.result Result.t) : unit Result.t =
-  let* result' = result in
-  Ok (InterpreterMetrics.log profiler result'.metrics)
+  match result with
+  | Ok result' -> Ok (InterpreterMetrics.log profiler result'.metrics)
+  | Error _ as err -> err
 
 let run () (opts : Options.t) : unit Result.t =
   let valid_langs = Enums.Lang.valid_langs Options.langs opts.lang in
