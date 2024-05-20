@@ -146,15 +146,21 @@ module M (Instrument : Instrument.M) = struct
 
   let rec heapval_pp (depth : int option) (visited : (Loc.t, unit) Hashtbl.t)
     (heap : heap) (fmt : Fmt.t) (v : Val.t) : unit =
-    let valid_depth = Option.fold ~none:true ~some:(fun d -> d > 0) in
+    let open Fmt in
+    let valid_depth = Option.fold ~none:true ~some:(fun d -> d > 0) depth in
+    let visited_loc = Hashtbl.mem visited in
+    let incr_depth = Option.map (fun d -> d - 1) in
+    let heapval_pp' = heapval_pp (incr_depth depth) visited heap in
     match v with
-    | Loc l when valid_depth depth && not (Hashtbl.mem visited l) ->
-      let depth' = Option.map (fun d -> d - 1) depth in
+    | Loc l when (not valid_depth) || visited_loc l -> fprintf fmt "{...}"
+    | Arr _ when not valid_depth -> fprintf fmt "[|...|]"
+    | List _ when not valid_depth -> fprintf fmt "[...]"
+    | Tuple _ when not valid_depth -> fprintf fmt "(...)"
+    | Loc l ->
       Hashtbl.add visited l ();
-      (Object.pp (heapval_pp depth' visited heap)) fmt (get_loc heap l);
+      (Object.pp heapval_pp') fmt (get_loc heap l);
       Hashtbl.remove visited l
-    | Loc _ -> Fmt.fprintf fmt "{...}"
-    | _ -> Val.pp fmt v
+    | _ -> Val.pp_custom_inner heapval_pp' fmt v
 
   let print_pp (heap : heap) (fmt : Fmt.t) (v : Val.t) : unit =
     match v with
@@ -166,7 +172,7 @@ module M (Instrument : Instrument.M) = struct
   let prepare_store_binds (pxs : string list) (vs : Val.t list) (at : region) :
     (string * Val.t) list =
     try List.combine pxs vs
-    with _ ->
+    with Invalid_argument _ ->
       let (xpxs, nargs) = (List.length pxs, List.length vs) in
       Runtime_error.(throw ~src:(ErrSrc.region at) (BadNArgs (xpxs, nargs)))
 
