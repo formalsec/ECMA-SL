@@ -70,7 +70,8 @@ let float_str (f : float) : string =
   if is_special_number f_str || String.contains f_str '.' then f_str
   else f_str ^ ".0"
 
-let rec pp (fmt : Fmt.t) (v : t) : unit =
+let pp_custom_inner (pp_inner_val : Fmt.t -> t -> unit) (fmt : Fmt.t) (v : t) :
+  unit =
   let open Fmt in
   match v with
   | Null -> fprintf fmt "null"
@@ -81,11 +82,12 @@ let rec pp (fmt : Fmt.t) (v : t) : unit =
   | Bool b -> fprintf fmt "%b" b
   | Symbol s -> fprintf fmt "'%s" s
   | Loc l -> Loc.pp fmt l
-  | Arr arr -> fprintf fmt "[|%a|]" (pp_arr ", " pp) arr
-  | List lst -> fprintf fmt "[%a]" (pp_lst ", " pp) lst
-  | Tuple tup -> fprintf fmt "(%a)" (pp_lst ", " pp) tup
+  | Arr arr -> fprintf fmt "[|%a|]" (pp_arr ", " pp_inner_val) arr
+  | List lst -> fprintf fmt "[%a]" (pp_lst ", " pp_inner_val) lst
+  | Tuple tup -> fprintf fmt "(%a)" (pp_lst ", " pp_inner_val) tup
   | Byte bt -> fprintf fmt "%i" bt
   | Type t -> Type.pp fmt t
-  | Curry (fn, fvs) -> fprintf fmt "{%S}@(%a)" fn (pp_lst ", " pp) fvs
+  | Curry (fn, fvs) -> fprintf fmt "{%S}@(%a)" fn (pp_lst ", " pp_inner_val) fvs
 
+let rec pp (fmt : Fmt.t) (v : t) : unit = pp_custom_inner pp fmt v
 let str v = Fmt.asprintf "%a" pp v
