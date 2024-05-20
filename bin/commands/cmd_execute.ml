@@ -65,7 +65,8 @@ let setup_execution (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option) :
 let execute_cesl ((interp, static_heap) : Prog.t * Val.t Heap.t option)
   (config : Options.interp_config) (input : Fpath.t) :
   Interpreter.result Result.t =
-  let main = if Option.is_some static_heap then "mainPartial" else "main" in
+  let pre_initialized = Option.is_some static_heap in
+  let main = if pre_initialized then "mainPreInitialized" else "main" in
   let entry = Interpreter.{ main; static_heap } in
   let* result = execute_partial entry config interp input in
   let retval = result.retval in
