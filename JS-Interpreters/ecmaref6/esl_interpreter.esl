@@ -618,7 +618,7 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
     /* 6. Let status be the result of performing
       DestructuringAssignmentEvaluation of assignmentPattern using rval as
       the argument. */
-    status := DestructuringAssignmentEvaluation(assignmentPattern, rval, scope, null);
+    status := DestructuringAssignmentEvaluation(assignmentPattern, rval, scope);
     /* 7. ReturnIfAbrupt(status). */
     @ReturnIfAbrupt(status);
     /* 8. Return rval. */
@@ -1976,7 +1976,7 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
       @ReturnIfAbrupt(rval);
       /* 4. Return the result of performing BindingInitialization for BindingPattern
               passing rval and undefined as arguments.*/
-      return DestructuringAssignmentEvaluation(BindingPattern, rval, scope, null)
+      return DestructuringAssignmentEvaluation(BindingPattern, rval, scope)
     }
   }
   | { type: "VariableDeclaration", declarations: VariableDeclarationListNoIn } -> {
@@ -3791,7 +3791,7 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
         /* fail "destructuring";*/
         /* 1. Let status be the result of performing DestructuringAssignmentEvaluation of assignmentPattern using nextValue as the argument. */
         /*status := DestructuringAssignmentEvaluation(assignmentPattern, nextValue, scope) */
-        status := DestructuringAssignmentEvaluation(assignmentPattern, nextValue, scope, null)
+        status := DestructuringAssignmentEvaluation(assignmentPattern, nextValue, scope)
       }
       /* ii. Else if lhsKind is varBinding, then */
       elif (lhsKind = "varBinding") {

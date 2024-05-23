@@ -279,7 +279,6 @@ function GetValue(V) {
  * 6.2.3.2 PutValue (V, W)
 */
 function PutValue(V, W) {
-
     /* ReturnIfAbrupt(V). */
     @ReturnIfAbrupt(V);
 
