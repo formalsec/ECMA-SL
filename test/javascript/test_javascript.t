@@ -90,6 +90,7 @@ Run all js tests:
   ./regex/regex_9.js ............................ SUCCESS
   ./regex/regex_utf16.js ........................ FAILURE
   ./simple/catch.js ............................. SUCCESS
+  ./simple/destructuring.js ..................... SUCCESS
   ./simple/events.js ............................ SUCCESS
   ./simple/flow.js .............................. SUCCESS
   ./simple/forin.js ............................. SUCCESS
