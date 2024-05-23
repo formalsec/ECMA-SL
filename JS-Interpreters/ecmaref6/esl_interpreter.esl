@@ -1539,7 +1539,7 @@ function JS_Interpreter_Stmt(s, scope) {
   }
   | { type: "ClassDeclaration", id: BindingIdentifier, superClass: ClassHeritageopt, body: ClassBodyopt } -> {
     return JS_Interpreter_ClassEvaluation(scope, BindingIdentifier, ClassHeritageopt, ClassBodyopt);
-  } 
+  }
   | default -> {
     fail "Statement not matched";
   }
@@ -3122,8 +3122,8 @@ function JS_Interpreter_IterationStmt(IterationStatement, scope) {
       return Completion(forDcl);
     }
     /* 9. If isConst is false, let perIterationLets be boundNames otherwise let perIterationLets be « ». */
-    if (isConst == false) 
-      perIterationLets := boundNames; 
+    if (isConst == false)
+      perIterationLets := boundNames;
     else
       perIterationLets := [];
     /* 10. Let bodyResult be ForBodyEvaluation(the first Expression, the second Expression,
