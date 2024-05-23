@@ -75,198 +75,332 @@ function applyOperator(operator, lval, rval) {
   }
 };
 
-/**
- * 12.14.5.2 Runtime Semantics: DestructuringAssignmentEvaluation
- */
-function DestructuringAssignmentEvaluation(param, value, environment, listIterator) {
+
+/* Based on 12.14.5. */
+function DestructuringAssignmentEvaluation(param, value, scope) {
   match param with
-  | { type: "Identifier" } -> {
-    /* Identifier Case - Base case */
-    return DestructuringAssignmentIdentifier(param, value, environment)
-  }
-  | { type: "RestElement" } -> {
-    /* Identifier Case - Base case */
-    if (listIterator = null) {
-      return DestructuringAssignmentEvaluation(param.argument, value, environment, null)
-    };
-    restValue := GetRestValue(listIterator, value);
-    return DestructuringAssignmentEvaluation(param.argument, restValue, environment, listIterator)
+  | { type: "ObjectPattern" } -> {
+    return DestructuringAssignmentObjectPattern(param, value, scope);
   }
   | { type: "ArrayPattern" } -> {
-    return DestructuringAssignmentArrayPattern(param, value, environment)
+    return DestructuringAssignmentArrayPattern(param, value, scope);
   }
-  | { type: "ObjectPattern" } -> {
-    return DestructuringAssignmentObjectPattern(param, value, environment)
-  }
+  /* The following cases are not part of the standard, but are here to simplify the algorithm's implementation. */
   | { type: "AssignmentPattern" } -> {
-    /* AssignmentPattern Case */
-    /* If the parameter already has a value, then just initialize the binding for the parameter */
-    if (!(value = 'undefined)) {
-      return DestructuringAssignmentEvaluation(param.left, value, environment, listIterator)
-    };
-    initializer := param.right;
-
-
-    newValue := JS_Interpreter_AssignmentPattern(initializer, environment);
-
-    v := GetValue(newValue);
-
-    @ReturnIfAbrupt(v);
-
-    if (IsAnonymousFunctionDefinition(initializer)) {
-      /* i. Let hasNameProperty be HasOwnProperty(v, "name"). */
-      hasNameProperty := HasOwnProperty(v, "name");
-      /* ii. ReturnIfAbrupt(hasNameProperty). */
-      @ReturnIfAbrupt(hasNameProperty);
-      /* iii. If hasNameProperty is false, perform SetFunctionName(v, P). */
-      P := param.left.name;
-      if (hasNameProperty = false) {
-        SetFunctionName(v, P, null)
-      }
-    };
-
-    return DestructuringAssignmentEvaluation(param.left, v, environment, listIterator)
+    return DestructuringAssignmentPattern(param, value, scope);
+  }
+  | { type: "RestElement" } -> {
+    return DestructuringAssignmentRestElement(param, value, scope);
+  }
+  | { type: "Identifier" } -> {
+    return DestructuringAssignmentIdentifier(param, value, scope);
   }
   | { type: "MemberExpression" } -> {
-    lref := JS_Interpreter_Expr(param, environment);
-    @ReturnIfAbrupt(lref);
-    return PutValue(lref, value)
+    return DestructuringAssignmentMemberExpression(param, value, scope);
+  }
+  | default -> {
+    fail "NOT IMPLEMENTED: DestructuringAssignmentEvaluation." + param.type;
   }
 };
 
-function DestructuringAssignmentArrayPattern(param, value, environment) {
-  arrayIterator := GetIterator(value, null);
-  @ReturnIfAbrupt(arrayIterator);
-  iteratorRecord := {iterator: arrayIterator, done: false};
-  result := IteratorDestructuringAssignmentEvaluation(param.elements, iteratorRecord, environment);
+/* Based on 12.14.5.2 for ObjectAssignmentPattern. */
+function DestructuringAssignmentObjectPattern(param, value, scope) {
+  initialized_keys := [];
 
+  /* 1. Let valid be RequireObjectCoercible(value). */
+  valid := RequireObjectCoercible(value);
+
+  /* 2. ReturnIfAbrupt(valid). */
+  @ReturnIfAbrupt(valid);
+
+  /* 3. Return the result of performing DestructuringAssignmentEvaluation for AssignmentPropertyList using value as the argument. */
+  foreach (assignmentProperty: param.properties) {
+    /* Based on 12.14.5.2 for AssignmentPropertyList, but implemented iteratively rather than recursively.
+       Our implementation of DestructuringAssignmentObjectProperty instead returns the name of the property processed 
+       so that it can be added to the initialized_keys list. */    
+    name := DestructuringAssignmentObjectProperty(assignmentProperty, value, scope, initialized_keys);
+    @ReturnIfAbrupt(name);
+    initialized_keys := l_add(initialized_keys, name);
+  };
+
+  return NormalCompletion('empty);
+};
+
+/* Based on 12.14.5.2 for AssignmentProperty. */
+function DestructuringAssignmentObjectProperty(assignmentProperty, value, scope, initialized_keys) {
+  match assignmentProperty with
+  /* Based on 12.14.5.2 for AssignmentProperty with PropertyName. */
+  | { type: "Property", key: key, computed: computed } -> {
+    /* 1. Let name be the result of evaluating PropertyName. */
+    name := JS_Interpreter_PropertyName(key, scope, computed);
+
+    /* 2. ReturnIfAbrupt(name). */
+    @ReturnIfAbrupt(name);
+    
+    /* 3. Return the result of performing KeyedDestructuringAssignmentEvaluation of AssignmentElement with value and name as the arguments. */
+    status := KeyedDestructuringAssignmentEvaluation(assignmentProperty.value, name, value, scope);
+    @ReturnIfAbrupt(status);
+
+    /* Instead of returning (3), we return the name of the property to be stored as an initialized_key. */
+    return NormalCompletion(name);
+  }
+  /* Not based on the specification. */
+  | { type: "RestElement", argument: argument } -> {
+    /* 1. Let restData be the RestData {[[type]]: "RestOfObject", [[object]]: value, [[initialized_keys]]: initialized_keys}. */
+    restData := { type: "RestOfObject", object: value, initialized_keys: initialized_keys };
+
+    /* 2. Return the result of performing DestructuringAssignmentEvaluation for the rest element value using restData as the argument. */
+    return DestructuringAssignmentEvaluation(assignmentProperty, restData, scope);
+  }
+};
+
+/* Based on 12.14.5.4 but we instead we simply get the object's property value and recursively call the DestructuringAssignmentEvaluation. 
+   This works because this function is able to handle other constructs, including Identifiers and AssignmentPatterns. */
+function KeyedDestructuringAssignmentEvaluation(property, name, value, scope) {
+  /* 1. Let v be GetV(value, propertyName). */
+  v := GetV(value, name);
+  
+  /* 2. ReturnIfAbrupt(v). */
+  @ReturnIfAbrupt(v);
+
+  /* 3. Return the result of performing DestructuringAssignmentEvaluation for the property's value using v as the argument. */
+  return DestructuringAssignmentEvaluation(property, v, scope);
+};
+
+/* Based on 12.14.5.2 for ArrayAssignmentPattern with AssignmentElementList, Elision, and AssignmentRestElement */
+function DestructuringAssignmentArrayPattern(param, value, scope) {
+  /* 1. Let iterator be GetIterator(value). */
+  iterator := GetIterator(value, null);
+
+  /* 2. ReturnIfAbrupt(iterator). */
+  @ReturnIfAbrupt(iterator);
+
+  /* 3. Let iteratorRecord be Record {[[iterator]]: iterator, [[done]]: false}. */
+  iteratorRecord := { iterator: iterator, done: false };
+
+  /* In our implementation, elision and rest elements are treated as normal elements. */
+  status := NormalCompletion('empty);
+
+  foreach (element: param.elements) {
+    /* 4. Let status be the result of performing IteratorDestructuringAssignmentEvaluation of AssignmentElementList using iteratorRecord as the argument. */
+    status := IteratorDestructuringAssignmentEvaluation(element, iteratorRecord, scope);
+
+    /* 5. If status is an abrupt completion, then */
+    if (isAnAbruptCompletion(status)) {
+      /* 5a. If iteratorRecord.[[done]] is false, return IteratorClose(iterator, status). */
+      if (iteratorRecord.done = false) {
+        return IteratorClose(iterator, status);
+      };
+
+      /* 5b. Return Completion(status). */
+      return status;
+    }
+  };
+
+  /* ... (this part of the specification is not needed) */
+
+  /* 8. If iteratorRecord.[[done]] is false, return IteratorClose(iterator, status). */
   if (iteratorRecord.done = false) {
-    return IteratorClose(arrayIterator, result)
+    return IteratorClose(iterator, status);
   };
-  return result
+
+  /* 9. Return Completion(status). */
+  return status;
 };
 
-function IteratorDestructuringAssignmentEvaluation(elements, iteratorRecord, environment) {
-  DESTRUCTURING_PATTERNS := ["Identifier", "ArrayPattern", "ObjectPattern", "AssignmentPattern"];
-  l_elements := l_len(elements);
-  i := 0;
+/* Based on 12.14.5.3 for AssignmentElement/Elision/AssignmentRestElement */
+function IteratorDestructuringAssignmentEvaluation(element, iteratorRecord, scope) {
+  /* Based on 12.14.5.3 for AssignmentRestElement (specification in DestructuringAssignmentRestElement) */
+  if (!(element = null) &&& element.type = "RestElement") {
+    /* 1. Let restData be the RestData {[[type]]: "RestOfArray", [[iteratorRecord]]: iteratorRecord}. */
+    restData := { type: "RestOfArray", iteratorRecord: iteratorRecord };
+    /* 2. Return the result of performing DestructuringAssignmentEvaluation for the rest element value using restData as the argument. */
+    return DestructuringAssignmentEvaluation(element, restData, scope);
+  };
 
-  while (i < l_elements) {
-    /*If DestructuringAssignmentTarget is neither an ObjectLiteral nor an ArrayLiteral, then */
-    element := l_nth(elements, i);
-    if (!(element = null) &&& ("type" in_obj element) &&& (!(in_list(element.type, DESTRUCTURING_PATTERNS)))) {
-      match element with
-      | { type: "RestElement" } -> {
-        element := element.argument;
-        if (!(element = null) &&& ("type" in_obj element) &&& (!(in_list(element.type, DESTRUCTURING_PATTERNS)))) {
-          lref := JS_Interpreter_Expr(element, environment);
-          @ReturnIfAbrupt(lref)
-        }
-      }
-      | default -> {
-        lref := JS_Interpreter_Expr(element, environment);
-        @ReturnIfAbrupt(lref)
-      }
+  /* 2. If iteratorRecord.[[done]] is false, then */
+  if (iteratorRecord.done = false) {
+    /* 2a. Let next be IteratorStep(iteratorRecord.[[iterator]]). */
+    next := IteratorStep(iteratorRecord.iterator);
+
+    /* 2b. If next is an abrupt completion, set iteratorRecord.[[done]] to true. */
+    if (isAnAbruptCompletion(next)) {
+      iteratorRecord.done := true;
     };
 
-    arrayIterator := iteratorRecord.iterator;
+    /* 2c. ReturnIfAbrupt(next). */
+    @ReturnIfAbrupt(next);
 
-    step := IteratorStep(arrayIterator);
-    if (isAnAbruptCompletion(step)) {
-      iteratorRecord.done := true
-    };
-    @ReturnIfAbrupt(step);
+    /* 2d. If next is false, set iteratorRecord.[[done]] to true. */
+    if (next = false) {
+      iteratorRecord.done := true;
 
-    if (step = false && !(element = null)) {
-     iteratorRecord.done := true;
-     status := DestructuringAssignmentEvaluation(element, 'undefined, environment, {iterator: arrayIterator, done: true});
-     @ReturnIfAbrupt(status)
+    /* 2e. else */
     } else {
-      if (!(element = null)) {
-        /* When the element inside the array is an elision, it comes in as null  */
-        iterValue := IteratorValue(step);
-        @ReturnIfAbrupt(iterValue);
-
-        status := DestructuringAssignmentEvaluation(element, iterValue, environment, {iterator: arrayIterator, done: false});
-        @ReturnIfAbrupt(status)
-      }
-    };
-    i := i + 1
+      /* 2ei. Let value be IteratorValue(next). */
+      value := IteratorValue(next);
+      /* 2eii. If value is an abrupt completion, set iteratorRecord.[[done]] to true. */
+      if (isAnAbruptCompletion(value)) {
+        iteratorRecord.done = true;
+      };
+      /* 2eiii. ReturnIfAbrupt(value). */
+      @ReturnIfAbrupt(value);
+    }
   };
-  return NormalCompletion('empty)
+
+  /* 3. If iteratorRecord.[[done]] is true, let value be undefined. */
+  if (iteratorRecord.done = true) {
+    value := 'undefined;
+  };
+  
+  /* Based on 12.14.5.3 for Elision. */
+  if (element = null) {
+    /* 4. Return NormalCompletion(empty). */
+    return NormalCompletion('empty);
+  /* Based on 12.14.5.3 for AssignmentElement */
+  } else {
+    /* ... (this part of the specification is not needed).
+     Instead of storing the value in lref, we recursively call the DestructuringAssignmentEvaluation, when needed. */
+    return DestructuringAssignmentEvaluation(element, value, scope);
+  } 
 };
 
-function DestructuringAssignmentIdentifier(param, value, environment) {
-  /* Based on 12.14.5.2 */
+/* Based on 12.14.5.4 for undefined values */
+function DestructuringAssignmentPattern(param, value, scope) {
+  /* If the parameter already has a value, then */
+  if (!(value = 'undefined)) {
+    /* Initialize the binding for the parameter. */
+    return DestructuringAssignmentEvaluation(param.left, value, scope);
+  };
+
+  /* At this point, we know that v is undefined and there is an Initializer (param.right). */
+  initializer := param.right;
+
+  /* 4a. Let defaultValue be the result of evaluating Initializer. */
+  defaultValue := JS_Interpreter_AssignmentPattern(initializer, scope);
+
+  /* 4b. Let rhsValue be GetValue(defaultValue) */
+  rhsValue := GetValue(defaultValue);
+
+  /* 4c. ReturnIfAbrupt(rhsValue). */
+  @ReturnIfAbrupt(rhsValue);
+
+  /* ... (this part of the specification is not needed) */
+
+  /* 7. If Initializer is present and v is undefined and IsAnonymousFunctionDefinition(Initializer) and
+        IsIdentifierRef of DestructuringAssignmentTarget are both true, then */
+  if (IsAnonymousFunctionDefinition(initializer)) {
+    /* 7a. Let hasNameProperty be HasOwnProperty(rhsValue, "name"). */
+    hasNameProperty := HasOwnProperty(rhsValue, "name");
+    /* 7b. ReturnIfAbrupt(hasNameProperty). */
+    @ReturnIfAbrupt(hasNameProperty);
+    /* 7c. If hasNameProperty is false, perform SetFunctionName(rhsValue, GetReferencedName(lref)). */
+    if (hasNameProperty = false) {
+      SetFunctionName(rhsValue, GetReferencedName(param.left), null);
+    }
+  };
+
+  /* 8. Return PutValue(lref, rhsValue). */
+  /* Instead of storing the value in lref, we recursively call the DestructuringAssignmentEvaluation. */
+  return DestructuringAssignmentEvaluation(param.left, rhsValue, scope);
+}
+
+function DestructuringAssignmentRestElement(param, value, scope) {
+  match value with
+  /* Not based on the specification. */
+  | { type: "RestOfObject", object: object, initialized_keys: initialized_keys } -> {
+    /* 1. Let newObj be an empty object. */
+    newObj := ObjectCreate(getObjectPrototype(false), null);
+
+    /* 2. let status be the result of initializing the rest identifier as an empty object. */
+    status := DestructuringAssignmentEvaluation(param.argument, newObj, scope);
+    
+    /* 3. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+
+    /* 4. Fill the rest identifier object with the non-initialized keys */
+    restElementObjectInitializer(param.argument, object, scope, initialized_keys);
+
+    return NormalCompletion('empty);   
+  }
+  /* Based on 12.14.5.3 for AssignmentRestElement */
+  | { type: "RestOfArray", iteratorRecord: iteratorRecord } -> {
+    /* 2. Let A be ArrayCreate(0). */
+    A := ArrayCreate(0., null);
+
+    /* 3. Let n=0; */
+    n := 0.;
+
+    /* 4. Repeat while iteratorRecord.[[done]] is false, */
+    while (iteratorRecord.done = false) {
+      /* 4a. Let next be IteratorStep(iteratorRecord.[[iterator]]). */
+      next := IteratorStep(iteratorRecord.iterator);
+
+      /* 4b. If next is an abrupt completion, set iteratorRecord.[[done]] to true. */
+      if (isAnAbruptCompletion(next)) {
+        iteratorRecord.done := true;
+      };
+
+      /* 4c. ReturnIfAbrupt(next). */
+      @ReturnIfAbrupt(next);
+
+      /* 4d. If next is false, set iteratorRecord.[[done]] to true. */
+      if (next = false) {
+        iteratorRecord.done := true;
+
+      /* 4e. else */
+      } else {
+        /* 4ei. Let nextValue be IteratorValue(next). */
+        nextValue := IteratorValue(next);
+        /* 4eii. If nextValue is an abrupt completion, set iteratorRecord.[[done]] to true. */
+        if (isAnAbruptCompletion(nextValue)) {
+          iteratorRecord.done = true;
+        };
+        /* 4eiii. ReturnIfAbrupt(nextValue). */
+        @ReturnIfAbrupt(nextValue);
+        /* 4eiv. Let status be CreateDataProperty(A, ToString(n), nextValue). */
+        status := CreateDataProperty(A, ToString(n), nextValue);
+        /* 4ev. Assert: status is true. */
+        assert(status = true);
+        /* 4evi. Increment n by 1. */
+        n := n + 1.;
+      }
+    };
+
+    /* ... (this part of the specification is not needed) */
+
+    /* 7. Return the result of performing DestructuringAssignmentEvaluation of nestedAssignmentPattern with A as the argument. */
+    return DestructuringAssignmentEvaluation(param.argument, A, scope);
+  }
+}
+
+/* Based on 12.14.5.2 for AssignmentProperty with IdentifierReference. */
+function DestructuringAssignmentIdentifier(param, value, scope) {
+  strict := isContainedInStrictCode(scope);
+
   /* 1. Let P be StringValue of IdentifierReference. */
   P := StringValue(param.name);
 
-  strict := isContainedInStrictCode(environment);
-
   /* 2. Let lref be ResolveBinding(P). */
-  if (environment = 'undefined) {
-    lref := GetIdentifierReference(null, P, strict)
-  } else {
-    lref := GetIdentifierReference(environment.LexicalEnvironment, P, strict)
-  };
+  lref := GetIdentifierReference(scope.LexicalEnvironment, P, strict);
 
-  /* 3. @ReturnIfAbrupt(P)*/
+  /* 3. ReturnIfAbrupt(P). */
   @ReturnIfAbrupt(P);
 
-  /* 4. Let v be GetV(value, P). */
+  /* ... (this part of the specification is simplified elsewhere) */
 
-  /* 5. ReturnIfAbrupt(v). */
-
-  /*7. Return PutValue(lref,v). */
-  return PutValue(lref, value)
-};
-
-function DestructuringAssignmentObjectPattern(param, value, environment) {
-  properties := param.properties;
-  l_properties := l_len(properties);
-  i := 0;
-  valid := RequireObjectCoercible(value);
-  @ReturnIfAbrupt(valid);
-  initialized_keys := [];
-  while (i < l_properties) {
-    property := l_nth(properties, i);
-
-    if (!("key" in_obj property)) {
-      /* Rest Element case*/
-      argument := property.argument;
-      /* If its a rest Element which is an identifier */
-      if (argument.type = "Identifier") {
-        /* Creates an Empty Object for that identifier */
-        status := DestructuringAssignmentEvaluation(property, ObjectCreate(getObjectPrototype(false), null), environment, null);
-        @ReturnIfAbrupt(status);
-
-        /* Initialize the remaining keys on that object */
-        restElementObjectInitializer(property.argument, value, environment, initialized_keys)
-      } elif (argument.type = "ObjectPattern") {
-        /* if the rest element is an object pattern, we just call the function recursively */
-        DestructuringAssignmentObjectPattern(argument, value, environment)
-      }
-    } else {
-      key := JS_Interpreter_PropertyName(property.key, environment);
-      @ReturnIfAbrupt(key);
-      property_name := GetPropertyName(key);
-      status := DestructuringSingleObjectProperty(property, property_name, value, environment);
-      initialized_keys := l_add(initialized_keys, property_name);
-      @ReturnIfAbrupt(status)
-    };
-    i := i + 1
-  };
-  return
-};
-
-function DestructuringSingleObjectProperty(property, property_name, objectValue, environment) {
-  property_value := GetV(objectValue, property_name);
-
-  @ReturnIfAbrupt(property_value);
-
-  status := DestructuringAssignmentEvaluation(property.value, property_value, environment, null);
+  /* 7. Return PutValue(lref,v). */
+  status := PutValue(lref, value);
   @ReturnIfAbrupt(status);
-  return
+  return NormalCompletion(status);
+};
+
+/* Not based on the specification. */
+function DestructuringAssignmentMemberExpression(param, value, scope) {
+  /* TODO: What is this??? */
+  lref := JS_Interpreter_Expr(param, scope);
+  @ReturnIfAbrupt(lref);
+  status := PutValue(lref, value);
+  @ReturnIfAbrupt(status);
+  return NormalCompletion(status);
 }
-
-
