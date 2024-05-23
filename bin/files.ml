@@ -44,10 +44,12 @@ let dir_contents (recursive : bool) (dir : t) : t list Result.t =
   let traverse = if recursive then `Any else `None in
   Result.bos (Bos.OS.Dir.fold_contents ~elements:`Files ~traverse fold_f [] dir)
 
-let read_inputs (recursive : bool) (input : t) : (t * t) list Result.t =
+let read_inputs (multiple : bool) (recursive : bool) (input : t) :
+  (t * t) list Result.t =
   if is_dir_path input then
     let* contents = dir_contents recursive input in
-    Ok (List.map (fun fpath' -> (input, fpath')) contents)
+    let workspace = if multiple then parent input else input in
+    Ok (List.map (fun fpath' -> (workspace, fpath')) contents)
   else Ok [ (parent input, input) ]
 
 let flat_inputs (inputs : (t * t) list list) : (t * t) list Result.t =
@@ -73,7 +75,8 @@ let make_fout (output : t option) (workspace : t) (input : t)
 
 let generate_input_list ?(recursive : bool = true) (inputs : t list) :
   (t * t) list Result.t =
-  let* inputs' = list_map ~f:(read_inputs recursive) inputs in
+  let multiple = List.length inputs > 1 in
+  let* inputs' = list_map ~f:(read_inputs multiple recursive) inputs in
   flat_inputs inputs'
 
 let process_inputs ?(outext : string option)
