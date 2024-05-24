@@ -33,19 +33,19 @@ module Make () = struct
       | x -> Log.err "'%a' is not a valid string symbol" Value.pp x
     in
     let str_symbol (x : value) =
-      Choice.return (Ok (Symbolic (Type.StrType, non_empty x)))
+      Choice.return @@ Ok (Symbolic (Type.StrType, non_empty x))
     in
     let int_symbol (x : value) =
-      Choice.return (Ok (Value.int_symbol (non_empty x)))
+      Choice.return @@ Ok (Value.int_symbol (non_empty x))
     in
     let flt_symbol (x : value) =
-      Choice.return (Ok (Symbolic (Type.FltType, non_empty x)))
+      Choice.return @@ Ok (Symbolic (Type.FltType, non_empty x))
     in
     let bool_symbol (x : value) =
-      Choice.return (Ok (Symbolic (Type.BoolType, non_empty x)))
+      Choice.return @@ Ok (Symbolic (Type.BoolType, non_empty x))
     in
     let is_symbolic (n : value) =
-      Choice.return (Ok (Val (Val.Bool (Value.is_symbolic n))))
+      Choice.return @@ Ok (Val (Val.Bool (Value.is_symbolic n)))
     in
     let is_number (n : value) =
       let is_number =
@@ -53,67 +53,77 @@ module Make () = struct
         | Some Type.IntType | Some Type.FltType -> true
         | _ -> false
       in
-      Choice.return (Ok (Val (Val.Bool is_number)))
+      Choice.return @@ Ok (Val (Val.Bool is_number))
     in
     let is_sat (e : value) =
       let/ b = Choice.check e in
-      Choice.return (Ok (Val (Val.Bool b)))
+      Choice.return @@ Ok (Val (Val.Bool b))
     in
-    let exec (e : value) thread =
+    let exec (e : value) =
       (* TODO: more fine-grained exploit analysis *)
-      if not @@ Value.is_symbolic e then
-        [ (Ok (Val (Val.Symbol "undefined")), thread) ]
-      else
-        let open Smtml.Expr in
-        let v = Translator.translate e in
-        let query =
-          binop Ty_str Seq_contains v (value (Str "`touch success`"))
-        in
-        Log.log ~header:false "       exec : %a" Value.pp e;
-        [ (Error (`Exec_failure e), Thread.add_pc thread query) ]
+      match e with
+      | Val _ -> Choice.return @@ Ok (Val (Val.Symbol "undefined"))
+      | _ ->
+        (* TODO: Use with_state instead *)
+        fun thread ->
+         let open Smtml.Expr in
+         let v = Translator.translate e in
+         let query =
+           binop Ty_str Seq_contains v (value (Str "`touch success`"))
+         in
+         Log.log ~header:false "       exec : %a" Value.pp e;
+         [ (Error (`Exec_failure e), Thread.add_pc thread query) ]
     in
-    let eval (e : value) thread =
+    let eval (e : value) =
       (* TODO: more fine-grained exploit analysis *)
-      if not @@ Value.is_symbolic e then
-        [ (Ok (Val (Val.Symbol "undefined")), thread) ]
-      else
-        let open Smtml.Expr in
-        let v = Translator.translate e in
-        let query =
-          binop Ty_str Seq_contains v (value (Str ";console.log('success')//"))
-        in
-        Log.log ~header:false "       eval : %a" Value.pp e;
-        [ (Error (`Eval_failure e), Thread.add_pc thread query) ]
+      match e with
+      | Val _ -> Choice.return @@ Ok (Val (Val.Symbol "undefined"))
+      | _ ->
+        (* TODO: Use with_state instead *)
+        fun thread ->
+         let open Smtml.Expr in
+         let v = Translator.translate e in
+         let query =
+           binop Ty_str Seq_contains v (value (Str ";console.log('success')//"))
+         in
+         Log.log ~header:false "       eval : %a" Value.pp e;
+         [ (Error (`Eval_failure e), Thread.add_pc thread query) ]
     in
-    let readFile (e : value) thread =
-      if not @@ Value.is_symbolic e then
-        [ (Ok (Val (Val.Symbol "undefined")), thread) ]
-      else
-        let open Smtml.Expr in
-        let v = Translator.translate e in
-        let query = binop Ty_str Seq_contains v (value (Str "./exploited")) in
-        Log.log ~header:false "   readFile : %a" Value.pp e;
-        [ (Error (`ReadFile_failure e), Thread.add_pc thread query) ]
+    let readFile (e : value) =
+      match e with
+      | Val _ -> Choice.return @@ Ok (Val (Val.Symbol "undefined"))
+      | _ ->
+        (* TODO: Use with_state instead *)
+        fun thread ->
+         let open Smtml.Expr in
+         let v = Translator.translate e in
+         let query = binop Ty_str Seq_contains v (value (Str "./exploited")) in
+         Log.log ~header:false "   readFile : %a" Value.pp e;
+         [ (Error (`ReadFile_failure e), Thread.add_pc thread query) ]
     in
     let abort (e : value) =
       let e' = Format.asprintf "%a" Value.pp e in
       Log.log ~header:false "      abort : %s" e';
       Choice.return @@ Error (`Abort e')
     in
-    let assume (e : value) thread =
+    let assume (e : value) =
       let open Smtml in
       let e' = Translator.translate e in
       match Expr.view e' with
-      | Val Value.False -> []
-      | _ -> [ (Ok (Val (Val.Symbol "undefined")), Thread.add_pc thread e') ]
+      | Val Value.False -> Choice.empty
+      | _ ->
+        (* TODO: Use with_state instead *)
+        fun thread ->
+         [ (Ok (Val (Val.Symbol "undefined")), Thread.add_pc thread e') ]
     in
-    let evaluate (e : value) thread =
-      let e' = Translator.translate e in
-      let pc = Thread.pc thread |> PC.to_list in
-      let solver = Thread.solver thread in
-      assert (`Sat = Solver.check solver (e' :: pc));
-      let v = Solver.get_value solver e' in
-      [ (Ok (Translator.expr_of_value (Smtml.Expr.view v)), thread) ]
+    let evaluate (e : value) =
+      Choice.with_state (fun state ->
+          let e = Translator.translate e in
+          let pc = Thread.pc state |> PC.to_list in
+          let solver = Thread.solver state in
+          assert (`Sat = Solver.check solver (e :: pc));
+          let v = Solver.get_value solver e in
+          Ok (Translator.expr_of_value (Smtml.Expr.view v)) )
     in
     let optimize target opt e pc =
       Optimizer.push opt;
@@ -122,27 +132,29 @@ module Make () = struct
       Optimizer.pop opt;
       v
     in
-    let maximize (e : value) thread =
-      let e' = Translator.translate e in
-      let pc = Thread.pc thread |> PC.to_list in
-      let opt = Thread.optimizer thread in
-      let v = optimize Optimizer.maximize opt e' pc in
-      match v with
-      | Some v -> [ (Ok (Translator.expr_of_value (Val v)), thread) ]
-      | None ->
-        (* TODO: Error here *)
-        assert false
+    let maximize (e : value) =
+      Choice.with_state (fun state ->
+          let e' = Translator.translate e in
+          let pc = Thread.pc state |> PC.to_list in
+          let opt = Thread.optimizer state in
+          let v = optimize Optimizer.maximize opt e' pc in
+          match v with
+          | Some v -> Ok (Translator.expr_of_value (Val v))
+          | None ->
+            (* TODO: Error here *)
+            assert false )
     in
-    let minimize (e : value) thread =
-      let e' = Translator.translate e in
-      let pc = Thread.pc thread |> PC.to_list in
-      let opt = Thread.optimizer thread in
-      let v = optimize Optimizer.minimize opt e' pc in
-      match v with
-      | Some v -> [ (Ok (Translator.expr_of_value (Val v)), thread) ]
-      | None ->
-        (* TODO: Error here *)
-        assert false
+    let minimize (e : value) =
+      Choice.with_state (fun thread ->
+          let e' = Translator.translate e in
+          let pc = Thread.pc thread |> PC.to_list in
+          let opt = Thread.optimizer thread in
+          let v = optimize Optimizer.minimize opt e' pc in
+          match v with
+          | Some v -> Ok (Translator.expr_of_value (Val v))
+          | None ->
+            (* TODO: Error here *)
+            assert false )
     in
     let parseJS data =
       let open EslJSParser.Api in
@@ -169,6 +181,7 @@ module Make () = struct
     in
     let str_replace (s : Value.value) (t : Value.value) (t' : Value.value)
       thread =
+      (* TODO: Use with_state here instead *)
       let open Smtml.Expr in
       let x = fresh_x () in
       let sym = Smtml.Symbol.(x @: Ty_str) in
@@ -181,6 +194,7 @@ module Make () = struct
     in
     let str_indexof (s : Value.value) (t : Value.value) (_i : Value.value)
       thread =
+      (* TODO: Use with_state here instead *)
       let open Smtml.Expr in
       let index = fresh_x () in
       let sym = mk_symbol Smtml.Symbol.(index @: Ty_real) in
@@ -196,6 +210,7 @@ module Make () = struct
       ]
     in
     let str_lastIndexOf (s : Value.value) (t : Value.value) thread =
+      (* TODO: Use with_state here instead *)
       let open Smtml.Expr in
       let index = fresh_x () in
       let sym = mk_symbol Smtml.Symbol.(index @: Ty_real) in
@@ -211,6 +226,7 @@ module Make () = struct
     in
     let str_sub (s : Value.value) (start : Value.value) (len : Value.value)
       thread =
+      (* TODO: Use with_state here instead *)
       let open Smtml.Expr in
       let x = fresh_x () in
       let sym = mk_symbol Smtml.Symbol.(x @: Ty_str) in
@@ -222,6 +238,7 @@ module Make () = struct
       [ (Ok (Symbolic (Type.StrType, Val (Str x))), Thread.add_pc thread cond) ]
     in
     let str_parse_int (str : Value.value) thread =
+      (* TODO: Use with_state here instead *)
       let open Smtml.Expr in
       let x = fresh_x () in
       let sym = mk_symbol Smtml.Symbol.(x @: Ty_real) in
@@ -232,6 +249,7 @@ module Make () = struct
       [ (Ok (Symbolic (Type.FltType, Val (Str x))), Thread.add_pc thread cond) ]
     in
     let str_split (s : Value.value) (r : Value.value) thread =
+      (* TODO: Use with_state here instead *)
       let x1 = fresh_x ()
       and x2 = fresh_x () in
       let cond =
@@ -248,6 +266,7 @@ module Make () = struct
       [ (Ok result, Thread.add_pc thread cond) ]
     in
     let str_match (s : Value.value) thread =
+      (* TODO: Use with_state here instead *)
       let x = fresh_x () in
       let cond =
         let open Smtml in

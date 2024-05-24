@@ -51,6 +51,7 @@ module List = struct
   type 'a t = thread -> ('a * thread) list
 
   let return (v : 'a) : 'a t = fun t -> [ (v, t) ]
+  let empty : 'a t = fun _ -> []
   let run (v : 'a t) (thread : thread) = v thread
 
   let bind (v : 'a t) (f : 'a -> 'b t) : 'b t =
@@ -64,6 +65,11 @@ module List = struct
   let ( let* ) v f = bind v f
   let map (v : 'a t) (f : 'a -> 'b) : 'b t = bind v (fun a -> return (f a))
   let ( let+ ) v f = map v f
+
+  let with_state (f : thread -> 'a) : 'a t =
+    fun (state : thread) ->
+      let result = f state in
+      [ (result, state) ]
 
   let check (v : Value.value) : bool t =
     let open Value in
