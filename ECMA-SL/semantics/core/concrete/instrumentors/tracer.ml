@@ -23,6 +23,9 @@ module InterpreterCallbacks = struct
     heapval_pp := interp_callbacks.heapval_pp
 end
 
+let set_interp_callbacks (interp_callbacks : InterpreterCallbacks.t) : unit =
+  InterpreterCallbacks.set interp_callbacks
+
 module Truncate = struct
   let prepare (str_el : 'a -> string) (el : 'a) : string * int =
     str_el el |> fun s -> (s, String.length s)
@@ -160,7 +163,6 @@ module type M = sig
   type t
 
   val initial_state : unit -> t
-  val set_interp_callbacks : InterpreterCallbacks.t -> unit
   val trace_expr : t -> Expr.t -> heapval -> unit
   val trace_stmt : t -> Stmt.t -> unit
   val trace_call : t -> Func.t -> Stmt.t -> unit
@@ -172,7 +174,6 @@ module Disable : M = struct
   type t = unit
 
   let initial_state () : t = ()
-  let set_interp_callbacks (_ : InterpreterCallbacks.t) : unit = ()
   let trace_expr (_ : t) (_ : Expr.t) (_ : heapval) : unit = ()
   let trace_stmt (_ : t) (_ : Stmt.t) : unit = ()
   let trace_call (_ : t) (_ : Func.t) (_ : Stmt.t) : unit = ()
@@ -186,10 +187,6 @@ module Call : M = struct
   open CallFmt
 
   let initial_state () : t = { lvl = -1 }
-
-  let set_interp_callbacks (interp_callbacks : InterpreterCallbacks.t) : unit =
-    InterpreterCallbacks.set interp_callbacks
-
   let trace_expr (_ : t) (_ : Expr.t) (_ : heapval) : unit = ()
   let trace_stmt (_ : t) (_ : Stmt.t) : unit = ()
 
@@ -213,10 +210,6 @@ module Step : M = struct
   open EslCodeFmt
 
   let initial_state () : t = { lvl = -1 }
-
-  let set_interp_callbacks (interp_callbacks : InterpreterCallbacks.t) : unit =
-    InterpreterCallbacks.set interp_callbacks
-
   let trace_expr (_ : t) (_ : Expr.t) (_ : heapval) : unit = ()
 
   let trace_stmt (tr : t) (s : Stmt.t) : unit =
@@ -246,9 +239,6 @@ module Full : M = struct
   open EslCodeFmt
 
   let initial_state () : t = { lvl = -1 }
-
-  let set_interp_callbacks (interp_callbacks : InterpreterCallbacks.t) : unit =
-    InterpreterCallbacks.set interp_callbacks
 
   let trace_expr (tr : t) (e : Expr.t) ((heap, v) : heapval) : unit =
     let pp_expr = pp_expr heap in
@@ -281,9 +271,6 @@ module Core : M = struct
   open CeslCodeFmt
 
   let initial_state () : t = { lvl = -1 }
-
-  let set_interp_callbacks (interp_callbacks : InterpreterCallbacks.t) : unit =
-    InterpreterCallbacks.set interp_callbacks
 
   let trace_expr (tr : t) (e : Expr.t) ((heap, v) : heapval) : unit =
     let pp_expr = pp_expr heap in

@@ -444,14 +444,6 @@ module M (ITooling : Interpreter_tooling.M) = struct
       | Intermediate (st'', cont'') -> small_step_iter p st'' cont''
       | _ -> return )
 
-  let set_interp_callbacks () : unit =
-    let inst = ref (Instrument.initial_state ()) in
-    let heapval_pp = heapval_pp !Config.print_depth in
-    let state_conv (store, heap, stack) = { store; heap; stack; inst } in
-    let eval_expr state = eval_expr @@ state_conv state in
-    Instrument.Tracer.set_interp_callbacks { heapval_pp };
-    Instrument.Debugger.set_interp_callbacks { heapval_pp; eval_expr }
-
   let resolve_exitval (retval : Val.t) : Val.t =
     if not !Config.resolve_exitval then retval
     else
@@ -492,6 +484,14 @@ module M (ITooling : Interpreter_tooling.M) = struct
     | Final v -> result st.heap itool v
     | Error err -> Runtime_error.(throw (Failure (Value.str err)))
     | _ -> Log.fail "unexpected intermediate state"
+
+  let set_interp_callbacks () : unit =
+    let inst = ref (Instrument.initial_state ()) in
+    let heapval_pp = heapval_pp !Config.print_depth in
+    let state_conv (store, heap, stack) = { store; heap; stack; inst } in
+    let eval_expr state = eval_expr @@ state_conv state in
+    Tracer.set_interp_callbacks { heapval_pp };
+    Debugger.set_interp_callbacks { heapval_pp; eval_expr }
 
   let eval_prog (entry : entry) (p : Prog.t) : result =
     let inst = ref (Instrument.initial_state ()) in

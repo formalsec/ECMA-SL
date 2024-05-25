@@ -2,6 +2,9 @@ open Debugger_types
 module DebuggerTUI = Debugger_tui
 module InterpreterCallbacks = Debugger_cmd.InterpreterCallbacks
 
+let set_interp_callbacks (interp_callbacks : InterpreterCallbacks.t) : unit =
+  InterpreterCallbacks.set interp_callbacks
+
 module BreakpointInjector = struct
   let inject_debug_none (stack : stack) (cont : cont) : stack * cont =
     (stack, cont)
@@ -34,7 +37,6 @@ module type M = sig
 
   val initial_state : unit -> t
   val cleanup : t -> unit
-  val set_interp_callbacks : InterpreterCallbacks.t -> unit
   val run : t -> state -> cont -> Stmt.t -> state * cont
   val call : t -> stack -> cont -> stack * cont
 end
@@ -44,7 +46,6 @@ module Disable : M = struct
 
   let initial_state () : t = ()
   let cleanup (_ : t) : unit = ()
-  let set_interp_callbacks (_ : InterpreterCallbacks.t) : unit = ()
 
   let run (_ : t) (st : state) (cont : cont) (_ : Stmt.t) : state * cont =
     (st, cont)
@@ -98,10 +99,6 @@ module Enable : M = struct
     | StmtBreak db' -> terminate_debug_tui db'
     | CallBreak db' -> terminate_debug_tui db'
     | Final -> ()
-
-  let set_interp_callbacks (interp_callbacks : InterpreterCallbacks.t) : unit =
-    InterpreterCallbacks.heapval_pp := interp_callbacks.heapval_pp;
-    InterpreterCallbacks.eval_expr := interp_callbacks.eval_expr
 
   let next_state (db : t) (st : state) (cont : cont) (s : Stmt.t)
     (dbdata : dbdata) : state * cont =
