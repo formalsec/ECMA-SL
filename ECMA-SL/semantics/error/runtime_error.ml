@@ -6,6 +6,8 @@ module RtTrace = Error_trace
 type msg =
   | Default
   | Custom of string
+  | Unexpected of string
+  | UnexpectedRetval of Val.t
   | Failure of string
   | Unexpected of string
   | UncaughtExn of string
@@ -30,6 +32,8 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
     match (msg1, msg2) with
     | (Default, Default) -> true
     | (Custom msg1', Custom msg2') -> String.equal msg1' msg2'
+    | (Unexpected msg1', Unexpected msg2') -> String.equal msg1' msg2'
+    | (UnexpectedRetval v1, UnexpectedRetval v2) -> Val.equal v1 v2
     | (Failure msg1', Failure msg2') -> String.equal msg1' msg2'
     | (Unexpected msg1', Unexpected msg2') -> String.equal msg1' msg2'
     | (UncaughtExn msg1', UncaughtExn msg2') -> String.equal msg1' msg2'
@@ -51,15 +55,15 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
   let pp (ppf : Fmt.t) (msg : t) : unit =
     let open Fmt in
     match msg with
-    | Default -> fmt ppf "Generic runtime error."
-    | Custom msg' -> fmt ppf "%s" msg'
-    | Failure msg -> fmt ppf "Failure: %s" msg
-    | Unexpected msg -> fmt ppf "Unexpected %s." msg
-    | UncaughtExn msg -> fmt ppf "Uncaught exception: %s" msg
-    | OpEvalExn oplbl -> fmt ppf "Operator evaluation exception: %s" oplbl
-    | UnknownVar x -> fmt ppf "Cannot find variable '%s'." x
-    | UnknownFunc fn -> fmt ppf "Cannot find function '%s'." fn
-    | MissingReturn fn -> fmt ppf "Missing return in function '%a'." Id.pp fn
+    | Default -> fprintf fmt "Generic runtime error."
+    | Custom msg' -> fprintf fmt "%s" msg'
+    | Unexpected msg -> fprintf fmt "Unexpected %s." msg
+    | UnexpectedRetval v -> fprintf fmt "Unexpected return value '%a'." Val.pp v
+    | Failure msg -> fprintf fmt "Failure %s." msg
+    | UncaughtExn msg -> fprintf fmt "Uncaught exception %s." msg
+    | OpEvalErr oplbl -> fprintf fmt "Exception in Operator.%s." oplbl
+    | UnknownVar x -> fprintf fmt "Cannot find variable '%s'." x
+    | UnknownFunc fn -> fprintf fmt "Cannot find function '%s'." fn
     | BadNArgs (npxs, nargs) ->
       fmt ppf "Expected %d arguments, but got %d." npxs nargs
     | BadArg (texp, v) ->

@@ -51,6 +51,13 @@ module M (ITooling : Interpreter_tooling.M) = struct
       Runtime_error.(push (OpEvalExn (op_lbl_f ())) err |> raise)
     | err -> Log.fail "unexpected operator error: %s" (Printexc.to_string err)
 
+  let resolve_func_retval (retval : Val.t) : (Val.t, string) Result.t =
+    match (!Config.resolve_exitval, retval) with
+    | (false, _) -> Ok retval
+    | (true, Val.Tuple [ Val.Bool false; retval' ]) -> Ok retval'
+    | (true, Val.Tuple [ Val.Bool true; err ]) -> Error (Val.str err)
+    | (true, _) -> Runtime_error.(throw (UnexpectedRetval retval))
+
   let rec eval_expr' (state : state) (e : Expr.t) : Val.t =
     match e.it with
     | Val v -> v
@@ -213,6 +220,7 @@ module M (ITooling : Interpreter_tooling.M) = struct
       Intermediate (st, cont) $$ PrintEval
     | Return e -> (
       let v = eval_expr state e in
+      ignore (resolve_func_retval v);
       let f = Call_stack.func state.stack in
       Instrument.Tracer.trace_return inst.tr f s (state.heap, v);
       let (frame, stack') = Call_stack.pop state.stack in
@@ -445,13 +453,9 @@ module M (ITooling : Interpreter_tooling.M) = struct
       | _ -> return )
 
   let resolve_exitval (retval : Val.t) : Val.t =
-    if not !Config.resolve_exitval then retval
-    else
-      match retval with
-      | Val.Tuple [ Val.Bool false; retval' ] -> retval'
-      | Val.Tuple [ Val.Bool true; err ] ->
-        Runtime_error.(throw (UncaughtExn (Val.str err)))
-      | _ -> Runtime_error.(throw (UnexpectedExitVal retval))
+    match resolve_func_retval retval with
+    | Ok retval -> retval
+    | Error err -> Runtime_error.(throw (UncaughtExn err))
 
   let show_exitval (heap : heap) (retval : Val.t) : unit =
     let visited = Hashtbl.create !Base.default_hashtbl_sz in
@@ -490,7 +494,7 @@ module M (ITooling : Interpreter_tooling.M) = struct
     let heapval_pp = heapval_pp !Config.print_depth in
     let state_conv (store, heap, stack) = { store; heap; stack; inst } in
     let eval_expr state = eval_expr @@ state_conv state in
-    Tracer.set_interp_callbacks { heapval_pp };
+    Tracer.set_interp_callbacks { heapval_pp; resolve_func_retval };
     Debugger.set_interp_callbacks { heapval_pp; eval_expr }
 
   let eval_prog (entry : entry) (p : Prog.t) : result =

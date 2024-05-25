@@ -13,14 +13,24 @@ end
 
 module InterpreterCallbacks = struct
   type heapval_pp = (Loc.t, unit) Hashtbl.t -> heap -> Fmt.t -> Val.t -> unit
-  type t = { mutable heapval_pp : heapval_pp }
+  type resolve_func_retval = Val.t -> (Val.t, string) Result.t
+
+  type t =
+    { heapval_pp : heapval_pp
+    ; resolve_func_retval : resolve_func_retval
+    }
 
   let heapval_pp : heapval_pp ref =
     let err = "tracer value printer not initialized" in
     ref (fun _ _ _ -> Internal_error.(throw __FUNCTION__ (Custom err)))
 
+  let resolve_func_retval : resolve_func_retval ref =
+    let err = "tracer retval resolver not initialized" in
+    ref (fun _ -> Internal_error.(throw __FUNCTION__ (Custom err)))
+
   let set (interp_callbacks : t) : unit =
-    heapval_pp := interp_callbacks.heapval_pp
+    heapval_pp := interp_callbacks.heapval_pp;
+    resolve_func_retval := interp_callbacks.resolve_func_retval
 end
 
 let set_interp_callbacks (interp_callbacks : InterpreterCallbacks.t) : unit =
@@ -115,20 +125,19 @@ module CallFmt = struct
 
   let pp_return (heap : heap) (fmt : Fmt.t)
     ((lvl, f, s, v) : int * Func.t * Stmt.t * Val.t) : unit =
-    let retval_format = function
-      (* FIXME: Improve this by using the resolve exitval flag of the interpreter *)
-      | Val.Tuple [ Bool false; v' ] -> ("returned ", v')
-      | Val.Tuple [ Bool true; err ] -> ("throwed ", err)
-      | _ -> ("returned ", v)
+    let retval_format v =
+      match !InterpreterCallbacks.resolve_func_retval v with
+      | Ok v' -> ("returned ", v')
+      | Error err -> ("throwed ", Val.Str err)
     in
-    let (retval_header, v') = retval_format v in
+    let (header, v') = retval_format v in
     let (fn_str, fn_len) = Truncate.prepare Func.name' f in
     let (v_str, v_len) = Truncate.prepare (heapval heap) v' in
-    let limit = Truncate.limit_indent lvl - String.length retval_header - 1 in
+    let limit = Truncate.limit_indent lvl - String.length header - 1 in
     let limit_f = Truncate.limit_el limit 4 3 v_len in
     let limit_v = Truncate.limit_el limit 4 1 fn_len in
     let pp_fname = Font.pp_err [ Cyan ] (Truncate.pp limit_f pp_str) in
-    fprintf fmt "%a%a %s%a%a" indent_pp lvl pp_fname fn_str retval_header
+    fprintf fmt "%a%a %s%a%a" indent_pp lvl pp_fname fn_str header
       (highlight_pp limit_v) v_str (cond_region_pp lvl) s.at
 end
 
