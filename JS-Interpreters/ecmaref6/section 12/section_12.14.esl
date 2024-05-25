@@ -296,7 +296,7 @@ function DestructuringAssignmentPattern(param, value, scope) {
     @ReturnIfAbrupt(hasNameProperty);
     /* 7c. If hasNameProperty is false, perform SetFunctionName(rhsValue, GetReferencedName(lref)). */
     if (hasNameProperty = false) {
-      SetFunctionName(rhsValue, GetReferencedName(param.left), null);
+      SetFunctionName(rhsValue, param.left.name, null);
     }
   };
 
@@ -397,7 +397,6 @@ function DestructuringAssignmentIdentifier(param, value, scope) {
 
 /* Not based on the specification. */
 function DestructuringAssignmentMemberExpression(param, value, scope) {
-  /* TODO: What is this??? */
   lref := JS_Interpreter_Expr(param, scope);
   @ReturnIfAbrupt(lref);
   status := PutValue(lref, value);
