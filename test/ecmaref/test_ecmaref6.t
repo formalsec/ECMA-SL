@@ -8807,12 +8807,7 @@ Tests compilation of ecmaref6:
       __v1700 := hasNameProperty = false;
       if (__v1700) {
         __v1701 := param["left"];
-        __v1702 := "GetReferencedName"(___internal_esl_global, __v1701);
-        if (fst(__v1702)) {
-          return __v1702
-        } else {
-          __v1702 := snd(__v1702)
-        };
+        __v1702 := __v1701["name"];
         __v1703 := "SetFunctionName"(___internal_esl_global, rhsValue, __v1702, null);
         if (fst(__v1703)) {
           return __v1703
