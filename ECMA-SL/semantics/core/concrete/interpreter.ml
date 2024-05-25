@@ -51,11 +51,48 @@ module M (ITooling : Interpreter_tooling.M) = struct
       Runtime_error.(push (OpEvalExn (op_lbl_f ())) err |> raise)
     | err -> Log.fail "unexpected operator error: %s" (Printexc.to_string err)
 
-  let rec eval_expr (st : st) (e : Expr.t) : Value.t =
-    let v = eval_expr' st e in
-    let lvl = Call_stack.depth st.stack - 1 in
-    ITooling.Profiler.count !(st.itool).pf `Expr;
-    ITooling.Tracer.trace_expr lvl e (st.heap, v);
+  let rec eval_expr' (state : state) (e : Expr.t) : Val.t =
+    match e.it with
+    | Val v -> v
+    | Var x -> get_var state.store x e.at
+    | UnOpt (op, e') ->
+      let v = eval_expr state e' in
+      let eval_op_fun () = Eval_operator.eval_unopt op v in
+      eval_operator eval_op_fun [ e' ]
+    | BinOpt (op, e1, e2) ->
+      let v1 = eval_expr state e1 in
+      let v2 = eval_expr state e2 in
+      let eval_op_fun () = Eval_operator.eval_binopt op v1 v2 in
+      eval_operator eval_op_fun [ e1; e2 ]
+    | TriOpt (op, e1, e2, e3) ->
+      let v1 = eval_expr state e1 in
+      let v2 = eval_expr state e2 in
+      let v3 = eval_expr state e3 in
+      let eval_op_fun () = Eval_operator.eval_triopt op v1 v2 v3 in
+      eval_operator eval_op_fun [ e1; e2; e3 ]
+    | NOpt (op, es) ->
+      let vs = List.map (eval_expr state) es in
+      let eval_op_fun () = Eval_operator.eval_nopt op vs in
+      eval_operator eval_op_fun es
+    | Curry (fe, es) -> (
+      let fv = eval_expr state fe in
+      let vs = List.map (eval_expr state) es in
+      match fv with
+      | Str fn -> Val.Curry (fn, vs)
+      | _ -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadExpr ("curry", fv))) )
+    | Symbolic (t, _) -> (
+      Random.self_init ();
+      match t with
+      | Type.IntType -> Val.Int (Random.int 128)
+      | Type.FltType -> Val.Flt (Random.float 128.0)
+      | _ ->
+        let msg = "symbolic " ^ Type.str t in
+        Internal_error.(throw __FUNCTION__ (NotImplemented msg)) )
+
+  and eval_expr (state : state) (e : Expr.t) : Val.t =
+    let v = eval_expr' state e in
+    Instrument.Profiler.count !(state.inst).pf `Expr;
+    Instrument.Tracer.trace_expr !(state.inst).tr e (state.heap, v);
     v
 
   and eval_expr' (st : st) (e : Expr.t) : Value.t =
@@ -155,14 +192,13 @@ module M (ITooling : Interpreter_tooling.M) = struct
     let store' = Store.create (prepare_store_binds pxs vs at) in
     (stack', store')
 
-  let eval_small_step (p : Prog.t) (st : st) (s : Stmt.t) (cont : Stmt.t list) :
-    return =
-    let itool = !(st.itool) in
-    let lbl_f = ITooling.Monitor.update_label in
-    let ( $$ ) v s_eval = lbl_f itool.mon s s_eval |> fun () -> v in
-    let lvl = Call_stack.depth st.stack - 1 in
-    ITooling.Tracer.trace_stmt lvl s;
-    ITooling.Profiler.count itool.pf `Stmt;
+  let eval_small_step (p : Prog.t) (state : state) (s : Stmt.t)
+    (cont : Stmt.t list) : return =
+    let inst = !(state.inst) in
+    let lbl_f = Instrument.Monitor.update_label in
+    let ( $$ ) v s_eval = lbl_f inst.mon s s_eval |> fun () -> v in
+    Instrument.Tracer.trace_stmt inst.tr s;
+    Instrument.Profiler.count inst.pf `Stmt;
     match s.it with
     | Skip -> Intermediate (st, cont) $$ SkipEval
     | Merge -> Intermediate (st, cont) $$ MergeEval
@@ -176,18 +212,116 @@ module M (ITooling : Interpreter_tooling.M) = struct
       Log.stdout "%a@." (print_pp st.heap) (eval_expr st e);
       Intermediate (st, cont) $$ PrintEval
     | Return e -> (
-      let v = eval_expr st e in
-      let f = Call_stack.func st.stack in
-      ITooling.Tracer.trace_return lvl f s (st.heap, v);
-      let (frame, stack') = Call_stack.pop st.stack in
+      let v = eval_expr state e in
+      let f = Call_stack.func state.stack in
+      Instrument.Tracer.trace_return inst.tr f s (state.heap, v);
+      let (frame, stack') = Call_stack.pop state.stack in
       match frame with
       | Call_stack.Toplevel _ -> Final v $$ ReturnEval
       | Call_stack.Intermediate (_, restore) ->
         let (store', cont', x) = Call_stack.restore restore in
         ITooling.Tracer.trace_restore (lvl - 1) (Call_stack.func stack');
         Store.set store' x v;
-        let st' = { st with store = store'; stack = stack' } in
-        Intermediate (st', cont') $$ ReturnEval )
+        Instrument.Tracer.trace_restore inst.tr (Call_stack.func stack');
+        Intermediate (state', cont') $$ ReturnEval )
+    | Assign (x, e) ->
+      Store.set state.store x.it (eval_expr state e);
+      Intermediate (state, cont) $$ AssignEval
+    | AssignCall (x, fe, es) -> (
+      let (fn, fvs) = eval_func_expr state fe in
+      let vs = fvs @ List.map (eval_expr state) es in
+      match Instrument.Monitor.interceptor fn vs es with
+      | Some lbl ->
+        Instrument.Monitor.set_label inst.mon lbl;
+        Intermediate (state, cont)
+      | None ->
+        let f = get_func p fn fe.at in
+        let (stack, store) = (state.stack, state.store) in
+        let (stack', store') = prepare_call stack f store cont x.it vs fe.at in
+        let cont' = [ Func.body f ] in
+        let db_res = Instrument.Debugger.call inst.db stack' cont' in
+        let (stack'', cont'') = db_res in
+        let state' = { state with store = store'; stack = stack'' } in
+        Instrument.Profiler.count inst.pf `Call;
+        Instrument.Tracer.trace_call inst.tr f s;
+        Intermediate (state', cont'') $$ AssignCallEval f )
+    | AssignECall (x, fn, es) ->
+      let vs = List.map (eval_expr state) es in
+      let v = External.execute p state.store state.heap fn.it vs in
+      Store.set state.store x.it v;
+      Intermediate (state, cont) $$ AssignECallEval
+    | AssignNewObj x ->
+      let l = Loc.create () in
+      Heap.set state.heap l (Object.create ());
+      Store.set state.store x.it (Val.Loc l);
+      Intermediate (state, cont) $$ AssignNewObjEval l
+    | AssignObjToList (x, e) ->
+      let fld_to_tup_f (fn, fv) = Val.Tuple [ Str fn; fv ] in
+      let (_, obj) = eval_obj state state.heap e in
+      let v = Val.List (Object.fld_lst obj |> List.map fld_to_tup_f) in
+      Store.set state.store x.it v;
+      Intermediate (state, cont) $$ AssignObjToListEval
+    | AssignObjFields (x, e) ->
+      let fld_to_tup_f (fn, _) = Val.Str fn in
+      let (_, obj) = eval_obj state state.heap e in
+      let v = Val.List (Object.fld_lst obj |> List.map fld_to_tup_f) in
+      Store.set state.store x.it v;
+      Intermediate (state, cont) $$ AssignObjFieldsEval
+    | AssignInObjCheck (x, fe, oe) ->
+      let in_obj = function Some _ -> true | None -> false in
+      let (loc, obj) = eval_obj state state.heap oe in
+      let fn = eval_str state fe in
+      let v = Val.Bool (Object.get obj fn |> in_obj) in
+      Store.set state.store x.it v;
+      Intermediate (state, cont) $$ AssignInObjCheckEval (loc, fn)
+    | FieldLookup (x, oe, fe) ->
+      let fld_val v = Option.value ~default:(Val.Symbol "undefined") v in
+      let (l, obj) = eval_obj state state.heap oe in
+      let fn = eval_str state fe in
+      let v = Object.get obj fn |> fld_val in
+      Store.set state.store x.it v;
+      Intermediate (state, cont) $$ FieldLookupEval (l, fn)
+    | FieldAssign (oe, fe, e) ->
+      let (l, obj) = eval_obj state state.heap oe in
+      let fn = eval_str state fe in
+      let v = eval_expr state e in
+      Object.set obj fn v;
+      Intermediate (state, cont) $$ FieldAssignEval (l, fn)
+    | FieldDelete (oe, fe) ->
+      let (l, obj) = eval_obj state state.heap oe in
+      let fn = eval_str state fe in
+      Object.delete obj fn;
+      Intermediate (state, cont) $$ FieldDeleteEval (l, fn)
+    | If (e, s1, s2) -> (
+      let v = eval_bool state e in
+      let s2' = Option.value ~default:(Stmt.Skip @> no_region) s2 in
+      match (v, s1.it, s2'.it) with
+      | (true, Block ss, _) ->
+        let cont' = ss @ ((Stmt.Merge @?> s1.at) :: cont) in
+        Intermediate (state, cont') $$ IfEval true
+      | (false, _, Block ss) ->
+        let cont' = ss @ ((Stmt.Merge @?> s2'.at) :: cont) in
+        Intermediate (state, cont') $$ IfEval false
+      | (false, _, Skip) -> Intermediate (state, cont) $$ IfEval false
+      | (true, _, _) ->
+        Internal_error.(throw __FUNCTION__ (Expecting "if block"))
+      | (false, _, _) ->
+        Internal_error.(throw __FUNCTION__ (Expecting "else block")) )
+    | While (e, s') ->
+      let loop = Stmt.If (e, Stmt.Block [ s'; s ] @?> s'.at, None) @?> s.at in
+      Intermediate (state, loop :: cont) $$ WhileEval
+    | Switch (e, css, dflt) -> (
+      let v = eval_expr state e in
+      match (Hashtbl.find_opt css v, dflt) with
+      | (Some { it = Block ss; at }, _) | (None, Some { it = Block ss; at }) ->
+        let cont' = ss @ ((Stmt.Merge @?> at) :: cont) in
+        Intermediate (state, cont') $$ SwitchEval v
+      | (Some _, _) ->
+        Internal_error.(throw __FUNCTION__ (Expecting "switch block"))
+      | (None, Some _) ->
+        Internal_error.(throw __FUNCTION__ (Expecting "sdflt block"))
+      | (None, None) -> Intermediate (state, cont) $$ SwitchEval v )
+>>>>>>> 3d2021e73 (refactor(tracer): add function level as the tracer's internal state)
     | Fail e ->
       let v = eval_expr st e in
       Error v $$ FailEval
@@ -310,7 +444,24 @@ module M (ITooling : Interpreter_tooling.M) = struct
       | Intermediate (st'', cont'') -> small_step_iter p st'' cont''
       | _ -> return )
 
-  let show_exitval (heap : heap) (retval : Value.t) : unit =
+  let set_interp_callbacks () : unit =
+    let inst = ref (Instrument.initial_state ()) in
+    let heapval_pp = heapval_pp !Config.print_depth in
+    let state_conv (store, heap, stack) = { store; heap; stack; inst } in
+    let eval_expr state = eval_expr @@ state_conv state in
+    Instrument.Tracer.set_interp_callbacks { heapval_pp };
+    Instrument.Debugger.set_interp_callbacks { heapval_pp; eval_expr }
+
+  let resolve_exitval (retval : Val.t) : Val.t =
+    if not !Config.resolve_exitval then retval
+    else
+      match retval with
+      | Val.Tuple [ Val.Bool false; retval' ] -> retval'
+      | Val.Tuple [ Val.Bool true; err ] ->
+        Runtime_error.(throw (UncaughtExn (Val.str err)))
+      | _ -> Runtime_error.(throw (UnexpectedExitVal retval))
+
+  let show_exitval (heap : heap) (retval : Val.t) : unit =
     let visited = Hashtbl.create !Base.default_hashtbl_sz in
     let heapval_pp' = rec_print_pp !IConfig.print_depth visited heap in
     if !IConfig.show_exitval then Log.esl "exit value: %a" heapval_pp' retval
@@ -329,22 +480,23 @@ module M (ITooling : Interpreter_tooling.M) = struct
     show_exitval heap retval;
     { retval; heap; metrics }
 
-  let eval_instrumented (ientry : IEntry.t) (itool : ITooling.t ref) (p : Prog.t)
-    : IResult.t =
-    let main = get_func p ientry.main none in
-    let st = initial_state ientry.heap itool main in
-    ITooling.Tracer.trace_restore (-1) main;
-    ITooling.Profiler.start !(st.itool).pf;
-    let return = small_step_iter p st [ Func.body main ] in
-    ITooling.Profiler.stop !(st.itool).pf st.heap;
+  let eval_instrumented (entry : entry) (p : Prog.t) (inst : Instrument.t ref) :
+    result =
+    let fmain = get_func p entry.main no_region in
+    let state = initial_state fmain entry.static_heap inst in
+    Instrument.Tracer.trace_call !(state.inst).tr fmain (Stmt.Skip @> no_region);
+    Instrument.Profiler.start !(state.inst).pf;
+    let return = small_step_iter p state [ Func.body fmain ] in
+    Instrument.Profiler.stop !(state.inst).pf state.heap;
     match return with
     | Final v -> result st.heap itool v
     | Error err -> Runtime_error.(throw (Failure (Value.str err)))
     | _ -> Log.fail "unexpected intermediate state"
 
-  let eval_prog (ientry : IEntry.t) (p : Prog.t) : IResult.t =
-    let itool = ref (ITooling.initial_state ()) in
-    let execute () = eval_instrumented ientry itool p in
-    let finally () = ITooling.cleanup !itool in
+  let eval_prog (entry : entry) (p : Prog.t) : result =
+    let inst = ref (Instrument.initial_state ()) in
+    set_interp_callbacks ();
+    let execute () = eval_instrumented entry p inst in
+    let finally () = Instrument.cleanup !inst in
     Fun.protect ~finally execute
 end
