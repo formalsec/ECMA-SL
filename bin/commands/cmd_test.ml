@@ -343,22 +343,19 @@ module TestRunner = struct
       | _ -> Anomaly )
     | _ -> Anomaly
 
-  let execute (env : Prog.t * Value.t Heap.t option)
+  let execute_js_test (env : Prog.t * Val.t Heap.t option)
     (interp_config : Cmd_interpret.Options.config) (input : Fpath.t) :
-    Interpreter.IResult.t Result.t =
+    Interpreter.result Result.t =
     try Cmd_execute.execute_js env interp_config input
     with exn -> Result.error (`Generic (Printexc.to_string exn))
 
-  let skip_test (record : TestRecord.t) : TestRecord.t Result.t =
-    Ok { record with result = Skipped }
-
-  let execute_test (env : Prog.t * Value.t Heap.t option)
-    (record : TestRecord.t) (interp_profiler : Enums.InterpProfiler.t) :
-    TestRecord.t Result.t =
+  let execute (env : Prog.t * Val.t Heap.t option) (record : TestRecord.t)
+    (interp_profiler : Enums.InterpProfiler.t) : TestRecord.t Result.t =
+    Log.debug "Starting test '%a'." Fpath.pp record.input;
     let interp_config = interp_config interp_profiler in
     let* input = set_test_flags record in
     let streams = Log.Redirect.capture Shared in
-    let interp_result = execute env interp_config input in
+    let interp_result = execute_js_test env interp_config input in
     Log.Redirect.restore streams;
     let streams = Some streams in
     let (retval, heap, metrics) = unfold_result interp_result in
