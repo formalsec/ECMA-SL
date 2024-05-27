@@ -74,9 +74,13 @@ let func_signature (f_str : string) : string =
   ignore (Str.search_forward regex f_str 0);
   Str.matched_group 1 f_str
 
-let heapval (heap : heap) (v : Val.t) =
+let heapval (heap : heap) (v : Val.t) : string =
+  let pp_loc fmt = function
+    | Val.Loc l -> fprintf fmt " (%a)" Loc.pp l
+    | _ -> ()
+  in
   let visited = Hashtbl.create !Base.default_hashtbl_sz in
-  Fmt.asprintf "%a" (!InterpreterCallbacks.heapval_pp visited heap) v
+  asprintf "%a%a" (!InterpreterCallbacks.heapval_pp visited heap) v pp_loc v
 
 let log_level (lvl : int) : bool =
   let log_lvl' max_lvl = lvl < max_lvl in
@@ -115,12 +119,16 @@ module CeslCodeFmt : CODE_FMT = struct
 end
 
 module CallFmt = struct
+  let call_str (f : Func.t) (s : Stmt.t) : string =
+    match s.it with
+    | AssignCall _ | AssignECall _ -> Source.Code.str s.at
+    | _ -> func_signature (Source.Code.str f.at)
+
   let pp_call (header : string) (fmt : Fmt.t)
     ((lvl, f, s) : int * Func.t * Stmt.t) : unit =
-    let f_str = Source.Code.str f.at in
     let limit = Truncate.limit_indent lvl - 7 in
-    let pp_stmt = Font.pp_err [ Cyan ] (Truncate.pp limit pp_str) in
-    fprintf fmt "%a%a %s%a" indent_pp lvl pp_stmt (func_signature f_str) header
+    let pp_call = Font.pp_err [ Cyan ] (Truncate.pp limit pp_str) in
+    fprintf fmt "%a%a %s%a" indent_pp lvl pp_call (call_str f s) header
       (cond_region_pp lvl) s.at
 
   let pp_return (heap : heap) (fmt : Fmt.t)
@@ -162,10 +170,10 @@ module DefaultFmt (CodeFmt : CODE_FMT) = struct
     fprintf fmt "%a%a%a" indent_pp lvl' pp_stmt s (cond_region_pp lvl') s.at
 
   let pp_func (header : string) (fmt : Fmt.t) ((lvl, f) : int * Func.t) : unit =
-    let f_str = CodeFmt.func_str f in
     let limit = Truncate.limit_indent lvl - String.length header - 1 in
     let pp_func = Font.pp_err [ Cyan ] (Truncate.pp limit pp_str) in
-    fprintf fmt "%a%s %a" indent_pp lvl header pp_func (func_signature f_str)
+    fprintf fmt "%a%s %a" indent_pp lvl header pp_func
+      (func_signature (CodeFmt.func_str f))
 end
 
 module type M = sig
