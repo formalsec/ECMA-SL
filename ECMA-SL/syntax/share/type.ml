@@ -32,4 +32,4 @@ let pp (ppf : Fmt.t) (t : t) : unit =
   | TypeType -> pp_str ppf "__$Type"
   | CurryType -> pp_str ppf "__$Curry"
 
-let str (t : t) : string = Fmt.asprintf "%a" pp t
+let str (t : t) : string = Fmt.str "%a" pp t

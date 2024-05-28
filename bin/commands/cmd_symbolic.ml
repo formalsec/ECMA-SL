@@ -42,7 +42,7 @@ let dispatch_prog (lang : Enums.Lang.t) (fpath : Fpath.t) : Prog.t Result.t =
   | Some ESL -> Cmd_compile.compile true fpath
   | Some JS -> prog_of_js fpath
   | _ ->
-    let msg = Fmt.asprintf "%a :unreconized file type" Fpath.pp fpath in
+    let msg = Fmt.str "%a :unreconized file type" Fpath.pp fpath in
     Result.error (`Generic msg)
 
 let link_env (prog : Prog.t) : Extern_func.extern_func Symbolic.Env.t =
@@ -54,10 +54,9 @@ let link_env (prog : Prog.t) : Extern_func.extern_func Symbolic.Env.t =
 let pp_model (ppf : Fmt.t) (model : Encoding.Model.t) : unit =
   let open Fmt in
   let open Encoding in
-  let pp_map ppf (s, v) = fprintf ppf {|"%a" : %a|} Symbol.pp s Value.pp v in
-  let pp_sep ppf () = fprintf ppf "@\n, " in
-  let pp_vars ppf v = pp_print_list ~pp_sep pp_map ppf v in
-  fprintf ppf "@[<v 2>module.exports.symbolic_map =@ { %a@\n}@]" pp_vars
+  let pp_map ppf (s, v) = format ppf {|"%a" : %a|} Symbol.pp s Value.pp v in
+  let pp_vars ppf v = pp_lst !>"@\n, " pp_map ppf v in
+  format ppf "@[<v 2>module.exports.symbolic_map =@ { %a@\n}@]" pp_vars
     (Model.get_bindings model)
 
 type witness =
@@ -101,7 +100,7 @@ let process_result (workspace : Fpath.t)
 let err_to_json = function
   | `SymAbort msg -> `Assoc [ ("type", `String "Abort"); ("sink", `String msg) ]
   | `SymAssertFailure v ->
-    let v = Fmt.asprintf "%a" Value.pp v in
+    let v = Fmt.str "%a" Value.pp v in
     `Assoc [ ("type", `String "Assert failure"); ("sink", `String v) ]
   | `SymFailure msg ->
     `Assoc [ ("type", `String "Failure"); ("sink", `String msg) ]
@@ -136,8 +135,8 @@ let run () (opts : Options.t) : unit Result.t =
   let* _ = Result.bos (Bos.OS.Dir.create testsuite) in
   let* problems = list_filter_map ~f:(process_result opts.workspace) results in
   let nproblems = List.length problems in
-  if nproblems = 0 then Log.out "All Ok!@."
-  else Log.out "Found %d problems!@." nproblems;
+  if nproblems = 0 then Log.stdout "All Ok!@."
+  else Log.stdout "Found %d problems!@." nproblems;
   Log.debug "  exec time : %fs@." exec_time;
   Log.debug "solver time : %fs@." solv_time;
   write_report opts.workspace opts.input exec_time solv_time solv_cnt problems

@@ -19,9 +19,9 @@ let delete (obj : 'a t) (fn : string) : unit = Hashtbl.remove obj fn
 
 let pp (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t) (obj : 'a t) : unit =
   let open Fmt in
-  let pp_fld ppf (fn, fv) = fprintf ppf "%s: %a" fn pp_val fv in
+  let pp_fld ppf (fn, fv) = format ppf "%s: %a" fn pp_val fv in
   if Hashtbl.length obj = 0 then pp_str ppf "{}"
-  else fprintf ppf "{ %a }" (pp_hashtbl ", " pp_fld) obj
+  else format ppf "{ %a }" (pp_hashtbl !>", " pp_fld) obj
 
 let str (pp_val : Fmt.t -> 'a -> unit) (obj : 'a t) : string =
-  Fmt.asprintf "%a" (pp pp_val) obj
+  Fmt.str "%a" (pp pp_val) obj

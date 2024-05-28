@@ -24,7 +24,7 @@ module ErrSrcFmt (ErrorType : Error_type.ERROR_TYPE) = struct
 
   let pp_location (ppf : Fmt.t) (region : region) : unit =
     let pp_locdata ppf region =
-      Fmt.fprintf ppf "File %S, line %d, characters %d-%d" region.file
+      Fmt.format ppf "File %S, line %d, characters %d-%d" region.file
         region.left.line region.left.column region.right.column
     in
     Font.pp_err [ Font.Italic; Font.Faint ] pp_locdata ppf region
@@ -36,7 +36,7 @@ module ErrSrcFmt (ErrorType : Error_type.ERROR_TYPE) = struct
   let pp_highlight (ppf : Fmt.t) ((code, left, right) : string * int * int) :
     unit =
     let base = Str.(global_replace (regexp "[^ \t\r\n]") " " code) in
-    Fmt.fprintf ppf "%s%a" (String.sub base 0 left)
+    Fmt.format ppf "%s%a" (String.sub base 0 left)
       (Font.pp_text_err ErrorType.font)
       (String.make (right - left) '^')
 
@@ -44,7 +44,7 @@ module ErrSrcFmt (ErrorType : Error_type.ERROR_TYPE) = struct
     let (file, line, left, right) = region_unfold region in
     let (start, code) = format_code (Code.line file line) in
     let (left', right') = (left - start, right - start) in
-    Fmt.fprintf ppf "\n%a\n%d |   %s\n%a%a" pp_location region line code
+    Fmt.format ppf "\n%a\n%d |   %s\n%a%a" pp_location region line code
       pp_indent line pp_highlight (code, left', right')
 
   let pp (ppf : Fmt.t) (src : t) : unit =
@@ -53,5 +53,5 @@ module ErrSrcFmt (ErrorType : Error_type.ERROR_TYPE) = struct
     | Region region -> pp_region ppf region
     | _ -> ()
 
-  let str (src : t) : string = Fmt.asprintf "%a" pp src
+  let str (src : t) : string = Fmt.str "%a" pp src
 end

@@ -37,7 +37,7 @@ let check_harness_return (result : Interpreter.result) : unit Result.t =
   match result.retval with
   | Tuple [ _; Symbol "normal"; _; _ ] -> Ok ()
   | _ ->
-    let err = Fmt.asprintf "Unable to setup harness: %a" Val.pp result.retval in
+    let err = Fmt.str "Unable to setup harness: %a" Val.pp result.retval in
     Result.error (`Execute err)
 
 let setup_program_harness (interp : Prog.t) (harness : Fpath.t) :

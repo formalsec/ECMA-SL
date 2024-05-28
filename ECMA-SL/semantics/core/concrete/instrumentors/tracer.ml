@@ -35,13 +35,13 @@ let indent_pp (ppf : Fmt.t) (lvl : int) : unit =
 
 let region_pp (limit : int) (ppf : Fmt.t) (at : Source.region) : unit =
   let open Source in
-  let pp_region' ppf at = fprintf ppf "(%s:%d)" at.file at.left.line in
+  let pp_region' ppf at = format ppf "(%s:%d)" at.file at.left.line in
   Font.pp_err [ Italic; Faint ] (Truncate.pp limit pp_region') ppf at
 
 let cond_region_pp (lvl : int) (ppf : Fmt.t) (at : Source.region) : unit =
   let limit = Truncate.limit_indent lvl in
-  let pp ppf () = fprintf ppf "\n%a%a" indent_pp lvl (region_pp limit) at in
-  pp_cond !Config.trace_loc pp ppf ()
+  let pp ppf () = format ppf "\n%a%a" indent_pp lvl (region_pp limit) at in
+  if !Config.trace_loc then pp ppf ()
 
 let rec heapval_pp ?(depth : int = 0) (heap : heap) (ppf : Fmt.t) (v : Val.t) :
   unit =
@@ -61,14 +61,14 @@ let heapval (heap : heap) (v : Val.t) : string =
 module CallFmt = struct
   let pp_func_restore (ppf : Fmt.t) (f : Func.t) : unit =
     let limit = Truncate.limit_indent 0 - 8 in
-    fprintf ppf "%a started%a"
+    format ppf "%a started%a"
       (Font.pp_err [ Cyan ] (Truncate.pp limit pp_str))
       (Func.name' f) (cond_region_pp 1) f.at
 
   let pp_func_call (ppf : Fmt.t) ((lvl, s) : int * Stmt.t) : unit =
     let limit = Truncate.limit_indent lvl - 7 in
     let pp_stmt = Font.pp_err [ Cyan ] (Truncate.pp limit Source.Code.pp) in
-    fprintf ppf "%a%a called%a" indent_pp lvl pp_stmt s.at
+    format ppf "%a%a called%a" indent_pp lvl pp_stmt s.at
       (cond_region_pp (lvl + 1))
       s.at
 
@@ -86,7 +86,7 @@ module CallFmt = struct
     let limit = Truncate.limit_indent lvl - String.length retval_header - 1 in
     let limit_f = Truncate.limit_el limit 4 3 v_len in
     let limit_v = Truncate.limit_el limit 4 1 fn_len in
-    fprintf ppf "%a%a %s%a%a" indent_pp lvl
+    format ppf "%a%a %s%a%a" indent_pp lvl
       (Font.pp_err [ Cyan ] (Truncate.pp limit_f pp_str))
       fn_str retval_header (val_pp limit_v) v_str (cond_region_pp lvl) s.at
 end
@@ -111,19 +111,19 @@ module DefaultFmt (CodeFmt : CODE_FMT) = struct
     let limit_v = Truncate.limit_el limit 2 1 e_len in
     let pp_eval = Font.pp_text_err [ Italic ] in
     let pp_expr = Truncate.pp limit_e pp_str in
-    fprintf ppf "%a- %a %a -> %a" indent_pp lvl' pp_eval "eval" pp_expr e_str
+    format ppf "%a- %a %a -> %a" indent_pp lvl' pp_eval "eval" pp_expr e_str
       (val_pp limit_v) v_str
 
   let pp_stmt (ppf : Fmt.t) ((lvl, s) : int * Stmt.t) : unit =
     let lvl' = lvl + 1 in
     let limit = Truncate.limit_indent lvl' in
     let pp_stmt = Font.pp_err [ Cyan ] (Truncate.pp limit CodeFmt.stmt_pp) in
-    fprintf ppf "%a%a%a" indent_pp lvl' pp_stmt s (cond_region_pp lvl') s.at
+    format ppf "%a%a%a" indent_pp lvl' pp_stmt s (cond_region_pp lvl') s.at
 
   let pp_func (header : string) (ppf : Fmt.t) ((lvl, f) : int * Func.t) : unit =
     let limit = Truncate.limit_indent lvl - String.length header - 1 in
     let pp_fname = Font.pp_err [ Cyan ] (Truncate.pp limit pp_str) in
-    fprintf ppf "%a%s %a" indent_pp lvl header pp_fname (Func.name' f)
+    format ppf "%a%s %a" indent_pp lvl header pp_fname (Func.name' f)
 end
 
 let log_level (lvl : int) : bool =
@@ -175,14 +175,14 @@ module Call : M = struct
   let trace_stmt (_ : int) (_ : Stmt.t) : unit = ()
 
   let trace_restore (lvl : int) (f : Func.t) : unit =
-    if lvl == -1 then Log.err "%a@." pp_func_restore f
+    if lvl == -1 then Log.stderr "%a@." pp_func_restore f
 
   let trace_call (lvl : int) (_ : Func.t) (s : Stmt.t) : unit =
-    if log_level lvl then Log.err "%a@." pp_func_call (lvl, s)
+    if log_level lvl then Log.stderr "%a@." pp_func_call (lvl, s)
 
   let trace_return (lvl : int) (f : Func.t) (s : Stmt.t) ((heap, v) : heapval) :
     unit =
-    if log_level lvl then Log.err "%a@." (pp_func_return heap) (lvl, f, s, v)
+    if log_level lvl then Log.stderr "%a@." (pp_func_return heap) (lvl, f, s, v)
 end
 
 module Step : M = struct
@@ -192,20 +192,20 @@ module Step : M = struct
   let trace_expr (_ : int) (_ : Expr.t) (_ : heapval) : unit = ()
 
   let trace_stmt (lvl : int) (s : Stmt.t) : unit =
-    if log_level lvl && log_stmt s then Log.err "%a@." pp_stmt (lvl, s)
+    if log_level lvl && log_stmt s then Log.stderr "%a@." pp_stmt (lvl, s)
 
   let trace_restore (lvl : int) (f : Func.t) : unit =
     match lvl with
-    | -1 -> Log.err "%a@." (pp_func "starting on function") (0, f)
+    | -1 -> Log.stderr "%a@." (pp_func "starting on function") (0, f)
     | _ ->
       if log_level lvl then
-        Log.err "%a@." (pp_func "returning to function") (lvl, f)
+        Log.stderr "%a@." (pp_func "returning to function") (lvl, f)
 
   let trace_call (lvl : int) (f : Func.t) (_ : Stmt.t) : unit =
-    if log_level lvl then Log.err "%a@." (pp_func "entering function") (lvl, f)
+    if log_level lvl then Log.stderr "%a@." (pp_func "entering function") (lvl, f)
 
   let trace_return (lvl : int) (f : Func.t) (_ : Stmt.t) (_ : heapval) : unit =
-    if log_level lvl then Log.err "%a@." (pp_func "exiting function") (lvl, f)
+    if log_level lvl then Log.stderr "%a@." (pp_func "exiting function") (lvl, f)
 end
 
 module Full : M = struct
@@ -213,7 +213,7 @@ module Full : M = struct
   open CodeFmt
 
   let trace_expr (lvl : int) (e : Expr.t) ((heap, v) : heapval) : unit =
-    if log_level lvl && log_expr e then Log.err "%a@." (pp_expr heap) (lvl, e, v)
+    if log_level lvl && log_expr e then Log.stderr "%a@." (pp_expr heap) (lvl, e, v)
 
   let trace_stmt (lvl : int) (s : Stmt.t) : unit = Step.trace_stmt lvl s
   let trace_restore (lvl : int) (f : Func.t) : unit = Step.trace_restore lvl f
@@ -230,21 +230,21 @@ module Core : M = struct
   open CodeFmt
 
   let trace_expr (lvl : int) (e : Expr.t) ((heap, v) : heapval) : unit =
-    if log_level lvl && log_expr e then Log.err "%a@." (pp_expr heap) (lvl, e, v)
+    if log_level lvl && log_expr e then Log.stderr "%a@." (pp_expr heap) (lvl, e, v)
 
   let trace_stmt (lvl : int) (s : Stmt.t) : unit =
-    if log_level lvl && log_stmt s then Log.err "%a@." pp_stmt (lvl, s)
+    if log_level lvl && log_stmt s then Log.stderr "%a@." pp_stmt (lvl, s)
 
   let trace_restore (lvl : int) (f : Func.t) : unit =
     match lvl with
-    | -1 -> Log.err "%a@." (pp_func "starting on function") (0, f)
+    | -1 -> Log.stderr "%a@." (pp_func "starting on function") (0, f)
     | _ ->
       if log_level lvl then
-        Log.err "%a@." (pp_func "returning to function") (lvl, f)
+        Log.stderr "%a@." (pp_func "returning to function") (lvl, f)
 
   let trace_call (lvl : int) (f : Func.t) (_ : Stmt.t) : unit =
-    if log_level lvl then Log.err "%a@." (pp_func "entering function") (lvl, f)
+    if log_level lvl then Log.stderr "%a@." (pp_func "entering function") (lvl, f)
 
   let trace_return (lvl : int) (f : Func.t) (_ : Stmt.t) (_ : heapval) : unit =
-    if log_level lvl then Log.err "%a@." (pp_func "exiting function") (lvl, f)
+    if log_level lvl then Log.stderr "%a@." (pp_func "exiting function") (lvl, f)
 end

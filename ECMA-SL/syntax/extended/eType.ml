@@ -105,7 +105,7 @@ let rec equal (t1 : t) (t2 : t) : bool =
 
 let pp_tobjfld (ppf : Fmt.t) ((fn, ft, fs) : tobjfld) : unit =
   let str_opt = function FldOpt -> "?" | _ -> "" in
-  Fmt.fprintf ppf "%a%s: %a" Id.pp fn (str_opt fs) pp ft
+  Fmt.format ppf "%a%s: %a" Id.pp fn (str_opt fs) pp ft
 
 let rec pp (ppf : Fmt.t) (t : t) : unit =
   let open Fmt in
@@ -123,23 +123,23 @@ let rec pp (ppf : Fmt.t) (t : t) : unit =
   | SymbolType -> pp_str ppf "symbol"
   | LiteralType (_, tl) -> Val.pp ppf (tliteral_to_val tl)
   | ObjectType { flds; smry; _ } when Hashtbl.length flds = 0 ->
-    let pp_smry ppf (_, tsmry) = fprintf ppf " *: %a " pp tsmry in
-    fprintf ppf "{%a}" (pp_opt pp_smry) smry
+    let pp_smry ppf (_, tsmry) = format ppf " *: %a " pp tsmry in
+    format ppf "{%a}" (pp_opt pp_smry) smry
   | ObjectType { flds; smry; _ } ->
     let pp_tfld ppf (_, tfld) = pp_tobjfld ppf tfld in
-    let pp_smry ppf (_, tsmry) = fprintf ppf ", *: %a" pp tsmry in
-    fprintf ppf "{ %a%a }" (pp_hashtbl ", " pp_tfld) flds (pp_opt pp_smry) smry
-  | ListType t' -> fprintf ppf "%a[]" pp t'
-  | TupleType ts -> fprintf ppf "(%a)" (pp_lst " * " pp) ts
-  | UnionType ts -> fprintf ppf "(%a)" (pp_lst " | " pp) ts
+    let pp_smry ppf (_, tsmry) = format ppf ", *: %a" pp tsmry in
+    format ppf "{ %a%a }" (pp_hashtbl !>", " pp_tfld) flds (pp_opt pp_smry) smry
+  | ListType t' -> format ppf "%a[]" pp t'
+  | TupleType ts -> format ppf "(%a)" (pp_lst !>" * " pp) ts
+  | UnionType ts -> format ppf "(%a)" (pp_lst !>" | " pp) ts
   | SigmaType (dsc, ts) ->
-    fprintf ppf "sigma [%a] | %a" Id.pp dsc (pp_lst " | " pp) ts
+    format ppf "sigma [%a] | %a" Id.pp dsc (pp_lst !>" | " pp) ts
   | UserDefinedType tvar -> pp_str ppf tvar
 
-let str (t : t) : string = Fmt.asprintf "%a" pp t
+let str (t : t) : string = Fmt.str "%a" pp t
 
 let tannot_pp (ppf : Fmt.t) (t : t option) =
-  Fmt.(fprintf ppf "%a" (pp_opt (fun ppf t -> fprintf ppf ": %a" pp t)) t)
+  Fmt.(format ppf "%a" (pp_opt (fun ppf t -> format ppf ": %a" pp t)) t)
 
 module TDef = struct
   type tval = t
@@ -156,7 +156,7 @@ module TDef = struct
 
   let pp (ppf : Fmt.t) (tdef : t) : unit =
     let { name = tn; tval = tv } = tdef in
-    Fmt.fprintf ppf "typedef %a := %a" Id.pp tn pp tv
+    Fmt.format ppf "typedef %a := %a" Id.pp tn pp tv
 
-  let str (tdef : t) : string = Fmt.asprintf "%a" pp tdef
+  let str (tdef : t) : string = Fmt.str "%a" pp tdef
 end

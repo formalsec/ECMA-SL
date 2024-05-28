@@ -118,15 +118,14 @@ module M : Object_intf.S with type value = V.value = struct
 
   let pp_map ppf v =
     let map_iter f m = VMap.iter (fun k d -> f (k, d)) m in
-    Fmt.pp_iter
-      (fun ppf () -> Fmt.fprintf ppf ",@ ")
-      map_iter
-      (fun ppf (key, data) -> Fmt.fprintf ppf {|%a: %a|} V.pp key V.pp data)
-      ppf v
+    Fmt.(
+      pp_iter !>",@ " map_iter
+        (fun ppf (key, data) -> Fmt.format ppf {|%a: %a|} V.pp key V.pp data)
+        ppf v )
 
   let pp ppf { fields; symbols } =
-    Fmt.fprintf ppf "@[<hov>{ %a,@ %a }@]" pp_map fields pp_map symbols
+    Fmt.format ppf "@[<hov>{ %a,@ %a }@]" pp_map fields pp_map symbols
 
-  let to_string o = Fmt.asprintf "%a" pp o
+  let to_string o = Fmt.str "%a" pp o
   let to_json = to_string
 end

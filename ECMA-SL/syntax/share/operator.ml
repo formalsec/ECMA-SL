@@ -244,7 +244,7 @@ let pp_of_binopt_single (ppf : Fmt.t) (op : binopt) : unit =
   | Minus -> pp_str ppf "-"
   | Times -> pp_str ppf "*"
   | Div -> pp_str ppf "/"
-  | Modulo -> fprintf ppf "%%"
+  | Modulo -> format ppf "%%"
   | Pow -> pp_str ppf "**"
   | BitwiseAnd -> pp_str ppf "&"
   | BitwiseOr -> pp_str ppf "|"
@@ -287,52 +287,52 @@ let pp_of_const (ppf : Fmt.t) (c : const) : unit =
 let pp_of_unopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   ((op, v) : unopt * 'a) : unit =
   if is_infix_unopt op then
-    Fmt.fprintf ppf "%a%a" pp_of_unopt_single op pp_val v
-  else Fmt.fprintf ppf "%a(%a)" pp_of_unopt_single op pp_val v
+    Fmt.format ppf "%a%a" pp_of_unopt_single op pp_val v
+  else Fmt.format ppf "%a(%a)" pp_of_unopt_single op pp_val v
 
 let pp_of_binopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   ((op, v1, v2) : binopt * 'a * 'a) : unit =
   if is_infix_binopt op then
-    Fmt.fprintf ppf "%a %a %a" pp_val v1 pp_of_binopt_single op pp_val v2
-  else Fmt.fprintf ppf "%a(%a, %a)" pp_of_binopt_single op pp_val v1 pp_val v2
+    Fmt.format ppf "%a %a %a" pp_val v1 pp_of_binopt_single op pp_val v2
+  else Fmt.format ppf "%a(%a, %a)" pp_of_binopt_single op pp_val v1 pp_val v2
 
 let pp_of_triopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   ((op, v1, v2, v3) : triopt * 'a * 'a * 'a) : unit =
-  Fmt.fprintf ppf "%a(%a, %a, %a)" pp_of_triopt_single op pp_val v1 pp_val v2
+  Fmt.format ppf "%a(%a, %a, %a)" pp_of_triopt_single op pp_val v1 pp_val v2
     pp_val v3
 
 let pp_of_nopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   ((op, vs) : nopt * 'a list) : unit =
   let open Fmt in
   match op with
-  | NAryLogicalAnd -> fprintf ppf "%a" (pp_lst " && " pp_val) vs
-  | NAryLogicalOr -> fprintf ppf "%a" (pp_lst " || " pp_val) vs
-  | ArrayExpr -> fprintf ppf "[|%a|]" (pp_lst ", " pp_val) vs
-  | ListExpr -> fprintf ppf "[%a]" (pp_lst ", " pp_val) vs
-  | TupleExpr -> fprintf ppf "(%a)" (pp_lst ", " pp_val) vs
+  | NAryLogicalAnd -> format ppf "%a" (pp_lst !>" && " pp_val) vs
+  | NAryLogicalOr -> format ppf "%a" (pp_lst !>" || " pp_val) vs
+  | ArrayExpr -> format ppf "[|%a|]" (pp_lst !>", " pp_val) vs
+  | ListExpr -> format ppf "[%a]" (pp_lst !>", " pp_val) vs
+  | TupleExpr -> format ppf "(%a)" (pp_lst !>", " pp_val) vs
 
 let str_of_unopt_single (op : unopt) : string =
-  Fmt.asprintf "%a" pp_of_unopt_single op
+  Fmt.str "%a" pp_of_unopt_single op
 
 let str_of_binopt_single (op : binopt) : string =
-  Fmt.asprintf "%a" pp_of_binopt_single op
+  Fmt.str "%a" pp_of_binopt_single op
 
 let str_of_triopt_single (op : triopt) : string =
-  Fmt.asprintf "%a" pp_of_triopt_single op
+  Fmt.str "%a" pp_of_triopt_single op
 
-let str_of_const (c : const) : string = Fmt.asprintf "%a" pp_of_const c
+let str_of_const (c : const) : string = Fmt.str "%a" pp_of_const c
 
 let str_of_unopt (pp_val : Fmt.t -> 'a -> unit) (op : unopt) (v : 'a) : string =
-  Fmt.asprintf "%a" (pp_of_unopt pp_val) (op, v)
+  Fmt.str "%a" (pp_of_unopt pp_val) (op, v)
 
 let str_of_binopt (pp_val : Fmt.t -> 'a -> unit) (op : binopt) (v1 : 'a)
   (v2 : 'a) : string =
-  Fmt.asprintf "%a" (pp_of_binopt pp_val) (op, v1, v2)
+  Fmt.str "%a" (pp_of_binopt pp_val) (op, v1, v2)
 
 let str_of_triopt (pp_val : Fmt.t -> 'a -> unit) (op : triopt) (v1 : 'a)
   (v2 : 'a) (v3 : 'a) : string =
-  Fmt.asprintf "%a" (pp_of_triopt pp_val) (op, v1, v2, v3)
+  Fmt.str "%a" (pp_of_triopt pp_val) (op, v1, v2, v3)
 
 let str_of_nopt (pp_val : Fmt.t -> 'a -> unit) (op : nopt) (vs : 'a list) :
   string =
-  Fmt.asprintf "%a" (pp_of_nopt pp_val) (op, vs)
+  Fmt.str "%a" (pp_of_nopt pp_val) (op, vs)

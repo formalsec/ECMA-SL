@@ -33,18 +33,18 @@ let metadata (f : t) : Meta.t option = f.it.metadata
 let pp_signature (ppf : Fmt.t) (f : t) : unit =
   let open Fmt in
   let { name; tparams; treturn; _ } = f.it in
-  let pp_param ppf (px, t) = fprintf ppf "%a%a" Id.pp px EType.tannot_pp t in
-  fprintf ppf "function %a(%a)%a" Id.pp name (pp_lst ", " pp_param) tparams
+  let pp_param ppf (px, t) = format ppf "%a%a" Id.pp px EType.tannot_pp t in
+  format ppf "function %a(%a)%a" Id.pp name (pp_lst !>", " pp_param) tparams
     EType.tannot_pp treturn
 
 let pp (ppf : Fmt.t) (f : t) : unit =
-  Fmt.fprintf ppf "%a %a" pp_signature f EStmt.pp f.it.body
+  Fmt.format ppf "%a %a" pp_signature f EStmt.pp f.it.body
 
 let pp_simple (ppf : Fmt.t) (f : t) : unit =
-  Fmt.fprintf ppf "%a {..." pp_signature f
+  Fmt.format ppf "%a {..." pp_signature f
 
 let str ?(simple : bool = false) (f : t) : string =
-  Fmt.asprintf "%a" (if simple then pp_simple else pp) f
+  Fmt.str "%a" (if simple then pp_simple else pp) f
 
 let lambdas (f : t) : (region * Id.t' * Id.t list * Id.t list * EStmt.t) list =
   let to_list_f s =
