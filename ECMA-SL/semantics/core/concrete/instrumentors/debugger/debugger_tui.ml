@@ -18,7 +18,8 @@ type t =
 
 let test_term_size (yz : int) (xz : int) : unit =
   let open EslBase in
-  if yz < Terminal.Config.min_height || xz < Terminal.Config.min_width then (
+  (* FIXME *)
+  if yz < 1 || xz < 40 then (
     endwin ();
     Internal_error.(throw __FUNCTION__ (Expecting "larger terminal size")) )
 
