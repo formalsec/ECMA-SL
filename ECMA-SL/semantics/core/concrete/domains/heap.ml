@@ -37,18 +37,18 @@ let get (heap : 'a t) (l : Loc.t) : ('a obj, string) Result.t =
 let set (heap : 'a t) (l : Loc.t) (obj : 'a obj) : unit =
   Loc.Tbl.replace heap.map l obj
 
-let rec pp (pp_obj : Fmt.t -> 'a obj -> unit) (fmt : Fmt.t) (heap : 'a t) : unit
+let rec pp (pp_obj : Fmt.t -> 'a obj -> unit) (ppf : Fmt.t) (heap : 'a t) : unit
     =
   let open Fmt in
-  let pp_binding fmt (loc, obj) = fprintf fmt "%a: %a" Loc.pp loc pp_obj obj in
-  let pp_map fmt map =
-    if Loc.Tbl.length map = 0 then pp_str fmt "{}"
-    else fprintf fmt "{ %a }" (Loc.Tbl.pp ", " pp_binding) map
+  let pp_binding ppf (loc, obj) = fprintf ppf "%a: %a" Loc.pp loc pp_obj obj in
+  let pp_map ppf map =
+    if Loc.Tbl.length map = 0 then pp_str ppf "{}"
+    else fprintf ppf "{ %a }" (Loc.Tbl.pp ", " pp_binding) map
   in
-  let pp_parent fmt heap = fprintf fmt "%a <- " (pp pp_obj) heap in
-  fprintf fmt "%a%a" (pp_opt pp_parent) heap.parent pp_map heap.map
+  let pp_parent ppf heap = fprintf ppf "%a <- " (pp pp_obj) heap in
+  fprintf ppf "%a%a" (pp_opt pp_parent) heap.parent pp_map heap.map
 
-let rec pp_tabular (pp_obj : Fmt.t -> 'a obj -> unit) (fmt : Fmt.t) (heap : 'a t)
+let rec pp_tabular (pp_obj : Fmt.t -> 'a obj -> unit) (ppf : Fmt.t) (heap : 'a t)
   : unit =
   let open Fmt in
   let lengths =
@@ -57,11 +57,11 @@ let rec pp_tabular (pp_obj : Fmt.t -> 'a obj -> unit) (fmt : Fmt.t) (heap : 'a t
   in
   let max = Seq.fold_left Int.max 0 lengths in
   let indent x = String.make (max - String.length (Loc.str x)) ' ' in
-  let pp_bind fmt (x, v) =
-    fprintf fmt "%s%a  <-  %a" (indent x) Loc.pp x pp_obj v
+  let pp_bind ppf (x, v) =
+    fprintf ppf "%s%a  <-  %a" (indent x) Loc.pp x pp_obj v
   in
-  let pp_parent fmt heap = fprintf fmt "%a\n\n^\n\n" (pp_tabular pp_obj) heap in
-  fprintf fmt "%a%a" (pp_opt pp_parent) heap.parent (Loc.Tbl.pp "\n" pp_bind)
+  let pp_parent ppf heap = fprintf ppf "%a\n\n^\n\n" (pp_tabular pp_obj) heap in
+  fprintf ppf "%a%a" (pp_opt pp_parent) heap.parent (Loc.Tbl.pp "\n" pp_bind)
     heap.map
 
 let str ?(tabular : bool = false) (pp_obj : Fmt.t -> 'a obj -> unit)

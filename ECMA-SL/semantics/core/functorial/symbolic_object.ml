@@ -116,16 +116,16 @@ module M : Object_intf.S with type value = V.value = struct
     | V.Val _ -> { o with fields = VMap.remove key o.fields }
     | _ -> assert false
 
-  let pp_map fmt v =
+  let pp_map ppf v =
     let map_iter f m = VMap.iter (fun k d -> f (k, d)) m in
     Fmt.pp_iter
-      (fun fmt () -> Fmt.fprintf fmt ",@ ")
+      (fun ppf () -> Fmt.fprintf ppf ",@ ")
       map_iter
-      (fun fmt (key, data) -> Fmt.fprintf fmt {|%a: %a|} V.pp key V.pp data)
-      fmt v
+      (fun ppf (key, data) -> Fmt.fprintf ppf {|%a: %a|} V.pp key V.pp data)
+      ppf v
 
-  let pp fmt { fields; symbols } =
-    Fmt.fprintf fmt "@[<hov>{ %a,@ %a }@]" pp_map fields pp_map symbols
+  let pp ppf { fields; symbols } =
+    Fmt.fprintf ppf "@[<hov>{ %a,@ %a }@]" pp_map fields pp_map symbols
 
   let to_string o = Fmt.asprintf "%a" pp o
   let to_json = to_string

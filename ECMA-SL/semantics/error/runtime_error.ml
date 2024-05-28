@@ -49,34 +49,34 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
     | (MissingReturn fn1, MissingReturn fn2) -> Id.equal fn1 fn2
     | _ -> false
 
-  let pp (fmt : Fmt.t) (msg : t) : unit =
+  let pp (ppf : Fmt.t) (msg : t) : unit =
     let open Fmt in
     match msg with
-    | Default -> fprintf fmt "Generic runtime error."
-    | Custom msg' -> fprintf fmt "%s" msg'
-    | Unexpected msg -> fprintf fmt "Unexpected %s." msg
-    | UnexpectedExitVal v -> fprintf fmt "Unexpected exit value '%a'." Val.pp v
-    | Failure msg -> fprintf fmt "Failure %s." msg
-    | UncaughtExn msg -> fprintf fmt "Uncaught exception %s." msg
-    | OpEvalErr oplbl -> fprintf fmt "Exception in Operator.%s." oplbl
-    | UnknownVar x -> fprintf fmt "Cannot find variable '%s'." x
-    | UnknownFunc fn -> fprintf fmt "Cannot find function '%s'." fn
+    | Default -> fprintf ppf "Generic runtime error."
+    | Custom msg' -> fprintf ppf "%s" msg'
+    | Unexpected msg -> fprintf ppf "Unexpected %s." msg
+    | UnexpectedExitVal v -> fprintf ppf "Unexpected exit value '%a'." Val.pp v
+    | Failure msg -> fprintf ppf "Failure %s." msg
+    | UncaughtExn msg -> fprintf ppf "Uncaught exception %s." msg
+    | OpEvalErr oplbl -> fprintf ppf "Exception in Operator.%s." oplbl
+    | UnknownVar x -> fprintf ppf "Cannot find variable '%s'." x
+    | UnknownFunc fn -> fprintf ppf "Cannot find function '%s'." fn
     | BadNArgs (npxs, nargs) ->
-      fprintf fmt "Expected %d arguments, but got %d." npxs nargs
+      fprintf ppf "Expected %d arguments, but got %d." npxs nargs
     | BadVal (texpr, v) ->
-      fprintf fmt "Expecting %s value, but got '%a'." texpr Val.pp v
+      fprintf ppf "Expecting %s value, but got '%a'." texpr Val.pp v
     | BadExpr (texpr, v) ->
-      fprintf fmt "Expecting %s expression, but got '%a'." texpr Val.pp v
+      fprintf ppf "Expecting %s expression, but got '%a'." texpr Val.pp v
     | BadFuncId v ->
-      fprintf fmt "Expecting a function identifier, but got '%a'." Val.pp v
+      fprintf ppf "Expecting a function identifier, but got '%a'." Val.pp v
     | BadOpArgs (texpr, vs) when List.length vs = 1 ->
-      fprintf fmt "Expecting argument of type '%s', but got '%a'." texpr
+      fprintf ppf "Expecting argument of type '%s', but got '%a'." texpr
         (pp_lst ", " Val.pp) vs
     | BadOpArgs (texpr, vs) ->
-      fprintf fmt "Expecting arguments of types '%s', but got '(%a)'." texpr
+      fprintf ppf "Expecting arguments of types '%s', but got '(%a)'." texpr
         (pp_lst ", " Val.pp) vs
     | MissingReturn fn ->
-      fprintf fmt "Missing return in function '%a'." Id.pp fn
+      fprintf ppf "Missing return in function '%a'." Id.pp fn
 
   let str (msg : t) : string = Fmt.asprintf "%a" pp msg
 end
@@ -103,12 +103,12 @@ let set_src (src : ErrSrc.t) (err : t) : t = { err with src }
 let trace (err : t) : RtTrace.t option = err.trace
 let set_trace (tr : RtTrace.t) (err : t) : t = { err with trace = Some tr }
 
-let pp (fmt : Fmt.t) (err : t) : unit =
+let pp (ppf : Fmt.t) (err : t) : unit =
   let open Fmt in
   let module MsgFmt = Error_type.ErrorTypeFmt (RuntimeErr) in
   let module ErrSrcFmt = ErrSrc.ErrSrcFmt (RuntimeErr) in
   let module RtTraceFmt = RtTrace.RtTraceFmt (RuntimeErr) in
-  Fmt.fprintf fmt "%a%a%a" MsgFmt.pp err.msgs ErrSrcFmt.pp err.src
+  Fmt.fprintf ppf "%a%a%a" MsgFmt.pp err.msgs ErrSrcFmt.pp err.src
     (pp_opt RtTraceFmt.pp) err.trace
 
 let str (err : t) = Fmt.asprintf "%a" pp err

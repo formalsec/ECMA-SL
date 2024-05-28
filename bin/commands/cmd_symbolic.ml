@@ -51,13 +51,13 @@ let link_env (prog : Prog.t) : Extern_func.extern_func Symbolic.Env.t =
   |> Env.Build.add_extern_functions Symbolic_extern.concrete_api
   |> Env.Build.add_extern_functions Symbolic_extern.symbolic_api
 
-let pp_model (fmt : Fmt.t) (model : Encoding.Model.t) : unit =
+let pp_model (ppf : Fmt.t) (model : Encoding.Model.t) : unit =
   let open Fmt in
   let open Encoding in
-  let pp_map fmt (s, v) = fprintf fmt {|"%a" : %a|} Symbol.pp s Value.pp v in
-  let pp_sep fmt () = fprintf fmt "@\n, " in
-  let pp_vars fmt v = pp_print_list ~pp_sep pp_map fmt v in
-  fprintf fmt "@[<v 2>module.exports.symbolic_map =@ { %a@\n}@]" pp_vars
+  let pp_map ppf (s, v) = fprintf ppf {|"%a" : %a|} Symbol.pp s Value.pp v in
+  let pp_sep ppf () = fprintf ppf "@\n, " in
+  let pp_vars ppf v = pp_print_list ~pp_sep pp_map ppf v in
+  fprintf ppf "@[<v 2>module.exports.symbolic_map =@ { %a@\n}@]" pp_vars
     (Model.get_bindings model)
 
 type witness =

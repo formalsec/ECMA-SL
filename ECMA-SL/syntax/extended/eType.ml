@@ -103,43 +103,43 @@ let rec equal (t1 : t) (t2 : t) : bool =
   | (UserDefinedType tvar1, UserDefinedType tvar2) -> tvar1 = tvar2
   | _ -> false
 
-let pp_tobjfld (fmt : Fmt.t) ((fn, ft, fs) : tobjfld) : unit =
+let pp_tobjfld (ppf : Fmt.t) ((fn, ft, fs) : tobjfld) : unit =
   let str_opt = function FldOpt -> "?" | _ -> "" in
-  Fmt.fprintf fmt "%a%s: %a" Id.pp fn (str_opt fs) pp ft
+  Fmt.fprintf ppf "%a%s: %a" Id.pp fn (str_opt fs) pp ft
 
-let rec pp (fmt : Fmt.t) (t : t) : unit =
+let rec pp (ppf : Fmt.t) (t : t) : unit =
   let open Fmt in
   match t.it with
-  | AnyType -> pp_str fmt "any"
-  | UnknownType -> pp_str fmt "unknown"
-  | NeverType -> pp_str fmt "never"
-  | UndefinedType -> pp_str fmt "undefined"
-  | NullType -> pp_str fmt "null"
-  | VoidType -> pp_str fmt "void"
-  | IntType -> pp_str fmt "int"
-  | FloatType -> pp_str fmt "float"
-  | StringType -> pp_str fmt "string"
-  | BooleanType -> pp_str fmt "boolean"
-  | SymbolType -> pp_str fmt "symbol"
-  | LiteralType (_, tl) -> Val.pp fmt (tliteral_to_val tl)
+  | AnyType -> pp_str ppf "any"
+  | UnknownType -> pp_str ppf "unknown"
+  | NeverType -> pp_str ppf "never"
+  | UndefinedType -> pp_str ppf "undefined"
+  | NullType -> pp_str ppf "null"
+  | VoidType -> pp_str ppf "void"
+  | IntType -> pp_str ppf "int"
+  | FloatType -> pp_str ppf "float"
+  | StringType -> pp_str ppf "string"
+  | BooleanType -> pp_str ppf "boolean"
+  | SymbolType -> pp_str ppf "symbol"
+  | LiteralType (_, tl) -> Val.pp ppf (tliteral_to_val tl)
   | ObjectType { flds; smry; _ } when Hashtbl.length flds = 0 ->
-    let pp_smry fmt (_, tsmry) = fprintf fmt " *: %a " pp tsmry in
-    fprintf fmt "{%a}" (pp_opt pp_smry) smry
+    let pp_smry ppf (_, tsmry) = fprintf ppf " *: %a " pp tsmry in
+    fprintf ppf "{%a}" (pp_opt pp_smry) smry
   | ObjectType { flds; smry; _ } ->
-    let pp_tfld fmt (_, tfld) = pp_tobjfld fmt tfld in
-    let pp_smry fmt (_, tsmry) = fprintf fmt ", *: %a" pp tsmry in
-    fprintf fmt "{ %a%a }" (pp_hashtbl ", " pp_tfld) flds (pp_opt pp_smry) smry
-  | ListType t' -> fprintf fmt "%a[]" pp t'
-  | TupleType ts -> fprintf fmt "(%a)" (pp_lst " * " pp) ts
-  | UnionType ts -> fprintf fmt "(%a)" (pp_lst " | " pp) ts
+    let pp_tfld ppf (_, tfld) = pp_tobjfld ppf tfld in
+    let pp_smry ppf (_, tsmry) = fprintf ppf ", *: %a" pp tsmry in
+    fprintf ppf "{ %a%a }" (pp_hashtbl ", " pp_tfld) flds (pp_opt pp_smry) smry
+  | ListType t' -> fprintf ppf "%a[]" pp t'
+  | TupleType ts -> fprintf ppf "(%a)" (pp_lst " * " pp) ts
+  | UnionType ts -> fprintf ppf "(%a)" (pp_lst " | " pp) ts
   | SigmaType (dsc, ts) ->
-    fprintf fmt "sigma [%a] | %a" Id.pp dsc (pp_lst " | " pp) ts
-  | UserDefinedType tvar -> pp_str fmt tvar
+    fprintf ppf "sigma [%a] | %a" Id.pp dsc (pp_lst " | " pp) ts
+  | UserDefinedType tvar -> pp_str ppf tvar
 
 let str (t : t) : string = Fmt.asprintf "%a" pp t
 
-let tannot_pp (fmt : Fmt.t) (t : t option) =
-  Fmt.(fprintf fmt "%a" (pp_opt (fun fmt t -> fprintf fmt ": %a" pp t)) t)
+let tannot_pp (ppf : Fmt.t) (t : t option) =
+  Fmt.(fprintf ppf "%a" (pp_opt (fun ppf t -> fprintf ppf ": %a" pp t)) t)
 
 module TDef = struct
   type tval = t
@@ -154,9 +154,9 @@ module TDef = struct
   let name' (tdef : t) : Id.t' = tdef.name.it
   let tval (tdef : t) : tval = tdef.tval
 
-  let pp (fmt : Fmt.t) (tdef : t) : unit =
+  let pp (ppf : Fmt.t) (tdef : t) : unit =
     let { name = tn; tval = tv } = tdef in
-    Fmt.fprintf fmt "typedef %a := %a" Id.pp tn pp tv
+    Fmt.fprintf ppf "typedef %a := %a" Id.pp tn pp tv
 
   let str (tdef : t) : string = Fmt.asprintf "%a" pp tdef
 end
