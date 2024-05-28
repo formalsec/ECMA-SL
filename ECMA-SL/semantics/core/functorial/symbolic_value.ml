@@ -52,35 +52,35 @@ module M = struct
     | _ -> false
 
   (* FIXME: Proper pp *)
-  let rec pp fmt =
+  let rec pp ppf =
     let open Format in
-    let pp_list fmt es =
-      pp_print_list ~pp_sep:(fun fmt () -> pp_print_string fmt ", ") pp fmt es
+    let pp_list ppf es =
+      pp_print_list ~pp_sep:(fun ppf () -> pp_print_string ppf ", ") pp ppf es
     in
     let pp_str e = asprintf "%a" pp e in
     function
-    | Val n -> Val.pp fmt n
+    | Val n -> Val.pp ppf n
     | UnOpt (op, e) ->
       let e = pp_str e in
-      fprintf fmt "%s" (Operator.str_of_unopt Format.pp_print_string op e)
+      fprintf ppf "%s" (Operator.str_of_unopt Format.pp_print_string op e)
     | BinOpt (op, e1, e2) ->
       let e1 = pp_str e1 in
       let e2 = pp_str e2 in
-      fprintf fmt "%s" (Operator.str_of_binopt Format.pp_print_string op e1 e2)
+      fprintf ppf "%s" (Operator.str_of_binopt Format.pp_print_string op e1 e2)
     | TriOpt (op, e1, e2, e3) ->
       let e1 = pp_str e1 in
       let e2 = pp_str e2 in
       let e3 = pp_str e3 in
-      fprintf fmt "%s"
+      fprintf ppf "%s"
         (Operator.str_of_triopt Format.pp_print_string op e1 e2 e3)
     | NOpt (op, es) ->
-      fprintf fmt "%s"
+      fprintf ppf "%s"
         (Operator.str_of_nopt Format.pp_print_string op (List.map pp_str es))
-    | Curry (f, es) -> fprintf fmt "{%a}@(%a)" pp f pp_list es
+    | Curry (f, es) -> fprintf ppf "{%a}@(%a)" pp f pp_list es
     | Symbolic (t, x) -> (
       match x with
-      | Val (Str x) -> fprintf fmt "(`%s : %a)" x Type.pp t
-      | _ -> fprintf fmt "(`%a : %a)" pp x Type.pp t )
+      | Val (Str x) -> fprintf ppf "(`%s : %a)" x Type.pp t
+      | _ -> fprintf ppf "(`%a : %a)" pp x Type.pp t )
 
   let func (v : value) =
     match v with
@@ -124,16 +124,16 @@ module M = struct
 
     let find (store : t) (x : bind) : value option = SMap.find_opt x store
 
-    let pp fmt store =
+    let pp ppf store =
       let open Fmt in
-      let pp_sep fmt () = fprintf fmt ";@ " in
+      let pp_sep ppf () = fprintf ppf ";@ " in
       let iter f m =
         SMap.iter
           (fun k v -> if not @@ String.starts_with ~prefix:"__" k then f (k, v))
           m
       in
-      let pp_v fmt (k, v) = fprintf fmt "%s -> %a" k pp v in
-      fprintf fmt "{ ... %a }" (pp_iter pp_sep iter pp_v) store
+      let pp_v ppf (k, v) = fprintf ppf "%s -> %a" k pp v in
+      fprintf ppf "{ ... %a }" (pp_iter pp_sep iter pp_v) store
   end
 
   type store = Store.t

@@ -21,16 +21,16 @@ let params (f : t) : Id.t list = f.it.params
 let params' (f : t) : Id.t' list = List.map (fun px -> px.it) f.it.params
 let body (f : t) : Stmt.t = f.it.body
 
-let pp_signature (fmt : Fmt.t) (f : t) : unit =
+let pp_signature (ppf : Fmt.t) (f : t) : unit =
   let open Fmt in
   let { name; params; _ } = f.it in
-  fprintf fmt "function %a(%a)" Id.pp name (pp_lst ", " Id.pp) params
+  fprintf ppf "function %a(%a)" Id.pp name (pp_lst ", " Id.pp) params
 
-let pp (fmt : Fmt.t) (f : t) : unit =
-  Fmt.fprintf fmt "%a %a" pp_signature f Stmt.pp f.it.body
+let pp (ppf : Fmt.t) (f : t) : unit =
+  Fmt.fprintf ppf "%a %a" pp_signature f Stmt.pp f.it.body
 
-let pp_simple (fmt : Fmt.t) (f : t) : unit =
-  Fmt.fprintf fmt "%a {..." pp_signature f
+let pp_simple (ppf : Fmt.t) (f : t) : unit =
+  Fmt.fprintf ppf "%a {..." pp_signature f
 
 let str ?(simple : bool = false) (f : t) : string =
   if simple then Fmt.asprintf "%a" pp_simple f else Fmt.asprintf "%a" pp f

@@ -8,11 +8,11 @@ module DebugLvl = struct
 
   let all () : t list = [ None; Warn; Full ]
 
-  let pp (fmt : Fmt.t) (lvl : t) : unit =
+  let pp (ppf : Fmt.t) (lvl : t) : unit =
     match lvl with
-    | None -> Fmt.pp_str fmt "none"
-    | Warn -> Fmt.pp_str fmt "warn"
-    | Full -> Fmt.pp_str fmt "full"
+    | None -> Fmt.pp_str ppf "none"
+    | Warn -> Fmt.pp_str ppf "warn"
+    | Full -> Fmt.pp_str ppf "full"
 
   let str (lvl : t) : string = Fmt.asprintf "%a" pp lvl
 
@@ -36,15 +36,15 @@ module Lang = struct
     | TestReport
     | TestSummary
 
-  let pp (fmt : Fmt.t) (lang : t) : unit =
+  let pp (ppf : Fmt.t) (lang : t) : unit =
     match lang with
-    | Auto -> Fmt.pp_str fmt "auto"
-    | JS -> Fmt.pp_str fmt ".js"
-    | ESL -> Fmt.pp_str fmt ".esl"
-    | CESL -> Fmt.pp_str fmt ".cesl"
-    | CESLUnattached -> Fmt.pp_str fmt ".cesl"
-    | TestReport -> Fmt.pp_str fmt ".trp"
-    | TestSummary -> Fmt.pp_str fmt ".tsmry"
+    | Auto -> Fmt.pp_str ppf "auto"
+    | JS -> Fmt.pp_str ppf ".js"
+    | ESL -> Fmt.pp_str ppf ".esl"
+    | CESL -> Fmt.pp_str ppf ".cesl"
+    | CESLUnattached -> Fmt.pp_str ppf ".cesl"
+    | TestReport -> Fmt.pp_str ppf ".trp"
+    | TestSummary -> Fmt.pp_str ppf ".tsmry"
 
   let str (lang : t) : string = Fmt.asprintf "%a" pp lang
 
@@ -92,13 +92,13 @@ module InterpTracer = struct
 
   let all () : t list = [ None; Call; Step; Full; Core ]
 
-  let pp (fmt : Fmt.t) (tracer : t) : unit =
+  let pp (ppf : Fmt.t) (tracer : t) : unit =
     match tracer with
-    | None -> Fmt.pp_str fmt "none"
-    | Call -> Fmt.pp_str fmt "call"
-    | Step -> Fmt.pp_str fmt "step"
-    | Full -> Fmt.pp_str fmt "full"
-    | Core -> Fmt.pp_str fmt "core"
+    | None -> Fmt.pp_str ppf "none"
+    | Call -> Fmt.pp_str ppf "call"
+    | Step -> Fmt.pp_str ppf "step"
+    | Full -> Fmt.pp_str ppf "full"
+    | Core -> Fmt.pp_str ppf "core"
 
   let str (tracer : t) : string = Fmt.asprintf "%a" pp tracer
 
@@ -114,11 +114,11 @@ module InterpProfiler = struct
 
   let all () : t list = [ None; Time; Full ]
 
-  let pp (fmt : Fmt.t) (profiler : t) : unit =
+  let pp (ppf : Fmt.t) (profiler : t) : unit =
     match profiler with
-    | None -> Fmt.pp_str fmt "none"
-    | Time -> Fmt.pp_str fmt "time"
-    | Full -> Fmt.pp_str fmt "full"
+    | None -> Fmt.pp_str ppf "none"
+    | Time -> Fmt.pp_str ppf "time"
+    | Full -> Fmt.pp_str ppf "full"
 
   let str (profiler : t) : string = Fmt.asprintf "%a" pp profiler
 
@@ -136,13 +136,13 @@ module JSInterp = struct
 
   let all () : t list = [ Main; Latest; ECMARef5; ECMARef6 ]
 
-  let pp (fmt : Fmt.t) (version : t) : unit =
+  let pp (ppf : Fmt.t) (version : t) : unit =
     match version with
-    | Main -> Fmt.pp_str fmt "main"
-    | Latest -> Fmt.pp_str fmt "latest"
-    | ECMARef5 -> Fmt.pp_str fmt "ecmaref5"
-    | ECMARef6 -> Fmt.pp_str fmt "ecmaref6"
-    | ECMARef6Sym -> Fmt.pp_str fmt "ecmaref6-sym"
+    | Main -> Fmt.pp_str ppf "main"
+    | Latest -> Fmt.pp_str ppf "latest"
+    | ECMARef5 -> Fmt.pp_str ppf "ecmaref5"
+    | ECMARef6 -> Fmt.pp_str ppf "ecmaref6"
+    | ECMARef6Sym -> Fmt.pp_str ppf "ecmaref6-sym"
 
   let str (version : t) : string = Fmt.asprintf "%a" pp version
 
@@ -166,11 +166,11 @@ module JSTest = struct
 
   let all () : t list = [ Auto; Simple; Test262 ]
 
-  let pp (fmt : Fmt.t) (kind : t) : unit =
+  let pp (ppf : Fmt.t) (kind : t) : unit =
     match kind with
-    | Auto -> Fmt.pp_str fmt "auto"
-    | Simple -> Fmt.pp_str fmt "simple"
-    | Test262 -> Fmt.pp_str fmt "test262"
+    | Auto -> Fmt.pp_str ppf "auto"
+    | Simple -> Fmt.pp_str ppf "simple"
+    | Test262 -> Fmt.pp_str ppf "test262"
 
   let str (kind : t) : string = Fmt.asprintf "%a" pp kind
 

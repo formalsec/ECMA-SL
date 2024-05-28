@@ -30,18 +30,18 @@ let treturn (f : t) : EType.t option = f.it.treturn
 let body (f : t) : EStmt.t = f.it.body
 let metadata (f : t) : Meta.t option = f.it.metadata
 
-let pp_signature (fmt : Fmt.t) (f : t) : unit =
+let pp_signature (ppf : Fmt.t) (f : t) : unit =
   let open Fmt in
   let { name; tparams; treturn; _ } = f.it in
-  let pp_param fmt (px, t) = fprintf fmt "%a%a" Id.pp px EType.tannot_pp t in
-  fprintf fmt "function %a(%a)%a" Id.pp name (pp_lst ", " pp_param) tparams
+  let pp_param ppf (px, t) = fprintf ppf "%a%a" Id.pp px EType.tannot_pp t in
+  fprintf ppf "function %a(%a)%a" Id.pp name (pp_lst ", " pp_param) tparams
     EType.tannot_pp treturn
 
-let pp (fmt : Fmt.t) (f : t) : unit =
-  Fmt.fprintf fmt "%a %a" pp_signature f EStmt.pp f.it.body
+let pp (ppf : Fmt.t) (f : t) : unit =
+  Fmt.fprintf ppf "%a %a" pp_signature f EStmt.pp f.it.body
 
-let pp_simple (fmt : Fmt.t) (f : t) : unit =
-  Fmt.fprintf fmt "%a {..." pp_signature f
+let pp_simple (ppf : Fmt.t) (f : t) : unit =
+  Fmt.fprintf ppf "%a {..." pp_signature f
 
 let str ?(simple : bool = false) (f : t) : string =
   Fmt.asprintf "%a" (if simple then pp_simple else pp) f

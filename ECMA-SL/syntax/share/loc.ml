@@ -8,7 +8,7 @@ let create : unit -> t =
 
 let equal l1 l2 = l1 == l2 [@@inline]
 let hash l = l [@@inline]
-let pp (fmt : Fmt.t) (l : t) : unit = Fmt.fprintf fmt "$loc_%d" l
+let pp (ppf : Fmt.t) (l : t) : unit = Fmt.fprintf ppf "$loc_%d" l
 let str (l : t) : string = Fmt.asprintf "%a" pp l
 
 module Tbl = struct
@@ -19,8 +19,8 @@ module Tbl = struct
     let hash x = hash x
   end)
 
-  let pp (sep : string) (pp_el : Format.formatter -> 'a * 'b -> unit)
-    (fmt : Format.formatter) (tbl : 'b t) =
+  let pp (sep : string) (pp_el : Fmt.t -> 'a * 'b -> unit) (ppf : Fmt.t)
+    (tbl : 'b t) =
     let tbl_iter f tbl = iter (fun a b -> f (a, b)) tbl in
-    Fmt.pp_iter (fun fmt () -> Fmt.pp_str fmt sep) tbl_iter pp_el fmt tbl
+    Fmt.pp_iter (fun ppf () -> Fmt.pp_str ppf sep) tbl_iter pp_el ppf tbl
 end

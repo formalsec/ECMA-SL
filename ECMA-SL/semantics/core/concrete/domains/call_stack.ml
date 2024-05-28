@@ -60,29 +60,29 @@ let update (stack : 'store t) (stmt : Stmt.t) : 'store t =
   | Intermediate (loc, r) :: frames -> Intermediate (loc_f loc, r) :: frames
   | _ -> Internal_error.(throw __FUNCTION__ (Unexpected "call stack format"))
 
-let pp_loc (fmt : Fmt.t) (region : region) : unit =
-  Fmt.fprintf fmt "file %S, line %d" region.file region.left.line
+let pp_loc (ppf : Fmt.t) (region : region) : unit =
+  Fmt.fprintf ppf "file %S, line %d" region.file region.left.line
 
-let pp_frame (fmt : Fmt.t) (frame : 'store frame) : unit =
+let pp_frame (ppf : Fmt.t) (frame : 'store frame) : unit =
   let frame_loc = function Toplevel loc | Intermediate (loc, _) -> loc in
   let { func; stmt; _ } = frame_loc frame in
-  Fmt.fprintf fmt "'%s' in %a" (Func.name' func) pp_loc stmt.at
+  Fmt.fprintf ppf "'%s' in %a" (Func.name' func) pp_loc stmt.at
 
-let pp (fmt : Fmt.t) (stack : 'store t) : unit =
+let pp (ppf : Fmt.t) (stack : 'store t) : unit =
   let open Fmt in
   let frame_loc = function Toplevel loc | Intermediate (loc, _) -> loc in
   let func_name frame = Func.name' (frame_loc frame).func in
-  let pp_binding fmt frame = pp_print_string fmt (func_name frame) in
-  if List.length stack = 0 then pp_str fmt "{}"
-  else fprintf fmt "{ %a }" (pp_lst " <- " pp_binding) stack
+  let pp_binding ppf frame = pp_print_string ppf (func_name frame) in
+  if List.length stack = 0 then pp_str ppf "{}"
+  else fprintf ppf "{ %a }" (pp_lst " <- " pp_binding) stack
 
-let pp_tabular (fmt : Fmt.t) (stack : 'store t) : unit =
+let pp_tabular (ppf : Fmt.t) (stack : 'store t) : unit =
   let open Fmt in
-  let pp_trace fmt frame = fprintf fmt "\nCalled from %a" pp_frame frame in
+  let pp_trace ppf frame = fprintf ppf "\nCalled from %a" pp_frame frame in
   match stack with
-  | [] -> fprintf fmt "Empty call stack"
+  | [] -> fprintf ppf "Empty call stack"
   | frame :: stack' ->
-    fprintf fmt "%a%a" pp_frame frame (pp_lst "" pp_trace) stack'
+    fprintf ppf "%a%a" pp_frame frame (pp_lst "" pp_trace) stack'
 
 let str ?(tabular : bool = false) (stack : 'store t) : string =
   Fmt.asprintf "%a" (if tabular then pp_tabular else pp) stack

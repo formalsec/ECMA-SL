@@ -18,13 +18,13 @@ let no_region = { file = ""; left = no_pos; right = no_pos; real = false }
 let region_unfold (region : region) : string * int * int * int =
   (region.file, region.left.line, region.left.column, region.right.column)
 
-let pp_pos (fmt : Fmt.t) (pos : pos) : unit =
+let pp_pos (ppf : Fmt.t) (pos : pos) : unit =
   let open Fmt in
-  let pp_pos' fmt pos = if pos = -1 then pp_str fmt "x" else pp_int fmt pos in
-  fprintf fmt "%a.%a" pp_pos' pos.line pp_pos' pos.column
+  let pp_pos' ppf pos = if pos = -1 then pp_str ppf "x" else pp_int ppf pos in
+  fprintf ppf "%a.%a" pp_pos' pos.line pp_pos' pos.column
 
-let pp_region (fmt : Fmt.t) (region : region) : unit =
-  Fmt.fprintf fmt "%S:%a-%a" region.file pp_pos region.left pp_pos region.right
+let pp_region (ppf : Fmt.t) (region : region) : unit =
+  Fmt.fprintf ppf "%S:%a-%a" region.file pp_pos region.left pp_pos region.right
 
 type +'a phrase =
   { it : 'a
@@ -37,7 +37,7 @@ let ( @?> ) (x : 'a) (region : region) : 'a phrase =
   { it = x; at = { region with real = false } }
 
 let map (f : 'a -> 'b) (x : 'a phrase) : 'b phrase = { x with it = f x.it }
-let pp (fmt : Fmt.t) (x : 'a phrase) = Fmt.fprintf fmt "%a" pp_region x.at
+let pp (ppf : Fmt.t) (x : 'a phrase) = Fmt.fprintf ppf "%a" pp_region x.at
 let str (x : 'a phrase) : string = Fmt.asprintf "%a" pp x
 
 module Code = struct
@@ -83,8 +83,8 @@ module Code = struct
     let nlines = at.right.line - at.left.line + 1 in
     trim_lines (get_lines (Hashtbl.find_opt code at.file) start nlines)
 
-  let pp (fmt : Fmt.t) (at : region) : unit =
-    Fmt.(pp_lst "\n" pp_str) fmt (codeblock at)
+  let pp (ppf : Fmt.t) (at : region) : unit =
+    Fmt.(pp_lst "\n" pp_str) ppf (codeblock at)
 
   let str (at : region) : string = Fmt.asprintf "%a" pp at
 end

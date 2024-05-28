@@ -70,24 +70,24 @@ let float_str (f : float) : string =
   if is_special_number f_str || String.contains f_str '.' then f_str
   else f_str ^ ".0"
 
-let pp_custom_inner (pp_inner_val : Fmt.t -> t -> unit) (fmt : Fmt.t) (v : t) :
+let pp_custom_inner (pp_inner_val : Fmt.t -> t -> unit) (ppf : Fmt.t) (v : t) :
   unit =
   let open Fmt in
   match v with
-  | Null -> fprintf fmt "null"
+  | Null -> fprintf ppf "null"
   | Void -> ()
-  | Int i -> fprintf fmt "%i" i
-  | Flt f -> fprintf fmt "%s" (float_str f)
-  | Str s -> fprintf fmt "%S" s
-  | Bool b -> fprintf fmt "%b" b
-  | Symbol s -> fprintf fmt "'%s" s
-  | Loc l -> Loc.pp fmt l
-  | Arr arr -> fprintf fmt "[|%a|]" (pp_arr ", " pp_inner_val) arr
-  | List lst -> fprintf fmt "[%a]" (pp_lst ", " pp_inner_val) lst
-  | Tuple tup -> fprintf fmt "(%a)" (pp_lst ", " pp_inner_val) tup
-  | Byte bt -> fprintf fmt "%i" bt
-  | Type t -> Type.pp fmt t
-  | Curry (fn, fvs) -> fprintf fmt "{%S}@(%a)" fn (pp_lst ", " pp_inner_val) fvs
+  | Int i -> fprintf ppf "%i" i
+  | Flt f -> fprintf ppf "%s" (float_str f)
+  | Str s -> fprintf ppf "%S" s
+  | Bool b -> fprintf ppf "%b" b
+  | Symbol s -> fprintf ppf "'%s" s
+  | Loc l -> Loc.pp ppf l
+  | Arr arr -> fprintf ppf "[|%a|]" (pp_arr ", " pp_inner_val) arr
+  | List lst -> fprintf ppf "[%a]" (pp_lst ", " pp_inner_val) lst
+  | Tuple tup -> fprintf ppf "(%a)" (pp_lst ", " pp_inner_val) tup
+  | Byte bt -> fprintf ppf "%i" bt
+  | Type t -> Type.pp ppf t
+  | Curry (fn, fvs) -> fprintf ppf "{%S}@(%a)" fn (pp_lst ", " pp_inner_val) fvs
 
-let rec pp (fmt : Fmt.t) (v : t) : unit = pp_custom_inner pp fmt v
+let rec pp (ppf : Fmt.t) (v : t) : unit = pp_custom_inner pp ppf v
 let str v = Fmt.asprintf "%a" pp v

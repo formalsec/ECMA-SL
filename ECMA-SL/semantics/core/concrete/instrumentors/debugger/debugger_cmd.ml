@@ -60,9 +60,9 @@ let eval_cmd (state : state) (e_tkns : string list) : string =
 
 let locals_cmd (state : state) : string =
   let (store, heap, _) = state in
-  let local_f fmt (x, v) =
+  let local_f ppf (x, v) =
     if not (String.starts_with ~prefix:"__" x) then
-      Fmt.fprintf fmt "%s: %a\n" x (heapval_pp heap) v
+      Fmt.fprintf ppf "%s: %a\n" x (heapval_pp heap) v
   in
   Fmt.(asprintf "%a" (pp_hashtbl "" local_f) store)
 

@@ -144,7 +144,7 @@ module P = struct
           let thread = Thread.clone thread in
           List.filter_map (return thread) locs
 
-    let pp fmt v = Memory.pp fmt v [@@inline]
+    let pp ppf v = Memory.pp ppf v [@@inline]
     let pp_val m v = Memory.pp_val m v [@@inline]
   end
 

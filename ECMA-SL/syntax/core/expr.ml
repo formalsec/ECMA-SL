@@ -12,17 +12,17 @@ and t' =
   | Curry of t * t list
   | Symbolic of Type.t * t
 
-let rec pp (fmt : Fmt.t) (e : t) : unit =
+let rec pp (ppf : Fmt.t) (e : t) : unit =
   let open Fmt in
   match e.it with
-  | Val v -> Val.pp fmt v
-  | Var x -> pp_str fmt x
-  | UnOpt (op, e') -> Operator.pp_of_unopt pp fmt (op, e')
-  | BinOpt (op, e1, e2) -> Operator.pp_of_binopt pp fmt (op, e1, e2)
-  | TriOpt (op, e1, e2, e3) -> Operator.pp_of_triopt pp fmt (op, e1, e2, e3)
-  | NOpt (op, es) -> Operator.pp_of_nopt pp fmt (op, es)
-  | Curry (fe, es) -> fprintf fmt "{%a}@(%a)" pp fe (pp_lst ", " pp) es
-  | Symbolic (t, e') -> fprintf fmt "se_mk_symbolic(%a, %a)" Type.pp t pp e'
+  | Val v -> Val.pp ppf v
+  | Var x -> pp_str ppf x
+  | UnOpt (op, e') -> Operator.pp_of_unopt pp ppf (op, e')
+  | BinOpt (op, e1, e2) -> Operator.pp_of_binopt pp ppf (op, e1, e2)
+  | TriOpt (op, e1, e2, e3) -> Operator.pp_of_triopt pp ppf (op, e1, e2, e3)
+  | NOpt (op, es) -> Operator.pp_of_nopt pp ppf (op, es)
+  | Curry (fe, es) -> fprintf ppf "{%a}@(%a)" pp fe (pp_lst ", " pp) es
+  | Symbolic (t, e') -> fprintf ppf "se_mk_symbolic(%a, %a)" Type.pp t pp e'
 
 let str (e : t) : string = Fmt.asprintf "%a" pp e
 let isvoid (e : t) : bool = match e.it with Val Val.Void -> true | _ -> false
