@@ -69,63 +69,63 @@ module TypingErr : Error_type.ERROR_TYPE with type t = msg = struct
       EType.equal tret1 tret2 && EType.equal tsrc1 tsrc2
     | _ -> false
 
-  let pp (fmt : Fmt.t) (msg : t) : unit =
+  let pp (ppf : Fmt.t) (msg : t) : unit =
     let open Fmt in
     match msg with
-    | Default -> fprintf fmt "Generic type error."
-    | Custom msg' -> fprintf fmt "%s" msg'
-    | UnknownVar x -> fprintf fmt "Cannot find variable '%s'." x
+    | Default -> fprintf ppf "Generic type error."
+    | Custom msg' -> fprintf ppf "%s" msg'
+    | UnknownVar x -> fprintf ppf "Cannot find variable '%s'." x
     | MissingField fn ->
-      fprintf fmt "Field '%a' is missing from the object's type." Id.pp fn
+      fprintf ppf "Field '%a' is missing from the object's type." Id.pp fn
     | ExtraField fn ->
-      fprintf fmt "Field '%a' is not defined in the object's type." Id.pp fn
+      fprintf ppf "Field '%a' is not defined in the object's type." Id.pp fn
     | IncompatibleField fn ->
-      fprintf fmt "Types of field '%a' are incompatible." Id.pp fn
+      fprintf ppf "Types of field '%a' are incompatible." Id.pp fn
     | IncompatibleOptionalField fn ->
-      fprintf fmt "Types of optional field '%a' are incompatible." Id.pp fn
+      fprintf ppf "Types of optional field '%a' are incompatible." Id.pp fn
     | IncompatibleSummaryField fn ->
-      fprintf fmt "Type of field '%a' is incompatible with the summary type."
+      fprintf ppf "Type of field '%a' is incompatible with the summary type."
         Id.pp fn
     | MissingSummaryField ft ->
-      fprintf fmt "Summary field '%a' is missing from the object's type."
+      fprintf ppf "Summary field '%a' is missing from the object's type."
         EType.pp ft
     | ExtraSummaryField ->
-      fprintf fmt "Summary field is not defined in the object's type."
+      fprintf ppf "Summary field is not defined in the object's type."
     | NExpectedElements (ntsref, ntssrc) ->
-      fprintf fmt "Expecting %d elements, but %d were provided." ntsref ntssrc
+      fprintf ppf "Expecting %d elements, but %d were provided." ntsref ntssrc
     | IncompatibleElement i ->
-      fprintf fmt "Types of the %s element are incompatible."
+      fprintf ppf "Types of the %s element are incompatible."
         (String.ordinal_suffix i)
     | IncompatibleSigmaDiscriminant ->
-      fprintf fmt "Discriminant fields are incompatible."
+      fprintf ppf "Discriminant fields are incompatible."
     | MissingSigmaCase tdsc ->
-      fprintf fmt
+      fprintf ppf
         "Sigma case of discriminant '%a' is missing from the sigma type."
         EType.pp tdsc
     | ExtraSigmaCase tdsc ->
-      fprintf fmt
+      fprintf ppf
         "Sigma case of discriminant '%a' is not defined in the sigma type."
         EType.pp tdsc
     | IncompatibleSigmaCase tdsc ->
-      fprintf fmt "Sigma cases of discriminants '%a' are incompatible." EType.pp
+      fprintf ppf "Sigma cases of discriminants '%a' are incompatible." EType.pp
         tdsc
     | MissingSigmaCaseDiscriminant dsc ->
-      fprintf fmt "Missing discriminant '%a' from the sigma type case." Id.pp
+      fprintf ppf "Missing discriminant '%a' from the sigma type case." Id.pp
         dsc
     | UnknownSigmaCaseDiscriminant tdsc ->
-      fprintf fmt "Cannot find discriminant '%a' in the sigma type." EType.pp
+      fprintf ppf "Cannot find discriminant '%a' in the sigma type." EType.pp
         tdsc
     | BadCongruency (tref, tsrc) ->
-      fprintf fmt "Value of type '%a' is not congruent with type '%a'." EType.pp
+      fprintf ppf "Value of type '%a' is not congruent with type '%a'." EType.pp
         tsrc EType.pp tref
     | BadSubtyping (tref, tsrc) ->
-      fprintf fmt "Value of type '%a' is not assignable to type '%a'." EType.pp
+      fprintf ppf "Value of type '%a' is not assignable to type '%a'." EType.pp
         tsrc EType.pp tref
     | BadOperand (tpx, targ) ->
-      fprintf fmt "Argument of type '%a' is not assignable to '%a' operand."
+      fprintf ppf "Argument of type '%a' is not assignable to '%a' operand."
         EType.pp targ EType.pp tpx
     | BadReturn (tret, tsrc) ->
-      fprintf fmt "Value of type '%a' cannot be returned by a '%a' function."
+      fprintf ppf "Value of type '%a' cannot be returned by a '%a' function."
         EType.pp tsrc EType.pp tret
 
   let str (msg : t) : string = Fmt.asprintf "%a" pp msg
@@ -156,9 +156,9 @@ let update (msg : msg) (err : t) : t =
 let src (err : t) : ErrSrc.t = err.src
 let set_src (src : ErrSrc.t) (err : t) : t = { err with src }
 
-let pp (fmt : Fmt.t) (err : t) : unit =
+let pp (ppf : Fmt.t) (err : t) : unit =
   let module MsgFmt = Error_type.ErrorTypeFmt (TypingErr) in
   let module ErrSrcFmt = ErrSrc.ErrSrcFmt (TypingErr) in
-  Fmt.fprintf fmt "%a%a" MsgFmt.pp err.msgs ErrSrcFmt.pp err.src
+  Fmt.fprintf ppf "%a%a" MsgFmt.pp err.msgs ErrSrcFmt.pp err.src
 
 let str (err : t) = Fmt.asprintf "%a" pp err

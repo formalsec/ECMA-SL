@@ -18,9 +18,9 @@ let func (p : t) (fn : Id.t') : (Func.t, string) Result.t =
   | None -> Result.error (Printf.sprintf "Cannot find function '%s'." fn)
   | Some f -> Result.ok f
 
-let pp (fmt : Fmt.t) (p : t) : unit =
+let pp (ppf : Fmt.t) (p : t) : unit =
   let iter f tbl = Hashtbl.iter (fun _ func -> f func) tbl in
-  let pp_sep fmt () = Fmt.fprintf fmt ";@\n" in
-  Fmt.pp_iter pp_sep iter Func.pp fmt p
+  let pp_sep ppf () = Fmt.fprintf ppf ";@\n" in
+  Fmt.pp_iter pp_sep iter Func.pp ppf p
 
 let str (p : t) : string = Fmt.asprintf "%a" pp p

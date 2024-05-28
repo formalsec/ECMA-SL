@@ -18,57 +18,57 @@ module Truncate = struct
   let limit_el (lim : int) (factor : int) (weight : int) (rest : int) : int =
     max (lim * weight / factor) (lim - rest)
 
-  let pp (lim : int) (pp_el : t -> 'a -> unit) (fmt : Fmt.t) (el : 'a) : unit =
+  let pp (lim : int) (pp_el : t -> 'a -> unit) (ppf : Fmt.t) (el : 'a) : unit =
     let extra = Font.str_text_err [ Font.Faint ] "..." in
     let text = asprintf "%a" pp_el el in
     let (text', trunc) = String.truncate (lim - 3) text in
-    pp_str fmt (if trunc then text' ^ extra else text')
+    pp_str ppf (if trunc then text' ^ extra else text')
 end
 
 type obj = Val.t Object.t
 type heap = Val.t Heap.t
 type heapval = heap * Val.t
 
-let indent_pp (fmt : Fmt.t) (lvl : int) : unit =
+let indent_pp (ppf : Fmt.t) (lvl : int) : unit =
   let indent = Array.make lvl "| " |> Array.to_list |> String.concat "" in
-  Font.pp_text_err [ Faint ] fmt indent
+  Font.pp_text_err [ Faint ] ppf indent
 
-let region_pp (limit : int) (fmt : Fmt.t) (at : Source.region) : unit =
+let region_pp (limit : int) (ppf : Fmt.t) (at : Source.region) : unit =
   let open Source in
-  let pp_region' fmt at = fprintf fmt "(%s:%d)" at.file at.left.line in
-  Font.pp_err [ Italic; Faint ] (Truncate.pp limit pp_region') fmt at
+  let pp_region' ppf at = fprintf ppf "(%s:%d)" at.file at.left.line in
+  Font.pp_err [ Italic; Faint ] (Truncate.pp limit pp_region') ppf at
 
-let cond_region_pp (lvl : int) (fmt : Fmt.t) (at : Source.region) : unit =
+let cond_region_pp (lvl : int) (ppf : Fmt.t) (at : Source.region) : unit =
   let limit = Truncate.limit_indent lvl in
-  let pp fmt () = fprintf fmt "\n%a%a" indent_pp lvl (region_pp limit) at in
-  pp_cond !Config.trace_loc pp fmt ()
+  let pp ppf () = fprintf ppf "\n%a%a" indent_pp lvl (region_pp limit) at in
+  pp_cond !Config.trace_loc pp ppf ()
 
-let rec heapval_pp ?(depth : int = 0) (heap : heap) (fmt : Fmt.t) (v : Val.t) :
+let rec heapval_pp ?(depth : int = 0) (heap : heap) (ppf : Fmt.t) (v : Val.t) :
   unit =
   match v with
   | Loc l when depth < Config.max_obj_depth -> (
     match Heap.get heap l with
-    | Ok obj -> Object.pp (heapval_pp ~depth:(depth + 1) heap) fmt obj
-    | _ -> pp_str fmt "{ ??? }" )
-  | _ -> Val.pp fmt v
+    | Ok obj -> Object.pp (heapval_pp ~depth:(depth + 1) heap) ppf obj
+    | _ -> pp_str ppf "{ ??? }" )
+  | _ -> Val.pp ppf v
 
-let val_pp (limit : int) (fmt : Fmt.t) (v_str : string) : unit =
-  (Font.pp_err [ Cyan ] (Truncate.pp limit pp_str)) fmt v_str
+let val_pp (limit : int) (ppf : Fmt.t) (v_str : string) : unit =
+  (Font.pp_err [ Cyan ] (Truncate.pp limit pp_str)) ppf v_str
 
 let heapval (heap : heap) (v : Val.t) : string =
   asprintf "%a" (heapval_pp heap) v
 
 module CallFmt = struct
-  let pp_func_restore (fmt : Fmt.t) (f : Func.t) : unit =
+  let pp_func_restore (ppf : Fmt.t) (f : Func.t) : unit =
     let limit = Truncate.limit_indent 0 - 8 in
-    fprintf fmt "%a started%a"
+    fprintf ppf "%a started%a"
       (Font.pp_err [ Cyan ] (Truncate.pp limit pp_str))
       (Func.name' f) (cond_region_pp 1) f.at
 
-  let pp_func_call (fmt : Fmt.t) ((lvl, s) : int * Stmt.t) : unit =
+  let pp_func_call (ppf : Fmt.t) ((lvl, s) : int * Stmt.t) : unit =
     let limit = Truncate.limit_indent lvl - 7 in
     let pp_stmt = Font.pp_err [ Cyan ] (Truncate.pp limit Source.Code.pp) in
-    fprintf fmt "%a%a called%a" indent_pp lvl pp_stmt s.at
+    fprintf ppf "%a%a called%a" indent_pp lvl pp_stmt s.at
       (cond_region_pp (lvl + 1))
       s.at
 
@@ -78,7 +78,7 @@ module CallFmt = struct
     | Tuple [ Bool true; err ] -> ("throwed ", err)
     | _ -> ("returned ", v)
 
-  let pp_func_return (heap : heap) (fmt : Fmt.t)
+  let pp_func_return (heap : heap) (ppf : Fmt.t)
     ((lvl, f, s, v) : int * Func.t * Stmt.t * Val.t) : unit =
     let (retval_header, v') = retval_format v in
     let (fn_str, fn_len) = Truncate.prepare Func.name' f in
@@ -86,7 +86,7 @@ module CallFmt = struct
     let limit = Truncate.limit_indent lvl - String.length retval_header - 1 in
     let limit_f = Truncate.limit_el limit 4 3 v_len in
     let limit_v = Truncate.limit_el limit 4 1 fn_len in
-    fprintf fmt "%a%a %s%a%a" indent_pp lvl
+    fprintf ppf "%a%a %s%a%a" indent_pp lvl
       (Font.pp_err [ Cyan ] (Truncate.pp limit_f pp_str))
       fn_str retval_header (val_pp limit_v) v_str (cond_region_pp lvl) s.at
 end
@@ -101,7 +101,7 @@ end
 module DefaultFmt (CodeFmt : CODE_FMT) = struct
   module CodeFmt = CodeFmt
 
-  let pp_expr (heap : heap) (fmt : Fmt.t) ((lvl, e, v) : int * Expr.t * Val.t) :
+  let pp_expr (heap : heap) (ppf : Fmt.t) ((lvl, e, v) : int * Expr.t * Val.t) :
     unit =
     let lvl' = lvl + 1 in
     let (e_str, e_len) = Truncate.prepare CodeFmt.expr_str e in
@@ -111,19 +111,19 @@ module DefaultFmt (CodeFmt : CODE_FMT) = struct
     let limit_v = Truncate.limit_el limit 2 1 e_len in
     let pp_eval = Font.pp_text_err [ Italic ] in
     let pp_expr = Truncate.pp limit_e pp_str in
-    fprintf fmt "%a- %a %a -> %a" indent_pp lvl' pp_eval "eval" pp_expr e_str
+    fprintf ppf "%a- %a %a -> %a" indent_pp lvl' pp_eval "eval" pp_expr e_str
       (val_pp limit_v) v_str
 
-  let pp_stmt (fmt : Fmt.t) ((lvl, s) : int * Stmt.t) : unit =
+  let pp_stmt (ppf : Fmt.t) ((lvl, s) : int * Stmt.t) : unit =
     let lvl' = lvl + 1 in
     let limit = Truncate.limit_indent lvl' in
     let pp_stmt = Font.pp_err [ Cyan ] (Truncate.pp limit CodeFmt.stmt_pp) in
-    fprintf fmt "%a%a%a" indent_pp lvl' pp_stmt s (cond_region_pp lvl') s.at
+    fprintf ppf "%a%a%a" indent_pp lvl' pp_stmt s (cond_region_pp lvl') s.at
 
-  let pp_func (header : string) (fmt : Fmt.t) ((lvl, f) : int * Func.t) : unit =
+  let pp_func (header : string) (ppf : Fmt.t) ((lvl, f) : int * Func.t) : unit =
     let limit = Truncate.limit_indent lvl - String.length header - 1 in
     let pp_fname = Font.pp_err [ Cyan ] (Truncate.pp limit pp_str) in
-    fprintf fmt "%a%s %a" indent_pp lvl header pp_fname (Func.name' f)
+    fprintf ppf "%a%s %a" indent_pp lvl header pp_fname (Func.name' f)
 end
 
 let log_level (lvl : int) : bool =
@@ -138,7 +138,7 @@ module EslCodeFmt : CODE_FMT = struct
     s.at.real && match s.it with Skip | Merge | Block _ -> false | _ -> true
 
   let expr_str (e : Expr.t) : string = Source.Code.str e.at
-  let stmt_pp (fmt : Fmt.t) (s : Stmt.t) : unit = Source.Code.pp fmt s.at
+  let stmt_pp (ppf : Fmt.t) (s : Stmt.t) : unit = Source.Code.pp ppf s.at
 end
 
 module CeslCodeFmt : CODE_FMT = struct
@@ -149,7 +149,7 @@ module CeslCodeFmt : CODE_FMT = struct
     match s.it with Skip | Merge | Block _ -> false | _ -> true
 
   let expr_str (e : Expr.t) : string = Expr.str e
-  let stmt_pp (fmt : Fmt.t) (s : Stmt.t) : unit = Stmt.pp fmt s
+  let stmt_pp (ppf : Fmt.t) (s : Stmt.t) : unit = Stmt.pp ppf s
 end
 
 module type M = sig

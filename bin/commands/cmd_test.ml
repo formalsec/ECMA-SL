@@ -59,53 +59,53 @@ module TestRecord = struct
     ; metrics = `Null
     }
 
-  let pp_path (limit : int) (fmt : Fmt.t) (path : string) : unit =
+  let pp_path (limit : int) (ppf : Fmt.t) (path : string) : unit =
     let (path', _) = String.truncate limit path in
     let len = String.length path' in
     let dots = if len < limit then String.make (limit - len) '.' else "" in
-    Fmt.fprintf fmt "%s %s" path' dots
+    Fmt.fprintf ppf "%s %s" path' dots
 
-  let pp_error (fmt : Fmt.t) (error : Val.t option) : unit =
-    match error with None -> Fmt.pp_str fmt "none" | Some v -> Val.pp fmt v
+  let pp_error (ppf : Fmt.t) (error : Val.t option) : unit =
+    match error with None -> Fmt.pp_str ppf "none" | Some v -> Val.pp ppf v
 
-  let pp_retval (fmt : Fmt.t) (retval : Val.t Result.t) : unit =
-    match retval with Ok v -> Val.pp fmt v | Error _ -> Fmt.pp_str fmt "-"
+  let pp_retval (ppf : Fmt.t) (retval : Val.t Result.t) : unit =
+    match retval with Ok v -> Val.pp ppf v | Error _ -> Fmt.pp_str ppf "-"
 
-  let pp_result (fmt : Fmt.t) (result : result) : unit =
+  let pp_result (ppf : Fmt.t) (result : result) : unit =
     match result with
-    | Success -> Font.pp_text_out [ Green ] fmt "SUCCESS"
-    | Failure -> Font.pp_text_out [ Red ] fmt "FAILURE"
-    | Anomaly -> Font.pp_text_out [ Purple ] fmt "ANOMALY"
-    | Skipped -> Font.pp_text_out [ Yellow ] fmt "SKIPPED"
+    | Success -> Font.pp_text_out [ Green ] ppf "SUCCESS"
+    | Failure -> Font.pp_text_out [ Red ] ppf "FAILURE"
+    | Anomaly -> Font.pp_text_out [ Purple ] ppf "ANOMALY"
+    | Skipped -> Font.pp_text_out [ Yellow ] ppf "SKIPPED"
 
-  let pp_status (fmt : Fmt.t) (record : t) : unit =
+  let pp_status (ppf : Fmt.t) (record : t) : unit =
     let open Fmt in
     let limit = !Options.term_width - 20 in
     let path = Fpath.to_string record.input in
     let (_, _, secs, millis) = Base.format_time record.time in
-    let pp_time fmt (secs, millis) = fprintf fmt "[%02d.%03ds]" secs millis in
+    let pp_time ppf (secs, millis) = fprintf ppf "[%02d.%03ds]" secs millis in
     let pp_cond_time = pp_cond (record.result != Skipped) pp_time in
-    fprintf fmt "%a " (Font.pp_out [ Faint ] (pp_path limit)) path;
-    fprintf fmt "%a " pp_result record.result;
-    fprintf fmt "%a" (Font.pp_out [ Faint ] pp_cond_time) (secs, millis)
+    fprintf ppf "%a " (Font.pp_out [ Faint ] (pp_path limit)) path;
+    fprintf ppf "%a " pp_result record.result;
+    fprintf ppf "%a" (Font.pp_out [ Faint ] pp_cond_time) (secs, millis)
 
-  let pp_report (fmt : Fmt.t) (record : t) : unit =
+  let pp_report (ppf : Fmt.t) (record : t) : unit =
     let open Fmt in
     let line = String.make Options.report_width '-' in
     let pp_streams = pp_opt Log.Redirect.pp_captured in
-    let pp_div fmt hdr = fprintf fmt "@\n%s@\n%s@\n%s@\n@\n" line hdr line in
-    fprintf fmt "%s" record.test;
-    fprintf fmt "%a%a" pp_div "Test Output:" pp_streams record.streams;
-    fprintf fmt "%a" pp_div "Test Details:";
-    fprintf fmt "name: %s@\n" record.name;
-    fprintf fmt "sections: %a@\n" (pp_lst "/" pp_str) record.sections;
-    fprintf fmt "flags: [%a]@\n" (pp_lst ", " pp_str) record.flags;
-    fprintf fmt "error: %a@\n@\n" pp_error record.error;
-    fprintf fmt "retval: %a@\n" pp_retval record.retval;
-    fprintf fmt "result: %a@\n" pp_result record.result;
-    if record.result != Skipped then fprintf fmt "time: %0.2fs@\n" record.time;
+    let pp_div ppf hdr = fprintf ppf "@\n%s@\n%s@\n%s@\n@\n" line hdr line in
+    fprintf ppf "%s" record.test;
+    fprintf ppf "%a%a" pp_div "Test Output:" pp_streams record.streams;
+    fprintf ppf "%a" pp_div "Test Details:";
+    fprintf ppf "name: %s@\n" record.name;
+    fprintf ppf "sections: %a@\n" (pp_lst "/" pp_str) record.sections;
+    fprintf ppf "flags: [%a]@\n" (pp_lst ", " pp_str) record.flags;
+    fprintf ppf "error: %a@\n@\n" pp_error record.error;
+    fprintf ppf "retval: %a@\n" pp_retval record.retval;
+    fprintf ppf "result: %a@\n" pp_result record.result;
+    if record.result != Skipped then fprintf ppf "time: %0.2fs@\n" record.time;
     if record.metrics != `Null then
-      fprintf fmt "%a" Cmd_interpret.InterpreterMetrics.pp record.metrics
+      fprintf ppf "%a" Cmd_interpret.InterpreterMetrics.pp record.metrics
 end
 
 module TestTree = struct
@@ -187,54 +187,54 @@ module TestTree = struct
     in
     Hashtbl.iter (count_f tree) tree.items
 
-  let pp_status_header (fmt : Fmt.t) () : unit =
+  let pp_status_header (ppf : Fmt.t) () : unit =
     let line = String.make (!Options.term_width - 1) '-' in
     let header = Fmt.sprintf "%s\n ECMA-SL Test Summary:\n" line in
-    Font.pp_text_out [ Cyan ] fmt header
+    Font.pp_text_out [ Cyan ] ppf header
 
-  let pp_summary_header (fmt : Fmt.t) () : unit =
+  let pp_summary_header (ppf : Fmt.t) () : unit =
     let line = String.make (!Options.term_width - 1) '-' in
-    Fmt.fprintf fmt "%a@\n@\nTest Summary:@\n" (Font.pp_text_out [ Cyan ]) line
+    Fmt.fprintf ppf "%a@\n@\nTest Summary:@\n" (Font.pp_text_out [ Cyan ]) line
 
-  let rec pp_status (fmt : Fmt.t) (tree : t) : unit =
-    let pp_item fmt = function
-      | Test record -> Fmt.fprintf fmt "%a@\n" TestRecord.pp_status record
-      | Tree tree' -> pp_status fmt tree'
+  let rec pp_status (ppf : Fmt.t) (tree : t) : unit =
+    let pp_item ppf = function
+      | Test record -> Fmt.fprintf ppf "%a@\n" TestRecord.pp_status record
+      | Tree tree' -> pp_status ppf tree'
     in
-    Fmt.pp_hashtbl "" (fun fmt (_, i) -> pp_item fmt i) fmt tree.items
+    Fmt.pp_hashtbl "" (fun ppf (_, i) -> pp_item ppf i) ppf tree.items
 
-  let rec pp_section (depth : int) (fmt : Fmt.t) (tree : t) : unit =
+  let rec pp_section (depth : int) (ppf : Fmt.t) (tree : t) : unit =
     let open Fmt in
-    let pp_item fmt (_, i) =
-      match i with Tree tree -> pp_section (depth + 1) fmt tree | _ -> ()
+    let pp_item ppf (_, i) =
+      match i with Tree tree -> pp_section (depth + 1) ppf tree | _ -> ()
     in
-    let pp_curr_section fmt tree =
+    let pp_curr_section ppf tree =
       if depth > 0 then
         let indent = (depth - 1) * 2 in
         let limit = !Options.term_width - 32 - indent in
         let total = total tree in
         let ratio = float_of_int tree.success *. 100.0 /. float_of_int total in
-        fprintf fmt "%s%a [%d / %d] (%.2f%%)@\n" (String.make indent ' ')
+        fprintf ppf "%s%a [%d / %d] (%.2f%%)@\n" (String.make indent ' ')
           (TestRecord.pp_path limit) tree.section tree.success total ratio
     in
-    fprintf fmt "%a%a" pp_curr_section tree (pp_hashtbl "" pp_item) tree.items
+    fprintf ppf "%a%a" pp_curr_section tree (pp_hashtbl "" pp_item) tree.items
 
-  let pp_total (fmt : Fmt.t) (tree : t) : unit =
+  let pp_total (ppf : Fmt.t) (tree : t) : unit =
     let open Fmt in
     let total = total tree in
     let ratio = float_of_int tree.success *. 100.0 /. float_of_int total in
     let (_, mins, secs, millis) = Base.format_time tree.time in
-    fprintf fmt "Tests Successful: %d / %d (%.2f%%) | " tree.success total ratio;
-    fprintf fmt "Time elapsed: %dm %ds %dms@\n" mins secs millis;
-    fprintf fmt "Failures: %d, Anomalies: %d, Skipped: %d" tree.failure
+    fprintf ppf "Tests Successful: %d / %d (%.2f%%) | " tree.success total ratio;
+    fprintf ppf "Time elapsed: %dm %ds %dms@\n" mins secs millis;
+    fprintf ppf "Failures: %d, Anomalies: %d, Skipped: %d" tree.failure
       tree.anomaly tree.skipped
 
-  let pp_summary (fmt : Fmt.t) (tree : t) : unit =
-    Fmt.fprintf fmt "@\n%a@\n%a@\n%a" pp_summary_header () (pp_section 0) tree
+  let pp_summary (ppf : Fmt.t) (tree : t) : unit =
+    Fmt.fprintf ppf "@\n%a@\n%a@\n%a" pp_summary_header () (pp_section 0) tree
       pp_total tree
 
-  let pp (fmt : Fmt.t) (tree : t) : unit =
-    Fmt.fprintf fmt "%a@\n%a%a" pp_status_header () pp_status tree pp_summary
+  let pp (ppf : Fmt.t) (tree : t) : unit =
+    Fmt.fprintf ppf "%a@\n%a%a" pp_status_header () pp_status tree pp_summary
       tree
 end
 

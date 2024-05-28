@@ -71,16 +71,15 @@ module Make (O : Object_intf.S with type value = V.value) = struct
         set h loc o' )
       obj
 
-  let rec pp fmt ({ data; parent } : t) =
+  let rec pp ppf ({ data; parent } : t) =
     let open Fmt in
-    let pp_v fmt (key, data) = fprintf fmt "%a: %a" Loc.pp key O.pp data in
-    let pp_parent fmt v =
-      pp_opt (fun fmt h -> fprintf fmt "%a@ <-@ " pp h) fmt v
+    let pp_v ppf (key, data) = fprintf ppf "%a: %a" Loc.pp key O.pp data in
+    let pp_parent ppf v =
+      pp_opt (fun ppf h -> fprintf ppf "%a@ <-@ " pp h) ppf v
     in
-    fprintf fmt "%a{ %a }" pp_parent parent (Loc.Tbl.pp ", " pp_v) data
+    fprintf ppf "%a{ %a }" pp_parent parent (Loc.Tbl.pp ", " pp_v) data
 
-  let rec unfold_ite ~(accum : value) (e : value) : (value option * int) list
-      =
+  let rec unfold_ite ~(accum : value) (e : value) : (value option * int) list =
     let open V in
     let open Operator in
     match e with

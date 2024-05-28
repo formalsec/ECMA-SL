@@ -145,29 +145,29 @@ module M (Instrument : Instrument.M) = struct
     | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadFuncId v))
 
   let rec heapval_pp (depth : int option) (visited : (Loc.t, unit) Hashtbl.t)
-    (heap : heap) (fmt : Fmt.t) (v : Val.t) : unit =
+    (heap : heap) (ppf : Fmt.t) (v : Val.t) : unit =
     let open Fmt in
     let valid_depth = Option.fold ~none:true ~some:(fun d -> d > 0) depth in
     let visited_loc = Hashtbl.mem visited in
     let incr_depth = Option.map (fun d -> d - 1) in
     let heapval_pp' = heapval_pp (incr_depth depth) visited heap in
     match v with
-    | Loc l when (not valid_depth) || visited_loc l -> fprintf fmt "{...}"
-    | Arr _ when not valid_depth -> fprintf fmt "[|...|]"
-    | List _ when not valid_depth -> fprintf fmt "[...]"
-    | Tuple _ when not valid_depth -> fprintf fmt "(...)"
+    | Loc l when (not valid_depth) || visited_loc l -> fprintf ppf "{...}"
+    | Arr _ when not valid_depth -> fprintf ppf "[|...|]"
+    | List _ when not valid_depth -> fprintf ppf "[...]"
+    | Tuple _ when not valid_depth -> fprintf ppf "(...)"
     | Loc l ->
       Hashtbl.add visited l ();
-      (Object.pp heapval_pp') fmt (get_loc heap l);
+      (Object.pp heapval_pp') ppf (get_loc heap l);
       Hashtbl.remove visited l
-    | _ -> Val.pp_custom_inner heapval_pp' fmt v
+    | _ -> Val.pp_custom_inner heapval_pp' ppf v
 
-  let print_pp (heap : heap) (fmt : Fmt.t) (v : Val.t) : unit =
+  let print_pp (heap : heap) (ppf : Fmt.t) (v : Val.t) : unit =
     match v with
-    | Str s -> Fmt.pp_str fmt s
+    | Str s -> Fmt.pp_str ppf s
     | _ ->
       let visited = Hashtbl.create !Base.default_hashtbl_sz in
-      heapval_pp !Config.print_depth visited heap fmt v
+      heapval_pp !Config.print_depth visited heap ppf v
 
   let prepare_store_binds (pxs : string list) (vs : Val.t list) (at : region) :
     (string * Val.t) list =

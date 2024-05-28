@@ -59,35 +59,35 @@ module InterpreterMetrics = struct
   open Yojson.Basic
   open Yojson.Basic.Util
 
-  let pp_el (pp : Fmt.t -> t -> unit) (fmt : Fmt.t) (member : t) : unit =
-    if member != `Null then pp fmt member
+  let pp_el (pp : Fmt.t -> t -> unit) (ppf : Fmt.t) (member : t) : unit =
+    if member != `Null then pp ppf member
 
-  let pp_timer (fmt : Fmt.t) (timer : t) : unit =
+  let pp_timer (ppf : Fmt.t) (timer : t) : unit =
     let exec_time = member "exec_time" timer |> to_float in
     let (_, _, secs, millis) = Base.format_time exec_time in
-    Fmt.fprintf fmt "@\nexec time:  %ds%.3dms" secs millis
+    Fmt.fprintf ppf "@\nexec time:  %ds%.3dms" secs millis
 
-  let pp_memory (fmt : Fmt.t) (memory : t) : unit =
+  let pp_memory (ppf : Fmt.t) (memory : t) : unit =
     let heap_n = member "heap_objs" memory |> to_int in
     let heap_sz = member "heap_size" memory |> to_int in
     let heap_sz_bytes = heap_sz * Sys.word_size in
     let (heap_sz_fmt, heap_sz_unit) = Base.format_bytes heap_sz_bytes in
-    Fmt.fprintf fmt "@\nobj allocs: %d@\nheap size:  %d bytes (~%0.2f %s)"
+    Fmt.fprintf ppf "@\nobj allocs: %d@\nheap size:  %d bytes (~%0.2f %s)"
       heap_n heap_sz_bytes heap_sz_fmt heap_sz_unit
 
-  let pp_counter (fmt : Fmt.t) (counter : t) : unit =
+  let pp_counter (ppf : Fmt.t) (counter : t) : unit =
     let divider = "----------" in
     let calls = member "func_calls" counter |> to_int in
     let stmts = member "stmt_evals" counter |> to_int in
     let exprs = member "expr_evals" counter |> to_int in
-    Fmt.fprintf fmt "@\n%s@\nfunc calls: %d@\nstmt evals: %d@\nexpr evals: %d"
+    Fmt.fprintf ppf "@\n%s@\nfunc calls: %d@\nstmt evals: %d@\nexpr evals: %d"
       divider calls stmts exprs
 
-  let pp (fmt : Fmt.t) (metrics : t) : unit =
+  let pp (ppf : Fmt.t) (metrics : t) : unit =
     let timer = Util.member "timer" metrics in
     let memory = Util.member "memory" metrics in
     let counter = Util.member "counter" metrics in
-    Fmt.fprintf fmt "%a%a%a" (pp_el pp_timer) timer (pp_el pp_memory) memory
+    Fmt.fprintf ppf "%a%a%a" (pp_el pp_timer) timer (pp_el pp_memory) memory
       (pp_el pp_counter) counter
 
   let log (profiler : Enums.InterpProfiler.t) (metrics : t) : unit =
