@@ -55,16 +55,16 @@ let eval_cmd (state : state) (e_tkns : string list) : string =
       let e_str = String.concat " " e_tkns in
       let e = Parsing.parse_expr e_str in
       let v = !InterpreterCallbacks.eval_expr state e in
-      Fmt.asprintf "%a" (heapval_pp heap) v
+      Fmt.str "%a" (heapval_pp heap) v
     with _ -> Message.invalid_expr
 
 let locals_cmd (state : state) : string =
   let (store, heap, _) = state in
   let local_f ppf (x, v) =
     if not (String.starts_with ~prefix:"__" x) then
-      Fmt.fprintf ppf "%s: %a\n" x (heapval_pp heap) v
+      Fmt.format ppf "%s: %a\n" x (heapval_pp heap) v
   in
-  Fmt.(asprintf "%a" (pp_hashtbl "" local_f) store)
+  Fmt.(asprintf "%a" (pp_hashtbl !>"" local_f) store)
 
 let step_cmd (step_args : string list) : t =
   match step_args with

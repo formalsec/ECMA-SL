@@ -15,7 +15,7 @@ let pv_pp (ppf : Fmt.t) (pv : pv) : unit =
   | PatVal v -> Val.pp ppf v
   | PatNone -> Fmt.pp_str ppf "None"
 
-let pv_str (pv : pv) : string = Fmt.asprintf "%a" pv_pp pv
+let pv_str (pv : pv) : string = Fmt.str "%a" pv_pp pv
 
 type t = t' Source.phrase
 
@@ -25,12 +25,12 @@ and t' =
 
 let pp (ppf : Fmt.t) (pat : t) : unit =
   let open Fmt in
-  let pp_pb ppf (pbn, pbv) = fprintf ppf "%a: %a" Id.pp pbn pv_pp pbv in
+  let pp_pb ppf (pbn, pbv) = format ppf "%a: %a" Id.pp pbn pv_pp pbv in
   match pat.it with
-  | ObjPat (pbs, _) -> fprintf ppf "{ %a }" (pp_lst ", " pp_pb) pbs
+  | ObjPat (pbs, _) -> format ppf "{ %a }" (pp_lst !>", " pp_pb) pbs
   | DefaultPat -> pp_str ppf "default"
 
-let str (pat : t) : string = Fmt.asprintf "%a" pp pat
+let str (pat : t) : string = Fmt.str "%a" pp pat
 
 let patval_opt (pat : t) (id : Id.t) : pv option =
   let find_pbn (pbn, _) = id.it = pbn.it in

@@ -17,7 +17,7 @@ module M = struct
     ()
 
   let print_set (set : t) : unit =
-    SSet.iter (fun str -> Log.out "# %s\n" str) !set;
+    SSet.iter (fun str -> Log.stdout "# %s\n" str) !set;
     ()
 
   let str_sset (l : SSet.t) : string =
@@ -31,14 +31,14 @@ module M = struct
         (fun ac ele ->
           if !ele = lev then (
             chng := false;
-            (*Log.out "Found ref >>>>>%d   (%s)\n" (Obj.magic (ele)) (str_sset !ref_res);*)
+            (*Log.stdout "Found ref >>>>>%d   (%s)\n" (Obj.magic (ele)) (str_sset !ref_res);*)
             ele )
           else ac )
         (ref SSet.empty) !all_levels
     in
     if !chng then (
       all_levels := !all_levels @ [ ref_res ];
-      (*Log.out "New ref >>>>>%d   (%s)\n" (Obj.magic (ref_res)) (str_sset !ref_res);*)
+      (*Log.stdout "New ref >>>>>%d   (%s)\n" (Obj.magic (ref_res)) (str_sset !ref_res);*)
       ref_res )
     else ele
 
@@ -58,13 +58,13 @@ module M = struct
     | (fromset, toset) -> Printf.sprintf "%s -> %s" (str fromset) (str toset)
 
   let apply_flow (fl : flow) (lev : SSet.t) : SSet.t =
-    Log.out "\tApplying flow %s to lev %s\n" (flow_to_str fl) (str_sset lev);
+    Log.stdout "\tApplying flow %s to lev %s\n" (flow_to_str fl) (str_sset lev);
     match fl with
     | (fromset, toset) ->
       if SSet.subset !toset lev then SSet.union !fromset lev else lev
 
   let close_level (lev : SSet.t) : SSet.t =
-    Log.out "Closing level %s\n" (str_sset lev);
+    Log.stdout "Closing level %s\n" (str_sset lev);
     let rec loop (_chng : bool) (level : SSet.t) : SSet.t =
       let old_lev = level in
       let lev2 =
@@ -102,12 +102,12 @@ module M = struct
       print_string "IF\n";
       let close = close_level (SSet.of_list []) in
       let refer = find_ref close in
-      (*Log.out ">>>>>>>>>>>>%d\n" (Obj.magic refer);*)
+      (*Log.stdout ">>>>>>>>>>>>%d\n" (Obj.magic refer);*)
       refer )
     else (
       print_string "ELSE\n";
       let close = close_level (SSet.of_list finalst) in
       let refer = find_ref close in
-      (*Log.out ">>>>>>>>>>>>%d\n" (Obj.magic refer);*)
+      (*Log.stdout ">>>>>>>>>>>>%d\n" (Obj.magic refer);*)
       refer )
 end

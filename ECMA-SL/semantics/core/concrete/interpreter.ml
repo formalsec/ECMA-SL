@@ -146,16 +146,15 @@ module M (Instrument : Instrument.M) = struct
 
   let rec heapval_pp (depth : int option) (visited : (Loc.t, unit) Hashtbl.t)
     (heap : heap) (ppf : Fmt.t) (v : Val.t) : unit =
-    let open Fmt in
     let valid_depth = Option.fold ~none:true ~some:(fun d -> d > 0) depth in
     let visited_loc = Hashtbl.mem visited in
     let incr_depth = Option.map (fun d -> d - 1) in
     let heapval_pp' = heapval_pp (incr_depth depth) visited heap in
     match v with
-    | Loc l when (not valid_depth) || visited_loc l -> fprintf ppf "{...}"
-    | Arr _ when not valid_depth -> fprintf ppf "[|...|]"
-    | List _ when not valid_depth -> fprintf ppf "[...]"
-    | Tuple _ when not valid_depth -> fprintf ppf "(...)"
+    | Loc l when (not valid_depth) || visited_loc l -> Fmt.format ppf "{...}"
+    | Arr _ when not valid_depth -> Fmt.format ppf "[|...|]"
+    | List _ when not valid_depth -> Fmt.format ppf "[...]"
+    | Tuple _ when not valid_depth -> Fmt.format ppf "(...)"
     | Loc l ->
       Hashtbl.add visited l ();
       (Object.pp heapval_pp') ppf (get_loc heap l);
@@ -202,7 +201,7 @@ module M (Instrument : Instrument.M) = struct
       Intermediate ({ state with store; heap; stack }, s' :: cont') $$ DebugEval
     | Block ss -> Intermediate (state, ss @ cont) $$ BlockEval
     | Print e ->
-      Log.out "%a@." (print_pp state.heap) (eval_expr state e);
+      Log.stdout "%a@." (print_pp state.heap) (eval_expr state e);
       Intermediate (state, cont) $$ PrintEval
     | Return e -> (
       let v = eval_expr state e in
@@ -321,7 +320,7 @@ module M (Instrument : Instrument.M) = struct
       let v = eval_bool state e in
       if v then Intermediate (state, cont) $$ AssertEval true
       else
-        let err = Fmt.asprintf "Assert false: %a" Expr.pp e in
+        let err = Fmt.str "Assert false: %a" Expr.pp e in
         Error (Val.Str err) $$ AssertEval false
 
   let eval_small_step_safe (p : Prog.t) (state : state) (s : Stmt.t)

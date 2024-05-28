@@ -18,7 +18,7 @@ let parser (start : 'a start) (lexbuf : Lexing.lexbuf) : Prog.t =
     (function
       | Core_ESLMI.Rejected -> Log.fail "Parser rejected input"
       | Core_ESLMI.HandlingError _e ->
-        Log.err "%a, last token: %s: %s.@." print_position lexbuf
+        Log.stderr "%a, last token: %s: %s.@." print_position lexbuf
           (show_token !last_token) "Error message found";
         raise Parser.Error
       | _ -> Log.fail "Unexpected state in failure handler!" )

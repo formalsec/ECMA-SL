@@ -18,7 +18,7 @@ let eparser (start : 'a estart) (lexbuf : Lexing.lexbuf) : EProg.t =
     (function
       | ESLMI.Rejected -> Log.fail "Parser rejected input"
       | ESLMI.HandlingError _e ->
-        Log.err "%a, last token: %s: %s.@." print_position lexbuf
+        Log.stderr "%a, last token: %s: %s.@." print_position lexbuf
           (show_etoken !last_token) "Error message found";
         raise EParser.Error
       | _ -> Log.fail "Unexpected state in failure handler!" )

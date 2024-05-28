@@ -39,17 +39,20 @@ let macros (p : t) : (Id.t', EMacro.t) Hashtbl.t = p.macros
 let pp (ppf : Fmt.t) (p : t) : unit =
   let open Fmt in
   let pp_import ppf = function
-    | `User import -> fprintf ppf "import \"%a\"@\n" Id.pp import
-    | `Standard import -> fprintf ppf "import %a@\n" Id.pp import
+    | `User import -> format ppf "import \"%a\"@\n" Id.pp import
+    | `Standard import -> format ppf "import %a@\n" Id.pp import
   in
-  let pp_tdef ppf (_, t) = fprintf ppf "%a\n" EType.TDef.pp t in
-  let pp_func ppf (_, f) = fprintf ppf "\n%a" EFunc.pp f in
-  let pp_macro ppf (_, m) = fprintf ppf "\n%a" EMacro.pp m in
-  fprintf ppf "%a\n%a%a%a" (pp_lst "" pp_import) p.imports
-    (pp_hashtbl "" pp_tdef) p.tdefs (pp_hashtbl "\n" pp_func) p.funcs
-    (pp_hashtbl "\n" pp_macro) p.macros
+  let pp_tdef ppf (_, t) = format ppf "%a\n" EType.TDef.pp t in
+  let pp_func ppf (_, f) = format ppf "\n%a" EFunc.pp f in
+  let pp_macro ppf (_, m) = format ppf "\n%a" EMacro.pp m in
+  format ppf "%a\n%a%a%a" (pp_lst !>"" pp_import) p.imports
+    (pp_hashtbl !>"" pp_tdef) p.tdefs
+    (pp_hashtbl !>"\n" pp_func)
+    p.funcs
+    (pp_hashtbl !>"\n" pp_macro)
+    p.macros
 
-let str (p : t) : string = Fmt.asprintf "%a" pp p
+let str (p : t) : string = Fmt.str "%a" pp p
 
 let lambdas (p : t) : (region * Id.t' * Id.t list * Id.t list * EStmt.t) list =
   Hashtbl.fold (fun _ f acc -> EFunc.lambdas f @ acc) p.funcs []

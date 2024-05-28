@@ -14,7 +14,7 @@ module DebugLvl = struct
     | Warn -> Fmt.pp_str ppf "warn"
     | Full -> Fmt.pp_str ppf "full"
 
-  let str (lvl : t) : string = Fmt.asprintf "%a" pp lvl
+  let str (lvl : t) : string = Fmt.str "%a" pp lvl
 
   let args (lvls : t list) : (string * t) list =
     List.map (fun lvl -> (str lvl, lvl)) lvls
@@ -46,7 +46,7 @@ module Lang = struct
     | TestReport -> Fmt.pp_str ppf ".trp"
     | TestSummary -> Fmt.pp_str ppf ".tsmry"
 
-  let str (lang : t) : string = Fmt.asprintf "%a" pp lang
+  let str (lang : t) : string = Fmt.str "%a" pp lang
 
   let description (lang : t) : string =
     match lang with
@@ -74,11 +74,11 @@ module Lang = struct
     | ".tsmry" when List.mem TestSummary valid_langs -> Some TestSummary
     | _ -> None
 
-  let resolve_file_lang ?(warn : bool = true) (valid_langs : t list)
-    (fpath : Fpath.t) : t option =
-    let lang = resolve_file_ext valid_langs fpath in
+  let resolve_file_lang ?(warn : bool = true) (langs : t list) (fpath : Fpath.t)
+    : t option =
+    let lang = resolve_file_ext langs fpath in
     if Option.is_none lang && warn then
-      Log.warn "expecting file extensions: %a" (Fmt.pp_lst " | " pp) valid_langs;
+      Log.warn "expecting file extensions: %a" Fmt.(pp_lst !>" | " pp) langs;
     lang
 end
 
@@ -100,7 +100,7 @@ module InterpTracer = struct
     | Full -> Fmt.pp_str ppf "full"
     | Core -> Fmt.pp_str ppf "core"
 
-  let str (tracer : t) : string = Fmt.asprintf "%a" pp tracer
+  let str (tracer : t) : string = Fmt.str "%a" pp tracer
 
   let args (tracers : t list) : (string * t) list =
     List.map (fun tracer -> (str tracer, tracer)) tracers
@@ -120,7 +120,7 @@ module InterpProfiler = struct
     | Time -> Fmt.pp_str ppf "time"
     | Full -> Fmt.pp_str ppf "full"
 
-  let str (profiler : t) : string = Fmt.asprintf "%a" pp profiler
+  let str (profiler : t) : string = Fmt.str "%a" pp profiler
 
   let args (profilers : t list) : (string * t) list =
     List.map (fun profiler -> (str profiler, profiler)) profilers
@@ -144,7 +144,7 @@ module JSInterp = struct
     | ECMARef6 -> Fmt.pp_str ppf "ecmaref6"
     | ECMARef6Sym -> Fmt.pp_str ppf "ecmaref6-sym"
 
-  let str (version : t) : string = Fmt.asprintf "%a" pp version
+  let str (version : t) : string = Fmt.str "%a" pp version
 
   let args (versions : t list) : (string * t) list =
     List.map (fun version -> (str version, version)) versions
@@ -172,7 +172,7 @@ module JSTest = struct
     | Simple -> Fmt.pp_str ppf "simple"
     | Test262 -> Fmt.pp_str ppf "test262"
 
-  let str (kind : t) : string = Fmt.asprintf "%a" pp kind
+  let str (kind : t) : string = Fmt.str "%a" pp kind
 
   let args (kinds : t list) : (string * t) list =
     List.map (fun kind -> (str kind, kind)) kinds

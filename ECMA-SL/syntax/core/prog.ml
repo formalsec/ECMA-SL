@@ -20,7 +20,6 @@ let func (p : t) (fn : Id.t') : (Func.t, string) Result.t =
 
 let pp (ppf : Fmt.t) (p : t) : unit =
   let iter f tbl = Hashtbl.iter (fun _ func -> f func) tbl in
-  let pp_sep ppf () = Fmt.fprintf ppf ";@\n" in
-  Fmt.pp_iter pp_sep iter Func.pp ppf p
+  Fmt.(pp_iter !>";@\n" iter Func.pp ppf p)
 
-let str (p : t) : string = Fmt.asprintf "%a" pp p
+let str (p : t) : string = Fmt.str "%a" pp p
