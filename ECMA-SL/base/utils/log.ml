@@ -15,17 +15,17 @@ module EslLog = struct
 
   let mk ?(font : Font.t = [ Font.Normal ]) ?(nl : bool = false) (ppf : Fmt.t)
     (fmt : ('a, t, unit, unit) format4) : 'a =
-    let pp_nl ppf nl = if nl then fprintf ppf "@;" else () in
-    let pp_log ppf fmt = fprintf ppf "%a[ecma-sl] %t" pp_nl nl fmt in
-    kdprintf (fun fmt -> fprintf ppf "%a@." ((pp_font ppf) font pp_log) fmt) fmt
+    let pp_nl ppf nl = if nl then format ppf "@;" else () in
+    let pp_log ppf fmt = format ppf "%a[ecma-sl] %t" pp_nl nl fmt in
+    kdprintf (fun fmt -> format ppf "%a@." ((pp_font ppf) font pp_log) fmt) fmt
 
   let conditional (test : bool) ?(font : Font.t option) (ppf : Fmt.t)
     (fmt : ('a, t, unit) format) =
     if test then (mk ?font ppf) fmt else ifprintf std_formatter fmt
 end
 
-let out fmt = kdprintf (fprintf !Config.out_ppf "%t") fmt [@@inline]
-let err fmt = kdprintf (fprintf !Config.err_ppf "%t") fmt [@@inline]
+let stdout fmt = kdprintf (format !Config.out_ppf "%t") fmt [@@inline]
+let stderr fmt = kdprintf (format !Config.err_ppf "%t") fmt [@@inline]
 let fail fmt = kasprintf failwith fmt [@@inline]
 let esl ?(nl = false) fmt = EslLog.mk ~nl !Config.out_ppf fmt [@@inline]
 let error fmt = EslLog.mk ~font:[ Red ] !Config.err_ppf fmt [@@inline]
@@ -80,8 +80,7 @@ module Redirect = struct
     Option.fold ~none:() ~some:(log ppf) streams.new_err
 
   let restore ?(log : bool = false) (streams : t) : unit =
-    let open Fmt in
-    let log ppf buf = if log then fprintf ppf "%s@?" (Buffer.contents buf) in
+    let log ppf buf = if log then format ppf "%s@?" (Buffer.contents buf) in
     Config.out_ppf := streams.old_out;
     Config.err_ppf := streams.old_err;
     Option.fold ~none:() ~some:(log !Config.out_ppf) streams.new_out;

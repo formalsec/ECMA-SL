@@ -42,46 +42,44 @@ let clean (text : string) : string =
   Str.global_replace escape_regex "" text
 
 let pp_code (ppf : Fmt.t) (font_el : t') : unit =
-  let open Fmt in
   match font_el with
-  | Normal -> pp_str ppf "0"
-  | Bold -> pp_str ppf "1"
-  | Faint -> pp_str ppf "2"
-  | Italic -> pp_str ppf "3"
-  | Underline -> pp_str ppf "4"
-  | Blink -> pp_str ppf "5"
-  | Blinkfast -> pp_str ppf "6"
-  | Negative -> pp_str ppf "7"
-  | Conceal -> pp_str ppf "8"
-  | Strike -> pp_str ppf "9"
-  | Black -> pp_str ppf "30"
-  | Red -> pp_str ppf "31"
-  | Green -> pp_str ppf "32"
-  | Yellow -> pp_str ppf "33"
-  | Blue -> pp_str ppf "34"
-  | Purple -> pp_str ppf "35"
-  | Cyan -> pp_str ppf "36"
-  | White -> pp_str ppf "37"
+  | Normal -> Fmt.pp_str ppf "0"
+  | Bold -> Fmt.pp_str ppf "1"
+  | Faint -> Fmt.pp_str ppf "2"
+  | Italic -> Fmt.pp_str ppf "3"
+  | Underline -> Fmt.pp_str ppf "4"
+  | Blink -> Fmt.pp_str ppf "5"
+  | Blinkfast -> Fmt.pp_str ppf "6"
+  | Negative -> Fmt.pp_str ppf "7"
+  | Conceal -> Fmt.pp_str ppf "8"
+  | Strike -> Fmt.pp_str ppf "9"
+  | Black -> Fmt.pp_str ppf "30"
+  | Red -> Fmt.pp_str ppf "31"
+  | Green -> Fmt.pp_str ppf "32"
+  | Yellow -> Fmt.pp_str ppf "33"
+  | Blue -> Fmt.pp_str ppf "34"
+  | Purple -> Fmt.pp_str ppf "35"
+  | Cyan -> Fmt.pp_str ppf "36"
+  | White -> Fmt.pp_str ppf "37"
 
 let pp_font (ppf : Fmt.t) (font : t) : unit =
-  Fmt.(fprintf ppf "\027[%am" (pp_lst ";" pp_code) font)
+  Fmt.(format ppf "\027[%am" (pp_lst !>";" pp_code) font)
 
 let pp ?(fdesc : Unix.file_descr option = None) (font : t)
   (pp_el : Fmt.t -> 'a -> unit) (ppf : Fmt.t) (el : 'a) : unit =
-  let open Fmt in
-  if not (colored fdesc ppf) then fprintf ppf "%a" pp_el el
-  else fprintf ppf "%a%a%a" pp_font font pp_el el pp_font [ Normal ]
+  if not (colored fdesc ppf) then pp_el ppf el
+  else Fmt.format ppf "%a%a%a" pp_font font pp_el el pp_font [ Normal ]
 
 let str ?(fdesc : Unix.file_descr option = None) (font : t)
   (pp_el : Fmt.t -> 'a -> unit) (el : 'a) : string =
-  Fmt.asprintf "%a" (pp ~fdesc font pp_el) el
+  Fmt.str "%a" (pp ~fdesc font pp_el) el
 
 let pp_text ?(fdesc : Unix.file_descr option = None) (font : t) (ppf : Fmt.t)
   (s : string) =
-  pp ~fdesc font Fmt.pp_print_string ppf s
+  pp ~fdesc font Fmt.pp_str ppf s
 
 let str_text ?(fdesc : Unix.file_descr option = None) (font : t) (s : string) =
-  Fmt.asprintf "%a" (pp_text ~fdesc font) s
+  Fmt.str "%a" (pp_text ~fdesc font) s
 
 let pp_none _font pp_el ppf el = pp_el ppf el
 let pp_out font pp_el ppf el = pp ~fdesc:(Some Unix.stdout) font pp_el ppf el

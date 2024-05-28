@@ -42,5 +42,5 @@ let run () (opts : Options.t) : unit Result.t =
   ignore Enums.Lang.(resolve_file_lang [ ESL ] opts.input);
   let* p = compile opts.untyped opts.input in
   match opts.output with
-  | None -> Ok (Log.out "%a@." Prog.pp p)
+  | None -> Ok (Log.stdout "%a@." Prog.pp p)
   | Some output' -> Result.bos (Bos.OS.File.writef output' "%a" Prog.pp p)

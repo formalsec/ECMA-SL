@@ -22,19 +22,19 @@ type 'a t = ('a, cmderr) Stdlib.Result.t
 
 let log_error (err : cmderr) : unit =
   match err with
-  | `Internal (pp, msg) -> Log.err "%a@." pp msg
-  | `Compile (pp, msg) -> Log.err "%a@." pp msg
-  | `Runtime (pp, msg) -> Log.err "%a@." pp msg
+  | `Internal (pp, msg) -> Log.stderr "%a@." pp msg
+  | `Compile (pp, msg) -> Log.stderr "%a@." pp msg
+  | `Runtime (pp, msg) -> Log.stderr "%a@." pp msg
   | `Typing -> ()
-  | `Encode msg -> Log.error "%s@." msg
-  | `Execute msg -> Log.error "%s@." msg
+  | `Encode msg -> Log.error "%s" msg
+  | `Execute msg -> Log.error "%s" msg
   | `Test -> ()
-  | `TestFmt msg -> Log.error "%s@." msg
+  | `TestFmt msg -> Log.error "%s" msg
   | `SymAbort _ -> ()
   | `SymAssertFailure _ -> ()
-  | `SymFailure msg -> Log.error "%s@." msg
-  | `SymNodeJS out -> Log.error "unexpected node failure: %s@." out
-  | `Generic msg -> Log.error "%s@." msg
+  | `SymFailure msg -> Log.error "%s" msg
+  | `SymNodeJS out -> Log.error "unexpected node failure: %s" out
+  | `Generic msg -> Log.error "%s" msg
 
 let error (err : cmderr) : 'a t =
   log_error err;

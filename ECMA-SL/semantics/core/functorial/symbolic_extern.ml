@@ -44,7 +44,7 @@ module Make () = struct
       let fid = fresh_func () in
       begin
         match Bos.OS.Cmd.run (cmd input_file (Some output_file) (Some fid)) with
-        | Error (`Msg msg) -> Log.err "%s" msg
+        | Error (`Msg msg) -> Log.stderr "%s" msg
         | Ok () -> ()
       end;
       let data = Io.read_file output_file in
@@ -430,7 +430,7 @@ module Make () = struct
     in
     let abort (e : value) =
       let e' = Format.asprintf "%a" Value.pp e in
-      Log.out "      abort : %s@." e';
+      Log.stdout "      abort : %s@." e';
       Choice.return @@ Error (`Abort e')
     in
     let assume (e : value) thread =
@@ -478,7 +478,7 @@ module Make () = struct
             assert false )
     in
     let print (v : Value.value) =
-      Log.out "extern print: %a@." Value.pp v;
+      Log.stdout "extern print: %a@." Value.pp v;
       ok_v (Val.Symbol "undefined")
     in
     of_array

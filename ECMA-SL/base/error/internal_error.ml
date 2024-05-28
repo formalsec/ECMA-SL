@@ -23,16 +23,15 @@ module InternalErr : Error_type.ERROR_TYPE with type t = msg = struct
     | _ -> false
 
   let pp (ppf : Fmt.t) (msg : t) : unit =
-    let open Fmt in
     match msg with
-    | Default -> fprintf ppf "generic internal error"
-    | Custom msg' -> fprintf ppf "%s" msg'
-    | Invariant msg' -> fprintf ppf "invariant %s" msg'
-    | Expecting msg' -> fprintf ppf "expecting %s" msg'
-    | Unexpected msg' -> fprintf ppf "unexpected '%s'" msg'
-    | NotImplemented msg' -> fprintf ppf "'%s' not implemented" msg'
+    | Default -> Fmt.format ppf "generic internal error"
+    | Custom msg' -> Fmt.format ppf "%s" msg'
+    | Invariant msg' -> Fmt.format ppf "invariant %s" msg'
+    | Expecting msg' -> Fmt.format ppf "expecting %s" msg'
+    | Unexpected msg' -> Fmt.format ppf "unexpected '%s'" msg'
+    | NotImplemented msg' -> Fmt.format ppf "'%s' not implemented" msg'
 
-  let str (msg : t) : string = Fmt.asprintf "%a" pp msg
+  let str (msg : t) : string = Fmt.str "%a" pp msg
 end
 
 type t =
@@ -47,6 +46,6 @@ let create (loc : string) (msg : msg) : t = { msg; loc }
 let throw (loc : string) (msg : msg) : 'a = raise @@ create loc msg
 
 let pp (ppf : Fmt.t) (err : t) : unit =
-  Fmt.fprintf ppf "[ecma-sl] (%s) %a" err.loc InternalErr.pp err.msg
+  Fmt.format ppf "[ecma-sl] (%s) %a" err.loc InternalErr.pp err.msg
 
-let str (err : t) = Fmt.asprintf "%a" pp err
+let str (err : t) = Fmt.str "%a" pp err

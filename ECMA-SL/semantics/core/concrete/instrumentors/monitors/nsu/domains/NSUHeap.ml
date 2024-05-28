@@ -76,7 +76,7 @@ let upg_obj_lvl (heap : 'sl t) (loc : Loc.t) (lvl : 'sl) : unit =
 
 let str (sl_printer : 'sl -> string) (heap : 'sl t) : string =
   let binding_str loc obj struct_lvl obj_lvl =
-    Fmt.asprintf "%a|-> {%s}_{%s, %s}" Loc.pp loc
+    Fmt.str "%a|-> {%s}_{%s, %s}" Loc.pp loc
       (NSUObject.str sl_printer obj)
       (sl_printer struct_lvl) (sl_printer obj_lvl)
   in

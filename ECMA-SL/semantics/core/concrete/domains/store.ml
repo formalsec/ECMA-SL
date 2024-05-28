@@ -19,9 +19,9 @@ let set (store : 'a t) (x : var) (v : 'a) : unit = Hashtbl.replace store x v
 
 let pp (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t) (store : 'a t) : unit =
   let open Fmt in
-  let pp_binding ppf (x, v) = fprintf ppf "%s: %a" x pp_val v in
+  let pp_binding ppf (x, v) = format ppf "%s: %a" x pp_val v in
   if Hashtbl.length store = 0 then pp_str ppf "{}"
-  else fprintf ppf "{ %a }" (pp_hashtbl ", " pp_binding) store
+  else format ppf "{ %a }" (pp_hashtbl !>", " pp_binding) store
 
 let pp_tabular (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t) (store : 'a t) :
   unit =
@@ -29,9 +29,9 @@ let pp_tabular (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t) (store : 'a t) :
   let lengths = Hashtbl.to_seq_keys store |> Seq.map String.length in
   let max = Seq.fold_left Int.max 0 lengths in
   let indent x = String.make (max - String.length x) ' ' in
-  let pp_bind ppf (x, v) = fprintf ppf "%s%s  <-  %a" (indent x) x pp_val v in
-  fprintf ppf "%a" (pp_hashtbl "\n" pp_bind) store
+  let pp_bind ppf (x, v) = format ppf "%s%s  <-  %a" (indent x) x pp_val v in
+  format ppf "%a" (pp_hashtbl !>"\n" pp_bind) store
 
 let str ?(tabular : bool = false) (pp_val : Fmt.t -> 'a -> unit) (store : 'a t)
   : string =
-  Fmt.asprintf "%a" (if tabular then pp_tabular pp_val else pp pp_val) store
+  Fmt.str "%a" (if tabular then pp_tabular pp_val else pp pp_val) store

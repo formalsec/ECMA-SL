@@ -61,12 +61,12 @@ let update (stack : 'store t) (stmt : Stmt.t) : 'store t =
   | _ -> Internal_error.(throw __FUNCTION__ (Unexpected "call stack format"))
 
 let pp_loc (ppf : Fmt.t) (region : region) : unit =
-  Fmt.fprintf ppf "file %S, line %d" region.file region.left.line
+  Fmt.format ppf "file %S, line %d" region.file region.left.line
 
 let pp_frame (ppf : Fmt.t) (frame : 'store frame) : unit =
   let frame_loc = function Toplevel loc | Intermediate (loc, _) -> loc in
   let { func; stmt; _ } = frame_loc frame in
-  Fmt.fprintf ppf "'%s' in %a" (Func.name' func) pp_loc stmt.at
+  Fmt.format ppf "'%s' in %a" (Func.name' func) pp_loc stmt.at
 
 let pp (ppf : Fmt.t) (stack : 'store t) : unit =
   let open Fmt in
@@ -74,15 +74,15 @@ let pp (ppf : Fmt.t) (stack : 'store t) : unit =
   let func_name frame = Func.name' (frame_loc frame).func in
   let pp_binding ppf frame = pp_print_string ppf (func_name frame) in
   if List.length stack = 0 then pp_str ppf "{}"
-  else fprintf ppf "{ %a }" (pp_lst " <- " pp_binding) stack
+  else format ppf "{ %a }" (pp_lst !>" <- " pp_binding) stack
 
 let pp_tabular (ppf : Fmt.t) (stack : 'store t) : unit =
   let open Fmt in
-  let pp_trace ppf frame = fprintf ppf "\nCalled from %a" pp_frame frame in
+  let pp_trace ppf frame = format ppf "\nCalled from %a" pp_frame frame in
   match stack with
-  | [] -> fprintf ppf "Empty call stack"
+  | [] -> format ppf "Empty call stack"
   | frame :: stack' ->
-    fprintf ppf "%a%a" pp_frame frame (pp_lst "" pp_trace) stack'
+    format ppf "%a%a" pp_frame frame (pp_lst !>"" pp_trace) stack'
 
 let str ?(tabular : bool = false) (stack : 'store t) : string =
-  Fmt.asprintf "%a" (if tabular then pp_tabular else pp) stack
+  Fmt.str "%a" (if tabular then pp_tabular else pp) stack

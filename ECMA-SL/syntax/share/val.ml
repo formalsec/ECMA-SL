@@ -74,20 +74,21 @@ let pp_custom_inner (pp_inner_val : Fmt.t -> t -> unit) (ppf : Fmt.t) (v : t) :
   unit =
   let open Fmt in
   match v with
-  | Null -> fprintf ppf "null"
+  | Null -> format ppf "null"
   | Void -> ()
-  | Int i -> fprintf ppf "%i" i
-  | Flt f -> fprintf ppf "%s" (float_str f)
-  | Str s -> fprintf ppf "%S" s
-  | Bool b -> fprintf ppf "%b" b
-  | Symbol s -> fprintf ppf "'%s" s
+  | Int i -> format ppf "%i" i
+  | Flt f -> format ppf "%s" (float_str f)
+  | Str s -> format ppf "%S" s
+  | Bool b -> format ppf "%b" b
+  | Symbol s -> format ppf "'%s" s
   | Loc l -> Loc.pp ppf l
-  | Arr arr -> fprintf ppf "[|%a|]" (pp_arr ", " pp_inner_val) arr
-  | List lst -> fprintf ppf "[%a]" (pp_lst ", " pp_inner_val) lst
-  | Tuple tup -> fprintf ppf "(%a)" (pp_lst ", " pp_inner_val) tup
-  | Byte bt -> fprintf ppf "%i" bt
+  | Arr arr -> format ppf "[|%a|]" (pp_arr !>", " pp_inner_val) arr
+  | List lst -> format ppf "[%a]" (pp_lst !>", " pp_inner_val) lst
+  | Tuple tup -> format ppf "(%a)" (pp_lst !>", " pp_inner_val) tup
+  | Byte bt -> format ppf "%i" bt
   | Type t -> Type.pp ppf t
-  | Curry (fn, fvs) -> fprintf ppf "{%S}@(%a)" fn (pp_lst ", " pp_inner_val) fvs
+  | Curry (fn, fvs) ->
+    format ppf "{%S}@(%a)" fn (pp_lst !>", " pp_inner_val) fvs
 
 let rec pp (ppf : Fmt.t) (v : t) : unit = pp_custom_inner pp ppf v
-let str v = Fmt.asprintf "%a" pp v
+let str v = Fmt.str "%a" pp v

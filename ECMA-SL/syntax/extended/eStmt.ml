@@ -33,57 +33,57 @@ let default () : t = Skip @> no_region
 let rec pp (ppf : Fmt.t) (s : t) : unit =
   let open Fmt in
   let pp_return ppf e =
-    if EExpr.isvoid e then () else fprintf ppf " %a" EExpr.pp e
+    if EExpr.isvoid e then () else format ppf " %a" EExpr.pp e
   in
   match s.it with
-  | Skip -> fprintf ppf "skip"
-  | Debug s' -> fprintf ppf "# %a" pp s'
-  | Block ss -> fprintf ppf "{\n%a\n}" (pp_lst ";\n" pp) ss
+  | Skip -> format ppf "skip"
+  | Debug s' -> format ppf "# %a" pp s'
+  | Block ss -> format ppf "{\n%a\n}" (pp_lst !>";\n" pp) ss
   | ExprStmt e -> EExpr.pp ppf e
-  | Print e -> fprintf ppf "print %a" EExpr.pp e
-  | Return e -> fprintf ppf "return%a" pp_return e
+  | Print e -> format ppf "print %a" EExpr.pp e
+  | Return e -> format ppf "return%a" pp_return e
   | Assign (x, tx, e) ->
-    fprintf ppf "%a%a := %a" Id.pp x EType.tannot_pp tx EExpr.pp e
-  | GAssign (x, e) -> fprintf ppf "|%a| := %a" Id.pp x EExpr.pp e
+    format ppf "%a%a := %a" Id.pp x EType.tannot_pp tx EExpr.pp e
+  | GAssign (x, e) -> format ppf "|%a| := %a" Id.pp x EExpr.pp e
   | FieldAssign (oe, fe, e) ->
-    fprintf ppf "%a[%a] := %a" EExpr.pp oe EExpr.pp fe EExpr.pp e
-  | FieldDelete (oe, fe) -> fprintf ppf "delete %a[%a]" EExpr.pp oe EExpr.pp fe
+    format ppf "%a[%a] := %a" EExpr.pp oe EExpr.pp fe EExpr.pp e
+  | FieldDelete (oe, fe) -> format ppf "delete %a[%a]" EExpr.pp oe EExpr.pp fe
   | If ([], _) ->
     Internal_error.(throw __FUNCTION__ (Expecting "non-empty if cases"))
   | If (ifcs :: elifcss, elsecs) ->
-    let pp_case ppf (e, s) = fprintf ppf "(%a) %a" EExpr.pp e pp s in
-    let pp_if ppf (e, s, _, _) = fprintf ppf "if %a" pp_case (e, s) in
-    let pp_elif ppf (e, s, _, _) = fprintf ppf " elif %a" pp_case (e, s) in
-    let pp_else ppf (s, _) = fprintf ppf " else %a" pp s in
-    fprintf ppf "%a%a%a" pp_if ifcs (pp_lst "" pp_elif) elifcss (pp_opt pp_else)
-      elsecs
-  | While (e, s') -> fprintf ppf "while (%a) %a" EExpr.pp e pp s'
+    let pp_case ppf (e, s) = format ppf "(%a) %a" EExpr.pp e pp s in
+    let pp_if ppf (e, s, _, _) = format ppf "if %a" pp_case (e, s) in
+    let pp_elif ppf (e, s, _, _) = format ppf " elif %a" pp_case (e, s) in
+    let pp_else ppf (s, _) = format ppf " else %a" pp s in
+    format ppf "%a%a%a" pp_if ifcs (pp_lst !>"" pp_elif) elifcss
+      (pp_opt pp_else) elsecs
+  | While (e, s') -> format ppf "while (%a) %a" EExpr.pp e pp s'
   | ForEach (x, e, s', _, _) ->
-    fprintf ppf "foreach (%a : %a) %a" Id.pp x EExpr.pp e pp s'
+    format ppf "foreach (%a : %a) %a" Id.pp x EExpr.pp e pp s'
   | RepeatUntil (s', until, _) ->
-    let pp_until ppf (e, _) = fprintf ppf " until %a" EExpr.pp e in
-    fprintf ppf "repeat %a%a" pp s' (pp_opt pp_until) until
+    let pp_until ppf (e, _) = format ppf " until %a" EExpr.pp e in
+    format ppf "repeat %a%a" pp s' (pp_opt pp_until) until
   | Switch (e, css, dflt, _) ->
-    let pp_case ppf (e, s) = fprintf ppf "\ncase %a: %a" EExpr.pp e pp s in
-    let pp_default ppf s = fprintf ppf "\nsdefault: %a" pp s in
-    fprintf ppf "switch (%a) {%a%a\n}" EExpr.pp e (pp_lst "" pp_case) css
+    let pp_case ppf (e, s) = format ppf "\ncase %a: %a" EExpr.pp e pp s in
+    let pp_default ppf s = format ppf "\nsdefault: %a" pp s in
+    format ppf "switch (%a) {%a%a\n}" EExpr.pp e (pp_lst !>"" pp_case) css
       (pp_opt pp_default) dflt
   | MatchWith (e, dsc, css) ->
-    let pp_discrim ppf dsc = fprintf ppf ": %a" Id.pp dsc in
-    let pp_case ppf (pat, s) = fprintf ppf "\n| %a -> %a" EPat.pp pat pp s in
-    fprintf ppf "match %a%a with %a" EExpr.pp e (pp_opt pp_discrim) dsc
-      (pp_lst "" pp_case) css
+    let pp_discrim ppf dsc = format ppf ": %a" Id.pp dsc in
+    let pp_case ppf (pat, s) = format ppf "\n| %a -> %a" EPat.pp pat pp s in
+    format ppf "match %a%a with %a" EExpr.pp e (pp_opt pp_discrim) dsc
+      (pp_lst !>"" pp_case) css
   | Lambda (x, _, pxs, ctxvars, s') ->
-    fprintf ppf "%a := lambda (%a) [%a] %a" Id.pp x (pp_lst ", " Id.pp) pxs
-      (pp_lst ", " Id.pp) ctxvars pp s'
+    format ppf "%a := lambda (%a) [%a] %a" Id.pp x (pp_lst !>", " Id.pp) pxs
+      (pp_lst !>", " Id.pp) ctxvars pp s'
   | MacroApply (m, es) ->
-    fprintf ppf "@%a(%a)" Id.pp m (pp_lst ", " EExpr.pp) es
-  | Throw e -> fprintf ppf "throw %a" EExpr.pp e
-  | Fail e -> fprintf ppf "fail %a" EExpr.pp e
-  | Assert e -> fprintf ppf "assert %a" EExpr.pp e
-  | Wrapper (_, s) -> fprintf ppf "gen_wrapper %a" pp s
+    format ppf "@%a(%a)" Id.pp m (pp_lst !>", " EExpr.pp) es
+  | Throw e -> format ppf "throw %a" EExpr.pp e
+  | Fail e -> format ppf "fail %a" EExpr.pp e
+  | Assert e -> format ppf "assert %a" EExpr.pp e
+  | Wrapper (_, s) -> format ppf "gen_wrapper %a" pp s
 
-let str (s : t) : string = Fmt.asprintf "%a" pp s
+let str (s : t) : string = Fmt.str "%a" pp s
 
 let rec map ?(emapper : EExpr.t -> EExpr.t = EExpr.Mapper.id) (mapper : t -> t)
   (s : t) : t =

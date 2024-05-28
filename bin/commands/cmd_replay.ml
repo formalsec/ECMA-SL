@@ -29,7 +29,7 @@ let find_effect (out : string) (effect : observable) : bool =
 
 let execute_witness (env : Bos.OS.Env.t) (test : Fpath.t) (witness : Fpath.t) :
   observable option Result.t =
-  Log.out "    running : %s@." @@ Fpath.to_string witness;
+  Log.stdout "    running : %s@." @@ Fpath.to_string witness;
   let cmd = Bos.Cmd.(v "node" % p test % p witness) in
   let cmd_res = Bos.OS.Cmd.(run_out ~env ~err:err_run_out cmd |> out_string) in
   let* (out, status) = Result.bos cmd_res in
@@ -42,15 +42,15 @@ let process_witness (env : string String.map) (input : Fpath.t)
   let* effect = execute_witness env input witness in
   match effect with
   | Some (Stdout msg) ->
-    Ok (Log.out "     status : true (\"%s\" in output)@." msg)
+    Ok (Log.stdout "     status : true (\"%s\" in output)@." msg)
   | Some (File file) ->
     let* () = Result.bos (Bos.OS.Path.delete @@ Fpath.v file) in
-    Ok (Log.out "     status : true (created file \"%s\")@." file)
-  | None -> Ok (Log.out "     status : false (no side effect)@.")
+    Ok (Log.stdout "     status : true (created file \"%s\")@." file)
+  | None -> Ok (Log.stdout "     status : false (no side effect)@.")
 
 let run () (opts : Options.t) : unit Result.t =
-  Log.out "  replaying : %a...@." Fpath.pp opts.input;
-  let env_map = [ ("NODE_PATH", Fmt.sprintf ".:%s" Share.nodejs) ] in
+  Log.stdout "  replaying : %a...@." Fpath.pp opts.input;
+  let env_map = [ ("NODE_PATH", Fmt.str ".:%s" Share.nodejs) ] in
   let env = String.Map.of_list env_map in
   let witnesses_path = Fpath.(opts.testsuite / "witness-$(n).js") in
   let* witnesses = Result.bos (Bos.OS.Path.matches witnesses_path) in
