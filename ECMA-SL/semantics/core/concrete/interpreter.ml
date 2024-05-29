@@ -363,8 +363,7 @@ module M (Instrument : Instrument.M) = struct
   let show_exitval (heap : heap) (retval : Val.t) : unit =
     let visited = Hashtbl.create !Base.default_hashtbl_sz in
     let heapval_pp' = heapval_pp !Config.print_depth visited heap in
-    if !Config.show_exitval then
-      Log.esl ~nl:true "exit value: %a" heapval_pp' retval
+    if !Config.show_exitval then Log.esl "exit value: %a" heapval_pp' retval
 
   let result (v : Val.t) (heap : heap) (inst : Instrument.t ref) : result =
     let metrics = Instrument.Profiler.json !inst.pf in
