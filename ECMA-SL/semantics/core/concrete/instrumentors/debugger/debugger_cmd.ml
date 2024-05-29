@@ -26,12 +26,10 @@ module InterpreterCallbacks = struct
     }
 
   let heapval_pp : heapval_pp ref =
-    let err = "debugger value printer not initialized" in
-    ref (fun _ _ _ -> Internal_error.(throw __FUNCTION__ (Custom err)))
+    ref (fun _ _ _ -> Log.fail "debugger value printer not initialized")
 
   let eval_expr : eval_expr ref =
-    let err = "debugger expression evaluator not initialized" in
-    ref (fun _ _ -> Internal_error.(throw __FUNCTION__ (Custom err)))
+    ref (fun _ _ -> Log.fail "debugger expression evaluator not initialized")
 end
 
 type t =
@@ -76,7 +74,7 @@ let step_cmd (step_args : string list) : t =
 let execute (state : state) (line : string) : t =
   let tkns = String.trim line |> String.split_on_char ' ' in
   match tkns with
-  | [] -> Internal_error.(throw __FUNCTION__ (Invariant "String.split_on_char"))
+  | [] -> Log.fail "invariant : String.split_on_char"
   | "" :: [] -> None
   | "eval" :: e_tkns -> Print (eval_cmd state e_tkns)
   | "locals" :: [] -> Print (locals_cmd state)

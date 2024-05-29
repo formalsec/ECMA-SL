@@ -59,7 +59,7 @@ module M (Instrument : Instrument.M) = struct
 
   let get_loc (heap : heap) (l : Loc.t) : obj =
     match Heap.get_opt heap l with
-    | None -> Internal_error.(throw __FUNCTION__ (Expecting "existing location"))
+    | None -> Log.fail "expecting existing location"
     | Some obj -> obj
 
   let get_func (p : Prog.t) (fn : string) (at : region) : Func.t =
@@ -107,9 +107,7 @@ module M (Instrument : Instrument.M) = struct
       match t with
       | Type.IntType -> Val.Int (Random.int 128)
       | Type.FltType -> Val.Flt (Random.float 128.0)
-      | _ ->
-        let msg = "symbolic " ^ Type.str t in
-        Internal_error.(throw __FUNCTION__ (NotImplemented msg)) )
+      | _ -> Log.fail "not implemented: symbolic %a" Type.pp t )
 
   and eval_expr (state : state) (e : Expr.t) : Val.t =
     let v = eval_expr' state e in
@@ -295,10 +293,8 @@ module M (Instrument : Instrument.M) = struct
         let cont' = ss @ ((Stmt.Merge @?> s2'.at) :: cont) in
         Intermediate (state, cont') $$ IfEval false
       | (false, _, Skip) -> Intermediate (state, cont) $$ IfEval false
-      | (true, _, _) ->
-        Internal_error.(throw __FUNCTION__ (Expecting "if block"))
-      | (false, _, _) ->
-        Internal_error.(throw __FUNCTION__ (Expecting "else block")) )
+      | (true, _, _) -> Log.fail "expecting if block"
+      | (false, _, _) -> Log.fail "expecting else block" )
     | While (e, s') ->
       let loop = Stmt.If (e, Stmt.Block [ s'; s ] @?> s'.at, None) @?> s.at in
       Intermediate (state, loop :: cont) $$ WhileEval
@@ -308,10 +304,8 @@ module M (Instrument : Instrument.M) = struct
       | (Some { it = Block ss; at }, _) | (None, Some { it = Block ss; at }) ->
         let cont' = ss @ ((Stmt.Merge @?> at) :: cont) in
         Intermediate (state, cont') $$ SwitchEval v
-      | (Some _, _) ->
-        Internal_error.(throw __FUNCTION__ (Expecting "switch block"))
-      | (None, Some _) ->
-        Internal_error.(throw __FUNCTION__ (Expecting "sdflt block"))
+      | (Some _, _) -> Log.fail "expecting switch block"
+      | (None, Some _) -> Log.fail "expecting sdflt block"
       | (None, None) -> Intermediate (state, cont) $$ SwitchEval v )
     | Fail e ->
       let v = eval_expr state e in
@@ -382,7 +376,7 @@ module M (Instrument : Instrument.M) = struct
     match return with
     | Final v -> result v state.heap inst
     | Error err -> Runtime_error.(throw (Failure (Val.str err)))
-    | _ -> Internal_error.(throw __FUNCTION__ (Unexpected "intermediate state"))
+    | _ -> Log.fail "unexpected intermediate state"
 
   let eval_prog (entry : entry) (p : Prog.t) : result =
     let inst = ref (Instrument.initial_state ()) in

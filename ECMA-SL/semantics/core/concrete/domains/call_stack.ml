@@ -34,7 +34,7 @@ let create (func : Func.t) : 'store t =
 
 let loc (stack : 'store t) : location =
   match stack with
-  | [] -> Internal_error.(throw __FUNCTION__ (Expecting "non-empty call stack"))
+  | [] -> Log.fail "expecting non-empty call stack"
   | Toplevel loc :: _ | Intermediate (loc, _) :: _ -> loc
 
 let level (stack : 'store t) : int = (loc stack).lvl
@@ -43,7 +43,7 @@ let stmt (stack : 'store t) : Stmt.t = (loc stack).stmt
 
 let pop (stack : 'store t) : 'store frame * 'store t =
   match stack with
-  | [] -> Internal_error.(throw __FUNCTION__ (Expecting "non-empty call stack"))
+  | [] -> Log.fail "expecting non-empty call stack"
   | frame :: stack' -> (frame, stack')
 
 let push (stack : 'store t) (func : Func.t) (store : 'store)
@@ -55,10 +55,10 @@ let push (stack : 'store t) (func : Func.t) (store : 'store)
 let update (stack : 'store t) (stmt : Stmt.t) : 'store t =
   let loc_f loc = { loc with stmt } in
   match stack with
-  | [] -> Internal_error.(throw __FUNCTION__ (Expecting "non-empty call stack"))
+  | [] -> Log.fail "expecting non-empty call stack"
   | Toplevel loc :: [] -> [ Toplevel { loc with stmt } ]
   | Intermediate (loc, r) :: frames -> Intermediate (loc_f loc, r) :: frames
-  | _ -> Internal_error.(throw __FUNCTION__ (Unexpected "call stack format"))
+  | _ -> Log.fail "unexpected call stack format"
 
 let pp_loc (ppf : Fmt.t) (region : region) : unit =
   Fmt.format ppf "file %S, line %d" region.file region.left.line

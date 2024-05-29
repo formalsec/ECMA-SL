@@ -122,7 +122,7 @@ module Enable : M = struct
     | (StepOut, _) -> outerscope <@ (StmtBreak dbdata, st, cont)
     | (Continue, _) -> none <@ (StmtBreak dbdata, st, cont)
     | (Exit, _) -> terminate () <@ (Final, st, cont)
-    | _ -> Internal_error.(throw __FUNCTION__ (Expecting "debugger flow action"))
+    | _ -> Log.fail "expecting debugger flow action"
 
   let run (db : t) (st : state) (cont : cont) (s : Stmt.t) : state * cont =
     let run_debug_tui' = run_debug_tui st s in

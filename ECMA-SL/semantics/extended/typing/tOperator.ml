@@ -16,7 +16,7 @@ let type_check_signature (targs : EType.t list) (tpxs : EType.t' list) : unit =
 let rec type_operator_strict ?(err : Typing_error.t option = None)
   (targs : EType.t list) (op_sig : op_signature) : EType.t' =
   match (op_sig, err) with
-  | ([], None) -> Internal_error.(throw __FUNCTION__ (Expecting "type error"))
+  | ([], None) -> Log.fail "expecting type error"
   | ([], Some err') -> Typing_error.raise err'
   | ((tpxs, tret) :: op_sig', _) -> (
     try type_check_signature targs tpxs |> fun () -> tret

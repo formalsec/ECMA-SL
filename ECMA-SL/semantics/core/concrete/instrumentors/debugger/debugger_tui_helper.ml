@@ -8,7 +8,7 @@ end
 let ( !! ) (sucess : bool) : unit =
   if sucess == false then (
     endwin ();
-    Internal_error.(throw __FUNCTION__ (Custom "error in the debugger TUI")) )
+    Log.fail "error in the debugger TUI" )
 
 let proportional_sz ?(remainder : bool = false) (total : int) (factor : int)
   (weight : int) : int =
@@ -62,8 +62,7 @@ module ScrollPad = struct
 
   let mk ?(rows : int option) (y : int) (x : int) (yz : int) (xz : int) : t =
     let rows' = Option.value ~default:Config.default_scrollable_sz rows in
-    ( if rows' < yz then
-        Internal_error.(throw __FUNCTION__ (Expecting "rows > yz")) );
+    if rows' < yz then Log.fail "expecting rows > yz";
     let w = newpad rows' xz in
     scrollok w true;
     { w; rows = rows'; first = rows' - yz; y; x; yz; xz }
