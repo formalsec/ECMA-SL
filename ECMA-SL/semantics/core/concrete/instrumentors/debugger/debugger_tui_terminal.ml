@@ -57,7 +57,7 @@ let print (prompt : Prompt.t) (msg : string) : unit =
   in
   String.trim msg
   |> String.split_on_char '\n'
-  |> List.map (String.split_at_length prompt.scrlpad.xz)
+  |> List.map (String.split_with_len prompt.scrlpad.xz)
   |> List.flatten
   |> List.iter print_line
 
