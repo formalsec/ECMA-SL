@@ -1,4 +1,4 @@
-let default_hashtbl_sz = ref 16
+let default_hashtbl_sz : int ref = ref 16
 
 type counter = (unit -> int) * (unit -> unit)
 
@@ -14,6 +14,12 @@ let make_counter (init : int) (step : int) : counter =
 let make_name_generator (base : string) : unit -> string =
   let (next, _) = make_counter 0 1 in
   fun () -> base ^ string_of_int (next ())
+
+let ordinal_suffix (n : int) : string =
+  string_of_int n
+  ^
+  if n mod 100 / 10 = 1 then "th"
+  else match n mod 10 with 1 -> "st" | 2 -> "nd" | 3 -> "rd" | _ -> "th"
 
 type formated_time = int * int * int * int
 

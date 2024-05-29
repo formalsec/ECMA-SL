@@ -95,7 +95,7 @@ module TypingErr : Error_type.ERROR_TYPE with type t = msg = struct
       format ppf "Expecting %d elements, but %d were provided." ntsref ntssrc
     | IncompatibleElement i ->
       format ppf "Types of the %s element are incompatible."
-        (String.ordinal_suffix i)
+        (Base.ordinal_suffix i)
     | IncompatibleSigmaDiscriminant ->
       format ppf "Discriminant fields are incompatible."
     | MissingSigmaCase tdsc ->
@@ -110,8 +110,7 @@ module TypingErr : Error_type.ERROR_TYPE with type t = msg = struct
       format ppf "Sigma cases of discriminants '%a' are incompatible." EType.pp
         tdsc
     | MissingSigmaCaseDiscriminant dsc ->
-      format ppf "Missing discriminant '%a' from the sigma type case." Id.pp
-        dsc
+      format ppf "Missing discriminant '%a' from the sigma type case." Id.pp dsc
     | UnknownSigmaCaseDiscriminant tdsc ->
       format ppf "Cannot find discriminant '%a' in the sigma type." EType.pp
         tdsc
