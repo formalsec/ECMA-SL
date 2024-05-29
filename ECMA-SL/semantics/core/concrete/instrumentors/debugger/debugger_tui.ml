@@ -21,7 +21,7 @@ let test_term_size (yz : int) (xz : int) : unit =
   (* FIXME *)
   if yz < 1 || xz < 40 then (
     endwin ();
-    Internal_error.(throw __FUNCTION__ (Expecting "larger terminal size")) )
+    Log.fail "expecting larger terminal size" )
 
 let initialize () : t =
   let open Interface in

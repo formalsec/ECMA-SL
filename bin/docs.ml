@@ -3,13 +3,12 @@ open Files.Parser
 
 module ExitCodes = struct
   let ok = Cmdliner.Cmd.Exit.ok
-  let esl = 1
-  let compile = 2
-  let typing = 3
-  let interpret = 4
-  let encode = 5
-  let execute = 6
-  let test = 7
+  let compile = 1
+  let typing = 2
+  let interpret = 3
+  let encode = 4
+  let execute = 5
+  let test = 6
   let sym_abort = 20
   let sym_assert_failure = 21
   let sym_failure = 22
@@ -24,13 +23,7 @@ module Exits = struct
   open Cmdliner.Cmd.Exit
 
   let app = info ~doc:"on term error" ExitCodes.term :: defaults
-
-  let common =
-    List.append app
-      [ info ~doc:"on generic ECMA-SL library error" ExitCodes.esl
-      ; info ~doc:"on generic application error" ExitCodes.generic
-      ]
-
+  let common = info ~doc:"on generic client-side error" ExitCodes.generic :: app
   let compile = info ~doc:"on ECMA-SL compiling error" ExitCodes.compile
   let typing = info ~doc:"on ECMA-SL typing error" ExitCodes.typing
   let interpret = info ~doc:"on ECMA-SL runtime error" ExitCodes.internal

@@ -26,7 +26,6 @@ and type_expr' (tctx : TCtx.t) (e : EExpr.t) : EType.t' =
   | Symbolic _ -> AnyType (* TODO: symbolic expression *)
 
 and type_val (v : Val.t) : EType.t' =
-  let err v = Internal_error.Unexpected (v ^ " val") in
   match v with
   | Null -> NullType
   | Void -> VoidType
@@ -36,11 +35,11 @@ and type_val (v : Val.t) : EType.t' =
   | Bool b -> LiteralType (LitWeak, BooleanLit b)
   | Symbol "undefined" -> UndefinedType
   | Symbol s -> LiteralType (LitWeak, SymbolLit s)
-  | Loc _ -> Internal_error.(throw __FUNCTION__ (err "loc"))
-  | Arr _ -> Internal_error.(throw __FUNCTION__ (err "array"))
-  | List _ -> Internal_error.(throw __FUNCTION__ (err "list"))
-  | Tuple _ -> Internal_error.(throw __FUNCTION__ (err "tuple"))
-  | Byte _ -> Internal_error.(throw __FUNCTION__ (err "byte"))
+  | Loc _ -> Log.fail "loc val"
+  | Arr _ -> Log.fail "array val"
+  | List _ -> Log.fail "list val"
+  | Tuple _ -> Log.fail "tuple val"
+  | Byte _ -> Log.fail "byte val"
   | Type _ -> AnyType (* TODO *)
   | Curry _ -> AnyType (* TODO *)
 
@@ -53,7 +52,7 @@ and type_object (flds : (Id.t * EType.t) list) : EType.t' =
   let set_object_field_f tflds (fn, ft) =
     if not (Hashtbl.mem tflds fn.it) then
       Hashtbl.replace tflds fn.it (fn, ft, EType.FldReq)
-    else Internal_error.(throw __FUNCTION__ (Unexpected "dup object fld"))
+    else Log.fail "unexpected dup object fld"
   in
   let tflds = Hashtbl.create !Base.default_hashtbl_sz in
   List.iter (set_object_field_f tflds) flds;

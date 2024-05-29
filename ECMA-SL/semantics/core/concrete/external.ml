@@ -13,14 +13,14 @@ let parseJS (prog : Prog.t) (code : string) : Val.t =
   Io.write_file input code;
   let js2ecmasl = EslJSParser.Api.cmd input (Some output) (Some eval_func_id) in
   match Bos.OS.Cmd.run js2ecmasl with
-  | Error _ -> Internal_error.(throw __FUNCTION__ (Custom "err in JS2ECMA-SL"))
+  | Error _ -> Log.fail "err in JS2ECMA-SL"
   | Ok _ -> (
     try
       let ast_func = Io.read_file output in
       let eval_func = Parsing.parse_func ast_func in
       Hashtbl.replace (Prog.funcs prog) eval_func_id eval_func;
       Val.Str eval_func_id
-    with _ -> Internal_error.(throw __FUNCTION__ (Custom "err in ParseJS")) )
+    with _ -> Log.fail "err in ParseJS" )
 
 module Impl = struct
   let int_to_four_hex (v : Val.t) : Val.t =

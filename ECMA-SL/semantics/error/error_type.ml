@@ -1,3 +1,5 @@
+open EslBase
+
 module type ERROR_TYPE = sig
   type t
 

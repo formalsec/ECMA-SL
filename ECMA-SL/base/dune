@@ -5,15 +5,13 @@
  (name eslBase)
  (modules
   base
-  string
   fmt
   font
   log
   io
+  string
   terminal
-  syntax
-  error_type
-  internal_error)
+  syntax)
  (libraries unix)
  (instrumentation
   (backend bisect_ppx)))

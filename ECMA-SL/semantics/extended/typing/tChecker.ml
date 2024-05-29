@@ -5,7 +5,7 @@ let type_func_params (f : EFunc.t) (tctx : TCtx.t) : TCtx.t =
   let tparam pt = TCtx.tvar_create pt (EType.resolve_topt pt) in
   let set_param (px, pt) =
     match TCtx.tenv_find tctx px with
-    | Some _ -> Internal_error.(throw __FUNCTION__ (Unexpected "dup param"))
+    | Some _ -> Log.fail "unexpected dup param"
     | None -> TCtx.tenv_set tctx px (tparam pt)
   in
   TCtx.tenv_reset tctx;

@@ -13,9 +13,8 @@ let index (index : int) : t = Index index
 let index_to_el (lst : 'a list) (src : t) : 'a =
   match src with
   | Index i -> (
-    try List.nth lst (i - 1)
-    with _ -> Internal_error.(throw __FUNCTION__ (Expecting "in-bound index")) )
-  | _ -> Internal_error.(throw __FUNCTION__ (Expecting "index token"))
+    try List.nth lst (i - 1) with _ -> Log.fail "expecting in-bound index" )
+  | _ -> Log.fail "expecting index token"
 
 module ErrSrcFmt (ErrorType : Error_type.ERROR_TYPE) = struct
   let format_code (code : string) : int * string =

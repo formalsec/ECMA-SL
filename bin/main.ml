@@ -154,7 +154,6 @@ let exit_code () =
   | Ok (`Ok (Ok ())) -> Docs.ExitCodes.ok
   | Ok (`Ok (Error err)) -> begin
     match err with
-    | `Internal _ -> Docs.ExitCodes.internal
     | `Compile _ -> Docs.ExitCodes.compile
     | `Runtime _ -> Docs.ExitCodes.interpret
     | `Typing -> Docs.ExitCodes.typing

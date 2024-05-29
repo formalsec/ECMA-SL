@@ -5,6 +5,7 @@
  (name eslSemantics)
  (modules
   ; error
+  error_type
   error_source
   error_trace
   compile_error
