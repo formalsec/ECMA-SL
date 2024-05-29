@@ -72,8 +72,8 @@ module InterpreterMetrics = struct
     let heap_sz = member "heap_size" memory |> to_int in
     let heap_sz_bytes = heap_sz * Sys.word_size in
     let (heap_sz_fmt, heap_sz_unit) = Base.format_bytes heap_sz_bytes in
-    Fmt.format ppf "@\nobj allocs: %d@\nheap size:  %d bytes (~%0.2f %s)"
-      heap_n heap_sz_bytes heap_sz_fmt heap_sz_unit
+    Fmt.format ppf "@\nobj allocs: %d@\nheap size:  %d bytes (~%0.2f %s)" heap_n
+      heap_sz_bytes heap_sz_fmt heap_sz_unit
 
   let pp_counter (ppf : Fmt.t) (counter : t) : unit =
     let divider = "----------" in
@@ -91,8 +91,7 @@ module InterpreterMetrics = struct
       (pp_el pp_counter) counter
 
   let log (profiler : Enums.InterpProfiler.t) (metrics : t) : unit =
-    if profiler == None then ()
-    else Log.esl ~nl:true "Execution metrics:%a" pp metrics
+    if profiler == None then () else Log.esl "Execution metrics:%a" pp metrics
 end
 
 module InterpreterInstrument = struct
