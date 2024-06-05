@@ -1,3 +1,0 @@
-test/test262es5/tests/built-ins/RegExp/constructor-properties/S15.10.5_A1.js
-test/test262es5/tests/built-ins/RegExp/constructor-properties/S15.10.5_A2_T1.js
-test/test262es5/tests/built-ins/RegExp/constructor-properties/S15.10.5_A2_T2.js

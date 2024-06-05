@@ -1,4 +1,0 @@
-test/test262es5/tests/built-ins/RegExp/atom-escape/S15.10.2.9_A1_T1.js
-test/test262es5/tests/built-ins/RegExp/atom-escape/S15.10.2.9_A1_T2.js
-test/test262es5/tests/built-ins/RegExp/atom-escape/S15.10.2.9_A1_T3.js
-test/test262es5/tests/built-ins/RegExp/atom-escape/S15.10.2.9_A1_T5.js

@@ -1,7 +1,0 @@
-test/test262es5/tests/built-ins/RegExp/decimal-escape/S15.10.2.11_A1_T1.js
-test/test262es5/tests/built-ins/RegExp/decimal-escape/S15.10.2.11_A1_T4.js
-test/test262es5/tests/built-ins/RegExp/decimal-escape/S15.10.2.11_A1_T5.js
-test/test262es5/tests/built-ins/RegExp/decimal-escape/S15.10.2.11_A1_T6.js
-test/test262es5/tests/built-ins/RegExp/decimal-escape/S15.10.2.11_A1_T7.js
-test/test262es5/tests/built-ins/RegExp/decimal-escape/S15.10.2.11_A1_T8.js
-test/test262es5/tests/built-ins/RegExp/decimal-escape/S15.10.2.11_A1_T9.js

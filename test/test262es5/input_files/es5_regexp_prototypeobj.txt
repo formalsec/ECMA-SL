@@ -1,5 +1,0 @@
-test/test262es5/tests/built-ins/RegExp/prototype/prototype-obj/15.10.6.js
-test/test262es5/tests/built-ins/RegExp/prototype/prototype-obj/S15.10.6.1_A1_T1.js
-test/test262es5/tests/built-ins/RegExp/prototype/prototype-obj/S15.10.6.1_A1_T2.js
-test/test262es5/tests/built-ins/RegExp/prototype/prototype-obj/S15.10.6_A1_T1.js
-test/test262es5/tests/built-ins/RegExp/prototype/prototype-obj/S15.10.6_A1_T2.js
