@@ -3,8 +3,12 @@
 (library
  (public_name ecma-sl)
  (name ecma_sl)
- (modules ecma_sl)
+ (modules ecma_sl site)
  (wrapped false)
- (libraries eslBase eslSyntax eslSemantics eslJSParser)
+ (libraries eslBase eslSyntax eslSemantics eslJSParser dune-site)
  (instrumentation
   (backend bisect_ppx)))
+
+(generate_sites_module
+ (module site)
+ (sites ecma-sl))
