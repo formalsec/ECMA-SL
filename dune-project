@@ -39,7 +39,7 @@
   (mdx :with-test)
   menhir
   menhirLib
-  smtml
+  (smtml (>= "0.1.1"))
   yojson
   dune-site
   (bisect_ppx (and :with-test (>= "2.5.0") :dev))
