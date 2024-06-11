@@ -487,7 +487,7 @@ end
 module Application = struct
   let sdocs = Manpage.s_common_options
   let doc = "Executable specification of the ECMAScript standard"
-  let version = "1.0.0"
+  let version = "%%VERSION%%"
 
   let description =
     [| "ECMA-SL is a comprehensive platform designed for the specification and \
