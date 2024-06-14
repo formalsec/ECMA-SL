@@ -139,8 +139,7 @@ module TestTree = struct
     let items = Hashtbl.create !Base.default_hashtbl_sz in
     { section; time; success; failure; anomaly; skipped; items }
 
-  let total (tree : t) : int =
-    tree.success + tree.failure + tree.anomaly + tree.skipped
+  let total (tree : t) : int = tree.success + tree.failure + tree.anomaly
 
   let rename_test (record : TestRecord.t) : TestRecord.t =
     let rename_dup path =
@@ -293,21 +292,25 @@ module TestParser = struct
 end
 
 module TestRunner = struct
+  let test_skipped (record : TestRecord.t) : bool =
+    let skipped_f skipped = function "skip" -> true | _ -> skipped in
+    List.fold_left skipped_f false record.flags
+
   let interp_config (profiler : Enums.InterpProfiler.t) :
     Cmd_interpret.Options.config =
     let interp_config = Cmd_interpret.Options.default_config () in
     let instrument = { interp_config.instrument with profiler } in
     { interp_config with instrument }
 
-  let set_input_flags (record : TestRecord.t) : Fpath.t Result.t =
-    let rec flag_appends = function
-      | [] -> ""
-      | "onlyStrict" :: flags' -> "\"use strict\";\n" ^ flag_appends flags'
-      | _ :: flags' -> flag_appends flags'
+  let set_test_flags (record : TestRecord.t) : Fpath.t Result.t =
+    let flags_f (test, updated) = function
+      | "onlyStrict" -> ("\"use strict\";\n" ^ test, true)
+      | _ -> (test, updated)
     in
-    if List.length record.flags == 0 then Ok record.input
+    let start = (record.test, false) in
+    let (test, updated) = List.fold_left flags_f start record.flags in
+    if not updated then Ok record.input
     else
-      let test = flag_appends record.flags ^ record.test in
       let input = Fpath.v (Filename.temp_file "ecmasl" "flagged-input.js") in
       let* () = Result.bos (Bos.OS.File.writef input "%s" test) in
       Ok input
@@ -331,25 +334,33 @@ module TestRunner = struct
     | (Ok (List [ _; _; _; _ ]), _) -> Failure
     | (_, _) -> Anomaly
 
-  let execute_js_test (env : Prog.t * Value.t Heap.t option)
+  let execute (env : Prog.t * Value.t Heap.t option)
     (interp_config : Cmd_interpret.Options.config) (input : Fpath.t) :
     Interpreter.result Result.t =
     try Cmd_execute.execute_js env interp_config input
     with exn -> Result.error (`Generic (Printexc.to_string exn))
 
-  let execute (env : Prog.t * Value.t Heap.t option) (record : TestRecord.t)
+  let skip_test (record : TestRecord.t) : TestRecord.t Result.t =
+    Ok { record with result = Skipped }
+
+  let execute_test (env : Prog.t * Value.t Heap.t option) (record : TestRecord.t)
     (interp_profiler : Enums.InterpProfiler.t) : TestRecord.t Result.t =
-    Log.debug "Starting test '%a'." Fpath.pp record.input;
     let interp_config = interp_config interp_profiler in
-    let* input = set_input_flags record in
+    let* input = set_test_flags record in
     let streams = Log.Redirect.capture Shared in
-    let interp_result = execute_js_test env interp_config input in
+    let interp_result = execute env interp_config input in
     Log.Redirect.restore streams;
     let streams = Some streams in
     let (retval, metrics) = unfold_result interp_result in
     let result = check_result record.error retval in
     let time = Base.time () -. record.time in
     Ok { record with streams; retval; result; time; metrics }
+
+  let run (env : Prog.t * Value.t Heap.t option) (record : TestRecord.t)
+    (interp_profiler : Enums.InterpProfiler.t) : TestRecord.t Result.t =
+    Log.debug "Starting test '%a'." Fpath.pp record.input;
+    if test_skipped record then skip_test record
+    else execute_test env record interp_profiler
 end
 
 let get_logging_width (inputs : (Fpath.t * Fpath.t) list) : int =
@@ -392,7 +403,7 @@ let process_record (opts : Options.t) (env : Prog.t * Value.t Heap.t option)
   match Enums.Lang.resolve_file_lang ~warn:false [ JS ] input with
   | Some JS ->
     let* record' = TestParser.parse opts.test_type record in
-    TestRunner.execute env record' opts.interp_profiler
+    TestRunner.run env record' opts.interp_profiler
   | _ -> Ok { record with result = Skipped }
 
 let run_single (opts : Options.t) (env : Prog.t * Value.t Heap.t option)
