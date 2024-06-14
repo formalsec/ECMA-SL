@@ -30,6 +30,12 @@ module TestRecord = struct
     | Anomaly
     | Skipped
 
+  type simple =
+    { input : Fpath.t
+    ; result : result
+    ; time : float
+    }
+
   type t =
     { input : Fpath.t
     ; output : Files.output
@@ -60,6 +66,10 @@ module TestRecord = struct
     ; metrics = `Null
     }
 
+  let simplify (record : t) : simple =
+    let { input; result; time; _ } = record in
+    { input; result; time }
+
   let pp_path (limit : int) (ppf : Fmt.t) (path : string) : unit =
     let (path', _) = String.truncate limit path in
     let len = String.length path' in
@@ -79,7 +89,7 @@ module TestRecord = struct
     | Anomaly -> Font.pp_text_out [ Purple ] ppf "ANOMALY"
     | Skipped -> Font.pp_text_out [ Yellow ] ppf "SKIPPED"
 
-  let pp_status (ppf : Fmt.t) (record : t) : unit =
+  let pp_simple (ppf : Fmt.t) (record : simple) : unit =
     let open Fmt in
     let limit = !Options.term_width - 20 in
     let path = Fpath.to_string record.input in
@@ -111,7 +121,7 @@ end
 
 module TestTree = struct
   type t' =
-    | Test of TestRecord.t
+    | Test of TestRecord.simple
     | Tree of t
 
   and t =
@@ -155,7 +165,7 @@ module TestTree = struct
         record.input Fpath.pp record'.input;
       add tree record' sections
     | [] | [ "." ] ->
-      Hashtbl.add tree.items record.name (Test record);
+      Hashtbl.add tree.items record.name (Test (TestRecord.simplify record));
       Ok record
     | sec :: secs -> begin
       match Hashtbl.find_opt tree.items sec with
@@ -199,7 +209,7 @@ module TestTree = struct
 
   let rec pp_status (ppf : Fmt.t) (tree : t) : unit =
     let pp_item ppf = function
-      | Test record -> Fmt.format ppf "%a@\n" TestRecord.pp_status record
+      | Test record -> Fmt.format ppf "%a@\n" TestRecord.pp_simple record
       | Tree tree' -> pp_status ppf tree'
     in
     Fmt.(pp_hashtbl !>"" (fun ppf (_, i) -> pp_item ppf i) ppf tree.items)
@@ -390,7 +400,7 @@ let run_single (opts : Options.t) (env : Prog.t * Value.t Heap.t option)
   (output : Files.output) : unit Result.t =
   let* record = process_record opts env workspace input output in
   let* record' = TestTree.add tree record record.sections in
-  Log.stdout "%a@." TestRecord.pp_status record';
+  Log.stdout "%a@." TestRecord.pp_simple (TestRecord.simplify record');
   let* () = dump_record_report output record' in
   match record'.result with Success -> Ok () | _ -> Result.error `Test
 
