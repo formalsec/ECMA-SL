@@ -28,34 +28,34 @@ module Impl = struct
   let arr_map = Hashtbl.create 128
   let arr_count = ref 0
 
-  let op_err (arg : int) (op_lbl : string) (rterr : Runtime_error.msg) : 'a =
-    try Runtime_error.(throw ~src:(Index arg) rterr)
-    with Runtime_error.Error err ->
-      Runtime_error.(push (OpEvalErr op_lbl) err |> raise)
+  let op_err = Eval_op.op_err
 
-  let unexpected_err (arg : int) (op_lbl : string) (msg : string) : 'a =
-    op_err arg op_lbl (Unexpected msg)
+  let unexpected_err = Eval_op.unexpected_err
 
-  let bad_arg_err (_arg : int) (_op_lbl : string) (_types : string)
-  (_vals : Value.t list) : 'a =
-  failwith "bad_arg_err"
+  let bad_arg_err = Eval_op.bad_arg_err
 
   let typeof (v : Value.t) : Value.t =
     let op_lbl = "typeof_external" in
     match v with
-    | App (`Op "null", _) -> Str "null"
-    | App (`Op "void", _) -> unexpected_err 1 op_lbl "void value"
+    | App (`Op "null", []) -> Str "null"
+    | App (`Op "void", []) -> unexpected_err 1 op_lbl "void value"
     | Int _ -> Str "int"
     | Real _ -> Str "float"
     | True| False -> Str "bool"
     | Str _ -> Str "string"
-    | App (`Op "symbol", _) -> Str "symbol"
-    | App (`Op "loc", _) -> Str "object"
-    (* TODO:x | Arr _ -> Type ArrayType *)
+    | App (`Op "symbol", [Str _]) -> Str "symbol"
+    | App (`Op "loc", [Int _] ) -> Str "object"
     | List _ -> Str "list"
-    (* | Tuple _ -> Type TupleType *)
-    (* | Type _ -> Type TypeType *)
-    (* | Byte _ -> Internal_error.(throw __FUNCTION__ (NotImplemented "byte typeof")) *)
+    | App (`Op "NullType", [])
+    | App (`Op "IntType", [])
+    | App (`Op "RealType", [])
+    | App (`Op "StrType", [])
+    | App (`Op "BoolType", [])
+    | App (`Op "SymbolType", [])
+    | App (`Op "LocType", [])
+    | App (`Op "ListType", [])
+    | App (`Op "TupleType", [])
+    | App (`Op "CurryType", []) -> Str "type"
     | App (`Op _, _) -> Str "curry"
     | _ -> unexpected_err 1 op_lbl "value type"
 

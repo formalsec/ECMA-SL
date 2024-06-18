@@ -7,7 +7,6 @@
   ; share
   id
   loc
-  val
   type
   source
   object
