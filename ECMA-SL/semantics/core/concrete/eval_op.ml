@@ -1,4 +1,5 @@
 open Smtml
+open EslBase
 open EslSyntax
 open EslSyntax.Operator
 
@@ -144,8 +145,8 @@ let unop_semantics (op : Operator.unopt) : Value.t -> Value.t =
   | FromCharCode -> Eval.(cvtop Ty_str Ty.String_from_code)
   | ToCharCode -> Eval.(cvtop Ty_str Ty.String_to_code)
   | StringLen -> Eval.(unop Ty_str Ty.Length)
-  | ObjectToList -> failwith "unop_semantics.objectToList"
-  | ObjectFields -> failwith "unop_semantics.objectFields"
+  | ObjectToList -> Log.fail "unexpected 'ObjectToList' operator"
+  | ObjectFields -> Log.fail "unexpected 'ObjectFields' operator"
   | StringConcat -> (
     function
     | Value.List lst -> Eval.(naryop Ty_str Ty.Concat) lst
@@ -220,8 +221,8 @@ let binop_semantics (op : Operator.binopt) =
   | ShiftRightLogical -> Eval.(binop Ty_int Ty.ShrL)
   | LogicalAnd -> Eval.(binop Ty_bool Ty.And)
   | LogicalOr -> Eval.(binop Ty_bool Ty.Or)
-  | SCLogicalAnd -> failwith "binop_semantics.scLogicalAnd"
-  | SCLogicalOr -> failwith "binop_semantics.scLogicalOr"
+  | SCLogicalAnd -> Log.fail "unexpected 'SCLogicalAnd' operator"
+  | SCLogicalOr -> Log.fail "unexpected 'SCLogicalOr' operator"
   | Eq -> fun v1 v2 -> make_bool (Value.equal v1 v2)
   | NE -> fun v1 v2 -> make_bool (not @@ Value.equal v1 v2)
   | Lt -> (
@@ -276,7 +277,7 @@ let binop_semantics (op : Operator.binopt) =
       | _ ->
         bad_arg_err 1 (label_of_binopt Ge)
           "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ] )
-  | ObjectMem -> failwith "binop_semantics.objectMem"
+  | ObjectMem -> Log.fail "unexpected 'ObjectMem' operator"
   | StringNth -> (
     fun v1 v2 ->
       match (v1, v2) with

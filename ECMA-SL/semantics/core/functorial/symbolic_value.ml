@@ -1,5 +1,6 @@
 open EslBase
 open EslSyntax
+open EslSyntax.Operator
 
 module E = Smtml.Expr
 module Ty = Smtml.Ty
@@ -81,7 +82,7 @@ module M = struct
   | BitwiseNot -> E.(unop Ty_int Not)
   | LogicalNot -> E.(unop Ty_bool Not)
   | IntToFloat -> E.(cvtop Ty_int Reinterpret_int)
-  | IntToString -> (* TODO:x erro in type *) E.(cvtop Ty_str String_from_int)
+  | IntToString -> E.(cvtop Ty_int ToString)
   | FloatToInt -> E.(cvtop Ty_real Reinterpret_float)
   | FloatToString -> E.(cvtop Ty_real ToString)
   | StringToInt -> E.(cvtop Ty_str String_to_int)
@@ -89,10 +90,11 @@ module M = struct
   | FromCharCode -> E.(cvtop Ty_str String_from_code)
   | ToCharCode -> E.(cvtop Ty_str String_to_code)
   | StringLen -> E.(unop Ty_str Length)
-  | StringConcat -> (fun v1 -> match E.view v1 with 
-  | E.Val (Value.List _) -> E.(naryop Ty_str Concat [v1])
-  | E.List lst -> E.(naryop Ty_str Concat lst)
-  | _-> failwith "TODO:x StringConcat")
+  | StringConcat -> 
+    (fun v1 -> match E.view v1 with 
+      | E.Val (Value.List _) -> E.(naryop Ty_str Concat [v1])
+      | E.List lst -> E.(naryop Ty_str Concat lst)
+      | _-> failwith "TODO:x StringConcat")
   | ObjectToList -> assert false
   | ObjectFields -> assert false
   | ListHead -> E.(unop Ty_list Head)
@@ -188,9 +190,10 @@ module M = struct
     | ListNth -> E.(binop Ty_list At)
     | ListAdd -> E.(binop Ty_list List_append_last)
     | ListPrepend -> E.(binop Ty_list List_append)
-    | ListConcat -> (fun v1 v2  -> match E.view v1, E.view v2 with 
-    | E.List l1, E.List l2 -> E.(naryop Ty_list Concat (l1@l2))
-    | _-> failwith "TODO:x ListConcat")
+    | ListConcat -> 
+      (fun v1 v2  -> match E.view v1, E.view v2 with 
+        | E.List l1, E.List l2 -> E.(naryop Ty_list Concat (l1@l2))
+        | _-> failwith "TODO:x ListConcat")
 
   let eval_triop (op: Operator.triopt) = 
     match op with

@@ -73,9 +73,6 @@
   symbolic_value
   symbolic
   value_intf
-  ;x value_reducer
-  ;x value_translator
-  ;x value_typing
   ; functorial interpreter (domains)
   ;x symbolic_object2
   ;x symbolic_memory2
