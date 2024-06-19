@@ -70,11 +70,17 @@ module M = struct
 
   type store = Store.t
 
+  let rec expr_type v1 =
+    match E.view v1 with
+    | E.Relop (_, _, _, _) -> Ty.Ty_bool
+    | E.Triop (_, Ty.Ite, _, a, _) -> expr_type a
+    | _ -> E.ty v1
+
   let eval_unop (op: Operator.unopt) = 
     match op with
   | Neg -> 
     (fun v -> 
-      let t = E.ty v in
+      let t = expr_type v in
       match t with 
       | Ty_int -> E.(unop Ty_int Neg v)
       | Ty_real -> E.(unop Ty_real Neg v)
@@ -86,7 +92,10 @@ module M = struct
   | FloatToInt -> E.(cvtop Ty_real Reinterpret_float)
   | FloatToString -> E.(cvtop Ty_real ToString)
   | StringToInt -> E.(cvtop Ty_str String_to_int)
-  | StringToFloat -> E.(cvtop Ty_str String_to_float)
+  | StringToFloat -> 
+    (fun v -> match E.view v with 
+      | Val Str _ -> ( try E.(cvtop Ty_str Ty.String_to_float) v with _ -> E.(make @@ Val (Real nan )))
+      | _ -> failwith "TODO:x StringToFloat" )
   | FromCharCode -> E.(cvtop Ty_str String_from_code)
   | ToCharCode -> E.(cvtop Ty_str String_to_code)
   | StringLen -> E.(unop Ty_str Length)
@@ -112,7 +121,7 @@ module M = struct
     match op with
     | Plus ->  
       (fun v1 v2 -> 
-        let t1, t2 = E.ty v1, E.ty v2 in
+        let t1, t2 = expr_type v1, expr_type v2 in
         match t1, t2 with
         | Ty_int, Ty_int -> E.(binop Ty_int Add v1 v2)
         | Ty_real, Ty_real -> E.(binop Ty_real Add v1 v2)
@@ -120,21 +129,21 @@ module M = struct
         | _ -> failwith "TODO:x Plus")
     | Minus -> 
       (fun v1 v2 -> 
-        let t1, t2 = E.ty v1, E.ty v2 in
+        let t1, t2 = expr_type v1, expr_type v2 in
         match t1, t2 with
         | Ty_int, Ty_int -> E.(binop Ty_int Sub v1 v2)
         | Ty_real, Ty_real -> E.(binop Ty_real Sub v1 v2)
         | _ -> failwith "TODO:x Minus")
     | Times -> 
       (fun v1 v2 -> 
-        let t1, t2 = E.ty v1, E.ty v2 in
+        let t1, t2 = expr_type v1, expr_type v2 in
         match t1, t2 with
         | Ty_int, Ty_int -> E.(binop Ty_int Mul v1 v2)
         | Ty_real, Ty_real -> E.(binop Ty_real Mul v1 v2)
         | _ -> failwith "TODO:x Times")
     | Div ->
       (fun v1 v2 -> 
-        let t1, t2 = E.ty v1, E.ty v2 in
+        let t1, t2 = expr_type v1, expr_type v2 in
         match t1, t2 with
         | Ty_int, Ty_int -> E.(binop Ty_int Div v1 v2)
         | Ty_real, Ty_real -> E.(binop Ty_real Div v1 v2)
@@ -155,7 +164,7 @@ module M = struct
     | NE -> E.(relop Ty_bool Ne)
     | Lt -> 
       (fun v1 v2 -> 
-        let t1, t2 = E.ty v1, E.ty v2 in
+        let t1, t2 = expr_type v1, expr_type v2 in
         match t1, t2 with
         | Ty_int, Ty_int -> E.(relop Ty_int Lt v1 v2)
         | Ty_real, Ty_real -> E.(relop Ty_real Lt v1 v2)
@@ -163,7 +172,7 @@ module M = struct
         | _ -> failwith "TODO:x Lt")
     | Le -> 
       (fun v1 v2 -> 
-        let t1, t2 = E.ty v1, E.ty v2 in
+        let t1, t2 = expr_type v1, expr_type v2 in
         match t1, t2 with
         | Ty_int, Ty_int -> E.(relop Ty_int Le v1 v2)
         | Ty_real, Ty_real -> E.(relop Ty_real Le v1 v2)
@@ -171,7 +180,7 @@ module M = struct
         | _ -> failwith "TODO:x Le")
     | Gt -> 
       (fun v1 v2 -> 
-        let t1, t2 = E.ty v1, E.ty v2 in
+        let t1, t2 = expr_type v1, expr_type v2 in
         match t1, t2 with
         | Ty_int, Ty_int -> E.(relop Ty_int Gt v1 v2)
         | Ty_real, Ty_real -> E.(relop Ty_real Gt v1 v2)
@@ -179,7 +188,7 @@ module M = struct
         | _ -> failwith "TODO:x Gt")
     | Ge -> 
       (fun v1 v2 -> 
-        let t1, t2 = E.ty v1, E.ty v2 in
+        let t1, t2 = expr_type v1, expr_type v2 in
         match t1, t2 with
         | Ty_int, Ty_int -> E.(relop Ty_int Ge v1 v2)
         | Ty_real, Ty_real -> E.(relop Ty_real Ge v1 v2)
@@ -189,7 +198,11 @@ module M = struct
     | StringNth -> E.(binop Ty_str At)
     | ListNth -> E.(binop Ty_list At)
     | ListAdd -> E.(binop Ty_list List_append_last)
-    | ListPrepend -> E.(binop Ty_list List_append)
+    | ListPrepend ->
+      ( fun v1 v2 -> match expr_type v2 with
+        | Ty_list -> E.(binop Ty_list Ty.List_append) v2 v1
+        | _ ->
+        failwith "TODO:x ListPrepend")
     | ListConcat -> 
       (fun v1 v2  -> match E.view v1, E.view v2 with 
         | E.List l1, E.List l2 -> E.(naryop Ty_list Concat (l1@l2))
