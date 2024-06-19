@@ -2,7 +2,10 @@
 
 ### Added
 
+- `skip` flag for Test262 tests to allow tests to be skipped
+
 ### Changed
+
 - Operators `exp`, `random`, `typeof` and tuple related operators were removed from syntax and became external functions. 
 - The values used by ECMA-SL (`Val.ml`) were changed to the values of `Smtml`. In the next code snippet, you can see how it was converted:
 ```ocaml

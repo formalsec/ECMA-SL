@@ -8,7 +8,7 @@ module Command = struct
   let terminal_cmd (fdesc : Unix.file_descr) (cmd : string) : string option =
     if Unix.isatty fdesc then
       let ic = Unix.open_process_in cmd in
-      let finally () = close_in ic in
+      let finally () = ignore (Unix.close_process_in ic) in
       let execute () = input_line ic in
       Some (Fun.protect ~finally execute)
     else None
