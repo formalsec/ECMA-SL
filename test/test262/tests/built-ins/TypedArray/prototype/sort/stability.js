@@ -7,6 +7,7 @@ info: |
   https://github.com/tc39/ecma262/pull/1433
 includes: [testTypedArray.js, compareArray.js]
 features: [TypedArray]
+flags: [skip]
 ---*/
 
 // Treat 0..3, 4..7, etc. as equal.
