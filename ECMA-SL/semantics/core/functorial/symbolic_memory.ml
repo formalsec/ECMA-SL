@@ -20,7 +20,7 @@ module Make (O : Object_intf.S with type value = V.value) = struct
   let insert ({ data = memory; _ } : t) (o : object_) : value =
     let loc = Loc.create () in
     Loc.Tbl.replace memory loc o;
-    E.(make @@ Val (App (`Op "loc", [Int loc])))
+    E.(value (App (`Op "loc", [Int loc])))
 
   let remove (m : t) (l : Loc.t) : unit = Loc.Tbl.remove m.data l
 
@@ -100,13 +100,13 @@ module Make (O : Object_intf.S with type value = V.value) = struct
     match E.view e with
     | Val (App (`Op "loc", [Int l])) -> Ok [ (None, l) ]
     | Triop (_, Ty.Ite, c, a, v) -> (
-      match Expr.view a with
+      match E.view a with
       | Val (App (`Op "loc", [Int l])) ->
           Ok
             ((Some c, l)
-            :: unfold_ite ~accum:Expr.(unop Ty.Ty_bool Ty.Not c) v)
+            :: unfold_ite ~accum:E.(unop Ty.Ty_bool Ty.Not c) v)
       | _ ->
-          Error (Fmt.str "Value '%a' is not a loc expression" Expr.pp e))
+          Error (Fmt.str "Value '%a' is not a loc expression" E.pp e))
     | _ -> Error (Fmt.str "Value '%a' is not a loc expression" V.pp e)
 
   let pp_val (h : t) (e : value) : string =

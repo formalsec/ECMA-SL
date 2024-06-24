@@ -46,9 +46,9 @@ let dispatch_prog (lang : Enums.Lang.t) (fpath : Fpath.t) : Prog.t Result.t =
 
 let link_env (prog : Prog.t) : Extern_func.extern_func Symbolic.Env.t =
   let env0 = Env.Build.empty () |> Env.Build.add_functions prog in
-  Env.Build.add_extern_functions (Symbolic_extern.extern_cmds env0) env0
-  |> Env.Build.add_extern_functions Symbolic_extern.concrete_api
-  |> Env.Build.add_extern_functions Symbolic_extern.symbolic_api
+  Env.Build.add_extern_functions (Symbolic_esl_ffi.extern_cmds env0) env0
+  |> Env.Build.add_extern_functions Symbolic_esl_ffi.concrete_api
+  |> Env.Build.add_extern_functions Symbolic_esl_ffi.symbolic_api
 
 let pp_model (ppf : Fmt.t) (model : Smtml.Model.t) : unit =
   let open Fmt in

@@ -218,7 +218,7 @@ let val_target :=
 let dtype_target :=
   | DTYPE_NULL;          { "NullType" }
   | DTYPE_INT;           { "IntType" }
-  | DTYPE_FLT;           { "RealType" }
+  | DTYPE_FLT;           { "FltType" }
   | DTYPE_STR;           { "StrType" }
   | DTYPE_BOOL;          { "BoolType" }
   | DTYPE_SYMBOL;        { "SymbolType" }

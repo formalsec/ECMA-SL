@@ -1,5 +1,4 @@
 open EslBase
-(* open EslSyntax *)
 module Env = Symbolic.P.Env
 module SMap = Link_env.SMap
 module PC = Choice_monad.PC
@@ -31,7 +30,7 @@ module Make () = struct
   let fresh_x = Base.make_name_generator "x"
   let fresh_func = Base.make_name_generator "eval_func_"
   let ok v = Choice.return (Ok v)
-  let ok_v v = ok (Smtml.Expr.(make @@ Val v))
+  let ok_v v = ok (E.value v)
   let err v = Choice.return (Error (`Failure v))
 
   let extern_cmds env =
@@ -464,10 +463,10 @@ module Make () = struct
     let is_exec_sat (e : value) =
       (* TODO: more fine-grained exploit analysis *)
       let i = Value.int_symbol_s (fresh_i ()) in
-      let len = E.(make @@ Val (Int 18)) in
+      let len = E.(value (Int 18)) in
       let sub = E.(triop Ty_str String_extract e i len) in
       let query =
-        E.(relop Ty_bool Eq sub (make @@ Val (V.Str "A; touch success #")))
+        E.(relop Ty_bool Eq sub (value (V.Str "A; touch success #")))
       in
       let/ b = Choice.check_add_true query in
       ok_v (if b then V.True else V.False)
@@ -475,10 +474,10 @@ module Make () = struct
     let is_eval_sat (e : value) =
       (* TODO: more fine-grained exploit analysis *)
       let i = Value.int_symbol_s (fresh_i ()) in
-      let len = E.(make @@ Val (Int 25)) in
+      let len = E.(value (Int 25)) in
       let sub = E.(triop Ty_str String_extract e i len) in
       let query =
-        E.(relop Ty_bool Eq sub (make @@ Val (V.Str ";console.log('success')//")))
+        E.(relop Ty_bool Eq sub (value (V.Str ";console.log('success')//")))
       in
       let/ b = Choice.check_add_true query in
       ok_v (if b then V.True else V.False)
@@ -512,7 +511,7 @@ module Make () = struct
           let opt = Thread.optimizer thread in
           let v = optimize Optimizer.maximize opt e pc in
           match v with
-          | Some v -> Ok  (E.(make @@ Val v))
+          | Some v -> Ok  (E.(value v))
           | None ->
             (* TODO: Error here *)
             assert false )
@@ -523,7 +522,7 @@ module Make () = struct
           let opt = Thread.optimizer thread in
           let v = optimize Optimizer.minimize opt e pc in
           match v with
-          | Some v -> Ok  (E.(make @@ Val v))
+          | Some v -> Ok  (E.(value v))
           | None ->
             (* TODO: Error here *)
             assert false )

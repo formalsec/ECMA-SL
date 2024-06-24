@@ -5,7 +5,7 @@ module E = Symbolic_value.E
 
 let eq v1 v2 = E.(relop Ty_bool Ty.Eq v1 v2)
 let ne v1 v2 = E.(unop Ty.Ty_bool Ty.Not (eq v1 v2))
-let ite c v1 v2 = Expr.(Bool.ite c v1 v2)
+let ite c v1 v2 = E.(Bool.ite c v1 v2)
 let undef = V.mk_symbol "undefined"
 let is_val e = match E.view e with Val _ -> true | _ -> false
 
@@ -61,7 +61,7 @@ module M : Object_intf.S with type value = V.value = struct
       m
 
   let set o ~key ~data =
-    match Expr.view key with
+    match E.view key with
     | Val _ -> { o with fields = VMap.add key data o.fields }
     | _ ->
       { fields = map_ite o.fields ~key ~data
@@ -111,7 +111,7 @@ module M : Object_intf.S with type value = V.value = struct
           [ (v, []); (undef, neg_conds) ] ) )
 
   let delete o key =
-    match Expr.view key with
+    match E.view key with
     | Val _ -> { o with fields = VMap.remove key o.fields }
     | _ -> assert false
 
