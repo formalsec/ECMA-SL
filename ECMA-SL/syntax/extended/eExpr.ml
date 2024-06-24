@@ -46,7 +46,7 @@ let pp_val_custom_inner (pp_inner_val : Fmt.t -> Smtml.Value.t -> unit) (ppf : F
   | List lst -> format ppf "[%a]" (pp_lst !>", " pp_inner_val) lst
   | App (`Op "NullType" , []) -> format ppf "__$Null" 
   | App (`Op "IntType" , []) -> format ppf "__$Int" 
-  | App (`Op "RealType" , []) -> format ppf "__$Flt" 
+  | App (`Op "FltType" , []) -> format ppf "__$Flt" 
   | App (`Op "StrType" , []) -> format ppf "__$Str" 
   | App (`Op "BoolType" , []) -> format ppf "__$Bool" 
   | App (`Op "SymbolType" , []) -> format ppf "__$Symbol" 
