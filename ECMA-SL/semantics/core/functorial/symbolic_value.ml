@@ -18,7 +18,7 @@ module M = struct
   let int_symbol_s (x : string) : value = E.mk_symbol (Symbol.make Ty_int x)
   [@@inline]
 
-  let mk_symbol (x : string) : value =  E.(make @@ Val (App (`Op "symbol", [Str x]))) [@@inline]
+  let mk_symbol (x : string) : value =  E.(value (App (`Op "symbol", [Str x]))) [@@inline]
 
   let mk_list (vs : value list) : value = E.(make (List vs))
   [@@inline]
@@ -35,8 +35,9 @@ module M = struct
 
   module Bool = struct
     include E.Bool
-    let const b = v b [@@inline]
-    let not_ e = not e [@@inline]
+
+    let const b = if b then true_ else false_
+    let not_ e = not_ e [@@inline]
   end
 
   module Store = struct
@@ -94,7 +95,7 @@ module M = struct
   | StringToInt -> E.(cvtop Ty_str String_to_int)
   | StringToFloat -> 
     (fun v -> match E.view v with 
-      | Val Str _ -> ( try E.(cvtop Ty_str Ty.String_to_float) v with _ -> E.(make @@ Val (Real nan )))
+      | Val Str _ -> ( try E.(cvtop Ty_str Ty.String_to_float) v with _ -> E.(value (Real nan )))
       | _ -> failwith "TODO:x StringToFloat" )
   | FromCharCode -> E.(cvtop Ty_str String_from_code)
   | ToCharCode -> E.(cvtop Ty_str String_to_code)
@@ -241,7 +242,7 @@ module M = struct
 
   let rec eval_expr (store : store) (e : Expr.t) : value =
     match e.it with
-    | Val v -> E.(make (Val v))
+    | Val v -> E.value v
     | Var x -> (
       match Store.find store x with
       | Some v -> v

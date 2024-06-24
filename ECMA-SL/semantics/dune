@@ -66,7 +66,7 @@
   memory_intf
   object_intf
   solver
-  symbolic_extern
+  symbolic_esl_ffi
   symbolic_interpreter
   symbolic_memory
   symbolic_object

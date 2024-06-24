@@ -48,7 +48,7 @@ module Impl = struct
     | List _ -> Str "list"
     | App (`Op "NullType", [])
     | App (`Op "IntType", [])
-    | App (`Op "RealType", [])
+    | App (`Op "FltType", [])
     | App (`Op "StrType", [])
     | App (`Op "BoolType", [])
     | App (`Op "SymbolType", [])
