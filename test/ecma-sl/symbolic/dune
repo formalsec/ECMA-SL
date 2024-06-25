@@ -1,7 +1,1 @@
-(library
- (name ecmasl_symbolic_tests)
- (modules)
- (inline_tests)
- (preprocess
-  (pps ppx_inline_test))
- (libraries ecma_sl))
+(dirs :standard \ esl js nodejs)
