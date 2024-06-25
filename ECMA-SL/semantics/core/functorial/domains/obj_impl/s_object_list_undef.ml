@@ -36,11 +36,7 @@ let clone (o : t) : t =
 
 let obj_record_to_string (o_r : obj_record) (printer : Expr.t -> string) :
   string =
-  let aux e =
-    match e with
-    | Some v -> printer v
-    | None -> "deleted"
-  in
+  let aux e = match e with Some v -> printer v | None -> "deleted" in
 
   let str_obj =
     Hashtbl.fold o_r.concrete_fields ~init:"{ " ~f:(fun ~key:n ~data:v ac ->
@@ -59,9 +55,7 @@ let to_string (o : t) (printer : Expr.t -> string) : string =
 
 let record_has_concrete_key (o : obj_record) (key : string) : bool =
   let res = Hashtbl.find o.concrete_fields key in
-  match res with
-  | Some _ -> true
-  | None -> false
+  match res with Some _ -> true | None -> false
 
 let record_concrete_list (o : obj_record) : (Expr.t * Expr.t option) list =
   let s_l = Hashtbl.to_alist o.concrete_fields in
@@ -94,14 +88,14 @@ let mk_not e1 = Expr.UnOpt (Operators.Not, e1)
 let is_key_possible (k1 : Expr.t) (k2 : Expr.t) (solver : Batch.t)
   (pc : encoded_pct list) (store : S_store.t) : bool =
   let eq0 = mk_eq k1 k2 in
-  let eq = Reducer.reduce_expr store eq0  in
+  let eq = Reducer.reduce_expr store eq0 in
   Batch.check solver (eq :: pc)
 
 let create_not_pct (l : (pct * Expr.t) list) (key : pct) (store : S_store.t) :
   encoded_pct list =
   List.fold l ~init:[] ~f:(fun acc (pc, _) ->
       let ne = Expr.UnOpt (Operators.Not, mk_eq key pc) in
-      let expr = Reducer.reduce_expr store ne  in
+      let expr = Reducer.reduce_expr store ne in
       expr :: acc )
 
 let create_object (o : t) (k1 : pct) (k2 : pct) (store : S_store.t) :
@@ -125,16 +119,14 @@ let same_type (e1 : Expr.t) (e2 : Expr.t) : bool =
   let t1 = Sval_typing.type_of e1 in
   let t2 = Sval_typing.type_of e2 in
 
-  match (t1, t2) with
-  | (Some t1, Some t2) -> Type.( = ) t1 t2
-  | _ -> false
+  match (t1, t2) with (Some t1, Some t2) -> Type.( = ) t1 t2 | _ -> false
 
 let rec mk_ite_expr_aux (accs : (Expr.t * Expr.t option) list) (acc_pc : Expr.t)
   (default_val : Expr.t) (default_pc : Expr.t)
   (conds : (Expr.t * Expr.t) list list) (solver : Batch.t) (store : S_store.t) :
   (Expr.t * Expr.t option) list * Expr.t =
   let false_e = Expr.Val (Val.Bool false) in
-  let undef = Expr.Val (App (`Op "symbol", [Str "undefined"])) in
+  let undef = Expr.Val (App (`Op "symbol", [ Str "undefined" ])) in
   let (ite, new_pc, new_default) =
     List.fold
       ~init:(default_val, default_pc, undef)
@@ -165,7 +157,7 @@ let rec mk_ite_expr_aux (accs : (Expr.t * Expr.t option) list) (acc_pc : Expr.t)
 let mk_ite_expr_get (prop : Expr.t) (conds : (Expr.t * Expr.t) list list)
   (default_val : Expr.t * Expr.t option) (pc : encoded_pct list)
   (solver : Batch.t) (store : S_store.t) : (Expr.t * pct option) list =
-  let undef = Expr.Val (App (`Op "symbol", [Str "undefined"])) in
+  let undef = Expr.Val (App (`Op "symbol", [ Str "undefined" ])) in
   let false_e = Expr.Val (Val.Bool false) in
   let (default_val, default_pc) = default_val in
 
@@ -181,9 +173,7 @@ let mk_ite_expr_get (prop : Expr.t) (conds : (Expr.t * Expr.t) list list)
         , true )
       else
         let default_pc' =
-          match default_pc with
-          | Some p -> p
-          | None -> false_e
+          match default_pc with Some p -> p | None -> false_e
         in
         (default_val, conds, default_pc', false)
     in
@@ -305,12 +295,8 @@ let set (o : t) (key : vt) (data : Expr.t) (solver : Batch.t)
 
 let get (o : t) (key : vt) (solver : Batch.t) (pc : encoded_pct list)
   (store : S_store.t) : (Expr.t * pct option) list =
-  let undef = Expr.Val (App (`Op "symbol", [Str "undefined"])) in
-  let get_val v =
-    match v with
-    | Some v -> v
-    | _ -> undef
-  in
+  let undef = Expr.Val (App (`Op "symbol", [ Str "undefined" ])) in
+  let get_val v = match v with Some v -> v | _ -> undef in
   let (conds, last_val) =
     get_prop_aux ~default_val:undef o key get_val [] solver pc store
   in

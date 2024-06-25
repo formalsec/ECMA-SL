@@ -59,34 +59,40 @@ let interceptor (parse_sl : string -> 'sl) (func : string) (vs : Value.t list)
     when x = x' && lvl_str = lvl_str' ->
     Some (UpgVarLab (x, parse_sl lvl_str))
   | ( "upgPropExists"
-    , [ App (`Op "loc", [Int loc]); Value.Str x; Value.Str lvl_str ]
+    , [ App (`Op "loc", [ Int loc ]); Value.Str x; Value.Str lvl_str ]
     , [ e_o; e_f; { it = Expr.Val (Str lvl_str'); _ } ] )
     when lvl_str = lvl_str' ->
     Some (UpgPropExistsLab (loc, x, e_o, e_f, parse_sl lvl_str))
   | ( "upgPropExists"
-    , [ App (`Op "loc", [Int _loc]); Value.Str _x; Value.Str _lvl_str ]
+    , [ App (`Op "loc", [ Int _loc ]); Value.Str _x; Value.Str _lvl_str ]
     , [ _; _; _ ] ) ->
     raise (NSUException.Except "Level is not a literal")
   | ( "upgPropVal"
-    , [ App (`Op "loc", [Int loc]); Value.Str x; Value.Str lvl_str ]
+    , [ App (`Op "loc", [ Int loc ]); Value.Str x; Value.Str lvl_str ]
     , [ e_o; e_f; { it = Expr.Val (Str lvl_str'); _ } ] )
     when lvl_str = lvl_str' ->
     Some (UpgPropValLab (loc, x, e_o, e_f, parse_sl lvl_str))
-  | ("upgPropVal", [ App (`Op "loc", [Int _]); Value.Str _x; Value.Str _lvl_str ], [ _; _; _ ]) ->
+  | ( "upgPropVal"
+    , [ App (`Op "loc", [ Int _ ]); Value.Str _x; Value.Str _lvl_str ]
+    , [ _; _; _ ] ) ->
     raise (NSUException.Except "Level is not a literal")
   | ( "upgStruct"
-    , [ App (`Op "loc", [Int loc]); Value.Str lvl_str ]
+    , [ App (`Op "loc", [ Int loc ]); Value.Str lvl_str ]
     , [ e_o; { it = Expr.Val (Str lvl_str'); _ } ] )
     when lvl_str = lvl_str' ->
     Some (UpgStructLab (loc, e_o, parse_sl lvl_str))
-  | ("upgStruct", [ App (`Op "loc", [Int _loc]); Value.Str _lvl_str ], [ _e_o; _ ]) ->
+  | ( "upgStruct"
+    , [ App (`Op "loc", [ Int _loc ]); Value.Str _lvl_str ]
+    , [ _e_o; _ ] ) ->
     raise (NSUException.Except "Level is not a literal")
   | ( "upgObject"
-    , [ App (`Op "loc", [Int loc]); Value.Str lvl_str ]
+    , [ App (`Op "loc", [ Int loc ]); Value.Str lvl_str ]
     , [ e_o; { it = Expr.Val (Str lvl_str'); _ } ] )
     when lvl_str = lvl_str' ->
     Some (UpgObjectLab (loc, e_o, parse_sl lvl_str))
-  | ("upgObject", [ App (`Op "loc", [Int _loc]); Value.Str _lvl_str ], [ _e_o; _ ]) ->
+  | ( "upgObject"
+    , [ App (`Op "loc", [ Int _loc ]); Value.Str _lvl_str ]
+    , [ _e_o; _ ] ) ->
     raise (NSUException.Except "Level is not a literal ")
   | ("setTop", [ Value.Str str ], [ { it = Expr.Val (Str str'); _ } ])
     when str = str' ->

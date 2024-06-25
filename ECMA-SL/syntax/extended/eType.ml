@@ -60,7 +60,7 @@ let tliteral_to_val (lt : tliteral) : Value.t =
   | FloatLit f -> Value.Real f
   | StringLit s -> Value.Str s
   | BooleanLit b -> if b then Value.True else Value.False
-  | SymbolLit s -> Value.App (`Op "symbol", [Value.Str s])
+  | SymbolLit s -> Value.App (`Op "symbol", [ Value.Str s ])
 
 let tliteral_to_wide (lt : tliteral) : t' =
   match lt with

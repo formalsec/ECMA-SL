@@ -44,11 +44,7 @@ let clone (o : t) : t =
 
 let obj_record_to_string (o_r : obj_record) (printer : Expr.t -> string) :
   string =
-  let aux e =
-    match e with
-    | Some v -> printer v
-    | None -> "deleted"
-  in
+  let aux e = match e with Some v -> printer v | None -> "deleted" in
 
   let str_obj =
     Hashtbl.fold o_r.concrete_fields ~init:"{ " ~f:(fun ~key:n ~data:v ac ->
@@ -67,9 +63,7 @@ let to_string (o : t) (printer : Expr.t -> string) : string =
 
 let record_has_concrete_key (o : obj_record) (key : string) : bool =
   let res = Hashtbl.find o.concrete_fields key in
-  match res with
-  | Some _ -> true
-  | None -> false
+  match res with Some _ -> true | None -> false
 
 let record_concrete_list (o : obj_record) : (Expr.t * Expr.t option) list =
   let s_l = Hashtbl.to_alist o.concrete_fields in
@@ -104,18 +98,18 @@ let create_not_pct (l : (pct * Expr.t) list) (key : pct) (store : S_store.t) :
   encoded_pct list =
   List.fold l ~init:[] ~f:(fun acc (pc, _) ->
       let ne = Expr.UnOpt (Operators.Not, mk_eq key pc) in
-      let expr = Reducer.reduce_expr store ne  in
+      let expr = Reducer.reduce_expr store ne in
       expr :: acc )
 
 let create_object (o : t) (k1 : pct) (k2 : pct) (store : S_store.t) :
   t * encoded_pct list =
   let o' = clone o in
-  let eq = Reducer.reduce_expr store (mk_eq k1 k2)  in
+  let eq = Reducer.reduce_expr store (mk_eq k1 k2) in
   (o', [ eq ])
 
 let create_ite (lst : (pct * pct) list) (key : Expr.t) (pc : encoded_pct list)
   (solver : Batch.t) (store : S_store.t) : Expr.t =
-  let undef = Expr.Val (App (`Op "symbol", [Str "undefined"])) in
+  let undef = Expr.Val (App (`Op "symbol", [ Str "undefined" ])) in
   let false_e = Expr.Val (Val.Bool true) in
   let (ite, new_pc) =
     List.fold lst ~init:(undef, false_e) ~f:(fun (acc_val, acc_pc) (k, d) ->
@@ -249,12 +243,8 @@ let set (o : t) (key : vt) (data : Expr.t) (solver : Batch.t)
 
 let get (o : t) (key : vt) (solver : Batch.t) (pc : encoded_pct list)
   (store : S_store.t) : Expr.t =
-  let undef = Expr.Val (App (`Op "symbol", [Str "undefined"])) in
-  let get_val v =
-    match v with
-    | Some v -> v
-    | _ -> undef
-  in
+  let undef = Expr.Val (App (`Op "symbol", [ Str "undefined" ])) in
+  let get_val v = match v with Some v -> v | _ -> undef in
   get_prop ~default_val:undef o key solver pc store get_val
 
 let delete (o : t) (key : Expr.t) (solver : Batch.t) (pc : encoded_pct list)

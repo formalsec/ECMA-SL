@@ -1,7 +1,6 @@
 open EslBase
 open EslSyntax
 open EslSyntax.Operator
-
 module E = Smtml.Expr
 module Ty = Smtml.Ty
 module Value = Smtml.Value
@@ -18,14 +17,11 @@ module M = struct
   let int_symbol_s (x : string) : value = E.mk_symbol (Symbol.make Ty_int x)
   [@@inline]
 
-  let mk_symbol (x : string) : value =  E.(value (App (`Op "symbol", [Str x]))) [@@inline]
-
-  let mk_list (vs : value list) : value = E.(make (List vs))
+  let mk_symbol (x : string) : value = E.(value (App (`Op "symbol", [ Str x ])))
   [@@inline]
 
-  let mk_tuple (fst, snd) : value = E.(make (List [fst; snd]))
-  [@@inline]
-
+  let mk_list (vs : value list) : value = E.(make (List vs)) [@@inline]
+  let mk_tuple (fst, snd) : value = E.(make (List [ fst; snd ])) [@@inline]
   let is_symbolic (v : value) : bool = E.is_symbolic v
 
   let func (v : value) =
@@ -77,78 +73,81 @@ module M = struct
     | E.Triop (_, Ty.Ite, _, a, _) -> expr_type a
     | _ -> E.ty v1
 
-  let eval_unop (op: Operator.unopt) = 
+  let eval_unop (op : Operator.unopt) =
     match op with
-  | Neg -> 
-    (fun v -> 
-      let t = expr_type v in
-      match t with 
-      | Ty_int -> E.(unop Ty_int Neg v)
-      | Ty_real -> E.(unop Ty_real Neg v)
-      | _ -> Log.fail "TODO:x Neg")
-  | BitwiseNot -> E.(unop Ty_int Not)
-  | LogicalNot -> E.(unop Ty_bool Not)
-  | IntToFloat -> E.(cvtop Ty_int Reinterpret_int)
-  | IntToString -> E.(cvtop Ty_int ToString)
-  | FloatToInt -> E.(cvtop Ty_real Reinterpret_float)
-  | FloatToString -> E.(cvtop Ty_real ToString)
-  | StringToInt -> E.(cvtop Ty_str String_to_int)
-  | StringToFloat -> 
-    (fun v -> match E.view v with 
-      | Val Str _ -> ( try E.(cvtop Ty_str Ty.String_to_float) v with _ -> E.(value (Real nan )))
-      | _ -> Log.fail "TODO:x StringToFloat" )
-  | FromCharCode -> E.(cvtop Ty_str String_from_code)
-  | ToCharCode -> E.(cvtop Ty_str String_to_code)
-  | StringLen -> E.(unop Ty_str Length)
-  | StringConcat -> 
-    (fun v1 -> match E.view v1 with 
-      | E.Val (Value.List _) -> E.(naryop Ty_str Concat [v1])
-      | E.List lst -> E.(naryop Ty_str Concat lst)
-      | _-> Log.fail "TODO:x StringConcat")
-  | ObjectToList -> assert false
-  | ObjectFields -> assert false
-  | ListHead -> E.(unop Ty_list Head)
-  | ListTail -> E.(unop Ty_list Tail)
-  | ListLen -> E.(unop Ty_list Length)
-  | ListReverse -> E.(unop Ty_list Reverse)
-  | Abs -> E.(unop Ty_real Abs)
-  | Sqrt -> E.(unop Ty_real Sqrt)
-  | Ceil -> E.(unop Ty_real Ceil)
-  | Floor -> E.(unop Ty_real Floor)
-  | Trunc -> E.(unop Ty_real Trunc)
+    | Neg -> (
+      fun v ->
+        let t = expr_type v in
+        match t with
+        | Ty_int -> E.(unop Ty_int Neg v)
+        | Ty_real -> E.(unop Ty_real Neg v)
+        | _ -> Log.fail "TODO:x Neg" )
+    | BitwiseNot -> E.(unop Ty_int Not)
+    | LogicalNot -> E.(unop Ty_bool Not)
+    | IntToFloat -> E.(cvtop Ty_int Reinterpret_int)
+    | IntToString -> E.(cvtop Ty_int ToString)
+    | FloatToInt -> E.(cvtop Ty_real Reinterpret_float)
+    | FloatToString -> E.(cvtop Ty_real ToString)
+    | StringToInt -> E.(cvtop Ty_str String_to_int)
+    | StringToFloat -> (
+      fun v ->
+        match E.view v with
+        | Val (Str _) -> (
+          try E.(cvtop Ty_str Ty.String_to_float) v
+          with _ -> E.(value (Real nan)) )
+        | _ -> Log.fail "TODO:x StringToFloat" )
+    | FromCharCode -> E.(cvtop Ty_str String_from_code)
+    | ToCharCode -> E.(cvtop Ty_str String_to_code)
+    | StringLen -> E.(unop Ty_str Length)
+    | StringConcat -> (
+      fun v1 ->
+        match E.view v1 with
+        | E.Val (Value.List _) -> E.(naryop Ty_str Concat [ v1 ])
+        | E.List lst -> E.(naryop Ty_str Concat lst)
+        | _ -> Log.fail "TODO:x StringConcat" )
+    | ObjectToList -> assert false
+    | ObjectFields -> assert false
+    | ListHead -> E.(unop Ty_list Head)
+    | ListTail -> E.(unop Ty_list Tail)
+    | ListLen -> E.(unop Ty_list Length)
+    | ListReverse -> E.(unop Ty_list Reverse)
+    | Abs -> E.(unop Ty_real Abs)
+    | Sqrt -> E.(unop Ty_real Sqrt)
+    | Ceil -> E.(unop Ty_real Ceil)
+    | Floor -> E.(unop Ty_real Floor)
+    | Trunc -> E.(unop Ty_real Trunc)
 
-
-  let eval_binop (op: Operator.binopt) = 
+  let eval_binop (op : Operator.binopt) =
     match op with
-    | Plus ->  
-      (fun v1 v2 -> 
-        let t1, t2 = expr_type v1, expr_type v2 in
-        match t1, t2 with
-        | Ty_int, Ty_int -> E.(binop Ty_int Add v1 v2)
-        | Ty_real, Ty_real -> E.(binop Ty_real Add v1 v2)
-        | Ty_str, Ty_str -> E.(naryop Ty_str Concat [ v1; v2 ])
-        | _ -> Log.fail "TODO:x Plus")
-    | Minus -> 
-      (fun v1 v2 -> 
-        let t1, t2 = expr_type v1, expr_type v2 in
-        match t1, t2 with
-        | Ty_int, Ty_int -> E.(binop Ty_int Sub v1 v2)
-        | Ty_real, Ty_real -> E.(binop Ty_real Sub v1 v2)
-        | _ -> Log.fail "TODO:x Minus")
-    | Times -> 
-      (fun v1 v2 -> 
-        let t1, t2 = expr_type v1, expr_type v2 in
-        match t1, t2 with
-        | Ty_int, Ty_int -> E.(binop Ty_int Mul v1 v2)
-        | Ty_real, Ty_real -> E.(binop Ty_real Mul v1 v2)
-        | _ -> Log.fail "TODO:x Times")
-    | Div ->
-      (fun v1 v2 -> 
-        let t1, t2 = expr_type v1, expr_type v2 in
-        match t1, t2 with
-        | Ty_int, Ty_int -> E.(binop Ty_int Div v1 v2)
-        | Ty_real, Ty_real -> E.(binop Ty_real Div v1 v2)
-        | _ -> Log.fail "TODO:x Div")
+    | Plus -> (
+      fun v1 v2 ->
+        let (t1, t2) = (expr_type v1, expr_type v2) in
+        match (t1, t2) with
+        | (Ty_int, Ty_int) -> E.(binop Ty_int Add v1 v2)
+        | (Ty_real, Ty_real) -> E.(binop Ty_real Add v1 v2)
+        | (Ty_str, Ty_str) -> E.(naryop Ty_str Concat [ v1; v2 ])
+        | _ -> Log.fail "TODO:x Plus" )
+    | Minus -> (
+      fun v1 v2 ->
+        let (t1, t2) = (expr_type v1, expr_type v2) in
+        match (t1, t2) with
+        | (Ty_int, Ty_int) -> E.(binop Ty_int Sub v1 v2)
+        | (Ty_real, Ty_real) -> E.(binop Ty_real Sub v1 v2)
+        | _ -> Log.fail "TODO:x Minus" )
+    | Times -> (
+      fun v1 v2 ->
+        let (t1, t2) = (expr_type v1, expr_type v2) in
+        match (t1, t2) with
+        | (Ty_int, Ty_int) -> E.(binop Ty_int Mul v1 v2)
+        | (Ty_real, Ty_real) -> E.(binop Ty_real Mul v1 v2)
+        | _ -> Log.fail "TODO:x Times" )
+    | Div -> (
+      fun v1 v2 ->
+        let (t1, t2) = (expr_type v1, expr_type v2) in
+        match (t1, t2) with
+        | (Ty_int, Ty_int) -> E.(binop Ty_int Div v1 v2)
+        | (Ty_real, Ty_real) -> E.(binop Ty_real Div v1 v2)
+        | _ -> Log.fail "TODO:x Div" )
     | Modulo -> E.(binop Ty_real Rem)
     | Pow -> E.(binop Ty_real Pow)
     | BitwiseAnd -> E.(binop Ty_int And)
@@ -163,66 +162,68 @@ module M = struct
     | SCLogicalOr -> assert false
     | Eq -> E.(relop Ty_bool Eq)
     | NE -> E.(relop Ty_bool Ne)
-    | Lt -> 
-      (fun v1 v2 -> 
-        let t1, t2 = expr_type v1, expr_type v2 in
-        match t1, t2 with
-        | Ty_int, Ty_int -> E.(relop Ty_int Lt v1 v2)
-        | Ty_real, Ty_real -> E.(relop Ty_real Lt v1 v2)
-        | Ty_str, Ty_str -> E.(relop Ty_str Lt v1 v2)
-        | _ -> Log.fail "TODO:x Lt")
-    | Le -> 
-      (fun v1 v2 -> 
-        let t1, t2 = expr_type v1, expr_type v2 in
-        match t1, t2 with
-        | Ty_int, Ty_int -> E.(relop Ty_int Le v1 v2)
-        | Ty_real, Ty_real -> E.(relop Ty_real Le v1 v2)
-        | Ty_str, Ty_str -> E.(relop Ty_str Le v1 v2)
-        | _ -> Log.fail "TODO:x Le")
-    | Gt -> 
-      (fun v1 v2 -> 
-        let t1, t2 = expr_type v1, expr_type v2 in
-        match t1, t2 with
-        | Ty_int, Ty_int -> E.(relop Ty_int Gt v1 v2)
-        | Ty_real, Ty_real -> E.(relop Ty_real Gt v1 v2)
-        | Ty_str, Ty_str -> E.(relop Ty_str Gt v1 v2)
-        | _ -> Log.fail "TODO:x Gt")
-    | Ge -> 
-      (fun v1 v2 -> 
-        let t1, t2 = expr_type v1, expr_type v2 in
-        match t1, t2 with
-        | Ty_int, Ty_int -> E.(relop Ty_int Ge v1 v2)
-        | Ty_real, Ty_real -> E.(relop Ty_real Ge v1 v2)
-        | Ty_str, Ty_str -> E.(relop Ty_str Ge v1 v2)
-        | _ -> Log.fail "TODO:x Ge")
+    | Lt -> (
+      fun v1 v2 ->
+        let (t1, t2) = (expr_type v1, expr_type v2) in
+        match (t1, t2) with
+        | (Ty_int, Ty_int) -> E.(relop Ty_int Lt v1 v2)
+        | (Ty_real, Ty_real) -> E.(relop Ty_real Lt v1 v2)
+        | (Ty_str, Ty_str) -> E.(relop Ty_str Lt v1 v2)
+        | _ -> Log.fail "TODO:x Lt" )
+    | Le -> (
+      fun v1 v2 ->
+        let (t1, t2) = (expr_type v1, expr_type v2) in
+        match (t1, t2) with
+        | (Ty_int, Ty_int) -> E.(relop Ty_int Le v1 v2)
+        | (Ty_real, Ty_real) -> E.(relop Ty_real Le v1 v2)
+        | (Ty_str, Ty_str) -> E.(relop Ty_str Le v1 v2)
+        | _ -> Log.fail "TODO:x Le" )
+    | Gt -> (
+      fun v1 v2 ->
+        let (t1, t2) = (expr_type v1, expr_type v2) in
+        match (t1, t2) with
+        | (Ty_int, Ty_int) -> E.(relop Ty_int Gt v1 v2)
+        | (Ty_real, Ty_real) -> E.(relop Ty_real Gt v1 v2)
+        | (Ty_str, Ty_str) -> E.(relop Ty_str Gt v1 v2)
+        | _ -> Log.fail "TODO:x Gt" )
+    | Ge -> (
+      fun v1 v2 ->
+        let (t1, t2) = (expr_type v1, expr_type v2) in
+        match (t1, t2) with
+        | (Ty_int, Ty_int) -> E.(relop Ty_int Ge v1 v2)
+        | (Ty_real, Ty_real) -> E.(relop Ty_real Ge v1 v2)
+        | (Ty_str, Ty_str) -> E.(relop Ty_str Ge v1 v2)
+        | _ -> Log.fail "TODO:x Ge" )
     | ObjectMem -> assert false
     | StringNth -> E.(binop Ty_str At)
     | ListNth -> E.(binop Ty_list At)
     | ListAdd -> E.(binop Ty_list List_append_last)
-    | ListPrepend ->
-      ( fun v1 v2 -> match expr_type v2 with
+    | ListPrepend -> (
+      fun v1 v2 ->
+        match expr_type v2 with
         | Ty_list -> E.(binop Ty_list Ty.List_append) v2 v1
-        | _ ->
-        Log.fail "TODO:x ListPrepend")
-    | ListConcat -> 
-      (fun v1 v2  -> match E.view v1, E.view v2 with 
-        | E.List l1, E.List l2 -> E.(naryop Ty_list Concat (l1@l2))
-        | _-> Log.fail "TODO:x ListConcat")
+        | _ -> Log.fail "TODO:x ListPrepend" )
+    | ListConcat -> (
+      fun v1 v2 ->
+        match (E.view v1, E.view v2) with
+        | (E.List l1, E.List l2) -> E.(naryop Ty_list Concat (l1 @ l2))
+        | _ -> Log.fail "TODO:x ListConcat" )
 
-  let eval_triop (op: Operator.triopt) = 
+  let eval_triop (op : Operator.triopt) =
     match op with
     | ITE -> E.(triop Ty_bool Ite)
     | StringSubstr -> E.(triop Ty_str String_extract)
     | ListSet -> E.(triop Ty_list List_set)
-    
-  let eval_nop (op: Operator.nopt) = 
+
+  let eval_nop (op : Operator.nopt) =
     match op with
     | NAryLogicalAnd -> E.(naryop Ty_bool Logand)
     | NAryLogicalOr -> E.(naryop Ty_bool Logor)
-    | ListExpr -> (* TODO:x to check if this is right *)
-      (fun vs -> E.(make (List vs)))
+    | ListExpr ->
+      (* TODO:x to check if this is right *)
+      fun vs -> E.(make (List vs))
     | ArrayExpr -> assert false
-   
+
   let eval_type (t : Type.t) =
     let open Ty in
     match t with
@@ -239,7 +240,6 @@ module M = struct
     | TypeType -> Log.fail "eval_type type"
     | CurryType -> Ty_app
 
-
   let rec eval_expr (store : store) (e : Expr.t) : value =
     match e.it with
     | Val v -> E.value v
@@ -247,33 +247,33 @@ module M = struct
       match Store.find store x with
       | Some v -> v
       | None -> Log.fail "Cannot find var '%s'" x )
-    | UnOpt (op, e) -> (
+    | UnOpt (op, e) ->
       let e' = eval_expr store e in
-      eval_unop op e')
-    | BinOpt (op, e1, e2) -> (
+      eval_unop op e'
+    | BinOpt (op, e1, e2) ->
       let e1' = eval_expr store e1 in
       let e2' = eval_expr store e2 in
-      eval_binop op e1' e2')
-    | TriOpt (op, e1, e2, e3) -> (
+      eval_binop op e1' e2'
+    | TriOpt (op, e1, e2, e3) ->
       let e1' = eval_expr store e1 in
       let e2' = eval_expr store e2 in
       let e3' = eval_expr store e3 in
-      eval_triop op e1' e2' e3')
+      eval_triop op e1' e2' e3'
     | NOpt (op, es) ->
       let es' = List.map (eval_expr store) es in
       eval_nop op es'
-    | Curry (f, es) ->
-      (let f' = eval_expr store f in
+    | Curry (f, es) -> (
+      let f' = eval_expr store f in
       let es' = List.map (eval_expr store) es in
       match E.view f' with
-      | Val Value.Str f' -> E.(make (App (`Op f', es')))
-      | _ -> Log.fail "error")
-    | Symbolic (t, x) ->
+      | Val (Value.Str f') -> E.(make (App (`Op f', es')))
+      | _ -> Log.fail "error" )
+    | Symbolic (t, x) -> (
       let x' = eval_expr store x in
       let t = eval_type t in
       match E.view x' with
-      | Val Value.Str x' -> E.(make (Symbol (Symbol.make t x')))
-      | _ -> Log.fail "error"
+      | Val (Value.Str x') -> E.(make (Symbol (Symbol.make t x')))
+      | _ -> Log.fail "error" )
 end
 
 module M' : Value_intf.T = M

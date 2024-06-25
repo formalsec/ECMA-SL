@@ -19,100 +19,103 @@ let op_error index value ty op =
   let open Ty in
   match (op, ty) with
   (* unop *)
-  | `Unop Not, Ty_int ->
+  | (`Unop Not, Ty_int) ->
     bad_arg_err index (label_of_unopt BitwiseNot) "integer" [ value ]
-  | `Unop Not, Ty_bool ->
+  | (`Unop Not, Ty_bool) ->
     bad_arg_err index (label_of_unopt LogicalNot) "boolean" [ value ]
-  | `Cvtop Reinterpret_int, _ ->
+  | (`Cvtop Reinterpret_int, _) ->
     bad_arg_err index (label_of_unopt IntToFloat) "integer" [ value ]
-  | `Cvtop String_from_int, _ ->
+  | (`Cvtop String_from_int, _) ->
     bad_arg_err index (label_of_unopt IntToString) "integer" [ value ]
-  | `Cvtop Reinterpret_float, _ ->
+  | (`Cvtop Reinterpret_float, _) ->
     bad_arg_err index (label_of_unopt FloatToInt) "float" [ value ]
-  | `Cvtop String_to_int, _ ->
+  | (`Cvtop String_to_int, _) ->
     bad_arg_err index (label_of_unopt StringToInt) "string" [ value ]
-  | `Cvtop String_from_code, _ ->
+  | (`Cvtop String_from_code, _) ->
     bad_arg_err index (label_of_unopt FromCharCode) "integer" [ value ]
-  | `Cvtop String_to_code, _ ->
+  | (`Cvtop String_to_code, _) ->
     bad_arg_err index (label_of_unopt ToCharCode) "string" [ value ]
-  | `Unop Length, Ty_str ->
+  | (`Unop Length, Ty_str) ->
     bad_arg_err index (label_of_unopt StringLen) "string" [ value ]
-  | `Unop Head, _ ->
+  | (`Unop Head, _) ->
     bad_arg_err index (label_of_unopt ListHead) "non-empty list" [ value ]
-  | `Unop Tail, _ -> bad_arg_err index (label_of_unopt ListTail) "list" [ value ]
-  | `Unop Length, Ty_list ->
+  | (`Unop Tail, _) ->
+    bad_arg_err index (label_of_unopt ListTail) "list" [ value ]
+  | (`Unop Length, Ty_list) ->
     bad_arg_err index (label_of_unopt ListLen) "list" [ value ]
-  | `Unop Reverse, _ ->
+  | (`Unop Reverse, _) ->
     bad_arg_err index (label_of_unopt ListReverse) "list" [ value ]
-  | `Unop Abs, _ -> bad_arg_err index (label_of_unopt Abs) "float" [ value ]
-  | `Unop Sqrt, _ -> bad_arg_err index (label_of_unopt Sqrt) "float" [ value ]
-  | `Unop Ceil, _ -> bad_arg_err index (label_of_unopt Ceil) "float" [ value ]
-  | `Unop Floor, _ -> bad_arg_err index (label_of_unopt Floor) "float" [ value ]
-  | `Unop Trunc, _ -> bad_arg_err index (label_of_unopt Trunc) "float" [ value ]
+  | (`Unop Abs, _) -> bad_arg_err index (label_of_unopt Abs) "float" [ value ]
+  | (`Unop Sqrt, _) -> bad_arg_err index (label_of_unopt Sqrt) "float" [ value ]
+  | (`Unop Ceil, _) -> bad_arg_err index (label_of_unopt Ceil) "float" [ value ]
+  | (`Unop Floor, _) ->
+    bad_arg_err index (label_of_unopt Floor) "float" [ value ]
+  | (`Unop Trunc, _) ->
+    bad_arg_err index (label_of_unopt Trunc) "float" [ value ]
   (* binop *)
-  | `Binop Rem, _ ->
+  | (`Binop Rem, _) ->
     bad_arg_err index (label_of_binopt Modulo) "(float, float)" [ value ]
-  | `Binop Pow, _ ->
+  | (`Binop Pow, _) ->
     bad_arg_err index (label_of_binopt Pow) "(float, float)" [ value ]
-  | `Binop And, Ty_int ->
+  | (`Binop And, Ty_int) ->
     bad_arg_err index
       (label_of_binopt BitwiseAnd)
       "(integer, integer)" [ value ]
-  | `Binop Or, Ty_int ->
+  | (`Binop Or, Ty_int) ->
     bad_arg_err index (label_of_binopt BitwiseOr) "(integer, integer)" [ value ]
-  | `Binop Xor, Ty_int ->
+  | (`Binop Xor, Ty_int) ->
     bad_arg_err index
       (label_of_binopt BitwiseXor)
       "(integer, integer)" [ value ]
-  | `Binop Shl, Ty_int ->
+  | (`Binop Shl, Ty_int) ->
     bad_arg_err index (label_of_binopt ShiftLeft) "(integer, integer)" [ value ]
-  | `Binop ShrA, Ty_int ->
+  | (`Binop ShrA, Ty_int) ->
     bad_arg_err index
       (label_of_binopt ShiftRight)
       "(integer, integer)" [ value ]
-  | `Binop ShrL, Ty_int ->
+  | (`Binop ShrL, Ty_int) ->
     bad_arg_err index
       (label_of_binopt ShiftRightLogical)
       "(integer, integer)" [ value ]
-  | `Binop And, Ty_bool ->
+  | (`Binop And, Ty_bool) ->
     bad_arg_err index
       (label_of_binopt LogicalAnd)
       "(boolean, boolean)" [ value ]
-  | `Binop Or, Ty_bool ->
+  | (`Binop Or, Ty_bool) ->
     bad_arg_err index (label_of_binopt LogicalOr) "(boolean, boolean)" [ value ]
-  | `Binop List_append_last, _ ->
+  | (`Binop List_append_last, _) ->
     bad_arg_err index (label_of_binopt ListAdd) "(list, any)" [ value ]
   (* triop *)
-  | `Triop Ite, _ ->
+  | (`Triop Ite, _) ->
     bad_arg_err index (label_of_triopt ITE) "(boolean, any, any)" [ value ]
-  | `Triop String_extract, _ ->
+  | (`Triop String_extract, _) ->
     bad_arg_err index
       (label_of_triopt StringSubstr)
       "(string, integer, integer)" [ value ]
-  | `Triop List_set, _ ->
+  | (`Triop List_set, _) ->
     bad_arg_err index (label_of_triopt ListSet) "(list, integer, any)" [ value ]
   (* other errors *)
-  | `Unop op', _ ->
+  | (`Unop op', _) ->
     unexpected_err index
       (Format.asprintf "%a" pp_unop op')
       (Format.asprintf "unop with type %a" pp ty)
-  | `Binop op', _ ->
+  | (`Binop op', _) ->
     unexpected_err index
       (Format.asprintf "%a" pp_binop op')
       (Format.asprintf "binop with type %a" pp ty)
-  | `Relop op', _ ->
+  | (`Relop op', _) ->
     unexpected_err index
       (Format.asprintf "%a" pp_relop op')
       (Format.asprintf "relop with type %a" pp ty)
-  | `Triop op', _ ->
+  | (`Triop op', _) ->
     unexpected_err index
       (Format.asprintf "%a" pp_triop op')
       (Format.asprintf "triop with type %a" pp ty)
-  | `Cvtop op', _ ->
+  | (`Cvtop op', _) ->
     unexpected_err index
       (Format.asprintf "%a" pp_cvtop op')
       (Format.asprintf "cvtop with type %a" pp ty)
-  | `Naryop op', _ ->
+  | (`Naryop op', _) ->
     unexpected_err index
       (Format.asprintf "%a" pp_naryop op')
       (Format.asprintf "naryop with type %a %d" pp ty index)
@@ -237,7 +240,8 @@ let binop_semantics (op : Operator.binopt) =
           "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
       | _ ->
         bad_arg_err 1 (label_of_binopt Lt)
-          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ] )
+          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
+    )
   | Le -> (
     fun v1 v2 ->
       match (v1, v2) with
@@ -250,7 +254,8 @@ let binop_semantics (op : Operator.binopt) =
           "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
       | _ ->
         bad_arg_err 1 (label_of_binopt Le)
-          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ] )
+          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
+    )
   | Gt -> (
     fun v1 v2 ->
       match (v1, v2) with
@@ -263,7 +268,8 @@ let binop_semantics (op : Operator.binopt) =
           "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
       | _ ->
         bad_arg_err 1 (label_of_binopt Gt)
-          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ] )
+          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
+    )
   | Ge -> (
     fun v1 v2 ->
       match (v1, v2) with
@@ -276,7 +282,8 @@ let binop_semantics (op : Operator.binopt) =
           "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
       | _ ->
         bad_arg_err 1 (label_of_binopt Ge)
-          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ] )
+          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
+    )
   | ObjectMem -> Log.fail "unexpected 'ObjectMem' operator"
   | StringNth -> (
     fun v1 v2 ->
