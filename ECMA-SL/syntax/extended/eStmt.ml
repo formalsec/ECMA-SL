@@ -1,6 +1,6 @@
 open EslBase
 open Source
-module Meta = EStmt_metadata
+module Meta = EMetadata.Stmt
 
 type t = t' Source.phrase
 

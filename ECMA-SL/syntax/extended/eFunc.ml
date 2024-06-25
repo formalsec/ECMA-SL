@@ -1,6 +1,6 @@
 open EslBase
 open Source
-module Meta = EFunc_metadata
+module Meta = EMetadata.Func
 
 type t = t' Source.phrase
 

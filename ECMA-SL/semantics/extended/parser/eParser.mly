@@ -159,11 +159,11 @@ let func_target :=
     tret = typing_target?; s = block_target;
     { EFunc.create fn (EParsing_helper.Prog.parse_params pxs) tret s None @> at $sloc }
   | FUNCTION; fn = id_target; LPAREN; pxs = separated_list(COMMA, param_target); RPAREN;
-    vals_meta = delimited(LBRACK, vals_metadata_target, RBRACK); vars_meta = vars_opt_metadata_target;
+    meta_vals = delimited(LBRACK, vals_metadata_target, RBRACK); meta_vars = vars_opt_metadata_target;
     tret = typing_target?; s = block_target;
     {
       EFunc.create fn (EParsing_helper.Prog.parse_params pxs) tret s
-      (Some (EFunc_metadata.build_func_metadata vals_meta vars_meta)) @> at $sloc
+      (Some (EFunc.Meta.build meta_vals meta_vars)) @> at $sloc
     }
 
 let param_target := ~ = id_target; ~ = typing_target?; <>
@@ -266,8 +266,8 @@ let pattern_target :=
   | LBRACE; pbs = separated_nonempty_list(COMMA, pattern_binding_target); RBRACE;
     { EPat.ObjPat (pbs, None) @> at $sloc }
   | LBRACE; pbs = separated_nonempty_list(COMMA, pattern_binding_target); RBRACE;
-    vals_meta = delimited(LBRACK, vals_metadata_target, RBRACK); vars_meta = vars_opt_metadata_target;
-    { EPat.ObjPat (pbs, (Some (EPat_metadata.build_pat_metadata vals_meta vars_meta))) @> at $sloc }
+    meta_vals = delimited(LBRACK, vals_metadata_target, RBRACK); meta_vars = vars_opt_metadata_target;
+    { EPat.ObjPat (pbs, (Some (EPat.Meta.build meta_vals meta_vars))) @> at $sloc }
   | DEFAULT;
     { EPat.DefaultPat @> at $sloc }
 
@@ -405,7 +405,7 @@ let var_metadata_target :=
 let stmt_metadata_target :=
   | meta = separated_list(COMMA, STRING);
     { List.map (
-        fun (m : string) : EStmt_metadata.t ->
+        fun (m : string) : EStmt.Meta.t ->
           let sep_idx = String.index_opt m ':' in
           match sep_idx with
           | None   -> { where = m; html = "" }

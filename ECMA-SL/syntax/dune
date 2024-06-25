@@ -19,13 +19,11 @@
   ; extended
   eExpr
   eStmt
-  eStmt_metadata
   eFunc
-  eFunc_metadata
   eProg
   ePat
-  ePat_metadata
   eMacro
+  eMetadata
   eType)
  (libraries eslBase smtml)
  (instrumentation
