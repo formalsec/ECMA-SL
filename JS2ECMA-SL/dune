@@ -1,3 +1,5 @@
+(dirs src)
+
 (executable
  (name script)
  (modules script)
