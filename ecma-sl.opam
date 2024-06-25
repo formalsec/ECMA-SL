@@ -46,7 +46,6 @@ build: [
   ["dune" "install" "-p" name "--create-install-files" name]
 ]
 dev-repo: "git+https://github.com/formalsec/ECMA-SL.git"
-
 pin-depends: [
-  [ "smtml.dev" "git+https://github.com/formalsec/smtml#ff3c34ad926f7b4329fe7412fe31d270c7b2220b"]
+  [ "smtml.dev" "git+https://github.com/formalsec/smtml#2ad8d47999598ede3c13389b56c75a15e6e2644b"]
 ]

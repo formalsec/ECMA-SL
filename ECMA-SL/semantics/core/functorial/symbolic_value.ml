@@ -33,7 +33,7 @@ module M = struct
     include E.Bool
 
     let const b = if b then true_ else false_
-    let not_ e = not_ e [@@inline]
+    let not_ e = not e [@@inline]
   end
 
   module Store = struct
