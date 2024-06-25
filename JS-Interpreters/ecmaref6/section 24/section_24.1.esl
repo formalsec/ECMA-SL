@@ -83,7 +83,7 @@ function initArrayBufferObject(global, objectPrototype, strict) {
 
 /* Temporary */
 function arrayBufferToString(global, this, NewTarget, strict, args) {
-  str := s_concat["Byte: ", bytes_to_string(this.ArrayBufferData), "Float littleEndian: ", float_to_string(float32_from_le_bytes(this.ArrayBufferData)), ", Float BigEndian: ", float_to_string(float32_from_be_bytes(this.ArrayBufferData))];
+  str := s_concat ["Byte: ", bytes_to_string(this.ArrayBufferData), "Float littleEndian: ", float_to_string(float32_from_le_bytes(this.ArrayBufferData)), ", Float BigEndian: ", float_to_string(float32_from_be_bytes(this.ArrayBufferData))];
   return str
 };
 

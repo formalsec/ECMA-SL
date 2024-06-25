@@ -327,11 +327,11 @@ function NumberPrototypeToFixedAlt(global, this, strict, items) {
         z := "";
         counter := 0;
         while (!(counter <= (f - k))) {
-          z := s_concat[z, "0"];
+          z := s_concat [z, "0"];
           counter := counter + 1
         };
         /* 2. Let m be the concatenation of Strings z and m. */
-        m := s_concat[z, m];
+        m := s_concat [z, m];
         /* 3. Let k = f + 1. */
         k := f + 1
       };
@@ -387,7 +387,7 @@ function NumberPrototypeToExponential(global, this, strict, items) {
   /* 9. If x = +∞, then */
   if (x = Infinity) {
     /* a. Return the concatenation of the Strings s and "Infinity". */
-    return s_concat[s, "Infinity"]
+    return s_concat [s, "Infinity"]
   };
 
   if (fractionDigits = 'undefined) {
@@ -446,7 +446,7 @@ function NumberPrototypeToExponentialAlt(global, this, strict, items) {
   /* 9. If x = +∞, then */
   if (x = Infinity) {
     /* a. Return the concatenation of the Strings s and "Infinity". */
-    return s_concat[s, "Infinity"]
+    return s_concat [s, "Infinity"]
   };
   /* 10. If f < 0 or f > 20, throw a RangeError exception.
   /* However, an implementation is permitted to extend the behaviour of toExponential
@@ -461,7 +461,7 @@ function NumberPrototypeToExponentialAlt(global, this, strict, items) {
     m := "";
     counter := 0;
     while (!(counter <= f)) {
-      m := s_concat[m, "0"];
+      m := s_concat [m, "0"];
       counter := counter + 1
     };
     /* b. Let e = 0. */
@@ -489,7 +489,7 @@ function NumberPrototypeToExponentialAlt(global, this, strict, items) {
     /* a. Let a be the first element of m, and let b be the remaining f elements of m. */
     a := s_nth_u(m, 0);
     /* b. Let m be the concatenation of the three Strings a, ".", and b. */
-    m := s_concat[s_concat[a, "."], b]
+    m := s_concat [s_concat [a, "."], b]
   };
   /* 14. If e = 0, then */
   if (e = 0) {
@@ -514,9 +514,9 @@ function NumberPrototypeToExponentialAlt(global, this, strict, items) {
     d := float_to_string(e)
   };
   /* 16. Let m be the concatenation of the four Strings m, "e", c, and d. */
-  m := s_concat[s_concat[s_concat[m, "e"], c], d];
+  m := s_concat [s_concat [s_concat [m, "e"], c], d];
   /* 17. Return the concatenation of the Strings s and m. */
-  return s_concat[s, m]
+  return s_concat [s, m]
 
   /* The length property of the toExponential method is 1. */
   /* If the toExponential method is called with more than one argument, then the behaviour is undefined (see clause 15). */
@@ -567,7 +567,7 @@ function NumberPrototypeToPrecision(global, this, strict, items) {
   /* 9. If x = +∞, then */
   if (x = Infinity) {
     /* a. Return the String that is the concatenation of s and "Infinity". */
-    return s_concat[s, "Infinity"]
+    return s_concat [s, "Infinity"]
   };
   /* 10. If p < 1 or p > 21, throw a RangeError exception. However, an implementation is permitted
   to extend the behaviour of toPrecision for values of p less than 1 or greater
@@ -621,7 +621,7 @@ function NumberPrototypeToPrecisionAlt(global, this, strict, items) {
   /* 9. If x = +∞, then */
   if (x = Infinity) {
     /* a. Return the String that is the concatenation of s and "Infinity". */
-    return s_concat[s, "Infinity"]
+    return s_concat [s, "Infinity"]
   };
   /* 10. If p < 1 or p > 21, throw a RangeError exception. However, an implementation is permitted
   to extend the behaviour of toPrecision for values of p less than 1 or greater
@@ -635,7 +635,7 @@ function NumberPrototypeToPrecisionAlt(global, this, strict, items) {
     m := "";
     counter := 0;
     while (!(counter = p)) {
-      m := s_concat[m, "0"];
+      m := s_concat [m, "0"];
       counter := counter + 1
     };
     /* b. Let e = 0. */
@@ -650,13 +650,13 @@ function NumberPrototypeToPrecisionAlt(global, this, strict, items) {
   };
   /* 13. If e = p–1, return the concatenation of the Strings s and m. */
   if (e = (p - 1)) {
-    return s_concat[s, m]
+    return s_concat [s, m]
   };
   /* 14. If e ≥ 0, then */
   if (e >= 0) {
     /* a. Let m be the concatenation of the first e+1 elements of m,
     the code unit 0x002E (FULL STOP), and the remaining p – (e+1) elements of m. */
-    m := s_concat[s_concat[s_substr_u(m, 0, e + 1), "."], s_substr_u(m, e + 1, p - (e + 1))]
+    m := s_concat [s_concat [s_substr_u(m, 0, e + 1), "."], s_substr_u(m, e + 1, p - (e + 1))]
   /* 15. Else e < 0, */
   } else {
     /* a. Let m be the String formed by the concatenation of code unit 0x0030 (DIGIT ZERO),
@@ -664,13 +664,13 @@ function NumberPrototypeToPrecisionAlt(global, this, strict, items) {
     tmp := "";
     index := 0;
     while (index = (-e)) {
-      tmp := s_concat[tmp, "0"];
+      tmp := s_concat [tmp, "0"];
       index := index + 1
     };
-    m := s_concat[s_concat["0.", tmp], m]
+    m := s_concat [s_concat ["0.", tmp], m]
   };
   /* 16. Return the String that is the concatenation of s and m. */
-  return s_concat[s, m]
+  return s_concat [s, m]
 
   /* The length property of the toPrecision method is 1. */
 

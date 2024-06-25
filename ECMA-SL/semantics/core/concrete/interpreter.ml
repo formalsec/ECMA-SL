@@ -166,7 +166,7 @@ module M (Instrument : Instrument.M) = struct
       Hashtbl.add visited l ();
       (Object.pp heapval_pp') ppf (get_loc heap l);
       Hashtbl.remove visited l
-    | _ -> EExpr.pp_val_custom_inner heapval_pp' ppf v
+    | _ -> EExpr.pp_custom_val heapval_pp' ppf v
 
   let print_pp (heap : heap) (ppf : Fmt.t) (v : Value.t) : unit =
     match v with
