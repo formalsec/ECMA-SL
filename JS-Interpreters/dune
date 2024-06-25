@@ -1,3 +1,5 @@
+(dirs ecmaref5 ecmaref6)
+
 (rule
  (targets es5.include es6.include es6-sym.include es6-sym.cesl)
  (deps
