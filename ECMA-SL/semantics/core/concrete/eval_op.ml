@@ -328,7 +328,7 @@ let to_bool_aux (v : Value.t) : bool =
   match v with
   | Value.True -> true
   | Value.False -> false
-  | _ -> failwith "Eval_op.to_bool_aux"
+  | _ -> Log.fail "Eval_op.to_bool_aux"
 
 let nary_logical_and (vals : Value.t list) : Value.t =
   if List.for_all to_bool_aux vals then Value.True else Value.False
@@ -341,5 +341,5 @@ let eval_nopt (op : nopt) (vals : Value.t list) : Value.t =
   | NAryLogicalAnd -> nary_logical_and vals
   | NAryLogicalOr -> nary_logical_or vals
   | ArrayExpr ->
-    (* TODO:x Value.Arr (Array.of_list vals) *) failwith "eval_nopt.arrayExpr"
+    (* TODO:x Value.Arr (Array.of_list vals) *) Log.fail "eval_nopt.arrayExpr"
   | ListExpr -> Value.List vals
