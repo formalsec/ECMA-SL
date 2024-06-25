@@ -4,7 +4,6 @@ module Memory = Symbolic_memory
 module Optimizer = Smtml.Optimizer.Z3
 module E = Smtml.Expr
 
-
 module PC = struct
   include Set.Make (struct
     include Smtml.Expr
@@ -70,63 +69,62 @@ module List = struct
     [ (v, t) ]
 
   let check (cond : Value.value) : bool t =
-    fun t ->
-      let solver = Thread.solver t in
-      let pc = Thread.pc t in
-      match E.view cond with
-      | Val True -> [ (true, t) ]
-      | Val False -> [ (false, t) ]
-      | _ -> (
-        let pc = PC.(add cond pc |> elements) in
-        match Solver.check solver pc with
-        | `Sat -> [ (true, t) ]
-        | `Unsat -> [ (false, t) ]
-        | `Unknown ->
-          Format.eprintf "Unknown pc: %a@." Smtml.Expr.pp_list pc;
-          [] )
+   fun t ->
+    let solver = Thread.solver t in
+    let pc = Thread.pc t in
+    match E.view cond with
+    | Val True -> [ (true, t) ]
+    | Val False -> [ (false, t) ]
+    | _ -> (
+      let pc = PC.(add cond pc |> elements) in
+      match Solver.check solver pc with
+      | `Sat -> [ (true, t) ]
+      | `Unsat -> [ (false, t) ]
+      | `Unknown ->
+        Format.eprintf "Unknown pc: %a@." Smtml.Expr.pp_list pc;
+        [] )
 
   let check_add_true (cond : Value.value) : bool t =
-    fun t ->
-      let solver = Thread.solver t in
-      let pc = Thread.pc t in
-      match E.view cond with
-      | Val True -> [ (true, t) ]
-      | Val False -> [ (false, t) ]
-      | _ -> (
-        let pc = PC.(add cond pc |> elements) in
-        match Solver.check solver pc with
-        | `Sat -> [ (true, Thread.add_pc t cond) ]
-        | `Unsat -> [ (false, t) ]
-        | `Unknown ->
-          Format.eprintf "Unknown pc: %a@." Smtml.Expr.pp_list pc;
-          [] )
+   fun t ->
+    let solver = Thread.solver t in
+    let pc = Thread.pc t in
+    match E.view cond with
+    | Val True -> [ (true, t) ]
+    | Val False -> [ (false, t) ]
+    | _ -> (
+      let pc = PC.(add cond pc |> elements) in
+      match Solver.check solver pc with
+      | `Sat -> [ (true, Thread.add_pc t cond) ]
+      | `Unsat -> [ (false, t) ]
+      | `Unknown ->
+        Format.eprintf "Unknown pc: %a@." Smtml.Expr.pp_list pc;
+        [] )
 
   let branch (v : Value.value) : bool t =
-    fun t ->
-      let solver = Thread.solver t in
-      let pc = Thread.pc t in
-      match E.view v with
-      | Val True -> [ (true, t) ]
-      | Val False -> [ (false, t) ]
-      | _ -> (
-        let with_v = PC.add v pc in
-        let with_no = PC.add (Value.Bool.not_ v) pc in
-        let sat_true =
-          if PC.equal with_v pc then true
-          else `Sat = Solver.check solver (PC.elements with_v)
-        in
-        let sat_false =
-          if PC.equal with_no pc then true
-          else `Sat = Solver.check solver (PC.to_list with_no)
-        in
-        match (sat_true, sat_false) with
-        | (false, false) -> []
-        | (true, false) | (false, true) -> [ (sat_true, t) ]
-        | (true, true) ->
-          let t0 = Thread.clone t in
-          let t1 = Thread.clone t in
-          [ (true, { t0 with pc = with_v }); (false, { t1 with pc = with_no }) ]
-        )
+   fun t ->
+    let solver = Thread.solver t in
+    let pc = Thread.pc t in
+    match E.view v with
+    | Val True -> [ (true, t) ]
+    | Val False -> [ (false, t) ]
+    | _ -> (
+      let with_v = PC.add v pc in
+      let with_no = PC.add (Value.Bool.not_ v) pc in
+      let sat_true =
+        if PC.equal with_v pc then true
+        else `Sat = Solver.check solver (PC.elements with_v)
+      in
+      let sat_false =
+        if PC.equal with_no pc then true
+        else `Sat = Solver.check solver (PC.to_list with_no)
+      in
+      match (sat_true, sat_false) with
+      | (false, false) -> []
+      | (true, false) | (false, true) -> [ (sat_true, t) ]
+      | (true, true) ->
+        let t0 = Thread.clone t in
+        let t1 = Thread.clone t in
+        [ (true, { t0 with pc = with_v }); (false, { t1 with pc = with_no }) ] )
 
   let select_val (v : Value.value) thread =
     match E.view v with

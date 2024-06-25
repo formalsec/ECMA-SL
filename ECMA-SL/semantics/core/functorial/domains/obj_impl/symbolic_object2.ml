@@ -70,7 +70,7 @@ struct
 
   let create_object (o : t) (k1 : value) (k2 : value) : t * value2 list =
     let o' = clone o in
-    let eq = (mk_eq k1 k2) in
+    let eq = mk_eq k1 k2 in
     (o', [ eq ])
 
   let is_key_possible (k1 : value) (k2 : value) (solver : Solver.t)

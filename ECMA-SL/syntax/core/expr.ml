@@ -26,7 +26,9 @@ let rec pp (ppf : Fmt.t) (e : t) : unit =
   | Symbolic (t, e') -> format ppf "se_mk_symbolic(%a, %a)" Type.pp t pp e'
 
 let str (e : t) : string = Fmt.str "%a" pp e
-let isvoid (e : t) : bool = match e.it with Val App (`Op "void", []) -> true | _ -> false
+
+let isvoid (e : t) : bool =
+  match e.it with Val (App (`Op "void", [])) -> true | _ -> false
 
 let rec vars_in_expr (e : t) : Id.t' list =
   let vars_in_lst lst = List.map vars_in_expr lst |> List.concat in

@@ -20,7 +20,7 @@ module Make (O : Object_intf.S with type value = V.value) = struct
   let insert ({ data = memory; _ } : t) (o : object_) : value =
     let loc = Loc.create () in
     Loc.Tbl.replace memory loc o;
-    E.(value (App (`Op "loc", [Int loc])))
+    E.(value (App (`Op "loc", [ Int loc ])))
 
   let remove (m : t) (l : Loc.t) : unit = Loc.Tbl.remove m.data l
 
@@ -83,35 +83,32 @@ module Make (O : Object_intf.S with type value = V.value) = struct
 
   let rec unfold_ite ~(accum : value) (e : value) : (value option * int) list =
     match E.view e with
-    | Val (App (`Op "loc", [Int x])) -> [ (Some accum, x) ]
+    | Val (App (`Op "loc", [ Int x ])) -> [ (Some accum, x) ]
     (* TODO:x | Val (Val.Symbol _x) -> [ (Some accum, ~-1) ] *)
     | Triop (_, Ty.Ite, c, a, e) -> (
       match E.view a with
-      | Val (App (`Op "loc", [Int l])) ->
-          let accum' =
-            E.(binop Ty.Ty_bool Ty.And accum (unop Ty.Ty_bool Ty.Not c))
-          in
-          let tl = unfold_ite ~accum:accum' e in
-          (Some E.(binop Ty.Ty_bool Ty.And accum c), l) :: tl
-      | _ -> assert false)
+      | Val (App (`Op "loc", [ Int l ])) ->
+        let accum' =
+          E.(binop Ty.Ty_bool Ty.And accum (unop Ty.Ty_bool Ty.Not c))
+        in
+        let tl = unfold_ite ~accum:accum' e in
+        (Some E.(binop Ty.Ty_bool Ty.And accum c), l) :: tl
+      | _ -> assert false )
     | _ -> assert false
 
   let loc (e : value) : ((value option * int) list, string) Result.t =
     match E.view e with
-    | Val (App (`Op "loc", [Int l])) -> Ok [ (None, l) ]
+    | Val (App (`Op "loc", [ Int l ])) -> Ok [ (None, l) ]
     | Triop (_, Ty.Ite, c, a, v) -> (
       match E.view a with
-      | Val (App (`Op "loc", [Int l])) ->
-          Ok
-            ((Some c, l)
-            :: unfold_ite ~accum:E.(unop Ty.Ty_bool Ty.Not c) v)
-      | _ ->
-          Error (Fmt.str "Value '%a' is not a loc expression" E.pp e))
+      | Val (App (`Op "loc", [ Int l ])) ->
+        Ok ((Some c, l) :: unfold_ite ~accum:E.(unop Ty.Ty_bool Ty.Not c) v)
+      | _ -> Error (Fmt.str "Value '%a' is not a loc expression" E.pp e) )
     | _ -> Error (Fmt.str "Value '%a' is not a loc expression" V.pp e)
 
   let pp_val (h : t) (e : value) : string =
     match E.view e with
-    | Val (App (`Op "loc", [Int l])) -> (
+    | Val (App (`Op "loc", [ Int l ])) -> (
       match get h l with
       | None -> Loc.str l
       | Some o -> Fmt.str "%a -> %a" Loc.pp l O.pp o )

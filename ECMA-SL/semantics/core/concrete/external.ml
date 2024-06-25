@@ -24,14 +24,10 @@ let parseJS (prog : Prog.t) (code : string) : Value.t =
     with _ -> Log.fail "err in ParseJS" )
 
 module Impl = struct
-
   let arr_map = Hashtbl.create 128
   let arr_count = ref 0
-
   let op_err = Eval_op.op_err
-
   let unexpected_err = Eval_op.unexpected_err
-
   let bad_arg_err = Eval_op.bad_arg_err
 
   let typeof (v : Value.t) : Value.t =
@@ -41,10 +37,10 @@ module Impl = struct
     | App (`Op "void", []) -> unexpected_err 1 op_lbl "void value"
     | Int _ -> Str "int"
     | Real _ -> Str "float"
-    | True| False -> Str "bool"
+    | True | False -> Str "bool"
     | Str _ -> Str "string"
-    | App (`Op "symbol", [Str _]) -> Str "symbol"
-    | App (`Op "loc", [Int _] ) -> Str "object"
+    | App (`Op "symbol", [ Str _ ]) -> Str "symbol"
+    | App (`Op "loc", [ Int _ ]) -> Str "object"
     | List _ -> Str "list"
     | App (`Op "NullType", [])
     | App (`Op "IntType", [])
@@ -55,7 +51,8 @@ module Impl = struct
     | App (`Op "LocType", [])
     | App (`Op "ListType", [])
     | App (`Op "TupleType", [])
-    | App (`Op "CurryType", []) -> Str "type"
+    | App (`Op "CurryType", []) ->
+      Str "type"
     | App (`Op _, _) -> Str "curry"
     | _ -> unexpected_err 1 op_lbl "value type"
 
@@ -120,8 +117,7 @@ module Impl = struct
           /. (10. ** float_of_int (y - 1))
         in
         Str (Float.to_string res)
-    | (Real _, _) ->
-      bad_arg_err 2 op_lbl "(float, integer)" [ v1; v2 ]
+    | (Real _, _) -> bad_arg_err 2 op_lbl "(float, integer)" [ v1; v2 ]
     | _ -> bad_arg_err 1 op_lbl "(float, integer)" [ v1; v2 ]
 
   let to_exponential ((v1, v2) : Value.t * Value.t) : Value.t =
@@ -155,16 +151,14 @@ module Impl = struct
             ( string_of_float num
             ^ "e"
             ^ Int.to_string (Float.to_int (Float.floor exp)) )
-    | (Real _, _) ->
-      bad_arg_err 2 op_lbl "(float, integer)" [ v1; v2 ]
+    | (Real _, _) -> bad_arg_err 2 op_lbl "(float, integer)" [ v1; v2 ]
     | _ -> bad_arg_err 1 op_lbl "(float, integer)" [ v1; v2 ]
 
   let to_fixed ((v1, v2) : Value.t * Value.t) : Value.t =
     let op_lbl = "to_fixed_external" in
     match (v1, v2) with
     | (Real x, Int y) -> Str (Printf.sprintf "%0.*f" y x)
-    | (Real _, _) ->
-      bad_arg_err 2 op_lbl "(float, integer)" [ v1; v2 ]
+    | (Real _, _) -> bad_arg_err 2 op_lbl "(float, integer)" [ v1; v2 ]
     | _ -> bad_arg_err 1 op_lbl "(float, integer)" [ v1; v2 ]
 
   let from_char_code_u (v : Value.t) : Value.t =
@@ -209,8 +203,7 @@ module Impl = struct
     | (Str s, Int i) -> (
       try Str (String_utils.s_nth_u s i)
       with _ -> unexpected_err 2 op_lbl "index out of bounds" )
-    | (Str _, _) ->
-      bad_arg_err 2 op_lbl "(string, integer)" [ v1; v2 ]
+    | (Str _, _) -> bad_arg_err 2 op_lbl "(string, integer)" [ v1; v2 ]
     | _ -> bad_arg_err 1 op_lbl "(string, integer)" [ v1; v2 ]
 
   let s_split ((v1, v2) : Value.t * Value.t) : Value.t =
@@ -218,9 +211,9 @@ module Impl = struct
     match (v1, v2) with
     | (_, Str "") -> unexpected_err 2 op_lbl "empty separator"
     | (Str str, Str sep) ->
-      Value.List (List.map (fun s -> Value.Str s) (Str.split (Str.regexp sep) str))
-    | (Str _, _) ->
-      bad_arg_err 2 op_lbl "(string, string)" [ v1; v2 ]
+      Value.List
+        (List.map (fun s -> Value.Str s) (Str.split (Str.regexp sep) str))
+    | (Str _, _) -> bad_arg_err 2 op_lbl "(string, string)" [ v1; v2 ]
     | _ -> bad_arg_err 1 op_lbl "(string, string)" [ v1; v2 ]
 
   let s_substr_u ((v1, v2, v3) : Value.t * Value.t * Value.t) : Value.t =
@@ -233,12 +226,14 @@ module Impl = struct
     | (Str _, _, _) -> arg_err 2
     | _ -> arg_err 1
 
-  let array_len (v : Value.t) : Value.t = 
+  let array_len (v : Value.t) : Value.t =
     let op_lbl = "a_len_external" in
     match v with
     | Int l -> (
-      try let arr = Hashtbl.find arr_map l in Value.Int (Array.length arr) with 
-      | Not_found -> unexpected_err 1 op_lbl "array not found")
+      try
+        let arr = Hashtbl.find arr_map l in
+        Value.Int (Array.length arr)
+      with Not_found -> unexpected_err 1 op_lbl "array not found" )
     | _ -> bad_arg_err 1 op_lbl "array" [ v ]
 
   let array_make ((v1, v2) : Value.t * Value.t) : Value.t =
@@ -249,8 +244,7 @@ module Impl = struct
         let index = !arr_count in
         Hashtbl.add arr_map index (Array.make n v);
         arr_count := !arr_count + 1;
-        Int index
-      )
+        Int index )
       else unexpected_err 1 op_lbl "non-positive array size"
     | _ -> bad_arg_err 1 op_lbl "(integer, any)" [ v1; v2 ]
 
@@ -258,39 +252,38 @@ module Impl = struct
     let op_lbl = "a_nth_external" in
     match (v1, v2) with
     | (Int l, Int i) -> (
-      try (let arr = Hashtbl.find arr_map l in Array.get arr i) with 
+      try
+        let arr = Hashtbl.find arr_map l in
+        Array.get arr i
+      with
       | Not_found -> unexpected_err 1 op_lbl "array not found"
       | _ -> unexpected_err 2 op_lbl "index out of bounds" )
-    | (Int _, _) ->
-      bad_arg_err 2 op_lbl "(integer, integer)" [ v1; v2 ]
+    | (Int _, _) -> bad_arg_err 2 op_lbl "(integer, integer)" [ v1; v2 ]
     | _ -> bad_arg_err 1 op_lbl "(integer, integer)" [ v1; v2 ]
 
   let array_set ((v1, v2, v3) : Value.t * Value.t * Value.t) : Value.t =
     let op_lbl = "a_set_external" in
     match (v1, v2) with
     | (Int l, Int i) -> (
-      try (
-        let arr = Hashtbl.find arr_map l in 
-        Array.set arr i v3; 
-        Hashtbl.replace arr_map l arr 
-        |> fun () -> Value.App (`Op "null", []))
+      try
+        let arr = Hashtbl.find arr_map l in
+        Array.set arr i v3;
+        Hashtbl.replace arr_map l arr |> fun () -> Value.App (`Op "null", [])
       with _ -> unexpected_err 2 op_lbl "index out of bounds" )
     | (Int _, _) ->
       bad_arg_err 2 op_lbl "(integer, integer, any)" [ v1; v2; v3 ]
-    | _ ->
-      bad_arg_err 1 op_lbl "(integer, integer, any)" [ v1; v2; v3 ]
+    | _ -> bad_arg_err 1 op_lbl "(integer, integer, any)" [ v1; v2; v3 ]
 
   let list_to_array (v : Value.t) : Value.t =
     let op_lbl = "list_to_array_external" in
     match v with
-    | List lst -> 
+    | List lst ->
       let arr = Array.of_list lst in
       let loc = !arr_count in
       Hashtbl.add arr_map loc arr;
       arr_count := !arr_count + 1;
       Int loc
     | _ -> bad_arg_err 1 op_lbl "list" [ v ]
-
 
   let string_concat_aux (lst : Value.t list) : string list option =
     let concat_f acc v =
@@ -314,7 +307,7 @@ module Impl = struct
   let list_mem ((v1, v2) : Value.t * Value.t) : Value.t =
     let op_lbl = "in_list_external" in
     match v2 with
-    | List lst -> if (List.mem v1 lst) then Value.True else Value.False
+    | List lst -> if List.mem v1 lst then Value.True else Value.False
     | _ -> bad_arg_err 2 op_lbl "(any, list)" [ v1; v2 ]
 
   let list_remove_last (v : Value.t) : Value.t =
@@ -348,8 +341,7 @@ module Impl = struct
     in
     match (v1, v2) with
     | (List lst, Int i) -> List (_remove_nth_aux lst i)
-    | (List _, _) ->
-      bad_arg_err 2 op_lbl "(list, integer)" [ v1; v2 ]
+    | (List _, _) -> bad_arg_err 2 op_lbl "(list, integer)" [ v1; v2 ]
     | _ -> bad_arg_err 1 op_lbl "(list, integer)" [ v1; v2 ]
 
   let float_to_byte (v : Value.t) : Value.t =
@@ -398,10 +390,11 @@ module Impl = struct
     let unpack_bt_f = function Value.Int i -> i | _ -> raise Exit in
     try
       match v with
-      | Int l -> 
-        (try (let bytes = Hashtbl.find arr_map l in
-        Array.map unpack_bt_f bytes)
-        with Not_found -> unexpected_err 1 op_lbl "array not found")
+      | Int l -> (
+        try
+          let bytes = Hashtbl.find arr_map l in
+          Array.map unpack_bt_f bytes
+        with Not_found -> unexpected_err 1 op_lbl "array not found" )
       | _ -> bad_arg_err 1 op_lbl "byte array" [ v ]
     with _ -> bad_arg_err 1 op_lbl "byte array" [ v ]
 
@@ -447,16 +440,14 @@ module Impl = struct
       let bytes = Byte_utils.int_to_be_bytes (x, n) in
       let val_bytes = List.map (fun b -> Value.Int b) bytes in
       List val_bytes
-    | (Real _, _) ->
-      bad_arg_err 2 op_lbl "(float, integer)" [ v1; v2 ]
+    | (Real _, _) -> bad_arg_err 2 op_lbl "(float, integer)" [ v1; v2 ]
     | _ -> bad_arg_err 1 op_lbl "(float, integer)" [ v1; v2 ]
 
   let int_from_le_bytes ((v1, v2) : Value.t * Value.t) : Value.t =
     let op_lbl = "int_from_le_bytes_external" in
     let int_bytes =
       try unpack_bytes_aux op_lbl v1
-      with _ ->
-        bad_arg_err 1 op_lbl "(byte array, integer)" [ v1; v2 ]
+      with _ -> bad_arg_err 1 op_lbl "(byte array, integer)" [ v1; v2 ]
     in
     match v2 with
     | Int n -> Real (Byte_utils.int_from_le_bytes (int_bytes, n))
@@ -466,8 +457,7 @@ module Impl = struct
     let op_lbl = "uint_from_le_bytes_external" in
     let int_bytes =
       try unpack_bytes_aux op_lbl v1
-      with _ ->
-        bad_arg_err 1 op_lbl "(byte array, integer)" [ v1; v2 ]
+      with _ -> bad_arg_err 1 op_lbl "(byte array, integer)" [ v1; v2 ]
     in
     match v2 with
     | Int n -> Real (Byte_utils.uint_from_le_bytes (int_bytes, n))
@@ -478,13 +468,13 @@ module Impl = struct
     match v with
     | Real f -> Real (Random.float f)
     | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-    
+
   let exp (v : Value.t) : Value.t =
     let op_lbl = "exp_external" in
     match v with
     | Real f -> Real (Float.exp f)
     | _ -> bad_arg_err 1 op_lbl "float" [ v ]
-    
+
   let log_2 (v : Value.t) : Value.t =
     let op_lbl = "log_2_external" in
     match v with
@@ -561,8 +551,7 @@ module Impl = struct
     let op_lbl = "atan2_external" in
     match (v1, v2) with
     | (Real f1, Real f2) -> Real (Float.atan2 f1 f2)
-    | (Real _, _) ->
-      bad_arg_err 2 op_lbl "(float, float)" [ v1; v2 ]
+    | (Real _, _) -> bad_arg_err 2 op_lbl "(float, float)" [ v1; v2 ]
     | _ -> bad_arg_err 1 op_lbl "(float, float)" [ v1; v2 ]
 
   let utf8_decode (v : Value.t) : Value.t =
@@ -710,4 +699,4 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("parse_date_external", [ v ]) -> parse_date v
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
-    Value.App (`Op "symbol", [Str "undefined"])
+    Value.App (`Op "symbol", [ Str "undefined" ])

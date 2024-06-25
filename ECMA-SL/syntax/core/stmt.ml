@@ -47,13 +47,11 @@ let rec pp (ppf : Fmt.t) (s : t) : unit =
   | AssignCall (x, fe, es) ->
     format ppf "%a := %a(%a)" Id.pp x Expr.pp fe (pp_lst !>", " Expr.pp) es
   | AssignECall (x, fn, es) ->
-    format ppf "%a := extern %a(%a)" Id.pp x Id.pp fn (pp_lst !>", " Expr.pp)
-      es
+    format ppf "%a := extern %a(%a)" Id.pp x Id.pp fn (pp_lst !>", " Expr.pp) es
   | AssignNewObj x -> format ppf "%a := {}" Id.pp x
   | AssignObjToList (x, e) ->
     format ppf "%a := obj_to_list %a" Id.pp x Expr.pp e
-  | AssignObjFields (x, e) ->
-    format ppf "%a := obj_fields %a" Id.pp x Expr.pp e
+  | AssignObjFields (x, e) -> format ppf "%a := obj_fields %a" Id.pp x Expr.pp e
   | AssignInObjCheck (x, e1, e2) ->
     format ppf "%a := %a in_obj %a" Id.pp x Expr.pp e1 Expr.pp e2
   | FieldLookup (x, oe, fe) ->

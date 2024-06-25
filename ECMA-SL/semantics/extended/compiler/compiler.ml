@@ -23,8 +23,8 @@ let real ?(at : region option) (ss : c_stmt) : c_stmt =
 
 module Builder = struct
   let var_id = Base.make_name_generator "__v"
-  let etrue (x : 'a phrase) : Expr.t = Expr.Val (Value.True) @?> x.at
-  let efalse (x : 'a phrase) : Expr.t = Expr.Val (Value.False) @?> x.at
+  let etrue (x : 'a phrase) : Expr.t = Expr.Val Value.True @?> x.at
+  let efalse (x : 'a phrase) : Expr.t = Expr.Val Value.False @?> x.at
   let global (x : 'a phrase) : Expr.t = Expr.Var Const.esl_globals_obj @?> x.at
   let var (at : region) : Expr.t = Expr.Var (var_id ()) @> at
 
@@ -36,7 +36,9 @@ module Builder = struct
 
   let throw_checker (at : region) (res : Expr.t) (sthen : c_stmt) : Stmt.t =
     let iserror = Expr.UnOpt (ListHead, res) @?> res.at in
-    let value = Expr.BinOpt (ListNth, res, (Expr.Val (Int 1)) @?> at) @?> res.at in
+    let value =
+      Expr.BinOpt (ListNth, res, Expr.Val (Int 1) @?> at) @?> res.at
+    in
     let selse = Stmt.Assign (?@res, value) @?> at in
     Stmt.If (iserror, block ~at sthen, block_opt ~at [ selse ]) @?> at
 
@@ -47,7 +49,9 @@ module Builder = struct
     | Some ferr' ->
       let res' = res.it @?> ferr'.at in
       let ferr'' = Expr.Val (Value.Str ferr'.it) @?> ferr'.at in
-      let err = Expr.BinOpt (ListNth, res', (Expr.Val (Int 1)) @?> at) @?> ferr'.at in
+      let err =
+        Expr.BinOpt (ListNth, res', Expr.Val (Int 1) @?> at) @?> ferr'.at
+      in
       let args = [ global ferr'; err ] in
       let sferr = Stmt.AssignCall (?@res', ferr'', args) @?> ferr'.at in
       let sferr_checker = throw_checker at res' [ sreturn ] in
@@ -323,7 +327,9 @@ and compile_print (at : region) (e : EExpr.t) : c_stmt =
   e_s @ [ Stmt.Print e_e @?> at ]
 
 and compile_return (at : region) (e : EExpr.t) : c_stmt =
-  let e' = if EExpr.isvoid e then EExpr.Val (Value.App (`Op "null", []))@?> at else e in
+  let e' =
+    if EExpr.isvoid e then EExpr.Val (Value.App (`Op "null", [])) @?> at else e
+  in
   let (e_s, e_e) = compile_expr at e' in
   let err = Builder.efalse e' in
   let ret = Expr.NOpt (ListExpr, [ err; e_e ]) @?> e'.at in
@@ -385,7 +391,7 @@ and compile_foreach (at : region) (x : Id.t) (e : EExpr.t) (s : EStmt.t) :
 
 and compile_repeatuntil (at : region) (s : EStmt.t)
   (until : (EExpr.t * region) option) : c_stmt =
-  let default = (EExpr.Val (Value.False) @?> at, { at with real = false }) in
+  let default = (EExpr.Val Value.False @?> at, { at with real = false }) in
   let (e, at') = Option.value ~default until in
   let s_s = compile_stmt s in
   let (e_s, e_e) = compile_expr at' e in

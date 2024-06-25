@@ -53,7 +53,7 @@ module P = struct
         | _ ->
           let pc' = PC.(union pc_thread (of_list pc)) in
           if PC.equal pc' pc_thread then Some (Some v, thread)
-          else if (`Unsat = Solver.check solver (PC.elements pc')) then None
+          else if `Unsat = Solver.check solver (PC.elements pc') then None
           else Some (Some v, { thread with pc = pc' })
       in
       match vals with
@@ -95,7 +95,7 @@ module P = struct
         | _ ->
           let pc' = PC.(union pc_thread (of_list pc)) in
           if PC.equal pc' pc_thread then Some (Some v, thread)
-          else if (`Unsat = Solver.check solver (PC.elements pc')) then None
+          else if `Unsat = Solver.check solver (PC.elements pc') then None
           else Some (Some v, { thread with pc = pc' })
       in
       match field_vals with
@@ -124,7 +124,7 @@ module P = struct
         | Some c ->
           let pc = PC.add c pc in
           if PC.equal pc (Thread.pc thread) then Some (v, thread)
-          else if (`Unsat = Solver.check solver (PC.elements pc)) then None
+          else if `Unsat = Solver.check solver (PC.elements pc) then None
           else Some (v, { thread with pc })
       in
       match locs with
@@ -170,7 +170,6 @@ module P = struct
       [@@inline]
     end
   end
-
 end
 
 module P' : Interpreter_functor_intf.P = P
