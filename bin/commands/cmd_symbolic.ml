@@ -5,7 +5,7 @@ module Thread = Choice_monad.Thread
 module Env = Symbolic.P.Env
 module Value = Symbolic.P.Value
 module Choice = Symbolic.P.Choice
-module Extern_func = Symbolic.P.Extern_func 
+module Extern_func = Symbolic.P.Extern_func
 module State = Symbolic_interpreter.State
 
 module Options = struct

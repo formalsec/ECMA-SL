@@ -57,9 +57,7 @@ let set_concrete_field (o : t) (key : vt) (data : Expr.t) : unit =
 
 let has_concrete_key (o : t) (key : string) : bool =
   let res = Hashtbl.find o.concrete_fields key in
-  match res with
-  | Some _ -> true
-  | None -> false
+  match res with Some _ -> true | None -> false
 
 let concrete_to_list (o : t) : (pct * Expr.t) list =
   let s_l = Hashtbl.to_alist o.concrete_fields in
@@ -80,7 +78,7 @@ let create_not_pct (l : (pct * Expr.t) list) (key : pct) (store : S_store.t) :
   encoded_pct list =
   List.fold l ~init:[] ~f:(fun acc (pc, _) ->
       let ne = Expr.UnOpt (Operators.Not, mk_eq key pc) in
-      let expr = Reducer.reduce_expr store ne  in
+      let expr = Reducer.reduce_expr store ne in
       expr :: acc )
 
 let create_object (o : t) (k1 : pct) (k2 : pct) (store : S_store.t) :
@@ -92,7 +90,7 @@ let create_object (o : t) (k1 : pct) (k2 : pct) (store : S_store.t) :
 let create_ite (lst : (pct * pct) list) (key : Expr.t) (pc : encoded_pct list)
   (solver : Batch.t) (store : S_store.t) :
   (Expr.t * pct option) * (Expr.t * pct option) option =
-  let undef = Expr.Val (App (`Op "symbol", [Str "undefined"])) in
+  let undef = Expr.Val (App (`Op "symbol", [ Str "undefined" ])) in
   (* let _, test = List.hd_exn lst in *)
   let false_e = Expr.Val (Val.Bool false) in
 
@@ -234,7 +232,7 @@ let get (o : t) (key : vt) (solver : Batch.t) (pc : encoded_pct list)
     | Some v -> ((v, None), None)
     | None ->
       if Expr_Hashtbl.length o.symbolic_fields = 0 then
-        ((Expr.Val (App (`Op "symbol", [Str "undefined"])), None), None)
+        ((Expr.Val (App (`Op "symbol", [ Str "undefined" ])), None), None)
       else
         let lst = get_possible_fields_symbolic o key solver pc store in
         create_ite lst key pc solver store )
@@ -245,7 +243,7 @@ let get (o : t) (key : vt) (solver : Batch.t) (pc : encoded_pct list)
     | None ->
       let lst = get_possible_fields o key solver pc store in
       if List.length lst = 0 then
-        ((Expr.Val (App (`Op "symbol", [Str "undefined"])), None), None)
+        ((Expr.Val (App (`Op "symbol", [ Str "undefined" ])), None), None)
       else create_ite lst key pc solver store )
 
 let delete (o : t) (key : Expr.t) (solver : Batch.t) (pc : encoded_pct list)

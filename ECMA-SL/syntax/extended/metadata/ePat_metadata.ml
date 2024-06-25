@@ -59,7 +59,7 @@ let build_pat_metadata (metadata : Value.t list)
   let production_name =
     match List.nth_opt metadata 4 with
     | None -> Some ""
-    | Some App (`Op "null", []) -> None
+    | Some (App (`Op "null", [])) -> None
     | Some (Str s) -> Some s
     | _ ->
       invalid_arg

@@ -259,8 +259,7 @@ let pp_of_const (ppf : Fmt.t) (c : const) : unit =
 
 let pp_of_unopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   ((op, v) : unopt * 'a) : unit =
-  if is_infix_unopt op then
-    Fmt.format ppf "%a%a" pp_of_unopt_single op pp_val v
+  if is_infix_unopt op then Fmt.format ppf "%a%a" pp_of_unopt_single op pp_val v
   else Fmt.format ppf "%a(%a)" pp_of_unopt_single op pp_val v
 
 let pp_of_binopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)

@@ -313,8 +313,10 @@ module TestRunner = struct
   let check_result (error : Value.t option) (retval : Value.t Result.t) :
     TestRecord.result =
     match (retval, error) with
-    | (Ok (List [ _; App (`Op "symbol", [Str "normal"]); _; _ ]), None) -> Success
-    | (Ok (List [ _; App (`Op "symbol", [Str "throw"]); e1; _ ]), Some e2) when Value.equal e1 e2 ->
+    | (Ok (List [ _; App (`Op "symbol", [ Str "normal" ]); _; _ ]), None) ->
+      Success
+    | (Ok (List [ _; App (`Op "symbol", [ Str "throw" ]); e1; _ ]), Some e2)
+      when Value.equal e1 e2 ->
       Success
     | (Ok (List [ _; _; _; _ ]), _) -> Failure
     | (_, _) -> Anomaly

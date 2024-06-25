@@ -23,7 +23,7 @@ module Make
   let insert { map; _ } obj =
     let loc = Loc.create () in
     Hashtbl.add map loc obj;
-    E.(make @@ Val (App (`Op "loc", [Int loc])))
+    E.(make @@ Val (App (`Op "loc", [ Int loc ])))
 
   let remove h l = Hashtbl.remove h.map l
   let set h key data = Hashtbl.replace h.map key data
@@ -50,7 +50,8 @@ module Make
     let obj = get heap l in
     let res = Option.bind obj (fun o -> Some (Object.get o field solver pc)) in
     match res with
-    | None -> Log.fail "get Return is never none. loc: %a %a" Loc.pp l V.pp field
+    | None ->
+      Log.fail "get Return is never none. loc: %a %a" Loc.pp l V.pp field
     | Some objs -> (
       (* Don't clone heap unless necessary *)
       match objs with

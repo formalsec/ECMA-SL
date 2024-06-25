@@ -83,8 +83,7 @@ let apply_op_set (h : t) (loc : Expr.t) (cond : Expr.t) (left : Expr.t)
 
   match (cs pc_l, cs pc_r) with
   | (true, true) ->
-    op left pc_l (Some cond) (clone h)
-    @ op right pc_r (Some not_cond) (clone h)
+    op left pc_l (Some cond) (clone h) @ op right pc_r (Some not_cond) (clone h)
   | (true, false) -> op left pc_l (Some cond) (clone h)
   | (false, true) -> op right pc_r (Some not_cond) (clone h)
   | _ -> failwith "No path is valid in Set."
@@ -100,7 +99,7 @@ let rec assign_obj_fields (h : t) (loc : Expr.t) (solver : Batch.t)
   | Expr.TriOpt (Operators.ITE, cond, left, right) ->
     let op l pc = assign_obj_fields h l solver pc store in
     apply_op_get h loc cond left right solver op pc store
-  | Expr.Val (App (`Op "symbol", [Str "undefined"])) ->
+  | Expr.Val (App (`Op "symbol", [ Str "undefined" ])) ->
     invalid_arg ("Invalid location in assign_obj_fields: " ^ Expr.str loc)
   | _ -> assert false
 
@@ -122,7 +121,7 @@ let rec assign_obj_to_list (h : t) (loc : Expr.t) (solver : Batch.t)
   | Expr.TriOpt (Operators.ITE, cond, left, right) ->
     let op l pc = assign_obj_to_list h l solver pc store in
     apply_op_get h loc cond left right solver op pc store
-  | Expr.Val (App (`Op "symbol", [Str "undefined"])) ->
+  | Expr.Val (App (`Op "symbol", [ Str "undefined" ])) ->
     invalid_arg ("Invalid location in assign_obj_to_list: " ^ Expr.str loc)
   | _ -> assert false
 
@@ -135,7 +134,7 @@ let rec has_field_aux (h : t) (loc : Expr.t) (field : Expr.t) (solver : Batch.t)
   | Expr.TriOpt (Operators.ITE, cond, left, right) ->
     let op l pc = has_field_aux h l field solver pc store in
     apply_op_get h loc cond left right solver op pc store
-  | Expr.Val (App (`Op "symbol", [Str "undefined"])) ->
+  | Expr.Val (App (`Op "symbol", [ Str "undefined" ])) ->
     invalid_arg ("Invalid location in has_field: " ^ Expr.str loc)
     (* mk_bool false *)
   | _ -> assert false
@@ -177,11 +176,7 @@ let rec get_field_aux ?(guard = None) (heap : t) (loc : Expr.t) (field : Expr.t)
           let k = getKey (Sval_typing.type_of v) in
 
           let lst = Hashtbl.find acc k in
-          let lst =
-            match lst with
-            | None -> []
-            | Some lst -> lst
-          in
+          let lst = match lst with None -> [] | Some lst -> lst in
 
           let lst =
             match (pc', guard) with
@@ -206,14 +201,12 @@ let rec get_field_aux ?(guard = None) (heap : t) (loc : Expr.t) (field : Expr.t)
     | (true, false) -> op left pc_left (Some cond) acc
     | (false, true) -> op right pc_right (Some not_cond) acc
     | _ -> failwith "Apply op error." )
-  | Expr.Val (App (`Op "symbol", [Str "undefined"])) ->
+  | Expr.Val (App (`Op "symbol", [ Str "undefined" ])) ->
     invalid_arg ("Invalid location in getr_field: " ^ Expr.str loc)
   | _ -> assert false
 
 let or_aux (e1 : Expr.t) (e2 : Expr.t option) : Expr.t =
-  match e2 with
-  | Some e2 -> mk_or e1 e2
-  | None -> e1
+  match e2 with Some e2 -> mk_or e1 e2 | None -> e1
 
 let get_field (heap : t) (loc : Expr.t) (field : Expr.t) (solver : Batch.t)
   (pc : encoded_pct list) (store : S_store.t) :
@@ -222,7 +215,7 @@ let get_field (heap : t) (loc : Expr.t) (field : Expr.t) (solver : Batch.t)
   let branch_table =
     get_field_aux heap loc field solver pc store branch_table
   in
-  let undef = Expr.Val (App (`Op "symbol", [Str "undefined"])) in
+  let undef = Expr.Val (App (`Op "symbol", [ Str "undefined" ])) in
   let f_e = mk_bool false in
   if Hashtbl.length branch_table > 1 then
     Hashtbl.fold branch_table ~init:[] ~f:(fun ~key ~data acc ->
@@ -248,11 +241,7 @@ let get_field (heap : t) (loc : Expr.t) (field : Expr.t) (solver : Batch.t)
           List.fold data ~init:(undef, Some f_e)
             ~f:(fun (ite, new_pc) (v, pc', guard) -> (v, pc') )
         in
-        let pc' =
-          match pc' with
-          | Some p -> [ p ]
-          | None -> []
-        in
+        let pc' = match pc' with Some p -> [ p ] | None -> [] in
         (heap, pc', Some ite) :: acc )
 
 (* if List.length branch_list > 1 then
@@ -323,7 +312,7 @@ let rec set_field_aux ?(encoded_guard = None) (heap : t) (loc : Expr.t)
       set_field_aux ~encoded_guard:guard h l field v solver pc store
     in
     apply_op_set heap loc cond left right solver op pc store
-  | Expr.Val (App (`Op "symbol", [Str "undefined"])) ->
+  | Expr.Val (App (`Op "symbol", [ Str "undefined" ])) ->
     invalid_arg ("Invalid location in set_field: " ^ Expr.str loc)
   | _ -> assert false
 
@@ -356,7 +345,7 @@ let rec delete_field_aux ?(encoded_guard = None) (heap : t) (loc : Expr.t)
       delete_field_aux ~encoded_guard:guard h l field solver pc store
     in
     apply_op_set heap loc cond left right solver op pc store
-  | Expr.Val (App (`Op "symbol", [Str "undefined"])) ->
+  | Expr.Val (App (`Op "symbol", [ Str "undefined" ])) ->
     invalid_arg ("Invalid location in delete_field: " ^ Expr.str loc)
   | _ -> assert false
 

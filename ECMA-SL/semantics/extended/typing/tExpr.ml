@@ -35,15 +35,14 @@ and type_val (v : Value.t) : EType.t' =
   | Str s -> LiteralType (LitWeak, StringLit s)
   | True -> LiteralType (LitWeak, BooleanLit true)
   | False -> LiteralType (LitWeak, BooleanLit false)
-  | App (`Op "symbol", [Str "undefined"]) -> UndefinedType
-  | App (`Op "symbol", [Str s]) -> LiteralType (LitWeak, SymbolLit s)
-  | App (`Op "loc", [Int _]) -> Log.fail "loc val"
+  | App (`Op "symbol", [ Str "undefined" ]) -> UndefinedType
+  | App (`Op "symbol", [ Str s ]) -> LiteralType (LitWeak, SymbolLit s)
+  | App (`Op "loc", [ Int _ ]) -> Log.fail "loc val"
   (* TODO:x | Arr _ -> Log.fail "array val" *)
   | List _ -> Log.fail "list val"
   (* | Type _ -> AnyType (* TODO *) *)
   (* | Curry _ -> AnyType (* TODO *) *)
   | _ -> AnyType
-
 
 and type_var (tctx : TCtx.t) (x : Id.t) : EType.t' =
   match TCtx.tenv_find tctx x with

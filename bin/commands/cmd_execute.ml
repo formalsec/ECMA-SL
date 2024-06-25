@@ -36,7 +36,7 @@ let execute_partial (entry : Interpreter.entry) (config : Options.interp_config)
 
 let check_harness_return (result : Interpreter.result) : unit Result.t =
   match result.retval with
-  | List [ _; App (`Op "symbol", [Str "normal"]); _; _ ] -> Ok ()
+  | List [ _; App (`Op "symbol", [ Str "normal" ]); _; _ ] -> Ok ()
   | _ ->
     let err = Fmt.str "Unable to setup harness: %a" Value.pp result.retval in
     Result.error (`Execute err)

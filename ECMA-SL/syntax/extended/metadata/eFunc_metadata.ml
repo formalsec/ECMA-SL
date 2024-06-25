@@ -48,7 +48,7 @@ let build_func_metadata (metadata : Value.t list)
   let section_name =
     match List.nth_opt metadata 3 with
     | None -> Some ""
-    | Some App (`Op "null", []) -> None
+    | Some (App (`Op "null", [])) -> None
     | Some (Str s) -> Some s
     | _ ->
       invalid_arg

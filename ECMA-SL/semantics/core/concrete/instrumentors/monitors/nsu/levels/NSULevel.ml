@@ -32,12 +32,7 @@ let addFlow (_lst1 : t) (_lst2 : t) : unit =
   raise (Except "Illegal Lattice operation - addflow")
 
 let setTop (_ : t) : unit = raise (Except "Illegal Lattice operation - setTop")
-
-let str (l : t) =
-  match l with
-  | High -> "high"
-  | Low -> "low"
-
+let str (l : t) = match l with High -> "high" | Low -> "low"
 let get_low () : t = Low
 let get_high () : t = High
 
@@ -47,14 +42,9 @@ let parse_lvl (str : string) : t =
   else raise (Except ("Unknown Level -" ^ str))
 
 let lub (l1 : t) (l2 : t) : t =
-  match (l1, l2) with
-  | (High, _) | (_, High) -> High
-  | (_, _) -> Low
+  match (l1, l2) with (High, _) | (_, High) -> High | (_, _) -> Low
 
 let lubn (lst : t list) : t = List.fold_left lub Low lst
 
 let leq (l1 : t) (l2 : t) : bool =
-  match (l1, l2) with
-  | (_, High) -> true
-  | (Low, _) -> true
-  | (_, _) -> false
+  match (l1, l2) with (_, High) -> true | (Low, _) -> true | (_, _) -> false

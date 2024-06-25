@@ -45,7 +45,7 @@ module M (Instrument : Instrument.M) = struct
   let set_global_var (store : store) (heap : heap) : unit =
     let open Compiler.Const in
     if Option.is_some (Heap.get_opt heap esl_globals_loc) then
-      Store.set store esl_globals_obj (App (`Op "loc", [Int esl_globals_loc]))
+      Store.set store esl_globals_obj (App (`Op "loc", [ Int esl_globals_loc ]))
 
   let initial_state (fmain : Func.t) (s_heap : heap option)
     (inst : Instrument.t ref) : state =
@@ -70,15 +70,14 @@ module M (Instrument : Instrument.M) = struct
     | None -> Runtime_error.(throw ~src:(ErrSrc.region at) (UnknownFunc fn))
     | Some f -> f
 
-  let eval_operator (eval_op_fun : unit -> Value.t) (es : Expr.t list) : Value.t =
-    try eval_op_fun ()
-    with 
+  let eval_operator (eval_op_fun : unit -> Value.t) (es : Expr.t list) : Value.t
+      =
+    try eval_op_fun () with
     | Runtime_error.Error err ->
       let e = Runtime_error.(src err |> ErrSrc.index_to_el es) in
       Runtime_error.(set_src (ErrSrc.at e) err |> raise)
-    | Smtml.Eval.TypeError {index; value; ty; op} -> Eval_op.op_error index value ty op
-
-
+    | Smtml.Eval.TypeError { index; value; ty; op } ->
+      Eval_op.op_error index value ty op
 
   let rec eval_expr' (state : state) (e : Expr.t) : Value.t =
     match e.it with
@@ -107,8 +106,8 @@ module M (Instrument : Instrument.M) = struct
       let fv = eval_expr state fe in
       let vs = List.map (eval_expr state) es in
       match fv with
-      | Str fn -> Value.App (`Op fn,vs)
-      | _ -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadExpr ("curry", fv))) ) 
+      | Str fn -> Value.App (`Op fn, vs)
+      | _ -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadExpr ("curry", fv))) )
     | Symbolic (t, _) -> (
       (* TODO:x should change?*)
       Random.self_init ();
@@ -127,7 +126,7 @@ module M (Instrument : Instrument.M) = struct
   let eval_str (state : state) (e : Expr.t) : string =
     match eval_expr state e with
     | Str s -> s
-    | _ as v  -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("string", v))) 
+    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("string", v)))
 
   let eval_bool (state : state) (e : Expr.t) : bool =
     match eval_expr state e with
@@ -137,7 +136,7 @@ module M (Instrument : Instrument.M) = struct
 
   let eval_loc (state : state) (e : Expr.t) : Loc.t =
     match eval_expr state e with
-    | App (`Op "loc", [Int l]) -> l
+    | App (`Op "loc", [ Int l ]) -> l
     | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("location", v)))
 
   let eval_obj (state : state) (heap : heap) (e : Expr.t) : Loc.t * obj =
@@ -158,11 +157,12 @@ module M (Instrument : Instrument.M) = struct
     let incr_depth = Option.map (fun d -> d - 1) in
     let heapval_pp' = heapval_pp (incr_depth depth) visited heap in
     match v with
-    | App (`Op "loc", [Int l]) when (not valid_depth) || visited_loc l -> Fmt.format ppf "{...}"
+    | App (`Op "loc", [ Int l ]) when (not valid_depth) || visited_loc l ->
+      Fmt.format ppf "{...}"
     (* | Arr _ when not valid_depth -> Fmt.format ppf "[|...|]" *)
     | List _ when not valid_depth -> Fmt.format ppf "[...]"
     (* | Tuple _ when not valid_depth -> Fmt.format ppf "(...)" *)
-    | App (`Op "loc", [Int l]) ->
+    | App (`Op "loc", [ Int l ]) ->
       Hashtbl.add visited l ();
       (Object.pp heapval_pp') ppf (get_loc heap l);
       Hashtbl.remove visited l
@@ -175,8 +175,8 @@ module M (Instrument : Instrument.M) = struct
       let visited = Hashtbl.create !Base.default_hashtbl_sz in
       heapval_pp !Config.print_depth visited heap ppf v
 
-  let prepare_store_binds (pxs : string list) (vs : Value.t list) (at : region) :
-    (string * Value.t) list =
+  let prepare_store_binds (pxs : string list) (vs : Value.t list) (at : region)
+    : (string * Value.t) list =
     try List.combine pxs vs
     with Invalid_argument _ ->
       let (xpxs, nargs) = (List.length pxs, List.length vs) in
@@ -252,7 +252,7 @@ module M (Instrument : Instrument.M) = struct
     | AssignNewObj x ->
       let l = Loc.create () in
       Heap.set state.heap l (Object.create ());
-      Store.set state.store x.it (App (`Op "loc", [Int l]));
+      Store.set state.store x.it (App (`Op "loc", [ Int l ]));
       Intermediate (state, cont) $$ AssignNewObjEval l
     | AssignObjToList (x, e) ->
       let fld_to_tup_f (fn, fv) = Value.List [ Str fn; fv ] in
@@ -270,11 +270,13 @@ module M (Instrument : Instrument.M) = struct
       let in_obj = function Some _ -> true | None -> false in
       let (loc, obj) = eval_obj state state.heap oe in
       let fn = eval_str state fe in
-      let v = if (Object.get obj fn |> in_obj) then Value.True else Value.False in
+      let v = if Object.get obj fn |> in_obj then Value.True else Value.False in
       Store.set state.store x.it v;
       Intermediate (state, cont) $$ AssignInObjCheckEval (loc, fn)
     | FieldLookup (x, oe, fe) ->
-      let fld_val v = Option.value ~default:(Value.App (`Op "symbol", [Str "undefined"])) v in
+      let fld_val v =
+        Option.value ~default:(Value.App (`Op "symbol", [ Str "undefined" ])) v
+      in
       let (l, obj) = eval_obj state state.heap oe in
       let fn = eval_str state fe in
       let v = Object.get obj fn |> fld_val in

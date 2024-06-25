@@ -56,7 +56,8 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
     | Default -> format ppf "Generic runtime error."
     | Custom msg' -> format ppf "%s" msg'
     | Unexpected msg -> format ppf "Unexpected %s." msg
-    | UnexpectedExitVal v -> format ppf "Unexpected exit value '%a'." EExpr.pp_val v
+    | UnexpectedExitVal v ->
+      format ppf "Unexpected exit value '%a'." EExpr.pp_val v
     | Failure msg -> format ppf "Failure %s." msg
     | UncaughtExn msg -> format ppf "Uncaught exception %s." msg
     | OpEvalErr oplbl -> format ppf "Exception in Operator.%s." oplbl
@@ -72,12 +73,13 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
       format ppf "Expecting a function identifier, but got '%a'." EExpr.pp_val v
     | BadOpArgs (texpr, vs) when List.length vs = 1 ->
       format ppf "Expecting argument of type '%s', but got '%a'." texpr
-        (pp_lst !>", " EExpr.pp_val) vs
+        (pp_lst !>", " EExpr.pp_val)
+        vs
     | BadOpArgs (texpr, vs) ->
       format ppf "Expecting arguments of types '%s', but got '(%a)'." texpr
-        (pp_lst !>", " EExpr.pp_val) vs
-    | MissingReturn fn ->
-      format ppf "Missing return in function '%a'." Id.pp fn
+        (pp_lst !>", " EExpr.pp_val)
+        vs
+    | MissingReturn fn -> format ppf "Missing return in function '%a'." Id.pp fn
 
   let str (msg : t) : string = Fmt.str "%a" pp msg
 end
