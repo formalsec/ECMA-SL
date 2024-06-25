@@ -1,7 +1,7 @@
 open Smtml
 open EslBase
 open Source
-module Meta = EPat_metadata
+module Meta = EMetadata.Pat
 
 type pv = pv' Source.phrase
 
