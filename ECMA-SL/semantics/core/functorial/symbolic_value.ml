@@ -85,7 +85,7 @@ module M = struct
       match t with 
       | Ty_int -> E.(unop Ty_int Neg v)
       | Ty_real -> E.(unop Ty_real Neg v)
-      | _ -> failwith "TODO:x Neg")
+      | _ -> Log.fail "TODO:x Neg")
   | BitwiseNot -> E.(unop Ty_int Not)
   | LogicalNot -> E.(unop Ty_bool Not)
   | IntToFloat -> E.(cvtop Ty_int Reinterpret_int)
@@ -96,7 +96,7 @@ module M = struct
   | StringToFloat -> 
     (fun v -> match E.view v with 
       | Val Str _ -> ( try E.(cvtop Ty_str Ty.String_to_float) v with _ -> E.(value (Real nan )))
-      | _ -> failwith "TODO:x StringToFloat" )
+      | _ -> Log.fail "TODO:x StringToFloat" )
   | FromCharCode -> E.(cvtop Ty_str String_from_code)
   | ToCharCode -> E.(cvtop Ty_str String_to_code)
   | StringLen -> E.(unop Ty_str Length)
@@ -104,7 +104,7 @@ module M = struct
     (fun v1 -> match E.view v1 with 
       | E.Val (Value.List _) -> E.(naryop Ty_str Concat [v1])
       | E.List lst -> E.(naryop Ty_str Concat lst)
-      | _-> failwith "TODO:x StringConcat")
+      | _-> Log.fail "TODO:x StringConcat")
   | ObjectToList -> assert false
   | ObjectFields -> assert false
   | ListHead -> E.(unop Ty_list Head)
@@ -127,28 +127,28 @@ module M = struct
         | Ty_int, Ty_int -> E.(binop Ty_int Add v1 v2)
         | Ty_real, Ty_real -> E.(binop Ty_real Add v1 v2)
         | Ty_str, Ty_str -> E.(naryop Ty_str Concat [ v1; v2 ])
-        | _ -> failwith "TODO:x Plus")
+        | _ -> Log.fail "TODO:x Plus")
     | Minus -> 
       (fun v1 v2 -> 
         let t1, t2 = expr_type v1, expr_type v2 in
         match t1, t2 with
         | Ty_int, Ty_int -> E.(binop Ty_int Sub v1 v2)
         | Ty_real, Ty_real -> E.(binop Ty_real Sub v1 v2)
-        | _ -> failwith "TODO:x Minus")
+        | _ -> Log.fail "TODO:x Minus")
     | Times -> 
       (fun v1 v2 -> 
         let t1, t2 = expr_type v1, expr_type v2 in
         match t1, t2 with
         | Ty_int, Ty_int -> E.(binop Ty_int Mul v1 v2)
         | Ty_real, Ty_real -> E.(binop Ty_real Mul v1 v2)
-        | _ -> failwith "TODO:x Times")
+        | _ -> Log.fail "TODO:x Times")
     | Div ->
       (fun v1 v2 -> 
         let t1, t2 = expr_type v1, expr_type v2 in
         match t1, t2 with
         | Ty_int, Ty_int -> E.(binop Ty_int Div v1 v2)
         | Ty_real, Ty_real -> E.(binop Ty_real Div v1 v2)
-        | _ -> failwith "TODO:x Div")
+        | _ -> Log.fail "TODO:x Div")
     | Modulo -> E.(binop Ty_real Rem)
     | Pow -> E.(binop Ty_real Pow)
     | BitwiseAnd -> E.(binop Ty_int And)
@@ -170,7 +170,7 @@ module M = struct
         | Ty_int, Ty_int -> E.(relop Ty_int Lt v1 v2)
         | Ty_real, Ty_real -> E.(relop Ty_real Lt v1 v2)
         | Ty_str, Ty_str -> E.(relop Ty_str Lt v1 v2)
-        | _ -> failwith "TODO:x Lt")
+        | _ -> Log.fail "TODO:x Lt")
     | Le -> 
       (fun v1 v2 -> 
         let t1, t2 = expr_type v1, expr_type v2 in
@@ -178,7 +178,7 @@ module M = struct
         | Ty_int, Ty_int -> E.(relop Ty_int Le v1 v2)
         | Ty_real, Ty_real -> E.(relop Ty_real Le v1 v2)
         | Ty_str, Ty_str -> E.(relop Ty_str Le v1 v2)
-        | _ -> failwith "TODO:x Le")
+        | _ -> Log.fail "TODO:x Le")
     | Gt -> 
       (fun v1 v2 -> 
         let t1, t2 = expr_type v1, expr_type v2 in
@@ -186,7 +186,7 @@ module M = struct
         | Ty_int, Ty_int -> E.(relop Ty_int Gt v1 v2)
         | Ty_real, Ty_real -> E.(relop Ty_real Gt v1 v2)
         | Ty_str, Ty_str -> E.(relop Ty_str Gt v1 v2)
-        | _ -> failwith "TODO:x Gt")
+        | _ -> Log.fail "TODO:x Gt")
     | Ge -> 
       (fun v1 v2 -> 
         let t1, t2 = expr_type v1, expr_type v2 in
@@ -194,7 +194,7 @@ module M = struct
         | Ty_int, Ty_int -> E.(relop Ty_int Ge v1 v2)
         | Ty_real, Ty_real -> E.(relop Ty_real Ge v1 v2)
         | Ty_str, Ty_str -> E.(relop Ty_str Ge v1 v2)
-        | _ -> failwith "TODO:x Ge")
+        | _ -> Log.fail "TODO:x Ge")
     | ObjectMem -> assert false
     | StringNth -> E.(binop Ty_str At)
     | ListNth -> E.(binop Ty_list At)
@@ -203,11 +203,11 @@ module M = struct
       ( fun v1 v2 -> match expr_type v2 with
         | Ty_list -> E.(binop Ty_list Ty.List_append) v2 v1
         | _ ->
-        failwith "TODO:x ListPrepend")
+        Log.fail "TODO:x ListPrepend")
     | ListConcat -> 
       (fun v1 v2  -> match E.view v1, E.view v2 with 
         | E.List l1, E.List l2 -> E.(naryop Ty_list Concat (l1@l2))
-        | _-> failwith "TODO:x ListConcat")
+        | _-> Log.fail "TODO:x ListConcat")
 
   let eval_triop (op: Operator.triopt) = 
     match op with
@@ -226,17 +226,17 @@ module M = struct
   let eval_type (t : Type.t) =
     let open Ty in
     match t with
-    | NullType -> failwith "eval_type null"
+    | NullType -> Log.fail "eval_type null"
     | IntType -> Ty_int
     | FltType -> Ty_real
     | StrType -> Ty_str
     | BoolType -> Ty_bool
-    | SymbolType -> failwith "eval_type symbol"
-    | LocType -> failwith "eval_type loc"
-    | ArrayType -> failwith "eval_type array"
+    | SymbolType -> Log.fail "eval_type symbol"
+    | LocType -> Log.fail "eval_type loc"
+    | ArrayType -> Log.fail "eval_type array"
     | ListType -> Ty_list
-    | TupleType -> failwith "eval_type tuple"
-    | TypeType -> failwith "eval_type type"
+    | TupleType -> Log.fail "eval_type tuple"
+    | TypeType -> Log.fail "eval_type type"
     | CurryType -> Ty_app
 
 
@@ -267,13 +267,13 @@ module M = struct
       let es' = List.map (eval_expr store) es in
       match E.view f' with
       | Val Value.Str f' -> E.(make (App (`Op f', es')))
-      | _ -> failwith "error")
+      | _ -> Log.fail "error")
     | Symbolic (t, x) ->
       let x' = eval_expr store x in
       let t = eval_type t in
       match E.view x' with
       | Val Value.Str x' -> E.(make (Symbol (Symbol.make t x')))
-      | _ -> failwith "error"
+      | _ -> Log.fail "error"
 end
 
 module M' : Value_intf.T = M

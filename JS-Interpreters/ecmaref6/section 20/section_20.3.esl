@@ -2230,7 +2230,7 @@ function DatePrototypeToUTCString(globalObject, this, NewTarget, strict, args) {
   minutes := padding(MinFromTime(tv), 2);
   seconds := padding(SecFromTime(tv), 2);
 
-  repr := s_concat[weekday, ", ", day, " ", month, " ", year, " ", hours, ":", minutes, ":", seconds, " GMT"];
+  repr := s_concat [weekday, ", ", day, " ", month, " ", year, " ", hours, ":", minutes, ":", seconds, " GMT"];
 
   return repr
 };
@@ -2753,7 +2753,7 @@ function timeValueRepresentation(tv) {
   minutes := padding(MinFromTime(tv), 2);
   seconds := padding(SecFromTime(tv), 2);
   mseconds := padding(msFromTime(tv), 3);
-  repr := s_concat[year, "-", month, "-", day, "T", hours, ":", minutes, ":", seconds, ".", mseconds, "Z"];
+  repr := s_concat [year, "-", month, "-", day, "T", hours, ":", minutes, ":", seconds, ".", mseconds, "Z"];
   return repr
 };
 
@@ -2764,7 +2764,7 @@ function padding(num, size) {
 
   i := 0;
   while (i < pad) {
-    str := s_concat["0", str];
+    str := s_concat ["0", str];
     i := i + 1
   };
 

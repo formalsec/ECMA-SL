@@ -30,7 +30,7 @@ let float_str (f : float) : string =
   if is_special_number f_str || String.contains f_str '.' then f_str
   else f_str ^ ".0"
 
-let pp_val_custom_inner (pp_inner_val : Fmt.t -> Smtml.Value.t -> unit) (ppf : Fmt.t) (v : Smtml.Value.t) :
+let pp_custom_val (pp_inner_val : Fmt.t -> Smtml.Value.t -> unit) (ppf : Fmt.t) (v : Smtml.Value.t) :
   unit =
   let open Fmt in
   match v with
@@ -44,20 +44,20 @@ let pp_val_custom_inner (pp_inner_val : Fmt.t -> Smtml.Value.t -> unit) (ppf : F
   | App (`Op "symbol", [Str s]) -> format ppf "'%s" s
   | App (`Op "loc", [Int l]) -> Loc.pp ppf l
   | List lst -> format ppf "[%a]" (pp_lst !>", " pp_inner_val) lst
-  | App (`Op "NullType" , []) -> format ppf "__$Null" 
-  | App (`Op "IntType" , []) -> format ppf "__$Int" 
-  | App (`Op "FltType" , []) -> format ppf "__$Flt" 
-  | App (`Op "StrType" , []) -> format ppf "__$Str" 
-  | App (`Op "BoolType" , []) -> format ppf "__$Bool" 
-  | App (`Op "SymbolType" , []) -> format ppf "__$Symbol" 
-  | App (`Op "LocType" , []) -> format ppf "__$Obj" 
-  | App (`Op "ListType" , []) -> format ppf "__$List" 
-  | App (`Op "CurryType" , []) -> format ppf "__$Curry" 
+  | App (`Op "NullType" , []) -> format ppf "null" 
+  | App (`Op "IntType" , []) -> format ppf "int" 
+  | App (`Op "FltType" , []) -> format ppf "float" 
+  | App (`Op "StrType" , []) -> format ppf "string" 
+  | App (`Op "BoolType" , []) -> format ppf "bool" 
+  | App (`Op "SymbolType" , []) -> format ppf "symbol" 
+  | App (`Op "LocType" , []) -> format ppf "object" 
+  | App (`Op "ListType" , []) -> format ppf "list" 
+  | App (`Op "CurryType" , []) -> format ppf "curry" 
   | App (`Op fn, fvs) ->
     format ppf "{%S}@(%a)" fn (pp_lst !>", " pp_inner_val) fvs
-  | _ -> failwith "Val.pp_val_custom_inner: unexpected case"
+  | _ -> Log.fail "Val.pp_custom_val: unexpected case"
 
-let rec pp_val (ppf : Fmt.t) (v : Value.t) : unit = pp_val_custom_inner pp_val ppf v
+let rec pp_val (ppf : Fmt.t) (v : Value.t) : unit = pp_custom_val pp_val ppf v
 
 let rec pp (ppf : Fmt.t) (e : t) : unit =
   let open Fmt in
