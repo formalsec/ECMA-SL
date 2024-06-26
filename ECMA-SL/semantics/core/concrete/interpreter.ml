@@ -111,8 +111,8 @@ module M (Instrument : Instrument.M) = struct
       (* TODO:x should change?*)
       Random.self_init ();
       match t with
-      | Type.IntType -> Value.Int (Random.int 128)
-      | Type.FltType -> Value.Real (Random.float 128.0)
+      | Type.Ty_int -> Value.Int (Random.int 128)
+      | Type.Ty_real -> Value.Real (Random.float 128.0)
       | _ -> Log.fail "not implemented: symbolic %a" Type.pp t )
 
   and eval_expr (state : state) (e : Expr.t) : Value.t =
