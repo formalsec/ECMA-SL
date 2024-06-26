@@ -79,7 +79,7 @@ module Make (O : Object_intf.S with type value = V.value) = struct
     let pp_parent ppf v =
       pp_opt (fun ppf h -> format ppf "%a@ <-@ " pp h) ppf v
     in
-    format ppf "%a{ %a }" pp_parent parent (Loc.Tbl.pp ", " pp_v) data
+    format ppf "%a{ %a }" pp_parent parent (Loc.Tbl.pp !>", " pp_v) data
 
   let rec unfold_ite ~(accum : value) (e : value) : (value option * int) list =
     match E.view e with

@@ -343,8 +343,9 @@ module TestRunner = struct
   let skip_test (record : TestRecord.t) : TestRecord.t Result.t =
     Ok { record with result = Skipped }
 
-  let execute_test (env : Prog.t * Value.t Heap.t option) (record : TestRecord.t)
-    (interp_profiler : Enums.InterpProfiler.t) : TestRecord.t Result.t =
+  let execute_test (env : Prog.t * Value.t Heap.t option)
+    (record : TestRecord.t) (interp_profiler : Enums.InterpProfiler.t) :
+    TestRecord.t Result.t =
     let interp_config = interp_config interp_profiler in
     let* input = set_test_flags record in
     let streams = Log.Redirect.capture Shared in

@@ -68,7 +68,7 @@ module CallFmt = struct
 
   let pp_func_call (ppf : Fmt.t) ((lvl, s) : int * Stmt.t) : unit =
     let limit = Truncate.limit_indent lvl - 7 in
-    let pp_stmt = Font.pp_err [ Cyan ] (Truncate.pp limit Source.Code.pp) in
+    let pp_stmt = Font.pp_err [ Cyan ] (Truncate.pp limit Code_utils.pp) in
     format ppf "%a%a called%a" indent_pp lvl pp_stmt s.at
       (cond_region_pp (lvl + 1))
       s.at
@@ -138,8 +138,8 @@ module EslCodeFmt : CODE_FMT = struct
   let log_stmt (s : Stmt.t) : bool =
     s.at.real && match s.it with Skip | Merge | Block _ -> false | _ -> true
 
-  let expr_str (e : Expr.t) : string = Source.Code.str e.at
-  let stmt_pp (ppf : Fmt.t) (s : Stmt.t) : unit = Source.Code.pp ppf s.at
+  let expr_str (e : Expr.t) : string = Code_utils.str e.at
+  let stmt_pp (ppf : Fmt.t) (s : Stmt.t) : unit = Code_utils.pp ppf s.at
 end
 
 module CeslCodeFmt : CODE_FMT = struct

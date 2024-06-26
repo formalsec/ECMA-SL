@@ -4,7 +4,7 @@ open EslSyntax
 let load_file ?(file : string option) (path : string) : string =
   let file' = Option.value ~default:path file in
   let data = Io.read_file path in
-  Source.Code.load file' data;
+  Code_utils.load file' data;
   data
 
 let print_position (outx : Fmt.t) (lexbuf : Lexing.lexbuf) : unit =
