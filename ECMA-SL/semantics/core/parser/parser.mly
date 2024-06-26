@@ -3,7 +3,6 @@
 (* ================================= *)
 
 %{
-  open Smtml
   open EslSyntax
   open EslSyntax.Source
 
@@ -57,12 +56,6 @@
 
 %token OBJECT_TO_LIST OBJECT_FIELDS
 %token OBJECT_MEM
-
-(* ========== Runtime type tokens ========== *)
-
-%token DTYPE_NULL
-%token DTYPE_INT DTYPE_FLT DTYPE_STR DTYPE_BOOL DTYPE_SYMBOL
-%token DTYPE_LOC DTYPE_LIST DTYPE_TUPLE DTYPE_CURRY
 
 (* ========== Precedence and associativity ========== *)
 
@@ -211,18 +204,5 @@ let val_target :=
   | f = FLOAT;           < Value.Real >
   | s = STRING;          < Value.Str >
   | b = BOOLEAN;         { if b then Value.True else Value.False }
-  | s = SYMBOL;          { Value.App (`Op "symbol", [Value.Str s])}
   | l = LOC;             { Value.App (`Op "loc", [Value.Int l])}
-  | t = dtype_target;    { Value.App (`Op t, []) }
-
-let dtype_target :=
-  | DTYPE_NULL;          { "NullType" }
-  | DTYPE_INT;           { "IntType" }
-  | DTYPE_FLT;           { "FltType" }
-  | DTYPE_STR;           { "StrType" }
-  | DTYPE_BOOL;          { "BoolType" }
-  | DTYPE_SYMBOL;        { "SymbolType" }
-  | DTYPE_LOC;           { "LocType" }
-  | DTYPE_LIST;          { "ListType" }
-  | DTYPE_TUPLE;         { "TupleType" }
-  | DTYPE_CURRY;         { "CurryType" }
+  | s = SYMBOL;          { Value.App (`Op "symbol", [Value.Str s])}

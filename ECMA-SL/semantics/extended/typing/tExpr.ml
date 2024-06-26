@@ -1,4 +1,3 @@
-open Smtml
 open EslBase
 open EslSyntax
 open EslSyntax.Source

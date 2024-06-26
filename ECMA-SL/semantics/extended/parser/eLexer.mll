@@ -181,7 +181,6 @@ rule read =
   | "<="              { LE }
   | ">="              { GE }
   | "->"              { RIGHT_ARROW }
-  | "__$"             { read_type lexbuf }
   | '"'               { read_string (Buffer.create 16) lexbuf }
   | int               { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | float             { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
@@ -238,19 +237,3 @@ and read_comment =
   | newline { new_line lexbuf; read_comment lexbuf }
   | _       { read_comment lexbuf }
   | eof     { raise (create_syntax_error ~eof:true "Comment is not terminated" lexbuf)}
-
-(* ========== Runtime type reader ========== *)
-
-and read_type =
-  parse
-  | "Null"   { DTYPE_NULL }
-  | "Int"    { DTYPE_INT }
-  | "Flt"    { DTYPE_FLT }
-  | "Str"    { DTYPE_STR }
-  | "Bool"   { DTYPE_BOOL }
-  | "Symbol" { DTYPE_SYMBOL }
-  | "Obj"    { DTYPE_LOC }
-  | "List"   { DTYPE_LIST }
-  | "Tuple"  { DTYPE_TUPLE }
-  | "Curry"  { DTYPE_CURRY }
-  | _        { raise (create_syntax_error "Unexpected runtime type" lexbuf) }

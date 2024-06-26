@@ -1,4 +1,3 @@
-open Smtml
 open EslBase
 open EslSyntax
 module ErrSrc = Error_source
@@ -57,7 +56,7 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
     | Custom msg' -> format ppf "%s" msg'
     | Unexpected msg -> format ppf "Unexpected %s." msg
     | UnexpectedExitVal v ->
-      format ppf "Unexpected exit value '%a'." EExpr.pp_val v
+      format ppf "Unexpected exit value '%a'." Value.pp v
     | Failure msg -> format ppf "Failure %s." msg
     | UncaughtExn msg -> format ppf "Uncaught exception %s." msg
     | OpEvalErr oplbl -> format ppf "Exception in Operator.%s." oplbl
@@ -66,18 +65,18 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
     | BadNArgs (npxs, nargs) ->
       format ppf "Expected %d arguments, but got %d." npxs nargs
     | BadVal (texpr, v) ->
-      format ppf "Expecting %s value, but got '%a'." texpr EExpr.pp_val v
+      format ppf "Expecting %s value, but got '%a'." texpr Value.pp v
     | BadExpr (texpr, v) ->
-      format ppf "Expecting %s expression, but got '%a'." texpr EExpr.pp_val v
+      format ppf "Expecting %s expression, but got '%a'." texpr Value.pp v
     | BadFuncId v ->
-      format ppf "Expecting a function identifier, but got '%a'." EExpr.pp_val v
+      format ppf "Expecting a function identifier, but got '%a'." Value.pp v
     | BadOpArgs (texpr, vs) when List.length vs = 1 ->
       format ppf "Expecting argument of type '%s', but got '%a'." texpr
-        (pp_lst !>", " EExpr.pp_val)
+        (pp_lst !>", " Value.pp)
         vs
     | BadOpArgs (texpr, vs) ->
       format ppf "Expecting arguments of types '%s', but got '(%a)'." texpr
-        (pp_lst !>", " EExpr.pp_val)
+        (pp_lst !>", " Value.pp)
         vs
     | MissingReturn fn -> format ppf "Missing return in function '%a'." Id.pp fn
 

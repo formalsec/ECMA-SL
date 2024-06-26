@@ -39,7 +39,7 @@ function HasPrimitiveBase(V) {
 /* Returns true if either the base value is an object or HasPrimitiveBase(V) is true; otherwise returns false. */
 function IsPropertyReference (V) {
   print "IsPropertyReference";
-  return (typeof (V) = __$Tuple) && (l_len V = 5) && (l_nth(V, 0) = "R") && (l_nth(V, 1) = "P")
+  return (typeof (V) = "list") && (l_len V = 5) && (l_nth(V, 0) = "R") && (l_nth(V, 1) = "P")
 };
 
 /* Returns true if the base value is undefined and false otherwise. */
