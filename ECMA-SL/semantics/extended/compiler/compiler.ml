@@ -357,8 +357,7 @@ and compile_fielddelete (at : region) (oe : EExpr.t) (fe : EExpr.t) : c_stmt =
   let (fe_s, fe_e) = compile_expr at fe in
   oe_s @ fe_s @ [ Stmt.FieldDelete (oe_e, fe_e) @?> at ]
 
-and compile_if
-  (ifcss : (EExpr.t * EStmt.t * EStmt.Meta.t list * region) list)
+and compile_if (ifcss : (EExpr.t * EStmt.t * EStmt.Meta.t list * region) list)
   (elsecs : (EStmt.t * EStmt.Meta.t list) option) : c_stmt =
   let compile_ifcs_f (e, s, _, at) acc =
     let (e_s, e_e) = compile_expr at e in
