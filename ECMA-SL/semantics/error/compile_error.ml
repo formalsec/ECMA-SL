@@ -1,4 +1,3 @@
-open Smtml
 open EslBase
 open EslSyntax
 module ErrSrc = Error_source
@@ -75,7 +74,7 @@ module CompileErr : Error_type.ERROR_TYPE with type t = msg = struct
     | BadNArgs (npxs, nargs) ->
       format ppf "Expected %d arguments, but got %d." npxs nargs
     | DuplicatedSwitchCase v ->
-      format ppf "Duplicated case value '%a' for switch statement." EExpr.pp_val
+      format ppf "Duplicated case value '%a' for switch statement." Value.pp
         v
     | DuplicatedTField fn ->
       format ppf "Duplicated field name '%a' for object type." Id.pp fn

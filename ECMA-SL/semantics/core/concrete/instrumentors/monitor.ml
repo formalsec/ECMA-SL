@@ -1,4 +1,3 @@
-open Smtml
 open EslSyntax
 
 type stmt_eval =

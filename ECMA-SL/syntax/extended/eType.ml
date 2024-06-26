@@ -1,4 +1,3 @@
-open Smtml
 open EslBase
 open Source
 
@@ -122,7 +121,7 @@ let rec pp (ppf : Fmt.t) (t : t) : unit =
   | StringType -> pp_str ppf "string"
   | BooleanType -> pp_str ppf "boolean"
   | SymbolType -> pp_str ppf "symbol"
-  | LiteralType (_, tl) -> EExpr.pp_val ppf (tliteral_to_val tl)
+  | LiteralType (_, tl) -> Value.pp ppf (tliteral_to_val tl)
   | ObjectType { flds; smry; _ } when Hashtbl.length flds = 0 ->
     let pp_smry ppf (_, tsmry) = format ppf " *: %a " pp tsmry in
     format ppf "{%a}" (pp_opt pp_smry) smry

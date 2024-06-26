@@ -1,4 +1,3 @@
-open Smtml
 open EslBase
 
 type t = t' Source.phrase
@@ -16,7 +15,7 @@ and t' =
 let rec pp (ppf : Fmt.t) (e : t) : unit =
   let open Fmt in
   match e.it with
-  | Val v -> EExpr.pp_val ppf v
+  | Val v -> Value.pp ppf v
   | Var x -> pp_str ppf x
   | UnOpt (op, e') -> Operator.pp_of_unopt pp ppf (op, e')
   | BinOpt (op, e1, e2) -> Operator.pp_of_binopt pp ppf (op, e1, e2)

@@ -1,4 +1,3 @@
-open Smtml
 open EslBase
 open EslSyntax
 
@@ -42,17 +41,7 @@ module Impl = struct
     | App (`Op "symbol", [ Str _ ]) -> Str "symbol"
     | App (`Op "loc", [ Int _ ]) -> Str "object"
     | List _ -> Str "list"
-    | App (`Op "NullType", [])
-    | App (`Op "IntType", [])
-    | App (`Op "FltType", [])
-    | App (`Op "StrType", [])
-    | App (`Op "BoolType", [])
-    | App (`Op "SymbolType", [])
-    | App (`Op "LocType", [])
-    | App (`Op "ListType", [])
-    | App (`Op "TupleType", [])
-    | App (`Op "CurryType", []) ->
-      Str "type"
+    | App (`Op "type", [ Str _ ]) -> Str "type"
     | App (`Op _, _) -> Str "curry"
     | _ -> unexpected_err 1 op_lbl "value type"
 

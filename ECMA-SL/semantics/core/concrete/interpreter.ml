@@ -1,4 +1,3 @@
-open Smtml
 open EslBase
 open EslSyntax
 open EslSyntax.Source
@@ -166,7 +165,7 @@ module M (Instrument : Instrument.M) = struct
       Hashtbl.add visited l ();
       (Object.pp heapval_pp') ppf (get_loc heap l);
       Hashtbl.remove visited l
-    | _ -> EExpr.pp_custom_val heapval_pp' ppf v
+    | _ -> Value.pp_custom_val heapval_pp' ppf v
 
   let print_pp (heap : heap) (ppf : Fmt.t) (v : Value.t) : unit =
     match v with

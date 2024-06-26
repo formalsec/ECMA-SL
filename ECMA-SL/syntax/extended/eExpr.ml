@@ -1,4 +1,3 @@
-open Smtml
 open EslBase
 open Source
 
@@ -20,49 +19,10 @@ and t' =
   | Curry of t * t list
   | Symbolic of Type.t * t
 
-let is_special_number (s : string) : bool =
-  List.mem s [ "nan"; "inf"; "-inf" ]
-  || String.contains s 'e'
-  || String.contains s 'E'
-
-let float_str (f : float) : string =
-  let f_str = Printf.sprintf "%.17g" f in
-  if is_special_number f_str || String.contains f_str '.' then f_str
-  else f_str ^ ".0"
-
-let pp_custom_val (pp_inner_val : Fmt.t -> Smtml.Value.t -> unit) (ppf : Fmt.t)
-  (v : Smtml.Value.t) : unit =
-  let open Fmt in
-  match v with
-  | App (`Op "null", []) -> format ppf "null"
-  | App (`Op "void", []) -> ()
-  | Int i -> format ppf "%i" i
-  | Real f -> format ppf "%s" (float_str f)
-  | Str s -> format ppf "%S" s
-  | True -> format ppf "true"
-  | False -> format ppf "false"
-  | App (`Op "symbol", [ Str s ]) -> format ppf "'%s" s
-  | App (`Op "loc", [ Int l ]) -> Loc.pp ppf l
-  | List lst -> format ppf "[%a]" (pp_lst !>", " pp_inner_val) lst
-  | App (`Op "NullType", []) -> format ppf "null"
-  | App (`Op "IntType", []) -> format ppf "int"
-  | App (`Op "FltType", []) -> format ppf "float"
-  | App (`Op "StrType", []) -> format ppf "string"
-  | App (`Op "BoolType", []) -> format ppf "bool"
-  | App (`Op "SymbolType", []) -> format ppf "symbol"
-  | App (`Op "LocType", []) -> format ppf "object"
-  | App (`Op "ListType", []) -> format ppf "list"
-  | App (`Op "CurryType", []) -> format ppf "curry"
-  | App (`Op fn, fvs) ->
-    format ppf "{%S}@(%a)" fn (pp_lst !>", " pp_inner_val) fvs
-  | _ -> Log.fail "Val.pp_custom_val: unexpected case"
-
-let rec pp_val (ppf : Fmt.t) (v : Value.t) : unit = pp_custom_val pp_val ppf v
-
 let rec pp (ppf : Fmt.t) (e : t) : unit =
   let open Fmt in
   match e.it with
-  | Val v -> pp_val ppf v
+  | Val v -> Value.pp ppf v
   | Var x -> pp_str ppf x
   | GVar x -> format ppf "|%s|" x
   | Const c -> Operator.pp_of_const ppf c
