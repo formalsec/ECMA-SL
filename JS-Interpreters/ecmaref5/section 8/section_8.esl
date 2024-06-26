@@ -44,7 +44,7 @@ function Type(V) {
     if (V = 'null) { return "Null" };
     if (V = 'undefined) { return "Undefined" }
   };
-  /* if (v_type = __$Tuple) {
+  /* if (v_type = "list") {
     ft := hd V;
     if (ft = "R") { return "Reference" };
     if (ft = "C") { return "Completion" };

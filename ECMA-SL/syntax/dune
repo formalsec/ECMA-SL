@@ -8,6 +8,7 @@
   id
   loc
   type
+  value
   source
   object
   operator

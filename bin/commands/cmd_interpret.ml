@@ -1,4 +1,3 @@
-open Smtml
 open Ecma_sl
 open Syntax.Result
 

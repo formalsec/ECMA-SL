@@ -1,4 +1,3 @@
-open Smtml
 open Debugger_types
 
 module Message = struct
