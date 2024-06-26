@@ -89,6 +89,7 @@
   ;  utils
   arith_utils
   byte_utils
+  code_utils
   date_utils
   parsing_utils
   string_utils)

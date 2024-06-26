@@ -47,13 +47,13 @@ let set_data (code : t) (at : Source.region) : t = { code with at }
 let render_static (code : t) : unit = Frame.draw code.frame
 
 let codeblock (nlines : int) (at : Source.region) : (int * string) list * int =
-  let file = Source.Code.get_file at.file in
-  let file_sz = Source.Code.get_file_size file in
+  let file = Code_utils.get_file at.file in
+  let file_sz = Code_utils.get_file_size file in
   let line = at.left.line in
   let prev_nlines = proportional_sz nlines 3 1 in
   let codeblock_start = max (line - prev_nlines) 1 in
   let codeblock_sz = min nlines (file_sz - codeblock_start + 1) in
-  let codeblock = Source.Code.get_lines file codeblock_start codeblock_sz in
+  let codeblock = Code_utils.get_lines file codeblock_start codeblock_sz in
   let last_line = codeblock_start + codeblock_sz in
   (codeblock, last_line)
 

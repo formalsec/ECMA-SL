@@ -40,8 +40,12 @@ module ErrSrcFmt (ErrorType : Error_type.ERROR_TYPE) = struct
       (String.make (right - left) '^')
 
   let pp_region (ppf : Fmt.t) (region : region) : unit =
-    let (file, line, left, right) = region_unfold region in
-    let (start, code) = format_code (Code.line file line) in
+    (* FIXME: Improve this for multiple-lines *)
+    let file = region.file in
+    let line = region.left.line in
+    let left = region.left.column in
+    let right = region.right.column in
+    let (start, code) = format_code (Code_utils.line file line) in
     let (left', right') = (left - start, right - start) in
     Fmt.format ppf "\n%a\n%d |   %s\n%a%a" pp_location region line code
       pp_indent line pp_highlight (code, left', right')

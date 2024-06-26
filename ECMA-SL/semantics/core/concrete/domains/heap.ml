@@ -43,7 +43,7 @@ let rec pp (pp_obj : Fmt.t -> 'a obj -> unit) (ppf : Fmt.t) (heap : 'a t) : unit
   let pp_binding ppf (loc, obj) = format ppf "%a: %a" Loc.pp loc pp_obj obj in
   let pp_map ppf map =
     if Loc.Tbl.length map = 0 then pp_str ppf "{}"
-    else format ppf "{ %a }" (Loc.Tbl.pp ", " pp_binding) map
+    else format ppf "{ %a }" (Loc.Tbl.pp !>", " pp_binding) map
   in
   let pp_parent ppf heap = format ppf "%a <- " (pp pp_obj) heap in
   format ppf "%a%a" (pp_opt pp_parent) heap.parent pp_map heap.map
@@ -61,7 +61,8 @@ let rec pp_tabular (pp_obj : Fmt.t -> 'a obj -> unit) (ppf : Fmt.t) (heap : 'a t
     format ppf "%s%a  <-  %a" (indent x) Loc.pp x pp_obj v
   in
   let pp_parent ppf heap = format ppf "%a\n\n^\n\n" (pp_tabular pp_obj) heap in
-  format ppf "%a%a" (pp_opt pp_parent) heap.parent (Loc.Tbl.pp "\n" pp_bind)
+  format ppf "%a%a" (pp_opt pp_parent) heap.parent
+    (Loc.Tbl.pp !>"\n" pp_bind)
     heap.map
 
 let str ?(tabular : bool = false) (pp_obj : Fmt.t -> 'a obj -> unit)
