@@ -224,22 +224,6 @@ module M = struct
       fun vs -> E.(make (List vs))
     | ArrayExpr -> assert false
 
-  let eval_type (t : Type.t) =
-    let open Ty in
-    match t with
-    | NullType -> Log.fail "eval_type null"
-    | IntType -> Ty_int
-    | FltType -> Ty_real
-    | StrType -> Ty_str
-    | BoolType -> Ty_bool
-    | SymbolType -> Log.fail "eval_type symbol"
-    | LocType -> Log.fail "eval_type loc"
-    | ArrayType -> Log.fail "eval_type array"
-    | ListType -> Ty_list
-    | TupleType -> Log.fail "eval_type tuple"
-    | TypeType -> Log.fail "eval_type type"
-    | CurryType -> Ty_app
-
   let rec eval_expr (store : store) (e : Expr.t) : value =
     match e.it with
     | Val v -> E.value v
@@ -270,7 +254,6 @@ module M = struct
       | _ -> Log.fail "error" )
     | Symbolic (t, x) -> (
       let x' = eval_expr store x in
-      let t = eval_type t in
       match E.view x' with
       | Val (Value.Str x') -> E.(make (Symbol (Symbol.make t x')))
       | _ -> Log.fail "error" )
