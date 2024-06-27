@@ -33170,7 +33170,7 @@ Tests compilation of ecmaref5:
     } else {
       __v9093 := l_nth(__v9093, 1)
     };
-    __v9094 := __v9093 = {"TupleType"}@();
+    __v9094 := __v9093 = "list";
     __v9095 := l_len(V);
     __v9096 := __v9095 = 5;
     __v9097 := __v9094 && __v9096;
