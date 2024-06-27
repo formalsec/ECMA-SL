@@ -41,7 +41,6 @@ module Impl = struct
     | App (`Op "symbol", [ Str _ ]) -> Str "symbol"
     | App (`Op "loc", [ Int _ ]) -> Str "object"
     | List _ -> Str "list"
-    | App (`Op "type", [ Str _ ]) -> Str "type"
     | App (`Op _, _) -> Str "curry"
     | _ -> unexpected_err 1 op_lbl "value type"
 
