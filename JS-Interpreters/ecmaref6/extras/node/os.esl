@@ -1,5 +1,5 @@
 function __os_platform(globalObject, this, newTarget, strict, params) {
-  platform := extern str_symbol("os_platform");
+  platform := extern str_symbol("require('os').platform()");
   extern assume(platform = "aix" || platform = "darwin"
     || platform = "freebsd" || platform = "linux" || platform = "openbsd"
     || platform = "sunos" || platform = "win32" || platform = "android");
