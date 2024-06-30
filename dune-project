@@ -39,10 +39,17 @@
   (mdx :with-test)
   menhir
   menhirLib
-  (smtml (>= "0.1.1"))
+  (smtml
+   (and
+    (>= "0.1.1")
+    (< "0.2.0")))
   yojson
   dune-site
-  (bisect_ppx (and :with-test (>= "2.5.0") :dev))
+  (bisect_ppx
+   (and
+    :with-test
+    (>= "2.5.0")
+    :dev))
   conf-npm
   instrumentation2)
  (tags

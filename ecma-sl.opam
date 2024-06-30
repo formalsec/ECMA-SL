@@ -23,7 +23,7 @@ depends: [
   "mdx" {with-test}
   "menhir"
   "menhirLib"
-  "smtml" {>= "0.1.1"}
+  "smtml" {>= "0.1.1" & < "0.2.0"}
   "yojson"
   "dune-site"
   "bisect_ppx" {with-test & >= "2.5.0" & dev}
@@ -48,5 +48,5 @@ build: [
 ]
 dev-repo: "git+https://github.com/formalsec/ECMA-SL.git"
 pin-depends: [
-  [ "instrumentation2.0.0.1" "git+https://github.com/formalsec/instrumentation2.git#v0.0.1" ]
+  ["instrumentation2.0.0.2" "git+https://github.com/formalsec/instrumentation2.git#v0.0.2"]
 ]
