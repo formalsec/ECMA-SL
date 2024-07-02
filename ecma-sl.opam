@@ -16,6 +16,7 @@ depends: [
   "odoc" {with-doc}
   "dune" {>= "3.2"}
   "cmdliner"
+  "z3"
   "bos"
   "ppx_import"
   "ppx_deriving"

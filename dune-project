@@ -32,6 +32,7 @@
   (odoc :with-doc)
   dune
   cmdliner
+  z3
   bos
   ppx_import
   ppx_deriving
