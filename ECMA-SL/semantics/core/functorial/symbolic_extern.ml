@@ -69,7 +69,7 @@ module Make () = struct
          let open Smtml.Expr in
          let v = Translator.translate e in
          let query =
-           binop Ty_str Seq_contains v (value (Str "`touch success`"))
+           binop Ty_str String_contains v (value (Str "`touch success`"))
          in
          Log.log ~header:false "       exec : %a" Value.pp e;
          [ (Error (`Exec_failure e), Thread.add_pc thread query) ]
@@ -84,7 +84,8 @@ module Make () = struct
          let open Smtml.Expr in
          let v = Translator.translate e in
          let query =
-           binop Ty_str Seq_contains v (value (Str ";console.log('success')//"))
+           binop Ty_str String_contains v
+             (value (Str ";console.log('success')//"))
          in
          Log.log ~header:false "       eval : %a" Value.pp e;
          [ (Error (`Eval_failure e), Thread.add_pc thread query) ]
@@ -97,7 +98,9 @@ module Make () = struct
         fun thread ->
          let open Smtml.Expr in
          let v = Translator.translate e in
-         let query = binop Ty_str Seq_contains v (value (Str "./exploited")) in
+         let query =
+           binop Ty_str String_contains v (value (Str "./exploited"))
+         in
          Log.log ~header:false "   readFile : %a" Value.pp e;
          [ (Error (`ReadFile_failure e), Thread.add_pc thread query) ]
     in
@@ -188,7 +191,7 @@ module Make () = struct
       let s = Translator.translate s in
       let t = Translator.translate t in
       let t' = Translator.translate t' in
-      let replace_str = triop Ty_str Seq_replace s t t' in
+      let replace_str = triop Ty_str String_replace s t t' in
       let cond = relop Ty_bool Eq (mk_symbol sym) replace_str in
       [ (Ok (Symbolic (Type.StrType, Val (Str x))), Thread.add_pc thread cond) ]
     in
@@ -202,7 +205,7 @@ module Make () = struct
       let t = Translator.translate t in
       (* let i = Translator.translate i in *)
       let i = make (Val (Int 0)) in
-      let indexOf = triop Ty_str Seq_index s t i in
+      let indexOf = triop Ty_str String_index s t i in
       let indexOf2real = cvtop Ty_real Reinterpret_int indexOf in
       let cond = relop Ty_bool Eq sym indexOf2real in
       [ ( Ok (Symbolic (Type.FltType, Val (Str index)))
@@ -217,7 +220,7 @@ module Make () = struct
       let s = Translator.translate s in
       let t = Translator.translate t in
       (* let i = Translator.translate i in *)
-      let indexOf = binop Ty_str Seq_last_index s t in
+      let indexOf = binop Ty_str String_last_index s t in
       let indexOf2real = cvtop Ty_real Reinterpret_int indexOf in
       let cond = relop Ty_bool Eq sym indexOf2real in
       [ ( Ok (Symbolic (Type.FltType, Val (Str index)))
@@ -233,7 +236,7 @@ module Make () = struct
       let s = Translator.translate s in
       let start = Translator.translate start in
       let len = Translator.translate len in
-      let substr = triop Ty_str Seq_extract s start len in
+      let substr = triop Ty_str String_extract s start len in
       let cond = relop Ty_bool Eq sym substr in
       [ (Ok (Symbolic (Type.StrType, Val (Str x))), Thread.add_pc thread cond) ]
     in
@@ -258,8 +261,7 @@ module Make () = struct
         let x2 = Expr.mk_symbol Symbol.(x2 @: Ty_str) in
         let sep = Translator.translate r in
         let s = Translator.translate s in
-        Expr.binop Ty_str Seq_concat x1 sep |> fun acc ->
-        Expr.binop Ty_str Seq_concat acc x2 |> fun s' ->
+        let s' = Expr.naryop Ty_str Concat [ x1; sep; x2 ] in
         Expr.relop Ty_bool Eq s s'
       in
       let result = Value.(mk_list [ str_symbol x1; str_symbol x2 ]) in
@@ -272,7 +274,7 @@ module Make () = struct
         let open Smtml in
         let x = Expr.mk_symbol Symbol.(x @: Ty_str) in
         let s = Translator.translate s in
-        Expr.binop Ty_str Seq_contains s x
+        Expr.binop Ty_str String_contains s x
       in
       let result = Value.(mk_list [ str_symbol x ]) in
       [ (Ok result, Thread.add_pc thread cond) ]

@@ -54,7 +54,7 @@ let translate_unop (t : Type.t option) (op : Operator.unopt) (e : Expr.t) :
   | StringToFloat -> cvtop Ty_real OfString e
   | FloatToInt -> cvtop Ty_int Reinterpret_float e
   | ToInt | ToUint32 -> unop Ty_real Trunc e
-  | StringLen | StringLenU -> unop Ty_str Seq_length e
+  | StringLen | StringLenU -> unop Ty_str Length e
   | Trim -> unop Ty_str Trim e
   | ToCharCode | ToCharCodeU -> cvtop Ty_str String_to_code e
   | StringToInt -> cvtop Ty_str String_to_int e
@@ -98,7 +98,7 @@ let translate_binop (t1 : Type.t option) (t2 : Type.t option)
   in
   let str_binop op e1 e2 =
     match op with
-    | StringNth | StringNthU -> binop Ty_str Seq_at e1 e2
+    | StringNth | StringNthU -> binop Ty_str At e1 e2
     | Eq -> relop Ty_bool Eq e1 e2
     | _ -> Log.err "str binop: %a@." Operator.pp_of_binopt_single op
   in
@@ -126,7 +126,7 @@ let translate_triop (t1 : Type.t option) (t2 : Type.t option)
   let open Operator in
   let str_triop (op : Operator.triopt) e1 e2 e3 =
     match op with
-    | StringSubstrU | StringSubstr -> Expr.triop Ty_str Seq_extract e1 e2 e3
+    | StringSubstrU | StringSubstr -> Expr.triop Ty_str String_extract e1 e2 e3
     | _ -> assert false
   in
   let bool_triop (op : Operator.triopt) e1 e2 e3 =
@@ -146,10 +146,8 @@ let rec translate (v : Symbolic_value.M.value) : Expr.t =
   | Val v -> translate_val v
   | Symbolic (t, Val (Val.Str x)) -> translate_symbol t x
   | UnOpt (Operator.StringConcat, e) -> (
-    let binop' e1 e2 = binop Ty_str Seq_concat e1 e2 in
     match e with
-    | NOpt (_, h :: t) ->
-      List.fold_left binop' (translate h) (List.map translate t)
+    | NOpt (_, es) -> Expr.naryop Ty_str Concat (List.map translate es)
     | _ -> assert false )
   | UnOpt (op, e') ->
     let ty = Value_typing.type_of e' in

@@ -40,9 +40,7 @@
   menhir
   menhirLib
   (smtml
-   (and
-    (>= "0.1.1")
-    (< "0.2.0")))
+   (>= "0.2.0"))
   yojson
   dune-site
   (bisect_ppx
