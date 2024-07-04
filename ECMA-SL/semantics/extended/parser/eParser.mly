@@ -56,7 +56,6 @@
 %token LPAREN RPAREN
 %token LBRACE RBRACE
 %token LBRACK RBRACK
-%token LARRBRACK RARRBRACK
 %token QUESTION
 %token SCLAND SCLOR
 %token RIGHT_ARROW
@@ -317,8 +316,6 @@ let expr_target :=
     { EExpr.Curry (fe, es) @> at $sloc }
 
 let nopt_target :=
-  | LARRBRACK; es = separated_list (COMMA, expr_target); RARRBRACK;
-    { EExpr.NOpt (ArrayExpr, es) @> at $sloc }
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
     { EExpr.NOpt (ListExpr, es) @> at $sloc }
 
