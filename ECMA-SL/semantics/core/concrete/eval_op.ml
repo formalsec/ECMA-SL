@@ -347,6 +347,4 @@ let eval_nopt (op : nopt) (vals : Value.t list) : Value.t =
   match op with
   | NAryLogicalAnd -> nary_logical_and vals
   | NAryLogicalOr -> nary_logical_or vals
-  | ArrayExpr ->
-    (* TODO:x Value.Arr (Array.of_list vals) *) Log.fail "eval_nopt.arrayExpr"
   | ListExpr -> Value.List vals

@@ -49,7 +49,6 @@
 %token LPAREN RPAREN
 %token LBRACE RBRACE
 %token LBRACK RBRACK
-%token LARRBRACK RARRBRACK
 %token EOF
 
 (* ========== Operator tokens ========== *)
@@ -240,8 +239,6 @@ let op_expr_target :=
     { Expr.BinOpt (binopt, e1, e2) @> at $sloc }
   | triopt = core_triopt; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; COMMA; e3 = expr_target; RPAREN;
     { Expr.TriOpt (triopt, e1, e2, e3) @> at $sloc }
-  | LARRBRACK; es = separated_list (COMMA, expr_target); RARRBRACK;
-    { Expr.NOpt (ArrayExpr, es) @> at $sloc }
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
     { Expr.NOpt (ListExpr, es) @> at $sloc }
 

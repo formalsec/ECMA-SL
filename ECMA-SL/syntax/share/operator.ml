@@ -89,8 +89,6 @@ type nopt =
   (* Logical operators *)
   | NAryLogicalAnd
   | NAryLogicalOr
-  (* Array operators *)
-  | ArrayExpr
   (* List operators *)
   | ListExpr
 
@@ -180,7 +178,6 @@ let label_of_nopt (op : nopt) : string =
   match op with
   | NAryLogicalAnd -> "Logical.nary_and"
   | NAryLogicalOr -> "Logical.nary_or"
-  | ArrayExpr -> "Array.a_expr"
   | ListExpr -> "List.l_expr"
 
 let pp_of_unopt_single (ppf : Fmt.t) (op : unopt) : unit =
@@ -279,7 +276,6 @@ let pp_of_nopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   match op with
   | NAryLogicalAnd -> format ppf "%a" (pp_lst !>" && " pp_val) vs
   | NAryLogicalOr -> format ppf "%a" (pp_lst !>" || " pp_val) vs
-  | ArrayExpr -> format ppf "[|%a|]" (pp_lst !>", " pp_val) vs
   | ListExpr -> format ppf "[%a]" (pp_lst !>", " pp_val) vs
 
 let str_of_unopt_single (op : unopt) : string =
