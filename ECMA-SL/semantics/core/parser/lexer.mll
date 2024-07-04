@@ -11,9 +11,11 @@
 
             (* Language constructs *)
             "print"                   , PRINT;
-            "delete"                  , DELETE;
-            "function"                , FUNCTION;
             "return"                  , RETURN;
+            "delete"                  , DELETE;
+            "fail"                    , FAIL;
+            "assert"                  , ASSERT;
+            "function"                , FUNCTION;
             "extern"                  , EXTERN;
             "if"                      , IF;
             "else"                    , ELSE;
@@ -21,8 +23,6 @@
             "switch"                  , SWITCH;
             "case"                    , CASE;
             "sdefault"                , SDEFAULT;
-            "fail"                    , FAIL;
-            "assert"                  , ASSERT;
 
             (* General operators *)
             "ite"                     , ITE;
@@ -107,7 +107,6 @@ rule read =
   parse
   | white             { read lexbuf }
   | newline           { new_line lexbuf; read lexbuf }
-  | '.'               { PERIOD }
   | ','               { COMMA }
   | ';'               { SEMICOLON }
   | ':'               { COLON }

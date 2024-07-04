@@ -4,15 +4,15 @@ open EslSyntax.Source
 module Stmt = struct
   open EslSyntax.Stmt
 
-  let parse_switch_cases (switch_cases : (Value.t Source.phrase * t) list) :
+  let parse_switch_cases (css : (Value.t Source.phrase * t) list) :
     (Value.t, t) Hashtbl.t =
-    let set_case css (v, s) =
+    let check_dups css (v, s) =
       if not (Hashtbl.mem css v.it) then Hashtbl.replace css v.it s
       else Compile_error.(throw ~src:(ErrSrc.at v) (DuplicatedSwitchCase v.it))
     in
-    let css = Hashtbl.create (List.length switch_cases) in
-    List.iter (set_case css) switch_cases;
-    css
+    let parsed_css = Hashtbl.create (List.length css) in
+    List.iter (check_dups parsed_css) css;
+    parsed_css
 end
 
 module Func = struct
