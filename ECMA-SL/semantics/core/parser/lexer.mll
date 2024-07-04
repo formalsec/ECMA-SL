@@ -119,8 +119,6 @@ rule read =
   | '}'               { RBRACE }
   | '['               { LBRACK }
   | ']'               { RBRACK }
-  | "[|"              { LARRBRACK }
-  | "|]"              { RARRBRACK }
   | '+'               { PLUS }
   | '-'               { MINUS }
   | '*'               { TIMES }

@@ -112,5 +112,4 @@ let type_nopt (op : Operator.nopt) (_targs : EType.t list) : EType.t' =
   match op with
   | NAryLogicalAnd -> not_implemented (* TODO: nopt typing *)
   | NAryLogicalOr -> not_implemented (* TODO: nopt typing *)
-  | ArrayExpr -> not_implemented (* TODO: nopt typing *)
   | ListExpr -> not_implemented (* TODO: nopt typing *)

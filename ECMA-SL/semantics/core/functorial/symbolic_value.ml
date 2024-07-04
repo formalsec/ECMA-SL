@@ -222,7 +222,6 @@ module M = struct
     | ListExpr ->
       (* TODO:x to check if this is right *)
       fun vs -> E.(make (List vs))
-    | ArrayExpr -> assert false
 
   let rec eval_expr (store : store) (e : Expr.t) : value =
     match e.it with
