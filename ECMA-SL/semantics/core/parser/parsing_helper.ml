@@ -15,7 +15,7 @@ module Stmt = struct
     css
 end
 
-module Prog = struct
+module Func = struct
   let parse_params (pxs : Id.t list) : Id.t list =
     let check_dups checked px =
       if not (Hashtbl.mem checked px.it) then Hashtbl.replace checked px.it ()
