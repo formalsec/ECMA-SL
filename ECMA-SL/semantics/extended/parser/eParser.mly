@@ -46,7 +46,6 @@
 %token MATCH WITH DEFAULT
 %token THROW CATCH
 %token FAIL ASSERT
-%token WRAPPER
 
 (* ========== Symbol tokens ========== *)
 
@@ -149,16 +148,9 @@ let tdef_target :=
 (* ==================== Functions ==================== *)
 
 let func_target :=
-  | FUNCTION; fn = id_target; LPAREN; pxs = separated_list(COMMA, param_target); RPAREN;
+  | FUNCTION; fn = id_target; LPAREN; pxs = separated_list(COMMA, param_target); RPAREN; 
     tret = typing_target?; s = block_target;
-    { EFunc.create fn (EParsing_helper.Func.parse_params pxs) tret s None @> at $sloc }
-  | FUNCTION; fn = id_target; LPAREN; pxs = separated_list(COMMA, param_target); RPAREN;
-    meta_vals = delimited(LBRACK, vals_metadata_target, RBRACK); meta_vars = vars_opt_metadata_target;
-    tret = typing_target?; s = block_target;
-    {
-      EFunc.create fn (EParsing_helper.Func.parse_params pxs) tret s
-      (Some (EFunc.Meta.build meta_vals meta_vars)) @> at $sloc
-    }
+    { EFunc.create fn (EParsing_helper.Func.parse_params pxs) tret s @> at $sloc }
 
 let param_target := ~ = id_target; ~ = typing_target?; <>
 
@@ -204,16 +196,12 @@ let stmt_target :=
   | WHILE; LPAREN; e = expr_target; RPAREN; s = block_target;
     { EStmt.While (e, s) @> at $sloc }
   | FOREACH; LPAREN; x = id_target; COLON; e = expr_target; RPAREN; s = block_target;
-    { EStmt.ForEach (x, e, s, [], None) @> at $sloc }
-  | FOREACH; LPAREN; x = id_target; COLON; e = expr_target; RPAREN;
-    meta = delimited(LBRACK, stmt_metadata_target, RBRACK);
-    var_meta = var_opt_metadata_target; s = block_target;
-    { EStmt.ForEach (x, e, s, meta, var_meta) @> at $sloc }
-  | REPEAT; meta = stmt_opt_metadata_target; s = block_target; until = until_target?;
-    { EStmt.RepeatUntil (s, until, meta) @> at $sloc }
-  | SWITCH; LPAREN; e = expr_target; RPAREN; meta = str_opt_metadata_target; LBRACE;
+    { EStmt.ForEach (x, e, s) @> at $sloc }
+  | REPEAT; s = block_target; until = until_target?;
+    { EStmt.RepeatUntil (s, until) @> at $sloc }
+  | SWITCH; LPAREN; e = expr_target; RPAREN; LBRACE;
     css = list(switch_case_target); dflt = switch_default_target?; RBRACE;
-    { EStmt.Switch (e, css, dflt, meta) @> at $sloc }
+    { EStmt.Switch (e, css, dflt) @> at $sloc }
   | MATCH; e = expr_target; dsc = match_discrm_target?; WITH;
     PIPE; css = separated_list(PIPE, match_case_target);
     { EStmt.MatchWith (e, dsc, css) @> at $sloc }
@@ -228,20 +216,18 @@ let stmt_target :=
     { EStmt.Fail e @> at $sloc }
   | ASSERT; e = expr_target;
     { EStmt.Assert e @> at $sloc }
-  | WRAPPER; meta = stmt_opt_metadata_target; s = block_target;
-    { EStmt.Wrapper (meta, s) @> at $sloc }
 
 let if_target :=
-  | IF; LPAREN; e = expr_target; RPAREN; meta = stmt_opt_metadata_target; s = block_target;
-    { (e, s, meta, at $sloc) }
+  | IF; LPAREN; e = expr_target; RPAREN; s = block_target;
+    { (e, s, at $sloc) }
 
 let elif_target :=
-  | ELIF; LPAREN; e = expr_target; RPAREN; meta = stmt_opt_metadata_target; s = block_target;
-    { (e, s, meta, at $sloc) }
+  | ELIF; LPAREN; e = expr_target; RPAREN; s = block_target;
+    { (e, s, at $sloc) }
 
 let else_target :=
-  | ELSE; meta = stmt_opt_metadata_target; s = block_target;
-    { (s, meta) }
+  | ELSE; s = block_target;
+    { (s) }
 
 let until_target :=
   | UNTIL; e = expr_target;   { e, at $sloc }
@@ -258,10 +244,7 @@ let match_case_target := ~ = pattern_target; RIGHT_ARROW; ~ = block_target; <>
 
 let pattern_target :=
   | LBRACE; pbs = separated_nonempty_list(COMMA, pattern_binding_target); RBRACE;
-    { EPat.ObjPat (pbs, None) @> at $sloc }
-  | LBRACE; pbs = separated_nonempty_list(COMMA, pattern_binding_target); RBRACE;
-    meta_vals = delimited(LBRACK, vals_metadata_target, RBRACK); meta_vars = vars_opt_metadata_target;
-    { EPat.ObjPat (pbs, (Some (EPat.Meta.build meta_vals meta_vars))) @> at $sloc }
+    { EPat.ObjPat (pbs) @> at $sloc }
   | DEFAULT;
     { EPat.DefaultPat @> at $sloc }
 
@@ -368,48 +351,6 @@ let unopt_call_target ==
 
 let triopt_call_target ==
   | ~ = core_triopt;        <>
-
-(* ==================== Metadata ==================== *)
-
-let vals_metadata_target := ~ = separated_list(COMMA, val_target); <>
-
-let var_metadata_target :=
-  | meta = STRING;
-    {
-      let param_alt = String.split_on_char ':' meta in
-      if List.length param_alt = 2 then ( List.nth param_alt 0, List.nth param_alt 1 )
-      else raise (Failure "Invalid function's variables metadata")
-    }
-
-let stmt_metadata_target :=
-  | meta = separated_list(COMMA, STRING);
-    { List.map (
-        fun (m : string) : EStmt.Meta.t ->
-          let sep_idx = String.index_opt m ':' in
-          match sep_idx with
-          | None   -> { where = m; html = "" }
-          | Some idx ->
-            let where = String.sub m 0 idx in
-            let html = String.sub m (idx+1) ((String.length m)-idx-1) in
-            { where; html }
-      ) meta
-    }
-
-let var_opt_metadata_target :=
-  | meta = delimited(LBRACK, var_metadata_target, RBRACK)?;
-    { meta }
-
-let vars_opt_metadata_target :=
-  | meta = delimited(LBRACK, separated_list(COMMA, var_metadata_target), RBRACK)?;
-    { Option.value ~default:[] meta }
-
-let stmt_opt_metadata_target :=
-  | meta = delimited(LBRACK, stmt_metadata_target, RBRACK)?;
-    { Option.value ~default:[] meta }
-
-let str_opt_metadata_target :=
-  | meta = delimited(LBRACK, STRING, RBRACK)?;
-    { Option.value ~default:"" meta }
 
 (* ==================== Type system ==================== *)
 
