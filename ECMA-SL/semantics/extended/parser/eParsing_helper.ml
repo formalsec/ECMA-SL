@@ -57,9 +57,7 @@ module Type = struct
     ts
 end
 
-module Prog = struct
-  open EslSyntax.EProg
-
+module Func = struct
   let parse_params (tpxs : (Id.t * EType.t option) list) :
     (Id.t * EType.t option) list =
     let check_dups checked (px, _) =
@@ -68,6 +66,10 @@ module Prog = struct
     in
     List.iter (check_dups (Hashtbl.create (List.length tpxs))) tpxs;
     tpxs
+end
+
+module Prog = struct
+  open EslSyntax.EProg
 
   let parse_tdef (t : EType.TDef.t) (p : t) : unit =
     let tn = EType.TDef.name t in
