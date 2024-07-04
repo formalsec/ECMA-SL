@@ -1,6 +1,5 @@
 open EslBase
 open Source
-module Meta = EMetadata.Stmt
 
 type t = t' Source.phrase
 
@@ -15,18 +14,17 @@ and t' =
   | GAssign of Id.t * EExpr.t
   | FieldAssign of EExpr.t * EExpr.t * EExpr.t
   | FieldDelete of EExpr.t * EExpr.t
-  | If of (EExpr.t * t * Meta.t list * region) list * (t * Meta.t list) option
+  | If of (EExpr.t * t * region) list * t option
   | While of EExpr.t * t
-  | ForEach of Id.t * EExpr.t * t * Meta.t list * (string * string) option
-  | RepeatUntil of t * (EExpr.t * region) option * Meta.t list
-  | Switch of EExpr.t * (EExpr.t * t) list * t option * string
+  | ForEach of Id.t * EExpr.t * t
+  | RepeatUntil of t * (EExpr.t * region) option
+  | Switch of EExpr.t * (EExpr.t * t) list * t option
   | MatchWith of EExpr.t * Id.t option * (EPat.t * t) list
   | Lambda of Id.t * string * Id.t list * Id.t list * t
   | MacroApply of Id.t * EExpr.t list
   | Throw of EExpr.t
   | Fail of EExpr.t
   | Assert of EExpr.t
-  | Wrapper of Meta.t list * t
 
 let default () : t = Skip @> no_region
 
@@ -51,18 +49,18 @@ let rec pp (ppf : Fmt.t) (s : t) : unit =
   | If ([], _) -> Log.fail "expecting non-empty if cases"
   | If (ifcs :: elifcss, elsecs) ->
     let pp_case ppf (e, s) = format ppf "(%a) %a" EExpr.pp e pp s in
-    let pp_if ppf (e, s, _, _) = format ppf "if %a" pp_case (e, s) in
-    let pp_elif ppf (e, s, _, _) = format ppf " elif %a" pp_case (e, s) in
-    let pp_else ppf (s, _) = format ppf " else %a" pp s in
+    let pp_if ppf (e, s, _) = format ppf "if %a" pp_case (e, s) in
+    let pp_elif ppf (e, s, _) = format ppf " elif %a" pp_case (e, s) in
+    let pp_else ppf s = format ppf " else %a" pp s in
     format ppf "%a%a%a" pp_if ifcs (pp_lst !>"" pp_elif) elifcss
       (pp_opt pp_else) elsecs
   | While (e, s') -> format ppf "while (%a) %a" EExpr.pp e pp s'
-  | ForEach (x, e, s', _, _) ->
+  | ForEach (x, e, s') ->
     format ppf "foreach (%a : %a) %a" Id.pp x EExpr.pp e pp s'
-  | RepeatUntil (s', until, _) ->
+  | RepeatUntil (s', until) ->
     let pp_until ppf (e, _) = format ppf " until %a" EExpr.pp e in
     format ppf "repeat %a%a" pp s' (pp_opt pp_until) until
-  | Switch (e, css, dflt, _) ->
+  | Switch (e, css, dflt) ->
     let pp_case ppf (e, s) = format ppf "\ncase %a: %a" EExpr.pp e pp s in
     let pp_default ppf s = format ppf "\nsdefault: %a" pp s in
     format ppf "switch (%a) {%a%a\n}" EExpr.pp e (pp_lst !>"" pp_case) css
@@ -80,7 +78,6 @@ let rec pp (ppf : Fmt.t) (s : t) : unit =
   | Throw e -> format ppf "throw %a" EExpr.pp e
   | Fail e -> format ppf "fail %a" EExpr.pp e
   | Assert e -> format ppf "assert %a" EExpr.pp e
-  | Wrapper (_, s) -> format ppf "gen_wrapper %a" pp s
 
 let str (s : t) : string = Fmt.str "%a" pp s
 
@@ -107,18 +104,17 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = EExpr.Mapper.id) (mapper : t -> t)
   | FieldAssign (oe, fe, e) -> FieldAssign (emapper oe, emapper fe, emapper e)
   | FieldDelete (oe, fe) -> FieldDelete (emapper oe, emapper fe)
   | If (ifcss, elsecs) ->
-    let map_ifcs (e, s, meta, at) = (emapper e, map' s, meta, at) in
-    let map_elsecs (s, meta) = (map' s, meta) in
+    let map_ifcs (e, s, at) = (emapper e, map' s, at) in
+    let map_elsecs s = map' s in
     If (List.map map_ifcs ifcss, Option.map map_elsecs elsecs)
   | While (e, s') -> While (emapper e, map' s')
-  | ForEach (x, e, s', meta, var_meta) ->
-    ForEach (id_mapper x, emapper e, map' s', meta, var_meta)
-  | RepeatUntil (s', until, meta) ->
+  | ForEach (x, e, s') -> ForEach (id_mapper x, emapper e, map' s')
+  | RepeatUntil (s', until) ->
     let map_until (e, at) = (emapper e, at) in
-    RepeatUntil (map' s', Option.map map_until until, meta)
-  | Switch (e, css, dflt, meta) ->
+    RepeatUntil (map' s', Option.map map_until until)
+  | Switch (e, css, dflt) ->
     let map_cs (e, s) = (emapper e, map' s) in
-    Switch (emapper e, List.map map_cs css, Option.map map' dflt, meta)
+    Switch (emapper e, List.map map_cs css, Option.map map' dflt)
   | MatchWith (e, dsc, css) ->
     let map_cs (pat, s) = (pat, map' s) in
     MatchWith (emapper e, Option.map id_mapper dsc, List.map map_cs css)
@@ -127,7 +123,6 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = EExpr.Mapper.id) (mapper : t -> t)
   | Throw e -> Throw (emapper e)
   | Fail e -> Fail (emapper e)
   | Assert e -> Assert (emapper e)
-  | Wrapper (meta, s') -> Wrapper (meta, map' s')
 
 let rec to_list ?(recursion : bool = false) (to_list_f : t -> 'a list) (s : t) :
   'a list =
@@ -137,18 +132,18 @@ let rec to_list ?(recursion : bool = false) (to_list_f : t -> 'a list) (s : t) :
     match s.it with
     | Skip | ExprStmt _ | Print _ | Return _ | Assign _ | GAssign _
     | FieldAssign _ | FieldDelete _ | MacroApply _ | Throw _ | Fail _ | Assert _
-    | Wrapper _ ->
+      ->
       []
     | Debug s' -> to_list_s s'
     | Block ss -> to_list_ss ss
     | If (ifcss, elsecs) ->
       to_list_ss
-        ( List.map (fun (_, s, _, _) -> s) ifcss
-        @ Option.fold ~none:[] ~some:(fun (s, _) -> [ s ]) elsecs )
+        ( List.map (fun (_, s, _) -> s) ifcss
+        @ Option.fold ~none:[] ~some:(fun s -> [ s ]) elsecs )
     | While (_, s') -> to_list_s s'
-    | ForEach (_, _, s', _, _) -> to_list_s s'
-    | RepeatUntil (s', _, _) -> to_list_s s'
-    | Switch (_, css, dlft, _) ->
+    | ForEach (_, _, s') -> to_list_s s'
+    | RepeatUntil (s', _) -> to_list_s s'
+    | Switch (_, css, dlft) ->
       to_list_ss
         ( List.map (fun (_, s) -> s) css
         @ Option.fold ~none:[] ~some:(fun s -> [ s ]) dlft )

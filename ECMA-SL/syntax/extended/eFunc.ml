@@ -1,6 +1,5 @@
 open EslBase
 open Source
-module Meta = EMetadata.Func
 
 type t = t' Source.phrase
 
@@ -9,17 +8,16 @@ and t' =
   ; tparams : (Id.t * EType.t option) list
   ; treturn : EType.t option
   ; body : EStmt.t
-  ; metadata : Meta.t option
   }
 
 let default () : t =
   let name = Id.default () in
   let body = EStmt.default () in
-  { name; tparams = []; treturn = None; body; metadata = None } @> no_region
+  { name; tparams = []; treturn = None; body } @> no_region
 
 let create (name : Id.t) (tparams : (Id.t * EType.t option) list)
-  (treturn : EType.t option) (body : EStmt.t) (metadata : Meta.t option) : t' =
-  { name; tparams; treturn; body; metadata }
+  (treturn : EType.t option) (body : EStmt.t) : t' =
+  { name; tparams; treturn; body }
 
 let name (m : t) : Id.t = m.it.name
 let name' (m : t) : Id.t' = m.it.name.it
@@ -28,7 +26,6 @@ let params (f : t) : Id.t list = List.map (fun (px, _) -> px) f.it.tparams
 let params' (m : t) : Id.t' list = List.map (fun (px, _) -> px.it) m.it.tparams
 let treturn (f : t) : EType.t option = f.it.treturn
 let body (f : t) : EStmt.t = f.it.body
-let metadata (f : t) : Meta.t option = f.it.metadata
 
 let pp_signature (ppf : Fmt.t) (f : t) : unit =
   let open Fmt in

@@ -36,7 +36,6 @@
             "catch"                   , CATCH;
             "fail"                    , FAIL;
             "assert"                  , ASSERT;
-            "gen_wrapper"             , WRAPPER;
 
             (* Program constants *)
             "NaN"                     , FLOAT (Float.nan);

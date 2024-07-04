@@ -1,6 +1,5 @@
 open EslBase
 open Source
-module Meta = EMetadata.Pat
 
 type pv = pv' Source.phrase
 
@@ -20,14 +19,14 @@ let pv_str (pv : pv) : string = Fmt.str "%a" pv_pp pv
 type t = t' Source.phrase
 
 and t' =
-  | ObjPat of (Id.t * pv) list * Meta.t option
+  | ObjPat of (Id.t * pv) list
   | DefaultPat
 
 let pp (ppf : Fmt.t) (pat : t) : unit =
   let open Fmt in
   let pp_pb ppf (pbn, pbv) = format ppf "%a: %a" Id.pp pbn pv_pp pbv in
   match pat.it with
-  | ObjPat (pbs, _) -> format ppf "{ %a }" (pp_lst !>", " pp_pb) pbs
+  | ObjPat pbs -> format ppf "{ %a }" (pp_lst !>", " pp_pb) pbs
   | DefaultPat -> pp_str ppf "default"
 
 let str (pat : t) : string = Fmt.str "%a" pp pat
@@ -36,7 +35,7 @@ let patval_opt (pat : t) (id : Id.t) : pv option =
   let find_pbn (pbn, _) = id.it = pbn.it in
   let get_pbv (_, pbv) = pbv in
   match pat.it with
-  | ObjPat (pbs, _) -> Option.map get_pbv (List.find_opt find_pbn pbs)
+  | ObjPat pbs -> Option.map get_pbv (List.find_opt find_pbn pbs)
   | DefaultPat -> None
 
 let patval_remove (pat : t) (id : Id.t) : t =
@@ -46,5 +45,5 @@ let patval_remove (pat : t) (id : Id.t) : t =
     | pb :: pbs' -> pb :: patval_remove' pbs'
   in
   match pat.it with
-  | ObjPat (pbs, meta) -> ObjPat (patval_remove' pbs, meta) @> pat.at
+  | ObjPat pbs -> ObjPat (patval_remove' pbs) @> pat.at
   | DefaultPat -> pat

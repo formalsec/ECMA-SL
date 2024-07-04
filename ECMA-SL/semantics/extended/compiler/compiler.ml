@@ -305,16 +305,15 @@ let rec compile_stmt (s : EStmt.t) : c_stmt =
   | FieldDelete (oe, fe) -> !!(compile_fielddelete s.at oe fe)
   | If (ifcss, elsecs) -> !!(compile_if ifcss elsecs)
   | While (e, s') -> !!(compile_while s.at e s')
-  | ForEach (x, e, s', _, _) -> !!(compile_foreach s.at x e s')
-  | RepeatUntil (s', until, _) -> !!(compile_repeatuntil s.at s' until)
-  | Switch (e, css, dflt, _) -> !!(compile_switch s.at e css dflt)
+  | ForEach (x, e, s') -> !!(compile_foreach s.at x e s')
+  | RepeatUntil (s', until) -> !!(compile_repeatuntil s.at s' until)
+  | Switch (e, css, dflt) -> !!(compile_switch s.at e css dflt)
   | MatchWith (e, dsc, css) -> !!(compile_matchwith s.at e dsc css)
   | Lambda (x, lid, _, ctxvars, _) -> !!(compile_lambdacall s.at x lid ctxvars)
   | MacroApply (_, _) -> Log.fail "unexpected macro apply stmt"
   | Throw e -> !!(compile_throw s.at e)
   | Fail e -> !!(compile_fail s.at e)
   | Assert e -> !!(compile_assert s.at e)
-  | Wrapper (_, s) -> compile_stmt s
 
 and compile_debug (at : region) (s : EStmt.t) : c_stmt =
   match compile_stmt s with
@@ -356,15 +355,15 @@ and compile_fielddelete (at : region) (oe : EExpr.t) (fe : EExpr.t) : c_stmt =
   let (fe_s, fe_e) = compile_expr at fe in
   oe_s @ fe_s @ [ Stmt.FieldDelete (oe_e, fe_e) @?> at ]
 
-and compile_if (ifcss : (EExpr.t * EStmt.t * EStmt.Meta.t list * region) list)
-  (elsecs : (EStmt.t * EStmt.Meta.t list) option) : c_stmt =
-  let compile_ifcs_f (e, s, _, at) acc =
+and compile_if (ifcss : (EExpr.t * EStmt.t * region) list)
+  (elsecs : EStmt.t option) : c_stmt =
+  let compile_ifcs_f (e, s, at) acc =
     let (e_s, e_e) = compile_expr at e in
     let sblock = Builder.block ~at:s.at (compile_stmt s) in
     real (e_s @ [ Stmt.If (e_e, sblock, Builder.block_opt acc) @?> at ])
   in
   List.fold_right compile_ifcs_f ifcss
-    (Option.fold ~none:[] ~some:(fun (s, _) -> compile_stmt s) elsecs)
+    (Option.fold ~none:[] ~some:(fun s -> compile_stmt s) elsecs)
 
 and compile_while (at : region) (e : EExpr.t) (s : EStmt.t) : c_stmt =
   let (e_s, e_e) = compile_expr at e in
@@ -443,7 +442,7 @@ and compile_pat (e_e : Expr.t) (pat : EPat.t) : c_stmt * Expr.t * c_stmt =
   in
   match pat.it with
   | DefaultPat -> ([], guard [], [])
-  | ObjPat (pbs, _) ->
+  | ObjPat pbs ->
     let (pre_s, guards, pat_s) = List.fold_left compile_pbs ([], [], []) pbs in
     (pre_s, guard guards, pat_s)
 
