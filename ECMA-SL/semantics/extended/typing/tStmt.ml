@@ -27,7 +27,6 @@ and type_stmt' (s : EStmt.t) (tctx : TCtx.t) : TCtx.t =
   | Throw _ -> tctx
   | Fail _ -> tctx
   | Assert _ -> tctx
-  | Wrapper _ -> tctx
 
 and type_block (ss : EStmt.t list) (tctx : TCtx.t) : TCtx.t =
   List.fold_left (fun tctx s -> type_stmt s tctx) tctx ss

@@ -215,16 +215,16 @@ let switch_default_target :=
 
 let expr_target := 
   | LPAREN; ~ = expr_target; RPAREN;    <>
-  | ~ = value_target;                   <>
-  | ~ = variable_target;                <>
+  | ~ = val_expr_taget;                 <>
+  | ~ = var_expr_target;                <>
   | ~ = op_expr_target;                 <>
   | ~ = curry_expr_target;              <>
 
-let value_target := 
+let val_expr_taget := 
   | v = val_target;
     { Expr.Val v @> at $sloc }
 
-let variable_target :=
+let var_expr_target :=
   | x = ID;
     { Expr.Var x @> at $sloc }
 
