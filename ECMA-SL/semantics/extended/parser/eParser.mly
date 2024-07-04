@@ -127,22 +127,24 @@ let entry_prog_target := ~ = prog_target; EOF; <>
 (* ==================== Program  ==================== *)
 
 let prog_target :=
-  | imports = import_target*; p_els = separated_list(SEMICOLON?, prog_element_target);
-    { EParsing_helper.Prog.parse_prog imports p_els }
-
-let import_target :=
-  | IMPORT; ~ = str_id_target; SEMICOLON?; <`User>
-  | IMPORT; ~ = id_target; SEMICOLON?; <`Standard>
+  | imports = import_target*; prog_els = prog_element_target*;
+    { EParsing_helper.Prog.parse_prog imports prog_els }
 
 let prog_element_target :=
   | ~ = tdef_target;    < EParsing_helper.Prog.parse_tdef >
   | ~ = func_target;    < EParsing_helper.Prog.parse_func >
   | ~ = macro_target;   < EParsing_helper.Prog.parse_macro >
 
+(* ==================== Imports ==================== *)
+
+let import_target :=
+  | IMPORT; ~ = str_id_target; SEMICOLON; <`User>
+  | IMPORT; ~ = id_target; SEMICOLON; <`Standard>
+
 (* ==================== Type definitions ==================== *)
 
 let tdef_target :=
-  | TYPEDEF; tn = id_target; DEFEQ; tv = type_target;
+  | TYPEDEF; tn = id_target; DEFEQ; tv = type_target; SEMICOLON;
     { EType.TDef.create tn tv }
 
 (* ==================== Functions ==================== *)
@@ -150,12 +152,12 @@ let tdef_target :=
 let func_target :=
   | FUNCTION; fn = id_target; LPAREN; pxs = separated_list(COMMA, param_target); RPAREN;
     tret = typing_target?; s = block_target;
-    { EFunc.create fn (EParsing_helper.Prog.parse_params pxs) tret s None @> at $sloc }
+    { EFunc.create fn (EParsing_helper.Func.parse_params pxs) tret s None @> at $sloc }
   | FUNCTION; fn = id_target; LPAREN; pxs = separated_list(COMMA, param_target); RPAREN;
     meta_vals = delimited(LBRACK, vals_metadata_target, RBRACK); meta_vars = vars_opt_metadata_target;
     tret = typing_target?; s = block_target;
     {
-      EFunc.create fn (EParsing_helper.Prog.parse_params pxs) tret s
+      EFunc.create fn (EParsing_helper.Func.parse_params pxs) tret s
       (Some (EFunc.Meta.build meta_vals meta_vars)) @> at $sloc
     }
 
