@@ -34,16 +34,16 @@
 (* ========== Language tokens ========== *)
 
 %token NULL
-%token PRINT DELETE
-%token FUNCTION RETURN EXTERN
+%token PRINT RETURN DELETE
+%token FAIL ASSERT
+%token FUNCTION EXTERN
 %token IF ELSE
 %token WHILE
 %token SWITCH CASE SDEFAULT
-%token FAIL ASSERT
 
 (* ========== Symbol tokens ========== *)
 
-%token PERIOD COMMA SEMICOLON COLON
+%token COMMA SEMICOLON COLON
 %token DEFEQ
 %token ATSIGN HASH
 %token LPAREN RPAREN
@@ -104,30 +104,57 @@ let prog_target :=
 (* ==================== Functions ==================== *)
 
 let func_target :=
-  | FUNCTION; fn = id_target; LPAREN; pxs = separated_list(COMMA, id_target); RPAREN; s = block_target;
+  | FUNCTION; fn = id_target; LPAREN; pxs = separated_list(COMMA, id_target); RPAREN; 
+    s = block_stmt_target;
     { Func.create fn (Parsing_helper.Func.parse_params pxs) s @> at $sloc }
 
 (* ==================== Statements ==================== *)
 
-let block_target :=
-  | LBRACE; ss = separated_list (SEMICOLON, stmt_target); RBRACE;
-    { Stmt.Block ss @> at $sloc }
-
 let stmt_target :=
+  | ~ = simple_stmt_target;     <>
+  | ~ = compound_stmt_target;   <>
+
+let simple_stmt_target :=
+  | ~ = debug_stmt_target;      <>
+  | ~ = print_stmt_target;      <>
+  | ~ = return_stmt_target;     <>
+  | ~ = error_stmt_target;      <>
+  | ~ = assign_stmt_target;     <>
+  | ~ = obj_stmt_target;        <>
+
+let compound_stmt_target :=
+  | ~ = block_stmt_target;      <>
+  | ~ = if_stmt_target;         <>
+  | ~ = while_stmt_target;      <>
+  | ~ = switch_stmt_target;     <>
+
+let debug_stmt_target :=
   | HASH; s = stmt_target;
     { Stmt.Debug s @> at $sloc }
+
+let print_stmt_target :=
   | PRINT; e = expr_target;
     { Stmt.Print e @> at $sloc }
-  | RETURN;
-    { Stmt.Return (Expr.Val (Value.App (`Op "void", [])) @> at $sloc) @> at $sloc }
-  | RETURN; e = expr_target;
+
+let return_stmt_target :=
+  | RETURN;                    
+    { Stmt.Return (Expr.Val (Value.App (`Op "void", [])) @> no_region) @> at $sloc }
+  | RETURN; e = expr_target;      
     { Stmt.Return e @> at $sloc }
+
+let error_stmt_target :=
+  | ASSERT; e = expr_target;
+    { Stmt.Assert e @> at $sloc }
+  | FAIL; e = expr_target;
+    { Stmt.Fail e @> at $sloc }
+
+let assign_stmt_target :=
   | x = id_target; DEFEQ; e = expr_target;
     { Stmt.Assign (x, e) @> at $sloc }
-  | x = id_target; DEFEQ; fn = expr_target; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
-    { Stmt.AssignCall (x, fn, vs) @> at $sloc }
-  | x = id_target; DEFEQ; EXTERN; fn = id_target; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
-    { Stmt.AssignECall (x, fn, vs) @> at $sloc }
+  | x = id_target; DEFEQ; fn = expr_target; es = call_arguments_target;
+    { Stmt.AssignCall (x, fn, es) @> at $sloc }
+  | x = id_target; DEFEQ; EXTERN; fn = id_target; es = call_arguments_target;
+    { Stmt.AssignECall (x, fn, es) @> at $sloc }
   | x = id_target; DEFEQ; LBRACE; RBRACE;
     { Stmt.AssignNewObj x @> at $sloc }
   | x = id_target; DEFEQ; OBJECT_TO_LIST; e = expr_target;
@@ -136,45 +163,73 @@ let stmt_target :=
     { Stmt.AssignObjFields (x, e) @> at $sloc }
   | x = id_target; DEFEQ; e1 = expr_target; OBJECT_MEM; e2 = expr_target;
     { Stmt.AssignInObjCheck (x, e1, e2) @> at $sloc }
+
+let obj_stmt_target :=
   | x = id_target; DEFEQ; oe = expr_target; fe = lookup_target;
     { Stmt.FieldLookup (x, oe, fe) @> at $sloc }
   | oe = expr_target; fe = lookup_target; DEFEQ; e = expr_target;
     { Stmt.FieldAssign (oe, fe, e) @> at $sloc }
   | DELETE; oe = expr_target; fe = lookup_target;
     { Stmt.FieldDelete (oe, fe) @> at $sloc }
-  | IF; LPAREN; e = expr_target; RPAREN; s = block_target;
-    { Stmt.If (e, s, None) @> at $sloc }
-  | IF; LPAREN; e = expr_target; RPAREN; s1 = block_target; ELSE; s2 = block_target;
-    { Stmt.If (e, s1, Some s2) @> at $sloc }
-  | WHILE; LPAREN; e = expr_target; RPAREN; s = block_target;
-    { Stmt.While (e, s) @> at $sloc }
-  | SWITCH; LPAREN; e = expr_target; RPAREN; LBRACE;
-    css = list(switch_case_target); dflt = switch_default_target?; RBRACE;
-    { Stmt.Switch (e, (Parsing_helper.Stmt.parse_switch_cases css), dflt) @> at $sloc }
-  | FAIL; e = expr_target;
-    { Stmt.Fail e @> at $sloc }
-  | ASSERT; e = expr_target;
-    { Stmt.Assert e @> at $sloc }
 
-let lookup_target :=
-  | PERIOD; fn = id_target;             { Expr.Val (Value.Str fn.it) @> at $sloc }
-  | LBRACK; fe = expr_target; RBRACK;   { fe }
+let block_stmt_target :=
+  | LBRACE; ss = separated_list (SEMICOLON, stmt_target); RBRACE;
+    { Stmt.Block ss @> at $sloc }
+
+let if_stmt_target :=
+  | IF; e = guard_target; s1 = block_stmt_target;
+    { Stmt.If (e, s1, None) @> at $sloc }
+  | IF; e = guard_target; s1 = block_stmt_target; ELSE; s2 = block_stmt_target;
+    { Stmt.If (e, s1, Some s2) @> at $sloc }
+
+let while_stmt_target :=
+  | WHILE; e = guard_target; s = block_stmt_target;
+    { Stmt.While (e, s) @> at $sloc }
+
+let switch_stmt_target :=
+  | SWITCH; e = guard_target; LBRACE; css = switch_case_target*; dflt = switch_default_target?; RBRACE;
+    { Stmt.Switch (e, (Parsing_helper.Stmt.parse_switch_cases css), dflt) @> at $sloc }
+
+(* ==================== Statement Elements ==================== *)
+
+let guard_target :=
+  | LPAREN; ~ = expr_target; RPAREN;
+    <>
+
+let lookup_target := 
+  | LBRACK; ~ = expr_target; RBRACK;
+    <>
+
+let call_arguments_target :=
+  | LPAREN; ~ = separated_list(COMMA, expr_target); RPAREN;
+    <>
 
 let switch_case_target :=
-  | CASE; v = val_target; COLON; s = block_target;     { (v @> at $sloc, s) }
+  | CASE; v = val_target; COLON; s = block_stmt_target;
+    { (v @> at $sloc, s) }
 
 let switch_default_target :=
-  | SDEFAULT; COLON; s = block_target;                 { s }
+  | SDEFAULT; COLON; ~ = block_stmt_target;
+    <>
 
 (* ==================== Expressions ==================== *)
 
-let expr_target :=
-  | LPAREN; ~ = expr_target; RPAREN;
-    <>
+let expr_target := 
+  | LPAREN; ~ = expr_target; RPAREN;    <>
+  | ~ = value_target;                   <>
+  | ~ = variable_target;                <>
+  | ~ = op_expr_target;                 <>
+  | ~ = curry_expr_target;              <>
+
+let value_target := 
   | v = val_target;
     { Expr.Val v @> at $sloc }
+
+let variable_target :=
   | x = ID;
     { Expr.Var x @> at $sloc }
+
+let op_expr_target :=
   | unopt = core_unopt_infix; e = expr_target;   %prec unopt_prec
     { Expr.UnOpt (unopt, e) @> at $sloc }
   | unopt = core_unopt_call; e = expr_target;    %prec unopt_prec
@@ -185,26 +240,24 @@ let expr_target :=
     { Expr.BinOpt (binopt, e1, e2) @> at $sloc }
   | triopt = core_triopt; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; COMMA; e3 = expr_target; RPAREN;
     { Expr.TriOpt (triopt, e1, e2, e3) @> at $sloc }
-  | ~ = nopt_target;
-    <>
-  | LBRACE; fe = expr_target; RBRACE; ATSIGN; LPAREN; es = separated_list(COMMA, expr_target); RPAREN;
-    { Expr.Curry (fe, es) @> at $sloc }
-
-let nopt_target :=
   | LARRBRACK; es = separated_list (COMMA, expr_target); RARRBRACK;
     { Expr.NOpt (ArrayExpr, es) @> at $sloc }
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
     { Expr.NOpt (ListExpr, es) @> at $sloc }
 
+let curry_expr_target :=
+  | LBRACE; fe = expr_target; RBRACE; ATSIGN; es = call_arguments_target;
+    { Expr.Curry (fe, es) @> at $sloc }
+
 (* ==================== Values ==================== *)
 
-let id_target := x = ID; { (x @> at $sloc) }
+let id_target := x = ID;    { (x @> at $sloc) }
 
 let val_target :=
-  | NULL;                { Value.App (`Op "null", []) }
-  | i = INT;             < Value.Int >
-  | f = FLOAT;           < Value.Real >
-  | s = STRING;          < Value.Str >
-  | b = BOOLEAN;         { if b then Value.True else Value.False }
-  | l = LOC;             { Value.App (`Op "loc", [Value.Int l])}
-  | s = SYMBOL;          { Value.App (`Op "symbol", [Value.Str s])}
+  | NULL;                   { Value.App (`Op "null", []) }
+  | i = INT;                < Value.Int >
+  | f = FLOAT;              < Value.Real >
+  | s = STRING;             < Value.Str >
+  | b = BOOLEAN;            { if b then Value.True else Value.False }
+  | l = LOC;                { Value.App (`Op "loc", [Value.Int l])}
+  | s = SYMBOL;             { Value.App (`Op "symbol", [Value.Str s])}
