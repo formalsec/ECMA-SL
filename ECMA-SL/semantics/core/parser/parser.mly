@@ -100,59 +100,39 @@ let prog_target :=
   | ~ = separated_list(SEMICOLON, func_target); 
     < Prog.create >
 
-(* ==================== Functions ==================== *)
+(* ==================== Program Elements ==================== *)
 
 let func_target :=
-  | FUNCTION; fn = id_target; LPAREN; pxs = separated_list(COMMA, id_target); RPAREN; 
-    s = block_stmt_target;
-    { Func.create fn (Parsing_helper.Func.parse_params pxs) s @> at $sloc }
+  | FUNCTION; fn = id_target; pxs = func_param_target; s = block_stmt_target;
+    { Func.create fn pxs s @> at $sloc }
 
 (* ==================== Statements ==================== *)
 
 let stmt_target :=
-  | ~ = simple_stmt_target;     <>
-  | ~ = compound_stmt_target;   <>
+  | ~ = exec_stmt_target;         <>
+  | ~ = update_stmt_target;       <>
+  | ~ = block_stmt_target;        <>
+  | ~ = selection_stmt_target;    <>
+  | ~ = iteration_stmt_target;    <>
 
-let simple_stmt_target :=
-  | ~ = debug_stmt_target;      <>
-  | ~ = print_stmt_target;      <>
-  | ~ = return_stmt_target;     <>
-  | ~ = error_stmt_target;      <>
-  | ~ = assign_stmt_target;     <>
-  | ~ = obj_stmt_target;        <>
-
-let compound_stmt_target :=
-  | ~ = block_stmt_target;      <>
-  | ~ = if_stmt_target;         <>
-  | ~ = while_stmt_target;      <>
-  | ~ = switch_stmt_target;     <>
-
-let debug_stmt_target :=
+let exec_stmt_target :=
   | HASH; s = stmt_target;
     { Stmt.Debug s @> at $sloc }
-
-let print_stmt_target :=
   | PRINT; e = expr_target;
     { Stmt.Print e @> at $sloc }
-
-let return_stmt_target :=
-  | RETURN;                    
-    { Stmt.Return (Expr.Val (Value.App (`Op "void", [])) @> no_region) @> at $sloc }
-  | RETURN; e = expr_target;      
-    { Stmt.Return e @> at $sloc }
-
-let error_stmt_target :=
+  | RETURN; e = expr_target?; 
+    { Stmt.Return (Parsing_helper.Stmt.parse_return e) @> at $sloc }
   | ASSERT; e = expr_target;
     { Stmt.Assert e @> at $sloc }
   | FAIL; e = expr_target;
     { Stmt.Fail e @> at $sloc }
 
-let assign_stmt_target :=
+let update_stmt_target :=
   | x = id_target; DEFEQ; e = expr_target;
     { Stmt.Assign (x, e) @> at $sloc }
-  | x = id_target; DEFEQ; fn = expr_target; es = call_arguments_target;
+  | x = id_target; DEFEQ; fn = expr_target; es = call_args_target;
     { Stmt.AssignCall (x, fn, es) @> at $sloc }
-  | x = id_target; DEFEQ; EXTERN; fn = id_target; es = call_arguments_target;
+  | x = id_target; DEFEQ; EXTERN; fn = id_target; es = call_args_target;
     { Stmt.AssignECall (x, fn, es) @> at $sloc }
   | x = id_target; DEFEQ; LBRACE; RBRACE;
     { Stmt.AssignNewObj x @> at $sloc }
@@ -162,8 +142,6 @@ let assign_stmt_target :=
     { Stmt.AssignObjFields (x, e) @> at $sloc }
   | x = id_target; DEFEQ; e1 = expr_target; OBJECT_MEM; e2 = expr_target;
     { Stmt.AssignInObjCheck (x, e1, e2) @> at $sloc }
-
-let obj_stmt_target :=
   | x = id_target; DEFEQ; oe = expr_target; fe = lookup_target;
     { Stmt.FieldLookup (x, oe, fe) @> at $sloc }
   | oe = expr_target; fe = lookup_target; DEFEQ; e = expr_target;
@@ -175,52 +153,36 @@ let block_stmt_target :=
   | LBRACE; ss = separated_list (SEMICOLON, stmt_target); RBRACE;
     { Stmt.Block ss @> at $sloc }
 
-let if_stmt_target :=
+let selection_stmt_target :=
   | IF; e = guard_target; s1 = block_stmt_target;
     { Stmt.If (e, s1, None) @> at $sloc }
   | IF; e = guard_target; s1 = block_stmt_target; ELSE; s2 = block_stmt_target;
     { Stmt.If (e, s1, Some s2) @> at $sloc }
-
-let while_stmt_target :=
-  | WHILE; e = guard_target; s = block_stmt_target;
-    { Stmt.While (e, s) @> at $sloc }
-
-let switch_stmt_target :=
   | SWITCH; e = guard_target; LBRACE; css = switch_case_target*; dflt = switch_default_target?; RBRACE;
     { Stmt.Switch (e, (Parsing_helper.Stmt.parse_switch_cases css), dflt) @> at $sloc }
 
+let iteration_stmt_target :=
+  | WHILE; e = guard_target; s = block_stmt_target;
+    { Stmt.While (e, s) @> at $sloc }
+
 (* ==================== Statement Elements ==================== *)
 
-let guard_target :=
-  | LPAREN; ~ = expr_target; RPAREN;
-    <>
+let guard_target := LPAREN; ~ = expr_target; RPAREN; <>
 
-let lookup_target := 
-  | LBRACK; ~ = expr_target; RBRACK;
-    <>
+let switch_case_target := CASE; v = val_target; COLON; s = block_stmt_target; { (v @> at $sloc, s) }
 
-let call_arguments_target :=
-  | LPAREN; ~ = separated_list(COMMA, expr_target); RPAREN;
-    <>
-
-let switch_case_target :=
-  | CASE; v = val_target; COLON; s = block_stmt_target;
-    { (v @> at $sloc, s) }
-
-let switch_default_target :=
-  | SDEFAULT; COLON; ~ = block_stmt_target;
-    <>
+let switch_default_target := SDEFAULT; COLON; ~ = block_stmt_target; <>
 
 (* ==================== Expressions ==================== *)
 
 let expr_target := 
   | LPAREN; ~ = expr_target; RPAREN;    <>
-  | ~ = val_expr_taget;                 <>
+  | ~ = val_expr_target;                 <>
   | ~ = var_expr_target;                <>
   | ~ = op_expr_target;                 <>
   | ~ = curry_expr_target;              <>
 
-let val_expr_taget := 
+let val_expr_target := 
   | v = val_target;
     { Expr.Val v @> at $sloc }
 
@@ -229,9 +191,9 @@ let var_expr_target :=
     { Expr.Var x @> at $sloc }
 
 let op_expr_target :=
-  | unopt = core_unopt_infix; e = expr_target;   %prec unopt_prec
+  | unopt = core_unopt_infix; e = expr_target; %prec unopt_prec
     { Expr.UnOpt (unopt, e) @> at $sloc }
-  | unopt = core_unopt_call; e = expr_target;    %prec unopt_prec
+  | unopt = core_unopt_call; LPAREN; e = expr_target; RPAREN;
     { Expr.UnOpt (unopt, e) @> at $sloc }
   | e1 = expr_target; binopt = core_binopt_infix; e2 = expr_target;
     { Expr.BinOpt (binopt, e1, e2) @> at $sloc }
@@ -243,8 +205,16 @@ let op_expr_target :=
     { Expr.NOpt (ListExpr, es) @> at $sloc }
 
 let curry_expr_target :=
-  | LBRACE; fe = expr_target; RBRACE; ATSIGN; es = call_arguments_target;
+  | LBRACE; fe = expr_target; RBRACE; ATSIGN; es = call_args_target;
     { Expr.Curry (fe, es) @> at $sloc }
+
+(* ==================== Generic Elements ==================== *)
+
+let func_param_target := LPAREN; ~ = separated_list(COMMA, id_target); RPAREN; < Parsing_helper.Func.parse_params >
+
+let call_args_target := LPAREN; ~ = separated_list(COMMA, expr_target); RPAREN; <>
+
+let lookup_target := LBRACK; ~ = expr_target; RBRACK; <>
 
 (* ==================== Values ==================== *)
 

@@ -2,7 +2,11 @@ open EslSyntax
 open EslSyntax.Source
 
 module Stmt = struct
-  open EslSyntax.Stmt
+  open Stmt
+
+  let parse_return (e : Expr.t option) : Expr.t =
+    let default = Expr.Val (Value.App (`Op "void", [])) @> no_region in
+    Option.value ~default e
 
   let parse_switch_cases (css : (Value.t Source.phrase * t) list) :
     (Value.t, t) Hashtbl.t =
