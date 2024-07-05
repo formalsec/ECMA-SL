@@ -2,7 +2,7 @@ open EslSyntax
 open EslSyntax.Source
 
 module Expr = struct
-  open EslSyntax.EExpr
+  open EExpr
 
   let parse_object_fields (flds : (Id.t * t) list) : (Id.t * t) list =
     let check_dups checked (fn, _) =
@@ -13,8 +13,14 @@ module Expr = struct
     flds
 end
 
+module Stmt = struct
+  let parse_return (e : EExpr.t option) : EExpr.t =
+    let default = EExpr.Val (Value.App (`Op "void", [])) @> no_region in
+    Option.value ~default e
+end
+
 module Type = struct
-  open EslSyntax.EType
+  open EType
 
   let parse_tobject (flds : (Id.t * t * tfldstyle) list) : tobject =
     let parse_tobjfld_f tflds (fn, ft, fs) =
@@ -69,7 +75,7 @@ module Func = struct
 end
 
 module Prog = struct
-  open EslSyntax.EProg
+  open EProg
 
   let parse_tdef (t : EType.TDef.t) (p : t) : unit =
     let tn = EType.TDef.name t in

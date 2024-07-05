@@ -293,7 +293,7 @@ and compile_symbolic (s_at : region) (e_at : region) (t : Type.t) (e : EExpr.t)
 let rec compile_stmt (s : EStmt.t) : c_stmt =
   let ( !! ) = real in
   match s.it with
-  | Skip -> Log.fail "unexpected skip stmt"
+  | Skip -> []
   | Debug s' -> !!(compile_debug s.at s')
   | Block ss -> List.concat (List.map compile_stmt ss)
   | ExprStmt e -> !!(fst (compile_expr s.at e))
