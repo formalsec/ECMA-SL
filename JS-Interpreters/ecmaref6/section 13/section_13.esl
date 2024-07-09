@@ -31,11 +31,10 @@ function createThrowTypeErrorFunctionObject(functionPrototypeObject, strict) {
   /* 10. Set the [[Extensible]] internal property of F to false. */
   setInternalProperty(F, "Extensible", false);
   /* 11. Let [[ThrowTypeError]] be F. */
-
   setInternalProperty(F, "internalLength", 0.);
 
-  return F
-};
+  return F;
+}
 
 /**
  * 13.2.14 Runtime Semantics: BlockDeclarationInstantiation (code, env)
@@ -56,42 +55,40 @@ function BlockDeclarationInstantiation(code, env) {
   /* 2. For each element d in declarations do */
   foreach (d : declarations) {
     /* a. For each element dn of the BoundNames of d do */
-    /* foreach(dn : BoundNames){ */
+    /* foreach(dn : BoundNames) { */
       /* i. If IsConstantDeclaration of d is true, then */
       if (IsConstantDeclaration(d)) {
         /* 1. Let status be env.CreateImmutableBinding(dn, true). */
-        status := {env.CreateImmutableBinding}(env, d.name, true)
-      }
+        status := {env.CreateImmutableBinding}(env, d.name, true);
       /* ii. Else, */
-      else {
+      } else {
         /* 1. Let status be env.CreateMutableBinding(dn, false). */
-        status := {env.CreateMutableBinding}(env, d.name, false)
-      };
+        status := {env.CreateMutableBinding}(env, d.name, false);
+      }
       /* iii. Assert: status is never an abrupt completion. */
-      assert(!isAnAbruptCompletion(status))
+      assert(!isAnAbruptCompletion(status));
     /* b. If d is a GeneratorDeclaration production or a FunctionDeclaration production, then */
       /* i. Let fn be the sole element of the BoundNames of d */
       /* ii. Let fo be the result of performing InstantiateFunctionObject for d with argument env. */
       /* iii. Perform env.InitializeBinding(fn, fo). */
-  };
-  return
-};
+  }
+  return;
+}
 
 function internalTypeErrorThrower(globalObject, this, NewTarget, strict, args) {
-  throw TypeErrorConstructorInternal()
-};
+  throw TypeErrorConstructorInternal();
+}
 
 function getFunctionCode(F) {
-  return F.ECMAScriptCode
-};
+  return F.ECMAScriptCode;
+}
 
 function DescriptorValueIsStrictFunction(desc) {
   F := desc.Value;
-  if (typeof (F) = "object") {
-    return F.Strict
-  };
-  return false
-};
+  if (typeof (F) = "object")
+    return F.Strict;
+  return false;
+}
 
 function setAllInternalMethodsExceptGet(obj) {
   obj.GetOwnProperty    := "OrdinaryObjectGetOwnProperty";
@@ -108,35 +105,28 @@ function setAllInternalMethodsExceptGet(obj) {
 
   obj.internalSlotsList := [];
 
-  return obj
-};
+  return obj;
+}
 
 
 /*  */
 function WrappedCall(externalScope, ref, F, this, args) {
   callResult := Call(externalScope, ref, F, this, args) catch CallHandler;
-
-  if (!(Type(callResult) = "Completion")) {
-    return NormalCompletion(callResult)
-  };
-
-  return callResult
-};
+  if (!(Type(callResult) = "Completion"))
+    return NormalCompletion(callResult);
+  return callResult;
+}
 
 function WrappedInvoke(externalScope, ref, F, this, args) {
   invokeResult := Invoke(externalScope, ref, F, this, args) catch CallHandler;
-
-  if (!(Type(invokeResult) = "Completion")) {
-    return NormalCompletion(invokeResult)
-  };
-
-  return invokeResult
-};
+  if (!(Type(invokeResult) = "Completion"))
+    return NormalCompletion(invokeResult);
+  return invokeResult;
+}
 
 function CallHandler(x) {
-
-  return throwEmptyCompletion(x)
-};
+  return throwEmptyCompletion(x);
+}
 
 function CreateBuiltInConstructorObject(prototype, FormalParameterList, FunctionBody, Scope, Strict, n, name) {
   F := CreateGeneralBuiltInFunction(prototype, FormalParameterList, FunctionBody, Scope, Strict, n);
@@ -147,6 +137,5 @@ function CreateBuiltInConstructorObject(prototype, FormalParameterList, Function
     Enumerable: false,
     Configurable: true
   });
-  return F
+  return F;
 }
-

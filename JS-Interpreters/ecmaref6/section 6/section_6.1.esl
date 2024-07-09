@@ -3,65 +3,65 @@
  */
 function Type(V) {
   v_type := typeof (V);
-  if (v_type = "int") { return "Number" };
-  if (v_type = "float") { return "Number" };
-  if (v_type = "bool") { return "Boolean" };
-  if (v_type = "string") { return "String" };
+  if (v_type = "int")             return "Number";
+  if (v_type = "float")           return "Number";
+  if (v_type = "bool")            return "Boolean";
+  if (v_type = "string")          return "String";
   if (v_type = "object") {
-    if (isJavaScriptSymbol(V)) { return "Symbol" };
-    if (isJavaScriptObject(V)) { return "Object" };
-    if (isPropertyDescriptor(V)) { return "PropertyDescriptor" };
-    if (isCodeObject(V)) { return "Object" };
-    return "EnvironmentRecord"
-  };
+    if (isJavaScriptSymbol(V))    return "Symbol";
+    if (isJavaScriptObject(V))    return "Object";
+    if (isPropertyDescriptor(V))  return "PropertyDescriptor";
+    if (isCodeObject(V))          return "Object";
+    return "EnvironmentRecord";
+  }
   if (v_type = "list") {
     if (l_len V > 0) {
       el := hd V;
-      if (el = "R") { return "Reference" }
-      elif (el = "C") { return "Completion" }
-      elif (el = "P") { return "PropertyIdentifier" }
-      else { return "List" }
-    };
-    return "List"
-  };
+      if (el = "R")               return "Reference";
+      elif (el = "C")             return "Completion";
+      elif (el = "P")             return "PropertyIdentifier";
+      else                        return "List";
+    }
+    return "List";
+  }
   if (v_type = "symbol") {
-    if (V = 'null) { return "Null" };
-    if (V = 'undefined) { return "Undefined" }
-  };
+    if (V = 'null)                return "Null";
+    if (V = 'undefined)           return "Undefined";
+  }
   /* if (v_type = "list") {
     ft := fst V;
-    if (ft = "R") { return "Reference" };
-    if (ft = "C") { return "Completion" };
+    if (ft = "R") { return "Reference" }
+    if (ft = "C") { return "Completion" }
     if (ft = "P") { return "PropertyIdentifier" }
-  }; */
-  if (v_type = "null") { return "Null" };
-  if (V = 'empty) { return null };
-  return "Lambda"
-};
+  } */
+  if (v_type = "null")            return "Null";
+  if (V = 'empty)                 return null;
+  return "Lambda";
+}
 
 /* Auxiliary functions */
 function isJavaScriptObject(obj) {
-  return "Prototype" in_obj obj
-};
+  return "Prototype" in_obj obj;
+}
 
 function isCodeObject(obj) {
-  return "codeType" in_obj obj
-};
+  return "codeType" in_obj obj;
+}
 
 
 function isPropertyDescriptor(obj) {
-  return ("Enumerable" in_obj obj) || ("Configurable" in_obj obj)
-};
+  return ("Enumerable" in_obj obj) || ("Configurable" in_obj obj);
+}
 
 function isJavaScriptSymbol(obj) {
-  return "Description" in_obj obj
-};
+  return "Description" in_obj obj;
+}
 
 function setConfigurability(obj, prop, b) {
   desc := getJSProperty(obj, prop);
   desc.Configurable := b;
-  return b
-};
+  return b;
+}
 
 
 
@@ -80,8 +80,8 @@ function InternalSymbolConstructor(description) {
     _id: |__CUR__SYMB__|
   };
   |__CUR__SYMB__| := |__CUR__SYMB__| + 1;
-  return sym
-};
+  return sym;
+}
 
 /**
  * 6.1.5.1 Well-Known Symbols
@@ -93,12 +93,10 @@ function initWellKnownSymbols() {
                        "Symbol.species", "Symbol.split", "Symbol.toPrimitive",
                        "Symbol.toStringTag", "Symbol.unscopables"];
 
-  foreach (sym : wellKnownSymbols) {
-    initWellKnownSymbol(sym)
-  };
-
-  return
-};
+  foreach (sym : wellKnownSymbols)
+    initWellKnownSymbol(sym);
+  return;
+}
 
 function initWellKnownSymbol(description) {
   sym := InternalSymbolConstructor(description);
@@ -108,15 +106,14 @@ function initWellKnownSymbol(description) {
     wellknown: true
   };
   |GlobalSymbolRegistry|[description] := rec;
-  return
-};
+  return;
+}
 
 function getWellKnownSymbol(key) {
-  if (key in_obj |GlobalSymbolRegistry|) {
-    return |GlobalSymbolRegistry|[key].sym
-  };
-  return 'undefined
-};
+  if (key in_obj |GlobalSymbolRegistry|)
+    return |GlobalSymbolRegistry|[key].sym;
+  return 'undefined;
+}
 
 /** 6.1.7.4 Well-Known Intrinsic Objects
     Just initializing the intrinsic container here and assign the well-known objects when they are created (section 18/section_18.esl)
@@ -347,27 +344,27 @@ function initIntrinsics(intrinsic, realm, strict) {
   /* ObjectIterator */
   |Intrinsics|["ObjectIteratorPrototype"] := initObjectIteratorPrototype(realm, objectPrototype, strict);
 
-  return
-};
+  return;
+}
 
 function getProp(global, prop, strict) {
   ref := newPropertyReference(global, prop, strict);
   obj := GetValue(ref);
-  return obj
-};
+  return obj;
+}
 
 function getConstructorProto(global, constructor, strict) {
   ref := newPropertyReference(global, constructor, strict);
   obj := GetValue(ref);
 
   proto := getJSProperty(obj, "prototype").Value;
-  return proto
-};
+  return proto;
+}
 
 function getPrototypeValue(object) {
-  return getJSProperty(object, "prototype").Value
-};
+  return getJSProperty(object, "prototype").Value;
+}
 
 function isIntrinsic(name) {
-  return name in_obj |Intrinsics|
+  return name in_obj |Intrinsics|;
 }

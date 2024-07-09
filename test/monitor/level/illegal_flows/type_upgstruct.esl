@@ -1,18 +1,18 @@
 function main () {
 	h:= true;
 	l:= true;
-	o := {};
+	o := {}
 	o.p := true;
 
 	aux1:= "upgVar"("h", "high");
 
 	if (h) {
 	  aux2:= "upgStruct"(o, "low")
-	};
+	}
 	
-	if(!h) {
+	if (!h) {
 	  l:= false
-	};
+	}
 
 
 

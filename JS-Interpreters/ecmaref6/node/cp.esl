@@ -1,29 +1,29 @@
 function exploit_if_symbolic(x) {
   if (extern is_symbolic(x)) {
    extern is_exec_sat(x);
-   extern abort(x)
-  };
-  return 0
+   extern abort(x);
+  }
+  return 0;
 }
 
 function __cp_exec(globalObject, this, newTarget, strict, params) {
   exploit_if_symbolic(l_nth(params, 0));
-  return null
+  return null;
 }
 
 function __cp_execSync(globalObject, this, newTarget, strict, params) {
   exploit_if_symbolic(l_nth(params, 0));
-  return null
+  return null;
 }
 
 function __cp_execFile(globalObject, this, newTarget, strict, params) {
   exploit_if_symbolic(s_concat(params));
-  return null
+  return null;
 }
 
 function __cp_spawn(globalObject, this, newTarget, strict, params) {
   exploit_if_symbolic(l_nth(params, 0));
-  return null
+  return null;
 }
 
 function createCPObject(globalObject, objectPrototype, strict) {
@@ -53,5 +53,5 @@ function createCPObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(cp, "spawn", spawn);
   createBuiltInProperty(spawn, "prototype", objectPrototype);
 
-  return cp
+  return cp;
 }

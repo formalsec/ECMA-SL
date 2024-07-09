@@ -20,12 +20,12 @@ function applyingTheAdditionOperation(leftOperand, rightOperand) {
     magnitude is too large to represent, the operation overflows and the result is then an infinity
     of appropriate sign. The ECMAScript language requires support of gradual underflow as
     defined by IEEE 754. */
-    return leftOperand + rightOperand
-};
+    return leftOperand + rightOperand;
+}
 
 /* The - operator performs subtraction when applied to two operands of numeric type, producing the difference
 of its operands; the left operand is the minuend and the right operand is the subtrahend. Given numeric
 operands a and b, it is always the case that a–b produces the same result as a +(–b). */
 function applyingTheSubtractionOperation(leftOperand, rightOperand) {
-  return applyingTheAdditionOperation(leftOperand, -rightOperand)
+  return applyingTheAdditionOperation(leftOperand, -rightOperand);
 }

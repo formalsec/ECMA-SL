@@ -8,9 +8,9 @@
 function EvaluateNew(constructProduction, arguments, scope) {
   /* 1. Assert: constructProduction is either a NewExpression or a MemberExpression. */
   memberExpressionTypes := ["NewExpression", "MemberExpression", "Identifier", "CallExpression", "FunctionExpression", "ClassExpression", "Literal"];
-  /* assert(in_list(constructProduction.type, memberExpressionTypes)); */
+  /* assert (in_list(constructProduction.type, memberExpressionTypes)); */
   /* 2. Assert: arguments is either empty or an Arguments production. */
-  assert(arguments = 'empty ||| Type(arguments) = "List");
+  assert (arguments = 'empty ||| Type(arguments) = "List");
   /* 3. Let ref be the result of evaluating constructProduction. */
   ref := JS_Interpreter_Expr(constructProduction, scope);
   /* 4. Let constructor be GetValue(ref). */
@@ -19,22 +19,21 @@ function EvaluateNew(constructProduction, arguments, scope) {
   @ReturnIfAbrupt(constructor);
   /* 6. If arguments is empty, let argList be an empty List. */
   if (arguments = 'empty) {
-    argList := []
+    argList := [];
   }
   /* 7. Else, */
   else {
     /* a. Let argList be ArgumentListEvaluation of arguments. */
     argList := ArgumentListEvaluation(arguments, scope);
     /* b. ReturnIfAbrupt(argList). */
-    @ReturnIfAbrupt(argList)
-  };
+    @ReturnIfAbrupt(argList);
+  }
   /* 8. If IsConstructor (constructor) is false, throw a TypeError exception. */
-  if (IsConstructor(constructor) = false) {
-    throw TypeErrorConstructorInternal()
-  };
+  if (IsConstructor(constructor) = false)
+    throw TypeErrorConstructorInternal();
   /* 9. Return Construct(constructor, argList). */
-  return Construct(scope, ref, constructor, argList, null)
-};
+  return Construct(scope, ref, constructor, argList, null);
+}
 
 /**
  * 12.3.4.3 Runtime Semantics: EvaluateDirectCall (func, thisValue, arguments, tailPosition)
@@ -46,81 +45,63 @@ function EvaluateNew(constructProduction, arguments, scope) {
 function EvaluateDirectCall(func, thisValue, arguments, tailPosition, scope) {
   /* 1. Let argList be ArgumentListEvaluation(arguments). */
   argList := JS_Interpreter_Arguments(arguments, scope);
-
   /* 2. ReturnIfAbrupt(argList). */
   @ReturnIfAbrupt(argList);
-
   funcType := Type(func);
-
   /* 3. If Type(func) is not Object, */
-  if (!(funcType = "Object")) {
+  if (!(funcType = "Object"))
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
-
+    throw TypeErrorConstructorInternal();
   /* 4. If IsCallable(func) is false, */
-  if (IsCallable(func) = false) {
+  if (IsCallable(func) = false)
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
-
+    throw TypeErrorConstructorInternal();
   /* 5. If tailPosition is true, */
-  if (tailPosition = true) {
+  if (tailPosition = true)
     /* perform PrepareForTailCall() */
-    PrepareForTailCall()
-  };
-
+    PrepareForTailCall();
   /* 6. Let result be Call(func, thisValue, argList). */
   result := Call(scope, null, func, thisValue, argList);
-
    /* TODO */
   /* 7. Assert: If tailPosition is true, the above call will not return here,
      but instead evaluation will continue as if the following return has
      already occurred. */
   /* 8. Assert: If result is not an abrupt completion then Type(result) is an
      ECMAScript language type. */
-
   /* 9. Return result. */
-  return result
-};
+  return result;
+}
 
 function ArgumentListEvaluation(Arguments, scope) {
-  return JS_Interpreter_Arguments(Arguments, scope)
-};
+  return JS_Interpreter_Arguments(Arguments, scope);
+}
 
 /* 12.3.5 The super Keyword */
 function SuperPropertyEvaluationA(scope, Expression) {
-    /* 1. Let propertyNameReference be the result of evaluating Expression. */
-    propertyNameReference := JS_Interpreter_Expr(Expression);
-
-    /* 2. Let propertyNameValue be GetValue(propertyNameReference). */
-    propertyNameValue := GetValue(propertyNameReference);
-
-    /* 3. Let propertyKey be ToPropertyKey(propertyNameValue). */
-    propertyKey := ToPropertyKey(propertyNameValue);
-
-    /* 4. ReturnIfAbrupt(propertyKey). */
-    @ReturnIfAbrupt(propertyKey);
-
-    /* 5. If the code matched by the syntactic production that is being
-        evaluated is strict mode code, let strict be true, else let strict be false */
-    /* strict = ???? */
-
-    /* 6. Return MakeSuperPropertyReference(propertyKey, strict). */
-    return MakeSuperPropertyReference(propertyKey, strict)
-};
+  /* 1. Let propertyNameReference be the result of evaluating Expression. */
+  propertyNameReference := JS_Interpreter_Expr(Expression);
+  /* 2. Let propertyNameValue be GetValue(propertyNameReference). */
+  propertyNameValue := GetValue(propertyNameReference);
+  /* 3. Let propertyKey be ToPropertyKey(propertyNameValue). */
+  propertyKey := ToPropertyKey(propertyNameValue);
+  /* 4. ReturnIfAbrupt(propertyKey). */
+  @ReturnIfAbrupt(propertyKey);
+  /* 5. If the code matched by the syntactic production that is being
+      evaluated is strict mode code, let strict be true, else let strict be false */
+  /* strict = ???? */
+  /* 6. Return MakeSuperPropertyReference(propertyKey, strict). */
+  return MakeSuperPropertyReference(propertyKey, strict);
+}
 
 function SuperPropertyEvaluationB(IdentifierName, propertyKey) {
     /* 1. Let propertyKey be StringValue of IdentifierName. */
     propertyKey := StringValue(IdentifierName);
-
     /* 2. If the code matched by the syntactic production that is being
         evaluated is strict mode code, let strict be true, else let strict be false */
     /* strict = ???? */
-
     /* 3. Return MakeSuperPropertyReference(propertyKey, strict). */
-    return MakeSuperPropertyReference(propertyKey, strict)
-};
+    return MakeSuperPropertyReference(propertyKey, strict);
+}
 
 
 /**
@@ -129,31 +110,30 @@ function SuperPropertyEvaluationB(IdentifierName, propertyKey) {
  * The abstract operation GetSuperConstructor performs the following steps:
  */
 function GetSuperConstructor(scope) {
-    /* 1. Let envRec be GetThisEnvironment( ). */
-    envRec := GetThisEnvironment(scope);
-    /* 2. Assert: envRec is a function Environment Record. */
-    /* TODO */
-    /* 3. Let activeFunction be envRec.[[FunctionObject]]. */
-    activeFunction := envRec.FunctionObject;
-    /* 4. Let superConstructor be activeFunction.[[GetPrototypeOf]](). */
-    superConstructor := {activeFunction.GetPrototypeOf}(activeFunction);
-    /* 5. ReturnIfAbrupt(superConstructor). */
-    @ReturnIfAbrupt(superConstructor);
-    /* 6. If IsConstructor(superConstructor) is false, */
-    if (IsConstructor(superConstructor) = false) {
-        /* throw a TypeError exception */
-        throw TypeErrorConstructorInternal()
-    };
-    /* 7. Return superConstructor. */
-    return superConstructor
-};
+  /* 1. Let envRec be GetThisEnvironment( ). */
+  envRec := GetThisEnvironment(scope);
+  /* 2. Assert: envRec is a function Environment Record. */
+  /* TODO */
+  /* 3. Let activeFunction be envRec.[[FunctionObject]]. */
+  activeFunction := envRec.FunctionObject;
+  /* 4. Let superConstructor be activeFunction.[[GetPrototypeOf]](). */
+  superConstructor := {activeFunction.GetPrototypeOf}(activeFunction);
+  /* 5. ReturnIfAbrupt(superConstructor). */
+  @ReturnIfAbrupt(superConstructor);
+  /* 6. If IsConstructor(superConstructor) is false, */
+  if (IsConstructor(superConstructor) = false)
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal();
+  /* 7. Return superConstructor. */
+  return superConstructor;
+}
 
-function GetSuperConstructorAlt (this){
-    thisProto := this.Prototype;
-    superProto := thisProto.Prototype;
-    constructor := getJSProperty(superProto, "constructor");
-    return constructor.Value
-};
+function GetSuperConstructorAlt (this) {
+  thisProto := this.Prototype;
+  superProto := thisProto.Prototype;
+  constructor := getJSProperty(superProto, "constructor");
+  return constructor.Value;
+}
 
 /**
  * 12.3.5.3 Runtime Semantics: MakeSuperPropertyReference (propertyKey, strict)
@@ -165,10 +145,9 @@ function MakeSuperPropertyReference(propertyKey, strict, scope) {
   /* 1. Let env be GetThisEnvironment( ). */
   env := GetThisEnvironment(scope);
   /* 2. If env.HasSuperBinding() is false, */
-  if ({env.HasSuperBinding}(env) = false) {
+  if ({env.HasSuperBinding}(env) = false)
     /* throw a ReferenceError exception */
-    throw ReferenceErrorConstructorInternal()
-  };
+    throw ReferenceErrorConstructorInternal();
   /* 3. Let actualThis be env.GetThisBinding(). */
   actualThis := {env.GetThisBinding}(env);
   /* 4. ReturnIfAbrupt(actualThis). */
@@ -182,5 +161,5 @@ function MakeSuperPropertyReference(propertyKey, strict, scope) {
   /* 8. Return a value of type Reference that is a Super Reference whose base
      value is bv, whose referenced name is propertyKey, whose thisValue is
      actualThis, and whose strict reference flag is strict. */
-  return newSuperReference(bv, propertyKey, actualThis, strict)
+  return newSuperReference(bv, propertyKey, actualThis, strict);
 }

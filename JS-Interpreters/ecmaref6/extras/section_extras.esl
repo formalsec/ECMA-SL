@@ -11,31 +11,24 @@ function initConsoleObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(internalLogObject, "prototype", objectPrototype);
   setInternalProperty(console, "Prototype", objectPrototype);
 
-  return console
-};
+  return console;
+}
 
 function __internalLog(globalObject, this, NewTarget, strict, params) {
   str := l_nth(params, 0);
 
-  if (!(typeof (str) = "string")) {
-    if (Type(str) = "Symbol") {
-      str := symbolDescriptiveString(str)
-    } else {
-      str := ToPropertyKey(str)
-    }
-  };
+  if (!(typeof (str) = "string"))
+    if (Type(str) = "Symbol") str := symbolDescriptiveString(str); else str := ToPropertyKey(str);
   /* Important: This is console.log, do not remove! */
   print str;
-
-  return 'null
-};
+  return 'null;
+}
 
 function __internalLogObject(globalObject, this, NewTarget, strict, params) {
   obj := l_nth(params, 0);
 
-  if (!((typeof (obj)) = "object")) {
-    return __internalLog(globalObject, this, NewTarget, strict, params)
-  };
+  if (!((typeof (obj)) = "object"))
+    return __internalLog(globalObject, this, NewTarget, strict, params);
 
   /*props := getOwnProperties(obj);*/ /* Doesn't print all because enumerable */
 /*
@@ -47,16 +40,16 @@ function __internalLogObject(globalObject, this, NewTarget, strict, params) {
     str := s_concat([str, P]);
     if (!(i = (len - 1))) {
       str := s_concat([str, ", "])
-    };
+    }
     i := i + 1
-  };
+  }
 
   print s_concat ["JS Log: [", str, "]"];*/
 
   oProps := obj.JSProperties;
 
-  return 'null
-};
+  return 'null;
+}
 
 function initTest262Object(globalObject, objectPrototype, strict) {
   test262Obj := NewECMAScriptObject();
@@ -68,28 +61,24 @@ function initTest262Object(globalObject, objectPrototype, strict) {
   createBuiltInProperty(detachArrayBuffer, "prototype", objectPrototype);
   setInternalProperty(test262Obj, "Prototype", objectPrototype);
 
-  return test262Obj
-};
+  return test262Obj;
+}
 
 
 function __detachArrayBuffer(global, this, NewTarget, strict, items) {
-  return DetachArrayBuffer(l_nth(items, 0))
-};
+  return DetachArrayBuffer(l_nth(items, 0));
+}
 
 function __internalSetInternalClass(globalObject, this, NewTarget, strict, params) {
   obj := l_nth(params, 0);
   class := l_nth(params, 1);
-
   setInternalProperty(obj, "Class", class);
-
-  return 'null
-};
+  return 'null;
+}
 
 function __internalSetInternalName(globalObject, this, NewTarget, strict, params) {
   obj := l_nth(params, 0);
   name := l_nth(params, 1);
-
   createBuiltInProperty(obj, "name", name);
-
-  return 'null
+  return 'null;
 }

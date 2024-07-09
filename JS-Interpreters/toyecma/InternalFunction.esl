@@ -1,29 +1,26 @@
-function InternalFunction(name: string): JSInternalFunction_t {
-	object: JSInternalFunction_t := {
-		internal: true,
-		functionName: name
-	};
-	return object
-};
+function InternalFunction(name) {
+	object := {internal: true, functionName: name };
+	return object;
+}
 
-function esl_symbolic_number(args: any): any {			/* FIXME: replace by list type */
-	name: string := l_nth(args, 0);
-	return se_mk_symbolic("float", name)
-};
+function esl_symbolic_number(args) {
+	name := l_nth(args, 0);
+	return se_mk_symbolic("float", name);
+}
 
-function esl_symbolic_string(args): any {					/* FIXME: replace by list type */
-	name: string := l_nth(args, 0);
-	return se_mk_symbolic("string", name)
-};
+function esl_symbolic_string(args) {
+	name := l_nth(args, 0);
+	return se_mk_symbolic("string", name);
+}
 
-function esl_symbolic_assert(args): int {					/* FIXME: replace by list type */
-	cond: boolean:= l_nth(args, 0);
-  assert(cond);
-  return 0
-};
+function esl_symbolic_assert(args) {
+	cond := l_nth(args, 0);
+  assert (cond);
+  return 0;
+}
 
-function esl_symbolic_assume(args: any): int {		/* FIXME: replace by list type */
-	cond: boolean := l_nth(args, 0);
+function esl_symbolic_assume(args) {
+	cond := l_nth(args, 0);
   se_assume(cond);
-  return 0
+  return 0;
 }

@@ -22,8 +22,8 @@ function initMathObject(global, objectPrototype, strict) {
 
   createBuiltInPropertyWithFullDescriptor(MathObject, getToStringTagPropertyName(), "Math", false, false, true);
 
-  return MathObject
-};
+  return MathObject;
+}
 
 /* 20.2.1 Value Properties of the Math Object */
 function setValuePropertiesOfMathObject(mathObject) {
@@ -70,8 +70,8 @@ function setValuePropertiesOfMathObject(mathObject) {
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   createBuiltInPropertyWithFullDescriptor(mathObject, "SQRT2", sqrt 2., false, false, false);
 
-  return
-};
+  return;
+}
 
 /* 20.2.2 Function Properties of the Math Object */
 function setFunctionPropertiesOfMathObject(mathObject, globalObject, strict) {
@@ -271,8 +271,8 @@ function setFunctionPropertiesOfMathObject(mathObject, globalObject, strict) {
   descriptor := newDataPropertyDescriptorFull("trunc", false, false, true);
   setJSProperty(trunc_fo, "name", descriptor);
 
-  return
-};
+  return;
+}
 
 /* 20.2.2.1 Math.abs ( x ) */
 function MathAbs(globalObject, this, NewTarget, stric, params) {
@@ -283,8 +283,8 @@ function MathAbs(globalObject, this, NewTarget, stric, params) {
   /* If x is NaN, the result is NaN. */
   /* If x is −0, the result is +0. */
   /* If x is −∞, the result is +∞. */
-  return abs x
-};
+  return abs x;
+}
 
 /* 20.2.2.2 Math.acos ( x ) */
 function MathACos(globalObject, this, NewTarget, stric, params) {
@@ -297,8 +297,8 @@ function MathACos(globalObject, this, NewTarget, stric, params) {
   /* If x is greater than 1, the result is NaN. */
   /* If x is less than -1, the result is NaN. */
   /* If x is exactly 1, the result is +0. */
-  return acos (x)
-};
+  return acos (x);
+}
 
 /* 20.2.2.3 Math.acosh( x ) */
 function MathACosh(globalObject, this, NewTarget, strict, params) {
@@ -311,8 +311,8 @@ function MathACosh(globalObject, this, NewTarget, strict, params) {
   /* If x is less than 1, the result is NaN. */
   /* If x is 1, the result is +0. */
   /* If x is +∞, the result is +∞. */
-  return log_e(x + sqrt((x**2.) - 1.))
-};
+  return log_e(x + sqrt((x**2.) - 1.));
+}
 
 /* 20.2.2.4 Math.asin ( x ) */
 function MathASin(globalObject, this, NewTarget, stric, params) {
@@ -325,8 +325,8 @@ function MathASin(globalObject, this, NewTarget, stric, params) {
   /* If x is less than –1, the result is NaN. */
   /* If x is +0, the result is +0. */
   /* If x is −0, the result is −0. */
-  return asin (x)
-};
+  return asin (x);
+}
 
 /* 20.2.2.5 Math.asinh( x ) */
 function MathASinh(globalObject, this, NewTarget, strict, params) {
@@ -335,28 +335,27 @@ function MathASinh(globalObject, this, NewTarget, strict, params) {
   @ReturnIfAbrupt(x);
   /* Returns an implementation-dependent approximation to the inverse hyperbolic sine of x. */
   /* If x is NaN, the result is NaN. */
-  if (is_NaN (x)) {
-    return NaN
-  };
+  if (is_NaN (x))
+    return NaN;
   /* If x is +0, the result is +0. */
   if (x = 0.) {
   /* If x is −0, the result is −0. */
   if ((1. / x) = Infinity) {
-    return 0.
+    return 0.;
     /* If x is −0, the result is +∞. */
   } else {
-    return -(0.)
+    return -(0.);
   }
-  };
+  }
   if (x = -(0.)) {
-    return Infinity
-  };
+    return Infinity;
+  }
   /* If x is −∞, the result is −∞. */
   if (x = (-Infinity)) {
-    return (-Infinity)
-  };
-  return log_e(x + sqrt((x**2.) + 1.))
-};
+    return (-Infinity);
+  }
+  return log_e(x + sqrt((x**2.) + 1.));
+}
 
 /* 20.2.2.6 Math.atan ( x ) */
 function MathATan(globalObject, this, NewTarget, stric, params) {
@@ -369,8 +368,8 @@ function MathATan(globalObject, this, NewTarget, stric, params) {
   /* If x is −0, the result is −0. */
   /* If x is +∞, the result is an implementation-dependent approximation to +π/2. */
   /* If x is −∞, the result is an implementation-dependent approximation to −π/2. */
-  return atan (x)
-};
+  return atan (x);
+}
 
 /* 20.2.2.7 Math.atanh( x ) */
 function MathATanh(globalObject, this, NewTarget, strict, params) {
@@ -379,35 +378,28 @@ function MathATanh(globalObject, this, NewTarget, strict, params) {
   @ReturnIfAbrupt(x);
   /* Returns an implementation-dependent approximation to the inverse hyperbolic tangent of x. */
   /* If x is NaN, the result is NaN. */
-  if (is_NaN (x)) {
-    return NaN
-  };
+  if (is_NaN (x))
+    return NaN;
   /* If x is less than −1, the result is NaN. */
-  if (x < -(1.)) {
-    return NaN
-  };
+  if (x < -(1.))
+    return NaN;
   /* If x is greater than 1, the result is NaN. */
-  if (x > 1.) {
-    return NaN
-  };
+  if (x > 1.)
+    return NaN;
   /* If x is −1, the result is −∞. */
-  if (x = -(1.)) {
-    return - Infinity
-  };
+  if (x = -(1.))
+    return - Infinity;
   /* If x is +1, the result is +∞. */
-  if (x = 1.) {
-    return Infinity
-  };
+  if (x = 1.)
+    return Infinity;
   /* If x is +0, the result is +0. */
-  if (isZero(x)) {
-    return 0.
-  };
+  if (isZero(x))
+    return 0.;
   /* If x is -0 the result is -0 */
-  if (isMinusZero(x)) {
-    return -(0.)
-  };
-  return (1./2.) * log_e((1. + x) / (1. - x))
-};
+  if (isMinusZero(x))
+    return -(0.);
+  return (1./2.) * log_e((1. + x) / (1. - x));
+}
 
 /* 20.2.2.8 Math.atan2 ( y, x ) */
 function MathATan2(globalObject, this, NewTarget, stric, params) {
@@ -441,8 +433,8 @@ function MathATan2(globalObject, this, NewTarget, stric, params) {
   /* If y is +∞ and x is −∞, the result is an implementation-dependent approximation to +3π/4. */
   /* If y is −∞ and x is +∞, the result is an implementation-dependent approximation to −π/4. */
   /* If y is −∞ and x is −∞, the result is an implementation-dependent approximation to −3π/4. */
-  return atan2(y, x)
-};
+  return atan2(y, x);
+}
 
 /* 20.2.2.9 Math.cbrt ( x ) */
 function MathCBRT(globalObject, this, NewTarget, strict, params) {
@@ -451,27 +443,22 @@ function MathCBRT(globalObject, this, NewTarget, strict, params) {
   @ReturnIfAbrupt(x);
   /* Returns an implementation-dependent approximation to the cube root of x. */
   /* If x is NaN, the result is NaN. */
-  if (is_NaN (x)) {
-    return NaN
-  };
+  if (is_NaN (x))
+    return NaN;
   /* If x is +0, the result is +0. */
-  if (isZero(x)) {
-    return 0.
-  };
+  if (isZero(x))
+    return 0.;
   /* If x is −0, the result is −0. */
-  if (isMinusZero(x)) {
-    return -(0.)
-  };
+  if (isMinusZero(x))
+    return -(0.);
   /* If x is +∞, the result is +∞. */
-  if (x = Infinity) {
-    return Infinity
-  };
+  if (x = Infinity)
+    return Infinity;
   /* If x is −∞, the result is −∞. */
-  if (x = (-Infinity)) {
-    return (-Infinity)
-  };
-  return x ** (1./3.)
-};
+  if (x = (-Infinity))
+    return (-Infinity);
+  return x ** (1./3.);
+}
 
 /* 20.2.2.10 Math.ceil ( x ) */
 function MathCeil(globalObject, this, NewTarget, stric, params) {
@@ -485,8 +472,8 @@ function MathCeil(globalObject, this, NewTarget, stric, params) {
   /* If x is −∞, the result is −∞. */
   /* If x is less than 0 but greater than -1, the result is −0. */
   /* The value of Math.ceil(x) is the same as the value of -Math.floor(-x). */
-  return ceil x
-};
+  return ceil x;
+}
 
 /* 20.2.2.11 Math.clz32 ( x ) */
 function MathCLZ32(globalObject, this, NewTarget, strict, params) {
@@ -495,22 +482,21 @@ function MathCLZ32(globalObject, this, NewTarget, strict, params) {
   @ReturnIfAbrupt(x);
   /* When Math.clz32 is called with one argument x, the following steps are taken: */
   /* Return 32 if x is Infinity or -Infinity */
-  if (x = Infinity ||| x = (- Infinity)) {
-    return 32.
-  };
+  if (x = Infinity ||| x = (- Infinity))
+    return 32.;
   /* 1. Let n be ToUint32(x). */
   n := int_of_float(ToUint32(x));
   /* 2. Let p be the number of leading zero bits in the 32-bit binary representation of n. */
   count := 0;
   while (!(n = 0)) {
     n := n / 2;
-    count := count + 1
-  };
+    count := count + 1;
+  }
   /* 3. Return p. */
-  return int_to_float(32 - count)
+  return int_to_float(32 - count);
   /* NOTE
   If n is 0, p will be 32. If the most significant bit of the 32-bit binary encoding of n is 1, p will be 0. */
-};
+}
 
 /* 20.2.2.12 Math.cos ( x ) */
 function MathCos(globalObject, this, NewTarget, stric, params) {
@@ -523,8 +509,8 @@ function MathCos(globalObject, this, NewTarget, stric, params) {
   /* If x is −0, the result is 1. */
   /* If x is +∞, the result is NaN. */
   /* If x is −∞, the result is NaN. */
-  return cos (x)
-};
+  return cos (x);
+}
 
 /* 20.2.2.13 Math.cosh ( x ) */
 function MathCosh(globalObject, this, NewTarget, strict, params) {
@@ -539,8 +525,8 @@ function MathCosh(globalObject, this, NewTarget, strict, params) {
   /* If x is −∞, the result is +∞. */
   /* NOTE
   The value of cosh(x) is the same as (exp(x) + exp(-x))/2. */
-  return cosh (x)
-};
+  return cosh (x);
+}
 
 /* 20.2.2.14 Math.exp ( x ) */
 function MathExp(globalObject, this, NewTarget, stric, params) {
@@ -553,8 +539,8 @@ function MathExp(globalObject, this, NewTarget, stric, params) {
   /* If x is −0, the result is 1. */
   /* If x is +∞, the result is +∞. */
   /* If x is −∞, the result is +0. */
-  return exp (x)
-};
+  return exp (x);
+}
 
 /* 20.2.2.15 Math.expm1 ( x ) */
 function MathExpM1(globalObject, this, NewTarget, strict, params) {
@@ -564,27 +550,22 @@ function MathExpM1(globalObject, this, NewTarget, strict, params) {
   /* Returns an implementation-dependent approximation to subtracting 1 from the exponential function of x (e raised to the power of x, where e is the base of the natural logarithms). */
   /* The result is computed in a way that is accurate even when the value of x is close 0. */
   /* If x is NaN, the result is NaN. */
-  if (is_NaN (x)) {
-    return NaN
-  };
+  if (is_NaN (x))
+    return NaN;
   /* If x is +0, the result is +0. */
-  if (isZero(x)) {
-    return 0.
-  };
+  if (isZero(x))
+    return 0.;
   /* If x is −0, the result is −0. */
-  if (isMinusZero(x)) {
-    return -(0.)
-  };
+  if (isMinusZero(x))
+    return -(0.);
   /* If x is +∞, the result is +∞. */
-  if (x = Infinity) {
-    return Infinity
-  };
+  if (x = Infinity)
+    return Infinity;
   /* If x is −∞, the result is −1. */
-  if (x = (- Infinity)) {
-    return -(1.)
-  };
-  return exp(x) - 1.0
-};
+  if (x = (- Infinity))
+    return -(1.);
+  return exp(x) - 1.0;
+}
 
 /* 20.2.2.16 Math.floor ( x ) */
 function MathFloor(globalObject, this, NewTarget, stric, params) {
@@ -600,8 +581,8 @@ function MathFloor(globalObject, this, NewTarget, stric, params) {
   /* If x is greater than 0 but less than 1, the result is +0. */
   /* NOTE
   The value of Math.floor(x) is the same as the value of -Math.ceil(-x). */
-  return -(ceil (-x))
-};
+  return -(ceil (-x));
+}
 
 /* TODO 20.2.2.17 Math.fround ( x ) */
 function MathFRound(globalObject, this, NewTarget, strict, params) {
@@ -610,17 +591,16 @@ function MathFRound(globalObject, this, NewTarget, strict, params) {
   @ReturnIfAbrupt(x);
   /* When Math.fround is called with argument x the following steps are taken: */
   /* 1. If x is NaN, return NaN. */
-  if (is_NaN (x)) {
-    return NaN
+  if (is_NaN (x))
+    return NaN;
   /* 2. If x is one of +0, −0, +∞, −∞, return x. */
-  } elif ((isZero(x)) ||| (isMinusZero(x)) ||| (x = Infinity) ||| (x = -Infinity)) {
-    return x
-  };
+  elif ((isZero(x)) ||| (isMinusZero(x)) ||| (x = Infinity) ||| (x = -Infinity))
+    return x;
   /* 3. TOOD Let x32 be the result of converting x to a value in IEEE 754-2008 binary32 format using roundTiesToEven. */
   /* 4. TODO Let x64 be the result of converting x32 to a value in IEEE 754-2008 binary64 format. */
   /* 5. Return the ECMAScript Number value corresponding to x64. */
-  return
-};
+  return;
+}
 
 /* 20.2.2.18 Math.hypot ( value1 , value2 , …values ) */
 function MathHypot(globalObject, this, NewTarget, strict, params) {
@@ -632,41 +612,35 @@ function MathHypot(globalObject, this, NewTarget, strict, params) {
   */
   /* If no arguments are passed, the result is +0. */
   value := getOptionalParam(params, 0);
-  if (value = 'undefined) {
-    return 0.
-  };
+  if (value = 'undefined)
+    return 0.;
   sawNaN := false;
   i := 0;
   sum := 0.;
   len := l_len params;
-  while(i < len) {
+  while (i < len) {
     value := getOptionalParam(params, i);
     value := ToNumber(value);
     @ReturnIfAbrupt(value);
     /* If any argument is +∞, the result is +∞. */
-    if (value = Infinity) {
-      return Infinity
-    };
+    if (value = Infinity)
+      return Infinity;
     /* If any argument is −∞, the result is +∞. */
-    if (value = (- Infinity)) {
-      return Infinity
-    };
+    if (value = (- Infinity))
+      return Infinity;
     /* If no argument is +∞ or −∞, and any argument is NaN, the result is NaN. */
-    if (is_NaN (value)) {
-      sawNaN := true
-    } else {
-      sum := sum + (value ** 2.)
-    };
-    i := i + 1
-  };
+    if (is_NaN (value))
+      sawNaN := true;
+    else
+      sum := sum + (value ** 2.);
+    i := i + 1;
+  }
 
   /* If no argument is +∞ or −∞, and any argument is NaN, the result is NaN. */
-  if (sawNaN = true) {
-    return NaN
-  };
-
-  return sqrt sum
-};
+  if (sawNaN = true)
+    return NaN;
+  return sqrt sum;
+}
 
 /* 20.2.2.19 Math.imul ( x, y ) */
 function MathImul(globalObject, this, NewTarget, strict, params) {
@@ -684,12 +658,8 @@ function MathImul(globalObject, this, NewTarget, strict, params) {
   /* 3. Let product be (a × b) modulo 2^32 . */
   product := (a * b) % (2. ** 32.);
   /* 4. If product ≥ 2^31 , return product − 2^32 , otherwise return product. */
-  if (product >= (2. ** 31.)) {
-    return product - (2. ** 32.)
-  } else {
-    return product
-  }
-};
+  if (product >= (2. ** 31.)) return product - (2. ** 32.); else return product;
+}
 
 /* 20.2.2.20 Math.log ( x ) */
 function MathLog(globalObject, this, NewTarget, stric, params) {
@@ -702,8 +672,8 @@ function MathLog(globalObject, this, NewTarget, stric, params) {
   /* If x is +0 or −0, the result is −∞. */
   /* If x is 1, the result is +0. */
   /* If x is +∞, the result is +∞. */
-  return log_e (x)
-};
+  return log_e (x);
+}
 
 /* 20.2.2.21 Math.log1p ( x ) */
 function MathLog1P(globalObject, this, NewTarget, strict, params) {
@@ -713,31 +683,25 @@ function MathLog1P(globalObject, this, NewTarget, strict, params) {
   /* Returns an implementation-dependent approximation to the natural logarithm of 1 + x.
   The result is computed in a way that is accurate even when the value of x is close to zero. */
   /* If x is NaN, the result is NaN. */
-  if (is_NaN (x)) {
-    return NaN
-  };
+  if (is_NaN (x))
+    return NaN;
   /* If x is less than -1, the result is NaN. */
-  if (x < -(1.) ||| x = (- Infinity)) {
-    return NaN
-  };
+  if (x < -(1.) ||| x = (- Infinity))
+    return NaN;
   /* If x is -1, the result is -∞. */
-  if (x = -(1.)) {
-    return (- Infinity)
-  };
+  if (x = -(1.))
+    return (- Infinity);
   /* If x is +0, the result is +0. */
-  if (isZero(x)) {
-    return 0.
-  };
+  if (isZero(x))
+    return 0.;
   /* If x is −0, the result is −0. */
-  if (isMinusZero(x)) {
-    return -(0.)
-  };
+  if (isMinusZero(x))
+    return -(0.);
   /* If x is +∞, the result is +∞. */
-  if (x = Infinity) {
-    return Infinity
-  };
-  return log_e(1 + x)
-};
+  if (x = Infinity)
+    return Infinity;
+  return log_e(1 + x);
+}
 
 /* 20.2.2.22 Math.log10 ( x ) */
 function MathLog10(globalObject, this, NewTarget, strict, params) {
@@ -751,8 +715,8 @@ function MathLog10(globalObject, this, NewTarget, strict, params) {
   /* If x is −0, the result is −∞. */
   /* If x is 1, the result is +0. */
   /* If x is +∞, the result is +∞. */
-  return log_10 (x)
-};
+  return log_10 (x);
+}
 
 /* 20.2.2.23 Math.log2 ( x ) */
 function MathLog2(globalObject, this, NewTarget, strict, params) {
@@ -766,8 +730,8 @@ function MathLog2(globalObject, this, NewTarget, strict, params) {
   /* If x is −0, the result is −∞. */
   /* If x is 1, the result is +0. */
   /* If x is +∞, the result is +∞. */
-  return log_2 (x)
-};
+  return log_2 (x);
+}
 
 /* 20.2.2.24 Math.max ( value1, value2 , …values ) */
 function MathMax(globalObject, this, NewTarget, stric, params) {
@@ -776,20 +740,19 @@ function MathMax(globalObject, this, NewTarget, stric, params) {
   /* If any value is NaN, the result is NaN. */
   /* The comparison of values to determine the largest value is done using the Abstract Relational Comparison algorithm (7.2.11) except that +0 is considered to be larger than −0. */
   /* The length property of the max method is 2. */
-  if (l_len params = 0) {
-    return -Infinity
-  };
+  if (l_len params = 0)
+    return -Infinity;
   max_value := ToNumber(getOptionalParam(params, 0));
   i := 1;
   lparams := l_len params;
-  while(i < lparams) {
+  while (i < lparams) {
     arg := getOptionalParam(params, i);
     value := ToNumber(arg);
     max_value := max(max_value, value);
-    i := i + 1
-  };
-  return max_value
-};
+    i := i + 1;
+  }
+  return max_value;
+}
 
 /* 20.2.2.25 Math.min ( value1, value2 , …values ) */
 function MathMin(globalObject, this, NewTarget, stric, params) {
@@ -798,20 +761,19 @@ function MathMin(globalObject, this, NewTarget, stric, params) {
   /* If any value is NaN, the result is NaN. */
   /* The comparison of values to determine the smallest value is done using the Abstract Relational Comparison algorithm (7.2.11) except that +0 is considered to be larger than −0. */
   /* The length property of the min method is 2. */
-  if (l_len params = 0) {
-    return Infinity
-  };
+  if (l_len params = 0)
+    return Infinity;
   min_value := ToNumber(getOptionalParam(params, 0));
   i := 1;
   lparams := l_len params;
-  while(i < lparams) {
+  while (i < lparams) {
     arg := getOptionalParam(params, i);
     value := ToNumber(arg);
     min_value := min(min_value, value);
-    i := i + 1
-  };
-  return min_value
-};
+    i := i + 1;
+  }
+  return min_value;
+}
 
 /* 20.2.2.26 Math.pow ( x, y ) */
 function MathPow(globalObject, this, NewTarget, stric, params) {
@@ -830,11 +792,9 @@ function MathPow(globalObject, this, NewTarget, stric, params) {
   /* If abs(x)>1 and y is −∞, the result is +0. */
   /* If abs(x) is 1 and y is +∞, the result is NaN. */
   /* If abs(x) is 1 and y is −∞, the result is NaN. */
-  if (abs(x) = 1.) {
-    if ((y = Infinity) ||| (y = -Infinity)) {
-      return NaN
-    }
-  };
+  if (abs(x) = 1.)
+    if ((y = Infinity) ||| (y = -Infinity))
+      return NaN;
   /* If abs(x)<1 and y is +∞, the result is +0. */
   /* If abs(x)<1 and y is −∞, the result is +∞. */
   /* If x is +∞ and y>0, the result is +∞. */
@@ -850,8 +810,8 @@ function MathPow(globalObject, this, NewTarget, stric, params) {
   /* If x is −0 and y<0 and y is an odd integer, the result is −∞. */
   /* If x is −0 and y<0 and y is not an odd integer, the result is +∞. */
   /* If x<0 and x is finite and y is finite and y is not an integer, the result is NaN. */
-  return (x ** y)
-};
+  return (x ** y);
+}
 
 /* 20.2.2.27 Math.random ( ) */
 function MathRandom(globalObject, this, NewTarget, stric, params) {
@@ -860,8 +820,8 @@ function MathRandom(globalObject, this, NewTarget, stric, params) {
   using an implementation-dependent algorithm or strategy. This function takes no arguments. */
   /* Each Math.random function created for distinct code Realms must produce a distinct sequence of
   values from successive calls. */
-  return random (1.)
-};
+  return random (1.);
+}
 
 /* 20.2.2.28 Math.round ( x ) */
 function MathRound(globalObject, this, NewTarget, stric, params) {
@@ -872,51 +832,36 @@ function MathRound(globalObject, this, NewTarget, stric, params) {
   If two integer Number values are equally close to x, then the result is the Number value that is closer to +∞.
   If x is already an integer, the result is x. */
   /* If x is NaN, the result is NaN. */
-  if (is_NaN (x)) {
-    return NaN
-  };
+  if (is_NaN (x))
+    return NaN;
   /* If x is +0, the result is +0. */
-  if (isZero(x)) {
-    return 0.
-  };
+  if (isZero(x))
+    return 0.;
   /* If x is −0, the result is −0. */
-  if (isMinusZero(x)) {
-    return -(0.)
-  };
+  if (isMinusZero(x))
+    return -(0.);
   /* If x is +∞, the result is +∞. */
-  if (x = Infinity) {
-    return Infinity
-  };
+  if (x = Infinity)
+    return Infinity;
   /* If x is −∞, the result is −∞. */
-  if (x = (- Infinity)) {
-    return (- Infinity)
-  };
+  if (x = (- Infinity))
+    return (- Infinity);
   /* If x is greater than 0 but less than 0.5, the result is +0. */
-  if ((x > 0.) &&& (x < 0.5)) {
-    return 0.
-  };
+  if ((x > 0.) &&& (x < 0.5))
+    return 0.;
   /* If x is less than 0 but greater than or equal to -0.5, the result is −0. */
-  if ((x < 0.) &&& (x >= -(0.5))) {
-    return -(0.)
-  };
+  if ((x < 0.) &&& (x >= -(0.5)))
+    return -(0.);
   /* NOTE 1
   Math.round(3.5) returns 4, but Math.round(–3.5) returns –3. */
   /* NOTE 2
   The value of Math.round(x) is not always the same as the value of Math.floor(x+0.5). When x is −0 or is less than 0 but greater than or equal to -0.5, Math.round(x)
   returns −0, but Math.floor(x+0.5) returns +0. Math.round(x) may also differ from the value of Math.floor(x+0.5)because of internal rounding when computing x+0.5. */
-
   ceil_number := ceil(x);
   floor_number := -ceil (-(x));
-
-  if ((ceil_number - x) <= (x - floor_number)){
-    return ceil_number
-  }
-  else {
-    return floor_number
-  }
-
+  if ((ceil_number - x) <= (x - floor_number)) return ceil_number; else return floor_number;
   /*return -(ceil (-(x + 0.5)))*/
-};
+}
 
 /* 20.2.2.29 Math.sign(x) */
 function MathSign(globalObject, this, NewTarget, strict, params) {
@@ -925,22 +870,21 @@ function MathSign(globalObject, this, NewTarget, strict, params) {
   @ReturnIfAbrupt(x);
   /* Returns the sign of the x, indicating whether x is positive, negative or zero. */
   /* If x is NaN, the result is NaN. */
-  if (is_NaN (x)) {
-    return NaN
+  if (is_NaN (x))
+    return NaN;
   /* If x is −0, the result is −0. */
-  } elif (isMinusZero(x)) {
-    return -(0.)
+  elif (isMinusZero(x))
+    return -(0.);
   /* If x is +0, the result is +0. */
-  } elif (isZero(x)) {
-    return 0.
+  elif (isZero(x))
+    return 0.;
   /* If x is negative and not −0, the result is −1. */
-  } elif (x < 0.) {
-    return -(1.)
+  elif (x < 0.)
+    return -(1.);
   /* If x is positive and not +0, the result is +1. */
-  } elif (x > 0.) {
-    return 1.
-  }
-};
+  elif (x > 0.)
+    return 1.;
+}
 
 /* 20.2.2.30 Math.sin ( x ) */
 function MathSin(globalObject, this, NewTarget, stric, params) {
@@ -952,8 +896,8 @@ function MathSin(globalObject, this, NewTarget, stric, params) {
   /* If x is +0, the result is +0. */
   /* If x is −0, the result is −0. */
   /* If x is +∞ or −∞, the result is NaN. */
-  return sin (x)
-};
+  return sin (x);
+}
 
 /* 20.2.2.31 Math.sinh( x ) */
 function MathSinh(globalObject, this, NewTarget, strict, params) {
@@ -966,8 +910,8 @@ function MathSinh(globalObject, this, NewTarget, strict, params) {
   /* If x is −0, the result is −0. */
   /* If x is +∞, the result is +∞. */
   /* If x is −∞, the result is −∞. */
-  return sinh (x)
-};
+  return sinh (x);
+}
 
 /* 20.2.2.32 Math.sqrt ( x ) */
 function MathSqrt(globalObject, this, NewTarget, stric, params) {
@@ -980,8 +924,8 @@ function MathSqrt(globalObject, this, NewTarget, stric, params) {
   /* If x is +0, the result is +0. */
   /* If x is −0, the result is −0. */
   /* If x is +∞, the result is +∞. */
-  return sqrt x
-};
+  return sqrt x;
+}
 
 /* 20.2.2.33 Math.tan ( x ) */
 function MathTan(globalObject, this, NewTarget, stric, params) {
@@ -993,8 +937,8 @@ function MathTan(globalObject, this, NewTarget, stric, params) {
   /* If x is +0, the result is +0. */
   /* If x is -0, the result is -0. */
   /* If x is +Infinity or -Infinity, the result is NaN. */
-  return tan (x)
-};
+  return tan (x);
+}
 
 /* 20.2.2.34 Math.tanh ( x ) */
 function MathTanh(globalObject, this, NewTarget, strict, params) {
@@ -1009,8 +953,8 @@ function MathTanh(globalObject, this, NewTarget, strict, params) {
   /* If x is −∞, the result is -1. */
   /* NOTE
   The value of tanh(x) is the same as (exp(x) - exp(-x))/(exp(x) + exp(-x)). */
-  return tanh (x)
-};
+  return tanh (x);
+}
 
 /* 20.2.2.35 Math.trunc ( x ) */
 function MathTrunc(globalObject, this, NewTarget, strict, params) {
@@ -1019,47 +963,38 @@ function MathTrunc(globalObject, this, NewTarget, strict, params) {
   @ReturnIfAbrupt(x);
   /* Returns the integral part of the number x, removing any fractional digits. If x is already an integer, the result is x. */
   /* If x is NaN, the result is NaN. */
-  if (is_NaN (x)) {
-    return NaN
-  };
+  if (is_NaN (x))
+    return NaN;
   /* If x is +0, the result is +0. */
-  if (isZero(x)) {
-    return 0.
-  };
+  if (isZero(x))
+    return 0.;
   /* If x is −0, the result is −0. */
-  if (isMinusZero(x)) {
-    return -(0.)
-  };
+  if (isMinusZero(x))
+    return -(0.);
   /* If x is +∞, the result is +∞. */
-  if (x = Infinity) {
-    return Infinity
-  };
+  if (x = Infinity)
+    return Infinity;
   /* If x is -∞ the result is -∞ */
-  if (x = (- Infinity)) {
-    return (- Infinity)
-  };
+  if (x = (- Infinity))
+    return (- Infinity);
   /* If x is greater than 0 but less than 1, the result is +0. */
-  if (x > (0.) &&& x < 1.) {
-    return (0.)
-  };
+  if (x > (0.) &&& x < 1.)
+    return (0.);
   /* If x is less than 0 but greater than −1, the result is −0. */
-  if (x < 0. &&& x > -(1.)) {
-    return -(0.)
-  };
-  if (x < 0.){
-    return ceil (x)
-  }
-  else {
-    return -ceil(-x)
-  }
-};
+  if (x < 0. &&& x > -(1.))
+    return -(0.);
+  if (x < 0.)
+    return ceil (x);
+  else
+    return -ceil(-x);
+}
 
 /* Auxiliary functions */
 function isZero(x) {
-  return (x = 0.) &&& ((1. / x) = Infinity)
-};
+  return (x = 0.) &&& ((1. / x) = Infinity);
+}
 
 function isMinusZero(x) {
-  return (x = 0.) &&& ((1. / x) = -Infinity)
+  return (x = 0.) &&& ((1. / x) = -Infinity);
 }
 

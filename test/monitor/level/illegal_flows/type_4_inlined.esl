@@ -6,12 +6,12 @@ return false
 } else {
 throw "MONITOR EXCEPTION -> parselvl - Unkown Security Level"
 }
-} };
+} }
 function upgObject (obj, lev_obj, lev_str, lev_lev_str, pc) { lev := "parse_lvl" (lev_str);
 leq_1 := "leq" (lev_lev_str, pc);
 if (!(leq_1)) {
 throw "MONITOR EXCEPTION -> upgObject - Levels must be literals"
-};
+}
 lev_ctx := "lub" (lev_obj, pc);
 lev_2 := obj["objLev"];
 leq_2 := "leq" (lev_ctx, lev_2);
@@ -20,10 +20,10 @@ lev_3 := "lub" (lev_ctx, lev);
 obj["objLev"] := lev_3
 } else {
 throw "MONITOR EXCEPTION -> Illegal P_Val Upgrade"
-};
-return ( 0, pc ) };
+}
+return ( 0, pc ) }
 function shadowPropExists (prop_str) { result := s_concat([ prop_str, "_prop_exists_lvl" ]);
-return result };
+return result }
 function main (_pc_1) { _pc_1 := "parse_lvl" ("low");
 h_lev := true;
 l_lev := true;
@@ -37,7 +37,7 @@ h_lev := "lub" (_pc_1, _fresh_lev_var0);
 h := true
 } else {
 throw "MONITOR EXCEPTION -> Illegal Assignment"
-};
+}
 _freshvar_1 := "leq" (_pc_1, l_lev);
 if (_freshvar_1) {
 _fresh_lev_var1 := "lubn" ([  ]);
@@ -45,12 +45,12 @@ l_lev := "lub" (_pc_1, _fresh_lev_var1);
 l := true
 } else {
 throw "MONITOR EXCEPTION -> Illegal Assignment"
-};
-oh := { };
+}
+oh := { }
 oh["structLev"] := _pc_1;
 oh["objLev"] := _pc_1;
 oh_lev := _pc_1;
-ol := { };
+ol := { }
 ol["structLev"] := _pc_1;
 ol["objLev"] := _pc_1;
 ol_lev := _pc_1;
@@ -81,21 +81,21 @@ ol["p"] := false
 } else {
 throw "MONITOR EXCEPTION -> Illegal Field Assign"
 }
-};
+}
 _freshvar_lev_2 := "parse_lvl" ("high");
 _freshvar_5 := "leq" (_pc_1, h_lev);
 if (_freshvar_5) {
 h_lev := "lub" (_freshvar_lev_2, _pc_1)
 } else {
 throw "MONITOR EXCEPTION -> Illegal UpgVarLab"
-};
+}
 _freshvar_lev_3 := "parse_lvl" ("high");
 _freshvar_6 := "leq" (_pc_1, oh_lev);
 if (_freshvar_6) {
 oh_lev := "lub" (_freshvar_lev_3, _pc_1)
 } else {
 throw "MONITOR EXCEPTION -> Illegal UpgVarLab"
-};
+}
 _fresh_lev_var6 := "lubn" ([ h_lev ]);
 _freshvar_lev_4 := "lub" (_pc_1, _fresh_lev_var6);
 _freshvar_7 := _freshvar_lev_4;
@@ -108,7 +108,7 @@ oh := ol
 } else {
 throw "MONITOR EXCEPTION -> Illegal Assignment"
 }
-};
+}
 _fresh_lev_var7 := "lubn" ([ oh_lev ]);
 _fresh_lev_var8 := "lubn" ([  ]);
 _fresh_lev_var9 := "lubn" ([  ]);
@@ -136,7 +136,7 @@ oh["p"] := true
 } else {
 throw "MONITOR EXCEPTION -> Illegal Field Assign"
 }
-};
+}
 _fresh_lev_var10 := "lubn" ([ oh_lev ]);
 _fresh_lev_var11 := "lubn" ([  ]);
 _fresh_obj_0 := oh;
@@ -151,7 +151,7 @@ x_lev := _freshvar_lev_8;
 x := _fresh_obj_0[_fresh_field_0]
 } else {
 throw "MONITOR EXCEPTION -> Illegal Field Lookup"
-};
+}
 _fresh_lev_var13 := "lubn" ([ x_lev ]);
 _freshvar_lev_9 := "lub" (_pc_1, _fresh_lev_var13);
 _freshvar_14 := _freshvar_lev_9;
@@ -164,16 +164,16 @@ l := false
 } else {
 throw "MONITOR EXCEPTION -> Illegal Assignment"
 }
-};
+}
 _fresh_lev_var14 := "lubn" ([ l_lev ]);
 _freshvar_lev_10 := "lub" (_fresh_lev_var14, _pc_1);
-return ( l, _freshvar_lev_10 ) };
-function lub (lev1, lev2) { return lev1 || lev2 };
+return ( l, _freshvar_lev_10 ) }
+function lub (lev1, lev2) { return lev1 || lev2 }
 function upgPropExists (obj, lev_obj, prop, lev_prop, lev_str, lev_lev_str, pc) { lev := "parse_lvl" (lev_str);
 leq_1 := "leq" (lev_lev_str, pc);
 if (!(leq_1)) {
 throw "MONITOR EXCEPTION -> upgPropExists - Levels must be literals"
-};
+}
 lev_ctx := "lubn" ([ lev_obj, lev_prop, pc ]);
 prop_2 := "shadowPropExists" (prop);
 lev_2 := obj[prop_2];
@@ -183,16 +183,16 @@ lev_3 := "lub" (lev_ctx, lev);
 obj[prop_2] := lev_3
 } else {
 throw "MONITOR EXCEPTION -> Illegal P_Exists Upgrade"
-};
-return ( 0, pc ) };
+}
+return ( 0, pc ) }
 function shadowPropValue (prop_str) { result := s_concat([ prop_str, "_prop_value_lvl" ]);
-return result };
-function get_top () { return true };
+return result }
+function get_top () { return true }
 function upgPropVal (obj, lev_obj, prop, lev_prop, lev_str, lev_lev_str, pc) { lev := "parse_lvl" (lev_str);
 leq_1 := "leq" (lev_lev_str, pc);
 if (!(leq_1)) {
 throw "MONITOR EXCEPTION -> upgPropExists - Levels must be literals"
-};
+}
 lev_ctx := "lubn" ([ lev_obj, lev_prop, pc ]);
 prop_2 := "shadowPropValue" (prop);
 lev_2 := obj[prop_2];
@@ -202,13 +202,13 @@ lev_3 := "lub" (lev_ctx, lev);
 obj[prop_2] := lev_3
 } else {
 throw "MONITOR EXCEPTION -> Illegal P_Val Upgrade"
-};
-return ( 0, pc ) };
+}
+return ( 0, pc ) }
 function upgStruct (obj, lev_obj, lev_str, lev_lev_str, pc) { lev := "parse_lvl" (lev_str);
 leq_1 := "leq" (lev_lev_str, pc);
 if (!(leq_1)) {
 throw "MONITOR EXCEPTION -> upgStruct - Levels must be literals"
-};
+}
 lev_ctx := "lub" (lev_obj, pc);
 lev_2 := obj["structLev"];
 leq_2 := "leq" (lev_ctx, lev_2);
@@ -217,14 +217,14 @@ lev_3 := "lub" (lev_ctx, lev);
 obj["structLev"] := lev_3
 } else {
 throw "MONITOR EXCEPTION -> Illegal P_Val Upgrade"
-};
-return ( 0, pc ) };
+}
+return ( 0, pc ) }
 function leq (lev1, lev2) { nlev1 := !(lev1);
 nlev2 := !(lev2);
 aux := nlev1 && nlev2;
-return lev2 || aux };
+return lev2 || aux }
 function lubn (levs) { i := 0;
 acc := false;
 while (i < l_len(levs)) { acc := "lub" (acc, l_nth(levs, i));
-i := i + 1 };
+i := i + 1 }
 return acc }

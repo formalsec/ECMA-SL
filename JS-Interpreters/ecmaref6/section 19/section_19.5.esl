@@ -8,12 +8,12 @@ function initErrorObject(globalObject, ObjectPrototype, strict) {
   errorPrototype := initErrorPrototype(ObjectPrototype, globalObject, strict);
   errorConstructor := initErrorConstructor(errorPrototype, globalObject, strict);
 
-  /* 19.5.3.1 Error.prototype.constructor */
+  /* 19.5.3.1 Error.prototype.constructor  */
   descriptor := newDataPropertyDescriptorFull(errorConstructor, true, false, true);
   setJSProperty(errorPrototype, "constructor", descriptor);
 
-  return errorConstructor
-};
+  return errorConstructor;
+}
 
 /*
 19.5.1 The Error Constructor
@@ -34,7 +34,7 @@ function initErrorConstructor(ErrorPrototype, globalObject, strict) {
  The value of the [[Prototype]] internal slot of the Error constructor is the intrinsic object %FunctionPrototype% (19.2.3).
 
  Besides the length property (whose value is 1), the Error constructor has the following properties:
- */
+  */
   ErrorConstructor := CreateGeneralBuiltInFunction(getFunctionPrototype(strict), ["message"], "ErrorConstructor", globalObject, strict, null);
 
   setJSProperty(ErrorConstructor, "length", newDataPropertyDescriptorFull(1., false, false, true));
@@ -42,76 +42,61 @@ function initErrorConstructor(ErrorPrototype, globalObject, strict) {
 
   /*19.5.2.1 Error.prototype
   The initial value of Error.prototype is the intrinsic object %ErrorPrototype% (19.5.3).
-  This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }.  */
   createBuiltInPropertyWithFullDescriptor(ErrorConstructor, "prototype", ErrorPrototype, false, false, false);
 
-  return ErrorConstructor
-};
+  return ErrorConstructor;
+}
 
 
 function initErrorPrototype(ObjectPrototype, global, strict) {
   errorPrototypeObject := NewECMAScriptObjectFull(ObjectPrototype, "Object", true);
   setAllInternalMethodsOfOrdinaryObject(errorPrototypeObject);
 
-  /* 19.5.3.2 Error.prototype.message */
+  /* 19.5.3.2 Error.prototype.message  */
   setJSProperty(errorPrototypeObject, "message", newDataPropertyDescriptorFull("", true, false, true));
 
-  /* 19.5.3.3 Error.prototype.name */
+  /* 19.5.3.3 Error.prototype.name  */
   setJSProperty(errorPrototypeObject, "name", newDataPropertyDescriptorFull("Error", true, false, true));
 
-  /* 19.5.3.4 Error.prototype.toString ( ) */
+  /* 19.5.3.4 Error.prototype.toString ( )  */
   toStringFunctionObject := CreateBuiltInFunctionObject([], "ErrorToString", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(toStringFunctionObject, true, false, true);
   setJSProperty(errorPrototypeObject, "toString", descriptor);
   setJSProperty(toStringFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
   setJSProperty(toStringFunctionObject, "name", newDataPropertyDescriptorFull("toString", false, false, true));
 
-  return errorPrototypeObject
-};
+  return errorPrototypeObject;
+}
 
 
 /*19.5.1.1 Error ( message )
 
-When the Error function is called with argument message the following steps are taken:*/
+When the Error function is called with argument message the following steps are taken: */
 function ErrorConstructor(globalObject, this, NewTarget, strict, params) {
 	message := l_nth(params, 0);
-
-    /*If NewTarget is undefined, let newTarget be the active function object, else let newTarget be NewTarget.*/
-    if ( NewTarget = 'undefined ) {
-    	/* checkar se vai ter Function */
-    	newTarget := topExecStack().Function
-    }
-    else {
-    	newTarget := NewTarget
-    };
-
-    /*Let O be OrdinaryCreateFromConstructor(newTarget, "%ErrorPrototype%", «[[ErrorData]]»).*/
-    O := OrdinaryCreateFromConstructor(newTarget, "ErrorPrototype", ["ErrorData"]);
-
-    /*ReturnIfAbrupt(O).*/
-    @ReturnIfAbrupt(O);
-
-    /*If message is not undefined, then*/
-    if ( !(message = 'undefined) ) {
-        /*Let msg be ToString(message).*/
-        msg := ToString(message);
-
-        /*ReturnIfAbrupt(msg).*/
-        @ReturnIfAbrupt(msg);
-
-        /*Let msgDesc be the PropertyDescriptor{[[Value]]: msg, [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}.*/
-        msgDesc := newDataPropertyDescriptorFull(msg, true, false, true);
-
-        /*Let status be DefinePropertyOrThrow(O, "message", msgDesc).*/
-        status := DefinePropertyOrThrow(O, "message", msgDesc);
-
-        /*Assert: status is not an abrupt completion.*/
-        assert( !isAnAbruptCompletion(status) )
-    };
-
-    /*Return O.*/
-    return O
-};
+  /* If NewTarget is undefined, let newTarget be the active function object, else let newTarget be NewTarget. */
+  if (NewTarget = 'undefined) newTarget := topExecStack().Function; else newTarget := NewTarget;
+  /* Let O be OrdinaryCreateFromConstructor(newTarget, "%ErrorPrototype%", «[[ErrorData]]»). */
+  O := OrdinaryCreateFromConstructor(newTarget, "ErrorPrototype", ["ErrorData"]);
+  /* ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+  /* If message is not undefined, then */
+  if (!(message = 'undefined)) {
+    /* Let msg be ToString(message). */
+    msg := ToString(message);
+    /* ReturnIfAbrupt(msg). */
+    @ReturnIfAbrupt(msg);
+    /* Let msgDesc be the PropertyDescriptor{[[Value]]: msg, [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}. */
+    msgDesc := newDataPropertyDescriptorFull(msg, true, false, true);
+    /* Let status be DefinePropertyOrThrow(O, "message", msgDesc). */
+    status := DefinePropertyOrThrow(O, "message", msgDesc);
+    /* Assert: status is not an abrupt completion. */
+    assert(!isAnAbruptCompletion(status));
+  }
+  /* Return O. */
+  return O;
+}
 
 
 /*
@@ -120,61 +105,36 @@ function ErrorConstructor(globalObject, this, NewTarget, strict, params) {
 The following steps are taken:
 */
 function ErrorToString(globalObject, this, NewTarget, strict, params) {
-    /*Let O be the this value.*/
-    O := this;
-
-    /*If Type(O) is not Object, throw a TypeError exception.*/
-    if ( !(Type(O) = "Object") ) {
-        throw TypeErrorConstructorInternal()
-    };
-
-    /*Let name be Get(O, "name").*/
-    name := Get(O, "name");
-
-    /*ReturnIfAbrupt(name).*/
-    @ReturnIfAbrupt(name);
-
-    /*If name is undefined, let name be "Error"; otherwise let name be ToString(name).*/
-    if ( name = 'undefined ) {
-        name := "Error"
-    }
-    else {
-        name := ToString(name)
-    };
-
-    /*ReturnIfAbrupt(name).*/
-    @ReturnIfAbrupt(name);
-
-    /*Let msg be Get(O, "message").*/
-    msg := Get(O, "message");
-
-    /*ReturnIfAbrupt(msg).*/
-    @ReturnIfAbrupt(msg);
-
-    /*If msg is undefined, let msg be the empty String; otherwise let msg be ToString(msg).*/
-     if ( msg = 'undefined ) {
-        msg := ""
-    }
-    else {
-        msg := ToString(msg)
-    };
-
-    /*ReturnIfAbrupt(msg).*/
-    @ReturnIfAbrupt(msg);
-
-    /*If name is the empty String, return msg.*/
-    if ( name = "" ) {
-        return msg
-    };
-
-    /*If msg is the empty String, return name.*/
-    if ( msg = "" ) {
-        return name
-    };
-
-    /*Return the result of concatenating name, the code unit 0x003A (COLON), the code unit 0x0020 (SPACE), and msg.*/
-    return name + ": " + msg
-};
+  /* Let O be the this value. */
+  O := this;
+  /* If Type(O) is not Object, throw a TypeError exception. */
+  if (!(Type(O) = "Object"))
+    throw TypeErrorConstructorInternal();
+  /* Let name be Get(O, "name"). */
+  name := Get(O, "name");
+  /* ReturnIfAbrupt(name). */
+  @ReturnIfAbrupt(name);
+  /* If name is undefined, let name be "Error"; otherwise let name be ToString(name). */
+  if (name = 'undefined) name := "Error"; else name := ToString(name); 
+  /* ReturnIfAbrupt(name). */
+  @ReturnIfAbrupt(name);
+  /* Let msg be Get(O, "message"). */
+  msg := Get(O, "message");
+  /* ReturnIfAbrupt(msg). */
+  @ReturnIfAbrupt(msg);
+  /* If msg is undefined, let msg be the empty String; otherwise let msg be ToString(msg). */
+  if (msg = 'undefined) msg := ""; else msg := ToString(msg);
+  /* ReturnIfAbrupt(msg). */
+  @ReturnIfAbrupt(msg);
+  /* If name is the empty String, return msg. */
+  if (name = "")
+    return msg;
+  /* If msg is the empty String, return name. */
+  if (msg = "")
+    return name;
+  /* Return the result of concatenating name, the code unit 0x003A (COLON), the code unit 0x0020 (SPACE), and msg. */
+  return name + ": " + msg;
+}
 
 /*
 19.5.5 Native Error Types Used in This Standard
@@ -190,17 +150,17 @@ This exception is not currently used within this specification. This object rema
 for compatibility with previous editions of this specification.
 */
 function initEvalErrorObject(globalObject, ErrorPrototype, strict) {
-  return initNativeErrorObject(ErrorPrototype, "EvalError", "EvalErrorConstructor", globalObject, strict)
-};
+  return initNativeErrorObject(ErrorPrototype, "EvalError", "EvalErrorConstructor", globalObject, strict);
+}
 
 function EvalErrorConstructor(globalObject, this, NewTarget, strict, params) {
   message := l_nth(params, 0);
+  return NativeErrorConstructor(message, "EvalError", NewTarget);
+}
 
-  return NativeErrorConstructor(message, "EvalError", NewTarget)
-};
 function EvalErrorConstructorInternal() {
-  return NativeErrorConstructor('undefined, "EvalError", |Intrinsics|["EvalError"])
-};
+  return NativeErrorConstructor('undefined, "EvalError", |Intrinsics|["EvalError"]);
+}
 
 /*
 19.5.5.2 RangeError
@@ -208,16 +168,15 @@ function EvalErrorConstructorInternal() {
 Indicates a value that is not in the set or range of allowable values.
 */
 function initRangeErrorObject(globalObject, ErrorPrototype, strict) {
-  return initNativeErrorObject(ErrorPrototype, "RangeError", "RangeErrorConstructor", globalObject, strict)
-};
+  return initNativeErrorObject(ErrorPrototype, "RangeError", "RangeErrorConstructor", globalObject, strict);
+}
 function RangeErrorConstructor(globalObject, this, NewTarget, strict, params) {
   message := l_nth(params, 0);
-
-  return NativeErrorConstructor(message, "RangeError", NewTarget)
-};
+  return NativeErrorConstructor(message, "RangeError", NewTarget);
+}
 function RangeErrorConstructorInternal() {
-  return NativeErrorConstructor('undefined, "RangeError", |Intrinsics|["RangeError"])
-};
+  return NativeErrorConstructor('undefined, "RangeError", |Intrinsics|["RangeError"]);
+}
 
 /*
 19.5.5.3 ReferenceError
@@ -225,22 +184,18 @@ function RangeErrorConstructorInternal() {
 Indicate that an invalid reference value has been detected.
 */
 function initReferenceErrorObject(globalObject, ErrorPrototype, strict) {
-  return initNativeErrorObject(ErrorPrototype, "ReferenceError", "ReferenceErrorConstructor", globalObject, strict)
-};
-
+  return initNativeErrorObject(ErrorPrototype, "ReferenceError", "ReferenceErrorConstructor", globalObject, strict);
+}
 function ReferenceErrorConstructor(globalObject, this, NewTarget, strict, params) {
   message := l_nth(params, 0);
-
-  return NativeErrorConstructor(message, "ReferenceError", NewTarget)
-};
-
+  return NativeErrorConstructor(message, "ReferenceError", NewTarget);
+}
 function ReferenceErrorConstructorInternal() {
-  return NativeErrorConstructor('undefined, "ReferenceError", |Intrinsics|["ReferenceError"])
-};
-
+  return NativeErrorConstructor('undefined, "ReferenceError", |Intrinsics|["ReferenceError"]);
+}
 function ReferenceError(msg) {
-  return NativeErrorConstructor(msg, "ReferenceError", |Intrinsics|["ReferenceError"])
-};
+  return NativeErrorConstructor(msg, "ReferenceError", |Intrinsics|["ReferenceError"]);
+}
 
 /*
 19.5.5.4 SyntaxError
@@ -248,20 +203,18 @@ function ReferenceError(msg) {
 Indicates that a parsing error has occurred.
 */
 function initSyntaxErrorObject(globalObject, ErrorPrototype, strict) {
-  return initNativeErrorObject(ErrorPrototype, "SyntaxError", "SyntaxErrorConstructor", globalObject, strict)
-};
+  return initNativeErrorObject(ErrorPrototype, "SyntaxError", "SyntaxErrorConstructor", globalObject, strict);
+}
 function SyntaxErrorConstructor(globalObject, this, NewTarget, strict, params) {
   message := l_nth(params, 0);
-
-  return NativeErrorConstructor(message, "SyntaxError", NewTarget)
-};
+  return NativeErrorConstructor(message, "SyntaxError", NewTarget);
+}
 function SyntaxErrorConstructorInternal() {
-  return NativeErrorConstructor('undefined, "SyntaxError", |Intrinsics|["SyntaxError"])
-};
-
+  return NativeErrorConstructor('undefined, "SyntaxError", |Intrinsics|["SyntaxError"]);
+}
 function getSyntaxErrorConstructor() {
-  return |Intrinsics|["SyntaxError"]
-};
+  return |Intrinsics|["SyntaxError"];
+}
 
 /*
 19.5.5.5 TypeError
@@ -269,16 +222,15 @@ function getSyntaxErrorConstructor() {
 Indicates the actual type of an operand is different than the expected type.
 */
 function initTypeErrorObject(globalObject, ErrorPrototype, strict) {
-  return initNativeErrorObject(ErrorPrototype, "TypeError", "TypeErrorConstructor", globalObject, strict)
-};
+  return initNativeErrorObject(ErrorPrototype, "TypeError", "TypeErrorConstructor", globalObject, strict);
+}
 function TypeErrorConstructor(globalObject, this, NewTarget, strict, params) {
   message := l_nth(params, 0);
-
-  return NativeErrorConstructor(message, "TypeError", NewTarget)
-};
+  return NativeErrorConstructor(message, "TypeError", NewTarget);
+}
 function TypeErrorConstructorInternal() {
-  return NativeErrorConstructor('undefined, "TypeError", |Intrinsics|["TypeError"])
-};
+  return NativeErrorConstructor('undefined, "TypeError", |Intrinsics|["TypeError"]);
+}
 
 /*
 19.5.5.6 URIError
@@ -287,16 +239,15 @@ Indicates that one of the global URI handling functions was used in a way that i
 its definition.
 */
 function initURIErrorObject(globalObject, ErrorPrototype, strict) {
-  return initNativeErrorObject(ErrorPrototype, "URIError", "URIErrorConstructor", globalObject, strict)
-};
+  return initNativeErrorObject(ErrorPrototype, "URIError", "URIErrorConstructor", globalObject, strict);
+}
 function URIErrorConstructor(globalObject, this, NewTarget, strict, params) {
   message := l_nth(params, 0);
-
-  return NativeErrorConstructor(message, "URIError", NewTarget)
-};
+  return NativeErrorConstructor(message, "URIError", NewTarget);
+}
 function URIErrorConstructorInternal() {
-  return NativeErrorConstructor('undefined, "URIError", |Intrinsics|["URIError"])
-};
+  return NativeErrorConstructor('undefined, "URIError", |Intrinsics|["URIError"]);
+}
 
 /*
 19.5.6 NativeError Object Structure
@@ -318,8 +269,8 @@ function initNativeErrorObject(ErrorPrototype, nativeErrorName, constructorFunct
   descriptor := newDataPropertyDescriptorFull(nativeErrorConstructor, true, false, true);
   setJSProperty(nativeErrorPrototype, "constructor", descriptor);
 
-  return nativeErrorConstructor
-};
+  return nativeErrorConstructor;
+}
 
 /*
 19.5.6.1 NativeError Constructors
@@ -340,7 +291,7 @@ function initNativeErrorConstructor(NativeErrorPrototype, nativeErrorName, const
 
   The value of the [[Prototype]] internal slot of a NativeError constructor is the intrinsic object %Error% (19.5.1).
   Besides the length property (whose value is 1), each NativeError constructor has the following properties:
-  */
+   */
   NativeErrorConstructor := CreateGeneralBuiltInFunction(getErrorPrototype(false), ["message"], constructorFunction, globalObject, strict, null);
 
   /*
@@ -350,7 +301,7 @@ function initNativeErrorConstructor(NativeErrorPrototype, nativeErrorName, const
   NativeError constructor has a distinct prototype object.
 
   This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }.
-  */
+   */
   createBuiltInPropertyWithFullDescriptor(NativeErrorConstructor, "prototype", NativeErrorPrototype, false, false, false);
 
   createBuiltInProperty(NativeErrorConstructor, "name", nativeErrorName);
@@ -358,8 +309,8 @@ function initNativeErrorConstructor(NativeErrorPrototype, nativeErrorName, const
   setInternalProperty(NativeErrorConstructor, "Realm", globalObject);
   setInternalProperty(NativeErrorConstructor, "ErrorData", 'undefined);
 
-  return NativeErrorConstructor
-};
+  return NativeErrorConstructor;
+}
 
 /*
 19.5.6.3 Properties of the NativeError Prototype Objects
@@ -374,14 +325,14 @@ function initNativeErrorPrototype(errorPrototypeObject, nativeErrorName) {
   nativeErrorPrototypeObject := NewECMAScriptObjectFull(errorPrototypeObject, "Object", true);
   setAllInternalMethodsOfOrdinaryObject(nativeErrorPrototypeObject);
 
-  /* 19.5.6.3.2 NativeError.prototype.message */
+  /* 19.5.6.3.2 NativeError.prototype.message  */
   setJSProperty(nativeErrorPrototypeObject, "message", newDataPropertyDescriptorFull("", true, false, true));
 
-  /* 19.5.6.3.3 NativeError.prototype.name */
+  /* 19.5.6.3.3 NativeError.prototype.name  */
   setJSProperty(nativeErrorPrototypeObject, "name", newDataPropertyDescriptorFull(nativeErrorName, true, false, true));
 
-  return nativeErrorPrototypeObject
-};
+  return nativeErrorPrototypeObject;
+}
 
 /*
 19.5.6.1.1 NativeError ( message )
@@ -389,46 +340,33 @@ function initNativeErrorPrototype(errorPrototypeObject, nativeErrorName) {
 When a NativeError function is called with argument message the following steps are taken:
 */
 function NativeErrorConstructor(message, nativeErrorName, NewTarget) {
-
-    /*If NewTarget is undefined, let newTarget be the active function object, else let newTarget be NewTarget.*/
-    if ( NewTarget = 'undefined ) {
-        newTarget := topExecStack().Function
-    }
-    else {
-        newTarget := NewTarget
-    };
-
-    /*Let O be OrdinaryCreateFromConstructor(newTarget, "%NativeErrorPrototype%", «[[ErrorData]]» ).*/
+    /* If NewTarget is undefined, let newTarget be the active function object, else let newTarget be NewTarget. */
+    if (NewTarget = 'undefined) newTarget := topExecStack().Function; else newTarget := newTarget;
+    /* Let O be OrdinaryCreateFromConstructor(newTarget, "%NativeErrorPrototype%", «[[ErrorData]]» ). */
     O := OrdinaryCreateFromConstructor(newTarget, nativeErrorName, ["ErrorData"]);
-
-    /*ReturnIfAbrupt(O).*/
+    /* ReturnIfAbrupt(O). */
     @ReturnIfAbrupt(O);
-
-    /*If message is not undefined, then*/
-    if ( !(message = 'undefined) ) {
-        /*Let msg be ToString(message).*/
+    /* If message is not undefined, then */
+    if (!(message = 'undefined)) {
+        /* Let msg be ToString(message). */
         msg := ToString(message);
-
-        /*Let msgDesc be the PropertyDescriptor{[[Value]]: msg, [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}.*/
+        /* Let msgDesc be the PropertyDescriptor{[[Value]]: msg, [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}. */
         msgDesc := newDataPropertyDescriptorFull(msg, true, false, true);
-
-        /*Let status be DefinePropertyOrThrow(O, "message", msgDesc).*/
+        /* Let status be DefinePropertyOrThrow(O, "message", msgDesc). */
         status := DefinePropertyOrThrow(O, "message", msgDesc);
-
-        /*Assert: status is not an abrupt completion.*/
-        assert( !isAnAbruptCompletion(status) )
-    };
-
-    /*Return O.*/
-    return O
+        /* Assert: status is not an abrupt completion. */
+        assert (!isAnAbruptCompletion(status));
+    }
+    /* Return O. */
+    return O;
 
     /*
      The actual value of the string passed in step 2 is either "%EvalErrorPrototype%",
      "%RangeErrorPrototype%", "%ReferenceErrorPrototype%", "%SyntaxErrorPrototype%",
      "%TypeErrorPrototype%", or "%URIErrorPrototype%" corresponding to which NativeError
      constructor is being defined.
-    */
-};
+     */
+}
 
 /*
 19.5.6.4 Properties of NativeError Instances
@@ -440,9 +378,9 @@ NativeError instances.
 */
 
 function getErrorPrototype(strict) {
-  return |Intrinsics|["ErrorPrototype"]
-};
+  return |Intrinsics|["ErrorPrototype"];
+}
 
 function getNativeErrorPrototype(strict, nativeErrorName) {
-  return |Intrinsics|[s_concat [nativeErrorName,"Prototype"]]
+  return |Intrinsics|[s_concat [nativeErrorName,"Prototype"]];
 }

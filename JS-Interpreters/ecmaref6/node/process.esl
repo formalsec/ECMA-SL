@@ -1,5 +1,5 @@
 function __process_cwd(globalObject, this, newTarget, strict, params) {
-  return extern str_symbol("process_cwd")
+  return extern str_symbol("process_cwd");
 }
 
 function createProcessObject(globalObject, objectPrototype, strict) {
@@ -36,5 +36,5 @@ function createProcessObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(process, "cwd", cwd);
   createBuiltInProperty(cwd, "prototype", objectPrototype);
 
-  return process
+  return process;
 }

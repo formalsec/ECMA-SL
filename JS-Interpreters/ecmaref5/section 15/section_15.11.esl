@@ -6,11 +6,9 @@
 function initErrorObject(globalObject, ObjectPrototype, strict) {
   errorPrototype := initErrorPrototype(ObjectPrototype);
   errorConstructor := initErrorConstructor(errorPrototype, globalObject, strict);
-
   fillErrorPrototype(errorPrototype, errorConstructor, globalObject, strict);
-
-  return errorConstructor
-};
+  return errorConstructor;
+}
 
 /* 15.11.1 The Error Constructor Called as a Function */
 /* When Error is called as a function rather than as a constructor, it creates and initialises a new Error object.
@@ -36,8 +34,8 @@ function initErrorConstructor(ErrorPrototype, globalObject, strict) {
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   createBuiltInPropertyWithFullDescriptor(ErrorConstructor, "prototype", ErrorPrototype, false, false, false);
 
-  return ErrorConstructor
-};
+  return ErrorConstructor;
+}
 
 
 /* 15.11.4 Error Prototype Object */
@@ -51,8 +49,8 @@ function initErrorPrototype(objectPrototypeObject) {
      prototype object (15.2.4). */
   setInternalProperty(errorPrototypeObject, "Prototype", objectPrototypeObject);
 
-  return errorPrototypeObject
-};
+  return errorPrototypeObject;
+}
 
 /* 15.11.4 Properties of the Error Prototype Object */
 function fillErrorPrototype(errorPrototypeObject, ErrorConstructor, globalObject, strict) {
@@ -72,8 +70,8 @@ function fillErrorPrototype(errorPrototypeObject, ErrorConstructor, globalObject
   toString := CreateBuiltInFunctionObject([], "ErrorPrototypeToString", globalObject, strict, null);
   createBuiltInProperty(errorPrototypeObject, "toString", toString);
 
-  return
-};
+  return;
+}
 
 /* 15.11.5 Properties of Error Instances */
 /* Error instances inherit properties from the Error prototype object and their [[Class]] internal property value is
@@ -97,12 +95,11 @@ function ErrorConstructor(globalObject, this, strict, params) {
 
   /* If the argument message is not undefined, the message own property of the newly constructed object is set to
      ToString(message). */
-  if (!(message = 'undefined)) {
-    createBuiltInProperty(newlyConstructedObject, "message", ToString(message))
-  };
+  if (!(message = 'undefined))
+    createBuiltInProperty(newlyConstructedObject, "message", ToString(message));
 
-  return newlyConstructedObject
-};
+  return newlyConstructedObject;
+}
 
 /* 15.11.4.4 Error.prototype.toString ( ) */
 function ErrorPrototypeToString(globalObject, this, strict, params) {
@@ -111,33 +108,24 @@ function ErrorPrototypeToString(globalObject, this, strict, params) {
   /* 1. Let O be the this value. */
   O := this;
   /* 2. If Type(O) is not Object, throw a TypeError exception. */
-  if (!(Type(O) = "Object")) {
-    throw TypeErrorConstructorInternal()
-  };
+  if (!(Type(O) = "Object"))
+    throw TypeErrorConstructorInternal();
   /* 3. Let name be the result of calling the [[Get]] internal method of O with argument "name". */
   name := {O.Get}(O, "name");
   /* 4. If name is undefined, then let name be "Error"; else let name be ToString(name). */
-  if (name = 'undefined) {
-    name := "Error"
-  } else {
-    name := ToString(name)
-  };
+  if (name = 'undefined) name := "Error"; else name := ToString(name);
   /* 5. Let msg be the result of calling the [[Get]] internal method of O with argument "message". */
   msg := {O.Get}(O, "message");
   /* 6. If msg is undefined, then let msg be the empty String; else let msg be ToString(msg). */
   /* 7. If msg is undefined, then let msg be the empty String; else let msg be ToString(msg). */
-  if (msg = 'undefined) {
-    msg := ""
-  } else {
-    msg := ToString(msg)
-  };
+  if (msg = 'undefined) msg := ""; else msg := ToString(msg);
   /* 8. If name is the empty String, return msg. */
-  if (name = "") { return msg };
+  if (name = "") return msg;
   /* 9. If msg is the empty String, return name. */
-  if (msg = "") { return name };
+  if (msg = "") return name;
   /* 10. Return the result of concatenating name, ":", a single space character, and msg. */
-  return s_concat [name, ":", " ", msg]
-};
+  return s_concat [name, ":", " ", msg];
+}
 
 
 /* 15.11.6 Native Error Types Used in This Standard */
@@ -148,62 +136,58 @@ function ErrorPrototypeToString(globalObject, this, strict, params) {
 /* This exception is not currently used within this specification. This object remains for compatibility with previous
    editions of this specification. */
 function initEvalErrorObject(globalObject, ErrorPrototype, strict) {
-  return initNativeErrorObject(ErrorPrototype, "EvalError", "EvalErrorConstructor", globalObject, strict)
-};
+  return initNativeErrorObject(ErrorPrototype, "EvalError", "EvalErrorConstructor", globalObject, strict);
+}
 function EvalErrorConstructor(globalObject, this, strict, params) {
   message := l_nth(params, 0);
-
-  return NativeErrorConstructor(globalObject, strict, message, "EvalError")
-};
+  return NativeErrorConstructor(globalObject, strict, message, "EvalError");
+}
 function EvalErrorConstructorInternal() {
-  return NativeErrorConstructor(|global|, false, 'undefined, "EvalError")
-};
+  return NativeErrorConstructor(|global|, false, 'undefined, "EvalError");
+}
 
 /* 15.11.6.2 RangeError */
 /* Indicates a numeric value has exceeded the allowable range. See 15.4.2.2, 15.4.5.1, 15.7.4.2, 15.7.4.5,
    15.7.4.6, 15.7.4.7, and 15.9.5.43. */
 function initRangeErrorObject(globalObject, ErrorPrototype, strict) {
-  return initNativeErrorObject(ErrorPrototype, "RangeError", "RangeErrorConstructor", globalObject, strict)
-};
+  return initNativeErrorObject(ErrorPrototype, "RangeError", "RangeErrorConstructor", globalObject, strict);
+}
 function RangeErrorConstructor(globalObject, this, strict, params) {
   message := l_nth(params, 0);
-
-  return NativeErrorConstructor(globalObject, strict, message, "RangeError")
-};
+  return NativeErrorConstructor(globalObject, strict, message, "RangeError");
+}
 function RangeErrorConstructorInternal() {
-  return NativeErrorConstructor(|global|, false, 'undefined, "RangeError")
-};
+  return NativeErrorConstructor(|global|, false, 'undefined, "RangeError");
+}
 
 /* 15.11.6.3 ReferenceError */
 /* Indicate that an invalid reference value has been detected. See 8.7.1, 8.7.2, 10.2.1, 10.2.1.1.4, 10.2.1.2.4,
    and 11.13.1. */
 function initReferenceErrorObject(globalObject, ErrorPrototype, strict) {
-  return initNativeErrorObject(ErrorPrototype, "ReferenceError", "ReferenceErrorConstructor", globalObject, strict)
-};
+  return initNativeErrorObject(ErrorPrototype, "ReferenceError", "ReferenceErrorConstructor", globalObject, strict);
+}
 function ReferenceErrorConstructor(globalObject, this, strict, params) {
   message := l_nth(params, 0);
-
-  return NativeErrorConstructor(globalObject, strict, message, "ReferenceError")
-};
+  return NativeErrorConstructor(globalObject, strict, message, "ReferenceError");
+}
 function ReferenceErrorConstructorInternal() {
-  return NativeErrorConstructor(|global|, false, 'undefined, "ReferenceError")
-};
+  return NativeErrorConstructor(|global|, false, 'undefined, "ReferenceError");
+}
 
 /* 15.11.6.4 SyntaxError */
 /* Indicates that a parsing error has occurred. See 11.1.5, 11.3.1, 11.3.2, 11.4.1, 11.4.4, 11.4.5, 11.13.1, 11.13.2,
    12.2.1, 12.10.1, 12.14.1, 13.1, 15.1.2.1, 15.3.2.1, 15.10.2.2, 15.10.2.5, 15.10.2.9, 15.10.2.15, 15.10.2.19,
    15.10.4.1, and 15.12.2. */
 function initSyntaxErrorObject(globalObject, ErrorPrototype, strict) {
-  return initNativeErrorObject(ErrorPrototype, "SyntaxError", "SyntaxErrorConstructor", globalObject, strict)
-};
+  return initNativeErrorObject(ErrorPrototype, "SyntaxError", "SyntaxErrorConstructor", globalObject, strict);
+}
 function SyntaxErrorConstructor(globalObject, this, strict, params) {
   message := l_nth(params, 0);
-
-  return NativeErrorConstructor(globalObject, strict, message, "SyntaxError")
-};
+  return NativeErrorConstructor(globalObject, strict, message, "SyntaxError");
+}
 function SyntaxErrorConstructorInternal() {
-  return NativeErrorConstructor(|global|, false, 'undefined, "SyntaxError")
-};
+  return NativeErrorConstructor(|global|, false, 'undefined, "SyntaxError");
+}
 
 /* 15.11.6.5 TypeError */
 /* Indicates the actual type of an operand is different than the expected type. See 8.6.2, 8.7.2, 8.10.5, 8.12.5,
@@ -214,31 +198,29 @@ function SyntaxErrorConstructorInternal() {
    15.4.4.22, 15.4.5.1, 15.5.4.2, 15.5.4.3, 15.6.4.2, 15.6.4.3, 15.7.4, 15.7.4.2, 15.7.4.4, 15.9.5, 15.9.5.44,
    15.10.4.1, 15.10.6, 15.11.4.4 and 15.12.3. */
 function initTypeErrorObject(globalObject, ErrorPrototype, strict) {
-  return initNativeErrorObject(ErrorPrototype, "TypeError", "TypeErrorConstructor", globalObject, strict)
-};
+  return initNativeErrorObject(ErrorPrototype, "TypeError", "TypeErrorConstructor", globalObject, strict);
+}
 function TypeErrorConstructor(globalObject, this, strict, params) {
   message := l_nth(params, 0);
-
-  return NativeErrorConstructor(globalObject, strict, message, "TypeError")
-};
+  return NativeErrorConstructor(globalObject, strict, message, "TypeError");
+}
 function TypeErrorConstructorInternal() {
-  return NativeErrorConstructor(|global|, false, 'undefined, "TypeError")
-};
+  return NativeErrorConstructor(|global|, false, 'undefined, "TypeError");
+}
 
 /* 15.11.6.6 URIError */
 /* Indicates that one of the global URI handling functions was used in a way that is incompatible with its
    definition. See 15.1.3. */
 function initURIErrorObject(globalObject, ErrorPrototype, strict) {
-  return initNativeErrorObject(ErrorPrototype, "URIError", "URIErrorConstructor", globalObject, strict)
-};
+  return initNativeErrorObject(ErrorPrototype, "URIError", "URIErrorConstructor", globalObject, strict);
+}
 function URIErrorConstructor(globalObject, this, strict, params) {
   message := l_nth(params, 0);
-
-  return NativeErrorConstructor(globalObject, strict, message, "URIError")
-};
+  return NativeErrorConstructor(globalObject, strict, message, "URIError");
+}
 function URIErrorConstructorInternal() {
-  return NativeErrorConstructor(|global|, false, 'undefined, "URIError")
-};
+  return NativeErrorConstructor(|global|, false, 'undefined, "URIError");
+}
 
 
 /* 15.11.7 NativeError Object Structure */
@@ -255,8 +237,8 @@ function initNativeErrorObject(ErrorPrototype, nativeErrorName, constructorFunct
 
   fillNativeErrorPrototype(nativeErrorPrototype, nativeErrorConstructor, nativeErrorName);
 
-  return nativeErrorConstructor
-};
+  return nativeErrorConstructor;
+}
 
 /* 15.11.7.1 NativeError Constructors Called as Functions */
 /* When a NativeError constructor is called as a function rather than as a constructor, it creates and initialises a
@@ -286,8 +268,8 @@ function initNativeErrorConstructor(NativeErrorPrototype, nativeErrorName, const
 
   createBuiltInProperty(NativeErrorConstructor, "name", nativeErrorName);
 
-  return NativeErrorConstructor
-};
+  return NativeErrorConstructor;
+}
 
 /* 15.11.7.7 NativeError Prototype Object */
 function initNativeErrorPrototype(errorPrototypeObject) {
@@ -300,8 +282,8 @@ function initNativeErrorPrototype(errorPrototypeObject) {
      Error prototype object (15.11.4). */
   setInternalProperty(nativeErrorPrototypeObject, "Prototype", errorPrototypeObject);
 
-  return nativeErrorPrototypeObject
-};
+  return nativeErrorPrototypeObject;
+}
 
 /* 15.11.7.7 Properties of the NativeError Prototype Objects */
 function fillNativeErrorPrototype(nativeErrorPrototypeObject, NativeErrorConstructor, nativeErrorName) {
@@ -323,8 +305,8 @@ function fillNativeErrorPrototype(nativeErrorPrototypeObject, NativeErrorConstru
   /* NOTE The prototypes for the NativeError constructors do not themselves provide a toString function, but
           instances of errors will inherit it from the Error prototype object. */
 
-  return
-};
+  return;
+}
 
 /* 15.11.7.11 Properties of NativeError Instances */
 /* NativeError instances inherit properties from their NativeError prototype object and their [[Class]] internal
@@ -347,12 +329,11 @@ function NativeErrorConstructor(globalObject, strict, message, nativeErrorName) 
 
   /* If the argument message is not undefined, the message own property of the newly constructed object is set to
       ToString(message). */
-  if (!(message = 'undefined)) {
-    createBuiltInProperty(newlyConstructedObject, "message", ToString(message))
-  };
+  if (!(message = 'undefined))
+    createBuiltInProperty(newlyConstructedObject, "message", ToString(message));
 
-  return newlyConstructedObject
-};
+  return newlyConstructedObject;
+}
 
 /* 15.11.7.5 Properties of the NativeError Constructors */
 /* Besides the internal properties and the length property (whose value is 1), each NativeError constructor has
@@ -367,8 +348,8 @@ function getErrorPrototype(strict) {
   refErrorProto := newPropertyReference(ErrorObject, "prototype", strict);
   errorObjectProto := GetValue(refErrorProto);
 
-  return errorObjectProto
-};
+  return errorObjectProto;
+}
 
 function getNativeErrorPrototype(strict, nativeErrorName) {
   refNativeError := newPropertyReference(|global|, nativeErrorName, strict);
@@ -377,5 +358,5 @@ function getNativeErrorPrototype(strict, nativeErrorName) {
   refNativeErrorProto := newPropertyReference(NativeErrorObject, "prototype", strict);
   nativeErrorObjectProto := GetValue(refNativeErrorProto);
 
-  return nativeErrorObjectProto
+  return nativeErrorObjectProto;
 }

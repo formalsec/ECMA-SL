@@ -1,15 +1,15 @@
 function main () {
 	h:= true;
 	l:= true;
-	o := {};
+	o := {}
 	o.p := true;
 
 	aux1:= "upgVar"("h", "high");
 	aux2:= "upgPropExists"(o,"p", "high");
 	
-	if(h) {
+	if (h) {
 	 aux3:= "upgPropExists"(o,"p", "low")
-	};
+	}
 
 
 

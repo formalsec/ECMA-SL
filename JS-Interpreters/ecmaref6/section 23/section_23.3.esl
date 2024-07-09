@@ -1,12 +1,12 @@
 /*
- * Author: Leonor Barreiros
- */
+* Author: Leonor Barreiros
+*/
 
 
 /* 23.3 WeakMap Objects */
 
 /*
-    WeakMap objects are collections of key/value pairs where the keys are objects
+  WeakMap objects are collections of key/value pairs where the keys are objects
 and values may be arbitrary ECMAScript language values. A WeakMap may be queried
 to see if it contains a key/value pair with a specific key, but no mechanism is
 provided for enumerating the objects it holds as keys. If an object that is being
@@ -15,14 +15,14 @@ of references that start within that WeakMap, then that key/value pair is
 inaccessible and is automatically removed from the WeakMap. WeakMap implementations
 must detect and remove such key/value pairs and any associated resources.
 
-    An implementation may impose an arbitrarily determined latency between the time a
+  An implementation may impose an arbitrarily determined latency between the time a
 key/value pair of a WeakMap becomes inaccessible and the time when the key/value pair
 is removed from the WeakMap. If this latency was observable to ECMAScript program,
 it would be a source of indeterminacy that could impact program execution. For that reason,
 an ECMAScript implementation must not provide any means to observe a key of a WeakMap
 that does not require the observer to present the observed key.
 
-    WeakMap objects must be implemented using either hash tables or other mechanisms
+  WeakMap objects must be implemented using either hash tables or other mechanisms
 that, on average, provide access times that are sublinear on the number of key/value
 pairs in the collection. The data structure used in this WeakMap objects specification
 are only intended to describe the required observable semantics of WeakMap objects. It
@@ -31,91 +31,91 @@ is not intended to be a viable implementation model.
 
 
 /** 23.3.3 Properties of the WeakMap Prototype Object
- *
- * The WeakMap prototype object is the intrinsic object %WeakMapPrototype%.
- * The value of the [[Prototype]] internal slot of the WeakMap prototype object is the intrinsic object %ObjectPrototype% (19.1.3).
- * The WeakMap prototype object is an ordinary object. It does not have a [[WeakMapData]] internal slot.
- */
-function initWeakMapPrototype(global, objectPrototype, objectConstructor, strict){
+*
+* The WeakMap prototype object is the intrinsic object %WeakMapPrototype%.
+* The value of the [[Prototype]] internal slot of the WeakMap prototype object is the intrinsic object %ObjectPrototype% (19.1.3).
+* The WeakMap prototype object is an ordinary object. It does not have a [[WeakMapData]] internal slot.
+*/
+function initWeakMapPrototype(global, objectPrototype, objectConstructor, strict) {
 
-    prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
-    setAllInternalMethodsOfOrdinaryObject(prototype);
+  prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
+  setAllInternalMethodsOfOrdinaryObject(prototype);
 
-    /* 23.3.3.1 WeakMap.prototype.constructor */
-    createBuiltInProperty(prototype, "constructor", objectConstructor);
+  /* 23.3.3.1 WeakMap.prototype.constructor */
+  createBuiltInProperty(prototype, "constructor", objectConstructor);
 
-    /* 23.3.3.2 WeakMap.prototype.delete ( key ) */
-    deleteFunctionObject := CreateBuiltInFunctionObject(["key"], "weakMapDeleteObject", global, strict, null);
-    /* length */
-    setJSProperty(deleteFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
-    /* name */
-    setJSProperty(deleteFunctionObject, "name", newDataPropertyDescriptorFull("delete", false, false, true));
-    createBuiltInProperty(prototype, "delete", deleteFunctionObject);
+  /* 23.3.3.2 WeakMap.prototype.delete ( key ) */
+  deleteFunctionObject := CreateBuiltInFunctionObject(["key"], "weakMapDeleteObject", global, strict, null);
+  /* length */
+  setJSProperty(deleteFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  /* name */
+  setJSProperty(deleteFunctionObject, "name", newDataPropertyDescriptorFull("delete", false, false, true));
+  createBuiltInProperty(prototype, "delete", deleteFunctionObject);
 
-    /* 23.3.3.3 WeakMap.prototype.get ( key ) */
-    getFunctionObject := CreateBuiltInFunctionObject(["key"], "weakMapGetObject", global, strict, null);
-    /* length */
-    setJSProperty(getFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
-    /* name */
-    setJSProperty(getFunctionObject, "name", newDataPropertyDescriptorFull("get", false, false, true));
-    createBuiltInProperty(prototype, "get", getFunctionObject);
+  /* 23.3.3.3 WeakMap.prototype.get ( key ) */
+  getFunctionObject := CreateBuiltInFunctionObject(["key"], "weakMapGetObject", global, strict, null);
+  /* length */
+  setJSProperty(getFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  /* name */
+  setJSProperty(getFunctionObject, "name", newDataPropertyDescriptorFull("get", false, false, true));
+  createBuiltInProperty(prototype, "get", getFunctionObject);
 
-    /* 23.3.3.4 WeakMap.prototype.has ( key ) */
-    hasFunctionObject := CreateBuiltInFunctionObject(["key"], "weakMapHasObject", global, strict, null);
-    /* length */
-    setJSProperty(hasFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
-    /* name */
-    setJSProperty(hasFunctionObject, "name", newDataPropertyDescriptorFull("has", false, false, true));
-    createBuiltInProperty(prototype, "has", hasFunctionObject);
+  /* 23.3.3.4 WeakMap.prototype.has ( key ) */
+  hasFunctionObject := CreateBuiltInFunctionObject(["key"], "weakMapHasObject", global, strict, null);
+  /* length */
+  setJSProperty(hasFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  /* name */
+  setJSProperty(hasFunctionObject, "name", newDataPropertyDescriptorFull("has", false, false, true));
+  createBuiltInProperty(prototype, "has", hasFunctionObject);
 
-    /* 23.3.3.5 WeakMap.prototype.set ( key , value ) */
-    setFunctionObject := CreateBuiltInFunctionObject(["key", "value"], "weakMapSetObject", global, strict, null);
-    /* length */
-    setJSProperty(setFunctionObject, "length", newDataPropertyDescriptorFull(2., false, false, true));
-    /* name */
-    setJSProperty(setFunctionObject, "name", newDataPropertyDescriptorFull("set", false, false, true));
-    createBuiltInProperty(prototype, "set", setFunctionObject);
+  /* 23.3.3.5 WeakMap.prototype.set ( key , value ) */
+  setFunctionObject := CreateBuiltInFunctionObject(["key", "value"], "weakMapSetObject", global, strict, null);
+  /* length */
+  setJSProperty(setFunctionObject, "length", newDataPropertyDescriptorFull(2., false, false, true));
+  /* name */
+  setJSProperty(setFunctionObject, "name", newDataPropertyDescriptorFull("set", false, false, true));
+  createBuiltInProperty(prototype, "set", setFunctionObject);
 
-    /** 23.3.3.6 WeakMap.prototype [ @@toStringTag ]
-     *
-     * The initial value of the @@toStringTag property is the String value "WeakMap".
-     * This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: true }.
-     */
-    setJSProperty(prototype, getWellKnownSymbol("Symbol.toStringTag"), newDataPropertyDescriptorFull("WeakMap", false, false, true));
+  /** 23.3.3.6 WeakMap.prototype [ @@toStringTag ]
+    *
+    * The initial value of the @@toStringTag property is the String value "WeakMap".
+    * This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: true }.
+    */
+  setJSProperty(prototype, getWellKnownSymbol("Symbol.toStringTag"), newDataPropertyDescriptorFull("WeakMap", false, false, true));
 
-    return prototype
-};
+  return prototype;
+}
 
 /* 23.3.2 Properties of the WeakMap Constructor */
 
 /*
-    The value of the [[Prototype]] internal slot of the WeakMap constructor is the intrinsic object %FunctionPrototype% (19.2.3).
-    Besides the length property (whose value is 0), the WeakMap constructor has the following properties:
+  The value of the [[Prototype]] internal slot of the WeakMap constructor is the intrinsic object %FunctionPrototype% (19.2.3).
+  Besides the length property (whose value is 0), the WeakMap constructor has the following properties:
 */
 function initWeakMapObject(global, functionPrototype, objectPrototype, strict) {
-    objWeakMapConstructor := CreateBuiltInConstructorObject(functionPrototype, ["items"], "WeakMapConstructor", global, strict, 0., "constructor");
-    /* length */
-    setJSProperty(objWeakMapConstructor, "length", newDataPropertyDescriptorFull(0., false, false, true));
-    /* name */
-    setJSProperty(objWeakMapConstructor, "name", newDataPropertyDescriptorFull("constructor", false, false, true));
+  objWeakMapConstructor := CreateBuiltInConstructorObject(functionPrototype, ["items"], "WeakMapConstructor", global, strict, 0., "constructor");
+  /* length */
+  setJSProperty(objWeakMapConstructor, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  /* name */
+  setJSProperty(objWeakMapConstructor, "name", newDataPropertyDescriptorFull("constructor", false, false, true));
 
-    objWeakMapPrototype := initWeakMapPrototype(global, objectPrototype, objWeakMapConstructor, strict);
+  objWeakMapPrototype := initWeakMapPrototype(global, objectPrototype, objWeakMapConstructor, strict);
 
-    /** 23.3.2.1 WeakMap.prototype
-     *
-     *  The initial value of WeakMap.prototype is the intrinsic object %WeakMapPrototype% (23.3.3).
-     *  This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }.
-    */
-    descriptor := newDataPropertyDescriptorFull(objWeakMapPrototype, false, false, false);
-    setJSProperty(objWeakMapConstructor, "prototype", descriptor);
+  /** 23.3.2.1 WeakMap.prototype
+    *
+    *  The initial value of WeakMap.prototype is the intrinsic object %WeakMapPrototype% (23.3.3).
+    *  This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }.
+  */
+  descriptor := newDataPropertyDescriptorFull(objWeakMapPrototype, false, false, false);
+  setJSProperty(objWeakMapConstructor, "prototype", descriptor);
 
-    return objWeakMapConstructor
-};
+  return objWeakMapConstructor;
+}
 
 /* 23.3.1 The WeakMap Constructor */
 
 /*
-    The WeakMap constructor is the %WeakMap% intrinsic object and the initial value of
+  The WeakMap constructor is the %WeakMap% intrinsic object and the initial value of
 the WeakMap property of the global object. When called as a constructor it creates and
 initializes a new WeakMap object. WeakMap is not intended to be called as a function
 and will throw an exception when called in that manner.
@@ -131,321 +131,231 @@ support the WeakMap.prototype built-in methods.
 /* 23.3.1.1 WeakMap ( [ iterable ] )
 
 /* NOTE
-    If the parameter iterable is present, it is expected to be an object that implements an @@iterator method
+  If the parameter iterable is present, it is expected to be an object that implements an @@iterator method
 that returns an iterator object that produces a two element array-like object whose first element is a value
 that will be used as a WeakMap key and whose second element is the value to associate with that key.
 */
 
 function WeakMapConstructor(global, this, NewTarget, strict, items) {
-    iterable := getOptionalParam(items, 0);
+  iterable := getOptionalParam(items, 0);
 
-    /* 1. If NewTarget is undefined, throw a TypeError exception. */
-    if (NewTarget = 'undefined) {
-        throw TypeErrorConstructorInternal()
-    };
-
-    /* 2. Let map be OrdinaryCreateFromConstructor(NewTarget, "%WeakMapPrototype%", «‍[[WeakMapData]]» ). */
-    map := OrdinaryCreateFromConstructor(NewTarget, "WeakMapPrototype", ["WeakMapData"]);
-
-    /* 3. ReturnIfAbrupt(map). */
-    @ReturnIfAbrupt(map);
-
-    /* 4. Set map's [[WeakMapData]] internal slot to a new empty List. */
-    map.WeakMapData := [];
-
-    /* 5. If iterable is not present, let iterable be undefined. */
-    if (iterable = null) {
-        iterable := 'undefined
-    };
-
-    /* 6. If iterable is either undefined or null, let iter be undefined. */
-    if ((iterable = 'undefined) ||| (iterable = 'null)) {
-        iter := 'undefined
+  /* 1. If NewTarget is undefined, throw a TypeError exception. */
+  if (NewTarget = 'undefined)
+    throw TypeErrorConstructorInternal();
+  /* 2. Let map be OrdinaryCreateFromConstructor(NewTarget, "%WeakMapPrototype%", «‍[[WeakMapData]]» ). */
+  map := OrdinaryCreateFromConstructor(NewTarget, "WeakMapPrototype", ["WeakMapData"]);
+  /* 3. ReturnIfAbrupt(map). */
+  @ReturnIfAbrupt(map);
+  /* 4. Set map's [[WeakMapData]] internal slot to a new empty List. */
+  map.WeakMapData := [];
+  /* 5. If iterable is not present, let iterable be undefined. */
+  if (iterable = null)
+    iterable := 'undefined;
+  /* 6. If iterable is either undefined or null, let iter be undefined. */
+  if ((iterable = 'undefined) ||| (iterable = 'null)) {
+    iter := 'undefined;
+  /* 7. Else, */
+  } else {
+    /* a. Let adder be Get(map, "set"). */
+    adder := Get(map, "set");
+    /* b. ReturnIfAbrupt(adder). */
+    @ReturnIfAbrupt(adder);
+    /* c. If IsCallable(adder) is false, throw a TypeError exception. */
+    if (IsCallable(adder) = false)
+      throw TypeErrorConstructorInternal();
+    /* d. Let iter be GetIterator(iterable). */
+    iter := GetIterator(iterable, null);
+    /* e. ReturnIfAbrupt(iter). */
+    @ReturnIfAbrupt(iter);
+  }
+  /* 8. If iter is undefined, return map. */
+  if (iter = 'undefined)
+      return map;
+  /* 9. Repeat */
+  repeat {
+    /* a. Let next be IteratorStep(iter). */
+    next := IteratorStep(iter);
+    /* b. ReturnIfAbrupt(next). */
+    @ReturnIfAbrupt(next);
+    /* c. If next is false, return map. */
+    if (next = false)
+        return map;
+    /* d. Let nextItem be IteratorValue(next). */
+    nextItem := IteratorValue(next);
+    /* e. ReturnIfAbrupt(nextItem). */
+    @ReturnIfAbrupt(nextItem);
+    /* f. If Type(nextItem) is not Object, */
+    if (!(Type(nextItem) = "Object")) {
+      /* i. Let error be Completion{[[type]]: throw, [[value]]: a newly created TypeError object, [[target]]:empty}. */
+      error := throwEmptyCompletion(TypeErrorConstructorInternal());
+      /* ii. Return IteratorClose(iter, error). */
+      return IteratorClose(iter, error);
     }
-    /* 7. Else, */
-    else {
-
-        /* a. Let adder be Get(map, "set"). */
-        adder := Get(map, "set");
-
-        /* b. ReturnIfAbrupt(adder). */
-        @ReturnIfAbrupt(adder);
-
-        /* c. If IsCallable(adder) is false, throw a TypeError exception. */
-        if (IsCallable(adder) = false) {
-            throw TypeErrorConstructorInternal()
-        };
-
-        /* d. Let iter be GetIterator(iterable). */
-        iter := GetIterator(iterable, null);
-
-        /* e. ReturnIfAbrupt(iter). */
-        @ReturnIfAbrupt(iter)
-    };
-
-    /* 8. If iter is undefined, return map. */
-    if (iter = 'undefined) {
-        return map
-    };
-
-    /* 9. Repeat */
-    repeat {
-        /* a. Let next be IteratorStep(iter). */
-        next := IteratorStep(iter);
-
-        /* b. ReturnIfAbrupt(next). */
-        @ReturnIfAbrupt(next);
-
-        /* c. If next is false, return map. */
-        if (next = false) {
-            return map
-        };
-
-        /* d. Let nextItem be IteratorValue(next). */
-        nextItem := IteratorValue(next);
-
-        /* e. ReturnIfAbrupt(nextItem). */
-        @ReturnIfAbrupt(nextItem);
-
-        /* f. If Type(nextItem) is not Object, */
-        if (!(Type(nextItem) = "Object")){
-            /* i. Let error be Completion{[[type]]: throw, [[value]]: a newly created TypeError object, [[target]]:empty}. */
-            error := throwEmptyCompletion(TypeErrorConstructorInternal());
-
-            /* ii. Return IteratorClose(iter, error). */
-            return IteratorClose(iter, error)
-        };
-
-        /* g. Let k be Get(nextItem, "0"). */
-        k := Get(nextItem, "0");
-
-        /* h. If k is an abrupt completion, return IteratorClose(iter, k). */
-        if (isAnAbruptCompletion(k)) {
-            return IteratorClose(iter, k)
-        };
-
-        /* i. Let v be Get(nextItem, "1"). */
-        v := Get(nextItem, "1");
-
-        /* j. If v is an abrupt completion, return IteratorClose(iter, v). */
-        if (isAnAbruptCompletion(v)) {
-            return IteratorClose(iter, v)
-        };
-
-        /* k. Let status be Call(adder, map, «k.[[value]], v.[[value]]»). */
-        status := Call(null, null, adder, map, [k, v]);
-
-        /* l. If status is an abrupt completion, return IteratorClose(iter, status). */
-        if (isAnAbruptCompletion(status)) {
-            return IteratorClose(iter, status)
-        }
-    }
-};
+    /* g. Let k be Get(nextItem, "0"). */
+    k := Get(nextItem, "0");
+    /* h. If k is an abrupt completion, return IteratorClose(iter, k). */
+    if (isAnAbruptCompletion(k))
+      return IteratorClose(iter, k);
+    /* i. Let v be Get(nextItem, "1"). */
+    v := Get(nextItem, "1");
+    /* j. If v is an abrupt completion, return IteratorClose(iter, v). */
+    if (isAnAbruptCompletion(v))
+      return IteratorClose(iter, v);
+    /* k. Let status be Call(adder, map, «k.[[value]], v.[[value]]»). */
+    status := Call(null, null, adder, map, [k, v]);
+    /* l. If status is an abrupt completion, return IteratorClose(iter, status). */
+    if (isAnAbruptCompletion(status))
+      return IteratorClose(iter, status);
+  }
+}
 
 
 /* 23.3.3 Properties of the WeakMap Prototype Object */
 
 /* 23.3.3.2 WeakMap.prototype.delete ( key ) */
-function weakMapDeleteObject(global, this, NewTarget, strict, args){
+function weakMapDeleteObject(global, this, NewTarget, strict, args) {
+  key := l_nth(args, 0);
 
-    key := l_nth(args, 0);
-
-    /* 1. Let M be the this value. */
-    M := this;
-
-    /* 2. If Type(M) is not Object, throw a TypeError exception. */
-    if (!(Type(M) = "Object")){
-        throw TypeErrorConstructorInternal()
-    };
-
-    /* 3. If M does not have a [[WeakMapData]] internal slot, throw a TypeError exception. */
-    if (!("WeakMapData" in_obj M)){
-        throw TypeErrorConstructorInternal()
-    };
-
-    /* 4. Let entries be the List that is the value of M’s [[WeakMapData]] internal slot. */
-    entries := M.WeakMapData;
-
-    /* 5. If Type(key) is not Object, return false. */
-    if (!(Type(key) = "Object")){
-        return false
-    };
-
-    /* 6. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
-    i := 0;
-    len := l_len(entries);
-
-    while (i < len){
-        p := l_nth(entries, i);
-
-        /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, then */
-        if ((!(p.key = 'empty)) &&& (SameValue(p.key, key) = true)){
-            /* i. Set p.[[key]] to empty. */
-            p.key := 'empty;
-
-            /* ii. Set p.[[value]] to empty. */
-            p.value := 'empty;
-
-            /* iii. Return true. */
-            return true
-        };
-        i := i + 1
-    };
-
-    /* 7. Return false. */
-    return false
-};
+  /* 1. Let M be the this value. */
+  M := this;
+  /* 2. If Type(M) is not Object, throw a TypeError exception. */
+  if (!(Type(M) = "Object"))
+    throw TypeErrorConstructorInternal();
+  /* 3. If M does not have a [[WeakMapData]] internal slot, throw a TypeError exception. */
+  if (!("WeakMapData" in_obj M))
+    throw TypeErrorConstructorInternal();
+  /* 4. Let entries be the List that is the value of M’s [[WeakMapData]] internal slot. */
+  entries := M.WeakMapData;
+  /* 5. If Type(key) is not Object, return false. */
+  if (!(Type(key) = "Object"))
+    return false;
+  /* 6. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
+  i := 0;
+  len := l_len(entries);
+  while (i < len) {
+    p := l_nth(entries, i);
+    /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, then */
+    if ((!(p.key = 'empty)) &&& (SameValue(p.key, key) = true)) {
+      /* i. Set p.[[key]] to empty. */
+      p.key := 'empty;
+      /* ii. Set p.[[value]] to empty. */
+      p.value := 'empty;
+      /* iii. Return true. */
+      return true;
+      }
+    i := i + 1;
+  }
+  /* 7. Return false. */
+  return false;
+}
 
 /* 23.3.3.3 WeakMap.prototype.get ( key ) */
-function weakMapGetObject(global, this, NewTarget, strict, args){
+function weakMapGetObject(global, this, NewTarget, strict, args) {
+  key := l_nth(args, 0);
 
-    key := l_nth(args, 0);
-
-    /* 1. Let M be the this value. */
-    M := this;
-
-    /* 2. If Type(M) is not Object, throw a TypeError exception. */
-    if (!(Type(M) = "Object")){
-        throw TypeErrorConstructorInternal()
-    };
-
-    /* 3. If M does not have a [[WeakMapData]] internal slot, throw a TypeError exception. */
-    if (!("WeakMapData" in_obj M)){
-        throw TypeErrorConstructorInternal()
-    };
-
-    /* 4. Let entries be the List that is the value of M’s [[WeakMapData]] internal slot. */
-    entries := M.WeakMapData;
-
-    /* 5. If Type(key) is not Object, return undefined. */
-    if (!(Type(key) = "Object")){
-        return 'undefined
-    };
-
-    /* 6. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
-    i := 0;
-    len := l_len entries;
-
-    while (i < len){
-        p := l_nth(entries, i);
-
-        /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, return p.[[value]]. */
-        if ((!(p.key = 'empty)) &&& (SameValue(p.key, key) = true)){
-            return p.value
-        };
-
-        i := i + 1
-    };
-
-    /* 7. Return undefined. */
-    return 'undefined
-};
+  /* 1. Let M be the this value. */
+  M := this;
+  /* 2. If Type(M) is not Object, throw a TypeError exception. */
+  if (!(Type(M) = "Object"))
+    throw TypeErrorConstructorInternal();
+  /* 3. If M does not have a [[WeakMapData]] internal slot, throw a TypeError exception. */
+  if (!("WeakMapData" in_obj M))
+    throw TypeErrorConstructorInternal();
+  /* 4. Let entries be the List that is the value of M’s [[WeakMapData]] internal slot. */
+  entries := M.WeakMapData;
+  /* 5. If Type(key) is not Object, return undefined. */
+  if (!(Type(key) = "Object"))
+    return 'undefined;
+  /* 6. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
+  i := 0;
+  len := l_len entries;
+  while (i < len) {
+    p := l_nth(entries, i);
+    /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, return p.[[value]]. */
+    if ((!(p.key = 'empty)) &&& (SameValue(p.key, key) = true)) {
+      return p.value;
+    }
+    i := i + 1;
+  }
+  /* 7. Return undefined. */
+  return 'undefined;
+}
 
 /* 23.3.3.4 WeakMap.prototype.has ( key ) */
-function weakMapHasObject(global, this, NewTarget, strict, args){
+function weakMapHasObject(global, this, NewTarget, strict, args) {
+  key := l_nth(args, 0);
 
-    key := l_nth(args, 0);
-
-    /* 1. Let M be the this value. */
-    M := this;
-
-    /* 2. If Type(M) is not Object, throw a TypeError exception. */
-    if (!(Type(M) = "Object")){
-        throw TypeErrorConstructorInternal()
-    };
-
-    /* 3. If M does not have a [[WeakMapData]] internal slot, throw a TypeError exception. */
-    if (!("WeakMapData" in_obj M)){
-        throw TypeErrorConstructorInternal()
-    };
-
-    /* 4. Let entries be the List that is the value of M’s [[WeakMapData]] internal slot. */
-    entries := M.WeakMapData;
-
-    /* 5. If Type(key) is not Object, return false. */
-    if (!(Type(key) = "Object")){
-        return false
-    };
-
-    /* 6. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
-    i := 0;
-    len := l_len entries;
-
-    while (i < len){
-        p := l_nth(entries, i);
-
-        /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, return true. */
-        if ( (!(p.key = 'empty)) &&& (SameValue(p.key, key) = true) ){
-            return true
-        };
-
-        i := i + 1
-    };
-
-    /* 7. Return false. */
-    return false
-};
+  /* 1. Let M be the this value. */
+  M := this;
+  /* 2. If Type(M) is not Object, throw a TypeError exception. */
+  if (!(Type(M) = "Object"))
+    throw TypeErrorConstructorInternal();
+  /* 3. If M does not have a [[WeakMapData]] internal slot, throw a TypeError exception. */
+  if (!("WeakMapData" in_obj M))
+    throw TypeErrorConstructorInternal();
+  /* 4. Let entries be the List that is the value of M’s [[WeakMapData]] internal slot. */
+  entries := M.WeakMapData;
+  /* 5. If Type(key) is not Object, return false. */
+  if (!(Type(key) = "Object"))
+    return false;
+  /* 6. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
+  i := 0;
+  len := l_len entries;
+  while (i < len) {
+    p := l_nth(entries, i);
+    /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, return true. */
+    if ((!(p.key = 'empty)) &&& (SameValue(p.key, key) = true))
+      return true;
+    i := i + 1;
+  }
+  /* 7. Return false. */
+  return false;
+}
 
 /* 23.3.3.5 WeakMap.prototype.set ( key , value ) */
-function weakMapSetObject(global, this, NewTarget, strict, args){
+function weakMapSetObject(global, this, NewTarget, strict, args) {
+  key := l_nth(args, 0);
+  value := l_nth(args, 1);
 
-    key := l_nth(args, 0);
-    value := l_nth(args, 1);
-
-    /* 1. Let M be the this value. */
-    M := this;
-
-    /* 2. If Type(M) is not Object, throw a TypeError exception. */
-    if (!(Type(M) = "Object")){
-        throw TypeErrorConstructorInternal()
-    };
-
-    /* 3. If M does not have a [[WeakMapData]] internal slot, throw a TypeError exception. */
-    if (!("WeakMapData" in_obj M)) {
-        throw TypeErrorConstructorInternal()
-    };
-
-    /* 4. Let entries be the List that is the value of M’s [[WeakMapData]] internal slot. */
-    entries := M.WeakMapData;
-
-    /* 5. If Type(key) is not Object, throw a TypeError exception. */
-    if (!(Type(key) = "Object")){
-        throw TypeErrorConstructorInternal()
-    };
-
-    /* 6. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
-    i := 0;
-    len := l_len entries;
-
-    while (i < len){
-        p := l_nth(entries, i);
-
-        /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, then */
-        if ((!(p.key = 'empty)) &&& (SameValue(p.key, key) = true)) {
-            /* i. Set p.[[value]] to value. */
-            p.value := value;
-
-            /* ii. Return M. */
-            return M
-        };
-
-        i := i + 1
-    };
-
-    /* 7. Let p be the Record {[[key]]: key, [[value]]: value}. */
-    p := { key: key, value: value };
-
-    /* 8. Append p as the last element of entries. */
-    M.WeakMapData := l_add(M.WeakMapData, p);
-
-    /* 9. Return M. */
-    return M
+  /* 1. Let M be the this value. */
+  M := this;
+  /* 2. If Type(M) is not Object, throw a TypeError exception. */
+  if (!(Type(M) = "Object"))
+    throw TypeErrorConstructorInternal();
+  /* 3. If M does not have a [[WeakMapData]] internal slot, throw a TypeError exception. */
+  if (!("WeakMapData" in_obj M))
+    throw TypeErrorConstructorInternal();
+  /* 4. Let entries be the List that is the value of M’s [[WeakMapData]] internal slot. */
+  entries := M.WeakMapData;
+  /* 5. If Type(key) is not Object, throw a TypeError exception. */
+  if (!(Type(key) = "Object"))
+    throw TypeErrorConstructorInternal();
+  /* 6. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
+  i := 0;
+  len := l_len entries;
+  while (i < len) {
+    p := l_nth(entries, i);
+    /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, then */
+    if ((!(p.key = 'empty)) &&& (SameValue(p.key, key) = true)) {
+      /* i. Set p.[[value]] to value. */
+      p.value := value;
+      /* ii. Return M. */
+      return M;
+    }
+    i := i + 1;
+  }
+  /* 7. Let p be the Record {[[key]]: key, [[value]]: value}. */
+  p := { key: key, value: value };
+  /* 8. Append p as the last element of entries. */
+  M.WeakMapData := l_add(M.WeakMapData, p);
+  /* 9. Return M. */
+  return M;
 }
 
 /* 23.3.4 Properties of WeakMap Instances */
 
 /*
-    WeakMap instances are ordinary objects that inherit properties from the WeakMap prototype.
-    WeakMap instances also have a [[WeakMapData]] internal slot.
+  WeakMap instances are ordinary objects that inherit properties from the WeakMap prototype.
+  WeakMap instances also have a [[WeakMapData]] internal slot.
 */
 

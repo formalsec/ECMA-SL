@@ -3,7 +3,7 @@ h:= false;
 aux1:= "upgVar"("h", "high");
 l:= true;
 aux2:= "upgVar"("l", "low");
-o := {};
+o := {}
 aux3:= "upgStruct"(o, "high");
 proph := "q";
 aux4:= "upgVar"("proph", "high");
@@ -13,12 +13,12 @@ o[proph] := true;
 
 if (h) {
   proph := "p"
-};
+}
 delete o[proph];
 x:= "p" in_obj o;
-if(x) {
+if (x) {
   l:= false
-};
+}
 
 
 

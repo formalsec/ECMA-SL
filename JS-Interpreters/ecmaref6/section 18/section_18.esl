@@ -147,18 +147,16 @@ function initGlobalObject(globalObject, intrinsic) {
   test262Object := initTest262Object(globalObject, intrinsic.ObjectPrototype, false);
   createBuiltInProperty(globalObject, "$262", test262Object);
 
-  return globalObject
-};
+  return globalObject;
+}
 
 /* 15.1.2.1 eval (x) */
 function GlobalObjectEval(ref, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   externalScope := topExecStack();
-
   realm := externalScope.Function.Realm;
-
-  return PerformEval(x, realm, false, false)
-};
+  return PerformEval(x, realm, false, false);
+}
 
 /* 15.1.2.1.1 Direct Call to Eval */
 /* A direct call to the eval function is one that is expressed as a CallExpression that meets the following two
@@ -189,14 +187,11 @@ function GlobalObjectParseInt(globalObject, this, NewTarget, strict, params) {
   /* 3. Let sign be 1. */
   sign := 1.;
   /* 4. If S is not empty and the first character of S is a minus sign -, let sign be -1. */
-  if (!(S = "") &&& (s_nth_u(S, 0) = "-")) {
-    sign := -(1.)
-  };
-  /* 5. If S is not empty and the first character of S is a plus sign + or a minus sign -, then remove the first character
-        from S. */
-  if (!(S = "") &&& ((s_nth_u(S, 0) = "+") ||| (s_nth_u(S, 0) = "-"))) {
-    S := s_substr_u(S, 1, s_len_u(S) - 1)
-  };
+  if (!(S = "") &&& (s_nth_u(S, 0) = "-"))
+    sign := -(1.);
+  /* 5. If S is not empty and the first character of S is a plus sign + or a minus sign -, then remove the first character from S. */
+  if (!(S = "") &&& ((s_nth_u(S, 0) = "+") ||| (s_nth_u(S, 0) = "-")))
+    S := s_substr_u(S, 1, s_len_u(S) - 1);
   /* 6. Let R = ToInt32(radix). */
   R := ToInt32(radix);
   /* 7. Let stripPrefix be true. */
@@ -204,39 +199,31 @@ function GlobalObjectParseInt(globalObject, this, NewTarget, strict, params) {
   /* 8. If R <> 0, then */
   if (!(R = 0.)) {
     /* a. If R < 2 or R > 36, then return NaN. */
-    if (R < 2. ||| R > 36.) {
-      return NaN
-    };
+    if (R < 2. ||| R > 36.)
+      return NaN;
     /* b. If R <> 16, let stripPrefix be false. */
-    if (!(R = 16.)) {
-      stripPrefix := false
-    }
-  }
+    if (!(R = 16.))
+      stripPrefix := false;
   /* 9. Else, R = 0 */
-  else {
+  } else {
     /* a. Let R = 10. */
-    R := 10.
-  };
+    R := 10.;
+  }
   /* 10. If stripPrefix is true, then */
   if (stripPrefix = true) {
     /* a. If the length of S is at least 2 and the first two characters of S are either "0x" or "0X", then remove
           the first two characters from S and let R = 16. */
     if (s_len_u(S) >= 2 &&& (s_substr_u(S, 0, 2) = "0x" ||| s_substr_u(S, 0, 2) = "0X")) {
       S := s_substr_u(S, 2, s_len_u(S) - 2);
-      R := 16.
+      R := 16.;
     }
-  };
+  }
   /* 11. If S contains any character that is not a radix-R digit, then let Z be the substring of S consisting of all
          characters before the first such character; otherwise, let Z be S. */
-  if (containsInvalidDigit(S, R)) {
-    Z := stripInvalidChars(S, R)
-  } else {
-    Z := S
-  };
+  if (containsInvalidDigit(S, R)) Z := stripInvalidChars(S, R); else Z := S;
   /* 12. If Z is empty, return NaN. */
-  if (Z = "") {
-    return NaN
-  };
+  if (Z = "")
+    return NaN;
   /* 13. Let mathInt be the mathematical integer value that is represented by Z in radix-R notation, using the letters
          A-Z and a-z for digits with values 10 through 35. (However, if R is 10 and Z contains more than 20
          significant digits, every significant digit after the 20th may be replaced by a 0 digit, at the option of the
@@ -246,8 +233,8 @@ function GlobalObjectParseInt(globalObject, this, NewTarget, strict, params) {
   /* 14. Let number be the Number value for mathInt. */
   num := mathInt;
   /* 15. Return sign x number. */
-  return sign * num
-};
+  return sign * num;
+}
 
 /* 15.1.2.3 parseFloat (string) */
 function GlobalObjectParseFloat(globalObject, this, NewTarget, strict, params) {
@@ -260,8 +247,7 @@ function GlobalObjectParseFloat(globalObject, this, NewTarget, strict, params) {
   /* 1. Let inputString be ToString(string). */
   inputString := ToString(str);
   @ReturnIfAbrupt(inputString);
-
-  return float_of_string inputString
+  return float_of_string inputString;
   /* 2. Let trimmedString be a substring of inputString consisting of the leftmost character that is not a
         StrWhiteSpaceChar and all characters to the right of that character. (In other words, remove leading white
         space.) If inputString does not contain any such characters, let trimmedString be the empty string. */
@@ -274,7 +260,7 @@ function GlobalObjectParseFloat(globalObject, this, NewTarget, strict, params) {
   /* NOTE parseFloat may interpret only a leading portion of string as a Number value; it ignores any characters that
           cannot be interpreted as part of the notation of an decimal literal, and no indication is given that any such characters were
           ignored. */
-};
+}
 
 /* 15.1.2.3 parseFloat (string) */
 function GlobalObjectParseFloatAlt(globalObject, this, NewTarget, strict, params) {
@@ -292,12 +278,12 @@ function GlobalObjectParseFloatAlt(globalObject, this, NewTarget, strict, params
   len := s_len_u(inputString);
   while (s_nth(inputString, index) = " ") {
     if (len = 0) {
-      trimmedString := ""
+      trimmedString := "";
       /* TODO break */
-    };
+    }
     trimmedString := s_substr_u(trimmedString, 1, len - 1);
-    len := len - 1
-  };
+    len := len - 1;
+  }
   /* TODO */
   /* 4. If neither trimmedString nor any prefix of trimmedString satisfies
   the syntax of a StrDecimalLiteral (see 7.1.3.1), return NaN. */
@@ -306,19 +292,17 @@ function GlobalObjectParseFloatAlt(globalObject, this, NewTarget, strict, params
 
   /* 6. TODO Let mathFloat be MV of numberString. */
   mathFloat := null;
-
   /* 7. If mathFloat=0, then */
   if (mathFloat = 0) {
     /* a. If the first code unit of trimmedString is "-", return −0. */
-    if (s_nth(0, trimmedString) =  "-") {
-      return -(0.)
-    };
+    if (s_nth(0, trimmedString) =  "-")
+      return -(0.);
     /* b. Return +0. */
-    return 0.
-  };
+    return 0.;
+  }
   /* 8. Return the Number value for mathFloat. */
-  return mathFloat
-};
+  return mathFloat;
+}
 
 /**
  * 15.1.2.4 isNaN (number)
@@ -336,13 +320,11 @@ function GlobalObjectIsNaN(globalObject, this, NewTarget, strict, params) {
   /* 2. ReturnIfAbrupt(num). */
   @ReturnIfAbrupt(num);
   /* 3. If num is NaN, return true. */
-  if (is_NaN (num)) {
-    return true
-  };
+  if (is_NaN (num))
+    return true;
   /* 4. Otherwise, return false. */
-  return false
-
-};
+  return false;
+}
 
 /**
  * 18.2.2 isFinite (number)
@@ -354,17 +336,16 @@ function GlobalObjectIsFinite(globalObject, this, NewTarget, strict, params) {
   num := l_nth(params, 0);
   /* Returns false if the argument coerces to NaN, +Infinity, or -Infinity, and otherwise returns true. */
 
-    /* 1. Let num be ToNumber(number). */
+  /* 1. Let num be ToNumber(number). */
   num := ToNumber(num);
   /* 2. ReturnIfAbrupt(num). */
   @ReturnIfAbrupt(num);
   /* 3. If num is NaN, +∞, or −∞, return false. */
-  if ((is_NaN (num)) ||| (num = Infinity) ||| (num = -Infinity)) {
-    return false
-  };
+  if ((is_NaN (num)) ||| (num = Infinity) ||| (num = -Infinity))
+    return false;
   /* 4. Otherwise, return true. */
-  return true
-};
+  return true;
+}
 
 /* 15.1.3 URI Handling Function Properties */ /* TODO */
 /* 15.1.3.1 decodeURI (encodedURI) */
@@ -374,29 +355,25 @@ function GlobalObjectIsFinite(globalObject, this, NewTarget, strict, params) {
 
 /* Auxiliary functions */
 function parseAsProgram(progStr, strict) {
-  if (strict) {
-    progStr := s_concat ["\"use strict\";", progStr]
-  };
+  if (strict)
+    progStr := s_concat ["\"use strict\";", progStr];
   prog := extern parseJS(progStr);
   progObj := {prog}();
   progObj.codeType := "eval";
-
-  return progObj
-};
+  return progObj;
+}
 
 /* FIXME: Remove this? */
 function optimizeInitGlobalObject(strict) {
   loc_global := null;
-  if ((typeof(strict) = "bool") &&& strict) {
-    loc_global := extern loadInitialHeap("globalHeap_strict.json")
-  } else {
-    loc_global := extern loadInitialHeap("globalHeap.json")
-  };
+  if ((typeof(strict) = "bool") &&& strict)
+    loc_global := extern loadInitialHeap("globalHeap_strict.json");
+  else
+    loc_global := extern loadInitialHeap("globalHeap.json");
 
   |global| := loc_global;
-
-  return loc_global
-};
+  return loc_global;
+}
 
 function removeLeadingWhitespace(str) {
   T := trim (str);
@@ -407,18 +384,17 @@ function removeLeadingWhitespace(str) {
     j := 0;
     while (i < len) {
       c := s_nth_u(T, j);
-      if (isSpaceCharacter(c)) {
-        j := j + 1
-      } else {
-        i := len
-      };
-      i := i + 1
-    };
-    T := s_substr_u(T, j, (len - j))
-  };
+      if (isSpaceCharacter(c))
+        j := j + 1;
+      else
+        i := len;
+      i := i + 1;
+    }
+    T := s_substr_u(T, j, (len - j));
+  }
 
-  return T
-};
+  return T;
+}
 
 function containsInvalidDigit(str, radix) {
   radixInt := int_of_float radix;
@@ -428,16 +404,13 @@ function containsInvalidDigit(str, radix) {
   while (i < str_len) {
     char := s_nth_u(str, i);
     index := indexOfChar(char);
+    if (index = -1 ||| index >= radixInt)
+      return true;
+    i:= i + 1;
+  }
 
-    if (index = -1 ||| index >= radixInt) {
-      return true
-    };
-
-    i:= i + 1
-  };
-
-  return false
-};
+  return false;
+}
 
 function isSpaceCharacter(c) {
   /* Table 2 — Whitespace Characters
@@ -468,13 +441,11 @@ function isSpaceCharacter(c) {
     "\u{2001}", "\u{2002}", "\u{2003}", "\u{2004}", "\u{2005}", "\u{2006}", "\u{2007}",
     "\u{2008}", "\u{2009}", "\u{200A}", "\u{202F}", "\u{205F}", "\u{3000}", "\n", "\r",
     "\u{2028}", "\u{2029}"];
-  foreach (s : spaces) {
-    if (s = c) {
-      return true
-    }
-  };
-  return false
-};
+  foreach (s : spaces)
+    if (s = c)
+      return true;
+  return false;
+}
 
 function indexOfChar(char) {
   chars := [
@@ -484,33 +455,29 @@ function indexOfChar(char) {
   ];
   i := 0;
 
-  while(i < 36) {
-    if (to_lower_case (char) = l_nth(chars, i)) {
-      return i
-    };
+  while (i < 36) {
+    if (to_lower_case (char) = l_nth(chars, i))
+      return i;
+    i := i + 1;
+  }
 
-    i:= i + 1
-  };
-
-  return -1
-};
+  return -1;
+}
 
 function mathIntegerOf(str, radix) {
   str_len := s_len_u (str);
   i := str_len;
   value := 0.;
 
-  while(i > 0) {
+  while (i > 0) {
     char := s_nth_u(str, i - 1);
     charValue := indexOfChar(char);
-
     value := value + ((radix ** (int_to_float (str_len - i))) * (int_to_float charValue));
+    i := i - 1;
+  }
 
-    i:= i - 1
-  };
-
-  return value
-};
+  return value;
+}
 
 function stripInvalidChars(str, radix) {
   radixInt := int_of_float radix;
@@ -520,14 +487,11 @@ function stripInvalidChars(str, radix) {
   while (i < str_len) {
     char := s_nth_u(str, i);
     index := indexOfChar(char);
+    if (index = -1 ||| index >= radixInt)
+      return s_substr_u(str, 0, i);
+    i := i + 1;
+  }
 
-    if (index = -1 ||| index >= radixInt) {
-      return s_substr_u(str, 0, i)
-    };
-
-    i:= i + 1
-  };
-
-  return str
+  return str;
 }
 

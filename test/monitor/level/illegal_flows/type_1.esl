@@ -10,9 +10,9 @@ x:= "upgVar"("laux","low");
 
 if (h) {
   laux:=false
-  };
-if(laux) {
+  }
+if (laux) {
   l:= false
-  };
+  }
 return l
 }

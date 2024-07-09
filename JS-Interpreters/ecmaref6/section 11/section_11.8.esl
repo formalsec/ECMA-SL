@@ -1,8 +1,8 @@
 /* Section 11.8: Literals */
 function formingTheValueOfTheNumericLiteral(literal) {
   if ((typeof (literal) = "int")) {
-    return int_to_float literal
+    return int_to_float literal;
   } else {
-    return literal
+    return literal;
   }
 }

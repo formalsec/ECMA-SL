@@ -10,11 +10,11 @@ x:= "upgVar"("l", "low");
 while (h < 10) {
   h := h +1;
   lc:= lc +1
-};
+}
 
-if(y){
+if (y) {
   l:= false
-};
+}
 
 return l
 

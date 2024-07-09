@@ -6,8 +6,8 @@ function initBooleanObject(globalObject, ObjectPrototype, strict) {
 
   fillBooleanPrototype(booleanPrototype, booleanConstructor, globalObject, strict);
 
-  return booleanConstructor
-};
+  return booleanConstructor;
+}
 
 /* 15.6.1 The Boolean Constructor Called as a Function */
 /* When Boolean is called as a function rather than as a constructor, it performs a type conversion. */
@@ -15,8 +15,8 @@ function initBooleanObject(globalObject, ObjectPrototype, strict) {
 /* 15.6.1.1 Boolean (value) */
 /* Returns a Boolean value (not a Boolean object) computed by ToBoolean(value). */
 function BooleanConstructorCalledAsFunction(value) {
-  return ToBoolean(value)
-};
+  return ToBoolean(value);
+}
 
 /* 15.6.2 The Boolean Constructor */
 function initBooleanConstructor(BooleanPrototype, globalObject, strict) {
@@ -37,8 +37,8 @@ function initBooleanConstructor(BooleanPrototype, globalObject, strict) {
   setInternalProperty(BooleanConstructor, "Call", "BuiltInCall");
 
 
-  return BooleanConstructor
-};
+  return BooleanConstructor;
+}
 
 
 function initBooleanPrototype(objectPrototypeObject) {
@@ -52,8 +52,8 @@ function initBooleanPrototype(objectPrototypeObject) {
      prototype object (15.2.4). */
   setInternalProperty(booleanPrototypeObject, "Prototype", objectPrototypeObject);
 
-  return booleanPrototypeObject
-};
+  return booleanPrototypeObject;
+}
 
 /* 15.6.4 Properties of the Boolean Prototype Object */
 function fillBooleanPrototype(booleanPrototypeObject, BooleanConstructor, globalObject, strict) {
@@ -71,8 +71,8 @@ function fillBooleanPrototype(booleanPrototypeObject, BooleanConstructor, global
   createBuiltInProperty(booleanPrototypeObject, "valueOf", valueOf);
   setJSProperty(valueOf, "name", newDataPropertyDescriptorFull("valueOf", false, false, true));
 
-  return
-};
+  return;
+}
 
 /* 15.6.5 Properties of Boolean Instances */
 /* Boolean instances inherit properties from the Boolean prototype object and their [[Class]] internal property
@@ -83,9 +83,8 @@ function fillBooleanPrototype(booleanPrototypeObject, BooleanConstructor, global
 function BooleanConstructor(globalObject, this, NewTarget, strict, params) {
   value := l_nth(params, 0);
 
-  if ((this = 'undefined) ||| (this = 'null)) {
-    return BooleanConstructorCalledAsFunction(value)
-  };
+  if ((this = 'undefined) ||| (this = 'null))
+    return BooleanConstructorCalledAsFunction(value);
 
   /* When Boolean is called as part of a new expression it is a constructor: it initialises the newly created object. */
   newlyConstructedObject := NewECMAScriptObject();
@@ -106,43 +105,30 @@ function BooleanConstructor(globalObject, this, NewTarget, strict, params) {
 
   setInternalProperty(newlyConstructedObject, "BooleanData", b);
 
-  return newlyConstructedObject
-};
+  return newlyConstructedObject;
+}
 
 /* 15.6.4.2 Boolean.prototype.toString ( ) */
 function BooleanPrototypeToString(globalObject, this, NewTarget, strict, params) {
   /* The following steps are taken: */
-
   /* 1. Let b be thisBooleanValue(this valus). */
   b := thisBooleanValue(this);
-
   /* 2. Return if abrupt*/
   @ReturnIfAbrupt(b);
-
   /* if b is true return true else return fals */
-  if (b = true) {
-    return "true"
-  } else {
-    return "false"
-  }
-};
+  if (b = true) return "true"; else return "false";
+}
 
 /* 19.3.3.2 Boolean.prototype.toString ( ) */
 function booleanToString(globalObject, this, strict, args) {
 
   /* 1. Let b be thisBooleanValue(this value). */
   b := thisBooleanValue(this);
-
   /* 2. ReturnIfAbrupt(b). */
   @ReturnIfAbrupt(b);
-
   /* 3. If b is true, return "true"; else return "false". */
-  if (b = true){
-    return "true"
-  } else {
-    return "false"
-  }
-};
+  if (b = true) return "true"; else return "false";
+}
 
 /* 15.6.4.3 Boolean.prototype.valueOf ( ) */
 function BooleanPrototypeValueOf(globalObject, this, NewTarget, strict, params) {
@@ -150,37 +136,30 @@ function BooleanPrototypeValueOf(globalObject, this, NewTarget, strict, params) 
 
   /* 1. return thisBooleanValue(this value). */
   b := thisBooleanValue(this);
-  return thisBooleanValue(this)
-};
+  return thisBooleanValue(this);
+}
 
 function thisBooleanValue(value) {
-
   type := Type(value);
   /* 1. If Type(value) is Boolean, return value. */
-  if (type = "Boolean") {
-    return value
-  };
-
+  if (type = "Boolean")
+    return value;
   /* 2. If Type(value) is Object and value has a [[BooleanData]] internal slot, then */
   if (type = "Object" &&& "BooleanData" in_obj value) {
-
     /* 2a. Assert: value’s [[BooleanData]] internal slot is a Boolean value. */
-    assert(Type(value.BooleanData) = "Boolean");
-
+    assert (Type(value.BooleanData) = "Boolean");
     /* 2b. Return the value of value’s [[BooleanData]] internal slot. */
-    return value.BooleanData
-  };
-
+    return value.BooleanData;
+  }
   /* 3. Throw a TypeError exception. */
-  throw TypeErrorConstructorInternal()
-};
+  throw TypeErrorConstructorInternal();
+}
 
 function getBooleanPrototype(strict) {
   /* refError := newPropertyReference(|global|, "Boolean", strict);
   BooleanObject := GetValue(refError);
-
+  
   refBooleanProto := newPropertyReference(BooleanObject, "prototype", strict);
   booleanObjectProto := GetValue(refBooleanProto); */
-
-  return |Intrinsics|["BooleanPrototype"]
+  return |Intrinsics|["BooleanPrototype"];
 }

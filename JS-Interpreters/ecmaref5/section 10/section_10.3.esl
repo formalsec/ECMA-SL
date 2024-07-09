@@ -44,16 +44,12 @@ function IdentifierResolution(Identifier, runningExecCtx) {
 
   /* 2. If the syntactic production that is being evaluated is contained in a strict mode code,
         then let strict be true, else let strict be false. */
-  if (isContainedInStrictCode(runningExecCtx)) {
-    strict := true
-  } else {
-    strict := false
-  };
+  if (isContainedInStrictCode(runningExecCtx)) strict := true; else strict := false; 
   /* 3. Return the result of calling GetIdentifierReference function passing env, Identifier, and strict as arguments.
         The result of evaluating an identifier is always a value of type Reference with its referenced name component
         equal to the Identifier String. */
-  return GetIdentifierReference(env, Identifier, strict)
-};
+  return GetIdentifierReference(env, Identifier, strict);
+}
 
 
 /* Auxiliary functions created to deal with Execution Contexts */
@@ -63,41 +59,41 @@ function createExecutionContext() {
     VariableEnvironment: 'undefined,
     ThisBinding: 'undefined,
     strictCode: false
-  }
-};
+  };
+}
 
 function getLexicalEnvironment(runningExecCtx) {
-  return runningExecCtx.LexicalEnvironment
-};
+  return runningExecCtx.LexicalEnvironment;
+}
 
 function getVariableEnvironment(runningExecCtx) {
-  return runningExecCtx.VariableEnvironment
-};
+  return runningExecCtx.VariableEnvironment;
+}
 
 function getThisBinding(runningExecCtx) {
-  return runningExecCtx.ThisBinding
-};
+  return runningExecCtx.ThisBinding;
+}
 
 function setLexicalEnvironment(runningExecCtx, lexicalEnvironment) {
   runningExecCtx.LexicalEnvironment := lexicalEnvironment;
-  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
+  return 'undefined; /* TODO the return statement is necessary because of the Monitor. Check why! */
+}
 
 function setVariableEnvironment(runningExecCtx, variableEnvironment) {
   runningExecCtx.VariableEnvironment := variableEnvironment;
-  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
+  return 'undefined; /* TODO the return statement is necessary because of the Monitor. Check why! */
+}
 
 function setThisBinding(runningExecCtx, thisBinding) {
   runningExecCtx.ThisBinding := thisBinding;
-  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
+  return 'undefined; /* TODO the return statement is necessary because of the Monitor. Check why! */
+}
 
 function setContainedInStrictCode(execCtx, strictCode) {
   execCtx.strictCode := strictCode;
-  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
+  return 'undefined; /* TODO the return statement is necessary because of the Monitor. Check why! */
+}
 
 function isContainedInStrictCode(execCtx) {
-  return execCtx.strictCode
+  return execCtx.strictCode;
 }

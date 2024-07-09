@@ -1,15 +1,15 @@
 function __path_join(globalObject, this, NewTarget, strict, params) {
-  return s_concat(params)
+  return s_concat(params);
 }
 
 function __path_basename(globalObject, this, NewTarget, strict, params) {
   /* TODO: Model basename */
-  return l_nth(params, 0)
+  return l_nth(params, 0);
 }
 
 function __path_dirname(globalObject, this, NewTarget, strict, params) {
   /* TODO: Model dirname */
-  return l_nth(params, 0)
+  return l_nth(params, 0);
 }
 
 function createPathObject(globalObject, objectPrototype, strict) {
@@ -34,5 +34,5 @@ function createPathObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(path, "dirname", dirname);
   createBuiltInProperty(dirname, "prototype", objectPrototype);
 
-  return path
+  return path;
 }

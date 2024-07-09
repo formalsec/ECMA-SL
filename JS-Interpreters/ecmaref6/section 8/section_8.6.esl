@@ -8,30 +8,28 @@ function NewECMAScriptObject() {
     Class: "Object",
     Extensible: true,
     Prototype: 'null
-  }
-};
+  };
+}
 
 function NewECMAScriptObjectFull(prototype, class, extensible) {
   object := NewECMAScriptObject();
   setInternalProperty(object, "Prototype", prototype);
   setInternalProperty(object, "Class", class);
   setInternalProperty(object, "Extensible", extensible);
-
-  return object
-};
+  return object;
+}
 
 /* Returns a list containing the names of each own property of object. */
 function getOwnProperties(object) {
-
   props := l_sort (obj_fields object.JSProperties);
   syms := [];
 
-  foreach (P : obj_fields object.SymbolKeys) {
-    syms := l_add(syms, object.SymbolKeys[P])
-  };
+  foreach (P : obj_fields object.SymbolKeys)
+    syms := l_add(syms, object.SymbolKeys[P]);
+
   props := l_concat(props, syms); /* cannot sort symbol values only strings */
-  return props
-};
+  return props;
+}
 
 /* Returns a list containing the names of each enumerable own property of object. */
 function getOwnEnumerableProperties(object) {
@@ -40,74 +38,69 @@ function getOwnEnumerableProperties(object) {
 
   lownProperties := l_len ownProperties;
   i := 0;
-  while(i < lownProperties) {
+  while (i < lownProperties) {
     pname := l_nth(ownProperties, i);
     propDesc := getJSProperty(object, pname);
-    if (isEnumerablePropertyDescriptor(propDesc)) {
-      ownEnumerableProperties := l_add(ownEnumerableProperties, pname)
-    };
+    if (isEnumerablePropertyDescriptor(propDesc))
+      ownEnumerableProperties := l_add(ownEnumerableProperties, pname);
+    i := i + 1;
+  }
 
-    i := i + 1
-  };
-
-  return ownEnumerableProperties
-};
+  return ownEnumerableProperties;
+}
 
 function getInternalProperty(object, pname) {
-  return object[pname]
-};
+  return object[pname];
+}
 
 function getJSProperty(object, pname) {
   if (Type(pname) = "Symbol") {
     desc := int_to_string pname._id; /* more things can be added to make debugging easier if necessary */
-    return object.JSPropertiesSymbols[desc]
-  };
-  return object.JSProperties[pname]
-};
+    return object.JSPropertiesSymbols[desc];
+  }
+  return object.JSProperties[pname];
+}
 
 function setJSProperty(object, pname, pvalue) {
   if (Type(pname) = "Symbol") {
     desc := int_to_string pname._id;
     object.JSPropertiesSymbols[desc] := pvalue;
-    object.SymbolKeys[desc] := pname
+    object.SymbolKeys[desc] := pname;
   } else {
-    object.JSProperties[pname] := pvalue
-  };
+    object.JSProperties[pname] := pvalue;
+  }
 
   /* para ter ordem de insercao */
-  if ( !(in_list(pname, object.internalSlotsList)) ) {
-    object.internalSlotsList := l_add(object.internalSlotsList, pname)
-  };
+  if (!(in_list(pname, object.internalSlotsList)) )
+    object.internalSlotsList := l_add(object.internalSlotsList, pname);
 
-  return
-};
+  return;
+}
 
 function deleteJSProperty(object, pname) {
   if (Type(pname) = "Symbol") {
     desc := int_to_string pname._id;
     delete (object.JSPropertiesSymbols)[desc];
-    delete (object.SymbolKeys)[desc]
+    delete (object.SymbolKeys)[desc];
   } else {
-    delete (object.JSProperties)[pname]
-  };
+    delete (object.JSProperties)[pname];
+  }
 
   newInternalSlots := [];
   foreach ( name : object.internalSlotsList ) {
-    if ( !(name = pname) ) {
-      newInternalSlots := l_add(newInternalSlots, name)
-    }
-  };
+    if (!(name = pname))
+      newInternalSlots := l_add(newInternalSlots, name);
+  }
 
   object.internalSlotsList := newInternalSlots;
-
-  return
-};
+  return;
+}
 
 function inJSProperties(object, pname) {
   if (Type(pname) = "Symbol") {
     desc := int_to_string pname._id;
-    return desc in_obj object.SymbolKeys
+    return desc in_obj object.SymbolKeys;
   } else {
-    return pname in_obj object.JSProperties
+    return pname in_obj object.JSProperties;
   }
 }

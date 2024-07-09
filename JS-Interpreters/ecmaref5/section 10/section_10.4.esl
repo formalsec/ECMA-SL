@@ -12,22 +12,20 @@
 
 function EnteringGlobalCode(program) {
   /* 10.4.1 Entering Global Code */
-  if ("optimised" in_obj program &&& program.optimised = true) {
-    globalObject := optimizeInitGlobalObject(program.strict)
-  } else {
-    globalObject := initGlobalObject(program.strict)
-  };
+  if ("optimised" in_obj program &&& program.optimised = true)
+    globalObject := optimizeInitGlobalObject(program.strict);
+  else 
+    globalObject := initGlobalObject(program.strict);
 
   /* The following steps are performed when control enters the execution context for global code: */
 
   /* 1. Initialise the execution context using the global code as described in 10.4.1.1. */
   globalScope := InitialGlobalExecutionContext(globalObject, program);
-
   /* 2. Perform Declaration Binding Instantiation as described in 10.5 using the global code. */
   DeclarationBindingInstantiation(program, [], globalScope, null);
 
-  return globalScope
-};
+  return globalScope;
+}
 
 function InitialGlobalExecutionContext(globalObject, program) {
   /* 10.4.1.1 Initial Global Execution Context */
@@ -45,8 +43,8 @@ function InitialGlobalExecutionContext(globalObject, program) {
 
   setContainedInStrictCode(globalExecCtx, isStrictModeCode(program, globalExecCtx));
 
-  return globalExecCtx
-};
+  return globalExecCtx;
+}
 
 /* 10.4.2 Entering Eval Code */
 function EnteringEvalCode(evalCode, ref, callingExecCtx) {
@@ -59,7 +57,7 @@ function EnteringEvalCode(evalCode, ref, callingExecCtx) {
   if (!isDirectCall(ref, callingExecCtx)) {
     /* a. Initialise the execution context as if it was a global execution context using the eval code as C as
           described in 10.4.1.1. */
-    evalExecCtx := InitialGlobalExecutionContext(|global|, evalCode)
+    evalExecCtx := InitialGlobalExecutionContext(|global|, evalCode);
   /* 2. Else, */
   } else {
     evalExecCtx := createExecutionContext();
@@ -72,8 +70,9 @@ function EnteringEvalCode(evalCode, ref, callingExecCtx) {
           context. */
     setVariableEnvironment(evalExecCtx, getVariableEnvironment(callingExecCtx));
 
-    setContainedInStrictCode(evalExecCtx, evalCode.strict)
-  };
+    setContainedInStrictCode(evalExecCtx, evalCode.strict);
+  }
+
   /* 3. If the eval code is strict code, then */
   if (isStrictModeCode(evalCode, callingExecCtx)) {
     /* a. Let strictVarEnv be the result of calling NewDeclarativeEnvironment passing the
@@ -82,13 +81,14 @@ function EnteringEvalCode(evalCode, ref, callingExecCtx) {
     /* b. Set the LexicalEnvironment to strictVarEnv. */
     setLexicalEnvironment(evalExecCtx, strictVarEnv);
     /* c. Set the VariableEnvironment to strictVarEnv. */
-    setVariableEnvironment(evalExecCtx, strictVarEnv)
-  };
+    setVariableEnvironment(evalExecCtx, strictVarEnv);
+  }
+
   /* 4. Perform Declaration Binding Instantiation as described in 10.5 using the eval code. */
   DeclarationBindingInstantiation(evalCode, [], evalExecCtx, null);
 
-  return evalExecCtx
-};
+  return evalExecCtx;
+}
 
 
 /* 10.4.2.1 Strict Mode Restrictions */
@@ -106,21 +106,17 @@ function EnteringFunctionCode(F, thisArg, argumentsList) {
      function object F, a caller provided thisArg, and a caller provided argumentsList: */
 
   /* 1. If the function code is strict code, set the ThisBinding to thisArg. */
-  if (isStrictModeCode(getFunctionCode(F), functionExecCtx)) {
-    setThisBinding(functionExecCtx, thisArg)
-  }
+  if (isStrictModeCode(getFunctionCode(F), functionExecCtx))
+    setThisBinding(functionExecCtx, thisArg);
   /* 2. Else if thisArg is null or undefined, set the ThisBinding to the global object. */
-  elif ((thisArg = 'null) || (thisArg = 'undefined)) {
-    setThisBinding(functionExecCtx, |global|)
-  }
+  elif ((thisArg = 'null) || (thisArg = 'undefined))
+    setThisBinding(functionExecCtx, |global|);
   /* 3. Else if Type(thisArg) is not Object, set the ThisBinding to ToObject(thisArg). */
-  elif (!(Type(thisArg) = "Object")) {
-    setThisBinding(functionExecCtx, ToObject(thisArg))
-  }
+  elif (!(Type(thisArg) = "Object"))
+    setThisBinding(functionExecCtx, ToObject(thisArg));
   /* 4. Else set the ThisBinding to thisArg. */
-  else {
-    setThisBinding(functionExecCtx, thisArg)
-  };
+  else
+    setThisBinding(functionExecCtx, thisArg);
   /* 5. Let localEnv be the result of calling NewDeclarativeEnvironment passing the value of the [[Scope]] internal
         property of F as the argument. */
   localEnv := NewDeclarativeEnvironment(F.Scope);
@@ -133,27 +129,24 @@ function EnteringFunctionCode(F, thisArg, argumentsList) {
   /* 9. Perform Declaration Binding Instantiation using the function code code and argumentsList as described in 10.5. */
   DeclarationBindingInstantiation(code, argumentsList, functionExecCtx, F);
 
-  return functionExecCtx
-};
+  return functionExecCtx;
+}
 
 /* Auxiliary functions */
 
 /* 15.1.2.1.1 Direct Call to Eval */
 function isDirectCall(ref, callingExecCtx) {
-  if (callingExecCtx = null) {
-    return false
-  };
-
-  if (!(Type(ref) = "Reference")) {
-    return false
-  };
+  if (callingExecCtx = null)
+    return false;
+  if (!(Type(ref) = "Reference"))
+    return false;
   /* A direct call to the eval function is one that is expressed as a CallExpression that meets the following two
     conditions: */
   /* The Reference that is the result of evaluating the MemberExpression in the CallExpression has an environment
     record as its base value and its reference name is "eval". */
   baseValue := GetBase(ref);
   referencedName := GetReferencedName(ref);
-  return (Type(baseValue) = "EnvironmentRecord") && (referencedName = "eval")
+  return (Type(baseValue) = "EnvironmentRecord") && (referencedName = "eval");
   /* The result of calling the abstract operation GetValue with that Reference as the argument is the standard built-
     in function defined in 15.1.2.1. */
 }

@@ -11,19 +11,18 @@ function sortProprtiesES6(internalSlotsList) {
     num := ToNumber(P);
     /* Only positive integer numbers are */
     if (!(num = NaN) &&& (ToUint32(num) = num) &&& !(in_list(P, num_list))) {
-      num_list := l_add(num_list, P)
+      num_list := l_add(num_list, P);
     } elif (!(in_list(P, str_list))) {
-      str_list := l_add(str_list, P)
-    };
-    i := i + 1
-  };
+      str_list := l_add(str_list, P);
+    }
+    i := i + 1;
+  }
   num_list := l_sort (num_list);
   str_list := l_reverse str_list;
-  return l_concat(num_list, str_list)
-};
+  return l_concat(num_list, str_list);
+}
 function getOwnEnumerablePropertiesNames(obj) {
   sortedPeoperties := sortProprtiesES6(obj.internalSlotsList); /* ordered properties according to ES6 */
-
   K := [];
   namedOwnProperties := sortedPeoperties;
   lnamedOwnProperties := l_len namedOwnProperties;
@@ -31,30 +30,27 @@ function getOwnEnumerablePropertiesNames(obj) {
   while (index < lnamedOwnProperties) {
     P := l_nth(namedOwnProperties, index);
     P_desc := getJSProperty(obj, P);
-    if (isEnumerablePropertyDescriptor(P_desc)) {
-      K := l_add(K, P)
-    };
-    index := index + 1
-  };
-  return K
-};
+    if (isEnumerablePropertyDescriptor(P_desc))
+      K := l_add(K, P);
+    index := index + 1;
+  }
+  return K;
+}
 function concatenateListStrElmsWithSeparator(list, separator) {
   j := 0;
   pLen := l_len list;
   properties := "";
   while (j < pLen) {
     el := l_nth(list, j);
-    if (el = 'null) {
-      el := "null"
-    };
+    if (el = 'null)
+      el := "null";
     properties := s_concat([properties, el]);
-    if (j < (pLen - 1)) {
-        properties := s_concat([properties, separator])
-    };
-    j := j + 1
-  };
-  return properties
-};
+    if (j < (pLen - 1))
+      properties := s_concat([properties, separator]);
+    j := j + 1;
+  }
+  return properties;
+}
 
 
 
@@ -91,8 +87,8 @@ function initJsonObject(globalObject, ObjectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull("JSON", false, false, true);
   setJSProperty(JsonObject, getToStringTagPropertyName(), descriptor);
 
-  return JsonObject
-};
+  return JsonObject;
+}
 
 
 
@@ -101,28 +97,26 @@ function initJsonObject(globalObject, ObjectPrototype, strict) {
  */
 function parseJSONText(global, this, NewTarget, strict, args) {
   JText := l_nth(args, 0);
-  /*if ((JText = 'null) ||| (JText = null) ||| (JText = null) ||| (JText = null)){
+  /*if ((JText = 'null) ||| (JText = null) ||| (JText = null) ||| (JText = null)) {
     return JText
-  };*/
+  }*/
 
 
-  if (s_len JText = 0) {
-    throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, ["JSON.parse: Unexpected end of JSON input"])
-  };
+  if (s_len JText = 0)
+    throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, ["JSON.parse: Unexpected end of JSON input"]);
   tokens := getTokens(global, this, getSyntaxErrorConstructor(), strict, [JText]);
   ret := parseJSONValue(global, this, getSyntaxErrorConstructor(), strict, tokens);
   tokens := l_nth(ret, 1);
-  if (!((l_len tokens) = 0)) {
-    throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, ["JSON.parse: Invalid syntax."])
-  } else {
-    return l_nth(ret, 0)
-  }
-};
+  if (!((l_len tokens) = 0))
+    throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, ["JSON.parse: Invalid syntax."]);
+  else
+    return l_nth(ret, 0);
+}
 
 function isDigit(c) {
   c_code := to_char_code_u (c);
-  return ((c_code >= 48) &&& (c_code <= 57))
-};
+  return ((c_code >= 48) &&& (c_code <= 57));
+}
 
 function unescapeJSONString(S) {
   i := 0;
@@ -138,37 +132,34 @@ function unescapeJSONString(S) {
             str := s_substr_u(S, i, 6);
             u := utf8_decode (str);
             S2 := s_concat([S2, u]);
-            i := i + 4
+            i := i + 4;
           } else {
-            throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict,
-              ["JSON.parse: Invalid unicode escape sequence."])
+            throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, ["JSON.parse: Invalid unicode escape sequence."]);
           }
-        } elif ((c2 = "\\") ||| (c2 = "/") ||| (c2 = "\"")) {
-          S2 := s_concat([S2, c2])
-        } elif (c2 = "b") {
-          S2 := s_concat([S2, "\b"])
-        } elif (c2 = "f") {
-          S2 := s_concat([S2, "\f"])
-        } elif (c2 = "n") {
-          S2 := s_concat([S2, "\n"])
-        } elif (c2 = "r") {
-          S2 := s_concat([S2, "\r"])
-        } elif (c2 = "t") {
-          S2 := s_concat([S2, "\t"])
-        };
-        i := i + 2
+        } elif ((c2 = "\\") ||| (c2 = "/") ||| (c2 = "\""))
+          S2 := s_concat([S2, c2]);
+        elif (c2 = "b")
+          S2 := s_concat([S2, "\b"]);
+        elif (c2 = "f")
+          S2 := s_concat([S2, "\f"]);
+        elif (c2 = "n")
+          S2 := s_concat([S2, "\n"]);
+        elif (c2 = "r")
+          S2 := s_concat([S2, "\r"]);
+        elif (c2 = "t")
+          S2 := s_concat([S2, "\t"]);
+        i := i + 2;
       }
     } else {
       S2 := s_concat([S2, c]);
-      i := i + 1
+      i := i + 1;
     }
-  };
-  return S2
-};
+  }
+  return S2;
+}
 
 function getTokens(global, this, NewTarget, strict, args) {
   JText := l_nth(args, 0);
-
   whitespaces := ["\x20", "\t", "\r", "\n"];
   structural_tokens := ["{", "}", "[", "]", ",", ":"];
 
@@ -181,12 +172,12 @@ function getTokens(global, this, NewTarget, strict, args) {
     /* allowed white-spaces */
     if (in_list(c, whitespaces)) {
       /* ignore */
-      i := i + 1
+      i := i + 1;
     }
     /* structural tokens */
     elif (in_list(c, structural_tokens)) {
       tokens := l_add(tokens, c);
-      i := i + 1
+      i := i + 1;
     }
     /* numbers */
     elif ((c = "-") ||| isDigit(c)) {
@@ -205,10 +196,10 @@ function getTokens(global, this, NewTarget, strict, args) {
       num_len := s_len_u (num);
       if (num_len = 0) {
         throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict,
-          [s_concat(["JSON.parse: Unexpected token ", c, " in JSON at position ", (int_to_string i)])])
-      };
+          [s_concat(["JSON.parse: Unexpected token ", c, " in JSON at position ", (int_to_string i)])]);
+      }
       i := i + num_len;
-      tokens := l_add(tokens, num)
+      tokens := l_add(tokens, num);
     }
     /* Strings. */
     elif (c = "\"") {
@@ -223,11 +214,11 @@ function getTokens(global, this, NewTarget, strict, args) {
 
       if (str_len = 0) {
         throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict,
-          [s_concat(["JSON.parse: Unexpected token ", c, " in JSON at position ", (int_to_string i)])])
-      };
+          [s_concat(["JSON.parse: Unexpected token ", c, " in JSON at position ", (int_to_string i)])]);
+      }
       i := i + str_len;
       str := unescapeJSONString(str);
-      tokens := l_add(tokens, str)
+      tokens := l_add(tokens, str);
     }
     /* literal name tokens */
     else {
@@ -241,135 +232,120 @@ function getTokens(global, this, NewTarget, strict, args) {
         if ((tok = "true") ||| (tok = "null")) {
           i := i + 4;
           tokens := l_add(tokens, tok);
-          valid_tok := true
+          valid_tok := true;
         }
-      };
+      }
       if (!valid_tok &&& (i <= (len - 5))) {
         tok := s_substr_u (JText, i, 5);
 
         if (tok = "false") {
           i := i + 5;
           tokens := l_add(tokens, tok);
-          valid_tok := true
+          valid_tok := true;
         }
-      };
+      }
 
       if (!valid_tok) {
         throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict,
-          [s_concat(["JSON.parse: Unexpected token ", c, " in JSON at position ", (int_to_string i)])])
+          [s_concat(["JSON.parse: Unexpected token ", c, " in JSON at position ", (int_to_string i)])]);
       }
     }
-  };
-  return tokens
-};
+  }
+  return tokens;
+}
 
 function parseJSONValue(global, this, NewTarget, strict, tokens) {
   token := hd tokens;
   tokens := tl tokens;
 
   if (token = "null") {
-    return ['null, tokens]
+    return ['null, tokens];
   } elif (token = "true") {
-    return [true, tokens]
+    return [true, tokens];
   } elif (token = "false") {
-    return [false, tokens]
+    return [false, tokens];
   } elif (!(ToNumber(token) = NaN)) {
     num := ToNumber(token);
-    return [num, tokens]
+    return [num, tokens];
   } elif ((s_nth_u(token, 0)) = "\"") {
     str := ToString(s_substr_u(token, 1, ((s_len_u (token)) - 2)));
-    return [str, tokens]
+    return [str, tokens];
   } elif (token = "{") {
     ret := findClosingCurlyBracket(tokens);
     obj_tokens := l_nth(ret, 0);
     tokens := l_nth(ret, 1);
     obj := parseJSONObject(global, this, 'undefined, strict, obj_tokens);
-    return [obj, tokens]
+    return [obj, tokens];
   } elif (token = "[") {
     ret := findClosingSquareBracket(tokens);
     arr_tokens := l_nth(ret, 0);
     tokens := l_nth(ret, 1);
     arr := parseJSONArray(global, this, 'undefined, strict, arr_tokens);
-    return [arr, tokens]
+    return [arr, tokens];
   } else {
-    return []
+    return [];
   }
-};
+}
 
 function parseJSONObject(global, this, NewTarget, strict, tokens) {
   obj := ObjectConstructor(global, this, 'undefined, strict, [null]);
   keys := [];
 
   while ((l_len tokens) > 2) {
-
     key := ToString(hd tokens);
     key := ToString(s_substr_u(key, 1, ((s_len_u (key)) - 2)));
-
     colon := hd (tl tokens);
-    if (!(colon = ":")) {
-      throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, [s_concat(["JSON.parse: Invalid syntax. Expected colon after object key."])])
-    };
+    if (!(colon = ":"))
+      throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, [s_concat(["JSON.parse: Invalid syntax. Expected colon after object key."])]);
     tokens := tl (tl tokens);
-
     ret := parseJSONValue(global, this, 'undefined, strict, tokens);
-
-    if ((l_len ret) = 0) {
-      throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, [s_concat(["JSON.parse: Invalid syntax. Invalid value for JSON key: ", key])])
-    };
+    if ((l_len ret) = 0)
+      throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, [s_concat(["JSON.parse: Invalid syntax. Invalid value for JSON key: ", key])]);
     value := l_nth (ret, 0);
-
-
     {obj.DefineOwnProperty}(obj, key, newDataPropertyDescriptorFull(value, true, true, true));
 
     if ((l_len ret) = 2) {
       tokens := l_nth (ret, 1);
       if ((l_len tokens) > 0) {
         comma := hd tokens;
-        if (!(comma = ",")) {
-          throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, ["JSON.parse: Expected comma after JSON array value."])
-        };
-        tokens := tl tokens
+        if (!(comma = ","))
+          throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, ["JSON.parse: Expected comma after JSON array value."]);
+        tokens := tl tokens;
       }
     } else {
-      tokens := []
+      tokens := [];
     }
-
-  };
+  }
   tokens_len := l_len tokens;
-  if (tokens_len > 0) {
-    throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, [s_concat(["JSON.parse: Invalid syntax. Incomplete JSON object"])])
-  };
-  return obj
-};
+  if (tokens_len > 0)
+    throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, [s_concat(["JSON.parse: Invalid syntax. Incomplete JSON object"])]);
+  return obj;
+}
 
 function parseJSONArray(global, this, NewTarget, strict, tokens) {
   arr := ArrayCreate(0., null);
   i := 0.;
   while ((l_len tokens) > 0) {
     ret := parseJSONValue(global, this, 'undefined, strict, tokens);
-    if ((l_len ret) = 0) {
-      throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, ["JSON.parse: Invalid syntax. Invalid value in JSON array."])
-    };
+    if ((l_len ret) = 0)
+      throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, ["JSON.parse: Invalid syntax. Invalid value in JSON array."]);
     value := l_nth (ret, 0);
-
     {arr.DefineOwnProperty}(arr, ToString(i), newDataPropertyDescriptorFull(value, true, true, true));
     i := i + 1.;
-
     if ((l_len ret) = 2) {
       tokens := l_nth (ret, 1);
       if ((l_len tokens) > 0) {
         comma := hd tokens;
-        if (!(comma = ",")) {
-          throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, ["JSON.parse: Expected comma after JSON array value."])
-        };
-        tokens := tl tokens
+        if (!(comma = ","))
+          throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, ["JSON.parse: Expected comma after JSON array value."]);
+        tokens := tl tokens;
       }
     } else {
-      tokens := []
+      tokens := [];
     }
-  };
-  return arr
-};
+  }
+  return arr;
+}
 
 function findClosingCurlyBracket(tokens) {
   obj_tokens := [];
@@ -377,17 +353,15 @@ function findClosingCurlyBracket(tokens) {
   while ((bracketCounter > 0) &&& ((l_len tokens) > 0)) {
     token := hd tokens;
     tokens := tl tokens;
-    if (token = "{") {
-      bracketCounter := bracketCounter + 1
-    } elif (token = "}") {
-      bracketCounter := bracketCounter - 1
-    };
-    if (bracketCounter > 0) {
-      obj_tokens := l_add (obj_tokens, token)
-    }
-  };
-  return [obj_tokens, tokens]
-};
+    if (token = "{")
+      bracketCounter := bracketCounter + 1;
+    elif (token = "}")
+      bracketCounter := bracketCounter - 1;
+    if (bracketCounter > 0)
+      obj_tokens := l_add (obj_tokens, token);
+  }
+  return [obj_tokens, tokens];
+}
 
 function findClosingSquareBracket(tokens) {
   arr_tokens := [];
@@ -395,17 +369,15 @@ function findClosingSquareBracket(tokens) {
   while ((bracketCounter > 0) &&& ((l_len tokens) > 0)) {
     token := hd tokens;
     tokens := tl tokens;
-    if (token = "[") {
-      bracketCounter := bracketCounter + 1
-    } elif (token = "]") {
-      bracketCounter := bracketCounter - 1
-    };
-    if (bracketCounter > 0) {
-      arr_tokens := l_add (arr_tokens, token)
-    }
-  };
-  return [arr_tokens, tokens]
-};
+    if (token = "[")
+      bracketCounter := bracketCounter + 1;
+    elif (token = "]")
+      bracketCounter := bracketCounter - 1;
+    if (bracketCounter > 0)
+      arr_tokens := l_add (arr_tokens, token);
+  }
+  return [arr_tokens, tokens];
+}
 
 /**
  * 24.3.1 parse ( text [ , reviver ] )
@@ -430,20 +402,16 @@ function jsonParse(global, this, NewTarget, strict, args) {
   text := l_nth(args, 0);
   reviver := getOptionalParam(args, 1); /* - not passing 'null*/
   /*reviver := l_nth(args, 1);*/
-
   /* 1. Let JText be ToString(text). */
   JText := ToString(text);
   /* 2. ReturnIfAbrupt(JText). */
   @ReturnIfAbrupt(JText);
-
   /* 3. Parse JText interpreted as UTF-16 encoded Unicode points (6.1.4)
     as a JSON text as specified in ECMA-404.
     Throw a SyntaxError exception if JText is not a valid JSON text as defined in that specification. */
   objJSON := parseJSONText(global, this, 'undefined, strict, [JText]);
-
   /* 4. Let scriptText be the result of concatenating "(", JText, and ");". */
   scriptText := s_concat(["(", JText, ")"]);
-
   /* 5. Let completion be the result of parsing and evaluating scriptText as
     if it was the source text of an ECMAScript Script.
     but using the alternative definition of DoubleStringCharacter provided below.
@@ -452,12 +420,9 @@ function jsonParse(global, this, NewTarget, strict, args) {
 /*TODO*/
   /* 6. Let unfiltered be completion.[[value]].*/
   unfiltered := objJSON; /*TODO*/
-
   /* 7. Assert: unfiltered will be either a primitive value or an object that is
       defined by either an ArrayLiteral or an ObjectLiteral. */
   /* TODO */
-
-
   /* 8. If IsCallable(reviver) is true, then */
   if (IsCallable(reviver) = true) {
     /* a. Let root be ObjectCreate(%ObjectPrototype%). */
@@ -470,14 +435,13 @@ function jsonParse(global, this, NewTarget, strict, args) {
     assert (status = true);
     /* e. Return InternalizeJSONProperty(root, rootName). */
     res := InternalizeJSONProperty(root, rootName, reviver);
-    return res
-  }
+    return res;
   /* 9. Else */
-  else {
+  } else {
   /* a. Return unfiltered. */
-    return unfiltered
+    return unfiltered;
   }
-};
+}
 /**
  * It is not permitted for a conforming implementation of JSON.parse to extend
  * the JSON grammars. If an implementation wishes to support a modified or extended
@@ -532,25 +496,22 @@ function InternalizeJSONProperty(holder, name, reviver) {
         /* 3. If newElement is undefined, then */
         if (newElement = 'undefined) {
           /* a. Let status be val.[[Delete]](ToString(I)).*/
-          status := {val.Delete}(val, ToString(I))
+          status := {val.Delete}(val, ToString(I));
           /*status := GuardedDelete(val, ToString(I)); */
-        }
         /* 4. Else */
-        else {
+        } else {
           /* a. Let status be CreateDataProperty(val, ToString(I), newElement). */
-          status := CreateDataProperty(val, ToString(I), newElement)
+          status := CreateDataProperty(val, ToString(I), newElement);
           /* b. NOTE This algorithm intentionally does not throw an exception
                 if status is false.*/
-        };
-
+        }
         /* 5. ReturnIfAbrupt(status). */
         @ReturnIfAbrupt(status);
         /* 6. Add 1 to I. */
-        I := I + 1.
+        I := I + 1.;
       }
-    }
     /* d. Else */
-    else {
+    } else {
       /* i. Let keys be EnumerableOwnNames(val). */
       keys := EnumerableOwnNames(val);
       /* iii. ReturnIfAbrupt(keys). */
@@ -559,30 +520,26 @@ function InternalizeJSONProperty(holder, name, reviver) {
       foreach (P : keys) {
         /* 1. Let newElement be InternalizeJSONProperty(val, P). */
         newElement := InternalizeJSONProperty(val, P, reviver);
-
         /* 2. ReturnIfAbrupt(newElement). */
         @ReturnIfAbrupt(newElement);
         /* 3. If newElement is undefined, then */
         if (newElement = 'undefined) {
-
           /* a. Let status be val.[[Delete]](P).*/
-          status := {val.Delete}(val, P)
-        }
+          status := {val.Delete}(val, P);
         /* 4. Else */
-        else {
+        } else {
           /* a. Let status be CreateDataProperty(val, P, newElement). */
-          status := CreateDataProperty(val, P, newElement)
-          /* b. NOTE This algorithm intentionally does not throw an exception
-                if status is false. */
-        };
+          status := CreateDataProperty(val, P, newElement);
+          /* b. NOTE This algorithm intentionally does not throw an exception if status is false. */
+        }
         /* 5. ReturnIfAbrupt(status). */
-        @ReturnIfAbrupt(status)
+        @ReturnIfAbrupt(status);
       }
     }
-  };
+  }
   /* 4. Call(reviver, holder, «name, val»). */
-  return Call(null, null, reviver, holder, [name, val])
-};
+  return Call(null, null, reviver, holder, [name, val]);
+}
 
 
 
@@ -621,14 +578,14 @@ function jsonStringify(global, this, NewTarget, strict, args) {
     /* a. If IsCallable(replacer) is true, then */
     if (IsCallable(replacer) = true) {
       /* i. Let ReplacerFunction be replacer. */
-      ReplacerFunction := replacer
+      ReplacerFunction := replacer;
     } else {
       /* i. Let isArray be IsArray(replacer). */
       isArray := IsArray(replacer);
       /* ii. ReturnIfAbrupt(isArray). */
       @ReturnIfAbrupt(isArray);
       /* iii. If isArray is true, then  */
-      if(isArray = true) {
+      if (isArray = true) {
         /* 1. Let PropertyList be an empty internal List */
         PropertyList := [];
         /* 2. Let len be ToLength(Get(replacer, "length")). */
@@ -647,32 +604,32 @@ function jsonStringify(global, this, NewTarget, strict, args) {
           item := 'undefined;
           /* d. If Type(v) is String, let item be v. */
           if (Type(v) = "String") {
-            item := v
+            item := v;
           }
           /* e. Else if Type(v) is Number, let item be ToString(v). */
-          elif(Type(v) = "Number") {
-            item := ToString(v)
+          elif (Type(v) = "Number") {
+            item := ToString(v);
           }
           /* f. Else if Type(v) is Object, then */
-          elif(Type(v) = "Object") {
+          elif (Type(v) = "Object") {
             /* i. If v has a [[StringData]] or [[NumberData]] internal slot, let item be ToString(v). */
-            if(("StringData" in_obj v) ||| ("NumberData" in_obj v)) {
-              item := ToString(v)
-            };
+            if (("StringData" in_obj v) ||| ("NumberData" in_obj v)) {
+              item := ToString(v);
+            }
             /* ii. ReturnIfAbrupt(item). */
-            @ReturnIfAbrupt(item)
-          };
+            @ReturnIfAbrupt(item);
+          }
           /* g. If item is not undefined and item is not currently an element of PropertyList, then */
-          if ( !(item = 'undefined) &&& !(in_list(item, PropertyList))) {
+          if (!(item = 'undefined) &&& !(in_list(item, PropertyList))) {
             /* i. Append item to the end of PropertyList. */
-            PropertyList := l_add(PropertyList, item)
-          };
+            PropertyList := l_add(PropertyList, item);
+          }
           /* h. Let k be k+1. */
-          k := k + 1.
+          k := k + 1.;
         }
       }
     }
-  };
+  }
   /* 5. If Type(space) is Object then, */
   if (Type(space) = "Object") {
     /* a. If space has a [[NumberData]] internal slot, then */
@@ -680,59 +637,51 @@ function jsonStringify(global, this, NewTarget, strict, args) {
       /* i. Let space be ToNumber(space). */
       space := ToNumber(space);
       /* ii. ReturnIfAbrupt(space). */
-      @ReturnIfAbrupt(space)
+      @ReturnIfAbrupt(space);
     } else {
     /* b. Else if space has a [[StringData]] internal slot, then */
       if ("StringData" in_obj space) {
         /* i. Let space be ToString(space). */
         space := ToString(space);
         /* ii. ReturnIfAbrupt(space). */
-        @ReturnIfAbrupt(space)
+        @ReturnIfAbrupt(space);
       }
     }
-  };
+  }
   /* 6. If Type(space) is Number */
   if (Type(space) = "Number") {
     /* a. Let space be min(10, ToInteger(space)). */
     space := min(10., ToInteger(space));
-    /* b. Set gap to a String containing space occurrences of code unit 0x0020 (SPACE).
-          This will be the empty String if space is less than 1. */
+    /* b. Set gap to a String containing space occurrences of code unit 0x0020 (SPACE). This will be the empty String if space is less than 1. */
     i := 0.;
     lst := [];
     while (i < space) {
       lst := l_prepend(" ", lst);
-      i := i + 1.
-    };
-    gap := s_concat(lst)
+      i := i + 1.;
+    }
+    gap := s_concat(lst);
   }
   /* 7. Else if Type(space) is String */
   else {
     if (Type(space) = "String") {
-      /* a. If the number of elements in space is 10 or less, set gap to space
-            otherwise set gap to a String consisting of the first 10 elementss of space. */
+      /* a. If the number of elements in space is 10 or less, set gap to space otherwise set gap to a String consisting of the first 10 elementss of space. */
       spaceLen := s_len_u (space);
-      if (spaceLen <= 10) {
-        gap := space
-      } else {
-        gap := s_substr_u(space, 0, 10)
-      }
-    }
+      if (spaceLen <= 10) gap := space; else gap := s_substr_u(space, 0, 10);
     /* 8. Else */
-    else {
+    } else {
       /* a. Set gap to the empty String. */
-      gap := ""
+      gap := "";
     }
-  };
+  }
   /* 9. Let wrapper be ObjectCreate(%ObjectPrototype%). */
   wrapper := ObjectCreate(|Intrinsics|["ObjectPrototype"], null);
   /* 10. Let status be CreateDataProperty(wrapper, the empty String, value). */
   status := CreateDataProperty(wrapper, "", value);
   /* 11. Assert: status is true. */
   assert (status = true);
-
   /* 12. Return SerializeJSONProperty(the empty String, wrapper). */
-  return SerializeJSONProperty("", wrapper, stack, indent, gap, PropertyList, space, ReplacerFunction)
-};
+  return SerializeJSONProperty("", wrapper, stack, indent, gap, PropertyList, space, ReplacerFunction);
+}
 /**
  * NOTE 1 JSON structures are allowed to be nested to any depth, but they must be
  * acyclic. If value is or contains a cyclic structure, then the stringify function
@@ -778,7 +727,6 @@ function SerializeJSONProperty(key, holder, stack, indent, gap, PropertyList, sp
   value := Get(holder, key);
   /* 2. ReturnIfAbrupt(value). */
   @ReturnIfAbrupt(value);
-
   /* 3. If Type(value) is Object, then */
   if (Type(value) = "Object") {
     /* a. Let toJSON be Get(value, "toJSON"). */
@@ -790,16 +738,16 @@ function SerializeJSONProperty(key, holder, stack, indent, gap, PropertyList, sp
       /* i. Let value be Call(toJSON, value, «key»). */
       value := Call(null, null, toJSON, value, [key]);
       /* ii. ReturnIfAbrupt(value). */
-      @ReturnIfAbrupt(value)
+      @ReturnIfAbrupt(value);
     }
-  };
+  }
   /* 4. If ReplacerFunction is not undefined, then */
   if (!(ReplacerFunction = 'undefined)) {
     /* a. Let value be Call(ReplacerFunction, holder, «key, value»). */
     value := Call(null, null, ReplacerFunction, holder, [key, value]);
     /* b. ReturnIfAbrupt(value). */
-    @ReturnIfAbrupt(value)
-  };
+    @ReturnIfAbrupt(value);
+  }
   /* 5. If Type(value) is Object then, */
   if (Type(value) = "Object") {
     /* a. If value has a [[NumberData]] internal slot, then */
@@ -807,47 +755,41 @@ function SerializeJSONProperty(key, holder, stack, indent, gap, PropertyList, sp
       /* i. Let value be ToNumber(value). */
       value := ToNumber(value);
       /* ii. ReturnIfAbrupt(value). */
-      @ReturnIfAbrupt(value)
+      @ReturnIfAbrupt(value);
     }
     /* b. Else if value has a [[StringData]] internal slot, then*/
     elif ("StringData" in_obj value) {
       /* i. Let value be ToString(value). */
       value := ToString(value);
       /* ii. ReturnIfAbrupt(value). */
-      @ReturnIfAbrupt(value)
+      @ReturnIfAbrupt(value);
       /* c. Else if value has a [[BooleanData]] internal slot, then */
     } elif ("BooleanData" in_obj value) {
       /* i. Let value be the value of the [[BooleanData]] internal slot of value. */
-      value := value.BooleanData
+      value := value.BooleanData;
     }
-  };
+  }
   /* 6. If value is null then return "null". */
-  if (value = 'null) {
-    return "null"
-  };
+  if (value = 'null)
+    return "null";
   /* 7. If value is true then return "true". */
-  if (value = true) {
-    return "true"
-  };
+  if (value = true)
+    return "true";
   /* 8. If value is false then return "false". */
-  if (value = false) {
-    return "false"
-  };
+  if (value = false)
+    return "false";
   /* 9. If Type(value) is String, return QuoteJSONString(value). */
-  if (Type(value) = "String") {
-    return QuoteJSONString(value)
-  };
+  if (Type(value) = "String")
+    return QuoteJSONString(value);
   /* 10. If Type(value) is Number then */
   if (Type(value) = "Number") {
     /* a. If value is finite, return ToString(value). */
-    if (!((value = NaN) ||| (value = Infinity) ||| (value = -Infinity))) {
-      return ToString(value)
-    }
+    if (!((value = NaN) ||| (value = Infinity) ||| (value = -Infinity)))
+      return ToString(value);
     /* b. Else, return "null". */
-    else {
-      return "null"
-    }
-  };
+    else
+      return "null";
+  }
   /* 11. If Type(value) is Object, and IsCallable(value) is false, then*/
   if ((Type(value) = "Object") && (IsCallable(value) = false)) {
     /* a. Let isArray be IsArray(value). */
@@ -855,17 +797,15 @@ function SerializeJSONProperty(key, holder, stack, indent, gap, PropertyList, sp
     /* b. ReturnIfAbrupt(isArray). */
     @ReturnIfAbrupt(isArray);
     /* c. If isArray is true, return SerializeJSONArray(value). */
-    if (isArray = true) {
-      return SerializeJSONArray(value, stack, indent, gap, PropertyList, ReplacerFunction, space)
-    }
+    if (isArray = true)
+      return SerializeJSONArray(value, stack, indent, gap, PropertyList, ReplacerFunction, space);
     /* d. Else, return SerializeJSONObject(value). */
-    else {
-      return SerializeJSONObject(value, stack, indent, gap, PropertyList, ReplacerFunction, space)
-    }
-  };
+    else
+      return SerializeJSONObject(value, stack, indent, gap, PropertyList, ReplacerFunction, space);
+  }
   /* 12. Return undefined. */
-  return 'undefined
-};
+  return 'undefined;
+}
 
 
  /**
@@ -878,12 +818,8 @@ function SerializeJSONProperty(key, holder, stack, indent, gap, PropertyList, sp
 function isLeadingSurrogate(code) {
   start := to_char_code_u ("\u{D800}");
   end := to_char_code_u ("\u{D8FF}");
-  if ((code >= start) &&& (code <= end)) {
-    return true
-  } else {
-    return false
-  }
-};
+  return ((code >= start) &&& (code <= end));
+}
 
 
 
@@ -900,17 +836,14 @@ function QuoteJSONString(value) {
   while (i < valueLen) {
     C := s_nth_u(value, i);
     C_code := to_char_code_u (C);
-
     /* a. If C is 0x0022 (QUOTATION MARK) or 0x005C (REVERSE SOLIDUS), then */
     if ((C = "\"") ||| (C = "\\")) {
       /* i. Let product be the concatenation of product and code unit 0x005C (REVERSE SOLIDUS). */
       product := s_concat([product, "\\"]);
       /* ii. Let product be the concatenation of product and C. */
-      product := s_concat([product, C])
-    }
-    /* Else if C is 0x0008 (BACKSPACE), 0x000C (FORM FEED), 0x000A (LINE FEED),
-        0x000D( CARRIAGE RETURN), or 0x000B (LINE TABULATION), then */
-    elif ((C = "\b") ||| (C = "\f") ||| (C = "\n") ||| (C = "\r") ||| (C = "\t")) {
+      product := s_concat([product, C]);
+    /* Else if C is 0x0008 (BACKSPACE), 0x000C (FORM FEED), 0x000A (LINE FEED), 0x000D( CARRIAGE RETURN), or 0x000B (LINE TABULATION), then */
+    } elif ((C = "\b") ||| (C = "\f") ||| (C = "\n") ||| (C = "\r") ||| (C = "\t")) {
       /* i. Let product be the concatenation of product and code unit 0x005C (REVERSE SOLIDUS). */
       product := s_concat([product, "\\"]);
       /* ii. Let abbrev be the String value corresponding to the value of C as follows:
@@ -919,22 +852,20 @@ function QuoteJSONString(value) {
         /* LINE FEED (LF) 	    "n" */
         /* CARRIAGE RETURN (CR) "r" */
         /* LINE TABULATION 	    "t" */
-      if (C = "\b") {
-        abbrev := "b"
-      } elif (C = "\f") {
-        abbrev := "f"
-      } elif (C = "\n") {
-        abbrev := "n"
-      } elif (C = "\r") {
-        abbrev := "r"
-      } elif (C = "\t") {
-        abbrev := "t"
-      };
+      if (C = "\b")
+        abbrev := "b";
+      elif (C = "\f")
+        abbrev := "f";
+      elif (C = "\n")
+        abbrev := "n";
+      elif (C = "\r")
+        abbrev := "r";
+      elif (C = "\t")
+        abbrev := "t";
       /* iii. Let product be the concatenation of product and abbrev. */
-      product := s_concat([product, abbrev])
-    }
+      product := s_concat([product, abbrev]);
     /* Else if C has a code unit value less than 0x0020 (SPACE), then  */
-    elif (C_code < 32) {
+    } elif (C_code < 32) {
       /* i. Let product be the concatenation of product and and code unit 0x005C (REVERSE SOLIDUS). */
       product := s_concat([product, "\\"]);
       /* ii. Let product be the concatenation of product and "u". */
@@ -944,21 +875,19 @@ function QuoteJSONString(value) {
               Alphabetic hexadecimal digits are presented as lowercase Latin letters. */
       hex := int_to_four_hex (to_char_code_u (C));
       /* iv. Let product be the concatenation of product and hex. */
-      product := s_concat([product, hex])
-    }
+      product := s_concat([product, hex]);
     /* d. Else */
-    else {
+    } else {
       /* i. Let product be the concatenation of product and C. */
-      product := s_concat([product, C])
-    };
-
-    i := i + 1
-  };
+      product := s_concat([product, C]);
+    }
+    i := i + 1;
+  }
   /* 3. Let product be the concatenation of product and code unit 0x0022 (QUOTATION MARK). */
   product := s_concat([product, "\""]);
   /* 4. Return product. */
-  return product
-};
+  return product;
+}
 
 
 
@@ -971,9 +900,8 @@ function QuoteJSONString(value) {
  */
 function SerializeJSONObject(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
   /* 1.If stack contains value, throw a TypeError exception because the structure is cyclical. */
-  if (in_list(value,stack)) {
-    throw TypeErrorConstructorInternal()
-  };
+  if (in_list(value,stack))
+    throw TypeErrorConstructorInternal();
   /* 2. Append value to stack. */
   stack := l_add(stack, value);
   /* 3. Let stepback be indent. */
@@ -983,13 +911,12 @@ function SerializeJSONObject(value, stack, indent, gap, PropertyList, ReplacerFu
   /* 5. If PropertyList is not undefined, then */
   if (!(PropertyList = 'undefined)) {
     /* a. Let K be PropertyList. */
-    K := PropertyList
-  }
+    K := PropertyList;
   /* 6. Else */
-  else {
+  } else {
     /* a. Let K be EnumerableOwnNames(value). */
-    K := EnumerableOwnNames(value)
-  };
+    K := EnumerableOwnNames(value);
+  }
   /* 7. Let partial be an empty List. */
   partial := [];
   /* 8. For each element P of K, */
@@ -1005,24 +932,22 @@ function SerializeJSONObject(value, stack, indent, gap, PropertyList, ReplacerFu
       /* ii. Let member be the concatenation of member and the string ":". */
       member := s_concat([member, ":"]);
       /* iii. If gap is not the empty String, then */
-      if (!(gap = "")) {
+      if (!(gap = ""))
         /* 1. Let member be the concatenation of member and and code unit 0x0020 (SPACE). */
-        member := s_concat([member, " "])
-      };
+        member := s_concat([member, " "]);
       /* iv. Let member be the concatenation of member and strP. */
       member := s_concat([member, strP]);
       /* v. Append member to partial. */
-      partial := l_add(partial, member)
+      partial := l_add(partial, member);
     }
-  };
+  }
   final := null;
   /* 9. If partial is empty, then */
   if ((l_len partial) = 0) {
     /* a. Let final be "{}". */
-    final := "{}"
-  }
+    final := "{}";
   /* 10. Else */
-  else {
+  } else {
     /* a. If gap is the empty String, then */
     if (gap = "") {
       /* i. Let properties be a String formed by concatenating all the element Strings
@@ -1030,10 +955,9 @@ function SerializeJSONObject(value, stack, indent, gap, PropertyList, ReplacerFu
           A comma is not inserted either before the first String or after the last String. */
       properties := concatenateListStrElmsWithSeparator(partial, ",");
       /* ii. Let final be the result of concatenating "{", properties, and "}". */
-      final := s_concat(["{", properties, "}"])
-    }
+      final := s_concat(["{", properties, "}"]);
     /* b. Else gap is not the empty String */
-    else {
+    } else {
       /* i. Let separator be the result of concatenating code unit 0x002C (COMMA),
             code unit 0x000A (LINE FEED), and indent. */
       separator := s_concat([",", "\n", indent]);
@@ -1044,16 +968,16 @@ function SerializeJSONObject(value, stack, indent, gap, PropertyList, ReplacerFu
       properties := concatenateListStrElmsWithSeparator(partial, separator);
       /* iii. Let final be the result of concatenating "{", code unit 0x000A (LINE FEED),
              indent, properties, code unit 0x000A, stepback, and "}". */
-      final := s_concat(["{", "\n", indent, properties, "\n", stepback, "}"])
+      final := s_concat(["{", "\n", indent, properties, "\n", stepback, "}"]);
     }
-  };
+  }
   /* 11. Remove the last element of stack. */
   stack := l_remove_last (stack);
   /* 12. Let indent be stepback. */
   indent := stepback;
   /* 13. Return final. */
-  return final
-};
+  return final;
+}
 
 
 
@@ -1073,9 +997,8 @@ function SerializeJSONObject(value, stack, indent, gap, PropertyList, ReplacerFu
 function SerializeJSONArray(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
   /* 1. If stack contains value, throw a TypeError exception because
         the structure is cyclical. */
-  if (in_list(value,stack)) {
-    throw TypeErrorConstructorInternal()
-  };
+  if (in_list(value,stack))
+    throw TypeErrorConstructorInternal();
   /* 2. Append value to stack. */
   stack := l_add(stack, value);
   /* 3. Let stepback be indent. */
@@ -1097,26 +1020,23 @@ function SerializeJSONArray(value, stack, indent, gap, PropertyList, ReplacerFun
     /* b. ReturnIfAbrupt(strP). */
     @ReturnIfAbrupt(strP);
     /* c. If strP is undefined, then */
-    if (strP = 'undefined) {
+    if (strP = 'undefined)
       /* i. Append "null" to partial. */
-      partial := l_add(partial, "null")
-    }
+      partial := l_add(partial, "null");
     /* d. Else */
-    else {
+    else
       /* i. Append strP to partial. */
-      partial := l_add(partial, strP)
-    };
+      partial := l_add(partial, strP);
     /* e. Increment index by 1. */
-    index := index + 1.
-  };
+    index := index + 1.;
+  }
   final := null;
   /* 10. If partial is empty, then */
   if ((l_len partial) = 0) {
     /* a. Let final be "[]". */
-    final := "[]"
-  }
+    final := "[]";
   /* 11. Else */
-  else {
+  } else {
     /* a. If gap is the empty String, then */
     if (gap = "") {
       /* i. Let properties be a String formed by concatenating all the element
@@ -1125,10 +1045,9 @@ function SerializeJSONArray(value, stack, indent, gap, PropertyList, ReplacerFun
             String or after the last String. */
       properties := concatenateListStrElmsWithSeparator(partial, ",");
       /* ii. Let final be the result of concatenating "[", properties, and "]". */
-      final := s_concat(["[", properties, "]"])
-    }
+      final := s_concat(["[", properties, "]"]);
     /* b. Else */
-    else {
+    } else {
       /* i. Let separator be the result of concatenating
           code unit 0x002C (COMMA), code unit 0x000A (LINE FEED), and indent. */
       separator := s_concat([",", "\n", indent]);
@@ -1139,13 +1058,13 @@ function SerializeJSONArray(value, stack, indent, gap, PropertyList, ReplacerFun
       properties := concatenateListStrElmsWithSeparator(partial, separator);
       /* iii. Let final be the result of concatenating "[", code unit 0x000A (LINE FEED),
              indent, properties, code unit 0x000A, stepback, and "]". */
-      final := s_concat(["[", "\n", indent, properties, "\n", stepback, "]"])
+      final := s_concat(["[", "\n", indent, properties, "\n", stepback, "]"]);
     }
-  };
+  }
   /* 12. Remove the last element of stack. */
   stack := l_remove_last (stack);
   /* 13. Let indent be stepback. */
   indent := stepback;
   /* 14. Return final. */
-  return final
+  return final;
 }

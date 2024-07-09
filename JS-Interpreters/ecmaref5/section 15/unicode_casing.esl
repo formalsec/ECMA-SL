@@ -1,6 +1,6 @@
 function isUnicodeCasingInitialized() {
-	return !((|unicodeData| = 'undefined) ||| (|specialCasing| = 'undefined))
-};
+	return !((|unicodeData| = 'undefined) ||| (|specialCasing| = 'undefined));
+}
 
 /**
 * Using for lowercase and uppercase conversion:
@@ -551,8 +551,8 @@ function initializeUnicodeCasing() {
 	|unicodeData|["\u{03C7}"] := { lowercase : 'undefined, uppercase : "\u{03A7}", titlecase : "\u{03A7}"};
 	|unicodeData|["\u{03C8}"] := { lowercase : 'undefined, uppercase : "\u{03A8}", titlecase : "\u{03A8}"};
 	|unicodeData|["\u{03C9}"] := { lowercase : 'undefined, uppercase : "\u{03A9}", titlecase : "\u{03A9}"};
-	|unicodeData|["\u{03CA}"] := { lowercase : 'undefined, uppercase : "\u{03AA}", titlecase : "\u{03AA}"};
 	|unicodeData|["\u{03CB}"] := { lowercase : 'undefined, uppercase : "\u{03AB}", titlecase : "\u{03AB}"};
+	|unicodeData|["\u{03CA}"] := { lowercase : 'undefined, uppercase : "\u{03AA}", titlecase : "\u{03AA}"};
 	|unicodeData|["\u{03CC}"] := { lowercase : 'undefined, uppercase : "\u{038C}", titlecase : "\u{038C}"};
 	|unicodeData|["\u{03CD}"] := { lowercase : 'undefined, uppercase : "\u{038E}", titlecase : "\u{038E}"};
 	|unicodeData|["\u{03CE}"] := { lowercase : 'undefined, uppercase : "\u{038F}", titlecase : "\u{038F}"};
@@ -3020,5 +3020,5 @@ function initializeUnicodeCasing() {
 		{ code : "\u{0069}", lowercase : "\u{0069}", uppercase : "\u{0130}", titlecase : "\u{0130}", condition_list : "az"}
 	];
 	
-	return
+	return;
 }

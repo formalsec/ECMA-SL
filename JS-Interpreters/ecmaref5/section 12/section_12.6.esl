@@ -8,45 +8,41 @@
    by a previous object on the prototype chain. */
 function getEnumerableProperties(object) {
   props := getEnumerablePropertiesRecursive(object, [], []);
-
-  return hd props
-};
+  return hd props;
+}
 
 function getEnumerablePropertiesRecursive(object, enumProps, checkedProps) {
-  if (object = 'null) {
-    return [enumProps, checkedProps]
-  };
+  if (object = 'null)
+    return [enumProps, checkedProps];
+
   if ("JSProperties" in_obj object) {
     namedPropertiesObj := object.JSProperties;
     list := l_sort (obj_fields namedPropertiesObj);
     llist := l_len list;
-
     i := 0;
-    while(llist > i) {
+    while (llist > i) {
       p_name := l_nth(list, i);
       p_value := namedPropertiesObj[p_name];
       if (isPropertyDescriptor(p_value)) {
-        if ((p_value.Enumerable = true) &&& !(in_list(p_name,checkedProps))) {
-          enumProps := l_add(enumProps, p_name)
-        };
-        checkedProps := l_add(checkedProps, p_name)
-      };
-      i := i + 1
+        if ((p_value.Enumerable = true) &&& !(in_list(p_name,checkedProps)))
+          enumProps := l_add(enumProps, p_name);
+        checkedProps := l_add(checkedProps, p_name);
+      }
+      i := i + 1;
     }
-  };
+  }
   if ("Prototype" in_obj object) {
     props := getEnumerablePropertiesRecursive(object.Prototype, enumProps, checkedProps);
     enumProps := hd props;
-    checkedProps := l_nth(props, 1)
-  };
+    checkedProps := l_nth(props, 1);
+  }
 
-  return [enumProps, checkedProps]
-};
+  return [enumProps, checkedProps];
+}
 
 function getNextPropertyName(props, idx) {
-  if ((l_len props) <= idx) {
-    return "None"
-  };
+  if ((l_len props) <= idx)
+    return "None";
 
-  return l_nth(props, idx)
+  return l_nth(props, idx);
 }
