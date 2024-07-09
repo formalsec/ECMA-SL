@@ -31,6 +31,11 @@ type t =
 ```
 - Bitwise operators defined over integers.
 
+- The semicolon `;` usage was improved in the `.esl` syntax
+  - Imports/typedefs/simple statements terminate a semicolon
+  - Functions/compound statements don't terminate with a semicolon
+  - A lonely semicolon results in the `skip` statement
+
 ### Fixed
 
 ## v1.0.0
