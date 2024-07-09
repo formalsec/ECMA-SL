@@ -32,8 +32,8 @@ function initSymbolPrototype(global, objectPrototype, strict) {
   descriptor := newGetAccessorPropertyDescriptorFull(descriptionFunctionObject, false, true);
   setJSProperty(prototype, "description", descriptor);
 
-  return prototype
-};
+  return prototype;
+}
 
 function initSymbolObject(global, objectPrototype, strict) {
   objSymbolPrototype := initSymbolPrototype(global, objectPrototype, strict);
@@ -131,48 +131,36 @@ function initSymbolObject(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(getWellKnownSymbol("Symbol.unscopables"), false, false, false);
   setJSProperty(objSymbolConstructor, "unscopables", descriptor);
 
-  return objSymbolConstructor
-};
+  return objSymbolConstructor;
+}
 
 /* 19.4.1.1 Symbol ([description]) */
 function SymbolConstructor(global, this, NewTarget, strict, args) {
   description := getOptionalParam(args, 0);
-
   /* 1. If NewTarget is not undefined, throw a TypeError exception. */
-  if (!(NewTarget = 'undefined)) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if (!(NewTarget = 'undefined))
+    throw TypeErrorConstructorInternal();
   /* 2. If description is undefined, let descString be undefined. */
-  if (description = null || description = 'undefined) {
-    descString := 'undefined
-  } else {
-    descString := ToString(description)
-  };
-
+  if (description = null || description = 'undefined) descString := 'undefined; else descString := ToString(description);
   /* 3. ReturnIfAbrupt(descString). */
   @ReturnIfAbrupt(descString);
-
   /* 4. Return a new unique Symbol value whose [[Description]] value is descString. */
-  return InternalSymbolConstructor(descString)
-};
+  return InternalSymbolConstructor(descString);
+}
 
 function SymbolObjectConstructor(symbolData) {
   obj := NewECMAScriptObject();
   setAllInternalMethodsOfOrdinaryObject(obj);
   obj.Prototype := |Intrinsics|.SymbolPrototype;
   obj.SymbolData := symbolData;
-  return obj
-};
+  return obj;
+}
 
 /* 19.4.2.1 Symbol.for (key) */
 function symbolFor(global, this, NewTarget, strict, args) {
-
   key := l_nth(args, 0);
-
   /* 1. Let stringKey be ToString(key). */
   stringKey := ToString(key);
-
   /* 2. ReturnIfAbrupt(stringKey). */
   @ReturnIfAbrupt(stringKey);
 
@@ -180,209 +168,162 @@ function symbolFor(global, this, NewTarget, strict, args) {
 
   /* 3. For each element e of the GlobalSymbolRegistry List */
   /* The GlobalSymbolRegistry has been changed to an object instead of a list for optimization reasons. There seems to be no way to write in the GlobalSymbolRegistry besides this function so it should have no downside. */
-  if (stringKey in_obj |GlobalSymbolRegistry|) {
+  if (stringKey in_obj |GlobalSymbolRegistry|)
     /* 3a. If SameValue(e.[[key]], stringKey) is true, return e.[[symbol]]. */
-    return |GlobalSymbolRegistry|[stringKey].sym
-  };
-
+    return |GlobalSymbolRegistry|[stringKey].sym;
   /* 4. Assert: GlobalSymbolRegistry does not currently contain an entry for stringKey. */
-  /* assert(false); *//* It was just verified. */
-
+  /* assert (false); *//* It was just verified. */
   /* 5. Let newSymbol be a new unique Symbol value whose [[Description]] value is stringKey. */
   newSymbol := InternalSymbolConstructor(stringKey);
-
   /* 6. Append the record { [[key]]: stringKey, [[symbol]]: newSymbol } to the GlobalSymbolRegistry List. */
   |GlobalSymbolRegistry|[stringKey] := {key: stringKey, sym: newSymbol, wellknown: false};
-
   /* 7. Return newSymbol. */
-  return newSymbol
-};
+  return newSymbol;
+}
 
 /* 19.4.2.5 Symbol.keyFor (sym) */
 function symbolKeyFor(global, this, NewTarget, strict, args) {
-
   sym := l_nth(args, 0);
-
   /* 1. If Type(sym) is not Symbol, throw a TypeError exception. */
-  if (!(Type(sym) = "Symbol")) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if (!(Type(sym) = "Symbol"))
+    throw TypeErrorConstructorInternal();
   /* 2. For each element e of the GlobalSymbolRegistry List (see 19.4.2.1), */
     /* 2a. If SameValue(e.[[symbol]], sym) is true, return e.[[key]]. */
   if (sym.Description in_obj |GlobalSymbolRegistry|) {
     e := |GlobalSymbolRegistry|[sym.Description];
-
-    if ( SameValue(e.sym, sym) ) {
-      return e.key
-    }
-  };
-
+    if (SameValue(e.sym, sym))
+      return e.key;
+  }
   /* 3. Assert: GlobalSymbolRegistry does not currently contain an entry for sym. */
-  /* assert(!(in_list(sym, |GlobalSymbolRegistry|))); *//* Just checked. */
-
+  /* assert (!(in_list(sym, |GlobalSymbolRegistry|))); *//* Just checked. */
   /* 4. Return undefined. */
-  return 'undefined
-};
+  return 'undefined;
+}
 
 /* 19.4.3.2 Symbol.prototype.toString () */
-function symbolToString(global, this, NewTarget, strict, args){
-
+function symbolToString(global, this, NewTarget, strict, args) {
   /* 1. Let s be the this value. */
   s := this;
-
   /* 2. If Type(s) is Symbol, let sym be s. */
   if (Type(s) = "Symbol") {
-    sym := s
-  }
-
+    sym := s;
   /* 3. Else */
-  else{
-
+  } else {
     /* 3a. If Type(s) is not Object, throw a TypeError exception. */
-    if (!(Type(s) = "Object")) {
-      throw TypeErrorConstructorInternal()
-    };
-
+    if (!(Type(s) = "Object"))
+      throw TypeErrorConstructorInternal();
     /* 3b. If s does not have a [[SymbolData]] internal slot, throw a TypeError exception. */
-    if (!("SymbolData" in_obj s)) {
-      throw TypeErrorConstructorInternal()
-    };
-
+    if (!("SymbolData" in_obj s))
+      throw TypeErrorConstructorInternal();
     /* 3c. Let sym be the value of s’s [[SymbolData]] internal slot. */
-    sym := s.SymbolData
-  };
-
+    sym := s.SymbolData;
+  }
   /* 4. Return SymbolDescriptiveString(sym). */
-  return symbolDescriptiveString(sym)
-};
+  return symbolDescriptiveString(sym);
+}
 
 /* 19.4.3.2.1 SymbolDescriptiveString (sym) */
-function symbolDescriptiveString(sym){
-
+function symbolDescriptiveString(sym) {
   /* 1. Assert: Type(sym) is Symbol.*/
-  assert(Type(sym) = "Symbol");
-
+  assert (Type(sym) = "Symbol");
   /* 2. Let desc be sym’s [[Description]] value. */
   desc := sym.Description;
-
   /* 3. If desc is undefined, let desc be the empty string.*/
-  if (desc = 'undefined){
-    desc := ""
-  };
-
+  if (desc = 'undefined)
+    desc := "";
   /* 4. Assert: Type(desc) is String. */
-  assert(Type(desc) = "String");
-
+  assert (Type(desc) = "String");
   /* 5. Return the result of concatenating the strings "Symbol(", desc, and ")". */
-  return s_concat ["Symbol(", desc, ")"]
-};
+  return s_concat ["Symbol(", desc, ")"];
+}
 
 /* 19.4.3.3 Symbol.prototype.valueOf () */
-function symbolValueOf(global, this, NewTarget, strict, args){
-
+function symbolValueOf(global, this, NewTarget, strict, args) {
   /* 1. Let s be the this value. */
   s := this;
-
   /* 2. If Type(s) is Symbol, return s. */
-  if (Type(s) = "Symbol") {
-    return s
-  };
-
+  if (Type(s) = "Symbol")
+    return s;
   /* 3. If Type(s) is not Object, throw a TypeError exception. */
-  if (!(Type(s) = "Object")) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if (!(Type(s) = "Object"))
+    throw TypeErrorConstructorInternal();
   /* 4. If s does not have a [[SymbolData]] internal slot, throw a TypeError exception. */
-  if (!("SymbolData" in_obj s)) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if (!("SymbolData" in_obj s))
+    throw TypeErrorConstructorInternal();
   /* 5. Return the value of s’s [[SymbolData]] internal slot. */
-  return s.SymbolData
-};
+  return s.SymbolData;
+}
 
-function thisSymbolValue(value){
-
+function thisSymbolValue(value) {
   /* 1. If Type(value) is Symbol, return value. */
-  if (Type(value) = "Symbol"){
-    return value
-  };
-
+  if (Type(value) = "Symbol")
+    return value;
   /* 2. If Type(value) is Object and value has a [[SymbolData]] internal slot, then */
-  if (Type(value) = "Object" &&& "SymbolData" in_obj value){
-
+  if (Type(value) = "Object" &&& "SymbolData" in_obj value) {
     /* 2a. Let s be value.[[SymbolData]]. */
     s := value.SymbolData;
-
     /* 2b. Assert: Type(s) is Symbol. */
-    assert(Type(s) = "Symbol");
-
+    assert (Type(s) = "Symbol");
     /* 2c. Return s. */
-    return s
-  };
-
+    return s;
+  }
   /* 3. Throw a TypeError exception. */
-  throw TypeErrorConstructorInternal()
-};
+  throw TypeErrorConstructorInternal();
+}
 
-function getSymbolDescriptionAccessorProperty(global, this, NewTarget, strict, args){
-
+function getSymbolDescriptionAccessorProperty(global, this, NewTarget, strict, args) {
   /* 1. Let s be the this value. */
   s := this;
-
   /* 2. Let sym be ? thisSymbolValue(s). */
   sym := thisSymbolValue(s);
-
   /* 3. Return sym.[[Description]]. */
-  return sym.Description
-};
+  return sym.Description;
+}
 
 
 function getSpeciesPropertyName() {
-  return getWellKnownSymbol("Symbol.species")
-};
+  return getWellKnownSymbol("Symbol.species");
+}
 
 function getIteratorPropertyName() {
-  return getWellKnownSymbol("Symbol.iterator")
-};
+  return getWellKnownSymbol("Symbol.iterator");
+}
 
 function getToStringTagPropertyName() {
-  return getWellKnownSymbol("Symbol.toStringTag")
-};
+  return getWellKnownSymbol("Symbol.toStringTag");
+}
 
-function getMatchPropertyName(){
-  return getWellKnownSymbol("Symbol.match")
-};
+function getMatchPropertyName() {
+  return getWellKnownSymbol("Symbol.match");
+}
 
-function getReplacePropertyName(){
-  return getWellKnownSymbol("Symbol.replace")
-};
+function getReplacePropertyName() {
+  return getWellKnownSymbol("Symbol.replace");
+}
 
-function getSearchPropertyName(){
-  return getWellKnownSymbol("Symbol.search")
-};
+function getSearchPropertyName() {
+  return getWellKnownSymbol("Symbol.search");
+}
 
-function getSplitPropertyName(){
-  return getWellKnownSymbol("Symbol.split")
-};
+function getSplitPropertyName() {
+  return getWellKnownSymbol("Symbol.split");
+}
 
 function getToPrimitivePropertyName() {
-  return getWellKnownSymbol("Symbol.toPrimitive")
-};
+  return getWellKnownSymbol("Symbol.toPrimitive");
+}
 
 function getUnscopablesPropertyName() {
-  return getWellKnownSymbol("Symbol.unscopables")
-};
+  return getWellKnownSymbol("Symbol.unscopables");
+}
 
 function getIsConcatSpreadablePropertyName () {
-  return getWellKnownSymbol("Symbol.isConcatSpreadable")
-};
+  return getWellKnownSymbol("Symbol.isConcatSpreadable");
+}
 
 function getHasInstancePropertyName() {
-  return getWellKnownSymbol("Symbol.hasInstance")
-};
+  return getWellKnownSymbol("Symbol.hasInstance");
+}
 
 function filterSymbolProperties(list) {
   newList := [];
@@ -390,18 +331,16 @@ function filterSymbolProperties(list) {
   i := 0;
   while (i < len) {
     elem := l_nth (list, i);
-    if (!(checkSymbolProperties(elem))) {
-      newList := l_add (newList, elem)
-    };
-    i := i + 1
-  };
-  return newList
-};
+    if (!(checkSymbolProperties(elem)))
+      newList := l_add (newList, elem);
+    i := i + 1;
+  }
+  return newList;
+}
 
 function checkSymbolProperties(property) {
-  if (s_len_u(property) < 7){
-    return false
-  };
+  if (s_len_u(property) < 7)
+    return false;
   res := s_substr_u (property, 0, 7);
-  return (res = "Symbol(")
+  return (res = "Symbol(");
 }

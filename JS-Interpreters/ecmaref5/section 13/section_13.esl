@@ -4,18 +4,18 @@
    Environment specified by Scope, and a Boolean flag Strict, a Function object is constructed as follows: */
 
 function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict, n) {
-  return CreateGeneralFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict, n)
-};
+  return CreateGeneralFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict, n);
+}
 
 function CreateGeneralBuiltInFunctionObject(prototype, FormalParameterList, FunctionBody, Scope, Strict, n) {
   F := CreateGeneralFunctionObject(prototype, FormalParameterList, FunctionBody, Scope, Strict, n);
   delete F.Construct;
-  return F
-};
+  return F;
+}
 
 function CreateBuiltInFunctionObject(FormalParameterList, FunctionBody, Scope, Strict, n) {
-  return CreateGeneralBuiltInFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict, n)
-};
+  return CreateGeneralBuiltInFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict, n);
+}
 
 function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, FunctionBody, Scope, Strict, n) {
   /* 1. Create a new native ECMAScript object and let F be that object. */
@@ -63,8 +63,8 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
     {proto.DefineOwnProperty}(proto, "constructor", newDataPropertyDescriptorFull(F, true, false, true), false);
     /* 18. Call the [[DefineOwnProperty]] internal method of F with arguments "prototype", Property Descriptor
           {[[Value]]: proto, { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
-    {F.DefineOwnProperty}(F, "prototype", newDataPropertyDescriptorFull(proto, true, false, false), false)
-  };
+    {F.DefineOwnProperty}(F, "prototype", newDataPropertyDescriptorFull(proto, true, false, false), false);
+  }
   /* 19. If Strict is true, then */
   if (Strict = true) {
     /* a. Let thrower be the [[ThrowTypeError]] function Object (13.2.3). */
@@ -74,32 +74,31 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
     {F.DefineOwnProperty}(F, "caller", newAccessorPropertyDescriptorFull(thrower, thrower, false, false), false);
     /* c. Call the [[DefineOwnProperty]] internal method of F with arguments "arguments", PropertyDescriptor
           {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
-    {F.DefineOwnProperty}(F, "arguments", newAccessorPropertyDescriptorFull(thrower, thrower, false, false), false)
-  };
+    {F.DefineOwnProperty}(F, "arguments", newAccessorPropertyDescriptorFull(thrower, thrower, false, false), false);
+  }
 
-  if (n = null) {
-    setInternalProperty(F, "internalLength", int_to_float len)
-  } else {
-    setInternalProperty(F, "internalLength", n)
-  };
+  if (n = null)
+    setInternalProperty(F, "internalLength", int_to_float len);
+  else
+    setInternalProperty(F, "internalLength", n);
 
   setInternalProperty(F, "strict", Strict);
 
   /* 20. Return F. */
-  return F
-};
+  return F;
+}
 
 /* 13.2.1 [[Call]] */
 function Call(externalScope, ref, F, this, args) {
   if (("Code" in_obj F) &&& (typeof (F.Code) = "string") &&& (F.Code = "GlobalObjectEval")) {
     args := completeArgs(args, F);
     strict := F.strict ||| isContainedInStrictCode(externalScope);
-    return {F.Code}(externalScope, ref, this, strict, args)
-  };
+    return {F.Code}(externalScope, ref, this, strict, args);
+  }
   if (("Code" in_obj F) &&& ((typeof (F.Code) = "string") || (typeof (F.Code) = "curry"))) {
     args := completeArgs(args, F);
-    return {F.Code}(F.Scope, this, F.strict, args)
-  };
+    return {F.Code}(F.Scope, this, F.strict, args);
+  }
   /* When the [[Call]] internal method for a Function object F is called with a this value and a list of arguments,
     the following steps are taken: */
 
@@ -110,26 +109,23 @@ function Call(externalScope, ref, F, this, args) {
   /* 2. Let result be the result of evaluating the FunctionBody that is the value of F's [[Code]] internal property.
         If F does not have a [[Code]] internal property or if its value is an empty FunctionBody,
         then result is (normal, undefined, empty). */
-  if (!("Code" in_obj F) ||| isValueAnEmptyFunctionBody(F.Code)) {
-    result := normalEmptyCompletion('undefined)
-  } else {
-    result := JS_Interpreter_FunctionBody(F.Code, funcCtx)
-  };
+  if (!("Code" in_obj F) ||| isValueAnEmptyFunctionBody(F.Code))
+    result := normalEmptyCompletion('undefined);
+  else
+    result := JS_Interpreter_FunctionBody(F.Code, funcCtx);
 
   /* 3. Exit the execution context funcCtx, restoring the previous execution context. */
   /* exitExecutionContext(funcCtx) */ /* TODO dummy function */
 
   /* 4. If result.type is throw then throw result.value. */
-  if (getCompletionType(result) = 'throw) {
-    throw getCompletionValue(result)
-  };
+  if (getCompletionType(result) = 'throw)
+    throw getCompletionValue(result);
   /* 5. If result.type is return then return result.value. */
-  if (getCompletionType(result) = 'return) {
-    return getCompletionValue(result)
-  };
+  if (getCompletionType(result) = 'return)
+    return getCompletionValue(result);
   /* 6. Otherwise result.type must be normal. Return undefined. */
-  return 'undefined
-};
+  return 'undefined;
+}
 
 function Construct(externalScope, ref, F, argumentList) {
   /* 13.2.2 [[Construct]] */
@@ -148,24 +144,21 @@ function Construct(externalScope, ref, F, argumentList) {
   /* 5. Let proto be the value of calling the [[Get]] internal property of F with argument "prototype". */
   proto := {F.Get}(F, "prototype");
   /* 6. If Type(proto) is Object, set the [[Prototype]] internal property of obj to proto. */
-  if (Type(proto) = "Object") {
-    setInternalProperty(obj, "Prototype", proto)
-  };
+  if (Type(proto) = "Object")
+    setInternalProperty(obj, "Prototype", proto);
   /* 7. If Type(proto) is not Object, set the [[Prototype]] internal property of obj to the standard built-in Object prototype
         object as described in 15.2.4. */
-  if (!(Type(proto) = "Object")) {
-    setInternalProperty(obj, "Prototype", getObjectPrototype(F.strict))
-  };
+  if (!(Type(proto) = "Object"))
+    setInternalProperty(obj, "Prototype", getObjectPrototype(F.strict));
   /* 8. Let result be the result of calling the [[Call]] internal property of F, providing obj as the this value and providing the
         argument list passed into [[Construct]] as args. */
   result := {F.Call}(externalScope, ref, F, obj, argumentList);
   /* 9. If Type(result) is Object then return result. */
-  if (Type(result) = "Object") {
-    return result
-  };
+  if (Type(result) = "Object")
+    return result;
   /* 10. Return obj */
-  return obj
-};
+  return obj;
+}
 
 function createThrowTypeErrorFunctionObject(functionPrototypeObject, strict) {
   /* 13.2.3 The [[ThrowTypeError]] Function Object */
@@ -199,8 +192,8 @@ function createThrowTypeErrorFunctionObject(functionPrototypeObject, strict) {
 
   setInternalProperty(F, "internalLength", 0.);
 
-  return F
-};
+  return F;
+}
 
 
 /* Auxiliary functions */
@@ -211,31 +204,30 @@ function createThrowTypeErrorFunctionObject(functionPrototypeObject, strict) {
    undefined value. */
 function completeArgs(args, functionObject) {
   lParams := getInternalProperty(functionObject, "internalLength");
-  lArgs := int_to_float (l_len args);
-  if (lArgs >= lParams) {
-    return args
-  };
+  lArgs := int_to_float(l_len(args));
+  if (lArgs >= lParams)
+    return args;
   i := lParams - lArgs;
   aux := [];
-  while(i > 0.) {
+  while (i > 0.) {
     aux := l_prepend('undefined, aux);
-    i := i - 1.
-  };
+    i := i - 1.;
+  }
 
-  return l_concat (args, aux)
-};
+  return l_concat (args, aux);
+}
 
 function internalTypeErrorThrower(globalObject, this, strict, args) {
-  throw TypeErrorConstructorInternal()
-};
+  throw TypeErrorConstructorInternal();
+}
 
 function getFunctionCode(F) {
-  return F.Code
-};
+  return F.Code;
+}
 
 function isStrictFunctionObject(F) {
-  return F.strict
-};
+  return F.strict;
+}
 
 function setAllInternalMethodsExceptGet(obj) {
   obj.GetOwnProperty    := "GetOwnProperty";
@@ -246,20 +238,18 @@ function setAllInternalMethodsExceptGet(obj) {
   obj.Delete            := "Delete";
   obj.DefaultValue      := "DefaultValue";
   obj.DefineOwnProperty := "DefineOwnProperty";
-
   obj.internalSlotsList := [];
-
-  return obj
-};
+  return obj;
+}
 
 function listOfIdentifiersOf(formalParametersList) {
-  return formalParametersList
-};
+  return formalParametersList;
+}
 
 function numberOfFormalParameters(formalParametersList) {
-  return l_len formalParametersList
-};
+  return l_len formalParametersList;
+}
 
 function isValueAnEmptyFunctionBody(value) {
-  return ((typeof (value) = "object") &&& ("body" in_obj value) &&& (value.body = []))
+  return ((typeof (value) = "object") &&& ("body" in_obj value) &&& (value.body = []));
 }

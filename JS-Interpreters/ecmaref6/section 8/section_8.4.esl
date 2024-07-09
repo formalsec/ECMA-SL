@@ -2,47 +2,46 @@
 function initJobQueue() {
   |ScriptJobQueue| := [];
   |PromiseJobQueue| := [];
-  return
-};
+  return;
+}
 
 function appendToJobQueue(job, queueName) {
-  if ( queueName = "PromiseJobs") {
-    |PromiseJobQueue| := l_add(|PromiseJobQueue|, job)
-  }
-  else {
-    |ScriptJobQueue| := l_add(|ScriptJobQueue|, job)
-  };
-
-  return
-};
+  if (queueName = "PromiseJobs")
+    |PromiseJobQueue| := l_add(|PromiseJobQueue|, job);
+  else
+    |ScriptJobQueue| := l_add(|ScriptJobQueue|, job);
+  return;
+}
 
 function executeJob(job) {
-    switch (job.Job) {
-      case "PromiseResolveThenableJob": {
-        strict := l_nth(job.Arguments, 0);
-        promise := l_nth(job.Arguments, 1);
-        resolution := l_nth(job.Arguments, 2);
-        thenAction := l_nth(job.Arguments, 3);
-        return PromiseResolveThenableJob(strict, promise, resolution, thenAction)
-      }
-      case "PromiseReactionJob": {
-        reaction := l_nth(job.Arguments, 0);
-        argument := l_nth(job.Arguments, 1);
-        return PromiseReactionJob(reaction, argument)
-      }
-      case "ScriptEvaluationJob": {
-        sourceText := l_nth(job.Arguments, 0);
-        return ScriptEvaluationJob(sourceText)
-      }
-      case "TopLevelModuleEvaluationJob": {
-        sourceText := l_nth(job.Arguments, 0);
-        return TopLevelModuleEvaluationJob(sourceText)
-      }
-      sdefault: { throw "Job not implemented." }
-    };
+  switch (job.Job) {
+    case "PromiseResolveThenableJob": {
+      strict := l_nth(job.Arguments, 0);
+      promise := l_nth(job.Arguments, 1);
+      resolution := l_nth(job.Arguments, 2);
+      thenAction := l_nth(job.Arguments, 3);
+      return PromiseResolveThenableJob(strict, promise, resolution, thenAction);
+    }
+    case "PromiseReactionJob": {
+      reaction := l_nth(job.Arguments, 0);
+      argument := l_nth(job.Arguments, 1);
+      return PromiseReactionJob(reaction, argument);
+    }
+    case "ScriptEvaluationJob": {
+      sourceText := l_nth(job.Arguments, 0);
+      return ScriptEvaluationJob(sourceText);
+    }
+    case "TopLevelModuleEvaluationJob": {
+      sourceText := l_nth(job.Arguments, 0);
+      return TopLevelModuleEvaluationJob(sourceText);
+    }
+    sdefault: { 
+      throw "Job not implemented.";
+    }
+  }
 
-    return
-};
+  return;
+}
 
 function newPendingJob(Job, Arguments, realm, HostDefined) {
   return {
@@ -50,26 +49,23 @@ function newPendingJob(Job, Arguments, realm, HostDefined) {
     Arguments: Arguments,
     Realm: realm,
     HostDefined: HostDefined
-  }
-};
+  };
+}
 
 /* 8.4.1 EnqueueJob (queueName, job, arguments) */
 /* The EnqueueJob abstract operation requires three arguments: queueName, job, and arguments. It performs the
    following steps: */
 function EnqueueJob(queueName, job, arguments) {
     /* Assert: Type(queueName) is String and its value is the name of a Job Queue recognized by this implementation. */
-    assert(Type(queueName) = "String" &&& (queueName = "ScriptJobs" ||| queueName = "PromiseJobs" ));
+    assert (Type(queueName) = "String" &&& (queueName = "ScriptJobs" ||| queueName = "PromiseJobs"));
 
     /* Assert: job is the name of a Job. */
-
     /* Assert: arguments is a List that has the same number of elements as the number of parameters required by job. */
 
     /* Let callerContext be the running execution context. */
     callerContext := topExecStack();
-
     /* Let callerRealm be callerContext’s Realm. */
     callerRealm := callerContext.Realm;
-
     /* Let pending be PendingJob{ [[Job]]: job, [[Arguments]]: arguments, [[Realm]]: callerRealm, [[HostDefined]]: undefined }. */
     pending := newPendingJob(job, arguments, callerRealm, 'undefined);
 
@@ -78,10 +74,9 @@ function EnqueueJob(queueName, job, arguments) {
 
     /* Add pending at the back of the Job Queue named by queueName. */
     appendToJobQueue(pending, queueName);
-
     /* Return NormalCompletion(empty). */
-    return NormalCompletion('empty)
-};
+    return NormalCompletion('empty);
+}
 
 /* 8.4.2 NextJob result */
 /* An algorithm step such as:
@@ -98,7 +93,7 @@ function NextJob(result) {
     /* If result is an abrupt completion, perform implementation defined unhandled exception processing. */
     if ( isAnAbruptCompletion(result) ) {
 
-    };
+    }
 
     /* Suspend the running execution context and remove it from the execution context stack. */
     currExecCtx := topExecStack();
@@ -106,30 +101,26 @@ function NextJob(result) {
     popExecStack();
 
     /* Assert: The execution context stack is now empty. */
-    assert( execStackIsEmpty() );
+    assert (execStackIsEmpty());
 
     /* Let nextQueue be a non-empty Job Queue chosen in an implementation defined manner. If all Job Queues are
     empty, the result is implementation defined. */
     if ( !(l_len(|ScriptJobQueue|) = 0 ) ) {
       nextPending := hd |ScriptJobQueue|;
-      |ScriptJobQueue| := tl |ScriptJobQueue|
-    }
-    elif ( !(l_len(|PromiseJobQueue|) = 0) ) {
+      |ScriptJobQueue| := tl |ScriptJobQueue|;
+    } elif ( !(l_len(|PromiseJobQueue|) = 0) ) {
       nextPending := hd |PromiseJobQueue|;
-      |PromiseJobQueue| := tl |PromiseJobQueue|
+      |PromiseJobQueue| := tl |PromiseJobQueue|;
+    } else {
+      return result;
     }
-    else {
-      return result
-    };
 
     /* Let nextPending be the PendingJob record at the front of nextQueue. Remove that record from nextQueue. */
 
     /* Let newContext be a new execution context. */
     newContext := createExecutionContext();
-
     /* Set newContext’s Realm to nextPending.[[Realm]]. */
     newContext.Realm := nextPending.Realm;
-
     /* Push newContext onto the execution context stack; newContext is now the running execution context. */
     pushExecStack(newContext);
 
@@ -138,5 +129,5 @@ function NextJob(result) {
     /* Perform the abstract operation named by nextPending.[[Job]] using the elements of nextPending.[[Arguments]] as its arguments. */
     result := executeJob(nextPending);
 
-    return result
+    return result;
 }

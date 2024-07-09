@@ -3,7 +3,7 @@ function __os_platform(globalObject, this, newTarget, strict, params) {
   extern assume(platform = "aix" || platform = "darwin"
     || platform = "freebsd" || platform = "linux" || platform = "openbsd"
     || platform = "sunos" || platform = "win32" || platform = "android");
-  return platform
+  return platform;
 }
 
 function createOSObject(globalObject, objectPrototype, strict) {
@@ -18,5 +18,5 @@ function createOSObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(os, "platform", platform);
   createBuiltInProperty(platform, "prototype", objectPrototype);
 
-  return os
+  return os;
 }

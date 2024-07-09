@@ -16,35 +16,35 @@
 
 function initProxyObject(global, objectPrototype, strict) {
 
-    objProxyPrototype := initProxyPrototype(global, objectPrototype, strict);
-    objProxyConstructor := CreateGeneralBuiltInFunction(getFunctionPrototype(strict), ["target", "handler"], "ProxyConstructor", global, strict, 0.);
+  objProxyPrototype := initProxyPrototype(global, objectPrototype, strict);
+  objProxyConstructor := CreateGeneralBuiltInFunction(getFunctionPrototype(strict), ["target", "handler"], "ProxyConstructor", global, strict, 0.);
 
-    /* 26.2.1.1 Proxy ( target, handler ) */
-    descriptor := newDataPropertyDescriptorFull(objProxyConstructor, true, false, true);
-    setJSProperty(objProxyPrototype, "constructor", descriptor);
-    /* Length */
-    descLen := newDataPropertyDescriptorFull(0., false, false, true);
-    setJSProperty(objProxyConstructor, "length", descLen);
-    /* Name */
-    descName := newDataPropertyDescriptorFull("WeakSet", false, false, true);
-    setJSProperty(objProxyConstructor, "name", descName);
+  /* 26.2.1.1 Proxy ( target, handler ) */
+  descriptor := newDataPropertyDescriptorFull(objProxyConstructor, true, false, true);
+  setJSProperty(objProxyPrototype, "constructor", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(objProxyConstructor, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("WeakSet", false, false, true);
+  setJSProperty(objProxyConstructor, "name", descName);
 
-    descriptor := newDataPropertyDescriptorFull(objProxyPrototype, false, false, false);
-    setJSProperty(objProxyConstructor, "prototype", descriptor);
+  descriptor := newDataPropertyDescriptorFull(objProxyPrototype, false, false, false);
+  setJSProperty(objProxyConstructor, "prototype", descriptor);
 
-    /* 26.2.2.1 Proxy.revocable ( target, handler ) */
-    revocableObject := CreateBuiltInFunctionObject(["target", "handler"], "proxyRevocable", global, strict, null);
-    descriptor := newDataPropertyDescriptorFull(revocableObject, true, false, true);
-    setJSProperty(objProxyConstructor, "revocable", descriptor);
-    /* Length */
-    descLen := newDataPropertyDescriptorFull(2., false, false, true);
-    setJSProperty(revocableObject, "length", descLen);
-    /* Name */
-    descName := newDataPropertyDescriptorFull("revocable", false, false, true);
-    setJSProperty(revocableObject, "name", descName);
+  /* 26.2.2.1 Proxy.revocable ( target, handler ) */
+  revocableObject := CreateBuiltInFunctionObject(["target", "handler"], "proxyRevocable", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(revocableObject, true, false, true);
+  setJSProperty(objProxyConstructor, "revocable", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(2., false, false, true);
+  setJSProperty(revocableObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("revocable", false, false, true);
+  setJSProperty(revocableObject, "name", descName);
 
-    return objProxyConstructor
-};
+  return objProxyConstructor;
+}
 
 /**
 * 26.2.1.1 Proxy ( target, handler )
@@ -55,17 +55,15 @@ function initProxyObject(global, objectPrototype, strict) {
 
 function ProxyConstructor(global, this, NewTarget, strict, args) {
 
-    target := l_nth(args, 0);
-    handler := l_nth(args, 1);
+  target := l_nth(args, 0);
+  handler := l_nth(args, 1);
 
-    /* 1. If NewTarget is undefined, throw a TypeError exception. */
-    if (NewTarget = 'undefined) {
-        throw TypeErrorConstructorInternal()
-    };
-
-    /* 2. Return ProxyCreate(target, handler). */
-    return ProxyCreate(target, handler)
-};
+  /* 1. If NewTarget is undefined, throw a TypeError exception. */
+  if (NewTarget = 'undefined)
+    throw TypeErrorConstructorInternal();
+  /* 2. Return ProxyCreate(target, handler). */
+  return ProxyCreate(target, handler);
+}
 
 /**
 * 26.2.2 Properties of the Proxy Constructor
@@ -81,13 +79,13 @@ function ProxyConstructor(global, this, NewTarget, strict, args) {
 
 function initProxyPrototype(global, objectPrototype, strict) {
 
-    prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
-    setAllInternalMethodsOfOrdinaryObject(prototype);
+  prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
+  setAllInternalMethodsOfOrdinaryObject(prototype);
 
-    setJSProperty(prototype, "length", newDataPropertyDescriptorFull(2., true, false, false));
+  setJSProperty(prototype, "length", newDataPropertyDescriptorFull(2., true, false, false));
 
-    return prototype
-};
+  return prototype;
+}
 
 /**
 * 26.2.2.1 Proxy.revocable ( target, handler )
@@ -100,34 +98,27 @@ function initProxyPrototype(global, objectPrototype, strict) {
 
 function proxyRevocable(global, this, NewTarget, strict, args) {
 
-    target := l_nth(args, 0);
-    handler := l_nth(args, 1);
+  target := l_nth(args, 0);
+  handler := l_nth(args, 1);
 
-    /* 1. Let p be ProxyCreate(target, handler). */
-    p := ProxyCreate(target, handler);
-
-    /* 2. ReturnIfAbrupt(p). */
-    @ReturnIfAbrupt(p);
-
-    /* 3. Let revoker be a new built-in function object as defined in 26.2.2.1.1. */
-    revoker := CreateBuiltInFunctionObject([], "ProxyRevocation", |global|, strict, 0.);
-    createBuiltInPropertyWithFullDescriptor(revoker, "name", "", false, false, true);
-
-    /* 4. Set the [[RevocableProxy]] internal slot of revoker to p. */
-    revoker.RevocableProxy := p;
-
-    /* 5. Let result be ObjectCreate(%ObjectPrototype%). */
-    result := ObjectCreate(|Intrinsics|.ObjectPrototype, null);
-
-    /* 6. Perform CreateDataProperty(result, "proxy", p). */
-    CreateDataProperty(result, "proxy", p);
-
-    /* 7. Perform CreateDataProperty(result, "revoke", revoker). */
-    CreateDataProperty(result, "revoke", revoker);
-
-    /* 8. Return result. */
-    return result
-};
+  /* 1. Let p be ProxyCreate(target, handler). */
+  p := ProxyCreate(target, handler);
+  /* 2. ReturnIfAbrupt(p). */
+  @ReturnIfAbrupt(p);
+  /* 3. Let revoker be a new built-in function object as defined in 26.2.2.1.1. */
+  revoker := CreateBuiltInFunctionObject([], "ProxyRevocation", |global|, strict, 0.);
+  createBuiltInPropertyWithFullDescriptor(revoker, "name", "", false, false, true);
+  /* 4. Set the [[RevocableProxy]] internal slot of revoker to p. */
+  revoker.RevocableProxy := p;
+  /* 5. Let result be ObjectCreate(%ObjectPrototype%). */
+  result := ObjectCreate(|Intrinsics|.ObjectPrototype, null);
+  /* 6. Perform CreateDataProperty(result, "proxy", p). */
+  CreateDataProperty(result, "proxy", p);
+  /* 7. Perform CreateDataProperty(result, "revoke", revoker). */
+  CreateDataProperty(result, "revoke", revoker);
+  /* 8. Return result. */
+  return result;
+}
 
 /**
 * 26.2.2.1.1 Proxy Revocation Functions
@@ -140,21 +131,20 @@ function proxyRevocable(global, this, NewTarget, strict, args) {
 *  When a Proxy revocation function, F, is called the following steps are taken:
 */
 function ProxyRevocation(global, this, NewTarget, strict, args) {
-    F := getJSProperty(this, "revoke").Value;
-    /* 1. Let p be the value of F’s [[RevocableProxy]] internal slot. */
-    p := F.RevocableProxy;
-    /* 2. If p is null, return undefined. */
-    if (p = 'null) {
-        return 'undefined
-    };
-    /* 3. Set the value of F’s [[RevocableProxy]] internal slot to null. */
-    F.RevocableProxy := 'null;
-    /* 4. Assert: p is a Proxy object. */
-    assert(IsProxy(p));
-    /* 5. Set the [[ProxyTarget]] internal slot of p to null. */
-    p.ProxyTarget := 'null;
-    /* 6. Set the [[ProxyHandler]] internal slot of p to null. */
-    p.ProxyHandler := 'null;
-    /* 7. Return undefined. */
-    return 'undefined
+  F := getJSProperty(this, "revoke").Value;
+  /* 1. Let p be the value of F’s [[RevocableProxy]] internal slot. */
+  p := F.RevocableProxy;
+  /* 2. If p is null, return undefined. */
+  if (p = 'null)
+    return 'undefined;
+  /* 3. Set the value of F’s [[RevocableProxy]] internal slot to null. */
+  F.RevocableProxy := 'null;
+  /* 4. Assert: p is a Proxy object. */
+  assert (IsProxy(p));
+  /* 5. Set the [[ProxyTarget]] internal slot of p to null. */
+  p.ProxyTarget := 'null;
+  /* 6. Set the [[ProxyHandler]] internal slot of p to null. */
+  p.ProxyHandler := 'null;
+  /* 7. Return undefined. */
+  return 'undefined;
 }

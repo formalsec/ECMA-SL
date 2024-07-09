@@ -6,22 +6,16 @@
 */
 function RequireObjectCoercible(argument) {
 	switch(Type(argument)) {
-		case "Completion": {
-			if ( isAnAbruptCompletion(argument) = true ) {
-				return argument
-			} else {
-				return RequireObjectCoercible(getCompletionValue(input))
-			}
-		}
-		case "Undefined": { throw TypeErrorConstructorInternal() }
-		case "Null": { throw TypeErrorConstructorInternal() }
-		case "Boolean": { return argument }
-		case "Number": { return argument }
-		case "String": { return argument }
-		case "Symbol": { return argument }
-		case "Object": { return argument }
+		case "Completion":  if (isAnAbruptCompletion(argument) = true) return argument; else return RequireObjectCoercible(getCompletionValue(input));
+		case "Undefined":   throw TypeErrorConstructorInternal();
+		case "Null":        throw TypeErrorConstructorInternal();
+		case "Boolean":     return argument;
+		case "Number":      return argument;
+		case "String":      return argument;
+		case "Symbol":      return argument;
+		case "Object":      return argument;
 	}
-};
+}
 
 /**
  * 7.2.2 IsArray ( argument )
@@ -29,53 +23,45 @@ function RequireObjectCoercible(argument) {
  * The abstract operation IsArray takes one argument argument, and performs the following steps:
 */
 function IsArray(argument) {
-
     /* If Type(argument) is not Object, return false. */
-    if (!(Type(argument) = "Object")) {
-    	return false
-    };
+    if (!(Type(argument) = "Object"))
+    	return false;
 
     /* If argument is an Array exotic object, return true.  */
-    if ( isArrayExoticObject(argument) ) {
-      return true
-    };
+    if (isArrayExoticObject(argument))
+      return true;
 
     /* If argument is a Proxy exotic object, then */
-    if ( IsProxy(argument) ) {
+    if (IsProxy(argument)) {
       /* a. If the value of the [[ProxyHandler]] internal slot of argument is null, throw a TypeError exception. */
-      if (argument.ProxyHandler = 'null) {
-        throw TypeErrorConstructorInternal()
-      };
+      if (argument.ProxyHandler = 'null)
+        throw TypeErrorConstructorInternal();
       /* b. Let target be the value of the [[ProxyTarget]] internal slot of argument. */
       target := argument.ProxyTarget;
       /* c. Return IsArray(target). */
-      return IsArray(target)
-    };
+      return IsArray(target);
+    }
 
     /* Return false. */
-    return false
-};
+    return false;
+}
 function isArrayExoticObject(arr) {
   if (inJSProperties(arr, "length")) {
     len := getJSProperty(arr, "length");
-    if (len.Configurable = true) {
-      return false
-    };
-
+    if (len.Configurable = true)
+      return false;
     lenValue := len.Value;
-    if ((lenValue < 0.) ||| (lenValue >= 2. ** 32.)) {
-      return false
-    }
+    if ((lenValue < 0.) ||| (lenValue >= 2. ** 32.))
+      return false;
   } else {
-    return false
-  };
+    return false;
+  }
 
-  if (!(arr.DefineOwnProperty = "ArrayDefineOwnProperty")) {
-    return false
-  };
+  if (!(arr.DefineOwnProperty = "ArrayDefineOwnProperty"))
+    return false;
 
-  return true
-};
+  return true;
+}
 
 /**
  * 7.2.3 IsCallable ( argument )
@@ -86,20 +72,15 @@ function isArrayExoticObject(arr) {
 function IsCallable( argument ) {
 	/* ReturnIfAbrupt(argument). */
 	@ReturnIfAbrupt(argument);
-
 	/* If Type(argument) is not Object, return false. */
-	if ( !(Type(argument) = "Object") ) {
-		return false
-	};
-
+	if (!(Type(argument) = "Object"))
+		return false;
 	/* If argument has a [[Call]] internal method, return true. */
-	if ( "Call" in_obj argument ) {
-		return true
-	};
-
+	if ("Call" in_obj argument)
+		return true;
 	/* Return false. */
-	return false
-};
+	return false;
+}
 
 /**
  *  7.2.4 IsConstructor ( argument )
@@ -110,21 +91,15 @@ function IsCallable( argument ) {
 function IsConstructor(argument) {
 	/* ReturnIfAbrupt(argument). */
 	@ReturnIfAbrupt(argument);
-
 	/* If Type(argument) is not Object, return false. */
-	if (!(Type(argument) = "Object")) {
-		return false
-	};
-
+	if (!(Type(argument) = "Object"))
+		return false;
 	/* If argument has a [[Construct]] internal method, return true. */
-	if ( "Construct" in_obj argument ) {
-		return true
-	};
-
+	if ("Construct" in_obj argument)
+		return true;
 	/* Return false. */
-	return false
-
-};
+	return false;
+}
 
 /**
  * 7.2.5 IsExtensible (O)
@@ -134,41 +109,31 @@ function IsConstructor(argument) {
 */
 function IsExtensible(O) {
     /* Assert: Type(O) is Object. */
-    assert( Type(O) = "Object" );
-
+    assert (Type(O) = "Object" );
     /* Return O.[[IsExtensible]](). */
-    return {O.IsExtensible}(O)
-};
+    return {O.IsExtensible}(O);
+}
 
 
 /* 7.2.6 IsInteger ( argument ) */
-function IsInteger(argument){
+function IsInteger(argument) {
   /* 1. ReturnIfAbrupt(argument). */
   @ReturnIfAbrupt(argument);
-
   /* 2. If Type(argument) is not Number, return false. */
-  if (!(Type(argument) = "Number")){
-    return false
-  };
-
+  if (!(Type(argument) = "Number"))
+    return false;
   /* 3. If argument is NaN, +∞, or −∞, return false. */
-  if ((is_NaN (argument)) || (argument = Infinity) || (argument = -Infinity)){
-    return false
-  };
-
+  if ((is_NaN (argument)) || (argument = Infinity) || (argument = -Infinity))
+    return false;
   /* 4. If floor(abs(argument)) ≠ abs(argument), return false. */
-  if (!(floor(abs(argument)) = abs(argument))){
-    return false
-  };
-
+  if (!(floor(abs(argument)) = abs(argument)))
+    return false;
     /* If floor(abs(argument)) ≠ abs(argument), return false. */
-	if ( !(floor(abs(argument)) = abs(argument)) ) {
-		return false
-	};
-
-    /* Return true. */
-    return true
-};
+	if (!(floor(abs(argument)) = abs(argument)))
+		return false;
+  /* Return true. */
+  return true;
+}
 
 /**
  *  7.2.7 IsPropertyKey ( argument )
@@ -179,51 +144,37 @@ function IsInteger(argument){
 function IsPropertyKey( argument ) {
 	/* ReturnIfAbrupt(argument). */
 	@ReturnIfAbrupt(argument);
-
   t := Type(argument);
-
 	/* If Type(argument) is String, return true. */
-	if ( t = "String" ) {
-		return true
-	};
-
+	if (t = "String")
+		return true;
 	/* If Type(argument) is Symbol, return true. */
-	if ( t = "Symbol" ) {
-		return true
-	};
-
+	if (t = "Symbol")
+		return true;
 	/* Return false. */
-	return false
-};
+	return false;
+}
 
 /**
  * 7.2.8 IsRegExp ( argument )
  */
-function IsRegExp(argument){
+function IsRegExp(argument) {
   /* 1. If Type(argument) is not Object, return false. */
-  if (!(Type(argument) = "Object")){
-    return false
-  };
-
+  if (!(Type(argument) = "Object"))
+    return false;
   /* 2. Let isRegExp be Get(argument, @@match). */
   isRegExp := Get(argument, getMatchPropertyName());
-
   /* 3. ReturnIfAbrupt(isRegExp). */
   @ReturnIfAbrupt(isRegExp);
-
   /* 4. If isRegExp is not undefined, return ToBoolean(isRegExp). */
-  if (!(isRegExp = 'undefined)){
-    return ToBoolean(isRegExp)
-  };
-
+  if (!(isRegExp = 'undefined))
+    return ToBoolean(isRegExp);
   /* 5. If argument has a [[RegExpMatcher]] internal slot, return true. */
-  if ("Match" in_obj argument){
-    return true
-  };
-
+  if ("Match" in_obj argument)
+    return true;
   /* 6. Return false. */
-  return false
-};
+  return false;
+}
 
 /**
  * 7.2.9 SameValue(x, y)
@@ -232,41 +183,38 @@ function IsRegExp(argument){
  * produces true or false. Such a comparison is performed as follows:
 */
 function SameValue (x, y) {
-
   @ReturnIfAbrupt(x);
   @ReturnIfAbrupt(y);
-
   typeX := Type(x);
-
   /* 1. If Type(x) is different from Type(y), return false. */
-  if (!(typeX = Type(y))) { return false };
+  if (!(typeX = Type(y)))   return false;
   /* 2. If Type(x) is Undefined, return true. */
-  if (typeX = "Undefined") { return true };
+  if (typeX = "Undefined")  return true;
   /* 3. If Type(x) is Null, return true. */
-  if (typeX = "Null") { return true };
+  if (typeX = "Null")       return true;
   /* 4. If Type(x) is Number, then. */
   if (typeX = "Number") {
     /* a. If x is NaN and y is NaN, return true. */
-    if ((is_NaN (x)) && (is_NaN (y))) { return true };
+    if ((is_NaN (x)) && (is_NaN (y)))   return true;
     /* b. If x is +0 and y is -0, return false. */
-    if (isZero(x) && isMinusZero(y)) { return false };
+    if (isZero(x) && isMinusZero(y))    return false;
     /* c. If x is -0 and y is +0, return false. */
-    if (isMinusZero(x) && isZero(y)) { return false };
+    if (isMinusZero(x) && isZero(y))    return false;
     /* d. If x is the same Number value as y, return true. */
-    if (x = y) { return true };
+    if (x = y)                          return true;
     /* e. Return false. */
-    return false
-  };
+    return false;
+  }
   /* 5. If Type(x) is String, then return true if x and y are exactly the same sequence of characters
     (same length and same characters in corresponding positions); otherwise, return false. */
-  if (typeX = "String") { return x = y };
+  if (typeX = "String")     return x = y;
   /* 6. If Type(x) is Boolean, return true if x and y are both true or both false; otherwise, return false. */
-  if (typeX = "Boolean") { return x = y };
+  if (typeX = "Boolean")    return x = y;
   /*  */
-  if ( typeX = "Symbol" ) { return x = y };
+  if ( typeX = "Symbol" )   return x = y;
   /* 7. Return true if x and y refer to the same object. Otherwise, return false. */
-  return x = y
-};
+  return x = y;
+}
 
 /**
  * 7.2.10 SameValueZero(x, y)
@@ -275,41 +223,39 @@ function SameValue (x, y) {
  * values, produces true or false. Such a comparison is performed as follows:
 */
 function SameValueZero(x, y) {
-
   @ReturnIfAbrupt(x);
   @ReturnIfAbrupt(y);
-
   typeX := Type(x);
 
   /* 1. If Type(x) is different from Type(y), return false. */
-  if (!(typeX = Type(y))) { return false };
+  if (!(typeX = Type(y)))     return false;
   /* 2. If Type(x) is Undefined, return true. */
-  if (typeX = "Undefined") { return true };
+  if (typeX = "Undefined")    return true;
   /* 3. If Type(x) is Null, return true. */
-  if (typeX = "Null") { return true };
+  if (typeX = "Null")         return true;
   /* 4. If Type(x) is Number, then. */
   if (typeX = "Number") {
     /* a. If x is NaN and y is NaN, return true. */
-    if ((is_NaN (x)) && (is_NaN (y))) { return true };
+    if ((is_NaN (x)) && (is_NaN (y)))   return true;
     /* b. If x is +0 and y is -0, return false. */
-    if (isZero(x) && isMinusZero(y)) { return true };
+    if (isZero(x) && isMinusZero(y))    return true;
     /* c. If x is -0 and y is +0, return false. */
-    if (isMinusZero(x) && isZero(y)) { return true };
+    if (isMinusZero(x) && isZero(y))    return true;
     /* d. If x is the same Number value as y, return true. */
-    if (x = y) { return true };
+    if (x = y)                          return true;
     /* e. Return false. */
-    return false
-  };
+    return false;
+  }
   /* 5. If Type(x) is String, then return true if x and y are exactly the same sequence of characters
     (same length and same characters in corresponding positions); otherwise, return false. */
-  if (typeX = "String") { return x = y };
+  if (typeX = "String")     return x = y;
   /* 6. If Type(x) is Boolean, return true if x and y are both true or both false; otherwise, return false. */
-  if (typeX = "Boolean") { return x = y };
+  if (typeX = "Boolean")    return x = y;
   /*  */
-  if ( typeX = "Symbol" ) { return x = y };
+  if ( typeX = "Symbol" )   return x = y;
   /* 7. Return true if x and y refer to the same object. Otherwise, return false. */
-  return x = y
-};
+  return x = y;
+}
 
 /**
  * 7.2.11 Abstract Relational Comparison
@@ -327,56 +273,56 @@ function AbstractRelationalComparison(x, y, LeftFirst) {
   @ReturnIfAbrupt(y);
 
   /* 1. If the LeftFirst flag is true, then */
-  if (LeftFirst = true) ["after-same:, then"] {
+  if (LeftFirst = true) /*["after-same:, then"]*/ {
     /* a. Let px be the result of calling ToPrimitive(x, hint Number). */
     px := ToPrimitive(x, 'Number);
     @ReturnIfAbrupt(px);
     /* b. Let py be the result of calling ToPrimitive(y, hint Number). */
     py := ToPrimitive(y, 'Number);
-    @ReturnIfAbrupt(py)
+    @ReturnIfAbrupt(py);
   }
   /* 2. Else the order of evaluation needs to be reversed to preserve left to right evaluation */
-  else ["after-same: the order of evaluation needs to be reversed to preserve left to right evaluation"] {
+  else /*["after-same: the order of evaluation needs to be reversed to preserve left to right evaluation"]*/ {
     /* a. Let py be the result of calling ToPrimitive(y, hint Number). */
     py := ToPrimitive(y, 'Number);
    	@ReturnIfAbrupt(py);
     /* b. Let px be the result of calling ToPrimitive(x, hint Number). */
     px := ToPrimitive(x, 'Number);
-    @ReturnIfAbrupt(px)
-  };
+    @ReturnIfAbrupt(px);
+  }
   /* 3. If it is not the case that both Type(px) is String and Type(py) is String, then */
-  if (!((Type(px) = "String") && (Type(py) = "String"))) ["after-same:, then"] {
+  if (!((Type(px) = "String") && (Type(py) = "String"))) /*["after-same:, then"]*/ {
     /* a. Let nx be the result of calling ToNumber(px). Because px and py are primitive values evaluation order is not important. */
-    gen_wrapper ["after-same:. Because <i>px</i> and <i>py</i> are primitive values evaluation order is not important"] {
-      nx := ToNumber(px)
-    };
+    /* gen_wrapper ["after-same:. Because <i>px</i> and <i>py</i> are primitive values evaluation order is not important"] { */
+      nx := ToNumber(px);
+    /* } */
     /* b. Let ny be the result of calling ToNumber(py). */
     ny := ToNumber(py);
     /* c. If nx is NaN, return undefined. */
-    if (nx = NaN) { return 'undefined };
+    if (nx = NaN)   return 'undefined;
     /* d. If ny is NaN, return undefined. */
-    if (ny = NaN) { return 'undefined };
+    if (ny = NaN)   return 'undefined;
     /* e. If nx and ny are the same Number value, return false. */
-    if (nx = ny) { return false };
+    if (nx = ny)    return false;
     /* f. If nx is +0 and ny is -0, return false. */
-    if (isZero(nx) && isMinusZero(ny)) { return false };
+    if (isZero(nx) && isMinusZero(ny))  return false;
     /* g. If nx is -0 and ny is +0, return false. */
-    if (isMinusZero(nx) && isZero(ny)) { return false };
+    if (isMinusZero(nx) && isZero(ny))  return false;
     /* h. If nx is +Infinity, return false. */
-    if (nx = Infinity) { return false };
+    if (nx = Infinity)  return false;
     /* i. If ny is +Infinity, return true. */
-    if (ny = Infinity) { return true };
+    if (ny = Infinity)  return true;
     /* j. If ny is -Infinity, return false. */
-    if (ny = -Infinity) { return false };
+    if (ny = -Infinity) return false;
     /* k. If nx is -Infinity, return true. */
-    if (nx = -Infinity) { return true };
+    if (nx = -Infinity) return true;
     /* l. If the mathematical value of nx is less than the mathematical value of ny — note that these
           mathematical values are both finite and not both zero — return true. Otherwise, return false. */
-    if (nx < ny) { return true };
-    return false
+    if (nx < ny) return true;
+    return false;
   }
   /* 4. Else, both px and py are Strings */
-  else ["after-same:, both <i>px</i> and <i>py</i> are Strings"] {
+  else /*["after-same:, both <i>px</i> and <i>py</i> are Strings"]*/ {
     /* a. If py is a prefix of px, return false. (A String value p is a prefix of String value q if q can be the
           result of concatenating p and some other String r. Note that any String is a prefix of itself, because r
           may be the empty String.) */
@@ -388,13 +334,14 @@ function AbstractRelationalComparison(x, y, LeftFirst) {
     /* e. Let n be the integer that is the code unit value for the character at position k within py. */
     /* f. If m < n, return true. Otherwise, return false. */
 
-    if (px < py) { return true };
+    if (px < py) 
+      return true;
 
-    gen_wrapper ["before-same:Otherwise, "] {
-      return false
-    }
+    /* gen_wrapper ["before-same:Otherwise, "] { */
+      return false;
+    /* } */
   }
-};
+}
 
 /**
  * 7.2.12 Abstract Equality Comparison
@@ -403,63 +350,51 @@ function AbstractRelationalComparison(x, y, LeftFirst) {
  * a comparison is performed as follows:
  */
 function AbstractEqualityComparison(x, y) {
-
   /* 1. ReturnIfAbrupt(x). */
   @ReturnIfAbrupt(x);
   /* 2. ReturnIfAbrupt(y). */
   @ReturnIfAbrupt(y);
-
   tx := Type(x);
   ty := Type(y);
   /* 3. If Type(x) is the same as Type(y), then */
-  if (tx = ty){
+  if (tx = ty)
     /* a. Return the result of performing Strict Equality Comparison x === y. */
-    return StrictEqualityComparison(x, y)
-  };
+    return StrictEqualityComparison(x, y);
   /* 4. If x is null and y is undefined, */
-  if (x = 'null &&& y = 'undefined) {
+  if (x = 'null &&& y = 'undefined)
     /* return true */
-    return true
-  };
+    return true;
   /* 5. If x is undefined and y is null, */
-  if (x = 'undefined &&& y = 'null) {
+  if (x = 'undefined &&& y = 'null)
     /* return true */
-    return true
-  };
+    return true;
   /* 6. If Type(x) is Number and Type(y) is String, */
-  if (tx = "Number" &&& ty = "String") {
+  if (tx = "Number" &&& ty = "String")
     /* return the result of the comparison x == ToNumber(y) */
-    return AbstractEqualityComparison(x, ToNumber(y))
-  };
+    return AbstractEqualityComparison(x, ToNumber(y));
   /* 7. If Type(x) is String and Type(y) is Number, */
-  if (tx = "String" &&& ty = "Number") {
+  if (tx = "String" &&& ty = "Number")
     /* return the result of the comparison ToNumber(x) == y */
-    return AbstractEqualityComparison(ToNumber(x), y)
-  };
+    return AbstractEqualityComparison(ToNumber(x), y);
   /* 8. If Type(x) is Boolean, */
-  if (tx = "Boolean") {
+  if (tx = "Boolean")
     /* return the result of the comparison ToNumber(x) == y */
-    return AbstractEqualityComparison(ToNumber(x), y)
-  };
+    return AbstractEqualityComparison(ToNumber(x), y);
   /* 9. If Type(y) is Boolean, */
-  if (ty = "Boolean") {
+  if (ty = "Boolean")
     /* return the result of the comparison x == ToNumber(y) */
-    return AbstractEqualityComparison(x, ToNumber(y))
-  };
+    return AbstractEqualityComparison(x, ToNumber(y));
   /* 10. If Type(x) is either String, Number, or Symbol and Type(y) is Object,  */
-  if ((tx =  "String" ||| tx =  "Number" ||| tx =  "Symbol") &&& ty = "Object") {
+  if ((tx =  "String" ||| tx =  "Number" ||| tx =  "Symbol") &&& ty = "Object")
     /* then return the result of the comparison x == ToPrimitive(y)  */
-    return AbstractEqualityComparison(x, ToPrimitive(y, null))
-  };
+    return AbstractEqualityComparison(x, ToPrimitive(y, null));
   /* 11. If Type(x) is Object and Type(y) is either String, Number, or Symbol, */
-  if (tx = "Object" &&& (ty =  "String" ||| ty =  "Number" ||| ty =  "Symbol")) {
+  if (tx = "Object" &&& (ty =  "String" ||| ty =  "Number" ||| ty =  "Symbol"))
     /*  then return the result of the comparison ToPrimitive(x) == y */
-    return AbstractEqualityComparison(ToPrimitive(x, null), y)
-
-  };
+    return AbstractEqualityComparison(ToPrimitive(x, null), y);
   /* 12. Return false. */
-  return false
-};
+  return false;
+}
 
 /**
  * 7.2.13 Strict Equality Comparison
@@ -470,93 +405,77 @@ function AbstractEqualityComparison(x, y) {
 function StrictEqualityComparison(x, y) {
   tx := Type(x);
   /* 1. If Type(x) is different from Type(y), */
-    if (!(tx = Type(y))){
+    if (!(tx = Type(y)))
     /* return false */
-    return false
-  };
+    return false;
   /* 2. If Type(x) is Undefined, */
-  if (tx = 'undefined) {
+  if (tx = 'undefined)
     /* return true */
-    return true
-  };
+    return true;
   /* 3. If Type(x) is Null, */
-  if (tx = 'null) {
+  if (tx = 'null)
     /* return true */
-    return true
-  };
+    return true;
   /* 4. If Type(x) is Number, then */
   if (tx = "Number") {
     /* a. If x is NaN, */
-    if (x = NaN) {
+    if (x = NaN)
       /* return false */
-      return false
-    };
+      return false;
     /* b. If y is NaN, */
-    if (y = NaN) {
+    if (y = NaN)
       /* return false */
-      return false
-    };
-
-    if (extern is_symbolic(x) ||| extern is_symbolic(y)) {
-      return x = y
-    };
+      return false;
+    if (extern is_symbolic(x) ||| extern is_symbolic(y))
+      return x = y;
     /* c. If x is the same Number value as y, */
-    if (x = y) {
+    if (x = y)
       /* return true */
-      return true
-    };
+      return true;
     /* d. If x is +0 and y is -0, */
-    if (isZero(x) &&& isMinusZero(y)) {
+    if (isZero(x) &&& isMinusZero(y))
       /* return true */
-      return true
-    };
+      return true;
     /* e. If x is -0 and y is +0, */
-    if (isMinusZero(x) &&& isZero(y)) {
+    if (isMinusZero(x) &&& isZero(y))
       /* return true */
-      return true
-    };
+      return true;
     /* f. Return false. */
-    return false
-  };
+    return false;
+  }
   /* 5. If Type(x) is String, then */
   if (tx = "String") {
     /* a. If x and y are exactly the same sequence of code units (same length
        and same code units at corresponding indices), */
-    if (x = y) {
+    if (x = y)
       /* return true */
-      return true
-    }
+      return true;
     /* b. Else, */
-    else {
+    else
       /* return false */
-      return false
-    }
-  };
+      return false;
+  }
   /* 6. If Type(x) is Boolean, then */
   if (tx = "Boolean") {
     /* a. If x and y are both true or both false, */
-    if (x = y) {
+    if (x = y)
       /* return true */
-      return true
-    }
+      return true;
     /* b. Else, */
-    else {
+    else
       /* return false */
-      return false
-    }
-  };
+      return false;
+  }
   /* 7. If x and y are the same Symbol value, */
-  if (x = y) {
+  if (x = y)
     /* return true */
-    return true
-  };
+    return true;
   /* 8. If x and y are the same Object value, */
-  if (x = y) {
+  if (x = y)
     /* return true */
-    return true
-  };
+    return true;
   /* 9. Return false. */
-  return false
+  return false;
 }
 /**
  * NOTE This algorithm differs from the SameValue Algorithm (7.2.9) in its

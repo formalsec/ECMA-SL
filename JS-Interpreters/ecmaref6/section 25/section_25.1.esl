@@ -13,15 +13,12 @@
  */
 function IsIterable(obj) {
     iterator := GetMethod(obj, getIteratorPropertyName());
-
     @ReturnIfAbrupt(iterator);
-
-    if (iterator = 'undefined) {
-        return false
-    } else {
-        return IsIterator(iterator)
-    }
-};
+    if (iterator = 'undefined) 
+        return false; 
+    else 
+        return IsIterator(iterator);
+}
 
 /** 25.1.1.2 The Iterator Interface
  *
@@ -69,9 +66,8 @@ function IsIterable(obj) {
  */
 function IsIterator(iterator) {
     next := GetMethod(iterator, "next");
-
-    return !(next = 'undefined)
-};
+    return !(next = 'undefined);
+}
 
 /** 25.1.2 The %IteratorPrototype% Object
  *
@@ -96,8 +92,8 @@ function initIteratorPrototype(global, objectPrototype, strict) {
     descName := newDataPropertyDescriptorFull("[Symbol.iterator]", false, false, true);
     setJSProperty(iteratorObj, "name", descName);
 
-    return proto
-};
+    return proto;
+}
 
 /** 25.1.2.1 %IteratorPrototype% [ @@iterator ] ( )
  *
@@ -105,7 +101,7 @@ function initIteratorPrototype(global, objectPrototype, strict) {
  */
 function IteratorPrototypeIterator(global, this, NewTarget, strict, args) {
     /* 1. Return the this value. */
-    return this
+    return this;
 }
 /**
  * The value of the name property of this function is "[Symbol.iterator]".

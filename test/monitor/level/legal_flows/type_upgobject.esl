@@ -1,7 +1,7 @@
 function main () {
 	h:= true;
 	l:= true;
-	o := {};
+	o := {}
 	o.p := true;
 	x := true;
 	aux1:= "upgObject"(o, "high");
@@ -9,11 +9,11 @@ function main () {
 
 	if (h) {
 	  aux3:= "upgObject"(o, "low")
-	};
+	}
 	
-	if(!h) {
+	if (!h) {
 	  l:= false
-	};
+	}
 
 
 

@@ -7,11 +7,11 @@ function main () {
 
 	if (h) {
 	  aux2:= "upgVar"("h", "low")
-	};
+	}
 	
-	if(!h) {
+	if (!h) {
 	  l:= false
-	};
+	}
 
 
 

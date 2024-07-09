@@ -156,8 +156,8 @@ function initReflectObject(global, objectPrototype, strict) {
     descName := newDataPropertyDescriptorFull("setPrototypeOf", false, false, true);
     setJSProperty(setPrototypeOfObj, "name", descName);
 
-    return obj
-};
+    return obj;
+}
 
 /**
  * 26.1.1 Reflect.apply (target, thisArgument, argumentsList)
@@ -170,10 +170,9 @@ function ReflectApply(global, this, NewTarget, strict, args) {
   thisArgument := l_nth(args, 1);
   argumentsList := l_nth(args, 2);
   /* 1. If IsCallable(target) is false, */
-  if (IsCallable(target) = false) {
+  if (IsCallable(target) = false)
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 2. Let args be CreateListFromArrayLike(argumentsList). */
   args := CreateListFromArrayLike(argumentsList, null);
   /* 3. ReturnIfAbrupt(args). */
@@ -181,8 +180,8 @@ function ReflectApply(global, this, NewTarget, strict, args) {
   /* 4. Perform PrepareForTailCall(). */
   PrepareForTailCall();
   /* 5. Return Call(target, thisArgument, args). */
-  return Call(null, null, target, thisArgument, args)
-};
+  return Call(null, null, target, thisArgument, args);
+}
 
 /**
  * 26.1.2 Reflect.construct (target, argumentsList [ , newTarget ] )
@@ -195,29 +194,26 @@ function ReflectConstruct(global, this, NewTarget, strict, args) {
   argumentsList := l_nth(args, 1);
   newTarget := getOptionalParam(args, 2);
   /* 1. If IsConstructor(target) is false, */
-  if (IsConstructor(target) = false) {
+  if (IsConstructor(target) = false)
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 2. If newTarget is not present, */
   if (newTarget = null) {
     /* let newTarget be target */
-    newTarget := target
-  }
+    newTarget := target;
   /* 3. Else, */
-  else {
+  } else {
     /* if IsConstructor(newTarget) is false, throw a TypeError exception */
-    if (IsConstructor(newTarget) = false) {
-        throw TypeErrorConstructorInternal()
-    }
-  };
+    if (IsConstructor(newTarget) = false)
+      throw TypeErrorConstructorInternal();
+  }
   /* 4. Let args be CreateListFromArrayLike(argumentsList). */
   args := CreateListFromArrayLike(argumentsList, null);
   /* 5. ReturnIfAbrupt(args). */
   @ReturnIfAbrupt(args);
   /* 6. Return Construct(target, args, newTarget). */
-  return Construct(null, null, target, args, newTarget)
-};
+  return Construct(null, null, target, args, newTarget);
+}
 /**
  * The length property of the construct function is 2.
  */
@@ -233,10 +229,9 @@ function ReflectDefineProperty(global, this, NewTarget, strict, args) {
   propertyKey := l_nth(args, 1);
   attributes := l_nth(args, 2);
   /* 1. If Type(target) is not Object, */
-  if (!(Type(target) = "Object")) {
+  if (!(Type(target) = "Object"))
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 2. Let key be ToPropertyKey(propertyKey). */
   key := ToPropertyKey(propertyKey);
   /* 3. ReturnIfAbrupt(key). */
@@ -246,8 +241,8 @@ function ReflectDefineProperty(global, this, NewTarget, strict, args) {
   /* 5. ReturnIfAbrupt(desc). */
   @ReturnIfAbrupt(desc);
   /* 6. Return target.[[DefineOwnProperty]](key, desc). */
-  return {target.DefineOwnProperty}(target, key, desc)
-};
+  return {target.DefineOwnProperty}(target, key, desc);
+}
 
 /**
  * 26.1.4 Reflect.deleteProperty (target, propertyKey)
@@ -259,17 +254,16 @@ function ReflectDeleteProperty(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   propertyKey := l_nth(args, 1);
   /* 1. If Type(target) is not Object, */
-  if (!(Type(target) = "Object")) {
+  if (!(Type(target) = "Object"))
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 2. Let key be ToPropertyKey(propertyKey). */
   key := ToPropertyKey(propertyKey);
   /* 3. ReturnIfAbrupt(key). */
   @ReturnIfAbrupt(key);
   /* 4. Return target.[[Delete]](key). */
-  return {target.Delete}(target, key)
-};
+  return {target.Delete}(target, key);
+}
 
 /**
  * 26.1.5 Reflect.enumerate (target)
@@ -280,13 +274,12 @@ function ReflectDeleteProperty(global, this, NewTarget, strict, args) {
 function ReflectEnumerate(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   /* 1. If Type(target) is not Object, */
-  if (!(Type(target) = "Object")) {
+  if (!(Type(target) = "Object"))
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 2. Return target.[[Enumerate]](). */
-  return {target.Enumerate}(target)
-};
+  return {target.Enumerate}(target);
+}
 
 /**
  * 26.1.6 Reflect.get (target, propertyKey [ , receiver ] )
@@ -299,22 +292,20 @@ function ReflectGet(global, this, NewTarget, strict, args) {
   propertyKey := l_nth(args, 1);
   receiver := getOptionalParam(args, 2);
   /* 1. If Type(target) is not Object, */
-  if (!(Type(target) = "Object")) {
+  if (!(Type(target) = "Object"))
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 2. Let key be ToPropertyKey(propertyKey). */
   key := ToPropertyKey(propertyKey);
   /* 3. ReturnIfAbrupt(key). */
   @ReturnIfAbrupt(key);
   /* 4. If receiver is not present, then */
-  if (receiver = null) {
+  if (receiver = null)
     /* a. Let receiver be target. */
-    receiver := target
-  };
+    receiver := target;
   /* 5. Return target.[[Get]](key, receiver). */
-  return {target.Get}(target, key, receiver)
-};
+  return {target.Get}(target, key, receiver);
+}
 /**
  * The length property of the get function is 2.
  */
@@ -329,10 +320,9 @@ function ReflectGetOwnPropertyDescriptor(global, this, NewTarget, strict, args) 
   target := l_nth(args, 0);
   propertyKey := l_nth(args, 1);
   /* 1. If Type(target) is not Object, */
-  if (!(Type(target) = "Object")) {
+  if (!(Type(target) = "Object"))
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 2. Let key be ToPropertyKey(propertyKey). */
   key := ToPropertyKey(propertyKey);
   /* 3. ReturnIfAbrupt(key). */
@@ -342,8 +332,8 @@ function ReflectGetOwnPropertyDescriptor(global, this, NewTarget, strict, args) 
   /* 5. ReturnIfAbrupt(desc). */
   @ReturnIfAbrupt(desc);
   /* 6. Return FromPropertyDescriptor(desc). */
-  return FromPropertyDescriptor(desc)
-};
+  return FromPropertyDescriptor(desc);
+}
 
 /**
  * 26.1.8 Reflect.getPrototypeOf (target)
@@ -354,13 +344,12 @@ function ReflectGetOwnPropertyDescriptor(global, this, NewTarget, strict, args) 
 function ReflectGetPrototypeOf(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   /* 1. If Type(target) is not Object, */
-  if (!(Type(target) = "Object")) {
+  if (!(Type(target) = "Object"))
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 2. Return target.[[GetPrototypeOf]](). */
-  return {target.GetPrototypeOf}(target)
-};
+  return {target.GetPrototypeOf}(target);
+}
 
 /**
  * 26.1.9 Reflect.has (target, propertyKey)
@@ -372,17 +361,16 @@ function ReflectHas(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   propertyKey := l_nth(args, 1);
   /* 1. If Type(target) is not Object, */
-  if (!(Type(target) = "Object")) {
+  if (!(Type(target) = "Object"))
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 2. Let key be ToPropertyKey(propertyKey). */
   key := ToPropertyKey(propertyKey);
   /* 3. ReturnIfAbrupt(key). */
   @ReturnIfAbrupt(key);
   /* 4. Return target.[[HasProperty]](key). */
-  return {target.HasProperty}(target, key)
-};
+  return {target.HasProperty}(target, key);
+}
 
 /**
  * 26.1.10 Reflect.isExtensible (target)
@@ -393,13 +381,12 @@ function ReflectHas(global, this, NewTarget, strict, args) {
 function ReflectIsExtensible(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   /* 1. If Type(target) is not Object, */
-  if (!(Type(target) = "Object")) {
+  if (!(Type(target) = "Object"))
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 2. Return target.[[IsExtensible]](). */
-  return {target.IsExtensible}(target)
-};
+  return {target.IsExtensible}(target);
+}
 
 /**
  * 26.1.11 Reflect.ownKeys (target)
@@ -410,17 +397,16 @@ function ReflectIsExtensible(global, this, NewTarget, strict, args) {
 function ReflectOwnKeys(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   /* 1. If Type(target) is not Object, */
-  if (!(Type(target) = "Object")) {
+  if (!(Type(target) = "Object"))
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 2. Let keys be target.[[OwnPropertyKeys]](). */
   keys := {target.OwnPropertyKeys}(target);
   /* 3. ReturnIfAbrupt(keys). */
   @ReturnIfAbrupt(keys);
   /* 4. Return CreateArrayFromList(keys). */
-  return CreateArrayFromList(keys)
-};
+  return CreateArrayFromList(keys);
+}
 
 /**
  * 26.1.12 Reflect.preventExtensions (target)
@@ -431,13 +417,12 @@ function ReflectOwnKeys(global, this, NewTarget, strict, args) {
 function ReflectPreventExtensions(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   /* 1. If Type(target) is not Object, */
-  if (!(Type(target) = "Object")) {
+  if (!(Type(target) = "Object"))
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 2. Return target.[[PreventExtensions]](). */
-  return {target.PreventExtensions}(target)
-};
+  return {target.PreventExtensions}(target);
+}
 
 /**
  * 26.1.13 Reflect.set (target, propertyKey, V [ , receiver ] )
@@ -451,22 +436,20 @@ function ReflectSet(global, this, NewTarget, strict, args) {
   V := l_nth(args, 2);
   receiver := getOptionalParam(args, 3);
   /* 1. If Type(target) is not Object, */
-  if (!(Type(target) = "Object")) {
+  if (!(Type(target) = "Object"))
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 2. Let key be ToPropertyKey(propertyKey). */
   key := ToPropertyKey(propertyKey);
   /* 3. ReturnIfAbrupt(key). */
   @ReturnIfAbrupt(key);
   /* 4. If receiver is not present, then */
-  if (receiver = null) {
+  if (receiver = null)
     /* a. Let receiver be target. */
-    receiver := target
-  };
+    receiver := target;
   /* 5. Return target.[[Set]](key, V, receiver). */
-  return {target.Set}(target, key, V, receiver)
-};
+  return {target.Set}(target, key, V, receiver);
+}
 /**
  * The length property of the set function is 3.
  */
@@ -481,15 +464,12 @@ function ReflectSetPrototypeOf(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   proto := l_nth(args, 1);
   /* 1. If Type(target) is not Object, */
-  if (!(Type(target) = "Object")) {
+  if (!(Type(target) = "Object"))
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
-  /* 2. If Type(proto) is not Object and proto is not null, throw a TypeError
-     exception */
-  if (!(Type(proto) = "Object") &&& !(proto = 'null)) {
-      throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
+  /* 2. If Type(proto) is not Object and proto is not null, throw a TypeError exception */
+  if (!(Type(proto) = "Object") &&& !(proto = 'null))
+    throw TypeErrorConstructorInternal();
   /* 3. Return target.[[SetPrototypeOf]](proto). */
-  return {target.SetPrototypeOf}(target, proto)
+  return {target.SetPrototypeOf}(target, proto);
 }

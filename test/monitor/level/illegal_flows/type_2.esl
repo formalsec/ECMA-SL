@@ -4,7 +4,7 @@ function main () {
 	print "1";
 	l:= true;
 	print "2";
-	o := {};
+	o := {}
 	print "3";
 	o.p := true;
 	print "4";
@@ -16,12 +16,12 @@ function main () {
 	if (h) {
 	  print "6";
 	  o.p := false
-	};
+	}
 	x:= o.p;	
 
-	if(x){
+	if (x) {
 	  l := false
-	};
+	}
 
 
 

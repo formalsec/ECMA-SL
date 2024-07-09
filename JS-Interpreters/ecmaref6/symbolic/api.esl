@@ -1,41 +1,40 @@
 function __symNumber(globalObject, this, NewTarget, strict, params) {
-  return extern flt_symbol(l_nth(params, 0))
+  return extern flt_symbol(l_nth(params, 0));
 }
 
 function __symBoolean(globalObject, this, NewTarget, strict, params) {
-  return extern bool_symbol(l_nth(params, 0))
+  return extern bool_symbol(l_nth(params, 0));
 }
 
 function __symString(globalObject, this, NewTarget, strict, params) {
   id := l_nth(params, 0);
-  return extern str_symbol(id)
+  return extern str_symbol(id);
 }
 
 function __symAssume(globalObject, this, NewTarget, strict, params) {
   extern assume(l_nth(params, 0));
-  return 0
+  return 0;
 }
 
 function __symAssert(globalObject, this, NewTarget, strict, params) {
   e := l_nth(params, 0);
-  assert(e);
-  return 0
+  assert (e);
+  return 0;
 }
 
 function __symIsSymbolic(globalObject, this, NewTarget, strict, params) {
-  return extern is_symbolic(l_nth(params, 0))
+  return extern is_symbolic(l_nth(params, 0));
 }
 
 function __symLazyObject(globalObject, this, NewTarget, strict, params) {
-  return newLazyObject()
+  return newLazyObject();
 }
 
 function __symPollutedObject(globalObject, this, NewTarget, strict, params) {
   depth := 0;
-  if (l_len(params) > 0) {
-    depth := l_nth(params, 0)
-  };
-  return newPollutedObject(depth)
+  if (l_len(params) > 0)
+    depth := l_nth(params, 0);
+  return newPollutedObject(depth);
 }
 
 function initESLSymbolicObject(globalObject, objectPrototype, strict) {
@@ -91,6 +90,6 @@ function initESLSymbolicObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(esl_symbolic, "sealProperties", apiSealProp);
   createBuiltInProperty(apiSealProp, "prototype", objectPrototype);
 
-  return esl_symbolic
+  return esl_symbolic;
 }
 

@@ -1,50 +1,33 @@
 /* 12.11 Binary Bitwise Operators */
 function applyBitwiseOperator(operator, lnum, rnum) {
-  if (operator = "&") {
-    return lnum & rnum
-  };
-  if (operator = "^") {
-    return lnum ^ rnum
-  };
-  if (operator = "|") {
-    return lnum | rnum
-  };
-
-  assert false
-};
+  if (operator = "&")
+    return lnum & rnum;
+  if (operator = "^")
+    return lnum ^ rnum;
+  if (operator = "|")
+    return lnum | rnum;
+  assert false;
+}
 
 
 /* Auxiliary functions used to deal with the switch statement and its case clauses */
 function getNextCaseClause(caseClauseItems, idx) {
-  if ((l_len caseClauseItems) <= idx) {
-    return "None"
-  };
-
-  return l_nth(caseClauseItems, idx)
-};
+  if ((l_len caseClauseItems) <= idx)
+    return "None";
+  return l_nth(caseClauseItems, idx);
+}
 
 function hasStatementList(caseClause) {
-  if (caseClause = null) {
-    return false
-  };
+  if (caseClause = null)
+    return false;
   match caseClause with
-  /* | { type: "SwitchCase", consequent: [] } -> {
-    return false
-  } */
-  | { type: "SwitchCase", consequent: StatementList } -> {
-    return (l_len StatementList) > 0
-  }
-  | default -> {
-    throw SyntaxErrorConstructorInternal()
-  }
-};
+  /* | { type: "SwitchCase", consequent: [] } -> return false; */
+  | { type: "SwitchCase", consequent: StatementList } -> return (l_len StatementList) > 0;
+  | default -> throw SyntaxErrorConstructorInternal();
+}
 
 function getCaseClauseStatementList(caseClause) {
   match caseClause with
-  | { type: "SwitchCase", consequent: StatementList } -> {
-    return StatementList
-  }
-  | default -> {
-    throw SyntaxErrorConstructorInternal()
-  }
+  | { type: "SwitchCase", consequent: StatementList } -> return StatementList;
+  | default -> throw SyntaxErrorConstructorInternal();
 }

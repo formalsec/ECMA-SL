@@ -7,13 +7,13 @@ function main () {
 	x:= "upgVar"("l", "low");
 
 
-	if(h > 2){
+	if (h > 2) {
   		h:= "legal"(lc, h)
-	};
+	}
 	return l
-};
+}
 
-function legal(x,y){
+function legal(x,y) {
 	return y +10
 }
 

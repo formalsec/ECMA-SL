@@ -1,5 +1,5 @@
 function main() {
-  o := {};
+  o := {}
   x := extern str_symbol("x");
   y := extern str_symbol("y");
   z := extern str_symbol("z");
@@ -13,7 +13,7 @@ function main() {
     o[p] := 10;
     print(i);
     i := i + 1
-  };
+  }
 
   o[x] := -1;
   print(x);
@@ -30,10 +30,10 @@ function main() {
     p := s_concat(["field", int_to_string(i)]);
     total := total + o[p];
     i := i + 1
-  };
+  }
 
   total := total + o[x] + o[y];
 
-  assert(total >= (10 * cap - 2));
+  assert (total >= (10 * cap - 2));
   return 0
 }

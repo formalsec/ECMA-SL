@@ -1,31 +1,30 @@
 /* aux functions to handle execution stack */
 
 function pushExecStack(newExecCtx) {
-   |ctxStack| := l_prepend(newExecCtx, |ctxStack|);
-   return
-};
+  |ctxStack| := l_prepend(newExecCtx, |ctxStack|);
+  return;
+}
 
 function popExecStack() {
-    |ctxStack| := tl |ctxStack|;
-    return
-};
+  |ctxStack| := tl |ctxStack|;
+  return;
+}
 
 function topExecStack() {
-    return hd |ctxStack|
-};
+  return hd |ctxStack|;
+}
 
 function execStackIsEmpty() {
-    return l_len(|ctxStack|) = 0
-};
+  return l_len(|ctxStack|) = 0;
+}
 
 function initGlobalVars() {
     |ctxStack| := [];
     initJobQueue();
     |__CUR__SYMB__| := 0;
     |GlobalSymbolRegistry| := {};
-
-    return
-};
+    return;
+}
 
 /* 8.5 ECMAScript Initialization(sourceText)
 
@@ -36,31 +35,24 @@ function ECMAScriptInitialization(sourceText) {
 
     /* Let realm be CreateRealm(). */
     realm := CreateRealm();
-
     /* Let newContext be a new execution context. */
     newContext := createExecutionContext();
-
     /* Set the Function of newContext to null. */
     newContext.Function := 'null;
-
     /* Set the Realm of newContext to realm. */
     newContext.Realm := realm;
-
     /* Push newContext onto the execution context stack; newContext is now the running execution context. */
     pushExecStack(newContext);
-
     /* Let status be InitializeHostDefinedRealm(realm). */
     status := InitializeHostDefinedRealm(realm);
 
     /* If status is an abrupt completion, then */
-    if ( isAnAbruptCompletion(status) )
-    {
-        /* Assert: The first realm could not be created. */
-        assert( realm = null );
-
-        /* Terminate ECMAScript execution. */
-        return
-    };
+    if (isAnAbruptCompletion(status)) {
+      /* Assert: The first realm could not be created. */
+      assert (realm = null);
+      /* Terminate ECMAScript execution. */
+      return;
+    }
 
     |realm| := realm;
 
@@ -74,8 +66,8 @@ function ECMAScriptInitialization(sourceText) {
             /* Perform EnqueueJob("ScriptJobs", TopLevelModuleEvaluationJob, « sourceText »). */
 
     /* NextJob NormalCompletion(undefined). */
-    return NextJob( NormalCompletion('undefined) )
-};
+    return NextJob( NormalCompletion('undefined));
+}
 
 /* ECMAScriptPartialInitialization (sourceText)
 
@@ -86,10 +78,9 @@ function ECMAScriptPartialInitialization(sourceText) {
     newContext.Function := 'null;
     newContext.Realm := |realm|;
     pushExecStack(newContext);
-
     EnqueueJob("ScriptJobs", "ScriptEvaluationJob", [sourceText]);
-    return NextJob( NormalCompletion('undefined) )
-};
+    return NextJob( NormalCompletion('undefined));
+}
 
 /* 8.5.1 InitializeHostDefinedRealm ( realm )
 
@@ -100,18 +91,15 @@ function InitializeHostDefinedRealm(realm) {
     global be such an object created in an implementation defined manner. Otherwise, let global
     be undefined indicating that an ordinary object should be created as the global object. */
     global := realm.intrinsics.GlobalObject;
-
     /* Perform SetRealmGlobalObject(realm, global). */
     SetRealmGlobalObject(realm, global);
-
     /* Let globalObj be SetDefaultGlobalBindings(realm). */
     globalObj := SetDefaultGlobalBindings(realm);
-
     /* ReturnIfAbrupt(globalObj). */
     @ReturnIfAbrupt(globalObj);
 
     /* Create any implementation defined global object properties on globalObj. */
 
-    /* Return NormalCompletion(undefined).   */
-    return NormalCompletion('undefined)
+    /* Return NormalCompletion(undefined). */
+    return NormalCompletion('undefined);
 }

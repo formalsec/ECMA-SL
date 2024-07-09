@@ -1,13 +1,13 @@
 /* Auxiliary functions used in the interpretation of the DebuggerStatement */
 /* They're mainly Dummy functions*/
 function existsDebuggerImplementation() {
-  return false
-};
+  return false;
+}
 
 function implementationDefinedDebuggingAction() {
-  return
-};
+  return;
+}
 
 function implementationDefinedCompletionValue() {
-  return normalEmptyCompletion('empty)
+  return normalEmptyCompletion('empty);
 }

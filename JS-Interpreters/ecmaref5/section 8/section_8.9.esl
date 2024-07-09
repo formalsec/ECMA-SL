@@ -8,45 +8,40 @@
     The term "abrupt completion" refers to any completion with a type other than normal.
 */
 function isAnAbruptCompletion (completion) {
-  if (!(getCompletionType(completion) = 'normal)) {
-    return true
-  };
-
-  return false
-};
+  return !(getCompletionType(completion) = 'normal);
+}
 
 /* Auxiliary functions created for the purposes of accessing the values of the triple that form the completion type. */
 function isErrorCompletion(completion) {
-  if ((Type(completion) = "Completion")) {
-    return (getCompletionType(completion) = 'throw)
-  };
-  return false
-};
+  if ((Type(completion) = "Completion"))
+    return (getCompletionType(completion) = 'throw);
+  return false;
+}
 function getCompletionType(completion) {
-  return l_nth(completion, 1)
-};
+  return l_nth(completion, 1);
+}
 function getCompletionValue(completion) {
-  return l_nth(completion, 2)
-};
+  return l_nth(completion, 2);
+}
 function getCompletionTarget(completion) {
-  return l_nth(completion, 3)
-};
+  return l_nth(completion, 3);
+}
 
 function newCompletion(type, value, target) {
-  return ["C", type, value, target]
-};
+  return ["C", type, value, target];
+}
 function normalEmptyCompletion(V) {
-  return newCompletion('normal, V, 'empty)
-};
+  return newCompletion('normal, V, 'empty);
+}
 /* This auxiliary is function is used to accomplish the following convention defined in 5.2 Algorithm Conventions:
     If an algorithm is defined to "throw an exception", execution of the algorithm is terminated and no result is
     returned. The calling algorithms are also terminated, until an algorithm step is reached that explicitly deals
     with the exception, using terminology such as "If an exception was thrown...". Once such an algorithm step
     has been encountered the exception is no longer considered to have occurred. */
 function throwEmptyCompletion(V) {
-  return newCompletion('throw, V, 'empty)
-};
+  return newCompletion('throw, V, 'empty);
+}
 
 function isCompletionRecord(record) {
-  return (Type(record) = "Completion")
+  return (Type(record) = "Completion");
 }

@@ -1,5 +1,5 @@
 function main() {
-  o := {};
+  o := {}
   x := extern str_symbol("x");
 
   o[x] := 1;

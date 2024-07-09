@@ -3,40 +3,35 @@
 /* see 9.1.13 */
 function setInternalProperty(object, pname, pvalue) {
   object[pname] := pvalue;
-  return
-};
+  return;
+}
 
 /* see 9.1.13 */
 function setAllInternalMethodsOfOrdinaryObject(obj) {
   obj.GetPrototypeOf      := "OrdinaryObjectGetPrototypeOf";
   obj.SetPrototypeOf      := "OrdinaryObjectSetPrototypeOf";
-  obj.IsExtensible 		  := "OrdinaryObjectIsExtensible";
+  obj.IsExtensible 		    := "OrdinaryObjectIsExtensible";
   obj.PreventExtensions	  := "OrdinaryObjectPreventExtensions";
-  obj.GetOwnProperty 	  := "OrdinaryObjectGetOwnProperty";
+  obj.GetOwnProperty 	    := "OrdinaryObjectGetOwnProperty";
   obj.DefineOwnProperty   := "OrdinaryObjectDefineOwnProperty";
   obj.HasProperty         := "OrdinaryObjectHasProperty";
-  obj.Get  				  := "OrdinaryObjectGet";
-  obj.Set  				  := "OrdinaryObjectSet";
+  obj.Get  				        := "OrdinaryObjectGet";
+  obj.Set  				        := "OrdinaryObjectSet";
   obj.Delete              := "OrdinaryObjectDelete";
-  obj.Enumerate			  := "OrdinaryObjectEnumerate";
+  obj.Enumerate			      := "OrdinaryObjectEnumerate";
   obj.OwnPropertyKeys     := "OrdinaryObjectOwnPropertyKeys";
   obj.JSProperties        := {};
   obj.JSPropertiesSymbols := {};
   obj.SymbolKeys          := {};
 
-  return obj
-};
+  return obj;
+}
 
 /** See 9.1.6.3 */
 function EveryFieldIsAbsent(Desc) {
   list := GetProps(Desc);
-
-  if ((l_len list) = 0) {
-    return true
-  } else {
-    return false
-  }
-};
+  return ((l_len list) = 0);
+}
 
 /* main functions */
 
@@ -47,10 +42,9 @@ function EveryFieldIsAbsent(Desc) {
 */
 function OrdinaryObjectGetPrototypeOf(O) {
 	/* When the [[GetPrototypeOf]] internal method of O is called the following steps are taken: */
-
-    /* Return the value of the [[Prototype]] internal slot of O */
-    return O.Prototype
-};
+  /* Return the value of the [[Prototype]] internal slot of O */
+  return O.Prototype;
+}
 
 /**
  * 9.1.2 [[SetPrototypeOf]] (V)
@@ -58,64 +52,52 @@ function OrdinaryObjectGetPrototypeOf(O) {
  * When the [[SetPrototypeOf]] internal method of O is called with argument V the following steps are taken:
 */
 function OrdinaryObjectSetPrototypeOf(O, V) {
-    /* Assert: Either Type(V) is Object or Type(V) is Null. */
-    assert( (Type(V) = "Object") ||| (Type(V) = "Null") );
+  /* Assert: Either Type(V) is Object or Type(V) is Null. */
+  assert ((Type(V) = "Object") ||| (Type(V) = "Null"));
+  /* Let extensible be the value of the [[Extensible]] internal slot of O. */
+  extensible := O.Extensible;
+  /* Let current be the value of the [[Prototype]] internal slot of O. */
+  current := O.Prototype;
+  /* If SameValue(V, current), return true. */
+  if (SameValue(V, current))
+    return true;
+  /* If extensible is false, return false. */
+  if (extensible = false)
+    return false;
+  /* Let p be V. */
+  p := V;
+  /* Let done be false. */
+  done := false;
+  /* Repeat while done is false, */
+  while (done = false) {
+    /* If p is null, let done be true. */
+    if ( p = 'null) {
+      done := true;
+    }
+    /* Else, if SameValue(p, O) is true, return false. */
+    elif (SameValue(p, O) = true) {
+      return false;
+    }
+    /* Else, */
+    else {
+      /* If the [[GetPrototypeOf]] internal method of p is not the ordinary object internal method defined in 9.1.1, let done be true. */
+      if (!(p.GetPrototypeOf = "OrdinaryObjectGetPrototypeOf"))
+        done := true;
+      /* Else, let p be the value of p’s [[Prototype]] internal slot. */
+      else
+        p := p.Prototype;
+    }
+  }
 
-    /* Let extensible be the value of the [[Extensible]] internal slot of O. */
-    extensible := O.Extensible;
+  /* Set the value of the [[Prototype]] internal slot of O to V. */
+  O.Prototype := V;
+  /* Return true. */
+  return true;
 
-    /* Let current be the value of the [[Prototype]] internal slot of O. */
-    current := O.Prototype;
-
-    /* If SameValue(V, current), return true. */
-    if ( SameValue(V, current) ) {
-    	return true
-    };
-
-    /* If extensible is false, return false. */
-    if ( extensible = false ) {
-    	return false
-    };
-
-    /* Let p be V. */
-    p := V;
-
-    /* Let done be false. */
-    done := false;
-
-    /* Repeat while done is false, */
-    while (done = false) {
-        /* If p is null, let done be true. */
-        if ( p = 'null) {
-        	done := true
-        }
-    	/* Else, if SameValue(p, O) is true, return false. */
-        elif ( SameValue(p, O) = true ) {
-        	return false
-        }
-        /* Else, */
-        else {
-            /* If the [[GetPrototypeOf]] internal method of p is not the ordinary object internal method defined in 9.1.1, let done be true. */
-            if ( !(p.GetPrototypeOf = "OrdinaryObjectGetPrototypeOf") ) {
-            	done := true
-            }
-            /* Else, let p be the value of p’s [[Prototype]] internal slot. */
-        	else {
-        		p := p.Prototype
-        	}
-        }
-    };
-
-    /* Set the value of the [[Prototype]] internal slot of O to V. */
-    O.Prototype := V;
-
-    /* Return true. */
-    return true
-
-    /*NOTE The loop in step 8 guarantees that there will be no circularities in any prototype chain that only
-		   includes objects that use the ordinary object definitions for [[GetPrototypeOf]] and [[SetPrototypeOf]].
+  /* NOTE The loop in step 8 guarantees that there will be no circularities in any prototype chain that only
+     includes objects that use the ordinary object definitions for [[GetPrototypeOf]] and [[SetPrototypeOf]].
 	*/
-};
+}
 
 /**
  * 9.1.3 [[IsExtensible]] ( )
@@ -124,8 +106,8 @@ function OrdinaryObjectSetPrototypeOf(O, V) {
 */
 function OrdinaryObjectIsExtensible(O) {
 	/* Return the value of the [[Extensible]] internal slot of O. */
-	return O.Extensible
-};
+	return O.Extensible;
+}
 
 /**
  * 9.1.4 [[PreventExtensions]] ( )
@@ -135,10 +117,9 @@ function OrdinaryObjectIsExtensible(O) {
 function OrdinaryObjectPreventExtensions(O) {
     /* Set the value of the [[Extensible]] internal slot of O to false. */
     O.Extensible := false;
-
     /* Return true. */
-    return true
-};
+    return true;
+}
 
 /**
  * 9.1.5.1 OrdinaryGetOwnProperty (O, P)
@@ -146,46 +127,39 @@ function OrdinaryObjectPreventExtensions(O) {
  * When the abstract operation OrdinaryGetOwnProperty is called with Object O and with property key P, the following steps are taken:
 */
 function OrdinaryGetOwnProperty(O, P) {
-    /* Assert: IsPropertyKey(P) is true. */
-    assert( IsPropertyKey(P) = true);
+  /* Assert: IsPropertyKey(P) is true. */
+  assert (IsPropertyKey(P) = true);
 
-    /* If O does not have an own property with key P, return undefined. */
+  /* If O does not have an own property with key P, return undefined. */
+  if (!inJSProperties(O, P))
+    return 'undefined;
 
+  /* Let D be a newly created Property Descriptor with no fields. */
+  D := NewPropertyDescriptor();
+  /* Let X be O’s own property whose key is P. */
+  X := getJSProperty(O, P);
 
-    if ( !inJSProperties(O, P) ) {
-    	return 'undefined
-    };
+  /* If X is a data property, then */
+  if (IsDataDescriptor(X)) {
+    /* Set D.[[Value]] to the value of X’s [[Value]] attribute. */
+    D.Value := X.Value;
+    /* Set D.[[Writable]] to the value of X’s [[Writable]] attribute */
+    D.Writable := X.Writable;
+  /* Else X is an accessor property, so */
+  } else {
+    /* Set D.[[Get]] to the value of X’s [[Get]] attribute. */
+    D.Get := X.Get;
+    /* Set D.[[Set]] to the value of X’s [[Set]] attribute. */
+    D.Set := X.Set;
+  }
 
-    /* Let D be a newly created Property Descriptor with no fields. */
-    D := NewPropertyDescriptor();
-
-    /* Let X be O’s own property whose key is P. */
-    X := getJSProperty(O, P);
-
-    /* If X is a data property, then */
-    if ( IsDataDescriptor(X) ) {
-        /* Set D.[[Value]] to the value of X’s [[Value]] attribute. */
-        D.Value := X.Value;
-        /* Set D.[[Writable]] to the value of X’s [[Writable]] attribute */
-        D.Writable := X.Writable
-    }
-    /* Else X is an accessor property, so */
-    else {
-        /* Set D.[[Get]] to the value of X’s [[Get]] attribute. */
-        D.Get := X.Get;
-        /* Set D.[[Set]] to the value of X’s [[Set]] attribute. */
-        D.Set := X.Set
-    };
-
-    /* Set D.[[Enumerable]] to the value of X’s [[Enumerable]] attribute. */
-    D.Enumerable := X.Enumerable;
-
-    /* Set D.[[Configurable]] to the value of X’s [[Configurable]] attribute. */
-    D.Configurable := X.Configurable;
-
-    /* Return D. */
-    return D
-};
+  /* Set D.[[Enumerable]] to the value of X’s [[Enumerable]] attribute. */
+  D.Enumerable := X.Enumerable;
+  /* Set D.[[Configurable]] to the value of X’s [[Configurable]] attribute. */
+  D.Configurable := X.Configurable;
+  /* Return D. */
+  return D;
+}
 
 /**
  * 9.1.5 [[GetOwnProperty]] (P)
@@ -195,8 +169,8 @@ function OrdinaryGetOwnProperty(O, P) {
 */
 function OrdinaryObjectGetOwnProperty(O, P) {
 	/* Return OrdinaryGetOwnProperty(O, P). */
-	return OrdinaryGetOwnProperty(O, P)
-};
+	return OrdinaryGetOwnProperty(O, P);
+}
 
 /**
  * 9.1.6.3 ValidateAndApplyPropertyDescriptor (O, P, extensible, Desc, current)
@@ -211,168 +185,144 @@ function OrdinaryObjectGetOwnProperty(O, P) {
  * NOTE 1 If undefined is passed as the O argument only validation is performed and no object updates are performed.
 */
 function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
-    /* Assert: If O is not undefined then IsPropertyKey(P) is true. */
-    if (!(O = 'undefined)) {
-        assert(IsPropertyKey(P) = true)
-    };
+  /* Assert: If O is not undefined then IsPropertyKey(P) is true. */
+  if (!(O = 'undefined))
+    assert(IsPropertyKey(P) = true);
 
-    /* If current is undefined, then */
-    if (current = 'undefined ) {
-        /* If extensible is false, return false. */
-        if ( extensible = false ) {
-        	return false
-        };
+  /* If current is undefined, then */
+  if (current = 'undefined ) {
+    /* If extensible is false, return false. */
+    if (extensible = false)
+      return false;
+    /* Assert: extensible is true. */
+    assert (extensible = true);
 
-        /* Assert: extensible is true. */
-        assert( extensible = true );
-
-        /* If IsGenericDescriptor(Desc) or IsDataDescriptor(Desc) is true, then */
-        if ( (IsGenericDescriptor(Desc) = true) ||| (IsDataDescriptor(Desc) = true) ) {
-            /* If O is not undefined, create an own data property named P of object O whose [[Value]], [[Writable]], [[Enumerable]]
-            and [[Configurable]] attribute values are described by Desc. If the value of an attribute field of Desc is absent, the
-            attribute of the newly created property is set to its default value. */
-            if (!(O = 'undefined)) {
-                setJSProperty(O, P, CreateDataPropertyFrom(Desc))
-            }
-        }
-        /* Else Desc must be an accessor Property Descriptor, */
-        else {
-            /* If O is not undefined, create an own accessor property named P of object O whose [[Get]], [[Set]], [[Enumerable]] and
-            [[Configurable]] attribute values are described by Desc. If the value of an attribute field of Desc is absent, the attribute
-            of the newly created property is set to its default value. */
-            if (!(O = 'undefined)) {
-                setJSProperty(O, P, CreateAccessorPropertyFrom(Desc))
-            }
-        };
-
-        /* Return true. */
-        return true
-    };
-
-    /* Return true, if every field in Desc is absent. */
-    if (EveryFieldIsAbsent(Desc)) {
-      return true
-    };
-
-    /* Return true, if every field in Desc also occurs in current and the value of every field in Desc is the same
-       value as the corresponding field in current when compared using the SameValue algorithm.
-    */
-    if ( SameValue(current, Desc) = true ) {
-        return true
-    };
-
-    /* If the [[Configurable]] field of current is false, then */
-    if ( current.Configurable = false ) {
-        /* Return false, if the [[Configurable]] field of Desc is true. */
-        if ( Desc.Configurable = true ) {
-        	return false
-        };
-
-        /* Return false, if the [[Enumerable]] field of Desc is present and the [[Enumerable]] fields of current
-           and Desc are the Boolean negation of each other. */
-        if ( ("Enumerable" in_obj Desc) &&& !( ToBoolean(current.Enumerable) = ToBoolean(Desc.Enumerable)) ) {
-        	return false
-        }
-    };
-
-    /* If IsGenericDescriptor(Desc) is true, no further validation is required. */
-    if ( IsGenericDescriptor(Desc) ) {}
-    /* Else if IsDataDescriptor(current) and IsDataDescriptor(Desc) have different results, then */
-    elif ( !(IsDataDescriptor(current) = IsDataDescriptor(Desc)) ) {
-        /* Return false, if the [[Configurable]] field of current is false. */
-        if ( current.Configurable = false ) {
-        	return false
-        };
-
-        /* If IsDataDescriptor(current) is true, then */
-        if (IsDataDescriptor(current) = true ) {
-            /* If O is not undefined, convert the property named P of object O from a data property to an
-               accessor property. Preserve the existing values of the converted property’s [[Configurable]]
-               and [[Enumerable]] attributes and set the rest of the property’s attributes to their default values. */
-            delete current.Value;
-        	delete current.Writable;
-        	current.Set := 'undefined;
-        	current.Get := 'undefined
-        	/* TODO */
-        	/* convertDataPropertyDescToAccessorPropertyDesc(O, P) */
-        }
-        /* Else, */
-        else {
-            /* If O is not undefined, convert the property named P of object O from an accessor property to a
-               data property. Preserve the existing values of the converted property’s [[Configurable]] and
-               [[Enumerable]] attributes and set the rest of the property’s attributes to their default values. */
-            delete current.Set;
-        	delete current.Get;
-        	current.Value := 'undefined;
-        	current.Writable := false
-        	/* TODO */
-        	/* convertAccessorPropertyDescToDataPropertyDesc(O, P) */
-        }
+    /* If IsGenericDescriptor(Desc) or IsDataDescriptor(Desc) is true, then */
+    if ((IsGenericDescriptor(Desc) = true) ||| (IsDataDescriptor(Desc) = true)) {
+      /* If O is not undefined, create an own data property named P of object O whose [[Value]], [[Writable]], [[Enumerable]]
+      and [[Configurable]] attribute values are described by Desc. If the value of an attribute field of Desc is absent, the
+      attribute of the newly created property is set to its default value. */
+      if (!(O = 'undefined)) {
+        setJSProperty(O, P, CreateDataPropertyFrom(Desc));
+      }
+    /* Else Desc must be an accessor Property Descriptor, */
+    } else {
+      /* If O is not undefined, create an own accessor property named P of object O whose [[Get]], [[Set]], [[Enumerable]] and
+      [[Configurable]] attribute values are described by Desc. If the value of an attribute field of Desc is absent, the attribute
+      of the newly created property is set to its default value. */
+      if (!(O = 'undefined))
+          setJSProperty(O, P, CreateAccessorPropertyFrom(Desc));
     }
-    /* Else if IsDataDescriptor(current) and IsDataDescriptor(Desc) are both true, then */
-    elif ( (IsDataDescriptor(current) = true) &&& (IsDataDescriptor(Desc) = true) ) {
-        /* If the [[Configurable]] field of current is false, then */
-        if ( current.Configurable = false ) {
-            /* Return false, if the [[Writable]] field of current is false and the [[Writable]] field of Desc is true. */
-            if ( (current.Writable = false) &&& (Desc.Writable = true) ) {
-            	return false
-            };
-
-            /* If the [[Writable]] field of current is false, then */
-            if ( current.Writable = false ) {
-                /* Return false, if the [[Value]] field of Desc is present and SameValue(Desc.[[Value]], current.[[Value]]) is false. */
-                if ( ("Value" in_obj Desc) &&& (SameValue(Desc.Value, current.Value) = false) ) {
-                	return false
-                }
-            }
-        }
-        /* Else the [[Configurable]] field of current is true, so any change is acceptable. */
-        else {}
-    }
-    /* Else IsAccessorDescriptor(current) and IsAccessorDescriptor(Desc) are both true, */
-	else {
-        /* If the [[Configurable]] field of current is false, then */
-        if ( current.Configurable = false ) {
-            /* Return false, if the [[Set]] field of Desc is present and SameValue(Desc.[[Set]], current.[[Set]]) is false. */
-            if ( ("Set" in_obj Desc) &&& (SameValue(Desc.Set, current.Set) = false) ) {
-            	return false
-            };
-
-            /* Return false, if the [[Get]] field of Desc is present and SameValue(Desc.[[Get]], current.[[Get]]) is false. */
-            if ( ("Get" in_obj Desc) &&& (SameValue(Desc.Get, current.Get) = false) ) {
-            	return false
-            }
-        }
-	};
-
-    /* If O is not undefined, then */
-    if (!(O = 'undefined )) {
-        /* For each field of Desc that is present, set the corresponding attribute of the property named P of object O to the value of the field. */
-        if ("Value" in_obj Desc) {
-          current.Value := Desc.Value
-        };
-        if ("Writable" in_obj Desc) {
-          current.Writable := Desc.Writable
-        };
-        if ("Set" in_obj Desc) {
-          current.Set := Desc.Set
-        };
-        if ("Get" in_obj Desc) {
-          current.Get := Desc.Get
-        };
-        if ("Enumerable" in_obj Desc) {
-          current.Enumerable := Desc.Enumerable
-        };
-        if ("Configurable" in_obj Desc) {
-          current.Configurable := Desc.Configurable
-        };
-
-        setJSProperty(O, P, current)
-    };
 
     /* Return true. */
-    return true
-};
+    return true;
+  }
+
+  /* Return true, if every field in Desc is absent. */
+  if (EveryFieldIsAbsent(Desc))
+    return true;
+
+  /* Return true, if every field in Desc also occurs in current and the value of every field in Desc is the same
+      value as the corresponding field in current when compared using the SameValue algorithm.
+  */
+  if (SameValue(current, Desc) = true)
+      return true;
+
+  /* If the [[Configurable]] field of current is false, then */
+  if (current.Configurable = false) {
+    /* Return false, if the [[Configurable]] field of Desc is true. */
+    if (Desc.Configurable = true)
+      return false;
+
+    /* Return false, if the [[Enumerable]] field of Desc is present and the [[Enumerable]] fields of current
+        and Desc are the Boolean negation of each other. */
+    if (("Enumerable" in_obj Desc) &&& !( ToBoolean(current.Enumerable) = ToBoolean(Desc.Enumerable)))
+      return false;
+  }
+
+  /* If IsGenericDescriptor(Desc) is true, no further validation is required. */
+  if (IsGenericDescriptor(Desc));
+  /* Else if IsDataDescriptor(current) and IsDataDescriptor(Desc) have different results, then */
+  elif (!(IsDataDescriptor(current) = IsDataDescriptor(Desc))) {
+    /* Return false, if the [[Configurable]] field of current is false. */
+    if (current.Configurable = false)
+      return false;
+
+    /* If IsDataDescriptor(current) is true, then */
+    if (IsDataDescriptor(current) = true ) {
+      /* If O is not undefined, convert the property named P of object O from a data property to an
+          accessor property. Preserve the existing values of the converted property’s [[Configurable]]
+          and [[Enumerable]] attributes and set the rest of the property’s attributes to their default values. */
+      delete current.Value;
+      delete current.Writable;
+      current.Set := 'undefined;
+      current.Get := 'undefined;
+      /* TODO */
+      /* convertDataPropertyDescToAccessorPropertyDesc(O, P) */
+    /* Else, */
+    } else {
+      /* If O is not undefined, convert the property named P of object O from an accessor property to a
+          data property. Preserve the existing values of the converted property’s [[Configurable]] and
+          [[Enumerable]] attributes and set the rest of the property’s attributes to their default values. */
+      delete current.Set;
+      delete current.Get;
+      current.Value := 'undefined;
+      current.Writable := false;
+      /* TODO */
+      /* convertAccessorPropertyDescToDataPropertyDesc(O, P) */
+    }
+  }
+  /* Else if IsDataDescriptor(current) and IsDataDescriptor(Desc) are both true, then */
+  elif ((IsDataDescriptor(current) = true) &&& (IsDataDescriptor(Desc) = true)) {
+    /* If the [[Configurable]] field of current is false, then */
+    if (current.Configurable = false) {
+      /* Return false, if the [[Writable]] field of current is false and the [[Writable]] field of Desc is true. */
+      if ((current.Writable = false) &&& (Desc.Writable = true))
+        return false;
+      /* If the [[Writable]] field of current is false, then */
+      if (current.Writable = false) {
+          /* Return false, if the [[Value]] field of Desc is present and SameValue(Desc.[[Value]], current.[[Value]]) is false. */
+          if (("Value" in_obj Desc) &&& (SameValue(Desc.Value, current.Value) = false))
+            return false;
+      }
+    }
+    /* Else the [[Configurable]] field of current is true, so any change is acceptable. */
+    else {}
+  /* Else IsAccessorDescriptor(current) and IsAccessorDescriptor(Desc) are both true, */
+  } else {
+      /* If the [[Configurable]] field of current is false, then */
+      if (current.Configurable = false) {
+        /* Return false, if the [[Set]] field of Desc is present and SameValue(Desc.[[Set]], current.[[Set]]) is false. */
+        if (("Set" in_obj Desc) &&& (SameValue(Desc.Set, current.Set) = false))
+          return false;
+        /* Return false, if the [[Get]] field of Desc is present and SameValue(Desc.[[Get]], current.[[Get]]) is false. */
+        if (("Get" in_obj Desc) &&& (SameValue(Desc.Get, current.Get) = false))
+          return false;
+      }
+  }
+
+  /* If O is not undefined, then */
+  if (!(O = 'undefined )) {
+    /* For each field of Desc that is present, set the corresponding attribute of the property named P of object O to the value of the field. */
+    if ("Value" in_obj Desc)
+      current.Value := Desc.Value;
+    if ("Writable" in_obj Desc)
+      current.Writable := Desc.Writable;
+    if ("Set" in_obj Desc)
+      current.Set := Desc.Set;
+    if ("Get" in_obj Desc)
+      current.Get := Desc.Get;
+    if ("Enumerable" in_obj Desc)
+      current.Enumerable := Desc.Enumerable;
+    if ("Configurable" in_obj Desc)
+      current.Configurable := Desc.Configurable;
+
+    setJSProperty(O, P, current);
+  }
+
+  /* Return true. */
+  return true;
+}
 
 /**
  * 9.1.6.2 IsCompatiblePropertyDescriptor (Extensible, Desc, Current)
@@ -382,8 +332,8 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
 */
 function IsCompatiblePropertyDescriptor(Extensible, Desc, Current) {
 	/* Return ValidateAndApplyPropertyDescriptor(undefined, undefined, Extensible, Desc, Current). */
-	return ValidateAndApplyPropertyDescriptor('undefined, 'undefined, Extensible, Desc, Current)
-};
+	return ValidateAndApplyPropertyDescriptor('undefined, 'undefined, Extensible, Desc, Current);
+}
 
 /**
  * 9.1.6.1 OrdinaryDefineOwnProperty (O, P, Desc)
@@ -394,16 +344,13 @@ function IsCompatiblePropertyDescriptor(Extensible, Desc, Current) {
 function OrdinaryDefineOwnProperty(O, P, Desc) {
     /* Let current be O.[[GetOwnProperty]](P). */
     current := {O.GetOwnProperty}(O,P);
-
     /* ReturnIfAbrupt(current). */
     @ReturnIfAbrupt(current);
-
     /* Let extensible be the value of the [[Extensible]] internal slot of O. */
     extensible := O.Extensible;
-
     /* Return ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current). */
-    return ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current)
-};
+    return ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current);
+}
 
 /**
  * 9.1.6 [[DefineOwnProperty]] (P, Desc)
@@ -413,8 +360,8 @@ function OrdinaryDefineOwnProperty(O, P, Desc) {
 */
 function OrdinaryObjectDefineOwnProperty(O, P, Desc) {
 	/* Return OrdinaryDefineOwnProperty(O, P, Desc). */
-	return OrdinaryDefineOwnProperty(O, P, Desc)
-};
+	return OrdinaryDefineOwnProperty(O, P, Desc);
+}
 
 /**
  * 9.1.7.1 OrdinaryHasProperty (O, P)
@@ -424,31 +371,27 @@ function OrdinaryObjectDefineOwnProperty(O, P, Desc) {
 */
 function OrdinaryHasProperty(O, P) {
     /* Assert: IsPropertyKey(P) is true. */
-    assert( IsPropertyKey(P) = true );
-
+    assert (IsPropertyKey(P) = true);
     /* Let hasOwn be OrdinaryGetOwnProperty(O, P). */
     hasOwn := OrdinaryGetOwnProperty(O, P);
 
     /* If hasOwn is not undefined, return true. */
-    if ( !(hasOwn = 'undefined )) {
-    	return true
-    };
+    if (!(hasOwn = 'undefined ))
+    	return true;
 
     /* Let parent be O.[[GetPrototypeOf]](). */
     parent := {O.GetPrototypeOf}(O);
-
     /* ReturnIfAbrupt(parent). */
     @ReturnIfAbrupt(parent);
-
     /* If parent is not null, then */
-    if ( !(parent = 'null) ) {
-        /* Return parent.[[HasProperty]](P). */
-        return {parent.HasProperty}(parent, P)
-    };
+    if (!(parent = 'null) ) {
+      /* Return parent.[[HasProperty]](P). */
+      return {parent.HasProperty}(parent, P);
+    }
 
     /* Return false. */
-    return false
-};
+    return false;
+}
 
 /**
  * 9.1.7 [[HasProperty]](P)
@@ -457,8 +400,8 @@ function OrdinaryHasProperty(O, P) {
 */
 function OrdinaryObjectHasProperty(O, P) {
 	/* Return OrdinaryHasProperty(O, P). */
-	return OrdinaryHasProperty(O, P)
-};
+	return OrdinaryHasProperty(O, P);
+}
 
 /**
  * 9.1.8 [[Get]] (P, Receiver)
@@ -468,47 +411,35 @@ function OrdinaryObjectHasProperty(O, P) {
 */
 function OrdinaryObjectGet(O, P, Receiver) {
     /* Assert: IsPropertyKey(P) is true. */
-    assert( IsPropertyKey(P) = true );
-
+    assert (IsPropertyKey(P) = true );
     /* Let desc be O.[[GetOwnProperty]](P). */
     desc := {O.GetOwnProperty}(O,P);
-
     /* ReturnIfAbrupt(desc). */
     @ReturnIfAbrupt(desc);
-
     /* If desc is undefined, then */
     if (desc = 'undefined ) {
-        /* Let parent be O.[[GetPrototypeOf]](). */
-        parent := {O.GetPrototypeOf}(O);
-
-        /* ReturnIfAbrupt(parent). */
-        @ReturnIfAbrupt(parent);
-
-        /* If parent is null, return undefined. */
-        if (parent = 'null) {
-        	return 'undefined
-        };
-
-        /* Return parent.[[Get]](P, Receiver). */
-        return {parent.Get}(parent, P, Receiver)
-    };
+      /* Let parent be O.[[GetPrototypeOf]](). */
+      parent := {O.GetPrototypeOf}(O);
+      /* ReturnIfAbrupt(parent). */
+      @ReturnIfAbrupt(parent);
+      /* If parent is null, return undefined. */
+      if (parent = 'null)
+        return 'undefined;
+      /* Return parent.[[Get]](P, Receiver). */
+      return {parent.Get}(parent, P, Receiver);
+    }
 
     /* If IsDataDescriptor(desc) is true, return desc.[[Value]]. */
-    if ( IsDataDescriptor(desc) = true ) {
-    	return desc.Value
-    };
-
+    if (IsDataDescriptor(desc) = true)
+    	return desc.Value;
     /* Otherwise, IsAccessorDescriptor(desc) must be true so, let getter be desc.[[Get]]. */
     getter := desc.Get;
-
     /* If getter is undefined, return undefined. */
-    if ( getter = 'undefined ) {
-    	return 'undefined
-    };
-
+    if (getter = 'undefined)
+    	return 'undefined;
     /* Return Call(getter, Receiver). */
-    return Call(null, null, getter, Receiver, null)
-};
+    return Call(null, null, getter, Receiver, null);
+}
 
 /**
  * 9.1.9 [[Set]] ( P, V, Receiver)
@@ -517,98 +448,74 @@ function OrdinaryObjectGet(O, P, Receiver) {
  * Receiver, the following steps are taken:
 */
 function OrdinaryObjectSet(O, P, V, Receiver) {
-    /* Assert: IsPropertyKey(P) is true. */
-    assert( IsPropertyKey(P) = true );
+  /* Assert: IsPropertyKey(P) is true. */
+  assert (IsPropertyKey(P) = true );
+  /* Let ownDesc be O.[[GetOwnProperty]](P). */
+  ownDesc := {O.GetOwnProperty}(O,P);
+  /* ReturnIfAbrupt(ownDesc). */
+  @ReturnIfAbrupt(ownDesc);
+  /* If ownDesc is undefined, then */
+  if (ownDesc = 'undefined) {
+    /* Let parent be O.[[GetPrototypeOf]](). */
+    parent := {O.GetPrototypeOf}(O);
+    /* ReturnIfAbrupt(parent). */
+    @ReturnIfAbrupt(parent);
+    /* If parent is not null, then */
+    if (!(parent = 'null)) {
+      /* Return parent.[[Set]](P, V, Receiver). */
+      return {parent.Set}(parent, P, V, Receiver);
+    /* Else, */
+    } else {
+      /* Let ownDesc be the PropertyDescriptor{[[Value]]: undefined, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}. */
+      ownDesc := newDataPropertyDescriptorFull('undefined, true, true, true);
+    }
+  }
 
-    /* Let ownDesc be O.[[GetOwnProperty]](P). */
-    ownDesc := {O.GetOwnProperty}(O,P);
+  /* If IsDataDescriptor(ownDesc) is true, then */
+  if (IsDataDescriptor(ownDesc) = true) {
+    /* If ownDesc.[[Writable]] is false, return false. */
+    if (ownDesc.Writable = false)
+      return false;
+    /* If Type(Receiver) is not Object, return false. */
+    if (!(Type(Receiver) = "Object"))
+      return false;
+    /* Let existingDescriptor be Receiver.[[GetOwnProperty]](P). */
+    existingDescriptor := {Receiver.GetOwnProperty}(Receiver, P);
+    /* ReturnIfAbrupt(existingDescriptor). */
+    @ReturnIfAbrupt(existingDescriptor);
+    /* If existingDescriptor is not undefined, then */
+    if (!(existingDescriptor = 'undefined)) {
+      /* If IsAccessorDescriptor(existingDescriptor) is true, return false. */
+      if (IsAccessorDescriptor(existingDescriptor) = true)
+        return false;
+      /* If existingDescriptor.[[Writable]] is false, return false. */
+      if (existingDescriptor.Writable = false)
+        return false;
+      /* Let valueDesc be the PropertyDescriptor{[[Value]]: V}. */
+      valueDesc := { Value: V };
+      /* Return Receiver.[[DefineOwnProperty]](P, valueDesc). */
+      return {Receiver.DefineOwnProperty}(Receiver, P, valueDesc);
+    /* Else Receiver does not currently have a property P, */
+    } else {
+      /* Return CreateDataProperty(Receiver, P, V). */
+      return CreateDataProperty(Receiver, P, V);
+    }
+  }
 
-    /* ReturnIfAbrupt(ownDesc). */
-    @ReturnIfAbrupt(ownDesc);
-
-    /* If ownDesc is undefined, then */
-    if ( ownDesc = 'undefined ) {
-        /* Let parent be O.[[GetPrototypeOf]](). */
-        parent := {O.GetPrototypeOf}(O);
-
-        /* ReturnIfAbrupt(parent). */
-        @ReturnIfAbrupt(parent);
-
-        /* If parent is not null, then */
-        if ( !(parent = 'null) ) {
-            /* Return parent.[[Set]](P, V, Receiver). */
-            return {parent.Set}(parent, P, V, Receiver)
-        }
-        /* Else, */
-        else {
-            /* Let ownDesc be the PropertyDescriptor{[[Value]]: undefined, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}. */
-            ownDesc := newDataPropertyDescriptorFull('undefined, true, true, true)
-        }
-    };
-
-    /* If IsDataDescriptor(ownDesc) is true, then */
-    if ( IsDataDescriptor(ownDesc) = true ) {
-        /* If ownDesc.[[Writable]] is false, return false. */
-        if ( ownDesc.Writable = false ) {
-        	return false
-        };
-        /* If Type(Receiver) is not Object, return false. */
-        if ( !(Type(Receiver) = "Object") ) {
-        	return false
-        };
-
-        /* Let existingDescriptor be Receiver.[[GetOwnProperty]](P). */
-        existingDescriptor := {Receiver.GetOwnProperty}(Receiver, P);
-
-        /* ReturnIfAbrupt(existingDescriptor). */
-        @ReturnIfAbrupt(existingDescriptor);
-
-        /* If existingDescriptor is not undefined, then */
-        if ( !(existingDescriptor = 'undefined) ) {
-            /* If IsAccessorDescriptor(existingDescriptor) is true, return false. */
-            if ( IsAccessorDescriptor(existingDescriptor) = true ) {
-            	return false
-            };
-
-            /* If existingDescriptor.[[Writable]] is false, return false. */
-            if ( existingDescriptor.Writable = false ) {
-            	return false
-            };
-
-            /* Let valueDesc be the PropertyDescriptor{[[Value]]: V}. */
-            valueDesc := {
-                Value: V
-            };
-            /* Return Receiver.[[DefineOwnProperty]](P, valueDesc). */
-            return {Receiver.DefineOwnProperty}(Receiver, P, valueDesc)
-        }
-        /* Else Receiver does not currently have a property P, */
-        else {
-            /* Return CreateDataProperty(Receiver, P, V). */
-        	return CreateDataProperty(Receiver, P, V)
-        }
-    };
-
-    /* Assert: IsAccessorDescriptor(ownDesc) is true. */
-    assert( IsAccessorDescriptor(ownDesc) = true );
-
-    /* Let setter be ownDesc.[[Set]]. */
-    setter := ownDesc.Set;
-
-    /* If setter is undefined, return false. */
-    if (setter = 'undefined) {
-    	return false
-    };
-
-    /* Let setterResult be Call(setter, Receiver, «V»). */
-    setterResult := Call(null, null, setter, Receiver, [ V ]);
-
-    /* ReturnIfAbrupt(setterResult). */
-    @ReturnIfAbrupt(setterResult);
-
-    /* Return true. */
-    return true
-};
+  /* Assert: IsAccessorDescriptor(ownDesc) is true. */
+  assert (IsAccessorDescriptor(ownDesc) = true );
+  /* Let setter be ownDesc.[[Set]]. */
+  setter := ownDesc.Set;
+  /* If setter is undefined, return false. */
+  if (setter = 'undefined)
+    return false;
+  /* Let setterResult be Call(setter, Receiver, «V»). */
+  setterResult := Call(null, null, setter, Receiver, [ V ]);
+  /* ReturnIfAbrupt(setterResult). */
+  @ReturnIfAbrupt(setterResult);
+  /* Return true. */
+  return true;
+}
 
 /**
  * 9.1.10 [[Delete]] (P)
@@ -616,32 +523,25 @@ function OrdinaryObjectSet(O, P, V, Receiver) {
  * When the [[Delete]] internal method of O is called with property key P the following steps are taken:
 */
 function OrdinaryObjectDelete(O, P) {
-    /* Assert: IsPropertyKey(P) is true. */
-    assert( IsPropertyKey(P) = true );
-
-    /* Let desc be O.[[GetOwnProperty]](P). */
-    desc := {O.GetOwnProperty}(O,P);
-
-    /* ReturnIfAbrupt(desc). */
-    @ReturnIfAbrupt(desc);
-
-    /* If desc is undefined, return true. */
-    if ( desc = 'undefined ) {
-    	return true
-    };
-
-    /* If desc.[[Configurable]] is true, then */
-    if ( desc.Configurable = true) {
-        /* Remove the own property with name P from O. */
-        deleteJSProperty(O, P);
-
-        /* Return true. */
-        return true
-    };
-
-    /* Return false. */
-    return false
-};
+  /* Assert: IsPropertyKey(P) is true. */
+  assert (IsPropertyKey(P) = true );
+  /* Let desc be O.[[GetOwnProperty]](P). */
+  desc := {O.GetOwnProperty}(O,P);
+  /* ReturnIfAbrupt(desc). */
+  @ReturnIfAbrupt(desc);
+  /* If desc is undefined, return true. */
+  if (desc = 'undefined)
+    return true;
+  /* If desc.[[Configurable]] is true, then */
+  if (desc.Configurable = true) {
+    /* Remove the own property with name P from O. */
+    deleteJSProperty(O, P);
+    /* Return true. */
+    return true;
+  }
+  /* Return false. */
+  return false;
+}
 
 /**
  * 9.1.11 [[Enumerate]] ()
@@ -678,7 +578,6 @@ function OrdinaryObjectEnumerateAux(O) {
 
   retKeys := [];
   visited := {};
-
   ownKeys := {O.OwnPropertyKeys}(O);
 
   foreach (k : ownKeys) {
@@ -686,11 +585,10 @@ function OrdinaryObjectEnumerateAux(O) {
     /*if (Type(k) = "String") {*/
       desc_k := {O.GetOwnProperty}(O, k);
       visited[k] := true;
-      if (isEnumerablePropertyDescriptor(desc_k)) {
-        retKeys := l_add (retKeys, k)
-      }
+      if (isEnumerablePropertyDescriptor(desc_k))
+        retKeys := l_add (retKeys, k);
     }
-  };
+  }
 
   proto := O.Prototype;
   if ((!(proto = 'null)) &&& (!(proto = 'undefined))) {
@@ -698,17 +596,17 @@ function OrdinaryObjectEnumerateAux(O) {
     foreach (k : protoKeys) {
       if (!(k in_obj visited)) {
         visited[k] := true;
-        retKeys := l_add (retKeys, k)
+        retKeys := l_add (retKeys, k);
       }
     }
-  };
+  }
 
-  return retKeys
-};
+  return retKeys;
+}
 
 function OrdinaryObjectEnumerate(O) {
-    return ObjectIteratorConstructor(OrdinaryObjectEnumerateAux(O), O)
-};
+  return ObjectIteratorConstructor(OrdinaryObjectEnumerateAux(O), O);
+}
 
 function initObjectIteratorPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObjectFull(|Intrinsics|.IteratorPrototype, "Object", true);
@@ -725,70 +623,52 @@ function initObjectIteratorPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull("Object Iterator", false, false, true);
   setJSProperty(prototype, getToStringTagPropertyName(), descriptor);
 
-  return prototype
-};
+  return prototype;
+}
 
-function ObjectIteratorConstructor(properties, Obj){
-
+function ObjectIteratorConstructor(properties, Obj) {
   /* 3. Let iterator be ObjectCreate(%SetIteratorPrototype%, «‍[[IteratedSet]], [[SetNextIndex]], [[SetIterationKind]]»). */
   iterator := ObjectCreate(|Intrinsics|.ObjectIteratorPrototype, ["IteratedObject", "ObjectNextIndex", "IteratedProperties"]);
-
   /* 4. Set iterator’s [[IteratedSet]] internal slot to set. */
   iterator.IteratedObject := Obj;
-
   /* 5. Set iterator’s [[SetNextIndex]] internal slot to 0. */
   iterator.ObjectNextIndex := 0;
-
   /* 6. Set iterator’s [[SetIterationKind]] internal slot to kind. */
   iterator.IteratedProperties := properties;
 
-  return iterator
-};
+  return iterator;
+}
 
 function objectIteratorPrototypeNext(global, this, NewTarget, strict, args) {
 
     /* 1. Let O be the this value. */
     O := this;
-
     /* 2. If Type(O) is not Object, throw a TypeError exception. */
-    if (!(Type(O) = "Object")){
-      throw TypeErrorConstructorInternal()
-    };
-
-
+    if (!(Type(O) = "Object"))
+      throw TypeErrorConstructorInternal();
     /* 4. Let s be the value of the [[IteratedSet]] internal slot of O. */
     s := O.IteratedObject;
-
     /* 5. Let index be the value of the [[SetNextIndex]] internal slot of O. */
     index := O.ObjectNextIndex;
-
-
     /* 9. Let entries be the List that is the value of the [[SetData]] internal slot of s. */
     entries := O.IteratedProperties;
-
     /* 10. Repeat while index is less than the total number of elements of entries. The number of elements must be redetermined each time this method is evaluated. */
     len := l_len(entries);
-    while(index < len) {
+    while (index < len) {
       /* a. Let e be entries[index]. */
       e := l_nth(entries, index);
-
       /* b. Set index to index+1; */
       index := index + 1;
-
       /* c. Set the [[SetNextIndex]] internal slot of O to index. */
       O.ObjectNextIndex := index;
-
-
-      if ({O.IteratedObject.HasProperty}(O.IteratedObject, e)){
-        return CreateIterResultObject(e, false)
-      }
-
-    };
-
+      if ({O.IteratedObject.HasProperty}(O.IteratedObject, e))
+        return CreateIterResultObject(e, false);
+    }
     /* 12. Return CreateIterResultObject(undefined, true). */
-    return CreateIterResultObject('undefined, true)
+    return CreateIterResultObject('undefined, true);
+}
 
-};
+
 /**
  * 9.1.12 [[OwnPropertyKeys]] ( )
  *
@@ -796,40 +676,38 @@ function objectIteratorPrototypeNext(global, this, NewTarget, strict, args) {
  *
 */
 function OrdinaryObjectOwnPropertyKeys(O) {
-    /* Let keys be a new empty List. */
-    keys := [];
+  /* Let keys be a new empty List. */
+  keys := [];
 
-    /* aux lists */
-    strings := [];
-    symbols := [];
+  /* aux lists */
+  strings := [];
+  symbols := [];
 
-    /* For each own property key P of O that is an integer index, in ascending numeric index order */
-    foreach ( P : O.internalSlotsList ) {
-        if ( IsArrayIndex(P) ) {
-            /* Add P as the last element of keys. */
-            keys := l_add(keys, P)
-        }
+  /* For each own property key P of O that is an integer index, in ascending numeric index order */
+  foreach (P : O.internalSlotsList) {
+    if (IsArrayIndex(P)) {
+      /* Add P as the last element of keys. */
+      keys := l_add(keys, P);
+    }
+    /* For each own property key P of O that is a String but is not an integer index, in property creation order */
+    elif (Type(P) = "String" &&& !(Type(P) = "Number") &&& in_list(P, obj_fields O.JSProperties)) {
+        /* Add P as the last element of keys. */
+        strings := l_add(strings, P);
+    }
+    /* For each own property key P of O that is a Symbol, in property creation order */
+    elif (in_list(P, (obj_fields O.SymbolKeys))) {
+      /* Add P as the last element of keys. */
+      symbols := l_add(symbols, O.SymbolKeys[P]);
+    }
+  }
 
-        /* For each own property key P of O that is a String but is not an integer index, in property creation order */
-        elif ( Type(P) = "String" &&& !(Type(P) = "Number") &&& in_list(P, obj_fields O.JSProperties) ) {
-            /* Add P as the last element of keys. */
-            strings := l_add(strings, P)
-        }
+  keys := l_sort(keys);
+  keys := l_concat(keys, strings);
+  keys := l_concat(keys, symbols);
 
-        /* For each own property key P of O that is a Symbol, in property creation order */
-        elif ( in_list(P, (obj_fields O.SymbolKeys)) ){
-            /* Add P as the last element of keys. */
-            symbols := l_add(symbols, O.SymbolKeys[P])
-        }
-    };
-
-    keys := l_sort(keys);
-    keys := l_concat(keys, strings);
-    keys := l_concat(keys, symbols);
-
-    /* Return keys.	*/
-    return keys
-};
+  /* Return keys.	*/
+  return keys;
+}
 
 /**
  * 9.1.12 [[OwnPropertyKeys]] ( )
@@ -838,40 +716,38 @@ function OrdinaryObjectOwnPropertyKeys(O) {
  *
 */
 function OrdinaryObjectOwnPropertyKeysUpdated(O) {
-    /* Let keys be a new empty List. */
-    keys := [];
+  /* Let keys be a new empty List. */
+  keys := [];
 
-    /* aux lists */
-    strings := [];
-    symbols := [];
+  /* aux lists */
+  strings := [];
+  symbols := [];
 
-    /* For each own property key P of O that is an integer index, in ascending numeric index order */
-    foreach ( P : O.internalSlotsList ) {
-        if ( IsArrayIndex(P) ) {
-            /* Add P as the last element of keys. */
-            keys := l_add(keys, P)
-        }
+  /* For each own property key P of O that is an integer index, in ascending numeric index order */
+  foreach ( P : O.internalSlotsList ) {
+    if (IsArrayIndex(P))  {
+      /* Add P as the last element of keys. */
+      keys := l_add(keys, P);
+    }
+    /* For each own property key P of O that is a String but is not an integer index, in property creation order */
+    elif (Type(P) = "String" &&& !(Type(P) = "Number") &&& in_list(P, obj_fields O.JSProperties)) {
+      /* Add P as the last element of keys. */
+      strings := l_add(strings, P);
+    }
+    /* For each own property key P of O that is a Symbol, in property creation order */
+    elif ( in_list(P, (obj_fields O.SymbolKeys)) ) {
+      /* Add P as the last element of keys. */
+      symbols := l_add(symbols, O.SymbolKeys[P]);
+    }
+  }
 
-        /* For each own property key P of O that is a String but is not an integer index, in property creation order */
-        elif ( Type(P) = "String" &&& !(Type(P) = "Number") &&& in_list(P, obj_fields O.JSProperties) ) {
-            /* Add P as the last element of keys. */
-            strings := l_add(strings, P)
-        }
+  keys := l_sort(keys);
+  keys := l_concat(keys, strings);
+  keys := l_concat(keys, symbols);
 
-        /* For each own property key P of O that is a Symbol, in property creation order */
-        elif ( in_list(P, (obj_fields O.SymbolKeys)) ){
-            /* Add P as the last element of keys. */
-            symbols := l_add(symbols, O.SymbolKeys[P])
-        }
-    };
-
-    keys := l_sort(keys);
-    keys := l_concat(keys, strings);
-    keys := l_concat(keys, symbols);
-
-    /* Return keys.	*/
-    return keys
-};
+  /* Return keys.	*/
+  return keys;
+}
 
 
 /**
@@ -884,34 +760,30 @@ function OrdinaryObjectOwnPropertyKeysUpdated(O) {
  * This abstract operation performs the following steps:
 */
 function ObjectCreate(proto, internalSlotsList) {
-    /* If internalSlotsList was not provided, let internalSlotsList be an empty List. */
-    if ( internalSlotsList = null ) {
-    	internalSlotsList := []
-    };
+  /* If internalSlotsList was not provided, let internalSlotsList be an empty List. */
+  if (internalSlotsList = null)
+    internalSlotsList := [];
 
-    /* Let obj be a newly created object with an internal slot for each name in internalSlotsList. */
-    obj := NewECMAScriptObject();
+  /* Let obj be a newly created object with an internal slot for each name in internalSlotsList. */
+  obj := NewECMAScriptObject();
 
-    l_internalSlotsList := l_len(internalSlotsList);
-    i := 0;
-    while ( i < l_internalSlotsList ) {
-        slot := l_nth(internalSlotsList, i);
-        setInternalProperty(obj, slot, 'undefined);
-        i := i + 1
-    };
+  l_internalSlotsList := l_len(internalSlotsList);
+  i := 0;
+  while (i < l_internalSlotsList) {
+    slot := l_nth(internalSlotsList, i);
+    setInternalProperty(obj, slot, 'undefined);
+    i := i + 1;
+  }
 
-    /* Set obj’s essential internal methods to the default ordinary object definitions specified in 9.1. */
-    setAllInternalMethodsOfOrdinaryObject(obj);
-
-    /* Set the [[Prototype]] internal slot of obj to proto. */
-    setInternalProperty(obj, "Prototype", proto);
-
-    /* Set the [[Extensible]] internal slot of obj to true. */
-    setInternalProperty(obj, "Extensible", true);
-
-    /* Return obj. */
-    return obj
-};
+  /* Set obj’s essential internal methods to the default ordinary object definitions specified in 9.1. */
+  setAllInternalMethodsOfOrdinaryObject(obj);
+  /* Set the [[Prototype]] internal slot of obj to proto. */
+  setInternalProperty(obj, "Prototype", proto);
+  /* Set the [[Extensible]] internal slot of obj to true. */
+  setInternalProperty(obj, "Extensible", true);
+  /* Return obj. */
+  return obj;
+}
 
 /**
  * 9.1.15 GetPrototypeFromConstructor ( constructor, intrinsicDefaultProto )
@@ -924,20 +796,15 @@ function ObjectCreate(proto, internalSlotsList) {
 function GetPrototypeFromConstructor(constructor, intrinsicDefaultProto) {
     /* Assert: intrinsicDefaultProto is a String value that is this specification’s name of an intrinsic object. The
     corresponding object must be an intrinsic that is intended to be used as the [[Prototype]] value of an object. */
-    assert((typeof (intrinsicDefaultProto) = "string") &&& (isIntrinsic(intrinsicDefaultProto)));
-
-
+    assert ((typeof (intrinsicDefaultProto) = "string") &&& (isIntrinsic(intrinsicDefaultProto)));
     /* Assert: IsConstructor (constructor) is true. */
-    assert( IsConstructor(constructor) = true );
-
+    assert (IsConstructor(constructor) = true);
     /* Let proto be Get(constructor, "prototype"). */
     proto := Get(constructor, "prototype");
-
     /* ReturnIfAbrupt(proto). */
     @ReturnIfAbrupt(proto);
-
     /* If Type(proto) is not Object, then */
-    if ( !(Type(proto) = "Object") ) {
+    if (!(Type(proto) = "Object")) {
         /* Let realm be GetFunctionRealm(constructor). */
         /* realm := GetFunctionRealm(constructor); */
 
@@ -945,15 +812,15 @@ function GetPrototypeFromConstructor(constructor, intrinsicDefaultProto) {
         /* @ReturnIfAbrupt(realm); */
 
         /* Let proto be realm’s intrinsic object named intrinsicDefaultProto. */
-        proto := |Intrinsics|[intrinsicDefaultProto]
-    };
+        proto := |Intrinsics|[intrinsicDefaultProto];
+    }
 
-    return proto
+    return proto;
     /* Return proto. */
 
 	/* NOTE If constructor does not supply a [[Prototype]] value, the default value that is used is obtained
 	from the Code Realm of the constructor function rather than from the running execution context. */
-};
+}
 
 /**
  * 9.1.14 OrdinaryCreateFromConstructor ( constructor, intrinsicDefaultProto, internalSlotsList )
@@ -970,27 +837,24 @@ function OrdinaryCreateFromConstructor(constructor, intrinsicDefaultProto, inter
 
     /* Let proto be GetPrototypeFromConstructor(constructor, intrinsicDefaultProto). */
     proto := GetPrototypeFromConstructor(constructor, intrinsicDefaultProto);
-
     /* ReturnIfAbrupt(proto). */
     @ReturnIfAbrupt(proto);
-
-    /* Return ObjectCreate(proto, internalSlotsList).	 */
-    return ObjectCreate(proto, internalSlotsList)
-};
+    /* Return ObjectCreate(proto, internalSlotsList).	*/
+    return ObjectCreate(proto, internalSlotsList);
+}
 
 /* Auxiliary Functions */
 
 function GetProps(Desc) {
   list := [];
-  if ("Value" in_obj Desc) { list := l_add(list, "Value") };
-  if ("Writable" in_obj Desc) { list := l_add(list, "Writable") };
-  if ("Get" in_obj Desc) { list := l_add(list, "Get") };
-  if ("Set" in_obj Desc) { list := l_add(list, "Set") };
-  if ("Enumerable" in_obj Desc) { list := l_add(list, "Enumerable") };
-  if ("Configurable" in_obj Desc) { list := l_add(list, "Configurable") };
-
-  return list
-};
+  if ("Value" in_obj Desc)          list := l_add(list, "Value");
+  if ("Writable" in_obj Desc)       list := l_add(list, "Writable");
+  if ("Get" in_obj Desc)            list := l_add(list, "Get");
+  if ("Set" in_obj Desc)            list := l_add(list, "Set");
+  if ("Enumerable" in_obj Desc)     list := l_add(list, "Enumerable");
+  if ("Configurable" in_obj Desc)   list := l_add(list, "Configurable");
+  return list;
+}
 
 function GetValueOrDefault(propDesc, propName) {
   objectDefaultAttributeValues := {
@@ -1001,12 +865,12 @@ function GetValueOrDefault(propDesc, propName) {
     Enumerable  : false,
     Configurable: false
   };
-  if (propName in_obj propDesc) {
-    return propDesc[propName]
-  } else {
-    return objectDefaultAttributeValues[propName]
-  }
-};
+
+  if (propName in_obj propDesc)
+    return propDesc[propName];
+  else
+    return objectDefaultAttributeValues[propName];
+}
 
 function CreateAccessorPropertyFrom(Desc) {
   return {
@@ -1014,8 +878,8 @@ function CreateAccessorPropertyFrom(Desc) {
     Set: GetValueOrDefault(Desc, "Set"),
     Enumerable: GetValueOrDefault(Desc, "Enumerable"),
     Configurable: GetValueOrDefault(Desc, "Configurable")
-  }
-};
+  };
+}
 
 function CreateDataPropertyFrom(Desc) {
   return {
@@ -1023,5 +887,5 @@ function CreateDataPropertyFrom(Desc) {
     Writable: GetValueOrDefault(Desc, "Writable"),
     Enumerable: GetValueOrDefault(Desc, "Enumerable"),
     Configurable: GetValueOrDefault(Desc, "Configurable")
-  }
+  };
 }

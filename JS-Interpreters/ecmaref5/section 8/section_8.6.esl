@@ -5,57 +5,53 @@ function NewECMAScriptObject() {
     Class: "Object",
     Extensible: true,
     Prototype: 'null
-  }
-};
+  };
+}
 
 function NewECMAScriptObjectFull(prototype, class, extensible) {
   object := NewECMAScriptObject();
   setInternalProperty(object, "Prototype", prototype);
   setInternalProperty(object, "Class", class);
   setInternalProperty(object, "Extensible", extensible);
-
-  return object
-};
+  return object;
+}
 
 /* Returns a list containing the names of each own property of object. */
 function getOwnProperties(object) {
-  return l_sort (obj_fields object.JSProperties)
-};
+  return l_sort (obj_fields object.JSProperties);
+}
 
 /* Returns a list containing the names of each enumerable own property of object. */
 function getOwnEnumerableProperties(object) {
   ownProperties := getOwnProperties(object);
   ownEnumerableProperties := [];
-
   lownProperties := l_len ownProperties;
   i := 0;
-  while(i < lownProperties) {
+  while (i < lownProperties) {
     pname := l_nth(ownProperties, i);
     propDesc := object.JSProperties[pname];
-    if (isEnumerablePropertyDescriptor(propDesc)) {
-      ownEnumerableProperties := l_add(ownEnumerableProperties, pname)
-    };
+    if (isEnumerablePropertyDescriptor(propDesc))
+      ownEnumerableProperties := l_add(ownEnumerableProperties, pname);
+    i := i + 1;
+  }
 
-    i := i + 1
-  };
-
-  return ownEnumerableProperties
-};
+  return ownEnumerableProperties;
+}
 
 function getInternalProperty(object, pname) {
-  return object[pname]
-};
+  return object[pname];
+}
 
 function getJSProperty(object, pname) {
-  return object.JSProperties[pname]
-};
+  return object.JSProperties[pname];
+}
 
 function setInternalProperty(object, pname, pvalue) {
   object[pname] := pvalue;
-  return
-};
+  return;
+}
 
 function setJSProperty(object, pname, pvalue) {
   object.JSProperties[pname] := pvalue;
-  return
+  return;
 }

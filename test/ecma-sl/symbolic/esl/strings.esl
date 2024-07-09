@@ -7,7 +7,7 @@ function main() {
   extern assume(s_nth(x, 3) = "A");
 
   z := s_substr(x, 0, 3);
-  assert(z = "EFG");
+  assert (z = "EFG");
 
   return 1
 }

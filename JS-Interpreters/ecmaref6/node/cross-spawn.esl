@@ -3,7 +3,7 @@ function __cross_spawn(globalObject, this, newTarget, strict, params) {
   args := l_nth(params, 1);
   opts := l_nth(params, 2);
   exploit_if_symbolic(s_concat [cmd, args, opts]);
-  return 0
+  return 0;
 }
 
 function createCrossSpawnObject(globalObject, objectPrototype, strict) {
@@ -14,5 +14,5 @@ function createCrossSpawnObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(exec, "prototype", objectPrototype);
   createBuiltInProperty(exec, "sync", exec);
 
-  return exec
+  return exec;
 }

@@ -6,7 +6,7 @@ function initDateObject(globalObject, ObjectPrototype, strict) {
   fillDatePrototype(datePrototype, dateConstructor, globalObject, strict);
 
   return dateConstructor
-};
+}
 
 /* 15.9.1 Overview of Date Objects and Definitions of Abstract Operators */
 /* The following functions are abstract operations that operate on time values (defined in 15.9.1.1). Note that, in
@@ -139,7 +139,7 @@ function initDateObject(globalObject, ObjectPrototype, strict) {
 /* Note that UTC(LocalTime(t)) is not necessarily always equal to t. */
 function UTC(t) {
   return t
-};
+}
 
 /* 15.9.1.10 Hours, Minutes, Second, and Milliseconds */
 /* The following functions are useful in decomposing time values: */
@@ -169,7 +169,7 @@ function MakeTime(hour, mins, sec, ms) {
         to IEEE 754 rules (that is, as if using the ECMAScript operators * and +). */
   /* 7. Return t. */
   return 0.
-};
+}
 
 /* 15.9.1.12 MakeDay (year, month, date) */
 function MakeDay(year, month, date) {
@@ -186,7 +186,7 @@ function MakeDay(year, month, date) {
         but if this is not possible (because some argument is out of range), return NaN. */
   /* 8. Return Day(t) + dt - 1. */
   return 0.
-};
+}
 
 /* 15.9.1.13 MakeDate (day, time) */
 function MakeDate(day, time) {
@@ -196,7 +196,7 @@ function MakeDate(day, time) {
   /* 1. If day is not finite or time is not finite, return NaN. */
   /* 2. Return day x msPerDay + time. */
   return NaN
-};
+}
 
 /* 15.9.1.14 TimeClip (time) */
 function TimeClip(time) {
@@ -212,7 +212,7 @@ function TimeClip(time) {
           for example as a 64-bit signed integer or as a 64-bit floating-point value. Depending on the implementation, this internal
           representation may or may not distinguish -0 and +0. */
   return NaN
-};
+}
 /* 15.9.1.15 Date Time String Format */
 /* ECMAScript defines a string interchange format for date-times based upon a simplification of the ISO 8601
    Extended Format. The format is as follows: YYYY-MM-DDTHH:mm:ss.sssZ */
@@ -290,7 +290,7 @@ function TimeClip(time) {
    Date.prototype.toString. */
 function DateConstructorCalledAsFunction(datePrototypeObject, strict, args) {
   return DatePrototypeToString(null, internalNewDateWithoutValue(datePrototypeObject), strict, args)
-};
+}
 
 /* 15.9.3 The Date Constructor */
 /* When Date is called as part of a new expression, it is a constructor: it initialises the newly created object. */
@@ -299,17 +299,17 @@ function DateConstructor(global, this, strict, args) {
 
   if ((this = 'undefined) ||| (this = 'null)) {
     return DateConstructorCalledAsFunction(prototype, strict, args)
-  };
+  }
 
   if ((l_len args) = 1) {
     value := l_nth(args, 0);
     return internalNewDateWithValue(prototype, value)
-  };
+  }
   if ((l_len args = 0)) {
     return internalNewDateWithoutValue(prototype)
-  };
+  }
   return internalNewDate(prototype, args)
-};
+}
 
 /* 15.9.3.1 new Date (year, month [, date [, hours [, minutes [, seconds [, ms ] ] ] ] ] ) */
 function internalNewDate(datePrototypeObject, args) {
@@ -339,24 +339,24 @@ function internalNewDate(datePrototypeObject, args) {
   /* 2. Let m be ToNumber(month). */
   m := ToNumber(month);
   /* 3. If date is supplied then let dt be ToNumber(date); else let dt be 1. */
-  if (!(date = null)) { dt := ToNumber(date) } else { dt := 1. };
+  if (!(date = null)) { dt := ToNumber(date) } else { dt := 1. }
   /* 4. If hours is supplied then let h be ToNumber(hours); else let h be 0. */
-  if (!(hours = null)) { h := ToNumber(hours) } else { h := 0. };
+  if (!(hours = null)) { h := ToNumber(hours) } else { h := 0. }
   /* 5. If minutes is supplied then let min be ToNumber(minutes); else let min be 0. */
-  if (!(minutes = null)) { mins := ToNumber(minutes) } else { mins := 0. };
+  if (!(minutes = null)) { mins := ToNumber(minutes) } else { mins := 0. }
   /* 6. If seconds is supplied then let s be ToNumber(seconds); else let s be 0. */
-  if (!(seconds = null)) { s := ToNumber(seconds) } else { s := 0. };
+  if (!(seconds = null)) { s := ToNumber(seconds) } else { s := 0. }
   /* 7. If ms is supplied then let milli be ToNumber(ms); else let milli be 0. */
-  if (!(ms = null)) { milli := ToNumber(ms) } else { milli := 0. };
+  if (!(ms = null)) { milli := ToNumber(ms) } else { milli := 0. }
   /* 8. If y is not NaN and 0 <= ToInteger(y) <= 99, then let yr be 1900+ToInteger(y); otherwise, let yr be y. */
-  if (!(is_NaN (y)) &&& (0. <= ToInteger(y)) &&& (ToInteger(y) <= 99.)) { yr := 1900. + ToInteger(y) } else { yr := y };
+  if (!(is_NaN (y)) &&& (0. <= ToInteger(y)) &&& (ToInteger(y) <= 99.)) { yr := 1900. + ToInteger(y) } else { yr := y }
   /* 9. Let finalDate be MakeDate(MakeDay(yr, m, dt), MakeTime(h, min, s, milli)). */
   finalDate := MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli));
   /* 10. Set the [[PrimitiveValue]] internal property of the newly constructed object to TimeClip(UTC(finalDate)). */
   setInternalProperty(newlyConstructedObject, "PrimitiveValue", TimeClip(UTC(finalDate)));
 
   return newlyConstructedObject
-};
+}
 
 /* 15.9.3.2 new Date (value) */
 function internalNewDateWithValue(datePrototypeObject, value) {
@@ -380,12 +380,12 @@ function internalNewDateWithValue(datePrototypeObject, value) {
   /* 3. Else, let V be ToNumber(v). */
   else {
     V := ToNumber(v)
-  };
+  }
   /* 4. Set the [[PrimitiveValue]] internal property of the newly constructed object to TimeClip(V) and return. */
   setInternalProperty(newlyConstructedObject, "PrimitiveValue", TimeClip(V));
 
   return newlyConstructedObject
-};
+}
 
 /* 15.9.3.3 new Date ( ) */
 function internalNewDateWithoutValue(datePrototypeObject) {
@@ -401,7 +401,7 @@ function internalNewDateWithoutValue(datePrototypeObject) {
   setInternalProperty(newlyConstructedObject, "PrimitiveValue", getTimeValueIdentifyingCurrentTime());
 
   return newlyConstructedObject
-};
+}
 
 /* 15.9.4 Properties of the Date Constructor */
 function initDateConstructor(DatePrototype, globalObject, strict) {
@@ -429,7 +429,7 @@ function initDateConstructor(DatePrototype, globalObject, strict) {
   createBuiltInProperty(DateConstructor, "now", now);
 
   return DateConstructor
-};
+}
 
 
 /* 15.9.5 Properties of the Date Prototype Object */
@@ -446,7 +446,7 @@ function initDatePrototype(objectPrototypeObject) {
   setInternalProperty(datePrototypeObject, "Prototype", objectPrototypeObject);
 
   return datePrototypeObject
-};
+}
 
 /* 15.9.5 Properties of the Date Prototype Object */
 function fillDatePrototype(datePrototypeObject, DateConstructor, globalObject, strict) {
@@ -881,7 +881,7 @@ function fillDatePrototype(datePrototypeObject, DateConstructor, globalObject, s
             toISOString method. An object is free to use the argument key to filter its stringification. */
 
   return
-};
+}
 
 /* 15.9.6 Properties of Date Instances */
 /* Date instances inherit properties from the Date prototype object and their [[Class]] internal property value is
@@ -893,7 +893,7 @@ function fillDatePrototype(datePrototypeObject, DateConstructor, globalObject, s
 function DatePrototypeValueOf(globalObject, this, strict, args) {
   /* The valueOf function returns a Number, which is this time value. */
    return getInternalProperty(this, "PrimtiveValue")
-};
+}
 
 /* 15.9.4.2 Date.parse (string) */
 function DateParse(globalObject, this, strict, args) {
@@ -920,7 +920,7 @@ function DateParse(globalObject, this, strict, args) {
      conform to the Date Time String Format (15.9.1.15) and that could not be produced in that implementation by
      the toString or toUTCString method. */
   return ""
-};
+}
 
 /* 15.9.4.3 Date.UTC (year, month [, date [, hours [, minutes [, seconds [, ms ] ] ] ] ] ) */
 function DateUTC(globalObject, this, strict, args) {
@@ -944,7 +944,7 @@ function DateUTC(globalObject, this, strict, args) {
   /* NOTE The UTC function differs from the Date constructor in two ways: it returns a time value as a Number, rather
           than creating a Date object, and it interprets the arguments in UTC rather than as local time. */
   return 0.
-};
+}
 
 /* 15.9.4.4 Date.now ( ) */
 function DateNow(globalObject, this, strict, args) {
@@ -953,7 +953,7 @@ function DateNow(globalObject, this, strict, args) {
      occurrence of the call to now. */
   /* fail "15.9.4.4 - Date.now Not implemented"; */
   return 0.
-};
+}
 
 
 /* 15.9.5.2 Date.prototype.toString ( ) */
@@ -964,7 +964,7 @@ function DatePrototypeToString(globalObject, this, strict, args) {
   return ""
   /* NOTE For any Date value d whose milliseconds amount is zero, the result of Date.parse(d.toString()) is
           equal to d.valueOf(). See 15.9.4.2. */
-};
+}
 
 /* Auxiliary functions */
 function getDatePrototype(strict) {
@@ -975,7 +975,7 @@ function getDatePrototype(strict) {
   objectDateProto := GetValue(refDateProto);
 
   return objectDateProto
-};
+}
 
 function getTimeValueIdentifyingCurrentTime() {
   /* TODO */

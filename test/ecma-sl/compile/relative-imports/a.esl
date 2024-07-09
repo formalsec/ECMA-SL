@@ -1,5 +1,5 @@
 import "b/b.esl";
 
 function a() {
-  return "a"
+  return "a";
 }

@@ -1,7 +1,7 @@
 function main () {
 	h:= true;
 	l:= true;
-	o := {};
+	o := {}
 	o.p := true;
 
 
@@ -9,9 +9,9 @@ function main () {
 
 	
 	
-	if(h) {
+	if (h) {
 	 o.p := false
-	};
+	}
 
 
 
