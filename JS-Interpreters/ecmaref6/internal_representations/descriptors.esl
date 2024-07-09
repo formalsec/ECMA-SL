@@ -1,7 +1,7 @@
 /* Auxiliary functions created for the purposes of creating instances of the Property Descriptor type. */
 function NewPropertyDescriptor() {
-  return {}
-};
+  return {};
+}
 
 function newDataPropertyDescriptor(value) {
   desc := NewPropertyDescriptor();
@@ -10,8 +10,8 @@ function newDataPropertyDescriptor(value) {
   desc.Enumerable := true;
   desc.Configurable := true;
 
-  return desc
-};
+  return desc;
+}
 
 function newDataPropertyDescriptorFull(value, writable, enumerable, configurable) {
   desc := NewPropertyDescriptor();
@@ -20,8 +20,8 @@ function newDataPropertyDescriptorFull(value, writable, enumerable, configurable
   desc.Enumerable := enumerable;
   desc.Configurable := configurable;
 
-  return desc
-};
+  return desc;
+}
 
 function newGetAccessorPropertyDescriptor(get) {
   desc := NewPropertyDescriptor();
@@ -29,8 +29,8 @@ function newGetAccessorPropertyDescriptor(get) {
   desc.Enumerable := true;
   desc.Configurable := true;
 
-  return desc
-};
+  return desc;
+}
 
 function newGetAccessorPropertyDescriptorFull(get, enumerable, configurable) {
   desc := NewPropertyDescriptor();
@@ -38,8 +38,8 @@ function newGetAccessorPropertyDescriptorFull(get, enumerable, configurable) {
   desc.Enumerable := enumerable;
   desc.Configurable := configurable;
 
-  return desc
-};
+  return desc;
+}
 
 function newSetAccessorPropertyDescriptorFull(set, enumerable, configurable) {
   desc := NewPropertyDescriptor();
@@ -47,8 +47,8 @@ function newSetAccessorPropertyDescriptorFull(set, enumerable, configurable) {
   desc.Enumerable := enumerable;
   desc.Configurable := configurable;
 
-  return desc
-};
+  return desc;
+}
 
 function newSetAccessorPropertyDescriptor(set) {
   desc := NewPropertyDescriptor();
@@ -56,18 +56,18 @@ function newSetAccessorPropertyDescriptor(set) {
   desc.Enumerable := true;
   desc.Configurable := true;
 
-  return desc
-};
+  return desc;
+}
 
 function isEnumerablePropertyDescriptor(desc) {
   assert Type(desc) = "PropertyDescriptor";
 
-  return desc.Enumerable
-};
+  return desc.Enumerable;
+}
 
 function getDescriptorValue(desc) {
-  return desc.Value
-};
+  return desc.Value;
+}
 
 function newGetAndSetAccessorPropertyDescriptorFull(get, set, enumerable, configurable) {
   desc := NewPropertyDescriptor();
@@ -76,28 +76,22 @@ function newGetAndSetAccessorPropertyDescriptorFull(get, set, enumerable, config
   desc.Enumerable := enumerable;
   desc.Configurable := configurable;
 
-  return desc
-};
+  return desc;
+}
 
 function copyDescriptor(desc) {
   newDesc := NewPropertyDescriptor();
-  if ("Value" in_obj desc) {
-    newDesc.Value := desc.Value
-  };
-  if ("Writable" in_obj desc) {
-    newDesc.Writable := desc.Writable
-  };
-  if ("Get" in_obj desc) {
-    newDesc.Get := desc.Get
-  };
-  if ("Set" in_obj desc) {
-    newDesc.Set := desc.Set
-  };
-  if ("Enumerable" in_obj desc) {
-    newDesc.Enumerable := desc.Enumerable
-  };
-  if ("Configurable" in_obj desc) {
-    newDesc.Configurable := desc.Configurable
-  };
-  return newDesc
+  if ("Value" in_obj desc)
+    newDesc.Value := desc.Value;
+  if ("Writable" in_obj desc)
+    newDesc.Writable := desc.Writable;
+  if ("Get" in_obj desc)
+    newDesc.Get := desc.Get;
+  if ("Set" in_obj desc)
+    newDesc.Set := desc.Set;
+  if ("Enumerable" in_obj desc)
+    newDesc.Enumerable := desc.Enumerable;
+  if ("Configurable" in_obj desc)
+    newDesc.Configurable := desc.Configurable;
+  return newDesc;
 }

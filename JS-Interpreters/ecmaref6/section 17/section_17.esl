@@ -5,8 +5,8 @@
   This named data property has the following attributes: { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true }
 */
 function createBuiltInProperty(builtInObject, propertyName, descriptorValue) {
-  return createBuiltInPropertyWithFullDescriptor(builtInObject, propertyName, descriptorValue, true, false, true)
-};
+  return createBuiltInPropertyWithFullDescriptor(builtInObject, propertyName, descriptorValue, true, false, true);
+}
 /*
   The difference between the function below and the one above is that one is able to provide the values for the other descriptor attributes:
   Writable, Enumerable, and Configurable.
@@ -17,21 +17,18 @@ function createBuiltInPropertyWithFullDescriptor(builtInObject, propertyName, de
     propertyName,
     newDataPropertyDescriptorFull(descriptorValue, descriptorWritable, descriptorEnumerable, descriptorConfigurable)
   );
-
-  return
-};
+  return;
+}
 
 /* Unless otherwise specified in the description of a particular function, if a function or constructor described in
    this clause is given fewer arguments than the function is specified to require, the function or constructor shall
    behave exactly as if it had been given sufficient additional arguments, each such argument being the
    undefined value. */
 function getOptionalParam(params, idx) {
-  if (l_len params > idx) {
-    return l_nth(params, idx)
-  };
-
-  return null
-};
+  if (l_len params > idx)
+    return l_nth(params, idx);
+  return null;
+}
 
 /* Using this function is cleaner than having many 'tl's, but costs in performance  */
 function getOptionalParamList(params, start_idx) {
@@ -40,10 +37,9 @@ function getOptionalParamList(params, start_idx) {
     paramList := params;
     while (i < start_idx) {
        paramList := tl paramList;
-       i := i + 1
-    };
-    return paramList
-  };
-
-  return []
+       i := i + 1;
+    }
+    return paramList;
+  }
+  return [];
 }

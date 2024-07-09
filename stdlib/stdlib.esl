@@ -1,346 +1,336 @@
 /* TODO: Separate this into smaller files */
 
 function typeof(v) : string {
-  return extern typeof_external(v)
+  return extern typeof_external(v);
 }
 
 /* Int operators */
 function int_to_four_hex(n : int) : string {
-  return extern int_to_four_hex_external(n)
+  return extern int_to_four_hex_external(n);
 }
 
 function octal_to_decimal(n: int) : int{
-  return extern octal_to_decimal_external(n)
+  return extern octal_to_decimal_external(n);
 }
 
 /* Float operators */
 function is_int(f : float) : boolean {
-  return (trunc f) = f
+  return (trunc f) = f;
 }
 
 function is_NaN(n : float) : boolean {
-  return n != n
+  return n != n;
 }
 
 function is_inf(n : float) : boolean {
-  return 1.0 / n = 0.0
+  return 1.0 / n = 0.0;
 }
 
 function to_int(n : float) : float {
-  if (is_NaN(n)) {
-    return 0.0
-  } elif (n = 0.0 || is_inf(n)) {
-    return n
-  };
+  if (is_NaN(n))
+    return 0.0;
+  elif (n = 0.0 || is_inf(n))
+    return n;
   sign := (n < 0.0) ? -(1.0) : 1.0;
-  return sign * (floor (abs n))
+  return sign * (floor (abs n));
 }
 
 function to_int32(n : float) : float {
-  if (is_NaN(n) || n = 0.0 || is_inf(n)) {
-    return 0.0
-  };
+  if (is_NaN(n) || n = 0.0 || is_inf(n))
+    return 0.0;
   sign := (n < 0.0) ? -(1.0) : 1.0;
   posInt := sign * (floor (abs n));
   int32bit := posInt % 4294967296.0;
-  return ((int32bit >= 2147483648.0) ? int32bit - 4294967296.0 : int32bit)
+  return ((int32bit >= 2147483648.0) ? int32bit - 4294967296.0 : int32bit);
 }
 
 function to_uint32(n : float) : float {
-  if (is_NaN(n) || n = 0.0 || is_inf(n)) {
-    return 0.0
-  };
+  if (is_NaN(n) || n = 0.0 || is_inf(n))
+    return 0.0;
   sign := (n < 0.0) ? -(1.0) : 1.0;
   posInt := sign * (floor (abs n));
-  return (posInt % 4294967296.0)
+  return (posInt % 4294967296.0);
 }
 
 function to_uint16(n : float) : float {
-  if (is_NaN(n) || n = 0.0 || is_inf(n)) {
-    return 0.0
-  };
+  if (is_NaN(n) || n = 0.0 || is_inf(n))
+    return 0.0;
   sign := (n < 0.0) ? -(1.0) : 1.0;
   posInt := sign * (floor (abs n));
-  return (posInt % 65536.0)
+  return (posInt % 65536.0);
 }
 
 function to_precision(x : float, y : int) : string {
-  return extern to_precision_external(x, y)
+  return extern to_precision_external(x, y);
 }
 
 function to_exponential(x : float, y : int) : string {
-  return extern to_exponential_external(x, y)
+  return extern to_exponential_external(x, y);
 }
 
 function to_fixed(x : float, y : int) : string {
-  return extern to_fixed_external(x, y)
+  return extern to_fixed_external(x, y);
 }
 
 /* String operators */
 function from_char_code_u(n : int) : string {
-  return extern from_char_code_u_external(n)
+  return extern from_char_code_u_external(n);
 }
 
 function to_char_code_u(s : string) : int {
-  return extern to_char_code_u_external(s)
+  return extern to_char_code_u_external(s);
 }
 
 function to_lower_case(s : string) : string {
-  return extern to_lower_case_external(s)
+  return extern to_lower_case_external(s);
 }
 
 function to_upper_case(s : string) : string {
-  return extern to_upper_case_external(s)
+  return extern to_upper_case_external(s);
 }
 
 function trim(s : string) : string {
-  return extern trim_external(s)
+  return extern trim_external(s);
 }
 
 function s_len_u(s : string) : int {
-  return extern s_len_u_external(s)
+  return extern s_len_u_external(s);
 }
 
 function s_nth_u(s : string, n : int) : string {
-  return extern s_nth_u_external(s, n)
+  return extern s_nth_u_external(s, n);
 }
 
 function s_split(s1 : string, s2 : string) : string {
-  return extern s_split_external(s1, s2)
+  return extern s_split_external(s1, s2);
 }
 
 function s_substr_u(s : string, n1 : int, n2 : int) : string {
-  return extern s_substr_u_external(s, n1, n2)
+  return extern s_substr_u_external(s, n1, n2);
 }
 
 /* Array operators */
 function a_len(a : array) : int {
-  return extern a_len_external(a)
+  return extern a_len_external(a);
 }
 
 function array_make(n : int, v) : string {
-  return extern array_make_external(n, v)
+  return extern array_make_external(n, v);
 }
 
 function a_nth(a : array, n : int) {
-  return extern a_nth_external(a, n)
+  return extern a_nth_external(a, n);
 }
 
 function a_set(a : array, n : int, v) {
-  return extern a_set_external(a, n, v)
+  return extern a_set_external(a, n, v);
 }
 
 /* Math operators */
 function min(x : float, y : float) : float {
-  if (y > x) {
-    return (is_NaN(y) ? y : x)
-  };
-  return (is_NaN(x) ? x : y)
+  if (y > x)
+    return (is_NaN(y) ? y : x);
+  else
+    return (is_NaN(x) ? x : y);
 }
 
 function max(x : float, y : float) : float {
-  if (y > x) {
-    return (is_NaN(x) ? x : y)
-  };
-  return (is_NaN(y) ? y : x)
+  if (y > x)
+    return (is_NaN(x) ? x : y);
+  else
+    return (is_NaN(y) ? y : x);
 }
 
 function random(f : float) : float {
-  return extern random_external(f)
+  return extern random_external(f);
 }
 
 function exp(f : float) : float{
-  return extern exp_external(f)
+  return extern exp_external(f);
 }
 
 function log_2(f : float) : float {
-  return extern log_2_external(f)
+  return extern log_2_external(f);
 }
 
 function log_e(f : float) : float {
-  return extern log_e_external(f)
+  return extern log_e_external(f);
 }
 
 function log_10(f : float) : float {
-  return extern log_10_external(f)
+  return extern log_10_external(f);
 }
 
 function sin(f : float) : float {
-  return extern sin_external(f)
+  return extern sin_external(f);
 }
 
 function cos(f : float) : float {
-  return extern cos_external(f)
+  return extern cos_external(f);
 }
 
 function tan(f : float) : float {
-  return extern tan_external(f)
+  return extern tan_external(f);
 }
 
 function sinh(f : float) : float {
-  return extern sinh_external(f)
+  return extern sinh_external(f);
 }
 
 function cosh(f : float) : float {
-  return extern cosh_external(f)
+  return extern cosh_external(f);
 }
 
 function tanh(f : float) : float {
-  return extern tanh_external(f)
+  return extern tanh_external(f);
 }
 
 function asin(f : float) : float {
-  return extern asin_external(f)
+  return extern asin_external(f);
 }
 
 function acos(f : float) : float {
-  return extern acos_external(f)
+  return extern acos_external(f);
 }
 
 function atan(f : float) : float {
-  return extern atan_external(f)
+  return extern atan_external(f);
 }
 
 function atan2(x : float, y : float) : float {
-  return extern atan2_external(x, y)
+  return extern atan2_external(x, y);
 }
 
 /* List operatos */
 function iter(f, lst) : void {
-  foreach (v : lst) {
-    {f}(v)
-  };
-  return
+  foreach (v : lst)
+    {f}(v);
+  return;
 }
 
 function map(f, lst) : list {
   result := [];
-  foreach (v : lst) {
-    result := l_concat(result, [ {f}(v) ])
-  };
-  return result
+  foreach (v : lst)
+    result := l_concat(result, [ {f}(v) ]);
+  return result;
 }
 
 function bind(f, lst) : list {
   result := [];
-  foreach (elt : lst) {
-    result := l_concat(result, {f}(elt))
-  };
-  return result
+  foreach (elt : lst)
+    result := l_concat(result, {f}(elt));
+  return result;
 }
 
 function fold(f, initial, lst) {
   result := initial;
-  foreach (elt : lst) {
-    result := {f}(result, elt)
-  };
-  return result
+  foreach (elt : lst)
+    result := {f}(result, elt);
+  return result;
 }
 
 function filter(f, lst) {
   result := [];
-  foreach (elt : lst) {
-    if ({f}(elt)) {
-      result := l_prepend(elt, result)
-    }
-  };
-  return result
+  foreach (elt : lst)
+    if ({f}(elt))
+      result := l_prepend(elt, result);
+  return result;
 }
 
 function list_to_array(lst : list) : array {
-  return extern list_to_array_external(lst)
+  return extern list_to_array_external(lst);
 }
 
 function l_sort(lst : list) : list {
-  return extern l_sort_external(lst)
+  return extern l_sort_external(lst);
 }
 
 function l_remove_last(lst : list) : list {
-  return extern l_remove_last_external(lst)
+  return extern l_remove_last_external(lst);
 }
 
 function in_list(v, lst : list) : boolean {
-  return extern in_list_external(v, lst)
+  return extern in_list_external(v, lst);
 }
 
 function l_remove(lst : list, v) : list {
-  return extern l_remove_external(lst, v)
+  return extern l_remove_external(lst, v);
 }
 
 function l_remove_nth(lst : list, n : int) : list {
-  return extern l_remove_nth_external(lst, n)
+  return extern l_remove_nth_external(lst, n);
 }
 
 /* Byte operators */
 function float_to_byte(f : float) {
-  return extern float_to_byte_external(f)
+  return extern float_to_byte_external(f);
 }
 
 function float32_to_le_bytes(f : float) {
-  return extern float32_to_le_bytes_external(f)
+  return extern float32_to_le_bytes_external(f);
 }
 
 function float32_to_be_bytes(f : float) {
-  return extern float32_to_be_bytes_external(f)
+  return extern float32_to_be_bytes_external(f);
 }
 
 function float64_to_le_bytes(f : float) {
-  return extern float64_to_le_bytes_external(f)
+  return extern float64_to_le_bytes_external(f);
 }
 
 function float64_to_be_bytes(f : float) {
-  return extern float64_to_be_bytes_external(f)
+  return extern float64_to_be_bytes_external(f);
 }
 
 function float32_from_le_bytes(b) : float {
-  return extern float32_from_le_bytes_external(b)
+  return extern float32_from_le_bytes_external(b);
 }
 
 function float32_from_be_bytes(b) : float {
-  return extern float32_from_be_bytes_external(b)
+  return extern float32_from_be_bytes_external(b);
 }
 
 function float64_from_le_bytes(b) : float {
-  return extern float64_from_le_bytes_external(b)
+  return extern float64_from_le_bytes_external(b);
 }
 
 function float64_from_be_bytes(b) : float {
-  return extern float64_from_be_bytes_external(b)
+  return extern float64_from_be_bytes_external(b);
 }
 
 function bytes_to_string(b) : string {
-  return extern bytes_to_string_external(b)
+  return extern bytes_to_string_external(b);
 }
 
 function int_to_be_bytes(f : float, n : int) {
-  return extern int_to_be_bytes_external(f, n)
+  return extern int_to_be_bytes_external(f, n);
 }
 
 function int_from_le_bytes(b, n : int) : float{
-  return extern int_from_le_bytes_external(b, n)
+  return extern int_from_le_bytes_external(b, n);
 }
 
 function uint_from_le_bytes(b, n : int) : float {
-  return extern uint_from_le_bytes_external(b, n)
+  return extern uint_from_le_bytes_external(b, n);
 }
 
 /* Parse operators */
 function utf8_decode(s : string) : string {
-  return extern utf8_decode_external(s)
+  return extern utf8_decode_external(s);
 }
 
 function hex_decode(s : string) : string {
-  return extern hex_decode_external(s)
+  return extern hex_decode_external(s);
 }
 
 function parse_number(s : string) : string {
-  return extern parse_number_external(s)
+  return extern parse_number_external(s);
 }
 
 function parse_string(s : string) : string {
-  return extern parse_string_external(s)
+  return extern parse_string_external(s);
 }
 
 function parse_date(s : string) : string {
-  return extern parse_date_external(s)
+  return extern parse_date_external(s);
 }

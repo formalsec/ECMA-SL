@@ -36,16 +36,13 @@ function isSparseArray(O) {
           method of O with argument ToString(i). */
     elem := {O.GetOwnProperty}(O, ToString(i));
     /* b. If elem is undefined, return true. */
-    if (elem = 'undefined) {
-      return true
-    }
-  };
+    if (elem = 'undefined)
+      return true;
+  }
 
   /* 3. Return false. */
-  return false
-};
-
-
+  return false;
+}
 
 /**
  * A property name P (in the form of a String value) is an array index if and
@@ -54,28 +51,22 @@ function isSparseArray(O) {
 function IsArrayIndex(P) {
   p_uint := ToUint32(P);
   p_str := ToString(p_uint);
-  return ((p_str = P) && !(p_uint = ((2. ** 32.) - 1.) )) /* (2^32)-1 = 4294967295 */
-};
-
-
-
+  return ((p_str = P) && !(p_uint = ((2. ** 32.) - 1.) )); /* (2^32)-1 = 4294967295 */
+}
 
 function getArrayPrototype(strict) {
   refArray := newPropertyReference(|global|, "Array", strict);
   ArrayObject := GetValue(refArray);
   refArrayProto := newPropertyReference(ArrayObject, "prototype", strict);
   objectArrayProto := GetValue(refArrayProto);
-  return objectArrayProto
-};
-
-
-
+  return objectArrayProto;
+}
 
 function setAllInternalMethodsOfArray(arr) {
   setAllInternalMethodsOfObject(arr);
   arr.DefineOwnProperty := "DefineOwnPropertyArray";
-  return arr
-};
+  return arr;
+}
 
 
 
@@ -215,8 +206,8 @@ function initArrayPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(reduceRightObject, true, false, true);
   setJSProperty(prototype, "reduceRight", descriptor);
 
-  return prototype
-};
+  return prototype;
+}
 
 
 
@@ -235,8 +226,8 @@ function initArrayObject(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(objArrayPrototype, false, false, false);
   setJSProperty(objArrayConstructor, "prototype", descriptor);
 
-  return objArrayConstructor
-};
+  return objArrayConstructor;
+}
 
 
 
@@ -280,10 +271,11 @@ function ArrayConstructor(global, this, strict, items) {
   prototype := getArrayPrototype(strict);
   if ((l_len items) = 1) {
     len := l_nth (items, 0);
-    return internalNewArrayLen(prototype, len)
-  };
-  return internalNewArray(prototype, items)
-};
+    return internalNewArrayLen(prototype, len);
+  }
+  return internalNewArray(prototype, items);
+}
+
 function internalNewArray(arrayPrototype, items) {
   newlyConstructedObject := NewECMAScriptObject();
   setAllInternalMethodsOfArray(newlyConstructedObject);
@@ -315,11 +307,11 @@ function internalNewArray(arrayPrototype, items) {
   while (i < len) {
     i_str := int_to_string i;
     createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, i_str, l_nth (items, i), true, true, true);
-    i := i + 1
-  };
+    i := i + 1;
+  }
 
-  return newlyConstructedObject
-};
+  return newlyConstructedObject;
+}
 
 
 
@@ -345,15 +337,13 @@ function internalNewArrayLen(arrayPrototype, len) {
   lenIsNumber := (typeof (len) = "float");
   /* If the argument len is a Number and ToUint32(len) is equal to len, then
      the length property of the newly constructed object is set to ToUint32(len). */
-  if (lenIsNumber &&& ((ToUint32(len) = len))) {
-    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", ToUint32(len), true, false, false)
-  };
+  if (lenIsNumber &&& ((ToUint32(len) = len)))
+    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", ToUint32(len), true, false, false);
 
   /* If the argument len is a Number and ToUint32(len) is not equal to
      len, a RangeError exception is thrown. */
-  if (lenIsNumber &&& !((ToUint32(len) = len))) {
-    throw RangeErrorConstructorInternal()
-  };
+  if (lenIsNumber &&& !((ToUint32(len) = len)))
+    throw RangeErrorConstructorInternal();
 
   /* If the argument len is not a Number, then the length property of the
      newly constructed object is set to 1 and the 0 property of the newly
@@ -361,11 +351,11 @@ function internalNewArrayLen(arrayPrototype, len) {
      [[Enumerable]]: true, [[Configurable]]: true}.. */
   if (!lenIsNumber) {
     createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", ToUint32(1.), true, false, false);
-    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "0", len, true, true, true)
-  };
+    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "0", len, true, true, true);
+  }
 
-  return newlyConstructedObject
-};
+  return newlyConstructedObject;
+}
 
 
 
@@ -379,17 +369,15 @@ function internalNewArrayLen(arrayPrototype, len) {
 function isArray(global, this, strict, args) {
   arg := l_nth(args, 0);
   /* 1. If Type(arg) is not Object, return false. */
-  if (!(Type(arg) = "Object")) {
-    return false
-  };
+  if (!(Type(arg) = "Object"))
+    return false;
   /* 2. If the value of the [[Class]] internal property of arg is "Array",
         then return true. */
-  if (arg.Class = "Array") {
-    return true
-  };
+  if (arg.Class = "Array")
+    return true;
   /* 3. Return false. */
-  return false
-};
+  return false;
+}
 
 
 
@@ -407,13 +395,12 @@ function arrayToString(global, this, strict, args) {
   func := {array.Get}(array, "join");
   /* 3. If IsCallable(func) is false, then let func be the standard
         built-in method Object.prototype.toString (15.2.4.2). */
-  if (IsCallable(func) = false) {
-    func := getObjectPrototypeToString(strict)
-  };
+  if (IsCallable(func) = false)
+    func := getObjectPrototypeToString(strict);
   /* 4. Return the result of calling the [[Call]] internal method of func
         providing array as the this value and an empty arguments list. */
-  return {func.Call}(null, null, func, array, [])
-};
+  return {func.Call}(null, null, func, array, []);
+}
 /**
  * NOTE The toString function is intentionally generic; it does not
  * require that its this value be an Array object. Therefore it can be
@@ -451,16 +438,15 @@ function arrayToLocaleString(global, this, strict, args) {
         derived in an implementation-defined way). */
   separator := ","; /* TODO */
   /* 5. If len is zero, return the empty String. */
-  if (len = 0.) {
-    return ""
-  };
+  if (len = 0.)
+    return "";
   /* 6. Let firstElement be the result of calling the [[Get]] internal
         method of array with argument "0". */
   firstElement := {O.Get}(O, "0");
   /* 7. If firstElement is undefined or null, then */
   if ((firstElement = 'undefined) || (firstElement = 'null)) {
     /* a. Let R be the empty String. */
-    R := ""
+    R := "";
   }
   /* 8. Else */
   else {
@@ -470,13 +456,12 @@ function arrayToLocaleString(global, this, strict, args) {
           of elementObj with argument "toLocaleString". */
     func := {elementObj.Get}(elementObj, "toLocaleString");
     /* c. If IsCallable(func) is false, throw a TypeError exception. */
-    if (IsCallable(func) = false) {
-      throw TypeErrorConstructorInternal()
-    };
+    if (IsCallable(func) = false)
+      throw TypeErrorConstructorInternal();
     /* d. Let R be the result of calling the [[Call]] internal method of func
           providing elementObj as the this value and an empty arguments list. */
-    R := {func.Call}(null, null, func, elementObj, [])
-  };
+    R := {func.Call}(null, null, func, elementObj, []);
+  }
   /* 9. Let k be 1. */
   k := 1.;
   /* 10. Repeat, while k < len */
@@ -489,7 +474,7 @@ function arrayToLocaleString(global, this, strict, args) {
     /* c. If nextElement is undefined or null, then */
     if ((nextElement = 'undefined) || (nextElement = 'null)) {
       /* i. Let R be the empty String. */
-      R := ""
+      R := "";
     }
     /* d. Else */
     else {
@@ -499,21 +484,20 @@ function arrayToLocaleString(global, this, strict, args) {
              elementObj with argument "toLocaleString". */
       func := {elementObj.Get}(elementObj, "toLocaleString");
       /* iii. If IsCallable(func) is false, throw a TypeError exception. */
-      if (IsCallable(func) = false) {
-        throw TypeErrorConstructorInternal()
-      };
+      if (IsCallable(func) = false)
+        throw TypeErrorConstructorInternal();
       /* iv. Let R be the result of calling the [[Call]] internal method of func
              providing elementObj as the this value and an empty arguments list. */
-      R := {func.Call}(null, null, func, elementObj, [])
-    };
+      R := {func.Call}(null, null, func, elementObj, []);
+    }
     /* e. Let R be a String value produced by concatenating S and R. */
     R := s_concat([S, ToString(R)]);
     /* f. Increase k by 1. */
-    k := k + 1.
-  };
+    k := k + 1.;
+  }
   /* 11. Return R. */
-  return R
-};
+  return R;
+}
 /**
  * NOTE 1 The first parameter to this function is likely to be used in a
  * future version of this standard; it is recommended that implementations
@@ -586,12 +570,12 @@ function arrayConcat(global, this, strict, items) {
                 subElement, [[Writable]]: true, [[Enumerable]]: true,
                 [[Configurable]]: true}, and false.*/
           descriptor := newDataPropertyDescriptorFull(subElement, true, true, true);
-          {A.DefineOwnProperty}(A, ToString(n), descriptor, false)
-        };
+          {A.DefineOwnProperty}(A, ToString(n), descriptor, false);
+        }
         /* 4. Increase n by 1. */
         n := n + 1.;
         /* 5. Increase k by 1. */
-        k := k + 1.
+        k := k + 1.;
       }
     }
     /* c. Else, E is not an Array */
@@ -603,17 +587,17 @@ function arrayConcat(global, this, strict, items) {
       descriptor := newDataPropertyDescriptorFull(E, true, true, true);
       {A.DefineOwnProperty}(A, ToString(n), descriptor, false);
       /* ii. Increase n by 1. */
-      n := n + 1.
+      n := n + 1.;
     }
-  };
+  }
 
   /** test/test262/tests/built-ins/Array/prototype/concat/S15.4.4.4_A1_T4.js */
   lenDesc := newDataPropertyDescriptorFull(n, true, false, false);
   {A.DefineOwnProperty}(A, "length", lenDesc, false);
 
   /* 6. Return A. */
-  return A
-};
+  return A;
+}
 /**
  * The length property of the concat method is 1.
  *
@@ -650,25 +634,22 @@ function arrayJoin(global, this, strict, args) {
   len := ToUint32(lenVal);
   /* 4. If separator is undefined, let separator be the single-character
         String ",". */
-  if (separator = 'undefined) {
-    separator := ","
-  };
+  if (separator = 'undefined)
+    separator := ",";
   /* 5. Let sep be ToString(separator). */
   sep := ToString(separator);
   /* 6. If len is zero, return the empty String. */
-  if (len = 0.) {
-    return ""
-  };
+  if (len = 0.)
+    return "";
   /* 7. Let element0 be the result of calling the [[Get]] internal method
         of O with argument "0". */
   element0 := {O.Get}(O, "0");
   /* 8. If element0 is undefined or null, let R be the empty String;
         otherwise, Let R be ToString(element0). */
-  if ((element0 = 'undefined) || (element0 = 'null)) {
-    R := ""
-  } else {
-    R := ToString(element0)
-  };
+  if ((element0 = 'undefined) || (element0 = 'null))
+    R := "";
+  else
+    R := ToString(element0);
   /* 9. Let k be 1. */
   k := 1.;
   /* 10. Repeat, while k < len */
@@ -680,19 +661,18 @@ function arrayJoin(global, this, strict, args) {
     element := {O.Get}(O, ToString(k));
     /* c. If element is undefined or null, Let next be the empty String;
           otherwise, let next be ToString(element). */
-    if ((element = 'undefined) || (element = 'null)) {
-      next := ""
-    } else {
-      next := ToString(element)
-    };
+    if ((element = 'undefined) || (element = 'null)) 
+      next := "";
+    else
+      next := ToString(element);
     /* d. Let R be a String value produced by concatenating S and next. */
     R := s_concat([S, next]);
     /* e. Increase k by 1. */
-    k := k + 1.
-  };
+    k := k + 1.;
+  }
   /* 11. Return R. */
-  return R
-};
+  return R;
+}
 /**
  * The length property of the join method is 1.
  *
@@ -726,7 +706,7 @@ function arrayPop(global, this, strict, args) {
           0, and true. */
     {O.Put}(O, "length", 0., true);
     /* b. Return undefined. */
-    return 'undefined
+    return 'undefined;
   }
   /* 5. Else, len > 0 */
   else {
@@ -745,10 +725,10 @@ function arrayPop(global, this, strict, args) {
         len - 1 instead of indx.*/
       {O.Put}(O, "length", len - 1., true);
       /* e. Return element. */
-      return element
+      return element;
     }
   }
-};
+}
 /**
  * NOTE The pop function is intentionally generic; it does not require that
  * its this value be an Array object. Therefore it can be transferred to other
@@ -790,14 +770,14 @@ function arrayPush(global, this, strict, items) {
           E, and true. */
     {O.Put}(O, ToString(n), E, true);
     /* c. Increase n by 1. */
-    n := n + 1.
-  };
+    n := n + 1.;
+  }
   /* 6. Call the [[Put]] internal method of O with arguments "length", n,
         and true. */
   {O.Put}(O, "length", n, true);
   /* 7. Return n. */
-  return n
-};
+  return n;
+}
 /**
  * The length property of the push method is 1.
  *
@@ -856,7 +836,7 @@ function arrayReverse(global, this, strict, args) {
       {O.Put}(O, lowerP, upperValue, true);
       /* ii. Call the [[Put]] internal method of O with arguments upperP,
              lowerValue, and true . */
-      {O.Put}(O, upperP, lowerValue, true)
+      {O.Put}(O, upperP, lowerValue, true);
     }
     /* i. Else if lowerExists is false and upperExists is true, then */
     elif (lowerExists = false &&& upperExists = true) {
@@ -865,7 +845,7 @@ function arrayReverse(global, this, strict, args) {
       {O.Put}(O, lowerP, upperValue, true);
       /* ii. Call the [[Delete]] internal method of O, with arguments upperP
             and true. */
-      {O.Delete}(O, upperP, true)
+      {O.Delete}(O, upperP, true);
     }
     /* j. Else if lowerExists is true and upperExists is false, then */
     elif (lowerExists = true &&& upperExists = false) {
@@ -874,17 +854,17 @@ function arrayReverse(global, this, strict, args) {
       {O.Delete}(O, lowerP, true);
       /* ii. Call the [[Put]] internal method of O with arguments upperP,
             lowerValue, and true . */
-      {O.Put}(O, upperP, lowerValue, true)
+      {O.Put}(O, upperP, lowerValue, true);
     } else {
       /* k. Else, both lowerExists and upperExists are false */
       /* i. No action is required. */
-    };
+    }
     /* l. Increase lower by 1. */
-    lower := lower + 1.
-  };
+    lower := lower + 1.;
+  }
   /* 7. Return O . */
-  return O
-};
+  return O;
+}
 /**
  * NOTE The reverse function is intentionally generic; it does not require
  * that its this value be an Array object. Therefore, it can be transferred
@@ -915,8 +895,8 @@ function arrayShift(global, this, strict, args) {
           0, and true. */
     {O.Put}(O, "length", 0., true);
     /* b. Return undefined. */
-    return 'undefined
-  };
+    return 'undefined;
+  }
   /* 5. Let first be the result of calling the [[Get]] internal method
         of O with argument "0". */
   first := {O.Get}(O, "0");
@@ -938,17 +918,17 @@ function arrayShift(global, this, strict, args) {
       fromVal := {O.Get}(O, from);
       /* ii. Call the [[Put]] internal method of O with arguments to,
              fromVal, and true. */
-      {O.Put}(O, to, fromVal, true)
+      {O.Put}(O, to, fromVal, true);
     }
     /* e. Else, fromPresent is false */
     else {
       /* i. Call the [[Delete]] internal method of O with arguments to
             and true. */
-      {O.Delete}(O, to, true)
-    };
+      {O.Delete}(O, to, true);
+    }
     /* f. Increase k by 1. */
-    k := k + 1.
-  };
+    k := k + 1.;
+  }
   /* 8. Call the [[Delete]] internal method of O with arguments
         ToString(len–1) and true. */
   {O.Delete}(O, ToString(len - 1.), true);
@@ -956,8 +936,8 @@ function arrayShift(global, this, strict, args) {
         (len–1) , and true. */
   {O.Put}(O, "length", len - 1., true);
   /* 10. Return first. */
-  return first
-};
+  return first;
+}
 /**
  * NOTE The shift function is intentionally generic; it does not require that
  * its this value be an Array object. Therefore it can be transferred to other
@@ -995,27 +975,16 @@ function arraySlice(global, this, strict, args) {
   len := ToUint32(lenVal);
   /* 5. Let relativeStart be ToInteger(start). */
   relativeStart := ToInteger(start);
-  /* 6. If relativeStart is negative, let k be max((len +relativeStart),0); else
-        let k be min(relativeStart,len). */
-  if (relativeStart < 0.) {
-    k := max((len + relativeStart), 0.)
-  } else {
-    k := min(relativeStart, len)
-  };
-  /* 7. If end is undefined, let relativeEnd be len; else let relativeEnd be
-        ToInteger(end). */
-  if (end = 'undefined) {
-    relativeEnd := len
-  } else {
-    relativeEnd := ToInteger(end)
-  };
+  /* 6. If relativeStart is negative, let k be max((len +relativeStart),0); else let k be min(relativeStart,len). */
+  if (relativeStart < 0.) k := max((len + relativeStart), 0.); else k := min(relativeStart, len);
+  /* 7. If end is undefined, let relativeEnd be len; else let relativeEnd be ToInteger(end). */
+  if (end = 'undefined)
+    relativeEnd := len;
+  else
+    relativeEnd := ToInteger(end);
   /* 8. If relativeEnd is negative, let final be max((len + relativeEnd),0); else
         let final be min(relativeEnd,len). */
-  if (relativeEnd < 0.) {
-    final := max((len + relativeEnd), 0.)
-  } else {
-    final := min(relativeEnd, len)
-  };
+  if (relativeEnd < 0.) final := max((len + relativeEnd), 0.); else final := min(relativeEnd, len);
   /* 9. Let n be 0. */
   n := 0.;
   /* 10. Repeat, while k < final */
@@ -1034,16 +1003,16 @@ function arraySlice(global, this, strict, args) {
              ToString(n), Property Descriptor {[[Value]]: kValue, [[Writable]]:
              true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
       descriptor := newDataPropertyDescriptorFull(kValue, true, true, true);
-      {A.DefineOwnProperty}(A, ToString(n), descriptor, false)
-    };
+      {A.DefineOwnProperty}(A, ToString(n), descriptor, false);
+    }
     /* d. Increase k by 1. */
     k := k + 1.;
     /* e. Increase n by 1. */
-    n := n + 1.
-  };
+    n := n + 1.;
+  }
   /* 11. Return A. */
-  return A
-};
+  return A;
+}
 /**
  * The length property of the slice method is 2.
  *
@@ -1124,22 +1093,22 @@ function arraySort(global, this, strict, args) {
       jVal := {obj.Get}(obj, i_str);
       if (jValExists &&& jValNextExists) {
         {obj.Put}(obj, inext_str, jVal, true);
-        {obj.Put}(obj, i_str, jValNext, true)
+        {obj.Put}(obj, i_str, jValNext, true);
       } elif (!jValExists &&& jValNextExists) {
         {obj.Put}(obj, i_str, jValNext, true);
-        {obj.Delete}(obj, inext_str, true)
+        {obj.Delete}(obj, inext_str, true);
       } elif (jValExists &&& !jValNextExists) {
         {obj.Put}(obj, inext_str, jVal, true);
-        {obj.Delete}(obj, i_str, true)
-      };
-      j := j - 1.
-    };
-    k := k + 1.
-  };
+        {obj.Delete}(obj, i_str, true);
+      }
+      j := j - 1.;
+    }
+    k := k + 1.;
+  }
   /* INSERTION SORT - END */
 
   /* 2. Return obj. */
-  return obj
+  return obj;
 
   /* The returned object must have the following two properties.
      - There must be some mathematical permutation π of the nonnegative
@@ -1177,7 +1146,7 @@ function arraySort(global, this, strict, args) {
     NOTE The above conditions are necessary and sufficient to ensure
     that comparefn divides the set S into equivalence classes and that
     these equivalence classes are totally ordered. */
-};
+}
 /**
  * NOTE 1 Because non-existent property values always compare greater than
  * undefined property values, and undefined always compares greater than any
@@ -1209,17 +1178,14 @@ function SortCompare(obj, comparefn, j, k) {
         method of obj with argument kString. */
   hask := {obj.HasProperty}(obj, kString);
   /* 5. If hasj and hask are both false, then return +0. */
-  if ((hasj = false) &&& (hask = false)) {
-    return 0.
-  };
+  if ((hasj = false) &&& (hask = false))
+    return 0.;
   /* 6. If hasj is false, then return 1. */
-  if (hasj = false) {
-    return 1.
-  };
+  if (hasj = false)
+    return 1.;
   /* 7. If hask is false, then return –1. */
-  if (hask = false) {
-    return -(1.)
-  };
+  if (hask = false)
+    return -(1.);
   /* 8. Let x be the result of calling the [[Get]] internal method of
         obj with argument jString. */
   x := {obj.Get}(obj, jString);
@@ -1227,42 +1193,36 @@ function SortCompare(obj, comparefn, j, k) {
         obj with argument kString. */
   y := {obj.Get}(obj, kString);
   /* 10. If x and y are both undefined, return +0. */
-  if ((x = 'undefined) &&& (y = 'undefined)) {
-    return 0.
-  };
+  if ((x = 'undefined) &&& (y = 'undefined))
+    return 0.;
   /* 11. If x is undefined, return 1. */
-  if (x = 'undefined) {
-    return 1.
-  };
+  if (x = 'undefined)
+    return 1.;
   /* 12. If y is undefined, return −1. */
-  if (y = 'undefined) {
-    return -(1.)
-  };
+  if (y = 'undefined)
+    return -(1.);
   /* 13. If the argument comparefn is not undefined, then */
   if (!(comparefn = 'undefined)) {
     /* a. If IsCallable(comparefn) is false, throw a TypeError exception. */
-    if (IsCallable(comparefn) = false) {
-      throw TypeErrorConstructorInternal()
-    };
+    if (IsCallable(comparefn) = false)
+      throw TypeErrorConstructorInternal();
     /* b. Return the result of calling the [[Call]] internal method of
           comparefn passing undefined as the this value and with arguments x and y. */
-    return {comparefn.Call}(null, null, comparefn, 'undefined, [x, y])
-  };
+    return {comparefn.Call}(null, null, comparefn, 'undefined, [x, y]);
+  }
   /* 14. Let xString be ToString(x). */
   xString := ToString(x);
   /* 15. Let yString be ToString(y). */
   yString := ToString(y);
   /* 16. If xString < yString, return −1. */
-  if (xString < yString) {
-    return -(1.)
-  };
+  if (xString < yString)
+    return -(1.);
   /* 17. If xString > yString, return 1. */
-  if (xString > yString) {
-    return 1.
-  };
+  if (xString > yString)
+    return 1.;
   /* 18. Return +0. */
-  return 0.
-};
+  return 0.;
+}
 
 
 
@@ -1297,11 +1257,7 @@ function arraySplice(global, this, strict, args) {
   relativeStart := ToInteger(start);
   /* 6. If relativeStart is negative, let actualStart be max((len + relativeStart),0);
         else let actualStart be min(relativeStart, len). */
-  if (relativeStart < 0.) {
-    actualStart := max((len + relativeStart), 0.)
-  } else {
-    actualStart := min(relativeStart, len)
-  };
+  if (relativeStart < 0.) actualStart := max((len + relativeStart), 0.); actualStart := min(relativeStart, len);
   /* 7. Let actualDeleteCount be min(max(ToInteger(deleteCount),0),len - actualStart). */
   actualDeleteCount := min(max(ToInteger(deleteCount), 0.), len - actualStart);
   /* 8. Let k be 0. */
@@ -1322,11 +1278,11 @@ function arraySplice(global, this, strict, args) {
              ToString(k), Property Descriptor {[[Value]]: fromValue,[[Writable]]:
              true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
       descriptor := newDataPropertyDescriptorFull(fromValue, true, true, true);
-      {A.DefineOwnProperty}(A, ToString(k), descriptor, false)
-    };
+      {A.DefineOwnProperty}(A, ToString(k), descriptor, false);
+    }
     /* d. Increment k by 1. */
-    k := k + 1.
-  };
+    k := k + 1.;
+  }
   /* 10. Let items be an internal List whose elements are, in left to
          right order, the portion of the actual argument list starting
          with item1. The list will be empty if no such items are present. */
@@ -1353,16 +1309,16 @@ function arraySplice(global, this, strict, args) {
         fromValue := {O.Get}(O, from);
         /* 2. Call the [[Put]] internal method of O with arguments
               to, fromValue, and true. */
-        {O.Put}(O, to, fromValue, true)
+        {O.Put}(O, to, fromValue, true);
       } else {
       /* v. Else, fromPresent is false */
         /* 1. Call the [[Delete]] internal method of O with arguments
               to and true. */
-        {O.Delete}(O, to, true)
-      };
+        {O.Delete}(O, to, true);
+      }
       /* vi. Increase k by 1. */
-      k := k + 1.
-    };
+      k := k + 1.;
+    }
     /* c. Let k be len. */
     k := len;
     /* d. Repeat, while k > (len - actualDeleteCount + itemCount) */
@@ -1371,7 +1327,7 @@ function arraySplice(global, this, strict, args) {
             ToString(k-1) and true. */
       {O.Delete}(O, ToString(k - 1.), true);
       /* ii. Decrease k by 1. */
-      k := k - 1.
+      k := k - 1.;
     }
   }
   /* 13. Else if itemCount > actualDeleteCount, then */
@@ -1394,18 +1350,18 @@ function arraySplice(global, this, strict, args) {
         fromValue := {O.Get}(O, from);
         /* 2. Call the [[Put]] internal method of O with arguments to,
               fromValue, and true. */
-        {O.Put}(O, to, fromValue, true)
+        {O.Put}(O, to, fromValue, true);
       }
       /* v. Else, fromPresent is false */
       else {
         /* 1. Call the [[Delete]] internal method of O with argument
               to and true. */
-        {O.Delete}(O, to, true)
-      };
+        {O.Delete}(O, to, true);
+      }
       /* vi. Decrease k by 1. */
-      k := k - 1.
+      k := k - 1.;
     }
-  };
+  }
   /* 14. Let k be actualStart. */
   k := actualStart;
   /* 15. Repeat, while items is not empty */
@@ -1418,14 +1374,14 @@ function arraySplice(global, this, strict, args) {
           ToString(k), E, and true. */
     {O.Put}(O, ToString(k), E, true);
     /* c. Increase k by 1. */
-    k := k + 1.
-  };
+    k := k + 1.;
+  }
   /* 16. Call the [[Put]] internal method of O with arguments "length",
          (len - actualDeleteCount + itemCount), and true. */
   {O.Put}(O, "length", ((len - actualDeleteCount) + itemCount), true);
   /* 17. Return A. */
-  return A
-};
+  return A;
+}
 /**
  * The length property of the splice method is 2.
  *
@@ -1477,17 +1433,17 @@ function arrayUnshift(global, this, strict, items) {
       fromValue := {O.Get}(O, from);
       /* ii. Call the [[Put]] internal method of O with arguments
              to, fromValue, and true. */
-      {O.Put}(O, to, fromValue, true)
+      {O.Put}(O, to, fromValue, true);
     }
     /* e. Else, fromPresent is false */
     else {
       /* i. Call the [[Delete]] internal method of O with arguments
             to, and true. */
-      {O.Delete}(O, to, true)
-    };
+      {O.Delete}(O, to, true);
+    }
     /* f. Decrease k by 1. */
-    k := k - 1.
-  };
+    k := k - 1.;
+  }
   /* 7. Let j be 0. */
   j := 0.;
   /* 8. Let items be an internal List whose elements are, in left
@@ -1504,14 +1460,14 @@ function arrayUnshift(global, this, strict, items) {
           ToString(j), E, and true. */
     {O.Put}(O, ToString(j), E, true);
     /* c. Increase j by 1. */
-    j := j + 1.
-  };
+    j := j + 1.;
+  }
   /* 10. Call the [[Put]] internal method of O with arguments "length",
          len+argCount, and true. */
   {O.Put}(O, "length", len + argCount, true);
   /* 11. Return len+argCount. */
-  return len + argCount
-};
+  return len + argCount;
+}
 /**
  * The length property of the unshift method is 1.
  *
@@ -1554,38 +1510,29 @@ function arrayIndexOf(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenValue). */
   len := ToUint32(lenVal);
   /* 4. If len is 0, return -1. */
-  if (len = 0.) {
-    return -(1.)
-  };
-  /* 5. If argument fromIndex was passed let n be ToInteger(fromIndex);
-        else let n be 0. */
-  if (!(fromIndex = null)) {
-    n := ToInteger(fromIndex)
-  } else {
-    n := 0.
-  };
+  if (len = 0.)
+    return -(1.);
+  /* 5. If argument fromIndex was passed let n be ToInteger(fromIndex); else let n be 0. */
+  if (!(fromIndex = null))
+    n :=  ToInteger(fromIndex);
+  else
+    n := 0.;
   /* 6. If n ≥ len, return -1. */
-  if (n >= len) {
-    return -(1.)
-  };
+  if (n >= len)
+    return -(1.);
   /* 7. If n ≥ 0, then */
   if (n >= 0.) {
     /* This comparison with -0 was extracted from ES7 standard. Fix bug. */
     /* a. If n is -0, let k be +0; else let k be n. */
-    if (isMinusZero(n)) {
-      k := 0.
-    } else {
-      k := n
-    }
+    if (isMinusZero(n)) k := 0.; else k := n;
   } else {
   /* 8. Else, n<0 */
     /* a. Let k be len - abs(n). */
     k := len - abs(n);
     /* b. If k is less than 0, then let k be 0. */
-    if (k < 0.) {
-      k := 0.
-    }
-  };
+    if (k < 0.)
+      k := 0.;
+  }
   /* 9. Repeat, while k<len */
   while (k < len) {
     /* a. Let kPresent be the result of calling the [[HasProperty]] internal
@@ -1600,16 +1547,15 @@ function arrayIndexOf(global, this, strict, args) {
             Algorithm to searchElement and elementK. */
       same := StrictEqualityComparison(searchElement, elementK);
       /* iii. If same is true, return k. */
-      if (same = true) {
-        return k
-      }
-    };
+      if (same = true)
+        return k;
+    }
     /* c. Increase k by 1. */
-    k := k + 1.
-  };
+    k := k + 1.;
+  }
   /* 10. Return -1. */
-  return -(1.)
-};
+  return -(1.);
+}
 /**
  * The length property of the indexOf method is 1.
  *
@@ -1652,31 +1598,24 @@ function arrayLastIndexOf(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenValue). */
   len := ToUint32(lenVal);
   /* 4. If len is 0, return -1. */
-  if (len = 0.) {
-    return -(1.)
-  };
-  /* 5. If argument fromIndex was passed let n be ToInteger(fromIndex);
-        else let n be len. */
-  if (!(fromIndex = null)) {
-    n := ToInteger(fromIndex)
-  } else {
-    n := len
-  };
+  if (len = 0.)
+    return -(1.);
+  /* 5. If argument fromIndex was passed let n be ToInteger(fromIndex); else let n be len. */
+  if (!(fromIndex = null))
+    n := ToInteger(fromIndex);
+  else 
+    n := len;
   /* 6. If n ≥ 0, then let k be min(n, len - 1). */
   if (n >= 0.) {
     /* This comparison with -0 was extracted from ES7 standard. Fix bug. */
     /* a. If n is -0, let k be +0; else let k be min(n, len - 1). */
-    if (isMinusZero(n)) {
-      k := 0.
-    } else {
-      k := min(n, len - 1.)
-    }
+    if (isMinusZero(n)) k := 0.; else k := min(n, len - 1.);
   }
   /* 7. Else, n < 0 */
   else {
     /* a. Let k be len - abs(n). */
-    k := len - abs(n)
-  };
+    k := len - abs(n);
+  }
   /* 8. Repeat, while k≥ 0 */
   while (k >= 0.) {
     /* a. Let kPresent be the result of calling the [[HasProperty]]
@@ -1691,16 +1630,15 @@ function arrayLastIndexOf(global, this, strict, args) {
              Comparision Algorithm to searchElement and elementK. */
       same := StrictEqualityComparison(searchElement, elementK);
       /* iii. If same is true, return k. */
-      if (same = true) {
-        return k
-      }
-    };
+      if (same = true)
+        return k;
+    }
     /* c. Decrease k by 1. */
-    k := k - 1.
-  };
+    k := k - 1.;
+  }
   /* 9. Return -1. */
-  return -(1.)
-};
+  return -(1.);
+}
 /**
  * The length property of the lastIndexOf method is 1.
  *
@@ -1761,15 +1699,10 @@ function arrayEvery(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenValue). */
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
+  if (IsCallable(callbackfn) = false)
+    throw TypeErrorConstructorInternal();
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) {
-    T := thisArg
-  } else {
-    T := 'undefined
-  };
+  if (!(thisArg = null)) T := thisArg; T := 'undefined;
   /* 6. Let k be 0. */
   k := 0.;
   /* 7. Repeat, while k < len */
@@ -1789,16 +1722,15 @@ function arrayEvery(global, this, strict, args) {
              list containing kValue, k, and O. */
       testResult := {callbackfn.Call}(null, null, callbackfn, T, [kValue, k, O]);
       /* iii. If ToBoolean(testResult) is false, return false. */
-      if (ToBoolean(testResult) = false) {
-        return false
-      }
-    };
+      if (ToBoolean(testResult) = false)
+        return false;
+    }
     /* d. Increase k by 1. */
-    k := k + 1.
-  };
+    k := k + 1.;
+  }
   /* 8. Return true. */
-  return true
-};
+  return true;
+}
 /**
  * The length property of the every method is 1.
  *
@@ -1856,15 +1788,10 @@ function arraySome(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenValue). */
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
+  if (IsCallable(callbackfn) = false)
+    throw TypeErrorConstructorInternal();
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) {
-    T := thisArg
-  } else {
-    T := 'undefined
-  };
+  if (!(thisArg = null)) T := thisArg; else T := 'undefined;
   /* 6. Let k be 0. */
   k := 0.;
   /* 7. Repeat, while k < len */
@@ -1884,16 +1811,15 @@ function arraySome(global, this, strict, args) {
              list containing kValue, k, and O. */
       testResult := {callbackfn.Call}(null, null, callbackfn, T, [kValue, k, O]);
       /* iii. If ToBoolean(testResult) is true, return true. */
-      if (ToBoolean(testResult) = true) {
-        return true
-      }
-    };
+      if (ToBoolean(testResult) = true)
+        return true;
+    }
     /* d. Increase k by 1. */
-    k := k + 1.
-  };
+    k := k + 1.;
+  }
   /* 8. Return false. */
-  return false
-};
+  return false;
+}
 /**
  * The length property of the some method is 1.
  *
@@ -1948,15 +1874,10 @@ function arrayForEach(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenValue). */
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
+  if (IsCallable(callbackfn) = false)
+    throw TypeErrorConstructorInternal();
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) {
-    T := thisArg
-  } else {
-    T := 'undefined
-  };
+  if (!(thisArg = null)) T := thisArg; else T := 'undefined;
   /* 6. Let k be 0. */
   k := 0.;
   /* 7. Repeat, while k < len */
@@ -1973,14 +1894,14 @@ function arrayForEach(global, this, strict, args) {
       kValue := {O.Get}(O, Pk);
       /* ii. Call the [[Call]] internal method of callbackfn with T
              as the this value and argument list containing kValue, k, and O. */
-      {callbackfn.Call}(null, null, callbackfn, T, [kValue, k, O])
-    };
+      {callbackfn.Call}(null, null, callbackfn, T, [kValue, k, O]);
+    }
     /* d. Increase k by 1. */
-    k := k + 1.
-  };
+    k := k + 1.;
+  }
   /* 8. Return undefined. */
-  return 'undefined
-};
+  return 'undefined;
+}
 /**
  * The length property of the forEach method is 1.
  *
@@ -2035,15 +1956,10 @@ function arrayMap(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenValue). */
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
+  if (IsCallable(callbackfn) = false)
+    throw TypeErrorConstructorInternal();
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) {
-    T := thisArg
-  } else {
-    T := 'undefined
-  };
+  if (!(thisArg = null)) T := thisArg; else T := 'undefined;
   /* 6. Let A be a new array created as if by the expression new Array( len)
         where Array is the standard built-in constructor with that name and
         len is the value of len. */
@@ -2071,14 +1987,14 @@ function arrayMap(global, this, strict, args) {
               [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true},
               and false. */
       descriptor := newDataPropertyDescriptorFull(mappedValue, true, true, true);
-      {A.DefineOwnProperty}(A, Pk, descriptor, false)
-    };
+      {A.DefineOwnProperty}(A, Pk, descriptor, false);
+    }
     /* d. Increase k by 1. */
-    k := k + 1.
-  };
+    k := k + 1.;
+  }
   /* 9. Return A. */
-  return A
-};
+  return A;
+}
 /**
  * The length property of the map method is 1.
  *
@@ -2133,15 +2049,10 @@ function arrayFilter(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenValue). */
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
+  if (IsCallable(callbackfn) = false)
+    throw TypeErrorConstructorInternal();
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) {
-    T := thisArg
-  } else {
-    T := 'undefined
-  };
+  if (!(thisArg = null)) T := thisArg; else T := 'undefined;
   /* 6. Let A be a new array created as if by the expression new Array()
         where Array is the standard built-in constructor with that name. */
   A := ArrayConstructor(global, this, strict, []);
@@ -2173,15 +2084,15 @@ function arrayFilter(global, this, strict, args) {
         descriptor := newDataPropertyDescriptorFull(kValue, true, true, true);
         {A.DefineOwnProperty}(A, ToString(to), descriptor, false);
         /* 2. Increase to by 1. */
-        to := to + 1.
+        to := to + 1.;
       }
-    };
+    }
     /* d. Increase k by 1. */
-    k := k + 1.
-  };
+    k := k + 1.;
+  }
   /* 10. Return A. */
-  return A
-};
+  return A;
+}
 /**
  * The length property of the filter method is 1.
  *
@@ -2238,19 +2149,17 @@ function arrayReduce(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenValue ). */
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
+  if (IsCallable(callbackfn) = false)
+    throw TypeErrorConstructorInternal();
   /* 5. If len is 0 and initialValue is not present, throw a TypeError exception. */
-  if ((len = 0) &&& (initialValue = null)) {
-    throw TypeErrorConstructorInternal()
-  };
+  if ((len = 0) &&& (initialValue = null))
+    throw TypeErrorConstructorInternal();
   /* 6. Let k be 0. */
   k := 0.;
   /* 7. If initialValue is present, then */
   if (!(initialValue = null)) {
     /* a. Set accumulator to initialValue. */
-    accumulator := initialValue
+    accumulator := initialValue;
   }
   /* 8. Else, initialValue is not present */
   else {
@@ -2267,16 +2176,15 @@ function arrayReduce(global, this, strict, args) {
       if (kPresent = true) {
         /* 1. Let accumulator be the result of calling the [[Get]]
               internal method of O with argument Pk. */
-        accumulator := {O.Get}(O, Pk)
-      };
+        accumulator := {O.Get}(O, Pk);
+      }
       /* iv. Increase k by 1. */
-      k := k + 1.
-    };
-    /* c. If kPresent is false, throw a TypeError exception. */
-    if (kPresent = false) {
-      throw TypeErrorConstructorInternal()
+      k := k + 1.;
     }
-  };
+    /* c. If kPresent is false, throw a TypeError exception. */
+    if (kPresent = false)
+      throw TypeErrorConstructorInternal();
+  }
   /* 9. Repeat, while k < len */
   while (k < len) {
     /* a. Let Pk be ToString(k). */
@@ -2292,14 +2200,14 @@ function arrayReduce(global, this, strict, args) {
       /* ii. Let accumulator be the result of calling the [[Call]] internal
              method of callbackfn with undefined as the this value and
              argument list containing accumulator, kValue, k, and O. */
-      accumulator := {callbackfn.Call}(null, null, callbackfn, 'undefined, [accumulator, kValue, k, O])
-    };
+      accumulator := {callbackfn.Call}(null, null, callbackfn, 'undefined, [accumulator, kValue, k, O]);
+    }
     /* d. Increase k by 1. */
-    k := k + 1.
-  };
+    k := k + 1.;
+  }
   /* 10. Return accumulator. */
-  return accumulator
-};
+  return accumulator;
+}
 /**
  * The length property of the reduce method is 1.
  *
@@ -2357,19 +2265,17 @@ function arrayReduceRight(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenValue ). */
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
+  if (IsCallable(callbackfn) = false)
+    throw TypeErrorConstructorInternal();
   /* 5. If len is 0 and initialValue is not present, throw a TypeError exception. */
-  if ((len = 0) &&& (initialValue = null)) {
-    throw TypeErrorConstructorInternal()
-  };
+  if ((len = 0) &&& (initialValue = null))
+    throw TypeErrorConstructorInternal();
   /* 6. Let k be len-1. */
   k := len - 1.;
   /* 7. If initialValue is present, then */
   if (!(initialValue = null)) {
     /* a. Set accumulator to initialValue. */
-    accumulator := initialValue
+    accumulator := initialValue;
   }
   /* 8. Else, initialValue is not present */
   else {
@@ -2386,16 +2292,15 @@ function arrayReduceRight(global, this, strict, args) {
       if (kPresent = true) {
         /* 1. Let accumulator be the result of calling the [[Get]]
               internal method of O with argument Pk. */
-        accumulator := {O.Get}(O, Pk)
-      };
+        accumulator := {O.Get}(O, Pk);
+      }
       /* iv. Decrease k by 1. */
-      k := k - 1.
-    };
-    /* c. If kPresent is false, throw a TypeError exception. */
-    if (kPresent = false) {
-      throw TypeErrorConstructorInternal()
+      k := k - 1.;
     }
-  };
+    /* c. If kPresent is false, throw a TypeError exception. */
+    if (kPresent = false)
+      throw TypeErrorConstructorInternal();
+  }
   /* 9. Repeat, while k ≥ 0 */
   while (k >= 0.) {
     /* a. Let Pk be ToString(k). */
@@ -2411,14 +2316,14 @@ function arrayReduceRight(global, this, strict, args) {
       /* ii. Let accumulator be the result of calling the [[Call]] internal
              method of callbackfn with undefined as the this value and
              argument list containing accumulator, kValue, k, and O. */
-      accumulator := {callbackfn.Call}(null, null, callbackfn, 'undefined, [accumulator, kValue, k, O])
-    };
+      accumulator := {callbackfn.Call}(null, null, callbackfn, 'undefined, [accumulator, kValue, k, O]);
+    }
     /* d. Decrease k by 1. */
-    k := k - 1.
-  };
+    k := k - 1.;
+  }
   /* 10. Return accumulator. */
-  return accumulator
-};
+  return accumulator;
+}
 /**
  * The length property of the reduceRight method is 1.
  *
@@ -2464,17 +2369,16 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
     if (!("Value" in_obj Desc)) {
       /* i. Return the result of calling the default [[DefineOwnProperty]] internal
           method (8.12.9) on A passing "length", Desc, and Throw as arguments. */
-      return DefineOwnProperty(A, "length", Desc, Throw)
-    };
+      return DefineOwnProperty(A, "length", Desc, Throw);
+    }
     /* b. Let newLenDesc be a copy of Desc. */
     newLenDesc := CopyDescriptor(Desc);
     /* c. Let newLen be ToUint32(Desc.[[Value]]). */
     newLen := ToUint32(Desc.Value);
     /* d. If newLen is not equal to ToNumber( Desc.[[Value]]), throw a RangeError
           exception.*/
-    if (!(newLen = ToNumber(Desc.Value))) {
-      throw RangeErrorConstructorInternal()
-    };
+    if (!(newLen = ToNumber(Desc.Value)))
+      throw RangeErrorConstructorInternal();
     /* e. Set newLenDesc.[[Value]] to newLen. */
     newLenDesc.Value := newLen;
     /* f. If newLen ≥ oldLen, then */
@@ -2482,18 +2386,16 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
       /* i. Return the result of calling the default [[DefineOwnProperty]]
             internal method (8.12.9) on A passing "length", newLenDesc,
             and Throw as arguments. */
-      return DefineOwnProperty(A, "length", newLenDesc, Throw)
-    };
+      return DefineOwnProperty(A, "length", newLenDesc, Throw);
+    }
     /* g. Reject if oldLenDesc.[[Writable]] is false. */
-    if (oldLenDesc.Writable = false) {
-      @Reject(Throw)
-    };
+    if (oldLenDesc.Writable = false)
+      @Reject(Throw);
 
     /* h. If newLenDesc.[[Writable]] is absent or has the value true,
           let newWritable be true. */
-    if (!("Writable" in_obj newLenDesc) ||| newLenDesc.Writable = true) {
-      newWritable := true
-    }
+    if (!("Writable" in_obj newLenDesc) ||| newLenDesc.Writable = true)
+      newWritable := true;
     /* i. Else, */
     else {
       /* i. Need to defer setting the [[Writable]] attribute to false in
@@ -2502,16 +2404,15 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
       /* ii. Let newWritable be false. */
       newWritable := false;
       /* iii. Set newLenDesc.[[Writable] to true. */
-      newLenDesc.Writable := true
-    };
+      newLenDesc.Writable := true;
+    }
     /* j. Let succeeded be the result of calling the default
           [[DefineOwnProperty]] internal method (8.12.9) on A passing
           "length", newLenDesc, and Throw as arguments. */
     succeeded := DefineOwnProperty(A, "length", newLenDesc, Throw);
     /* k. If succeeded is false, return false.. */
-    if (succeeded = false) {
-      return false
-    };
+    if (succeeded = false)
+      return false;
     /* l. While newLen < oldLen repeat, */
     while (newLen < oldLen) {
       /* i. Set oldLen to oldLen – 1. */
@@ -2525,41 +2426,38 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
         /* 1. Set newLenDesc.[[Value] to oldLen+1. */
         newLenDesc.Value := oldLen + 1.;
         /* 2. If newWritable is false, set newLenDesc.[[Writable] to false. */
-        if (newWritable = false) {
-          newLenDesc.Writable := false
-        };
+        if (newWritable = false)
+          newLenDesc.Writable := false;
         /* 3. Call the default [[DefineOwnProperty]] internal method (8.12.9)
               on A passing "length", newLenDesc, and false as arguments. */
         DefineOwnProperty(A, "length", newLenDesc, false);
         /* 4. Reject. */
-        @Reject(Throw)
+        @Reject(Throw);
       }
-    };
+    }
     /* m. If newWritable is false, then */
     if (newWritable = false) {
       /* i. Call the default [[DefineOwnProperty]] internal method (8.12.9)
             on A passing "length", Property Descriptor{[[Writable]]: false},
             and false as arguments. This call will always return true. */
-      DefineOwnProperty(A, "length", { Writable: false }, false)
-    };
+      DefineOwnProperty(A, "length", { Writable: false }, false);
+    }
     /* n. Return true. */
-    return true
+    return true;
   }
   /* 4. Else if P is an array index (15.4), then */
   elif (IsArrayIndex(P)) {
     /* a. Let index be ToUint32(P). */
     index := ToUint32(P);
     /* b. Reject if index ≥ oldLen and oldLenDesc.[[Writable]] is false. */
-    if ((index >= oldLen) &&& (oldLenDesc.Writable = false)) {
-      @Reject(Throw)
-    };
+    if ((index >= oldLen) &&& (oldLenDesc.Writable = false))
+      @Reject(Throw);
     /* c. Let succeeded be the result of calling the default [[DefineOwnProperty]]
           internal method (8.12.9) on A passing P, Desc, and false as arguments. */
     succeeded := DefineOwnProperty(A, P, Desc, false);
     /* d. Reject if succeeded is false. */
-    if (succeeded = false) {
-      @Reject(Throw)
-    };
+    if (succeeded = false)
+      @Reject(Throw);
     /* STANDARD IS WRONG */
     newLen := ToUint32(index + 1.);
     /* e. If index ≥ oldLen */
@@ -2569,13 +2467,13 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
       /* ii. Call the default [[DefineOwnProperty]] internal method (8.12.9)
             on A passing "length", oldLenDesc, and false as arguments. This
             call will always return true. */
-      DefineOwnProperty(A, "length", oldLenDesc, false)
-    };
+      DefineOwnProperty(A, "length", oldLenDesc, false);
+    }
     /* f. Return true. */
-    return true
-  };
+    return true;
+  }
   /* 5. Return the result of calling the default [[DefineOwnProperty]] internal
         method (8.12.9) on A passing P, Desc, and Throw as arguments. */
-  return DefineOwnProperty(A, P, Desc, Throw)
+  return DefineOwnProperty(A, P, Desc, Throw);
 }
 

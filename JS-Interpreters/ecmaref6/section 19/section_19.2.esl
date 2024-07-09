@@ -16,8 +16,8 @@ function initFunctionConstructor(FunctionPrototype, globalObject, strict) {
 
   setInternalProperty(FunctionConstructor, "Call", "BuiltInCall");
 
-  return FunctionConstructor
-};
+  return FunctionConstructor;
+}
 
 /* 15.3.3 Properties of the Function Constructor */
 function fillFunctionConstructor(FunctionConstructor, globalObject, strict) {
@@ -29,14 +29,14 @@ function fillFunctionConstructor(FunctionConstructor, globalObject, strict) {
      false, [[Configurable]]: false }. */
   createBuiltInPropertyWithFullDescriptor(FunctionConstructor, "length", 1., false, false, true);
 
-  return
-};
+  return;
+}
 
 /* The Function prototype object is itself a Function object (its [[Class]] is "Function") that, when invoked,
    accepts any arguments and returns undefined. */
 function functionPrototypeFunction(globalObject, this, NewTarget, strict, params) {
-  return 'undefined
-};
+  return 'undefined;
+}
 
 /* 15.3.4 Function Prototype Object */
 function initFunctionPrototype(objectPrototype, globalObject, strict) {
@@ -51,8 +51,8 @@ function initFunctionPrototype(objectPrototype, globalObject, strict) {
   delete functionPrototypeObject.Construct;
   /* The length property of the Function prototype object is 0. */
 
-  return functionPrototypeObject
-};
+  return functionPrototypeObject;
+}
 
 /* 15.3.4 Properties of the Function Prototype Object */
 function fillFunctionPrototype(functionPrototypeObject, FunctionConstructor, globalObject, strict) {
@@ -82,8 +82,8 @@ function fillFunctionPrototype(functionPrototypeObject, FunctionConstructor, glo
   bind := CreateBuiltInFunctionObject(["thisArg"], "FunctionPrototypeBind", globalObject, strict, null);
   createBuiltInProperty(functionPrototypeObject, "bind", bind);
 
-  return
-};
+  return;
+}
 
 /* 15.3.2.1 new Function (p1, p2, ... , pn, body) */
 function FunctionConstructor(globalObject, this, NewTarget, strict, params) {
@@ -100,87 +100,67 @@ function FunctionConstructor(globalObject, this, NewTarget, strict, params) {
   /* 3. If argCount = 0, let body be the empty String. */
 
   if (argCount = 0) {
-    body := ""
+    body := "";
   } else {
   /* 4. Else if argCount = 1, let body be that argument. */
     if (argCount = 1) {
-      body := l_nth(params, 0)
+      body := l_nth(params, 0);
     }
     /* 5. Else, argCount > 1 */
     else {
       /* a. Let firstArg be the first argument. */
       firstArg := l_nth(params, 0);
-
       /* b. Let P be ToString(firstArg). */
       P := ToString(firstArg);
-
       @ReturnIfAbrupt(P);
-
       /* c. Let k be 2. */
       k := 2;
       /* d. Repeat, while k < argCount */
-      while(k < argCount) {
+      while (k < argCount) {
         /* i. Let nextArg be the k‘th argument. */
         nextArg := l_nth(params, k - 1);
-        /* ii. Let P be the result of concatenating the previous value of P, the String "," (a comma), and
-               ToString(nextArg). */
+        /* ii. Let P be the result of concatenating the previous value of P, the String "," (a comma), and ToString(nextArg). */
         nextArgToString := ToString(nextArg);
-
         @ReturnIfAbrupt(nextArgToString);
-
         P := s_concat [P, ",", nextArgToString];
         /* iii. Increase k by 1. */
-        k := k + 1
-      };
+        k := k + 1;
+      }
       /* e. Let body be the k‘th argument. */
-      body := l_nth(params, k - 1)
+      body := l_nth(params, k - 1);
     }
-  };
+  }
 
   if (extern is_symbolic(body)) {
     extern is_eval_sat(body);
-    extern abort(body)
-  };
+    extern abort(body);
+  }
 
   /* 6. Let body be ToString(body). */
   body := ToString(body);
-
   @ReturnIfAbrupt(body);
-
   body := parseBody(P, body, strict);
   P := parseParams(P);
-
   /* 7. If P is not parsable as a FormalParameterList opt then throw a SyntaxError exception. */
   if (!isParsableAsFormalParametersList(P)) { /* TODO */
-    throw SyntaxErrorConstructorInternal()
-  };
+    throw SyntaxErrorConstructorInternal();
+  }
   /* 8. If body is not parsable as FunctionBody then throw a SyntaxError exception. */
-  if (!isParsableAsFunctionBody(body)) {
-    throw SyntaxErrorConstructorInternal()
-  };
+  if (!isParsableAsFunctionBody(body))
+    throw SyntaxErrorConstructorInternal();
   /* 9. If body is strict mode code (see 10.1.1) then let strict be true, else let strict be false. */
-  if (isBuiltInFunctionBodyStrictModeCode(body)) {
-    strict := true
-  } else {
-    strict := false
-  };
-
+  if (isBuiltInFunctionBodyStrictModeCode(body)) strict := true; else strict := false;
   /* 10. If strict is true, throw any exceptions specified in 13.1 that apply. */
-  if ((strict = true) &&& anyStrictModeRestrictionApplicable(body)) {
-    throw SyntaxErrorConstructorInternal()
-  };
-
+  if ((strict = true) &&& anyStrictModeRestrictionApplicable(body))
+    throw SyntaxErrorConstructorInternal();
+  
   F := FunctionAllocate(getFunctionPrototype(strict), strict, "normal");
-
   realmF := F.Realm;
   scope := realmF.globalEnv;
-
   FunctionInitialize(F, "normal", P, body, scope);
   MakeConstructor(F, null, null);
   SetFunctionName(F, "anonymous", null);
-
-
-  return F
+  return F;
   /* A prototype property is automatically created for every function, to provide for the possibility that the
      function will be used as a constructor. */
 
@@ -190,7 +170,7 @@ function FunctionConstructor(globalObject, this, NewTarget, strict, params) {
   /*                new Function("a", "b", "c", "return a+b+c")                    */
   /*                new Function("a, b, c", "return a+b+c")                        */
   /*                new Function("a,b", "c", "return a+b+c")                       */
-};
+}
 
 /* 15.3.4.2 Function.prototype.toString ( ) */
 function FunctionPrototypeToString(globalObject, this, NewTarget, strict, params) {
@@ -199,12 +179,11 @@ function FunctionPrototypeToString(globalObject, this, NewTarget, strict, params
      semicolons within the representation String is implementation-dependent. */
   /* The toString function is not generic; it throws a TypeError exception if its this value is not a Function
      object. Therefore, it cannot be transferred to other kinds of objects for use as a method. */
-  if (!isFunctionObject(this)) {
-    throw TypeErrorConstructorInternal()
-  };
-  return "function () {}"
+  if (!isFunctionObject(this))
+    throw TypeErrorConstructorInternal();
+  return "function () {}";
   /* TODO section_15.3_implementation_dependent */
-};
+}
 
 /* 15.3.4.3 Function.prototype.apply (thisArg, argArray) */
 function FunctionPrototypeApply(globalObject, func, NewTarget, strict, params) {
@@ -214,15 +193,14 @@ function FunctionPrototypeApply(globalObject, func, NewTarget, strict, params) {
    are taken: */
 
   /* 1. If IsCallable(func) is false, then throw a TypeError exception. */
-  if (IsCallable(func) = false) {
-    throw TypeErrorConstructorInternal()
-  };
+  if (IsCallable(func) = false)
+    throw TypeErrorConstructorInternal();
   /* 2. If argArray is null or undefined, then */
   if ((argArray = 'null) ||| (argArray = 'undefined)) {
     /* a. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value
           and an empty list of arguments. */
-    return {func.Call}(null, null, func, thisArg, 'undefined, [])
-  };
+    return {func.Call}(null, null, func, thisArg, 'undefined, []);
+  }
   /* 3. Let argList be CreateListFromArrayLike(argArray). */
   argList := CreateListFromArrayLike(argArray, null);
   /* 4. ReturnIfAbrupt(argList). */
@@ -231,14 +209,14 @@ function FunctionPrototypeApply(globalObject, func, NewTarget, strict, params) {
   /* TODO */
   /* 6. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value and
         argList as the list of arguments. */
-  return {func.Call}(null, null, func, thisArg, 'undefined, argList)
+  return {func.Call}(null, null, func, thisArg, 'undefined, argList);
 
   /* The length property of the apply method is 2. */
 
   /* NOTE The thisArg value is passed without modification as the this value. This is a change from Edition 3, where a
           undefined or null thisArg is replaced with the global object and ToObject is applied to all other values and that result is
           passed as the this value. */
-};
+}
 
 /* 15.3.4.4 Function.prototype.call (thisArg [ , arg1 [ , arg2, ... ] ] ) */
 function FunctionPrototypeCall(globalObject, func, NewTarget, strict, params) {
@@ -248,26 +226,23 @@ function FunctionPrototypeCall(globalObject, func, NewTarget, strict, params) {
      etc, the following steps are taken: */
 
   /* 1. If IsCallable(func) is false, then throw a TypeError exception. */
-  if (IsCallable(func) = false) {
-    throw TypeErrorConstructorInternal()
-  };
+  if (IsCallable(func) = false)
+    throw TypeErrorConstructorInternal();
   /* 2. Let argList be an empty List. */
   argList := [];
   /* 3. If this method was called with more than one argument then in left to right order starting with arg1 append
         each argument as the last element of argList */
-  if (!(args = [])) {
-    argList := args
-  };
+  if (!(args = []))
+    argList := args;
   /* 4. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value and
         argList as the list of arguments. */
-  return {func.Call}(globalObject, null, func, thisArg, NewTarget, argList)
-
+  return {func.Call}(globalObject, null, func, thisArg, NewTarget, argList);
   /* The length property of the call method is 1. */
 
   /* NOTE The thisArg value is passed without modification as the this value. This is a change from Edition 3, where a
           undefined or null thisArg is replaced with the global object and ToObject is applied to all other values and that result is
           passed as the this value. */
-};
+}
 
 /* 15.3.4.5 Function.prototype.bind (thisArg [, arg1 [, arg2, ...]]) */
 function FunctionPrototypeBind(globalObject, this, NewTarget, strict, params) {
@@ -279,9 +254,8 @@ function FunctionPrototypeBind(globalObject, this, NewTarget, strict, params) {
   /* 1. Let Target be the this value. */
   Target := this;
   /* 2. If IsCallable(Target) is false, throw a TypeError exception. */
-  if (IsCallable(Target) = false) {
-    throw TypeErrorConstructorInternal()
-  };
+  if (IsCallable(Target) = false)
+    throw TypeErrorConstructorInternal();
   /* 3. Let A be a new (possibly empty) internal list of all of the argument values provided after thisArg (arg1, arg2
         etc), in order. */
   A := args;
@@ -299,8 +273,7 @@ function FunctionPrototypeBind(globalObject, this, NewTarget, strict, params) {
   F.BoundArgs := A;
   /* 10. Set the [[Class]] internal property of F to "Function". */
   F.Class := "Function";
-  /* 11. Set the [[Prototype]] internal property of F to the standard built-in Function prototype object as specified in
-         15.3.3.1. */
+  /* 11. Set the [[Prototype]] internal property of F to the standard built-in Function prototype object as specified in 15.3.3.1. */
   F.Prototype := getFunctionPrototype(strict);
   /* 12. Set the [[Call]] internal property of F as described in 15.3.4.5.1. */
   F.Call := "CallBind";
@@ -315,25 +288,22 @@ function FunctionPrototypeBind(globalObject, this, NewTarget, strict, params) {
     /* b. Set the length own property of F to either 0 or L, whichever is larger. */
     if (L > 0.) {
       setJSProperty(F, "length", newDataPropertyDescriptorFull(L, false, false, false));
-      setInternalProperty(F, "internalLength", L)
+      setInternalProperty(F, "internalLength", L);
     } else {
       setJSProperty(F, "length", newDataPropertyDescriptorFull(0., false, false, false));
-      setInternalProperty(F, "internalLength", 0.)
+      setInternalProperty(F, "internalLength", 0.);
     }
-  }
   /* 16. Else set the length own property of F to 0. */
-  else {
+  } else {
     setJSProperty(F, "length", newDataPropertyDescriptorFull(0., false, false, false));
-    setInternalProperty(F, "internalLength", 0.)
-  };
+    setInternalProperty(F, "internalLength", 0.);
+  }
   /* 17. Set the attributes of the length own property of F to the values specified in 15.3.5.1. */
 
   /* 18. Set the [[Extensible]] internal property of F to true. */
   F.Extensible := true;
-
   /* 19. Let thrower be the [[ThrowTypeError]] function Object (13.2.3). */
   thrower := topExecStack().Realm.intrinsics.ThrowTypeError;
-
   /* 20. Call the [[DefineOwnProperty]] internal method of F with arguments "caller", PropertyDescriptor
         {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
   {F.DefineOwnProperty}(F, "caller", {
@@ -351,13 +321,13 @@ function FunctionPrototypeBind(globalObject, this, NewTarget, strict, params) {
     Configurable: false
   });
   /* 22. Return F. */
-  return F
+  return F;
 
   /* The length property of the bind method is 1. */
 
   /* NOTE Function objects created using Function.prototype.bind do not have a prototype property or the
           [[Code]], [[FormalParameters]], and [[Scope]] internal properties. */
-};
+}
 
 /* 15.3.4.5.1 [[Call]] */
 function CallBind(externalScope, ref, F, this, NewTarget, ExtraArgs) {
@@ -375,8 +345,8 @@ function CallBind(externalScope, ref, F, this, NewTarget, ExtraArgs) {
   args := l_concat(boundArgs, ExtraArgs);
   /* 5. Return the result of calling the [[Call]] internal method of target providing boundThis as the this value and
         providing args as the arguments. */
-  return {target.Call}(externalScope, ref, target, boundThis, NewTarget, args)
-};
+  return {target.Call}(externalScope, ref, target, boundThis, NewTarget, args);
+}
 
 /* 15.3.4.5.2 [[Construct]] */
 function ConstructBind(externalScope, ref, F, ExtraArgs, newTarget) {
@@ -386,17 +356,16 @@ function ConstructBind(externalScope, ref, F, ExtraArgs, newTarget) {
   /* 1. Let target be the value of F’s [[TargetFunction]] internal property. */
   target := F.TargetFunction;
   /* 2. If target has no [[Construct]] internal method, a TypeError exception is thrown. */
-  if (!("Construct" in_obj target)) {
-    throw TypeErrorConstructorInternal()
-  };
+  if (!("Construct" in_obj target))
+    throw TypeErrorConstructorInternal();
   /* 3. Let boundArgs be the value of F’s [[BoundArgs]] internal property. */
   boundArgs := F.BoundArgs;
   /* 4. Let args be a new list containing the same values as the list boundArgs in the same order followed by the
         same values as the list ExtraArgs in the same order. */
   args := l_concat(boundArgs, ExtraArgs);
   /* 5. Return the result of calling the [[Construct]] internal method of target providing args as the arguments. */
-  return {target.Construct}(externalScope, ref, target, args, newTarget)
-};
+  return {target.Construct}(externalScope, ref, target, args, newTarget);
+}
 
 /* 15.3.4.5.3 [[HasInstance]] (V) */
 function HasInstanceBind(F, V) {
@@ -406,12 +375,11 @@ function HasInstanceBind(F, V) {
   /* 1. Let target be the value of F’s [[TargetFunction]] internal property. */
   target := F.TargetFunction;
   /* 2. If target has no [[HasInstance]] internal method, a TypeError exception is thrown. */
-  if (!("HasInstance" in_obj target)) {
-    throw TypeErrorConstructorInternal()
-  };
+  if (!("HasInstance" in_obj target))
+    throw TypeErrorConstructorInternal();
   /* 3. Return the result of calling the [[HasInstance]] internal method of target providing V as the argument. */
-  return {target.HasInstance}(target, V)
-};
+  return {target.HasInstance}(target, V);
+}
 
 
 /* 15.3.5 Properties of Function Instances */
@@ -435,53 +403,49 @@ function getFunctionPrototype(strict) {
 
   refObjProto := newPropertyReference(FunctionObject, "prototype", strict);
   functionObjectProto := GetValue(refObjProto); */
-
-  return |Intrinsics|["FunctionPrototype"]
-};
+  return |Intrinsics|["FunctionPrototype"];
+}
 
 function isFunctionObject(object) {
-  if ((Type(object) = "Object") &&& (getInternalProperty(object, "Class") = "Function")) {
-    return true
-  };
-
-  return false
-};
+  if ((Type(object) = "Object") &&& (getInternalProperty(object, "Class") = "Function"))
+    return true;
+  return false;
+}
 
 function isParsableAsFormalParametersList(str) {
   /* TODO */
-  return true
-};
+  return true;
+}
 
 function isParsableAsFunctionBody(bodyObj) {
-  return ("type" in_obj bodyObj) &&& !(bodyObj.type = "EarlySyntaxError")
-};
+  return ("type" in_obj bodyObj) &&& !(bodyObj.type = "EarlySyntaxError");
+}
 
 function isBuiltInFunctionBodyStrictModeCode(bodyObj) {
-  return ("strict" in_obj bodyObj) &&& (bodyObj.strict)
-};
+  return ("strict" in_obj bodyObj) &&& (bodyObj.strict);
+}
 
 function anyStrictModeRestrictionApplicable(bodyObj) {
-  return ("type" in_obj bodyObj) &&& (bodyObj.type = "EarlySyntaxError")
-};
+  return ("type" in_obj bodyObj) &&& (bodyObj.type = "EarlySyntaxError");
+}
 
 function parseParams(paramsStr) {
-  if (s_len paramsStr = 0) {
-    return []
-  };
+  if (s_len paramsStr = 0)
+    return [];
   params := s_split(paramsStr, ",");
 
   /* Remove leading and trailing spaces */
   lparams := l_len params;
   i := 0;
   ret := [];
-  while(i < lparams) {
+  while (i < lparams) {
     param := l_nth(params, i);
     ret := l_add(ret, trim (param));
-    i := i + 1
-  };
+    i := i + 1;
+  }
 
-  return ret
-};
+  return ret;
+}
 
 function parseBody(params, bodyStr, strict) {
   /* Wrap bodyStr in a function to avoid parsing errors in statements like return that is invalid outside of a function body */
@@ -492,8 +456,8 @@ function parseBody(params, bodyStr, strict) {
   if (bodyObj.type = "Program") {
     programBody := l_nth(bodyObj.functionDeclarations, 0);
     /* Access the body of the function we wrapped around the bodyStr */
-    return programBody.body
-  };
+    return programBody.body;
+  }
   /* else we have an EarlySyntaxError */
-  return bodyObj
+  return bodyObj;
 }

@@ -17,12 +17,12 @@ function IsInTailPosition(nonterminal) {
     /*If body is the FunctionBody of a GeneratorBody, return false.*/
 
     /*Return the result of HasProductionInTailPosition of body with argument nonterminal.*/
-    return HasProductionInTailPosition(nonterminal)
+    return HasProductionInTailPosition(nonterminal);
 
     /*NOTE Tail Position calls are only defined in strict mode code because of a common non-standard language
            extension (see 9.2.7) that enables observation of the chain of caller contexts.
     */
-};
+}
 
 /*
 14.6.2 Static Semantics: HasProductionInTailPosition
@@ -30,8 +30,8 @@ function IsInTailPosition(nonterminal) {
 With parameter nonterminal.
 */
 function HasProductionInTailPosition(nonterminal) {
-    return ("is_tail_call" in_obj nonterminal) &&& (nonterminal.is_tail_call = true)
-};
+    return ("is_tail_call" in_obj nonterminal) &&& (nonterminal.is_tail_call = true);
+}
 
 /* 14.6.3 Runtime Semantics: PrepareForTailCall ( ) */
 function PrepareForTailCall() {
@@ -46,7 +46,7 @@ function PrepareForTailCall() {
     popExecStack();
     topExecStack().Suspend := false;
 
-    return
+    return;
     /*Assert: leafContext has no further use. It will never be activated as the running execution context.*/
     /* TODO */
 

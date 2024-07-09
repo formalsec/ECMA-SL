@@ -2,26 +2,26 @@
 
 /* to get global object we will probably need to access the only global record */
 function getGlobalObject(lexicalEnvironment) {
-  if (!("EnvRec" in_obj lexicalEnvironment)) { return lexicalEnvironment };
+  if (!("EnvRec" in_obj lexicalEnvironment))
+    return lexicalEnvironment;
   lex := lexicalEnvironment;
   outer := getOuterEnvironmentReference(lexicalEnvironment);
-  while(!(outer = 'null)) {
+  while (!(outer = 'null)) {
     lex := outer;
-    outer := getOuterEnvironmentReference(lex)
-  };
+    outer := getOuterEnvironmentReference(lex);
+  }
 
-  return getBindingObject(getEnvironmentRecord(lex))
-};
+  return getBindingObject(getEnvironmentRecord(lex));
+}
 
 function getGlobalEnvironment(globalObject) {
-  return globalObject.GlobalEnv
-};
+  return globalObject.GlobalEnv;
+}
 
 function setGlobalEnvironment(globalObject, globalEnv) {
   globalObject.GlobalEnv := globalEnv;
-
-  return
-};
+  return;
+}
 
 function newLexicalEnvironment() {
   return {
@@ -29,8 +29,8 @@ function newLexicalEnvironment() {
     OuterEnvRef: 'undefined,
     /* environment‘s Environment Record */
     EnvRec: 'undefined
-  }
-};
+  };
+}
 
 function newDeclarativeEnvironmentRecord() {
   env := {
@@ -46,8 +46,8 @@ function newDeclarativeEnvironmentRecord() {
     WithBaseObject:  				"WithBaseObjectDeclarativeRecord"
   };
 
-  return env
-};
+  return env;
+}
 
 function newFunctionEnvironmentRecord() {
 	env := newDeclarativeEnvironmentRecord();
@@ -58,8 +58,8 @@ function newFunctionEnvironmentRecord() {
 	env.HasThisBinding 	:= "HasThisBindingFunctionRecord";
 	env.HasSuperBinding := "HasSuperBindingFunctionRecord";
 
-	return env
-};
+	return env;
+}
 
 function newModuleEnvironmentRecord() {
 	env := newDeclarativeEnvironmentRecord();
@@ -70,8 +70,8 @@ function newModuleEnvironmentRecord() {
 	env.GetThisBinding  		:= "GetThisBindingModuleRecord";
 	env.CreateImportBinding := "CreateImportBinding";
 
-	return env
-};
+	return env;
+}
 
 function newObjectEnvironmentRecord(bindingObj) {
   /* An object environment record binds the set of identifier names that directly correspond to the property names
@@ -94,8 +94,8 @@ function newObjectEnvironmentRecord(bindingObj) {
     WithBaseObject:  				"WithBaseObjectObjectRecord"
   };
 
-  return objEnvRec
-};
+  return objEnvRec;
+}
 
 function newGlobalEnvironmentRecord() {
 	env := {
@@ -120,127 +120,119 @@ function newGlobalEnvironmentRecord() {
 		CreateGlobalFunctionBinding:    "CreateGlobalFunctionBinding"
 	};
 
-	return env
-};
+	return env;
+}
 
 function getBindingObject(objectEnvRec) {
-  return objectEnvRec.bindingObject
-};
+  return objectEnvRec.bindingObject;
+}
 
 function setProvideThis(objectEnvironment, value) {
   getEnvironmentRecord(objectEnvironment).provideThis := value;
 
-  return value /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
+  return value; /* TODO the return statement is necessary because of the Monitor. Check why! */
+}
 
 function getProvideThis(objectEnvRec) {
-  return objectEnvRec.provideThis
-};
+  return objectEnvRec.provideThis;
+}
 
 function getEnvironmentRecord(lexicalEnvironment) {
-  return lexicalEnvironment.EnvRec
-};
+  return lexicalEnvironment.EnvRec;
+}
 
 function getOuterEnvironmentReference(lexicalEnvironment) {
-  return lexicalEnvironment.OuterEnvRef
-};
+  return lexicalEnvironment.OuterEnvRef;
+}
 
 function setEnvironmentRecord(lexicalEnvironment, environmentRecord) {
   lexicalEnvironment.EnvRec := environmentRecord;
-  return environmentRecord /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
+  return environmentRecord; /* TODO the return statement is necessary because of the Monitor. Check why! */
+}
 
 function setOuterLexicalEnvironmentReference(lexicalEnvironment, outerLexicalEnvironment) {
   lexicalEnvironment.OuterEnvRef := outerLexicalEnvironment;
-  return outerLexicalEnvironment /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
+  return outerLexicalEnvironment; /* TODO the return statement is necessary because of the Monitor. Check why! */
+}
 
 function createMutableBinding(declarativeEnvRec, name, value) {
   declarativeEnvRec[name] := newMutableBinding(value);
-  return /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
+  return; /* TODO the return statement is necessary because of the Monitor. Check why! */
+}
 
 function createImmutableBinding(declarativeEnvRec, name) {
   declarativeEnvRec[name] := newImmutableBinding('undefined);
-  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
+  return 'undefined; /* TODO the return statement is necessary because of the Monitor. Check why! */
+}
 
 function newBinding(initialised, value, deletable, modifiable, strict) {
-  return [initialised, value, deletable, modifiable, strict]
-};
+  return [initialised, value, deletable, modifiable, strict];
+}
 
 function newMutableBinding(value) {
-  return newBinding(false, value, false, true, false)
-};
+  return newBinding(false, value, false, true, false);
+}
 
 function newImmutableBinding(value) {
-  return newBinding(false, value, false, false, false)
-};
+  return newBinding(false, value, false, false, false);
+}
 
 function isUninitialisedBinding(envRec, name) {
   binding := envRec[name];
-  return !(l_nth(binding, 0))
-};
+  return !(l_nth(binding, 0));
+}
 
 function getBindingValue(envRec, name) {
   binding := envRec[name];
-  return l_nth(binding, 1)
-};
+  return l_nth(binding, 1);
+}
 
 function isMutableBinding(envRec, name) {
   binding := envRec[name];
-  return l_nth(binding, 3)
-};
+  return l_nth(binding, 3);
+}
 
 function isStrictBinding(envRec, name) {
   binding := envRec[name];
-  return l_nth(binding, 4)
-};
+  return l_nth(binding, 4);
+}
 
 function setBindingValue(envRec, name, value) {
   binding := envRec[name];
   newBinding := newBinding(l_nth(binding, 0), value, l_nth(binding, 2), l_nth(binding, 3), l_nth(binding, 4));
-
   envRec[name] := newBinding;
-
-  return /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
+  return; /* TODO the return statement is necessary because of the Monitor. Check why! */
+}
 
 function setBindingInitialised(envRec, name, initialised) {
   binding := envRec[name];
   newBinding := newBinding(initialised, l_nth(binding, 1), l_nth(binding, 2), l_nth(binding, 3), l_nth(binding, 4));
-
   envRec[name] := newBinding;
-
-  return /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
+  return; /* TODO the return statement is necessary because of the Monitor. Check why! */
+}
 
 function setBindingDeletable(envRec, name, deletable) {
   binding := envRec[name];
   newBinding := newBinding(l_nth(binding, 0), l_nth(binding, 1), deletable, l_nth(binding, 3), l_nth(binding, 4));
-
   envRec[name] := newBinding;
-
-  return /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
+  return; /* TODO the return statement is necessary because of the Monitor. Check why! */
+}
 
 function setBindingStrict(envRec, name, strict) {
   binding := envRec[name];
   newBinding := newBinding(l_nth(binding, 0), l_nth(binding, 1), l_nth(binding, 2), l_nth(binding, 3), strict);
-
   envRec[name] := newBinding;
-
-  return /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
+  return; /* TODO the return statement is necessary because of the Monitor. Check why! */
+}
 
 function hasUninitialisedImmutableBinding(envRec, name) {
-  return (name in_obj envRec) &&& isUninitialisedBinding(envRec, name)
-};
+  return (name in_obj envRec) &&& isUninitialisedBinding(envRec, name);
+}
 
 function isBindingCannotBeDeleted(envRec, name) {
   binding := envRec[name];
-  return !l_nth(binding, 2)
-};
+  return !l_nth(binding, 2);
+}
 
 
 
@@ -304,13 +296,11 @@ function HasBindingDeclarativeRecord(envRec, N) {
 	/* Let envRec be the declarative Environment Record for which the method was invoked. */
 
 	/* If envRec has a binding for the name that is the value of N, return true. */
-	if ( N in_obj envRec ) {
-		return true
-	};
-
+	if (N in_obj envRec)
+		return true;
 	/* Return false. */
-	return false
-};
+	return false;
+}
 
 /* 8.1.1.1.2 CreateMutableBinding (N, D) */
 /* The concrete Environment Record method CreateMutableBinding for declarative Environment Records creates
@@ -322,21 +312,18 @@ function CreateMutableBindingDeclarativeRecord(envRec, N, D) {
     /* Let envRec be the declarative Environment Record for which the method was invoked. */
 
     /* Assert: envRec does not already have a binding for N. */
-    assert( !(N in_obj envRec) );
-
+    assert (!(N in_obj envRec));
     /* Create a mutable binding in envRec for N and record that it is uninitialized. If D is true record that the
        newly created binding may be deleted by a subsequent DeleteBinding call. */
     createMutableBinding(envRec, N, 'undefined);
-
-    if ( D = true ) {
-    	setBindingDeletable(envRec, N, true)
-    } else {
-      setBindingDeletable(envRec, N, false)
-    };
+    if (D = true)
+    	setBindingDeletable(envRec, N, true);
+    else
+      setBindingDeletable(envRec, N, false);
 
     /* Return NormalCompletion(empty). */
-    return NormalCompletion('empty)
-};
+    return NormalCompletion('empty);
+}
 
 /* 8.1.1.1.3 CreateImmutableBinding (N, S) */
 /* The concrete Environment Record method CreateImmutableBinding for declarative Environment Records
@@ -348,19 +335,17 @@ function CreateImmutableBindingDeclarativeRecord(envRec, N, S) {
 	/* Let envRec be the declarative Environment Record for which the method was invoked. */
 
 	/* Assert: envRec does not already have a binding for N. */
-	assert( !(N in_obj envRec) );
+	assert (!(N in_obj envRec));
 
 	/* Create an immutable binding in envRec for N and record that it is uninitialized. If S is true record that
 	the newly created binding is a strict binding. */
 	createImmutableBinding(envRec, N);
 
-	if ( S = true ) {
-		setBindingStrict(envRec, N, true)
-	};
-
+	if (S = true)
+		setBindingStrict(envRec, N, true);
 	/* Return NormalCompletion(empty). */
-	return NormalCompletion('empty)
-};
+	return NormalCompletion('empty);
+}
 
 /* 8.1.1.1.4 InitializeBinding (N,V) */
 /* The concrete Environment Record method InitializeBinding for declarative Environment Records is used to set
@@ -371,17 +356,14 @@ function InitializeBindingDeclarativeRecord(envRec, N, V) {
 	/* Let envRec be the declarative Environment Record for which the method was invoked. */
 
 	/* Assert: envRec must have an uninitialized binding for N. */
-	assert( isUninitialisedBinding(envRec, N) );
-
+	assert (isUninitialisedBinding(envRec, N));
 	/* Set the bound value for N in envRec to V. */
 	setBindingValue(envRec, N, V);
-
 	/* Record that the binding for N in envRec has been initialized. */
 	setBindingInitialised(envRec, N, true);
-
 	/* Return NormalCompletion(empty). */
-	return NormalCompletion('empty)
-};
+	return NormalCompletion('empty);
+}
 
 /* 8.1.1.1.5 SetMutableBinding (N,V,S) */
 /* The concrete Environment Record method SetMutableBinding for declarative Environment Records attempts
@@ -393,45 +375,37 @@ function SetMutableBindingDeclarativeRecord(envRec, N, V, S) {
 	/* Let envRec be the declarative Environment Record for which the method was invoked. */
 
 	/* If envRec does not have a binding for N, then */
-	if ( !(HasBindingDeclarativeRecord(envRec, N)) ) {
+	if (!(HasBindingDeclarativeRecord(envRec, N))) {
 	    /* If S is true throw a ReferenceError exception. */
-	    if ( S = true ) {
-	    	throw ReferenceErrorConstructorInternal()
-	    };
-
+	    if (S = true)
+	    	throw ReferenceErrorConstructorInternal();
 	    /* Perform envRec.CreateMutableBinding(N, true). */
 	    {envRec.CreateMutableBinding}(envRec, N, true);
-
 	    /* Perform envRec.InitializeBinding(N, V). */
 	    {envRec.InitializeBinding}(envRec, N, V);
-
 	    /* Return NormalCompletion(empty). */
-	    return NormalCompletion('empty)
-	};
+	    return NormalCompletion('empty);
+	}
 
 	/* If the binding for N in envRec is a strict binding, let S be true. */
-	if ( isStrictBinding(envRec, N) ) {
-		S := true
-	};
+	if (isStrictBinding(envRec, N))
+		S := true;
 
 	/* If the binding for N in envRec has not yet been initialized throw a ReferenceError exception. */
-	if ( isUninitialisedBinding(envRec, N) ) {
-		throw ReferenceErrorConstructorInternal()
-	}
+	if (isUninitialisedBinding(envRec, N))
+		throw ReferenceErrorConstructorInternal();
 	/* Else if the binding for N in envRec is a mutable binding, change its bound value to V. */
-	elif ( isMutableBinding(envRec, N) ) {
-		setBindingValue(envRec, N, V)
-	}
+	elif (isMutableBinding(envRec, N))
+		setBindingValue(envRec, N, V);
 	/* Else this must be an attempt to change the value of an immutable binding so if S is true throw a TypeError exception. */
 	else {
-		if ( S = true ) {
-			throw TypeErrorConstructorInternal()
-		}
-	};
+		if (S = true)
+			throw TypeErrorConstructorInternal();
+	}
 
 	/* Return NormalCompletion(empty). */
-	return NormalCompletion('empty)
-};
+	return NormalCompletion('empty);
+}
 
 /* 8.1.1.1.6 GetBindingValue(N,S) */
 /* The concrete Environment Record method GetBindingValue for declarative Environment Records simply
@@ -442,16 +416,13 @@ function GetBindingValueDeclarativeRecord(envRec, N, S) {
 	/* Let envRec be the declarative Environment Record for which the method was invoked. */
 
 	/* Assert: envRec has a binding for N. */
-	assert( HasBindingDeclarativeRecord(envRec, N) );
-
+	assert (HasBindingDeclarativeRecord(envRec, N));
 	/* If the binding for N in envRec is an uninitialized binding, throw a ReferenceError exception. */
-	if ( isUninitialisedBinding(envRec, N) ) {
-		throw ReferenceErrorConstructorInternal()
-	};
-
+	if (isUninitialisedBinding(envRec, N))
+		throw ReferenceErrorConstructorInternal();
 	/* Return the value currently bound to N in envRec. */
-	return getBindingValue(envRec, N)
-};
+	return getBindingValue(envRec, N);
+}
 
 /* 8.1.1.1.7 DeleteBinding (N) */
 /* The concrete Environment Record method DeleteBinding for declarative Environment Records can only delete
@@ -461,37 +432,33 @@ function DeleteBindingDeclarativeRecord(envRec, N) {
 	/* Let envRec be the declarative Environment Record for which the method was invoked. */
 
 	/* Assert: envRec has a binding for the name that is the value of N. */
-	assert( HasBindingDeclarativeRecord(envRec, N) );
-
+	assert (HasBindingDeclarativeRecord(envRec, N));
 	/* If the binding for N in envRec cannot be deleted, return false. */
-	if ( isBindingCannotBeDeleted(envRec, N) ) {
-		return false
-	};
-
+	if (isBindingCannotBeDeleted(envRec, N))
+		return false;
 	/* Remove the binding for N from envRec. */
 	delete envRec[N];
-
 	/* Return true. */
-	return true
-};
+	return true;
+}
 
 /* 8.1.1.1.8 HasThisBinding () */
 /* Regular declarative Environment Records do not provide a this binding. */
 function HasThisBindingDeclarativeRecord(envRec) {
-	return false
-};
+	return false;
+}
 
 /* 8.1.1.1.9 HasSuperBinding () */
 /* Regular declarative Environment Records do not provide a super binding. */
 function HasSuperBindingDeclarativeRecord(envRec) {
-	return false
-};
+	return false;
+}
 
 /* 8.1.1.1.10 WithBaseObject() */
 /* Declarative Environment Records always return undefined as their WithBaseObject. */
 function WithBaseObjectDeclarativeRecord(envRec) {
-	return 'undefined
-};
+	return 'undefined;
+}
 
 /*
 8.1.1.2 Object Environment Records
@@ -524,46 +491,34 @@ function HasBindingObjectRecord(envRec, N) {
 
 	/* Let bindings be the binding object for envRec. */
 	bindings := getBindingObject(envRec);
-
 	/* Let foundBinding be HasProperty(bindings, N) */
 	foundBinding := HasProperty(bindings, N);
-
 	/* ReturnIfAbrupt(foundBinding). */
 	@ReturnIfAbrupt(foundBinding);
-
 	/* If foundBinding is false, return false. */
-	if ( foundBinding = false ) {
-		return false
-	};
-
+	if (foundBinding = false)
+		return false;
 	/* If the withEnvironment flag of envRec is false, return true. */
-	if ( envRec.withEnvironment = false ) {
-		return true
-	};
-
+	if (envRec.withEnvironment = false)
+		return true;
 	/* Let unscopables be Get(bindings, @@unscopables). */
 	unscopables := Get(bindings, getUnscopablesPropertyName());
-
 	/* ReturnIfAbrupt(unscopables). */
 	@ReturnIfAbrupt(unscopables);
-
 	/* If Type(unscopables) is Object, then */
 	if ( Type(unscopables) = "Object" ) {
 	    /* Let blocked be ToBoolean(Get(unscopables, N)). */
 	    blocked := ToBoolean(Get(unscopables, N));
-
 	    /* ReturnIfAbrupt(blocked). */
 	    @ReturnIfAbrupt(blocked);
-
 	    /* If blocked is true, return false. */
-	    if ( blocked = true ) {
-	    	return false
-	    }
-	};
+	    if (blocked = true)
+	    	return false;
+	}
 
 	/* Return true. */
-	return true
-};
+	return true;
+}
 
 /* 8.1.1.2.2 CreateMutableBinding (N, D) */
 /* The concrete Environment Record method CreateMutableBinding for object Environment Records creates in
@@ -576,30 +531,22 @@ function CreateMutableBindingObjectRecord(envRec, N, D) {
 
     /* Let bindings be the binding object for envRec. */
     bindings := getBindingObject(envRec);
-
     /* If D is true then let configValue be true otherwise let configValue be false. */
-    if ( D = true ) {
-    	configValue := true
-    }
-    else {
-    	configValue := false
-    };
-
+    if (D = true) configValue := true; else configValue := false;
     /* TODO check pq e que isto e preciso  */
     createMutableBinding(envRec, N, 'undefined);
-
     /* Return DefinePropertyOrThrow(bindings, N,
     PropertyDescriptor{[[Value]]:undefined, [[Writable]]: true, [[Enumerable]]: true , [[Configurable]]: configValue}). */
-    return DefinePropertyOrThrow(bindings, N, newDataPropertyDescriptorFull('undefined, true, true, configValue))
-};
+    return DefinePropertyOrThrow(bindings, N, newDataPropertyDescriptorFull('undefined, true, true, configValue));
+}
 
 /* 8.1.1.2.3 CreateImmutableBinding (N, S) */
 /* The concrete Environment Record method CreateImmutableBinding is never used within this specification in
    association with Object Environment Records.
 */
 function CreateImmutableBindingObjectRecord(envRec, N, S) {
-  assert(false)
-};
+  assert false;
+}
 
 /* 8.1.1.2.4 InitializeBinding (N,V) */
 /* The concrete Environment Record method InitializeBinding for object Environment Records is used to set the
@@ -610,20 +557,17 @@ function InitializeBindingObjectRecord(envRec, N, V) {
 	/* Let envRec be the object Environment Record for which the method was invoked. */
 
 	/* Assert: envRec must have an uninitialized binding for N. */
-	assert( isUninitialisedBinding(envRec, N) );
-
+	assert (isUninitialisedBinding(envRec, N));
 	/* Record that the binding for N in envRec has been initialized. */
 	setBindingInitialised(envRec, N, true);
-
 	/* Return envRec.SetMutableBinding(N, V, false). */
-	return {envRec.SetMutableBinding}(envRec, N, V, false)
-
+	return {envRec.SetMutableBinding}(envRec, N, V, false);
 	/*NOTE In this specification, all uses of CreateMutableBinding for object Environment Records are
 		   immediately followed by a call to InitializeBinding for the same name. Hence, implementations
 		   do not need to explicitly track the initialization state of individual object Environment Record
 		   bindings.
 	*/
-};
+}
 
 /* 8.1.1.2.5 SetMutableBinding (N,V,S) */
 /* The concrete Environment Record method SetMutableBinding for object Environment Records attempts to set
@@ -636,10 +580,9 @@ function SetMutableBindingObjectRecord(envRec, N, V, S) {
 
     /* Let bindings be the binding object for envRec. */
     bindings := getBindingObject(envRec);
-
     /* Return Set(bindings, N, V, S). */
-    return Set(bindings, N, V, S)
-};
+    return Set(bindings, N, V, S);
+}
 
 /* 8.1.1.2.6 GetBindingValue(N,S) */
 /* The concrete Environment Record method GetBindingValue for object Environment Records returns the value
@@ -651,31 +594,24 @@ function GetBindingValueObjectRecord(envRec, N, S) {
 
 	/* Let bindings be the binding object for envRec. */
 	bindings := getBindingObject(envRec);
-
 	/* Let value be HasProperty(bindings, N). */
 	value := HasProperty(bindings, N);
-
 	/* ReturnIfAbrupt(value). */
 	@ReturnIfAbrupt(value);
-
 	/* If value is false, then */
-	if ( value = false ) {
-	    /* If S is false, return the value undefined, otherwise throw a ReferenceError exception. */
-	    if ( S = false ) {
-	    	return 'undefined
-	    }
-	    else {
-	    	throw ReferenceErrorConstructorInternal()
-	    }
-	};
+	if (value = false) {
+    /* If S is false, return the value undefined, otherwise throw a ReferenceError exception. */
+    if (S = false)
+      return 'undefined;
+    else
+      throw ReferenceErrorConstructorInternal();
+	}
 
 	/* Return Get(bindings, N). */
 	V:= Get(bindings, N);
-
   @ReturnIfAbrupt(V);
-
-  return V
-};
+  return V;
+}
 
 /* 8.1.1.2.7 DeleteBinding (N) */
 /* The concrete Environment Record method DeleteBinding for object Environment Records can only delete
@@ -687,22 +623,21 @@ function DeleteBindingObjectRecord(envRec, N) {
 
 	/* Let bindings be the binding object for envRec. */
 	bindings := getBindingObject(envRec);
-
 	/* Return bindings.[[Delete]](N). */
-	return {bindings.Delete}(bindings, N)
-};
+	return {bindings.Delete}(bindings, N);
+}
 
 /* 8.1.1.2.8 HasThisBinding () */
 /* Regular object Environment Records do not provide a this binding. */
 function HasThisBindingObjectRecord(envRec) {
-	return false
-};
+	return false;
+}
 
 /* 8.1.1.2.9 HasSuperBinding () */
 /* Regular object Environment Records do not provide a super binding. */
 function HasSuperBindingObjectRecord(envRec) {
-	return false
-};
+	return false;
+}
 
 /* 8.1.1.2.10 WithBaseObject() */
 /* Object Environment Records return undefined as their WithBaseObject unless their withEnvironment flag is
@@ -712,13 +647,11 @@ function WithBaseObjectObjectRecord(envRec) {
     /* Let envRec be the object Environment Record for which the method was invoked. */
 
     /* If the withEnvironment flag of envRec is true, return the binding object for envRec. */
-    if ( envRec.withEnvironment = true ) {
-    	return getBindingObject(envRec)
-    };
-
+    if (envRec.withEnvironment = true)
+    	return getBindingObject(envRec);
     /* Otherwise, return undefined. */
-    return 'undefined
-};
+    return 'undefined;
+}
 
 /*
 8.1.1.3 Function Environment Records
@@ -739,67 +672,54 @@ function BindThisValue(envRec, V) {
     /* Let envRec be the function Environment Record for which the method was invoked. */
 
     /* Assert: envRec.[[thisBindingStatus]] is not "lexical". */
-    assert( !(envRec.thisBindingStatus = "lexical") );
-
+    assert (!(envRec.thisBindingStatus = "lexical"));
     /* If envRec.[[thisBindingStatus]] is "initialized", throw a ReferenceError exception. */
-    if ( envRec.thisBindingStatus = "initialized" ) {
-    	throw ReferenceErrorConstructorInternal()
-    };
+    if (envRec.thisBindingStatus = "initialized")
+    	throw ReferenceErrorConstructorInternal();
 
     /* Set envRec.[[thisValue]] to V. */
     envRec.__thisValue := V;
-
     /* Set envRec.[[thisBindingStatus]] to "initialized". */
     envRec.thisBindingStatus := "initialized";
-
     /* Return V. */
-    return V
-};
+    return V;
+}
 
 /* 8.1.1.3.2 HasThisBinding () */
 function HasThisBindingFunctionRecord(envRec) {
     /* Let envRec be the function Environment Record for which the method was invoked. */
 
     /* If envRec.[[thisBindingStatus]] is "lexical", return false; otherwise, return true. */
-    if ( envRec.thisBindingStatus = "lexical" ) {
-    	return false
-    };
-
-    return true
-};
+    if (envRec.thisBindingStatus = "lexical")
+    	return false;
+    return true;
+}
 
 /* 8.1.1.3.3 HasSuperBinding () */
 function HasSuperBindingFunctionRecord(envRec) {
 	/* Let envRec be the function Environment Record for which the method was invoked. */
 
     /* If envRec.[[thisBindingStatus]] is "lexical", return false. */
-    if ( envRec.thisBindingStatus = "lexical" ) {
-    	return false
-    };
-
+    if (envRec.thisBindingStatus = "lexical")
+    	return false;
     /* If envRec.[[HomeObject]] has the value undefined, return false, otherwise, return true. */
-    if ( envRec.HomeObject = 'undefined ) {
-    	return false
-    };
-
-    return true
-};
+    if (envRec.HomeObject = 'undefined)
+    	return false;
+    return true;
+}
 
 /* 8.1.1.3.4 GetThisBinding () */
 function GetThisBinding(envRec) {
 	/* Let envRec be the function Environment Record for which the method was invoked. */
 
 	/* Assert: envRec.[[thisBindingStatus]] is not "lexical". */
-	assert( !(envRec.thisBindingStatus = "lexical") );
-
+	assert (!(envRec.thisBindingStatus = "lexical"));
 	/* If envRec.[[thisBindingStatus]] is "uninitialized", throw a ReferenceError exception. */
-	if ( envRec.thisBindingStatus = "uninitialized" ) {
-		throw ReferenceErrorConstructorInternal()
-	};
-
+	if (envRec.thisBindingStatus = "uninitialized")
+		throw ReferenceErrorConstructorInternal();
 	/* Return envRec.[[thisValue]]. */
-	return envRec.__thisValue
-};
+	return envRec.__thisValue;
+}
 
 /* 8.1.1.3.5 GetSuperBase () */
 function GetSuperBase(envRec) {
@@ -807,18 +727,14 @@ function GetSuperBase(envRec) {
 
 	/* Let home be the value of envRec.[[HomeObject]]. */
 	home := envRec.HomeObject;
-
 	/* If home has the value undefined, return undefined. */
-	if ( home = 'undefined ) {
-		return 'undefined
-	};
-
+	if (home = 'undefined)
+		return 'undefined;
 	/* Assert: Type(home) is Object. */
-	assert( Type(home) = "Object" );
-
+	assert (Type(home) = "Object");
 	/* Return home.[[GetPrototypeOf]](). */
-	return {home.GetPrototypeOf}(home)
-};
+	return {home.GetPrototypeOf}(home);
+}
 
 /*
 8.1.1.4 Global Environment Records
@@ -853,22 +769,18 @@ Table 19.
    the argument identifier is one of the identifiers bound by the record:
 */
 function HasBindingGlobalRecord(envRec, N) {
-    /* Let envRec be the global Environment Record for which the method was invoked. */
+  /* Let envRec be the global Environment Record for which the method was invoked. */
 
-    /* Let DclRec be envRec.[[DeclarativeRecord]]. */
-    DclRec := envRec.DeclarativeRecord;
-
-    /* If DclRec.HasBinding(N) is true, return true. */
-    if ( {DclRec.HasBinding}(DclRec, N) = true ) {
-    	return true
-    };
-
-    /* Let ObjRec be envRec.[[ObjectRecord]]. */
-    ObjRec := envRec.ObjectRecord;
-
-    /* Return ObjRec.HasBinding(N). */
-    return {ObjRec.HasBinding}(ObjRec, N)
-};
+  /* Let DclRec be envRec.[[DeclarativeRecord]]. */
+  DclRec := envRec.DeclarativeRecord;
+  /* If DclRec.HasBinding(N) is true, return true. */
+  if ({DclRec.HasBinding}(DclRec, N) = true)
+    return true;
+  /* Let ObjRec be envRec.[[ObjectRecord]]. */
+  ObjRec := envRec.ObjectRecord;
+  /* Return ObjRec.HasBinding(N). */
+  return {ObjRec.HasBinding}(ObjRec, N);
+}
 
 /* 8.1.1.4.2 CreateMutableBinding (N, D) */
 /* The concrete Environment Record method CreateMutableBinding for global Environment Records creates a
@@ -877,19 +789,16 @@ function HasBindingGlobalRecord(envRec, N) {
    provided and has the value true the new binding is marked as being subject to deletion.
 */
 function CreateMutableBindingGlobalRecord(envRec, N, D) {
-    /* Let envRec be the global Environment Record for which the method was invoked. */
+  /* Let envRec be the global Environment Record for which the method was invoked. */
 
-    /* Let DclRec be envRec.[[DeclarativeRecord]]. */
-    DclRec := envRec.DeclarativeRecord;
-
-    /* If DclRec.HasBinding(N) is true, throw a TypeError exception. */
-    if ( {DclRec.HasBinding}(DclRec, N) = true ) {
-    	throw TypeErrorConstructorInternal()
-    };
-
-    /* Return DclRec.CreateMutableBinding(N, D). */
-    return {DclRec.CreateMutableBinding}(DclRec, N, D)
-};
+  /* Let DclRec be envRec.[[DeclarativeRecord]]. */
+  DclRec := envRec.DeclarativeRecord;
+  /* If DclRec.HasBinding(N) is true, throw a TypeError exception. */
+  if ({DclRec.HasBinding}(DclRec, N) = true)
+    throw TypeErrorConstructorInternal();
+  /* Return DclRec.CreateMutableBinding(N, D). */
+  return {DclRec.CreateMutableBinding}(DclRec, N, D);
+}
 
 /* 8.1.1.4.3 CreateImmutableBinding (N, S) */
 /* The concrete Environment Record method CreateImmutableBinding for global Environment Records creates a
@@ -898,19 +807,16 @@ function CreateMutableBindingGlobalRecord(envRec, N, D) {
    marked as a strict binding.
 */
 function CreateImmutableBindingGlobalRecord(envRec, N, S) {
-    /* Let envRec be the global Environment Record for which the method was invoked. */
+  /* Let envRec be the global Environment Record for which the method was invoked. */
 
-    /* Let DclRec be envRec.[[DeclarativeRecord]]. */
-    DclRec := envRec.DeclarativeRecord;
-
-    /* If DclRec.HasBinding(N) is true, throw a TypeError exception. */
-    if ( {DclRec.HasBinding}(DclRec, N) = true ) {
-    	throw TypeErrorConstructorInternal()
-    };
-
-    /* Return DclRec.CreateImmutableBinding(N, S). */
-    return {DclRec.CreateImmutableBinding}(DclRec, N, S)
-};
+  /* Let DclRec be envRec.[[DeclarativeRecord]]. */
+  DclRec := envRec.DeclarativeRecord;
+  /* If DclRec.HasBinding(N) is true, throw a TypeError exception. */
+  if ({DclRec.HasBinding}(DclRec, N) = true)
+    throw TypeErrorConstructorInternal();
+  /* Return DclRec.CreateImmutableBinding(N, S). */
+  return {DclRec.CreateImmutableBinding}(DclRec, N, S);
+}
 
 /* 8.1.1.4.4 InitializeBinding (N,V) */
 /* The concrete Environment Record method InitializeBinding for global Environment Records is used to set the
@@ -918,30 +824,25 @@ function CreateImmutableBindingGlobalRecord(envRec, N, S) {
    argument V. An uninitialized binding for N must already exist.
 */
 function InitializeBindingGlobalRecord(envRec, N, V) {
-    /* Let envRec be the global Environment Record for which the method was invoked. */
+  /* Let envRec be the global Environment Record for which the method was invoked. */
 
-    /* Let DclRec be envRec.[[DeclarativeRecord]]. */
-    DclRec := envRec.DeclarativeRecord;
-
-    /* If DclRec.HasBinding(N) is true, then */
-    if ( {DclRec.HasBinding}(DclRec, N) = true ) {
-        /* Return DclRec.InitializeBinding(N, V). */
-        return {DclRec.InitializeBinding}(DclRec, N, V)
-    };
-
-    /* Assert: If the binding exists it must be in the object Environment Record. */
-    assert( isObjectEnvRec(envRec) );
-
-    /* Let ObjRec be envRec.[[ObjectRecord]]. */
-    ObjRec := envRec.ObjectRecord;
-
-    /* Return ObjRec.InitializeBinding(N, V). */
-    return {ObjRec.InitializeBinding}(ObjRec, N, V)
-};
+  /* Let DclRec be envRec.[[DeclarativeRecord]]. */
+  DclRec := envRec.DeclarativeRecord;
+  /* If DclRec.HasBinding(N) is true, then */
+  if ({DclRec.HasBinding}(DclRec, N) = true)
+    /* Return DclRec.InitializeBinding(N, V). */
+    return {DclRec.InitializeBinding}(DclRec, N, V);
+  /* Assert: If the binding exists it must be in the object Environment Record. */
+  assert (isObjectEnvRec(envRec));
+  /* Let ObjRec be envRec.[[ObjectRecord]]. */
+  ObjRec := envRec.ObjectRecord;
+  /* Return ObjRec.InitializeBinding(N, V). */
+  return {ObjRec.InitializeBinding}(ObjRec, N, V);
+}
 
 function isObjectEnvRec(envRec) {
-  return ("ObjectRecord" in_obj envRec)
-};
+  return ("ObjectRecord" in_obj envRec);
+}
 
 /* 8.1.1.4.5 SetMutableBinding (N,V,S) */
 /*
@@ -952,23 +853,19 @@ named N normally already exists but if it does not or is not currently writable,
 the value of the Boolean argument S.
 */
 function SetMutableBindingGlobalRecord(envRec, N, V, S) {
-    /* Let envRec be the global Environment Record for which the method was invoked. */
+  /* Let envRec be the global Environment Record for which the method was invoked. */
 
-    /* Let DclRec be envRec.[[DeclarativeRecord]]. */
-    DclRec := envRec.DeclarativeRecord;
-
-    /* If DclRec.HasBinding(N) is true, then */
-    if ( {DclRec.HasBinding}(DclRec, N) = true ) {
-        /* Return DclRec.SetMutableBinding(N, V, S). */
-        return {DclRec.SetMutableBinding}(DclRec, N, V, S)
-    };
-
-    /* Let ObjRec be envRec.[[ObjectRecord]]. */
-    ObjRec := envRec.ObjectRecord;
-
-    /* Return ObjRec.SetMutableBinding(N, V, S). */
-    return {ObjRec.SetMutableBinding}(ObjRec, N, V, S)
-};
+  /* Let DclRec be envRec.[[DeclarativeRecord]]. */
+  DclRec := envRec.DeclarativeRecord;
+  /* If DclRec.HasBinding(N) is true, then */
+  if ({DclRec.HasBinding}(DclRec, N) = true)
+    /* Return DclRec.SetMutableBinding(N, V, S). */
+    return {DclRec.SetMutableBinding}(DclRec, N, V, S);
+  /* Let ObjRec be envRec.[[ObjectRecord]]. */
+  ObjRec := envRec.ObjectRecord;
+  /* Return ObjRec.SetMutableBinding(N, V, S). */
+  return {ObjRec.SetMutableBinding}(ObjRec, N, V, S);
+}
 
 /* 8.1.1.4.6 GetBindingValue(N,S) */
 /*
@@ -978,23 +875,20 @@ throw a ReferenceError exception. A property named N normally already exists but
 currently writable, error handling is determined by the value of the Boolean argument S.
 */
 function GetBindingValueGlobalRecord(envRec, N, S) {
-    /* Let envRec be the global Environment Record for which the method was invoked. */
+  /* Let envRec be the global Environment Record for which the method was invoked. */
 
-    /* Let DclRec be envRec.[[DeclarativeRecord]]. */
-    DclRec := envRec.DeclarativeRecord;
+  /* Let DclRec be envRec.[[DeclarativeRecord]]. */
+  DclRec := envRec.DeclarativeRecord;
+  /* If DclRec.HasBinding(N) is true, then */
+  if ({DclRec.HasBinding}(DclRec, N) = true)
+    /* Return DclRec.GetBindingValue(N, S). */
+    return {DclRec.GetBindingValue}(DclRec, N, S);
 
-    /* If DclRec.HasBinding(N) is true, then */
-    if ( {DclRec.HasBinding}(DclRec, N) = true ) {
-        /* Return DclRec.GetBindingValue(N, S). */
-    	return {DclRec.GetBindingValue}(DclRec, N, S)
-    };
-
-    /* Let ObjRec be envRec.[[ObjectRecord]]. */
-    ObjRec := envRec.ObjectRecord;
-
-    /* Return ObjRec.GetBindingValue(N, S). */
-    return {ObjRec.GetBindingValue}(ObjRec, N, S)
-};
+  /* Let ObjRec be envRec.[[ObjectRecord]]. */
+  ObjRec := envRec.ObjectRecord;
+  /* Return ObjRec.GetBindingValue(N, S). */
+  return {ObjRec.GetBindingValue}(ObjRec, N, S);
+}
 
 /* 8.1.1.4.7 DeleteBinding (N) */
 /*
@@ -1002,82 +896,69 @@ The concrete Environment Record method DeleteBinding for global Environment Reco
 bindings that have been explicitly designated as being subject to deletion.
 */
 function DeleteBindingGlobalRecord(envRec, N) {
-    /* Let envRec be the global Environment Record for which the method was invoked. */
+  /* Let envRec be the global Environment Record for which the method was invoked. */
 
-    /* Let DclRec be envRec.[[DeclarativeRecord]]. */
-    DclRec := envRec.DeclarativeRecord;
+  /* Let DclRec be envRec.[[DeclarativeRecord]]. */
+  DclRec := envRec.DeclarativeRecord;
+  /* If DclRec.HasBinding(N) is true, then */
+  if ({DclRec.HasBinding}(DclRec, N) = true)
+      /* Return DclRec.DeleteBinding(N). */
+      return {DclRec.DeleteBinding}(DclRec, N);
 
-    /* If DclRec.HasBinding(N) is true, then */
-    if ( {DclRec.HasBinding}(DclRec, N) = true ) {
-        /* Return DclRec.DeleteBinding(N). */
-        return {DclRec.DeleteBinding}(DclRec, N)
-    };
+  /* Let ObjRec be envRec.[[ObjectRecord]]. */
+  ObjRec := envRec.ObjectRecord;
+  /* Let globalObject be the binding object for ObjRec. */
+  globalObject := getBindingObject(ObjRec);
+  /* Let existingProp be HasOwnProperty(globalObject, N). */
+  existingProp := HasOwnProperty(globalObject, N);
+  /* ReturnIfAbrupt(existingProp). */
+  @ReturnIfAbrupt(existingProp);
+  /* If existingProp is true, then */
+  if (existingProp = true) {
+    /* Let status be ObjRec.DeleteBinding(N). */
+    status := {ObjRec.DeleteBinding}(ObjRec, N);
+    /* ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+    /* If status is true, then */
+    if (status = true) {
+        /* Let varNames be envRec.[[VarNames]]. */
+        varNames := envRec.VarNames;
+        /* If N is an element of varNames, remove that element from the varNames. */
+        if (in_list(N, varNames)) {
+          newVarNames := [];
+          foreach (name : varNames)
+            if (!(name = N))
+              newVarNames := l_add(newVarNames, name);
+          envRec.VarNames := newVarNames;
+        }
+    }
 
-	/* Let ObjRec be envRec.[[ObjectRecord]]. */
-	ObjRec := envRec.ObjectRecord;
+    /* Return status. */
+    return status;
+  }
 
-    /* Let globalObject be the binding object for ObjRec. */
-    globalObject := getBindingObject(ObjRec);
-
-    /* Let existingProp be HasOwnProperty(globalObject, N). */
-    existingProp := HasOwnProperty(globalObject, N);
-
-    /* ReturnIfAbrupt(existingProp). */
-    @ReturnIfAbrupt(existingProp);
-
-    /* If existingProp is true, then */
-    if ( existingProp = true ) {
-        /* Let status be ObjRec.DeleteBinding(N). */
-        status := {ObjRec.DeleteBinding}(ObjRec, N);
-
-        /* ReturnIfAbrupt(status). */
-        @ReturnIfAbrupt(status);
-
-        /* If status is true, then */
-        if ( status = true ) {
-            /* Let varNames be envRec.[[VarNames]]. */
-            varNames := envRec.VarNames;
-
-            /* If N is an element of varNames, remove that element from the varNames. */
-            if ( in_list(N, varNames) ) {
-
-              newVarNames := [];
-              foreach( name : varNames ) {
-                if ( !(name = N)) {
-                  newVarNames := l_add(newVarNames, name)
-                }
-              };
-
-              envRec.VarNames := newVarNames
-            }
-        };
-
-        /* Return status. */
-        return status
-    };
-
-    /* Return true. */
-    return true
-};
+  /* Return true. */
+  return true;
+}
 
 /* 8.1.1.4.8 HasThisBinding () */
 /* Global Environment Records always provide a this binding whose value is the associated global object. */
 function HasThisBindingGlobalRecord(envRec) {
-	return true
-};
+	return true;
+}
 
 /* 8.1.1.4.9 HasSuperBinding () */
 /*
 function HasSuperBinding(envRec) {
 	return false
-};
+}
 */
 
 /* 8.1.1.4.10 WithBaseObject() */
 /* Global Environment Records always return undefined as their WithBaseObject */
 function WithBaseObjectGlobalRecord(envRec) {
-	return 'undefined
-};
+	return 'undefined;
+}
 
 /* 8.1.1.4.11 GetThisBinding () */
 function GetThisBindingGlobalRecord(envRec) {
@@ -1085,13 +966,11 @@ function GetThisBindingGlobalRecord(envRec) {
 
     /* Let ObjRec be envRec.[[ObjectRecord]]. */
     ObjRec := envRec.ObjectRecord;
-
     /* Let bindings be the binding object for ObjRec. */
     bindings := getBindingObject(ObjRec);
-
     /* Return bindings. */
-    return bindings
-};
+    return bindings;
+}
 
 /* 8.1.1.4.12 HasVarDeclaration (N) */
 /*
@@ -1104,15 +983,12 @@ function HasVarDeclaration(envRec, N) {
 
     /* Let varDeclaredNames be envRec.[[VarNames]]. */
     varDeclaredNames := envRec.VarNames;
-
     /* If varDeclaredNames contains the value of N, return true. */
-    if ( in_list(N, varDeclaredNames) ) {
-    	return true
-    };
-
+    if (in_list(N, varDeclaredNames))
+    	return true;
     /* Return false. */
-    return false
-};
+    return false;
+}
 
 /* 8.1.1.4.13 HasLexicalDeclaration (N) */
 /*
@@ -1125,10 +1001,9 @@ function HasLexicalDeclaration(envRec, N) {
 
     /* Let DclRec be envRec.[[DeclarativeRecord]]. */
     DclRec := envRec.DeclarativeRecord;
-
     /* Return DclRec.HasBinding(N). */
-    return {DclRec.HasBinding}(DclRec, N)
-};
+    return {DclRec.HasBinding}(DclRec, N);
+}
 
 /* 8.1.1.4.14 HasRestrictedGlobalProperty (N) */
 /*
@@ -1137,39 +1012,31 @@ determines if the argument identifier is the name of a property of the global ob
 by a global lexically binding:
 */
 function HasRestrictedGlobalProperty(envRec, N) {
-    /* Let envRec be the global Environment Record for which the method was invoked. */
+  /* Let envRec be the global Environment Record for which the method was invoked. */
 
-    /* Let ObjRec be envRec.[[ObjectRecord]]. */
-    ObjRec := envRec.ObjectRecord;
+  /* Let ObjRec be envRec.[[ObjectRecord]]. */
+  ObjRec := envRec.ObjectRecord;
+  /* Let globalObject be the binding object for ObjRec. */
+  globalObject := getBindingObject(ObjRec);
+  /* Let existingProp be globalObject.[[GetOwnProperty]](N). */
+  existingProp := {globalObject.GetOwnProperty}(globalObject, N);
+  /* ReturnIfAbrupt(existingProp). */
+  @ReturnIfAbrupt(existingProp);
+  /* If existingProp is undefined, return false. */
+  if (existingProp = 'undefined)
+    return false;
+  /* If existingProp.[[Configurable]] is true, return false. */
+  if (existingProp.Configurable = true)
+    return false;
+  /* Return true. */
+  return true;
 
-    /* Let globalObject be the binding object for ObjRec. */
-    globalObject := getBindingObject(ObjRec);
-
-    /* Let existingProp be globalObject.[[GetOwnProperty]](N). */
-    existingProp := {globalObject.GetOwnProperty}(globalObject, N);
-
-    /* ReturnIfAbrupt(existingProp). */
-    @ReturnIfAbrupt(existingProp);
-
-    /* If existingProp is undefined, return false. */
-    if ( existingProp = 'undefined ) {
-    	return false
-    };
-
-    /* If existingProp.[[Configurable]] is true, return false. */
-    if ( existingProp.Configurable = true ) {
-    	return false
-    };
-
-    /* Return true. */
-    return true
-
-    /* NOTE Properties may exist upon a global object that were directly created rather than being declared
-       		using a var or function declaration. A global lexical binding may not be created that has the same
-       		name as a non-configurable property of the global object. The global property undefined is an
-       		example of such a property.
-	*/
-};
+  /* NOTE Properties may exist upon a global object that were directly created rather than being declared
+        using a var or function declaration. A global lexical binding may not be created that has the same
+        name as a non-configurable property of the global object. The global property undefined is an
+        example of such a property.
+  */
+}
 
 /* 8.1.1.4.15 CanDeclareGlobalVar (N) */
 /*
@@ -1178,28 +1045,22 @@ a corresponding CreateGlobalVarBinding call would succeed if called for the same
 declarations and var declarations for pre-existing global object properties are allowed.
 */
 function CanDeclareGlobalVar(envRec, N) {
-    /* Let envRec be the global Environment Record for which the method was invoked. */
+  /* Let envRec be the global Environment Record for which the method was invoked. */
 
-    /* Let ObjRec be envRec.[[ObjectRecord]]. */
-    ObjRec := envRec.ObjectRecord;
-
-    /* Let globalObject be the binding object for ObjRec. */
-    globalObject := getBindingObject(ObjRec);
-
-    /* Let hasProperty be HasOwnProperty(globalObject, N). */
-    hasProperty := HasOwnProperty(globalObject, N);
-
-    /* ReturnIfAbrupt(hasProperty). */
-    @ReturnIfAbrupt(hasProperty);
-
-    /* If hasProperty is true, return true. */
-    if ( hasProperty = true ) {
-    	return true
-    };
-
-    /* Return IsExtensible(globalObject). */
-    return IsExtensible(globalObject)
-};
+  /* Let ObjRec be envRec.[[ObjectRecord]]. */
+  ObjRec := envRec.ObjectRecord;
+  /* Let globalObject be the binding object for ObjRec. */
+  globalObject := getBindingObject(ObjRec);
+  /* Let hasProperty be HasOwnProperty(globalObject, N). */
+  hasProperty := HasOwnProperty(globalObject, N);
+  /* ReturnIfAbrupt(hasProperty). */
+  @ReturnIfAbrupt(hasProperty);
+  /* If hasProperty is true, return true. */
+  if (hasProperty = true)
+    return true;
+  /* Return IsExtensible(globalObject). */
+  return IsExtensible(globalObject);
+}
 
 /* 8.1.1.4.16 CanDeclareGlobalFunction (N) */
 /*
@@ -1208,38 +1069,28 @@ determines if a corresponding CreateGlobalFunctionBinding call would succeed if 
 argument N.
 */
 function CanDeclareGlobalFunction(envRec, N) {
-    /* Let envRec be the global Environment Record for which the method was invoked. */
+  /* Let envRec be the global Environment Record for which the method was invoked. */
 
-    /* Let ObjRec be envRec.[[ObjectRecord]]. */
-    ObjRec := envRec.ObjectRecord;
-
-    /* Let globalObject be the binding object for ObjRec. */
-    globalObject := getBindingObject(ObjRec);
-
-    /* Let existingProp be globalObject.[[GetOwnProperty]](N). */
-    existingProp := {globalObject.GetOwnProperty}(globalObject, N);
-
-    /* ReturnIfAbrupt(existingProp). */
-    @ReturnIfAbrupt(existingProp);
-
-    /* If existingProp is undefined, return IsExtensible(globalObject). */
-    if ( existingProp = 'undefined ) {
-    	return IsExtensible(globalObject)
-    };
-
-    /* If existingProp.[[Configurable]] is true, return true. */
-    if ( existingProp.Configurable = true ) {
-    	return true
-    };
-
-    /* If IsDataDescriptor(existingProp) is true and existingProp has attribute values {[[Writable]]: true, [[Enumerable]]: true}, return true. */
-    if ( (IsDataDescriptor(existingProp) = true) &&& (existingProp.Writable = true) &&& (existingProp.Enumerable = true) ) {
-    	return true
-    };
-
-    /* Return false. */
-    return false
-};
+  /* Let ObjRec be envRec.[[ObjectRecord]]. */
+  ObjRec := envRec.ObjectRecord;
+  /* Let globalObject be the binding object for ObjRec. */
+  globalObject := getBindingObject(ObjRec);
+  /* Let existingProp be globalObject.[[GetOwnProperty]](N). */
+  existingProp := {globalObject.GetOwnProperty}(globalObject, N);
+  /* ReturnIfAbrupt(existingProp). */
+  @ReturnIfAbrupt(existingProp);
+  /* If existingProp is undefined, return IsExtensible(globalObject). */
+  if (existingProp = 'undefined)
+    return IsExtensible(globalObject);
+  /* If existingProp.[[Configurable]] is true, return true. */
+  if (existingProp.Configurable = true)
+    return true;
+  /* If IsDataDescriptor(existingProp) is true and existingProp has attribute values {[[Writable]]: true, [[Enumerable]]: true}, return true. */
+  if ((IsDataDescriptor(existingProp) = true) &&& (existingProp.Writable = true) &&& (existingProp.Enumerable = true))
+    return true;
+  /* Return false. */
+  return false;
+}
 
 /* 8.1.1.4.17 CreateGlobalVarBinding (N, D) */
 /*
@@ -1248,53 +1099,43 @@ and initializes a mutable binding in the associated object Environment Record an
 in the associated [[VarNames]] List. If a binding already exists, it is reused and assumed to be initialized.
 */
 function CreateGlobalVarBinding(envRec, N, D) {
-    /* Let envRec be the global Environment Record for which the method was invoked. */
+  /* Let envRec be the global Environment Record for which the method was invoked. */
 
-    /* Let ObjRec be envRec.[[ObjectRecord]]. */
-    ObjRec := envRec.ObjectRecord;
+  /* Let ObjRec be envRec.[[ObjectRecord]]. */
+  ObjRec := envRec.ObjectRecord;
+  /* Let globalObject be the binding object for ObjRec. */
+  globalObject := getBindingObject(ObjRec);
+  /* Let hasProperty be HasOwnProperty(globalObject, N). */
+  hasProperty := HasOwnProperty(globalObject, N);
+  /* ReturnIfAbrupt(hasProperty). */
+  @ReturnIfAbrupt(hasProperty);
+  /* Let extensible be IsExtensible(globalObject). */
+  extensible := IsExtensible(globalObject);
+  /* ReturnIfAbrupt(extensible). */
+  @ReturnIfAbrupt(extensible);
+  /* If hasProperty is false and extensible is true, then */
+  if ((hasProperty = false) &&& (extensible = true)) {
+    /* Let status be ObjRec.CreateMutableBinding(N, D). */
+    status := {ObjRec.CreateMutableBinding}(ObjRec, N, D);
+    /* ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+    /* Let status be ObjRec.InitializeBinding(N, undefined). */
+    status := {ObjRec.InitializeBinding}(ObjRec, N, 'undefined);
+    /* ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+  }
 
-    /* Let globalObject be the binding object for ObjRec. */
-    globalObject := getBindingObject(ObjRec);
+  /* Let varDeclaredNames be envRec.[[VarNames]]. */
+  varDeclaredNames := envRec.VarNames;
+  /* If varDeclaredNames does not contain the value of N, then */
+  if (!((in_list(N, varDeclaredNames)))) {
+    /* Append N to varDeclaredNames. */
+    varDeclaredNames := l_add(varDeclaredNames, N);
+  }
 
-    /* Let hasProperty be HasOwnProperty(globalObject, N). */
-    hasProperty := HasOwnProperty(globalObject, N);
-
-    /* ReturnIfAbrupt(hasProperty). */
-    @ReturnIfAbrupt(hasProperty);
-
-    /* Let extensible be IsExtensible(globalObject). */
-    extensible := IsExtensible(globalObject);
-
-    /* ReturnIfAbrupt(extensible). */
-    @ReturnIfAbrupt(extensible);
-
-    /* If hasProperty is false and extensible is true, then */
-    if ( (hasProperty = false) &&& (extensible = true) ) {
-        /* Let status be ObjRec.CreateMutableBinding(N, D). */
-        status := {ObjRec.CreateMutableBinding}(ObjRec, N, D);
-
-        /* ReturnIfAbrupt(status). */
-        @ReturnIfAbrupt(status);
-
-        /* Let status be ObjRec.InitializeBinding(N, undefined). */
-        status := {ObjRec.InitializeBinding}(ObjRec, N, 'undefined);
-
-        /* ReturnIfAbrupt(status). */
-        @ReturnIfAbrupt(status)
-    };
-
-    /* Let varDeclaredNames be envRec.[[VarNames]]. */
-    varDeclaredNames := envRec.VarNames;
-
-    /* If varDeclaredNames does not contain the value of N, then */
-    if ( !((in_list(N, varDeclaredNames))) ) {
-        /* Append N to varDeclaredNames. */
-        varDeclaredNames := l_add(varDeclaredNames, N)
-    };
-
-    /* Return NormalCompletion(empty). */
-    return NormalCompletion('empty)
-};
+  /* Return NormalCompletion(empty). */
+  return NormalCompletion('empty);
+}
 
 /* 8.1.1.4.18 CreateGlobalFunctionBinding (N, V, D) */
 /*
@@ -1303,66 +1144,55 @@ creates and initializes a mutable binding in the associated object Environment R
 name in the associated [[VarNames]] List. If a binding already exists, it is replaced.
 */
 function CreateGlobalFunctionBinding(envRec, N, V, D) {
-    /* Let envRec be the global Environment Record for which the method was invoked. */
+  /* Let envRec be the global Environment Record for which the method was invoked. */
 
-    /* Let ObjRec be envRec.[[ObjectRecord]]. */
-    ObjRec := envRec.ObjectRecord;
+  /* Let ObjRec be envRec.[[ObjectRecord]]. */
+  ObjRec := envRec.ObjectRecord;
+  /* Let globalObject be the binding object for ObjRec. */
+  globalObject := getBindingObject(ObjRec);
+  /* Let existingProp be globalObject.[[GetOwnProperty]](N). */
+  existingProp := {globalObject.GetOwnProperty}(globalObject, N);
+  /* ReturnIfAbrupt(existingProp). */
+  @ReturnIfAbrupt(existingProp);
+  /* If existingProp is undefined or existingProp.[[Configurable]] is true, then */
+  if ((existingProp = 'undefined) ||| (existingProp.Configurable = true)) {
+    /* Let desc be the PropertyDescriptor{[[Value]]:V, [[Writable]]: true, [[Enumerable]]: true , [[Configurable]]: D}. */
+    desc := newDataPropertyDescriptorFull(V, true, true, D);
+  /* Else, */
+  } else {
+    /* Let desc be the PropertyDescriptor{[[Value]]:V }. */
+    desc := { Value:V };
+  }
 
-    /* Let globalObject be the binding object for ObjRec. */
-    globalObject := getBindingObject(ObjRec);
+  /* Let status be DefinePropertyOrThrow(globalObject, N, desc). */
+  status := DefinePropertyOrThrow(globalObject, N, desc);
+  /* ReturnIfAbrupt(status). */
+  @ReturnIfAbrupt(status);
+  /* Let status be Set(globalObject, N, V, false). */
+  status := Set(globalObject, N, V, false);
 
-    /* Let existingProp be globalObject.[[GetOwnProperty]](N). */
-    existingProp := {globalObject.GetOwnProperty}(globalObject, N);
+  /* Record that the binding for N in ObjRec has been initialized. */
+  /* TODO check como por o binding a initialized */
+  /* setBindingInitialised(ObjRec, N, true); */
 
-    /* ReturnIfAbrupt(existingProp). */
-    @ReturnIfAbrupt(existingProp);
+  /* ReturnIfAbrupt(status). */
+  @ReturnIfAbrupt(status);
+  /* Let varDeclaredNames be envRec.[[VarNames]]. */
+  varDeclaredNames := envRec.VarNames;
+  /* If varDeclaredNames does not contain the value of N, then */
+  if (!((in_list(N, varDeclaredNames))))
+    /* Append N to varDeclaredNames. */
+    varDeclaredNames := l_add(varDeclaredNames, N);
 
-    /* If existingProp is undefined or existingProp.[[Configurable]] is true, then */
-    if ( (existingProp = 'undefined) ||| (existingProp.Configurable = true) ) {
-        /* Let desc be the PropertyDescriptor{[[Value]]:V, [[Writable]]: true, [[Enumerable]]: true , [[Configurable]]: D}. */
-        desc := newDataPropertyDescriptorFull(V, true, true, D)
-    }
-    /* Else, */
-    else {
-        /* Let desc be the PropertyDescriptor{[[Value]]:V }. */
-        desc := { Value:V }
-    };
+  /* Return NormalCompletion(empty). */
+  return NormalCompletion('empty);
 
-    /* Let status be DefinePropertyOrThrow(globalObject, N, desc). */
-    status := DefinePropertyOrThrow(globalObject, N, desc);
-
-    /* ReturnIfAbrupt(status). */
-    @ReturnIfAbrupt(status);
-
-    /* Let status be Set(globalObject, N, V, false). */
-    status := Set(globalObject, N, V, false);
-
-    /* Record that the binding for N in ObjRec has been initialized. */
-
-    /* TODO check como por o binding a initialized */
-    /* setBindingInitialised(ObjRec, N, true); */
-
-    /* ReturnIfAbrupt(status). */
-    @ReturnIfAbrupt(status);
-
-    /* Let varDeclaredNames be envRec.[[VarNames]]. */
-    varDeclaredNames := envRec.VarNames;
-
-    /* If varDeclaredNames does not contain the value of N, then */
-    if ( !((in_list(N, varDeclaredNames))) ) {
-        /* Append N to varDeclaredNames. */
-        varDeclaredNames := l_add(varDeclaredNames, N)
-    };
-
-    /* Return NormalCompletion(empty). */
-    return NormalCompletion('empty)
-
-    /* NOTE Global function declarations are always represented as own properties of the global object. If
-       		possible, an existing own property is reconfigured to have a standard set of attribute values.
-       		Steps 10-12 are equivalent to what calling the InitializeBinding concrete method would do and if
-       		globalObject is a Proxy will produce the same sequence of Proxy trap calls.
-	*/
-};
+  /* NOTE Global function declarations are always represented as own properties of the global object. If
+        possible, an existing own property is reconfigured to have a standard set of attribute values.
+        Steps 10-12 are equivalent to what calling the InitializeBinding concrete method would do and if
+        globalObject is a Proxy will produce the same sequence of Proxy trap calls.
+  */
+}
 
 /* 8.1.1.5 Module Environment Records */
 /*
@@ -1388,7 +1218,7 @@ function GetBindingValueModuleRecord(envRec, N, S) {
     /* Let envRec be the module Environment Record for which the method was invoked. */
 
     /* Assert: envRec has a binding for N. */
-    assert( HasBindingDeclarativeRecord(envRec, N) )
+    assert (HasBindingDeclarativeRecord(envRec, N));
 
     /* If the binding for N is an indirect binding, then */
         /* Let M and N2 be the indirection values provided when this binding for N was created. */
@@ -1405,7 +1235,7 @@ function GetBindingValueModuleRecord(envRec, N, S) {
 
     /* Return the value currently bound to N in envRec. */
 
-}; /* TODO MODULE ENVIRONMENT RECORDS */
+} /* TODO MODULE ENVIRONMENT RECORDS */
 
 /* 8.1.1.5.2 DeleteBinding (N) */
 /*
@@ -1416,24 +1246,23 @@ function DeleteBindingModuleRecord(envRec, N) {
     /* Let envRec be the module Environment Record for which the method was invoked. */
 
 	/* If envRec does not have a binding for the name that is the value of N, return true. */
-	if ( !(HasBindingDeclarativeRecord(envRec, N)) ) {
-		return true
-	};
+	if (!(HasBindingDeclarativeRecord(envRec, N)))
+		return true;
 
-   	/* Return false. */
-   	return false
-};
+  /* Return false. */
+  return false;
+}
 
 /* 8.1.1.5.3 HasThisBinding () */
 /* Module Environment Records provide a this binding. */
 function HasThisBindingModuleRecord(envRec) {
-	return true
-};
+	return true;
+}
 
 /* 8.1.1.5.4 GetThisBinding () */
 function GetThisBindingModuleRecord(envRec) {
-	return 'undefined
-};
+	return 'undefined;
+}
 
 /* 8.1.1.5.5 CreateImportBinding (N, M, N2) */
 /*
@@ -1444,19 +1273,19 @@ M’s module Environment Record. Accesses to the value of the new binding will i
 value of value of the target binding.
 */
 function CreateImportBinding(envRec, N, M, N2) {
-    /* Let envRec be the module Environment Record for which the method was invoked. */
+  /* Let envRec be the module Environment Record for which the method was invoked. */
 
-    /* Assert: envRec does not already have a binding for N. */
+  /* Assert: envRec does not already have a binding for N. */
 
-    /* Assert: M is a Module Record. */
+  /* Assert: M is a Module Record. */
 
-    /* Assert: When M.[[Environment]] is instantiated it will have a direct binding for N2. */
+  /* Assert: When M.[[Environment]] is instantiated it will have a direct binding for N2. */
 
-    /* Create an immutable indirect binding in envRec for N that references M and N2 as its target binding and record that the binding is initialized. */
+  /* Create an immutable indirect binding in envRec for N that references M and N2 as its target binding and record that the binding is initialized. */
 
-    /* Return NormalCompletion(empty). */
-    return NormalCompletion('empty)
-};
+  /* Return NormalCompletion(empty). */
+  return NormalCompletion('empty);
+}
 
 /*
 8.1.2 Lexical Environment Operations
@@ -1470,36 +1299,29 @@ The abstract operation GetIdentifierReference is called with a Lexical Environme
 Boolean flag strict. The value of lex may be null. When called, the following steps are performed:
 */
 function GetIdentifierReference(lex, name, strict) {
-    /* If lex is the value null, then */
-    if ( lex = 'null ||| lex = null ||| lex = 'undefined ) {
-        /* Return a value of type Reference whose base value is undefined, whose referenced name is name, and whose strict reference flag is strict. */
-        return newValueReference('undefined, name, strict)
-    };
+  /* If lex is the value null, then */
+  if (lex = 'null ||| lex = null ||| lex = 'undefined)
+    /* Return a value of type Reference whose base value is undefined, whose referenced name is name, and whose strict reference flag is strict. */
+    return newValueReference('undefined, name, strict);
 
-    /* Let envRec be lex’s EnvironmentRecord. */
-    envRec := getEnvironmentRecord(lex);
-
-
-    /* Let exists be envRec.HasBinding(name). */
-    exists := {envRec.HasBinding}(envRec, name);
-
-    /* ReturnIfAbrupt(exists). */
-    @ReturnIfAbrupt(exists);
-
-    /* If exists is true, then */
-    if ( exists = true ) {
-        /* Return a value of type Reference whose base value is envRec, whose referenced name is name, and whose strict reference flag is strict. */
-        return newValueReference(envRec, name, strict)
-    }
-    /* Else */
-    else {
-        /* Let outer be the value of lex’s outer environment reference. */
-        outer := getOuterEnvironmentReference(lex);
-
-        /* Return GetIdentifierReference(outer, name, strict). */
-        return GetIdentifierReference(outer, name, strict)
-    }
-};
+  /* Let envRec be lex’s EnvironmentRecord. */
+  envRec := getEnvironmentRecord(lex);
+  /* Let exists be envRec.HasBinding(name). */
+  exists := {envRec.HasBinding}(envRec, name);
+  /* ReturnIfAbrupt(exists). */
+  @ReturnIfAbrupt(exists);
+  /* If exists is true, then */
+  if (exists = true) {
+    /* Return a value of type Reference whose base value is envRec, whose referenced name is name, and whose strict reference flag is strict. */
+    return newValueReference(envRec, name, strict);
+  /* Else */
+  } else {
+    /* Let outer be the value of lex’s outer environment reference. */
+    outer := getOuterEnvironmentReference(lex);
+    /* Return GetIdentifierReference(outer, name, strict). */
+    return GetIdentifierReference(outer, name, strict);
+  }
+}
 
 /* 8.1.2.2 NewDeclarativeEnvironment (E) */
 /*
@@ -1507,21 +1329,17 @@ When the abstract operation NewDeclarativeEnvironment is called with a Lexical E
 the following steps are performed:
 */
 function NewDeclarativeEnvironment(E) {
-    /* Let env be a new Lexical Environment. */
-    env := newLexicalEnvironment();
-
-    /* Let envRec be a new declarative Environment Record containing no bindings. */
-    envRec := newDeclarativeEnvironmentRecord();
-
-    /* Set env’s EnvironmentRecord to be envRec. */
-    setEnvironmentRecord(env, envRec);
-
-    /* Set the outer lexical environment reference of env to E. */
-    setOuterLexicalEnvironmentReference(env, E);
-
-    /* Return env. */
-    return env
-};
+  /* Let env be a new Lexical Environment. */
+  env := newLexicalEnvironment();
+  /* Let envRec be a new declarative Environment Record containing no bindings. */
+  envRec := newDeclarativeEnvironmentRecord();
+  /* Set env’s EnvironmentRecord to be envRec. */
+  setEnvironmentRecord(env, envRec);
+  /* Set the outer lexical environment reference of env to E. */
+  setOuterLexicalEnvironmentReference(env, E);
+  /* Return env. */
+  return env;
+}
 
 /* 8.1.2.3 NewObjectEnvironment (O, E) */
 /*
@@ -1529,21 +1347,17 @@ When the abstract operation NewObjectEnvironment is called with an Object O and 
 arguments, the following steps are performed:
 */
 function NewObjectEnvironment(O, E) {
-    /* Let env be a new Lexical Environment. */
-    env := newLexicalEnvironment();
-
-    /* Let envRec be a new object Environment Record containing O as the binding object. */
-    envRec := newObjectEnvironmentRecord(O);
-
-    /* Set env’s EnvironmentRecord to envRec. */
-    setEnvironmentRecord(env, envRec);
-
-    /* Set the outer lexical environment reference of env to E. */
-    setOuterLexicalEnvironmentReference(env, E);
-
-    /* Return env. */
-    return env
-};
+  /* Let env be a new Lexical Environment. */
+  env := newLexicalEnvironment();
+  /* Let envRec be a new object Environment Record containing O as the binding object. */
+  envRec := newObjectEnvironmentRecord(O);
+  /* Set env’s EnvironmentRecord to envRec. */
+  setEnvironmentRecord(env, envRec);
+  /* Set the outer lexical environment reference of env to E. */
+  setOuterLexicalEnvironmentReference(env, E);
+  /* Return env. */
+  return env;
+}
 
 /* 8.1.2.4 NewFunctionEnvironment ( F, newTarget ) */
 /*
@@ -1552,28 +1366,24 @@ following steps are performed:
 */
 function NewFunctionEnvironment(F, newTarget) {
   /* 1. Assert: F is an ECMAScript function. */
-  assert(isESFunctionObject(F));
-
-      /* Assert: Type(newTarget) is Undefined or Object. */
-    assert( (Type(newTarget) = "Undefined") ||| (Type(newTarget) = "Object") );
-
+  assert (isESFunctionObject(F));
+  /* Assert: Type(newTarget) is Undefined or Object. */
+  assert ((Type(newTarget) = "Undefined") ||| (Type(newTarget) = "Object") );
   /* 3. Let env be a new Lexical Environment. */
   env := newLexicalEnvironment();
-  /* 4. Let envRec be a new function Environment Record containing no
-     bindings. */
+  /* 4. Let envRec be a new function Environment Record containing no bindings. */
   envRec := newFunctionEnvironmentRecord();
   /* 5. Set envRec.[[FunctionObject]] to F. */
   envRec.FunctionObject := F;
   /* 6. If F's [[ThisMode]] internal slot is lexical, */
   if (F.ThisMode = "lexical") {
     /* set envRec.[[thisBindingStatus]] to "lexical" */
-    envRec.thisBindingStatus := "lexical"
-  }
+    envRec.thisBindingStatus := "lexical";
   /* 7. Else, */
-  else {
+  } else {
     /* Set envRec.[[thisBindingStatus]] to "uninitialized" */
-    envRec.thisBindingStatus := "uninitialized"
-  };
+    envRec.thisBindingStatus := "uninitialized";
+  }
   /* 8. Let home be the value of F's [[HomeObject]] internal slot. */
   home := F.HomeObject;
   /* 9. Set envRec.[[HomeObject]] to home. */
@@ -1582,12 +1392,11 @@ function NewFunctionEnvironment(F, newTarget) {
   envRec.__NewTarget := newTarget;
   /* 11. Set env's EnvironmentRecord to be envRec. */
   setEnvironmentRecord(env, envRec);
-  /* 12. Set the outer lexical environment reference of env to the value of F's
-     [[Environment]] internal slot. */
+  /* 12. Set the outer lexical environment reference of env to the value of F's [[Environment]] internal slot. */
   setOuterLexicalEnvironmentReference(env, F.Environment);
   /* 13. Return env. */
-  return env
-};
+  return env;
+}
 
 /* 8.1.2.5 NewGlobalEnvironment ( G ) */
 /*
@@ -1597,34 +1406,25 @@ the following steps are performed:
 function NewGlobalEnvironment(G) {
     /* Let env be a new Lexical Environment. */
     env := newLexicalEnvironment();
-
     /* Let objRec be a new object Environment Record containing G as the binding object. */
     objRec := newObjectEnvironmentRecord(G);
-
     /* Let dclRec be a new declarative Environment Record containing no bindings. */
     dclRec := newDeclarativeEnvironmentRecord();
-
     /* Let globalRec be a new global Environment Record. */
     globalRec := newGlobalEnvironmentRecord();
-
     /* Set globalRec.[[ObjectRecord]] to objRec. */
     globalRec.ObjectRecord := objRec;
-
     /* Set globalRec.[[DeclarativeRecord]] to dclRec. */
     globalRec.DeclarativeRecord := dclRec;
-
     /* Set globalRec.[[VarNames]] to a new empty List. */
     globalRec.VarNames := [];
-
     /* Set env’s EnvironmentRecord to globalRec. */
     setEnvironmentRecord(env, globalRec);
-
     /* Set the outer lexical environment reference of env to null */
     setOuterLexicalEnvironmentReference(env, 'null);
-
     /* Return env. */
-    return env
-};
+    return env;
+}
 
 /* 8.1.2.6 NewModuleEnvironment (E) */
 /*
@@ -1634,16 +1434,12 @@ following steps are performed:
 function NewModuleEnvironment(E) {
     /* Let env be a new Lexical Environment. */
     env := newLexicalEnvironment();
-
     /* Let envRec be a new module Environment Record containing no bindings. */
     envRec := newModuleEnvironmentRecord();
-
     /* Set env’s EnvironmentRecord to be envRec. */
     setEnvironmentRecord(env, envRec);
-
     /* Set the outer lexical environment reference of env to E. */
     setOuterLexicalEnvironmentReference(env, E);
-
     /* Return env. */
-    return env
+    return env;
 }

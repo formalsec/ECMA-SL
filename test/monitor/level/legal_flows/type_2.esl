@@ -1,7 +1,7 @@
 function main () {
 h:= false;
 l:= true;
-o := {};
+o := {}
 o.p := true;
 
 
@@ -11,12 +11,12 @@ x:= "upgVar"("h", "high");
 if (h) {
   
   o.p := false
-};
+}
 x:= o.p;
 
-if(x){
+if (x) {
   l := false
-};
+}
 
 
 

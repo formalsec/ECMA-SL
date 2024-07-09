@@ -1,8 +1,8 @@
 function main () {
 h:= false;
 l:= true;
-ol := {};
-oh := {};
+ol := {}
+oh := {}
 
 
 x:= "upgVar"("l", "low");
@@ -13,12 +13,12 @@ oh.p := true;
 oh.p := true;
 if (h) {
   oh := ol
-};
+}
 delete oh["p"];
 x:= "p" in_obj ol;
-if(x) {
+if (x) {
   l:= false
-};
+}
 
 
 

@@ -21,8 +21,8 @@ function initDateObject(globalObject, ObjectPrototype, strict) {
   |msPerDay| := 86400000.; /* TODO change to constant */
   |LocalTZA| := 0.;
 
-  return dateConstructor /* -2%9  -> -2 */
-};
+  return dateConstructor; /* -2%9  -> -2 */
+}
 
 /* 20.3.1 Overview of Date Objects and Definitions of Abstract Operators */
 /* The following functions are abstract operations that operate on time values (defined in 20.3.1.1). Note that, in
@@ -52,8 +52,8 @@ function initDateObject(globalObject, ObjectPrototype, strict) {
 /*               msPerDay = 86400000 */
 /* The remainder is called the time within the day: */
 /*               TimeWithinDay(t) = t modulo msPerDay */
-function Day(t) { return floor(t / |msPerDay|)};
-function TimeWithinDay(t) { return (t % |msPerDay|) };
+function Day(t) { return floor(t / |msPerDay|); }
+function TimeWithinDay(t) { return (t % |msPerDay|); }
 
 /* 20.3.1.3 Year Number */
 /* ECMAScript uses an extrapolated Gregorian system to map a day number to a year number and to determine
@@ -65,72 +65,64 @@ function TimeWithinDay(t) { return (t % |msPerDay|) };
 /*               = 365 if (y modulo 100) = 0 and (y modulo 400) <> 0 */
 /*               = 366 if (y modulo 400) = 0 */
 function DaysInYear(y) {
-
-   if ((!(y % 4. = 0.)) || (((y % 100. ) = 0.) &&& !((y % 400.) = 0.))) {
-      return 365.
-   }
-   elif (((y % 4.) = 0. &&& !((y % 100.) = 0.)) || (y % 400.) = 0.) {
-     return 366.
-   }
-};
+   if ((!(y % 4. = 0.)) || (((y % 100. ) = 0.) &&& !((y % 400.) = 0.)))
+      return 365.;
+   elif (((y % 4.) = 0. &&& !((y % 100.) = 0.)) || (y % 400.) = 0.)
+     return 366.;
+}
 
 /* All non-leap years have 365 days with the usual number of days per month and leap years have an extra day
    in February. The day number of the first day of year y is given by: */
 /*                DayFromYear(y) = 365 x (y-1970) + floor((y-1969)/4) - floor((y-1901)/100) + floor((y-1601)/400) */
-function DayFromYear(y){
-   return 365. * (y - 1970.) + floor((y - 1969.) / 4.) - floor((y - 1901.) / 100.) + floor((y - 1601.) / 400.)
-};
+function DayFromYear(y) {
+   return 365. * (y - 1970.) + floor((y - 1969.) / 4.) - floor((y - 1901.) / 100.) + floor((y - 1601.) / 400.);
+}
 
 /* The time value of the start of a year is: */
 /*                TimeFromYear(y) = msPerDay x DayFromYear(y) */
-function TimeFromYear(y) { return |msPerDay| * DayFromYear(y) };
+function TimeFromYear(y) { return |msPerDay| * DayFromYear(y); }
 
 /* A time value determines a year by: */
 /*                YearFromTime(t) = the largest integer y (closest to positive infinity) such that TimeFromYear(y) <= t */
 function YearFromTime(t) {
-  if (!auxIsFinite(t)) {
-    return t
-  };
+  if (!auxIsFinite(t))
+    return t;
 
   msPerYear := 365. * |msPerDay|;
-
   aprox := floor(t/msPerYear) + 1970.;
   /*if (t >= 0.) {
     aprox := floor(t/msPerYear) + 1970.
   }
   else {
     aprox := floor((t)/(366. * |msPerDay|)) + 1970.
-  }; */
+  } */
 
-  if (aprox = 1970.) {
-    return aprox
-  };
+  if (aprox = 1970.)
+    return aprox;
 
   step := - abs(t) / t;
   /* i := 0; */
-  while(!((TimeFromYear(aprox) <= t) &&& (t < TimeFromYear(aprox + 1.)))) {
+  while (!((TimeFromYear(aprox) <= t) &&& (t < TimeFromYear(aprox + 1.)))) {
     /*i := i + 1;
     if ( i > 500) {
       return aprox
-    }; */
-    aprox := aprox + step /*- 1. /* - abs(t) / t  */
-  };
+    } */
+    aprox := aprox + step; /*- 1. /* - abs(t) / t  */
+  }
 
 
-  return aprox
-};
+  return aprox;
+}
 
 /* The leap-year function is 1 for a time within a leap year and otherwise is zero: */
 /*                InLeapYear(t) = 0 if DaysInYear(YearFromTime(t)) = 365 */
 /*                              = 1 if DaysInYear(YearFromTime(t)) = 366 */
 function InLeapYear(t) {
-   if (DaysInYear(YearFromTime(t)) = 365.) {
-      return 0.
-   }
-   elif (DaysInYear(YearFromTime(t)) = 366.) {
-      return 1.
-   }
-};
+  if (DaysInYear(YearFromTime(t)) = 365.)
+  return 0.;
+  elif (DaysInYear(YearFromTime(t)) = 366.)
+  return 1.;
+}
 
 /* 20.3.1.4 Month Number */
 /* Months are identified by an integer in the range 0 to 11, inclusive. The mapping MonthFromTime(t) from a time
@@ -158,51 +150,39 @@ function MonthFromTime(t) {
   dayWithinYear := DayWithinYear(t);
   inLeapYear := InLeapYear(t);
 
-   if (0. <= dayWithinYear &&& dayWithinYear < 31.) {
-      return 0.
-   }
-   elif (31. <= dayWithinYear &&& dayWithinYear < 59. + inLeapYear) {
-      return 1.
-   }
-   elif (59. + inLeapYear <= dayWithinYear &&& dayWithinYear < 90. + inLeapYear) {
-      return 2.
-   }
-   elif (90. + inLeapYear <= dayWithinYear &&& dayWithinYear < 120. + inLeapYear) {
-      return 3.
-   }
-   elif (120. + inLeapYear <= dayWithinYear &&& dayWithinYear < 151. + inLeapYear) {
-      return 4.
-   }
-   elif (151. + inLeapYear <= dayWithinYear &&& dayWithinYear < 181. + inLeapYear) {
-      return 5.
-   }
-   elif (181. + inLeapYear <= dayWithinYear &&& dayWithinYear< 212. + inLeapYear) {
-      return 6.
-   }
-   elif (212. + inLeapYear <= dayWithinYear &&& dayWithinYear< 243. + inLeapYear) {
-      return 7.
-   }
-   elif (243. + inLeapYear <= dayWithinYear &&& dayWithinYear< 273. + inLeapYear) {
-      return 8.
-   }
-   elif (273. + inLeapYear <= dayWithinYear &&& dayWithinYear< 304. + inLeapYear) {
-      return 9.
-   }
-   elif (304. + inLeapYear <= dayWithinYear &&& dayWithinYear< 334. + inLeapYear) {
-      return 10.
-   }
-   elif (334. + inLeapYear <= dayWithinYear &&& dayWithinYear< 365. + inLeapYear) {
-      return 11.
-   }
+   if (0. <= dayWithinYear &&& dayWithinYear < 31.)
+      return 0.;
+   elif (31. <= dayWithinYear &&& dayWithinYear < 59. + inLeapYear)
+      return 1.;
+   elif (59. + inLeapYear <= dayWithinYear &&& dayWithinYear < 90. + inLeapYear)
+      return 2.;
+   elif (90. + inLeapYear <= dayWithinYear &&& dayWithinYear < 120. + inLeapYear)
+      return 3.;
+   elif (120. + inLeapYear <= dayWithinYear &&& dayWithinYear < 151. + inLeapYear)
+      return 4.;
+   elif (151. + inLeapYear <= dayWithinYear &&& dayWithinYear < 181. + inLeapYear)
+      return 5.;
+   elif (181. + inLeapYear <= dayWithinYear &&& dayWithinYear< 212. + inLeapYear)
+      return 6.;
+   elif (212. + inLeapYear <= dayWithinYear &&& dayWithinYear< 243. + inLeapYear)
+      return 7.;
+   elif (243. + inLeapYear <= dayWithinYear &&& dayWithinYear< 273. + inLeapYear)
+      return 8.;
+   elif (273. + inLeapYear <= dayWithinYear &&& dayWithinYear< 304. + inLeapYear)
+      return 9.;
+   elif (304. + inLeapYear <= dayWithinYear &&& dayWithinYear< 334. + inLeapYear)
+      return 10.;
+   elif (334. + inLeapYear <= dayWithinYear &&& dayWithinYear< 365. + inLeapYear)
+      return 11.;
    /* Note that, in every case, if any argument to
     one of these functions is NaN, the result will be NaN.*/
-   elif(is_NaN (t)) {
-     return NaN
-   }
-};
+   elif (is_NaN (t))
+     return NaN;
+}
 
 function DayWithinYear(t) {
-  return Day(t)-DayFromYear(YearFromTime(t)) };
+  return Day(t)-DayFromYear(YearFromTime(t));
+}
 
 /* 20.3.1.5 Date Number */
 /* A date number is identified by an integer in the range 1 through 31, inclusive. The mapping DateFromTime(t)
@@ -224,48 +204,35 @@ function DateFromTime(t) {
   MonthFromTime := MonthFromTime(t);
   DayWithinYear := DayWithinYear(t);
   InLeapYear := InLeapYear(t);
-  if (MonthFromTime = 0.) {
-     return DayWithinYear + 1.
-  }
-  elif (MonthFromTime = 1.) {
-     return DayWithinYear - 30.
-  }
-  elif (MonthFromTime = 2.) {
-     return DayWithinYear - 58. - InLeapYear
-  }
-  elif (MonthFromTime = 3.) {
-     return DayWithinYear - 89. - InLeapYear
-  }
-  elif (MonthFromTime = 4.) {
-     return DayWithinYear - 119. - InLeapYear
-  }
-  elif (MonthFromTime = 5.) {
-     return DayWithinYear - 150. - InLeapYear
-  }
-  elif (MonthFromTime = 6.) {
-     return DayWithinYear - 180. - InLeapYear
-  }
-  elif (MonthFromTime = 7.) {
-     return DayWithinYear - 211. - InLeapYear
-  }
-  elif (MonthFromTime = 8.) {
-     return DayWithinYear - 242. - InLeapYear
-  }
-  elif (MonthFromTime = 9.) {
-     return DayWithinYear - 272. - InLeapYear
-  }
-  elif (MonthFromTime = 10.) {
-     return DayWithinYear - 303. - InLeapYear
-  }
-  elif (MonthFromTime = 11.) {
-     return DayWithinYear - 333. - InLeapYear
-  }
+  if (MonthFromTime = 0.)
+     return DayWithinYear + 1.;
+  elif (MonthFromTime = 1.)
+     return DayWithinYear - 30.;
+  elif (MonthFromTime = 2.)
+     return DayWithinYear - 58. - InLeapYear;
+  elif (MonthFromTime = 3.)
+     return DayWithinYear - 89. - InLeapYear;
+  elif (MonthFromTime = 4.)
+     return DayWithinYear - 119. - InLeapYear;
+  elif (MonthFromTime = 5.)
+     return DayWithinYear - 150. - InLeapYear;
+  elif (MonthFromTime = 6.)
+     return DayWithinYear - 180. - InLeapYear;
+  elif (MonthFromTime = 7.)
+     return DayWithinYear - 211. - InLeapYear;
+  elif (MonthFromTime = 8.)
+     return DayWithinYear - 242. - InLeapYear;
+  elif (MonthFromTime = 9.)
+     return DayWithinYear - 272. - InLeapYear;
+  elif (MonthFromTime = 10.)
+     return DayWithinYear - 303. - InLeapYear;
+  elif (MonthFromTime = 11.)
+     return DayWithinYear - 333. - InLeapYear;
   /* Note that, in every case, if any argument to
   one of these functions is NaN, the result will be NaN.*/
-  elif(is_NaN (t)) {
-    return NaN
-  }
-};
+  elif (is_NaN (t))
+    return NaN;
+}
 
 /* 20.3.1.6 Week Day */
 /* The weekday for a particular time value t is defined as */
@@ -273,7 +240,7 @@ function DateFromTime(t) {
 /* A weekday value of 0 specifies Sunday; 1 specifies Monday; 2 specifies Tuesday; 3 specifies Wednesday;
    4 specifies Thursday; 5 specifies Friday; and 6 specifies Saturday. Note that WeekDay(0) = 4, corresponding to
    Thursday, 01 January, 1970. */
-function WeekDay(t) { return (Day(t) + 4.) % 7. };
+function WeekDay(t) { return (Day(t) + 4.) % 7.; }
 
 /* 20.3.1.7 Local Time Zone Adjustment */
 /* An implementation of ECMAScript is expected to determine the local time zone adjustment. The local time
@@ -294,7 +261,7 @@ function WeekDay(t) { return (Day(t) + 4.) % 7. };
 /*               WeekDay(TimeFromYear(YearFromTime(t))) */
 /* and (4) the geographic location. */
 /* NOTE It is recommended that implementations use the time zone information of the IANA Time Zone Database http://www.iana.org/time-zones/. */
-function DaylightSavingTA(t) {return 0. /* TODO */};
+function DaylightSavingTA(t) { return 0.; /* TODO */}
 
 /* 20.3.1.9 Local Time */
 /* The abstract operation LocalTime with argument t converts t from UTC
@@ -302,10 +269,9 @@ function DaylightSavingTA(t) {return 0. /* TODO */};
 function LocalTime(t) {
   /* 1. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 2. Return t + LocalTZA + DaylightSavingTA(t). */
-  return t + |LocalTZA| + DaylightSavingTA(t)
-};
+  return t + |LocalTZA| + DaylightSavingTA(t);
+}
 
 /* 20.3.1.10 UTC ( t )
  *
@@ -316,10 +282,9 @@ function LocalTime(t) {
 function UTC(t) {
    /* 1. ReturnIfAbrupt(t). */
    @ReturnIfAbrupt(t);
-
    /* 2. Return t - LocalTZA - DaylightSavingTA(t - LocalTZA). */
-   return t - |LocalTZA| - DaylightSavingTA(t - |LocalTZA|)
-};
+   return t - |LocalTZA| - DaylightSavingTA(t - |LocalTZA|);
+}
 
 /* 20.3.1.11 Hours, Minutes, Second, and Milliseconds */
 /* The following functions are useful in decomposing time values: */
@@ -337,24 +302,22 @@ function UTC(t) {
 function HourFromTime(t) {
    HoursPerDay := 24.;
    msPerHour := 3600000.;
-   return floor(t / msPerHour) % HoursPerDay
-};
+   return floor(t / msPerHour) % HoursPerDay;
+}
 function MinFromTime(t) {
    msPerMinute := 60000.;
    MinutesPerHour := 60.;
-   return floor(t / msPerMinute) % MinutesPerHour
-};
+   return floor(t / msPerMinute) % MinutesPerHour;
+}
 function SecFromTime(t) {
    msPerSecond := 1000.;
    SecondsPerMinute := 60.;
-   return (floor(t / msPerSecond) % SecondsPerMinute)
-};
+   return (floor(t / msPerSecond) % SecondsPerMinute);
+}
 function msFromTime(t) {
   msPerSecond := 1000.;
-
-
-  return t % msPerSecond
-};
+  return t % msPerSecond;
+}
 
 /**
  * 20.3.1.12 MakeTime (hour, min, sec, ms)
@@ -364,10 +327,8 @@ function msFromTime(t) {
  */
 function MakeTime(hour, mins, sec, ms) {
   /* 1. If hour is not finite or min is not finite or sec is not finite or ms is not finite, return NaN. */
-  if (!(auxIsFinite(hour) &&& auxIsFinite(mins) &&& auxIsFinite(sec) &&& auxIsFinite(ms))) {
-     return NaN
-  };
-
+  if (!(auxIsFinite(hour) &&& auxIsFinite(mins) &&& auxIsFinite(sec) &&& auxIsFinite(ms)))
+     return NaN;
   /* 2. Let h be ToInteger(hour). */
   h := ToInteger(hour);
   /* 3. Let m be ToInteger(min). */
@@ -376,18 +337,15 @@ function MakeTime(hour, mins, sec, ms) {
   s := ToInteger(sec);
   /* 5. Let milli be ToInteger(ms). */
   milli := ToInteger(ms);
-
   msPerSecond := 1000.;
   msPerMinute := 60000.;
   msPerHour := 3600000.;
-
   /* 6. Let t be h * msPerHour + m * msPerMinute + s * msPerSecond + milli,
    TODO ?? performing the arithmetic according to IEEE 754-2008 rules ?? (that is, as if using the ECMAScript operators * and +). */
   t := (h * msPerHour) + (m * msPerMinute) + (s * msPerSecond) + milli;
-
   /* 7. Return t. */
-   return t
-};
+   return t;
+}
 
 /**
  * 20.3.1.13 MakeDay (year, month, date)
@@ -395,40 +353,28 @@ function MakeTime(hour, mins, sec, ms) {
  * which must be ECMAScript Number values.
  */
 function MakeDay(year, month, date) {
-
   /* 1. If year is not finite or month is not finite or date is not finite, return NaN. */
-  if (!(auxIsFinite(year) &&& auxIsFinite(month) &&& auxIsFinite(date))) {
-     return NaN
-  };
-
+  if (!(auxIsFinite(year) &&& auxIsFinite(month) &&& auxIsFinite(date)))
+     return NaN;
   /* 2. Let y be ToInteger(year). */
   y := ToInteger(year);
   /* 3. Let m be ToInteger(month). */
   m := ToInteger(month);
   /* 4. Let dt be ToInteger(date). */
   dt := ToInteger(date);
-
   /* 5. Let ym be y + floor(m /12). */
-
   ym := y + floor(m/12.);
-
   /* 6. Let mn be m modulo 12. */
   mn := m % 12.;
-
   /* 7. Find a value t such that YearFromTime(t) == ym and MonthFromTime(t) == mn and DateFromTime(t) == 1;
         but if this is not possible (because some argument is out of range), return NaN. */
-
-
   t := TimeFromYear(ym);
   t := t + TimeFromMonth(mn, t);
-  if(!(DateFromTime(t) = 1.)) {
-    return NaN
-  };
-
-
+  if (!(DateFromTime(t) = 1.))
+    return NaN;
   /* 8. Return Day(t) + dt - 1. */
-  return Day(t) + dt - 1.
-};
+  return Day(t) + dt - 1.;
+}
 
 /**
  * 20.3.1.14 MakeDate (day, time)
@@ -437,12 +383,11 @@ function MakeDay(year, month, date) {
  */
 function MakeDate(day, time) {
   /* 1. If day is not finite or time is not finite, return NaN. */
-  if (!(auxIsFinite(day) &&& auxIsFinite(time))){
-     return NaN
-  };
+  if (!(auxIsFinite(day) &&& auxIsFinite(time)))
+     return NaN;
   /* 2. Return day x msPerDay + time. */
-  return day * |msPerDay| + time
-};
+  return day * |msPerDay| + time;
+}
 
 /**
  * 20.3.1.15 TimeClip (time)
@@ -453,21 +398,16 @@ function MakeDate(day, time) {
  */
 function TimeClip(time) {
   /* 1. If time is not finite, return NaN. */
-  if (!(auxIsFinite(time))) {
-     return NaN
-  };
-
+  if (!(auxIsFinite(time)))
+     return NaN;
   /* 2. If abs(time) > 8.64 x 10^15 , return NaN. */
   /* TODO not enough precision*/
-  if (abs(time) >= (8.64 * (10. ** 15.))) {
-     return NaN
-  };
-
+  if (abs(time) >= (8.64 * (10. ** 15.)))
+     return NaN;
   /* 3. Return an implementation-dependent choice of either ToInteger(time) or ToInteger(time) + (+0).
   (Adding a positive zero converts -0 to +0.) */
-   return ToInteger(time) + (0.)
-
-};
+  return ToInteger(time) + (0.);
+}
 
 /* 20.3.1.16 Date Time String Format */
 /* ECMAScript defines a string interchange format for date-times based upon a simplification of the ISO 8601
@@ -545,41 +485,33 @@ function TimeClip(time) {
    built-in constructor with that name and toString is the standard built-in method
    Date.prototype.toString. */
 function DateConstructorCalledAsFunction(datePrototypeObject, strict, args) {
-  return DatePrototypeToString(null, internalNewDateWithoutValue(datePrototypeObject), strict, args)
-};
+  return DatePrototypeToString(null, internalNewDateWithoutValue(datePrototypeObject), strict, args);
+}
 
 /* 15.9.3 The Date Constructor */
 /* When Date is called as part of a new expression, it is a constructor: it initialises the newly created object. */
 function DateConstructor(global, this, NewTarget, strict, args) {
   prototype := getDatePrototype(strict);
-
-  if ((this = 'undefined) ||| (this = 'null)) {
-    return DateConstructorCalledAsFunction(prototype, strict, args)
-  };
-
+  if ((this = 'undefined) ||| (this = 'null))
+    return DateConstructorCalledAsFunction(prototype, strict, args);
   if ((l_len args) = 1) {
     value := l_nth(args, 0);
-    return internalNewDateWithValue(prototype, value)
-  };
-  if ((l_len args = 0)) {
-    return internalNewDateWithoutValue(prototype)
-  };
-  return internalNewDate(prototype, args)
-};
+    return internalNewDateWithValue(prototype, value);
+  }
+  if ((l_len args = 0))
+    return internalNewDateWithoutValue(prototype);
+  return internalNewDate(prototype, args);
+}
 
 function newDateConstructor(global, this, NewTarget, strict, args) {
    numberOfArgs := l_len(args);
-
-   if (numberOfArgs >= 2) {
-      return dateConstructorMultipleArgs(global, this, NewTarget, strict, args)
-   }
-   elif (numberOfArgs = 0) {
-      return dateConstructorNoArgs(global, this, NewTarget, strict, args)
-   }
-   elif (numberOfArgs = 1) {
-      return dateConstructorOneArg(global, this, NewTarget, strict, args)
-   }
-};
+   if (numberOfArgs >= 2)
+      return dateConstructorMultipleArgs(global, this, NewTarget, strict, args);
+   elif (numberOfArgs = 0)
+      return dateConstructorNoArgs(global, this, NewTarget, strict, args);
+   elif (numberOfArgs = 1)
+      return dateConstructorOneArg(global, this, NewTarget, strict, args);
+}
 
 
 /**
@@ -588,8 +520,7 @@ function newDateConstructor(global, this, NewTarget, strict, args) {
  *
  * This description applies only if the Date constructor is called with at least two arguments.
  */
-function dateConstructorMultipleArgs(global, this, NewTarget, strict, args){
-
+function dateConstructorMultipleArgs(global, this, NewTarget, strict, args) {
   year := l_nth(args, 0);
   month := l_nth(args, 1);
   date := getOptionalParam(args, 2);
@@ -600,108 +531,58 @@ function dateConstructorMultipleArgs(global, this, NewTarget, strict, args){
 
   /* 1. Let numberOfArgs be the number of arguments passed to this function call. */
   numberOfArgs := l_len(args);
-
   /* 2. Assert: numberOfArgs ≥ 2. */
-  assert(numberOfArgs >= 2);
-
+  assert (numberOfArgs >= 2);
   /* 3. If NewTarget is not undefined, then */
   if (!(NewTarget = 'undefined)) {
     /* a. Let y be ToNumber(year). */
     y := ToNumber(year);
-
     /* b. ReturnIfAbrupt(y). */
     @ReturnIfAbrupt(y);
-
     /* c. Let m be ToNumber(month). */
     m := ToNumber(month);
-
     /* d. ReturnIfAbrupt(m). */
     @ReturnIfAbrupt(m);
-
     /* e. If date is supplied, let dt be ToNumber(date); else let dt be 1. */
-    if (!(date = null)) {
-      dt := ToNumber(date)
-    }
-    else{
-       dt := 1.
-    };
-
+    if (!(date = null)) dt := ToNumber(date); else dt := 1.;
     /* f. ReturnIfAbrupt(dt). */
     @ReturnIfAbrupt(dt);
-
     /* g. If hours is supplied, let h be ToNumber(hours); else let h be 0. */
-    if (!(hours = null)) {
-      h := ToNumber(hours)
-    }
-    else{
-       h := 0.
-    };
-
+    if (!(hours = null)) h := ToNumber(hours); else h := 0.;
     /* h. ReturnIfAbrupt(h). */
     @ReturnIfAbrupt(h);
-
     /* i. If minutes is supplied, let min be ToNumber(minutes); else let min be 0. */
-    if (!(minutes = null)) {
-      mins := ToNumber(minutes)
-    }
-    else{
-       mins := 0.
-    };
+    if (!(minutes = null)) mins := ToNumber(minutes); else mins := 0.;
     /* j. ReturnIfAbrupt(min). */
     @ReturnIfAbrupt(mins);
-
     /* k. If seconds is supplied, let s be ToNumber(seconds); else let s be 0. */
-    if (!(seconds = null)) {
-      s := ToNumber(seconds)
-    }
-    else{
-       s := 0.
-    };
+    if (!(seconds = null)) s := ToNumber(seconds); else s := 0.;
     /* l. ReturnIfAbrupt(s). */
     @ReturnIfAbrupt(s);
-
     /* m. If ms is supplied, let milli be ToNumber(ms); else let milli be 0. */
-    if (!(ms = null)) {
-      milli := ToNumber(ms)
-    }
-    else{
-       milli := 0.
-    };
+    if (!(ms = null)) milli := ToNumber(ms); else milli := 0.;
     /* n. ReturnIfAbrupt(milli). */
     @ReturnIfAbrupt(milli);
-
     /* o. If y is not NaN and 0 ≤ ToInteger(y) ≤ 99, let yr be 1900+ToInteger(y); otherwise, let yr be y. */
-    if (!(is_NaN (y)) &&& 0. <= ToInteger(y) &&& ToInteger(y) <= 99.) {
-       yr := 1900. + ToInteger(y)
-    }
-    else {
-       yr := y
-    };
-
+    if (!(is_NaN (y)) &&& 0. <= ToInteger(y) &&& ToInteger(y) <= 99.) yr := 1900. + ToInteger(y); else yr := y;
     /* p. Let finalDate be MakeDate(MakeDay(yr, m, dt), MakeTime(h, min, s, milli)). */
     finalDate := MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli));
-
     /* q. Let O be OrdinaryCreateFromConstructor(NewTarget, "%DatePrototype%", «‍ [[DateValue]]»). */
     O := OrdinaryCreateFromConstructor(NewTarget, "DatePrototype", ["DateValue"]);
-
     /* r. ReturnIfAbrupt(O). */
     @ReturnIfAbrupt(O);
-
     /* s. Set the [[DateValue]] internal slot of O to TimeClip(UTC(finalDate)). */
     O.DateValue := TimeClip(UTC(finalDate));
-
     /* t. Return O. */
-    return O
-  }
+    return O;
   /* 4. Else, */
-  else {
+  } else {
     /* a. Let now be the Number that is the time value (UTC) identifying the current time. */
     now := getTimeValueIdentifyingCurrentTime();
-
       /* b. Return ToDateString (now). */
-    return toDateString(now)
+    return toDateString(now);
   }
-};
+}
 
 /**
  * 20.3.2.2 Date ( value )
@@ -711,61 +592,49 @@ function dateConstructorMultipleArgs(global, this, NewTarget, strict, args){
 */
 function dateConstructorOneArg(global, this, NewTarget, strict, args) {
   value := l_nth(args, 0);
-
   /* 1. Let numberOfArgs be the number of arguments passed to this function call. */
   numberOfArgs := l_len(args);
-
   /* 2. Assert: numberOfArgs = 1. */
-  assert(numberOfArgs = 1);
-
+  assert (numberOfArgs = 1);
   /* 3. If NewTarget is not undefined, then */
   if (!(NewTarget = 'undefined)) {
     /* a. If Type(value) is Object and value has a [[DateValue]] internal slot, then */
     if (Type(value) = "Object" &&& "DateValue" in_obj value) {
       /* i.  Let tv be thisTimeValue(value). */
-      tv := thisTimeValue(value)
-    }
+      tv := thisTimeValue(value);
     /* b. Else, */
-    else {
+    } else {
       /* i. Let v be ToPrimitive(value). */
       v := ToPrimitive(value, null);
-
       /* ii. If Type(v) is String, then */
       if (Type(v) = "String") {
         /* 1. Let tv be the result of parsing v as a date, in exactly the same manner as for the parse method (20.3.3.2).
         If the parse resulted in an abrupt completion, tv is the Completion Record. */
-        tv := auxParseDate(v)
-      }
+        tv := auxParseDate(v);
       /* iii. Else, */
-      else {
+      } else {
         /* 1. Let tv be ToNumber(v). */
-        tv := ToNumber(v)
+        tv := ToNumber(v);
       }
-    };
+    }
     /* c. ReturnIfAbrupt(tv). */
     @ReturnIfAbrupt(tv);
-
     /* d. Let O be OrdinaryCreateFromConstructor(NewTarget, "%DatePrototype%", «‍ [[DateValue]]»). */
     O := OrdinaryCreateFromConstructor(NewTarget, "DatePrototype", ["DateValue"]);
-
     /* e. ReturnIfAbrupt(O). */
     @ReturnIfAbrupt(O);
-
     /* f. Set the [[DateValue]] internal slot of O to TimeClip(tv). */
     O.DateValue := TimeClip(tv);
-
     /* g. Return O. */
-    return O
-  }
+    return O;
   /* 4. Else, */
-  else {
+  } else {
     /* a. Let now be the Number that is the time value (UTC) identifying the current time. */
     now := getTimeValueIdentifyingCurrentTime();
-
     /* b. Return ToDateString (now). */
-    return toDateString(now)
+    return toDateString(now);
   }
-};
+}
 /**
  *
  * 20.3.2.3 Date ( )
@@ -785,36 +654,29 @@ function dateConstructorOneArg(global, this, NewTarget, strict, args) {
  *       a. Let now be the Number that is the time value (UTC) identifying the current time.
  *       b. Return ToDateString (now).
  */
-function dateConstructorNoArgs(global, this, NewTarget, strict, args){
+function dateConstructorNoArgs(global, this, NewTarget, strict, args) {
    /* 1. Let numberOfArgs be the number of arguments passed to this function call. */
    numberOfArgs := l_len(args);
-
    /* 2. Assert: numberOfArgs = 0. */
-   assert(numberOfArgs = 0);
-
+   assert (numberOfArgs = 0);
    /* 3. If NewTarget is not undefined, then */
    if (!(NewTarget = 'undefined)) {
       /* a. Let O be OrdinaryCreateFromConstructor(NewTarget, "%DatePrototype%", «‍ [[DateValue]]»). */
       O := OrdinaryCreateFromConstructor(NewTarget, "DatePrototype", ["DateValue"]);
-
       /* b. ReturnIfAbrupt(O). */
       @ReturnIfAbrupt(O);
-
       /* c. Set the [[DateValue]] internal slot of O to the time value (UTC) identifying the current time. */
       O.DateValue := getTimeValueIdentifyingCurrentTime();
-
       /* d. Return O. */
-      return O
-   }
+      return O;
    /* 4. Else, */
-   else {
+   } else {
       /* a. Let now be the Number that is the time value (UTC) identifying the current time. */
       now := getTimeValueIdentifyingCurrentTime();
-
       /*b. Return ToDateString (now). */
-      return (toDateString(now))
+      return (toDateString(now));
    }
-};
+}
 
 
 /**
@@ -824,8 +686,8 @@ function dateConstructorNoArgs(global, this, NewTarget, strict, args){
  * The now function returns a Number value that is the time value designating the UTC date and time of the occurrence of the call to now.
  */
 function DateNow(globalObject, this, NewTarget, strict, args) {
-  return getTimeValueIdentifyingCurrentTime()
-};
+  return getTimeValueIdentifyingCurrentTime();
+}
 
 
 /**
@@ -852,21 +714,16 @@ is not required to produce the same Number value as the preceding three expressi
 */
 function DateParse(global, this, NewTarget, strict, args) {
   arg := l_nth(args, 0);
-
   /* The parse function applies the ToString operator to its argument. */
   str := ToString(arg);
-
   /* If ToString results in an abrupt completion the Completion Record is immediately returned. */
-  if ((Type(str) = "Completion") &&& isAnAbruptCompletion(str)) {
-    return getCompletionValue(str)
-  }
+  if ((Type(str) = "Completion") &&& isAnAbruptCompletion(str))
+    return getCompletionValue(str);
   /* Otherwise, parse interprets the resulting String as a date and time; it returns a Number, the UTC time value corresponding to the date and time.
   The String may be interpreted as a local time, a UTC time, or a time in some other time zone, depending on the contents of the String. The function first attempts to parse the format of the String according to the rules (including extended years) called out in Date Time String Format (20.3.1.16). If the String does not conform to that format the function may fall back to any implementation-specific heuristics or implementation-specific date formats. Unrecognizable Strings or dates containing illegal element values in the format String shall cause Date.parse to return NaN. */
-  else {
-    return auxParseDate(str)
-  }
-
-};
+  else
+    return auxParseDate(str);
+}
 
 
 /**
@@ -883,7 +740,6 @@ function DateParse(global, this, NewTarget, strict, args) {
  * and it interprets the arguments in UTC rather than as local time.
  */
 function DateUTC(global, this, NewTarget, strict, args) {
-
   year := l_nth(args, 0);
   month := l_nth(args, 1);
   date := getOptionalParam(args, 2);
@@ -892,60 +748,44 @@ function DateUTC(global, this, NewTarget, strict, args) {
   seconds := getOptionalParam(args, 5);
   ms := getOptionalParam(args, 6);
 
-  if (year = 'undefined) {
-    return NaN
-  };
-  if (month = 'undefined) {
-    month := 0.
-  };
-
+  if (year = 'undefined)
+    return NaN;
+  if (month = 'undefined)
+    month := 0.;
 
   /* 1. Let y be ToNumber(year). */
   y := ToNumber(year);
   /* 2. ReturnIfAbrupt(y). */
   @ReturnIfAbrupt(y);
-
   /* 3. Let m be ToNumber(month). */
   m := ToNumber(month);
   /* 4. ReturnIfAbrupt(m). */
   @ReturnIfAbrupt(m);
-
   /* 5. If date is supplied, let dt be ToNumber(date); else let dt be 1. */
-  if (!(date = null)) { dt := ToNumber(date) } else { dt := 1. };
+  if (!(date = null)) dt := ToNumber(date); else dt := 1.;
   /* 6. ReturnIfAbrupt(dt). */
   @ReturnIfAbrupt(dt);
-
   /* 7. If hours is supplied, let h be ToNumber(hours); else let h be 0. */
-  if (!(hours = null)) { h := ToNumber(hours) } else { h := 0. };
+  if (!(hours = null)) h := ToNumber(hours); else h := 0.;
   /* 8. ReturnIfAbrupt(h). */
   @ReturnIfAbrupt(h);
-
   /* 9. If minutes is supplied, let min be ToNumber(minutes); else let min be 0. */
-  if (!(minutes = null)) { mins := ToNumber(minutes) } else { mins := 0. };
+  if (!(minutes = null)) mins := ToNumber(minutes); else mins := 0.;
   /* 10. ReturnIfAbrupt(min). */
   @ReturnIfAbrupt(mins);
-
   /* 11. If seconds is supplied, let s be ToNumber(seconds); else let s be 0. */
-  if (!(seconds = null)) { s := ToNumber(seconds) } else { s := 0. };
+  if (!(seconds = null)) s := ToNumber(seconds); else s := 0.;
   /* 12. ReturnIfAbrupt(s). */
   @ReturnIfAbrupt(s);
-
   /* 13. If ms is supplied, let milli be ToNumber(ms); else let milli be 0. */
-  if (!(ms = null)) { milli := ToNumber(ms) } else { milli := 0. };
+  if (!(ms = null)) milli := ToNumber(ms); else milli := 0.;
   /* 14. ReturnIfAbrupt(milli). */
   @ReturnIfAbrupt(milli);
-
   /* 15. If y is not NaN and 0 ≤ ToInteger(y) ≤ 99, let yr be 1900+ToInteger(y); otherwise, let yr be y. */
-  if (!(is_NaN (y)) &&& 0. <= ToInteger(y) &&& ToInteger(y) <= 99.) {
-    yr := 1900. + ToInteger(y)
-  }
-  else {
-    yr := y
-  };
+  if (!(is_NaN (y)) &&& 0. <= ToInteger(y) &&& ToInteger(y) <= 99.) yr := 1900. + ToInteger(y); else yr := y;
   /* 16. Return TimeClip(MakeDate(MakeDay(yr, m, dt), MakeTime(h, min, s, milli))). */
-  return TimeClip(MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli)))
-
-};
+  return TimeClip(MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli)));
+}
 
 
 /**
@@ -954,18 +794,14 @@ function DateUTC(global, this, NewTarget, strict, args) {
 function DatePrototypeGetDate(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. If t is NaN, return NaN. */
-  if (is_NaN (t)) {
-    return NaN
-  };
-
+  if (is_NaN (t))
+    return NaN;
   /* 4. Return DateFromTime(LocalTime(t)). */
-  return DateFromTime(LocalTime(t))
-};
+  return DateFromTime(LocalTime(t));
+}
 
 
 /**
@@ -974,18 +810,14 @@ function DatePrototypeGetDate(global, this, NewTarget, strict, args) {
 function DatePrototypeGetDay(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. If t is NaN, return NaN. */
-  if (is_NaN (t)) {
-    return NaN
-  };
-
+  if (is_NaN (t))
+    return NaN;
   /* 4. Return WeekDay(LocalTime(t)). */
-  return WeekDay(LocalTime(t))
-};
+  return WeekDay(LocalTime(t));
+}
 
 /**
  * 20.3.4.4 Date.prototype.getFullYear ( )
@@ -993,18 +825,14 @@ function DatePrototypeGetDay(global, this, NewTarget, strict, args) {
 function DatePrototypeGetFullYear(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. If t is NaN, return NaN. */
-  if (is_NaN (t)) {
-    return NaN
-  };
-
+  if (is_NaN (t))
+    return NaN;
   /* 4. Return YearFromTime(LocalTime(t)). */
-  return YearFromTime(LocalTime(t))
-};
+  return YearFromTime(LocalTime(t));
+}
 
 
 /**
@@ -1013,17 +841,14 @@ function DatePrototypeGetFullYear(global, this, NewTarget, strict, args) {
 function DatePrototypeGetHours(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
   /* 3. If t is NaN, return NaN. */
-  if (is_NaN (t)) {
-    return NaN
-  };
-
+  if (is_NaN (t))
+    return NaN;
   /* 4. Return HourFromTime(LocalTime(t)). */
-  return HourFromTime(LocalTime(t))
-};
+  return HourFromTime(LocalTime(t));
+}
 
 
 /**
@@ -1032,18 +857,14 @@ function DatePrototypeGetHours(global, this, NewTarget, strict, args) {
 function DatePrototypeGetMilliseconds(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. If t is NaN, return NaN. */
-  if (is_NaN (t)) {
-    return NaN
-  };
-
+  if (is_NaN (t))
+    return NaN;
   /* 4. Return msFromTime(LocalTime(t)). */
-  return msFromTime(LocalTime(t))
-};
+  return msFromTime(LocalTime(t));
+}
 
 
 /**
@@ -1052,18 +873,14 @@ function DatePrototypeGetMilliseconds(global, this, NewTarget, strict, args) {
 function DatePrototypeGetMinutes(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. If t is NaN, return NaN. */
-  if (is_NaN (t)) {
-    return NaN
-  };
-
+  if (is_NaN (t))
+    return NaN;
   /* 4. Return MinFromTime(LocalTime(t)). */
-  return MinFromTime(LocalTime(t))
-};
+  return MinFromTime(LocalTime(t));
+}
 
 
 /**
@@ -1072,18 +889,14 @@ function DatePrototypeGetMinutes(global, this, NewTarget, strict, args) {
 function DatePrototypeGetMonth(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. If t is NaN, return NaN. */
-  if (is_NaN (t)) {
-    return NaN
-  };
-
+  if (is_NaN (t))
+    return NaN;
   /* 4. Return MonthFromTime(LocalTime(t)). */
-  return MonthFromTime(LocalTime(t))
-};
+  return MonthFromTime(LocalTime(t));
+}
 
 
 /**
@@ -1092,18 +905,14 @@ function DatePrototypeGetMonth(global, this, NewTarget, strict, args) {
 function DatePrototypeGetSeconds(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. If t is NaN, return NaN. */
-  if (is_NaN (t)) {
-    return NaN
-  };
-
+  if (is_NaN (t))
+    return NaN;
   /* 4. Return SecFromTime(LocalTime(t)). */
-  return SecFromTime(LocalTime(t))
-};
+  return SecFromTime(LocalTime(t));
+}
 
 
 /**
@@ -1111,9 +920,9 @@ function DatePrototypeGetSeconds(global, this, NewTarget, strict, args) {
  *
 */
 function  DatePrototypeGetTime(global, this, NewTarget, strict, args) {
-   /* 1. Return this time value. */
-   return thisTimeValue(this)
-};
+  /* 1. Return this time value. */
+  return thisTimeValue(this);
+}
 
 /**
  *
@@ -1123,20 +932,15 @@ function  DatePrototypeGetTime(global, this, NewTarget, strict, args) {
 function  DatePrototypeGetTimezoneOffset(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. If t is NaN, return NaN. */
-  if (is_NaN (t)) {
-     return NaN
-  };
-
+  if (is_NaN (t))
+    return NaN;
   msPerMinute := 60000.;
   /* 4. Return (t − LocalTime(t)) / msPerMinute. */
-  return (t - LocalTime(t)) / msPerMinute
-};
+  return (t - LocalTime(t)) / msPerMinute;
+}
 
 
 /**
@@ -1147,18 +951,14 @@ function  DatePrototypeGetTimezoneOffset(global, this, NewTarget, strict, args) 
 function  DatePrototypeGetUTCDate(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. If t is NaN, return NaN. */
-  if (is_NaN (t)) {
-     return NaN
-  };
-
+  if (is_NaN (t))
+    return NaN;
   /* 4. Return DateFromTime(t). */
-  return DateFromTime(t)
-};
+  return DateFromTime(t);
+}
 
 
 /**
@@ -1169,18 +969,14 @@ function  DatePrototypeGetUTCDate(global, this, NewTarget, strict, args) {
 function  DatePrototypeGetUTCDay(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. If t is NaN, return NaN. */
-  if (is_NaN (t)) {
-     return NaN
-  };
-
+  if (is_NaN (t))
+     return NaN;
   /* 4. Return WeekDay(t). */
-  return WeekDay(t)
-};
+  return WeekDay(t);
+}
 
 
 /**
@@ -1191,18 +987,14 @@ function  DatePrototypeGetUTCDay(global, this, NewTarget, strict, args) {
 function  DatePrototypeGetUTCFullYear(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. If t is NaN, return NaN. */
-  if (is_NaN (t)) {
-     return NaN
-  };
-
+  if (is_NaN (t))
+    return NaN;
   /* 4. Return YearFromTime(t). */
-  return YearFromTime(t)
-};
+  return YearFromTime(t);
+}
 
 
 /**
@@ -1213,18 +1005,14 @@ function  DatePrototypeGetUTCFullYear(global, this, NewTarget, strict, args) {
 function  DatePrototypeGetUTCHours(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. If t is NaN, return NaN. */
-  if (is_NaN (t)) {
-     return NaN
-  };
-
+  if (is_NaN (t))
+    return NaN;
   /* 4. Return HourFromTime(t). */
-  return HourFromTime(t)
-};
+  return HourFromTime(t);
+}
 
 
 
@@ -1236,18 +1024,14 @@ function  DatePrototypeGetUTCHours(global, this, NewTarget, strict, args) {
 function  DatePrototypeGetUTCMilliseconds(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. If t is NaN, return NaN. */
-  if (is_NaN (t)) {
-     return NaN
-  };
-
+  if (is_NaN (t))
+     return NaN;
   /* 4. Return msFromTime(t). */
-  return msFromTime(t)
-};
+  return msFromTime(t);
+}
 
 
 /**
@@ -1258,18 +1042,14 @@ function  DatePrototypeGetUTCMilliseconds(global, this, NewTarget, strict, args)
 function  DatePrototypeGetUTCMinutes(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. If t is NaN, return NaN. */
-  if (is_NaN (t)) {
-     return NaN
-  };
-
+  if (is_NaN (t))
+     return NaN;
   /* 4. Return MinFromTime(t). */
-  return MinFromTime(t)
-};
+  return MinFromTime(t);
+}
 
 
 /**
@@ -1280,18 +1060,14 @@ function  DatePrototypeGetUTCMinutes(global, this, NewTarget, strict, args) {
 function  DatePrototypeGetUTCMonth(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. If t is NaN, return NaN. */
-  if (is_NaN (t)) {
-     return NaN
-  };
-
+  if (is_NaN (t))
+    return NaN;
   /* 4. Return MonthFromTime(t). */
-  return MonthFromTime(t)
-};
+  return MonthFromTime(t);
+}
 
 
 /**
@@ -1302,18 +1078,14 @@ function  DatePrototypeGetUTCMonth(global, this, NewTarget, strict, args) {
 function  DatePrototypeGetUTCSeconds(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. If t is NaN, return NaN. */
-  if (is_NaN (t)) {
-     return NaN
-  };
-
+  if (is_NaN (t))
+    return NaN;
   /* 4. Return SecFromTime(t). */
-  return SecFromTime(t)
-};
+  return SecFromTime(t);
+}
 
 
 /**
@@ -1323,31 +1095,23 @@ function  DatePrototypeGetUTCSeconds(global, this, NewTarget, strict, args) {
  */
 function DatePrototypeSetDate(global, this, NewTarget, strict, args) {
   date := l_nth(args, 0);
-
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. Let dt be ToNumber(date). */
   dt := ToNumber(date);
-
   /* 4. ReturnIfAbrupt(dt). */
   @ReturnIfAbrupt(dt);
-
   /* 5. Let newDate be MakeDate(MakeDay(YearFromTime(t), MonthFromTime(t), dt), TimeWithinDay(t)). */
   newDate := MakeDate(MakeDay(YearFromTime(t), MonthFromTime(t), dt), TimeWithinDay(t));
-
   /* 6. Let u be TimeClip(UTC(newDate)). */
   u := TimeClip(UTC(newDate));
-
   /* 7. Set the [[DateValue]] internal slot of this Date object to u. */
   this.DateValue := u;
-
   /* 8. Return u. */
-  return u
-};
+  return u;
+}
 
 
 /**
@@ -1361,59 +1125,35 @@ function DatePrototypeSetFullYear(global, this, NewTarget, strict, args) {
   year := l_nth(args, 0);
   month := getOptionalParam(args, 1);
   date := getOptionalParam(args, 2);
-
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. If t is NaN, let t be +0; otherwise, let t be LocalTime(t). */
-  if (is_NaN (t)) {
-    t := 0.
-  }
-  else {
-    t := LocalTime(t)
-  };
+  if (is_NaN (t)) t := 0.; else t := LocalTime(t);
   /* 4. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 5. Let y be ToNumber(year). */
   y := ToNumber(year);
   /* 6. ReturnIfAbrupt(y). */
   @ReturnIfAbrupt(y);
-
   /* 7. If month is not specified, let m be MonthFromTime(t); otherwise, let m be ToNumber(month). */
-  if (month = null) {
-    m := MonthFromTime(t)
-  }
-  else {
-    m := ToNumber(month)
-  };
+  if (month = null) m := MonthFromTime(t); else m := ToNumber(month);
   /* 8. ReturnIfAbrupt(m). */
   @ReturnIfAbrupt(m);
-
   /* 9. If date is not specified, let dt be DateFromTime(t); otherwise, let dt be ToNumber(date). */
-  if (date = null) {
-    dt := DateFromTime(t)
-  }
-  else {
-    dt := ToNumber(date)
-  };
+  if (date = null) dt := DateFromTime(t); else dt := ToNumber(date);
   /* 10. ReturnIfAbrupt(dt). */
   @ReturnIfAbrupt(dt);
-
   /* 11. Let newDate be MakeDate(MakeDay(y, m, dt), TimeWithinDay(t)). */
   newDate := MakeDate(MakeDay(y, m, dt), TimeWithinDay(t));
-
   /* 12. Let u be TimeClip(UTC(newDate)). */
   u := TimeClip(UTC(newDate));
-
   /* 13. Set the [[DateValue]] internal slot of this Date object to u. */
   this.DateValue := u;
-
   /* 14. Return u. */
-  return u
-};
+  return u;
+}
 
 
 /**
@@ -1433,59 +1173,35 @@ function DatePrototypeSetHours(global, this, NewTarget, strict, args) {
   mins := getOptionalParam(args, 1);
   sec := getOptionalParam(args, 2);
   ms := getOptionalParam(args, 3);
-
   /* 1. Let t be LocalTime(this time value). */
   t := LocalTime(thisTimeValue(this));
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. Let y be ToNumber(hour). */
   h := ToNumber(hour);
   /* 4. ReturnIfAbrupt(h). */
   @ReturnIfAbrupt(h);
-
   /* 5. If min is not specified, let m be MinFromTime(t); otherwise, let m be ToNumber(min). */
-  if (mins = null) {
-    m := MinFromTime(t)
-  }
-  else {
-    m := ToNumber(mins)
-  };
+  if (mins = null) m := MinFromTime(t); else m := ToNumber(mins);
   /* 6. ReturnIfAbrupt(m). */
   @ReturnIfAbrupt(m);
-
   /* 7. If sec is not specified, let s be SecFromTime(t); otherwise, let s be ToNumber(sec). */
-  if (sec = null) {
-    s := SecFromTime(t)
-  }
-  else {
-    s := ToNumber(sec)
-  };
+  if (sec = null) s := SecFromTime(t); else s := ToNumber(sec);
   /* 8. ReturnIfAbrupt(s). */
   @ReturnIfAbrupt(s);
-
   /* 9. If ms is not specified, let milli be msFromTime(t); otherwise, let milli be ToNumber(ms). */
-  if (ms = null) {
-    milli := msFromTime(t)
-  }
-  else {
-    milli := ToNumber(ms)
-  };
+  if (ms = null) milli := msFromTime(t); else milli := ToNumber(ms);
   /* 10. ReturnIfAbrupt(milli). */
   @ReturnIfAbrupt(milli);
-
   /* 11. Let date be MakeDate(Day(t), MakeTime(h, m, s, milli)). */
   date := MakeDate(Day(t), MakeTime(h, m, s, milli));
-
   /* 12. Let u be TimeClip(UTC(date)). */
   u := TimeClip(UTC(date));
-
   /* 13. Set the [[DateValue]] internal slot of this Date object to u. */
   this.DateValue := u;
-
   /* 14. Return u. */
-  return u
-};
+  return u;
+}
 
 
 /**
@@ -1494,29 +1210,23 @@ function DatePrototypeSetHours(global, this, NewTarget, strict, args) {
  */
 function DatePrototypeSetMilliseconds(global, this, NewTarget, strict, args) {
   ms := l_nth(args, 0);
-
   /* 1. Let t be LocalTime(this time value). */
   t := LocalTime(thisTimeValue(this));
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. Let ms be ToNumber(ms). */
   ms := ToNumber(ms);
   /* 4. ReturnIfAbrupt(ms). */
   @ReturnIfAbrupt(ms);
-
   /* 5. Let time be MakeTime(HourFromTime(t), MinFromTime(t), SecFromTime(t), ms). */
   time := MakeTime(HourFromTime(t), MinFromTime(t), SecFromTime(t), ms);
-
   /* 6. Let u be TimeClip(UTC(MakeDate(Day(t), time))). */
   u := TimeClip(UTC(MakeDate(Day(t), time)));
-
   /* 7. Set the [[DateValue]] internal slot of this Date object to u. */
   this.DateValue := u;
-
   /* 8. Return u. */
-  return u
-};
+  return u;
+}
 
 
 /**
@@ -1533,50 +1243,31 @@ function DatePrototypeSetMinutes(global, this, NewTarget, strict, args) {
   mins := l_nth(args, 0);
   sec := getOptionalParam(args, 1);
   ms := getOptionalParam(args, 2);
-
   /* 1. Let t be LocalTime(this time value). */
   t := LocalTime(thisTimeValue(this));
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. Let m be ToNumber(min). */
   m := ToNumber(mins);
   /* 4. ReturnIfAbrupt(m). */
   @ReturnIfAbrupt(m);
-
-
   /* 5. If sec is not specified, let s be SecFromTime(t); otherwise, let s be ToNumber(sec). */
-  if (sec = null) {
-    s := SecFromTime(t)
-  }
-  else {
-    s := ToNumber(sec)
-  };
+  if (sec = null) s := SecFromTime(t); else s := ToNumber(sec);
   /* 6. ReturnIfAbrupt(s). */
   @ReturnIfAbrupt(s);
-
   /* 7. If ms is not specified, let milli be msFromTime(t); otherwise, let milli be ToNumber(ms). */
-  if (ms = null) {
-    milli := msFromTime(t)
-  }
-  else {
-    milli := ToNumber(ms)
-  };
+  if (ms = null) milli := msFromTime(t); else milli := ToNumber(ms);
   /* 8. ReturnIfAbrupt(milli). */
   @ReturnIfAbrupt(milli);
-
   /* 9. Let date be MakeDate(Day(t), MakeTime(HourFromTime(t), m, s, milli)). */
   date := MakeDate(Day(t), MakeTime(HourFromTime(t), m, s, milli));
-
   /* 10. Let u be TimeClip(UTC(date)). */
   u := TimeClip(UTC(date));
-
   /* 11. Set the [[DateValue]] internal slot of this Date object to u. */
   this.DateValue := u;
-
   /* 12. Return u. */
-  return u
-};
+  return u;
+}
 
 
 /**
@@ -1590,40 +1281,27 @@ function DatePrototypeSetMinutes(global, this, NewTarget, strict, args) {
 function DatePrototypeSetMonth(global, this, NewTarget, strict, args) {
   month := l_nth(args, 0);
   date := getOptionalParam(args, 1);
-
   /* 1. Let t be LocalTime(this time value). */
   t := LocalTime(thisTimeValue(this));
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. Let m be ToNumber(month). */
   m := ToNumber(month);
   /* 4. ReturnIfAbrupt(m). */
   @ReturnIfAbrupt(m);
-
-
   /* 5. If date is not specified, let dt be DateFromTime(t); otherwise, let dt be ToNumber(date). */
-  if (date = null) {
-    dt := DateFromTime(t)
-  }
-  else {
-    dt := ToNumber(date)
-  };
+  if (date = null) dt := DateFromTime(t); else dt := ToNumber(date);
   /* 6. ReturnIfAbrupt(dt). */
   @ReturnIfAbrupt(dt);
-
   /* 7. Let newDate be MakeDate(MakeDay(YearFromTime(t), m, dt), TimeWithinDay(t)). */
   newDate := MakeDate(MakeDay(YearFromTime(t), m, dt), TimeWithinDay(t));
-
   /* 8. Let u be TimeClip(UTC(newDate)). */
   u := TimeClip(UTC(newDate));
-
   /* 9. Set the [[DateValue]] internal slot of this Date object to u. */
   this.DateValue := u;
-
   /* 10. Return u. */
-  return u
-};
+  return u;
+}
 
 
 /**
@@ -1635,43 +1313,29 @@ function DatePrototypeSetMonth(global, this, NewTarget, strict, args) {
  *        ms were specified with the value getMilliseconds().
  */
 function DatePrototypeSetSeconds(global, this, NewTarget, strict, args) {
-
   sec := l_nth(args, 0);
   ms := getOptionalParam(args, 1);
-
   /* 1. Let t be LocalTime(this time value). */
   t := LocalTime(thisTimeValue(this));
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. Let m be ToNumber(sec). */
   s := ToNumber(sec);
   /* 4. ReturnIfAbrupt(s). */
   @ReturnIfAbrupt(s);
-
-
   /* 5. If ms is not specified, let milli be msFromTime(t); otherwise, let milli be ToNumber(ms). */
-  if (ms = null) {
-    milli := msFromTime(t)
-  }
-  else {
-    milli := ToNumber(ms)
-  };
+  if (ms = null) milli := msFromTime(t); else milli := ToNumber(ms);
   /* 6. ReturnIfAbrupt(milli). */
   @ReturnIfAbrupt(milli);
-
   /* 7. Let date be MakeDate(Day(t), MakeTime(HourFromTime(t), MinFromTime(t), s, milli)). */
   date := MakeDate(Day(t), MakeTime(HourFromTime(t), MinFromTime(t), s, milli));
-
   /* 8. Let u be TimeClip(UTC(date)). */
   u := TimeClip(UTC(date));
-
   /* 9. Set the [[DateValue]] internal slot of this Date object to u. */
   this.DateValue := u;
-
   /* 10. Return u. */
-  return u
-};
+  return u;
+}
 
 
 /**
@@ -1680,28 +1344,21 @@ function DatePrototypeSetSeconds(global, this, NewTarget, strict, args) {
  */
 function DatePrototypeSetTime(global, this, NewTarget, strict, args) {
   time := l_nth(args, 0);
-
   /* 1. Let valueNotUsed be this time value. */
   valueNotUsed := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(valueNotUsed). */
   @ReturnIfAbrupt(valueNotUsed);
-
   /* 3. Let t be ToNumber(time). */
   t := ToNumber(time);
-
   /* 4. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 5. Let v be TimeClip(t). */
   v := TimeClip(t);
-
   /* 6. Set the [[DateValue]] internal slot of this Date object to v. */
   this.DateValue := v;
-
   /* 7. Return v. */
-  return v
-};
+  return v;
+}
 
 /**
  * 20.3.4.28 Date.prototype.setUTCDate ( date )
@@ -1709,31 +1366,23 @@ function DatePrototypeSetTime(global, this, NewTarget, strict, args) {
  */
 function DatePrototypeSetUTCDate(global, this, NewTarget, strict, args) {
   date := l_nth(args, 0);
-
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. Let dt be ToNumber(date). */
   dt := ToNumber(date);
-
   /* 4. ReturnIfAbrupt(dt). */
   @ReturnIfAbrupt(dt);
-
   /* 5. Let newDate be MakeDate(MakeDay(YearFromTime(t), MonthFromTime(t), dt), TimeWithinDay(t)). */
   newDate := MakeDate(MakeDay(YearFromTime(t), MonthFromTime(t), dt), TimeWithinDay(t));
-
   /* 6. Let v be TimeClip(newDate). */
   v := TimeClip(newDate);
-
   /* 7. Set the [[DateValue]] internal slot of this Date object to v. */
   this.DateValue := v;
-
   /* 8. Return v. */
-  return v
-};
+  return v;
+}
 
 
 /**
@@ -1751,57 +1400,34 @@ function DatePrototypeSetUTCFullYear(global, this, NewTarget, strict, args) {
   year := l_nth(args, 0);
   month := getOptionalParam(args, 1);
   date := getOptionalParam(args, 2);
-
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. If t is NaN, let t be +0. */
-  if (is_NaN (t)) {
-    t := 0.
-  };
-
+  if (is_NaN (t))
+    t := 0.;
   /* 4. Let y be ToNumber(year). */
-
   y := ToNumber(year);
-
   /* 5. ReturnIfAbrupt(y). */
   @ReturnIfAbrupt(y);
-
   /* 6. If month is not specified, let m be MonthFromTime(t); otherwise, let m be ToNumber(month). */
-  if (month = null) {
-    m := MonthFromTime(t)
-  }
-  else {
-    m := ToNumber(month)
-  };
+  if (month = null) m := MonthFromTime(t); else m := ToNumber(month);
   /* 7. ReturnIfAbrupt(m). */
   @ReturnIfAbrupt(m);
-
   /* 8. If date is not specified, let dt be DateFromTime(t); otherwise, let dt be ToNumber(date). */
-  if (date = null) {
-    dt := DateFromTime(t)
-  }
-  else {
-    dt := ToNumber(date)
-  };
+  if (date = null) dt := DateFromTime(t); else dt := ToNumber(date);
   /* 9. ReturnIfAbrupt(dt). */
   @ReturnIfAbrupt(dt);
-
   /* 10. Let newDate be MakeDate(MakeDay(y, m, dt), TimeWithinDay(t)). */
   newDate := MakeDate(MakeDay(y, m, dt), TimeWithinDay(t));
-
   /* 11. Let v be TimeClip(newDate). */
   v := TimeClip(newDate);
-
   /* 12. Set the [[DateValue]] internal slot of this Date object to v. */
   this.DateValue := v;
-
   /* 13. Return v. */
-  return v
-};
+  return v;
+}
 
 
 /**
@@ -1822,62 +1448,35 @@ function DatePrototypeSetUTCHours(global, this, NewTarget, strict, args) {
   mins := getOptionalParam(args, 1);
   sec := getOptionalParam(args, 2);
   ms := getOptionalParam(args, 3);
-
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. Let h be ToNumber(hour). */
-
   h := ToNumber(hour);
-
   /* 4. ReturnIfAbrupt(h). */
   @ReturnIfAbrupt(h);
-
   /* 5. If min is not specified, let m be MinFromTime(t); otherwise, let m be ToNumber(min) */
-  if (mins = null) {
-    m := MinFromTime(t)
-  }
-  else {
-    m := ToNumber(mins)
-  };
+  if (mins = null) m := MinFromTime(t); else m := ToNumber(mins);
   /* 6. ReturnIfAbrupt(m). */
   @ReturnIfAbrupt(m);
-
   /* 7. If sec is not specified, let s be SecFromTime(t); otherwise, let s be ToNumber(sec). */
-  if (sec = null) {
-    s := SecFromTime(t)
-  }
-  else {
-    s := ToNumber(sec)
-  };
+  if (sec = null) s := SecFromTime(t); else s := ToNumber(sec);
   /* 8. ReturnIfAbrupt(s). */
   @ReturnIfAbrupt(s);
-
   /* 9. If ms is not specified, let milli be msFromTime(t); otherwise, let milli be ToNumber(ms). */
-  if (ms = null) {
-    milli := SecFromTime(t)
-  }
-  else {
-    milli := ToNumber(ms)
-  };
+  if (ms = null) milli := SecFromTime(t); else milli := ToNumber(ms);
   /* 10. ReturnIfAbrupt(milli). */
   @ReturnIfAbrupt(milli);
-
   /* 11. Let newDate be MakeDate(Day(t), MakeTime(h, m, s, milli)). */
   newDate := MakeDate(Day(t), MakeTime(h, m, s, milli));
-
   /* 12. Let v be TimeClip(newDate). */
   v := TimeClip(newDate);
-
   /* 13. Set the [[DateValue]] internal slot of this Date object to v. */
   this.DateValue := v;
-
   /* 14. Return v. */
-  return v
-};
+  return v;
+}
 
 
 /**
@@ -1886,29 +1485,23 @@ function DatePrototypeSetUTCHours(global, this, NewTarget, strict, args) {
  */
 function DatePrototypeSetUTCMilliseconds(global, this, NewTarget, strict, args) {
   ms := l_nth(args, 0);
-
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. Let milli be ToNumber(ms). */
   milli := ToNumber(ms);
   /* 4. ReturnIfAbrupt(milli). */
   @ReturnIfAbrupt(milli);
-
   /* 5. Let time be MakeTime(HourFromTime(t), MinFromTime(t), SecFromTime(t), milli). */
   time := MakeTime(HourFromTime(t), MinFromTime(t), SecFromTime(t), milli);
-
   /* 6. Let v be TimeClip(MakeDate(Day(t), time)). */
   v := TimeClip(UTC(MakeDate(Day(t), time)));
-
   /* 7. Set the [[DateValue]] internal slot of this Date object to v. */
   this.DateValue := v;
-
   /* 8. Return v. */
-  return v
-};
+  return v;
+}
 
 
 /**
@@ -1926,54 +1519,43 @@ function DatePrototypeSetUTCMinutes(global, this, NewTarget, strict, args) {
   mins := l_nth(args, 0);
   sec := getOptionalParam(args, 1);
   ms := getOptionalParam(args, 2);
-
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. Let m be ToNumber(min). */
   m := ToNumber(mins);
   /* 4. ReturnIfAbrupt(m). */
   @ReturnIfAbrupt(m);
-
-
   /* 5. If sec is not specified, let s be SecFromTime(t). */
   if (sec = null) {
-    s := SecFromTime(t)
-  }
+    s := SecFromTime(t);
   /* 6. Else */
-  else {
+  } else {
     /* a. Let s be ToNumber(sec). */
     s := ToNumber(sec);
     /* b. ReturnIfAbrupt(s). */
-    @ReturnIfAbrupt(s)
-  };
-
+    @ReturnIfAbrupt(s);
+  }
   /* 7. If ms is not specified, let milli be msFromTime(t). */
   if (ms = null) {
-    milli := msFromTime(t)
-  }
+    milli := msFromTime(t);
   /* 8. Else */
-  else {
+  } else {
     /* a. Let milli be ToNumber(ms). */
     milli := ToNumber(ms);
     /* b. ReturnIfAbrupt(milli). */
-    @ReturnIfAbrupt(milli)
-  };
-
+    @ReturnIfAbrupt(milli);
+  }
   /* 9. Let date be MakeDate(Day(t), MakeTime(HourFromTime(t), m, s, milli)). */
   date := MakeDate(Day(t), MakeTime(HourFromTime(t), m, s, milli));
-
   /* 10. Let v be TimeClip(UTC(date)). */
   v := TimeClip(UTC(date));
-
   /* 11. Set the [[DateValue]] internal slot of this Date object to v. */
   this.DateValue := v;
-
   /* 12. Return v. */
-  return v
-};
+  return v;
+}
 
 
 /**
@@ -1987,44 +1569,33 @@ function DatePrototypeSetUTCMinutes(global, this, NewTarget, strict, args) {
 function DatePrototypeSetUTCMonth(global, this, NewTarget, strict, args) {
   month := l_nth(args, 0);
   date := getOptionalParam(args, 1);
-
   /* 1. Let t be LocalTime(this time value). */
   t := LocalTime(thisTimeValue(this));
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. Let m be ToNumber(month). */
   m := ToNumber(month);
   /* 4. ReturnIfAbrupt(m). */
   @ReturnIfAbrupt(m);
-
-
   /* 5. If date is not specified, let dt be DateFromTime(t). */
   if (date = null) {
-    dt := DateFromTime(t)
-  }
+    dt := DateFromTime(t);
   /* 6. Else*/
-  else {
-
+  } else {
     /* a. Let dt be ToNumber(date). */
     dt := ToNumber(date);
     /* b. ReturnIfAbrupt(dt). */
-    @ReturnIfAbrupt(dt)
-  };
-
-
+    @ReturnIfAbrupt(dt);
+  }
   /* 7. Let newDate be MakeDate(MakeDay(YearFromTime(t), m, dt), TimeWithinDay(t)). */
   newDate := MakeDate(MakeDay(YearFromTime(t), m, dt), TimeWithinDay(t));
-
   /* 8. Let v be TimeClip(UTC(newDate)). */
   v := TimeClip(UTC(newDate));
-
   /* 9. Set the [[DateValue]] internal slot of this Date object to v. */
   this.DateValue := v;
-
   /* 10. Return v. */
-  return v
-};
+  return v;
+}
 
 /**
  * 20.3.4.34 Date.prototype.setUTCSeconds ( sec [ , ms ] )
@@ -2037,44 +1608,34 @@ function DatePrototypeSetUTCMonth(global, this, NewTarget, strict, args) {
 function DatePrototypeSetUTCSeconds (global, this, stric, args) {
   sec := l_nth(args, 0);
   ms := getOptionalParam(args, 1);
-
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
-
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
-
   /* 3. Let s be ToNumber(sec). */
   s := ToNumber(sec);
-
   /* 4. ReturnIfAbrupt(s). */
   @ReturnIfAbrupt(s);
-
   /* 5. If ms is not specified, let milli be msFromTime(t). */
   if (ms = null) {
-    milli := msFromTime(t)
-  }
+    milli := msFromTime(t);
   /* 6. Else */
-  else {
+  } else {
     /* a. Let milli be ToNumber(ms). */
     milli := ToNumber(ms);
     /* b. ReturnIfAbrupt(milli). */
-    @ReturnIfAbrupt(milli)
-  };
-
+    @ReturnIfAbrupt(milli);
+  }
   /* 7. Let date be MakeDate(Day(t), MakeTime(HourFromTime(t), MinFromTime(t), s, milli)). */
   date := MakeDate(Day(t), MakeTime(HourFromTime(t), MinFromTime(t), s, milli));
-
   /* 8. Let v be TimeClip(date). */
   v := TimeClip(date);
-
   /* 9. Set the [[DateValue]] internal slot of this Date object to v. */
   this.DateValue := v;
-
   /* 10. Return v. */
-  return v
+  return v;
 
-};
+}
 
 
 /**
@@ -2087,10 +1648,9 @@ function DatePrototypeSetUTCSeconds (global, this, stric, args) {
  * in a convenient, human-readable form.
  *
  */
-function DatePrototypeToDateString(globalObject, this, NewTarget, strict, args){
-
-   return toDateString(thisTimeValue(this))
-};
+function DatePrototypeToDateString(globalObject, this, NewTarget, strict, args) {
+  return toDateString(thisTimeValue(this));
+}
 
 
 /**
@@ -2107,12 +1667,10 @@ function DatePrototypeToDateString(globalObject, this, NewTarget, strict, args){
 function DatePrototypeToISOString(globalObject, this, NewTarget, strict, args) {
   /* If this time value is not a finite Number or if the year is not a
    value that can be represented in that format (if necessary using extended year format), a RangeError exception is thrown. */
-  if (!auxIsFinite(thisTimeValue(this)) ||| int_of_float(abs((thisTimeValue(this)))) > (100000000 * 8640000000000000)) {
-    throw RangeErrorConstructorInternal()
-  };
-
-  return toDateString(thisTimeValue(this))
-};
+  if (!auxIsFinite(thisTimeValue(this)) ||| int_of_float(abs((thisTimeValue(this)))) > (100000000 * 8640000000000000))
+    throw RangeErrorConstructorInternal();
+  return toDateString(thisTimeValue(this));
+}
 
 /**
  *
@@ -2126,25 +1684,19 @@ function DatePrototypeToISOString(globalObject, this, NewTarget, strict, args) {
  *  Therefore, it can be transferred to other kinds of objects for use as a method.
  *  However, it does require that any such object have a toISOString method.
  */
-function DatePrototypeToJSON(globalObject, this, NewTarget, strict, args){
-
+function DatePrototypeToJSON(globalObject, this, NewTarget, strict, args) {
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. Let tv be ToPrimitive(O, hint Number). */
   tv := ToPrimitive(O, 'Number);
-
   /* 3. ReturnIfAbrupt(tv). */
   @ReturnIfAbrupt(tv);
-
   /* 4. If Type(tv) is Number and tv is not finite, return null. */
-  if ((Type(tv) = "Number") &&& (!(auxIsFinite(tv)))) {
-    return 'null
-  };
-
+  if ((Type(tv) = "Number") &&& (!(auxIsFinite(tv))))
+    return 'null;
   /* 5. Return Invoke(O, "toISOString"). */
-  return Invoke(null, null, O, "toISOString", [])
-};
+  return Invoke(null, null, O, "toISOString", []);
+}
 
 
 /**
@@ -2156,42 +1708,33 @@ function DatePrototypeToJSON(globalObject, this, NewTarget, strict, args){
  *
  */
 function DatePrototypeToString(globalObject, this, NewTarget, strict, args) {
-
    /* 1. Let O be this Date object. */
    O := this;
-
    /* 2. If O does not have a [[DateValue]] internal slot, then */
-   if (!("DateValue" in_obj O)) {
+   if (!("DateValue" in_obj O))
       /* a. Let tv be NaN. */
-      tv := NaN
-   }
+      tv := NaN;
    /* 3. Else, */
-   else{
+   else
       /* a. Let tv be this time value. */
-      tv := thisTimeValue(this)
-   };
-
+      tv := thisTimeValue(this);
    /* 4. Return ToDateString(tv). */
-   return toDateString(tv)
-
-};
+   return toDateString(tv);
+}
 
 
 /**
  * 20.3.4.41.1 Runtime Semantics: ToDateString(tv)
  */
-function toDateString(tv){
-   /* 1. Assert: Type(tv) is Number. */
-   assert((Type(tv) = "Number"));
-
-   /* 2. If tv is NaN, return "Invalid Date". */
-   if (is_NaN (tv)) {
-      return "Invalid Date"
-   };
-
-   /* 3. Return an implementation-dependent String value that represents tv as a date and time in the current time zone using a convenient, human-readable form.*/
-   return timeValueRepresentation(tv)
-};
+function toDateString(tv) {
+  /* 1. Assert: Type(tv) is Number. */
+  assert ((Type(tv) = "Number"));
+  /* 2. If tv is NaN, return "Invalid Date". */
+  if (is_NaN (tv))
+    return "Invalid Date";
+  /* 3. Return an implementation-dependent String value that represents tv as a date and time in the current time zone using a convenient, human-readable form.*/
+  return timeValueRepresentation(tv);
+}
 
 
 /**
@@ -2199,8 +1742,8 @@ function toDateString(tv){
  *
  */
 function DatePrototypeToTimeString(globalObject, this, NewTarget, strict, args) {
-  return toDateString(thisTimeValue(this))
-};
+  return toDateString(thisTimeValue(this));
+}
 
 /**
  * 20.3.4.43 Date.prototype.toUTCString ( )
@@ -2208,32 +1751,22 @@ function DatePrototypeToTimeString(globalObject, this, NewTarget, strict, args) 
  */
 function DatePrototypeToUTCString(globalObject, this, NewTarget, strict, args) {
   tv := thisTimeValue(this);
-
-  if (is_NaN (tv)){
-    return "Invalid Date"
-  };
+  if (is_NaN (tv))
+    return "Invalid Date";
 
   /*Sun, 23 Mar 2014 00:00:00 GMT*/
   months := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   week := ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
   year := padding(YearFromTime(tv), 4);
-
   month := l_nth(months, int_of_float (MonthFromTime(tv)));
-
   day := padding(DateFromTime(tv), 2);
-
   weekday := l_nth(week, int_of_float (WeekDay(tv)));
-
-
   hours := padding(HourFromTime(tv), 2);
   minutes := padding(MinFromTime(tv), 2);
   seconds := padding(SecFromTime(tv), 2);
-
   repr := s_concat [weekday, ", ", day, " ", month, " ", year, " ", hours, ":", minutes, ":", seconds, " GMT"];
-
-  return repr
-};
+  return repr;
+}
 
 
 /**
@@ -2241,8 +1774,8 @@ function DatePrototypeToUTCString(globalObject, this, NewTarget, strict, args) {
 */
 function DatePrototypeValueOf (globalObject, this, NewTarget, strict, args) {
   /* The valueOf function returns a Number, which is this time value. */
-  return thisTimeValue(this)
-};
+  return thisTimeValue(this);
+}
 
 /**
  * 20.3.4.45 Date.prototype [ @@toPrimitive ] ( hint )
@@ -2260,28 +1793,22 @@ function DatePrototypeToPrimitive (globalObject, this, NewTarget, strict, args) 
   /* 1. Let O be the this value. */
   O := this;
   /* 2. If Type(O) is not Object, throw a TypeError exception. */
-  if (!(Type(O) = "Object")) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if (!(Type(O) = "Object"))
+    throw TypeErrorConstructorInternal();
   /* 3. If hint is the String value "string" or the String value "default" , then */
-  if (hint = "string" ||| hint = "default") {
+  if (hint = "string" ||| hint = "default")
     /* a. Let tryFirst be "string". */
-    tryFirst := "string"
-  }
+    tryFirst := "string";
   /* 4. Else if hint is the String value "number", then */
-  elif (hint = "number") {
+  elif (hint = "number")
     /* a. Let tryFirst be "number". */
-    tryFirst := "number"
-  }
+    tryFirst := "number";
   /* 5. Else, throw a TypeError exception. */
-  else {
-    throw TypeErrorConstructorInternal()
-  };
-
+  else
+    throw TypeErrorConstructorInternal();
   /* 6. Return OrdinaryToPrimitive(O, tryFirst). */
-  return OrdinaryToPrimitive(O, tryFirst)
-};
+  return OrdinaryToPrimitive(O, tryFirst);
+}
 
 
 /* 15.9.3.1 new Date (year, month [, date [, hours [, minutes [, seconds [, ms ] ] ] ] ] ) */
@@ -2312,24 +1839,24 @@ function internalNewDate(datePrototypeObject, args) {
   /* 2. Let m be ToNumber(month). */
   m := ToNumber(month);
   /* 3. If date is supplied then let dt be ToNumber(date); else let dt be 1. */
-  dt := (date != null) ? ToNumber(date) : 1.;
+  if (date != null) dt := ToNumber(date); else dt := 1.;
   /* 4. If hours is supplied then let h be ToNumber(hours); else let h be 0. */
-  h := (hours != null) ? ToNumber(hours) : 0.;
+  if (hours != null) h := ToNumber(hours); else h := 0.;
   /* 5. If minutes is supplied then let min be ToNumber(minutes); else let min be 0. */
-  mins := (minutes != null) ? ToNumber(minutes) : 0.;
+  if (minutes != null) mins := ToNumber(minutes); else mins := 0.;
   /* 6. If seconds is supplied then let s be ToNumber(seconds); else let s be 0. */
-  s := (seconds != null) ? ToNumber(seconds) : 0.;
+  if (seconds != null) s := ToNumber(seconds); else s := 0.;
   /* 7. If ms is supplied then let milli be ToNumber(ms); else let milli be 0. */
-  milli := (ms != null) ? ToNumber(ms) : 0.;
+  if (ms != null) milli := ToNumber(ms); else milli := 0.;
   /* 8. If y is not NaN and 0 <= ToInteger(y) <= 99, then let yr be 1900+ToInteger(y); otherwise, let yr be y. */
-  yr := (!(is_NaN (y)) &&& (0. <= ToInteger(y)) &&& (ToInteger(y) <= 99.)) ? 1900. + ToInteger(y) : y;
+  if (!(is_NaN (y)) &&& (0. <= ToInteger(y)) &&& (ToInteger(y) <= 99.)) yr := 1900. + ToInteger(y); else yr := y;
   /* 9. Let finalDate be MakeDate(MakeDay(yr, m, dt), MakeTime(h, min, s, milli)). */
   finalDate := MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli));
   /* 10. Set the [[PrimitiveValue]] internal property of the newly constructed object to TimeClip(UTC(finalDate)). */
   setInternalProperty(newlyConstructedObject, "PrimitiveValue", TimeClip(UTC(finalDate)));
 
-  return newlyConstructedObject
-};
+  return newlyConstructedObject;
+}
 
 /* 15.9.3.2 new Date (value) */
 function internalNewDateWithValue(datePrototypeObject, value) {
@@ -2350,17 +1877,16 @@ function internalNewDateWithValue(datePrototypeObject, value) {
     /* a. Parse v as a date, in exactly the same manner as for the parse method (15.9.4.2); let V be the time
           value for this date. */
     /* TODO */
-    fail "15.9.3.2 - new Date (value) 2.a. Not implemented"
-  }
+    fail "15.9.3.2 - new Date (value) 2.a. Not implemented";
   /* 3. Else, let V be ToNumber(v). */
-  else {
-    V := ToNumber(v)
-  };
+  } else {
+    V := ToNumber(v);
+  }
   /* 4. Set the [[PrimitiveValue]] internal property of the newly constructed object to TimeClip(V) and return. */
   setInternalProperty(newlyConstructedObject, "PrimitiveValue", TimeClip(V));
 
-  return newlyConstructedObject
-};
+  return newlyConstructedObject;
+}
 
 /* 15.9.3.3 new Date ( ) */
 function internalNewDateWithoutValue(datePrototypeObject) {
@@ -2377,8 +1903,8 @@ function internalNewDateWithoutValue(datePrototypeObject) {
     identifying the current time. */
   setInternalProperty(newlyConstructedObject, "PrimitiveValue", getTimeValueIdentifyingCurrentTime());
 
-  return newlyConstructedObject
-};
+  return newlyConstructedObject;
+}
 
 /* 20.3.3 Properties of the Date Constructor */
 function initDateConstructor(DatePrototype, globalObject, strict) {
@@ -2411,8 +1937,8 @@ function initDateConstructor(DatePrototype, globalObject, strict) {
   setJSProperty(UTCObject, "name", newDataPropertyDescriptorFull("UTC", false, false, true));
 
 
-  return DateConstructor
-};
+  return DateConstructor;
+}
 
 /**
  * thisTimeValue(value)
@@ -2424,13 +1950,12 @@ function initDateConstructor(DatePrototype, globalObject, strict) {
  */
 function thisTimeValue(value) {
   /* 1. If Type(value) is Object and value has a [[DateValue]] internal slot, then */
-  if (Type(value) = "Object" &&& "DateValue" in_obj value ) {
+  if (Type(value) = "Object" &&& "DateValue" in_obj value )
     /* a. Return the value of value’s [[DateValue]] internal slot. */
-    return value.DateValue
-  };
+    return value.DateValue;
   /* 2. Throw a TypeError exception. */
-  throw TypeErrorConstructorInternal()
-};
+  throw TypeErrorConstructorInternal();
+}
 
 
 
@@ -2713,8 +2238,8 @@ function fillDatePrototype(datePrototypeObject, dateConstructor, globalObject, s
   setJSProperty(toPrimitive, "length", newDataPropertyDescriptorFull(1., false, false, true));
   setJSProperty(toPrimitive, "name", newDataPropertyDescriptorFull("[Symbol.toPrimitive]", false, false, true));
 
-  return datePrototypeObject
-};
+  return datePrototypeObject;
+}
 
 
 
@@ -2729,20 +2254,19 @@ function getDatePrototype(strict) {
   refDateProto := newPropertyReference(DateObject, "prototype", strict);
   objectDateProto := GetValue(refDateProto); */
 
-  return |Intrinsics|["DatePrototype"]
-};
+  return |Intrinsics|["DatePrototype"];
+}
 
 function getTimeValueIdentifyingCurrentTime() {
   /* TODO */
-  return 0.
-};
+  return 0.;
+}
 
 function auxIsFinite(num) {
-   return !(num = Infinity ||| num = -Infinity ||| is_NaN (num))
-};
+  return !(num = Infinity ||| num = -Infinity ||| is_NaN (num));
+}
 
 function timeValueRepresentation(tv) {
-
   year := padding(YearFromTime(tv), 4);
   month := padding(MonthFromTime(tv) + 1., 2);
   day := padding(DateFromTime(tv), 2);
@@ -2754,51 +2278,39 @@ function timeValueRepresentation(tv) {
   seconds := padding(SecFromTime(tv), 2);
   mseconds := padding(msFromTime(tv), 3);
   repr := s_concat [year, "-", month, "-", day, "T", hours, ":", minutes, ":", seconds, ".", mseconds, "Z"];
-  return repr
-};
+  return repr;
+}
 
 function padding(num, size) {
   str := float_to_string(num);
-
   pad := size - s_len(str);
-
   i := 0;
   while (i < pad) {
     str := s_concat ["0", str];
-    i := i + 1
-  };
-
-  return  str
-};
+    i := i + 1;
+  }
+  return  str;
+}
 
 /** TimeFromMonth
  * Calculates time value of a month, also receives time value of the year
  */
 function TimeFromMonth(m, t) {
-
   /* TODO add real modulo*/
-  if (m < 0.) {
-    m := m - 12. * floor(m / 12.)
-  };
+  if (m < 0.)
+    m := m - 12. * floor(m / 12.);
 
   leapYear := InLeapYear(t);
-
   daysInMonths := [0., 31., 59. + leapYear, 90. + leapYear, 120. + leapYear, 151. + leapYear,
    181. + leapYear, 212. + leapYear, 243. + leapYear, 273. + leapYear, 304. + leapYear, 334. + leapYear];
-
-
-
-
-  return (l_nth(daysInMonths, int_of_float(m)) * |msPerDay|)
-};
+  return (l_nth(daysInMonths, int_of_float(m)) * |msPerDay|);
+}
 
 function auxParseDate(str) {
   list := parse_date(str);
   if (list = - (1.)) {
-    return NaN
-  }
-  else {
-
+    return NaN;
+  } else {
     yr := l_nth(list, 0);
     m := l_nth(list, 1) - 1.;
     dt := l_nth(list, 2);
@@ -2806,26 +2318,18 @@ function auxParseDate(str) {
     mins := l_nth(list, 4);
     sec := l_nth(list, 5);
     milli := l_nth(list, 6);
-
-    if (is_NaN (m)) {
-      m := 0.
-    };
-    if (is_NaN (dt)) {
-      dt := 1.
-    };
-    if (is_NaN (h)) {
-      h := 0.
-    };
-    if (is_NaN (mins)) {
-      mins := 0.
-    };
-    if (is_NaN (sec)) {
-      sec := 0.
-    };
-    if (is_NaN (milli)) {
-      milli := 0.
-    };
-
-    return TimeClip(MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, sec, milli)))
+    if (is_NaN (m))
+      m := 0.;
+    if (is_NaN (dt))
+      dt := 1.;
+    if (is_NaN (h))
+      h := 0.;
+    if (is_NaN (mins))
+      mins := 0.;
+    if (is_NaN (sec))
+      sec := 0.;
+    if (is_NaN (milli))
+      milli := 0.;
+    return TimeClip(MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, sec, milli)));
   }
 }

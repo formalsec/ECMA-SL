@@ -4,8 +4,8 @@
 /* Section 9.3.1 - Built-in [[Call]] */
 function BuiltInCall_Handler(error) {
 	popExecStack();
-	throw error
-};
+	throw error;
+}
 
 /**
  * 9.3.1 [[Call]] (thisArgument, argumentsList)
@@ -20,8 +20,8 @@ function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
   /* 2. If callerContext is not already suspended, */
   if (!(callerContext.Suspend = true)) {
     /* Suspend callerContext */
-    callerContext.Suspend := true
-  };
+    callerContext.Suspend := true;
+  }
   /* 3. Let calleeContext be a new ECMAScript code execution context. */
   calleeContext := createExecutionContext();
   /* 4. Set the Function of calleeContext to F. */
@@ -37,6 +37,7 @@ function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
   /* 8. Push calleeContext onto the execution context stack; calleeContext is
      now the running execution context. */
   pushExecStack(calleeContext);
+
   /* 9. Let result be the Completion Record that is the result of evaluating F
      in an implementation defined manner that conforms to the specification
      of F. thisArgument is the this value, argumentsList provides the named
@@ -45,26 +46,22 @@ function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
   if (("ECMAScriptCode" in_obj F) &&& (typeof (F.ECMAScriptCode) = "string")
 		&&& ((F.ECMAScriptCode = "FunctionPrototypeCall") ||| (F.ECMAScriptCode = "TypedArraySubConstructor"))) {
 	  args := completeArgs(argumentsList, F);
-	  result := {F.ECMAScriptCode}(externalScope, V, NewTarget, F.strict, args) catch BuiltInCall_Handler
+	  result := {F.ECMAScriptCode}(externalScope, V, NewTarget, F.strict, args) catch BuiltInCall_Handler;
 	}
 	elif (("ECMAScriptCode" in_obj F) &&& ((typeof (F.ECMAScriptCode) = "string") ||| (typeof (F.ECMAScriptCode) = "curry"))) {
 	  args := completeArgs(argumentsList, F);
-	  result := {F.ECMAScriptCode}(F.Environment, V, NewTarget, F.strict, args) catch BuiltInCall_Handler
-	};
-  /* 10. Remove calleeContext from the execution context stack and restore
-     callerContext as the running execution context. */
-  if ( calleeContext = topExecStack() ) {
-        popExecStack()
-  };
+	  result := {F.ECMAScriptCode}(F.Environment, V, NewTarget, F.strict, args) catch BuiltInCall_Handler;
+	}
+
+  /* 10. Remove calleeContext from the execution context stack and restore callerContext as the running execution context. */
+  if (calleeContext = topExecStack())
+    popExecStack();
   callerContext.Suspend := false;
-
   /* 11. Return result. */
-  if ( isErrorCompletion(result) ) {
-		throw getCompletionValue(result)
-	};
-
-	return result
-};
+  if (isErrorCompletion(result))
+		throw getCompletionValue(result);
+	return result;
+}
 
 /**
  * 9.3.2 [[Construct]] (argumentsList, newTarget)
@@ -99,38 +96,31 @@ function BuiltInConstruct(externalScope, ref, F, argumentsList, NewTarget) {
   /* 4. Set the [[Extensible]] internal property of obj to true. */
   obj.Extensible := true;
   /* 5. Let proto be the value of calling the [[Get]] internal property of F with argument "prototype". */
-
   proto := {F.Get}(F, "prototype", F);
   /* 6. If Type(proto) is Object, set the [[Prototype]] internal property of obj to proto. */
-  if (Type(proto) = "Object") {
-    obj.Prototype := proto
-  };
+  if (Type(proto) = "Object")
+    obj.Prototype := proto;
   /* 7. If Type(proto) is not Object, set the [[Prototype]] internal property of obj to the standard built-in Object prototype
         object as described in 15.2.4. */
-  if (!(Type(proto) = "Object")) {
-    obj.Prototype := getObjectPrototype(F.Strict)
-  };
+  if (!(Type(proto) = "Object"))
+    obj.Prototype := getObjectPrototype(F.Strict);
   /* 8. Let result be the result of calling the [[Call]] internal property of F, providing obj as the this value and providing the
         argument list passed into [[Construct]] as args. */
-
   result := {F.Call}(externalScope, ref, F, obj, NewTarget, argumentsList);
-
   @ReturnIfAbrupt(result);
-
   /* 9. If Type(result) is Object then return result. */
-  if (Type(result) = "Object") {
-    return result
-  };
+  if (Type(result) = "Object")
+    return result;
   /* 10. Return obj */
-  return obj
-};
+  return obj;
+}
 
 function CreateBuiltInFunctionObject(FormalParameterList, steps, realm, strict, internal_length) {
   /* 1. Assert: realm is a Realm Record. */
   /* 2. Assert: steps is either a set of algorithm steps or other definition
      of a functions behaviour provided in this specification. */
   /* In our case, steps is the internal function name that needs to be executed */
- /* assert(Type(steps) = "String" || Type(steps) = ); */
+ /* assert (Type(steps) = "String" || Type(steps) = ); */
   /* 3. Let func be a new built-in function object that when called performs
      the action described by steps. The new function object has internal
      slots whose names are the elements of internalSlotsList. The initial
@@ -138,15 +128,13 @@ function CreateBuiltInFunctionObject(FormalParameterList, steps, realm, strict, 
   func := FunctionCreate("normal", FormalParameterList, steps, realm.globalEnv, strict, null);
   func.Call := "BuiltInCall";
   delete func.Construct;
-  if (!(internal_length = null)) {
-    setInternalProperty(func, "internalLength", internal_length)
-  };
-
+  if (!(internal_length = null))
+    setInternalProperty(func, "internalLength", internal_length);
   /* 4. Set the [[Realm]] internal slot of func to realm. */
   func.Realm := realm;
   /* 6. Return func. */
-  return func
-};
+  return func;
+}
 /**
  * Each built-in function defined in this specification is created as if by
  * calling the CreateBuiltinFunction abstract operation, unless otherwise
@@ -158,15 +146,13 @@ function CreateGeneralBuiltInFunction(Prototype, FormalParameterList, steps, rea
   func := FunctionCreate("normal", FormalParameterList, steps, realm.globalEnv, strict, Prototype);
   func.Call := "BuiltInCall";
   func.Construct := "BuiltInConstruct";
-  if (!(internal_length = null)) {
-    setInternalProperty(func, "internalLength", internal_length)
-  };
+  if (!(internal_length = null))
+    setInternalProperty(func, "internalLength", internal_length);
   func.Realm := realm;
   /* 5. Set the [[Prototype]] internal slot of func to prototype. */
   func.Prototype := Prototype;
-
-  return func
-};
+  return func;
+}
 
 /* Auxiliary Functions */
 
@@ -177,15 +163,14 @@ function CreateGeneralBuiltInFunction(Prototype, FormalParameterList, steps, rea
 function completeArgs(args, functionObject) {
   lParams := getInternalProperty(functionObject, "internalLength");
   lArgs := int_to_float (l_len args);
-  if (lArgs >= lParams) {
-    return args
-  };
+  if (lArgs >= lParams)
+    return args;
   i := lParams - lArgs;
   aux := [];
-  while(i > 0.) {
+  while (i > 0.) {
     aux := l_prepend('undefined, aux);
-    i := i - 1.
-  };
+    i := i - 1.;
+  }
 
-  return l_concat (args, aux)
+  return l_concat (args, aux);
 }

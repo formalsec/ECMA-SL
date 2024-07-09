@@ -50,11 +50,10 @@ declarations contained within its scope. */
 following algorithms. */
 
 function HasBinding(envRec, N) {
-  if (isDeclarativeEnvironmentRecord(envRec)) {
-    return HasBindingDeclarativeEnvRecord(envRec, N)
-  };
-  return HasBindingObjectEnvRecord(envRec, N)
-};
+  if (isDeclarativeEnvironmentRecord(envRec))
+    return HasBindingDeclarativeEnvRecord(envRec, N);
+  return HasBindingObjectEnvRecord(envRec, N);
+}
 
 function HasBindingDeclarativeEnvRecord(declarativeEnvRec, N) {
   /* 10.2.1.1.1 HasBinding(N) */
@@ -64,12 +63,11 @@ function HasBindingDeclarativeEnvRecord(declarativeEnvRec, N) {
   /* 1. Let envRec be the declarative environment record for which the method was invoked. */
   envRec := declarativeEnvRec;
   /* 2. If envRec has a binding for the name that is the value of N, return true. */
-  if (N in_obj envRec) {
-    return true
-  };
+  if (N in_obj envRec)
+    return true;
   /* 3. If it does not have such a binding, return false. */
-  return false
-};
+  return false;
+}
 
 function HasBindingObjectEnvRecord(objectEnvRec, N) {
   /* 10.2.1.2.1 HasBinding(N) */
@@ -81,19 +79,18 @@ function HasBindingObjectEnvRecord(objectEnvRec, N) {
   /* 2. Let bindings be the binding object for envRec. */
   bindings := getBindingObject(envRec);
   /* 3. Return the result of calling the [[HasProperty]] internal method of bindings, passing N as the property name. */
-  return {bindings.HasProperty}(bindings, N)
-};
+  return {bindings.HasProperty}(bindings, N);
+}
 
 /*
   Create a new mutable binding in an environment record. The String value N is the text of the bound name.
   If the optional Boolean argument D is true the binding is may be subsequently deleted.
 */
 function CreateMutableBinding(envRec, N, D) {
-  if (isDeclarativeEnvironmentRecord(envRec)) {
-    return CreateMutableBindingDeclarative(envRec, N, D)
-  };
-  return CreateMutableBindingObject(envRec, N, D)
-};
+  if (isDeclarativeEnvironmentRecord(envRec))
+    return CreateMutableBindingDeclarative(envRec, N, D);
+  return CreateMutableBindingObject(envRec, N, D);
+}
 
 function CreateMutableBindingDeclarative(declarativeEnvRec, N, D) {
   /* 10.2.1.1.2 CreateMutableBinding (N, D) */
@@ -109,12 +106,10 @@ function CreateMutableBindingDeclarative(declarativeEnvRec, N, D) {
   /* 3. Create a mutable binding in envRec for N and set its bound value to undefined. If D is true record that
         the newly created binding may be deleted by a subsequent DeleteBinding call. */
   createMutableBinding(envRec, N, 'undefined);
-  if (D = true) {
-    setBindingDeletable(envRec, N, true)
-  };
-
-  return
-};
+  if (D = true)
+    setBindingDeletable(envRec, N, true);
+  return;
+}
 
 function CreateMutableBindingObject(objectEnvRec, N, D) {
   /* 10.2.1.2.2 CreateMutableBinding (N, D) */
@@ -132,30 +127,22 @@ function CreateMutableBindingObject(objectEnvRec, N, D) {
         passing N as the property name, is false. */
   assert ({bindings.HasProperty}(bindings, N) = false);
   /* 4. If D is true then let configValue be true otherwise let configValue be false. */
-  if (D = true) {
-    configValue := true
-  } else {
-    configValue := false
-  };
+  if (D = true) configValue := true; else configValue := false;
   /* 5. Call the [[DefineOwnProperty]] internal method of bindings, passing N, Property Descriptor
         {[[Value]]:undefined, [[Writable]]: true, [[Enumerable]]: true , [[Configurable]]: configValue},
         and true as arguments. */
   {bindings.DefineOwnProperty}(bindings, N, newDataPropertyDescriptorFull('undefined, true, true, configValue), true);
-
-  return
-};
+  return;
+}
 
 
 function SetMutableBinding(envRec, N, V, S) {
-  print "SetMutableBinding";
-  if (isDeclarativeEnvironmentRecord(envRec)) {
-    return SetMutableBindingDeclarative(envRec, N, V, S)
-  };
-  return SetMutableBindingObject(envRec, N, V, S)
-};
+  if (isDeclarativeEnvironmentRecord(envRec))
+    return SetMutableBindingDeclarative(envRec, N, V, S);
+  return SetMutableBindingObject(envRec, N, V, S);
+}
 
 function SetMutableBindingDeclarative(declarativeEnvRec, N, V, S) {
-  print "SetMutableBindingDeclarative";
   /* 10.2.1.1.3 SetMutableBinding (N,V,S) */
 
   /* The concrete Environment Record method SetMutableBinding for declarative environment records attempts to
@@ -168,17 +155,13 @@ function SetMutableBindingDeclarative(declarativeEnvRec, N, V, S) {
   /* 2. Assert: envRec must have a binding for N. */
   assert (N in_obj envRec);
   /* 3. If the binding for N in envRec is a mutable binding, change its bound value to V. */
-  if (isMutableBinding(envRec, N)) {
-    setBindingValue(envRec, N, V)
-  } else {
+  if (isMutableBinding(envRec, N))
+    setBindingValue(envRec, N, V);
   /* 4. Else this must be an attempt to change the value of an immutable binding so if S if true throw a TypeError exception. */
-    if (S = true) {
-      throw TypeErrorConstructorInternal()
-    }
-  };
-
-  return
-};
+  elif (S = true)
+    throw TypeErrorConstructorInternal();
+  return;
+}
 
 function SetMutableBindingObject(objectEnvRec, N, V, S) {
   /* 10.2.1.2.3 SetMutableBinding (N,V,S) */
@@ -194,18 +177,15 @@ function SetMutableBindingObject(objectEnvRec, N, V, S) {
   bindings := getBindingObject(envRec);
   /* 3. Call the [[Put]] internal method of bindings with arguments N, V, and S. */
   {bindings.Put}(bindings, N, V, S);
-
-  return
-};
+  return;
+}
 
 
 function GetBindingValue(envRec, N, S) {
-  print "GetBindingValue";
-  if (isDeclarativeEnvironmentRecord(envRec)) {
-    return GetBindingValueDeclarative(envRec, N, S)
-  };
-  return GetBindingValueObject(envRec, N, S)
-};
+  if (isDeclarativeEnvironmentRecord(envRec))
+    return GetBindingValueDeclarative(envRec, N, S);
+  return GetBindingValueObject(envRec, N, S);
+}
 
 function GetBindingValueDeclarative(declarativeEnvRec, N, S) {
   /* 10.2.1.1.4 GetBindingValue(N,S) */
@@ -221,16 +201,14 @@ function GetBindingValueDeclarative(declarativeEnvRec, N, S) {
   /* 3. If the binding for N in envRec is an uninitialised immutable binding, then */
   if (isUninitialisedBinding(envRec, N)) {
     /* a. If S is false, return the value undefined, otherwise throw a ReferenceError exception. */
-    if (S = false) {
-      return 'undefined
-    };
-    throw ReferenceErrorConstructorInternal()
+    if (S = false)
+      return 'undefined;
+    throw ReferenceErrorConstructorInternal();
   }
   /* 4. Else, return the value currently bound to N in envRec. */
-  else {
-    return getBindingValue(envRec, N)
-  }
-};
+  else
+    return getBindingValue(envRec, N);
+}
 
 function GetBindingValueObject(objectEnvRec, N, S) {
   /* 10.2.1.2.4 GetBindingValue(N,S) */
@@ -248,14 +226,13 @@ function GetBindingValueObject(objectEnvRec, N, S) {
   /* 4. If value is false, then */
   if (value = false) {
     /* a. If S is false, return the value undefined, otherwise throw a ReferenceError exception. */
-    if (S = false) {
-      return 'undefined
-    };
-    throw ReferenceErrorConstructorInternal()
-  };
+    if (S = false)
+      return 'undefined;
+    throw ReferenceErrorConstructorInternal();
+  }
   /* 5. Return the result of calling the [[Get]] internal method of bindings, passing N for the argument. */
-  return {bindings.Get}(bindings, N)
-};
+  return {bindings.Get}(bindings, N);
+}
 
 
 /*
@@ -265,11 +242,10 @@ function GetBindingValueObject(objectEnvRec, N, S) {
   removed return false. If the binding does not exist return true.
   */
 function DeleteBinding(envRec, N) {
-  if (isDeclarativeEnvironmentRecord(envRec)) {
-    return DeleteBindingDeclarative(envRec, N)
-  };
-  return DeleteBindingObject(envRec, N)
-};
+  if (isDeclarativeEnvironmentRecord(envRec))
+    return DeleteBindingDeclarative(envRec, N);
+  return DeleteBindingObject(envRec, N);
+}
 
 function DeleteBindingDeclarative(declarativeEnvRec, N) {
   /* 10.2.1.1.5 DeleteBinding (N) */
@@ -280,18 +256,16 @@ function DeleteBindingDeclarative(declarativeEnvRec, N) {
   /* 1. Let envRec be the declarative environment record for which the method was invoked. */
   envRec := declarativeEnvRec;
   /* 2. If envRec does not have a binding for the name that is the value of N, return true. */
-  if (!(N in_obj envRec)) {
-    return true
-  };
+  if (!(N in_obj envRec))
+    return true;
   /* 3. If the binding for N in envRec is cannot be deleted, return false. */
-  if (isBindingCannotBeDeleted(envRec, N)) {
-    return false
-  };
+  if (isBindingCannotBeDeleted(envRec, N))
+    return false;
   /* 4. Remove the binding for N from envRec. */
   delete envRec[N];
   /* 5. Return true. */
-  return true
-};
+  return true;
+}
 
 function DeleteBindingObject(objectEnvRec, N) {
   /* 10.2.1.2.5 DeleteBinding (N) */
@@ -305,19 +279,18 @@ function DeleteBindingObject(objectEnvRec, N) {
   /* 2. Let bindings be the binding object for envRec. */
   bindings := getBindingObject(envRec);
   /* 3. Return the result of calling the [[Delete]] internal method of bindings, passing N and false as arguments. */
-  return {bindings.Delete}(bindings, N, false)
-};
+  return {bindings.Delete}(bindings, N, false);
+}
 
 /*
   Returns the value to use as the this value on calls to function objects that are obtained as
   binding values from this environment record.
  */
 function ImplicitThisValue(envRec) {
-  if (isDeclarativeEnvironmentRecord(envRec)) {
-    return ImplicitThisValueDeclarative(envRec)
-  };
-  return ImplicitThisValueObject(envRec)
-};
+  if (isDeclarativeEnvironmentRecord(envRec))
+    return ImplicitThisValueDeclarative(envRec);
+  return ImplicitThisValueObject(envRec);
+}
 
 function ImplicitThisValueDeclarative(declarativeEnvRec) {
   /* 10.2.1.1.6 ImplicitThisValue() */
@@ -325,8 +298,8 @@ function ImplicitThisValueDeclarative(declarativeEnvRec) {
   /* Declarative Environment Records always return undefined as their ImplicitThisValue. */
 
   /* 1. Return undefined. */
-  return 'undefined
-};
+  return 'undefined;
+}
 
 function ImplicitThisValueObject(objectEnvRec) {
   /* 10.2.1.2.6 ImplicitThisValue() */
@@ -336,14 +309,12 @@ function ImplicitThisValueObject(objectEnvRec) {
   /* 1. Let envRec be the object environment record for which the method was invoked. */
   envRec := objectEnvRec;
   /* 2. If the provideThis flag of envRec is true, return the binding object for envRec. */
-  if (getProvideThis(envRec) = true) {
-    return getBindingObject(envRec)
-  }
+  if (getProvideThis(envRec) = true)
+    return getBindingObject(envRec);
   /* 3. Otherwise, return undefined. */
-  else {
-    return 'undefined
-  }
-};
+  else
+    return 'undefined;
+}
 
 /* In addition to the mutable bindings supported by all Environment Records, declarative environment records
 also provide for immutable bindings. An immutable binding is one where the association between an identifier
@@ -357,11 +328,10 @@ abstract specification methods: */
   The String value N is the text of the bound name.
 */
 function CreateImmutableBinding(envRec, N) {
-  if (isDeclarativeEnvironmentRecord(envRec)) {
-    return CreateImmutableBindingDeclarative(envRec, N)
-  };
-  return
-};
+  if (isDeclarativeEnvironmentRecord(envRec))
+    return CreateImmutableBindingDeclarative(envRec, N);
+  return;
+}
 
 function CreateImmutableBindingDeclarative(declarativeEnvRec, N) {
   /* 10.2.1.1.7 CreateImmutableBinding (N) */
@@ -377,9 +347,8 @@ function CreateImmutableBindingDeclarative(declarativeEnvRec, N) {
   /* 3. Create an immutable binding in envRec for N and record that it is uninitialised. */
   createImmutableBinding(envRec, N);
   setBindingInitialised(envRec, N, false);
-
-  return
-};
+  return;
+}
 
 /*
   Set the value of an already existing but uninitialised immutable binding in an environment record.
@@ -387,11 +356,10 @@ function CreateImmutableBindingDeclarative(declarativeEnvRec, N) {
   of any ECMAScript language type.
 */
 function InitializeImmutableBinding(envRec, N, V) {
-  if (isDeclarativeEnvironmentRecord(envRec)) {
-    return InitializeImmutableBindingDeclarative(envRec, N, V)
-  };
-  return
-};
+  if (isDeclarativeEnvironmentRecord(envRec))
+    return InitializeImmutableBindingDeclarative(envRec, N, V);
+  return;
+}
 
 function InitializeImmutableBindingDeclarative(declarativeEnvRec, N, V) {
   /* The concrete Environment Record method InitializeImmutableBinding for declarative environment records is
@@ -406,9 +374,8 @@ function InitializeImmutableBindingDeclarative(declarativeEnvRec, N, V) {
   setBindingValue(envRec, N, V);
   /* 4. Record that the immutable binding for N in envRec has been initialised. */
   setBindingInitialised(envRec, N, true);
-
-  return
-};
+  return;
+}
 
 
 
@@ -417,15 +384,13 @@ function InitializeImmutableBindingDeclarative(declarativeEnvRec, N, V) {
 /* The following abstract operations are used in this specification to operate upon lexical environments: */
 
 function GetIdentifierReference(lex, name, strict) {
-  print "GetIdentifierReference";
   /* The abstract operation GetIdentifierReference is called with a Lexical Environment lex, an identifier String
      name, and a Boolean flag strict. The value of lex may be null. When called, the following steps are performed: */
   /* 1. If lex is the value null, then */
-  if (lex = 'null) {
+  if (lex = 'null)
     /* a. Return a value of type Reference whose base value is undefined, whose referenced name is name,
           and whose strict mode flag is strict. */
-    return newValueReference('undefined, name, strict)
-  };
+    return newValueReference('undefined, name, strict);
   /* 2. Let envRec be lex‘s environment record. */
   envRec := getEnvironmentRecord(lex);
   /* 3. Let exists be the result of calling the HasBinding(N) concrete method of envRec passing name as the argument N. */
@@ -433,16 +398,16 @@ function GetIdentifierReference(lex, name, strict) {
   /* 4. If exists is true, then */
   if (exists = true) {
     /* a. Return a value of type Reference whose base value is envRec, whose referenced name is name, and whose strict mode flag is strict. */
-    return newValueReference(envRec, name, strict)
+    return newValueReference(envRec, name, strict);
   }
   /* 5. Else */
   else {
     /* a. Let outer be the value of lex’s outer environment reference. */
     outer := getOuterEnvironmentReference(lex);
     /* b. Return the result of calling GetIdentifierReference passing outer, name, and strict as arguments. */
-    return GetIdentifierReference(outer, name, strict)
+    return GetIdentifierReference(outer, name, strict);
   }
-};
+}
 
 function NewDeclarativeEnvironment(E) {
   /* 10.2.2.2 NewDeclarativeEnvironment (E) */
@@ -458,8 +423,8 @@ function NewDeclarativeEnvironment(E) {
   /* 4. Set the outer lexical environment reference of env to E. */
   setOuterLexicalEnvironmentReference(env, E);
   /* 5. Return env. */
-  return env
-};
+  return env;
+}
 
 function NewObjectEnvironment(O, E) {
   /* 10.2.2.3 NewObjectEnvironment (O, E) */
@@ -475,8 +440,8 @@ function NewObjectEnvironment(O, E) {
   /* 4. Set the outer lexical environment reference of env to E. */
   setOuterLexicalEnvironmentReference(env, E);
   /* 5. Return env. */
-  return env
-};
+  return env;
+}
 
 function GlobalEnvironment(globalObject) {
   /* 10.2.3 The Global Environment */
@@ -495,35 +460,33 @@ function GlobalEnvironment(globalObject) {
   setEnvironmentRecord(globalEnv, globalEnvRec);
   /* The global environment‘s outer environment reference is null. */
   setOuterLexicalEnvironmentReference(globalEnv, 'null);
-
   setGlobalEnvironment(globalObject, globalEnv);
-
-  return globalEnv
-};
+  return globalEnv;
+}
 
 
 /* Auxiliary functions used to deal with Lexical Environments and Environment Records */
 function getGlobalObject(lexicalEnvironment) {
-  if (!("EnvRec" in_obj lexicalEnvironment)) { return lexicalEnvironment };
+  if (!("EnvRec" in_obj lexicalEnvironment))
+    return lexicalEnvironment;
   lex := lexicalEnvironment;
   outer := getOuterEnvironmentReference(lexicalEnvironment);
-  while(!(outer = 'null)) {
-    lex := outer;
-    outer := getOuterEnvironmentReference(lex)
-  };
 
-  return getBindingObject(getEnvironmentRecord(lex))
-};
+  while (!(outer = 'null)) {
+    lex := outer;
+    outer := getOuterEnvironmentReference(lex);
+  }
+  return getBindingObject(getEnvironmentRecord(lex));
+}
 
 function getGlobalEnvironment(globalObject) {
-  return globalObject.GlobalEnv
-};
+  return globalObject.GlobalEnv;
+}
 
 function setGlobalEnvironment(globalObject, globalEnv) {
   globalObject.GlobalEnv := globalEnv;
-
-  return
-};
+  return;
+}
 
 function newLexicalEnvironment() {
   return {
@@ -531,12 +494,12 @@ function newLexicalEnvironment() {
     OuterEnvRef: 'undefined,
     /* environment‘s Environment Record */
     EnvRec: 'undefined
-  }
-};
+  };
+}
 
 function newDeclarativeEnvironmentRecord() {
-  return {}
-};
+  return {};
+}
 
 function newObjectEnvironmentRecord(bindingObj) {
   /* An object environment record binds the set of identifier names that directly correspond to the property names
@@ -548,119 +511,110 @@ function newObjectEnvironmentRecord(bindingObj) {
     provideThis: false
   };
 
-  return objEnvRec
-};
+  return objEnvRec;
+}
 
 function isDeclarativeEnvironmentRecord(envRec) {
-  print "isDeclarativeEnvironmentRecord";
-  if ("isObjectEnvRec" in_obj envRec) {
-    return false
-  } else {
-    return true
-  }
-};
+  if ("isObjectEnvRec" in_obj envRec)
+    return false;
+  else
+    return true;
+}
 
 function getBindingObject(objectEnvRec) {
-  return objectEnvRec.bindingObject
-};
+  return objectEnvRec.bindingObject;
+}
 
 function setProvideThis(objectEnvironment, value) {
   getEnvironmentRecord(objectEnvironment).provideThis := value;
-
-  return
-};
+  return;
+}
 
 function getProvideThis(objectEnvRec) {
-  return objectEnvRec.provideThis
-};
+  return objectEnvRec.provideThis;
+}
 
 function getEnvironmentRecord(lexicalEnvironment) {
-  return lexicalEnvironment.EnvRec
-};
+  return lexicalEnvironment.EnvRec;
+}
 
 function getOuterEnvironmentReference(lexicalEnvironment) {
-  return lexicalEnvironment.OuterEnvRef
-};
+  return lexicalEnvironment.OuterEnvRef;
+}
 
 function setEnvironmentRecord(lexicalEnvironment, environmentRecord) {
   lexicalEnvironment.EnvRec := environmentRecord;
-  return
-};
+  return;
+}
 
 function setOuterLexicalEnvironmentReference(lexicalEnvironment, outerLexicalEnvironment) {
   lexicalEnvironment.OuterEnvRef := outerLexicalEnvironment;
-  return
-};
+  return;
+}
 
 function createMutableBinding(declarativeEnvRec, name, value) {
   declarativeEnvRec[name] := newMutableBinding(value);
-  return
-};
+  return;
+}
 
 function createImmutableBinding(declarativeEnvRec, name) {
   declarativeEnvRec[name] := newImmutableBinding('undefined);
-  return
-};
+  return;
+}
 
 function newBinding(initialised, value, deletable, modifiable) {
-  return [initialised, value, deletable, modifiable]
-};
+  return [initialised, value, deletable, modifiable];
+}
 
 function newMutableBinding(value) {
-  return newBinding(true, value, false, true)
-};
+  return newBinding(true, value, false, true);
+}
 
 function newImmutableBinding(value) {
-  return newBinding(false, value, false, false)
-};
+  return newBinding(false, value, false, false);
+}
 
 function isMutableBinding(envRec, name) {
   binding := envRec[name];
-  return l_nth(binding, 3)
-};
+  return l_nth(binding, 3);
+}
 
 function isUninitialisedBinding(envRec, name) {
   binding := envRec[name];
-  return !(l_nth(binding, 0))
-};
+  return !(l_nth(binding, 0));
+}
 
 function getBindingValue(envRec, name) {
   binding := envRec[name];
-  return l_nth(binding, 1)
-};
+  return l_nth(binding, 1);
+}
 
 function setBindingValue(envRec, name, value) {
   binding := envRec[name];
   newBinding := newBinding(l_nth(binding, 0), value, l_nth(binding, 2), l_nth(binding, 3));
-
   envRec[name] := newBinding;
-
-  return
-};
+  return;
+}
 
 function setBindingInitialised(envRec, name, initialised) {
   binding := envRec[name];
   newBinding := newBinding(initialised, l_nth(binding, 1), l_nth(binding, 2), l_nth(binding, 3));
-
   envRec[name] := newBinding;
-
-  return
-};
+  return;
+}
 
 function setBindingDeletable(envRec, name, deletable) {
   binding := envRec[name];
   newBinding := newBinding(l_nth(binding, 0), l_nth(binding, 1), deletable, l_nth(binding, 3));
-
   envRec[name] := newBinding;
-
-  return
-};
+  return;
+}
 
 function hasUninitialisedImmutableBinding(envRec, name) {
-  return (name in_obj envRec) &&& isUninitialisedBinding(envRec, name)
-};
+  return (name in_obj envRec) &&& isUninitialisedBinding(envRec, name);
+}
 
 function isBindingCannotBeDeleted(envRec, name) {
   binding := envRec[name];
-  return !l_nth(binding, 2)
+  return !l_nth(binding, 2);
 }

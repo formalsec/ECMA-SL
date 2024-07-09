@@ -3,5 +3,5 @@ function maskOutBits(num) {
   /* maskOutBits is only called with an argument that is the result of calling the ToUInt32 function. */
   /* Do not perform any mask out action here since the ToUInt32 function is already doing this. */
   v := num;
-  return v
+  return v;
 }

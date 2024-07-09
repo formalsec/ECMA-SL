@@ -7,13 +7,13 @@ function main () {
 	
 
 
-	if(h > 2){
+	if (h > 2) {
   		l:= "illegal"(lc, h)
-	};
+	}
 	return l
-};
+}
 
-function illegal(x,y){
+function illegal(x,y) {
 	return x + 10
 }
 

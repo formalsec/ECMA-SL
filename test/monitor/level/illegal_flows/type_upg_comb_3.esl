@@ -1,15 +1,15 @@
 function main () {
 	h:= true;
 	l:= true;
-	o := {};
+	o := {}
 	o.p := true;
 
 	aux1:= "upgVar"("h", "high");
 	aux2:= "upgObject"(o, "high");
 	
-	if(h) {
+	if (h) {
 	 aux3:= "upgPropVal"(o, "p", "high")
-	};
+	}
 
 
 

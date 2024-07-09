@@ -58,30 +58,26 @@
 macro IfAbruptRejectPromise(value, capability) {
   /* 1. If value is an abrupt completion, */
   if (isAnAbruptCompletion(value)) {
-    /* a. Let rejectResult be Call(capability.[[Reject]], undefined,
-       «value.[[value]]»). */
+    /* a. Let rejectResult be Call(capability.[[Reject]], undefined, «value.[[value]]»). */
     rejectResult := Call(null, null, capability.Reject, 'undefined, [getCompletionValue(value)]);
     /* b. ReturnIfAbrupt(rejectResult). */
     /* @ReturnIfAbrupt(rejectResult); NOTE: Nested macros are not allowed */
     if (Type(rejectResult) = "Completion") {
       /* If argument is an abrupt completion, return argument. */
-      if( isAnAbruptCompletion(rejectResult) ) {
-        return rejectResult
-      }
+      if (isAnAbruptCompletion(rejectResult))
+        return rejectResult;
       /* Else if argument is a Completion Record, let argument be argument.[[value]]. */
-      else {
-        rejectResult := getCompletionValue(rejectResult)
-      }
-    };
+      else
+        rejectResult := getCompletionValue(rejectResult);
+    }
     /* c. Return capability.[[Promise]]. */
-    return capability.Promise
-  }
+    return capability.Promise;
   /* 2. Else if value is a Completion Record, */
-  elif (isCompletionRecord(value)) {
+  } elif (isCompletionRecord(value)) {
     /* let value be value.[[value]] */
-    value := getCompletionValue(value)
+    value := getCompletionValue(value);
   }
-};
+}
 
 /**
  * 25.4.1.2 PromiseReaction Records
@@ -125,7 +121,7 @@ function CreateResolvingFunctions(strict, promise) {
      /* function CreateBuiltInFunctionObject(FormalParameterList, FunctionBody, Scope, Strict, n) { */
   resolve := CreateBuiltInFunctionObject(["resolution"], "PromiseResolveFunctions", |global|, strict, null);
   resolveFun := lambda(global, this, NewTarget, strict, args)[resolve] {
-    return PromiseResolveFunctions(resolve, global, this, strict, args)
+    return PromiseResolveFunctions(resolve, global, this, strict, args);
   };
   resolve.ECMAScriptCode := resolveFun;
   /* 3. Set the [[Promise]] internal slot of resolve to promise. */
@@ -137,7 +133,7 @@ function CreateResolvingFunctions(strict, promise) {
      Reject Functions (25.4.1.3.1). */
   reject := CreateBuiltInFunctionObject(["reason"], "PromiseRejectFunctions", |global|, strict, null);
   rejectFun := lambda(global, this, NewTarget, strict, args)[reject] {
-    return PromiseRejectFunctions(reject, global, this, strict, args)
+    return PromiseRejectFunctions(reject, global, this, strict, args);
   };
   reject.ECMAScriptCode := rejectFun;
   /* 6. Set the [[Promise]] internal slot of reject to promise. */
@@ -146,8 +142,8 @@ function CreateResolvingFunctions(strict, promise) {
      alreadyResolved. */
   reject.AlreadyResolved := alreadyResolved;
   /* 8. Return a new Record { [[Resolve]]: resolve, [[Reject]]: reject }. */
-  return { Resolve: resolve, Reject: reject }
-};
+  return { Resolve: resolve, Reject: reject };
+}
 
 /**
  * 25.4.1.3.1 Promise Reject Functions
@@ -161,22 +157,20 @@ function CreateResolvingFunctions(strict, promise) {
 function PromiseRejectFunctions(F, global, this, strict, args) {
   reason := getOptionalParam(args, 0);
   /* 1. Assert: F has a [[Promise]] internal slot whose value is an Object. */
-  assert(Type(F.Promise) = "Object");
+  assert (Type(F.Promise) = "Object");
   /* 2. Let promise be the value of F's [[Promise]] internal slot. */
   promise := F.Promise;
-  /* 3. Let alreadyResolved be the value of F's [[AlreadyResolved]] internal
-     slot. */
+  /* 3. Let alreadyResolved be the value of F's [[AlreadyResolved]] internal slot. */
   alreadyResolved := F.AlreadyResolved;
   /* 4. If alreadyResolved.[[value]] is true, */
-  if (alreadyResolved.value = true) {
+  if (alreadyResolved.value = true)
     /* return undefined */
-    return NormalCompletion('undefined)
-  };
+    return NormalCompletion('undefined);
   /* 5. Set alreadyResolved.[[value]] to true. */
   alreadyResolved.value := true;
   /* 6. Return RejectPromise(promise, reason). */
-  return RejectPromise(promise, reason)
-};
+  return RejectPromise(promise, reason);
+}
 /**
  * The length property of a promise reject function is 1.
  */
@@ -193,17 +187,16 @@ function PromiseRejectFunctions(F, global, this, strict, args) {
 function PromiseResolveFunctions(F, global, this, strict, args) {
   resolution := getOptionalParam(args, 0);
   /* 1. Assert: F has a [[Promise]] internal slot whose value is an Object. */
-  assert(Type(F.Promise) = "Object");
+  assert (Type(F.Promise) = "Object");
   /* 2. Let promise be the value of F's [[Promise]] internal slot. */
   promise := F.Promise;
   /* 3. Let alreadyResolved be the value of F's [[AlreadyResolved]] internal
      slot. */
   alreadyResolved := F.AlreadyResolved;
   /* 4. If alreadyResolved.[[value]] is true, */
-  if (alreadyResolved.value = true) {
+  if (alreadyResolved.value = true)
     /* return undefined */
-    return NormalCompletion('undefined)
-  };
+    return NormalCompletion('undefined);
   /* 5. Set alreadyResolved.[[value]] to true. */
   alreadyResolved.value := true;
   /* 6. If SameValue(resolution, promise) is true, then */
@@ -211,33 +204,30 @@ function PromiseResolveFunctions(F, global, this, strict, args) {
     /* a. Let selfResolutionError be a newly created TypeError object. */
     selfResolutionError := TypeErrorConstructorInternal();
     /* b. Return RejectPromise(promise, selfResolutionError). */
-    return RejectPromise(promise, selfResolutionError)
-  };
+    return RejectPromise(promise, selfResolutionError);
+  }
   /* 7. If Type(resolution) is not Object, then */
-  if (!(Type(resolution) = "Object")) {
+  if (!(Type(resolution) = "Object"))
     /* a. Return FulfillPromise(promise, resolution). */
-    return FulfillPromise(promise, resolution)
-  };
+    return FulfillPromise(promise, resolution);
   /* 8. Let then be Get(resolution, "then"). */
   then := Get(resolution, "then") catch PromiseExceptionHandler;
   /* 9. If then is an abrupt completion, then */
-  if (isAnAbruptCompletion(then)) {
+  if (isAnAbruptCompletion(then))
     /* a. Return RejectPromise(promise, then.[[value]]). */
-    return RejectPromise(promise, getCompletionValue(then))
-  };
+    return RejectPromise(promise, getCompletionValue(then));
   /* 10. Let thenAction be then.[[value]]. */
   thenAction := then;
   /* 11. If IsCallable(thenAction) is false, then */
-  if (IsCallable(thenAction) = false) {
+  if (IsCallable(thenAction) = false)
     /* a. Return FulfillPromise(promise, resolution). */
-    return FulfillPromise(promise, resolution)
-  };
+    return FulfillPromise(promise, resolution);
   /* 12. Perform EnqueueJob ("PromiseJobs", PromiseResolveThenableJob,
      «‍promise, resolution, thenAction») */
   EnqueueJob("PromiseJobs", "PromiseResolveThenableJob", [strict, promise, resolution, thenAction]);
   /* 13. Return undefined. */
-  return NormalCompletion('undefined)
-};
+  return NormalCompletion('undefined);
+}
 /**
  * The length property of a promise resolve function is 1.
  */
@@ -249,26 +239,21 @@ function PromiseResolveFunctions(F, global, this, strict, args) {
  * and value the following steps are taken:
  */
 function FulfillPromise(promise, value) {
-  /* 1. Assert: the value of promise's [[PromiseState]] internal slot is
-     "pending". */
-  assert(promise.PromiseState = "pending");
-  /* 2. Let reactions be the value of promise's [[PromiseFulfillReactions]]
-     internal slot. */
+  /* 1. Assert: the value of promise's [[PromiseState]] internal slot is "pending". */
+  assert (promise.PromiseState = "pending");
+  /* 2. Let reactions be the value of promise's [[PromiseFulfillReactions]] internal slot. */
   reactions := promise.PromiseFulfillReactions;
   /* 3. Set the value of promise's [[PromiseResult]] internal slot to value. */
   promise.PromiseResult := value;
-  /* 4. Set the value of promise's [[PromiseFulfillReactions]] internal slot
-     to undefined. */
+  /* 4. Set the value of promise's [[PromiseFulfillReactions]] internal slot to undefined. */
   promise.PromiseFulfillReactions := 'undefined;
-  /* 5. Set the value of promise's [[PromiseRejectReactions]] internal slot to
-     undefined. */
+  /* 5. Set the value of promise's [[PromiseRejectReactions]] internal slot to undefined. */
   promise.PromiseRejectReactions := 'undefined;
-  /* 6. Set the value of promise's [[PromiseState]] internal slot to
-     "fulfilled". */
+  /* 6. Set the value of promise's [[PromiseState]] internal slot to "fulfilled". */
   promise.PromiseState := "fulfilled";
   /* 7. Return TriggerPromiseReactions(reactions, value). */
-  return TriggerPromiseReactions(reactions, value)
-};
+  return TriggerPromiseReactions(reactions, value);
+}
 
 /**
  * 25.4.1.5 NewPromiseCapability (C)
@@ -282,10 +267,9 @@ function FulfillPromise(promise, value) {
  */
 function NewPromiseCapability(strict, C) {
   /* 1. If IsConstructor(C) is false, */
-  if (IsConstructor(C) = false) {
+  if (IsConstructor(C) = false)
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 2. NOTE C is assumed to be a constructor function that supports the
      parameter conventions of the Promise constructor (see 25.4.3.1). */
   /* 3. Let promiseCapability be a new PromiseCapability { [[Promise]]:
@@ -295,7 +279,7 @@ function NewPromiseCapability(strict, C) {
      GetCapabilitiesExecutor Functions (25.4.1.5.1). */
   executor := CreateBuiltInFunctionObject(["resolve","reject"], "GetCapabilitiesExecutorFunctions", |global|, strict, null);
   executorFun := lambda(global, this, NewTarget, strict, args)[executor] {
-    return GetCapabilitiesExecutorFunctions(executor, global, this, strict, args)
+    return GetCapabilitiesExecutorFunctions(executor, global, this, strict, args);
   };
   executor.ECMAScriptCode := executorFun;
   /* 5. Set the [[Capability]] internal slot of executor to promiseCapability. */
@@ -305,20 +289,18 @@ function NewPromiseCapability(strict, C) {
   /* 7. ReturnIfAbrupt(promise). */
   @ReturnIfAbrupt(promise);
   /* 8. If IsCallable(promiseCapability.[[Resolve]]) is false, */
-  if (IsCallable(promiseCapability.Resolve) = false) {
+  if (IsCallable(promiseCapability.Resolve) = false)
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 9. If IsCallable(promiseCapability.[[Reject]]) is false, */
-  if (IsCallable(promiseCapability.Reject) = false) {
+  if (IsCallable(promiseCapability.Reject) = false)
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 10. Set promiseCapability.[[Promise]] to promise. */
   promiseCapability.Promise := promise;
   /* 11. Return promiseCapability. */
-  return promiseCapability
-};
+  return promiseCapability;
+}
 /**
  * NOTE This abstract operation supports Promise subclassing, as it is generic
  * on any constructor that calls a passed executor function argument in the same
@@ -340,27 +322,25 @@ function GetCapabilitiesExecutorFunctions(F, global, this, strict, args) {
   reject := getOptionalParam(args, 1);
   /* 1. Assert: F has a [[Capability]] internal slot whose value is a
      PromiseCapability Record. */
-  assert(isPromiseCapabilityRecord(F.Capability));
+  assert (isPromiseCapabilityRecord(F.Capability));
   /* 2. Let promiseCapability be the value of F's [[Capability]] internal
      slot. */
   promiseCapability := F.Capability;
   /* 3. If promiseCapability.[[Resolve]] is not undefined, */
-  if (!(promiseCapability.Resolve = 'undefined)) {
+  if (!(promiseCapability.Resolve = 'undefined))
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 4. If promiseCapability.[[Reject]] is not undefined, */
-  if (!(promiseCapability.Reject = 'undefined)) {
+  if (!(promiseCapability.Reject = 'undefined))
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 5. Set promiseCapability.[[Resolve]] to resolve. */
   promiseCapability.Resolve := resolve;
   /* 6. Set promiseCapability.[[Reject]] to reject. */
   promiseCapability.Reject := reject;
   /* 7. Return undefined. */
-  return 'undefined
-};
+  return 'undefined;
+}
 /**
  * The length property of a GetCapabilitiesExecutor function is 2.
  */
@@ -372,18 +352,16 @@ function GetCapabilitiesExecutorFunctions(F, global, this, strict, args) {
  */
 function IsPromise(x) {
   /* 1. If Type(x) is not Object, */
-  if (!(Type(x) = "Object")) {
+  if (!(Type(x) = "Object"))
     /* return false */
-    return false
-  };
+    return false;
   /* 2. If x does not have a [[PromiseState]] internal slot, */
-  if (!("PromiseState" in_obj x)) {
+  if (!("PromiseState" in_obj x))
     /* return false */
-    return false
-  };
+    return false;
   /* 3. Return true. */
-  return true
-};
+  return true;
+}
 
 /**
  * 25.4.1.7 RejectPromise (promise, reason)
@@ -392,26 +370,21 @@ function IsPromise(x) {
  * and reason the following steps are taken:
  */
 function RejectPromise(promise, reason) {
-  /* 1. Assert: the value of promise's [[PromiseState]] internal slot is
-     "pending". */
-  assert(promise.PromiseState = "pending");
-  /* 2. Let reactions be the value of promise's [[PromiseRejectReactions]]
-     internal slot. */
+  /* 1. Assert: the value of promise's [[PromiseState]] internal slot is "pending". */
+  assert (promise.PromiseState = "pending");
+  /* 2. Let reactions be the value of promise's [[PromiseRejectReactions]] internal slot. */
   reactions := promise.PromiseRejectReactions;
   /* 3. Set the value of promise's [[PromiseResult]] internal slot to reason. */
   promise.PromiseResult := reason;
-  /* 4. Set the value of promise's [[PromiseFulfillReactions]] internal slot
-     to undefined. */
+  /* 4. Set the value of promise's [[PromiseFulfillReactions]] internal slot to undefined. */
   promise.PromiseFulfillReactions := 'undefined;
-  /* 5. Set the value of promise's [[PromiseRejectReactions]] internal slot to
-     undefined. */
+  /* 5. Set the value of promise's [[PromiseRejectReactions]] internal slot to undefined. */
   promise.PromiseRejectReactions := 'undefined;
-  /* 6. Set the value of promise's [[PromiseState]] internal slot to
-     "rejected". */
+  /* 6. Set the value of promise's [[PromiseState]] internal slot to "rejected". */
   promise.PromiseState := "rejected";
   /* 7. Return TriggerPromiseReactions(reactions, reason). */
-  return TriggerPromiseReactions(reactions, reason)
-};
+  return TriggerPromiseReactions(reactions, reason);
+}
 
 /**
  * 25.4.1.8 TriggerPromiseReactions (reactions, argument)
@@ -424,13 +397,12 @@ function RejectPromise(promise, reason) {
 function TriggerPromiseReactions(reactions, argument) {
   /* 1. Repeat for each reaction in reactions, in original insertion order */
   foreach (reaction : reactions) {
-    /* a. Perform EnqueueJob("PromiseJobs", PromiseReactionJob, «‍reaction,
-       argument»). */
-    EnqueueJob("PromiseJobs", "PromiseReactionJob", [reaction, argument])
-  };
+    /* a. Perform EnqueueJob("PromiseJobs", PromiseReactionJob, «‍reaction, argument»). */
+    EnqueueJob("PromiseJobs", "PromiseReactionJob", [reaction, argument]);
+  }
   /* 2. Return undefined. */
-  return NormalCompletion('undefined)
-};
+  return NormalCompletion('undefined);
+}
 
 /**
  * 25.4.2 Promise Jobs
@@ -445,41 +417,35 @@ function TriggerPromiseReactions(reactions, argument) {
  */
 function PromiseReactionJob(reaction, argument) {
   /* 1. Assert: reaction is a PromiseReaction Record. */
-  assert(isPromiseReactionRecord(reaction));
+  assert (isPromiseReactionRecord(reaction));
   /* 2. Let promiseCapability be reaction.[[Capabilities]]. */
   promiseCapability := reaction.Capabilities;
   /* 3. Let handler be reaction.[[Handler]]. */
   handler := reaction.Handler;
   /* 4. If handler is "Identity", */
-  if (handler = "Identity") {
+  if (handler = "Identity")
     /* let handlerResult be NormalCompletion(argument) */
-    handlerResult := NormalCompletion(argument)
-  }
+    handlerResult := NormalCompletion(argument);
   /* 5. Else if handler is "Thrower", */
-  elif (handler = "Thrower") {
-    /* let handlerResult be Completion{[[type]]: throw, [[value]]: argument,
-       [[target]]: empty} */
-    handlerResult := throwEmptyCompletion(argument)
-  }
+  elif (handler = "Thrower")
+    /* let handlerResult be Completion{[[type]]: throw, [[value]]: argument, [[target]]: empty} */
+    handlerResult := throwEmptyCompletion(argument);
   /* 6. Else, */
-  else {
+  else
     /* let handlerResult be Call(handler, undefined, «argument») */
-    handlerResult := Call(null, null, handler, 'undefined, [argument])
-  };
+    handlerResult := Call(null, null, handler, 'undefined, [argument]);
   /* 7. If handlerResult is an abrupt completion, then */
   if (isAnAbruptCompletion(handlerResult)) {
-    /* a. Let status be Call(promiseCapability.[[Reject]], undefined,
-       «handlerResult.[[value]]»). */
+    /* a. Let status be Call(promiseCapability.[[Reject]], undefined, «handlerResult.[[value]]»). */
     status := Call(null, null, promiseCapability.Reject, 'undefined, [getCompletionValue(handlerResult)]);
     /* b. NextJob Completion(status). */
-    return NextJob(Completion(status))
-  };
-  /* 8. Let status be Call(promiseCapability.[[Resolve]], undefined,
-     «handlerResult.[[value]]»). */
+    return NextJob(Completion(status));
+  }
+  /* 8. Let status be Call(promiseCapability.[[Resolve]], undefined, «handlerResult.[[value]]»). */
   status := Call(null, null, promiseCapability.Resolve, 'undefined, [getCompletionValue(handlerResult)]);
   /* 9. NextJob Completion(status). */
-  return NextJob(Completion(status))
-};
+  return NextJob(Completion(status));
+}
 
 /**
  * 25.4.2.2 PromiseResolveThenableJob (promiseToResolve, thenable, then)
@@ -495,15 +461,14 @@ function PromiseResolveThenableJob(strict, promiseToResolve, thenable, then) {
   thenCallResult := Call(null, null, then, thenable, [resolvingFunctions.Resolve, resolvingFunctions.Reject]);
   /* 3. If thenCallResult is an abrupt completion, */
   if (isAnAbruptCompletion(thenCallResult)) {
-    /* a. Let status be Call(resolvingFunctions.[[Reject]], undefined,
-       «thenCallResult.[[value]]»). */
+    /* a. Let status be Call(resolvingFunctions.[[Reject]], undefined, «thenCallResult.[[value]]»). */
     status := Call(null, null, resolvingFunctions.Reject, 'undefined, [getCompletionValue(thenCallResult)]);
     /* b. NextJob Completion(status). */
-    return NextJob(Completion(status))
-  };
+    return NextJob(Completion(status));
+  }
   /* 4. NextJob Completion(thenCallResult). */
-  return NextJob(Completion(thenCallResult))
-};
+  return NextJob(Completion(thenCallResult));
+}
 /**
  * NOTE This Job uses the supplied thenable and its then method to resolve the
  * given promise. This process must take place as a Job to ensure that the
@@ -578,8 +543,8 @@ function initPromiseObject(global, FunctionPrototype, ObjectPrototype, strict) {
   setJSProperty(objPromiseConstructor, getSpeciesPropertyName(), descriptor);
   setJSProperty(symbolSpeciesObject, "name", newDataPropertyDescriptorFull("get [Symbol.species]", false, false, true));
 
-  return objPromiseConstructor
-};
+  return objPromiseConstructor;
+}
 
 /**
  * 25.4.3.1 Promise (executor)
@@ -590,15 +555,13 @@ function initPromiseObject(global, FunctionPrototype, ObjectPrototype, strict) {
 function PromiseConstructor(global, this, NewTarget, strict, args) {
   executor := getOptionalParam(args, 0);
   /* 1. If NewTarget is undefined, */
-  if (NewTarget = 'undefined) {
+  if (NewTarget = 'undefined)
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 2. If IsCallable(executor) is false, */
-  if (IsCallable(executor) = false) {
+  if (IsCallable(executor) = false)
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 3. Let promise be OrdinaryCreateFromConstructor(NewTarget,
      "%PromisePrototype%", «‍[[PromiseState]], [[PromiseResult]],
      [[PromiseFulfillReactions]], [[PromiseRejectReactions]]» ). */
@@ -608,29 +571,24 @@ function PromiseConstructor(global, this, NewTarget, strict, args) {
   @ReturnIfAbrupt(promise);
   /* 5. Set promise's [[PromiseState]] internal slot to "pending". */
   promise.PromiseState := "pending";
-  /* 6. Set promise's [[PromiseFulfillReactions]] internal slot to a new empty
-     List. */
+  /* 6. Set promise's [[PromiseFulfillReactions]] internal slot to a new empty List. */
   promise.PromiseFulfillReactions := [];
-  /* 7. Set promise's [[PromiseRejectReactions]] internal slot to a new empty
-     List. */
+  /* 7. Set promise's [[PromiseRejectReactions]] internal slot to a new empty List. */
   promise.PromiseRejectReactions := [];
   /* 8. Let resolvingFunctions be CreateResolvingFunctions(promise). */
   resolvingFunctions := CreateResolvingFunctions(strict, promise);
-  /* 9. Let completion be Call(executor, undefined,
-     «resolvingFunctions.[[Resolve]], resolvingFunctions.[[Reject]]»). */
-  completion := Call(null, null, executor, 'undefined, [resolvingFunctions.Resolve, resolvingFunctions.Reject])
-  catch PromiseExceptionHandler; /* FIXME: Done by Call */
+  /* 9. Let completion be Call(executor, undefined, «resolvingFunctions.[[Resolve]], resolvingFunctions.[[Reject]]»). */
+  completion := Call(null, null, executor, 'undefined, [resolvingFunctions.Resolve, resolvingFunctions.Reject]) catch PromiseExceptionHandler; /* FIXME: Done by Call */
   /* 10. If completion is an abrupt completion, then */
   if (isAnAbruptCompletion(completion)) {
-    /* a. Let status be Call(resolvingFunctions.[[Reject]], undefined,
-       «completion.[[value]]»). */
+    /* a. Let status be Call(resolvingFunctions.[[Reject]], undefined, «completion.[[value]]»). */
     status := Call(null, null, resolvingFunctions.Reject, 'undefined, [getCompletionValue(completion)]);
     /* b. ReturnIfAbrupt(status). */
-    @ReturnIfAbrupt(status)
-  };
+    @ReturnIfAbrupt(status);
+  }
   /* 11. Return promise. */
-  return promise
-};
+  return promise;
+}
 /**
  * NOTE The executor argument must be a function object. It is called for
  * initiating and reporting completion of the possibly deferred action
@@ -679,25 +637,22 @@ function PromiseConstructor(global, this, NewTarget, strict, args) {
  * iterable to promises as it runs this algorithm.
  */
 function PromiseAll(global, this, NewTarget, strict, args) {
-
   iterable := l_nth(args, 0);
 
   /* 1. Let C be the this value. */
   C := this;
   /* 2. If Type(C) is not Object, */
-  if (!(Type(C) = "Object")) {
+  if (!(Type(C) = "Object"))
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 3. Let S be Get(C, @@species). */
   S := Get(C, getSpeciesPropertyName());
   /* 4. ReturnIfAbrupt(S). */
   @ReturnIfAbrupt(S);
   /* 5. If S is neither undefined nor null, */
-  if (!((S = 'undefined) ||| (S = 'null))) {
+  if (!((S = 'undefined) ||| (S = 'null)))
     /* let C be S */
-    C := S
-  };
+    C := S;
   /* 6. Let promiseCapability be NewPromiseCapability(C). */
   promiseCapability := NewPromiseCapability(strict, C);
   /* 7. ReturnIfAbrupt(promiseCapability). */
@@ -706,24 +661,22 @@ function PromiseAll(global, this, NewTarget, strict, args) {
   iterator := GetIterator(iterable, null) catch PromiseExceptionHandler;
   /* 9. IfAbruptRejectPromise(iterator, promiseCapability). */
   @IfAbruptRejectPromise(iterator, promiseCapability);
-  /* 10. Let iteratorRecord be Record {[[iterator]]: iterator, [[done]]:
-     false}. */
+  /* 10. Let iteratorRecord be Record {[[iterator]]: iterator, [[done]]: false}. */
   iteratorRecord := { iterator: iterator, done: false };
   /* 11. Let result be PerformPromiseAll(iteratorRecord, C, promiseCapability). */
   result := PerformPromiseAll(strict, iteratorRecord, C, promiseCapability);
   /* 12. If result is an abrupt completion, */
   if (isAnAbruptCompletion(result)) {
     /* a. If iteratorRecord.[[done]] is false, */
-    if (iteratorRecord.done = false) {
+    if (iteratorRecord.done = false)
       /* let result be IteratorClose(iterator, result) */
-      result := IteratorClose(iterator, result)
-    };
+      result := IteratorClose(iterator, result);
     /* b. IfAbruptRejectPromise(result, promiseCapability). */
-    @IfAbruptRejectPromise(result, promiseCapability)
-  };
+    @IfAbruptRejectPromise(result, promiseCapability);
+  }
   /* 13. Return Completion(result). */
-  return Completion(result)
-};
+  return Completion(result);
+}
 /**
  * NOTE The all function requires its this value to be a constructor function
  * that supports the parameter conventions of the Promise constructor.
@@ -738,9 +691,9 @@ function PromiseAll(global, this, NewTarget, strict, args) {
  */
 function PerformPromiseAll(strict, iteratorRecord, constructor, resultCapability) {
   /* 1. Assert: constructor is a constructor function. */
-  assert(IsConstructor(constructor));
+  assert (IsConstructor(constructor));
   /* 2. Assert: resultCapability is a PromiseCapability record. */
-  assert(isPromiseCapabilityRecord(resultCapability));
+  assert (isPromiseCapabilityRecord(resultCapability));
   /* 3. Let values be a new empty List. */
   values := { list: [] }; /* Necessary to keep track of the list as things are added to it. */
   /* 4. Let remainingElementsCount be a new Record { [[value]]: 1 }. */
@@ -752,39 +705,35 @@ function PerformPromiseAll(strict, iteratorRecord, constructor, resultCapability
     /* a. Let next be IteratorStep(iteratorRecord.[[iterator]]). */
     next := IteratorStep(iteratorRecord.iterator);
     /* b. If next is an abrupt completion, */
-    if (isAnAbruptCompletion(next)) {
+    if (isAnAbruptCompletion(next))
       /* set iteratorRecord.[[done]] to true */
-      iteratorRecord.done := true
-    };
+      iteratorRecord.done := true;
     /* c. ReturnIfAbrupt(next). */
     @ReturnIfAbrupt(next);
     /* d. If next is false, */
     if (next = false) {
       /* i. Set iteratorRecord.[[done]] to true. */
       iteratorRecord.done := true;
-      /* ii. Set remainingElementsCount.[[value]] to
-         remainingElementsCount.[[value]] - 1. */
+      /* ii. Set remainingElementsCount.[[value]] to remainingElementsCount.[[value]] - 1. */
       remainingElementsCount.value := remainingElementsCount.value - 1.;
       /* iii. If remainingElementsCount.[[value]] is 0, */
       if (remainingElementsCount.value = 0.) {
         /* 1. Let valuesArray be CreateArrayFromList(values). */
         valuesArray := CreateArrayFromList(values.list);
-        /* 2. Let resolveResult be Call(resultCapability.[[Resolve]], undefined,
-           «valuesArray»). */
+        /* 2. Let resolveResult be Call(resultCapability.[[Resolve]], undefined, «valuesArray»). */
         resolveResult := WrappedCall(null, null, resultCapability.Resolve, 'undefined, [valuesArray]);
         /* 3. ReturnIfAbrupt(resolveResult) */
-        @ReturnIfAbrupt(resolveResult)
-      };
+        @ReturnIfAbrupt(resolveResult);
+      }
       /* iv. Return resultCapability.[[Promise]]. */
-      return NormalCompletion(resultCapability.Promise)
-    };
+      return NormalCompletion(resultCapability.Promise);
+    }
     /* e. Let nextValue be IteratorValue(next). */
     nextValue := IteratorValue(next);
     /* f. If nextValue is an abrupt completion, */
-    if (isAnAbruptCompletion(nextValue)) {
+    if (isAnAbruptCompletion(nextValue))
       /* set iteratorRecord.[[done]] to true */
-      iteratorRecord.done := true
-    };
+      iteratorRecord.done := true;
     /* g. ReturnIfAbrupt(nextValue). */
     @ReturnIfAbrupt(nextValue);
     /* h. Append undefined to values. */
@@ -793,39 +742,33 @@ function PerformPromiseAll(strict, iteratorRecord, constructor, resultCapability
     nextPromise := WrappedInvoke(null, null, constructor, "resolve", [nextValue]);
     /* j. ReturnIfAbrupt(nextPromise ). */
     @ReturnIfAbrupt(nextPromise);
-    /* k. Let resolveElement be a new built-in function object as defined in
-       Promise.all Resolve Element Functions. */
+    /* k. Let resolveElement be a new built-in function object as defined in Promise.all Resolve Element Functions. */
     resolveElement := CreateBuiltInFunctionObject(["iterable"], "PromiseAllResolveElementFunctions", |global|, strict, null);
     createBuiltInPropertyWithFullDescriptor(resolveElement, "name", "", false, false, true);
     resolveElementFun := lambda(global, this, NewTarget, strict, args)[resolveElement] {
-      return PromiseAllResolveElementFunctions(resolveElement, global, this, strict, args)
+      return PromiseAllResolveElementFunctions(resolveElement, global, this, strict, args);
     };
     resolveElement.ECMAScriptCode := resolveElementFun;
-    /* l. Set the [[AlreadyCalled]] internal slot of resolveElement to a new
-       Record {[[value]]: false }. */
+    /* l. Set the [[AlreadyCalled]] internal slot of resolveElement to a new Record {[[value]]: false }. */
     resolveElement.AlreadyCalled := { value: false };
     /* m. Set the [[Index]] internal slot of resolveElement to index. */
     resolveElement.Index := index;
     /* n. Set the [[Values]] internal slot of resolveElement to values. */
     resolveElement.Values := values;
-    /* o. Set the [[Capabilities]] internal slot of resolveElement to
-       resultCapability. */
+    /* o. Set the [[Capabilities]] internal slot of resolveElement to resultCapability. */
     resolveElement.Capabilities := resultCapability;
-    /* p. Set the [[RemainingElements]] internal slot of resolveElement to
-       remainingElementsCount. */
+    /* p. Set the [[RemainingElements]] internal slot of resolveElement to remainingElementsCount. */
     resolveElement.RemainingElements := remainingElementsCount;
-    /* q. Set remainingElementsCount.[[value]] to
-       remainingElementsCount.[[value]] + 1. */
+    /* q. Set remainingElementsCount.[[value]] to remainingElementsCount.[[value]] + 1. */
     remainingElementsCount.value := remainingElementsCount.value + 1.;
-    /* r. Let result be Invoke(nextPromise, "then", «‍resolveElement,
-       resultCapability.[[Reject]]»). */
+    /* r. Let result be Invoke(nextPromise, "then", «‍resolveElement, resultCapability.[[Reject]]»). */
     result := WrappedInvoke(null, null, nextPromise, "then", [resolveElement, resultCapability.Reject]);
     /* s. ReturnIfAbrupt(result). */
     @ReturnIfAbrupt(result);
     /* t. Set index to index + 1. */
-    index := index + 1.
+    index := index + 1.;
   }
-};
+}
 
 /**
  * 25.4.4.1.2 Promise.all Resolve Element Functions
@@ -844,37 +787,33 @@ function PromiseAllResolveElementFunctions(F, global, this, strict, args) {
   /* 1. Let alreadyCalled be the value of F's [[AlreadyCalled]] internal slot. */
   alreadyCalled := F.AlreadyCalled;
   /* 2. If alreadyCalled.[[value]] is true, */
-  if (alreadyCalled.value = true) {
+  if (alreadyCalled.value = true)
     /* return undefined */
-    return NormalCompletion('undefined)
-  };
+    return NormalCompletion('undefined);
   /* 3. Set alreadyCalled.[[value]] to true. */
   alreadyCalled.value := true;
   /* 4. Let index be the value of F's [[Index]] internal slot. */
   index := F.Index;
   /* 5. Let values be the value of F's [[Values]] internal slot. */
   values := F.Values;
-  /* 6. Let promiseCapability be the value of F's [[Capabilities]] internal
-     slot. */
+  /* 6. Let promiseCapability be the value of F's [[Capabilities]] internal slot. */
   promiseCapability := F.Capabilities;
-  /* 7. Let remainingElementsCount be the value of F's [[RemainingElements]]
-     internal slot. */
+  /* 7. Let remainingElementsCount be the value of F's [[RemainingElements]] internal slot. */
   remainingElementsCount := F.RemainingElements;
   /* 8. Set values[index] to x. */
   values.list := l_set(values.list, int_of_float index, x);
-  /* 9. Set remainingElementsCount.[[value]] to
-     remainingElementsCount.[[value]] - 1. */
+  /* 9. Set remainingElementsCount.[[value]] to remainingElementsCount.[[value]] - 1. */
   remainingElementsCount.value := remainingElementsCount.value - 1.;
   /* 10. If remainingElementsCount.[[value]] is 0, */
   if (remainingElementsCount.value = 0.) {
     /* a. Let valuesArray be CreateArrayFromList(values). */
     valuesArray := CreateArrayFromList(values.list);
     /* b. Return Call(promiseCapability.[[Resolve]], undefined, «valuesArray»). */
-    return Call(null, null, promiseCapability.Resolve, 'undefined, [valuesArray])
-  };
+    return Call(null, null, promiseCapability.Resolve, 'undefined, [valuesArray]);
+  }
   /* 11. Return undefined. */
-  return NormalCompletion('undefined)
-};
+  return NormalCompletion('undefined);
+}
 /**
  * The length property of a Promise.all resolve element function is 1.
  */
@@ -891,19 +830,17 @@ function PromiseRace(global, this, NewTarget, strict, args) {
   /* 1. Let C be the this value. */
   C := this;
   /* 2. If Type(C) is not Object, */
-  if (!(Type(C) = "Object")) {
+  if (!(Type(C) = "Object"))
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 3. Let S be Get(C, @@species). */
   S := Get(C, getSpeciesPropertyName());
   /* 4. ReturnIfAbrupt(S). */
   @ReturnIfAbrupt(S);
   /* 5. If S is neither undefined nor null, */
-  if (!((S = 'undefined) ||| (S = 'null))) {
+  if (!((S = 'undefined) ||| (S = 'null)))
     /* let C be S */
-    C := S
-  };
+    C := S;
   /* 6. Let promiseCapability be NewPromiseCapability(C). */
   promiseCapability := NewPromiseCapability(strict, C);
   /* 7. ReturnIfAbrupt(promiseCapability). */
@@ -912,25 +849,22 @@ function PromiseRace(global, this, NewTarget, strict, args) {
   iterator := GetIterator(iterable, null) catch PromiseExceptionHandler;
   /* 9. IfAbruptRejectPromise(iterator, promiseCapability). */
   @IfAbruptRejectPromise(iterator, promiseCapability);
-  /* 10. Let iteratorRecord be Record {[[iterator]]: iterator, [[done]]:
-     false}. */
+  /* 10. Let iteratorRecord be Record {[[iterator]]: iterator, [[done]]: false}. */
   iteratorRecord := { iterator: iterator, done: false };
-  /* 11. Let result be PerformPromiseRace(iteratorRecord, promiseCapability,
-     C). */
+  /* 11. Let result be PerformPromiseRace(iteratorRecord, promiseCapability, C). */
   result := PerformPromiseRace(iteratorRecord, promiseCapability, C);
   /* 12. If result is an abrupt completion, then */
   if (isAnAbruptCompletion(result)) {
     /* a. If iteratorRecord.[[done]] is false, */
-    if (iteratorRecord.done = false) {
+    if (iteratorRecord.done = false)
       /* let result be IteratorClose(iterator,result) */
-      result := IteratorClose(iterator, result)
-    };
+      result := IteratorClose(iterator, result);
     /* b. IfAbruptRejectPromise(result, promiseCapability). */
-    @IfAbruptRejectPromise(result, promiseCapability)
-  };
+    @IfAbruptRejectPromise(result, promiseCapability);
+  }
   /* 13. Return Completion(result). */
-  return Completion(result)
-};
+  return Completion(result);
+}
 /**
  * NOTE 1 If the iterable argument is empty or if none of the promises in
  * iterable ever settle then the pending promise returned by this method will
@@ -953,10 +887,9 @@ function PerformPromiseRace(iteratorRecord, promiseCapability, C) {
     /* a. Let next be IteratorStep(iteratorRecord.[[iterator]]). */
     next := IteratorStep(iteratorRecord.iterator);
     /* b. If next is an abrupt completion, */
-    if (isAnAbruptCompletion(next)) {
+    if (isAnAbruptCompletion(next))
       /* set iteratorRecord.[[done]] to true */
-      iteratorRecord.done := true
-    };
+      iteratorRecord.done := true;
     /* c. ReturnIfAbrupt(next). */
     @ReturnIfAbrupt(next);
     /* d. If next is false, then */
@@ -964,28 +897,26 @@ function PerformPromiseRace(iteratorRecord, promiseCapability, C) {
       /* i. Set iteratorRecord.[[done]] to true. */
       iteratorRecord.done := true;
       /* ii. Return promiseCapability.[[Promise]]. */
-      return NormalCompletion(promiseCapability.Promise)
-    };
+      return NormalCompletion(promiseCapability.Promise);
+    }
     /* e. Let nextValue be IteratorValue(next). */
     nextValue := IteratorValue(next);
     /* f. If nextValue is an abrupt completion, */
-    if (isAnAbruptCompletion(nextValue)) {
+    if (isAnAbruptCompletion(nextValue))
       /* set iteratorRecord.[[done]] to true */
-      iteratorRecord.done := true
-    };
+      iteratorRecord.done := true;
     /* g. ReturnIfAbrupt(nextValue). */
     @ReturnIfAbrupt(nextValue);
     /* h. Let nextPromise be Invoke(C, "resolve", «‍nextValue»). */
     nextPromise := Invoke(null, null, C, "resolve", [nextValue]);
     /* i. ReturnIfAbrupt(nextPromise). */
     @ReturnIfAbrupt(nextPromise);
-    /* j. Let result be Invoke(nextPromise, "then",
-       «‍promiseCapability.[[Resolve]], promiseCapability.[[Reject]]»). */
+    /* j. Let result be Invoke(nextPromise, "then", «‍promiseCapability.[[Resolve]], promiseCapability.[[Reject]]»). */
     result := Invoke(null, null, nextPromise, "then", [promiseCapability.Resolve, promiseCapability.Reject]);
     /* k. ReturnIfAbrupt(result). */
-    @ReturnIfAbrupt(result)
+    @ReturnIfAbrupt(result);
   }
-};
+}
 
 /**
  * 25.4.4.4 Promise.reject (r)
@@ -997,22 +928,20 @@ function PromiseReject(global, this, NewTarget, strict, args) {
   /* 1. Let C be the this value. */
   C := this;
   /* 2. If Type(C) is not Object, */
-  if (!(Type(C) = "Object")) {
+  if (!(Type(C) = "Object"))
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 3. Let promiseCapability be NewPromiseCapability(C). */
   promiseCapability := NewPromiseCapability(strict, C);
   /* 4. ReturnIfAbrupt(promiseCapability). */
   @ReturnIfAbrupt(promiseCapability);
-  /* 5. Let rejectResult be Call(promiseCapability.[[Reject]], undefined,
-     «r»). */
+  /* 5. Let rejectResult be Call(promiseCapability.[[Reject]], undefined, «r»). */
   rejectResult := Call(null, null, promiseCapability.Reject, 'undefined, [r]);
   /* 6. ReturnIfAbrupt(rejectResult). */
   @ReturnIfAbrupt(rejectResult);
   /* 7. Return promiseCapability.[[Promise]]. */
-  return promiseCapability.Promise
-};
+  return promiseCapability.Promise;
+}
 /**
  * NOTE The reject function expects its this value to be a constructor function
  * that supports the parameter conventions of the Promise constructor.
@@ -1030,10 +959,9 @@ function PromiseResolve(global, this, NewTarget, strict, args) {
   /* 1. Let C be the this value. */
   C := this;
   /* 2. If Type(C) is not Object, */
-  if (!(Type(C) = "Object")) {
+  if (!(Type(C) = "Object"))
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 3. If IsPromise(x) is true, */
   if (IsPromise(x) = true) {
     /* a. Let xConstructor be Get(x, "constructor"). */
@@ -1041,23 +969,21 @@ function PromiseResolve(global, this, NewTarget, strict, args) {
     /* b. ReturnIfAbrupt(xConstructor). */
     @ReturnIfAbrupt(xConstructor);
     /* c. If SameValue(xConstructor, C) is true, */
-    if (SameValue(xConstructor, C) = true) {
+    if (SameValue(xConstructor, C) = true)
       /* return x */
-      return x
-    }
-  };
+      return x;
+  }
   /* 4. Let promiseCapability be NewPromiseCapability(C). */
   promiseCapability := NewPromiseCapability(strict, C);
   /* 5. ReturnIfAbrupt(promiseCapability). */
   @ReturnIfAbrupt(promiseCapability);
-  /* 6. Let resolveResult be Call(promiseCapability.[[Resolve]], undefined,
-     «x»). */
+  /* 6. Let resolveResult be Call(promiseCapability.[[Resolve]], undefined, «x»). */
   resolveResult := Call(null, null, promiseCapability.Resolve, 'undefined, [x]);
   /* 7. ReturnIfAbrupt(resolveResult). */
   @ReturnIfAbrupt(resolveResult);
   /* 8. Return promiseCapability.[[Promise]]. */
-  return promiseCapability.Promise
-};
+  return promiseCapability.Promise;
+}
 /**
  * NOTE The resolve function expects its this value to be a constructor function
  * that supports the parameter conventions of the Promise constructor.
@@ -1069,10 +995,10 @@ function PromiseResolve(global, this, NewTarget, strict, args) {
  * Promise[@@species] is an accessor property whose set accessor function
  * is undefined. Its get accessor function performs the following steps:
  */
-function promiseSpeciesGetter(global, this, NewTarget, strict, args){
+function promiseSpeciesGetter(global, this, NewTarget, strict, args) {
   /* 1. Return the this value. */
-  return this
-};
+  return this;
+}
 /**
  * The value of the name property of this function is "get [Symbol.species]".
  *
@@ -1130,8 +1056,8 @@ function initPromisePrototype(global, ObjectPrototype, PromiseConstructor, stric
    */
   createBuiltInPropertyWithFullDescriptor(prototype, getToStringTagPropertyName(), "Promise", false, false, true);
 
-  return prototype
-};
+  return prototype;
+}
 
 /**
  * 25.4.5.1 Promise.prototype.catch (onRejected)
@@ -1144,8 +1070,8 @@ function PromisePrototypeCatch(global, this, NewTarget, strict, args) {
   /* 1. Let promise be the this value. */
   promise := this;
   /* 2. Return Invoke(promise, "then", «‍undefined, onRejected»). */
-  return Invoke(null, null, promise, "then", ['undefined, onRejected])
-};
+  return Invoke(null, null, promise, "then", ['undefined, onRejected]);
+}
 
 /**
  * 25.4.5.3 Promise.prototype.then (onFulfilled, onRejected)
@@ -1159,10 +1085,9 @@ function PromisePrototypeThen(global, this, NewTarget, strict, args) {
   /* 1. Let promise be the this value. */
   promise := this;
   /* 2. If IsPromise(promise) is false, */
-  if (IsPromise(promise) = false) {
+  if (IsPromise(promise) = false)
     /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
+    throw TypeErrorConstructorInternal();
   /* 3. Let C be SpeciesConstructor(promise, %Promise%). */
   C := SpeciesConstructor(promise, |Intrinsics|["Promise"]);
   /* 4. ReturnIfAbrupt(C). */
@@ -1171,10 +1096,9 @@ function PromisePrototypeThen(global, this, NewTarget, strict, args) {
   resultCapability := NewPromiseCapability(strict, C);
   /* 6. ReturnIfAbrupt(resultCapability). */
   @ReturnIfAbrupt(resultCapability);
-  /* 7. Return PerformPromiseThen(promise, onFulfilled, onRejected,
-     resultCapability). */
-  return PerformPromiseThen(promise, onFulfilled, onRejected, resultCapability)
-};
+  /* 7. Return PerformPromiseThen(promise, onFulfilled, onRejected, resultCapability). */
+  return PerformPromiseThen(promise, onFulfilled, onRejected, resultCapability);
+}
 
 /**
  * 25.4.5.3.1 PerformPromiseThen (promise, onFulfilled, onRejected, resultCapability)
@@ -1185,73 +1109,61 @@ function PromisePrototypeThen(global, this, NewTarget, strict, args) {
  */
 function PerformPromiseThen(promise, onFulfilled, onRejected, resultCapability) {
   /* 1. Assert: IsPromise(promise) is true. */
-  assert(IsPromise(promise) = true);
+  assert (IsPromise(promise) = true);
   /* 2. Assert: resultCapability is a PromiseCapability record. */
-  assert(isPromiseCapabilityRecord(resultCapability));
+  assert (isPromiseCapabilityRecord(resultCapability));
   /* 3. If IsCallable(onFulfilled) is false, then */
-  if (IsCallable(onFulfilled) = false) {
+  if (IsCallable(onFulfilled) = false)
     /* a. Let onFulfilled be "Identity". */
-    onFulfilled := "Identity"
-  };
+    onFulfilled := "Identity";
   /* 4. If IsCallable(onRejected) is false, then */
-  if (IsCallable(onRejected) = false) {
+  if (IsCallable(onRejected) = false)
     /* a. Let onRejected be "Thrower". */
-    onRejected := "Thrower"
-  };
-  /* 5. Let fulfillReaction be the PromiseReaction { [[Capabilities]]:
-     resultCapability, [[Handler]]: onFulfilled }. */
+    onRejected := "Thrower";
+  /* 5. Let fulfillReaction be the PromiseReaction { [[Capabilities]]: resultCapability, [[Handler]]: onFulfilled }. */
   fulfillReaction := newPromiseReaction(resultCapability, onFulfilled);
-  /* 6. Let rejectReaction be the PromiseReaction { [[Capabilities]]:
-     resultCapability, [[Handler]]: onRejected}. */
+  /* 6. Let rejectReaction be the PromiseReaction { [[Capabilities]]: resultCapability, [[Handler]]: onRejected}. */
   rejectReaction := newPromiseReaction(resultCapability, onRejected);
   /* 7. If the value of promise's [[PromiseState]] internal slot is "pending", */
   if (promise.PromiseState = "pending") {
-    /* a. Append fulfillReaction as the last element of the List that is the
-       value of promise's [[PromiseFulfillReactions]] internal slot. */
+    /* a. Append fulfillReaction as the last element of the List that is the value of promise's [[PromiseFulfillReactions]] internal slot. */
     promise.PromiseFulfillReactions := l_add(promise.PromiseFulfillReactions, fulfillReaction);
-    /* b. Append rejectReaction as the last element of the List that is the
-       value of promise's [[PromiseRejectReactions]] internal slot. */
-    promise.PromiseRejectReactions := l_add(promise.PromiseRejectReactions, rejectReaction)
-  }
-  /* 8. Else if the value of promise's [[PromiseState]] internal slot is
-     "fulfilled", */
-  elif (promise.PromiseState = "fulfilled") {
+    /* b. Append rejectReaction as the last element of the List that is the value of promise's [[PromiseRejectReactions]] internal slot. */
+    promise.PromiseRejectReactions := l_add(promise.PromiseRejectReactions, rejectReaction);
+  /* 8. Else if the value of promise's [[PromiseState]] internal slot is "fulfilled", */
+  } elif (promise.PromiseState = "fulfilled") {
     /* a. Let value be the value of promise's [[PromiseResult]] internal slot. */
     value := promise.PromiseResult;
-    /* b. Perform EnqueueJob("PromiseJobs", PromiseReactionJob,
-       «‍fulfillReaction, value»). */
-    EnqueueJob("PromiseJobs", "PromiseReactionJob", [fulfillReaction, value])
-  }
-  /* 9. Else if the value of promise's [[PromiseState]] internal slot is
-     "rejected", */
-  elif (promise.PromiseState = "rejected") {
+    /* b. Perform EnqueueJob("PromiseJobs", PromiseReactionJob, «‍fulfillReaction, value»). */
+    EnqueueJob("PromiseJobs", "PromiseReactionJob", [fulfillReaction, value]);
+  /* 9. Else if the value of promise's [[PromiseState]] internal slot is "rejected", */
+  } elif (promise.PromiseState = "rejected") {
     /* a. Let reason be the value of promise's [[PromiseResult]] internal slot. */
     reason := promise.PromiseResult;
-    /* b. Perform EnqueueJob("PromiseJobs", PromiseReactionJob,
-       «‍rejectReaction, reason»). */
-    EnqueueJob("PromiseJobs", "PromiseReactionJob", [rejectReaction, reason])
-  };
+    /* b. Perform EnqueueJob("PromiseJobs", PromiseReactionJob «‍rejectReaction, reason»). */
+    EnqueueJob("PromiseJobs", "PromiseReactionJob", [rejectReaction, reason]);
+  }
   /* 10. Return resultCapability.[[Promise]]. */
-  return NormalCompletion(resultCapability.Promise)
-};
+  return NormalCompletion(resultCapability.Promise);
+}
 
 
 function newPromiseReaction(capability, handler) {
-  return { Capabilities: capability, Handler: handler }
-};
+  return { Capabilities: capability, Handler: handler };
+}
 function isPromiseCapabilityRecord(record) {
-  return (("Promise" in_obj record) &&& ("Resolve" in_obj record) &&& ("Reject" in_obj record))
-};
+  return (("Promise" in_obj record) &&& ("Resolve" in_obj record) &&& ("Reject" in_obj record));
+}
 function isPromiseReactionRecord(record) {
-  return (("Capabilities" in_obj record) &&& ("Handler" in_obj record))
-};
+  return (("Capabilities" in_obj record) &&& ("Handler" in_obj record));
+}
 /* Might make sense to move this one to section 8.9 */
 function isCompletionRecord(record) {
-  return (Type(record) = "Completion")
-};
+  return (Type(record) = "Completion");
+}
 
 function PromiseExceptionHandler(x) {
-  return throwEmptyCompletion(x)
+  return throwEmptyCompletion(x);
 }
 
 

@@ -2,7 +2,7 @@ function main () {
 h:= false;
 
 l:= true;
-o := {};
+o := {}
 o.p := true;
 
 x:= "upgVar"("l", "low");
@@ -11,11 +11,11 @@ x:= "upgStruct"(o, "low");
 
 if (h) {
   delete o["p"]
-};
+}
 x:= "p" in_obj o;
 if (x) {
   l:= false
-};
+}
 
 
 

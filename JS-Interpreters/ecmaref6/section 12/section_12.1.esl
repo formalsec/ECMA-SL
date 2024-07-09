@@ -1,7 +1,7 @@
 /* 12.1.5.1 Runtime Semantics: InitializeBoundName(name, value, environment) */
 function InitializeBoundName(name, value, environment, scope) {
   /* 1. Assert: Type(name) is String. */
-  assert(Type(name) = "String");
+  assert (Type(name) = "String");
   /* 2. If environment is not undefined, then */
   if (!(environment = 'undefined)) {
     /* a. Let env be the EnvironmentRecord component of environment. */
@@ -9,13 +9,13 @@ function InitializeBoundName(name, value, environment, scope) {
     /* b. Perform env.InitializeBinding(name, value). */
     {env.InitializeBinding}(env, name, value);
     /* c. Return NormalCompletion(undefined). */
-    return NormalCompletion('undefined)
+    return NormalCompletion('undefined);
   }
   /* 3. Else */
   else {
     /* a. Let lhs be ResolveBinding(name). */
     lhs := ResolveBinding(scope, name, null);
     /* b. Return PutValue(lhs, value). */
-    return PutValue(lhs, value)
+    return PutValue(lhs, value);
   }
 }

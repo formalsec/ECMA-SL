@@ -9,5 +9,5 @@ function zero() {
 function main() {
   two := zero() + one() + one();
   print two;
-  return two
+  return two;
 }

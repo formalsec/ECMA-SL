@@ -1,4 +1,4 @@
-function main(){
+function main() {
 	x := 2;
 	return x
 }

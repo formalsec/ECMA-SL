@@ -1,8 +1,8 @@
 function main () {
   h:= false;
   l := true;
-  oh := {};
-  ol := {};
+  oh := {}
+  ol := {}
   ol.p := false;
   aux1:= "upgVar"("l", "low");
   aux2:= "upgVar"("h", "high");
@@ -11,12 +11,12 @@ function main () {
 
   if (h) {
     oh := ol
-  };
+  }
   oh.p := true;
   x:=oh.p;
   if (!x) {
     l := false
-  };
+  }
   return l
 
 }

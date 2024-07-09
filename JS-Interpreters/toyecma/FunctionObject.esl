@@ -1,14 +1,14 @@
-function FunctionObject(name: string, params: any, code: any, scope: JSScope_t): JSFunctionObject_t {
-  functionObject: JSFunctionObject_t := Object();       /* BUG: subtyping relationship */
+function FunctionObject(name, params, code, scope) {
+  functionObject := Object();
   functionObject.internal := false;
   functionObject.name := name;
   functionObject.params := params;
   functionObject.code := code;
   functionObject.scope := scope;
   functionObject.__js_props__.prototype := Object();
-  return functionObject
-};
+  return functionObject;
+}
 
-function getFunctionPrototype(functionObject: JSFunctionObject_t): JSObject_t {
-  return functionObject.__js_props__.prototype
+function getFunctionPrototype(functionObject) {
+  return functionObject.__js_props__.prototype;
 }

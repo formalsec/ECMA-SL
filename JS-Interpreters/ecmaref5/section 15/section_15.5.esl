@@ -1,15 +1,12 @@
 /* Placeholder */
 
 function getStringPrototype(strict) {
-
   refString := newPropertyReference(|global|, "String", strict);
   StringObject := GetValue(refString);
   refStringProto := newPropertyReference(StringObject, "prototype", strict);
   StringProto := GetValue(refStringProto);
-
-  return StringProto
-
-};
+  return StringProto;
+}
 
 
 function initStringObject(global, objectPrototype, strict) {
@@ -23,8 +20,8 @@ function initStringObject(global, objectPrototype, strict) {
   fromCharCode := CreateBuiltInFunctionObject(["chars"], "StringFromCharCode", global, strict, 0.);
   createBuiltInProperty(objStringConstructor, "fromCharCode", fromCharCode);
 
-  return objStringConstructor
-};
+  return objStringConstructor;
+}
 
 /* 15.5.4 Properties of the String Prototype Object */
 function initStringPrototype(global, objectPrototype, StringConstructor, strict) {
@@ -139,15 +136,14 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
   trimFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypeTrim", global, strict, null);
   createBuiltInProperty(prototype, "trim", trimFunctionObject);
 
-
   /* 15.5.5.1 length */
   /* The number of characters in the String value represented by this String object. */
   /* Once a String object is created, this property is unchanging. It has the attributes { [[Writable]]: false,
      [[Enumerable]]: false, [[Configurable]]: false }. */
   createBuiltInPropertyWithFullDescriptor(prototype, "length", 0., false, false, false);
 
-  return prototype
-};
+  return prototype;
+}
 
 
 
@@ -160,12 +156,11 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
 /* Returns a String value (not a String object) computed by ToString(value). If value is not supplied,
    the empty String "" is returned. */
 function StringConstructorCalledAsFunction(value) {
-  if (value = null) {
+  if (value = null)
     return ""
-  } else {
-    return ToString(value)
-  }
-};
+  else
+    return ToString(value);
+}
 
 /* 15.5.2 The String Constructor */
 
@@ -176,9 +171,8 @@ function StringConstructorCalledAsFunction(value) {
 function StringConstructor (global, this, strict, args) {
   value := getOptionalParam(args, 0);
 
-  if ((this = 'undefined) ||| (this = 'null)) {
-    return StringConstructorCalledAsFunction(value)
-  };
+  if ((this = 'undefined) ||| (this = 'null))
+    return StringConstructorCalledAsFunction(value);
 
   /* When String is called as part of a new expression, it is a constructor: it initialises the newly created object. */
   newlyConstructedObject := NewECMAScriptObject();
@@ -193,12 +187,11 @@ function StringConstructor (global, this, strict, args) {
   setInternalProperty(newlyConstructedObject, "Extensible", true);
   /* The [[PrimitiveValue]] internal property of the newly constructed object is set to ToString(value),
      or to the empty String if value is not supplied. */
-  if (value = null) {
-    newlyConstructedObject.PrimitiveValue := ""
-  } else {
-    newlyConstructedObject.PrimitiveValue := ToString(value)
-  };
-
+  if (value = null)
+    newlyConstructedObject.PrimitiveValue := "";
+  else
+    newlyConstructedObject.PrimitiveValue := ToString(value);
+    
   /* 15.5.5 Properties of String Instances */
   /* String instances inherit properties from the String prototype object and their [[Class]] internal property value is
      "String". String instances also have a [[PrimitiveValue]] internal property, a length property, and a set of
@@ -208,8 +201,8 @@ function StringConstructor (global, this, strict, args) {
   while (i < len) {
     i_str := int_to_string i;
     createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, i_str, s_nth_u (newlyConstructedObject.PrimitiveValue, i), false, true, false);
-    i := i + 1
-  };
+    i := i + 1;
+  }
   /* The [[PrimitiveValue]] internal property is the String value represented by this String object. The array index
      named properties correspond to the individual characters of the String value. A special [[GetOwnProperty]]
      internal method is used to specify the number, values, and attributes of the array index named properties. */
@@ -220,8 +213,8 @@ function StringConstructor (global, this, strict, args) {
      [[Enumerable]]: false, [[Configurable]]: false }. */
   createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", int_to_float (s_len_u (newlyConstructedObject.PrimitiveValue)), false, false, false);
 
-  return newlyConstructedObject
-};
+  return newlyConstructedObject;
+}
 
 
 /* 15.5.3 Properties of the String Constructor */
@@ -257,11 +250,10 @@ function StringFromCharCode (global, this, strict, args) {
     next  := hd args_;
     args_ := tl args_;
     /* An argument is converted to a character by applying the operation ToUint16 */
-    R := s_concat([R, from_char_code_u ( int_of_float (ToUint16(next) )) ])
-
-  };
-  return R
-};
+    R := s_concat([R, from_char_code_u ( int_of_float (ToUint16(next) )) ]);
+  }
+  return R;
+}
 
 /* 15.5.4 Properties of the String Prototype Object */
 /* Verificar o true */
@@ -271,9 +263,9 @@ function StringFromCharCode (global, this, strict, args) {
     Class: "String",
     Extensible: true,
     PrimitiveValue: ""
-  };
+  }
   return ret
-};
+}
 */
 
 /* 15.5.4.1 String.prototype.constructor */
@@ -286,14 +278,14 @@ function StringPrototypetoString (global, this, strict, args) {
 
   /* The toString function is not generic; it throws a TypeError exception if its this value is not a String or a
      String object. Therefore, it cannot be transferred to other kinds of objects for use as a method. */
-  if (!isStringOrStringObject(this)) {
-    throw TypeErrorConstructorInternal()
-  };
-  if (Type(this) = "String") {
-    return this
-  };
-  return getInternalProperty(this, "PrimitiveValue")
-};
+  if (!isStringOrStringObject(this))
+    throw TypeErrorConstructorInternal();
+
+  if (Type(this) = "String")
+    return this;
+
+  return getInternalProperty(this, "PrimitiveValue");
+}
 
 /* 15.5.4.3 String.prototype.valueOf ( ) */
 function StringPrototypevalueOf (global, this, strict, args) {
@@ -301,14 +293,14 @@ function StringPrototypevalueOf (global, this, strict, args) {
 
   /* The valueOf function is not generic; it throws a TypeError exception if its this value is not a String or String
      object. Therefore, it cannot be transferred to other kinds of objects for use as a method. */
-  if (!isStringOrStringObject(this)) {
-    throw TypeErrorConstructorInternal()
-  };
-  if (Type(this) = "String") {
-    return this
-  };
-  return getInternalProperty(this, "PrimitiveValue")
-};
+  if (!isStringOrStringObject(this))
+    throw TypeErrorConstructorInternal();
+  
+  if (Type(this) = "String")
+    return this;
+
+  return getInternalProperty(this, "PrimitiveValue");
+}
 
 /* 15.5.4.4 String.prototype.charAt (pos) */
 /*  Returns a String containing the character at position pos in the String resulting from converting this object to a String.
@@ -345,13 +337,13 @@ function StringPrototypecharAt(global, this, strict, args) {
   /* Let size be the number of characters in S. */
   size := s_len_u(S);
   /* If position < 0 or position ≥ size, return the empty String. */
-  if ((position < 0) ||| (position >= size)) {
-    return ""
-  };
+  if ((position < 0) ||| (position >= size))
+    return "";
+
   /* Return a String of length 1, containing one character from S, namely the character at position position
   where the first (leftmost) character in S is considered to be at position 0, the next one at position 1, and so on.*/
-  return (s_nth_u (S, position))
-};
+  return (s_nth_u (S, position));
+}
 
 /* 15.5.4.5 String.prototype.charCodeAt (pos) */
 
@@ -387,13 +379,13 @@ function StringPrototypecharCodeAt (global, this, strict, args) {
   /*Let size be the number of characters in S.*/
   size := s_len_u(S);
   /* If position < 0 or position ≥ size, return NaN. */
-  if ((position < 0) ||| (position >= size)) {
-    return NaN
-  };
+  if ((position < 0) ||| (position >= size))
+    return NaN;
+  
   /*     Return a value of Number type, whose value is the code unit value of the character at position position
        in the String S, where the first (leftmost) character in S is considered to be at position 0, the next one at position 1, and so on. */
-  return int_to_float (to_char_code_u (s_nth_u (S, position)))
-};
+  return int_to_float (to_char_code_u (s_nth_u (S, position)));
+}
 
 /*15.5.4.6 String.prototype.concat ( [ string1 [ , string2 [ , … ] ] ] )  */
 /*
@@ -437,13 +429,13 @@ function StringPrototypeconcat(global, this, strict, args) {
     next  := hd args_;
     args_ := tl args_;
     /* Let R be the String value consisting of the characters in the previous value of R followed by the characters of ToString(next). */
-    R := s_concat([R, ToString(next)])
-  };
+    R := s_concat([R, ToString(next)]);
+  }
   /* Return R. */
-  return R
+  return R;
   /* The length property of the concat method is 1. */
   /* To Do */
-};
+}
 
 /* 15.5.4.7 String.prototype.indexOf (searchString, position) */
 
@@ -501,23 +493,23 @@ function StringPrototypeIndexOf (global, this, strict, args) {
   /* for all nonnegative integers j */
   j := 0;
   /* such that k+ searchLen is not greater than len */
-  while((k + searchLen) <= len) {
+  while ((k + searchLen) <= len) {
   /* for all nonnegative integers j less than searchLen*/
     if (j < searchLen) {
       /* the character at position k+j of S is the same as the character at position j of searchStr */
       if (s_nth_u (S, k + j) = s_nth_u(searchStr, j)) {
-        j := j + 1
+        j := j + 1;
       } else {
         j := 0;
-        k := k + 1
+        k := k + 1;
       }
     } else {
-      return int_to_float k
+      return int_to_float k;
     }
-  };
+  }
   /* but if there is no such integer k, then return the value -1. */
-  return -(1.)
-};
+  return -(1.);
+}
 
 /* 15.5.4.8 String.prototype.lastIndexOf (searchString, position) */
 /*
@@ -548,11 +540,10 @@ function StringPrototypelastIndexOf(global, this, strict, args) {
   /*  Let numPos be ToNumber(position). (If position is undefined, this step produces the value NaN). */
   numPos := ToNumber(position);
   /*  If numPos is NaN, let pos be +∞; otherwise, let pos be ToInteger(numPos).*/
-  if (is_NaN (numPos)) {
-    pos := Infinity
-  } else {
-    pos := ToInteger(numPos)
-  };
+  if (is_NaN (numPos)) 
+    pos := Infinity; 
+  else 
+    pos := ToInteger(numPos); 
   /* Let len be the number of characters in S.*/
   len := s_len_u(S);
   /* Let start min(max(pos, 0), len). */
@@ -571,25 +562,25 @@ function StringPrototypelastIndexOf(global, this, strict, args) {
        if ((k + searchLen) <= len) {
          /* the character at position k+j of S is the same as the character at position j of searchStr */
          if (s_nth_u(S, k + j) = s_nth_u(searchStr, j)) {
-           j := j + 1
+           j := j + 1;
          }
          else {
            j := 0;
-           k := k - 1
+           k := k - 1;
          }
        }
        else {
-         k := k - 1
+         k := k - 1;
        }
      }
      else {
        /* Return the largest possible nonnegative integer k */
-       return int_to_float k
+       return int_to_float k;
      }
-  };
+  }
   /* but if there is no such integer k, then return the value -1. */
-  return -(1.)
-};
+  return -(1.);
+}
 
 /* 15.5.4.9 String.prototype.localeCompare (that) */
 
@@ -617,29 +608,26 @@ function StringPrototypelocaleCompare (global, this, strict, args) {
   j := 0;
   while ((j < SLen) &&& (j < ThatLen)) {
     if (to_char_code_u(s_nth_u(S, j)) < to_char_code_u(s_nth_u(That, j))) {
-      return -(1.)
-    }
-    else{
+      return -(1.);
+    } else {
       if (to_char_code_u(s_nth_u(S, j)) > to_char_code_u(s_nth_u(That, j))) {
-        return 1.
-      }
-      else {
-        j := j + 1
+        return 1.;
+      } else {
+        j := j + 1;
       }
     }
-  };
+  }
   if ((j < SLen) &&& !(j < ThatLen)) {
-    return -(1.)
+    return -(1.);
   }
   else {
     if (!(j < SLen) &&& (j < ThatLen)) {
-      return 1.
-    }
-    else {
-      return 0.
+      return 1.;
+    } else {
+      return 0.;
     }
   }
-};
+}
 
 /**
  * 15.5.4.10 String.prototype.match (regexp)
@@ -657,13 +645,13 @@ function StringPrototypeMatch(global, this, strict, args) {
   /* 3. If Type(regexp) is Object and the value of the [[Class]] internal
     property of regexp is "RegExp", then let rx be regexp; */
   if ((Type(regexp) = "Object") &&& (regexp.Class = "RegExp")) {
-    rx := regexp
+    rx := regexp;
   }
   /* 4. Else, let rx be a new RegExp object created as if by the expression
     new RegExp( regexp) where RegExp is the standard built-in constructor with that name. */
   else {
-    rx := RegExpConstructor(global, this, strict, [regexp, 'undefined])
-  };
+    rx := RegExpConstructor(global, this, strict, [regexp, 'undefined]);
+  }
   /* 5. Let global be the result of calling the [[Get]] internal method of
     rx with argument "global". */
   global := rx.OriginalFlags.gb;
@@ -674,7 +662,7 @@ function StringPrototypeMatch(global, this, strict, args) {
   if (!(global = true)) {
     /* a. Return the result of calling the [[Call]] internal method of exec
       with rx as the this value and argument list containing S. */
-    return {exec.Call}(null, null, exec, rx, [S])
+    return {exec.Call}(null, null, exec, rx, [S]);
   }
   /* 8. Else, global is true */
   else {
@@ -696,7 +684,7 @@ function StringPrototypeMatch(global, this, strict, args) {
       result := {exec.Call}(null, null, exec, rx, [S]);
       /* ii. If result is null, then set lastMatch to false. */
       if (result = 'null) {
-        lastMatch := false
+        lastMatch := false;
       }
       /* iii. Else, result is not null */
       else {
@@ -709,12 +697,12 @@ function StringPrototypeMatch(global, this, strict, args) {
             "lastIndex" and thisIndex+1. */
           {rx.Put}(rx, "lastIndex", thisIndex + 1.);
           /* b. Set previousLastIndex to thisIndex+1. */
-          previousLastIndex := thisIndex + 1.
+          previousLastIndex := thisIndex + 1.;
         }
         /* 3. Else, set previousLastIndex to thisIndex. */
         else {
-          previousLastIndex := thisIndex
-        };
+          previousLastIndex := thisIndex;
+        }
         /* 4. Let matchStr be the result of calling the [[Get]] internal
           method of result with argument "0". */
         matchStr := {result.Get}(result, "0");
@@ -724,17 +712,16 @@ function StringPrototypeMatch(global, this, strict, args) {
         descriptorMatchStr := newDataPropertyDescriptorFull(matchStr, true, true, true);
         {A.DefineOwnProperty}(A, ToString(n), descriptorMatchStr, false);
         /* 6. Increment n. */
-        n := n + 1.
+        n := n + 1.;
       }
     }
-  };
+  }
   /* g. If n = 0, then return null. */
-  if (n = 0) {
-    return null
-  };
+  if (n = 0)
+    return null;
   /* h. Return A. */
-  return A
-};
+  return A;
+}
 /**
  * NOTE The match function is intentionally generic; it does not require that its
  * this value be a String object. Therefore, it can be transferred to other kinds
@@ -767,31 +754,29 @@ function StringPrototypeReplace(global, this, strict, args) {
   if (isRegExpObject(searchValue)) {
     g := searchValue.OriginalFlags.gb;
     matchArr := RegExpPrototypeExec(global, searchValue, strict, [str]);
-    if (matchArr = 'null) {
-      return str
-    };
+    if (matchArr = 'null)
+      return str;
+
     m := {matchArr.Get}(matchArr, "length") - 1.;
-    
     matches := [matchArr];
 
     if (g = true) {
       prevLastIndex := getJSProperty(searchValue, "lastIndex").Value;
       if (prevLastIndex = 0.) {
         prevLastIndex := 1.;
-        setJSProperty(searchValue, "lastIndex", newDataPropertyDescriptorFull(1., true, false, false))
-      };
+        setJSProperty(searchValue, "lastIndex", newDataPropertyDescriptorFull(1., true, false, false));
+      }
       while (!(matchArr = 'null)) {
         matchArr := RegExpPrototypeExec(global, searchValue, strict, [str]);
         /* Update lastIndex in case of an empty string match */
         lastIndex := getJSProperty(searchValue, "lastIndex").Value;
         if (lastIndex = prevLastIndex) {
           lastIndex := lastIndex + 1.;
-          setJSProperty(searchValue, "lastIndex", newDataPropertyDescriptorFull(lastIndex, true, false, false))
-        };
-        if (!(matchArr = 'null)) {
-          matches := l_concat(matches, [matchArr])
-        };
-        prevLastIndex := lastIndex
+          setJSProperty(searchValue, "lastIndex", newDataPropertyDescriptorFull(lastIndex, true, false, false));
+        }
+        if (!(matchArr = 'null))
+          matches := l_concat(matches, [matchArr]);
+        prevLastIndex := lastIndex;
       }
     }
   }
@@ -809,11 +794,11 @@ function StringPrototypeReplace(global, this, strict, args) {
       {A.DefineOwnProperty}(A, "input", newDataPropertyDescriptorFull(str, true, true, true), true);
       {A.DefineOwnProperty}(A, "length", newDataPropertyDescriptorFull(1., true, false, false), true);
       {A.DefineOwnProperty}(A, "0", newDataPropertyDescriptorFull(searchString, true, true, true), true);
+      matches := l_concat(matches, [A]);
+    }
 
-      matches := l_concat(matches, [A])
-    };
-    m := 0.
-  };
+    m := 0.;
+  }
   /* If replaceValue is a function, then for each matched substring, call the
   function with the following m + 3 arguments. Argument 1 is the substring that
   matched. If searchValue is a regular expression, the next m arguments are all
@@ -865,8 +850,8 @@ function StringPrototypeReplace(global, this, strict, args) {
       j_str := float_to_string j;
       matchStr2 := {A.Get}(A, j_str);
       captures := l_concat(captures, [matchStr2]);
-      j := j + 1.
-    };
+      j := j + 1.;
+    }
 
     args2 := l_concat(args2, captures);
 
@@ -888,26 +873,24 @@ function StringPrototypeReplace(global, this, strict, args) {
       according to test test/test262/tests/built-ins/String/prototype/replace/15.5.4.11-1.js
       and test/test262/tests/built-ins/String/prototype/replace/15.5.4.11-1.js */
       newstring := {replaceValue.Call}(null, null, replaceValue, 'undefined, args2);
-      newstring := ToString(newstring)
+      newstring := ToString(newstring);
     } else {
       newstring := ToString(replaceValue);
       beforeStr2 := s_substr_u(originalString, 0, offset);
       off1 := offset + matchStrLen;
       off2 := (s_len_u (originalString)) - off1;
       afterStr2 := s_substr_u(originalString, off1, off2);
-      newstring := resolveDollars(newstring, matchStr, beforeStr2, afterStr2, captures)
-    };
+      newstring := resolveDollars(newstring, matchStr, beforeStr2, afterStr2, captures);
+    }
 
     resultParts := l_concat (resultParts, [beforeStr, newstring]);
-
     prevOffset := offset + matchStrLen;
-
-    i := i + 1
-  };
+    i := i + 1;
+  }
 
   resultParts := l_concat (resultParts, [str]);
-  return s_concat resultParts
-};
+  return s_concat resultParts;
+}
 /**
  * NOTE The replace function is intentionally generic; it does not require that its
  * this value be a String object. Therefore, it can be transferred to other kinds of
@@ -926,46 +909,30 @@ function resolveDollars(newstring, matchStr, beforeStr, afterStr, captures) {
     if ((c1 = "$") &&& (c2 = "$")) {
       str1 := s_substr_u(newstring, 0, i + 1);
       startIndex := i + 2;
-      if (startIndex > len) {
-        str2 := ""
-      } else {
-        str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex)
-      };
+      if (startIndex > len) str2 := ""; else str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex);
       newstring := s_concat [str1, str2];
-      i := i + 1
+      i := i + 1;
 
     } elif ((c1 = "$") &&& (c2 = "&")) {
       str1 := s_substr_u(newstring, 0, i);
       startIndex := i + 2;
-      if (startIndex > len) {
-        str2 := ""
-      } else {
-        str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex)
-      };
+      if (startIndex > len) str2 := ""; else str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex);
       newstring := s_concat [str1, matchStr, str2];
-      i := i + (s_len_u (matchStr))
+      i := i + (s_len_u (matchStr));
 
     } elif ((c1 = "$") &&& (c2 = "`")) {
       str1 := s_substr_u(newstring, 0, i);
       startIndex := i + 2;
-      if (startIndex > len) {
-        str2 := ""
-      } else {
-        str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex)
-      };
+      if (startIndex > len) str2 := ""; else str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex);
       newstring := s_concat [str1, beforeStr, str2];
-      i := i + (s_len_u (beforeStr))
+      i := i + (s_len_u (beforeStr));
 
     } elif ((c1 = "$") &&& (c2 = "'")) {
       str1 := s_substr_u(newstring, 0, i);
       startIndex := i + 2;
-      if (startIndex > len) {
-        str2 := ""
-      } else {
-        str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex)
-      };
+      if (startIndex > len) str2 := ""; str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex);
       newstring := s_concat [str1, afterStr, str2];
-      i := i + (s_len_u (afterStr))
+      i := i + (s_len_u (afterStr));
 
     } elif ((c1 = "$") &&& (c2_code >= 48) &&& (c2_code <= 57)) {
       startIndex := i + 2;
@@ -973,40 +940,34 @@ function resolveDollars(newstring, matchStr, beforeStr, afterStr, captures) {
       if ((i + 2) <= len) {
         c3 := s_nth_u(newstring, i + 2);
         c3_code := to_char_code_u (c3);
-        if ((c3_code >= 48) &&& (c3_code <= 57)) {
-          startIndex := i + 3
-        } else {
-          c3 := ""
-        }
-      };
+        if ((c3_code >= 48) &&& (c3_code <= 57))
+          startIndex := i + 3;
+        else
+          c3 := "";
+      }
       num := int_of_string (s_concat [c2, c3]);
       if (num > (l_len captures)) {
         num := int_of_string c2;
-        startIndex := i + 2
-      };
+        startIndex := i + 2;
+      }
       if (!(num > (l_len captures))) {
         str1 := s_substr_u(newstring, 0, i);
-        if (startIndex > len) {
-          str2 := ""
-        } else {
-          str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex)
-        };
+        if (startIndex > len) str2 := ""; str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex);
         m := l_nth(captures, num - 1);
-        if (m = 'undefined) {
-          m := ""
-        };
+        if (m = 'undefined)
+          m := "";
         newstring := s_concat [str1, m, str2];
-        i := i + (s_len_u (m))
+        i := i + (s_len_u (m));
       } else {
-        i := i + 1
+        i := i + 1;
       }
     } else {
-      i := i + 1
-    };
-    len := (s_len_u (newstring)) - 1
-  };
-  return newstring
-};
+      i := i + 1;
+    }
+    len := (s_len_u (newstring)) - 1;
+  }
+  return newstring;
+}
 
 
 
@@ -1026,13 +987,13 @@ function StringPrototypeSearch(global, this, strict, args) {
   /* 3. If Type(regexp) is Object and the value of the [[Class]] internal
     property of regexp is "RegExp", then let rx be regexp; */
   if ((Type(regexp) = "Object") &&& (regexp.Class = "RegExp")) {
-    rx := regexp
+    rx := regexp;
   }
   /* 4. Else, let rx be a new RegExp object created as if by the expression
     new RegExp( regexp) where RegExp is the standard built-in constructor with that name. */
   else {
-    rx := RegExpConstructor(global, this, strict, [regexp, 'undefined])
-  };
+    rx := RegExpConstructor(global, this, strict, [regexp, 'undefined]);
+  }
   /* 5. Search the value string from its beginning for an occurrence of the
     regular expression pattern rx. Let result be a Number indicating the offset
     within string where the pattern matched, or –1 if there was no match. The
@@ -1040,13 +1001,12 @@ function StringPrototypeSearch(global, this, strict, args) {
     search. The lastIndex property of regexp is left unchanged. */
   matchArr := RegExpPrototypeExec(global, rx, strict, [str]);
   result := -(1.);
-  if (!(matchArr = 'null)) {
-    result := getJSProperty(matchArr, "index").Value
-  };
+  if (!(matchArr = 'null))
+    result := getJSProperty(matchArr, "index").Value;
 
   /* 6. Return result. */
-  return result
-};
+  return result;
+}
 /**
  * NOTE The search function is intentionally generic; it does not require that
  * its this value be a String object. Therefore, it can be transferred to other
@@ -1081,34 +1041,25 @@ function StringPrototypeSlice (global, this, strict, args) {
   /* Let intStart be ToInteger(start). */
   intStart := ToInteger(start);
   /* If end is undefined, let intEnd be len; else let intEnd be ToInteger(end). */
-  if (end = 'undefined) {
-    intEnd := len
-  } else{
-    intEnd := ToInteger(end)
-  };
+  if (end = 'undefined) 
+    intEnd := len; 
+  else 
+    intEnd := ToInteger(end);
   /* If intStart is negative, let from be max(len + intStart,0); else let from be min(intStart,len). */
-  if (intStart < 0.) {
-    from := max(len + intStart, 0.)
-  } else{
-    from := min(intStart, len)
-  };
+  if (intStart < 0.) from := max(len + intStart, 0.); else from := min(intStart, len);
   /* If intEnd is negative, let to be max(len +intEnd,0); else let to be min(intEnd, len). */
-  if (intEnd < 0.) {
-    to := max(len + intEnd, 0.)
-  } else{
-    to := min(intEnd, len)
-  };
+  if (intEnd < 0.) to := max(len + intEnd, 0.); else to := min(intEnd, len);
   /* Let span be max(to – from,0). */
   span := max(to - from, 0.);
   /* Return a String containing span consecutive characters from S beginning with the character at position from.*/
   substring := "";
   j := 0.;
-  while(j < span) {
+  while (j < span) {
     substring := s_concat ([substring, s_nth_u (S, int_of_float (from + j))]);
-    j := j + 1.
-  };
-  return substring
-};
+    j := j + 1.;
+  }
+  return substring;
+}
 
 /**
  * 15.5.4.14 String.prototype.split (separator, limit)
@@ -1170,28 +1121,23 @@ function StringPrototypeSplit (global, this, strict, args) {
   /* 4. Let lengthA be 0. */
   lengthA := 0.;
   /* 5. If limit is undefined, let lim = 2^32–1; else let lim = ToUint32(limit). */
-  if (limit = 'undefined) {
-    lim := ((2. ** 32.) - 1.)
-  }
-  else {
-    lim := ToUint32(limit)
-  };
+  if (limit = 'undefined) 
+    lim := ((2. ** 32.) - 1.); 
+  else 
+    lim := ToUint32(limit);
   /* 6. Let s be the number of characters in S. */
   s := s_len_u (S);
   /* 7. Let p = 0. */
   p := 0;
   /* 8. If separator is a RegExp object (its [[Class]] is "RegExp"),
     let R = separator; otherwise let R = ToString(separator). */
-  if (isRegExpObject(separator)) {
-    R := separator
-  }
-  else {
-    R := ToString(separator)
-  };
+  if (isRegExpObject(separator)) 
+    R := separator; 
+  else 
+    R := ToString(separator);
   /* 9. If lim = 0, return A. */
-  if (lim = 0.) {
-    return A
-  };
+  if (lim = 0.)
+    return A;
   /* 10. If separator is undefined */
   if (separator = 'undefined) {
     /* a. Call the [[DefineOwnProperty]] internal method of A with arguments "0",
@@ -1199,25 +1145,24 @@ function StringPrototypeSplit (global, this, strict, args) {
      [[Configurable]]: true}, and false. */
     {A.DefineOwnProperty}(A, "0", newDataPropertyDescriptorFull(S, true, true, true), false);
     /* b. Return A. */
-    return A
-  };
+    return A;
+  }
   /* 11. If s = 0 */
   if (s = 0) {
     /* a. Call SplitMatch(S, 0, R) and let z be its MatchResult result. */
     z := SplitMatch(S, 0, R);
     /* b. If z is not failure, return A. */
     if (!isFailure(z)) {
-      return A
-    }
-    else {
+      return A;
+    } else {
       /* c. Call the [[DefineOwnProperty]] internal method of A with arguments "0",
       Property Descriptor {[[Value]]: S, [[Writable]]: true, [[Enumerable]]: true,
        [[Configurable]]: true}, and false. */
       {A.DefineOwnProperty}(A, "0", newDataPropertyDescriptorFull(S, true, true, true), false);
       /* d. Return A. */
-      return A
+      return A;
     }
-  };
+  }
   /* 12. Let q = p */
   q := p;
   /* 13. Repeat, while q ≠ s */
@@ -1226,7 +1171,7 @@ function StringPrototypeSplit (global, this, strict, args) {
     z := SplitMatch(S, q, R);
     /* b. If z is failure, then let q = q+1. */
     if (isFailure(z)) {
-      q := q + 1
+      q := q + 1;
     }
     /* c. Else, z is not failure */
     else {
@@ -1235,7 +1180,7 @@ function StringPrototypeSplit (global, this, strict, args) {
       cap := z.caps;
       /* ii. If e = p, then let q = q+1. */
       if (e = p) {
-        q := q + 1
+        q := q + 1;
       }
       /* iii. Else, e ≠ p */
       else {
@@ -1249,9 +1194,8 @@ function StringPrototypeSplit (global, this, strict, args) {
         /* 3. Increment lengthA by 1. */
         lengthA := lengthA + 1.;
         /* 4. If lengthA = lim, return A. */
-        if (lengthA = lim) {
-          return A
-        };
+        if (lengthA = lim)
+          return A;
         /* 5. Let p = e. */
         p := e;
         /* 6. Let i = 0. */
@@ -1269,15 +1213,14 @@ function StringPrototypeSplit (global, this, strict, args) {
           /* c. Increment lengthA by 1. */
           lengthA := lengthA + 1.;
           /* d. If lengthA = lim, return A. */
-          if (lengthA = lim) {
-            return A
-          }
-        };
+          if (lengthA = lim)
+            return A;
+        }
         /* 8. Let q = p. */
-        q := p
+        q := p;
       }
     }
-  };
+  }
   /* 14. Let T be a String value equal to the substring of S consisting
     of the characters at positions p (inclusive) through s (exclusive). */
   T := s_substr_u(S, p, s - p);
@@ -1286,8 +1229,8 @@ function StringPrototypeSplit (global, this, strict, args) {
     [[Enumerable]]: true, [[Configurable]]: true}, and false. */
   {A.DefineOwnProperty}(A, ToString(lengthA), newDataPropertyDescriptorFull(T, true, true, true), false);
   /* 16. Return A. */
-  return A
-};
+  return A;
+}
 /**
  * The length property of the split method is 2.
  *
@@ -1310,16 +1253,15 @@ function SplitMatch (S, q, R) {
   if (isRegExpObject(R)) {
     /* a. Call the [[Match]] internal method of R giving it the arguments S
       and q, and return the MatchResult result. */
-    return {R.Match}(R, S, q)
-  };
+    return {R.Match}(R, S, q);
+  }
   /* 2. Type(R) must be String. Let r be the number of characters in R. */
   r := s_len_u (R);
   /* 3. Let s be the number of characters in S. */
   s := s_len_u (S);
   /* 4. If q+r > s then return the MatchResult failure. */
-  if ((q + r) > s) {
-    return null
-  };
+  if ((q + r) > s)
+    return null;
   /* 5. If there exists an integer i between 0 (inclusive) and r (exclusive)
     such that the character at position q+i of S is different from the
     character at position i of R, then return failure. */
@@ -1327,15 +1269,14 @@ function SplitMatch (S, q, R) {
   while (!(i = r)) {
     posA := s_nth_u(S, q + i);
     posB := s_nth_u(R, i);
-    if (!(posA = posB)) {
-      return null
-    };
-    i := i + 1
-  };
+    if (!(posA = posB))
+      return null;
+    i := i + 1;
+  }
   /* 6. Let cap be an empty array of captures (see 15.10.2.1). */
   /* 7. Return the State (q+r, cap). (see 15.10.2.1) */
-  return initialState(S, (q + r), false, false, false, 0)
-};
+  return initialState(S, (q + r), false, false, false, 0);
+}
 
 
 /* 15.5.4.15 String.prototype.substring (start, end) */
@@ -1386,11 +1327,10 @@ function StringPrototypesubstring (global, this, strict, args) {
   /* Let intStart be ToInteger(start). */
   intStart := ToInteger(start);
   /* If end is undefined, let intEnd be len; else let intEnd be ToInteger(end). */
-  if (end = 'undefined) {
-    intEnd := len
-  } else {
-    intEnd := ToInteger(end)
-  };
+  if (end = 'undefined) 
+    intEnd := len; 
+  else 
+    intEnd := ToInteger(end);
   /* Let finalStart be min(max(intStart, 0), len).*/
   finalStart := min(max(intStart, 0.), len);
   /* Let finalEnd be min(max(intEnd, 0), len). */
@@ -1405,12 +1345,12 @@ function StringPrototypesubstring (global, this, strict, args) {
   j := from;
   while (j < to) {
     substring := s_concat ([substring, s_nth_u (S, int_of_float j)]);
-    j := j + 1.
-  };
+    j := j + 1.;
+  }
 
-  return substring
+  return substring;
 
-};
+}
 
 
 
@@ -1456,15 +1396,13 @@ function StringPrototypetoLowerCase (global, this, strict, args) {
     if no Unicode lowercase equivalent exists. */
   /*L := to_lower_case (S);*/
 
-  if (!isUnicodeCasingInitialized()) {
-    initializeUnicodeCasing()
-  };
+  if (!isUnicodeCasingInitialized())
+    initializeUnicodeCasing();
 
   L := "";
   i := 0;
   len := s_len_u (S);
   while (i < len) {
-
     c := s_nth_u(S, i);
 
     /* For some reason, a mapping may be present in both files. In this case, use the
@@ -1476,44 +1414,42 @@ function StringPrototypetoLowerCase (global, this, strict, args) {
       if ((c = el.code) &&& !(el.lowercase = 'undefined)) {
         if (el.condition_list = 'undefined) {
           c := el.lowercase;
-          j := sc_len + 1
+          j := sc_len + 1;
         } elif ((el.condition_list = "Final_Sigma") &&& (len > 1)) {
           if (i = (len - 1)) {
             if ((len = 2) &&& (s_nth_u(S, (i - 1)) = "\u{0345}")) {
               /* Don't use special casing */
-              j := sc_len - 1
+              j := sc_len - 1;
             } else {
               c := el.lowercase;
-              j := sc_len + 1
+              j := sc_len + 1;
             }            
           } else {
             nextC := s_nth_u(S, (i + 1));
             if ((i < (len - 2)) &&& (nextC = "\u{0345}")) {
               /* Don't use special casing */
-              j := sc_len - 1
+              j := sc_len - 1;
             }
             elif (nextC = "\u{0345}") {
               c := el.lowercase;
-              j := sc_len + 1
+              j := sc_len + 1;
             }
           }
         }
-      };
-      j := j + 1
-    };
-    if ((j <= sc_len) &&& (c in_obj |unicodeData|) &&& !(|unicodeData|[c].lowercase = 'undefined)) {
-      c := |unicodeData|[c].lowercase
-    };
+      }
+      j := j + 1;
+    }
 
+    if ((j <= sc_len) &&& (c in_obj |unicodeData|) &&& !(|unicodeData|[c].lowercase = 'undefined))
+      c := |unicodeData|[c].lowercase;
     L := s_concat([L, c]);
-
-    i := i + 1
-  };
+    i := i + 1;
+  }
 
 
   /* Return L. */
-  return L
-};
+  return L;
+}
 
 /* 15.5.4.17 String.prototype.toLocaleLowerCase ( ) */
 /* This function works exactly the same as toLowerCase except that its result is intended
@@ -1539,15 +1475,13 @@ function StringPrototypetoLocaleLowerCase (global, this, strict, args) {
   
   /* TO DO -> Passar isto tendo em conta a linguagem do ambiente */
 
-  if (!isUnicodeCasingInitialized()) {
-    initializeUnicodeCasing()
-  };
+  if (!isUnicodeCasingInitialized())
+    initializeUnicodeCasing();
 
   L := "";
   i := 0;
   len := s_len_u (S);
   while (i < len) {
-
     c := s_nth_u(S, i);
 
     /* For some reason, a mapping may be present in both files. In this case, use the
@@ -1559,44 +1493,42 @@ function StringPrototypetoLocaleLowerCase (global, this, strict, args) {
       if ((c = el.code) &&& !(el.lowercase = 'undefined)) {
         if (el.condition_list = 'undefined) {
           c := el.lowercase;
-          j := sc_len + 1
+          j := sc_len + 1;
         } elif ((el.condition_list = "Final_Sigma") &&& (len > 1)) {
           if (i = (len - 1)) {
             if ((len = 2) &&& (s_nth_u(S, (i - 1)) = "\u{0345}")) {
               /* Don't use special casing */
-              j := sc_len - 1
+              j := sc_len - 1;
             } else {
               c := el.lowercase;
-              j := sc_len + 1
+              j := sc_len + 1;
             }            
           } else {
             nextC := s_nth_u(S, (i + 1));
             if ((i < (len - 2)) &&& (nextC = "\u{0345}")) {
               /* Don't use special casing */
-              j := sc_len - 1
+              j := sc_len - 1;
             }
             elif (nextC = "\u{0345}") {
               c := el.lowercase;
-              j := sc_len + 1
+              j := sc_len + 1;
             }
           }
         }
-      };
-      j := j + 1
-    };
-    if ((j <= sc_len) &&& (c in_obj |unicodeData|) &&& !(|unicodeData|[c].lowercase = 'undefined)) {
-      c := |unicodeData|[c].lowercase
-    };
+      }
+      j := j + 1;
+    }
 
+    if ((j <= sc_len) &&& (c in_obj |unicodeData|) &&& !(|unicodeData|[c].lowercase = 'undefined))
+      c := |unicodeData|[c].lowercase;
     L := s_concat([L, c]);
-
-    i := i + 1
-  };
+    i := i + 1;
+  }
 
 
   /* Return L. */
-  return L
-};
+  return L;
+}
 
 /* 15.5.4.18 String.prototype.toUpperCase ( ) */
 /* This function behaves in exactly the same way as String.prototype.toLowerCase,
@@ -1616,15 +1548,13 @@ function StringPrototypetoUpperCase (global, this, strict, args) {
     if no Unicode uppercase equivalent exists. */
   /*L := to_upper_case (S);*/
 
-  if (!isUnicodeCasingInitialized()) {
-    initializeUnicodeCasing()
-  };
+  if (!isUnicodeCasingInitialized())
+    initializeUnicodeCasing();
 
   L := "";
   i := 0;
   len := s_len_u (S);
   while (i < len) {
-
     c := s_nth_u(S, i);
 
     /* For some reason, a mapping may be present in both files. In this case, use the
@@ -1635,22 +1565,21 @@ function StringPrototypetoUpperCase (global, this, strict, args) {
       el := l_nth(|specialCasing|, j);
       if ((c = el.code) &&& !(el.uppercase = 'undefined) &&& (el.condition_list = 'undefined)) {
         c := el.uppercase;
-        j := sc_len + 1
-      };
-      j := j + 1
-    };
-    if ((j <= sc_len) &&& (c in_obj |unicodeData|) &&& !(|unicodeData|[c].uppercase = 'undefined)) {
-      c := |unicodeData|[c].uppercase
-    };
+        j := sc_len + 1;
+      }
+      j := j + 1;
+    }
+
+    if ((j <= sc_len) &&& (c in_obj |unicodeData|) &&& !(|unicodeData|[c].uppercase = 'undefined))
+      c := |unicodeData|[c].uppercase;
 
     L := s_concat([L, c]);
-
-    i := i + 1
-  };
+    i := i + 1;
+  }
 
   /* Return L. */
-  return L
-};
+  return L;
+}
 
 /* 15.5.4.19 String.prototype.toLocaleUpperCase ( ) */
 /* This function works exactly the same as toUpperCase except that its result is intended to yield
@@ -1676,15 +1605,13 @@ function StringPrototypetoLocaleUpperCase (global, this, strict, args) {
   /*L := to_upper_case (S);*/
   
   /* TO DO -> Passar isto tendo em conta a linguagem do ambiente */
-  if (!isUnicodeCasingInitialized()) {
-    initializeUnicodeCasing()
-  };
+  if (!isUnicodeCasingInitialized())
+    initializeUnicodeCasing();
 
   L := "";
   i := 0;
   len := s_len_u (S);
   while (i < len) {
-
     c := s_nth_u(S, i);
 
     /* For some reason, a mapping may be present in both files. In this case, use the
@@ -1695,23 +1622,21 @@ function StringPrototypetoLocaleUpperCase (global, this, strict, args) {
       el := l_nth(|specialCasing|, j);
       if ((c = el.code) &&& !(el.uppercase = 'undefined) &&& (el.condition_list = 'undefined)) {
         c := el.uppercase;
-        j := sc_len + 1
-      };
-      j := j + 1
-    };
-    if ((j <= sc_len) &&& (c in_obj |unicodeData|) &&& !(|unicodeData|[c].uppercase = 'undefined)) {
-      c := |unicodeData|[c].uppercase
-    };
+        j := sc_len + 1;
+      }
+      j := j + 1;
+    }
 
+    if ((j <= sc_len) &&& (c in_obj |unicodeData|) &&& !(|unicodeData|[c].uppercase = 'undefined))
+      c := |unicodeData|[c].uppercase;
     L := s_concat([L, c]);
-
-    i := i + 1
-  };
+    i := i + 1;
+  }
 
 
   /* Return L. */
-  return L
-};
+  return L;
+}
 
 
 function isSpaceCharacter(c) {
@@ -1743,13 +1668,11 @@ function isSpaceCharacter(c) {
     "\u{2001}", "\u{2002}", "\u{2003}", "\u{2004}", "\u{2005}", "\u{2006}", "\u{2007}",
     "\u{2008}", "\u{2009}", "\u{200A}", "\u{202F}", "\u{205F}", "\u{3000}", "\n", "\r",
     "\u{2028}", "\u{2029}"];
-  foreach (s : spaces) {
-    if (s = c) {
-      return true
-    }
-  };
-  return false
-};
+  foreach (s : spaces)
+    if (s = c)
+      return true;
+  return false;
+}
 
 
 /* 15.5.4.20 String.prototype.trim ( ) */
@@ -1772,15 +1695,15 @@ function StringPrototypeTrim (global, this, strict, args) {
     j := 0;
     while (i < len) {
       c := s_nth_u(T, j);
-      if (isSpaceCharacter(c)) {
-        j := j + 1
-      } else {
-        i := len
-      };
-      i := i + 1
-    };
-    T := s_substr_u(T, j, (len - j))
-  };
+      if (isSpaceCharacter(c))
+        j := j + 1;
+      else
+        i := len;
+      i := i + 1;
+    }
+
+    T := s_substr_u(T, j, (len - j));
+  }
 
   /* TODO: use the auxiliary functions created in section_15.1 */
   /* Remove trailing spaces */
@@ -1790,20 +1713,19 @@ function StringPrototypeTrim (global, this, strict, args) {
     j := len - 1;
     while (i >= 0) {
       c := s_nth_u(T, j);
-      if (isSpaceCharacter(c)) {
-        j := j - 1
-      } else {
-        i := -1
-      };
-      i := i - 1
-    };
-    T := s_substr_u(T, 0, (j + 1))
-  };
+      if (isSpaceCharacter(c))
+        j := j - 1;
+      else
+        i := -1;
+      i := i - 1;
+    }
+    T := s_substr_u(T, 0, (j + 1));
+  }
 
   /* Return T. */
-  return T
+  return T;
 
-};
+}
 
 
 /* 15.5.5.2 [[GetOwnProperty]] ( P ) */
@@ -1842,13 +1764,11 @@ function GetOwnPropertyString (S, P) {
   /* Let desc be the result of calling the default [[GetOwnProperty]] internal method (8.12.1) on S with argument P. */
   desc := GetOwnProperty (S, P);
   /*   If desc is not undefined return desc. */
-  if (!(desc = 'undefined)) {
-    return desc
-  };
+  if (!(desc = 'undefined))
+    return desc;
   /* If ToString(abs(ToInteger(P))) is not the same value as P, return undefined. */
-  if (!((ToString(abs(ToInteger(P)))) = P)) {
-    return 'undefined
-  };
+  if (!((ToString(abs(ToInteger(P)))) = P))
+    return 'undefined;
   /* Let str be the String value of the [[PrimitiveValue]] internal property of S. */
   str := S.PrimitiveValue;
   /* Let index be ToInteger(P).*/
@@ -1856,31 +1776,28 @@ function GetOwnPropertyString (S, P) {
   /* Let len be the number of characters in str. */
   len := s_len_u(str);
   /* If len ≤ index, return undefined. */
-  if ((int_to_float len) <= index) {
-    return 'undefined
-  };
+  if ((int_to_float len) <= index)
+    return 'undefined;
   /*    Let resultStr be a String of length 1, containing one character from str,
      specifically the character at position index, where the first (leftmost) character
      in str is considered to be at position 0, the next one at position 1, and so on. */
   resultStr := s_nth_u (str, int_of_float index);
   /* Return a Property Descriptor { [[Value]]: resultStr, [[Enumerable]]: true,
    [[Writable]]: false, [[Configurable]]: false } */
-   return newDataPropertyDescriptorFull(resultStr, false, true, false)
-};
+   return newDataPropertyDescriptorFull(resultStr, false, true, false);
+}
 
 /* Auxiliary function */
 function isStringOrStringObject(arg) {
-  if (Type(arg) = "String") {
-    return true
-  };
-  if ((Type(arg) = "Object") &&& (getInternalProperty(arg, "Class") = "String")) {
-    return true
-  };
-  return false
-};
+  if (Type(arg) = "String")
+    return true;
+  if ((Type(arg) = "Object") &&& (getInternalProperty(arg, "Class") = "String"))
+    return true;
+  return false;
+}
 
 function setAllInternalMethodsOfString(str) {
   setAllInternalMethodsOfObject(str);
   str.GetOwnProperty := "GetOwnPropertyString";
-  return str
+  return str;
 }

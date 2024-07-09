@@ -84,34 +84,28 @@
 
 /* An object, O, is said to be sparse if the following algorithm returns true: */
 function isSparseArray(O) {
-
-  /* 1. Let len be the result of calling the [[Get]] internal method of O with
-        argument "length". */
+  /* 1. Let len be the result of calling the [[Get]] internal method of O with argument "length". */
   len := ToLength( {O.Get}(O, "length", O)  );
   @ReturnIfAbrupt(len);
-
   /* 2. For each integer i in the range 0≤i<len */
   i := 0.;
   while (i < len) {
     /* a. Let elem be obj.[[GetOwnProperty]](ToString(i)). */
     elem := {O.GetOwnProperty}(O, ToString(i));
-
     /* b. If elem is undefined, return true. */
-    if (elem = 'undefined) {
-      return true
-    }
-  };
-
+    if (elem = 'undefined)
+      return true;
+  }
   /* 3. Return false. */
-  return false
-};
+  return false;
+}
 
 
 function setAllInternalMethodsOfArray(arr) {
   setAllInternalMethodsOfOrdinaryObject(arr);
   arr.DefineOwnProperty := "ArrayDefineOwnProperty";
-  return arr
-};
+  return arr;
+}
 
 
 
@@ -464,18 +458,18 @@ function initArrayPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(unscopablesObject, false, false, true);
   setJSProperty(prototype, getUnscopablesPropertyName(), descriptor);
 
-  return prototype
-};
+  return prototype;
+}
 
 
 function getArrayPrototype(strict) {
-  return |Intrinsics|["ArrayPrototype"]
+  return |Intrinsics|["ArrayPrototype"];
   /*refArray := newPropertyReference(|global|, "Array", strict);
   ArrayObject := GetValue(refArray);
   refArrayProto := newPropertyReference(ArrayObject, "prototype", strict);
   objectArrayProto := GetValue(refArrayProto);
   return objectArrayProto */
-};
+}
 
 
 function initArrayObject(global, objectPrototype, strict) {
@@ -486,7 +480,7 @@ function initArrayObject(global, objectPrototype, strict) {
   /* 22.1.1 The Array Constructor */
   objArrayConstructor := CreateGeneralBuiltInFunction(getFunctionPrototype(strict), ["items"], "ArrayConstructor", global, strict, 0.);
   objArrayConstructorFun := lambda (global, this, NewTarget, strict, args)[objArrayConstructor] {
-    return ArrayConstructor(global, this, NewTarget, strict, args, objArrayConstructor)
+    return ArrayConstructor(global, this, NewTarget, strict, args, objArrayConstructor);
   };
   objArrayConstructor.ECMAScriptCode := objArrayConstructorFun;
 
@@ -542,8 +536,8 @@ function initArrayObject(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(objArrayPrototype, false, false, false);
   setJSProperty(objArrayConstructor, "prototype", descriptor);
 
-  return objArrayConstructor
-};
+  return objArrayConstructor;
+}
 
 
 
@@ -571,42 +565,30 @@ function initArrayObject(global, objectPrototype, strict) {
 function ArrayConstructor(global, this, NewTarget, strict, items, here) {
   n_args := l_len items;
 
-  if (n_args = 0) {
-    return ArrayConstructorNoArgs(items, NewTarget, here)
-  };
-  if (n_args = 1) {
-    return ArrayConstructorLen(items, NewTarget, here)
-  };
-  return ArrayConstructorItems(items, NewTarget, here)
-};
+  if (n_args = 0)
+    return ArrayConstructorNoArgs(items, NewTarget, here);
+  if (n_args = 1)
+    return ArrayConstructorLen(items, NewTarget, here);
+  return ArrayConstructorItems(items, NewTarget, here);
+}
 
 /**
 *  22.1.1.1 Array ( )
 */
 function ArrayConstructorNoArgs(args, NewTarget, here) {
-
   /* 1. Let numberOfArgs be the number of arguments passed to this function call. */
   numberOfArgs := l_len args;
-
   /* 2. Assert: numberOfArgs = 0. */
-  assert(numberOfArgs = 0);
-
+  assert (numberOfArgs = 0);
   /* 3. If NewTarget is undefined, let newTarget be the active function object, else let newTarget be NewTarget. */
-  if (NewTarget = 'undefined) {
-    newTarget := here
-  } else {
-    newTarget := NewTarget
-  };
-
+  if (NewTarget = 'undefined) newTarget := here; else newTarget := NewTarget;
   /* 4. Let proto be GetPrototypeFromConstructor(newTarget, "%ArrayPrototype%"). */
   proto := GetPrototypeFromConstructor(newTarget, "ArrayPrototype");
-
   /* 5. ReturnIfAbrupt(proto). */
   @ReturnIfAbrupt(proto);
-
   /* 6. Return ArrayCreate(0, proto). */
-  return ArrayCreate(0., proto)
-};
+  return ArrayCreate(0., proto);
+}
 
 
 
@@ -614,62 +596,42 @@ function ArrayConstructorNoArgs(args, NewTarget, here) {
 *  22.1.1.2 Array (len)
 */
 function ArrayConstructorLen(args, NewTarget, here) {
-
   /* 1. Let numberOfArgs be the number of arguments passed to this function call. */
   numberOfArgs := l_len args;
-
   /* 2. Assert: numberOfArgs = 1. */
-  assert(numberOfArgs = 1);
-
+  assert (numberOfArgs = 1);
   len := l_nth(args, 0);
-
   /* 3. If NewTarget is undefined, let newTarget be the active function object, else let newTarget be NewTarget. */
-  if (NewTarget = 'undefined) {
-    newTarget := here
-  } else {
-    newTarget := NewTarget
-  };
-
+  if (NewTarget = 'undefined) newTarget := here; else newTarget := NewTarget;
   /* 4. Let proto be GetPrototypeFromConstructor(newTarget, "%ArrayPrototype%"). */
   proto := GetPrototypeFromConstructor(newTarget, "ArrayPrototype");
-
   /* 5. ReturnIfAbrupt(proto). */
   @ReturnIfAbrupt(proto);
-
   /* 6. Let array be ArrayCreate(0, proto). */
   array := ArrayCreate(0., proto);
-
   /* 7. If Type(len) is not Number, then */
   if (!(Type(len) = "Number")) {
     /* a. Let defineStatus be CreateDataProperty(array, "0", len). */
     defineStatus := CreateDataProperty(array, "0", len);
-
     /* b. Assert: defineStatus is true. */
-    assert(defineStatus = true);
-
+    assert (defineStatus = true);
     /* c. Let intLen be 1. */
-    intLen := 1.
-
+    intLen := 1.;
   /* 8. Else, */
   } else {
     /* a. Let intLen be ToUint32(len). */
     intLen := ToUint32(len);
-
     /* b. If intLen ≠ len, throw a RangeError exception. */
-    if (!(intLen = len)) {
-      throw RangeErrorConstructorInternal()
-    }
-  };
-
+    if (!(intLen = len))
+      throw RangeErrorConstructorInternal();
+  }
   /* 9. Let setStatus be Set(array, "length", intLen, true). */
   setStatus := Set(array, "length", intLen, true);
-
   /* 10. Assert: setStatus is not an abrupt completion. */
-  assert(!((Type(setStatus) = "Completion") &&& (isAnAbruptCompletion(setStatus))));
-
+  assert (!((Type(setStatus) = "Completion") &&& (isAnAbruptCompletion(setStatus))));
   /* 11. Return array. */
-  return array
-};
+  return array;
+}
 
 
 
@@ -677,64 +639,43 @@ function ArrayConstructorLen(args, NewTarget, here) {
 *  22.1.1.3 Array (...items )
 */
 function ArrayConstructorItems(args, NewTarget, here) {
-
   /* 1. Let numberOfArgs be the number of arguments passed to this function call. */
   numberOfArgs := l_len args;
-
   /* 2. Assert: numberOfArgs ≥ 2. */
-  assert(numberOfArgs >= 2);
-
+  assert (numberOfArgs >= 2);
   numberOfArgs := int_to_float numberOfArgs;
-
   /* 3. If NewTarget is undefined, let newTarget be the active function object, else let newTarget be NewTarget. */
-  if (NewTarget = 'undefined) {
-    newTarget := here
-  } else {
-    newTarget := NewTarget
-  };
-
+  if (NewTarget = 'undefined) newTarget := here; else newTarget := NewTarget;
   /* 4. Let proto be GetPrototypeFromConstructor(newTarget, "%ArrayPrototype%"). */
   proto := GetPrototypeFromConstructor(newTarget, "ArrayPrototype");
-
   /* 5. ReturnIfAbrupt(proto). */
   @ReturnIfAbrupt(proto);
-
   /* 6. Let array be ArrayCreate(numberOfArgs, proto). */
   array := ArrayCreate(numberOfArgs, proto);
-
   /* 7. ReturnIfAbrupt(array). */
   @ReturnIfAbrupt(array);
-
   /* 8. Let k be 0. */
   k := 0.;
-
   /* 9. Let items be a zero-origined List containing the argument items in order. */
   items := args;
-
   /* 10. Repeat, while k < numberOfArgs */
   while (k < numberOfArgs) {
     /* a. Let Pk be ToString(k). */
     Pk := ToString(k);
-
     /* b. Let itemK be items[k]. */
     itemK := l_nth(items, int_of_float k);
-
     /* c. Let defineStatus be CreateDataProperty(array, Pk, itemK). */
     defineStatus := CreateDataProperty(array, Pk, itemK);
-
     /* d. Assert: defineStatus is true. */
-    assert(defineStatus = true);
-
+    assert (defineStatus = true);
     /* e. Increase k by 1. */
-    k := k + 1.
-  };
-
+    k := k + 1.;
+  }
   /* 11. Assert: the value of array’s length property is numberOfArgs. */
-  assert(getJSProperty(array, "length").Value = numberOfArgs);
-
+  assert (getJSProperty(array, "length").Value = numberOfArgs);
   /* 12. Return array. */
-  return array
-};
+  return array;
+}
 
 
 /*
@@ -758,207 +699,151 @@ function ArrayConstructorItems(args, NewTarget, here) {
 *
 */
 function arrayFrom(global, this, NewTarget, strict, args) {
-
   /* method is called with argument items and optional arguments mapfn and thisArg */
   items := l_nth(args, 0);
   mapfn := getOptionalParam(args, 1);
   thisArg := getOptionalParam(args, 2);
-  if (mapfn = null) {
-    mapfn := 'undefined
-  };
+  if (mapfn = null)
+    mapfn := 'undefined;
   /* 1. Let C be the this value. */
   C := this;
-
   /* 2. If mapfn is undefined, let mapping be false. */
   if ((mapfn = 'undefined)) {
-    mapping := false
-
+    mapping := false;
   /* 3. else */
   } else {
     /* a. If IsCallable(mapfn) is false, throw a TypeError exception. */
-    if (IsCallable(mapfn) = false) {
-      throw TypeErrorConstructorInternal()
-    };
-
+    if (IsCallable(mapfn) = false)
+      throw TypeErrorConstructorInternal();
     /* b. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-    if (!(thisArg = null)) {
-      T := thisArg
-    } else {
-      T := 'undefined
-    };
-
+    if (!(thisArg = null)) T := thisArg; else T := 'undefined;
     /* c. Let mapping be true */
-    mapping := true
-  };
-
+    mapping := true;
+  }
   /* 4. Let usingIterator be GetMethod(items, @@iterator). */
   usingIterator := GetMethod(items, getIteratorPropertyName());
-
   /* if ((items = 'null)) {
     throw TypeErrorConstructorInternal()
-  }; */
-
+  } */
   /* 5. ReturnIfAbrupt(usingIterator). */
   @ReturnIfAbrupt(usingIterator);
-
   /* 6. If usingIterator is not undefined, then */
   if (!(usingIterator = 'undefined)) {
     /* a. If IsConstructor(C) is true, then */
-    if (IsConstructor(C) = true) {
+    if (IsConstructor(C) = true)
       /* i. Let A be Construct(C). */
-      A := Construct(null, null, C, [], null)
-
+      A := Construct(null, null, C, [], null);
     /* b. Else, */
-    } else {
+    else
       /* i. Let A be ArrayCreate(0). */
-      A := ArrayCreate(0., null)
-    };
-
+      A := ArrayCreate(0., null);
     /* c. ReturnIfAbrupt(A). */
     @ReturnIfAbrupt(A);
-
     /* d. Let iterator be GetIterator(items, usingIterator). */
     iterator := GetIterator(items, usingIterator);
-
     /* e. ReturnIfAbrupt(iterator). */
     @ReturnIfAbrupt(iterator);
-
     /* f. Let k be 0. */
     k := 0.;
-
     /* g. Repeat */
     while (true) {
       /* i. Let Pk be ToString(k). */
       Pk := ToString(k);
-
       /* ii. Let next be IteratorStep(iterator). */
       next := IteratorStep(iterator);
-
       /* iii. ReturnIfAbrupt(next). */
       @ReturnIfAbrupt(next);
-
       /* iv. If next is false, then */
       if (next = false) {
         /* 1. Let setStatus be Set(A, "length", k, true). */
         setStatus := Set(A, "length", k, true);
-
         /* 2. ReturnIfAbrupt(setStatus). */
         @ReturnIfAbrupt(setStatus);
-
         /* 3. Return A. */
-        return A
-      };
+        return A;
+      }
       /* v. Let nextValue be IteratorValue(next). */
       nextValue := IteratorValue(next);
-
       /* vi. ReturnIfAbrupt(nextValue). */
       @ReturnIfAbrupt(nextValue);
-
       /* vii. If mapping is true, then */
       if (mapping = true) {
         /* 1. Let mappedValue be Call(mapfn, T, «nextValue, k»). */
         mappedValue := WrappedCall(null, null, mapfn, T, [nextValue, k]);
-
         /* 2. If mappedValue is an abrupt completion, return IteratorClose(iterator, mappedValue). */
-        if ((Type(mappedValue) = "Completion") &&& (isAnAbruptCompletion(mappedValue))) {
-          return IteratorClose(iterator, mappedValue)
-        };
-
+        if ((Type(mappedValue) = "Completion") &&& (isAnAbruptCompletion(mappedValue)))
+          return IteratorClose(iterator, mappedValue);
         /* 3. Let mappedValue be mappedValue.[[value]]. */
-        mappedValue := getCompletionValue(mappedValue)
+        mappedValue := getCompletionValue(mappedValue);
       /* viii. Else, let mappedValue be nextValue. */
       } else {
-        mappedValue := nextValue
-      };
+        mappedValue := nextValue;
+      }
       /* ix. Let defineStatus be CreateDataPropertyOrThrow(A, Pk, mappedValue). */
       defineStatus := WrappedCreateDataPropertyOrThrow(A, Pk, mappedValue);
       /* x. If defineStatus is an abrupt completion, return IteratorClose(iterator, defineStatus). */
-      if ((Type(defineStatus) = "Completion") &&& (isAnAbruptCompletion(defineStatus))) {
-        return IteratorClose(iterator, defineStatus)
-      };
-
+      if ((Type(defineStatus) = "Completion") &&& (isAnAbruptCompletion(defineStatus)))
+        return IteratorClose(iterator, defineStatus);
       /* xi. Increase k by 1. */
-      k := k + 1.
+      k := k + 1.;
     }
-  };
-
+  }
   /* 7. Assert: items is not an Iterable so assume it is an array-like object. */
-  assert( !(IsIterable(items)) );
-
+  assert (!(IsIterable(items)) );
   /* 8. Let arrayLike be ToObject(items). */
   arrayLike := ToObject(items);
-
   /* 9. ReturnIfAbrupt(arrayLike). */
   @ReturnIfAbrupt(arrayLike);
-
   /* 10. Let len be ToLength(Get(arrayLike, "length")). */
   len := ToLength(Get(arrayLike, "length"));
-
   /* 11. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
   /* 12. If IsConstructor(C) is true, then */
   A := null;
   if (IsConstructor(C) = true) {
     /* a. Let A be Construct(C, «len»). */
-    A := Construct(null, null, C, [len], null)
-
+    A := Construct(null, null, C, [len], null);
   /* 13. Else, */
   } else {
     /* a. Let A be ArrayCreate(len). */
-    A := ArrayCreate(len, null)
-  };
-
+    A := ArrayCreate(len, null);
+  }
   /* 14. ReturnIfAbrupt(A). */
   @ReturnIfAbrupt(A);
-
   /* 15. Let k be 0. */
   k := 0.;
-
   /* 16. Repeat, while k < len */
   while (k < len) {
     /* a. Let Pk be ToString(k). */
     Pk := ToString(k);
-
     /* b. Let kValue be Get(arrayLike, Pk). */
     kValue := Get(arrayLike, Pk);
-
     /* c. ReturnIfAbrupt(kValue). */
     @ReturnIfAbrupt(kValue);
-
     /* d. If mapping is true, then */
     if (mapping = true) {
       /* i. Let mappedValue be Call(mapfn, T, «kValue, k»). */
       mappedValue := Call(null, null, mapfn, T, [kValue, k]);
-
       /* ii. ReturnIfAbrupt(mappedValue). */
-      @ReturnIfAbrupt(mappedValue)
-
+      @ReturnIfAbrupt(mappedValue);
     /* e. Else, let mappedValue be kValue. */
     } else {
-      mappedValue := kValue
-    };
-
+      mappedValue := kValue;
+    }
     /* f. Let defineStatus be CreateDataPropertyOrThrow(A, Pk, mappedValue). */
     defineStatus := CreateDataPropertyOrThrow(A, Pk, mappedValue);
-
-
     /* g. ReturnIfAbrupt(defineStatus). */
     @ReturnIfAbrupt(defineStatus);
-
     /* h. Increase k by 1. */
-    k := k + 1.
-  };
-
+    k := k + 1.;
+  }
   /* 17. Let setStatus be Set(A, "length", len, true). */
   setStatus := Set(A, "length", len, true);
-
   /* 18. ReturnIfAbrupt(setStatus). */
   @ReturnIfAbrupt(setStatus);
-
   /* 19. Return A. */
-  return A
-};
+  return A;
+}
 
 
 
@@ -970,12 +855,10 @@ function arrayFrom(global, this, NewTarget, strict, args) {
  * is "Array"; otherwise it returns false. The following steps are taken:
  */
 function isArray(global, this, NewTarget, strict, args) {
-
   arg := l_nth(args, 0);
-
   /* 1. Return IsArray(arg).*/
-  return IsArray(arg)
-};
+  return IsArray(arg);
+}
 
 
 
@@ -996,67 +879,52 @@ function isArray(global, this, NewTarget, strict, args) {
 function arrayOf(global, this, NewTarget, strict, args) {
   /* Initialize `A` so typechecker is happy. */
   A := null;
-
   /* 1. Let len be the actual number of arguments passed to this function. */
   len := l_len args;
-
   /* 2. Let items be the List of arguments passed to this function. */
   items := args;
-
   /* 3. Let C be the this value. */
   C := this;
-
   /* 4. If IsConstructor(C) is true, then */
   if (IsConstructor(C) = true) {
     /* a. Let A be Construct(C, «len»). */
-    A := Construct(null, null, C, [int_to_float len], null)
-
+    A := Construct(null, null, C, [int_to_float len], null);
   /* 5. Else, */
   } else {
     /* a. Let A be ArrayCreate(len). */
-    A := ArrayCreate(int_to_float len, null)
-  };
-
+    A := ArrayCreate(int_to_float len, null);
+  }
   /* 6. ReturnIfAbrupt(A). */
   @ReturnIfAbrupt(A);
-
   /* 7. Let k be 0. */
   k := 0;
-
   /* 8. Repeat, while k < len */
   while (k < len) {
     /* a. Let kValue be items[k]. */
     kValue := l_nth(items, k);
-
     /* b. Let Pk be ToString(k). */
     Pk := ToString(int_to_float k);
-
     /* c. Let defineStatus be CreateDataPropertyOrThrow(A,Pk, kValue). */
     defineStatus := CreateDataPropertyOrThrow(A, Pk, kValue);
-
     /* d. ReturnIfAbrupt(defineStatus). */
     @ReturnIfAbrupt(defineStatus);
-
     /* e. Increase k by 1. */
-    k := k + 1
-  };
-
+    k := k + 1;
+  }
   /* 9. Let setStatus be Set(A, "length", len, true). */
   setStatus := Set(A, "length", int_to_float len, true);
-
   /* 10. ReturnIfAbrupt(setStatus). */
   @ReturnIfAbrupt(setStatus);
-
   /* 11. Return A. */
-  return A
-};
+  return A;
+}
 
 
 
 /* 22.1.2.5 get Array [@@species] */
-function arraySpeciesGetter(global, this, NewTarget, strict, args){
-  return this
-};
+function arraySpeciesGetter(global, this, NewTarget, strict, args) {
+  return this;
+}
 
 
 
@@ -1089,115 +957,85 @@ function arraySpeciesGetter(global, this, NewTarget, strict, args){
  * The following steps are taken:
  */
 function arrayConcat(global, this, NewTarget, strict, items) {
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let A be ArraySpeciesCreate(O, 0). */
   A := ArraySpeciesCreate(O, 0.);
-
   /* 4. ReturnIfAbrupt(A). */
   @ReturnIfAbrupt(A);
-
   /* 5. Let n be 0. */
   n := 0.;
-
   /* 6. Let items be a List whose first element is O and whose
         subsequent elements are, in left to right order, the
          arguments that were passed to this function invocation. */
   items := l_prepend(O, items);
-
   /* 7. Repeat, while items is not empty */
   while (!(items = [])) {
     /* a. Remove the first element from items and let E be the value of the
           element. */
     E := hd items;
     items := tl items;
-
     /* b. Let spreadable be IsConcatSpreadable(E). */
     spreadable := IsConcatSpreadable(E);
-
     /* c. ReturnIfAbrupt(spreadable). */
     @ReturnIfAbrupt(spreadable);
-
     /* d. If spreadable is true, then */
     if (spreadable = true) {
       /* i. Let k be 0. */
       k := 0.;
-
       /* ii. Let len be ToLength(Get(E, "length")). */
       len := ToLength(Get(E, "length"));
-
       /* iii. ReturnIfAbrupt(len). */
       @ReturnIfAbrupt(len);
-
       /* iv. If n + len > 2^53-1, throw a TypeError exception. */
-      if ((n + len) > (((2. ** 53.) - 1.))) {
-        throw TypeErrorConstructorInternal()
-      };
-
+      if ((n + len) > (((2. ** 53.) - 1.)))
+        throw TypeErrorConstructorInternal();
       /* v. Repeat, while k < len */
       while (k < len) {
         /* 1. Let P be ToString(k). */
         P := ToString(k);
-
         /* 2. Let exists be HasProperty(E, P). */
         exists := HasProperty(E, P);
-
         /* 3. ReturnIfAbrupt(exists). */
         @ReturnIfAbrupt(exists);
-
         /* 4. If exists is true, then */
         if (exists = true) {
           /* a. Let subElement be Get(E, P). */
           subElement := Get(E, P);
-
           /* b. ReturnIfAbrupt(subElement). */
           @ReturnIfAbrupt(subElement);
-
           /* c. Let status be CreateDataPropertyOrThrow (A, ToString(n), subElement). */
           status := CreateDataPropertyOrThrow(A, ToString(n), subElement);
-
           /* d. ReturnIfAbrupt(status). */
-          @ReturnIfAbrupt(status)
-        };
-
+          @ReturnIfAbrupt(status);
+        }
         /* 5. Increase n by 1. */
         n := n + 1.;
         /* 6. Increase k by 1. */
-        k := k + 1.
+        k := k + 1.;
       }
-
     /* e. Else E is added as a single item rather than spread, */
     } else {
       /* i. If n≥2^53-1, throw a TypeError exception */
-      if ((n) >= (((2. ** 53.) - 1.))) {
-        throw TypeErrorConstructorInternal()
-      };
-
+      if ((n) >= (((2. ** 53.) - 1.)))
+        throw TypeErrorConstructorInternal();
       /* ii. Let status be CreateDataPropertyOrThrow (A, ToString(n), E). */
       status := CreateDataPropertyOrThrow (A, ToString(n), E);
-
       /* iii. ReturnIfAbrupt(status). */
       @ReturnIfAbrupt(status);
-
       /* iv. Increase n by 1. */
-      n := n + 1.
+      n := n + 1.;
     }
-  };
-
+  }
   /* 8. Let setStatus be Set(A, "length", n, true). */
   setStatus := Set(A, "length", n, true);
-
   /* 9. ReturnIfAbrupt(setStatus). */
   @ReturnIfAbrupt(setStatus);
-
   /* 10. Return A. */
-  return A
-};
+  return A;
+}
 /**
  * The length property of the concat method is 1.
  *
@@ -1210,26 +1048,19 @@ function arrayConcat(global, this, NewTarget, strict, items) {
 
 /* 22.1.3.1.1 Runtime Semantics: IsConcatSpreadable ( O ) */
 function IsConcatSpreadable(O) {
-
   /* 1. If Type(O) is not Object, return false. */
-  if (!(Type(O) = "Object")) {
-    return false
-  };
-
+  if (!(Type(O) = "Object"))
+    return false;
   /* 2. Let spreadable be Get(O, @@isConcatSpreadable). */
   spreadable := Get(O, getIsConcatSpreadablePropertyName());
-
   /* 3. ReturnIfAbrupt(spreadable). */
   @ReturnIfAbrupt(spreadable);
-
   /* 4. If spreadable is not undefined, return ToBoolean(spreadable). */
-  if (!(spreadable = 'undefined)) {
-    return ToBoolean(spreadable)
-  };
-
+  if (!(spreadable = 'undefined))
+    return ToBoolean(spreadable);
   /* 5. Return IsArray(O). */
-  return IsArray(O)
-};
+  return IsArray(O);
+}
 
 
 
@@ -1247,137 +1078,88 @@ function IsConcatSpreadable(O) {
 *
 */
 function arraycopyWithin(global, this, NewTarget, strict, args) {
-
   /* The copyWithin method takes up to three arguments target, start and end. */
   target := l_nth(args, 0);
   start := l_nth(args, 1);
   end := getOptionalParam(args, 2);
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")). */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
   /* 5. Let relativeTarget be ToInteger(target). */
   relativeTarget := ToInteger(target);
-
   /* 6. ReturnIfAbrupt(relativeTarget). */
   @ReturnIfAbrupt(relativeTarget);
-
   /* 7. If relativeTarget < 0, let to be max((len + relativeTarget),0); else let to be min(relativeTarget, len). */
-  if (relativeTarget < 0.) {
-    to := max((len + relativeTarget), 0.)
-  } else {
-    to := min(relativeTarget, len)
-  };
-
+  if (relativeTarget < 0.) to := max((len + relativeTarget), 0.); else to := min(relativeTarget, len);
   /* 8. Let relativeStart be ToInteger(start). */
   relativeStart := ToInteger(start);
-
   /* 9. ReturnIfAbrupt(relativeStart). */
   @ReturnIfAbrupt(relativeStart);
-
   /* 10. If relativeStart < 0, let from be max((len + relativeStart),0); else let from be min(relativeStart, len). */
-  if (relativeStart < 0.) {
-    from := max((len + relativeStart), 0.)
-  } else {
-    from := min(relativeStart, len)
-  };
-
+  if (relativeStart < 0.) from := max((len + relativeStart), 0.); else from := min(relativeStart, len);
   /* 11. If end is undefined, let relativeEnd be len; else let relativeEnd be ToInteger(end). */
-  if ((end = 'undefined) ||| (end = null)) {
-    relativeEnd := len
-  } else {
-    relativeEnd := ToInteger(end)
-  };
-
+  if ((end = 'undefined) ||| (end = null)) relativeEnd := len; else relativeEnd := ToInteger(end);
   /* 12. ReturnIfAbrupt(relativeEnd). */
   @ReturnIfAbrupt(relativeEnd);
-
   /* 13. If relativeEnd < 0, let final be max((len + relativeEnd),0); else let final be min(relativeEnd, len). */
-  if (relativeEnd < 0.) {
-    final := max((len + relativeEnd), 0.)
-  } else {
-    final := min(relativeEnd, len)
-  };
-
+  if (relativeEnd < 0.) final := max((len + relativeEnd), 0.); else final := min(relativeEnd, len);
   /* 14. Let count be min(final-from, len-to). */
   count := min(final - from, len - to);
-
   /* 15. If from<to and to<from+count */
   if ((from < to) &&& (to < (from + count))) {
     /* a. Let direction be -1. */
     direction := -(1.);
-
     /* b. Let from be from + count -1. */
     from := from + count - 1.;
-
     /* c. Let to be to + count -1. */
-    to := to + count - 1.
-
+    to := to + count - 1.;
   /* 16. Else, */
   } else {
     /* a. Let direction = 1. */
-    direction := 1.
-  };
-
+    direction := 1.;
+  }
   /* 17. Repeat, while count > 0 */
   while (count > 0.) {
     /* a. Let fromKey be ToString(from). */
     fromKey := ToString(from);
-
     /* b. Let toKey be ToString(to). */
     toKey := ToString(to);
-
     /* c. Let fromPresent be HasProperty(O, fromKey). */
     fromPresent := HasProperty(O, fromKey);
-
     /* d. ReturnIfAbrupt(fromPresent). */
     @ReturnIfAbrupt(fromPresent);
-
     /* e. If fromPresent is true, then */
     if (fromPresent = true) {
       /* i. Let fromVal be Get(O, fromKey). */
       fromVal := Get(O, fromKey);
-
       /* ii. ReturnIfAbrupt(fromVal). */
       @ReturnIfAbrupt(fromVal);
-
       /* iii. Let setStatus be Set(O, toKey, fromVal, true). */
       setStatus := Set(O, toKey, fromVal, true);
-
       /* iv. ReturnIfAbrupt(setStatus). */
-      @ReturnIfAbrupt(setStatus)
-
+      @ReturnIfAbrupt(setStatus);
     /* f. Else fromPresent is false, */
     } else {
       /* i. Let deleteStatus be DeletePropertyOrThrow(O, toKey). */
       deleteStatus := DeletePropertyOrThrow(O, toKey);
-
       /* ii. ReturnIfAbrupt(deleteStatus). */
-      @ReturnIfAbrupt(deleteStatus)
-    };
-
+      @ReturnIfAbrupt(deleteStatus);
+    }
     /* g. Let from be from + direction. */
     from := from + direction;
-
     /* h. Let to be to + direction. */
     to := to + direction;
-
     /* i. Let count be count − 1. */
-    count := count - 1.
-  };
-
+    count := count - 1.;
+  }
   /* 18. Return O. */
-  return O
-};
+  return O;
+}
 
 
 
@@ -1385,16 +1167,13 @@ function arraycopyWithin(global, this, NewTarget, strict, args) {
 *  22.1.3.4 Array.prototype.entries ( )
 */
 function arrayEntries(global, this, NewTarget, strict, args) {
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Return CreateArrayIterator(O, "key+value"). */
-  return CreateArrayIterator(O, "key+value")
-};
+  return CreateArrayIterator(O, "key+value");
+}
 
 
 
@@ -1435,72 +1214,49 @@ function arrayEntries(global, this, NewTarget, strict, args) {
 function arrayEvery(global, this, NewTarget, strict, args) {
   callbackfn := l_nth(args, 0);
   thisArg := getOptionalParam(args, 1);
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")). */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
   /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if (IsCallable(callbackfn) = false)
+    throw TypeErrorConstructorInternal();
   /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) {
-    T := thisArg
-  } else {
-    T := 'undefined
-  };
-
+  if (!(thisArg = null)) T := thisArg; else T := 'undefined;
   /* 7. Let k be 0. */
   k := 0.;
-
   /* 8. Repeat, while k < len */
   while (k < len) {
     /* a. Let Pk be ToString(k). */
     Pk := ToString(k);
-
     /* b. Let kPresent be HasProperty(O, Pk). */
     kPresent := HasProperty(O, Pk);
-
     /* c. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
-
     /* d. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let kValue be Get(O, Pk). */
       kValue := Get(O, Pk);
-
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
-
       /* iii. Let testResult be ToBoolean(Call(callbackfn, T, «kValue, k, O»)). */
       testResult := ToBoolean(Call(null, null, callbackfn, T, [kValue, k, O]));
-
       /* iv. ReturnIfAbrupt(testResult). */
       @ReturnIfAbrupt(testResult);
-
       /* v. If testResult is false, return false. */
-      if (ToBoolean(testResult) = false) {
-        return false
-      }
-    };
-
+      if (ToBoolean(testResult) = false)
+        return false;
+    }
     /* e. Increase k by 1. */
-    k := k + 1.
-  };
-
+    k := k + 1.;
+  }
   /* 9. Return true. */
-  return true
-};
+  return true;
+}
 /**
  * The length property of the every method is 1.
  *
@@ -1526,75 +1282,47 @@ function arrayEvery(global, this, NewTarget, strict, args) {
 *
 */
 function arrayFill(global, this, NewTarget, strict, args) {
-
   /* The fill method takes up to three arguments value, start and end. */
   value := l_nth(args, 0);
   start := getOptionalParam(args, 1);
   end := getOptionalParam(args, 2);
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")). */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
   /* 5. Let relativeStart be ToInteger(start). */
-  if ((start = 'undefined) ||| (start = null)) {
-    start := 0.
-  };
+  if ((start = 'undefined) ||| (start = null))
+    start := 0.;
   relativeStart := ToInteger(start);
-
   /* 6. ReturnIfAbrupt(relativeStart). */
   @ReturnIfAbrupt(relativeStart);
-
   /* 7. If relativeStart < 0, let k be max((len + relativeStart),0); else let k be min(relativeStart, len). */
-  if (relativeStart < 0.) {
-    k := max((len + relativeStart), 0.)
-  } else {
-    k := min(relativeStart, len)
-  };
-
+  if (relativeStart < 0.) k := max((len + relativeStart), 0.); else k := min(relativeStart, len);
   /* 8. If end is undefined, let relativeEnd be len; else let relativeEnd be ToInteger(end). */
-  if ((end = 'undefined) ||| (end = null)) {
-    relativeEnd := len
-  } else {
-    relativeEnd := ToInteger(end)
-  };
-
+  if ((end = 'undefined) ||| (end = null)) relativeEnd := len; else relativeEnd := ToInteger(end);
   /* 9. ReturnIfAbrupt(relativeEnd). */
   @ReturnIfAbrupt(relativeEnd);
-
   /* 10. If relativeEnd < 0, let final be max((len + relativeEnd),0); else let final be min(relativeEnd, len). */
-  if (relativeEnd < 0.) {
-    final := max((len + relativeEnd), 0.)
-  } else {
-    final := min(relativeEnd, len)
-  };
-
+  if (relativeEnd < 0.) final := max((len + relativeEnd), 0.); else final := min(relativeEnd, len);
   /* 11. Repeat, while k < final */
   while (k < final) {
     /* a. Let Pk be ToString(k). */
     Pk := ToString(k);
-
     /* b. Let setStatus be Set(O, Pk, value, true). */
     setStatus := Set(O, Pk, value, true);
-
     /* c. ReturnIfAbrupt(setStatus). */
     @ReturnIfAbrupt(setStatus);
-
     /* d. Increase k by 1. */
-    k := k + 1.
-  };
+    k := k + 1.;
+  }
 
   /* 12. Return O. */
-  return O
-};
+  return O;
+}
 
 
 
@@ -1631,89 +1359,61 @@ function arrayFill(global, this, NewTarget, strict, args) {
 function arrayFilter(global, this, NewTarget, strict, args) {
   callbackfn := l_nth(args, 0);
   thisArg := getOptionalParam(args, 1);
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")). */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
   /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if (IsCallable(callbackfn) = false)
+    throw TypeErrorConstructorInternal();
   /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) {
-    T := thisArg
-  } else {
-    T := 'undefined
-  };
-
+  if (!(thisArg = null)) T := thisArg; else T := 'undefined;
   /* 7. Let A be ArraySpeciesCreate(O, 0). */
   A := ArraySpeciesCreate(O, 0.);
-
   /* 8. ReturnIfAbrupt(A). */
   @ReturnIfAbrupt(A);
-
   /* 9. Let k be 0. */
   k := 0.;
-
   /* 10. Let to be 0. */
   to := 0.;
-
   /* 11. Repeat, while k < len */
   while (k < len) {
-
     /* a. Let Pk be ToString(k). */
     Pk := ToString(k);
-
     /* b. Let kPresent be HasProperty(O, Pk). */
     kPresent := HasProperty(O, Pk);
-
     /* c. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
-
     /* d. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let kValue be Get(O, Pk). */
       kValue := Get(O, Pk);
-
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
-
       /* iii. Let selected be ToBoolean(Call(callbackfn, T, «kValue, k, O»)). */
       selected := ToBoolean(Call(null, null, callbackfn, T, [kValue, k, O]));
-
       /* iv. ReturnIfAbrupt(selected). */
       @ReturnIfAbrupt(selected);
-
       /* v. If selected is true, then  */
       if (selected = true) {
         /* 1. Let status be CreateDataPropertyOrThrow (A, ToString(to), kValue). */
         status := CreateDataPropertyOrThrow(A, ToString(to), kValue);
-
         /* 2. ReturnIfAbrupt(status). */
         @ReturnIfAbrupt(status);
-
         /* 3. Increase to by 1. */
-        to := to + 1.
+        to := to + 1.;
       }
-    };
-
+    }
     /* e. Increase k by 1. */
-    k := k + 1.
-  };
-
+    k := k + 1.;
+  }
   /* 12. Return A. */
-  return A
-};
+  return A;
+}
 /**
 * The length property of the filter method is 1.
 *
@@ -1756,67 +1456,45 @@ function arrayFilter(global, this, NewTarget, strict, args) {
 *
 */
 function arrayFind(global, this, NewTarget, strict, args) {
-
   /* The find method is called with one or two arguments, predicate and thisArg. */
   predicate := l_nth(args, 0);
   thisArg := getOptionalParam(args, 1);
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")). */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
   /* 5. If IsCallable(predicate) is false, throw a TypeError exception. */
-  if (IsCallable(predicate) = false) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if (IsCallable(predicate) = false)
+    throw TypeErrorConstructorInternal();
   /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) {
-    T := thisArg
-  } else {
-    T := 'undefined
-  };
-
+  if (!(thisArg = null)) T := thisArg; else T := 'undefined;
   /* 7. Let k be 0. */
   k := 0.;
-
   /* 8. Repeat, while k < len */
   while (k < len) {
     /* a. Let Pk be ToString(k). */
     Pk := ToString(k);
-
     /* b. Let kValue be Get(O, Pk). */
     kValue := Get(O, Pk);
-
     /* c. ReturnIfAbrupt(kValue). */
     @ReturnIfAbrupt(kValue);
-
     /* d. Let testResult be ToBoolean(Call(predicate, T, «kValue, k, O»)). */
     testResult := ToBoolean(Call(null, null, predicate, T, [kValue, k, O]));
-
     /* e. ReturnIfAbrupt(testResult). */
     @ReturnIfAbrupt(testResult);
-
     /* f. If testResult is true, return kValue. */
-    if (testResult = true) {
-      return kValue
-    };
-
+    if (testResult = true)
+      return kValue;
     /* g. Increase k by 1. */
-    k := k + 1.
-  };
-
+    k := k + 1.;
+  }
   /* 9. Return undefined. */
-  return 'undefined
-};
+  return 'undefined;
+}
 
 
 
@@ -1851,66 +1529,45 @@ function arrayFind(global, this, NewTarget, strict, args) {
 *
 */
 function arrayFindIndex(global, this, NewTarget, strict, args) {
-    /* The find method is called with one or two arguments, predicate and thisArg. */
+  /* The find method is called with one or two arguments, predicate and thisArg. */
   predicate := l_nth(args, 0);
   thisArg := getOptionalParam(args, 1);
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")). */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
   /* 5. If IsCallable(predicate) is false, throw a TypeError exception. */
-  if (IsCallable(predicate) = false) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if (IsCallable(predicate) = false)
+    throw TypeErrorConstructorInternal();
   /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) {
-    T := thisArg
-  } else {
-    T := 'undefined
-  };
-
+  if (!(thisArg = null)) T := thisArg; else T := 'undefined;
   /* 7. Let k be 0. */
   k := 0.;
-
   /* 8. Repeat, while k < len */
   while (k < len) {
     /* a. Let Pk be ToString(k). */
     Pk := ToString(k);
-
     /* b. Let kValue be Get(O, Pk). */
     kValue := Get(O, Pk);
-
     /* c. ReturnIfAbrupt(kValue). */
     @ReturnIfAbrupt(kValue);
-
     /* d. Let testResult be ToBoolean(Call(predicate, T, «kValue, k, O»)). */
     testResult := ToBoolean(Call(null, null, predicate, T, [kValue, k, O]));
-
     /* e. ReturnIfAbrupt(testResult). */
     @ReturnIfAbrupt(testResult);
-
     /* f. If testResult is true, return kValue. */
-    if (testResult = true) {
-      return k
-    };
-
+    if (testResult = true)
+      return k;
     /* g. Increase k by 1. */
-    k := k + 1.
-  };
-
+    k := k + 1.;
+  }
   /* 9. Return -1. */
-  return -(1.)
-};
+  return -(1.);
+}
 
 
 
@@ -1946,67 +1603,46 @@ function arrayFindIndex(global, this, NewTarget, strict, args) {
 function arrayForEach(global, this, NewTarget, strict, args) {
   callbackfn := l_nth(args, 0);
   thisArg := getOptionalParam(args, 1);
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")). */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
   /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if (IsCallable(callbackfn) = false)
+    throw TypeErrorConstructorInternal();
   /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) {
-    T := thisArg
-  } else {
-    T := 'undefined
-  };
-
+  if (!(thisArg = null)) T := thisArg; else T := 'undefined;
   /* 7. Let k be 0. */
   k := 0.;
-
   /* 8. Repeat, while k < len */
   while (k < len) {
     /* a. Let Pk be ToString(k). */
     Pk := ToString(k);
-
     /* b. Let kPresent be HasProperty(O, Pk). */
     kPresent := HasProperty(O, Pk);
-
     /* c. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
-
     /* d. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let kValue be Get(O, Pk). */
       kValue := Get(O, Pk);
-
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
-
       /* iii. Let funcResult be Call(callbackfn, T, «kValue, k, O»). */
       funcResult := Call(null, null, callbackfn, T, [kValue, k, O]);
-
       /* iv. ReturnIfAbrupt(funcResult). */
-      @ReturnIfAbrupt(funcResult)
-    };
-
+      @ReturnIfAbrupt(funcResult);
+    }
     /* e. Increase k by 1. */
-    k := k + 1.
-  };
-
+    k := k + 1.;
+  }
   /* 9. Return undefined. */
-  return 'undefined
-};
+  return 'undefined;
+}
 /**
  * The length property of the forEach method is 1.
  *
@@ -2038,93 +1674,61 @@ function arrayForEach(global, this, NewTarget, strict, args) {
 function arrayIndexOf(global, this, NewTarget, strict, args) {
   searchElement := l_nth(args, 0);
   fromIndex := getOptionalParam(args, 1);
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")). */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len).*/
   @ReturnIfAbrupt(len);
-
   /* 5. If len is 0, return -1. */
-  if (len = 0.) {
-    return -(1.)
-  };
-
-  /* 6. If argument fromIndex was passed let n be ToInteger(fromIndex);
-        else let n be 0. */
-  if (!(fromIndex = null)) {
-    n := ToInteger(fromIndex)
-  } else {
-    n := 0.
-  };
-
+  if (len = 0.)
+    return -(1.);
+  /* 6. If argument fromIndex was passed let n be ToInteger(fromIndex); else let n be 0. */
+  if (!(fromIndex = null)) n := ToInteger(fromIndex); else n := 0.;
   /* 7. ReturnIfAbrupt(n). */
   @ReturnIfAbrupt(n);
-
   /* 8. If n ≥ len, return -1. */
-  if (n >= len) {
-    return -(1.)
-  };
-
+  if (n >= len)
+    return -(1.);
   /* 9. If n ≥ 0, then */
   if (n >= 0.) {
     /* This comparison with -0 was extracted from ES7 standard. Fix bug. */
     /* a. If n is -0, let k be +0; else let k be n. */
-    if (isMinusZero(n)) {
-      k := 0.
-    } else {
-      k := n
-    }
-
+    if (isMinusZero(n)) k := 0.; else k := n;
   /* 10. Else, n<0 */
   } else {
     /* a. Let k be len - abs(n). */
     k := len - abs(n);
     /* b. If k is less than 0, then let k be 0. */
-    if (k < 0.) {
-      k := 0.
-    }
-  };
-
+    if (k < 0.)
+      k := 0.;
+  }
   /* 11. Repeat, while k<len */
   while (k < len) {
     /* a. Let kPresent be HasProperty(O, ToString(k)). */
     kPresent := HasProperty(O, ToString(k));
-
     /* b. ReturnIfAbrupt(kPresent).*/
     @ReturnIfAbrupt(kPresent);
-
     /* c. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let elementK be Get(O, ToString(k)). */
       elementK := Get(O, ToString(k));
-
       /* ii. ReturnIfAbrupt(elementK). */
       @ReturnIfAbrupt(elementK);
-
-      /* iii. Let same be the result of applying the Strict Equality Comparison
-            Algorithm to searchElement and elementK. */
+      /* iii. Let same be the result of applying the Strict Equality Comparison Algorithm to searchElement and elementK. */
       same := StrictEqualityComparison(searchElement, elementK);
-
       /* iv. If same is true, return k. */
-      if (same = true) {
-        return k
-      }
-    };
-
+      if (same = true)
+        return k;
+    }
     /* d. Increase k by 1. */
-    k := k + 1.
-  };
-
+    k := k + 1.;
+  }
   /* 10. Return -1. */
-  return -(1.)
-};
+  return -(1.);
+}
 /**
  * The length property of the indexOf method is 1.
  *
@@ -2149,82 +1753,52 @@ function arrayIndexOf(global, this, NewTarget, strict, args) {
 /* function join (global, this, [ separator ]) */
 function arrayJoin(global, this, NewTarget, strict, args) {
   separator := l_nth(args, 0);
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")) */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
-  /* 5. If separator is undefined, let separator be the single-character
-        String ",". */
-  if (separator = 'undefined) {
-    separator := ","
-  };
-
+  /* 5. If separator is undefined, let separator be the single-character String ",". */
+  if (separator = 'undefined)
+    separator := ",";
   /* 6. Let sep be ToString(separator). */
   sep := ToString(separator);
-
   /* 7. ReturnIfAbrupt(sep). */
   @ReturnIfAbrupt(sep);
-
   /* 8. If len is zero, return the empty String. */
-  if (len = 0.) {
-    return ""
-  };
-
+  if (len = 0.)
+    return "";
   /* 9. Let element0 be Get(O, "0"). */
   element0 := Get(O, "0");
-
   @ReturnIfAbrupt(element0);
-
-  /* 10. If element0 is undefined or null, let R be the empty String;
-        otherwise, Let R be ToString(element0). */
-  R := ((element0 = 'undefined) || (element0 = 'null)) ? "" : ToString(element0);
-
+  /* 10. If element0 is undefined or null, let R be the empty String; otherwise, Let R be ToString(element0). */
+  if ((element0 = 'undefined) || (element0 = 'null)) R := ""; else R := ToString(element0);
   /* 11. ReturnIfAbrupt(R). */
   @ReturnIfAbrupt(R);
-
   /* 12. Let k be 1. */
   k := 1.;
-
   /* 13. Repeat, while k < len */
   while (k < len) {
     /* a. Let S be the String value produced by concatenating R and sep. */
     S := s_concat([R, sep]);
-
     /* b. Let element be Get(O, ToString(k)). */
     element := Get(O, ToString(k));
-
     @ReturnIfAbrupt(element);
-
-    /* c. If element is undefined or null, Let next be the empty String;
-          otherwise, let next be ToString(element). */
-    if ((element = 'undefined) || (element = 'null)) {
-      next := ""
-    } else {
-      next := ToString(element)
-    };
-
+    /* c. If element is undefined or null, Let next be the empty String; otherwise, let next be ToString(element). */
+    if ((element = 'undefined) || (element = 'null)) next := ""; else next := ToString(element);
     /* d. ReturnIfAbrupt(next). */
     @ReturnIfAbrupt(next);
-
     /* e. Let R be a String value produced by concatenating S and next. */
     R := s_concat([S, next]);
-
     /* f. Increase k by 1. */
-    k := k + 1.
-  };
-
+    k := k + 1.;
+  }
   /* 14. Return R. */
-  return R
-};
+  return R;
+}
 /**
  * The length property of the join method is 1.
  *
@@ -2240,16 +1814,13 @@ function arrayJoin(global, this, NewTarget, strict, args) {
 *  22.1.3.13 Array.prototype.keys ( )
 */
 function arrayKeys(global, this, NewTarget, strict, args) {
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Return CreateArrayIterator(O, "key"). */
-  return CreateArrayIterator(O, "key")
-};
+  return CreateArrayIterator(O, "key");
+}
 
 
 
@@ -2273,83 +1844,55 @@ function arrayKeys(global, this, NewTarget, strict, args) {
 function arrayLastIndexOf(global, this, NewTarget, strict, args) {
   searchElement := l_nth(args, 0);
   fromIndex := getOptionalParam(args, 1);
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O).*/
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")). */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
   /* 5. If len is 0, return -1. */
-  if (len = 0.) {
-    return -(1.)
-  };
-
-  /* 6. If argument fromIndex was passed let n be ToInteger(fromIndex);
-        else let n be len. */
-  if (!(fromIndex = null)) {
-    n := ToInteger(fromIndex)
-  } else {
-    n := len - 1.
-  };
-
+  if (len = 0.)
+    return -(1.);
+  /* 6. If argument fromIndex was passed let n be ToInteger(fromIndex); else let n be len. */
+  if (!(fromIndex = null)) n := ToInteger(fromIndex); else n := len - 1.;
   /* 7. ReturnIfAbrupt(n). */
   @ReturnIfAbrupt(n);
-
   /* 8. If n ≥ 0, then let k be min(n, len - 1). */
   if (n >= 0.) {
     /* This comparison with -0 was extracted from ES7 standard. Fix bug. */
     /* a. If n is -0, let k be +0; else let k be min(n, len - 1). */
-    if (isMinusZero(n)) {
-      k := 0.
-    } else {
-      k := min(n, len - 1.)
-    }
-  }
+    if (isMinusZero(n)) k := 0.; else k := min(n, len - 1.);
   /* 9. Else, n < 0 */
-  else {
+  } else {
     /* a. Let k be len - abs(n). */
-    k := len - abs(n)
-  };
+    k := len - abs(n);
+  }
   /* 10. Repeat, while k≥ 0 */
   while (k >= 0.) {
     /* a. Let kPresent be HasProperty(O, ToString(k)). */
     kPresent := HasProperty(O, ToString(k));
-
     /* b. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
-
     /* c. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let elementK be Get(O, ToString(k)). */
       elementK := Get(O, ToString(k));
-
       /* ii. ReturnIfAbrupt(elementK).*/
       @ReturnIfAbrupt(elementK);
-
-      /* iii. Let same be the result of performing Strict Equality Comparison
-              searchElement === elementK. */
+      /* iii. Let same be the result of performing Strict Equality Comparison searchElement === elementK. */
       same := StrictEqualityComparison(searchElement, elementK);
-
       /* iv. If same is true, return k. */
-      if (same = true) {
-        return k
-      }
-    };
-
+      if (same = true)
+        return k;
+    }
     /* d. Decrease k by 1. */
-    k := k - 1.
-  };
-
+    k := k - 1.;
+  }
   /* 11. Return -1. */
-  return -(1.)
-};
+  return -(1.);
+}
 /**
  * The length property of the lastIndexOf method is 1.
  *
@@ -2394,80 +1937,54 @@ function arrayLastIndexOf(global, this, NewTarget, strict, args) {
 function arrayMap(global, this, NewTarget, strict, args) {
   callbackfn := l_nth(args, 0);
   thisArg := getOptionalParam(args, 1);
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")). */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
   /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if (IsCallable(callbackfn) = false)
+    throw TypeErrorConstructorInternal();
   /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) {
-    T := thisArg
-  } else {
-    T := 'undefined
-  };
-
+  if (!(thisArg = null)) T := thisArg; else T := 'undefined;
   /* 7. Let A be ArraySpeciesCreate(O, len). */
   A := ArraySpeciesCreate(O, len);
-
   /* 8. ReturnIfAbrupt(A). */
   @ReturnIfAbrupt(A);
-
   /* 9. Let k be 0. */
   k := 0.;
-
   /* 10. Repeat, while k < len */
   while (k < len) {
     /* a. Let Pk be ToString(k). */
     Pk := ToString(k);
-
     /* b. Let kPresent be HasProperty(O, Pk). */
     kPresent := HasProperty(O, Pk);
-
     /* c. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
-
     /* d. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let kValue be Get(O, Pk). */
       kValue := Get(O, Pk);
-
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
-
-
       /* ii. Let mappedValue be Call(callbackfn, T, «kValue, k, O»). */
       mappedValue := Call(null, null, callbackfn, T, [kValue, k, O]);
-
       /* iii. ReturnIfAbrupt(mappedValue). */
       @ReturnIfAbrupt(mappedValue);
-
       /* iv. Let status be CreateDataPropertyOrThrow (A, Pk, mappedValue). */
       status := CreateDataPropertyOrThrow(A, Pk, mappedValue);
-
       /* v. ReturnIfAbrupt(status). */
-      @ReturnIfAbrupt(status)
-    };
-
+      @ReturnIfAbrupt(status);
+    }
     /* e. Increase k by 1. */
-    k := k + 1.
-  };
-
+    k := k + 1.;
+  }
   /* 11. Return A. */
-  return A
-};
+  return A;
+}
 /**
  * The length property of the map method is 1.
  *
@@ -2485,60 +2002,44 @@ function arrayMap(global, this, NewTarget, strict, args) {
  * The last element of the array is removed from the array and returned.
  */
 function arrayPop(global, this, NewTarget, strict, args) {
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")) */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
   /* 5. If len is zero, */
   if (len = 0.) {
     /* a. Let setStatus be Set(O, "length", 0, true). */
     setStatus := Set(O, "length", 0., true);
-
     /* b. ReturnIfAbrupt(setStatus). */
     @ReturnIfAbrupt(setStatus);
-
     /* c. Return undefined. */
-    return 'undefined
-  }
+    return 'undefined;
   /* 6. Else, len > 0 */
-  else {
+  } else {
     /* a. Let newLen be len–1. */
     newLen := len - (1.);
-
     /* b. Let indx be ToString(newLen). */
     indx := ToString(newLen);
-
     /* c. Let element be Get(O, indx). */
     element := Get(O, indx);
-
     /* d. ReturnIfAbrupt(element). */
     @ReturnIfAbrupt(element);
-
     /* e. Let deleteStatus be DeletePropertyOrThrow(O, indx). */
     deleteStatus := DeletePropertyOrThrow(O, indx);
-
     /* f. ReturnIfAbrupt(deleteStatus). */
     @ReturnIfAbrupt(deleteStatus);
-
     /* g. Let setStatus be Set(O, "length", newLen, true). */
     setStatus := Set(O, "length", newLen, true);
-
     /* h. ReturnIfAbrupt(setStatus). */
     @ReturnIfAbrupt(setStatus);
-
     /* i. Return element. */
-    return element
+    return element;
   }
-};
+}
 /**
  * NOTE The pop function is intentionally generic; it does not require that
  * its this value be an Array object. Therefore it can be transferred to other
@@ -2558,57 +2059,40 @@ function arrayPop(global, this, NewTarget, strict, args) {
  * the following steps are taken:
  */
 function arrayPush(global, this, NewTarget, strict, items) {
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")) */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
-  /* 5. Let items be an internal List whose elements are, in left to right
-        order, the arguments that were passed to this function invocation. */
+  /* 5. Let items be an internal List whose elements are, in left to right order, the arguments that were passed to this function invocation. */
   items := items;
-
   /* 6. Let argCount be the number of elements in items. */
   argCount := int_to_float l_len items;
-
   /* 7. If len + argCount > 2^53 - 1, throw a TypeError exception. */
-  if ((len + argCount) > (((2. ** 53.) - 1.))) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if ((len + argCount) > (((2. ** 53.) - 1.)))
+    throw TypeErrorConstructorInternal();
   /* 8. Repeat, while items is not empty */
   while (!(items = [])) {
-    /* a. Remove the first element from items and let E be the value of
-          the element. */
+    /* a. Remove the first element from items and let E be the value of the element. */
     E := hd items;
     items := tl items;
-
     /* b. Let setStatus be Set(O, ToString(len), E, true). */
     setStatus := Set(O, ToString(len), E , true);
-
     /* c. ReturnIfAbrupt(setStatus). */
     @ReturnIfAbrupt(setStatus);
-
     /* d. Increase len by 1. */
-    len := len + 1.
-  };
-
+    len := len + 1.;
+  }
   /* 9. Let setStatus be Set(O, "length", len, true). */
   setStatus := Set(O, "length", len , true);
-
   /* 10. ReturnIfAbrupt(setStatus). */
   @ReturnIfAbrupt(setStatus);
-
   /* 11. Return len. */
-  return len
-};
+  return len;
+}
 /**
  * The length property of the push method is 1.
  *
@@ -2656,105 +2140,78 @@ function arrayReduce(global, this, NewTarget, strict, args) {
   accumulator := null;
   callbackfn := l_nth(args, 0);
   initialValue := getOptionalParam(args, 1);
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")). */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
   /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if (IsCallable(callbackfn) = false)
+    throw TypeErrorConstructorInternal();
   /* 6. If len is 0 and initialValue is not present, throw a TypeError exception. */
-  if ((len = 0.) &&& (initialValue = null)) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if ((len = 0.) &&& (initialValue = null))
+    throw TypeErrorConstructorInternal();
   /* 7. Let k be 0. */
   k := 0.;
-
   /* 8. If initialValue is present, then */
   if (!(initialValue = null)) {
     /* a. Set accumulator to initialValue. */
-    accumulator := initialValue
-  }
+    accumulator := initialValue;
   /* 9. Else, initialValue is not present */
-  else {
+  } else {
     /* a. Let kPresent be false. */
     kPresent := false;
-
     /* b. Repeat, while kPresent is false and k < len */
     while ((kPresent = false) && (k < len)) {
       /* i. Let Pk be ToString(k). */
       Pk := ToString(k);
-
       /* ii. Let kPresent be HasProperty(O, Pk). */
       kPresent := HasProperty(O, Pk);
-
       /* iii. ReturnIfAbrupt(kPresent). */
       @ReturnIfAbrupt(kPresent);
-
       /* iv. If kPresent is true, then */
       if (kPresent = true) {
         /* 1. Let accumulator be Get(O, Pk). */
         accumulator := Get(O, Pk);
-
         /* 2. ReturnIfAbrupt(accumulator). */
-        @ReturnIfAbrupt(accumulator)
-      };
-
+        @ReturnIfAbrupt(accumulator);
+      }
       /* v. Increase k by 1. */
-      k := k + 1.
-    };
-
-    /* c. If kPresent is false, throw a TypeError exception. */
-    if (kPresent = false) {
-      throw TypeErrorConstructorInternal()
+      k := k + 1.;
     }
-  };
+    /* c. If kPresent is false, throw a TypeError exception. */
+    if (kPresent = false)
+      throw TypeErrorConstructorInternal();
+  }
 
   /* 10. Repeat, while k < len */
   while (k < len) {
     /* a. Let Pk be ToString(k). */
     Pk := ToString(k);
-
     /* b. Let kPresent be HasProperty(O, Pk). */
     kPresent := HasProperty(O, Pk);
-
     /* c. ReturnIfAbrupt(kPresent).*/
     @ReturnIfAbrupt(kPresent);
-
     /* d. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let kValue be Get(O, Pk). */
       kValue := Get(O, Pk);
-
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
-
       /* iii. Let accumulator be Call(callbackfn, undefined, «accumulator, kValue, k, O»). */
       accumulator := Call(null, null, callbackfn, 'undefined, [accumulator, kValue, k, O]);
-
       /* iv. ReturnIfAbrupt(accumulator). */
-      @ReturnIfAbrupt(accumulator)
-    };
-
+      @ReturnIfAbrupt(accumulator);
+    }
     /* e. Increase k by 1. */
-    k := k + 1.
-  };
-
+    k := k + 1.;
+  }
   /* 11. Return accumulator. */
-  return accumulator
-};
+  return accumulator;
+}
 /**
  * The length property of the reduce method is 1.
  *
@@ -2803,105 +2260,78 @@ function arrayReduceRight(global, this, NewTarget, strict, args) {
   accumulator := null;
   callbackfn := l_nth(args, 0);
   initialValue := getOptionalParam(args, 1);
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")). */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
   /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if (IsCallable(callbackfn) = false)
+    throw TypeErrorConstructorInternal();
   /* 6. If len is 0 and initialValue is not present, throw a TypeError exception. */
-  if ((len = 0.) &&& (initialValue = null)) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if ((len = 0.) &&& (initialValue = null))
+    throw TypeErrorConstructorInternal();
   /* 7. Let k be len-1. */
   k := len - 1.;
-
   /* 8. If initialValue is present, then */
   if (!(initialValue = null)) {
     /* a. Set accumulator to initialValue. */
-    accumulator := initialValue
-  }
+    accumulator := initialValue;
   /* 8. Else, initialValue is not present */
-  else {
+  } else {
     /* a. Let kPresent be false. */
     kPresent := false;
-
     /* b. Repeat, while kPresent is false and k ≥ 0 */
     while ((kPresent = false) && (k >= 0.)) {
       /* i. Let Pk be ToString(k). */
       Pk := ToString(k);
-
       /* ii. Let kPresent be HasProperty(O, Pk). */
       kPresent := HasProperty(O, Pk);
-
       /* iii. ReturnIfAbrupt(kPresent). */
       @ReturnIfAbrupt(kPresent);
-
       /* iv. If kPresent is true, then */
       if (kPresent = true) {
         /* 1. Let accumulator be Get(O, Pk). */
         accumulator := Get(O, Pk);
-
         /* 2. ReturnIfAbrupt(accumulator). */
-        @ReturnIfAbrupt(accumulator)
-      };
-
+        @ReturnIfAbrupt(accumulator);
+      }
       /* v. Decrease k by 1. */
-      k := k - 1.
-    };
-
-    /* c. If kPresent is false, throw a TypeError exception. */
-    if (kPresent = false) {
-      throw TypeErrorConstructorInternal()
+      k := k - 1.;
     }
-  };
+    /* c. If kPresent is false, throw a TypeError exception. */
+    if (kPresent = false)
+      throw TypeErrorConstructorInternal();
+  }
 
   /* 10. Repeat, while k ≥ 0 */
   while (k >= 0.) {
     /* a. Let Pk be ToString(k). */
     Pk := ToString(k);
-
     /* b. Let kPresent be HasProperty(O, Pk). */
     kPresent := HasProperty(O, Pk);
-
     /* c. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
-
     /* d. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let kValue be Get(O, Pk). */
       kValue := Get(O, Pk);
-
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
-
       /* iii. Let accumulator be Call(callbackfn, undefined, «accumulator, kValue, k, »). */
       accumulator := Call(null, null, callbackfn, 'undefined, [accumulator, kValue, k, O]);
-
       /* iv. ReturnIfAbrupt(accumulator). */
-      @ReturnIfAbrupt(accumulator)
-    };
-
+      @ReturnIfAbrupt(accumulator);
+    }
     /* d. Decrease k by 1. */
-    k := k - 1.
-  };
-
+    k := k - 1.;
+  }
   /* 11. Return accumulator. */
-  return accumulator
-};
+  return accumulator;
+}
 /**
  * The length property of the reduceRight method is 1.
  *
@@ -2920,121 +2350,93 @@ function arrayReduceRight(global, this, NewTarget, strict, args) {
  * The object is returned as the result of the call.
  */
 function arrayReverse(global, this, NewTarget, strict, args) {
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")) */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
   /* 5. Let middle be floor(len/2). */
   middle := floor(len / 2.);
-
   /* 6. Let lower be 0. */
   lower := 0.;
-
   /* 7. Repeat, while lower ≠ middle */
   while (!(lower = middle)) {
     /* a. Let upper be len−lower −1. */
     upper := len - lower - 1.;
-
     /* b. Let upperP be ToString(upper). */
     upperP := ToString(upper);
-
     /* c. Let lowerP be ToString(lower). */
     lowerP := ToString(lower);
-
-
     /* d. Let lowerExists be HasProperty(O, lowerP). */
     lowerExists := HasProperty(O, lowerP);
-
     /* e. ReturnIfAbrupt(lowerExists). */
     @ReturnIfAbrupt(lowerExists);
-
     /* f. If lowerExists is true, then */
     if (lowerExists = true) {
       /* i. Let lowerValue be Get(O, lowerP). */
       lowerValue := Get(O, lowerP);
-
       /* ii. ReturnIfAbrupt(lowerValue). */
-      @ReturnIfAbrupt(lowerValue)
-    };
-
+      @ReturnIfAbrupt(lowerValue);
+    }
     /* g. Let upperExists be HasProperty(O, upperP). */
     upperExists := HasProperty(O, upperP);
-
     /* h. ReturnIfAbrupt(upperExists). */
     @ReturnIfAbrupt(upperExists);
-
     /* i. If upperExists is true, then */
     if (upperExists = true) {
       /* i. Let upperValue be Get(O, upperP). */
       upperValue := Get(O, upperP);
-
       /* ii. ReturnIfAbrupt(upperValue). */
-      @ReturnIfAbrupt(upperValue)
-    };
-
+      @ReturnIfAbrupt(upperValue);
+    }
     /* j. If lowerExists is true and upperExists is true, then */
     if (lowerExists = true && upperExists = true) {
       /* i. Let setStatus be Set(O, lowerP, upperValue, true). */
       setStatus := Set(O, lowerP, upperValue, true);
-
       /* ii. ReturnIfAbrupt(setStatus). */
       @ReturnIfAbrupt(setStatus);
-
       /* iii. Let setStatus be Set(O, upperP, lowerValue, true). */
       setStatus := Set(O, upperP, lowerValue, true);
-
       /* iv. ReturnIfAbrupt(setStatus). */
-      @ReturnIfAbrupt(setStatus)
+      @ReturnIfAbrupt(setStatus);
+    /* k. Else if lowerExists is false and upperExists is true, then */
     } else {
-      /* k. Else if lowerExists is false and upperExists is true, then */
       if (lowerExists = false && upperExists = true) {
         /* i. Let setStatus be Set(O, lowerP, upperValue, true). */
         setStatus := Set(O, lowerP, upperValue, true);
-
         /* ii. ReturnIfAbrupt(setStatus). */
         @ReturnIfAbrupt(setStatus);
-
         /* iii. Let deleteStatus be DeletePropertyOrThrow (O, upperP). */
         deleteStatus := DeletePropertyOrThrow(O, upperP);
-
         /* iv. ReturnIfAbrupt(deleteStatus). */
-        @ReturnIfAbrupt(deleteStatus)
+        @ReturnIfAbrupt(deleteStatus);
+      /* l. Else if lowerExists is true and upperExists is false, then */
       } else {
-        /* l. Else if lowerExists is true and upperExists is false, then */
         if (lowerExists = true && upperExists = false) {
           /* i. Let deleteStatus be DeletePropertyOrThrow (O, lowerP). */
           deleteStatus := DeletePropertyOrThrow(O, lowerP);
-
           /* ii. ReturnIfAbrupt(deleteStatus). */
           @ReturnIfAbrupt(deleteStatus);
-
           /* iii. Let setStatus be Set(O, upperP, lowerValue, true). */
           setStatus := Set(O, upperP, lowerValue, true);
-
           /* iv. ReturnIfAbrupt(setStatus). */
-          @ReturnIfAbrupt(setStatus)
+          @ReturnIfAbrupt(setStatus);
+        /* m. Else, both lowerExists and upperExists are false */
         } else {
-          /* m. Else, both lowerExists and upperExists are false */
           /* i. No action is required. */
         }
       }
-    };
+    }
     /* n. Increase lower by 1. */
-    lower := lower + 1.
-  };
+    lower := lower + 1.;
+  }
 
   /* 8. Return O . */
-  return O
-};
+  return O;
+}
 /**
  * NOTE The reverse function is intentionally generic; it does not require
  * that its this value be an Array object. Therefore, it can be transferred
@@ -3050,92 +2452,70 @@ function arrayReverse(global, this, NewTarget, strict, args) {
  * The first element of the array is removed from the array and returned.
  */
 function arrayShift(global, this, NewTarget, strict, args) {
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")) */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
   /* 5. If len is zero, then */
   if (len = 0.) {
     /* a. Let setStatus be Set(O, "length", 0, true). */
     setStatus := Set(O, "length", 0., true);
     /* b. ReturnIfAbrupt(setStatus).*/
     @ReturnIfAbrupt(setStatus);
-
     /* c. Return undefined. */
-    return 'undefined
-  };
+    return 'undefined;
+  }
   /* 6. Let first be Get(O, "0").*/
   first := Get(O, "0");
-
   /* 7. ReturnIfAbrupt(first). */
   @ReturnIfAbrupt(first);
-
   /* 8. Let k be 1. */
   k := 1.;
-
   /* 9. Repeat, while k < len */
   while (k < len) {
     /* a. Let from be ToString(k). */
     from := ToString(k);
-
     /* b. Let to be ToString(k–1). */
     to := ToString(k - 1.);
-
     /* c. Let fromPresent be HasProperty(O, from). */
     fromPresent := HasProperty(O, from);
-
     /* d. ReturnIfAbrupt(fromPresent). */
     @ReturnIfAbrupt(fromPresent);
-
     /* e. If fromPresent is true, then */
     if (fromPresent = true) {
       /* i. Let fromVal be Get(O, from). */
       fromVal := Get(O, from);
-
       /* ii. ReturnIfAbrupt(fromVal). */
       @ReturnIfAbrupt(fromVal);
-
       /* iii. Let setStatus be Set(O, to, fromVal, true). */
       setStatus := Set(O, to, fromVal, true);
       /* iv. ReturnIfAbrupt(setStatus). */
-      @ReturnIfAbrupt(setStatus)
-    }
+      @ReturnIfAbrupt(setStatus);
     /* f. Else, fromPresent is false */
-    else {
+    } else {
       /* i. Let deleteStatus be DeletePropertyOrThrow(O, to). */
       deleteStatus := DeletePropertyOrThrow(O, to);
-
       /* ii. ReturnIfAbrupt(deleteStatus). */
-      @ReturnIfAbrupt(deleteStatus)
-    };
-
+      @ReturnIfAbrupt(deleteStatus);
+    }
     /* g. Increase k by 1. */
-    k := k + 1.
-  };
-
+    k := k + 1.;
+  }
   /* 10. Let deleteStatus be DeletePropertyOrThrow(O, ToString(len–1)). */
   deleteStatus := DeletePropertyOrThrow(O, ToString(len - 1.));
-
   /* 11. ReturnIfAbrupt(deleteStatus). */
   @ReturnIfAbrupt(deleteStatus);
-
   /* 12. Let setStatus be Set(O, "length", len–1, true). */
   setStatus := Set(O, "length", (len - 1.), true);
   /* 13. ReturnIfAbrupt(setStatus). */
   @ReturnIfAbrupt(setStatus);
-
   /* 14. Return first. */
-  return first
-};
+  return first;
+}
 /**
  * NOTE The shift function is intentionally generic; it does not require that
  * its this value be an Array object. Therefore it can be transferred to other
@@ -3158,107 +2538,65 @@ function arrayShift(global, this, NewTarget, strict, args) {
 function arraySlice(global, this, NewTarget, strict, args) {
   start := l_nth(args, 0);
   end := l_nth(args, 1);
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")) */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
   /* 5. Let relativeStart be ToInteger(start). */
   relativeStart := ToInteger(start);
-
   /* 6. ReturnIfAbrupt(relativeStart). */
   @ReturnIfAbrupt(relativeStart);
-
-  /* 7. If relativeStart is negative, let k be max((len +relativeStart),0); else
-        let k be min(relativeStart,len). */
-  if (relativeStart < 0.) {
-    k := max((len + relativeStart), 0.)
-  } else {
-    k := min(relativeStart, len)
-  };
-
-  /* 8. If end is undefined, let relativeEnd be len; else let relativeEnd be
-        ToInteger(end). */
-  if (end = 'undefined) {
-    relativeEnd := len
-  } else {
-    relativeEnd := ToInteger(end)
-  };
-
+  /* 7. If relativeStart is negative, let k be max((len +relativeStart),0); else let k be min(relativeStart,len). */
+  if (relativeStart < 0.) k := max((len + relativeStart), 0.); else k := min(relativeStart, len);
+  /* 8. If end is undefined, let relativeEnd be len; else let relativeEnd be ToInteger(end). */
+  if (end = 'undefined) relativeEnd := len; else relativeEnd := ToInteger(end);
   /* 9. ReturnIfAbrupt(relativeEnd). */
   @ReturnIfAbrupt(relativeEnd);
-
-  /* 10. If relativeEnd is negative, let final be max((len + relativeEnd),0); else
-        let final be min(relativeEnd,len). */
-  if (relativeEnd < 0.) {
-    final := max((len + relativeEnd), 0.)
-  } else {
-    final := min(relativeEnd, len)
-  };
-
+  /* 10. If relativeEnd is negative, let final be max((len + relativeEnd),0); else let final be min(relativeEnd,len). */
+  if (relativeEnd < 0.) final := max((len + relativeEnd), 0.); else final := min(relativeEnd, len);
   /* 11. Let count be max(final – k, 0). */
   count := max(final - k, 0.);
-
   /* 12. Let A be ArraySpeciesCreate(O, count). */
   A := ArraySpeciesCreate(O, count);
-
   /* 13. ReturnIfAbrupt(A). */
   @ReturnIfAbrupt(A);
-
   /* 14. Let n be 0. */
   n := 0.;
-
   /* 15. Repeat, while k < final */
   while (k < final) {
     /* a. Let Pk be ToString(k). */
     Pk := ToString(k);
-
     /* b. Let kPresent be HasProperty(O, Pk). */
     kPresent := HasProperty(O, Pk);
-
     /* c. ReturnIfAbrupt(kPresent).*/
     @ReturnIfAbrupt(kPresent);
-
     /* d. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let kValue be Get(O, Pk). */
       kValue := Get(O, Pk);
-
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
-
       /* iii. Let status be CreateDataPropertyOrThrow(A, ToString(n), kValue ). */
       status := CreateDataPropertyOrThrow(A, ToString(n), kValue);
-
       /* iv. ReturnIfAbrupt(status). */
-      @ReturnIfAbrupt(status)
-
-    };
-
+      @ReturnIfAbrupt(status);
+    }
     /* e. Increase k by 1. */
     k := k + 1.;
-
     /* f. Increase n by 1. */
-    n := n + 1.
-  };
-
+    n := n + 1.;
+  }
   /* 16. Let setStatus be Set(A, "length", n, true). */
   setStatus := Set(A, "length", n, true);
-
   /* 17. ReturnIfAbrupt(setStatus). */
   @ReturnIfAbrupt(setStatus);
-
   /* 18. Return A. */
-  return A
-};
+  return A;
+}
 /**
  * The length property of the slice method is 2.
  *
@@ -3305,72 +2643,49 @@ function arraySlice(global, this, NewTarget, strict, args) {
 function arraySome(global, this, NewTarget, strict, args) {
   callbackfn := l_nth(args, 0);
   thisArg := getOptionalParam(args, 1);
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")). */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
   /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if (IsCallable(callbackfn) = false)
+    throw TypeErrorConstructorInternal();
   /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) {
-    T := thisArg
-  } else {
-    T := 'undefined
-  };
-
+  if (!(thisArg = null)) T := thisArg; else T := 'undefined;
   /* 7. Let k be 0. */
   k := 0.;
-
   /* 8. Repeat, while k < len */
   while (k < len) {
     /* a. Let Pk be ToString(k). */
     Pk := ToString(k);
-
     /* b. Let kPresent be HasProperty(O, Pk). */
     kPresent := HasProperty(O, Pk);
-
     /* c. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
-
     /* d. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let kValue be Get(O, Pk). */
       kValue := Get(O, Pk);
-
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
-
       /* iii. Let testResult be ToBoolean(Call(callbackfn, T, «kValue, k, and O»)). */
       testResult := ToBoolean(Call(null, null, callbackfn, T, [kValue, k, O]));
-
       /* iv. ReturnIfAbrupt(testResult). */
       @ReturnIfAbrupt(testResult);
-
       /* v. If testResult is true, return true. */
-      if (testResult = true) {
-        return true
-      }
-    };
-
+      if (testResult = true)
+        return true;
+    }
     /* e. Increase k by 1. */
-    k := k + 1.
-  };
-
+    k := k + 1.;
+  }
   /* 9. Return false. */
-  return false
-};
+  return false;
+}
 /**
  * The length property of the some method is 1.
  *
@@ -3393,16 +2708,13 @@ function arraySome(global, this, NewTarget, strict, args) {
  */
 function arraySort(global, this, NewTarget, strict, args) {
   comparefn := l_nth(args, 0);
-
   /* 1. Let obj be ToObject(this value). */
   obj := ToObject(this);
-
   /* 2. Let len be ToLength(Get(obj, "length")). */
   len := ToLength(Get(obj, "length"));
-
   /* 3. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
+  
   /* The sort order is the ordering, after completion of this function, of the integer
   *  indexed property values of obj whose integer indexes are less than len. The result
   *  of the sort function is then determined as follows: */
@@ -3459,16 +2771,14 @@ function arraySort(global, this, NewTarget, strict, args) {
     jVal := {obj.Get}(obj, k_str, obj);
     @ReturnIfAbrupt(jVal);
 
-    if (jValExists) {
-      if (jVal = 'undefined) {
-        undefinedCount := undefinedCount + 1.
-      } else {
-        nonUndefinedItems := l_add(nonUndefinedItems, jVal)
-      }
-    };
+    if (jValExists)
+      if (jVal = 'undefined)
+        undefinedCount := undefinedCount + 1.;
+      else
+        nonUndefinedItems := l_add(nonUndefinedItems, jVal);
 
-    k := k + 1.
-  };
+    k := k + 1.;
+  }
 
   /* Sort nonUndefined Items */
   nonUndLen := l_len nonUndefinedItems;
@@ -3486,12 +2796,12 @@ function arraySort(global, this, NewTarget, strict, args) {
       if (comparisonResult > 0.) {
         nonUndefinedItems := l_set(nonUndefinedItems, sortingIndex, currentValue);
         nonUndefinedItems := l_set(nonUndefinedItems, currentIndex, sortingValue);
-        somethingChanged := true
-      };
-      index := index + 1
-    };
-    sorted := (!somethingChanged)
-  };
+        somethingChanged := true;
+      }
+      index := index + 1;
+    }
+    sorted := (!somethingChanged);
+  }
 
   /* Set nonUndefined Items */
   i := 0;
@@ -3500,18 +2810,18 @@ function arraySort(global, this, NewTarget, strict, args) {
     i_str := ToString(int_to_float i);
     setStatus := {obj.Set}(obj, i_str, val, obj);
     @ReturnIfAbrupt(setStatus);
-    i := i + 1
-  };
+    i := i + 1;
+  }
 
   /* Set undefineds */
   nonUndLen := int_to_float nonUndLen;
   i := 0.;
-  while(i < undefinedCount) {
+  while (i < undefinedCount) {
     i_str := ToString(i + nonUndLen);
     setStatus := {obj.Set}(obj, i_str, 'undefined, obj);
     @ReturnIfAbrupt(setStatus);
-    i := i + 1.
-  };
+    i := i + 1.;
+  }
 
   /* Delete remaining */
   i := nonUndLen + undefinedCount;
@@ -3519,11 +2829,11 @@ function arraySort(global, this, NewTarget, strict, args) {
     i_str := ToString(i);
     deleteStatus := {obj.Delete}(obj, i_str);
     @ReturnIfAbrupt(deleteStatus);
-    i := i + 1.
-  };
+    i := i + 1.;
+  }
 
   /* 2. Return obj. */
-  return obj
+  return obj;
 
   /* The returned object must have the following two properties.
      - There must be some mathematical permutation π of the nonnegative
@@ -3561,7 +2871,7 @@ function arraySort(global, this, NewTarget, strict, args) {
     NOTE The above conditions are necessary and sufficient to ensure
     that comparefn divides the set S into equivalence classes and that
     these equivalence classes are totally ordered. */
-};
+}
 /**
  * NOTE 1 Because non-existent property values always compare greater than
  * undefined property values, and undefined always compares greater than any
@@ -3592,64 +2902,44 @@ function arraySort(global, this, NewTarget, strict, args) {
 *  comparison function.
 */
 function SortCompare(comparefn, x, y) {
-
   /* 1. If x and y are both undefined, return +0. */
-  if ((x = 'undefined) &&& (y = 'undefined)) {
-    return 0.
-  };
-
+  if ((x = 'undefined) &&& (y = 'undefined))
+    return 0.;
   /* 2. If x is undefined, return 1. */
-  if (x = 'undefined) {
-    return 1.
-  };
-
+  if (x = 'undefined)
+    return 1.;
   /* 3. If y is undefined, return −1. */
-  if (y = 'undefined) {
-    return - (1.)
-  };
-
+  if (y = 'undefined)
+    return - (1.);
   /* 4. If the argument comparefn is not undefined, then */
   if (!(comparefn = 'undefined)) {
-      /* a. Let v be ToNumber(Call(comparefn, undefined, «x, y»)). */
-      v := ToNumber(Call(null, null, comparefn, 'undefined, [x, y]));
-
-      /* b. ReturnIfAbrupt(v). */
-      @ReturnIfAbrupt(v);
-
-      /* c. If v is NaN, return +0. */
-      if (is_NaN (v)) {
-        return 0.
-      };
-
-      /* d. Return v. */
-      return v
-  };
-
+    /* a. Let v be ToNumber(Call(comparefn, undefined, «x, y»)). */
+    v := ToNumber(Call(null, null, comparefn, 'undefined, [x, y]));
+    /* b. ReturnIfAbrupt(v). */
+    @ReturnIfAbrupt(v);
+    /* c. If v is NaN, return +0. */
+    if (is_NaN (v))
+      return 0.;
+    /* d. Return v. */
+    return v;
+  }
   /* 5. Let xString be ToString(x). */
   xString := ToString(x);
-
   /* 6. ReturnIfAbrupt(xString). */
   @ReturnIfAbrupt(xString);
-
   /* 7. Let yString be ToString(y). */
   yString := ToString(y);
-
   /* 8. ReturnIfAbrupt(yString). */
   @ReturnIfAbrupt(yString);
-
   /* 9. If xString < yString, return −1. */
-  if (xString < yString) {
-    return -(1.)
-  };
-
+  if (xString < yString)
+    return -(1.);
   /* 10. If xString > yString, return 1. */
-  if (xString > yString) {
-    return 1.
-  };
-
+  if (xString > yString)
+    return 1.;
   /* 11. Return +0. */
-  return 0.
-};
+  return 0.;
+}
 
 
 
@@ -3666,84 +2956,62 @@ function arraySplice(global, this, NewTarget, strict, args) {
   start := getOptionalParam(args, 0);
   deleteCount := getOptionalParam(args, 1);
   items := getOptionalParamList(args, 2);
-  if (start = null) {
-    start := 'undefined
-  };
-  if (deleteCount = null) {
-    deleteCount := 'undefined
-  };
-  if (items = null) {
-    items := []
-  };
+  if (start = null)
+    start := 'undefined;
+  if (deleteCount = null)
+    deleteCount := 'undefined;
+  if (items = null)
+    items := [];
 
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")). */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
   /* 5. Let relativeStart be ToInteger(start). */
   relativeStart := ToInteger(start);
-
   /* 6. ReturnIfAbrupt(relativeStart). */
   @ReturnIfAbrupt(relativeStart);
-
-  /* 7. If relativeStart is negative, let actualStart be max((len + relativeStart),0);
-        else let actualStart be min(relativeStart, len). */
-  actualStart := (relativeStart < 0.) ? max((len + relativeStart), 0.) : min(relativeStart, len);
-
+  /* 7. If relativeStart is negative, let actualStart be max((len + relativeStart),0); else let actualStart be min(relativeStart, len). */
+  if (relativeStart < 0.) actualStart := max((len + relativeStart), 0.); else actualStart := min(relativeStart, len);
   n_args := l_len args;
 
   /* 8. If the number of actual arguments is 0, then  */
   if (n_args = 0) {
     /* a. Let insertCount be 0. */
     insertCount := 0.;
-
     /* b. Let actualDeleteCount be 0. */
-    actualDeleteCount := 0.
-
+    actualDeleteCount := 0;
   /* 9. Else if the number of actual arguments is 1, then  */
   } else {
     if (n_args = 1) {
       /* a. Let insertCount be 0. */
       insertCount := 0.;
       /* b. Let actualDeleteCount be len – actualStart. */
-      actualDeleteCount := len - actualStart
-
+      actualDeleteCount := len - actualStart;
     /* 10. Else, */
     } else {
-
       /* a. Let insertCount be the number of actual arguments minus 2. */
       insertCount := int_to_float (l_len args) - 2.;
-
       /* b. Let dc be ToInteger(deleteCount). */
       dc := ToInteger(deleteCount);
-
       /* c. ReturnIfAbrupt(dc). */
       @ReturnIfAbrupt(dc);
-
       /* d. Let actualDeleteCount be min(max(dc,0), len – actualStart). */
-      actualDeleteCount := min(max(dc, 0.), len - actualStart)
+      actualDeleteCount := min(max(dc, 0.), len - actualStart);
     }
-  };
+  }
 
   /* 11. If len+insertCount−actualDeleteCount > 253-1, throw a TypeError exception. */
-  if ((len + insertCount - actualDeleteCount) > ((2. ** 53.) - 1.)) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if ((len + insertCount - actualDeleteCount) > ((2. ** 53.) - 1.))
+    throw TypeErrorConstructorInternal();
   /* 12. Let A be ArraySpeciesCreate(O, actualDeleteCount). */
   A := ArraySpeciesCreate(O, actualDeleteCount);
-
   /* 13. ReturnIfAbrupt(A). */
   @ReturnIfAbrupt(A);
-
   /* 14. Let k be 0. */
   k := 0.;
 
@@ -3751,187 +3019,136 @@ function arraySplice(global, this, NewTarget, strict, args) {
   while (k < actualDeleteCount) {
     /* a. Let from be ToString(actualStart+k). */
     from := ToString(actualStart + k);
-
     /* b. Let fromPresent be HasProperty(O, from). */
     fromPresent := HasProperty(O, from);
-
     /* c. ReturnIfAbrupt(fromPresent). */
     @ReturnIfAbrupt(fromPresent);
-
     /* d. If fromPresent is true, then */
     if (fromPresent = true) {
       /* i. Let fromValue be Get(O, from). */
       fromValue := Get(O, from);
-
       /* ii. ReturnIfAbrupt(fromValue). */
       @ReturnIfAbrupt(fromValue);
-
       /* iii. Let status be CreateDataPropertyOrThrow(A, ToString(k), fromValue). */
       status := CreateDataPropertyOrThrow(A, ToString(k), fromValue);
-
       /* iv. ReturnIfAbrupt(status). */
-      @ReturnIfAbrupt(status)
-    };
-
+      @ReturnIfAbrupt(status);
+    }
     /* e. Increment k by 1. */
-    k := k + 1.
-  };
+    k := k + 1.;
+  }
   /* 16. Let setStatus be Set(A, "length", actualDeleteCount, true). */
   setStatus := Set(A, "length", actualDeleteCount, true);
-
   /* 17. ReturnIfAbrupt(setStatus). */
   @ReturnIfAbrupt(setStatus);
-
-  /* 18. Let items be a List whose elements are, in left to right order,
-         the portion of the actual argument list starting with the third
+  /* 18. Let items be a List whose elements are, in left to right order, the portion of the actual argument list starting with the third
          argument. The list is empty if fewer than three arguments were passed. */
   items := items;
-
   /* 19. Let itemCount be the number of elements in items. */
   itemCount := int_to_float (l_len items);
-
   /* 20. If itemCount < actualDeleteCount, then */
   if (itemCount < actualDeleteCount) {
     /* a. Let k be actualStart. */
     k := actualStart;
-
     /* b. Repeat, while k < (len - actualDeleteCount) */
     while (k < (len - actualDeleteCount)) {
       /* i. Let from be ToString(k+actualDeleteCount). */
       from := ToString(k + actualDeleteCount);
-
       /* ii. Let to be ToString(k+itemCount). */
       to := ToString(k + itemCount);
-
       /* iii. Let fromPresent be HasProperty(O, from). */
       fromPresent := HasProperty(O, from);
-
       /* iv. ReturnIfAbrupt(fromPresent). */
       @ReturnIfAbrupt(fromPresent);
-
       /* v. If fromPresent is true, then */
       if (fromPresent = true) {
         /* 1. Let fromValue be Get(O, from). */
         fromValue := Get(O, from);
-
         /* 2. ReturnIfAbrupt(fromValue). */
         @ReturnIfAbrupt(fromValue);
-
         /* 3. Let setStatus be Set(O, to, fromValue, true). */
         setStatus := Set(O, to, fromValue, true);
-
         /* 4. ReturnIfAbrupt(setStatus). */
-        @ReturnIfAbrupt(setStatus)
-
+        @ReturnIfAbrupt(setStatus);
       /* vi. Else, fromPresent is false */
       } else {
-
         /* 1. Let deleteStatus be DeletePropertyOrThrow(O, to). */
         deleteStatus := DeletePropertyOrThrow(O, to);
-
         /* 2. ReturnIfAbrupt(deleteStatus). */
-        @ReturnIfAbrupt(deleteStatus)
-      };
-
+        @ReturnIfAbrupt(deleteStatus);
+      }
       /* vii. Increase k by 1. */
-      k := k + 1.
-    };
-
+      k := k + 1.;
+    }
     /* c. Let k be len. */
     k := len;
-
     /* d. Repeat, while k > (len - actualDeleteCount + itemCount) */
     while (k > (len - actualDeleteCount + itemCount)) {
       /* i. Let deleteStatus be DeletePropertyOrThrow(O, ToString(k–1)). */
       deleteStatus := DeletePropertyOrThrow(O, ToString(k - 1.));
-
       /* ii. ReturnIfAbrupt(deleteStatus). */
       @ReturnIfAbrupt(deleteStatus);
-
       /* iii. Decrease k by 1. */
-      k := k - 1.
+      k := k - 1.;
     }
-  }
-
   /* 21. Else if itemCount > actualDeleteCount, then */
-  else {
+  } else {
     if (itemCount > actualDeleteCount) {
       /* a. Let k be (len - actualDeleteCount). */
       k := (len - actualDeleteCount);
-
       /* b. Repeat, while k > actualStart */
       while (k > actualStart) {
         /* i. Let from be ToString(k + actualDeleteCount - 1). */
         from := ToString(k + actualDeleteCount - 1.);
-
         /* ii. Let to be ToString(k + itemCount - 1) */
         to := ToString(k + itemCount - 1.);
-
         /* iii. Let fromPresent be HasProperty(O, from). */
         fromPresent := HasProperty(O, from);
-
         /* iv. ReturnIfAbrupt(fromPresent). */
         @ReturnIfAbrupt(fromPresent);
-
         /* v. If fromPresent is true, then */
         if (fromPresent = true) {
           /* 1. Let fromValue be Get(O, from). */
           fromValue := Get(O, from);
-
           /* 2. ReturnIfAbrupt(fromValue). */
           @ReturnIfAbrupt(fromValue);
-
           /* 3. Let setStatus be Set(O, to, fromValue, true). */
           setStatus := Set(O, to, fromValue, true);
-
           /* 4. ReturnIfAbrupt(setStatus). */
-          @ReturnIfAbrupt(setStatus)
-        }
-
+          @ReturnIfAbrupt(setStatus);
         /* vi. Else, fromPresent is false */
-        else {
+        } else {        
           /* 1. Let deleteStatus be DeletePropertyOrThrow(O, to). */
           deleteStatus := DeletePropertyOrThrow(O, to);
-
           /* 2. ReturnIfAbrupt(deleteStatus). */
-          @ReturnIfAbrupt(deleteStatus)
-        };
-
+          @ReturnIfAbrupt(deleteStatus);
+        }
         /* vii. Decrease k by 1. */
-        k := k - 1.
+        k := k - 1.;
       }
     }
-  };
-
+  }
   /* 22. Let k be actualStart. */
   k := actualStart;
-
   /* 23. Repeat, while items is not empty */
   while (!(items = [])) {
-    /* a. Remove the first element from items and let E be the value
-          of that element. */
+    /* a. Remove the first element from items and let E be the value of that element. */
     E := hd items;
     items := tl items;
-
     /* b. Let setStatus be Set(O, ToString(k), E, true). */
     setStatus := Set(O, ToString(k), E, true);
-
     /* c. ReturnIfAbrupt(setStatus). */
     @ReturnIfAbrupt(setStatus);
-
     /* d. Increase k by 1. */
-    k := k + 1.
-  };
-
+    k := k + 1.;
+  }
   /* 24. Let setStatus be Set(O, "length", len – actualDeleteCount + itemCount, true). */
   setStatus := Set(O, "length", ((len - actualDeleteCount) + itemCount), true);
-
   /* 25. ReturnIfAbrupt(setStatus). */
   @ReturnIfAbrupt(setStatus);
-
   /* 26. Return A. */
-  return A
-};
+  return A;
+}
 /**
  * The length property of the splice method is 2.
  *
@@ -3956,89 +3173,66 @@ function arraySplice(global, this, NewTarget, strict, args) {
  * The result is calculated as follows:
  */
 function arrayToLocaleString(global, this, NewTarget, strict, args) {
-
   /* 1. Let array be ToObject(this value). */
   array := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(array);
-
   /* 3. Let len be ToLength(Get(array, "length")) */
   len := ToLength(Get(array, "length"));
-
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-
   /* 5. Let separator be the String value for the list-separator String appropriate
         for the host environment’s current locale (this is derived in an
         implementation-defined way). */
   separator := ","; /* TODO : Host Enviroment */
-
   /* 6. If len is zero, return the empty String. */
-  if (len = 0.) {
-    return ""
-  };
-
+  if (len = 0.)
+    return "";
   /* 7. Let firstElement be Get(array, "0"). */
   firstElement := Get(array, "0");
-
   /* 8. ReturnIfAbrupt(firstElement). */
   @ReturnIfAbrupt(firstElement);
-
   R := null;
   /* 9. If firstElement is undefined or null, then */
   if ((firstElement = 'undefined) || (firstElement = 'null)) {
     /* a. Let R be the empty String. */
-    R := ""
-  }
+    R := "";
   /* 10. Else */
-  else {
-
+  } else {
     /* a. Let R be ToString(Invoke(firstElement, "toLocaleString")). */
     R := ToString(Invoke(null, null, firstElement, "toLocaleString", []));
-
     /* b. ReturnIfAbrupt(R). */
-    @ReturnIfAbrupt(R)
-  };
-
+    @ReturnIfAbrupt(R);
+  }
   /* 11. Let k be 1. */
   k := 1.;
-
   /* 12. Repeat, while k < len */
   while (k < len) {
     /* a. Let S be a String value produced by concatenating R and separator. */
     S := s_concat([R, separator]);
-
     /* b. Let nextElement be Get(array, ToString(k)). */
     nextElement := Get(array, ToString(k));
-
     /* c. ReturnIfAbrupt(nextElement). */
     @ReturnIfAbrupt(nextElement);
-
     /* d. If nextElement is undefined or null, then */
     if ((nextElement = 'undefined) || (nextElement = 'null)) {
       /* i. Let R be the empty String. */
-      R := ""
-    }
+      R := "";
     /* e. Else */
-    else {
+    } else {
       /* a. Let R be ToString(Invoke(nextElement, "toLocaleString")). */
       R := ToString(Invoke(null, null, nextElement, "toLocaleString", []));
-
       /* b. ReturnIfAbrupt(R). */
-      @ReturnIfAbrupt(R)
-    };
-
+      @ReturnIfAbrupt(R);
+    }
     /* f. Let R be a String value produced by concatenating S and R. */
     R := s_concat([S, R]);
-
     /* g. Increase k by 1. */
-    k := k + 1.
-  };
-
+    k := k + 1.;
+  }
   /* 13. Return R. */
-  return R
-};
+  return R;
+}
 /**
  * NOTE 1 The first parameter to this function is likely to be used in a
  * future version of this standard; it is recommended that implementations
@@ -4061,24 +3255,18 @@ function arrayToLocaleString(global, this, NewTarget, strict, args) {
 function arrayToString(global, this, NewTarget, strict, args) {
   /* 1. Let array be ToObject(this value). */
   array := ToObject(this);
-
   /* 2. ReturnIfAbrupt(array). */
   @ReturnIfAbrupt(array);
-
   /* 3. Let func be Get(array, "join"). */
   func := Get(array, "join");
-
   /* 4. ReturnIfAbrupt(func). */
   @ReturnIfAbrupt(func);
-
   /* 5. If IsCallable(func) is false, let func be the intrinsic function %ObjProto_toString% (19.1.3.6). */
-  if (IsCallable(func) = false) {
-    func := getObjectPrototypeToString(strict)
-  };
-
+  if (IsCallable(func) = false)
+    func := getObjectPrototypeToString(strict);
   /* 6. Return Call(func, array). */
-  return Call(null, null, func, array, [])
-};
+  return Call(null, null, func, array, []);
+}
 /**
  * NOTE The toString function is intentionally generic; it does not
  * require that its this value be an Array object. Therefore it can be
@@ -4100,108 +3288,80 @@ function arrayToString(global, this, NewTarget, strict, args) {
  * item2, etc., the following steps are taken:
  */
 function arrayUnshift(global, this, NewTarget, strict, items) {
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Let len be ToLength(Get(O, "length")). */
   len := ToLength(Get(O, "length"));
-
   /* 4. ReturnIfAbrupt(len).*/
   @ReturnIfAbrupt(len);
-
   /* 5. Let argCount be the number of actual arguments. */
   argCount := int_to_float (l_len items);
-
   /* 6. If argCount > 0, then */
   if (argCount > 0.) {
     /* a. If len+ argCount > 2^53-1, throw a TypeError exception.*/
-    if ((len + argCount) > ((2. ** 53.) - 1.)) {
-      throw TypeErrorConstructorInternal()
-    };
-
+    if ((len + argCount) > ((2. ** 53.) - 1.))
+      throw TypeErrorConstructorInternal();
     /* b. Let k be len. */
     k := len;
-
     /* c. Repeat, while k > 0, */
     while (k > 0.) {
       /* i. Let from be ToString(k-1). */
       from := ToString(k - 1.);
-
       /* ii. Let to be ToString(k+argCount -1). */
       to := ToString(k + argCount - 1.);
-
       /* iii. Let fromPresent be HasProperty(O, from).*/
       fromPresent := HasProperty(O, from);
-
       /* iv. ReturnIfAbrupt(fromPresent). */
       @ReturnIfAbrupt(fromPresent);
-
       /* v. If fromPresent is true, then */
       if (fromPresent = true) {
         /* 1. Let fromValue be Get(O, from). */
         fromValue := Get(O, from);
-
         /* 2. ReturnIfAbrupt(fromValue). */
         @ReturnIfAbrupt(fromValue);
-
         /* 3. Let setStatus be Set(O, to, fromValue, true). */
         setStatus := Set(O, to, fromValue, true);
-
         /* 4. ReturnIfAbrupt(setStatus). */
-        @ReturnIfAbrupt(setStatus)
-      }
+        @ReturnIfAbrupt(setStatus);
       /* vi. Else, fromPresent is false */
-      else {
+      } else {
         /* 1. Let deleteStatus be DeletePropertyOrThrow(O, to). */
         deleteStatus := DeletePropertyOrThrow(O, to);
-
         /* 2. ReturnIfAbrupt(deleteStatus). */
-        @ReturnIfAbrupt(deleteStatus)
-      };
-
+        @ReturnIfAbrupt(deleteStatus);
+      }
       /* vii. Decrease k by 1. */
-      k := k - 1.
-    };
-
+      k := k - 1.;
+    }
     /* d. Let j be 0. */
     j := 0.;
-
     /* e. Let items be an internal List whose elements are, in left
           to right order, the arguments that were passed to this function
           invocation. */
     items := items;
-
     /* f. Repeat, while items is not empty */
     while (!(items = [])) {
       /* i. Remove the first element from items and let E be the value
             of that element. */
       E := hd items;
       items := tl items;
-
       /* ii. Let setStatus be Set(O, ToString(j), E, true). */
       setStatus := Set(O, ToString(j), E, true);
-
       /* iii. ReturnIfAbrupt(setStatus). */
       @ReturnIfAbrupt(setStatus);
-
       /* iv. Increase j by 1. */
-      j := j + 1.
+      j := j + 1.;
     }
-  };
-
+  }
   /* 7. Let setStatus be Set(O, "length", len+argCount, true). */
   setStatus := Set(O, "length", len + argCount, true);
-
   /* 8. ReturnIfAbrupt(setStatus). */
   @ReturnIfAbrupt(setStatus);
-
   /* 9. Return len+argCount. */
-  return len + argCount
-};
+  return len + argCount;
+}
 /**
  * The length property of the unshift method is 1.
  *
@@ -4219,16 +3379,13 @@ function arrayUnshift(global, this, NewTarget, strict, items) {
 *  This function is the %ArrayProto_values% intrinsic object.
 */
 function arrayValues(global, this, NewTarget, strict, args) {
-
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
-
   /* 3. Return CreateArrayIterator(O, "value"). */
-  return CreateArrayIterator(O, "value")
-};
+  return CreateArrayIterator(O, "value");
+}
 
 /**
 *  22.1.3.30 Array.prototype [ @@iterator ] ( )
@@ -4242,46 +3399,35 @@ function arrayValues(global, this, NewTarget, strict, args) {
 */
 function createUnscopablesObject () {
   results := [];
-
   /* 1. Let blackList be ObjectCreate(null). */
   blackList := ObjectCreate('null, null);
-
   /* 2. Perform CreateDataProperty(blackList, "copyWithin", true). */
   result := CreateDataProperty(blackList, "copyWithin", true);
   results := l_add(results, result);
-
   /* 3. Perform CreateDataProperty(blackList, "entries", true). */
   result := CreateDataProperty(blackList, "entries", true);
   results := l_add(results, result);
-
   /* 4. Perform CreateDataProperty(blackList, "fill", true). */
   result := CreateDataProperty(blackList, "fill", true);
   results := l_add(results, result);
-
   /* 5. Perform CreateDataProperty(blackList, "find", true). */
   result := CreateDataProperty(blackList, "find", true);
   results := l_add(results, result);
-
   /* 6. Perform CreateDataProperty(blackList, "findIndex", true). */
   result := CreateDataProperty(blackList, "findIndex", true);
   results := l_add(results, result);
-
   /* 7. Perform CreateDataProperty(blackList, "keys", true). */
   result := CreateDataProperty(blackList, "keys", true);
   results := l_add(results, result);
-
   /* 8. Perform CreateDataProperty(blackList, "values", true). */
   result := CreateDataProperty(blackList, "values", true);
   results := l_add(results, result);
-
   /* 9. Assert: Each of the above calls will return true. */
-  foreach (result : results) {
-    assert(result)
-  };
-
+  foreach (result : results)
+    assert(result);
   /* 10. Return blackList. */
-  return blackList
-};
+  return blackList;
+}
 
 
 
@@ -4303,27 +3449,20 @@ function createUnscopablesObject () {
 *  objects. It performs the following steps:
 */
 function CreateArrayIterator (array, kind) {
-
   /* 1. Assert: Type(array) is Object. */
-  assert( Type(array) = "Object" );
-
+  assert (Type(array) = "Object" );
   /* 2. Let iterator be ObjectCreate(%ArrayIteratorPrototype%, «‍[[IteratedObject]], [[ArrayIteratorNextIndex]], [[ArrayIterationKind]]»). */
   iterator := ObjectCreate(|Intrinsics|.ArrayIteratorPrototype, ["IteratedObject", "ArrayIteratorNextIndex", "ArrayIterationKind"]);
-
   /* 3. Set iterator’s [[IteratedObject]] internal slot to array. */
   iterator.IteratedObject := array;
-
   /* 4. Set iterator’s [[ArrayIteratorNextIndex]] internal slot to 0. */
   iterator.ArrayIteratorNextIndex := 0.;
-
   /* 5. Set iterator’s [[ArrayIterationKind]] internal slot to kind. */
   iterator.ArrayIterationKind := kind;
-
   iterator.done := false;
-
   /* 6. Return iterator. */
-  return iterator
-};
+  return iterator;
+}
 
 /**
  * 22.1.5.2 The %ArrayIteratorPrototype% Object
@@ -4347,101 +3486,76 @@ function initArrayIteratorPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull("Array Iterator", false, false, true);
   setJSProperty(prototype, getToStringTagPropertyName(), descriptor);
 
-  return prototype
-};
+  return prototype;
+}
 
 /**
 *  22.1.5.2.1 %ArrayIteratorPrototype%.next( )
 */
 function isArrayIteratorInstance(obj) {
-  return ("IteratedObject" in_obj obj) &&& ("ArrayIteratorNextIndex" in_obj obj) &&& ("ArrayIterationKind" in_obj obj)
-};
+  return ("IteratedObject" in_obj obj) &&& ("ArrayIteratorNextIndex" in_obj obj) &&& ("ArrayIterationKind" in_obj obj);
+}
 
 function arrayIteratorNext(global, this, NewTarget, strict, args) {
-
   /* 1. Let O be the this value. */
   O := this;
-
   /* 2. If Type(O) is not Object, throw a TypeError exception.*/
-  if (!(Type(O) = "Object")) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if (!(Type(O) = "Object"))
+    throw TypeErrorConstructorInternal();
   /* 3. If O does not have all of the internal slots of an Array Iterator Instance (22.1.5.3), throw a TypeError exception. */
-  if (!isArrayIteratorInstance(O)) {
-    throw TypeErrorConstructorInternal()
-  };
-
+  if (!isArrayIteratorInstance(O))
+    throw TypeErrorConstructorInternal();
   /* 4. Let a be the value of the [[IteratedObject]] internal slot of O. */
   a := O.IteratedObject;
-
   /* 5. If a is undefined, return CreateIterResultObject(undefined, true). */
-  if (a = 'undefined) {
-    return CreateIterResultObject('undefined, true)
-  };
-
+  if (a = 'undefined)
+    return CreateIterResultObject('undefined, true);
   /* 6. Let index be the value of the [[ArrayIteratorNextIndex]] internal slot of O. */
   index := O.ArrayIteratorNextIndex;
-
   /* 7. Let itemKind be the value of the [[ArrayIterationKind]] internal slot of O. */
   itemKind := O.ArrayIterationKind;
-
   /* 8. If a has a [[TypedArrayName]] internal slot, then */
   if ("TypedArrayName" in_obj a) {
     /* a. Let len be the value of O’s [[ArrayLength]] internal slot. */
-    len := a.ArrayLength
-
+    len := a.ArrayLength;
   /* 9. Else, */
   } else {
     /* a. Let len be ToLength(Get(a, "length")). */
     len := ToLength(Get(a, "length"));
-
     /* b. ReturnIfAbrupt(len). */
-    @ReturnIfAbrupt(len)
-  };
-
+    @ReturnIfAbrupt(len);
+  }
   /* 10. If index ≥ len, then */
   if (index >= len) {
     /* a. Set the value of the [[IteratedObject]] internal slot of O to undefined. */
     O.IteratedObject := 'undefined;
     tst := Get(a, "0");
-
     /* b. Return CreateIterResultObject(undefined, true). */
-    return CreateIterResultObject('undefined, true)
-  };
-
+    return CreateIterResultObject('undefined, true);
+  }
   /* 11. Set the value of the [[ArrayIteratorNextIndex]] internal slot of O to index+1. */
   O.ArrayIteratorNextIndex := index + 1.;
-
   /* 12. If itemKind is "key", return CreateIterResultObject(index, false). */
-  if (itemKind = "key") {
-    return CreateIterResultObject(index, false)
-  };
-
+  if (itemKind = "key")
+    return CreateIterResultObject(index, false);
   /* 13. Let elementKey be ToString(index). */
   elementKey := ToString(index);
-
   /* 14. Let elementValue be Get(a, elementKey). */
   elementValue := Get(a, elementKey);
-
   /* 15. ReturnIfAbrupt(elementValue). */
   @ReturnIfAbrupt(elementValue);
-
   /* 16. If itemKind is "value", let result be elementValue. */
   if (itemKind = "value") {
-    result := elementValue
-
+    result := elementValue;
   /* 17. Else, */
   } else {
     /* a. Assert: itemKind is "key+value". */
     assert (itemKind = "key+value");
-
     /* b. Let result be CreateArrayFromList(«index, elementValue»). */
-    result := CreateArrayFromList([index, elementValue])
-  };
-
+    result := CreateArrayFromList([index, elementValue]);
+  }
   /* 18. Return CreateIterResultObject(result, false). */
-  return CreateIterResultObject(result, false)
+  return CreateIterResultObject(result, false);
 }
 
 

@@ -1,7 +1,7 @@
 function main () {
 	h:= true;
 	l:= true;
-	o := {};
+	o := {}
 	o.p := true;
 	t := false;
 
@@ -11,9 +11,9 @@ function main () {
 	t:= "p" in_obj o;
 
 	delete o["p"];
-	if(h){
+	if (h) {
 	o.p := 4
-	};
+	}
 	
 
 	print t;

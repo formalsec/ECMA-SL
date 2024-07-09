@@ -1,145 +1,108 @@
 /* 15.1.7 Runtime Semantics: ScriptEvaluation */
 function ScriptEvaluation(script, realm) {
-    ScriptBody := script.body;
-
-    /*If ScriptBody is not present, return NormalCompletion(empty).*/
-    if ( ScriptBody = [] ) {
-        return NormalCompletion('empty)
-    };
-
-    /*Let globalEnv be realm.[[globalEnv]].*/
-    globalEnv := realm.globalEnv;
-
-    /*Let scriptCxt be a new ECMAScript code execution context.*/
-    scriptCtx := createExecutionContext();
-
-    /*Set the Function of scriptCxt to null.*/
-    scriptCtx.Function := 'null;
-
-    /*Set the Realm of scriptCxt to realm.*/
-    scriptCtx.Realm := realm;
-
-    /*Set the VariableEnvironment of scriptCxt to globalEnv.*/
-    setVariableEnvironment(scriptCtx, globalEnv);
-
-    /*Set the LexicalEnvironment of scriptCxt to globalEnv.*/
-    setLexicalEnvironment(scriptCtx, globalEnv);
-
-    /* colocar o strict mode no contexto */
-    setContainedInStrictCode(scriptCtx, isStrictModeCode(script, scriptCtx));
-
-    /*Suspend the currently running execution context.*/
-    topExecStack().Suspend := true;
-
-    /*Push scriptCxt on to the execution context stack; scriptCxt is now the running execution context.*/
-    pushExecStack(scriptCtx);
-
-    /*Let result be GlobalDeclarationInstantiation(ScriptBody, globalEnv).*/
-    result := GlobalDeclarationInstantiation(script, globalEnv);
-
-    /*If result.[[type]] is normal, then*/
-    if ( getCompletionType(result) = 'normal ) {
-        /*Let result be the result of evaluating ScriptBody.*/
-        result := JS_Interpreter_SourceElements(ScriptBody, scriptCtx)
-    };
-
-    /*If result.[[type]] is normal and result.[[value]] is empty, then*/
-    if ( getCompletionType(result) = 'normal &&& getCompletionValue(result) = 'empty ) {
-        /*Let result be NormalCompletion(undefined).*/
-        result := NormalCompletion('undefined')
-    };
-
-    /*Suspend scriptCxt and remove it from the execution context stack.*/
-    scriptCtx.Suspend := true;
-    popExecStack();
-
-    /*Assert: the execution context stack is not empty.*/
-    assert( !execStackIsEmpty() );
-
-    /*Resume the context that is now on the top of the execution context stack as the running execution context.*/
-    topExecStack().Suspend := false;
-
-    /*Return Completion(result).*/
-    return Completion(result)
-};
+  ScriptBody := script.body;
+  /* If ScriptBody is not present, return NormalCompletion(empty). */
+  if (ScriptBody = [])
+      return NormalCompletion('empty);
+  /* Let globalEnv be realm.[[globalEnv]]. */
+  globalEnv := realm.globalEnv;
+  /* Let scriptCxt be a new ECMAScript code execution context. */
+  scriptCtx := createExecutionContext();
+  /* Set the Function of scriptCxt to null. */
+  scriptCtx.Function := 'null;
+  /* Set the Realm of scriptCxt to realm. */
+  scriptCtx.Realm := realm;
+  /* Set the VariableEnvironment of scriptCxt to globalEnv. */
+  setVariableEnvironment(scriptCtx, globalEnv);
+  /* Set the LexicalEnvironment of scriptCxt to globalEnv. */
+  setLexicalEnvironment(scriptCtx, globalEnv);
+  /* colocar o strict mode no contexto */
+  setContainedInStrictCode(scriptCtx, isStrictModeCode(script, scriptCtx));
+  /* Suspend the currently running execution context. */
+  topExecStack().Suspend := true;
+  /* Push scriptCxt on to the execution context stack; scriptCxt is now the running execution context. */
+  pushExecStack(scriptCtx);
+  /* Let result be GlobalDeclarationInstantiation(ScriptBody, globalEnv). */
+  result := GlobalDeclarationInstantiation(script, globalEnv);
+  /* If result.[[type]] is normal, then */
+  if (getCompletionType(result) = 'normal)
+    /* Let result be the result of evaluating ScriptBody. */
+    result := JS_Interpreter_SourceElements(ScriptBody, scriptCtx);
+  /* If result.[[type]] is normal and result.[[value]] is empty, then */
+  if ( getCompletionType(result) = 'normal &&& getCompletionValue(result) = 'empty )
+    /* Let result be NormalCompletion(undefined). */
+    result := NormalCompletion('undefined');
+  /* Suspend scriptCxt and remove it from the execution context stack. */
+  scriptCtx.Suspend := true;
+  popExecStack();
+  /* Assert: the execution context stack is not empty. */
+  assert (!execStackIsEmpty());
+  /* Resume the context that is now on the top of the execution context stack as the running execution context. */
+  topExecStack().Suspend := false;
+  /* Return Completion(result). */
+  return Completion(result);
+}
 
 /* Auxiliary functions */
 function getVariableDeclarationsInCode(object) {
-  if (object = 'undefined ||| !("variableDeclarations" in_obj object)) {
-    return []
-  };
-
-  return object.variableDeclarations
-};
+  if (object = 'undefined ||| !("variableDeclarations" in_obj object))
+    return [];
+  return object.variableDeclarations;
+}
 
 function getLexicallyDeclaredNames(object) {
   names := [];
-  if (object = 'undefined) {
-    return names
-  };
+  if (object = 'undefined)
+    return names;
 
-  if ("letDeclarations" in_obj object) {
-    foreach(decl : object.letDeclarations) {
-      names := l_add(names, {type: "let", name: decl})
-    }
-  };
+  if ("letDeclarations" in_obj object)
+    foreach (decl : object.letDeclarations)
+      names := l_add(names, {type: "let", name: decl});
 
-  if ("constDeclarations" in_obj object) {
-    foreach(decl : object.constDeclarations) {
-      names := l_add(names, {type: "const", name: decl})
-    }
-  };
+  if ("constDeclarations" in_obj object)
+    foreach (decl : object.constDeclarations)
+      names := l_add(names, {type: "const", name: decl});
 
-  return names
-};
+  return names;
+}
 
 function LexicallyScopedDeclarations(object) {
   declarations := [];
-  if (object = 'undefined) {
-    return declarations
-  };
+  if (object = 'undefined)
+    return declarations;
 
-  if ("letDeclarations" in_obj object) {
-    foreach(decl : object.letDeclarations) {
-      declarations := l_add(declarations, {type: "let", name: decl})
-    }
-  };
+  if ("letDeclarations" in_obj object)
+    foreach (decl : object.letDeclarations)
+      declarations := l_add(declarations, {type: "let", name: decl});
 
-  if ("constDeclarations" in_obj object) {
-    foreach(decl : object.constDeclarations) {
-      declarations := l_add(declarations, {type: "const", name: decl})
-    }
-  };
+  if ("constDeclarations" in_obj object)
+    foreach (decl : object.constDeclarations)
+      declarations := l_add(declarations, {type: "const", name: decl});
 
-  return declarations
-};
+  return declarations;
+}
 
 function IsConstantDeclaration(decl) {
-  return decl.type = "const"
-};
+  return decl.type = "const";
+}
 
 function getFunctionDeclarationsInCode(object) {
-  if (object = 'undefined ||| !("functionDeclarations" in_obj object)) {
-    return []
-  };
-  return object.functionDeclarations
-};
+  if (object = 'undefined ||| !("functionDeclarations" in_obj object))
+    return [];
+  return object.functionDeclarations;
+}
 
 function getLetDeclarationsInCode(object) {
-  if (object = 'undefined ||| !("letDeclarations" in_obj object)) {
-    return []
-  };
-
-  return object.letDeclarations
-};
+  if (object = 'undefined ||| !("letDeclarations" in_obj object))
+    return [];
+  return object.letDeclarations;
+}
 
 function getConstDeclarationsInCode(object) {
-  if (object = 'undefined ||| !("constDeclarations" in_obj object)) {
-    return []
-  };
-
-  return object.constDeclarations
-};
+  if (object = 'undefined ||| !("constDeclarations" in_obj object))
+    return [];
+  return object.constDeclarations;
+}
 
 /* 15.1.8 Runtime Semantics: GlobalDeclarationInstantiation (script, env) */
 /* NOTE 1 When an execution context is established for evaluating scripts, declarations are
@@ -147,161 +110,135 @@ function getConstDeclarationsInCode(object) {
           code is instantiated.
 */
 function GlobalDeclarationInstantiation(script, env) {
-    /* Let envRec be env’s EnvironmentRecord. */
-    envRec := getEnvironmentRecord(env);
+  /* Let envRec be env’s EnvironmentRecord. */
+  envRec := getEnvironmentRecord(env);
+  /* Assert: envRec is a global Environment Record. */
+  /* Let lexNames be the LexicallyDeclaredNames of script. */
+  lexNames := getLexicallyDeclaredNames(script);
+  /* Let varNames be the VarDeclaredNames of script. */
+  varNames := getVariableDeclarationsInCode(script);
+  /* For each name in lexNames, do */
+  foreach (name : lexNames) {
+    name := name.name; /* check getLexicallyDeclaredNames */
+    /* If envRec.HasVarDeclaration(name) is true, throw a SyntaxError exception. */
+    if ({envRec.HasVarDeclaration}(envRec, name) = true)
+      throw SyntaxErrorConstructorInternal();
+    /* If envRec.HasLexicalDeclaration(name) is true, throw a SyntaxError exception. */
+    if ({envRec.HasLexicalDeclaration}(envRec, name))
+      throw SyntaxErrorConstructorInternal();
+    /* Let hasRestrictedGlobal be envRec.HasRestrictedGlobalProperty(name). */
+    hasRestrictedGlobal := {envRec.HasRestrictedGlobalProperty}(envRec, name);
+    /* ReturnIfAbrupt(hasRestrictedGlobal). */
+    @ReturnIfAbrupt(hasRestrictedGlobal);
+    /* If hasRestrictedGlobal is true, throw a SyntaxError exception. */
+    if (hasRestrictedGlobal)
+      throw SyntaxErrorConstructorInternal();
+  }
 
-    /* Assert: envRec is a global Environment Record. */
+  /* For each name in varNames, do */
+  foreach (name : varNames) {
+    /* If envRec.HasLexicalDeclaration(name) is true, throw a SyntaxError exception. */
+    if ({envRec.HasLexicalDeclaration}(envRec, name) = true)
+      throw SyntaxErrorConstructorInternal();
+  }
 
-    /* Let lexNames be the LexicallyDeclaredNames of script. */
-    lexNames := getLexicallyDeclaredNames(script);
+  /* Let varDeclarations be the VarScopedDeclarations of script. */
+  /* TODO ver a diferenca entre VarDeclaredNames e VarScopedDeclarations */
+  varDeclarations := varNames;
+  /* Let functionsToInitialize be an empty List. */
+  functionsToInitialize := [];
+  /* Let declaredFunctionNames be an empty List. */
+  declaredFunctionNames := getFunctionDeclarationsInCode(script);
+  /* For each d in varDeclarations, in reverse list order do */
+  foreach (d : declaredFunctionNames) {
+    /* If d is neither a VariableDeclaration or a ForBinding, then */
+        /* Assert: d is either a FunctionDeclaration or a GeneratorDeclaration. */
+        /* NOTE If there are multiple FunctionDeclarations for the same name, the last declaration is used. */
 
-    /* Let varNames be the VarDeclaredNames of script. */
-    varNames := getVariableDeclarationsInCode(script);
+    /* Let fn be the sole element of the BoundNames of d. */
+    fn := d.id.name;
+    /* If fn is not an element of declaredFunctionNames, then */
+    /* Let fnDefinable be envRec.CanDeclareGlobalFunction(fn). */
+    fnDefinable := {envRec.CanDeclareGlobalFunction}(envRec, fn);
+    /* If fnDefinable is false, throw TypeError exception. */
+    if (fnDefinable = false)
+      throw TypeErrorConstructorInternal();
 
-    /* For each name in lexNames, do */
-    foreach (name : lexNames) {
-        name := name.name; /* check getLexicallyDeclaredNames */
-        /* If envRec.HasVarDeclaration(name) is true, throw a SyntaxError exception. */
-        if ({envRec.HasVarDeclaration}(envRec, name) = true) {
-          throw SyntaxErrorConstructorInternal()
-        };
-        /* If envRec.HasLexicalDeclaration(name) is true, throw a SyntaxError exception. */
-        if ({envRec.HasLexicalDeclaration}(envRec, name)) {
-          throw SyntaxErrorConstructorInternal()
-        };
-        /* Let hasRestrictedGlobal be envRec.HasRestrictedGlobalProperty(name). */
-        hasRestrictedGlobal := {envRec.HasRestrictedGlobalProperty}(envRec, name);
-        /* ReturnIfAbrupt(hasRestrictedGlobal). */
-        @ReturnIfAbrupt(hasRestrictedGlobal);
-        /* If hasRestrictedGlobal is true, throw a SyntaxError exception. */
-        if (hasRestrictedGlobal) {
-          throw SyntaxErrorConstructorInternal()
-        }
-    };
+    /* Append fn to declaredFunctionNames. */
+    /* Insert d as the first element of functionsToInitialize. */
+    functionsToInitialize := l_add(functionsToInitialize, d);
+  }
 
-    /* For each name in varNames, do */
-    foreach ( name : varNames ) {
-        /* If envRec.HasLexicalDeclaration(name) is true, throw a SyntaxError exception. */
-        if ( {envRec.HasLexicalDeclaration}(envRec, name) = true ) {
-            throw SyntaxErrorConstructorInternal()
-        }
-    };
+  /* Let declaredVarNames be an empty List. */
+  declaredVarNames := [];
+  /* For each d in varDeclarations, do */
+  foreach (d : varDeclarations) {
+    /* If d is a VariableDeclaration or a ForBinding, then */
+    /* For each String vn in the BoundNames of d, do */
+    vn := d;
+    /* If vn is not an element of declaredFunctionNames, then */
+    if (!(in_list(vn, declaredFunctionNames))) {
+      /* Let vnDefinable be envRec.CanDeclareGlobalVar(vn). */
+      vnDefinable := {envRec.CanDeclareGlobalVar}(envRec, vn);
+      /* ReturnIfAbrupt(vnDefinable). */
+      @ReturnIfAbrupt(vnDefinable);
+      /* If vnDefinable is false, throw TypeError exception. */
+      if (vnDefinable = false)
+        throw TypeErrorConstructorInternal();
+      /* If vn is not an element of declaredVarNames, then */
+      if (!(in_list(vn, declaredVarNames)))
+        /* Append vn to declaredVarNames. */
+        declaredVarNames := l_add(declaredVarNames, vn);
+    }
+  }
 
-    /* Let varDeclarations be the VarScopedDeclarations of script. */
-    /* TODO ver a diferenca entre VarDeclaredNames e VarScopedDeclarations */
-    varDeclarations := varNames;
+  /* NOTE: No abnormal terminations occur after this algorithm step if the global object is an
+            ordinary object. However, if the global object is a Proxy exotic object it may exhibit
+            behaviours that cause abnormal terminations in some of the following steps. */
 
-    /* Let functionsToInitialize be an empty List. */
-    functionsToInitialize := [];
+  /* Let lexDeclarations be the LexicallyScopedDeclarations of script. */
+  lexDeclarations := lexNames; /* TODO */
+  /* For each element d in lexDeclarations do */
+  foreach (d : lexDeclarations) {
+    /* NOTE Lexically declared names are only instantiated here but not initialized. */
+    /* For each element dn of the BoundNames of d do */
 
-    /* Let declaredFunctionNames be an empty List. */
-    declaredFunctionNames := getFunctionDeclarationsInCode(script);
+    /* If IsConstantDeclaration of d is true, then */
+    if (d.type = "const") {
+      /* Let status be envRec.CreateImmutableBinding(dn, true). */
+      status := {envRec.CreateImmutableBinding}(envRec, d.name, true);
+    /* Else, */
+    } else {
+      /* Let status be envRec.CreateMutableBinding(dn, false). */
+      status := {envRec.CreateMutableBinding}(envRec, d.name, false);
+    }
+    /* ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+  }
 
-    /* For each d in varDeclarations, in reverse list order do */
-    foreach ( d : declaredFunctionNames ) {
-        /* If d is neither a VariableDeclaration or a ForBinding, then */
-            /* Assert: d is either a FunctionDeclaration or a GeneratorDeclaration. */
-            /* NOTE If there are multiple FunctionDeclarations for the same name, the last declaration is used. */
+  /* For each production f in functionsToInitialize, do */
+  foreach ( f : functionsToInitialize ) {
+    /* Let fn be the sole element of the BoundNames of f. */
+    fn := f.id.name;
+    /* Let fo be the result of performing InstantiateFunctionObject for f with argument env. */
+    fo := JS_Interpreter_FunctionDeclaration(f, env);
+    /* Let status be envRec.CreateGlobalFunctionBinding(fn, fo, false). */
+    status := {envRec.CreateGlobalFunctionBinding}(envRec, fn, fo, false);
+    /* ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+  }
 
-        /* Let fn be the sole element of the BoundNames of d. */
-        fn := d.id.name;
+  /* For each String vn in declaredVarNames, in list order do */
+  foreach( vn : declaredVarNames) {
+    /* Let status be envRec.CreateGlobalVarBinding(vn, false). */
+    status := {envRec.CreateGlobalVarBinding}(envRec, vn, false);
+    /* ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+  }
 
-        /* If fn is not an element of declaredFunctionNames, then */
-
-        /* Let fnDefinable be envRec.CanDeclareGlobalFunction(fn). */
-        fnDefinable := {envRec.CanDeclareGlobalFunction}(envRec, fn);
-
-        /* If fnDefinable is false, throw TypeError exception. */
-        if ( fnDefinable = false ) {
-            throw TypeErrorConstructorInternal()
-        };
-
-        /* Append fn to declaredFunctionNames. */
-        /* Insert d as the first element of functionsToInitialize. */
-        functionsToInitialize := l_add(functionsToInitialize, d)
-    };
-
-    /* Let declaredVarNames be an empty List. */
-    declaredVarNames := [];
-
-    /* For each d in varDeclarations, do */
-    foreach ( d : varDeclarations ) {
-        /* If d is a VariableDeclaration or a ForBinding, then */
-        /* For each String vn in the BoundNames of d, do */
-        vn := d;
-        /* If vn is not an element of declaredFunctionNames, then */
-        if (!(in_list(vn, declaredFunctionNames))) {
-            /* Let vnDefinable be envRec.CanDeclareGlobalVar(vn). */
-            vnDefinable := {envRec.CanDeclareGlobalVar}(envRec, vn);
-
-            /* ReturnIfAbrupt(vnDefinable). */
-            @ReturnIfAbrupt(vnDefinable);
-
-            /* If vnDefinable is false, throw TypeError exception. */
-            if ( vnDefinable = false ) {
-                throw TypeErrorConstructorInternal()
-            };
-
-            /* If vn is not an element of declaredVarNames, then */
-            if (!(in_list(vn, declaredVarNames))) {
-                /* Append vn to declaredVarNames. */
-                declaredVarNames := l_add(declaredVarNames, vn)
-            }
-        }
-    };
-
-    /* NOTE: No abnormal terminations occur after this algorithm step if the global object is an
-             ordinary object. However, if the global object is a Proxy exotic object it may exhibit
-             behaviours that cause abnormal terminations in some of the following steps. */
-
-    /* Let lexDeclarations be the LexicallyScopedDeclarations of script. */
-    lexDeclarations := lexNames; /* TODO */
-    /* For each element d in lexDeclarations do */
-    foreach(d : lexDeclarations) {
-        /* NOTE Lexically declared names are only instantiated here but not initialized. */
-        /* For each element dn of the BoundNames of d do */
-
-            /* If IsConstantDeclaration of d is true, then */
-            if (d.type = "const") {
-                /* Let status be envRec.CreateImmutableBinding(dn, true). */
-                status := {envRec.CreateImmutableBinding}(envRec, d.name, true)
-            }
-            /* Else, */
-            else {
-                /* Let status be envRec.CreateMutableBinding(dn, false). */
-                status := {envRec.CreateMutableBinding}(envRec, d.name, false)
-            };
-            /* ReturnIfAbrupt(status). */
-            @ReturnIfAbrupt(status)
-    };
-
-    /* For each production f in functionsToInitialize, do */
-    foreach ( f : functionsToInitialize ) {
-        /* Let fn be the sole element of the BoundNames of f. */
-        fn := f.id.name;
-
-        /* Let fo be the result of performing InstantiateFunctionObject for f with argument env. */
-        fo := JS_Interpreter_FunctionDeclaration(f, env);
-
-        /* Let status be envRec.CreateGlobalFunctionBinding(fn, fo, false). */
-        status := {envRec.CreateGlobalFunctionBinding}(envRec, fn, fo, false);
-
-        /* ReturnIfAbrupt(status). */
-        @ReturnIfAbrupt(status)
-    };
-
-    /* For each String vn in declaredVarNames, in list order do */
-    foreach( vn : declaredVarNames) {
-        /* Let status be envRec.CreateGlobalVarBinding(vn, false). */
-        status := {envRec.CreateGlobalVarBinding}(envRec, vn, false);
-
-        /* ReturnIfAbrupt(status). */
-        @ReturnIfAbrupt(status)
-    };
-
-    /* Return NormalCompletion(empty) */
-    return NormalCompletion('empty)
-};
+  /* Return NormalCompletion(empty) */
+  return NormalCompletion('empty);
+}
 
 /*
 15.1.9 Runtime Semantics: ScriptEvaluationJob ( sourceText )
@@ -309,42 +246,36 @@ function GlobalDeclarationInstantiation(script, env) {
 The job ScriptEvaluationJob with parameter sourceText parses, validates, and evaluates sourceText as a Script.
 */
 function ScriptEvaluationJob(sourceText) {
-    /*Assert: sourceText is an ECMAScript source text (see clause 10).*/
-    /* TODO */
+  /* Assert: sourceText is an ECMAScript source text (see clause 10). */
+  /* TODO */
 
-    /* Parse sourceText using Script as the goal symbol and analyze the parse result for any Early Error conditions. If
-       the parse was successful and no early errors were found, let code be the resulting parse tree. Otherwise, let
-       code be an indication of one or more parsing errors and/or early errors. Parsing and early error detection may
-       be interweaved in an implementation dependent manner. If more than one parse or early error is present, the
-       number and ordering of reported errors is implementation dependent but at least one error must be reported.*/
+  /* Parse sourceText using Script as the goal symbol and analyze the parse result for any Early Error conditions. If
+      the parse was successful and no early errors were found, let code be the resulting parse tree. Otherwise, let
+      code be an indication of one or more parsing errors and/or early errors. Parsing and early error detection may
+      be interweaved in an implementation dependent manner. If more than one parse or early error is present, the
+      number and ordering of reported errors is implementation dependent but at least one error must be reported. */
 
-    /*If code is an error indication, then*/
-    if ( sourceText.type = "EarlySyntaxError" )  {
-        /*Report or log the error(s) in an implementation dependent manner.*/
+  /* If code is an error indication, then */
+  if ( sourceText.type = "EarlySyntaxError" )  {
+    /* Report or log the error(s) in an implementation dependent manner. */
+    /* ver como reportar/log */
+    if (sourceText.message = "Invalid left-hand side in assignment")
+      return NextJob(throwEmptyCompletion( ReferenceErrorConstructorInternal()));
+    return NextJob(throwEmptyCompletion(SyntaxErrorConstructorInternal()));
+    /* Let status be NormalCompletion(undefined). */
+    status := NormalCompletion('undefined);
+  /* Else, */
+  } else {
+    /* Let realm be the running execution context’s Realm. */
+    realm := topExecStack().Realm;
+    /* Let status be the result of ScriptEvaluation of code with argument realm. */
+    status := ScriptEvaluation(sourceText, realm);
+  }
 
-        /* ver como reportar/log */
-        if (sourceText.message = "Invalid left-hand side in assignment") {
-          return NextJob( throwEmptyCompletion( ReferenceErrorConstructorInternal()))
-        };
-
-        return NextJob( throwEmptyCompletion(SyntaxErrorConstructorInternal()) );
-
-        /*Let status be NormalCompletion(undefined).*/
-        status := NormalCompletion('undefined)
-    }
-    /*Else,*/
-    else {
-        /*Let realm be the running execution context’s Realm.*/
-        realm := topExecStack().Realm;
-
-        /*Let status be the result of ScriptEvaluation of code with argument realm.*/
-        status := ScriptEvaluation(sourceText, realm)
-    };
-
-    /*NextJob Completion(status).*/
-    return NextJob(Completion(status))
-    /*NOTE An implementation may parse a sourceText as a Script and analyze it for Early Error conditions prior
-           to the execution of the ScriptEvaluationJob for that sourceText. However, the reporting of any errors
-           must be deferred until the ScriptEvaluationJob is actually executed.*/
+  /* NextJob Completion(status). */
+  return NextJob(Completion(status));
+  /* NOTE An implementation may parse a sourceText as a Script and analyze it for Early Error conditions prior
+          to the execution of the ScriptEvaluationJob for that sourceText. However, the reporting of any errors
+          must be deferred until the ScriptEvaluationJob is actually executed. */
 }
 

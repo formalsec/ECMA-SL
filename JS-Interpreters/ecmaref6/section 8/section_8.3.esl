@@ -7,20 +7,14 @@ function IdentifierResolution(Identifier, runningExecCtx) {
 
   /* 1. Let env be the running execution context‘s LexicalEnvironment. */
   env := getLexicalEnvironment(runningExecCtx);
-
   /* 2. If the syntactic production that is being evaluated is contained in a strict mode code,
         then let strict be true, else let strict be false. */
-  if (isContainedInStrictCode(runningExecCtx)) {
-    strict := true
-  } else {
-    strict := false
-  };
-
+  if (isContainedInStrictCode(runningExecCtx)) strict := true; else strict := false;
   /* 3. Return the result of calling GetIdentifierReference function passing env, Identifier, and strict as arguments.
         The result of evaluating an identifier is always a value of type Reference with its referenced name component
         equal to the Identifier String. */
-  return GetIdentifierReference(env, Identifier, strict)
-};
+  return GetIdentifierReference(env, Identifier, strict);
+}
 
 
 /* Auxiliary functions created to deal with Execution Contexts */
@@ -34,49 +28,49 @@ function createExecutionContext() {
     /* CodeEvaluationState: 'undefined */
     running: true,
     strictCode: false
-  }
-};
+  };
+}
 
 /* TODO ver como para contexto de execucao */
 function setStateExecutionContext(runningExecCtx, running) {
-  runningExecCtx.running := running
-};
+  runningExecCtx.running := running;
+}
 
 function getLexicalEnvironment(runningExecCtx) {
-  return runningExecCtx.LexicalEnvironment
-};
+  return runningExecCtx.LexicalEnvironment;
+}
 
 function getVariableEnvironment(runningExecCtx) {
-  return runningExecCtx.VariableEnvironment
-};
+  return runningExecCtx.VariableEnvironment;
+}
 
 function getThisBinding(runningExecCtx) {
-  return runningExecCtx.ThisBinding
-};
+  return runningExecCtx.ThisBinding;
+}
 
 function setLexicalEnvironment(runningExecCtx, lexicalEnvironment) {
   runningExecCtx.LexicalEnvironment := lexicalEnvironment;
-  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
+  return 'undefined; /* TODO the return statement is necessary because of the Monitor. Check why! */
+}
 
 function setVariableEnvironment(runningExecCtx, variableEnvironment) {
   runningExecCtx.VariableEnvironment := variableEnvironment;
-  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
+  return 'undefined; /* TODO the return statement is necessary because of the Monitor. Check why! */
+}
 
 function setThisBinding(runningExecCtx, thisBinding) {
   runningExecCtx.ThisBinding := thisBinding;
-  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
+  return 'undefined; /* TODO the return statement is necessary because of the Monitor. Check why! */
+}
 
 function setContainedInStrictCode(execCtx, strictCode) {
   execCtx.strictCode := strictCode;
-  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
+  return 'undefined; /* TODO the return statement is necessary because of the Monitor. Check why! */
+}
 
 function isContainedInStrictCode(execCtx) {
-  return execCtx.strictCode
-};
+  return execCtx.strictCode;
+}
 
 /* 8.3.1 ResolveBinding ( name, [env] ) */
 
@@ -85,30 +79,21 @@ function isContainedInStrictCode(execCtx) {
   to be searched for the binding. During execution of ECMAScript code, ResolveBinding is performed
   using the following algorithm: */
 function ResolveBinding(scope, name, env)  {
-
   /* If env was not passed or if env is undefined, then */
-  if ( env = 'undefined ||| env = null )
-  {
+  if (env = 'undefined ||| env = null)
     /* Let env be the running execution context’s LexicalEnvironment. */
-    env := getLexicalEnvironment(scope)
-  };
+    env := getLexicalEnvironment(scope);
 
   /* Assert: env is a Lexical Environment. */
-  /* assert( isLexicalEnvironment(env) ); */
+  /* assert (isLexicalEnvironment(env) ); */
 
   /* If the code matching the syntactic production that is being evaluated is contained in strict
   mode code, let strict be true, else let strict be false. */
-  if (isContainedInStrictCode(scope)) {
-    strict := true
-  } else {
-    strict := false
-  };
-
+  if (isContainedInStrictCode(scope)) strict := true; else strict := false;
   /* Return GetIdentifierReference(env, name, strict ). */
-  return GetIdentifierReference(env, name, strict)
-
+  return GetIdentifierReference(env, name, strict);
   /* NOTE The result of ResolveBinding is always a Reference value with its referenced name component equal to the name argument. */
-};
+}
 
 /* 8.3.2 GetThisEnvironment ( )
  *
@@ -117,7 +102,6 @@ function ResolveBinding(scope, name, env)  {
 function GetThisEnvironment(scope) {
   /* 1. Let lex be the running execution context’s LexicalEnvironment. */
   scope := topExecStack();
-
   lex := getLexicalEnvironment(scope);
   /* 2. Repeat */
   repeat {
@@ -126,15 +110,14 @@ function GetThisEnvironment(scope) {
     /* b. Let exists be envRec.HasThisBinding(). */
     exists := {envRec.HasThisBinding}(envRec);
     /* c. If exists is true, return envRec. */
-    if (exists) {
-      return envRec
-    };
+    if (exists)
+      return envRec;
     /* d. Let outer be the value of lex’s outer environment reference. */
     outer := lex.OuterEnvRef;
     /* e. Let lex be outer. */
-    lex := outer
+    lex := outer;
   }
-};
+}
 /* NOTE: The loop in step 2 will always terminate because the list of environments always ends with the global environment which has a this binding. */
 
 /* 8.3.3 ResolveThisBinding ( )
@@ -146,8 +129,8 @@ function ResolveThisBinding(scope) {
   /* 1. Let envRec be GetThisEnvironment( ). */
   envRec := GetThisEnvironment(scope);
   /* 2. Return envRec.GetThisBinding(). */
-  return {envRec.GetThisBinding}(envRec)
-};
+  return {envRec.GetThisBinding}(envRec);
+}
 
 /* 8.3.4 GetNewTarget ( )
  *
@@ -158,10 +141,10 @@ function GetNewTarget(scope) {
   /* 1. Let envRec be GetThisEnvironment( ). */
   envRec := GetThisEnvironment(scope);
   /* 2. Assert: envRec has a [[NewTarget]] field. */
-  assert("__NewTarget" in_obj envRec);
+  assert ("__NewTarget" in_obj envRec);
   /* 3. Return envRec.[[NewTarget]]. */
-  return envRec.__NewTarget
-};
+  return envRec.__NewTarget;
+}
 
 /* 8.3.5 GetGlobalObject ( )
 
@@ -172,7 +155,6 @@ function GetGlobalObject(ctx) {
 
   /* Let currentRealm be ctx’s Realm. */
   currentRealm := ctx.Realm;
-
   /* Return currentRealm.[[globalThis]]. */
-  return currentRealm.globalThis
+  return currentRealm.globalThis;
 }

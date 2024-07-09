@@ -18,8 +18,8 @@ function applyingTheMultiplicationOperator(leftNum, rightNum) {
       using IEEE 754 round-to-nearest mode. If the magnitude is too large to represent, the result is then an infinity of appropriate sign.
       If the magnitude is too small to represent, the result is then a zero of appropriate sign.
       The ECMAScript language requires support of gradual underflow as defined by IEEE 754. */
-  return leftNum * rightNum
-};
+  return leftNum * rightNum;
+}
 
 function applyingTheDivisionOperator(leftNum, rightNum) {
   /* 11.5.2 Applying the / Operator */
@@ -44,9 +44,9 @@ function applyingTheDivisionOperator(leftNum, rightNum) {
       the operation overflows; the result is then an infinity of appropriate sign. If the magnitude is too small to represent, the
       operation underflows and the result is a zero of the appropriate sign. The ECMAScript language requires support of
       gradual underflow as defined by IEEE 754. */
-  return leftNum / rightNum
+  return leftNum / rightNum;
 
-};
+}
 
 function applyingTheRemainderOperator(leftNum, rightNum) {
   /* 11.5.3 Applying the % Operator */
@@ -75,5 +75,5 @@ function applyingTheRemainderOperator(leftNum, rightNum) {
       positive only if n/d is positive, and whose magnitude is as large as possible without
       exceeding the magnitude of the true mathematical quotient of n and d. r is computed and
       rounded to the nearest representable value using IEEE 754 round -to-nearest mode. */
-  return leftNum % rightNum
+  return leftNum % rightNum;
 }

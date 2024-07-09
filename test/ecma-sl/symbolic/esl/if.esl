@@ -5,6 +5,6 @@ function main () {
     assert ( y > 20 )
   } else {
     assert ( y <= 20 )
-  };
+  }
   return 1
 }

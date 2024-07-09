@@ -1,28 +1,24 @@
-function Object() : JSObject_t {
-  object: JSObject_t := { 
+function Object() {
+  object := { 
     __js_props__: {},
     __proto__: null,
     resolveProperty: "resolveObject",
     updateProperty: "updateObject"
   };
-  return object
-};
+  return object;
+}
 
 
-function resolveObject(objVal: JSObject_t, propName: string): unknown {
+function resolveObject(objVal, propName) {
   if (propName in_obj objVal.__js_props__) {
-    return objVal.__js_props__[propName]
+    return objVal.__js_props__[propName];
   } else {
-    proto: JSObject_t | null := objVal.__proto__;
-    if (proto = null) {
-      return 'undefined
-    } else {
-      return resolveObject(proto, propName)
-    }
+    proto := objVal.__proto__;
+    if (proto = null) return 'undefined; else return resolveObject(proto, propName);
   }
-};
+}
 
-function updateObject(objVal: JSObject_t, propName: string, val: unknown): void {
+function updateObject(objVal, propName, val) {
   objVal.__js_props__[propName] := val; 
-  return
+  return;
 }

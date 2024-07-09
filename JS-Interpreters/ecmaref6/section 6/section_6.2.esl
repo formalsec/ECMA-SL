@@ -7,49 +7,44 @@
  */
 function Completion(completionRecord) {
   /* Assert: completionRecord is a Completion Record. */
-  assert(Type(completionRecord) = "Completion");
+  assert (Type(completionRecord) = "Completion");
   /* Return completionRecord as the Completion Record of this abstract operation. */
-  return completionRecord
-};
+  return completionRecord;
+}
 
 /* auxiliary functions */
 function isAnAbruptCompletion (completion) {
-  if (!(Type(completion) = "Completion")) {
-    return false
-  };
-
-  if (!(getCompletionType(completion) = 'normal)) {
-    return true
-  };
-
-  return false
-};
+  if (!(Type(completion) = "Completion"))
+    return false;
+  if (!(getCompletionType(completion) = 'normal))
+    return true;
+  return false;
+}
 
 /* Auxiliary functions created for the purposes of accessing the values of the triple that form the completion type. */
 function isErrorCompletion(completion) {
-  if ((Type(completion) = "Completion")) {
-    return (getCompletionType(completion) = 'throw)
-  };
-  return false
-};
+  if ((Type(completion) = "Completion"))
+    return (getCompletionType(completion) = 'throw);
+  return false;
+}
 
 function getCompletionType(completion) {
-  return l_nth(completion, 1)
-};
+  return l_nth(completion, 1);
+}
 function getCompletionValue(completion) {
-  return l_nth(completion, 2)
-};
+  return l_nth(completion, 2);
+}
 function getCompletionTarget(completion) {
-  return l_nth(completion, 3)
-};
+  return l_nth(completion, 3);
+}
 
 function newCompletion(type, value, target) {
-  return ["C", type, value, target]
-};
+  return ["C", type, value, target];
+}
 
 function NormalCompletion(V) {
-  return newCompletion('normal, V, 'empty)
-};
+  return newCompletion('normal, V, 'empty);
+}
 
 /* This auxiliary is function is used to accomplish the following convention defined in 5.2 Algorithm Conventions:
     If an algorithm is defined to "throw an exception", execution of the algorithm is terminated and no result is
@@ -57,23 +52,21 @@ function NormalCompletion(V) {
     with the exception, using terminology such as "If an exception was thrown...". Once such an algorithm step
     has been encountered the exception is no longer considered to have occurred. */
 function throwEmptyCompletion(V) {
-  return newCompletion('throw, V, 'empty)
-};
+  return newCompletion('throw, V, 'empty);
+}
 
 
 /* 6.2.2.4 ReturnIfAbrupt */
 macro ReturnIfAbrupt(e) {
   if (Type(e) = "Completion") {
     /* If argument is an abrupt completion, return argument. */
-    if( isAnAbruptCompletion(e) ) {
-      return e
-    }
+    if (isAnAbruptCompletion(e))
+      return e;
     /* Else if argument is a Completion Record, let argument be argument.[[value]]. */
-    else {
-      e := getCompletionValue(e)
-    }
+    else
+      e := getCompletionValue(e);
   }
-};
+}
 
 
 /**
@@ -85,21 +78,19 @@ macro ReturnIfAbrupt(e) {
 function UpdateEmpty(completionRecord, value) {
   /* 1. Assert: if completionRecord.[[type]] is throw then
      completionRecord.[[value]] is not empty. */
-  assert(!(getCompletionType(completionRecord) = 'throw &&& getCompletionValue(completionRecord) = 'empty));
+  assert (!(getCompletionType(completionRecord) = 'throw &&& getCompletionValue(completionRecord) = 'empty));
   /* 2. If completionRecord.[[type]] is throw, */
-  if (getCompletionType(completionRecord) = 'throw) {
+  if (getCompletionType(completionRecord) = 'throw)
     /* return Completion(completionRecord) */
-    return Completion(completionRecord)
-  };
+    return Completion(completionRecord);
   /* 3. If completionRecord.[[value]] is not empty, */
-  if (!(getCompletionValue(completionRecord) = 'empty)) {
+  if (!(getCompletionValue(completionRecord) = 'empty))
     /* return Completion(completionRecord) */
-    return Completion(completionRecord)
-  };
+    return Completion(completionRecord);
   /* 4. Return Completion{[[type]]: completionRecord.[[type]], [[value]]:
      value, [[target]]: completionRecord.[[target]] }. */
-  return newCompletion(getCompletionType(completionRecord), value, getCompletionTarget(completionRecord))
-};
+  return newCompletion(getCompletionType(completionRecord), value, getCompletionTarget(completionRecord));
+}
 
 /* 6.2.6.1 CreateByteDataBlock(size) */
 function CreateByteDataBlock(size) {
@@ -109,12 +100,10 @@ function CreateByteDataBlock(size) {
     /* 2. Let db be a new Data Block value consisting of size bytes. */
     /*db := [];*/
     /* If it is impossible to create such a Data Block, throw a RangeError exception. */
-    if (size >= maxSize) {
-        throw RangeErrorConstructorInternal()
-    };
-    if (size = 0.) {
-        size := 1.
-    };
+    if (size >= maxSize)
+      throw RangeErrorConstructorInternal();
+    if (size = 0.)
+      size := 1.;
     db := array_make(int_of_float(size), float_to_byte(0.));
 
     /* i := 0.;
@@ -122,80 +111,76 @@ function CreateByteDataBlock(size) {
         i := i + 1.;*/
         /* 3. Set all of the bytes of db to 0. */
         /*db := l_concat(db, float64_to_le_bytes(0.))
-    };*/
+    }*/
     /* 4. Return db. */
-    return db
-};
+    return db;
+}
 
 /* 6.2.6.2 CopyDataBlockBytes(toBlock, toIndex, fromBlock, fromIndex, count) */
 function CopyDataBlockBytes(toBlock, toIndex, fromBlock, fromIndex, count) {
-    count := int_of_float count;
-    fromIndex := int_of_float fromIndex;
-    /* Assert: fromBlock and toBlock are distinct Data Block values. */
-    assert (!(fromBlock = toBlock));
-    /* Assert: fromIndex, toIndex, and count are positive integer values. */
-    assert ((fromIndex >= 0) &&& (toIndex >= 0) &&& (count >= 0));
-    /* Let fromSize be the number of bytes in fromBlock. */
-    fromSize := a_len(fromBlock);
-    /* Assert: fromIndex+count ≤ fromSize. */
-    assert((fromIndex + count) <= fromSize);
-    /* Let toSize be the number of bytes in toBlock. */
-    toSize := a_len(toBlock);
-    /* Assert: toIndex+count ≤ toSize. */
-    assert((toIndex + count) <= toSize);
-    /* 7. Repeat, while count>0 */
-    while (count > 0) {
-        /* a. Set toBlock[toIndex] to the value of fromBlock[fromIndex]. */
-        a_set(toBlock, toIndex, a_nth(fromBlock, fromIndex));
-        /* b. Increment toIndex and fromIndex each by 1. */
-        toIndex := toIndex + 1;
-        fromIndex := fromIndex + 1;
-        /* c. Decrement count by 1. */
-        count := count - 1
-    };
-    /* 8. Return NormalCompletion(empty) */
-    return NormalCompletion('empty)
-};
+  count := int_of_float count;
+  fromIndex := int_of_float fromIndex;
+  /* Assert: fromBlock and toBlock are distinct Data Block values. */
+  assert (!(fromBlock = toBlock));
+  /* Assert: fromIndex, toIndex, and count are positive integer values. */
+  assert ((fromIndex >= 0) &&& (toIndex >= 0) &&& (count >= 0));
+  /* Let fromSize be the number of bytes in fromBlock. */
+  fromSize := a_len(fromBlock);
+  /* Assert: fromIndex+count ≤ fromSize. */
+  assert ((fromIndex + count) <= fromSize);
+  /* Let toSize be the number of bytes in toBlock. */
+  toSize := a_len(toBlock);
+  /* Assert: toIndex+count ≤ toSize. */
+  assert ((toIndex + count) <= toSize);
+  /* 7. Repeat, while count>0 */
+  while (count > 0) {
+      /* a. Set toBlock[toIndex] to the value of fromBlock[fromIndex]. */
+      a_set(toBlock, toIndex, a_nth(fromBlock, fromIndex));
+      /* b. Increment toIndex and fromIndex each by 1. */
+      toIndex := toIndex + 1;
+      fromIndex := fromIndex + 1;
+      /* c. Decrement count by 1. */
+      count := count - 1;
+  }
+  /* 8. Return NormalCompletion(empty) */
+  return NormalCompletion('empty);
+}
 
 /* Auxiliary functions created for the purposes of accessing the values of the triple that form the reference type. */
 
 function newValueReference(base, referencedName, strict) {
-  return ["R", "V", base, referencedName, strict]
-};
+  return ["R", "V", base, referencedName, strict];
+}
 
 function newSuperReference(base, referencedName, thisValue, strict) {
-  return ["R", "S", base, referencedName, strict, thisValue]
-};
+  return ["R", "S", base, referencedName, strict, thisValue];
+}
 
 function newPropertyReference(base, referencedName, strict) {
-  return ["R", "P", base, referencedName, strict]
-};
+  return ["R", "P", base, referencedName, strict];
+}
 
 /* Returns the base value component of the reference V. */
 function GetBase(V) {
-  return l_nth(V, 2)
-};
+  return l_nth(V, 2);
+}
 
 /* Returns the referenced name component of the reference V. */
 function GetReferencedName(V) {
-  return l_nth(V, 3)
-};
+  return l_nth(V, 3);
+}
 
 /* Returns the strict reference component of the reference V. */
 function IsStrictReference(V) {
-  return l_nth(V, 4)
-};
+  return l_nth(V, 4);
+}
 
 /* Returns true if the base value is a Boolean, String, or Number. */
 function HasPrimitiveBase(V) {
   base := GetBase(V);
   baseType := Type(base);
-  if ((baseType = "Boolean") || (baseType = "String") || (baseType = "Number") || (baseType = "Symbol")) {
-    return true
-  } else {
-    return false
-  }
-};
+  return ((baseType = "Boolean") || (baseType = "String") || (baseType = "Number") || (baseType = "Symbol"));
+}
 
 /* Returns true if either the base value is an object or HasPrimitiveBase(V) is true; otherwise returns false. */
 function IsPropertyReference (V) {
@@ -203,33 +188,21 @@ function IsPropertyReference (V) {
 
   /* if ( GetReferencedName(V) = "prop" ) {
     type := Type(base)
-  }; */
+  } */
 
-  if ( ( Type(base) = "Object" ) ||| ( Type(base) = "Symbol" ) ||| (HasPrimitiveBase(V) = true) ) {
-    return true
-  };
-
-  return false
+  return ((Type(base) = "Object") ||| (Type(base) = "Symbol") ||| (HasPrimitiveBase(V) = true));
   /* return (typeof (V) = "list") && (l_nth(V, 0) = "R") && (l_nth(V, 1) = "P") */
-};
+}
 
 /* Returns true if the base value is undefined and false otherwise. */
 function IsUnresolvableReference (V) {
-  if ( Type(GetBase(V)) = "Undefined" ) {
-    return true
-  } else {
-    return false
-  }
-};
+  return (Type(GetBase(V)) = "Undefined");
+}
 
 /* Returns true if this reference has a thisValue component. */
 function IsSuperReference (V) {
-  if ( l_len V = 6 ) {
-    return true
-  } else {
-    return false
-  }
-};
+  return (l_len V = 6);
+}
 
 /**
  * 6.2.3.1 GetValue (V)
@@ -237,43 +210,36 @@ function IsSuperReference (V) {
  *
 */
 function GetValue(V) {
-
   /* ReturnIfAbrupt(V). */
   @ReturnIfAbrupt(V);
 
   /* If Type(V) is not Reference, return V. */
-  if (!(Type(V) = "Reference")) {
-    return V
-  };
-
+  if (!(Type(V) = "Reference"))
+    return V;
   /* Let base be GetBase(V). */
   base := GetBase(V);
-
   /* If IsUnresolvableReference(V), throw a ReferenceError exception. */
-  if ( IsUnresolvableReference(V) ) {
-    throw ReferenceError(GetReferencedName(V) + " is not defined")
-  };
-
+  if (IsUnresolvableReference(V))
+    throw ReferenceError(GetReferencedName(V) + " is not defined");
   /* If IsPropertyReference(V), then */
   if (IsPropertyReference(V)) {
     /* If HasPrimitiveBase(V) is true, then */
     if (HasPrimitiveBase(V) = true) {
         /* Assert: In this case, base will never be null or undefined. */
-        assert( !(base = 'null) &&& !(base = 'undefined) );
-
+        assert (!(base = 'null) &&& !(base = 'undefined) );
         /* Let base be ToObject(base). */
-        base := ToObject(base)
-      };
+        base := ToObject(base);
+      }
 
       /* Return base.[[Get]](GetReferencedName(V), GetThisValue(V)). */
-      return {base.Get}(base, GetReferencedName(V), GetThisValue(V))
+      return {base.Get}(base, GetReferencedName(V), GetThisValue(V));
   }
   /* Else base must be an Environment Record, */
   else {
     /* Return base.GetBindingValue(GetReferencedName(V), IsStrictReference(V)) (see 8.1.1). */
-    return {base.GetBindingValue}(base, GetReferencedName(V), IsStrictReference(V))
+    return {base.GetBindingValue}(base, GetReferencedName(V), IsStrictReference(V));
   }
-};
+}
 
 /**
  * 6.2.3.2 PutValue (V, W)
@@ -281,85 +247,73 @@ function GetValue(V) {
 function PutValue(V, W) {
     /* ReturnIfAbrupt(V). */
     @ReturnIfAbrupt(V);
-
     /* ReturnIfAbrupt(W). */
     @ReturnIfAbrupt(W);
 
     /* If Type(V) is not Reference, throw a ReferenceError exception. */
-    if ( !(Type(V) = "Reference") ) {
-      throw ReferenceErrorConstructorInternal()
-    };
-
+    if ( !(Type(V) = "Reference") )
+      throw ReferenceErrorConstructorInternal();
     /* Let base be GetBase(V). */
     base := GetBase(V);
-
     /* If IsUnresolvableReference(V), then */
     if ( IsUnresolvableReference(V) ) {
         /* If IsStrictReference(V) is true, then */
         if ( IsStrictReference(V) = true ) {
             /* Throw ReferenceError exception. */
-            throw ReferenceError(GetReferencedName(V) + " is not defined")
-        };
+            throw ReferenceError(GetReferencedName(V) + " is not defined");
+        }
 
         /* Let globalObj be GetGlobalObject(). */
         /* globalObj := GetGlobalObject(); */
         globalObj := |global|;
-
         /* Return Set(globalObj,GetReferencedName(V), W, false). */
-        return Set(globalObj, GetReferencedName(V), W, false)
+        return Set(globalObj, GetReferencedName(V), W, false);
     }
     /* Else if IsPropertyReference(V), then */
     elif ( IsPropertyReference(V) ) {
         /* If HasPrimitiveBase(V) is true, then */
         if ( HasPrimitiveBase(V) = true ) {
             /* Assert: In this case, base will never be null or undefined. */
-            assert( !(base = 'null) ||| !(base = 'undefined) );
+            assert (!(base = 'null) ||| !(base = 'undefined) );
             /* Set base to ToObject(base). */
-            base := ToObject(base)
-        };
+            base := ToObject(base);
+        }
 
         /* Let succeeded be base.[[Set]](GetReferencedName(V), W, GetThisValue(V)). */
         succeeded := {base.Set}(base, GetReferencedName(V), W, GetThisValue(V));
-
         /* ReturnIfAbrupt(succeeded). */
         @ReturnIfAbrupt(succeeded);
-
         /* If succeeded is false and IsStrictReference(V) is true, throw a TypeError exception. */
-        if ( (succeeded = false) &&& (IsStrictReference(V) = true) ) {
-          throw TypeErrorConstructorInternal()
-        };
-
+        if ((succeeded = false) &&& (IsStrictReference(V) = true))
+          throw TypeErrorConstructorInternal();
         /* Return. */
-        return
+        return;
     }
     /* Else base must be an Environment Record. */
     else {
         /* Return base.SetMutableBinding(GetReferencedName(V), W, IsStrictReference(V)) (see 8.1.1). */
-        return {base.SetMutableBinding}(base, GetReferencedName(V), W, IsStrictReference(V))
+        return {base.SetMutableBinding}(base, GetReferencedName(V), W, IsStrictReference(V));
     }
 
 
 /* NOTE The object that may be created in step 6.a.ii is not accessible outside of the above algorithm and
         the ordinary object [[Set]] internal method. An implementation might choose to avoid the actual
         creation of that object. */
-};
+}
 
 /**
  * 6.2.3.3 GetThisValue (V)
 */
 function GetThisValue(V) {
     /* Assert: IsPropertyReference(V) is true. */
-    assert( IsPropertyReference(V) = true );
-
+    assert (IsPropertyReference(V) = true );
     /* If IsSuperReference(V), then */
-    if ( IsSuperReference(V) ) {
+    if (IsSuperReference(V))
         /* Return the value of the thisValue component of the reference V. */
-        return l_nth(V, 5)
-    };
-
+        return l_nth(V, 5);
     /* Return GetBase(V). */
-    return GetBase(V)
-};
+    return GetBase(V);
+}
 
 /**
  * 6.2.3.4 InitializeReferencedBinding (V, W)
@@ -372,154 +326,128 @@ function InitializeReferencedBinding(V, W) {
     @ReturnIfAbrupt(W);
 
     /* Assert: Type(V) is Reference. */
-    assert( Type(V) = "Reference" );
+    assert (Type(V) = "Reference" );
 
     /* Assert: IsUnresolvableReference(V) is false. */
-    assert( IsUnresolvableReference(V) = false );
+    assert (IsUnresolvableReference(V) = false );
 
     /* Let base be GetBase(V). */
     base := GetBase(V);
 
     /* Assert: base is an Environment Record. */
-    /*assert( isEnvironmentRecord(base) ); */
+    /*assert (isEnvironmentRecord(base) ); */
 
     /* Return base.InitializeBinding(GetReferencedName(V), W). */
-    return {base.InitializeBinding}(base, GetReferencedName(V), W)
-};
+    return {base.InitializeBinding}(base, GetReferencedName(V), W);
+}
 
 /* Auxiliary functions created for the purposes of dealing with the Property Identifier type. */
 function newPropertyIdentifier(name, desc) {
-  return ["P", name, desc]
-};
+  return ["P", name, desc];
+}
 
 function getPropertyName(propertyIdentifier) {
-  return l_nth(propertyIdentifier, 1)
-};
+  return l_nth(propertyIdentifier, 1);
+}
 
 function getPropertyDescriptor(propertyIdentifier) {
-  return l_nth(propertyIdentifier, 2)
-};
+  return l_nth(propertyIdentifier, 2);
+}
 
 function CopyDescriptor(Desc) {
   newDesc := {};
   i := 0;
   list := obj_fields Desc;
   llist := l_len list;
-  while(i < llist) {
+  while (i < llist) {
     P := l_nth (list, i);
     newDesc[P] := Desc[P];
-    i := i + 1
-  };
-  return newDesc
-};
+    i := i + 1;
+  }
+  return newDesc;
+}
 
 /**
  * 6.2.4.1 IsAccessorDescriptor ( Desc )
 */
 function IsAccessorDescriptor (Desc) {
   /** 1. If Desc is undefined, then return false. */
-  if (Desc = 'undefined) {
-    return false
-  };
-
+  if (Desc = 'undefined)
+    return false;
   /** 2. If both Desc.[[Get]] and Desc.[[Set]] are absent, then return false. */
-  if (!("Get" in_obj Desc) &&& !("Set" in_obj Desc)) {
-    return false
-  };
-
+  if (!("Get" in_obj Desc) &&& !("Set" in_obj Desc))
+    return false;
   /** 3. Return true. */
-  return true
-};
+  return true;
+}
 
 /**
  * 6.2.4.2 IsDataDescriptor ( Desc )
 */
 function IsDataDescriptor (Desc) {
   /** 1. If Desc is undefined, then return false. */
-  if (Desc = 'undefined) {
-    return false
-  };
+  if (Desc = 'undefined)
+    return false;
   /** 2. If both Desc.[[Value]] and Desc.[[Writable]] are absent, then return false. */
-  if (!("Value" in_obj Desc) &&& !("Writable" in_obj Desc)) {
-    return false
-  };
-
+  if (!("Value" in_obj Desc) &&& !("Writable" in_obj Desc))
+    return false;
   /** 3. Return true. */
-  return true
-};
+  return true;
+}
 
 /**
  * 6.2.4.3 IsGenericDescriptor ( Desc )
 */
 function IsGenericDescriptor (Desc) {
   /** 1. If Desc is undefined, then return false. */
-  if (Desc = 'undefined) {
-    return false
-  };
+  if (Desc = 'undefined)
+    return false;
   /** 2. If IsAccessorDescriptor(Desc) and IsDataDescriptor(Desc) are both false, then return true. */
-  if ( ( IsAccessorDescriptor(Desc) = false ) &&& ( IsDataDescriptor(Desc) = false ) ) {
-    return true
-  };
-
+  if ((IsAccessorDescriptor(Desc) = false) &&& (IsDataDescriptor(Desc) = false))
+    return true;
   /** 3. Return false. */
-  return false
-};
+  return false;
+}
 
 /**
  * 6.2.4.4 FromPropertyDescriptor ( Desc )
 */
 function FromPropertyDescriptor(Desc) {
   /** 1. If Desc is undefined, then return undefined. */
-  if (Desc = 'undefined) {
-    return 'undefined
-  };
-
+  if (Desc = 'undefined)
+    return 'undefined;
   /* Let obj be ObjectCreate(%ObjectPrototype%). */
   obj := ObjectCreate(getObjectPrototype(false), null);
-
   /* Assert: obj is an extensible ordinary object with no own properties. */
-
   /* If Desc has a [[Value]] field, then */
-  if ( "Value" in_obj Desc )  {
+  if ("Value" in_obj Desc)
       /* Perform CreateDataProperty(obj, "value", Desc.[[Value]]). */
-      CreateDataProperty(obj, "value", Desc.Value)
-  };
-
+      CreateDataProperty(obj, "value", Desc.Value);
   /* If Desc has a [[Writable]] field, then */
-  if ( "Writable" in_obj Desc ) {
+  if ("Writable" in_obj Desc)
       /* Perform CreateDataProperty(obj, "writable", Desc.[[Writable]]). */
-      CreateDataProperty(obj, "writable", Desc.Writable)
-  };
-
+      CreateDataProperty(obj, "writable", Desc.Writable);
   /* If Desc has a [[Get]] field, then */
-   if ( "Get" in_obj Desc ) {
+   if ("Get" in_obj Desc)
       /* Perform CreateDataProperty(obj, "get", Desc.[[Get]]). */
-      CreateDataProperty(obj, "get", Desc.Get)
-  };
-
+      CreateDataProperty(obj, "get", Desc.Get);
   /* If Desc has a [[Set]] field, then */
-   if ( "Set" in_obj Desc ) {
+   if ("Set" in_obj Desc)
       /* Perform CreateDataProperty(obj, "set", Desc.[[Set]]) */
-      CreateDataProperty(obj, "set", Desc.Set)
-  };
+      CreateDataProperty(obj, "set", Desc.Set);
   /* If Desc has an [[Enumerable]] field, then */
-   if ( "Enumerable" in_obj Desc ) {
+   if ("Enumerable" in_obj Desc)
       /* Perform CreateDataProperty(obj, "enumerable", Desc.[[Enumerable]]). */
-      CreateDataProperty(obj, "enumerable", Desc.Enumerable)
-  };
-
+      CreateDataProperty(obj, "enumerable", Desc.Enumerable);
   /* If Desc has a [[Configurable]] field, then */
-  if ( "Configurable" in_obj Desc ) {
+  if ("Configurable" in_obj Desc)
       /* Perform CreateDataProperty(obj , "configurable", Desc.[[Configurable]]). */
-      CreateDataProperty(obj, "configurable", Desc.Configurable)
-  };
+      CreateDataProperty(obj, "configurable", Desc.Configurable);
 
   /* Assert: all of the above CreateDataProperty operations return true. */
-
-
    /** 7. Return obj. */
-   return obj
-};
+   return obj;
+}
 
 /**
  * 6.2.4.5 ToPropertyDescriptor ( Obj )
@@ -531,142 +459,111 @@ function FromPropertyDescriptor(Desc) {
     @ReturnIfAbrupt(Obj);
 
     /* If Type(Obj) is not Object, throw a TypeError exception. */
-    if ( !(Type(Obj) = "Object") ) {
-      throw TypeErrorConstructorInternal()
-    };
+    if (!(Type(Obj) = "Object")) 
+      throw TypeErrorConstructorInternal();
 
     /* Let desc be a new Property Descriptor that initially has no fields. */
     desc := NewPropertyDescriptor();
-
     /* Let hasEnumerable be HasProperty(Obj, "enumerable"). */
     hasEnumerable := HasProperty(Obj, "enumerable");
-
     /* ReturnIfAbrupt(hasEnumerable). */
     @ReturnIfAbrupt(hasEnumerable);
-
     /* If hasEnumerable is true, then */
     if (hasEnumerable = true) {
         /* Let enum be ToBoolean(Get(Obj, "enumerable")). */
         enum := ToBoolean(Get(Obj, "enumerable"));
-
         /* ReturnIfAbrupt(enum). */
         @ReturnIfAbrupt(enum);
-
         /* Set the [[Enumerable]] field of desc to enum. */
-        desc.Enumerable := enum
-    };
+        desc.Enumerable := enum;
+    }
 
     /* Let hasConfigurable be HasProperty(Obj, "configurable"). */
     hasConfigurable := HasProperty(Obj, "configurable");
-
     /* ReturnIfAbrupt(hasConfigurable). */
     @ReturnIfAbrupt(hasConfigurable);
-
     /* If hasConfigurable is true, then */
     if (hasConfigurable = true) {
         /* Let conf be ToBoolean(Get(Obj, "configurable")). */
         conf := ToBoolean(Get(Obj, "configurable"));
-
         /* ReturnIfAbrupt(conf). */
         @ReturnIfAbrupt(conf);
-
         /* Set the [[Configurable]] field of desc to conf. */
-        desc.Configurable := conf
-    };
+        desc.Configurable := conf;
+    }
 
     /* Let hasValue be HasProperty(Obj, "value"). */
     hasValue := HasProperty(Obj, "value");
-
     /* ReturnIfAbrupt(hasValue). */
     @ReturnIfAbrupt(hasValue);
-
     /* If hasValue is true, then */
     if (hasValue = true) {
         /* Let value be Get(Obj, "value"). */
         value := Get(Obj, "value");
-
         /* ReturnIfAbrupt(value). */
         @ReturnIfAbrupt(value);
-
         /* Set the [[Value]] field of desc to value. */
-        desc.Value := value
-    };
+        desc.Value := value;
+    }
 
     /* Let hasWritable be HasProperty(Obj, "writable"). */
     hasWritable := HasProperty(Obj, "writable");
-
     /* ReturnIfAbrupt(hasWritable). */
     @ReturnIfAbrupt(hasWritable);
-
     /* If hasWritable is true, then */
     if ( hasWritable = true ) {
         /* Let writable be ToBoolean(Get(Obj, "writable")). */
         writable := ToBoolean(Get(Obj, "writable"));
-
         /* ReturnIfAbrupt(writable). */
         @ReturnIfAbrupt(writable);
-
         /* Set the [[Writable]] field of desc to writable. */
-        desc.Writable := writable
-    };
+        desc.Writable := writable;
+    }
 
     /* Let hasGet be HasProperty(Obj, "get"). */
     hasGet := HasProperty(Obj, "get");
-
     /* ReturnIfAbrupt(hasGet). */
     @ReturnIfAbrupt(hasGet);
-
     /* If hasGet is true, then */
     if ( hasGet = true) {
         /* Let getter be Get(Obj, "get"). */
         getter := Get(Obj, "get");
-
         /* ReturnIfAbrupt(getter). */
         @ReturnIfAbrupt(getter);
-
         /* If IsCallable(getter) is false and getter is not undefined, throw a TypeError exception. */
-        if ( (IsCallable(getter) = false) &&& !(getter = 'undefined) ) {
-          throw TypeErrorConstructorInternal()
-        };
-
+        if ((IsCallable(getter) = false) &&& !(getter = 'undefined))
+          throw TypeErrorConstructorInternal();
         /* Set the [[Get]] field of desc to getter. */
-        desc.Get := getter
-    };
+        desc.Get := getter;
+    }
 
     /* Let hasSet be HasProperty(Obj, "set"). */
     hasSet := HasProperty(Obj, "set");
-
     /* ReturnIfAbrupt(hasSet). */
     @ReturnIfAbrupt(hasSet);
-
     /* If hasSet is true, then */
     if ( hasSet = true ) {
         /* Let setter be Get(Obj, "set"). */
         setter := Get(Obj, "set");
-
         /* ReturnIfAbrupt(setter). */
         @ReturnIfAbrupt(setter);
-
         /* If IsCallable(setter) is false and setter is not undefined, throw a TypeError exception. */
-        if ( (IsCallable(setter) = false) &&& !(setter = 'undefined) ) {
-          throw TypeErrorConstructorInternal()
-        };
-
+        if ((IsCallable(setter) = false) &&& !(setter = 'undefined))
+          throw TypeErrorConstructorInternal();
         /* Set the [[Set]] field of desc to setter. */
-        desc.Set := setter
-    };
+        desc.Set := setter;
+    }
 
     /* If either desc.[[Get]] or desc.[[Set]] is present, then */
-    if ( ("Get" in_obj desc) ||| ("Set" in_obj desc) ) {
+    if (("Get" in_obj desc) ||| ("Set" in_obj desc)) {
         /* If either desc.[[Value]] or desc.[[Writable]] is present, throw a TypeError exception. */
-        if ( ("Value" in_obj desc) ||| ("Writable" in_obj desc) ) {
-          throw TypeErrorConstructorInternal()
-        }
-    };
+        if (("Value" in_obj desc) ||| ("Writable" in_obj desc))
+          throw TypeErrorConstructorInternal();
+    }
 
     /* Return desc. */
-    return desc
- };
+    return desc;
+ }
 
  /**
   * 6.2.4.6 CompletePropertyDescriptor ( Desc )
@@ -677,50 +574,37 @@ function FromPropertyDescriptor(Desc) {
  function CompletePropertyDescriptor(Desc) {
     /* ReturnIfAbrupt(Desc). */
     @ReturnIfAbrupt(Desc);
-
     /* Assert: Desc is a Property Descriptor */
-    assert( isPropertyDescriptor(Desc) = true );
-
+    assert (isPropertyDescriptor(Desc) = true );
     /* Let like be Record{[[Value]]: undefined, [[Writable]]: false, [[Get]]: undefined, [[Set]]: undefined, [[Enumerable]]: false, [[Configurable]]: false}. */
-    like := {Value: 'undefined, Writable: false, Get: 'undefined, Set: 'undefined, Enumerable: false, Configurable: false};
-
+    like := { Value: 'undefined, Writable: false, Get: 'undefined, Set: 'undefined, Enumerable: false, Configurable: false };
     /* If either IsGenericDescriptor(Desc) or IsDataDescriptor(Desc) is true, then */
-    if ( (IsGenericDescriptor(Desc) = true) ||| (IsDataDescriptor(Desc) = true)) {
+    if ((IsGenericDescriptor(Desc) = true) ||| (IsDataDescriptor(Desc) = true)) {
         /* If Desc does not have a [[Value]] field, set Desc.[[Value]] to like.[[Value]]. */
-        if ( !("Value" in_obj Desc)) {
-          Desc.Value := like.Value
-        };
-
+        if (!("Value" in_obj Desc))
+          Desc.Value := like.Value;
         /* If Desc does not have a [[Writable]] field, set Desc.[[Writable]] to like.[[Writable]]. */
-        if ( !("Writable" in_obj Desc)) {
-          Desc.Writable := like.Writable
-        }
+        if (!("Writable" in_obj Desc))
+          Desc.Writable := like.Writable;
     }
     /* Else, */
     else {
         /* If Desc does not have a [[Get]] field, set Desc.[[Get]] to like.[[Get]]. */
-        if ( !("Get" in_obj Desc)) {
-          Desc.Get := like.Get
-        };
-
+        if (!("Get" in_obj Desc))
+          Desc.Get := like.Get;
         /* If Desc does not have a [[Set]] field, set Desc.[[Set]] to like.[[Set]]. */
-        if ( !("Set" in_obj Desc)) {
-          Desc.Set := like.Set
-        }
-    };
+        if (!("Set" in_obj Desc))
+          Desc.Set := like.Set;
+    }
 
     /* If Desc does not have an [[Enumerable]] field, set Desc.[[Enumerable]] to like.[[Enumerable]]. */
-    if ( !("Enumerable" in_obj Desc)) {
-          Desc.Enumerable := like.Enumerable
-    };
-
+    if (!("Enumerable" in_obj Desc))
+      Desc.Enumerable := like.Enumerable;
     /* If Desc does not have a [[Configurable]] field, set Desc.[[Configurable]] to like.[[Configurable]]. */
-    if ( !("Configurable" in_obj Desc)) {
-      Desc.Configurable := like.Configurable
-    };
-
+    if (!("Configurable" in_obj Desc))
+      Desc.Configurable := like.Configurable;
     /* Return Desc. */
-    return Desc
+    return Desc;
  }
 
 
