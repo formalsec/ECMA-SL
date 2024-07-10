@@ -34,12 +34,12 @@
 (* ========== Language tokens ========== *)
 
 %token NULL
-%token PRINT RETURN DELETE
+%token FUNCTION
+%token PRINT RETURN DELETE EXTERN
 %token ASSERT FAIL
-%token FUNCTION EXTERN
 %token IF ELSE
 %token WHILE
-%token SWITCH CASE SDEFAULT
+%token SWITCH CASE DEFAULT
 
 (* ========== Symbol tokens ========== *)
 
@@ -171,7 +171,7 @@ let guard_target := LPAREN; ~ = expr_target; RPAREN; <>
 
 let switch_case_target := CASE; v = val_target; COLON; s = block_stmt_target; { (v @> at $sloc, s) }
 
-let switch_default_target := SDEFAULT; COLON; ~ = block_stmt_target; <>
+let switch_default_target := DEFAULT; COLON; ~ = block_stmt_target; <>
 
 (* ==================== Expressions ==================== *)
 

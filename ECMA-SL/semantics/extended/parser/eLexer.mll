@@ -12,13 +12,18 @@
 
             (* Language constructs *)
             "import"                  , IMPORT;
+            "typedef"                 , TYPEDEF;
+            "function"                , FUNCTION;
             "macro"                   , MACRO;
             "print"                   , PRINT;
-            "delete"                  , DELETE;
-            "function"                , FUNCTION;
             "return"                  , RETURN;
             "extern"                  , EXTERN;
             "lambda"                  , LAMBDA;
+            "delete"                  , DELETE;
+            "assert"                  , ASSERT;
+            "throw"                   , THROW;
+            "catch"                   , CATCH;
+            "fail"                    , FAIL;
             "if"                      , IF;
             "else"                    , ELSE;
             "while"                   , WHILE;
@@ -27,14 +32,9 @@
             "until"                   , UNTIL;
             "switch"                  , SWITCH;
             "case"                    , CASE;
-            "sdefault"                , SDEFAULT;
+            "default"                 , DEFAULT;
             "match"                   , MATCH;
             "with"                    , WITH;
-            "default"                 , DEFAULT;
-            "throw"                   , THROW;
-            "catch"                   , CATCH;
-            "fail"                    , FAIL;
-            "assert"                  , ASSERT;
 
             (* Program constants *)
             "NaN"                     , FLOAT (Float.nan);
@@ -85,7 +85,6 @@
             "trunc"                   , TRUNC;
 
             (* Type system *)
-            "typedef"                 , TYPEDEF;
             "any"                     , TYPE_ANY;
             "unknown"                 , TYPE_UNKNOWN;
             "never"                   , TYPE_NEVER;

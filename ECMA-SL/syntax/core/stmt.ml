@@ -65,7 +65,7 @@ let rec pp (ppf : Fmt.t) (s : t) : unit =
   | While (e, s') -> format ppf "while (%a) %a" Expr.pp e pp s'
   | Switch (e, css, dflt) ->
     let pp_case ppf (v, s) = format ppf "\ncase %a: %a" Value.pp v pp s in
-    let pp_default ppf s = format ppf "\nsdefault: %a" pp s in
+    let pp_default ppf s = format ppf "\ndefault: %a" pp s in
     format ppf "switch (%a) {%a%a\n}" Expr.pp e (pp_hashtbl !>"" pp_case) css
       (pp_opt pp_default) dflt
   | Fail e -> format ppf "fail %a" Expr.pp e
