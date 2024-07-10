@@ -36,6 +36,8 @@ type t =
   - Functions/compound statements don't terminate with a semicolon
   - A lonely semicolon results in the `skip` statement
 
+- Remove the `elif` keyword from the `.esl` syntax (replaced by the `else if` clause)
+
 ### Fixed
 
 ## v1.0.0
