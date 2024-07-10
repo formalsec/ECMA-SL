@@ -10,19 +10,19 @@
             "null"                    , NULL;
 
             (* Language constructs *)
+            "function"                , FUNCTION;
             "print"                   , PRINT;
             "return"                  , RETURN;
             "delete"                  , DELETE;
-            "fail"                    , FAIL;
-            "assert"                  , ASSERT;
-            "function"                , FUNCTION;
             "extern"                  , EXTERN;
+            "assert"                  , ASSERT;
+            "fail"                    , FAIL;
             "if"                      , IF;
             "else"                    , ELSE;
             "while"                   , WHILE;
             "switch"                  , SWITCH;
             "case"                    , CASE;
-            "sdefault"                , SDEFAULT;
+            "default"                 , DEFAULT;
 
             (* General operators *)
             "ite"                     , ITE;

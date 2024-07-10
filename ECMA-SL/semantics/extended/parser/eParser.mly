@@ -37,14 +37,13 @@
 (* ========== Language tokens ========== *)
 
 %token NULL NONE
-%token IMPORT MACRO
-%token PRINT RETURN DELETE LAMBDA
+%token IMPORT TYPEDEF FUNCTION MACRO
+%token PRINT RETURN DELETE EXTERN LAMBDA
 %token ASSERT FAIL THROW CATCH
-%token FUNCTION EXTERN
 %token IF ELSE
 %token WHILE FOREACH REPEAT UNTIL
-%token SWITCH CASE SDEFAULT
-%token MATCH WITH DEFAULT
+%token SWITCH CASE DEFAULT
+%token MATCH WITH
 
 (* ========== Symbol tokens ========== *)
 
@@ -68,7 +67,6 @@
 
 (* ========== Type system tokens ========== *)
 
-%token TYPEDEF
 %token TYPE_ANY, TYPE_UNKNOWN, TYPE_NEVER
 %token TYPE_UNDEFINED, TYPE_VOID
 %token TYPE_INT, TYPE_FLOAT, TYPE_STRING, TYPE_BOOLEAN TYPE_SYMBOL
@@ -233,7 +231,7 @@ let else_target := ELSE; ~ = stmt_target; <>
 
 let switch_case_target := CASE; ~ = expr_target; COLON; ~ = stmt_target; <>
 
-let switch_default_target := SDEFAULT; COLON; ~ = stmt_target; <>
+let switch_default_target := DEFAULT; COLON; ~ = stmt_target; <>
 
 let match_discrm_target := COLON; ~ = id_target; <>
 
