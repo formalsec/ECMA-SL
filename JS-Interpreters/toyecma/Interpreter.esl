@@ -147,7 +147,7 @@ function interpreter(scope, s) {
 			switch(op) {
 				case "++": 	{ updateExpr := { type: "AssignmentExpression", operator: "+=", left: arg, right: rightVal }; }
 				case "--": 	{ updateExpr := { type: "AssignmentExpression", operator: "-=", left: arg, right: rightVal }; }
-				sdefault: 	{ raiseError("Illegal update expression operator", op); }
+				default: 	{ raiseError("Illegal update expression operator", op); }
 			}
 			newVal := interpreter(scope, updateExpr);
 			@checkAbruptCompletion(newVal);
@@ -332,7 +332,7 @@ function applyUnaryOperator(op, v) {
 		case "-": return -v;
 		case "~": return ~v;
 		case "!": return !v;
-		sdefault: raiseError("Unsuported unary operator", op);
+		default: raiseError("Unsuported unary operator", op);
 	}
 }
 
@@ -358,7 +358,7 @@ function applyBinaryOperator(op, v1, v2) {
 		case "<=": return v1 <= v2;
 		case "===": return v1 = v2;
 		case "!==": return !(v1 = v2);
-		sdefault: raiseError("Unsuported binary operator", op);
+		default: raiseError("Unsuported binary operator", op);
 	}
 }
 

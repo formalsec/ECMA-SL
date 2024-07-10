@@ -24,7 +24,7 @@ function __NodeRequire(globalObject, this, newTarget, strict, params) {
       return createCrossSpawnObject(globalObject, objectPrototype, strict);
     case "gray-matter":
       return createCrossSpawnObject(globalObject, objectPrototype, strict);
-    sdefault: 
+    default: 
       return newLazyObject();
   }
 }
