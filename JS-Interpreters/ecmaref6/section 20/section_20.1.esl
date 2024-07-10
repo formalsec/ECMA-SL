@@ -642,7 +642,7 @@ function NumberPrototypeToString(global, this, NewTarget, strict, items) {
   if (radix = null)
     radixNumber := 10.;
   /* 4. Else if radix is undefined, let radixNumber be 10. */
-  elif (radix = 'undefined)
+  else if (radix = 'undefined)
     radixNumber := 10.;
   /* 5. Else let radixNumber be ToInteger(radix). */
   else

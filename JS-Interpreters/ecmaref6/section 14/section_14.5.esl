@@ -57,7 +57,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
       constructorParent := getFunctionPrototype(false);
     }
     /* 6f. Else if IsConstructor(superclass) is false, throw a TypeError exception. */
-    elif (IsConstructor(superclass) = false) {
+    else if (IsConstructor(superclass) = false) {
       throw TypeErrorConstructorInternal();
     /* 6g. Else */
     } else {
@@ -199,7 +199,7 @@ function getSeparateMethods(body) {
         constructor := e;
       else
         regularMethods := l_add (regularMethods, e);
-    } elif (e.type = "Property") {
+    } else if (e.type = "Property") {
       regularMethods := l_add (regularMethods, e);
     }
     i := i + 1;

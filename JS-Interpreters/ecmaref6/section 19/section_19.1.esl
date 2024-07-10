@@ -707,28 +707,28 @@ function ObjectPrototypeToString(globalObject, this, NewTarget, strict, params) 
   if (isArray = true)
     builtinTag := "Array";
   /* Else, if O is an exotic String object, let builtinTag be "String". */
-  elif (isStringExoticObject(O) = true ||| O.Class = "String")
+  else if (isStringExoticObject(O) = true ||| O.Class = "String")
     builtinTag := "String";
   /* Else, if O has an [[ParameterMap]] internal slot, let builtinTag be "Arguments". */
-  elif ("ParameterMap" in_obj O)
+  else if ("ParameterMap" in_obj O)
     builtinTag := "Arguments";
   /* Else, if O has a [[Call]] internal method, let builtinTag be "Function". */
-  elif ("Call" in_obj O)
+  else if ("Call" in_obj O)
     builtinTag := "Function";
   /* Else, if O has an [[ErrorData]] internal slot, let builtinTag be "Error". */
-  elif ("ErrorData" in_obj O)
+  else if ("ErrorData" in_obj O)
     builtinTag := "Error";
   /* Else, if O has a [[BooleanData]] internal slot, let builtinTag be "Boolean". */
-  elif ("BooleanData" in_obj O)
+  else if ("BooleanData" in_obj O)
     builtinTag := "Boolean";
   /* Else, if O has a [[NumberData]] internal slot, let builtinTag be "Number". */
-  elif ("NumberData" in_obj O)
+  else if ("NumberData" in_obj O)
     builtinTag := "Number";
   /* Else, if O has a [[DateValue]] internal slot, let builtinTag be "Date". */
-  elif ("DateValue" in_obj o)
+  else if ("DateValue" in_obj o)
     builtinTag := "Date";
   /* Else, if O has a [[RegExpMatcher]] internal slot, let builtinTag be "RegExp". */
-  elif ("Match" in_obj O) /* TODO mudar o nome da propriedade para RegExpMatcher */
+  else if ("Match" in_obj O) /* TODO mudar o nome da propriedade para RegExpMatcher */
     builtinTag := "RegExp";
   /* Else, let builtinTag be "Object". */
   else

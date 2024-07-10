@@ -491,7 +491,7 @@ function DefineOwnProperty(O, P, Desc, Throw) {
   /** 8. If IsGenericDescriptor(Desc) is true, then no further validation is required. */
   if (IsGenericPropertyDescriptor(Desc) = true);
   /** 9. Else, if IsDataDescriptor(current) and IsDataDescriptor(Desc) have different results, then: */
-  elif (!(IsDataPropertyDescriptor(current) = IsDataPropertyDescriptor(Desc))) {
+  else if (!(IsDataPropertyDescriptor(current) = IsDataPropertyDescriptor(Desc))) {
     /** a. Reject, if the [[Configurable]] field of current is false. */
     if (current.Configurable = false)
       @Reject(Throw);
@@ -511,7 +511,7 @@ function DefineOwnProperty(O, P, Desc, Throw) {
     }
   }
   /** 10. Else, if IsDataDescriptor(current) and IsDataDescriptor(Desc) are both true, then: */
-  elif ((IsDataPropertyDescriptor(current) = true) && (IsDataPropertyDescriptor(Desc) = true)) {
+  else if ((IsDataPropertyDescriptor(current) = true) && (IsDataPropertyDescriptor(Desc) = true)) {
     /** a. If the[[Configurable]] field of current is false, then: */
     if (current.Configurable = false) {
       /** i. Reject, if the[[Writable]] field of current is false and the [[Writable]] field of Desc is true. */

@@ -12,7 +12,7 @@ function getSortedPropertiesES6(internalSlotsList) {
     /* Only positive integer numbers are */
     if (!(is_NaN (num)) &&& (ToUint32(num) = num) &&& !(in_list(P, num_list)))
       num_list := l_add(num_list, P);
-    elif (!(in_list(P, str_list)))
+    else if (!(in_list(P, str_list)))
       str_list := l_add(str_list, P);
     i := i + 1;
   }
@@ -130,17 +130,17 @@ function unescapeJSONString(S) {
             throw SyntaxErrorConstructor(global, this, strict,
               ["JSON.parse: Invalid unicode escape sequence."]);
           }
-        } elif ((c2 = "\\") ||| (c2 = "/") ||| (c2 = "\"")) {
+        } else if ((c2 = "\\") ||| (c2 = "/") ||| (c2 = "\"")) {
           S2 := s_concat([S2, c2]);
-        } elif (c2 = "b") {
+        } else if (c2 = "b") {
           S2 := s_concat([S2, "\b"]);
-        } elif (c2 = "f") {
+        } else if (c2 = "f") {
           S2 := s_concat([S2, "\f"]);
-        } elif (c2 = "n") {
+        } else if (c2 = "n") {
           S2 := s_concat([S2, "\n"]);
-        } elif (c2 = "r") {
+        } else if (c2 = "r") {
           S2 := s_concat([S2, "\r"]);
-        } elif (c2 = "t") {
+        } else if (c2 = "t") {
           S2 := s_concat([S2, "\t"]);
         }
         i := i + 2;
@@ -168,12 +168,12 @@ function getTokens(global, this, strict, args) {
       i := i + 1;
     }
     /* structural tokens */
-    elif (in_list(c, structural_tokens)) {
+    else if (in_list(c, structural_tokens)) {
       tokens := l_add(tokens, c);
       i := i + 1;
     }
     /* numbers */
-    elif ((c = "-") ||| isDigit(c)) {
+    else if ((c = "-") ||| isDigit(c)) {
       /**
        * JSON number regex: https://stackoverflow.com/a/13340826/3049315
        * -?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?
@@ -194,7 +194,7 @@ function getTokens(global, this, strict, args) {
       tokens := l_add(tokens, num);
     }
     /* Strings. */
-    elif (c = "\"") {
+    else if (c = "\"") {
       /**
        * JSON string regex: https://stackoverflow.com/a/32155765/3049315
        * "(\\(["\\\/bfnrt]|u[a-fA-F0-9]{4})|[^"\\\0-\x1F\x7F]+)*"
@@ -249,23 +249,23 @@ function parseJSONValue(global, this, strict, tokens) {
 
   if (token = "null") {
     return ['null, tokens];
-  } elif (token = "true") {
+  } else if (token = "true") {
     return [true, tokens];
-  } elif (token = "false") {
+  } else if (token = "false") {
     return [false, tokens];
-  } elif (!(is_NaN(ToNumber(token)))) {
+  } else if (!(is_NaN(ToNumber(token)))) {
     num := ToNumber(token);
     return [num, tokens];
-  } elif ((s_nth_u(token, 0)) = "\"") {
+  } else if ((s_nth_u(token, 0)) = "\"") {
     str := ToString(s_substr_u(token, 1, ((s_len_u (token)) - 2)));
     return [str, tokens];
-  } elif (token = "{") {
+  } else if (token = "{") {
     ret := findClosingCurlyBracket(tokens);
     obj_tokens := l_nth(ret, 0);
     tokens := l_nth(ret, 1);
     obj := parseJSONObject(global, this, strict, obj_tokens);
     return [obj, tokens];
-  } elif (token = "[") {
+  } else if (token = "[") {
     ret := findClosingSquareBracket(tokens);
     arr_tokens := l_nth(ret, 0);
     tokens := l_nth(ret, 1);
@@ -359,7 +359,7 @@ function findClosingCurlyBracket(tokens) {
     tokens := tl tokens;
     if (token = "{")
       bracketCounter := bracketCounter + 1;
-    elif (token = "}")
+    else if (token = "}")
       bracketCounter := bracketCounter - 1;
     if (bracketCounter > 0)
       obj_tokens := l_add (obj_tokens, token);
@@ -375,7 +375,7 @@ function findClosingSquareBracket(tokens) {
     tokens := tl tokens;
     if (token = "[")
       bracketCounter := bracketCounter + 1;
-    elif (token = "]")
+    else if (token = "]")
       bracketCounter := bracketCounter - 1;
     if (bracketCounter > 0)
       arr_tokens := l_add (arr_tokens, token);
@@ -752,11 +752,11 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
       value := ToNumber(value);
     }
     /* b. Else if the [[Class]] internal property of value is "String" then, */
-    elif (value.Class = "String") {
+    else if (value.Class = "String") {
       /* i. Let value be ToString(value). */
       value := ToString(value);
       /* c. Else if the [[Class]] internal property of value is "Boolean" then, */
-    } elif (value.Class = "Boolean") {
+    } else if (value.Class = "Boolean") {
       /* i. Let value be the value of the [[PrimitiveValue]] internal property of value. */
       value := value.PrimitiveValue;
     }
@@ -839,7 +839,7 @@ function Quote(value) {
       product := s_concat([product, C]);
     }
     /* b. Else if C is backspace, formfeed, newline, carriage return, or tab */
-    elif ((C = "\b") ||| (C = "\f") ||| (C = "\n") ||| (C = "\r") ||| (C = "\t")) {
+    else if ((C = "\b") ||| (C = "\f") ||| (C = "\n") ||| (C = "\r") ||| (C = "\t")) {
       /* i. Let product be the concatenation of product and the backslash character. */
       product := s_concat([product, "\\"]);
       /* ii. Let abbrev be the character corresponding to the value of C as follows: */
@@ -850,13 +850,13 @@ function Quote(value) {
         /*  tab              "t" */
       if (C = "\b")
         abbrev := "b";
-      elif (C = "\f")
+      else if (C = "\f")
         abbrev := "f";
-      elif (C = "\n")
+      else if (C = "\n")
         abbrev := "n";
-      elif (C = "\r")
+      else if (C = "\r")
         abbrev := "r";
-      elif (C = "\t")
+      else if (C = "\t")
         abbrev := "t";
       /* iii. Let product be the concatenation of product and abbrev. */
       product := s_concat([product, abbrev]);
@@ -864,7 +864,7 @@ function Quote(value) {
     /* ES5: c. Else if C is a control character having a code unit value less than the space character */
     /* ES 2019: Else if C has a numeric value less than 0x0020 (SPACE), or
        if C has the same numeric value as a leading surrogate or trailing surrogate, then */
-    elif ((C_code < 32) ||| isUnicodeSurrogate(C_code)) {
+    else if ((C_code < 32) ||| isUnicodeSurrogate(C_code)) {
       /* i. Let product be the concatenation of product and the backslash character. */
       product := s_concat([product, "\\"]);
       /* ii. Let product be the concatenation of product and "u". */

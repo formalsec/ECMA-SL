@@ -5,7 +5,7 @@ macro ReturnIfAbrupt (argument) {
 
   if (!(Type(argument) = "Completion"))
     ;
-  elif (isAnAbruptCompletion(argument))
+  else if (isAnAbruptCompletion(argument))
     /* 1. If argument is an abrupt completion, return argument. */
     return argument;
   else

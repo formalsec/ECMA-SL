@@ -270,7 +270,7 @@ function PutValue(V, W) {
         return Set(globalObj, GetReferencedName(V), W, false);
     }
     /* Else if IsPropertyReference(V), then */
-    elif ( IsPropertyReference(V) ) {
+    else if ( IsPropertyReference(V) ) {
         /* If HasPrimitiveBase(V) is true, then */
         if ( HasPrimitiveBase(V) = true ) {
             /* Assert: In this case, base will never be null or undefined. */

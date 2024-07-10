@@ -12,7 +12,7 @@ function sortProprtiesES6(internalSlotsList) {
     /* Only positive integer numbers are */
     if (!(num = NaN) &&& (ToUint32(num) = num) &&& !(in_list(P, num_list))) {
       num_list := l_add(num_list, P);
-    } elif (!(in_list(P, str_list))) {
+    } else if (!(in_list(P, str_list))) {
       str_list := l_add(str_list, P);
     }
     i := i + 1;
@@ -136,17 +136,17 @@ function unescapeJSONString(S) {
           } else {
             throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, ["JSON.parse: Invalid unicode escape sequence."]);
           }
-        } elif ((c2 = "\\") ||| (c2 = "/") ||| (c2 = "\""))
+        } else if ((c2 = "\\") ||| (c2 = "/") ||| (c2 = "\""))
           S2 := s_concat([S2, c2]);
-        elif (c2 = "b")
+        else if (c2 = "b")
           S2 := s_concat([S2, "\b"]);
-        elif (c2 = "f")
+        else if (c2 = "f")
           S2 := s_concat([S2, "\f"]);
-        elif (c2 = "n")
+        else if (c2 = "n")
           S2 := s_concat([S2, "\n"]);
-        elif (c2 = "r")
+        else if (c2 = "r")
           S2 := s_concat([S2, "\r"]);
-        elif (c2 = "t")
+        else if (c2 = "t")
           S2 := s_concat([S2, "\t"]);
         i := i + 2;
       }
@@ -175,12 +175,12 @@ function getTokens(global, this, NewTarget, strict, args) {
       i := i + 1;
     }
     /* structural tokens */
-    elif (in_list(c, structural_tokens)) {
+    else if (in_list(c, structural_tokens)) {
       tokens := l_add(tokens, c);
       i := i + 1;
     }
     /* numbers */
-    elif ((c = "-") ||| isDigit(c)) {
+    else if ((c = "-") ||| isDigit(c)) {
       /**
        * JSON number regex: https://stackoverflow.com/a/13340826/3049315
        * -?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?
@@ -202,7 +202,7 @@ function getTokens(global, this, NewTarget, strict, args) {
       tokens := l_add(tokens, num);
     }
     /* Strings. */
-    elif (c = "\"") {
+    else if (c = "\"") {
       /**
        * JSON string regex: https://stackoverflow.com/a/32155765/3049315
        * "(\\(["\\\/bfnrt]|u[a-fA-F0-9]{4})|[^"\\\0-\x1F\x7F]+)*"
@@ -260,23 +260,23 @@ function parseJSONValue(global, this, NewTarget, strict, tokens) {
 
   if (token = "null") {
     return ['null, tokens];
-  } elif (token = "true") {
+  } else if (token = "true") {
     return [true, tokens];
-  } elif (token = "false") {
+  } else if (token = "false") {
     return [false, tokens];
-  } elif (!(ToNumber(token) = NaN)) {
+  } else if (!(ToNumber(token) = NaN)) {
     num := ToNumber(token);
     return [num, tokens];
-  } elif ((s_nth_u(token, 0)) = "\"") {
+  } else if ((s_nth_u(token, 0)) = "\"") {
     str := ToString(s_substr_u(token, 1, ((s_len_u (token)) - 2)));
     return [str, tokens];
-  } elif (token = "{") {
+  } else if (token = "{") {
     ret := findClosingCurlyBracket(tokens);
     obj_tokens := l_nth(ret, 0);
     tokens := l_nth(ret, 1);
     obj := parseJSONObject(global, this, 'undefined, strict, obj_tokens);
     return [obj, tokens];
-  } elif (token = "[") {
+  } else if (token = "[") {
     ret := findClosingSquareBracket(tokens);
     arr_tokens := l_nth(ret, 0);
     tokens := l_nth(ret, 1);
@@ -355,7 +355,7 @@ function findClosingCurlyBracket(tokens) {
     tokens := tl tokens;
     if (token = "{")
       bracketCounter := bracketCounter + 1;
-    elif (token = "}")
+    else if (token = "}")
       bracketCounter := bracketCounter - 1;
     if (bracketCounter > 0)
       obj_tokens := l_add (obj_tokens, token);
@@ -371,7 +371,7 @@ function findClosingSquareBracket(tokens) {
     tokens := tl tokens;
     if (token = "[")
       bracketCounter := bracketCounter + 1;
-    elif (token = "]")
+    else if (token = "]")
       bracketCounter := bracketCounter - 1;
     if (bracketCounter > 0)
       arr_tokens := l_add (arr_tokens, token);
@@ -607,11 +607,11 @@ function jsonStringify(global, this, NewTarget, strict, args) {
             item := v;
           }
           /* e. Else if Type(v) is Number, let item be ToString(v). */
-          elif (Type(v) = "Number") {
+          else if (Type(v) = "Number") {
             item := ToString(v);
           }
           /* f. Else if Type(v) is Object, then */
-          elif (Type(v) = "Object") {
+          else if (Type(v) = "Object") {
             /* i. If v has a [[StringData]] or [[NumberData]] internal slot, let item be ToString(v). */
             if (("StringData" in_obj v) ||| ("NumberData" in_obj v)) {
               item := ToString(v);
@@ -758,13 +758,13 @@ function SerializeJSONProperty(key, holder, stack, indent, gap, PropertyList, sp
       @ReturnIfAbrupt(value);
     }
     /* b. Else if value has a [[StringData]] internal slot, then*/
-    elif ("StringData" in_obj value) {
+    else if ("StringData" in_obj value) {
       /* i. Let value be ToString(value). */
       value := ToString(value);
       /* ii. ReturnIfAbrupt(value). */
       @ReturnIfAbrupt(value);
       /* c. Else if value has a [[BooleanData]] internal slot, then */
-    } elif ("BooleanData" in_obj value) {
+    } else if ("BooleanData" in_obj value) {
       /* i. Let value be the value of the [[BooleanData]] internal slot of value. */
       value := value.BooleanData;
     }
@@ -843,7 +843,7 @@ function QuoteJSONString(value) {
       /* ii. Let product be the concatenation of product and C. */
       product := s_concat([product, C]);
     /* Else if C is 0x0008 (BACKSPACE), 0x000C (FORM FEED), 0x000A (LINE FEED), 0x000D( CARRIAGE RETURN), or 0x000B (LINE TABULATION), then */
-    } elif ((C = "\b") ||| (C = "\f") ||| (C = "\n") ||| (C = "\r") ||| (C = "\t")) {
+    } else if ((C = "\b") ||| (C = "\f") ||| (C = "\n") ||| (C = "\r") ||| (C = "\t")) {
       /* i. Let product be the concatenation of product and code unit 0x005C (REVERSE SOLIDUS). */
       product := s_concat([product, "\\"]);
       /* ii. Let abbrev be the String value corresponding to the value of C as follows:
@@ -854,18 +854,18 @@ function QuoteJSONString(value) {
         /* LINE TABULATION 	    "t" */
       if (C = "\b")
         abbrev := "b";
-      elif (C = "\f")
+      else if (C = "\f")
         abbrev := "f";
-      elif (C = "\n")
+      else if (C = "\n")
         abbrev := "n";
-      elif (C = "\r")
+      else if (C = "\r")
         abbrev := "r";
-      elif (C = "\t")
+      else if (C = "\t")
         abbrev := "t";
       /* iii. Let product be the concatenation of product and abbrev. */
       product := s_concat([product, abbrev]);
     /* Else if C has a code unit value less than 0x0020 (SPACE), then  */
-    } elif (C_code < 32) {
+    } else if (C_code < 32) {
       /* i. Let product be the concatenation of product and and code unit 0x005C (REVERSE SOLIDUS). */
       product := s_concat([product, "\\"]);
       /* ii. Let product be the concatenation of product and "u". */

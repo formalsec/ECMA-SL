@@ -40,7 +40,7 @@ function ArrayDefineOwnProperty(A, P, Desc) {
     return ArraySetLength(A, Desc);
   }
   /* 3. Else if P is an array index, then */
-  elif (IsArrayIndex(P)) {
+  else if (IsArrayIndex(P)) {
     /* a. Let oldLenDesc be OrdinaryGetOwnProperty(A, "length"). */
     oldLenDesc := OrdinaryGetOwnProperty(A, "length");
     /* b. Assert: oldLenDesc will never be undefined or an accessor descriptor
@@ -478,12 +478,12 @@ function OwnPropertyKeysString(O) {
       numbers := l_add(numbers, P);
 
     /* For each own property key P of O that is a String but is not an integer index, in property creation order */
-    elif (Type(P) = "String" &&& !(Type(P) = "Number") &&& in_list(P, obj_fields O.JSProperties))
+    else if (Type(P) = "String" &&& !(Type(P) = "Number") &&& in_list(P, obj_fields O.JSProperties))
         /* Add P as the last element of keys. */
         strings := l_add(strings, P);
 
     /* For each own property key P of O that is a Symbol, in property creation order */
-    elif (in_list(P, (obj_fields O.SymbolKeys))) {
+    else if (in_list(P, (obj_fields O.SymbolKeys))) {
       /* Add P as the last element of keys. */
       symbols := l_add(symbols, O.SymbolKeys[P]);
     }

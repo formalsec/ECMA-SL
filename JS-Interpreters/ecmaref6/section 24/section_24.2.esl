@@ -109,7 +109,7 @@ function DataViewConstructor(global, this, NewTarget, strict, args) {
     byteOffset := 0.;
     byteLength := 'undefined;
   }
-  elif (byteLength = null) {
+  else if (byteLength = null) {
     byteLength := 'undefined;
   }
   /* 1. If NewTarget is undefined, */

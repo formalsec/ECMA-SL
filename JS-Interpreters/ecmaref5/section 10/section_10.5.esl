@@ -59,7 +59,7 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
     if (funcAlreadyDeclared = false)
       CreateMutableBinding(env, fn, configurableBindings);
     /* e. Else if env is the environment record component of the global environment then */
-    elif (env = |global|) {
+    else if (env = |global|) {
       /* i. Let go be the global object. */
       go := |global|;
       /* ii. Let existingProp be the resulting of calling the [[GetProperty]] internal method of go with
@@ -73,7 +73,7 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
         {go.DefineOwnProperty}(go, fn, newDataPropertyDescriptorFull('undefined, true, true, configurableBindings), true);
       /* iv. Else if IsAccessorPropertyDescriptor(existingProp) or existingProp does not have attribute values
               {[[Writable]]: true, [[Enumerable]]: true}, then */
-      elif (IsAccessorPropertyDescriptor(existingProp) || !(existingProp.Writable && existingProp.Enumerable))
+      else if (IsAccessorPropertyDescriptor(existingProp) || !(existingProp.Writable && existingProp.Enumerable))
         /* 1. Throw a TypeError exception. */
         throw TypeErrorConstructorInternal();
     }

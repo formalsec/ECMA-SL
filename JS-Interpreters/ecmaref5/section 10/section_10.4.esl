@@ -109,10 +109,10 @@ function EnteringFunctionCode(F, thisArg, argumentsList) {
   if (isStrictModeCode(getFunctionCode(F), functionExecCtx))
     setThisBinding(functionExecCtx, thisArg);
   /* 2. Else if thisArg is null or undefined, set the ThisBinding to the global object. */
-  elif ((thisArg = 'null) || (thisArg = 'undefined))
+  else if ((thisArg = 'null) || (thisArg = 'undefined))
     setThisBinding(functionExecCtx, |global|);
   /* 3. Else if Type(thisArg) is not Object, set the ThisBinding to ToObject(thisArg). */
-  elif (!(Type(thisArg) = "Object"))
+  else if (!(Type(thisArg) = "Object"))
     setThisBinding(functionExecCtx, ToObject(thisArg));
   /* 4. Else set the ThisBinding to thisArg. */
   else
