@@ -14,7 +14,7 @@ and t' =
   | GAssign of Id.t * EExpr.t
   | FieldAssign of EExpr.t * EExpr.t * EExpr.t
   | FieldDelete of EExpr.t * EExpr.t
-  | If of (EExpr.t * t * region) list * t option
+  | If of (EExpr.t * t * region) * t option
   | While of EExpr.t * t
   | ForEach of Id.t * EExpr.t * t
   | RepeatUntil of t * (EExpr.t * region) option
@@ -46,14 +46,11 @@ let rec pp (ppf : Fmt.t) (s : t) : unit =
   | FieldAssign (oe, fe, e) ->
     format ppf "%a[%a] := %a" EExpr.pp oe EExpr.pp fe EExpr.pp e
   | FieldDelete (oe, fe) -> format ppf "delete %a[%a]" EExpr.pp oe EExpr.pp fe
-  | If ([], _) -> Log.fail "expecting non-empty if cases"
-  | If (ifcs :: elifcss, elsecs) ->
+  | If (ifcs, elsecs) ->
     let pp_case ppf (e, s) = format ppf "(%a) %a" EExpr.pp e pp s in
     let pp_if ppf (e, s, _) = format ppf "if %a" pp_case (e, s) in
-    let pp_elif ppf (e, s, _) = format ppf " elif %a" pp_case (e, s) in
     let pp_else ppf s = format ppf " else %a" pp s in
-    format ppf "%a%a%a" pp_if ifcs (pp_lst !>"" pp_elif) elifcss
-      (pp_opt pp_else) elsecs
+    format ppf "%a%a" pp_if ifcs (pp_opt pp_else) elsecs
   | While (e, s') -> format ppf "while (%a) %a" EExpr.pp e pp s'
   | ForEach (x, e, s') ->
     format ppf "foreach (%a : %a) %a" Id.pp x EExpr.pp e pp s'
@@ -106,7 +103,7 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = EExpr.Mapper.id) (mapper : t -> t)
   | If (ifcss, elsecs) ->
     let map_ifcs (e, s, at) = (emapper e, map' s, at) in
     let map_elsecs s = map' s in
-    If (List.map map_ifcs ifcss, Option.map map_elsecs elsecs)
+    If (map_ifcs ifcss, Option.map map_elsecs elsecs)
   | While (e, s') -> While (emapper e, map' s')
   | ForEach (x, e, s') -> ForEach (id_mapper x, emapper e, map' s')
   | RepeatUntil (s', until) ->
@@ -136,10 +133,10 @@ let rec to_list ?(recursion : bool = false) (to_list_f : t -> 'a list) (s : t) :
       []
     | Debug s' -> to_list_s s'
     | Block ss -> to_list_ss ss
-    | If (ifcss, elsecs) ->
+    | If (ifcs, elsecs) ->
       to_list_ss
-        ( List.map (fun (_, s, _) -> s) ifcss
-        @ Option.fold ~none:[] ~some:(fun s -> [ s ]) elsecs )
+        ( (fun (_, s, _) -> s) ifcs
+        :: Option.fold ~none:[] ~some:(fun s -> [ s ]) elsecs )
     | While (_, s') -> to_list_s s'
     | ForEach (_, _, s') -> to_list_s s'
     | RepeatUntil (s', _) -> to_list_s s'

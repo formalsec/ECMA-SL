@@ -35,7 +35,7 @@
 
 %token NULL
 %token PRINT RETURN DELETE
-%token FAIL ASSERT
+%token ASSERT FAIL
 %token FUNCTION EXTERN
 %token IF ELSE
 %token WHILE
