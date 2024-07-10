@@ -17069,7 +17069,7 @@ Tests compilation of ecmaref6:
         return [false, __v3212]
       }
     }
-  sdefault: {
+  default: {
       print e
     }
   }
@@ -42760,7 +42760,7 @@ Tests compilation of ecmaref6:
         return [false, IdentifierName]
       }
     }
-  sdefault: {
+  default: {
       __v8390 := "JS_Interpreter_Expr"(___internal_esl_global, PropertyName, scope);
       if (hd(__v8390)) {
         return __v8390
@@ -65958,7 +65958,7 @@ Tests compilation of ecmaref6:
       };
       return [false, __v12728]
     }
-  sdefault: {
+  default: {
       return [true, "Job not implemented."]
     }
   };
@@ -83507,7 +83507,7 @@ Tests compilation of ecmaref6:
       };
       return [false, __v16139]
     }
-  sdefault: {
+  default: {
       fail "Statement not matched"
     }
   }
@@ -101914,7 +101914,7 @@ Tests compilation of ecmaref6:
             }
           }
         }
-  sdefault: {
+  default: {
           LeftHandSideExpression := lhsExpr_or_VarDecl;
           __v19888 := [];
           __v19889 := "ForIn_OfHeadEvaluation"(___internal_esl_global, __v19888, AssignmentExpression, "enumerate", scope);
@@ -102296,7 +102296,7 @@ Tests compilation of ecmaref6:
             }
           }
         }
-  sdefault: {
+  default: {
           LeftHandSideExpression := lhsExpr_or_VarDecl;
           __v19918 := [];
           __v19919 := "ForIn_OfHeadEvaluation"(___internal_esl_global, __v19918, AssignmentExpression, "iterate", scope);
