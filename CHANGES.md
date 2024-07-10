@@ -31,12 +31,14 @@ type t =
 ```
 - Bitwise operators defined over integers.
 
-- The semicolon `;` usage was improved in the `.esl` syntax
-  - Imports/typedefs/simple statements terminate a semicolon
-  - Functions/compound statements don't terminate with a semicolon
-  - A lonely semicolon results in the `skip` statement
+- The semicolon `;` usage was improved in the `.esl` syntax:
+  - Imports/typedefs/simple statements terminate a semicolon;
+  - Functions/compound statements don't terminate with a semicolon;
+  - A lonely semicolon results in the `skip` statement.
 
-- Remove the `elif` keyword from the `.esl` syntax (replaced by the `else if` clause)
+- Remove the `elif` keyword from the `.esl` syntax (replaced by the `else if` clause).
+
+- Replace the `sdefault` keyword by the `default` keyword (now used in both switch and match-with statements).
 
 ### Fixed
 
