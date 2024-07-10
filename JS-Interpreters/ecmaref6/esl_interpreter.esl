@@ -3527,7 +3527,7 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
         status := lhsRef;
       }
       /* ii. Else if lhsKind is lexicalBinding, then */
-      elif (lhsKind = "lexicalBinding") {
+      else if (lhsKind = "lexicalBinding") {
         /* 1. Let status be InitializeReferencedBinding(lhsRef, nextValue). */
         status := InitializeReferencedBinding(lhsRef, nextValue);
       }
@@ -3547,7 +3547,7 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
         status := DestructuringAssignmentEvaluation(assignmentPattern, nextValue, scope);
       }
       /* ii. Else if lhsKind is varBinding, then */
-      elif (lhsKind = "varBinding") {
+      else if (lhsKind = "varBinding") {
         /* 1. Assert: lhs is a ForBinding. */
         assert (lhs.type = "VariableDeclarator" && lhs.kind ="var");
         /* 2. Let status be the result of performing BindingInitialization for lhs passing nextValue and undefined as the arguments. */

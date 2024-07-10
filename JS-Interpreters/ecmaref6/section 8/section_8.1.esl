@@ -395,7 +395,7 @@ function SetMutableBindingDeclarativeRecord(envRec, N, V, S) {
 	if (isUninitialisedBinding(envRec, N))
 		throw ReferenceErrorConstructorInternal();
 	/* Else if the binding for N in envRec is a mutable binding, change its bound value to V. */
-	elif (isMutableBinding(envRec, N))
+	else if (isMutableBinding(envRec, N))
 		setBindingValue(envRec, N, V);
 	/* Else this must be an attempt to change the value of an immutable binding so if S is true throw a TypeError exception. */
 	else {

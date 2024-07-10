@@ -39,7 +39,7 @@ function lazyToPrimitive(globalObject, this, NewTarget, strict, params) {
   hint := l_nth(params, 0);
   if (hint = "string" ||| hint = "default") {
     return extern str_symbol("");
-  } elif (hint = "number") {
+  } else if (hint = "number") {
     return extern flt_symbol("");
   } else {
     print s_concat ["lazyToPrimitive: invalid hint: '", hint, "'"];

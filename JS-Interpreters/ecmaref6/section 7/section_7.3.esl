@@ -351,7 +351,7 @@ function SetIntegrityLevel(O, level) {
 	}
 
   /*Else level is "frozen", */
-	elif (level = "frozen") {
+	else if (level = "frozen") {
 	  /* Repeat for each element k of keys, */
 		foreach (k : keys) {
     	/* Let currentDesc be O.[[GetOwnProperty]](k). */

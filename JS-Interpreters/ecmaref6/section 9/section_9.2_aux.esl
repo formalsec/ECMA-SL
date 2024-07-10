@@ -162,7 +162,7 @@ function BindingInitializationObjectPattern(param, value, environment) {
         @ReturnIfAbrupt(status);
         /* Initialize the remaining keys on that object */
         restElementObjectInitializer(property.argument, value, environment, initialized_keys);
-      } elif (argument.type = "ObjectPattern") {
+      } else if (argument.type = "ObjectPattern") {
         /* if the rest element is an object pattern, we just call the function recursively */
         BindingInitializationObjectPattern(argument, value, environment);
       }

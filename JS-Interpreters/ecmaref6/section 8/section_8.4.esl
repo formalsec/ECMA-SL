@@ -108,7 +108,7 @@ function NextJob(result) {
     if ( !(l_len(|ScriptJobQueue|) = 0 ) ) {
       nextPending := hd |ScriptJobQueue|;
       |ScriptJobQueue| := tl |ScriptJobQueue|;
-    } elif ( !(l_len(|PromiseJobQueue|) = 0) ) {
+    } else if ( !(l_len(|PromiseJobQueue|) = 0) ) {
       nextPending := hd |PromiseJobQueue|;
       |PromiseJobQueue| := tl |PromiseJobQueue|;
     } else {

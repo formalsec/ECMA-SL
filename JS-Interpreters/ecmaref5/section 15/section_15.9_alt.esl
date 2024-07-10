@@ -67,7 +67,7 @@ function TimeWithinDay(t) { return (t % |msPerDay|); }
 function DaysInYear(y) {
    if ((!(y % 4. = 0.)) || (((y % 100. ) = 0.) &&& !((y % 400.) = 0.)))
       return 365.;
-   elif (((y % 4.) = 0. &&& !((y % 100.) = 0.)) || (y % 400.) = 0.)
+   else if (((y % 4.) = 0. &&& !((y % 100.) = 0.)) || (y % 400.) = 0.)
      return 366.;
 }
 
@@ -120,7 +120,7 @@ function YearFromTime(t) {
 function InLeapYear(t) {
    if (DaysInYear(YearFromTime(t)) = 365.)
       return 0.;
-   elif (DaysInYear(YearFromTime(t)) = 366.)
+   else if (DaysInYear(YearFromTime(t)) = 366.)
       return 1.;
 }
 
@@ -149,29 +149,29 @@ function InLeapYear(t) {
 function MonthFromTime(t) {
    if (0. <= DayWithinYear(t) &&& DayWithinYear(t) < 31.)
       return 0.;
-   elif (31. <= DayWithinYear(t) &&& DayWithinYear(t) < 59. + InLeapYear(t))
+   else if (31. <= DayWithinYear(t) &&& DayWithinYear(t) < 59. + InLeapYear(t))
       return 1.;
-   elif (59. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t) < 90. + InLeapYear(t))
+   else if (59. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t) < 90. + InLeapYear(t))
       return 2.;
-   elif (90. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t) < 120. + InLeapYear(t))
+   else if (90. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t) < 120. + InLeapYear(t))
       return 3.;
-   elif (120. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t) < 151. + InLeapYear(t))
+   else if (120. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t) < 151. + InLeapYear(t))
       return 4.;
-   elif (151. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t) < 181. + InLeapYear(t))
+   else if (151. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t) < 181. + InLeapYear(t))
       return 5.;
-   elif (181. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 212. + InLeapYear(t))
+   else if (181. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 212. + InLeapYear(t))
       return 6.;
-   elif (212. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 243. + InLeapYear(t))
+   else if (212. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 243. + InLeapYear(t))
       return 7.;
-   elif (243. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 273. + InLeapYear(t))
+   else if (243. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 273. + InLeapYear(t))
       return 8.;
-   elif (273. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 304. + InLeapYear(t))
+   else if (273. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 304. + InLeapYear(t))
       return 9.;
-   elif (304. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 334. + InLeapYear(t))
+   else if (304. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 334. + InLeapYear(t))
       return 10.;
-   elif (334. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 365. + InLeapYear(t))
+   else if (334. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 365. + InLeapYear(t))
       return 11.;
-   elif (is_NaN (t)) /* TODO provisorio*/
+   else if (is_NaN (t)) /* TODO provisorio*/
      return NaN;
 }
 
@@ -205,29 +205,29 @@ function DateFromTime(t) {
 
   if (MonthFromTime = 0.)
      return DayWithinYear + 1.;
-  elif (MonthFromTime = 1.)
+  else if (MonthFromTime = 1.)
      return DayWithinYear - 30.;
-  elif (MonthFromTime = 2.)
+  else if (MonthFromTime = 2.)
      return DayWithinYear - 58. - InLeapYear;
-  elif (MonthFromTime = 3.)
+  else if (MonthFromTime = 3.)
      return DayWithinYear - 89. - InLeapYear;
-  elif (MonthFromTime = 4.)
+  else if (MonthFromTime = 4.)
      return DayWithinYear - 119. - InLeapYear;
-  elif (MonthFromTime = 5.)
+  else if (MonthFromTime = 5.)
      return DayWithinYear - 150. - InLeapYear;
-  elif (MonthFromTime = 6.)
+  else if (MonthFromTime = 6.)
      return DayWithinYear - 180. - InLeapYear;
-  elif (MonthFromTime = 7.)
+  else if (MonthFromTime = 7.)
      return DayWithinYear - 211. - InLeapYear;
-  elif (MonthFromTime = 8.)
+  else if (MonthFromTime = 8.)
      return DayWithinYear - 242. - InLeapYear;
-  elif (MonthFromTime = 9.)
+  else if (MonthFromTime = 9.)
      return DayWithinYear - 272. - InLeapYear;
-  elif (MonthFromTime = 10.)
+  else if (MonthFromTime = 10.)
      return DayWithinYear - 303. - InLeapYear;
-  elif (MonthFromTime = 11.)
+  else if (MonthFromTime = 11.)
      return DayWithinYear - 333. - InLeapYear;
-  elif (is_NaN (MonthFromTime))
+  else if (is_NaN (MonthFromTime))
     return NaN; /* TODO provisorio */
 }
 
@@ -530,9 +530,9 @@ function newDateConstructor(global, this, strict, args) {
    numberOfArgs := l_len(args);
    if (numberOfArgs >= 2)
       return dateConstructorMultipleArgs(global, this, strict, args);
-   elif (numberOfArgs = 0)
+   else if (numberOfArgs = 0)
       return dateConstructorNoArgs(global, this, strict, args);
-   elif (numberOfArgs = 1)
+   else if (numberOfArgs = 1)
       return dateConstructorOneArg(global, this, strict, args);
 }
 

@@ -29,7 +29,7 @@ function is_inf(n : float) : boolean {
 function to_int(n : float) : float {
   if (is_NaN(n))
     return 0.0;
-  elif (n = 0.0 || is_inf(n))
+  else if (n = 0.0 || is_inf(n))
     return n;
   sign := (n < 0.0) ? -(1.0) : 1.0;
   return sign * (floor (abs n));

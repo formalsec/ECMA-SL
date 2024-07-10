@@ -347,7 +347,7 @@ function FunctionInitialize(F, kind, ParameterList, Body, Scope) {
     /* set the [[ThisMode]] internal slot of F to lexical */
     F.ThisMode := "lexical";
   /* 10. Else if Strict is true, */
-  elif (Strict = true)
+  else if (Strict = true)
     /* set the [[ThisMode]] internal slot of F to strict */
     F.ThisMode := "strict";
   /* 11. Else set the [[ThisMode]] internal slot of F to global. */
@@ -626,11 +626,11 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
     /* a. NOTE Arrow functions never have an arguments objects. */
     /* b. Let argumentsObjectNeeded be false. */
     argumentsObjectNeeded := false;
-  } elif (argumentsInArray(parameterNames) = true) {
+  } else if (argumentsInArray(parameterNames) = true) {
     /* 19. Else if "arguments" is an element of parameterNames, then */
     /* a. Let argumentsObjectNeeded be false. */
     argumentsObjectNeeded := false;
-  } elif (hasParameterExpressions = false) {
+  } else if (hasParameterExpressions = false) {
     /* 20. Else if hasParameterExpressions is false, then */
     /* a. If "arguments" is an element of functionNames or if "arguments" is an
           element of lexicalNames, then */
@@ -918,7 +918,7 @@ function ExpectedArgumentCount(paramsDetails) {
   foreach (param: paramsDetails) {
     if (param.type = "Identifier")
       count := count + 1;
-    elif (param.type = "AssignmentPattern")
+    else if (param.type = "AssignmentPattern")
       return count;
   }
   return count;

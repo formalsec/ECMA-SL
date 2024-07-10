@@ -482,7 +482,7 @@ function MapIteratorPrototypeNext(global, this, NewTarget, strict, args) {
     if (!(e.key = 'empty)) {
       if (itemKind = "key") {
         result := e.key;
-      } elif (itemKind = "value") {
+      } else if (itemKind = "value") {
         result := e.value;
       } else {
         /* Assert: itemKind is "key+value".*/

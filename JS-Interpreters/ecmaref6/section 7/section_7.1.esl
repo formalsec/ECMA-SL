@@ -66,7 +66,7 @@ function ToPrimitive(input, PreferredType) {
 			if ( PreferredType = null )
 				hint := "default";
     		/* Else if PreferredType is hint String, let hint be "string". */
-			elif ( PreferredType = 'String )
+			else if ( PreferredType = 'String )
 				hint := "string";
     		/* Else PreferredType is hint Number, let hint be "number". */
 			else

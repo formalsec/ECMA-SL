@@ -73,7 +73,7 @@ macro IfAbruptRejectPromise(value, capability) {
     /* c. Return capability.[[Promise]]. */
     return capability.Promise;
   /* 2. Else if value is a Completion Record, */
-  } elif (isCompletionRecord(value)) {
+  } else if (isCompletionRecord(value)) {
     /* let value be value.[[value]] */
     value := getCompletionValue(value);
   }
@@ -427,7 +427,7 @@ function PromiseReactionJob(reaction, argument) {
     /* let handlerResult be NormalCompletion(argument) */
     handlerResult := NormalCompletion(argument);
   /* 5. Else if handler is "Thrower", */
-  elif (handler = "Thrower")
+  else if (handler = "Thrower")
     /* let handlerResult be Completion{[[type]]: throw, [[value]]: argument, [[target]]: empty} */
     handlerResult := throwEmptyCompletion(argument);
   /* 6. Else, */
@@ -1131,13 +1131,13 @@ function PerformPromiseThen(promise, onFulfilled, onRejected, resultCapability) 
     /* b. Append rejectReaction as the last element of the List that is the value of promise's [[PromiseRejectReactions]] internal slot. */
     promise.PromiseRejectReactions := l_add(promise.PromiseRejectReactions, rejectReaction);
   /* 8. Else if the value of promise's [[PromiseState]] internal slot is "fulfilled", */
-  } elif (promise.PromiseState = "fulfilled") {
+  } else if (promise.PromiseState = "fulfilled") {
     /* a. Let value be the value of promise's [[PromiseResult]] internal slot. */
     value := promise.PromiseResult;
     /* b. Perform EnqueueJob("PromiseJobs", PromiseReactionJob, «‍fulfillReaction, value»). */
     EnqueueJob("PromiseJobs", "PromiseReactionJob", [fulfillReaction, value]);
   /* 9. Else if the value of promise's [[PromiseState]] internal slot is "rejected", */
-  } elif (promise.PromiseState = "rejected") {
+  } else if (promise.PromiseState = "rejected") {
     /* a. Let reason be the value of promise's [[PromiseResult]] internal slot. */
     reason := promise.PromiseResult;
     /* b. Perform EnqueueJob("PromiseJobs", PromiseReactionJob «‍rejectReaction, reason»). */

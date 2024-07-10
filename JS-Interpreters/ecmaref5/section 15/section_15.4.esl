@@ -839,7 +839,7 @@ function arrayReverse(global, this, strict, args) {
       {O.Put}(O, upperP, lowerValue, true);
     }
     /* i. Else if lowerExists is false and upperExists is true, then */
-    elif (lowerExists = false &&& upperExists = true) {
+    else if (lowerExists = false &&& upperExists = true) {
       /* i. Call the [[Put]] internal method of O with arguments lowerP,
             upperValue, and true . */
       {O.Put}(O, lowerP, upperValue, true);
@@ -848,7 +848,7 @@ function arrayReverse(global, this, strict, args) {
       {O.Delete}(O, upperP, true);
     }
     /* j. Else if lowerExists is true and upperExists is false, then */
-    elif (lowerExists = true &&& upperExists = false) {
+    else if (lowerExists = true &&& upperExists = false) {
       /* i. Call the [[Delete]] internal method of O, with arguments lowerP
             and true . */
       {O.Delete}(O, lowerP, true);
@@ -1094,10 +1094,10 @@ function arraySort(global, this, strict, args) {
       if (jValExists &&& jValNextExists) {
         {obj.Put}(obj, inext_str, jVal, true);
         {obj.Put}(obj, i_str, jValNext, true);
-      } elif (!jValExists &&& jValNextExists) {
+      } else if (!jValExists &&& jValNextExists) {
         {obj.Put}(obj, i_str, jValNext, true);
         {obj.Delete}(obj, inext_str, true);
-      } elif (jValExists &&& !jValNextExists) {
+      } else if (jValExists &&& !jValNextExists) {
         {obj.Put}(obj, inext_str, jVal, true);
         {obj.Delete}(obj, i_str, true);
       }
@@ -1331,7 +1331,7 @@ function arraySplice(global, this, strict, args) {
     }
   }
   /* 13. Else if itemCount > actualDeleteCount, then */
-  elif (itemCount > actualDeleteCount) {
+  else if (itemCount > actualDeleteCount) {
     /* a. Let k be (len - actualDeleteCount). */
     k := (len - actualDeleteCount);
     /* b. Repeat, while k > actualStart */
@@ -2446,7 +2446,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
     return true;
   }
   /* 4. Else if P is an array index (15.4), then */
-  elif (IsArrayIndex(P)) {
+  else if (IsArrayIndex(P)) {
     /* a. Let index be ToUint32(P). */
     index := ToUint32(P);
     /* b. Reject if index ≥ oldLen and oldLenDesc.[[Writable]] is false. */
