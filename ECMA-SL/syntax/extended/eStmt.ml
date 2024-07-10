@@ -59,7 +59,7 @@ let rec pp (ppf : Fmt.t) (s : t) : unit =
     format ppf "repeat %a%a" pp s' (pp_opt pp_until) until
   | Switch (e, css, dflt) ->
     let pp_case ppf (e, s) = format ppf "\ncase %a: %a" EExpr.pp e pp s in
-    let pp_default ppf s = format ppf "\nsdefault: %a" pp s in
+    let pp_default ppf s = format ppf "\ndefault: %a" pp s in
     format ppf "switch (%a) {%a%a\n}" EExpr.pp e (pp_lst !>"" pp_case) css
       (pp_opt pp_default) dflt
   | MatchWith (e, dsc, css) ->
