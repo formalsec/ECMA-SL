@@ -551,7 +551,7 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
     }
   }
   /* 10. Else, if type is "Float64" */
-  elif (type = "Float64") {
+  else if (type = "Float64") {
     /* a. Set rawBytes to a List containing the 8 bytes that are the IEEE 754-2008 binary64
     format encoding of value. */
     /* If isLittleEndian is false */

@@ -281,7 +281,7 @@ function RegExpConstructor(externalScope, ref, F, args, NewTarget) {
         F := flags;
   }
   /* 6. Else if patternIsRegExp is true, then */
-  elif (patternIsRegExp = true) {
+  else if (patternIsRegExp = true) {
     /* a. Let P be Get(pattern, "source"). */
     P := Get(pattern, "source");
     /* b. ReturnIfAbrupt(P). */
@@ -655,7 +655,7 @@ function RegExpBuiltinExec(R, S) {
     if (captureI = 'undefined) {
       capturedValue := 'undefined;
     /* c. Else if fullUnicode is true, */
-    } elif (fullUnicode = true) {
+    } else if (fullUnicode = true) {
       print "unicode!!!!";
       capturedValue := captureI;
       /* i. Assert: captureI is a List of code points. */

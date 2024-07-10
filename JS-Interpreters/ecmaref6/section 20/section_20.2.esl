@@ -594,7 +594,7 @@ function MathFRound(globalObject, this, NewTarget, strict, params) {
   if (is_NaN (x))
     return NaN;
   /* 2. If x is one of +0, −0, +∞, −∞, return x. */
-  elif ((isZero(x)) ||| (isMinusZero(x)) ||| (x = Infinity) ||| (x = -Infinity))
+  else if ((isZero(x)) ||| (isMinusZero(x)) ||| (x = Infinity) ||| (x = -Infinity))
     return x;
   /* 3. TOOD Let x32 be the result of converting x to a value in IEEE 754-2008 binary32 format using roundTiesToEven. */
   /* 4. TODO Let x64 be the result of converting x32 to a value in IEEE 754-2008 binary64 format. */
@@ -873,16 +873,16 @@ function MathSign(globalObject, this, NewTarget, strict, params) {
   if (is_NaN (x))
     return NaN;
   /* If x is −0, the result is −0. */
-  elif (isMinusZero(x))
+  else if (isMinusZero(x))
     return -(0.);
   /* If x is +0, the result is +0. */
-  elif (isZero(x))
+  else if (isZero(x))
     return 0.;
   /* If x is negative and not −0, the result is −1. */
-  elif (x < 0.)
+  else if (x < 0.)
     return -(1.);
   /* If x is positive and not +0, the result is +1. */
-  elif (x > 0.)
+  else if (x > 0.)
     return 1.;
 }
 

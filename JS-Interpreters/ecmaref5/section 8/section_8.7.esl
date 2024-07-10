@@ -95,7 +95,7 @@ function PutValue(V, W) {
     Put(|global|, GetReferencedName(V), W, false);
   }
   /* 4. Else if IsPropertyReference(V), then */
-  elif (IsPropertyReference(V)) {
+  else if (IsPropertyReference(V)) {
     /* a. If HasPrimitiveBase(V) is false, then let put be the [[Put]] internal method of base,
           otherwise let put be the special [[Put]] internal method defined below. */
     if (HasPrimitiveBase(V) = false) put := base["Put"]; else put := "Put_internal";

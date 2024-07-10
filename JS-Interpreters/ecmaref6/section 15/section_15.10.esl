@@ -50,17 +50,17 @@ function escapePattern(P) {
     if ((c = "/")) {
       S := s_concat([S, "\\"]);
       S := s_concat([S, c]);
-    } elif (c = "\r") {
+    } else if (c = "\r") {
       S := s_concat([S, "\\r"]);
-    } elif (c = "\n") {
+    } else if (c = "\n") {
       S := s_concat([S, "\\n"]);
-    } elif (c = "\f") {
+    } else if (c = "\f") {
       S := s_concat([S, "\\f"]);
-    } elif (c = "\t") {
+    } else if (c = "\t") {
       S := s_concat([S, "\\t"]);
-    } elif (c = "\v") {
+    } else if (c = "\v") {
       S := s_concat([S, "\\v"]);
-    } elif (c = "\b") {
+    } else if (c = "\b") {
       S := s_concat([S, "\\b"]);
     } else {
       S := s_concat([S, c]);
@@ -488,13 +488,13 @@ function validateFlags(flags) {
 
     if ((flag = "g") &&& (g = false))
       g := true;
-    elif ((flag = "i") &&& (i = false))
+    else if ((flag = "i") &&& (i = false))
       i := true;
-    elif ((flag = "m") &&& (m = false))
+    else if ((flag = "m") &&& (m = false))
       m := true;
-    elif ((flag = "u") &&& (u = false))
+    else if ((flag = "u") &&& (u = false))
       u := true;
-    elif ((flag = "y") &&& (y = false))
+    else if ((flag = "y") &&& (y = false))
       y := true;
     else
       throw SyntaxErrorConstructorInternal();
@@ -519,13 +519,13 @@ function setFlags(obj, flags) {
 
     if ((flag = "g") &&& (g = false))
       g := true;
-    elif ((flag = "i") &&& (i = false))
+    else if ((flag = "i") &&& (i = false))
       i := true;
-    elif ((flag = "m") &&& (m = false))
+    else if ((flag = "m") &&& (m = false))
       m := true;
-    elif ((flag = "y") &&& (y = false))
+    else if ((flag = "y") &&& (y = false))
       y := true;
-    elif ((flag = "u") &&& (u = false))
+    else if ((flag = "u") &&& (u = false))
       u := true;
     else
       throw SyntaxErrorConstructorInternal();
@@ -797,7 +797,7 @@ function JS_Interpreter_Assertion(ba) {
     };
     return t;
 
-  } elif (ba.kind = "$") {
+  } else if (ba.kind = "$") {
     t := lambda (st) [] {
       /* 1. Let e be x's endIndex. */
       e := st.endIndex;
@@ -818,7 +818,7 @@ function JS_Interpreter_Assertion(ba) {
     };
     return t;
 
-  } elif (ba.kind = "\\b") {
+  } else if (ba.kind = "\\b") {
     /* The production Assertion :: \ b evaluates by returning
       an internal AssertionTester closure that takes a State
       argument x and performs the following: */
@@ -840,7 +840,7 @@ function JS_Interpreter_Assertion(ba) {
     };
     return t;
 
-  } elif (ba.kind = "\\B") {
+  } else if (ba.kind = "\\B") {
     /* The production Assertion :: \ B evaluates by returning an
         internal AssertionTester closure that takes a State argument
         x and performs the following: */
@@ -984,29 +984,29 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
   | { type: "Char", value: c, codePoint: code, kind: "meta"} -> {
     if (c = "\\d")
       cs := digitCharSet(negative);
-    elif (c = "\\D")
+    else if (c = "\\D")
       cs := digitCharSet(!negative);
-    elif (c = "\\s")
+    else if (c = "\\s")
       cs := spaceCharSet(negative);
-    elif (c = "\\S")
+    else if (c = "\\S")
       cs := spaceCharSet(!negative);
-    elif (c = "\\w")
+    else if (c = "\\w")
       cs := wordCharSet(negative);
-    elif (c = "\\W")
+    else if (c = "\\W")
       cs := wordCharSet(!negative);
-    elif ((c = "\\n") ||| (c = "\\f") ||| (c = "\\r") ||| (c = "\\t") ||| (c = "\\v") ||| (c = "\\b")) {
+    else if ((c = "\\n") ||| (c = "\\f") ||| (c = "\\r") ||| (c = "\\t") ||| (c = "\\v") ||| (c = "\\b")) {
       cs := EmptyCharacterClass(negative);
       if (c = "\\n")
         AddCharacterPoint(cs, "\n", "10", negative);
-      elif (c = "\\f")
+      else if (c = "\\f")
         AddCharacterPoint(cs, "\f", "12", negative);
-      elif (c = "\\r")
+      else if (c = "\\r")
         AddCharacterPoint(cs, "\r", "13", negative);
-      elif (c = "\\t")
+      else if (c = "\\t")
         AddCharacterPoint(cs, "\t", "9", negative);
-      elif (c = "\\v")
+      else if (c = "\\v")
         AddCharacterPoint(cs, "\v", "11", negative);
-      elif (c = "\\b")
+      else if (c = "\\b")
         AddCharacterPoint(cs, "\b", "8", negative);
     } else
       throw s_concat(["Meta character inside character class not implemented: ", c]);
@@ -1385,31 +1385,31 @@ function JS_Interpreter_RegEx(re, flags) {
     cs := {};
     if (v = ".") {
       cs := dotCharSet();
-    } elif (v = "\\d") {
+    } else if (v = "\\d") {
       cs := digitCharSet(false);
-    } elif (v = "\\D") {
+    } else if (v = "\\D") {
       cs := digitCharSet(true);
-    } elif (v = "\\s") {
+    } else if (v = "\\s") {
       cs := spaceCharSet(false);
-    } elif (v = "\\S") {
+    } else if (v = "\\S") {
       cs := spaceCharSet(true);
-    } elif (v = "\\w") {
+    } else if (v = "\\w") {
       cs := wordCharSet(false);
-    } elif (v = "\\W") {
+    } else if (v = "\\W") {
       cs := wordCharSet(true);
-    } elif (v = "\\n") {
+    } else if (v = "\\n") {
       cs["10"] := "\n";
       cs := { positive: cs, negative: null };
-    } elif (v = "\\f") {
+    } else if (v = "\\f") {
       cs["12"] := "\f";
       cs := { positive: cs, negative: null };
-    } elif (v = "\\r") {
+    } else if (v = "\\r") {
       cs["13"] := "\r";
       cs := { positive: cs, negative: null };
-    } elif (v = "\\t") {
+    } else if (v = "\\t") {
       cs["9"] := "\t";
       cs := { positive: cs, negative: null };
-    } elif (v = "\\v") {
+    } else if (v = "\\v") {
       cs["11"] := "\v";
       cs := { positive: cs, negative: null };
     } else {

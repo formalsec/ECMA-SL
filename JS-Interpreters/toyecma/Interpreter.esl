@@ -39,7 +39,7 @@ function interpreter(scope, s) {
 			@checkAbruptCompletion(testVal);
 			if (testVal)
 				return interpreter(scope, stmt1);
-			elif (!(stmt2 = null))
+			else if (!(stmt2 = null))
 				return interpreter(scope, stmt2);
 			else
 				return NormalCompletion('empty);

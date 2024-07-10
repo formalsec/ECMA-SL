@@ -75,7 +75,7 @@ function OrdinaryObjectSetPrototypeOf(O, V) {
       done := true;
     }
     /* Else, if SameValue(p, O) is true, return false. */
-    elif (SameValue(p, O) = true) {
+    else if (SameValue(p, O) = true) {
       return false;
     }
     /* Else, */
@@ -243,7 +243,7 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
   /* If IsGenericDescriptor(Desc) is true, no further validation is required. */
   if (IsGenericDescriptor(Desc));
   /* Else if IsDataDescriptor(current) and IsDataDescriptor(Desc) have different results, then */
-  elif (!(IsDataDescriptor(current) = IsDataDescriptor(Desc))) {
+  else if (!(IsDataDescriptor(current) = IsDataDescriptor(Desc))) {
     /* Return false, if the [[Configurable]] field of current is false. */
     if (current.Configurable = false)
       return false;
@@ -273,7 +273,7 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
     }
   }
   /* Else if IsDataDescriptor(current) and IsDataDescriptor(Desc) are both true, then */
-  elif ((IsDataDescriptor(current) = true) &&& (IsDataDescriptor(Desc) = true)) {
+  else if ((IsDataDescriptor(current) = true) &&& (IsDataDescriptor(Desc) = true)) {
     /* If the [[Configurable]] field of current is false, then */
     if (current.Configurable = false) {
       /* Return false, if the [[Writable]] field of current is false and the [[Writable]] field of Desc is true. */
@@ -690,12 +690,12 @@ function OrdinaryObjectOwnPropertyKeys(O) {
       keys := l_add(keys, P);
     }
     /* For each own property key P of O that is a String but is not an integer index, in property creation order */
-    elif (Type(P) = "String" &&& !(Type(P) = "Number") &&& in_list(P, obj_fields O.JSProperties)) {
+    else if (Type(P) = "String" &&& !(Type(P) = "Number") &&& in_list(P, obj_fields O.JSProperties)) {
         /* Add P as the last element of keys. */
         strings := l_add(strings, P);
     }
     /* For each own property key P of O that is a Symbol, in property creation order */
-    elif (in_list(P, (obj_fields O.SymbolKeys))) {
+    else if (in_list(P, (obj_fields O.SymbolKeys))) {
       /* Add P as the last element of keys. */
       symbols := l_add(symbols, O.SymbolKeys[P]);
     }
@@ -730,12 +730,12 @@ function OrdinaryObjectOwnPropertyKeysUpdated(O) {
       keys := l_add(keys, P);
     }
     /* For each own property key P of O that is a String but is not an integer index, in property creation order */
-    elif (Type(P) = "String" &&& !(Type(P) = "Number") &&& in_list(P, obj_fields O.JSProperties)) {
+    else if (Type(P) = "String" &&& !(Type(P) = "Number") &&& in_list(P, obj_fields O.JSProperties)) {
       /* Add P as the last element of keys. */
       strings := l_add(strings, P);
     }
     /* For each own property key P of O that is a Symbol, in property creation order */
-    elif ( in_list(P, (obj_fields O.SymbolKeys)) ) {
+    else if ( in_list(P, (obj_fields O.SymbolKeys)) ) {
       /* Add P as the last element of keys. */
       symbols := l_add(symbols, O.SymbolKeys[P]);
     }

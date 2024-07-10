@@ -158,7 +158,7 @@ function SetMutableBindingDeclarative(declarativeEnvRec, N, V, S) {
   if (isMutableBinding(envRec, N))
     setBindingValue(envRec, N, V);
   /* 4. Else this must be an attempt to change the value of an immutable binding so if S if true throw a TypeError exception. */
-  elif (S = true)
+  else if (S = true)
     throw TypeErrorConstructorInternal();
   return;
 }
