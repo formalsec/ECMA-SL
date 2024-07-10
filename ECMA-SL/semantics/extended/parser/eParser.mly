@@ -38,14 +38,13 @@
 
 %token NULL NONE
 %token IMPORT MACRO
-%token PRINT DELETE
-%token FUNCTION RETURN EXTERN LAMBDA
-%token IF ELSE ELIF
+%token PRINT RETURN DELETE LAMBDA
+%token ASSERT FAIL THROW CATCH
+%token FUNCTION EXTERN
+%token IF ELSE
 %token WHILE FOREACH REPEAT UNTIL
 %token SWITCH CASE SDEFAULT
 %token MATCH WITH DEFAULT
-%token THROW CATCH
-%token FAIL ASSERT
 
 (* ========== Symbol tokens ========== *)
 
@@ -79,7 +78,7 @@
 
 %right nary_type_prec (* FIXME *)
 %nonassoc simple_if_prec simple_match_prec simple_repeat_prec
-%nonassoc ELIF ELSE UNTIL
+%nonassoc ELSE UNTIL
 
 %left LAND LOR SCLAND SCLOR
 %left EQ NEQ
@@ -178,10 +177,10 @@ let exec_stmt_target :=
     { EStmt.Return (EParsing_helper.Stmt.parse_return e) @> at $sloc }
   | ASSERT; e = expr_target;
     { EStmt.Assert e @> at $sloc }
-  | THROW; e = expr_target;
-    { EStmt.Throw e @> at $sloc }
   | FAIL; e = expr_target;
     { EStmt.Fail e @> at $sloc }
+  | THROW; e = expr_target;
+    { EStmt.Throw e @> at $sloc }
   | ATSIGN; mn = id_target; es = call_args_target;
     { EStmt.MacroApply (mn, es) @> at $sloc }
 
@@ -205,10 +204,10 @@ let block_stmt_target :=
     { EStmt.Skip @> at $sloc }
 
 let selection_stmt_target :=
-  | ifcs = if_target; elifcss = elif_cases_target; %prec simple_if_prec
-    { EStmt.If (ifcs :: elifcss, None) @> at $sloc }
-  | ifcs = if_target; elifcss = elif_cases_target; elsecs = else_target;
-    { EStmt.If (ifcs :: elifcss, Some elsecs) @> at $sloc }
+  | ifcs = if_target; %prec simple_if_prec
+    { EStmt.If (ifcs, None) @> at $sloc }
+  | ifcs = if_target; elsecs = else_target;
+    { EStmt.If (ifcs, Some elsecs) @> at $sloc }
   | SWITCH; e = guard_target; LBRACE; css = switch_case_target*; dflt = switch_default_target?; RBRACE;
     { EStmt.Switch (e, css, dflt) @> at $sloc }
   | MATCH; e = expr_target; dsc = match_discrm_target?; WITH; css = match_cases_target;
@@ -228,13 +227,7 @@ let iteration_stmt_target :=
 
 let guard_target := LPAREN; ~ = expr_target; RPAREN; <>
 
-let elif_cases_target := 
-  | %prec simple_if_prec { [] }
-  | cs = elif_target; css = elif_cases_target; { cs :: css }
-
 let if_target := IF; e = guard_target; s = stmt_target; { (e, s, at $sloc) }
-
-let elif_target := ELIF; e = guard_target; s = stmt_target; { (e, s, at $sloc) }
 
 let else_target := ELSE; ~ = stmt_target; <>
 

@@ -355,15 +355,13 @@ and compile_fielddelete (at : region) (oe : EExpr.t) (fe : EExpr.t) : c_stmt =
   let (fe_s, fe_e) = compile_expr at fe in
   oe_s @ fe_s @ [ Stmt.FieldDelete (oe_e, fe_e) @?> at ]
 
-and compile_if (ifcss : (EExpr.t * EStmt.t * region) list)
-  (elsecs : EStmt.t option) : c_stmt =
-  let compile_ifcs_f (e, s, at) acc =
-    let (e_s, e_e) = compile_expr at e in
-    let sblock = Builder.block ~at:s.at (compile_stmt s) in
-    real (e_s @ [ Stmt.If (e_e, sblock, Builder.block_opt acc) @?> at ])
-  in
-  List.fold_right compile_ifcs_f ifcss
-    (Option.fold ~none:[] ~some:(fun s -> compile_stmt s) elsecs)
+and compile_if (ifcs : EExpr.t * EStmt.t * region) (elsecs : EStmt.t option) :
+  c_stmt =
+  let (e, s, at) = ifcs in
+  let (e_s, e_e) = compile_expr at e in
+  let sblock = Builder.block ~at:s.at (compile_stmt s) in
+  let selse = Option.fold ~none:[] ~some:(fun s -> compile_stmt s) elsecs in
+  e_s @ [ Stmt.If (e_e, sblock, Builder.block_opt selse) @?> at ]
 
 and compile_while (at : region) (e : EExpr.t) (s : EStmt.t) : c_stmt =
   let (e_s, e_e) = compile_expr at e in

@@ -21,7 +21,6 @@
             "lambda"                  , LAMBDA;
             "if"                      , IF;
             "else"                    , ELSE;
-            "elif"                    , ELIF;
             "while"                   , WHILE;
             "foreach"                 , FOREACH;
             "repeat"                  , REPEAT;
