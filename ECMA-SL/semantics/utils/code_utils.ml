@@ -26,24 +26,24 @@ let rec get_lines (file : file option) (start : int) (nlines : int) :
 let line (fname : string) (loc : int) : string =
   get_line (Hashtbl.find_opt code fname) loc
 
-let codeblock (at : Source.region) : string list =
+let codeblock (at : Source.at) : string list =
   let trim_line line n =
-    match (at.left.line, at.right.line) with
+    match (at.lpos.line, at.rpos.line) with
     | (left, right) when left == n && right == n ->
-      String.substr ~left:at.left.column ~right:at.right.column line
-    | (l, _) when l == n -> String.substr ~left:at.left.column line
-    | (_, r) when r == n -> String.substr ~right:at.right.column line
+      String.substr ~left:at.lpos.col ~right:at.rpos.col line
+    | (l, _) when l == n -> String.substr ~left:at.lpos.col line
+    | (_, r) when r == n -> String.substr ~right:at.rpos.col line
     | _ -> line
   in
   let rec trim_lines = function
     | [] -> []
     | (n, line) :: lines' -> trim_line line n :: trim_lines lines'
   in
-  let start = at.left.line in
-  let nlines = at.right.line - at.left.line + 1 in
+  let start = at.lpos.line in
+  let nlines = at.rpos.line - at.lpos.line + 1 in
   trim_lines (get_lines (Hashtbl.find_opt code at.file) start nlines)
 
-let pp (ppf : Fmt.t) (at : Source.region) : unit =
+let pp (ppf : Fmt.t) (at : Source.at) : unit =
   Fmt.(pp_lst !>"\n" pp_str) ppf (codeblock at)
 
-let str (at : Source.region) : string = Fmt.str "%a" pp at
+let str (at : Source.at) : string = Fmt.str "%a" pp at

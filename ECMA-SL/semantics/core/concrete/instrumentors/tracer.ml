@@ -33,14 +33,14 @@ let indent_pp (ppf : Fmt.t) (lvl : int) : unit =
   let indent = Array.make lvl "| " |> Array.to_list |> String.concat "" in
   Font.pp_text_err [ Faint ] ppf indent
 
-let region_pp (limit : int) (ppf : Fmt.t) (at : Source.region) : unit =
+let at_pp (limit : int) (ppf : Fmt.t) (at : Source.at) : unit =
   let open Source in
-  let pp_region' ppf at = fmt ppf "(%s:%d)" at.file at.left.line in
-  Font.pp_err [ Italic; Faint ] (Truncate.pp limit pp_region') ppf at
+  let pp_at' ppf at = fmt ppf "(%s:%d)" at.file at.lpos.line in
+  Font.pp_err [ Italic; Faint ] (Truncate.pp limit pp_at') ppf at
 
-let cond_region_pp (lvl : int) (ppf : Fmt.t) (at : Source.region) : unit =
+let cond_at_pp (lvl : int) (ppf : Fmt.t) (at : Source.at) : unit =
   let limit = Truncate.limit_indent lvl in
-  let pp ppf () = fmt ppf "\n%a%a" indent_pp lvl (region_pp limit) at in
+  let pp ppf () = fmt ppf "\n%a%a" indent_pp lvl (at_pp limit) at in
   if !Config.trace_loc then pp ppf ()
 
 let rec heapval_pp ?(depth : int = 0) (heap : heap) (ppf : Fmt.t) (v : Value.t)
@@ -63,13 +63,13 @@ module CallFmt = struct
     let limit = Truncate.limit_indent 0 - 8 in
     fmt ppf "%a started%a"
       (Font.pp_err [ Cyan ] (Truncate.pp limit pp_str))
-      (Func.name' f) (cond_region_pp 1) f.at
+      (Func.name' f) (cond_at_pp 1) f.at
 
   let pp_func_call (ppf : Fmt.t) ((lvl, s) : int * Stmt.t) : unit =
     let limit = Truncate.limit_indent lvl - 7 in
     let pp_stmt = Font.pp_err [ Cyan ] (Truncate.pp limit Code_utils.pp) in
     fmt ppf "%a%a called%a" indent_pp lvl pp_stmt s.at
-      (cond_region_pp (lvl + 1))
+      (cond_at_pp (lvl + 1))
       s.at
 
   let retval_format (v : Value.t) : string * Value.t =
@@ -88,7 +88,7 @@ module CallFmt = struct
     let limit_v = Truncate.limit_el limit 4 1 fn_len in
     fmt ppf "%a%a %s%a%a" indent_pp lvl
       (Font.pp_err [ Cyan ] (Truncate.pp limit_f pp_str))
-      fn_str retval_header (val_pp limit_v) v_str (cond_region_pp lvl) s.at
+      fn_str retval_header (val_pp limit_v) v_str (cond_at_pp lvl) s.at
 end
 
 module type CODE_FMT = sig
@@ -118,7 +118,7 @@ module DefaultFmt (CodeFmt : CODE_FMT) = struct
     let lvl' = lvl + 1 in
     let limit = Truncate.limit_indent lvl' in
     let pp_stmt = Font.pp_err [ Cyan ] (Truncate.pp limit CodeFmt.stmt_pp) in
-    fmt ppf "%a%a%a" indent_pp lvl' pp_stmt s (cond_region_pp lvl') s.at
+    fmt ppf "%a%a%a" indent_pp lvl' pp_stmt s (cond_at_pp lvl') s.at
 
   let pp_func (header : string) (ppf : Fmt.t) ((lvl, f) : int * Func.t) : unit =
     let limit = Truncate.limit_indent lvl - String.length header - 1 in

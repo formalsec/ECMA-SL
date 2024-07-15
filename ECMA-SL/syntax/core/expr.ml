@@ -1,6 +1,6 @@
 open EslBase
 
-type t = t' Source.phrase
+type t = t' Source.t
 
 and t' =
   | Val of Value.t

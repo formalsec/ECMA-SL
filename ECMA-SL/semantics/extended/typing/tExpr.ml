@@ -45,7 +45,7 @@ and type_val (v : Value.t) : EType.t' =
 
 and type_var (tctx : TCtx.t) (x : Id.t) : EType.t' =
   match TCtx.tenv_find tctx x with
-  | None -> Typing_error.(throw ~src:(ErrSrc.at x) (UnknownVar x.it))
+  | None -> Typing_error.(throw ~src:(ErrSrc.from x) (UnknownVar x.it))
   | Some t -> t.tref
 
 and type_object (flds : (Id.t * EType.t) list) : EType.t' =

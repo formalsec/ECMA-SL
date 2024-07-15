@@ -1,7 +1,7 @@
 open EslBase
 open Source
 
-type t = t' Source.phrase
+type t = t' Source.t
 
 and t' =
   | AnyType
@@ -51,7 +51,7 @@ and tfldstyle =
   | FldOpt
 
 let resolve_topt (t : t option) : t =
-  match t with Some t' -> t' | None -> AnyType @> no_region
+  match t with Some t' -> t' | None -> AnyType @> none
 
 let tliteral_to_val (lt : tliteral) : Value.t =
   match lt with

@@ -1,7 +1,7 @@
 open EslBase
 open Source
 
-type t = t' Source.phrase
+type t = t' Source.t
 
 and t' =
   { name : Id.t
@@ -13,7 +13,7 @@ and t' =
 let default () : t =
   let name = Id.default () in
   let body = EStmt.default () in
-  { name; tparams = []; treturn = None; body } @> no_region
+  { name; tparams = []; treturn = None; body } @> none
 
 let create (name : Id.t) (tparams : (Id.t * EType.t option) list)
   (treturn : EType.t option) (body : EStmt.t) : t' =
@@ -43,7 +43,7 @@ let pp_simple (ppf : Fmt.t) (f : t) : unit =
 let str ?(simple : bool = false) (f : t) : string =
   Fmt.str "%a" (if simple then pp_simple else pp) f
 
-let lambdas (f : t) : (region * Id.t' * Id.t list * Id.t list * EStmt.t) list =
+let lambdas (f : t) : (at * Id.t' * Id.t list * Id.t list * EStmt.t) list =
   let to_list_f s =
     match s.it with
     | EStmt.Lambda (_, id, pxs, ctxvars, s) -> [ (s.at, id, pxs, ctxvars, s) ]
