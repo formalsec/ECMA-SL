@@ -60,7 +60,7 @@ let locals_cmd (state : state) : string =
   let (store, heap, _) = state in
   let local_f ppf (x, v) =
     if not (String.starts_with ~prefix:"__" x) then
-      Fmt.format ppf "%s: %a\n" x (heapval_pp heap) v
+      Fmt.fmt ppf "%s: %a\n" x (heapval_pp heap) v
   in
   Fmt.(asprintf "%a" (pp_hashtbl !>"" local_f) store)
 

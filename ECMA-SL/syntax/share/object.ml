@@ -13,9 +13,9 @@ let fld_lst (obj : 'a t) : (string * 'a) list =
   Hashtbl.fold fld_lst_f obj []
 
 let pp (pp_v : Fmt.t -> 'a -> unit) (ppf : Fmt.t) (obj : 'a t) : unit =
-  let pp_fld ppf (fn, fv) = Fmt.format ppf "%s: %a" fn pp_v fv in
+  let pp_fld ppf (fn, fv) = Fmt.fmt ppf "%s: %a" fn pp_v fv in
   if Hashtbl.length obj = 0 then Fmt.pp_str ppf "{}"
-  else Fmt.(format ppf "{ %a }" (pp_hashtbl !>", " pp_fld) obj)
+  else Fmt.(fmt ppf "{ %a }" (pp_hashtbl !>", " pp_fld) obj)
 
 let str (pp_v : Fmt.t -> 'a -> unit) (obj : 'a t) : string =
   Fmt.str "%a" (pp pp_v) obj

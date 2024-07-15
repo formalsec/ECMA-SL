@@ -10,7 +10,7 @@ let load_file ?(file : string option) (path : string) : string =
 let print_position (outx : Fmt.t) (lexbuf : Lexing.lexbuf) : unit =
   let pos = lexbuf.lex_curr_p in
   Log.stdout "Line number: %d. File: %s@." pos.pos_lnum pos.pos_fname;
-  Fmt.format outx "%s:%d:%d" pos.pos_fname pos.pos_lnum
+  Fmt.fmt outx "%s:%d:%d" pos.pos_fname pos.pos_lnum
     (pos.pos_cnum - pos.pos_bol + 1)
 
 let init_lexbuf (file : string) (str : string) =

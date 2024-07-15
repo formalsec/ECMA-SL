@@ -5,24 +5,23 @@ module Config = struct
   let err_ppf : Fmt.t ref = ref Fmt.err_formatter
 end
 
-let stdout (fmt : ('a, Format.formatter, unit, unit) format4) =
-  Fmt.(kdprintf (format !Config.out_ppf "%t") fmt)
+let stdout (format : ('a, Fmt.t, unit, unit) format4) =
+  Fmt.(kdprintf (fmt !Config.out_ppf "%t") format)
 [@@inline]
 
-let stderr (fmt : ('a, Format.formatter, unit, unit) format4) =
-  Fmt.(kdprintf (format !Config.err_ppf "%t") fmt)
+let stderr (format : ('a, Fmt.t, unit, unit) format4) =
+  Fmt.(kdprintf (fmt !Config.err_ppf "%t") format)
 [@@inline]
 
-let fail (fmt : ('a, Format.formatter, unit, 'b) format4) : 'a =
-  Fmt.kasprintf failwith fmt
+let fail (fmt : ('a, Fmt.t, unit, 'b) format4) : 'a = Fmt.kasprintf failwith fmt
 [@@inline]
 
 module EslLog = struct
   let mk ?(font : Font.t = [ Font.Normal ]) (ppf : Fmt.t)
-    (fmt : ('a, Fmt.t, unit, unit) format4) : 'a =
-    let pp_text ppf fmt = Fmt.format ppf "[ecma-sl] %t" fmt in
-    let pp_log fmt = Fmt.format ppf "%a@." (Font.pp font pp_text) fmt in
-    Fmt.(kdprintf pp_log fmt)
+    (format : ('a, Fmt.t, unit, unit) format4) : 'a =
+    let pp_text ppf fmt = Fmt.fmt ppf "[ecma-sl] %t" fmt in
+    let pp_log fmt = Fmt.fmt ppf "%a@." (Font.pp font pp_text) fmt in
+    Fmt.(kdprintf pp_log format)
 
   let test (test : bool) ?(font : Font.t option) (ppf : Fmt.t)
     (fmt : ('a, Fmt.t, unit) format) =
@@ -37,11 +36,11 @@ let error (fmt : ('a, Fmt.t, unit, unit) format4) : 'a =
   EslLog.mk ~font:[ Red ] !Config.err_ppf fmt
 [@@inline]
 
-let warn (fmt : ('a, Format.formatter, unit) format) : 'a =
+let warn (fmt : ('a, Fmt.t, unit) format) : 'a =
   EslLog.test !Config.log_warns ~font:[ Yellow ] !Config.err_ppf fmt
 [@@inline]
 
-let debug (fmt : ('a, Format.formatter, unit) format) : 'a =
+let debug (fmt : ('a, Fmt.t, unit) format) : 'a =
   EslLog.test !Config.log_debugs ~font:[ Cyan ] !Config.err_ppf fmt
 [@@inline]
 
@@ -87,7 +86,7 @@ module Redirect = struct
     Option.fold ~none:() ~some:(log ppf) streams.new_err
 
   let restore ?(log : bool = false) (streams : t) : unit =
-    let log ppf buf = if log then Fmt.format ppf "%s@?" (Buffer.contents buf) in
+    let log ppf buf = if log then Fmt.fmt ppf "%s@?" (Buffer.contents buf) in
     Config.out_ppf := streams.old_out;
     Config.err_ppf := streams.old_err;
     Option.fold ~none:() ~some:(log !Config.out_ppf) streams.new_out;
