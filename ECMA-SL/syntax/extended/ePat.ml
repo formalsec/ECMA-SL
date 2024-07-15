@@ -1,7 +1,7 @@
 open EslBase
 open Source
 
-type pv = pv' Source.phrase
+type pv = pv' Source.t
 
 and pv' =
   | PatVar of Id.t'
@@ -16,7 +16,7 @@ let pv_pp (ppf : Fmt.t) (pv : pv) : unit =
 
 let pv_str (pv : pv) : string = Fmt.str "%a" pv_pp pv
 
-type t = t' Source.phrase
+type t = t' Source.t
 
 and t' =
   | ObjPat of (Id.t * pv) list

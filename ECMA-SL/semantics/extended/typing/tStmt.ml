@@ -47,7 +47,7 @@ and type_return (e : EExpr.t) (tctx : TCtx.t) : TCtx.t =
 and type_assign (x : Id.t) (tx : EType.t option) (e : EExpr.t) (tctx : TCtx.t) :
   TCtx.t =
   let update_tenv tref = TCtx.(tvar_create tx tref |> tenv_set tctx x) in
-  let tdefault = TCtx.tvar_create None (EType.AnyType @?> no_region) in
+  let tdefault = TCtx.tvar_create None (EType.AnyType @?> none) in
   let tprev = Option.value ~default:tdefault (TCtx.tenv_find tctx x) in
   let tref = Option.value ~default:(tprev.tref @?> x.at) tx in
   let tsrc = TExpr.type_expr tctx e in

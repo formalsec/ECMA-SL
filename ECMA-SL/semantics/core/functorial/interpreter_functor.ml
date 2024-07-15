@@ -130,7 +130,7 @@ module Make (P : Interpreter_functor_intf.P) :
     | Stmt.Skip -> ok state
     | Stmt.Merge -> ok state
     | Stmt.Debug stmt ->
-      Log.stderr "ignoring break point in line %d" stmt.at.left.line;
+      Log.stderr "ignoring break point in line %d" stmt.at.lpos.line;
       ok { state with stmts = stmt :: state.stmts }
     | Stmt.Fail e ->
       let e' = pp locals m e in

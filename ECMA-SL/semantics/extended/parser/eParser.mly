@@ -6,18 +6,18 @@
   open EslSyntax
   open EslSyntax.Source
 
-  let position_to_pos position =
+  let pos position =
     {
-      line   = position.Lexing.pos_lnum;
-      column = position.Lexing.pos_cnum - position.Lexing.pos_bol;
+      line  = position.Lexing.pos_lnum;
+      col   = position.Lexing.pos_cnum - position.Lexing.pos_bol;
     }
 
   let at (startpos, endpos) =
     {
-      file  = startpos.Lexing.pos_fname;
-      left  = position_to_pos startpos;
-      right = position_to_pos endpos;
-      real  = true;
+      file = startpos.Lexing.pos_fname;
+      lpos = pos startpos;
+      rpos = pos endpos;
+      real = true;
     }
 
   let fresh_lambda_id_gen = EslBase.Base.make_name_generator "__lambda__"

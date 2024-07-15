@@ -11,7 +11,7 @@ type colors =
 type t =
   { frame : Win.t Frame.t
   ; colors : colors
-  ; at : Source.region
+  ; at : Source.at
   }
 
 let colors () : colors =
@@ -29,7 +29,7 @@ let create (acs : Acs.acs) (consolewin : Win.t) : t =
   let win = Win.mk framewin 1 1 (yz - 2) (xz - 2) in
   let frame = Frame.mk acs framewin (Win.element win) in
   let colors = colors () in
-  { frame; colors; at = Source.no_region }
+  { frame; colors; at = Source.none }
 
 let resize (code : t) (consolewin : Win.t) : t =
   let (y, x) = (0, 0) in
@@ -43,13 +43,13 @@ let resize (code : t) (consolewin : Win.t) : t =
 let window (code : t) : window = Frame.window code.frame
 let refresh (code : t) : unit = Frame.refresh code.frame
 let rec element (code : t) : t element = { v = code; window; refresh; element }
-let set_data (code : t) (at : Source.region) : t = { code with at }
+let set_data (code : t) (at : Source.at) : t = { code with at }
 let render_static (code : t) : unit = Frame.draw code.frame
 
-let codeblock (nlines : int) (at : Source.region) : (int * string) list * int =
+let codeblock (nlines : int) (at : Source.at) : (int * string) list * int =
   let file = Code_utils.get_file at.file in
   let file_sz = Code_utils.get_file_size file in
-  let line = at.left.line in
+  let line = at.lpos.line in
   let prev_nlines = proportional_sz nlines 3 1 in
   let codeblock_start = max (line - prev_nlines) 1 in
   let codeblock_sz = min nlines (file_sz - codeblock_start + 1) in
@@ -68,22 +68,22 @@ let render_codeline (win : Win.t) (lineno_sz : int) (i : int)
   !!(mvwaddstr win.w i 0 lineno');
   if trunc then !!(mvwaddstr win.w i (win.xz - 3) "...")
 
-let render_code (win : Win.t) (colors : colors) (at : Source.region) : unit =
-  let color l = if l == at.left.line then colors.code_on else colors.code_off in
+let render_code (win : Win.t) (colors : colors) (at : Source.at) : unit =
+  let color l = if l == at.lpos.line then colors.code_on else colors.code_off in
   let colors_f (lineno, line) = (lineno, line, color lineno) in
   let (codeblock, last_line) = codeblock (win.yz - 2) at in
   let lineno_sz = String.length (string_of_int last_line) in
   let codeblock_colored = List.map colors_f codeblock in
   List.iteri (render_codeline win lineno_sz) codeblock_colored
 
-let render_loc_data (win : Win.t) (at : Source.region) : unit =
-  let lineno_sz = String.length (string_of_int at.left.line) in
+let render_loc_data (win : Win.t) (at : Source.at) : unit =
+  let lineno_sz = String.length (string_of_int at.lpos.line) in
   let (file', trunc) = String.truncate (win.xz - 19 - lineno_sz) at.file in
   let file'' = if trunc then file' ^ "..." else file' in
-  let loc = Fmt.sprintf "File %S, line %d" file'' at.left.line in
+  let loc = Fmt.sprintf "File %S, line %d" file'' at.lpos.line in
   !!(mvwaddstr win.w (win.yz - 1) 1 loc)
 
-let render_loc (win : Win.t) (colors : colors) (at : Source.region) : unit =
+let render_loc (win : Win.t) (colors : colors) (at : Source.at) : unit =
   wattr_set win.w WA.(combine [ dim; standout ]) colors.location;
   draw_rectangle win.w (win.yz - 1) 0 1 win.xz ' ';
   render_loc_data win at

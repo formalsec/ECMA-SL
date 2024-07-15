@@ -1,7 +1,7 @@
 open EslBase
 open Source
 
-type t = t' Source.phrase
+type t = t' Source.t
 
 and t' =
   | Skip
@@ -14,10 +14,10 @@ and t' =
   | GAssign of Id.t * EExpr.t
   | FieldAssign of EExpr.t * EExpr.t * EExpr.t
   | FieldDelete of EExpr.t * EExpr.t
-  | If of (EExpr.t * t * region) * t option
+  | If of (EExpr.t * t * at) * t option
   | While of EExpr.t * t
   | ForEach of Id.t * EExpr.t * t
-  | RepeatUntil of t * (EExpr.t * region) option
+  | RepeatUntil of t * (EExpr.t * at) option
   | Switch of EExpr.t * (EExpr.t * t) list * t option
   | MatchWith of EExpr.t * Id.t option * (EPat.t * t) list
   | Lambda of Id.t * string * Id.t list * Id.t list * t
@@ -26,7 +26,7 @@ and t' =
   | Fail of EExpr.t
   | Assert of EExpr.t
 
-let default () : t = Skip @> no_region
+let default () : t = Skip @> none
 
 let rec pp (ppf : Fmt.t) (s : t) : unit =
   let open Fmt in
@@ -82,7 +82,7 @@ let rec map ?(emapper : EExpr.t -> EExpr.t = EExpr.Mapper.id) (mapper : t -> t)
   let map' = map ~emapper mapper in
   let mapper' s' = mapper (s' @> s.at) in
   let id_mapper (x : Id.t) =
-    match (emapper (EExpr.Var x.it @> no_region)).it with
+    match (emapper (EExpr.Var x.it @> none)).it with
     | EExpr.Var y -> y @> x.at
     | _ -> Log.fail "expecting var in LHS"
   in

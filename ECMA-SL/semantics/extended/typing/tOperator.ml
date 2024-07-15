@@ -1,7 +1,7 @@
 open EslBase
 open EslSyntax
 
-let ( ~@ ) (t : EType.t') : EType.t = Source.(t @?> no_region)
+let ( ~@ ) (t : EType.t') : EType.t = Source.(t @?> none)
 
 type op_signature = (EType.t' list * EType.t') list
 

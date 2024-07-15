@@ -1,7 +1,7 @@
 open EslBase
 open Source
 
-type t = t' Source.phrase
+type t = t' Source.t
 
 and t' =
   | Skip
@@ -26,7 +26,7 @@ and t' =
   | Fail of Expr.t
   | Assert of Expr.t
 
-let default () : t = Skip @> no_region
+let default () : t = Skip @> none
 
 let rec pp (ppf : Fmt.t) (s : t) : unit =
   let open Fmt in
