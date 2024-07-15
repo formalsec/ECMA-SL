@@ -15,19 +15,19 @@ let rec wide_literal (tref : t) : bool =
 
 let resolve_optfld (t : t) : t =
   let open Source in
-  let t_undefined = UndefinedType @?> no_region in
+  let t_undefined = UndefinedType @?> none in
   match t.it with
   | UnionType ts when List.exists (fun t' -> t'.it = UndefinedType) ts -> t
   | UnionType ts -> UnionType (List.append ts [ t_undefined ]) @?> t.at
   | UndefinedType -> t
   | _ -> UnionType [ t; t_undefined ] @?> t.at
 
-let resolve_sigma_case_discriminant (at : Source.region) (dsc : Id.t)
+let resolve_sigma_case_discriminant (at : Source.at) (dsc : Id.t)
   (tobj : tobject) : t =
   let open Typing_error in
   match Hashtbl.find_opt tobj.flds dsc.it with
   | Some (_, ft, _) -> ft
-  | None -> throw ~src:(ErrSrc.region at) (MissingSigmaCaseDiscriminant dsc)
+  | None -> throw ~src:(ErrSrc.at at) (MissingSigmaCaseDiscriminant dsc)
 
 let unfold_sigma_case (dsc : Id.t) (t : t) : t * t =
   match t.it with
@@ -53,7 +53,7 @@ let rec type_check ?(congruency : bool = false) (tref : t) (tsrc : t) : unit =
   | (false, _, NeverType) -> ()
   | (false, _, LiteralType _) -> check_literal_subtyping tref tsrc
   | (_, _, _) ->
-    Typing_error.(throw ~src:(ErrSrc.at tsrc) (terr_msg congruency tref tsrc))
+    Typing_error.(throw ~src:(ErrSrc.from tsrc) (terr_msg congruency tref tsrc))
 
 and is_typeable ?(congruency : bool = false) (tref : t) (tsrc : t) : bool =
   try type_check ~congruency tref tsrc |> fun () -> true
@@ -74,8 +74,8 @@ and check_literal_subtyping (tref : t) (tsrc : t) : unit =
   | (SymbolType, LiteralType (_, SymbolLit _)) -> ()
   | (_, LiteralType (LitWeak, lt)) when wide_literal tref ->
     let tsrc = EType.tliteral_to_wide lt @?> tsrc.at in
-    Typing_error.(throw ~src:(ErrSrc.at tsrc) (terr_msg false tref tsrc))
-  | _ -> Typing_error.(throw ~src:(ErrSrc.at tsrc) (terr_msg false tref tsrc))
+    Typing_error.(throw ~src:(ErrSrc.from tsrc) (terr_msg false tref tsrc))
+  | _ -> Typing_error.(throw ~src:(ErrSrc.from tsrc) (terr_msg false tref tsrc))
 
 and check_object (congruency : bool) (tref : t) (tsrc : t) : unit =
   let check_object_type otref otsrc =
@@ -95,7 +95,7 @@ and check_object_fields (congruency : bool) (tobjkind : EType.tobjkind)
   ((sfn, sft, sfs) : Id.t * EType.t * EType.tfldstyle) : unit =
   let is_obj = function ObjectType _ -> true | _ -> false in
   let fld_congruency rft = Source.(tobjkind == ObjSto && not (is_obj rft.it)) in
-  let fld_err msg = Typing_error.(throw ~src:(ErrSrc.at sfn) msg) in
+  let fld_err msg = Typing_error.(throw ~src:(ErrSrc.from sfn) msg) in
   let tfldref = Hashtbl.find_opt tobjref.flds sfn.it in
   match (congruency, tfldref, tobjref.smry) with
   | (true, None, _) -> fld_err (ExtraField sfn)
@@ -122,16 +122,16 @@ and check_field_type (congruency : bool) (fn : Id.t)
   | (FldOpt, FldReq) ->
     type_check' (resolve_optfld rft) sft (IncompatibleOptionalField fn)
 
-and check_missing_fields (at : Source.region) (congruency : bool)
+and check_missing_fields (at : Source.at) (congruency : bool)
   (tobjsrc : EType.tobject) (_ : Id.t')
   ((rfn, _, rfs) : Id.t * EType.t * EType.tfldstyle) : unit =
   if congruency || tobjsrc.kind == ObjSto || rfs == FldReq then
     if not (Hashtbl.mem tobjsrc.flds rfn.it) then
-      Typing_error.(throw ~src:(ErrSrc.region at) (MissingField rfn))
+      Typing_error.(throw ~src:(ErrSrc.at at) (MissingField rfn))
 
-and check_summary_type (at : Source.region) (congruency : bool)
+and check_summary_type (at : Source.at) (congruency : bool)
   (tobjref : EType.tobject) (tobjsrc : EType.tobject) : unit =
-  let smry_err msg = Typing_error.(throw ~src:(ErrSrc.region at) msg) in
+  let smry_err msg = Typing_error.(throw ~src:(ErrSrc.at at) msg) in
   let congruency' = congruency || tobjsrc.kind == ObjSto in
   match (tobjref.smry, tobjsrc.smry) with
   | (None, None) -> ()
@@ -154,7 +154,7 @@ and check_tuple (congruency : bool) (tref : EType.t) (tsrc : EType.t) : unit =
       Typing_error.(push (terr_msg congruency tref tsrc) err |> raise) )
   | _ -> Log.fail "expecting tuple type"
 
-and check_tuple_elements (at : Source.region) (congruency : bool)
+and check_tuple_elements (at : Source.at) (congruency : bool)
   (tsref : EType.t list) (tssrc : EType.t list) : unit =
   let open Typing_error in
   let check_element_f i (tref', tsrc') =
@@ -164,7 +164,7 @@ and check_tuple_elements (at : Source.region) (congruency : bool)
   with Invalid_argument _ ->
     let (nref, nsrc) = (List.length tsref, List.length tssrc) in
     let at = if nsrc > nref then (List.nth tssrc (nsrc - nref)).at else at in
-    throw ~src:(ErrSrc.region at) (NExpectedElements (nref, nsrc))
+    throw ~src:(ErrSrc.at at) (NExpectedElements (nref, nsrc))
 
 and check_union_congruency (tref : EType.t) (tsrc : EType.t) : unit =
   let has_any ts = List.exists (fun t -> Source.(t.it == AnyType)) ts in
@@ -172,7 +172,7 @@ and check_union_congruency (tref : EType.t) (tsrc : EType.t) : unit =
     try ignore (List.find (is_typeable ~congruency:true t) ts)
     with Not_found ->
       let err_src = if isref then t else ttar in
-      Typing_error.(throw ~src:(ErrSrc.at err_src) (BadCongruency (ttar, t)))
+      Typing_error.(throw ~src:(ErrSrc.from err_src) (BadCongruency (ttar, t)))
   in
   let is_congruent tsref tssrc =
     if not (has_any tsref || has_any tssrc) then (
@@ -204,7 +204,7 @@ and check_union_subtyping_ref (tref : EType.t) (tsrc : EType.t) : unit =
   | UnionType tsref -> (
     try ignore (List.find (is_typeable_f tsrc) tsref)
     with Not_found ->
-      Typing_error.(throw ~src:(ErrSrc.at tsrc)) (BadSubtyping (tref, tsrc)) )
+      Typing_error.(throw ~src:(ErrSrc.from tsrc)) (BadSubtyping (tref, tsrc)) )
   | _ -> Log.fail "expecting union type ref"
 
 and check_sigma (congruency : bool) (tref : t) (tsrc : t) : unit =
@@ -224,19 +224,19 @@ and check_sigma (congruency : bool) (tref : t) (tsrc : t) : unit =
 
 and check_sigma_discriminant (dscref : Id.t) (dscsrc : Id.t) =
   if not (String.equal dscref.it dscsrc.it) then
-    Typing_error.(throw ~src:(ErrSrc.at dscsrc) IncompatibleSigmaDiscriminant)
+    Typing_error.(throw ~src:(ErrSrc.from dscsrc) IncompatibleSigmaDiscriminant)
 
-and combine_sigma_cases (at : Source.region) (congruency : bool)
+and combine_sigma_cases (at : Source.at) (congruency : bool)
   (cssref : (t * t) list) (csssrc : (t * t) list) : (t * t * t) list =
   let match_cs_f tdsc1 (tdsc2, _) = EType.equal tdsc1 tdsc2 in
   let find_cs (tdscsrc, tcssrc) =
     try snd (List.find (match_cs_f tdscsrc) cssref)
     with Not_found ->
-      Typing_error.(throw ~src:(ErrSrc.at tcssrc) (ExtraSigmaCase tdscsrc))
+      Typing_error.(throw ~src:(ErrSrc.from tcssrc) (ExtraSigmaCase tdscsrc))
   in
   let check_missing_css (tdscref, _) =
     if not (List.exists (match_cs_f tdscref) csssrc) then
-      Typing_error.(throw ~src:(ErrSrc.region at) (MissingSigmaCase tdscref))
+      Typing_error.(throw ~src:(ErrSrc.at at) (MissingSigmaCase tdscref))
   in
   let combine_cs_f (tdsc, tcssrc) = (tdsc, find_cs (tdsc, tcssrc), tcssrc) in
   let sigcss = List.map combine_cs_f csssrc in
@@ -268,4 +268,4 @@ and match_sigma_case (cssref : (t * t) list) ((tdscsrc, tsrc) : t * t) : t =
   let match_cs_f tdsc1 (tdsc2, _) = EType.equal tdsc1 tdsc2 in
   try snd (List.find (match_cs_f tdscsrc) cssref)
   with Not_found ->
-    throw ~src:(ErrSrc.at tsrc) (UnknownSigmaCaseDiscriminant tdscsrc)
+    throw ~src:(ErrSrc.from tsrc) (UnknownSigmaCaseDiscriminant tdscsrc)

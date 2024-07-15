@@ -1,7 +1,7 @@
 open EslBase
 open Source
 
-type t = t' Source.phrase
+type t = t' Source.t
 
 and t' =
   { name : Id.t
@@ -10,7 +10,7 @@ and t' =
   }
 
 let default () : t =
-  { name = Id.default (); params = []; body = EStmt.default () } @> no_region
+  { name = Id.default (); params = []; body = EStmt.default () } @> none
 
 let create (name : Id.t) (params : Id.t list) (body : EStmt.t) : t' =
   { name; params; body }

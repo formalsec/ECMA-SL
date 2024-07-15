@@ -2,39 +2,33 @@ open EslBase
 
 type pos =
   { line : int
-  ; column : int
+  ; col : int
   }
 
-type region =
+type at =
   { file : string
-  ; left : pos
-  ; right : pos
+  ; lpos : pos
+  ; rpos : pos
   ; real : bool
   }
 
-type +'a phrase =
+type +'a t =
   { it : 'a
-  ; at : region
+  ; at : at
   }
 
-let no_pos : pos = { line = -1; column = -1 }
-
-let no_region : region =
-  { file = ""; left = no_pos; right = no_pos; real = false }
-
-let ( @> ) (it : 'a) (at : region) : 'a phrase = { it; at }
-
-let ( @?> ) (it : 'a) (at : region) : 'a phrase =
-  { it; at = { at with real = false } }
-
-let map (f : 'a -> 'b) (x : 'a phrase) : 'b phrase = { x with it = f x.it }
+let pos_none : pos = { line = -1; col = -1 }
+let none : at = { file = ""; lpos = pos_none; rpos = pos_none; real = false }
+let ( @> ) (it : 'a) (at : at) : 'a t = { it; at } [@@inline]
+let ( @?> ) (it : 'a) (at : at) : 'a t = it @> { at with real = false }
+let map (f : 'a -> 'b) (x : 'a t) : 'b t = { x with it = f x.it } [@@inline]
 
 let pp_pos (ppf : Fmt.t) (pos : pos) : unit =
   let pp_pos' ppf v = Fmt.(if v == -1 then pp_str ppf "x" else pp_int ppf v) in
-  Fmt.fmt ppf "%a.%a" pp_pos' pos.line pp_pos' pos.column
+  Fmt.fmt ppf "%a.%a" pp_pos' pos.line pp_pos' pos.col
 
-let pp_region (ppf : Fmt.t) (at : region) : unit =
-  Fmt.fmt ppf "%S:%a-%a" at.file pp_pos at.left pp_pos at.right
+let pp_at (ppf : Fmt.t) (at : at) : unit =
+  Fmt.fmt ppf "%S:%a-%a" at.file pp_pos at.lpos pp_pos at.rpos
 
-let pp (ppf : Fmt.t) (x : 'a phrase) = Fmt.fmt ppf "%a" pp_region x.at
-let str (x : 'a phrase) : string = Fmt.str "%a" pp x
+let pp (ppf : Fmt.t) (x : 'a t) = Fmt.fmt ppf "%a" pp_at x.at
+let str (x : 'a t) : string = Fmt.str "%a" pp x

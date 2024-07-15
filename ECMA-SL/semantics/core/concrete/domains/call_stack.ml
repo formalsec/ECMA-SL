@@ -60,8 +60,8 @@ let update (stack : 'store t) (stmt : Stmt.t) : 'store t =
   | Intermediate (loc, r) :: frames -> Intermediate (loc_f loc, r) :: frames
   | _ -> Log.fail "unexpected call stack format"
 
-let pp_loc (ppf : Fmt.t) (region : region) : unit =
-  Fmt.fmt ppf "file %S, line %d" region.file region.left.line
+let pp_loc (ppf : Fmt.t) (at : at) : unit =
+  Fmt.fmt ppf "file %S, line %d" at.file at.lpos.line
 
 let pp_frame (ppf : Fmt.t) (frame : 'store frame) : unit =
   let frame_loc = function Toplevel loc | Intermediate (loc, _) -> loc in

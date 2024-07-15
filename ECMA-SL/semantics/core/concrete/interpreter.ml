@@ -54,9 +54,9 @@ module M (Instrument : Instrument.M) = struct
     set_global_var store heap;
     { store; heap; stack; inst }
 
-  let get_var (store : store) (x : string) (at : region) : Value.t =
+  let get_var (store : store) (x : string) (at : at) : Value.t =
     match Store.get_opt store x with
-    | None -> Runtime_error.(throw ~src:(ErrSrc.region at) (UnknownVar x))
+    | None -> Runtime_error.(throw ~src:(ErrSrc.at at) (UnknownVar x))
     | Some v -> v
 
   let get_loc (heap : heap) (l : Loc.t) : obj =
@@ -64,9 +64,9 @@ module M (Instrument : Instrument.M) = struct
     | None -> Log.fail "expecting existing location"
     | Some obj -> obj
 
-  let get_func (p : Prog.t) (fn : string) (at : region) : Func.t =
+  let get_func (p : Prog.t) (fn : string) (at : at) : Func.t =
     match Prog.func_opt p fn with
-    | None -> Runtime_error.(throw ~src:(ErrSrc.region at) (UnknownFunc fn))
+    | None -> Runtime_error.(throw ~src:(ErrSrc.at at) (UnknownFunc fn))
     | Some f -> f
 
   let eval_operator (eval_op_fun : unit -> Value.t) (es : Expr.t list) : Value.t
@@ -74,7 +74,7 @@ module M (Instrument : Instrument.M) = struct
     try eval_op_fun () with
     | Runtime_error.Error err ->
       let e = Runtime_error.(src err |> ErrSrc.index_to_el es) in
-      Runtime_error.(set_src (ErrSrc.at e) err |> raise)
+      Runtime_error.(set_src (ErrSrc.from e) err |> raise)
     | Smtml.Eval.TypeError { index; value; ty; op } ->
       Eval_op.op_error index value ty op
 
@@ -106,7 +106,7 @@ module M (Instrument : Instrument.M) = struct
       let vs = List.map (eval_expr state) es in
       match fv with
       | Str fn -> Value.App (`Op fn, vs)
-      | _ -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadExpr ("curry", fv))) )
+      | _ -> Runtime_error.(throw ~src:(ErrSrc.from fe) (BadExpr ("curry", fv))) )
     | Symbolic (t, _) -> (
       (* TODO:x should change?*)
       Random.self_init ();
@@ -125,18 +125,18 @@ module M (Instrument : Instrument.M) = struct
   let eval_str (state : state) (e : Expr.t) : string =
     match eval_expr state e with
     | Str s -> s
-    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("string", v)))
+    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.from e) (BadVal ("string", v)))
 
   let eval_bool (state : state) (e : Expr.t) : bool =
     match eval_expr state e with
     | Value.True -> true
     | Value.False -> false
-    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("boolean", v)))
+    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.from e) (BadVal ("boolean", v)))
 
   let eval_loc (state : state) (e : Expr.t) : Loc.t =
     match eval_expr state e with
     | App (`Op "loc", [ Int l ]) -> l
-    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("location", v)))
+    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.from e) (BadVal ("location", v)))
 
   let eval_obj (state : state) (heap : heap) (e : Expr.t) : Loc.t * obj =
     let l = eval_loc state e in
@@ -147,7 +147,7 @@ module M (Instrument : Instrument.M) = struct
     match eval_expr state fe with
     | Value.Str fn -> (fn, [])
     | Value.App (`Op fn, fvs) -> (fn, fvs)
-    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadFuncId v))
+    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.from fe) (BadFuncId v))
 
   let rec heapval_pp (depth : int option) (visited : (Loc.t, unit) Hashtbl.t)
     (heap : heap) (ppf : Fmt.t) (v : Value.t) : unit =
@@ -174,15 +174,15 @@ module M (Instrument : Instrument.M) = struct
       let visited = Hashtbl.create !Base.default_hashtbl_sz in
       heapval_pp !Config.print_depth visited heap ppf v
 
-  let prepare_store_binds (pxs : string list) (vs : Value.t list) (at : region)
-    : (string * Value.t) list =
+  let prepare_store_binds (pxs : string list) (vs : Value.t list) (at : at) :
+    (string * Value.t) list =
     try List.combine pxs vs
     with Invalid_argument _ ->
       let (xpxs, nargs) = (List.length pxs, List.length vs) in
-      Runtime_error.(throw ~src:(ErrSrc.region at) (BadNArgs (xpxs, nargs)))
+      Runtime_error.(throw ~src:(ErrSrc.at at) (BadNArgs (xpxs, nargs)))
 
   let prepare_call (stack : stack) (f : Func.t) (store : store)
-    (cont : Stmt.t list) (x : string) (vs : Value.t list) (at : region) :
+    (cont : Stmt.t list) (x : string) (vs : Value.t list) (at : at) :
     stack * store =
     let pxs = Func.params' f in
     let stack' = Call_stack.push stack f store cont x in
@@ -294,7 +294,7 @@ module M (Instrument : Instrument.M) = struct
       Intermediate (state, cont) $$ FieldDeleteEval (l, fn)
     | If (e, s1, s2) -> (
       let v = eval_bool state e in
-      let s2' = Option.value ~default:(Stmt.Skip @> no_region) s2 in
+      let s2' = Option.value ~default:(Stmt.Skip @> none) s2 in
       match (v, s1.it, s2'.it) with
       | (true, Block ss, _) ->
         let cont' = ss @ ((Stmt.Merge @?> s1.at) :: cont) in
@@ -339,7 +339,7 @@ module M (Instrument : Instrument.M) = struct
     match ss with
     | [] ->
       let fn = Func.name (Call_stack.func state.stack) in
-      Runtime_error.(throw ~src:(ErrSrc.at fn) (MissingReturn fn))
+      Runtime_error.(throw ~src:(ErrSrc.from fn) (MissingReturn fn))
     | s :: cont -> (
       let return = eval_small_step_safe p state s cont in
       Instrument.Monitor.eval_small_step !(state.inst).mon;
@@ -377,7 +377,7 @@ module M (Instrument : Instrument.M) = struct
 
   let eval_instrumented (entry : entry) (p : Prog.t) (inst : Instrument.t ref) :
     result =
-    let fmain = get_func p entry.main no_region in
+    let fmain = get_func p entry.main none in
     let state = initial_state fmain entry.static_heap inst in
     Instrument.Tracer.trace_restore (-1) fmain;
     Instrument.Profiler.start !(state.inst).pf;

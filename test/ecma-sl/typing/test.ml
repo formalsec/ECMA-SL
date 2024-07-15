@@ -1,7 +1,7 @@
 open Ecma_sl
 open Ecma_sl.EType
 
-let ( ~@ ) (x : 'a) : 'a Source.phrase = Source.(x @?> no_region)
+let ( ~@ ) (x : 'a) : 'a Source.t = Source.(x @?> none)
 let t_any : t = ~@AnyType
 let t_unknown : t = ~@UnknownType
 let t_never : t = ~@NeverType

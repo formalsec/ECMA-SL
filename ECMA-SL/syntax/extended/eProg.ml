@@ -54,5 +54,5 @@ let pp (ppf : Fmt.t) (p : t) : unit =
 
 let str (p : t) : string = Fmt.str "%a" pp p
 
-let lambdas (p : t) : (region * Id.t' * Id.t list * Id.t list * EStmt.t) list =
+let lambdas (p : t) : (at * Id.t' * Id.t list * Id.t list * EStmt.t) list =
   Hashtbl.fold (fun _ f acc -> EFunc.lambdas f @ acc) p.funcs []
