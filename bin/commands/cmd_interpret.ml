@@ -65,14 +65,14 @@ module InterpreterMetrics = struct
   let pp_timer (ppf : Fmt.t) (timer : t) : unit =
     let exec_time = member "exec_time" timer |> to_float in
     let (_, _, secs, millis) = Base.format_time exec_time in
-    Fmt.format ppf "@\nexec time:  %ds%.3dms" secs millis
+    Fmt.fmt ppf "@\nexec time:  %ds%.3dms" secs millis
 
   let pp_memory (ppf : Fmt.t) (memory : t) : unit =
     let heap_n = member "heap_objs" memory |> to_int in
     let heap_sz = member "heap_size" memory |> to_int in
     let heap_sz_bytes = heap_sz * Sys.word_size in
     let (heap_sz_fmt, heap_sz_unit) = Base.format_bytes heap_sz_bytes in
-    Fmt.format ppf "@\nobj allocs: %d@\nheap size:  %d bytes (~%0.2f %s)" heap_n
+    Fmt.fmt ppf "@\nobj allocs: %d@\nheap size:  %d bytes (~%0.2f %s)" heap_n
       heap_sz_bytes heap_sz_fmt heap_sz_unit
 
   let pp_counter (ppf : Fmt.t) (counter : t) : unit =
@@ -80,14 +80,14 @@ module InterpreterMetrics = struct
     let calls = member "func_calls" counter |> to_int in
     let stmts = member "stmt_evals" counter |> to_int in
     let exprs = member "expr_evals" counter |> to_int in
-    Fmt.format ppf "@\n%s@\nfunc calls: %d@\nstmt evals: %d@\nexpr evals: %d"
+    Fmt.fmt ppf "@\n%s@\nfunc calls: %d@\nstmt evals: %d@\nexpr evals: %d"
       divider calls stmts exprs
 
   let pp (ppf : Fmt.t) (metrics : t) : unit =
     let timer = Util.member "timer" metrics in
     let memory = Util.member "memory" metrics in
     let counter = Util.member "counter" metrics in
-    Fmt.format ppf "%a%a%a" (pp_el pp_timer) timer (pp_el pp_memory) memory
+    Fmt.fmt ppf "%a%a%a" (pp_el pp_timer) timer (pp_el pp_memory) memory
       (pp_el pp_counter) counter
 
   let log (profiler : Enums.InterpProfiler.t) (metrics : t) : unit =

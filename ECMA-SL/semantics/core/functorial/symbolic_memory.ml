@@ -75,11 +75,9 @@ module Make (O : Object_intf.S with type value = V.value) = struct
 
   let rec pp ppf ({ data; parent } : t) =
     let open Fmt in
-    let pp_v ppf (key, data) = format ppf "%a: %a" Loc.pp key O.pp data in
-    let pp_parent ppf v =
-      pp_opt (fun ppf h -> format ppf "%a@ <-@ " pp h) ppf v
-    in
-    format ppf "%a{ %a }" pp_parent parent (Loc.Tbl.pp !>", " pp_v) data
+    let pp_v ppf (key, data) = fmt ppf "%a: %a" Loc.pp key O.pp data in
+    let pp_parent ppf v = pp_opt (fun ppf h -> fmt ppf "%a@ <-@ " pp h) ppf v in
+    fmt ppf "%a{ %a }" pp_parent parent (Loc.Tbl.pp !>", " pp_v) data
 
   let rec unfold_ite ~(accum : value) (e : value) : (value option * int) list =
     match E.view e with

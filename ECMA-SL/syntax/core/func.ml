@@ -24,13 +24,13 @@ let body (f : t) : Stmt.t = f.it.body
 let pp_signature (ppf : Fmt.t) (f : t) : unit =
   let open Fmt in
   let { name; params; _ } = f.it in
-  format ppf "function %a(%a)" Id.pp name (pp_lst !>", " Id.pp) params
+  fmt ppf "function %a(%a)" Id.pp name (pp_lst !>", " Id.pp) params
 
 let pp (ppf : Fmt.t) (f : t) : unit =
-  Fmt.format ppf "%a %a" pp_signature f Stmt.pp f.it.body
+  Fmt.fmt ppf "%a %a" pp_signature f Stmt.pp f.it.body
 
 let pp_simple (ppf : Fmt.t) (f : t) : unit =
-  Fmt.format ppf "%a {..." pp_signature f
+  Fmt.fmt ppf "%a {..." pp_signature f
 
 let str ?(simple : bool = false) (f : t) : string =
   if simple then Fmt.str "%a" pp_simple f else Fmt.str "%a" pp f

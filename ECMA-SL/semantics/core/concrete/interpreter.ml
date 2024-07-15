@@ -157,10 +157,10 @@ module M (Instrument : Instrument.M) = struct
     let heapval_pp' = heapval_pp (incr_depth depth) visited heap in
     match v with
     | App (`Op "loc", [ Int l ]) when (not valid_depth) || visited_loc l ->
-      Fmt.format ppf "{...}"
-    (* | Arr _ when not valid_depth -> Fmt.format ppf "[|...|]" *)
-    | List _ when not valid_depth -> Fmt.format ppf "[...]"
-    (* | Tuple _ when not valid_depth -> Fmt.format ppf "(...)" *)
+      Fmt.fmt ppf "{...}"
+    (* | Arr _ when not valid_depth -> Fmt.fmt ppf "[|...|]" *)
+    | List _ when not valid_depth -> Fmt.fmt ppf "[...]"
+    (* | Tuple _ when not valid_depth -> Fmt.fmt ppf "(...)" *)
     | App (`Op "loc", [ Int l ]) ->
       Hashtbl.add visited l ();
       (Object.pp heapval_pp') ppf (get_loc heap l);

@@ -40,13 +40,13 @@ let set (heap : 'a t) (l : Loc.t) (obj : 'a obj) : unit =
 let rec pp (pp_obj : Fmt.t -> 'a obj -> unit) (ppf : Fmt.t) (heap : 'a t) : unit
     =
   let open Fmt in
-  let pp_binding ppf (loc, obj) = format ppf "%a: %a" Loc.pp loc pp_obj obj in
+  let pp_binding ppf (loc, obj) = fmt ppf "%a: %a" Loc.pp loc pp_obj obj in
   let pp_map ppf map =
     if Loc.Tbl.length map = 0 then pp_str ppf "{}"
-    else format ppf "{ %a }" (Loc.Tbl.pp !>", " pp_binding) map
+    else fmt ppf "{ %a }" (Loc.Tbl.pp !>", " pp_binding) map
   in
-  let pp_parent ppf heap = format ppf "%a <- " (pp pp_obj) heap in
-  format ppf "%a%a" (pp_opt pp_parent) heap.parent pp_map heap.map
+  let pp_parent ppf heap = fmt ppf "%a <- " (pp pp_obj) heap in
+  fmt ppf "%a%a" (pp_opt pp_parent) heap.parent pp_map heap.map
 
 let rec pp_tabular (pp_obj : Fmt.t -> 'a obj -> unit) (ppf : Fmt.t) (heap : 'a t)
   : unit =
@@ -58,10 +58,10 @@ let rec pp_tabular (pp_obj : Fmt.t -> 'a obj -> unit) (ppf : Fmt.t) (heap : 'a t
   let max = Seq.fold_left Int.max 0 lengths in
   let indent x = String.make (max - String.length (Loc.str x)) ' ' in
   let pp_bind ppf (x, v) =
-    format ppf "%s%a  <-  %a" (indent x) Loc.pp x pp_obj v
+    fmt ppf "%s%a  <-  %a" (indent x) Loc.pp x pp_obj v
   in
-  let pp_parent ppf heap = format ppf "%a\n\n^\n\n" (pp_tabular pp_obj) heap in
-  format ppf "%a%a" (pp_opt pp_parent) heap.parent
+  let pp_parent ppf heap = fmt ppf "%a\n\n^\n\n" (pp_tabular pp_obj) heap in
+  fmt ppf "%a%a" (pp_opt pp_parent) heap.parent
     (Loc.Tbl.pp !>"\n" pp_bind)
     heap.map
 

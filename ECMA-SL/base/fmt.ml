@@ -2,7 +2,7 @@ include Format
 
 type t = Format.formatter
 
-let format : t -> ('a, t, unit) format -> 'a = fprintf
+let fmt : t -> ('a, t, unit) format -> 'a = fprintf
 let str : ('a, t, unit, string) format4 -> 'a = asprintf
 let ( !> ) : ('a, t, unit, t -> unit) format4 -> 'a = dprintf
 let pp_space (ppf : t) () : unit = pp_print_space ppf () [@@inline]

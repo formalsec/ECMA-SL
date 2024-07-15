@@ -53,9 +53,9 @@ let link_env (prog : Prog.t) : Extern_func.extern_func Symbolic.Env.t =
 let pp_model (ppf : Fmt.t) (model : Smtml.Model.t) : unit =
   let open Fmt in
   let open Smtml in
-  let pp_map ppf (s, v) = format ppf {|"%a" : %a|} Symbol.pp s Value.pp v in
+  let pp_map ppf (s, v) = fmt ppf {|"%a" : %a|} Symbol.pp s Value.pp v in
   let pp_vars ppf v = pp_lst !>"@\n, " pp_map ppf v in
-  format ppf "@[<v 2>module.exports.symbolic_map =@ { %a@\n}@]" pp_vars
+  fmt ppf "@[<v 2>module.exports.symbolic_map =@ { %a@\n}@]" pp_vars
     (Model.get_bindings model)
 
 type witness =

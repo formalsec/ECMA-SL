@@ -31,50 +31,49 @@ let default () : t = Skip @> no_region
 let rec pp (ppf : Fmt.t) (s : t) : unit =
   let open Fmt in
   let pp_return ppf e =
-    if EExpr.isvoid e then () else format ppf " %a" EExpr.pp e
+    if EExpr.isvoid e then () else fmt ppf " %a" EExpr.pp e
   in
   match s.it with
-  | Skip -> format ppf "skip"
-  | Debug s' -> format ppf "# %a" pp s'
-  | Block ss -> format ppf "{\n%a\n}" (pp_lst !>";\n" pp) ss
+  | Skip -> fmt ppf "skip"
+  | Debug s' -> fmt ppf "# %a" pp s'
+  | Block ss -> fmt ppf "{\n%a\n}" (pp_lst !>";\n" pp) ss
   | ExprStmt e -> EExpr.pp ppf e
-  | Print e -> format ppf "print %a" EExpr.pp e
-  | Return e -> format ppf "return%a" pp_return e
+  | Print e -> fmt ppf "print %a" EExpr.pp e
+  | Return e -> fmt ppf "return%a" pp_return e
   | Assign (x, tx, e) ->
-    format ppf "%a%a := %a" Id.pp x EType.tannot_pp tx EExpr.pp e
-  | GAssign (x, e) -> format ppf "|%a| := %a" Id.pp x EExpr.pp e
+    fmt ppf "%a%a := %a" Id.pp x EType.tannot_pp tx EExpr.pp e
+  | GAssign (x, e) -> fmt ppf "|%a| := %a" Id.pp x EExpr.pp e
   | FieldAssign (oe, fe, e) ->
-    format ppf "%a[%a] := %a" EExpr.pp oe EExpr.pp fe EExpr.pp e
-  | FieldDelete (oe, fe) -> format ppf "delete %a[%a]" EExpr.pp oe EExpr.pp fe
+    fmt ppf "%a[%a] := %a" EExpr.pp oe EExpr.pp fe EExpr.pp e
+  | FieldDelete (oe, fe) -> fmt ppf "delete %a[%a]" EExpr.pp oe EExpr.pp fe
   | If (ifcs, elsecs) ->
-    let pp_case ppf (e, s) = format ppf "(%a) %a" EExpr.pp e pp s in
-    let pp_if ppf (e, s, _) = format ppf "if %a" pp_case (e, s) in
-    let pp_else ppf s = format ppf " else %a" pp s in
-    format ppf "%a%a" pp_if ifcs (pp_opt pp_else) elsecs
-  | While (e, s') -> format ppf "while (%a) %a" EExpr.pp e pp s'
+    let pp_case ppf (e, s) = fmt ppf "(%a) %a" EExpr.pp e pp s in
+    let pp_if ppf (e, s, _) = fmt ppf "if %a" pp_case (e, s) in
+    let pp_else ppf s = fmt ppf " else %a" pp s in
+    fmt ppf "%a%a" pp_if ifcs (pp_opt pp_else) elsecs
+  | While (e, s') -> fmt ppf "while (%a) %a" EExpr.pp e pp s'
   | ForEach (x, e, s') ->
-    format ppf "foreach (%a : %a) %a" Id.pp x EExpr.pp e pp s'
+    fmt ppf "foreach (%a : %a) %a" Id.pp x EExpr.pp e pp s'
   | RepeatUntil (s', until) ->
-    let pp_until ppf (e, _) = format ppf " until %a" EExpr.pp e in
-    format ppf "repeat %a%a" pp s' (pp_opt pp_until) until
+    let pp_until ppf (e, _) = fmt ppf " until %a" EExpr.pp e in
+    fmt ppf "repeat %a%a" pp s' (pp_opt pp_until) until
   | Switch (e, css, dflt) ->
-    let pp_case ppf (e, s) = format ppf "\ncase %a: %a" EExpr.pp e pp s in
-    let pp_default ppf s = format ppf "\ndefault: %a" pp s in
-    format ppf "switch (%a) {%a%a\n}" EExpr.pp e (pp_lst !>"" pp_case) css
+    let pp_case ppf (e, s) = fmt ppf "\ncase %a: %a" EExpr.pp e pp s in
+    let pp_default ppf s = fmt ppf "\ndefault: %a" pp s in
+    fmt ppf "switch (%a) {%a%a\n}" EExpr.pp e (pp_lst !>"" pp_case) css
       (pp_opt pp_default) dflt
   | MatchWith (e, dsc, css) ->
-    let pp_discrim ppf dsc = format ppf ": %a" Id.pp dsc in
-    let pp_case ppf (pat, s) = format ppf "\n| %a -> %a" EPat.pp pat pp s in
-    format ppf "match %a%a with %a" EExpr.pp e (pp_opt pp_discrim) dsc
+    let pp_discrim ppf dsc = fmt ppf ": %a" Id.pp dsc in
+    let pp_case ppf (pat, s) = fmt ppf "\n| %a -> %a" EPat.pp pat pp s in
+    fmt ppf "match %a%a with %a" EExpr.pp e (pp_opt pp_discrim) dsc
       (pp_lst !>"" pp_case) css
   | Lambda (x, _, pxs, ctxvars, s') ->
-    format ppf "%a := lambda (%a) [%a] %a" Id.pp x (pp_lst !>", " Id.pp) pxs
+    fmt ppf "%a := lambda (%a) [%a] %a" Id.pp x (pp_lst !>", " Id.pp) pxs
       (pp_lst !>", " Id.pp) ctxvars pp s'
-  | MacroApply (m, es) ->
-    format ppf "@%a(%a)" Id.pp m (pp_lst !>", " EExpr.pp) es
-  | Throw e -> format ppf "throw %a" EExpr.pp e
-  | Fail e -> format ppf "fail %a" EExpr.pp e
-  | Assert e -> format ppf "assert %a" EExpr.pp e
+  | MacroApply (m, es) -> fmt ppf "@%a(%a)" Id.pp m (pp_lst !>", " EExpr.pp) es
+  | Throw e -> fmt ppf "throw %a" EExpr.pp e
+  | Fail e -> fmt ppf "fail %a" EExpr.pp e
+  | Assert e -> fmt ppf "assert %a" EExpr.pp e
 
 let str (s : t) : string = Fmt.str "%a" pp s
 

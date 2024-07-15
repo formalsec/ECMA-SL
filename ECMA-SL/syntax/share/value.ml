@@ -13,17 +13,17 @@ let float_str (f : float) : string =
 
 let pp_custom_val (pp_v : Fmt.t -> t -> unit) (ppf : Fmt.t) (v : t) : unit =
   match v with
-  | Int i -> Fmt.format ppf "%i" i
-  | Real f -> Fmt.format ppf "%s" (float_str f)
-  | Str s -> Fmt.format ppf "%S" s
-  | True -> Fmt.format ppf "true"
-  | False -> Fmt.format ppf "false"
-  | List lst -> Fmt.(format ppf "[%a]" (pp_lst !>", " pp_v) lst)
+  | Int i -> Fmt.fmt ppf "%i" i
+  | Real f -> Fmt.fmt ppf "%s" (float_str f)
+  | Str s -> Fmt.fmt ppf "%S" s
+  | True -> Fmt.fmt ppf "true"
+  | False -> Fmt.fmt ppf "false"
+  | List lst -> Fmt.(fmt ppf "[%a]" (pp_lst !>", " pp_v) lst)
   | App (`Op "void", []) -> ()
-  | App (`Op "null", []) -> Fmt.format ppf "null"
+  | App (`Op "null", []) -> Fmt.fmt ppf "null"
   | App (`Op "loc", [ Int l ]) -> Loc.pp ppf l
-  | App (`Op "symbol", [ Str s ]) -> Fmt.format ppf "'%s" s
-  | App (`Op fn, fvs) -> Fmt.(format ppf "{%S}@(%a)" fn (pp_lst !>", " pp_v) fvs)
+  | App (`Op "symbol", [ Str s ]) -> Fmt.fmt ppf "'%s" s
+  | App (`Op fn, fvs) -> Fmt.(fmt ppf "{%S}@(%a)" fn (pp_lst !>", " pp_v) fvs)
   | _ -> Log.fail "Val.pp_custom_val: unexpected value '%a'" pp v
 
 let rec pp (ppf : Fmt.t) (v : t) : unit = pp_custom_val pp ppf v

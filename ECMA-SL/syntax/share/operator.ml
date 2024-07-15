@@ -215,7 +215,7 @@ let pp_of_binopt_single (ppf : Fmt.t) (op : binopt) : unit =
   | Minus -> pp_str ppf "-"
   | Times -> pp_str ppf "*"
   | Div -> pp_str ppf "/"
-  | Modulo -> format ppf "%%"
+  | Modulo -> fmt ppf "%%"
   | Pow -> pp_str ppf "**"
   | BitwiseAnd -> pp_str ppf "&"
   | BitwiseOr -> pp_str ppf "|"
@@ -256,27 +256,27 @@ let pp_of_const (ppf : Fmt.t) (c : const) : unit =
 
 let pp_of_unopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   ((op, v) : unopt * 'a) : unit =
-  if is_infix_unopt op then Fmt.format ppf "%a%a" pp_of_unopt_single op pp_val v
-  else Fmt.format ppf "%a(%a)" pp_of_unopt_single op pp_val v
+  if is_infix_unopt op then Fmt.fmt ppf "%a%a" pp_of_unopt_single op pp_val v
+  else Fmt.fmt ppf "%a(%a)" pp_of_unopt_single op pp_val v
 
 let pp_of_binopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   ((op, v1, v2) : binopt * 'a * 'a) : unit =
   if is_infix_binopt op then
-    Fmt.format ppf "%a %a %a" pp_val v1 pp_of_binopt_single op pp_val v2
-  else Fmt.format ppf "%a(%a, %a)" pp_of_binopt_single op pp_val v1 pp_val v2
+    Fmt.fmt ppf "%a %a %a" pp_val v1 pp_of_binopt_single op pp_val v2
+  else Fmt.fmt ppf "%a(%a, %a)" pp_of_binopt_single op pp_val v1 pp_val v2
 
 let pp_of_triopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   ((op, v1, v2, v3) : triopt * 'a * 'a * 'a) : unit =
-  Fmt.format ppf "%a(%a, %a, %a)" pp_of_triopt_single op pp_val v1 pp_val v2
-    pp_val v3
+  Fmt.fmt ppf "%a(%a, %a, %a)" pp_of_triopt_single op pp_val v1 pp_val v2 pp_val
+    v3
 
 let pp_of_nopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   ((op, vs) : nopt * 'a list) : unit =
   let open Fmt in
   match op with
-  | NAryLogicalAnd -> format ppf "%a" (pp_lst !>" && " pp_val) vs
-  | NAryLogicalOr -> format ppf "%a" (pp_lst !>" || " pp_val) vs
-  | ListExpr -> format ppf "[%a]" (pp_lst !>", " pp_val) vs
+  | NAryLogicalAnd -> fmt ppf "%a" (pp_lst !>" && " pp_val) vs
+  | NAryLogicalOr -> fmt ppf "%a" (pp_lst !>" || " pp_val) vs
+  | ListExpr -> fmt ppf "[%a]" (pp_lst !>", " pp_val) vs
 
 let str_of_unopt_single (op : unopt) : string =
   Fmt.str "%a" pp_of_unopt_single op

@@ -61,8 +61,8 @@ module M = struct
           (fun k v -> if not @@ String.starts_with ~prefix:"__" k then f (k, v))
           m
       in
-      let pp_v ppf (k, v) = format ppf "%s -> %a" k pp v in
-      format ppf "{ ... %a }" (pp_iter !>";@ " iter pp_v) store
+      let pp_v ppf (k, v) = fmt ppf "%s -> %a" k pp v in
+      fmt ppf "{ ... %a }" (pp_iter !>";@ " iter pp_v) store
   end
 
   type store = Store.t
