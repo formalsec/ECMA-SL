@@ -8,7 +8,7 @@ let create : unit -> t =
 
 let equal (l1 : t) (l2 : t) : bool = l1 == l2 [@@inline]
 let hash (l : t) : int = l [@@inline]
-let pp (ppf : Fmt.t) (l : t) : unit = Fmt.format ppf "$loc_%d" l
+let pp (ppf : Fmt.t) (l : t) : unit = Fmt.fmt ppf "$loc_%d" l
 let str (l : t) : string = Fmt.str "%a" pp l
 
 module Tbl = struct

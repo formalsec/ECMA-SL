@@ -52,33 +52,30 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
   let pp (ppf : Fmt.t) (msg : t) : unit =
     let open Fmt in
     match msg with
-    | Default -> format ppf "Generic runtime error."
-    | Custom msg' -> format ppf "%s" msg'
-    | Unexpected msg -> format ppf "Unexpected %s." msg
-    | UnexpectedExitVal v ->
-      format ppf "Unexpected exit value '%a'." Value.pp v
-    | Failure msg -> format ppf "Failure %s." msg
-    | UncaughtExn msg -> format ppf "Uncaught exception %s." msg
-    | OpEvalErr oplbl -> format ppf "Exception in Operator.%s." oplbl
-    | UnknownVar x -> format ppf "Cannot find variable '%s'." x
-    | UnknownFunc fn -> format ppf "Cannot find function '%s'." fn
+    | Default -> fmt ppf "Generic runtime error."
+    | Custom msg' -> fmt ppf "%s" msg'
+    | Unexpected msg -> fmt ppf "Unexpected %s." msg
+    | UnexpectedExitVal v -> fmt ppf "Unexpected exit value '%a'." Value.pp v
+    | Failure msg -> fmt ppf "Failure %s." msg
+    | UncaughtExn msg -> fmt ppf "Uncaught exception %s." msg
+    | OpEvalErr oplbl -> fmt ppf "Exception in Operator.%s." oplbl
+    | UnknownVar x -> fmt ppf "Cannot find variable '%s'." x
+    | UnknownFunc fn -> fmt ppf "Cannot find function '%s'." fn
     | BadNArgs (npxs, nargs) ->
-      format ppf "Expected %d arguments, but got %d." npxs nargs
+      fmt ppf "Expected %d arguments, but got %d." npxs nargs
     | BadVal (texpr, v) ->
-      format ppf "Expecting %s value, but got '%a'." texpr Value.pp v
+      fmt ppf "Expecting %s value, but got '%a'." texpr Value.pp v
     | BadExpr (texpr, v) ->
-      format ppf "Expecting %s expression, but got '%a'." texpr Value.pp v
+      fmt ppf "Expecting %s expression, but got '%a'." texpr Value.pp v
     | BadFuncId v ->
-      format ppf "Expecting a function identifier, but got '%a'." Value.pp v
+      fmt ppf "Expecting a function identifier, but got '%a'." Value.pp v
     | BadOpArgs (texpr, vs) when List.length vs = 1 ->
-      format ppf "Expecting argument of type '%s', but got '%a'." texpr
-        (pp_lst !>", " Value.pp)
-        vs
+      fmt ppf "Expecting argument of type '%s', but got '%a'." texpr
+        (pp_lst !>", " Value.pp) vs
     | BadOpArgs (texpr, vs) ->
-      format ppf "Expecting arguments of types '%s', but got '(%a)'." texpr
-        (pp_lst !>", " Value.pp)
-        vs
-    | MissingReturn fn -> format ppf "Missing return in function '%a'." Id.pp fn
+      fmt ppf "Expecting arguments of types '%s', but got '(%a)'." texpr
+        (pp_lst !>", " Value.pp) vs
+    | MissingReturn fn -> fmt ppf "Missing return in function '%a'." Id.pp fn
 
   let str (msg : t) : string = Fmt.str "%a" pp msg
 end
@@ -110,7 +107,7 @@ let pp (ppf : Fmt.t) (err : t) : unit =
   let module MsgFmt = Error_type.ErrorTypeFmt (RuntimeErr) in
   let module ErrSrcFmt = ErrSrc.ErrSrcFmt (RuntimeErr) in
   let module RtTraceFmt = RtTrace.RtTraceFmt (RuntimeErr) in
-  Fmt.format ppf "%a%a%a" MsgFmt.pp err.msgs ErrSrcFmt.pp err.src
+  Fmt.fmt ppf "%a%a%a" MsgFmt.pp err.msgs ErrSrcFmt.pp err.src
     (pp_opt RtTraceFmt.pp) err.trace
 
 let str (err : t) = Fmt.str "%a" pp err

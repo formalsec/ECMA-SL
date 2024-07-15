@@ -21,8 +21,8 @@ let rec pp (ppf : Fmt.t) (e : t) : unit =
   | BinOpt (op, e1, e2) -> Operator.pp_of_binopt pp ppf (op, e1, e2)
   | TriOpt (op, e1, e2, e3) -> Operator.pp_of_triopt pp ppf (op, e1, e2, e3)
   | NOpt (op, es) -> Operator.pp_of_nopt pp ppf (op, es)
-  | Curry (fe, es) -> format ppf "{%a}@(%a)" pp fe (pp_lst !>", " pp) es
-  | Symbolic (t, e') -> format ppf "se_mk_symbolic(%a, %a)" Type.pp t pp e'
+  | Curry (fe, es) -> fmt ppf "{%a}@(%a)" pp fe (pp_lst !>", " pp) es
+  | Symbolic (t, e') -> fmt ppf "se_mk_symbolic(%a, %a)" Type.pp t pp e'
 
 let str (e : t) : string = Fmt.str "%a" pp e
 

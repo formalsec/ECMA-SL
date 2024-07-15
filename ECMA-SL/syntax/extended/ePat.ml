@@ -24,9 +24,9 @@ and t' =
 
 let pp (ppf : Fmt.t) (pat : t) : unit =
   let open Fmt in
-  let pp_pb ppf (pbn, pbv) = format ppf "%a: %a" Id.pp pbn pv_pp pbv in
+  let pp_pb ppf (pbn, pbv) = fmt ppf "%a: %a" Id.pp pbn pv_pp pbv in
   match pat.it with
-  | ObjPat pbs -> format ppf "{ %a }" (pp_lst !>", " pp_pb) pbs
+  | ObjPat pbs -> fmt ppf "{ %a }" (pp_lst !>", " pp_pb) pbs
   | DefaultPat -> pp_str ppf "default"
 
 let str (pat : t) : string = Fmt.str "%a" pp pat

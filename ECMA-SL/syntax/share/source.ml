@@ -31,10 +31,10 @@ let map (f : 'a -> 'b) (x : 'a phrase) : 'b phrase = { x with it = f x.it }
 
 let pp_pos (ppf : Fmt.t) (pos : pos) : unit =
   let pp_pos' ppf v = Fmt.(if v == -1 then pp_str ppf "x" else pp_int ppf v) in
-  Fmt.format ppf "%a.%a" pp_pos' pos.line pp_pos' pos.column
+  Fmt.fmt ppf "%a.%a" pp_pos' pos.line pp_pos' pos.column
 
 let pp_region (ppf : Fmt.t) (at : region) : unit =
-  Fmt.format ppf "%S:%a-%a" at.file pp_pos at.left pp_pos at.right
+  Fmt.fmt ppf "%S:%a-%a" at.file pp_pos at.left pp_pos at.right
 
-let pp (ppf : Fmt.t) (x : 'a phrase) = Fmt.format ppf "%a" pp_region x.at
+let pp (ppf : Fmt.t) (x : 'a phrase) = Fmt.fmt ppf "%a" pp_region x.at
 let str (x : 'a phrase) : string = Fmt.str "%a" pp x
