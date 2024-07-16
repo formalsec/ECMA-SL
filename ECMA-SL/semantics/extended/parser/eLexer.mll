@@ -13,17 +13,17 @@
             (* Language constructs *)
             "import"                  , IMPORT;
             "typedef"                 , TYPEDEF;
-            "function"                , FUNCTION;
             "macro"                   , MACRO;
+            "function"                , FUNCTION;
             "print"                   , PRINT;
             "return"                  , RETURN;
+            "delete"                  , DELETE;
             "extern"                  , EXTERN;
             "lambda"                  , LAMBDA;
-            "delete"                  , DELETE;
             "assert"                  , ASSERT;
+            "fail"                    , FAIL;
             "throw"                   , THROW;
             "catch"                   , CATCH;
-            "fail"                    , FAIL;
             "if"                      , IF;
             "else"                    , ELSE;
             "while"                   , WHILE;

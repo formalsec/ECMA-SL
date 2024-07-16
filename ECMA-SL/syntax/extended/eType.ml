@@ -156,7 +156,7 @@ module TDef = struct
 
   let pp (ppf : Fmt.t) (tdef : t) : unit =
     let { name = tn; tval = tv } = tdef in
-    Fmt.fmt ppf "typedef %a := %a" Id.pp tn pp tv
+    Fmt.fmt ppf "typedef %a := %a;" Id.pp tn pp tv
 
   let str (tdef : t) : string = Fmt.str "%a" pp tdef
 end

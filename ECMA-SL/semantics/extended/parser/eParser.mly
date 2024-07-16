@@ -24,7 +24,7 @@
 (* ========== Language tokens ========== *)
 
 %token NULL NONE
-%token IMPORT TYPEDEF FUNCTION MACRO
+%token IMPORT TYPEDEF MACRO FUNCTION
 %token PRINT RETURN DELETE EXTERN LAMBDA
 %token ASSERT FAIL THROW CATCH
 %token IF ELSE
@@ -118,30 +118,31 @@ let prog_target :=
 
 let prog_element_target :=
   | ~ = tdef_target;    < EParsing_helper.Prog.parse_tdef >
-  | ~ = func_target;    < EParsing_helper.Prog.parse_func >
   | ~ = macro_target;   < EParsing_helper.Prog.parse_macro >
+  | ~ = func_target;    < EParsing_helper.Prog.parse_func >
 
 (* ==================== Program Elements ==================== *)
 
 let import_target :=
-  | IMPORT; ~ = str_id_target; SEMICOLON; <`User>
-  | IMPORT; ~ = id_target; SEMICOLON; <`Standard>
+  | IMPORT; import = str_id_target; SEMICOLON;  { EImport.User import @> at $sloc }
+  | IMPORT; import = id_target; SEMICOLON;      { EImport.Standard import @> at $sloc }
 
 let tdef_target :=
   | TYPEDEF; tn = id_target; DEFEQ; tv = type_target; SEMICOLON;
     { EType.TDef.create tn tv }
 
-let func_target :=
-  | FUNCTION; fn = id_target; pxs = func_tparams_target; tret = typing_target?; s = block_stmt_target;
-    { EFunc.create fn pxs tret s @> at $sloc }
-
 let macro_target :=
   | MACRO; mn = id_target; pxs = func_params_target; s = block_stmt_target;
    { EMacro.create mn pxs s @> at $sloc }
 
+let func_target :=
+  | FUNCTION; fn = id_target; pxs = func_tparams_target; tret = typing_target?; s = block_stmt_target;
+    { EFunc.create fn pxs tret s @> at $sloc }
+
 (* ==================== Statements ==================== *)
 
 let stmt_target :=
+  | ~ = aux_stmt_target;                <>
   | ~ = expr_stmt_target; SEMICOLON;    <>
   | ~ = exec_stmt_target; SEMICOLON;    <>
   | ~ = update_stmt_target; SEMICOLON;  <>
@@ -149,17 +150,19 @@ let stmt_target :=
   | ~ = selection_stmt_target;          <>
   | ~ = iteration_stmt_target;          <>
 
+let aux_stmt_target :=
+  | HASH; s = stmt_target;
+    { EStmt.Debug s @> at $sloc }
+
 let expr_stmt_target :=
   | e = no_blocklike_expr_target;
     { EStmt.ExprStmt e @> at $sloc }
 
 let exec_stmt_target :=
-  | HASH; s = stmt_target;
-    { EStmt.Debug s @> at $sloc }
   | PRINT; e = expr_target;
     { EStmt.Print e @> at $sloc }
   | RETURN; e = expr_target?; 
-    { EStmt.Return (EParsing_helper.Stmt.parse_return e) @> at $sloc }
+    { EStmt.Return (EParsing_helper.Expr.parse_return_expr e) @> at $sloc }
   | ASSERT; e = expr_target;
     { EStmt.Assert e @> at $sloc }
   | FAIL; e = expr_target;
@@ -183,16 +186,16 @@ let update_stmt_target :=
     { EStmt.Lambda (x, fresh_lambda_id_gen (), pxs, ctxvars, s) @> at $sloc }
 
 let block_stmt_target :=
-  | LBRACE; ss = stmt_target*; RBRACE;
-    { EStmt.Block ss @> at $sloc }
   | SEMICOLON;
     { EStmt.Skip @> at $sloc }
+  | LBRACE; ss = stmt_target*; RBRACE;
+    { EStmt.Block ss @> at $sloc }
 
 let selection_stmt_target :=
-  | ifcs = if_target; %prec simple_if_prec
-    { EStmt.If (ifcs, None) @> at $sloc }
-  | ifcs = if_target; elsecs = else_target;
-    { EStmt.If (ifcs, Some elsecs) @> at $sloc }
+  | IF; e = guard_target; s1 = stmt_target; %prec simple_if_prec
+    { EStmt.If (e, s1, None) @> at $sloc }
+  | IF; e = guard_target; s1 = stmt_target; ELSE; s2 = stmt_target;
+    { EStmt.If (e, s1, Some s2) @> at $sloc }
   | SWITCH; e = guard_target; LBRACE; css = switch_case_target*; dflt = switch_default_target?; RBRACE;
     { EStmt.Switch (e, css, dflt) @> at $sloc }
   | MATCH; e = expr_target; dsc = match_discrm_target?; WITH; css = match_cases_target;
@@ -205,16 +208,12 @@ let iteration_stmt_target :=
     { EStmt.ForEach (x, e, s) @> at $sloc }
   | REPEAT; s = stmt_target; %prec simple_repeat_prec
     { EStmt.RepeatUntil (s, None) @> at $sloc }
-  | REPEAT; s = stmt_target; until = until_target;
-    { EStmt.RepeatUntil (s, Some until) @> at $sloc }
+  | REPEAT; s = stmt_target; UNTIL; e = guard_target; SEMICOLON;
+    { EStmt.RepeatUntil (s, Some e) @> at $sloc }
 
 (* ==================== Statement Elements ==================== *)
 
 let guard_target := LPAREN; ~ = expr_target; RPAREN; <>
-
-let if_target := IF; e = guard_target; s = stmt_target; { (e, s, at $sloc) }
-
-let else_target := ELSE; ~ = stmt_target; <>
 
 let switch_case_target := CASE; ~ = expr_target; COLON; ~ = stmt_target; <>
 
@@ -227,8 +226,6 @@ let match_cases_target :=
   | cs = match_case_target; css = match_cases_target; { cs :: css }
 
 let match_case_target := PIPE; ~ = pattern_target; RIGHT_ARROW; ~ = stmt_target; <>
-
-let until_target := UNTIL; e = expr_target; SEMICOLON; { e, at $sloc }
 
 (* ==================== Pattern Elements ==================== *)
 
@@ -243,10 +240,10 @@ let pattern_binding_target :=
   | ~ = str_id_target; COLON; ~ = pattern_value_target;   <>
 
 let pattern_value_target :=
-  | x = id_target;        { EPat.PatVar x.it @> at $sloc }
-  | v = val_target;       { EPat.PatVal v @> at $sloc }
-  | LBRACK; RBRACK;       { EPat.PatVal (Value.List []) @> at $sloc }
-  | NONE;                 { EPat.PatNone @> at $sloc }
+  | x = id_target;        { EPat.PatVal.Var x.it @> at $sloc }
+  | v = val_target;       { EPat.PatVal.Val v @> at $sloc }
+  | LBRACK; RBRACK;       { EPat.PatVal.Val (Value.List []) @> at $sloc }
+  | NONE;                 { EPat.PatVal.None @> at $sloc }
 
 (* ==================== Expressions ==================== *)
 
@@ -293,7 +290,7 @@ let op_expr_target :=
 
 let call_expr_target :=
   | fn = id_target; es = call_args_target; ferr = catch_target?;
-    { EExpr.Call (EExpr.Val (Value.Str fn.it) @> fn.at, es, ferr) @> at $sloc }
+    { EExpr.Call (EExpr.Val (Str fn.it) @> fn.at, es, ferr) @> at $sloc }
   | LBRACE; fe = no_blocklike_expr_target; RBRACE; es = call_args_target; ferr = catch_target?;
     { EExpr.Call (fe, es, ferr) @> at $sloc }
   | EXTERN; fn = id_target; es = call_args_target;
