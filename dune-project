@@ -46,5 +46,4 @@
   (ECMAScript "Specification Language" "Reference Interpreters" "OCaml"))
  (sites
   (share interpreters)
-  (share nodejs)
   (share stdlib)))

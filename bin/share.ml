@@ -1,10 +1,8 @@
 module Locations = struct
   let interps : string list = Site.Sites.interpreters
   let stdlib : string list = Site.Sites.stdlib
-  let nodejs : string list = Site.Sites.nodejs
 end
 
-let nodejs = List.hd Locations.nodejs
 let stdlib = List.hd Locations.stdlib
 
 let search (location : string list) (file : string) : string option =

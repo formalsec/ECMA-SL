@@ -1,6 +1,0 @@
-(install
- (section
-  (site
-   (ecma-sl nodejs)))
- (files
-  (nodejs/esl_symbolic.js as esl_symbolic.js)))

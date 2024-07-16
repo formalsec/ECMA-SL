@@ -1,2 +1,2 @@
 (cram
- (deps %{bin:ecma-sl} tuple.esl semicolon.esl distinct.esl))
+ (deps %{bin:ecma-sl} semicolon.esl distinct.esl))

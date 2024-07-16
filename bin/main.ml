@@ -112,24 +112,6 @@ let symbolic_cmd =
   let term = Term.(const Cmd_symbolic.run $ copts $ symbolic_opts) in
   Cmd.v info term
 
-let replay_opts =
-  let open Term in
-  const Cmd_replay.Options.set $ Docs.FileOpts.input $ Docs.ReplayOpts.testsuit
-
-let replay_cmd =
-  let open Docs.ReplayCmd in
-  let info = Cmd.(info "replay" ~sdocs ~doc ~man ~man_xrefs ~exits) in
-  let term = Term.(const Cmd_replay.run $ copts $ replay_opts) in
-  Cmd.v info term
-
-let explode_opts = symbolic_opts
-
-let explode_cmd =
-  let open Docs.ExplodeJSCmd in
-  let info = Cmd.(info "explode-js" ~sdocs ~doc ~man ~man_xrefs ~exits) in
-  let term = Term.(const Cmd_explodejs.run $ copts $ explode_opts) in
-  Cmd.v info term
-
 let cmd_list =
   [ compile_cmd
   ; interpret_cmd
@@ -137,8 +119,6 @@ let cmd_list =
   ; execute_cmd
   ; test_cmd
   ; symbolic_cmd
-  ; replay_cmd
-  ; explode_cmd
   ]
 
 let main_cmd =
@@ -164,7 +144,6 @@ let exit_code () =
     | `SymAbort _ -> Docs.ExitCodes.sym_abort
     | `SymAssertFailure _ -> Docs.ExitCodes.sym_assert_failure
     | `SymFailure _ -> Docs.ExitCodes.sym_failure
-    | `SymNodeJS _ -> Docs.ExitCodes.sym_nodejs
     | `Generic _ -> Docs.ExitCodes.generic
   end
   | Error err -> begin

@@ -17,9 +17,7 @@
   cmd_encode
   cmd_execute
   cmd_test
-  cmd_symbolic
-  cmd_replay
-  cmd_explodejs)
+  cmd_symbolic)
  (libraries ecma-sl cmdliner bos yojson dune-site)
  (instrumentation
   (backend bisect_ppx)))
