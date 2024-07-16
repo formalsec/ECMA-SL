@@ -4,22 +4,21 @@ type t = (Id.t', Func.t) Hashtbl.t
 
 let default () : t = Hashtbl.create !Base.default_hashtbl_sz
 
-let create (fs : Func.t list) : t =
-  let p = default () in
-  List.iter (fun f -> Hashtbl.replace p (Func.name' f) f) fs;
-  p
+let create (funcs : Func.t list) : t =
+  let prog = default () in
+  List.iter (fun f -> Hashtbl.replace prog (Func.name' f) f) funcs;
+  prog
 
-let add_func (p : t) (fn : Id.t') (f : Func.t) : unit = Hashtbl.replace p fn f
-let funcs (p : t) : (Id.t', Func.t) Hashtbl.t = p
-let func_opt (p : t) (fn : Id.t') : Func.t option = Hashtbl.find_opt p fn
+let funcs (prog : t) : (Id.t', Func.t) Hashtbl.t = prog
+let func_opt (prog : t) (fn : Id.t') : Func.t option = Hashtbl.find_opt prog fn
 
-let func (p : t) (fn : Id.t') : (Func.t, string) Result.t =
-  match func_opt p fn with
-  | None -> Result.error (Printf.sprintf "Cannot find function '%s'." fn)
+let func (prog : t) (fn : Id.t') : (Func.t, string) Result.t =
+  match func_opt prog fn with
   | Some f -> Result.ok f
+  | None -> Result.error (Fmt.str "Cannot find function '%s'." fn)
 
-let pp (ppf : Fmt.t) (p : t) : unit =
-  let iter f tbl = Hashtbl.iter (fun _ func -> f func) tbl in
-  Fmt.(pp_iter !>";@\n" iter Func.pp ppf p)
+let pp (ppf : Fmt.t) (prog : t) : unit =
+  let pp_func ppf (_, f) = Func.pp ppf f in
+  Fmt.(pp_hashtbl !>";@\n" pp_func ppf prog)
 
-let str (p : t) : string = Fmt.str "%a" pp p
+let str (prog : t) : string = Fmt.str "%a" pp prog
