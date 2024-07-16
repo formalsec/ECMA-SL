@@ -1,3 +1,5 @@
+open EslBase
+open EslSyntax
 module Expr = EslSyntax.Expr
 
 (*Each monitor is independent of the other ones*)
@@ -36,9 +38,20 @@ module M (SL : NSULevel.M) = struct
     let pc' = List.rev pc in
     match pc' with s :: _ss' -> s | _ -> raise (Except "PC list is empty!")
 
+  let rec vars_in_expr (e : Expr.t) : Id.t' list =
+    let vars_in_lst lst = List.map vars_in_expr lst |> List.concat in
+    match e.it with
+    | Var x -> [ x ]
+    | UnOpt (_, e') -> vars_in_lst [ e' ]
+    | BinOpt (_, e1, e2) -> vars_in_lst [ e1; e2 ]
+    | TriOpt (_, e1, e2, e3) -> vars_in_lst [ e1; e2; e3 ]
+    | NOpt (_, es) -> vars_in_lst es
+    | Curry (fe, es) -> vars_in_lst (fe :: es)
+    | _ -> []
+
   let expr_lvl (ssto : sl NSUStore.t) (exp : Expr.t) : sl =
     (*Criar lub entre lista de variaveis*)
-    let vars = Expr.vars_in_expr exp in
+    let vars = vars_in_expr exp in
     List.fold_left SL.lub (SL.get_low ()) (List.map (NSUStore.get ssto) vars)
 
   let rec eval_small_step (m_state : state_t) (tl : sl NSULabel.t) :

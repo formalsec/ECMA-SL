@@ -145,7 +145,7 @@ let selection_stmt_target :=
     { Stmt.If (e, s1, None) @> at $sloc }
   | IF; e = guard_target; s1 = block_stmt_target; ELSE; s2 = block_stmt_target;
     { Stmt.If (e, s1, Some s2) @> at $sloc }
-  | SWITCH; e = guard_target; LBRACE; css = switch_case_target*; dflt = switch_default_target?; RBRACE;
+  | SWITCH; e = guard_target; LBRACE; css = switch_case_target*; dflt = switch_dflt_target?; RBRACE;
     { Stmt.Switch (e, (Parsing_helper.Stmt.parse_switch_cases css), dflt) @> at $sloc }
 
 let iteration_stmt_target :=
@@ -156,15 +156,15 @@ let iteration_stmt_target :=
 
 let guard_target := LPAREN; ~ = expr_target; RPAREN; <>
 
-let switch_case_target := CASE; v = val_target; COLON; s = block_stmt_target; { (v @> at $sloc, s) }
+let switch_case_target := CASE; e = val_expr_target; COLON; s = block_stmt_target; { (e, s) }
 
-let switch_default_target := DEFAULT; COLON; ~ = block_stmt_target; <>
+let switch_dflt_target := DEFAULT; COLON; ~ = block_stmt_target; <>
 
 (* ==================== Expressions ==================== *)
 
 let expr_target := 
   | LPAREN; ~ = expr_target; RPAREN;    <>
-  | ~ = val_expr_target;                 <>
+  | ~ = val_expr_target;                <>
   | ~ = var_expr_target;                <>
   | ~ = op_expr_target;                 <>
   | ~ = curry_expr_target;              <>
@@ -178,16 +178,16 @@ let var_expr_target :=
     { Expr.Var x @> at $sloc }
 
 let op_expr_target :=
-  | unopt = core_unopt_infix; e = expr_target; %prec unopt_prec
-    { Expr.UnOpt (unopt, e) @> at $sloc }
-  | unopt = core_unopt_call; LPAREN; e = expr_target; RPAREN;
-    { Expr.UnOpt (unopt, e) @> at $sloc }
-  | e1 = expr_target; binopt = core_binopt_infix; e2 = expr_target;
-    { Expr.BinOpt (binopt, e1, e2) @> at $sloc }
-  | binopt = core_binopt_call; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
-    { Expr.BinOpt (binopt, e1, e2) @> at $sloc }
-  | triopt = core_triopt; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; COMMA; e3 = expr_target; RPAREN;
-    { Expr.TriOpt (triopt, e1, e2, e3) @> at $sloc }
+  | op = core_unopt_infix; e = expr_target; %prec unopt_prec
+    { Expr.UnOpt (op, e) @> at $sloc }
+  | op = core_unopt_call; LPAREN; e = expr_target; RPAREN;
+    { Expr.UnOpt (op, e) @> at $sloc }
+  | e1 = expr_target; op = core_binopt_infix; e2 = expr_target;
+    { Expr.BinOpt (op, e1, e2) @> at $sloc }
+  | op = core_binopt_call; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
+    { Expr.BinOpt (op, e1, e2) @> at $sloc }
+  | op = core_triopt; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; COMMA; e3 = expr_target; RPAREN;
+    { Expr.TriOpt (op, e1, e2, e3) @> at $sloc }
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
     { Expr.NOpt (ListExpr, es) @> at $sloc }
 
@@ -197,7 +197,7 @@ let curry_expr_target :=
 
 (* ==================== Generic Elements ==================== *)
 
-let func_param_target := LPAREN; ~ = separated_list(COMMA, id_target); RPAREN; < Parsing_helper.Func.parse_params >
+let func_param_target := LPAREN; ~ = separated_list(COMMA, id_target); RPAREN;  < Parsing_helper.Func.parse_params >
 
 let call_args_target := LPAREN; ~ = separated_list(COMMA, expr_target); RPAREN; <>
 
@@ -205,13 +205,13 @@ let lookup_target := LBRACK; ~ = expr_target; RBRACK; <>
 
 (* ==================== Values ==================== *)
 
-let id_target := x = ID;    { (x @> at $sloc) }
+let id_target := x = ID;              { (x @> at $sloc) }
 
 let val_target :=
-  | NULL;                   { Value.App (`Op "null", []) }
   | i = INT;                < Value.Int >
   | f = FLOAT;              < Value.Real >
   | s = STRING;             < Value.Str >
   | b = BOOLEAN;            { if b then Value.True else Value.False }
-  | l = LOC;                { Value.App (`Op "loc", [Value.Int l])}
-  | s = SYMBOL;             { Value.App (`Op "symbol", [Value.Str s])}
+  | NULL;                   { Value.App (`Op "null", []) }
+  | l = LOC;                { Value.App (`Op "loc", [ Value.Int l ]) }
+  | s = SYMBOL;             { Value.App (`Op "symbol", [ Value.Str s ]) }
