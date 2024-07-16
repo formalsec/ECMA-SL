@@ -6,8 +6,10 @@
 
 ### Changed
 
-- Operators `exp`, `random`, `typeof` and tuple related operators were removed from syntax and became external functions. 
+- Operators `exp`, `random`, `typeof` and tuple related operators were removed from syntax and became external functions.
+
 - The values used by ECMA-SL (`Val.ml`) were changed to the values of `Smtml`. In the next code snippet, you can see how it was converted:
+
 ```ocaml
 type t =
   | Null (* -> App "null" [] *)
@@ -22,10 +24,10 @@ type t =
   | List of t list (* -> List l *)
   | Tuple of t list (* -> List l *)
   | Byte of int (* Int *)
-  | Type of Type.t  
-    (* -> App t [] *) 
-    (* t := "NullType" | "IntType"    | "RealType" | "StrType" 
-          | "BoolType" | "SymbolType" | "LocType"  | "ListType" 
+  | Type of Type.t
+    (* -> App t [] *)
+    (* t := "NullType" | "IntType"    | "RealType" | "StrType"
+          | "BoolType" | "SymbolType" | "LocType"  | "ListType"
           | "TupleType"| "CurryType" *)
   | Curry of string * t list  (* -> App fn fvs *)
 ```
@@ -39,6 +41,8 @@ type t =
 - Remove the `elif` keyword from the `.esl` syntax (replaced by the `else if` clause).
 
 - Replace the `sdefault` keyword by the `default` keyword (now used in both switch and match-with statements).
+
+- Removed Explode-js commands and share files.
 
 ### Fixed
 
