@@ -43,5 +43,5 @@ let parse_etype ?(file : string = "") (str : string) : EType.t =
 
 let parse_eprog ?(file : string = "") (path : string) (str : string) : EProg.t =
   let lexbuf = init_lexbuf file str in
-  let p = eparser EParser.Incremental.entry_prog_target lexbuf in
-  { p with file; path }
+  let prog = eparser EParser.Incremental.entry_prog_target lexbuf in
+  { prog with file; path }

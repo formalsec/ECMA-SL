@@ -2890,7 +2890,7 @@ function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, Defa
           }
         }
       }
-    } until (foundInB = true) || (C = "None");
+    } until ((foundInB = true) || (C = "None"));
   }
   /* 8. If foundInB is false and the DefaultClause has a StatementList, then */
   if ((foundInB = false) && hasStatementList(DefaultClause)) {

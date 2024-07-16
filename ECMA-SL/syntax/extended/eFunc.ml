@@ -11,37 +11,37 @@ and t' =
   }
 
 let default () : t =
-  let name = Id.default () in
-  let body = EStmt.default () in
-  { name; tparams = []; treturn = None; body } @> none
+  let (name, body) = (Id.default (), EStmt.default ()) in
+  let (tparams, treturn) = ([], None) in
+  { name; tparams; treturn; body } @> none
+[@@inline]
 
 let create (name : Id.t) (tparams : (Id.t * EType.t option) list)
   (treturn : EType.t option) (body : EStmt.t) : t' =
   { name; tparams; treturn; body }
+[@@inline]
 
-let name (m : t) : Id.t = m.it.name
-let name' (m : t) : Id.t' = m.it.name.it
-let tparams (f : t) : (Id.t * EType.t option) list = f.it.tparams
-let params (f : t) : Id.t list = List.map (fun (px, _) -> px) f.it.tparams
-let params' (m : t) : Id.t' list = List.map (fun (px, _) -> px.it) m.it.tparams
-let treturn (f : t) : EType.t option = f.it.treturn
-let body (f : t) : EStmt.t = f.it.body
+let name (func : t) : Id.t = func.it.name [@@inline]
+let name' (func : t) : Id.t' = (name func).it
+let tparams (func : t) : (Id.t * EType.t option) list = func.it.tparams
+let params (func : t) : Id.t list = List.map (fun (px, _) -> px) func.it.tparams
+let params' (func : t) : Id.t' list = List.map (fun px -> px.it) (params func)
+let treturn (func : t) : EType.t option = func.it.treturn [@@inline]
+let body (func : t) : EStmt.t = func.it.body [@@inline]
 
-let pp_signature (ppf : Fmt.t) (f : t) : unit =
-  let open Fmt in
-  let { name; tparams; treturn; _ } = f.it in
-  let pp_param ppf (px, t) = fmt ppf "%a%a" Id.pp px EType.tannot_pp t in
-  fmt ppf "function %a(%a)%a" Id.pp name (pp_lst !>", " pp_param) tparams
-    EType.tannot_pp treturn
+let pp_signature (ppf : Fmt.t) (func : t) : unit =
+  let pp_param ppf (px, t) = Fmt.fmt ppf "%a%a" Id.pp px EType.tannot_pp t in
+  let pp_params ppf tpxs = Fmt.(pp_lst !>", " pp_param) ppf tpxs in
+  Fmt.fmt ppf "function %a(%a)%a" Id.pp func.it.name pp_params func.it.tparams
+    EType.tannot_pp func.it.treturn
 
-let pp (ppf : Fmt.t) (f : t) : unit =
-  Fmt.fmt ppf "%a %a" pp_signature f EStmt.pp f.it.body
+let pp_simple (ppf : Fmt.t) (func : t) : unit =
+  Fmt.fmt ppf "%a {..." pp_signature func
 
-let pp_simple (ppf : Fmt.t) (f : t) : unit =
-  Fmt.fmt ppf "%a {..." pp_signature f
+let pp (ppf : Fmt.t) (func : t) : unit =
+  Fmt.fmt ppf "%a %a" pp_signature func EStmt.pp func.it.body
 
-let str ?(simple : bool = false) (f : t) : string =
-  Fmt.str "%a" (if simple then pp_simple else pp) f
+let str (func : t) : string = Fmt.str "%a" pp func [@@inline]
 
 let lambdas (f : t) : (at * Id.t' * Id.t list * Id.t list * EStmt.t) list =
   let to_list_f s =

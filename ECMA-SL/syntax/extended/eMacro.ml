@@ -11,26 +11,26 @@ and t' =
 
 let default () : t =
   { name = Id.default (); params = []; body = EStmt.default () } @> none
+[@@inline]
 
 let create (name : Id.t) (params : Id.t list) (body : EStmt.t) : t' =
   { name; params; body }
+[@@inline]
 
-let name (m : t) : Id.t = m.it.name
-let name' (m : t) : Id.t' = m.it.name.it
-let params (m : t) : Id.t list = m.it.params
-let params' (m : t) : Id.t' list = List.map (fun px -> px.it) m.it.params
-let body (m : t) : EStmt.t = m.it.body
+let name (macro : t) : Id.t = macro.it.name [@@inline]
+let name' (macro : t) : Id.t' = (name macro).it
+let params (macro : t) : Id.t list = macro.it.params [@@inline]
+let params' (macro : t) : Id.t' list = List.map (fun px -> px.it) (params macro)
+let body (macro : t) : EStmt.t = macro.it.body [@@inline]
 
-let pp_signature (ppf : Fmt.t) (m : t) : unit =
-  let open Fmt in
-  let { name; params; _ } = m.it in
-  fmt ppf "macro %a(%a)" Id.pp name (pp_lst !>", " Id.pp) params
+let pp_signature (ppf : Fmt.t) (macro : t) : unit =
+  let pp_params ppf pxs = Fmt.(pp_lst !>", " Id.pp) ppf pxs in
+  Fmt.fmt ppf "macro %a(%a)" Id.pp macro.it.name pp_params macro.it.params
 
-let pp (ppf : Fmt.t) (m : t) : unit =
-  Fmt.fmt ppf "%a %a" pp_signature m EStmt.pp m.it.body
+let pp_simple (ppf : Fmt.t) (macro : t) : unit =
+  Fmt.fmt ppf "%a { ..." pp_signature macro
 
-let pp_simple (ppf : Fmt.t) (m : t) : unit =
-  Fmt.fmt ppf "%a {..." pp_signature m
+let pp (ppf : Fmt.t) (macro : t) : unit =
+  Fmt.fmt ppf "%a %a" pp_signature macro EStmt.pp macro.it.body
 
-let str ?(simple : bool = false) (f : t) : string =
-  Fmt.str "%a" (if simple then pp_simple else pp) f
+let str (macro : t) : string = Fmt.str "%a" pp macro [@@inline]
