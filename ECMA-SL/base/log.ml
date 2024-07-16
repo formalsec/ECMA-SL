@@ -6,11 +6,11 @@ module Config = struct
 end
 
 let stdout (format : ('a, Fmt.t, unit, unit) format4) =
-  Fmt.(kdprintf (fmt !Config.out_ppf "%t") format)
+  Fmt.kdprintf (Fmt.fmt !Config.out_ppf "%t") format
 [@@inline]
 
 let stderr (format : ('a, Fmt.t, unit, unit) format4) =
-  Fmt.(kdprintf (fmt !Config.err_ppf "%t") format)
+  Fmt.kdprintf (Fmt.fmt !Config.err_ppf "%t") format
 [@@inline]
 
 let fail (fmt : ('a, Fmt.t, unit, 'b) format4) : 'a = Fmt.kasprintf failwith fmt
@@ -21,7 +21,7 @@ module EslLog = struct
     (format : ('a, Fmt.t, unit, unit) format4) : 'a =
     let pp_text ppf fmt = Fmt.fmt ppf "[ecma-sl] %t" fmt in
     let pp_log fmt = Fmt.fmt ppf "%a@." (Font.pp font pp_text) fmt in
-    Fmt.(kdprintf pp_log format)
+    Fmt.kdprintf pp_log format
 
   let test (test : bool) ?(font : Font.t option) (ppf : Fmt.t)
     (fmt : ('a, Fmt.t, unit) format) =

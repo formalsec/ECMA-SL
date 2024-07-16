@@ -157,7 +157,7 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
    the empty String "" is returned. */
 function StringConstructorCalledAsFunction(value) {
   if (value = null)
-    return ""
+    return "";
   else
     return ToString(value);
 }

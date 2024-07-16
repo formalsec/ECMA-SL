@@ -13,7 +13,7 @@ and t' =
   | Curry of t * t list
   | Symbolic of Type.t * t
 
-let default () : t = Val (App (`Op "null", [])) @> none
+let default () : t = Val (App (`Op "null", [])) @> none [@@inline]
 
 let isvoid (expr : t) : bool =
   match expr.it with Val (App (`Op "void", [])) -> true | _ -> false
@@ -29,4 +29,4 @@ let rec pp (ppf : Fmt.t) (expr : t) : unit =
   | Curry (fe, es) -> Fmt.fmt ppf "{%a}@(%a)" pp fe Fmt.(pp_lst !>", " pp) es
   | Symbolic (t, e) -> Fmt.fmt ppf "se_mk_symbolic(%a, %a)" Type.pp t pp e
 
-let str (expr : t) : string = Fmt.str "%a" pp expr
+let str (expr : t) : string = Fmt.str "%a" pp expr [@@inline]

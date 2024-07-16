@@ -51,7 +51,7 @@ let pp_font_v (ppf : Fmt.t) (font_v : font_v) : unit =
   | White -> Fmt.pp_str ppf "37"
 
 let pp_font (ppf : Fmt.t) (font : t) : unit =
-  Fmt.(fmt ppf "\027[%am" (pp_lst !>";" pp_font_v) font)
+  Fmt.fmt ppf "\027[%am" Fmt.(pp_lst !>";" pp_font_v) font
 
 let pp ?(fdesc : Unix.file_descr option = None) (font : t)
   (pp_v : Fmt.t -> 'a -> unit) (ppf : Fmt.t) (v : 'a) : unit =
