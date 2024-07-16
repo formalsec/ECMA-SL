@@ -50,7 +50,7 @@
     (>= "2.5.0")
     :dev))
   conf-npm
-  instrumentation2)
+  (instrumentation2 (= "0.0.5")))
  (tags
   (ECMAScript "Specification Language" "Reference Interpreters" "OCaml"))
 (sites
