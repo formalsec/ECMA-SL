@@ -100,6 +100,12 @@
 
   exception Syntax_error of string
 
+  let create_string (lexbuf : Lexing.lexbuf) (read_string : Lexing.lexbuf -> token): token = 
+    let start_p = lexbuf.lex_start_p in
+    let token = read_string lexbuf in
+    lexbuf.lex_start_p <- start_p;
+    token
+
   let create_syntax_error ?(eof=false) (msg : string) (lexbuf : Lexing.lexbuf) : exn =
     let c = Lexing.lexeme lexbuf in
     let formatted_msg = (
@@ -176,7 +182,7 @@ rule read =
   | "<="              { LE }
   | ">="              { GE }
   | "->"              { RIGHT_ARROW }
-  | '"'               { read_string (Buffer.create 16) lexbuf }
+  | '"'               { create_string lexbuf (read_string (Buffer.create 16)) }
   | int               { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | float             { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | bool              { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
@@ -195,18 +201,18 @@ rule read =
 
 and read_string buf =
   parse
-  | '"'                  { STRING (Buffer.contents buf) }
-  | '\\' '/'             { Buffer.add_char buf '/'; read_string buf lexbuf }
-  | '\\' '\\'            { Buffer.add_char buf '\\'; read_string buf lexbuf }
-  | '\\' 'b'             { Buffer.add_char buf '\b'; read_string buf lexbuf }
-  | '\\' 'v'             { Buffer.add_char buf '\011'; read_string buf lexbuf }
-  | '\\' 'f'             { Buffer.add_char buf '\012'; read_string buf lexbuf }
-  | '\\' 'n'             { Buffer.add_char buf '\n'; read_string buf lexbuf }
-  | '\\' 'r'             { Buffer.add_char buf '\r'; read_string buf lexbuf }
-  | '\\' 't'             { Buffer.add_char buf '\t'; read_string buf lexbuf }
-  | '\\' '\"'            { Buffer.add_char buf '\"'; read_string buf lexbuf }
-  | '\\' '\''            { Buffer.add_char buf '\''; read_string buf lexbuf }
-  | '\\' '0'             { Buffer.add_char buf '\000'; read_string buf lexbuf }
+  | '"'                  { STRING (Buffer.contents buf)                         }
+  | '\\' '/'             { Buffer.add_char buf '/';     read_string buf lexbuf  }
+  | '\\' '\\'            { Buffer.add_char buf '\\';    read_string buf lexbuf  }
+  | '\\' 'b'             { Buffer.add_char buf '\b';    read_string buf lexbuf  }
+  | '\\' 'v'             { Buffer.add_char buf '\011';  read_string buf lexbuf  }
+  | '\\' 'f'             { Buffer.add_char buf '\012';  read_string buf lexbuf  }
+  | '\\' 'n'             { Buffer.add_char buf '\n';    read_string buf lexbuf  }
+  | '\\' 'r'             { Buffer.add_char buf '\r';    read_string buf lexbuf  }
+  | '\\' 't'             { Buffer.add_char buf '\t';    read_string buf lexbuf  }
+  | '\\' '\"'            { Buffer.add_char buf '\"';    read_string buf lexbuf  }
+  | '\\' '\''            { Buffer.add_char buf '\'';    read_string buf lexbuf  }
+  | '\\' '0'             { Buffer.add_char buf '\000';  read_string buf lexbuf  }
   | '\\' 'x' hex_digit hex_digit as h
                          {
                            Buffer.add_string buf (String_utils.hexdecode h);
