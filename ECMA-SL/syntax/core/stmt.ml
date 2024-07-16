@@ -26,15 +26,16 @@ and t' =
   | Fail of Expr.t
   | Assert of Expr.t
 
-let default () : t = Skip @> none
+let default () : t = Skip @> none [@@inline]
 
 let rec pp (ppf : Fmt.t) (stmt : t) : unit =
-  let pp_args ppf es = Fmt.(pp_lst !>", " Expr.pp) ppf es in
+  let pp_vs pp_v ppf es = Fmt.(pp_lst !>", " pp_v) ppf es in
+  let pp_indent pp_v ppf = Fmt.fmt ppf "@\n@[<v 2>  %a@]@\n" pp_v in
   match stmt.it with
   | Skip -> ()
   | Merge -> ()
   | Debug s -> Fmt.fmt ppf "# %a" pp s
-  | Block ss -> Fmt.fmt ppf "{@\n@[<v 2>  %a@]@\n}" Fmt.(pp_lst !>";@\n" pp) ss
+  | Block ss -> Fmt.fmt ppf "{%a}" (pp_indent Fmt.(pp_lst !>";@\n" pp)) ss
   | Print e -> Fmt.fmt ppf "print %a" Expr.pp e
   | Return e ->
     if Expr.isvoid e then Fmt.pp_str ppf "return"
@@ -43,9 +44,9 @@ let rec pp (ppf : Fmt.t) (stmt : t) : unit =
   | Assert e -> Fmt.fmt ppf "assert %a" Expr.pp e
   | Assign (x, e) -> Fmt.fmt ppf "%a := %a" Id.pp x Expr.pp e
   | AssignCall (x, fe, es) ->
-    Fmt.fmt ppf "%a := %a(%a)" Id.pp x Expr.pp fe pp_args es
+    Fmt.fmt ppf "%a := %a(%a)" Id.pp x Expr.pp fe (pp_vs Expr.pp) es
   | AssignECall (x, fn, es) ->
-    Fmt.fmt ppf "%a := extern %a(%a)" Id.pp x Id.pp fn pp_args es
+    Fmt.fmt ppf "%a := extern %a(%a)" Id.pp x Id.pp fn (pp_vs Expr.pp) es
   | AssignNewObj x -> Fmt.fmt ppf "%a := {}" Id.pp x
   | AssignObjToList (x, e) ->
     Fmt.fmt ppf "%a := obj_to_list %a" Id.pp x Expr.pp e
@@ -63,11 +64,12 @@ let rec pp (ppf : Fmt.t) (stmt : t) : unit =
     Fmt.fmt ppf "if (%a) %a%a" Expr.pp e pp s1 (Fmt.pp_opt pp_else) s2
   | While (e, s) -> Fmt.fmt ppf "while (%a) %a" Expr.pp e pp s
   | Switch (e, css, dflt) ->
-    let pp_dflt ppf s = Fmt.fmt ppf "@\ndefault: %a" pp s in
-    let pp_case ppf (v, s) = Fmt.fmt ppf "case %a: %a" Value.pp v pp s in
-    let pp_cases ppf css = Fmt.(pp_hashtbl !>"@\n" pp_case) ppf css in
-    Fmt.fmt ppf "switch (%a) {@\n@[<v 2>  %a%a@]@\n}" Expr.pp e pp_cases css
-      (Fmt.pp_opt pp_dflt) dflt
+    let pp_dflt_cs ppf s = Fmt.fmt ppf "@\ndefault: %a" pp s in
+    let pp_dflt ppf s = (Fmt.pp_opt pp_dflt_cs) ppf s in
+    let pp_cs ppf (v, s) = Fmt.fmt ppf "case %a: %a" Value.pp v pp s in
+    let pp_css ppf css = Fmt.(pp_hashtbl !>"@\n" pp_cs) ppf css in
+    let pp ppf (css, dflt) = Fmt.fmt ppf "%a%a" pp_css css pp_dflt dflt in
+    Fmt.fmt ppf "switch (%a) {%a}" Expr.pp e (pp_indent pp) (css, dflt)
 
 let pp_simple (ppf : Fmt.t) (stmt : t) : unit =
   match stmt.it with
@@ -77,4 +79,4 @@ let pp_simple (ppf : Fmt.t) (stmt : t) : unit =
   | Switch (e, _, _) -> Fmt.fmt ppf "switch (%a) { ..." Expr.pp e
   | _ -> pp ppf stmt
 
-let str (stmt : t) : string = Fmt.str "%a" pp stmt
+let str (stmt : t) : string = Fmt.str "%a" pp stmt [@@inline]

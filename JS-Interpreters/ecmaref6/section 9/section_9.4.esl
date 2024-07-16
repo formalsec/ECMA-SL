@@ -756,7 +756,7 @@ function ArgumentsObjectGet(O,P, Receiver) {
     return OrdinaryObjectGet(O, P, Receiver);
   }
   /* 6. Else map contains a formal parameter mapping for P, */
-    /* a. Return Get(map, P). */;
+    /* a. Return Get(map, P). */
   return Get(map, P);
 }
 
