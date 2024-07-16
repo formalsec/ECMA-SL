@@ -13,7 +13,6 @@ type cmderr =
   | `SymAbort of string
   | `SymAssertFailure of Symbolic.P.Extern_func.value
   | `SymFailure of string
-  | `SymNodeJS of string
   | `Generic of string
   ]
 
@@ -31,7 +30,6 @@ let log_error (err : cmderr) : unit =
   | `SymAbort _ -> ()
   | `SymAssertFailure _ -> ()
   | `SymFailure msg -> Log.error "%s" msg
-  | `SymNodeJS out -> Log.error "unexpected node failure: %s" out
   | `Generic msg -> Log.error "%s" msg
 
 let error (err : cmderr) : 'a t =
