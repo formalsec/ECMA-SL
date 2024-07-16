@@ -1023,7 +1023,7 @@ function IsWordChar(e, input) {
 
 
 function EmptyCharacterClass(negative) {
-  if (negative) return { positive: null, negative: {} }; else { positive: {}, negative: null };
+  if (negative) return { positive: null, negative: {} }; else return { positive: {}, negative: null };
 }
 
 

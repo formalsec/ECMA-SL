@@ -1453,7 +1453,7 @@ function DatePrototypeSetUTCFullYear (global, this, strict, args) {
   /* 5. ReturnIfAbrupt(y). */
   @ReturnIfAbrupt(y);
   /* 6. If month is not specified, let m be MonthFromTime(t); otherwise, let m be ToNumber(month). */
-  IF (month = null) m := MonthFromTime(t); else m := ToNumber(month);
+  if (month = null) m := MonthFromTime(t); else m := ToNumber(month);
   /* 7. ReturnIfAbrupt(m). */
   @ReturnIfAbrupt(m);
   /* 8. If date is not specified, let dt be DateFromTime(t); otherwise, let dt be ToNumber(date). */
@@ -1859,15 +1859,15 @@ function internalNewDate(datePrototypeObject, args) {
   /* 2. Let m be ToNumber(month). */
   m := ToNumber(month);
   /* 3. If date is supplied then let dt be ToNumber(date); else let dt be 1. */
-  if !(date = null) dt := ToNumber(date); else dt := 1.;
+  if (!(date = null)) dt := ToNumber(date); else dt := 1.;
   /* 4. If hours is supplied then let h be ToNumber(hours); else let h be 0. */
-  if !(hours = null) h := ToNumber(hours); else h := 0.;
+  if (!(hours = null)) h := ToNumber(hours); else h := 0.;
   /* 5. If minutes is supplied then let min be ToNumber(minutes); else let min be 0. */
-  if !(minutes = null) mins := ToNumber(minutes); else mins := 0.;
+  if (!(minutes = null)) mins := ToNumber(minutes); else mins := 0.;
   /* 6. If seconds is supplied then let s be ToNumber(seconds); else let s be 0. */
-  if !(seconds = null) s := ToNumber(seconds); else s := 0.;
+  if (!(seconds = null)) s := ToNumber(seconds); else s := 0.;
   /* 7. If ms is supplied then let milli be ToNumber(ms); else let milli be 0. */
-  if !(ms = null) milli := ToNumber(ms); else milli := 0.;
+  if (!(ms = null)) milli := ToNumber(ms); else milli := 0.;
   /* 8. If y is not NaN and 0 <= ToInteger(y) <= 99, then let yr be 1900+ToInteger(y); otherwise, let yr be y. */
   if (!(is_NaN (y)) &&& (0. <= ToInteger(y)) &&& (ToInteger(y) <= 99.)) yr := 1900. + ToInteger(y); else yr := y;
   /* 9. Let fialDate be MakeDate(MakeDay(yr, m, dt), MakeTime(h, min, s, milli)). */

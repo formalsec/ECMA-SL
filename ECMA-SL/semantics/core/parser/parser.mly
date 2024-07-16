@@ -96,19 +96,22 @@ let func_target :=
 (* ==================== Statements ==================== *)
 
 let stmt_target :=
+  | ~ = aux_stmt_target;          <>
   | ~ = exec_stmt_target;         <>
   | ~ = update_stmt_target;       <>
   | ~ = block_stmt_target;        <>
   | ~ = selection_stmt_target;    <>
   | ~ = iteration_stmt_target;    <>
 
-let exec_stmt_target :=
+let aux_stmt_target :=
   | HASH; s = stmt_target;
     { Stmt.Debug s @> at $sloc }
+
+let exec_stmt_target :=
   | PRINT; e = expr_target;
     { Stmt.Print e @> at $sloc }
   | RETURN; e = expr_target?; 
-    { Stmt.Return (Parsing_helper.Stmt.parse_return e) @> at $sloc }
+    { Stmt.Return (Parsing_helper.Expr.parse_return_expr e) @> at $sloc }
   | ASSERT; e = expr_target;
     { Stmt.Assert e @> at $sloc }
   | FAIL; e = expr_target;

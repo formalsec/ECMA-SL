@@ -2,11 +2,18 @@ open EslBase
 open EslSyntax
 open EslSyntax.Source
 
+module Func = struct
+  let parse_params (params : Id.t list) : Id.t list =
+    let check_dups checked px =
+      if not (Hashtbl.mem checked px.it) then Hashtbl.replace checked px.it ()
+      else Compile_error.(throw ~src:(ErrSrc.from px) (DuplicatedParam px))
+    in
+    List.iter (check_dups (Hashtbl.create (List.length params))) params;
+    params
+end
+
 module Stmt = struct
   open Stmt
-
-  let parse_return (expr : Expr.t option) : Expr.t =
-    Option.value ~default:(Expr.Val (App (`Op "void", [])) @> none) expr
 
   let parse_switch_cases (css : (Expr.t * t) list) : (Value.t, t) Hashtbl.t =
     let val_of_expr e =
@@ -24,12 +31,9 @@ module Stmt = struct
     parsed_css
 end
 
-module Func = struct
-  let parse_params (pxs : Id.t list) : Id.t list =
-    let check_dups checked px =
-      if not (Hashtbl.mem checked px.it) then Hashtbl.replace checked px.it ()
-      else Compile_error.(throw ~src:(ErrSrc.from px) (DuplicatedParam px))
-    in
-    List.iter (check_dups (Hashtbl.create (List.length pxs))) pxs;
-    pxs
+module Expr = struct
+  open Expr
+
+  let parse_return_expr (expr : t option) : t =
+    Option.value ~default:(Val (App (`Op "void", [])) @> none) expr
 end
