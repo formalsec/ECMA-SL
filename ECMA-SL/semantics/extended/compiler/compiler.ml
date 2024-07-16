@@ -82,17 +82,20 @@ end
 module MatchWithOptimizer = struct
   type case = EPat.t * EStmt.t
 
-  let pbval_opt (pat : EPat.t) (id : Id.t) : Value.t option =
-    let get_pbv' = function { it = EPat.PatVal v; _ } -> Some v | _ -> None in
-    Option.bind (EPat.patval_opt pat id) get_pbv'
+  let pval_opt (pat : EPat.t) (id : Id.t) : Value.t option =
+    let get_pv' = function
+      | { it = EPat.PatVal.Val v; _ } -> Some v
+      | _ -> None
+    in
+    Option.bind (EPat.patval_opt pat id) get_pv'
 
-  let pbval_remove (pat : EPat.t) (id : Id.t) : EPat.t * Value.t =
-    let v = Option.get (pbval_opt pat id) in
+  let pval_remove (pat : EPat.t) (id : Id.t) : EPat.t * Value.t =
+    let v = Option.get (pval_opt pat id) in
     let pat' = EPat.patval_remove pat id in
     (pat', v)
 
   let is_pat_optimizable (dsc : Id.t) (pat : EPat.t) : bool =
-    Option.is_some (pbval_opt pat dsc)
+    Option.is_some (pval_opt pat dsc)
 
   let is_optimizable (dsc : Id.t) (css : case list) : bool =
     let optimizable' = is_pat_optimizable dsc in
@@ -123,7 +126,7 @@ module MatchWithOptimizer = struct
     in
     let rec hash_cases hashed_css = function
       | (pat, s) :: css' when is_pat_optimizable dsc pat ->
-        let (pat', v) = pbval_remove pat dsc in
+        let (pat', v) = pval_remove pat dsc in
         let compiled_case = compile_case_f e_e (pat', s) (fun () -> None) in
         let scase = Builder.block ~at:pat'.at compiled_case in
         set_case hashed_css v scase;
@@ -301,7 +304,7 @@ let rec compile_stmt (s : EStmt.t) : c_stmt =
   | GAssign (x, e) -> !!(compile_gassign s.at x e)
   | FieldAssign (oe, fe, e) -> !!(compile_fieldassign s.at oe fe e)
   | FieldDelete (oe, fe) -> !!(compile_fielddelete s.at oe fe)
-  | If (ifcss, elsecs) -> !!(compile_if ifcss elsecs)
+  | If (e, s1, s2) -> !!(compile_if s.at e s1 s2)
   | While (e, s') -> !!(compile_while s.at e s')
   | ForEach (x, e, s') -> !!(compile_foreach s.at x e s')
   | RepeatUntil (s', until) -> !!(compile_repeatuntil s.at s' until)
@@ -353,12 +356,11 @@ and compile_fielddelete (at : at) (oe : EExpr.t) (fe : EExpr.t) : c_stmt =
   let (fe_s, fe_e) = compile_expr at fe in
   oe_s @ fe_s @ [ Stmt.FieldDelete (oe_e, fe_e) @?> at ]
 
-and compile_if (ifcs : EExpr.t * EStmt.t * at) (elsecs : EStmt.t option) :
+and compile_if (at : at) (e : EExpr.t) (s1 : EStmt.t) (s2 : EStmt.t option) :
   c_stmt =
-  let (e, s, at) = ifcs in
   let (e_s, e_e) = compile_expr at e in
-  let sblock = Builder.block ~at:s.at (compile_stmt s) in
-  let selse = Option.fold ~none:[] ~some:(fun s -> compile_stmt s) elsecs in
+  let sblock = Builder.block ~at:s1.at (compile_stmt s1) in
+  let selse = Option.fold ~none:[] ~some:(fun s -> compile_stmt s) s2 in
   e_s @ [ Stmt.If (e_e, sblock, Builder.block_opt selse) @?> at ]
 
 and compile_while (at : at) (e : EExpr.t) (s : EStmt.t) : c_stmt =
@@ -381,15 +383,14 @@ and compile_foreach (at : at) (x : Id.t) (e : EExpr.t) (s : EStmt.t) : c_stmt =
   let sblock = Builder.block ~at:s.at ((snth :: s_s) @ real [ sinc ]) in
   e_s @ [ sinit; slen ] @ [ Stmt.While (guard_e, sblock) @?> at ]
 
-and compile_repeatuntil (at : at) (s : EStmt.t) (until : (EExpr.t * at) option)
-  : c_stmt =
-  let default = (EExpr.Val Value.False @?> at, { at with real = false }) in
-  let (e, at') = Option.value ~default until in
+and compile_repeatuntil (at : at) (s : EStmt.t) (until : EExpr.t option) :
+  c_stmt =
+  let e = Option.value ~default:(EExpr.Val Value.False @?> at) until in
   let s_s = compile_stmt s in
-  let (e_s, e_e) = compile_expr at' e in
+  let (e_s, e_e) = compile_expr at e in
   let guard = Expr.UnOpt (LogicalNot, e_e) @?> e.at in
   let block = s_s @ real e_s in
-  block @ [ Stmt.While (guard, Builder.block ~at:s.at block) @?> at' ]
+  block @ [ Stmt.While (guard, Builder.block ~at:s.at block) @?> at ]
 
 and compile_switch (at : at) (e : EExpr.t) (css : (EExpr.t * EStmt.t) list)
   (dflt : EStmt.t option) : c_stmt =
@@ -407,32 +408,31 @@ and compile_switch (at : at) (e : EExpr.t) (css : (EExpr.t * EStmt.t) list)
   let (e_s, e_e) = compile_expr at e in
   e_s @ compile_switch' e_e css
 
-and compile_patv (e_e : Expr.t) (pbn : Expr.t) (pbv : EPat.pv) (inobj : Expr.t)
-  : c_stmt * Expr.t list * c_stmt =
-  match pbv.it with
-  | PatVar x ->
-    ([], [], [ Stmt.FieldLookup (x @?> pbv.at, e_e, pbn) @?> pbn.at ])
-  | PatVal v ->
-    let fval = Builder.var pbn.at in
-    let feq = Builder.var pbv.at in
-    let fval_s = Stmt.FieldLookup (?@fval, e_e, pbn) @?> pbn.at in
-    let feq' = Expr.BinOpt (Eq, fval, Expr.Val v @?> pbv.at) @?> pbn.at in
-    let feq_s = Stmt.Assign (?@feq, feq') @?> pbn.at in
+and compile_patv (e_e : Expr.t) (pn : Expr.t) (pv : EPat.PatVal.t)
+  (inobj : Expr.t) : c_stmt * Expr.t list * c_stmt =
+  match pv.it with
+  | Var x -> ([], [], [ Stmt.FieldLookup (x @?> pv.at, e_e, pn) @?> pn.at ])
+  | Val v ->
+    let fval = Builder.var pn.at in
+    let feq = Builder.var pv.at in
+    let fval_s = Stmt.FieldLookup (?@fval, e_e, pn) @?> pn.at in
+    let feq' = Expr.BinOpt (Eq, fval, Expr.Val v @?> pv.at) @?> pn.at in
+    let feq_s = Stmt.Assign (?@feq, feq') @?> pn.at in
     ([ fval_s; feq_s ], [ feq ], [])
-  | PatNone ->
-    let fnone = Expr.UnOpt (LogicalNot, inobj) @?> pbn.at in
-    let fnone_s = Stmt.Assign (?@inobj, fnone) @?> pbn.at in
+  | None ->
+    let fnone = Expr.UnOpt (LogicalNot, inobj) @?> pn.at in
+    let fnone_s = Stmt.Assign (?@inobj, fnone) @?> pn.at in
     ([ fnone_s ], [], [])
 
 and compile_pat (e_e : Expr.t) (pat : EPat.t) : c_stmt * Expr.t * c_stmt =
   let guard guards = Expr.NOpt (NAryLogicalAnd, guards) @> pat.at in
-  let compile_pbs (pre_s, guards, pat_s) (pbn, pbv) =
-    let pbn' = Expr.Val (Value.Str pbn.it) @?> pbn.at in
-    let pbv' = pbv.it @?> pbv.at in
+  let compile_pbs (pre_s, guards, pat_s) (pn, pv) =
+    let pn' = Expr.Val (Value.Str pn.it) @?> pn.at in
+    let pv' = pv.it @?> pv.at in
     let e_e' = e_e.it @?> e_e.at in
-    let inobj = Builder.var pbn'.at in
-    let sinobj = Stmt.AssignInObjCheck (?@inobj, pbn', e_e') @?> pat.at in
-    let (pre_s', guards', pat_s') = compile_patv e_e' pbn' pbv' inobj in
+    let inobj = Builder.var pn'.at in
+    let sinobj = Stmt.AssignInObjCheck (?@inobj, pn', e_e') @?> pat.at in
+    let (pre_s', guards', pat_s') = compile_patv e_e' pn' pv' inobj in
     (pre_s @ (sinobj :: pre_s'), guards @ (inobj :: guards'), pat_s @ pat_s')
   in
   match pat.it with

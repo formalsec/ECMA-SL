@@ -1,29 +1,33 @@
 open EslBase
 open EslSyntax
+open Source
 
 module Imports = struct
-  type import = EProg.import
+  open EImport
 
   let load_dependency (file : Id.t) (path : string) : EProg.t =
     try EParsing.(load_file ~file:file.it path |> parse_eprog ~file:file.it path)
     with Not_found ->
       Compile_error.(throw ~src:(ErrSrc.from file) (UnknownDependency file))
 
-  let set_import_prefix (stdlib : string) (workspace : string) :
-    import -> Id.t * string = function
-    | `User import -> (import, Filename.concat workspace import.it)
-    | `Standard import -> (import, Filename.concat stdlib (import.it ^ ".esl"))
+  let set_import_prefix (stdlib : string) (workspace : string)
+    (import : EImport.t) : Id.t * string =
+    match import.it with
+    | User import' -> (import', Filename.concat workspace import'.it)
+    | Standard import' -> (import', Filename.concat stdlib (import'.it ^ ".esl"))
 
-  let relativize (file : Id.t') (imports : import list) : import list =
-    let relativize_f dir = function
-      | `User import -> `User (Source.map (Filename.concat dir) import)
-      | `Standard _ as m -> m
+  let relativize (file : Id.t') (imports : EImport.t list) : EImport.t list =
+    let relativize_f dir import =
+      match import.it with
+      | User import' ->
+        User (Source.map (Filename.concat dir) import') @> import.at
+      | Standard _ -> import
     in
     List.map (relativize_f (Filename.dirname file)) imports
 
   let import_resolver ~(stdlib : string) (workspace : string) (p : EProg.t)
     (resolved : (Id.t', unit) Hashtbl.t)
-    (unresolved : (Id.t' * import list) list) : unit =
+    (unresolved : (Id.t' * EImport.t list) list) : unit =
     let rec loop =
       let open Source in
       function

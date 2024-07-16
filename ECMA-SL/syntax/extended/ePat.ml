@@ -1,47 +1,47 @@
 open EslBase
 open Source
 
-type pv = pv' Source.t
+module PatVal = struct
+  type t = t' Source.t
 
-and pv' =
-  | PatVar of Id.t'
-  | PatVal of Value.t
-  | PatNone
+  and t' =
+    | Var of Id.t'
+    | Val of Value.t
+    | None
 
-let pv_pp (ppf : Fmt.t) (pv : pv) : unit =
-  match pv.it with
-  | PatVar x -> Fmt.pp_str ppf x
-  | PatVal v -> Value.pp ppf v
-  | PatNone -> Fmt.pp_str ppf "None"
+  let pp (ppf : Fmt.t) (patval : t) : unit =
+    match patval.it with
+    | Var x -> Fmt.pp_str ppf x
+    | Val v -> Value.pp ppf v
+    | None -> Fmt.pp_str ppf "None"
 
-let pv_str (pv : pv) : string = Fmt.str "%a" pv_pp pv
+  let str (patval : t) : string = Fmt.str "%a" pp patval [@@inline]
+end
 
 type t = t' Source.t
 
 and t' =
-  | ObjPat of (Id.t * pv) list
+  | ObjPat of (Id.t * PatVal.t) list
   | DefaultPat
 
 let pp (ppf : Fmt.t) (pat : t) : unit =
-  let open Fmt in
-  let pp_pb ppf (pbn, pbv) = fmt ppf "%a: %a" Id.pp pbn pv_pp pbv in
+  let pp_bind ppf (pn, pv) = Fmt.fmt ppf "%a: %a" Id.pp pn PatVal.pp pv in
   match pat.it with
-  | ObjPat pbs -> fmt ppf "{ %a }" (pp_lst !>", " pp_pb) pbs
-  | DefaultPat -> pp_str ppf "default"
+  | ObjPat pbs -> Fmt.fmt ppf "{ %a }" Fmt.(pp_lst !>", " pp_bind) pbs
+  | DefaultPat -> Fmt.pp_str ppf "default"
 
-let str (pat : t) : string = Fmt.str "%a" pp pat
+let str (pattern : t) : string = Fmt.str "%a" pp pattern [@@inline]
 
-let patval_opt (pat : t) (id : Id.t) : pv option =
-  let find_pbn (pbn, _) = id.it = pbn.it in
-  let get_pbv (_, pbv) = pbv in
+let patval_opt (pat : t) (id : Id.t) : PatVal.t option =
+  let find_pn (pn, _) = Id.equal id pn in
   match pat.it with
-  | ObjPat pbs -> Option.map get_pbv (List.find_opt find_pbn pbs)
+  | ObjPat pbs -> Option.map snd (List.find_opt find_pn pbs)
   | DefaultPat -> None
 
 let patval_remove (pat : t) (id : Id.t) : t =
   let rec patval_remove' = function
     | [] -> []
-    | (pbn, _) :: pbs' when id.it = pbn.it -> pbs'
+    | (pn, _) :: pbs' when Id.equal id pn -> pbs'
     | pb :: pbs' -> pb :: patval_remove' pbs'
   in
   match pat.it with

@@ -19,60 +19,65 @@ and t' =
   | Curry of t * t list
   | Symbolic of Type.t * t
 
-let rec pp (ppf : Fmt.t) (e : t) : unit =
-  let open Fmt in
-  match e.it with
+let default () : t = Val (App (`Op "null", [])) @> none [@@inline]
+
+let isvoid (expr : t) : bool =
+  match expr.it with Val (App (`Op "void", [])) -> true | _ -> false
+
+let rec pp (ppf : Fmt.t) (expr : t) : unit =
+  let pp_vs pp_v ppf args = Fmt.(pp_lst !>", " pp_v) ppf args in
+  let pp_catch' ppf feh = Fmt.fmt ppf " catch %a" Id.pp feh in
+  let pp_catch ppf feh = Fmt.pp_opt pp_catch' ppf feh in
+  match expr.it with
   | Val v -> Value.pp ppf v
-  | Var x -> pp_str ppf x
-  | GVar x -> fmt ppf "|%s|" x
+  | Var x -> Fmt.pp_str ppf x
+  | GVar x -> Fmt.fmt ppf "|%s|" x
   | Const c -> Operator.pp_of_const ppf c
-  | UnOpt (op, e') -> Operator.pp_of_unopt pp ppf (op, e')
+  | UnOpt (op, e) -> Operator.pp_of_unopt pp ppf (op, e)
   | BinOpt (op, e1, e2) -> Operator.pp_of_binopt pp ppf (op, e1, e2)
   | TriOpt (op, e1, e2, e3) -> Operator.pp_of_triopt pp ppf (op, e1, e2, e3)
   | NOpt (op, es) -> Operator.pp_of_nopt pp ppf (op, es)
-  | Call (fe, es, ferr) ->
-    let pp_catch ppf ferr = fmt ppf " catch %a" Id.pp ferr in
-    fmt ppf "%a(%a)%a" pp fe (pp_lst !>", " pp) es (pp_opt pp_catch) ferr
-  | ECall (fn, es) -> fmt ppf "extern %a(%a)" Id.pp fn (pp_lst !>", " pp) es
+  | Call (fe, es, feh) -> (
+    match fe.it with
+    | Val (Str fn) -> Fmt.fmt ppf "%s(%a)%a" fn (pp_vs pp) es pp_catch feh
+    | _ -> Fmt.fmt ppf "{%a}(%a)%a" pp fe (pp_vs pp) es pp_catch feh )
+  | ECall (fn, es) -> Fmt.fmt ppf "extern %a(%a)" Id.pp fn (pp_vs pp) es
   | NewObj flds ->
-    let pp_fld ppf (fn, fe) = fmt ppf "%a: %a" Id.pp fn pp fe in
-    if List.length flds = 0 then pp_str ppf "{}"
-    else fmt ppf "{ %a }" (pp_lst !>", " pp_fld) flds
-  | Lookup (oe, fe) -> fmt ppf "%a[%a]" pp oe pp fe
-  | Curry (fe, es) -> fmt ppf "{%a}@(%a)" pp fe (pp_lst !>", " pp) es
-  | Symbolic (t, e') -> fmt ppf "se_mk_symbolic(%a, %a)" Type.pp t pp e'
+    let pp_fld ppf (fn, fe) = Fmt.fmt ppf "%a: %a" Id.pp fn pp fe in
+    if List.length flds == 0 then Fmt.pp_str ppf "{}"
+    else Fmt.fmt ppf "{ %a }" (pp_vs pp_fld) flds
+  | Lookup (oe, fe) -> (
+    match fe.it with
+    | Val (Str fn) -> Fmt.fmt ppf "%a.%s" pp oe fn
+    | _ -> Fmt.fmt ppf "%a[%a]" pp oe pp fe )
+  | Curry (fe, es) -> Fmt.fmt ppf "{%a}@(%a)" pp fe (pp_vs pp) es
+  | Symbolic (t, e') -> Fmt.fmt ppf "se_mk_symbolic(%a, %a)" Type.pp t pp e'
 
-let str (e : t) : string = Fmt.str "%a" pp e
+let str (expr : t) : string = Fmt.str "%a" pp expr [@@inline]
 
-let isvoid (e : t) : bool =
-  match e.it with Val (App (`Op "void", [])) -> true | _ -> false
-
-let rec map (mapper : t -> t) (e : t) : t =
-  let map' = map mapper in
-  let mapper' e' = mapper (e' @> e.at) in
+let rec map (mapper : t -> t) (expr : t) : t =
+  let map' e = map mapper e in
+  let mapper' e = mapper (e @> expr.at) in
   mapper'
   @@
-  match e.it with
-  | (Val _ | Var _ | GVar _ | Const _ | Symbolic _) as e' -> e'
-  | UnOpt (op, e') -> UnOpt (op, map' e')
+  match expr.it with
+  | (Val _ | Var _ | GVar _ | Const _ | Symbolic _) as e -> e
+  | UnOpt (op, e) -> UnOpt (op, map' e)
   | BinOpt (op, e1, e2) -> BinOpt (op, map' e1, map' e2)
   | TriOpt (op, e1, e2, e3) -> TriOpt (op, map' e1, map' e2, map' e3)
   | NOpt (op, es) -> NOpt (op, List.map map' es)
-  | Call (fe, es, ferr) -> Call (map' fe, List.map map' es, ferr)
+  | Call (fe, es, feh) -> Call (map' fe, List.map map' es, feh)
   | ECall (fn, es) -> ECall (fn, List.map map' es)
   | NewObj flds -> NewObj (List.map (fun (fn, fe) -> (fn, map' fe)) flds)
   | Lookup (oe, fe) -> Lookup (map' oe, map' fe)
   | Curry (fe, es) -> Curry (map' fe, List.map map' es)
 
 module Mapper = struct
-  let id (e : t) : t = e
+  let id : t -> t = Fun.id
 
-  let var (subst : (string, t) Hashtbl.t) (e : t) : t =
-    let find_subst x = Hashtbl.find_opt subst x in
-    let subst_f e =
-      match e.it with
-      | Var x -> (Option.value ~default:e) (find_subst x)
-      | _ -> e
-    in
-    map subst_f e
+  let var (subst : (string, t) Hashtbl.t) : t -> t =
+    map @@ fun e ->
+    match e.it with
+    | Var x -> Hashtbl.find_opt subst x |> Option.value ~default:e
+    | _ -> e
 end

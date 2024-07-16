@@ -1,8 +1,49 @@
 open EslSyntax
 open EslSyntax.Source
 
+module Prog = struct
+  open EProg
+
+  let parse_tdef (tdef : EType.TDef.t) (prog : t) : unit =
+    let tn = EType.TDef.name tdef in
+    match Hashtbl.find_opt prog.tdefs tn.it with
+    | None -> Hashtbl.replace prog.tdefs tn.it tdef
+    | Some _ -> Compile_error.(throw ~src:(ErrSrc.from tn) (DuplicatedTDef tn))
+
+  let parse_func (func : EFunc.t) (prog : t) : unit =
+    let fn = EFunc.name func in
+    match Hashtbl.find_opt prog.funcs fn.it with
+    | None -> Hashtbl.replace prog.funcs fn.it func
+    | Some _ -> Compile_error.(throw ~src:(ErrSrc.from fn) (DuplicatedFunc fn))
+
+  let parse_macro (macro : EMacro.t) (prog : t) : unit =
+    let mn = EMacro.name macro in
+    match Hashtbl.find_opt prog.macros mn.it with
+    | None -> Hashtbl.replace prog.macros mn.it macro
+    | Some _ -> Compile_error.(throw ~src:(ErrSrc.from mn) (DuplicatedMacro mn))
+
+  let parse_prog (imports : EImport.t list) (parsers : (t -> unit) list) : t =
+    let prog = { (default ()) with imports } in
+    List.iter (fun el_parser -> el_parser prog) parsers;
+    prog
+end
+
+module Func = struct
+  let parse_params (tparams : (Id.t * EType.t option) list) :
+    (Id.t * EType.t option) list =
+    let check_dups checked (px, _) =
+      if not (Hashtbl.mem checked px.it) then Hashtbl.replace checked px.it ()
+      else Compile_error.(throw ~src:(ErrSrc.from px) (DuplicatedParam px))
+    in
+    List.iter (check_dups (Hashtbl.create (List.length tparams))) tparams;
+    tparams
+end
+
 module Expr = struct
   open EExpr
+
+  let parse_return_expr (expr : t option) : t =
+    Option.value ~default:(Val (Value.App (`Op "void", [])) @> none) expr
 
   let parse_object_fields (flds : (Id.t * t) list) : (Id.t * t) list =
     let check_dups checked (fn, _) =
@@ -11,12 +52,6 @@ module Expr = struct
     in
     List.iter (check_dups (Hashtbl.create (List.length flds))) flds;
     flds
-end
-
-module Stmt = struct
-  let parse_return (e : EExpr.t option) : EExpr.t =
-    let default = EExpr.Val (Value.App (`Op "void", [])) @> none in
-    Option.value ~default e
 end
 
 module Type = struct
@@ -46,7 +81,8 @@ module Type = struct
       | Some (_, ({ it = LiteralType (LitStrong, lt); _ } as tdsc), _) ->
         if not (Hashtbl.mem checked lt) then Hashtbl.replace checked lt ()
         else throw ~src:(ErrSrc.from tdsc) (DuplicatedSigmaDiscriminant tdsc)
-      | Some (_, t', _) -> throw ~src:(ErrSrc.from t') UnexpectedSigmaDiscriminant
+      | Some (_, t', _) ->
+        throw ~src:(ErrSrc.from t') UnexpectedSigmaDiscriminant
       | None -> throw ~src:(ErrSrc.at at) (MissingSigmaDiscriminant dsc)
     in
     let parse_case_f checked = function
@@ -61,42 +97,4 @@ module Type = struct
     let ts = sigma_cases t in
     List.iter (parse_case_f (Hashtbl.create (List.length ts))) ts;
     ts
-end
-
-module Func = struct
-  let parse_params (tpxs : (Id.t * EType.t option) list) :
-    (Id.t * EType.t option) list =
-    let check_dups checked (px, _) =
-      if not (Hashtbl.mem checked px.it) then Hashtbl.replace checked px.it ()
-      else Compile_error.(throw ~src:(ErrSrc.from px) (DuplicatedParam px))
-    in
-    List.iter (check_dups (Hashtbl.create (List.length tpxs))) tpxs;
-    tpxs
-end
-
-module Prog = struct
-  open EProg
-
-  let parse_tdef (t : EType.TDef.t) (p : t) : unit =
-    let tn = EType.TDef.name t in
-    match Hashtbl.find_opt p.tdefs tn.it with
-    | None -> Hashtbl.replace p.tdefs tn.it t
-    | Some _ -> Compile_error.(throw ~src:(ErrSrc.from tn) (DuplicatedTDef tn))
-
-  let parse_func (f : EFunc.t) (p : t) : unit =
-    let fn = EFunc.name f in
-    match Hashtbl.find_opt p.funcs fn.it with
-    | None -> Hashtbl.replace p.funcs fn.it f
-    | Some _ -> Compile_error.(throw ~src:(ErrSrc.from fn) (DuplicatedFunc fn))
-
-  let parse_macro (m : EMacro.t) (p : t) : unit =
-    let mn = EMacro.name m in
-    match Hashtbl.find_opt p.macros mn.it with
-    | None -> Hashtbl.replace p.macros mn.it m
-    | Some _ -> Compile_error.(throw ~src:(ErrSrc.from mn) (DuplicatedMacro mn))
-
-  let parse_prog (imports : import list) (el_parsers : (t -> unit) list) : t =
-    let p = { (default ()) with imports } in
-    List.iter (fun el_parser -> el_parser p) el_parsers;
-    p
 end

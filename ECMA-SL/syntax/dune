@@ -13,18 +13,18 @@
   object
   operator
   ; core
-  expr
-  stmt
-  func
   prog
+  func
+  stmt
+  expr
   ; extended
-  eExpr
-  eStmt
-  eFunc
   eProg
-  ePat
+  eImport
+  eFunc
   eMacro
-  eMetadata
+  eStmt
+  ePat
+  eExpr
   eType)
  (libraries eslBase smtml)
  (instrumentation
