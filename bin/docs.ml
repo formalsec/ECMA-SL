@@ -12,7 +12,6 @@ module ExitCodes = struct
   let sym_abort = 20
   let sym_assert_failure = 21
   let sym_failure = 22
-  let sym_nodejs = 23
   let generic = 40
   let term = 122
   let client = Cmdliner.Cmd.Exit.cli_error
@@ -36,8 +35,6 @@ module Exits = struct
     ; info ~doc:"on symbolic assertion failure" ExitCodes.sym_assert_failure
     ; info ~doc:"on symbolic execution failure" ExitCodes.sym_failure
     ]
-
-  let nodejs = info ~doc:"on unexpected NodeJS failure" ExitCodes.sym_nodejs
 end
 
 module CommonOpts = struct
@@ -432,54 +429,6 @@ module SymbolicCmd = struct
     :: Exits.typing
     :: Exits.interpret
     :: Exits.encoding
-    :: Exits.symbolic
-    @ Exits.common
-end
-
-module ReplayOpts = struct
-  let testsuit =
-    let docv = "DIR" in
-    let doc = "The directory containing concrete testsuites to validate." in
-    Arg.(required & pos 1 (some fpath) None & info [] ~docv ~doc)
-end
-
-module ReplayCmd = struct
-  (* TODO: Fix the command documentation *)
-
-  let sdocs = Manpage.s_common_options
-  let doc = "Validates the symbolic testsuit"
-
-  let description =
-    [| "Replays concrete testsuites generated in symbolic execution." |]
-
-  let man = [ `S Manpage.s_description; `P (Array.get description 0) ]
-  let man_xrefs = []
-
-  let exits =
-    Exits.compile
-    :: Exits.typing
-    :: Exits.interpret
-    :: Exits.encoding
-    :: Exits.nodejs
-    :: Exits.symbolic
-    @ Exits.common
-end
-
-module ExplodeJSCmd = struct
-  (* TODO: Fix the command documentation *)
-
-  let sdocs = Manpage.s_common_options
-  let doc = "Explode.js symbolic vulnerability confirmation engine"
-  let description = [| "Tries to blow stuff up" |]
-  let man = [ `S Manpage.s_description; `P (Array.get description 0) ]
-  let man_xrefs = [ `Page ("ecma-sl symbolic", 1); `Page ("ecma-sl replay", 2) ]
-
-  let exits =
-    Exits.compile
-    :: Exits.typing
-    :: Exits.interpret
-    :: Exits.encoding
-    :: Exits.nodejs
     :: Exits.symbolic
     @ Exits.common
 end

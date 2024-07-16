@@ -1,5 +1,0 @@
-function main() {
-  tup := [1, 2., "string", 'undefined];
-  print tup;
-  return 0;
-}

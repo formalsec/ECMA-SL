@@ -1,1 +1,1 @@
-(dirs :standard \ esl js nodejs)
+(dirs :standard \ esl js)
