@@ -33,7 +33,7 @@ module Make (Memory : Memory_intf.S) = struct
     | f -> Ok f
 
   let add_memory (env : 'a t) memory = { env with memory }
-  let add_func (env : 'a t) fid f = Prog.add_func env.functions fid f
+  let add_func (env : 'a t) fid f = Hashtbl.replace env.functions fid f
 
   module Build = struct
     let empty () =

@@ -1,18 +1,23 @@
+open EslBase
 open EslSyntax
 open EslSyntax.Source
 
 module Stmt = struct
   open Stmt
 
-  let parse_return (e : Expr.t option) : Expr.t =
-    let default = Expr.Val (Value.App (`Op "void", [])) @> none in
-    Option.value ~default e
+  let parse_return (expr : Expr.t option) : Expr.t =
+    Option.value ~default:(Expr.Val (App (`Op "void", [])) @> none) expr
 
-  let parse_switch_cases (css : (Value.t Source.t * t) list) :
-    (Value.t, t) Hashtbl.t =
-    let check_dups css (v, s) =
-      if not (Hashtbl.mem css v.it) then Hashtbl.replace css v.it s
-      else Compile_error.(throw ~src:(ErrSrc.from v) (DuplicatedSwitchCase v.it))
+  let parse_switch_cases (css : (Expr.t * t) list) : (Value.t, t) Hashtbl.t =
+    let val_of_expr e =
+      match e.it with
+      | Expr.Val v -> (v, e.at)
+      | _ -> Log.fail "expecting a value expression, but got %a" Expr.pp e
+    in
+    let check_dups css (e, s) =
+      let (v, at) = val_of_expr e in
+      if not (Hashtbl.mem css v) then Hashtbl.replace css v s
+      else Compile_error.(throw ~src:(ErrSrc.at at) (DuplicatedSwitchCase v))
     in
     let parsed_css = Hashtbl.create (List.length css) in
     List.iter (check_dups parsed_css) css;
