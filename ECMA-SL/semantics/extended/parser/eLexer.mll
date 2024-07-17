@@ -121,19 +121,18 @@
 
 let digit         = ['0' - '9']
 let letter        = ['a' - 'z' 'A' - 'Z']
-let int           = '-'?digit+
+let int           = '-'? digit+
 let frac          = '.' digit*
 let exp           = ['e' 'E'] ['-' '+']? digit+
-let float         = digit* frac? exp?
+let float         = digit+ frac? exp? | frac exp?
 let bool          = "true" | "false"
-let id            = (letter | '_'* letter) (letter | digit | '_' | '\'')*
+let id            = (letter | '_') (letter | digit | '_')* '\''*
 let gid           = '|' (id) '|'
 let symbol        = '\'' (id | int)
 let white         = (' ' | '\t')+
 let newline       = '\r' | '\n' | "\r\n"
-let loc           = "$loc_" digit+
-let hex_digit     = (digit | ['a' - 'f' 'A' - 'F'])
-let hex_literal   = "0x" hex_digit hex_digit? hex_digit? hex_digit? hex_digit? hex_digit?
+let hex_digit     = digit | ['A'-'F' 'a'-'f']
+let hex_literal   = "0x" hex_digit+
 
 
 
@@ -184,57 +183,52 @@ rule read =
   | "->"              { RIGHT_ARROW }
   | '"'               { create_string lexbuf (read_string (Buffer.create 16)) }
   | int               { INT (int_of_string (Lexing.lexeme lexbuf)) }
+  | hex_literal       { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | float             { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | bool              { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
-  | hex_literal       { INT(Stdlib.int_of_string (Lexing.lexeme lexbuf)) }
   | id as x           { try Hashtbl.find keywords x with Not_found -> ID x }
   | gid               { GID (String_utils.trim_ends (Lexing.lexeme lexbuf))}
   | symbol            { SYMBOL (String_utils.chop_first_char (Lexing.lexeme lexbuf)) }
-  | loc               { LOC (Parsing_utils.parse_loc @@ Lexing.lexeme lexbuf) }
   | "/*"              { read_comment lexbuf }
   | _                 { raise (create_syntax_error "Unexpected char" lexbuf) }
   | eof               { EOF }
-
-
 
 (* ========== String reader ========== *)
 
 and read_string buf =
   parse
-  | '"'                  { STRING (Buffer.contents buf)                         }
-  | '\\' '/'             { Buffer.add_char buf '/';     read_string buf lexbuf  }
-  | '\\' '\\'            { Buffer.add_char buf '\\';    read_string buf lexbuf  }
-  | '\\' 'b'             { Buffer.add_char buf '\b';    read_string buf lexbuf  }
-  | '\\' 'v'             { Buffer.add_char buf '\011';  read_string buf lexbuf  }
-  | '\\' 'f'             { Buffer.add_char buf '\012';  read_string buf lexbuf  }
-  | '\\' 'n'             { Buffer.add_char buf '\n';    read_string buf lexbuf  }
-  | '\\' 'r'             { Buffer.add_char buf '\r';    read_string buf lexbuf  }
-  | '\\' 't'             { Buffer.add_char buf '\t';    read_string buf lexbuf  }
-  | '\\' '\"'            { Buffer.add_char buf '\"';    read_string buf lexbuf  }
-  | '\\' '\''            { Buffer.add_char buf '\'';    read_string buf lexbuf  }
-  | '\\' '0'             { Buffer.add_char buf '\000';  read_string buf lexbuf  }
+  | '"'                   { STRING (Buffer.contents buf)                         }
+  | '\\' '\\'             { Buffer.add_char buf '\\';    read_string buf lexbuf  }
+  | '\\' 'b'              { Buffer.add_char buf '\b';    read_string buf lexbuf  }
+  | '\\' 'n'              { Buffer.add_char buf '\n';    read_string buf lexbuf  }
+  | '\\' 'r'              { Buffer.add_char buf '\r';    read_string buf lexbuf  }
+  | '\\' 't'              { Buffer.add_char buf '\t';    read_string buf lexbuf  }
+  | '\\' '0'              { Buffer.add_char buf '\000';  read_string buf lexbuf  }
+  | '\\' 'v'              { Buffer.add_char buf '\011';  read_string buf lexbuf  }
+  | '\\' 'f'              { Buffer.add_char buf '\012';  read_string buf lexbuf  }
+  | '\\' '\"'             { Buffer.add_char buf '\"';    read_string buf lexbuf  }
   | '\\' 'x' hex_digit hex_digit as h
-                         {
-                           Buffer.add_string buf (String_utils.hexdecode h);
-                           read_string buf lexbuf
-                         }
+                          {
+                            Buffer.add_string buf (String_utils.hexdecode h);
+                            read_string buf lexbuf
+                          }
   | '\\' 'u' '{' hex_digit hex_digit hex_digit hex_digit hex_digit? hex_digit? '}' as h
-                         {
-                           Buffer.add_string buf (String_utils.utf8decode h);
-                           read_string buf lexbuf
-                         }
-  | [^ '"' '\\']+        {
-                           Buffer.add_string buf (Lexing.lexeme lexbuf);
-                           read_string buf lexbuf
-                         }
-  | _                    { raise (create_syntax_error "Illegal string character" lexbuf) }
-  | eof                  { raise (create_syntax_error ~eof:true "String is not terminated" lexbuf) }
+                          {
+                            Buffer.add_string buf (String_utils.utf8decode h);
+                            read_string buf lexbuf
+                          }
+  | [^ '"' '\\']+         {
+                            Buffer.add_string buf (Lexing.lexeme lexbuf);
+                            read_string buf lexbuf
+                          }
+  | _                     { raise (create_syntax_error "Illegal string character" lexbuf) }
+  | eof                   { raise (create_syntax_error ~eof:true "String is not terminated" lexbuf) }
 
 (* ========== Comment reader ========== *)
 
 and read_comment =
   parse
-  | "*/"    { read lexbuf }
-  | newline { new_line lexbuf; read_comment lexbuf }
-  | _       { read_comment lexbuf }
-  | eof     { raise (create_syntax_error ~eof:true "Comment is not terminated" lexbuf)}
+  | "*/"      { read lexbuf }
+  | newline   { new_line lexbuf; read_comment lexbuf }
+  | _         { read_comment lexbuf }
+  | eof       { raise (create_syntax_error ~eof:true "Comment is not terminated" lexbuf)}

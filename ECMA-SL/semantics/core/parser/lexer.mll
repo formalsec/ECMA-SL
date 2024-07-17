@@ -92,16 +92,16 @@
 
 let digit         = ['0' - '9']
 let letter        = ['a' - 'z' 'A' - 'Z']
-let int           = '-'?digit+
+let int           = '-'? digit+
 let frac          = '.' digit*
 let exp           = ['e' 'E'] ['-' '+']? digit+
-let float         = digit* frac? exp? | "nan" | "inf"
+let float         = digit+ frac? exp? | frac exp? | "nan" | "inf"
 let bool          = "true" | "false"
-let id            = (letter | '_'* letter) (letter | digit | '_' | '\'')*
+let id            = (letter | '_') (letter | digit | '_')* '\''*
+let gid           = '|' (id) '|'
 let symbol        = '\'' (id | int)
 let white         = (' ' | '\t')+
 let newline       = '\r' | '\n' | "\r\n"
-let loc           = "$loc_" digit+
 let three_d       = digit digit digit
 let char_code     = '\\' three_d
 
@@ -153,29 +153,24 @@ rule read =
   | bool              { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
   | id as x           { try Hashtbl.find keywords x with Not_found -> ID x }
   | symbol            { SYMBOL (String_utils.chop_first_char (Lexing.lexeme lexbuf)) }
-  | loc               { LOC (Parsing_utils.parse_loc @@ Lexing.lexeme lexbuf) }
   | "/*"              { read_comment lexbuf }
   | _                 { raise (create_syntax_error "Unexpected char" lexbuf) }
   | eof               { EOF }
-
-
 
 (* ========== String reader ========== *)
 
 and read_string buf =
   parse
   | '"'                   { STRING (Buffer.contents buf)                         }
-  | '\\' '/'              { Buffer.add_char buf '/';     read_string buf lexbuf  }
   | '\\' '\\'             { Buffer.add_char buf '\\';    read_string buf lexbuf  }
   | '\\' 'b'              { Buffer.add_char buf '\b';    read_string buf lexbuf  }
-  | '\\' 'v'              { Buffer.add_char buf '\011';  read_string buf lexbuf  }
-  | '\\' 'f'              { Buffer.add_char buf '\012';  read_string buf lexbuf  }
   | '\\' 'n'              { Buffer.add_char buf '\n';    read_string buf lexbuf  }
   | '\\' 'r'              { Buffer.add_char buf '\r';    read_string buf lexbuf  }
   | '\\' 't'              { Buffer.add_char buf '\t';    read_string buf lexbuf  }
-  | '\\' '\"'             { Buffer.add_char buf '\"';    read_string buf lexbuf  }
-  | '\\' '\''             { Buffer.add_char buf '\'';    read_string buf lexbuf  }
   | '\\' '0'              { Buffer.add_char buf '\000';  read_string buf lexbuf  }
+  | '\\' 'v'              { Buffer.add_char buf '\011';  read_string buf lexbuf  }
+  | '\\' 'f'              { Buffer.add_char buf '\012';  read_string buf lexbuf  }
+  | '\\' '\"'             { Buffer.add_char buf '\"';    read_string buf lexbuf  }
   | '\\' (three_d as c)   {
                             Buffer.add_char buf (Char.chr (int_of_string c));
                             read_string buf lexbuf
@@ -198,7 +193,7 @@ and read_string buf =
 
 and read_comment =
   parse
-  | "*/"    { read lexbuf }
-  | newline { new_line lexbuf; read_comment lexbuf }
-  | _       { read_comment lexbuf }
-  | eof     { raise (create_syntax_error ~eof:true "Comment is not terminated" lexbuf)}
+  | "*/"      { read lexbuf }
+  | newline   { new_line lexbuf; read_comment lexbuf }
+  | _         { read_comment lexbuf }
+  | eof       { raise (create_syntax_error ~eof:true "Comment is not terminated" lexbuf)}
