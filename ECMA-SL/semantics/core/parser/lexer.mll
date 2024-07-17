@@ -141,7 +141,7 @@ rule read =
   | '!'               { EXCLAMATION }
   | "&&"              { LAND }
   | "||"		          { LOR }
-  | '='               { EQ }
+  | "=="              { EQ }
   | "!="              { NEQ }
   | '<'               { LT }
   | '>'               { GT }

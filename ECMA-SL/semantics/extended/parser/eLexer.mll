@@ -174,7 +174,7 @@ rule read =
   | "||"		          { LOR }
   | "&&&"             { SCLAND }
   | "|||"             { SCLOR }
-  | '='               { EQ }
+  | "=="              { EQ }
   | "!="              { NEQ }
   | '<'               { LT }
   | '>'               { GT }
