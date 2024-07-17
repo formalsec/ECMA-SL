@@ -172,8 +172,8 @@ rule read =
   | '!'               { EXCLAMATION }
   | "&&"              { LAND }
   | "||"		          { LOR }
-  | "|||"             { SCLOR }
   | "&&&"             { SCLAND }
+  | "|||"             { SCLOR }
   | '='               { EQ }
   | "!="              { NEQ }
   | '<'               { LT }
