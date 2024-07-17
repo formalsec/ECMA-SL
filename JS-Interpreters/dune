@@ -7,11 +7,11 @@
  (action
   (progn
    (system
-    "realpath ../../../JS-Interpreters/ecmaref5/main.esl > es5.include")
+    "realpath %{project_root}/JS-Interpreters/ecmaref5/main.esl > es5.include")
    (system
-    "realpath ../../../JS-Interpreters/ecmaref6/main.esl > es6.include")
+    "realpath %{project_root}/JS-Interpreters/ecmaref6/main.esl > es6.include")
    (system
-    "realpath ../../../JS-Interpreters/ecmaref6/main_sym.esl > es6-sym.include")
+    "realpath %{project_root}/JS-Interpreters/ecmaref6/main_sym.esl > es6-sym.include")
    (run ecma-sl compile ecmaref6/main_sym.esl --untyped -o es6-sym.cesl))))
 
 (install
