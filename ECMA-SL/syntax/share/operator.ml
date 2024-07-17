@@ -1,10 +1,5 @@
 open EslBase
 
-type const =
-  | MAX_VALUE
-  | MIN_VALUE
-  | PI
-
 type unopt =
   (* Arithmetic operators *)
   | Neg
@@ -103,12 +98,6 @@ let is_infix_binopt (op : binopt) : bool =
   | ObjectMem ->
     true
   | _ -> false
-
-let label_of_const (c : const) : string =
-  match c with
-  | MAX_VALUE -> "Const.MAX_VALUE"
-  | MIN_VALUE -> "Const.MIN_VALUE"
-  | PI -> "Const.PI"
 
 let label_of_unopt (op : unopt) : string =
   match op with
@@ -247,13 +236,6 @@ let pp_of_triopt_single (ppf : Fmt.t) (op : triopt) : unit =
   | StringSubstr -> pp_str ppf "s_substr"
   | ListSet -> pp_str ppf "l_set"
 
-let pp_of_const (ppf : Fmt.t) (c : const) : unit =
-  let open Fmt in
-  match c with
-  | MAX_VALUE -> pp_str ppf "MAX_VALUE"
-  | MIN_VALUE -> pp_str ppf "MIN_VALUE"
-  | PI -> pp_str ppf "PI"
-
 let pp_of_unopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   ((op, v) : unopt * 'a) : unit =
   if is_infix_unopt op then Fmt.fmt ppf "%a%a" pp_of_unopt_single op pp_val v
@@ -286,8 +268,6 @@ let str_of_binopt_single (op : binopt) : string =
 
 let str_of_triopt_single (op : triopt) : string =
   Fmt.str "%a" pp_of_triopt_single op
-
-let str_of_const (c : const) : string = Fmt.str "%a" pp_of_const c
 
 let str_of_unopt (pp_val : Fmt.t -> 'a -> unit) (op : unopt) (v : 'a) : string =
   Fmt.str "%a" (pp_of_unopt pp_val) (op, v)

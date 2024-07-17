@@ -1,9 +1,6 @@
 open Ecma_sl
 open Test
 
-let test_const (c : Operator.const) (expected : EType.t) : bool =
-  TypeExpr.test ~@(EExpr.Const c) (Ok expected)
-
 let test_unopt ((op, v) : Operator.unopt * Value.t) (expected : EType.t) : bool
     =
   let v' = ~@(EExpr.Val v) in
@@ -19,12 +16,6 @@ let test_triopt
   (expected : EType.t) : bool =
   let (v1', v2', v3') = EExpr.(~@(Val v1), ~@(Val v2), ~@(Val v3)) in
   TypeExpr.test ~@(EExpr.TriOpt (op, v1', v2', v3')) (Ok expected)
-
-(* ========== Constant Operators ========== *)
-
-let%test "constant_max" = test_const MAX_VALUE t_float
-let%test "constant_min" = test_const MIN_VALUE t_float
-let%test "constant_pi" = test_const PI t_float
 
 (* ========== Simple Unary Operators ========== *)
 
