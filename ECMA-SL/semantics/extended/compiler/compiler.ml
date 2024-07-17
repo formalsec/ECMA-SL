@@ -171,7 +171,6 @@ let rec compile_expr (s_at : at) (e : EExpr.t) : c_expr =
   | Val x -> ([], Expr.Val x @> e.at)
   | Var x -> ([], Expr.Var x @> e.at)
   | GVar x -> compile_gvar s_at e x
-  | Const c -> compile_const e.at c
   | UnOpt (op, e') -> compile_unopt s_at e.at op e'
   | BinOpt (op, e1, e2) -> compile_binopt s_at e.at op e1 e2
   | TriOpt (op, e1, e2, e3) -> compile_triopt s_at e.at op e1 e2 e3
@@ -189,12 +188,6 @@ and compile_gvar (s_at : at) (e : EExpr.t) (x : Id.t') : c_expr =
   let entry = Expr.Val (Value.Str x) @?> e.at in
   let sres = Stmt.FieldLookup (?@res, global, entry) @?> s_at in
   ([ sres ], res)
-
-and compile_const (e_at : at) (c : Operator.const) : c_expr =
-  match c with
-  | MAX_VALUE -> ([], Expr.Val (Value.Real Float.max_float) @> e_at)
-  | MIN_VALUE -> ([], Expr.Val (Value.Real 5e-324) @> e_at)
-  | PI -> ([], Expr.Val (Value.Real Float.pi) @> e_at)
 
 and compile_unopt (s_at : at) (e_at : at) (op : Operator.unopt) (e : EExpr.t) :
   c_expr =

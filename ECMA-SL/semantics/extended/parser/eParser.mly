@@ -47,8 +47,6 @@
 
 (* ========== Operator tokens ========== *)
 
-%token MAX_VALUE MIN_VALUE PI
-
 %token OBJECT_TO_LIST OBJECT_FIELDS
 %token OBJECT_MEM
 
@@ -261,8 +259,6 @@ let no_blocklike_expr_target :=
 let val_expr_target := 
   | v = val_target;
     { EExpr.Val v @> at $sloc }
-  | c = const_target;
-    { EExpr.Const c @> at $sloc }
 
 let var_expr_target :=
   | x = id_target;
@@ -303,11 +299,6 @@ let obj_expr_target :=
     { EExpr.NewObj (EParsing_helper.Expr.parse_object_fields flds) @> at $sloc }
 
 (* ==================== Operators ==================== *)
-
-let const_target ==
-  | MAX_VALUE;              { Operator.MAX_VALUE }
-  | MIN_VALUE;              { Operator.MIN_VALUE }
-  | PI;                     { Operator.PI }
 
 let binopt_infix_target ==
   | ~ = core_binopt_infix;  <>
