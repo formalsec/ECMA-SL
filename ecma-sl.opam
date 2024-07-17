@@ -29,7 +29,7 @@ depends: [
   "dune-site"
   "bisect_ppx" {with-test & >= "2.5.0" & dev}
   "conf-npm"
-  "instrumentation2" {= "0.0.5"}
+  "instrumentation2"
 ]
 build: [
   ["dune" "subst"] {dev}
@@ -49,6 +49,5 @@ build: [
 ]
 dev-repo: "git+https://github.com/formalsec/ECMA-SL.git"
 pin-depends: [
-  ["instrumentation2.0.0.5" "git+https://github.com/formalsec/instrumentation2.git#v0.0.5"]
   ["smtml.dev" "git+https://github.com/formalsec/smtml.git#d1668dbfcdcf78c076d5a3665ae051bfa348873a"]
 ]
