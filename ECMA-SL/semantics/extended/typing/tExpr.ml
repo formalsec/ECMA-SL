@@ -12,7 +12,6 @@ and type_expr' (tctx : TCtx.t) (e : EExpr.t) : EType.t' =
   | Val v -> type_val v
   | Var x -> type_var tctx (x @?> e.at)
   | GVar _ -> AnyType (* TODO: global variables *)
-  | Const c -> TOperator.type_const c
   | UnOpt (op, e') -> texprs [ e' ] |> TOperator.type_unopt op
   | BinOpt (op, e1, e2) -> texprs [ e1; e2 ] |> TOperator.type_binopt op
   | TriOpt (op, e1, e2, e3) -> texprs [ e1; e2; e3 ] |> TOperator.type_triopt op

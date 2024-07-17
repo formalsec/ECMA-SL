@@ -36,13 +36,6 @@
             "match"                   , MATCH;
             "with"                    , WITH;
 
-            (* Program constants *)
-            "NaN"                     , FLOAT (Float.nan);
-            "Infinity"                , FLOAT (Float.infinity);
-            "MAX_VALUE"               , MAX_VALUE;
-            "MIN_VALUE"               , MIN_VALUE;
-            "PI"                      , PI;
-
             (* Integer operators *)
             "int_to_float"            , INT_TO_FLOAT;
             "int_to_string"           , INT_TO_STRING;
@@ -96,6 +89,13 @@
             "boolean"                 , TYPE_BOOLEAN;
             "symbol"                  , TYPE_SYMBOL;
             "sigma"                   , TYPE_SIGMA;
+
+            (* [FIXME] Math constants : Should go to the stdlib *)
+            "NaN"                     , FLOAT (Float.nan);
+            "Infinity"                , FLOAT (Float.infinity);
+            "MaxValue"                , FLOAT (Float.max_float);
+            "MinValue"                , FLOAT (5e-324);
+            "Pi"                      , FLOAT (Float.pi);
           ]
 
   exception Syntax_error of string

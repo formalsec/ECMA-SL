@@ -7,7 +7,6 @@ and t' =
   | Val of Value.t
   | Var of Id.t'
   | GVar of Id.t'
-  | Const of Operator.const
   | UnOpt of Operator.unopt * t
   | BinOpt of Operator.binopt * t * t
   | TriOpt of Operator.triopt * t * t * t
@@ -34,7 +33,6 @@ let rec pp (ppf : Fmt.t) (expr : t) : unit =
   | Val v -> Value.pp ppf v
   | Var x -> Fmt.pp_str ppf x
   | GVar x -> Fmt.fmt ppf "|%s|" x
-  | Const c -> Operator.pp_of_const ppf c
   | UnOpt (op, e) -> Operator.pp_of_unopt pp ppf (op, e)
   | BinOpt (op, e1, e2) -> Operator.pp_of_binopt pp ppf (op, e1, e2)
   | TriOpt (op, e1, e2, e3) -> Operator.pp_of_triopt pp ppf (op, e1, e2, e3)
@@ -63,7 +61,7 @@ let rec map (mapper : t -> t) (expr : t) : t =
   mapper'
   @@
   match expr.it with
-  | (Val _ | Var _ | GVar _ | Const _ | Symbolic _) as e -> e
+  | (Val _ | Var _ | GVar _ | Symbolic _) as e -> e
   | UnOpt (op, e) -> UnOpt (op, map' e)
   | BinOpt (op, e1, e2) -> BinOpt (op, map' e1, map' e2)
   | TriOpt (op, e1, e2, e3) -> TriOpt (op, map' e1, map' e2, map' e3)

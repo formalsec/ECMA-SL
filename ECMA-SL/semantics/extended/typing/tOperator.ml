@@ -29,12 +29,6 @@ let type_operator (targs : EType.t list) (op_sig : op_signature) : EType.t' =
   if List.length op_sig > 1 && List.exists has_tany_f targs then AnyType
   else type_operator_strict targs op_sig
 
-let type_const (c : Operator.const) : EType.t' =
-  match c with
-  | MAX_VALUE -> FloatType
-  | MIN_VALUE -> FloatType
-  | PI -> FloatType
-
 let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
   let not_implemented = EType.AnyType in
   let type_op = type_operator targs in
