@@ -42,6 +42,6 @@ let parse_etype ?(file : string = "") (str : string) : EType.t =
   EParser.entry_type_target ELexer.read lexbuf
 
 let parse_eprog ?(file : string = "") (path : string) (str : string) : EProg.t =
-  let lexbuf = Parsing_utils.init_lexbuf file str in
+  let lexbuf = init_lexbuf file str in
   let p = eparser EParser.Incremental.entry_prog_target lexbuf in
   { p with file; path }
