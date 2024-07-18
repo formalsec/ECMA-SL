@@ -280,7 +280,7 @@ let op_expr_target :=
   | op = triopt_call_target; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; COMMA; e3 = expr_target; RPAREN;
     { EExpr.TriOpt (op, e1, e2, e3) @> at $sloc }
   | e1 = no_blocklike_expr_target; QUESTION; e2 = expr_target; COLON; e3 = expr_target;
-    { EExpr.TriOpt (ITE, e1, e2, e3) @> at $sloc }
+    { EExpr.TriOpt (Conditional, e1, e2, e3) @> at $sloc }
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
     { EExpr.NOpt (ListExpr, es) @> at $sloc }
 

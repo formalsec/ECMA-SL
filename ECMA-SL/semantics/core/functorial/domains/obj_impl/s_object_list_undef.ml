@@ -76,7 +76,7 @@ let concrete_to_list (o : t) : (Expr.t * Expr.t option) list =
   List.fold o ~init:[] ~f:(fun accum o_r -> accum @ record_concrete_list o_r)
 
 let mk_eq e1 e2 = Expr.BinOpt (Operators.Eq, e1, e2)
-let mk_ite e1 e2 e3 = Expr.TriOpt (Operators.ITE, e1, e2, e3)
+let mk_ite e1 e2 e3 = Expr.TriOpt (Operators.Conditional, e1, e2, e3)
 
 let mk_or e1 e2 =
   if Expr.equal e1 (Expr.Val (Val.Bool false)) then e2

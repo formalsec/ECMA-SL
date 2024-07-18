@@ -36,6 +36,7 @@
 %token LPAREN RPAREN
 %token LBRACE RBRACE
 %token LBRACK RBRACK
+%token QUESTION
 %token EOF
 
 (* ========== Operator tokens ========== *)
@@ -51,6 +52,8 @@
 %left AMPERSAND PIPE CARET SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
 %left MINUS PLUS
 %left TIMES DIVIDE MODULO
+%left QUESTION
+%right COLON
 %right POW
 
 %nonassoc unopt_prec
@@ -191,6 +194,8 @@ let op_expr_target :=
     { Expr.BinOpt (op, e1, e2) @> at $sloc }
   | op = core_triopt; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; COMMA; e3 = expr_target; RPAREN;
     { Expr.TriOpt (op, e1, e2, e3) @> at $sloc }
+  | e1 = expr_target; QUESTION; e2 = expr_target; COLON; e3 = expr_target;
+    { Expr.TriOpt (Conditional, e1, e2, e3) @> at $sloc }
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
     { Expr.NOpt (ListExpr, es) @> at $sloc }
 

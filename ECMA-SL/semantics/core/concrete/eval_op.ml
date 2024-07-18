@@ -87,7 +87,7 @@ let op_error index value ty op =
     bad_arg_err index (label_of_binopt ListAdd) "(list, any)" [ value ]
   (* triop *)
   | (`Triop Ite, _) ->
-    bad_arg_err index (label_of_triopt ITE) "(boolean, any, any)" [ value ]
+    bad_arg_err index (label_of_triopt Conditional) "(boolean, any, any)" [ value ]
   | (`Triop String_extract, _) ->
     bad_arg_err index
       (label_of_triopt StringSubstr)
@@ -327,7 +327,7 @@ let binop_semantics (op : Operator.binopt) =
 
 let triop_semantics (op : Operator.triopt) =
   match op with
-  | ITE -> Eval.triop Ty_bool Ty.Ite
+  | Conditional -> Eval.triop Ty_bool Ty.Ite
   | StringSubstr -> Eval.(triop Ty_str Ty.String_extract)
   | ListSet -> Eval.(triop Ty_list Ty.List_set)
 

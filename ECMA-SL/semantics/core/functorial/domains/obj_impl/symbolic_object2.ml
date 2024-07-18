@@ -93,7 +93,7 @@ struct
         if is_key_possible key k solver pc then (k, d) :: acc else acc )
       o.symbolic_fields []
 
-  let mk_ite e1 e2 e3 = V.TriOpt (Operator.ITE, e1, e2, e3)
+  let mk_ite e1 e2 e3 = V.TriOpt (Operator.Conditional, e1, e2, e3)
   let is_val = function V.Val _ -> true | _ -> false
 
   let has_field (o : t) (k : value) : value =
