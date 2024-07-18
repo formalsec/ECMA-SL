@@ -227,7 +227,7 @@ let binop_semantics (op : Operator.binopt) =
   | SCLogicalAnd -> Log.fail "unexpected 'SCLogicalAnd' operator"
   | SCLogicalOr -> Log.fail "unexpected 'SCLogicalOr' operator"
   | Eq -> fun v1 v2 -> make_bool (Value.equal v1 v2)
-  | NE -> fun v1 v2 -> make_bool (not @@ Value.equal v1 v2)
+  | Ne -> fun v1 v2 -> make_bool (not @@ Value.equal v1 v2)
   | Lt -> (
     fun v1 v2 ->
       match (v1, v2) with
