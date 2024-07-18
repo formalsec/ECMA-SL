@@ -13,7 +13,6 @@
 (* ========== Typed tokens ========== *)
 
 %token <int>    INT
-%token <int>    LOC
 %token <float>  FLOAT
 %token <string> STRING
 %token <bool>   BOOLEAN
@@ -350,7 +349,6 @@ let val_target :=
   | f = FLOAT;           < Value.Real >
   | s = STRING;          < Value.Str >
   | b = BOOLEAN;         { if b then Value.True else Value.False }
-  | l = LOC;             { Value.App (`Op "loc", [Value.Int l])}
   | s = SYMBOL;          { Value.App (`Op "symbol", [Value.Str s])}
 
 
