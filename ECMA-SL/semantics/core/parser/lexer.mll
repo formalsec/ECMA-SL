@@ -24,23 +24,13 @@
             "case"                    , CASE;
             "default"                 , DEFAULT;
 
-            (* Integer operators *)
+            (* Casting operators *)
             "int_to_float"            , INT_TO_FLOAT;
             "int_to_string"           , INT_TO_STRING;
-
-            (* Float operators *)
             "int_of_float"            , FLOAT_TO_INT;
             "float_to_string"         , FLOAT_TO_STRING;
-
-            (* String operators *)
             "int_of_string"           , STRING_TO_INT;
             "float_of_string"         , STRING_TO_FLOAT;
-            "from_char_code"          , FROM_CHAR_CODE;
-            "to_char_code"            , TO_CHAR_CODE;
-            "s_len"                   , STRING_LEN;
-            "s_concat"                , STRING_CONCAT;
-            "s_nth"                   , STRING_NTH;
-            "s_substr"                , STRING_SUBSTR;
 
             (* Object operators *)
             "obj_to_list"             , OBJECT_TO_LIST;
