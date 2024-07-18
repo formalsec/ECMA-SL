@@ -8,8 +8,8 @@ let create : unit -> t =
 
 let equal (loc1 : t) (loc2 : t) : bool = loc1 == loc2 [@@inline]
 let hash (loc : t) : int = loc [@@inline]
-let pp (ppf : Fmt.t) (loc : t) : unit = Fmt.fmt ppf "$loc_%d" loc
-let str (loc : t) : string = Fmt.str "%a" pp loc
+let pp (ppf : Fmt.t) (loc : t) : unit = Fmt.fmt ppf "$loc_%d" loc [@@inline]
+let str (loc : t) : string = Fmt.str "%a" pp loc [@@inline]
 
 module Tbl = struct
   include Hashtbl.Make (struct
@@ -27,4 +27,5 @@ module Tbl = struct
   let str (pp_sep : Fmt.t -> unit) (pp_v : Fmt.t -> 'a * 'b -> unit)
     (loctbl : 'b t) : string =
     Fmt.str "%a" (pp pp_sep pp_v) loctbl
+  [@@inline]
 end

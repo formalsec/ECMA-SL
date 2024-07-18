@@ -19,3 +19,4 @@ let pp (pp_v : Fmt.t -> 'a -> unit) (ppf : Fmt.t) (obj : 'a t) : unit =
 
 let str (pp_v : Fmt.t -> 'a -> unit) (obj : 'a t) : string =
   Fmt.str "%a" (pp pp_v) obj
+[@@inline]

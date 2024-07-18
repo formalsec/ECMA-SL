@@ -9,9 +9,10 @@ and t' =
   ; body : Stmt.t
   }
 
-let default () : t =
-  { name = Id.default (); params = []; body = Stmt.default () } @> none
-[@@inline]
+let default : unit -> t =
+  let dflt' = { name = Id.default (); params = []; body = Stmt.default () } in
+  let dlft = dflt' @> none in
+  fun () -> dlft
 
 let create (name : Id.t) (params : Id.t list) (body : Stmt.t) : t' =
   { name; params; body }

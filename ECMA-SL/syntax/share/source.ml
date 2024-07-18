@@ -30,5 +30,5 @@ let pp_pos (ppf : Fmt.t) (pos : pos) : unit =
 let pp_at (ppf : Fmt.t) (at : at) : unit =
   Fmt.fmt ppf "%S:%a-%a" at.file pp_pos at.lpos pp_pos at.rpos
 
-let pp (ppf : Fmt.t) (x : 'a t) = Fmt.fmt ppf "%a" pp_at x.at
-let str (x : 'a t) : string = Fmt.str "%a" pp x
+let pp (ppf : Fmt.t) (x : 'a t) = Fmt.fmt ppf "%a" pp_at x.at [@@inline]
+let str (x : 'a t) : string = Fmt.str "%a" pp x [@@inline]
