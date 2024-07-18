@@ -74,7 +74,7 @@ type binopt =
 
 type triopt =
   (* General operators *)
-  | ITE
+  | Conditional
   (* String operators *)
   | StringSubstr
   (* List operators *)
@@ -159,7 +159,7 @@ let label_of_binopt (op : binopt) : string =
 
 let label_of_triopt (op : triopt) : string =
   match op with
-  | ITE -> "IfThenElse"
+  | Conditional -> "Conditional"
   | StringSubstr -> "String.s_substr"
   | ListSet -> "List.l_set"
 
@@ -232,7 +232,7 @@ let pp_of_binopt_single (ppf : Fmt.t) (op : binopt) : unit =
 let pp_of_triopt_single (ppf : Fmt.t) (op : triopt) : unit =
   let open Fmt in
   match op with
-  | ITE -> pp_str ppf "ite"
+  | Conditional -> pp_str ppf "?:"
   | StringSubstr -> pp_str ppf "s_substr"
   | ListSet -> pp_str ppf "l_set"
 
@@ -249,8 +249,11 @@ let pp_of_binopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
 
 let pp_of_triopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   ((op, v1, v2, v3) : triopt * 'a * 'a * 'a) : unit =
-  Fmt.fmt ppf "%a(%a, %a, %a)" pp_of_triopt_single op pp_val v1 pp_val v2 pp_val
-    v3
+  match op with
+  | Conditional -> Fmt.fmt ppf "%a ? %a : %a" pp_val v1 pp_val v2 pp_val v3
+  | _ ->
+    Fmt.fmt ppf "%a(%a, %a, %a)" pp_of_triopt_single op pp_val v1 pp_val v2
+      pp_val v3
 
 let pp_of_nopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   ((op, vs) : nopt * 'a list) : unit =

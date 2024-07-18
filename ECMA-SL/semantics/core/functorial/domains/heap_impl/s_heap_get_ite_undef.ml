@@ -39,7 +39,7 @@ let rec get ?(setVal = true) (h : t) (l : Loc.t) : obj option =
     | None -> None )
 
 let mk_ite (e1 : Expr.t) (e2 : Expr.t) (e3 : Expr.t) : Expr.t =
-  Expr.TriOpt (Operators.ITE, e1, e2, e3)
+  Expr.TriOpt (Operators.Conditional, e1, e2, e3)
 
 let mk_not (e : Expr.t) : Expr.t = Expr.UnOpt (Operators.Not, e)
 let mk_bool (b : bool) : Expr.t = Expr.Val (Val.Bool false)
@@ -96,7 +96,7 @@ let rec assign_obj_fields (h : t) (loc : Expr.t) (solver : Batch.t)
     match obj with
     | None -> failwith "Object not found."
     | Some o -> Expr.NOpt (Operators.ListExpr, Object.get_fields o) )
-  | Expr.TriOpt (Operators.ITE, cond, left, right) ->
+  | Expr.TriOpt (Operators.Conditional, cond, left, right) ->
     let op l pc = assign_obj_fields h l solver pc store in
     apply_op_get h loc cond left right solver op pc store
   | Expr.Val (App (`Op "symbol", [ Str "undefined" ])) ->
@@ -118,7 +118,7 @@ let rec assign_obj_to_list (h : t) (loc : Expr.t) (solver : Batch.t)
                 Expr.NOpt (Operators.TupleExpr, [ f; v ]) ) )
       in
       ret )
-  | Expr.TriOpt (Operators.ITE, cond, left, right) ->
+  | Expr.TriOpt (Operators.Conditional, cond, left, right) ->
     let op l pc = assign_obj_to_list h l solver pc store in
     apply_op_get h loc cond left right solver op pc store
   | Expr.Val (App (`Op "symbol", [ Str "undefined" ])) ->
@@ -131,7 +131,7 @@ let rec has_field_aux (h : t) (loc : Expr.t) (field : Expr.t) (solver : Batch.t)
   | Expr.Val (Val.Loc l) ->
     Option.value_map (get h l ~setVal:caching) ~default:(mk_bool false)
       ~f:(fun o -> Object.has_field o field )
-  | Expr.TriOpt (Operators.ITE, cond, left, right) ->
+  | Expr.TriOpt (Operators.Conditional, cond, left, right) ->
     let op l pc = has_field_aux h l field solver pc store in
     apply_op_get h loc cond left right solver op pc store
   | Expr.Val (App (`Op "symbol", [ Str "undefined" ])) ->
@@ -167,7 +167,7 @@ let rec get_field_aux ?(guard = None) (heap : t) (loc : Expr.t) (field : Expr.t)
         in
         (conc' :: acc1, (v, pc') :: acc2)
       | _ -> (conc' :: acc1, acc2) ) )
-  | Expr.TriOpt (Operators.ITE, cond, left, right) -> (
+  | Expr.TriOpt (Operators.Conditional, cond, left, right) -> (
     let op l pc guard = get_field_aux ~guard heap l field solver pc store in
     let not_cond = mk_not cond in
     let pc_left = cond :: pc in
@@ -251,7 +251,7 @@ let rec set_field_aux ?(encoded_guard = None) (heap : t) (loc : Expr.t)
   match loc with
   | Expr.Val (Val.Loc l) ->
     set_field_exec heap l field v solver pc encoded_guard store
-  | Expr.TriOpt (Operators.ITE, cond, left, right) ->
+  | Expr.TriOpt (Operators.Conditional, cond, left, right) ->
     let op l pc guard h =
       set_field_aux ~encoded_guard:guard h l field v solver pc store
     in
@@ -295,7 +295,7 @@ let rec delete_field_aux ?(encoded_guard = None) (heap : t) (loc : Expr.t)
   match loc with
   | Expr.Val (Val.Loc l) ->
     delete_field_exec heap l field solver pc encoded_guard store
-  | Expr.TriOpt (Operators.ITE, cond, left, right) ->
+  | Expr.TriOpt (Operators.Conditional, cond, left, right) ->
     let op l pc guard h =
       delete_field_aux ~encoded_guard:guard h l field solver pc store
     in

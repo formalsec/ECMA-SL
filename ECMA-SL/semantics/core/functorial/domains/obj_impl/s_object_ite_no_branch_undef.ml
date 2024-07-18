@@ -70,7 +70,7 @@ let get_concrete_field (o : t) (key : string) : Expr.t option =
   Hashtbl.find o.concrete_fields key
 
 let mk_eq e1 e2 = Expr.BinOpt (Operators.Eq, e1, e2)
-let mk_ite e1 e2 e3 = Expr.TriOpt (Operators.ITE, e1, e2, e3)
+let mk_ite e1 e2 e3 = Expr.TriOpt (Operators.Conditional, e1, e2, e3)
 let mk_or e1 e2 = Expr.BinOpt (Operators.Log_Or, e1, e2)
 let mk_not e1 = Expr.UnOpt (Operators.Not, e1)
 

@@ -11,8 +11,6 @@
 %token LAND LOR
 %token EQ NE LT GT LE GE
 
-%token ITE
-
 %token INT_TO_FLOAT INT_TO_STRING
 %token FLOAT_TO_INT FLOAT_TO_STRING
 
@@ -93,4 +91,3 @@
 %public let core_triopt ==
   | STRING_SUBSTR;          { Operator.StringSubstr }
   | LIST_SET;               { Operator.ListSet }
-  | ITE;                    { Operator.ITE }
