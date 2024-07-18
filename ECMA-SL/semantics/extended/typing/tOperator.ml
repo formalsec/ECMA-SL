@@ -42,10 +42,6 @@ let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
   | FloatToString -> type_op [ ([ FloatType ], StringType) ]
   | StringToInt -> type_op [ ([ StringType ], IntType) ]
   | StringToFloat -> type_op [ ([ StringType ], FloatType) ]
-  | FromCharCode -> type_op [ ([ IntType ], StringType) ]
-  | ToCharCode -> type_op [ ([ StringType ], IntType) ]
-  | StringLen -> type_op [ ([ StringType ], IntType) ]
-  | StringConcat -> not_implemented (* TODO: list typing *)
   | ObjectToList -> not_implemented (* TODO: custom object typing function *)
   | ObjectFields -> not_implemented (* TODO: custom object typing function *)
   | ListHead -> not_implemented (* TODO: list typing *)
@@ -82,19 +78,15 @@ let type_binopt (op : Operator.binopt) (targs : EType.t list) : EType.t' =
   | Le -> type_op [ ([ UnknownType; UnknownType ], BooleanType) ]
   | Ge -> type_op [ ([ UnknownType; UnknownType ], BooleanType) ]
   | ObjectMem -> not_implemented (* TODO: custom object typing function *)
-  | StringNth -> type_op [ ([ StringType; IntType ], StringType) ]
   | ListNth -> not_implemented (* TODO: list typing *)
   | ListAdd -> not_implemented (* TODO: list typing *)
   | ListPrepend -> not_implemented (* TODO: list typing *)
   | ListConcat -> not_implemented (* TODO: list typing *)
 
-let type_triopt (op : Operator.triopt) (targs : EType.t list) : EType.t' =
+let type_triopt (op : Operator.triopt) (_targs : EType.t list) : EType.t' =
   let not_implemented = EType.AnyType in
-  let type_op = type_operator targs in
   match op with
-  | Conditional ->
-    not_implemented (* TODO: custom if-then-else typing function *)
-  | StringSubstr -> type_op [ ([ StringType; IntType; IntType ], StringType) ]
+  | Conditional -> not_implemented (* TODO: conditional typing function *)
   | ListSet -> not_implemented (* TODO: list typing *)
 
 let type_nopt (op : Operator.nopt) (_targs : EType.t list) : EType.t' =

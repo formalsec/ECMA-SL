@@ -31,12 +31,6 @@ let op_error index value ty op =
     bad_arg_err index (label_of_unopt FloatToInt) "float" [ value ]
   | (`Cvtop String_to_int, _) ->
     bad_arg_err index (label_of_unopt StringToInt) "string" [ value ]
-  | (`Cvtop String_from_code, _) ->
-    bad_arg_err index (label_of_unopt FromCharCode) "integer" [ value ]
-  | (`Cvtop String_to_code, _) ->
-    bad_arg_err index (label_of_unopt ToCharCode) "string" [ value ]
-  | (`Unop Length, Ty_str) ->
-    bad_arg_err index (label_of_unopt StringLen) "string" [ value ]
   | (`Unop Head, _) ->
     bad_arg_err index (label_of_unopt ListHead) "non-empty list" [ value ]
   | (`Unop Tail, _) ->
@@ -83,10 +77,6 @@ let op_error index value ty op =
     bad_arg_err index
       (label_of_triopt Conditional)
       "(boolean, any, any)" [ value ]
-  | (`Triop String_extract, _) ->
-    bad_arg_err index
-      (label_of_triopt StringSubstr)
-      "(string, integer, integer)" [ value ]
   | (`Triop List_set, _) ->
     bad_arg_err index (label_of_triopt ListSet) "(list, integer, any)" [ value ]
   (* other errors *)
@@ -140,16 +130,8 @@ let unop_semantics (op : Operator.unopt) : Value.t -> Value.t =
     | Value.Str _ as v -> (
       try Eval.(cvtop Ty_str Ty.String_to_float) v with _ -> Real nan )
     | _ as v -> bad_arg_err 1 (label_of_unopt StringToFloat) "string" [ v ] )
-  | FromCharCode -> Eval.(cvtop Ty_str Ty.String_from_code)
-  | ToCharCode -> Eval.(cvtop Ty_str Ty.String_to_code)
-  | StringLen -> Eval.(unop Ty_str Ty.Length)
   | ObjectToList -> Log.fail "unexpected 'ObjectToList' operator"
   | ObjectFields -> Log.fail "unexpected 'ObjectFields' operator"
-  | StringConcat -> (
-    function
-    | Value.List lst -> Eval.(naryop Ty_str Ty.Concat) lst
-    | _ as v -> bad_arg_err 1 (label_of_unopt StringConcat) "string list" [ v ]
-    )
   | ListHead -> Eval.(unop Ty_list Ty.Head)
   | ListTail -> Eval.(unop Ty_list Ty.Tail)
   | ListLen -> Eval.(unop Ty_list Ty.Length)
@@ -275,18 +257,6 @@ let binop_semantics (op : Operator.binopt) =
           "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
     )
   | ObjectMem -> Log.fail "unexpected 'ObjectMem' operator"
-  | StringNth -> (
-    fun v1 v2 ->
-      match (v1, v2) with
-      | (Value.Str _, Value.Int _) -> (
-        try Eval.(binop Ty_str Ty.At) v1 v2
-        with _ ->
-          unexpected_err 2 (label_of_binopt StringNth) "index out of bounds" )
-      | (Str _, _) ->
-        bad_arg_err 2 (label_of_binopt StringNth) "(string, integer)" [ v1; v2 ]
-      | _ ->
-        bad_arg_err 1 (label_of_binopt StringNth) "(string, integer)" [ v1; v2 ]
-    )
   | ListNth -> (
     fun v1 v2 ->
       match (v1, v2) with
@@ -318,7 +288,6 @@ let binop_semantics (op : Operator.binopt) =
 let triop_semantics (op : Operator.triopt) =
   match op with
   | Conditional -> Eval.triop Ty_bool Ty.Ite
-  | StringSubstr -> Eval.(triop Ty_str Ty.String_extract)
   | ListSet -> Eval.(triop Ty_list Ty.List_set)
 
 let to_bool_aux (v : Value.t) : bool =

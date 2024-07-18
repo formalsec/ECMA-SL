@@ -87,6 +87,36 @@ module Make () = struct
       | (Val v1, Val v2) -> ok_v (to_fixed (v1, v2))
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
+    let from_char_code v =
+      match E.view v with
+      | Val v -> ok_v (from_char_code v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let to_char_code v =
+      match E.view v with
+      | Val v -> ok_v (to_char_code v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let s_len v =
+      match E.view v with
+      | Val v -> ok_v (s_len v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let s_concat v =
+      match E.view v with
+      | Val v -> ok_v (s_concat v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let s_nth v1 v2 =
+      match (E.view v1, E.view v2) with
+      | (Val v1, Val v2) -> ok_v (s_nth v1 v2)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let s_substr v1 v2 v3 =
+      match (E.view v1, E.view v2, E.view v3) with
+      | (Val v1, Val v2, Val v3) -> ok_v (s_substr v1 v2 v3)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
     let from_char_code_u v =
       match E.view v with
       | Val v -> ok_v (from_char_code_u v)
@@ -383,6 +413,14 @@ module Make () = struct
          , Extern_func (Func (Arg (Arg Res)), to_exponential) )
        ; ("to_fixed_external", Extern_func (Func (Arg (Arg Res)), to_fixed))
          (* string *)
+       ; ( "from_char_code_external"
+         , Extern_func (Func (Arg Res), from_char_code) )
+       ; ("to_char_code_external", Extern_func (Func (Arg Res), to_char_code))
+       ; ("s_len_external", Extern_func (Func (Arg Res), s_len))
+       ; ("s_concat_external", Extern_func (Func (Arg Res), s_concat))
+       ; ("s_nth_external", Extern_func (Func (Arg (Arg Res)), s_nth))
+       ; ( "s_substr_external"
+         , Extern_func (Func (Arg (Arg (Arg Res))), s_substr) )
        ; ( "from_char_code_u_external"
          , Extern_func (Func (Arg Res), from_char_code_u) )
        ; ( "to_char_code_u_external"
