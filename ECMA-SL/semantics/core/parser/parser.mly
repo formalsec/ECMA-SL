@@ -5,20 +5,7 @@
 %{
   open EslSyntax
   open EslSyntax.Source
-
-  let pos position =
-    {
-      line  = position.Lexing.pos_lnum;
-      col   = position.Lexing.pos_cnum - position.Lexing.pos_bol;
-    }
-
-  let at (startpos, endpos) =
-    {
-      file = startpos.Lexing.pos_fname;
-      lpos = pos startpos;
-      rpos = pos endpos;
-      real = true;
-    }
+  open Parsing_utils
 %}
 
 (* ========== Typed tokens ========== *)
