@@ -26,7 +26,9 @@ and t' =
   | Fail of Expr.t
   | Assert of Expr.t
 
-let default () : t = Skip @> none [@@inline]
+let default : unit -> t =
+  let dlft = Skip @> none in
+  fun () -> dlft
 
 let rec pp (ppf : Fmt.t) (stmt : t) : unit =
   let pp_vs pp_v ppf es = Fmt.(pp_lst !>", " pp_v) ppf es in

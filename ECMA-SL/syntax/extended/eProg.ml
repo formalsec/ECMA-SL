@@ -18,7 +18,6 @@ let default () : t =
   ; macros = Hashtbl.create !Base.default_hashtbl_sz
   ; funcs = Hashtbl.create !Base.default_hashtbl_sz
   }
-[@@inline]
 
 let create (file : Id.t') (path : string) (imports : EImport.t list)
   (tdefs : (Id.t', EType.TDef.t) Hashtbl.t) (funcs : (Id.t', EFunc.t) Hashtbl.t)

@@ -13,7 +13,9 @@ and t' =
   | Curry of t * t list
   | Symbolic of Type.t * t
 
-let default () : t = Val (App (`Op "null", [])) @> none [@@inline]
+let default : unit -> t =
+  let dlft = Val (App (`Op "null", [])) @> none in
+  fun () -> dlft
 
 let isvoid (expr : t) : bool =
   match expr.it with Val (App (`Op "void", [])) -> true | _ -> false

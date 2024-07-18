@@ -10,11 +10,11 @@ and t' =
   ; body : EStmt.t
   }
 
-let default () : t =
+let default : unit -> t =
   let (name, body) = (Id.default (), EStmt.default ()) in
   let (tparams, treturn) = ([], None) in
-  { name; tparams; treturn; body } @> none
-[@@inline]
+  let dflt = { name; tparams; treturn; body } @> none in
+  fun () -> dflt
 
 let create (name : Id.t) (tparams : (Id.t * EType.t option) list)
   (treturn : EType.t option) (body : EStmt.t) : t' =
