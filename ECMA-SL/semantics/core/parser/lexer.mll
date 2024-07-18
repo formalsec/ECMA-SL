@@ -24,9 +24,6 @@
             "case"                    , CASE;
             "default"                 , DEFAULT;
 
-            (* General operators *)
-            "ite"                     , ITE;
-
             (* Integer operators *)
             "int_to_float"            , INT_TO_FLOAT;
             "int_to_string"           , INT_TO_STRING;
@@ -138,6 +135,7 @@ rule read =
   | "<<"              { SHIFT_LEFT }
   | ">>"              { SHIFT_RIGHT }
   | ">>>"             { SHIFT_RIGHT_LOGICAL }
+  | '?'               { QUESTION }
   | '!'               { EXCLAMATION }
   | "&&"              { LAND }
   | "||"		          { LOR }

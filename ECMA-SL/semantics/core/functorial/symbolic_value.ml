@@ -211,7 +211,7 @@ module M = struct
 
   let eval_triop (op : Operator.triopt) =
     match op with
-    | ITE -> E.(triop Ty_bool Ite)
+    | Conditional -> E.(triop Ty_bool Ite)
     | StringSubstr -> E.(triop Ty_str String_extract)
     | ListSet -> E.(triop Ty_list List_set)
 
