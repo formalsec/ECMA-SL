@@ -161,7 +161,7 @@ module M = struct
     | SCLogicalAnd -> assert false
     | SCLogicalOr -> assert false
     | Eq -> E.(relop Ty_bool Eq)
-    | NE -> E.(relop Ty_bool Ne)
+    | Ne -> E.(relop Ty_bool Ne)
     | Lt -> (
       fun v1 v2 ->
         let (t1, t2) = (expr_type v1, expr_type v2) in

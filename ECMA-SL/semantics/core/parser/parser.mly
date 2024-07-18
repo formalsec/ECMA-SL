@@ -46,7 +46,7 @@
 (* ========== Precedence and associativity ========== *)
 
 %left LAND LOR
-%left EQ NEQ
+%left EQ NE
 %left LT GT LE GE
 %left AMPERSAND PIPE CARET SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
 %left MINUS PLUS

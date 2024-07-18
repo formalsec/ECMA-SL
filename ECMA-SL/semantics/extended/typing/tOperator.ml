@@ -81,7 +81,7 @@ let type_binopt (op : Operator.binopt) (targs : EType.t list) : EType.t' =
   | LogicalOr -> type_op [ ([ BooleanType; BooleanType ], BooleanType) ]
   | SCLogicalAnd -> type_op [ ([ BooleanType; BooleanType ], BooleanType) ]
   | SCLogicalOr -> type_op [ ([ BooleanType; BooleanType ], BooleanType) ]
-  | Eq | NE -> type_op [ ([ UnknownType; UnknownType ], BooleanType) ]
+  | Eq | Ne -> type_op [ ([ UnknownType; UnknownType ], BooleanType) ]
   | Lt -> type_op [ ([ UnknownType; UnknownType ], BooleanType) ]
   | Gt -> type_op [ ([ UnknownType; UnknownType ], BooleanType) ]
   | Le -> type_op [ ([ UnknownType; UnknownType ], BooleanType) ]
