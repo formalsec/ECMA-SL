@@ -111,11 +111,6 @@ module M = struct
     | ListTail -> E.(unop Ty_list Tail)
     | ListLen -> E.(unop Ty_list Length)
     | ListReverse -> E.(unop Ty_list Reverse)
-    | Abs -> E.(unop Ty_real Abs)
-    | Sqrt -> E.(unop Ty_real Sqrt)
-    | Ceil -> E.(unop Ty_real Ceil)
-    | Floor -> E.(unop Ty_real Floor)
-    | Trunc -> E.(unop Ty_real Trunc)
 
   let eval_binop (op : Operator.binopt) =
     match op with

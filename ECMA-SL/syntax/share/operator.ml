@@ -28,12 +28,6 @@ type unopt =
   | ListTail
   | ListLen
   | ListReverse
-  (* Math operators *)
-  | Abs
-  | Sqrt
-  | Ceil
-  | Floor
-  | Trunc
 
 type binopt =
   (* Arithmetic operators *)
@@ -120,11 +114,6 @@ let label_of_unopt (op : unopt) : string =
   | ListTail -> "List.tl"
   | ListLen -> "List.l_len"
   | ListReverse -> "List.l_reverse"
-  | Abs -> "Math.abs"
-  | Sqrt -> "Math.sqrt"
-  | Ceil -> "Math.ceil"
-  | Floor -> "Math.floor"
-  | Trunc -> "Math.trunc"
 
 let label_of_binopt (op : binopt) : string =
   match op with
@@ -191,11 +180,6 @@ let pp_of_unopt_single (ppf : Fmt.t) (op : unopt) : unit =
   | ListTail -> pp_str ppf "tl"
   | ListLen -> pp_str ppf "l_len"
   | ListReverse -> pp_str ppf "l_reverse"
-  | Abs -> pp_str ppf "abs"
-  | Sqrt -> pp_str ppf "sqrt"
-  | Ceil -> pp_str ppf "ceil"
-  | Floor -> pp_str ppf "floor"
-  | Trunc -> pp_str ppf "trunc"
 
 let pp_of_binopt_single (ppf : Fmt.t) (op : binopt) : unit =
   let open Fmt in

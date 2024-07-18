@@ -24,8 +24,6 @@
 %token LIST_NTH LIST_ADD LIST_PREPEND LIST_CONCAT
 %token LIST_SET
 
-%token ABS SQRT CEIL FLOOR TRUNC
-
 %token EXCLAMATION
 %token TILDE
 
@@ -75,11 +73,6 @@
   | LIST_TAIL;              { Operator.ListTail }
   | LIST_LEN;               { Operator.ListLen }
   | LIST_REVERSE;           { Operator.ListReverse }
-  | ABS;                    { Operator.Abs }
-  | SQRT;                   { Operator.Sqrt }
-  | CEIL;                   { Operator.Ceil }
-  | FLOOR;                  { Operator.Floor }
-  | TRUNC;                  { Operator.Trunc }
 
 %public let core_binopt_call ==
   | STRING_NTH;             { Operator.StringNth }

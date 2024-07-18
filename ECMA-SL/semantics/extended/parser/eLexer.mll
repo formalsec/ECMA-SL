@@ -70,13 +70,6 @@
             "l_concat"                , LIST_CONCAT;
             "l_set"                   , LIST_SET;
 
-            (* Math operators *)
-            "abs"                     , ABS;
-            "sqrt"                    , SQRT;
-            "ceil"                    , CEIL;
-            "floor"                   , FLOOR;
-            "trunc"                   , TRUNC;
-
             (* Type system *)
             "any"                     , TYPE_ANY;
             "unknown"                 , TYPE_UNKNOWN;
