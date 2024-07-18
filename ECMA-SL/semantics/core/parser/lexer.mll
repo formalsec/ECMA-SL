@@ -57,13 +57,6 @@
             "l_prepend"               , LIST_PREPEND;
             "l_concat"                , LIST_CONCAT;
             "l_set"                   , LIST_SET;
-
-            (* Math operators *)
-            "abs"                     , ABS;
-            "sqrt"                    , SQRT;
-            "ceil"                    , CEIL;
-            "floor"                   , FLOOR;
-
           ]
 
   exception Syntax_error of string
