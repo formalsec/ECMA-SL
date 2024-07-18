@@ -149,6 +149,41 @@ module Impl = struct
     | (Real _, _) -> bad_arg_err 2 op_lbl "(float, integer)" [ v1; v2 ]
     | _ -> bad_arg_err 1 op_lbl "(float, integer)" [ v1; v2 ]
 
+  let from_char_code (v : Value.t) : Value.t =
+    let op_lbl = "from_char_code_external" in
+    try Smtml.Eval.cvtop Type.Ty_str Type.String_from_code v
+    with _ -> bad_arg_err 1 op_lbl "integer" [ v ]
+
+  let to_char_code (v : Value.t) : Value.t =
+    let op_lbl = "to_char_code_external" in
+    try Smtml.Eval.cvtop Type.Ty_str Type.String_to_code v
+    with _ -> bad_arg_err 1 op_lbl "string" [ v ]
+
+  let s_len (v : Value.t) : Value.t =
+    let op_lbl = "s_len_external" in
+    try Smtml.Eval.unop Type.Ty_str Type.Length v
+    with _ -> bad_arg_err 1 op_lbl "string" [ v ]
+
+  let s_concat (v : Value.t) : Value.t =
+    let op_lbl = "s_concat_external" in
+    match v with
+    | Value.List lst -> Smtml.Eval.naryop Type.Ty_str Type.Concat lst
+    | _ as v -> bad_arg_err 1 op_lbl "string list" [ v ]
+
+  let s_nth (v1 : Value.t) (v2 : Value.t) : Value.t =
+    let op_lbl = "s_nth_external" in
+    match (v1, v2) with
+    | (Value.Str _, Value.Int _) -> (
+      try Smtml.Eval.binop Ty_str Type.At v1 v2
+      with _ -> unexpected_err 2 op_lbl "index out of bounds" )
+    | (Str _, _) -> bad_arg_err 2 op_lbl "(string, integer)" [ v1; v2 ]
+    | _ -> bad_arg_err 1 op_lbl "(string, integer)" [ v1; v2 ]
+
+  let s_substr (v1 : Value.t) (v2 : Value.t) (v3 : Value.t) : Value.t =
+    let op_lbl = "s_substr_external" in
+    try Smtml.Eval.triop Ty_str Type.String_extract v1 v2 v3
+    with _ -> bad_arg_err 1 op_lbl "(string, integer, integer)" [ v1; v2; v3 ]
+
   let from_char_code_u (v : Value.t) : Value.t =
     let op_lbl = "from_char_code_u_external" in
     match v with
@@ -653,6 +688,12 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("to_exponential_external", [ v1; v2 ]) -> to_exponential (v1, v2)
   | ("to_fixed_external", [ v1; v2 ]) -> to_fixed (v1, v2)
   (* string *)
+  | ("from_char_code_external", [ v ]) -> from_char_code v
+  | ("to_char_code_external", [ v ]) -> to_char_code v
+  | ("s_len_external", [ v ]) -> s_len v
+  | ("s_concat_external", [ v ]) -> s_concat v
+  | ("s_nth_external", [ v1; v2 ]) -> s_nth v1 v2
+  | ("s_substr_external", [ v1; v2; v3 ]) -> s_substr v1 v2 v3
   | ("from_char_code_u_external", [ v ]) -> from_char_code_u v
   | ("to_char_code_u_external", [ v ]) -> to_char_code_u v
   | ("to_lower_case_external", [ v ]) -> to_lower_case v

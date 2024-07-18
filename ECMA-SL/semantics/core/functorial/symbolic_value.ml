@@ -96,15 +96,6 @@ module M = struct
           try E.(cvtop Ty_str Ty.String_to_float) v
           with _ -> E.(value (Real nan)) )
         | _ -> Log.fail "TODO:x StringToFloat" )
-    | FromCharCode -> E.(cvtop Ty_str String_from_code)
-    | ToCharCode -> E.(cvtop Ty_str String_to_code)
-    | StringLen -> E.(unop Ty_str Length)
-    | StringConcat -> (
-      fun v1 ->
-        match E.view v1 with
-        | E.Val (Value.List _) -> E.(naryop Ty_str Concat [ v1 ])
-        | E.List lst -> E.(naryop Ty_str Concat lst)
-        | _ -> Log.fail "TODO:x StringConcat" )
     | ObjectToList -> assert false
     | ObjectFields -> assert false
     | ListHead -> E.(unop Ty_list Head)
@@ -190,7 +181,6 @@ module M = struct
         | (Ty_str, Ty_str) -> E.(relop Ty_str Ge v1 v2)
         | _ -> Log.fail "TODO:x Ge" )
     | ObjectMem -> assert false
-    | StringNth -> E.(binop Ty_str At)
     | ListNth -> E.(binop Ty_list At)
     | ListAdd -> E.(binop Ty_list List_append_last)
     | ListPrepend -> (
@@ -207,7 +197,6 @@ module M = struct
   let eval_triop (op : Operator.triopt) =
     match op with
     | Conditional -> E.(triop Ty_bool Ite)
-    | StringSubstr -> E.(triop Ty_str String_extract)
     | ListSet -> E.(triop Ty_list List_set)
 
   let eval_nop (op : Operator.nopt) =

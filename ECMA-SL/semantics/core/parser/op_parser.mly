@@ -13,12 +13,7 @@
 
 %token INT_TO_FLOAT INT_TO_STRING
 %token FLOAT_TO_INT FLOAT_TO_STRING
-
-%token STRING_TO_INT STRING_TO_FLOAT FROM_CHAR_CODE TO_CHAR_CODE
-%token STRING_LEN STRING_CONCAT
-
-%token STRING_NTH
-%token STRING_SUBSTR
+%token STRING_TO_INT STRING_TO_FLOAT
 
 %token LIST_HEAD LIST_TAIL LIST_LEN LIST_REVERSE
 %token LIST_NTH LIST_ADD LIST_PREPEND LIST_CONCAT
@@ -65,22 +60,16 @@
   | FLOAT_TO_STRING;        { Operator.FloatToString }
   | STRING_TO_INT;          { Operator.StringToInt }
   | STRING_TO_FLOAT;        { Operator.StringToFloat }
-  | FROM_CHAR_CODE;         { Operator.FromCharCode }
-  | TO_CHAR_CODE;           { Operator.ToCharCode }
-  | STRING_LEN;             { Operator.StringLen }
-  | STRING_CONCAT;          { Operator.StringConcat }
   | LIST_HEAD;              { Operator.ListHead }
   | LIST_TAIL;              { Operator.ListTail }
   | LIST_LEN;               { Operator.ListLen }
   | LIST_REVERSE;           { Operator.ListReverse }
 
 %public let core_binopt_call ==
-  | STRING_NTH;             { Operator.StringNth }
   | LIST_NTH;               { Operator.ListNth }
   | LIST_ADD;               { Operator.ListAdd }
   | LIST_PREPEND;           { Operator.ListPrepend }
   | LIST_CONCAT;            { Operator.ListConcat }
 
 %public let core_triopt ==
-  | STRING_SUBSTR;          { Operator.StringSubstr }
   | LIST_SET;               { Operator.ListSet }

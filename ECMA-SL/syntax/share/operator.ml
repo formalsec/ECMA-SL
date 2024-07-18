@@ -1,85 +1,63 @@
 open EslBase
 
 type unopt =
-  (* Arithmetic operators *)
   | Neg
-  (* Bitwise operators *)
   | BitwiseNot
-  (* Logical *)
   | LogicalNot
-  (* Integer operators *)
   | IntToFloat
   | IntToString
-  (* Float operators *)
   | FloatToInt
   | FloatToString
-  (* String operators *)
   | StringToInt
   | StringToFloat
-  | FromCharCode
-  | ToCharCode
-  | StringLen
-  | StringConcat
-  (* Object operators *)
+  (* Temp operators *)
   | ObjectToList
   | ObjectFields
-  (* List operators *)
   | ListHead
   | ListTail
   | ListLen
   | ListReverse
 
 type binopt =
-  (* Arithmetic operators *)
   | Plus
   | Minus
   | Times
   | Div
   | Modulo
   | Pow
-  (* Bitwise operators *)
   | BitwiseAnd
   | BitwiseOr
   | BitwiseXor
   | ShiftLeft
   | ShiftRight
   | ShiftRightLogical
-  (* Logical operators *)
   | LogicalAnd
   | LogicalOr
   | SCLogicalAnd
   | SCLogicalOr
-  (* Comparison operators *)
   | Eq
   | Ne
   | Lt
   | Gt
   | Le
   | Ge
-  (* Object operators *)
+  (* Temp operators *)
   | ObjectMem
-  (* String operators *)
-  | StringNth
-  (* List operators *)
   | ListNth
   | ListAdd
   | ListPrepend
   | ListConcat
 
 type triopt =
-  (* General operators *)
   | Conditional
-  (* String operators *)
-  | StringSubstr
-  (* List operators *)
+  (* Temp operators *)
   | ListSet
 
 type nopt =
-  (* Logical operators *)
+  | ListExpr
+  (* Temp operators *)
   | NAryLogicalAnd
   | NAryLogicalOr
-  (* List operators *)
-  | ListExpr
 
 let is_infix_unopt (op : unopt) : bool =
   match op with BitwiseNot | LogicalNot -> true | _ -> false
@@ -104,10 +82,6 @@ let label_of_unopt (op : unopt) : string =
   | FloatToString -> "Float.float_to_string"
   | StringToInt -> "String.string_to_int"
   | StringToFloat -> "String.string_to_float"
-  | FromCharCode -> "String.from_char_code"
-  | ToCharCode -> "String.to_char_code_u"
-  | StringLen -> "String.s_len"
-  | StringConcat -> "String.s_concat"
   | ObjectToList -> "Object.obj_to_list"
   | ObjectFields -> "Object.obj_fields"
   | ListHead -> "List.hd"
@@ -140,7 +114,6 @@ let label_of_binopt (op : binopt) : string =
   | Le -> "Comp.le (<=)"
   | Ge -> "Comp.ge (>=)"
   | ObjectMem -> "Object.in_obj"
-  | StringNth -> "String.s_nth"
   | ListNth -> "List.l_nth"
   | ListAdd -> "List.l_add"
   | ListPrepend -> "List.l_prepend"
@@ -149,7 +122,6 @@ let label_of_binopt (op : binopt) : string =
 let label_of_triopt (op : triopt) : string =
   match op with
   | Conditional -> "Conditional"
-  | StringSubstr -> "String.s_substr"
   | ListSet -> "List.l_set"
 
 let label_of_nopt (op : nopt) : string =
@@ -170,10 +142,6 @@ let pp_of_unopt_single (ppf : Fmt.t) (op : unopt) : unit =
   | FloatToString -> pp_str ppf "float_to_string"
   | StringToInt -> pp_str ppf "int_of_string"
   | StringToFloat -> pp_str ppf "float_of_string"
-  | FromCharCode -> pp_str ppf "from_char_code"
-  | ToCharCode -> pp_str ppf "to_char_code"
-  | StringLen -> pp_str ppf "s_len"
-  | StringConcat -> pp_str ppf "s_concat"
   | ObjectToList -> pp_str ppf "obj_to_list"
   | ObjectFields -> pp_str ppf "obj_fields"
   | ListHead -> pp_str ppf "hd"
@@ -207,7 +175,6 @@ let pp_of_binopt_single (ppf : Fmt.t) (op : binopt) : unit =
   | Le -> pp_str ppf "<="
   | Ge -> pp_str ppf ">="
   | ObjectMem -> pp_str ppf "in_obj"
-  | StringNth -> pp_str ppf "s_nth"
   | ListNth -> pp_str ppf "l_nth"
   | ListAdd -> pp_str ppf "l_add"
   | ListPrepend -> pp_str ppf "l_prepend"
@@ -217,7 +184,6 @@ let pp_of_triopt_single (ppf : Fmt.t) (op : triopt) : unit =
   let open Fmt in
   match op with
   | Conditional -> pp_str ppf "?:"
-  | StringSubstr -> pp_str ppf "s_substr"
   | ListSet -> pp_str ppf "l_set"
 
 let pp_of_unopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
