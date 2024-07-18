@@ -26,7 +26,9 @@ and t' =
   | Switch of EExpr.t * (EExpr.t * t) list * t option
   | MatchWith of EExpr.t * Id.t option * (EPat.t * t) list
 
-let default () : t = Skip @> none [@@inline]
+let default : unit -> t =
+  let dlft = Skip @> none in
+  fun () -> dlft
 
 let rec pp (ppf : Fmt.t) (stmt : t) : unit =
   let pp_vs pp_v ppf es = Fmt.(pp_lst !>", " pp_v) ppf es in

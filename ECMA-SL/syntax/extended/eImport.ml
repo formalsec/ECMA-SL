@@ -7,7 +7,9 @@ and t' =
   | User of Id.t
   | Standard of Id.t
 
-let default () : t = User (Id.default ()) @> none
+let default : unit -> t =
+  let dlft = User (Id.default ()) @> none in
+  fun () -> dlft
 
 let pp (ppf : Fmt.t) (import : t) : unit =
   match import.it with
