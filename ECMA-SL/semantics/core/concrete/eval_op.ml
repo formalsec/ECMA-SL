@@ -45,13 +45,6 @@ let op_error index value ty op =
     bad_arg_err index (label_of_unopt ListLen) "list" [ value ]
   | (`Unop Reverse, _) ->
     bad_arg_err index (label_of_unopt ListReverse) "list" [ value ]
-  | (`Unop Abs, _) -> bad_arg_err index (label_of_unopt Abs) "float" [ value ]
-  | (`Unop Sqrt, _) -> bad_arg_err index (label_of_unopt Sqrt) "float" [ value ]
-  | (`Unop Ceil, _) -> bad_arg_err index (label_of_unopt Ceil) "float" [ value ]
-  | (`Unop Floor, _) ->
-    bad_arg_err index (label_of_unopt Floor) "float" [ value ]
-  | (`Unop Trunc, _) ->
-    bad_arg_err index (label_of_unopt Trunc) "float" [ value ]
   (* binop *)
   | (`Binop Rem, _) ->
     bad_arg_err index (label_of_binopt Modulo) "(float, float)" [ value ]
@@ -87,7 +80,9 @@ let op_error index value ty op =
     bad_arg_err index (label_of_binopt ListAdd) "(list, any)" [ value ]
   (* triop *)
   | (`Triop Ite, _) ->
-    bad_arg_err index (label_of_triopt Conditional) "(boolean, any, any)" [ value ]
+    bad_arg_err index
+      (label_of_triopt Conditional)
+      "(boolean, any, any)" [ value ]
   | (`Triop String_extract, _) ->
     bad_arg_err index
       (label_of_triopt StringSubstr)
@@ -159,11 +154,6 @@ let unop_semantics (op : Operator.unopt) : Value.t -> Value.t =
   | ListTail -> Eval.(unop Ty_list Ty.Tail)
   | ListLen -> Eval.(unop Ty_list Ty.Length)
   | ListReverse -> Eval.(unop Ty_list Ty.Reverse)
-  | Abs -> Eval.(unop Ty_real Ty.Abs)
-  | Sqrt -> Eval.(unop Ty_real Ty.Sqrt)
-  | Ceil -> Eval.(unop Ty_real Ty.Ceil)
-  | Floor -> Eval.(unop Ty_real Ty.Floor)
-  | Trunc -> Eval.(unop Ty_real Ty.Trunc)
 
 let binop_semantics (op : Operator.binopt) =
   let make_bool b = if b then Value.True else Value.False in

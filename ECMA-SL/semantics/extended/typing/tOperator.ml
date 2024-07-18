@@ -52,11 +52,6 @@ let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
   | ListTail -> not_implemented (* TODO: list typing *)
   | ListLen -> not_implemented (* TODO: list typing *)
   | ListReverse -> not_implemented (* TODO: list typing *)
-  | Abs -> type_op [ ([ FloatType ], FloatType) ]
-  | Sqrt -> type_op [ ([ FloatType ], FloatType) ]
-  | Ceil -> type_op [ ([ FloatType ], FloatType) ]
-  | Floor -> type_op [ ([ FloatType ], FloatType) ]
-  | Trunc -> type_op [ ([ FloatType ], FloatType) ]
 
 let type_binopt (op : Operator.binopt) (targs : EType.t list) : EType.t' =
   let not_implemented = EType.AnyType in
@@ -97,7 +92,8 @@ let type_triopt (op : Operator.triopt) (targs : EType.t list) : EType.t' =
   let not_implemented = EType.AnyType in
   let type_op = type_operator targs in
   match op with
-  | Conditional -> not_implemented (* TODO: custom if-then-else typing function *)
+  | Conditional ->
+    not_implemented (* TODO: custom if-then-else typing function *)
   | StringSubstr -> type_op [ ([ StringType; IntType; IntType ], StringType) ]
   | ListSet -> not_implemented (* TODO: list typing *)
 

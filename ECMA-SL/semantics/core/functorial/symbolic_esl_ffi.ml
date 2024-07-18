@@ -319,6 +319,31 @@ module Make () = struct
       | Val v -> ok_v (exp v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
+    let abs v =
+      match E.view v with
+      | Val v -> ok_v (abs v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let sqrt v =
+      match E.view v with
+      | Val v -> ok_v (sqrt v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let ceil v =
+      match E.view v with
+      | Val v -> ok_v (ceil v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let floor v =
+      match E.view v with
+      | Val v -> ok_v (floor v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let trunc v =
+      match E.view v with
+      | Val v -> ok_v (trunc v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
     let utf8_decode v =
       match E.view v with
       | Val v -> ok_v (utf8_decode v)
@@ -425,6 +450,11 @@ module Make () = struct
        ; ("atan_external", Extern_func (Func (Arg Res), atan))
        ; ("atan2_external", Extern_func (Func (Arg (Arg Res)), atan2))
        ; ("exp_external", Extern_func (Func (Arg Res), exp)) (* parse *)
+       ; ("abs_external", Extern_func (Func (Arg Res), abs)) (* parse *)
+       ; ("sqrt_external", Extern_func (Func (Arg Res), sqrt)) (* parse *)
+       ; ("ceil_external", Extern_func (Func (Arg Res), ceil)) (* parse *)
+       ; ("floor_external", Extern_func (Func (Arg Res), floor)) (* parse *)
+       ; ("trunc_external", Extern_func (Func (Arg Res), trunc)) (* parse *)
        ; ("utf8_decode_external", Extern_func (Func (Arg Res), utf8_decode))
        ; ("hex_decode_external", Extern_func (Func (Arg Res), hex_decode))
        ; ("parse_number_external", Extern_func (Func (Arg Res), parse_number))

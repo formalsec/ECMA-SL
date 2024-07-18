@@ -457,6 +457,31 @@ module Impl = struct
     | Real f -> Real (Random.float f)
     | _ -> bad_arg_err 1 op_lbl "float" [ v ]
 
+  let abs (v : Value.t) : Value.t =
+    let op_lbl = "abs_external" in
+    try Smtml.Eval.unop Type.Ty_real Type.Abs v
+    with _ -> bad_arg_err 1 op_lbl "float" [ v ]
+
+  let sqrt (v : Value.t) : Value.t =
+    let op_lbl = "sqrt_external" in
+    try Smtml.Eval.unop Type.Ty_real Type.Sqrt v
+    with _ -> bad_arg_err 1 op_lbl "float" [ v ]
+
+  let ceil (v : Value.t) : Value.t =
+    let op_lbl = "ceil_external" in
+    try Smtml.Eval.unop Type.Ty_real Type.Ceil v
+    with _ -> bad_arg_err 1 op_lbl "float" [ v ]
+
+  let floor (v : Value.t) : Value.t =
+    let op_lbl = "floor_external" in
+    try Smtml.Eval.unop Type.Ty_real Type.Floor v
+    with _ -> bad_arg_err 1 op_lbl "float" [ v ]
+
+  let trunc (v : Value.t) : Value.t =
+    let op_lbl = "trunc_external" in
+    try Smtml.Eval.unop Type.Ty_real Type.Trunc v
+    with _ -> bad_arg_err 1 op_lbl "float" [ v ]
+
   let exp (v : Value.t) : Value.t =
     let op_lbl = "exp_external" in
     match v with
@@ -665,6 +690,11 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("uint_from_le_bytes_external", [ v1; v2 ]) -> uint_from_le_bytes (v1, v2)
   (* math *)
   | ("random_external", [ v ]) -> random v
+  | ("abs_external", [ v ]) -> abs v
+  | ("sqrt_external", [ v ]) -> sqrt v
+  | ("ceil_external", [ v ]) -> ceil v
+  | ("floor_external", [ v ]) -> floor v
+  | ("trunc_external", [ v ]) -> trunc v
   | ("exp_external", [ v ]) -> exp v
   | ("log_2_external", [ v ]) -> log_2 v
   | ("log_e_external", [ v ]) -> log_e v
