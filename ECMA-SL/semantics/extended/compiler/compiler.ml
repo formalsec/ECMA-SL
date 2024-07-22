@@ -33,9 +33,8 @@ module Builder = struct
 
   let throw_checker (at : at) (res : Expr.t) (sthen : c_stmt) : Stmt.t =
     let iserror = Expr.UnOpt (ListHead, res) @?> res.at in
-    let value =
-      Expr.BinOpt (ListNth, res, Expr.Val (Int 1) @?> at) @?> res.at
-    in
+    let rest = Expr.UnOpt (ListTail, res) @?> res.at in
+    let value = Expr.UnOpt (ListHead, rest) @?> res.at in
     let selse = Stmt.Assign (?@res, value) @?> at in
     Stmt.If (iserror, block ~at sthen, block_opt ~at [ selse ]) @?> at
 
@@ -46,9 +45,8 @@ module Builder = struct
     | Some ferr' ->
       let res' = res.it @?> ferr'.at in
       let ferr'' = Expr.Val (Value.Str ferr'.it) @?> ferr'.at in
-      let err =
-        Expr.BinOpt (ListNth, res', Expr.Val (Int 1) @?> at) @?> ferr'.at
-      in
+      let rest = Expr.UnOpt (ListTail, res') @?> ferr'.at in
+      let err = Expr.UnOpt (ListHead, rest) @?> ferr'.at in
       let args = [ global ferr'; err ] in
       let sferr = Stmt.AssignCall (?@res', ferr'', args) @?> ferr'.at in
       let sferr_checker = throw_checker at res' [ sreturn ] in
@@ -362,19 +360,16 @@ and compile_while (at : at) (e : EExpr.t) (s : EStmt.t) : c_stmt =
   e_s @ [ Stmt.While (e_e, sblock) @?> at ]
 
 and compile_foreach (at : at) (x : Id.t) (e : EExpr.t) (s : EStmt.t) : c_stmt =
-  let i = Builder.var { x.at with real = false } in
-  let len = Builder.var { e.at with real = false } in
-  let guard_e = Expr.(BinOpt (Gt, len, i)) @> at in
+  let rest = Builder.var { e.at with real = false } in
+  let guard_e = Expr.(BinOpt (Ne, rest, Val (List []) @> none)) @> at in
   let (e_s, e_e) = compile_expr at e in
   let s_s = compile_stmt s in
   let e_e' = e_e.it @?> e_e.at in
-  let inc = Expr.Val (Value.Int 1) @?> at in
-  let sinit = Stmt.Assign (?@i, Expr.Val (Value.Int 0) @?> at) @?> at in
-  let slen = Stmt.Assign (?@len, Expr.UnOpt (ListLen, e_e') @?> at) @?> at in
-  let snth = Stmt.Assign (x, Expr.BinOpt (ListNth, e_e, i) @?> at) @?> at in
-  let sinc = Stmt.Assign (?@i, Expr.BinOpt (Plus, i, inc) @?> at) @?> at in
+  let sinit = Stmt.Assign (?@rest, e_e') @?> at in
+  let snth = Stmt.Assign (x, Expr.UnOpt (ListHead, rest) @?> at) @?> at in
+  let sinc = Stmt.Assign (?@rest, Expr.UnOpt (ListTail, rest) @?> at) @?> at in
   let sblock = Builder.block ~at:s.at ((snth :: s_s) @ real [ sinc ]) in
-  e_s @ [ sinit; slen ] @ [ Stmt.While (guard_e, sblock) @?> at ]
+  e_s @ [ sinit ] @ [ Stmt.While (guard_e, sblock) @?> at ]
 
 and compile_repeatuntil (at : at) (s : EStmt.t) (until : EExpr.t option) :
   c_stmt =

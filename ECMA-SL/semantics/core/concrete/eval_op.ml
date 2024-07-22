@@ -35,10 +35,6 @@ let op_error index value ty op =
     bad_arg_err index (label_of_unopt ListHead) "non-empty list" [ value ]
   | (`Unop Tail, _) ->
     bad_arg_err index (label_of_unopt ListTail) "list" [ value ]
-  | (`Unop Length, Ty_list) ->
-    bad_arg_err index (label_of_unopt ListLen) "list" [ value ]
-  | (`Unop Reverse, _) ->
-    bad_arg_err index (label_of_unopt ListReverse) "list" [ value ]
   (* binop *)
   | (`Binop Rem, _) ->
     bad_arg_err index (label_of_binopt Modulo) "(float, float)" [ value ]
@@ -70,15 +66,11 @@ let op_error index value ty op =
       "(boolean, boolean)" [ value ]
   | (`Binop Or, Ty_bool) ->
     bad_arg_err index (label_of_binopt LogicalOr) "(boolean, boolean)" [ value ]
-  | (`Binop List_append_last, _) ->
-    bad_arg_err index (label_of_binopt ListAdd) "(list, any)" [ value ]
   (* triop *)
   | (`Triop Ite, _) ->
     bad_arg_err index
       (label_of_triopt Conditional)
       "(boolean, any, any)" [ value ]
-  | (`Triop List_set, _) ->
-    bad_arg_err index (label_of_triopt ListSet) "(list, integer, any)" [ value ]
   (* other errors *)
   | (`Unop op', _) ->
     unexpected_err index
@@ -134,8 +126,6 @@ let unop_semantics (op : Operator.unopt) : Value.t -> Value.t =
   | ObjectFields -> Log.fail "unexpected 'ObjectFields' operator"
   | ListHead -> Eval.(unop Ty_list Ty.Head)
   | ListTail -> Eval.(unop Ty_list Ty.Tail)
-  | ListLen -> Eval.(unop Ty_list Ty.Length)
-  | ListReverse -> Eval.(unop Ty_list Ty.Reverse)
 
 let binop_semantics (op : Operator.binopt) =
   let make_bool b = if b then Value.True else Value.False in
@@ -257,38 +247,9 @@ let binop_semantics (op : Operator.binopt) =
           "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
     )
   | ObjectMem -> Log.fail "unexpected 'ObjectMem' operator"
-  | ListNth -> (
-    fun v1 v2 ->
-      match (v1, v2) with
-      | (Value.List _, Value.Int _) -> (
-        try Eval.(binop Ty_list Ty.At) v1 v2
-        with _ ->
-          unexpected_err 2 (label_of_binopt ListNth) "index out of bounds" )
-      | (Str _, _) ->
-        bad_arg_err 2 (label_of_binopt ListNth) "(list, integer)" [ v1; v2 ]
-      | _ ->
-        bad_arg_err 1 (label_of_binopt ListNth) "(list, integer)" [ v1; v2 ] )
-  | ListAdd -> Eval.(binop Ty_list Ty.List_append_last)
-  | ListPrepend -> (
-    fun v1 v2 ->
-      match v2 with
-      | Value.List _ -> Eval.(binop Ty_list Ty.List_append) v2 v1
-      | _ ->
-        bad_arg_err 1 (label_of_binopt ListPrepend) "(any, list)" [ v1; v2 ] )
-  | ListConcat -> (
-    fun v1 v2 ->
-      match (v1, v2) with
-      | (Value.List _, Value.List _) ->
-        Eval.(naryop Ty_list Ty.Concat) [ v1; v2 ]
-      | (List _, _) ->
-        bad_arg_err 2 (label_of_binopt ListConcat) "(list, list)" [ v1; v2 ]
-      | _ ->
-        bad_arg_err 1 (label_of_binopt ListConcat) "(list, list)" [ v1; v2 ] )
 
 let triop_semantics (op : Operator.triopt) =
-  match op with
-  | Conditional -> Eval.triop Ty_bool Ty.Ite
-  | ListSet -> Eval.(triop Ty_list Ty.List_set)
+  match op with Conditional -> Eval.triop Ty_bool Ty.Ite
 
 let to_bool_aux (v : Value.t) : bool =
   match v with

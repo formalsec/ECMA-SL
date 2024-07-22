@@ -15,9 +15,7 @@
 %token FLOAT_TO_INT FLOAT_TO_STRING
 %token STRING_TO_INT STRING_TO_FLOAT
 
-%token LIST_HEAD LIST_TAIL LIST_LEN LIST_REVERSE
-%token LIST_NTH LIST_ADD LIST_PREPEND LIST_CONCAT
-%token LIST_SET
+%token LIST_HEAD LIST_TAIL
 
 %token EXCLAMATION
 %token TILDE
@@ -62,14 +60,3 @@
   | STRING_TO_FLOAT;        { Operator.StringToFloat }
   | LIST_HEAD;              { Operator.ListHead }
   | LIST_TAIL;              { Operator.ListTail }
-  | LIST_LEN;               { Operator.ListLen }
-  | LIST_REVERSE;           { Operator.ListReverse }
-
-%public let core_binopt_call ==
-  | LIST_NTH;               { Operator.ListNth }
-  | LIST_ADD;               { Operator.ListAdd }
-  | LIST_PREPEND;           { Operator.ListPrepend }
-  | LIST_CONCAT;            { Operator.ListConcat }
-
-%public let core_triopt ==
-  | LIST_SET;               { Operator.ListSet }

@@ -182,6 +182,41 @@ module Make () = struct
       | (Val v1, Val v2, Val v3) -> ok_v (array_set (v1, v2, v3))
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
+    let l_len v =
+      match E.view v with
+      | Val v -> ok_v (l_len v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let l_reverse v =
+      match E.view v with
+      | Val v -> ok_v (l_reverse v)
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let l_nth v1 v2 =
+      match (E.view v1, E.view v2) with
+      | (Val v1, Val v2) -> ok_v (l_nth (v1, v2))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let l_add v1 v2 =
+      match (E.view v1, E.view v2) with
+      | (Val v1, Val v2) -> ok_v (l_add (v1, v2))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let l_prepend v1 v2 =
+      match (E.view v1, E.view v2) with
+      | (Val v1, Val v2) -> ok_v (l_prepend (v1, v2))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let l_concat v1 v2 =
+      match (E.view v1, E.view v2) with
+      | (Val v1, Val v2) -> ok_v (l_concat (v1, v2))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
+    let l_set v1 v2 v3 =
+      match (E.view v1, E.view v2, E.view v3) with
+      | (Val v1, Val v2, Val v3) -> ok_v (l_set (v1, v2, v3))
+      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+    in
     let list_to_array v =
       match E.view v with
       | Val v -> ok_v (list_to_array v)
@@ -439,6 +474,13 @@ module Make () = struct
        ; ("a_nth_external", Extern_func (Func (Arg (Arg Res)), array_nth))
        ; ("a_set_external", Extern_func (Func (Arg (Arg (Arg Res))), array_set))
          (* list *)
+       ; ("l_len_external", Extern_func (Func (Arg Res), l_len))
+       ; ("l_reverse_external", Extern_func (Func (Arg Res), l_reverse))
+       ; ("l_nth_external", Extern_func (Func (Arg (Arg Res)), l_nth))
+       ; ("l_add_external", Extern_func (Func (Arg (Arg Res)), l_add))
+       ; ("l_prepend_external", Extern_func (Func (Arg (Arg Res)), l_prepend))
+       ; ("l_concat_external", Extern_func (Func (Arg (Arg Res)), l_concat))
+       ; ("l_set_external", Extern_func (Func (Arg (Arg (Arg Res))), l_set))
        ; ("list_to_array_external", Extern_func (Func (Arg Res), list_to_array))
        ; ("l_sort_external", Extern_func (Func (Arg Res), list_sort))
        ; ("in_list_external", Extern_func (Func (Arg (Arg Res)), list_mem))
