@@ -39,10 +39,10 @@
             (* Casting operators *)
             "int_to_float"            , INT_TO_FLOAT;
             "int_to_string"           , INT_TO_STRING;
-            "int_of_float"            , FLOAT_TO_INT;
+            "float_to_int"            , FLOAT_TO_INT;
             "float_to_string"         , FLOAT_TO_STRING;
-            "int_of_string"           , STRING_TO_INT;
-            "float_of_string"         , STRING_TO_FLOAT;
+            "string_to_int"           , STRING_TO_INT;
+            "string_to_float"         , STRING_TO_FLOAT;
 
             (* Object operators *)
             "obj_to_list"             , OBJECT_TO_LIST;
