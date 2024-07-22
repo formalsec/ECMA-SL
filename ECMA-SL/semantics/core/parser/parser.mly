@@ -189,10 +189,6 @@ let op_expr_target :=
     { Expr.UnOpt (op, e) @> at $sloc }
   | e1 = expr_target; op = core_binopt_infix; e2 = expr_target;
     { Expr.BinOpt (op, e1, e2) @> at $sloc }
-  | op = core_binopt_call; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
-    { Expr.BinOpt (op, e1, e2) @> at $sloc }
-  | op = core_triopt; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; COMMA; e3 = expr_target; RPAREN;
-    { Expr.TriOpt (op, e1, e2, e3) @> at $sloc }
   | e1 = expr_target; QUESTION; e2 = expr_target; COLON; e3 = expr_target;
     { Expr.TriOpt (Conditional, e1, e2, e3) @> at $sloc }
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;

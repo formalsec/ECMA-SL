@@ -52,13 +52,6 @@
             (* List operators *)
             "hd"                      , LIST_HEAD;
             "tl"                      , LIST_TAIL;
-            "l_len"                   , LIST_LEN;
-            "l_reverse"               , LIST_REVERSE;
-            "l_nth"                   , LIST_NTH;
-            "l_add"                   , LIST_ADD;
-            "l_prepend"               , LIST_PREPEND;
-            "l_concat"                , LIST_CONCAT;
-            "l_set"                   , LIST_SET;
 
             (* Type system *)
             "any"                     , TYPE_ANY;
