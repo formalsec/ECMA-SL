@@ -100,8 +100,6 @@ module M = struct
     | ObjectFields -> assert false
     | ListHead -> E.(unop Ty_list Head)
     | ListTail -> E.(unop Ty_list Tail)
-    | ListLen -> E.(unop Ty_list Length)
-    | ListReverse -> E.(unop Ty_list Reverse)
 
   let eval_binop (op : Operator.binopt) =
     match op with
@@ -181,23 +179,9 @@ module M = struct
         | (Ty_str, Ty_str) -> E.(relop Ty_str Ge v1 v2)
         | _ -> Log.fail "TODO:x Ge" )
     | ObjectMem -> assert false
-    | ListNth -> E.(binop Ty_list At)
-    | ListAdd -> E.(binop Ty_list List_append_last)
-    | ListPrepend -> (
-      fun v1 v2 ->
-        match expr_type v2 with
-        | Ty_list -> E.(binop Ty_list Ty.List_append) v2 v1
-        | _ -> Log.fail "TODO:x ListPrepend" )
-    | ListConcat -> (
-      fun v1 v2 ->
-        match (E.view v1, E.view v2) with
-        | (E.List l1, E.List l2) -> E.(naryop Ty_list Concat (l1 @ l2))
-        | _ -> Log.fail "TODO:x ListConcat" )
 
   let eval_triop (op : Operator.triopt) =
-    match op with
-    | Conditional -> E.(triop Ty_bool Ite)
-    | ListSet -> E.(triop Ty_list List_set)
+    match op with Conditional -> E.(triop Ty_bool Ite)
 
   let eval_nop (op : Operator.nopt) =
     match op with

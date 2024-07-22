@@ -297,6 +297,49 @@ module Impl = struct
       bad_arg_err 2 op_lbl "(integer, integer, any)" [ v1; v2; v3 ]
     | _ -> bad_arg_err 1 op_lbl "(integer, integer, any)" [ v1; v2; v3 ]
 
+  let l_len (v : Value.t) : Value.t =
+    let op_lbl = "l_len_external" in
+    try Smtml.Eval.unop Ty_list Type.Length v
+    with _ -> bad_arg_err 1 op_lbl "list" [ v ]
+
+  let l_reverse (v : Value.t) : Value.t =
+    let op_lbl = "l_reverse_external" in
+    try Smtml.Eval.unop Ty_list Type.Reverse v
+    with _ -> bad_arg_err 1 op_lbl "list" [ v ]
+
+  let l_nth ((v1, v2) : Value.t * Value.t) : Value.t =
+    let op_lbl = "l_nth_external" in
+    match (v1, v2) with
+    | (Value.List _, Value.Int _) -> (
+      try Smtml.Eval.binop Ty_list Type.At v1 v2
+      with _ -> unexpected_err 2 op_lbl "index out of bounds" )
+    | (Str _, _) -> bad_arg_err 2 op_lbl "(list, integer)" [ v1; v2 ]
+    | _ -> bad_arg_err 1 op_lbl "(list, integer)" [ v1; v2 ]
+
+  let l_add ((v1, v2) : Value.t * Value.t) : Value.t =
+    let op_lbl = "l_add_external" in
+    try Smtml.Eval.binop Ty_list Type.List_append_last v1 v2
+    with _ -> bad_arg_err 2 op_lbl "(list, any)" [ v1; v2 ]
+
+  let l_prepend ((v1, v2) : Value.t * Value.t) : Value.t =
+    let op_lbl = "l_prepend_external" in
+    match v2 with
+    | Value.List _ -> Smtml.Eval.binop Ty_list Type.List_append v2 v1
+    | _ -> bad_arg_err 1 op_lbl "(any, list)" [ v1; v2 ]
+
+  let l_concat ((v1, v2) : Value.t * Value.t) : Value.t =
+    let op_lbl = "l_concat_external" in
+    match (v1, v2) with
+    | (Value.List _, Value.List _) ->
+      Smtml.Eval.naryop Ty_list Type.Concat [ v1; v2 ]
+    | (List _, _) -> bad_arg_err 2 op_lbl "(list, list)" [ v1; v2 ]
+    | _ -> bad_arg_err 1 op_lbl "(list, list)" [ v1; v2 ]
+
+  let l_set ((v1, v2, v3) : Value.t * Value.t * Value.t) : Value.t =
+    let op_lbl = "l_set_external" in
+    try Smtml.Eval.triop Ty_list Type.List_set v1 v2 v3
+    with _ -> bad_arg_err 1 op_lbl "(list, integer, any)" [ v1; v2; v3 ]
+
   let list_to_array (v : Value.t) : Value.t =
     let op_lbl = "list_to_array_external" in
     match v with
@@ -709,6 +752,13 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("a_nth_external", [ v1; v2 ]) -> array_nth (v1, v2)
   | ("a_set_external", [ v1; v2; v3 ]) -> array_set (v1, v2, v3)
   (* list *)
+  | ("l_len_external", [ v ]) -> l_len v
+  | ("l_reverse_external", [ v ]) -> l_reverse v
+  | ("l_nth_external", [ v1; v2 ]) -> l_nth (v1, v2)
+  | ("l_add_external", [ v1; v2 ]) -> l_add (v1, v2)
+  | ("l_prepend_external", [ v1; v2 ]) -> l_prepend (v1, v2)
+  | ("l_concat_external", [ v1; v2 ]) -> l_concat (v1, v2)
+  | ("l_set_external", [ v1; v2; v3 ]) -> l_set (v1, v2, v3)
   | ("list_to_array_external", [ v ]) -> list_to_array v
   | ("l_sort_external", [ v ]) -> list_sort v
   | ("in_list_external", [ v1; v2 ]) -> list_mem (v1, v2)

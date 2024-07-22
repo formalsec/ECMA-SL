@@ -274,10 +274,6 @@ let op_expr_target :=
     { EExpr.UnOpt (op, e) @> at $sloc }
   | e1 = no_blocklike_expr_target; op = binopt_infix_target; e2 = expr_target;
     { EExpr.BinOpt (op, e1, e2) @> at $sloc }
-  | op = core_binopt_call; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
-    { EExpr.BinOpt (op, e1, e2) @> at $sloc }
-  | op = triopt_call_target; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; COMMA; e3 = expr_target; RPAREN;
-    { EExpr.TriOpt (op, e1, e2, e3) @> at $sloc }
   | e1 = no_blocklike_expr_target; QUESTION; e2 = expr_target; COLON; e3 = expr_target;
     { EExpr.TriOpt (Conditional, e1, e2, e3) @> at $sloc }
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
@@ -309,9 +305,6 @@ let unopt_call_target ==
   | ~ = core_unopt_call;    <>
   | OBJECT_TO_LIST;         { Operator.ObjectToList }
   | OBJECT_FIELDS;          { Operator.ObjectFields }
-
-let triopt_call_target ==
-  | ~ = core_triopt;        <>
 
 (* ==================== Generic Elements ==================== *)
 

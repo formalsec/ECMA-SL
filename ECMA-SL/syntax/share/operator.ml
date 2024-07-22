@@ -10,13 +10,11 @@ type unopt =
   | FloatToString
   | StringToInt
   | StringToFloat
+  | ListHead
+  | ListTail
   (* Temp operators *)
   | ObjectToList
   | ObjectFields
-  | ListHead
-  | ListTail
-  | ListLen
-  | ListReverse
 
 type binopt =
   | Plus
@@ -43,33 +41,15 @@ type binopt =
   | Ge
   (* Temp operators *)
   | ObjectMem
-  | ListNth
-  | ListAdd
-  | ListPrepend
-  | ListConcat
 
-type triopt =
-  | Conditional
-  (* Temp operators *)
-  | ListSet
+type triopt = Conditional
+(* Temp operators *)
 
 type nopt =
   | ListExpr
   (* Temp operators *)
   | NAryLogicalAnd
   | NAryLogicalOr
-
-let is_infix_unopt (op : unopt) : bool =
-  match op with BitwiseNot | LogicalNot -> true | _ -> false
-
-let is_infix_binopt (op : binopt) : bool =
-  match op with
-  | Plus | Minus | Times | Div | Modulo | Pow | BitwiseAnd | BitwiseOr
-  | BitwiseXor | ShiftLeft | ShiftRight | ShiftRightLogical | LogicalAnd
-  | LogicalOr | SCLogicalAnd | SCLogicalOr | Eq | Ne | Lt | Gt | Le | Ge
-  | ObjectMem ->
-    true
-  | _ -> false
 
 let label_of_unopt (op : unopt) : string =
   match op with
@@ -82,12 +62,10 @@ let label_of_unopt (op : unopt) : string =
   | FloatToString -> "Float.float_to_string"
   | StringToInt -> "String.string_to_int"
   | StringToFloat -> "String.string_to_float"
-  | ObjectToList -> "Object.obj_to_list"
-  | ObjectFields -> "Object.obj_fields"
   | ListHead -> "List.hd"
   | ListTail -> "List.tl"
-  | ListLen -> "List.l_len"
-  | ListReverse -> "List.l_reverse"
+  | ObjectToList -> "Object.obj_to_list"
+  | ObjectFields -> "Object.obj_fields"
 
 let label_of_binopt (op : binopt) : string =
   match op with
@@ -114,15 +92,9 @@ let label_of_binopt (op : binopt) : string =
   | Le -> "Comp.le (<=)"
   | Ge -> "Comp.ge (>=)"
   | ObjectMem -> "Object.in_obj"
-  | ListNth -> "List.l_nth"
-  | ListAdd -> "List.l_add"
-  | ListPrepend -> "List.l_prepend"
-  | ListConcat -> "List.l_concat"
 
 let label_of_triopt (op : triopt) : string =
-  match op with
-  | Conditional -> "Conditional"
-  | ListSet -> "List.l_set"
+  match op with Conditional -> "Conditional"
 
 let label_of_nopt (op : nopt) : string =
   match op with
@@ -146,8 +118,6 @@ let pp_of_unopt_single (ppf : Fmt.t) (op : unopt) : unit =
   | ObjectFields -> pp_str ppf "obj_fields"
   | ListHead -> pp_str ppf "hd"
   | ListTail -> pp_str ppf "tl"
-  | ListLen -> pp_str ppf "l_len"
-  | ListReverse -> pp_str ppf "l_reverse"
 
 let pp_of_binopt_single (ppf : Fmt.t) (op : binopt) : unit =
   let open Fmt in
@@ -175,35 +145,23 @@ let pp_of_binopt_single (ppf : Fmt.t) (op : binopt) : unit =
   | Le -> pp_str ppf "<="
   | Ge -> pp_str ppf ">="
   | ObjectMem -> pp_str ppf "in_obj"
-  | ListNth -> pp_str ppf "l_nth"
-  | ListAdd -> pp_str ppf "l_add"
-  | ListPrepend -> pp_str ppf "l_prepend"
-  | ListConcat -> pp_str ppf "l_concat"
 
 let pp_of_triopt_single (ppf : Fmt.t) (op : triopt) : unit =
   let open Fmt in
-  match op with
-  | Conditional -> pp_str ppf "?:"
-  | ListSet -> pp_str ppf "l_set"
+  match op with Conditional -> pp_str ppf "?:"
 
 let pp_of_unopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   ((op, v) : unopt * 'a) : unit =
-  if is_infix_unopt op then Fmt.fmt ppf "%a%a" pp_of_unopt_single op pp_val v
-  else Fmt.fmt ppf "%a(%a)" pp_of_unopt_single op pp_val v
+  Fmt.fmt ppf "%a%a" pp_of_unopt_single op pp_val v
 
 let pp_of_binopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   ((op, v1, v2) : binopt * 'a * 'a) : unit =
-  if is_infix_binopt op then
-    Fmt.fmt ppf "%a %a %a" pp_val v1 pp_of_binopt_single op pp_val v2
-  else Fmt.fmt ppf "%a(%a, %a)" pp_of_binopt_single op pp_val v1 pp_val v2
+  Fmt.fmt ppf "%a %a %a" pp_val v1 pp_of_binopt_single op pp_val v2
 
 let pp_of_triopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   ((op, v1, v2, v3) : triopt * 'a * 'a * 'a) : unit =
   match op with
   | Conditional -> Fmt.fmt ppf "%a ? %a : %a" pp_val v1 pp_val v2 pp_val v3
-  | _ ->
-    Fmt.fmt ppf "%a(%a, %a, %a)" pp_of_triopt_single op pp_val v1 pp_val v2
-      pp_val v3
 
 let pp_of_nopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   ((op, vs) : nopt * 'a list) : unit =
