@@ -178,7 +178,6 @@ let rec compile_expr (s_at : at) (e : EExpr.t) : c_expr =
   | NewObj flds -> compile_newobj s_at e.at flds
   | Lookup (oe, fe) -> compile_lookup s_at e.at oe fe
   | Curry (fe, es) -> compile_curry s_at e.at fe es
-  | Symbolic (t, e') -> compile_symbolic s_at e.at t e'
 
 and compile_gvar (s_at : at) (e : EExpr.t) (x : Id.t') : c_expr =
   let res = Builder.var e.at in
@@ -274,13 +273,6 @@ and compile_curry (s_at : at) (e_at : at) (fe : EExpr.t) (es : EExpr.t list) :
   let res = Builder.var e_at in
   let sres = Stmt.Assign (?@res, Expr.Curry (fe_e, es_e) @?> e_at) @?> s_at in
   (fe_s @ List.concat es_s @ [ sres ], res)
-
-and compile_symbolic (s_at : at) (e_at : at) (t : Type.t) (e : EExpr.t) : c_expr
-    =
-  let (e_s, e_e) = compile_expr s_at e in
-  let res = Builder.var e_at in
-  let sres = Stmt.Assign (?@res, Expr.Symbolic (t, e_e) @?> e_at) @?> s_at in
-  (e_s @ [ sres ], res)
 
 let rec compile_stmt (s : EStmt.t) : c_stmt =
   let ( !! ) = real in

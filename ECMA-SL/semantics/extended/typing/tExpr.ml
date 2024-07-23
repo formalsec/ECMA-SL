@@ -22,7 +22,6 @@ and type_expr' (tctx : TCtx.t) (e : EExpr.t) : EType.t' =
   | NewObj flds -> tflds flds |> type_object
   | Lookup _ -> AnyType (* TODO: field lookups *)
   | Curry _ -> AnyType (* TODO: curry expressions *)
-  | Symbolic _ -> AnyType (* TODO: symbolic expression *)
 
 and type_val (v : Value.t) : EType.t' =
   match v with
