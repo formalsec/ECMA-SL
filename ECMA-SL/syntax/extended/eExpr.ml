@@ -16,7 +16,6 @@ and t' =
   | NewObj of (Id.t * t) List.t
   | Lookup of t * t
   | Curry of t * t list
-  | Symbolic of Type.t * t
 
 let default : unit -> t =
   let dlft = Val (App (`Op "null", [])) @> none in
@@ -51,7 +50,6 @@ let rec pp (ppf : Fmt.t) (expr : t) : unit =
     | Val (Str fn) -> Fmt.fmt ppf "%a.%s" pp oe fn
     | _ -> Fmt.fmt ppf "%a[%a]" pp oe pp fe )
   | Curry (fe, es) -> Fmt.fmt ppf "{%a}@(%a)" pp fe (pp_vs pp) es
-  | Symbolic (t, e') -> Fmt.fmt ppf "se_mk_symbolic(%a, %a)" Type.pp t pp e'
 
 let str (expr : t) : string = Fmt.str "%a" pp expr [@@inline]
 
@@ -61,7 +59,7 @@ let rec map (mapper : t -> t) (expr : t) : t =
   mapper'
   @@
   match expr.it with
-  | (Val _ | Var _ | GVar _ | Symbolic _) as e -> e
+  | (Val _ | Var _ | GVar _) as e -> e
   | UnOpt (op, e) -> UnOpt (op, map' e)
   | BinOpt (op, e1, e2) -> BinOpt (op, map' e1, map' e2)
   | TriOpt (op, e1, e2, e3) -> TriOpt (op, map' e1, map' e2, map' e3)

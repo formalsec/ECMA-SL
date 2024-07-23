@@ -11,7 +11,6 @@ and t' =
   | TriOpt of Operator.triopt * t * t * t
   | NOpt of Operator.nopt * t list
   | Curry of t * t list
-  | Symbolic of Type.t * t
 
 let default : unit -> t =
   let dlft = Val (App (`Op "null", [])) @> none in
@@ -29,6 +28,5 @@ let rec pp (ppf : Fmt.t) (expr : t) : unit =
   | TriOpt (op, e1, e2, e3) -> Operator.pp_of_triopt pp ppf (op, e1, e2, e3)
   | NOpt (op, es) -> Operator.pp_of_nopt pp ppf (op, es)
   | Curry (fe, es) -> Fmt.fmt ppf "{%a}@(%a)" pp fe Fmt.(pp_lst !>", " pp) es
-  | Symbolic (t, e) -> Fmt.fmt ppf "se_mk_symbolic(%a, %a)" Type.pp t pp e
 
 let str (expr : t) : string = Fmt.str "%a" pp expr [@@inline]

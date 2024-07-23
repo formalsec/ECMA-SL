@@ -219,11 +219,6 @@ module M = struct
       match E.view f' with
       | Val (Value.Str f') -> E.(make (App (`Op f', es')))
       | _ -> Log.fail "error" )
-    | Symbolic (t, x) -> (
-      let x' = eval_expr store x in
-      match E.view x' with
-      | Val (Value.Str x') -> E.(make (Symbol (Symbol.make t x')))
-      | _ -> Log.fail "error" )
 end
 
 module M' : Value_intf.T = M
