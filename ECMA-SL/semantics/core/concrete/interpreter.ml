@@ -106,14 +106,8 @@ module M (Instrument : Instrument.M) = struct
       let vs = List.map (eval_expr state) es in
       match fv with
       | Str fn -> Value.App (`Op fn, vs)
-      | _ -> Runtime_error.(throw ~src:(ErrSrc.from fe) (BadExpr ("curry", fv))) )
-    | Symbolic (t, _) -> (
-      (* TODO:x should change?*)
-      Random.self_init ();
-      match t with
-      | Type.Ty_int -> Value.Int (Random.int 128)
-      | Type.Ty_real -> Value.Real (Random.float 128.0)
-      | _ -> Log.fail "not implemented: symbolic %a" Type.pp t )
+      | _ -> Runtime_error.(throw ~src:(ErrSrc.from fe) (BadExpr ("curry", fv)))
+      )
 
   and eval_expr (state : state) (e : Expr.t) : Value.t =
     let v = eval_expr' state e in
@@ -131,12 +125,14 @@ module M (Instrument : Instrument.M) = struct
     match eval_expr state e with
     | Value.True -> true
     | Value.False -> false
-    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.from e) (BadVal ("boolean", v)))
+    | _ as v ->
+      Runtime_error.(throw ~src:(ErrSrc.from e) (BadVal ("boolean", v)))
 
   let eval_loc (state : state) (e : Expr.t) : Loc.t =
     match eval_expr state e with
     | App (`Op "loc", [ Int l ]) -> l
-    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.from e) (BadVal ("location", v)))
+    | _ as v ->
+      Runtime_error.(throw ~src:(ErrSrc.from e) (BadVal ("location", v)))
 
   let eval_obj (state : state) (heap : heap) (e : Expr.t) : Loc.t * obj =
     let l = eval_loc state e in
