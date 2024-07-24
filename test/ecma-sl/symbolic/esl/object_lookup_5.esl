@@ -10,8 +10,8 @@ function main() {
   w := y[x];
   v := y["test"];
   t := y["length"];
-  assert (w = 1.0 || w = 5.0);
-  assert (v = 'undefined || v = 1.0 || v = 5.0);
-  assert (t = 2.0 || t = 1.0 || t = 5.0);
+  assert (w == 1.0 || w == 5.0);
+  assert (v == 'undefined || v == 1.0 || v == 5.0);
+  assert (t == 2.0 || t == 1.0 || t == 5.0);
   return 0
 }

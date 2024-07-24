@@ -80,7 +80,7 @@ function isContainedInStrictCode(execCtx) {
   using the following algorithm: */
 function ResolveBinding(scope, name, env)  {
   /* If env was not passed or if env is undefined, then */
-  if (env = 'undefined ||| env = null)
+  if (env == 'undefined ||| env == null)
     /* Let env be the running execution context’s LexicalEnvironment. */
     env := getLexicalEnvironment(scope);
 

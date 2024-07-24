@@ -1,5 +1,5 @@
 function isUnicodeCasingInitialized() {
-	return !((|unicodeData| = 'undefined) ||| (|specialCasing| = 'undefined));
+	return !((|unicodeData| == 'undefined) ||| (|specialCasing| == 'undefined));
 }
 
 /**

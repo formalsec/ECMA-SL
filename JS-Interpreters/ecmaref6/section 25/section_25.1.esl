@@ -14,7 +14,7 @@
 function IsIterable(obj) {
     iterator := GetMethod(obj, getIteratorPropertyName());
     @ReturnIfAbrupt(iterator);
-    if (iterator = 'undefined) 
+    if (iterator == 'undefined) 
         return false; 
     else 
         return IsIterator(iterator);
@@ -66,7 +66,7 @@ function IsIterable(obj) {
  */
 function IsIterator(iterator) {
     next := GetMethod(iterator, "next");
-    return !(next = 'undefined);
+    return next != 'undefined;
 }
 
 /** 25.1.2 The %IteratorPrototype% Object

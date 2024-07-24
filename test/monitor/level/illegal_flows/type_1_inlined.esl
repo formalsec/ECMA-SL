@@ -1,7 +1,7 @@
-function parse_lvl (lev_str) { if (lev_str = "high") {
+function parse_lvl (lev_str) { if (lev_str == "high") {
 return true
 } else {
-if (lev_str = "low") {
+if (lev_str == "low") {
 return false
 } else {
 throw "MONITOR EXCEPTION -> parselvl - Unkown Security Level"

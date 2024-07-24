@@ -2,7 +2,7 @@
 function ScriptEvaluation(script, realm) {
   ScriptBody := script.body;
   /* If ScriptBody is not present, return NormalCompletion(empty). */
-  if (ScriptBody = [])
+  if (ScriptBody == [])
       return NormalCompletion('empty);
   /* Let globalEnv be realm.[[globalEnv]]. */
   globalEnv := realm.globalEnv;
@@ -25,11 +25,11 @@ function ScriptEvaluation(script, realm) {
   /* Let result be GlobalDeclarationInstantiation(ScriptBody, globalEnv). */
   result := GlobalDeclarationInstantiation(script, globalEnv);
   /* If result.[[type]] is normal, then */
-  if (getCompletionType(result) = 'normal)
+  if (getCompletionType(result) == 'normal)
     /* Let result be the result of evaluating ScriptBody. */
     result := JS_Interpreter_SourceElements(ScriptBody, scriptCtx);
   /* If result.[[type]] is normal and result.[[value]] is empty, then */
-  if ( getCompletionType(result) = 'normal &&& getCompletionValue(result) = 'empty )
+  if ( getCompletionType(result) == 'normal &&& getCompletionValue(result) == 'empty )
     /* Let result be NormalCompletion(undefined). */
     result := NormalCompletion('undefined');
   /* Suspend scriptCxt and remove it from the execution context stack. */
@@ -45,14 +45,14 @@ function ScriptEvaluation(script, realm) {
 
 /* Auxiliary functions */
 function getVariableDeclarationsInCode(object) {
-  if (object = 'undefined ||| !("variableDeclarations" in_obj object))
+  if (object == 'undefined ||| !("variableDeclarations" in_obj object))
     return [];
   return object.variableDeclarations;
 }
 
 function getLexicallyDeclaredNames(object) {
   names := [];
-  if (object = 'undefined)
+  if (object == 'undefined)
     return names;
 
   if ("letDeclarations" in_obj object)
@@ -68,7 +68,7 @@ function getLexicallyDeclaredNames(object) {
 
 function LexicallyScopedDeclarations(object) {
   declarations := [];
-  if (object = 'undefined)
+  if (object == 'undefined)
     return declarations;
 
   if ("letDeclarations" in_obj object)
@@ -83,23 +83,23 @@ function LexicallyScopedDeclarations(object) {
 }
 
 function IsConstantDeclaration(decl) {
-  return decl.type = "const";
+  return decl.type == "const";
 }
 
 function getFunctionDeclarationsInCode(object) {
-  if (object = 'undefined ||| !("functionDeclarations" in_obj object))
+  if (object == 'undefined ||| !("functionDeclarations" in_obj object))
     return [];
   return object.functionDeclarations;
 }
 
 function getLetDeclarationsInCode(object) {
-  if (object = 'undefined ||| !("letDeclarations" in_obj object))
+  if (object == 'undefined ||| !("letDeclarations" in_obj object))
     return [];
   return object.letDeclarations;
 }
 
 function getConstDeclarationsInCode(object) {
-  if (object = 'undefined ||| !("constDeclarations" in_obj object))
+  if (object == 'undefined ||| !("constDeclarations" in_obj object))
     return [];
   return object.constDeclarations;
 }
@@ -121,7 +121,7 @@ function GlobalDeclarationInstantiation(script, env) {
   foreach (name : lexNames) {
     name := name.name; /* check getLexicallyDeclaredNames */
     /* If envRec.HasVarDeclaration(name) is true, throw a SyntaxError exception. */
-    if ({envRec.HasVarDeclaration}(envRec, name) = true)
+    if ({envRec.HasVarDeclaration}(envRec, name) == true)
       throw SyntaxErrorConstructorInternal();
     /* If envRec.HasLexicalDeclaration(name) is true, throw a SyntaxError exception. */
     if ({envRec.HasLexicalDeclaration}(envRec, name))
@@ -138,7 +138,7 @@ function GlobalDeclarationInstantiation(script, env) {
   /* For each name in varNames, do */
   foreach (name : varNames) {
     /* If envRec.HasLexicalDeclaration(name) is true, throw a SyntaxError exception. */
-    if ({envRec.HasLexicalDeclaration}(envRec, name) = true)
+    if ({envRec.HasLexicalDeclaration}(envRec, name) == true)
       throw SyntaxErrorConstructorInternal();
   }
 
@@ -161,7 +161,7 @@ function GlobalDeclarationInstantiation(script, env) {
     /* Let fnDefinable be envRec.CanDeclareGlobalFunction(fn). */
     fnDefinable := {envRec.CanDeclareGlobalFunction}(envRec, fn);
     /* If fnDefinable is false, throw TypeError exception. */
-    if (fnDefinable = false)
+    if (fnDefinable == false)
       throw TypeErrorConstructorInternal();
 
     /* Append fn to declaredFunctionNames. */
@@ -183,7 +183,7 @@ function GlobalDeclarationInstantiation(script, env) {
       /* ReturnIfAbrupt(vnDefinable). */
       @ReturnIfAbrupt(vnDefinable);
       /* If vnDefinable is false, throw TypeError exception. */
-      if (vnDefinable = false)
+      if (vnDefinable == false)
         throw TypeErrorConstructorInternal();
       /* If vn is not an element of declaredVarNames, then */
       if (!(in_list(vn, declaredVarNames)))
@@ -204,7 +204,7 @@ function GlobalDeclarationInstantiation(script, env) {
     /* For each element dn of the BoundNames of d do */
 
     /* If IsConstantDeclaration of d is true, then */
-    if (d.type = "const") {
+    if (d.type == "const") {
       /* Let status be envRec.CreateImmutableBinding(dn, true). */
       status := {envRec.CreateImmutableBinding}(envRec, d.name, true);
     /* Else, */
@@ -256,10 +256,10 @@ function ScriptEvaluationJob(sourceText) {
       number and ordering of reported errors is implementation dependent but at least one error must be reported. */
 
   /* If code is an error indication, then */
-  if ( sourceText.type = "EarlySyntaxError" )  {
+  if ( sourceText.type == "EarlySyntaxError" )  {
     /* Report or log the error(s) in an implementation dependent manner. */
     /* ver como reportar/log */
-    if (sourceText.message = "Invalid left-hand side in assignment")
+    if (sourceText.message == "Invalid left-hand side in assignment")
       return NextJob(throwEmptyCompletion( ReferenceErrorConstructorInternal()));
     return NextJob(throwEmptyCompletion(SyntaxErrorConstructorInternal()));
     /* Let status be NormalCompletion(undefined). */

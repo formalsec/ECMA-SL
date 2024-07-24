@@ -8,9 +8,9 @@
 */
 function Get(O, P) {
 	/* Assert: Type(O) is Object. */
-	assert (Type(O) = "Object" ||| Type(O) = "Symbol");
+	assert (Type(O) == "Object" ||| Type(O) == "Symbol");
 	/* Assert: IsPropertyKey(P) is true. */
-	assert (IsPropertyKey(P) = true);
+	assert (IsPropertyKey(P) == true);
 	/* Return O.[[Get]](P, O). */
 	V := {O.Get}(O, P, O);
  	@ReturnIfAbrupt(V);
@@ -26,7 +26,7 @@ function Get(O, P) {
 
 function WrappedGet(O, P) {
   getResult := Get(O, P) catch GetHandler;
-  if (!(Type(getResult) = "Completion"))
+  if (Type(getResult) != "Completion")
     return NormalCompletion(getResult);
   return getResult;
 }
@@ -45,7 +45,7 @@ function GetHandler(x) {
 */
 function GetV(V, P) {
 	/* Assert: IsPropertyKey(P) is true. */
-	assert (IsPropertyKey(P) = true);
+	assert (IsPropertyKey(P) == true);
 	/* Let O be ToObject(V). */
 	O := ToObject(V);
 	/* ReturnIfAbrupt(O). */
@@ -65,17 +65,17 @@ function GetV(V, P) {
 */
 function Set(O, P, V, Throw) {
 	/* Assert: Type(O) is Object. */
-	assert (Type(O) = "Object");
+	assert (Type(O) == "Object");
 	/* Assert: IsPropertyKey(P) is true. */
-	assert (IsPropertyKey(P) = true);
+	assert (IsPropertyKey(P) == true);
 	/* Assert: Type(Throw) is Boolean. */
-	assert (Type(Throw) = "Boolean" );
+	assert (Type(Throw) == "Boolean" );
 	/* Let success be O.[[Set]](P, V, O). */
 	success := {O.Set}(O, P, V, O);
 	/* ReturnIfAbrupt(success). */
 	@ReturnIfAbrupt(success);
 	/* If success is false and Throw is true, throw a TypeError exception. */
-	if ((success = false) &&& (Throw = true))
+	if ((success == false) &&& (Throw == true))
 		throw TypeErrorConstructorInternal();
 
 	/* Return success. */
@@ -92,9 +92,9 @@ function Set(O, P, V, Throw) {
 */
 function CreateDataProperty(O,P,V) {
 	/* Assert: Type(O) is Object. */
-	assert (Type(O) = "Object" );
+	assert (Type(O) == "Object" );
 	/* Assert: IsPropertyKey(P) is true. */
-	assert (IsPropertyKey(P) = true );
+	assert (IsPropertyKey(P) == true );
 	/* Let newDesc be the PropertyDescriptor{[[Value]]: V, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}. */
 	newDesc := newDataPropertyDescriptorFull(V, true, true, true);
 	/* Return O.[[DefineOwnProperty]](P, newDesc). */
@@ -111,9 +111,9 @@ function CreateDataProperty(O,P,V) {
 */
 function CreateMethodProperty(O,P,V) {
 	/* Assert: Type(O) is Object. */
-	assert (Type(O) = "Object");
+	assert (Type(O) == "Object");
 	/* Assert: IsPropertyKey(P) is true. */
-	assert (IsPropertyKey(P) = true);
+	assert (IsPropertyKey(P) == true);
 	/* Let newDesc be the PropertyDescriptor{[[Value]]: V, [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}. */
 	newDesc := newDataPropertyDescriptorFull(V, true, false, true);
 	/* Return O.[[DefineOwnProperty]](P, newDesc). */
@@ -131,15 +131,15 @@ function CreateMethodProperty(O,P,V) {
 */
 function CreateDataPropertyOrThrow(O, P, V) {
 	/* Assert: Type(O) is Object. */
-	assert (Type(O) = "Object");
+	assert (Type(O) == "Object");
 	/* Assert: IsPropertyKey(P) is true. */
-	assert (IsPropertyKey(P) = true);
+	assert (IsPropertyKey(P) == true);
 	/* Let success be CreateDataProperty(O, P, V). */
 	success := CreateDataProperty(O, P, V);
 	/* ReturnIfAbrupt(success). */
 	@ReturnIfAbrupt(success);
 	/* If success is false, throw a TypeError exception. */
-	if (success = false)
+	if (success == false)
 		throw TypeErrorConstructorInternal();
 	/* Return success. */
 	return success;
@@ -164,15 +164,15 @@ function WrappedCreateDataPropertyOrThrow(O, P, V) {
 */
 function DefinePropertyOrThrow(O, P, desc) {
 	/* Assert: Type(O) is Object. */
-	assert (Type(O) = "Object");
+	assert (Type(O) == "Object");
 	/* Assert: IsPropertyKey(P) is true. */
-	assert (IsPropertyKey(P) = true);
+	assert (IsPropertyKey(P) == true);
 	/* Let success be O.[[DefineOwnProperty]](P, desc). */
 	success := {O.DefineOwnProperty}(O, P, desc);
 	/* ReturnIfAbrupt(success). */
 	@ReturnIfAbrupt(success);
 	/* If success is false, throw a TypeError exception. */
-	if (success = false)
+	if (success == false)
 		throw TypeErrorConstructorInternal();
 	/* Return success. */
 	return success;
@@ -188,15 +188,15 @@ function DefinePropertyOrThrow(O, P, desc) {
 */
 function DeletePropertyOrThrow(O, P) {
 	/* Assert: Type(O) is Object. */
-	assert (Type(O) = "Object");
+	assert (Type(O) == "Object");
 	/* Assert: IsPropertyKey(P) is true. */
-	assert (IsPropertyKey(P) = true);
+	assert (IsPropertyKey(P) == true);
 	/* Let success be O.[[Delete]](P). */
 	success := {O.Delete}(O, P);
 	/* ReturnIfAbrupt(success). */
 	@ReturnIfAbrupt(success);
 	/* If success is false, throw a TypeError exception. */
-	if (success = false)
+	if (success == false)
 		throw TypeErrorConstructorInternal();
 	/* Return success. */
 	return success;
@@ -210,16 +210,16 @@ function DeletePropertyOrThrow(O, P) {
 */
 function GetMethod(O,P) {
 	/* Assert: IsPropertyKey(P) is true. */
-	assert (IsPropertyKey(P) = true);
+	assert (IsPropertyKey(P) == true);
 	/* Let func be GetV(O, P). */
 	func := GetV(O,P);
 	/* ReturnIfAbrupt(func). */
 	@ReturnIfAbrupt(func);
 	/* If func is either undefined or null, return undefined. */
-	if (func = 'undefined ||| func = 'null)
+	if (func == 'undefined ||| func == 'null)
 		return 'undefined;
 	/* If IsCallable(func) is false, throw a TypeError exception. */
-	if (IsCallable(func) = false)
+	if (IsCallable(func) == false)
 		throw TypeErrorConstructorInternal();
 	/* Return func. */
 	return func;
@@ -236,9 +236,9 @@ function GetMethod(O,P) {
 */
 function HasProperty(O,P) {
 	/* Assert: Type(O) is Object. */
-	assert (Type(O) = "Object");
+	assert (Type(O) == "Object");
 	/* Assert: IsPropertyKey(P) is true. */
-	assert (IsPropertyKey(P) = true);
+	assert (IsPropertyKey(P) == true);
 	/* Return O.[[HasProperty]](P). */
 	return {O.HasProperty}(O, P);
 }
@@ -254,15 +254,15 @@ function HasProperty(O,P) {
 */
 function HasOwnProperty(O, P) {
 	/* Assert: Type(O) is Object. */
-	assert (Type(O) = "Object");
+	assert (Type(O) == "Object");
 	/* Assert: IsPropertyKey(P) is true. */
-	assert (IsPropertyKey(P) = true);
+	assert (IsPropertyKey(P) == true);
 	/* Let desc be O.[[GetOwnProperty]](P). */
 	desc := {O.GetOwnProperty}(O, P);
 	/* ReturnIfAbrupt(desc). */
 	@ReturnIfAbrupt(desc);
 	/* If desc is undefined, return false. */
-	if (desc = 'undefined)
+	if (desc == 'undefined)
 		return false;
 	/* Return true. */
 	return true;
@@ -282,10 +282,10 @@ function Call(externalScope, ref, F, V, argumentsList) {
     /* ReturnIfAbrupt(F). */
 	@ReturnIfAbrupt(F);
   /* If argumentsList was not passed, let argumentsList be a new empty List. */
-	if (argumentsList = null)
+	if (argumentsList == null)
 		argumentsList := [];
   /* If IsCallable(F) is false, throw a TypeError exception. */
-	if (IsCallable(F) = false)
+	if (IsCallable(F) == false)
 		throw TypeErrorConstructorInternal();
   /* Return F.[[Call]](V, argumentsList). */
 	return {F.Call}(externalScope, ref, F, V, 'undefined, argumentsList);
@@ -302,15 +302,15 @@ function Call(externalScope, ref, F, V, argumentsList) {
 */
 function Construct(externalScope, ref, F, argumentsList, newTarget) {
 	/* If newTarget was not passed, let newTarget be F. */
- 	if (newTarget = null)
+ 	if (newTarget == null)
  		newTarget := F;
  	/* If argumentsList was not passed, let argumentsList be a new empty List. */
- 	if (argumentsList = null)
+ 	if (argumentsList == null)
  		argumentsList := [];
  	/* Assert: IsConstructor (F) is true. */
- 	assert (IsConstructor(F) = true);
+ 	assert (IsConstructor(F) == true);
  	/* Assert: IsConstructor (newTarget) is true. */
- 	assert (IsConstructor(newTarget) = true);
+ 	assert (IsConstructor(newTarget) == true);
  	/* Return F.[[Construct]](argumentsList, newTarget). */
 	 /*TODO: wrong arguments, change it accordingly to ES6  */
  	return {F.Construct}(externalScope, ref, F, argumentsList, newTarget);
@@ -325,22 +325,22 @@ function Construct(externalScope, ref, F, argumentsList, newTarget) {
 */
 function SetIntegrityLevel(O, level) {
 	/* Assert: Type(O) is Object. */
-	assert (Type(O) = "Object");
+	assert (Type(O) == "Object");
 	/* Assert: level is either "sealed" or "frozen". */
-	assert ((level = "sealed") ||| (level = "frozen"));
+	assert ((level == "sealed") ||| (level == "frozen"));
 	/* Let status be O.[[PreventExtensions]](). */
 	status := {O.PreventExtensions}(O);
 	/* ReturnIfAbrupt(status). */
 	@ReturnIfAbrupt(status);
 	/* If status is false, return false. */
-	if (status = false)
+	if (status == false)
 		return false;
 	/* Let keys be O.[[OwnPropertyKeys]](). */
 	keys := {O.OwnPropertyKeys}(O);
 	/* ReturnIfAbrupt(keys). */
 	@ReturnIfAbrupt(keys);
 	/* If level is "sealed", then */
-	if (level = "sealed") {
+	if (level == "sealed") {
 		/* Repeat for each element k of keys, */
 		foreach (k : keys) {
 			/* Let status be DefinePropertyOrThrow(O, k, PropertyDescriptor{ [[Configurable]]: false}). */
@@ -351,7 +351,7 @@ function SetIntegrityLevel(O, level) {
 	}
 
   /*Else level is "frozen", */
-	else if (level = "frozen") {
+	else if (level == "frozen") {
 	  /* Repeat for each element k of keys, */
 		foreach (k : keys) {
     	/* Let currentDesc be O.[[GetOwnProperty]](k). */
@@ -359,9 +359,9 @@ function SetIntegrityLevel(O, level) {
     	/* ReturnIfAbrupt(currentDesc). */
 			@ReturnIfAbrupt(currentDesc);
     	/* If currentDesc is not undefined, then */
-			if (!(currentDesc = 'undefined)) {
+			if (currentDesc != 'undefined) {
     			/* If IsAccessorDescriptor(currentDesc) is true, then */
-				if (IsAccessorDescriptor(currentDesc) = true)
+				if (IsAccessorDescriptor(currentDesc) == true)
     			/* Let desc be the PropertyDescriptor{[[Configurable]]: false}. */
 					desc := { Configurable: false };
     			/* Else, */
@@ -389,15 +389,15 @@ function SetIntegrityLevel(O, level) {
 */
 function TestIntegrityLevel(O, level) {
     /* Assert: Type(O) is Object. */
-    assert (Type(O) = "Object");
+    assert (Type(O) == "Object");
     /* Assert: level is either "sealed" or "frozen". */
-    assert ((level = "sealed") ||| (level = "frozen"));
+    assert ((level == "sealed") ||| (level == "frozen"));
     /* Let status be IsExtensible(O). */
     status := IsExtensible(O);
     /* ReturnIfAbrupt(status). */
     @ReturnIfAbrupt(status);
     /* If status is true, return false */
-    if (status = true)
+    if (status == true)
     	return false;
     /* NOTE If the object is extensible, none of its properties are examined. */
     /* Let keys be O.[[OwnPropertyKeys]](). */
@@ -411,14 +411,14 @@ function TestIntegrityLevel(O, level) {
     	/* ReturnIfAbrupt(currentDesc). */
     	@ReturnIfAbrupt(currentDesc);
     	/* If currentDesc is not undefined, then */
-    	if (!(currentDesc = 'undefined)) {
+    	if (currentDesc != 'undefined) {
     		/* If currentDesc.[[Configurable]] is true, return false. */
-    		if (currentDesc.Configurable = true)
+    		if (currentDesc.Configurable == true)
     			return false;
     		/* If level is "frozen" and IsDataDescriptor(currentDesc) is true, then */
-    		if ((level = "frozen") &&& (IsDataDescriptor(currentDesc) = true)) {
+    		if ((level == "frozen") &&& (IsDataDescriptor(currentDesc) == true)) {
     			/* If currentDesc.[[Writable]] is true, return false. */
-    			if (currentDesc.Writable = true)
+    			if (currentDesc.Writable == true)
     				return false;
     		}
     	}
@@ -449,7 +449,7 @@ function CreateArrayFromList(elements) {
     /* a. Let status be CreateDataProperty(array, ToString(n), e). */
     status := CreateDataProperty(array, ToString(n), e);
     /* b. Assert: status is true. */
-    assert (status = true);
+    assert (status == true);
     /* c. Increment n by 1. */
     n := n + 1.;
   }
@@ -470,10 +470,10 @@ function CreateListFromArrayLike(obj, elementTypes) {
     /* ReturnIfAbrupt(obj). */
     @ReturnIfAbrupt(obj);
     /* If elementTypes was not passed, let elementTypes be (Undefined, Null, Boolean, String, Symbol, Number, Object). */
-    if (elementTypes = null)
+    if (elementTypes == null)
     	elementTypes := ["Undefined", "Null", "Boolean", "String", "Symbol", "Number", "Object"];
     /* If Type(obj) is not Object, throw a TypeError exception. */
-    if (!(Type(obj) = "Object"))
+    if (Type(obj) != "Object")
     	throw TypeErrorConstructorInternal();
     /* Let len be ToLength(Get(obj, "length")). */
     len := ToLength(Get(obj, "length"));
@@ -515,9 +515,9 @@ function CreateListFromArrayLike(obj, elementTypes) {
 */
 function Invoke(externalScope, ref, O, P, argumentsList) {
     /* Assert: IsPropertyKey(P) is true. */
-    assert (IsPropertyKey(P) = true);
+    assert (IsPropertyKey(P) == true);
     /* If argumentsList was not passed, let argumentsList be a new empty List. */
-    if (argumentsList = null)
+    if (argumentsList == null)
     	argumentsList := [];
     /* Let func be GetV(O, P). */
     func := GetV(O, P);
@@ -535,7 +535,7 @@ function Invoke(externalScope, ref, O, P, argumentsList) {
 */
 function OrdinaryHasInstance(C, O) {
 	/* If IsCallable(C) is false, return false. */
-	if (IsCallable(C) = false)
+	if (IsCallable(C) == false)
 		return false;
 
 	/* If C has a [[BoundTargetFunction]] internal slot, then */
@@ -547,7 +547,7 @@ function OrdinaryHasInstance(C, O) {
 	}
 
 	/* If Type(O) is not Object, return false. */
-	if (!(Type(O) = "Object") &&& !(Type(O) = "Symbol"))
+	if ((Type(O) != "Object") &&& (Type(O) != "Symbol"))
 		return false;
 
 	/* Let P be Get(C, "prototype"). */
@@ -555,7 +555,7 @@ function OrdinaryHasInstance(C, O) {
 	/* ReturnIfAbrupt(P). */
 	@ReturnIfAbrupt(P);
 	/* If Type(P) is not Object, throw a TypeError exception. */
-	if (!(Type(P) = "Object") &&& !(Type(O) = "Symbol"))
+	if ((Type(P) != "Object") &&& (Type(O) != "Symbol"))
 		throw TypeErrorConstructorInternal();
 
 	/* Repeat */
@@ -565,11 +565,11 @@ function OrdinaryHasInstance(C, O) {
 		/* ReturnIfAbrupt(O). */
 		@ReturnIfAbrupt(O);
 		/* If O is null, return false. */
-		if (O = 'null)
+		if (O == 'null)
 			return false;
 
 		/* If SameValue(P, O) is true, return true. */
-		if (SameValue(P, O) = true)
+		if (SameValue(P, O) == true)
 			return true;
 	}
 }
@@ -585,26 +585,26 @@ function OrdinaryHasInstance(C, O) {
 */
 function SpeciesConstructor(O, defaultConstructor) {
     /* Assert: Type(O) is Object. */
-    assert (Type(O) = "Object");
+    assert (Type(O) == "Object");
     /* Let C be Get(O, "constructor"). */
     C := Get(O, "constructor");
     /* ReturnIfAbrupt(C). */
     @ReturnIfAbrupt(C);
     /* If C is undefined, return defaultConstructor. */
-    if (C = 'undefined)
+    if (C == 'undefined)
     	return defaultConstructor;
     /* If Type(C) is not Object, throw a TypeError exception. */
-    if (!(Type(C) = "Object"))
+    if (Type(C) != "Object")
     	throw TypeErrorConstructorInternal();
     /* Let S be Get(C, @@species). */
     S := Get(C, getSpeciesPropertyName());
     /* ReturnIfAbrupt(S). */
     @ReturnIfAbrupt(S);
     /* If S is either undefined or null, return defaultConstructor. */
-    if ((S = 'undefined) ||| (S = 'null))
+    if ((S == 'undefined) ||| (S == 'null))
     	return defaultConstructor;
     /* If IsConstructor(S) is true, return S. */
-    if (IsConstructor(S) = true)
+    if (IsConstructor(S) == true)
     	return S;
     /* Throw a TypeError exception. */
     throw TypeErrorConstructorInternal();
@@ -617,7 +617,7 @@ function SpeciesConstructor(O, defaultConstructor) {
 */
 function EnumerableOwnNames(O) {
     /* Assert: Type(O) is Object. */
-    assert (Type(O) = "Object");
+    assert (Type(O) == "Object");
     /* Let ownKeys be O.[[OwnPropertyKeys]](). */
     ownKeys := {O.OwnPropertyKeys}(O);
     /* ReturnIfAbrupt(ownKeys). */
@@ -627,15 +627,15 @@ function EnumerableOwnNames(O) {
     /* Repeat, for each element key of ownKeys in List order */
     foreach (key : ownKeys) {
 			/* If Type(key) is String, then */
-			if (Type(key) = "String") {
+			if (Type(key) == "String") {
 				/* Let desc be O.[[GetOwnProperty]](key). */
 				desc := {O.GetOwnProperty}(O, key);
 				/* ReturnIfAbrupt(desc). */
 				@ReturnIfAbrupt(desc);
 				/* If desc is not undefined, then */
-				if (!(desc = 'undefined)) {
+				if (desc != 'undefined) {
 					/* If desc.[[Enumerable]] is true, append key to names. */
-					if (desc.Enumerable = true)
+					if (desc.Enumerable == true)
 						names := l_add(names, key);
 				}
 			}
@@ -655,7 +655,7 @@ function EnumerableOwnNames(O) {
 */
 function GetFunctionRealm(obj) {
 	/* Assert: obj is a callable object. */
-	assert (IsCallable(obj) = true); /* nao tenho a certeza disto */
+	assert (IsCallable(obj) == true); /* nao tenho a certeza disto */
 	/* If obj has a [[Realm]] internal slot, then */
 	if ("Realm" in_obj obj) {
 		/* Return obj’s [[Realm]] internal slot. */
@@ -683,16 +683,16 @@ function GetFunctionRealm(obj) {
  */
 function CopyDataProperties(target, source, excludedItems) {
 	/* 1. Assert: Type(target) is Object. */
-	assert (Type(target) = "Object");
+	assert (Type(target) == "Object");
 	/* 2. Assert: excludedItems is a List of property keys. */
-	assert (Type(excludedItems) = "List");
+	assert (Type(excludedItems) == "List");
 	/* 3. If source is undefined or null, return target. */
-	if (source = 'undefined ||| source = 'null)
+	if (source == 'undefined ||| source == 'null)
 		return target;
 	/* 4. Let from be ! ToObject(source). */
 	from := ToObject(source);
-	assert (isAnAbruptCompletion(from) = false);
-	if (Type(from) = "Completion")
+	assert (isAnAbruptCompletion(from) == false);
+	if (Type(from) == "Completion")
 		from := getCompletionValue(from);
 	/* 5. Let keys be ? from.[[OwnPropertyKeys]](). */
 	keys := {from.OwnPropertyKeys}(from);
@@ -710,18 +710,18 @@ function CopyDataProperties(target, source, excludedItems) {
 			}
 		}
 		/* c. If excluded is false, then */
-		if (excluded = false) {
+		if (excluded == false) {
 			/* i. Let desc be ? from.[[GetOwnProperty]](nextKey). */
 			desc := {from.GetOwnProperty}(from, nextKey);
 			@ReturnIfAbrupt(desc);
 			/* ii. If desc is not undefined and desc.[[Enumerable]] is true, then */
-			if (!(desc = 'undefined) &&& desc.Enumerable) {
+			if (desc != 'undefined &&& desc.Enumerable) {
 				/* 1. Let propValue be ? Get(from, nextKey). */
 				propValue := Get(from, nextKey);
 				@ReturnIfAbrupt(propValue);
 				/* 2. Perform ! CreateDataPropertyOrThrow(target, nextKey, propValue). */
 				success := CreateDataPropertyOrThrow(target, nextKey, propValue);
-				assert (isAnAbruptCompletion(success) = false);
+				assert (isAnAbruptCompletion(success) == false);
 			}
 		}
 	}

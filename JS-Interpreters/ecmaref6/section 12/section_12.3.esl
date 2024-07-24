@@ -10,7 +10,7 @@ function EvaluateNew(constructProduction, arguments, scope) {
   memberExpressionTypes := ["NewExpression", "MemberExpression", "Identifier", "CallExpression", "FunctionExpression", "ClassExpression", "Literal"];
   /* assert (in_list(constructProduction.type, memberExpressionTypes)); */
   /* 2. Assert: arguments is either empty or an Arguments production. */
-  assert (arguments = 'empty ||| Type(arguments) = "List");
+  assert (arguments == 'empty ||| Type(arguments) == "List");
   /* 3. Let ref be the result of evaluating constructProduction. */
   ref := JS_Interpreter_Expr(constructProduction, scope);
   /* 4. Let constructor be GetValue(ref). */
@@ -18,7 +18,7 @@ function EvaluateNew(constructProduction, arguments, scope) {
   /* 5. ReturnIfAbrupt(constructor). */
   @ReturnIfAbrupt(constructor);
   /* 6. If arguments is empty, let argList be an empty List. */
-  if (arguments = 'empty) {
+  if (arguments == 'empty) {
     argList := [];
   }
   /* 7. Else, */
@@ -29,7 +29,7 @@ function EvaluateNew(constructProduction, arguments, scope) {
     @ReturnIfAbrupt(argList);
   }
   /* 8. If IsConstructor (constructor) is false, throw a TypeError exception. */
-  if (IsConstructor(constructor) = false)
+  if (IsConstructor(constructor) == false)
     throw TypeErrorConstructorInternal();
   /* 9. Return Construct(constructor, argList). */
   return Construct(scope, ref, constructor, argList, null);
@@ -49,15 +49,15 @@ function EvaluateDirectCall(func, thisValue, arguments, tailPosition, scope) {
   @ReturnIfAbrupt(argList);
   funcType := Type(func);
   /* 3. If Type(func) is not Object, */
-  if (!(funcType = "Object"))
+  if (funcType != "Object")
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 4. If IsCallable(func) is false, */
-  if (IsCallable(func) = false)
+  if (IsCallable(func) == false)
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 5. If tailPosition is true, */
-  if (tailPosition = true)
+  if (tailPosition == true)
     /* perform PrepareForTailCall() */
     PrepareForTailCall();
   /* 6. Let result be Call(func, thisValue, argList). */
@@ -88,7 +88,7 @@ function SuperPropertyEvaluationA(scope, Expression) {
   @ReturnIfAbrupt(propertyKey);
   /* 5. If the code matched by the syntactic production that is being
       evaluated is strict mode code, let strict be true, else let strict be false */
-  /* strict = ???? */
+  /* strict == ???? */
   /* 6. Return MakeSuperPropertyReference(propertyKey, strict). */
   return MakeSuperPropertyReference(propertyKey, strict);
 }
@@ -98,7 +98,7 @@ function SuperPropertyEvaluationB(IdentifierName, propertyKey) {
     propertyKey := StringValue(IdentifierName);
     /* 2. If the code matched by the syntactic production that is being
         evaluated is strict mode code, let strict be true, else let strict be false */
-    /* strict = ???? */
+    /* strict == ???? */
     /* 3. Return MakeSuperPropertyReference(propertyKey, strict). */
     return MakeSuperPropertyReference(propertyKey, strict);
 }
@@ -121,7 +121,7 @@ function GetSuperConstructor(scope) {
   /* 5. ReturnIfAbrupt(superConstructor). */
   @ReturnIfAbrupt(superConstructor);
   /* 6. If IsConstructor(superConstructor) is false, */
-  if (IsConstructor(superConstructor) = false)
+  if (IsConstructor(superConstructor) == false)
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 7. Return superConstructor. */
@@ -145,7 +145,7 @@ function MakeSuperPropertyReference(propertyKey, strict, scope) {
   /* 1. Let env be GetThisEnvironment( ). */
   env := GetThisEnvironment(scope);
   /* 2. If env.HasSuperBinding() is false, */
-  if ({env.HasSuperBinding}(env) = false)
+  if ({env.HasSuperBinding}(env) == false)
     /* throw a ReferenceError exception */
     throw ReferenceErrorConstructorInternal();
   /* 3. Let actualThis be env.GetThisBinding(). */

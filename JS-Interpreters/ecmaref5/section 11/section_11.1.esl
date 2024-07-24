@@ -5,9 +5,9 @@ function strip_initial_elisions(elements) {
   foundAllInitialElisions := false;
 
   i := 0;
-  while (i < l_len elements) {
+  while (i < l_len(elements)) {
     elem := l_nth(elements, i);
-    if (!foundAllInitialElisions &&& elem = null) {
+    if (!foundAllInitialElisions &&& elem == null) {
       elisionOpt := l_add(elisionOpt, elem);
     } else {
       if (!foundAllInitialElisions)
@@ -26,10 +26,10 @@ function strip_final_elisions(elements) {
   elisionOpt := [];
   foundAllFinalElisions := false;
 
-  i := l_len elements;
+  i := l_len(elements);
   while (i > 0) {
     elem := l_nth(elements, i - 1);
-    if (!foundAllFinalElisions &&& elem = null) {
+    if (!foundAllFinalElisions &&& elem == null) {
       elisionOpt := l_prepend(elem, elisionOpt);
     } else {
       if (!foundAllFinalElisions)
@@ -48,14 +48,14 @@ function rearrange_elementList(elements) {
   elementList := hd ret;
   elisionOpt := l_nth(ret, 1);
 
-  if (l_len elementList = 1) {
+  if (l_len(elementList) == 1) {
     return {
       type: "Base",
       assignmentExpression: l_nth(elementList, 0),
       elisionOpt: elisionOpt
     };
   } else {
-    assignmentExpression := l_nth(elements, (l_len elements) - 1);
+    assignmentExpression := l_nth(elements, (l_len(elements)) - 1);
     elements := l_remove_last (elements);
     ret := strip_final_elisions(elements);
     elementList := hd ret;
@@ -72,7 +72,7 @@ function rearrange_elementList(elements) {
 
 function is_elisionopt_list(elems) {
   foreach (elision : elems)
-    if (!(elision = null))
+    if (elision != null)
       return false;
   return true;
 }

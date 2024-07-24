@@ -14,7 +14,7 @@ x := aux_1;
 z := aux_3;
 y := 1 + aux_2;
 
-if (y = 2) { 
+if (y == 2) { 
  z := aux_3 
 } ; 
 

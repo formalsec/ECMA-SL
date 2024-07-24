@@ -36,7 +36,7 @@ function getOwnEnumerableProperties(object) {
   ownProperties := getOwnProperties(object);
   ownEnumerableProperties := [];
 
-  lownProperties := l_len ownProperties;
+  lownProperties := l_len(ownProperties);
   i := 0;
   while (i < lownProperties) {
     pname := l_nth(ownProperties, i);
@@ -54,7 +54,7 @@ function getInternalProperty(object, pname) {
 }
 
 function getJSProperty(object, pname) {
-  if (Type(pname) = "Symbol") {
+  if (Type(pname) == "Symbol") {
     desc := int_to_string pname._id; /* more things can be added to make debugging easier if necessary */
     return object.JSPropertiesSymbols[desc];
   }
@@ -62,7 +62,7 @@ function getJSProperty(object, pname) {
 }
 
 function setJSProperty(object, pname, pvalue) {
-  if (Type(pname) = "Symbol") {
+  if (Type(pname) == "Symbol") {
     desc := int_to_string pname._id;
     object.JSPropertiesSymbols[desc] := pvalue;
     object.SymbolKeys[desc] := pname;
@@ -78,7 +78,7 @@ function setJSProperty(object, pname, pvalue) {
 }
 
 function deleteJSProperty(object, pname) {
-  if (Type(pname) = "Symbol") {
+  if (Type(pname) == "Symbol") {
     desc := int_to_string pname._id;
     delete (object.JSPropertiesSymbols)[desc];
     delete (object.SymbolKeys)[desc];
@@ -87,17 +87,16 @@ function deleteJSProperty(object, pname) {
   }
 
   newInternalSlots := [];
-  foreach ( name : object.internalSlotsList ) {
-    if (!(name = pname))
+  foreach ( name : object.internalSlotsList )
+    if (name != pname)
       newInternalSlots := l_add(newInternalSlots, name);
-  }
 
   object.internalSlotsList := newInternalSlots;
   return;
 }
 
 function inJSProperties(object, pname) {
-  if (Type(pname) = "Symbol") {
+  if (Type(pname) == "Symbol") {
     desc := int_to_string pname._id;
     return desc in_obj object.SymbolKeys;
   } else {

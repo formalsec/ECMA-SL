@@ -11,10 +11,10 @@ function PerformEval(x, evalRealm, strictCaller, direct) {
     extern abort(x);
   }
   /* 1. Assert: If direct is false then strictCaller is also false. */
-  if (direct = false)
-		assert(strictCaller = false);
+  if (direct == false)
+		assert(strictCaller == false);
   /* 2. If Type(x) is not String, */
-  if (!(Type(x) = "String"))
+  if (Type(x) != "String")
 		/* return x */
 		return x;
   /* 3. Let script be the ECMAScript code that is the result of parsing x,
@@ -43,7 +43,7 @@ function PerformEval(x, evalRealm, strictCaller, direct) {
 	 function. */
 	ctx := topExecStack();
   /* 9. If direct is true, then */
-  if (direct = true) {
+  if (direct == true) {
 		/* a. Let lexEnv be NewDeclarativeEnvironment(ctx's LexicalEnvironment). */
 		lexEnv := NewDeclarativeEnvironment(ctx.LexicalEnvironment);
 		/* b. Let varEnv be ctx's VariableEnvironment. */
@@ -58,7 +58,7 @@ function PerformEval(x, evalRealm, strictCaller, direct) {
 		isGlobalEnvRec := true;
 	}
   /* 11. If strictEval is true, */
-  if (strictEval = true)
+  if (strictEval == true)
 		/* let varEnv be lexEnv */
 		varEnv := lexEnv;
   /* 12. If ctx is not already suspended, Suspend ctx */
@@ -78,11 +78,11 @@ function PerformEval(x, evalRealm, strictCaller, direct) {
   /* 18. Let result be EvalDeclarationInstantiation(body, varEnv, lexEnv, strictEval). */
   result := EvalDeclarationInstantiation(script, varEnv, lexEnv, strictEval, isGlobalEnvRec);
   /* 19. If result.[[type]] is normal, then */
-  if (getCompletionType(result) = 'normal)
+  if (getCompletionType(result) == 'normal)
 		/* a. Let result be the result of evaluating body. */
 		result := JS_Interpreter_Program(script, evalCxt);
   /* 20. If result.[[type]] is normal and result.[[value]] is empty, then */
-  if ((getCompletionType(result) = 'normal) &&& (getCompletionValue(result) = 'empty))
+  if ((getCompletionType(result) == 'normal) &&& (getCompletionValue(result) == 'empty))
 		/* a. Let result be NormalCompletion(undefined). */
 		result := NormalCompletion('undefined);
   /* 21. Suspend evalCxt and remove it from the execution context stack. */
@@ -120,7 +120,7 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
   varEnvRec := varEnv.EnvRec;
   /* 5. If strict is false, then */
   isGlobalEnvRec := ("CreateGlobalVarBinding" in_obj lexEnvRec);
-  if (strict = false) {
+  if (strict == false) {
 		/* a. If varEnvRec is a global Environment Record, then */
 		if (isGlobalEnvRec) {
 			/* i. For each name in varNames, do */
@@ -146,7 +146,7 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
 					if ({thisEnvRec.HasBinding}(thisEnvRec, name))
 						throw SyntaxErrorConstructorInternal();
 			thisLex := getOuterEnvironmentReference(thisLex);
-		} until (thisLex = varEnv);
+		} until (thisLex == varEnv);
   }
   /* 6. Let functionsToInitialize be an empty List. */
   functionsToInitialize := [];
@@ -289,7 +289,7 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
 		uriUnescaped
 		uriEscaped
 	uriReserved ::: one of
-		; / ? : @ & = + $ ,
+		; / ? : @ & == + $ ,
 	uriUnescaped :::
 		uriAlpha
 		DecimalDigit
@@ -329,12 +329,12 @@ function Encode(str, unescapedSet) {
 	/* 4. Repeat */
 	while (true) {
 		/* a. If k equals strLen, return R. */
-		if (k = strLen)
+		if (k == strLen)
 			return R;
 		/* b. Let C be the code unit at index k within string. */
 		C := s_nth_u(str, k);
 		/* c. If C is in unescapedSet, then */
-		if (includes(unescapedSet, C, 0., 1., int_to_float(s_len_u (unescapedSet))) = true) {
+		if (includes(unescapedSet, C, 0., 1., int_to_float(s_len_u (unescapedSet))) == true) {
 			/* i. Let S be a String containing only the code unit C. */
 			S := C;
 			/* ii. Let R be a new String value computed by concatenating the previous value of R and S. */
@@ -363,7 +363,7 @@ function Encode(str, unescapedSet) {
 			/* V to UTF-8 string */
 			V_Str := from_char_code_u (V);
 			/* Obtain number of bytes of V_Str */
-			V_Str_len_b := s_len V_Str;
+			V_Str_len_b := s_len(V_Str);
 			i := 0;
 			/* For each byte in V_Str */
 			while (i < V_Str_len_b) {
@@ -372,7 +372,7 @@ function Encode(str, unescapedSet) {
 				i := i + 1;
 			}
 			/* let L be the array size. */
-			L := l_len Octets;
+			L := l_len(Octets);
 			/* v. Let j be 0. */
 			j := 0;
 			/* vi. Repeat, while j < L */
@@ -402,46 +402,46 @@ function BinToHex(n) {
 }
 
 function get_hex(bin) {
-	if (bin = "0000")
+	if (bin == "0000")
 		return "0";
-	else if (bin = "0001")
+	else if (bin == "0001")
 		return "1";
-	else if (bin = "0010")
+	else if (bin == "0010")
 		return "2";
-	else if (bin = "0011")
+	else if (bin == "0011")
 		return "3";
-	else if (bin = "0100")
+	else if (bin == "0100")
 		return "4";
-	else if (bin = "0101")
+	else if (bin == "0101")
 		return "5";
-	else if (bin = "0110")
+	else if (bin == "0110")
 		return "6";
-	else if (bin = "0111")
+	else if (bin == "0111")
 		return "7";
-	else if (bin = "1000")
+	else if (bin == "1000")
 		return "8";
-	else if (bin = "1001")
+	else if (bin == "1001")
 		return "9";
-	else if (bin = "1010")
+	else if (bin == "1010")
 		return "A";
-	else if (bin = "1011")
+	else if (bin == "1011")
 		return "B";
-	else if (bin = "1100")
+	else if (bin == "1100")
 		return "C";
-	else if (bin = "1101")
+	else if (bin == "1101")
 		return "D";
-	else if (bin = "1110")
+	else if (bin == "1110")
 		return "E";
-	else if (bin = "1111")
+	else if (bin == "1111")
 		return "F";
 	else
 		print "something is wrong";
 }
 
 function is_hexa(c) {
-	return (c = "0") ||| (c = "1") ||| (c = "2") ||| (c = "3") ||| (c = "4") |||
-		   (c = "5") ||| (c = "6") ||| (c = "7") ||| (c = "8") ||| (c = "9") |||
-		   (c = "A") ||| (c = "B") ||| (c = "C") ||| (c = "D") ||| (c = "E") ||| (c = "F");
+	return (c == "0") ||| (c == "1") ||| (c == "2") ||| (c == "3") ||| (c == "4") |||
+		   (c == "5") ||| (c == "6") ||| (c == "7") ||| (c == "8") ||| (c == "9") |||
+		   (c == "A") ||| (c == "B") ||| (c == "C") ||| (c == "D") ||| (c == "E") ||| (c == "F");
 }
 function HexToBin(s) {
 	/* https://www.geeksforgeeks.org/program-to-convert-hexadecimal-number-to-binary/ */
@@ -450,40 +450,40 @@ function HexToBin(s) {
 	res := "";
 	while (k < lim) {
 		hex := s_nth_u(s, k);
-		if ((hex = "0") &&& (s_nth_u(s, k + 1) = "x")) {
+		if ((hex == "0") &&& (s_nth_u(s, k + 1) == "x")) {
 			res := s_concat([res, "00000"]);
 			k := k + 1;
-		} else if (hex = "0")
+		} else if (hex == "0")
 			res := s_concat([res, "0000"]);
-		else if (hex = "1")
+		else if (hex == "1")
 			res := s_concat([res, "0001"]);
-		else if (hex = "2")
+		else if (hex == "2")
 			res := s_concat([res, "0010"]);
-		else if (hex = "3")
+		else if (hex == "3")
 			res := s_concat([res, "0011"]);
-		else if (hex = "4")
+		else if (hex == "4")
 			res := s_concat([res, "0100"]);
-		else if (hex = "5")
+		else if (hex == "5")
 			res := s_concat([res, "0101"]);
-		else if (hex = "6")
+		else if (hex == "6")
 			res := s_concat([res, "0110"]);
-		else if (hex = "7")
+		else if (hex == "7")
 			res := s_concat([res, "0111"]);
-		else if (hex = "8")
+		else if (hex == "8")
 			res := s_concat([res, "1000"]);
-		else if (hex = "9")
+		else if (hex == "9")
 			res := s_concat([res, "1001"]);
-		else if (hex = "A")
+		else if (hex == "A")
 			res := s_concat([res, "1010"]);
-		else if (hex = "B")
+		else if (hex == "B")
 			res := s_concat([res, "1011"]);
-		else if (hex = "C")
+		else if (hex == "C")
 			res := s_concat([res, "1100"]);
-		else if (hex = "D")
+		else if (hex == "D")
 			res := s_concat([res, "1101"]);
-		else if (hex = "E")
+		else if (hex == "E")
 			res := s_concat([res, "1110"]);
-		else if (hex = "F")
+		else if (hex == "F")
 			res := s_concat([res, "1111"]);
 		else
 			print "something is wrong";	
@@ -494,14 +494,14 @@ function HexToBin(s) {
 }
 
 function BinToDec(s) {
-	num := float_of_string(s);
+	num := string_to_float(s);
 	dec_value := 0;
 	base := 1;
 	temp := num;
 	while (temp > 0.) {
 		last_digit := (temp % 10.);
 		temp := temp / (10.);
-		dec_value := dec_value + (int_of_float last_digit * base);
+		dec_value := dec_value + (float_to_int last_digit * base);
 		base := base * 2;
 	}
 	return dec_value;
@@ -522,12 +522,12 @@ function Decode(str, reservedSet) {
 	/* 4. Repeat */
 	while (true) {
 		/* a. If k equals strLen, return R. */
-		if (k = strLen)
+		if (k == strLen)
 			return R;
 		/* b. Let C be the code unit at index k within string. */
 		C := s_nth_u(str, k);
 		/* c. If C is not "%", then */
-		if (!(C = "%")) {
+		if (C != "%") {
 			/* i. Let S be the String containing only the code unit C. */
 			S := C;
 		/* d. Else C is "%", */
@@ -549,11 +549,11 @@ function Decode(str, reservedSet) {
 			/* v. Increment k by 2. */
 			k := k + 2;
 			/* vi. If the most significant bit in B is 0, then */
-			if (s_nth_u(B, 0) = "0") {
+			if (s_nth_u(B, 0) == "0") {
 				/* 1. Let C be the code unit with code unit value B. */
 				C := from_char_code_u(BinToDec(B));
 				/* 2. If C is not in reservedSet, then */
-				if (includes(reservedSet, C, 0., 1., int_to_float(s_len_u (reservedSet))) = false) {
+				if (includes(reservedSet, C, 0., 1., int_to_float(s_len_u (reservedSet))) == false) {
 					/* a. Let S be the String containing only the code unit C. */
 					S := C;
 				/* 3. Else C is in reservedSet, */

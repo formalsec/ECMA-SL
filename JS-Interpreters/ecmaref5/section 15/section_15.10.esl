@@ -32,7 +32,7 @@ function initRegExpObject(globalObject, ObjectPrototype, strict) {
  */
 function RegExpConstructorCalledAsFunction(strict, pattern, flags) {
   R := pattern;
-  if (isRegExpObject(R) &&& (flags = 'undefined))
+  if (isRegExpObject(R) &&& (flags == 'undefined))
     return R;
 
   return newRegExp(strict, pattern, flags);
@@ -49,10 +49,10 @@ function RegExpConstructor(global, this, strict, args) {
   pattern := getOptionalParam(args, 0);
   flags := getOptionalParam(args, 1);
 
-  if (pattern = null)
+  if (pattern == null)
     pattern := "";
 
-  if ((this = 'undefined) ||| (this = 'null))
+  if ((this == 'undefined) ||| (this == 'null))
     return RegExpConstructorCalledAsFunction(strict, pattern, flags);
 
   return newRegExp(strict, pattern, flags);
@@ -68,19 +68,19 @@ function escapePattern(P) {
   while (i < len) {
     c := s_nth_u(P, i);
 
-    if (c = "/")
+    if (c == "/")
       S := s_concat([S, "\\/"]);
-    else if (c = "\r")
+    else if (c == "\r")
       S := s_concat([S, "\\r"]);
-    else if (c = "\n")
+    else if (c == "\n")
       S := s_concat([S, "\\n"]);
-    else if (c = "\f")
+    else if (c == "\f")
       S := s_concat([S, "\\f"]);
-    else if (c = "\t")
+    else if (c == "\t")
       S := s_concat([S, "\\t"]);
-    else if (c = "\v")
+    else if (c == "\v")
       S := s_concat([S, "\\v"]);
-    else if (c = "\b")
+    else if (c == "\b")
       S := s_concat([S, "\\b"]);
     else
       S := s_concat([S, c]);
@@ -114,16 +114,16 @@ function parsePattern(P, F) {
     If P is the empty String, this specification can be met by letting S be "(?:)". */
   S := escapePattern(P);
 
-  if ((S = "") ||| (S = 'undefined))
+  if ((S == "") ||| (S == 'undefined))
     S := "(?:)";
-  if (F = 'undefined)
+  if (F == 'undefined)
     F := "";
 
   progStr := s_concat(["/", S, "/", F]);
   prog := extern parseJS(progStr);
   progObj := {prog}();
 
-  if ((l_len progObj.body) = 0)
+  if ((l_len(progObj).body) == 0)
     throw SyntaxErrorConstructorInternal();
   
   expression := (l_nth(progObj.body, 0)).expression;
@@ -145,7 +145,7 @@ function newRegExp(strict, pattern, flags) {
     and let F be the flags used to construct R. */
   R := pattern;
   if (isRegExpObject(R)) {
-    if (flags = 'undefined) {
+    if (flags == 'undefined) {
       P := R.OriginalSource;
       F := R.OriginalFlags.flags;
       R := parsePattern(P, F);
@@ -165,8 +165,8 @@ function newRegExp(strict, pattern, flags) {
      and ToString(pattern) otherwise, and let F be the empty String
      if flags is undefined and ToString(flags) otherwise. */
   else {
-    if (pattern = 'undefined) P := ""; else P := ToString(pattern);
-    if (flags = 'undefined) F := ""; else F := ToString(flags);
+    if (pattern == 'undefined) P := ""; else P := ToString(pattern);
+    if (flags == 'undefined) F := ""; else F := ToString(flags);
 
     /* If the characters of P do not have the syntactic form Pattern, then
       throw a SyntaxError exception. Otherwise let the newly constructed
@@ -374,7 +374,7 @@ function RegExpPrototypeExec(global, this, strict, args) {
     internal method of R with argument "lastIndex".. */
   lastIndex := {R.Get}(R, "lastIndex");
   /* 5. Let i be the value of ToInteger(lastIndex). */
-  i := int_of_float (ToInteger(lastIndex));
+  i := float_to_int (ToInteger(lastIndex));
 
   /* ES6: i < 0 becomes 0, but don't return null */
   /* test/test262/tests/built-ins/RegExp/prototype/test/S15.10.6.3_A1_T22.js */
@@ -386,13 +386,13 @@ function RegExpPrototypeExec(global, this, strict, args) {
   /* 6. Let global be the result of calling the [[Get]]
     internal method of R with argument "global". */
   global := {R.Get}(R, "global");
-  /* 7. If global is false, then let i = 0. */
-  if (global = false)
+  /* 7. If global is false, then let (i) = 0. */
+  if (global == false)
     i := 0;
   /* 8. Let matchSucceeded be false. */
   matchSucceeded := false;
   /* 9. Repeat, while matchSucceeded is false */
-  while (matchSucceeded = false) {
+  while (matchSucceeded == false) {
     /* a. If i < 0 or i > length, then */
     if ((i < 0) || (i > length)) {
       /* i. Call the [[Put]] internal method of R with
@@ -420,7 +420,7 @@ function RegExpPrototypeExec(global, this, strict, args) {
   /* 10. Let e be r's endIndex value. */
   e := int_to_float r.endIndex;
   /* 11. If global is true, */
-  if (global = true) {
+  if (global == true) {
     /* a. Call the [[Put]] internal method of R with
       arguments "lastIndex", e, and true. */
     {R.Put}(R, "lastIndex", e, true);
@@ -450,7 +450,7 @@ function RegExpPrototypeExec(global, this, strict, args) {
   {A.DefineOwnProperty}(A, "length", descriptorLength, true);
   /* 18. Let matchedSubstr be the matched substring (i.e. the portion of S
     between offset i inclusive and offset e exclusive). */
-  matchedSubstr := s_substr_u(S, i, (int_of_float e) - i);
+  matchedSubstr := s_substr_u(S, i, (float_to_int e) - i);
   /* 19. Call the [[DefineOwnProperty]] internal method of A with arguments
     "0", Property Descriptor {[[Value]]: matchedSubstr, [[Writable]: true,
     [[Enumerable]]: true, [[Configurable]]: true}, and true. */
@@ -490,7 +490,7 @@ function getRegExpPrototype(strict) {
   exception is thrown if the this value is not an object or an object for which the value of the [[Class]] internal
   property is not "RegExp". */
 function isRegExpObject(arg) {
-  if ((Type(arg) = "Object") &&& (getInternalProperty(arg, "Class") = "RegExp"))
+  if ((Type(arg) == "Object") &&& (getInternalProperty(arg, "Class") == "RegExp"))
     return true;
   return false;
 }
@@ -510,7 +510,7 @@ function RegExpPrototypeTest(global, this, strict, args) {
     (15.10.6.2) algorithm upon this RegExp object using string as the argument. */
   match2 := RegExpPrototypeExec(global, this, strict, [str]);
   /* 2. If match is not null, then return true; else return false. */
-  if (!(match2 = 'null)) return true; else return false;
+  if (match2 != 'null) return true; else return false;
 }
 
 
@@ -533,11 +533,11 @@ function RegExpPrototypeToString(global, this, strict, args) {
   i := this.OriginalFlags.ic;
   m := this.OriginalFlags.ml;
 
-  if (g = true)
+  if (g == true)
     source := s_concat([source, "g"]);
-  if (i = true)
+  if (i == true)
     source := s_concat([source, "i"]);
-  if (m = true)
+  if (m == true)
     source := s_concat([source, "m"]);
 
   return source;
@@ -588,7 +588,7 @@ function JS_Interpreter_RegEx_TopLevel(re, source) {
     return st';
   };
 
-  nCaps := int_of_float (re.nCaps + 1.);
+  nCaps := float_to_int (re.nCaps + 1.);
 
   m' := lambda(R, S, i) [m, k_id, nCaps] {
     st := initialState(S, i,
@@ -616,11 +616,11 @@ function validateFlags(flags) {
   while (index < len) {
     flag := s_nth_u(flags, index);
 
-    if ((flag = "g") &&& (g = false))
+    if ((flag == "g") &&& (g == false))
       g := true;
-    else if ((flag = "i") &&& (i = false))
+    else if ((flag == "i") &&& (i == false))
       i := true;
-    else if ((flag = "m") &&& (m = false))
+    else if ((flag == "m") &&& (m == false))
       m := true;
     else
       throw SyntaxErrorConstructorInternal();
@@ -641,11 +641,11 @@ function setFlags(obj, flags) {
   while (index < len) {
     flag := s_nth_u(flags, index);
 
-    if ((flag = "g") &&& (g = false))
+    if ((flag == "g") &&& (g == false))
       g := true;
-    else if ((flag = "i") &&& (i = false))
+    else if ((flag == "i") &&& (i == false))
       i := true;
-    else if ((flag = "m") &&& (m = false))
+    else if ((flag == "m") &&& (m == false))
       m := true;
     else
       throw SyntaxErrorConstructorInternal();
@@ -658,9 +658,9 @@ function setFlags(obj, flags) {
   setJSProperty(obj, "multiline", newDataPropertyDescriptorFull(m, false, false, false));
 */
   flags := "";
-  if (g) flags := s_concat [flags, "g"];
-  if (i) flags := s_concat [flags, "i"];
-  if (m) flags := s_concat [flags, "m"];
+  if (g) flags := s_concat([flags, "g"]);
+  if (i) flags := s_concat([flags, "i"]);
+  if (m) flags := s_concat([flags, "m"]);
   /*setJSProperty(obj, "flags", newDataPropertyDescriptorFull(flags, false, false, false));*/
   /* ES6? - test implementation/test/test262/tests/built-ins/RegExp/new-regexp/S15.10.4.1_A1_T1.js */
 
@@ -668,7 +668,7 @@ function setFlags(obj, flags) {
 }
 
 function isFailure(st) {
-  return st = null;
+  return st == null;
 }
 
 function initialState(str, endIndex, gb, ic, ml, nCaps) {
@@ -815,24 +815,24 @@ function JS_Interpreter_Quant(qt) {
 }
 
 /* 
-m = matcher
-k = continuation
-st = state
+m == matcher
+k == continuation
+st == state
 */
 function JS_Interpreter_Repetition_Greedy(m, bounds, st, k, parenIndex, parenCount) {
-  if (bounds.sup = 0.) {
+  if (bounds.sup == 0.) {
     return {k}(st);
   } else {
     index := st.endIndex;
     k' := lambda (st') [st, m, bounds, k, index, parenIndex, parenCount] {
-      if ((bounds.inf = 0.) &&& (index = st'.endIndex))
+      if ((bounds.inf == 0.) &&& (index == st'.endIndex))
         return {k}(st');
       bounds' := decrementBounds(bounds);
       return JS_Interpreter_Repetition_Greedy(m, bounds', st', k, parenIndex, parenCount);
     };
 
     st2 := copyState(st);
-    if (!(parenIndex = 'undefined)) {
+    if (parenIndex != 'undefined) {
       i := parenIndex + 1.;
       len := parenIndex + parenCount;
       while (i <= len) {
@@ -862,7 +862,7 @@ function JS_Interpreter_Repetition_Greedy(m, bounds, st, k, parenIndex, parenCou
 
 
 function JS_Interpreter_Repetition_NonGreedy(m, bounds, st, k) {
-  if (bounds.sup = 0.) {
+  if (bounds.sup == 0.) {
     return {k}(st);
   } else {
     k' := lambda (st') [m, bounds, k] {
@@ -891,19 +891,19 @@ function decrementBounds(bounds) {
   x_sup := bounds.sup;
   if (x_inf > 0.)
     x_inf := x_inf - 1.;
-  if (!(x_sup = Infinity))
+  if (x_sup != Infinity)
     x_sup := x_sup - 1.;
   return { inf: x_inf, sup: x_sup, greedy: bounds.greedy };
 }
 
 /* 15.10.2.6 Assertion */
 function JS_Interpreter_Assertion(ba) {
-  if (ba.kind = "^") {
+  if (ba.kind == "^") {
     t := lambda (st) [] {
       /* 1. Let e be x's endIndex. */
       e := st.endIndex;
       /* 2. If e is zero, return true. */
-      if (e = 0)
+      if (e == 0)
         return true;
       /* 3. If Multiline is false, return false. */
       if (!st.ml) {
@@ -917,16 +917,16 @@ function JS_Interpreter_Assertion(ba) {
     };
     return t;
 
-  } else if (ba.kind = "$") {
+  } else if (ba.kind == "$") {
     t := lambda (st) [] {
       /* 1. Let e be x's endIndex. */
       e := st.endIndex;
       /* 2. If e is equal to InputLength, return true. */
-      len := s_len_u (st.str);
-      if (e = len)
+      len := s_len_u(st.str);
+      if (e == len)
         return true;
       /* 3. If multiline is false, return false. */
-      if (st.ml = false)
+      if (st.ml == false)
         return false;
       /* 4. If the character Input[e] is one of LineTerminator, return true. */
       if (e < len) {
@@ -938,7 +938,7 @@ function JS_Interpreter_Assertion(ba) {
     };
     return t;
 
-  } else if (ba.kind = "\\b") {
+  } else if (ba.kind == "\\b") {
     /* The production Assertion :: \ b evaluates by returning
       an internal AssertionTester closure that takes a State
       argument x and performs the following: */
@@ -950,17 +950,17 @@ function JS_Interpreter_Assertion(ba) {
       /* 3. Call IsWordChar(e) and let b be the Boolean result. */
       b := IsWordChar(e, st.str);
       /* 4. If a is true and b is false, return true. */
-      if ((a = true) &&& (b = false))
+      if ((a == true) &&& (b == false))
         return true;
       /* 5. If a is false and b is true, return true. */
-      if ((a = false) &&& (b = true))
+      if ((a == false) &&& (b == true))
         return true;
       /* 6. Return false. */
       return false;
     };
     return t;
 
-  } else if (ba.kind = "\\B") {
+  } else if (ba.kind == "\\B") {
     /* The production Assertion :: \ B evaluates by returning an
         internal AssertionTester closure that takes a State argument
         x and performs the following: */
@@ -972,10 +972,10 @@ function JS_Interpreter_Assertion(ba) {
       /* 3. Call IsWordChar(e) and let b be the Boolean result. */
       b := IsWordChar(e, st.str);
       /* 4. If a is true and b is false, return false. */
-      if ((a = true) &&& (b = false))
+      if ((a == true) &&& (b == false))
         return false;
       /* 5. If a is false and b is true, return false. */
-      if ((a = false) &&& (b = true))
+      if ((a == false) &&& (b == true))
         return false;
       /* 6. Return true. */
       return true;
@@ -991,7 +991,7 @@ function isLineTerminator(c) {
   \u000D              Carriage Return      <CR>
   \u2028              Line separator       <LS>
   \u2029              Paragraph separator  <PS> */
-  if ((c = "\u{000a}") ||| (c = "\u{000d}") ||| (c = "\u{2028}") ||| (c = "\u{2029}"))
+  if ((c == "\u{000a}") ||| (c == "\u{000d}") ||| (c == "\u{2028}") ||| (c == "\u{2029}"))
     return true;
   return false;
 }
@@ -1002,7 +1002,7 @@ function isLineTerminator(c) {
  */
 function IsWordChar(e, input) {
   /* 1. If e == –1 or e == InputLength, return false. */
-  if ((e = -1) ||| (e = (s_len_u (input))))
+  if ((e == -1) ||| (e == (s_len_u (input))))
     return false;
   /* 2. Let c be the character Input[e]. */
   c := s_nth_u(input, e);
@@ -1013,7 +1013,7 @@ function IsWordChar(e, input) {
   code := to_char_code_u (c);
 
   if (((code >= 48) &&& (code <= 57)) ||| ((code >= 65) &&& (code <= 90)) |||
-      ((code >= 97) &&& (code <= 122)) ||| (code = 95))
+      ((code >= 97) &&& (code <= 122)) ||| (code == 95))
     return true;
 
   /* 4. Return false. */
@@ -1029,12 +1029,12 @@ function EmptyCharacterClass(negative) {
 
 function CharacterClassUnion(cs1, cs2) {
   /* Union for positive: */
-  if (!(cs2.positive = null)) {
-    if (cs1.positive = null)
+  if (cs2.positive != null) {
+    if (cs1.positive == null)
       cs1.positive := {};
     i := 0;
     list := obj_fields cs2.positive;
-    len := l_len list;
+    len := l_len(list);
     while (i < len) {
       P := l_nth (list, i);
       CP := cs2.positive[P];
@@ -1044,12 +1044,12 @@ function CharacterClassUnion(cs1, cs2) {
   }
 
   /* Union for negative: */
-  if (!(cs2.negative = null)) {
-    if (cs1.negative = null)
+  if (cs2.negative != null) {
+    if (cs1.negative == null)
       cs1.negative := {};
     i := 0;
     list := obj_fields cs2.negative;
-    len := l_len list;
+    len := l_len(list);
     while (i < len) {
       P := l_nth (list, i);
       CP := cs2.negative[P];
@@ -1063,22 +1063,22 @@ function CharacterClassUnion(cs1, cs2) {
 
 
 function IsInCharacterClass(cs, c, ic) {
-  if (c = null)
+  if (c == null)
     return false;
   code := int_to_float (to_char_code_u (c));
   code := canonicalise(c, code, ic);
   code_str := float_to_string code;
   ret := false;
-  if (!(cs.positive = null))
+  if (cs.positive != null)
     ret := (code_str in_obj cs.positive);
-  if (!(cs.negative = null))
+  if (cs.negative != null)
     ret := (ret ||| !(code_str in_obj cs.negative));
   return ret;
 }
 
 
 function AddCharacterPoint(cs, c, code_str, negative) {
-  if (negative = true)
+  if (negative == true)
     cs.negative[code_str] := c;
   else
     cs.positive[code_str] := c;
@@ -1090,7 +1090,7 @@ function canonicalise(c, c_cp, ic) {
   if (!ic)
     return c_cp;
   u := to_upper_case (c);
-  if (!((s_len_u (u)) = 1))
+  if (s_len_u(u) != 1)
     return c_cp;
   u_cp := int_to_float (to_char_code_u (u));
   if ((c_cp >= 128.) && (u_cp < 128.))
@@ -1105,31 +1105,31 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
   /* Meta characters */
   | { type: "Char", value: c, codePoint: code, kind: "meta"} -> {
 
-    if (c = "\\d")
+    if (c == "\\d")
       cs := digitCharSet(negative);
-    else if (c = "\\D")
+    else if (c == "\\D")
       cs := digitCharSet(!negative);
-    else if (c = "\\s")
+    else if (c == "\\s")
       cs := spaceCharSet(negative);
-    else if (c = "\\S")
+    else if (c == "\\S")
       cs := spaceCharSet(!negative);
-    else if (c = "\\w")
+    else if (c == "\\w")
       cs := wordCharSet(negative);
-    else if (c = "\\W")
+    else if (c == "\\W")
       cs := wordCharSet(!negative);
-    else if ((c = "\\n") ||| (c = "\\f") ||| (c = "\\r") ||| (c = "\\t") ||| (c = "\\v") ||| (c = "\\b")) {
+    else if ((c == "\\n") ||| (c == "\\f") ||| (c == "\\r") ||| (c == "\\t") ||| (c == "\\v") ||| (c == "\\b")) {
       cs := EmptyCharacterClass(negative);
-      if (c = "\\n")
+      if (c == "\\n")
         AddCharacterPoint(cs, "\n", "10", negative);
-      else if (c = "\\f")
+      else if (c == "\\f")
         AddCharacterPoint(cs, "\f", "12", negative);
-      else if (c = "\\r")
+      else if (c == "\\r")
         AddCharacterPoint(cs, "\r", "13", negative);
-      else if (c = "\\t")
+      else if (c == "\\t")
         AddCharacterPoint(cs, "\t", "9", negative);
-      else if (c = "\\v")
+      else if (c == "\\v")
         AddCharacterPoint(cs, "\v", "11", negative);
-      else if (c = "\\b")
+      else if (c == "\\b")
         AddCharacterPoint(cs, "\b", "8", negative);
     } else {
       throw s_concat(["Meta character inside character class not implemented: ", c]);
@@ -1150,7 +1150,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
     /* remove \ */
     len := s_len_u (c);
     c := s_substr_u(c, 1, len - 1);
-    dec_code := octal_to_decimal (int_of_string c);
+    dec_code := octal_to_decimal (string_to_int c);
     dec_code_str := int_to_string dec_code;
     c := from_char_code_u (dec_code);
     AddCharacterPoint(cs, c, dec_code_str, negative);
@@ -1201,7 +1201,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
     cs := EmptyCharacterClass(negative);
     while (from <= to) {
       from_str := float_to_string from;
-      c := from_char_code_u (int_of_float from);
+      c := from_char_code_u (float_to_int from);
       AddCharacterPoint(cs, c, from_str, negative);
       from := from + 1.;
     }
@@ -1304,7 +1304,7 @@ function dotCharSet() {
 
 function spaceCharSet(negative) {
   sc := getSpaceCharacters();
-  if (negative = true) return { positive: null, negative: sc }; else return { positive: sc, negative: null };
+  if (negative == true) return { positive: null, negative: sc }; else return { positive: sc, negative: null };
 }
 
 /**
@@ -1314,7 +1314,7 @@ function spaceCharSet(negative) {
 function digitCharSet(negative) {
   cs := {};
   getCharacterRangeASCII(cs, 48, 57);
-  if (negative = true) return { positive: null, negative: sc }; else return { positive: sc, negative: null };
+  if (negative == true) return { positive: null, negative: sc }; else return { positive: sc, negative: null };
 }
 
 /**
@@ -1330,12 +1330,12 @@ function wordCharSet(negative) {
   getCharacterRangeASCII(cs, 65, 90);
   getCharacterRangeASCII(cs, 97, 122);
   cs["95"] := "_";
-  if (negative = true) return { positive: null, negative: sc }; else return { positive: sc, negative: null };
+  if (negative == true) return { positive: null, negative: sc }; else return { positive: sc, negative: null };
 }
 
 
 function JS_Interpreter_RegEx(re, flags) {
-  if (re = null) {
+  if (re == null) {
     m := lambda (st, k) [] { return {k}(st); };
     return m;
   }
@@ -1345,7 +1345,7 @@ function JS_Interpreter_RegEx(re, flags) {
   | { type: "CharacterClass", negative: true, expressions: res} -> {
     cs := EmptyCharacterClass(true);
     ic := flags.ic;
-    len := l_len res;
+    len := l_len(res);
     i := 0;
     while (i < len) {
       el := l_nth(res, i);
@@ -1371,7 +1371,7 @@ function JS_Interpreter_RegEx(re, flags) {
   | { type: "CharacterClass", expressions: res} -> {
     cs := EmptyCharacterClass(false);
     ic := flags.ic;
-    len := l_len res;
+    len := l_len(res);
     i := 0;
     while (i < len) {
       el := l_nth(res, i);
@@ -1442,7 +1442,7 @@ function JS_Interpreter_RegEx(re, flags) {
     bounds := JS_Interpreter_Quant(qt);
     parenIndex := re.parenIndex;
     parenCount := re.parenCount;
-    if (qt.greedy = true)
+    if (qt.greedy == true)
       m := lambda (st, k) [m', bounds, parenIndex, parenCount] 
         { return JS_Interpreter_Repetition_Greedy(m', bounds, st, k, parenIndex, parenCount); };
     else
@@ -1454,8 +1454,8 @@ function JS_Interpreter_RegEx(re, flags) {
   /* Backreference */
   | { type: "Backreference", "number": i } -> {
     m := lambda (st, k) [i] {
-      str_c := stateGetCap(st, int_of_float i);
-      if (str_c = 'undefined)
+      str_c := stateGetCap(st, float_to_int i);
+      if (str_c == 'undefined)
         return {k}(st);
       len := s_len_u (str_c);
       j1 := stateGetIndex(st);
@@ -1463,7 +1463,7 @@ function JS_Interpreter_RegEx(re, flags) {
       if ((j1 + len) > (s_len_u (str)))
         return null;
       str' := s_substr_u(str, j1, len);
-      if (str_c = str') {
+      if (str_c == str') {
         stateSetIndex(st, j1 + len);
         return {k}(st);
       }
@@ -1481,7 +1481,7 @@ function JS_Interpreter_RegEx(re, flags) {
       k' := lambda (st') [st, k, old_i, i] {
         len := st'.endIndex - old_i;
         str := s_substr_u (st'.str, old_i, len);
-        stateSetCap(st', int_of_float i, str);
+        stateSetCap(st', float_to_int i, str);
         return {k}(st');
       };
       return {m'}(st, k');
@@ -1511,7 +1511,7 @@ function JS_Interpreter_RegEx(re, flags) {
 
   /* Sequence */
   | { type: "Alternative", expressions: res } -> {
-    if ((l_len res) = 1) {
+    if ((l_len(res)) == 1) {
       return JS_Interpreter_RegEx(l_nth(res, 0), flags);
     } else {
       re_hd := l_nth(res, 0);
@@ -1530,33 +1530,33 @@ function JS_Interpreter_RegEx(re, flags) {
   | { type: "Char", value: v, kind: "meta" } -> {
     cs := {};
 
-    if (v = ".") {
+    if (v == ".") {
       cs := dotCharSet();
-    } else if (v = "\\d") {
+    } else if (v == "\\d") {
       cs := digitCharSet(false);
-    } else if (v = "\\D") {
+    } else if (v == "\\D") {
       cs := digitCharSet(true);
-    } else if (v = "\\s") {
+    } else if (v == "\\s") {
       cs := spaceCharSet(false);
-    } else if (v = "\\S") {
+    } else if (v == "\\S") {
       cs := spaceCharSet(true);
-    } else if (v = "\\w") {
+    } else if (v == "\\w") {
       cs := wordCharSet(false);
-    } else if (v = "\\W") {
+    } else if (v == "\\W") {
       cs := wordCharSet(true);
-    } else if (v = "\\n") {
+    } else if (v == "\\n") {
       cs["10"] := "\n";
       cs := { positive: cs, negative: null };
-    } else if (v = "\\f") {
+    } else if (v == "\\f") {
       cs["12"] := "\f";
       cs := { positive: cs, negative: null };
-    } else if (v = "\\r") {
+    } else if (v == "\\r") {
       cs["13"] := "\r";
       cs := { positive: cs, negative: null };
-    } else if (v = "\\t") {
+    } else if (v == "\\t") {
       cs["9"] := "\t";
       cs := { positive: cs, negative: null };
-    } else if (v = "\\v") {
+    } else if (v == "\\v") {
       cs["11"] := "\v";
       cs := { positive: cs, negative: null };
     } else {
@@ -1581,13 +1581,13 @@ function JS_Interpreter_RegEx(re, flags) {
     /* remove \ */
     len := s_len_u (c);
     c := s_substr_u(c, 1, len - 1);
-    dec_code := octal_to_decimal (int_of_string c);
+    dec_code := octal_to_decimal (string_to_int c);
     c := from_char_code_u (dec_code);
     m := lambda (st, k) [c] {
       c2 := stateGetChar(st);
-      if (c = null)
+      if (c == null)
         return null;
-      if (c2 = c) {
+      if (c2 == c) {
         stateNext(st);
         return {k}(st);
       } else {
@@ -1602,11 +1602,11 @@ function JS_Interpreter_RegEx(re, flags) {
   | { type: "Char", value: v, kind: "hex" } -> {
     m := lambda (st, k) [v] {
       c := stateGetChar(st);
-      if (c = null)
+      if (c == null)
         return null;
 
       v := hex_decode (v);
-      if (c = v) {
+      if (c == v) {
         stateNext(st);
         return {k}(st);
       } else {
@@ -1622,9 +1622,9 @@ function JS_Interpreter_RegEx(re, flags) {
     v := utf8_decode (v);
     m := lambda (st, k) [v] {
       c := stateGetChar(st);
-      if (c = null)
+      if (c == null)
         return null;
-      if (c = v) {
+      if (c == v) {
         stateNext(st);
         return {k}(st);
       } else {
@@ -1645,9 +1645,9 @@ function JS_Interpreter_RegEx(re, flags) {
 
       c := stateGetChar(st);
       c_code := int_to_float (to_char_code_u (c));
-      if (c = null)
+      if (c == null)
         return null;
-      if (c_code = v_code) {
+      if (c_code == v_code) {
         stateNext(st);
         return {k}(st);
       } else {
@@ -1662,14 +1662,14 @@ function JS_Interpreter_RegEx(re, flags) {
   | { type: "Char", value: v, kind: "simple" } -> {
     m := lambda (st, k) [v] {
       c := stateGetChar(st);
-      if (c = null)
+      if (c == null)
         return null;
 
       c_code := int_to_float (to_char_code_u (c));
       c_code := canonicalise(c, c_code, st.ic);
       v_code := int_to_float (to_char_code_u (v));
       v_code := canonicalise(v, v_code, st.ic);
-      if (c_code = v_code) {
+      if (c_code == v_code) {
         stateNext(st);
         return {k}(st);
       } else {

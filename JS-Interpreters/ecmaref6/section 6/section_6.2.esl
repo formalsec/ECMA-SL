@@ -7,24 +7,24 @@
  */
 function Completion(completionRecord) {
   /* Assert: completionRecord is a Completion Record. */
-  assert (Type(completionRecord) = "Completion");
+  assert (Type(completionRecord) == "Completion");
   /* Return completionRecord as the Completion Record of this abstract operation. */
   return completionRecord;
 }
 
 /* auxiliary functions */
 function isAnAbruptCompletion (completion) {
-  if (!(Type(completion) = "Completion"))
+  if (Type(completion) != "Completion")
     return false;
-  if (!(getCompletionType(completion) = 'normal))
+  if (getCompletionType(completion) != 'normal)
     return true;
   return false;
 }
 
 /* Auxiliary functions created for the purposes of accessing the values of the triple that form the completion type. */
 function isErrorCompletion(completion) {
-  if ((Type(completion) = "Completion"))
-    return (getCompletionType(completion) = 'throw);
+  if ((Type(completion) == "Completion"))
+    return (getCompletionType(completion) == 'throw);
   return false;
 }
 
@@ -58,7 +58,7 @@ function throwEmptyCompletion(V) {
 
 /* 6.2.2.4 ReturnIfAbrupt */
 macro ReturnIfAbrupt(e) {
-  if (Type(e) = "Completion") {
+  if (Type(e) == "Completion") {
     /* If argument is an abrupt completion, return argument. */
     if (isAnAbruptCompletion(e))
       return e;
@@ -78,13 +78,13 @@ macro ReturnIfAbrupt(e) {
 function UpdateEmpty(completionRecord, value) {
   /* 1. Assert: if completionRecord.[[type]] is throw then
      completionRecord.[[value]] is not empty. */
-  assert (!(getCompletionType(completionRecord) = 'throw &&& getCompletionValue(completionRecord) = 'empty));
+  assert (!(getCompletionType(completionRecord) == 'throw &&& getCompletionValue(completionRecord) == 'empty));
   /* 2. If completionRecord.[[type]] is throw, */
-  if (getCompletionType(completionRecord) = 'throw)
+  if (getCompletionType(completionRecord) == 'throw)
     /* return Completion(completionRecord) */
     return Completion(completionRecord);
   /* 3. If completionRecord.[[value]] is not empty, */
-  if (!(getCompletionValue(completionRecord) = 'empty))
+  if (getCompletionValue(completionRecord) != 'empty)
     /* return Completion(completionRecord) */
     return Completion(completionRecord);
   /* 4. Return Completion{[[type]]: completionRecord.[[type]], [[value]]:
@@ -102,9 +102,9 @@ function CreateByteDataBlock(size) {
     /* If it is impossible to create such a Data Block, throw a RangeError exception. */
     if (size >= maxSize)
       throw RangeErrorConstructorInternal();
-    if (size = 0.)
+    if (size == 0.)
       size := 1.;
-    db := array_make(int_of_float(size), float_to_byte(0.));
+    db := array_make(float_to_int(size), float_to_byte(0.));
 
     /* i := 0.;
     while (i < size) {
@@ -118,10 +118,10 @@ function CreateByteDataBlock(size) {
 
 /* 6.2.6.2 CopyDataBlockBytes(toBlock, toIndex, fromBlock, fromIndex, count) */
 function CopyDataBlockBytes(toBlock, toIndex, fromBlock, fromIndex, count) {
-  count := int_of_float count;
-  fromIndex := int_of_float fromIndex;
+  count := float_to_int count;
+  fromIndex := float_to_int fromIndex;
   /* Assert: fromBlock and toBlock are distinct Data Block values. */
-  assert (!(fromBlock = toBlock));
+  assert (fromBlock != toBlock);
   /* Assert: fromIndex, toIndex, and count are positive integer values. */
   assert ((fromIndex >= 0) &&& (toIndex >= 0) &&& (count >= 0));
   /* Let fromSize be the number of bytes in fromBlock. */
@@ -179,29 +179,29 @@ function IsStrictReference(V) {
 function HasPrimitiveBase(V) {
   base := GetBase(V);
   baseType := Type(base);
-  return ((baseType = "Boolean") || (baseType = "String") || (baseType = "Number") || (baseType = "Symbol"));
+  return ((baseType == "Boolean") || (baseType == "String") || (baseType == "Number") || (baseType == "Symbol"));
 }
 
 /* Returns true if either the base value is an object or HasPrimitiveBase(V) is true; otherwise returns false. */
 function IsPropertyReference (V) {
   base := GetBase(V);
 
-  /* if ( GetReferencedName(V) = "prop" ) {
+  /* if ( GetReferencedName(V) == "prop" ) {
     type := Type(base)
   } */
 
-  return ((Type(base) = "Object") ||| (Type(base) = "Symbol") ||| (HasPrimitiveBase(V) = true));
-  /* return (typeof (V) = "list") && (l_nth(V, 0) = "R") && (l_nth(V, 1) = "P") */
+  return ((Type(base) == "Object") ||| (Type(base) == "Symbol") ||| (HasPrimitiveBase(V) == true));
+  /* return (typeof (V) == "list") && (l_nth(V, 0) == "R") && (l_nth(V, 1) == "P") */
 }
 
 /* Returns true if the base value is undefined and false otherwise. */
 function IsUnresolvableReference (V) {
-  return (Type(GetBase(V)) = "Undefined");
+  return (Type(GetBase(V)) == "Undefined");
 }
 
 /* Returns true if this reference has a thisValue component. */
 function IsSuperReference (V) {
-  return (l_len V = 6);
+  return (l_len(V) == 6);
 }
 
 /**
@@ -214,7 +214,7 @@ function GetValue(V) {
   @ReturnIfAbrupt(V);
 
   /* If Type(V) is not Reference, return V. */
-  if (!(Type(V) = "Reference"))
+  if (Type(V) != "Reference")
     return V;
   /* Let base be GetBase(V). */
   base := GetBase(V);
@@ -224,9 +224,9 @@ function GetValue(V) {
   /* If IsPropertyReference(V), then */
   if (IsPropertyReference(V)) {
     /* If HasPrimitiveBase(V) is true, then */
-    if (HasPrimitiveBase(V) = true) {
+    if (HasPrimitiveBase(V) == true) {
         /* Assert: In this case, base will never be null or undefined. */
-        assert (!(base = 'null) &&& !(base = 'undefined) );
+        assert (base != 'null &&& base != 'undefined);
         /* Let base be ToObject(base). */
         base := ToObject(base);
       }
@@ -251,14 +251,14 @@ function PutValue(V, W) {
     @ReturnIfAbrupt(W);
 
     /* If Type(V) is not Reference, throw a ReferenceError exception. */
-    if ( !(Type(V) = "Reference") )
+    if (Type(V) != "Reference")
       throw ReferenceErrorConstructorInternal();
     /* Let base be GetBase(V). */
     base := GetBase(V);
     /* If IsUnresolvableReference(V), then */
     if ( IsUnresolvableReference(V) ) {
         /* If IsStrictReference(V) is true, then */
-        if ( IsStrictReference(V) = true ) {
+        if ( IsStrictReference(V) == true ) {
             /* Throw ReferenceError exception. */
             throw ReferenceError(GetReferencedName(V) + " is not defined");
         }
@@ -272,9 +272,9 @@ function PutValue(V, W) {
     /* Else if IsPropertyReference(V), then */
     else if ( IsPropertyReference(V) ) {
         /* If HasPrimitiveBase(V) is true, then */
-        if ( HasPrimitiveBase(V) = true ) {
+        if ( HasPrimitiveBase(V) == true ) {
             /* Assert: In this case, base will never be null or undefined. */
-            assert (!(base = 'null) ||| !(base = 'undefined) );
+            assert (base != 'null &&& base != 'undefined);
             /* Set base to ToObject(base). */
             base := ToObject(base);
         }
@@ -284,7 +284,7 @@ function PutValue(V, W) {
         /* ReturnIfAbrupt(succeeded). */
         @ReturnIfAbrupt(succeeded);
         /* If succeeded is false and IsStrictReference(V) is true, throw a TypeError exception. */
-        if ((succeeded = false) &&& (IsStrictReference(V) = true))
+        if ((succeeded == false) &&& (IsStrictReference(V) == true))
           throw TypeErrorConstructorInternal();
         /* Return. */
         return;
@@ -306,7 +306,7 @@ function PutValue(V, W) {
 */
 function GetThisValue(V) {
     /* Assert: IsPropertyReference(V) is true. */
-    assert (IsPropertyReference(V) = true );
+    assert (IsPropertyReference(V) == true );
     /* If IsSuperReference(V), then */
     if (IsSuperReference(V))
         /* Return the value of the thisValue component of the reference V. */
@@ -326,10 +326,10 @@ function InitializeReferencedBinding(V, W) {
     @ReturnIfAbrupt(W);
 
     /* Assert: Type(V) is Reference. */
-    assert (Type(V) = "Reference" );
+    assert (Type(V) == "Reference" );
 
     /* Assert: IsUnresolvableReference(V) is false. */
-    assert (IsUnresolvableReference(V) = false );
+    assert (IsUnresolvableReference(V) == false );
 
     /* Let base be GetBase(V). */
     base := GetBase(V);
@@ -358,7 +358,7 @@ function CopyDescriptor(Desc) {
   newDesc := {};
   i := 0;
   list := obj_fields Desc;
-  llist := l_len list;
+  llist := l_len(list);
   while (i < llist) {
     P := l_nth (list, i);
     newDesc[P] := Desc[P];
@@ -372,7 +372,7 @@ function CopyDescriptor(Desc) {
 */
 function IsAccessorDescriptor (Desc) {
   /** 1. If Desc is undefined, then return false. */
-  if (Desc = 'undefined)
+  if (Desc == 'undefined)
     return false;
   /** 2. If both Desc.[[Get]] and Desc.[[Set]] are absent, then return false. */
   if (!("Get" in_obj Desc) &&& !("Set" in_obj Desc))
@@ -386,7 +386,7 @@ function IsAccessorDescriptor (Desc) {
 */
 function IsDataDescriptor (Desc) {
   /** 1. If Desc is undefined, then return false. */
-  if (Desc = 'undefined)
+  if (Desc == 'undefined)
     return false;
   /** 2. If both Desc.[[Value]] and Desc.[[Writable]] are absent, then return false. */
   if (!("Value" in_obj Desc) &&& !("Writable" in_obj Desc))
@@ -400,10 +400,10 @@ function IsDataDescriptor (Desc) {
 */
 function IsGenericDescriptor (Desc) {
   /** 1. If Desc is undefined, then return false. */
-  if (Desc = 'undefined)
+  if (Desc == 'undefined)
     return false;
   /** 2. If IsAccessorDescriptor(Desc) and IsDataDescriptor(Desc) are both false, then return true. */
-  if ((IsAccessorDescriptor(Desc) = false) &&& (IsDataDescriptor(Desc) = false))
+  if ((IsAccessorDescriptor(Desc) == false) &&& (IsDataDescriptor(Desc) == false))
     return true;
   /** 3. Return false. */
   return false;
@@ -414,7 +414,7 @@ function IsGenericDescriptor (Desc) {
 */
 function FromPropertyDescriptor(Desc) {
   /** 1. If Desc is undefined, then return undefined. */
-  if (Desc = 'undefined)
+  if (Desc == 'undefined)
     return 'undefined;
   /* Let obj be ObjectCreate(%ObjectPrototype%). */
   obj := ObjectCreate(getObjectPrototype(false), null);
@@ -459,7 +459,7 @@ function FromPropertyDescriptor(Desc) {
     @ReturnIfAbrupt(Obj);
 
     /* If Type(Obj) is not Object, throw a TypeError exception. */
-    if (!(Type(Obj) = "Object")) 
+    if (Type(Obj) != "Object") 
       throw TypeErrorConstructorInternal();
 
     /* Let desc be a new Property Descriptor that initially has no fields. */
@@ -469,7 +469,7 @@ function FromPropertyDescriptor(Desc) {
     /* ReturnIfAbrupt(hasEnumerable). */
     @ReturnIfAbrupt(hasEnumerable);
     /* If hasEnumerable is true, then */
-    if (hasEnumerable = true) {
+    if (hasEnumerable == true) {
         /* Let enum be ToBoolean(Get(Obj, "enumerable")). */
         enum := ToBoolean(Get(Obj, "enumerable"));
         /* ReturnIfAbrupt(enum). */
@@ -483,7 +483,7 @@ function FromPropertyDescriptor(Desc) {
     /* ReturnIfAbrupt(hasConfigurable). */
     @ReturnIfAbrupt(hasConfigurable);
     /* If hasConfigurable is true, then */
-    if (hasConfigurable = true) {
+    if (hasConfigurable == true) {
         /* Let conf be ToBoolean(Get(Obj, "configurable")). */
         conf := ToBoolean(Get(Obj, "configurable"));
         /* ReturnIfAbrupt(conf). */
@@ -497,7 +497,7 @@ function FromPropertyDescriptor(Desc) {
     /* ReturnIfAbrupt(hasValue). */
     @ReturnIfAbrupt(hasValue);
     /* If hasValue is true, then */
-    if (hasValue = true) {
+    if (hasValue == true) {
         /* Let value be Get(Obj, "value"). */
         value := Get(Obj, "value");
         /* ReturnIfAbrupt(value). */
@@ -511,7 +511,7 @@ function FromPropertyDescriptor(Desc) {
     /* ReturnIfAbrupt(hasWritable). */
     @ReturnIfAbrupt(hasWritable);
     /* If hasWritable is true, then */
-    if ( hasWritable = true ) {
+    if ( hasWritable == true ) {
         /* Let writable be ToBoolean(Get(Obj, "writable")). */
         writable := ToBoolean(Get(Obj, "writable"));
         /* ReturnIfAbrupt(writable). */
@@ -525,13 +525,13 @@ function FromPropertyDescriptor(Desc) {
     /* ReturnIfAbrupt(hasGet). */
     @ReturnIfAbrupt(hasGet);
     /* If hasGet is true, then */
-    if ( hasGet = true) {
+    if ( hasGet == true) {
         /* Let getter be Get(Obj, "get"). */
         getter := Get(Obj, "get");
         /* ReturnIfAbrupt(getter). */
         @ReturnIfAbrupt(getter);
         /* If IsCallable(getter) is false and getter is not undefined, throw a TypeError exception. */
-        if ((IsCallable(getter) = false) &&& !(getter = 'undefined))
+        if ((IsCallable(getter) == false) &&& (getter != 'undefined))
           throw TypeErrorConstructorInternal();
         /* Set the [[Get]] field of desc to getter. */
         desc.Get := getter;
@@ -542,13 +542,13 @@ function FromPropertyDescriptor(Desc) {
     /* ReturnIfAbrupt(hasSet). */
     @ReturnIfAbrupt(hasSet);
     /* If hasSet is true, then */
-    if ( hasSet = true ) {
+    if ( hasSet == true ) {
         /* Let setter be Get(Obj, "set"). */
         setter := Get(Obj, "set");
         /* ReturnIfAbrupt(setter). */
         @ReturnIfAbrupt(setter);
         /* If IsCallable(setter) is false and setter is not undefined, throw a TypeError exception. */
-        if ((IsCallable(setter) = false) &&& !(setter = 'undefined))
+        if ((IsCallable(setter) == false) &&& (setter != 'undefined))
           throw TypeErrorConstructorInternal();
         /* Set the [[Set]] field of desc to setter. */
         desc.Set := setter;
@@ -575,11 +575,11 @@ function FromPropertyDescriptor(Desc) {
     /* ReturnIfAbrupt(Desc). */
     @ReturnIfAbrupt(Desc);
     /* Assert: Desc is a Property Descriptor */
-    assert (isPropertyDescriptor(Desc) = true );
+    assert (isPropertyDescriptor(Desc) == true );
     /* Let like be Record{[[Value]]: undefined, [[Writable]]: false, [[Get]]: undefined, [[Set]]: undefined, [[Enumerable]]: false, [[Configurable]]: false}. */
     like := { Value: 'undefined, Writable: false, Get: 'undefined, Set: 'undefined, Enumerable: false, Configurable: false };
     /* If either IsGenericDescriptor(Desc) or IsDataDescriptor(Desc) is true, then */
-    if ((IsGenericDescriptor(Desc) = true) ||| (IsDataDescriptor(Desc) = true)) {
+    if ((IsGenericDescriptor(Desc) == true) ||| (IsDataDescriptor(Desc) == true)) {
         /* If Desc does not have a [[Value]] field, set Desc.[[Value]] to like.[[Value]]. */
         if (!("Value" in_obj Desc))
           Desc.Value := like.Value;

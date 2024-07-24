@@ -30,7 +30,7 @@ function IsInTailPosition(nonterminal) {
 With parameter nonterminal.
 */
 function HasProductionInTailPosition(nonterminal) {
-    return ("is_tail_call" in_obj nonterminal) &&& (nonterminal.is_tail_call = true);
+    return ("is_tail_call" in_obj nonterminal) &&& (nonterminal.is_tail_call == true);
 }
 
 /* 14.6.3 Runtime Semantics: PrepareForTailCall ( ) */

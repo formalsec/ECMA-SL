@@ -88,7 +88,7 @@ function CreateIntrinsics(realmRec) {
    the following steps: */
 function SetRealmGlobalObject(realmRec, globalObj) {
   /* If globalObj is undefined, then */
-  if (globalObj = 'undefined) {
+  if (globalObj == 'undefined) {
     /* Let intrinsics be realmRec.[[intrinsics]]. */
     intrinsics := realmRec.intrinsics;
     /* Let globalObj be ObjectCreate(intrinsics.[[%ObjectPrototype%]]). */
@@ -96,7 +96,7 @@ function SetRealmGlobalObject(realmRec, globalObj) {
   }
 
   /* Assert: Type(globalObj) is Object. */
-  assert (Type(globalObj) = "Object");
+  assert (Type(globalObj) == "Object");
   /* Set realmRec.[[globalThis]] to globalObj. */
   realmRec.globalThis := globalObj;
   /* Let newGlobalEnv be NewGlobalEnvironment(globalObj). */

@@ -15,7 +15,7 @@ function octal_to_decimal(n: int) : int{
 
 /* Float operators */
 function is_int(f : float) : boolean {
-  return (trunc f) = f;
+  return trunc(f) == f;
 }
 
 function is_NaN(n : float) : boolean {
@@ -23,40 +23,40 @@ function is_NaN(n : float) : boolean {
 }
 
 function is_inf(n : float) : boolean {
-  return 1.0 / n = 0.0;
+  return 1.0 / n == 0.0;
 }
 
 function to_int(n : float) : float {
   if (is_NaN(n))
     return 0.0;
-  else if (n = 0.0 || is_inf(n))
+  else if (n == 0.0 || is_inf(n))
     return n;
   sign := (n < 0.0) ? -(1.0) : 1.0;
-  return sign * (floor (abs n));
+  return sign * floor(abs(n));
 }
 
 function to_int32(n : float) : float {
-  if (is_NaN(n) || n = 0.0 || is_inf(n))
+  if (is_NaN(n) || n == 0.0 || is_inf(n))
     return 0.0;
   sign := (n < 0.0) ? -(1.0) : 1.0;
-  posInt := sign * (floor (abs n));
+  posInt := sign * floor(abs(n));
   int32bit := posInt % 4294967296.0;
   return ((int32bit >= 2147483648.0) ? int32bit - 4294967296.0 : int32bit);
 }
 
 function to_uint32(n : float) : float {
-  if (is_NaN(n) || n = 0.0 || is_inf(n))
+  if (is_NaN(n) || n == 0.0 || is_inf(n))
     return 0.0;
   sign := (n < 0.0) ? -(1.0) : 1.0;
-  posInt := sign * (floor (abs n));
+  posInt := sign * floor(abs(n));
   return (posInt % 4294967296.0);
 }
 
 function to_uint16(n : float) : float {
-  if (is_NaN(n) || n = 0.0 || is_inf(n))
+  if (is_NaN(n) || n == 0.0 || is_inf(n))
     return 0.0;
   sign := (n < 0.0) ? -(1.0) : 1.0;
-  posInt := sign * (floor (abs n));
+  posInt := sign * floor(abs(n));
   return (posInt % 65536.0);
 }
 
@@ -73,6 +73,30 @@ function to_fixed(x : float, y : int) : string {
 }
 
 /* String operators */
+function from_char_code(n : int) : string {
+  return extern from_char_code_external(n);
+}
+
+function to_char_code(s : string) : int {
+  return extern to_char_code_external(s);
+}
+
+function s_len(s : string) : int {
+  return extern s_len_external(s);
+}
+
+function s_concat(lst : string[]) : int {
+  return extern s_concat_external(lst);
+}
+
+function s_nth(s : string, n: int) : int {
+  return extern s_nth_external(s, n);
+}
+
+function s_substr(s : string, n1 : int, n2 : int) : string {
+  return extern s_substr_external(s, n1, n2);
+}
+
 function from_char_code_u(n : int) : string {
   return extern from_char_code_u_external(n);
 }
@@ -145,8 +169,29 @@ function random(f : float) : float {
   return extern random_external(f);
 }
 
+
 function exp(f : float) : float{
   return extern exp_external(f);
+}
+
+function abs(f : float) : float{
+  return extern abs_external(f);
+}
+
+function sqrt(f : float) : float{
+  return extern sqrt_external(f);
+}
+
+function ceil(f : float) : float{
+  return extern ceil_external(f);
+}
+
+function floor(f : float) : float{
+  return extern floor_external(f);
+}
+
+function trunc(f : float) : float{
+  return extern trunc_external(f);
 }
 
 function log_2(f : float) : float {
@@ -235,6 +280,34 @@ function filter(f, lst) {
     if ({f}(elt))
       result := l_prepend(elt, result);
   return result;
+}
+
+function l_len(lst) {
+  return extern l_len_external(lst);
+}
+
+function l_reverse(lst) {
+  return extern l_reverse_external(lst);
+}
+
+function l_nth(lst, i) {
+  return extern l_nth_external(lst, i);
+}
+
+function l_add(lst, el) {
+  return extern l_add_external(lst, el);
+}
+
+function l_prepend(el, lst) {
+  return extern l_prepend_external(el, lst);
+}
+
+function l_concat(lst1, lst2) {
+  return extern l_concat_external(lst1, lst2);
+}
+
+function l_set(lst, i, el) {
+  return extern l_set_external(lst, i, el);
 }
 
 function list_to_array(lst : list) : array {

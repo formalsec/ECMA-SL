@@ -1,7 +1,7 @@
-function parse_lvl (lev_str) { if (lev_str = "high") {
+function parse_lvl (lev_str) { if (lev_str == "high") {
 return true
 } else {
-if (lev_str = "low") {
+if (lev_str == "low") {
 return false
 } else {
 throw "MONITOR EXCEPTION -> parselvl - Unkown Security Level"
@@ -60,7 +60,7 @@ _fresh_lev_var4 := "lubn" ([  ]);
 _freshvar_lev_0 := "lubn" ([ _fresh_lev_var2, _fresh_lev_var3, _pc_1 ]);
 _freshvar_3 := "shadowPropValue" ("p");
 _fresh_field_lev_0 := oh[_freshvar_3];
-if (_fresh_field_lev_0 = 'undefined) {
+if (_fresh_field_lev_0 == 'undefined) {
 _fresh_field_lev_1 := oh["structLev"];
 _freshvar_2 := "leq" (_freshvar_lev_0, _fresh_field_lev_1);
 if (_freshvar_2) {
@@ -88,7 +88,7 @@ _fresh_lev_var7 := "lubn" ([  ]);
 _freshvar_lev_2 := "lubn" ([ _fresh_lev_var5, _fresh_lev_var6, _pc_1 ]);
 _freshvar_6 := "shadowPropValue" ("p");
 _fresh_field_lev_2 := ol[_freshvar_6];
-if (_fresh_field_lev_2 = 'undefined) {
+if (_fresh_field_lev_2 == 'undefined) {
 _fresh_field_lev_3 := ol["structLev"];
 _freshvar_5 := "leq" (_freshvar_lev_2, _fresh_field_lev_3);
 if (_freshvar_5) {
@@ -142,7 +142,7 @@ _fresh_lev_var11 := "lubn" ([  ]);
 _freshvar_12 := "lubn" ([ _fresh_lev_var10, _fresh_lev_var11, _pc_1 ]);
 _freshvar_14 := "shadowPropExists" ("p");
 _fresh_field_lev_4 := oh[_freshvar_14];
-if (_fresh_field_lev_4 = 'undefined) {
+if (_fresh_field_lev_4 == 'undefined) {
 throw "Internal Error"
 } else {
 _freshvar_13 := "leq" (_freshvar_12, _fresh_field_lev_4);
@@ -160,7 +160,7 @@ _fresh_field_lev_5 := ol[_freshvar_17];
 _fresh_field_lev_6 := ol["structLev"];
 _freshvar_16 := "leq" (_freshvar_15, x_lev);
 if (_freshvar_16) {
-if (_fresh_field_lev_5 = 'undefined) {
+if (_fresh_field_lev_5 == 'undefined) {
 x_lev := "lub" (_freshvar_15, _fresh_field_lev_6)
 } else {
 x_lev := "lub" (_freshvar_15, _fresh_field_lev_5)

@@ -15,7 +15,7 @@ function topExecStack() {
 }
 
 function execStackIsEmpty() {
-  return l_len(|ctxStack|) = 0;
+  return l_len(|ctxStack|) == 0;
 }
 
 function initGlobalVars() {
@@ -49,7 +49,7 @@ function ECMAScriptInitialization(sourceText) {
     /* If status is an abrupt completion, then */
     if (isAnAbruptCompletion(status)) {
       /* Assert: The first realm could not be created. */
-      assert (realm = null);
+      assert (realm == null);
       /* Terminate ECMAScript execution. */
       return;
     }

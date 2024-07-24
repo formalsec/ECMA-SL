@@ -140,7 +140,7 @@ function WeakMapConstructor(global, this, NewTarget, strict, items) {
   iterable := getOptionalParam(items, 0);
 
   /* 1. If NewTarget is undefined, throw a TypeError exception. */
-  if (NewTarget = 'undefined)
+  if (NewTarget == 'undefined)
     throw TypeErrorConstructorInternal();
   /* 2. Let map be OrdinaryCreateFromConstructor(NewTarget, "%WeakMapPrototype%", «‍[[WeakMapData]]» ). */
   map := OrdinaryCreateFromConstructor(NewTarget, "WeakMapPrototype", ["WeakMapData"]);
@@ -149,10 +149,10 @@ function WeakMapConstructor(global, this, NewTarget, strict, items) {
   /* 4. Set map's [[WeakMapData]] internal slot to a new empty List. */
   map.WeakMapData := [];
   /* 5. If iterable is not present, let iterable be undefined. */
-  if (iterable = null)
+  if (iterable == null)
     iterable := 'undefined;
   /* 6. If iterable is either undefined or null, let iter be undefined. */
-  if ((iterable = 'undefined) ||| (iterable = 'null)) {
+  if ((iterable == 'undefined) ||| (iterable == 'null)) {
     iter := 'undefined;
   /* 7. Else, */
   } else {
@@ -161,7 +161,7 @@ function WeakMapConstructor(global, this, NewTarget, strict, items) {
     /* b. ReturnIfAbrupt(adder). */
     @ReturnIfAbrupt(adder);
     /* c. If IsCallable(adder) is false, throw a TypeError exception. */
-    if (IsCallable(adder) = false)
+    if (IsCallable(adder) == false)
       throw TypeErrorConstructorInternal();
     /* d. Let iter be GetIterator(iterable). */
     iter := GetIterator(iterable, null);
@@ -169,7 +169,7 @@ function WeakMapConstructor(global, this, NewTarget, strict, items) {
     @ReturnIfAbrupt(iter);
   }
   /* 8. If iter is undefined, return map. */
-  if (iter = 'undefined)
+  if (iter == 'undefined)
       return map;
   /* 9. Repeat */
   repeat {
@@ -178,14 +178,14 @@ function WeakMapConstructor(global, this, NewTarget, strict, items) {
     /* b. ReturnIfAbrupt(next). */
     @ReturnIfAbrupt(next);
     /* c. If next is false, return map. */
-    if (next = false)
+    if (next == false)
         return map;
     /* d. Let nextItem be IteratorValue(next). */
     nextItem := IteratorValue(next);
     /* e. ReturnIfAbrupt(nextItem). */
     @ReturnIfAbrupt(nextItem);
     /* f. If Type(nextItem) is not Object, */
-    if (!(Type(nextItem) = "Object")) {
+    if (Type(nextItem) != "Object") {
       /* i. Let error be Completion{[[type]]: throw, [[value]]: a newly created TypeError object, [[target]]:empty}. */
       error := throwEmptyCompletion(TypeErrorConstructorInternal());
       /* ii. Return IteratorClose(iter, error). */
@@ -219,7 +219,7 @@ function weakMapDeleteObject(global, this, NewTarget, strict, args) {
   /* 1. Let M be the this value. */
   M := this;
   /* 2. If Type(M) is not Object, throw a TypeError exception. */
-  if (!(Type(M) = "Object"))
+  if (Type(M) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If M does not have a [[WeakMapData]] internal slot, throw a TypeError exception. */
   if (!("WeakMapData" in_obj M))
@@ -227,7 +227,7 @@ function weakMapDeleteObject(global, this, NewTarget, strict, args) {
   /* 4. Let entries be the List that is the value of M’s [[WeakMapData]] internal slot. */
   entries := M.WeakMapData;
   /* 5. If Type(key) is not Object, return false. */
-  if (!(Type(key) = "Object"))
+  if (Type(key) != "Object")
     return false;
   /* 6. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
   i := 0;
@@ -235,7 +235,7 @@ function weakMapDeleteObject(global, this, NewTarget, strict, args) {
   while (i < len) {
     p := l_nth(entries, i);
     /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, then */
-    if ((!(p.key = 'empty)) &&& (SameValue(p.key, key) = true)) {
+    if ((p.key != 'empty) &&& (SameValue(p.key, key) == true)) {
       /* i. Set p.[[key]] to empty. */
       p.key := 'empty;
       /* ii. Set p.[[value]] to empty. */
@@ -256,7 +256,7 @@ function weakMapGetObject(global, this, NewTarget, strict, args) {
   /* 1. Let M be the this value. */
   M := this;
   /* 2. If Type(M) is not Object, throw a TypeError exception. */
-  if (!(Type(M) = "Object"))
+  if (Type(M) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If M does not have a [[WeakMapData]] internal slot, throw a TypeError exception. */
   if (!("WeakMapData" in_obj M))
@@ -264,15 +264,15 @@ function weakMapGetObject(global, this, NewTarget, strict, args) {
   /* 4. Let entries be the List that is the value of M’s [[WeakMapData]] internal slot. */
   entries := M.WeakMapData;
   /* 5. If Type(key) is not Object, return undefined. */
-  if (!(Type(key) = "Object"))
+  if (Type(key) != "Object")
     return 'undefined;
   /* 6. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
   i := 0;
-  len := l_len entries;
+  len := l_len(entries);
   while (i < len) {
     p := l_nth(entries, i);
     /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, return p.[[value]]. */
-    if ((!(p.key = 'empty)) &&& (SameValue(p.key, key) = true)) {
+    if ((p.key != 'empty) &&& (SameValue(p.key, key) == true)) {
       return p.value;
     }
     i := i + 1;
@@ -288,7 +288,7 @@ function weakMapHasObject(global, this, NewTarget, strict, args) {
   /* 1. Let M be the this value. */
   M := this;
   /* 2. If Type(M) is not Object, throw a TypeError exception. */
-  if (!(Type(M) = "Object"))
+  if (Type(M) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If M does not have a [[WeakMapData]] internal slot, throw a TypeError exception. */
   if (!("WeakMapData" in_obj M))
@@ -296,15 +296,15 @@ function weakMapHasObject(global, this, NewTarget, strict, args) {
   /* 4. Let entries be the List that is the value of M’s [[WeakMapData]] internal slot. */
   entries := M.WeakMapData;
   /* 5. If Type(key) is not Object, return false. */
-  if (!(Type(key) = "Object"))
+  if (Type(key) != "Object")
     return false;
   /* 6. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
   i := 0;
-  len := l_len entries;
+  len := l_len(entries);
   while (i < len) {
     p := l_nth(entries, i);
     /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, return true. */
-    if ((!(p.key = 'empty)) &&& (SameValue(p.key, key) = true))
+    if ((p.key != 'empty) &&& (SameValue(p.key, key) == true))
       return true;
     i := i + 1;
   }
@@ -320,7 +320,7 @@ function weakMapSetObject(global, this, NewTarget, strict, args) {
   /* 1. Let M be the this value. */
   M := this;
   /* 2. If Type(M) is not Object, throw a TypeError exception. */
-  if (!(Type(M) = "Object"))
+  if (Type(M) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If M does not have a [[WeakMapData]] internal slot, throw a TypeError exception. */
   if (!("WeakMapData" in_obj M))
@@ -328,15 +328,15 @@ function weakMapSetObject(global, this, NewTarget, strict, args) {
   /* 4. Let entries be the List that is the value of M’s [[WeakMapData]] internal slot. */
   entries := M.WeakMapData;
   /* 5. If Type(key) is not Object, throw a TypeError exception. */
-  if (!(Type(key) = "Object"))
+  if (Type(key) != "Object")
     throw TypeErrorConstructorInternal();
   /* 6. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
   i := 0;
-  len := l_len entries;
+  len := l_len(entries);
   while (i < len) {
     p := l_nth(entries, i);
     /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, then */
-    if ((!(p.key = 'empty)) &&& (SameValue(p.key, key) = true)) {
+    if ((p.key != 'empty) &&& (SameValue(p.key, key) == true)) {
       /* i. Set p.[[value]] to value. */
       p.value := value;
       /* ii. Return M. */

@@ -21,7 +21,7 @@ function ECMAScriptNodeInitialization(sourceText) {
     pushExecStack(newContext);
     status := InitializeNodeHostDefinedRealm(realm);
     if (isAnAbruptCompletion(status)) {
-        assert (realm = null );
+        assert (realm == null );
         return;
     }
     |realm| := realm;
@@ -42,12 +42,12 @@ function InitializeNodeHostDefinedRealm(realm) {
 function stringOfError(error : object) : string {
   name := Get(error, "name");
   @ReturnIfAbrupt(name);
-  if (name = 'undefined)
+  if (name == 'undefined)
     name := "Error";
 
   message := Get(error, "message");
   @ReturnIfAbrupt(message);
-  if (message = 'undefined)
+  if (message == 'undefined)
     return "Uncaught " + name;
   return "Uncaught " + name + ": " + message;
 }
@@ -57,7 +57,7 @@ function main() {
   ret := ECMAScriptNodeInitialization(x);
   c_value := getCompletionValue(ret);
 
-  if ((typeof (c_value) = "object") &&& ("ErrorData" in_obj c_value) ) {
+  if ((typeof (c_value) == "object") &&& ("ErrorData" in_obj c_value) ) {
     error := stringOfError(c_value);
     extern abort(error);
   }

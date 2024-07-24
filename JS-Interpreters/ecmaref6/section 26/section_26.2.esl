@@ -59,7 +59,7 @@ function ProxyConstructor(global, this, NewTarget, strict, args) {
   handler := l_nth(args, 1);
 
   /* 1. If NewTarget is undefined, throw a TypeError exception. */
-  if (NewTarget = 'undefined)
+  if (NewTarget == 'undefined)
     throw TypeErrorConstructorInternal();
   /* 2. Return ProxyCreate(target, handler). */
   return ProxyCreate(target, handler);
@@ -135,7 +135,7 @@ function ProxyRevocation(global, this, NewTarget, strict, args) {
   /* 1. Let p be the value of F’s [[RevocableProxy]] internal slot. */
   p := F.RevocableProxy;
   /* 2. If p is null, return undefined. */
-  if (p = 'null)
+  if (p == 'null)
     return 'undefined;
   /* 3. Set the value of F’s [[RevocableProxy]] internal slot to null. */
   F.RevocableProxy := 'null;

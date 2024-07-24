@@ -8,7 +8,7 @@
  */
 function InstanceofOperator(O, C) {
   /* 1. If Type(C) is not Object, */
-  if (!(Type(C) = "Object"))
+  if (Type(C) != "Object")
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 2. Let instOfHandler be GetMethod(C,@@hasInstance). */
@@ -16,12 +16,12 @@ function InstanceofOperator(O, C) {
   /* 3. ReturnIfAbrupt(instOfHandler). */
   @ReturnIfAbrupt(instOfHandler);
   /* 4. If instOfHandler is not undefined, then */
-  if (!(instOfHandler = 'undefined)) {
+  if (instOfHandler != 'undefined) {
     /* a. Return ToBoolean(Call(instOfHandler, C, «O»)). */
     return ToBoolean(Call(null, null, instOfHandler, C, [O]));
   }
   /* 5. If IsCallable(C) is false, */
-  if (IsCallable(C) = false)
+  if (IsCallable(C) == false)
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 6. Return OrdinaryHasInstance(C, O). */

@@ -6,7 +6,7 @@ function initJobQueue() {
 }
 
 function appendToJobQueue(job, queueName) {
-  if (queueName = "PromiseJobs")
+  if (queueName == "PromiseJobs")
     |PromiseJobQueue| := l_add(|PromiseJobQueue|, job);
   else
     |ScriptJobQueue| := l_add(|ScriptJobQueue|, job);
@@ -57,7 +57,7 @@ function newPendingJob(Job, Arguments, realm, HostDefined) {
    following steps: */
 function EnqueueJob(queueName, job, arguments) {
     /* Assert: Type(queueName) is String and its value is the name of a Job Queue recognized by this implementation. */
-    assert (Type(queueName) = "String" &&& (queueName = "ScriptJobs" ||| queueName = "PromiseJobs"));
+    assert (Type(queueName) == "String" &&& (queueName == "ScriptJobs" ||| queueName == "PromiseJobs"));
 
     /* Assert: job is the name of a Job. */
     /* Assert: arguments is a List that has the same number of elements as the number of parameters required by job. */
@@ -105,10 +105,10 @@ function NextJob(result) {
 
     /* Let nextQueue be a non-empty Job Queue chosen in an implementation defined manner. If all Job Queues are
     empty, the result is implementation defined. */
-    if ( !(l_len(|ScriptJobQueue|) = 0 ) ) {
+    if (l_len(|ScriptJobQueue|) != 0) {
       nextPending := hd |ScriptJobQueue|;
       |ScriptJobQueue| := tl |ScriptJobQueue|;
-    } else if ( !(l_len(|PromiseJobQueue|) = 0) ) {
+    } else if (l_len(|PromiseJobQueue|) != 0) {
       nextPending := hd |PromiseJobQueue|;
       |PromiseJobQueue| := tl |PromiseJobQueue|;
     } else {

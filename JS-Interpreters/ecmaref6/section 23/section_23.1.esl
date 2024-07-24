@@ -133,7 +133,7 @@ function MapConstructor(global, this, NewTarget, strict, items) {
   iterable := getOptionalParam(items, 0);
 
   /* 1. If NewTarget is undefined, throw a TypeError exception. */
-  if (NewTarget = ('undefined))
+  if (NewTarget == ('undefined))
     throw TypeErrorConstructorInternal();
   /* 2. Let map be OrdinaryCreateFromConstructor(NewTarget, "%MapPrototype%", «‍[[MapData]]» ). */
   map := OrdinaryCreateFromConstructor(NewTarget, "MapPrototype", ["MapData"]);
@@ -142,10 +142,10 @@ function MapConstructor(global, this, NewTarget, strict, items) {
   /* 4. Set map’s [[MapData]] internal slot to a new empty List. */ /* Not using a List for a map-type data structure. */
   map.MapData := InternalMap();
   /* 5. If iterable is not present, let iterable be undefined. */
-  if (iterable = null)
+  if (iterable == null)
     iterable := 'undefined;
   /* 6. If iterable is either undefined or null, let iter be undefined. */
-  if (iterable = ('undefined) ||| iterable = ('null)) {
+  if (iterable == ('undefined) ||| iterable == ('null)) {
     iter := 'undefined;
   /* 7. Else, */
   } else {
@@ -154,7 +154,7 @@ function MapConstructor(global, this, NewTarget, strict, items) {
     /* b. ReturnIfAbrupt(adder). */
     @ReturnIfAbrupt(adder);
     /* c. If IsCallable(adder) is false, throw a TypeError exception. */
-    if (IsCallable(adder) = false)
+    if (IsCallable(adder) == false)
       throw TypeErrorConstructorInternal();
     /* d. Let iter be GetIterator(iterable) */
     iter := GetIterator(iterable, null);
@@ -162,7 +162,7 @@ function MapConstructor(global, this, NewTarget, strict, items) {
     @ReturnIfAbrupt(iter);
   }
   /* 8. If iter is undefined, return map.*/
-  if (iter = 'undefined)
+  if (iter == 'undefined)
     return map;
   /* 9. Repeat */
   while (true) {
@@ -171,14 +171,14 @@ function MapConstructor(global, this, NewTarget, strict, items) {
     /* b. ReturnIfAbrupt(next). */
     @ReturnIfAbrupt(next);
     /* c. If next is false, return map */
-    if (next = false)
+    if (next == false)
       return map;
     /* d. Let nextItem be IteratorValue(next) */
     nextItem := IteratorValue(next);
     /* e. ReturnIfAbrupt(nextItem). */
     @ReturnIfAbrupt(nextItem);
     /* f. If Type(nextItem) is not Object,  */
-    if (!(Type(nextItem) = "Object")) {
+    if (Type(nextItem) != "Object") {
       /* i. Let error be Completion{[[type]]: throw,
       [[value]]: a newly created TypeError object, [[target]]:empty}. */
       error :=  throwEmptyCompletion(TypeErrorConstructorInternal());
@@ -188,17 +188,17 @@ function MapConstructor(global, this, NewTarget, strict, items) {
     /* g.Let k be Get(nextItem, "0") */
     k := WrappedGet(nextItem, "0");
     /* h. If k in an abrupt completion, return IteratorClose(iter, k) */
-    if ((Type(k) = "Completion") &&& (isAnAbruptCompletion(k)))
+    if ((Type(k) == "Completion") &&& (isAnAbruptCompletion(k)))
      return IteratorClose(iter, k);
     /* i. Let v be Get(nextItem, "1"). */
     v := WrappedGet(nextItem, "1");
     /* j. If v is an abrupt completion, return IteratorClose(iter, v). */
-    if ((Type(k) = "Completion") &&& isAnAbruptCompletion(v))
+    if ((Type(k) == "Completion") &&& isAnAbruptCompletion(v))
       return IteratorClose(iter, v);
     /* k. Let status be Call(adder, map, «k.[[value]], v.[[value]]»). */
     status := WrappedCall(null, null, adder, map, [getCompletionValue(k), getCompletionValue(v)]);
     /* l. If status is an abrupt completion, return IteratorClose(iter, status). */
-    if ((Type(k) = "Completion") &&& isAnAbruptCompletion(status))
+    if ((Type(k) == "Completion") &&& isAnAbruptCompletion(status))
       return IteratorClose(iter, status);
   }
 }
@@ -211,7 +211,7 @@ function mapClearObject(global, this, NewTarget, strict, args) {
   /* Let M be the this value. */
   M := this;
   /* If Type(M) is not Object, throw a TypeError exception. */
-  if (!(Type(M) = "Object"))
+  if (Type(M) != "Object")
     throw TypeErrorConstructorInternal();
   /* If M does not have a [[MapData]] internal slot, throw a TypeError exception. */
   if (!("MapData" in_obj M))
@@ -230,7 +230,7 @@ function mapDeleteObject(global, this, NewTarget, strict, args) {
   /* 1. Let M be the this value. */
   M := this;
   /* 2. If Type(M) is not Object, throw a TypeError exception. */
-  if (!(Type(M) = "Object"))
+  if (Type(M) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If M does not have a [[MapData]] internal slot, throw a TypeError exception. */
   if (!("MapData" in_obj M))
@@ -257,28 +257,28 @@ function mapEntriesObject(global, this, NewTarget, strict, args) {
 function mapForEachObject(global, this, NewTarget, strict, args) {
   /* Preparing Args */
   callbackfn := getOptionalParam(args, 0);
-  if (l_len args > 1) thisArg := getOptionalParam(args, 1); else thisArg := null;
+  if (l_len(args) > 1) thisArg := getOptionalParam(args, 1); else thisArg := null;
   /* 1. Let M be the this value. */
   M := this;
   /* 2. If Type(M) is not Object, throw a TypeError exception. */
-  if (!(Type(M) = "Object"))
+  if (Type(M) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If M does not have a [[MapData]] internal slot, throw a TypeError exception. */
   if (!("MapData" in_obj M))
     throw TypeErrorConstructorInternal();
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false)
+  if (IsCallable(callbackfn) == false)
     throw TypeErrorConstructorInternal();
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) T := thisArg; else T := 'undefined;
+  if (thisArg != null) T := thisArg; else T := 'undefined;
   /* 6. Let entries be the List that is the value of M’s [[MapData]] internal slot. */
   entries := M.MapData._entries;
   /* 7. Repeat for each Record {[[key]], [[value]]} e that is an element of entries, in original key insertion order */
   i := 0;
-  while (i < (l_len entries)) {
+  while (i < (l_len(entries))) {
     e := l_nth(entries, i);
     /* a. If e.[[key]] is not empty, then */
-    if (!(e.key = 'empty)) {
+    if (e.key != 'empty) {
       /* i. Let funcResult be Call(callbackfn, T, «e.[[value]], e.[[key]], M»). */
       funcResult := Call(null, null, callbackfn, T, [e.value, e.key, M]);
       /* ii. ReturnIfAbrupt(funcResult). */
@@ -300,7 +300,7 @@ function mapGetObject(global, this, NewTarget, strict, args) {
   /* Let M be the this value. */
   M := this;
   /* If Type(M) is not Object, throw a TypeError exception. */
-  if (!(Type(M) = "Object"))
+  if (Type(M) != "Object")
     throw TypeErrorConstructorInternal();
   /* If M does not have a [[MapData]] internal slot, throw a TypeError exception. */
   if (!("MapData" in_obj M))
@@ -318,7 +318,7 @@ function mapHasObject(global, this, NewTarget, strict, args) {
   /* Let M be the this value. */
   M := this;
   /* If Type(M) is not Object, throw a TypeError exception. */
-  if (!(Type(M) = "Object"))
+  if (Type(M) != "Object")
     throw TypeErrorConstructorInternal();
   /* If M does not have a [[MapData]] internal slot, throw a TypeError exception. */
   if (!("MapData" in_obj M))
@@ -346,7 +346,7 @@ function mapSetObject(global, this, NewTarget, strict, args) {
   /* Let M be the this value. */
   M := this;
   /* If Type(M) is not Object, throw a TypeError exception. */
-  if (!(Type(M) = "Object"))
+  if (Type(M) != "Object")
     throw TypeErrorConstructorInternal();
   /* If M does not have a [[MapData]] internal slot, throw a TypeError exception. */
   if (!("MapData" in_obj M))
@@ -365,7 +365,7 @@ function mapSizeObject(global, this, NewTarget, strict, args) {
   /* Let M be the this value. */
   M := this;
   /* If Type(M) is not Object, throw a TypeError exception. */
-  if (!(Type(M) = "Object"))
+  if (Type(M) != "Object")
     throw TypeErrorConstructorInternal();
   /* If M does not have a [[MapData]] internal slot, throw a TypeError exception. */
   if (!("MapData" in_obj M))
@@ -377,7 +377,7 @@ function mapSizeObject(global, this, NewTarget, strict, args) {
   /* For each Record {[[key]], [[value]]} p that is an element of entries */
   foreach (p : entries)
     /* If p.[[key]] is not empty, set count to count+1. */
-    if (!(p.key = 'empty))
+    if (p.key != 'empty)
       count := count + 1;
   /* Return count. */
   return (int_to_float count);
@@ -401,7 +401,7 @@ function mapValuesObject(global, this, NewTarget, strict, args) {
 */
 function CreateMapIterator(map, kind) {
   /* 1. If Type(map) is not Object, throw a TypeError exception. */
-  if (!(Type(map) = "Object"))
+  if (Type(map) != "Object")
     throw TypeErrorConstructorInternal();
   /* 2. If map does not have a [[MapData]] internal slot, throw a TypeError exception. */
   if (!("MapData" in_obj map))
@@ -451,7 +451,7 @@ function MapIteratorPrototypeNext(global, this, NewTarget, strict, args) {
   /* 1. Let O be the this value. */
   O := this;
   /* 2. If Type(O) is not Object, throw a TypeError exception.*/
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If O does not have all of the internal slots of a Map Iterator Instance (23.1.5.3), throw a TypeError exception. */
   if (!isMapIteratorInstance(O))
@@ -463,14 +463,14 @@ function MapIteratorPrototypeNext(global, this, NewTarget, strict, args) {
   /* 6. Let itemKind be the value of the [[MapIterationKind]] internal slot of O.*/
   itemKind := O.MapIterationKind;
   /* 7. If m is undefined, return CreateIterResultObject(undefined, true).*/
-  if (m = 'undefined)
+  if (m == 'undefined)
     return CreateIterResultObject('undefined, true);
   /* 8. Assert: m has a [[MapData]] internal slot.*/
   assert ("MapData" in_obj m);
   /* 9. Let entries be the List that is the value of the [[MapData]] internal slot of m.*/
   entries := m.MapData._entries;
   /* 10. Repeat while index is less than the total number of elements of entries. The number of elements must be redetermined each time this method is evaluated.*/
-  len := l_len entries;
+  len := l_len(entries);
   while (index < len) {
     /* a. Let e be the Record {[[key]], [[value]]} that is the value of entries[index].*/
     e := l_nth(entries, index);
@@ -479,14 +479,14 @@ function MapIteratorPrototypeNext(global, this, NewTarget, strict, args) {
     /* c. Set the [[MapNextIndex]] internal slot of O to index. */
     O.MapNextIndex := index;
     /* d. If e.[[key]] is not empty, then */
-    if (!(e.key = 'empty)) {
-      if (itemKind = "key") {
+    if (e.key != 'empty) {
+      if (itemKind == "key") {
         result := e.key;
-      } else if (itemKind = "value") {
+      } else if (itemKind == "value") {
         result := e.value;
       } else {
         /* Assert: itemKind is "key+value".*/
-        assert (itemKind = "key+value");
+        assert (itemKind == "key+value");
         /* Let result be CreateArrayFromList(«e.[[key]], e.[[value]]»). */
         result := CreateArrayFromList([e.key, e.value ]);
       }
@@ -515,7 +515,7 @@ function InternalMap() {
 }
 
 function keyToString(key) {
-  if (Type(key) = "Symbol")
+  if (Type(key) == "Symbol")
     return symbolDescriptiveString(key);
   else
     return ToString(key);
@@ -548,7 +548,7 @@ function InternalMapDelete(map, key) {
   /* 5. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
   foreach (p : entries) {
     /* a. If p.[[key]] is not empty and SameValueZero(p.[[key]], key) is true, then */
-    if ((!(p.key = 'empty)) &&& (SameValue(p.key, key) = true)) {
+    if ((p.key != 'empty) &&& (SameValue(p.key, key) == true)) {
       /* i. Set p.[[key]] to empty. */
       p.key := 'empty;
       /* ii. Set p.[[value]] to empty. */
@@ -570,7 +570,7 @@ function InternalMapGet(map, key) {
   /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries */
   foreach (p : entries)
     /* If p.[[key]] is not empty and SameValueZero(p.[[key]], key) is true, return p.[[value]]. */
-    if ((!(p.key = 'empty)) &&& (SameValueZero(p.key, key) = true))
+    if ((p.key != 'empty) &&& (SameValueZero(p.key, key) == true))
       /* return p.[[value]] */
       return p.value;
   /* Return undefined. */
@@ -582,7 +582,7 @@ function InternalMap_Get(map, key) {
   entries := map.entries[key_str];
   /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries */
   foreach (p : entries)
-    if (p.key = key)
+    if (p.key == key)
       return p;
   /* Return undefined. */
   return 'undefined;
@@ -596,7 +596,7 @@ function InternalMapSet(map, key, value) {
   /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries */
   foreach (p : entries) {
     /* If p.[[key]] is not empty and SameValueZero(p.[[key]], key) is true, then */
-    if ((!(p.key = 'empty)) &&& (SameValueZero(p.key, key) = true)) {
+    if ((p.key != 'empty) &&& (SameValueZero(p.key, key) == true)) {
       /* Set p.[[value]] to value. */
       p.value := value;
       /* Return M. */
@@ -627,7 +627,7 @@ function InternalMapHas(map, key) {
   /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries */
   foreach (p: entries)
     /* If p.[[key]] is not empty and SameValueZero(p.[[key]], key) is true */
-    if ((!(p.key = 'empty)) &&& (SameValueZero(p.key, key) = true))
+    if ((p.key != 'empty) &&& (SameValueZero(p.key, key) == true))
       /* return true. */
       return true;
   /* Return false. */

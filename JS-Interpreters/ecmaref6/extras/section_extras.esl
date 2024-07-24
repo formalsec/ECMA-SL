@@ -17,8 +17,8 @@ function initConsoleObject(globalObject, objectPrototype, strict) {
 function __internalLog(globalObject, this, NewTarget, strict, params) {
   str := l_nth(params, 0);
 
-  if (!(typeof (str) = "string"))
-    if (Type(str) = "Symbol") str := symbolDescriptiveString(str); else str := ToPropertyKey(str);
+  if (typeof(str) != "string")
+    if (Type(str) == "Symbol") str := symbolDescriptiveString(str); else str := ToPropertyKey(str);
   /* Important: This is console.log, do not remove! */
   print str;
   return 'null;
@@ -27,18 +27,18 @@ function __internalLog(globalObject, this, NewTarget, strict, params) {
 function __internalLogObject(globalObject, this, NewTarget, strict, params) {
   obj := l_nth(params, 0);
 
-  if (!((typeof (obj)) = "object"))
+  if (typeof(obj) != "object")
     return __internalLog(globalObject, this, NewTarget, strict, params);
 
   /*props := getOwnProperties(obj);*/ /* Doesn't print all because enumerable */
 /*
   i := 0;
-  len := l_len props;
+  len := l_len(props);
   str := "";
   while (i < len ) {
     P := l_nth(props, i);
     str := s_concat([str, P]);
-    if (!(i = (len - 1))) {
+    if (i != (len - 1)) {
       str := s_concat([str, ", "])
     }
     i := i + 1

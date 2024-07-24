@@ -149,7 +149,7 @@ function GlobalObjectEval(externalScope, ref, this, strict, params) {
   /* When the eval function is called with one argument x, the following steps are taken: */
 
   /* 1. If Type(x) is not String, return x. */
-  if (!(Type(x) = "String"))
+  if (Type(x) != "String")
     return x;
   /* 2. Let prog be the ECMAScript code that is the result of parsing x as a Program. If the parse fails, throw a
         SyntaxError exception (but see also clause 16). */
@@ -160,10 +160,10 @@ function GlobalObjectEval(externalScope, ref, this, strict, params) {
   result := JS_Interpreter_Program(prog, evalCtx);
   /* 5. Exit the running execution context evalCtx, restoring the previous execution context. */
   /* 6. If result.type is normal and its completion value is a value V, then return the value V. */
-  if ((getCompletionType(result) = 'normal) &&& !(getCompletionValue(result) = 'empty))
+  if ((getCompletionType(result) == 'normal) &&& (getCompletionValue(result) != 'empty))
     return getCompletionValue(result);
   /* 7. If result.type is normal and its completion value is empty, then return the value undefined. */
-  if ((getCompletionType(result) = 'normal) &&& (getCompletionValue(result) = 'empty))
+  if ((getCompletionType(result) == 'normal) &&& (getCompletionValue(result) == 'empty))
     return 'undefined;
   /* 8. Otherwise, result.type must be throw. Throw result.value as an exception. */
   throw getCompletionValue(result);
@@ -197,35 +197,35 @@ function GlobalObjectParseInt(globalObject, this, strict, params) {
   /* 3. Let sign be 1. */
   sign := 1.;
   /* 4. If S is not empty and the first character of S is a minus sign -, let sign be -1. */
-  if (!(S = "") &&& (s_nth_u(S, 0) = "-"))
+  if (S != "" &&& s_nth_u(S, 0) == "-")
     sign := -(1.);
   /* 5. If S is not empty and the first character of S is a plus sign + or a minus sign -, then remove the first character
         from S. */
-  if (!(S = "") &&& ((s_nth_u(S, 0) = "+") ||| (s_nth_u(S, 0) = "-")))
+  if (S != "" &&& (s_nth_u(S, 0) == "+" ||| s_nth_u(S, 0) == "-"))
     S := s_substr_u(S, 1, s_len_u(S) - 1);
   /* 6. Let R = ToInt32(radix). */
   R := ToInt32(radix);
   /* 7. Let stripPrefix be true. */
   stripPrefix := true;
   /* 8. If R <> 0, then */
-  if (!(R = 0.)) {
+  if (R != 0.) {
     /* a. If R < 2 or R > 36, then return NaN. */
     if (R < 2. ||| R > 36.)
       return NaN;
     /* b. If R <> 16, let stripPrefix be false. */
-    if (!(R = 16.))
+    if (R != 16.)
       stripPrefix := false;
-  /* 9. Else, R = 0 */
+  /* 9. Else, R == 0 */
   } else {
     /* a. Let R = 10. */
     R := 10.;
   }
 
   /* 10. If stripPrefix is true, then */
-  if (stripPrefix = true) {
+  if (stripPrefix == true) {
     /* a. If the length of S is at least 2 and the first two characters of S are either "0x" or "0X", then remove
-          the first two characters from S and let R = 16. */
-    if (s_len_u(S) >= 2 &&& (s_substr_u(S, 0, 2) = "0x" ||| s_substr_u(S, 0, 2) = "0X")) {
+          the first two characters from S and let (R) = 16. */
+    if (s_len_u(S) >= 2 &&& (s_substr_u(S, 0, 2) == "0x" ||| s_substr_u(S, 0, 2) == "0X")) {
       S := s_substr_u(S, 2, s_len_u(S) - 2);
       R := 16.;
     }
@@ -237,7 +237,7 @@ function GlobalObjectParseInt(globalObject, this, strict, params) {
   else
     Z := S;
   /* 12. If Z is empty, return NaN. */
-  if (Z = "")
+  if (Z == "")
     return NaN;
   /* 13. Let mathInt be the mathematical integer value that is represented by Z in radix-R notation, using the letters
          A-Z and a-z for digits with values 10 through 35. (However, if R is 10 and Z contains more than 20
@@ -273,7 +273,7 @@ function GlobalObjectParseFloat(globalObject, this, strict, params) {
         the syntax of a StrDecimalLiteral. */
   numberString := getStrDecimalLiteral(trimmedString);
   /* 5. Return the Number value for the MV of numberString. */
-  return float_of_string numberString;
+  return string_to_float numberString;
 
   /* NOTE parseFloat may interpret only a leading portion of string as a Number value; it ignores any characters that
           cannot be interpreted as part of the notation of an decimal literal, and no indication is given that any such characters were
@@ -301,7 +301,7 @@ function GlobalObjectIsFinite(globalObject, this, strict, params) {
   /* Returns false if the argument coerces to NaN, +Infinity, or -Infinity, and otherwise returns true. */
 
   /* 1. If ToNumber(number) is NaN, +Infinity, or -Infinity, return false.*/
-  if ((is_NaN (ToNumber(num))) ||| (ToNumber(num) = Infinity) ||| (ToNumber(num) = -Infinity))
+  if ((is_NaN (ToNumber(num))) ||| (ToNumber(num) == Infinity) ||| (ToNumber(num) == -Infinity))
     return false;
   /* 2. Otherwise, return true. */
   return true;
@@ -316,7 +316,7 @@ function GlobalObjectIsFinite(globalObject, this, strict, params) {
 /* Auxiliary functions */
 function parseAsProgram(progStr, strict) {
   if (strict)
-    progStr := s_concat ["\"use strict\";", progStr];
+    progStr := s_concat(["\"use strict\";", progStr]);
 
   prog := extern parseJS(progStr);
   progObj := {prog}();
@@ -325,7 +325,7 @@ function parseAsProgram(progStr, strict) {
 }
 
 function optimizeInitGlobalObject(strict) {
-  if ((typeof (strict) = "bool") &&& strict)
+  if ((typeof (strict) == "bool") &&& strict)
     loc_global := extern loadInitialHeap("globalHeap_strict.json");
   else
     loc_global := extern loadInitialHeap("globalHeap.json");
@@ -340,7 +340,7 @@ function optimizeInitGlobalObject(strict) {
 function removeLeadingWhitespace(str) {
   T := trim (str);
   /* Remove leading spaces */
-  if (!(T = "")) {
+  if (T != "") {
     len := s_len_u (T);
     i := 0;
     j := 0;
@@ -361,7 +361,7 @@ function removeLeadingWhitespace(str) {
 function removeTrailingWhitespace(str) {
   T := trim (str);
   /* Remove trailing spaces */
-  if (!(T = "")) {
+  if (T != "") {
     len := s_len_u (T);
     i := len - 1;
     j := len - 1;
@@ -381,14 +381,14 @@ function removeTrailingWhitespace(str) {
 
 /* Returns true if string contains any character that is not a radix-R digit */
 function containsInvalidDigit(str, radix) {
-  radixInt := int_of_float radix;
+  radixInt := float_to_int radix;
   str_len := s_len_u (str);
   i := 0;
 
   while (i < str_len) {
     char := s_nth_u(str, i);
     index := indexOfChar(char);
-    if (index = -1 ||| index >= radixInt)
+    if (index == -1 ||| index >= radixInt)
       return true;
     i:= i + 1;
   }
@@ -399,14 +399,14 @@ function containsInvalidDigit(str, radix) {
 /* Returns the substring of string consisting of all characters before
     the first character that is not a radix-R digit. */
 function stripInvalidChars(str, radix) {
-  radixInt := int_of_float radix;
+  radixInt := float_to_int radix;
   str_len := s_len_u (str);
   i := 0;
 
   while (i < str_len) {
     char := s_nth_u(str, i);
     index := indexOfChar(char);
-    if (index = -1 ||| index >= radixInt)
+    if (index == -1 ||| index >= radixInt)
       return s_substr_u(str, 0, i);
     i:= i + 1;
   }
@@ -443,7 +443,7 @@ function indexOfChar(char) {
 
   i := 0;
   while (i < 36) {
-    if (to_lower_case (char) = l_nth(chars, i))
+    if (to_lower_case (char) == l_nth(chars, i))
       return i;
     i := i + 1;
   }

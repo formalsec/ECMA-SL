@@ -95,15 +95,15 @@ function getNumberPrototype(strict) {
 function NumberConstructor(global, this, NewTarget, strict, items) {
   value := getOptionalParam(items, 0);
   /* 1. If no arguments were passed to this function invocation, let n be +0. */
-  if (value = null)
+  if (value == null)
     n := 0.;
   /* 2. Else, let n be ToNumber(value). */
   else
-    ToNumber(value);
+    n := ToNumber(value);
   /* 3. ReturnIfAbrupt(n). */
   @ReturnIfAbrupt(n);
   /* 4. If NewTarget is undefined, return n. */
-  if (NewTarget = 'undefined)
+  if (NewTarget == 'undefined)
     return n;
   /* 5. Let O be OrdinaryCreateFromConstructor(NewTarget, "%NumberPrototype%", «[[NumberData]]» ). */
   O := OrdinaryCreateFromConstructor(NewTarget, "NumberPrototype", ["NumberData"]);
@@ -157,14 +157,14 @@ function initNumberConstructor(prototype, global, strict) {
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MAX_SAFE_INTEGER", MAX_SAFE_INTEGER, false, false, false);
 
   /* 20.1.2.7 Number.MAX_VALUE */
-  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MAX_VALUE", MAX_VALUE, false, false, false);
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MAX_VALUE", MaxValue, false, false, false);
 
   /* 20.1.2.8 Number.MIN_SAFE_INTEGER */
   MIN_SAFE_INTEGER := - ((2.) ** (53.) - 1.);
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MIN_SAFE_INTEGER", MIN_SAFE_INTEGER, false, false, false);
 
   /* 20.1.2.9 Number.MIN_VALUE */
-  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MIN_VALUE", MIN_VALUE, false, false, false);
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MIN_VALUE", MinValue, false, false, false);
 
   /* 20.1.2.10 Number.NaN */
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "NaN", NaN, false, false, false);
@@ -195,10 +195,10 @@ function initNumberConstructor(prototype, global, strict) {
 function NumberConstructorIsFinite(global, this, NewTarget, strict, items) {
   num := getOptionalParam(items, 0);
   /* 1. If Type(number) is not Number, return false. */
-  if (num = null ||| !(Type(num) = "Number"))
+  if (num == null ||| Type(num) != "Number")
     return false;
   /* 2. If number is NaN, +∞, or −∞, return false. */
-  if (is_NaN (num) ||| num = Infinity ||| num = -Infinity)
+  if (is_NaN (num) ||| num == Infinity ||| num == -Infinity)
     return false;
   /* 3. Otherwise, return true. */
   return true;
@@ -209,15 +209,15 @@ function NumberConstructorIsFinite(global, this, NewTarget, strict, items) {
 function NumberConstructorIsInteger(global, this, NewTarget, strict, items) {
   num := getOptionalParam(items, 0);
   /* 1. If Type(number) is not Number, return false. */
-  if (num = null ||| !(Type(num) = "Number"))
+  if (num == null ||| Type(num) != "Number")
     return false;
   /* 2. f number is NaN, +∞, or −∞, return false. */
-  if (is_NaN (num) ||| num = Infinity ||| num = -Infinity)
+  if (is_NaN (num) ||| num == Infinity ||| num == -Infinity)
     return false;
   /* 3. Let integer be ToInteger(number). */
   integer := ToInteger(num);
   /* 4. If integer is not equal to number, return false. */
-  if (!(integer = num))
+  if (integer != num)
     return false;
   /* 5. Otherwise, return true. */
   return true;
@@ -228,7 +228,7 @@ function NumberConstructorIsInteger(global, this, NewTarget, strict, items) {
 function NumberConstructorIsNaN(global, this, NewTarget, strict, items) {
   num := getOptionalParam(items, 0);
   /* 1. If Type(number) is not Number, return false. */
-  if (num = null ||| !(Type(num) = "Number"))
+  if (num == null ||| Type(num) != "Number")
     return false;
   /* 2. If number is NaN, return true. */
   if (is_NaN (num))
@@ -242,15 +242,15 @@ function NumberConstructorIsNaN(global, this, NewTarget, strict, items) {
 function NumberConstructorIsSafeInteger(global, this, NewTarget, strict, items) {
   num := getOptionalParam(items, 0);
   /* 1. If Type(number) is not Number, return false. */
-  if (num = null ||| !(Type(num) = "Number"))
+  if (num == null ||| Type(num) != "Number")
     return false;
   /* 2. If number is NaN, +∞, or −∞, return false. */
-  if (is_NaN (num) ||| num = Infinity ||| num = -Infinity)
+  if (is_NaN (num) ||| num == Infinity ||| num == -Infinity)
     return false;
   /* 3. Let integer be ToInteger(number). */
   integer := ToInteger(num);
   /* 4. If integer is not equal to number, return false. */
-  if (!(integer = num))
+  if (integer != num)
     return false;
   /* 5. If abs(integer) ≤ 2^53 − 1, return true. */
   if (abs(integer) <=  ((2.) ** (53.) - (1.)))
@@ -278,14 +278,14 @@ function NumberPrototypeToExponential(global, this, NewTarget, strict, items) {
   /* 7. Let s be the empty String. */
   s := "";
   /* 8. If x < 0, then */
-  if (x < 0. ||| x = (- Infinity)) {
+  if (x < 0. ||| x == (- Infinity)) {
     /* a. Let s be "-". */
     s := "-";
     /* b. Let x = –x. */
     x := -x;
   }
-  /* 9. If x = +∞, then */
-  if (x = Infinity)
+  /* 9. If x == +∞, then */
+  if (x == Infinity)
     /* a. Return the concatenation of the Strings s and "Infinity". */
     return s_concat([s, "Infinity"]);
   /* 10. If f < 0 or f > 20, throw a RangeError exception.
@@ -294,10 +294,10 @@ function NumberPrototypeToExponential(global, this, NewTarget, strict, items) {
   In this case toExponential would not necessarily throw RangeError for such values. */
   if ((f < 0.) ||| (f > 20.))
     throw RangeErrorConstructorInternal();
-  if (fractionDigits = 'undefined)
-    return to_exponential(x, s_len(float_to_string(abs x)) - 1);
+  if (fractionDigits == 'undefined)
+    return to_exponential(x, s_len(float_to_string(abs(x))) - 1);
   else
-    return to_exponential(x, int_of_float(f));
+    return to_exponential(x, float_to_int(f));
 }
 
 /* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
@@ -311,8 +311,8 @@ function NumberPrototypeToExponentialAlt(global, this, NewTarget, strict, items)
   /* 3. Let f be ToInteger(fractionDigits). */
   f := ToInteger(fractionDigits);
   /* 4. Assert: f is 0, when fractionDigits is undefined. */
-  if (fractionDigits = 'undefined)
-    assert f = 0.;
+  if (fractionDigits == 'undefined)
+    assert f == 0.;
   /* 5. ReturnIfAbrupt(f). */
   @ReturnIfAbrupt(f);
   /* 6. If x is NaN, return the String "NaN". */
@@ -327,8 +327,8 @@ function NumberPrototypeToExponentialAlt(global, this, NewTarget, strict, items)
     /* b. Let x = –x. */
     x := -x;
   }
-  /* 9. If x = +∞, then */
-  if (x = Infinity)
+  /* 9. If x == +∞, then */
+  if (x == Infinity)
     /* a. Return the concatenation of the Strings s and "Infinity". */
     return s_concat([s, "Infinity"]);
   /* 10. If f < 0 or f > 20, throw a RangeError exception.
@@ -337,8 +337,8 @@ function NumberPrototypeToExponentialAlt(global, this, NewTarget, strict, items)
   necessarily throw RangeError for such values. */
   if ((f < 0.) ||| (f > 20.))
     throw RangeErrorConstructorInternal();
-  /* 11. If x = 0, then */
-  if (x = 0.) {
+  /* 11. If x == 0, then */
+  if (x == 0.) {
     /* a. Let m be the String consisting of f+1 occurrences of the code unit 0x0030 (DIGIT ZERO). */
     m := "";
     counter := 0;
@@ -351,7 +351,7 @@ function NumberPrototypeToExponentialAlt(global, this, NewTarget, strict, items)
   /* 12. Else x ≠ 0, */
   } else {
     /* a. If fractionDigits is not undefined, then */
-    if (!(fractionDigits = 'undefined)) {
+    if (fractionDigits != 'undefined) {
       /* i. Let e and n be integers such that 10f ≤ n < 10f+1 and for which the exact mathematical
       value of n × 10e – f – x is as close to zero as possible. If there are two such sets of e and n,
       pick the e and n for which n × 10e–f is larger. */
@@ -367,21 +367,21 @@ function NumberPrototypeToExponentialAlt(global, this, NewTarget, strict, items)
     m := float_to_string(n);
   }
   /* 13. If f ≠ 0, then */
-  if (!(f = 0.)) {
+  if (f != 0.) {
     /* a. Let a be the first element of m, and let b be the remaining f elements of m. */
     a := s_nth_u(m, 0);
     /* b. Let m be the concatenation of the three Strings a, ".", and b. */
     m := s_concat([s_concat([a, "."]), b]);
   }
-  /* 14. If e = 0, then */
-  if (e = 0) {
+  /* 14. If e == 0, then */
+  if (e == 0) {
     /* Let c = "+". */
     c := "+";
     /* Let d = "0". */
     d := "0";
   /* 15. Else */
   } else {
-    /* a. If e > 0, let c = "+". */
+    /* a. If e > 0, let (c) = "+". */
     if (e > 0) {
       c := "+";
     /* b. Else e ≤ 0, */
@@ -421,7 +421,7 @@ function NumberPrototypeToFixed(global, this, NewTarget, strict, items) {
   /* 6. If x is NaN, return the String "NaN". */
   if (is_NaN (x))
     return "NaN";
-  return to_fixed(x, int_of_float(f));
+  return to_fixed(x, float_to_int(f));
 }
 
 /* 20.1.3.3 Number.prototype.toFixed ( fractionDigits ) */
@@ -466,12 +466,12 @@ function NumberPrototypeToFixedAlt(global, this, NewTarget, strict, items) {
     /* a. Let n be an integer for which the exact mathematical value
     of n ÷ 10f – x is as close to zero as possible.
     If there are two such n, pick the larger n. */
-    /* b. If n = 0, let m be the String "0".
+    /* b. If n == 0, let m be the String "0".
     Otherwise, let m be the String consisting of the digits
     of the decimal representation of n (in order, with no leading zeroes). */
-    if (n = 0) m := "0"; else m := float_to_string(n);
+    if (n == 0) m := "0"; else m := float_to_string(n);
     /* c. If f ≠ 0, then */
-    if (!(f = 0.)) {
+    if (f != 0.) {
       /* i. Let k be the number of elements in m. */
       k := s_len_u(m);
       /* ii. If k ≤ f, then */
@@ -505,7 +505,7 @@ function NumberPrototypeToFixedAlt(global, this, NewTarget, strict, items) {
 function NumberPrototypeToLocaleString(global, this, NewTarget, strict, items) {
   if (!isNumberOrNumberObject(this))
     throw TypeErrorConstructorInternal();
-  if (Type(this) = "Number") num := this; else num := this.NumberData;
+  if (Type(this) == "Number") num := this; else num := this.NumberData;
   return ToString(num);
 }
 
@@ -518,7 +518,7 @@ function NumberPrototypeToPrecision(global, this, NewTarget, strict, items) {
   /* 2. ReturnIfAbrupt(x). */
   @ReturnIfAbrupt(x);
   /* 3. If precision is undefined, return ToString(x). */
-  if (precision = 'undefined)
+  if (precision == 'undefined)
     return ToString(x);
   /* 4. Let p be ToInteger(precision). */
   p := ToInteger(precision);
@@ -527,10 +527,10 @@ function NumberPrototypeToPrecision(global, this, NewTarget, strict, items) {
   /* 6. If x is NaN, return the String "NaN". */
   if (is_NaN (x))
     return "NaN";
-  /* 9. If x = +∞, then */
-  if (x = Infinity)
+  /* 9. If x == +∞, then */
+  if (x == Infinity)
     return "Infinity";
-  if (x = (-Infinity))
+  if (x == (-Infinity))
     return "-Infinity";
   /* 10. If p < 1 or p > 21, throw a RangeError exception.
   However, an implementation is permitted to extend the
@@ -539,7 +539,7 @@ function NumberPrototypeToPrecision(global, this, NewTarget, strict, items) {
   throw RangeError for such values. */
   if ((p < 1.) ||| (p > 21.))
     throw RangeErrorConstructorInternal();
-  return to_precision(x, int_of_float(p));
+  return to_precision(x, float_to_int(p));
 }
 
 /* 20.1.3.5 Number.prototype.toPrecision ( precision ) */
@@ -551,7 +551,7 @@ function NumberPrototypeToPrecisionAlt(global, this, NewTarget, strict, items) {
   /* 2. ReturnIfAbrupt(x). */
   @ReturnIfAbrupt(x);
   /* 3. If precision is undefined, return ToString(x). */
-  if (precision = 'undefined)
+  if (precision == 'undefined)
     return ToString(x);
   /* 4. Let p be ToInteger(precision). */
   p := ToInteger(precision);
@@ -569,8 +569,8 @@ function NumberPrototypeToPrecisionAlt(global, this, NewTarget, strict, items) {
     /* b. Let x = –x. */
     x := -x;
   }
-  /* 9. If x = +∞, then */
-  if (x = Infinity)
+  /* 9. If x == +∞, then */
+  if (x == Infinity)
     /* a. Return the String that is the concatenation of s and "Infinity". */
     return s_concat([s, "Infinity"]);
   /* 10. If p < 1 or p > 21, throw a RangeError exception. However, an implementation is permitted
@@ -578,12 +578,12 @@ function NumberPrototypeToPrecisionAlt(global, this, NewTarget, strict, items) {
   than 21. In this case toPrecision would not necessarily throw RangeError for such values. */
   if ((p < 1) ||| (p > 21))
     throw RangeErrorConstructorInternal();
-  /* 11. If x = 0, then */
-  if (x = 0) {
+  /* 11. If x == 0, then */
+  if (x == 0) {
     /* a. Let m be the String consisting of p occurrences of the code unit 0x0030 (DIGIT ZERO). */
     m := "";
     counter := 0;
-    while (!(counter = p)) {
+    while (counter != p) {
       m := s_concat([m, "0"]);
       counter := counter + 1;
     }
@@ -597,8 +597,8 @@ function NumberPrototypeToPrecisionAlt(global, this, NewTarget, strict, items) {
     /* b. Let m be the String consisting of the digits of the decimal representation of n
     (in order, with no leading zeroes). */
   }
-  /* 13. If e = p–1, return the concatenation of the Strings s and m. */
-  if (e = (p - 1))
+  /* 13. If e == p–1, return the concatenation of the Strings s and m. */
+  if (e == (p - 1))
     return s_concat([ s, m ]);
   /* 14. If e ≥ 0, then */
   if (e >= 0) {
@@ -611,7 +611,7 @@ function NumberPrototypeToPrecisionAlt(global, this, NewTarget, strict, items) {
     code unit 0x002E (FULL STOP), –(e+1) occurrences of code unit 0x0030 (DIGIT ZERO), and the String m. */
     tmp := "";
     index := 0;
-    while (index = (-e)) {
+    while (index == (-e)) {
       tmp := s_concat([tmp, "0"]);
       index := index + 1;
     }
@@ -622,9 +622,9 @@ function NumberPrototypeToPrecisionAlt(global, this, NewTarget, strict, items) {
 }
 
 function isNumberOrNumberObject(arg) {
-  if (Type(arg) = "Number")
+  if (Type(arg) == "Number")
     return true;
-  if ((Type(arg) = "Object" &&& "NumberData" in_obj arg))
+  if ((Type(arg) == "Object" &&& "NumberData" in_obj arg))
     return true;
   return false;
 }
@@ -639,10 +639,10 @@ function NumberPrototypeToString(global, this, NewTarget, strict, items) {
   /* 2. ReturnIfAbrupt(x). */
   @ReturnIfAbrupt(x);
   /* 3. If radix is not present, let radixNumber be 10. */
-  if (radix = null)
+  if (radix == null)
     radixNumber := 10.;
   /* 4. Else if radix is undefined, let radixNumber be 10. */
-  else if (radix = 'undefined)
+  else if (radix == 'undefined)
     radixNumber := 10.;
   /* 5. Else let radixNumber be ToInteger(radix). */
   else
@@ -652,8 +652,8 @@ function NumberPrototypeToString(global, this, NewTarget, strict, items) {
   /* 7. If radixNumber < 2 or radixNumber > 36, throw a RangeError exception. */
   if (radixNumber < 2. ||| radixNumber > 36.)
     throw RangeErrorConstructorInternal();
-  /* 8. If radixNumber = 10, return ToString(x). */
-  if (radixNumber = 10.)
+  /* 8. If radixNumber == 10, return ToString(x). */
+  if (radixNumber == 10.)
     return ToString(x);
   /* 9. Return the String representation of this Number value using the radix specified by radixNumber.
   Letters a-z are used for digits with values 10 through 35. The precise algorithm is implementation-dependent,
@@ -676,12 +676,12 @@ function NumberPrototypeValueOf(global, this, NewTarget, strict, items) {
 /* 20.1.3 Abstract Operation thisNumberValue(value) */
 function thisNumberValue(value) {
   /* 1. If Type(value) is Number, return value. */
-  if (Type(value) = "Number")
+  if (Type(value) == "Number")
     return value;
   /* 2. If Type(value) is Object and value has a [[NumberData]] internal slot, then */
-  if (Type(value) = "Object" &&& "NumberData" in_obj value) {
+  if (Type(value) == "Object" &&& "NumberData" in_obj value) {
     /* a. Assert: value’s [[NumberData]] internal slot is a Number value. */
-    assert Type(value.NumberData) = "Number";
+    assert Type(value.NumberData) == "Number";
     /* b. Return the value of value’s [[NumberData]] internal slot. */
     return value.NumberData;
   }
@@ -702,6 +702,6 @@ function NumberToString(m, radix) {
   /* If k ≤ n ≤ 21, return the String consisting of the code units of the k digits of the decimal representation of s (in order, with no leading zeroes), followed by n−k occurrences of the code unit 0x0030 (DIGIT ZERO). */
   /* If 0 < n ≤ 21, return the String consisting of the code units of the most significant n digits of the decimal representation of s, followed by the code unit 0x002E (FULL STOP), followed by the code units of the remaining k−n digits of the decimal representation of s. */
   /* If −6 < n ≤ 0, return the String consisting of the code unit 0x0030 (DIGIT ZERO), followed by the code unit 0x002E (FULL STOP), followed by −n occurrences of the code unit 0x0030 (DIGIT ZERO), followed by the code units of the k digits of the decimal representation of s. */
-  /* Otherwise, if k = 1, return the String consisting of the code unit of the single digit of s, followed by code unit 0x0065 (LATIN SMALL LETTER E), followed by the code unit 0x002B (PLUS SIGN) or the code unit 0x002D (HYPHEN-MINUS) according to whether n−1 is positive or negative, followed by the code units of the decimal representation of the integer abs(n−1) (with no leading zeroes). */
+  /* Otherwise, if k == 1, return the String consisting of the code unit of the single digit of s, followed by code unit 0x0065 (LATIN SMALL LETTER E), followed by the code unit 0x002B (PLUS SIGN) or the code unit 0x002D (HYPHEN-MINUS) according to whether n−1 is positive or negative, followed by the code units of the decimal representation of the integer abs(n−1) (with no leading zeroes). */
   /* Return the String consisting of the code units of the most significant digit of the decimal representation of s, followed by code unit 0x002E (FULL STOP), followed by the code units of the remaining k−1 digits of the decimal representation of s, followed by code unit 0x0065 (LATIN SMALL LETTER E), followed by code unit 0x002B (PLUS SIGN) or the code unit 0x002D (HYPHEN-MINUS) according to whether n−1 is positive or negative, followed by the code units of the decimal representation of the integer abs(n−1) (with no leading zeroes). */
 }
