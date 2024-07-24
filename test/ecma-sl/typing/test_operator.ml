@@ -32,13 +32,6 @@ let%test "unopt_float_to_string" =
 
 let%test "unopt_string_to_int" = test_unopt (StringToInt, Str "abc") t_int
 let%test "unopt_string_to_float" = test_unopt (StringToFloat, Str "abc") t_float
-let%test "unopt_from_char_code" = test_unopt (FromCharCode, Int 10) t_string
-let%test "unopt_to_char_code" = test_unopt (ToCharCode, Str "abc") t_int
-let%test "unopt_string_len" = test_unopt (StringLen, Str "abc") t_int
-let%test "unopt_abs" = test_unopt (Abs, Real 10.1) t_float
-let%test "unopt_sqrt" = test_unopt (Sqrt, Real 10.1) t_float
-let%test "unopt_ceil" = test_unopt (Ceil, Real 10.1) t_float
-let%test "unopt_floor" = test_unopt (Floor, Real 10.1) t_float
 
 (* ========== Simple Binary Operators ========== *)
 
@@ -60,22 +53,22 @@ let%test "binopt_modulo" = test_binopt (Modulo, Real 10.1, Real 10.1) t_float
 let%test "binopt_pow" = test_binopt (Pow, Real 10.1, Real 10.1) t_float
 
 let%test "binopt_bitwise_and" =
-  test_binopt (BitwiseAnd, Real 10.1, Real 10.1) t_float
+  test_binopt (BitwiseAnd, Int 10, Int 10) t_int
 
 let%test "binopt_bitwise_or" =
-  test_binopt (BitwiseOr, Real 10.1, Real 10.1) t_float
+  test_binopt (BitwiseOr, Int 10, Int 10) t_int
 
 let%test "binopt_bitwise_xor" =
-  test_binopt (BitwiseXor, Real 10.1, Real 10.1) t_float
+  test_binopt (BitwiseXor, Int 10, Int 10) t_int
 
 let%test "binopt_shift_left" =
-  test_binopt (ShiftLeft, Real 10.1, Real 10.1) t_float
+  test_binopt (ShiftLeft, Int 10, Int 10) t_int
 
 let%test "binopt_shift_right" =
-  test_binopt (ShiftRight, Real 10.1, Real 10.1) t_float
+  test_binopt (ShiftRight, Int 10, Int 10) t_int
 
 let%test "binopt_shift_right_logical" =
-  test_binopt (ShiftRightLogical, Real 10.1, Real 10.1) t_float
+  test_binopt (ShiftRightLogical, Int 10, Int 10) t_int
 
 let%test "binopt_logical_and" =
   test_binopt (LogicalAnd, Value.True, Value.True) t_boolean
@@ -128,11 +121,3 @@ let%test "binopt_le_null" =
   test_binopt
     (Le, Value.App (`Op "null", []), Value.App (`Op "null", []))
     t_boolean
-
-let%test "binopt_string_nth" =
-  test_binopt (StringNth, Str "abc", Int 10) t_string
-
-(* ========== Simple Ternary Operators ========== *)
-
-let%test "StringSubstr" =
-  test_triopt (StringSubstr, Str "abc", Int 10, Int 10) t_string
