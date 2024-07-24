@@ -98,6 +98,8 @@ rule read =
   | '}'               { RBRACE }
   | '['               { LBRACK }
   | ']'               { RBRACK }
+  | '?'               { QUESTION }
+  | '!'               { EXCLAMATION }
   | '+'               { PLUS }
   | '-'               { MINUS }
   | '*'               { TIMES }
@@ -111,8 +113,6 @@ rule read =
   | "<<"              { SHIFT_LEFT }
   | ">>"              { SHIFT_RIGHT }
   | ">>>"             { SHIFT_RIGHT_LOGICAL }
-  | '?'               { QUESTION }
-  | '!'               { EXCLAMATION }
   | "&&"              { LAND }
   | "||"		          { LOR }
   | "=="              { EQ }

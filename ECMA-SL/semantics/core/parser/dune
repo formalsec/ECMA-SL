@@ -2,6 +2,6 @@
  (modules lexer))
 
 (menhir
- (modules op_parser parser)
+ (modules parser)
  (merge_into parser)
  (flags --table --explain))
