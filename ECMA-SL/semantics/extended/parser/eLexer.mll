@@ -36,6 +36,10 @@
             "match"                   , MATCH;
             "with"                    , WITH;
 
+            (* List operators *)
+            "hd"                      , LIST_HEAD;
+            "tl"                      , LIST_TAIL;
+            
             (* Casting operators *)
             "int_to_float"            , INT_TO_FLOAT;
             "int_to_string"           , INT_TO_STRING;
@@ -48,10 +52,6 @@
             "obj_to_list"             , OBJECT_TO_LIST;
             "obj_fields"              , OBJECT_FIELDS;
             "in_obj"                  , OBJECT_MEM;
-
-            (* List operators *)
-            "hd"                      , LIST_HEAD;
-            "tl"                      , LIST_TAIL;
 
             (* Type system *)
             "any"                     , TYPE_ANY;
@@ -66,7 +66,7 @@
             "symbol"                  , TYPE_SYMBOL;
             "sigma"                   , TYPE_SIGMA;
 
-            (* [FIXME] Math constants : Should go to the stdlib *)
+            (* FIXME: (Math constants) Should go to the stdlib? *)
             "NaN"                     , FLOAT (Float.nan);
             "Infinity"                , FLOAT (Float.infinity);
             "MaxValue"                , FLOAT (Float.max_float);
@@ -118,19 +118,22 @@ rule read =
   parse
   | white             { read lexbuf }
   | newline           { new_line lexbuf; read lexbuf }
-  | '.'               { PERIOD }
   | ','               { COMMA }
   | ';'               { SEMICOLON }
   | ':'               { COLON }
+  | '.'               { PERIOD }
   | ":="              { DEFEQ }
-  | "@"               { ATSIGN }
-  | "#"               { HASH }
+  | '@'               { ATSIGN }
+  | '#'               { HASH }
+  | "->"              { ARROW }
   | '('               { LPAREN }
   | ')'               { RPAREN }
   | '{'               { LBRACE }
   | '}'               { RBRACE }
   | '['               { LBRACK }
   | ']'               { RBRACK }
+  | '?'               { QUESTION }
+  | '!'               { EXCLAMATION }
   | '+'               { PLUS }
   | '-'               { MINUS }
   | '*'               { TIMES }
@@ -144,8 +147,6 @@ rule read =
   | "<<"              { SHIFT_LEFT }
   | ">>"              { SHIFT_RIGHT }
   | ">>>"             { SHIFT_RIGHT_LOGICAL }
-  | '?'               { QUESTION }
-  | '!'               { EXCLAMATION }
   | "&&"              { LAND }
   | "||"		          { LOR }
   | "&&&"             { SCLAND }
@@ -156,7 +157,6 @@ rule read =
   | '>'               { GT }
   | "<="              { LE }
   | ">="              { GE }
-  | "->"              { RIGHT_ARROW }
   | '"'               { create_string lexbuf (read_string (Buffer.create 16)) }
   | int               { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | hex_literal       { INT (int_of_string (Lexing.lexeme lexbuf)) }

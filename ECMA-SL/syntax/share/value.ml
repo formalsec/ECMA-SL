@@ -19,10 +19,10 @@ let pp_custom_val (pp_v : Fmt.t -> t -> unit) (ppf : Fmt.t) (v : t) : unit =
   | True -> Fmt.fmt ppf "true"
   | False -> Fmt.fmt ppf "false"
   | List lst -> Fmt.(fmt ppf "[%a]" (pp_lst !>", " pp_v) lst)
-  | App (`Op "void", []) -> ()
-  | App (`Op "null", []) -> Fmt.fmt ppf "null"
   | App (`Op "loc", [ Int l ]) -> Loc.pp ppf l
   | App (`Op "symbol", [ Str s ]) -> Fmt.fmt ppf "'%s" s
+  | App (`Op "null", []) -> Fmt.fmt ppf "null"
+  | App (`Op "void", []) -> ()
   | App (`Op fn, fvs) -> Fmt.(fmt ppf "{%S}@(%a)" fn (pp_lst !>", " pp_v) fvs)
   | _ -> Log.fail "Val.pp_custom_val: unexpected value '%a'" pp v
 
