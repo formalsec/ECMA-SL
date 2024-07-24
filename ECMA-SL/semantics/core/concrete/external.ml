@@ -4,6 +4,18 @@ open EslSyntax
 type store = Value.t Store.t
 type heap = Value.t Heap.t
 
+let op_err (_arg : int) (op_lbl : string) (rterr : Runtime_error.msg) : 'a =
+  try Runtime_error.(throw ~src:(ErrSrc.none ()) rterr)
+  with Runtime_error.Error err ->
+    Runtime_error.(push (OpEvalErr op_lbl) err |> raise)
+
+let unexpected_err (arg : int) (op_lbl : string) (msg : string) : 'a =
+  op_err arg op_lbl (Unexpected msg)
+
+let bad_arg_err (arg : int) (op_lbl : string) (types : string)
+  (vals : Value.t list) : 'a =
+  op_err arg op_lbl (BadOpArgs (types, vals))
+
 let eval_build_ast_func = Base.make_name_generator "eval_func_"
 
 let parseJS (prog : Prog.t) (code : string) : Value.t =
@@ -25,9 +37,6 @@ let parseJS (prog : Prog.t) (code : string) : Value.t =
 module Impl = struct
   let arr_map = Hashtbl.create 128
   let arr_count = ref 0
-  let op_err = Eval_op.op_err
-  let unexpected_err = Eval_op.unexpected_err
-  let bad_arg_err = Eval_op.bad_arg_err
 
   let typeof (v : Value.t) : Value.t =
     let op_lbl = "typeof_external" in

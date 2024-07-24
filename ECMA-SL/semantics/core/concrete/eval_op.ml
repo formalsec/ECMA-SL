@@ -1,270 +1,175 @@
-open Smtml
 open EslBase
 open EslSyntax
-open EslSyntax.Operator
 
-let op_err (arg : int) (op_lbl : string) (rterr : Runtime_error.msg) : 'a =
-  try Runtime_error.(throw ~src:(Index arg) rterr)
-  with Runtime_error.Error err ->
-    Runtime_error.(push (OpEvalErr op_lbl) err |> raise)
+type arg = Value.t * Source.at
+type res = Value.t
 
-let unexpected_err (arg : int) (op_lbl : string) (msg : string) : 'a =
-  op_err arg op_lbl (Unexpected msg)
+let custom_err (at : Source.at) (err : Runtime_error.msg) : 'a =
+  Runtime_error.(throw ~src:(ErrSrc.at at) err)
+[@@inline]
 
-let bad_arg_err (arg : int) (op_lbl : string) (types : string)
-  (vals : Value.t list) : 'a =
-  op_err arg op_lbl (BadOpArgs (types, vals))
+let arg_err (texp : string) ((v, at) : arg) : 'a =
+  custom_err at (BadArg (texp, v))
+[@@inline]
 
-let op_error index value ty op =
-  let open Ty in
-  match (op, ty) with
-  (* unop *)
-  | (`Unop Not, Ty_int) ->
-    bad_arg_err index (label_of_unopt BitwiseNot) "integer" [ value ]
-  | (`Unop Not, Ty_bool) ->
-    bad_arg_err index (label_of_unopt LogicalNot) "boolean" [ value ]
-  | (`Cvtop Reinterpret_int, _) ->
-    bad_arg_err index (label_of_unopt IntToFloat) "integer" [ value ]
-  | (`Cvtop String_from_int, _) ->
-    bad_arg_err index (label_of_unopt IntToString) "integer" [ value ]
-  | (`Cvtop Reinterpret_float, _) ->
-    bad_arg_err index (label_of_unopt FloatToInt) "float" [ value ]
-  | (`Cvtop String_to_int, _) ->
-    bad_arg_err index (label_of_unopt StringToInt) "string" [ value ]
-  | (`Unop Head, _) ->
-    bad_arg_err index (label_of_unopt ListHead) "non-empty list" [ value ]
-  | (`Unop Tail, _) ->
-    bad_arg_err index (label_of_unopt ListTail) "list" [ value ]
-  (* binop *)
-  | (`Binop Rem, _) ->
-    bad_arg_err index (label_of_binopt Modulo) "(float, float)" [ value ]
-  | (`Binop Pow, _) ->
-    bad_arg_err index (label_of_binopt Pow) "(float, float)" [ value ]
-  | (`Binop And, Ty_int) ->
-    bad_arg_err index
-      (label_of_binopt BitwiseAnd)
-      "(integer, integer)" [ value ]
-  | (`Binop Or, Ty_int) ->
-    bad_arg_err index (label_of_binopt BitwiseOr) "(integer, integer)" [ value ]
-  | (`Binop Xor, Ty_int) ->
-    bad_arg_err index
-      (label_of_binopt BitwiseXor)
-      "(integer, integer)" [ value ]
-  | (`Binop Shl, Ty_int) ->
-    bad_arg_err index (label_of_binopt ShiftLeft) "(integer, integer)" [ value ]
-  | (`Binop ShrA, Ty_int) ->
-    bad_arg_err index
-      (label_of_binopt ShiftRight)
-      "(integer, integer)" [ value ]
-  | (`Binop ShrL, Ty_int) ->
-    bad_arg_err index
-      (label_of_binopt ShiftRightLogical)
-      "(integer, integer)" [ value ]
-  | (`Binop And, Ty_bool) ->
-    bad_arg_err index
-      (label_of_binopt LogicalAnd)
-      "(boolean, boolean)" [ value ]
-  | (`Binop Or, Ty_bool) ->
-    bad_arg_err index (label_of_binopt LogicalOr) "(boolean, boolean)" [ value ]
-  (* triop *)
-  | (`Triop Ite, _) ->
-    bad_arg_err index
-      (label_of_triopt Conditional)
-      "(boolean, any, any)" [ value ]
-  (* other errors *)
-  | (`Unop op', _) ->
-    unexpected_err index
-      (Format.asprintf "%a" pp_unop op')
-      (Format.asprintf "unop with type %a" pp ty)
-  | (`Binop op', _) ->
-    unexpected_err index
-      (Format.asprintf "%a" pp_binop op')
-      (Format.asprintf "binop with type %a" pp ty)
-  | (`Relop op', _) ->
-    unexpected_err index
-      (Format.asprintf "%a" pp_relop op')
-      (Format.asprintf "relop with type %a" pp ty)
-  | (`Triop op', _) ->
-    unexpected_err index
-      (Format.asprintf "%a" pp_triop op')
-      (Format.asprintf "triop with type %a" pp ty)
-  | (`Cvtop op', _) ->
-    unexpected_err index
-      (Format.asprintf "%a" pp_cvtop op')
-      (Format.asprintf "cvtop with type %a" pp ty)
-  | (`Naryop op', _) ->
-    unexpected_err index
-      (Format.asprintf "%a" pp_naryop op')
-      (Format.asprintf "naryop with type %a %d" pp ty index)
+let is_bool : Value.t -> bool = function True | False -> true | _ -> false
+[@@inline]
 
-let float_to_string (v : Value.t) : Value.t =
-  let op_lbl = label_of_unopt FloatToString in
-  match v with
-  | Real i -> Str (Arith_utils.float_to_string_inner i)
-  | _ -> bad_arg_err 1 op_lbl "float" [ v ]
+let mk_bool : bool -> Value.t = function true -> True | false -> False
+[@@inline]
 
-let unop_semantics (op : Operator.unopt) : Value.t -> Value.t =
+let unary_arith_semantics (op : Smtml.Ty.unop) : arg -> res = function
+  | ((Int _ as v), _) -> Smtml.Eval.unop Ty_int op v
+  | ((Real _ as v), _) -> Smtml.Eval.unop Ty_real op v
+  | arg -> arg_err "integer/float" arg
+
+let unary_bitwise_semantics (op : Smtml.Ty.unop) : arg -> res = function
+  | ((Int _ as v), _) -> Smtml.Eval.unop Ty_int op v
+  | arg -> arg_err "integer" arg
+
+let unary_logical_semantics (op : Smtml.Ty.unop) : arg -> res = function
+  | (v, _) when is_bool v -> Smtml.Eval.unop Ty_bool op v
+  | arg -> arg_err "boolean" arg
+
+let unary_list_semantics (op : Smtml.Ty.unop) : arg -> res = function
+  | ((List l as v), _) when List.length l > 0 -> Smtml.Eval.unop Ty_list op v
+  | (List _, at) -> custom_err at (Unexpected "empty list")
+  | arg -> arg_err "list" arg
+
+let int_to_float_semantics : arg -> res = function
+  | ((Int _ as v), _) -> Smtml.Eval.cvtop Ty_int Reinterpret_int v
+  | arg -> arg_err "integer" arg
+
+let int_to_string_semantics : arg -> res = function
+  | ((Int _ as v), _) -> Smtml.Eval.cvtop Ty_str String_from_int v
+  | arg -> arg_err "integer" arg
+
+let float_to_int_semantics : arg -> res = function
+  | ((Real _ as v), _) -> Smtml.Eval.cvtop Ty_real Reinterpret_float v
+  | arg -> arg_err "float" arg
+
+let float_to_string_semantics : arg -> res = function
+  | (Real f, _) -> Str (Arith_utils.float_to_string_inner f)
+  | arg -> arg_err "float" arg
+
+let string_to_int_semantics : arg -> res = function
+  | ((Str _ as v), at) -> (
+    try Smtml.Eval.cvtop Ty_str String_to_int v
+    with _ -> custom_err at (Custom "Unable to parse string to integer.") )
+  | arg -> arg_err "string" arg
+
+let string_to_float_semantics : arg -> res = function
+  | ((Str _ as v), _) -> (
+    try Smtml.Eval.cvtop Ty_str String_to_float v with _ -> Real nan )
+  | arg -> arg_err "string" arg
+
+let binary_plus_semantics : arg * arg -> res = function
+  | (((Int _ as v1), _), ((Int _ as v2), _)) ->
+    Smtml.Eval.binop Ty_int Add v1 v2
+  | (((Real _ as v1), _), ((Real _ as v2), _)) ->
+    Smtml.Eval.binop Ty_real Add v1 v2
+  | (((Str _ as v1), _), ((Str _ as v2), _)) ->
+    Smtml.Eval.naryop Ty_str Concat [ v1; v2 ]
+  | ((Int _, _), arg2) -> arg_err "integer" arg2
+  | ((Real _, _), arg2) -> arg_err "float" arg2
+  | ((Str _, _), arg2) -> arg_err "string" arg2
+  | (arg1, _) -> arg_err "integer/float/string" arg1
+
+let binary_arith_semantics (op : Smtml.Ty.binop) : arg * arg -> res = function
+  | (((Int _ as v1), _), ((Int _ as v2), _)) -> Smtml.Eval.binop Ty_int op v1 v2
+  | (((Real _ as v1), _), ((Real _ as v2), _)) ->
+    Smtml.Eval.binop Ty_real op v1 v2
+  | ((Int _, _), arg2) -> arg_err "integer" arg2
+  | ((Real _, _), arg2) -> arg_err "float" arg2
+  | (arg1, _) -> arg_err "integer/float" arg1
+
+let binary_bitwise_semantics (op : Smtml.Ty.binop) : arg * arg -> res = function
+  | (((Int _ as v1), _), ((Int _ as v2), _)) -> Smtml.Eval.binop Ty_int op v1 v2
+  | ((Int _, _), arg2) -> arg_err "integer" arg2
+  | (arg1, _) -> arg_err "integer" arg1
+
+let binary_logical_semantics (op : Smtml.Ty.binop) : arg * arg -> res = function
+  | ((v1, _), (v2, _)) when is_bool v1 && is_bool v2 ->
+    Smtml.Eval.binop Ty_bool op v1 v2
+  | ((v1, _), arg2) when is_bool v1 -> arg_err "boolean" arg2
+  | (arg1, _) -> arg_err "boolean" arg1
+
+let binary_relation_semantics (op : Smtml.Ty.relop) : arg * arg -> res =
+  function
+  | (((Int _ as v1), _), ((Int _ as v2), _)) ->
+    mk_bool (Smtml.Eval.relop Ty_int op v1 v2)
+  | (((Real _ as v1), _), ((Real _ as v2), _)) ->
+    mk_bool (Smtml.Eval.relop Ty_real op v1 v2)
+  | (((Str _ as v1), _), ((Str _ as v2), _)) ->
+    mk_bool (Smtml.Eval.relop Ty_str op v1 v2)
+  | ((Int _, _), arg2) -> arg_err "integer" arg2
+  | ((Real _, _), arg2) -> arg_err "float" arg2
+  | ((Str _, _), arg2) -> arg_err "string" arg2
+  | (arg1, _) -> arg_err "integer/float/string" arg1
+
+let conditional_semantics : arg * arg * arg -> res = function
+  | ((v1, _), (v2, _), (v3, _)) when is_bool v1 ->
+    Smtml.Eval.triop Ty_bool Ite v1 v2 v3
+  | (arg1, _, _) -> arg_err "boolean" arg1
+
+let nary_logical_semantics (op : Smtml.Ty.binop) : arg list -> res =
+  let eval_f v1 arg2 = binary_logical_semantics op ((v1, Source.none), arg2) in
+  ( match op with
+  | And -> True
+  | Or -> False
+  | _ -> Log.fail "unexpected binary operator in nary logical expression" )
+  |> List.fold_left eval_f
+
+let list_expr_semantics : arg list -> res =
+ fun args -> List (fst (List.split args))
+
+let unopt_semantics (op : Operator.unopt) : arg -> res =
   match op with
-  | Neg -> (
-    function
-    | Value.Int _ as v -> Eval.(unop Ty_int Ty.Neg) v
-    | Value.Real _ as v -> Eval.(unop Ty_real Ty.Neg) v
-    | _ as v -> bad_arg_err 1 (label_of_unopt Neg) "integer or float" [ v ] )
-  | BitwiseNot -> Eval.(unop Ty_int Ty.Not)
-  | LogicalNot -> Eval.(unop Ty_bool Ty.Not)
-  | IntToFloat -> Eval.(cvtop Ty_int Ty.Reinterpret_int)
-  | IntToString -> Eval.(cvtop Ty_str Ty.String_from_int)
-  | FloatToInt -> Eval.(cvtop Ty_real Ty.Reinterpret_float)
-  | FloatToString -> float_to_string
-  | StringToInt -> Eval.(cvtop Ty_str Ty.String_to_int)
-  | StringToFloat -> (
-    function
-    | Value.Str _ as v -> (
-      try Eval.(cvtop Ty_str Ty.String_to_float) v with _ -> Real nan )
-    | _ as v -> bad_arg_err 1 (label_of_unopt StringToFloat) "string" [ v ] )
-  | ObjectToList -> Log.fail "unexpected 'ObjectToList' operator"
-  | ObjectFields -> Log.fail "unexpected 'ObjectFields' operator"
-  | ListHead -> Eval.(unop Ty_list Ty.Head)
-  | ListTail -> Eval.(unop Ty_list Ty.Tail)
+  | Neg -> unary_arith_semantics Neg
+  | BitwiseNot -> unary_bitwise_semantics Not
+  | LogicalNot -> unary_logical_semantics Not
+  | ListHead -> unary_list_semantics Head
+  | ListTail -> unary_list_semantics Tail
+  | IntToFloat -> int_to_float_semantics
+  | IntToString -> int_to_string_semantics
+  | FloatToInt -> float_to_int_semantics
+  | FloatToString -> float_to_string_semantics
+  | StringToInt -> string_to_int_semantics
+  | StringToFloat -> string_to_float_semantics
+  | ObjectToList -> Log.fail "unexpected 'ObjectToList' operator evaluation"
+  | ObjectFields -> Log.fail "unexpected 'ObjectFields' operator evaluation"
 
-let binop_semantics (op : Operator.binopt) =
-  let make_bool b = if b then Value.True else Value.False in
+let binopt_semantics (op : Operator.binopt) : arg * arg -> res =
   match op with
-  | Plus -> (
-    fun v1 v2 ->
-      match (v1, v2) with
-      | (Value.Int _, Value.Int _) -> Eval.(binop Ty_int Ty.Add v1 v2)
-      | (Value.Real _, Value.Real _) -> Eval.(binop Ty_real Ty.Add v1 v2)
-      | (Value.Str _, Value.Str _) -> Eval.(naryop Ty_str Ty.Concat [ v1; v2 ])
-      | ((Int _ | Real _ | Str _), _) ->
-        bad_arg_err 2 (label_of_binopt Plus)
-          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
-      | _ ->
-        bad_arg_err 1 (label_of_binopt Plus)
-          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
-    )
-  | Minus -> (
-    fun v1 v2 ->
-      match (v1, v2) with
-      | (Value.Int _, Value.Int _) -> Eval.(binop Ty_int Ty.Sub v1 v2)
-      | (Value.Real _, Value.Real _) -> Eval.(binop Ty_real Ty.Sub v1 v2)
-      | (Int _, _) | (Real _, _) ->
-        bad_arg_err 2 (label_of_binopt Minus)
-          "(integer, integer) or (float, float)" [ v1; v2 ]
-      | _ ->
-        bad_arg_err 1 (label_of_binopt Minus)
-          "(integer, integer) or (float, float)" [ v1; v2 ] )
-  | Times -> (
-    fun v1 v2 ->
-      match (v1, v2) with
-      | (Value.Int _, Value.Int _) -> Eval.(binop Ty_int Ty.Mul v1 v2)
-      | (Value.Real _, Value.Real _) -> Eval.(binop Ty_real Ty.Mul v1 v2)
-      | (Int _, _) | (Real _, _) ->
-        bad_arg_err 2 (label_of_binopt Times)
-          "(integer, integer) or (float, float)" [ v1; v2 ]
-      | _ ->
-        bad_arg_err 1 (label_of_binopt Times)
-          "(integer, integer) or (float, float)" [ v1; v2 ] )
-  | Div -> (
-    fun v1 v2 ->
-      match (v1, v2) with
-      | (Value.Int _, Value.Int _) -> Eval.(binop Ty_int Ty.Div v1 v2)
-      | (Value.Real _, Value.Real _) -> Eval.(binop Ty_real Ty.Div v1 v2)
-      | (Int _, _) | (Real _, _) ->
-        bad_arg_err 2 (label_of_binopt Div)
-          "(integer, integer) or (float, float)" [ v1; v2 ]
-      | _ ->
-        bad_arg_err 1 (label_of_binopt Div)
-          "(integer, integer) or (float, float)" [ v1; v2 ] )
-  | Modulo -> Eval.(binop Ty_real Ty.Rem)
-  | Pow -> Eval.(binop Ty_real Ty.Pow)
-  | BitwiseAnd -> Eval.(binop Ty_int Ty.And)
-  | BitwiseOr -> Eval.(binop Ty_int Ty.Or)
-  | BitwiseXor -> Eval.(binop Ty_int Ty.Xor)
-  | ShiftLeft -> Eval.(binop Ty_int Ty.Shl)
-  | ShiftRight -> Eval.(binop Ty_int Ty.ShrA)
-  | ShiftRightLogical -> Eval.(binop Ty_int Ty.ShrL)
-  | LogicalAnd -> Eval.(binop Ty_bool Ty.And)
-  | LogicalOr -> Eval.(binop Ty_bool Ty.Or)
-  | SCLogicalAnd -> Log.fail "unexpected 'SCLogicalAnd' operator"
-  | SCLogicalOr -> Log.fail "unexpected 'SCLogicalOr' operator"
-  | Eq -> fun v1 v2 -> make_bool (Value.equal v1 v2)
-  | Ne -> fun v1 v2 -> make_bool (not @@ Value.equal v1 v2)
-  | Lt -> (
-    fun v1 v2 ->
-      match (v1, v2) with
-      | (Value.Int _, Value.Int _) -> make_bool Eval.(relop Ty_int Ty.Lt v1 v2)
-      | (Value.Real _, Value.Real _) ->
-        make_bool Eval.(relop Ty_real Ty.Lt v1 v2)
-      | (Value.Str _, Value.Str _) -> make_bool Eval.(relop Ty_str Ty.Lt v1 v2)
-      | (Int _, _) | (Real _, _) ->
-        bad_arg_err 2 (label_of_binopt Lt)
-          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
-      | _ ->
-        bad_arg_err 1 (label_of_binopt Lt)
-          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
-    )
-  | Le -> (
-    fun v1 v2 ->
-      match (v1, v2) with
-      | (Value.Int _, Value.Int _) -> make_bool Eval.(relop Ty_int Ty.Le v1 v2)
-      | (Value.Real _, Value.Real _) ->
-        make_bool Eval.(relop Ty_real Ty.Le v1 v2)
-      | (Value.Str _, Value.Str _) -> make_bool Eval.(relop Ty_str Ty.Le v1 v2)
-      | (Int _, _) | (Real _, _) ->
-        bad_arg_err 2 (label_of_binopt Le)
-          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
-      | _ ->
-        bad_arg_err 1 (label_of_binopt Le)
-          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
-    )
-  | Gt -> (
-    fun v1 v2 ->
-      match (v1, v2) with
-      | (Value.Int _, Value.Int _) -> make_bool Eval.(relop Ty_int Ty.Gt v1 v2)
-      | (Value.Real _, Value.Real _) ->
-        make_bool Eval.(relop Ty_real Ty.Gt v1 v2)
-      | (Value.Str _, Value.Str _) -> make_bool Eval.(relop Ty_str Ty.Gt v1 v2)
-      | (Int _, _) | (Real _, _) ->
-        bad_arg_err 2 (label_of_binopt Gt)
-          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
-      | _ ->
-        bad_arg_err 1 (label_of_binopt Gt)
-          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
-    )
-  | Ge -> (
-    fun v1 v2 ->
-      match (v1, v2) with
-      | (Value.Int _, Value.Int _) -> make_bool Eval.(relop Ty_int Ty.Ge v1 v2)
-      | (Value.Real _, Value.Real _) ->
-        make_bool Eval.(relop Ty_real Ty.Ge v1 v2)
-      | (Value.Str _, Value.Str _) -> make_bool Eval.(relop Ty_str Ty.Ge v1 v2)
-      | (Int _, _) | (Real _, _) ->
-        bad_arg_err 2 (label_of_binopt Ge)
-          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
-      | _ ->
-        bad_arg_err 1 (label_of_binopt Ge)
-          "(integer, integer) or (float, float) or (string, string)" [ v1; v2 ]
-    )
-  | ObjectMem -> Log.fail "unexpected 'ObjectMem' operator"
+  | Plus -> binary_plus_semantics
+  | Minus -> binary_arith_semantics Sub
+  | Times -> binary_arith_semantics Mul
+  | Div -> binary_arith_semantics Div
+  | Modulo -> binary_arith_semantics Rem
+  | Pow -> binary_arith_semantics Pow
+  | BitwiseAnd -> binary_bitwise_semantics And
+  | BitwiseOr -> binary_bitwise_semantics Or
+  | BitwiseXor -> binary_bitwise_semantics Xor
+  | ShiftLeft -> binary_bitwise_semantics Shl
+  | ShiftRight -> binary_bitwise_semantics ShrA
+  | ShiftRightLogical -> binary_bitwise_semantics ShrL
+  | LogicalAnd -> binary_logical_semantics And
+  | LogicalOr -> binary_logical_semantics Or
+  | SCLogicalAnd -> Log.fail "unexpected 'SCLogicalAnd' operator evaluation"
+  | SCLogicalOr -> Log.fail "unexpected 'SCLogicalOr' operator evaluation"
+  | Eq -> fun ((v1, _), (v2, _)) -> mk_bool (Value.equal v1 v2)
+  | Ne -> fun ((v1, _), (v2, _)) -> mk_bool (Value.equal v1 v2 |> not)
+  | Lt -> binary_relation_semantics Lt
+  | Gt -> binary_relation_semantics Gt
+  | Le -> binary_relation_semantics Le
+  | Ge -> binary_relation_semantics Ge
+  | ObjectMem -> Log.fail "unexpected 'ObjectMem' operator evaluation"
 
-let triop_semantics (op : Operator.triopt) =
-  match op with Conditional -> Eval.triop Ty_bool Ty.Ite
+let triopt_semantics (op : Operator.triopt) : arg * arg * arg -> res =
+  match op with Conditional -> conditional_semantics
 
-let to_bool_aux (v : Value.t) : bool =
-  match v with
-  | Value.True -> true
-  | Value.False -> false
-  | _ -> Log.fail "Eval_op.to_bool_aux"
-
-let nary_logical_and (vals : Value.t list) : Value.t =
-  if List.for_all to_bool_aux vals then Value.True else Value.False
-
-let nary_logical_or (vals : Value.t list) : Value.t =
-  if List.exists to_bool_aux vals then Value.True else Value.False
-
-let eval_nopt (op : nopt) (vals : Value.t list) : Value.t =
+let nopt_semantics (op : Operator.nopt) : arg list -> res =
   match op with
-  | NAryLogicalAnd -> nary_logical_and vals
-  | NAryLogicalOr -> nary_logical_or vals
-  | ListExpr -> Value.List vals
+  | NAryLogicalAnd -> nary_logical_semantics And
+  | NAryLogicalOr -> nary_logical_semantics Or
+  | ListExpr -> list_expr_semantics

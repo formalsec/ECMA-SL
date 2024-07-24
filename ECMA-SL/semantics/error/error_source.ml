@@ -1,20 +1,11 @@
 open EslBase
 open EslSyntax
 
-type t =
-  | Region of Source.at
-  | Index of int
+type t = Region of Source.at
 
-let none () = Region Source.none
+let none () : t = Region Source.none
 let from (el : 'a Source.t) : t = Region el.at
 let at (at : Source.at) : t = Region at
-let index (index : int) : t = Index index
-
-let index_to_el (lst : 'a list) (src : t) : 'a =
-  match src with
-  | Index i -> (
-    try List.nth lst (i - 1) with _ -> Log.fail "expecting in-bound index" )
-  | _ -> Log.fail "expecting index token"
 
 module ErrSrcFmt (ErrorType : Error_type.ERROR_TYPE) = struct
   let format_code (code : string) : int * string =
@@ -55,7 +46,6 @@ module ErrSrcFmt (ErrorType : Error_type.ERROR_TYPE) = struct
     match src with
     | Region at when at = Source.none -> ()
     | Region at -> pp_at ppf at
-    | _ -> ()
 
   let str (src : t) : string = Fmt.str "%a" pp src
 end
