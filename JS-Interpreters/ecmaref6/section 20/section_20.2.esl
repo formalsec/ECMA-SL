@@ -57,18 +57,18 @@ function setValuePropertiesOfMathObject(mathObject) {
   /* 20.2.1.6 Math.PI */
   /* The Number value for π, the ratio of the circumference of a circle to its diameter, which is approximately 3.1415926535897932. */
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
-  createBuiltInPropertyWithFullDescriptor(mathObject, "PI", PI, false, false, false);
+  createBuiltInPropertyWithFullDescriptor(mathObject, "PI", Pi, false, false, false);
 
   /* 20.2.1.7 Math.SQRT1_2 */
   /* The Number value for the square root of ½, which is approximately 0.7071067811865476. */
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
-  createBuiltInPropertyWithFullDescriptor(mathObject, "SQRT1_2", sqrt 0.5, false, false, false);
+  createBuiltInPropertyWithFullDescriptor(mathObject, "SQRT1_2", sqrt(0.5), false, false, false);
   /* NOTE The value of Math.SQRT1_2 is approximately the reciprocal of the value of Math.SQRT2. */
 
   /* 20.2.1.8 Math.SQRT2 */
   /* The Number value for the square root of 2, which is approximately 1.4142135623730951. */
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
-  createBuiltInPropertyWithFullDescriptor(mathObject, "SQRT2", sqrt 2., false, false, false);
+  createBuiltInPropertyWithFullDescriptor(mathObject, "SQRT2", sqrt(2.), false, false, false);
 
   return;
 }
@@ -283,7 +283,7 @@ function MathAbs(globalObject, this, NewTarget, stric, params) {
   /* If x is NaN, the result is NaN. */
   /* If x is −0, the result is +0. */
   /* If x is −∞, the result is +∞. */
-  return abs x;
+  return abs(x);
 }
 
 /* 20.2.2.2 Math.acos ( x ) */
@@ -338,20 +338,20 @@ function MathASinh(globalObject, this, NewTarget, strict, params) {
   if (is_NaN (x))
     return NaN;
   /* If x is +0, the result is +0. */
-  if (x = 0.) {
+  if (x == 0.) {
   /* If x is −0, the result is −0. */
-  if ((1. / x) = Infinity) {
+  if ((1. / x) == Infinity) {
     return 0.;
     /* If x is −0, the result is +∞. */
   } else {
     return -(0.);
   }
   }
-  if (x = -(0.)) {
+  if (x == -(0.)) {
     return Infinity;
   }
   /* If x is −∞, the result is −∞. */
-  if (x = (-Infinity)) {
+  if (x == (-Infinity)) {
     return (-Infinity);
   }
   return log_e(x + sqrt((x**2.) + 1.));
@@ -387,10 +387,10 @@ function MathATanh(globalObject, this, NewTarget, strict, params) {
   if (x > 1.)
     return NaN;
   /* If x is −1, the result is −∞. */
-  if (x = -(1.))
+  if (x == -(1.))
     return - Infinity;
   /* If x is +1, the result is +∞. */
-  if (x = 1.)
+  if (x == 1.)
     return Infinity;
   /* If x is +0, the result is +0. */
   if (isZero(x))
@@ -452,10 +452,10 @@ function MathCBRT(globalObject, this, NewTarget, strict, params) {
   if (isMinusZero(x))
     return -(0.);
   /* If x is +∞, the result is +∞. */
-  if (x = Infinity)
+  if (x == Infinity)
     return Infinity;
   /* If x is −∞, the result is −∞. */
-  if (x = (-Infinity))
+  if (x == (-Infinity))
     return (-Infinity);
   return x ** (1./3.);
 }
@@ -472,7 +472,7 @@ function MathCeil(globalObject, this, NewTarget, stric, params) {
   /* If x is −∞, the result is −∞. */
   /* If x is less than 0 but greater than -1, the result is −0. */
   /* The value of Math.ceil(x) is the same as the value of -Math.floor(-x). */
-  return ceil x;
+  return ceil(x);
 }
 
 /* 20.2.2.11 Math.clz32 ( x ) */
@@ -482,13 +482,13 @@ function MathCLZ32(globalObject, this, NewTarget, strict, params) {
   @ReturnIfAbrupt(x);
   /* When Math.clz32 is called with one argument x, the following steps are taken: */
   /* Return 32 if x is Infinity or -Infinity */
-  if (x = Infinity ||| x = (- Infinity))
+  if (x == Infinity ||| x == (- Infinity))
     return 32.;
   /* 1. Let n be ToUint32(x). */
-  n := int_of_float(ToUint32(x));
+  n := float_to_int(ToUint32(x));
   /* 2. Let p be the number of leading zero bits in the 32-bit binary representation of n. */
   count := 0;
-  while (!(n = 0)) {
+  while (n != 0) {
     n := n / 2;
     count := count + 1;
   }
@@ -559,10 +559,10 @@ function MathExpM1(globalObject, this, NewTarget, strict, params) {
   if (isMinusZero(x))
     return -(0.);
   /* If x is +∞, the result is +∞. */
-  if (x = Infinity)
+  if (x == Infinity)
     return Infinity;
   /* If x is −∞, the result is −1. */
-  if (x = (- Infinity))
+  if (x == (- Infinity))
     return -(1.);
   return exp(x) - 1.0;
 }
@@ -594,7 +594,7 @@ function MathFRound(globalObject, this, NewTarget, strict, params) {
   if (is_NaN (x))
     return NaN;
   /* 2. If x is one of +0, −0, +∞, −∞, return x. */
-  else if ((isZero(x)) ||| (isMinusZero(x)) ||| (x = Infinity) ||| (x = -Infinity))
+  else if ((isZero(x)) ||| (isMinusZero(x)) ||| (x == Infinity) ||| (x == -Infinity))
     return x;
   /* 3. TOOD Let x32 be the result of converting x to a value in IEEE 754-2008 binary32 format using roundTiesToEven. */
   /* 4. TODO Let x64 be the result of converting x32 to a value in IEEE 754-2008 binary64 format. */
@@ -612,21 +612,21 @@ function MathHypot(globalObject, this, NewTarget, strict, params) {
   */
   /* If no arguments are passed, the result is +0. */
   value := getOptionalParam(params, 0);
-  if (value = 'undefined)
+  if (value == 'undefined)
     return 0.;
   sawNaN := false;
   i := 0;
   sum := 0.;
-  len := l_len params;
+  len := l_len(params);
   while (i < len) {
     value := getOptionalParam(params, i);
     value := ToNumber(value);
     @ReturnIfAbrupt(value);
     /* If any argument is +∞, the result is +∞. */
-    if (value = Infinity)
+    if (value == Infinity)
       return Infinity;
     /* If any argument is −∞, the result is +∞. */
-    if (value = (- Infinity))
+    if (value == (- Infinity))
       return Infinity;
     /* If no argument is +∞ or −∞, and any argument is NaN, the result is NaN. */
     if (is_NaN (value))
@@ -637,9 +637,9 @@ function MathHypot(globalObject, this, NewTarget, strict, params) {
   }
 
   /* If no argument is +∞ or −∞, and any argument is NaN, the result is NaN. */
-  if (sawNaN = true)
+  if (sawNaN == true)
     return NaN;
-  return sqrt sum;
+  return sqrt(sum);
 }
 
 /* 20.2.2.19 Math.imul ( x, y ) */
@@ -686,10 +686,10 @@ function MathLog1P(globalObject, this, NewTarget, strict, params) {
   if (is_NaN (x))
     return NaN;
   /* If x is less than -1, the result is NaN. */
-  if (x < -(1.) ||| x = (- Infinity))
+  if (x < -(1.) ||| x == (- Infinity))
     return NaN;
   /* If x is -1, the result is -∞. */
-  if (x = -(1.))
+  if (x == -(1.))
     return (- Infinity);
   /* If x is +0, the result is +0. */
   if (isZero(x))
@@ -698,7 +698,7 @@ function MathLog1P(globalObject, this, NewTarget, strict, params) {
   if (isMinusZero(x))
     return -(0.);
   /* If x is +∞, the result is +∞. */
-  if (x = Infinity)
+  if (x == Infinity)
     return Infinity;
   return log_e(1 + x);
 }
@@ -740,11 +740,11 @@ function MathMax(globalObject, this, NewTarget, stric, params) {
   /* If any value is NaN, the result is NaN. */
   /* The comparison of values to determine the largest value is done using the Abstract Relational Comparison algorithm (7.2.11) except that +0 is considered to be larger than −0. */
   /* The length property of the max method is 2. */
-  if (l_len params = 0)
+  if (l_len(params) == 0)
     return -Infinity;
   max_value := ToNumber(getOptionalParam(params, 0));
   i := 1;
-  lparams := l_len params;
+  lparams := l_len(params);
   while (i < lparams) {
     arg := getOptionalParam(params, i);
     value := ToNumber(arg);
@@ -761,11 +761,11 @@ function MathMin(globalObject, this, NewTarget, stric, params) {
   /* If any value is NaN, the result is NaN. */
   /* The comparison of values to determine the smallest value is done using the Abstract Relational Comparison algorithm (7.2.11) except that +0 is considered to be larger than −0. */
   /* The length property of the min method is 2. */
-  if (l_len params = 0)
+  if (l_len(params) == 0)
     return Infinity;
   min_value := ToNumber(getOptionalParam(params, 0));
   i := 1;
-  lparams := l_len params;
+  lparams := l_len(params);
   while (i < lparams) {
     arg := getOptionalParam(params, i);
     value := ToNumber(arg);
@@ -792,8 +792,8 @@ function MathPow(globalObject, this, NewTarget, stric, params) {
   /* If abs(x)>1 and y is −∞, the result is +0. */
   /* If abs(x) is 1 and y is +∞, the result is NaN. */
   /* If abs(x) is 1 and y is −∞, the result is NaN. */
-  if (abs(x) = 1.)
-    if ((y = Infinity) ||| (y = -Infinity))
+  if (abs(x) == 1.)
+    if ((y == Infinity) ||| (y == -Infinity))
       return NaN;
   /* If abs(x)<1 and y is +∞, the result is +0. */
   /* If abs(x)<1 and y is −∞, the result is +∞. */
@@ -841,10 +841,10 @@ function MathRound(globalObject, this, NewTarget, stric, params) {
   if (isMinusZero(x))
     return -(0.);
   /* If x is +∞, the result is +∞. */
-  if (x = Infinity)
+  if (x == Infinity)
     return Infinity;
   /* If x is −∞, the result is −∞. */
-  if (x = (- Infinity))
+  if (x == (- Infinity))
     return (- Infinity);
   /* If x is greater than 0 but less than 0.5, the result is +0. */
   if ((x > 0.) &&& (x < 0.5))
@@ -924,7 +924,7 @@ function MathSqrt(globalObject, this, NewTarget, stric, params) {
   /* If x is +0, the result is +0. */
   /* If x is −0, the result is −0. */
   /* If x is +∞, the result is +∞. */
-  return sqrt x;
+  return sqrt(x);
 }
 
 /* 20.2.2.33 Math.tan ( x ) */
@@ -972,10 +972,10 @@ function MathTrunc(globalObject, this, NewTarget, strict, params) {
   if (isMinusZero(x))
     return -(0.);
   /* If x is +∞, the result is +∞. */
-  if (x = Infinity)
+  if (x == Infinity)
     return Infinity;
   /* If x is -∞ the result is -∞ */
-  if (x = (- Infinity))
+  if (x == (- Infinity))
     return (- Infinity);
   /* If x is greater than 0 but less than 1, the result is +0. */
   if (x > (0.) &&& x < 1.)
@@ -991,10 +991,10 @@ function MathTrunc(globalObject, this, NewTarget, strict, params) {
 
 /* Auxiliary functions */
 function isZero(x) {
-  return (x = 0.) &&& ((1. / x) = Infinity);
+  return (x == 0.) &&& ((1. / x) == Infinity);
 }
 
 function isMinusZero(x) {
-  return (x = 0.) &&& ((1. / x) = -Infinity);
+  return (x == 0.) &&& ((1. / x) == -Infinity);
 }
 

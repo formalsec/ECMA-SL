@@ -25,7 +25,7 @@ function getOwnProperties(object) {
 function getOwnEnumerableProperties(object) {
   ownProperties := getOwnProperties(object);
   ownEnumerableProperties := [];
-  lownProperties := l_len ownProperties;
+  lownProperties := l_len(ownProperties);
   i := 0;
   while (i < lownProperties) {
     pname := l_nth(ownProperties, i);

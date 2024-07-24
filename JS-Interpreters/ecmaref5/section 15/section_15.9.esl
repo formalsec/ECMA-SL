@@ -31,76 +31,76 @@ function initDateObject(globalObject, ObjectPrototype, strict) {
 
 /* 15.9.1.2 Day Number and Time within Day */
 /* A given time value t belongs to day number */
-/*               Day(t) = floor(t / msPerDay) */
+/*               Day(t) == floor(t / msPerDay) */
 /* where the number of milliseconds per day is */
-/*               msPerDay = 86400000 */
+/*               msPerDay == 86400000 */
 /* The remainder is called the time within the day: */
-/*               TimeWithinDay(t) = t modulo msPerDay */
+/*               TimeWithinDay(t) == t modulo msPerDay */
 
 /* 15.9.1.3 Year Number */
 /* ECMAScript uses an extrapolated Gregorian system to map a day number to a year number and to determine
    the month and date within that year. In this system, leap years are precisely those which are (divisible by 4)
    and ((not divisible by 100) or (divisible by 400)). The number of days in year number y is therefore defined by */
 
-/* DaysInYear(y) = 365 if (y modulo 4) <> 0 */
-/*               = 366 if (y modulo 4) = 0 and (y modulo 100) <> 0 */
-/*               = 365 if (y modulo 100) = 0 and (y modulo 400) <> 0 */
-/*               = 366 if (y modulo 400) = 0 */
+/* DaysInYear(y) == 365 if (y modulo 4) <> 0 */
+/*               == 366 if (y modulo 4) == 0 and (y modulo 100) <> 0 */
+/*               == 365 if (y modulo 100) == 0 and (y modulo 400) <> 0 */
+/*               == 366 if (y modulo 400) == 0 */
 
 /* All non-leap years have 365 days with the usual number of days per month and leap years have an extra day
    in February. The day number of the first day of year y is given by: */
-/*                DayFromYear(y) = 365 x (y-1970) + floor((y-1969)/4) - floor((y-1901)/100) + floor((y-1601)/400) */
+/*                DayFromYear(y) == 365 x (y-1970) + floor((y-1969)/4) - floor((y-1901)/100) + floor((y-1601)/400) */
 /* The time value of the start of a year is: */
-/*                TimeFromYear(y) = msPerDay x DayFromYear(y) */
+/*                TimeFromYear(y) == msPerDay x DayFromYear(y) */
 /* A time value determines a year by: */
-/*                YearFromTime(t) = the largest integer y (closest to positive infinity) such that TimeFromYear(y) <= t */
+/*                YearFromTime(t) == the largest integer y (closest to positive infinity) such that TimeFromYear(y) <= t */
 /* The leap-year function is 1 for a time within a leap year and otherwise is zero: */
-/*                InLeapYear(t) = 0 if DaysInYear(YearFromTime(t)) = 365 */
-/*                              = 1 if DaysInYear(YearFromTime(t)) = 366 */
+/*                InLeapYear(t) == 0 if DaysInYear(YearFromTime(t)) == 365 */
+/*                              == 1 if DaysInYear(YearFromTime(t)) == 366 */
 
 /* 15.9.1.4 Month Number */
 /* Months are identified by an integer in the range 0 to 11, inclusive. The mapping MonthFromTime(t) from a time
    value t to a month number is defined by: */
-/*                  MonthFromTime(t) = 0 if 0                  <= DayWithinYear(t) < 31                 */
-/*                                   = 1 if 31                 <= DayWithinYear (t) < 59+InLeapYear(t)  */
-/*                                   = 2 if 59+InLeapYear(t)   <= DayWithinYear (t) < 90+InLeapYear(t)  */
-/*                                   = 3 if 90+InLeapYear(t)   <= DayWithinYear (t) < 120+InLeapYear(t) */
-/*                                   = 4 if 120+InLeapYear(t)  <= DayWithinYear (t) < 151+InLeapYear(t) */
-/*                                   = 5 if 151+InLeapYear(t)  <= DayWithinYear (t) < 181+InLeapYear(t) */
-/*                                   = 6 if 181+InLeapYear(t)  <= DayWithinYear (t) < 212+InLeapYear(t) */
-/*                                   = 7 if 212+InLeapYear(t)  <= DayWithinYear (t) < 243+InLeapYear(t) */
-/*                                   = 8 if 243+InLeapYear(t)  <= DayWithinYear (t) < 273+InLeapYear(t) */
-/*                                   = 9 if 273+InLeapYear(t)  <= DayWithinYear (t) < 304+InLeapYear(t) */
-/*                                   = 10 if 304+InLeapYear(t) <= DayWithinYear (t) < 334+InLeapYear(t) */
-/*                                   = 11 if 334+InLeapYear(t) <= DayWithinYear (t) < 365+InLeapYear(t) */
+/*                  MonthFromTime(t) == 0 if 0                  <= DayWithinYear(t) < 31                 */
+/*                                   == 1 if 31                 <= DayWithinYear (t) < 59+InLeapYear(t)  */
+/*                                   == 2 if 59+InLeapYear(t)   <= DayWithinYear (t) < 90+InLeapYear(t)  */
+/*                                   == 3 if 90+InLeapYear(t)   <= DayWithinYear (t) < 120+InLeapYear(t) */
+/*                                   == 4 if 120+InLeapYear(t)  <= DayWithinYear (t) < 151+InLeapYear(t) */
+/*                                   == 5 if 151+InLeapYear(t)  <= DayWithinYear (t) < 181+InLeapYear(t) */
+/*                                   == 6 if 181+InLeapYear(t)  <= DayWithinYear (t) < 212+InLeapYear(t) */
+/*                                   == 7 if 212+InLeapYear(t)  <= DayWithinYear (t) < 243+InLeapYear(t) */
+/*                                   == 8 if 243+InLeapYear(t)  <= DayWithinYear (t) < 273+InLeapYear(t) */
+/*                                   == 9 if 273+InLeapYear(t)  <= DayWithinYear (t) < 304+InLeapYear(t) */
+/*                                   == 10 if 304+InLeapYear(t) <= DayWithinYear (t) < 334+InLeapYear(t) */
+/*                                   == 11 if 334+InLeapYear(t) <= DayWithinYear (t) < 365+InLeapYear(t) */
 /* where */
-/*                 DayWithinYear(t) = Day(t)-DayFromYear(YearFromTime(t)) */
+/*                 DayWithinYear(t) == Day(t)-DayFromYear(YearFromTime(t)) */
 /* A month value of 0 specifies January; 1 specifies February; 2 specifies March; 3 specifies April; 4 specifies
    May; 5 specifies June; 6 specifies July; 7 specifies August; 8 specifies September; 9 specifies October; 10
-   specifies November; and 11 specifies December. Note that MonthFromTime(0) = 0, corresponding to Thursday,
+   specifies November; and 11 specifies December. Note that MonthFromTime(0) == 0, corresponding to Thursday,
    01 January, 1970. */
 
 /* 15.9.1.5 Date Number */
 /* A date number is identified by an integer in the range 1 through 31, inclusive. The mapping DateFromTime(t)
    from a time value t to a month number is defined by: */
-/*                   DateFromTime(t) = DayWithinYear(t)+1                  if MonthFromTime(t)=0  */
-/*                                   = DayWithinYear(t)-30                 if MonthFromTime(t)=1  */
-/*                                   = DayWithinYear(t)-58-InLeapYear(t)   if MonthFromTime(t)=2  */
-/*                                   = DayWithinYear(t)-89-InLeapYear(t)   if MonthFromTime(t)=3  */
-/*                                   = DayWithinYear(t)-119-InLeapYear(t)  if MonthFromTime(t)=4  */
-/*                                   = DayWithinYear(t)-150-InLeapYear(t)  if MonthFromTime(t)=5  */
-/*                                   = DayWithinYear(t)-180-InLeapYear(t)  if MonthFromTime(t)=6  */
-/*                                   = DayWithinYear(t)-211-InLeapYear(t)  if MonthFromTime(t)=7  */
-/*                                   = DayWithinYear(t)-242-InLeapYear(t)  if MonthFromTime(t)=8  */
-/*                                   = DayWithinYear(t)-272-InLeapYear(t)  if MonthFromTime(t)=9  */
-/*                                   = DayWithinYear(t)-303-InLeapYear(t)  if MonthFromTime(t)=10 */
-/*                                   = DayWithinYear(t)-333-InLeapYear(t)  if MonthFromTime(t)=11 */
+/*                   DateFromTime(t) == DayWithinYear(t)+1                  if MonthFromTime(t)=0  */
+/*                                   == DayWithinYear(t)-30                 if MonthFromTime(t)=1  */
+/*                                   == DayWithinYear(t)-58-InLeapYear(t)   if MonthFromTime(t)=2  */
+/*                                   == DayWithinYear(t)-89-InLeapYear(t)   if MonthFromTime(t)=3  */
+/*                                   == DayWithinYear(t)-119-InLeapYear(t)  if MonthFromTime(t)=4  */
+/*                                   == DayWithinYear(t)-150-InLeapYear(t)  if MonthFromTime(t)=5  */
+/*                                   == DayWithinYear(t)-180-InLeapYear(t)  if MonthFromTime(t)=6  */
+/*                                   == DayWithinYear(t)-211-InLeapYear(t)  if MonthFromTime(t)=7  */
+/*                                   == DayWithinYear(t)-242-InLeapYear(t)  if MonthFromTime(t)=8  */
+/*                                   == DayWithinYear(t)-272-InLeapYear(t)  if MonthFromTime(t)=9  */
+/*                                   == DayWithinYear(t)-303-InLeapYear(t)  if MonthFromTime(t)=10 */
+/*                                   == DayWithinYear(t)-333-InLeapYear(t)  if MonthFromTime(t)=11 */
 
 /* 15.9.1.6 Week Day */
 /* The weekday for a particular time value t is defined as */
-/*                   WeekDay(t) = (Day(t) + 4) modulo 7 */
+/*                   WeekDay(t) == (Day(t) + 4) modulo 7 */
 /* A weekday value of 0 specifies Sunday; 1 specifies Monday; 2 specifies Tuesday; 3 specifies Wednesday;
-   4 specifies Thursday; 5 specifies Friday; and 6 specifies Saturday. Note that WeekDay(0) = 4, corresponding to
+   4 specifies Thursday; 5 specifies Friday; and 6 specifies Saturday. Note that WeekDay(0) == 4, corresponding to
    Thursday, 01 January, 1970. */
 
 /* 15.9.1.7 Local Time Zone Adjustment */
@@ -133,9 +133,9 @@ function initDateObject(globalObject, ObjectPrototype, strict) {
 
 /* 15.9.1.9 Local Time */
 /* Conversion from UTC to local time is defined by */
-/*              LocalTime(t) = t + LocalTZA + DaylightSavingTA(t) */
+/*              LocalTime(t) == t + LocalTZA + DaylightSavingTA(t) */
 /* Conversion from local time to UTC is defined by */
-/*              UTC(t) = t – LocalTZA – DaylightSavingTA(t – LocalTZA) */
+/*              UTC(t) == t – LocalTZA – DaylightSavingTA(t – LocalTZA) */
 /* Note that UTC(LocalTime(t)) is not necessarily always equal to t. */
 function UTC(t) {
   return t
@@ -143,17 +143,17 @@ function UTC(t) {
 
 /* 15.9.1.10 Hours, Minutes, Second, and Milliseconds */
 /* The following functions are useful in decomposing time values: */
-/*             HourFromTime(t) = floor(t / msPerHour) modulo HoursPerDay */
-/*             MinFromTime(t)  = floor(t / msPerMinute) modulo MinutesPerHour */
-/*             SecFromTime(t)  = floor(t / msPerSecond) modulo SecondsPerMinute */
-/*             msFromTime(t)   = t modulo msPerSecond */
+/*             HourFromTime(t) == floor(t / msPerHour) modulo HoursPerDay */
+/*             MinFromTime(t)  == floor(t / msPerMinute) modulo MinutesPerHour */
+/*             SecFromTime(t)  == floor(t / msPerSecond) modulo SecondsPerMinute */
+/*             msFromTime(t)   == t modulo msPerSecond */
 /* where */
-/*             HoursPerDay      = 24 */
-/*             MinutesPerHour   = 60 */
-/*             SecondsPerMinute = 60 */
-/*             msPerSecond      = 1000 */
-/*             msPerMinute      = 60000 = msPerSecond x SecondsPerMinute */
-/*             msPerHour        = 3600000 = msPerMinute x MinutesPerHour */
+/*             HoursPerDay      == 24 */
+/*             MinutesPerHour   == 60 */
+/*             SecondsPerMinute == 60 */
+/*             msPerSecond      == 1000 */
+/*             msPerMinute      == 60000 == msPerSecond x SecondsPerMinute */
+/*             msPerHour        == 3600000 == msPerMinute x MinutesPerHour */
 
 /* 15.9.1.11 MakeTime (hour, min, sec, ms) */
 function MakeTime(hour, mins, sec, ms) {
@@ -297,15 +297,15 @@ function DateConstructorCalledAsFunction(datePrototypeObject, strict, args) {
 function DateConstructor(global, this, strict, args) {
   prototype := getDatePrototype(strict);
 
-  if ((this = 'undefined) ||| (this = 'null)) {
+  if ((this == 'undefined) ||| (this == 'null)) {
     return DateConstructorCalledAsFunction(prototype, strict, args)
   }
 
-  if ((l_len args) = 1) {
+  if ((l_len(args)) == 1) {
     value := l_nth(args, 0);
     return internalNewDateWithValue(prototype, value)
   }
-  if ((l_len args = 0)) {
+  if ((l_len(args) == 0)) {
     return internalNewDateWithoutValue(prototype)
   }
   return internalNewDate(prototype, args)
@@ -339,15 +339,15 @@ function internalNewDate(datePrototypeObject, args) {
   /* 2. Let m be ToNumber(month). */
   m := ToNumber(month);
   /* 3. If date is supplied then let dt be ToNumber(date); else let dt be 1. */
-  if (!(date = null)) { dt := ToNumber(date) } else { dt := 1. }
+  if (date != null) { dt := ToNumber(date) } else { dt := 1. }
   /* 4. If hours is supplied then let h be ToNumber(hours); else let h be 0. */
-  if (!(hours = null)) { h := ToNumber(hours) } else { h := 0. }
+  if (hours != null) { h := ToNumber(hours) } else { h := 0. }
   /* 5. If minutes is supplied then let min be ToNumber(minutes); else let min be 0. */
-  if (!(minutes = null)) { mins := ToNumber(minutes) } else { mins := 0. }
+  if (minutes != null) { mins := ToNumber(minutes) } else { mins := 0. }
   /* 6. If seconds is supplied then let s be ToNumber(seconds); else let s be 0. */
-  if (!(seconds = null)) { s := ToNumber(seconds) } else { s := 0. }
+  if (seconds != null) { s := ToNumber(seconds) } else { s := 0. }
   /* 7. If ms is supplied then let milli be ToNumber(ms); else let milli be 0. */
-  if (!(ms = null)) { milli := ToNumber(ms) } else { milli := 0. }
+  if (ms != null) { milli := ToNumber(ms) } else { milli := 0. }
   /* 8. If y is not NaN and 0 <= ToInteger(y) <= 99, then let yr be 1900+ToInteger(y); otherwise, let yr be y. */
   if (!(is_NaN (y)) &&& (0. <= ToInteger(y)) &&& (ToInteger(y) <= 99.)) { yr := 1900. + ToInteger(y) } else { yr := y }
   /* 9. Let finalDate be MakeDate(MakeDay(yr, m, dt), MakeTime(h, min, s, milli)). */
@@ -371,7 +371,7 @@ function internalNewDateWithValue(datePrototypeObject, value) {
   /* 1. Let v be ToPrimitive(value). */
   v := ToPrimitive(value);
   /* 2. If Type(v) is String, then */
-  if (Type(v) = "String") {
+  if (Type(v) == "String") {
     /* a. Parse v as a date, in exactly the same manner as for the parse method (15.9.4.2); let V be the time
           value for this date. */
     /* TODO */

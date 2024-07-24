@@ -2,6 +2,6 @@ function main() {
   y := {}
   y["length"] := 2.0;
 
-  assert (y["length"] = 2.0);
+  assert (y["length"] == 2.0);
   return 0
 }

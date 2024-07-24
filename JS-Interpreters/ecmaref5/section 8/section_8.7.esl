@@ -29,7 +29,7 @@ function IsStrictReference(V) {
 /* Returns true if the base value is a Boolean, String, or Number. */
 function HasPrimitiveBase(V) {
   print "HasPrimitiveBase";
-  if ((Type (GetBase(V)) = "Boolean") || (Type (GetBase(V)) = "String") || (Type (GetBase(V)) = "Number"))
+  if ((Type (GetBase(V)) == "Boolean") || (Type (GetBase(V)) == "String") || (Type (GetBase(V)) == "Number"))
     return true;
   else
     return false;
@@ -38,13 +38,13 @@ function HasPrimitiveBase(V) {
 /* Returns true if either the base value is an object or HasPrimitiveBase(V) is true; otherwise returns false. */
 function IsPropertyReference (V) {
   print "IsPropertyReference";
-  return (typeof (V) = "list") && (l_len V = 5) && (l_nth(V, 0) = "R") && (l_nth(V, 1) = "P");
+  return (typeof (V) == "list") && (l_len(V) == 5) && (l_nth(V, 0) == "R") && (l_nth(V, 1) == "P");
 }
 
 /* Returns true if the base value is undefined and false otherwise. */
 function IsUnresolvableReference (V) {
   print "IsUnresolvableReference";
-  if (Type(GetBase(V)) = "Undefined")
+  if (Type(GetBase(V)) == "Undefined")
     return true;
   else
     return false;
@@ -53,7 +53,7 @@ function IsUnresolvableReference (V) {
 function GetValue(V) {
   print "GetValue";
   /* 1. If Type(V) is not Reference, return V. */
-  if (!(Type(V) = "Reference"))
+  if (Type(V) != "Reference")
     return V;
   /* 2. Let base be the result of calling GetBase(V). */
   base := GetBase(V);
@@ -64,7 +64,7 @@ function GetValue(V) {
   if (IsPropertyReference(V)) {
     /* a. If HasPrimitiveBase(V) is false, then let get be the [[Get]] internal method of base,
           otherwise let get be the special [[Get]] internal method defined below. */
-    if (HasPrimitiveBase(V) = false) get := base["Get"]; else get := "Get_internal";
+    if (HasPrimitiveBase(V) == false) get := base["Get"]; else get := "Get_internal";
     /* b. Return the result of calling the get internal method using base as its this value,
           and passing GetReferencedName(V) for the argument. */
     return {get}(base, GetReferencedName(V));
@@ -80,7 +80,7 @@ function GetValue(V) {
 function PutValue(V, W) {
   print "PutValue";
   /* 1. If Type(V) is not Reference, throw a ReferenceError exception. */
-  if (!(Type(V) = "Reference"))
+  if (Type(V) != "Reference")
     throw ReferenceErrorConstructorInternal();
   /* 2. Let base be the result of calling GetBase(V). */
   base := GetBase(V);
@@ -98,7 +98,7 @@ function PutValue(V, W) {
   else if (IsPropertyReference(V)) {
     /* a. If HasPrimitiveBase(V) is false, then let put be the [[Put]] internal method of base,
           otherwise let put be the special [[Put]] internal method defined below. */
-    if (HasPrimitiveBase(V) = false) put := base["Put"]; else put := "Put_internal";
+    if (HasPrimitiveBase(V) == false) put := base["Put"]; else put := "Put_internal";
     /* b. Call the put internal method using base as its this value, and passing GetReferencedName(V) for the property name,
           W for the value, and IsStrictReference(V) for the Throw flag. */
     {put}(base, GetReferencedName(V), W, IsStrictReference(V));
@@ -123,15 +123,15 @@ function Get_internal(base, P) {
   /* 2. Let desc be the result of calling the [[GetProperty]] internal method of O with property name P. */
   desc := {O.GetProperty}(O, P);
   /* 3. If desc is undefined, return undefined. */
-  if (desc = 'undefined)
+  if (desc == 'undefined)
     return 'undefined;
   /* 4. If IsDataDescriptor(desc) is true, return desc.[[Value]]. */
-  if (IsDataPropertyDescriptor(desc) = true)
+  if (IsDataPropertyDescriptor(desc) == true)
     return desc.Value;
   /* 5. Otherwise, IsAccessorDescriptor(desc) must be true so, let getter be desc.[[Get]] (see 8.10). */
   getter := desc.Get;
   /* 6. If getter is undefined, return undefined. */
-  if (getter = 'undefined)
+  if (getter == 'undefined)
     return 'undefined;
   /* 7. Return the result calling the [[Call]] internal method of getter providing base as the this value and providing
         no arguments. */
@@ -150,18 +150,18 @@ function Put_internal(base, P, W, Throw) {
   /* 1. Let O be ToObject(base). */
   O := ToObject(base);
   /* 2. If the result of calling the [[CanPut]] internal method of O with argument P is false, then */
-  if ({O.CanPut}(O, P) = false) {
+  if ({O.CanPut}(O, P) == false) {
     /* a. If Throw is true, then throw a TypeError exception. */
-    if (Throw = true) throw TypeErrorConstructorInternal();
+    if (Throw == true) throw TypeErrorConstructorInternal();
     /* b. Else return. */
     else return;
   }
   /* 3. Let ownDesc be the result of calling the [[GetOwnProperty]] internal method of O with argument P. */
   ownDesc := {O.GetOwnProperty}(O, P);
   /* 4. If IsDataDescriptor(ownDesc) is true, then */
-  if (IsDataPropertyDescriptor(ownDesc) = true) {
+  if (IsDataPropertyDescriptor(ownDesc) == true) {
     /* a. If Throw is true, then throw a TypeError exception. */
-    if (Throw = true) throw TypeErrorConstructorInternal();
+    if (Throw == true) throw TypeErrorConstructorInternal();
     /* b. Else return. */
     else return;
   }
@@ -169,7 +169,7 @@ function Put_internal(base, P, W, Throw) {
         either an own or inherited accessor property descriptor or an inherited data property descriptor. */
   desc := {O.GetProperty}(O, P);
   /* 6. If IsAccessorDescriptor(desc) is true, then */
-  if (IsAccessorPropertyDescriptor(desc) = true) {
+  if (IsAccessorPropertyDescriptor(desc) == true) {
     /* a. Let setter be desc.[[Set]] (see 8.10) which cannot be undefined. */
     setter := desc.Set;
     /* b. Call the [[Call]] internal method of setter providing base as the this value and an argument list
@@ -179,7 +179,7 @@ function Put_internal(base, P, W, Throw) {
   /* 7. Else, this is a request to create an own property on the transient object O */
     /* a. If Throw is true, then throw a TypeError exception. */
   else {
-    if (Throw = true)
+    if (Throw == true)
       throw TypeErrorConstructorInternal();
   }
   /* 8. Return. */

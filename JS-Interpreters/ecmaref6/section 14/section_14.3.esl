@@ -21,7 +21,7 @@ function DefineMethodProperty(scope, object, propertyName, func, functionPrototy
   /* 4. Let scope be the running execution context’s LexicalEnvironment. */
   lexEnv := getLexicalEnvironment(scope);
   /* 5. If functionPrototype was passed as a parameter, let kind be Normal; otherwise let kind be Method. */
-  if (!(functionPrototype = null)) kind := "Normal"; else kind := "Method";
+  if (functionPrototype != null) kind := "Normal"; else kind := "Method";
   /* 6. Let closure be FunctionCreate(kind, StrictFormalParameters, FunctionBody, scope, strict). If functionPrototype was passed as a
      parameter then pass its value as the functionPrototype optional argument of FunctionCreate. */
   closure := FunctionCreate(kind, func.params, func.body, lexEnv, true, functionPrototype);
@@ -38,7 +38,7 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
 		/* 1. Let propKey be the result of evaluating PropertyName. */
 		propKey := JS_Interpreter_PropertyName(key, scope, false);
 		exprValue := JS_Interpreter_Expr(key, scope);
-		if (key.type = "Identifier" &&&  GetBase(exprValue) = 'undefined) {
+		if (key.type == "Identifier" &&&  GetBase(exprValue) == 'undefined) {
 			propKey := key.name;
 		} else {
 			propName := GetValue(exprValue);
@@ -68,7 +68,7 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
 	| { kind: "set", key: key, value: func} -> {
 			/* 1. Let propKey be the result of evaluating PropertyName. */
 			exprValue := JS_Interpreter_Expr(key, scope);
-			if (key.type = "Identifier" &&&  GetBase(exprValue) = 'undefined) {
+			if (key.type == "Identifier" &&&  GetBase(exprValue) == 'undefined) {
 					propKey := key.name;
 			} else {
 					propName := GetValue(exprValue);

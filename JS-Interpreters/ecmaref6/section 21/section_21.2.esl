@@ -243,7 +243,7 @@ function RegExpConstructorAsFunction(externalScope, this, NewTarget, strict, arg
 * being removed when the contents of the StringLiteral are formed.
 */
 function RegExpConstructor(externalScope, ref, F, args, NewTarget) {
-  n_args := l_len args;
+  n_args := l_len(args);
   if (n_args >= 1) pattern := l_nth(args, 0); else pattern := 'undefined;
   if (n_args >= 2) flags := l_nth(args, 1); else flags := 'undefined;
   /* 1. Let patternIsRegExp be IsRegExp(pattern). */
@@ -251,43 +251,43 @@ function RegExpConstructor(externalScope, ref, F, args, NewTarget) {
   /* 2. ReturnIfAbrupt(patternIsRegExp). */
   @ReturnIfAbrupt(patternIsRegExp);
   /* 3. If NewTarget is not undefined, let newTarget be NewTarget. */
-  if (!(NewTarget = 'undefined)) {
+  if (NewTarget != 'undefined) {
     newTarget := NewTarget;
   } else {
   /* 4. Else, */
     /* a. Let newTarget be the active function object. */
     newTarget := 'undefined;
     /* b. If patternIsRegExp is true and flags is undefined, then */
-    if ((patternIsRegExp = true) &&& (flags = 'undefined)) {
+    if ((patternIsRegExp == true) &&& (flags == 'undefined)) {
       /* i. Let patternConstructor be Get(pattern, "constructor"). */
       patternConstructor := Get(pattern, "constructor");
       /* ii. ReturnIfAbrupt(patternConstructor). */
       @ReturnIfAbrupt(patternConstructor);
       /* iii. If SameValue(newTarget, patternConstructor) is true, return pattern. */
-      if (SameValue(newTarget, patternConstructor) = true)
+      if (SameValue(newTarget, patternConstructor) == true)
         return pattern;
     }
   }
 
   /* 5. If Type(pattern) is Object and pattern has a [[RegExpMatcher]] internal slot, then */
-  if ((Type(pattern) = "Object") &&& ("Match" in_obj pattern)) {
+  if ((Type(pattern) == "Object") &&& ("Match" in_obj pattern)) {
     /* a. Let P be the value of pattern’s [[OriginalSource]] internal slot. */
     P := pattern.OriginalSource;
     /* b. If flags is undefined, let F be the value of pattern’s [[OriginalFlags]] internal slot. */
-    if (flags = 'undefined)
+    if (flags == 'undefined)
       F := pattern.OriginalFlags.flags;
     /* c. Else, let F be flags. */
     else
         F := flags;
   }
   /* 6. Else if patternIsRegExp is true, then */
-  else if (patternIsRegExp = true) {
+  else if (patternIsRegExp == true) {
     /* a. Let P be Get(pattern, "source"). */
     P := Get(pattern, "source");
     /* b. ReturnIfAbrupt(P). */
     @ReturnIfAbrupt(P);
     /* c. If flags is undefined, then */
-    if (flags = 'undefined) {
+    if (flags == 'undefined) {
       /* i. Let F be Get(pattern, "flags"). */
       F := Get(pattern, "flags");
       /* ii. ReturnIfAbrupt(F). */
@@ -355,7 +355,7 @@ function OrdinaryCreateFromConstructorRegExp(strict) {
 /* 21.2.3.2.2 Runtime Semantics: RegExpInitialize (obj, pattern, flags ) */
 function RegExpInitialize(obj, pattern, flags) {
   /* 1. If pattern is undefined, let P be the empty String. */
-  if (pattern = 'undefined)
+  if (pattern == 'undefined)
     P := "";
   /* 2. Else, let P be ToString(pattern). */
   else
@@ -363,7 +363,7 @@ function RegExpInitialize(obj, pattern, flags) {
   /* 3. ReturnIfAbrupt(P). */
   @ReturnIfAbrupt(P);
   /* 4. If flags is undefined, let F be the empty String. */
-  if (flags = 'undefined)
+  if (flags == 'undefined)
     F := "";
   /* 5. Else, let F be ToString(flags). */
   else
@@ -373,7 +373,7 @@ function RegExpInitialize(obj, pattern, flags) {
   /* 7. If F contains any code unit other than "g", "i", "m", "u", or "y" or if it contains the same code unit more than once, throw a SyntaxError exception. */
   setFlags(obj, F);
   /* 8. If F contains "u", let BMP be false; else let BMP be true. */
-  if (includes(F, "u", 0., 1., int_to_float(s_len_u (F))) = true) BMP := false; else BMP := true;
+  if (includes(F, "u", 0., 1., int_to_float(s_len_u (F))) == true) BMP := false; else BMP := true;
 
   /* 9. If BMP is true, then */
     /* a. Parse P using the grammars in 21.2.1 and interpreting each of its 16-bit elements as a Unicode BMP code point.
@@ -492,7 +492,7 @@ function RegExpPrototypeexec(global, this, NewTarget, strict, args) {
   /* 1. Let R be the this value. */
   R := this;
   /* 2. If Type(R) is not Object, throw a TypeError exception. */
-  if (!(Type(R) = "Object"))
+  if (Type(R) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If R does not have a [[RegExpMatcher]] internal slot, throw a TypeError exception. */
   if (!("Match" in_obj R))
@@ -513,21 +513,21 @@ function RegExpPrototypeexec(global, this, NewTarget, strict, args) {
 */
 function RegExpExec(R, S) {
   /* 1. Assert: Type(R) is Object. */
-  assert (Type(R) = "Object");
+  assert (Type(R) == "Object");
   /* 2. Assert: Type(S) is String. */
-  assert (Type(S) = "String");
+  assert (Type(S) == "String");
   /* 3. Let exec be Get(R, "exec"). */
   exec := Get(R, "exec");
   /* 4. ReturnIfAbrupt(exec). */
   @ReturnIfAbrupt(exec);
   /* 5. If IsCallable(exec) is true, then */
-  if (IsCallable(exec) = true) {
+  if (IsCallable(exec) == true) {
     /* a. Let result be Call(exec, R, «S»). */
     result := Call(null, null, exec, R, [S]);
     /* b. ReturnIfAbrupt(result). */
     @ReturnIfAbrupt(result);
     /* c. If Type(result) is neither Object or Null, throw a TypeError exception. */
-    if (!((Type(result) = "Object") ||| (Type(result) = "Null")))
+    if (!((Type(result) == "Object") ||| (Type(result) == "Null")))
       throw TypeErrorConstructorInternal();
     /* d. Return result. */
     return result;
@@ -544,7 +544,7 @@ function RegExpBuiltinExec(R, S) {
   /* 1. Assert: R is an initialized RegExp instance. */
   assert (IsRegExp(R));
   /* 2. Assert: Type(S) is String. */
-  assert (Type(S) = "String");
+  assert (Type(S) == "String");
   /* 3. Let length be the number of code units in S. */
   length := int_to_float (s_len_u (S));
   /* 4. Let lastIndex be ToLength(Get(R,"lastIndex")). */
@@ -560,18 +560,18 @@ function RegExpBuiltinExec(R, S) {
   /* 9. ReturnIfAbrupt(sticky). */
   @ReturnIfAbrupt(sticky);
   /* 10. If global is false and sticky is false, let lastIndex be 0. */
-  if ((global = false) &&& (sticky = false))
+  if ((global == false) &&& (sticky == false))
     lastIndex := 0.;
   /* 11. Let matcher be the value of R’s [[RegExpMatcher]] internal slot. */
   matcher := R.Match;
   /* 12. Let flags be the value of R’s [[OriginalFlags]] internal slot. */
   flags := R.OriginalFlags.flags;
   /* 13. If flags contains "u", let fullUnicode be true, else let fullUnicode be false. */
-  if (includes(flags, "u", 0., 1., int_to_float(s_len_u (flags))) = true) fullUnicode := true; else fullUnicode := false;
+  if (includes(flags, "u", 0., 1., int_to_float(s_len_u (flags))) == true) fullUnicode := true; else fullUnicode := false;
   /* 14. Let matchSucceeded be false. */
   matchSucceeded := false;
   /* 15. Repeat, while matchSucceeded is false */
-  while (matchSucceeded = false) {
+  while (matchSucceeded == false) {
     /* a. If lastIndex > length, then */
     if (lastIndex > length) {
       /* i. Let setStatus be Set(R, "lastIndex", 0, true). */
@@ -582,11 +582,11 @@ function RegExpBuiltinExec(R, S) {
       return 'null;
     }
     /* b. Let r be matcher(S, lastIndex). */
-    r := {R.Match}(R, S, int_of_float lastIndex);
+    r := {R.Match}(R, S, float_to_int lastIndex);
     /* c. If r is failure, then */
     if (isFailure(r)) {
       /* i. If sticky is true, then */
-      if (sticky = true) {
+      if (sticky == true) {
         /* 1. Let setStatus be Set(R, "lastIndex", 0, true). */
         setStatus := Set(R, "lastIndex", 0., true);
         /* 2. ReturnIfAbrupt(setStatus). */
@@ -608,14 +608,14 @@ function RegExpBuiltinExec(R, S) {
   /* 16. Let e be r's endIndex value. */
   e := int_to_float r.endIndex;
   /* 17. If fullUnicode is true, then */
-  if (fullUnicode = true) {
+  if (fullUnicode == true) {
     print "unicode!!!!";
     /* a. e is an index into the Input character list, derived from S, matched by matcher. Let eUTF be the smallest index into S that corresponds to the character at element e of Input. If e is greater than or equal to the length of Input, then eUTF is the number of code units in S. */
     /* b. Let e be eUTF. */
   }
 
   /* 18. If global is true or sticky is true, */
-  if ((global = true) ||| (sticky = true)) {
+  if ((global == true) ||| (sticky == true)) {
     /* a. Let setStatus be Set(R, "lastIndex", e, true). */
     setStatus := Set(R, "lastIndex", e, true);
     /* b. ReturnIfAbrupt(setStatus). */
@@ -630,7 +630,7 @@ function RegExpBuiltinExec(R, S) {
   /* 21. Assert: The value of A’s "length" property is n + 1. */
   A_length := Get(A, "length");
   @ReturnIfAbrupt(A_length);
-  assert (A_length = (n + 1.));
+  assert (A_length == (n + 1.));
   /* 22. Let matchIndex be lastIndex. */
   matchIndex := lastIndex;
   /* 23. Assert: The following CreateDataProperty calls will not result in an abrupt completion. */
@@ -652,10 +652,10 @@ function RegExpBuiltinExec(R, S) {
     captureI := r.caps[i_str];
 
     /* b. If captureI is undefined, let capturedValue be undefined. */
-    if (captureI = 'undefined) {
+    if (captureI == 'undefined) {
       capturedValue := 'undefined;
     /* c. Else if fullUnicode is true, */
-    } else if (fullUnicode = true) {
+    } else if (fullUnicode == true) {
       print "unicode!!!!";
       capturedValue := captureI;
       /* i. Assert: captureI is a List of code points. */
@@ -679,16 +679,16 @@ function RegExpBuiltinExec(R, S) {
 /* 21.2.5.2.3 AdvanceStringIndex ( S, index, unicode ) */
 function AdvanceStringIndex(S, index, unicode) {
   /* 1. Assert: Type(S) is String. */
-  assert (Type(S) = "String");
+  assert (Type(S) == "String");
   /* 2. Assert: index is an integer such that 0≤index≤253-1. */
   /* assert ((IsInteger(index)) && (index >= 0) && (index <= ((2^53) - 1))); */
   assert (IsInteger(index));
   assert (index >= 0.);
   assert (index <= ((2. ** 53.) - 1.));
   /* 3. Assert: Type(unicode) is Boolean. */
-  assert (Type(unicode) = "Boolean");
+  assert (Type(unicode) == "Boolean");
   /* 4. If unicode is false, return index+1. */
-  if (unicode = false)
+  if (unicode == false)
     return index + 1.;
   /* 5. Let length be the number of code units in S. */
   length := int_to_float (s_len_u (S));
@@ -696,12 +696,12 @@ function AdvanceStringIndex(S, index, unicode) {
   if (index + 1. >= length)
     return index + 1.;
   /* 7. Let first be the code unit value at index index in S. */
-  first := s_nth(S, int_of_float index);
+  first := s_nth(S, float_to_int index);
   /* 8. If first < 0xD800 or first > 0xDBFF, return index+1. */
   if ((first < 0xD800) || (first > 0xDBFF))
     return index + 1.;
   /* 9. Let second be the code unit value at index index+1 in S. */
-  second := s_nth(S, int_of_float (index + 1.));
+  second := s_nth(S, float_to_int (index + 1.));
   /* 10. If second < 0xDC00 or second > 0xDFFF, return index+1. */
   if ((second < 0xDC00) || (second > 0xDFFF))
     return index + 1.;
@@ -718,7 +718,7 @@ function getRegExpFlagsAccessorProperty(global, this, NewTarget, strict, args) {
   /* 1. Let R be the this value. */
   R := this;
   /* 2. If Type(R) is not Object, throw a TypeError exception. */
-  if (!(Type(R) = "Object"))
+  if (Type(R) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. Let result be the empty String. */
   result := "";
@@ -727,35 +727,35 @@ function getRegExpFlagsAccessorProperty(global, this, NewTarget, strict, args) {
   /* 5. ReturnIfAbrupt(global). */
   @ReturnIfAbrupt(global_);
   /* 6. If global is true, append "g" as the last code unit of result. */
-  if (global_ = true)
+  if (global_ == true)
     result := s_concat([result, "g"]);
   /* 7. Let ignoreCase be ToBoolean(Get(R, "ignoreCase")). */
   ignoreCase := ToBoolean(Get(R, "ignoreCase"));
   /* 8. ReturnIfAbrupt(ignoreCase). */
   @ReturnIfAbrupt(ignoreCase);
   /* 9. If ignoreCase is true, append "i" as the last code unit of result. */
-  if (ignoreCase = true)
+  if (ignoreCase == true)
     result := s_concat([result, "i"]);
   /* 10. Let multiline be ToBoolean(Get(R, "multiline")). */
   multiline := ToBoolean(Get(R, "multiline"));
   /* 11. ReturnIfAbrupt(multiline). */
   @ReturnIfAbrupt(multiline);
   /* 12. If multiline is true, append "m" as the last code unit of result. */
-  if (multiline = true)
+  if (multiline == true)
     result := s_concat([result, "m"]);
   /* 13. Let unicode be ToBoolean(Get(R, "unicode")). */
   unicode := ToBoolean(Get(R, "unicode"));
   /* 14. ReturnIfAbrupt(unicode). */
   @ReturnIfAbrupt(unicode);
   /* 15. If unicode is true, append "u" as the last code unit of result. */
-  if (unicode = true)
+  if (unicode == true)
     result := s_concat([result, "u"]);
   /* 16. Let sticky be ToBoolean(Get(R, "sticky")). */
   sticky := ToBoolean(Get(R, "sticky"));
   /* 17. ReturnIfAbrupt(sticky). */
   @ReturnIfAbrupt(sticky);
   /* 18. If sticky is true, append "y" as the last code unit of result. */
-  if (sticky = true)
+  if (sticky == true)
     result := s_concat([result, "y"]);
   /* 19. Return result. */
   return result;
@@ -770,7 +770,7 @@ function getRegExpGlobalAccessorProperty(global, this, NewTarget, strict, args) 
   /* 1. Let R be the this value. */
   R := this;
   /* 2. If Type(R) is not Object, throw a TypeError exception. */
-  if (!(Type(R) = "Object"))
+  if (Type(R) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If R does not have an [[OriginalFlags]] internal slot, throw a TypeError exception. */
   if (!("OriginalFlags" in_obj R))
@@ -778,7 +778,7 @@ function getRegExpGlobalAccessorProperty(global, this, NewTarget, strict, args) 
   /* 4. Let flags be the value of R’s [[OriginalFlags]] internal slot. */
   flags := R.OriginalFlags.flags;
   /* 5. If flags contains the code unit "g", return true. */
-  if (includes(flags, "g", 0., 1., int_to_float(s_len_u (flags))) = true)
+  if (includes(flags, "g", 0., 1., int_to_float(s_len_u (flags))) == true)
     return true;
   /* 6. Return false. */
   return false;
@@ -793,7 +793,7 @@ function getRegExpIgnoreCaseAccessorProperty(global, this, NewTarget, strict, ar
   /* 1. Let R be the this value. */
   R := this;
   /* 2. If Type(R) is not Object, throw a TypeError exception. */
-  if (!(Type(R) = "Object"))
+  if (Type(R) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If R does not have an [[OriginalFlags]] internal slot, throw a TypeError exception. */
   if (!("OriginalFlags" in_obj R))
@@ -801,7 +801,7 @@ function getRegExpIgnoreCaseAccessorProperty(global, this, NewTarget, strict, ar
   /* 4. Let flags be the value of R’s [[OriginalFlags]] internal slot. */
   flags := R.OriginalFlags.flags;
   /* 5. If flags contains the code unit "i", return true. */
-  if (includes(flags, "i", 0., 1., int_to_float(s_len_u (flags))) = true)
+  if (includes(flags, "i", 0., 1., int_to_float(s_len_u (flags))) == true)
     return true;
   /* 6. Return false. */
   return false;
@@ -821,7 +821,7 @@ function RegExpPrototypematch(global, this, NewTarget, strict, args) {
   /* 1. Let rx be the this value. */
   rx := this;
   /* 2. If Type(rx) is not Object, throw a TypeError exception. */
-  if (!(Type(rx) = "Object"))
+  if (Type(rx) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. Let S be ToString(string) */
   S := ToString(str);
@@ -832,7 +832,7 @@ function RegExpPrototypematch(global, this, NewTarget, strict, args) {
   /* 6. ReturnIfAbrupt(global). */
   @ReturnIfAbrupt(global_);
   /* 7. If global is false, then */
-  if (global_ = false) {
+  if (global_ == false) {
     /* a. Return RegExpExec(rx, S). */
     return RegExpExec(rx, S);
   /* 8. Else global is true, */
@@ -856,9 +856,9 @@ function RegExpPrototypematch(global, this, NewTarget, strict, args) {
       /* ii. ReturnIfAbrupt(result). */
       @ReturnIfAbrupt(result);
       /* iii. If result is null, then */
-      if (result = 'null) {
+      if (result == 'null) {
         /* 1. If n=0, return null. */
-        if (n = 0)
+        if (n == 0)
           return 'null;
         /* 2. Else, return A. */
         else
@@ -872,9 +872,9 @@ function RegExpPrototypematch(global, this, NewTarget, strict, args) {
         /* 3. Let status be CreateDataProperty(A, ToString(n), matchStr). */
         status := CreateDataProperty(A, ToString(int_to_float n), matchStr);
         /* 4. Assert: status is true. */
-        /* assert (status = true); */
+        /* assert (status == true); */
         /* 5. If matchStr is the empty String, then */
-        if (matchStr = "") {
+        if (matchStr == "") {
           /* a. Let thisIndex be ToLength(Get(rx, "lastIndex")). */
           thisIndex := ToLength(Get(rx, "lastIndex"));
           /* b. ReturnIfAbrupt(thisIndex). */
@@ -902,7 +902,7 @@ function getRegExpMultilineAccessorProperty(global, this, NewTarget, strict, arg
   /* 1. Let R be the this value. */
   R := this;
   /* 2. If Type(R) is not Object, throw a TypeError exception. */
-  if (!(Type(R) = "Object"))
+  if (Type(R) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If R does not have an [[OriginalFlags]] internal slot, throw a TypeError exception. */
   if (!("OriginalFlags" in_obj R))
@@ -910,7 +910,7 @@ function getRegExpMultilineAccessorProperty(global, this, NewTarget, strict, arg
   /* 4. Let flags be the value of R’s [[OriginalFlags]] internal slot. */
   flags := R.OriginalFlags.flags;
   /* 5. If flags contains the code unit "m", return true. */
-  if (includes(flags, "m", 0., 1., int_to_float(s_len_u (flags))) = true)
+  if (includes(flags, "m", 0., 1., int_to_float(s_len_u (flags))) == true)
     return true;
   /* 6. Return false. */
   return false;
@@ -926,7 +926,7 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args) {
   /* 1. Let rx be the this value. */
   rx := this;
   /* 2. If Type(rx) is not Object, throw a TypeError exception. */
-  if (!(Type(rx) = "Object"))
+  if (Type(rx) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. Let S be ToString(string). */
   S := ToString(str);
@@ -937,7 +937,7 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args) {
   /* 6. Let functionalReplace be IsCallable(replaceValue). */
   functionalReplace := IsCallable(replaceValue);
   /* 7. If functionalReplace is false, then */
-  if (functionalReplace = false) {
+  if (functionalReplace == false) {
     /* a. Let replaceValue be ToString(replaceValue). */
     replaceValue := ToString(replaceValue);
     /* b. ReturnIfAbrupt(replaceValue). */
@@ -948,7 +948,7 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args) {
   /* 9. ReturnIfAbrupt(global). */
   @ReturnIfAbrupt(global_);
   /* 10. If global is true, then */
-  if (global_ = true) {
+  if (global_ == true) {
     /* a. Let fullUnicode be ToBoolean(Get(rx, "unicode")). */
     fullUnicode := ToBoolean(Get(rx, "unicode"));
     /* b. ReturnIfAbrupt(fullUnicode). */
@@ -963,20 +963,20 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args) {
   /* 12. Let done be false. */
   done := false;
   /* 13. Repeat, while done is false */
-  while (done = false) {
+  while (done == false) {
     /* a. Let result be RegExpExec(rx, S). */
     result := RegExpExec(rx, S);
     /* b. ReturnIfAbrupt(result). */
     @ReturnIfAbrupt(result);
     /* c. If result is null, set done to true. */
-    if (result = 'null) {
+    if (result == 'null) {
         done := true;
     /* d. Else result is not null, */
     } else {
       /* i. Append result to the end of results. */
       results := l_concat(results, [result]);
       /* ii. If global is false, set done to true. */
-      if (global_ = false) {
+      if (global_ == false) {
         done := true;
       /* iii. Else, */
       } else {
@@ -985,7 +985,7 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args) {
         /* 2. ReturnIfAbrupt(matchStr). */
         @ReturnIfAbrupt(matchStr);
         /* 3. If matchStr is the empty String, then */
-        if (matchStr = "") {
+        if (matchStr == "") {
           /* a. Let thisIndex be ToLength(Get(rx, "lastIndex")). */
           /* thisIndex := ToLength(Get(rx, "lastIndex")); */
           thisIndex := ToLength(Get(rx, "lastIndex"));
@@ -1008,7 +1008,7 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args) {
   nextSourcePosition := 0;
   /* 16. Repeat, for each result in results, */
   i := 0;
-  len := l_len results;
+  len := l_len(results);
   while (i < len) {
     result := l_nth(results, i);
     /* a. Let nCaptures be ToLength(Get(result, "length")). */
@@ -1016,7 +1016,7 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args) {
     /* b. ReturnIfAbrupt(nCaptures). */
     @ReturnIfAbrupt(nCaptures);
     /* c. Let nCaptures be max(nCaptures − 1, 0). */
-    nCaptures := int_of_float(max(nCaptures - 1., 0.));
+    nCaptures := float_to_int(max(nCaptures - 1., 0.));
     /* d. Let matched be ToString(Get(result, "0")). */
     matched := ToString(Get(result, "0"));
     /* e. ReturnIfAbrupt(matched). */
@@ -1028,7 +1028,7 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args) {
     /* h. ReturnIfAbrupt(position). */
     @ReturnIfAbrupt(position);
     /* i. Let position be max(min(position, lengthS), 0). */
-    position := int_of_float(max(min(position, int_to_float lengthS), 0.));
+    position := float_to_int(max(min(position, int_to_float lengthS), 0.));
     /* j. Let n be 1. */
     n := 1;
     /* k. Let captures be an empty List. */
@@ -1040,7 +1040,7 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args) {
       /* ii. ReturnIfAbrupt(capN). */
       @ReturnIfAbrupt(capN);
       /* iii. If capN is not undefined, then */
-      if (!(capN = 'undefined)) {
+      if (capN != 'undefined) {
         /* 1. Let capN be ToString(capN). */
         capN := ToString(capN);
         /* 2. ReturnIfAbrupt(capN). */
@@ -1053,7 +1053,7 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args) {
     }
 
     /* m. If functionalReplace is true, then */
-    if (functionalReplace = true) {
+    if (functionalReplace == true) {
       /* i. Let replacerArgs be «matched». */
       replacerArgs := [matched];
       /* ii. Append in list order the elements of captures to the end of the List replacerArgs. */
@@ -1117,7 +1117,7 @@ function RegExpPrototypesearch(global, this, NewTarget, strict, args) {
   /* 1. Let rx be the this value. */
   rx := this;
   /* 2. If Type(rx) is not Object, throw a TypeError exception. */
-  if (!(Type(rx) = "Object"))
+  if (Type(rx) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. Let S be ToString(string). */
   S := ToString(str);
@@ -1140,7 +1140,7 @@ function RegExpPrototypesearch(global, this, NewTarget, strict, args) {
   /* 12. ReturnIfAbrupt(status). */
   @ReturnIfAbrupt(status);
   /* 13. If result is null, return –1. */
-  if (result = 'null)
+  if (result == 'null)
     return -(1.);
   /* 14. Return Get(result, "index"). */
   return Get(result, "index");
@@ -1155,7 +1155,7 @@ function getRegExpSourceAccessorProperty(global, this, NewTarget, strict, args) 
   /* 1. Let R be the this value. */
   R := this;
   /* 2. If Type(R) is not Object, throw a TypeError exception. */
-  if (!(Type(R) = "Object"))
+  if (Type(R) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If R does not have an [[OriginalSource]] internal slot, throw a TypeError exception. */
   if (!("OriginalSource" in_obj R))
@@ -1207,7 +1207,7 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args) {
   rx := this;
   l := Type(rx);
   /* 2. If Type(rx) is not Object, throw a TypeError exception. */
-  if (!(Type(rx) = "Object"))
+  if (Type(rx) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. Let S be ToString(string). */
   S := ToString(str);
@@ -1223,14 +1223,14 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args) {
   @ReturnIfAbrupt(flags);
   /* 9. If flags contains "u", let unicodeMatching be true. */
   contains := includes(flags, "u", 0., 1., int_to_float(s_len_u (flags)));
-  if (contains = true)
+  if (contains == true)
     unicodeMatching := true;
   /* 10. Else, let unicodeMatching be false. */
   else
     unicodeMatching := false;
   /* 11. If flags contains "y", let newFlags be flags. */
   contains := includes(flags, "y", 0., 1., int_to_float(s_len_u (flags)));
-  if (contains = true)
+  if (contains == true)
     newFlags := flags;
   /* 12. Else, let newFlags be the string that is the concatenation of flags and "y". */
   else
@@ -1244,24 +1244,24 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args) {
   /* 16. Let lengthA be 0. */
   lengthA := 0.;
   /* 17. If limit is undefined, let lim be 253–1; else let lim be ToLength(limit). */
-  if (limit = 'undefined) lim := (2. ** 53.) - 1.0; else lim := ToLength(limit);
+  if (limit == 'undefined) lim := (2. ** 53.) - 1.0; else lim := ToLength(limit);
   /* 18. ReturnIfAbrupt(lim). */
   @ReturnIfAbrupt(lim);
   /* 19. Let size be the number of elements in S. */
   size := int_to_float (s_len_u (S));
   /* 20. Let p be 0. */
   p := 0.;
-  /* 21. If lim = 0, return A. */
-  if (lim = 0.)
+  /* 21. If lim == 0, return A. */
+  if (lim == 0.)
     return A;
-  /* 22. If size = 0, then */
-  if (size = 0.) {
+  /* 22. If size == 0, then */
+  if (size == 0.) {
     /* a. Let z be RegExpExec(splitter, S). */
     z := RegExpExec(splitter, S);
     /* b. ReturnIfAbrupt(z). */
     @ReturnIfAbrupt(z);
     /* c. If z is not null, return A. */
-    if (!(z = 'null) &&& !(z = null))
+    if (z != 'null &&& z != null)
       return A;
     /* d. Assert: The following call will never result in an abrupt completion. */
     /* ???? */
@@ -1283,7 +1283,7 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args) {
     /* d. ReturnIfAbrupt(z). */
     @ReturnIfAbrupt(z);
     /* e. If z is null, let q be AdvanceStringIndex(S, q, unicodeMatching). */
-    if ((z = 'null) || (z = null)) {
+    if ((z == 'null) || (z == null)) {
       q := AdvanceStringIndex(S, q, unicodeMatching);
     /* f. Else z is not null, */
     } else {
@@ -1291,8 +1291,8 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args) {
       e := ToLength(Get(splitter, "lastIndex"));
       /* ii. ReturnIfAbrupt(e). */
       @ReturnIfAbrupt(e);
-      /* iii. If e = p, let q be AdvanceStringIndex(S, q, unicodeMatching). */
-      if (e = p) {
+      /* iii. If e == p, let q be AdvanceStringIndex(S, q, unicodeMatching). */
+      if (e == p) {
         q := AdvanceStringIndex(S, q, unicodeMatching);
       /* iv. Else e  p, */
       } else {
@@ -1305,8 +1305,8 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args) {
         CreateDataProperty(A, ToString(lengthA), T);
         /* 4. Let lengthA be lengthA +1. */
         lengthA := lengthA + 1.;
-        /* 5. If lengthA = lim, return A. */
-        if (lengthA = lim)
+        /* 5. If lengthA == lim, return A. */
+        if (lengthA == lim)
           return A;
         /* 6. Let p be e. */
         p := e;
@@ -1330,8 +1330,8 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args) {
           i := i + 1.;
           /* e. Let lengthA be lengthA +1. */
           lengthA := lengthA + 1.;
-          /* f. If lengthA = lim, return A. */
-          if (lengthA = lim)
+          /* f. If lengthA == lim, return A. */
+          if (lengthA == lim)
             return A;
         }
         /* 12. Let q be p. */
@@ -1360,7 +1360,7 @@ function getRegExpStickyAccessorProperty(global, this, NewTarget, strict, args) 
   /* 1. Let R be the this value. */
   R := this;
   /* 2. If Type(R) is not Object, throw a TypeError exception. */
-  if (!(Type(R) = "Object"))
+  if (Type(R) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If R does not have an [[OriginalFlags]] internal slot, throw a TypeError exception. */
   if (!("OriginalFlags" in_obj R))
@@ -1368,7 +1368,7 @@ function getRegExpStickyAccessorProperty(global, this, NewTarget, strict, args) 
   /* 4. Let flags be the value of R’s [[OriginalFlags]] internal slot. */
   flags := R.OriginalFlags.flags;
   /* 5. If flags contains the code unit "y", return true. */
-  if (includes(flags, "y", 0., 1., int_to_float(s_len_u (flags))) = true)
+  if (includes(flags, "y", 0., 1., int_to_float(s_len_u (flags))) == true)
     return true;
   /* 6. Return false. */
   return false;
@@ -1376,12 +1376,12 @@ function getRegExpStickyAccessorProperty(global, this, NewTarget, strict, args) 
 
 /* 21.2.5.13 RegExp.prototype.test( S ) */
 function RegExpPrototypetest(global, this, NewTarget, strict, args) {
-  n_args := l_len args;
+  n_args := l_len(args);
   if (n_args >= 1) S := l_nth(args, 0); else S := 'undefined;
   /* 1. Let R be the this value. */
   R := this;
   /* 2. If Type(R) is not Object, throw a TypeError exception. */
-  if (!(Type(R) = "Object"))
+  if (Type(R) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. Let string be ToString(S). */
   str := ToString(S);
@@ -1392,7 +1392,7 @@ function RegExpPrototypetest(global, this, NewTarget, strict, args) {
   /* 6. ReturnIfAbrupt(match). */
   @ReturnIfAbrupt(match_);
   /* 7. If match is not null, return true; else return false. */
-  if (!(match_ = null)) return true; else return false;
+  if (match_ != null) return true; else return false;
 }
 
 /* 21.2.5.14 RegExp.prototype.toString ( ) */
@@ -1404,7 +1404,7 @@ function RegExpPrototypetoString(global, this, NewTarget, strict, args) {
   /* 1. Let R be the this value. */
   R := this;
   /* 2. If Type(R) is not Object, throw a TypeError exception. */
-  if (!(Type(R) = "Object"))
+  if (Type(R) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. Let pattern be ToString(Get(R, "source")). */
   pattern := ToString(Get(R, "source"));
@@ -1428,7 +1428,7 @@ function getRegExpUnicodeAccessorProperty(global, this, NewTarget, strict, args)
   /* 1. Let R be the this value. */
   R := this;
   /* 2. If Type(R) is not Object, throw a TypeError exception. */
-  if (!(Type(R) = "Object"))
+  if (Type(R) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If R does not have an [[OriginalFlags]] internal slot, throw a TypeError exception. */
   if (!("OriginalFlags" in_obj R))
@@ -1436,7 +1436,7 @@ function getRegExpUnicodeAccessorProperty(global, this, NewTarget, strict, args)
   /* 4. Let flags be the value of R’s [[OriginalFlags]] internal slot. */
   flags := R.OriginalFlags.flags;
   /* 5. If flags contains the code unit "u", return true. */
-  if (includes(flags, "u", 0., 1., int_to_float(s_len_u (flags))) = true)
+  if (includes(flags, "u", 0., 1., int_to_float(s_len_u (flags))) == true)
     return true;
   /* 6. Return false. */
   return false;

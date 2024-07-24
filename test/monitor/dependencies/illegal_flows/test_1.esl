@@ -9,7 +9,7 @@ function main() {
 
 	x := aux_1;
 	y := 1;
-	if (x = 1) { 
+	if (x == 1) { 
 		y := aux_2 
 	} 
 	return true

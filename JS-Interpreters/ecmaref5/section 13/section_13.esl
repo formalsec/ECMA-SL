@@ -56,7 +56,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
   {F.DefineOwnProperty}(F, "length", newDataPropertyDescriptorFull(int_to_float len, false, false, true), false);
   /* 16. Let proto be the result of creating a new object as would be constructed by the expression new Object()
         where Object is the standard built-in constructor with that name. */
-  if (!(typeof (FunctionBody) = "string")) {
+  if (typeof(FunctionBody) != "string") {
     proto := ObjectConstructor(|global|, 'null, Strict, [null]);
     /* 17. Call the [[DefineOwnProperty]] internal method of proto with arguments "constructor", Property Descriptor
           {[[Value]]: F, { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false. */
@@ -66,7 +66,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
     {F.DefineOwnProperty}(F, "prototype", newDataPropertyDescriptorFull(proto, true, false, false), false);
   }
   /* 19. If Strict is true, then */
-  if (Strict = true) {
+  if (Strict == true) {
     /* a. Let thrower be the [[ThrowTypeError]] function Object (13.2.3). */
     thrower := createThrowTypeErrorFunctionObject(FunctionPrototype, Strict);
     /* b. Call the [[DefineOwnProperty]] internal method of F with arguments "caller", PropertyDescriptor
@@ -77,7 +77,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
     {F.DefineOwnProperty}(F, "arguments", newAccessorPropertyDescriptorFull(thrower, thrower, false, false), false);
   }
 
-  if (n = null)
+  if (n == null)
     setInternalProperty(F, "internalLength", int_to_float len);
   else
     setInternalProperty(F, "internalLength", n);
@@ -90,12 +90,12 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
 
 /* 13.2.1 [[Call]] */
 function Call(externalScope, ref, F, this, args) {
-  if (("Code" in_obj F) &&& (typeof (F.Code) = "string") &&& (F.Code = "GlobalObjectEval")) {
+  if (("Code" in_obj F) &&& (typeof (F.Code) == "string") &&& (F.Code == "GlobalObjectEval")) {
     args := completeArgs(args, F);
     strict := F.strict ||| isContainedInStrictCode(externalScope);
     return {F.Code}(externalScope, ref, this, strict, args);
   }
-  if (("Code" in_obj F) &&& ((typeof (F.Code) = "string") || (typeof (F.Code) = "curry"))) {
+  if (("Code" in_obj F) &&& ((typeof (F.Code) == "string") || (typeof (F.Code) == "curry"))) {
     args := completeArgs(args, F);
     return {F.Code}(F.Scope, this, F.strict, args);
   }
@@ -118,10 +118,10 @@ function Call(externalScope, ref, F, this, args) {
   /* exitExecutionContext(funcCtx) */ /* TODO dummy function */
 
   /* 4. If result.type is throw then throw result.value. */
-  if (getCompletionType(result) = 'throw)
+  if (getCompletionType(result) == 'throw)
     throw getCompletionValue(result);
   /* 5. If result.type is return then return result.value. */
-  if (getCompletionType(result) = 'return)
+  if (getCompletionType(result) == 'return)
     return getCompletionValue(result);
   /* 6. Otherwise result.type must be normal. Return undefined. */
   return 'undefined;
@@ -144,17 +144,17 @@ function Construct(externalScope, ref, F, argumentList) {
   /* 5. Let proto be the value of calling the [[Get]] internal property of F with argument "prototype". */
   proto := {F.Get}(F, "prototype");
   /* 6. If Type(proto) is Object, set the [[Prototype]] internal property of obj to proto. */
-  if (Type(proto) = "Object")
+  if (Type(proto) == "Object")
     setInternalProperty(obj, "Prototype", proto);
   /* 7. If Type(proto) is not Object, set the [[Prototype]] internal property of obj to the standard built-in Object prototype
         object as described in 15.2.4. */
-  if (!(Type(proto) = "Object"))
+  if (Type(proto) != "Object")
     setInternalProperty(obj, "Prototype", getObjectPrototype(F.strict));
   /* 8. Let result be the result of calling the [[Call]] internal property of F, providing obj as the this value and providing the
         argument list passed into [[Construct]] as args. */
   result := {F.Call}(externalScope, ref, F, obj, argumentList);
   /* 9. If Type(result) is Object then return result. */
-  if (Type(result) = "Object")
+  if (Type(result) == "Object")
     return result;
   /* 10. Return obj */
   return obj;
@@ -247,9 +247,9 @@ function listOfIdentifiersOf(formalParametersList) {
 }
 
 function numberOfFormalParameters(formalParametersList) {
-  return l_len formalParametersList;
+  return l_len(formalParametersList);
 }
 
 function isValueAnEmptyFunctionBody(value) {
-  return ((typeof (value) = "object") &&& ("body" in_obj value) &&& (value.body = []));
+  return ((typeof (value) == "object") &&& ("body" in_obj value) &&& (value.body == []));
 }

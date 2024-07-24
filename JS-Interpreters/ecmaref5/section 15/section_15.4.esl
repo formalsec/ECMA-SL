@@ -36,7 +36,7 @@ function isSparseArray(O) {
           method of O with argument ToString(i). */
     elem := {O.GetOwnProperty}(O, ToString(i));
     /* b. If elem is undefined, return true. */
-    if (elem = 'undefined)
+    if (elem == 'undefined)
       return true;
   }
 
@@ -51,7 +51,7 @@ function isSparseArray(O) {
 function IsArrayIndex(P) {
   p_uint := ToUint32(P);
   p_str := ToString(p_uint);
-  return ((p_str = P) && !(p_uint = ((2. ** 32.) - 1.) )); /* (2^32)-1 = 4294967295 */
+  return (p_str == P && p_uint != ((2. ** 32.) - 1.)); /* (2^32)-1 == 4294967295 */
 }
 
 function getArrayPrototype(strict) {
@@ -269,7 +269,7 @@ function initArrayObject(global, objectPrototype, strict) {
  */
 function ArrayConstructor(global, this, strict, items) {
   prototype := getArrayPrototype(strict);
-  if ((l_len items) = 1) {
+  if ((l_len(items)) == 1) {
     len := l_nth (items, 0);
     return internalNewArrayLen(prototype, len);
   }
@@ -294,7 +294,7 @@ function internalNewArray(arrayPrototype, items) {
   i := 0;
   /* The length property of the newly constructed object is set to the
      number of arguments. */
-  len := l_len items;
+  len := l_len(items);
   createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", ToUint32(int_to_float len), true, false, false);
 
   /* The 0 property of the newly constructed object is set to item0
@@ -334,15 +334,15 @@ function internalNewArrayLen(arrayPrototype, len) {
       set to "Array". */
   setInternalProperty(newlyConstructedObject, "Class", "Array");
 
-  lenIsNumber := (typeof (len) = "float");
+  lenIsNumber := (typeof (len) == "float");
   /* If the argument len is a Number and ToUint32(len) is equal to len, then
      the length property of the newly constructed object is set to ToUint32(len). */
-  if (lenIsNumber &&& ((ToUint32(len) = len)))
+  if (lenIsNumber &&& ((ToUint32(len) == len)))
     createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", ToUint32(len), true, false, false);
 
   /* If the argument len is a Number and ToUint32(len) is not equal to
      len, a RangeError exception is thrown. */
-  if (lenIsNumber &&& !((ToUint32(len) = len)))
+  if (lenIsNumber &&& ToUint32(len) != len)
     throw RangeErrorConstructorInternal();
 
   /* If the argument len is not a Number, then the length property of the
@@ -369,11 +369,11 @@ function internalNewArrayLen(arrayPrototype, len) {
 function isArray(global, this, strict, args) {
   arg := l_nth(args, 0);
   /* 1. If Type(arg) is not Object, return false. */
-  if (!(Type(arg) = "Object"))
+  if (Type(arg) != "Object")
     return false;
   /* 2. If the value of the [[Class]] internal property of arg is "Array",
         then return true. */
-  if (arg.Class = "Array")
+  if (arg.Class == "Array")
     return true;
   /* 3. Return false. */
   return false;
@@ -395,7 +395,7 @@ function arrayToString(global, this, strict, args) {
   func := {array.Get}(array, "join");
   /* 3. If IsCallable(func) is false, then let func be the standard
         built-in method Object.prototype.toString (15.2.4.2). */
-  if (IsCallable(func) = false)
+  if (IsCallable(func) == false)
     func := getObjectPrototypeToString(strict);
   /* 4. Return the result of calling the [[Call]] internal method of func
         providing array as the this value and an empty arguments list. */
@@ -438,13 +438,13 @@ function arrayToLocaleString(global, this, strict, args) {
         derived in an implementation-defined way). */
   separator := ","; /* TODO */
   /* 5. If len is zero, return the empty String. */
-  if (len = 0.)
+  if (len == 0.)
     return "";
   /* 6. Let firstElement be the result of calling the [[Get]] internal
         method of array with argument "0". */
   firstElement := {O.Get}(O, "0");
   /* 7. If firstElement is undefined or null, then */
-  if ((firstElement = 'undefined) || (firstElement = 'null)) {
+  if ((firstElement == 'undefined) || (firstElement == 'null)) {
     /* a. Let R be the empty String. */
     R := "";
   }
@@ -456,7 +456,7 @@ function arrayToLocaleString(global, this, strict, args) {
           of elementObj with argument "toLocaleString". */
     func := {elementObj.Get}(elementObj, "toLocaleString");
     /* c. If IsCallable(func) is false, throw a TypeError exception. */
-    if (IsCallable(func) = false)
+    if (IsCallable(func) == false)
       throw TypeErrorConstructorInternal();
     /* d. Let R be the result of calling the [[Call]] internal method of func
           providing elementObj as the this value and an empty arguments list. */
@@ -472,7 +472,7 @@ function arrayToLocaleString(global, this, strict, args) {
           method of array with argument ToString(k). */
     nextElement := {O.Get}(O, ToString(k));
     /* c. If nextElement is undefined or null, then */
-    if ((nextElement = 'undefined) || (nextElement = 'null)) {
+    if ((nextElement == 'undefined) || (nextElement == 'null)) {
       /* i. Let R be the empty String. */
       R := "";
     }
@@ -484,7 +484,7 @@ function arrayToLocaleString(global, this, strict, args) {
              elementObj with argument "toLocaleString". */
       func := {elementObj.Get}(elementObj, "toLocaleString");
       /* iii. If IsCallable(func) is false, throw a TypeError exception. */
-      if (IsCallable(func) = false)
+      if (IsCallable(func) == false)
         throw TypeErrorConstructorInternal();
       /* iv. Let R be the result of calling the [[Call]] internal method of func
              providing elementObj as the this value and an empty arguments list. */
@@ -538,7 +538,7 @@ function arrayConcat(global, this, strict, items) {
   items := l_prepend(O, items);
 
   /* 5. Repeat, while items is not empty */
-  while (!(items = [])) {
+  while (items != []) {
     /* a. Remove the first element from items and let E be the value of the
           element. */
     E := hd items;
@@ -546,7 +546,7 @@ function arrayConcat(global, this, strict, items) {
 
     /* b. If the value of the [[Class]] internal property of E is "Array",
           then */
-    if ((typeof (E) = "object") &&& (E.Class = "Array")) {
+    if ((typeof (E) == "object") &&& (E.Class == "Array")) {
       /* i. Let k be 0. */
       k := int_to_float 0;
       /* ii. Let len be the result of calling the [[Get]] internal method
@@ -561,7 +561,7 @@ function arrayConcat(global, this, strict, items) {
               internal method of E with P. */
         exists := {E.HasProperty}(E, P);
         /* 3. If exists is true, then */
-        if (exists = true) {
+        if (exists == true) {
           /* a. Let subElement be the result of calling the [[Get]] internal
                 method of E with argument P. */
           subElement := {E.Get}(E, P);
@@ -634,19 +634,19 @@ function arrayJoin(global, this, strict, args) {
   len := ToUint32(lenVal);
   /* 4. If separator is undefined, let separator be the single-character
         String ",". */
-  if (separator = 'undefined)
+  if (separator == 'undefined)
     separator := ",";
   /* 5. Let sep be ToString(separator). */
   sep := ToString(separator);
   /* 6. If len is zero, return the empty String. */
-  if (len = 0.)
+  if (len == 0.)
     return "";
   /* 7. Let element0 be the result of calling the [[Get]] internal method
         of O with argument "0". */
   element0 := {O.Get}(O, "0");
   /* 8. If element0 is undefined or null, let R be the empty String;
         otherwise, Let R be ToString(element0). */
-  if ((element0 = 'undefined) || (element0 = 'null))
+  if ((element0 == 'undefined) || (element0 == 'null))
     R := "";
   else
     R := ToString(element0);
@@ -661,7 +661,7 @@ function arrayJoin(global, this, strict, args) {
     element := {O.Get}(O, ToString(k));
     /* c. If element is undefined or null, Let next be the empty String;
           otherwise, let next be ToString(element). */
-    if ((element = 'undefined) || (element = 'null)) 
+    if ((element == 'undefined) || (element == 'null)) 
       next := "";
     else
       next := ToString(element);
@@ -701,7 +701,7 @@ function arrayPop(global, this, strict, args) {
   len := ToUint32(lenVal);
 
   /* 4. If len is zero, */
-  if (len = 0.) {
+  if (len == 0.) {
     /* a. Call the [[Put]] internal method of O with arguments "length",
           0, and true. */
     {O.Put}(O, "length", 0., true);
@@ -761,7 +761,7 @@ function arrayPush(global, this, strict, items) {
         order, the arguments that were passed to this function invocation. */
   items := items;
   /* 5. Repeat, while items is not empty */
-  while (!(items = [])) {
+  while (items != []) {
     /* a. Remove the first element from items and let E be the value of
           the element. */
     E := hd items;
@@ -810,7 +810,7 @@ function arrayReverse(global, this, strict, args) {
   /* 5. Let lower be 0. */
   lower := 0.;
   /* 6. Repeat, while lower ≠ middle */
-  while (!(lower = middle)) {
+  while (lower != middle) {
     /* a. Let upper be len−lower −1. */
     upper := len - lower - 1.;
     /* b. Let upperP be ToString(upper). */
@@ -830,7 +830,7 @@ function arrayReverse(global, this, strict, args) {
           internal method of O with argument upperP. */
     upperExists := {O.HasProperty}(O, upperP);
     /* h. If lowerExists is true and upperExists is true, then */
-    if (lowerExists = true &&& upperExists = true) {
+    if (lowerExists == true &&& upperExists == true) {
       /* i. Call the [[Put]] internal method of O with arguments lowerP,
             upperValue, and true . */
       {O.Put}(O, lowerP, upperValue, true);
@@ -839,7 +839,7 @@ function arrayReverse(global, this, strict, args) {
       {O.Put}(O, upperP, lowerValue, true);
     }
     /* i. Else if lowerExists is false and upperExists is true, then */
-    else if (lowerExists = false &&& upperExists = true) {
+    else if (lowerExists == false &&& upperExists == true) {
       /* i. Call the [[Put]] internal method of O with arguments lowerP,
             upperValue, and true . */
       {O.Put}(O, lowerP, upperValue, true);
@@ -848,7 +848,7 @@ function arrayReverse(global, this, strict, args) {
       {O.Delete}(O, upperP, true);
     }
     /* j. Else if lowerExists is true and upperExists is false, then */
-    else if (lowerExists = true &&& upperExists = false) {
+    else if (lowerExists == true &&& upperExists == false) {
       /* i. Call the [[Delete]] internal method of O, with arguments lowerP
             and true . */
       {O.Delete}(O, lowerP, true);
@@ -890,7 +890,7 @@ function arrayShift(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenVal). */
   len := ToUint32(lenVal);
   /* 4. If len is zero, then */
-  if (len = 0.) {
+  if (len == 0.) {
     /* a. Call the [[Put]] internal method of O with arguments "length",
           0, and true. */
     {O.Put}(O, "length", 0., true);
@@ -912,7 +912,7 @@ function arrayShift(global, this, strict, args) {
           internal method of O with argument from. */
     fromPresent := {O.HasProperty}(O, from);
     /* d. If fromPresent is true, then */
-    if (fromPresent = true) {
+    if (fromPresent == true) {
       /* i. Let fromVal be the result of calling the [[Get]] internal
             method of O with argument from. */
       fromVal := {O.Get}(O, from);
@@ -978,7 +978,7 @@ function arraySlice(global, this, strict, args) {
   /* 6. If relativeStart is negative, let k be max((len +relativeStart),0); else let k be min(relativeStart,len). */
   if (relativeStart < 0.) k := max((len + relativeStart), 0.); else k := min(relativeStart, len);
   /* 7. If end is undefined, let relativeEnd be len; else let relativeEnd be ToInteger(end). */
-  if (end = 'undefined)
+  if (end == 'undefined)
     relativeEnd := len;
   else
     relativeEnd := ToInteger(end);
@@ -995,7 +995,7 @@ function arraySlice(global, this, strict, args) {
           of O with argument Pk. */
     kPresent := {O.HasProperty}(O, Pk);
     /* c. If kPresent is true, then */
-    if (kPresent = true) {
+    if (kPresent == true) {
       /* i. Let kValue be the result of calling the [[Get]] internal method of O
             with argument Pk. */
       kValue := {O.Get}(O, Pk);
@@ -1032,7 +1032,7 @@ function arraySlice(global, this, strict, args) {
  * (that is, elements that compare equal do not necessarily remain in their
  * original order). If comparefn is not undefined, it should be a function
  * that accepts two arguments x and y and returns a negative value if x < y,
- * zero if x = y, or a positive value if x > y.
+ * zero if x == y, or a positive value if x > y.
  */
 function arraySort(global, this, strict, args) {
   comparefn := l_nth(args, 0);
@@ -1128,7 +1128,7 @@ function arraySort(global, this, strict, args) {
     A function comparefn is a consistent comparison function for a set
     of values S if all of the requirements below are met for all values
     a, b, and c (possibly the same value) in the set S: The notation
-    a <CF b means comparefn(a,b) < 0; a =CF b means comparefn(a,b) = 0
+    a <CF b means comparefn(a,b) < 0; a =CF b means comparefn(a,b) == 0
     (of either sign); and a >CF b means comparefn(a,b) > 0.
 
     - Calling comparefn(a,b) always returns the same value v when given
@@ -1178,13 +1178,13 @@ function SortCompare(obj, comparefn, j, k) {
         method of obj with argument kString. */
   hask := {obj.HasProperty}(obj, kString);
   /* 5. If hasj and hask are both false, then return +0. */
-  if ((hasj = false) &&& (hask = false))
+  if ((hasj == false) &&& (hask == false))
     return 0.;
   /* 6. If hasj is false, then return 1. */
-  if (hasj = false)
+  if (hasj == false)
     return 1.;
   /* 7. If hask is false, then return –1. */
-  if (hask = false)
+  if (hask == false)
     return -(1.);
   /* 8. Let x be the result of calling the [[Get]] internal method of
         obj with argument jString. */
@@ -1193,18 +1193,18 @@ function SortCompare(obj, comparefn, j, k) {
         obj with argument kString. */
   y := {obj.Get}(obj, kString);
   /* 10. If x and y are both undefined, return +0. */
-  if ((x = 'undefined) &&& (y = 'undefined))
+  if ((x == 'undefined) &&& (y == 'undefined))
     return 0.;
   /* 11. If x is undefined, return 1. */
-  if (x = 'undefined)
+  if (x == 'undefined)
     return 1.;
   /* 12. If y is undefined, return −1. */
-  if (y = 'undefined)
+  if (y == 'undefined)
     return -(1.);
   /* 13. If the argument comparefn is not undefined, then */
-  if (!(comparefn = 'undefined)) {
+  if (comparefn != 'undefined) {
     /* a. If IsCallable(comparefn) is false, throw a TypeError exception. */
-    if (IsCallable(comparefn) = false)
+    if (IsCallable(comparefn) == false)
       throw TypeErrorConstructorInternal();
     /* b. Return the result of calling the [[Call]] internal method of
           comparefn passing undefined as the this value and with arguments x and y. */
@@ -1270,7 +1270,7 @@ function arraySplice(global, this, strict, args) {
           internal method of O with argument from. */
     fromPresent := {O.HasProperty}(O, from);
     /* c. If fromPresent is true, then */
-    if (fromPresent = true) {
+    if (fromPresent == true) {
       /* i. Let fromValue be the result of calling the [[Get]] internal
             method of O with argument from. */
       fromValue := {O.Get}(O, from);
@@ -1288,7 +1288,7 @@ function arraySplice(global, this, strict, args) {
          with item1. The list will be empty if no such items are present. */
   items := items;
   /* 11. Let itemCount be the number of elements in items. */
-  itemCount := int_to_float (l_len items);
+  itemCount := int_to_float (l_len(items));
   /* 12. If itemCount < actualDeleteCount, then */
   if (itemCount < actualDeleteCount) {
     /* a. Let k be actualStart. */
@@ -1303,7 +1303,7 @@ function arraySplice(global, this, strict, args) {
               [[HasProperty]] internal method of O with argument from. */
       fromPresent := {O.HasProperty}(O, from);
       /* iv. If fromPresent is true, then */
-      if (fromPresent = true) {
+      if (fromPresent == true) {
         /* 1. Let fromValue be the result of calling the [[Get]]
               internal method of O with argument from. */
         fromValue := {O.Get}(O, from);
@@ -1344,7 +1344,7 @@ function arraySplice(global, this, strict, args) {
               internal method of O with argument from. */
       fromPresent := {O.HasProperty}(O, from);
       /* iv. If fromPresent is true, then */
-      if (fromPresent = true) {
+      if (fromPresent == true) {
         /* 1. Let fromValue be the result of calling the [[Get]] internal
               method of O with argument from. */
         fromValue := {O.Get}(O, from);
@@ -1365,7 +1365,7 @@ function arraySplice(global, this, strict, args) {
   /* 14. Let k be actualStart. */
   k := actualStart;
   /* 15. Repeat, while items is not empty */
-  while (!(items = [])) {
+  while (items != []) {
     /* a. Remove the first element from items and let E be the value
           of that element. */
     E := hd items;
@@ -1414,7 +1414,7 @@ function arrayUnshift(global, this, strict, items) {
   /* 3. Let len be ToUint32(lenVal). */
   len := ToUint32(lenVal);
   /* 4. Let argCount be the number of actual arguments. */
-  argCount := int_to_float (l_len items);
+  argCount := int_to_float (l_len(items));
   /* 5. Let k be len. */
   k := len;
   /* 6. Repeat, while k > 0, */
@@ -1427,7 +1427,7 @@ function arrayUnshift(global, this, strict, items) {
           internal method of O with argument from. */
     fromPresent := {O.HasProperty}(O, from);
     /* d. If fromPresent is true, then */
-    if (fromPresent = true) {
+    if (fromPresent == true) {
       /* i. Let fromValue be the result of calling the [[Get]]
             internal method of O with argument from. */
       fromValue := {O.Get}(O, from);
@@ -1451,7 +1451,7 @@ function arrayUnshift(global, this, strict, items) {
         invocation. */
   items := items;
   /* 9. Repeat, while items is not empty */
-  while (!(items = [])) {
+  while (items != []) {
     /* a. Remove the first element from items and let E be the value
           of that element. */
     E := hd items;
@@ -1510,10 +1510,10 @@ function arrayIndexOf(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenValue). */
   len := ToUint32(lenVal);
   /* 4. If len is 0, return -1. */
-  if (len = 0.)
+  if (len == 0.)
     return -(1.);
   /* 5. If argument fromIndex was passed let n be ToInteger(fromIndex); else let n be 0. */
-  if (!(fromIndex = null))
+  if (fromIndex != null)
     n :=  ToInteger(fromIndex);
   else
     n := 0.;
@@ -1539,7 +1539,7 @@ function arrayIndexOf(global, this, strict, args) {
           method of O with argument ToString(k). */
     kPresent := {O.HasProperty}(O, ToString(k));
     /* b. If kPresent is true, then */
-    if (kPresent = true) {
+    if (kPresent == true) {
       /* i. Let elementK be the result of calling the [[Get]] internal method
             of O with the argument ToString(k). */
       elementK := {O.Get}(O, ToString(k));
@@ -1547,7 +1547,7 @@ function arrayIndexOf(global, this, strict, args) {
             Algorithm to searchElement and elementK. */
       same := StrictEqualityComparison(searchElement, elementK);
       /* iii. If same is true, return k. */
-      if (same = true)
+      if (same == true)
         return k;
     }
     /* c. Increase k by 1. */
@@ -1598,10 +1598,10 @@ function arrayLastIndexOf(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenValue). */
   len := ToUint32(lenVal);
   /* 4. If len is 0, return -1. */
-  if (len = 0.)
+  if (len == 0.)
     return -(1.);
   /* 5. If argument fromIndex was passed let n be ToInteger(fromIndex); else let n be len. */
-  if (!(fromIndex = null))
+  if (fromIndex != null)
     n := ToInteger(fromIndex);
   else 
     n := len;
@@ -1622,7 +1622,7 @@ function arrayLastIndexOf(global, this, strict, args) {
           internal method of O with argument ToString(k). */
     kPresent := {O.HasProperty}(O, ToString(k));
     /* b. If kPresent is true, then */
-    if (kPresent = true) {
+    if (kPresent == true) {
       /* i. Let elementK be the result of calling the [[Get]] internal
             method of O with the argument ToString(k). */
       elementK := {O.Get}(O, ToString(k));
@@ -1630,7 +1630,7 @@ function arrayLastIndexOf(global, this, strict, args) {
              Comparision Algorithm to searchElement and elementK. */
       same := StrictEqualityComparison(searchElement, elementK);
       /* iii. If same is true, return k. */
-      if (same = true)
+      if (same == true)
         return k;
     }
     /* c. Decrease k by 1. */
@@ -1699,10 +1699,10 @@ function arrayEvery(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenValue). */
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false)
+  if (IsCallable(callbackfn) == false)
     throw TypeErrorConstructorInternal();
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) T := thisArg; T := 'undefined;
+  if (thisArg != null) T := thisArg; else T := 'undefined;
   /* 6. Let k be 0. */
   k := 0.;
   /* 7. Repeat, while k < len */
@@ -1713,7 +1713,7 @@ function arrayEvery(global, this, strict, args) {
           internal method of O with argument Pk. */
     kPresent := {O.HasProperty}(O, Pk);
     /* c. If kPresent is true, then */
-    if (kPresent = true) {
+    if (kPresent == true) {
       /* i. Let kValue be the result of calling the [[Get]] internal
             method of O with argument Pk. */
       kValue := {O.Get}(O, Pk);
@@ -1722,7 +1722,7 @@ function arrayEvery(global, this, strict, args) {
              list containing kValue, k, and O. */
       testResult := {callbackfn.Call}(null, null, callbackfn, T, [kValue, k, O]);
       /* iii. If ToBoolean(testResult) is false, return false. */
-      if (ToBoolean(testResult) = false)
+      if (ToBoolean(testResult) == false)
         return false;
     }
     /* d. Increase k by 1. */
@@ -1788,10 +1788,10 @@ function arraySome(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenValue). */
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false)
+  if (IsCallable(callbackfn) == false)
     throw TypeErrorConstructorInternal();
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) T := thisArg; else T := 'undefined;
+  if (thisArg != null) T := thisArg; else T := 'undefined;
   /* 6. Let k be 0. */
   k := 0.;
   /* 7. Repeat, while k < len */
@@ -1802,7 +1802,7 @@ function arraySome(global, this, strict, args) {
           internal method of O with argument Pk. */
     kPresent := {O.HasProperty}(O, Pk);
     /* c. If kPresent is true, then */
-    if (kPresent = true) {
+    if (kPresent == true) {
       /* i. Let kValue be the result of calling the [[Get]] internal
             method of O with argument Pk. */
       kValue := {O.Get}(O, Pk);
@@ -1811,7 +1811,7 @@ function arraySome(global, this, strict, args) {
              list containing kValue, k, and O. */
       testResult := {callbackfn.Call}(null, null, callbackfn, T, [kValue, k, O]);
       /* iii. If ToBoolean(testResult) is true, return true. */
-      if (ToBoolean(testResult) = true)
+      if (ToBoolean(testResult) == true)
         return true;
     }
     /* d. Increase k by 1. */
@@ -1874,10 +1874,10 @@ function arrayForEach(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenValue). */
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false)
+  if (IsCallable(callbackfn) == false)
     throw TypeErrorConstructorInternal();
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) T := thisArg; else T := 'undefined;
+  if (thisArg != null) T := thisArg; else T := 'undefined;
   /* 6. Let k be 0. */
   k := 0.;
   /* 7. Repeat, while k < len */
@@ -1888,7 +1888,7 @@ function arrayForEach(global, this, strict, args) {
           internal method of O with argument Pk. */
     kPresent := {O.HasProperty}(O, Pk);
     /* c. If kPresent is true, then */
-    if (kPresent = true) {
+    if (kPresent == true) {
       /* i. Let kValue be the result of calling the [[Get]] internal
             method of O with argument Pk. */
       kValue := {O.Get}(O, Pk);
@@ -1956,10 +1956,10 @@ function arrayMap(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenValue). */
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false)
+  if (IsCallable(callbackfn) == false)
     throw TypeErrorConstructorInternal();
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) T := thisArg; else T := 'undefined;
+  if (thisArg != null) T := thisArg; else T := 'undefined;
   /* 6. Let A be a new array created as if by the expression new Array( len)
         where Array is the standard built-in constructor with that name and
         len is the value of len. */
@@ -1974,7 +1974,7 @@ function arrayMap(global, this, strict, args) {
           internal method of O with argument Pk. */
     kPresent := {O.HasProperty}(O, Pk);
     /* c. If kPresent is true, then */
-    if (kPresent = true) {
+    if (kPresent == true) {
       /* i. Let kValue be the result of calling the [[Get]] internal
             method of O with argument Pk. */
       kValue := {O.Get}(O, Pk);
@@ -2049,10 +2049,10 @@ function arrayFilter(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenValue). */
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false)
+  if (IsCallable(callbackfn) == false)
     throw TypeErrorConstructorInternal();
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) T := thisArg; else T := 'undefined;
+  if (thisArg != null) T := thisArg; else T := 'undefined;
   /* 6. Let A be a new array created as if by the expression new Array()
         where Array is the standard built-in constructor with that name. */
   A := ArrayConstructor(global, this, strict, []);
@@ -2068,7 +2068,7 @@ function arrayFilter(global, this, strict, args) {
           internal method of O with argument Pk. */
     kPresent := {O.HasProperty}(O, Pk);
     /* c. If kPresent is true, then */
-    if (kPresent = true) {
+    if (kPresent == true) {
       /* i. Let kValue be the result of calling the [[Get]] internal
             method of O with argument Pk. */
       kValue := {O.Get}(O, Pk);
@@ -2077,7 +2077,7 @@ function arrayFilter(global, this, strict, args) {
              containing kValue, k, and O. */
       selected := {callbackfn.Call}(null, null, callbackfn, T, [kValue, k, O]);
       /* iii. If ToBoolean(selected) is true, then */
-      if (ToBoolean(selected) = true) {
+      if (ToBoolean(selected) == true) {
         /* 1. Call the [[DefineOwnProperty]] internal method of A with arguments
               ToString(to), Property Descriptor {[[Value]]: kValue, [[Writable]]:
               true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
@@ -2149,15 +2149,15 @@ function arrayReduce(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenValue ). */
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false)
+  if (IsCallable(callbackfn) == false)
     throw TypeErrorConstructorInternal();
   /* 5. If len is 0 and initialValue is not present, throw a TypeError exception. */
-  if ((len = 0) &&& (initialValue = null))
+  if ((len == 0) &&& (initialValue == null))
     throw TypeErrorConstructorInternal();
   /* 6. Let k be 0. */
   k := 0.;
   /* 7. If initialValue is present, then */
-  if (!(initialValue = null)) {
+  if (initialValue != null) {
     /* a. Set accumulator to initialValue. */
     accumulator := initialValue;
   }
@@ -2166,14 +2166,14 @@ function arrayReduce(global, this, strict, args) {
     /* a. Let kPresent be false. */
     kPresent := false;
     /* b. Repeat, while kPresent is false and k < len */
-    while ((kPresent = false) && (k < len)) {
+    while ((kPresent == false) && (k < len)) {
       /* i. Let Pk be ToString(k). */
       Pk := ToString(k);
       /* ii. Let kPresent be the result of calling the [[HasProperty]]
              internal method of O with argument Pk. */
       kPresent := {O.HasProperty}(O, Pk);
       /* iii. If kPresent is true, then */
-      if (kPresent = true) {
+      if (kPresent == true) {
         /* 1. Let accumulator be the result of calling the [[Get]]
               internal method of O with argument Pk. */
         accumulator := {O.Get}(O, Pk);
@@ -2182,7 +2182,7 @@ function arrayReduce(global, this, strict, args) {
       k := k + 1.;
     }
     /* c. If kPresent is false, throw a TypeError exception. */
-    if (kPresent = false)
+    if (kPresent == false)
       throw TypeErrorConstructorInternal();
   }
   /* 9. Repeat, while k < len */
@@ -2193,7 +2193,7 @@ function arrayReduce(global, this, strict, args) {
           internal method of O with argument Pk. */
     kPresent := {O.HasProperty}(O, Pk);
     /* c. If kPresent is true, then */
-    if (kPresent = true) {
+    if (kPresent == true) {
       /* i. Let kValue be the result of calling the [[Get]] internal
             method of O with argument Pk. */
       kValue := {O.Get}(O, Pk);
@@ -2265,15 +2265,15 @@ function arrayReduceRight(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenValue ). */
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false)
+  if (IsCallable(callbackfn) == false)
     throw TypeErrorConstructorInternal();
   /* 5. If len is 0 and initialValue is not present, throw a TypeError exception. */
-  if ((len = 0) &&& (initialValue = null))
+  if ((len == 0) &&& (initialValue == null))
     throw TypeErrorConstructorInternal();
   /* 6. Let k be len-1. */
   k := len - 1.;
   /* 7. If initialValue is present, then */
-  if (!(initialValue = null)) {
+  if (initialValue != null) {
     /* a. Set accumulator to initialValue. */
     accumulator := initialValue;
   }
@@ -2282,14 +2282,14 @@ function arrayReduceRight(global, this, strict, args) {
     /* a. Let kPresent be false. */
     kPresent := false;
     /* b. Repeat, while kPresent is false and k ≥ 0 */
-    while ((kPresent = false) && (k >= 0.)) {
+    while ((kPresent == false) && (k >= 0.)) {
       /* i. Let Pk be ToString(k). */
       Pk := ToString(k);
       /* ii. Let kPresent be the result of calling the [[HasProperty]]
              internal method of O with argument Pk. */
       kPresent := {O.HasProperty}(O, Pk);
       /* iii. If kPresent is true, then */
-      if (kPresent = true) {
+      if (kPresent == true) {
         /* 1. Let accumulator be the result of calling the [[Get]]
               internal method of O with argument Pk. */
         accumulator := {O.Get}(O, Pk);
@@ -2298,7 +2298,7 @@ function arrayReduceRight(global, this, strict, args) {
       k := k - 1.;
     }
     /* c. If kPresent is false, throw a TypeError exception. */
-    if (kPresent = false)
+    if (kPresent == false)
       throw TypeErrorConstructorInternal();
   }
   /* 9. Repeat, while k ≥ 0 */
@@ -2309,7 +2309,7 @@ function arrayReduceRight(global, this, strict, args) {
           internal method of O with argument Pk. */
     kPresent := {O.HasProperty}(O, Pk);
     /* c. If kPresent is true, then */
-    if (kPresent = true) {
+    if (kPresent == true) {
       /* i. Let kValue be the result of calling the [[Get]] internal
             method of O with argument Pk. */
       kValue := {O.Get}(O, Pk);
@@ -2364,7 +2364,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
   oldLen := oldLenDesc.Value;
 
   /* 3. If P is "length", then */
-  if (P = "length") {
+  if (P == "length") {
     /* a. If the [[Value]] field of Desc is absent, then */
     if (!("Value" in_obj Desc)) {
       /* i. Return the result of calling the default [[DefineOwnProperty]] internal
@@ -2377,7 +2377,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
     newLen := ToUint32(Desc.Value);
     /* d. If newLen is not equal to ToNumber( Desc.[[Value]]), throw a RangeError
           exception.*/
-    if (!(newLen = ToNumber(Desc.Value)))
+    if (newLen != ToNumber(Desc.Value))
       throw RangeErrorConstructorInternal();
     /* e. Set newLenDesc.[[Value]] to newLen. */
     newLenDesc.Value := newLen;
@@ -2389,12 +2389,12 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
       return DefineOwnProperty(A, "length", newLenDesc, Throw);
     }
     /* g. Reject if oldLenDesc.[[Writable]] is false. */
-    if (oldLenDesc.Writable = false)
+    if (oldLenDesc.Writable == false)
       @Reject(Throw);
 
     /* h. If newLenDesc.[[Writable]] is absent or has the value true,
           let newWritable be true. */
-    if (!("Writable" in_obj newLenDesc) ||| newLenDesc.Writable = true)
+    if (!("Writable" in_obj newLenDesc) ||| newLenDesc.Writable == true)
       newWritable := true;
     /* i. Else, */
     else {
@@ -2411,7 +2411,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
           "length", newLenDesc, and Throw as arguments. */
     succeeded := DefineOwnProperty(A, "length", newLenDesc, Throw);
     /* k. If succeeded is false, return false.. */
-    if (succeeded = false)
+    if (succeeded == false)
       return false;
     /* l. While newLen < oldLen repeat, */
     while (newLen < oldLen) {
@@ -2422,11 +2422,11 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
              and false as arguments. */
       deleteSucceeded := {A.Delete}(A, ToString(oldLen), false);
       /* iii. If deleteSucceeded is false, then */
-      if (deleteSucceeded = false) {
+      if (deleteSucceeded == false) {
         /* 1. Set newLenDesc.[[Value] to oldLen+1. */
         newLenDesc.Value := oldLen + 1.;
         /* 2. If newWritable is false, set newLenDesc.[[Writable] to false. */
-        if (newWritable = false)
+        if (newWritable == false)
           newLenDesc.Writable := false;
         /* 3. Call the default [[DefineOwnProperty]] internal method (8.12.9)
               on A passing "length", newLenDesc, and false as arguments. */
@@ -2436,7 +2436,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
       }
     }
     /* m. If newWritable is false, then */
-    if (newWritable = false) {
+    if (newWritable == false) {
       /* i. Call the default [[DefineOwnProperty]] internal method (8.12.9)
             on A passing "length", Property Descriptor{[[Writable]]: false},
             and false as arguments. This call will always return true. */
@@ -2450,13 +2450,13 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
     /* a. Let index be ToUint32(P). */
     index := ToUint32(P);
     /* b. Reject if index ≥ oldLen and oldLenDesc.[[Writable]] is false. */
-    if ((index >= oldLen) &&& (oldLenDesc.Writable = false))
+    if ((index >= oldLen) &&& (oldLenDesc.Writable == false))
       @Reject(Throw);
     /* c. Let succeeded be the result of calling the default [[DefineOwnProperty]]
           internal method (8.12.9) on A passing P, Desc, and false as arguments. */
     succeeded := DefineOwnProperty(A, P, Desc, false);
     /* d. Reject if succeeded is false. */
-    if (succeeded = false)
+    if (succeeded == false)
       @Reject(Throw);
     /* STANDARD IS WRONG */
     newLen := ToUint32(index + 1.);

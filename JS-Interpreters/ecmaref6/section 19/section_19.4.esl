@@ -138,10 +138,10 @@ function initSymbolObject(global, objectPrototype, strict) {
 function SymbolConstructor(global, this, NewTarget, strict, args) {
   description := getOptionalParam(args, 0);
   /* 1. If NewTarget is not undefined, throw a TypeError exception. */
-  if (!(NewTarget = 'undefined))
+  if (NewTarget != 'undefined)
     throw TypeErrorConstructorInternal();
   /* 2. If description is undefined, let descString be undefined. */
-  if (description = null || description = 'undefined) descString := 'undefined; else descString := ToString(description);
+  if (description == null || description == 'undefined) descString := 'undefined; else descString := ToString(description);
   /* 3. ReturnIfAbrupt(descString). */
   @ReturnIfAbrupt(descString);
   /* 4. Return a new unique Symbol value whose [[Description]] value is descString. */
@@ -185,7 +185,7 @@ function symbolFor(global, this, NewTarget, strict, args) {
 function symbolKeyFor(global, this, NewTarget, strict, args) {
   sym := l_nth(args, 0);
   /* 1. If Type(sym) is not Symbol, throw a TypeError exception. */
-  if (!(Type(sym) = "Symbol"))
+  if (Type(sym) != "Symbol")
     throw TypeErrorConstructorInternal();
   /* 2. For each element e of the GlobalSymbolRegistry List (see 19.4.2.1), */
     /* 2a. If SameValue(e.[[symbol]], sym) is true, return e.[[key]]. */
@@ -205,12 +205,12 @@ function symbolToString(global, this, NewTarget, strict, args) {
   /* 1. Let s be the this value. */
   s := this;
   /* 2. If Type(s) is Symbol, let sym be s. */
-  if (Type(s) = "Symbol") {
+  if (Type(s) == "Symbol") {
     sym := s;
   /* 3. Else */
   } else {
     /* 3a. If Type(s) is not Object, throw a TypeError exception. */
-    if (!(Type(s) = "Object"))
+    if (Type(s) != "Object")
       throw TypeErrorConstructorInternal();
     /* 3b. If s does not have a [[SymbolData]] internal slot, throw a TypeError exception. */
     if (!("SymbolData" in_obj s))
@@ -225,16 +225,16 @@ function symbolToString(global, this, NewTarget, strict, args) {
 /* 19.4.3.2.1 SymbolDescriptiveString (sym) */
 function symbolDescriptiveString(sym) {
   /* 1. Assert: Type(sym) is Symbol.*/
-  assert (Type(sym) = "Symbol");
+  assert (Type(sym) == "Symbol");
   /* 2. Let desc be sym’s [[Description]] value. */
   desc := sym.Description;
   /* 3. If desc is undefined, let desc be the empty string.*/
-  if (desc = 'undefined)
+  if (desc == 'undefined)
     desc := "";
   /* 4. Assert: Type(desc) is String. */
-  assert (Type(desc) = "String");
+  assert (Type(desc) == "String");
   /* 5. Return the result of concatenating the strings "Symbol(", desc, and ")". */
-  return s_concat ["Symbol(", desc, ")"];
+  return s_concat(["Symbol(", desc, ")"]);
 }
 
 /* 19.4.3.3 Symbol.prototype.valueOf () */
@@ -242,10 +242,10 @@ function symbolValueOf(global, this, NewTarget, strict, args) {
   /* 1. Let s be the this value. */
   s := this;
   /* 2. If Type(s) is Symbol, return s. */
-  if (Type(s) = "Symbol")
+  if (Type(s) == "Symbol")
     return s;
   /* 3. If Type(s) is not Object, throw a TypeError exception. */
-  if (!(Type(s) = "Object"))
+  if (Type(s) != "Object")
     throw TypeErrorConstructorInternal();
   /* 4. If s does not have a [[SymbolData]] internal slot, throw a TypeError exception. */
   if (!("SymbolData" in_obj s))
@@ -256,14 +256,14 @@ function symbolValueOf(global, this, NewTarget, strict, args) {
 
 function thisSymbolValue(value) {
   /* 1. If Type(value) is Symbol, return value. */
-  if (Type(value) = "Symbol")
+  if (Type(value) == "Symbol")
     return value;
   /* 2. If Type(value) is Object and value has a [[SymbolData]] internal slot, then */
-  if (Type(value) = "Object" &&& "SymbolData" in_obj value) {
+  if (Type(value) == "Object" &&& "SymbolData" in_obj value) {
     /* 2a. Let s be value.[[SymbolData]]. */
     s := value.SymbolData;
     /* 2b. Assert: Type(s) is Symbol. */
-    assert (Type(s) = "Symbol");
+    assert (Type(s) == "Symbol");
     /* 2c. Return s. */
     return s;
   }
@@ -327,7 +327,7 @@ function getHasInstancePropertyName() {
 
 function filterSymbolProperties(list) {
   newList := [];
-  len := l_len list;
+  len := l_len(list);
   i := 0;
   while (i < len) {
     elem := l_nth (list, i);
@@ -342,5 +342,5 @@ function checkSymbolProperties(property) {
   if (s_len_u(property) < 7)
     return false;
   res := s_substr_u (property, 0, 7);
-  return (res = "Symbol(");
+  return (res == "Symbol(");
 }

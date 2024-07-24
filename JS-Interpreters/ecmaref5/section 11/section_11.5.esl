@@ -71,7 +71,7 @@ function applyingTheRemainderOperator(leftNum, rightNum) {
       dividend. */
   /* In the remaining cases, where neither an infinity, nor a zero, nor NaN is involved, the
       floating-point remainder r from a dividend n and a divisor d is defined by the mathematical
-      relation r = n  (d  q) where q is an integer that is negative only if n/d is negative and
+      relation r == n  (d  q) where q is an integer that is negative only if n/d is negative and
       positive only if n/d is positive, and whose magnitude is as large as possible without
       exceeding the magnitude of the true mathematical quotient of n and d. r is computed and
       rounded to the nearest representable value using IEEE 754 round -to-nearest mode. */

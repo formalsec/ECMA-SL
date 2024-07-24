@@ -6,7 +6,7 @@ function getGlobalObject(lexicalEnvironment) {
     return lexicalEnvironment;
   lex := lexicalEnvironment;
   outer := getOuterEnvironmentReference(lexicalEnvironment);
-  while (!(outer = 'null)) {
+  while (outer != 'null) {
     lex := outer;
     outer := getOuterEnvironmentReference(lex);
   }
@@ -316,7 +316,7 @@ function CreateMutableBindingDeclarativeRecord(envRec, N, D) {
     /* Create a mutable binding in envRec for N and record that it is uninitialized. If D is true record that the
        newly created binding may be deleted by a subsequent DeleteBinding call. */
     createMutableBinding(envRec, N, 'undefined);
-    if (D = true)
+    if (D == true)
     	setBindingDeletable(envRec, N, true);
     else
       setBindingDeletable(envRec, N, false);
@@ -341,7 +341,7 @@ function CreateImmutableBindingDeclarativeRecord(envRec, N, S) {
 	the newly created binding is a strict binding. */
 	createImmutableBinding(envRec, N);
 
-	if (S = true)
+	if (S == true)
 		setBindingStrict(envRec, N, true);
 	/* Return NormalCompletion(empty). */
 	return NormalCompletion('empty);
@@ -377,7 +377,7 @@ function SetMutableBindingDeclarativeRecord(envRec, N, V, S) {
 	/* If envRec does not have a binding for N, then */
 	if (!(HasBindingDeclarativeRecord(envRec, N))) {
 	    /* If S is true throw a ReferenceError exception. */
-	    if (S = true)
+	    if (S == true)
 	    	throw ReferenceErrorConstructorInternal();
 	    /* Perform envRec.CreateMutableBinding(N, true). */
 	    {envRec.CreateMutableBinding}(envRec, N, true);
@@ -399,7 +399,7 @@ function SetMutableBindingDeclarativeRecord(envRec, N, V, S) {
 		setBindingValue(envRec, N, V);
 	/* Else this must be an attempt to change the value of an immutable binding so if S is true throw a TypeError exception. */
 	else {
-		if (S = true)
+		if (S == true)
 			throw TypeErrorConstructorInternal();
 	}
 
@@ -496,23 +496,23 @@ function HasBindingObjectRecord(envRec, N) {
 	/* ReturnIfAbrupt(foundBinding). */
 	@ReturnIfAbrupt(foundBinding);
 	/* If foundBinding is false, return false. */
-	if (foundBinding = false)
+	if (foundBinding == false)
 		return false;
 	/* If the withEnvironment flag of envRec is false, return true. */
-	if (envRec.withEnvironment = false)
+	if (envRec.withEnvironment == false)
 		return true;
 	/* Let unscopables be Get(bindings, @@unscopables). */
 	unscopables := Get(bindings, getUnscopablesPropertyName());
 	/* ReturnIfAbrupt(unscopables). */
 	@ReturnIfAbrupt(unscopables);
 	/* If Type(unscopables) is Object, then */
-	if ( Type(unscopables) = "Object" ) {
+	if ( Type(unscopables) == "Object" ) {
 	    /* Let blocked be ToBoolean(Get(unscopables, N)). */
 	    blocked := ToBoolean(Get(unscopables, N));
 	    /* ReturnIfAbrupt(blocked). */
 	    @ReturnIfAbrupt(blocked);
 	    /* If blocked is true, return false. */
-	    if (blocked = true)
+	    if (blocked == true)
 	    	return false;
 	}
 
@@ -532,7 +532,7 @@ function CreateMutableBindingObjectRecord(envRec, N, D) {
     /* Let bindings be the binding object for envRec. */
     bindings := getBindingObject(envRec);
     /* If D is true then let configValue be true otherwise let configValue be false. */
-    if (D = true) configValue := true; else configValue := false;
+    if (D == true) configValue := true; else configValue := false;
     /* TODO check pq e que isto e preciso  */
     createMutableBinding(envRec, N, 'undefined);
     /* Return DefinePropertyOrThrow(bindings, N,
@@ -599,9 +599,9 @@ function GetBindingValueObjectRecord(envRec, N, S) {
 	/* ReturnIfAbrupt(value). */
 	@ReturnIfAbrupt(value);
 	/* If value is false, then */
-	if (value = false) {
+	if (value == false) {
     /* If S is false, return the value undefined, otherwise throw a ReferenceError exception. */
-    if (S = false)
+    if (S == false)
       return 'undefined;
     else
       throw ReferenceErrorConstructorInternal();
@@ -647,7 +647,7 @@ function WithBaseObjectObjectRecord(envRec) {
     /* Let envRec be the object Environment Record for which the method was invoked. */
 
     /* If the withEnvironment flag of envRec is true, return the binding object for envRec. */
-    if (envRec.withEnvironment = true)
+    if (envRec.withEnvironment == true)
     	return getBindingObject(envRec);
     /* Otherwise, return undefined. */
     return 'undefined;
@@ -672,9 +672,9 @@ function BindThisValue(envRec, V) {
     /* Let envRec be the function Environment Record for which the method was invoked. */
 
     /* Assert: envRec.[[thisBindingStatus]] is not "lexical". */
-    assert (!(envRec.thisBindingStatus = "lexical"));
+    assert (envRec.thisBindingStatus != "lexical");
     /* If envRec.[[thisBindingStatus]] is "initialized", throw a ReferenceError exception. */
-    if (envRec.thisBindingStatus = "initialized")
+    if (envRec.thisBindingStatus == "initialized")
     	throw ReferenceErrorConstructorInternal();
 
     /* Set envRec.[[thisValue]] to V. */
@@ -690,7 +690,7 @@ function HasThisBindingFunctionRecord(envRec) {
     /* Let envRec be the function Environment Record for which the method was invoked. */
 
     /* If envRec.[[thisBindingStatus]] is "lexical", return false; otherwise, return true. */
-    if (envRec.thisBindingStatus = "lexical")
+    if (envRec.thisBindingStatus == "lexical")
     	return false;
     return true;
 }
@@ -700,10 +700,10 @@ function HasSuperBindingFunctionRecord(envRec) {
 	/* Let envRec be the function Environment Record for which the method was invoked. */
 
     /* If envRec.[[thisBindingStatus]] is "lexical", return false. */
-    if (envRec.thisBindingStatus = "lexical")
+    if (envRec.thisBindingStatus == "lexical")
     	return false;
     /* If envRec.[[HomeObject]] has the value undefined, return false, otherwise, return true. */
-    if (envRec.HomeObject = 'undefined)
+    if (envRec.HomeObject == 'undefined)
     	return false;
     return true;
 }
@@ -713,9 +713,9 @@ function GetThisBinding(envRec) {
 	/* Let envRec be the function Environment Record for which the method was invoked. */
 
 	/* Assert: envRec.[[thisBindingStatus]] is not "lexical". */
-	assert (!(envRec.thisBindingStatus = "lexical"));
+	assert (envRec.thisBindingStatus != "lexical");
 	/* If envRec.[[thisBindingStatus]] is "uninitialized", throw a ReferenceError exception. */
-	if (envRec.thisBindingStatus = "uninitialized")
+	if (envRec.thisBindingStatus == "uninitialized")
 		throw ReferenceErrorConstructorInternal();
 	/* Return envRec.[[thisValue]]. */
 	return envRec.__thisValue;
@@ -728,10 +728,10 @@ function GetSuperBase(envRec) {
 	/* Let home be the value of envRec.[[HomeObject]]. */
 	home := envRec.HomeObject;
 	/* If home has the value undefined, return undefined. */
-	if (home = 'undefined)
+	if (home == 'undefined)
 		return 'undefined;
 	/* Assert: Type(home) is Object. */
-	assert (Type(home) = "Object");
+	assert (Type(home) == "Object");
 	/* Return home.[[GetPrototypeOf]](). */
 	return {home.GetPrototypeOf}(home);
 }
@@ -774,7 +774,7 @@ function HasBindingGlobalRecord(envRec, N) {
   /* Let DclRec be envRec.[[DeclarativeRecord]]. */
   DclRec := envRec.DeclarativeRecord;
   /* If DclRec.HasBinding(N) is true, return true. */
-  if ({DclRec.HasBinding}(DclRec, N) = true)
+  if ({DclRec.HasBinding}(DclRec, N) == true)
     return true;
   /* Let ObjRec be envRec.[[ObjectRecord]]. */
   ObjRec := envRec.ObjectRecord;
@@ -794,7 +794,7 @@ function CreateMutableBindingGlobalRecord(envRec, N, D) {
   /* Let DclRec be envRec.[[DeclarativeRecord]]. */
   DclRec := envRec.DeclarativeRecord;
   /* If DclRec.HasBinding(N) is true, throw a TypeError exception. */
-  if ({DclRec.HasBinding}(DclRec, N) = true)
+  if ({DclRec.HasBinding}(DclRec, N) == true)
     throw TypeErrorConstructorInternal();
   /* Return DclRec.CreateMutableBinding(N, D). */
   return {DclRec.CreateMutableBinding}(DclRec, N, D);
@@ -812,7 +812,7 @@ function CreateImmutableBindingGlobalRecord(envRec, N, S) {
   /* Let DclRec be envRec.[[DeclarativeRecord]]. */
   DclRec := envRec.DeclarativeRecord;
   /* If DclRec.HasBinding(N) is true, throw a TypeError exception. */
-  if ({DclRec.HasBinding}(DclRec, N) = true)
+  if ({DclRec.HasBinding}(DclRec, N) == true)
     throw TypeErrorConstructorInternal();
   /* Return DclRec.CreateImmutableBinding(N, S). */
   return {DclRec.CreateImmutableBinding}(DclRec, N, S);
@@ -829,7 +829,7 @@ function InitializeBindingGlobalRecord(envRec, N, V) {
   /* Let DclRec be envRec.[[DeclarativeRecord]]. */
   DclRec := envRec.DeclarativeRecord;
   /* If DclRec.HasBinding(N) is true, then */
-  if ({DclRec.HasBinding}(DclRec, N) = true)
+  if ({DclRec.HasBinding}(DclRec, N) == true)
     /* Return DclRec.InitializeBinding(N, V). */
     return {DclRec.InitializeBinding}(DclRec, N, V);
   /* Assert: If the binding exists it must be in the object Environment Record. */
@@ -858,7 +858,7 @@ function SetMutableBindingGlobalRecord(envRec, N, V, S) {
   /* Let DclRec be envRec.[[DeclarativeRecord]]. */
   DclRec := envRec.DeclarativeRecord;
   /* If DclRec.HasBinding(N) is true, then */
-  if ({DclRec.HasBinding}(DclRec, N) = true)
+  if ({DclRec.HasBinding}(DclRec, N) == true)
     /* Return DclRec.SetMutableBinding(N, V, S). */
     return {DclRec.SetMutableBinding}(DclRec, N, V, S);
   /* Let ObjRec be envRec.[[ObjectRecord]]. */
@@ -880,7 +880,7 @@ function GetBindingValueGlobalRecord(envRec, N, S) {
   /* Let DclRec be envRec.[[DeclarativeRecord]]. */
   DclRec := envRec.DeclarativeRecord;
   /* If DclRec.HasBinding(N) is true, then */
-  if ({DclRec.HasBinding}(DclRec, N) = true)
+  if ({DclRec.HasBinding}(DclRec, N) == true)
     /* Return DclRec.GetBindingValue(N, S). */
     return {DclRec.GetBindingValue}(DclRec, N, S);
 
@@ -901,7 +901,7 @@ function DeleteBindingGlobalRecord(envRec, N) {
   /* Let DclRec be envRec.[[DeclarativeRecord]]. */
   DclRec := envRec.DeclarativeRecord;
   /* If DclRec.HasBinding(N) is true, then */
-  if ({DclRec.HasBinding}(DclRec, N) = true)
+  if ({DclRec.HasBinding}(DclRec, N) == true)
       /* Return DclRec.DeleteBinding(N). */
       return {DclRec.DeleteBinding}(DclRec, N);
 
@@ -914,20 +914,20 @@ function DeleteBindingGlobalRecord(envRec, N) {
   /* ReturnIfAbrupt(existingProp). */
   @ReturnIfAbrupt(existingProp);
   /* If existingProp is true, then */
-  if (existingProp = true) {
+  if (existingProp == true) {
     /* Let status be ObjRec.DeleteBinding(N). */
     status := {ObjRec.DeleteBinding}(ObjRec, N);
     /* ReturnIfAbrupt(status). */
     @ReturnIfAbrupt(status);
     /* If status is true, then */
-    if (status = true) {
+    if (status == true) {
         /* Let varNames be envRec.[[VarNames]]. */
         varNames := envRec.VarNames;
         /* If N is an element of varNames, remove that element from the varNames. */
         if (in_list(N, varNames)) {
           newVarNames := [];
           foreach (name : varNames)
-            if (!(name = N))
+            if (name != N)
               newVarNames := l_add(newVarNames, name);
           envRec.VarNames := newVarNames;
         }
@@ -1023,10 +1023,10 @@ function HasRestrictedGlobalProperty(envRec, N) {
   /* ReturnIfAbrupt(existingProp). */
   @ReturnIfAbrupt(existingProp);
   /* If existingProp is undefined, return false. */
-  if (existingProp = 'undefined)
+  if (existingProp == 'undefined)
     return false;
   /* If existingProp.[[Configurable]] is true, return false. */
-  if (existingProp.Configurable = true)
+  if (existingProp.Configurable == true)
     return false;
   /* Return true. */
   return true;
@@ -1056,7 +1056,7 @@ function CanDeclareGlobalVar(envRec, N) {
   /* ReturnIfAbrupt(hasProperty). */
   @ReturnIfAbrupt(hasProperty);
   /* If hasProperty is true, return true. */
-  if (hasProperty = true)
+  if (hasProperty == true)
     return true;
   /* Return IsExtensible(globalObject). */
   return IsExtensible(globalObject);
@@ -1080,13 +1080,13 @@ function CanDeclareGlobalFunction(envRec, N) {
   /* ReturnIfAbrupt(existingProp). */
   @ReturnIfAbrupt(existingProp);
   /* If existingProp is undefined, return IsExtensible(globalObject). */
-  if (existingProp = 'undefined)
+  if (existingProp == 'undefined)
     return IsExtensible(globalObject);
   /* If existingProp.[[Configurable]] is true, return true. */
-  if (existingProp.Configurable = true)
+  if (existingProp.Configurable == true)
     return true;
   /* If IsDataDescriptor(existingProp) is true and existingProp has attribute values {[[Writable]]: true, [[Enumerable]]: true}, return true. */
-  if ((IsDataDescriptor(existingProp) = true) &&& (existingProp.Writable = true) &&& (existingProp.Enumerable = true))
+  if ((IsDataDescriptor(existingProp) == true) &&& (existingProp.Writable == true) &&& (existingProp.Enumerable == true))
     return true;
   /* Return false. */
   return false;
@@ -1114,7 +1114,7 @@ function CreateGlobalVarBinding(envRec, N, D) {
   /* ReturnIfAbrupt(extensible). */
   @ReturnIfAbrupt(extensible);
   /* If hasProperty is false and extensible is true, then */
-  if ((hasProperty = false) &&& (extensible = true)) {
+  if ((hasProperty == false) &&& (extensible == true)) {
     /* Let status be ObjRec.CreateMutableBinding(N, D). */
     status := {ObjRec.CreateMutableBinding}(ObjRec, N, D);
     /* ReturnIfAbrupt(status). */
@@ -1155,7 +1155,7 @@ function CreateGlobalFunctionBinding(envRec, N, V, D) {
   /* ReturnIfAbrupt(existingProp). */
   @ReturnIfAbrupt(existingProp);
   /* If existingProp is undefined or existingProp.[[Configurable]] is true, then */
-  if ((existingProp = 'undefined) ||| (existingProp.Configurable = true)) {
+  if ((existingProp == 'undefined) ||| (existingProp.Configurable == true)) {
     /* Let desc be the PropertyDescriptor{[[Value]]:V, [[Writable]]: true, [[Enumerable]]: true , [[Configurable]]: D}. */
     desc := newDataPropertyDescriptorFull(V, true, true, D);
   /* Else, */
@@ -1300,7 +1300,7 @@ Boolean flag strict. The value of lex may be null. When called, the following st
 */
 function GetIdentifierReference(lex, name, strict) {
   /* If lex is the value null, then */
-  if (lex = 'null ||| lex = null ||| lex = 'undefined)
+  if (lex == 'null ||| lex == null ||| lex == 'undefined)
     /* Return a value of type Reference whose base value is undefined, whose referenced name is name, and whose strict reference flag is strict. */
     return newValueReference('undefined, name, strict);
 
@@ -1311,7 +1311,7 @@ function GetIdentifierReference(lex, name, strict) {
   /* ReturnIfAbrupt(exists). */
   @ReturnIfAbrupt(exists);
   /* If exists is true, then */
-  if (exists = true) {
+  if (exists == true) {
     /* Return a value of type Reference whose base value is envRec, whose referenced name is name, and whose strict reference flag is strict. */
     return newValueReference(envRec, name, strict);
   /* Else */
@@ -1368,7 +1368,7 @@ function NewFunctionEnvironment(F, newTarget) {
   /* 1. Assert: F is an ECMAScript function. */
   assert (isESFunctionObject(F));
   /* Assert: Type(newTarget) is Undefined or Object. */
-  assert ((Type(newTarget) = "Undefined") ||| (Type(newTarget) = "Object") );
+  assert ((Type(newTarget) == "Undefined") ||| (Type(newTarget) == "Object") );
   /* 3. Let env be a new Lexical Environment. */
   env := newLexicalEnvironment();
   /* 4. Let envRec be a new function Environment Record containing no bindings. */
@@ -1376,7 +1376,7 @@ function NewFunctionEnvironment(F, newTarget) {
   /* 5. Set envRec.[[FunctionObject]] to F. */
   envRec.FunctionObject := F;
   /* 6. If F's [[ThisMode]] internal slot is lexical, */
-  if (F.ThisMode = "lexical") {
+  if (F.ThisMode == "lexical") {
     /* set envRec.[[thisBindingStatus]] to "lexical" */
     envRec.thisBindingStatus := "lexical";
   /* 7. Else, */

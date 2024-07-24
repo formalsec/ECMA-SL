@@ -83,7 +83,7 @@ function initArrayBufferObject(global, objectPrototype, strict) {
 
 /* Temporary */
 function arrayBufferToString(global, this, NewTarget, strict, args) {
-  str := s_concat ["Byte: ", bytes_to_string(this.ArrayBufferData), "Float littleEndian: ", float_to_string(float32_from_le_bytes(this.ArrayBufferData)), ", Float BigEndian: ", float_to_string(float32_from_be_bytes(this.ArrayBufferData))];
+  str := s_concat(["Byte: ", bytes_to_string(this.ArrayBufferData), "Float littleEndian: ", float_to_string(float32_from_le_bytes(this.ArrayBufferData)), ", Float BigEndian: ", float_to_string(float32_from_be_bytes(this.ArrayBufferData))]);
   return str;
 }
 
@@ -100,10 +100,10 @@ function ArrayBufferSpeciesGetter(global, this, NewTarget, strict, args) {
 function ArrayBufferConstructor(global, this, NewTarget, strict, args) {
   length := getOptionalParam(args, 0);
   /* 1. If NewTarget is undefined, */
-  if (NewTarget = 'undefined)
+  if (NewTarget == 'undefined)
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
-  if (length = null)
+  if (length == null)
     length := 0.;
   /* 2. Let numberLength be ToNumber(length). */
   numberLength := ToNumber(length);
@@ -112,7 +112,7 @@ function ArrayBufferConstructor(global, this, NewTarget, strict, args) {
   /* 4. ReturnIfAbrupt(byteLength). */
   @ReturnIfAbrupt(byteLength);
   /* 5. If SameValueZero(numberLength, byteLength) is false, */
-  if (SameValueZero(numberLength, byteLength) = false)
+  if (SameValueZero(numberLength, byteLength) == false)
     /* throw a RangeError exception */
     throw RangeErrorConstructorInternal();
   /* 6. Return AllocateArrayBuffer(NewTarget, byteLength). */
@@ -135,10 +135,10 @@ function getArrayBufferPrototype(strict) {
  */
 function ArrayBufferIsView(global, this, NewTarget, strict, args) {
   arg := getOptionalParam(args, 0);
-  if (arg = null)
+  if (arg == null)
     arg := 'undefined;
   /* 1. If Type(arg) is not Object, */
-  if (!(Type(arg) = "Object"))
+  if (Type(arg) != "Object")
     /* return false */
     return false;
   /* 2. If arg has a [[ViewedArrayBuffer]] internal slot, */
@@ -160,7 +160,7 @@ function getArrayBufferPrototypeByteLength(global, this, NewTarget, strict, args
   /* 1. Let O be the this value. */
   O := this;
   /* 2. If Type(O) is not Object, */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 3. If O does not have an [[ArrayBufferData]] internal slot, */
@@ -168,7 +168,7 @@ function getArrayBufferPrototypeByteLength(global, this, NewTarget, strict, args
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 4. If IsDetachedBuffer(O) is true, */
-  if (IsDetachedBuffer(O) = true)
+  if (IsDetachedBuffer(O) == true)
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 5. Let length be the value of O’s [[ArrayBufferByteLength]] internal slot. */
@@ -185,14 +185,14 @@ function getArrayBufferPrototypeByteLength(global, this, NewTarget, strict, args
 function ArrayBufferPrototypeSlice(global, this, NewTarget, strict, args) {
   start := getOptionalParam(args, 0);
   end := getOptionalParam(args, 1);
-  if (start = null)
+  if (start == null)
     start := 'undefined;
-  if (end = null)
+  if (end == null)
     end := 'undefined;
   /* 1. Let O be the this value. */
   O := this;
   /* 2. If Type(O) is not Object, */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 3. If O does not have an [[ArrayBufferData]] internal slot, */
@@ -200,7 +200,7 @@ function ArrayBufferPrototypeSlice(global, this, NewTarget, strict, args) {
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 4. If IsDetachedBuffer(O) is true, */
-  if (IsDetachedBuffer(O) = true)
+  if (IsDetachedBuffer(O) == true)
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 5. Let len be the value of O’s [[ArrayBufferByteLength]] internal slot. */
@@ -216,7 +216,7 @@ function ArrayBufferPrototypeSlice(global, this, NewTarget, strict, args) {
   else
     first := min(relativeStart, len);
   /* 9. If end is undefined, */
-  if (end = 'undefined)
+  if (end == 'undefined)
     /* let relativeEnd be len */
     relativeEnd := len;
   /* else let relativeEnd be ToInteger(end) */
@@ -246,11 +246,11 @@ function ArrayBufferPrototypeSlice(global, this, NewTarget, strict, args) {
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 18. If IsDetachedBuffer(new) is true, */
-  if (IsDetachedBuffer(new) = true)
+  if (IsDetachedBuffer(new) == true)
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 19. If SameValue(new, O) is true, */
-  if (SameValue(new, O) = true)
+  if (SameValue(new, O) == true)
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 20. If the value of new’s [[ArrayBufferByteLength]] internal slot < newLen, */
@@ -259,7 +259,7 @@ function ArrayBufferPrototypeSlice(global, this, NewTarget, strict, args) {
     throw TypeErrorConstructorInternal();
   /* NOTE: Side-effects of the above steps may have detached O. */
   /* 21. If IsDetachedBuffer(O) is true, */
-  if (IsDetachedBuffer(O) = true)
+  if (IsDetachedBuffer(O) == true)
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 22. Let fromBuf be the value of O’s [[ArrayBufferData]] internal slot. */
@@ -309,9 +309,9 @@ function AllocateArrayBuffer(constructor, byteLength, strict) {
  */
 function IsDetachedBuffer (arrayBuffer) {
 	/* 1. Assert: Type(arrayBuffer) is Object and it has an [[ArrayBufferData]] internal slot. */
-	assert ((Type(arrayBuffer) = "Object") &&& ("ArrayBufferData" in_obj arrayBuffer));
+	assert ((Type(arrayBuffer) == "Object") &&& ("ArrayBufferData" in_obj arrayBuffer));
 	/* 2. If arrayBuffer’s [[ArrayBufferData]] internal slot is null, return true. */
-	if (arrayBuffer.ArrayBufferData = null)
+	if (arrayBuffer.ArrayBufferData == null)
 		return true;
 	/* 3. Return false. */
 	return false;
@@ -325,7 +325,7 @@ function IsDetachedBuffer (arrayBuffer) {
  */
 function DetachArrayBuffer(arrayBuffer) {
 	/* Assert: Type(arrayBuffer) is Object and it has [[ArrayBufferData]] and [[ArrayBufferByteLength]] internal slots. */
-	assert ((Type(arrayBuffer) = "Object") &&& ("ArrayBufferData" in_obj arrayBuffer) &&& ("ArrayBufferByteLength" in_obj arrayBuffer));
+	assert ((Type(arrayBuffer) == "Object") &&& ("ArrayBufferData" in_obj arrayBuffer) &&& ("ArrayBufferByteLength" in_obj arrayBuffer));
 	/* Set arrayBuffer’s [[ArrayBufferData]] internal slot to null. */
 	arrayBuffer.ArrayBufferData := null;
 	/* Set arrayBuffer’s [[ArrayBufferByteLength]] internal slot to 0. */
@@ -345,19 +345,19 @@ function DetachArrayBuffer(arrayBuffer) {
  */
 function CloneArrayBuffer(strict, srcBuffer, srcByteOffset, cloneConstructor) {
 	/* 1. Assert: Type(srcBuffer) is Object and it has an [[ArrayBufferData]] internal slot. */
-	assert ((Type(srcBuffer) = "Object") &&& ("ArrayBufferData" in_obj srcBuffer));
+	assert ((Type(srcBuffer) == "Object") &&& ("ArrayBufferData" in_obj srcBuffer));
 	/* 2. If cloneConstructor is not present, then */
-	if (cloneConstructor = 'undefined) {
+	if (cloneConstructor == 'undefined) {
 		/* a. Let cloneConstructor be SpeciesConstructor(srcBuffer, %ArrayBuffer%). */
 		cloneConstructor := SpeciesConstructor(srcBuffer, |Intrinsics|.ArrayBuffer);
 		/* b. ReturnIfAbrupt(cloneConstructor). */
 		@ReturnIfAbrupt(cloneConstructor);
 		/* c. If IsDetachedBuffer(srcBuffer) is true, throw a TypeError exception. */
-		if (IsDetachedBuffer(srcBuffer) = true)
+		if (IsDetachedBuffer(srcBuffer) == true)
 			throw TypeErrorConstructorInternal();
 	/* 3. Else, Assert: IsConstructor(cloneConstructor) is true. */
 	} else {
-    assert (IsConstructor(cloneConstructor) = true);
+    assert (IsConstructor(cloneConstructor) == true);
   }
 	/* 4. Let srcLength be the value of srcBuffer’s [[ArrayBufferByteLength]] internal slot. */
 	srcLength := srcBuffer.ArrayBufferByteLength;
@@ -372,7 +372,7 @@ function CloneArrayBuffer(strict, srcBuffer, srcByteOffset, cloneConstructor) {
 	/* 9. ReturnIfAbrupt(targetBuffer). */
 	@ReturnIfAbrupt(targetBuffer);
 	/* 10. If IsDetachedBuffer(srcBuffer) is true, throw a TypeError exception. */
-	if (IsDetachedBuffer(srcBuffer) = true)
+	if (IsDetachedBuffer(srcBuffer) == true)
     throw TypeErrorConstructorInternal();
 	/* 11. Let targetBlock be the value of targetBuffer’s [[ArrayBufferData]] internal slot. */
 	targetBlock := targetBuffer.ArrayBufferData;
@@ -391,7 +391,7 @@ function CloneArrayBuffer(strict, srcBuffer, srcByteOffset, cloneConstructor) {
  */
 function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
   /* 1. Assert: IsDetachedBuffer(arrayBuffer) is false. */
-  assert (IsDetachedBuffer(arrayBuffer) = false);
+  assert (IsDetachedBuffer(arrayBuffer) == false);
   /* 2. Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type. (*/
   assert ((a_len(arrayBuffer.ArrayBufferData) - byteIndex) >= getElementSize(type));
   /* 3. Assert: byteIndex is a positive integer. */
@@ -410,21 +410,21 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
     byteIndex := byteIndex + 1;
   }
   /* 7. If isLittleEndian is not present, */
-  if (isLittleEndian = 'undefined) {
+  if (isLittleEndian == 'undefined) {
     /* Set isLittleEndian to either true or false. The choice is
       implementation dependent and should be the alternative that is most
       efficient for the implementation. An implementation must use the same
       value each time this step is executed and the same value must be used
       for the corresponding step in the SetValueInBuffer abstract operation */
-    isLittleEndian = true;
+    isLittleEndian == true;
   }
   /* 8. If isLittleEndian is false, reverse the order of the elements of rawValue */
-  if (isLittleEndian = false) {
+  if (isLittleEndian == false) {
     reverse_array_buffer(rawValue, elementSize);
     /* rawValue := l_reverse(rawValue) */
   }
   /* 9. If type is "Float32", then */
-  if (type = "Float32") {
+  if (type == "Float32") {
     /* a. Let value be the byte elements of rawValue concatenated and
        interpreted as a little-endian bit string encoding of an IEEE 754-2008
        binary32 value. */
@@ -437,7 +437,7 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
     return value;
   }
   /* 10. If type is "Float64", then */
-  if (type = "Float64") {
+  if (type == "Float64") {
     /* a. Let value be the byte elements of rawValue concatenated and
        interpreted as a little-endian bit string encoding of an IEEE 754-2008
        binary64 value. */
@@ -450,7 +450,7 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
   }
   /* 11. If the first code unit of type is "U", then */
   intValue := null;
-  if (s_nth(type, 0) = "U") {
+  if (s_nth(type, 0) == "U") {
     /* a. Let intValue be the byte elements of rawValue concatenated and
     interpreted as a bit string encoding of an unsigned little-endian
     binary number. */
@@ -472,7 +472,7 @@ function arrayBufferSetValueInBufferObject(global, this, NewTarget, strict, args
   value := l_nth(args, 2);
   isLittleEndian := l_nth(args, 3);
 
-  SetValueInBuffer(this, (int_of_float byteIndex), type, value, isLittleEndian);
+  SetValueInBuffer(this, (float_to_int byteIndex), type, value, isLittleEndian);
 
   return 0;
 }
@@ -482,7 +482,7 @@ function arrayBufferGetValueFromBufferObject(global, this, NewTarget, strict, ar
   type := l_nth(args, 1);
   isLittleEndian := l_nth(args, 2);
 
-  return GetValueFromBuffer(this, int_of_float (byteIndex), type, isLittleEndian);
+  return GetValueFromBuffer(this, float_to_int (byteIndex), type, isLittleEndian);
 
 }
 
@@ -501,22 +501,22 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
   tvalue := Type(value);
 
   /* 1. Assert: IsDetachedBuffer(arrayBuffer) is false. */
-  assert (IsDetachedBuffer(arrayBuffer) = false);
+  assert (IsDetachedBuffer(arrayBuffer) == false);
   /* 2. Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type. */
   assert ((a_len(arrayBuffer.ArrayBufferData) - byteIndex) >= getElementSize(type));
   /* 3. Assert: byteIndex is a positive integer. */
   /*assert (byteIndex > 0);*/
   /* 4. Assert: Type(value) is Number. */
-  assert (Type(value) = "Number");
+  assert (Type(value) == "Number");
   /* 5. Let block be arrayBuffer’s [[ArrayBufferData]] internal slot. */
   block := arrayBuffer.ArrayBufferData;
   /* 6. Assert: block is not undefined. */
-  assert (!(block = 'undefined));
+  assert (block != 'undefined);
   /* 7. Let elementSize be the Number value of the Element Size value
      specified in Table 49 for Element Type type. */
   elementSize := getElementSize(type);
   /* 8. If isLittleEndian is not present */
-  if (isLittleEndian = 'undefined) {
+  if (isLittleEndian == 'undefined) {
     /* Set isLittleEndian to either true or false. The choice is
     implementation dependent and should be the alternative that is most
     efficient for the implementation. An implementation must use the same
@@ -525,12 +525,12 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
     isLittleEndian := true;
   }
   /* 9. If type is "Float32", then */
-  if (type = "Float32") {
+  if (type == "Float32") {
     /* a. Set rawBytes to a List containing the 4 bytes that are the result of
     converting value to IEEE 754-2008 binary32 format using “Round to
     nearest, ties to even” rounding mode. */
     /* If isLittleEndian is false */
-    if (isLittleEndian = false) {
+    if (isLittleEndian == false) {
       /* the bytes are arranged in big endian order. */
       rawBytes := float32_to_be_bytes(value);
     } else {
@@ -551,11 +551,11 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
     }
   }
   /* 10. Else, if type is "Float64" */
-  else if (type = "Float64") {
+  else if (type == "Float64") {
     /* a. Set rawBytes to a List containing the 8 bytes that are the IEEE 754-2008 binary64
     format encoding of value. */
     /* If isLittleEndian is false */
-    if (isLittleEndian = false) {
+    if (isLittleEndian == false) {
       /* the bytes are arranged in big endian order. */
       rawBytes := float64_to_be_bytes(value);
     } else {
@@ -584,7 +584,7 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
     if (intValue >= 0.) {
       /* i. Let rawBytes be a List containing the n-byte binary encoding of intValue. */
       /* If isLittleEndian is false, the bytes are ordered in big endian order. */
-      if (isLittleEndian = false) {
+      if (isLittleEndian == false) {
         rawBytes := int_to_be_bytes(intValue, n);
       /* Otherwise, the bytes are ordered in little endian order. */
       } else {
@@ -595,7 +595,7 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
     } else {
       /* i. Let rawBytes be a List containing the n-byte binary 2’s complement encoding of intValue. */
       /* If isLittleEndian is false, the bytes are ordered in big endian order. */
-      if (isLittleEndian = false) {
+      if (isLittleEndian == false) {
         rawBytes := int_to_be_bytes(intValue, n);
       /* Otherwise, the bytes are ordered in little endian order. */
       } else {
@@ -617,40 +617,40 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
 }
 
 function getElementSize(type) {
-  if (type = "Int8")
+  if (type == "Int8")
     return 1;
-  if (type = "Uint8")
+  if (type == "Uint8")
     return 1;
-  if (type = "Uint8C")
+  if (type == "Uint8C")
     return 1;
-  if (type = "Int16")
+  if (type == "Int16")
     return 2;
-  if (type = "Uint16")
+  if (type == "Uint16")
     return 2;
-  if (type = "Int32")
+  if (type == "Int32")
     return 4;
-  if (type = "Uint32")
+  if (type == "Uint32")
     return 4;
-  if (type = "Float32")
+  if (type == "Float32")
     return 4;
-  if (type = "Float64")
+  if (type == "Float64")
     return 8;
 }
 
 function getConversionOperation(type) {
-  if (type = "Int8")
+  if (type == "Int8")
     return "ToInt8";
-  if (type = "Uint8")
+  if (type == "Uint8")
     return "ToUint8";
-  if (type = "Uint8C")
+  if (type == "Uint8C")
     return "ToUint8Clamp";
-  if (type = "Int16")
+  if (type == "Int16")
     return "ToInt16";
-  if (type = "Uint16")
+  if (type == "Uint16")
     return "_ToUint16";
-  if (type = "Int32")
+  if (type == "Int32")
     return "_ToInt32";
-  if (type = "Uint32")
+  if (type == "Uint32")
     return "_ToUint32";
 }
 

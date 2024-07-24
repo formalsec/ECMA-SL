@@ -87,14 +87,14 @@ function createBuiltInPropertyWithFullDescriptor(builtInObject, propertyName, de
    behave exactly as if it had been given sufficient additional arguments, each such argument being the
    undefined value. */
 function getOptionalParam(params, idx) {
-  if (l_len params > idx)
+  if (l_len(params) > idx)
     return l_nth(params, idx);
   return null;
 }
 
 /* Using this function is cleaner than having many 'tl's, but costs in performance  */
 function getOptionalParamList(params, start_idx) {
-  if (l_len params > start_idx) {
+  if (l_len(params) > start_idx) {
     i := 0;
     paramList := params;
     while (i < start_idx) {

@@ -12,7 +12,7 @@
 
 function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, strict) {
   /* 1. Let len be the number of elements in args. */
-  len := l_len args;
+  len := l_len(args);
   /* 2. Let obj be the result of creating a new ECMAScript object. */
   obj := NewECMAScriptObject();
   /* 3. Set all the internal methods of obj as specified in 8.12. */
@@ -31,7 +31,7 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
   map := ObjectConstructor(|global|, 'null, strict, [null]);
   /* 9. Let mappedNames be an empty List. */
   mappedNames := [];
-  /* 10. Let indx = len - 1. */
+  /* 10. Let x = len - 1. */
   indx := len - 1;
   /* 11. Repeat while indx >= 0, */
   while (indx >= 0) {
@@ -42,11 +42,11 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
           false as arguments. */
     {obj.DefineOwnProperty}(obj, ToString(int_to_float indx), newDataPropertyDescriptor(val), false);
     /* c. If indx is less than the number of elements in names, then */
-    if (indx < l_len names) {
+    if (indx < l_len(names)) {
       /* i. Let name be the element of names at 0-origined list position indx. */
       name := l_nth(names, indx);
       /* ii. If strict is false and name is not an element of mappedNames, then */
-      if ((strict = false) && !(in_list(name, mappedNames))) {
+      if ((strict == false) && !(in_list(name, mappedNames))) {
         /* 1. Add name as an element of the list mappedNames. */
         mappedNames := l_add(mappedNames, name);
         /* 2. Let g be the result of calling the MakeArgGetter abstract operation with arguments
@@ -61,11 +61,11 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
         {map.DefineOwnProperty}(map, ToString(int_to_float indx), newAccessorPropertyDescriptorFull(g, p, null, true), false);
       }
     }
-    /* d. Let indx = indx - 1 */
+    /* d. Let x = indx - 1 */
     indx := indx - 1;
   }
   /* 12. If mappedNames is not empty, then */
-  if (l_len mappedNames > 0) {
+  if (l_len(mappedNames) > 0) {
     /* a. Set the [[ParameterMap]] internal property of obj to map. */
     setInternalProperty(obj, "ParameterMap", map);
     /* b. Set the [[Get]], [[GetOwnProperty]], [[DefineOwnProperty]], and [[Delete]] internal methods of obj
@@ -76,7 +76,7 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
     setInternalProperty(obj, "Delete", "ArgumentsObjectDelete");
   }
   /* 13. If strict is false, then */
-  if (strict = false) {
+  if (strict == false) {
     /* a. Call the [[DefineOwnProperty]] internal method on obj passing "callee", the property descriptor
           {[[Value]]: func, [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false as
           arguments. */
@@ -116,7 +116,7 @@ function MakeArgSetter(name, lexicalEnvironment) {
 
   /* 1. Let param be the String name concatenated with the String "_arg". */
   param := makeArgSetterLetParamAuxFunction(name);
-  /* 2. Let body be the String "<name> = <param>;" with <name> replaced by the value of name and <param>
+  /* 2. Let body be the String "<name> == <param>;" with <name> replaced by the value of name and <param>
         replaced by the value of param. */
   body := makeArgSetterLetBodyAuxFunction(name, param);
 
@@ -135,12 +135,12 @@ function ArgumentsObjectGet(argumentObject, P) {
         argument. */
   isMapped := {map.GetOwnProperty}(map, P);
   /* 3. If the value of isMapped is undefined, then */
-  if (isMapped = 'undefined) {
+  if (isMapped == 'undefined) {
     /* a. Let v be the result of calling the default [[Get]] internal method (8.12.3) on the arguments object
           passing P as the argument. */
     v := Get(argumentObject, P);
     /* b. If P is "caller" and v is a strict mode Function object, throw a TypeError exception. */
-    if ((P = "caller") &&& isStrictFunctionObject(v))
+    if ((P == "caller") &&& isStrictFunctionObject(v))
       throw TypeErrorConstructorInternal();
     /* c. Return v. */
     return v;
@@ -160,7 +160,7 @@ function ArgumentsObjectGetOwnProperty(argumentsObject, P) {
         object passing P as the argument. */
   desc := GetOwnProperty(argumentsObject, P);
   /* 2. If desc is undefined then return desc. */
-  if (desc = 'undefined)
+  if (desc == 'undefined)
     return desc;
   /* 3. Let map be the value of the [[ParameterMap]] internal property of the arguments object. */
   map := argumentsObject.ParameterMap;
@@ -168,7 +168,7 @@ function ArgumentsObjectGetOwnProperty(argumentsObject, P) {
         argument. */
   isMapped := {map.GetOwnProperty}(map, P);
   /* 5. If the value of isMapped is not undefined, then */
-  if (!(isMapped = 'undefined))
+  if (isMapped != 'undefined)
     /* a. Set desc.[[Value]] to the result of calling the [[Get]] internal method of map passing P as the argument. */
     desc.Value := {map.Get}(map, P);
   /* 6. Return desc. */
@@ -189,15 +189,15 @@ function ArgumentsObjectDefineOwnProperty(argumentsObject, P, Desc, Throw) {
         arguments object passing P, Desc, and false as the arguments. */
   allowed := DefineOwnProperty(argumentsObject, P, Desc, false);
   /* 4. If allowed is false, then */
-  if (allowed = false) {
+  if (allowed == false) {
     /* a. If Throw is true then throw a TypeError exception, otherwise return false. */
-    if (Throw = true)
+    if (Throw == true)
       throw TypeErrorConstructorInternal();
     else
       return false;
   }
   /* 5. If the value of isMapped is not undefined, then */
-  if (!(isMapped = 'undefined)) {
+  if (isMapped != 'undefined) {
     /* a. If IsAccessorDescriptor(Desc) is true, then */
     if (IsAccessorPropertyDescriptor(Desc)) {
       /* i. Call the [[Delete]] internal method of map passing P, and false as the arguments. */
@@ -210,7 +210,7 @@ function ArgumentsObjectDefineOwnProperty(argumentsObject, P, Desc, Throw) {
         /* 1. Call the [[Put]] internal method of map passing P, Desc.[[Value]], and Throw as the arguments. */
         {map.Put}(map, P, Desc.Value, Throw);
       /* ii. If Desc.[[Writable]] is present and its value is false, then */
-      if (("Writable" in_obj Desc) && (Desc.Writable = false))
+      if (("Writable" in_obj Desc) && (Desc.Writable == false))
         /* 1. Call the [[Delete]] internal method of map passing P and false as arguments. */
         {map.Delete}(map, P, false);
     }
@@ -232,7 +232,7 @@ function ArgumentsObjectDelete(argumentsObject, P, Throw) {
         passing P and Throw as the arguments. */
   result := Delete(argumentsObject, P, Throw);
   /* 4. If result is true and the value of isMapped is not undefined, then */
-  if ((result = true) && !(isMapped = 'undefined))
+  if (result == true && isMapped != 'undefined)
     /* a. Call the [[Delete]] internal method of map passing P, and false as the arguments. */
     {map.Delete}(map, P, false);
   /* 5. Return result. */
@@ -251,7 +251,7 @@ function makeArgGetterLetBodyAuxFunction(name) {
 }
 
 function makeArgSetterLetParamAuxFunction(name) {
-  return s_concat [name, "_arg"];
+  return s_concat([name, "_arg"]);
 }
 
 function makeArgSetterLetBodyAuxFunction(name, param) {

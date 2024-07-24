@@ -10,7 +10,7 @@
  */
 function GetViewValue (view, requestIndex, isLittleEndian, type) {
   /* 1. If Type(view) is not Object, throw a TypeError exception. */
-  if (!(Type(view) = "Object"))
+  if (Type(view) != "Object")
     throw TypeErrorConstructorInternal();
   /* 2. If view does not have a [[DataView]] internal slot, throw a TypeError exception. */
   if (!( "DataView" in_obj view))
@@ -22,14 +22,14 @@ function GetViewValue (view, requestIndex, isLittleEndian, type) {
   /* 5. ReturnIfAbrupt(getIndex). */
   @ReturnIfAbrupt(getIndex);
   /* 6. If numberIndex ≠ getIndex or getIndex < 0, throw a RangeError exception. */
-  if ((!(numberIndex = getIndex)) ||| (getIndex < 0.))
+  if ((numberIndex != getIndex) ||| (getIndex < 0.))
     throw RangeErrorConstructorInternal();
   /* 7. Let isLittleEndian be ToBoolean(isLittleEndian). */
   isLittleEndian := ToBoolean(isLittleEndian);
   /* 8. Let buffer be the value of view’s [[ViewedArrayBuffer]] internal slot. */
   buffer := view.ViewedArrayBuffer;
   /* 9. If IsDetachedBuffer(buffer) is true, throw a TypeError exception. */
-  if (IsDetachedBuffer(buffer) = true)
+  if (IsDetachedBuffer(buffer) == true)
     throw TypeErrorConstructorInternal();
   /* 10. Let viewOffset be the value of view’s [[ByteOffset]] internal slot. */
   viewOffset := view.ByteOffset;
@@ -43,7 +43,7 @@ function GetViewValue (view, requestIndex, isLittleEndian, type) {
   /* 14. Let bufferIndex be getIndex + viewOffset. */
   bufferIndex := getIndex + viewOffset;
   /* 15. Return GetValueFromBuffer(buffer, bufferIndex, type, isLittleEndian). */
-  return GetValueFromBuffer(buffer, int_of_float(bufferIndex), type, isLittleEndian);
+  return GetValueFromBuffer(buffer, float_to_int(bufferIndex), type, isLittleEndian);
 }
 
 
@@ -57,10 +57,10 @@ function GetViewValue (view, requestIndex, isLittleEndian, type) {
  */
 function SetViewValue (view, requestIndex, isLittleEndian, type, value) {
   /* 1. If Type(view) is not Object, throw a TypeError exception. */
-  if (!(Type(view) = "Object"))
+  if (Type(view) != "Object")
     throw TypeErrorConstructorInternal();
   /* 2. If view does not have a [[DataView]] internal slot, throw a TypeError exception. */
-  if (!( "DataView" in_obj view))
+  if (!("DataView" in_obj view))
     throw TypeErrorConstructorInternal();
   /* 3. Let numberIndex be ToNumber(requestIndex). */
   numberIndex := ToNumber(requestIndex);
@@ -69,7 +69,7 @@ function SetViewValue (view, requestIndex, isLittleEndian, type, value) {
   /* 5. ReturnIfAbrupt(getIndex). */
   @ReturnIfAbrupt(getIndex);
   /* 6. If numberIndex ≠ getIndex or getIndex < 0, throw a RangeError exception. */
-  if (!(numberIndex = getIndex) ||| (getIndex < 0.))
+  if ((numberIndex != getIndex) ||| (getIndex < 0.))
     throw RangeErrorConstructorInternal();
   value := ToNumber(value);
   @ReturnIfAbrupt(value);
@@ -78,7 +78,7 @@ function SetViewValue (view, requestIndex, isLittleEndian, type, value) {
   /* 8. Let buffer be the value of view’s [[ViewedArrayBuffer]] internal slot. */
   buffer := view.ViewedArrayBuffer;
   /* 9. If IsDetachedBuffer(buffer) is true, throw a TypeError exception. */
-  if (IsDetachedBuffer(buffer) = true)
+  if (IsDetachedBuffer(buffer) == true)
     throw TypeErrorConstructorInternal();
   /* 10. Let viewOffset be the value of view’s [[ByteOffset]] internal slot. */
   viewOffset := view.ByteOffset;
@@ -92,7 +92,7 @@ function SetViewValue (view, requestIndex, isLittleEndian, type, value) {
   /* 14. Let bufferIndex be getIndex + viewOffset. */
   bufferIndex := getIndex + viewOffset;
   /* 15. Return SetValueInBuffer(buffer, bufferIndex, type, value, isLittleEndian). */
-  return SetValueInBuffer(buffer, int_of_float(bufferIndex), type, value, isLittleEndian);
+  return SetValueInBuffer(buffer, float_to_int(bufferIndex), type, value, isLittleEndian);
 }
 
 /**
@@ -105,19 +105,19 @@ function DataViewConstructor(global, this, NewTarget, strict, args) {
   buffer := l_nth(args, 0);
   byteOffset := getOptionalParam(args, 1);
   byteLength := getOptionalParam(args, 2);
-  if (byteOffset = null) {
+  if (byteOffset == null) {
     byteOffset := 0.;
     byteLength := 'undefined;
   }
-  else if (byteLength = null) {
+  else if (byteLength == null) {
     byteLength := 'undefined;
   }
   /* 1. If NewTarget is undefined, */
-  if (NewTarget = 'undefined)
+  if (NewTarget == 'undefined)
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 2. If Type(buffer) is not Object, */
-  if (!(Type(buffer) = "Object"))
+  if (Type(buffer) != "Object")
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 3. If buffer does not have an [[ArrayBufferData]] internal slot, */
@@ -131,11 +131,11 @@ function DataViewConstructor(global, this, NewTarget, strict, args) {
   /* 6. ReturnIfAbrupt(offset). */
   @ReturnIfAbrupt(offset);
   /* 7. If numberOffset ≠ offset or offset < 0, */
-  if (!(numberOffset = offset) ||| (offset < 0.))
+  if ((numberOffset != offset) ||| (offset < 0.))
     /* throw a RangeError exception */
     throw RangeErrorConstructorInternal();
   /* 8. If IsDetachedBuffer(buffer) is true, */
-  if (IsDetachedBuffer(buffer) = true)
+  if (IsDetachedBuffer(buffer) == true)
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 9. Let bufferByteLength be the value of buffer's [[ArrayBufferByteLength]] internal slot. */
@@ -145,7 +145,7 @@ function DataViewConstructor(global, this, NewTarget, strict, args) {
     /* throw a RangeError exception */
     throw RangeErrorConstructorInternal();
   /* 11. If byteLength is undefined, then */
-  if (byteLength = 'undefined) {
+  if (byteLength == 'undefined) {
     /* a. Let viewByteLength be bufferByteLength – offset. */
     viewByteLength := bufferByteLength - offset;
   /* 12. Else, */
@@ -344,7 +344,7 @@ function DataViewPrototypeBuffer(global, this, NewTarget, strict, args) {
   /* 1. Let O be the this value. */
   O := this;
   /* 2. If Type(O) is not Object, */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 3. If O does not have a [[ViewedArrayBuffer]] internal slot, */
@@ -369,7 +369,7 @@ function DataViewPrototypeByteLength(global, this, NewTarget, strict, args) {
   /* 1. Let O be the this value. */
   O := this;
   /* 2. If Type(O) is not Object, */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 3. If O does not have a [[ViewedArrayBuffer]] internal slot, */
@@ -379,7 +379,7 @@ function DataViewPrototypeByteLength(global, this, NewTarget, strict, args) {
   /* 4. Let buffer be the value of O's [[ViewedArrayBuffer]] internal slot. */
   buffer := O.ViewedArrayBuffer;
   /* 5. If IsDetachedBuffer(buffer) is true, */
-  if (IsDetachedBuffer(buffer) = true)
+  if (IsDetachedBuffer(buffer) == true)
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 6. Let size be the value of O's [[ByteLength]] internal slot. */
@@ -400,7 +400,7 @@ function DataViewPrototypeByteOffset(global, this, NewTarget, strict, args) {
   /* 1. Let O be the this value. */
   O := this;
   /* 2. If Type(O) is not Object, */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 3. If O does not have a [[ViewedArrayBuffer]] internal slot, */
@@ -410,7 +410,7 @@ function DataViewPrototypeByteOffset(global, this, NewTarget, strict, args) {
   /* 4. Let buffer be the value of O's [[ViewedArrayBuffer]] internal slot. */
   buffer := O.ViewedArrayBuffer;
   /* 5. If IsDetachedBuffer(buffer) is true, */
-  if (IsDetachedBuffer(buffer) = true)
+  if (IsDetachedBuffer(buffer) == true)
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 6. Let offset be the value of O's [[ByteOffset]] internal slot. */
@@ -432,7 +432,7 @@ function DataViewPrototypeGetFloat32(global, this, NewTarget, strict, args) {
   /* 1. Let v be the this value. */
   v := this;
   /* 2. If littleEndian is not present, */
-  if (littleEndian = null)
+  if (littleEndian == null)
     /* let littleEndian be false */
     littleEndian := false;
   /* 3. Return GetViewValue(v, byteOffset, littleEndian, "Float32"). */
@@ -453,7 +453,7 @@ function DataViewPrototypeGetFloat64(global, this, NewTarget, strict, args) {
   /* 1. Let v be the this value. */
   v := this;
   /* 2. If littleEndian is not present, */
-  if (littleEndian = null)
+  if (littleEndian == null)
     /* let littleEndian be false */
     littleEndian := false;
   /* 3. Return GetViewValue(v, byteOffset, littleEndian, "Float64"). */
@@ -487,7 +487,7 @@ function DataViewPrototypeGetInt16(global, this, NewTarget, strict, args) {
   /* 1. Let v be the this value. */
   v := this;
   /* 2. If littleEndian is not present, */
-  if (littleEndian = null)
+  if (littleEndian == null)
     /* let littleEndian be false */
     littleEndian := false;
   /* 3. Return GetViewValue(v, byteOffset, littleEndian, "Int16"). */
@@ -507,7 +507,7 @@ function DataViewPrototypeGetInt32(global, this, NewTarget, strict, args) {
   /* 1. Let v be the this value. */
   v := this;
   /* 2. If littleEndian is not present, */
-  if (littleEndian = null)
+  if (littleEndian == null)
     /* let littleEndian be undefined */
     littleEndian := 'undefined;
   /* 3. Return GetViewValue(v, byteOffset, littleEndian, "Int32"). */
@@ -543,7 +543,7 @@ function DataViewPrototypeGetUint16(global, this, NewTarget, strict, args) {
   /* 1. Let v be the this value. */
   v := this;
   /* 2. If littleEndian is not present, */
-  if (littleEndian = null)
+  if (littleEndian == null)
     /* let littleEndian be false */
     littleEndian := false;
   /* 3. Return GetViewValue(v, byteOffset, littleEndian, "Uint16"). */
@@ -563,7 +563,7 @@ function DataViewPrototypeGetUint32(global, this, NewTarget, strict, args) {
   /* 1. Let v be the this value. */
   v := this;
   /* 2. If littleEndian is not present, */
-  if (littleEndian = null)
+  if (littleEndian == null)
     /* let littleEndian be false */
     littleEndian := false;
   /* 3. Return GetViewValue(v, byteOffset, littleEndian, "Uint32"). */
@@ -584,7 +584,7 @@ function DataViewPrototypeSetFloat32(global, this, NewTarget, strict, args) {
   /* 1. Let v be the this value. */
   v := this;
   /* 2. If littleEndian is not present, */
-  if (littleEndian = null)
+  if (littleEndian == null)
     /* let littleEndian be false */
     littleEndian := false;
   /* 3. Return SetViewValue(v, byteOffset, littleEndian, "Float32", value). */
@@ -605,7 +605,7 @@ function DataViewPrototypeSetFloat64(global, this, NewTarget, strict, args) {
   /* 1. Let v be the this value. */
   v := this;
   /* 2. If littleEndian is not present, */
-  if (littleEndian = null)
+  if (littleEndian == null)
     /* let littleEndian be false */
     littleEndian := false;
   /* 3. Return SetViewValue(v, byteOffset, littleEndian, "Float64", value). */
@@ -643,7 +643,7 @@ function DataViewPrototypeSetInt16(global, this, NewTarget, strict, args) {
   /* 1. Let v be the this value. */
   v := this;
   /* 2. If littleEndian is not present, */
-  if (littleEndian = null)
+  if (littleEndian == null)
     /* let littleEndian be false */
     littleEndian := false;
   /* 3. Return SetViewValue(v, byteOffset, littleEndian, "Int16", value). */
@@ -665,7 +665,7 @@ function DataViewPrototypeSetInt32(global, this, NewTarget, strict, args) {
   /* 1. Let v be the this value. */
   v := this;
   /* 2. If littleEndian is not present, */
-  if (littleEndian = null)
+  if (littleEndian == null)
     /* let littleEndian be false */
     littleEndian := false;
   /* 3. Return SetViewValue(v, byteOffset, littleEndian, "Int32", value). */
@@ -703,7 +703,7 @@ function DataViewPrototypeSetUint16(global, this, NewTarget, strict, args) {
   /* 1. Let v be the this value. */
   v := this;
   /* 2. If littleEndian is not present, */
-  if (littleEndian = null)
+  if (littleEndian == null)
     /* let littleEndian be false */
     littleEndian := false;
   /* 3. Return SetViewValue(v, byteOffset, littleEndian, "Uint16", value). */
@@ -724,7 +724,7 @@ function DataViewPrototypeSetUint32(global, this, NewTarget, strict, args) {
   /* 1. Let v be the this value. */
   v := this;
   /* 2. If littleEndian is not present, */
-  if (littleEndian = null)
+  if (littleEndian == null)
     /* let littleEndian be false */
     littleEndian := false;
   /* 3. Return SetViewValue(v, byteOffset, littleEndian, "Uint32", value). */

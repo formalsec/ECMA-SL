@@ -129,17 +129,17 @@ function protoAccessorSet(globalObject, this, NewTarget, strict, params) {
   @ReturnIfAbrupt(O);
   /* 3. If Type(proto) is neither Object nor Null, return undefined. */
   protoType := Type(proto);
-  if (!(protoType = "Object") &&& !(protoType = "Null"));
+  if (protoType != "Object" &&& protoType != "Null");
     return 'undefined;
   /* 4. If O is not an Object, return undefined. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     return 'undefined;
   /* 5. Let status be O.[[SetPrototypeOf]](proto). */
   status := {O.SetPrototypeOf}(O, proto);
   /* 6. ReturnIfAbrupt(status). */
   @ReturnIfAbrupt(status);
   /* 7. If status is false, throw a TypeError exception. */
-  if (status = false)
+  if (status == false)
     throw TypeErrorConstructorInternal();
   /* 8. Return undefined. */
   return 'undefined;
@@ -192,11 +192,11 @@ function ObjectConstructor(globalObject, this, NewTarget, strict, params) {
   value := getOptionalParam(params, 0);
   ObjectPrototype := getObjectPrototype(false);
   /* If NewTarget is neither undefined nor the active function, then */
-  if (!(NewTarget = 'undefined) &&& false) /* duvida em como passar o NewTarget */
+  if (NewTarget != 'undefined &&& false) /* duvida em como passar o NewTarget */
     /* Return OrdinaryCreateFromConstructor(NewTarget, "%ObjectPrototype%"). */
     return OrdinaryCreateFromConstructor(NewTarget, "ObjectPrototype", null);
   /* If value is null, undefined or not supplied, return ObjectCreate(%ObjectPrototype%). */
-  if ((value = 'null) ||| (value = 'undefined) ||| (value = null))
+  if ((value == 'null) ||| (value == 'undefined) ||| (value == null))
     return ObjectCreate(ObjectPrototype, null);
   /* Return ToObject(value). */
   return ToObject(value);
@@ -206,7 +206,7 @@ function ObjectConstructor(globalObject, this, NewTarget, strict, params) {
 function auxCreateList(origin) {
   l := [];
   i := 1;
-  len := l_len origin;
+  len := l_len(origin);
   while (i < len) {
     obj := l_nth(origin, i);
     l := l_add(l, obj);
@@ -228,7 +228,7 @@ function ObjectAssign(globalObject, this, NewTarget, strict, params) {
   /* ReturnIfAbrupt(to). */
   @ReturnIfAbrupt(to);
   /* If only one argument was passed, return to. */
-  if (l_len params = 1)
+  if (l_len(params) == 1)
     return to;
   /* Let sources be the List of argument values starting with the second argument. */
   sources := auxCreateList( params );
@@ -236,7 +236,7 @@ function ObjectAssign(globalObject, this, NewTarget, strict, params) {
   /* For each element nextSource of sources, in ascending index order, */
   foreach (nextSource : sources) {
     /* If nextSource is undefined or null, let keys be an empty List. */
-    if ((nextSource = 'undefined) ||| (nextSource = 'null)) {
+    if ((nextSource == 'undefined) ||| (nextSource == 'null)) {
       keys := [];
     }
     /* Else, */
@@ -251,7 +251,7 @@ function ObjectAssign(globalObject, this, NewTarget, strict, params) {
 
     /* Repeat for each element nextKey of keys in List order, */
     j := 0;
-    kLen := l_len keys;
+    kLen := l_len(keys);
 
     while (j < kLen) {
       nextKey := l_nth(keys, j);
@@ -260,7 +260,7 @@ function ObjectAssign(globalObject, this, NewTarget, strict, params) {
       /* ReturnIfAbrupt(desc). */
       @ReturnIfAbrupt(desc);
       /* if desc is not undefined and desc.[[Enumerable]] is true, then */
-      if (!(desc = 'undefined) &&& (desc.Enumerable = true)) {
+      if (desc != 'undefined &&& desc.Enumerable == true) {
           /* Let propValue be Get(from, nextKey). */
           propValue := Get(from, nextKey);
           /* ReturnIfAbrupt(propValue). */
@@ -289,12 +289,12 @@ function StandardObjectCreate(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
   Properties := l_nth(params, 1);
   /* If Type(O) is neither Object nor Null, throw a TypeError exception. */
-  if (!(Type(O) = "Object") &&& !(Type(O) = "Null"))
+  if ((Type(O) != "Object") &&& (Type(O) != "Null"))
     throw TypeErrorConstructorInternal();
   /* Let obj be ObjectCreate(O). */
   obj := ObjectCreate(O, null);
   /* If the argument Properties is present and not undefined, then */
-  if (!(Properties = null) &&& !(Properties = 'undefined))
+  if ((Properties != null) &&& (Properties != 'undefined))
       /* Return ObjectDefineProperties(obj, Properties). */
       return ObjectDefineProperties(obj, Properties);
   /* Return obj. */
@@ -313,7 +313,7 @@ function StandardObjectDefineProperties(globalObject, this, NewTarget, strict, p
 /* 19.1.2.3.1 Runtime Semantics: ObjectDefineProperties ( O, Properties ) */
 function ObjectDefineProperties(O, Properties) {
   /* 1. If Type(O) is not Object throw a TypeError exception. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     throw TypeErrorConstructorInternal();
   /* 2. Let props be ToObject(Properties). */
   props := ToObject(Properties);
@@ -332,7 +332,7 @@ function ObjectDefineProperties(O, Properties) {
     /* ReturnIfAbrupt(propDesc). */
     @ReturnIfAbrupt(propDesc);
     /* If propDesc is not undefined and propDesc.[[Enumerable]] is true, then  */
-    if (!(propDesc = 'undefined ) &&& propDesc.Enumerable = true) {
+    if (propDesc != 'undefined &&& propDesc.Enumerable == true) {
       /* Let descObj be Get( props, nextKey). */
       descObj := Get(props, nextKey);
       /* ReturnIfAbrupt(descObj). */
@@ -371,7 +371,7 @@ function ObjectDefineProperty(globalObject, this, NewTarget, strict, params) {
   P := l_nth(params, 1);
   Attributes := l_nth(params, 2);
   /* 1. If Type(O) is not Object throw a TypeError exception. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     throw TypeErrorConstructorInternal();
   /* 2. Let key be ToPropertyKey(P). */
   key := ToPropertyKey(P);
@@ -394,14 +394,14 @@ function ObjectFreeze(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
   /* When the freeze function is called, the following steps are taken: */
   /* 1.If Type(O) is not Object, return O. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     return O;
   /* Let status be SetIntegrityLevel( O, "frozen"). */
   status := SetIntegrityLevel(O, "frozen");
   /* ReturnIfAbrupt(status). */
   @ReturnIfAbrupt(status);
   /* If status is false, throw a TypeError exception */
-  if (status = false)
+  if (status == false)
     throw TypeErrorConstructorInternal();
   /* 5. Return O. */
   return O;
@@ -460,7 +460,7 @@ function GetOwnPropertyKeys(O, Type) {
   /* Repeat for each element nextKey of keys in List order, */
   foreach(nextKey : keys)
     /* If Type(nextKey) is Type, then */
-    if (Type(nextKey) = Type)
+    if (Type(nextKey) == Type)
         /* Append nextKey as the last element of nameList. */
         nameList := l_add(nameList, nextKey);
   /* Return CreateArrayFromList(nameList). */
@@ -492,7 +492,7 @@ function ObjectIs(globalObject, this, NewTarget, strict, params) {
 function ObjectIsExtensible(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
   /* 1. If Type(O) is not Object return false. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     return false;
   /* 2. Return IsExtensible(O). */
   return IsExtensible(O);
@@ -503,7 +503,7 @@ function ObjectIsExtensible(globalObject, this, NewTarget, strict, params) {
 function ObjectIsFrozen(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
   /* 1. If Type(O) is not Object return true. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     return true;
   /* Return TestIntegrityLevel(O, "frozen"). */
   return TestIntegrityLevel(O, "frozen");
@@ -514,7 +514,7 @@ function ObjectIsFrozen(globalObject, this, NewTarget, strict, params) {
 function ObjectIsSealed(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
   /* 1. If Type(O) is not Object return true. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     return true;
   /* Return TestIntegrityLevel(O, "sealed"). */
   return TestIntegrityLevel(O, "sealed");
@@ -543,14 +543,14 @@ function ObjectPreventExtensions(globalObject, this, NewTarget, strict, params) 
   O := l_nth(params, 0);
   /* When the preventExtensions function is called, the following steps are taken: */
   /* 1. If Type(O) is not Object, return O.*/
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     return O;
   /* 2. Let status be O.[[PreventExtensions]](). */
   status := {O.PreventExtensions}(O);
   /* ReturnIfAbrupt(status). */
   @ReturnIfAbrupt(status);
   /* If status is false, throw a TypeError exception. */
-  if (status = false)
+  if (status == false)
     throw TypeErrorConstructorInternal();
   /* 3. Return O. */
   return O;
@@ -561,14 +561,14 @@ function ObjectSeal(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
   /* When the seal function is called, the following steps are taken: */
   /* 1. If Type(O) is not Object, return O. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     return O;
   /* Let status be SetIntegrityLevel( O, "sealed"). */
   status := SetIntegrityLevel(O, "sealed");
   /* ReturnIfAbrupt(status). */
   @ReturnIfAbrupt(status);
   /* If status is false, throw a TypeError exception. */
-  if (status = false)
+  if (status == false)
     throw TypeErrorConstructorInternal();
   /* 4. Return O. */
   return O;
@@ -584,17 +584,17 @@ function ObjectSetPrototypeOf(globalObject, this, NewTarget, strict, params) {
   /* ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
   /* If Type(proto) is neither Object nor Null, throw a TypeError exception. */
-  if (!(Type(proto) = "Object") &&& !(Type(proto) = "Null"))
+  if ((Type(proto) != "Object") &&& (Type(proto) != "Null"))
     throw TypeErrorConstructorInternal();
   /* If Type(O) is not Object, return O. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     return O;
   /* Let status be O.[[SetPrototypeOf]](proto). */
   status := {O.SetPrototypeOf}(O, proto);
   /* ReturnIfAbrupt(status). */
   @ReturnIfAbrupt(status);
   /* If status is false, throw a TypeError exception. */
-  if (status = false)
+  if (status == false)
     throw TypeErrorConstructorInternal();
   /* Return O. */
   return O;
@@ -624,7 +624,7 @@ function ObjectPrototypeIsPrototypeOf(globalObject, this, NewTarget, strict, par
   V := l_nth(params, 0);
   /* When the isPrototypeOf method is called with argument V, the following steps are taken: */
   /* 1. If Type(V) is not Object, return false. */
-  if (!(Type(V) = "Object"))
+  if (Type(V) != "Object")
     return false;
   /* 2.Let O be ToObject(this value). */
   O := ToObject(this);
@@ -635,10 +635,10 @@ function ObjectPrototypeIsPrototypeOf(globalObject, this, NewTarget, strict, par
     /* a. Let V be V.[[GetPrototypeOf]]().*/
     V := {V.GetPrototypeOf}(V);
     /* b. if V is null, return false */
-    if (V = 'null)
+    if (V == 'null)
       return false;
     /* c. If SameValue(O, V) is true, return true. */
-    if (SameValue(O, V) = true)
+    if (SameValue(O, V) == true)
       return true;
   }
   /* NOTE The ordering of steps 1 and 2 is chosen to preserve the behaviour specified by previous editions of this
@@ -660,7 +660,7 @@ function ObjectPrototypePropertyIsEnumerable(globalObject, this, NewTarget, stri
   /* 3. Let desc be O.[[GetOwnProperty]](P). */
   desc := {O.GetOwnProperty}(O, P);
   /* 4. If desc is undefined, return false. */
-  if (desc = 'undefined)
+  if (desc == 'undefined)
     return false;
   /* 5. Return the value of desc.[[Enumerable]]. */
   return desc.Enumerable;
@@ -692,10 +692,10 @@ function ObjectPrototypeToLocaleString(globalObject, this, NewTarget, strict, pa
 function ObjectPrototypeToString(globalObject, this, NewTarget, strict, params) {
   /* When the toString method is called, the following steps are taken: */
   /* 1. If the this value is undefined, return "[object Undefined]". */
-  if (this = 'undefined)
+  if (this == 'undefined)
     return "[object Undefined]";
   /* 2. If the this value is null, return "[object Null]". */
-  if (this = 'null)
+  if (this == 'null)
     return "[object Null]";
   /* 3. Let O be ToObject(this value) */
   O := ToObject(this);
@@ -704,10 +704,10 @@ function ObjectPrototypeToString(globalObject, this, NewTarget, strict, params) 
   /* ReturnIfAbrupt(isArray). */
   @ReturnIfAbrupt(isArray);
   /* If isArray is true, let builtinTag be "Array". */
-  if (isArray = true)
+  if (isArray == true)
     builtinTag := "Array";
   /* Else, if O is an exotic String object, let builtinTag be "String". */
-  else if (isStringExoticObject(O) = true ||| O.Class = "String")
+  else if (isStringExoticObject(O) == true ||| O.Class == "String")
     builtinTag := "String";
   /* Else, if O has an [[ParameterMap]] internal slot, let builtinTag be "Arguments". */
   else if ("ParameterMap" in_obj O)
@@ -738,10 +738,10 @@ function ObjectPrototypeToString(globalObject, this, NewTarget, strict, params) 
   /* ReturnIfAbrupt(tag). */
   @ReturnIfAbrupt(tag);
   /* If Type(tag) is not String, let tag be builtinTag. */
-  if (!(Type(tag) = "String"))
+  if (Type(tag) != "String")
     tag := builtinTag;
   /* Return the String that is the result of concatenating "[object ", tag, and "]".   */
-  return s_concat ["[object ", tag, "]"];
+  return s_concat(["[object ", tag, "]"]);
 }
 
 /* 19.1.3.7 Object.prototype.valueOf ( ) */

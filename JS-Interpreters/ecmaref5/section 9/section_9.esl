@@ -23,13 +23,13 @@ function ToBoolean(argument) {
     case "Boolean":     return argument;
     case "Object":      return true; 
     case "Number": {
-      if ((argument = 0.) || (argument = -(0.)) || (is_NaN (argument)))
+      if ((argument == 0.) || (argument == -(0.)) || (is_NaN (argument)))
         return false;
       else
         return true;
     }
     case "String": {
-      if (argument = "")
+      if (argument == "")
         return false;
       else
         return true;
@@ -44,20 +44,20 @@ function ToNumber(argument) {
     case "Undefined": return NaN;
     case "Null":      return 0.;
     case "Boolean": {
-      if (argument = true)
+      if (argument == true)
         return 1.;
-      if (argument = false)
+      if (argument == false)
         return 0.;
     }
     case "Number": {
-      if (typeof (argument) = "int")
+      if (typeof (argument) == "int")
         return int_to_float(argument);
       return argument;
     }
     case "String": {
       str := removeLeadingWhitespace(argument);
       str := removeTrailingWhitespace(str);
-      return float_of_string(str);
+      return string_to_float(str);
     }
     case "Object": {
       /* Apply the following steps: */
@@ -156,9 +156,9 @@ function ToString(argument) {
     case "Undefined": return "undefined";
     case "Null":      return "null";
     case "Boolean": {
-      if (argument = true)
+      if (argument == true)
         return "true";
-      if (argument = false)
+      if (argument == false)
         return "false";
     }
     case "Number": return float_to_string(argument);

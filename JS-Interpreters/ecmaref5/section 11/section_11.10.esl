@@ -1,10 +1,10 @@
 /* Auxiliary function used to deal with the following bitwise operators: &, ^, and | */
 function applyBitwiseOperator(operator, lnum, rnum) {
-  if (operator = "&")
+  if (operator == "&")
     return lnum & rnum;
-  if (operator = "^")
+  if (operator == "^")
     return lnum ^ rnum;
-  if (operator = "|")
+  if (operator == "|")
     return lnum | rnum;
 
   assert false;

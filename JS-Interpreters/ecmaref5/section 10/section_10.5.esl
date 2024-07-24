@@ -23,7 +23,7 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
     func := F;
     names := func.FormalParameters;
     /* b. Let argCount be the number of elements in args. */
-    argCount := l_len args;
+    argCount := l_len(args);
     /* c. Let n be the number 0. */
     n := 0;
     /* d. For each String argName in names, in list order do */
@@ -38,7 +38,7 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
       argAlreadyDeclared := HasBinding(env, argName);
       /* iv. If argAlreadyDeclared is false, call env’s CreateMutableBinding concrete method passing
              argName as the argument. */
-      if (argAlreadyDeclared = false)
+      if (argAlreadyDeclared == false)
         CreateMutableBinding(env, argName, false); /* the third argument is optional as in the method signature */
       /* v. Call env’s SetMutableBinding concrete method passing argName, v, and strict as the
             arguments. */
@@ -56,17 +56,17 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
     funcAlreadyDeclared := HasBinding(env, fn);
     /* d. If funcAlreadyDeclared is false, call env’s CreateMutableBinding concrete method passing fn and
           configurableBindings as the arguments. */
-    if (funcAlreadyDeclared = false)
+    if (funcAlreadyDeclared == false)
       CreateMutableBinding(env, fn, configurableBindings);
     /* e. Else if env is the environment record component of the global environment then */
-    else if (env = |global|) {
+    else if (env == |global|) {
       /* i. Let go be the global object. */
       go := |global|;
       /* ii. Let existingProp be the resulting of calling the [[GetProperty]] internal method of go with
             argument fn. */
       existingProp := {go.GetProperty}(go, fn);
       /* iii. If existingProp.[[Configurable]] is true, then */
-      if (existingProp.Configurable = true)
+      if (existingProp.Configurable == true)
         /* 1. Call the [[DefineOwnProperty]] internal method of go, passing fn, Property
               Descriptor {[[Value]]: undefined, [[Writable]]: true, [[Enumerable]]: true ,
               [[Configurable]]: configurableBindings }, and true as arguments. */
@@ -84,12 +84,12 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
       "arguments" as the argument. */
   argumentsAlreadyDeclared := HasBinding(env, "arguments");
   /* 7. If code is function code and argumentsAlreadyDeclared is false, then */
-  if (isFunctionCode(code) && (argumentsAlreadyDeclared = false)) {
+  if (isFunctionCode(code) && (argumentsAlreadyDeclared == false)) {
     /* a. Let argsObj be the result of calling the abstract operation CreateArgumentsObject (10.6) passing
           func, names, args, env and strict as arguments. */
     argsObj := CreateArgumentsObject(func, names, args, env, getVariableEnvironment(runningExecCtx), strict);
     /* b. If strict is true, then */
-    if (strict = true) {
+    if (strict == true) {
       /* i. Call env‘s CreateImmutableBinding concrete method passing the String "arguments" as
             the argument. */
       CreateImmutableBinding(env, "arguments");
@@ -114,7 +114,7 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
           argument. */
     varAlreadyDeclared := HasBinding(env, dn);
     /* c. If varAlreadyDeclared is false, then */
-    if (varAlreadyDeclared = false) {
+    if (varAlreadyDeclared == false) {
       /* i. Call env‘s CreateMutableBinding concrete method passing dn and configurableBindings as
             the arguments. */
       CreateMutableBinding(env, dn, configurableBindings);
@@ -129,25 +129,25 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
 
 /* Auxiliary functions */
 function isEvalCode(code) {
-  return (typeof (code) = "object") &&& (code.codeType = "eval");
+  return (typeof (code) == "object") &&& (code.codeType == "eval");
 }
 
 function isFunctionCode(code) {
-  return (typeof (code) = "object") &&& (code.codeType = "function");
+  return (typeof (code) == "object") &&& (code.codeType == "function");
 }
 
 function isStrictModeCode(code, execCtx) {
-  return (!(code = 'undefined) &&& (code.strict = true)) ||| isContainedInStrictCode(execCtx);
+  return ((code != 'undefined) &&& (code.strict == true)) ||| isContainedInStrictCode(execCtx);
 }
 
 function getFunctionDeclarationsInCode(object) {
-  if (object = 'undefined)
+  if (object == 'undefined)
     return [];
   return object.functionDeclarations;
 }
 
 function getVariableDeclarationsInCode(object) {
-  if (object = 'undefined)
+  if (object == 'undefined)
     return [];
   return object.variableDeclarations;
 }
