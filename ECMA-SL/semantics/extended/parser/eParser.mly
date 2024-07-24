@@ -31,23 +31,28 @@
 %token SWITCH CASE DEFAULT
 %token MATCH WITH
 
+(* ========== Operator tokens ========== *)
+
+%token INT_TO_FLOAT INT_TO_STRING
+%token FLOAT_TO_INT FLOAT_TO_STRING
+%token STRING_TO_INT STRING_TO_FLOAT
+%token LIST_HEAD LIST_TAIL
+%token OBJECT_TO_LIST OBJECT_FIELDS OBJECT_MEM
+
 (* ========== Symbol tokens ========== *)
 
-%token PERIOD COMMA SEMICOLON COLON
-%token DEFEQ
-%token ATSIGN HASH
+%token COMMA SEMICOLON COLON PERIOD
+%token DEFEQ ATSIGN HASH ARROW
 %token LPAREN RPAREN
 %token LBRACE RBRACE
 %token LBRACK RBRACK
-%token QUESTION
-%token SCLAND SCLOR
-%token RIGHT_ARROW
+%token QUESTION EXCLAMATION
+%token PLUS MINUS TIMES DIVIDE MODULO POW
+%token TILDE AMPERSAND PIPE CARET
+%token SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
+%token LAND LOR SCLAND SCLOR
+%token EQ NE LT GT LE GE
 %token EOF
-
-(* ========== Operator tokens ========== *)
-
-%token OBJECT_TO_LIST OBJECT_FIELDS
-%token OBJECT_MEM
 
 (* ========== Type system tokens ========== *)
 
@@ -222,7 +227,7 @@ let match_cases_target :=
   | cs = match_case_target; %prec simple_match_prec { [ cs ] }
   | cs = match_case_target; css = match_cases_target; { cs :: css }
 
-let match_case_target := PIPE; ~ = pattern_target; RIGHT_ARROW; ~ = stmt_target; <>
+let match_case_target := PIPE; ~ = pattern_target; ARROW; ~ = stmt_target; <>
 
 (* ==================== Pattern Elements ==================== *)
 
@@ -268,11 +273,9 @@ let var_expr_target :=
     { EExpr.Lookup (oe, fe) @> at $sloc }
 
 let op_expr_target :=
-  | op = core_unopt_infix; e = expr_target;    %prec unopt_prec
+  | op = unopt_target; e = expr_target; %prec unopt_prec
     { EExpr.UnOpt (op, e) @> at $sloc }
-  | op = unopt_call_target; e = expr_target;   %prec unopt_prec
-    { EExpr.UnOpt (op, e) @> at $sloc }
-  | e1 = no_blocklike_expr_target; op = binopt_infix_target; e2 = expr_target;
+  | e1 = no_blocklike_expr_target; op = binopt_target; e2 = expr_target;
     { EExpr.BinOpt (op, e1, e2) @> at $sloc }
   | e1 = no_blocklike_expr_target; QUESTION; e2 = expr_target; COLON; e3 = expr_target;
     { EExpr.TriOpt (Conditional, e1, e2, e3) @> at $sloc }
@@ -292,19 +295,6 @@ let call_expr_target :=
 let obj_expr_target :=
   | LBRACE; flds = separated_list(COMMA, field_init_target); RBRACE;
     { EExpr.NewObj (EParsing_helper.Expr.parse_object_fields flds) @> at $sloc }
-
-(* ==================== Operators ==================== *)
-
-let binopt_infix_target ==
-  | ~ = core_binopt_infix;  <>
-  | SCLAND;                 { Operator.SCLogicalAnd }
-  | SCLOR;                  { Operator.SCLogicalOr }
-  | OBJECT_MEM;             { Operator.ObjectMem }
-
-let unopt_call_target ==
-  | ~ = core_unopt_call;    <>
-  | OBJECT_TO_LIST;         { Operator.ObjectToList }
-  | OBJECT_FIELDS;          { Operator.ObjectFields }
 
 (* ==================== Generic Elements ==================== *)
 
@@ -337,12 +327,58 @@ let str_id_target := s = STRING;  { (s @> at $sloc) }
 let times_id_target := TIMES;     { ("*" @> at $sloc) }
 
 let val_target :=
-  | NULL;                { Value.App (`Op "null", []) }
   | i = INT;             < Value.Int >
   | f = FLOAT;           < Value.Real >
   | s = STRING;          < Value.Str >
   | b = BOOLEAN;         { if b then Value.True else Value.False }
   | s = SYMBOL;          { Value.App (`Op "symbol", [Value.Str s])}
+  | NULL;                { Value.App (`Op "null", []) }
+
+(* ==================== Operators ==================== *)
+
+let unopt_target ==
+  | MINUS;                  { Operator.Neg }
+  | TILDE;                  { Operator.BitwiseNot }
+  | EXCLAMATION;            { Operator.LogicalNot }
+  | LIST_HEAD;              { Operator.ListHead }
+  | LIST_TAIL;              { Operator.ListTail }
+  | INT_TO_FLOAT;           { Operator.IntToFloat }
+  | INT_TO_STRING;          { Operator.IntToString }
+  | FLOAT_TO_INT;           { Operator.FloatToInt }
+  | FLOAT_TO_STRING;        { Operator.FloatToString }
+  | STRING_TO_INT;          { Operator.StringToInt }
+  | STRING_TO_FLOAT;        { Operator.StringToFloat }
+  | OBJECT_TO_LIST;         { Operator.ObjectToList }
+  | OBJECT_FIELDS;          { Operator.ObjectFields }
+
+let binopt_target ==
+  | PLUS;                   { Operator.Plus }
+  | MINUS;                  { Operator.Minus }
+  | TIMES;                  { Operator.Times }
+  | DIVIDE;                 { Operator.Div }
+  | MODULO;                 { Operator.Modulo }
+  | POW;                    { Operator.Pow }
+  | AMPERSAND;              { Operator.BitwiseAnd }
+  | PIPE;                   { Operator.BitwiseOr }
+  | CARET;                  { Operator.BitwiseXor }
+  | SHIFT_LEFT;             { Operator.ShiftLeft }
+  | SHIFT_RIGHT;            { Operator.ShiftRight }
+  | SHIFT_RIGHT_LOGICAL;    { Operator.ShiftRightLogical }
+  | LAND;                   { Operator.LogicalAnd }
+  | LOR;                    { Operator.LogicalOr }
+  | SCLAND;                 { Operator.SCLogicalAnd }
+  | SCLOR;                  { Operator.SCLogicalOr }
+  | EQ;                     { Operator.Eq }
+  | NE;                     { Operator.Ne }
+  | LT;                     { Operator.Lt }
+  | GT;                     { Operator.Gt }
+  | LE;                     { Operator.Le }
+  | GE;                     { Operator.Ge }
+  | OBJECT_MEM;             { Operator.ObjectMem }
+
+
+
+
 
 
 

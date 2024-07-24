@@ -2,12 +2,7 @@
  (modules eLexer))
 
 (menhir
- (modules op_parser eParser)
+ (modules eParser)
  (merge_into eParser)
  (flags --table --explain))
 
-(rule
- (targets op_parser.mly)
- (deps ../../core/parser/op_parser.mly)
- (action
-  (copy %{deps} %{targets})))
