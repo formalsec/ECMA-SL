@@ -23,10 +23,10 @@ let rec pp (ppf : Fmt.t) (expr : t) : unit =
   match expr.it with
   | Val v -> Value.pp ppf v
   | Var x -> Fmt.pp_str ppf x
-  | UnOpt (op, e) -> Operator.pp_of_unopt pp ppf (op, e)
-  | BinOpt (op, e1, e2) -> Operator.pp_of_binopt pp ppf (op, e1, e2)
-  | TriOpt (op, e1, e2, e3) -> Operator.pp_of_triopt pp ppf (op, e1, e2, e3)
-  | NOpt (op, es) -> Operator.pp_of_nopt pp ppf (op, es)
+  | UnOpt (op, e) -> Operator.unopt_pp ~pp_v:pp ppf (op, e)
+  | BinOpt (op, e1, e2) -> Operator.binopt_pp ~pp_v:pp ppf (op, e1, e2)
+  | TriOpt (op, e1, e2, e3) -> Operator.triopt_pp ~pp_v:pp ppf (op, e1, e2, e3)
+  | NOpt (op, es) -> Operator.nopt_pp ~pp_v:pp ppf (op, es)
   | Curry (fe, es) -> Fmt.fmt ppf "{%a}@(%a)" pp fe Fmt.(pp_lst !>", " pp) es
 
 let str (expr : t) : string = Fmt.str "%a" pp expr [@@inline]

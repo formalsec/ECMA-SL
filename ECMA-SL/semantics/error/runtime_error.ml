@@ -13,12 +13,13 @@ type msg =
   | OpEvalErr of string
   | UnknownVar of Id.t'
   | UnknownFunc of Id.t'
+  | MissingReturn of Id.t
   | BadNArgs of int * int
+  | BadArg of string * Value.t
   | BadVal of string * Value.t
   | BadExpr of string * Value.t
   | BadFuncId of Value.t
   | BadOpArgs of string * Value.t list
-  | MissingReturn of Id.t
 
 module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
   type t = msg
@@ -34,19 +35,21 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
     | (UnexpectedExitVal v1, UnexpectedExitVal v2) -> Value.equal v1 v2
     | (Failure msg1', Failure msg2') -> String.equal msg1' msg2'
     | (UncaughtExn msg1', UncaughtExn msg2') -> String.equal msg1' msg2'
-    | (OpEvalErr oplbl1, OpEvalErr oplbl2) -> String.equal oplbl1 oplbl2
+    | (OpEvalErr op_lbl1, OpEvalErr op_lbl2) -> String.equal op_lbl1 op_lbl2
     | (UnknownVar x1, UnknownVar x2) -> String.equal x1 x2
     | (UnknownFunc fn1, UnknownFunc fn2) -> String.equal fn1 fn2
+    | (MissingReturn fn1, MissingReturn fn2) -> Id.equal fn1 fn2
     | (BadNArgs (npxs1, nargs1), BadNArgs (npxs2, nargs2)) ->
       Int.equal npxs1 npxs2 && Int.equal nargs1 nargs2
-    | (BadVal (texpr1, v1), BadVal (texpr2, v2)) ->
-      String.equal texpr1 texpr2 && Value.equal v1 v2
-    | (BadExpr (texpr1, v1), BadExpr (texpr2, v2)) ->
-      String.equal texpr1 texpr2 && Value.equal v1 v2
+    | (BadArg (texp1, v1), BadArg (texp2, v2)) ->
+      String.equal texp1 texp2 && Value.equal v1 v2
+    | (BadVal (texp1, v1), BadVal (texp2, v2)) ->
+      String.equal texp1 texp2 && Value.equal v1 v2
+    | (BadExpr (texp1, v1), BadExpr (texp2, v2)) ->
+      String.equal texp1 texp2 && Value.equal v1 v2
     | (BadFuncId v1, BadFuncId v2) -> Value.equal v1 v2
-    | (BadOpArgs (texpr1, vs1), BadOpArgs (texpr2, vs2)) ->
-      String.equal texpr1 texpr2 && List.equal Value.equal vs1 vs2
-    | (MissingReturn fn1, MissingReturn fn2) -> Id.equal fn1 fn2
+    | (BadOpArgs (texp1, vs1), BadOpArgs (texp2, vs2)) ->
+      String.equal texp1 texp2 && List.equal Value.equal vs1 vs2
     | _ -> false
 
   let pp (ppf : Fmt.t) (msg : t) : unit =
@@ -58,24 +61,26 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
     | UnexpectedExitVal v -> fmt ppf "Unexpected exit value '%a'." Value.pp v
     | Failure msg -> fmt ppf "Failure %s." msg
     | UncaughtExn msg -> fmt ppf "Uncaught exception %s." msg
-    | OpEvalErr oplbl -> fmt ppf "Exception in Operator.%s." oplbl
+    | OpEvalErr op_lbl -> fmt ppf "Exception in operator %s." op_lbl
     | UnknownVar x -> fmt ppf "Cannot find variable '%s'." x
     | UnknownFunc fn -> fmt ppf "Cannot find function '%s'." fn
+    | MissingReturn fn -> fmt ppf "Missing return in function '%a'." Id.pp fn
     | BadNArgs (npxs, nargs) ->
       fmt ppf "Expected %d arguments, but got %d." npxs nargs
-    | BadVal (texpr, v) ->
-      fmt ppf "Expecting %s value, but got '%a'." texpr Value.pp v
-    | BadExpr (texpr, v) ->
-      fmt ppf "Expecting %s expression, but got '%a'." texpr Value.pp v
+    | BadArg (texp, v) ->
+      fmt ppf "Expecting argument of type '%s' but got '%a'." texp Value.pp v
+    | BadVal (texp, v) ->
+      fmt ppf "Expecting %s value, but got '%a'." texp Value.pp v
+    | BadExpr (texp, v) ->
+      fmt ppf "Expecting %s expression, but got '%a'." texp Value.pp v
     | BadFuncId v ->
       fmt ppf "Expecting a function identifier, but got '%a'." Value.pp v
-    | BadOpArgs (texpr, vs) when List.length vs = 1 ->
-      fmt ppf "Expecting argument of type '%s', but got '%a'." texpr
+    | BadOpArgs (texp, vs) when List.length vs = 1 ->
+      fmt ppf "Expecting argument of type '%s', but got '%a'." texp
         (pp_lst !>", " Value.pp) vs
-    | BadOpArgs (texpr, vs) ->
-      fmt ppf "Expecting arguments of types '%s', but got '(%a)'." texpr
+    | BadOpArgs (texp, vs) ->
+      fmt ppf "Expecting arguments of types '%s', but got '(%a)'." texp
         (pp_lst !>", " Value.pp) vs
-    | MissingReturn fn -> fmt ppf "Missing return in function '%a'." Id.pp fn
 
   let str (msg : t) : string = Fmt.str "%a" pp msg
 end

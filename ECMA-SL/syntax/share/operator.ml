@@ -4,15 +4,14 @@ type unopt =
   | Neg
   | BitwiseNot
   | LogicalNot
+  | ListHead
+  | ListTail
   | IntToFloat
   | IntToString
   | FloatToInt
   | FloatToString
   | StringToInt
   | StringToFloat
-  | ListHead
-  | ListTail
-  (* Temp operators *)
   | ObjectToList
   | ObjectFields
 
@@ -39,35 +38,32 @@ type binopt =
   | Gt
   | Le
   | Ge
-  (* Temp operators *)
   | ObjectMem
 
 type triopt = Conditional
-(* Temp operators *)
 
 type nopt =
   | ListExpr
-  (* Temp operators *)
   | NAryLogicalAnd
   | NAryLogicalOr
 
-let label_of_unopt (op : unopt) : string =
+let unopt_label (op : unopt) : string =
   match op with
   | Neg -> "Arith.neg (-)"
   | BitwiseNot -> "Bitwise.not (~)"
   | LogicalNot -> "Logical.not (!)"
-  | IntToFloat -> "Integer.int_to_float"
-  | IntToString -> "Integer.int_to_string"
-  | FloatToInt -> "Float.float_to_int"
-  | FloatToString -> "Float.float_to_string"
-  | StringToInt -> "String.string_to_int"
-  | StringToFloat -> "String.string_to_float"
-  | ListHead -> "List.hd"
-  | ListTail -> "List.tl"
-  | ObjectToList -> "Object.obj_to_list"
-  | ObjectFields -> "Object.obj_fields"
+  | ListHead -> "List.head (hd)"
+  | ListTail -> "List.tail (tl)"
+  | IntToFloat -> "Integer.toFloat (int_to_float)"
+  | IntToString -> "Integer.toString (int_to_string)"
+  | FloatToInt -> "Float.toInt (float_to_int)"
+  | FloatToString -> "Float.toString (float_to_string)"
+  | StringToInt -> "String.toInt (string_to_int)"
+  | StringToFloat -> "String.toFloat (string_to_float)"
+  | ObjectToList -> "Object.toList (obj_to_list)"
+  | ObjectFields -> "Object.fields (obj_fields)"
 
-let label_of_binopt (op : binopt) : string =
+let binopt_label (op : binopt) : string =
   match op with
   | Plus -> "Arith.plus (+)"
   | Minus -> "Arith.minus (-)"
@@ -78,119 +74,132 @@ let label_of_binopt (op : binopt) : string =
   | BitwiseAnd -> "Bitwise.and (&)"
   | BitwiseOr -> "Bitwise.or (|)"
   | BitwiseXor -> "Bitwise.xor (^)"
-  | ShiftLeft -> "Bitwise.shift_left (<<)"
-  | ShiftRight -> "Bitwise.shift_right (>>)"
-  | ShiftRightLogical -> "Bitwise.shift_right_logical (>>>)"
+  | ShiftLeft -> "Bitwise.shl (<<)"
+  | ShiftRight -> "Bitwise.shrA (>>)"
+  | ShiftRightLogical -> "Bitwise.shrL (>>>)"
   | LogicalAnd -> "Logical.and (&&)"
   | LogicalOr -> "Logical.or (||)"
-  | SCLogicalAnd -> "Logical.sc_and (&&&)"
-  | SCLogicalOr -> "Logical.sc_or (|||)"
-  | Eq -> "Comp.eq (==)"
-  | Ne -> "Comp.ne (!=)"
-  | Lt -> "Comp.lt (<)"
-  | Gt -> "Comp.gt (>)"
-  | Le -> "Comp.le (<=)"
-  | Ge -> "Comp.ge (>=)"
-  | ObjectMem -> "Object.in_obj"
+  | SCLogicalAnd -> "Logical.scAnd (&&&)"
+  | SCLogicalOr -> "Logical.scOr (|||)"
+  | Eq -> "Relation.eq (==)"
+  | Ne -> "Relation.ne (!=)"
+  | Lt -> "Relation.lt (<)"
+  | Gt -> "Relation.gt (>)"
+  | Le -> "Relation.le (<=)"
+  | Ge -> "Relation.ge (>=)"
+  | ObjectMem -> "Object.in (in_obj)"
 
-let label_of_triopt (op : triopt) : string =
-  match op with Conditional -> "Conditional"
+let triopt_label (op : triopt) : string =
+  match op with Conditional -> "Relation.conditional (?)"
 
-let label_of_nopt (op : nopt) : string =
+let nopt_label (op : nopt) : string =
   match op with
-  | NAryLogicalAnd -> "Logical.nary_and"
-  | NAryLogicalOr -> "Logical.nary_or"
-  | ListExpr -> "List.l_expr"
+  | ListExpr -> "List.expr ([...])"
+  | NAryLogicalAnd -> "Logical.nAnd (&&...)"
+  | NAryLogicalOr -> "Logical.nOr (||...)"
 
-let pp_of_unopt_single (ppf : Fmt.t) (op : unopt) : unit =
-  let open Fmt in
+let unopt_pp_simple (ppf : Fmt.t) (op : unopt) : unit =
   match op with
-  | Neg -> pp_str ppf "-"
-  | BitwiseNot -> pp_str ppf "~"
-  | LogicalNot -> pp_str ppf "!"
-  | IntToFloat -> pp_str ppf "int_to_float"
-  | IntToString -> pp_str ppf "int_to_string"
-  | FloatToInt -> pp_str ppf "float_to_int"
-  | FloatToString -> pp_str ppf "float_to_string"
-  | StringToInt -> pp_str ppf "string_to_int"
-  | StringToFloat -> pp_str ppf "string_to_float"
-  | ObjectToList -> pp_str ppf "obj_to_list"
-  | ObjectFields -> pp_str ppf "obj_fields"
-  | ListHead -> pp_str ppf "hd"
-  | ListTail -> pp_str ppf "tl"
+  | Neg -> Fmt.pp_str ppf "-"
+  | BitwiseNot -> Fmt.pp_str ppf "~"
+  | LogicalNot -> Fmt.pp_str ppf "!"
+  | ListHead -> Fmt.pp_str ppf "hd"
+  | ListTail -> Fmt.pp_str ppf "tl"
+  | IntToFloat -> Fmt.pp_str ppf "int_to_float"
+  | IntToString -> Fmt.pp_str ppf "int_to_string"
+  | FloatToInt -> Fmt.pp_str ppf "float_to_int"
+  | FloatToString -> Fmt.pp_str ppf "float_to_string"
+  | StringToInt -> Fmt.pp_str ppf "string_to_int"
+  | StringToFloat -> Fmt.pp_str ppf "string_to_float"
+  | ObjectToList -> Fmt.pp_str ppf "obj_to_list"
+  | ObjectFields -> Fmt.pp_str ppf "obj_fields"
 
-let pp_of_binopt_single (ppf : Fmt.t) (op : binopt) : unit =
-  let open Fmt in
+let binopt_pp_simple (ppf : Fmt.t) (op : binopt) : unit =
   match op with
-  | Plus -> pp_str ppf "+"
-  | Minus -> pp_str ppf "-"
-  | Times -> pp_str ppf "*"
-  | Div -> pp_str ppf "/"
-  | Modulo -> fmt ppf "%%"
-  | Pow -> pp_str ppf "**"
-  | BitwiseAnd -> pp_str ppf "&"
-  | BitwiseOr -> pp_str ppf "|"
-  | BitwiseXor -> pp_str ppf "^"
-  | ShiftLeft -> pp_str ppf "<<"
-  | ShiftRight -> pp_str ppf ">>"
-  | ShiftRightLogical -> pp_str ppf ">>>"
-  | LogicalAnd -> pp_str ppf "&&"
-  | LogicalOr -> pp_str ppf "||"
-  | SCLogicalAnd -> pp_str ppf "&&&"
-  | SCLogicalOr -> pp_str ppf "|||"
-  | Eq -> pp_str ppf "=="
-  | Ne -> pp_str ppf "!="
-  | Lt -> pp_str ppf "<"
-  | Gt -> pp_str ppf ">"
-  | Le -> pp_str ppf "<="
-  | Ge -> pp_str ppf ">="
-  | ObjectMem -> pp_str ppf "in_obj"
+  | Plus -> Fmt.pp_str ppf "+"
+  | Minus -> Fmt.pp_str ppf "-"
+  | Times -> Fmt.pp_str ppf "*"
+  | Div -> Fmt.pp_str ppf "/"
+  | Modulo -> Fmt.pp_str ppf "%%"
+  | Pow -> Fmt.pp_str ppf "**"
+  | BitwiseAnd -> Fmt.pp_str ppf "&"
+  | BitwiseOr -> Fmt.pp_str ppf "|"
+  | BitwiseXor -> Fmt.pp_str ppf "^"
+  | ShiftLeft -> Fmt.pp_str ppf "<<"
+  | ShiftRight -> Fmt.pp_str ppf ">>"
+  | ShiftRightLogical -> Fmt.pp_str ppf ">>>"
+  | LogicalAnd -> Fmt.pp_str ppf "&&"
+  | LogicalOr -> Fmt.pp_str ppf "||"
+  | SCLogicalAnd -> Fmt.pp_str ppf "&&&"
+  | SCLogicalOr -> Fmt.pp_str ppf "|||"
+  | Eq -> Fmt.pp_str ppf "=="
+  | Ne -> Fmt.pp_str ppf "!="
+  | Lt -> Fmt.pp_str ppf "<"
+  | Gt -> Fmt.pp_str ppf ">"
+  | Le -> Fmt.pp_str ppf "<="
+  | Ge -> Fmt.pp_str ppf ">="
+  | ObjectMem -> Fmt.pp_str ppf "in_obj"
 
-let pp_of_triopt_single (ppf : Fmt.t) (op : triopt) : unit =
-  let open Fmt in
-  match op with Conditional -> pp_str ppf "?:"
+let triopt_pp_simple (ppf : Fmt.t) (op : triopt) : unit =
+  match op with Conditional -> Fmt.pp_str ppf "?"
 
-let pp_of_unopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
-  ((op, v) : unopt * 'a) : unit =
-  Fmt.fmt ppf "%a%a" pp_of_unopt_single op pp_val v
+let nopt_pp_simple (ppf : Fmt.t) (op : nopt) : unit =
+  match op with
+  | ListExpr -> Fmt.pp_str ppf "[...]"
+  | NAryLogicalAnd -> Fmt.pp_str ppf "&&..."
+  | NAryLogicalOr -> Fmt.pp_str ppf "||..."
 
-let pp_of_binopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
+let unopt_pp ~(pp_v : Fmt.t -> 'a -> unit) (ppf : Fmt.t) ((op, v) : unopt * 'a)
+  : unit =
+  match op with
+  | Neg -> Fmt.fmt ppf "%a%a" unopt_pp_simple op pp_v v
+  | BitwiseNot -> Fmt.fmt ppf "%a%a" unopt_pp_simple op pp_v v
+  | LogicalNot -> Fmt.fmt ppf "%a%a" unopt_pp_simple op pp_v v
+  | _ -> Fmt.fmt ppf "%a %a" unopt_pp_simple op pp_v v
+
+let binopt_pp ~(pp_v : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   ((op, v1, v2) : binopt * 'a * 'a) : unit =
-  Fmt.fmt ppf "%a %a %a" pp_val v1 pp_of_binopt_single op pp_val v2
+  Fmt.fmt ppf "%a %a %a" pp_v v1 binopt_pp_simple op pp_v v2
 
-let pp_of_triopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
+let triopt_pp ~(pp_v : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   ((op, v1, v2, v3) : triopt * 'a * 'a * 'a) : unit =
   match op with
-  | Conditional -> Fmt.fmt ppf "%a ? %a : %a" pp_val v1 pp_val v2 pp_val v3
+  | Conditional -> Fmt.fmt ppf "%a ? %a : %a" pp_v v1 pp_v v2 pp_v v3
 
-let pp_of_nopt (pp_val : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
+let nopt_pp ~(pp_v : Fmt.t -> 'a -> unit) (ppf : Fmt.t)
   ((op, vs) : nopt * 'a list) : unit =
-  let open Fmt in
   match op with
-  | NAryLogicalAnd -> fmt ppf "%a" (pp_lst !>" && " pp_val) vs
-  | NAryLogicalOr -> fmt ppf "%a" (pp_lst !>" || " pp_val) vs
-  | ListExpr -> fmt ppf "[%a]" (pp_lst !>", " pp_val) vs
+  | ListExpr -> Fmt.fmt ppf "[%a]" Fmt.(pp_lst !>", " pp_v) vs
+  | NAryLogicalAnd -> Fmt.fmt ppf "%a" Fmt.(pp_lst !>" && " pp_v) vs
+  | NAryLogicalOr -> Fmt.fmt ppf "%a" Fmt.(pp_lst !>" || " pp_v) vs
 
-let str_of_unopt_single (op : unopt) : string =
-  Fmt.str "%a" pp_of_unopt_single op
+let unopt_str_simple (op : unopt) : string = Fmt.str "%a" unopt_pp_simple op
+[@@inline]
 
-let str_of_binopt_single (op : binopt) : string =
-  Fmt.str "%a" pp_of_binopt_single op
+let binopt_str_simple (op : binopt) : string = Fmt.str "%a" binopt_pp_simple op
+[@@inline]
 
-let str_of_triopt_single (op : triopt) : string =
-  Fmt.str "%a" pp_of_triopt_single op
+let triopt_str_simple (op : triopt) : string = Fmt.str "%a" triopt_pp_simple op
+[@@inline]
 
-let str_of_unopt (pp_val : Fmt.t -> 'a -> unit) (op : unopt) (v : 'a) : string =
-  Fmt.str "%a" (pp_of_unopt pp_val) (op, v)
+let nopt_str_simple (op : nopt) : string = Fmt.str "%a" nopt_pp_simple op
+[@@inline]
 
-let str_of_binopt (pp_val : Fmt.t -> 'a -> unit) (op : binopt) (v1 : 'a)
-  (v2 : 'a) : string =
-  Fmt.str "%a" (pp_of_binopt pp_val) (op, v1, v2)
+let unopt_str ~(pp_v : Fmt.t -> 'a -> unit) ((op, v) : unopt * 'a) : string =
+  Fmt.str "%a" (unopt_pp ~pp_v) (op, v)
+[@@inline]
 
-let str_of_triopt (pp_val : Fmt.t -> 'a -> unit) (op : triopt) (v1 : 'a)
-  (v2 : 'a) (v3 : 'a) : string =
-  Fmt.str "%a" (pp_of_triopt pp_val) (op, v1, v2, v3)
-
-let str_of_nopt (pp_val : Fmt.t -> 'a -> unit) (op : nopt) (vs : 'a list) :
+let binopt_str ~(pp_v : Fmt.t -> 'a -> unit) ((op, v1, v2) : binopt * 'a * 'a) :
   string =
-  Fmt.str "%a" (pp_of_nopt pp_val) (op, vs)
+  Fmt.str "%a" (binopt_pp ~pp_v) (op, v1, v2)
+[@@inline]
+
+let triopt_str ~(pp_v : Fmt.t -> 'a -> unit)
+  ((op, v1, v2, v3) : triopt * 'a * 'a * 'a) : string =
+  Fmt.str "%a" (triopt_pp ~pp_v) (op, v1, v2, v3)
+[@@inline]
+
+let nopt_str ~(pp_v : Fmt.t -> 'a -> unit) ((op, vs) : nopt * 'a list) : string
+    =
+  Fmt.str "%a" (nopt_pp ~pp_v) (op, vs)
+[@@inline]
