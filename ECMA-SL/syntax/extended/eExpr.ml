@@ -32,10 +32,10 @@ let rec pp (ppf : Fmt.t) (expr : t) : unit =
   | Val v -> Value.pp ppf v
   | Var x -> Fmt.pp_str ppf x
   | GVar x -> Fmt.fmt ppf "|%s|" x
-  | UnOpt (op, e) -> Operator.pp_of_unopt pp ppf (op, e)
-  | BinOpt (op, e1, e2) -> Operator.pp_of_binopt pp ppf (op, e1, e2)
-  | TriOpt (op, e1, e2, e3) -> Operator.pp_of_triopt pp ppf (op, e1, e2, e3)
-  | NOpt (op, es) -> Operator.pp_of_nopt pp ppf (op, es)
+  | UnOpt (op, e) -> Operator.unopt_pp ~pp_v:pp ppf (op, e)
+  | BinOpt (op, e1, e2) -> Operator.binopt_pp ~pp_v:pp ppf (op, e1, e2)
+  | TriOpt (op, e1, e2, e3) -> Operator.triopt_pp ~pp_v:pp ppf (op, e1, e2, e3)
+  | NOpt (op, es) -> Operator.nopt_pp ~pp_v:pp ppf (op, es)
   | Call (fe, es, feh) -> (
     match fe.it with
     | Val (Str fn) -> Fmt.fmt ppf "%s(%a)%a" fn (pp_vs pp) es pp_catch feh

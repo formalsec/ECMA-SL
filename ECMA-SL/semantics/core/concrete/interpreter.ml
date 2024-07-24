@@ -69,38 +69,40 @@ module M (Instrument : Instrument.M) = struct
     | None -> Runtime_error.(throw ~src:(ErrSrc.at at) (UnknownFunc fn))
     | Some f -> f
 
-  let eval_operator (eval_op_fun : unit -> Value.t) (es : Expr.t list) : Value.t
-      =
-    try eval_op_fun () with
+  let eval_op (op_lbl_f : unit -> string) (eval_op_f : unit -> Value.t) :
+    Value.t =
+    try eval_op_f () with
     | Runtime_error.Error err ->
-      let e = Runtime_error.(src err |> ErrSrc.index_to_el es) in
-      Runtime_error.(set_src (ErrSrc.from e) err |> raise)
-    | Smtml.Eval.TypeError { index; value; ty; op } ->
-      Eval_op.op_error index value ty op
+      Runtime_error.(push (OpEvalErr (op_lbl_f ())) err |> raise)
+    | err -> Log.fail "unexpected operator error: %s" (Printexc.to_string err)
 
-  let rec eval_expr' (state : state) (e : Expr.t) : Value.t =
-    match e.it with
+  let rec eval_expr' (state : state) (expr : Expr.t) : Value.t =
+    match expr.it with
     | Val v -> v
-    | Var x -> get_var state.store x e.at
-    | UnOpt (op, e') ->
-      let v = eval_expr state e' in
-      let eval_op_fun () = Eval_op.unop_semantics op v in
-      eval_operator eval_op_fun [ e' ]
+    | Var x -> get_var state.store x expr.at
+    | UnOpt (op, e) ->
+      let arg = (eval_expr state e, e.at) in
+      let op_lbl_f () = Operator.unopt_label op in
+      let op_eval_f () = Eval_op.unopt_semantics op arg in
+      eval_op op_lbl_f op_eval_f
     | BinOpt (op, e1, e2) ->
-      let v1 = eval_expr state e1 in
-      let v2 = eval_expr state e2 in
-      let eval_op_fun () = Eval_op.binop_semantics op v1 v2 in
-      eval_operator eval_op_fun [ e1; e2 ]
+      let arg1 = (eval_expr state e1, e1.at) in
+      let arg2 = (eval_expr state e2, e2.at) in
+      let op_lbl_f () = Operator.binopt_label op in
+      let op_eval_f () = Eval_op.binopt_semantics op (arg1, arg2) in
+      eval_op op_lbl_f op_eval_f
     | TriOpt (op, e1, e2, e3) ->
-      let v1 = eval_expr state e1 in
-      let v2 = eval_expr state e2 in
-      let v3 = eval_expr state e3 in
-      let eval_op_fun () = Eval_op.triop_semantics op v1 v2 v3 in
-      eval_operator eval_op_fun [ e1; e2; e3 ]
+      let arg1 = (eval_expr state e1, e1.at) in
+      let arg2 = (eval_expr state e2, e2.at) in
+      let arg3 = (eval_expr state e3, e3.at) in
+      let op_lbl_f () = Operator.triopt_label op in
+      let op_eval_f () = Eval_op.triopt_semantics op (arg1, arg2, arg3) in
+      eval_op op_lbl_f op_eval_f
     | NOpt (op, es) ->
-      let vs = List.map (eval_expr state) es in
-      let eval_op_fun () = Eval_op.eval_nopt op vs in
-      eval_operator eval_op_fun es
+      let args = List.map (fun e -> (eval_expr state e, e.at)) es in
+      let op_lbl_f () = Operator.nopt_label op in
+      let op_eval_f () = Eval_op.nopt_semantics op args in
+      eval_op op_lbl_f op_eval_f
     | Curry (fe, es) -> (
       let fv = eval_expr state fe in
       let vs = List.map (eval_expr state) es in
