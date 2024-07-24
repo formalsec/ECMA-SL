@@ -28,12 +28,12 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
   /* 3. Let classScopeEnvRec be classScope’s EnvironmentRecord. */
   classScopeEnvRec := getEnvironmentRecord(classScope);
   /* 4. If className is not undefined, then */
-  if (!(className = 'undefined)) {
+  if (className != 'undefined) {
     /* 4a. Perform classScopeEnvRec.CreateImmutableBinding(className, true). */
     {classScopeEnvRec.CreateImmutableBinding}(classScopeEnvRec, className, true);
   }
   /* 5. If ClassHeritageopt is not present, then */
-  if (ClassHeritageopt = null) {
+  if (ClassHeritageopt == null) {
     /* 5a. Let protoParent be the intrinsic object %ObjectPrototype%. */
     protoParent := getObjectPrototype(false);
     /* 5b. Let constructorParent be the intrinsic object %FunctionPrototype%. */
@@ -50,19 +50,19 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
     /* 6d. ReturnIfAbrupt(superclass). */
     @ReturnIfAbrupt(superclass);
     /* 6e. If superclass is null, then */
-    if (superclass = 'null) {
+    if (superclass == 'null) {
       /* 6e i. Let protoParent be null. */
       protoParent := 'null;
       /* 6e ii. Let constructorParent be the intrinsic object %FunctionPrototype%. */
       constructorParent := getFunctionPrototype(false);
     }
     /* 6f. Else if IsConstructor(superclass) is false, throw a TypeError exception. */
-    else if (IsConstructor(superclass) = false) {
+    else if (IsConstructor(superclass) == false) {
       throw TypeErrorConstructorInternal();
     /* 6g. Else */
     } else {
       /* 6g i. If superclass has a [[FunctionKind]] internal slot whose value is "generator", throw a TypeError exception. */
-      if ("FunctionKind" in_obj superclass &&& superclass.FunctionKind = "generator")
+      if ("FunctionKind" in_obj superclass &&& superclass.FunctionKind == "generator")
         throw TypeErrorConstructorInternal();
       /* 6g ii. Let protoParent be Get(superclass, "prototype"). */
       protoParent := Get(superclass, "prototype");
@@ -70,7 +70,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
       @ReturnIfAbrupt(protoParent);
       /* 6g iv. If Type(protoParent) is neither Object nor Null, throw a TypeError exception. */
       type := Type(protoParent);
-      if (!( type = "Object" ||| type = "Null"))
+      if (!( type == "Object" ||| type == "Null"))
         throw TypeErrorConstructorInternal();
       /* 6g v. Let constructorParent be superclass. */
       constructorParent := superclass;
@@ -82,7 +82,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
   /* 8. If ClassBodyopt is not present, let constructor be empty. */
   /* 9. Else, let constructor be ConstructorMethod of ClassBody. */
   allMethods := getSeparateMethods(ClassBodyopt.body);
-  if (allMethods.constructor = 'empty) constructor := 'empty; else constructor := allMethods.constructor.value;
+  if (allMethods.constructor == 'empty) constructor := 'empty; else constructor := allMethods.constructor.value;
   /* 10. If constructor is empty, then, */
       /* 10a. If ClassHeritageopt is present, then */
           /* 10a i. Let constructor be the result of parsing the source text
@@ -103,7 +103,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
   /* Because of section 16.1 of the ES6 standard */
   delete F.JSProperties["caller"];
   /* 15. If ClassHeritageopt is present, set F’s [[ConstructorKind]] internal slot to "derived". */
-  if (!(ClassHeritageopt = null))
+  if (ClassHeritageopt != null)
     F.ConstructorKind := "derived";
   /* 16. Perform MakeConstructor(F, false, proto). */
   MakeConstructor(F, false, proto);
@@ -118,7 +118,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
   /* 21. For each ClassElement m in order from methods */
   foreach (m : methods) {
     /* 21a. If IsStatic of m is false, then */
-    if (m.static = false) {
+    if (m.static == false) {
       /* 21a i. Let status be the result of performing PropertyDefinitionEvaluation for m with arguments proto and false. */
       status := MethodPropertyDefinitionEvaluation(scope, proto, false, m);
     /* 21b. Else, */
@@ -137,7 +137,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
   /* 22. Set the running execution context’s LexicalEnvironment to lex. */
   setLexicalEnvironment(scope, lex);
   /* 23. If className is not undefined, then */
-  if (!(className = 'undefined)) {
+  if (className != 'undefined) {
     /* 23a. Perform classScopeEnvRec.InitializeBinding(className, F). */
     {classScopeEnvRec.InitializeBinding}(classScopeEnvRec, className, F);
   }
@@ -164,7 +164,7 @@ function BindingClassDeclarationEvaluation(ClassDeclaration, scope) {
     /* 5. ReturnIfAbrupt(hasNameProperty). */
     @ReturnIfAbrupt(hasNameProperty);
     /* 6. If hasNameProperty is false, then perform SetFunctionName(value, className). */
-    if (hasNameProperty = false)
+    if (hasNameProperty == false)
         SetFunctionName(value, className, null);
     /* 7. Let env be the running execution context’s LexicalEnvironment. */
     env := getLexicalEnvironment(scope);
@@ -191,15 +191,15 @@ function getSeparateMethods(body) {
   constructor := 'empty;
   regularMethods := [];
   i := 0;
-  len := l_len body;
+  len := l_len(body);
   while (i < len) {
     e := l_nth(body, i);
-    if (e.type = "MethodDefinition") {
-      if (e.key.name = "constructor")
+    if (e.type == "MethodDefinition") {
+      if (e.key.name == "constructor")
         constructor := e;
       else
         regularMethods := l_add (regularMethods, e);
-    } else if (e.type = "Property") {
+    } else if (e.type == "Property") {
       regularMethods := l_add (regularMethods, e);
     }
     i := i + 1;

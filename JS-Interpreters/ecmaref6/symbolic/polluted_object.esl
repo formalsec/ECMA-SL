@@ -12,10 +12,10 @@
   *
   * ```js
   * function merge() { (* vulnerable function *) }
-  * var p1 = symbolic_string();
-  * var p2 = symbolic_string();
-  * var polluted = {}
-  * polluted[p1][p2].toString = "polluted"
+  * var p1 == symbolic_string();
+  * var p2 == symbolic_string();
+  * var polluted == {}
+  * polluted[p1][p2].toString == "polluted"
   * merge({}, polluted);
   * ```
   *
@@ -33,28 +33,28 @@ function newPollutedObject(depth) {
 
   inner_object := ObjectCreate(proto, null);
   toString := extern str_symbol("");
-  extern assume(toString = "toString");
+  extern assume(toString == "toString");
   CreateDataPropertyOrThrow(inner_object, toString, "polluted");
 
   outer_object := ObjectCreate(proto, null);
   if (depth > 2) {
     middle_object := ObjectCreate(proto, null);
     prototype := extern str_symbol("");
-    extern assume(prototype = "prototype");
+    extern assume(prototype == "prototype");
     CreateDataPropertyOrThrow(middle_object, prototype, inner_object);
     constructor := extern str_symbol("");
-    extern assume(constructor = "constructor");
+    extern assume(constructor == "constructor");
     CreateDataPropertyOrThrow(outer_object, constructor, middle_object);
   } else {
     proto := extern str_symbol("");
-    extern assume(proto = "__proto__");
+    extern assume(proto == "__proto__");
     CreateDataPropertyOrThrow(outer_object, proto, inner_object);
   }
   return outer_object;
 }
 
 function forbiddenSet(O, P, V, Receiver) {
-  if (Receiver = getObjectPrototype(false))
+  if (Receiver == getObjectPrototype(false))
     extern abort("Prototype pollution detected!");
   return OrdinaryObjectSet(O, P, V, Receiver);
 }
@@ -63,7 +63,7 @@ function sealProperties(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
 
   /* 1. If Type(O) is not Object, return O. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     return O;
 
   O.Set := "forbiddenSet";
@@ -74,7 +74,7 @@ function sealProperties(globalObject, this, NewTarget, strict, params) {
   @ReturnIfAbrupt(status);
 
   /* If status is false, throw a TypeError exception. */
-  if (status = false)
+  if (status == false)
     throw TypeErrorConstructorInternal();
 
   /* 4. Return O. */

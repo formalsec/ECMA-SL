@@ -75,7 +75,7 @@ function WeakSetConstructor(global, this, NewTarget, strict, items) {
   iterable := getOptionalParam(items, 0);
 
   /* 1. If NewTarget is undefined, throw a TypeError exception. */
-  if (NewTarget = 'undefined)
+  if (NewTarget == 'undefined)
     throw TypeErrorConstructorInternal();
   /* 2. Let set be OrdinaryCreateFromConstructor(NewTarget, "%WeakSetPrototype%", «‍[[WeakSetData]]» ). */
   set := OrdinaryCreateFromConstructor(NewTarget, "WeakSetPrototype", ["WeakSetData"]);
@@ -84,11 +84,11 @@ function WeakSetConstructor(global, this, NewTarget, strict, items) {
   /* 4. Set set’s [[WeakSetData]] internal slot to a new empty List. */
   set.WeakSetData := [];
   /* 5. If iterable is not present, let iterable be undefined. */
-  len := l_len items;
-  if (len = 0)
+  len := l_len(items);
+  if (len == 0)
     iterable := 'undefined;
   /* 6. If iterable is either undefined or null, let iter be undefined. */
-  if ((iterable = 'undefined) ||| (iterable = 'null)) {
+  if ((iterable == 'undefined) ||| (iterable == 'null)) {
     iter := 'undefined;
   /* 7. Else, */
   } else {
@@ -97,7 +97,7 @@ function WeakSetConstructor(global, this, NewTarget, strict, items) {
     /* b. ReturnIfAbrupt(adder). */
     @ReturnIfAbrupt(adder);
     /* c. If IsCallable(adder) is false, throw a TypeError exception. */
-    if (IsCallable(adder) = false)
+    if (IsCallable(adder) == false)
       throw TypeErrorConstructorInternal();
     /* d. Let iter be GetIterator(iterable). */
     iter := GetIterator(iterable, null);
@@ -105,7 +105,7 @@ function WeakSetConstructor(global, this, NewTarget, strict, items) {
     @ReturnIfAbrupt(iter);
   }
   /* 8. If iter is undefined, return set. */
-  if (iter = 'undefined)
+  if (iter == 'undefined)
       return set;
   /* 9. Repeat */
   repeat {
@@ -114,7 +114,7 @@ function WeakSetConstructor(global, this, NewTarget, strict, items) {
     /* b. ReturnIfAbrupt(next). */
     @ReturnIfAbrupt(next);
     /* c. If next is false, return set. */
-    if (next = false)
+    if (next == false)
       return set;
     /* d. Let nextValue be IteratorValue(next). */
     nextValue := IteratorValue(next);
@@ -123,7 +123,7 @@ function WeakSetConstructor(global, this, NewTarget, strict, items) {
     /* f. Let status be Call(adder, set, «nextValue »). */
     status := Call(null, null, adder, set, [nextValue]);
     /* g. If status is an abrupt completion, return IteratorClose(iter, status). */
-    if ((Type(status) = "Completion") &&& (isAnAbruptCompletion(status)))
+    if ((Type(status) == "Completion") &&& (isAnAbruptCompletion(status)))
       return IteratorClose(iter, status);
   }
 }
@@ -137,23 +137,23 @@ function weakSetAdd(global, this, NewTarget, strict, args) {
   /* 1. Let S be the this value. */
   S := this;
   /* 2. If Type(S) is not Object, throw a TypeError exception. */
-  if (!(Type(S) = "Object"))
+  if (Type(S) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If S does not have a [[WeakSetData]] internal slot, throw a TypeError exception. */
   if (!("WeakSetData" in_obj S))
     throw TypeErrorConstructorInternal();
   /* 4. If Type(value) is not Object, throw a TypeError exception. */
-  if ((value = null) ||| !(Type(value) = "Object"))
+  if ((value == null) ||| (Type(value) != "Object"))
     throw TypeErrorConstructorInternal();
   /* 5. Let entries be the List that is the value of S’s [[WeakSetData]] internal slot. */
   entries := S.WeakSetData;
   /* 6. Repeat for each e that is an element of entries, */
   i := 0;
-  len := l_len entries;
+  len := l_len(entries);
   while (i < len) {
     e := l_nth(entries, i);
     /* a. If e is not empty and SameValue(e, value) is true, then */
-    if (!(e = 'empty) &&& (SameValue(e, value) = true))
+    if ((e != 'empty) &&& (SameValue(e, value) == true))
       /* i. Return S. */
       return S;
     i := i + 1;
@@ -175,25 +175,25 @@ function weakSetDelete(global, this, NewTarget, strict, args) {
   /* 1. Let S be the this value. */
   S := this;
   /* 2. If Type(S) is not Object, throw a TypeError exception. */
-  if (!(Type(S) = "Object"))
+  if (Type(S) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If S does not have a [[WeakSetData]] internal slot, throw a TypeError exception. */
   if (!("WeakSetData" in_obj S))
     throw TypeErrorConstructorInternal();
   /* 4. If Type(value) is not Object, return false. */
-  if (!(Type(value) = "Object"))
+  if (Type(value) != "Object")
     return false;
   /* 5. Let entries be the List that is the value of S’s [[WeakSetData]] internal slot. */
   entries := S.WeakSetData;
   /* 6. Repeat for each e that is an element of entries, */
   i := 0;
-  len := l_len entries;
+  len := l_len(entries);
   newWeakSetData := [];
   removed := false;
   while (i < len) {
     e := l_nth(entries, i);
     /* a. If e is not empty and SameValue(e, value) is true, then */
-    if (!(e = 'empty) &&& (SameValue(e, value) = true)) {
+    if ((e != 'empty) &&& (SameValue(e, value) == true)) {
       /* i. Replace the element of entries whose value is e with an element whose value is empty.
       ii .Return true. */
       removed := true;
@@ -217,7 +217,7 @@ function weakSetHas(global, this, NewTarget, strict, args) {
   /* 1. Let S be the this value. */
   S := this;
   /* 2. If Type(S) is not Object, throw a TypeError exception. */
-  if (!(Type(S) = "Object"))
+  if (Type(S) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If S does not have a [[WeakSetData]] internal slot, throw a TypeError exception. */
   if (!("WeakSetData" in_obj S))
@@ -225,15 +225,15 @@ function weakSetHas(global, this, NewTarget, strict, args) {
   /* 4. Let entries be the List that is the value of S’s [[WeakSetData]] internal slot. */
   entries := S.WeakSetData;
   /* 5. If Type(value) is not Object, return false. */
-  if (!(Type(value) = "Object"))
+  if (Type(value) != "Object")
     return false;
   /* 6. Repeat for each e that is an element of entries, */
   i := 0;
-  len := l_len entries;
+  len := l_len(entries);
   while (i < len) {
     e := l_nth(entries, i);
     /* a. If e is not empty and SameValue(e, value) is true, return true. */
-    if (!(e = 'empty) &&& (SameValue(e, value) = true))
+    if ((e != 'empty) &&& (SameValue(e, value) == true))
       return true;
     i := i + 1;
   }

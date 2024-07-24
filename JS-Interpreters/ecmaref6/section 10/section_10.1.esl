@@ -2,7 +2,7 @@
 
 /* 10.1.1 Static Semantics: UTF16Encoding ( cp ) */
 function UTF16Encoding(cp) {
-  cp_int := int_of_float cp;
+  cp_int := float_to_int cp;
   /* 1. Assert: 0 ≤ cp ≤ 0x10FFFF. */
   assert ((cp_int >= 0) && (cp_int <= 0x10FFFF));
   /* 2. If cp ≤ 65535, return cp. */

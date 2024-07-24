@@ -11,7 +11,7 @@ function interpreter(scope, s) {
 		}
 
 	| { type: "BlockStatement", body: stmts } -> {
-			if (s.codeType = "function")
+			if (s.codeType == "function")
 				initScope(scope, s.variableDeclarations, s.functionDeclarations);
 			return interpretBlock(scope, stmts);
 		}
@@ -39,7 +39,7 @@ function interpreter(scope, s) {
 			@checkAbruptCompletion(testVal);
 			if (testVal)
 				return interpreter(scope, stmt1);
-			else if (!(stmt2 = null))
+			else if (stmt2 != null)
 				return interpreter(scope, stmt2);
 			else
 				return NormalCompletion('empty);
@@ -130,7 +130,7 @@ function interpreter(scope, s) {
 					} else {
 						propVal := prop.name;
 					}
-					if (!(typeof (objVal) = "object"))
+					if (typeof(objVal) != "object")
     				raiseError("Unable to update property from a non object value.", objVal);
 					oldVal := {objVal.resolveProperty}(objVal, propVal);
 					newVal := applyAssignmentOperator(op, oldVal, rightVal);
@@ -177,7 +177,7 @@ function interpreter(scope, s) {
 			} else {
 				propVal := prop.name;
 			}
-			if (!(typeof (objVal) = "object"))
+			if (typeof(objVal) != "object")
     		raiseError("Unable to access property from a non object value.", objVal);
 			val := {objVal.resolveProperty}(objVal, propVal);
 			return NormalCompletion(val);
@@ -189,7 +189,7 @@ function interpreter(scope, s) {
 	| { type: "CallExpression", callee: callee, arguments: args } -> {
 			functionObject := interpreter(scope, callee);
 			@checkAbruptCompletion(functionObject);
-			if (callee.type = "MemberExpression") {
+			if (callee.type == "MemberExpression") {
 				thisBinding := interpreter(scope, callee.object);
 				@checkAbruptCompletion(thisBinding);
 			} else {
@@ -244,14 +244,14 @@ function interpreter(scope, s) {
 			foreach (decl : decls) {
 				retValAux := interpreter(scope, decl);
 				@checkAbruptCompletion(retValAux);
-				if (!(retValAux = 'empty))
+				if (retValAux != 'empty)
 					retVal := retValAux;
 			}
 			return NormalCompletion(retVal);
 		}
 
 	| { type: "VariableDeclarator", id: id, init: init } -> {
-			if (!(init = null)) {
+			if (init != null) {
 				rightVal := interpreter(scope, init);
 				@checkAbruptCompletion(rightVal);
 			} else {
@@ -295,7 +295,7 @@ function interpretArgs(scope, args) {
 }
 
 function interpretCall(oldScope, functionObject, args, thisBinding) {
-	if (functionObject = 'undefined)
+	if (functionObject == 'undefined)
 		raiseError("Unknown function", functionObject);
 	evalArgs := interpretArgs(oldScope, args);
 	nEvalArgs := l_len(evalArgs);
@@ -350,14 +350,14 @@ function applyBinaryOperator(op, v1, v2) {
 		case "<<": return v1 << v2;
 		case ">>": return v1 >> v2;
 		case ">>>": return v1 >>> v2;
-		case "==": return v1 = v2;
-		case "!=": return !(v1 = v2);
+		case "==": return v1 == v2;
+		case "!=": return v1 != v2;
 		case ">": return v1 > v2;
 		case "<": return v1 < v2;
 		case ">=": return v1 >= v2;
 		case "<=": return v1 <= v2;
-		case "===": return v1 = v2;
-		case "!==": return !(v1 = v2);
+		case "===": return v1 == v2;
+		case "!==": return v1 != v2;
 		default: raiseError("Unsuported binary operator", op);
 	}
 }

@@ -28,7 +28,7 @@ function getCompletionValue(c) {
 }
 
 function isAbruptCompletion(c) {
-  return !(getCompletionType(c) = 'Normal);
+  return getCompletionType(c) != 'Normal;
 }
 
 

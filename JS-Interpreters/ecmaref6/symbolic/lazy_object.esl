@@ -26,7 +26,7 @@ function lazyConstructor(globalObject, this, NewTarget, strict, params) {
 
 function lazyGet(O, P, Receiver) {
   desc := getJSProperty(O, P);
-  if (desc = 'undefined) {
+  if (desc == 'undefined) {
     desc := newDataPropertyDescriptorFull(newLazyObject(), true, true, true);
     setJSProperty(O, P, desc);
     return desc.Value;
@@ -37,12 +37,12 @@ function lazyGet(O, P, Receiver) {
 
 function lazyToPrimitive(globalObject, this, NewTarget, strict, params) {
   hint := l_nth(params, 0);
-  if (hint = "string" ||| hint = "default") {
+  if (hint == "string" ||| hint == "default") {
     return extern str_symbol("");
-  } else if (hint = "number") {
+  } else if (hint == "number") {
     return extern flt_symbol("");
   } else {
-    print s_concat ["lazyToPrimitive: invalid hint: '", hint, "'"];
+    print s_concat(["lazyToPrimitive: invalid hint: '", hint, "'"]);
     assert false;
   }
 }

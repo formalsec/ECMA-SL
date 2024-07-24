@@ -129,9 +129,9 @@ function ObjectConstructor(globalObject, this, strict, params) {
       taken: */
 
   /* 1. If value is supplied, then */
-  if (!(value = null)) {
+  if (value != null) {
     /* a. If Type(value) is Object, then */
-    if (Type(value) = "Object") {
+    if (Type(value) == "Object") {
       /* i. If the value is a native ECMAScript object, do not create a new object but simply return value. */
       if (isJavaScriptObject(value))
         return value;
@@ -141,17 +141,17 @@ function ObjectConstructor(globalObject, this, strict, params) {
         return hostObjectReturn();
     }
     /* b. If Type(value) is String, return ToObject(value). */
-    if (Type(value) = "String")
+    if (Type(value) == "String")
       return ToObject(value);
     /* c. If Type(value) is Boolean, return ToObject(value). */
-    if (Type(value) = "Boolean")
+    if (Type(value) == "Boolean")
       return ToObject(value);
     /* d. If Type(value) is Number, return ToObject(value). */
-    if (Type(value) = "Number")
+    if (Type(value) == "Number")
       return ToObject(value);
   }
   /* 2. Assert: The argument value was not supplied or its type was Null or Undefined. */
-  assert ((value = null) ||| (Type(value) = "Null") ||| (Type(value) = "Undefined"));
+  assert ((value == null) ||| (Type(value) == "Null") ||| (Type(value) == "Undefined"));
   /* 3. Let obj be a newly created native ECMAScript object. */
   obj := NewECMAScriptObject();
   /* 4. Set the [[Prototype]] internal property of obj to the standard built-in Object prototype object (15.2.4). */
@@ -172,7 +172,7 @@ function ObjectGetPrototypeOf(globalObject, this, strict, params) {
   /* When the getPrototypeOf function is called with argument O, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     throw TypeErrorConstructorInternal();
   /* 2. Return the value of the [[Prototype]] internal property of O. */
   return getInternalProperty(O, "Prototype");
@@ -185,7 +185,7 @@ function ObjectGetOwnPropertyDescriptor(globalObject, this, strict, params) {
   /* When the getOwnPropertyDescriptor function is called, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     throw TypeErrorConstructorInternal();
   /* 2. Let name be ToString(P). */
   name := ToString(P);
@@ -201,7 +201,7 @@ function ObjectGetOwnPropertyNames(globalObject, this, strict, params) {
   /* When the getOwnPropertyNames function is called, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     throw TypeErrorConstructorInternal();
   /* 2. Let array be the result of creating a new object as if by the expression new Array () where Array is the
         standard built-in constructor with that name. */
@@ -234,7 +234,7 @@ function ObjectCreate(globalObject, this, strict, params) {
     following steps are taken: */
 
   /* 1. If Type(O) is not Object or Null throw a TypeError exception. */
-  if (!(Type(O) = "Object") && !(Type(O) = "Null"))
+  if (Type(O) != "Object" && Type(O) != "Null")
     throw TypeErrorConstructorInternal();
   /* 2. Let obj be the result of creating a new object as if by the expression new Object() where Object is the
         standard built-in constructor with that name */
@@ -243,7 +243,7 @@ function ObjectCreate(globalObject, this, strict, params) {
   setInternalProperty(obj, "Prototype", O);
   /* 4. If the argument Properties is present and not undefined, add own properties to obj as if by calling the
         standard built-in function Object.defineProperties with arguments obj and Properties. */
-  if (!(Properties = null) &&& !(Properties = 'undefined))
+  if (Properties != null &&& Properties != 'undefined)
     ObjectDefineProperties(globalObject, this, strict, [obj, Properties]);
   /* 5. Return obj. */
   return obj;
@@ -258,7 +258,7 @@ function ObjectDefineProperty(globalObject, this, strict, params) {
     property of an object. When the defineProperty function is called, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     throw TypeErrorConstructorInternal();
   /* 2. Let name be ToString(P). */
   name := ToString(P);
@@ -278,7 +278,7 @@ function ObjectDefineProperties(globalObject, this, strict, params) {
      properties of an object. When the defineProperties function is called, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     throw TypeErrorConstructorInternal();
   /* 2. Let props be ToObject(Properties). */
   props := ToObject(Properties);
@@ -317,14 +317,14 @@ function ObjectSeal(globalObject, this, strict, params) {
   /* When the seal function is called, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     throw TypeErrorConstructorInternal();
   /* 2. For each named own property name P of O, */
   foreach (P : getOwnProperties(O)) {
     /* a. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with P. */
     desc := {O.GetOwnProperty}(O, P);
     /* b. If desc.[[Configurable]] is true, set desc.[[Configurable]] to false. */
-    if (desc.Configurable = true)
+    if (desc.Configurable == true)
       setInternalProperty(desc, "Configurable", false);
     /* c. Call the [[DefineOwnProperty]] internal method of O with P, desc, and true as arguments. */
     {O.DefineOwnProperty}(O, P, desc, true);
@@ -341,19 +341,19 @@ function ObjectFreeze(globalObject, this, strict, params) {
   /* When the freeze function is called, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     throw TypeErrorConstructorInternal();
   /* 2. For each named own property name P of O, */
   foreach (P : getOwnProperties(O)) {
     /* a. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with P. */
     desc := {O.GetOwnProperty}(O, P);
     /* b. If IsDataDescriptor(desc) is true, then */
-    if (IsDataPropertyDescriptor(desc) = true)
+    if (IsDataPropertyDescriptor(desc) == true)
       /* i. If desc.[[Writable]] is true, set desc.[[Writable]] to false. */
-      if (desc.Writable = true)
+      if (desc.Writable == true)
         setInternalProperty(desc, "Writable", false);
     /* c. If desc.[[Configurable]] is true, set desc.[[Configurable]] to false. */
-    if (desc.Configurable = true)
+    if (desc.Configurable == true)
       setInternalProperty(desc, "Configurable", false);
     /* d. Call the [[DefineOwnProperty]] internal method of O with P, desc, and true as arguments. */
     {O.DefineOwnProperty}(O, P, desc, true);
@@ -370,7 +370,7 @@ function ObjectPreventExtensions(globalObject, this, strict, params) {
   /* When the preventExtensions function is called, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     throw TypeErrorConstructorInternal();
   /* 2. Set the [[Extensible]] internal property of O to false. */
   setInternalProperty(O, "Extensible", false);
@@ -384,18 +384,18 @@ function ObjectIsSealed(globalObject, this, strict, params) {
   /* When the isSealed function is called with argument O, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     throw TypeErrorConstructorInternal();
   /* 2. For each named own property name P of O, */
   foreach (P : getOwnProperties(O)) {
     /* a. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with P. */
     desc := {O.GetOwnProperty}(O, P);
     /* b. If desc.[[Configurable]] is true, then return false. */
-    if (desc.Configurable = true)
+    if (desc.Configurable == true)
       return false;
   }
   /* 3. If the [[Extensible]] internal property of O is false, then return true. */
-  if (getInternalProperty(O, "Extensible") = false)
+  if (getInternalProperty(O, "Extensible") == false)
     return true;
   /* 4. Otherwise, return false. */
   return false;
@@ -407,23 +407,23 @@ function ObjectIsFrozen(globalObject, this, strict, params) {
   /* When the isFrozen function is called with argument O, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     throw TypeErrorConstructorInternal();
   /* 2. For each named own property name P of O, */
   foreach (P : getOwnProperties(O)) {
     /* a. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with P. */
     desc := {O.GetOwnProperty}(O, P);
     /* b. If IsDataDescriptor(desc) is true then */
-    if (IsDataPropertyDescriptor(desc) = true)
+    if (IsDataPropertyDescriptor(desc) == true)
       /* i. If desc.[[Writable]] is true, return false. */
-      if (desc.Writable = true)
+      if (desc.Writable == true)
         return false;
     /* c. If desc.[[Configurable]] is true, then return false. */
-    if (desc.Configurable = true)
+    if (desc.Configurable == true)
       return false;
   }
   /* 3. If the [[Extensible]] internal property of O is false, then return true. */
-  if (getInternalProperty(O, "Extensible") = false)
+  if (getInternalProperty(O, "Extensible") == false)
     return true;
   /* 4. Otherwise, return false. */
   return false;
@@ -435,7 +435,7 @@ function ObjectIsExtensible(globalObject, this, strict, params) {
   /* When the isExtensible function is called with argument O, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     throw TypeErrorConstructorInternal();
   /* 2. Return the Boolean value of the [[Extensible]] internal property of O. */
   return getInternalProperty(O, "Extensible");
@@ -447,10 +447,10 @@ function ObjectKeys(globalObject, this, strict, params) {
   /* When the keys function is called with argument O, the following steps are taken: */
 
   /* 1. If the Type(O) is not Object, throw a TypeError exception. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     throw TypeErrorConstructorInternal();
   /* 2. Let n be the number of own enumerable properties of O */
-  n := l_len getOwnEnumerableProperties(O);
+  n := l_len (getOwnEnumerableProperties(O));
   /* 3. Let array be the result of creating a new Object as if by the expression new Array(n) where Array is
         the standard built-in constructor with that name. */
   array := ArrayConstructor(globalObject, this, strict, []);
@@ -479,17 +479,17 @@ function ObjectPrototypeToString(globalObject, this, strict, params) {
   /* When the toString method is called, the following steps are taken: */
 
   /* 1. If the this value is undefined, return "[object Undefined]". */
-  if (this = 'undefined)
+  if (this == 'undefined)
     return "[object Undefined]";
   /* 2. If the this value is null, return "[object Null]". */
-  if (this = 'null)
+  if (this == 'null)
     return "[object Null]";
   /* 3. Let O be the result of calling ToObject passing the this value as the argument. */
   O := ToObject(this);
   /* 4. Let class be the value of the [[Class]] internal property of O. */
   class := getInternalProperty(O, "Class");
   /* 5. Return the String value that is the result of concatenating the three Strings "[object ", class, and "]". */
-  return s_concat ["[object ", class, "]"];
+  return s_concat(["[object ", class, "]"]);
 }
 
 /* 15.2.4.3 Object.prototype.toLocaleString ( ) */
@@ -501,7 +501,7 @@ function ObjectPrototypeToLocaleString(globalObject, this, strict, params) {
   /* 2. Let toString be the result of calling the [[Get]] internal method of O passing "toString" as the argument. */
   toString := {O.Get}(O, "toString");
   /* 3. If IsCallable(toString) is false, throw a TypeError exception. */
-  if (IsCallable(toString) = false)
+  if (IsCallable(toString) == false)
     throw TypeErrorConstructorInternal();
   /* 4. Return the result of calling the [[Call]] internal method of toString passing O as the this value and no
         arguments. */
@@ -541,7 +541,7 @@ function ObjectPrototypeHasOwnProperty(globalObject, this, strict, params) {
   /* 3. Let desc be the result of calling the [[GetOwnProperty]] internal method of O passing P as the argument. */
   desc := {O.GetOwnProperty}(O, P);
   /* 4. If desc is undefined, return false. */
-  if (desc = 'undefined)
+  if (desc == 'undefined)
     return false;
   /* 5. Return true. */
   return true;
@@ -558,7 +558,7 @@ function ObjectPrototypeIsPrototypeOf(globalObject, this, strict, params) {
   /* When the isPrototypeOf method is called with argument V, the following steps are taken: */
 
   /* 1. If V is not an object, return false. */
-  if (!(Type(V) = "Object")) 
+  if (Type(V) != "Object") 
     return false;
   /* 2. Let O be the result of calling ToObject passing the this value as the argument. */
   O := ToObject(this);
@@ -567,7 +567,7 @@ function ObjectPrototypeIsPrototypeOf(globalObject, this, strict, params) {
     /* a. Let V be the value of the [[Prototype]] internal property of V. */
     V := getInternalProperty(V, "Prototype");
     /* b. if V is null, return false */
-    if (V = 'null) return false;
+    if (V == 'null) return false;
     /* c. If O and V refer to the same object, return true. */
     if (sameObject(O, V)) return true;
   }
@@ -588,7 +588,7 @@ function ObjectPrototypePropertyIsEnumerable(globalObject, this, strict, params)
   /* 3. Let desc be the result of calling the [[GetOwnProperty]] internal method of O passing P as the argument. */
   desc := {O.GetOwnProperty}(O, P);
   /* 4. If desc is undefined, return false. */
-  if (desc = 'undefined)
+  if (desc == 'undefined)
     return false;
   /* 5. Return the value of desc.[[Enumerable]]. */
   return getInternalProperty(desc, "Enumerable");

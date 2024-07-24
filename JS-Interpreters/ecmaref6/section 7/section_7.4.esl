@@ -17,7 +17,7 @@ function GetIterator(obj, method) {
   /* 1. ReturnIfAbrupt(obj). */
   @ReturnIfAbrupt(obj);
   /* 2. If method was not passed, then */
-  if (method = null) {
+  if (method == null) {
     /* a. Let method be GetMethod(obj, @@iterator). */
     method := GetMethod(obj, getIteratorPropertyName());
     /* b. ReturnIfAbrupt(method). */
@@ -29,14 +29,14 @@ function GetIterator(obj, method) {
   /* 4. ReturnIfAbrupt(iterator). */
   @ReturnIfAbrupt(iterator);
   /* If Type(iterator) is not Object, throw a TypeError exception. */
-  if (!(Type(iterator) = "Object"))
+  if (Type(iterator) != "Object")
       throw TypeErrorConstructorInternal();
   /* Return iterator. */
   return iterator;
 }
 
 function CallNew (externalScope, ref, F, this, args) {
-  if (F = 'undefined)
+  if (F == 'undefined)
     return throwEmptyCompletion(TypeErrorConstructorInternal());
   return Call(externalScope, ref, F, this, args);
 }
@@ -47,26 +47,26 @@ function CallNew (externalScope, ref, F, this, args) {
 
 function IteratorClose(iterator, completion) {
   /* 1. Assert: Type(iterator) is Object. */
-  assert (Type(iterator) = "Object");
+  assert (Type(iterator) == "Object");
   /* 2. Assert: completion is a Completion Record. */
-  assert (Type(completion) = "Completion");
+  assert (Type(completion) == "Completion");
   /* 3. Let return be GetMethod(iterator, "return"). */
   returnVar := GetMethod(iterator, "return");
   /* 4. ReturnIfAbrupt(return). */
   @ReturnIfAbrupt(returnVar);
   /* 5. If return is undefined, return Completion(completion). */
-  if (returnVar = 'undefined)
+  if (returnVar == 'undefined)
     return Completion(completion);
   /* 6. Let innerResult be Call(return, iterator, «‍ »). */
   innerResult := WrappedCall(null, null, returnVar, iterator, []);
   /* 7. If completion.[[type]] is throw, return Completion(completion). */
-  if (getCompletionType(completion) = 'throw)
+  if (getCompletionType(completion) == 'throw)
     return Completion(completion);
   /* 8. If innerResult.[[type]] is throw, return Completion(innerResult). */
-  if (getCompletionType(innerResult) = 'throw)
+  if (getCompletionType(innerResult) == 'throw)
     return Completion(innerResult);
   /* 9. If Type(innerResult.[[value]]) is not Object, throw a TypeError exception. */
-  if (!(Type(getCompletionValue(innerResult)) = "Object"))
+  if (Type(getCompletionValue(innerResult)) != "Object")
     throw TypeErrorConstructorInternal();
   /* 10. Return Completion(completion). */
   return Completion(completion);
@@ -79,7 +79,7 @@ function IteratorNext(iterator, value) {
   /* Initialize `result` to keep typechecker happy */
   result := null;
   /* 1. If value was not passed, then */
-  if (value = null) {
+  if (value == null) {
     /* a. Let result be Invoke(iterator, "next", «‍ »). */
     result := Invoke(null, null, iterator, "next", []);
   /* 2. Else, */
@@ -90,7 +90,7 @@ function IteratorNext(iterator, value) {
   /* 3. ReturnIfAbrupt(result). */
   @ReturnIfAbrupt(result);
   /* 4. If Type(result) is not Object, throw a TypeError exception. */
-  if (!(Type(result) = "Object"))
+  if (Type(result) != "Object")
     throw TypeErrorConstructorInternal();
   /* 5. Return result. */
   return result;
@@ -101,7 +101,7 @@ function IteratorNext(iterator, value) {
 */
 function IteratorComplete(iterResult) {
   /* 1. Assert: Type(iterResult) is Object. */
-  assert Type(iterResult) = "Object";
+  assert Type(iterResult) == "Object";
   /* 2. Return ToBoolean(Get(iterResult, "done")). */
   return ToBoolean(Get(iterResult, "done"));
 }
@@ -111,7 +111,7 @@ function IteratorComplete(iterResult) {
 */
 function IteratorValue(iterResult) {
   /* 1. Assert: Type(iterResult) is Object. */
-  assert Type(iterResult) = "Object";
+  assert Type(iterResult) == "Object";
   /* 2. Return Get(iterResult, "value"). */
   return Get(iterResult, "value");
 }
@@ -129,7 +129,7 @@ function IteratorStep(iterator) {
   /* 4. ReturnIfAbrupt(done). */
   @ReturnIfAbrupt(done);
   /* 5. If done is true, return false. */
-  if (done = true)
+  if (done == true)
     return false;
   /* 6. Return result. */
   return result;
@@ -181,7 +181,7 @@ function ListIteratornext(scope, V, NewTarget, strict, args) {
   /* 4. Let next be the value of the [[IteratorNext]] internal slot of O. */
   next := O.IteratorNext;
   /* 5. If SameValue(f, next) is false, throw a TypeError exception. */
-  if (SameValue(f, next) = false)
+  if (SameValue(f, next) == false)
     throw TypeErrorConstructorInternal();
   /* 6. If O does not have a [[IteratedList]] internal slot, */
   if (!("IteratedList" in_obj O))

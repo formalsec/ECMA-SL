@@ -12,7 +12,7 @@
 
 function EnteringGlobalCode(program) {
   /* 10.4.1 Entering Global Code */
-  if ("optimised" in_obj program &&& program.optimised = true)
+  if ("optimised" in_obj program &&& program.optimised == true)
     globalObject := optimizeInitGlobalObject(program.strict);
   else 
     globalObject := initGlobalObject(program.strict);
@@ -109,10 +109,10 @@ function EnteringFunctionCode(F, thisArg, argumentsList) {
   if (isStrictModeCode(getFunctionCode(F), functionExecCtx))
     setThisBinding(functionExecCtx, thisArg);
   /* 2. Else if thisArg is null or undefined, set the ThisBinding to the global object. */
-  else if ((thisArg = 'null) || (thisArg = 'undefined))
+  else if ((thisArg == 'null) || (thisArg == 'undefined))
     setThisBinding(functionExecCtx, |global|);
   /* 3. Else if Type(thisArg) is not Object, set the ThisBinding to ToObject(thisArg). */
-  else if (!(Type(thisArg) = "Object"))
+  else if (Type(thisArg) != "Object")
     setThisBinding(functionExecCtx, ToObject(thisArg));
   /* 4. Else set the ThisBinding to thisArg. */
   else
@@ -136,9 +136,9 @@ function EnteringFunctionCode(F, thisArg, argumentsList) {
 
 /* 15.1.2.1.1 Direct Call to Eval */
 function isDirectCall(ref, callingExecCtx) {
-  if (callingExecCtx = null)
+  if (callingExecCtx == null)
     return false;
-  if (!(Type(ref) = "Reference"))
+  if (Type(ref) != "Reference")
     return false;
   /* A direct call to the eval function is one that is expressed as a CallExpression that meets the following two
     conditions: */
@@ -146,7 +146,7 @@ function isDirectCall(ref, callingExecCtx) {
     record as its base value and its reference name is "eval". */
   baseValue := GetBase(ref);
   referencedName := GetReferencedName(ref);
-  return (Type(baseValue) = "EnvironmentRecord") && (referencedName = "eval");
+  return (Type(baseValue) == "EnvironmentRecord") && (referencedName == "eval");
   /* The result of calling the abstract operation GetValue with that Reference as the argument is the standard built-
     in function defined in 15.1.2.1. */
 }

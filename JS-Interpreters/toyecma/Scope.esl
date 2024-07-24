@@ -43,7 +43,7 @@ function resolveName(scope, name) {
     return scope.store[name];
   } else {
     parent := scope.parent;
-    if (parent = null) {
+    if (parent == null) {
       globalObject := scope.globalObject;
       return {globalObject.resolveProperty}(globalObject, name);
     } else {
@@ -57,7 +57,7 @@ function updateScope(currScope, scope, name, val) {
     scope.store[name] := val;
   } else {
     parent := scope.parent;
-    if (parent = null) {
+    if (parent == null) {
       currScope.store[name] := val;
     } else {
       updateScope(currScope, parent, name, val);

@@ -21,34 +21,34 @@ ECMAScript language and specification types defined in this clause. */
 
 function Type(V) {
   v_type := typeof (V);
-  if (v_type = "int")     return "Number";
-  if (v_type = "float")   return "Number";
-  if (v_type = "bool")    return "Boolean";
-  if (v_type = "string")  return "String";
-  if (v_type = "object") {
+  if (v_type == "int")     return "Number";
+  if (v_type == "float")   return "Number";
+  if (v_type == "bool")    return "Boolean";
+  if (v_type == "string")  return "String";
+  if (v_type == "object") {
     if (isJavaScriptObject(V))    return "Object";
     if (isPropertyDescriptor(V))  return "PropertyDescriptor";
     return "EnvironmentRecord";
   }
-  if (v_type = "list") {
-    if (l_len V > 0) {
+  if (v_type == "list") {
+    if (l_len(V) > 0) {
       el := hd V;
-      if (el = "R")   return "Reference";
-      else if (el = "C") return "Completion";
-      else if (el = "P") return "PropertyIdentifier";
+      if (el == "R")   return "Reference";
+      else if (el == "C") return "Completion";
+      else if (el == "P") return "PropertyIdentifier";
       else            return "List";
     }
     return "List";
   }
-  if (v_type = "symbol") {
-    if (V = 'null)        return "Null";
-    if (V = 'undefined)   return "Undefined";
+  if (v_type == "symbol") {
+    if (V == 'null)        return "Null";
+    if (V == 'undefined)   return "Undefined";
   }
-  /* if (v_type = "list") {
+  /* if (v_type == "list") {
     ft := hd V;
-    if (ft = "R") { return "Reference" }
-    if (ft = "C") { return "Completion" }
-    if (ft = "P") { return "PropertyIdentifier" }
+    if (ft == "R") { return "Reference" }
+    if (ft == "C") { return "Completion" }
+    if (ft == "P") { return "PropertyIdentifier" }
   } */
 
   assert false;

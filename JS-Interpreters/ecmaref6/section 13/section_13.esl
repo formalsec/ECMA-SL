@@ -85,7 +85,7 @@ function getFunctionCode(F) {
 
 function DescriptorValueIsStrictFunction(desc) {
   F := desc.Value;
-  if (typeof (F) = "object")
+  if (typeof (F) == "object")
     return F.Strict;
   return false;
 }
@@ -112,14 +112,14 @@ function setAllInternalMethodsExceptGet(obj) {
 /*  */
 function WrappedCall(externalScope, ref, F, this, args) {
   callResult := Call(externalScope, ref, F, this, args) catch CallHandler;
-  if (!(Type(callResult) = "Completion"))
+  if (Type(callResult) != "Completion")
     return NormalCompletion(callResult);
   return callResult;
 }
 
 function WrappedInvoke(externalScope, ref, F, this, args) {
   invokeResult := Invoke(externalScope, ref, F, this, args) catch CallHandler;
-  if (!(Type(invokeResult) = "Completion"))
+  if (Type(invokeResult) != "Completion")
     return NormalCompletion(invokeResult);
   return invokeResult;
 }

@@ -60,7 +60,7 @@ function newSetAccessorPropertyDescriptor(set) {
 }
 
 function isEnumerablePropertyDescriptor(desc) {
-  assert Type(desc) = "PropertyDescriptor";
+  assert Type(desc) == "PropertyDescriptor";
 
   return desc.Enumerable;
 }

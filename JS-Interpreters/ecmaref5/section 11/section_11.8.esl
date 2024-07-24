@@ -19,7 +19,7 @@
 */
 function AbstractRelationalComparison(x, y, LeftFirst) {
   /* 1. If the LeftFirst flag is true, then */
-  if (LeftFirst = true) {
+  if (LeftFirst == true) {
     /* a. Let px be the result of calling ToPrimitive(x, hint Number). */
     px := ToPrimitive(x, 'Number);
     /* b. Let py be the result of calling ToPrimitive(y, hint Number). */
@@ -33,7 +33,7 @@ function AbstractRelationalComparison(x, y, LeftFirst) {
     px := ToPrimitive(x, 'Number);
   }
   /* 3. If it is not the case that both Type(px) is String and Type(py) is String, then */
-  if (!((Type(px) = "String") && (Type(py) = "String"))) {
+  if (!((Type(px) == "String") && (Type(py) == "String"))) {
     /* a. Let nx be the result of calling ToNumber(px). Because px and py are primitive values evaluation order is not important. */
     nx := ToNumber(px);
     /* b. Let ny be the result of calling ToNumber(py). */
@@ -49,13 +49,13 @@ function AbstractRelationalComparison(x, y, LeftFirst) {
     /* g. If nx is -0 and ny is +0, return false. */
     if (isMinusZero(nx) && isZero(ny)) return false;
     /* h. If nx is +Infinity, return false. */
-    if (nx = Infinity) return false;
+    if (nx == Infinity) return false;
     /* i. If ny is +Infinity, return true. */
-    if (ny = Infinity) return true;
+    if (ny == Infinity) return true;
     /* j. If ny is -Infinity, return false. */
-    if (ny = -Infinity) return false;
+    if (ny == -Infinity) return false;
     /* k. If nx is -Infinity, return true. */
-    if (nx = -Infinity) return true;
+    if (nx == -Infinity) return true;
     /* l. If the mathematical value of nx is less than the mathematical value of ny — note that these
           mathematical values are both finite and not both zero — return true. Otherwise, return false. */
     if (mathematicalValue(nx) < mathematicalValue(ny)) return true;

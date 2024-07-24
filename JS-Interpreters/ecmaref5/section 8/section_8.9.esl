@@ -8,13 +8,13 @@
     The term "abrupt completion" refers to any completion with a type other than normal.
 */
 function isAnAbruptCompletion (completion) {
-  return !(getCompletionType(completion) = 'normal);
+  return getCompletionType(completion) != 'normal;
 }
 
 /* Auxiliary functions created for the purposes of accessing the values of the triple that form the completion type. */
 function isErrorCompletion(completion) {
-  if ((Type(completion) = "Completion"))
-    return (getCompletionType(completion) = 'throw);
+  if ((Type(completion) == "Completion"))
+    return (getCompletionType(completion) == 'throw);
   return false;
 }
 function getCompletionType(completion) {
@@ -43,5 +43,5 @@ function throwEmptyCompletion(V) {
 }
 
 function isCompletionRecord(record) {
-  return (Type(record) = "Completion");
+  return (Type(record) == "Completion");
 }

@@ -1,31 +1,31 @@
 /* Auxiliary function for 12.14 Assignment Operators */
 function applyOperator(operator, lval, rval) {
-  if ((operator = "*=") || (operator = "/=") || (operator = "%=")) {
+  if ((operator == "*=") || (operator == "/=") || (operator == "%=")) {
     /* Let leftNum be ToNumber(leftValue). */
     leftNum := ToNumber(lval);
     /* Let rightNum be ToNumber(rightValue). */
     rightNum := ToNumber(rval);
     /* Return the result of applying the specified operation (*, /, or %) to leftNum and rightNum. See the Notes below 11.5.1, 11.5.2, 11.5.3. */
-    if (operator = "*=")
+    if (operator == "*=")
       return leftNum * rightNum;
-    if (operator = "/=")
+    if (operator == "/=")
       return leftNum / rightNum;
-    if (operator = "%=")
+    if (operator == "%=")
       return leftNum % rightNum;
   }
-  if (operator = "+=") {
+  if (operator == "+=") {
     /* Let lprim be ToPrimitive(lval). */
     lprim := ToPrimitive(lval, null);
     /* Let rprim be ToPrimitive(rval). */
     rprim := ToPrimitive(rval, null);
     /* If Type(lprim) is String or Type(rprim) is String, then */
-    if ((Type(lprim) = "String") || (Type(rprim) = "String"))
+    if ((Type(lprim) == "String") || (Type(rprim) == "String"))
       /* Return the String that is the result of concatenating ToString( lprim) followed by ToString(rprim) */
-      return s_concat [ToString(lprim), ToString(rprim)];
+      return s_concat([ToString(lprim), ToString(rprim)]);
     /* Return the result of applying the addition operation to ToNumber( lprim) and ToNumber(rprim). See the Note below 11.6.3. */
     return applyingTheAdditionOperation(ToNumber(lprim), ToNumber(rprim));
   }
-  if (operator = "-=") {
+  if (operator == "-=") {
     /* Let lnum be ToNumber(lval). */
     lnum := ToNumber(lval);
     /* Let rnum be ToNumber(rval). */
@@ -34,7 +34,7 @@ function applyOperator(operator, lval, rval) {
     return applyingTheSubtractionOperation(lnum, rnum);
   }
 
-  if ((operator = "<<=") || (operator = ">>=") || (operator = ">>>=")) {
+  if ((operator == "<<=") || (operator == ">>=") || (operator == ">>>=")) {
     /* Let lnum be ToInt32(lval). */
     lnum := ToInt32(lval);
     /* Let rnum be ToUint32(rval). */
@@ -42,20 +42,20 @@ function applyOperator(operator, lval, rval) {
     /* Let shiftCount be the result of masking out all but the least significant 5 bits of rnum, that is,
        compute rnum & 0x1F. */
     shiftCount := maskOutBits(rnum);
-    if (operator = "<<=")
+    if (operator == "<<=")
       /* Return the result of left shifting lnum by shiftCount bits. The result is a signed 32-bit integer. */
       return lnum << shiftCount;
-    if (operator = ">>=")
+    if (operator == ">>=")
       /* Return the result of performing a sign-extending right shift of lnum by shiftCount bits. The most
          significant bit is propagated. The result is a signed 32-bit integer. */
       return lnum >> shiftCount;
-    if (operator = ">>>=")
+    if (operator == ">>>=")
       /* Return the result of performing a zero-filling right shift of lnum by shiftCount bits. Vacated bits are
         filled with zero. The result is an unsigned 32-bit integer. */
       return lnum >>> shiftCount;
   }
 
-  if ((operator = "&=") || (operator = "^=") || (operator = "|=")) {
+  if ((operator == "&=") || (operator == "^=") || (operator == "|=")) {
     /* Check 11.10 */
     /* Let lnum be ToInt32(lval). */
     lnum := ToInt32(lval);
@@ -151,7 +151,7 @@ function DestructuringAssignmentArrayPattern(param, value, scope) {
     /* 5. If status is an abrupt completion, then */
     if (isAnAbruptCompletion(status)) {
       /* 5a. If iteratorRecord.[[done]] is false, return IteratorClose(iterator, status). */
-      if (iteratorRecord.done = false)
+      if (iteratorRecord.done == false)
         return IteratorClose(iterator, status);
       /* 5b. Return Completion(status). */
       return status;
@@ -161,7 +161,7 @@ function DestructuringAssignmentArrayPattern(param, value, scope) {
   /* ... (this part of the specification is not needed) */
 
   /* 8. If iteratorRecord.[[done]] is false, return IteratorClose(iterator, status). */
-  if (iteratorRecord.done = false)
+  if (iteratorRecord.done == false)
     return IteratorClose(iterator, status);
 
   /* 9. Return Completion(status). */
@@ -171,7 +171,7 @@ function DestructuringAssignmentArrayPattern(param, value, scope) {
 /* Based on 12.14.5.3 for AssignmentElement/Elision/AssignmentRestElement */
 function IteratorDestructuringAssignmentEvaluation(element, iteratorRecord, scope) {
   /* Based on 12.14.5.3 for AssignmentRestElement (specification in DestructuringAssignmentRestElement) */
-  if (!(element = null) &&& element.type = "RestElement") {
+  if (element != null &&& element.type == "RestElement") {
     /* 1. Let restData be the RestData {[[type]]: "RestOfArray", [[iteratorRecord]]: iteratorRecord}. */
     restData := { type: "RestOfArray", iteratorRecord: iteratorRecord };
     /* 2. Return the result of performing DestructuringAssignmentEvaluation for the rest element value using restData as the argument. */
@@ -179,7 +179,7 @@ function IteratorDestructuringAssignmentEvaluation(element, iteratorRecord, scop
   }
 
   /* 2. If iteratorRecord.[[done]] is false, then */
-  if (iteratorRecord.done = false) {
+  if (iteratorRecord.done == false) {
     /* 2a. Let next be IteratorStep(iteratorRecord.[[iterator]]). */
     next := IteratorStep(iteratorRecord.iterator);
     /* 2b. If next is an abrupt completion, set iteratorRecord.[[done]] to true. */
@@ -188,7 +188,7 @@ function IteratorDestructuringAssignmentEvaluation(element, iteratorRecord, scop
     /* 2c. ReturnIfAbrupt(next). */
     @ReturnIfAbrupt(next);
     /* 2d. If next is false, set iteratorRecord.[[done]] to true. */
-    if (next = false) {
+    if (next == false) {
       iteratorRecord.done := true;
     /* 2e. else */
     } else {
@@ -196,17 +196,17 @@ function IteratorDestructuringAssignmentEvaluation(element, iteratorRecord, scop
       value := IteratorValue(next);
       /* 2eii. If value is an abrupt completion, set iteratorRecord.[[done]] to true. */
       if (isAnAbruptCompletion(value))
-        iteratorRecord.done = true;
+        iteratorRecord.done == true;
       /* 2eiii. ReturnIfAbrupt(value). */
       @ReturnIfAbrupt(value);
     }
   }
 
   /* 3. If iteratorRecord.[[done]] is true, let value be undefined. */
-  if (iteratorRecord.done = true)
+  if (iteratorRecord.done == true)
     value := 'undefined;
   /* Based on 12.14.5.3 for Elision. */
-  if (element = null) {
+  if (element == null) {
     /* 4. Return NormalCompletion(empty). */
     return NormalCompletion('empty);
   /* Based on 12.14.5.3 for AssignmentElement */
@@ -220,7 +220,7 @@ function IteratorDestructuringAssignmentEvaluation(element, iteratorRecord, scop
 /* Based on 12.14.5.4 for undefined values */
 function DestructuringAssignmentPattern(param, value, scope) {
   /* If the parameter already has a value, then */
-  if (!(value = 'undefined))
+  if (value != 'undefined)
     /* Initialize the binding for the parameter. */
     return DestructuringAssignmentEvaluation(param.left, value, scope);
   /* At this point, we know that v is undefined and there is an Initializer (param.right). */
@@ -242,7 +242,7 @@ function DestructuringAssignmentPattern(param, value, scope) {
     /* 7b. ReturnIfAbrupt(hasNameProperty). */
     @ReturnIfAbrupt(hasNameProperty);
     /* 7c. If hasNameProperty is false, perform SetFunctionName(rhsValue, GetReferencedName(lref)). */
-    if (hasNameProperty = false) {
+    if (hasNameProperty == false) {
       SetFunctionName(rhsValue, param.left.name, null);
     }
   }
@@ -273,7 +273,7 @@ function DestructuringAssignmentRestElement(param, value, scope) {
     /* 3. Let n=0; */
     n := 0.;
     /* 4. Repeat while iteratorRecord.[[done]] is false, */
-    while (iteratorRecord.done = false) {
+    while (iteratorRecord.done == false) {
       /* 4a. Let next be IteratorStep(iteratorRecord.[[iterator]]). */
       next := IteratorStep(iteratorRecord.iterator);
       /* 4b. If next is an abrupt completion, set iteratorRecord.[[done]] to true. */
@@ -282,7 +282,7 @@ function DestructuringAssignmentRestElement(param, value, scope) {
       /* 4c. ReturnIfAbrupt(next). */
       @ReturnIfAbrupt(next);
       /* 4d. If next is false, set iteratorRecord.[[done]] to true. */
-      if (next = false) {
+      if (next == false) {
         iteratorRecord.done := true;
       /* 4e. else */
       } else {
@@ -290,13 +290,13 @@ function DestructuringAssignmentRestElement(param, value, scope) {
         nextValue := IteratorValue(next);
         /* 4eii. If nextValue is an abrupt completion, set iteratorRecord.[[done]] to true. */
         if (isAnAbruptCompletion(nextValue))
-          iteratorRecord.done = true;
+          iteratorRecord.done == true;
         /* 4eiii. ReturnIfAbrupt(nextValue). */
         @ReturnIfAbrupt(nextValue);
         /* 4eiv. Let status be CreateDataProperty(A, ToString(n), nextValue). */
         status := CreateDataProperty(A, ToString(n), nextValue);
         /* 4ev. Assert: status is true. */
-        assert (status = true);
+        assert (status == true);
         /* 4evi. Increment n by 1. */
         n := n + 1.;
       }

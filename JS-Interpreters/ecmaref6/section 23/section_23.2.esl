@@ -153,7 +153,7 @@ function setConstructor(global, this, NewTarget, strict, items) {
   iterable := getOptionalParam(items, 0);
 
   /* 1. If NewTarget is undefined, throw a TypeError exception. */
-  if (NewTarget = 'undefined)
+  if (NewTarget == 'undefined)
     throw TypeErrorConstructorInternal();
   /* 2. Let set be OrdinaryCreateFromConstructor(NewTarget, "%SetPrototype%", «‍[[SetData]]» ). */
   set := OrdinaryCreateFromConstructor(NewTarget, "SetPrototype", ["SetData"]);
@@ -162,10 +162,10 @@ function setConstructor(global, this, NewTarget, strict, items) {
   /* 4. Set set’s [[SetData]] internal slot to a new empty List. */
   set.SetData := [];
   /* 5. If iterable is not present, let iterable be undefined. */
-  if (iterable = null)
+  if (iterable == null)
     iterable := 'undefined;
   /* 6. If iterable is either undefined or null, let iter be undefined. */
-  if (iterable = 'undefined || iterable = 'null) {
+  if (iterable == 'undefined || iterable == 'null) {
     iter := 'undefined;
   /* 7. Else, */
   } else {
@@ -174,7 +174,7 @@ function setConstructor(global, this, NewTarget, strict, items) {
     /* b. ReturnIfAbrupt(adder). */
     @ReturnIfAbrupt(adder);
     /* c. If IsCallable(adder) is false, throw a TypeError exception. */
-    if (IsCallable(adder) = false)
+    if (IsCallable(adder) == false)
       throw TypeErrorConstructorInternal();
     /* d. Let iter be GetIterator(iterable). */
     iter := GetIterator(iterable, null);
@@ -182,7 +182,7 @@ function setConstructor(global, this, NewTarget, strict, items) {
     @ReturnIfAbrupt(iter);
   }
   /* 8. If iter is undefined, return set. */
-  if (iter = 'undefined)
+  if (iter == 'undefined)
     return set;
   /* 9. Repeat */
   repeat {
@@ -191,7 +191,7 @@ function setConstructor(global, this, NewTarget, strict, items) {
     /* b. ReturnIfAbrupt(next). */
     @ReturnIfAbrupt(next);
     /* c. If next is false, return set. */
-    if (next = false)
+    if (next == false)
       return set;
     /* d. Let nextValue be IteratorValue(next). */
     nextValue := IteratorValue(next);
@@ -200,7 +200,7 @@ function setConstructor(global, this, NewTarget, strict, items) {
     /* f. Let status be Call(adder, set, «nextValue.[[value]]»). */
     status := WrappedCall(null, null, adder, set, [nextValue]);
     /* g. If status is an abrupt completion, return IteratorClose(iter, status). */
-    if ((Type(status) = "Completion") &&& (isAnAbruptCompletion(status)))
+    if ((Type(status) == "Completion") &&& (isAnAbruptCompletion(status)))
       return IteratorClose(iter, status);
   }
 }
@@ -264,7 +264,7 @@ function setAddObject(global, this, NewTarget, strict, args) {
   /* 1. Let S be the this value. */
   S := this;
   /* 2. If Type(S) is not Object, throw a TypeError exception. */
-  if (!(Type(S) = "Object"))
+  if (Type(S) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If S does not have a [[SetData]] internal slot, throw a TypeError exception. */
   if (!("SetData" in_obj S))
@@ -279,7 +279,7 @@ function setAddObject(global, this, NewTarget, strict, args) {
   while (index < len) {
     e := l_nth(entries, index);
     /* a. If e is not empty and SameValueZero(e, value) is true, then */
-    if (!(e = 'empty) &&& (SameValueZero(e, value) = true)) {
+    if ((e != 'empty) &&& (SameValueZero(e, value) == true)) {
       /* i. Return S. */
       return S;
     }
@@ -308,7 +308,7 @@ function setClearObject(global, this, NewTarget, strict, args) {
   /* 1. Let S be the this value. */
   S := this;
   /* 2. If Type(S) is not Object, throw a TypeError exception. */
-  if (!(Type(S) = "Object"))
+  if (Type(S) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If S does not have a [[SetData]] internal slot, throw a TypeError exception. */
   if (!("SetData" in_obj S))
@@ -345,7 +345,7 @@ function setDeleteObject(global, this, NewTarget, strict, args) {
   /* 1. Let S be the this value. */
   S := this;
   /* 2. If Type(S) is not Object, throw a TypeError exception. */
-  if (!(Type(S) = "Object"))
+  if (Type(S) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If S does not have a [[SetData]] internal slot, throw a TypeError exception. */
   if (!("SetData" in_obj S))
@@ -358,7 +358,7 @@ function setDeleteObject(global, this, NewTarget, strict, args) {
   while (index < len) {
     e := l_nth(entries, index);
     /* a. If e is not empty and SameValueZero(e, value) is true, then */
-    if (!(e = 'empty) &&& (SameValueZero(e, value) = true)) {
+    if ((e != 'empty) &&& (SameValueZero(e, value) == true)) {
       /* i. Replace the element of entries whose value is e with an element whose value is empty. */
       newSetData := l_add(newSetData, 'empty);
       index := index + 1;
@@ -423,16 +423,16 @@ function setForEachObject(global, this, NewTarget, strict, args) {
   /* 1. Let S be the this value. */
    S := this;
   /* 2. If Type(S) is not Object, throw a TypeError exception. */
-  if (!(Type(S) = "Object"))
+  if ((Type(S) != "Object"))
     throw TypeErrorConstructorInternal();
   /* 3. If S does not have a [[SetData]] internal slot, throw a TypeError exception. */
   if (!("SetData" in_obj S))
     throw TypeErrorConstructorInternal();
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false)
+  if (IsCallable(callbackfn) == false)
     throw TypeErrorConstructorInternal();
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) T := thisArg; else T := 'undefined;
+  if (thisArg != null) T := thisArg; else T := 'undefined;
   /* 6. Let entries be the List that is the value of S’s [[SetData]] internal slot. */
   entries := S.SetData;
   /* 7. Repeat for each e that is an element of entries, in original insertion order */
@@ -441,7 +441,7 @@ function setForEachObject(global, this, NewTarget, strict, args) {
   while (index < len) {
     e := l_nth(entries, index);
     /* a. If e is not empty, then */
-    if (!(e = 'empty)) {
+    if (e != 'empty) {
       /* i. Let funcResult be Call(callbackfn, T, «e, e, S»). */
       funcResult := {callbackfn.Call}(null, null, callbackfn, T, 'undefined, [e, e, S]);
       /* ii. ReturnIfAbrupt(funcResult). */
@@ -464,7 +464,7 @@ function setHasObject(global, this, NewTarget, strict, args) {
   /* 1. Let S be the this value. */
   S := this;
   /* 2. If Type(S) is not Object, throw a TypeError exception. */
-  if (!(Type(S) = "Object"))
+  if (Type(S) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If S does not have a [[SetData]] internal slot, throw a TypeError exception. */
   if (!("SetData" in_obj S))
@@ -477,7 +477,7 @@ function setHasObject(global, this, NewTarget, strict, args) {
   while (index < len) {
     e := l_nth(entries, index);
     /* a. If e is not empty and SameValueZero(e, value) is true, then */
-    if (!(e = 'empty) &&& (SameValueZero(e, value) = true))
+    if ((e != 'empty) &&& (SameValueZero(e, value) == true))
       /* i. Return true. */
       return true;
     index := index + 1;
@@ -513,7 +513,7 @@ function setSizeObject(global, this, NewTarget, strict, args) {
   /* 1. Let S be the this value. */
   S := this;
   /* 2. If Type(S) is not Object, throw a TypeError exception. */
-  if (!(Type(S) = "Object"))
+  if (Type(S) != "Object")
     throw TypeErrorConstructorInternal();
   /* 3. If S does not have a [[SetData]] internal slot, throw a TypeError exception. */
   if (!("SetData" in_obj S))
@@ -528,7 +528,7 @@ function setSizeObject(global, this, NewTarget, strict, args) {
   while (index < len) {
     e := l_nth(entries, index);
     /* a. If e is not empty, set count to count+1.*/
-    if (!(e = 'empty))
+    if (e != 'empty)
       count := count + 1;
     index := index + 1;
   }
@@ -583,7 +583,7 @@ function setValuesObject(global, this, NewTarget, strict, args) {
 */
 function createSetIterator(set, kind) {
   /* 1. If Type(set) is not Object, throw a TypeError exception. */
-  if (!(Type(set) = "Object"))
+  if (Type(set) != "Object")
     throw TypeErrorConstructorInternal();
   /* 2. If set does not have a [[SetData]] internal slot, throw a TypeError exception. */
   if (!("SetData" in_obj set ))
@@ -618,7 +618,7 @@ function createSetIterator(set, kind) {
     /* 1. Let O be the this value. */
     O := this;
     /* 2. If Type(O) is not Object, throw a TypeError exception. */
-    if (!(Type(O) = "Object"))
+    if (Type(O) != "Object")
       throw TypeErrorConstructorInternal();
     /* 3. If O does not have all of the internal slots of a Set Iterator Instance (23.2.5.3), throw a TypeError exception. */
     if (!(isSetIteratorInstance(O)))
@@ -630,7 +630,7 @@ function createSetIterator(set, kind) {
     /* 6. Let itemKind be the value of the [[SetIterationKind]] internal slot of O. */
     itemKind := O.SetIterationKind;
     /* 7. If s is undefined, return CreateIterResultObject(undefined, true). */
-    if (s = 'undefined)
+    if (s == 'undefined)
       return CreateIterResultObject('undefined, true);
     /* 8. Assert: s has a [[SetData]] internal slot. */
     assert ("SetData" in_obj s);
@@ -646,9 +646,9 @@ function createSetIterator(set, kind) {
       /* c. Set the [[SetNextIndex]] internal slot of O to index. */
       O.SetNextIndex := index;
       /* d. If e is not empty, then */
-      if (!(e = 'empty)) {
+      if (e != 'empty) {
         /* i. If itemKind is "key+value", then */
-        if (itemKind = "key+value")
+        if (itemKind == "key+value")
           /* 1. Return CreateIterResultObject(CreateArrayFromList(«e, e»), false). */
           return CreateIterResultObject(CreateArrayFromList([e,e]), false);
         /* ii. Return CreateIterResultObject(e, false). */

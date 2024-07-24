@@ -6,6 +6,6 @@ function main() {
   y[x] := 1.0;
 
   z := y["test"];
-  assert (z = 'undefined || z = 1.0);
+  assert (z == 'undefined || z == 1.0);
   return 0
 }

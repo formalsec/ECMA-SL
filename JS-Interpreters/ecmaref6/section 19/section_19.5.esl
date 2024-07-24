@@ -76,13 +76,13 @@ When the Error function is called with argument message the following steps are 
 function ErrorConstructor(globalObject, this, NewTarget, strict, params) {
 	message := l_nth(params, 0);
   /* If NewTarget is undefined, let newTarget be the active function object, else let newTarget be NewTarget. */
-  if (NewTarget = 'undefined) newTarget := topExecStack().Function; else newTarget := NewTarget;
+  if (NewTarget == 'undefined) newTarget := topExecStack().Function; else newTarget := NewTarget;
   /* Let O be OrdinaryCreateFromConstructor(newTarget, "%ErrorPrototype%", «[[ErrorData]]»). */
   O := OrdinaryCreateFromConstructor(newTarget, "ErrorPrototype", ["ErrorData"]);
   /* ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
   /* If message is not undefined, then */
-  if (!(message = 'undefined)) {
+  if (message != 'undefined) {
     /* Let msg be ToString(message). */
     msg := ToString(message);
     /* ReturnIfAbrupt(msg). */
@@ -108,14 +108,14 @@ function ErrorToString(globalObject, this, NewTarget, strict, params) {
   /* Let O be the this value. */
   O := this;
   /* If Type(O) is not Object, throw a TypeError exception. */
-  if (!(Type(O) = "Object"))
+  if (Type(O) != "Object")
     throw TypeErrorConstructorInternal();
   /* Let name be Get(O, "name"). */
   name := Get(O, "name");
   /* ReturnIfAbrupt(name). */
   @ReturnIfAbrupt(name);
   /* If name is undefined, let name be "Error"; otherwise let name be ToString(name). */
-  if (name = 'undefined) name := "Error"; else name := ToString(name); 
+  if (name == 'undefined) name := "Error"; else name := ToString(name); 
   /* ReturnIfAbrupt(name). */
   @ReturnIfAbrupt(name);
   /* Let msg be Get(O, "message"). */
@@ -123,14 +123,14 @@ function ErrorToString(globalObject, this, NewTarget, strict, params) {
   /* ReturnIfAbrupt(msg). */
   @ReturnIfAbrupt(msg);
   /* If msg is undefined, let msg be the empty String; otherwise let msg be ToString(msg). */
-  if (msg = 'undefined) msg := ""; else msg := ToString(msg);
+  if (msg == 'undefined) msg := ""; else msg := ToString(msg);
   /* ReturnIfAbrupt(msg). */
   @ReturnIfAbrupt(msg);
   /* If name is the empty String, return msg. */
-  if (name = "")
+  if (name == "")
     return msg;
   /* If msg is the empty String, return name. */
-  if (msg = "")
+  if (msg == "")
     return name;
   /* Return the result of concatenating name, the code unit 0x003A (COLON), the code unit 0x0020 (SPACE), and msg. */
   return name + ": " + msg;
@@ -341,13 +341,13 @@ When a NativeError function is called with argument message the following steps 
 */
 function NativeErrorConstructor(message, nativeErrorName, NewTarget) {
     /* If NewTarget is undefined, let newTarget be the active function object, else let newTarget be NewTarget. */
-    if (NewTarget = 'undefined) newTarget := topExecStack().Function; else newTarget := newTarget;
+    if (NewTarget == 'undefined) newTarget := topExecStack().Function; else newTarget := newTarget;
     /* Let O be OrdinaryCreateFromConstructor(newTarget, "%NativeErrorPrototype%", «[[ErrorData]]» ). */
     O := OrdinaryCreateFromConstructor(newTarget, nativeErrorName, ["ErrorData"]);
     /* ReturnIfAbrupt(O). */
     @ReturnIfAbrupt(O);
     /* If message is not undefined, then */
-    if (!(message = 'undefined)) {
+    if (message != 'undefined) {
         /* Let msg be ToString(message). */
         msg := ToString(message);
         /* Let msgDesc be the PropertyDescriptor{[[Value]]: msg, [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}. */
@@ -382,5 +382,5 @@ function getErrorPrototype(strict) {
 }
 
 function getNativeErrorPrototype(strict, nativeErrorName) {
-  return |Intrinsics|[s_concat [nativeErrorName,"Prototype"]];
+  return |Intrinsics|[s_concat([nativeErrorName,"Prototype"])];
 }
