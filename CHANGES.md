@@ -44,6 +44,9 @@ type t =
 
 - Removed Explode-js commands and share files.
 
+- Math/string/list operators were removed from the syntax and became external functions.
+- Symbolic expressions were removed from the language
+
 ### Fixed
 
 ## v1.0.0
