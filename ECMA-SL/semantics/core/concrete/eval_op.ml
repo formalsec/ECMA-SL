@@ -12,9 +12,6 @@ let arg_err (texp : string) ((v, at) : arg) : 'a =
   custom_err at (BadArg (texp, v))
 [@@inline]
 
-let is_bool : Value.t -> bool = function True | False -> true | _ -> false
-[@@inline]
-
 let mk_bool : bool -> Value.t = function true -> True | false -> False
 [@@inline]
 
@@ -28,12 +25,13 @@ let unary_bitwise_semantics (op : Smtml.Ty.unop) : arg -> res = function
   | arg -> arg_err "integer" arg
 
 let unary_logical_semantics (op : Smtml.Ty.unop) : arg -> res = function
-  | (v, _) when is_bool v -> Smtml.Eval.unop Ty_bool op v
+  | (((True | False) as v), _) -> Smtml.Eval.unop Ty_bool op v
   | arg -> arg_err "boolean" arg
 
 let unary_list_semantics (op : Smtml.Ty.unop) : arg -> res = function
-  | ((List l as v), _) when List.length l > 0 -> Smtml.Eval.unop Ty_list op v
-  | (List _, at) -> custom_err at (Unexpected "empty list")
+  | ((List _ as v), at) -> (
+    try Smtml.Eval.unop Ty_list op v
+    with _ -> custom_err at (Unexpected "empty list") )
   | arg -> arg_err "list" arg
 
 let int_to_float_semantics : arg -> res = function
@@ -89,10 +87,13 @@ let binary_bitwise_semantics (op : Smtml.Ty.binop) : arg * arg -> res = function
   | (arg1, _) -> arg_err "integer" arg1
 
 let binary_logical_semantics (op : Smtml.Ty.binop) : arg * arg -> res = function
-  | ((v1, _), (v2, _)) when is_bool v1 && is_bool v2 ->
+  | ((((True | False) as v1), _), (((True | False) as v2), _)) ->
     Smtml.Eval.binop Ty_bool op v1 v2
-  | ((v1, _), arg2) when is_bool v1 -> arg_err "boolean" arg2
+  | (((True | False), _), arg2) -> arg_err "boolean" arg2
   | (arg1, _) -> arg_err "boolean" arg1
+
+let binary_eq_semantics (op : Smtml.Ty.relop) : arg * arg -> res = function
+  | ((v1, _), (v2, _)) -> mk_bool (Smtml.Eval.relop Ty_bool op v1 v2)
 
 let binary_relation_semantics (op : Smtml.Ty.relop) : arg * arg -> res =
   function
@@ -108,7 +109,7 @@ let binary_relation_semantics (op : Smtml.Ty.relop) : arg * arg -> res =
   | (arg1, _) -> arg_err "integer/float/string" arg1
 
 let conditional_semantics : arg * arg * arg -> res = function
-  | ((v1, _), (v2, _), (v3, _)) when is_bool v1 ->
+  | ((((True | False) as v1), _), (v2, _), (v3, _)) ->
     Smtml.Eval.triop Ty_bool Ite v1 v2 v3
   | (arg1, _, _) -> arg_err "boolean" arg1
 
@@ -157,8 +158,8 @@ let binopt_semantics (op : Operator.binopt) : arg * arg -> res =
   | LogicalOr -> binary_logical_semantics Or
   | SCLogicalAnd -> Log.fail "unexpected 'SCLogicalAnd' operator evaluation"
   | SCLogicalOr -> Log.fail "unexpected 'SCLogicalOr' operator evaluation"
-  | Eq -> fun ((v1, _), (v2, _)) -> mk_bool (Value.equal v1 v2)
-  | Ne -> fun ((v1, _), (v2, _)) -> mk_bool (Value.equal v1 v2 |> not)
+  | Eq -> binary_eq_semantics Eq
+  | Ne -> binary_eq_semantics Ne
   | Lt -> binary_relation_semantics Lt
   | Gt -> binary_relation_semantics Gt
   | Le -> binary_relation_semantics Le
