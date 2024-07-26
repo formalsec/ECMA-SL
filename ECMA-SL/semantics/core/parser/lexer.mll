@@ -24,7 +24,12 @@
             "case"                    , CASE;
             "default"                 , DEFAULT;
 
-            (* Casting operators *)
+            (* List operators *)
+            "hd"                      , LIST_HEAD;
+            "tl"                      , LIST_TAIL;
+
+            (* Type operators *)
+            "typeof"                  , TYPEOF;
             "int_to_float"            , INT_TO_FLOAT;
             "int_to_string"           , INT_TO_STRING;
             "float_to_int"            , FLOAT_TO_INT;
@@ -36,10 +41,6 @@
             "obj_to_list"             , OBJECT_TO_LIST;
             "obj_fields"              , OBJECT_FIELDS;
             "in_obj"                  , OBJECT_MEM;
-
-            (* List operators *)
-            "hd"                      , LIST_HEAD;
-            "tl"                      , LIST_TAIL;
           ]
 
   exception Syntax_error of string

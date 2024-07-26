@@ -84,6 +84,13 @@ module M = struct
         | _ -> Log.fail "TODO:x Neg" )
     | BitwiseNot -> E.(unop Ty_int Not)
     | LogicalNot -> E.(unop Ty_bool Not)
+    | ListHead -> E.(unop Ty_list Head)
+    | ListTail -> E.(unop Ty_list Tail)
+    | Typeof -> (
+      fun v ->
+        match E.view v with
+        | Val v' -> E.value (Eval_op.typeof_semantics (v', Source.none))
+        | _ -> Log.fail "unknown value: %a" E.pp v )
     | IntToFloat -> E.(cvtop Ty_int Reinterpret_int)
     | IntToString -> E.(cvtop Ty_int ToString)
     | FloatToInt -> E.(cvtop Ty_real Reinterpret_float)
@@ -98,8 +105,6 @@ module M = struct
         | _ -> Log.fail "TODO:x StringToFloat" )
     | ObjectToList -> assert false
     | ObjectFields -> assert false
-    | ListHead -> E.(unop Ty_list Head)
-    | ListTail -> E.(unop Ty_list Tail)
 
   let eval_binop (op : Operator.binopt) =
     match op with

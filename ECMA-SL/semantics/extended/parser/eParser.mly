@@ -33,10 +33,11 @@
 
 (* ========== Operator tokens ========== *)
 
+%token LIST_HEAD LIST_TAIL
+%token TYPEOF
 %token INT_TO_FLOAT INT_TO_STRING
 %token FLOAT_TO_INT FLOAT_TO_STRING
 %token STRING_TO_INT STRING_TO_FLOAT
-%token LIST_HEAD LIST_TAIL
 %token OBJECT_TO_LIST OBJECT_FIELDS OBJECT_MEM
 
 (* ========== Symbol tokens ========== *)
@@ -342,6 +343,7 @@ let unopt_target ==
   | EXCLAMATION;            { Operator.LogicalNot }
   | LIST_HEAD;              { Operator.ListHead }
   | LIST_TAIL;              { Operator.ListTail }
+  | TYPEOF;                 { Operator.Typeof }
   | INT_TO_FLOAT;           { Operator.IntToFloat }
   | INT_TO_STRING;          { Operator.IntToString }
   | FLOAT_TO_INT;           { Operator.FloatToInt }
