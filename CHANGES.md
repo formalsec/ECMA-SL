@@ -1,4 +1,4 @@
-## Unreleased
+# Unreleased Versions
 
 ### Added
 
@@ -7,7 +7,7 @@
 
 ### Changed
 
-- Operators `exp`, `random`, `typeof` and tuple related operators were removed from syntax and became external functions.
+- Operators `exp`, `random`, and tuple related operators were removed from syntax and became external functions.
 - The values used by ECMA-SL (`Val.ml`) were changed to the values of `Smtml`. In the next code snippet, you can see how it was converted:
 ```ml
 type t =
@@ -43,9 +43,13 @@ type t =
 ### Fixed
 
 - Source regions for string values are now properly calculated.
+- The conditional operator now only evaluates one of the branches in the concrete interpreter.
 
+<br>
+<br>
+<br>
 
-## v1.0.0
+# v1.0.0
 
 ### Added
 
