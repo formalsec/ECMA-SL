@@ -69,14 +69,14 @@ module M (Instrument : Instrument.M) = struct
     | None -> Runtime_error.(throw ~src:(ErrSrc.at at) (UnknownFunc fn))
     | Some f -> f
 
-  let eval_op (op_lbl_f : unit -> string) (eval_op_f : unit -> Value.t) :
-    Value.t =
-    try eval_op_f () with
-    | Runtime_error.Error err ->
-      Runtime_error.(push (OpEvalErr (op_lbl_f ())) err |> raise)
-    | err -> Log.fail "unexpected operator error: %s" (Printexc.to_string err)
+  let rec eval_expr (state : state) (e : Expr.t) : Value.t =
+    let v = eval_expr' state e in
+    let lvl = Call_stack.level state.stack in
+    Instrument.Profiler.count !(state.inst).pf `Expr;
+    Instrument.Tracer.trace_expr lvl e (state.heap, v);
+    v
 
-  let rec eval_expr' (state : state) (expr : Expr.t) : Value.t =
+  and eval_expr' (state : state) (expr : Expr.t) : Value.t =
     match expr.it with
     | Val v -> v
     | Var x -> get_var state.store x expr.at
@@ -91,13 +91,11 @@ module M (Instrument : Instrument.M) = struct
       let op_lbl_f () = Operator.binopt_label op in
       let op_eval_f () = Eval_op.binopt_semantics op (arg1, arg2) in
       eval_op op_lbl_f op_eval_f
-    | TriOpt (op, e1, e2, e3) ->
+    | TriOpt (Conditional, e1, e2, e3) ->
       let arg1 = (eval_expr state e1, e1.at) in
-      let arg2 = (eval_expr state e2, e2.at) in
-      let arg3 = (eval_expr state e3, e3.at) in
-      let op_lbl_f () = Operator.triopt_label op in
-      let op_eval_f () = Eval_op.triopt_semantics op (arg1, arg2, arg3) in
-      eval_op op_lbl_f op_eval_f
+      let op_lbl_f () = Operator.triopt_label Conditional in
+      let op_eval_f () = Eval_op.conditional_guard_semantics arg1 in
+      eval_cond_op op_lbl_f op_eval_f state (e2, e3)
     | NOpt (op, es) ->
       let args = List.map (fun e -> (eval_expr state e, e.at)) es in
       let op_lbl_f () = Operator.nopt_label op in
@@ -111,12 +109,19 @@ module M (Instrument : Instrument.M) = struct
       | _ -> Runtime_error.(throw ~src:(ErrSrc.from fe) (BadExpr ("curry", fv)))
       )
 
-  and eval_expr (state : state) (e : Expr.t) : Value.t =
-    let v = eval_expr' state e in
-    let lvl = Call_stack.level state.stack in
-    Instrument.Profiler.count !(state.inst).pf `Expr;
-    Instrument.Tracer.trace_expr lvl e (state.heap, v);
-    v
+  and eval_op (op_lbl_f : unit -> string) (eval_op_f : unit -> Value.t) :
+    Value.t =
+    try eval_op_f () with
+    | Runtime_error.Error err ->
+      Runtime_error.(push (OpEvalErr (op_lbl_f ())) err |> raise)
+    | err -> Log.fail "unexpected operator error: %s" (Printexc.to_string err)
+
+  and eval_cond_op (op_lbl_f : unit -> string) (eval_op_f : unit -> Value.t)
+    (state : state) ((e2, e3) : Expr.t * Expr.t) : Value.t =
+    match eval_op op_lbl_f eval_op_f with
+    | True -> eval_expr state e2
+    | False -> eval_expr state e3
+    | v -> Log.fail "unexpected conditional operator guard value: %a" Value.pp v
 
   let eval_str (state : state) (e : Expr.t) : string =
     match eval_expr state e with
