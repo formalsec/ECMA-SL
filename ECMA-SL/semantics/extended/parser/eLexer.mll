@@ -165,7 +165,8 @@ rule read =
   | id as x           { try Hashtbl.find keywords x with Not_found -> ID x }
   | gid               { GID (String_utils.trim_ends (Lexing.lexeme lexbuf))}
   | symbol            { SYMBOL (String_utils.chop_first_char (Lexing.lexeme lexbuf)) }
-  | "/*"              { read_comment lexbuf }
+  | "//"              { read_line_comment lexbuf }
+  | "/*"              { read_block_comment lexbuf }
   | _                 { raise (create_syntax_error "Unexpected char" lexbuf) }
   | eof               { EOF }
 
@@ -202,9 +203,14 @@ and read_string buf =
 
 (* ========== Comment reader ========== *)
 
-and read_comment =
+and read_line_comment =
+  parse
+  | newline   { new_line lexbuf; read lexbuf }
+  | _         { read_line_comment lexbuf }
+
+and read_block_comment =
   parse
   | "*/"      { read lexbuf }
-  | newline   { new_line lexbuf; read_comment lexbuf }
-  | _         { read_comment lexbuf }
+  | newline   { new_line lexbuf; read_block_comment lexbuf }
+  | _         { read_block_comment lexbuf }
   | eof       { raise (create_syntax_error ~eof:true "Comment is not terminated" lexbuf)}
