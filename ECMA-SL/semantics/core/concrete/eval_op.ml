@@ -121,6 +121,10 @@ let binary_relation_semantics (op : Smtml.Ty.relop) : arg * arg -> res =
   | ((Str _, _), arg2) -> arg_err "string" arg2
   | (arg1, _) -> arg_err "integer/float/string" arg1
 
+let conditional_guard_semantics : arg -> res = function
+  | (((True | False) as v1), _) -> v1
+  | arg1 -> arg_err "boolean" arg1
+
 let conditional_semantics : arg * arg * arg -> res = function
   | ((((True | False) as v1), _), (v2, _), (v3, _)) ->
     Smtml.Eval.triop Ty_bool Ite v1 v2 v3
