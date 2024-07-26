@@ -57,11 +57,6 @@ module Make () = struct
 
   let concrete_api =
     let open External.Impl in
-    let typeof v =
-      match E.view v with
-      | Val v -> ok_v (typeof v)
-      | _ -> err (__FUNCTION__ ^ ": invalid argument")
-    in
     let int_to_four_hex v =
       match E.view v with
       | Val v -> ok_v (int_to_four_hex v)
@@ -435,8 +430,7 @@ module Make () = struct
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     of_array
-      [| ("typeof_external", Extern_func (Func (Arg Res), typeof))
-       ; (* int *)
+      [| (* int *)
          ( "int_to_four_hex_external"
          , Extern_func (Func (Arg Res), int_to_four_hex) )
        ; ( "octal_to_decimal_external"

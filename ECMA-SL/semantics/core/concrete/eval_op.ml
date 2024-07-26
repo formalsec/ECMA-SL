@@ -34,6 +34,19 @@ let unary_list_semantics (op : Smtml.Ty.unop) : arg -> res = function
     with _ -> custom_err at (Unexpected "empty list") )
   | arg -> arg_err "list" arg
 
+let typeof_semantics : arg -> res = function
+  | (Int _, _) -> Str "int"
+  | (Real _, _) -> Str "float"
+  | ((True | False), _) -> Str "bool"
+  | (Str _, _) -> Str "string"
+  | (List _, _) -> Str "list"
+  | (App (`Op "void", []), at) -> custom_err at (Unexpected "void value")
+  | (App (`Op "null", []), _) -> Str "null"
+  | (App (`Op "loc", [ Int _ ]), _) -> Str "object"
+  | (App (`Op "symbol", [ Str _ ]), _) -> Str "symbol"
+  | (App (`Op _, _), _) -> Str "curry"
+  | (v, _) -> Log.fail "unknown value type: %a" Value.pp v
+
 let int_to_float_semantics : arg -> res = function
   | ((Int _ as v), _) -> Smtml.Eval.cvtop Ty_int Reinterpret_int v
   | arg -> arg_err "integer" arg
@@ -131,6 +144,7 @@ let unopt_semantics (op : Operator.unopt) : arg -> res =
   | LogicalNot -> unary_logical_semantics Not
   | ListHead -> unary_list_semantics Head
   | ListTail -> unary_list_semantics Tail
+  | Typeof -> typeof_semantics
   | IntToFloat -> int_to_float_semantics
   | IntToString -> int_to_string_semantics
   | FloatToInt -> float_to_int_semantics

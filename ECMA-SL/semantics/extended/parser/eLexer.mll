@@ -40,7 +40,8 @@
             "hd"                      , LIST_HEAD;
             "tl"                      , LIST_TAIL;
             
-            (* Casting operators *)
+            (* Type operators *)
+            "typeof"                  , TYPEOF;
             "int_to_float"            , INT_TO_FLOAT;
             "int_to_string"           , INT_TO_STRING;
             "float_to_int"            , FLOAT_TO_INT;
