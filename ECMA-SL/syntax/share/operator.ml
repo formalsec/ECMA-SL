@@ -6,6 +6,7 @@ type unopt =
   | LogicalNot
   | ListHead
   | ListTail
+  | Typeof
   | IntToFloat
   | IntToString
   | FloatToInt
@@ -54,12 +55,13 @@ let unopt_label (op : unopt) : string =
   | LogicalNot -> "Logical.not (!)"
   | ListHead -> "List.head (hd)"
   | ListTail -> "List.tail (tl)"
-  | IntToFloat -> "Integer.toFloat (int_to_float)"
-  | IntToString -> "Integer.toString (int_to_string)"
-  | FloatToInt -> "Float.toInt (float_to_int)"
-  | FloatToString -> "Float.toString (float_to_string)"
-  | StringToInt -> "String.toInt (string_to_int)"
-  | StringToFloat -> "String.toFloat (string_to_float)"
+  | Typeof -> "Type.of (typeof)"
+  | IntToFloat -> "Type.intToFloat (int_to_float)"
+  | IntToString -> "Type.intToString (int_to_string)"
+  | FloatToInt -> "Type.floatToInt (float_to_int)"
+  | FloatToString -> "Type.floatToString (float_to_string)"
+  | StringToInt -> "Type.stringToInt (string_to_int)"
+  | StringToFloat -> "Type.stringToFloat (string_to_float)"
   | ObjectToList -> "Object.toList (obj_to_list)"
   | ObjectFields -> "Object.fields (obj_fields)"
 
@@ -105,6 +107,7 @@ let unopt_pp_simple (ppf : Fmt.t) (op : unopt) : unit =
   | LogicalNot -> Fmt.pp_str ppf "!"
   | ListHead -> Fmt.pp_str ppf "hd"
   | ListTail -> Fmt.pp_str ppf "tl"
+  | Typeof -> Fmt.pp_str ppf "typeof"
   | IntToFloat -> Fmt.pp_str ppf "int_to_float"
   | IntToString -> Fmt.pp_str ppf "int_to_string"
   | FloatToInt -> Fmt.pp_str ppf "float_to_int"

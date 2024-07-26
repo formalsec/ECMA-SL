@@ -42,6 +42,7 @@ let type_unopt (op : Operator.unopt) (targs : EType.t list) : EType.t' =
   | FloatToString -> type_op [ ([ FloatType ], StringType) ]
   | StringToInt -> type_op [ ([ StringType ], IntType) ]
   | StringToFloat -> type_op [ ([ StringType ], FloatType) ]
+  | Typeof -> not_implemented (* TODO *)
   | ObjectToList -> not_implemented (* TODO: custom object typing function *)
   | ObjectFields -> not_implemented (* TODO: custom object typing function *)
   | ListHead -> not_implemented (* TODO: list typing *)
