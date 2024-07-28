@@ -5,7 +5,7 @@ type arg = Value.t * Source.at
 type res = Value.t
 
 let custom_err (at : Source.at) (err : Runtime_error.msg) : 'a =
-  Runtime_error.(throw ~src:(ErrSrc.at at) err)
+  Runtime_error.(throw ~src:at err)
 [@@inline]
 
 let arg_err (texp : string) ((v, at) : arg) : 'a =

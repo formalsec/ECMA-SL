@@ -56,7 +56,7 @@ module M (Instrument : Instrument.M) = struct
 
   let get_var (store : store) (x : string) (at : at) : Value.t =
     match Store.get_opt store x with
-    | None -> Runtime_error.(throw ~src:(ErrSrc.at at) (UnknownVar x))
+    | None -> Runtime_error.(throw ~src:at (UnknownVar x))
     | Some v -> v
 
   let get_loc (heap : heap) (l : Loc.t) : obj =
@@ -66,14 +66,14 @@ module M (Instrument : Instrument.M) = struct
 
   let get_func (p : Prog.t) (fn : string) (at : at) : Func.t =
     match Prog.func_opt p fn with
-    | None -> Runtime_error.(throw ~src:(ErrSrc.at at) (UnknownFunc fn))
+    | None -> Runtime_error.(throw ~src:at (UnknownFunc fn))
     | Some f -> f
 
   let eval_op_semantics (op_lbl_f : unit -> string) (eval_op_f : unit -> Value.t)
     : Value.t =
     try eval_op_f () with
     | Runtime_error.Error err ->
-      Runtime_error.(push (OpEvalErr (op_lbl_f ())) err |> raise)
+      Runtime_error.(push (OpEvalExn (op_lbl_f ())) err |> raise)
     | err -> Log.fail "unexpected operator error: %s" (Printexc.to_string err)
 
   let rec eval_expr (state : state) (e : Expr.t) : Value.t =
@@ -115,26 +115,23 @@ module M (Instrument : Instrument.M) = struct
       let vs = List.map (eval_expr state) es in
       match fv with
       | Str fn -> Value.App (`Op fn, vs)
-      | _ -> Runtime_error.(throw ~src:(ErrSrc.from fe) (BadExpr ("curry", fv)))
-      )
+      | _ -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadExpr ("curry", fv))) )
 
   let eval_str (state : state) (e : Expr.t) : string =
     match eval_expr state e with
     | Str s -> s
-    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.from e) (BadVal ("string", v)))
+    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("string", v)))
 
   let eval_bool (state : state) (e : Expr.t) : bool =
     match eval_expr state e with
     | Value.True -> true
     | Value.False -> false
-    | _ as v ->
-      Runtime_error.(throw ~src:(ErrSrc.from e) (BadVal ("boolean", v)))
+    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("boolean", v)))
 
   let eval_loc (state : state) (e : Expr.t) : Loc.t =
     match eval_expr state e with
     | App (`Op "loc", [ Int l ]) -> l
-    | _ as v ->
-      Runtime_error.(throw ~src:(ErrSrc.from e) (BadVal ("location", v)))
+    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at e) (BadVal ("location", v)))
 
   let eval_obj (state : state) (heap : heap) (e : Expr.t) : Loc.t * obj =
     let l = eval_loc state e in
@@ -145,7 +142,7 @@ module M (Instrument : Instrument.M) = struct
     match eval_expr state fe with
     | Value.Str fn -> (fn, [])
     | Value.App (`Op fn, fvs) -> (fn, fvs)
-    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.from fe) (BadFuncId v))
+    | _ as v -> Runtime_error.(throw ~src:(ErrSrc.at fe) (BadFuncId v))
 
   let rec heapval_pp (depth : int option) (visited : (Loc.t, unit) Hashtbl.t)
     (heap : heap) (ppf : Fmt.t) (v : Value.t) : unit =
@@ -177,7 +174,7 @@ module M (Instrument : Instrument.M) = struct
     try List.combine pxs vs
     with Invalid_argument _ ->
       let (xpxs, nargs) = (List.length pxs, List.length vs) in
-      Runtime_error.(throw ~src:(ErrSrc.at at) (BadNArgs (xpxs, nargs)))
+      Runtime_error.(throw ~src:at (BadNArgs (xpxs, nargs)))
 
   let prepare_call (stack : stack) (f : Func.t) (store : store)
     (cont : Stmt.t list) (x : string) (vs : Value.t list) (at : at) :
@@ -337,7 +334,7 @@ module M (Instrument : Instrument.M) = struct
     match ss with
     | [] ->
       let fn = Func.name (Call_stack.func state.stack) in
-      Runtime_error.(throw ~src:(ErrSrc.from fn) (MissingReturn fn))
+      Runtime_error.(throw ~src:(ErrSrc.at fn) (MissingReturn fn))
     | s :: cont -> (
       let return = eval_small_step_safe p state s cont in
       Instrument.Monitor.eval_small_step !(state.inst).mon;

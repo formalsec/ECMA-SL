@@ -4,7 +4,7 @@ open EslSyntax
 let load_file ?(file : string option) (path : string) : string =
   let file' = Option.value ~default:path file in
   let data = Io.read_file path in
-  Code_utils.load file' data;
+  Code_utils.load_file file' data;
   data
 
 let init_lexbuf (file : string) (str : string) =

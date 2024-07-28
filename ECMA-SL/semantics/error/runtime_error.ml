@@ -6,11 +6,11 @@ module RtTrace = Error_trace
 type msg =
   | Default
   | Custom of string
+  | Failure of string
   | Unexpected of string
   | UnexpectedExitVal of Value.t
-  | Failure of string
   | UncaughtExn of string
-  | OpEvalErr of string
+  | OpEvalExn of string
   | UnknownVar of Id.t'
   | UnknownFunc of Id.t'
   | MissingReturn of Id.t
@@ -31,11 +31,11 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
     match (msg1, msg2) with
     | (Default, Default) -> true
     | (Custom msg1', Custom msg2') -> String.equal msg1' msg2'
+    | (Failure msg1', Failure msg2') -> String.equal msg1' msg2'
     | (Unexpected msg1', Unexpected msg2') -> String.equal msg1' msg2'
     | (UnexpectedExitVal v1, UnexpectedExitVal v2) -> Value.equal v1 v2
-    | (Failure msg1', Failure msg2') -> String.equal msg1' msg2'
     | (UncaughtExn msg1', UncaughtExn msg2') -> String.equal msg1' msg2'
-    | (OpEvalErr op_lbl1, OpEvalErr op_lbl2) -> String.equal op_lbl1 op_lbl2
+    | (OpEvalExn oplbl1, OpEvalExn oplbl2) -> String.equal oplbl1 oplbl2
     | (UnknownVar x1, UnknownVar x2) -> String.equal x1 x2
     | (UnknownFunc fn1, UnknownFunc fn2) -> String.equal fn1 fn2
     | (MissingReturn fn1, MissingReturn fn2) -> Id.equal fn1 fn2
@@ -48,8 +48,6 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
     | (BadExpr (texp1, v1), BadExpr (texp2, v2)) ->
       String.equal texp1 texp2 && Value.equal v1 v2
     | (BadFuncId v1, BadFuncId v2) -> Value.equal v1 v2
-    | (BadOpArgs (texp1, vs1), BadOpArgs (texp2, vs2)) ->
-      String.equal texp1 texp2 && List.equal Value.equal vs1 vs2
     | _ -> false
 
   let pp (ppf : Fmt.t) (msg : t) : unit =
@@ -57,11 +55,11 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
     match msg with
     | Default -> fmt ppf "Generic runtime error."
     | Custom msg' -> fmt ppf "%s" msg'
+    | Failure msg -> fmt ppf "Failure: %s" msg
     | Unexpected msg -> fmt ppf "Unexpected %s." msg
     | UnexpectedExitVal v -> fmt ppf "Unexpected exit value '%a'." Value.pp v
-    | Failure msg -> fmt ppf "Failure %s." msg
-    | UncaughtExn msg -> fmt ppf "Uncaught exception %s." msg
-    | OpEvalErr op_lbl -> fmt ppf "Exception in operator %s." op_lbl
+    | UncaughtExn msg -> fmt ppf "Uncaught exception: %s" msg
+    | OpEvalExn oplbl -> fmt ppf "Operator evaluation exception: %s" oplbl
     | UnknownVar x -> fmt ppf "Cannot find variable '%s'." x
     | UnknownFunc fn -> fmt ppf "Cannot find function '%s'." fn
     | MissingReturn fn -> fmt ppf "Missing return in function '%a'." Id.pp fn
@@ -82,7 +80,7 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
       fmt ppf "Expecting arguments of types '%s', but got '(%a)'." texp
         (pp_lst !>", " Value.pp) vs
 
-  let str (msg : t) : string = Fmt.str "%a" pp msg
+  let str (msg : t) : string = Fmt.str "%a" pp msg [@@inline]
 end
 
 type t =
@@ -93,19 +91,25 @@ type t =
 
 exception Error of t
 
-let raise (err : t) : 'a = Stdlib.raise_notrace (Error err)
+let raise (err : t) : 'a = Stdlib.raise_notrace (Error err) [@@inline]
 
 let create ?(src : ErrSrc.t = ErrSrc.none ()) (msgs : msg list) : t =
   { msgs; src; trace = None }
+[@@inline]
 
 let throw ?(src : ErrSrc.t = ErrSrc.none ()) (msg : msg) : 'a =
   raise @@ create ~src [ msg ]
+[@@inline]
+
+let src (err : t) : ErrSrc.t = err.src [@@inline]
+let trace (err : t) : RtTrace.t option = err.trace [@@inline]
+let set_src (src : ErrSrc.t) (err : t) : t = { err with src } [@@inline]
+
+let set_trace (tr : RtTrace.t) (err : t) : t = { err with trace = Some tr }
+[@@inline]
 
 let push (msg : msg) (err : t) : t = { err with msgs = msg :: err.msgs }
-let src (err : t) : ErrSrc.t = err.src
-let set_src (src : ErrSrc.t) (err : t) : t = { err with src }
-let trace (err : t) : RtTrace.t option = err.trace
-let set_trace (tr : RtTrace.t) (err : t) : t = { err with trace = Some tr }
+[@@inline]
 
 let pp (ppf : Fmt.t) (err : t) : unit =
   let open Fmt in
@@ -115,4 +119,4 @@ let pp (ppf : Fmt.t) (err : t) : unit =
   Fmt.fmt ppf "%a%a%a" MsgFmt.pp err.msgs ErrSrcFmt.pp err.src
     (pp_opt RtTraceFmt.pp) err.trace
 
-let str (err : t) = Fmt.str "%a" pp err
+let str (err : t) = Fmt.str "%a" pp err [@@inline]

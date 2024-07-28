@@ -1,51 +1,53 @@
 open EslBase
 open EslSyntax
 
-type t = Region of Source.at
+type t = Source.at
 
-let none () : t = Region Source.none
-let from (el : 'a Source.t) : t = Region el.at
-let at (at : Source.at) : t = Region at
+let none () : t = Source.none [@@inline]
+let at (el : 'a Source.t) : t = el.at [@@inline]
 
 module ErrSrcFmt (ErrorType : Error_type.ERROR_TYPE) = struct
-  let format_code (code : string) : int * string =
-    let start = Str.(search_forward (regexp "[^ \t\r\n]") code 0) in
-    (start, String.sub code start (String.length code - start))
+  type location =
+    { file : string
+    ; line : int
+    ; lpos : int
+    ; rpos : int
+    }
 
-  let pp_location (ppf : Fmt.t) (at : Source.at) : unit =
-    let open Source in
-    let pp_locdata ppf at =
-      Fmt.fmt ppf "File %S, line %d, characters %d-%d" at.file at.lpos.line
-        at.lpos.col at.rpos.col
-    in
-    Font.pp_err [ Font.Italic; Font.Faint ] pp_locdata ppf at
+  let location (at : Source.at) : location =
+    let (file, line, lpos) = (at.file, at.lpos.line, at.lpos.col) in
+    let rpos = if at.lpos.line == at.rpos.line then at.rpos.col else -1 in
+    { file; line; lpos; rpos }
+
+  let format_code (line : string) : int * string =
+    let start = Str.search_forward (Str.regexp "[^ \t\r\n]") line 0 in
+    let line = String.sub line start (String.length line - start) in
+    (start, line)
+
+  let pp_loc : Fmt.t -> location -> unit =
+    Font.pp_err [ Font.Italic; Font.Faint ] @@ fun ppf loc ->
+    Fmt.fmt ppf "File %S, line %d, characters %d-%d" loc.file loc.line loc.lpos
+      loc.rpos
 
   let pp_indent (ppf : Fmt.t) (lineno : int) : unit =
     let lineno_sz = String.length (string_of_int lineno) in
     Fmt.pp_str ppf (String.make (lineno_sz + 5) ' ')
 
-  let pp_highlight (ppf : Fmt.t) ((code, left, right) : string * int * int) :
-    unit =
-    let base = Str.(global_replace (regexp "[^ \t\r\n]") " " code) in
-    Fmt.fmt ppf "%s%a" (String.sub base 0 left)
-      (Font.pp_text_err ErrorType.font)
-      (String.make (right - left) '^')
+  let pp_hglt (ppf : Fmt.t) ((code, lpos, rpos) : string * int * int) : unit =
+    let pp_font = Font.pp_text_err ErrorType.font in
+    let code' = Str.global_replace (Str.regexp "[^ \t\r\n]") " " code in
+    Fmt.fmt ppf "%s%a" (String.sub code' 0 lpos) pp_font
+      (String.make (rpos - lpos) '^')
 
-  let pp_at (ppf : Fmt.t) (at : Source.at) : unit =
-    (* FIXME: Improve this for multiple-lines *)
-    let file = at.file in
-    let line = at.lpos.line in
-    let left = at.lpos.col in
-    let right = at.rpos.col in
-    let (start, code) = format_code (Code_utils.line file line) in
-    let (left', right') = (left - start, right - start) in
-    Fmt.fmt ppf "\n%a\n%d |   %s\n%a%a" pp_location at line code pp_indent line
-      pp_highlight (code, left', right')
+  let pp (ppf : Fmt.t) (at : t) : unit =
+    if at != Source.none then
+      let loc = location at in
+      let (_, line) = Code_utils.(line (file loc.file) loc.line) in
+      let rpos' = if loc.rpos != -1 then loc.rpos else String.length line in
+      let (start, code) = format_code line in
+      let (lpos, rpos) = (loc.lpos - start, rpos' - start) in
+      Fmt.fmt ppf "@\n%a@\n%d |   %s@\n%a%a" pp_loc loc loc.line code pp_indent
+        loc.line pp_hglt (code, lpos, rpos)
 
-  let pp (ppf : Fmt.t) (src : t) : unit =
-    match src with
-    | Region at when at = Source.none -> ()
-    | Region at -> pp_at ppf at
-
-  let str (src : t) : string = Fmt.str "%a" pp src
+  let str (src : t) : string = Fmt.str "%a" pp src [@@inline]
 end

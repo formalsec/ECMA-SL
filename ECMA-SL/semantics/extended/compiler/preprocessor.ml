@@ -8,7 +8,7 @@ module Imports = struct
   let load_dependency (file : Id.t) (path : string) : EProg.t =
     try EParsing.(load_file ~file:file.it path |> parse_eprog ~file:file.it path)
     with Not_found ->
-      Compile_error.(throw ~src:(ErrSrc.from file) (UnknownDependency file))
+      Compile_error.(throw ~src:(ErrSrc.at file) (UnknownDependency file))
 
   let set_import_prefix (stdlib : string) (workspace : string)
     (import : EImport.t) : Id.t * string =
@@ -70,14 +70,14 @@ module Macros = struct
     match s.it with
     | EStmt.MacroApply (mn, es) -> (
       match Hashtbl.find_opt (EProg.macros p) mn.it with
-      | None -> Compile_error.(throw ~src:(ErrSrc.from mn) (UnknownMacro mn))
+      | None -> Compile_error.(throw ~src:(ErrSrc.at mn) (UnknownMacro mn))
       | Some m ->
         let pxs = EMacro.params' m in
         let subst =
           try List.combine pxs es |> List.to_seq |> Hashtbl.of_seq
           with _ ->
             let (npxs, nargs) = (List.length pxs, List.length es) in
-            Compile_error.(throw ~src:(ErrSrc.from s) (BadNArgs (npxs, nargs)))
+            Compile_error.(throw ~src:(ErrSrc.at s) (BadNArgs (npxs, nargs)))
         in
         EStmt.map ~emapper:(EExpr.Mapper.var subst) EStmt.Mapper.id
           (EMacro.body m) )
