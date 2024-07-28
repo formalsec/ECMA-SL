@@ -40,7 +40,7 @@ module ErrSrcFmt (ErrorType : Error_type.ERROR_TYPE) = struct
       (String.make (rpos - lpos) '^')
 
   let pp (ppf : Fmt.t) (at : t) : unit =
-    if at != Source.none then
+    if not (Source.is_none at) then
       let loc = location at in
       let (_, line) = Code_utils.(line (file loc.file) loc.line) in
       let rpos' = if loc.rpos != -1 then loc.rpos else String.length line in
