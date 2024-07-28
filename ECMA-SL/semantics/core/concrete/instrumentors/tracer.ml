@@ -48,8 +48,8 @@ let rec heapval_pp ?(depth : int = 0) (heap : heap) (ppf : Fmt.t) (v : Value.t)
   match v with
   | App (`Op "loc", [ Int l ]) when depth < Config.max_obj_depth -> (
     match Heap.get heap l with
-    | Ok obj -> Object.pp (heapval_pp ~depth:(depth + 1) heap) ppf obj
-    | _ -> pp_str ppf "{ ??? }" )
+    | Some obj -> Object.pp (heapval_pp ~depth:(depth + 1) heap) ppf obj
+    | None -> pp_str ppf "{ ??? }" )
   | _ -> Value.pp ppf v
 
 let val_pp (limit : int) (ppf : Fmt.t) (v_str : string) : unit =

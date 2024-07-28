@@ -43,7 +43,7 @@ module M (Instrument : Instrument.M) = struct
 
   let set_global_var (store : store) (heap : heap) : unit =
     let open Compiler.Const in
-    if Option.is_some (Heap.get_opt heap esl_globals_loc) then
+    if Option.is_some (Heap.get heap esl_globals_loc) then
       Store.set store esl_globals_obj (App (`Op "loc", [ Int esl_globals_loc ]))
 
   let initial_state (fmain : Func.t) (s_heap : heap option)
@@ -55,12 +55,12 @@ module M (Instrument : Instrument.M) = struct
     { store; heap; stack; inst }
 
   let get_var (store : store) (x : string) (at : at) : Value.t =
-    match Store.get_opt store x with
+    match Store.get store x with
     | None -> Runtime_error.(throw ~src:at (UnknownVar x))
     | Some v -> v
 
   let get_loc (heap : heap) (l : Loc.t) : obj =
-    match Heap.get_opt heap l with
+    match Heap.get heap l with
     | None -> Log.fail "expecting existing location"
     | Some obj -> obj
 
@@ -78,7 +78,7 @@ module M (Instrument : Instrument.M) = struct
 
   let rec eval_expr (state : state) (e : Expr.t) : Value.t =
     let v = eval_expr' state e in
-    let lvl = Call_stack.level state.stack in
+    let lvl = Call_stack.depth state.stack - 1 in
     Instrument.Profiler.count !(state.inst).pf `Expr;
     Instrument.Tracer.trace_expr lvl e (state.heap, v);
     v
@@ -189,7 +189,7 @@ module M (Instrument : Instrument.M) = struct
     let inst = !(state.inst) in
     let lbl_f = Instrument.Monitor.update_label in
     let ( $$ ) v s_eval = lbl_f inst.mon s s_eval |> fun () -> v in
-    let lvl = Call_stack.level state.stack in
+    let lvl = Call_stack.depth state.stack - 1 in
     Instrument.Tracer.trace_stmt lvl s;
     Instrument.Profiler.count inst.pf `Stmt;
     match s.it with
