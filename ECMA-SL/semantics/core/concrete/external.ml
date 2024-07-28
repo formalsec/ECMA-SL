@@ -7,7 +7,7 @@ type heap = Value.t Heap.t
 let op_err (_arg : int) (op_lbl : string) (rterr : Runtime_error.msg) : 'a =
   try Runtime_error.(throw ~src:(ErrSrc.none ()) rterr)
   with Runtime_error.Error err ->
-    Runtime_error.(push (OpEvalErr op_lbl) err |> raise)
+    Runtime_error.(push (OpEvalExn op_lbl) err |> raise)
 
 let unexpected_err (arg : int) (op_lbl : string) (msg : string) : 'a =
   op_err arg op_lbl (Unexpected msg)

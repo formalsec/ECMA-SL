@@ -1,30 +1,30 @@
 open EslBase
 open EslSyntax
 
-type file = string list
+type file = string array
 type t = (string, file) Hashtbl.t
 
 let code : t = Hashtbl.create !Base.default_hashtbl_sz
 
-let load (file : string) (data : string) : unit =
-  Hashtbl.replace code file (String.split_on_char '\n' data)
+let load_file (fname : string) (data : string) : unit =
+  let lines = String.split_on_char '\n' data in
+  Hashtbl.replace code fname (Array.of_list lines)
 
-let get_file (path : string) : file option = Hashtbl.find_opt code path
+let file_sz (file : file) : int = Array.length file [@@inline]
 
-let get_file_size (file : file option) : int =
-  Option.map List.length file |> Option.value ~default:(-1)
+let file (fname : string) : file =
+  match Hashtbl.find_opt code fname with
+  | Some file -> file
+  | None -> Log.fail "expecting loaded file path, but got '%s'" fname
 
-let get_line (file : file option) (loc : int) : string =
-  let line' file = List.nth_opt file (loc - 1) in
-  Option.bind file line' |> Option.value ~default:""
+let line (file : file) (lineno : int) : int * string =
+  try (lineno, Array.get file (lineno - 1))
+  with Invalid_argument _ ->
+    Log.fail "expecting line between 1 and %d, but got %d" (file_sz file) lineno
 
-let rec get_lines (file : file option) (start : int) (nlines : int) :
-  (int * string) list =
+let rec lines (file : file) (start : int) (nlines : int) : (int * string) list =
   if nlines == 0 then []
-  else (start, get_line file start) :: get_lines file (start + 1) (nlines - 1)
-
-let line (fname : string) (loc : int) : string =
-  get_line (Hashtbl.find_opt code fname) loc
+  else line file start :: lines file (start + 1) (nlines - 1)
 
 let codeblock (at : Source.at) : string list =
   let trim_line line n =
@@ -41,7 +41,7 @@ let codeblock (at : Source.at) : string list =
   in
   let start = at.lpos.line in
   let nlines = at.rpos.line - at.lpos.line + 1 in
-  trim_lines (get_lines (Hashtbl.find_opt code at.file) start nlines)
+  trim_lines (lines (file at.file) start nlines)
 
 let pp (ppf : Fmt.t) (at : Source.at) : unit =
   Fmt.(pp_lst !>"\n" pp_str) ppf (codeblock at)
