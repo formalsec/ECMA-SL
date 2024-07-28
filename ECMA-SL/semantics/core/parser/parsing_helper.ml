@@ -6,7 +6,7 @@ module Func = struct
   let parse_params (params : Id.t list) : Id.t list =
     let check_dups checked px =
       if not (Hashtbl.mem checked px.it) then Hashtbl.replace checked px.it ()
-      else Compile_error.(throw ~src:(ErrSrc.from px) (DuplicatedParam px))
+      else Compile_error.(throw ~src:(ErrSrc.at px) (DuplicatedParam px))
     in
     List.iter (check_dups (Hashtbl.create (List.length params))) params;
     params
@@ -24,7 +24,7 @@ module Stmt = struct
     let check_dups css (e, s) =
       let (v, at) = val_of_expr e in
       if not (Hashtbl.mem css v) then Hashtbl.replace css v s
-      else Compile_error.(throw ~src:(ErrSrc.at at) (DuplicatedSwitchCase v))
+      else Compile_error.(throw ~src:at (DuplicatedSwitchCase v))
     in
     let parsed_css = Hashtbl.create (List.length css) in
     List.iter (check_dups parsed_css) css;
