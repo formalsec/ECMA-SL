@@ -22,6 +22,7 @@ let none : at = { file = ""; lpos = pos_none; rpos = pos_none; real = false }
 let ( @> ) (it : 'a) (at : at) : 'a t = { it; at } [@@inline]
 let ( @?> ) (it : 'a) (at : at) : 'a t = it @> { at with real = false }
 let map (f : 'a -> 'b) (x : 'a t) : 'b t = { x with it = f x.it } [@@inline]
+let is_none (at : at) : bool = at = none [@@inline]
 
 let pp_pos (ppf : Fmt.t) (pos : pos) : unit =
   let pp_pos' ppf v = Fmt.(if v == -1 then pp_str ppf "x" else pp_int ppf v) in
