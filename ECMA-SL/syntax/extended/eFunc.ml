@@ -4,49 +4,48 @@ open Source
 type t = t' Source.t
 
 and t' =
-  { name : Id.t
-  ; tparams : (Id.t * EType.t option) list
-  ; treturn : EType.t option
-  ; body : EStmt.t
+  { fn : Id.t
+  ; tpxs : (Id.t * EType.t option) list
+  ; tret : EType.t option
+  ; s : EStmt.t
   }
 
 let default : unit -> t =
-  let (name, body) = (Id.default (), EStmt.default ()) in
-  let (tparams, treturn) = ([], None) in
-  let dflt = { name; tparams; treturn; body } @> none in
+  let (fn, s) = (Id.default (), EStmt.default ()) in
+  let dflt = { fn; tpxs = []; tret = None; s } @> none in
   fun () -> dflt
 
-let create (name : Id.t) (tparams : (Id.t * EType.t option) list)
-  (treturn : EType.t option) (body : EStmt.t) : t' =
-  { name; tparams; treturn; body }
+let create (fn : Id.t) (tpxs : (Id.t * EType.t option) list)
+  (tret : EType.t option) (s : EStmt.t) : t' =
+  { fn; tpxs; tret; s }
 [@@inline]
 
-let name (func : t) : Id.t = func.it.name [@@inline]
-let name' (func : t) : Id.t' = (name func).it
-let tparams (func : t) : (Id.t * EType.t option) list = func.it.tparams
-let params (func : t) : Id.t list = List.map (fun (px, _) -> px) func.it.tparams
-let params' (func : t) : Id.t' list = List.map (fun px -> px.it) (params func)
-let treturn (func : t) : EType.t option = func.it.treturn [@@inline]
-let body (func : t) : EStmt.t = func.it.body [@@inline]
+let name (f : t) : Id.t = f.it.fn [@@inline]
+let name' (f : t) : Id.t' = (name f).it
+let tparams (f : t) : (Id.t * EType.t option) list = f.it.tpxs [@@inline]
+let params (f : t) : Id.t list = List.map (fun (px, _) -> px) (tparams f)
+let params' (f : t) : Id.t' list = List.map (fun (px, _) -> px.it) (tparams f)
+let treturn (f : t) : EType.t option = f.it.tret [@@inline]
+let body (f : t) : EStmt.t = f.it.s [@@inline]
 
-let pp_signature (ppf : Fmt.t) (func : t) : unit =
-  let pp_param ppf (px, t) = Fmt.fmt ppf "%a%a" Id.pp px EType.tannot_pp t in
-  let pp_params ppf tpxs = Fmt.(pp_lst !>", " pp_param) ppf tpxs in
-  Fmt.fmt ppf "function %a(%a)%a" Id.pp func.it.name pp_params func.it.tparams
-    EType.tannot_pp func.it.treturn
+let pp_signature (ppf : Fmt.t) (f : t) : unit =
+  let pp_tpx ppf (px, t) = Fmt.fmt ppf "%a%a" Id.pp px EType.tannot_pp t in
+  let pp_tpxs ppf tpxs = Fmt.(pp_lst !>", " pp_tpx) ppf tpxs in
+  Fmt.fmt ppf "function %a(%a)%a" Id.pp f.it.fn pp_tpxs f.it.tpxs
+    EType.tannot_pp f.it.tret
 
-let pp_simple (ppf : Fmt.t) (func : t) : unit =
-  Fmt.fmt ppf "%a {..." pp_signature func
+let pp_simple (ppf : Fmt.t) (f : t) : unit =
+  Fmt.fmt ppf "%a {..." pp_signature f
 
-let pp (ppf : Fmt.t) (func : t) : unit =
-  Fmt.fmt ppf "%a %a" pp_signature func EStmt.pp func.it.body
+let pp (ppf : Fmt.t) (f : t) : unit =
+  Fmt.fmt ppf "%a %a" pp_signature f EStmt.pp f.it.s
 
-let str (func : t) : string = Fmt.str "%a" pp func [@@inline]
+let str (f : t) : string = Fmt.str "%a" pp f [@@inline]
 
 let lambdas (f : t) : (at * Id.t' * Id.t list * Id.t list * EStmt.t) list =
   let to_list_f s =
     match s.it with
-    | EStmt.Lambda (_, id, pxs, ctxvars, s) -> [ (s.at, id, pxs, ctxvars, s) ]
+    | EStmt.Lambda (_, id, pxs, ctxvars, s') -> [ (s.at, id, pxs, ctxvars, s') ]
     | _ -> []
   in
-  EStmt.to_list ~recursion:true to_list_f (body f)
+  EStmt.to_list ~recursive:true to_list_f (body f)

@@ -84,9 +84,9 @@ module Macros = struct
     | _ -> s
 
   let apply_func_macros (p : EProg.t) (f : EFunc.t) : unit =
-    let body = EStmt.map (macro_mapper p) f.it.body in
+    let s = EStmt.map (macro_mapper p) f.it.s in
     Hashtbl.replace (EProg.funcs p) (EFunc.name' f)
-      { f with it = { f.it with body } }
+      { f with it = { f.it with s } }
 
   let apply_macros (p : EProg.t) : EProg.t =
     Hashtbl.iter (fun _ f -> apply_func_macros p f) p.funcs;
