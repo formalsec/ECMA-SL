@@ -26,14 +26,15 @@ let build_ast (file : Fpath.t) : Func.t Result.t =
   Log.debug "Sucessfuly loaded AST builder '%a'." Fpath.pp file;
   Ok p
 
-let execute_partial (entry : Interpreter.entry) (config : Options.interp_config)
-  (interp : Prog.t) (ast : Fpath.t) : Interpreter.result Result.t =
+let execute_partial (entry : Interpreter.IEntry.t)
+  (config : Options.interp_config) (interp : Prog.t) (ast : Fpath.t) :
+  Interpreter.IResult.t Result.t =
   Result.esl_exec @@ fun () ->
   let* build_ast = build_ast ast in
   Hashtbl.replace (Prog.funcs interp) (Func.name' build_ast) build_ast;
   Ok (Cmd_interpret.interpret_partial entry config interp)
 
-let check_harness_return (result : Interpreter.result) : unit Result.t =
+let check_harness_return (result : Interpreter.IResult.t) : unit Result.t =
   match result.retval with
   | List [ _; App (`Op "symbol", [ Str "normal" ]); _; _ ] -> Ok ()
   | _ ->
@@ -44,7 +45,7 @@ let setup_program_harness (interp : Prog.t) (harness : Fpath.t) :
   Value.t Heap.t Result.t =
   ignore Enums.Lang.(resolve_file_lang [ JS ] harness);
   let ast = Fpath.v (Filename.temp_file "ecmasl" "harness.cesl") in
-  let entry = Interpreter.entry_default () in
+  let entry = Interpreter.IEntry.default () in
   let config = Cmd_interpret.Options.default_config () in
   let* () = Cmd_encode.encode None harness (Some ast) in
   let* result = execute_partial entry config interp ast in
@@ -62,12 +63,12 @@ let setup_execution (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option) :
     let* static_heap = setup_program_harness interp harness' in
     Ok (interp, Some static_heap)
 
-let execute_cesl ((interp, static_heap) : Prog.t * Value.t Heap.t option)
+let execute_cesl ((interp, heap) : Prog.t * Value.t Heap.t option)
   (config : Options.interp_config) (input : Fpath.t) :
-  Interpreter.result Result.t =
-  let pre_initialized = Option.is_some static_heap in
+  Interpreter.IResult.t Result.t =
+  let pre_initialized = Option.is_some heap in
   let main = if pre_initialized then "mainPreInitialized" else "main" in
-  let entry = Interpreter.{ main; static_heap } in
+  let entry = Interpreter.IEntry.{ main; heap } in
   let* result = execute_partial entry config interp input in
   let retval = result.retval in
   Log.debug "Sucessfuly evaluated program with return '%a'." Value.pp retval;
@@ -75,7 +76,7 @@ let execute_cesl ((interp, static_heap) : Prog.t * Value.t Heap.t option)
 
 let execute_js (setup : Prog.t * Value.t Heap.t option)
   (config : Options.interp_config) (input : Fpath.t) :
-  Interpreter.result Result.t =
+  Interpreter.IResult.t Result.t =
   let ast = Fpath.v (Filename.temp_file "ecmasl" "ast.cesl") in
   let* () = Cmd_encode.encode None input (Some ast) in
   execute_cesl setup config ast

@@ -313,10 +313,10 @@ module TestRunner = struct
       let* () = Result.bos (Bos.OS.File.writef input "%s" test) in
       Ok input
 
-  let unfold_result (result : Interpreter.result Result.t) :
+  let unfold_result (result : Interpreter.IResult.t Result.t) :
     Value.t Result.t * Yojson.Basic.t =
-    let retval_f res = res.Interpreter.retval in
-    let metrics_f res = res.Interpreter.metrics in
+    let retval_f res = res.Interpreter.IResult.retval in
+    let metrics_f res = res.Interpreter.IResult.metrics in
     let retval = map retval_f result in
     let metrics = fold ~ok:metrics_f ~error:(fun _ -> `Null) result in
     (retval, metrics)
@@ -334,7 +334,7 @@ module TestRunner = struct
 
   let execute (env : Prog.t * Value.t Heap.t option)
     (interp_config : Cmd_interpret.Options.config) (input : Fpath.t) :
-    Interpreter.result Result.t =
+    Interpreter.IResult.t Result.t =
     try Cmd_execute.execute_js env interp_config input
     with exn -> Result.error (`Generic (Printexc.to_string exn))
 

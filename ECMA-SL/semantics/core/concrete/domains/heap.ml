@@ -21,21 +21,21 @@ let extend (heap : 'a t) : 'a t = { (create ()) with parent = Some heap }
 let shrunk (heap : 'a t) : 'a t = Option.value ~default:heap heap.parent
 [@@inline]
 
-let rec get (heap : 'a t) (l : Loc.t) : 'a obj option =
+let rec get (heap : 'a t) (loc : Loc.t) : 'a obj option =
   (* Hack: required to call the get function recursively *)
   let get' = get in
-  match Loc.Tbl.find_opt heap.map l with
+  match Loc.Tbl.find_opt heap.map loc with
   | Some _ as obj -> obj
   | None ->
     let open Syntax.Option in
     let* parent = heap.parent in
-    let+ obj = get' parent l in
+    let+ obj = get' parent loc in
     let obj' = Object.clone obj in
-    Loc.Tbl.replace heap.map l obj';
+    Loc.Tbl.replace heap.map loc obj';
     obj'
 
-let set (heap : 'a t) (l : Loc.t) (obj : 'a obj) : unit =
-  Loc.Tbl.replace heap.map l obj
+let set (heap : 'a t) (loc : Loc.t) (obj : 'a obj) : unit =
+  Loc.Tbl.replace heap.map loc obj
 [@@inline]
 
 let pp_map (pp_v : Fmt.t -> 'a obj -> unit) (ppf : Fmt.t)

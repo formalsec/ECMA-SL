@@ -7,8 +7,8 @@ type t = store Call_stack.t
 
 module RtTraceFmt (ErrorType : Error_type.ERROR_TYPE) = struct
   let pp_frame (ppf : Fmt.t) (frame : store frame) : unit =
-    let { func; stmt; _ } = loc frame in
-    Fmt.fmt ppf "@\nCalled from '%s' in %a" (Func.name' func) pp_loc stmt.at
+    let { f; s; _ } = cursor frame in
+    Fmt.fmt ppf "@\nCalled from '%s' in %a" (Func.name' f) pp_loc s.at
 
   let pp (ppf : Fmt.t) (stack : t) : unit =
     let pp_stack = Fmt.(pp_lst !>"" pp_frame) in

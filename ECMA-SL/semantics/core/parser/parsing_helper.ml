@@ -6,7 +6,7 @@ module Func = struct
   let parse_params (pxs : Id.t list) : Id.t list =
     let check_dups checked px =
       if not (Hashtbl.mem checked px.it) then Hashtbl.replace checked px.it ()
-      else Compile_error.(throw ~src:(ErrSrc.at px) (DuplicatedParam px))
+      else Compile_error.(throw ~src:px.at (DuplicatedParam px))
     in
     List.iter (check_dups (Hashtbl.create (List.length pxs))) pxs;
     pxs
@@ -35,5 +35,5 @@ module Expr = struct
   open Expr
 
   let parse_return_expr (e : t option) : t =
-    Option.value ~default:(Val (App (`Op "void", [])) @> none) e
+    Option.value ~default:(Val (Value.void ()) @> none) e
 end

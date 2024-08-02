@@ -13,7 +13,7 @@ and t' =
   | Curry of t * t list
 
 let default : unit -> t =
-  let dlft = Val (App (`Op "null", [])) @> none in
+  let dlft = Val (Value.null ()) @> none in
   fun () -> dlft
 
 let isvoid (e : t) : bool =
