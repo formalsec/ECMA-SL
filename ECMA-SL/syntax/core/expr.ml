@@ -16,17 +16,17 @@ let default : unit -> t =
   let dlft = Val (App (`Op "null", [])) @> none in
   fun () -> dlft
 
-let isvoid (expr : t) : bool =
-  match expr.it with Val (App (`Op "void", [])) -> true | _ -> false
+let isvoid (e : t) : bool =
+  match e.it with Val (App (`Op "void", [])) -> true | _ -> false
 
-let rec pp (ppf : Fmt.t) (expr : t) : unit =
-  match expr.it with
+let rec pp (ppf : Fmt.t) (e : t) : unit =
+  match e.it with
   | Val v -> Value.pp ppf v
   | Var x -> Fmt.pp_str ppf x
-  | UnOpt (op, e) -> Operator.unopt_pp ~pp_v:pp ppf (op, e)
+  | UnOpt (op, e') -> Operator.unopt_pp ~pp_v:pp ppf (op, e')
   | BinOpt (op, e1, e2) -> Operator.binopt_pp ~pp_v:pp ppf (op, e1, e2)
   | TriOpt (op, e1, e2, e3) -> Operator.triopt_pp ~pp_v:pp ppf (op, e1, e2, e3)
   | NOpt (op, es) -> Operator.nopt_pp ~pp_v:pp ppf (op, es)
   | Curry (fe, es) -> Fmt.fmt ppf "{%a}@(%a)" pp fe Fmt.(pp_lst !>", " pp) es
 
-let str (expr : t) : string = Fmt.str "%a" pp expr [@@inline]
+let str (e : t) : string = Fmt.str "%a" pp e [@@inline]

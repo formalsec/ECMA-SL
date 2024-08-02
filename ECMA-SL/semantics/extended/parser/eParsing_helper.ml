@@ -4,46 +4,46 @@ open EslSyntax.Source
 module Prog = struct
   open EProg
 
-  let parse_tdef (tdef : EType.TDef.t) (prog : t) : unit =
+  let parse_tdef (tdef : EType.TDef.t) (p : t) : unit =
     let tn = EType.TDef.name tdef in
-    match Hashtbl.find_opt prog.tdefs tn.it with
-    | None -> Hashtbl.replace prog.tdefs tn.it tdef
+    match Hashtbl.find_opt p.tdefs tn.it with
+    | None -> Hashtbl.replace p.tdefs tn.it tdef
     | Some _ -> Compile_error.(throw ~src:(ErrSrc.at tn) (DuplicatedTDef tn))
 
-  let parse_func (func : EFunc.t) (prog : t) : unit =
+  let parse_func (func : EFunc.t) (p : t) : unit =
     let fn = EFunc.name func in
-    match Hashtbl.find_opt prog.funcs fn.it with
-    | None -> Hashtbl.replace prog.funcs fn.it func
+    match Hashtbl.find_opt p.funcs fn.it with
+    | None -> Hashtbl.replace p.funcs fn.it func
     | Some _ -> Compile_error.(throw ~src:(ErrSrc.at fn) (DuplicatedFunc fn))
 
-  let parse_macro (macro : EMacro.t) (prog : t) : unit =
+  let parse_macro (macro : EMacro.t) (p : t) : unit =
     let mn = EMacro.name macro in
-    match Hashtbl.find_opt prog.macros mn.it with
-    | None -> Hashtbl.replace prog.macros mn.it macro
+    match Hashtbl.find_opt p.macros mn.it with
+    | None -> Hashtbl.replace p.macros mn.it macro
     | Some _ -> Compile_error.(throw ~src:(ErrSrc.at mn) (DuplicatedMacro mn))
 
-  let parse_prog (imports : EImport.t list) (parsers : (t -> unit) list) : t =
-    let prog = { (default ()) with imports } in
-    List.iter (fun el_parser -> el_parser prog) parsers;
-    prog
+  let parse_p (imports : EImport.t list) (parsers : (t -> unit) list) : t =
+    let p = { (default ()) with imports } in
+    List.iter (fun el_parser -> el_parser p) parsers;
+    p
 end
 
 module Func = struct
-  let parse_params (tparams : (Id.t * EType.t option) list) :
+  let parse_params (tpxs : (Id.t * EType.t option) list) :
     (Id.t * EType.t option) list =
     let check_dups checked (px, _) =
       if not (Hashtbl.mem checked px.it) then Hashtbl.replace checked px.it ()
       else Compile_error.(throw ~src:(ErrSrc.at px) (DuplicatedParam px))
     in
-    List.iter (check_dups (Hashtbl.create (List.length tparams))) tparams;
-    tparams
+    List.iter (check_dups (Hashtbl.create (List.length tpxs))) tpxs;
+    tpxs
 end
 
 module Expr = struct
   open EExpr
 
-  let parse_return_expr (expr : t option) : t =
-    Option.value ~default:(Val (Value.App (`Op "void", [])) @> none) expr
+  let parse_return_expr (e : t option) : t =
+    Option.value ~default:(Val (Value.App (`Op "void", [])) @> none) e
 
   let parse_object_fields (flds : (Id.t * t) list) : (Id.t * t) list =
     let check_dups checked (fn, _) =

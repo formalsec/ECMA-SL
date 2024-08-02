@@ -4,34 +4,32 @@ open Source
 type t = t' Source.t
 
 and t' =
-  { name : Id.t
-  ; params : Id.t list
-  ; body : EStmt.t
+  { mn : Id.t
+  ; pxs : Id.t list
+  ; s : EStmt.t
   }
 
 let default : unit -> t =
-  let dflt' = { name = Id.default (); params = []; body = EStmt.default () } in
-  let dflt = dflt' @> none in
+  let dflt = { mn = Id.default (); pxs = []; s = EStmt.default () } @> none in
   fun () -> dflt
 
-let create (name : Id.t) (params : Id.t list) (body : EStmt.t) : t' =
-  { name; params; body }
+let create (mn : Id.t) (pxs : Id.t list) (s : EStmt.t) : t' = { mn; pxs; s }
 [@@inline]
 
-let name (macro : t) : Id.t = macro.it.name [@@inline]
-let name' (macro : t) : Id.t' = (name macro).it
-let params (macro : t) : Id.t list = macro.it.params [@@inline]
-let params' (macro : t) : Id.t' list = List.map (fun px -> px.it) (params macro)
-let body (macro : t) : EStmt.t = macro.it.body [@@inline]
+let name (m : t) : Id.t = m.it.mn [@@inline]
+let name' (m : t) : Id.t' = (name m).it
+let params (m : t) : Id.t list = m.it.pxs [@@inline]
+let params' (m : t) : Id.t' list = List.map (fun px -> px.it) (params m)
+let body (m : t) : EStmt.t = m.it.s [@@inline]
 
-let pp_signature (ppf : Fmt.t) (macro : t) : unit =
-  let pp_params ppf pxs = Fmt.(pp_lst !>", " Id.pp) ppf pxs in
-  Fmt.fmt ppf "macro %a(%a)" Id.pp macro.it.name pp_params macro.it.params
+let pp_signature (ppf : Fmt.t) (m : t) : unit =
+  let pp_pxs ppf pxs = Fmt.(pp_lst !>", " Id.pp) ppf pxs in
+  Fmt.fmt ppf "macro %a(%a)" Id.pp m.it.mn pp_pxs m.it.pxs
 
-let pp_simple (ppf : Fmt.t) (macro : t) : unit =
-  Fmt.fmt ppf "%a { ..." pp_signature macro
+let pp_simple (ppf : Fmt.t) (m : t) : unit =
+  Fmt.fmt ppf "%a { ..." pp_signature m
 
-let pp (ppf : Fmt.t) (macro : t) : unit =
-  Fmt.fmt ppf "%a %a" pp_signature macro EStmt.pp macro.it.body
+let pp (ppf : Fmt.t) (m : t) : unit =
+  Fmt.fmt ppf "%a %a" pp_signature m EStmt.pp m.it.s
 
-let str (macro : t) : string = Fmt.str "%a" pp macro [@@inline]
+let str (m : t) : string = Fmt.str "%a" pp m [@@inline]

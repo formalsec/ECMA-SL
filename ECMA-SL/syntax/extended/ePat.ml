@@ -9,13 +9,13 @@ module PatVal = struct
     | Val of Value.t
     | None
 
-  let pp (ppf : Fmt.t) (patval : t) : unit =
-    match patval.it with
+  let pp (ppf : Fmt.t) (pv : t) : unit =
+    match pv.it with
     | Var x -> Fmt.pp_str ppf x
     | Val v -> Value.pp ppf v
     | None -> Fmt.pp_str ppf "None"
 
-  let str (patval : t) : string = Fmt.str "%a" pp patval [@@inline]
+  let str (pv : t) : string = Fmt.str "%a" pp pv [@@inline]
 end
 
 type t = t' Source.t
@@ -30,7 +30,7 @@ let pp (ppf : Fmt.t) (pat : t) : unit =
   | ObjPat pbs -> Fmt.fmt ppf "{ %a }" Fmt.(pp_lst !>", " pp_bind) pbs
   | DefaultPat -> Fmt.pp_str ppf "default"
 
-let str (pattern : t) : string = Fmt.str "%a" pp pattern [@@inline]
+let str (pat : t) : string = Fmt.str "%a" pp pat [@@inline]
 
 let patval_opt (pat : t) (id : Id.t) : PatVal.t option =
   let find_pn (pn, _) = Id.equal id pn in
