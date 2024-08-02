@@ -30,13 +30,13 @@ let default : unit -> t =
   let dlft = Skip @> none in
   fun () -> dlft
 
-let rec pp (ppf : Fmt.t) (stmt : t) : unit =
+let rec pp (ppf : Fmt.t) (s : t) : unit =
   let pp_vs pp_v ppf es = Fmt.(pp_lst !>", " pp_v) ppf es in
   let pp_indent pp_v ppf = Fmt.fmt ppf "@\n@[<v 2>  %a@]@\n" pp_v in
-  match stmt.it with
+  match s.it with
   | Skip -> ()
   | Merge -> ()
-  | Debug s -> Fmt.fmt ppf "# %a" pp s
+  | Debug s' -> Fmt.fmt ppf "# %a" pp s'
   | Block ss -> Fmt.fmt ppf "{%a}" (pp_indent Fmt.(pp_lst !>";@\n" pp)) ss
   | Print e -> Fmt.fmt ppf "print %a" Expr.pp e
   | Return e ->
@@ -73,12 +73,12 @@ let rec pp (ppf : Fmt.t) (stmt : t) : unit =
     let pp ppf (css, dflt) = Fmt.fmt ppf "%a%a" pp_css css pp_dflt dflt in
     Fmt.fmt ppf "switch (%a) {%a}" Expr.pp e (pp_indent pp) (css, dflt)
 
-let pp_simple (ppf : Fmt.t) (stmt : t) : unit =
-  match stmt.it with
+let pp_simple (ppf : Fmt.t) (s : t) : unit =
+  match s.it with
   | Block _ -> Fmt.fmt ppf "{ ... }"
   | If (e, _, _) -> Fmt.fmt ppf "if (%a) { ..." Expr.pp e
   | While (e, _) -> Fmt.fmt ppf "while (%a) { ..." Expr.pp e
   | Switch (e, _, _) -> Fmt.fmt ppf "switch (%a) { ..." Expr.pp e
-  | _ -> pp ppf stmt
+  | _ -> pp ppf s
 
-let str (stmt : t) : string = Fmt.str "%a" pp stmt [@@inline]
+let str (s : t) : string = Fmt.str "%a" pp s [@@inline]

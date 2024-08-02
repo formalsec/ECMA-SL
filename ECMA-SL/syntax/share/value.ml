@@ -27,4 +27,4 @@ let pp_custom_val (pp_v : Fmt.t -> t -> unit) (ppf : Fmt.t) (v : t) : unit =
   | _ -> Log.fail "Val.pp_custom_val: unexpected value '%a'" pp v
 
 let rec pp (ppf : Fmt.t) (v : t) : unit = pp_custom_val pp ppf v
-let str (v : t) : string = Fmt.str "%a" pp v
+let str (v : t) : string = Fmt.str "%a" pp v [@@inline]
