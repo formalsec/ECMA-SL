@@ -3,9 +3,6 @@ open EslSyntax
 
 type t = Source.at
 
-let none () : t = Source.none [@@inline]
-let at (el : 'a Source.t) : t = el.at [@@inline]
-
 module ErrSrcFmt (ErrorType : Error_type.ERROR_TYPE) = struct
   type location =
     { file : string

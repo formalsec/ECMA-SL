@@ -1,5 +1,3 @@
-type stmt_eval = Monitor.stmt_eval
-
 module type M = sig
   module Tracer : Tracer.M
   module Debugger : Debugger.M

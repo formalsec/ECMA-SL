@@ -23,9 +23,10 @@
   eParsing_helper
   ; concrete interpreter
   interpreter
+  interpreter_base
+  interpreter_tooling
   eval_op
   external
-  instrument
   ; concrete interpreter (domains)
   store
   heap

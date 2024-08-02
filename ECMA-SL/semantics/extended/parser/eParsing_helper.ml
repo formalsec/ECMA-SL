@@ -8,21 +8,21 @@ module Prog = struct
     let tn = EType.TDef.name tdef in
     match Hashtbl.find_opt p.tdefs tn.it with
     | None -> Hashtbl.replace p.tdefs tn.it tdef
-    | Some _ -> Compile_error.(throw ~src:(ErrSrc.at tn) (DuplicatedTDef tn))
+    | Some _ -> Compile_error.(throw ~src:tn.at (DuplicatedTDef tn))
 
   let parse_func (func : EFunc.t) (p : t) : unit =
     let fn = EFunc.name func in
     match Hashtbl.find_opt p.funcs fn.it with
     | None -> Hashtbl.replace p.funcs fn.it func
-    | Some _ -> Compile_error.(throw ~src:(ErrSrc.at fn) (DuplicatedFunc fn))
+    | Some _ -> Compile_error.(throw ~src:fn.at (DuplicatedFunc fn))
 
   let parse_macro (macro : EMacro.t) (p : t) : unit =
     let mn = EMacro.name macro in
     match Hashtbl.find_opt p.macros mn.it with
     | None -> Hashtbl.replace p.macros mn.it macro
-    | Some _ -> Compile_error.(throw ~src:(ErrSrc.at mn) (DuplicatedMacro mn))
+    | Some _ -> Compile_error.(throw ~src:mn.at (DuplicatedMacro mn))
 
-  let parse_p (imports : EImport.t list) (parsers : (t -> unit) list) : t =
+  let parse_prog (imports : EImport.t list) (parsers : (t -> unit) list) : t =
     let p = { (default ()) with imports } in
     List.iter (fun el_parser -> el_parser p) parsers;
     p
@@ -33,7 +33,7 @@ module Func = struct
     (Id.t * EType.t option) list =
     let check_dups checked (px, _) =
       if not (Hashtbl.mem checked px.it) then Hashtbl.replace checked px.it ()
-      else Compile_error.(throw ~src:(ErrSrc.at px) (DuplicatedParam px))
+      else Compile_error.(throw ~src:px.at (DuplicatedParam px))
     in
     List.iter (check_dups (Hashtbl.create (List.length tpxs))) tpxs;
     tpxs
@@ -43,12 +43,12 @@ module Expr = struct
   open EExpr
 
   let parse_return_expr (e : t option) : t =
-    Option.value ~default:(Val (Value.App (`Op "void", [])) @> none) e
+    Option.value ~default:(Val (Value.void ()) @> none) e
 
   let parse_object_fields (flds : (Id.t * t) list) : (Id.t * t) list =
     let check_dups checked (fn, _) =
       if not (Hashtbl.mem checked fn.it) then Hashtbl.replace checked fn.it ()
-      else Compile_error.(throw ~src:(ErrSrc.at fn) (DuplicatedField fn))
+      else Compile_error.(throw ~src:fn.at (DuplicatedField fn))
     in
     List.iter (check_dups (Hashtbl.create (List.length flds))) flds;
     flds
@@ -61,7 +61,7 @@ module Type = struct
     let parse_tobjfld_f tflds (fn, ft, fs) =
       if not (Hashtbl.mem tflds fn.it) then
         Hashtbl.replace tflds fn.it (fn, ft, fs)
-      else Compile_error.(throw ~src:(ErrSrc.at fn) (DuplicatedTField fn))
+      else Compile_error.(throw ~src:fn.at (DuplicatedTField fn))
     in
     let retrieve_smry_field tflds =
       let make_smry (fn, ft, _) = (fn, ft) in
@@ -80,18 +80,18 @@ module Type = struct
       match Hashtbl.find_opt ot.flds dsc.it with
       | Some (_, ({ it = LiteralType (LitStrong, lt); _ } as tdsc), _) ->
         if not (Hashtbl.mem checked lt) then Hashtbl.replace checked lt ()
-        else throw ~src:(ErrSrc.at tdsc) (DuplicatedSigmaDiscriminant tdsc)
-      | Some (_, t', _) -> throw ~src:(ErrSrc.at t') UnexpectedSigmaDiscriminant
+        else throw ~src:tdsc.at (DuplicatedSigmaDiscriminant tdsc)
+      | Some (_, t', _) -> throw ~src:t'.at UnexpectedSigmaDiscriminant
       | None -> throw ~src:at (MissingSigmaDiscriminant dsc)
     in
     let parse_case_f checked = function
       | { it = ObjectType ot; at } -> parse_dsc checked ot at
-      | t' -> throw ~src:(ErrSrc.at t') UnexpectedSigmaCase
+      | t' -> throw ~src:t'.at UnexpectedSigmaCase
     in
     let sigma_cases = function
       | { it = UnionType ts; _ } -> ts
       | { it = ObjectType _; _ } as t -> [ t ]
-      | t' -> throw ~src:(ErrSrc.at t') UnexpectedSigmaCase
+      | t' -> throw ~src:t'.at UnexpectedSigmaCase
     in
     let ts = sigma_cases t in
     List.iter (parse_case_f (Hashtbl.create (List.length ts))) ts;
