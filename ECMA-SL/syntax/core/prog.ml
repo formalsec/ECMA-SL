@@ -10,14 +10,10 @@ let create (fs : Func.t list) : t =
   p
 
 let funcs (p : t) : (Id.t', Func.t) Hashtbl.t = p [@@inline]
-let func_opt (p : t) (fn : Id.t') : Func.t option = Hashtbl.find_opt p fn
-
-let func (p : t) (fn : Id.t') : (Func.t, string) Result.t =
-  match func_opt p fn with
-  | Some f -> Result.ok f
-  | None -> Result.error (Fmt.str "Cannot find function '%s'." fn)
+let func (p : t) (fn : Id.t') : Func.t option = Hashtbl.find_opt p fn [@@inline]
 
 let add_func (p : t) (fn : Id.t') (f : Func.t) : unit = Hashtbl.replace p fn f
+[@@inline]
 
 let pp (ppf : Fmt.t) (p : t) : unit =
   let pp_func ppf (_, f) = Func.pp ppf f in

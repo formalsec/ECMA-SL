@@ -5,7 +5,7 @@ type store = Value.t Store.t
 type heap = Value.t Heap.t
 
 let op_err (_arg : int) (op_lbl : string) (rterr : Runtime_error.msg) : 'a =
-  try Runtime_error.(throw ~src:(ErrSrc.none ()) rterr)
+  try Runtime_error.(throw ~src:Source.none rterr)
   with Runtime_error.Error err ->
     Runtime_error.(push (OpEvalExn op_lbl) err |> raise)
 

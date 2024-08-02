@@ -22,11 +22,11 @@ module BreakpointInjector = struct
     let open Call_stack in
     match pop stack with
     | (Toplevel _, _) -> (stack, cont)
-    | (Intermediate (loc, restore), stack') ->
-      let (func, _) = Call_stack.location loc in
-      let (store, cont', retvar) = Call_stack.restore restore in
+    | (Intermediate (cursor, restore), stack') ->
+      let { f; _ } = cursor in
+      let { store; cont = cont'; retvar } = restore in
       let (stack'', cont'') = inject_debug_innerscope stack' cont' in
-      (push stack'' func store cont'' retvar, cont)
+      (push stack'' f store cont'' retvar, cont)
 end
 
 module type M = sig

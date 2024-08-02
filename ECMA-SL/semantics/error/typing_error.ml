@@ -136,11 +136,9 @@ type t =
 exception Error of t
 
 let raise (err : t) : 'a = Stdlib.raise_notrace (Error err)
+let create ?(src : ErrSrc.t = Source.none) (msgs : msg list) : t = { msgs; src }
 
-let create ?(src : ErrSrc.t = ErrSrc.none ()) (msgs : msg list) : t =
-  { msgs; src }
-
-let throw ?(src : ErrSrc.t = ErrSrc.none ()) (msg : msg) : 'a =
+let throw ?(src : ErrSrc.t = Source.none) (msg : msg) : 'a =
   raise @@ create ~src [ msg ]
 
 let push (msg : msg) (err : t) : t = { err with msgs = msg :: err.msgs }

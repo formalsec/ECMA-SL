@@ -53,7 +53,7 @@ let rec type_check ?(congruency : bool = false) (tref : t) (tsrc : t) : unit =
   | (false, _, NeverType) -> ()
   | (false, _, LiteralType _) -> check_literal_subtyping tref tsrc
   | (_, _, _) ->
-    Typing_error.(throw ~src:(ErrSrc.at tsrc) (terr_msg congruency tref tsrc))
+    Typing_error.(throw ~src:tsrc.at (terr_msg congruency tref tsrc))
 
 and is_typeable ?(congruency : bool = false) (tref : t) (tsrc : t) : bool =
   try type_check ~congruency tref tsrc |> fun () -> true
@@ -74,8 +74,8 @@ and check_literal_subtyping (tref : t) (tsrc : t) : unit =
   | (SymbolType, LiteralType (_, SymbolLit _)) -> ()
   | (_, LiteralType (LitWeak, lt)) when wide_literal tref ->
     let tsrc = EType.tliteral_to_wide lt @?> tsrc.at in
-    Typing_error.(throw ~src:(ErrSrc.at tsrc) (terr_msg false tref tsrc))
-  | _ -> Typing_error.(throw ~src:(ErrSrc.at tsrc) (terr_msg false tref tsrc))
+    Typing_error.(throw ~src:tsrc.at (terr_msg false tref tsrc))
+  | _ -> Typing_error.(throw ~src:tsrc.at (terr_msg false tref tsrc))
 
 and check_object (congruency : bool) (tref : t) (tsrc : t) : unit =
   let check_object_type otref otsrc =
@@ -95,7 +95,7 @@ and check_object_fields (congruency : bool) (tobjkind : EType.tobjkind)
   ((sfn, sft, sfs) : Id.t * EType.t * EType.tfldstyle) : unit =
   let is_obj = function ObjectType _ -> true | _ -> false in
   let fld_congruency rft = Source.(tobjkind == ObjSto && not (is_obj rft.it)) in
-  let fld_err msg = Typing_error.(throw ~src:(ErrSrc.at sfn) msg) in
+  let fld_err msg = Typing_error.(throw ~src:sfn.at msg) in
   let tfldref = Hashtbl.find_opt tobjref.flds sfn.it in
   match (congruency, tfldref, tobjref.smry) with
   | (true, None, _) -> fld_err (ExtraField sfn)
@@ -172,7 +172,7 @@ and check_union_congruency (tref : EType.t) (tsrc : EType.t) : unit =
     try ignore (List.find (is_typeable ~congruency:true t) ts)
     with Not_found ->
       let err_src = if isref then t else ttar in
-      Typing_error.(throw ~src:(ErrSrc.at err_src) (BadCongruency (ttar, t)))
+      Typing_error.(throw ~src:err_src.at (BadCongruency (ttar, t)))
   in
   let is_congruent tsref tssrc =
     if not (has_any tsref || has_any tssrc) then (
@@ -204,7 +204,7 @@ and check_union_subtyping_ref (tref : EType.t) (tsrc : EType.t) : unit =
   | UnionType tsref -> (
     try ignore (List.find (is_typeable_f tsrc) tsref)
     with Not_found ->
-      Typing_error.(throw ~src:(ErrSrc.at tsrc)) (BadSubtyping (tref, tsrc)) )
+      Typing_error.(throw ~src:tsrc.at) (BadSubtyping (tref, tsrc)) )
   | _ -> Log.fail "expecting union type ref"
 
 and check_sigma (congruency : bool) (tref : t) (tsrc : t) : unit =
@@ -224,7 +224,7 @@ and check_sigma (congruency : bool) (tref : t) (tsrc : t) : unit =
 
 and check_sigma_discriminant (dscref : Id.t) (dscsrc : Id.t) =
   if not (String.equal dscref.it dscsrc.it) then
-    Typing_error.(throw ~src:(ErrSrc.at dscsrc) IncompatibleSigmaDiscriminant)
+    Typing_error.(throw ~src:dscsrc.at IncompatibleSigmaDiscriminant)
 
 and combine_sigma_cases (at : Source.at) (congruency : bool)
   (cssref : (t * t) list) (csssrc : (t * t) list) : (t * t * t) list =
@@ -232,7 +232,7 @@ and combine_sigma_cases (at : Source.at) (congruency : bool)
   let find_cs (tdscsrc, tcssrc) =
     try snd (List.find (match_cs_f tdscsrc) cssref)
     with Not_found ->
-      Typing_error.(throw ~src:(ErrSrc.at tcssrc) (ExtraSigmaCase tdscsrc))
+      Typing_error.(throw ~src:tcssrc.Source.at (ExtraSigmaCase tdscsrc))
   in
   let check_missing_css (tdscref, _) =
     if not (List.exists (match_cs_f tdscref) csssrc) then
@@ -267,5 +267,4 @@ and match_sigma_case (cssref : (t * t) list) ((tdscsrc, tsrc) : t * t) : t =
   let open Typing_error in
   let match_cs_f tdsc1 (tdsc2, _) = EType.equal tdsc1 tdsc2 in
   try snd (List.find (match_cs_f tdscsrc) cssref)
-  with Not_found ->
-    throw ~src:(ErrSrc.at tsrc) (UnknownSigmaCaseDiscriminant tdscsrc)
+  with Not_found -> throw ~src:tsrc.at (UnknownSigmaCaseDiscriminant tdscsrc)

@@ -8,7 +8,6 @@ type msg =
   | Custom of string
   | Failure of string
   | Unexpected of string
-  | UnexpectedExitVal of Value.t
   | UncaughtExn of string
   | OpEvalExn of string
   | UnknownVar of Id.t'
@@ -33,7 +32,6 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
     | (Custom msg1', Custom msg2') -> String.equal msg1' msg2'
     | (Failure msg1', Failure msg2') -> String.equal msg1' msg2'
     | (Unexpected msg1', Unexpected msg2') -> String.equal msg1' msg2'
-    | (UnexpectedExitVal v1, UnexpectedExitVal v2) -> Value.equal v1 v2
     | (UncaughtExn msg1', UncaughtExn msg2') -> String.equal msg1' msg2'
     | (OpEvalExn oplbl1, OpEvalExn oplbl2) -> String.equal oplbl1 oplbl2
     | (UnknownVar x1, UnknownVar x2) -> String.equal x1 x2
@@ -57,7 +55,6 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
     | Custom msg' -> fmt ppf "%s" msg'
     | Failure msg -> fmt ppf "Failure: %s" msg
     | Unexpected msg -> fmt ppf "Unexpected %s." msg
-    | UnexpectedExitVal v -> fmt ppf "Unexpected exit value '%a'." Value.pp v
     | UncaughtExn msg -> fmt ppf "Uncaught exception: %s" msg
     | OpEvalExn oplbl -> fmt ppf "Operator evaluation exception: %s" oplbl
     | UnknownVar x -> fmt ppf "Cannot find variable '%s'." x
@@ -93,11 +90,11 @@ exception Error of t
 
 let raise (err : t) : 'a = Stdlib.raise_notrace (Error err) [@@inline]
 
-let create ?(src : ErrSrc.t = ErrSrc.none ()) (msgs : msg list) : t =
+let create ?(src : ErrSrc.t = Source.none) (msgs : msg list) : t =
   { msgs; src; trace = None }
 [@@inline]
 
-let throw ?(src : ErrSrc.t = ErrSrc.none ()) (msg : msg) : 'a =
+let throw ?(src : ErrSrc.t = Source.none) (msg : msg) : 'a =
   raise @@ create ~src [ msg ]
 [@@inline]
 

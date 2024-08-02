@@ -1,6 +1,12 @@
 include Smtml.Value
 open EslBase
 
+let void () : t = App (`Op "void", []) [@@inline]
+let null () : t = App (`Op "null", []) [@@inline]
+let undefined () : t = App (`Op "symbol", [ Str "undefined" ]) [@@inline]
+let loc (l : Loc.t) : t = App (`Op "loc", [ Int l ]) [@@inline]
+let symbol (s : string) : t = App (`Op "symbol", [ Str s ]) [@@inline]
+
 let is_special_number (s : string) : bool =
   List.mem s [ "nan"; "inf"; "-inf" ]
   || String.contains s 'e'
@@ -21,7 +27,7 @@ let pp_custom_val (pp_v : Fmt.t -> t -> unit) (ppf : Fmt.t) (v : t) : unit =
   | List lst -> Fmt.(fmt ppf "[%a]" (pp_lst !>", " pp_v) lst)
   | App (`Op "void", []) -> ()
   | App (`Op "null", []) -> Fmt.fmt ppf "null"
-  | App (`Op "loc", [ Int l ]) -> Loc.pp ppf l
+  | App (`Op "loc", [ Int loc ]) -> Loc.pp ppf loc
   | App (`Op "symbol", [ Str s ]) -> Fmt.fmt ppf "'%s" s
   | App (`Op fn, fvs) -> Fmt.(fmt ppf "{%S}@(%a)" fn (pp_lst !>", " pp_v) fvs)
   | _ -> Log.fail "Val.pp_custom_val: unexpected value '%a'" pp v

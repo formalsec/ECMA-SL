@@ -6,17 +6,17 @@ let create : unit -> t =
   let (next, _) = Base.make_counter 0 1 in
   next
 
-let equal (l1 : t) (l2 : t) : bool = l1 == l2 [@@inline]
-let hash (l : t) : int = l [@@inline]
-let pp (ppf : Fmt.t) (l : t) : unit = Fmt.fmt ppf "$loc_%d" l [@@inline]
-let str (l : t) : string = Fmt.str "%a" pp l [@@inline]
+let equal (loc1 : t) (loc2 : t) : bool = loc1 == loc2 [@@inline]
+let hash (loc : t) : int = loc [@@inline]
+let pp (ppf : Fmt.t) (loc : t) : unit = Fmt.fmt ppf "$loc_%d" loc [@@inline]
+let str (loc : t) : string = Fmt.str "%a" pp loc [@@inline]
 
 module Tbl = struct
   include Hashtbl.Make (struct
     type t = int
 
-    let equal (l1 : t) (l2 : t) : bool = equal l1 l2
-    let hash (l : t) : int = hash l
+    let equal (loc1 : t) (loc2 : t) : bool = equal loc1 loc2
+    let hash (loc : t) : int = hash loc
   end)
 
   let pp (pp_sep : Fmt.t -> unit) (pp_v : Fmt.t -> 'a * 'b -> unit)

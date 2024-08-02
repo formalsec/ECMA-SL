@@ -118,51 +118,52 @@ module InterpreterInstrument = struct
 
   let monitor () : (module Monitor.M) = (module Monitor.Default : Monitor.M)
 
-  let intrument (instrument : Options.instrument) : (module Instrument.M) =
+  let intrument (instrument : Options.instrument) :
+    (module Interpreter_tooling.M) =
     let module Tracer = (val tracer instrument.tracer) in
     let module Debugger = (val debugger instrument.debugger) in
     let module Profiler = (val profiler instrument.profiler) in
     let module Monitor = (val monitor ()) in
-    (module Instrument.Default (Tracer) (Debugger) (Profiler) (Monitor))
+    (module Interpreter_tooling.Default (Tracer) (Debugger) (Profiler) (Monitor))
 end
 
-let interpret_partial (entry : Interpreter.entry) (config : Options.config)
-  (prog : Prog.t) : Interpreter.result =
+let interpret_partial (entry : Interpreter.IEntry.t) (config : Options.config)
+  (prog : Prog.t) : Interpreter.IResult.t =
   let instrument = config.instrument in
   let module Instrument = (val InterpreterInstrument.intrument instrument) in
-  let module Interpreter = Interpreter.M (Instrument) in
-  Interpreter.Config.print_depth := config.print_depth;
-  Interpreter.Config.resolve_exitval := config.resolve_exitval;
-  Interpreter.Config.show_exitval := config.show_exitval;
-  Interpreter.eval_prog entry prog
+  let module ConcreteInterpreter = Interpreter.M (Instrument) in
+  Interpreter.IConfig.print_depth := config.print_depth;
+  Interpreter.IConfig.resolve_exitval := config.resolve_exitval;
+  Interpreter.IConfig.show_exitval := config.show_exitval;
+  ConcreteInterpreter.eval_prog entry prog
 
-let interpret (entry : Interpreter.entry) (config : Options.config)
-  (prog : Prog.t) : Interpreter.result Result.t =
+let interpret (entry : Interpreter.IEntry.t) (config : Options.config)
+  (prog : Prog.t) : Interpreter.IResult.t Result.t =
   Result.esl_exec @@ fun () ->
   let result = interpret_partial entry config prog in
   let retval = result.retval in
   Log.debug "Sucessfuly evaluated program with return '%a'." Value.pp retval;
   Ok result
 
-let interpret_cesl (entry : Interpreter.entry) (config : Options.config)
-  (file : Fpath.t) : Interpreter.result Result.t =
+let interpret_cesl (entry : Interpreter.IEntry.t) (config : Options.config)
+  (file : Fpath.t) : Interpreter.IResult.t Result.t =
   let* p = Cmd_compile.load file in
   interpret entry config p
 
-let interpret_esl (entry : Interpreter.entry) (config : Options.config)
-  (untyped : bool) (file : Fpath.t) : Interpreter.result Result.t =
+let interpret_esl (entry : Interpreter.IEntry.t) (config : Options.config)
+  (untyped : bool) (file : Fpath.t) : Interpreter.IResult.t Result.t =
   let* p = Cmd_compile.compile untyped file in
   interpret entry config p
 
 let log_metrics (profiler : Enums.InterpProfiler.t)
-  (result : Interpreter.result Result.t) : unit Result.t =
+  (result : Interpreter.IResult.t Result.t) : unit Result.t =
   match result with
   | Ok result' -> Ok (InterpreterMetrics.log profiler result'.metrics)
   | Error _ as err -> err
 
 let run () (opts : Options.t) : unit Result.t =
   let valid_langs = Enums.Lang.valid_langs Options.langs opts.lang in
-  let entry = { (Interpreter.entry_default ()) with main = opts.main } in
+  let entry = { (Interpreter.IEntry.default ()) with main = opts.main } in
   log_metrics opts.config.instrument.profiler
   @@
   match Enums.Lang.resolve_file_lang valid_langs opts.input with
