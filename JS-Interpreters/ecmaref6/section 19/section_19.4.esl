@@ -141,7 +141,10 @@ function SymbolConstructor(global, this, NewTarget, strict, args) {
   if (NewTarget != 'undefined)
     throw TypeErrorConstructorInternal();
   /* 2. If description is undefined, let descString be undefined. */
-  if (description == null || description == 'undefined) descString := 'undefined; else descString := ToString(description);
+  if (description == null || description == 'undefined) 
+    descString := 'undefined; 
+  else 
+    descString := ToString(description);
   /* 3. ReturnIfAbrupt(descString). */
   @ReturnIfAbrupt(descString);
   /* 4. Return a new unique Symbol value whose [[Description]] value is descString. */

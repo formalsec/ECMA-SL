@@ -78,7 +78,6 @@ function ProxyConstructor(global, this, NewTarget, strict, args) {
 */
 
 function initProxyPrototype(global, objectPrototype, strict) {
-
   prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
   setAllInternalMethodsOfOrdinaryObject(prototype);
 

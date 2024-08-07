@@ -13,7 +13,7 @@ function isAnAbruptCompletion (completion) {
 
 /* Auxiliary functions created for the purposes of accessing the values of the triple that form the completion type. */
 function isErrorCompletion(completion) {
-  if ((Type(completion) == "Completion"))
+  if (Type(completion) == "Completion")
     return (getCompletionType(completion) == 'throw);
   return false;
 }
@@ -43,5 +43,5 @@ function throwEmptyCompletion(V) {
 }
 
 function isCompletionRecord(record) {
-  return (Type(record) == "Completion");
+  return Type(record) == "Completion";
 }

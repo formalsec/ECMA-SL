@@ -904,7 +904,7 @@ function TypedArrayFrom(constructor, items, mapfn, thisArg, strict) {
       }
     }
     /* f. Let len be the number of elements in values. */
-    len := int_to_float l_len(values);
+    len := (int_to_float l_len(values));
     /* g. Let targetObj be AllocateTypedArray(C, len). */
     targetObj := AllocateTypedArray(C, len, strict);
     /* h. ReturnIfAbrupt(targetObj). */

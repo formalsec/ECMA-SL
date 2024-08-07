@@ -6,7 +6,12 @@
 */
 function RequireObjectCoercible(argument) {
 	switch(Type(argument)) {
-		case "Completion":  if (isAnAbruptCompletion(argument) == true) return argument; else return RequireObjectCoercible(getCompletionValue(input));
+		case "Completion": {
+      if (isAnAbruptCompletion(argument) == true)
+        return argument;
+      else
+        return RequireObjectCoercible(getCompletionValue(input));
+    }
 		case "Undefined":   throw TypeErrorConstructorInternal();
 		case "Null":        throw TypeErrorConstructorInternal();
 		case "Boolean":     return argument;
@@ -23,28 +28,26 @@ function RequireObjectCoercible(argument) {
  * The abstract operation IsArray takes one argument argument, and performs the following steps:
 */
 function IsArray(argument) {
-    /* If Type(argument) is not Object, return false. */
-    if (Type(argument) != "Object")
-    	return false;
-
-    /* If argument is an Array exotic object, return true.  */
-    if (isArrayExoticObject(argument))
-      return true;
-
-    /* If argument is a Proxy exotic object, then */
-    if (IsProxy(argument)) {
-      /* a. If the value of the [[ProxyHandler]] internal slot of argument is null, throw a TypeError exception. */
-      if (argument.ProxyHandler == 'null)
-        throw TypeErrorConstructorInternal();
-      /* b. Let target be the value of the [[ProxyTarget]] internal slot of argument. */
-      target := argument.ProxyTarget;
-      /* c. Return IsArray(target). */
-      return IsArray(target);
-    }
-
-    /* Return false. */
+  /* If Type(argument) is not Object, return false. */
+  if (Type(argument) != "Object")
     return false;
+  /* If argument is an Array exotic object, return true.  */
+  if (isArrayExoticObject(argument))
+    return true;
+  /* If argument is a Proxy exotic object, then */
+  if (IsProxy(argument)) {
+    /* a. If the value of the [[ProxyHandler]] internal slot of argument is null, throw a TypeError exception. */
+    if (argument.ProxyHandler == 'null)
+      throw TypeErrorConstructorInternal();
+    /* b. Let target be the value of the [[ProxyTarget]] internal slot of argument. */
+    target := argument.ProxyTarget;
+    /* c. Return IsArray(target). */
+    return IsArray(target);
+  }
+  /* Return false. */
+  return false;
 }
+
 function isArrayExoticObject(arr) {
   if (inJSProperties(arr, "length")) {
     len := getJSProperty(arr, "length");
@@ -56,10 +59,8 @@ function isArrayExoticObject(arr) {
   } else {
     return false;
   }
-
   if (arr.DefineOwnProperty != "ArrayDefineOwnProperty")
     return false;
-
   return true;
 }
 
@@ -108,10 +109,10 @@ function IsConstructor(argument) {
  * the object that is O. A Boolean value is returned. This abstract operation performs the following steps:
 */
 function IsExtensible(O) {
-    /* Assert: Type(O) is Object. */
-    assert (Type(O) == "Object" );
-    /* Return O.[[IsExtensible]](). */
-    return {O.IsExtensible}(O);
+  /* Assert: Type(O) is Object. */
+  assert (Type(O) == "Object");
+  /* Return O.[[IsExtensible]](). */
+  return {O.IsExtensible}(O);
 }
 
 
@@ -123,12 +124,12 @@ function IsInteger(argument) {
   if (Type(argument) != "Number")
     return false;
   /* 3. If argument is NaN, +∞, or −∞, return false. */
-  if ((is_NaN (argument)) || (argument == Infinity) || (argument == -Infinity))
+  if (is_NaN (argument) || argument == Infinity || argument == -Infinity)
     return false;
   /* 4. If floor(abs(argument)) ≠ abs(argument), return false. */
   if (floor(abs(argument)) != abs(argument))
     return false;
-    /* If floor(abs(argument)) ≠ abs(argument), return false. */
+  /* If floor(abs(argument)) ≠ abs(argument), return false. */
 	if (floor(abs(argument)) != abs(argument))
 		return false;
   /* Return true. */
@@ -195,7 +196,7 @@ function SameValue (x, y) {
   /* 4. If Type(x) is Number, then. */
   if (typeX == "Number") {
     /* a. If x is NaN and y is NaN, return true. */
-    if ((is_NaN (x)) && (is_NaN (y)))   return true;
+    if (is_NaN(x) && is_NaN(y))         return true;
     /* b. If x is +0 and y is -0, return false. */
     if (isZero(x) && isMinusZero(y))    return false;
     /* c. If x is -0 and y is +0, return false. */
@@ -236,7 +237,7 @@ function SameValueZero(x, y) {
   /* 4. If Type(x) is Number, then. */
   if (typeX == "Number") {
     /* a. If x is NaN and y is NaN, return true. */
-    if ((is_NaN (x)) && (is_NaN (y)))   return true;
+    if (is_NaN(x) && is_NaN (y))        return true;
     /* b. If x is +0 and y is -0, return false. */
     if (isZero(x) && isMinusZero(y))    return true;
     /* c. If x is -0 and y is +0, return false. */
@@ -405,7 +406,7 @@ function AbstractEqualityComparison(x, y) {
 function StrictEqualityComparison(x, y) {
   tx := Type(x);
   /* 1. If Type(x) is different from Type(y), */
-    if (tx != Type(y))
+  if (tx != Type(y))
     /* return false */
     return false;
   /* 2. If Type(x) is Undefined, */

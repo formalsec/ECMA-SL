@@ -660,9 +660,8 @@ function jsonStringify(global, this, NewTarget, strict, args) {
       i := i + 1.;
     }
     gap := s_concat(lst);
-  }
   /* 7. Else if Type(space) is String */
-  else {
+  } else {
     if (Type(space) == "String") {
       /* a. If the number of elements in space is 10 or less, set gap to space otherwise set gap to a String consisting of the first 10 elementss of space. */
       spaceLen := s_len_u (space);

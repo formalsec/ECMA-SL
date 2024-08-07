@@ -128,7 +128,7 @@ function OrdinaryCallBindThis (F, calleeContext, thisArgument) {
   localEnv := calleeContext.LexicalEnvironment;
   /* 5. If thisMode is strict, let thisValue be thisArgument.  */
   if (thisMode == "strict") {
-      thisValue := thisArgument;
+    thisValue := thisArgument;
   /* 6. Else  */
   } else {
     if (thisArgument == 'undefined ||| thisArgument == 'null) {
@@ -189,8 +189,7 @@ function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
   kind := F.ConstructorKind;
   /* 5. If kind is "base", then */
   if (kind == "base") {
-    /* a. Let thisArgument be OrdinaryCreateFromConstructor(newTarget,
-       "%ObjectPrototype%"). */
+    /* a. Let thisArgument be OrdinaryCreateFromConstructor(newTarget, "%ObjectPrototype%"). */
     thisArgument := OrdinaryCreateFromConstructor(newTarget, "ObjectPrototype", []);
     /* b. ReturnIfAbrupt(thisArgument). */
     @ReturnIfAbrupt(thisArgument);
@@ -304,7 +303,10 @@ function FunctionAllocate(functionPrototype, strict, functionKind) {
   /* 13. Set the [[Extensible]] internal slot of F to true. */
   F.Extensible := true;
   /* 14. Set the [[Realm]] internal slot of F to the running execution context's Realm. */
-  if (!execStackIsEmpty()) F.Realm := topExecStack().Realm; else F.Realm := null;
+  if (!execStackIsEmpty())
+    F.Realm := topExecStack().Realm;
+  else 
+    F.Realm := null;
   /* 15. Return F. */
   return F;
 }
@@ -320,15 +322,16 @@ function FunctionAllocate(functionPrototype, strict, functionKind) {
  * following steps:
  */
 function FunctionInitialize(F, kind, ParameterList, Body, Scope) {
-  /* 1. Assert: F is an extensible object that does not have a length own
-     property. */
+  /* 1. Assert: F is an extensible object that does not have a length own property. */
   assert (F.Extensible == true &&& !("length" in_obj F));
   /* 2. Let len be the ExpectedArgumentCount of ParameterList. */
   paramsDetails := getParamsDetails(Body);
-  if (paramsDetails == false) len := l_len(ParameterList); else len := ExpectedArgumentCount(paramsDetails);
-  /* 3. Let status be DefinePropertyOrThrow(F, "length",
-     PropertyDescriptor{[[Value]]: len, [[Writable]]: false,
-     [[Enumerable]]: false, [[Configurable]]: true}). */
+  if (paramsDetails == false)
+    len := l_len(ParameterList);
+  else
+    len := ExpectedArgumentCount(paramsDetails);
+  /* 3. Let status be DefinePropertyOrThrow(F, "length", PropertyDescriptor{[[Value]]: len, 
+    [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: true}). */
   status := DefinePropertyOrThrow(F, "length", newDataPropertyDescriptorFull(int_to_float len, false, false, true));
   setInternalProperty(F, "internalLength", int_to_float len);
   /* 4. Assert: status is not an abrupt completion. */
@@ -467,17 +470,15 @@ function MakeConstructor(F, writablePrototype, prototype) {
   if (prototype == null) {
     /* a. Let prototype be ObjectCreate(%ObjectPrototype%). */
     prototype := ObjectCreate(getObjectPrototype(false), null);
-    /* b. Let status be DefinePropertyOrThrow(prototype, "constructor",
-       PropertyDescriptor{[[Value]]: F, [[Writable]]: writablePrototype,
-       [[Enumerable]]: false, [[Configurable]]: true }). */
+    /* b. Let status be DefinePropertyOrThrow(prototype, "constructor", PropertyDescriptor{[[Value]]: F, 
+      [[Writable]]: writablePrototype, [[Enumerable]]: false, [[Configurable]]: true }). */
     status := DefinePropertyOrThrow(prototype, "constructor", newDataPropertyDescriptorFull(F, writablePrototype, false, true));
 	  /* c. Assert: status is not an abrupt completion. */
     assert(!isAnAbruptCompletion(status));
   }
 
-  /* 6. Let status be DefinePropertyOrThrow(F, "prototype",
-     PropertyDescriptor{[[Value]]: prototype, [[Writable]]:
-     writablePrototype, [[Enumerable]]: false, [[Configurable]]: false}). */
+  /* 6. Let status be DefinePropertyOrThrow(F, "prototype", PropertyDescriptor{[[Value]]: prototype, 
+    [[Writable]]: writablePrototype, [[Enumerable]]: false, [[Configurable]]: false}). */
   status := DefinePropertyOrThrow(F, "prototype", newDataPropertyDescriptorFull(prototype, writablePrototype, false, false));
   /* 7. Assert: status is not an abrupt completion. */
   assert (!isAnAbruptCompletion(status));
@@ -555,9 +556,8 @@ function SetFunctionName(F, name, prefix) {
     name := s_concat([prefix, " ", name]);
   }
 
-  /* 6. Return DefinePropertyOrThrow(F, "name", PropertyDescriptor{[[Value]]:
-     name, [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]:
-     true}). */
+  /* 6. Return DefinePropertyOrThrow(F, "name", PropertyDescriptor{[[Value]]: name, 
+    [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: true}). */
   name_property := DefinePropertyOrThrow(F, "name", newDataPropertyDescriptorFull(name, false, false, true));
 
   /* 7. Assert: the result is never an abrupt completion. */
@@ -601,7 +601,10 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   /* 7. Let parameterNames be the BoundNames of formals. */
   parameterNames := getParamsNamesInFromFunction(code);
   /* 8. If parameterNames has any duplicate entries, let hasDuplicates be true. Otherwise, let hasDuplicates be false. */
-  if (parametersHasDuplicates(parameterNames) == true) hasDuplicates := true; else hasDuplicates := false;
+  if (parametersHasDuplicates(parameterNames) == true)
+    hasDuplicates := true;
+  else 
+    hasDuplicates := false;
   /* 9. Let simpleParameterList be IsSimpleParameterList of formals. */
   simpleParameterList := getIsSimpleParameterListFromFunction(code);
   /* 10. Let hasParameterExpressions be ContainsExpression of formals. */
@@ -706,7 +709,6 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   else
     /* a. Let formalStatus be IteratorBindingInitialization for formals with iteratorRecord and env as arguments. */
     formalStatus := IteratorBindingInitialization(paramsDetails, iteratorRecord, calleeContext, func);
-
 
   /* 26. ReturnIfAbrupt(formalStatus). */
   @ReturnIfAbrupt(formalStatus);
@@ -824,7 +826,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
         /* 1. Let status be lexEnvRec.CreateMutableBinding(dn, false). */
         status := {lexEnvRec.CreateMutableBinding}(lexEnvRec, d.name, false);
     /* c. Assert: status is never an abrupt completion. */
-    assert(!isAnAbruptCompletion(status));
+    assert (!isAnAbruptCompletion(status));
   }
 
   /* 36. For each parsed grammar phrase f in functionsToInitialize, do */
@@ -837,7 +839,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
     status := {varEnvRec.SetMutableBinding}(varEnvRec, fn, fo, false);
     setBindingDeletable(varEnvRec, fn, false);
     /* Assert: status is never an abrupt completion. */
-    assert(!(isAnAbruptCompletion(status)));
+    assert (!(isAnAbruptCompletion(status)));
   }
 
   /* 37. Return NormalCompletion(empty). */

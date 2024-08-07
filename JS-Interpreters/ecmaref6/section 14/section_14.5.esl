@@ -82,7 +82,10 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
   /* 8. If ClassBodyopt is not present, let constructor be empty. */
   /* 9. Else, let constructor be ConstructorMethod of ClassBody. */
   allMethods := getSeparateMethods(ClassBodyopt.body);
-  if (allMethods.constructor == 'empty) constructor := 'empty; else constructor := allMethods.constructor.value;
+  if (allMethods.constructor == 'empty)
+    constructor := 'empty; 
+  else
+    constructor := allMethods.constructor.value;
   /* 10. If constructor is empty, then, */
       /* 10a. If ClassHeritageopt is present, then */
           /* 10a i. Let constructor be the result of parsing the source text
@@ -97,7 +100,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
   /* 12. Let constructorInfo be the result of performing DefineMethod for constructor with arguments proto and constructorParent as the optional functionPrototype argument. */
   constructorInfo := DefineMethodAlt(scope, proto, constructor, constructorParent); /* Original function not finished */
   /* 13. Assert: constructorInfo is not an abrupt completion. */
-  assert (!(isAnAbruptCompletion(constructorInfo)));
+  assert (!isAnAbruptCompletion(constructorInfo));
   /* 14. Let F be constructorInfo.[[closure]] */
   F := constructorInfo.closure;
   /* Because of section 16.1 of the ES6 standard */
@@ -151,7 +154,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
 */
 function BindingClassDeclarationEvaluation(ClassDeclaration, scope) {
   match ClassDeclaration with
-  | {id: BindingIdentifier, body: ClassTail, superClass: ClassHeritage} -> {
+  | { id: BindingIdentifier, body: ClassTail, superClass: ClassHeritage } -> {
     /* ClassDeclaration : class BindingIdentifier ClassTail */
     /* 1. Let className be StringValue of BindingIdentifier. */
     className := BindingIdentifier.name;
@@ -175,7 +178,7 @@ function BindingClassDeclarationEvaluation(ClassDeclaration, scope) {
     /* 10. Return value. */
     return value;
   }
-  | {id: null, body: ClassTail, superClass: ClassHeritage} -> {
+  | { id: null, body: ClassTail, superClass: ClassHeritage } -> {
     /* ClassDeclaration : class ClassTail */
     /* 1. Return the result of ClassDefinitionEvaluation of ClassTail with argument undefined. */
     return ClassDefinitionEvaluation(scope, 'undefined, ClassHeritage, ClassTail);

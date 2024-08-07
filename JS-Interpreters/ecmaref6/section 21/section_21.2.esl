@@ -244,8 +244,14 @@ function RegExpConstructorAsFunction(externalScope, this, NewTarget, strict, arg
 */
 function RegExpConstructor(externalScope, ref, F, args, NewTarget) {
   n_args := l_len(args);
-  if (n_args >= 1) pattern := l_nth(args, 0); else pattern := 'undefined;
-  if (n_args >= 2) flags := l_nth(args, 1); else flags := 'undefined;
+  if (n_args >= 1)
+    pattern := l_nth(args, 0);
+  else
+    pattern := 'undefined;
+  if (n_args >= 2)
+    flags := l_nth(args, 1);
+  else
+    flags := 'undefined;
   /* 1. Let patternIsRegExp be IsRegExp(pattern). */
   patternIsRegExp := IsRegExp(pattern);
   /* 2. ReturnIfAbrupt(patternIsRegExp). */
@@ -567,7 +573,10 @@ function RegExpBuiltinExec(R, S) {
   /* 12. Let flags be the value of R’s [[OriginalFlags]] internal slot. */
   flags := R.OriginalFlags.flags;
   /* 13. If flags contains "u", let fullUnicode be true, else let fullUnicode be false. */
-  if (includes(flags, "u", 0., 1., int_to_float(s_len_u (flags))) == true) fullUnicode := true; else fullUnicode := false;
+  if (includes(flags, "u", 0., 1., int_to_float(s_len_u (flags))) == true)
+    fullUnicode := true;
+  else
+    fullUnicode := false;
   /* 14. Let matchSucceeded be false. */
   matchSucceeded := false;
   /* 15. Repeat, while matchSucceeded is false */

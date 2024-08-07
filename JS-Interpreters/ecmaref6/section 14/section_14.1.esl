@@ -11,7 +11,10 @@ function InstantiateFunctionObject(f, scope, realm) {
   | { id: Identifier, params: FormalParameters, body: FunctionBody } -> {
     /* 1. If the function code for FunctionDeclaration is strict mode code,
     let strict be true. Otherwise let strict be false. */
-    if (isStrictModeCode(FunctionBody, scope)) strict := true; else strict := false;
+    if (isStrictModeCode(FunctionBody, scope))
+      strict := true; 
+    else 
+      strict := false;
     /* 2. Let name be StringValue of BindingIdentifier. */
     name := StringValue(Identifier.name);
     /* 3. Let F be FunctionCreate(Normal, FormalParameters, FunctionBody, scope, strict). */

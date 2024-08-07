@@ -29,7 +29,7 @@ function ScriptEvaluation(script, realm) {
     /* Let result be the result of evaluating ScriptBody. */
     result := JS_Interpreter_SourceElements(ScriptBody, scriptCtx);
   /* If result.[[type]] is normal and result.[[value]] is empty, then */
-  if ( getCompletionType(result) == 'normal &&& getCompletionValue(result) == 'empty )
+  if (getCompletionType(result) == 'normal &&& getCompletionValue(result) == 'empty)
     /* Let result be NormalCompletion(undefined). */
     result := NormalCompletion('undefined');
   /* Suspend scriptCxt and remove it from the execution context stack. */
@@ -256,7 +256,7 @@ function ScriptEvaluationJob(sourceText) {
       number and ordering of reported errors is implementation dependent but at least one error must be reported. */
 
   /* If code is an error indication, then */
-  if ( sourceText.type == "EarlySyntaxError" )  {
+  if (sourceText.type == "EarlySyntaxError")  {
     /* Report or log the error(s) in an implementation dependent manner. */
     /* ver como reportar/log */
     if (sourceText.message == "Invalid left-hand side in assignment")

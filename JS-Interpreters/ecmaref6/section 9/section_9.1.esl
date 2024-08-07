@@ -30,7 +30,7 @@ function setAllInternalMethodsOfOrdinaryObject(obj) {
 /** See 9.1.6.3 */
 function EveryFieldIsAbsent(Desc) {
   list := GetProps(Desc);
-  return ((l_len(list)) == 0);
+  return (l_len(list)) == 0;
 }
 
 /* main functions */
@@ -71,15 +71,14 @@ function OrdinaryObjectSetPrototypeOf(O, V) {
   /* Repeat while done is false, */
   while (done == false) {
     /* If p is null, let done be true. */
-    if ( p == 'null) {
+    if (p == 'null) {
       done := true;
     }
     /* Else, if SameValue(p, O) is true, return false. */
     else if (SameValue(p, O) == true) {
       return false;
-    }
     /* Else, */
-    else {
+    } else {
       /* If the [[GetPrototypeOf]] internal method of p is not the ordinary object internal method defined in 9.1.1, let done be true. */
       if (p.GetPrototypeOf != "OrdinaryObjectGetPrototypeOf")
         done := true;
@@ -88,12 +87,10 @@ function OrdinaryObjectSetPrototypeOf(O, V) {
         p := p.Prototype;
     }
   }
-
   /* Set the value of the [[Prototype]] internal slot of O to V. */
   O.Prototype := V;
   /* Return true. */
   return true;
-
   /* NOTE The loop in step 8 guarantees that there will be no circularities in any prototype chain that only
      includes objects that use the ordinary object definitions for [[GetPrototypeOf]] and [[SetPrototypeOf]].
 	*/
@@ -115,10 +112,10 @@ function OrdinaryObjectIsExtensible(O) {
  * When the [[PreventExtensions]] internal method of O is called the following steps are taken:
 */
 function OrdinaryObjectPreventExtensions(O) {
-    /* Set the value of the [[Extensible]] internal slot of O to false. */
-    O.Extensible := false;
-    /* Return true. */
-    return true;
+  /* Set the value of the [[Extensible]] internal slot of O to false. */
+  O.Extensible := false;
+  /* Return true. */
+  return true;
 }
 
 /**
@@ -129,16 +126,13 @@ function OrdinaryObjectPreventExtensions(O) {
 function OrdinaryGetOwnProperty(O, P) {
   /* Assert: IsPropertyKey(P) is true. */
   assert (IsPropertyKey(P) == true);
-
   /* If O does not have an own property with key P, return undefined. */
   if (!inJSProperties(O, P))
     return 'undefined;
-
   /* Let D be a newly created Property Descriptor with no fields. */
   D := NewPropertyDescriptor();
   /* Let X be O’s own property whose key is P. */
   X := getJSProperty(O, P);
-
   /* If X is a data property, then */
   if (IsDataDescriptor(X)) {
     /* Set D.[[Value]] to the value of X’s [[Value]] attribute. */
@@ -152,7 +146,6 @@ function OrdinaryGetOwnProperty(O, P) {
     /* Set D.[[Set]] to the value of X’s [[Set]] attribute. */
     D.Set := X.Set;
   }
-
   /* Set D.[[Enumerable]] to the value of X’s [[Enumerable]] attribute. */
   D.Enumerable := X.Enumerable;
   /* Set D.[[Configurable]] to the value of X’s [[Configurable]] attribute. */
@@ -226,7 +219,7 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
       value as the corresponding field in current when compared using the SameValue algorithm.
   */
   if (SameValue(current, Desc) == true)
-      return true;
+    return true;
 
   /* If the [[Configurable]] field of current is false, then */
   if (current.Configurable == false) {
@@ -241,7 +234,7 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
   }
 
   /* If IsGenericDescriptor(Desc) is true, no further validation is required. */
-  if (IsGenericDescriptor(Desc));
+  if (IsGenericDescriptor(Desc)) {}
   /* Else if IsDataDescriptor(current) and IsDataDescriptor(Desc) have different results, then */
   else if (IsDataDescriptor(current) != IsDataDescriptor(Desc)) {
     /* Return false, if the [[Configurable]] field of current is false. */
@@ -271,9 +264,8 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
       /* TODO */
       /* convertAccessorPropertyDescToDataPropertyDesc(O, P) */
     }
-  }
   /* Else if IsDataDescriptor(current) and IsDataDescriptor(Desc) are both true, then */
-  else if ((IsDataDescriptor(current) == true) &&& (IsDataDescriptor(Desc) == true)) {
+  } else if ((IsDataDescriptor(current) == true) &&& (IsDataDescriptor(Desc) == true)) {
     /* If the [[Configurable]] field of current is false, then */
     if (current.Configurable == false) {
       /* Return false, if the [[Writable]] field of current is false and the [[Writable]] field of Desc is true. */
@@ -285,9 +277,8 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
           if (("Value" in_obj Desc) &&& (SameValue(Desc.Value, current.Value) == false))
             return false;
       }
-    }
     /* Else the [[Configurable]] field of current is true, so any change is acceptable. */
-    else {}
+    } else {}
   /* Else IsAccessorDescriptor(current) and IsAccessorDescriptor(Desc) are both true, */
   } else {
       /* If the [[Configurable]] field of current is false, then */
@@ -374,11 +365,9 @@ function OrdinaryHasProperty(O, P) {
     assert (IsPropertyKey(P) == true);
     /* Let hasOwn be OrdinaryGetOwnProperty(O, P). */
     hasOwn := OrdinaryGetOwnProperty(O, P);
-
     /* If hasOwn is not undefined, return true. */
     if (hasOwn != 'undefined)
     	return true;
-
     /* Let parent be O.[[GetPrototypeOf]](). */
     parent := {O.GetPrototypeOf}(O);
     /* ReturnIfAbrupt(parent). */
@@ -388,7 +377,6 @@ function OrdinaryHasProperty(O, P) {
       /* Return parent.[[HasProperty]](P). */
       return {parent.HasProperty}(parent, P);
     }
-
     /* Return false. */
     return false;
 }
@@ -410,35 +398,34 @@ function OrdinaryObjectHasProperty(O, P) {
  * the following steps are taken:
 */
 function OrdinaryObjectGet(O, P, Receiver) {
-    /* Assert: IsPropertyKey(P) is true. */
-    assert (IsPropertyKey(P) == true );
-    /* Let desc be O.[[GetOwnProperty]](P). */
-    desc := {O.GetOwnProperty}(O,P);
-    /* ReturnIfAbrupt(desc). */
-    @ReturnIfAbrupt(desc);
-    /* If desc is undefined, then */
-    if (desc == 'undefined ) {
-      /* Let parent be O.[[GetPrototypeOf]](). */
-      parent := {O.GetPrototypeOf}(O);
-      /* ReturnIfAbrupt(parent). */
-      @ReturnIfAbrupt(parent);
-      /* If parent is null, return undefined. */
-      if (parent == 'null)
-        return 'undefined;
-      /* Return parent.[[Get]](P, Receiver). */
-      return {parent.Get}(parent, P, Receiver);
-    }
-
-    /* If IsDataDescriptor(desc) is true, return desc.[[Value]]. */
-    if (IsDataDescriptor(desc) == true)
-    	return desc.Value;
-    /* Otherwise, IsAccessorDescriptor(desc) must be true so, let getter be desc.[[Get]]. */
-    getter := desc.Get;
-    /* If getter is undefined, return undefined. */
-    if (getter == 'undefined)
-    	return 'undefined;
-    /* Return Call(getter, Receiver). */
-    return Call(null, null, getter, Receiver, null);
+  /* Assert: IsPropertyKey(P) is true. */
+  assert (IsPropertyKey(P) == true );
+  /* Let desc be O.[[GetOwnProperty]](P). */
+  desc := {O.GetOwnProperty}(O,P);
+  /* ReturnIfAbrupt(desc). */
+  @ReturnIfAbrupt(desc);
+  /* If desc is undefined, then */
+  if (desc == 'undefined ) {
+    /* Let parent be O.[[GetPrototypeOf]](). */
+    parent := {O.GetPrototypeOf}(O);
+    /* ReturnIfAbrupt(parent). */
+    @ReturnIfAbrupt(parent);
+    /* If parent is null, return undefined. */
+    if (parent == 'null)
+      return 'undefined;
+    /* Return parent.[[Get]](P, Receiver). */
+    return {parent.Get}(parent, P, Receiver);
+  }
+  /* If IsDataDescriptor(desc) is true, return desc.[[Value]]. */
+  if (IsDataDescriptor(desc) == true)
+    return desc.Value;
+  /* Otherwise, IsAccessorDescriptor(desc) must be true so, let getter be desc.[[Get]]. */
+  getter := desc.Get;
+  /* If getter is undefined, return undefined. */
+  if (getter == 'undefined)
+    return 'undefined;
+  /* Return Call(getter, Receiver). */
+  return Call(null, null, getter, Receiver, null);
 }
 
 /**
@@ -503,7 +490,7 @@ function OrdinaryObjectSet(O, P, V, Receiver) {
   }
 
   /* Assert: IsAccessorDescriptor(ownDesc) is true. */
-  assert (IsAccessorDescriptor(ownDesc) == true );
+  assert (IsAccessorDescriptor(ownDesc) == true);
   /* Let setter be ownDesc.[[Set]]. */
   setter := ownDesc.Set;
   /* If setter is undefined, return false. */
@@ -524,7 +511,7 @@ function OrdinaryObjectSet(O, P, V, Receiver) {
 */
 function OrdinaryObjectDelete(O, P) {
   /* Assert: IsPropertyKey(P) is true. */
-  assert (IsPropertyKey(P) == true );
+  assert (IsPropertyKey(P) == true);
   /* Let desc be O.[[GetOwnProperty]](P). */
   desc := {O.GetOwnProperty}(O,P);
   /* ReturnIfAbrupt(desc). */
@@ -581,22 +568,21 @@ function OrdinaryObjectEnumerateAux(O) {
   ownKeys := {O.OwnPropertyKeys}(O);
 
   foreach (k : ownKeys) {
-    if ((typeof (k)) == "string") {
-    /*if (Type(k) == "String") {*/
+    if (typeof k == "string") {
       desc_k := {O.GetOwnProperty}(O, k);
       visited[k] := true;
       if (isEnumerablePropertyDescriptor(desc_k))
-        retKeys := l_add (retKeys, k);
+        retKeys := l_add(retKeys, k);
     }
   }
 
   proto := O.Prototype;
-  if ((proto != 'null) &&& (proto != 'undefined)) {
+  if (proto != 'null &&& proto != 'undefined) {
     protoKeys := OrdinaryObjectEnumerateAux(proto);
     foreach (k : protoKeys) {
       if (!(k in_obj visited)) {
         visited[k] := true;
-        retKeys := l_add (retKeys, k);
+        retKeys := l_add(retKeys, k);
       }
     }
   }
@@ -635,37 +621,35 @@ function ObjectIteratorConstructor(properties, Obj) {
   iterator.ObjectNextIndex := 0;
   /* 6. Set iterator’s [[SetIterationKind]] internal slot to kind. */
   iterator.IteratedProperties := properties;
-
   return iterator;
 }
 
 function objectIteratorPrototypeNext(global, this, NewTarget, strict, args) {
-
-    /* 1. Let O be the this value. */
-    O := this;
-    /* 2. If Type(O) is not Object, throw a TypeError exception. */
-    if (Type(O) != "Object")
-      throw TypeErrorConstructorInternal();
-    /* 4. Let s be the value of the [[IteratedSet]] internal slot of O. */
-    s := O.IteratedObject;
-    /* 5. Let index be the value of the [[SetNextIndex]] internal slot of O. */
-    index := O.ObjectNextIndex;
-    /* 9. Let entries be the List that is the value of the [[SetData]] internal slot of s. */
-    entries := O.IteratedProperties;
-    /* 10. Repeat while index is less than the total number of elements of entries. The number of elements must be redetermined each time this method is evaluated. */
-    len := l_len(entries);
-    while (index < len) {
-      /* a. Let e be entries[index]. */
-      e := l_nth(entries, index);
-      /* b. Set index to index+1; */
-      index := index + 1;
-      /* c. Set the [[SetNextIndex]] internal slot of O to index. */
-      O.ObjectNextIndex := index;
-      if ({O.IteratedObject.HasProperty}(O.IteratedObject, e))
-        return CreateIterResultObject(e, false);
-    }
-    /* 12. Return CreateIterResultObject(undefined, true). */
-    return CreateIterResultObject('undefined, true);
+  /* 1. Let O be the this value. */
+  O := this;
+  /* 2. If Type(O) is not Object, throw a TypeError exception. */
+  if (Type(O) != "Object")
+    throw TypeErrorConstructorInternal();
+  /* 4. Let s be the value of the [[IteratedSet]] internal slot of O. */
+  s := O.IteratedObject;
+  /* 5. Let index be the value of the [[SetNextIndex]] internal slot of O. */
+  index := O.ObjectNextIndex;
+  /* 9. Let entries be the List that is the value of the [[SetData]] internal slot of s. */
+  entries := O.IteratedProperties;
+  /* 10. Repeat while index is less than the total number of elements of entries. The number of elements must be redetermined each time this method is evaluated. */
+  len := l_len(entries);
+  while (index < len) {
+    /* a. Let e be entries[index]. */
+    e := l_nth(entries, index);
+    /* b. Set index to index+1; */
+    index := index + 1;
+    /* c. Set the [[SetNextIndex]] internal slot of O to index. */
+    O.ObjectNextIndex := index;
+    if ({O.IteratedObject.HasProperty}(O.IteratedObject, e))
+      return CreateIterResultObject(e, false);
+  }
+  /* 12. Return CreateIterResultObject(undefined, true). */
+  return CreateIterResultObject('undefined, true);
 }
 
 
@@ -678,33 +662,27 @@ function objectIteratorPrototypeNext(global, this, NewTarget, strict, args) {
 function OrdinaryObjectOwnPropertyKeys(O) {
   /* Let keys be a new empty List. */
   keys := [];
-
   /* aux lists */
   strings := [];
   symbols := [];
-
   /* For each own property key P of O that is an integer index, in ascending numeric index order */
   foreach (P : O.internalSlotsList) {
     if (IsArrayIndex(P)) {
       /* Add P as the last element of keys. */
       keys := l_add(keys, P);
-    }
     /* For each own property key P of O that is a String but is not an integer index, in property creation order */
-    else if (Type(P) == "String" &&& Type(P) != "Number" &&& in_list(P, obj_fields O.JSProperties)) {
-        /* Add P as the last element of keys. */
-        strings := l_add(strings, P);
-    }
+    } else if (Type(P) == "String" &&& Type(P) != "Number" &&& in_list(P, obj_fields O.JSProperties)) {
+      /* Add P as the last element of keys. */
+      strings := l_add(strings, P);
     /* For each own property key P of O that is a Symbol, in property creation order */
-    else if (in_list(P, (obj_fields O.SymbolKeys))) {
+    } else if (in_list(P, (obj_fields O.SymbolKeys))) {
       /* Add P as the last element of keys. */
       symbols := l_add(symbols, O.SymbolKeys[P]);
     }
   }
-
   keys := l_sort(keys);
   keys := l_concat(keys, strings);
   keys := l_concat(keys, symbols);
-
   /* Return keys.	*/
   return keys;
 }
@@ -718,24 +696,20 @@ function OrdinaryObjectOwnPropertyKeys(O) {
 function OrdinaryObjectOwnPropertyKeysUpdated(O) {
   /* Let keys be a new empty List. */
   keys := [];
-
   /* aux lists */
   strings := [];
   symbols := [];
-
   /* For each own property key P of O that is an integer index, in ascending numeric index order */
-  foreach ( P : O.internalSlotsList ) {
+  foreach (P : O.internalSlotsList) {
     if (IsArrayIndex(P))  {
       /* Add P as the last element of keys. */
       keys := l_add(keys, P);
-    }
     /* For each own property key P of O that is a String but is not an integer index, in property creation order */
-    else if (Type(P) == "String" &&& Type(P) != "Number" &&& in_list(P, obj_fields O.JSProperties)) {
+    } else if (Type(P) == "String" &&& Type(P) != "Number" &&& in_list(P, obj_fields O.JSProperties)) {
       /* Add P as the last element of keys. */
       strings := l_add(strings, P);
-    }
     /* For each own property key P of O that is a Symbol, in property creation order */
-    else if ( in_list(P, (obj_fields O.SymbolKeys)) ) {
+    } else if ( in_list(P, (obj_fields O.SymbolKeys)) ) {
       /* Add P as the last element of keys. */
       symbols := l_add(symbols, O.SymbolKeys[P]);
     }
@@ -744,7 +718,6 @@ function OrdinaryObjectOwnPropertyKeysUpdated(O) {
   keys := l_sort(keys);
   keys := l_concat(keys, strings);
   keys := l_concat(keys, symbols);
-
   /* Return keys.	*/
   return keys;
 }
@@ -763,10 +736,8 @@ function ObjectCreate(proto, internalSlotsList) {
   /* If internalSlotsList was not provided, let internalSlotsList be an empty List. */
   if (internalSlotsList == null)
     internalSlotsList := [];
-
   /* Let obj be a newly created object with an internal slot for each name in internalSlotsList. */
   obj := NewECMAScriptObject();
-
   l_internalSlotsList := l_len(internalSlotsList);
   i := 0;
   while (i < l_internalSlotsList) {
@@ -794,30 +765,28 @@ function ObjectCreate(proto, internalSlotsList) {
  * [[Prototype]]. This abstract operation performs the following steps:
 */
 function GetPrototypeFromConstructor(constructor, intrinsicDefaultProto) {
-    /* Assert: intrinsicDefaultProto is a String value that is this specification’s name of an intrinsic object. The
-    corresponding object must be an intrinsic that is intended to be used as the [[Prototype]] value of an object. */
-    assert ((typeof (intrinsicDefaultProto) == "string") &&& (isIntrinsic(intrinsicDefaultProto)));
-    /* Assert: IsConstructor (constructor) is true. */
-    assert (IsConstructor(constructor) == true);
-    /* Let proto be Get(constructor, "prototype"). */
-    proto := Get(constructor, "prototype");
-    /* ReturnIfAbrupt(proto). */
-    @ReturnIfAbrupt(proto);
-    /* If Type(proto) is not Object, then */
-    if (Type(proto) != "Object") {
-        /* Let realm be GetFunctionRealm(constructor). */
-        /* realm := GetFunctionRealm(constructor); */
+  /* Assert: intrinsicDefaultProto is a String value that is this specification’s name of an intrinsic object. The
+  corresponding object must be an intrinsic that is intended to be used as the [[Prototype]] value of an object. */
+  assert (typeof intrinsicDefaultProto == "string" &&& isIntrinsic(intrinsicDefaultProto));
+  /* Assert: IsConstructor (constructor) is true. */
+  assert (IsConstructor(constructor) == true);
+  /* Let proto be Get(constructor, "prototype"). */
+  proto := Get(constructor, "prototype");
+  /* ReturnIfAbrupt(proto). */
+  @ReturnIfAbrupt(proto);
+  /* If Type(proto) is not Object, then */
+  if (Type(proto) != "Object") {
+    /* Let realm be GetFunctionRealm(constructor). */
+    /* realm := GetFunctionRealm(constructor); */
 
-        /* ReturnIfAbrupt(realm). */
-        /* @ReturnIfAbrupt(realm); */
+    /* ReturnIfAbrupt(realm). */
+    /* @ReturnIfAbrupt(realm); */
 
-        /* Let proto be realm’s intrinsic object named intrinsicDefaultProto. */
-        proto := |Intrinsics|[intrinsicDefaultProto];
-    }
-
-    return proto;
-    /* Return proto. */
-
+    /* Let proto be realm’s intrinsic object named intrinsicDefaultProto. */
+    proto := |Intrinsics|[intrinsicDefaultProto];
+  }
+  /* Return proto. */
+  return proto;
 	/* NOTE If constructor does not supply a [[Prototype]] value, the default value that is used is obtained
 	from the Code Realm of the constructor function rather than from the running execution context. */
 }
@@ -832,15 +801,15 @@ function GetPrototypeFromConstructor(constructor, intrinsicDefaultProto) {
  * abstract operation performs the following steps:
 */
 function OrdinaryCreateFromConstructor(constructor, intrinsicDefaultProto, internalSlotsList) {
-    /* Assert: intrinsicDefaultProto is a String value that is this specification’s name of an intrinsic object. The
-    corresponding object must be an intrinsic that is intended to be used as the [[Prototype]] value of anobject. */
+  /* Assert: intrinsicDefaultProto is a String value that is this specification’s name of an intrinsic object. The
+  corresponding object must be an intrinsic that is intended to be used as the [[Prototype]] value of anobject. */
 
-    /* Let proto be GetPrototypeFromConstructor(constructor, intrinsicDefaultProto). */
-    proto := GetPrototypeFromConstructor(constructor, intrinsicDefaultProto);
-    /* ReturnIfAbrupt(proto). */
-    @ReturnIfAbrupt(proto);
-    /* Return ObjectCreate(proto, internalSlotsList).	*/
-    return ObjectCreate(proto, internalSlotsList);
+  /* Let proto be GetPrototypeFromConstructor(constructor, intrinsicDefaultProto). */
+  proto := GetPrototypeFromConstructor(constructor, intrinsicDefaultProto);
+  /* ReturnIfAbrupt(proto). */
+  @ReturnIfAbrupt(proto);
+  /* Return ObjectCreate(proto, internalSlotsList).	*/
+  return ObjectCreate(proto, internalSlotsList);
 }
 
 /* Auxiliary Functions */

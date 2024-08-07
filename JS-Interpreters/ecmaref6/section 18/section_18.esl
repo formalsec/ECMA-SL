@@ -220,7 +220,10 @@ function GlobalObjectParseInt(globalObject, this, NewTarget, strict, params) {
   }
   /* 11. If S contains any character that is not a radix-R digit, then let Z be the substring of S consisting of all
          characters before the first such character; otherwise, let Z be S. */
-  if (containsInvalidDigit(S, R)) Z := stripInvalidChars(S, R); else Z := S;
+  if (containsInvalidDigit(S, R))
+    Z := stripInvalidChars(S, R);
+  else
+    Z := S;
   /* 12. If Z is empty, return NaN. */
   if (Z == "")
     return NaN;
@@ -320,7 +323,7 @@ function GlobalObjectIsNaN(globalObject, this, NewTarget, strict, params) {
   /* 2. ReturnIfAbrupt(num). */
   @ReturnIfAbrupt(num);
   /* 3. If num is NaN, return true. */
-  if (is_NaN (num))
+  if (is_NaN(num))
     return true;
   /* 4. Otherwise, return false. */
   return false;
@@ -366,7 +369,7 @@ function parseAsProgram(progStr, strict) {
 /* FIXME: Remove this? */
 function optimizeInitGlobalObject(strict) {
   loc_global := null;
-  if ((typeof(strict) == "bool") &&& strict)
+  if (typeof strict == "bool" &&& strict)
     loc_global := extern loadInitialHeap("globalHeap_strict.json");
   else
     loc_global := extern loadInitialHeap("globalHeap.json");
@@ -456,7 +459,7 @@ function indexOfChar(char) {
   i := 0;
 
   while (i < 36) {
-    if (to_lower_case (char) == l_nth(chars, i))
+    if (to_lower_case(char) == l_nth(chars, i))
       return i;
     i := i + 1;
   }
@@ -494,4 +497,3 @@ function stripInvalidChars(str, radix) {
 
   return str;
 }
-

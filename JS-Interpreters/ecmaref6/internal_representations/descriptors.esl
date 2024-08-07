@@ -9,7 +9,6 @@ function newDataPropertyDescriptor(value) {
   desc.Writable := true;
   desc.Enumerable := true;
   desc.Configurable := true;
-
   return desc;
 }
 
@@ -19,7 +18,6 @@ function newDataPropertyDescriptorFull(value, writable, enumerable, configurable
   desc.Writable := writable;
   desc.Enumerable := enumerable;
   desc.Configurable := configurable;
-
   return desc;
 }
 
@@ -28,7 +26,6 @@ function newGetAccessorPropertyDescriptor(get) {
   desc.Get := get;
   desc.Enumerable := true;
   desc.Configurable := true;
-
   return desc;
 }
 
@@ -37,7 +34,6 @@ function newGetAccessorPropertyDescriptorFull(get, enumerable, configurable) {
   desc.Get := get;
   desc.Enumerable := enumerable;
   desc.Configurable := configurable;
-
   return desc;
 }
 
@@ -46,7 +42,6 @@ function newSetAccessorPropertyDescriptorFull(set, enumerable, configurable) {
   desc.Set := set;
   desc.Enumerable := enumerable;
   desc.Configurable := configurable;
-
   return desc;
 }
 
@@ -55,13 +50,11 @@ function newSetAccessorPropertyDescriptor(set) {
   desc.Set := set;
   desc.Enumerable := true;
   desc.Configurable := true;
-
   return desc;
 }
 
 function isEnumerablePropertyDescriptor(desc) {
   assert Type(desc) == "PropertyDescriptor";
-
   return desc.Enumerable;
 }
 
@@ -75,7 +68,6 @@ function newGetAndSetAccessorPropertyDescriptorFull(get, set, enumerable, config
   desc.Set := set;
   desc.Enumerable := enumerable;
   desc.Configurable := configurable;
-
   return desc;
 }
 

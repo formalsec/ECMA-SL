@@ -212,7 +212,7 @@ function NumberConstructorIsInteger(global, this, NewTarget, strict, items) {
   if (num == null ||| Type(num) != "Number")
     return false;
   /* 2. f number is NaN, +∞, or −∞, return false. */
-  if (is_NaN (num) ||| num == Infinity ||| num == -Infinity)
+  if (is_NaN(num) ||| num == Infinity ||| num == -Infinity)
     return false;
   /* 3. Let integer be ToInteger(number). */
   integer := ToInteger(num);
@@ -469,7 +469,10 @@ function NumberPrototypeToFixedAlt(global, this, NewTarget, strict, items) {
     /* b. If n == 0, let m be the String "0".
     Otherwise, let m be the String consisting of the digits
     of the decimal representation of n (in order, with no leading zeroes). */
-    if (n == 0) m := "0"; else m := float_to_string(n);
+    if (n == 0)
+      m := "0";
+    else
+      m := float_to_string(n);
     /* c. If f ≠ 0, then */
     if (f != 0.) {
       /* i. Let k be the number of elements in m. */
@@ -505,7 +508,10 @@ function NumberPrototypeToFixedAlt(global, this, NewTarget, strict, items) {
 function NumberPrototypeToLocaleString(global, this, NewTarget, strict, items) {
   if (!isNumberOrNumberObject(this))
     throw TypeErrorConstructorInternal();
-  if (Type(this) == "Number") num := this; else num := this.NumberData;
+  if (Type(this) == "Number")
+    num := this;
+      else
+    num := this.NumberData;
   return ToString(num);
 }
 
@@ -702,6 +708,6 @@ function NumberToString(m, radix) {
   /* If k ≤ n ≤ 21, return the String consisting of the code units of the k digits of the decimal representation of s (in order, with no leading zeroes), followed by n−k occurrences of the code unit 0x0030 (DIGIT ZERO). */
   /* If 0 < n ≤ 21, return the String consisting of the code units of the most significant n digits of the decimal representation of s, followed by the code unit 0x002E (FULL STOP), followed by the code units of the remaining k−n digits of the decimal representation of s. */
   /* If −6 < n ≤ 0, return the String consisting of the code unit 0x0030 (DIGIT ZERO), followed by the code unit 0x002E (FULL STOP), followed by −n occurrences of the code unit 0x0030 (DIGIT ZERO), followed by the code units of the k digits of the decimal representation of s. */
-  /* Otherwise, if k == 1, return the String consisting of the code unit of the single digit of s, followed by code unit 0x0065 (LATIN SMALL LETTER E), followed by the code unit 0x002B (PLUS SIGN) or the code unit 0x002D (HYPHEN-MINUS) according to whether n−1 is positive or negative, followed by the code units of the decimal representation of the integer abs(n−1) (with no leading zeroes). */
+  /* Otherwise, if k = 1, return the String consisting of the code unit of the single digit of s, followed by code unit 0x0065 (LATIN SMALL LETTER E), followed by the code unit 0x002B (PLUS SIGN) or the code unit 0x002D (HYPHEN-MINUS) according to whether n−1 is positive or negative, followed by the code units of the decimal representation of the integer abs(n−1) (with no leading zeroes). */
   /* Return the String consisting of the code units of the most significant digit of the decimal representation of s, followed by code unit 0x002E (FULL STOP), followed by the code units of the remaining k−1 digits of the decimal representation of s, followed by code unit 0x0065 (LATIN SMALL LETTER E), followed by code unit 0x002B (PLUS SIGN) or the code unit 0x002D (HYPHEN-MINUS) according to whether n−1 is positive or negative, followed by the code units of the decimal representation of the integer abs(n−1) (with no leading zeroes). */
 }

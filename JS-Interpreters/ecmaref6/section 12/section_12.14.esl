@@ -36,23 +36,23 @@ function applyOperator(operator, lval, rval) {
 
   if ((operator == "<<=") || (operator == ">>=") || (operator == ">>>=")) {
     /* Let lnum be ToInt32(lval). */
-    lnum := ToInt32(lval);
+    lnum := float_to_int ToInt32(lval);
     /* Let rnum be ToUint32(rval). */
     rnum := ToUint32(rval);
     /* Let shiftCount be the result of masking out all but the least significant 5 bits of rnum, that is,
        compute rnum & 0x1F. */
-    shiftCount := maskOutBits(rnum);
+    shiftCount := float_to_int maskOutBits(rnum);
     if (operator == "<<=")
       /* Return the result of left shifting lnum by shiftCount bits. The result is a signed 32-bit integer. */
-      return lnum << shiftCount;
+      return int_to_float (lnum << shiftCount);
     if (operator == ">>=")
       /* Return the result of performing a sign-extending right shift of lnum by shiftCount bits. The most
          significant bit is propagated. The result is a signed 32-bit integer. */
-      return lnum >> shiftCount;
+      return int_to_float (lnum >> shiftCount);
     if (operator == ">>>=")
       /* Return the result of performing a zero-filling right shift of lnum by shiftCount bits. Vacated bits are
         filled with zero. The result is an unsigned 32-bit integer. */
-      return lnum >>> shiftCount;
+      return int_to_float (lnum >>> shiftCount);
   }
 
   if ((operator == "&=") || (operator == "^=") || (operator == "|=")) {
