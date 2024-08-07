@@ -259,17 +259,15 @@ function JS_Interpreter_Expr(e, scope) {
       if (IsPropertyReference(ref) == true) {
         /* i. Let thisValue be GetThisValue(ref). */
         thisValue := GetThisValue(ref);
-      }
       /* b. Else, the base of ref is an Environment Record */
-      else {
+      } else {
         /* i.  Let refEnv be GetBase(ref). */
         refEnv := GetBase(ref);
-
         /* ii.  Let thisValue be refEnv.WithBaseObject(). */
         thisValue := {refEnv.WithBaseObject}(refEnv);
       }
+    /* 6. Else Type(ref) is not Reference, */
     } else {
-      /* 6. Else Type(ref) is not Reference, */
       /* a. Let thisValue be undefined. */
       thisValue := 'undefined;
     }
@@ -432,9 +430,8 @@ function JS_Interpreter_Expr(e, scope) {
     if (id == null) {
       /* let className be undefined */
       className := 'undefined;
-    }
     /* 2. Else, */
-    else {
+    } else {
       /* let className be StringValue of BindingIdentifier */
       className := StringValue(id.name);
     }
@@ -863,7 +860,8 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     /* 3. ReturnIfAbrupt(oldValue). */
     @ReturnIfAbrupt(oldValue);
     /* 4. Return the result of applying bitwise complement to oldValue. The result is a signed 32-bit integer. */
-    return ~oldValue;
+    oldValue' := float_to_int oldValue;
+    return int_to_float (~oldValue');
   }
   | { type: "UnaryExpression", operator: "!", argument: UnaryExpression } -> {
     /* 12.5.12 Logical NOT Operator ( ! ) */
@@ -1209,7 +1207,7 @@ function JS_Interpreter_PropertyName(PropertyName, scope, isComputed) {
   /* The production PropertyName : StringLiteral is evaluated as follows: */
   | { type: "Literal", value: Literal } -> {
     /* Return the SV of the StringLiteral. */
-    if (typeof (Literal) == "string")
+    if (typeof Literal == "string")
       return Literal;
     /* The production PropertyName : NumericLiteral is evaluated as follows: */
 
@@ -1245,7 +1243,10 @@ macro PropagateBlockLabelSet(Block, Stmts) {
   if ("labelSet" in_obj Block) {
     labelSet := Block.labelSet;
     first_stmt := l_nth(Stmts, 0);
-    if ("labelSet" in_obj first_stmt) first_stmt.labelSet := l_concat(first_stmt.labelSet, labelSet); else first_stmt.labelSet := labelSet;
+    if ("labelSet" in_obj first_stmt)
+      first_stmt.labelSet := l_concat(first_stmt.labelSet, labelSet);
+    else
+      first_stmt.labelSet := labelSet;
   }
 }
 
@@ -1259,7 +1260,7 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 13.2.13 Block */
 
     /* Block : { } */
-    if ((l_len(StatementList)) == 0) {
+    if (l_len(StatementList) == 0) {
     /* 1. Return NormalCompletion(empty). */
       return NormalCompletion('empty);
     }
@@ -1325,7 +1326,10 @@ function JS_Interpreter_Stmt(s, scope) {
     /* return NormalCompletion(GetValue(exprRef)) */
     exprValue := GetValue(exprRef);
     /*return NormalCompletion(exprValue);*/
-    if (Type(exprValue) == "Completion") return exprValue; else return NormalCompletion(exprValue);
+    if (Type(exprValue) == "Completion")
+      return exprValue;
+    else
+      return NormalCompletion(exprValue);
     /* 2. Return GetValue(exprRef). ES6 */
     /*return GetValue(exprRef)*/
     /* @ReturnIfAbrupt(exprRef);
@@ -2028,7 +2032,7 @@ function JS_Interpreter_BinExpr(e, scope) {
        dividend. */
     /* In the remaining cases, where neither an infinity, nor a zero, nor NaN is involved, the
        floating-point remainder r from a dividend n and a divisor d is defined by the mathematical
-       relation r == n  (d  q) where q is an integer that is negative only if n/d is negative and
+       relation r = n  (d  q) where q is an integer that is negative only if n/d is negative and
        positive only if n/d is positive, and whose magnitude is as large as possible without
        exceeding the magnitude of the true mathematical quotient of n and d. r is computed and
        rounded to the nearest representable value using IEEE 754 round -to-nearest mode. */
@@ -2142,7 +2146,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     shiftCount := maskOutBits(rnum);
     /* 12. Return the result of left shifting lnum by shiftCount bits. The result
       is a signed 32-bit integer. */
-    return lnum << shiftCount;
+    return int_to_float (float_to_int lnum << float_to_int shiftCount);
   }
   | { type: "BinaryExpression", operator: ">>", left: ShiftExpression, right: AdditiveExpression } -> {
     /* 12.8.4 The Signed Right Shift Operator ( >> ) */
@@ -2212,7 +2216,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     shiftCount := maskOutBits(rnum);
     /* 12. Return the result of left shifting lnum by shiftCount bits. The result
       is a signed 32-bit integer. */
-    return lnum >>> shiftCount;
+    return int_to_float (float_to_int lnum >>> float_to_int shiftCount);
   }
   /* 12.9 Relational Operators */
   /* The result of evaluating a relational operator is always of type Boolean, reflecting whether the relationship
@@ -2785,7 +2789,7 @@ function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, Defa
         R := JS_Interpreter_CaseClause(C, scope);
         /* 2. If R.[[value]] is not empty */
         if (getCompletionValue(R) != 'empty) {
-          /* let (V) = R.[[value]] */
+          /* let V = R.[[value]] */
           V := getCompletionValue(R);
         }
         /* 3. If R is an abrupt completion, */
@@ -2801,7 +2805,7 @@ function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, Defa
     return NormalCompletion(V);
   /* 9. Let R be the result of evaluating DefaultClause. */
   R := JS_Interpreter_CaseClause(DefaultClause, scope);
-  /* 10. If R.[[value]] is not empty, let (V) = R.[[value]]. */
+  /* 10. If R.[[value]] is not empty, let V = R.[[value]]. */
   if (getCompletionValue(R) != 'empty)
     V := getCompletionValue(R);
   /* 11. If R is an abrupt completion, return Completion(UpdateEmpty(R, V)). */
@@ -2811,7 +2815,7 @@ function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, Defa
   foreach(C : B) {
     /* a. Let R be the result of evaluating CaseClause C. */
     R := JS_Interpreter_CaseClause(C, scope);
-    /* b. If R.[[value]] is not empty, let (V) = R.[[value]]. */
+    /* b. If R.[[value]] is not empty, let V = R.[[value]]. */
     if (getCompletionValue(R) != 'empty)
       V := getCompletionValue(R);
     /* c. If R is an abrupt completion, return Completion(UpdateEmpty(R, V)). */
@@ -2881,7 +2885,7 @@ function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, Defa
           if (hasStatementList(C)) {
             /* a  Evaluate C‘s StatementList and let R be the result. */
             R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
-            /* b  If R.value is not empty, then let (V) = R.value. */
+            /* b  If R.value is not empty, then let V = R.value. */
             if (getCompletionValue(R) != 'empty)
               V := getCompletionValue(R);
             /* c  R is an abrupt completion, then return (R.type, V, R.target). */
@@ -2896,7 +2900,7 @@ function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, Defa
   if ((foundInB == false) && hasStatementList(DefaultClause)) {
     /* a. Evaluate the DefaultClause's StatementList and let R be the result. */
     R := JS_Interpreter_StmtList(getCaseClauseStatementList(DefaultClause), scope);
-    /* b. If R.value is not empty, then let (V) = R.value. */
+    /* b. If R.value is not empty, then let V = R.value. */
     if (getCompletionValue(R) != 'empty)
       V := getCompletionValue(R);
     /* c. If R is an abrupt completion, then return (R.type, V, R.target). */
@@ -2914,7 +2918,7 @@ function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, Defa
     if (hasStatementList(C)) {
       /* i. Evaluate C‘s StatementList and let R be the result. */
       R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
-      /* ii. If R.value is not empty, then let (V) = R.value. */
+      /* ii. If R.value is not empty, then let V = R.value. */
       if (getCompletionValue(R) != 'empty)
         V := getCompletionValue(R);
       /* iii. If R is an abrupt completion, then return (R.type, V, R.target). */
@@ -2991,9 +2995,9 @@ function JS_Interpreter_IterationStmt(IterationStatement, scope) {
         /* return Completion(UpdateEmpty(stmt, V)) */
         return Completion(UpdateEmpty(stmt, V));
       }
-      /* c. If stmt.[[value]] is not empty, let (V) = stmt.[[value]]. */
+      /* c. If stmt.[[value]] is not empty, let V = stmt.[[value]]. */
       if (getCompletionValue(stmt) != 'empty)
-        V := getCompletionValue(stmt);  
+        V := getCompletionValue(stmt);
       /* d. Let exprRef be the result of evaluating Expression. */
       exprRef := JS_Interpreter_Expr(Expression, scope);
       /* e. Let exprValue be GetValue(exprRef). */
@@ -3035,7 +3039,7 @@ function JS_Interpreter_IterationStmt(IterationStatement, scope) {
       }
       /* g. If stmt.[[value]] is not empty, */
       if (getCompletionValue(stmt) != 'empty) {
-        /* let (V) = stmt.[[value]] */
+        /* let V = stmt.[[value]] */
         V := getCompletionValue(stmt);
       }
     }
@@ -3087,7 +3091,7 @@ function JS_Interpreter_IterationStmt(IterationStatement, scope) {
     /* 2. Let loopEnv be NewDeclarativeEnvironment(oldEnv). */
     loopEnv := NewDeclarativeEnvironment(oldEnv);
     /* 3. Let isConst be the result of performing IsConstantDeclaration of LexicalDeclaration. */
-    /* isConst := (LexicalDeclaration.kind == "const") */
+    /* isConst := (LexicalDeclaration.kind = "const") */
     /* 4. Let boundNames be the BoundNames of LexicalDeclaration. */
     boundNames := lexicalDeclarations;
     /* 5. For each element dn of boundNames do */
@@ -3118,7 +3122,10 @@ function JS_Interpreter_IterationStmt(IterationStatement, scope) {
       return Completion(forDcl);
     }
     /* 9. If isConst is false, let perIterationLets be boundNames otherwise let perIterationLets be « ». */
-    if (isConst == false) perIterationLets := boundNames; else perIterationLets := [];
+    if (isConst == false) 
+      perIterationLets := boundNames; 
+    else
+      perIterationLets := [];
     /* 10. Let bodyResult be ForBodyEvaluation(the first Expression, the second Expression,
     Statement, perIterationLets, labelSet). */
     bodyResult := ForBodyEvaluation(Expression1, Expression2, Statement, perIterationLets, labelSet, scope);
@@ -3206,7 +3213,10 @@ function JS_Interpreter_LabelledStmt(LabelledStatement, scope) {
   match LabelledStatement : type with
   | { type: "LabeledStatement", label: LabelIdentifier, body: LabelledItem} -> {
     /* LabelledStatement : LabelIdentifier : LabelledItem */
-    if ("labelSet" in_obj LabelledStatement) labelSet := LabelledStatement.labelSet; else labelSet := [];
+    if ("labelSet" in_obj LabelledStatement)
+      labelSet := LabelledStatement.labelSet;
+    else
+      labelSet := [];
     /* 1. Let label be the StringValue of LabelIdentifier. */
     label := LabelIdentifier.name; /* StringValue(LabelIdentifier); */
     /* 2. Append label as an element of labelSet. */
@@ -3318,7 +3328,7 @@ function ForBodyEvaluation(test, increment, stmt, perIterationBindings, labelSet
     }
     /* d. If result.[[value]] is not empty, */
     if (getCompletionValue(result) != 'empty) {
-      /* let (V) = result.[[value]] */
+      /* let V = result.[[value]] */
       V := getCompletionValue(result);
     }
     /* e. Let status be CreatePerIterationEnvironment(perIterationBindings). */
@@ -3609,7 +3619,7 @@ function IsDestructuring(arg) {
  */
 function BindingInstantiation(ForDeclaration, environment) {
   /* 1. For each element name of the BoundNames of ForBinding do */
-  foreach(name : ForDeclaration.boundNames) {
+  foreach (name : ForDeclaration.boundNames) {
     /* a. If IsConstantDeclaration of LetOrConst is true, then */
     if (ForDeclaration.kind == "const") {
       /* i. Perform environment.CreateImmutableBinding(name, true). */

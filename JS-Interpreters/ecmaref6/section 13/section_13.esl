@@ -66,7 +66,7 @@ function BlockDeclarationInstantiation(code, env) {
         status := {env.CreateMutableBinding}(env, d.name, false);
       }
       /* iii. Assert: status is never an abrupt completion. */
-      assert(!isAnAbruptCompletion(status));
+      assert (!isAnAbruptCompletion(status));
     /* b. If d is a GeneratorDeclaration production or a FunctionDeclaration production, then */
       /* i. Let fn be the sole element of the BoundNames of d */
       /* ii. Let fo be the result of performing InstantiateFunctionObject for d with argument env. */
@@ -85,7 +85,7 @@ function getFunctionCode(F) {
 
 function DescriptorValueIsStrictFunction(desc) {
   F := desc.Value;
-  if (typeof (F) == "object")
+  if (typeof F == "object")
     return F.Strict;
   return false;
 }

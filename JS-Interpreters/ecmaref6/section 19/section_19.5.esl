@@ -76,7 +76,10 @@ When the Error function is called with argument message the following steps are 
 function ErrorConstructor(globalObject, this, NewTarget, strict, params) {
 	message := l_nth(params, 0);
   /* If NewTarget is undefined, let newTarget be the active function object, else let newTarget be NewTarget. */
-  if (NewTarget == 'undefined) newTarget := topExecStack().Function; else newTarget := NewTarget;
+  if (NewTarget == 'undefined)
+    newTarget := topExecStack().Function; 
+  else
+    newTarget := NewTarget;
   /* Let O be OrdinaryCreateFromConstructor(newTarget, "%ErrorPrototype%", «[[ErrorData]]»). */
   O := OrdinaryCreateFromConstructor(newTarget, "ErrorPrototype", ["ErrorData"]);
   /* ReturnIfAbrupt(O). */
@@ -325,10 +328,10 @@ function initNativeErrorPrototype(errorPrototypeObject, nativeErrorName) {
   nativeErrorPrototypeObject := NewECMAScriptObjectFull(errorPrototypeObject, "Object", true);
   setAllInternalMethodsOfOrdinaryObject(nativeErrorPrototypeObject);
 
-  /* 19.5.6.3.2 NativeError.prototype.message  */
+  /* 19.5.6.3.2 NativeError.prototype.message */
   setJSProperty(nativeErrorPrototypeObject, "message", newDataPropertyDescriptorFull("", true, false, true));
 
-  /* 19.5.6.3.3 NativeError.prototype.name  */
+  /* 19.5.6.3.3 NativeError.prototype.name */
   setJSProperty(nativeErrorPrototypeObject, "name", newDataPropertyDescriptorFull(nativeErrorName, true, false, true));
 
   return nativeErrorPrototypeObject;
@@ -341,21 +344,24 @@ When a NativeError function is called with argument message the following steps 
 */
 function NativeErrorConstructor(message, nativeErrorName, NewTarget) {
     /* If NewTarget is undefined, let newTarget be the active function object, else let newTarget be NewTarget. */
-    if (NewTarget == 'undefined) newTarget := topExecStack().Function; else newTarget := newTarget;
+    if (NewTarget == 'undefined)
+      newTarget := topExecStack().Function;
+    else
+      newTarget := NewTarget;
     /* Let O be OrdinaryCreateFromConstructor(newTarget, "%NativeErrorPrototype%", «[[ErrorData]]» ). */
     O := OrdinaryCreateFromConstructor(newTarget, nativeErrorName, ["ErrorData"]);
     /* ReturnIfAbrupt(O). */
     @ReturnIfAbrupt(O);
     /* If message is not undefined, then */
     if (message != 'undefined) {
-        /* Let msg be ToString(message). */
-        msg := ToString(message);
-        /* Let msgDesc be the PropertyDescriptor{[[Value]]: msg, [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}. */
-        msgDesc := newDataPropertyDescriptorFull(msg, true, false, true);
-        /* Let status be DefinePropertyOrThrow(O, "message", msgDesc). */
-        status := DefinePropertyOrThrow(O, "message", msgDesc);
-        /* Assert: status is not an abrupt completion. */
-        assert (!isAnAbruptCompletion(status));
+      /* Let msg be ToString(message). */
+      msg := ToString(message);
+      /* Let msgDesc be the PropertyDescriptor{[[Value]]: msg, [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}. */
+      msgDesc := newDataPropertyDescriptorFull(msg, true, false, true);
+      /* Let status be DefinePropertyOrThrow(O, "message", msgDesc). */
+      status := DefinePropertyOrThrow(O, "message", msgDesc);
+      /* Assert: status is not an abrupt completion. */
+      assert (!isAnAbruptCompletion(status));
     }
     /* Return O. */
     return O;

@@ -238,15 +238,14 @@ function ObjectAssign(globalObject, this, NewTarget, strict, params) {
     /* If nextSource is undefined or null, let keys be an empty List. */
     if ((nextSource == 'undefined) ||| (nextSource == 'null)) {
       keys := [];
-    }
     /* Else, */
-    else {
-        /* Let from be ToObject(nextSource). */
-        from := ToObject(nextSource);
-        /* Let keys be from.[[OwnPropertyKeys]](). */
-        keys := {from.OwnPropertyKeys}(from);
-        /* ReturnIfAbrupt(keys). */
-        @ReturnIfAbrupt(keys);
+    } else {
+      /* Let from be ToObject(nextSource). */
+      from := ToObject(nextSource);
+      /* Let keys be from.[[OwnPropertyKeys]](). */
+      keys := {from.OwnPropertyKeys}(from);
+      /* ReturnIfAbrupt(keys). */
+      @ReturnIfAbrupt(keys);
     }
 
     /* Repeat for each element nextKey of keys in List order, */
@@ -261,14 +260,14 @@ function ObjectAssign(globalObject, this, NewTarget, strict, params) {
       @ReturnIfAbrupt(desc);
       /* if desc is not undefined and desc.[[Enumerable]] is true, then */
       if (desc != 'undefined &&& desc.Enumerable == true) {
-          /* Let propValue be Get(from, nextKey). */
-          propValue := Get(from, nextKey);
-          /* ReturnIfAbrupt(propValue). */
-          @ReturnIfAbrupt(propValue);
-          /* Let status be Set(to, nextKey, propValue, true). */
-          status := Set(to, nextKey, propValue, true);
-          /* ReturnIfAbrupt(status). */
-          @ReturnIfAbrupt(status);
+        /* Let propValue be Get(from, nextKey). */
+        propValue := Get(from, nextKey);
+        /* ReturnIfAbrupt(propValue). */
+        @ReturnIfAbrupt(propValue);
+        /* Let status be Set(to, nextKey, propValue, true). */
+        status := Set(to, nextKey, propValue, true);
+        /* ReturnIfAbrupt(status). */
+        @ReturnIfAbrupt(status);
       }
 
       j := j + 1;
@@ -295,8 +294,8 @@ function StandardObjectCreate(globalObject, this, NewTarget, strict, params) {
   obj := ObjectCreate(O, null);
   /* If the argument Properties is present and not undefined, then */
   if ((Properties != null) &&& (Properties != 'undefined))
-      /* Return ObjectDefineProperties(obj, Properties). */
-      return ObjectDefineProperties(obj, Properties);
+    /* Return ObjectDefineProperties(obj, Properties). */
+    return ObjectDefineProperties(obj, Properties);
   /* Return obj. */
   return obj;
 }
@@ -458,11 +457,12 @@ function GetOwnPropertyKeys(O, Type) {
   /* Let nameList be a new empty List. */
   nameList := [];
   /* Repeat for each element nextKey of keys in List order, */
-  foreach(nextKey : keys)
+  foreach (nextKey : keys) {
     /* If Type(nextKey) is Type, then */
     if (Type(nextKey) == Type)
         /* Append nextKey as the last element of nameList. */
         nameList := l_add(nameList, nextKey);
+  }
   /* Return CreateArrayFromList(nameList). */
   return CreateArrayFromList(nameList);
 }
@@ -725,7 +725,7 @@ function ObjectPrototypeToString(globalObject, this, NewTarget, strict, params) 
   else if ("NumberData" in_obj O)
     builtinTag := "Number";
   /* Else, if O has a [[DateValue]] internal slot, let builtinTag be "Date". */
-  else if ("DateValue" in_obj o)
+  else if ("DateValue" in_obj O)
     builtinTag := "Date";
   /* Else, if O has a [[RegExpMatcher]] internal slot, let builtinTag be "RegExp". */
   else if ("Match" in_obj O) /* TODO mudar o nome da propriedade para RegExpMatcher */

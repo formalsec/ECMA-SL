@@ -508,7 +508,10 @@ function thisStringValue(value) {
 /* 21.1.3.1 String.prototype.charAt ( pos ) */
 function StringPrototypecharAt(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
-  if (n_args >= 1) pos := l_nth(args, 0); else pos := 'undefined;
+  if (n_args >= 1)
+    pos := l_nth(args, 0);
+  else
+    pos := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
   /* 2. Let S be ToString(O). */
@@ -531,7 +534,10 @@ function StringPrototypecharAt(global, this, NewTarget, strict, args) {
 /* 21.1.3.2 String.prototype.charCodeAt ( pos ) */
 function StringPrototypecharCodeAt(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
-  if (n_args >= 1) pos := l_nth(args, 0); else pos := 'undefined;
+  if (n_args >= 1)
+    pos := l_nth(args, 0);
+  else
+    pos := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
   /* 2. Let S be ToString(O). */
@@ -554,7 +560,10 @@ function StringPrototypecharCodeAt(global, this, NewTarget, strict, args) {
 /* 21.1.3.3 String.prototype.codePointAt ( pos ) */
 function StringPrototypecodePointAt(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
-  if (n_args >= 1) pos := l_nth(args, 0); else pos := 'undefined;
+  if (n_args >= 1)
+    pos := l_nth(args, 0);
+  else
+    pos := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
   /* 2. Let S be ToString(O). */
@@ -617,8 +626,14 @@ function StringPrototypeconcat(global, this, NewTarget, strict, args) {
 /* 21.1.3.6 String.prototype.endsWith ( searchString [ , endPosition] ) */
 function StringPrototypeendsWith(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
-  if (n_args >= 1) searchString := l_nth(args, 0); else searchString := 'undefined;
-  if (n_args >= 2) endPosition := l_nth(args, 1); else endPosition := 'undefined;
+  if (n_args >= 1)
+    searchString := l_nth(args, 0);
+  else
+    searchString := 'undefined;
+  if (n_args >= 2)
+    endPosition := l_nth(args, 1);
+  else
+    endPosition := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
   /* 2. Let S be ToString(O). */
@@ -639,7 +654,10 @@ function StringPrototypeendsWith(global, this, NewTarget, strict, args) {
   /* 9. Let len be the number of elements in S. */
   len := int_to_float(s_len_u (S));
   /* 10. If endPosition is undefined, let pos be len, else let pos be ToInteger(endPosition). */
-  if (endPosition == 'undefined) pos := len; else pos := ToInteger(endPosition);
+  if (endPosition == 'undefined)
+    pos := len; 
+  else
+    pos := ToInteger(endPosition);
   /* 11. ReturnIfAbrupt(pos). */
   @ReturnIfAbrupt(pos);
   /* 12. Let end be min(max(pos, 0), len). */
@@ -668,8 +686,14 @@ function StringPrototypeendsWith(global, this, NewTarget, strict, args) {
 /* 21.1.3.7 String.prototype.includes ( searchString [ , position ] ) */
 function StringPrototypeincludes(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
-  if (n_args >= 1) searchString := l_nth(args, 0); else searchString := 'undefined;
-  if (n_args >= 2) position := l_nth(args, 1); else position := 'undefined;
+  if (n_args >= 1)
+    searchString := l_nth(args, 0);
+  else
+    searchString := 'undefined;
+  if (n_args >= 2)
+    position := l_nth(args, 1);
+  else
+    position := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
   /* 2. Let S be ToString(O). */
@@ -725,8 +749,14 @@ function includes(S, searchStr, start, searchLength, len) {
 /* 21.1.3.8 String.prototype.indexOf ( searchString [ , position ] ) */
 function StringPrototypeindexOf(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
-  if (n_args >= 1) searchString := l_nth(args, 0); else searchString := 'undefined;
-  if (n_args >= 2) position := l_nth(args, 1); else position := 'undefined;
+  if (n_args >= 1)
+    searchString := l_nth(args, 0);
+  else
+    searchString := 'undefined;
+  if (n_args >= 2)
+    position := l_nth(args, 1);
+  else
+    position := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
   /* 2. Let S be ToString(O). */
@@ -772,8 +802,14 @@ function StringPrototypeindexOf(global, this, NewTarget, strict, args) {
 /* 21.1.3.9 String.prototype.lastIndexOf ( searchString [ , position ] ) */
 function StringPrototypelastIndexOf(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
-  if (n_args >= 1) searchString := l_nth(args, 0); else searchString := 'undefined;
-  if (n_args >= 2) position := l_nth(args, 1); else position := 'undefined;
+  if (n_args >= 1)
+    searchString := l_nth(args, 0);
+  else
+    searchString := 'undefined;
+  if (n_args >= 2)
+    position := l_nth(args, 1);
+  else
+    position := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
   /* 2. Let S be ToString(O). */
@@ -789,7 +825,10 @@ function StringPrototypelastIndexOf(global, this, NewTarget, strict, args) {
   /* 7. ReturnIfAbrupt(numPos). */
   @ReturnIfAbrupt(numPos);
   /* 8. If numPos is NaN, let pos be +∞; otherwise, let pos be ToInteger(numPos). */
-  if (is_NaN (numPos)) pos := Infinity; else pos := ToInteger(numPos);
+  if (is_NaN (numPos))
+    pos := Infinity;
+  else
+    pos := ToInteger(numPos);
   /* 9. Let len be the number of elements in S. */
   len := int_to_float(s_len_u (S));
   /* 10. Let start be min(max(pos, 0), len). */
@@ -825,7 +864,10 @@ function StringPrototypelastIndexOf(global, this, NewTarget, strict, args) {
 /* 21.1.3.10 String.prototype.localeCompare ( that [, reserved1 [ , reserved2 ] ] ) */
 function StringPrototypelocaleCompare(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
-  if (n_args >= 1) that := l_nth(args, 0); else that := 'undefined;
+  if (n_args >= 1)
+    that := l_nth(args, 0);
+  else
+    that := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
   /* 2. Let S be ToString(O). */
@@ -875,7 +917,10 @@ function StringPrototypelocaleCompare(global, this, NewTarget, strict, args) {
 /* 21.1.3.11 String.prototype.match ( regexp ) */
 function StringPrototypeMatch(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
-  if (n_args >= 1) regexp := l_nth(args, 0); else regexp := 'undefined;
+  if (n_args >= 1)
+    regexp := l_nth(args, 0);
+  else
+    regexp := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
   /* 2. ReturnIfAbrupt(O). */
@@ -906,7 +951,10 @@ function StringPrototypeMatch(global, this, NewTarget, strict, args) {
 /* 21.1.3.12 String.prototype.normalize ( [ form ] ) */
 function StringPrototypenormalize(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
-  if (n_args >= 1) form := l_nth(args, 0); else form := 'undefined;
+  if (n_args >= 1)
+    form := l_nth(args, 0);
+  else
+    form := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
   /* 2. Let S be ToString(O). */
@@ -932,7 +980,10 @@ function StringPrototypenormalize(global, this, NewTarget, strict, args) {
 /* 21.1.3.13 String.prototype.repeat ( count ) */
 function StringPrototyperepeat(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
-  if (n_args >= 1) count := l_nth(args, 0); else count := 'undefined;
+  if (n_args >= 1)
+    count := l_nth(args, 0);
+  else
+    count := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
   /* 2. Let S be ToString(O). */
@@ -967,8 +1018,14 @@ function StringPrototypeReplace(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
   if (extern is_symbolic(this))
     return extern str_symbol("app str.replace");
-  if (n_args >= 1) searchValue := l_nth(args, 0); else searchValue := 'undefined;
-  if (n_args >= 2) replaceValue := l_nth(args, 1); else replaceValue := 'undefined;
+  if (n_args >= 1)
+    searchValue := l_nth(args, 0);
+  else
+    searchValue := 'undefined;
+  if (n_args >= 2)
+    replaceValue := l_nth(args, 1);
+  else
+    replaceValue := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
   /* 2. ReturnIfAbrupt(O). */
@@ -1100,8 +1157,14 @@ function GetSubstitution(matched, str, position, captures, replacement, global, 
     * ______________________|_______________________________________________________________
     */
 
-  if (position == 0) before := ""; else before := substring(str, 0., position);
-  if (tailPos >= stringLength) after := ""; else after := substring(str, int_to_float tailPos,  int_to_float (s_len_u (str)));
+  if (position == 0)
+    before := "";
+  else
+    before := substring(str, 0., position);
+  if (tailPos >= stringLength)
+    after := ""; 
+  else
+    after := substring(str, int_to_float tailPos,  int_to_float (s_len_u (str)));
   result := "";
   len := s_len_u (replacement);
   i := 0;
@@ -1201,7 +1264,10 @@ function GetSubstitution(matched, str, position, captures, replacement, global, 
 /* 21.1.3.15 String.prototype.search ( regexp ) */
 function StringPrototypeSearch(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
-  if (n_args >= 1) regexp := l_nth(args, 0); else regexp := 'undefined;
+  if (n_args >= 1)
+    regexp := l_nth(args, 0);
+  else
+    regexp := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
   /* 2. ReturnIfAbrupt(O). */
@@ -1232,8 +1298,14 @@ function StringPrototypeSearch(global, this, NewTarget, strict, args) {
 /* 21.1.3.16 String.prototype.slice ( start, end ) */
 function StringPrototypeSlice(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
-  if (n_args >= 1) start := l_nth(args, 0); else start := 'undefined;
-  if (n_args >= 2) end := l_nth(args, 1); else end := 'undefined;
+  if (n_args >= 1)
+    start := l_nth(args, 0);
+  else 
+    start := 'undefined;
+  if (n_args >= 2)
+    end := l_nth(args, 1);
+  else
+    end := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
   /* 2. Let S be ToString(O). */
@@ -1247,13 +1319,22 @@ function StringPrototypeSlice(global, this, NewTarget, strict, args) {
   /* 6. ReturnIfAbrupt(intStart). */
   @ReturnIfAbrupt(intStart);
   /* 7. If end is undefined, let intEnd be len; else let intEnd be ToInteger(end). */
-  if (end == 'undefined) intEnd := len; else intEnd := ToInteger(end);
+  if (end == 'undefined)
+    intEnd := len;
+  else
+    intEnd := ToInteger(end);
   /* 8. ReturnIfAbrupt(intEnd). */
   @ReturnIfAbrupt(intEnd);
   /* 9. If intStart < 0, let from be max(len + intStart,0); otherwise let from be min(intStart, len). */
-  if (intStart < 0.) from := max((len + intStart), 0.); else from := min(intStart, len);
+  if (intStart < 0.)
+    from := max((len + intStart), 0.);
+  else
+    from := min(intStart, len);
   /* 10. If intEnd < 0, let to be max(len + intEnd,0); otherwise let to be min(intEnd, len). */
-  if (intEnd < 0.) to := max(len + intEnd, 0.); else to := min(intEnd, len);
+  if (intEnd < 0.)
+    to := max(len + intEnd, 0.);
+  else
+    to := min(intEnd, len);
   /* 11. Let span be max(to – from,0). */
   span := max(to - from, 0.);
   /* 12. Return a String value containing span consecutive elements from S beginning with the element at index from. */
@@ -1269,8 +1350,14 @@ function StringPrototypeSlice(global, this, NewTarget, strict, args) {
 /* 21.1.3.17 String.prototype.split ( separator, limit ) */
 function StringPrototypeSplit(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
-  if (n_args >= 1) separator := l_nth(args, 0); else separator := 'undefined;
-  if (n_args >= 2) limit := l_nth(args, 1); else limit := 'undefined;
+  if (n_args >= 1)
+    separator := l_nth(args, 0);
+  else
+    separator := 'undefined;
+  if (n_args >= 2)
+    limit := l_nth(args, 1);
+  else
+    limit := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
   /* 2. ReturnIfAbrupt(O). */
@@ -1295,7 +1382,10 @@ function StringPrototypeSplit(global, this, NewTarget, strict, args) {
   /* 7. Let lengthA be 0. */
   lengthA := 0.;
   /* 8. If limit is undefined, let (m) = 253–1; else let (m) = ToLength(limit). */
-  if (limit == 'undefined) lim := (2. ** 53.) - 1.; else lim := ToLength(limit);
+  if (limit == 'undefined)
+    lim := (2. ** 53.) - 1.;
+  else
+    lim := ToLength(limit);
   /* 9. ReturnIfAbrupt(lim). */
   @ReturnIfAbrupt(lim);
   /* 10. Let s be the number of elements in S. */
@@ -1412,8 +1502,14 @@ function SplitMatch(S, q, R) {
 /* 21.1.3.18 String.prototype.startsWith ( searchString [, position ] ) */
 function StringPrototypestartsWith(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
-  if (n_args >= 1) searchString := l_nth(args, 0); else searchString := 'undefined;
-  if (n_args >= 2) position := l_nth(args, 1); else position := 'undefined;
+  if (n_args >= 1)
+    searchString := l_nth(args, 0);
+  else
+    searchString := 'undefined;
+  if (n_args >= 2)
+    position := l_nth(args, 1);
+  else
+    position := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
   /* 2. Let S be ToString(O). */
@@ -1461,8 +1557,14 @@ function StringPrototypestartsWith(global, this, NewTarget, strict, args) {
 /* 21.1.3.19 String.prototype.substring ( start, end ) */
 function StringPrototypesubstring(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
-  if (n_args >= 1) start := l_nth(args, 0); else start := 'undefined;
-  if (n_args >= 2) end := l_nth(args, 1); else end := 'undefined;
+  if (n_args >= 1)
+    start := l_nth(args, 0);
+  else
+    start := 'undefined;
+  if (n_args >= 2)
+    end := l_nth(args, 1);
+  else
+    end := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
   /* 2. Let S be ToString(O). */
@@ -1476,7 +1578,10 @@ function StringPrototypesubstring(global, this, NewTarget, strict, args) {
   /* 6. ReturnIfAbrupt(intStart). */
   @ReturnIfAbrupt(intStart);
   /* 7. If end is undefined, let intEnd be len; else let intEnd be ToInteger(end). */
-  if ((end == 'undefined) || (end == 'null) || (end == null)) intEnd := len; else intEnd := ToInteger(end);
+  if ((end == 'undefined) || (end == 'null) || (end == null))
+    intEnd := len; 
+  else
+    intEnd := ToInteger(end);
   /* 8. ReturnIfAbrupt(intEnd). */
   @ReturnIfAbrupt(intEnd);
   /* 9. Let finalStart be min(max(intStart, 0), len). */

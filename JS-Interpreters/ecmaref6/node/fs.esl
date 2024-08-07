@@ -1,6 +1,7 @@
 function abort_if_symbolic(x) {
   if (extern is_symbolic(x))
     extern abort(x);
+  
   return 0;
 }
 
@@ -40,23 +41,23 @@ function createFSObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(fs, "readFile", readFile);
   createBuiltInProperty(readFile, "prototype", objectPrototype);
 
-  readFileSync := CreateBuiltInFunctionObject([], "__fs_readfilesync", realm,
-    strict, null);
+  readFileSync := CreateBuiltInFunctionObject([], "__fs_readfilesync", realm, strict, null);
+
   createBuiltInProperty(fs, "readFileSync", readFileSync);
   createBuiltInProperty(readFileSync, "prototype", objectPrototype);
 
-  writeFile := CreateBuiltInFunctionObject([], "__fs_writefile", realm,
-    strict, null);
+  writeFile := CreateBuiltInFunctionObject([], "__fs_writefile", realm, strict, null);
+
   createBuiltInProperty(fs, "writeFile", writeFile);
   createBuiltInProperty(writeFile, "prototype", objectPrototype);
 
-  writeFileSync := CreateBuiltInFunctionObject([], "__fs_writefilesync", realm,
-    strict, null);
+  writeFileSync := CreateBuiltInFunctionObject([], "__fs_writefilesync", realm, strict, null);
+
   createBuiltInProperty(fs, "writeFileSync", writeFileSync);
   createBuiltInProperty(writeFileSync, "prototype", objectPrototype);
 
-  createReadStream := CreateBuiltInFunctionObject([], "__fs_createreadstream", realm,
-    strict, null);
+  createReadStream := CreateBuiltInFunctionObject([], "__fs_createreadstream", realm, strict, null);
+
   createBuiltInProperty(fs, "createReadStream", createReadStream);
   createBuiltInProperty(createReadStream, "prototype", objectPrototype);
 

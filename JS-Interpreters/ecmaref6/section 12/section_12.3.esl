@@ -20,9 +20,8 @@ function EvaluateNew(constructProduction, arguments, scope) {
   /* 6. If arguments is empty, let argList be an empty List. */
   if (arguments == 'empty) {
     argList := [];
-  }
   /* 7. Else, */
-  else {
+  } else {
     /* a. Let argList be ArgumentListEvaluation of arguments. */
     argList := ArgumentListEvaluation(arguments, scope);
     /* b. ReturnIfAbrupt(argList). */
@@ -94,13 +93,13 @@ function SuperPropertyEvaluationA(scope, Expression) {
 }
 
 function SuperPropertyEvaluationB(IdentifierName, propertyKey) {
-    /* 1. Let propertyKey be StringValue of IdentifierName. */
-    propertyKey := StringValue(IdentifierName);
-    /* 2. If the code matched by the syntactic production that is being
-        evaluated is strict mode code, let strict be true, else let strict be false */
-    /* strict == ???? */
-    /* 3. Return MakeSuperPropertyReference(propertyKey, strict). */
-    return MakeSuperPropertyReference(propertyKey, strict);
+  /* 1. Let propertyKey be StringValue of IdentifierName. */
+  propertyKey := StringValue(IdentifierName);
+  /* 2. If the code matched by the syntactic production that is being
+      evaluated is strict mode code, let strict be true, else let strict be false */
+  /* strict == ???? */
+  /* 3. Return MakeSuperPropertyReference(propertyKey, strict). */
+  return MakeSuperPropertyReference(propertyKey, strict);
 }
 
 

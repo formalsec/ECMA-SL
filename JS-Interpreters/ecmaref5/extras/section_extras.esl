@@ -24,7 +24,7 @@ function initConsoleObject(globalObject, objectPrototype, strict) {
 
 function __internalLog(globalObject, this, strict, params) {
   str := l_nth(params, 0);
-  if (typeof (str) != "string")
+  if (typeof str != "string")
     str := ToString(str);
   print s_concat(["JS Log: ", str]);
   return 'null;
@@ -32,26 +32,8 @@ function __internalLog(globalObject, this, strict, params) {
 
 function __internalLogObject(globalObject, this, strict, params) {
   obj := l_nth(params, 0);
-
-  if (typeof(obj) != "object")
+  if (typeof obj != "object")
     return __internalLog(globalObject, this, strict, params);
-
-  /*props := getOwnProperties(obj);*/ /* Doesn't print all because enumerable */
-/*
-  i := 0;
-  len := l_len(props);
-  str := "";
-  while (i < len ) {
-    P := l_nth(props, i);
-    str := s_concat([str, P]);
-    if (i != (len - 1)) {
-      str := s_concat([str, ", "])
-    }
-    i := i + 1
-  }
-
-  print s_concat ["JS Log: [", str, "]"];*/
-
   oProps := obj.JSProperties;
   print "JS Log Object: ";
   print oProps;

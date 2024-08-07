@@ -103,7 +103,7 @@ function parsePattern(P, F) {
   progStr := s_concat(["/", S, "/", F]);
   prog := extern parseJS(progStr);
   progObj := {prog}();
-  if ((l_len(progObj.body)) == 0)
+  if (l_len(progObj.body) == 0)
     throw SyntaxErrorConstructorInternal();
   expression := (l_nth(progObj.body, 0)).expression;
   regex := expression.regex;
@@ -135,13 +135,19 @@ function newRegExp(strict, pattern, flags) {
     /*else {
       throw TypeErrorConstructorInternal()
     }*/
-  }
   /* Otherwise, let P be the empty String if pattern is undefined
      and ToString(pattern) otherwise, and let F be the empty String
      if flags is undefined and ToString(flags) otherwise. */
-  else {
-    if (pattern == 'undefined) P := ""; else P := ToString(pattern);
-    if (flags == 'undefined) F := ""; else F := ToString(flags);
+  } else {
+  
+    if (pattern == 'undefined) 
+      P := ""; 
+  else 
+    P := ToString(pattern);
+    if (flags == 'undefined)
+      F := ""; 
+    else
+      F := ToString(flags);
 
     /* If the characters of P do not have the syntactic form Pattern, then
       throw a SyntaxError exception. Otherwise let the newly constructed
@@ -252,12 +258,12 @@ function RegExpPrototypeExec(global, this, NewTarget, strict, args) {
   S := ToString(str);
   @ReturnIfAbrupt(S);
   /* 3. Let length be the length of S. */
-  length := s_len_u (S);
+  length := s_len_u(S);
   /* 4. Let lastIndex be the result of calling the [[Get]]
     internal method of R with argument "lastIndex".. */
   lastIndex := {R.Get}(R, "lastIndex", R);
   /* 5. Let i be the value of ToInteger(lastIndex). */
-  i := float_to_int (ToInteger(lastIndex));
+  i := float_to_int ToInteger(lastIndex);
   /* ES6: i < 0 becomes 0, but don't return null */
   /* test/test262/tests/built-ins/RegExp/prototype/test/S15.10.6.3_A1_T22.js */
   if (i < 0) {
@@ -289,8 +295,7 @@ function RegExpPrototypeExec(global, this, NewTarget, strict, args) {
       /* ii. Return null. */
       return 'null;
     }
-    /* b. Call the [[Match]] internal method of R with
-        arguments S and i. */
+    /* b. Call the [[Match]] internal method of R with arguments S and i. */
     ret := {R.Match}(R, S, i);
     /* c. If [[Match]] returned failure, then */
     if (isFailure(ret)) {
@@ -380,7 +385,10 @@ function RegExpPrototypeTest(global, this, NewTarget, strict, args) {
   /* 1. Let match be the result of evaluating the RegExp.prototype.exec (15.10.6.2) algorithm upon this RegExp object using string as the argument. */
   match2 := RegExpPrototypeExec(global, this, 'undefined, strict, [str]);
   /* 2. If match is not null, then return true; else return false. */
-  if (match2 != 'null) return true; else return false;
+  if (match2 != 'null) 
+    return true; 
+  else
+    return false;
 }
 
 /**
@@ -570,7 +578,7 @@ function initialCaps(nCaps) {
 function stateGetChar(st) {
   i := st.endIndex;
   str := st.str;
-  if (i < (s_len_u (str)))
+  if (i < s_len_u(str))
     return s_nth_u(str, i);
   return null;
 }
@@ -1072,7 +1080,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
     cs := EmptyCharacterClass(negative);
     while (from <= to) {
       from_str := float_to_string from;
-      c := from_char_code_u (float_to_int from);
+      c := from_char_code_u(float_to_int from);
       AddCharacterPoint(cs, c, from_str, negative);
       from := from + 1.;
     }
@@ -1175,7 +1183,10 @@ function dotCharSet() {
 
 function spaceCharSet(negative) {
   sc := getSpaceCharacters();
-  if (negative == true) return { positive: null, negative: sc }; else return { positive: sc, negative: null };
+  if (negative == true) 
+    return { positive: null, negative: sc }; 
+  else
+    return { positive: sc, negative: null };
 }
 
 /**
@@ -1185,7 +1196,10 @@ function spaceCharSet(negative) {
 function digitCharSet(negative) {
   cs := {};
   getCharacterRangeASCII(cs, 48, 57);
-  if (negative == true) return { positive: null, negative: cs }; else return { positive: cs, negative: null };
+  if (negative == true)
+    return { positive: null, negative: cs }; 
+  else
+    return { positive: cs, negative: null };
 }
 
 /**
@@ -1201,7 +1215,10 @@ function wordCharSet(negative) {
   getCharacterRangeASCII(cs, 65, 90);
   getCharacterRangeASCII(cs, 97, 122);
   cs["95"] := "_";
-  if (negative == true) return { positive: null, negative: cs }; else return { positive: cs, negative: null };
+  if (negative == true) 
+    return { positive: null, negative: cs }; 
+  else 
+    return { positive: cs, negative: null };
 }
 
 
@@ -1321,7 +1338,7 @@ function JS_Interpreter_RegEx(re, flags) {
       len := s_len_u (str_c);
       j1 := stateGetIndex(st);
       str := stateGetStr(st);
-      if ((j1 + len) > (s_len_u (str)))
+      if (j1 + len > s_len_u(str))
         return null;
       str' := s_substr_u(str, j1, len);
       if (str_c == str') {

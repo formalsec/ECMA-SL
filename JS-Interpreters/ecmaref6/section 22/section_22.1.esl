@@ -21,7 +21,7 @@
 
 /*
   No ES6 mas não no ES5 :
-    [NOT FINAL] == not using the section 7/9 functions because they arent implemented yet
+    [NOT FINAL] = not using the section 7/9 functions because they arent implemented yet
     DONE:
     - 22.1.3.3 Array.prototype.copyWithin (target, start [ , end ] ) [NOT FINAL]
     - 22.1.3.4 Array.prototype.entries ( ) [DOESNT WORK WITH "for (let letter of iterator)" ]
@@ -49,7 +49,7 @@
     - 22.1.5.2.2 %ArrayIteratorPrototype% [ @@toStringTag ]
 
   Em ambos os standards :
-    [NOT FINAL] == not using the section 7/9 functions because they arent implemented yet
+    [NOT FINAL] = not using the section 7/9 functions because they arent implemented yet
     DONE :
     - 22.1.2.2 Array.isArray ( arg )
     - 22.1.3.1 Array.prototype.concat ( ...arguments )
@@ -789,7 +789,7 @@ function arrayFrom(global, this, NewTarget, strict, args) {
     }
   }
   /* 7. Assert: items is not an Iterable so assume it is an array-like object. */
-  assert (!(IsIterable(items)) );
+  assert (!(IsIterable(items)));
   /* 8. Let arrayLike be ToObject(items). */
   arrayLike := ToObject(items);
   /* 9. ReturnIfAbrupt(arrayLike). */

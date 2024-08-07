@@ -52,7 +52,7 @@ function getParameterIteratorValue(param, listIterator, environment) {
   if (listIterator.done == true)
     v := 'undefined;
   /* 6. If Initializer is present and v is undefined, then */
-  if ((initializer != null) &&& (v == 'undefined)) {
+  if (initializer != null &&& v == 'undefined) {
     /* a. Let defaultValue be the result of evaluating Initializer. */
     defaultValue := JS_Interpreter_AssignmentPattern(initializer, environment);
     /* b. Let v be GetValue(defaultValue). */
@@ -241,7 +241,6 @@ function GetRestValue(listIterator, initialValue) {
       if (next == false)
         listIterator.done := true;
     }
-
     if (listIterator.done == true)
       return A;
     nextValue := IteratorValue(next);
@@ -280,4 +279,3 @@ function restElementObjectInitializer(resultingObjExpr, objectValue, scope, init
   new_props := OrdinaryObjectOwnPropertyKeys(spreadObj);
   return;
 }
-

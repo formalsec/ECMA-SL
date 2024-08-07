@@ -200,7 +200,6 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
 		@ReturnIfAbrupt(status);
 	}
 
-
   /* 14. For each production f in functionsToInitialize, do */
   functionsToInitialize_l := l_len(functionsToInitialize);
   i := 0;

@@ -1,9 +1,9 @@
 /* 10.2 Strict Code */
 
 function isStrict(code) {
-  return ((code != 'undefined) &&& (code.strict == true));
+  return (code != 'undefined &&& code.strict == true);
 }
 
 function isStrictModeCode(code, execCtx) {
-  return ((code != 'undefined) &&& (code.strict == true)) ||| isContainedInStrictCode(execCtx);
+  return (code != 'undefined &&& code.strict == true) ||| isContainedInStrictCode(execCtx);
 }

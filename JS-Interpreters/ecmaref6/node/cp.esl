@@ -33,23 +33,23 @@ function createCPObject(globalObject, objectPrototype, strict) {
   setInternalProperty(cp, "Prototype", objectPrototype);
 
   /* Functions: */
-  exec := CreateBuiltInFunctionObject(["path"], "__cp_exec", realm,
-    strict, null);
+  exec := CreateBuiltInFunctionObject(["path"], "__cp_exec", realm, strict, null);
+  
   createBuiltInProperty(cp, "exec", exec);
   createBuiltInProperty(exec, "prototype", objectPrototype);
 
-  execSync := CreateBuiltInFunctionObject(["path"], "__cp_execSync", realm,
-    strict, null);
+  execSync := CreateBuiltInFunctionObject(["path"], "__cp_execSync", realm, strict, null);
+  
   createBuiltInProperty(cp, "execSync", execSync);
   createBuiltInProperty(execSync, "prototype", objectPrototype);
 
-  execFile := CreateBuiltInFunctionObject(["path"], "__cp_execFile", realm,
-    strict, null);
+  execFile := CreateBuiltInFunctionObject(["path"], "__cp_execFile", realm, strict, null);
+  
   createBuiltInProperty(cp, "execFile", execFile);
   createBuiltInProperty(execFile, "prototype", objectPrototype);
 
-  spawn := CreateBuiltInFunctionObject(["path"], "__cp_spawn", realm,
-    strict, null);
+  spawn := CreateBuiltInFunctionObject(["path"], "__cp_spawn", realm, strict, null);
+  
   createBuiltInProperty(cp, "spawn", spawn);
   createBuiltInProperty(spawn, "prototype", objectPrototype);
 

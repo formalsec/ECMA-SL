@@ -9,8 +9,8 @@ function __cross_spawn(globalObject, this, newTarget, strict, params) {
 function createCrossSpawnObject(globalObject, objectPrototype, strict) {
   realm := { globalEnv : globalObject };
   /* Functions: */
-  exec := CreateBuiltInFunctionObject(["cmd", "args", "opts"], "__cross_spawn",
-    realm, strict, null);
+  exec := CreateBuiltInFunctionObject(["cmd", "args", "opts"], "__cross_spawn", realm, strict, null);
+  
   createBuiltInProperty(exec, "prototype", objectPrototype);
   createBuiltInProperty(exec, "sync", exec);
 

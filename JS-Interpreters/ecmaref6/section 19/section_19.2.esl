@@ -105,9 +105,8 @@ function FunctionConstructor(globalObject, this, NewTarget, strict, params) {
   /* 4. Else if argCount == 1, let body be that argument. */
     if (argCount == 1) {
       body := l_nth(params, 0);
-    }
     /* 5. Else, argCount > 1 */
-    else {
+    } else {
       /* a. Let firstArg be the first argument. */
       firstArg := l_nth(params, 0);
       /* b. Let P be ToString(firstArg). */
@@ -149,7 +148,10 @@ function FunctionConstructor(globalObject, this, NewTarget, strict, params) {
   if (!isParsableAsFunctionBody(body))
     throw SyntaxErrorConstructorInternal();
   /* 9. If body is strict mode code (see 10.1.1) then let strict be true, else let strict be false. */
-  if (isBuiltInFunctionBodyStrictModeCode(body)) strict := true; else strict := false;
+  if (isBuiltInFunctionBodyStrictModeCode(body))
+    strict := true;
+  else
+    strict := false;
   /* 10. If strict is true, throw any exceptions specified in 13.1 that apply. */
   if ((strict == true) &&& anyStrictModeRestrictionApplicable(body))
     throw SyntaxErrorConstructorInternal();

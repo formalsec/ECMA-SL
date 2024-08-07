@@ -673,7 +673,7 @@ function SetProxy (O, P, V, Receiver) {
     /* a. If IsDataDescriptor(targetDesc) and targetDesc.[[Configurable]] is false and targetDesc.[[Writable]] is false, then */
     if ((IsDataDescriptor(targetDesc) == true) &&& (targetDesc.Configurable == false) &&& (targetDesc.Writable == false)) {
       /* i. If SameValue(V, targetDesc.[[Value]]) is false, throw a TypeError exception. */
-      if ((SameValue(V, targetDesc.Value) == false))
+      if (SameValue(V, targetDesc.Value) == false)
         throw TypeErrorConstructorInternal();
     }
     /* b. If IsAccessorDescriptor(targetDesc) and targetDesc.[[Configurable]] is false, then */

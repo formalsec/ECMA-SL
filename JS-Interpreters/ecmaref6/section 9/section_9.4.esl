@@ -46,7 +46,7 @@ function ArrayDefineOwnProperty(A, P, Desc) {
     /* b. Assert: oldLenDesc will never be undefined or an accessor descriptor
        because Array objects are created with a length data property that
        cannot be deleted or reconfigured. */
-    assert ((oldLenDesc != 'undefined) &&& (!IsAccessorDescriptor(oldLenDesc)));
+    assert (oldLenDesc != 'undefined &&& !IsAccessorDescriptor(oldLenDesc));
     /* c. Let oldLen be oldLenDesc.[[Value]]. */
     oldLen := oldLenDesc.Value;
     /* d. Let index be ToUint32(P). */
@@ -54,7 +54,7 @@ function ArrayDefineOwnProperty(A, P, Desc) {
     /* e. Assert: index will never be an abrupt completion. */
     assert (!isAnAbruptCompletion(index));
     /* f. If index ≥ oldLen and oldLenDesc.[[Writable]] is false, */
-    if ((index >= oldLen) &&& (oldLenDesc.Writable == false))
+    if (index >= oldLen &&& oldLenDesc.Writable == false)
       /* return false */
       return false;
     /* g. Let succeeded be OrdinaryDefineOwnProperty(A, P, Desc). */
@@ -90,7 +90,7 @@ function ArrayDefineOwnProperty(A, P, Desc) {
  */
 function ArrayCreate(length, proto) {
   /* 1. Assert: length is an integer Number ≥ 0. */
-  assert ((IsInteger(length)) &&& (length >= 0.));
+  assert (IsInteger(length) &&& length >= 0.);
   /* 2. If length is -0, */
   if (isMinusZero(length))
     /* let length be +0 */
@@ -100,7 +100,7 @@ function ArrayCreate(length, proto) {
     /* throw a RangeError exception */
     throw RangeErrorConstructorInternal();
   /* 4. If the proto argument was not passed, */
-  if ((proto == null) ||| (proto == 'undefined))
+  if (proto == null ||| proto == 'undefined)
     /* let proto be the intrinsic object %ArrayPrototype% */
     proto := |Intrinsics|.ArrayPrototype;
   /* 5. Let A be a newly created Array exotic object. */
@@ -133,7 +133,7 @@ function ArrayCreate(length, proto) {
  */
 function ArraySpeciesCreate(originalArray, length) {
   /* 1. Assert: length is an integer Number ≥ 0. */
-  assert ((IsInteger(length)) &&& (length >= 0.));
+  assert (IsInteger(length) &&& length >= 0.);
   /* 2. If length is -0, */
   if (isMinusZero(length))
     /* let length be +0 */
@@ -230,7 +230,7 @@ function ArraySetLength(A, Desc) {
   /* 10. Assert: oldLenDesc will never be undefined or an accessor descriptor
      because Array objects are created with a length data property that
      cannot be deleted or reconfigured. */
-  assert ((oldLenDesc != 'undefined) &&& (!IsAccessorDescriptor(oldLenDesc)));
+  assert (oldLenDesc != 'undefined &&& !IsAccessorDescriptor(oldLenDesc));
   /* 11. Let oldLen be oldLenDesc.[[Value]]. */
   oldLen := oldLenDesc.Value;
   /* 12. If newLen ≥oldLen, then */
@@ -288,9 +288,8 @@ function ArraySetLength(A, Desc) {
   }
   /* 20. If newWritable is false, then */
   if (newWritable == false)
-    /* a. Return OrdinaryDefineOwnProperty(A, "length",
-       PropertyDescriptor{[[Writable]]: false}). This call will always return
-       true. */
+    /* a. Return OrdinaryDefineOwnProperty(A, "length", PropertyDescriptor{[[Writable]]: false}). 
+      This call will always return true. */
     return OrdinaryDefineOwnProperty(A, "length", {Writable: false});
   /* 21. Return true. */
   return true;
@@ -432,7 +431,7 @@ function StringGetIndexProperty(S, P) {
   /* 8. Let len be the number of elements in str. */
   len := s_len_u (str);
   /* 9. If index < 0 or len ≤ index, return undefined. */
-  if ((index < 0.) || ((int_to_float len) <= index))
+  if (index < 0. || int_to_float len <= index)
     return 'undefined;
   /* 10. Let resultStr be a String value of length 1, containing one code unit from str, specifically the code unit at index index. */
   resultStr := s_nth_u (str, float_to_int index);
@@ -473,15 +472,13 @@ function OwnPropertyKeysString(O) {
 
   /* 5. For each own property key P of O such that P is an integer index and ToInteger(P) ≥ len, in ascending numeric index order, */
   foreach ( P : O.internalSlotsList ) {
-    if (IsArrayIndex(P) &&& (ToInteger(P) >= len))
+    if (IsArrayIndex(P) &&& ToInteger(P) >= len)
       /* Add P as the last element of keys. */
       numbers := l_add(numbers, P);
-
     /* For each own property key P of O that is a String but is not an integer index, in property creation order */
     else if (Type(P) == "String" &&& Type(P) != "Number" &&& in_list(P, obj_fields O.JSProperties))
-        /* Add P as the last element of keys. */
-        strings := l_add(strings, P);
-
+      /* Add P as the last element of keys. */
+      strings := l_add(strings, P);
     /* For each own property key P of O that is a Symbol, in property creation order */
     else if (in_list(P, (obj_fields O.SymbolKeys))) {
       /* Add P as the last element of keys. */
@@ -537,9 +534,8 @@ function CreateUnmappedArgumentsObject(func, parameterNames, argumentsList, env)
      {[[Get]]: %ThrowTypeError%, [[Set]]: %ThrowTypeError%, [[Enumerable]]:
      false, [[Configurable]]: false}). */
   status3 := DefinePropertyOrThrow(obj, "callee",  newGetAndSetAccessorPropertyDescriptorFull(thrower, thrower, false, false));
-  /* 10. Assert: the above property definitions will not produce an abrupt
-     completion. */
-  assert (!(isAnAbruptCompletion(status3)) ||| !(isAnAbruptCompletion(status2)));
+  /* 10. Assert: the above property definitions will not produce an abrupt completion. */
+  assert (!isAnAbruptCompletion(status3) ||| !isAnAbruptCompletion(status2));
   /* 11. Return obj */
   return obj;
 }
@@ -557,8 +553,7 @@ function CreateMappedArgumentsObject(func, formals, argumentsList, env) {
 
   /* 2. Let len be the number of elements in argumentsList. */
   len := l_len(argumentsList);
-  /* 3. Let obj be a newly created arguments exotic object with a
-     [[ParameterMap]] internal slot. */
+  /* 3. Let obj be a newly created arguments exotic object with a [[ParameterMap]] internal slot. */
   obj := NewECMAScriptObject();
   obj.ParameterMap := 'undefined;
   setAllInternalMethodsOfOrdinaryObject(obj);
@@ -779,7 +774,7 @@ function ArgumentsObjectDelete(argumentsObject, P) {
   /* 3. Let result be the result of calling the default [[Delete]] internal method (8.12.7) on the arguments object passing P and Throw as the arguments. */
   result := OrdinaryObjectDelete(argumentsObject, P);
   /* 4. If result is true and the value of isMapped is not undefined, then */
-  if ((result == true) &&& (isMapped == true))
+  if (result == true &&& isMapped == true)
     /* a. Call the [[Delete]] internal method of map passing P, and false as the arguments. */
     {map.Delete}(map, P);
   /* 5. Return result. */
@@ -809,15 +804,14 @@ function ArgumentsObjectSet(O, P, V, Receiver) {
     /* b. Let isMapped be HasOwnProperty(map, P). */
     isMapped := HasOwnProperty(map, P);
     /* c. Assert: isMapped is not an abrupt completion. */
-    assert(!(isAnAbruptCompletion(isMapped)));
+    assert (!(isAnAbruptCompletion(isMapped)));
   }
   /* 4. If isMapped is true, then */
   if (isMapped == true) {
     /* a. Let setStatus be Set(map, P, V, false). */
     setStatus := Set(map, P, V, false);
-    /* b. Assert: setStatus is true because formal parameters mapped by argument
-       objects are always writable. */
-    assert((setStatus == true));
+    /* b. Assert: setStatus is true because formal parameters mapped by argument objects are always writable. */
+    assert (setStatus == true);
   }
   /* 5. Return the result of calling the default ordinary object [[Set]]
      internal method (9.1.9) on args passing P, V and Receiver as the
@@ -927,7 +921,7 @@ function IntegerIndexedHasProperty(O, P) {
         /* throw a TypeError exception */
         throw TypeErrorConstructorInternal();
       /* iii. If IsInteger(numericIndex) is false, return false */
-      if (!(IsInteger(numericIndex)))
+      if (!IsInteger(numericIndex))
         return false;
       /* iv. If numericIndex == -0, */
       if (isMinusZero(numericIndex))
@@ -960,7 +954,7 @@ function IntegerIndexedDefineOwnProperty(O, P, Desc) {
   /* 1. Assert: IsPropertyKey(P) is true. */
   assert (IsPropertyKey(P) == true);
   /* 2. Assert: O is an Object that has a [[ViewedArrayBuffer]] internal slot. */
-  assert ((Type(O) == "Object") &&& ("ViewedArrayBuffer" in_obj O));
+  assert (Type(O) == "Object" &&& "ViewedArrayBuffer" in_obj O);
   /* 3. If Type(P) is String, then */
   if (Type(P) == "String") {
     /* a. Let numericIndex be CanonicalNumericIndexString (P). */
@@ -970,7 +964,7 @@ function IntegerIndexedDefineOwnProperty(O, P, Desc) {
     /* c. If numericIndex is not undefined, then */
     if (numericIndex != 'undefined) {
       /* i. If IsInteger(numericIndex) is false, return false */
-      if (!(IsInteger(numericIndex)))
+      if (!IsInteger(numericIndex))
         return false;
       /* ii. Let intIndex be numericIndex. */
       intIndex := numericIndex;
@@ -993,7 +987,7 @@ function IntegerIndexedDefineOwnProperty(O, P, Desc) {
         return false;
       /* viii. If Desc has a [[Configurable]] field and if Desc.[[Configurable]] is
          true, return false. */
-      if (("Configurable" in_obj Desc) &&& (Desc.Configurable == true))
+      if ("Configurable" in_obj Desc &&& Desc.Configurable == true)
         return false;
       /* ix. If Desc has an [[Enumerable]] field and if Desc.[[Enumerable]] is
          false, return false. */
@@ -1103,7 +1097,7 @@ function IntegerIndexedOwnPropertyKeys(O) {
   }
 
   /* 6. For each own property key P of O such that Type(P) is Symbol, in property creation order */
-  foreach(P : obj_fields O.JSPropertiesSymbols) {
+  foreach (P : obj_fields O.JSPropertiesSymbols) {
     P := O.SymbolKeys[P];
     if (Type(P) == "Symbol") {
       /* a. Add P as the last element of keys. */
@@ -1246,7 +1240,7 @@ function IntegerIndexedElementSet(O, index, value) {
   arrayTypeName := O.TypedArrayName;
   /* 13. Let elementSize be the Number value of the Element Size value specified in Table 49 for arrayTypeName. */
   elementSize := |ElementTable|[arrayTypeName].size;
-  /* 14. Let n = (index × elementSize) + offset. */
+  /* 14. Let indexedPosition = (index × elementSize) + offset. */
   indexedPosition := (index * elementSize) + offset;
   /* 15. Let elementType be the String value of the Element Type value in Table 49 for arrayTypeName. */
   elementType := |ElementTable|[arrayTypeName].type;
