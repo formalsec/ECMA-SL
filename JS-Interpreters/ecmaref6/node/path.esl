@@ -19,18 +19,15 @@ function createPathObject(globalObject, objectPrototype, strict) {
   setInternalProperty(path, "prototype", objectPrototype);
 
   /* Functions: */
-  join := CreateBuiltInFunctionObject(["path"], "__path_join", realm,
-    strict, null);
+  join := CreateBuiltInFunctionObject(["path"], "__path_join", realm, strict, null);
   createBuiltInProperty(path, "join", join);
   createBuiltInProperty(join, "prototype", objectPrototype);
 
-  basename := CreateBuiltInFunctionObject(["path"], "__path_basename", realm,
-    strict, null);
+  basename := CreateBuiltInFunctionObject(["path"], "__path_basename", realm, strict, null);
   createBuiltInProperty(path, "basename", basename);
   createBuiltInProperty(basename, "prototype", objectPrototype);
 
-  dirname := CreateBuiltInFunctionObject(["path"], "__path_dirname", realm,
-    strict, null);
+  dirname := CreateBuiltInFunctionObject(["path"], "__path_dirname", realm, strict, null);
   createBuiltInProperty(path, "dirname", dirname);
   createBuiltInProperty(dirname, "prototype", objectPrototype);
 

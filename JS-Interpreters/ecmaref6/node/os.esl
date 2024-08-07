@@ -11,10 +11,10 @@ function createOSObject(globalObject, objectPrototype, strict) {
   os := NewECMAScriptObject();
   setAllInternalMethodsOfOrdinaryObject(os);
   setInternalProperty(os, "Prototype", objectPrototype);
-
+  
   /* Functions: */
-  platform := CreateBuiltInFunctionObject([""], "__os_platform", realm,
-    strict, null);
+  platform := CreateBuiltInFunctionObject([""], "__os_platform", realm, strict, null);
+
   createBuiltInProperty(os, "platform", platform);
   createBuiltInProperty(platform, "prototype", objectPrototype);
 

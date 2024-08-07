@@ -127,7 +127,7 @@ function getPropertyDescriptor(propertyIdentifier) {
  *
  * When the abstract operation IsAccessorPropertyDescriptor is called with property descriptor Desc, the following steps are taken:
  */
-function IsAccessorPropertyDescriptor (Desc) {
+function IsAccessorPropertyDescriptor(Desc) {
   /** 1. If Desc is undefined, then return false. */
   if (Desc == 'undefined)
     return false;
@@ -143,7 +143,7 @@ function IsAccessorPropertyDescriptor (Desc) {
  *
  * When the abstract operation IsDataDescriptor is called with property descriptor Desc, the following steps are taken:
  */
-function IsDataPropertyDescriptor (Desc) {
+function IsDataPropertyDescriptor(Desc) {
   /** 1. If Desc is undefined, then return false. */
   if (Desc == 'undefined)
     return false;
@@ -159,12 +159,12 @@ function IsDataPropertyDescriptor (Desc) {
  *
  * When the abstract operation IsGenericDescriptor is called with property descriptor Desc, the following steps are taken:
  */
-function IsGenericPropertyDescriptor (Desc) {
+function IsGenericPropertyDescriptor(Desc) {
   /** 1. If Desc is undefined, then return false. */
   if (Desc == 'undefined)
     return false;
   /** 2. If IsAccessorDescriptor(Desc) and IsDataDescriptor(Desc) are both false, then return true. */
-  if ((IsAccessorPropertyDescriptor(Desc) == false) && (IsDataPropertyDescriptor(Desc) == false))
+  if (IsAccessorPropertyDescriptor(Desc) == false && IsDataPropertyDescriptor(Desc) == false)
     return true;
   /** 3. Return false. */
   return false;
@@ -177,7 +177,7 @@ function IsGenericPropertyDescriptor (Desc) {
  *
  * The following algorithm assumes that Desc is a fully populated Property Descriptor, such as that returned from [[GetOwnProperty]] (see 8.12.1).
  */
-function FromPropertyDescriptor (Desc) {
+function FromPropertyDescriptor(Desc) {
   /** 1. If Desc is undefined, then return undefined. */
   if (Desc == 'undefined)
     return 'undefined;
@@ -191,9 +191,8 @@ function FromPropertyDescriptor (Desc) {
     /** b. Call the [[DefineOwnProperty]] internal method of obj with arguments "writable",
      *  Property Descriptor {[[Value]]: Desc.[[Writable]], [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
     {obj.DefineOwnProperty}(obj, "writable", newDataPropertyDescriptor(Desc.Writable), false);
-  }
   /** 4. Else, IsAccessorDescriptor(Desc) must be true, so: */
-  else {
+  } else {
     /** a. Call the [[DefineOwnProperty]] internal method of obj with arguments "get",
      *  Property Descriptor {[[Value]]: Desc.[[Get]], [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
     {obj.DefineOwnProperty}(obj, "get", newDataPropertyDescriptor(Desc.Get), false);
@@ -260,7 +259,7 @@ function ToPropertyDescriptor (Obj) {
     /** a. Let getter be the result of calling the [[Get]] internal method of Obj with argument "get". */
     getter := {Obj.Get}(Obj, "get");
     /** b. If IsCallable(getter) is false and getter is not undefined, then throw a TypeError exception. */
-    if ((IsCallable(getter) == false) &&& (getter != 'undefined))
+    if (IsCallable(getter) == false &&& getter != 'undefined)
       throw TypeErrorConstructorInternal();
     /** c. Set the [[Get]] field of desc to getter. */
     desc.Get := getter;
@@ -271,34 +270,22 @@ function ToPropertyDescriptor (Obj) {
     /** a. Let setter be the result of calling the [[Get]] internal method of Obj with argument "set". */
     setter := {Obj.Get}(Obj, "set");
     /** b. If IsCallable(setter) is false and setter is not undefined, then throw a TypeError exception. */
-    if ((IsCallable(setter) == false) &&& (setter != 'undefined))
+    if (IsCallable(setter) == false &&& setter != 'undefined)
       throw TypeErrorConstructorInternal();
     /** c. Set the [[Set]] field of desc to setter. */
     desc.Set := setter;
   }
 
   /** 9. If either desc.[[Get]] or desc.[[Set]] are present, then: */
-  if (("Get" in_obj desc) ||| ("Set" in_obj desc)) {
+  if ("Get" in_obj desc ||| "Set" in_obj desc) {
     /** a. If either desc.[[Value]] or desc.[[Writable]] are present, then throw a TypeError exception. */
-    if (("Value" in_obj desc) ||| ("Writable" in_obj desc))
+    if ("Value" in_obj desc ||| "Writable" in_obj desc))
       throw TypeErrorConstructorInternal();
   }
-
   /** 10. Return desc. */
   return desc;
 }
 
-/*
-function CopyDescriptor(Desc) {
-
-  if (IsDataPropertyDescriptor(Desc)) {
-    newDesc := newDataPropertyDescriptorFull(Desc.Value, Desc.Writable, Desc.Enumerable, Desc.Configurable);
-    return newDesc
-  }
-
-  throw "Incomplete CopyDescriptor - TODO")
-}
-*/
 
 function CopyDescriptor(Desc) {
   newDesc := {};

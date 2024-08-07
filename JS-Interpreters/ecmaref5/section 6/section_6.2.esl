@@ -2,13 +2,12 @@
 *   6.2.2.4 ReturnIfAbrupt
 */
 macro ReturnIfAbrupt (argument) {
+  if (Type(argument) != "Completion") {
 
-  if (Type(argument) != "Completion")
-    ;
-  else if (isAnAbruptCompletion(argument))
+  } else if (isAnAbruptCompletion(argument))
     /* 1. If argument is an abrupt completion, return argument. */
     return argument;
-  else
+  } else {
     /* 2. Else if argument is a Completion Record, let argument be argument.[[value]]. */
     argument := getCompletionValue(argument);
 }

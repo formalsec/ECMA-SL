@@ -43,12 +43,12 @@ function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
      of F. thisArgument is the this value, argumentsList provides the named
      parameters, and the NewTarget value is undefined. */
   result := 'undefined;
-  if (("ECMAScriptCode" in_obj F) &&& (typeof (F.ECMAScriptCode) == "string")
+  if (("ECMAScriptCode" in_obj F) &&& (typeof F.ECMAScriptCode == "string")
 		&&& ((F.ECMAScriptCode == "FunctionPrototypeCall") ||| (F.ECMAScriptCode == "TypedArraySubConstructor"))) {
 	  args := completeArgs(argumentsList, F);
 	  result := {F.ECMAScriptCode}(externalScope, V, NewTarget, F.strict, args) catch BuiltInCall_Handler;
 	}
-	else if (("ECMAScriptCode" in_obj F) &&& ((typeof (F.ECMAScriptCode) == "string") ||| (typeof (F.ECMAScriptCode) == "curry"))) {
+	else if (("ECMAScriptCode" in_obj F) &&& ((typeof F.ECMAScriptCode == "string") ||| (typeof F.ECMAScriptCode == "curry"))) {
 	  args := completeArgs(argumentsList, F);
 	  result := {F.ECMAScriptCode}(F.Environment, V, NewTarget, F.strict, args) catch BuiltInCall_Handler;
 	}
@@ -162,7 +162,7 @@ function CreateGeneralBuiltInFunction(Prototype, FormalParameterList, steps, rea
    undefined value. */
 function completeArgs(args, functionObject) {
   lParams := getInternalProperty(functionObject, "internalLength");
-  lArgs := int_to_float (l_len(args));
+  lArgs := int_to_float l_len(args);
   if (lArgs >= lParams)
     return args;
   i := lParams - lArgs;
@@ -172,5 +172,5 @@ function completeArgs(args, functionObject) {
     i := i - 1.;
   }
 
-  return l_concat (args, aux);
+  return l_concat(args, aux);
 }

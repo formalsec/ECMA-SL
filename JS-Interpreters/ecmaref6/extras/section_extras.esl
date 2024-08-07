@@ -1,24 +1,24 @@
 function initConsoleObject(globalObject, objectPrototype, strict) {
   console := NewECMAScriptObject();
   setAllInternalMethodsOfOrdinaryObject(console);
-
   internalLog := CreateBuiltInFunctionObject(["str"], "__internalLog", globalObject, strict, null);
   internalLogObject := CreateBuiltInFunctionObject(["obj"], "__internalLogObject", globalObject, strict, null);
-
   createBuiltInProperty(console, "log", internalLog);
   createBuiltInProperty(console, "logObject", internalLogObject);
   createBuiltInProperty(internalLog, "prototype", objectPrototype);
   createBuiltInProperty(internalLogObject, "prototype", objectPrototype);
   setInternalProperty(console, "Prototype", objectPrototype);
-
   return console;
 }
 
 function __internalLog(globalObject, this, NewTarget, strict, params) {
   str := l_nth(params, 0);
-
-  if (typeof(str) != "string")
-    if (Type(str) == "Symbol") str := symbolDescriptiveString(str); else str := ToPropertyKey(str);
+  if (typeof str != "string") {
+    if (Type(str) == "Symbol")
+      str := symbolDescriptiveString(str);
+    else
+      str := ToPropertyKey(str);
+  }
   /* Important: This is console.log, do not remove! */
   print str;
   return 'null;
@@ -26,41 +26,19 @@ function __internalLog(globalObject, this, NewTarget, strict, params) {
 
 function __internalLogObject(globalObject, this, NewTarget, strict, params) {
   obj := l_nth(params, 0);
-
-  if (typeof(obj) != "object")
+  if (typeof obj != "object")
     return __internalLog(globalObject, this, NewTarget, strict, params);
-
-  /*props := getOwnProperties(obj);*/ /* Doesn't print all because enumerable */
-/*
-  i := 0;
-  len := l_len(props);
-  str := "";
-  while (i < len ) {
-    P := l_nth(props, i);
-    str := s_concat([str, P]);
-    if (i != (len - 1)) {
-      str := s_concat([str, ", "])
-    }
-    i := i + 1
-  }
-
-  print s_concat ["JS Log: [", str, "]"];*/
-
   oProps := obj.JSProperties;
-
   return 'null;
 }
 
 function initTest262Object(globalObject, objectPrototype, strict) {
   test262Obj := NewECMAScriptObject();
   setAllInternalMethodsOfOrdinaryObject(test262Obj);
-
   detachArrayBuffer := CreateGeneralBuiltInFunction(objectPrototype, [], "__detachArrayBuffer", globalObject, strict, null);
-
   createBuiltInProperty(test262Obj, "detachArrayBuffer", detachArrayBuffer);
   createBuiltInProperty(detachArrayBuffer, "prototype", objectPrototype);
   setInternalProperty(test262Obj, "Prototype", objectPrototype);
-
   return test262Obj;
 }
 

@@ -65,9 +65,9 @@ function TimeWithinDay(t) { return (t % |msPerDay|); }
 /*               == 365 if (y modulo 100) == 0 and (y modulo 400) <> 0 */
 /*               == 366 if (y modulo 400) == 0 */
 function DaysInYear(y) {
-   if ((y % 4. != 0.) || ((y % 100. == 0.) &&& (y % 400. != 0.)))
+   if ((!(y % 4. == 0.)) || (((y % 100. ) == 0.) &&& !((y % 400.) == 0.)))
       return 365.;
-   else if (((y % 4. == 0.) &&& (y % 100. != 0.)) || (y % 400. == 0.))
+   else if (((y % 4.) == 0. &&& !((y % 100.) == 0.)) || (y % 400.) == 0.)
      return 366.;
 }
 
@@ -187,18 +187,18 @@ function DayWithinYear(t) {
 /* 20.3.1.5 Date Number */
 /* A date number is identified by an integer in the range 1 through 31, inclusive. The mapping DateFromTime(t)
    from a time value t to a month number is defined by: */
-/*                   DateFromTime(t) == DayWithinYear(t)+1                  if MonthFromTime(t)=0  */
-/*                                   == DayWithinYear(t)-30                 if MonthFromTime(t)=1  */
-/*                                   == DayWithinYear(t)-58-InLeapYear(t)   if MonthFromTime(t)=2  */
-/*                                   == DayWithinYear(t)-89-InLeapYear(t)   if MonthFromTime(t)=3  */
-/*                                   == DayWithinYear(t)-119-InLeapYear(t)  if MonthFromTime(t)=4  */
-/*                                   == DayWithinYear(t)-150-InLeapYear(t)  if MonthFromTime(t)=5  */
-/*                                   == DayWithinYear(t)-180-InLeapYear(t)  if MonthFromTime(t)=6  */
-/*                                   == DayWithinYear(t)-211-InLeapYear(t)  if MonthFromTime(t)=7  */
-/*                                   == DayWithinYear(t)-242-InLeapYear(t)  if MonthFromTime(t)=8  */
-/*                                   == DayWithinYear(t)-272-InLeapYear(t)  if MonthFromTime(t)=9  */
-/*                                   == DayWithinYear(t)-303-InLeapYear(t)  if MonthFromTime(t)=10 */
-/*                                   == DayWithinYear(t)-333-InLeapYear(t)  if MonthFromTime(t)=11 */
+/*                   DateFromTime(t) = DayWithinYear(t)+1                  if MonthFromTime(t)=0  */
+/*                                   = DayWithinYear(t)-30                 if MonthFromTime(t)=1  */
+/*                                   = DayWithinYear(t)-58-InLeapYear(t)   if MonthFromTime(t)=2  */
+/*                                   = DayWithinYear(t)-89-InLeapYear(t)   if MonthFromTime(t)=3  */
+/*                                   = DayWithinYear(t)-119-InLeapYear(t)  if MonthFromTime(t)=4  */
+/*                                   = DayWithinYear(t)-150-InLeapYear(t)  if MonthFromTime(t)=5  */
+/*                                   = DayWithinYear(t)-180-InLeapYear(t)  if MonthFromTime(t)=6  */
+/*                                   = DayWithinYear(t)-211-InLeapYear(t)  if MonthFromTime(t)=7  */
+/*                                   = DayWithinYear(t)-242-InLeapYear(t)  if MonthFromTime(t)=8  */
+/*                                   = DayWithinYear(t)-272-InLeapYear(t)  if MonthFromTime(t)=9  */
+/*                                   = DayWithinYear(t)-303-InLeapYear(t)  if MonthFromTime(t)=10 */
+/*                                   = DayWithinYear(t)-333-InLeapYear(t)  if MonthFromTime(t)=11 */
 
 function DateFromTime(t) {
   MonthFromTime := MonthFromTime(t);
@@ -288,17 +288,17 @@ function UTC(t) {
 
 /* 20.3.1.11 Hours, Minutes, Second, and Milliseconds */
 /* The following functions are useful in decomposing time values: */
-/*             HourFromTime(t) == floor(t / msPerHour) modulo HoursPerDay */
-/*             MinFromTime(t)  == floor(t / msPerMinute) modulo MinutesPerHour */
-/*             SecFromTime(t)  == floor(t / msPerSecond) modulo SecondsPerMinute */
-/*             msFromTime(t)   == t modulo msPerSecond */
+/*             HourFromTime(t) = floor(t / msPerHour) modulo HoursPerDay */
+/*             MinFromTime(t)  = floor(t / msPerMinute) modulo MinutesPerHour */
+/*             SecFromTime(t)  = floor(t / msPerSecond) modulo SecondsPerMinute */
+/*             msFromTime(t)   = t modulo msPerSecond */
 /* where */
-/*             HoursPerDay      == 24 */
-/*             MinutesPerHour   == 60 */
-/*             SecondsPerMinute == 60 */
-/*             msPerSecond      == 1000 */
-/*             msPerMinute      == 60000 == msPerSecond x SecondsPerMinute */
-/*             msPerHour        == 3600000 == msPerMinute x MinutesPerHou */
+/*             HoursPerDay      = 24 */
+/*             MinutesPerHour   = 60 */
+/*             SecondsPerMinute = 60 */
+/*             msPerSecond      = 1000 */
+/*             msPerMinute      = 60000 = msPerSecond x SecondsPerMinute */
+/*             msPerHour        = 3600000 = msPerMinute x MinutesPerHou */
 function HourFromTime(t) {
    HoursPerDay := 24.;
    msPerHour := 3600000.;
@@ -1728,7 +1728,7 @@ function DatePrototypeToString(globalObject, this, NewTarget, strict, args) {
  */
 function toDateString(tv) {
   /* 1. Assert: Type(tv) is Number. */
-  assert ((Type(tv) == "Number"));
+  assert (Type(tv) == "Number");
   /* 2. If tv is NaN, return "Invalid Date". */
   if (is_NaN (tv))
     return "Invalid Date";

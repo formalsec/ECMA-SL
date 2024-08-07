@@ -23,8 +23,8 @@ function isAnAbruptCompletion (completion) {
 
 /* Auxiliary functions created for the purposes of accessing the values of the triple that form the completion type. */
 function isErrorCompletion(completion) {
-  if ((Type(completion) == "Completion"))
-    return (getCompletionType(completion) == 'throw);
+  if (Type(completion) == "Completion")
+    return getCompletionType(completion) == 'throw;
   return false;
 }
 
@@ -76,9 +76,8 @@ macro ReturnIfAbrupt(e) {
  * performs the following steps:
  */
 function UpdateEmpty(completionRecord, value) {
-  /* 1. Assert: if completionRecord.[[type]] is throw then
-     completionRecord.[[value]] is not empty. */
-  assert (!(getCompletionType(completionRecord) == 'throw &&& getCompletionValue(completionRecord) == 'empty));
+  /* 1. Assert: if completionRecord.[[type]] is throw then completionRecord.[[value]] is not empty. */
+  assert !(getCompletionType(completionRecord) == 'throw &&& getCompletionValue(completionRecord) == 'empty);
   /* 2. If completionRecord.[[type]] is throw, */
   if (getCompletionType(completionRecord) == 'throw)
     /* return Completion(completionRecord) */
@@ -87,8 +86,7 @@ function UpdateEmpty(completionRecord, value) {
   if (getCompletionValue(completionRecord) != 'empty)
     /* return Completion(completionRecord) */
     return Completion(completionRecord);
-  /* 4. Return Completion{[[type]]: completionRecord.[[type]], [[value]]:
-     value, [[target]]: completionRecord.[[target]] }. */
+  /* 4. Return Completion{[[type]]: completionRecord.[[type]], [[value]]: value, [[target]]: completionRecord.[[target]] }. */
   return newCompletion(getCompletionType(completionRecord), value, getCompletionTarget(completionRecord));
 }
 
@@ -179,7 +177,7 @@ function IsStrictReference(V) {
 function HasPrimitiveBase(V) {
   base := GetBase(V);
   baseType := Type(base);
-  return ((baseType == "Boolean") || (baseType == "String") || (baseType == "Number") || (baseType == "Symbol"));
+  return (baseType == "Boolean") || (baseType == "String") || (baseType == "Number") || (baseType == "Symbol");
 }
 
 /* Returns true if either the base value is an object or HasPrimitiveBase(V) is true; otherwise returns false. */
@@ -190,13 +188,13 @@ function IsPropertyReference (V) {
     type := Type(base)
   } */
 
-  return ((Type(base) == "Object") ||| (Type(base) == "Symbol") ||| (HasPrimitiveBase(V) == true));
+  return (Type(base) == "Object") ||| (Type(base) == "Symbol") ||| (HasPrimitiveBase(V) == true);
   /* return (typeof (V) == "list") && (l_nth(V, 0) == "R") && (l_nth(V, 1) == "P") */
 }
 
 /* Returns true if the base value is undefined and false otherwise. */
 function IsUnresolvableReference (V) {
-  return (Type(GetBase(V)) == "Undefined");
+  return Type(GetBase(V)) == "Undefined";
 }
 
 /* Returns true if this reference has a thisValue component. */
@@ -212,7 +210,6 @@ function IsSuperReference (V) {
 function GetValue(V) {
   /* ReturnIfAbrupt(V). */
   @ReturnIfAbrupt(V);
-
   /* If Type(V) is not Reference, return V. */
   if (Type(V) != "Reference")
     return V;
@@ -230,12 +227,10 @@ function GetValue(V) {
         /* Let base be ToObject(base). */
         base := ToObject(base);
       }
-
       /* Return base.[[Get]](GetReferencedName(V), GetThisValue(V)). */
       return {base.Get}(base, GetReferencedName(V), GetThisValue(V));
-  }
   /* Else base must be an Environment Record, */
-  else {
+  } else {
     /* Return base.GetBindingValue(GetReferencedName(V), IsStrictReference(V)) (see 8.1.1). */
     return {base.GetBindingValue}(base, GetReferencedName(V), IsStrictReference(V));
   }
@@ -249,16 +244,15 @@ function PutValue(V, W) {
     @ReturnIfAbrupt(V);
     /* ReturnIfAbrupt(W). */
     @ReturnIfAbrupt(W);
-
     /* If Type(V) is not Reference, throw a ReferenceError exception. */
     if (Type(V) != "Reference")
       throw ReferenceErrorConstructorInternal();
     /* Let base be GetBase(V). */
     base := GetBase(V);
     /* If IsUnresolvableReference(V), then */
-    if ( IsUnresolvableReference(V) ) {
+    if (IsUnresolvableReference(V)) {
         /* If IsStrictReference(V) is true, then */
-        if ( IsStrictReference(V) == true ) {
+        if (IsStrictReference(V) == true) {
             /* Throw ReferenceError exception. */
             throw ReferenceError(GetReferencedName(V) + " is not defined");
         }
@@ -268,13 +262,12 @@ function PutValue(V, W) {
         globalObj := |global|;
         /* Return Set(globalObj,GetReferencedName(V), W, false). */
         return Set(globalObj, GetReferencedName(V), W, false);
-    }
     /* Else if IsPropertyReference(V), then */
-    else if ( IsPropertyReference(V) ) {
+    } else if (IsPropertyReference(V)) {
         /* If HasPrimitiveBase(V) is true, then */
-        if ( HasPrimitiveBase(V) == true ) {
+        if (HasPrimitiveBase(V) == true) {
             /* Assert: In this case, base will never be null or undefined. */
-            assert (base != 'null &&& base != 'undefined);
+            assert (base != 'null ||| base != 'undefined);
             /* Set base to ToObject(base). */
             base := ToObject(base);
         }
@@ -284,13 +277,12 @@ function PutValue(V, W) {
         /* ReturnIfAbrupt(succeeded). */
         @ReturnIfAbrupt(succeeded);
         /* If succeeded is false and IsStrictReference(V) is true, throw a TypeError exception. */
-        if ((succeeded == false) &&& (IsStrictReference(V) == true))
+        if (succeeded == false &&& IsStrictReference(V) == true)
           throw TypeErrorConstructorInternal();
         /* Return. */
         return;
-    }
     /* Else base must be an Environment Record. */
-    else {
+    } else {
         /* Return base.SetMutableBinding(GetReferencedName(V), W, IsStrictReference(V)) (see 8.1.1). */
         return {base.SetMutableBinding}(base, GetReferencedName(V), W, IsStrictReference(V));
     }
@@ -306,7 +298,7 @@ function PutValue(V, W) {
 */
 function GetThisValue(V) {
     /* Assert: IsPropertyReference(V) is true. */
-    assert (IsPropertyReference(V) == true );
+    assert (IsPropertyReference(V) == true);
     /* If IsSuperReference(V), then */
     if (IsSuperReference(V))
         /* Return the value of the thisValue component of the reference V. */
@@ -321,22 +313,16 @@ function GetThisValue(V) {
 function InitializeReferencedBinding(V, W) {
     /* ReturnIfAbrupt(V). */
     @ReturnIfAbrupt(V);
-
     /* ReturnIfAbrupt(W). */
     @ReturnIfAbrupt(W);
-
     /* Assert: Type(V) is Reference. */
     assert (Type(V) == "Reference" );
-
     /* Assert: IsUnresolvableReference(V) is false. */
     assert (IsUnresolvableReference(V) == false );
-
     /* Let base be GetBase(V). */
     base := GetBase(V);
-
     /* Assert: base is an Environment Record. */
     /*assert (isEnvironmentRecord(base) ); */
-
     /* Return base.InitializeBinding(GetReferencedName(V), W). */
     return {base.InitializeBinding}(base, GetReferencedName(V), W);
 }
@@ -403,7 +389,7 @@ function IsGenericDescriptor (Desc) {
   if (Desc == 'undefined)
     return false;
   /** 2. If IsAccessorDescriptor(Desc) and IsDataDescriptor(Desc) are both false, then return true. */
-  if ((IsAccessorDescriptor(Desc) == false) &&& (IsDataDescriptor(Desc) == false))
+  if (IsAccessorDescriptor(Desc) == false &&& IsDataDescriptor(Desc) == false)
     return true;
   /** 3. Return false. */
   return false;
@@ -457,11 +443,9 @@ function FromPropertyDescriptor(Desc) {
  function ToPropertyDescriptor(Obj) {
     /* ReturnIfAbrupt(Obj). */
     @ReturnIfAbrupt(Obj);
-
     /* If Type(Obj) is not Object, throw a TypeError exception. */
     if (Type(Obj) != "Object") 
       throw TypeErrorConstructorInternal();
-
     /* Let desc be a new Property Descriptor that initially has no fields. */
     desc := NewPropertyDescriptor();
     /* Let hasEnumerable be HasProperty(Obj, "enumerable"). */
@@ -531,7 +515,7 @@ function FromPropertyDescriptor(Desc) {
         /* ReturnIfAbrupt(getter). */
         @ReturnIfAbrupt(getter);
         /* If IsCallable(getter) is false and getter is not undefined, throw a TypeError exception. */
-        if ((IsCallable(getter) == false) &&& (getter != 'undefined))
+        if (IsCallable(getter) == false &&& getter != 'undefined)
           throw TypeErrorConstructorInternal();
         /* Set the [[Get]] field of desc to getter. */
         desc.Get := getter;
@@ -548,16 +532,16 @@ function FromPropertyDescriptor(Desc) {
         /* ReturnIfAbrupt(setter). */
         @ReturnIfAbrupt(setter);
         /* If IsCallable(setter) is false and setter is not undefined, throw a TypeError exception. */
-        if ((IsCallable(setter) == false) &&& (setter != 'undefined))
+        if (IsCallable(setter) == false &&& setter != 'undefined)
           throw TypeErrorConstructorInternal();
         /* Set the [[Set]] field of desc to setter. */
         desc.Set := setter;
     }
 
     /* If either desc.[[Get]] or desc.[[Set]] is present, then */
-    if (("Get" in_obj desc) ||| ("Set" in_obj desc)) {
+    if ("Get" in_obj desc ||| "Set" in_obj desc) {
         /* If either desc.[[Value]] or desc.[[Writable]] is present, throw a TypeError exception. */
-        if (("Value" in_obj desc) ||| ("Writable" in_obj desc))
+        if ("Value" in_obj desc ||| "Writable" in_obj desc)
           throw TypeErrorConstructorInternal();
     }
 
@@ -575,28 +559,26 @@ function FromPropertyDescriptor(Desc) {
     /* ReturnIfAbrupt(Desc). */
     @ReturnIfAbrupt(Desc);
     /* Assert: Desc is a Property Descriptor */
-    assert (isPropertyDescriptor(Desc) == true );
+    assert (isPropertyDescriptor(Desc) == true);
     /* Let like be Record{[[Value]]: undefined, [[Writable]]: false, [[Get]]: undefined, [[Set]]: undefined, [[Enumerable]]: false, [[Configurable]]: false}. */
     like := { Value: 'undefined, Writable: false, Get: 'undefined, Set: 'undefined, Enumerable: false, Configurable: false };
     /* If either IsGenericDescriptor(Desc) or IsDataDescriptor(Desc) is true, then */
-    if ((IsGenericDescriptor(Desc) == true) ||| (IsDataDescriptor(Desc) == true)) {
-        /* If Desc does not have a [[Value]] field, set Desc.[[Value]] to like.[[Value]]. */
-        if (!("Value" in_obj Desc))
-          Desc.Value := like.Value;
-        /* If Desc does not have a [[Writable]] field, set Desc.[[Writable]] to like.[[Writable]]. */
-        if (!("Writable" in_obj Desc))
-          Desc.Writable := like.Writable;
-    }
+    if (IsGenericDescriptor(Desc) == true ||| IsDataDescriptor(Desc) == true) {
+      /* If Desc does not have a [[Value]] field, set Desc.[[Value]] to like.[[Value]]. */
+      if (!("Value" in_obj Desc))
+        Desc.Value := like.Value;
+      /* If Desc does not have a [[Writable]] field, set Desc.[[Writable]] to like.[[Writable]]. */
+      if (!("Writable" in_obj Desc))
+        Desc.Writable := like.Writable;
     /* Else, */
-    else {
-        /* If Desc does not have a [[Get]] field, set Desc.[[Get]] to like.[[Get]]. */
-        if (!("Get" in_obj Desc))
-          Desc.Get := like.Get;
-        /* If Desc does not have a [[Set]] field, set Desc.[[Set]] to like.[[Set]]. */
-        if (!("Set" in_obj Desc))
-          Desc.Set := like.Set;
+    } else {
+      /* If Desc does not have a [[Get]] field, set Desc.[[Get]] to like.[[Get]]. */
+      if (!("Get" in_obj Desc))
+        Desc.Get := like.Get;
+      /* If Desc does not have a [[Set]] field, set Desc.[[Set]] to like.[[Set]]. */
+      if (!("Set" in_obj Desc))
+        Desc.Set := like.Set;
     }
-
     /* If Desc does not have an [[Enumerable]] field, set Desc.[[Enumerable]] to like.[[Enumerable]]. */
     if (!("Enumerable" in_obj Desc))
       Desc.Enumerable := like.Enumerable;
@@ -606,6 +588,3 @@ function FromPropertyDescriptor(Desc) {
     /* Return Desc. */
     return Desc;
  }
-
-
-

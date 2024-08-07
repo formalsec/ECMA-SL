@@ -87,10 +87,9 @@ function deleteJSProperty(object, pname) {
   }
 
   newInternalSlots := [];
-  foreach ( name : object.internalSlotsList )
+  foreach (name : object.internalSlotsList)
     if (name != pname)
       newInternalSlots := l_add(newInternalSlots, name);
-
   object.internalSlotsList := newInternalSlots;
   return;
 }
