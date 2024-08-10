@@ -49,8 +49,7 @@
     :with-test
     (>= "2.5.0")
     :dev))
-  conf-npm
-  instrumentation2)
+  conf-npm)
  (tags
   (ECMAScript "Specification Language" "Reference Interpreters" "OCaml"))
 (sites
