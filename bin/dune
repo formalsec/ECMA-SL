@@ -23,9 +23,6 @@
   cmd_execute
   cmd_test
   cmd_symbolic
-  cmd_replay
-  cmd_explodejs
-  cmd_exploit
   cmd
   ; enums
   debug_lvl
@@ -35,6 +32,6 @@
   ; utils
   dir
   share)
- (libraries ecma-sl cmdliner bos yojson instrumentation2)
+ (libraries ecma-sl cmdliner bos yojson)
  (instrumentation
   (backend bisect_ppx)))

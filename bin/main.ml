@@ -71,22 +71,6 @@ let symbolic_cmd =
   let open Doc_symbolic in
   let info = Cmd.info "symbolic" ~doc ~sdocs ~man ~man_xrefs in
   Cmd.v info term
-
-let replay_cmd =
-  let open Doc_replay in
-  let info = Cmd.info "replay" ~doc ~sdocs ~man ~man_xrefs in
-  Cmd.v info term
-
-let explode_cmd =
-  let open Doc_explodejs in
-  let info = Cmd.info "explode-js" ~doc ~sdocs ~man ~man_xrefs ~exits in
-  Cmd.v info term
-
-let exploit_cmd =
-  let open Doc_exploit in
-  let info = Cmd.info "exploit" ~doc ~sdocs ~man ~man_xrefs in
-  Cmd.v info term
-
 let cmd_list =
   [ compile_cmd
   ; interpret_cmd
@@ -94,9 +78,6 @@ let cmd_list =
   ; execute_cmd
   ; test_cmd
   ; symbolic_cmd
-  ; replay_cmd
-  ; explode_cmd
-  ; exploit_cmd
   ]
 
 let main_cmd =
