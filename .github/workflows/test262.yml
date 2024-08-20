@@ -1,20 +1,17 @@
-name: Build
+name: Run Test262 Benchmarks
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch
 
 jobs:
-  build:
+  test:
     env:
       TERM: screen-256color
       OCAML_COMPILER: 4.14
+
     strategy:
       fail-fast: false
+
     runs-on: self-hosted
     steps:
       - name: Checkout
@@ -36,5 +33,11 @@ jobs:
       - name: Build
         run: opam exec -- dune build @install
 
-      - name: Test
-        run: opam exec -- dune runtest
+      - name: Run Test262
+        run: opam exec -- dune exec -- ecma-sl test test/test262/tests/ > test262-results.txt
+
+      - name: Upload Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test262-results
+          path: test262-results.txt
