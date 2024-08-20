@@ -11,6 +11,6 @@ jobs:
     name: Check Changelog Action
     runs-on: self-hosted
     steps:
-      - uses: tarides/changelog-check-action@v2
+      - uses: tarides/changelog-check-action@v3
         with:
           changelog: CHANGES.md
