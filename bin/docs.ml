@@ -329,6 +329,13 @@ module TestOpts = struct
     let docv = "FILE/DIR" in
     let doc = "Name of the file or directory for storing the test report." in
     Arg.(value & opt (some fpath) None & info [ "report" ] ~docv ~doc)
+
+  let webhook_url =
+    let doc =
+      "Specify a webhook url on which to send a summary of the test results. \
+       By default this is disabled."
+    in
+    Arg.(value & opt (some string) None & info [ "webhook-url" ] ~doc)
 end
 
 module TestCmd = struct

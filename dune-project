@@ -33,6 +33,9 @@
   bos
   cmdliner
   curses
+  cohttp
+  cohttp-lwt-unix
+  lwt
   menhir
   menhirLib
   yojson
