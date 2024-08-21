@@ -13,13 +13,23 @@ module Options = struct
     ; test_type : Enums.JSTest.t
     ; report : Fpath.t option
     ; interp_profiler : Enums.InterpProfiler.t
+    ; webhook_url : string option
     }
 
   let set (inputs : Fpath.t list) (lang : Enums.Lang.t)
     (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option)
     (test_type : Enums.JSTest.t) (report : Fpath.t option)
-    (interp_profiler : Enums.InterpProfiler.t) : t =
-    { inputs; lang; jsinterp; harness; test_type; report; interp_profiler }
+    (interp_profiler : Enums.InterpProfiler.t) (webhook_url : string option) : t
+      =
+    { inputs
+    ; lang
+    ; jsinterp
+    ; harness
+    ; test_type
+    ; report
+    ; interp_profiler
+    ; webhook_url
+    }
 end
 
 module TestRecord = struct
@@ -423,6 +433,15 @@ let test_summary (output : Fpath.t option) (total_time : float)
   | Some path -> Result.bos (Bos.OS.File.writef path "%a@." TestTree.pp tree)
   | _ -> Ok ()
 
+(* Best effort to send a notification, not critical so just fail silently *)
+let notify_done (tree : TestTree.t) (url : string) : unit =
+  let url = Webhook.url_of_string url in
+  let head = Git.get_head () in
+  let title = Fmt.str "Test results (commit hash=%s) :octopus:" head in
+  let body = Fmt.str "%a" TestTree.pp_summary tree in
+  let body = Webhook.default_slack_mrkdwn title body in
+  Lwt_main.run @@ Webhook.post_and_forget url body
+
 let run () (opts : Options.t) : unit Result.t =
   let total_time = Base.time () in
   let* inputs = Files.generate_input_list opts.inputs in
@@ -435,4 +454,5 @@ let run () (opts : Options.t) : unit Result.t =
   let exitcode = Files.process_inputs ~outext run_single' inputs opts.report in
   let total_time = Base.time () -. total_time in
   let* () = test_summary opts.report total_time tree in
+  Option.iter (notify_done { tree with time = total_time }) opts.webhook_url;
   exitcode
