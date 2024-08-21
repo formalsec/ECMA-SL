@@ -37,7 +37,7 @@ jobs:
         # The workflow should succeed even if `test` has nonzero return code
         continue-on-error: true
         run: |
-          opam exec -- dune exec -- ecma-sl test test/test262/tests/ > test262-results.txt
+          opam exec -- dune exec -- ecma-sl test --type test262 test/test262/tests/ --webhook-url "$SLACK_WEBHOOK_URL" > results-test262_${{ github.sha }}.txt
 
       - name: Upload Results
         uses: actions/upload-artifact@v4
