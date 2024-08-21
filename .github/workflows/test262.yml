@@ -34,7 +34,10 @@ jobs:
         run: opam exec -- dune build @install
 
       - name: Run Test262
-        run: opam exec -- dune exec -- ecma-sl test test/test262/tests/ > test262-results.txt
+        # The workflow should succeed even if `test` has nonzero return code
+        continue-on-error: true
+        run: |
+          opam exec -- dune exec -- ecma-sl test test/test262/tests/ > test262-results.txt
 
       - name: Upload Results
         uses: actions/upload-artifact@v4
