@@ -27,7 +27,7 @@ depends: [
   "tls-lwt"
   "yojson"
   "conf-npm"
-  "smtml" {>= "0.0.4"}
+  "smtml" {>= "0.2.5"}
   "ppx_import"
   "ppx_deriving"
   "ppx_inline_test" {with-test}
@@ -50,6 +50,3 @@ build: [
   ["dune" "install" "-p" name "--create-install-files" name]
 ]
 dev-repo: "git+https://github.com/formalsec/ECMA-SL.git"
-pin-depends: [
-  [ "smtml.dev" "git+https://github.com/formalsec/smtml#2ad8d47999598ede3c13389b56c75a15e6e2644b"]
-]
