@@ -8,6 +8,8 @@ jobs:
     env:
       TERM: screen-256color
       OCAML_COMPILER: 4.14
+      RESULTS_FILE: results-test262_${{ github.sha }}.txt
+      SLACK_WEBHOOK_URL: ${{ vars.SLACK_WEBHOOK_URL }}
 
     strategy:
       fail-fast: false
@@ -37,10 +39,10 @@ jobs:
         # The workflow should succeed even if `test` has nonzero return code
         continue-on-error: true
         run: |
-          opam exec -- dune exec -- ecma-sl test --type test262 test/test262/tests/ --webhook-url "$SLACK_WEBHOOK_URL" > results-test262_${{ github.sha }}.txt
+          opam exec -- dune exec -- ecma-sl test --type test262 test/test262/tests --webhook-url "$SLACK_WEBHOOK_URL" > ${{ env.RESULTS_FILE }}
 
       - name: Upload Results
         uses: actions/upload-artifact@v4
         with:
-          name: test262-results
-          path: test262-results.txt
+          name: results-test262
+          path: ${{ env.RESULTS_FILE }}

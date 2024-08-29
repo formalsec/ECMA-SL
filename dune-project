@@ -38,6 +38,7 @@
   lwt
   menhir
   menhirLib
+  tls-lwt
   yojson
   conf-npm
   (smtml (>= 0.0.4))
