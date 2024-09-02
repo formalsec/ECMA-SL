@@ -5,7 +5,7 @@
 To run the Test262 tests locally simply, run:
 
 ```sh
-dune exec -- ecma-sl test ./tests
+dune exec -- ecma-sl test --type test262 --harness environment/harness.js ./tests
 ```
 
 ## Running with GitHub
