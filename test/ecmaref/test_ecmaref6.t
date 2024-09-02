@@ -834,7 +834,7 @@ Tests compilation of ecmaref6:
                   rnum := __v166
                 }
               };
-              __v167 := lnum %% rnum;
+              __v167 := lnum % rnum;
               return [false, __v167]
             } else {
               __v168 := "operator" in_obj e;
@@ -6184,7 +6184,7 @@ Tests compilation of ecmaref6:
       };
       __v1162 := __v1159 < __v1161;
       if (__v1162) {
-        __v1163 := -1.0;
+        __v1163 := -(1.0);
         return [false, __v1163]
       } else {
         __v1164 := "s_nth_u"(___internal_esl_global, S, j);
@@ -6244,7 +6244,7 @@ Tests compilation of ecmaref6:
       }
     };
     if (__v1173) {
-      __v1174 := -1.0;
+      __v1174 := -(1.0);
       return [false, __v1174]
     } else {
       __v1175 := j < SLen;
@@ -8883,7 +8883,7 @@ Tests compilation of ecmaref6:
         __v1649 := hd tl __v1649
       };
       if (__v1649) {
-        __v1650 := -0.0;
+        __v1650 := -(0.0);
         return [false, __v1650]
       } else {
         __v1651 := "isZero"(___internal_esl_global, x);
@@ -8897,7 +8897,7 @@ Tests compilation of ecmaref6:
         } else {
           __v1652 := x < 0.0;
           if (__v1652) {
-            __v1653 := -1.0;
+            __v1653 := -(1.0);
             return [false, __v1653]
           } else {
             __v1654 := x > 0.0;
@@ -9063,7 +9063,7 @@ Tests compilation of ecmaref6:
     } else {
       __v1686 := hd tl __v1686
     };
-    __v1687 := __v1686 %% SecondsPerMinute;
+    __v1687 := __v1686 % SecondsPerMinute;
     return [false, __v1687]
   };
   function applyOperator(___internal_esl_global, operator, lval, rval) {
@@ -9099,7 +9099,7 @@ Tests compilation of ecmaref6:
       };
       __v1699 := operator == "%=";
       if (__v1699) {
-        __v1700 := leftNum %% rightNum;
+        __v1700 := leftNum % rightNum;
         return [false, __v1700]
       }
     };
@@ -9591,12 +9591,12 @@ Tests compilation of ecmaref6:
     if (__v1795) {
       return [false, nan]
     };
-    __v1796 := -1.0;
+    __v1796 := -(1.0);
     __v1797 := x < __v1796;
     if (__v1797 == true) {
       __v1800 := true
     } else {
-      __v1798 := -inf;
+      __v1798 := -(inf);
       __v1799 := x == __v1798;
       if (__v1799 == true) {
         __v1800 := true
@@ -9607,10 +9607,10 @@ Tests compilation of ecmaref6:
     if (__v1800) {
       return [false, nan]
     };
-    __v1801 := -1.0;
+    __v1801 := -(1.0);
     __v1802 := x == __v1801;
     if (__v1802) {
-      __v1803 := -inf;
+      __v1803 := -(inf);
       return [false, __v1803]
     };
     __v1804 := "isZero"(___internal_esl_global, x);
@@ -9629,7 +9629,7 @@ Tests compilation of ecmaref6:
       __v1805 := hd tl __v1805
     };
     if (__v1805) {
-      __v1806 := -0.0;
+      __v1806 := -(0.0);
       return [false, __v1806]
     };
     __v1807 := x == inf;
@@ -14102,7 +14102,7 @@ Tests compilation of ecmaref6:
       }
     };
     if (__v2645) {
-      __v2646 := -1.0;
+      __v2646 := -(1.0);
       sign := __v2646
     };
     __v2647 := S != "";
@@ -14848,7 +14848,7 @@ Tests compilation of ecmaref6:
     };
     __v2786 := y + __v2785;
     ym := __v2786;
-    __v2787 := m %% 12.0;
+    __v2787 := m % 12.0;
     mn := __v2787;
     __v2788 := "TimeFromYear"(___internal_esl_global, ym);
     if (hd __v2788) {
@@ -18275,7 +18275,7 @@ Tests compilation of ecmaref6:
     } else {
       __v3438 := hd tl __v3438
     };
-    __v3439 := -__v3438;
+    __v3439 := -(__v3438);
     __v3440 := __v3439 / t;
     step := __v3440;
     __v3441 := "TimeFromYear"(___internal_esl_global, aprox);
@@ -18988,7 +18988,7 @@ Tests compilation of ecmaref6:
       return [false, 0.0]
     };
     __v3594 := n < 0.0;
-    __v3595 := -1.0;
+    __v3595 := -(1.0);
     __v3596 := __v3594 ? __v3595 : 1.0;
     sign := __v3596;
     __v3597 := "abs"(___internal_esl_global, n);
@@ -19005,7 +19005,7 @@ Tests compilation of ecmaref6:
     };
     __v3599 := sign * __v3598;
     posInt := __v3599;
-    __v3600 := posInt %% 4294967296.0;
+    __v3600 := posInt % 4294967296.0;
     int32bit := __v3600;
     __v3601 := int32bit >= 2147483648.0;
     __v3602 := int32bit - 4294967296.0;
@@ -20475,7 +20475,7 @@ Tests compilation of ecmaref6:
     if (__v3892) {
       return [false, 0.0]
     };
-    __v3893 := -1.0;
+    __v3893 := -(1.0);
     return [false, __v3893]
   };
   function FunctionConstructor(___internal_esl_global, globalObject, this, NewTarget, strict, params) {
@@ -25965,7 +25965,7 @@ Tests compilation of ecmaref6:
       __v4888 := false
     } else {
       __v4885 := 1.0 / x;
-      __v4886 := -inf;
+      __v4886 := -(inf);
       __v4887 := __v4885 == __v4886;
       if (__v4887 == false) {
         __v4888 := false
@@ -26453,7 +26453,7 @@ Tests compilation of ecmaref6:
       __v4968 := k + searchLen;
       __v4969 := __v4968 <= len
     };
-    __v4979 := -1.0;
+    __v4979 := -(1.0);
     return [false, __v4979]
   };
   function octal_to_decimal(___internal_esl_global, n) {
@@ -29145,17 +29145,17 @@ Tests compilation of ecmaref6:
       __v5436 := hd tl __v5436
     };
     if (__v5436) {
-      __v5437 := -0.0;
+      __v5437 := -(0.0);
       return [false, __v5437]
     };
     __v5438 := x == inf;
     if (__v5438) {
       return [false, inf]
     };
-    __v5439 := -inf;
+    __v5439 := -(inf);
     __v5440 := x == __v5439;
     if (__v5440) {
-      __v5441 := -inf;
+      __v5441 := -(inf);
       return [false, __v5441]
     };
     __v5442 := 1.0 / 3.0;
@@ -30435,7 +30435,7 @@ Tests compilation of ecmaref6:
       k := __v5661;
       __v5646 := k < len
     };
-    __v5662 := -1.0;
+    __v5662 := -(1.0);
     return [false, __v5662]
   };
   function WrappedCall(___internal_esl_global, externalScope, ref, F, this, args) {
@@ -30514,7 +30514,7 @@ Tests compilation of ecmaref6:
     if (__v5673 == true) {
       __v5676 := true
     } else {
-      __v5674 := -inf;
+      __v5674 := -(inf);
       __v5675 := x == __v5674;
       if (__v5675 == true) {
         __v5676 := true
@@ -31277,7 +31277,7 @@ Tests compilation of ecmaref6:
       if (__v5804 == true) {
         __v5807 := true
       } else {
-        __v5805 := -inf;
+        __v5805 := -(inf);
         __v5806 := x == __v5805;
         if (__v5806 == true) {
           __v5807 := true
@@ -33731,7 +33731,7 @@ Tests compilation of ecmaref6:
       return [false, 0.0]
     };
     __v6257 := n < 0.0;
-    __v6258 := -1.0;
+    __v6258 := -(1.0);
     __v6259 := __v6257 ? __v6258 : 1.0;
     sign := __v6259;
     __v6260 := "abs"(___internal_esl_global, n);
@@ -33748,7 +33748,7 @@ Tests compilation of ecmaref6:
     };
     __v6262 := sign * __v6261;
     posInt := __v6262;
-    __v6263 := posInt %% 65536.0;
+    __v6263 := posInt % 65536.0;
     return [false, __v6263]
   };
   function parseJSONText(___internal_esl_global, global, this, NewTarget, strict, args) {
@@ -34917,7 +34917,7 @@ Tests compilation of ecmaref6:
     };
     __v6455 := len == 0.0;
     if (__v6455) {
-      __v6456 := -1.0;
+      __v6456 := -(1.0);
       return [false, __v6456]
     };
     __v6457 := fromIndex != null;
@@ -35087,7 +35087,7 @@ Tests compilation of ecmaref6:
       k := __v6486;
       __v6470 := k >= 0.0
     };
-    __v6487 := -1.0;
+    __v6487 := -(1.0);
     return [false, __v6487]
   };
   function isIntrinsic(___internal_esl_global, name) {
@@ -37615,7 +37615,7 @@ Tests compilation of ecmaref6:
     __v6937 := x < 0.0;
     if (__v6937) {
       s := "-";
-      __v6938 := -x;
+      __v6938 := -(x);
       x := __v6938
     };
     __v6939 := 10.0 ** 21.0;
@@ -39107,7 +39107,7 @@ Tests compilation of ecmaref6:
     if (__v7244 == true) {
       __v7247 := true
     } else {
-      __v7245 := -inf;
+      __v7245 := -(inf);
       __v7246 := num == __v7245;
       if (__v7246 == true) {
         __v7247 := true
@@ -39752,7 +39752,7 @@ Tests compilation of ecmaref6:
       };
       return [true, __v7355]
     };
-    __v7356 := offset %% elementSize;
+    __v7356 := offset % elementSize;
     __v7357 := __v7356 != 0.0;
     if (__v7357) {
       __v7358 := "RangeErrorConstructorInternal"(___internal_esl_global);
@@ -39783,7 +39783,7 @@ Tests compilation of ecmaref6:
     bufferByteLength := __v7362;
     __v7363 := length == 'undefined;
     if (__v7363) {
-      __v7364 := bufferByteLength %% elementSize;
+      __v7364 := bufferByteLength % elementSize;
       __v7365 := __v7364 != 0.0;
       if (__v7365) {
         __v7366 := "RangeErrorConstructorInternal"(___internal_esl_global);
@@ -40519,7 +40519,7 @@ Tests compilation of ecmaref6:
     assert __v7493;
     __v7494 := argument == "-0";
     if (__v7494) {
-      __v7495 := -0.0;
+      __v7495 := -(0.0);
       return [false, __v7495]
     };
     __v7496 := "ToNumber"(___internal_esl_global, argument);
@@ -41645,7 +41645,7 @@ Tests compilation of ecmaref6:
     };
     __v7699 := argument == inf;
     __v7700 := __v7698 || __v7699;
-    __v7701 := -inf;
+    __v7701 := -(inf);
     __v7702 := argument == __v7701;
     __v7703 := __v7700 || __v7702;
     if (__v7703) {
@@ -42294,7 +42294,7 @@ Tests compilation of ecmaref6:
       }
     };
     if (__v7817) {
-      __v7818 := -1.0;
+      __v7818 := -(1.0);
       direction := __v7818;
       __v7819 := from + count;
       __v7820 := __v7819 - 1.0;
@@ -43847,7 +43847,7 @@ Tests compilation of ecmaref6:
     if (__v8108) {
       return [false, 0.0]
     };
-    __v8109 := -1.0;
+    __v8109 := -(1.0);
     return [false, __v8109]
   };
   function getElementSize(___internal_esl_global, type) {
@@ -46301,7 +46301,7 @@ Tests compilation of ecmaref6:
     } else {
       __v8607 := hd tl __v8607
     };
-    __v8608 := -16.0;
+    __v8608 := -(16.0);
     __v8609 := 10.0 ** __v8608;
     __v8610 := 2.2204460492503131 * __v8609;
     EPSILON := __v8610;
@@ -46436,7 +46436,7 @@ Tests compilation of ecmaref6:
     };
     __v8636 := 2.0 ** 53.0;
     __v8637 := __v8636 - 1.0;
-    __v8638 := -__v8637;
+    __v8638 := -(__v8637);
     MIN_SAFE_INTEGER := __v8638;
     __v8639 := "createBuiltInPropertyWithFullDescriptor"(___internal_esl_global, NumberConstructor, "MIN_SAFE_INTEGER", MIN_SAFE_INTEGER, false, false, false);
     if (hd __v8639) {
@@ -46456,7 +46456,7 @@ Tests compilation of ecmaref6:
     } else {
       __v8641 := hd tl __v8641
     };
-    __v8642 := -inf;
+    __v8642 := -(inf);
     __v8643 := "createBuiltInPropertyWithFullDescriptor"(___internal_esl_global, NumberConstructor, "NEGATIVE_INFINITY", __v8642, false, false, false);
     if (hd __v8643) {
       return __v8643
@@ -46634,7 +46634,7 @@ Tests compilation of ecmaref6:
       __v8676 := hd tl __v8676
     };
     __v8677 := __v8676 + 4.0;
-    __v8678 := __v8677 %% 7.0;
+    __v8678 := __v8677 % 7.0;
     return [false, __v8678]
   };
   function IntegerIndexedGetOwnProperty(___internal_esl_global, O, P) {
@@ -47970,7 +47970,7 @@ Tests compilation of ecmaref6:
       }
     };
     if (__v8883) {
-      __v8884 := -1.0;
+      __v8884 := -(1.0);
       direction := __v8884;
       __v8885 := from + count;
       __v8886 := __v8885 - 1.0;
@@ -48370,7 +48370,7 @@ Tests compilation of ecmaref6:
       k := __v8952;
       __v8938 := k < len
     };
-    __v8953 := -1.0;
+    __v8953 := -(1.0);
     return [false, __v8953]
   };
   function DatePrototypeSetFullYear(___internal_esl_global, global, this, NewTarget, strict, args) {
@@ -50343,12 +50343,12 @@ Tests compilation of ecmaref6:
       if (__v9314) {
         return [false, true]
       };
-      __v9315 := -inf;
+      __v9315 := -(inf);
       __v9316 := ny == __v9315;
       if (__v9316) {
         return [false, false]
       };
-      __v9317 := -inf;
+      __v9317 := -(inf);
       __v9318 := nx == __v9317;
       if (__v9318) {
         return [false, true]
@@ -51602,7 +51602,7 @@ Tests compilation of ecmaref6:
       };
       __v9546 := __v9545 == "-";
       if (__v9546) {
-        __v9547 := -0.0;
+        __v9547 := -(0.0);
         return [false, __v9547]
       };
       return [false, 0.0]
@@ -51726,7 +51726,7 @@ Tests compilation of ecmaref6:
     };
     __v9569 := len == 0.0;
     if (__v9569) {
-      __v9570 := -1.0;
+      __v9570 := -(1.0);
       return [false, __v9570]
     };
     __v9571 := fromIndex != null;
@@ -51769,7 +51769,7 @@ Tests compilation of ecmaref6:
     };
     __v9577 := n >= len;
     if (__v9577) {
-      __v9578 := -1.0;
+      __v9578 := -(1.0);
       return [false, __v9578]
     };
     __v9579 := n >= 0.0;
@@ -51897,7 +51897,7 @@ Tests compilation of ecmaref6:
       k := __v9600;
       __v9584 := k < len
     };
-    __v9601 := -1.0;
+    __v9601 := -(1.0);
     return [false, __v9601]
   };
   function symbolValueOf(___internal_esl_global, global, this, NewTarget, strict, args) {
@@ -52542,7 +52542,7 @@ Tests compilation of ecmaref6:
     };
     __v9720 := y == 'undefined;
     if (__v9720) {
-      __v9721 := -1.0;
+      __v9721 := -(1.0);
       return [false, __v9721]
     };
     __v9722 := comparefn != 'undefined;
@@ -52666,7 +52666,7 @@ Tests compilation of ecmaref6:
     };
     __v9741 := xString < yString;
     if (__v9741) {
-      __v9742 := -1.0;
+      __v9742 := -(1.0);
       return [false, __v9742]
     };
     __v9743 := xString > yString;
@@ -53705,7 +53705,7 @@ Tests compilation of ecmaref6:
     return [false, result]
   };
   function applyingTheSubtractionOperation(___internal_esl_global, leftOperand, rightOperand) {
-    __v9930 := -rightOperand;
+    __v9930 := -(rightOperand);
     __v9931 := "applyingTheAdditionOperation"(___internal_esl_global, leftOperand, __v9930);
     if (hd __v9931) {
       return __v9931
@@ -56987,7 +56987,7 @@ Tests compilation of ecmaref6:
       __v10495 := hd tl __v10495
     };
     list := __v10495;
-    __v10496 := -1.0;
+    __v10496 := -(1.0);
     __v10497 := list == __v10496;
     if (__v10497) {
       return [false, nan]
@@ -59984,7 +59984,7 @@ Tests compilation of ecmaref6:
     };
     __v23122 := int_to_float __v23121;
     v_code := __v23122;
-    __v23123 := v_code %% 32.0;
+    __v23123 := v_code % 32.0;
     v_code := __v23123;
     __v23124 := "stateGetChar"(___internal_esl_global, st);
     if (hd __v23124) {
@@ -60417,7 +60417,7 @@ Tests compilation of ecmaref6:
     if (__v11063 == true) {
       __v11066 := true
     } else {
-      __v11064 := -inf;
+      __v11064 := -(inf);
       __v11065 := num == __v11064;
       if (__v11065 == true) {
         __v11066 := true
@@ -60938,7 +60938,7 @@ Tests compilation of ecmaref6:
       }
     };
     __v11156 := n < 0.0;
-    __v11157 := -1.0;
+    __v11157 := -(1.0);
     __v11158 := __v11156 ? __v11157 : 1.0;
     sign := __v11158;
     __v11159 := "abs"(___internal_esl_global, n);
@@ -61601,7 +61601,7 @@ Tests compilation of ecmaref6:
       }
     };
     matched := searchString;
-    __v11281 := -1.0;
+    __v11281 := -(1.0);
     __v11282 := pos == __v11281;
     if (__v11282) {
       return [false, str]
@@ -61834,17 +61834,17 @@ Tests compilation of ecmaref6:
       __v11321 := hd tl __v11321
     };
     if (__v11321) {
-      __v11322 := -0.0;
+      __v11322 := -(0.0);
       return [false, __v11322]
     };
     __v11323 := x == inf;
     if (__v11323) {
       return [false, inf]
     };
-    __v11324 := -inf;
+    __v11324 := -(inf);
     __v11325 := x == __v11324;
     if (__v11325) {
-      __v11326 := -1.0;
+      __v11326 := -(1.0);
       return [false, __v11326]
     };
     __v11327 := "exp"(___internal_esl_global, x);
@@ -61911,7 +61911,7 @@ Tests compilation of ecmaref6:
     if (__v11337) {
       return [false, nan]
     };
-    __v11338 := -1.0;
+    __v11338 := -(1.0);
     __v11339 := x < __v11338;
     if (__v11339) {
       return [false, nan]
@@ -61920,10 +61920,10 @@ Tests compilation of ecmaref6:
     if (__v11340) {
       return [false, nan]
     };
-    __v11341 := -1.0;
+    __v11341 := -(1.0);
     __v11342 := x == __v11341;
     if (__v11342) {
-      __v11343 := -inf;
+      __v11343 := -(inf);
       return [false, __v11343]
     };
     __v11344 := x == 1.0;
@@ -61946,7 +61946,7 @@ Tests compilation of ecmaref6:
       __v11346 := hd tl __v11346
     };
     if (__v11346) {
-      __v11347 := -0.0;
+      __v11347 := -(0.0);
       return [false, __v11347]
     };
     __v11348 := 1.0 / 2.0;
@@ -63228,7 +63228,7 @@ Tests compilation of ecmaref6:
     if (__v11591 == true) {
       __v11594 := true
     } else {
-      __v11592 := -inf;
+      __v11592 := -(inf);
       __v11593 := num == __v11592;
       if (__v11593 == true) {
         __v11594 := true
@@ -64066,7 +64066,7 @@ Tests compilation of ecmaref6:
     if (__v11754 == true) {
       __v11757 := true
     } else {
-      __v11755 := -inf;
+      __v11755 := -(inf);
       __v11756 := num == __v11755;
       if (__v11756 == true) {
         __v11757 := true
@@ -65176,7 +65176,7 @@ Tests compilation of ecmaref6:
       return [false, 0.0]
     };
     __v11901 := n < 0.0;
-    __v11902 := -1.0;
+    __v11902 := -(1.0);
     __v11903 := __v11901 ? __v11902 : 1.0;
     sign := __v11903;
     __v11904 := "abs"(___internal_esl_global, n);
@@ -65193,7 +65193,7 @@ Tests compilation of ecmaref6:
     };
     __v11906 := sign * __v11905;
     posInt := __v11906;
-    __v11907 := posInt %% 4294967296.0;
+    __v11907 := posInt % 4294967296.0;
     return [false, __v11907]
   };
   function newGetAndSetAccessorPropertyDescriptorFull(___internal_esl_global, get, set, enumerable, configurable) {
@@ -65797,14 +65797,14 @@ Tests compilation of ecmaref6:
         x := __v12040
       }
     };
-    __v12041 := -x;
+    __v12041 := -(x);
     __v12042 := "ceil"(___internal_esl_global, __v12041);
     if (hd __v12042) {
       return __v12042
     } else {
       __v12042 := hd tl __v12042
     };
-    __v12043 := -__v12042;
+    __v12043 := -(__v12042);
     return [false, __v12043]
   };
   function initDataViewObject(___internal_esl_global, global, objectPrototype, strict) {
@@ -70202,7 +70202,7 @@ Tests compilation of ecmaref6:
     };
     __v12787 := result == 'null;
     if (__v12787) {
-      __v12788 := -1.0;
+      __v12788 := -(1.0);
       return [false, __v12788]
     };
     __v12789 := "Get"(___internal_esl_global, result, "index");
@@ -70338,7 +70338,7 @@ Tests compilation of ecmaref6:
     return [false, __v12811]
   };
   function mod(___internal_esl_global, a, b) {
-    __v12812 := a %% b;
+    __v12812 := a % b;
     res := __v12812;
     __v12813 := res < 0.0;
     if (__v12813) {
@@ -70681,7 +70681,7 @@ Tests compilation of ecmaref6:
     };
     __v12881 := __v12880 == 0;
     if (__v12881) {
-      __v12882 := -inf;
+      __v12882 := -(inf);
       return [false, __v12882]
     };
     __v12883 := "getOptionalParam"(___internal_esl_global, params, 0);
@@ -72686,7 +72686,7 @@ Tests compilation of ecmaref6:
     if (__v13210 == true) {
       __v13213 := true
     } else {
-      __v13211 := -inf;
+      __v13211 := -(inf);
       __v13212 := num == __v13211;
       if (__v13212 == true) {
         __v13213 := true
@@ -74336,7 +74336,7 @@ Tests compilation of ecmaref6:
     if (__v13521 == true) {
       __v13524 := true
     } else {
-      __v13522 := -inf;
+      __v13522 := -(inf);
       __v13523 := x == __v13522;
       if (__v13523 == true) {
         __v13524 := true
@@ -74346,7 +74346,7 @@ Tests compilation of ecmaref6:
     };
     if (__v13524) {
       s := "-";
-      __v13525 := -x;
+      __v13525 := -(x);
       x := __v13525
     };
     __v13526 := x == inf;
@@ -74618,7 +74618,7 @@ Tests compilation of ecmaref6:
       if (__v13574 == true) {
         __v13577 := true
       } else {
-        __v13575 := -inf;
+        __v13575 := -(inf);
         __v13576 := y == __v13575;
         if (__v13576 == true) {
           __v13577 := true
@@ -74911,7 +74911,7 @@ Tests compilation of ecmaref6:
     __v13620 := x < 0.0;
     if (__v13620) {
       s := "-";
-      __v13621 := -x;
+      __v13621 := -(x);
       x := __v13621
     };
     __v13622 := x == inf;
@@ -75009,7 +75009,7 @@ Tests compilation of ecmaref6:
         c := "+"
       } else {
         c := "-";
-        __v13645 := -e;
+        __v13645 := -(e);
         e := __v13645
       };
       __v13646 := float_to_string e;
@@ -76469,19 +76469,19 @@ Tests compilation of ecmaref6:
       __v13884 := hd tl __v13884
     };
     if (__v13884) {
-      __v13885 := -1.0;
+      __v13885 := -(1.0);
       return [false, __v13885]
     };
     __v13886 := x < y;
     if (__v13886) {
-      __v13887 := -1.0;
+      __v13887 := -(1.0);
       return [false, __v13887]
     };
     __v13888 := x > y;
     if (__v13888) {
       return [false, 1.0]
     };
-    __v13889 := -0.0;
+    __v13889 := -(0.0);
     __v13890 := x == __v13889;
     if (__v13890 == false) {
       __v13892 := false
@@ -76494,14 +76494,14 @@ Tests compilation of ecmaref6:
       }
     };
     if (__v13892) {
-      __v13893 := -1.0;
+      __v13893 := -(1.0);
       return [false, __v13893]
     };
     __v13894 := x == 0.0;
     if (__v13894 == false) {
       __v13897 := false
     } else {
-      __v13895 := -0.0;
+      __v13895 := -(0.0);
       __v13896 := y == __v13895;
       if (__v13896 == false) {
         __v13897 := false
@@ -80590,7 +80590,7 @@ Tests compilation of ecmaref6:
     if (__v14647 == true) {
       __v14650 := true
     } else {
-      __v14648 := -inf;
+      __v14648 := -(inf);
       __v14649 := num == __v14648;
       if (__v14649 == true) {
         __v14650 := true
@@ -80707,7 +80707,7 @@ Tests compilation of ecmaref6:
   };
   function msFromTime(___internal_esl_global, t) {
     msPerSecond := 1000.0;
-    __v14672 := t %% msPerSecond;
+    __v14672 := t % msPerSecond;
     return [false, __v14672]
   };
   function DatePrototypeGetUTCSeconds(___internal_esl_global, global, this, NewTarget, strict, args) {
@@ -84531,15 +84531,15 @@ Tests compilation of ecmaref6:
     return [false, errorPrototypeObject]
   };
   function DaysInYear(___internal_esl_global, y) {
-    __v15404 := y %% 4.0;
+    __v15404 := y % 4.0;
     __v15405 := __v15404 == 0.0;
     __v15406 := !__v15405;
-    __v15407 := y %% 100.0;
+    __v15407 := y % 100.0;
     __v15408 := __v15407 == 0.0;
     if (__v15408 == false) {
       __v15412 := false
     } else {
-      __v15409 := y %% 400.0;
+      __v15409 := y % 400.0;
       __v15410 := __v15409 == 0.0;
       __v15411 := !__v15410;
       if (__v15411 == false) {
@@ -84552,12 +84552,12 @@ Tests compilation of ecmaref6:
     if (__v15413) {
       return [false, 365.0]
     } else {
-      __v15414 := y %% 4.0;
+      __v15414 := y % 4.0;
       __v15415 := __v15414 == 0.0;
       if (__v15415 == false) {
         __v15419 := false
       } else {
-        __v15416 := y %% 100.0;
+        __v15416 := y % 100.0;
         __v15417 := __v15416 == 0.0;
         __v15418 := !__v15417;
         if (__v15418 == false) {
@@ -84566,7 +84566,7 @@ Tests compilation of ecmaref6:
           __v15419 := true
         }
       };
-      __v15420 := y %% 400.0;
+      __v15420 := y % 400.0;
       __v15421 := __v15420 == 0.0;
       __v15422 := __v15419 || __v15421;
       if (__v15422) {
@@ -85759,7 +85759,7 @@ Tests compilation of ecmaref6:
       if (__v15631) {
         return [false, inf]
       };
-      __v15632 := -inf;
+      __v15632 := -(inf);
       __v15633 := value == __v15632;
       if (__v15633) {
         return [false, inf]
@@ -87016,7 +87016,7 @@ Tests compilation of ecmaref6:
     if (__v15867 == true) {
       __v15870 := true
     } else {
-      __v15868 := -inf;
+      __v15868 := -(inf);
       __v15869 := argument == __v15868;
       if (__v15869 == true) {
         __v15870 := true
@@ -91458,7 +91458,7 @@ Tests compilation of ecmaref6:
     b := __v16675;
     __v16676 := a * b;
     __v16677 := 2.0 ** 32.0;
-    __v16678 := __v16676 %% __v16677;
+    __v16678 := __v16676 % __v16677;
     product := __v16678;
     __v16679 := 2.0 ** 31.0;
     __v16680 := product >= __v16679;
@@ -92898,7 +92898,7 @@ Tests compilation of ecmaref6:
               };
               __v16968 := int_to_float __v16967;
               code := __v16968;
-              __v16969 := code %% 32.0;
+              __v16969 := code % 32.0;
               code := __v16969;
               __v16970 := float_to_string code;
               code_str := __v16970;
@@ -95729,7 +95729,7 @@ Tests compilation of ecmaref6:
     };
     __v17508 := len == 0.0;
     if (__v17508) {
-      __v17509 := -1.0;
+      __v17509 := -(1.0);
       return [false, __v17509]
     };
     __v17510 := fromIndex != null;
@@ -95772,7 +95772,7 @@ Tests compilation of ecmaref6:
     };
     __v17516 := n >= len;
     if (__v17516) {
-      __v17517 := -1.0;
+      __v17517 := -(1.0);
       return [false, __v17517]
     };
     __v17518 := n >= 0.0;
@@ -95888,7 +95888,7 @@ Tests compilation of ecmaref6:
       k := __v17536;
       __v17522 := k < len
     };
-    __v17537 := -1.0;
+    __v17537 := -(1.0);
     return [false, __v17537]
   };
   function MakeTime(___internal_esl_global, hour, mins, sec, ms) {
@@ -98256,7 +98256,7 @@ Tests compilation of ecmaref6:
     } else {
       __v18036 := hd tl __v18036
     };
-    __v18037 := __v18036 %% HoursPerDay;
+    __v18037 := __v18036 % HoursPerDay;
     return [false, __v18037]
   };
   function JS_Interpreter_RegEx_TopLevel(___internal_esl_global, re, source) {
@@ -100245,7 +100245,7 @@ Tests compilation of ecmaref6:
       if (__v18393 == true) {
         __v18396 := true
       } else {
-        __v18394 := -inf;
+        __v18394 := -(inf);
         __v18395 := value == __v18394;
         if (__v18395 == true) {
           __v18396 := true
@@ -103778,7 +103778,7 @@ Tests compilation of ecmaref6:
     temp := num;
     __v19031 := temp > 0.0;
     while (__v19031) {
-      __v19032 := temp %% 10.0;
+      __v19032 := temp % 10.0;
       last_digit := __v19032;
       __v19033 := temp / 10.0;
       temp := __v19033;
@@ -106986,7 +106986,7 @@ Tests compilation of ecmaref6:
     if (__v19597 == true) {
       __v19600 := true
     } else {
-      __v19598 := -inf;
+      __v19598 := -(inf);
       __v19599 := num == __v19598;
       if (__v19599 == true) {
         __v19600 := true
@@ -108718,7 +108718,7 @@ Tests compilation of ecmaref6:
   };
   function TimeWithinDay(___internal_esl_global, t) {
     __v19922 := ___internal_esl_global["msPerDay"];
-    __v19923 := t %% __v19922;
+    __v19923 := t % __v19922;
     return [false, __v19923]
   };
   function BindingClassDeclarationEvaluation(___internal_esl_global, ClassDeclaration, scope) {
@@ -110223,7 +110223,7 @@ Tests compilation of ecmaref6:
     if (__v20231 == true) {
       __v20234 := true
     } else {
-      __v20232 := -inf;
+      __v20232 := -(inf);
       __v20233 := num == __v20232;
       if (__v20233 == true) {
         __v20234 := true
@@ -111183,17 +111183,17 @@ Tests compilation of ecmaref6:
       __v20386 := hd tl __v20386
     };
     if (__v20386) {
-      __v20387 := -0.0;
+      __v20387 := -(0.0);
       return [false, __v20387]
     };
     __v20388 := x == inf;
     if (__v20388) {
       return [false, inf]
     };
-    __v20389 := -inf;
+    __v20389 := -(inf);
     __v20390 := x == __v20389;
     if (__v20390) {
-      __v20391 := -inf;
+      __v20391 := -(inf);
       return [false, __v20391]
     };
     __v20392 := x > 0.0;
@@ -111214,7 +111214,7 @@ Tests compilation of ecmaref6:
     if (__v20395 == false) {
       __v20398 := false
     } else {
-      __v20396 := -0.5;
+      __v20396 := -(0.5);
       __v20397 := x >= __v20396;
       if (__v20397 == false) {
         __v20398 := false
@@ -111223,7 +111223,7 @@ Tests compilation of ecmaref6:
       }
     };
     if (__v20398) {
-      __v20399 := -0.0;
+      __v20399 := -(0.0);
       return [false, __v20399]
     };
     __v20400 := "ceil"(___internal_esl_global, x);
@@ -111233,14 +111233,14 @@ Tests compilation of ecmaref6:
       __v20400 := hd tl __v20400
     };
     ceil_number := __v20400;
-    __v20401 := -x;
+    __v20401 := -(x);
     __v20402 := "ceil"(___internal_esl_global, __v20401);
     if (hd __v20402) {
       return __v20402
     } else {
       __v20402 := hd tl __v20402
     };
-    __v20403 := -__v20402;
+    __v20403 := -(__v20402);
     floor_number := __v20403;
     __v20404 := ceil_number - x;
     __v20405 := x - floor_number;
@@ -111433,7 +111433,7 @@ Tests compilation of ecmaref6:
     if (__v20440) {
       return [false, f]
     };
-    __v20441 := f %% 2.0;
+    __v20441 := f % 2.0;
     __v20442 := __v20441 != 0.0;
     if (__v20442) {
       __v20443 := f + 1.0;
@@ -113741,19 +113741,19 @@ Tests compilation of ecmaref6:
       if (__v20859) {
         return [false, 0.0]
       } else {
-        __v20860 := -0.0;
+        __v20860 := -(0.0);
         return [false, __v20860]
       }
     };
-    __v20861 := -0.0;
+    __v20861 := -(0.0);
     __v20862 := x == __v20861;
     if (__v20862) {
       return [false, inf]
     };
-    __v20863 := -inf;
+    __v20863 := -(inf);
     __v20864 := x == __v20863;
     if (__v20864) {
-      __v20865 := -inf;
+      __v20865 := -(inf);
       return [false, __v20865]
     };
     __v20866 := x ** 2.0;
@@ -114549,7 +114549,7 @@ Tests compilation of ecmaref6:
     if (__v21016 == true) {
       __v21019 := true
     } else {
-      __v21017 := -inf;
+      __v21017 := -(inf);
       __v21018 := num == __v21017;
       if (__v21018 == true) {
         __v21019 := true
@@ -115038,17 +115038,17 @@ Tests compilation of ecmaref6:
       __v21080 := hd tl __v21080
     };
     if (__v21080) {
-      __v21081 := -0.0;
+      __v21081 := -(0.0);
       return [false, __v21081]
     };
     __v21082 := x == inf;
     if (__v21082) {
       return [false, inf]
     };
-    __v21083 := -inf;
+    __v21083 := -(inf);
     __v21084 := x == __v21083;
     if (__v21084) {
-      __v21085 := -inf;
+      __v21085 := -(inf);
       return [false, __v21085]
     };
     __v21086 := x > 0.0;
@@ -115069,7 +115069,7 @@ Tests compilation of ecmaref6:
     if (__v21089 == false) {
       __v21092 := false
     } else {
-      __v21090 := -1.0;
+      __v21090 := -(1.0);
       __v21091 := x > __v21090;
       if (__v21091 == false) {
         __v21092 := false
@@ -115078,7 +115078,7 @@ Tests compilation of ecmaref6:
       }
     };
     if (__v21092) {
-      __v21093 := -0.0;
+      __v21093 := -(0.0);
       return [false, __v21093]
     };
     __v21094 := x < 0.0;
@@ -115091,14 +115091,14 @@ Tests compilation of ecmaref6:
       };
       return [false, __v21095]
     } else {
-      __v21096 := -x;
+      __v21096 := -(x);
       __v21097 := "ceil"(___internal_esl_global, __v21096);
       if (hd __v21097) {
         return __v21097
       } else {
         __v21097 := hd tl __v21097
       };
-      __v21098 := -__v21097;
+      __v21098 := -(__v21097);
       return [false, __v21098]
     }
   };
@@ -115688,7 +115688,7 @@ Tests compilation of ecmaref6:
                   if (__v21261) {
                     return [false, nan]
                   };
-                  __v21262 := -oldValue;
+                  __v21262 := -(oldValue);
                   return [false, __v21262]
                 } else {
                   __v21263 := "operator" in_obj UnaryExpression;
@@ -118128,7 +118128,7 @@ Tests compilation of ecmaref6:
     if (__v21718 == true) {
       __v21721 := true
     } else {
-      __v21719 := -inf;
+      __v21719 := -(inf);
       __v21720 := num == __v21719;
       if (__v21720 == true) {
         __v21721 := true
@@ -118256,7 +118256,7 @@ Tests compilation of ecmaref6:
     } else {
       __v21745 := hd tl __v21745
     };
-    __v21746 := __v21745 %% MinutesPerHour;
+    __v21746 := __v21745 % MinutesPerHour;
     return [false, __v21746]
   };
   function NumberToString(___internal_esl_global, m, radix) {
@@ -120479,7 +120479,7 @@ Tests compilation of ecmaref6:
     if (__v22150) {
       return [false, "Infinity"]
     };
-    __v22151 := -inf;
+    __v22151 := -(inf);
     __v22152 := x == __v22151;
     if (__v22152) {
       return [false, "-Infinity"]
@@ -120656,7 +120656,7 @@ Tests compilation of ecmaref6:
     __v22178 := x < 0.0;
     if (__v22178) {
       s := "-";
-      __v22179 := -x;
+      __v22179 := -(x);
       x := __v22179
     };
     __v22180 := x == inf;
@@ -120758,7 +120758,7 @@ Tests compilation of ecmaref6:
     } else {
       tmp := "";
       index := 0;
-      __v22207 := -e;
+      __v22207 := -(e);
       __v22208 := index == __v22207;
       while (__v22208) {
         __v22209 := [tmp, "0"];
@@ -120771,7 +120771,7 @@ Tests compilation of ecmaref6:
         tmp := __v22210;
         __v22211 := index + 1;
         index := __v22211;
-        __v22207 := -e;
+        __v22207 := -(e);
         __v22208 := index == __v22207
       };
       __v22212 := ["0.", tmp];
@@ -123477,7 +123477,7 @@ Tests compilation of ecmaref6:
       };
       __v22695 := k >= 0.0
     };
-    __v22708 := -1.0;
+    __v22708 := -(1.0);
     return [false, __v22708]
   };
   function ReflectGet(___internal_esl_global, global, this, NewTarget, strict, args) {
@@ -124053,7 +124053,7 @@ Tests compilation of ecmaref6:
     };
     __v22828 := len == 0.0;
     if (__v22828) {
-      __v22829 := -1.0;
+      __v22829 := -(1.0);
       return [false, __v22829]
     };
     __v22830 := fromIndex != null;
@@ -124211,7 +124211,7 @@ Tests compilation of ecmaref6:
       k := __v22856;
       __v22842 := k >= 0.0
     };
-    __v22857 := -1.0;
+    __v22857 := -(1.0);
     return [false, __v22857]
   };
   function DatePrototypeGetMilliseconds(___internal_esl_global, global, this, NewTarget, strict, args) {
@@ -125172,7 +125172,7 @@ Tests compilation of ecmaref6:
     __v23020 := __v23018 + __v23019;
     cu1 := __v23020;
     __v23021 := cp - 65536.0;
-    __v23022 := __v23021 %% 1024.0;
+    __v23022 := __v23021 % 1024.0;
     __v23023 := int_to_float 56320;
     __v23024 := __v23022 + __v23023;
     cu2 := __v23024;
