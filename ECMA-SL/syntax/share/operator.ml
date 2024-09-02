@@ -123,7 +123,7 @@ let binopt_pp_simple (ppf : Fmt.t) (op : binopt) : unit =
   | Minus -> Fmt.pp_str ppf "-"
   | Times -> Fmt.pp_str ppf "*"
   | Div -> Fmt.pp_str ppf "/"
-  | Modulo -> Fmt.pp_str ppf "%%"
+  | Modulo -> Fmt.pp_str ppf "%"
   | Pow -> Fmt.pp_str ppf "**"
   | BitwiseAnd -> Fmt.pp_str ppf "&"
   | BitwiseOr -> Fmt.pp_str ppf "|"
@@ -155,7 +155,7 @@ let nopt_pp_simple (ppf : Fmt.t) (op : nopt) : unit =
 let unopt_pp ~(pp_v : Fmt.t -> 'a -> unit) (ppf : Fmt.t) ((op, v) : unopt * 'a)
   : unit =
   match op with
-  | Neg -> Fmt.fmt ppf "%a%a" unopt_pp_simple op pp_v v
+  | Neg -> Fmt.fmt ppf "%a(%a)" unopt_pp_simple op pp_v v
   | BitwiseNot -> Fmt.fmt ppf "%a%a" unopt_pp_simple op pp_v v
   | LogicalNot -> Fmt.fmt ppf "%a%a" unopt_pp_simple op pp_v v
   | _ -> Fmt.fmt ppf "%a %a" unopt_pp_simple op pp_v v
