@@ -43,7 +43,7 @@ module Expr = struct
   open EExpr
 
   let parse_return_expr (e : t option) : t =
-    Option.value ~default:(Val (Value.void ()) @> none) e
+    Option.value ~default:(Val Value.void @> none) e
 
   let parse_object_fields (flds : (Id.t * t) list) : (Id.t * t) list =
     let check_dups checked (fn, _) =

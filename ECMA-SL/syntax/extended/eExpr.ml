@@ -18,11 +18,10 @@ and t' =
   | Curry of t * t list
 
 let default : unit -> t =
-  let dlft = Val (Value.null ()) @> none in
+  let dlft = Val Value.null @> none in
   fun () -> dlft
 
-let isvoid (e : t) : bool =
-  match e.it with Val (App (`Op "void", [])) -> true | _ -> false
+let isvoid (e : t) : bool = match e.it with Val Unit -> true | _ -> false
 
 let pp_lookup (ppf : Fmt.t) (fe : t) : unit =
   match fe.it with

@@ -6,7 +6,7 @@ module DebugLvl = struct
     | Warn
     | Full
 
-  let all () : t list = [ None; Warn; Full ]
+  let all : t list = [ None; Warn; Full ]
 
   let pp (ppf : Fmt.t) (lvl : t) : unit =
     match lvl with

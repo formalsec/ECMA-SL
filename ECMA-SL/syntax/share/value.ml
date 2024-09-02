@@ -1,9 +1,9 @@
-include Smtml.Value
 open EslBase
+include Smtml.Value
 
-let void () : t = App (`Op "void", []) [@@inline]
-let null () : t = App (`Op "null", []) [@@inline]
-let undefined () : t = App (`Op "symbol", [ Str "undefined" ]) [@@inline]
+let void : t = Unit
+let null : t = Nothing
+let undefined : t = App (`Op "symbol", [ Str "undefined" ])
 let loc (l : Loc.t) : t = App (`Op "loc", [ Int l ]) [@@inline]
 let symbol (s : string) : t = App (`Op "symbol", [ Str s ]) [@@inline]
 
@@ -19,14 +19,14 @@ let float_str (f : float) : string =
 
 let pp_custom_val (pp_v : Fmt.t -> t -> unit) (ppf : Fmt.t) (v : t) : unit =
   match v with
+  | Unit -> ()
+  | Nothing -> Fmt.fmt ppf "null"
   | Int i -> Fmt.fmt ppf "%i" i
   | Real f -> Fmt.fmt ppf "%s" (float_str f)
   | Str s -> Fmt.fmt ppf "%S" s
   | True -> Fmt.fmt ppf "true"
   | False -> Fmt.fmt ppf "false"
   | List lst -> Fmt.(fmt ppf "[%a]" (pp_lst !>", " pp_v) lst)
-  | App (`Op "void", []) -> ()
-  | App (`Op "null", []) -> Fmt.fmt ppf "null"
   | App (`Op "loc", [ Int loc ]) -> Loc.pp ppf loc
   | App (`Op "symbol", [ Str s ]) -> Fmt.fmt ppf "'%s" s
   | App (`Op fn, fvs) -> Fmt.(fmt ppf "{%S}@(%a)" fn (pp_lst !>", " pp_v) fvs)

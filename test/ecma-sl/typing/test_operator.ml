@@ -51,21 +51,11 @@ let%test "binopt_div_int" = test_binopt (Div, Int 10, Int 10) t_int
 let%test "binopt_div_float" = test_binopt (Div, Real 10.1, Real 10.1) t_float
 let%test "binopt_modulo" = test_binopt (Modulo, Real 10.1, Real 10.1) t_float
 let%test "binopt_pow" = test_binopt (Pow, Real 10.1, Real 10.1) t_float
-
-let%test "binopt_bitwise_and" =
-  test_binopt (BitwiseAnd, Int 10, Int 10) t_int
-
-let%test "binopt_bitwise_or" =
-  test_binopt (BitwiseOr, Int 10, Int 10) t_int
-
-let%test "binopt_bitwise_xor" =
-  test_binopt (BitwiseXor, Int 10, Int 10) t_int
-
-let%test "binopt_shift_left" =
-  test_binopt (ShiftLeft, Int 10, Int 10) t_int
-
-let%test "binopt_shift_right" =
-  test_binopt (ShiftRight, Int 10, Int 10) t_int
+let%test "binopt_bitwise_and" = test_binopt (BitwiseAnd, Int 10, Int 10) t_int
+let%test "binopt_bitwise_or" = test_binopt (BitwiseOr, Int 10, Int 10) t_int
+let%test "binopt_bitwise_xor" = test_binopt (BitwiseXor, Int 10, Int 10) t_int
+let%test "binopt_shift_left" = test_binopt (ShiftLeft, Int 10, Int 10) t_int
+let%test "binopt_shift_right" = test_binopt (ShiftRight, Int 10, Int 10) t_int
 
 let%test "binopt_shift_right_logical" =
   test_binopt (ShiftRightLogical, Int 10, Int 10) t_int
@@ -86,38 +76,28 @@ let%test "binopt_eq_int" = test_binopt (Eq, Int 10, Int 10) t_boolean
 let%test "binopt_eq_float" = test_binopt (Eq, Real 10.1, Real 10.1) t_boolean
 
 let%test "binopt_eq_null" =
-  test_binopt
-    (Eq, Value.App (`Op "null", []), Value.App (`Op "null", []))
-    t_boolean
+  test_binopt (Eq, Value.Nothing, Value.Nothing) t_boolean
 
 let%test "binopt_lt_int" = test_binopt (Lt, Int 10, Int 10) t_boolean
 let%test "binopt_lt_float" = test_binopt (Lt, Real 10.1, Real 10.1) t_boolean
 
 let%test "binopt_lt_null" =
-  test_binopt
-    (Lt, Value.App (`Op "null", []), Value.App (`Op "null", []))
-    t_boolean
+  test_binopt (Lt, Value.Nothing, Value.Nothing) t_boolean
 
 let%test "binopt_gt_int" = test_binopt (Gt, Int 10, Int 10) t_boolean
 let%test "binopt_gt_float" = test_binopt (Gt, Real 10.1, Real 10.1) t_boolean
 
 let%test "binopt_gt_null" =
-  test_binopt
-    (Gt, Value.App (`Op "null", []), Value.App (`Op "null", []))
-    t_boolean
+  test_binopt (Gt, Value.Nothing, Value.Nothing) t_boolean
 
 let%test "binopt_le_int" = test_binopt (Le, Int 10, Int 10) t_boolean
 let%test "binopt_le_float" = test_binopt (Le, Real 10.1, Real 10.1) t_boolean
 
 let%test "binopt_ge_null" =
-  test_binopt
-    (Ge, Value.App (`Op "null", []), Value.App (`Op "null", []))
-    t_boolean
+  test_binopt (Ge, Value.Nothing, Value.Nothing) t_boolean
 
 let%test "binopt_le_int" = test_binopt (Le, Int 10, Int 10) t_boolean
 let%test "binopt_le_float" = test_binopt (Le, Real 10.1, Real 10.1) t_boolean
 
 let%test "binopt_le_null" =
-  test_binopt
-    (Le, Value.App (`Op "null", []), Value.App (`Op "null", []))
-    t_boolean
+  test_binopt (Le, Value.Nothing, Value.Nothing) t_boolean

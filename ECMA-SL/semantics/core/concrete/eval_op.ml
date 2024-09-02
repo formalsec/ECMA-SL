@@ -40,8 +40,8 @@ let typeof_semantics : arg -> res = function
   | ((True | False), _) -> Str "bool"
   | (Str _, _) -> Str "string"
   | (List _, _) -> Str "list"
-  | (App (`Op "void", []), at) -> custom_err at (Unexpected "void value")
-  | (App (`Op "null", []), _) -> Str "null"
+  | (Unit, at) -> custom_err at (Unexpected "void value")
+  | (Nothing, _) -> Str "null"
   | (App (`Op "loc", [ Int _ ]), _) -> Str "object"
   | (App (`Op "symbol", [ Str _ ]), _) -> Str "symbol"
   | (App (`Op _, _), _) -> Str "curry"

@@ -25,8 +25,8 @@ and type_expr' (tctx : TCtx.t) (e : EExpr.t) : EType.t' =
 
 and type_val (v : Value.t) : EType.t' =
   match v with
-  | App (`Op "null", []) -> NullType
-  | App (`Op "void", []) -> VoidType
+  | Nothing -> NullType
+  | Unit -> VoidType
   | Int i -> LiteralType (LitWeak, IntegerLit i)
   | Real f -> LiteralType (LitWeak, FloatLit f)
   | Str s -> LiteralType (LitWeak, StringLit s)

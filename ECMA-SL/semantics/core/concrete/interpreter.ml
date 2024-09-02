@@ -248,7 +248,7 @@ module M (ITooling : Interpreter_tooling.M) = struct
       Store.set st.store x.it v;
       Intermediate (st, cont) $$ AssignInObjCheckEval (loc, fn)
     | FieldLookup (x, oe, fe) ->
-      let fld_val v = Option.value ~default:(Value.undefined ()) v in
+      let fld_val v = Option.value ~default:Value.undefined v in
       let (loc, obj) = eval_obj st oe in
       let fn = eval_str st fe in
       let v = Object.get obj fn |> fld_val in
