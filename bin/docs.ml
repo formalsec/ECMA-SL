@@ -46,7 +46,7 @@ module CommonOpts = struct
        'none' for hiding all ECMA-SL logs; (2) 'warn' [default] for showing \
        ECMA-SL warnings; and (3) 'full' to show all, including debug prints."
     in
-    let levels = Arg.enum Enums.DebugLvl.(args @@ all ()) in
+    let levels = Arg.enum Enums.DebugLvl.(args all) in
     Arg.(value & opt levels Warn & info [ "debug" ] ~docs ~docv ~doc)
 
   let colorless =

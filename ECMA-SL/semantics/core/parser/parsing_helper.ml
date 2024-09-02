@@ -35,5 +35,5 @@ module Expr = struct
   open Expr
 
   let parse_return_expr (e : t option) : t =
-    Option.value ~default:(Val (Value.void ()) @> none) e
+    Option.value ~default:(Val Value.void @> none) e
 end

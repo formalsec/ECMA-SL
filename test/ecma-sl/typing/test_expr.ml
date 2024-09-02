@@ -3,8 +3,7 @@ open Test
 
 (* ========== Value Expression ========== *)
 
-let%test "value_null" =
-  TypeExpr.test ~@(EExpr.Val (Value.App (`Op "null", []))) (Ok t_null)
+let%test "value_null" = TypeExpr.test ~@(EExpr.Val Value.Nothing) (Ok t_null)
 
 let%test "value_integer" =
   TypeExpr.test ~@(EExpr.Val (Value.Int 10)) (Ok (lt_integer 10))

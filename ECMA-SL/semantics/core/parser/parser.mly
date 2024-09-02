@@ -95,8 +95,8 @@ let entry_prog_target := ~ = prog_target; EOF; <>
 
 (* ==================== Program  ==================== *)
 
-let prog_target := 
-  | ~ = separated_list(SEMICOLON, func_target); 
+let prog_target :=
+  | ~ = separated_list(SEMICOLON, func_target);
     < Prog.create >
 
 (* ==================== Program Elements ==================== *)
@@ -122,7 +122,7 @@ let aux_stmt_target :=
 let exec_stmt_target :=
   | PRINT; e = expr_target;
     { Stmt.Print e @> at $sloc }
-  | RETURN; e = expr_target?; 
+  | RETURN; e = expr_target?;
     { Stmt.Return (Parsing_helper.Expr.parse_return_expr e) @> at $sloc }
   | ASSERT; e = expr_target;
     { Stmt.Assert e @> at $sloc }
@@ -177,14 +177,14 @@ let switch_dflt_target := DEFAULT; COLON; ~ = block_stmt_target; <>
 
 (* ==================== Expressions ==================== *)
 
-let expr_target := 
+let expr_target :=
   | LPAREN; ~ = expr_target; RPAREN;    <>
   | ~ = val_expr_target;                <>
   | ~ = var_expr_target;                <>
   | ~ = op_expr_target;                 <>
   | ~ = curry_expr_target;              <>
 
-let val_expr_target := 
+let val_expr_target :=
   | v = val_target;
     { Expr.Val v @> at $sloc }
 
@@ -224,7 +224,7 @@ let val_target :=
   | s = STRING;             < Value.Str >
   | b = BOOLEAN;            { if b then Value.True else Value.False }
   | s = SYMBOL;             { Value.App (`Op "symbol", [ Value.Str s ]) }
-  | NULL;                   { Value.App (`Op "null", []) }
+  | NULL;                   { Value.Nothing }
 
 (* ==================== Operators ==================== *)
 

@@ -309,9 +309,7 @@ and compile_print (at : at) (e : EExpr.t) : c_stmt =
   e_s @ [ Stmt.Print e_e @?> at ]
 
 and compile_return (at : at) (e : EExpr.t) : c_stmt =
-  let e' =
-    if EExpr.isvoid e then EExpr.Val (Value.App (`Op "null", [])) @?> at else e
-  in
+  let e' = if EExpr.isvoid e then EExpr.Val Value.Nothing @?> at else e in
   let (e_s, e_e) = compile_expr at e' in
   let err = Builder.efalse e' in
   let ret = Expr.NOpt (ListExpr, [ err; e_e ]) @?> e'.at in

@@ -164,7 +164,7 @@ let expr_stmt_target :=
 let exec_stmt_target :=
   | PRINT; e = expr_target;
     { EStmt.Print e @> at $sloc }
-  | RETURN; e = expr_target?; 
+  | RETURN; e = expr_target?;
     { EStmt.Return (EParsing_helper.Expr.parse_return_expr e) @> at $sloc }
   | ASSERT; e = expr_target;
     { EStmt.Assert e @> at $sloc }
@@ -184,7 +184,7 @@ let update_stmt_target :=
     { EStmt.FieldAssign (oe, fe, e) @> at $sloc }
   | DELETE; oe = expr_target; fe = lookup_target;
     { EStmt.FieldDelete (oe, fe) @> at $sloc }
-  | x = id_target; DEFEQ; LAMBDA; pxs = func_params_target; 
+  | x = id_target; DEFEQ; LAMBDA; pxs = func_params_target;
     ctxvars = ctx_vars_target; s = block_stmt_target;
     { EStmt.Lambda (x, fresh_lambda_id_gen (), pxs, ctxvars, s) @> at $sloc }
 
@@ -250,7 +250,7 @@ let pattern_value_target :=
 
 (* ==================== Expressions ==================== *)
 
-let expr_target == 
+let expr_target ==
   | ~ = no_blocklike_expr_target;       <>
   | ~ = obj_expr_target;                <>
 
@@ -261,7 +261,7 @@ let no_blocklike_expr_target :=
   | ~ = op_expr_target;                 <>
   | ~ = call_expr_target;               <>
 
-let val_expr_target := 
+let val_expr_target :=
   | v = val_target;
     { EExpr.Val v @> at $sloc }
 
@@ -333,7 +333,7 @@ let val_target :=
   | s = STRING;          < Value.Str >
   | b = BOOLEAN;         { if b then Value.True else Value.False }
   | s = SYMBOL;          { Value.App (`Op "symbol", [Value.Str s])}
-  | NULL;                { Value.App (`Op "null", []) }
+  | NULL;                { Value.Nothing }
 
 (* ==================== Operators ==================== *)
 

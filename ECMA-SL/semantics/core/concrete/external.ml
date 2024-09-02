@@ -285,7 +285,8 @@ module Impl = struct
       try
         let arr = Hashtbl.find arr_map l in
         Array.set arr i v3;
-        Hashtbl.replace arr_map l arr |> fun () -> Value.App (`Op "null", [])
+        Hashtbl.replace arr_map l arr;
+        Value.Nothing
       with _ -> unexpected_err 2 op_lbl "index out of bounds" )
     | (Int _, _) ->
       bad_arg_err 2 op_lbl "(integer, integer, any)" [ v1; v2; v3 ]
