@@ -149,8 +149,16 @@ module M = struct
     | LogicalOr -> E.(binop Ty_bool Or)
     | SCLogicalAnd -> assert false
     | SCLogicalOr -> assert false
-    | Eq -> E.(relop Ty_bool Eq)
-    | Ne -> E.(relop Ty_bool Ne)
+    | Eq -> (
+      fun v1 v2 ->
+        match (expr_type v1, expr_type v2) with
+        | (Ty_real, Ty_real) -> E.relop Ty_real Eq v1 v2
+        | _ -> E.(relop Ty_bool Eq v1 v2) )
+    | Ne -> (
+      fun v1 v2 ->
+        match (expr_type v1, expr_type v2) with
+        | (Ty_real, Ty_real) -> E.relop Ty_real Ne v1 v2
+        | _ -> E.(relop Ty_bool Ne v1 v2) )
     | Lt -> (
       fun v1 v2 ->
         let (t1, t2) = (expr_type v1, expr_type v2) in
