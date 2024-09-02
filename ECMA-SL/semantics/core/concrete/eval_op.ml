@@ -106,6 +106,9 @@ let binary_logical_semantics (op : Smtml.Ty.binop) : arg * arg -> res = function
   | (arg1, _) -> arg_err "boolean" arg1
 
 let binary_eq_semantics (op : Smtml.Ty.relop) : arg * arg -> res = function
+  | (((Real _ as v1), _), ((Real _ as v2), _)) ->
+    (* Reals need special treatment due to nans *)
+    mk_bool (Smtml.Eval.relop Ty_real op v1 v2)
   | ((v1, _), (v2, _)) -> mk_bool (Smtml.Eval.relop Ty_bool op v1 v2)
 
 let binary_relation_semantics (op : Smtml.Ty.relop) : arg * arg -> res =
