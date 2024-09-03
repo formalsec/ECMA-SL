@@ -46,7 +46,7 @@ function escapePattern(P) {
     /* the backlash is already escaped in the given string */
     /*if ((c == "\\") ||| (c == "/")) {*/
 
-    /* Caused test to fail: test/test262/tests/built-ins/RegExp/character-escape/S15.10.2.10_A5.1_T1.js */
+    /* Caused test to fail: bench/test262/tests/built-ins/RegExp/character-escape/S15.10.2.10_A5.1_T1.js */
     if ((c == "/")) {
       S := s_concat([S, "\\"]);
       S := s_concat([S, c]);
@@ -126,7 +126,7 @@ function newRegExp(strict, pattern, flags) {
       F := R.OriginalFlags.flags;
       R := parsePattern(P, F);
     } else {
-    /* ES6 - test implementation/test/test262/tests/built-ins/RegExp/new-regexp/15.10.4.1-1.js */
+    /* ES6 - test bench/test262/tests/built-ins/RegExp/new-regexp/15.10.4.1-1.js */
       P := R.OriginalSource;
       R := parsePattern(P, ToString(flags));
     }
@@ -139,13 +139,13 @@ function newRegExp(strict, pattern, flags) {
      and ToString(pattern) otherwise, and let F be the empty String
      if flags is undefined and ToString(flags) otherwise. */
   } else {
-  
-    if (pattern == 'undefined) 
-      P := ""; 
-  else 
+
+    if (pattern == 'undefined)
+      P := "";
+  else
     P := ToString(pattern);
     if (flags == 'undefined)
-      F := ""; 
+      F := "";
     else
       F := ToString(flags);
 
@@ -265,7 +265,7 @@ function RegExpPrototypeExec(global, this, NewTarget, strict, args) {
   /* 5. Let i be the value of ToInteger(lastIndex). */
   i := float_to_int ToInteger(lastIndex);
   /* ES6: i < 0 becomes 0, but don't return null */
-  /* test/test262/tests/built-ins/RegExp/prototype/test/S15.10.6.3_A1_T22.js */
+  /* bench/test262/tests/built-ins/RegExp/prototype/test/S15.10.6.3_A1_T22.js */
   if (i < 0) {
     i := 0;
     {R.Set}(R, "lastIndex", 0., R);
@@ -385,8 +385,8 @@ function RegExpPrototypeTest(global, this, NewTarget, strict, args) {
   /* 1. Let match be the result of evaluating the RegExp.prototype.exec (15.10.6.2) algorithm upon this RegExp object using string as the argument. */
   match2 := RegExpPrototypeExec(global, this, 'undefined, strict, [str]);
   /* 2. If match is not null, then return true; else return false. */
-  if (match2 != 'null) 
-    return true; 
+  if (match2 != 'null)
+    return true;
   else
     return false;
 }
@@ -506,7 +506,7 @@ function validateFlags(flags) {
       y := true;
     else
       throw SyntaxErrorConstructorInternal();
-    
+
     index := index + 1;
   }
 
@@ -537,7 +537,7 @@ function setFlags(obj, flags) {
       u := true;
     else
       throw SyntaxErrorConstructorInternal();
-    
+
     index := index + 1;
   }
 
@@ -555,7 +555,7 @@ function setFlags(obj, flags) {
   if (y) flags := s_concat([flags, "y"]);
 
   setJSProperty(obj, "flags", newDataPropertyDescriptorFull(flags, false, false, false));
-  /* ES6? - test implementation/test/test262/tests/built-ins/RegExp/new-regexp/S15.10.4.1_A1_T1.js */
+  /* ES6? - test bench/test262/tests/built-ins/RegExp/new-regexp/S15.10.4.1_A1_T1.js */
 
   return { gb: g, ic: i, ml: m, u: u, y: y, flags: flags };
 }
@@ -1183,8 +1183,8 @@ function dotCharSet() {
 
 function spaceCharSet(negative) {
   sc := getSpaceCharacters();
-  if (negative == true) 
-    return { positive: null, negative: sc }; 
+  if (negative == true)
+    return { positive: null, negative: sc };
   else
     return { positive: sc, negative: null };
 }
@@ -1197,7 +1197,7 @@ function digitCharSet(negative) {
   cs := {};
   getCharacterRangeASCII(cs, 48, 57);
   if (negative == true)
-    return { positive: null, negative: cs }; 
+    return { positive: null, negative: cs };
   else
     return { positive: cs, negative: null };
 }
@@ -1215,9 +1215,9 @@ function wordCharSet(negative) {
   getCharacterRangeASCII(cs, 65, 90);
   getCharacterRangeASCII(cs, 97, 122);
   cs["95"] := "_";
-  if (negative == true) 
-    return { positive: null, negative: cs }; 
-  else 
+  if (negative == true)
+    return { positive: null, negative: cs };
+  else
     return { positive: cs, negative: null };
 }
 
@@ -1321,10 +1321,10 @@ function JS_Interpreter_RegEx(re, flags) {
     parenIndex := re.parenIndex;
     parenCount := re.parenCount;
     if (qt.greedy == true)
-      m := lambda (st, k) [m', bounds, parenIndex, parenCount] 
+      m := lambda (st, k) [m', bounds, parenIndex, parenCount]
         { return JS_Interpreter_Repetition_Greedy(m', bounds, st, k, parenIndex, parenCount); };
     else
-      m := lambda (st, k) [m', bounds] 
+      m := lambda (st, k) [m', bounds]
         { return JS_Interpreter_Repetition_NonGreedy(m', bounds, st, k); };
     return m;
   }

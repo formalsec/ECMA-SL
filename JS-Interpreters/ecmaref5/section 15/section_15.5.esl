@@ -191,7 +191,7 @@ function StringConstructor (global, this, strict, args) {
     newlyConstructedObject.PrimitiveValue := "";
   else
     newlyConstructedObject.PrimitiveValue := ToString(value);
-    
+
   /* 15.5.5 Properties of String Instances */
   /* String instances inherit properties from the String prototype object and their [[Class]] internal property value is
      "String". String instances also have a [[PrimitiveValue]] internal property, a length property, and a set of
@@ -295,7 +295,7 @@ function StringPrototypevalueOf (global, this, strict, args) {
      object. Therefore, it cannot be transferred to other kinds of objects for use as a method. */
   if (!isStringOrStringObject(this))
     throw TypeErrorConstructorInternal();
-  
+
   if (Type(this) == "String")
     return this;
 
@@ -381,7 +381,7 @@ function StringPrototypecharCodeAt (global, this, strict, args) {
   /* If position < 0 or position ≥ size, return NaN. */
   if ((position < 0) ||| (position >= size))
     return NaN;
-  
+
   /*     Return a value of Number type, whose value is the code unit value of the character at position position
        in the String S, where the first (leftmost) character in S is considered to be at position 0, the next one at position 1, and so on. */
   return int_to_float (to_char_code_u (s_nth_u (S, position)));
@@ -540,10 +540,10 @@ function StringPrototypelastIndexOf(global, this, strict, args) {
   /*  Let numPos be ToNumber(position). (If position is undefined, this step produces the value NaN). */
   numPos := ToNumber(position);
   /*  If numPos is NaN, let pos be +∞; otherwise, let pos be ToInteger(numPos).*/
-  if (is_NaN (numPos)) 
-    pos := Infinity; 
-  else 
-    pos := ToInteger(numPos); 
+  if (is_NaN (numPos))
+    pos := Infinity;
+  else
+    pos := ToInteger(numPos);
   /* Let len be the number of characters in S.*/
   len := s_len_u(S);
   /* Let start min(max(pos, 0), len). */
@@ -869,9 +869,9 @@ function StringPrototypeReplace(global, this, strict, args) {
     str := s_substr_u(str, startOffset + matchStrLen, stringLen);
 
     if ((Type(replaceValue) == "Object") &&& (replaceValue.Class == "Function")) {
-      /* TODO - review "this" arg passed to the replace function is 'undefined 
-      according to test test/test262/tests/built-ins/String/prototype/replace/15.5.4.11-1.js
-      and test/test262/tests/built-ins/String/prototype/replace/15.5.4.11-1.js */
+      /* TODO - review "this" arg passed to the replace function is 'undefined
+      according to test bench/test262/tests/built-ins/String/prototype/replace/15.5.4.11-1.js
+      and bench/test262/tests/built-ins/String/prototype/replace/15.5.4.11-1.js */
       newstring := {replaceValue.Call}(null, null, replaceValue, 'undefined, args2);
       newstring := ToString(newstring);
     } else {
@@ -1041,9 +1041,9 @@ function StringPrototypeSlice (global, this, strict, args) {
   /* Let intStart be ToInteger(start). */
   intStart := ToInteger(start);
   /* If end is undefined, let intEnd be len; else let intEnd be ToInteger(end). */
-  if (end == 'undefined) 
-    intEnd := len; 
-  else 
+  if (end == 'undefined)
+    intEnd := len;
+  else
     intEnd := ToInteger(end);
   /* If intStart is negative, let from be max(len + intStart,0); else let from be min(intStart,len). */
   if (intStart < 0.) from := max(len + intStart, 0.); else from := min(intStart, len);
@@ -1096,7 +1096,7 @@ function StringPrototypeSlice (global, this, strict, args) {
  * "A<B>bold</B>and<CODE>coded</CODE>".split(/<(\/)?([^<>]+)>/)
  *
  * evaluates to the array
- * 
+ *
  * ["A", undefined, "B", "bold", "/", "B", "and", undefined,
  * "CODE", "coded", "/", "CODE", ""]
  *
@@ -1121,9 +1121,9 @@ function StringPrototypeSplit (global, this, strict, args) {
   /* 4. Let lengthA be 0. */
   lengthA := 0.;
   /* 5. If limit is undefined, let (m) = 2^32–1; else let (m) = ToUint32(limit). */
-  if (limit == 'undefined) 
-    lim := ((2. ** 32.) - 1.); 
-  else 
+  if (limit == 'undefined)
+    lim := ((2. ** 32.) - 1.);
+  else
     lim := ToUint32(limit);
   /* 6. Let s be the number of characters in S. */
   s := s_len_u (S);
@@ -1131,9 +1131,9 @@ function StringPrototypeSplit (global, this, strict, args) {
   p := 0;
   /* 8. If separator is a RegExp object (its [[Class]] is "RegExp"),
     let (R) = separator; otherwise let (R) = ToString(separator). */
-  if (isRegExpObject(separator)) 
-    R := separator; 
-  else 
+  if (isRegExpObject(separator))
+    R := separator;
+  else
     R := ToString(separator);
   /* 9. If lim == 0, return A. */
   if (lim == 0.)
@@ -1327,9 +1327,9 @@ function StringPrototypesubstring (global, this, strict, args) {
   /* Let intStart be ToInteger(start). */
   intStart := ToInteger(start);
   /* If end is undefined, let intEnd be len; else let intEnd be ToInteger(end). */
-  if (end == 'undefined) 
-    intEnd := len; 
-  else 
+  if (end == 'undefined)
+    intEnd := len;
+  else
     intEnd := ToInteger(end);
   /* Let finalStart be min(max(intStart, 0), len).*/
   finalStart := min(max(intStart, 0.), len);
@@ -1423,7 +1423,7 @@ function StringPrototypetoLowerCase (global, this, strict, args) {
             } else {
               c := el.lowercase;
               j := sc_len + 1;
-            }            
+            }
           } else {
             nextC := s_nth_u(S, (i + 1));
             if ((i < (len - 2)) &&& (nextC == "\u{0345}")) {
@@ -1472,7 +1472,7 @@ function StringPrototypetoLocaleLowerCase (global, this, strict, args) {
     of the corresponding character of S or the actual corresponding character of S
     if no Unicode lowercase equivalent exists. */
   /*L := to_lower_case (S);*/
-  
+
   /* TO DO -> Passar isto tendo em conta a linguagem do ambiente */
 
   if (!isUnicodeCasingInitialized())
@@ -1502,7 +1502,7 @@ function StringPrototypetoLocaleLowerCase (global, this, strict, args) {
             } else {
               c := el.lowercase;
               j := sc_len + 1;
-            }            
+            }
           } else {
             nextC := s_nth_u(S, (i + 1));
             if ((i < (len - 2)) &&& (nextC == "\u{0345}")) {
@@ -1603,7 +1603,7 @@ function StringPrototypetoLocaleUpperCase (global, this, strict, args) {
     of the corresponding character of S or the actual corresponding character of S
     if no Unicode lowercase equivalent exists. */
   /*L := to_upper_case (S);*/
-  
+
   /* TO DO -> Passar isto tendo em conta a linguagem do ambiente */
   if (!isUnicodeCasingInitialized())
     initializeUnicodeCasing();

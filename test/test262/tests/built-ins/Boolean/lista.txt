@@ -1,4 +1,0 @@
-Em standby (deve passar, faltam funções na harness que usam a API Reflect):
-test/test262/tests/built-ins/Boolean/is-a-constructor.js
-test/test262/tests/built-ins/Boolean/prototype/toString/not-a-constructor.js
-test/test262/tests/built-ins/Boolean/prototype/valueOf/not-a-constructor.js
