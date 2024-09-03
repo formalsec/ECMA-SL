@@ -1,0 +1,2 @@
+This folder includes Test262 tests that were incorrectly classified as ES5 and incorrectly included in the "bench/test262/tests" folder.
+

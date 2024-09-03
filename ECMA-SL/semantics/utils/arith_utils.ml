@@ -93,7 +93,7 @@ let string_of_pos_float num =
   if is_int num then string_of_int inum (* It is not an integer *)
   else if
     num > 1e+9 && num < 1e+21
-    (*  %.0f fails test/test262/tests/built-ins/String/prototype/split/S15.5.4.14_A1_T18.js *)
+    (*  %.0f fails bench/test262/tests/built-ins/String/prototype/split/S15.5.4.14_A1_T18.js *)
   then Printf.sprintf "%.0f" num
   else if 1e-5 <= num && num < 1e-4 then
     let s = string_of_float (num *. 10.) in

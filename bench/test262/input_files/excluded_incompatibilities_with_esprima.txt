@@ -1,0 +1,1 @@
+bench/test262/es5_excluded/incompatibilities_with_esprima/language/asi/S7.9_A5.7_T1.js
