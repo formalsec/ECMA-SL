@@ -1,5 +1,0 @@
-(declare-fun len_0 int)
-(declare-fun i_0 int)
-(declare-fun iface___instr_symb_str_0 str)
-(assert (str.eq (str.sub (str.++ (str.++ "cat /sys/class/net/" iface___instr_symb_str_0) "/address") i_0 len_0) ";$(touch success) #"))
-(check-sat)

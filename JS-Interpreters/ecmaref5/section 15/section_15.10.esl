@@ -125,7 +125,7 @@ function parsePattern(P, F) {
 
   if ((l_len(progObj).body) == 0)
     throw SyntaxErrorConstructorInternal();
-  
+
   expression := (l_nth(progObj.body, 0)).expression;
   regex := expression.regex;
   source := expression.source;
@@ -150,7 +150,7 @@ function newRegExp(strict, pattern, flags) {
       F := R.OriginalFlags.flags;
       R := parsePattern(P, F);
     }
-    /* ES6 - test implementation/test/test262/tests/built-ins/RegExp/new-regexp/15.10.4.1-1.js */
+    /* ES6 - test implementation/bench/test262/tests/built-ins/RegExp/new-regexp/15.10.4.1-1.js */
     else {
       P := R.OriginalSource;
       R := parsePattern(P, ToString(flags));
@@ -361,7 +361,7 @@ function getRegExpPrototypeExec(strict) {
  */
 function RegExpPrototypeExec(global, this, strict, args) {
   str := l_nth (args, 0);
-  
+
   /* 1. Let R be this RegExp object. */
   R := this;
   if (!isRegExpObject(R))
@@ -377,7 +377,7 @@ function RegExpPrototypeExec(global, this, strict, args) {
   i := float_to_int (ToInteger(lastIndex));
 
   /* ES6: i < 0 becomes 0, but don't return null */
-  /* test/test262/tests/built-ins/RegExp/prototype/test/S15.10.6.3_A1_T22.js */
+  /* bench/test262/tests/built-ins/RegExp/prototype/test/S15.10.6.3_A1_T22.js */
   if (i < 0) {
     i := 0;
     {R.Put}(R, "lastIndex", 0., true);
@@ -525,7 +525,7 @@ function RegExpPrototypeTest(global, this, strict, args) {
  * ignoreCase property is true, and "m" if the multiline property is true.
  *
  * NOTE The returned String has the form of a RegularExpressionLiteral that
- * evaluates to another RegExp object with the same behaviour as this object. 
+ * evaluates to another RegExp object with the same behaviour as this object.
  */
 function RegExpPrototypeToString(global, this, strict, args) {
   source := s_concat(["/", this.OriginalSource, "/"]);
@@ -624,7 +624,7 @@ function validateFlags(flags) {
       m := true;
     else
       throw SyntaxErrorConstructorInternal();
-    
+
     index := index + 1;
   }
 
@@ -649,7 +649,7 @@ function setFlags(obj, flags) {
       m := true;
     else
       throw SyntaxErrorConstructorInternal();
-    
+
     index := index + 1;
   }
 
@@ -662,7 +662,7 @@ function setFlags(obj, flags) {
   if (i) flags := s_concat([flags, "i"]);
   if (m) flags := s_concat([flags, "m"]);
   /*setJSProperty(obj, "flags", newDataPropertyDescriptorFull(flags, false, false, false));*/
-  /* ES6? - test implementation/test/test262/tests/built-ins/RegExp/new-regexp/S15.10.4.1_A1_T1.js */
+  /* ES6? - test bench/test262/tests/built-ins/RegExp/new-regexp/S15.10.4.1_A1_T1.js */
 
   return { gb: g, ic: i, ml: m, flags: flags };
 }
@@ -752,7 +752,7 @@ function copyCaps(caps) {
       caps'[i_str] := caps[i_str];
     i := i + 1;
   }
-  
+
   return caps';
 }
 
@@ -790,7 +790,7 @@ function JS_Interpreter_Quant(qt) {
     bounds := { inf: 0., sup: 1., greedy: b };
     return bounds;
   }
-  /* The production QuantifierPrefix :: { DecimalDigits } evaluates as follows: 
+  /* The production QuantifierPrefix :: { DecimalDigits } evaluates as follows:
      1. Let i be the MV of DecimalDigits (see 7.8.3).
      2. Return the two results i and i. */
   /* The production QuantifierPrefix :: { DecimalDigits , DecimalDigits }
@@ -814,7 +814,7 @@ function JS_Interpreter_Quant(qt) {
   }
 }
 
-/* 
+/*
 m == matcher
 k == continuation
 st == state
@@ -1136,7 +1136,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
     }
 
     /**
-     * NOTE A ClassAtom can use any of the escape sequences that are allowed in the 
+     * NOTE A ClassAtom can use any of the escape sequences that are allowed in the
      * rest of the regular expression except for \b, \B, and backreferences.
      * Inside a CharacterClass, \b means the backspace character, while \B and backreferences
      * raise errors. Using a backreference inside a ClassAtom causes an error.
@@ -1443,10 +1443,10 @@ function JS_Interpreter_RegEx(re, flags) {
     parenIndex := re.parenIndex;
     parenCount := re.parenCount;
     if (qt.greedy == true)
-      m := lambda (st, k) [m', bounds, parenIndex, parenCount] 
+      m := lambda (st, k) [m', bounds, parenIndex, parenCount]
         { return JS_Interpreter_Repetition_Greedy(m', bounds, st, k, parenIndex, parenCount); };
     else
-      m := lambda (st, k) [m', bounds] 
+      m := lambda (st, k) [m', bounds]
         { return JS_Interpreter_Repetition_NonGreedy(m', bounds, st, k); };
     return m;
   }
@@ -1518,7 +1518,7 @@ function JS_Interpreter_RegEx(re, flags) {
       re_tl := { type: "Alternative", expressions: tl res };
       m_hd := JS_Interpreter_RegEx(re_hd, flags);
       m_tl := JS_Interpreter_RegEx(re_tl, flags);
-      m := lambda (st, k) [m_hd, m_tl] { 
+      m := lambda (st, k) [m_hd, m_tl] {
         k' := lambda (st') [m_tl, k] { return {m_tl}(st', k); };
         return {m_hd}(st, k');
       };

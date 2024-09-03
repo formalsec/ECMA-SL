@@ -591,7 +591,7 @@ function arrayConcat(global, this, strict, items) {
     }
   }
 
-  /** test/test262/tests/built-ins/Array/prototype/concat/S15.4.4.4_A1_T4.js */
+  /** bench/test262/tests/built-ins/Array/prototype/concat/S15.4.4.4_A1_T4.js */
   lenDesc := newDataPropertyDescriptorFull(n, true, false, false);
   {A.DefineOwnProperty}(A, "length", lenDesc, false);
 
@@ -661,7 +661,7 @@ function arrayJoin(global, this, strict, args) {
     element := {O.Get}(O, ToString(k));
     /* c. If element is undefined or null, Let next be the empty String;
           otherwise, let next be ToString(element). */
-    if ((element == 'undefined) || (element == 'null)) 
+    if ((element == 'undefined) || (element == 'null))
       next := "";
     else
       next := ToString(element);
@@ -1603,7 +1603,7 @@ function arrayLastIndexOf(global, this, strict, args) {
   /* 5. If argument fromIndex was passed let n be ToInteger(fromIndex); else let n be len. */
   if (fromIndex != null)
     n := ToInteger(fromIndex);
-  else 
+  else
     n := len;
   /* 6. If n ≥ 0, then let k be min(n, len - 1). */
   if (n >= 0.) {

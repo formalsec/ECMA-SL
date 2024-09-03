@@ -1,1 +1,0 @@
-{ "sink" : "Abort", "expression": "s_concat([ s_concat([ "cat /sys/class/net/", se_mk_symbolic (__$Str, "iface___instr_symb_str_0") ]), "/address" ])" }
