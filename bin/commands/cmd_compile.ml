@@ -1,5 +1,5 @@
 open Ecma_sl
-open Syntax.Result
+open Smtml.Syntax.Result
 
 module Options = struct
   type t =
@@ -22,7 +22,7 @@ let compile_pipeline (untyped : bool) (fname : string) (fpath : string) :
   |> Preprocessor.Imports.resolve_imports ~stdlib:Share.stdlib
   |> Preprocessor.Macros.apply_macros
   |> type_check untyped
-  |> Syntax.Result.map Compiler.compile_prog
+  |> map Compiler.compile_prog
 
 let load (file : Fpath.t) : Prog.t Result.t =
   Result.esl_exec @@ fun () ->

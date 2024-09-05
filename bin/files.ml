@@ -1,5 +1,4 @@
-open Ecma_sl
-open Syntax.Result
+open Smtml.Syntax.Result
 open Fpath
 
 module Parser = struct
@@ -76,7 +75,7 @@ let make_fout (output : t option) (workspace : t) (input : t)
 let generate_input_list ?(recursive : bool = true) (inputs : t list) :
   (t * t) list Result.t =
   let multiple = List.length inputs > 1 in
-  let* inputs' = list_map ~f:(read_inputs multiple recursive) inputs in
+  let* inputs' = list_map (read_inputs multiple recursive) inputs in
   flat_inputs inputs'
 
 let process_inputs ?(outext : string option)
