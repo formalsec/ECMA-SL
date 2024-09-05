@@ -1,0 +1,3 @@
+pin-depends: [
+  [ "smtml.0.3.0" "git+https://github.com/formalsec/smtml.git#73e2bc54330f3a9a9c634c16a48e3b48dbe5f6c6" ]
+]
