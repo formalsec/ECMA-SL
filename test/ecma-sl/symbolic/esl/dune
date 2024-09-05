@@ -1,5 +1,4 @@
 (cram
- (enabled_if false)
  (deps
   (package ecma-sl)
   %{bin:ecma-sl}

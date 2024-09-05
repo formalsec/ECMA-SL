@@ -1,3 +1,5 @@
+import stdlib;
+
 function main() {
   x := extern str_symbol("x");
   y := s_len(x);
@@ -9,5 +11,5 @@ function main() {
   z := s_substr(x, 0, 3);
   assert (z == "EFG");
 
-  return 1
+  return 1;
 }
