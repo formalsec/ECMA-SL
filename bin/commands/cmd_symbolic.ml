@@ -70,7 +70,7 @@ let serialize_thread (workspace : Fpath.t) :
   fun witness thread ->
     let open Fpath in
     let pc = PC.to_list @@ Thread.pc thread in
-    Log.debug "  path cond : %a@." Term.pp_list pc;
+    Log.debug "  path cond : %a" Term.pp_list pc;
     let solver = Thread.solver thread in
     assert (`Sat = Solver.check solver pc);
     let model = Solver.model solver in
@@ -136,6 +136,6 @@ let run () (opts : Options.t) : unit Result.t =
   let nproblems = List.length problems in
   if nproblems = 0 then Log.stdout "All Ok!@."
   else Log.stdout "Found %d problems!@." nproblems;
-  Log.debug "  exec time : %fs@." exec_time;
-  Log.debug "solver time : %fs@." solv_time;
+  Log.debug "  exec time : %fs" exec_time;
+  Log.debug "solver time : %fs" solv_time;
   write_report opts.workspace opts.input exec_time solv_time solv_cnt problems
