@@ -1,5 +1,5 @@
 function main() {
-  y := {}
+  y := {};
 
   read0 := y["test"];
   assert (read0 == 'undefined);
@@ -8,5 +8,5 @@ function main() {
   y[x] := 1;
   read1 := y["test"];
   assert (read1 == 1 || read1 == 'undefined);
-  return 0
+  return 0;
 }

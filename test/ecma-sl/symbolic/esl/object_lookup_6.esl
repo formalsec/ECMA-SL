@@ -1,5 +1,5 @@
 function main() {
-  y := {}
+  y := {};
   x := extern str_symbol("x");
   z := extern str_symbol("z");
 
@@ -17,5 +17,5 @@ function main() {
 
   /* (x != "length" && z != "length") => t == 2.0 */
   assert (((z == "length") || (x == "length")) || t == 2.0);
-  return 0
+  return 0;
 }

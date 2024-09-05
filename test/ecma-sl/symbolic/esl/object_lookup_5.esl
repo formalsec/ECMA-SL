@@ -1,5 +1,5 @@
 function main() {
-  y := {}
+  y := {};
   x := extern str_symbol("x");
   z := extern str_symbol("z");
 
@@ -13,5 +13,5 @@ function main() {
   assert (w == 1.0 || w == 5.0);
   assert (v == 'undefined || v == 1.0 || v == 5.0);
   assert (t == 2.0 || t == 1.0 || t == 5.0);
-  return 0
+  return 0;
 }
