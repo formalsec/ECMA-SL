@@ -14,7 +14,7 @@ module M = struct
   let compare (e1 : value) (e2 : value) = compare (hash e1) (hash e2)
   let pp fmt v = E.pp fmt v [@@inline]
 
-  let int_symbol_s (x : string) : value = E.mk_symbol (Symbol.make Ty_int x)
+  let int_symbol_s (x : string) : value = E.symbol (Symbol.make Ty_int x)
   [@@inline]
 
   let mk_symbol (x : string) : value = E.(value (App (`Op "symbol", [ Str x ])))
@@ -90,6 +90,7 @@ module M = struct
       fun v ->
         match E.view v with
         | Val v' -> E.value (Eval_op.typeof_semantics (v', Source.none))
+        | List _ -> E.value (Str "list")
         | _ -> Log.fail "unknown value: %a" E.pp v )
     | IntToFloat -> E.(cvtop Ty_int Reinterpret_int)
     | IntToString -> E.(cvtop Ty_int ToString)

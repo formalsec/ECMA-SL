@@ -92,26 +92,15 @@ module Make () = struct
       | Val v -> ok_v (to_char_code v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let s_len v =
-      match E.view v with
-      | Val v -> ok_v (s_len v)
-      | _ -> err (__FUNCTION__ ^ ": invalid argument")
-    in
+    let s_len v = ok @@ E.unop Ty_str Length v in
     let s_concat v =
       match E.view v with
       | Val v -> ok_v (s_concat v)
+      | List l -> ok @@ E.naryop Ty_str Concat l
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let s_nth v1 v2 =
-      match (E.view v1, E.view v2) with
-      | (Val v1, Val v2) -> ok_v (s_nth v1 v2)
-      | _ -> err (__FUNCTION__ ^ ": invalid argument")
-    in
-    let s_substr v1 v2 v3 =
-      match (E.view v1, E.view v2, E.view v3) with
-      | (Val v1, Val v2, Val v3) -> ok_v (s_substr v1 v2 v3)
-      | _ -> err (__FUNCTION__ ^ ": invalid argument")
-    in
+    let s_nth v1 v2 = ok @@ E.binop Ty_str At v1 v2 in
+    let s_substr v1 v2 v3 = ok @@ E.triop Ty_str String_extract v1 v2 v3 in
     let from_char_code_u v =
       match E.view v with
       | Val v -> ok_v (from_char_code_u v)
@@ -180,6 +169,7 @@ module Make () = struct
     let l_len v =
       match E.view v with
       | Val v -> ok_v (l_len v)
+      | List _ -> ok @@ Smtml.Expr.unop Ty_list Length v
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let l_reverse v =
@@ -190,16 +180,19 @@ module Make () = struct
     let l_nth v1 v2 =
       match (E.view v1, E.view v2) with
       | (Val v1, Val v2) -> ok_v (l_nth (v1, v2))
+      | (List _, _) -> ok @@ E.binop Ty_list At v1 v2
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let l_add v1 v2 =
       match (E.view v1, E.view v2) with
       | (Val v1, Val v2) -> ok_v (l_add (v1, v2))
+      | (List _, _) -> ok @@ E.binop Ty_list List_append_last v1 v2
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let l_prepend v1 v2 =
       match (E.view v1, E.view v2) with
       | (Val v1, Val v2) -> ok_v (l_prepend (v1, v2))
+      | (_, List _) -> ok @@ E.binop Ty_list List_append v2 v1
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let l_concat v1 v2 =
