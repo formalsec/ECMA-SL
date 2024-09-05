@@ -41,7 +41,7 @@
   tls-lwt
   yojson
   conf-npm
-  (smtml (>= "0.2.5"))
+  (smtml (= "0.3.0"))
   ppx_import
   ppx_deriving
   (ppx_inline_test :with-test)
