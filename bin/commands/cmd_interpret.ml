@@ -1,5 +1,5 @@
 open Ecma_sl
-open Syntax.Result
+open Smtml.Syntax.Result
 
 module Options = struct
   let langs : Enums.Lang.t list = Enums.Lang.[ Auto; ESL; CESL; CESLUnattached ]
