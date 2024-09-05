@@ -1,5 +1,5 @@
 open Ecma_sl
-open Syntax.Result
+open Smtml.Syntax.Result
 
 module Options = struct
   let term_width : int ref = ref (Terminal.width Unix.stdout)

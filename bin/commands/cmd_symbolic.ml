@@ -1,5 +1,5 @@
 open Ecma_sl
-open Ecma_sl.Syntax.Result
+open Smtml.Syntax.Result
 module PC = Choice_monad.PC
 module Thread = Choice_monad.Thread
 module Env = Symbolic.P.Env
@@ -132,7 +132,7 @@ let run () (opts : Options.t) : unit Result.t =
   let solv_cnt = !Solver.solver_count in
   let testsuite = Fpath.(opts.workspace / "test-suite") in
   let* _ = Result.bos (Bos.OS.Dir.create testsuite) in
-  let* problems = list_filter_map ~f:(process_result opts.workspace) results in
+  let* problems = list_filter_map (process_result opts.workspace) results in
   let nproblems = List.length problems in
   if nproblems = 0 then Log.stdout "All Ok!@."
   else Log.stdout "Found %d problems!@." nproblems;

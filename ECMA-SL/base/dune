@@ -3,7 +3,7 @@
 (library
  (public_name ecma-sl.base)
  (name eslBase)
- (modules base fmt font log io string terminal syntax)
+ (modules base fmt font log io string terminal)
  (libraries unix)
  (instrumentation
   (backend bisect_ppx)))
