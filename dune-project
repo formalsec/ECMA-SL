@@ -43,12 +43,19 @@
   tls-lwt
   yojson
   conf-npm
-  (smtml (= "0.3.0"))
+  (smtml
+   (= "0.3.0"))
   ppx_import
   ppx_deriving
   (mdx :with-test)
   (ppx_inline_test :with-test)
-  (bisect_ppx (and :with-test (>= "2.5.0") :dev)))
+  (prelude :with-test)
+  (rusage :with-test)
+  (bisect_ppx
+   (and
+    (>= "2.5.0")
+    :with-test
+    :with-dev-setup)))
  (tags
   (ECMAScript "Specification Language" "Reference Interpreters" "OCaml"))
  (sites
