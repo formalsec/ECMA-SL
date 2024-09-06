@@ -4,6 +4,8 @@
 
 (using dune_site 0.1)
 
+(using mdx 0.2)
+
 (name ecma-sl)
 
 (generate_opam_files true)
@@ -44,6 +46,7 @@
   (smtml (= "0.3.0"))
   ppx_import
   ppx_deriving
+  (mdx :with-test)
   (ppx_inline_test :with-test)
   (bisect_ppx (and :with-test (>= "2.5.0") :dev)))
  (tags
