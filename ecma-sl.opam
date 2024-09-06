@@ -30,6 +30,7 @@ depends: [
   "smtml" {= "0.3.0"}
   "ppx_import"
   "ppx_deriving"
+  "mdx" {with-test}
   "ppx_inline_test" {with-test}
   "bisect_ppx" {with-test & >= "2.5.0" & dev}
 ]
