@@ -752,6 +752,7 @@ buckets.MultiDictionary = function (toStrFunction, valuesEqualsFunction) {
 };
 
 // ---------------------------------- tests -----------------------------------
+const esl_symbolic = require("esl_symbolic");
 
 var dict = new buckets.MultiDictionary()
 

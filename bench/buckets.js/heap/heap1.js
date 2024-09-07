@@ -554,6 +554,7 @@ buckets.Heap = function (compareFunction) {
 };
 
 // ------------------------------ our tests now ------------------------------
+const esl_symbolic = require("esl_symbolic");
 
 var heap = new buckets.Heap();
 

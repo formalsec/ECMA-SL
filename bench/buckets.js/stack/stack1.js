@@ -667,6 +667,7 @@ buckets.Stack = function () {
 };
 
 // -------------------------------- tests -------------------------------------
+const esl_symbolic = require("esl_symbolic");
 
 var stack = new buckets.Stack();
 

@@ -545,6 +545,7 @@ buckets.Set = function (toStringFunction) {
 };
 
 // -------------------------------- tests -------------------------------------
+const esl_symbolic = require("esl_symbolic");
 
 var set1 = new buckets.Set();
 var set2 = new buckets.Set();

@@ -308,6 +308,7 @@ buckets.arrays.forEach = function (array, callback) {
 };
 
 // ------------------------------ our test now -------------------------------
+const esl_symbolic = require("esl_symbolic");
 
 var n1 = esl_symbolic.number("n1"); // 1
 var n2 = esl_symbolic.number("n2"); // 8

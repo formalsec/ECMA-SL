@@ -521,6 +521,7 @@ buckets.LinkedList = function () {
 };
 
 // ---------------------------------- tests ----------------------------------
+const esl_symbolic = require("esl_symbolic");
 
 var list = new buckets.LinkedList()
 
