@@ -1,7 +1,6 @@
 open EslBase
 module Env = Symbolic.P.Env
 module SMap = Link_env.SMap
-module PC = Choice_monad.PC
 module E = Smtml.Expr
 module V = Smtml.Value
 module S = Smtml.Symbol
@@ -22,7 +21,6 @@ module Make () = struct
   module Extern_func = Symbolic.P.Extern_func
   module Thread = Choice_monad.Thread
   module Optimizer = Choice_monad.Optimizer
-  module PC = Choice_monad.PC
   open Extern_func
 
   let ( let/ ) = Choice.bind
@@ -591,9 +589,9 @@ module Make () = struct
     in
     let evaluate (e : value) =
       Choice.with_thread (fun thread ->
-          let pc = Thread.pc thread |> PC.to_list in
+          let pc = Smtml.Expr.Set.add e @@ Thread.pc thread in
           let solver = Thread.solver thread in
-          assert (`Sat = Solver.check solver (e :: pc));
+          assert (`Sat = Solver.check_set solver pc);
           let v = Solver.get_value solver e in
           Ok v )
     in
@@ -606,7 +604,7 @@ module Make () = struct
     in
     let maximize (e : value) =
       Choice.with_thread (fun thread ->
-          let pc = Thread.pc thread |> PC.to_list in
+          let pc = Smtml.Expr.Set.to_list @@ Thread.pc thread in
           let opt = Thread.optimizer thread in
           let v = optimize Optimizer.maximize opt e pc in
           match v with
@@ -617,7 +615,7 @@ module Make () = struct
     in
     let minimize (e : value) =
       Choice.with_thread (fun thread ->
-          let pc = Thread.pc thread |> PC.to_list in
+          let pc = Smtml.Expr.Set.to_list @@ Thread.pc thread in
           let opt = Thread.optimizer thread in
           let v = optimize Optimizer.minimize opt e pc in
           match v with
