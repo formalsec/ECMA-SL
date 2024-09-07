@@ -18,17 +18,22 @@ function isErrorCompletion(completion) {
   return false;
 }
 function getCompletionType(completion) {
-  return l_nth(completion, 1);
+  return completion.type;
 }
 function getCompletionValue(completion) {
-  return l_nth(completion, 2);
+  return completion.value;
 }
 function getCompletionTarget(completion) {
-  return l_nth(completion, 3);
+  return completion.target;
 }
 
 function newCompletion(type, value, target) {
-  return ["C", type, value, target];
+  return {
+    __completion__ : true,
+    type: type,
+    value: value,
+    target: target
+  };
 }
 function normalEmptyCompletion(V) {
   return newCompletion('normal, V, 'empty);
