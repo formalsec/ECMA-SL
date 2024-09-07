@@ -77,7 +77,7 @@ function ErrorConstructor(globalObject, this, NewTarget, strict, params) {
 	message := l_nth(params, 0);
   /* If NewTarget is undefined, let newTarget be the active function object, else let newTarget be NewTarget. */
   if (NewTarget == 'undefined)
-    newTarget := topExecStack().Function; 
+    newTarget := topExecStack().Function;
   else
     newTarget := NewTarget;
   /* Let O be OrdinaryCreateFromConstructor(newTarget, "%ErrorPrototype%", «[[ErrorData]]»). */
@@ -118,7 +118,7 @@ function ErrorToString(globalObject, this, NewTarget, strict, params) {
   /* ReturnIfAbrupt(name). */
   @ReturnIfAbrupt(name);
   /* If name is undefined, let name be "Error"; otherwise let name be ToString(name). */
-  if (name == 'undefined) name := "Error"; else name := ToString(name); 
+  if (name == 'undefined) name := "Error"; else name := ToString(name);
   /* ReturnIfAbrupt(name). */
   @ReturnIfAbrupt(name);
   /* Let msg be Get(O, "message"). */
@@ -209,16 +209,18 @@ function initSyntaxErrorObject(globalObject, ErrorPrototype, strict) {
   return initNativeErrorObject(ErrorPrototype, "SyntaxError", "SyntaxErrorConstructor", globalObject, strict);
 }
 function SyntaxErrorConstructor(globalObject, this, NewTarget, strict, params) {
-  message := l_nth(params, 0);
+  message := hd params;
   return NativeErrorConstructor(message, "SyntaxError", NewTarget);
-}
-function SyntaxErrorConstructorInternal() {
-  return NativeErrorConstructor('undefined, "SyntaxError", |Intrinsics|["SyntaxError"]);
 }
 function getSyntaxErrorConstructor() {
   return |Intrinsics|["SyntaxError"];
 }
-
+function SyntaxError(msg) {
+  return NativeErrorConstructor(msg, "SyntaxError", getSyntaxErrorConstructor());
+}
+function SyntaxErrorConstructorInternal() {
+  return SyntaxError('undefined);
+}
 /*
 19.5.5.5 TypeError
 
