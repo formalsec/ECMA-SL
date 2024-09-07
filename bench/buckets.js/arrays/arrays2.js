@@ -308,6 +308,7 @@ buckets.arrays.forEach = function (array, callback) {
 };
 
 // ------------------------------ our test now -------------------------------
+const esl_symbolic = require("esl_symbolic");
 
 var n1 = esl_symbolic.number( "n1"); // 1
 var n2 = esl_symbolic.number( "n2"); // 8
@@ -337,6 +338,5 @@ reset();
 var res4 = buckets.arrays.lastIndexOf(numberArray, n2);
 esl_symbolic.assert(res4 == 3);
 
-esl_symbolic.assert(!esl_symbolic.is_symbolic(n4));
 var res5 = buckets.arrays.lastIndexOf(numberArray, n4);
 esl_symbolic.assert(res5 == -1);

@@ -350,6 +350,7 @@ buckets.Dictionary = function (toStrFunction) {
 };
 
 // --------------------------------- tests -----------------------------------
+const esl_symbolic = require("esl_symbolic");
 
 var dict = new buckets.Dictionary();
 

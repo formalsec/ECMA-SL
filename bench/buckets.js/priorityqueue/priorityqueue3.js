@@ -713,6 +713,7 @@ buckets.PriorityQueue = function (compareFunction) {
 };
 
 // ------------------------------- our tests ----------------------------------
+const esl_symbolic = require("esl_symbolic");
 
 var pqueue = new buckets.PriorityQueue();
 

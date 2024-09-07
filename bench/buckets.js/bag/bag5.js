@@ -947,6 +947,7 @@ buckets.Bag = function (toStrFunction) {
 };
 
 // ------------------------------ our tests now ------------------------------
+const esl_symbolic = require("esl_symbolic");
 
 // init
 var bag = new buckets.Bag();
