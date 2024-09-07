@@ -305,12 +305,11 @@ function FunctionAllocate(functionPrototype, strict, functionKind) {
   /* 14. Set the [[Realm]] internal slot of F to the running execution context's Realm. */
   if (!execStackIsEmpty())
     F.Realm := topExecStack().Realm;
-  else 
+  else
     F.Realm := null;
   /* 15. Return F. */
   return F;
 }
-
 
 /**
  * 9.2.4 FunctionInitialize (F, kind, ParameterList, Body, Scope)
@@ -325,12 +324,12 @@ function FunctionInitialize(F, kind, ParameterList, Body, Scope) {
   /* 1. Assert: F is an extensible object that does not have a length own property. */
   assert (F.Extensible == true &&& !("length" in_obj F));
   /* 2. Let len be the ExpectedArgumentCount of ParameterList. */
-  paramsDetails := getParamsDetails(Body);
-  if (paramsDetails == false)
+  if ((Body == 'undefined )||| (Type(Body) != "Object")) {
     len := l_len(ParameterList);
-  else
-    len := ExpectedArgumentCount(paramsDetails);
-  /* 3. Let status be DefinePropertyOrThrow(F, "length", PropertyDescriptor{[[Value]]: len, 
+  } else {
+    len := ExpectedArgumentCount(Body.paramsDetails);
+  }
+  /* 3. Let status be DefinePropertyOrThrow(F, "length", PropertyDescriptor{[[Value]]: len,
     [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: true}). */
   status := DefinePropertyOrThrow(F, "length", newDataPropertyDescriptorFull(int_to_float len, false, false, true));
   setInternalProperty(F, "internalLength", int_to_float len);
@@ -470,14 +469,14 @@ function MakeConstructor(F, writablePrototype, prototype) {
   if (prototype == null) {
     /* a. Let prototype be ObjectCreate(%ObjectPrototype%). */
     prototype := ObjectCreate(getObjectPrototype(false), null);
-    /* b. Let status be DefinePropertyOrThrow(prototype, "constructor", PropertyDescriptor{[[Value]]: F, 
+    /* b. Let status be DefinePropertyOrThrow(prototype, "constructor", PropertyDescriptor{[[Value]]: F,
       [[Writable]]: writablePrototype, [[Enumerable]]: false, [[Configurable]]: true }). */
     status := DefinePropertyOrThrow(prototype, "constructor", newDataPropertyDescriptorFull(F, writablePrototype, false, true));
 	  /* c. Assert: status is not an abrupt completion. */
     assert(!isAnAbruptCompletion(status));
   }
 
-  /* 6. Let status be DefinePropertyOrThrow(F, "prototype", PropertyDescriptor{[[Value]]: prototype, 
+  /* 6. Let status be DefinePropertyOrThrow(F, "prototype", PropertyDescriptor{[[Value]]: prototype,
     [[Writable]]: writablePrototype, [[Enumerable]]: false, [[Configurable]]: false}). */
   status := DefinePropertyOrThrow(F, "prototype", newDataPropertyDescriptorFull(prototype, writablePrototype, false, false));
   /* 7. Assert: status is not an abrupt completion. */
@@ -556,7 +555,7 @@ function SetFunctionName(F, name, prefix) {
     name := s_concat([prefix, " ", name]);
   }
 
-  /* 6. Return DefinePropertyOrThrow(F, "name", PropertyDescriptor{[[Value]]: name, 
+  /* 6. Return DefinePropertyOrThrow(F, "name", PropertyDescriptor{[[Value]]: name,
     [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: true}). */
   name_property := DefinePropertyOrThrow(F, "name", newDataPropertyDescriptorFull(name, false, false, true));
 
@@ -603,7 +602,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   /* 8. If parameterNames has any duplicate entries, let hasDuplicates be true. Otherwise, let hasDuplicates be false. */
   if (parametersHasDuplicates(parameterNames) == true)
     hasDuplicates := true;
-  else 
+  else
     hasDuplicates := false;
   /* 9. Let simpleParameterList be IsSimpleParameterList of formals. */
   simpleParameterList := getIsSimpleParameterListFromFunction(code);
@@ -918,10 +917,11 @@ function getParamsDetails(codeObj) {
 function ExpectedArgumentCount(paramsDetails) {
   count := 0;
   foreach (param: paramsDetails) {
-    if (param.type == "Identifier")
-      count := count + 1;
-    else if (param.type == "AssignmentPattern")
-      return count;
+    match param with
+    | { type: "Identifier" } -> count := count + 1;
+    | { type: "AssignmentPattern" } -> ;
+    | { type: "RestElement" } -> return count;
+    | default -> throw SyntaxError("Unexpected argument type");
   }
   return count;
 }
