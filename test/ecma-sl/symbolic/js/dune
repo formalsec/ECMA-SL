@@ -4,4 +4,10 @@
   %{bin:ecma-sl}
   (package ecma-sl)
   reference_error_1.js
-  reference_error_2.js))
+  reference_error_2.js
+  basic_symbolic_number.js
+  basic_symbolic_string.js
+  symbolic_number_arith.js
+  symbolic_number_branching.js
+  symbolic_string_operations.js
+  symbolic_string_branching.js))
