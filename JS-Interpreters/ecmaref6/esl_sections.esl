@@ -81,7 +81,8 @@ import "section 25/section_25.4.esl";
 import "section 26/section_26.1.esl";
 import "section 26/section_26.2.esl";
 
-import "extras/section_extras.esl";
+import "bindings/ffi_console.esl";
+import "bindings/ffi_test262.esl";
 
 import "internal_representations/objects.esl";
 import "internal_representations/descriptors.esl";

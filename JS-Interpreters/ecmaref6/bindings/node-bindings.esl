@@ -1,3 +1,11 @@
+import "node_cp.esl";
+import "node_cross-spawn.esl";
+import "node_fs.esl";
+import "node_os.esl";
+import "node_path.esl";
+import "node_process.esl";
+import "node_shelljs.esl";
+
 function __NodeRequire(globalObject, this, newTarget, strict, params) {
   path := l_nth(params, 0);
   objectPrototype := |Intrinsics|["ObjectPrototype"];
@@ -54,5 +62,5 @@ function initNodeGlobalObject(globalObject, objectPrototype, strict) {
 
   process := createProcessObject(globalObject, objectPrototype, strict);
   createBuiltInProperty(globalObject, "process", process);
-  return 'null;
+  return;
 }

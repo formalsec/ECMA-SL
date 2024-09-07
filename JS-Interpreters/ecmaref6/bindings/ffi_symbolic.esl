@@ -1,29 +1,31 @@
+import "lazy_object.esl";
+import "polluted_object.esl";
+
 function __symNumber(globalObject, this, NewTarget, strict, params) {
-  return extern flt_symbol(l_nth(params, 0));
+  return extern flt_symbol(hd params);
 }
 
 function __symBoolean(globalObject, this, NewTarget, strict, params) {
-  return extern bool_symbol(l_nth(params, 0));
+  return extern bool_symbol(hd params);
 }
 
 function __symString(globalObject, this, NewTarget, strict, params) {
   id := l_nth(params, 0);
-  return extern str_symbol(id);
+  return extern str_symbol(hd params);
 }
 
 function __symAssume(globalObject, this, NewTarget, strict, params) {
-  extern assume(l_nth(params, 0));
+  extern assume(hd params);
   return 0;
 }
 
 function __symAssert(globalObject, this, NewTarget, strict, params) {
-  e := l_nth(params, 0);
-  assert (e);
+  assert (hd params);
   return 0;
 }
 
 function __symIsSymbolic(globalObject, this, NewTarget, strict, params) {
-  return extern is_symbolic(l_nth(params, 0));
+  return extern is_symbolic(hd params);
 }
 
 function __symLazyObject(globalObject, this, NewTarget, strict, params) {
@@ -33,7 +35,7 @@ function __symLazyObject(globalObject, this, NewTarget, strict, params) {
 function __symPollutedObject(globalObject, this, NewTarget, strict, params) {
   depth := 0;
   if (l_len(params) > 0)
-    depth := l_nth(params, 0);
+    depth := hd params;
   return newPollutedObject(depth);
 }
 

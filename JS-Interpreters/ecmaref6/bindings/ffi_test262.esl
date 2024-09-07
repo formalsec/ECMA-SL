@@ -1,0 +1,28 @@
+function initTest262Object(globalObject, objectPrototype, strict) {
+  test262Obj := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(test262Obj);
+  detachArrayBuffer := CreateGeneralBuiltInFunction(objectPrototype, [], "__detachArrayBuffer", globalObject, strict, null);
+  createBuiltInProperty(test262Obj, "detachArrayBuffer", detachArrayBuffer);
+  createBuiltInProperty(detachArrayBuffer, "prototype", objectPrototype);
+  setInternalProperty(test262Obj, "Prototype", objectPrototype);
+  return test262Obj;
+}
+
+
+function __detachArrayBuffer(global, this, NewTarget, strict, items) {
+  return DetachArrayBuffer(l_nth(items, 0));
+}
+
+function __internalSetInternalClass(globalObject, this, NewTarget, strict, params) {
+  obj := l_nth(params, 0);
+  class := l_nth(params, 1);
+  setInternalProperty(obj, "Class", class);
+  return 'null;
+}
+
+function __internalSetInternalName(globalObject, this, NewTarget, strict, params) {
+  obj := l_nth(params, 0);
+  name := l_nth(params, 1);
+  createBuiltInProperty(obj, "name", name);
+  return 'null;
+}
