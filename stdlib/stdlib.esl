@@ -134,7 +134,7 @@ function a_len(a : array) : int {
   return extern a_len_external(a);
 }
 
-function array_make(n : int, v) : string {
+function array_make(n : int, v) : array {
   return extern array_make_external(n, v);
 }
 
