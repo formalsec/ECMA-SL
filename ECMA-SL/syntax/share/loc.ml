@@ -12,6 +12,7 @@ let pp (ppf : Fmt.t) (loc : t) : unit = Fmt.fmt ppf "$loc_%d" loc [@@inline]
 let str (loc : t) : string = Fmt.str "%a" pp loc [@@inline]
 
 module Tbl = struct
+  (* TODO: Make this a Buffer *)
   include Hashtbl.Make (struct
     type t = int
 
