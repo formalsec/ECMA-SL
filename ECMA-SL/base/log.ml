@@ -44,6 +44,12 @@ let debug (fmt : ('a, Fmt.t, unit) format) : 'a =
   EslLog.test !Config.log_debugs ~font:[ Cyan ] !Config.err_ppf fmt
 [@@inline]
 
+(** Use continuations to conditionally print to avoid performance hits of
+    ifprintf *)
+let debug_k : ((('a, Fmt.t, unit) format -> 'a) -> unit) -> unit =
+  let pp fmt = EslLog.mk ~font:[ Cyan ] !Config.err_ppf fmt in
+  fun k -> if !Config.log_debugs then k pp
+
 module Redirect = struct
   type mode =
     | Out
