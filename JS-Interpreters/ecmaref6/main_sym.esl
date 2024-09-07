@@ -1,15 +1,6 @@
-import "symbolic/api.esl";
-import "symbolic/lazy_object.esl";
-import "symbolic/polluted_object.esl";
-import "node/global.esl";
-import "node/fs.esl";
-import "node/cp.esl";
-import "node/os.esl";
-import "node/path.esl";
-import "node/shelljs.esl";
-import "node/cross-spawn.esl";
-import "node/process.esl";
 import "esl_interpreter.esl";
+import "bindings/ffi_symbolic.esl";
+import "bindings/node-bindings.esl";
 
 /* Redefine this functions because we need to initialize the node global obj */
 function ECMAScriptNodeInitialization(sourceText) {
