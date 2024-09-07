@@ -68,7 +68,7 @@ let serialize_thread (workspace : Fpath.t) :
   fun witness thread ->
     let open Fpath in
     let pc = Thread.pc thread in
-    Log.debug "  path cond : %a" (Smtml.Expr.Set.pretty Smtml.Expr.pp) pc;
+    Log.debug_k (fun pp -> pp "@[<hov 1>  path cond :@ %a@]" Solver.pp_set pc);
     let solver = Thread.solver thread in
     assert (`Sat = Solver.check_set solver pc);
     let model = Solver.model solver in

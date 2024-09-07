@@ -58,11 +58,12 @@ module M = struct
       let open Fmt in
       let iter f m =
         SMap.iter
-          (fun k v -> if not @@ String.starts_with ~prefix:"__" k then f (k, v))
+          (fun k v -> f (k, v) )
+            (* if not @@ String.starts_with ~prefix:"__" k then f (k, v)) *)
           m
       in
-      let pp_v ppf (k, v) = fmt ppf "%s -> %a" k pp v in
-      fmt ppf "{ ... %a }" (pp_iter !>";@ " iter pp_v) store
+      let pp_v ppf (k, v) = fmt ppf "@[<hov 1>%s@ ->@ %a@]" k pp v in
+      fmt ppf "@[<hov 1>{ %a }@]" (pp_iter !>";@ " iter pp_v) store
   end
 
   type store = Store.t

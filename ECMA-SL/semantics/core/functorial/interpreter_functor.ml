@@ -79,7 +79,8 @@ module Make (P : Interpreter_functor_intf.P) :
     eval_expr locals e |> Memory.pp_val heap
 
   let exec_func state func args ret_var =
-    Log.debug "calling func: %a" Func.pp_simple func;
+    Log.debug_k (fun pp ->
+        pp "@[<hov 1>calling func:@ %a@]" Func.pp_simple func );
     let return_state = Some (state, ret_var) in
     let params = Func.params' func in
     let store = Store.create (List.combine params args) in
@@ -120,12 +121,14 @@ module Make (P : Interpreter_functor_intf.P) :
 
   let exec_stmt stmt (state : State.exec_state) : State.stmt_result Choice.t =
     let open State in
-    let { locals; env; _ } = state in
+    let { locals; env; func; _ } = state in
     let ok st = Choice.return @@ State.Continue st in
     let error err = Choice.return @@ State.Return (Error err) in
     let* m = Env.get_memory env in
-    Log.debug "      store : %a" Value.Store.pp locals;
-    Log.debug "running stmt: %a" Stmt.pp_simple stmt;
+    Log.debug_k (fun pp -> pp "@[<hov 1>      scope :@ %a@]" Fmt.pp_str func);
+    Log.debug_k (fun pp ->
+        pp "@[<hov 1>      store :@ %a@]" Value.Store.pp locals );
+    Log.debug_k (fun pp -> pp "@[<hov 1>running stmt:@ %a@]" Stmt.pp_simple stmt);
     match stmt.it with
     | Stmt.Skip -> ok state
     | Stmt.Merge -> ok state
