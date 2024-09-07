@@ -26,20 +26,15 @@ function Type(V) {
   if (v_type == "bool")    return "Boolean";
   if (v_type == "string")  return "String";
   if (v_type == "object") {
+    if (isCompletion(V))          return "Completion";
+    if (isReference(V))           return "Reference";
+    if (isPropertyIdentifier(V))  return "PropertyIdentifier";
+    if (isCompletion(V))          return "Completion";
     if (isJavaScriptObject(V))    return "Object";
     if (isPropertyDescriptor(V))  return "PropertyDescriptor";
     return "EnvironmentRecord";
   }
-  if (v_type == "list") {
-    if (l_len(V) > 0) {
-      el := hd V;
-      if (el == "R")   return "Reference";
-      else if (el == "C") return "Completion";
-      else if (el == "P") return "PropertyIdentifier";
-      else            return "List";
-    }
-    return "List";
-  }
+  if (v_type == "list") return "List";
   if (v_type == "symbol") {
     if (V == 'null)        return "Null";
     if (V == 'undefined)   return "Undefined";
@@ -55,6 +50,18 @@ function Type(V) {
 }
 
 /* Auxiliary functions */
+function isCompletion(obj) {
+  return "__completion__" in_obj obj;
+}
+
+function isReference(obj) {
+  return "__reference__" in_obj obj;
+}
+
+function isPropertyIdentifier(obj) {
+  return "__prop_id__" in_obj obj;
+}
+
 function isJavaScriptObject(obj) {
   return "Prototype" in_obj obj;
 }

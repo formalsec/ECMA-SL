@@ -1,26 +1,41 @@
 /* Auxiliary functions created for the purposes of accessing the values of the triple that form the reference type. */
 /* The functions are those that are not explicitly specified in the standard */
 function newValueReference(base, referencedName, strict) {
-  return ["R", "V", base, referencedName, strict];
+  /* return ["R", "V", base, referencedName, strict]; */
+  return {
+    __reference__: true,
+    type: "V",
+    base: base,
+    refName: referencedName,
+    strict: strict
+  };
 }
+
 function newPropertyReference(base, referencedName, strict) {
-  return ["R", "P", base, referencedName, strict];
+  /* return ["R", "P", base, referencedName, strict]; */
+  return {
+    __reference__: true,
+    type: "P",
+    base: base,
+    refName: referencedName,
+    strict: strict
+  };
 }
 
 
 /* Returns the base value component of the reference V. */
 function GetBase(V) {
-  return l_nth(V, 2);
+  return V.base;
 }
 
 /* Returns the referenced name component of the reference V. */
 function GetReferencedName(V) {
-  return l_nth(V, 3);
+  return V.refName;
 }
 
 /* Returns the strict reference component of the reference V. */
 function IsStrictReference(V) {
-  return l_nth(V, 4);
+  return V.strict;
 }
 
 /* Returns true if the base value is a Boolean, String, or Number. */
@@ -33,7 +48,7 @@ function HasPrimitiveBase(V) {
 
 /* Returns true if either the base value is an object or HasPrimitiveBase(V) is true; otherwise returns false. */
 function IsPropertyReference(V) {
-  return (typeof V == "list") && (l_len(V) == 5) && (l_nth(V, 0) == "R") && (l_nth(V, 1) == "P");
+  return (typeof V == "object") && ("__reference__" in_obj V) && (V.type == "P");
 }
 
 /* Returns true if the base value is undefined and false otherwise. */
@@ -57,9 +72,9 @@ function GetValue(V) {
   if (IsPropertyReference(V)) {
     /* a. If HasPrimitiveBase(V) is false, then let get be the [[Get]] internal method of base,
           otherwise let get be the special [[Get]] internal method defined below. */
-    if (HasPrimitiveBase(V) == false) 
-      get := base["Get"]; 
-    else 
+    if (HasPrimitiveBase(V) == false)
+      get := base["Get"];
+    else
       get := "Get_internal";
     /* b. Return the result of calling the get internal method using base as its this value,
           and passing GetReferencedName(V) for the argument. */

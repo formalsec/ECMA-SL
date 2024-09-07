@@ -36,7 +36,11 @@ let execute_partial (entry : Interpreter.IEntry.t)
 
 let check_harness_return (result : Interpreter.IResult.t) : unit Result.t =
   match result.retval with
-  | List [ _; App (`Op "symbol", [ Str "normal" ]); _; _ ] -> Ok ()
+  | App (`Op "loc", [ Int loc ]) -> (
+    let* (type_, _, _) = Interpreter.IResult.get_completion result.heap loc in
+    match type_ with
+    | App (`Op "symbol", [ Str "normal" ]) -> Ok ()
+    | _ -> Result.error (`Execute "Harness return non-normal completion") )
   | _ ->
     let err = Fmt.str "Unable to setup harness: %a" Value.pp result.retval in
     Result.error (`Execute err)

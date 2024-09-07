@@ -20,6 +20,23 @@ module IResult = struct
     ; heap : heap
     ; metrics : Yojson.Basic.t
     }
+
+  let get_completion (heap : heap) loc =
+    match Heap.get heap loc with
+    | None -> Result.error (`Execute "Leaked invalid location")
+    | Some obj -> (
+      match Object.get obj "__completion__" with
+      | None -> Result.error (`Execute "Object is not a completion")
+      | Some _ ->
+        let type_ = Object.get obj "type" |> Option.get in
+        let value = Object.get obj "value" |> Option.get in
+        let target = Object.get obj "target" |> Option.get in
+        Ok (type_, value, target) )
+
+  let is_normal_completion (heap : heap) (loc : int) =
+    let open Smtml.Syntax.Result in
+    let+ (type_, _, _) = get_completion heap loc in
+    match type_ with Str "normal" -> true | _ -> false
 end
 
 module IConst = struct

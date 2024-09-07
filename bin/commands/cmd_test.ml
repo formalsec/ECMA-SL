@@ -326,23 +326,22 @@ module TestRunner = struct
       Ok input
 
   let unfold_result (result : Interpreter.IResult.t Result.t) :
-    Value.t Result.t * Yojson.Basic.t =
-    let retval_f res = res.Interpreter.IResult.retval in
-    let metrics_f res = res.Interpreter.IResult.metrics in
-    let retval = map retval_f result in
-    let metrics = fold ~ok:metrics_f ~error:(fun _ -> `Null) result in
-    (retval, metrics)
+    Value.t Result.t * Value.t Heap.t option * Yojson.Basic.t =
+    match result with
+    | Error _ as err -> (err, None, `Null)
+    | Ok result -> (Ok result.retval, Some result.heap, result.metrics)
 
-  let check_result (error : Value.t option) (retval : Value.t Result.t) :
+  let check_result (error : Value.t option) heap (retval : Value.t Result.t) :
     TestRecord.result =
-    match (retval, error) with
-    | (Ok (List [ _; App (`Op "symbol", [ Str "normal" ]); _; _ ]), None) ->
-      Success
-    | (Ok (List [ _; App (`Op "symbol", [ Str "throw" ]); e1; _ ]), Some e2)
-      when Value.equal e1 e2 ->
-      Success
-    | (Ok (List [ _; _; _; _ ]), _) -> Failure
-    | (_, _) -> Anomaly
+    match (retval, heap) with
+    | (Ok (App (`Op "loc", [ Int loc ])), Some heap) -> (
+      match (Interpreter.IResult.get_completion heap loc, error) with
+      | (Ok (App (`Op "symbol", [ Str "normal" ]), _, _), None) -> Success
+      | (Ok (App (`Op "symbol", [ Str "throw" ]), e1, _), Some e2) ->
+        if Value.equal e1 e2 then Success else Failure
+      | (Ok (_, _, _), _) -> Failure
+      | _ -> Anomaly )
+    | _ -> Anomaly
 
   let execute (env : Prog.t * Value.t Heap.t option)
     (interp_config : Cmd_interpret.Options.config) (input : Fpath.t) :
@@ -362,8 +361,8 @@ module TestRunner = struct
     let interp_result = execute env interp_config input in
     Log.Redirect.restore streams;
     let streams = Some streams in
-    let (retval, metrics) = unfold_result interp_result in
-    let result = check_result record.error retval in
+    let (retval, heap, metrics) = unfold_result interp_result in
+    let result = check_result record.error heap retval in
     let time = Base.time () -. record.time in
     Ok { record with streams; retval; result; time; metrics }
 
