@@ -8,32 +8,42 @@ function Type(V) {
   if (v_type == "bool")           return "Boolean";
   if (v_type == "string")         return "String";
   if (v_type == "object") {
+    if (isCompletion(V))          return "Completion";
+    if (isReference(V))           return "Reference";
+    if (isPropertyIdentifier(V))  return "PropertyIdentifier";
     if (isJavaScriptSymbol(V))    return "Symbol";
     if (isJavaScriptObject(V))    return "Object";
     if (isPropertyDescriptor(V))  return "PropertyDescriptor";
     if (isCodeObject(V))          return "Object";
                                   return "EnvironmentRecord";
   }
-  if (v_type == "list") {
-    if (l_len(V) > 0) {
-      el := hd V;
-      if (el == "R")          return "Reference";
-      if (el == "C")          return "Completion";
-      if (el == "P")          return "PropertyIdentifier";
-                              return "List";
-    }
-    return "List";
-  }
+  if (v_type == "list")           return "List";
   if (v_type == "symbol") {
-    if (V == 'null)                return "Null";
-    if (V == 'undefined)           return "Undefined";
+    if (V == 'null)               return "Null";
+    if (V == 'undefined)          return "Undefined";
   }
-  if (v_type == "null")            return "Null";
-  if (V == 'empty)                 return null;
+  if (v_type == "null")           return "Null";
+  if (V == 'empty)                return null;
   return "Lambda";
 }
 
 /* Auxiliary functions */
+function isCompletion(obj) {
+  return "__completion__" in_obj obj;
+}
+
+function isReference(obj) {
+  return "__reference__" in_obj obj;
+}
+
+function isPropertyIdentifier(obj) {
+  return "__prop_id__" in_obj obj;
+}
+
+function isJavaScriptSymbol(obj) {
+  return "Description" in_obj obj;
+}
+
 function isJavaScriptObject(obj) {
   return "Prototype" in_obj obj;
 }
@@ -42,13 +52,8 @@ function isCodeObject(obj) {
   return "codeType" in_obj obj;
 }
 
-
 function isPropertyDescriptor(obj) {
   return ("Enumerable" in_obj obj) || ("Configurable" in_obj obj);
-}
-
-function isJavaScriptSymbol(obj) {
-  return "Description" in_obj obj;
 }
 
 function setConfigurability(obj, prop, b) {
@@ -56,8 +61,6 @@ function setConfigurability(obj, prop, b) {
   desc.Configurable := b;
   return b;
 }
-
-
 
 /**
  * 6.1.5 The Symbol Type
@@ -81,12 +84,20 @@ function InternalSymbolConstructor(description) {
  * 6.1.5.1 Well-Known Symbols
  */
 function initWellKnownSymbols() {
-  wellKnownSymbols := ["Symbol.hasInstance","Symbol.isConcatSpreadable",
-                       "Symbol.iterator", "Symbol.match",
-                       "Symbol.replace", "Symbol.search",
-                       "Symbol.species", "Symbol.split", "Symbol.toPrimitive",
-                       "Symbol.toStringTag", "Symbol.unscopables"];
-
+  /* TODO: Use arrays instead */
+  wellKnownSymbols := [
+    "Symbol.hasInstance",
+    "Symbol.isConcatSpreadable",
+    "Symbol.iterator",
+    "Symbol.match",
+    "Symbol.replace",
+    "Symbol.search",
+    "Symbol.species",
+    "Symbol.split",
+    "Symbol.toPrimitive",
+    "Symbol.toStringTag",
+    "Symbol.unscopables"
+  ];
   foreach (sym : wellKnownSymbols)
     initWellKnownSymbol(sym);
   return;

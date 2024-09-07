@@ -110,15 +110,21 @@ function getDescriptorValue(desc) {
 
 /* Auxiliary functions created for the purposes of dealing with the Property Identifier type. */
 function newPropertyIdentifier(name, desc) {
-  return ["P", name, desc];
+  /* ["P", name, desc]; */
+  return {
+    __prop_id__: true,
+    name: name,
+    desc: desc
+  };
+
 }
 
 function getPropertyName(propertyIdentifier) {
-  return l_nth(propertyIdentifier, 1);
+  return propertyIdentifier.name;
 }
 
 function getPropertyDescriptor(propertyIdentifier) {
-  return l_nth(propertyIdentifier, 2);
+  return propertyIdentifier.desc;
 }
 
 
@@ -279,7 +285,7 @@ function ToPropertyDescriptor (Obj) {
   /** 9. If either desc.[[Get]] or desc.[[Set]] are present, then: */
   if ("Get" in_obj desc ||| "Set" in_obj desc) {
     /** a. If either desc.[[Value]] or desc.[[Writable]] are present, then throw a TypeError exception. */
-    if ("Value" in_obj desc ||| "Writable" in_obj desc))
+    if ("Value" in_obj desc ||| "Writable" in_obj desc)
       throw TypeErrorConstructorInternal();
   }
   /** 10. Return desc. */

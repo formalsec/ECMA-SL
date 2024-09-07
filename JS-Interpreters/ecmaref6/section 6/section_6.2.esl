@@ -29,17 +29,22 @@ function isErrorCompletion(completion) {
 }
 
 function getCompletionType(completion) {
-  return l_nth(completion, 1);
+  return completion.type;
 }
 function getCompletionValue(completion) {
-  return l_nth(completion, 2);
+  return completion.value;
 }
 function getCompletionTarget(completion) {
-  return l_nth(completion, 3);
+  return completion.target;
 }
 
 function newCompletion(type, value, target) {
-  return ["C", type, value, target];
+  return {
+    __completion__: true,
+    type: type,
+    value: value,
+    target: target
+  };
 }
 
 function NormalCompletion(V) {
@@ -147,30 +152,52 @@ function CopyDataBlockBytes(toBlock, toIndex, fromBlock, fromIndex, count) {
 /* Auxiliary functions created for the purposes of accessing the values of the triple that form the reference type. */
 
 function newValueReference(base, referencedName, strict) {
-  return ["R", "V", base, referencedName, strict];
+  /* return ["R", "V", base, referencedName, strict]; */
+  return {
+    __reference__: true,
+    type: "V",
+    base: base,
+    refName: referencedName,
+    strict: strict
+  };
 }
 
 function newSuperReference(base, referencedName, thisValue, strict) {
-  return ["R", "S", base, referencedName, strict, thisValue];
+  /* return ["R", "S", base, referencedName, strict, thisValue]; */
+  return {
+    __reference__: true,
+    type: "S",
+    base: base,
+    refName: referencedName,
+    strict: strict,
+    thisValue: thisValue
+  };
 }
 
 function newPropertyReference(base, referencedName, strict) {
-  return ["R", "P", base, referencedName, strict];
+  /* return ["R", "P", base, referencedName, strict]; */
+  return {
+    __reference__: true,
+    type: "P",
+    base: base,
+    refName: referencedName,
+    strict: strict
+  };
 }
 
 /* Returns the base value component of the reference V. */
 function GetBase(V) {
-  return l_nth(V, 2);
+  return V.base;
 }
 
 /* Returns the referenced name component of the reference V. */
 function GetReferencedName(V) {
-  return l_nth(V, 3);
+  return V.refName;
 }
 
 /* Returns the strict reference component of the reference V. */
 function IsStrictReference(V) {
-  return l_nth(V, 4);
+  return V.strict;
 }
 
 /* Returns true if the base value is a Boolean, String, or Number. */
@@ -199,7 +226,7 @@ function IsUnresolvableReference (V) {
 
 /* Returns true if this reference has a thisValue component. */
 function IsSuperReference (V) {
-  return (l_len(V) == 6);
+  return (V.type == "S");
 }
 
 /**
@@ -302,7 +329,7 @@ function GetThisValue(V) {
     /* If IsSuperReference(V), then */
     if (IsSuperReference(V))
         /* Return the value of the thisValue component of the reference V. */
-        return l_nth(V, 5);
+        return V.thisValue;
     /* Return GetBase(V). */
     return GetBase(V);
 }
@@ -329,15 +356,20 @@ function InitializeReferencedBinding(V, W) {
 
 /* Auxiliary functions created for the purposes of dealing with the Property Identifier type. */
 function newPropertyIdentifier(name, desc) {
-  return ["P", name, desc];
+  /* return ["P", name, desc]; */
+  return {
+    __prop_id__: true,
+    name: name,
+    desc: desc
+  };
 }
 
 function getPropertyName(propertyIdentifier) {
-  return l_nth(propertyIdentifier, 1);
+  return propertyIdentifier.name;
 }
 
 function getPropertyDescriptor(propertyIdentifier) {
-  return l_nth(propertyIdentifier, 2);
+  return propertyIdentifier.desc;
 }
 
 function CopyDescriptor(Desc) {
@@ -444,7 +476,7 @@ function FromPropertyDescriptor(Desc) {
     /* ReturnIfAbrupt(Obj). */
     @ReturnIfAbrupt(Obj);
     /* If Type(Obj) is not Object, throw a TypeError exception. */
-    if (Type(Obj) != "Object") 
+    if (Type(Obj) != "Object")
       throw TypeErrorConstructorInternal();
     /* Let desc be a new Property Descriptor that initially has no fields. */
     desc := NewPropertyDescriptor();
