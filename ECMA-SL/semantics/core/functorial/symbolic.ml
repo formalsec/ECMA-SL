@@ -5,7 +5,6 @@ module Object = Symbolic_object.M
 module Memory = Symbolic_memory
 module Env = Link_env.Make (Memory)
 module Thread = Choice_monad.Thread
-module PC = Choice_monad.PC
 
 module P = struct
   type value = Value.value
@@ -51,9 +50,9 @@ module P = struct
         match pc with
         | [] -> Some (Some v, thread)
         | _ ->
-          let pc' = PC.(union pc_thread (of_list pc)) in
-          if PC.equal pc' pc_thread then Some (Some v, thread)
-          else if `Unsat = Solver.check solver (PC.elements pc') then None
+          let pc' = Smtml.Expr.Set.(union pc_thread (of_list pc)) in
+          if Smtml.Expr.Set.equal pc' pc_thread then Some (Some v, thread)
+          else if `Unsat = Solver.check_set solver pc' then None
           else Some (Some v, { thread with pc = pc' })
       in
       match vals with
@@ -93,9 +92,9 @@ module P = struct
         match pc with
         | [] -> Some (Some v, thread)
         | _ ->
-          let pc' = PC.(union pc_thread (of_list pc)) in
-          if PC.equal pc' pc_thread then Some (Some v, thread)
-          else if `Unsat = Solver.check solver (PC.elements pc') then None
+          let pc' = Smtml.Expr.Set.(union pc_thread (of_list pc)) in
+          if Smtml.Expr.Set.equal pc' pc_thread then Some (Some v, thread)
+          else if `Unsat = Solver.check_set solver pc' then None
           else Some (Some v, { thread with pc = pc' })
       in
       match field_vals with
@@ -122,9 +121,9 @@ module P = struct
         match cond with
         | None -> Some (v, thread)
         | Some c ->
-          let pc = PC.add c pc in
-          if PC.equal pc (Thread.pc thread) then Some (v, thread)
-          else if `Unsat = Solver.check solver (PC.elements pc) then None
+          let pc = Smtml.Expr.Set.add c pc in
+          if Smtml.Expr.Set.equal pc (Thread.pc thread) then Some (v, thread)
+          else if `Unsat = Solver.check_set solver pc then None
           else Some (v, { thread with pc })
       in
       match locs with

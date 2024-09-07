@@ -1,6 +1,5 @@
 open Ecma_sl
 open Smtml.Syntax.Result
-module PC = Choice_monad.PC
 module Thread = Choice_monad.Thread
 module Env = Symbolic.P.Env
 module Value = Symbolic.P.Value
@@ -65,14 +64,13 @@ type witness =
 
 let serialize_thread (workspace : Fpath.t) :
   witness option -> Thread.t -> unit Result.t =
-  let module Term = Smtml.Expr in
   let (next, _) = Base.make_counter 0 1 in
   fun witness thread ->
     let open Fpath in
-    let pc = PC.to_list @@ Thread.pc thread in
-    Log.debug "  path cond : %a" Term.pp_list pc;
+    let pc = Thread.pc thread in
+    Log.debug "  path cond : %a" (Smtml.Expr.Set.pretty Smtml.Expr.pp) pc;
     let solver = Thread.solver thread in
-    assert (`Sat = Solver.check solver pc);
+    assert (`Sat = Solver.check_set solver pc);
     let model = Solver.model solver in
     let path =
       Fmt.ksprintf
@@ -81,8 +79,9 @@ let serialize_thread (workspace : Fpath.t) :
         (next ())
     in
     let pp = Fmt.pp_opt pp_model in
+    let pc = Smtml.Expr.Set.to_list @@ pc in
     let* () = Result.bos (Bos.OS.File.writef (path + ".js") "%a" pp model) in
-    Result.bos (Bos.OS.File.writef (path + ".smtml") "%a" Term.pp_smt pc)
+    Result.bos (Bos.OS.File.writef (path + ".smtml") "%a" Smtml.Expr.pp_smt pc)
 
 let process_result (workspace : Fpath.t)
   ((res, thread) : State.return_result * Thread.t) : witness option Result.t =
