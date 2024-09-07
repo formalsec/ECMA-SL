@@ -1,0 +1,65 @@
+function abort_if_symbolic(x) {
+  if (extern is_symbolic(x))
+    extern abort(x);
+  
+  return 0;
+}
+
+function __fs_readfile(globalObject, this, newTarget, strict, params) {
+  abort_if_symbolic(l_nth(params, 0));
+  return null;
+}
+
+function __fs_readfilesync(globalObject, this, newTarget, strict, params) {
+  abort_if_symbolic(l_nth(params, 0));
+  return null;
+}
+
+function __fs_writefile(globalObject, this, newTarget, strict, params) {
+  abort_if_symbolic(l_nth(params, 0));
+  return null;
+}
+
+function __fs_writefilesync(globalObject, this, newTarget, strict, params) {
+  abort_if_symbolic(l_nth(params, 0));
+  return null;
+}
+
+function __fs_createreadstream(globalObject, this, newTarget, strict, params) {
+  abort_if_symbolic(l_nth(params, 0));
+  return null;
+}
+
+function createFSObject(globalObject, objectPrototype, strict) {
+  realm := { globalEnv : globalObject };
+  fs := newLazyObject();
+  /* setAllInternalMethodsOfOrdinaryObject(fs); */
+  setInternalProperty(fs, "prototype", objectPrototype);
+
+  /* Functions: */
+  readFile := CreateBuiltInFunctionObject([], "__fs_readfile", realm, strict, null);
+  createBuiltInProperty(fs, "readFile", readFile);
+  createBuiltInProperty(readFile, "prototype", objectPrototype);
+
+  readFileSync := CreateBuiltInFunctionObject([], "__fs_readfilesync", realm, strict, null);
+
+  createBuiltInProperty(fs, "readFileSync", readFileSync);
+  createBuiltInProperty(readFileSync, "prototype", objectPrototype);
+
+  writeFile := CreateBuiltInFunctionObject([], "__fs_writefile", realm, strict, null);
+
+  createBuiltInProperty(fs, "writeFile", writeFile);
+  createBuiltInProperty(writeFile, "prototype", objectPrototype);
+
+  writeFileSync := CreateBuiltInFunctionObject([], "__fs_writefilesync", realm, strict, null);
+
+  createBuiltInProperty(fs, "writeFileSync", writeFileSync);
+  createBuiltInProperty(writeFileSync, "prototype", objectPrototype);
+
+  createReadStream := CreateBuiltInFunctionObject([], "__fs_createreadstream", realm, strict, null);
+
+  createBuiltInProperty(fs, "createReadStream", createReadStream);
+  createBuiltInProperty(createReadStream, "prototype", objectPrototype);
+
+  return fs;
+}

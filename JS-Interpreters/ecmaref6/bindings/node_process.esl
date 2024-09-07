@@ -1,0 +1,40 @@
+function __process_cwd(globalObject, this, newTarget, strict, params) {
+  return extern str_symbol("process_cwd");
+}
+
+function createProcessObject(globalObject, objectPrototype, strict) {
+  realm := { globalEnv : globalObject };
+  newTarget := |Intrinsics|["Array"];
+  process := newLazyObject();
+  /* setAllInternalMethodsOfOrdinaryObject(process); */
+  setInternalProperty(process, "prototype", objectPrototype);
+
+  /* Properties: */
+  createBuiltInProperty(process, "arch", extern str_symbol("process_arch"));
+  createBuiltInProperty(process, "execPath", extern str_symbol("process_execPath"));
+  platform := extern str_symbol("process_platform");
+  createBuiltInProperty(process, "platform", platform);
+
+  /* Should be a symbolic lazy object, but now it just keeps env empty */
+  env := newLazyObject();
+  /* setAllInternalMethodsOfOrdinaryObject(env); */
+  setInternalProperty(env, "prototype", objectPrototype);
+  createBuiltInProperty(process, "env", env);
+
+  items :=
+    [ extern str_symbol("argv0")
+    , extern str_symbol("argv1")
+    , extern str_symbol("argv2")
+    , extern str_symbol("argv3")
+    , extern str_symbol("argv4")
+    ];
+  argv := ArrayConstructor('null, 'undefined, newTarget, strict, items, newTarget);
+  createBuiltInProperty(process, "argv", argv);
+
+  /* Functions: */
+  cwd := CreateBuiltInFunctionObject([], "__process_cwd", realm, strict, null);
+  createBuiltInProperty(process, "cwd", cwd);
+  createBuiltInProperty(cwd, "prototype", objectPrototype);
+
+  return process;
+}

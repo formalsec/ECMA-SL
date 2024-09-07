@@ -1,0 +1,48 @@
+/* TODO:Move to summaries file? */
+function __concatStringList(globalObject, this, NewTarget, strict, params) {
+  return s_concat(params);
+}
+
+function newLazyObject() {
+  realm := { globalEnv : |global| };
+  lazyObject := CreateBuiltInFunctionObject([], "lazyConstructor", realm, false, null);
+  lazyObject.Get := "lazyGet";
+
+  toPrimitive := CreateBuiltInFunctionObject([], "lazyToPrimitive", realm, false, null);
+  toPrimitiveDesc := newDataPropertyDescriptorFull(toPrimitive, false, false, true);
+  toPrimitiveProp := getToPrimitivePropertyName();
+  setJSProperty(lazyObject, toPrimitiveProp, toPrimitiveDesc);
+
+  format := CreateBuiltInFunctionObject(["..."], "__concatStringList", realm,
+    false, null);
+  createBuiltInProperty(lazyObject, "format", format);
+
+  return lazyObject;
+}
+
+function lazyConstructor(globalObject, this, NewTarget, strict, params) {
+  return newLazyObject();
+}
+
+function lazyGet(O, P, Receiver) {
+  desc := getJSProperty(O, P);
+  if (desc == 'undefined) {
+    desc := newDataPropertyDescriptorFull(newLazyObject(), true, true, true);
+    setJSProperty(O, P, desc);
+    return desc.Value;
+  } else {
+    return desc.Value;
+  }
+}
+
+function lazyToPrimitive(globalObject, this, NewTarget, strict, params) {
+  hint := l_nth(params, 0);
+  if (hint == "string" ||| hint == "default") {
+    return extern str_symbol("");
+  } else if (hint == "number") {
+    return extern flt_symbol("");
+  } else {
+    print s_concat(["lazyToPrimitive: invalid hint: '", hint, "'"]);
+    assert false;
+  }
+}

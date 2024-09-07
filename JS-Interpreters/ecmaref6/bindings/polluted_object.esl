@@ -1,0 +1,82 @@
+/**
+  * Module for creating objects with symbolic properties
+  *
+  * Motivation:
+  *
+  * This module is designed to facilitate the creation of objects with
+  * symbolic properties. Symbolic objects are essential for symbolic
+  * execution, especially when exploring prototype pollution vulnerabilities.
+  * When attempting to generate symbolic drivers for vulnerable functions,
+  * such as the example below, symbolic execution can inadvertently pollute
+  * the prototype chain:
+  *
+  * ```js
+  * function merge() { (* vulnerable function *) }
+  * var p1 == symbolic_string();
+  * var p2 == symbolic_string();
+  * var polluted == {}
+  * polluted[p1][p2].toString == "polluted"
+  * merge({}, polluted);
+  * ```
+  *
+  * Example breakdown:
+  *
+  * To identify all possible values for polluting the prototype in the
+  * vulnerable function `merge`, a symbolic object with symbolic properties
+  * must be created. However, attempting this straightforwardly can lead
+  * to unintentional pollution of the prototype chain by the symbolic executor,
+  * leaving the object `polluted` empty.
+  */
+
+function newPollutedObject(depth) {
+  proto := getObjectPrototype(false);
+
+  inner_object := ObjectCreate(proto, null);
+  toString := extern str_symbol("");
+  extern assume(toString == "toString");
+  CreateDataPropertyOrThrow(inner_object, toString, "polluted");
+
+  outer_object := ObjectCreate(proto, null);
+  if (depth > 2) {
+    middle_object := ObjectCreate(proto, null);
+    prototype := extern str_symbol("");
+    extern assume(prototype == "prototype");
+    CreateDataPropertyOrThrow(middle_object, prototype, inner_object);
+    constructor := extern str_symbol("");
+    extern assume(constructor == "constructor");
+    CreateDataPropertyOrThrow(outer_object, constructor, middle_object);
+  } else {
+    proto := extern str_symbol("");
+    extern assume(proto == "__proto__");
+    CreateDataPropertyOrThrow(outer_object, proto, inner_object);
+  }
+  return outer_object;
+}
+
+function forbiddenSet(O, P, V, Receiver) {
+  if (Receiver == getObjectPrototype(false))
+    extern abort("Prototype pollution detected!");
+  return OrdinaryObjectSet(O, P, V, Receiver);
+}
+
+function sealProperties(globalObject, this, NewTarget, strict, params) {
+  O := l_nth(params, 0);
+
+  /* 1. If Type(O) is not Object, return O. */
+  if (Type(O) != "Object")
+    return O;
+
+  O.Set := "forbiddenSet";
+  /* Let status be SetIntegrityLevel( O, "sealed"). */
+  status := SetIntegrityLevel(O, "sealed");
+
+ /* ReturnIfAbrupt(status). */
+  @ReturnIfAbrupt(status);
+
+  /* If status is false, throw a TypeError exception. */
+  if (status == false)
+    throw TypeErrorConstructorInternal();
+
+  /* 4. Return O. */
+  return O;
+}

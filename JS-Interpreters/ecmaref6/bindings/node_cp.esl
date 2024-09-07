@@ -1,0 +1,57 @@
+function exploit_if_symbolic(x) {
+  if (extern is_symbolic(x)) {
+   extern is_exec_sat(x);
+   extern abort(x);
+  }
+  return 0;
+}
+
+function __cp_exec(globalObject, this, newTarget, strict, params) {
+  exploit_if_symbolic(l_nth(params, 0));
+  return null;
+}
+
+function __cp_execSync(globalObject, this, newTarget, strict, params) {
+  exploit_if_symbolic(l_nth(params, 0));
+  return null;
+}
+
+function __cp_execFile(globalObject, this, newTarget, strict, params) {
+  exploit_if_symbolic(s_concat(params));
+  return null;
+}
+
+function __cp_spawn(globalObject, this, newTarget, strict, params) {
+  exploit_if_symbolic(l_nth(params, 0));
+  return null;
+}
+
+function createCPObject(globalObject, objectPrototype, strict) {
+  realm := { globalEnv : globalObject };
+  cp := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(cp);
+  setInternalProperty(cp, "Prototype", objectPrototype);
+
+  /* Functions: */
+  exec := CreateBuiltInFunctionObject(["path"], "__cp_exec", realm, strict, null);
+  
+  createBuiltInProperty(cp, "exec", exec);
+  createBuiltInProperty(exec, "prototype", objectPrototype);
+
+  execSync := CreateBuiltInFunctionObject(["path"], "__cp_execSync", realm, strict, null);
+  
+  createBuiltInProperty(cp, "execSync", execSync);
+  createBuiltInProperty(execSync, "prototype", objectPrototype);
+
+  execFile := CreateBuiltInFunctionObject(["path"], "__cp_execFile", realm, strict, null);
+  
+  createBuiltInProperty(cp, "execFile", execFile);
+  createBuiltInProperty(execFile, "prototype", objectPrototype);
+
+  spawn := CreateBuiltInFunctionObject(["path"], "__cp_spawn", realm, strict, null);
+  
+  createBuiltInProperty(cp, "spawn", spawn);
+  createBuiltInProperty(spawn, "prototype", objectPrototype);
+
+  return cp;
+}
