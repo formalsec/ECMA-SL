@@ -125,17 +125,17 @@ buckets.compareToEquals = function (compareFunction) {
 
 /**
  * Creates an empty Linked List.
- * @class A linked list is a sequence of items arranged one after 
- * another. The size is not fixed and it can grow or shrink 
- * on demand. One of the main benefits of a linked list is that 
- * you can add or remove elements at both ends in constant time. 
- * One disadvantage of a linked list against an array is 
+ * @class A linked list is a sequence of items arranged one after
+ * another. The size is not fixed and it can grow or shrink
+ * on demand. One of the main benefits of a linked list is that
+ * you can add or remove elements at both ends in constant time.
+ * One disadvantage of a linked list against an array is
  * that it doesn’t provide constant time random access.
  * @constructor
  */
 buckets.LinkedList = function () {
 
-    /** 
+    /**
      * @exports list as buckets.LinkedList
      * @private
      */
@@ -509,7 +509,7 @@ buckets.LinkedList = function () {
  */
 buckets.Stack = function () {
 
-    /** 
+    /**
      * @exports stack as buckets.Stack
      * @private
      */
@@ -667,6 +667,7 @@ buckets.Stack = function () {
 };
 
 // -------------------------------- tests -------------------------------------
+const esl_symbolic = require("esl_symbolic");
 
 var stack = new buckets.Stack();
 

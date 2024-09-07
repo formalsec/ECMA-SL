@@ -533,6 +533,7 @@ buckets.LinkedList = function () {
 };
 
 // ---------------------------------- tests ----------------------------------
+const esl_symbolic = require("esl_symbolic");
 
 var list1 = new buckets.LinkedList();
 var list2 = new buckets.LinkedList();

@@ -674,6 +674,7 @@ buckets.Queue = function () {
 };
 
 // ------------------------------- our tests ----------------------------------
+const esl_symbolic = require("esl_symbolic");
 
 // modeling the tests from test/queue-test.js
 

@@ -1111,6 +1111,7 @@ buckets.BSTree = function (compareFunction) {
 };
 
 // ---------------------------- our tests now ---------------------------------
+const esl_symbolic = require("esl_symbolic");
 
 var bst = new buckets.BSTree();
 

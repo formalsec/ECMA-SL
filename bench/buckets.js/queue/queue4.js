@@ -674,6 +674,7 @@ buckets.Queue = function () {
 };
 
 // ------------------------------- our tests ----------------------------------
+const esl_symbolic = require("esl_symbolic");
 
 
 var queue = new buckets.Queue();
