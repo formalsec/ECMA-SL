@@ -2,29 +2,18 @@ open EslBase
 module Value = Symbolic_value.M
 module Memory = Symbolic_memory
 module Optimizer = Smtml.Optimizer.Z3
-module E = Smtml.Expr
-
-module PC = struct
-  include Set.Make (struct
-    include Smtml.Expr
-
-    let compare = compare
-  end)
-
-  let to_list (s : t) = elements s [@@inline]
-end
 
 module Thread = struct
   type t =
     { solver : Solver.t
-    ; pc : PC.t
+    ; pc : Smtml.Expr.Set.t
     ; mem : Memory.t
     ; optimizer : Optimizer.t
     }
 
   let create () =
     { solver = Solver.create ()
-    ; pc = PC.empty
+    ; pc = Smtml.Expr.Set.empty
     ; mem = Memory.create ()
     ; optimizer = Optimizer.create ()
     }
@@ -37,7 +26,7 @@ module Thread = struct
   let add_pc t (v : Smtml.Expr.t) =
     match Smtml.Expr.view v with
     | Val True -> t
-    | _ -> { t with pc = PC.add v t.pc }
+    | _ -> { t with pc = Smtml.Expr.Set.add v t.pc }
 
   let clone { solver; optimizer; pc; mem } =
     let mem = Memory.clone mem in
@@ -72,51 +61,55 @@ module List = struct
    fun t ->
     let solver = Thread.solver t in
     let pc = Thread.pc t in
-    match E.view cond with
+    match Smtml.Expr.view cond with
     | Val True -> [ (true, t) ]
     | Val False -> [ (false, t) ]
     | _ -> (
-      let pc = PC.(add cond pc |> elements) in
-      match Solver.check solver pc with
+      let pc = Smtml.Expr.Set.add cond pc in
+      match Solver.check_set solver pc with
       | `Sat -> [ (true, t) ]
       | `Unsat -> [ (false, t) ]
       | `Unknown ->
-        Format.eprintf "Unknown pc: %a@." Smtml.Expr.pp_list pc;
+        Format.eprintf "Unknown pc: %a@."
+          (Smtml.Expr.Set.pretty Smtml.Expr.pp)
+          pc;
         [] )
 
   let check_add_true (cond : Value.value) : bool t =
    fun t ->
     let solver = Thread.solver t in
     let pc = Thread.pc t in
-    match E.view cond with
+    match Smtml.Expr.view cond with
     | Val True -> [ (true, t) ]
     | Val False -> [ (false, t) ]
     | _ -> (
-      let pc = PC.(add cond pc |> elements) in
-      match Solver.check solver pc with
+      let pc = Smtml.Expr.Set.add cond pc in
+      match Solver.check_set solver pc with
       | `Sat -> [ (true, Thread.add_pc t cond) ]
       | `Unsat -> [ (false, t) ]
       | `Unknown ->
-        Format.eprintf "Unknown pc: %a@." Smtml.Expr.pp_list pc;
+        Format.eprintf "Unknown pc: %a@."
+          (Smtml.Expr.Set.pretty Smtml.Expr.pp)
+          pc;
         [] )
 
   let branch (v : Value.value) : bool t =
    fun t ->
     let solver = Thread.solver t in
     let pc = Thread.pc t in
-    match E.view v with
+    match Smtml.Expr.view v with
     | Val True -> [ (true, t) ]
     | Val False -> [ (false, t) ]
     | _ -> (
-      let with_v = PC.add v pc in
-      let with_no = PC.add (Value.Bool.not_ v) pc in
+      let with_v = Smtml.Expr.Set.add v pc in
+      let with_no = Smtml.Expr.Set.add (Value.Bool.not v) pc in
       let sat_true =
-        if PC.equal with_v pc then true
-        else `Sat = Solver.check solver (PC.elements with_v)
+        if Smtml.Expr.Set.equal with_v pc then true
+        else `Sat = Solver.check_set solver with_v
       in
       let sat_false =
-        if PC.equal with_no pc then true
-        else `Sat = Solver.check solver (PC.to_list with_no)
+        if Smtml.Expr.Set.equal with_no pc then true
+        else `Sat = Solver.check_set solver with_no
       in
       match (sat_true, sat_false) with
       | (false, false) -> []
@@ -127,7 +120,7 @@ module List = struct
         [ (true, { t0 with pc = with_v }); (false, { t1 with pc = with_no }) ] )
 
   let select_val (v : Value.value) thread =
-    match E.view v with
+    match Smtml.Expr.view v with
     | Val v -> [ (v, thread) ]
     | _ -> Log.fail "Unable to select value from %a" Value.pp v
 end
