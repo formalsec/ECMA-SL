@@ -91,8 +91,16 @@ module M = struct
       fun v ->
         match E.view v with
         | Val v' -> E.value (Eval_op.typeof_semantics (v', Source.none))
-        | List _ -> E.value (Str "list")
-        | _ -> Log.fail "unknown value: %a" E.pp v )
+        | Relop _ -> E.value (Str "bool")
+        | _ -> (
+          match E.ty v with
+          | Ty_int -> E.value (Str "int")
+          | Ty_real -> E.value (Str "float")
+          | Ty_bool -> E.value (Str "bool")
+          | Ty_str -> E.value (Str "string")
+          | Ty_list -> E.value (Str "list")
+          | Ty_app -> E.value (Str "app")
+          | _ -> Log.fail "Typeof unknown value: %a" E.pp v ) )
     | IntToFloat -> E.(cvtop Ty_int Reinterpret_int)
     | IntToString -> E.(cvtop Ty_int ToString)
     | FloatToInt -> E.(cvtop Ty_real Reinterpret_float)
