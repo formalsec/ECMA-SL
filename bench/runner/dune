@@ -1,5 +1,3 @@
 (executable
  (name main)
- (libraries prelude rusage smtml)
- (flags
-  (:standard -open Prelude)))
+ (libraries prelude rusage smtml))
