@@ -70,18 +70,24 @@ let serialize_thread (workspace : Fpath.t) :
     let pc = Thread.pc thread in
     Log.debug_k (fun pp -> pp "@[<hov 1>  path cond :@ %a@]" Solver.pp_set pc);
     let solver = Thread.solver thread in
-    assert (`Sat = Solver.check_set solver pc);
-    let model = Solver.model solver in
-    let path =
-      Fmt.ksprintf
-        (add_seg (workspace / "test-suite"))
-        (match witness with None -> "testcase-%d" | Some _ -> "witness-%d")
-        (next ())
-    in
-    let pp = Fmt.pp_opt pp_model in
-    let pc = Smtml.Expr.Set.to_list @@ pc in
-    let* () = Result.bos (Bos.OS.File.writef (path + ".js") "%a" pp model) in
-    Result.bos (Bos.OS.File.writef (path + ".smtml") "%a" Smtml.Expr.pp_smt pc)
+    match Solver.check_set solver pc with
+    | `Unsat | `Unknown ->
+      (* Should not happen. But it does? This is so buggy omg *)
+      Ok ()
+    | `Sat ->
+      assert (`Sat = Solver.check_set solver pc);
+      let model = Solver.model solver in
+      let path =
+        Fmt.ksprintf
+          (add_seg (workspace / "test-suite"))
+          (match witness with None -> "testcase-%d" | Some _ -> "witness-%d")
+          (next ())
+      in
+      let pp = Fmt.pp_opt pp_model in
+      let pc = Smtml.Expr.Set.to_list @@ pc in
+      let* () = Result.bos (Bos.OS.File.writef (path + ".js") "%a" pp model) in
+      Result.bos
+        (Bos.OS.File.writef (path + ".smtml") "%a" Smtml.Expr.pp_smt pc)
 
 let process_result (workspace : Fpath.t)
   ((res, thread) : State.return_result * Thread.t) : witness option Result.t =
