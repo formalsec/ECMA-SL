@@ -10,8 +10,10 @@ function __symBoolean(globalObject, this, NewTarget, strict, params) {
 }
 
 function __symString(globalObject, this, NewTarget, strict, params) {
-  id := l_nth(params, 0);
-  return extern str_symbol(hd params);
+  symb_string := extern str_symbol(hd params);
+  /* Bound string to help Z3 */
+  extern assume(s_len(symb_string) < 65536); /* TODO: Make bound configurable */
+  return symb_string;
 }
 
 function __symAssume(globalObject, this, NewTarget, strict, params) {
