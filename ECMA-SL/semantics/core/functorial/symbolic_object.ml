@@ -1,13 +1,11 @@
 open EslBase
-open Smtml
 module V = Symbolic_value.M
-module E = Symbolic_value.E
 
-let eq v1 v2 = E.(relop Ty_bool Ty.Eq v1 v2)
-let ne v1 v2 = E.(unop Ty.Ty_bool Ty.Not (eq v1 v2))
-let ite c v1 v2 = E.(Bool.ite c v1 v2)
+let eq v1 v2 = Smtml.Expr.relop Ty_bool Eq v1 v2
+let ne v1 v2 = Smtml.Expr.relop Ty_bool Ne v1 v2
+let ite c v1 v2 = Smtml.Expr.Bool.ite c v1 v2
 let undef = V.mk_symbol "undefined"
-let is_val e = match E.view e with Val _ -> true | _ -> false
+let is_val e = match Smtml.Expr.view e with Val _ -> true | _ -> false
 
 module Value_key = struct
   type t = V.value
@@ -42,7 +40,7 @@ module M : Object_intf.S with type value = V.value = struct
   let has_field o k =
     if VMap.is_empty o.fields && VMap.is_empty o.symbols then V.Bool.const false
     else
-      match E.view k with
+      match Smtml.Expr.view k with
       | Val _ -> V.Bool.const (VMap.mem k o.fields)
       | _ ->
         let r0 =
@@ -61,7 +59,7 @@ module M : Object_intf.S with type value = V.value = struct
       m
 
   let set o ~key ~data =
-    match E.view key with
+    match Smtml.Expr.view key with
     | Val _ -> { o with fields = VMap.add key data o.fields }
     | _ ->
       { fields = map_ite o.fields ~key ~data
@@ -76,7 +74,7 @@ module M : Object_intf.S with type value = V.value = struct
 
   (* FIXME: @174 *)
   let get { fields; symbols } key =
-    match E.view key with
+    match Smtml.Expr.view key with
     | Val _ -> (
       match VMap.find_opt key fields with
       | Some v -> [ (v, []) ]
@@ -111,9 +109,11 @@ module M : Object_intf.S with type value = V.value = struct
           [ (v, []); (undef, neg_conds) ] ) )
 
   let delete o key =
-    match E.view key with
+    match Smtml.Expr.view key with
     | Val _ -> { o with fields = VMap.remove key o.fields }
-    | _ -> assert false
+    | _ ->
+      (* Leak *)
+      o
 
   let pp_map ppf v =
     let map_iter f m = VMap.iter (fun k d -> f (k, d)) m in
