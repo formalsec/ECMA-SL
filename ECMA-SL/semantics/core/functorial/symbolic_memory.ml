@@ -96,6 +96,9 @@ module Make (O : Object_intf.S with type value = V.value) = struct
 
   let loc (e : value) : ((value option * int) list, string) Result.t =
     match E.view e with
+    | Val (App (`Op "symbol", [ Str "undefined" ])) ->
+      (* We're in an unsat path *)
+      Ok []
     | Val (App (`Op "loc", [ Int l ])) -> Ok [ (None, l) ]
     | Triop (_, Ty.Ite, c, a, v) -> (
       match E.view a with

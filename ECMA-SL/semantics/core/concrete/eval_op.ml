@@ -48,7 +48,7 @@ let typeof_semantics : arg -> res = function
   | (v, _) -> Log.fail "unknown value type: %a" Value.pp v
 
 let int_to_float_semantics : arg -> res = function
-  | ((Int _ as v), _) -> Smtml.Eval.cvtop Ty_int Reinterpret_int v
+  | ((Int _ as v), _) -> Smtml.Eval.cvtop Ty_real Reinterpret_int v
   | arg -> arg_err "integer" arg
 
 let int_to_string_semantics : arg -> res = function
@@ -56,7 +56,7 @@ let int_to_string_semantics : arg -> res = function
   | arg -> arg_err "integer" arg
 
 let float_to_int_semantics : arg -> res = function
-  | ((Real _ as v), _) -> Smtml.Eval.cvtop Ty_real Reinterpret_float v
+  | ((Real _ as v), _) -> Smtml.Eval.cvtop Ty_int Reinterpret_float v
   | arg -> arg_err "float" arg
 
 let float_to_string_semantics : arg -> res = function

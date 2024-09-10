@@ -119,20 +119,16 @@ module Make () = struct
       | Val v -> ok_v (to_upper_case v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let trim v =
-      match E.view v with
-      | Val v -> ok_v (trim v)
-      | _ -> err (__FUNCTION__ ^ ": invalid argument")
-    in
+    let trim v = ok @@ Smtml.Expr.unop Ty_str Trim v in
     let s_len_u v =
       match E.view v with
       | Val v -> ok_v (s_len_u v)
-      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+      | _ -> ok @@ E.unop Ty_str Length v
     in
     let s_nth_u v1 v2 =
       match (E.view v1, E.view v2) with
       | (Val v1, Val v2) -> ok_v (s_nth_u (v1, v2))
-      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+      | _ -> ok @@ E.binop Ty_str At v1 v2
     in
     let s_split v1 v2 =
       match (E.view v1, E.view v2) with
@@ -142,7 +138,7 @@ module Make () = struct
     let s_substr_u v1 v2 v3 =
       match (E.view v1, E.view v2, E.view v3) with
       | (Val v1, Val v2, Val v3) -> ok_v (s_substr_u (v1, v2, v3))
-      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+      | _ -> ok @@ E.triop Ty_str String_extract v1 v2 v3
     in
     let array_len v =
       match E.view v with
@@ -201,7 +197,7 @@ module Make () = struct
     let l_set v1 v2 v3 =
       match (E.view v1, E.view v2, E.view v3) with
       | (Val v1, Val v2, Val v3) -> ok_v (l_set (v1, v2, v3))
-      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+      | _ -> ok @@ E.triop Ty_list List_set v1 v2 v3
     in
     let list_to_array v =
       match E.view v with
@@ -370,31 +366,11 @@ module Make () = struct
       | Val v -> ok_v (exp v)
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
-    let abs v =
-      match E.view v with
-      | Val v -> ok_v (abs v)
-      | _ -> err (__FUNCTION__ ^ ": invalid argument")
-    in
-    let sqrt v =
-      match E.view v with
-      | Val v -> ok_v (sqrt v)
-      | _ -> err (__FUNCTION__ ^ ": invalid argument")
-    in
-    let ceil v =
-      match E.view v with
-      | Val v -> ok_v (ceil v)
-      | _ -> err (__FUNCTION__ ^ ": invalid argument")
-    in
-    let floor v =
-      match E.view v with
-      | Val v -> ok_v (floor v)
-      | _ -> err (__FUNCTION__ ^ ": invalid argument")
-    in
-    let trunc v =
-      match E.view v with
-      | Val v -> ok_v (trunc v)
-      | _ -> err (__FUNCTION__ ^ ": invalid argument")
-    in
+    let abs v = ok @@ Smtml.Expr.unop Ty_real Abs v in
+    let sqrt v = ok @@ Smtml.Expr.unop Ty_real Sqrt v in
+    let ceil v = ok @@ Smtml.Expr.unop Ty_real Ceil v in
+    let floor v = ok @@ Smtml.Expr.unop Ty_real Floor v in
+    let trunc v = ok @@ Smtml.Expr.unop Ty_real Trunc v in
     let utf8_decode v =
       match E.view v with
       | Val v -> ok_v (utf8_decode v)
