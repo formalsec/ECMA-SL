@@ -12,7 +12,8 @@ module Thread = struct
     }
 
   let create () =
-    { solver = Solver.create ()
+    { solver =
+        Solver.create ~params:Smtml.Params.(default () $ (Timeout, 60000)) ()
     ; pc = Smtml.Expr.Set.empty
     ; mem = Memory.create ()
     ; optimizer = Optimizer.create ()
@@ -38,6 +39,7 @@ module List = struct
   type 'a t = thread -> ('a * thread) list
 
   let return (v : 'a) : 'a t = fun t -> [ (v, t) ]
+  let stop : 'a t = fun _ -> []
   let run (v : 'a t) (thread : thread) = v thread
 
   let bind (v : 'a t) (f : 'a -> 'b t) : 'b t =
@@ -53,9 +55,14 @@ module List = struct
   let ( let+ ) v f = map v f
 
   let with_thread (f : thread -> 'a) : 'a t =
-   fun t ->
-    let v = f t in
-    [ (v, t) ]
+   fun thread ->
+    let result = f thread in
+    [ (result, thread) ]
+
+  let with_mutable_thread (f : thread -> 'a * thread) : 'a t =
+   fun thread ->
+    let (result, thread) = f thread in
+    [ (result, thread) ]
 
   let check (cond : Value.value) : bool t =
    fun t ->

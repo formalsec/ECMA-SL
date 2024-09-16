@@ -1,5 +1,5 @@
 function __process_cwd(globalObject, this, newTarget, strict, params) {
-  return extern str_symbol("process_cwd");
+  return extern str_symbol("require('process').cwd()");
 }
 
 function createProcessObject(globalObject, objectPrototype, strict) {
@@ -10,9 +10,10 @@ function createProcessObject(globalObject, objectPrototype, strict) {
   setInternalProperty(process, "prototype", objectPrototype);
 
   /* Properties: */
-  createBuiltInProperty(process, "arch", extern str_symbol("process_arch"));
-  createBuiltInProperty(process, "execPath", extern str_symbol("process_execPath"));
-  platform := extern str_symbol("process_platform");
+  arch := extern str_symbol("require('process').arch");
+  createBuiltInProperty(process, "arch", arch);
+  createBuiltInProperty(process, "execPath", "node");
+  platform := extern str_symbol("require('process').platform");
   createBuiltInProperty(process, "platform", platform);
 
   /* Should be a symbolic lazy object, but now it just keeps env empty */

@@ -6,16 +6,20 @@ import "bindings/node-bindings.esl";
 function ECMAScriptNodeInitialization(sourceText) {
     initGlobalVars();
     realm := CreateRealm();
+
     newContext := createExecutionContext();
     newContext.Function := 'null;
     newContext.Realm := realm;
     pushExecStack(newContext);
+
     status := InitializeNodeHostDefinedRealm(realm);
     if (isAnAbruptCompletion(status)) {
         assert (realm == null );
         return;
     }
+
     |realm| := realm;
+
     EnqueueJob("ScriptJobs", "ScriptEvaluationJob", [sourceText]);
     return NextJob(NormalCompletion('undefined));
 }
@@ -24,9 +28,11 @@ function InitializeNodeHostDefinedRealm(realm) {
     intrinsics := realm.intrinsics;
     global := intrinsics.GlobalObject;
     SetRealmGlobalObject(realm, global);
+
     globalObj := SetDefaultGlobalBindings(realm);
-    initNodeGlobalObject(globalObj, intrinsics.ObjectPrototype, false);
     @ReturnIfAbrupt(globalObj);
+
+    initNodeGlobalObject(globalObj, intrinsics.ObjectPrototype, false);
     return NormalCompletion('undefined);
 }
 
@@ -49,6 +55,11 @@ function main() {
   c_value := getCompletionValue(ret);
 
   if ((typeof c_value == "object") &&& ("ErrorData" in_obj c_value) ) {
+    name := Get(c_value, "name");
+    if (name == "TypeError") {
+      print "Uncaught TypeError";
+      extern assume(false);
+    }
     error := stringOfError(c_value);
     extern abort(error);
   }

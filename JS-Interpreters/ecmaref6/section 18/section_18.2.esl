@@ -7,8 +7,7 @@
 function PerformEval(x, evalRealm, strictCaller, direct) {
   if (extern is_symbolic(x)) {
    /* checks for an eval injection */
-    extern is_eval_sat(x);
-    extern abort(x);
+    extern eval(x);
   }
   /* 1. Assert: If direct is false then strictCaller is also false. */
   if (direct == false)
@@ -485,7 +484,7 @@ function HexToBin(s) {
 		else if (hex == "F")
 			res := s_concat([res, "1111"]);
 		else
-			print "something is wrong";	
+			print "something is wrong";
 		k := k + 1;
 	}
 

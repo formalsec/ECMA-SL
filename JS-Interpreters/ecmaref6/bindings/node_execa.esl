@@ -1,0 +1,16 @@
+function __execa_shell(globalObject, this, newTarget, strict, params) {
+  return extern exec(l_nth(params, 0));
+}
+
+function createExecaObject(globalObject, objectPrototype, strict) {
+  realm := { globalEnv : globalObject };
+  execa := newLazyObject();
+  setInternalProperty(execa, "prototype", objectPrototype);
+
+  /* Functions: */
+  shell := CreateBuiltInFunctionObject(["path"], "__execa_shell", realm, strict, null);
+  createBuiltInProperty(execa, "shell", shell);
+  createBuiltInProperty(shell, "prototype", objectPrototype);
+
+  return execa;
+}
