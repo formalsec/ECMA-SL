@@ -655,7 +655,7 @@ function StringPrototypeendsWith(global, this, NewTarget, strict, args) {
   len := int_to_float(s_len_u (S));
   /* 10. If endPosition is undefined, let pos be len, else let pos be ToInteger(endPosition). */
   if (endPosition == 'undefined)
-    pos := len; 
+    pos := len;
   else
     pos := ToInteger(endPosition);
   /* 11. ReturnIfAbrupt(pos). */
@@ -771,6 +771,8 @@ function StringPrototypeindexOf(global, this, NewTarget, strict, args) {
   pos := ToInteger(position);
   /* 7. ReturnIfAbrupt(pos). */
   @ReturnIfAbrupt(pos);
+  if (extern is_symbolic(S))
+    return extern str_indexOf(S, searchStr, pos);
   /* 8. Let len be the number of elements in S. */
   len := int_to_float (s_len_u (S));
   /* 9. Let start be min(max(pos, 0), len). */
@@ -820,6 +822,8 @@ function StringPrototypelastIndexOf(global, this, NewTarget, strict, args) {
   searchStr := ToString(searchString);
   /* 5. ReturnIfAbrupt(searchString). */
   @ReturnIfAbrupt(searchStr);
+  if (extern is_symbolic(S))
+    return extern str_lastIndexOf(S, searchStr);;
   /* 6. Let numPos be ToNumber(position). (If position is undefined, this step produces the value NaN). */
   numPos := ToNumber(position);
   /* 7. ReturnIfAbrupt(numPos). */
@@ -925,6 +929,21 @@ function StringPrototypeMatch(global, this, NewTarget, strict, args) {
   O := RequireObjectCoercible(this);
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
+
+  /* FIXME(martelada): String.match */
+  if (extern is_symbolic(O)) {
+    /* Returns a list with a string that is contained insided S */
+    matches := extern str_match(O);
+    i := 0;
+    len_matches := l_len(matches);
+    result := ArrayCreate(0.0, null);
+    while (i < len_matches) {
+      CreateDataProperty(result, int_to_string i, l_nth(matches, i));
+      i := i + 1;
+    }
+    return result;
+  }
+
   /* 3. If regexp is neither undefined nor null, then */
   if ((regexp != 'undefined) && (regexp != null) && (regexp != 'null)) {
     /* a. Let matcher be GetMethod(regexp, @@match). */
@@ -1016,16 +1035,11 @@ function StringPrototyperepeat(global, this, NewTarget, strict, args) {
 /* 21.1.3.14 String.prototype.replace (searchValue, replaceValue ) */
 function StringPrototypeReplace(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
+  searchValue := ((n_args >= 1) ? hd args : 'undefined);
+  replaceValue := ((n_args >= 2) ? l_nth(args, 1) : 'undefined);
+  /* FIXME(martelada): String.replace summary */
   if (extern is_symbolic(this))
-    return extern str_symbol("app str.replace");
-  if (n_args >= 1)
-    searchValue := l_nth(args, 0);
-  else
-    searchValue := 'undefined;
-  if (n_args >= 2)
-    replaceValue := l_nth(args, 1);
-  else
-    replaceValue := 'undefined;
+    return extern str_replace(this, searchValue, replaceValue);
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
   /* 2. ReturnIfAbrupt(O). */
@@ -1162,7 +1176,7 @@ function GetSubstitution(matched, str, position, captures, replacement, global, 
   else
     before := substring(str, 0., position);
   if (tailPos >= stringLength)
-    after := ""; 
+    after := "";
   else
     after := substring(str, int_to_float tailPos,  int_to_float (s_len_u (str)));
   result := "";
@@ -1300,7 +1314,7 @@ function StringPrototypeSlice(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
   if (n_args >= 1)
     start := l_nth(args, 0);
-  else 
+  else
     start := 'undefined;
   if (n_args >= 2)
     end := l_nth(args, 1);
@@ -1337,6 +1351,11 @@ function StringPrototypeSlice(global, this, NewTarget, strict, args) {
     to := min(intEnd, len);
   /* 11. Let span be max(to – from,0). */
   span := max(to - from, 0.);
+
+  /* FIXME(martelada): String.slice summary */
+  if (extern is_symbolic(S))
+    return extern str_sub(S, float_to_int from, float_to_int span);
+
   /* 12. Return a String value containing span consecutive elements from S beginning with the element at index from. */
   substring := "";
   j := 0.;
@@ -1407,6 +1426,18 @@ function StringPrototypeSplit(global, this, NewTarget, strict, args) {
     /* b. Assert: The above call will never result in an abrupt completion. */
     /* ???? */
     /* c. Return A. */
+    return A;
+  }
+
+  /* FIXME(martelada): String.split summary */
+  if (extern is_symbolic(S)) {
+    matches := extern summ_string_split(S, R);
+    i := 0;
+    len_matches := l_len(matches);
+    while (i < len_matches) {
+      CreateDataProperty(A, int_to_string i, l_nth(matches, i));
+      i := i + 1;
+    }
     return A;
   }
 
@@ -1579,9 +1610,15 @@ function StringPrototypesubstring(global, this, NewTarget, strict, args) {
   @ReturnIfAbrupt(intStart);
   /* 7. If end is undefined, let intEnd be len; else let intEnd be ToInteger(end). */
   if ((end == 'undefined) || (end == 'null) || (end == null))
-    intEnd := len; 
+    intEnd := len;
   else
     intEnd := ToInteger(end);
+
+   if (extern is_symbolic(S)) {
+    intStart := float_to_int intStart;
+    length := (float_to_int len) - intStart + 1;
+    return extern str_sub(S, intStart, length);
+  }
   /* 8. ReturnIfAbrupt(intEnd). */
   @ReturnIfAbrupt(intEnd);
   /* 9. Let finalStart be min(max(intStart, 0), len). */

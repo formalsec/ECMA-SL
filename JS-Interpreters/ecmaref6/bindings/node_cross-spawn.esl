@@ -2,15 +2,14 @@ function __cross_spawn(globalObject, this, newTarget, strict, params) {
   cmd := l_nth(params, 0);
   args := l_nth(params, 1);
   opts := l_nth(params, 2);
-  exploit_if_symbolic(s_concat([cmd, args, opts]));
-  return 0;
+  return extern exec(s_concat([cmd, args, opts]));
 }
 
 function createCrossSpawnObject(globalObject, objectPrototype, strict) {
   realm := { globalEnv : globalObject };
   /* Functions: */
   exec := CreateBuiltInFunctionObject(["cmd", "args", "opts"], "__cross_spawn", realm, strict, null);
-  
+
   createBuiltInProperty(exec, "prototype", objectPrototype);
   createBuiltInProperty(exec, "sync", exec);
 

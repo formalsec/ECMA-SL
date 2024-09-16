@@ -43,11 +43,11 @@ let dispatch_prog (lang : Enums.Lang.t) (fpath : Fpath.t) : Prog.t Result.t =
     let msg = Fmt.str "%a :unreconized file type" Fpath.pp fpath in
     Result.error (`Generic msg)
 
-let link_env (prog : Prog.t) : Extern_func.extern_func Symbolic.Env.t =
+let link_env filename prog =
   let env0 = Env.Build.empty () |> Env.Build.add_functions prog in
   Env.Build.add_extern_functions (Symbolic_esl_ffi.extern_cmds env0) env0
   |> Env.Build.add_extern_functions Symbolic_esl_ffi.concrete_api
-  |> Env.Build.add_extern_functions Symbolic_esl_ffi.symbolic_api
+  |> Env.Build.add_extern_functions (Symbolic_esl_ffi.symbolic_api filename)
 
 let pp_model (ppf : Fmt.t) (model : Smtml.Model.t) : unit =
   let open Fmt in
@@ -60,11 +60,15 @@ let pp_model (ppf : Fmt.t) (model : Smtml.Model.t) : unit =
 type witness =
   [ `SymAbort of string
   | `SymAssertFailure of Extern_func.value
+  | `SymExecFailure of Extern_func.value
+  | `SymEvalFailure of Extern_func.value
+  | `SymReadFileFailure of Extern_func.value
   ]
 
 let serialize_thread (workspace : Fpath.t) :
   witness option -> Thread.t -> unit Result.t =
-  let (next, _) = Base.make_counter 0 1 in
+  let mode = 0o666 in
+  let (next_int, _) = Base.make_counter 0 1 in
   fun witness thread ->
     let open Fpath in
     let pc = Thread.pc thread in
@@ -75,19 +79,19 @@ let serialize_thread (workspace : Fpath.t) :
       (* Should not happen. But it does? This is so buggy omg *)
       Ok ()
     | `Sat ->
-      assert (`Sat = Solver.check_set solver pc);
       let model = Solver.model solver in
       let path =
         Fmt.ksprintf
           (add_seg (workspace / "test-suite"))
           (match witness with None -> "testcase-%d" | Some _ -> "witness-%d")
-          (next ())
+          (next_int ())
       in
       let pp = Fmt.pp_opt pp_model in
       let pc = Smtml.Expr.Set.to_list @@ pc in
-      let* () = Result.bos (Bos.OS.File.writef (path + ".js") "%a" pp model) in
       Result.bos
-        (Bos.OS.File.writef (path + ".smtml") "%a" Smtml.Expr.pp_smt pc)
+      @@
+      let* () = Bos.OS.File.writef ~mode (path + ".js") "%a" pp model in
+      Bos.OS.File.writef ~mode (path + ".smtml") "%a" Smtml.Expr.pp_smt pc
 
 let process_result (workspace : Fpath.t)
   ((res, thread) : State.return_result * Thread.t) : witness option Result.t =
@@ -95,23 +99,36 @@ let process_result (workspace : Fpath.t)
     | Ok _ -> Ok None
     | Error (`Abort msg) -> Ok (Some (`SymAbort msg))
     | Error (`Assert_failure v) -> Ok (Some (`SymAssertFailure v))
+    | Error (`Exec_failure v) -> Ok (Some (`SymExecFailure v))
+    | Error (`Eval_failure v) -> Ok (Some (`SymEvalFailure v))
+    | Error (`ReadFile_failure v) -> Ok (Some (`SymReadFileFailure v))
     | Error (`Failure msg) -> Result.error (`SymFailure msg)
   in
   let* witness = process_witness res in
-  let* () = serialize_thread workspace witness thread in
-  Ok witness
+  let+ () = serialize_thread workspace witness thread in
+  witness
 
 let err_to_json = function
   | `SymAbort msg -> `Assoc [ ("type", `String "Abort"); ("sink", `String msg) ]
   | `SymAssertFailure v ->
     let v = Fmt.str "%a" Value.pp v in
     `Assoc [ ("type", `String "Assert failure"); ("sink", `String v) ]
+  | `SymEvalFailure v ->
+    let v = Fmt.asprintf "%a" Value.pp v in
+    `Assoc [ ("type", `String "Eval failure"); ("sink", `String v) ]
+  | `SymExecFailure v ->
+    let v = Fmt.asprintf "%a" Value.pp v in
+    `Assoc [ ("type", `String "Exec failure"); ("sink", `String v) ]
+  | `SymReadFileFailure v ->
+    let v = Fmt.asprintf "%a" Value.pp v in
+    `Assoc [ ("type", `String "ReadFile failure"); ("sink", `String v) ]
   | `SymFailure msg ->
     `Assoc [ ("type", `String "Failure"); ("sink", `String msg) ]
 
 let write_report (workspace : Fpath.t) (filename : Fpath.t) (exec_time : float)
   (solver_time : float) (solver_count : int) (problems : witness list) :
   unit Result.t =
+  let mode = 0o666 in
   let json =
     `Assoc
       [ ("filename", `String (Fpath.to_string filename))
@@ -123,11 +140,12 @@ let write_report (workspace : Fpath.t) (filename : Fpath.t) (exec_time : float)
       ]
   in
   let path = Fpath.(workspace / "symbolic-execution.json") in
-  Result.bos (Bos.OS.File.writef path "%a" (Yojson.pretty_print ~std:true) json)
+  Result.bos
+  @@ Bos.OS.File.writef ~mode path "%a" (Yojson.pretty_print ~std:true) json
 
 let run () (opts : Options.t) : unit Result.t =
   let* p = dispatch_prog opts.lang opts.input in
-  let env = link_env p in
+  let env = link_env opts.input p in
   let start = Stdlib.Sys.time () in
   let thread = Choice_monad.Thread.create () in
   let result = Symbolic_interpreter.main env opts.target in
@@ -136,7 +154,7 @@ let run () (opts : Options.t) : unit Result.t =
   let solv_time = !Solver.solver_time in
   let solv_cnt = !Solver.solver_count in
   let testsuite = Fpath.(opts.workspace / "test-suite") in
-  let* _ = Result.bos (Bos.OS.Dir.create testsuite) in
+  let* _ = Result.bos (Bos.OS.Dir.create ~mode:0o777 testsuite) in
   let* problems = list_filter_map (process_result opts.workspace) results in
   let nproblems = List.length problems in
   if nproblems = 0 then Log.stdout "All Ok!@."

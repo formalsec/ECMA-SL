@@ -31,5 +31,10 @@ function createPathObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(path, "dirname", dirname);
   createBuiltInProperty(dirname, "prototype", objectPrototype);
 
+
+  normalize := CreateBuiltInFunctionObject(["path"], "__path_dirname", realm, strict, null);
+  createBuiltInProperty(path, "normalize", normalize);
+  createBuiltInProperty(normalize, "prototype", objectPrototype);
+
   return path;
 }
