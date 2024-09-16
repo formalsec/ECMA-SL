@@ -566,6 +566,10 @@ function jsonStringify(global, this, NewTarget, strict, args) {
   replacer := getOptionalParam(args, 1);
   space := getOptionalParam(args, 2);
 
+  /* FIXME(martelada): handles symbolic strings directly */
+  if (extern is_symbolic(value))
+    return s_concat(["\"", value, "\""]);
+
   /* 1. Let stack be an empty List. */
   stack := [];
   /* 2. Let indent be the empty String. */

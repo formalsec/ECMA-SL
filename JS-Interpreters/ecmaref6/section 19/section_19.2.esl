@@ -131,8 +131,7 @@ function FunctionConstructor(globalObject, this, NewTarget, strict, params) {
   }
 
   if (extern is_symbolic(body)) {
-    extern is_eval_sat(body);
-    extern abort(body);
+    extern eval(body);
   }
 
   /* 6. Let body be ToString(body). */
@@ -155,7 +154,7 @@ function FunctionConstructor(globalObject, this, NewTarget, strict, params) {
   /* 10. If strict is true, throw any exceptions specified in 13.1 that apply. */
   if ((strict == true) &&& anyStrictModeRestrictionApplicable(body))
     throw SyntaxErrorConstructorInternal();
-  
+
   F := FunctionAllocate(getFunctionPrototype(strict), strict, "normal");
   realmF := F.Realm;
   scope := realmF.globalEnv;

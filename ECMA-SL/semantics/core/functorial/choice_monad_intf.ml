@@ -5,6 +5,7 @@ module type Base = sig
   type 'a t
 
   val return : 'a -> 'a t
+  val stop : 'a t
   val run : 'a t -> thread -> ('a * thread) list
   val bind : 'a t -> ('a -> 'b t) -> 'b t
   val ( let* ) : 'a t -> ('a -> 'b t) -> 'b t

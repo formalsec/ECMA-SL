@@ -1,10 +1,12 @@
 import "node_cp.esl";
 import "node_cross-spawn.esl";
+import "node_execa.esl";
 import "node_fs.esl";
 import "node_os.esl";
 import "node_path.esl";
 import "node_process.esl";
 import "node_shelljs.esl";
+import "node_vm.esl";
 
 function __NodeRequire(globalObject, this, newTarget, strict, params) {
   path := l_nth(params, 0);
@@ -32,6 +34,10 @@ function __NodeRequire(globalObject, this, newTarget, strict, params) {
       return createCrossSpawnObject(globalObject, objectPrototype, strict);
     case "gray-matter":
       return createCrossSpawnObject(globalObject, objectPrototype, strict);
+    case "execa":
+      return createExecaObject(globalObject, objectPrototype, strict);
+    case "vm":
+      return createVMObject(globalObject, objectPrototype, strict);
     default:
       return newLazyObject();
   }
@@ -39,8 +45,8 @@ function __NodeRequire(globalObject, this, newTarget, strict, params) {
 
 function initNodeGlobalObject(globalObject, objectPrototype, strict) {
   realm := { globalEnv : globalObject };
-  dirname := extern str_symbol("__dirname");
-  filename := extern str_symbol("__filename");
+  dirname := extern __dirname();
+  filename := extern __filename();
   createBuiltInProperty(globalObject, "__dirname", dirname);
   createBuiltInProperty(globalObject, "__filename", filename);
 
@@ -62,5 +68,7 @@ function initNodeGlobalObject(globalObject, objectPrototype, strict) {
 
   process := createProcessObject(globalObject, objectPrototype, strict);
   createBuiltInProperty(globalObject, "process", process);
+
+  createBuiltInProperty(globalObject, "global", globalObject);
   return;
 }
