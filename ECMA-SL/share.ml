@@ -13,7 +13,7 @@ let search (location : string list) (file : string) : string option =
     location
 
 let resolve (location : string list) (file : string) : string =
-  search location file |> Option.get |> Ecma_sl.Io.read_file |> String.trim
+  search location file |> Option.get |> EslBase.Io.read_file |> String.trim
 
 let es5_config () : string = resolve Locations.interps "es5.include"
 let es6_config () : string = resolve Locations.interps "es6.include"
