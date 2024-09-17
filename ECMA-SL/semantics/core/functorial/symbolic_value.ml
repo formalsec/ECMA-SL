@@ -257,7 +257,8 @@ module M = struct
       let f' = eval_expr store f in
       let es' = List.map (eval_expr store) es in
       match Smtml.Expr.view f' with
-      | Val (Value.Str f') -> Smtml.Expr.make (App (`Op f', es'))
+      | Val (Value.Str f') ->
+        Smtml.Expr.make (App (Smtml.Symbol.(mk term f'), es'))
       | _ -> Log.fail "error" )
 end
 

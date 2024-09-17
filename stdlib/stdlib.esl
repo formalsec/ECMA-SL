@@ -9,6 +9,12 @@ function octal_to_decimal(n: int) : int{
   return extern octal_to_decimal_external(n);
 }
 
+function compare(a, b) : int {
+  if (a == b)
+    return 0;
+  return (a < b) ? -1 : 1;
+}
+
 /* Float operators */
 function is_int(f : float) : boolean {
   return trunc(f) == f;
@@ -243,41 +249,6 @@ function atan2(x : float, y : float) : float {
 }
 
 /* List operatos */
-function iter(f, lst) : void {
-  foreach (v : lst)
-    {f}(v);
-  return;
-}
-
-function map(f, lst) : list {
-  result := [];
-  foreach (v : lst)
-    result := l_concat(result, [ {f}(v) ]);
-  return result;
-}
-
-function bind(f, lst) : list {
-  result := [];
-  foreach (elt : lst)
-    result := l_concat(result, {f}(elt));
-  return result;
-}
-
-function fold(f, initial, lst) {
-  result := initial;
-  foreach (elt : lst)
-    result := {f}(result, elt);
-  return result;
-}
-
-function filter(f, lst) {
-  result := [];
-  foreach (elt : lst)
-    if ({f}(elt))
-      result := l_prepend(elt, result);
-  return result;
-}
-
 function l_len(lst) {
   return extern l_len_external(lst);
 }
@@ -310,10 +281,6 @@ function list_to_array(lst : list) : array {
   return extern list_to_array_external(lst);
 }
 
-function l_sort(lst : list) : list {
-  return extern l_sort_external(lst);
-}
-
 function l_remove_last(lst : list) : list {
   return extern l_remove_last_external(lst);
 }
@@ -328,6 +295,94 @@ function l_remove(lst : list, v) : list {
 
 function l_remove_nth(lst : list, n : int) : list {
   return extern l_remove_nth_external(lst, n);
+}
+
+function iter(f, lst) : void {
+  foreach (v : lst)
+    {f}(v);
+  return;
+}
+
+/* FIXME: Cannot use cps? So i'll use a non-tail recursive function instead. */
+/** map : ('a -> 'b) -> 'a list -> 'b list
+
+    Not tail-recursive. */
+function map(f, lst) : list {
+  if (l_len(lst) == 0)
+    return [];
+  v := hd lst;
+  return l_prepend({f}(v), map(f, tl lst));
+}
+
+/** bind : ('a -> 'b list) -> 'a list -> 'b list */
+function bind(f, lst) : list {
+  result := [];
+  foreach (elt : lst)
+    result := l_concat(result, {f}(elt));
+  return result;
+}
+
+/** fold : ('acc -> 'a -> 'acc) -> 'acc -> 'a list -> 'acc */
+function fold(f, initial, lst) {
+  result := initial;
+  foreach (elt : lst)
+    result := {f}(result, elt);
+  return result;
+}
+
+/** filter : ('a -> bool) -> 'a list -> 'a list */
+function filter(f, lst) {
+  result := [];
+  foreach (elt : lst)
+    if ({f}(elt))
+      result := l_prepend(elt, result);
+  return result;
+}
+
+/** [merge(cmp, l1, l2)] merges two sorted function using [cmp] */
+function merge(cmp, l1 : list, l2 : list) : list {
+  if (l1 == [])
+    return l2;
+  if (l2 == [])
+    return l1;
+  h1 := hd l1; t1 := tl l1;
+  h2 := hd l2; t2 := tl l2;
+  if ({cmp}(h1, h2) <= 0)
+    return l_prepend(h1, merge(cmp, t1, l2));
+  return l_prepend(h2, merge(cmp, l1, t2));
+}
+
+function pair(fst, snd) { return { left: fst, right: snd }; }
+function fst(pair) { return pair.left; }
+function snd(pair) { return pair.right; }
+
+function split(lst) {
+  if (lst == [])
+    return pair([], []);
+  x := hd lst;
+  t := tl lst;
+  len := l_len(lst);
+  if (len == 1)
+    return pair([x], []);
+  y := hd t;
+  xs := tl t;
+  xs_split := split(xs); left := fst(xs_split); right := snd(xs_split);
+  return pair(l_prepend(x, left), l_prepend(y, right));
+}
+
+/** list_sort : ('a -> 'a -> int) -> 'a list -> 'a list */
+function list_sort(cmp, lst : list) : list {
+  /* A list with 0 or 1 elements is sorted */
+  if ((lst == []) || (l_len(lst) == 1))
+    return lst;
+  lst_split := split(lst);
+  left := fst(lst_split);
+  right := snd(lst_split);
+  return merge(cmp, list_sort(cmp, left), list_sort(cmp, right));
+}
+
+function l_sort(lst : list) : list {
+  return list_sort("compare", lst);
 }
 
 /* Byte operators */
