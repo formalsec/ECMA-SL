@@ -96,7 +96,26 @@ let serialize_thread (workspace : Fpath.t) :
 let process_result (workspace : Fpath.t)
   ((res, thread) : State.return_result * Thread.t) : witness option Result.t =
   let process_witness = function
-    | Ok _ -> Ok None
+    | Ok result -> (
+      (* FIXME: Maybe move this prints to some better place *)
+      match List.map Smtml.Expr.view result with
+      | [ List [ Hc.{ node = Smtml.Expr.Val False; _ }; result ] ] ->
+        Log.stdout "- : %a = %a@." Smtml.Ty.pp (Smtml.Expr.ty result)
+          Smtml.Expr.pp result;
+        Ok None
+      | [ List [ { node = Val True; _ }; e ] ] ->
+        let msg =
+          Fmt.str "Failure: @[<hov>uncaught exception:@ %a@]" Smtml.Expr.pp e
+        in
+        Log.stderr "%s@." msg;
+        Error (`SymFailure msg)
+      | _ ->
+        let msg =
+          Fmt.str "Failure: @[<hov>something went terribly wrong:@ %a@]"
+            Smtml.Expr.pp_list result
+        in
+        Log.stderr "%s@." msg;
+        Error (`SymFailure msg) )
     | Error (`Abort msg) -> Ok (Some (`SymAbort msg))
     | Error (`Assert_failure v) -> Ok (Some (`SymAssertFailure v))
     | Error (`Exec_failure v) -> Ok (Some (`SymExecFailure v))
