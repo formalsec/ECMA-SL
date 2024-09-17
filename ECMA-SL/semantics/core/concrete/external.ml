@@ -313,20 +313,19 @@ module Impl = struct
 
   let l_add ((v1, v2) : Value.t * Value.t) : Value.t =
     let op_lbl = "l_add_external" in
-    try Smtml.Eval.binop Ty_list Smtml.Ty.List_append_last v1 v2
+    try Smtml.Eval.binop Ty_list List_append v1 (List [ v2 ])
     with _ -> bad_arg_err 2 op_lbl "(list, any)" [ v1; v2 ]
 
   let l_prepend ((v1, v2) : Value.t * Value.t) : Value.t =
     let op_lbl = "l_prepend_external" in
     match v2 with
-    | Value.List _ -> Smtml.Eval.binop Ty_list Smtml.Ty.List_append v2 v1
+    | Value.List _ -> Smtml.Eval.binop Ty_list List_cons v1 v2
     | _ -> bad_arg_err 1 op_lbl "(any, list)" [ v1; v2 ]
 
   let l_concat ((v1, v2) : Value.t * Value.t) : Value.t =
     let op_lbl = "l_concat_external" in
     match (v1, v2) with
-    | (Value.List _, Value.List _) ->
-      Smtml.Eval.naryop Ty_list Smtml.Ty.Concat [ v1; v2 ]
+    | (Value.List _, Value.List _) -> Smtml.Eval.binop Ty_list List_append v1 v2
     | (List _, _) -> bad_arg_err 2 op_lbl "(list, list)" [ v1; v2 ]
     | _ -> bad_arg_err 1 op_lbl "(list, list)" [ v1; v2 ]
 
