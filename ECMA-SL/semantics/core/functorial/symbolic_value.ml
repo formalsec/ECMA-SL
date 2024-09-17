@@ -113,7 +113,10 @@ module M = struct
     | FloatToInt -> Smtml.Expr.cvtop Ty_real Reinterpret_float
     | FloatToString -> Smtml.Expr.cvtop Ty_real ToString
     | StringToInt -> Smtml.Expr.cvtop Ty_str String_to_int
-    | StringToFloat -> Smtml.Expr.cvtop Ty_str String_to_float
+    | StringToFloat -> (
+      fun v ->
+        try Smtml.Expr.cvtop Ty_str String_to_float v
+        with _ -> Smtml.Expr.value (Real Float.nan) )
     | ObjectToList -> assert false
     | ObjectFields -> assert false
 
