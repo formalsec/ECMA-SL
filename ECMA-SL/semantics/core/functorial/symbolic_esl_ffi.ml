@@ -182,19 +182,22 @@ module Make () = struct
     let l_add v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (l_add (v1, v2))
-      | (List _, _) -> ok @@ Smtml.Expr.binop Ty_list List_append_last v1 v2
+      | (List _, _) ->
+        ok
+        @@ Smtml.Expr.binop Ty_list List_append v1
+        @@ Smtml.Expr.make (List [ v2 ])
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let l_prepend v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (l_prepend (v1, v2))
-      | (_, List _) -> ok @@ Smtml.Expr.binop Ty_list List_append v2 v1
+      | (_, List _) -> ok @@ Smtml.Expr.binop Ty_list List_cons v1 v2
       | _ -> err (__FUNCTION__ ^ ": invalid argument")
     in
     let l_concat v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (l_concat (v1, v2))
-      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+      | _ -> ok @@ Smtml.Expr.binop Ty_list List_append v1 v2
     in
     let l_set v1 v2 v3 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2, Smtml.Expr.view v3) with
@@ -216,7 +219,7 @@ module Make () = struct
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (list_mem (v1, v2))
       | (_, List lst) -> ok_v (if List.mem v1 lst then True else False)
-      | _ -> err (__FUNCTION__ ^ ": invalid argument")
+      | _ -> err (Fmt.str "%s: invalid arguments: %a %a" __FUNCTION__ Smtml.Expr.pp v1 Smtml.Expr.pp v2)
     in
     let list_remove_last v =
       match Smtml.Expr.view v with
