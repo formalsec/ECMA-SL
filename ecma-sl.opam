@@ -24,7 +24,7 @@ depends: [
   "mdx" {with-test}
   "menhir"
   "menhirLib"
-  "smtml" {>= "0.2.0"}
+  "smtml" {= "0.2.2"}
   "yojson"
   "dune-site"
   "bisect_ppx" {with-test & >= "2.5.0" & dev}
@@ -47,6 +47,3 @@ build: [
   ["dune" "install" "-p" name "--create-install-files" name]
 ]
 dev-repo: "git+https://github.com/formalsec/ECMA-SL.git"
-pin-depends: [
-  ["smtml.dev" "git+https://github.com/formalsec/smtml.git#d1668dbfcdcf78c076d5a3665ae051bfa348873a"]
-]
