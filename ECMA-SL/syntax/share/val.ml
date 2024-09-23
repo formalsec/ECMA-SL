@@ -4,7 +4,7 @@ type t =
   | Null
   | Void
   | Int of int
-  | Flt of (float[@unboxed])
+  | Flt of float
   | Str of string
   | Bool of bool
   | Symbol of string
