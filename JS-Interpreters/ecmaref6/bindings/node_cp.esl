@@ -1,25 +1,22 @@
 function exec_wrapper(x) {
+  print x;
   return extern exec(x);
 }
 
 function __cp_exec(globalObject, this, newTarget, strict, params) {
-  exec_wrapper(hd params);
-  return null;
+  return exec_wrapper(hd params);
 }
 
 function __cp_execSync(globalObject, this, newTarget, strict, params) {
-  exec_wrapper(hd params);
-  return null;
+  return exec_wrapper(hd params);
 }
 
 function __cp_execFile(globalObject, this, newTarget, strict, params) {
-  exec_wrapper(s_concat(params));
-  return null;
+  return exec_wrapper(s_concat(params));
 }
 
 function __cp_spawn(globalObject, this, newTarget, strict, params) {
-  exec_wrapper(hd params);
-  return null;
+  return exec_wrapper(hd params);
 }
 
 function createCPObject(globalObject, objectPrototype, strict) {
