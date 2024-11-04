@@ -12,7 +12,7 @@ function __symBoolean(globalObject, this, NewTarget, strict, params) {
 function __symString(globalObject, this, NewTarget, strict, params) {
   symb_string := extern str_symbol(hd params);
   /* Bound string to help Z3 */
-  extern assume(s_len(symb_string) < 65536); /* TODO: Make bound configurable */
+  /* extern assume(s_len(symb_string) < 65536); */
   return symb_string;
 }
 

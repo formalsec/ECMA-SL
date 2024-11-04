@@ -13,8 +13,6 @@ function newLazyObject() {
   lazyObject.Get := "lazyGet";
   lazyObject.History := [];
 
-
-
   toPrim := newFunctionObject("lazyToPrimitive", realm);
   toPrimDesc := newDataPropertyDescriptorFull(toPrim, false, false, true);
   toPrimProp := getToPrimitivePropertyName();
