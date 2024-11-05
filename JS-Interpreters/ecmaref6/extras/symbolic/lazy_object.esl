@@ -54,12 +54,16 @@ function lazyPrintHistory(globalObject, this, NewTarget, strict, params) {
 
 function lazyToPrimitive(globalObject, this, NewTarget, strict, params) {
   hint := l_nth(params, 0);
-  if (hint = "string" ||| hint = "default") {
+  if (hint = "string") {
     return extern str_symbol("")
   } elif (hint = "number") {
     return extern flt_symbol("")
   } else {
-    print ("lazyToPrimitive: invalid hint: '" + hint + "'");
-    assert false
+    return extern lift_symbols(
+      [ extern str_symbol("")
+      , extern flt_symbol("")
+      , extern bool_symbol("")
+      ]
+    )
   }
 }

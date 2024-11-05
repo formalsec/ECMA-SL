@@ -67,9 +67,9 @@ module List = struct
   let ( let+ ) v f = map v f
 
   let with_state (f : thread -> 'a) : 'a t =
-    fun (state : thread) ->
-      let result = f state in
-      [ (result, state) ]
+   fun (state : thread) ->
+    let result = f state in
+    [ (result, state) ]
 
   let check (v : Value.value) : bool t =
     let open Value in
@@ -136,6 +136,9 @@ module List = struct
     match v with
     | Val v -> [ (v, thread) ]
     | _ -> Log.err "Unable to select value from %a" Value.pp v
+
+  let from_list vs : 'a t =
+   fun (thread : thread) -> List.map (fun v -> (v, thread)) vs
 end
 
 module P : Choice_monad_intf.Complete with module V := Value = List

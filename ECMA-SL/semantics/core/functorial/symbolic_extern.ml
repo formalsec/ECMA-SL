@@ -44,6 +44,12 @@ module Make () = struct
     let bool_symbol (x : value) =
       Choice.return @@ Ok (Symbolic (Type.BoolType, non_empty x))
     in
+    let lift_symbols (x : value) =
+      match x with
+      | NOpt (Operator.ListExpr, symbols) ->
+          Choice.from_list @@ List.map Result.ok symbols
+      | _ -> assert false
+    in
     let is_symbolic (n : value) =
       Choice.return @@ Ok (Val (Val.Bool (Value.is_symbolic n)))
     in
@@ -294,6 +300,7 @@ module Make () = struct
           ; ("int_symbol", Extern_func (Func (Arg Res), int_symbol))
           ; ("flt_symbol", Extern_func (Func (Arg Res), flt_symbol))
           ; ("bool_symbol", Extern_func (Func (Arg Res), bool_symbol))
+          ; ("lift_symbols", Extern_func (Func (Arg Res), lift_symbols))
           ; ("is_symbolic", Extern_func (Func (Arg Res), is_symbolic))
           ; ("is_number", Extern_func (Func (Arg Res), is_number))
           ; ("is_sat", Extern_func (Func (Arg Res), is_sat))
