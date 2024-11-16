@@ -1,5 +1,5 @@
 open Ecma_sl
-open Smtml.Syntax.Result
+open Smtml_prelude.Result
 
 module Options = struct
   type t =

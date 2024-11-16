@@ -34,7 +34,7 @@ module IResult = struct
         Ok (type_, value, target) )
 
   let is_normal_completion (heap : heap) (loc : int) =
-    let open Smtml.Syntax.Result in
+    let open Smtml_prelude.Result in
     let+ (type_, _, _) = get_completion heap loc in
     match type_ with Str "normal" -> true | _ -> false
 end

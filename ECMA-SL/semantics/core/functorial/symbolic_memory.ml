@@ -28,7 +28,7 @@ module Make (O : Object_intf.S with type value = V.value) = struct
     Loc.Tbl.replace memory key data
 
   let find memory l =
-    let open Syntax.Option in
+    let open Smtml_prelude.Option in
     let rec aux { parent; data } l from_parent =
       match Loc.Tbl.find_opt data l with
       | Some o -> Some (o, from_parent)
@@ -39,7 +39,7 @@ module Make (O : Object_intf.S with type value = V.value) = struct
     aux memory l false
 
   let get memory l =
-    let open Syntax.Option in
+    let open Smtml_prelude.Option in
     let+ (obj, from_parent) = find memory l in
     match from_parent with
     | false -> obj
