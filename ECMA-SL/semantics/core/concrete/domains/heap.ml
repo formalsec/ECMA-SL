@@ -27,7 +27,7 @@ let rec get (heap : 'a t) (loc : Loc.t) : 'a obj option =
   match Loc.Tbl.find_opt heap.map loc with
   | Some _ as obj -> obj
   | None ->
-    let open Smtml.Syntax.Option in
+    let open Smtml_prelude.Option in
     let* parent = heap.parent in
     let+ obj = get' parent loc in
     let obj' = Object.clone obj in

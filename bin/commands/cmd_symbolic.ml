@@ -1,5 +1,5 @@
 open Ecma_sl
-open Smtml.Syntax.Result
+open Smtml_prelude.Result
 module Thread = Choice_monad.Thread
 module Env = Symbolic.P.Env
 module Value = Symbolic.P.Value
