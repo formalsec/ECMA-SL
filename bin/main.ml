@@ -154,12 +154,4 @@ let exit_code () =
     | `Exn -> Docs.ExitCodes.internal
   end
 
-let () =
-  let open EslBase in
-  Printexc.record_backtrace true;
-  try exit (exit_code ())
-  with exn ->
-    flush_all ();
-    Log.stderr "ecma-sl: uncaught exception %s@." (Printexc.to_string exn);
-    Printexc.print_backtrace stderr;
-    exit Docs.ExitCodes.internal
+let () = exit (exit_code ())
