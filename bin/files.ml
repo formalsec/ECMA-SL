@@ -1,4 +1,4 @@
-open Smtml.Syntax.Result
+open Smtml_prelude.Result
 open Fpath
 
 module Parser = struct
