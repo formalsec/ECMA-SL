@@ -92,6 +92,7 @@ let test_opts =
   $ Docs.TestOpts.report
   $ Docs.InterpretOpts.profiler
   $ Docs.TestOpts.webhook_url
+  $ Docs.TestOpts.jobs
 
 let test_cmd =
   let open Docs.TestCmd in

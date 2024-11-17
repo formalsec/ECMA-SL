@@ -14,13 +14,14 @@ module Options = struct
     ; report : Fpath.t option
     ; interp_profiler : Enums.InterpProfiler.t
     ; webhook_url : string option
+    ; jobs : int
     }
 
   let set (inputs : Fpath.t list) (lang : Enums.Lang.t)
     (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option)
     (test_type : Enums.JSTest.t) (report : Fpath.t option)
-    (interp_profiler : Enums.InterpProfiler.t) (webhook_url : string option) : t
-      =
+    (interp_profiler : Enums.InterpProfiler.t) (webhook_url : string option)
+    (jobs : int) : t =
     { inputs
     ; lang
     ; jsinterp
@@ -29,6 +30,7 @@ module Options = struct
     ; report
     ; interp_profiler
     ; webhook_url
+    ; jobs
     }
 end
 
@@ -415,19 +417,29 @@ let process_record (opts : Options.t) (env : Prog.t * Value.t Heap.t option)
     TestRunner.run env record' opts.interp_profiler
   | _ -> Ok { record with result = Skipped }
 
+let mutex = Mutex.create ()
+
 let run_single (opts : Options.t) (env : Prog.t * Value.t Heap.t option)
-  (tree : TestTree.t) (workspace : Fpath.t) (input : Fpath.t)
-  (output : Files.output) : unit Result.t =
+  (tree : TestTree.t) (is_parallel : bool) (workspace : Fpath.t)
+  (input : Fpath.t) (output : Files.output) : unit Result.t =
   let* record = process_record opts env workspace input output in
+  (* TODO: Clean this mutex up. Either TestTree is immutable and we fold and
+     return a TestTreee from `process_inputs` or we make TestTree a thread-safe
+     data structure *)
+  Mutex.protect mutex @@ fun () ->
   let* record' = TestTree.add tree record record.sections in
-  Log.stdout "%a@." TestRecord.pp_simple (TestRecord.simplify record');
+  if is_parallel then
+    Eio.traceln "%a" TestRecord.pp_simple (TestRecord.simplify record')
+  else Log.stdout "%a@." TestRecord.pp_simple (TestRecord.simplify record');
   let* () = dump_record_report output record' in
   match record'.result with Success -> Ok () | _ -> Result.error `Test
 
-let test_summary (output : Fpath.t option) (total_time : float)
-  (tree : TestTree.t) : unit Result.t =
+let test_summary (is_parallel : bool) (output : Fpath.t option)
+  (total_time : float) (tree : TestTree.t) : unit Result.t =
   TestTree.count_results tree;
-  Log.stdout "%a@." TestTree.pp_summary { tree with time = total_time };
+  if is_parallel then
+    Eio.traceln "%a" TestTree.pp_summary { tree with time = total_time }
+  else Log.stdout "%a@." TestTree.pp_summary { tree with time = total_time };
   match output with
   | Some dir when Fpath.is_dir_path dir -> dump_section_smry dir tree
   | Some path -> Result.bos (Bos.OS.File.writef path "%a@." TestTree.pp tree)
@@ -442,17 +454,19 @@ let notify_done (tree : TestTree.t) (url : string) : unit =
   let body = Webhook.default_slack_mrkdwn title body in
   Lwt_main.run @@ Webhook.post_and_forget url body
 
-let run () (opts : Options.t) : unit Result.t =
+let run () ({ inputs; report; harness; jsinterp; jobs; _ } as opts : Options.t)
+  : unit Result.t =
   let total_time = Base.time () in
-  let* inputs = Files.generate_input_list opts.inputs in
+  let* inputs = Files.generate_input_list inputs in
   Options.term_width := get_logging_width inputs;
   Log.stdout "%a@." TestTree.pp_status_header ();
-  let* env = Cmd_execute.setup_execution opts.jsinterp opts.harness in
+  let* env = Cmd_execute.setup_execution jsinterp harness in
   let tree = TestTree.create "" in
   let outext = Enums.Lang.str TestReport in
-  let run_single' = run_single opts env tree in
-  let exitcode = Files.process_inputs ~outext run_single' inputs opts.report in
+  let is_parallel = jobs > 1 in
+  let run_single' = run_single opts env tree is_parallel in
+  let exitcode = Files.process_inputs ~jobs ~outext run_single' inputs report in
   let total_time = Base.time () -. total_time in
-  let* () = test_summary opts.report total_time tree in
+  let* () = test_summary is_parallel report total_time tree in
   Option.iter (notify_done { tree with time = total_time }) opts.webhook_url;
   exitcode
