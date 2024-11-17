@@ -12,7 +12,7 @@ jobs:
   build:
     env:
       TERM: screen-256color
-      OCAML_COMPILER: 4.14
+      OCAML_COMPILER: 5.2
     strategy:
       fail-fast: false
     runs-on: self-hosted

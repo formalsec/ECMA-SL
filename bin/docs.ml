@@ -336,6 +336,10 @@ module TestOpts = struct
        By default this is disabled."
     in
     Arg.(value & opt (some string) None & info [ "webhook-url" ] ~doc)
+
+  let jobs =
+    let doc = "Specify the number of jobs to run. " in
+    Arg.(value & opt int 1 & info [ "jobs" ] ~doc)
 end
 
 module TestCmd = struct

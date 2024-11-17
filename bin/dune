@@ -18,6 +18,6 @@
   cmd_execute
   cmd_test
   cmd_symbolic)
- (libraries ecma-sl cmdliner bos yojson cohttp cohttp-lwt-unix lwt)
+ (libraries bos eio eio_main ecma-sl cmdliner yojson cohttp cohttp-lwt-unix lwt)
  (instrumentation
   (backend bisect_ppx)))
