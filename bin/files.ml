@@ -78,13 +78,25 @@ let generate_input_list ?(recursive : bool = true) (inputs : t list) :
   let* inputs' = list_map (read_inputs multiple recursive) inputs in
   flat_inputs inputs'
 
-let process_inputs ?(outext : string option)
+let process_inputs ?(jobs = 1) ?(outext : string option)
   (exec_f : t -> t -> output -> unit Result.t) (inputs : (t * t) list)
   (output : t option) : unit Result.t =
-  let process_input_f acc (workspace, input) =
+  let work (workspace, input) () =
+    (* TODO: Eio.Time.with_timeout_exn 100.0 @@ fun () -> *)
     let* output' = make_fout output workspace input outext in
-    match (acc, exec_f workspace input output') with
-    | (Ok (), (Error _ as err)) -> err
-    | _ -> acc
+    exec_f workspace input output'
   in
-  List.fold_left process_input_f (Ok ()) inputs
+  if jobs <= 1 then Ok (List.iter (fun input -> ignore @@ work input ()) inputs)
+  else
+    Eio_main.run @@ fun env ->
+    let domain_mgr = Eio.Stdenv.domain_mgr env in
+    Eio.Switch.run @@ fun sw ->
+    let pool = Eio.Executor_pool.create ~sw domain_mgr ~domain_count:jobs in
+    let results =
+      List.map
+        (fun input ->
+          Eio.Executor_pool.submit_fork ~sw pool ~weight:0.8 (work input) )
+        inputs
+    in
+    List.iter (fun result -> ignore @@ Eio.Promise.await_exn result) results;
+    Ok ()

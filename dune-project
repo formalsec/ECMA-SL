@@ -28,11 +28,13 @@
   "A platform for specifying and running the ECMAScript standard.")
  (depends
   (ocaml
-   (>= "4.14.0"))
+   (>= "5.0.0"))
   (odoc :with-doc)
   dune
   dune-site
   bos
+  eio
+  eio_main
   cmdliner
   curses
   cohttp
