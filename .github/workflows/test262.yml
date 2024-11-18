@@ -39,7 +39,7 @@ jobs:
         # The workflow should succeed even if `test` has nonzero return code
         continue-on-error: true
         run: |
-          opam exec -- dune exec -- ecma-sl test --jobs 7 --type test262 --harness bench/test262/environment/harness.js bench/test262/tests --webhook-url "$SLACK_WEBHOOK_URL" > ${{ env.RESULTS_FILE }}
+          opam exec -- dune exec -- ecma-sl test --type test262 --harness bench/test262/environment/harness.js bench/test262/tests --webhook-url "$SLACK_WEBHOOK_URL" > ${{ env.RESULTS_FILE }}
 
       - name: Upload Results
         uses: actions/upload-artifact@v4
