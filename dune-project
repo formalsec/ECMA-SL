@@ -26,6 +26,11 @@
  (synopsis "ECMA-SL")
  (description
   "A platform for specifying and running the ECMAScript standard.")
+ (conflicts
+  (smtml
+   (or
+    (< "0.2.2")
+    (> "0.2.2"))))
  (depends
   (ocaml
    (>= "4.14.0"))
