@@ -1,7 +1,0 @@
-(mdx
- (deps
-  %{bin:ecma-sl}
-  (file exec.js)
-  (file taint_summary.json)
-  (package ecma-sl))
- (files README.md))
