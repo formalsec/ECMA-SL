@@ -130,6 +130,8 @@ let write_report ~workspace filename exec_time solver_time solver_count problems
   let rpath = Fpath.(workspace / "symbolic-execution.json") in
   OS.File.writef ~mode rpath "%a" (Yojson.pretty_print ~std:true) json
 
+let no_stop_at_failure = false
+
 let run ~workspace filename entry_func =
   let open Syntax.Result in
   let* prog = dispatch_file_ext prog_of_plus prog_of_core prog_of_js filename in
@@ -141,25 +143,28 @@ let run ~workspace filename entry_func =
   let exec_time = Stdlib.Sys.time () -. start in
   let testsuite = Fpath.(workspace / "test-suite") in
   let* _ = OS.Dir.create ~mode:0o777 ~path:true testsuite in
-  let* problems =
-    list_filter_map
-      ~f:(fun (ret, thread) ->
-        let+ witness =
-          match ret with
-          | Ok _ -> Ok None
-          | Error
-              ( ( `Abort _ | `Assert_failure _ | `Eval_failure _
-                | `Exec_failure _ | `ReadFile_failure _ ) as err ) ->
-            Ok (Some err)
-          | Error (`Failure msg) -> Error (`Msg msg)
+  let rec print_and_count_failures (cnt, problems) results =
+    match results () with
+    | Seq.Nil -> Ok (cnt, problems)
+    | Seq.Cons ((result, thread), tl) -> (
+      match result with
+      | Ok _ -> print_and_count_failures (cnt, problems) tl
+      | Error (`Abort _) -> print_and_count_failures (succ cnt, problems) tl
+      | Error (`Failure msg) -> Error (`Msg msg)
+      | Error
+          ( ( `Assert_failure _ | `Eval_failure _ | `Exec_failure _
+            | `ReadFile_failure _ ) as witness ) ->
+        let cnt = succ cnt in
+        let problems = witness :: problems in
+        let () =
+          match serialize_thread ~witness workspace thread with
+          | Error (`Msg msg) -> Log.log ~header:false "%s" msg
+          | Ok () -> ()
         in
-        ( match serialize_thread ?witness workspace thread with
-        | Error (`Msg msg) -> Log.log ~header:false "%s" msg
-        | Ok () -> () );
-        witness )
-      results
+        if no_stop_at_failure then print_and_count_failures (cnt, problems) tl
+        else Ok (cnt, problems) )
   in
-  let n = List.length problems in
+  let* (n, problems) = print_and_count_failures (0, []) results in
   if n = 0 then Fmt.printf "All Ok!@." else Fmt.printf "Found %d problems!@." n;
   let solv_time = !Solver.solver_time in
   let solv_cnt = !Solver.solver_count in

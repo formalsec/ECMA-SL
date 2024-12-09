@@ -47,7 +47,7 @@ module Make () = struct
     let lift_symbols (x : value) =
       match x with
       | NOpt (Operator.ListExpr, symbols) ->
-          Choice.from_list @@ List.map Result.ok symbols
+        Choice.from_list @@ List.map Result.ok symbols
       | _ -> assert false
     in
     let is_symbolic (n : value) =
@@ -72,13 +72,13 @@ module Make () = struct
       | _ ->
         (* TODO: Use with_state instead *)
         fun thread ->
-         let open Smtml.Expr in
-         let v = Translator.translate e in
-         let query =
-           binop Ty_str String_contains v (value (Str "`touch success`"))
-         in
-         Log.log ~header:false "       exec : %a" Value.pp e;
-         [ (Error (`Exec_failure e), Thread.add_pc thread query) ]
+          let open Smtml.Expr in
+          let v = Translator.translate e in
+          let query =
+            binop Ty_str String_contains v (value (Str "`touch success`"))
+          in
+          Log.log ~header:false "       exec : %a" Value.pp e;
+          Seq.return (Error (`Exec_failure e), Thread.add_pc thread query)
     in
     let eval (e : value) =
       (* TODO: more fine-grained exploit analysis *)
@@ -87,14 +87,14 @@ module Make () = struct
       | _ ->
         (* TODO: Use with_state instead *)
         fun thread ->
-         let open Smtml.Expr in
-         let v = Translator.translate e in
-         let query =
-           binop Ty_str String_contains v
-             (value (Str ";console.log('success')//"))
-         in
-         Log.log ~header:false "       eval : %a" Value.pp e;
-         [ (Error (`Eval_failure e), Thread.add_pc thread query) ]
+          let open Smtml.Expr in
+          let v = Translator.translate e in
+          let query =
+            binop Ty_str String_contains v
+              (value (Str ";console.log('success')//"))
+          in
+          Log.log ~header:false "       eval : %a" Value.pp e;
+          Seq.return (Error (`Eval_failure e), Thread.add_pc thread query)
     in
     let readFile (e : value) =
       match e with
@@ -102,13 +102,13 @@ module Make () = struct
       | _ ->
         (* TODO: Use with_state instead *)
         fun thread ->
-         let open Smtml.Expr in
-         let v = Translator.translate e in
-         let query =
-           binop Ty_str String_contains v (value (Str "./exploited"))
-         in
-         Log.log ~header:false "   readFile : %a" Value.pp e;
-         [ (Error (`ReadFile_failure e), Thread.add_pc thread query) ]
+          let open Smtml.Expr in
+          let v = Translator.translate e in
+          let query =
+            binop Ty_str String_contains v (value (Str "./exploited"))
+          in
+          Log.log ~header:false "   readFile : %a" Value.pp e;
+          Seq.return (Error (`ReadFile_failure e), Thread.add_pc thread query)
     in
     let abort (e : value) =
       let e' = Format.asprintf "%a" Value.pp e in
@@ -123,16 +123,16 @@ module Make () = struct
       | _ ->
         (* TODO: Use with_state instead *)
         fun thread ->
-         [ (Ok (Val (Val.Symbol "undefined")), Thread.add_pc thread e') ]
+          Seq.return (Ok (Val (Val.Symbol "undefined")), Thread.add_pc thread e')
     in
     let evaluate (e : value) =
       Choice.with_state (fun state ->
-          let e = Translator.translate e in
-          let pc = Thread.pc state |> PC.to_list in
-          let solver = Thread.solver state in
-          assert (`Sat = Solver.check solver (e :: pc));
-          let v = Solver.get_value solver e in
-          Ok (Translator.expr_of_value (Smtml.Expr.view v)) )
+        let e = Translator.translate e in
+        let pc = Thread.pc state |> PC.to_list in
+        let solver = Thread.solver state in
+        assert (`Sat = Solver.check solver (e :: pc));
+        let v = Solver.get_value solver e in
+        Ok (Translator.expr_of_value (Smtml.Expr.view v)) )
     in
     let optimize target opt e pc =
       Optimizer.push opt;
@@ -143,27 +143,27 @@ module Make () = struct
     in
     let maximize (e : value) =
       Choice.with_state (fun state ->
-          let e' = Translator.translate e in
-          let pc = Thread.pc state |> PC.to_list in
-          let opt = Thread.optimizer state in
-          let v = optimize Optimizer.maximize opt e' pc in
-          match v with
-          | Some v -> Ok (Translator.expr_of_value (Val v))
-          | None ->
-            (* TODO: Error here *)
-            assert false )
+        let e' = Translator.translate e in
+        let pc = Thread.pc state |> PC.to_list in
+        let opt = Thread.optimizer state in
+        let v = optimize Optimizer.maximize opt e' pc in
+        match v with
+        | Some v -> Ok (Translator.expr_of_value (Val v))
+        | None ->
+          (* TODO: Error here *)
+          assert false )
     in
     let minimize (e : value) =
       Choice.with_state (fun thread ->
-          let e' = Translator.translate e in
-          let pc = Thread.pc thread |> PC.to_list in
-          let opt = Thread.optimizer thread in
-          let v = optimize Optimizer.minimize opt e' pc in
-          match v with
-          | Some v -> Ok (Translator.expr_of_value (Val v))
-          | None ->
-            (* TODO: Error here *)
-            assert false )
+        let e' = Translator.translate e in
+        let pc = Thread.pc thread |> PC.to_list in
+        let opt = Thread.optimizer thread in
+        let v = optimize Optimizer.minimize opt e' pc in
+        match v with
+        | Some v -> Ok (Translator.expr_of_value (Val v))
+        | None ->
+          (* TODO: Error here *)
+          assert false )
     in
     let parseJS data =
       let open EslJSParser.Api in
@@ -199,7 +199,8 @@ module Make () = struct
       let t' = Translator.translate t' in
       let replace_str = triop Ty_str String_replace s t t' in
       let cond = relop Ty_bool Eq (mk_symbol sym) replace_str in
-      [ (Ok (Symbolic (Type.StrType, Val (Str x))), Thread.add_pc thread cond) ]
+      Seq.return
+        (Ok (Symbolic (Type.StrType, Val (Str x))), Thread.add_pc thread cond)
     in
     let str_indexof (s : Value.value) (t : Value.value) (_i : Value.value)
       thread =
@@ -214,9 +215,9 @@ module Make () = struct
       let indexOf = triop Ty_str String_index s t i in
       let indexOf2real = cvtop Ty_real Reinterpret_int indexOf in
       let cond = relop Ty_bool Eq sym indexOf2real in
-      [ ( Ok (Symbolic (Type.FltType, Val (Str index)))
+      Seq.return
+        ( Ok (Symbolic (Type.FltType, Val (Str index)))
         , Thread.add_pc thread cond )
-      ]
     in
     let str_lastIndexOf (s : Value.value) (t : Value.value) thread =
       (* TODO: Use with_state here instead *)
@@ -229,9 +230,9 @@ module Make () = struct
       let indexOf = binop Ty_str String_last_index s t in
       let indexOf2real = cvtop Ty_real Reinterpret_int indexOf in
       let cond = relop Ty_bool Eq sym indexOf2real in
-      [ ( Ok (Symbolic (Type.FltType, Val (Str index)))
+      Seq.return
+        ( Ok (Symbolic (Type.FltType, Val (Str index)))
         , Thread.add_pc thread cond )
-      ]
     in
     let str_sub (s : Value.value) (start : Value.value) (len : Value.value)
       thread =
@@ -244,7 +245,8 @@ module Make () = struct
       let len = Translator.translate len in
       let substr = triop Ty_str String_extract s start len in
       let cond = relop Ty_bool Eq sym substr in
-      [ (Ok (Symbolic (Type.StrType, Val (Str x))), Thread.add_pc thread cond) ]
+      Seq.return
+        (Ok (Symbolic (Type.StrType, Val (Str x))), Thread.add_pc thread cond)
     in
     let str_parse_int (str : Value.value) thread =
       (* TODO: Use with_state here instead *)
@@ -255,7 +257,8 @@ module Make () = struct
       let str2int = cvtop Ty_str String_to_int str in
       let int2real = cvtop Ty_real Reinterpret_int str2int in
       let cond = relop Ty_bool Eq sym int2real in
-      [ (Ok (Symbolic (Type.FltType, Val (Str x))), Thread.add_pc thread cond) ]
+      Seq.return
+        (Ok (Symbolic (Type.FltType, Val (Str x))), Thread.add_pc thread cond)
     in
     let str_split (s : Value.value) (r : Value.value) thread =
       (* TODO: Use with_state here instead *)
@@ -271,7 +274,7 @@ module Make () = struct
         Expr.relop Ty_bool Eq s s'
       in
       let result = Value.(mk_list [ str_symbol x1; str_symbol x2 ]) in
-      [ (Ok result, Thread.add_pc thread cond) ]
+      Seq.return (Ok result, Thread.add_pc thread cond)
     in
     let str_match (s : Value.value) thread =
       (* TODO: Use with_state here instead *)
@@ -283,7 +286,7 @@ module Make () = struct
         Expr.binop Ty_str String_contains s x
       in
       let result = Value.(mk_list [ str_symbol x ]) in
-      [ (Ok result, Thread.add_pc thread cond) ]
+      Seq.return (Ok result, Thread.add_pc thread cond)
     in
 
     let dirname () =

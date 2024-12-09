@@ -9,7 +9,7 @@ module type Base = sig
 
   val empty : 'a t
   val return : 'a -> 'a t
-  val run : 'a t -> thread -> ('a * thread) list
+  val run : 'a t -> thread -> ('a * thread) Seq.t
   val bind : 'a t -> ('a -> 'b t) -> 'b t
   val ( let* ) : 'a t -> ('a -> 'b t) -> 'b t
   val map : 'a t -> ('a -> 'b) -> 'b t

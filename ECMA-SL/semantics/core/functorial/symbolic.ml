@@ -18,7 +18,7 @@ module P = struct
     include Value
   end
 
-  module Choice = Choice_monad.List
+  module Choice = Choice_monad.Seq
   module Extern_func = Extern_func.Make (Value) (Choice)
 
   let ( let*/ ) o f = match o with Error e -> failwith e | Ok o -> f o
@@ -61,14 +61,14 @@ module P = struct
             | `Unsat | `Unknown -> None )
       in
       match vals with
-      | [] -> fun thread -> [ (None, thread) ]
+      | [] -> Choice.return None
       | [ (v, pc) ] ->
         fun thread ->
-          Option.fold ~none:[] ~some:(fun r -> [ r ]) (return thread (v, pc))
+          Option.fold ~none:Seq.empty ~some:Seq.return (return thread (v, pc))
       | _ ->
         fun thread ->
           let thread = Thread.clone thread in
-          List.filter_map (return thread) vals
+          List.to_seq @@ List.filter_map (return thread) vals
 
     let delete o v = Object.delete o v [@@inline]
     let to_list o = Object.to_list o [@@inline]
@@ -106,14 +106,16 @@ module P = struct
             | `Unsat | `Unknown -> None )
       in
       match field_vals with
-      | [] -> fun thread -> [ (None, thread) ]
+      | [] -> Choice.return None
       | [ (v, pc) ] -> (
         fun thread ->
-          match return thread (v, pc) with None -> [] | Some a -> [ a ] )
+          match return thread (v, pc) with
+          | None -> Seq.empty
+          | Some a -> Seq.return a )
       | _ ->
         fun thread ->
           let thread = Thread.clone thread in
-          List.filter_map (return thread) field_vals
+          List.to_seq @@ List.filter_map (return thread) field_vals
 
     let set_field m loc ~field ~data = Memory.set_field m loc ~field ~data
     [@@inline]
@@ -141,14 +143,16 @@ module P = struct
       | [] ->
         fun _thread ->
           Log.log ~header:false "   symbolic : no loc";
-          []
+          Seq.empty
       | [ (c, v) ] -> (
         fun thread ->
-          match return thread (c, v) with None -> [] | Some a -> [ a ] )
+          match return thread (c, v) with
+          | None -> Seq.empty
+          | Some a -> Seq.return a )
       | _ ->
         fun thread ->
           let thread = Thread.clone thread in
-          List.filter_map (return thread) locs
+          List.to_seq @@ List.filter_map (return thread) locs
 
     let pp fmt v = Memory.pp fmt v [@@inline]
     let pp_val m v = Memory.pp_val m v [@@inline]
@@ -162,7 +166,7 @@ module P = struct
 
     let get_memory _env thread =
       (* Env.get_memory env *)
-      [ (Thread.mem thread, thread) ]
+      Seq.return (Thread.mem thread, thread)
     [@@inline]
 
     let get_func env func_id = Env.get_func env func_id [@@inline]
