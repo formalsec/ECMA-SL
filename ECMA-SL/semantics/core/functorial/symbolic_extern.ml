@@ -66,49 +66,28 @@ module Make () = struct
       Choice.return @@ Ok (Val (Val.Bool b))
     in
     let exec (e : value) =
-      (* TODO: more fine-grained exploit analysis *)
+      (* TODO: Annotate with detected CWE *)
       match e with
       | Val _ -> Choice.return @@ Ok (Val (Val.Symbol "undefined"))
       | _ ->
-        (* TODO: Use with_state instead *)
-        fun thread ->
-          let open Smtml.Expr in
-          let v = Translator.translate e in
-          let query =
-            binop Ty_str String_contains v (value (Str "`touch success`"))
-          in
-          Log.log ~header:false "       exec : %a" Value.pp e;
-          Seq.return (Error (`Exec_failure e), Thread.add_pc thread query)
+        Log.log ~header:false "       exec : %a" Value.pp e;
+        Choice.return @@ Error (`Exec_failure e)
     in
     let eval (e : value) =
-      (* TODO: more fine-grained exploit analysis *)
+      (* TODO: Annotate with detected CWE *)
       match e with
       | Val _ -> Choice.return @@ Ok (Val (Val.Symbol "undefined"))
       | _ ->
-        (* TODO: Use with_state instead *)
-        fun thread ->
-          let open Smtml.Expr in
-          let v = Translator.translate e in
-          let query =
-            binop Ty_str String_contains v
-              (value (Str ";console.log('success')//"))
-          in
-          Log.log ~header:false "       eval : %a" Value.pp e;
-          Seq.return (Error (`Eval_failure e), Thread.add_pc thread query)
+        Log.log ~header:false "       eval : %a" Value.pp e;
+        Choice.return @@ Error (`Eval_failure e)
     in
     let readFile (e : value) =
+      (* TODO: Annotate with detected CWE *)
       match e with
       | Val _ -> Choice.return @@ Ok (Val (Val.Symbol "undefined"))
       | _ ->
-        (* TODO: Use with_state instead *)
-        fun thread ->
-          let open Smtml.Expr in
-          let v = Translator.translate e in
-          let query =
-            binop Ty_str String_contains v (value (Str "./exploited"))
-          in
-          Log.log ~header:false "   readFile : %a" Value.pp e;
-          Seq.return (Error (`ReadFile_failure e), Thread.add_pc thread query)
+        Log.log ~header:false "   readFile : %a" Value.pp e;
+        Choice.return @@ Error (`ReadFile_failure e)
     in
     let abort (e : value) =
       let e' = Format.asprintf "%a" Value.pp e in
