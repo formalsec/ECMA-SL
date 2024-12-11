@@ -1,0 +1,41 @@
+function __esl_http_listen(globalObject, this, newTarget, strict, params) {
+  port := hd params;
+
+  request := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(request);
+  createBuiltInProperty(request, "url", extern str_symbol("request.url"));
+
+  response := newLazyObject();
+  args := [ request, response ];
+  listener := this.listener;
+  result := Call(null, null, listener, this, args);
+
+  /* FIXME: return what? */
+  return result
+}
+
+function __esl_http_createServer(globalObject, this, newTarget, strict, params) {
+  realm := { globalEnv : globalObject };
+  server := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(server);
+
+  /* Register http listener */
+  server.listener := hd params;
+
+  listen := CreateBuiltInFunctionObject([ "port" ], "__esl_http_listen", realm, strict, null);
+  createBuiltInProperty(server, "listen", listen);
+
+  return server
+}
+
+function createHttpObject(globalObject, objectPrototype, strict) {
+  realm := { globalEnv : globalObject };
+  http := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(http);
+
+  createServer := CreateBuiltInFunctionObject([ "listener" ], "__esl_http_createServer", realm, strict, null);
+  createBuiltInProperty(createServer, "prototype", objectPrototype);
+  createBuiltInProperty(http, "createServer", createServer);
+
+  return http
+}

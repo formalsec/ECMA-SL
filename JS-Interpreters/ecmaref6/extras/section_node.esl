@@ -7,6 +7,7 @@ import "extras/node/execa.esl";
 import "extras/node/path.esl";
 import "extras/node/process.esl";
 import "extras/node/shelljs.esl";
+import "extras/node/http.esl";
 
 function __NodeRequire(globalObject, this, newTarget, strict, params) {
   path := l_nth(params, 0);
@@ -14,44 +15,33 @@ function __NodeRequire(globalObject, this, newTarget, strict, params) {
   switch(path) {
     case "esl_symbolic": {
       return initESLSymbolicObject(globalObject, objectPrototype, strict)
-    }
-    case "process": {
+    } case "process": {
       return createProcessObject(globalObject, objectPrototype, strict)
-    }
-    case "os": {
+    } case "os": {
       return createOSObject(globalObject, objectPrototype, strict)
-    }
-    case "fs": {
+    } case "fs": {
       return createFSObject(globalObject, objectPrototype, strict)
-    }
-    case "path": {
+    } case "path": {
       return createPathObject(globalObject, objectPrototype, strict)
-    }
-    case "child_process": {
+    } case "child_process": {
       return createCPObject(globalObject, objectPrototype, strict)
-    }
-    case "mz/child_process": {
+    } case "mz/child_process": {
       return createCPObject(globalObject, objectPrototype, strict)
-    }
-    case "shelljs": {
+    } case "shelljs": {
       return createShellJSObject(globalObject, objectPrototype, strict)
-    }
-    case "cross-spawn": {
+    } case "cross-spawn": {
       return createCrossSpawnObject(globalObject, objectPrototype, strict)
-    }
-    case "im-metadata": {
+    } case "im-metadata": {
       return createCrossSpawnObject(globalObject, objectPrototype, strict)
-    }
-    case "gray-matter": {
+    } case "gray-matter": {
       return createCrossSpawnObject(globalObject, objectPrototype, strict)
-    }
-    case "execa": {
+    } case "execa": {
       return createExecaObject(globalObject, objectPrototype, strict)
-    }
-    case "vm": {
+    } case "vm": {
       return createVMObject(globalObject, objectPrototype, strict)
-    }
-    sdefault: { return newLazyObject() }
+    } case "http": {
+      return createHttpObject(globalObject, objectPrototype, strict)
+    } sdefault: { return newLazyObject() }
   }
 }
 
