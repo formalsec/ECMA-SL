@@ -168,8 +168,8 @@ let run ~workspace filename entry_func =
   if n = 0 then Fmt.printf "All Ok!@." else Fmt.printf "Found %d problems!@." n;
   let solv_time = !Solver.solver_time in
   let solv_cnt = !Solver.solver_count in
-  Log.debug "  exec time : %fs@." exec_time;
-  Log.debug "solver time : %fs@." solv_time;
+  Log.debug "  exec time : %fs" exec_time;
+  Log.debug "solver time : %fs" solv_time;
   write_report ~workspace filename exec_time solv_time solv_cnt problems
 
 let main { filename; entry_func; workspace } () =

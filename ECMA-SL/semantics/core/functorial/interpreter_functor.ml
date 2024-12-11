@@ -69,11 +69,10 @@ module Make (P : Interpreter_functor_intf.P) :
   let pp locals heap e = eval_expr locals e |> Memory.pp_val heap
 
   (* FIXME: Somehow using the functions in Log seems to considerably slowdown exec *)
-  let debug1 fmt a = if !Log.Config.debugs then Fmt.eprintf fmt a
-  let debug2 fmt a b = if !Log.Config.debugs then Fmt.eprintf fmt a b
+  let debug k = if !Log.Config.debugs then k Fmt.eprintf
 
   let exec_func state func args ret_var =
-    debug1 "calling func: %s@." (Func.name' func);
+    debug (fun k -> k "calling func: %s@." (Func.name' func));
     let return_state = Some (state, ret_var) in
     let params = Func.params' func in
     let store = Store.create (List.combine params args) in
@@ -90,8 +89,7 @@ module Make (P : Interpreter_functor_intf.P) :
 
   let exec_extern_func state f args ret_var =
     let open Extern_func in
-    let rec apply :
-      type a.
+    let rec apply : type a.
          value list
       -> a Extern_func.atype
       -> a
@@ -119,7 +117,7 @@ module Make (P : Interpreter_functor_intf.P) :
     let error err = Choice.return @@ State.Return (Error err) in
     let* m = Env.get_memory env in
     (* debug2 "      store : %a@." Value.Store.pp locals; *)
-    debug2 "running stmt: %a@." Stmt.pp_simple stmt;
+    debug (fun k -> k "running stmt: %a@." Stmt.pp_simple stmt);
     match stmt.it with
     | Skip -> ok state
     | Merge -> ok state
