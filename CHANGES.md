@@ -1,5 +1,11 @@
 # Unreleased Versions
 
+### Changed
+### Added
+### Fixed
+
+# v1.1.0
+
 ### Added
 
 - Line comments to ECMA-SL and Core ECMA-SL language.
@@ -41,15 +47,10 @@ type t =
 ```
 - Operators `exp`, `random`, and tuple related operators were removed from syntax and became external functions.
 
-
 ### Fixed
 
 - The conditional operator now only evaluates one of the branches in the concrete interpreter.
 - Source regions for string values are now properly calculated.
-
-<br>
-<br>
-<br>
 
 # v1.0.0
 
