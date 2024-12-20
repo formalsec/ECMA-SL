@@ -1,67 +1,60 @@
 let debug = false
-let debug fmt k = if debug then k (Format.eprintf fmt)
-
-type status =
-  [ `SUCCESS
-  | `FAILURE
-  | `ANOMALY
-  ]
+let debug k = if debug then k Format.eprintf
+let ( let* ) = Result.bind
 
 module Fmap = Fpath.Map
 
 type diff =
-  { orig : status
-  ; new_ : status
+  { a : Test_result.t
+  ; b : Test_result.t
   }
 
-let pp_status fmt = function
-  | `SUCCESS -> Format.pp_print_string fmt "SUCCESS"
-  | `FAILURE -> Format.pp_print_string fmt "FAILURE"
-  | `ANOMALY -> Format.pp_print_string fmt "ANOMALY"
-
 let parse_results file =
-  match Bos.OS.File.read_lines file with
-  | Error (`Msg err) -> Fmt.failwith "%s" err
-  | Ok lines ->
-    List.fold_left
-      (fun map line ->
-        match String.split_on_char ' ' (String.trim line) with
-        | [ test; _; "SUCCESS"; _ ] -> Fmap.add (Fpath.v test) `SUCCESS map
-        | [ test; _; "FAILURE"; _ ] -> Fmap.add (Fpath.v test) `FAILURE map
-        | [ test; _; "ANOMALY"; _ ] -> Fmap.add (Fpath.v test) `ANOMALY map
-        (* Ignore the other lines *)
-        | _ -> map )
-      Fmap.empty lines
+  let* lines = Bos.OS.File.read_lines file in
+  Ok
+    (List.fold_left
+       (fun map line ->
+         match String.split_on_char ' ' (String.trim line) with
+         | [ test; _; "SUCCESS"; _ ] ->
+           Fmap.add (Fpath.v test) Test_result.Success map
+         | [ test; _; "FAILURE"; _ ] ->
+           Fmap.add (Fpath.v test) Test_result.Failure map
+         | [ test; _; "ANOMALY"; _ ] ->
+           Fmap.add (Fpath.v test) Test_result.Anomaly map
+         (* Ignore the other lines *)
+         | _ -> map )
+       Fmap.empty lines )
 
-let diff orig new_ =
-  debug "Files: %a %a@." (fun k -> k Fpath.pp orig Fpath.pp new_);
-  let orig_map = parse_results orig in
-  let new_map = parse_results new_ in
+let diff a b =
+  debug (fun k -> k "Files: %a %a@." Fpath.pp a Fpath.pp b);
+  let* a_map = parse_results a in
+  let* b_map = parse_results b in
   let diff =
     Fmap.merge
-      (fun _ orig new_ ->
-        match (orig, new_) with
-        | (Some `SUCCESS, Some `SUCCESS)
-        | (Some `FAILURE, Some `FAILURE)
-        | (Some `ANOMALY, Some `ANOMALY) ->
-          None
-        | (Some orig, Some new_) ->
-          (* Result changed *)
-          Some { orig; new_ }
+      (fun _ a b ->
+        match (a, b) with
+        | (Some a, Some b) -> (
+          match (a, b) with
+          | (Test_result.Success, Test_result.Success)
+          | (Failure, Failure)
+          | (Anomaly, Anomaly) ->
+            None
+          | ((Success | Failure | Anomaly), _) -> Some { a; b } )
         | ((None | Some _), _) ->
           (* Should never happen *)
           assert false )
-      orig_map new_map
+      a_map b_map
   in
   (* Sorry *)
   Format.printf "%a@."
     (Format.pp_print_iter
        ~pp_sep:(fun fmt () -> Format.fprintf fmt "@;")
        (fun f tbl -> Fmap.iter (fun p status -> f (p, status)) tbl)
-       (fun fmt (p, { orig; new_ }) ->
-         Format.fprintf fmt "%a: %a -> %a" Fpath.pp p pp_status orig pp_status
-           new_ ) )
-    diff
+       (fun fmt (p, { a; b }) ->
+         Format.fprintf fmt "%a: %a -> %a" Fpath.pp p Test_result.pp a
+           Test_result.pp b ) )
+    diff;
+  Ok ()
 
 let cli =
   let open Cmdliner in
@@ -72,9 +65,18 @@ let cli =
   let info = Cmd.info ~doc ~version:"%%VERSION%%" "diff" in
   Cmd.v info Term.(const diff $ file0 $ file1)
 
-let () =
+let result =
   let open Cmdliner in
   match Cmd.eval_value cli with
-  | Ok (`Help | `Ok () | `Version) -> exit Cmd.Exit.ok
-  | Error `Parse -> exit Cmd.Exit.cli_error
-  | Error (`Exn | `Term) -> exit Cmd.Exit.internal_error
+  | Ok (`Help | `Version) -> Cmd.Exit.ok
+  | Ok (`Ok result) -> (
+    match result with
+    | Ok () -> Cmd.Exit.ok
+    | Error (`Msg err) ->
+      Format.eprintf "unexpected error: %s@." err;
+      Cmd.Exit.some_error )
+  | Error `Term -> Cmd.Exit.some_error
+  | Error `Parse -> Cmd.Exit.cli_error
+  | Error `Exn -> Cmd.Exit.internal_error
+
+let () = exit result
