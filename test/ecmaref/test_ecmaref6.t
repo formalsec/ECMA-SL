@@ -8433,7 +8433,7 @@ Tests compilation of ecmaref6:
         __v1574 := param["type"];
         __v1575 := __v1574 == "AssignmentPattern";
         if (__v1573 && __v1575) {
-          
+          return [false, count]
         } else {
           __v1576 := "type" in_obj param;
           __v1577 := param["type"];
