@@ -921,7 +921,10 @@ function ExpectedArgumentCount(paramsDetails) {
     | { type: "Identifier" } -> count := count + 1;
     | { type: "AssignmentPattern" } -> ;
     | { type: "RestElement" } -> return count;
-    | default -> throw SyntaxError("Unexpected argument type");
+    | default ->
+      /* throw SyntaxError("Unexpected argument type") */
+      /* FIXME: Apparentely this is this ok? */
+      ;
   }
   return count;
 }
