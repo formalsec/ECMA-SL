@@ -919,7 +919,7 @@ function ExpectedArgumentCount(paramsDetails) {
   foreach (param: paramsDetails) {
     match param with
     | { type: "Identifier" } -> count := count + 1;
-    | { type: "AssignmentPattern" } -> ;
+    | { type: "AssignmentPattern" } -> return count;
     | { type: "RestElement" } -> return count;
     | default ->
       /* throw SyntaxError("Unexpected argument type") */
