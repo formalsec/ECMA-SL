@@ -40,8 +40,8 @@ let obj_record_to_string (o_r : obj_record) (printer : Expr.t -> string) :
 
   let str_obj =
     Hashtbl.fold o_r.concrete_fields ~init:"{ " ~f:(fun ~key:n ~data:v ac ->
-        (if String.(ac <> "{ ") then ac ^ ", " else ac)
-        ^ Printf.sprintf "\"%s\": %s" n (aux v) )
+      (if String.(ac <> "{ ") then ac ^ ", " else ac)
+      ^ Printf.sprintf "\"%s\": %s" n (aux v) )
     ^ "|"
   in
   match o_r.symbolic_field with
@@ -51,7 +51,7 @@ let obj_record_to_string (o_r : obj_record) (printer : Expr.t -> string) :
 
 let to_string (o : t) (printer : Expr.t -> string) : string =
   List.fold o ~init:"" ~f:(fun acc o_r ->
-      acc ^ obj_record_to_string o_r printer ^ "@" )
+    acc ^ obj_record_to_string o_r printer ^ "@" )
 
 let record_has_concrete_key (o : obj_record) (key : string) : bool =
   let res = Hashtbl.find o.concrete_fields key in
@@ -64,9 +64,7 @@ let record_concrete_list (o : obj_record) : (Expr.t * Expr.t option) list =
 let record_concrete_list2 (o : obj_record) : (Expr.t * Expr.t) list =
   let s_l = Hashtbl.to_alist o.concrete_fields in
   List.fold s_l ~init:[] ~f:(fun acc (k, v) ->
-      match v with
-      | Some v' -> acc @ [ (Expr.Val (Val.Str k), v') ]
-      | None -> acc )
+    match v with Some v' -> acc @ [ (Expr.Val (Val.Str k), v') ] | None -> acc )
 
 let record_concrete_keys (o : obj_record) : Expr.t list =
   let s_l = Hashtbl.keys o.concrete_fields in
@@ -94,9 +92,9 @@ let is_key_possible (k1 : Expr.t) (k2 : Expr.t) (solver : Batch.t)
 let create_not_pct (l : (pct * Expr.t) list) (key : pct) (store : S_store.t) :
   encoded_pct list =
   List.fold l ~init:[] ~f:(fun acc (pc, _) ->
-      let ne = Expr.UnOpt (Operators.Not, mk_eq key pc) in
-      let expr = Reducer.reduce_expr store ne in
-      expr :: acc )
+    let ne = Expr.UnOpt (Operators.Not, mk_eq key pc) in
+    let expr = Reducer.reduce_expr store ne in
+    expr :: acc )
 
 let create_object (o : t) (k1 : pct) (k2 : pct) (store : S_store.t) :
   t * encoded_pct list =
@@ -110,9 +108,9 @@ let mk_ite_expr (prop : Expr.t) (conds : (Expr.t * Expr.t) list list)
   List.fold ~init:default_val
     ~f:(fun acc_ite l ->
       List.fold l ~init:acc_ite ~f:(fun acc (cond, data) ->
-          let eq = Reducer.reduce_expr store cond in
-          let ite = Reducer.reduce_expr store (mk_ite eq data acc) in
-          ite ) )
+        let eq = Reducer.reduce_expr store cond in
+        let ite = Reducer.reduce_expr store (mk_ite eq data acc) in
+        ite ) )
     conds
 
 let same_type (e1 : Expr.t) (e2 : Expr.t) : bool =
@@ -133,17 +131,15 @@ let rec mk_ite_expr_aux (accs : (Expr.t * Expr.t option) list) (acc_pc : Expr.t)
       ~f:(fun acc_ite l ->
         List.fold l ~init:acc_ite
           ~f:(fun (acc_val, acc_pc, new_default) (cond, data) ->
-            if same_type default_val data then
-              let eq = Reducer.reduce_expr store cond in
-              let p =
-                if Expr.equal false_e acc_pc then eq else mk_or acc_pc eq
-              in
-              let ite = Reducer.reduce_expr store (mk_ite eq data acc_val) in
-              (ite, p, new_default)
-            else
-              ( acc_val
-              , acc_pc
-              , if Expr.equal undef new_default then data else new_default ) ) )
+          if same_type default_val data then
+            let eq = Reducer.reduce_expr store cond in
+            let p = if Expr.equal false_e acc_pc then eq else mk_or acc_pc eq in
+            let ite = Reducer.reduce_expr store (mk_ite eq data acc_val) in
+            (ite, p, new_default)
+          else
+            ( acc_val
+            , acc_pc
+            , if Expr.equal undef new_default then data else new_default ) ) )
       conds
   in
 
@@ -214,11 +210,11 @@ let get_prop_rec (o_rec : obj_record) (prop : Expr.t)
       | None ->
         ( Hashtbl.fold o_rec.concrete_fields ~init:ret_lst
             ~f:(fun ~key:k ~data:v acc ->
-              if is_key_possible (Val (Str k)) prop solver pc store then
-                let eq = Reducer.reduce_expr store (mk_eq (Val (Str k)) prop) in
-                let ret = (eq, get_val v) in
-                ret :: acc
-              else acc )
+            if is_key_possible (Val (Str k)) prop solver pc store then
+              let eq = Reducer.reduce_expr store (mk_eq (Val (Str k)) prop) in
+              let ret = (eq, get_val v) in
+              ret :: acc
+            else acc )
         , ret_e ) )
   in
   (ret_lst, ret_e)
@@ -244,16 +240,16 @@ let rec get_prop_aux ?(default_val = Expr.Val (Val.Bool false)) (o : t)
       let false_e = Expr.Val (Val.Bool false) in
       let new_pc =
         List.fold lst' ~init:false_e ~f:(fun acc (eq, v) ->
-            if Expr.equal false_e acc then eq else mk_or acc eq )
+          if Expr.equal false_e acc then eq else mk_or acc eq )
       in
       let not_new = mk_not new_pc in
 
       if Batch.check solver (not_new :: pc) then
         get_prop_aux ~default_val o_rest prop get_val (lst' :: lst) solver
           (not_new :: pc) store
-        (* Este caso existe? *)
-        (* else if List.length lst + List.length lst' = 0 then ([], default_val) *)
-      else (rest :: lst, (v, Some cond)) )
+      (* Este caso existe? *)
+      (* else if List.length lst + List.length lst' = 0 then ([], default_val) *)
+        else (rest :: lst, (v, Some cond)) )
 
 let get_prop ?(default_val = Expr.Val (Val.Bool false)) (o : t) (prop : Expr.t)
   (solver : Batch.t) (pc : encoded_pct list) (store : S_store.t)
@@ -267,9 +263,9 @@ let get_prop ?(default_val = Expr.Val (Val.Bool false)) (o : t) (prop : Expr.t)
 let has_field (o : t) (k : Expr.t) (solver : Batch.t) (pc : encoded_pct list)
   (store : S_store.t) : Expr.t =
   get_prop o k solver pc store (fun v ->
-      match v with
-      | Some v -> Expr.Val (Val.Bool true)
-      | None -> Expr.Val (Val.Bool false) )
+    match v with
+    | Some v -> Expr.Val (Val.Bool true)
+    | None -> Expr.Val (Val.Bool false) )
 
 let set (o : t) (key : vt) (data : Expr.t) (solver : Batch.t)
   (pc : encoded_pct list) (store : S_store.t) : t * encoded_pct list =
@@ -328,24 +324,24 @@ let delete (o : t) (key : Expr.t) (solver : Batch.t) (pc : encoded_pct list)
 let to_list (o : t) : (Expr.t * Expr.t) list =
   let (c, s) =
     List.fold o ~init:([], []) ~f:(fun (concrete, symb) o_r ->
-        let s =
-          match o_r.symbolic_field with
-          | None -> symb
-          | Some (k, Some v') -> (k, v') :: symb
-          | _ -> symb
-        in
-        (concrete @ record_concrete_list2 o_r, s) )
+      let s =
+        match o_r.symbolic_field with
+        | None -> symb
+        | Some (k, Some v') -> (k, v') :: symb
+        | _ -> symb
+      in
+      (concrete @ record_concrete_list2 o_r, s) )
   in
   c @ s
 
 let get_fields (o : t) : Expr.t list =
   let (c, s) =
     List.fold o ~init:([], []) ~f:(fun (concrete, symb) o_r ->
-        let s =
-          match o_r.symbolic_field with
-          | None -> symb
-          | Some (key, data) -> key :: symb
-        in
-        (concrete @ record_concrete_keys o_r, s) )
+      let s =
+        match o_r.symbolic_field with
+        | None -> symb
+        | Some (key, data) -> key :: symb
+      in
+      (concrete @ record_concrete_keys o_r, s) )
   in
   c @ s

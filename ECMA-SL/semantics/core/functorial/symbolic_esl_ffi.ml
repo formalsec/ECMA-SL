@@ -219,7 +219,10 @@ module Make () = struct
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (list_mem (v1, v2))
       | (_, List lst) -> ok_v (if List.mem v1 lst then True else False)
-      | _ -> err (Fmt.str "%s: invalid arguments: %a %a" __FUNCTION__ Smtml.Expr.pp v1 Smtml.Expr.pp v2)
+      | _ ->
+        err
+          (Fmt.str "%s: invalid arguments: %a %a" __FUNCTION__ Smtml.Expr.pp v1
+             Smtml.Expr.pp v2 )
     in
     let list_remove_last v =
       match Smtml.Expr.view v with
@@ -532,7 +535,9 @@ module Make () = struct
     let is_number (n : value) =
       ok_v
         (* TODO:x check is this is right *)
-        (match Smtml.Expr.ty n with Ty_int | Ty_real -> True | _ -> False)
+        ( match Smtml.Expr.ty n with
+        | Ty_int | Ty_real -> True
+        | _ -> False )
     in
     let is_sat (e : value) =
       let/ b = Choice.check e in

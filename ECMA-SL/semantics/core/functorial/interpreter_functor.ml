@@ -80,7 +80,7 @@ module Make (P : Interpreter_functor_intf.P) :
 
   let exec_func state func args ret_var =
     Log.debug_k (fun pp ->
-        pp "@[<hov 1>calling func:@ %a@]" Func.pp_simple func );
+      pp "@[<hov 1>calling func:@ %a@]" Func.pp_simple func );
     let return_state = Some (state, ret_var) in
     let params = Func.params' func in
     let store = Store.create (List.combine params args) in
@@ -97,8 +97,7 @@ module Make (P : Interpreter_functor_intf.P) :
 
   let exec_extern_func state f args ret_var =
     let open Extern_func in
-    let rec apply :
-      type a.
+    let rec apply : type a.
          value list
       -> a Extern_func.atype
       -> a
@@ -127,9 +126,9 @@ module Make (P : Interpreter_functor_intf.P) :
     let* m = Env.get_memory env in
     Log.debug_k (fun pp -> pp "@[<hov 1>      scope :@ %a@]" Fmt.pp_str func);
     Log.debug_k (fun pp ->
-        pp "@[<hov 1>      store :@ %a@]" Value.Store.pp locals );
+      pp "@[<hov 1>      store :@ %a@]" Value.Store.pp locals );
     Log.debug_k (fun pp ->
-        pp "@[<hov 1>running stmt:@ %a@]" Stmt.pp_simple stmt );
+      pp "@[<hov 1>running stmt:@ %a@]" Stmt.pp_simple stmt );
     match stmt.it with
     | Stmt.Skip -> ok state
     | Merge -> ok state
@@ -259,18 +258,17 @@ module Make (P : Interpreter_functor_intf.P) :
       | (None, None) -> ok state )
 
   let rec loop (state : State.exec_state) : State.return_result Choice.t =
-    let open State in
     match state.stmts with
     | stmt :: stmts -> (
       let* state = exec_stmt stmt { state with stmts } in
       match state with
-      | State.Continue state -> loop state
-      | State.Return ret -> Choice.return ret )
+      | Continue state -> loop state
+      | Return ret -> Choice.return ret )
     | [] -> (
       Log.stdout "    warning : %s: missing a return statement!@." state.func;
       match State.return state with
-      | State.Continue state -> loop state
-      | State.Return ret -> Choice.return ret )
+      | Continue state -> loop state
+      | Return ret -> Choice.return ret )
 
   let main (env : Env.t) (f : string) : State.return_result Choice.t =
     match Env.get_func env f with

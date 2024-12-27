@@ -5,9 +5,10 @@ module V = Symbolic_value.M
 module E = Smtml.Expr
 
 module Make
-    (Object : Object_intf.S2
-                with type value = Smtml.Expr.t
-                 and type value2 = Smtml.Expr.t) : Memory_intf.S2 = struct
+    (Object :
+      Object_intf.S2
+        with type value = Smtml.Expr.t
+         and type value2 = Smtml.Expr.t) : Memory_intf.S2 = struct
   type value = Object.value
   type value2 = Object.value2
   type object_ = Object.t

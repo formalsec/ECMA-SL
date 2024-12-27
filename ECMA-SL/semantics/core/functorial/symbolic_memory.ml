@@ -105,7 +105,9 @@ module Make (O : Object_intf.S with type value = V.value) = struct
       | Val (App (`Op "loc", [ Int l ])) ->
         Ok ((Some c, l) :: unfold_ite ~accum:E.(unop Ty.Ty_bool Ty.Not c) v)
       | _ -> Error (Fmt.str "Value '%a' is not a loc expression" E.pp e) )
-    | _ -> Error (Fmt.str "Value '%a' is not a loc expression" V.pp e)
+    | _ ->
+      Fmt.eprintf "Value '%a' is not a loc expression" V.pp e;
+      Ok []
 
   let pp_val (h : t) (e : value) : string =
     match E.view e with

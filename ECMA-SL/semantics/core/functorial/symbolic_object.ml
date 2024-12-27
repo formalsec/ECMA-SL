@@ -113,6 +113,7 @@ module M : Object_intf.S with type value = V.value = struct
     | Val _ -> { o with fields = VMap.remove key o.fields }
     | _ ->
       (* Leak *)
+      Fmt.eprintf "Leaking object %a@." Smtml.Expr.pp key;
       o
 
   let pp_map ppf v =

@@ -115,7 +115,7 @@ let rec assign_obj_to_list (h : t) (loc : Expr.t) (solver : Batch.t)
         Expr.NOpt
           ( Operators.ListExpr
           , List.map (Object.to_list o) ~f:(fun (f, v) ->
-                Expr.NOpt (Operators.TupleExpr, [ f; v ]) ) )
+              Expr.NOpt (Operators.TupleExpr, [ f; v ]) ) )
       in
       ret )
   | Expr.TriOpt (Operators.Conditional, cond, left, right) ->
@@ -195,21 +195,21 @@ let get_field (heap : t) (loc : Expr.t) (field : Expr.t) (solver : Batch.t)
   (* let undef = Expr.Val (App (`Op "symbol", [Str "undefined"])) in *)
   let pc_undef =
     List.fold acc_undef ~init:false_e ~f:(fun acc (_, pc') ->
-        if Expr.equal acc false_e then pc' else mk_or pc' acc )
+      if Expr.equal acc false_e then pc' else mk_or pc' acc )
   in
 
   let undef = Expr.Val (App (`Op "symbol", [ Str "undefined" ])) in
 
   let v_ite =
     List.fold acc_conc ~init:undef ~f:(fun acc_v (v, pc', guard) ->
-        let acc_v =
-          match guard with
-          | None -> v
-          | Some guard ->
-            if Expr.equal acc_v undef || Expr.equal acc_v v then v
-            else mk_ite guard v acc_v
-        in
-        acc_v )
+      let acc_v =
+        match guard with
+        | None -> v
+        | Some guard ->
+          if Expr.equal acc_v undef || Expr.equal acc_v v then v
+          else mk_ite guard v acc_v
+      in
+      acc_v )
   in
 
   if Expr.equal pc_undef false_e then
@@ -240,10 +240,10 @@ let set_field_exec (heap : t) (loc : Loc.t) (field : Expr.t) (v : 'a)
       [ (heap, pc) ]
     | _ ->
       List.map objs ~f:(fun (obj, pc) ->
-          let heap' = clone heap in
-          let pc = match encoded_guard with None -> pc | Some p -> p :: pc in
-          set heap' loc obj;
-          (heap', pc) ) )
+        let heap' = clone heap in
+        let pc = match encoded_guard with None -> pc | Some p -> p :: pc in
+        set heap' loc obj;
+        (heap', pc) ) )
 
 let rec set_field_aux ?(encoded_guard = None) (heap : t) (loc : Expr.t)
   (field : Expr.t) (v : 'a) (solver : Batch.t) (pc : encoded_pct list)
@@ -284,10 +284,10 @@ let delete_field_exec (heap : t) (loc : Loc.t) (field : Expr.t)
       [ (heap, pc) ]
     | _ ->
       List.map objs ~f:(fun (obj, pc) ->
-          let heap' = clone heap in
-          set heap' loc obj;
-          let pc = match encoded_guard with None -> pc | Some p -> p :: pc in
-          (heap', pc) ) )
+        let heap' = clone heap in
+        set heap' loc obj;
+        let pc = match encoded_guard with None -> pc | Some p -> p :: pc in
+        (heap', pc) ) )
 
 let rec delete_field_aux ?(encoded_guard = None) (heap : t) (loc : Expr.t)
   (field : Expr.t) (solver : Batch.t) (pc : encoded_pct list) (store : S_store.t)

@@ -652,7 +652,8 @@ module Impl = struct
     | _ -> bad_arg_err 1 op_lbl "string" [ v ]
 
   (** * JSON number regex: https://stackoverflow.com/a/13340826/3049315 *
-      Recognized Regexp constructs in OCaml Str: https://ocaml.org/api/Str.html *)
+      Recognized Regexp constructs in OCaml Str: https://ocaml.org/api/Str.html
+  *)
   let parse_number (v : Value.t) : Value.t =
     let op_lbl = "parse_number_external" in
     match v with
