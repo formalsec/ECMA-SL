@@ -16,7 +16,7 @@ module P = struct
     include Value
   end
 
-  module Choice = Choice_monad.List
+  module Choice = Choice_monad.Seq
   module Extern_func = Extern_func.Make (Value) (Choice)
 
   let ( let*/ ) o f = match o with Error e -> failwith e | Ok o -> f o
@@ -49,21 +49,23 @@ module P = struct
         let solver = Thread.solver thread in
         match pc with
         | [] -> Some (Some v, thread)
-        | _ ->
+        | _ -> (
           let pc' = Smtml.Expr.Set.(union pc_thread (of_list pc)) in
           if Smtml.Expr.Set.equal pc' pc_thread then Some (Some v, thread)
-          else if `Unsat = Solver.check_set solver pc' then None
-          else Some (Some v, { thread with pc = pc' })
+          else
+            match Solver.check_set solver pc' with
+            | `Sat -> Some (Some v, { thread with pc = pc' })
+            | `Unsat | `Unknown -> None )
       in
       match vals with
-      | [] -> fun thread -> [ (None, thread) ]
+      | [] -> Choice.return None
       | [ (v, pc) ] ->
         fun thread ->
-          Option.fold ~none:[] ~some:(fun r -> [ r ]) (return thread (v, pc))
+          Option.fold ~none:Seq.empty ~some:Seq.return (return thread (v, pc))
       | _ ->
         fun thread ->
           let thread = Thread.clone thread in
-          List.filter_map (return thread) vals
+          List.to_seq @@ List.filter_map (return thread) vals
 
     let delete o v = Object.delete o v [@@inline]
     let to_list o = Object.to_list o [@@inline]
@@ -91,21 +93,25 @@ module P = struct
         let solver = Thread.solver thread in
         match pc with
         | [] -> Some (Some v, thread)
-        | _ ->
+        | _ -> (
           let pc' = Smtml.Expr.Set.(union pc_thread (of_list pc)) in
           if Smtml.Expr.Set.equal pc' pc_thread then Some (Some v, thread)
-          else if `Unsat = Solver.check_set solver pc' then None
-          else Some (Some v, { thread with pc = pc' })
+          else
+            match Solver.check_set solver pc' with
+            | `Sat -> Some (Some v, { thread with pc = pc' })
+            | `Unsat | `Unknown -> None )
       in
       match field_vals with
-      | [] -> fun thread -> [ (None, thread) ]
+      | [] -> Choice.return None
       | [ (v, pc) ] -> (
         fun thread ->
-          match return thread (v, pc) with None -> [] | Some a -> [ a ] )
+          match return thread (v, pc) with
+          | None -> Seq.empty
+          | Some a -> Seq.return a )
       | _ ->
         fun thread ->
           let thread = Thread.clone thread in
-          List.filter_map (return thread) field_vals
+          List.to_seq @@ List.filter_map (return thread) field_vals
 
     let set_field m loc ~field ~data = Memory.set_field m loc ~field ~data
     [@@inline]
@@ -120,24 +126,28 @@ module P = struct
         let solver = Thread.solver thread in
         match cond with
         | None -> Some (v, thread)
-        | Some c ->
+        | Some c -> (
           let pc = Smtml.Expr.Set.add c pc in
           if Smtml.Expr.Set.equal pc (Thread.pc thread) then Some (v, thread)
-          else if `Unsat = Solver.check_set solver pc then None
-          else Some (v, { thread with pc })
+          else
+            match Solver.check_set solver pc with
+            | `Sat -> Some (v, { thread with pc })
+            | `Unsat | `Unknown -> None )
       in
       match locs with
       | [] ->
         fun _thread ->
           Log.stdout "   symbolic : no loc@.";
-          []
+          Seq.empty
       | [ (c, v) ] -> (
         fun thread ->
-          match return thread (c, v) with None -> [] | Some a -> [ a ] )
+          match return thread (c, v) with
+          | None -> Seq.empty
+          | Some a -> Seq.return a )
       | _ ->
         fun thread ->
           let thread = Thread.clone thread in
-          List.filter_map (return thread) locs
+          List.to_seq @@ List.filter_map (return thread) locs
 
     let pp ppf v = Memory.pp ppf v [@@inline]
     let pp_val m v = Memory.pp_val m v [@@inline]
@@ -148,12 +158,7 @@ module P = struct
     type nonrec memory = memory
 
     let clone env = Env.clone env [@@inline]
-
-    let get_memory _env thread =
-      (* Env.get_memory env *)
-      [ (Thread.mem thread, thread) ]
-    [@@inline]
-
+    let get_memory _env = Choice.with_thread Thread.mem [@@inline]
     let get_func env func_id = Env.get_func env func_id [@@inline]
     let get_extern_func env func_id = Env.get_extern_func env func_id [@@inline]
     let add_memory env mem = Env.add_memory env mem [@@inline]
