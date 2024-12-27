@@ -29,9 +29,9 @@ let prog_of_js (fpath : Fpath.t) : Prog.t Result.t =
   (* let* (interp, _) = Cmd_execute.setup_execution ECMARef6Sym None instrument in *)
   let ast = Fpath.v (Filename.temp_file "ecmasl" "ast.cesl") in
   let* () = Cmd_encode.encode None fpath (Some ast) in
-  let* build_ast = Cmd_execute.build_ast ast in
+  let+ build_ast = Cmd_execute.build_ast ast in
   Hashtbl.replace (Prog.funcs interp) (Func.name' build_ast) build_ast;
-  Ok interp
+  interp
 
 let dispatch_prog (lang : Enums.Lang.t) (fpath : Fpath.t) : Prog.t Result.t =
   let valid_langs = Enums.Lang.valid_langs Options.langs lang in
@@ -93,8 +93,8 @@ let serialize_thread (workspace : Fpath.t) :
       let* () = Bos.OS.File.writef ~mode (path + ".js") "%a" pp model in
       Bos.OS.File.writef ~mode (path + ".smtml") "%a" Smtml.Expr.pp_smt pc
 
-let process_result (workspace : Fpath.t)
-  ((res, thread) : State.return_result * Thread.t) : witness option Result.t =
+let process_result (workspace : Fpath.t) (res, thread) : witness option Result.t
+    =
   let process_witness = function
     | Ok result -> (
       (* FIXME: Maybe move this prints to some better place *)
@@ -116,12 +116,14 @@ let process_result (workspace : Fpath.t)
         in
         Log.stderr "%s@." msg;
         Error (`SymFailure msg) )
-    | Error (`Abort msg) -> Ok (Some (`SymAbort msg))
-    | Error (`Assert_failure v) -> Ok (Some (`SymAssertFailure v))
-    | Error (`Exec_failure v) -> Ok (Some (`SymExecFailure v))
-    | Error (`Eval_failure v) -> Ok (Some (`SymEvalFailure v))
-    | Error (`ReadFile_failure v) -> Ok (Some (`SymReadFileFailure v))
-    | Error (`Failure msg) -> Result.error (`SymFailure msg)
+    | Error err -> (
+      match err with
+      | `Abort msg -> Ok (Some (`SymAbort msg))
+      | `Assert_failure v -> Ok (Some (`SymAssertFailure v))
+      | `Exec_failure v -> Ok (Some (`SymExecFailure v))
+      | `Eval_failure v -> Ok (Some (`SymEvalFailure v))
+      | `ReadFile_failure v -> Ok (Some (`SymReadFileFailure v))
+      | `Failure msg -> Result.error (`SymFailure msg) )
   in
   let* witness = process_witness res in
   let+ () = serialize_thread workspace witness thread in
@@ -162,6 +164,8 @@ let write_report (workspace : Fpath.t) (filename : Fpath.t) (exec_time : float)
   Result.bos
   @@ Bos.OS.File.writef ~mode path "%a" (Yojson.pretty_print ~std:true) json
 
+let no_stop_at_failure = false
+
 let run () (opts : Options.t) : unit Result.t =
   let* p = dispatch_prog opts.lang opts.input in
   let env = link_env opts.input p in
@@ -174,10 +178,21 @@ let run () (opts : Options.t) : unit Result.t =
   let solv_cnt = !Solver.solver_count in
   let testsuite = Fpath.(opts.workspace / "test-suite") in
   let* _ = Result.bos (Bos.OS.Dir.create ~mode:0o777 testsuite) in
-  let* problems = list_filter_map (process_result opts.workspace) results in
-  let nproblems = List.length problems in
-  if nproblems = 0 then Log.stdout "All Ok!@."
-  else Log.stdout "Found %d problems!@." nproblems;
+  let rec print_and_count_failures (cnt, problems) results =
+    match results () with
+    | Seq.Nil -> Ok (cnt, problems)
+    | Seq.Cons (result, tl) -> (
+      let* witness = process_result opts.workspace result in
+      match witness with
+      | None -> print_and_count_failures (cnt, problems) tl
+      | Some witness ->
+        let cnt = succ cnt in
+        let problems = witness :: problems in
+        if no_stop_at_failure then print_and_count_failures (cnt, problems) tl
+        else Ok (cnt, problems) )
+  in
+  let* (n, problems) = print_and_count_failures (0, []) results in
+  if n = 0 then Log.stdout "All Ok!@." else Log.stdout "Found %d problems!@." n;
   Log.debug "  exec time : %fs" exec_time;
   Log.debug "solver time : %fs" solv_time;
   write_report opts.workspace opts.input exec_time solv_time solv_cnt problems
