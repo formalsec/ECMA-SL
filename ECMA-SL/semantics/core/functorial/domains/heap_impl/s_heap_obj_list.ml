@@ -108,7 +108,7 @@ let rec assign_obj_to_list (h : t) (loc : Expr.t) (solver : Batch.t)
         Expr.NOpt
           ( Operators.ListExpr
           , List.map (Object.to_list o) ~f:(fun (f, v) ->
-                Expr.NOpt (Operators.TupleExpr, [ f; v ]) ) )
+              Expr.NOpt (Operators.TupleExpr, [ f; v ]) ) )
       in
       ret )
   | Expr.TriOpt (Operators.Conditional, cond, left, right) ->
@@ -166,8 +166,8 @@ let set_field_exec (heap : t) (loc : Loc.t) (field : Expr.t) (v : 'a)
   | Some o ->
     let l = Object.set o field v solver pc store in
     List.map l ~f:(fun (o, pc') ->
-        set heap loc o;
-        (heap, pc') )
+      set heap loc o;
+      (heap, pc') )
 
 let rec set_field_aux ?(encoded_guard = None) (heap : t) (loc : Expr.t)
   (field : Expr.t) (v : 'a) (solver : Batch.t) (pc : encoded_pct list)
@@ -199,8 +199,8 @@ let delete_field_exec (heap : t) (loc : Loc.t) (field : Expr.t)
   | Some o ->
     let l = Object.delete o field solver pc store in
     List.map l ~f:(fun (o, pc') ->
-        set heap loc o;
-        (heap, pc') )
+      set heap loc o;
+      (heap, pc') )
 
 let rec delete_field_aux ?(encoded_guard = None) (heap : t) (loc : Expr.t)
   (field : Expr.t) (solver : Batch.t) (pc : encoded_pct list) (store : S_store.t)

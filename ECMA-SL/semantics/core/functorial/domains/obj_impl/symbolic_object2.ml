@@ -197,8 +197,7 @@ struct
           let l =
             Hashtbl.fold
               (fun k d acc ->
-                if is_key_possible key k solver pc then (k, d) :: acc else acc
-                )
+                if is_key_possible key k solver pc then (k, d) :: acc else acc )
               o.symbolic_fields []
           in
           let obj_list =
@@ -225,8 +224,7 @@ struct
           Hashtbl.fold
             (fun k d acc ->
               let k' = V.Val (Val.Str k) in
-              if is_key_possible key k' solver pc then (k', d) :: acc else acc
-              )
+              if is_key_possible key k' solver pc then (k', d) :: acc else acc )
             o.concrete_fields []
         in
         let cond_list =

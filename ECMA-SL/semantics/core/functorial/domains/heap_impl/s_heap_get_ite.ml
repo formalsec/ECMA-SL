@@ -106,7 +106,7 @@ let rec assign_obj_to_list (h : t) (loc : Expr.t) (solver : Batch.t)
         Expr.NOpt
           ( Operators.ListExpr
           , List.map (Object.to_list o) ~f:(fun (f, v) ->
-                Expr.NOpt (Operators.TupleExpr, [ f; v ]) ) )
+              Expr.NOpt (Operators.TupleExpr, [ f; v ]) ) )
       in
       ret )
   | Expr.TriOpt (Operators.Conditional, cond, left, right) ->
@@ -121,7 +121,7 @@ let rec has_field_aux (h : t) (loc : Expr.t) (field : Expr.t) (solver : Batch.t)
   match loc with
   | Expr.Val (Val.Loc l) ->
     Option.value_map (get h l) ~default:(mk_bool false) ~f:(fun o ->
-        Object.has_field o field )
+      Object.has_field o field )
   | Expr.TriOpt (Operators.Conditional, cond, left, right) ->
     let op l pc = has_field_aux h l field solver pc store in
     apply_op_get h loc cond left right solver op pc store
@@ -173,10 +173,10 @@ let set_field_exec (heap : t) (loc : Loc.t) (field : Expr.t) (v : 'a)
       [ (heap, pc) ]
     | _ ->
       List.map objs ~f:(fun (obj, pc) ->
-          let heap' = clone heap in
-          let pc = match encoded_guard with None -> pc | Some p -> p :: pc in
-          set heap' loc obj;
-          (heap', pc) ) )
+        let heap' = clone heap in
+        let pc = match encoded_guard with None -> pc | Some p -> p :: pc in
+        set heap' loc obj;
+        (heap', pc) ) )
 
 let rec set_field_aux ?(encoded_guard = None) (heap : t) (loc : Expr.t)
   (field : Expr.t) (v : 'a) (solver : Batch.t) (pc : encoded_pct list)
@@ -217,10 +217,10 @@ let delete_field_exec (heap : t) (loc : Loc.t) (field : Expr.t)
       [ (heap, pc) ]
     | _ ->
       List.map objs ~f:(fun (obj, pc) ->
-          let heap' = clone heap in
-          set heap' loc obj;
-          let pc = match encoded_guard with None -> pc | Some p -> p :: pc in
-          (heap', pc) ) )
+        let heap' = clone heap in
+        set heap' loc obj;
+        let pc = match encoded_guard with None -> pc | Some p -> p :: pc in
+        (heap', pc) ) )
 
 let rec delete_field_aux ?(encoded_guard = None) (heap : t) (loc : Expr.t)
   (field : Expr.t) (solver : Batch.t) (pc : encoded_pct list) (store : S_store.t)

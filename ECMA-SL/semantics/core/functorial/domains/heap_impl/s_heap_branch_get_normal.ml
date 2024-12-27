@@ -10,7 +10,7 @@ let create () : t = Hashtbl.create (module String)
 let clone (h : t) : t =
   let h' = Hashtbl.create (module String) in
   Hashtbl.iteri h ~f:(fun ~key ~data ->
-      Hashtbl.set h' ~key ~data:(Object.clone data) );
+    Hashtbl.set h' ~key ~data:(Object.clone data) );
   h'
 
 let insert (h : t) (obj : obj) : Loc.t =
@@ -44,9 +44,9 @@ let get_field (heap : t) (loc : Expr.t) (field : Expr.t) (solver : Batch.t)
         [ (heap, pc, v) ]
       | _ ->
         List.map objs ~f:(fun (obj, pc, v) ->
-            let heap' = clone heap in
-            set heap' l obj;
-            (heap', pc, v) ) ) )
+          let heap' = clone heap in
+          set heap' l obj;
+          (heap', pc, v) ) ) )
   | _ -> invalid_arg ("Invalid location in get field: " ^ Expr.str loc)
 
 let has_field (heap : t) (loc : Expr.t) (field : Expr.t) (solver : Batch.t)
@@ -56,8 +56,8 @@ let has_field (heap : t) (loc : Expr.t) (field : Expr.t) (solver : Batch.t)
   | Expr.Val (Val.Loc l) ->
     let res = get_field heap loc field solver pc store in
     List.map res ~f:(fun (new_heap, new_pc, v) ->
-        let v' = Expr.Val (Val.Bool (Option.is_some v)) in
-        (new_heap, new_pc, v') )
+      let v' = Expr.Val (Val.Bool (Option.is_some v)) in
+      (new_heap, new_pc, v') )
   | _ -> invalid_arg ("Invalid location in has field: " ^ Expr.str loc)
 
 let assign_obj_to_list (heap : t) (loc : Expr.t) (solver : Batch.t)
@@ -72,7 +72,7 @@ let assign_obj_to_list (heap : t) (loc : Expr.t) (solver : Batch.t)
         Expr.NOpt
           ( Operators.ListExpr
           , List.map (Object.to_list o) ~f:(fun (f, v) ->
-                Expr.NOpt (Operators.TupleExpr, [ f; v ]) ) )
+              Expr.NOpt (Operators.TupleExpr, [ f; v ]) ) )
       in
       ret )
   | _ -> invalid_arg ("Invalid location in assign_obj_to_list: " ^ Expr.str loc)
@@ -106,9 +106,9 @@ let set_field (heap : t) (loc : Expr.t) (field : Expr.t) (v : 'a)
         [ (heap, pc) ]
       | _ ->
         List.map objs ~f:(fun (obj, pc) ->
-            let heap' = clone heap in
-            set heap' l obj;
-            (heap', pc) ) ) )
+          let heap' = clone heap in
+          set heap' l obj;
+          (heap', pc) ) ) )
   | _ -> invalid_arg ("Invalid location in set field: " ^ Expr.str loc)
 
 let delete_field (heap : t) (loc : Expr.t) (field : Expr.t) (solver : Batch.t)
@@ -118,7 +118,7 @@ let delete_field (heap : t) (loc : Expr.t) (field : Expr.t) (solver : Batch.t)
     let obj = get heap l in
     let res =
       Option.bind obj ~f:(fun o ->
-          Some (Object.delete o field solver pc store) )
+        Some (Object.delete o field solver pc store) )
     in
     match res with
     | None -> failwith ("delete Return is never none. loc: " ^ l)
@@ -130,9 +130,9 @@ let delete_field (heap : t) (loc : Expr.t) (field : Expr.t) (solver : Batch.t)
         [ (heap, pc') ]
       | _ ->
         List.map objs ~f:(fun (obj, pc) ->
-            let heap' = clone heap in
-            set heap' l obj;
-            (heap', pc) ) ) )
+          let heap' = clone heap in
+          set heap' l obj;
+          (heap', pc) ) ) )
   | _ -> invalid_arg ("Invalid location in delete field: " ^ Expr.str loc)
 
 (* let to_string (h : t) (pp : 'a -> string) : string =

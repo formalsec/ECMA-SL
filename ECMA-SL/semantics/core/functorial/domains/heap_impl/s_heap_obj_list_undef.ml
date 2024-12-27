@@ -115,7 +115,7 @@ let rec assign_obj_to_list (h : t) (loc : Expr.t) (solver : Batch.t)
         Expr.NOpt
           ( Operators.ListExpr
           , List.map (Object.to_list o) ~f:(fun (f, v) ->
-                Expr.NOpt (Operators.TupleExpr, [ f; v ]) ) )
+              Expr.NOpt (Operators.TupleExpr, [ f; v ]) ) )
       in
       ret )
   | Expr.TriOpt (Operators.Conditional, cond, left, right) ->
@@ -173,20 +173,20 @@ let rec get_field_aux ?(guard = None) (heap : t) (loc : Expr.t) (field : Expr.t)
       let l = Object.get o field solver pc store in
 
       List.fold l ~init:acc ~f:(fun acc (v, pc') ->
-          let k = getKey (Sval_typing.type_of v) in
+        let k = getKey (Sval_typing.type_of v) in
 
-          let lst = Hashtbl.find acc k in
-          let lst = match lst with None -> [] | Some lst -> lst in
+        let lst = Hashtbl.find acc k in
+        let lst = match lst with None -> [] | Some lst -> lst in
 
-          let lst =
-            match (pc', guard) with
-            | (Some p, Some g) -> (v, Some (mk_and g p), guard) :: lst
-            | (None, Some g) -> (v, Some g, guard) :: lst
-            | (Some p, None) -> (v, Some p, guard) :: lst
-            | (None, None) -> (v, None, guard) :: lst
-          in
-          Hashtbl.set acc ~key:k ~data:lst;
-          acc ) )
+        let lst =
+          match (pc', guard) with
+          | (Some p, Some g) -> (v, Some (mk_and g p), guard) :: lst
+          | (None, Some g) -> (v, Some g, guard) :: lst
+          | (Some p, None) -> (v, Some p, guard) :: lst
+          | (None, None) -> (v, None, guard) :: lst
+        in
+        Hashtbl.set acc ~key:k ~data:lst;
+        acc ) )
   | Expr.TriOpt (Operators.Conditional, cond, left, right) -> (
     let op l pc guard = get_field_aux ~guard heap l field solver pc store in
     let not_cond = mk_not cond in
@@ -219,30 +219,30 @@ let get_field (heap : t) (loc : Expr.t) (field : Expr.t) (solver : Batch.t)
   let f_e = mk_bool false in
   if Hashtbl.length branch_table > 1 then
     Hashtbl.fold branch_table ~init:[] ~f:(fun ~key ~data acc ->
-        let (ite, pc') =
-          List.fold data ~init:(undef, f_e)
-            ~f:(fun (ite, new_pc) (v, pc', guard) ->
-              let new_pc' =
-                if Expr.equal f_e new_pc then Option.value_exn pc'
-                else or_aux new_pc pc'
-              in
+      let (ite, pc') =
+        List.fold data ~init:(undef, f_e)
+          ~f:(fun (ite, new_pc) (v, pc', guard) ->
+          let new_pc' =
+            if Expr.equal f_e new_pc then Option.value_exn pc'
+            else or_aux new_pc pc'
+          in
 
-              let ite' =
-                match guard with
-                | Some g -> if Expr.equal undef ite then v else mk_ite g v ite
-                | None -> v
-              in
-              (ite', new_pc') )
-        in
-        (clone heap, [ pc' ], Some ite) :: acc )
+          let ite' =
+            match guard with
+            | Some g -> if Expr.equal undef ite then v else mk_ite g v ite
+            | None -> v
+          in
+          (ite', new_pc') )
+      in
+      (clone heap, [ pc' ], Some ite) :: acc )
   else
     Hashtbl.fold branch_table ~init:[] ~f:(fun ~key ~data acc ->
-        let (ite, pc') =
-          List.fold data ~init:(undef, Some f_e)
-            ~f:(fun (ite, new_pc) (v, pc', guard) -> (v, pc') )
-        in
-        let pc' = match pc' with Some p -> [ p ] | None -> [] in
-        (heap, pc', Some ite) :: acc )
+      let (ite, pc') =
+        List.fold data ~init:(undef, Some f_e)
+          ~f:(fun (ite, new_pc) (v, pc', guard) -> (v, pc') )
+      in
+      let pc' = match pc' with Some p -> [ p ] | None -> [] in
+      (heap, pc', Some ite) :: acc )
 
 (* if List.length branch_list > 1 then
      List.map branch_list ~f:(fun (v, pc') ->
@@ -331,8 +331,8 @@ let delete_field_exec (heap : t) (loc : Loc.t) (field : Expr.t)
   | Some o ->
     let l = Object.delete o field solver pc store in
     List.map l ~f:(fun (o, pc') ->
-        set heap loc o;
-        (heap, pc') )
+      set heap loc o;
+      (heap, pc') )
 
 let rec delete_field_aux ?(encoded_guard = None) (heap : t) (loc : Expr.t)
   (field : Expr.t) (solver : Batch.t) (pc : encoded_pct list) (store : S_store.t)

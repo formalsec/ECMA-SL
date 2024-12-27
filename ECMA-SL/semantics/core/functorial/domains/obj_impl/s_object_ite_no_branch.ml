@@ -36,14 +36,14 @@ let clone (o : t) : t =
 let to_string (o : t) (printer : Expr.t -> string) : string =
   let str_obj =
     Hashtbl.fold o.concrete_fields ~init:"{ " ~f:(fun ~key:n ~data:v ac ->
-        (if String.(ac <> "{ ") then ac ^ ", " else ac)
-        ^ Printf.sprintf "\"%s\": %s" n (printer v) )
+      (if String.(ac <> "{ ") then ac ^ ", " else ac)
+      ^ Printf.sprintf "\"%s\": %s" n (printer v) )
     ^ "|||"
   in
   let str_obj =
     List.fold_left (Expr_Hashtbl.to_alist o.symbolic_fields)
       ~init:(str_obj ^ ", ") ~f:(fun acc (key, data) ->
-        acc ^ Printf.sprintf "\"$symb_%s\": %s, " (Expr.str key) (printer data) )
+      acc ^ Printf.sprintf "\"$symb_%s\": %s, " (Expr.str key) (printer data) )
   in
   str_obj ^ " }"
 
@@ -77,9 +77,9 @@ let mk_not e1 = Expr.UnOpt (Operator.Not, e1)
 let create_not_pct (l : (pct * Expr.t) list) (key : pct) (store : S_store.t) :
   encoded_pct list =
   List.fold l ~init:[] ~f:(fun acc (pc, _) ->
-      let ne = Expr.UnOpt (Operator.Not, mk_eq key pc) in
-      let expr = Reducer.reduce_expr store ne in
-      expr :: acc )
+    let ne = Expr.UnOpt (Operator.Not, mk_eq key pc) in
+    let expr = Reducer.reduce_expr store ne in
+    expr :: acc )
 
 let create_object (o : t) (k1 : pct) (k2 : pct) (store : S_store.t) :
   t * encoded_pct list =
@@ -93,10 +93,10 @@ let create_ite (lst : (pct * pct) list) (key : Expr.t) (pc : encoded_pct list)
   let true_e = Expr.Val (Val.Bool true) in
   let (ite, new_pc) =
     List.fold lst ~init:(undef, true_e) ~f:(fun (acc_val, acc_pc) (k, d) ->
-        let eq = Reducer.reduce_expr store (mk_eq key k) in
-        let acc_val = Reducer.reduce_expr store (mk_ite eq d acc_val) in
-        let p = if Expr.equal true_e acc_pc then eq else mk_or acc_pc eq in
-        (acc_val, p) )
+      let eq = Reducer.reduce_expr store (mk_eq key k) in
+      let acc_val = Reducer.reduce_expr store (mk_ite eq d acc_val) in
+      let p = if Expr.equal true_e acc_pc then eq else mk_or acc_pc eq in
+      (acc_val, p) )
   in
 
   let not_new = mk_not new_pc in
@@ -105,9 +105,9 @@ let create_ite (lst : (pct * pct) list) (key : Expr.t) (pc : encoded_pct list)
   else
     let (_, tv) = List.hd_exn lst in
     List.fold (List.tl_exn lst) ~init:tv ~f:(fun acc_val (k, d) ->
-        let eq = Reducer.reduce_expr store (mk_eq key k) in
-        let acc_val = Reducer.reduce_expr store (mk_ite eq d acc_val) in
-        acc_val )
+      let eq = Reducer.reduce_expr store (mk_eq key k) in
+      let acc_val = Reducer.reduce_expr store (mk_ite eq d acc_val) in
+      acc_val )
 
 let is_key_possible (k1 : Expr.t) (k2 : Expr.t) (solver : Batch.t)
   (pc : encoded_pct list) (store : S_store.t) : bool =
@@ -118,13 +118,13 @@ let is_key_possible (k1 : Expr.t) (k2 : Expr.t) (solver : Batch.t)
 let get_possible_fields_concrete (o : t) (key : Expr.t) (solver : Batch.t)
   (pc : encoded_pct list) (store : S_store.t) : (pct * pct) list =
   Hashtbl.fold o.concrete_fields ~init:[] ~f:(fun ~key:k ~data:d acc ->
-      let k' = Expr.Val (Val.Str k) in
-      if is_key_possible key k' solver pc store then (k', d) :: acc else acc )
+    let k' = Expr.Val (Val.Str k) in
+    if is_key_possible key k' solver pc store then (k', d) :: acc else acc )
 
 let get_possible_fields_symbolic (o : t) (key : Expr.t) (solver : Batch.t)
   (pc : encoded_pct list) (store : S_store.t) : (pct * pct) list =
   Expr_Hashtbl.fold o.symbolic_fields ~init:[] ~f:(fun ~key:k ~data:d acc ->
-      if is_key_possible key k solver pc store then (k, d) :: acc else acc )
+    if is_key_possible key k solver pc store then (k, d) :: acc else acc )
 
 let get_possible_fields (o : t) (key : Expr.t) (solver : Batch.t)
   (pc : encoded_pct list) (store : S_store.t) : (pct * pct) list =
@@ -147,16 +147,16 @@ let has_field (o : t) (k : Expr.t) : Expr.t =
       else
         Expr_Hashtbl.fold o.symbolic_fields ~init:(Val (Bool false))
           ~f:(fun ~key ~data accum ->
-            mk_ite (mk_eq k key) (Val (Bool true)) accum )
+          mk_ite (mk_eq k key) (Val (Bool true)) accum )
     | _ -> failwith "impossible"
   else
     let v0 =
       Expr_Hashtbl.fold o.symbolic_fields ~init:(Val (Bool false))
         ~f:(fun ~key ~data accum ->
-          mk_ite (mk_eq k key) (Val (Bool true)) accum )
+        mk_ite (mk_eq k key) (Val (Bool true)) accum )
     in
     Hashtbl.fold o.concrete_fields ~init:v0 ~f:(fun ~key ~data accum ->
-        mk_ite (mk_eq k (Val (Str key))) (Val (Bool true)) accum )
+      mk_ite (mk_eq k (Val (Str key))) (Val (Bool true)) accum )
 
 let set (o : t) (key : vt) (data : Expr.t) (solver : Batch.t)
   (pc : encoded_pct list) (store : S_store.t) : (t * encoded_pct list) list =
@@ -170,10 +170,10 @@ let set (o : t) (key : vt) (data : Expr.t) (solver : Batch.t)
       (* create an object for each possible equality *)
       let rets =
         List.map lst ~f:(fun (k, _) ->
-            let (o', pc') = create_object o key k store in
-            set_concrete_field o' key data;
-            Expr_Hashtbl.remove o'.symbolic_fields k;
-            (o', pc') )
+          let (o', pc') = create_object o key k store in
+          set_concrete_field o' key data;
+          Expr_Hashtbl.remove o'.symbolic_fields k;
+          (o', pc') )
       in
 
       (*
@@ -200,16 +200,16 @@ let set (o : t) (key : vt) (data : Expr.t) (solver : Batch.t)
       (* Two maps because set functions differ *)
       let rets =
         List.map concrete_conds ~f:(fun (concrete_key, _) ->
-            let (o', pc') = create_object o key concrete_key store in
-            set_concrete_field o' concrete_key data;
-            (o', pc') )
+          let (o', pc') = create_object o key concrete_key store in
+          set_concrete_field o' concrete_key data;
+          (o', pc') )
       in
       let rets =
         rets
         @ List.map symbolic_conds ~f:(fun (symbolic_key, _) ->
-              let (o', pc') = create_object o key symbolic_key store in
-              set_symbolic_field o' symbolic_key data;
-              (o', pc') )
+            let (o', pc') = create_object o key symbolic_key store in
+            set_symbolic_field o' symbolic_key data;
+            (o', pc') )
       in
 
       let new_pc = create_not_pct (concrete_conds @ symbolic_conds) key store in
@@ -255,9 +255,9 @@ let delete (o : t) (key : Expr.t) (solver : Batch.t) (pc : encoded_pct list)
       (* create an object for each possible equality *)
       let rets =
         List.map lst ~f:(fun (k, _) ->
-            let (o', pc') = create_object o key k store in
-            Expr_Hashtbl.remove o'.symbolic_fields k;
-            (o', pc') )
+          let (o', pc') = create_object o key k store in
+          Expr_Hashtbl.remove o'.symbolic_fields k;
+          (o', pc') )
       in
 
       (*
@@ -282,22 +282,22 @@ let delete (o : t) (key : Expr.t) (solver : Batch.t) (pc : encoded_pct list)
       (* Get objects for all possible symb equalities *)
       let rets =
         List.map symbolic_list ~f:(fun (k, _) ->
-            let (o', pc') = create_object o key k store in
-            Expr_Hashtbl.remove o'.symbolic_fields k;
-            (o', pc') )
+          let (o', pc') = create_object o key k store in
+          Expr_Hashtbl.remove o'.symbolic_fields k;
+          (o', pc') )
       in
       (* Get objects for all possible concrete equalities *)
       let rets =
         List.map concrete_list ~f:(fun (k, _) ->
-            let (o', pc') = create_object o key k store in
+          let (o', pc') = create_object o key k store in
 
-            let s =
-              match k with
-              | Expr.Val (Val.Str s) -> s
-              | _ -> failwith "Invalid key value."
-            in
-            Hashtbl.remove o'.concrete_fields s;
-            (o', pc') )
+          let s =
+            match k with
+            | Expr.Val (Val.Str s) -> s
+            | _ -> failwith "Invalid key value."
+          in
+          Hashtbl.remove o'.concrete_fields s;
+          (o', pc') )
         @ rets
       in
       (* Does not match any symbolic value, create new pct *)

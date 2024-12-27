@@ -56,7 +56,7 @@ let oc = Out_channel.open_text @@ Fpath.to_string results_
 
 let pp fmt =
   Fun.protect ~finally:Out_channel.flush_all (fun () ->
-      Fmt.kstr (Out_channel.output_string oc) fmt )
+    Fmt.kstr (Out_channel.output_string oc) fmt )
 
 let results =
   let* dataset in
