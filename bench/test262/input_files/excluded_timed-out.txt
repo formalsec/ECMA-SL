@@ -1,7 +1,0 @@
-bench/test262/es5_excluded/timed-out/language/literals/comments/S7.4_A6.js
-bench/test262/es5_excluded/timed-out/language/literals/comments/S7.4_A5.js
-bench/test262/es5_excluded/timed-out/language/literals/regexp/S7.8.5_A1.1_T2.js
-bench/test262/es5_excluded/timed-out/language/literals/regexp/S7.8.5_A1.4_T2.js
-bench/test262/es5_excluded/timed-out/language/literals/regexp/S7.8.5_A2.1_T2.js
-bench/test262/es5_excluded/timed-out/language/literals/regexp/S7.8.5_A2.4_T2.js
-bench/test262/es5_excluded/timed-out/built-ins/RegExp/character-class-escape-non-whitespace.js
