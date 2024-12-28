@@ -1,5 +1,4 @@
 function exec_wrapper(x) {
-  print x;
   return extern exec(x);
 }
 

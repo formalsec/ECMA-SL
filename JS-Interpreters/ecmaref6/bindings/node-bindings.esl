@@ -7,6 +7,7 @@ import "node_path.esl";
 import "node_process.esl";
 import "node_shelljs.esl";
 import "node_vm.esl";
+import "node_http.esl";
 
 function __NodeRequire(globalObject, this, newTarget, strict, params) {
   path := l_nth(params, 0);
@@ -38,6 +39,8 @@ function __NodeRequire(globalObject, this, newTarget, strict, params) {
       return createExecaObject(globalObject, objectPrototype, strict);
     case "vm":
       return createVMObject(globalObject, objectPrototype, strict);
+    case "http":
+      return createHttpObject(globalObject, objectPrototype, strict);
     default:
       return newLazyObject();
   }
