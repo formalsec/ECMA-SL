@@ -529,6 +529,11 @@ module Make () = struct
     let bool_symbol (x : value) =
       ok (Smtml.Expr.symbol (Smtml.Symbol.make Ty_bool (non_empty x)))
     in
+    let lift_symbols (x : value) =
+      match Smtml.Expr.view x with
+      | List symbols -> Choice.from_list @@ List.map Result.ok symbols
+      | _ -> assert false
+    in
     let is_symbolic (n : value) =
       ok_v (if Value.is_symbolic n then True else False)
     in
@@ -548,36 +553,22 @@ module Make () = struct
       match Smtml.Expr.view e with
       | Val _ -> ok @@ Value.mk_symbol "undefined"
       | _ ->
-        Choice.with_mutable_thread @@ fun thread ->
-        let open Smtml.Expr in
-        let q =
-          binop Ty_str String_contains e (value (Str "`touch success`"))
-        in
-        Logs.app (fun m -> m "       exec : %a@." pp e);
-        (Error (`Exec_failure e), Thread.add_pc thread q)
+        Logs.app (fun m -> m "       exec : %a@." Smtml.Expr.pp e);
+        Choice.return @@ Error (`Exec_failure e)
     in
     let eval (e : value) =
       match Smtml.Expr.view e with
       | Val _ -> ok @@ Value.mk_symbol "undefined"
       | _ ->
-        Choice.with_mutable_thread @@ fun thread ->
-        let open Smtml.Expr in
-        let q =
-          binop Ty_str String_contains e
-            (value (Str ";console.log('success')//"))
-        in
-        Logs.app (fun m -> m "       eval : %a@." pp e);
-        (Error (`Eval_failure e), Thread.add_pc thread q)
+        Logs.app (fun m -> m "       eval : %a@." Smtml.Expr.pp e);
+        Choice.return @@ Error (`Eval_failure e)
     in
     let read_file (e : value) =
       match Smtml.Expr.view e with
       | Val _ -> ok @@ Value.mk_symbol "undefined"
       | _ ->
-        Choice.with_mutable_thread @@ fun thread ->
-        let open Smtml.Expr in
-        let q = binop Ty_str String_contains e (value (Str "./exploited")) in
-        Logs.app (fun m -> m "   readFile : %a@." pp e);
-        (Error (`ReadFile_failure e), Thread.add_pc thread q)
+        Logs.app (fun m -> m "   readFile : %a@." Smtml.Expr.pp e);
+        Choice.return @@ Error (`ReadFile_failure e)
     in
 
     let abort (e : value) =
@@ -686,6 +677,7 @@ module Make () = struct
        ; ("int_symbol", Extern_func (Func (Arg Res), int_symbol))
        ; ("flt_symbol", Extern_func (Func (Arg Res), flt_symbol))
        ; ("bool_symbol", Extern_func (Func (Arg Res), bool_symbol))
+       ; ("lift_symbols", Extern_func (Func (Arg Res), lift_symbols))
        ; ("is_symbolic", Extern_func (Func (Arg Res), is_symbolic))
        ; ("is_number", Extern_func (Func (Arg Res), is_number))
        ; ("is_sat", Extern_func (Func (Arg Res), is_sat))
