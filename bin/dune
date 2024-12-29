@@ -23,6 +23,7 @@
   eio
   eio_main
   ecma-sl
+  fmt
   cmdliner
   yojson
   cohttp

@@ -3,7 +3,14 @@ open Cmdliner
 let set_copts (debug : Enums.DebugLvl.t) (colorless : bool) : unit =
   Ecma_sl.Font.Config.colored := not colorless;
   Ecma_sl.Log.Config.log_warns := debug >= Warn;
-  Ecma_sl.Log.Config.log_debugs := debug >= Full
+  Ecma_sl.Log.Config.log_debugs := debug >= Full;
+  begin
+    Logs.set_reporter @@ Logs_fmt.reporter ();
+    match debug with
+    | Enums.DebugLvl.Full -> Logs.set_level (Some Logs.Debug)
+    | Warn -> Logs.set_level (Some Logs.Warning)
+    | None -> ()
+  end
 
 let copts =
   let open Term in
