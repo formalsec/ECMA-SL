@@ -9,6 +9,7 @@ module type T = sig
   val hash : value -> int
   val compare : value -> value -> int
   val pp : Fmt.t -> value -> unit
+  val to_string : value -> string
   val mk_symbol : string -> value
   val mk_list : value list -> value
   val mk_tuple : value * value -> value
