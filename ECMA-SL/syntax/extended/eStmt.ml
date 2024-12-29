@@ -30,64 +30,68 @@ let default : unit -> t =
   let dlft = Skip @> none in
   fun () -> dlft
 
-let rec pp (ppf : Fmt.t) (s : t) : unit =
-  let pp_vs pp_v ppf es = Fmt.(pp_lst !>", " pp_v) ppf es in
-  let pp_indent pp_v ppf = Fmt.fmt ppf "@[<v 2>  %a@]" pp_v in
-  let pp_cont s = Fmt.dprintf (match s.it with Block _ -> " " | _ -> "@\n") in
+let rec pp (ppf : Format.formatter) (s : t) : unit =
+  let pp_vs pp_v ppf es = Fmt.(list ~sep:comma pp_v) ppf es in
+  let pp_indent pp_v ppf = Fmt.pf ppf "  @[<v>%a@]" pp_v in
+  let pp_cont s =
+    Format.dprintf (match s.it with Block _ -> " " | _ -> "@\n")
+  in
   let pp_nested ppf s =
     match s.it with
-    | Block _ -> Fmt.fmt ppf " %a" pp s
-    | _ -> Fmt.fmt ppf "@\n%a" (pp_indent pp) s
+    | Block _ -> Fmt.pf ppf " %a" pp s
+    | _ -> Fmt.pf ppf "@\n%a" (pp_indent pp) s
   in
   let pp_else_if ppf s2 =
     match s2.it with
-    | If _ -> Fmt.fmt ppf " %a" pp s2
-    | _ -> Fmt.fmt ppf "%a" pp_nested s2
+    | If _ -> Fmt.pf ppf " %a" pp s2
+    | _ -> Fmt.pf ppf "%a" pp_nested s2
   in
+  let newline ppf () = Fmt.pf ppf "@\n" in
   match s.it with
-  | Skip -> Fmt.pp_str ppf ";"
-  | Debug s' -> Fmt.fmt ppf "# %a" pp s'
-  | Block ss -> Fmt.fmt ppf "{@\n%a@\n}" (pp_indent Fmt.(pp_lst !>"@\n" pp)) ss
-  | ExprStmt e -> Fmt.fmt ppf "%a;" EExpr.pp e
-  | Print e -> Fmt.fmt ppf "print %a;" EExpr.pp e
+  | Skip -> Fmt.string ppf ";"
+  | Debug s' -> Fmt.pf ppf "# %a" pp s'
+  | Block ss ->
+    Fmt.pf ppf "{@\n%a@\n}" (pp_indent Fmt.(list ~sep:newline pp)) ss
+  | ExprStmt e -> Fmt.pf ppf "%a;" EExpr.pp e
+  | Print e -> Fmt.pf ppf "print %a;" EExpr.pp e
   | Return e ->
-    if EExpr.isvoid e then Fmt.pp_str ppf "return;"
-    else Fmt.fmt ppf "return %a;" EExpr.pp e
-  | Assert e -> Fmt.fmt ppf "assert %a;" EExpr.pp e
-  | Fail e -> Fmt.fmt ppf "fail %a;" EExpr.pp e
-  | Throw e -> Fmt.fmt ppf "throw %a;" EExpr.pp e
-  | MacroApply (mn, es) -> Fmt.fmt ppf "@%a(%a);" Id.pp mn (pp_vs EExpr.pp) es
+    if EExpr.isvoid e then Fmt.string ppf "return;"
+    else Fmt.pf ppf "return %a;" EExpr.pp e
+  | Assert e -> Fmt.pf ppf "assert %a;" EExpr.pp e
+  | Fail e -> Fmt.pf ppf "fail %a;" EExpr.pp e
+  | Throw e -> Fmt.pf ppf "throw %a;" EExpr.pp e
+  | MacroApply (mn, es) -> Fmt.pf ppf "@%a(%a);" Id.pp mn (pp_vs EExpr.pp) es
   | Assign (x, t, e) ->
-    Fmt.fmt ppf "%a%a := %a;" Id.pp x EType.tannot_pp t EExpr.pp e
-  | GAssign (x, e) -> Fmt.fmt ppf "|%a| := %a;" Id.pp x EExpr.pp e
+    Fmt.pf ppf "%a%a := %a;" Id.pp x EType.tannot_pp t EExpr.pp e
+  | GAssign (x, e) -> Fmt.pf ppf "|%a| := %a;" Id.pp x EExpr.pp e
   | FieldAssign (oe, fe, e) ->
-    Fmt.fmt ppf "%a%a := %a;" EExpr.pp oe EExpr.pp_lookup fe EExpr.pp e
+    Fmt.pf ppf "%a%a := %a;" EExpr.pp oe EExpr.pp_lookup fe EExpr.pp e
   | FieldDelete (oe, fe) ->
-    Fmt.fmt ppf "delete %a%a;" EExpr.pp oe EExpr.pp_lookup fe
+    Fmt.pf ppf "delete %a%a;" EExpr.pp oe EExpr.pp_lookup fe
   | If (e, s1, s2) ->
-    let pp_else ppf s2 = Fmt.fmt ppf "%telse%a" (pp_cont s1) pp_else_if s2 in
-    Fmt.fmt ppf "if (%a)%a%a" EExpr.pp e pp_nested s1 (Fmt.pp_opt pp_else) s2
-  | While (e, s') -> Fmt.fmt ppf "while (%a)%a" EExpr.pp e pp_nested s'
+    let pp_else ppf s2 = Fmt.pf ppf "%telse%a" (pp_cont s1) pp_else_if s2 in
+    Fmt.pf ppf "if (%a)%a%a" EExpr.pp e pp_nested s1 (Fmt.option pp_else) s2
+  | While (e, s') -> Fmt.pf ppf "while (%a)%a" EExpr.pp e pp_nested s'
   | ForEach (x, e, s') ->
-    Fmt.fmt ppf "foreach (%a : %a)%a" Id.pp x EExpr.pp e pp_nested s'
+    Fmt.pf ppf "foreach (%a : %a)%a" Id.pp x EExpr.pp e pp_nested s'
   | RepeatUntil (s', e) ->
-    let pp_until ppf e = Fmt.fmt ppf "%tuntil (%a);" (pp_cont s') EExpr.pp e in
-    Fmt.fmt ppf "repeat %a%a" pp_nested s' (Fmt.pp_opt pp_until) e
+    let pp_until ppf e = Fmt.pf ppf "%tuntil (%a);" (pp_cont s') EExpr.pp e in
+    Fmt.pf ppf "repeat %a%a" pp_nested s' (Fmt.option pp_until) e
   | Switch (e, css, dflt) ->
-    let pp_dflt_cs ppf s = Fmt.fmt ppf "default:%a" pp_nested s in
-    let pp_dflt ppf s = (Fmt.pp_opt pp_dflt_cs) ppf s in
-    let pp_cs ppf (v, s) = Fmt.fmt ppf "case %a:%a" EExpr.pp v pp_nested s in
-    let pp_css ppf css = Fmt.(pp_lst !>"@\n" pp_cs) ppf css in
-    let pp' ppf (css, dflt) = Fmt.fmt ppf "%a%a" pp_css css pp_dflt dflt in
-    Fmt.fmt ppf "switch (%a) {@\n%a@\n}" EExpr.pp e (pp_indent pp') (css, dflt)
+    let pp_dflt_cs ppf s = Fmt.pf ppf "default:%a" pp_nested s in
+    let pp_dflt ppf s = (Fmt.option pp_dflt_cs) ppf s in
+    let pp_cs ppf (v, s) = Fmt.pf ppf "case %a:%a" EExpr.pp v pp_nested s in
+    let pp_css ppf css = Fmt.(list ~sep:newline pp_cs) ppf css in
+    let pp' ppf (css, dflt) = Fmt.pf ppf "%a%a" pp_css css pp_dflt dflt in
+    Fmt.pf ppf "switch (%a) {@\n%a@\n}" EExpr.pp e (pp_indent pp') (css, dflt)
   | MatchWith (e, dsc, css) ->
-    let pp_dsc_v ppf dsc = Fmt.fmt ppf " : %a" Id.pp dsc in
-    let pp_dsc ppf dsc = Fmt.pp_opt pp_dsc_v ppf dsc in
-    let pp_cs ppf (pat, s) = Fmt.fmt ppf "| %a ->%a" EPat.pp pat pp_nested s in
-    let pp_css ppf css = Fmt.(pp_lst !>"@\n" pp_cs) ppf css in
-    Fmt.fmt ppf "match %a%a with@\n%a" EExpr.pp e pp_dsc dsc pp_css css
+    let pp_dsc_v ppf dsc = Fmt.pf ppf " : %a" Id.pp dsc in
+    let pp_dsc ppf dsc = Fmt.option pp_dsc_v ppf dsc in
+    let pp_cs ppf (pat, s) = Fmt.pf ppf "| %a ->%a" EPat.pp pat pp_nested s in
+    let pp_css ppf css = Fmt.(list ~sep:newline pp_cs) ppf css in
+    Fmt.pf ppf "match %a%a with@\n%a" EExpr.pp e pp_dsc dsc pp_css css
   | Lambda (x, _, pxs, ctxvars, s') ->
-    Fmt.fmt ppf "%a := lambda (%a) [%a] %a;" Id.pp x (pp_vs Id.pp) pxs
+    Fmt.pf ppf "%a := lambda (%a) [%a] %a;" Id.pp x (pp_vs Id.pp) pxs
       (pp_vs Id.pp) ctxvars pp s'
 
 let str (s : t) : string = Fmt.str "%a" pp s [@@inline]

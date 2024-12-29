@@ -84,12 +84,12 @@ let serialize_thread (workspace : Fpath.t) :
     | `Sat ->
       let model = Solver.model solver in
       let path =
-        Fmt.ksprintf
+        Fmt.kstr
           (add_seg (workspace / "test-suite"))
           (match witness with None -> "testcase-%d" | Some _ -> "witness-%d")
           (next_int ())
       in
-      let pp = Fmt.pp_opt pp_model in
+      let pp = Fmt.option pp_model in
       let pc = Smtml.Expr.Set.to_list @@ pc in
       Result.bos
       @@

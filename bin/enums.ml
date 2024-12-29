@@ -8,11 +8,11 @@ module DebugLvl = struct
 
   let all : t list = [ None; Warn; Full ]
 
-  let pp (ppf : Fmt.t) (lvl : t) : unit =
+  let pp (ppf : Format.formatter) (lvl : t) : unit =
     match lvl with
-    | None -> Fmt.pp_str ppf "none"
-    | Warn -> Fmt.pp_str ppf "warn"
-    | Full -> Fmt.pp_str ppf "full"
+    | None -> Fmt.string ppf "none"
+    | Warn -> Fmt.string ppf "warn"
+    | Full -> Fmt.string ppf "full"
 
   let str (lvl : t) : string = Fmt.str "%a" pp lvl
 
@@ -36,15 +36,15 @@ module Lang = struct
     | TestReport
     | TestSummary
 
-  let pp (ppf : Fmt.t) (lang : t) : unit =
+  let pp (ppf : Format.formatter) (lang : t) : unit =
     match lang with
-    | Auto -> Fmt.pp_str ppf "auto"
-    | JS -> Fmt.pp_str ppf ".js"
-    | ESL -> Fmt.pp_str ppf ".esl"
-    | CESL -> Fmt.pp_str ppf ".cesl"
-    | CESLUnattached -> Fmt.pp_str ppf ".cesl"
-    | TestReport -> Fmt.pp_str ppf ".trp"
-    | TestSummary -> Fmt.pp_str ppf ".tsmry"
+    | Auto -> Fmt.string ppf "auto"
+    | JS -> Fmt.string ppf ".js"
+    | ESL -> Fmt.string ppf ".esl"
+    | CESL -> Fmt.string ppf ".cesl"
+    | CESLUnattached -> Fmt.string ppf ".cesl"
+    | TestReport -> Fmt.string ppf ".trp"
+    | TestSummary -> Fmt.string ppf ".tsmry"
 
   let str (lang : t) : string = Fmt.str "%a" pp lang
 
@@ -77,8 +77,10 @@ module Lang = struct
   let resolve_file_lang ?(warn : bool = true) (langs : t list) (fpath : Fpath.t)
     : t option =
     let lang = resolve_file_ext langs fpath in
-    if Option.is_none lang && warn then
-      Log.warn "expecting file extensions: %a" Fmt.(pp_lst !>" | " pp) langs;
+    if Option.is_none lang && warn then begin
+      let sep ppf () = Fmt.string ppf " | " in
+      Log.warn "expecting file extensions: %a" Fmt.(list ~sep pp) langs
+    end;
     lang
 end
 
@@ -92,13 +94,13 @@ module InterpTracer = struct
 
   let all () : t list = [ None; Call; Step; Full; Core ]
 
-  let pp (ppf : Fmt.t) (tracer : t) : unit =
+  let pp (ppf : Format.formatter) (tracer : t) : unit =
     match tracer with
-    | None -> Fmt.pp_str ppf "none"
-    | Call -> Fmt.pp_str ppf "call"
-    | Step -> Fmt.pp_str ppf "step"
-    | Full -> Fmt.pp_str ppf "full"
-    | Core -> Fmt.pp_str ppf "core"
+    | None -> Fmt.string ppf "none"
+    | Call -> Fmt.string ppf "call"
+    | Step -> Fmt.string ppf "step"
+    | Full -> Fmt.string ppf "full"
+    | Core -> Fmt.string ppf "core"
 
   let str (tracer : t) : string = Fmt.str "%a" pp tracer
 
@@ -114,11 +116,11 @@ module InterpProfiler = struct
 
   let all () : t list = [ None; Time; Full ]
 
-  let pp (ppf : Fmt.t) (profiler : t) : unit =
+  let pp (ppf : Format.formatter) (profiler : t) : unit =
     match profiler with
-    | None -> Fmt.pp_str ppf "none"
-    | Time -> Fmt.pp_str ppf "time"
-    | Full -> Fmt.pp_str ppf "full"
+    | None -> Fmt.string ppf "none"
+    | Time -> Fmt.string ppf "time"
+    | Full -> Fmt.string ppf "full"
 
   let str (profiler : t) : string = Fmt.str "%a" pp profiler
 
@@ -136,13 +138,13 @@ module JSInterp = struct
 
   let all () : t list = [ Main; Latest; ECMARef5; ECMARef6 ]
 
-  let pp (ppf : Fmt.t) (version : t) : unit =
+  let pp (ppf : Format.formatter) (version : t) : unit =
     match version with
-    | Main -> Fmt.pp_str ppf "main"
-    | Latest -> Fmt.pp_str ppf "latest"
-    | ECMARef5 -> Fmt.pp_str ppf "ecmaref5"
-    | ECMARef6 -> Fmt.pp_str ppf "ecmaref6"
-    | ECMARef6Sym -> Fmt.pp_str ppf "ecmaref6-sym"
+    | Main -> Fmt.string ppf "main"
+    | Latest -> Fmt.string ppf "latest"
+    | ECMARef5 -> Fmt.string ppf "ecmaref5"
+    | ECMARef6 -> Fmt.string ppf "ecmaref6"
+    | ECMARef6Sym -> Fmt.string ppf "ecmaref6-sym"
 
   let str (version : t) : string = Fmt.str "%a" pp version
 
@@ -166,11 +168,11 @@ module JSTest = struct
 
   let all () : t list = [ Auto; Simple; Test262 ]
 
-  let pp (ppf : Fmt.t) (kind : t) : unit =
+  let pp (ppf : Format.formatter) (kind : t) : unit =
     match kind with
-    | Auto -> Fmt.pp_str ppf "auto"
-    | Simple -> Fmt.pp_str ppf "simple"
-    | Test262 -> Fmt.pp_str ppf "test262"
+    | Auto -> Fmt.string ppf "auto"
+    | Simple -> Fmt.string ppf "simple"
+    | Test262 -> Fmt.string ppf "test262"
 
   let str (kind : t) : string = Fmt.str "%a" pp kind
 

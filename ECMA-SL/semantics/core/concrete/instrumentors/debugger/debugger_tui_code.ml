@@ -59,7 +59,7 @@ let codeblock (nlines : int) (at : Source.at) : (int * string) list * int =
 
 let render_codeline (win : Win.t) (lineno_sz : int) (i : int)
   ((lineno, line, color) : int * string * Color.t) : unit =
-  let lineno' = Fmt.sprintf "%*d |" (15 + lineno_sz) lineno in
+  let lineno' = Fmt.str "%*d |" (15 + lineno_sz) lineno in
   let line' = Str.(global_replace (regexp "\t") "  " line) in
   let (line'', trunc) = String.truncate (win.xz - 19 - lineno_sz) line' in
   wattr_set win.w WA.normal color;
@@ -80,7 +80,7 @@ let render_loc_data (win : Win.t) (at : Source.at) : unit =
   let lineno_sz = String.length (string_of_int at.lpos.line) in
   let (file', trunc) = String.truncate (win.xz - 19 - lineno_sz) at.file in
   let file'' = if trunc then file' ^ "..." else file' in
-  let loc = Fmt.sprintf "File %S, line %d" file'' at.lpos.line in
+  let loc = Fmt.str "File %S, line %d" file'' at.lpos.line in
   !!(mvwaddstr win.w (win.yz - 1) 1 loc)
 
 let render_loc (win : Win.t) (colors : colors) (at : Source.at) : unit =

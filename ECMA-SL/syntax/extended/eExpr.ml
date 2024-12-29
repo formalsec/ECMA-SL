@@ -1,4 +1,3 @@
-open EslBase
 open Source
 
 type t = t' Source.t
@@ -23,34 +22,34 @@ let default : unit -> t =
 
 let isvoid (e : t) : bool = match e.it with Val Unit -> true | _ -> false
 
-let pp_lookup (ppf : Fmt.t) (fe : t) : unit =
+let pp_lookup (ppf : Format.formatter) (fe : t) : unit =
   match fe.it with
-  | Val (Str fn) -> Fmt.fmt ppf ".%s" fn
-  | _ -> Fmt.fmt ppf "[%a]" pp fe
+  | Val (Str fn) -> Fmt.pf ppf ".%s" fn
+  | _ -> (Fmt.brackets pp) ppf fe
 
-let rec pp (ppf : Fmt.t) (e : t) : unit =
-  let pp_vs pp_v ppf vs = Fmt.(pp_lst !>", " pp_v) ppf vs in
-  let pp_catch' ppf feh = Fmt.fmt ppf " catch %a" Id.pp feh in
-  let pp_catch ppf feh = Fmt.pp_opt pp_catch' ppf feh in
+let rec pp (ppf : Format.formatter) (e : t) : unit =
+  let pp_vs pp_v ppf vs = Fmt.(list ~sep:comma pp_v) ppf vs in
+  let pp_catch' ppf feh = Fmt.pf ppf " catch %a" Id.pp feh in
+  let pp_catch ppf feh = Fmt.option pp_catch' ppf feh in
   match e.it with
   | Val v -> Value.pp ppf v
-  | Var x -> Fmt.pp_str ppf x
-  | GVar x -> Fmt.fmt ppf "|%s|" x
+  | Var x -> Fmt.string ppf x
+  | GVar x -> Fmt.pf ppf "|%s|" x
   | UnOpt (op, e') -> Operator.unopt_pp ~pp_v:pp ppf (op, e')
   | BinOpt (op, e1, e2) -> Operator.binopt_pp ~pp_v:pp ppf (op, e1, e2)
   | TriOpt (op, e1, e2, e3) -> Operator.triopt_pp ~pp_v:pp ppf (op, e1, e2, e3)
   | NOpt (op, es) -> Operator.nopt_pp ~pp_v:pp ppf (op, es)
   | Call (fe, es, feh) -> (
     match fe.it with
-    | Val (Str fn) -> Fmt.fmt ppf "%s(%a)%a" fn (pp_vs pp) es pp_catch feh
-    | _ -> Fmt.fmt ppf "{%a}(%a)%a" pp fe (pp_vs pp) es pp_catch feh )
-  | ECall (fn, es) -> Fmt.fmt ppf "extern %a(%a)" Id.pp fn (pp_vs pp) es
+    | Val (Str fn) -> Fmt.pf ppf "@[<h>%s(%a)%a@]" fn (pp_vs pp) es pp_catch feh
+    | _ -> Fmt.pf ppf "@[<h>{%a}(%a)%a@]" pp fe (pp_vs pp) es pp_catch feh )
+  | ECall (fn, es) -> Fmt.pf ppf "@[<h>extern %a(%a)@]" Id.pp fn (pp_vs pp) es
   | NewObj flds ->
-    let pp_fld ppf (fn, fe) = Fmt.fmt ppf "%a: %a" Id.pp fn pp fe in
-    if List.length flds == 0 then Fmt.pp_str ppf "{}"
-    else Fmt.fmt ppf "{ %a }" (pp_vs pp_fld) flds
-  | Lookup (oe, fe) -> Fmt.fmt ppf "%a%a" pp oe pp_lookup fe
-  | Curry (fe, es) -> Fmt.fmt ppf "{%a}@(%a)" pp fe (pp_vs pp) es
+    let pp_fld ppf (fn, fe) = Fmt.pf ppf "%a: %a" Id.pp fn pp fe in
+    if List.length flds == 0 then Fmt.string ppf "{}"
+    else Fmt.pf ppf "{ %a }" (pp_vs pp_fld) flds
+  | Lookup (oe, fe) -> Fmt.pf ppf "%a%a" pp oe pp_lookup fe
+  | Curry (fe, es) -> Fmt.pf ppf "@[<h>{%a}@(%a)@]" pp fe (pp_vs pp) es
 
 let str (e : t) : string = Fmt.str "%a" pp e [@@inline]
 

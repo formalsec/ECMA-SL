@@ -1,4 +1,3 @@
-open EslBase
 open EslSyntax
 
 module type P = sig
@@ -53,7 +52,7 @@ module type P = sig
     val set_field : t -> Loc.t -> field:value -> data:value -> unit
     val get_field : t -> Loc.t -> value -> value option Choice.t
     val delete_field : t -> Loc.t -> value -> unit
-    val pp : Fmt.formatter -> t -> unit
+    val pp : t Fmt.t
     val to_string : t -> string
     val loc : value -> Loc.t Choice.t
     val pp_val : t -> value -> string

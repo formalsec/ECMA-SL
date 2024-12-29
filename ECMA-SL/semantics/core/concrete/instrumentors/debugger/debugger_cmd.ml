@@ -17,7 +17,9 @@ module Message = struct
 end
 
 module InterpreterCallbacks = struct
-  type heapval_pp = (Loc.t, unit) Hashtbl.t -> heap -> Fmt.t -> Value.t -> unit
+  type heapval_pp =
+    (Loc.t, unit) Hashtbl.t -> heap -> Format.formatter -> Value.t -> unit
+
   type eval_expr = state -> Expr.t -> Value.t
 
   type t =
@@ -41,7 +43,7 @@ type t =
   | Continue
   | Exit
 
-let heapval_pp (heap : heap) : Fmt.t -> Value.t -> unit =
+let heapval_pp (heap : heap) : Value.t Fmt.t =
   let visited = Hashtbl.create !Base.default_hashtbl_sz in
   !InterpreterCallbacks.heapval_pp visited heap
 
@@ -60,9 +62,9 @@ let locals_cmd (state : state) : string =
   let (store, heap, _) = state in
   let local_f ppf (x, v) =
     if not (String.starts_with ~prefix:"__" x) then
-      Fmt.fmt ppf "%s: %a\n" x (heapval_pp heap) v
+      Fmt.pf ppf "%s: %a\n" x (heapval_pp heap) v
   in
-  Fmt.(asprintf "%a" (pp_hashtbl !>"" local_f) store)
+  Fmt.(str "%a" (hashtbl local_f) store)
 
 let step_cmd (step_args : string list) : t =
   match step_args with

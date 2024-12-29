@@ -51,41 +51,40 @@ module CompileErr : Error_type.ERROR_TYPE with type t = msg = struct
     | (UnexpectedSigmaCase, UnexpectedSigmaCase) -> true
     | _ -> false
 
-  let pp (ppf : Fmt.t) (msg : t) : unit =
-    let open Fmt in
+  let pp (ppf : Format.formatter) (msg : t) : unit =
     match msg with
-    | Default -> fmt ppf "Generic compilation error."
-    | Custom msg' -> fmt ppf "%s" msg'
+    | Default -> Fmt.pf ppf "Generic compilation error."
+    | Custom msg' -> Fmt.pf ppf "%s" msg'
     | UnknownDependency file ->
-      fmt ppf "Cannot find dependency '%a'." Id.pp file
+      Fmt.pf ppf "Cannot find dependency '%a'." Id.pp file
     | CyclicDependency file ->
-      fmt ppf "Cyclic dependency of file '%a'." Id.pp file
+      Fmt.pf ppf "Cyclic dependency of file '%a'." Id.pp file
     | DuplicatedField fn ->
-      fmt ppf "Duplicated field name '%a' for object literal." Id.pp fn
+      Fmt.pf ppf "Duplicated field name '%a' for object literal." Id.pp fn
     | DuplicatedParam px ->
-      fmt ppf "Duplicated parameter '%a' for function definition." Id.pp px
+      Fmt.pf ppf "Duplicated parameter '%a' for function definition." Id.pp px
     | DuplicatedTDef tn ->
-      fmt ppf "Duplicated definition for typedef '%a'." Id.pp tn
+      Fmt.pf ppf "Duplicated definition for typedef '%a'." Id.pp tn
     | DuplicatedFunc fn ->
-      fmt ppf "Duplicated definition for function '%a'." Id.pp fn
+      Fmt.pf ppf "Duplicated definition for function '%a'." Id.pp fn
     | DuplicatedMacro mn ->
-      fmt ppf "Duplicated definition for macro '%a'." Id.pp mn
-    | UnknownMacro mn -> fmt ppf "Cannot find macro '%a'." Id.pp mn
+      Fmt.pf ppf "Duplicated definition for macro '%a'." Id.pp mn
+    | UnknownMacro mn -> Fmt.pf ppf "Cannot find macro '%a'." Id.pp mn
     | BadNArgs (npxs, nargs) ->
-      fmt ppf "Expected %d arguments, but got %d." npxs nargs
+      Fmt.pf ppf "Expected %d arguments, but got %d." npxs nargs
     | DuplicatedSwitchCase v ->
-      fmt ppf "Duplicated case value '%a' for switch statement." Value.pp v
+      Fmt.pf ppf "Duplicated case value '%a' for switch statement." Value.pp v
     | DuplicatedTField fn ->
-      fmt ppf "Duplicated field name '%a' for object type." Id.pp fn
+      Fmt.pf ppf "Duplicated field name '%a' for object type." Id.pp fn
     | DuplicatedSigmaDiscriminant lt ->
-      fmt ppf "Duplicated discriminant '%a' for multiple sigma cases." EType.pp
-        lt
+      Fmt.pf ppf "Duplicated discriminant '%a' for multiple sigma cases."
+        EType.pp lt
     | MissingSigmaDiscriminant dsc ->
-      fmt ppf "Missing discriminant '%a' from sigma case." Id.pp dsc
+      Fmt.pf ppf "Missing discriminant '%a' from sigma case." Id.pp dsc
     | UnexpectedSigmaDiscriminant ->
-      fmt ppf "Expecting literal type for sigma case discriminant."
+      Fmt.pf ppf "Expecting literal type for sigma case discriminant."
     | UnexpectedSigmaCase ->
-      fmt ppf "Expecting union of object types for sigma type."
+      Fmt.pf ppf "Expecting union of object types for sigma type."
 
   let str (msg : t) : string = Fmt.str "%a" pp msg
 end
@@ -107,9 +106,9 @@ let push (msg : msg) (err : t) : t = { err with msgs = msg :: err.msgs }
 let src (err : t) : ErrSrc.t = err.src
 let set_src (src : ErrSrc.t) (err : t) : t = { err with src }
 
-let pp (ppf : Fmt.t) (err : t) : unit =
+let pp (ppf : Format.formatter) (err : t) : unit =
   let module MsgFmt = Error_type.ErrorTypeFmt (CompileErr) in
   let module ErrSrcFmt = ErrSrc.ErrSrcFmt (CompileErr) in
-  Fmt.fmt ppf "%a%a" MsgFmt.pp err.msgs ErrSrcFmt.pp err.src
+  Fmt.pf ppf "%a%a" MsgFmt.pp err.msgs ErrSrcFmt.pp err.src
 
 let str (err : t) = Fmt.str "%a" pp err

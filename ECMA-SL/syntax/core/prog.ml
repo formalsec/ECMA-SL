@@ -15,8 +15,9 @@ let func (p : t) (fn : Id.t') : Func.t option = Hashtbl.find_opt p fn [@@inline]
 let add_func (p : t) (fn : Id.t') (f : Func.t) : unit = Hashtbl.replace p fn f
 [@@inline]
 
-let pp (ppf : Fmt.t) (p : t) : unit =
+let pp (ppf : Format.formatter) (p : t) : unit =
   let pp_func ppf (_, f) = Func.pp ppf f in
-  Fmt.(pp_hashtbl !>";@\n" pp_func) ppf p
+  let sep ppf () = Fmt.pf ppf ";@\n" in
+  Fmt.(hashtbl ~sep pp_func) ppf p
 
 let str (p : t) : string = Fmt.str "%a" pp p [@@inline]

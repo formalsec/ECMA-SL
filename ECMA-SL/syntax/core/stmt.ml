@@ -1,4 +1,3 @@
-open EslBase
 open Source
 
 type t = t' Source.t
@@ -30,55 +29,58 @@ let default : unit -> t =
   let dlft = Skip @> none in
   fun () -> dlft
 
-let rec pp (ppf : Fmt.t) (s : t) : unit =
-  let pp_vs pp_v ppf es = Fmt.(pp_lst !>", " pp_v) ppf es in
-  let pp_indent pp_v ppf = Fmt.fmt ppf "@\n@[<v 2>  %a@]@\n" pp_v in
+let rec pp (ppf : Format.formatter) (s : t) : unit =
+  let pp_vs pp_v ppf es = Fmt.(list ~sep:comma pp_v) ppf es in
+  let pp_indent pp_v ppf = Fmt.pf ppf "@\n  @[<v>%a@]@\n" pp_v in
+  let newline ppf () = Fmt.pf ppf "@\n" in
   match s.it with
   | Skip -> ()
   | Merge -> ()
-  | Debug s' -> Fmt.fmt ppf "# %a" pp s'
-  | Block ss -> Fmt.fmt ppf "{%a}" (pp_indent Fmt.(pp_lst !>";@\n" pp)) ss
-  | Print e -> Fmt.fmt ppf "print %a" Expr.pp e
+  | Debug s' -> Fmt.pf ppf "# %a" pp s'
+  | Block ss ->
+    Fmt.pf ppf "{%a}"
+      (pp_indent Fmt.(list ~sep:(fun fmt () -> Fmt.pf fmt ";@;") pp))
+      ss
+  | Print e -> Fmt.pf ppf "print %a" Expr.pp e
   | Return e ->
-    if Expr.isvoid e then Fmt.pp_str ppf "return"
-    else Fmt.fmt ppf "return %a" Expr.pp e
-  | Fail e -> Fmt.fmt ppf "fail %a" Expr.pp e
-  | Assert e -> Fmt.fmt ppf "assert %a" Expr.pp e
-  | Assign (x, e) -> Fmt.fmt ppf "%a := %a" Id.pp x Expr.pp e
+    if Expr.isvoid e then Fmt.string ppf "return"
+    else Fmt.pf ppf "return %a" Expr.pp e
+  | Fail e -> Fmt.pf ppf "fail %a" Expr.pp e
+  | Assert e -> Fmt.pf ppf "assert %a" Expr.pp e
+  | Assign (x, e) -> Fmt.pf ppf "%a := %a" Id.pp x Expr.pp e
   | AssignCall (x, fe, es) ->
-    Fmt.fmt ppf "%a := %a(%a)" Id.pp x Expr.pp fe (pp_vs Expr.pp) es
+    Fmt.pf ppf "@[<h>%a := %a(%a)@]" Id.pp x Expr.pp fe (pp_vs Expr.pp) es
   | AssignECall (x, fn, es) ->
-    Fmt.fmt ppf "%a := extern %a(%a)" Id.pp x Id.pp fn (pp_vs Expr.pp) es
-  | AssignNewObj x -> Fmt.fmt ppf "%a := {}" Id.pp x
+    Fmt.pf ppf "@[<h>%a := extern %a(%a)@]" Id.pp x Id.pp fn (pp_vs Expr.pp) es
+  | AssignNewObj x -> Fmt.pf ppf "%a := {}" Id.pp x
   | AssignObjToList (x, e) ->
-    Fmt.fmt ppf "%a := obj_to_list %a" Id.pp x Expr.pp e
-  | AssignObjFields (x, e) ->
-    Fmt.fmt ppf "%a := obj_fields %a" Id.pp x Expr.pp e
+    Fmt.pf ppf "%a := obj_to_list %a" Id.pp x Expr.pp e
+  | AssignObjFields (x, e) -> Fmt.pf ppf "%a := obj_fields %a" Id.pp x Expr.pp e
   | AssignInObjCheck (x, e1, e2) ->
-    Fmt.fmt ppf "%a := %a in_obj %a" Id.pp x Expr.pp e1 Expr.pp e2
+    Fmt.pf ppf "%a := %a in_obj %a" Id.pp x Expr.pp e1 Expr.pp e2
   | FieldLookup (x, oe, fe) ->
-    Fmt.fmt ppf "%a := %a[%a]" Id.pp x Expr.pp oe Expr.pp fe
+    Fmt.pf ppf "%a := %a[%a]" Id.pp x Expr.pp oe Expr.pp fe
   | FieldAssign (oe, fe, e) ->
-    Fmt.fmt ppf "%a[%a] := %a" Expr.pp oe Expr.pp fe Expr.pp e
-  | FieldDelete (oe, fe) -> Fmt.fmt ppf "delete %a[%a]" Expr.pp oe Expr.pp fe
+    Fmt.pf ppf "%a[%a] := %a" Expr.pp oe Expr.pp fe Expr.pp e
+  | FieldDelete (oe, fe) -> Fmt.pf ppf "delete %a[%a]" Expr.pp oe Expr.pp fe
   | If (e, s1, s2) ->
-    let pp_else ppf s = Fmt.fmt ppf " else %a" pp s in
-    Fmt.fmt ppf "if (%a) %a%a" Expr.pp e pp s1 (Fmt.pp_opt pp_else) s2
-  | While (e, s) -> Fmt.fmt ppf "while (%a) %a" Expr.pp e pp s
+    let pp_else ppf s = Fmt.pf ppf " else %a" pp s in
+    Fmt.pf ppf "if (%a) %a%a" Expr.pp e pp s1 (Fmt.option pp_else) s2
+  | While (e, s) -> Fmt.pf ppf "while (%a) %a" Expr.pp e pp s
   | Switch (e, css, dflt) ->
-    let pp_dflt_cs ppf s = Fmt.fmt ppf "@\ndefault: %a" pp s in
-    let pp_dflt ppf s = (Fmt.pp_opt pp_dflt_cs) ppf s in
-    let pp_cs ppf (v, s) = Fmt.fmt ppf "case %a: %a" Value.pp v pp s in
-    let pp_css ppf css = Fmt.(pp_hashtbl !>"@\n" pp_cs) ppf css in
-    let pp ppf (css, dflt) = Fmt.fmt ppf "%a%a" pp_css css pp_dflt dflt in
-    Fmt.fmt ppf "switch (%a) {%a}" Expr.pp e (pp_indent pp) (css, dflt)
+    let pp_dflt_cs ppf s = Fmt.pf ppf "@\ndefault: %a" pp s in
+    let pp_dflt ppf s = (Fmt.option pp_dflt_cs) ppf s in
+    let pp_cs ppf (v, s) = Fmt.pf ppf "case %a: %a" Value.pp v pp s in
+    let pp_css ppf css = Fmt.(hashtbl ~sep:newline pp_cs) ppf css in
+    let pp ppf (css, dflt) = Fmt.pf ppf "%a%a" pp_css css pp_dflt dflt in
+    Fmt.pf ppf "switch (%a) {%a}" Expr.pp e (pp_indent pp) (css, dflt)
 
-let pp_simple (ppf : Fmt.t) (s : t) : unit =
+let pp_simple (ppf : Format.formatter) (s : t) : unit =
   match s.it with
-  | Block _ -> Fmt.fmt ppf "{ ... }"
-  | If (e, _, _) -> Fmt.fmt ppf "if (%a) { ..." Expr.pp e
-  | While (e, _) -> Fmt.fmt ppf "while (%a) { ..." Expr.pp e
-  | Switch (e, _, _) -> Fmt.fmt ppf "switch (%a) { ..." Expr.pp e
+  | Block _ -> Fmt.pf ppf "{ ... }"
+  | If (e, _, _) -> Fmt.pf ppf "if (%a) { ..." Expr.pp e
+  | While (e, _) -> Fmt.pf ppf "while (%a) { ..." Expr.pp e
+  | Switch (e, _, _) -> Fmt.pf ppf "switch (%a) { ..." Expr.pp e
   | _ -> pp ppf s
 
 let str (s : t) : string = Fmt.str "%a" pp s [@@inline]

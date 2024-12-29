@@ -23,10 +23,10 @@ let at ((startpos, endpos) : Lexing.position * Lexing.position) : Source.at =
   ; real = true
   }
 
-let print_position (outx : Fmt.t) (lexbuf : Lexing.lexbuf) : unit =
+let print_position (outx : Format.formatter) (lexbuf : Lexing.lexbuf) : unit =
   let pos = lexbuf.lex_curr_p in
   Log.stdout "Line number: %d. File: %s@." pos.pos_lnum pos.pos_fname;
-  Fmt.fmt outx "%s:%d:%d" pos.pos_fname pos.pos_lnum
+  Fmt.pf outx "%s:%d:%d" pos.pos_fname pos.pos_lnum
     (pos.pos_cnum - pos.pos_bol + 1)
 
 let parse_loc =

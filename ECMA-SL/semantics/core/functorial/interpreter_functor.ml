@@ -1,4 +1,3 @@
-open EslBase
 open EslSyntax
 
 module Make (P : Interpreter_functor_intf.P) :
@@ -123,7 +122,7 @@ module Make (P : Interpreter_functor_intf.P) :
     let ok st = Choice.return @@ State.Continue st in
     let error err = Choice.return @@ State.Return (Error err) in
     let* m = Env.get_memory env in
-    Logs.debug (fun k -> k "@[<hov 1>      scope :@ %a@]" Fmt.pp_str func);
+    Logs.debug (fun k -> k "@[<hov 1>      scope :@ %a@]" Fmt.string func);
     (* Logs.debug (fun k -> *)
     (*   k "@[<hov 1>      store :@ %a@]" Value.Store.pp locals ); *)
     Logs.debug (fun k -> k "@[<hov 1>running stmt:@ %a@]" Stmt.pp_simple stmt);
@@ -136,7 +135,7 @@ module Make (P : Interpreter_functor_intf.P) :
     | Fail e ->
       let e' = pp locals m e in
       Logs.app (fun k -> k "       fail : %s" e');
-      error (`Failure (Fmt.sprintf "%s" e'))
+      error (`Failure e')
     | Print e ->
       Logs.app (fun k -> k "%s" (pp locals m e));
       ok state
@@ -170,17 +169,17 @@ module Make (P : Interpreter_functor_intf.P) :
       Choice.return @@ State.return state ~value:(eval_expr locals e)
     | AssignCall (x, f, es) -> (
       match Value.func (eval_expr locals f) with
-      | Error msg -> error (`Failure (Fmt.sprintf "%s" msg))
+      | Error msg -> error (`Failure msg)
       | Ok (func_name, args0) -> (
         match Env.get_func env func_name with
-        | Error msg -> error (`Failure (Fmt.sprintf "%s" msg))
+        | Error msg -> error (`Failure msg)
         | Ok func ->
           let args = List.map (eval_expr locals) es in
           let args = args0 @ args in
           exec_func state func args x.it ) )
     | AssignECall (x, f, es) -> (
       match Env.get_extern_func env f.it with
-      | Error msg -> error (`Failure (Fmt.sprintf "%s" msg))
+      | Error msg -> error (`Failure msg)
       | Ok func ->
         let args = List.map (eval_expr locals) es in
         exec_extern_func state func args x.it )

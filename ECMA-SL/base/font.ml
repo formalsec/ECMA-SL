@@ -2,10 +2,10 @@ module Config = struct
   let colored = ref true
 end
 
-let colored (fdesc : Unix.file_descr option) (ppf : Fmt.t) : bool =
+let colored (fdesc : Unix.file_descr option) (ppf : Format.formatter) : bool =
   !Config.colored
   && Option.fold ~none:true ~some:Terminal.colored fdesc
-  && (ppf == Fmt.std_formatter || ppf == Fmt.err_formatter)
+  && (ppf == Fmt.stdout || ppf == Fmt.stderr)
 
 type font_v =
   | Normal
@@ -29,44 +29,47 @@ type font_v =
 
 type t = font_v list
 
-let pp_font_v (ppf : Fmt.t) (font_v : font_v) : unit =
+let pp_font_v : font_v Fmt.t =
+ fun ppf font_v ->
   match font_v with
-  | Normal -> Fmt.pp_str ppf "0"
-  | Bold -> Fmt.pp_str ppf "1"
-  | Faint -> Fmt.pp_str ppf "2"
-  | Italic -> Fmt.pp_str ppf "3"
-  | Underline -> Fmt.pp_str ppf "4"
-  | Blink -> Fmt.pp_str ppf "5"
-  | Blinkfast -> Fmt.pp_str ppf "6"
-  | Negative -> Fmt.pp_str ppf "7"
-  | Conceal -> Fmt.pp_str ppf "8"
-  | Strike -> Fmt.pp_str ppf "9"
-  | Black -> Fmt.pp_str ppf "30"
-  | Red -> Fmt.pp_str ppf "31"
-  | Green -> Fmt.pp_str ppf "32"
-  | Yellow -> Fmt.pp_str ppf "33"
-  | Blue -> Fmt.pp_str ppf "34"
-  | Purple -> Fmt.pp_str ppf "35"
-  | Cyan -> Fmt.pp_str ppf "36"
-  | White -> Fmt.pp_str ppf "37"
+  | Normal -> Fmt.string ppf "0"
+  | Bold -> Fmt.string ppf "1"
+  | Faint -> Fmt.string ppf "2"
+  | Italic -> Fmt.string ppf "3"
+  | Underline -> Fmt.string ppf "4"
+  | Blink -> Fmt.string ppf "5"
+  | Blinkfast -> Fmt.string ppf "6"
+  | Negative -> Fmt.string ppf "7"
+  | Conceal -> Fmt.string ppf "8"
+  | Strike -> Fmt.string ppf "9"
+  | Black -> Fmt.string ppf "30"
+  | Red -> Fmt.string ppf "31"
+  | Green -> Fmt.string ppf "32"
+  | Yellow -> Fmt.string ppf "33"
+  | Blue -> Fmt.string ppf "34"
+  | Purple -> Fmt.string ppf "35"
+  | Cyan -> Fmt.string ppf "36"
+  | White -> Fmt.string ppf "37"
 
-let pp_font (ppf : Fmt.t) (font : t) : unit =
-  Fmt.fmt ppf "\027[%am" Fmt.(pp_lst !>";" pp_font_v) font
+let pp_font : t Fmt.t =
+ fun ppf ->
+  Fmt.pf ppf "\027[%am"
+    (Fmt.list ~sep:(fun fmt () -> Fmt.string fmt ", ") pp_font_v)
 
-let pp ?(fdesc : Unix.file_descr option = None) (font : t)
-  (pp_v : Fmt.t -> 'a -> unit) (ppf : Fmt.t) (v : 'a) : unit =
+let pp ?(fdesc : Unix.file_descr option = None) (font : t) (pp_v : 'a Fmt.t)
+  (ppf : Format.formatter) (v : 'a) : unit =
   if not (colored fdesc ppf) then pp_v ppf v
-  else Fmt.fmt ppf "%a%a%a" pp_font font pp_v v pp_font [ Normal ]
+  else Fmt.pf ppf "%a%a%a" pp_font font pp_v v pp_font [ Normal ]
 
-let str ?(fdesc : Unix.file_descr option = None) (font : t)
-  (pp_v : Fmt.t -> 'a -> unit) (v : 'a) : string =
+let str ?(fdesc : Unix.file_descr option = None) (font : t) (pp_v : 'a Fmt.t)
+  (v : 'a) : string =
   Fmt.str "%a" (pp ~fdesc font pp_v) v
 
 let pp_out font pp_v ppf v = pp ~fdesc:(Some Unix.stdout) font pp_v ppf v
 let pp_err font pp_v ppf v = pp ~fdesc:(Some Unix.stderr) font pp_v ppf v
 let str_out font pp_v v = str ~fdesc:(Some Unix.stdout) font pp_v v
 let str_err font pp_v v = str ~fdesc:(Some Unix.stderr) font pp_v v
-let pp_text_out font ppf s = pp ~fdesc:(Some Unix.stdout) font Fmt.pp_str ppf s
-let pp_text_err font ppf s = pp ~fdesc:(Some Unix.stderr) font Fmt.pp_str ppf s
-let str_text_out font s = str ~fdesc:(Some Unix.stdout) font Fmt.pp_str s
-let str_text_err font s = str ~fdesc:(Some Unix.stderr) font Fmt.pp_str s
+let pp_text_out font ppf s = pp ~fdesc:(Some Unix.stdout) font Fmt.string ppf s
+let pp_text_err font ppf s = pp ~fdesc:(Some Unix.stderr) font Fmt.string ppf s
+let str_text_out font s = str ~fdesc:(Some Unix.stdout) font Fmt.string s
+let str_text_err font s = str ~fdesc:(Some Unix.stderr) font Fmt.string s

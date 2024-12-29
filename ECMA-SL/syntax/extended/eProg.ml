@@ -32,13 +32,16 @@ let tdefs (p : t) : (Id.t', EType.TDef.t) Hashtbl.t = p.tdefs [@@inline]
 let macros (p : t) : (Id.t', EMacro.t) Hashtbl.t = p.macros [@@inline]
 let funcs (p : t) : (Id.t', EFunc.t) Hashtbl.t = p.funcs [@@inline]
 
-let pp (ppf : Fmt.t) (p : t) : unit =
-  let pp_div ppf len = if len > 0 then Fmt.fmt ppf "@\n@\n" else () in
+let pp (ppf : Format.formatter) (p : t) : unit =
+  let newline ppf () = Fmt.pf ppf "@\n" in
+  let pp_div ppf len = if len > 0 then Fmt.pf ppf "@\n@\n" else () in
   let pp_bind pp_v ppf (_, v) = pp_v ppf v in
-  let pp_list pp_v ppf vs = Fmt.(pp_lst !>"@\n" pp_v) ppf vs in
-  let pp_tbl pp_v ppf vs = Fmt.(pp_hashtbl !>"@\n" (pp_bind pp_v)) ppf vs in
-  let pp_tbl2 pp_v ppf vs = Fmt.(pp_hashtbl !>"@\n@\n" (pp_bind pp_v)) ppf vs in
-  Fmt.fmt ppf "%a%a%a%a%a%a%a" (pp_list EImport.pp) p.imports pp_div
+  let pp_list pp_v ppf vs = Fmt.(list ~sep:newline pp_v) ppf vs in
+  let pp_tbl pp_v ppf vs = Fmt.(hashtbl ~sep:newline (pp_bind pp_v)) ppf vs in
+  let pp_tbl2 pp_v ppf vs =
+    Fmt.(hashtbl ~sep:(fun fmt () -> Fmt.pf fmt "@\n@\n") (pp_bind pp_v)) ppf vs
+  in
+  Fmt.pf ppf "%a%a%a%a%a%a%a" (pp_list EImport.pp) p.imports pp_div
     (List.length p.imports) (pp_tbl EType.TDef.pp) p.tdefs pp_div
     (Hashtbl.length p.tdefs) (pp_tbl2 EMacro.pp) p.macros pp_div
     (Hashtbl.length p.macros) (pp_tbl2 EFunc.pp) p.funcs
