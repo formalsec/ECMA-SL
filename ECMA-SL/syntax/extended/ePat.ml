@@ -1,4 +1,3 @@
-open EslBase
 open Source
 
 module PatVal = struct
@@ -9,11 +8,11 @@ module PatVal = struct
     | Val of Value.t
     | None
 
-  let pp (ppf : Fmt.t) (pv : t) : unit =
+  let pp (ppf : Format.formatter) (pv : t) : unit =
     match pv.it with
-    | Var x -> Fmt.pp_str ppf x
+    | Var x -> Fmt.string ppf x
     | Val v -> Value.pp ppf v
-    | None -> Fmt.pp_str ppf "None"
+    | None -> Fmt.string ppf "None"
 
   let str (pv : t) : string = Fmt.str "%a" pp pv [@@inline]
 end
@@ -24,11 +23,11 @@ and t' =
   | ObjPat of (Id.t * PatVal.t) list
   | DefaultPat
 
-let pp (ppf : Fmt.t) (pat : t) : unit =
-  let pp_bind ppf (pn, pv) = Fmt.fmt ppf "%a: %a" Id.pp pn PatVal.pp pv in
+let pp (ppf : Format.formatter) (pat : t) : unit =
+  let pp_bind ppf (pn, pv) = Fmt.pf ppf "%a: %a" Id.pp pn PatVal.pp pv in
   match pat.it with
-  | ObjPat pbs -> Fmt.fmt ppf "{ %a }" Fmt.(pp_lst !>", " pp_bind) pbs
-  | DefaultPat -> Fmt.pp_str ppf "default"
+  | ObjPat pbs -> Fmt.pf ppf "{ %a }" Fmt.(list ~sep:comma pp_bind) pbs
+  | DefaultPat -> Fmt.string ppf "default"
 
 let str (pat : t) : string = Fmt.str "%a" pp pat [@@inline]
 

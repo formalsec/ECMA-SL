@@ -1,5 +1,3 @@
-module Fmt = EslBase.Fmt
-
 (* TODO: merge these type signatures *)
 module type S = sig
   type t
@@ -14,7 +12,7 @@ module type S = sig
   val set : t -> key:value -> data:value -> t
   val get : t -> value -> (value * value list) list
   val delete : t -> value -> t
-  val pp : Fmt.t -> t -> unit
+  val pp : t Fmt.t
   val to_string : t -> string
   val to_json : t -> string
 end

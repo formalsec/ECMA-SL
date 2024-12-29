@@ -43,7 +43,8 @@ let codeblock (at : Source.at) : string list =
   let nlines = at.rpos.line - at.lpos.line + 1 in
   trim_lines (lines (file at.file) start nlines)
 
-let pp (ppf : Fmt.t) (at : Source.at) : unit =
-  Fmt.(pp_lst !>"\n" pp_str) ppf (codeblock at)
+let pp (ppf : Format.formatter) (at : Source.at) : unit =
+  let sep ppf () = Fmt.pf ppf "@\n" in
+  Fmt.(list ~sep string) ppf (codeblock at)
 
 let str (at : Source.at) : string = Fmt.str "%a" pp at

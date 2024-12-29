@@ -1,4 +1,3 @@
-open EslBase
 module V = Symbolic_value.M
 
 let eq v1 v2 = Smtml.Expr.relop Ty_bool Eq v1 v2
@@ -113,18 +112,17 @@ module M : Object_intf.S with type value = V.value = struct
     | Val _ -> { o with fields = VMap.remove key o.fields }
     | _ ->
       (* Leak *)
-      Fmt.eprintf "Leaking object %a@." Smtml.Expr.pp key;
+      Fmt.epr "Leaking object %a@." Smtml.Expr.pp key;
       o
 
   let pp_map ppf v =
     let map_iter f m = VMap.iter (fun k d -> f (k, d)) m in
-    Fmt.(
-      pp_iter !>",@ " map_iter
-        (fun ppf (key, data) -> Fmt.fmt ppf {|%a: %a|} V.pp key V.pp data)
-        ppf v )
+    Fmt.iter ~sep:Fmt.comma map_iter
+      (fun ppf (key, data) -> Fmt.pf ppf {|%a: %a|} V.pp key V.pp data)
+      ppf v
 
   let pp ppf { fields; symbols } =
-    Fmt.fmt ppf "@[<hov>{ %a,@ %a }@]" pp_map fields pp_map symbols
+    Fmt.pf ppf "@[<hov>{ %a,@ %a }@]" pp_map fields pp_map symbols
 
   let to_string o = Fmt.str "%a" pp o
   let to_json = to_string

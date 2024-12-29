@@ -1,4 +1,3 @@
-open EslBase
 open EslSyntax
 open Smtml
 module V = Symbolic_value.M
@@ -74,10 +73,13 @@ module Make (O : Object_intf.S with type value = V.value) = struct
       obj
 
   let rec pp ppf ({ data; parent } : t) =
-    let open Fmt in
-    let pp_v ppf (key, data) = fmt ppf "%a: %a" Loc.pp key O.pp data in
-    let pp_parent ppf v = pp_opt (fun ppf h -> fmt ppf "%a@ <-@ " pp h) ppf v in
-    fmt ppf "%a{ %a }" pp_parent parent (Loc.Tbl.pp !>", " pp_v) data
+    let pp_v ppf (key, data) = Fmt.pf ppf "%a: %a" Loc.pp key O.pp data in
+    let pp_parent ppf v =
+      Fmt.option (fun ppf h -> Fmt.pf ppf "%a@ <-@ " pp h) ppf v
+    in
+    Fmt.pf ppf "%a{ %a }" pp_parent parent
+      (Loc.Tbl.pp (fun fmt -> Fmt.string fmt ", ") pp_v)
+      data
 
   let rec unfold_ite ~(accum : value) (e : value) : (value option * int) list =
     match E.view e with
@@ -106,7 +108,7 @@ module Make (O : Object_intf.S with type value = V.value) = struct
         Ok ((Some c, l) :: unfold_ite ~accum:E.(unop Ty.Ty_bool Ty.Not c) v)
       | _ -> Error (Fmt.str "Value '%a' is not a loc expression" E.pp e) )
     | _ ->
-      Fmt.eprintf "Value '%a' is not a loc expression" V.pp e;
+      Fmt.epr "Value '%a' is not a loc expression" V.pp e;
       Ok []
 
   let pp_val (h : t) (e : value) : string =

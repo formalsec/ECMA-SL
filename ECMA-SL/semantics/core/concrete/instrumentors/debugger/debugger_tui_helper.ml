@@ -188,7 +188,7 @@ module Prompt = struct
 
   let add (prompt : t) (input : int) : t =
     let (left, right) = String.split_at_index prompt.pos prompt.text in
-    let text = Fmt.sprintf "%s%c%s" left (Char.chr input) right in
+    let text = Fmt.str "%s%c%s" left (Char.chr input) right in
     !!(waddch prompt.scrlpad.w input);
     !!(waddstr prompt.scrlpad.w right);
     let prompt' = update prompt text (prompt.len + 1) (prompt.pos + 1) in
@@ -204,7 +204,7 @@ module Prompt = struct
     else
       let (left, right) = String.split_at_index prompt.pos prompt.text in
       let right' = String.substr ~left:1 right in
-      let text = Fmt.sprintf "%s%s" left right' in
+      let text = Fmt.str "%s%s" left right' in
       !!(waddstr prompt.scrlpad.w right');
       !!(waddch prompt.scrlpad.w (Char.code ' '));
       let prompt' = update prompt text (prompt.len - 1) prompt.pos in

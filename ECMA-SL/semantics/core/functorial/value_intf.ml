@@ -1,4 +1,3 @@
-open EslBase
 open EslSyntax
 
 module type T = sig
@@ -8,7 +7,7 @@ module type T = sig
   val equal : value -> value -> bool
   val hash : value -> int
   val compare : value -> value -> int
-  val pp : Fmt.t -> value -> unit
+  val pp : value Fmt.t
   val to_string : value -> string
   val mk_symbol : string -> value
   val mk_list : value list -> value
@@ -31,7 +30,7 @@ module type T = sig
     val mem : t -> bind -> bool
     val add_exn : t -> bind -> value -> t
     val find : t -> bind -> value option
-    val pp : Fmt.t -> t -> unit
+    val pp : t Fmt.t
   end
 
   val eval_expr : store -> Expr.t -> value

@@ -1,4 +1,3 @@
-open EslBase
 open Source
 
 type t = t' Source.t
@@ -18,14 +17,15 @@ let default : unit -> t =
 
 let isvoid (e : t) : bool = match e.it with Val Unit -> true | _ -> false
 
-let rec pp (ppf : Fmt.t) (e : t) : unit =
+let rec pp (ppf : Format.formatter) (e : t) : unit =
   match e.it with
   | Val v -> Value.pp ppf v
-  | Var x -> Fmt.pp_str ppf x
+  | Var x -> Fmt.string ppf x
   | UnOpt (op, e') -> Operator.unopt_pp ~pp_v:pp ppf (op, e')
   | BinOpt (op, e1, e2) -> Operator.binopt_pp ~pp_v:pp ppf (op, e1, e2)
   | TriOpt (op, e1, e2, e3) -> Operator.triopt_pp ~pp_v:pp ppf (op, e1, e2, e3)
   | NOpt (op, es) -> Operator.nopt_pp ~pp_v:pp ppf (op, es)
-  | Curry (fe, es) -> Fmt.fmt ppf "{%a}@(%a)" pp fe Fmt.(pp_lst !>", " pp) es
+  | Curry (fe, es) ->
+    Fmt.pf ppf "@[<h>{%a}@(%a)@]" pp fe Fmt.(list ~sep:comma pp) es
 
 let str (e : t) : string = Fmt.str "%a" pp e [@@inline]

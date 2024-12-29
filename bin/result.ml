@@ -1,6 +1,6 @@
 open Ecma_sl
 
-type 'a pp = (Fmt.t -> 'a -> unit) * 'a
+type 'a pp = 'a Fmt.t * 'a
 
 type cmderr =
   [ `Compile of Compile_error.t pp

@@ -48,34 +48,35 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
     | (BadFuncId v1, BadFuncId v2) -> Value.equal v1 v2
     | _ -> false
 
-  let pp (ppf : Fmt.t) (msg : t) : unit =
-    let open Fmt in
+  let pp (ppf : Format.formatter) (msg : t) : unit =
     match msg with
-    | Default -> fmt ppf "Generic runtime error."
-    | Custom msg' -> fmt ppf "%s" msg'
-    | Failure msg -> fmt ppf "Failure: %s" msg
-    | Unexpected msg -> fmt ppf "Unexpected %s." msg
-    | UncaughtExn msg -> fmt ppf "Uncaught exception: %s" msg
-    | OpEvalExn oplbl -> fmt ppf "Operator evaluation exception: %s" oplbl
-    | UnknownVar x -> fmt ppf "Cannot find variable '%s'." x
-    | UnknownFunc fn -> fmt ppf "Cannot find function '%s'." fn
-    | MissingReturn fn -> fmt ppf "Missing return in function '%a'." Id.pp fn
+    | Default -> Fmt.pf ppf "Generic runtime error."
+    | Custom msg' -> Fmt.pf ppf "%s" msg'
+    | Failure msg -> Fmt.pf ppf "Failure: %s" msg
+    | Unexpected msg -> Fmt.pf ppf "Unexpected %s." msg
+    | UncaughtExn msg -> Fmt.pf ppf "Uncaught exception: %s" msg
+    | OpEvalExn oplbl -> Fmt.pf ppf "Operator evaluation exception: %s" oplbl
+    | UnknownVar x -> Fmt.pf ppf "Cannot find variable '%s'." x
+    | UnknownFunc fn -> Fmt.pf ppf "Cannot find function '%s'." fn
+    | MissingReturn fn -> Fmt.pf ppf "Missing return in function '%a'." Id.pp fn
     | BadNArgs (npxs, nargs) ->
-      fmt ppf "Expected %d arguments, but got %d." npxs nargs
+      Fmt.pf ppf "Expected %d arguments, but got %d." npxs nargs
     | BadArg (texp, v) ->
-      fmt ppf "Expecting argument of type '%s' but got '%a'." texp Value.pp v
+      Fmt.pf ppf "Expecting argument of type '%s' but got '%a'." texp Value.pp v
     | BadVal (texp, v) ->
-      fmt ppf "Expecting %s value, but got '%a'." texp Value.pp v
+      Fmt.pf ppf "Expecting %s value, but got '%a'." texp Value.pp v
     | BadExpr (texp, v) ->
-      fmt ppf "Expecting %s expression, but got '%a'." texp Value.pp v
+      Fmt.pf ppf "Expecting %s expression, but got '%a'." texp Value.pp v
     | BadFuncId v ->
-      fmt ppf "Expecting a function identifier, but got '%a'." Value.pp v
+      Fmt.pf ppf "Expecting a function identifier, but got '%a'." Value.pp v
     | BadOpArgs (texp, vs) when List.length vs = 1 ->
-      fmt ppf "Expecting argument of type '%s', but got '%a'." texp
-        (pp_lst !>", " Value.pp) vs
+      Fmt.pf ppf "Expecting argument of type '%s', but got '%a'." texp
+        Fmt.(list ~sep:comma Value.pp)
+        vs
     | BadOpArgs (texp, vs) ->
-      fmt ppf "Expecting arguments of types '%s', but got '(%a)'." texp
-        (pp_lst !>", " Value.pp) vs
+      Fmt.pf ppf "Expecting arguments of types '%s', but got '(%a)'." texp
+        Fmt.(list ~sep:comma Value.pp)
+        vs
 
   let str (msg : t) : string = Fmt.str "%a" pp msg [@@inline]
 end
@@ -108,12 +109,11 @@ let set_trace (tr : RtTrace.t) (err : t) : t = { err with trace = Some tr }
 let push (msg : msg) (err : t) : t = { err with msgs = msg :: err.msgs }
 [@@inline]
 
-let pp (ppf : Fmt.t) (err : t) : unit =
-  let open Fmt in
+let pp (ppf : Format.formatter) (err : t) : unit =
   let module MsgFmt = Error_type.ErrorTypeFmt (RuntimeErr) in
   let module ErrSrcFmt = ErrSrc.ErrSrcFmt (RuntimeErr) in
   let module RtTraceFmt = RtTrace.RtTraceFmt (RuntimeErr) in
-  Fmt.fmt ppf "%a%a%a" MsgFmt.pp err.msgs ErrSrcFmt.pp err.src
-    (pp_opt RtTraceFmt.pp) err.trace
+  Fmt.pf ppf "%a%a%a" MsgFmt.pp err.msgs ErrSrcFmt.pp err.src
+    (Fmt.option RtTraceFmt.pp) err.trace
 
 let str (err : t) = Fmt.str "%a" pp err [@@inline]

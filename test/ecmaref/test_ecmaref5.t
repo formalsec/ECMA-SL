@@ -1172,7 +1172,8 @@ Tests compilation of ecmaref5:
     __v236 := 273.0 + leapYear;
     __v237 := 304.0 + leapYear;
     __v238 := 334.0 + leapYear;
-    __v239 := [0.0, 31.0, __v229, __v230, __v231, __v232, __v233, __v234, __v235, __v236, __v237, __v238];
+    __v239 := [0.0, 31.0, __v229, __v230, __v231, __v232, __v233, __v234,
+               __v235, __v236, __v237, __v238];
     daysInMonths := __v239;
     __v240 := float_to_int m;
     __v241 := "l_nth"(___internal_esl_global, daysInMonths, __v240);
@@ -5547,7 +5548,12 @@ Tests compilation of ecmaref5:
     return [false, __v1127]
   };
   function isSpaceCharacter(___internal_esl_global, c) {
-    __v1128 := ["\t", "\011", "\012", " ", "\194\160", "\239\187\191", "\225\154\128", "\226\128\128", "\226\128\129", "\226\128\130", "\226\128\131", "\226\128\132", "\226\128\133", "\226\128\134", "\226\128\135", "\226\128\136", "\226\128\137", "\226\128\138", "\226\128\175", "\226\129\159", "\227\128\128", "\n", "\r", "\226\128\168", "\226\128\169"];
+    __v1128 := ["\t", "\011", "\012", " ", "\194\160", "\239\187\191",
+                "\225\154\128", "\226\128\128", "\226\128\129", "\226\128\130",
+                "\226\128\131", "\226\128\132", "\226\128\133", "\226\128\134",
+                "\226\128\135", "\226\128\136", "\226\128\137", "\226\128\138",
+                "\226\128\175", "\226\129\159", "\227\128\128", "\n", "\r",
+                "\226\128\168", "\226\128\169"];
     spaces := __v1128;
     __v1129 := spaces;
     while (__v1129 != []) {
@@ -8431,7 +8437,8 @@ Tests compilation of ecmaref5:
             __v1697 := num_len == 0;
             if (__v1697) {
               __v1698 := int_to_string i;
-              __v1699 := ["JSON.parse: Unexpected token ", c, " in JSON at position ", __v1698];
+              __v1699 := ["JSON.parse: Unexpected token ", c,
+                          " in JSON at position ", __v1698];
               __v1700 := "s_concat"(___internal_esl_global, __v1699);
               if (hd __v1700) {
                 return __v1700
@@ -8489,7 +8496,8 @@ Tests compilation of ecmaref5:
               __v1711 := str_len == 0;
               if (__v1711) {
                 __v1712 := int_to_string i;
-                __v1713 := ["JSON.parse: Unexpected token ", c, " in JSON at position ", __v1712];
+                __v1713 := ["JSON.parse: Unexpected token ", c,
+                            " in JSON at position ", __v1712];
                 __v1714 := "s_concat"(___internal_esl_global, __v1713);
                 if (hd __v1714) {
                   return __v1714
@@ -8601,7 +8609,8 @@ Tests compilation of ecmaref5:
               __v1737 := !valid_tok;
               if (__v1737) {
                 __v1738 := int_to_string i;
-                __v1739 := ["JSON.parse: Unexpected token ", c, " in JSON at position ", __v1738];
+                __v1739 := ["JSON.parse: Unexpected token ", c,
+                            " in JSON at position ", __v1738];
                 __v1740 := "s_concat"(___internal_esl_global, __v1739);
                 if (hd __v1740) {
                   return __v1740
@@ -31597,7 +31606,23 @@ Tests compilation of ecmaref5:
     __v8590["uppercase"] := "\196\176";
     __v8590["titlecase"] := "\196\176";
     __v8590["condition_list"] := "az";
-    __v8591 := [__v8472, __v8473, __v8474, __v8475, __v8476, __v8477, __v8478, __v8479, __v8480, __v8481, __v8482, __v8483, __v8484, __v8485, __v8486, __v8487, __v8488, __v8489, __v8490, __v8491, __v8492, __v8493, __v8494, __v8495, __v8496, __v8497, __v8498, __v8499, __v8500, __v8501, __v8502, __v8503, __v8504, __v8505, __v8506, __v8507, __v8508, __v8509, __v8510, __v8511, __v8512, __v8513, __v8514, __v8515, __v8516, __v8517, __v8518, __v8519, __v8520, __v8521, __v8522, __v8523, __v8524, __v8525, __v8526, __v8527, __v8528, __v8529, __v8530, __v8531, __v8532, __v8533, __v8534, __v8535, __v8536, __v8537, __v8538, __v8539, __v8540, __v8541, __v8542, __v8543, __v8544, __v8545, __v8546, __v8547, __v8548, __v8549, __v8550, __v8551, __v8552, __v8553, __v8554, __v8555, __v8556, __v8557, __v8558, __v8559, __v8560, __v8561, __v8562, __v8563, __v8564, __v8565, __v8566, __v8567, __v8568, __v8569, __v8570, __v8571, __v8572, __v8573, __v8574, __v8575, __v8576, __v8577, __v8578, __v8579, __v8580, __v8581, __v8582, __v8583, __v8584, __v8585, __v8586, __v8587, __v8588, __v8589, __v8590];
+    __v8591 := [__v8472, __v8473, __v8474, __v8475, __v8476, __v8477, __v8478,
+                __v8479, __v8480, __v8481, __v8482, __v8483, __v8484, __v8485,
+                __v8486, __v8487, __v8488, __v8489, __v8490, __v8491, __v8492,
+                __v8493, __v8494, __v8495, __v8496, __v8497, __v8498, __v8499,
+                __v8500, __v8501, __v8502, __v8503, __v8504, __v8505, __v8506,
+                __v8507, __v8508, __v8509, __v8510, __v8511, __v8512, __v8513,
+                __v8514, __v8515, __v8516, __v8517, __v8518, __v8519, __v8520,
+                __v8521, __v8522, __v8523, __v8524, __v8525, __v8526, __v8527,
+                __v8528, __v8529, __v8530, __v8531, __v8532, __v8533, __v8534,
+                __v8535, __v8536, __v8537, __v8538, __v8539, __v8540, __v8541,
+                __v8542, __v8543, __v8544, __v8545, __v8546, __v8547, __v8548,
+                __v8549, __v8550, __v8551, __v8552, __v8553, __v8554, __v8555,
+                __v8556, __v8557, __v8558, __v8559, __v8560, __v8561, __v8562,
+                __v8563, __v8564, __v8565, __v8566, __v8567, __v8568, __v8569,
+                __v8570, __v8571, __v8572, __v8573, __v8574, __v8575, __v8576,
+                __v8577, __v8578, __v8579, __v8580, __v8581, __v8582, __v8583,
+                __v8584, __v8585, __v8586, __v8587, __v8588, __v8589, __v8590];
     ___internal_esl_global["specialCasing"] := __v8591;
     return [false, null]
   };
@@ -35117,7 +35142,9 @@ Tests compilation of ecmaref5:
     return [false, __v9258]
   };
   function indexOfChar(___internal_esl_global, char) {
-    __v9259 := ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
+    __v9259 := ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b",
+                "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n",
+                "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
     chars := __v9259;
     i := 0;
     __v9260 := i < 36;
@@ -39314,7 +39341,8 @@ Tests compilation of ecmaref5:
       };
       __v10066 := __v10065 == 0;
       if (__v10066) {
-        __v10067 := ["JSON.parse: Invalid syntax. Invalid value for JSON key: ", key];
+        __v10067 := ["JSON.parse: Invalid syntax. Invalid value for JSON key: ",
+                     key];
         __v10068 := "s_concat"(___internal_esl_global, __v10067);
         if (hd __v10068) {
           return __v10068
@@ -42312,7 +42340,8 @@ Tests compilation of ecmaref5:
                       }
                     }
                   } else {
-                    __v10644 := ["Meta character inside character class not implemented: ", c];
+                    __v10644 := ["Meta character inside character class not implemented: ",
+                                 c];
                     __v10645 := "s_concat"(___internal_esl_global, __v10644);
                     if (hd __v10645) {
                       return __v10645
@@ -45336,7 +45365,8 @@ Tests compilation of ecmaref5:
                                                     __v11315["negative"] := null;
                                                     cs := __v11315
                                                   } else {
-                                                    __v11316 := ["Unimplemented metacharacter: ", v];
+                                                    __v11316 := ["Unimplemented metacharacter: ",
+                                                                 v];
                                                     __v11317 := "s_concat"(___internal_esl_global, __v11316);
                                                     if (hd __v11317) {
                                                       return __v11317
@@ -58762,7 +58792,8 @@ Tests compilation of ecmaref5:
       __v13943 := hd tl __v13943
     };
     mseconds := __v13943;
-    __v13944 := [year, "-", month, "-", day, "T", hours, ":", minutes, ":", seconds, ".", mseconds, "Z"];
+    __v13944 := [year, "-", month, "-", day, "T", hours, ":", minutes, ":",
+                 seconds, ".", mseconds, "Z"];
     __v13945 := "s_concat"(___internal_esl_global, __v13944);
     if (hd __v13945) {
       return __v13945

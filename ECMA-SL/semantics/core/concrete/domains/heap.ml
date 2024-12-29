@@ -38,16 +38,19 @@ let set (heap : 'a t) (loc : Loc.t) (obj : 'a obj) : unit =
   Loc.Tbl.replace heap.map loc obj
 [@@inline]
 
-let pp_map (pp_v : Fmt.t -> 'a obj -> unit) (ppf : Fmt.t)
+let pp_map (pp_v : 'a obj Fmt.t) (ppf : Format.formatter)
   (map : 'a obj Loc.Tbl.t) : unit =
-  let pp_bind ppf (loc, obj) = Fmt.fmt ppf "%a: %a" Loc.pp loc pp_v obj in
-  if Loc.Tbl.length map == 0 then Fmt.pp_str ppf "{}"
-  else Fmt.fmt ppf "{ %a }" Fmt.(Loc.Tbl.pp !>", " pp_bind) map
+  let pp_bind ppf (loc, obj) = Fmt.pf ppf "%a: %a" Loc.pp loc pp_v obj in
+  if Loc.Tbl.length map == 0 then Fmt.string ppf "{}"
+  else
+    Fmt.pf ppf "{ %a }"
+      (Loc.Tbl.pp (fun ppf -> Fmt.string ppf ", ") pp_bind)
+      map
 
-let rec pp (pp_v : Fmt.t -> 'a obj -> unit) (ppf : Fmt.t) (heap : 'a t) : unit =
-  let pp_parent ppf heap = Fmt.fmt ppf "%a <- " (pp pp_v) heap in
-  Fmt.fmt ppf "%a%a" (Fmt.pp_opt pp_parent) heap.parent (pp_map pp_v) heap.map
+let rec pp (pp_v : 'a obj Fmt.t) (ppf : Format.formatter) (heap : 'a t) : unit =
+  let pp_parent ppf heap = Fmt.pf ppf "%a <- " (pp pp_v) heap in
+  Fmt.pf ppf "%a%a" (Fmt.option pp_parent) heap.parent (pp_map pp_v) heap.map
 
-let str (pp_v : Fmt.t -> 'a obj -> unit) (heap : 'a t) : string =
+let str (pp_v : 'a obj Fmt.t) (heap : 'a t) : string =
   Fmt.str "%a" (pp pp_v) heap
 [@@inline]

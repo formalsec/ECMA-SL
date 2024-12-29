@@ -26031,7 +26031,8 @@ Tests compilation of ecmaref6:
     if (__v4901) {
       return [false, "Invalid Date"]
     };
-    __v4902 := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    __v4902 := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
+                "Oct", "Nov", "Dec"];
     months := __v4902;
     __v4903 := ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     week := __v4903;
@@ -26128,7 +26129,8 @@ Tests compilation of ecmaref6:
       __v4919 := hd tl __v4919
     };
     seconds := __v4919;
-    __v4920 := [weekday, ", ", day, " ", month, " ", year, " ", hours, ":", minutes, ":", seconds, " GMT"];
+    __v4920 := [weekday, ", ", day, " ", month, " ", year, " ", hours, ":",
+                minutes, ":", seconds, " GMT"];
     __v4921 := "s_concat"(___internal_esl_global, __v4920);
     if (hd __v4921) {
       return __v4921
@@ -54158,7 +54160,8 @@ Tests compilation of ecmaref6:
       __v10029 := hd tl __v10029
     };
     mseconds := __v10029;
-    __v10030 := [year, "-", month, "-", day, "T", hours, ":", minutes, ":", seconds, ".", mseconds, "Z"];
+    __v10030 := [year, "-", month, "-", day, "T", hours, ":", minutes, ":",
+                 seconds, ".", mseconds, "Z"];
     __v10031 := "s_concat"(___internal_esl_global, __v10030);
     if (hd __v10031) {
       return __v10031
@@ -63148,7 +63151,8 @@ Tests compilation of ecmaref6:
     assert __v11599;
     __v11600 := ___internal_esl_global["Intrinsics"];
     __v11601 := __v11600["ArrayIteratorPrototype"];
-    __v11602 := ["IteratedObject", "ArrayIteratorNextIndex", "ArrayIterationKind"];
+    __v11602 := ["IteratedObject", "ArrayIteratorNextIndex",
+                 "ArrayIterationKind"];
     __v11603 := "ObjectCreate"(___internal_esl_global, __v11601, __v11602);
     if (hd __v11603) {
       return __v11603
@@ -63878,7 +63882,8 @@ Tests compilation of ecmaref6:
       __v11739 := hd tl __v11739
     };
     __v11740 := float_to_string __v11739;
-    __v11741 := ["Byte: ", __v11734, "Float littleEndian: ", __v11737, ", Float BigEndian: ", __v11740];
+    __v11741 := ["Byte: ", __v11734, "Float littleEndian: ", __v11737,
+                 ", Float BigEndian: ", __v11740];
     __v11742 := "s_concat"(___internal_esl_global, __v11741);
     if (hd __v11742) {
       return __v11742
@@ -65871,7 +65876,8 @@ Tests compilation of ecmaref6:
     __v12071 := 273.0 + leapYear;
     __v12072 := 304.0 + leapYear;
     __v12073 := 334.0 + leapYear;
-    __v12074 := [0.0, 31.0, __v12064, __v12065, __v12066, __v12067, __v12068, __v12069, __v12070, __v12071, __v12072, __v12073];
+    __v12074 := [0.0, 31.0, __v12064, __v12065, __v12066, __v12067, __v12068,
+                 __v12069, __v12070, __v12071, __v12072, __v12073];
     daysInMonths := __v12074;
     __v12075 := float_to_int m;
     __v12076 := "l_nth"(___internal_esl_global, daysInMonths, __v12075);
@@ -68644,7 +68650,11 @@ Tests compilation of ecmaref6:
     return [false, __v12529]
   };
   function initWellKnownSymbols(___internal_esl_global) {
-    __v12530 := ["Symbol.hasInstance", "Symbol.isConcatSpreadable", "Symbol.iterator", "Symbol.match", "Symbol.replace", "Symbol.search", "Symbol.species", "Symbol.split", "Symbol.toPrimitive", "Symbol.toStringTag", "Symbol.unscopables"];
+    __v12530 := ["Symbol.hasInstance", "Symbol.isConcatSpreadable",
+                 "Symbol.iterator", "Symbol.match", "Symbol.replace",
+                 "Symbol.search", "Symbol.species", "Symbol.split",
+                 "Symbol.toPrimitive", "Symbol.toStringTag",
+                 "Symbol.unscopables"];
     wellKnownSymbols := __v12530;
     __v12531 := wellKnownSymbols;
     while (__v12531 != []) {
@@ -70359,7 +70369,13 @@ Tests compilation of ecmaref6:
     return [false, __v12839]
   };
   function isSpaceCharacter(___internal_esl_global, c) {
-    __v12840 := ["\t", "\011", "\012", " ", "\194\160", "\239\187\191", "\225\154\128", "\226\128\128", "\226\128\129", "\226\128\130", "\226\128\131", "\226\128\132", "\226\128\133", "\226\128\134", "\226\128\135", "\226\128\136", "\226\128\137", "\226\128\138", "\226\128\175", "\226\129\159", "\227\128\128", "\n", "\r", "\226\128\168", "\226\128\169"];
+    __v12840 := ["\t", "\011", "\012", " ", "\194\160", "\239\187\191",
+                 "\225\154\128", "\226\128\128", "\226\128\129",
+                 "\226\128\130", "\226\128\131", "\226\128\132",
+                 "\226\128\133", "\226\128\134", "\226\128\135",
+                 "\226\128\136", "\226\128\137", "\226\128\138",
+                 "\226\128\175", "\226\129\159", "\227\128\128", "\n", "\r",
+                 "\226\128\168", "\226\128\169"];
     spaces := __v12840;
     __v12841 := spaces;
     while (__v12841 != []) {
@@ -70904,7 +70920,8 @@ Tests compilation of ecmaref6:
     };
     __v12946 := elementTypes == null;
     if (__v12946) {
-      __v12947 := ["Undefined", "Null", "Boolean", "String", "Symbol", "Number", "Object"];
+      __v12947 := ["Undefined", "Null", "Boolean", "String", "Symbol",
+                   "Number", "Object"];
       elementTypes := __v12947
     };
     __v12948 := "Type"(___internal_esl_global, obj);
@@ -73975,7 +73992,8 @@ Tests compilation of ecmaref6:
                 __v13473 := hd tl __v13473
               };
               __v13474 := int_to_string i;
-              __v13475 := ["JSON.parse: Unexpected token ", c, " in JSON at position ", __v13474];
+              __v13475 := ["JSON.parse: Unexpected token ", c,
+                           " in JSON at position ", __v13474];
               __v13476 := "s_concat"(___internal_esl_global, __v13475);
               if (hd __v13476) {
                 return __v13476
@@ -74039,7 +74057,8 @@ Tests compilation of ecmaref6:
                   __v13488 := hd tl __v13488
                 };
                 __v13489 := int_to_string i;
-                __v13490 := ["JSON.parse: Unexpected token ", c, " in JSON at position ", __v13489];
+                __v13490 := ["JSON.parse: Unexpected token ", c,
+                             " in JSON at position ", __v13489];
                 __v13491 := "s_concat"(___internal_esl_global, __v13490);
                 if (hd __v13491) {
                   return __v13491
@@ -74157,7 +74176,8 @@ Tests compilation of ecmaref6:
                   __v13515 := hd tl __v13515
                 };
                 __v13516 := int_to_string i;
-                __v13517 := ["JSON.parse: Unexpected token ", c, " in JSON at position ", __v13516];
+                __v13517 := ["JSON.parse: Unexpected token ", c,
+                             " in JSON at position ", __v13516];
                 __v13518 := "s_concat"(___internal_esl_global, __v13517);
                 if (hd __v13518) {
                   return __v13518
@@ -82444,7 +82464,9 @@ Tests compilation of ecmaref6:
     return [false, length]
   };
   function EvaluateNew(___internal_esl_global, constructProduction, arguments, scope) {
-    __v15021 := ["NewExpression", "MemberExpression", "Identifier", "CallExpression", "FunctionExpression", "ClassExpression", "Literal"];
+    __v15021 := ["NewExpression", "MemberExpression", "Identifier",
+                 "CallExpression", "FunctionExpression", "ClassExpression",
+                 "Literal"];
     memberExpressionTypes := __v15021;
     __v15022 := arguments == 'empty;
     if (__v15022 == true) {
@@ -83291,7 +83313,9 @@ Tests compilation of ecmaref6:
     return [false, __v15203]
   };
   function indexOfChar(___internal_esl_global, char) {
-    __v15204 := ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
+    __v15204 := ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b",
+                 "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n",
+                 "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
     chars := __v15204;
     i := 0;
     __v15205 := i < 36;
@@ -87945,7 +87969,8 @@ Tests compilation of ecmaref6:
         } else {
           __v16062 := hd tl __v16062
         };
-        __v16063 := ["JSON.parse: Invalid syntax. Invalid value for JSON key: ", key];
+        __v16063 := ["JSON.parse: Invalid syntax. Invalid value for JSON key: ",
+                     key];
         __v16064 := "s_concat"(___internal_esl_global, __v16063);
         if (hd __v16064) {
           return __v16064
@@ -92843,7 +92868,8 @@ Tests compilation of ecmaref6:
                       }
                     }
                   } else {
-                    __v16965 := ["Meta character inside character class not implemented: ", c];
+                    __v16965 := ["Meta character inside character class not implemented: ",
+                                 c];
                     __v16966 := "s_concat"(___internal_esl_global, __v16965);
                     if (hd __v16966) {
                       return __v16966
@@ -94151,7 +94177,8 @@ Tests compilation of ecmaref6:
       };
       return [true, __v17267]
     };
-    __v17268 := ["PromiseState", "PromiseResult", "PromiseFulfillReactions", "PromiseRejectReactions"];
+    __v17268 := ["PromiseState", "PromiseResult", "PromiseFulfillReactions",
+                 "PromiseRejectReactions"];
     __v17269 := "OrdinaryCreateFromConstructor"(___internal_esl_global, NewTarget, "PromisePrototype", __v17268);
     if (hd __v17269) {
       return __v17269
@@ -96701,7 +96728,8 @@ Tests compilation of ecmaref6:
   };
   function IsFunctionDefinition(___internal_esl_global, expression) {
     __v17714 := expression["type"];
-    __v17715 := ["ArrowFunctionExpression", "FunctionExpression", "ClassExpression"];
+    __v17715 := ["ArrowFunctionExpression", "FunctionExpression",
+                 "ClassExpression"];
     __v17716 := "in_list"(___internal_esl_global, __v17714, __v17715);
     if (hd __v17716) {
       return __v17716
@@ -97891,7 +97919,8 @@ Tests compilation of ecmaref6:
                                                     __v17980["negative"] := null;
                                                     cs := __v17980
                                                   } else {
-                                                    __v17981 := ["Unimplemented metacharacter: ", v];
+                                                    __v17981 := ["Unimplemented metacharacter: ",
+                                                                 v];
                                                     __v17982 := "s_concat"(___internal_esl_global, __v17981);
                                                     if (hd __v17982) {
                                                       return __v17982
@@ -111812,7 +111841,8 @@ Tests compilation of ecmaref6:
         proto := __v20543
       }
     };
-    __v20544 := ["ViewedArrayBuffer", "TypedArrayName", "ByteLength", "ByteOffset", "ArrayLength"];
+    __v20544 := ["ViewedArrayBuffer", "TypedArrayName", "ByteLength",
+                 "ByteOffset", "ArrayLength"];
     __v20545 := "IntegerIndexedObjectCreate"(___internal_esl_global, proto, __v20544);
     if (hd __v20545) {
       return __v20545

@@ -22,11 +22,11 @@ let get (store : 'a t) (x : var) : 'a option = Hashtbl.find_opt store x
 let set (store : 'a t) (x : var) (v : 'a) : unit = Hashtbl.replace store x v
 [@@inline]
 
-let pp (pp_v : Fmt.t -> 'a -> unit) (ppf : Fmt.t) (store : 'a t) : unit =
-  let pp_bind ppf (x, v) = Fmt.fmt ppf "%s: %a" x pp_v v in
-  if length store == 0 then Fmt.pp_str ppf "{}"
-  else Fmt.fmt ppf "{ %a }" Fmt.(pp_hashtbl !>", " pp_bind) store
+let pp (pp_v : 'a Fmt.t) (ppf : Format.formatter) (store : 'a t) : unit =
+  let pp_bind ppf (x, v) = Fmt.pf ppf "%s: %a" x pp_v v in
+  if length store == 0 then Fmt.string ppf "{}"
+  else Fmt.pf ppf "{ %a }" Fmt.(hashtbl ~sep:comma pp_bind) store
 
-let str (pp_val : Fmt.t -> 'a -> unit) (store : 'a t) : string =
+let str (pp_val : 'a Fmt.t) (store : 'a t) : string =
   Fmt.str "%a" (pp pp_val) store
 [@@inline]

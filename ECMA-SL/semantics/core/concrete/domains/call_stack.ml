@@ -57,12 +57,12 @@ let update (stack : 'store t) (s : Stmt.t) : 'store t =
   | Intermediate (cursor, r) :: stack' ->
     Intermediate ({ cursor with s }, r) :: stack'
 
-let pp_loc (ppf : Fmt.t) (at : at) : unit =
-  Fmt.fmt ppf "file %S, line %d" at.file at.lpos.line
+let pp_loc (ppf : Format.formatter) (at : at) : unit =
+  Fmt.pf ppf "file %S, line %d" at.file at.lpos.line
 
-let pp (ppf : Fmt.t) (stack : 'store t) : unit =
-  let pp_bind ppf frame = Fmt.pp_str ppf (Func.name' (cursor frame).f) in
-  if depth stack == 0 then Fmt.pp_str ppf "{}"
-  else Fmt.fmt ppf "{ %a }" Fmt.(pp_lst !>", " pp_bind) stack
+let pp (ppf : Format.formatter) (stack : 'store t) : unit =
+  let pp_bind ppf frame = Fmt.string ppf (Func.name' (cursor frame).f) in
+  if depth stack == 0 then Fmt.string ppf "{}"
+  else Fmt.pf ppf "{ %a }" Fmt.(list ~sep:comma pp_bind) stack
 
 let str (stack : 'store t) : string = Fmt.str "%a" pp stack [@@inline]

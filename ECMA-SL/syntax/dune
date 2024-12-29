@@ -25,6 +25,6 @@
   ePat
   eExpr
   eType)
- (libraries eslBase smtml)
+ (libraries eslBase fmt smtml)
  (instrumentation
   (backend bisect_ppx)))
