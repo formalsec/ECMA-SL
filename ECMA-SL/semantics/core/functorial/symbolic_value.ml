@@ -12,6 +12,7 @@ module M = struct
   let hash (e : value) = Smtml.Expr.hash e [@@inline]
   let compare (e1 : value) (e2 : value) = compare (hash e1) (hash e2)
   let pp fmt v = Smtml.Expr.pp fmt v [@@inline]
+  let to_string v = Fmt.str "%a" pp v
 
   let int_symbol_s (x : string) : value =
     Smtml.Expr.symbol (Symbol.make Ty_int x)
