@@ -21,7 +21,6 @@ module Make () = struct
   module Optimizer = Choice_monad.Optimizer
   open Extern_func
 
-  let ( let/ ) = Choice.bind
   let fresh_i = Base.make_name_generator "i"
   let fresh_x = Base.make_name_generator "x"
   let fresh_func = Base.make_name_generator "eval_func_"
@@ -545,7 +544,8 @@ module Make () = struct
         | _ -> False )
     in
     let is_sat (e : value) =
-      let/ b = Choice.check e in
+      let open Choice in
+      let* b = Choice.branch e in
       ok_v (if b then True else False)
     in
     let exec (e : value) =
