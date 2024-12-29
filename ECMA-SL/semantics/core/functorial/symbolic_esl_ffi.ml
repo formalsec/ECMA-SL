@@ -43,7 +43,7 @@ module Make () = struct
       let fid = fresh_func () in
       begin
         match Bos.OS.Cmd.run (cmd input_file (Some output_file) (Some fid)) with
-        | Error (`Msg msg) -> Log.stderr "%s" msg
+        | Error (`Msg msg) -> Format.eprintf "%s@." msg
         | Ok () -> ()
       end;
       let data = Io.read_file output_file in
@@ -550,24 +550,25 @@ module Make () = struct
     in
     let exec (e : value) =
       (* TODO: more fine-grained exploit analysis *)
+      Format.eprintf "exec(%a)@." Smtml.Expr.pp e;
       match Smtml.Expr.view e with
       | Val _ -> ok @@ Value.mk_symbol "undefined"
       | _ ->
-        Logs.app (fun m -> m "       exec : %a@." Smtml.Expr.pp e);
+        Logs.app (fun m -> m "       exec : %a" Smtml.Expr.pp e);
         Choice.return @@ Error (`Exec_failure e)
     in
     let eval (e : value) =
       match Smtml.Expr.view e with
       | Val _ -> ok @@ Value.mk_symbol "undefined"
       | _ ->
-        Logs.app (fun m -> m "       eval : %a@." Smtml.Expr.pp e);
+        Logs.app (fun m -> m "       eval : %a" Smtml.Expr.pp e);
         Choice.return @@ Error (`Eval_failure e)
     in
     let read_file (e : value) =
       match Smtml.Expr.view e with
       | Val _ -> ok @@ Value.mk_symbol "undefined"
       | _ ->
-        Logs.app (fun m -> m "   readFile : %a@." Smtml.Expr.pp e);
+        Logs.app (fun m -> m "   readFile : %a" Smtml.Expr.pp e);
         Choice.return @@ Error (`ReadFile_failure e)
     in
 
