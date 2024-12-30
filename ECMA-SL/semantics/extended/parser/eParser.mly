@@ -23,6 +23,7 @@
 (* ========== Language tokens ========== *)
 
 %token NULL NONE
+%token LET
 %token IMPORT TYPEDEF MACRO FUNCTION
 %token PRINT RETURN DELETE EXTERN LAMBDA
 %token ASSERT FAIL THROW CATCH
@@ -43,7 +44,7 @@
 (* ========== Symbol tokens ========== *)
 
 %token COMMA SEMICOLON COLON PERIOD
-%token DEFEQ ATSIGN HASH ARROW
+%token DEFEQ0 DEFEQ ATSIGN HASH ARROW
 %token LPAREN RPAREN
 %token LBRACE RBRACE
 %token LBRACK RBRACK
@@ -176,6 +177,9 @@ let exec_stmt_target :=
     { EStmt.MacroApply (mn, es) @> at $sloc }
 
 let update_stmt_target :=
+  | LET; id = id_target; DEFEQ0; expr = expr_target;
+    (* let-bindings should create immutable assignments *)
+    { EStmt.Assign (id, None, expr) @> at $sloc }
   | x = id_target; DEFEQ; e = expr_target;
     { EStmt.Assign (x, None, e) @> at $sloc }
   | x = gid_target; DEFEQ; e = expr_target;

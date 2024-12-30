@@ -119,19 +119,21 @@ function JS_Interpreter_Expr(e, scope) {
   | { type: "ArrayExpression", elements: ElementList } -> {
     /* 11.1.4 Array Initialiser */
     array := ArrayCreate(0., null);
-    len := l_len(ElementList);
+    let len = l_len(ElementList);
     i := 0;
     while (i < len) {
-      el := l_nth (ElementList, i);
+      let el = l_nth (ElementList, i);
       if (el != null) {
-        initResult := JS_Interpreter_Expr(el, scope);
-        initValue := GetValue(initResult);
-        descriptor := newDataPropertyDescriptorFull(initValue, true, true, true);
-        {array.DefineOwnProperty}(array, ToString(ToUint32(int_to_float i)), descriptor);
+        let initResult = JS_Interpreter_Expr(el, scope);
+        let initValue = GetValue(initResult);
+        let descriptor = newDataPropertyDescriptorFull(initValue, true, true, true);
+        let index = ToString(ToUint32(int_to_float i));
+        {array.DefineOwnProperty}(array, index, descriptor);
       }
       i := i + 1;
     }
-    descriptor := newDataPropertyDescriptorFull(ToUint32(int_to_float i), true, false, false);
+    let index = ToUint32(int_to_float i);
+    descriptor := newDataPropertyDescriptorFull(index, true, false, false);
     {array.DefineOwnProperty}(array, "length", descriptor);
     return array;
   }
@@ -1539,7 +1541,7 @@ function JS_Interpreter_Stmt(s, scope) {
   }
   | { type: "ClassDeclaration", id: BindingIdentifier, superClass: ClassHeritageopt, body: ClassBodyopt } -> {
     return JS_Interpreter_ClassEvaluation(scope, BindingIdentifier, ClassHeritageopt, ClassBodyopt);
-  } 
+  }
   | default -> {
     fail "Statement not matched";
   }
@@ -3122,8 +3124,8 @@ function JS_Interpreter_IterationStmt(IterationStatement, scope) {
       return Completion(forDcl);
     }
     /* 9. If isConst is false, let perIterationLets be boundNames otherwise let perIterationLets be « ». */
-    if (isConst == false) 
-      perIterationLets := boundNames; 
+    if (isConst == false)
+      perIterationLets := boundNames;
     else
       perIterationLets := [];
     /* 10. Let bodyResult be ForBodyEvaluation(the first Expression, the second Expression,
