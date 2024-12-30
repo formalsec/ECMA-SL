@@ -4,6 +4,7 @@ module Env = Ecma_sl.Symbolic.P.Env
 module Value = Ecma_sl.Symbolic.P.Value
 module Choice = Ecma_sl.Symbolic.P.Choice
 module Extern_func = Ecma_sl.Symbolic.P.Extern_func
+module Memory = Ecma_sl.Symbolic.P.Memory
 module State = Ecma_sl.Symbolic_interpreter.State
 module Solver = Ecma_sl.Solver
 
@@ -103,9 +104,10 @@ let process_result (workspace : Fpath.t) (res, thread) : witness option Result.t
       (* FIXME: Maybe move this prints to some better place *)
       match List.map Smtml.Expr.view result with
       | [ List [ Hc.{ node = Smtml.Expr.Val False; _ }; result ] ] ->
+        let mem = Thread.mem thread in
         Logs.app (fun k ->
-          k "- : %a = %a" Smtml.Ty.pp (Smtml.Expr.ty result) Smtml.Expr.pp
-            result );
+          k "- : %a =@[<hov> %a@]" Smtml.Ty.pp (Smtml.Expr.ty result)
+            (Memory.pp_val mem) result );
         Ok None
       | [ List [ { node = Val True; _ }; e ] ] ->
         let msg =

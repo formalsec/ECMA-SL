@@ -150,7 +150,7 @@ module P = struct
           List.to_seq @@ List.filter_map (return thread) locs
 
     let pp ppf v = Memory.pp ppf v [@@inline]
-    let pp_val m v = Memory.pp_val m v [@@inline]
+    let pp_val m fmt v = Memory.pp_val m fmt v [@@inline]
   end
 
   module Env = struct

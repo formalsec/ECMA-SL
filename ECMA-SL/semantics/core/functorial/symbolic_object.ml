@@ -122,7 +122,9 @@ module M : Object_intf.S with type value = V.value = struct
       ppf v
 
   let pp ppf { fields; symbols } =
-    Fmt.pf ppf "@[<hov>{ %a,@ %a }@]" pp_map fields pp_map symbols
+    Fmt.pf ppf "@[<hov 2>{ %a }@]"
+      (Fmt.pair ~sep:Fmt.comma pp_map pp_map)
+      (fields, symbols)
 
   let to_string o = Fmt.str "%a" pp o
   let to_json = to_string

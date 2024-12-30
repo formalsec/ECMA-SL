@@ -55,7 +55,7 @@ module type P = sig
     val pp : t Fmt.t
     val to_string : t -> string
     val loc : value -> Loc.t Choice.t
-    val pp_val : t -> value -> string
+    val pp_val : t -> value Fmt.t
   end
 
   module Env : sig
