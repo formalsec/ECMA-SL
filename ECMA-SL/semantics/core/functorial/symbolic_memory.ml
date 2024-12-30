@@ -111,13 +111,11 @@ module Make (O : Object_intf.S with type value = V.value) = struct
       Fmt.epr "Value '%a' is not a loc expression" V.pp e;
       Ok []
 
-  let pp_val (h : t) (e : value) : string =
+  let pp_val (h : t) fmt (e : value) : unit =
     match E.view e with
     | Val (App (`Op "loc", [ Int l ])) -> (
-      match get h l with
-      | None -> Loc.str l
-      | Some o -> Fmt.str "%a -> %a" Loc.pp l O.pp o )
-    | _ -> Fmt.str "%a" V.pp e
+      match get h l with None -> Loc.pp fmt l | Some o -> O.pp fmt o )
+    | _ -> V.pp fmt e
 end
 
 module M :

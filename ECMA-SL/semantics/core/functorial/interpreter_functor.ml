@@ -64,7 +64,7 @@ module Make (P : Interpreter_functor_intf.P) :
     (* Reduce is only used on Sym_value.M.value *)
     Value.eval_expr sto e
 
-  let pp locals heap e =
+  let pp locals heap fmt e =
     (* TODO: Print function in sym_value *)
     (* let s = *)
     (*   match e' with *)
@@ -75,7 +75,8 @@ module Make (P : Interpreter_functor_intf.P) :
     (*   | _ -> Expr.str e' *)
     (* in *)
     (* Log.stdout "print:%s\npc:%s\nheap id:%d\n" s (Smtml.Expression.string_of_pc pc) (Memory.get_id heap); *)
-    eval_expr locals e |> Memory.pp_val heap
+    let e = eval_expr locals e in
+    Memory.pp_val heap fmt e
 
   let exec_func state func args ret_var =
     Logs.debug (fun k -> k "@[<hov 1>calling func:@ %a@]" Func.pp_simple func);
@@ -133,11 +134,11 @@ module Make (P : Interpreter_functor_intf.P) :
       Logs.warn (fun k -> k "ignoring break point in line %d" stmt.at.lpos.line);
       ok { state with stmts = stmt :: state.stmts }
     | Fail e ->
-      let e' = pp locals m e in
+      let e' = Fmt.str "%a" (pp locals m) e in
       Logs.app (fun k -> k "       fail : %s" e');
       error (`Failure e')
     | Print e ->
-      Logs.app (fun k -> k "%s" (pp locals m e));
+      Logs.app (fun k -> k "%a" (pp locals m) e);
       ok state
     | Assign (x, e) ->
       let v = eval_expr locals e in
@@ -145,10 +146,11 @@ module Make (P : Interpreter_functor_intf.P) :
     | Assert e ->
       let e' = eval_expr locals e in
       let* b = Choice.check_add_true @@ Value.Bool.not_ e' in
-      if b then (
+      if not b then ok state
+      else begin
         Logs.app (fun k -> k "     assert : failure with (%a)" Value.pp e');
-        error (`Assert_failure e') )
-      else ok state
+        error (`Assert_failure e')
+      end
     | Block blk -> ok { state with stmts = blk @ state.stmts }
     | If (br, blk1, blk2) ->
       let br = eval_expr locals br in
