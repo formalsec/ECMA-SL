@@ -1,8 +1,8 @@
 Tests include:
-  $ ecma-sl interpret test_import.esl
-  $ ecma-sl interpret test_float.esl
+  $ ecma-sl interpret test_stdlib_import.esl
+  $ ecma-sl interpret test_stdlib_float.esl
 Tests list operators:
-  $ ecma-sl interpret test_list.esl
+  $ ecma-sl interpret test_stdlib_list.esl
   Initial list:
   8
   4
@@ -28,3 +28,4 @@ Tests list operators:
   Sum of squares: 285
   Sorted list:
   [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+  $ ecma-sl interpret test_stdlib_inequality.esl
