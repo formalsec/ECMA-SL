@@ -17390,21 +17390,22 @@ Tests compilation of ecmaref6:
                 __v3080 := hd tl __v3080
               };
               descriptor := __v3080;
-              __v3081 := array["DefineOwnProperty"];
-              __v3082 := int_to_float i;
-              __v3083 := "ToUint32"(___internal_esl_global, __v3082);
+              __v3081 := int_to_float i;
+              __v3082 := "ToUint32"(___internal_esl_global, __v3081);
+              if (hd __v3082) {
+                return __v3082
+              } else {
+                __v3082 := hd tl __v3082
+              };
+              __v3083 := "ToString"(___internal_esl_global, __v3082);
               if (hd __v3083) {
                 return __v3083
               } else {
                 __v3083 := hd tl __v3083
               };
-              __v3084 := "ToString"(___internal_esl_global, __v3083);
-              if (hd __v3084) {
-                return __v3084
-              } else {
-                __v3084 := hd tl __v3084
-              };
-              __v3085 := __v3081(___internal_esl_global, array, __v3084, descriptor);
+              index := __v3083;
+              __v3084 := array["DefineOwnProperty"];
+              __v3085 := __v3084(___internal_esl_global, array, index, descriptor);
               if (hd __v3085) {
                 return __v3085
               } else {
@@ -17422,7 +17423,8 @@ Tests compilation of ecmaref6:
           } else {
             __v3088 := hd tl __v3088
           };
-          __v3089 := "newDataPropertyDescriptorFull"(___internal_esl_global, __v3088, true, false, false);
+          index := __v3088;
+          __v3089 := "newDataPropertyDescriptorFull"(___internal_esl_global, index, true, false, false);
           if (hd __v3089) {
             return __v3089
           } else {

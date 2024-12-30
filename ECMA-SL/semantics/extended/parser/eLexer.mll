@@ -11,6 +11,7 @@
             "None"                    , NONE;
 
             (* Language constructs *)
+            "let"                     , LET;
             "import"                  , IMPORT;
             "typedef"                 , TYPEDEF;
             "macro"                   , MACRO;
@@ -39,7 +40,7 @@
             (* List operators *)
             "hd"                      , LIST_HEAD;
             "tl"                      , LIST_TAIL;
-            
+
             (* Type operators *)
             "typeof"                  , TYPEOF;
             "int_to_float"            , INT_TO_FLOAT;
@@ -77,7 +78,7 @@
 
   exception Syntax_error of string
 
-  let create_string (lexbuf : Lexing.lexbuf) (read_string : Lexing.lexbuf -> token): token = 
+  let create_string (lexbuf : Lexing.lexbuf) (read_string : Lexing.lexbuf -> token): token =
     let start_p = lexbuf.lex_start_p in
     let token = read_string lexbuf in
     lexbuf.lex_start_p <- start_p;
@@ -123,6 +124,7 @@ rule read =
   | ';'               { SEMICOLON }
   | ':'               { COLON }
   | '.'               { PERIOD }
+  | "="               { DEFEQ0 }
   | ":="              { DEFEQ }
   | '@'               { ATSIGN }
   | '#'               { HASH }
