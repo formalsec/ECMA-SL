@@ -1,5 +1,0 @@
-(cram
- (deps
-  %{bin:ecma-sl}
-  (package ecma-sl)
-  (source_tree relative-imports)))

@@ -105,27 +105,27 @@ Use `ecma-sl --help` for more information about the entire application, or `ecma
 
 - Compile an ECMA-SL `(.esl)` program into Core ECMA-SL (`.cesl`), and interpret the Core ECMA-SL program:
 ```sh
-$ ecma-sl compile test/ecma-sl/interpret/distinct.esl -o distinct.cesl
+$ ecma-sl compile test/ecma-sl/test_stdlib_inequality.esl -o distinct.cesl
 $ ecma-sl interpret distinct.cesl
 ```
 
 - Interpret an ECMA-SL `(.esl)` program directly (the application extrapolates the language of the program based on the file extension, and compiles the ECMA-SL program to ECMA-SL if needed):
 ```sh
-$ ecma-sl interpret test/ecma-sl/interpret/distinct.esl
+$ ecma-sl interpret test/ecma-sl/test_stdlib_inequality.esl
 ```
 
 ### Verbose / Debug Interpretation
 
 - Interpret an ECMA-SL `(.esl)` program in verbose mode (all intermediate interpreter steps are logged):
 ```sh
-$ ecma-sl interpret test/ecma-sl/interpret/distinct.esl --debug full
-[ecma-sl] Sucessfuly compiled program 'test/ecma-sl/interpret/distinct.esl'.
+$ ecma-sl interpret test/ecma-sl/test_stdlib_inequality.esl --debug full
+[ecma-sl] Sucessfuly compiled program 'test/ecma-sl/test_stdlib_inequality.esl'.
 [ecma-sl] Sucessfuly evaluated program with return '0'.
 ```
 
 - Execute an ECMA-SL `(.esl)` program with the debug prompt (breakpoints can be added to `(.esl)` code by preceding the instruction with `#`):
 ```sh
-$ ecma-sl interpret test/ecma-sl/interpret/distinct.esl --db
+$ ecma-sl interpret test/ecma-sl/test_stdlib_inequality.esl --db
 ```
 
 <br>
@@ -134,13 +134,19 @@ $ ecma-sl interpret test/ecma-sl/interpret/distinct.esl --db
 
 - Encode a JavaScript `(.js)` program in Core ECMA-SL `(.cesl)`, and execute the encoded program using the default reference interpreter.
 ```sh
-$ ecma-sl encode test/toyecma/call.js -o call.cesl
-$ ecma-sl execute call.cesl
+$ ecma-sl encode test/javascript/simple/catch.js -o catch.cesl
+$ ecma-sl execute catch.cesl
+Function 'foo' called
+Exception caught: 20
+Ret: 30
 ```
 
 - Execute a JavaScript `(.js)` program directly (the application extrapolates the language of the program based on the file extension, and encodes the JavaScript program in Core ECMA-SL if needed):
 ```sh
-$ ecma-sl execute test/toyecma/call.js
+$ ecma-sl execute test/javascript/simple/catch.js
+Function 'foo' called
+Exception caught: 20
+Ret: 30
 ```
 
 - Test a JavaScript `(.js)` program using a test harness:

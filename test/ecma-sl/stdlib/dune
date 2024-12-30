@@ -1,7 +1,0 @@
-(cram
- (deps
-  %{bin:ecma-sl}
-  (package ecma-sl)
-  test_float.esl
-  test_import.esl
-  test_list.esl))
