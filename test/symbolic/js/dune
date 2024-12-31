@@ -10,4 +10,5 @@
   symbolic_number_arith.js
   symbolic_number_branching.js
   symbolic_string_operations.js
-  symbolic_string_branching.js))
+  symbolic_string_branching.js
+  symbolic_string_array.js))
