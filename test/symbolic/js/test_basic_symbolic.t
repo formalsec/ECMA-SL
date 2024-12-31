@@ -20,3 +20,4 @@ Test basic symbolic number:
   - : app = loc(8034)
   - : app = loc(8042)
   All Ok!
+  $ ecma-sl symbolic symbolic_string_array.js

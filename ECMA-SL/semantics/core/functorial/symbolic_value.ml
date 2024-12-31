@@ -112,7 +112,12 @@ module M = struct
     | IntToFloat -> Smtml.Expr.cvtop Ty_real Reinterpret_int
     | IntToString -> Smtml.Expr.cvtop Ty_int ToString
     | FloatToInt -> Smtml.Expr.cvtop Ty_real Reinterpret_float
-    | FloatToString -> Smtml.Expr.cvtop Ty_real ToString
+    | FloatToString -> (
+      fun v ->
+        match Smtml.Expr.view v with
+        | Val (Real f) ->
+          Smtml.Expr.value (Str (Arith_utils.float_to_string_inner f))
+        | _ -> Smtml.Expr.cvtop Ty_real ToString v )
     | StringToInt -> Smtml.Expr.cvtop Ty_str String_to_int
     | StringToFloat -> (
       fun v ->
