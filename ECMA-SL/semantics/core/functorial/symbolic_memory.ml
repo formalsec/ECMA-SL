@@ -1,5 +1,4 @@
 open EslSyntax
-open Smtml
 module V = Symbolic_value.M
 module E = Smtml.Expr
 
@@ -85,14 +84,14 @@ module Make (O : Object_intf.S with type value = V.value) = struct
     match E.view e with
     | Val (App (`Op "loc", [ Int x ])) -> [ (Some accum, x) ]
     (* TODO:x | Val (Val.Symbol _x) -> [ (Some accum, ~-1) ] *)
-    | Triop (_, Ty.Ite, c, a, e) -> (
+    | Triop (_, Ite, c, a, e) -> (
       match E.view a with
       | Val (App (`Op "loc", [ Int l ])) ->
         let accum' =
-          E.(binop Ty.Ty_bool Ty.And accum (unop Ty.Ty_bool Ty.Not c))
+          E.(binop Ty_bool And accum (unop Ty_bool Not c))
         in
         let tl = unfold_ite ~accum:accum' e in
-        (Some E.(binop Ty.Ty_bool Ty.And accum c), l) :: tl
+        (Some E.(binop Ty_bool And accum c), l) :: tl
       | _ -> assert false )
     | _ -> assert false
 
@@ -102,10 +101,10 @@ module Make (O : Object_intf.S with type value = V.value) = struct
       (* We're in an unsat path *)
       Ok []
     | Val (App (`Op "loc", [ Int l ])) -> Ok [ (None, l) ]
-    | Triop (_, Ty.Ite, c, a, v) -> (
+    | Triop (_, Ite, c, a, v) -> (
       match E.view a with
       | Val (App (`Op "loc", [ Int l ])) ->
-        Ok ((Some c, l) :: unfold_ite ~accum:E.(unop Ty.Ty_bool Ty.Not c) v)
+        Ok ((Some c, l) :: unfold_ite ~accum:E.(unop Ty_bool Not c) v)
       | _ -> Error (Fmt.str "Value '%a' is not a loc expression" E.pp e) )
     | _ ->
       Fmt.epr "Value '%a' is not a loc expression" V.pp e;

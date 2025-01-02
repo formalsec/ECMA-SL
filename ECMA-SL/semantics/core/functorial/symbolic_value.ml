@@ -76,7 +76,7 @@ module M = struct
   let rec expr_type v1 =
     match Smtml.Expr.view v1 with
     | Smtml.Expr.Relop (_, _, _, _) -> Ty.Ty_bool
-    | Smtml.Expr.Triop (_, Ty.Ite, _, a, _) -> expr_type a
+    | Smtml.Expr.Triop (_, Ite, _, a, _) -> expr_type a
     | _ -> Smtml.Expr.ty v1
 
   let eval_unop (op : Operator.unopt) =
