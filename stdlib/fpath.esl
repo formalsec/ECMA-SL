@@ -1,0 +1,67 @@
+import stdlib;
+
+/** Simple library to manipulate unix-like paths */
+
+/** Paths */
+function fpath_make(str) {
+  let str = (str == "/") ? "" : str;
+  return [ str ];
+}
+
+function add_seg(fpath, seg) {
+  return l_prepend(seg, fpath);
+}
+
+function fpath_append(a, b) {
+  return l_concat(b, a);
+}
+
+/** Base and Parent paths */
+function split_base(fpath) {
+  let b = hd fpath;
+  let d = tl fpath;
+  assert pair(b, d);
+}
+
+function basename(fpath) {
+  return hd fpath;
+}
+
+function dirname(fpath) : string {
+  return tl fpath;
+}
+
+/** Predicates and comparison */
+function is_rel(fpath) {
+  let fpath_rev = l_reverse(fpath);
+  let root = hd fpath_rev;
+  return root != "";
+}
+
+function is_abs(fpath) {
+  return !is_rel(fpath);
+}
+
+/** File extensions */
+function get_ext(fpath) {
+  assert false;
+}
+
+function has_ext(fpath) {
+  assert false;
+}
+
+function split_ext(fpath) {
+  assert false;
+}
+
+/** Conversions */
+function fpath_to_string(fpath) {
+  let fpath_rev = l_reverse(fpath);
+  return s_join(fpath_rev, "/");
+}
+
+function fpath_of_string(str) {
+  let fpath_rev = s_split(str, "/");
+  return l_reverse(fpath_rev);
+}
