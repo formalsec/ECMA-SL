@@ -21,6 +21,8 @@ module Make () = struct
   module Optimizer = Choice_monad.Optimizer
   open Extern_func
 
+  (* FIXME: This table should be part of Env.t or Thread.t to allow symbolic execution to branch/emulate the filesystem correctly *)
+  let channel_table = Channel_utils.make ()
   let fresh_i = Base.make_name_generator "i"
   let fresh_x = Base.make_name_generator "x"
   let fresh_func = Base.make_name_generator "eval_func_"
@@ -207,7 +209,6 @@ module Make () = struct
     let list_sort v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (list_sort v)
-      (* TODO:x | List lst -> ok_v (List (List.sort compare lst)) *)
       | _ -> failure (__FUNCTION__ ^ ": invalid argument")
     in
     let list_mem v1 v2 =
@@ -399,6 +400,54 @@ module Make () = struct
       | Val v -> ok_v (parse_date v)
       | _ -> failure (__FUNCTION__ ^ ": invalid argument")
     in
+    let open_in v =
+      match Smtml.Expr.view v with
+      | Val (Str fpath) -> ok @@ Channel_utils.open_in channel_table fpath
+      | _ -> failure @@ Fmt.str "invalid file path: %a" Smtml.Expr.pp v
+    in
+    let open_out v =
+      match Smtml.Expr.view v with
+      | Val (Str fpath) -> ok @@ Channel_utils.open_out channel_table fpath
+      | _ -> failure @@ Fmt.str "invalid file path: %a" Smtml.Expr.pp v
+    in
+    let input_line v =
+      let open Smtml_prelude.Result in
+      Choice.return
+      @@
+      let* ty = Channel_utils.find channel_table v in
+      let* ic = Channel_utils.Type.get_in ty in
+      match In_channel.input_line ic with
+      | None -> Ok (Value.mk_symbol "undefined")
+      | Some line -> Ok (Smtml.Expr.value (Str line))
+    in
+    let input_all v =
+      let open Smtml_prelude.Result in
+      Choice.return
+      @@
+      let* ty = Channel_utils.find channel_table v in
+      let* ic = Channel_utils.Type.get_in ty in
+      Ok (Smtml.Expr.value (Str (In_channel.input_all ic)))
+    in
+    let output_string v str =
+      let open Smtml_prelude.Result in
+      Choice.return
+      @@
+      let* ty = Channel_utils.find channel_table v in
+      let* oc = Channel_utils.Type.get_out ty in
+      let* () =
+        match Smtml.Expr.view str with
+        | Val (Str str) -> Ok (Out_channel.output_string oc str)
+        | _ -> Error (`Failure "cannot write non-string object")
+      in
+      Ok (Value.mk_symbol "undefined")
+    in
+    let close v =
+      let open Smtml_prelude.Result in
+      Choice.return
+      @@
+      let* () = Channel_utils.close channel_table v in
+      Ok (Value.mk_symbol "undefined")
+    in
     of_array
       [| (* int *)
          ( "int_to_four_hex_external"
@@ -503,6 +552,13 @@ module Make () = struct
        ; ("parse_number_external", Extern_func (Func (Arg Res), parse_number))
        ; ("parse_string_external", Extern_func (Func (Arg Res), parse_string))
        ; ("parse_date_external", Extern_func (Func (Arg Res), parse_date))
+       ; ("open_in_external", Extern_func (Func (Arg Res), open_in))
+       ; ("open_out_external", Extern_func (Func (Arg Res), open_out))
+       ; ("input_line_external", Extern_func (Func (Arg Res), input_line))
+       ; ("input_all_external", Extern_func (Func (Arg Res), input_all))
+       ; ( "output_string_external"
+         , Extern_func (Func (Arg (Arg Res)), output_string) )
+       ; ("close_external", Extern_func (Func (Arg Res), close))
       |]
 
   let symbolic_api filename =

@@ -90,6 +90,7 @@
   tStmt
   tCtx
   ;  utils
+  channel_utils
   arith_utils
   byte_utils
   code_utils
