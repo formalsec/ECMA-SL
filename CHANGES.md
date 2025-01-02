@@ -2,6 +2,10 @@
 
 ### Changed
 ### Added
+
+- Adds `s_join` to ecma-sl's standard library
+- Adds `fpath`, a simple library to manipulate paths, to ecma-sl's standard library
+
 ### Fixed
 
 # v1.1.0

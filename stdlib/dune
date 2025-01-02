@@ -2,4 +2,6 @@
  (section
   (site
    (ecma-sl stdlib)))
- (files stdlib.esl))
+ (files
+  fpath.esl
+  stdlib.esl))
