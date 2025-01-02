@@ -15,20 +15,20 @@ let arg_err (texp : string) ((v, at) : arg) : 'a =
 let mk_bool : bool -> Value.t = function true -> True | false -> False
 [@@inline]
 
-let unary_arith_semantics (op : Smtml.Ty.unop) : arg -> res = function
+let unary_arith_semantics (op : Smtml.Ty.Unop.t) : arg -> res = function
   | ((Int _ as v), _) -> Smtml.Eval.unop Ty_int op v
   | ((Real _ as v), _) -> Smtml.Eval.unop Ty_real op v
   | arg -> arg_err "integer/float" arg
 
-let unary_bitwise_semantics (op : Smtml.Ty.unop) : arg -> res = function
+let unary_bitwise_semantics (op : Smtml.Ty.Unop.t) : arg -> res = function
   | ((Int _ as v), _) -> Smtml.Eval.unop Ty_int op v
   | arg -> arg_err "integer" arg
 
-let unary_logical_semantics (op : Smtml.Ty.unop) : arg -> res = function
+let unary_logical_semantics (op : Smtml.Ty.Unop.t) : arg -> res = function
   | (((True | False) as v), _) -> Smtml.Eval.unop Ty_bool op v
   | arg -> arg_err "boolean" arg
 
-let unary_list_semantics (op : Smtml.Ty.unop) : arg -> res = function
+let unary_list_semantics (op : Smtml.Ty.Unop.t) : arg -> res = function
   | ((List _ as v), at) -> (
     try Smtml.Eval.unop Ty_list op v
     with _ -> custom_err at (Unexpected "empty list") )
@@ -86,7 +86,7 @@ let binary_plus_semantics : arg * arg -> res = function
   | ((Str _, _), arg2) -> arg_err "string" arg2
   | (arg1, _) -> arg_err "integer/float/string" arg1
 
-let binary_arith_semantics (op : Smtml.Ty.binop) : arg * arg -> res = function
+let binary_arith_semantics (op : Smtml.Ty.Binop.t) : arg * arg -> res = function
   | (((Int _ as v1), _), ((Int _ as v2), _)) -> Smtml.Eval.binop Ty_int op v1 v2
   | (((Real _ as v1), _), ((Real _ as v2), _)) ->
     Smtml.Eval.binop Ty_real op v1 v2
@@ -94,24 +94,24 @@ let binary_arith_semantics (op : Smtml.Ty.binop) : arg * arg -> res = function
   | ((Real _, _), arg2) -> arg_err "float" arg2
   | (arg1, _) -> arg_err "integer/float" arg1
 
-let binary_bitwise_semantics (op : Smtml.Ty.binop) : arg * arg -> res = function
+let binary_bitwise_semantics (op : Smtml.Ty.Binop.t) : arg * arg -> res = function
   | (((Int _ as v1), _), ((Int _ as v2), _)) -> Smtml.Eval.binop Ty_int op v1 v2
   | ((Int _, _), arg2) -> arg_err "integer" arg2
   | (arg1, _) -> arg_err "integer" arg1
 
-let binary_logical_semantics (op : Smtml.Ty.binop) : arg * arg -> res = function
+let binary_logical_semantics (op : Smtml.Ty.Binop.t) : arg * arg -> res = function
   | ((((True | False) as v1), _), (((True | False) as v2), _)) ->
     Smtml.Eval.binop Ty_bool op v1 v2
   | (((True | False), _), arg2) -> arg_err "boolean" arg2
   | (arg1, _) -> arg_err "boolean" arg1
 
-let binary_eq_semantics (op : Smtml.Ty.relop) : arg * arg -> res = function
+let binary_eq_semantics (op : Smtml.Ty.Relop.t) : arg * arg -> res = function
   | (((Real _ as v1), _), ((Real _ as v2), _)) ->
     (* Reals need special treatment due to nans *)
     mk_bool (Smtml.Eval.relop Ty_real op v1 v2)
   | ((v1, _), (v2, _)) -> mk_bool (Smtml.Eval.relop Ty_bool op v1 v2)
 
-let binary_relation_semantics (op : Smtml.Ty.relop) : arg * arg -> res =
+let binary_relation_semantics (op : Smtml.Ty.Relop.t) : arg * arg -> res =
   function
   | (((Int _ as v1), _), ((Int _ as v2), _)) ->
     mk_bool (Smtml.Eval.relop Ty_int op v1 v2)
@@ -133,7 +133,7 @@ let conditional_semantics : arg * arg * arg -> res = function
     Smtml.Eval.triop Ty_bool Ite v1 v2 v3
   | (arg1, _, _) -> arg_err "boolean" arg1
 
-let nary_logical_semantics (op : Smtml.Ty.binop) : arg list -> res =
+let nary_logical_semantics (op : Smtml.Ty.Binop.t) : arg list -> res =
   let eval_f v1 arg2 = binary_logical_semantics op ((v1, Source.none), arg2) in
   ( match op with
   | And -> True
