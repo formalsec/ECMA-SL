@@ -137,7 +137,7 @@ let main_cmd =
   let info = Cmd.info "ecma-sl" ~sdocs ~doc ~version ~man ~man_xrefs ~exits in
   Cmd.group info ~default cmd_list
 
-let exit_code () =
+let returncode =
   match Cmdliner.Cmd.eval_value main_cmd with
   | Ok (`Help | `Version) -> Docs.ExitCodes.ok
   | Ok (`Ok (Ok ())) -> Docs.ExitCodes.ok
@@ -150,9 +150,14 @@ let exit_code () =
     | `Execute _ -> Docs.ExitCodes.execute
     | `Test -> Docs.ExitCodes.test
     | `TestFmt _ -> Docs.ExitCodes.test
-    | `SymAbort _ -> Docs.ExitCodes.sym_abort
-    | `SymAssertFailure _ -> Docs.ExitCodes.sym_assert_failure
-    | `SymFailure _ -> Docs.ExitCodes.sym_failure
+    | `Symbolic sym_err -> (
+      match sym_err with
+      | `Abort _ -> Docs.ExitCodes.sym_abort
+      | `Assert_failure _ -> Docs.ExitCodes.sym_assert_failure
+      | `Eval_failure _ -> Docs.ExitCodes.sym_eval_failure
+      | `Exec_failure _ -> Docs.ExitCodes.sym_exec_failure
+      | `ReadFile_failure _ -> Docs.ExitCodes.sym_readFile_failure
+      | `Failure _ -> Docs.ExitCodes.sym_failure )
     | `Generic _ -> Docs.ExitCodes.generic
   end
   | Error err -> begin
@@ -162,4 +167,4 @@ let exit_code () =
     | `Exn -> Docs.ExitCodes.internal
   end
 
-let () = exit (exit_code ())
+let () = exit returncode

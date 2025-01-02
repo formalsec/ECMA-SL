@@ -146,11 +146,7 @@ module Make (P : Interpreter_functor_intf.P) :
     | Assert e ->
       let e' = eval_expr locals e in
       let* b = Choice.check_add_true @@ Value.Bool.not_ e' in
-      if not b then ok state
-      else begin
-        Logs.app (fun k -> k "     assert : failure with (%a)" Value.pp e');
-        error (`Assert_failure e')
-      end
+      if not b then ok state else error (`Assert_failure e')
     | Block blk -> ok { state with stmts = blk @ state.stmts }
     | If (br, blk1, blk2) ->
       let br = eval_expr locals br in

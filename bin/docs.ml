@@ -11,7 +11,10 @@ module ExitCodes = struct
   let test = 6
   let sym_abort = 20
   let sym_assert_failure = 21
-  let sym_failure = 22
+  let sym_eval_failure = 22
+  let sym_exec_failure = 23
+  let sym_readFile_failure = 24
+  let sym_failure = 25
   let generic = 40
   let term = 122
   let client = Cmdliner.Cmd.Exit.cli_error
@@ -31,9 +34,13 @@ module Exits = struct
   let test = info ~doc:"on JavaScript test error" ExitCodes.test
 
   let symbolic =
-    [ info ~doc:"on symbolic execution abortion" ExitCodes.sym_abort
+    [ info ~doc:"on symbolic execution abort" ExitCodes.sym_abort
     ; info ~doc:"on symbolic assertion failure" ExitCodes.sym_assert_failure
-    ; info ~doc:"on symbolic execution failure" ExitCodes.sym_failure
+    ; info ~doc:"on reaching symbolic eval sink" ExitCodes.sym_eval_failure
+    ; info ~doc:"on reaching symbolic exec sink" ExitCodes.sym_exec_failure
+    ; info ~doc:"on reaching symbolic readFile sink"
+        ExitCodes.sym_readFile_failure
+    ; info ~doc:"on unexpected symbolic execution failure" ExitCodes.sym_failure
     ]
 end
 

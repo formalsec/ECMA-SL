@@ -10,9 +10,7 @@ type cmderr =
   | `Execute of string
   | `Test
   | `TestFmt of string
-  | `SymAbort of string
-  | `SymAssertFailure of Symbolic.P.Extern_func.value
-  | `SymFailure of string
+  | `Symbolic of Symbolic_error.t
   | `Generic of string
   ]
 
@@ -27,9 +25,7 @@ let log_error (err : cmderr) : unit =
   | `Execute msg -> Log.error "%s" msg
   | `Test -> ()
   | `TestFmt msg -> Log.error "%s" msg
-  | `SymAbort _ -> ()
-  | `SymAssertFailure _ -> ()
-  | `SymFailure msg -> Log.error "%s" msg
+  | `Symbolic _ -> ()
   | `Generic msg -> Log.error "%s" msg
 
 let error (err : cmderr) : 'a t =
