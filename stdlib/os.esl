@@ -1,0 +1,52 @@
+import fpath;
+
+/** A simple library to interact with the underlying OS. */
+
+/** Input from files */
+
+/* TODO: find a way to propagte the exceptions from the ocaml side.
+   Maybe return an integer for every error possible and propagate it here? */
+function open_in(fpath) {
+  let fpath = fpath_to_string(fpath);
+  let fd = extern open_in_external(fpath);
+  return fd;
+}
+
+function close(fd) {
+  extern close_external(fd);
+  return;
+}
+
+function with_open_in(fpath, f) {
+  let fd = open_in(fpath);
+  let result = {f}(fd);
+  close(fd);
+  return result;
+}
+
+function input_line(fd) {
+  return extern input_line_external(fd);
+}
+
+function input_all(fd) {
+  return extern input_all_external(fd);
+}
+
+/** Output to files */
+function open_out(fpath) {
+  let fpath = fpath_to_string(fpath);
+  let fd = extern open_out_external(fpath);
+  return fd;
+}
+
+function with_open_out(fpath, f) {
+  let fd = open_out(fpath);
+  let result = {f}(fd);
+  close(fd);
+  return result;
+}
+
+function output_string(fd, str) {
+  extern output_string_external(fd, str);
+  return;
+}

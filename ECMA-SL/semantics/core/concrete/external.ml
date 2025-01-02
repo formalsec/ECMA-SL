@@ -703,6 +703,14 @@ module Impl = struct
         remove_sign s |> Date_utils.parse_date |> parse_date false
       else Date_utils.parse_date s |> parse_date false
     | _ -> bad_arg_err 1 op_lbl "string" [ v ]
+
+  (* TODO: Adapt `Channel_utils` to allow both the functorial and concrete interpreter to run these function *)
+  let open_in _v = failwith "TODO: open_in_external"
+  let open_out _v = failwith "TODO: open_out_external"
+  let input_line _v = failwith "TODO: input_line_external"
+  let input_all _v = failwith "TODO: input_all_external"
+  let output_string _ptr _str = failwith "TODO: output_string_external"
+  let close _ptr = failwith "TODO: close_external"
 end
 
 include Impl
@@ -794,6 +802,12 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("parse_number_external", [ v ]) -> parse_number v
   | ("parse_string_external", [ v ]) -> parse_string v
   | ("parse_date_external", [ v ]) -> parse_date v
+  | ("open_in_external", [ v ]) -> open_in v
+  | ("open_out_external", [ v ]) -> open_out v
+  | ("input_line_external", [ v ]) -> input_line v
+  | ("input_all_external", [ v ]) -> input_all v
+  | ("output_string_external", [ v1; v2 ]) -> output_string v1 v2
+  | ("close_external", [ v ]) -> close v
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
     Value.App (`Op "symbol", [ Str "undefined" ])
