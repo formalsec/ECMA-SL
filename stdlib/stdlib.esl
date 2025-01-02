@@ -87,11 +87,11 @@ function s_len(s : string) : int {
   return extern s_len_external(s);
 }
 
-function s_concat(lst : string[]) : int {
+function s_concat(lst : string[]) : string {
   return extern s_concat_external(lst);
 }
 
-function s_nth(s : string, n: int) : int {
+function s_nth(s : string, n: int) : string {
   return extern s_nth_external(s, n);
 }
 
@@ -129,6 +129,20 @@ function s_nth_u(s : string, n : int) : string {
 
 function s_split(s1 : string, s2 : string) : string {
   return extern s_split_external(s1, s2);
+}
+
+function s_join(segments : string[], sep : string) : string {
+  result := "";
+  is_first := true;
+  foreach (segment : segments) {
+    if (is_first) {
+      result := segment;
+      is_first := false;
+    } else {
+      result := result + sep + segment;
+    }
+  }
+  return result;
 }
 
 function s_substr_u(s : string, n1 : int, n2 : int) : string {
