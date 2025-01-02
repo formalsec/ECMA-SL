@@ -21,4 +21,5 @@
   object_lookup_5.esl
   object_lookup_6.esl
   strings.esl
+  string_concat.esl
   while.esl))

@@ -4,8 +4,9 @@ Esl tests:
   All Ok!
   $ ecma-sl symbolic extern.esl
   x
-  [ecma-sl] unable to find external function 'i_dont_exist'
-  [22]
+      failure : unable to find external function 'i_dont_exist'
+  Found 1 problems!
+  [25]
   $ ecma-sl symbolic func.esl
   - : int = 1
   - : int = 1
@@ -17,6 +18,11 @@ Esl tests:
   $ ecma-sl symbolic strings.esl
   - : int = 1
   All Ok!
+  $ ecma-sl symbolic string_concat.esl
+       assert : failure with ((bool.ne (str.++ (flour, " ", water))
+                               "banana bread"))
+  Found 1 problems!
+  [21]
   $ ecma-sl symbolic while.esl
   - : int = 1
   - : int = 1

@@ -60,20 +60,11 @@ let pp_model fmt model =
   Fmt.pf fmt "@[<v 2>module.exports.symbolic_map =@ { %a@\n}@]" pp_vars
     (Smtml.Model.get_bindings model)
 
-type witness =
-  [ `SymAbort of string
-  | `SymAssertFailure of Extern_func.value
-  | `SymExecFailure of Extern_func.value
-  | `SymEvalFailure of Extern_func.value
-  | `SymReadFileFailure of Extern_func.value
-  ]
-
-let serialize_thread (workspace : Fpath.t) :
-  witness option -> Thread.t -> unit Result.t =
+let serialize_thread workspace =
   let open Ecma_sl in
   let mode = 0o666 in
   let (next_int, _) = Base.make_counter 0 1 in
-  fun witness thread ->
+  fun result thread ->
     let open Fpath in
     let pc = Thread.pc thread in
     Logs.debug (fun pp -> pp "@[<hov 1>  path cond :@ %a@]" Solver.pp_set pc);
@@ -87,7 +78,7 @@ let serialize_thread (workspace : Fpath.t) :
       let path =
         Fmt.kstr
           (add_seg (workspace / "test-suite"))
-          (match witness with None -> "testcase-%d" | Some _ -> "witness-%d")
+          (match result with Ok () -> "testcase-%d" | Error _ -> "witness-%d")
           (next_int ())
       in
       let pp = Fmt.option pp_model in
@@ -97,9 +88,8 @@ let serialize_thread (workspace : Fpath.t) :
       let* () = Bos.OS.File.writef ~mode (path + ".js") "%a" pp model in
       Bos.OS.File.writef ~mode (path + ".smtml") "%a" Smtml.Expr.pp_smt pc
 
-let process_result (workspace : Fpath.t) (res, thread) : witness option Result.t
-    =
-  let process_witness = function
+let process_result (workspace : Fpath.t) (result, thread) =
+  let parse_return_value = function
     | Ok result -> (
       (* FIXME: Maybe move this prints to some better place *)
       match List.map Smtml.Expr.view result with
@@ -108,64 +98,29 @@ let process_result (workspace : Fpath.t) (res, thread) : witness option Result.t
         Logs.app (fun k ->
           k "- : %a =@[<hov> %a@]" Smtml.Ty.pp (Smtml.Expr.ty result)
             (Memory.pp_val mem) result );
-        Ok None
+        Ok ()
       | [ List [ { node = Val True; _ }; e ] ] ->
         let msg =
           Fmt.str "Failure: @[<hov>uncaught exception:@ %a@]" Smtml.Expr.pp e
         in
         Logs.app (fun k -> k "%s" msg);
-        Error (`SymFailure msg)
+        Error (`Failure msg)
       | _ ->
         let msg =
           Fmt.str "Failure: @[<hov>something went terribly wrong:@ %a@]"
             Smtml.Expr.pp_list result
         in
         Logs.app (fun k -> k "%s" msg);
-        Error (`SymFailure msg) )
-    | Error err -> (
-      match err with
-      | `Abort msg -> Ok (Some (`SymAbort msg))
-      | `Assert_failure v -> Ok (Some (`SymAssertFailure v))
-      | `Exec_failure v -> Ok (Some (`SymExecFailure v))
-      | `Eval_failure v -> Ok (Some (`SymEvalFailure v))
-      | `ReadFile_failure v -> Ok (Some (`SymReadFileFailure v))
-      | `Failure msg -> Result.error (`SymFailure msg) )
+        Error (`Failure msg) )
+    | Error _ as err -> err
   in
-  let* witness = process_witness res in
-  let+ () = serialize_thread workspace witness thread in
-  witness
+  let result = parse_return_value result in
+  let+ () = serialize_thread workspace result thread in
+  result
 
-let err_to_json = function
-  | `SymAbort msg -> `Assoc [ ("type", `String "Abort"); ("sink", `String msg) ]
-  | `SymAssertFailure v ->
-    let v = Value.to_string v in
-    `Assoc [ ("type", `String "Assert failure"); ("sink", `String v) ]
-  | `SymEvalFailure v ->
-    let v = Value.to_string v in
-    `Assoc [ ("type", `String "Eval failure"); ("sink", `String v) ]
-  | `SymExecFailure v ->
-    let v = Value.to_string v in
-    `Assoc [ ("type", `String "Exec failure"); ("sink", `String v) ]
-  | `SymReadFileFailure v ->
-    let v = Value.to_string v in
-    `Assoc [ ("type", `String "ReadFile failure"); ("sink", `String v) ]
-  | `SymFailure msg ->
-    `Assoc [ ("type", `String "Failure"); ("sink", `String msg) ]
-
-let write_report (workspace : Fpath.t) (filename : Fpath.t) (exec_time : float)
-  (solver_time : float) (solver_count : int) (problems : witness list) :
-  unit Result.t =
+let write_report workspace symbolic_report =
   let mode = 0o666 in
-  let json =
-    `Assoc
-      [ ("filename", `String (Fpath.to_string filename))
-      ; ("execution_time", `Float exec_time)
-      ; ("solver_time", `Float solver_time)
-      ; ("solver_queries", `Int solver_count)
-      ; ("num_problems", `Int (List.length problems))
-      ; ("problems", `List (List.map err_to_json problems))
-      ]
-  in
+  let json = Ecma_sl.Symbolic_report.to_json symbolic_report in
   let path = Fpath.(workspace / "symbolic-execution.json") in
   Result.bos
   @@ Bos.OS.File.writef ~mode path "%a" (Yojson.pretty_print ~std:true) json
@@ -179,27 +134,38 @@ let run () (opts : Options.t) : unit Result.t =
   let thread = Thread.create () in
   let result = Ecma_sl.Symbolic_interpreter.main env opts.target in
   let results = Choice.run result thread in
-  let exec_time = Stdlib.Sys.time () -. start in
-  let solv_time = !Solver.solver_time in
-  let solv_cnt = !Solver.solver_count in
+  let execution_time = Stdlib.Sys.time () -. start in
+  let solver_time = !Solver.solver_time in
+  let solver_queries = !Solver.solver_count in
   let testsuite = Fpath.(opts.workspace / "test-suite") in
   let* _ = Result.bos (Bos.OS.Dir.create ~mode:0o777 testsuite) in
-  let rec print_and_count_failures (cnt, problems) results =
-    match results () with
-    | Seq.Nil -> Ok (cnt, problems)
-    | Seq.Cons (result, tl) -> (
-      let* witness = process_result opts.workspace result in
-      match witness with
-      | None -> print_and_count_failures (cnt, problems) tl
-      | Some witness ->
-        let cnt = succ cnt in
-        let problems = witness :: problems in
-        if no_stop_at_failure then print_and_count_failures (cnt, problems) tl
-        else Ok (cnt, problems) )
+  let report =
+    { Ecma_sl.Symbolic_report.filename = opts.input
+    ; execution_time
+    ; solver_time
+    ; solver_queries
+    ; num_failures = 0
+    ; failures = []
+    }
   in
-  let* (n, problems) = print_and_count_failures (0, []) results in
-  if n = 0 then Logs.app (fun k -> k "All Ok!")
-  else Logs.app (fun k -> k "Found %d problems!" n);
-  Logs.debug (fun k -> k "  exec time : %fs" exec_time);
-  Logs.debug (fun k -> k "solver time : %fs" solv_time);
-  write_report opts.workspace opts.input exec_time solv_time solv_cnt problems
+  let rec print_and_count_failures results =
+    match results () with
+    | Seq.Nil -> Ok ()
+    | Seq.Cons (result, tl) -> (
+      let* result = process_result opts.workspace result in
+      match result with
+      | Ok () -> print_and_count_failures tl
+      | Error witness ->
+        Logs.app (fun k -> k "%a" Ecma_sl.Symbolic_error.pp witness);
+        report.num_failures <- succ report.num_failures;
+        report.failures <- witness :: report.failures;
+        if no_stop_at_failure then print_and_count_failures tl
+        else Error (`Symbolic witness) )
+  in
+  let result = print_and_count_failures results in
+  if report.num_failures = 0 then Logs.app (fun k -> k "All Ok!")
+  else Logs.app (fun k -> k "Found %d problems!" report.num_failures);
+  Logs.debug (fun k -> k "  exec time : %fs" execution_time);
+  Logs.debug (fun k -> k "solver time : %fs" solver_time);
+  let* () = write_report opts.workspace report in
+  result
