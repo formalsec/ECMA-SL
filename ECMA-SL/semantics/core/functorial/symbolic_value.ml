@@ -239,6 +239,7 @@ module M = struct
 
   let rec eval_expr (store : store) (e : Expr.t) : value =
     match e.it with
+    | Val (List lst) -> Smtml.Expr.make @@ List (List.map Smtml.Expr.value lst)
     | Val v -> Smtml.Expr.value v
     | Var x -> (
       match Store.find store x with

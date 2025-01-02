@@ -294,12 +294,7 @@ module Impl = struct
 
   let l_len (v : Value.t) : Value.t =
     let op_lbl = "l_len_external" in
-    try Smtml.Eval.unop Ty_list Smtml.Ty.Length v
-    with _ -> bad_arg_err 1 op_lbl "list" [ v ]
-
-  let l_reverse (v : Value.t) : Value.t =
-    let op_lbl = "l_reverse_external" in
-    try Smtml.Eval.unop Ty_list Smtml.Ty.Reverse v
+    try Smtml.Eval.unop Ty_list Length v
     with _ -> bad_arg_err 1 op_lbl "list" [ v ]
 
   let l_nth ((v1, v2) : Value.t * Value.t) : Value.t =
@@ -747,7 +742,6 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("a_set_external", [ v1; v2; v3 ]) -> array_set (v1, v2, v3)
   (* list *)
   | ("l_len_external", [ v ]) -> l_len v
-  | ("l_reverse_external", [ v ]) -> l_reverse v
   | ("l_nth_external", [ v1; v2 ]) -> l_nth (v1, v2)
   | ("l_add_external", [ v1; v2 ]) -> l_add (v1, v2)
   | ("l_prepend_external", [ v1; v2 ]) -> l_prepend (v1, v2)

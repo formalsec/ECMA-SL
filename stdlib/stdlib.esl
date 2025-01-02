@@ -268,7 +268,11 @@ function l_len(lst) {
 }
 
 function l_reverse(lst) {
-  return extern l_reverse_external(lst);
+  result := [];
+  foreach (v : lst) {
+    result := l_prepend(v, result);
+  }
+  return result;
 }
 
 function l_nth(lst, i) {

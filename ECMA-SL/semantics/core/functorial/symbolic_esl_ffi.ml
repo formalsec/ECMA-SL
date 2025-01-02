@@ -168,11 +168,6 @@ module Make () = struct
       | List _ -> ok @@ Smtml.Expr.unop Ty_list Length v
       | _ -> failure (__FUNCTION__ ^ ": invalid argument")
     in
-    let l_reverse v =
-      match Smtml.Expr.view v with
-      | Val v -> ok_v (l_reverse v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
-    in
     let l_nth v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (l_nth (v1, v2))
@@ -444,7 +439,6 @@ module Make () = struct
        ; ("a_set_external", Extern_func (Func (Arg (Arg (Arg Res))), array_set))
          (* list *)
        ; ("l_len_external", Extern_func (Func (Arg Res), l_len))
-       ; ("l_reverse_external", Extern_func (Func (Arg Res), l_reverse))
        ; ("l_nth_external", Extern_func (Func (Arg (Arg Res)), l_nth))
        ; ("l_add_external", Extern_func (Func (Arg (Arg Res)), l_add))
        ; ("l_prepend_external", Extern_func (Func (Arg (Arg Res)), l_prepend))
