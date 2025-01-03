@@ -1,17 +1,16 @@
 function initConsoleObject(globalObject, objectPrototype, strict) {
   console := NewECMAScriptObject();
   setAllInternalMethodsOfOrdinaryObject(console);
-  internalLog := CreateBuiltInFunctionObject(["str"], "__internalLog", globalObject, strict, null);
-  internalLogObject := CreateBuiltInFunctionObject(["obj"], "__internalLogObject", globalObject, strict, null);
-  createBuiltInProperty(console, "log", internalLog);
-  createBuiltInProperty(console, "logObject", internalLogObject);
-  createBuiltInProperty(internalLog, "prototype", objectPrototype);
-  createBuiltInProperty(internalLogObject, "prototype", objectPrototype);
   setInternalProperty(console, "Prototype", objectPrototype);
+
+  log := CreateBuiltInFunctionObject(["str"], "__esl_console_log", globalObject, strict, null);
+  createBuiltInProperty(log, "prototype", objectPrototype);
+  createBuiltInProperty(console, "log", log);
+
   return console;
 }
 
-function __internalLog(globalObject, this, NewTarget, strict, params) {
+function __esl_console_log(globalObject, this, NewTarget, strict, params) {
   str := l_nth(params, 0);
   if (typeof str != "string") {
     if (Type(str) == "Symbol")
@@ -21,13 +20,5 @@ function __internalLog(globalObject, this, NewTarget, strict, params) {
   }
   /* Important: This is console.log, do not remove! */
   print str;
-  return 'null;
-}
-
-function __internalLogObject(globalObject, this, NewTarget, strict, params) {
-  obj := l_nth(params, 0);
-  if (typeof obj != "object")
-    return __internalLog(globalObject, this, NewTarget, strict, params);
-  oProps := obj.JSProperties;
   return 'null;
 }
