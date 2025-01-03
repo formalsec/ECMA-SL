@@ -20,7 +20,7 @@ function fpath_append(a, b) {
 function split_base(fpath) {
   let b = hd fpath;
   let d = tl fpath;
-  assert pair(b, d);
+  return pair(b, d);
 }
 
 function basename(fpath) {
