@@ -43,6 +43,13 @@ function is_abs(fpath) {
 }
 
 /** File extensions */
+function set_ext(fpath, ext) {
+  let p = split_base(fpath);
+  let b = fst(p);
+  let d = snd(p);
+  return add_seg(d, b + ext);
+}
+
 function get_ext(fpath) {
   assert false;
 }
