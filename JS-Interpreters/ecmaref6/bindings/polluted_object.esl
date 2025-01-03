@@ -59,7 +59,7 @@ function forbiddenSet(O, P, V, Receiver) {
   return OrdinaryObjectSet(O, P, V, Receiver);
 }
 
-function sealProperties(globalObject, this, NewTarget, strict, params) {
+function __esl_symbolic_seal_properties(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
 
   /* 1. If Type(O) is not Object, return O. */
