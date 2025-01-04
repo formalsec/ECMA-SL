@@ -54,8 +54,10 @@ function get_ext(fpath) {
   assert false;
 }
 
-function has_ext(fpath) {
-  assert false;
+function has_ext(fpath, ext) {
+  let p = split_base(fpath);
+  let b = fst(p);
+  return s_is_suffix(ext, b);
 }
 
 function split_ext(fpath) {

@@ -99,7 +99,8 @@ function load_js_module(fpath) {
 function load_as_file(fpath) {
   /* 1. If X is a file, load X as its file extension format. STOP */
   if (file_exists(fpath)) {
-    /* TODO */
+    if (has_ext(".js", fpath))
+      return load_js_module(fpath);
     throw "TODO: load '" + fpath_to_string(fpath) + "' as its file extension";
   }
 
