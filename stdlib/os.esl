@@ -53,11 +53,10 @@ function output_string(fd, str) {
 
 /* File manipulation */
 function file_exists(fpath) {
-  /* TODO: file_exists */
-  assert false;
+  return extern file_exists_external(fpath);
 }
 
 function mkdir(fpath) {
   /* TODO: mkdir */
-  assert false;
+  throw "TODO: os.mkdir";
 }
