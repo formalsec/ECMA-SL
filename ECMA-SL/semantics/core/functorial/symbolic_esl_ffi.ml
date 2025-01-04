@@ -136,7 +136,12 @@ module Make () = struct
     in
     let s_split v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
-      | (Val v1, Val v2) -> ok_v (s_split (v1, v2))
+      | (Val v1, Val v2) -> (
+        match s_split (v1, v2) with
+        | Smtml.Value.List lst ->
+          let lst = List.map Smtml.Expr.value lst in
+          ok @@ Smtml.Expr.make (List lst)
+        | _ -> assert false )
       | _ -> failure (__FUNCTION__ ^ ": invalid argument")
     in
     let s_substr_u v1 v2 v3 =
