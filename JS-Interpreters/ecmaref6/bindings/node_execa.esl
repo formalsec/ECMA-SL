@@ -1,16 +1,15 @@
-function __execa_shell(globalObject, this, newTarget, strict, params) {
-  return extern exec(l_nth(params, 0));
+function __esl_node_execa_shell(globalObject, this, newTarget, strict, params) {
+  return extern exec(hd params);
 }
 
-function createExecaObject(globalObject, objectPrototype, strict) {
-  realm := { globalEnv : globalObject };
-  execa := newLazyObject();
+function make_execa_object(globalObject, objectPrototype, strict) {
+  let realm = { globalEnv : globalObject };
+  let execa = newLazyObject();
   setInternalProperty(execa, "prototype", objectPrototype);
 
-  /* Functions: */
-  shell := CreateBuiltInFunctionObject(["path"], "__execa_shell", realm, strict, null);
-  createBuiltInProperty(execa, "shell", shell);
+  let shell = CreateBuiltInFunctionObject([], "__esl_node_execa_shell", realm, strict, null);
   createBuiltInProperty(shell, "prototype", objectPrototype);
+  createBuiltInProperty(execa, "shell", shell);
 
   return execa;
 }

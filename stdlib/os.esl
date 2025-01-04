@@ -50,3 +50,14 @@ function output_string(fd, str) {
   extern output_string_external(fd, str);
   return;
 }
+
+/* File manipulation */
+function file_exists(fpath) {
+  /* TODO: file_exists */
+  assert false;
+}
+
+function mkdir(fpath) {
+  /* TODO: mkdir */
+  assert false;
+}

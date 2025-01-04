@@ -1,13 +1,13 @@
-function createShellJSObject(globalObject, objectPrototype, strict) {
-  realm := { globalEnv : globalObject };
-  shelljs := NewECMAScriptObject();
+function make_shelljs_object(globalObject, objectPrototype, strict) {
+  let realm = { globalEnv : globalObject };
+  let shelljs = NewECMAScriptObject();
   setAllInternalMethodsOfOrdinaryObject(shelljs);
   setInternalProperty(shelljs, "Prototype", objectPrototype);
 
   /* Functions: */
-  exec := CreateBuiltInFunctionObject(["path"], "__cp_exec", realm, strict, null);
-  createBuiltInProperty(shelljs, "exec", exec);
+  let exec = CreateBuiltInFunctionObject([], "__esl_node_child_process_exec", realm, strict, null);
   createBuiltInProperty(exec, "prototype", objectPrototype);
+  createBuiltInProperty(shelljs, "exec", exec);
 
   return shelljs;
 }

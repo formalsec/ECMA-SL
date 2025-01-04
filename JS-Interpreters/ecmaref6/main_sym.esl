@@ -1,6 +1,6 @@
-import "esl_interpreter.esl";
-import "bindings/ffi_symbolic.esl";
-import "bindings/node-bindings.esl";
+import "./esl_interpreter.esl";
+import "./bindings/ffi_symbolic.esl";
+import "./bindings/node-bindings.esl";
 
 /* Redefine this functions because we need to initialize the node global obj */
 function ECMAScriptNodeInitialization(sourceText) {
@@ -32,7 +32,7 @@ function InitializeNodeHostDefinedRealm(realm) {
     globalObj := SetDefaultGlobalBindings(realm);
     @ReturnIfAbrupt(globalObj);
 
-    initNodeGlobalObject(globalObj, intrinsics.ObjectPrototype, false);
+    init_node_global_object(globalObj, intrinsics.ObjectPrototype, false);
     return NormalCompletion('undefined);
 }
 

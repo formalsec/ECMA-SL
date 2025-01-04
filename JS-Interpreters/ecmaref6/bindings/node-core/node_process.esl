@@ -1,41 +1,42 @@
-function __process_cwd(globalObject, this, newTarget, strict, params) {
+function __esl_node_process_cwd(globalObject, this, newTarget, strict, params) {
   return extern str_symbol("require('process').cwd()");
 }
 
-function createProcessObject(globalObject, objectPrototype, strict) {
-  realm := { globalEnv : globalObject };
-  newTarget := |Intrinsics|["Array"];
-  process := newLazyObject();
+function make_process_object(globalObject, objectPrototype, strict) {
+  let realm = { globalEnv : globalObject };
+  let newTarget = |Intrinsics|["Array"];
+  let process = newLazyObject();
   /* setAllInternalMethodsOfOrdinaryObject(process); */
   setInternalProperty(process, "prototype", objectPrototype);
 
   /* Properties: */
-  arch := extern str_symbol("require('process').arch");
+  let arch = extern str_symbol("require('process').arch");
   createBuiltInProperty(process, "arch", arch);
   createBuiltInProperty(process, "execPath", "node");
-  platform := extern str_symbol("require('process').platform");
+
+  let platform = extern str_symbol("require('process').platform");
   createBuiltInProperty(process, "platform", platform);
 
   /* Should be a symbolic lazy object, but now it just keeps env empty */
-  env := newLazyObject();
+  let env = newLazyObject();
   /* setAllInternalMethodsOfOrdinaryObject(env); */
   setInternalProperty(env, "prototype", objectPrototype);
   createBuiltInProperty(process, "env", env);
 
-  items :=
+  let items =
     [ extern str_symbol("argv0")
     , extern str_symbol("argv1")
     , extern str_symbol("argv2")
     , extern str_symbol("argv3")
     , extern str_symbol("argv4")
     ];
-  argv := ArrayConstructor('null, 'undefined, newTarget, strict, items, newTarget);
+  let argv = ArrayConstructor('null, 'undefined, newTarget, strict, items, newTarget);
   createBuiltInProperty(process, "argv", argv);
 
   /* Functions: */
-  cwd := CreateBuiltInFunctionObject([], "__process_cwd", realm, strict, null);
-  createBuiltInProperty(process, "cwd", cwd);
+  let cwd = CreateBuiltInFunctionObject([], "__esl_node_process_cwd", realm, strict, null);
   createBuiltInProperty(cwd, "prototype", objectPrototype);
+  createBuiltInProperty(process, "cwd", cwd);
 
   return process;
 }

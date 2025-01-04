@@ -1,0 +1,41 @@
+function __esl_node_child_process_exec(globalObject, this, newTarget, strict, params) {
+  return extern exec(hd params);
+}
+
+function __esl_node_child_process_execSync(globalObject, this, newTarget, strict, params) {
+  return extern exec(hd params);
+}
+
+function __esl_node_child_process_execFile(globalObject, this, newTarget, strict, params) {
+  return extern exec(s_concat(params));
+}
+
+function __esl_node_child_process_spawn(globalObject, this, newTarget, strict, params) {
+  return extern exec(hd params);
+}
+
+function make_child_process_object(globalObject, objectPrototype, strict) {
+  let realm = { globalEnv : globalObject };
+  let child_process = NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(child_process);
+  setInternalProperty(child_process, "Prototype", objectPrototype);
+
+  /* Functions: */
+  let exec = CreateBuiltInFunctionObject([], "__esl_node_child_process_exec", realm, strict, null);
+  createBuiltInProperty(exec, "prototype", objectPrototype);
+  createBuiltInProperty(child_process, "exec", exec);
+
+  let execSync = CreateBuiltInFunctionObject([], "__esl_node_child_process_execSync", realm, strict, null);
+  createBuiltInProperty(execSync, "prototype", objectPrototype);
+  createBuiltInProperty(child_process, "execSync", execSync);
+
+  let execFile = CreateBuiltInFunctionObject([], "__esl_node_child_process_execFile", realm, strict, null);
+  createBuiltInProperty(execFile, "prototype", objectPrototype);
+  createBuiltInProperty(child_process, "execFile", execFile);
+
+  let spawn = CreateBuiltInFunctionObject([], "__esl_node_child_process_spawn", realm, strict, null);
+  createBuiltInProperty(spawn, "prototype", objectPrototype);
+  createBuiltInProperty(child_process, "spawn", spawn);
+
+  return child_process;
+}
