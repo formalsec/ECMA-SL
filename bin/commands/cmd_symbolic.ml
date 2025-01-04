@@ -149,7 +149,12 @@ let run () (opts : Options.t) : unit Result.t =
     }
   in
   let rec print_and_count_failures results =
-    match results () with
+    (* We have to measure execution time here as well *)
+    let start_time = Stdlib.Sys.time () in
+    let result = results () in
+    report.execution_time <-
+      report.execution_time +. (Stdlib.Sys.time () -. start_time);
+    match result with
     | Seq.Nil -> Ok ()
     | Seq.Cons (result, tl) -> (
       let* result = process_result opts.workspace result in
@@ -165,7 +170,7 @@ let run () (opts : Options.t) : unit Result.t =
   let result = print_and_count_failures results in
   if report.num_failures = 0 then Logs.app (fun k -> k "All Ok!")
   else Logs.app (fun k -> k "Found %d problems!" report.num_failures);
-  Logs.debug (fun k -> k "  exec time : %fs" execution_time);
-  Logs.debug (fun k -> k "solver time : %fs" solver_time);
+  Logs.debug (fun k -> k "  exec time : %fs" report.execution_time);
+  Logs.debug (fun k -> k "solver time : %fs" report.solver_time);
   let* () = write_report opts.workspace report in
   result

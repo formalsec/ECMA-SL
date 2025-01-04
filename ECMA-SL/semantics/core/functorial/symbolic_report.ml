@@ -1,6 +1,6 @@
 type t =
   { filename : Fpath.t
-  ; execution_time : float
+  ; mutable execution_time : float
   ; solver_time : float
   ; solver_queries : int
   ; mutable num_failures : int
