@@ -53,6 +53,7 @@ function output_string(fd, str) {
 
 /* File manipulation */
 function file_exists(fpath) {
+  let fpath = fpath_to_string(fpath);
   return extern file_exists_external(fpath);
 }
 

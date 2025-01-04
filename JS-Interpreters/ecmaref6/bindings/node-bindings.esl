@@ -86,7 +86,7 @@ function load_core_module(globalObject, objectPrototype, strict, name) {
 }
 
 function load_js_module(fpath) {
-  let file_content = with_open_in(full_path, "input_all");
+  let file_content = with_open_in(fpath, "input_all");
   let file_content_gen = extern parseJS(file_content);
   let file_content_ast = {file_content_gen}();
   /* TODO: extern push_context(); */
