@@ -1,0 +1,48 @@
+function __esl_node_fs_readfile(globalObject, this, newTarget, strict, params) {
+  return extern readFile(hd params);
+}
+
+function __esl_node_fs_readfilesync(globalObject, this, newTarget, strict, params) {
+  return extern readFile(hd params);
+}
+
+function __esl_node_fs_writefile(globalObject, this, newTarget, strict, params) {
+  return extern readFile(hd params);
+}
+
+function __esl_node_fs_writefilesync(globalObject, this, newTarget, strict, params) {
+  return extern readFile(hd params);
+}
+
+function __esl_node_fs_createreadstream(globalObject, this, newTarget, strict, params) {
+  return extern readFile(hd params);
+}
+
+function make_fs_object(globalObject, objectPrototype, strict) {
+  let realm = { globalEnv : globalObject };
+  let fs = newLazyObject();
+  /* setAllInternalMethodsOfOrdinaryObject(fs); */
+  setInternalProperty(fs, "prototype", objectPrototype);
+
+  let readFile = CreateBuiltInFunctionObject([], "__esl_node_fs_readfile", realm, strict, null);
+  createBuiltInProperty(readFile, "prototype", objectPrototype);
+  createBuiltInProperty(fs, "readFile", readFile);
+
+  let readFileSync = CreateBuiltInFunctionObject([], "__esl_node_fs_readfilesync", realm, strict, null);
+  createBuiltInProperty(readFileSync, "prototype", objectPrototype);
+  createBuiltInProperty(fs, "readFileSync", readFileSync);
+
+  let writeFile = CreateBuiltInFunctionObject([], "__esl_node_fs_writefile", realm, strict, null);
+  createBuiltInProperty(writeFile, "prototype", objectPrototype);
+  createBuiltInProperty(fs, "writeFile", writeFile);
+
+  let writeFileSync = CreateBuiltInFunctionObject([], "__esl_node_fs_writefilesync", realm, strict, null);
+  createBuiltInProperty(writeFileSync, "prototype", objectPrototype);
+  createBuiltInProperty(fs, "writeFileSync", writeFileSync);
+
+  let createReadStream = CreateBuiltInFunctionObject([], "__esl_node_fs_createreadstream", realm, strict, null);
+  createBuiltInProperty(createReadStream, "prototype", objectPrototype);
+  createBuiltInProperty(fs, "createReadStream", createReadStream);
+
+  return fs;
+}

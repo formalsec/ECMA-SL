@@ -1,0 +1,15 @@
+function __esl_node_vm_runInContext(globalObject, this, newTarget, strict, params) {
+  return extern eval(hd params);
+}
+
+function make_vm_object(globalObject, objectPrototype, strict) {
+  let realm = { globalEnv : globalObject };
+  let vm = newLazyObject();
+  setInternalProperty(vm, "prototype", objectPrototype);
+
+  let runInContext = CreateBuiltInFunctionObject([], "__esl_node_vm_runInContext", realm, strict, null);
+  createBuiltInProperty(runInContext, "prototype", objectPrototype);
+  createBuiltInProperty(vm, "runInContext", runInContext);
+
+  return vm;
+}

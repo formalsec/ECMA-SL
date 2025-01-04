@@ -145,6 +145,16 @@ function s_join(segments : string[], sep : string) : string {
   return result;
 }
 
+function s_is_prefix(prefix : string, str : string) : boolean {
+  /* TODO: s_is_prefix */
+  assert false;
+}
+
+function s_is_suffix(suffix : string, str : string) : boolean {
+  /* TODO: s_is_suffix */
+  assert false;
+}
+
 function s_substr_u(s : string, n1 : int, n2 : int) : string {
   return extern s_substr_u_external(s, n1, n2);
 }

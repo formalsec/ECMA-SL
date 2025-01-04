@@ -1,75 +1,204 @@
-import "node_cp.esl";
-import "node_cross-spawn.esl";
-import "node_execa.esl";
-import "node_fs.esl";
-import "node_os.esl";
-import "node_path.esl";
-import "node_process.esl";
-import "node_shelljs.esl";
-import "node_vm.esl";
-import "node_http.esl";
+import os;
+import fpath;
+import "./node-core/node_child_process.esl";
+import "./node-core/node_fs.esl";
+import "./node-core/node_http.esl";
+import "./node-core/node_os.esl";
+import "./node-core/node_path.esl";
+import "./node-core/node_process.esl";
+import "./node-core/node_vm.esl";
+import "./node_cross-spawn.esl";
+import "./node_execa.esl";
+import "./node_shelljs.esl";
 
-function __NodeRequire(globalObject, this, newTarget, strict, params) {
-  path := l_nth(params, 0);
-  objectPrototype := |Intrinsics|["ObjectPrototype"];
-  switch(path) {
-    case "esl_symbolic":
-      return initESLSymbolicObject(globalObject, objectPrototype, strict);
-    case "process":
-      return createProcessObject(globalObject, objectPrototype, strict);
-    case "os":
-      return createOSObject(globalObject, objectPrototype, strict);
-    case "fs":
-      return createFSObject(globalObject, objectPrototype, strict);
-    case "path":
-      return createPathObject(globalObject, objectPrototype, strict);
+/* Node.js require algorithm: https://nodejs.org/api/modules.html#all-together */
+
+function load_core_module(globalObject, objectPrototype, strict, name) {
+  /* API documentation: https://nodejs.org/docs/latest/api/documentation.html */
+  /* Note: core modules without implementation are commented to be executed with
+     using lazy objets. */
+  switch (name) {
+    /* case "assert": */
+    /*   throw "TODO" */
+    /* case "buffer": */
+    /*   throw "TODO" */
     case "child_process":
-      return createCPObject(globalObject, objectPrototype, strict);
-    case "mz/child_process":
-      return createCPObject(globalObject, objectPrototype, strict);
-    case "shelljs":
-      return createShellJSObject(globalObject, objectPrototype, strict);
-    case "cross-spawn":
-      return createCrossSpawnObject(globalObject, objectPrototype, strict);
-    case "im-metadata":
-      return createCrossSpawnObject(globalObject, objectPrototype, strict);
-    case "gray-matter":
-      return createCrossSpawnObject(globalObject, objectPrototype, strict);
-    case "execa":
-      return createExecaObject(globalObject, objectPrototype, strict);
-    case "vm":
-      return createVMObject(globalObject, objectPrototype, strict);
+      return make_child_process_object(globalObject, objectPrototype, strict);
+    /* case "cluster": */
+    /*   throw "TODO" */
+    /* case "crypto": */
+    /*   throw "TODO" */
+    /* case "diagnostics_channel": */
+    /*   throw "TODO" */
+    /* case "dns": */
+    /*   throw "TODO" */
+    /* case "events": */
+    /*   throw "TODO" */
+    case "fs":
+      return make_fs_object(globalObject, objectPrototype, strict);
+    /* case "fs/promises": */
+    /*   throw "TODO" */
     case "http":
-      return createHttpObject(globalObject, objectPrototype, strict);
+      return make_http_object(globalObject, objectPrototype, strict);
+    /* case "http2": */
+    /*   throw "TODO" */
+    /* case "https": */
+    /*   throw "TODO" */
+    case "os":
+      return make_os_object(globalObject, objectPrototype, strict);
+    case "path":
+      return make_path_object(globalObject, objectPrototype, strict);
+    case "process":
+      return make_process_object(globalObject, objectPrototype, strict);
+    /* case "querystring": */
+    /*   throw "TODO" */
+    /* case "readline": */
+    /*   throw "TODO" */
+    /* case "repl": */
+    /*   throw "TODO" */
+    /* case "stream": */
+    /*   throw "TODO" */
+    /* case "string_decoder": */
+    /*   throw "TODO" */
+    /* case "test": */
+    /*   throw "TODO" */
+    /* case "timers": */
+    /*   throw "TODO" */
+    /* case "tls": */
+    /*   throw "TODO" */
+    /* case "tty": */
+    /*   throw "TODO" */
+    /* case "dgram": */
+    /*   throw "TODO" */
+    /* case "url": */
+    /*   throw "TODO" */
+    /* case "util": */
+    /*   throw "TODO" */
+    case "vm":
+      return make_vm_object(globalObject, objectPrototype, strict);
+    /* case "worker_threads": */
+    /*   throw "TODO" */
+    /* case "zlib": */
+    /*   throw "TODO" */
+    default:
+      return 'undefined;
+  }
+}
+
+function load_js_module(fpath) {
+  let file_content = with_open_in(full_path, "input_all");
+  let file_content_gen = extern parseJS(file_content);
+  let file_content_ast = {file_content_gen}();
+  /* TODO: extern push_context(); */
+  let result = ECMAScriptNodeInitialization(file_content_ast);
+  let exports = getJSProperty(|global|, "exports");
+  /* TODO: extern pop_context(); */
+  return exports;
+}
+
+function load_as_file(fpath) {
+  /* 1. If X is a file, load X as its file extension format. STOP */
+  if (file_exists(fpath)) {
+    /* TODO */
+    throw "TODO: load '" + fpath_to_string(fpath) + "' as its file extension";
+  }
+
+  /* 2. If X.js is a file, */
+  let fpath' = set_ext(fpath, ".js");
+  if (file_exists(fpath')) {
+    return load_js_module(fpath');
+  }
+
+  /* 3. If X.json is a file, load X.json to a JavaScript Object. STOP */
+  let fpath' = set_ext(fpath, ".json");
+  if (file_exists(fpath')) {
+    throw "TODO: '" + fpath_to_string(fpath') + "' to a JavaScript Object";
+  }
+
+  /* 4. If X.node is a file, load X.node as binary addon. STOP */
+  throw "TODO: load X.node as binary addon.";
+}
+
+function load_node_module(globalObject, objectPrototype, strict, x) {
+  /* function to load summaries */
+  switch (x) {
+    case "mz/child_process":
+      return make_child_process_object(globalObject, objectPrototype, strict);
+    case "cross-spawn":
+      return make_cross_spawn_object(globalObject, objectPrototype, strict);
+    case "esl_symbolic":
+      return make_esl_symbolic_object(globalObject, objectPrototype, strict);
+    case "execa":
+      return make_execa_object(globalObject, objectPrototype, strict);
+    case "shelljs":
+      return make_shelljs_object(globalObject, objectPrototype, strict);
+    case "im-metadata":
+      return make_cross_spawn_object(globalObject, objectPrototype, strict);
+    case "gray-matter":
+      return make_cross_spawn_object(globalObject, objectPrototype, strict);
     default:
       return newLazyObject();
   }
 }
 
-function initNodeGlobalObject(globalObject, objectPrototype, strict) {
-  realm := { globalEnv : globalObject };
-  dirname := extern __dirname();
-  filename := extern __filename();
-  createBuiltInProperty(globalObject, "__dirname", dirname);
-  createBuiltInProperty(globalObject, "__filename", filename);
+function __esl_node_require(globalObject, this, NewTarget, strict, params) {
+  let x = hd params;
+  let objectPrototype = |Intrinsics|["ObjectPrototype"];
 
-  require := CreateBuiltInFunctionObject(["path"], "__NodeRequire", realm,
-    strict, null);
+  /* 1. If X is a core module, */
+  /*   a. return the core module */
+  /*   b. STOP */
+  let obj = load_core_module(globalObject, objectPrototype, strict, x);
+  if (obj != 'undefined) {
+    return obj;
+  }
+
+  /* 2. If X begins with '/' */
+  /*    a. set Y to be the file system root */
+
+  /* 3. If X begins with './' or '/' or '../' */
+  if (s_is_prefix("/", x) || s_is_prefix("./", x) || s_is_prefix("../", x)) {
+    let y = fpath_of_string(extern __filename());
+    let x = fpath_of_string(x);
+    let full_path = fpath_append(dirname(y), x);
+    /*    a. LOAD_AS_FILE(Y + X) */
+    return load_as_file(full_path);
+    /*    b. LOAD_AS_DIRECTORY(Y + X) */
+    /*    c. THROW "not found" */
+  }
+
+  /* 4. If X begins with '#' */
+  /*   a. LOAD_PACKAGE_IMPORTS(X, dirname(Y)) */
+
+  /* 5. LOAD_PACKAGE_SELF(X, dirname(Y)) */
+  /* 6. LOAD_NODE_MODULES(X, dirname(Y)) */
+  return load_node_module(globalObject, objectPrototype, strict, x);
+
+  /* 7. THROW "not found" */
+  throw ("package: '" + x + "' not found");
+}
+
+function init_node_global_object(globalObject, objectPrototype, strict) {
+  let realm = { globalEnv : globalObject };
+  createBuiltInProperty(globalObject, "__dirname", extern __dirname());
+  createBuiltInProperty(globalObject, "__filename", extern __filename());
+
+  let require = CreateBuiltInFunctionObject(["path"], "__esl_node_require", realm, strict, null);
   createBuiltInProperty(globalObject, "require", require);
   createBuiltInProperty(require, "prototype", objectPrototype);
 
-  module := NewECMAScriptObject();
+  let module = NewECMAScriptObject();
   setAllInternalMethodsOfOrdinaryObject(module);
   setInternalProperty(module, "Prototype", objectPrototype);
   createBuiltInProperty(globalObject, "module", module);
 
-  exports := NewECMAScriptObject();
+  let exports = NewECMAScriptObject();
   setAllInternalMethodsOfOrdinaryObject(exports);
   setInternalProperty(module, "Prototype", objectPrototype);
   createBuiltInProperty(module, "exports", exports);
   createBuiltInProperty(globalObject, "exports", exports);
 
-  process := createProcessObject(globalObject, objectPrototype, strict);
+  let process = make_process_object(globalObject, objectPrototype, strict);
   createBuiltInProperty(globalObject, "process", process);
 
   createBuiltInProperty(globalObject, "global", globalObject);

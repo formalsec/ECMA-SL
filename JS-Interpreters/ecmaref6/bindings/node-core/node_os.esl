@@ -1,4 +1,4 @@
-function __os_platform(globalObject, this, newTarget, strict, params) {
+function __esl_node_os_platform(globalObject, this, newTarget, strict, params) {
   platform := extern str_symbol("require('os').platform()");
   extern assume(platform == "aix" || platform == "darwin"
     || platform == "freebsd" || platform == "linux" || platform == "openbsd"
@@ -6,17 +6,15 @@ function __os_platform(globalObject, this, newTarget, strict, params) {
   return platform;
 }
 
-function createOSObject(globalObject, objectPrototype, strict) {
-  realm := { globalEnv : globalObject };
-  os := newLazyObject();
+function make_os_object(globalObject, objectPrototype, strict) {
+  let realm = { globalEnv : globalObject };
+  let os = newLazyObject();
   /* setAllInternalMethodsOfOrdinaryObject(os); */
   setInternalProperty(os, "prototype", objectPrototype);
 
-  /* Functions: */
-  platform := CreateBuiltInFunctionObject([""], "__os_platform", realm, strict, null);
-
-  createBuiltInProperty(os, "platform", platform);
+  let platform = CreateBuiltInFunctionObject([], "__esl_node_os_platform", realm, strict, null);
   createBuiltInProperty(platform, "prototype", objectPrototype);
+  createBuiltInProperty(os, "platform", platform);
 
   return os;
 }

@@ -1,0 +1,40 @@
+function __esl_node_path_join(globalObject, this, NewTarget, strict, params) {
+  return s_concat(params);
+}
+
+function __esl_node_path_basename(globalObject, this, NewTarget, strict, params) {
+  /* TODO: Model basename */
+  return hd params;
+}
+
+function __esl_node_path_dirname(globalObject, this, NewTarget, strict, params) {
+  /* TODO: Model dirname */
+  return hd params;
+}
+
+function make_path_object(globalObject, objectPrototype, strict) {
+  let realm = { globalEnv : globalObject };
+  let path = newLazyObject();
+  /* setAllInternalMethodsOfOrdinaryObject(path); */
+  setInternalProperty(path, "prototype", objectPrototype);
+
+  /* Functions: */
+  let join = CreateBuiltInFunctionObject([], "__esl_node_path_join", realm, strict, null);
+  createBuiltInProperty(join, "prototype", objectPrototype);
+  createBuiltInProperty(path, "join", join);
+
+  let basename = CreateBuiltInFunctionObject([], "__esl_node_path_basename", realm, strict, null);
+  createBuiltInProperty(basename, "prototype", objectPrototype);
+  createBuiltInProperty(path, "basename", basename);
+
+  let dirname = CreateBuiltInFunctionObject([], "__esl_node_path_dirname", realm, strict, null);
+  createBuiltInProperty(dirname, "prototype", objectPrototype);
+  createBuiltInProperty(path, "dirname", dirname);
+
+
+  let normalize = CreateBuiltInFunctionObject([], "__esl_node_path_dirname", realm, strict, null);
+  createBuiltInProperty(normalize, "prototype", objectPrototype);
+  createBuiltInProperty(path, "normalize", normalize);
+
+  return path;
+}
