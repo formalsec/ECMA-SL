@@ -144,6 +144,16 @@ module Make () = struct
       | (Val v1, Val v2, Val v3) -> ok_v (s_substr_u (v1, v2, v3))
       | _ -> ok @@ Smtml.Expr.triop Ty_str String_extract v1 v2 v3
     in
+    let s_is_prefix prefix str =
+      match (Smtml.Expr.view prefix, Smtml.Expr.view str) with
+      | Val prefix, Val str -> ok_v (s_is_prefix prefix str)
+      | _ -> ok @@ Smtml.Expr.binop Ty_str String_prefix prefix str
+    in
+    let s_is_suffix suffix str =
+      match (Smtml.Expr.view suffix, Smtml.Expr.view str) with
+      | Val suffix, Val str -> ok_v (s_is_suffix suffix str)
+      | _ -> ok @@ Smtml.Expr.binop Ty_str String_suffix suffix str
+    in
     let array_len v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (array_len v)
@@ -448,6 +458,11 @@ module Make () = struct
       let* () = Channel_utils.close channel_table v in
       Ok (Value.mk_symbol "undefined")
     in
+    let file_exists v =
+      match Smtml.Expr.view v with
+      | Val v -> ok_v (file_exists v)
+      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+    in
     of_array
       [| (* int *)
          ( "int_to_four_hex_external"
@@ -481,6 +496,10 @@ module Make () = struct
        ; ("s_split_external", Extern_func (Func (Arg (Arg Res)), s_split))
        ; ( "s_substr_u_external"
          , Extern_func (Func (Arg (Arg (Arg Res))), s_substr_u) )
+       ; ( "s_is_prefix_external"
+         , Extern_func (Func (Arg (Arg Res)), s_is_prefix) )
+       ; ( "s_is_suffix_external"
+         , Extern_func (Func (Arg (Arg Res)), s_is_suffix) )
          (* array *)
        ; ("a_len_external", Extern_func (Func (Arg Res), array_len))
        ; ("array_make_external", Extern_func (Func (Arg (Arg Res)), array_make))
@@ -559,6 +578,7 @@ module Make () = struct
        ; ( "output_string_external"
          , Extern_func (Func (Arg (Arg Res)), output_string) )
        ; ("close_external", Extern_func (Func (Arg Res), close))
+       ; ("file_exists_external", Extern_func (Func (Arg Res), file_exists))
       |]
 
   let symbolic_api filename =

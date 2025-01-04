@@ -243,6 +243,20 @@ module Impl = struct
     | (Str _, _, _) -> arg_err 2
     | _ -> arg_err 1
 
+  let s_is_prefix (prefix : Value.t) (str : Value.t) =
+    match Smtml.Eval.binop Ty_str String_prefix prefix str with
+    | exception Smtml.Eval.TypeError { index; _ } ->
+      bad_arg_err index "s_is_prefix_external" "(string, string)"
+        [ prefix; str ]
+    | v -> v
+
+  let s_is_suffix (suffix : Value.t) (str : Value.t) =
+    match Smtml.Eval.binop Ty_str String_suffix suffix str with
+    | exception Smtml.Eval.TypeError { index; _ } ->
+      bad_arg_err index "s_is_suffix_external" "(string, string)"
+        [ suffix; str ]
+    | v -> v
+
   let array_len (v : Value.t) : Value.t =
     let op_lbl = "a_len_external" in
     match v with
@@ -711,6 +725,12 @@ module Impl = struct
   let input_all _v = failwith "TODO: input_all_external"
   let output_string _ptr _str = failwith "TODO: output_string_external"
   let close _ptr = failwith "TODO: close_external"
+
+  let file_exists = function
+    | Smtml.Value.Str path ->
+      let exists = Sys.file_exists path in
+      Smtml.Value.(if exists then True else False)
+    | v -> bad_arg_err 1 "file_exists_external" "string" [ v ]
 end
 
 include Impl
@@ -743,6 +763,8 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("s_nth_u_external", [ v1; v2 ]) -> s_nth_u (v1, v2)
   | ("s_split_external", [ v1; v2 ]) -> s_split (v1, v2)
   | ("s_substr_u_external", [ v1; v2; v3 ]) -> s_substr_u (v1, v2, v3)
+  | ("s_is_prefix_external", [ prefix; str ]) -> s_is_prefix prefix str
+  | ("s_is_suffix_external", [ suffix; str ]) -> s_is_suffix suffix str
   (* array *)
   | ("a_len_external", [ v ]) -> array_len v
   | ("array_make_external", [ v1; v2 ]) -> array_make (v1, v2)
@@ -808,6 +830,7 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("input_all_external", [ v ]) -> input_all v
   | ("output_string_external", [ v1; v2 ]) -> output_string v1 v2
   | ("close_external", [ v ]) -> close v
+  | ("file_exists_external", [ v ]) -> file_exists v
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
     Value.App (`Op "symbol", [ Str "undefined" ])

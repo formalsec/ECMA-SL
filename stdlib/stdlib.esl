@@ -146,13 +146,11 @@ function s_join(segments : string[], sep : string) : string {
 }
 
 function s_is_prefix(prefix : string, str : string) : boolean {
-  /* TODO: s_is_prefix */
-  assert false;
+  return extern s_is_prefix_external(prefix, str);
 }
 
 function s_is_suffix(suffix : string, str : string) : boolean {
-  /* TODO: s_is_suffix */
-  assert false;
+  return extern s_is_suffix_external(suffix, str);
 }
 
 function s_substr_u(s : string, n1 : int, n2 : int) : string {
