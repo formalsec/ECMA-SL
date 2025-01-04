@@ -6,6 +6,7 @@
 - Adds `s_join` to ecma-sl's standard library
 - Adds `fpath`, a simple library to manipulate paths, to ecma-sl's standard library
 - Adds `os`, a simple library to manipulate files, to ecma-sl's standard library
+- Implements commonjs require statement
 
 ### Fixed
 
