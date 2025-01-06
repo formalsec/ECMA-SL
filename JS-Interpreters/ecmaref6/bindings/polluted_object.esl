@@ -29,7 +29,7 @@
   */
 
 function newPollutedObject(depth) {
-  proto := getObjectPrototype(false);
+  proto := getObjectPrototype();
 
   inner_object := ObjectCreate(proto, null);
   toString := extern str_symbol("");
@@ -54,7 +54,7 @@ function newPollutedObject(depth) {
 }
 
 function forbiddenSet(O, P, V, Receiver) {
-  if (Receiver == getObjectPrototype(false))
+  if (Receiver == getObjectPrototype())
     extern abort("Prototype pollution detected!");
   return OrdinaryObjectSet(O, P, V, Receiver);
 }

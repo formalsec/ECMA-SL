@@ -435,7 +435,7 @@ function FromPropertyDescriptor(Desc) {
   if (Desc == 'undefined)
     return 'undefined;
   /* Let obj be ObjectCreate(%ObjectPrototype%). */
-  obj := ObjectCreate(getObjectPrototype(false), null);
+  obj := ObjectCreate(getObjectPrototype(), null);
   /* Assert: obj is an extensible ordinary object with no own properties. */
   /* If Desc has a [[Value]] field, then */
   if ("Value" in_obj Desc)

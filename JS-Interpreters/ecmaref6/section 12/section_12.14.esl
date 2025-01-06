@@ -90,8 +90,8 @@ function DestructuringAssignmentObjectPattern(param, value, scope) {
   /* 3. Return the result of performing DestructuringAssignmentEvaluation for AssignmentPropertyList using value as the argument. */
   foreach (assignmentProperty: param.properties) {
     /* Based on 12.14.5.2 for AssignmentPropertyList, but implemented iteratively rather than recursively.
-       Our implementation of DestructuringAssignmentObjectProperty instead returns the name of the property processed 
-       so that it can be added to the initialized_keys list. */    
+       Our implementation of DestructuringAssignmentObjectProperty instead returns the name of the property processed
+       so that it can be added to the initialized_keys list. */
     name := DestructuringAssignmentObjectProperty(assignmentProperty, value, scope, initialized_keys);
     @ReturnIfAbrupt(name);
     initialized_keys := l_add(initialized_keys, name);
@@ -124,7 +124,7 @@ function DestructuringAssignmentObjectProperty(assignmentProperty, value, scope,
   }
 }
 
-/* Based on 12.14.5.4 but we instead we simply get the object's property value and recursively call the DestructuringAssignmentEvaluation. 
+/* Based on 12.14.5.4 but we instead we simply get the object's property value and recursively call the DestructuringAssignmentEvaluation.
    This works because this function is able to handle other constructs, including Identifiers and AssignmentPatterns. */
 function KeyedDestructuringAssignmentEvaluation(property, name, value, scope) {
   /* 1. Let v be GetV(value, propertyName). */
@@ -214,7 +214,7 @@ function IteratorDestructuringAssignmentEvaluation(element, iteratorRecord, scop
     /* ... (this part of the specification is not needed).
      Instead of storing the value in lref, we recursively call the DestructuringAssignmentEvaluation, when needed. */
     return DestructuringAssignmentEvaluation(element, value, scope);
-  } 
+  }
 }
 
 /* Based on 12.14.5.4 for undefined values */
@@ -257,14 +257,14 @@ function DestructuringAssignmentRestElement(param, value, scope) {
   /* Not based on the specification. */
   | { type: "RestOfObject", object: object, initialized_keys: initialized_keys } -> {
     /* 1. Let newObj be an empty object. */
-    newObj := ObjectCreate(getObjectPrototype(false), null);
+    newObj := ObjectCreate(getObjectPrototype(), null);
     /* 2. let status be the result of initializing the rest identifier as an empty object. */
     status := DestructuringAssignmentEvaluation(param.argument, newObj, scope);
     /* 3. ReturnIfAbrupt(status). */
     @ReturnIfAbrupt(status);
     /* 4. Fill the rest identifier object with the non-initialized keys */
     restElementObjectInitializer(param.argument, object, scope, initialized_keys);
-    return NormalCompletion('empty);   
+    return NormalCompletion('empty);
   }
   /* Based on 12.14.5.3 for AssignmentRestElement */
   | { type: "RestOfArray", iteratorRecord: iteratorRecord } -> {

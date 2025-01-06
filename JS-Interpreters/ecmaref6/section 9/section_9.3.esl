@@ -103,7 +103,7 @@ function BuiltInConstruct(externalScope, ref, F, argumentsList, NewTarget) {
   /* 7. If Type(proto) is not Object, set the [[Prototype]] internal property of obj to the standard built-in Object prototype
         object as described in 15.2.4. */
   if (Type(proto) != "Object")
-    obj.Prototype := getObjectPrototype(F.Strict);
+    obj.Prototype := getObjectPrototype();
   /* 8. Let result be the result of calling the [[Call]] internal property of F, providing obj as the this value and providing the
         argument list passed into [[Construct]] as args. */
   result := {F.Call}(externalScope, ref, F, obj, NewTarget, argumentsList);
