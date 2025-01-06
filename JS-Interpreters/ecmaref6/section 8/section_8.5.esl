@@ -1,25 +1,25 @@
 /* aux functions to handle execution stack */
 
 function pushExecStack(newExecCtx) {
-  |ctxStack| := l_prepend(newExecCtx, |ctxStack|);
+  stack_push(|ctxStack|, newExecCtx);
   return;
 }
 
 function popExecStack() {
-  |ctxStack| := tl |ctxStack|;
+  stack_pop(|ctxStack|);
   return;
 }
 
 function topExecStack() {
-  return hd |ctxStack|;
+  return stack_top(|ctxStack|);
 }
 
 function execStackIsEmpty() {
-  return l_len(|ctxStack|) == 0;
+  return stack_is_empty(|ctxStack|);
 }
 
 function initGlobalVars() {
-    |ctxStack| := [];
+    |ctxStack| := stack_make();
     initJobQueue();
     |__CUR__SYMB__| := 0;
     |GlobalSymbolRegistry| := {};

@@ -1,0 +1,24 @@
+function stack_make() {
+  return { size : 0, data : [] };
+}
+
+function stack_push(st, elt) {
+  st.size := st.size + 1;
+  st.data := l_prepend(elt, st.data);
+  return;
+}
+
+function stack_pop(st) {
+  let result = hd st.data;
+  st.size := st.size - 1;
+  st.data := tl st.data;
+  return result;
+}
+
+function stack_top(st) {
+  return (hd st.data);
+}
+
+function stack_is_empty(st) {
+  return (st.size == 0);
+}

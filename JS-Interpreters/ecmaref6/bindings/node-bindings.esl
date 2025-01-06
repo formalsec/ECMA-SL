@@ -1,5 +1,3 @@
-import os;
-import fpath;
 import "./node-core/node_child_process.esl";
 import "./node-core/node_fs.esl";
 import "./node-core/node_http.esl";

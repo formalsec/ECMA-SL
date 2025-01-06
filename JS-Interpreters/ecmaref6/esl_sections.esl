@@ -1,4 +1,8 @@
+import fpath;
+import os;
+import stack;
 import stdlib;
+
 import "section 6/section_6.1.esl";
 import "section 6/section_6.2.esl";
 
