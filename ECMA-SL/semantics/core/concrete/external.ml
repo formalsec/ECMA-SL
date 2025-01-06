@@ -731,6 +731,8 @@ module Impl = struct
       let exists = Sys.file_exists path in
       Smtml.Value.(if exists then True else False)
     | v -> bad_arg_err 1 "file_exists_external" "string" [ v ]
+
+  let time () = Smtml.Value.(Real (Unix.gettimeofday ()))
 end
 
 include Impl
@@ -831,6 +833,7 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("output_string_external", [ v1; v2 ]) -> output_string v1 v2
   | ("close_external", [ v ]) -> close v
   | ("file_exists_external", [ v ]) -> file_exists v
+  | ("time_external", _) -> time ()
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
     Value.App (`Op "symbol", [ Str "undefined" ])

@@ -468,6 +468,7 @@ module Make () = struct
       | Val v -> ok_v (file_exists v)
       | _ -> failure (__FUNCTION__ ^ ": invalid argument")
     in
+    let time () = ok_v (Real (Unix.gettimeofday ())) in
     of_array
       [| (* int *)
          ( "int_to_four_hex_external"
@@ -584,6 +585,7 @@ module Make () = struct
          , Extern_func (Func (Arg (Arg Res)), output_string) )
        ; ("close_external", Extern_func (Func (Arg Res), close))
        ; ("file_exists_external", Extern_func (Func (Arg Res), file_exists))
+       ; ("time_external", Extern_func (Func (UArg Res), time))
       |]
 
   let symbolic_api filename =
