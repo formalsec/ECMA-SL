@@ -9,6 +9,57 @@ import "./node_cross-spawn.esl";
 import "./node_execa.esl";
 import "./node_shelljs.esl";
 
+function push_globals() {
+  let saved_globals = {
+    global: |global|,
+    Intrinsics: |Intrinsics|,
+    ctxStack : |ctxStack|,
+    __CUR__SYMB__ : |__CUR__SYMB__|,
+    GlobalSymbolRegistry : |GlobalSymbolRegistry|,
+    RegExp : |RegExp|,
+    msPerDay : |msPerDay|,
+    LocalTZA : |LocalTZA|,
+    ElementTable : |ElementTable|,
+    StringPrototype : |StringPrototype|,
+    ScriptJobQueue : |ScriptJobQueue|,
+    PromiseJobQueue : |PromiseJobQueue|,
+    realm : |realm|
+  };
+  |global| := {};
+  |Intrinsics| := {};
+  |ctxStack| := [];
+  |__CUR__SYMB__| := 0;
+  |GlobalSymbolRegistry| := {};
+  |RegExp| := {};
+  |msPerDay| := 86400000.;
+  |LocalTZA| := 0.;
+  |ElementTable| := {};
+  |StringPrototype| := {};
+  |ScriptJobQueue| := [];
+  |PromiseJobQueue| := [];
+  |realm| := {};
+  stack_push(|globals_stack|,  saved_globals);
+  return;
+}
+
+function pop_globals() {
+  let saved_globals = stack_pop(|globals_stack|);
+  |global| := saved_globals.global;
+  |Intrinsics| := saved_globals.Intrinsics;
+  |ctxStack| := saved_globals.ctxStack;
+  |__CUR__SYMB__| := saved_globals.__CUR__SYMB__;
+  |GlobalSymbolRegistry| := saved_globals.GlobalSymbolRegistry;
+  |RegExpr| := saved_globals.RegExp;
+  |msPerDay| := saved_globals.msPerDay;
+  |LocalTZA| := saved_globals.LocalTZA;
+  |ElementTable| := saved_globals.ElementTable;
+  |StringPrototype| := saved_globals.StringPrototype;
+  |ScriptJobQueue| := saved_globals.ScriptJobQueue;
+  |PromiseJobQueue| := saved_globals.PromiseJobQueue;
+  |realm| := saved_globals.realm;
+  return;
+}
+
 /* Node.js require algorithm: https://nodejs.org/api/modules.html#all-together */
 
 function load_core_module(globalObject, objectPrototype, strict, name) {
@@ -87,17 +138,19 @@ function load_js_module(fpath) {
   let file_content = with_open_in(fpath, "input_all");
   let file_content_gen = extern parseJS(file_content);
   let file_content_ast = {file_content_gen}();
-  /* TODO: extern push_context(); */
+  push_globals();
   let result = ECMAScriptNodeInitialization(file_content_ast);
-  let exports = getJSProperty(|global|, "exports");
-  /* TODO: extern pop_context(); */
-  return exports;
+  /* TODO: handle `result` error  */
+  let module = GetValue(newPropertyReference(|global|, "module", false));
+  let exports = OrdinaryGetOwnProperty(module, "exports");
+  pop_globals();
+  return exports.Value;
 }
 
 function load_as_file(fpath) {
   /* 1. If X is a file, load X as its file extension format. STOP */
   if (file_exists(fpath)) {
-    if (has_ext(".js", fpath))
+    if (has_ext(fpath, ".js"))
       return load_js_module(fpath);
     throw "TODO: load '" + fpath_to_string(fpath) + "' as its file extension";
   }
