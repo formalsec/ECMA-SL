@@ -288,7 +288,7 @@ function ArraySetLength(A, Desc) {
   }
   /* 20. If newWritable is false, then */
   if (newWritable == false)
-    /* a. Return OrdinaryDefineOwnProperty(A, "length", PropertyDescriptor{[[Writable]]: false}). 
+    /* a. Return OrdinaryDefineOwnProperty(A, "length", PropertyDescriptor{[[Writable]]: false}).
       This call will always return true. */
     return OrdinaryDefineOwnProperty(A, "length", {Writable: false});
   /* 21. Return true. */
@@ -505,7 +505,7 @@ function CreateUnmappedArgumentsObject(func, parameterNames, argumentsList, env)
   /* 1. Let len be the number of elements in argumentsList. */
   len := l_len(argumentsList);
   /* 2. Let obj be ObjectCreate(%ObjectPrototype%, «‍[[ParameterMap]]»). */
-  obj := ObjectCreate(getObjectPrototype(true), ["ParameterMap"]);
+  obj := ObjectCreate(getObjectPrototype(), ["ParameterMap"]);
   /* 3. Set obj's [[ParameterMap]] internal slot to undefined. */
   obj.ParameterMap := 'undefined;
   /* 4. Perform DefinePropertyOrThrow(obj, "length",
@@ -561,7 +561,7 @@ function CreateMappedArgumentsObject(func, formals, argumentsList, env) {
   /* 9. Set the remainder of obj's essential internal methods to the default
      ordinary object definitions specified in 9.1. */
   /* 10. Set the [[Prototype]] internal slot of obj to %ObjectPrototype%. */
-  obj.Prototype := getObjectPrototype(false);
+  obj.Prototype := getObjectPrototype();
   /* 11. Set the [[Extensible]] internal slot of obj to true. */
   obj.Extensible := true;
   /* 12. Let parameterNames be the BoundNames of formals. */
@@ -584,7 +584,7 @@ function CreateMappedArgumentsObject(func, formals, argumentsList, env) {
      false, [[Configurable]]: true}). */
   DefinePropertyOrThrow(obj, "length", newDataPropertyDescriptorFull(int_to_float len, true, false, true));
   /* 17. Let map be ObjectCreate(null). */
-  map := ObjectCreate(getObjectPrototype(false), null);
+  map := ObjectCreate(getObjectPrototype(), null);
   /* 18. Let mappedNames be an empty List. */
   mappedNames := [];
   /* 19. Let index be numberOfParameters - 1. */

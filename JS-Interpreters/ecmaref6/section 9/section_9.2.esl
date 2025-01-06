@@ -468,7 +468,7 @@ function MakeConstructor(F, writablePrototype, prototype) {
   /* 5. If the prototype argument was not provided, then */
   if (prototype == null) {
     /* a. Let prototype be ObjectCreate(%ObjectPrototype%). */
-    prototype := ObjectCreate(getObjectPrototype(false), null);
+    prototype := ObjectCreate(getObjectPrototype(), null);
     /* b. Let status be DefinePropertyOrThrow(prototype, "constructor", PropertyDescriptor{[[Value]]: F,
       [[Writable]]: writablePrototype, [[Enumerable]]: false, [[Configurable]]: true }). */
     status := DefinePropertyOrThrow(prototype, "constructor", newDataPropertyDescriptorFull(F, writablePrototype, false, true));

@@ -190,7 +190,7 @@ function fillObjectPrototype(objectPrototypeObject, ObjectConstructor, globalObj
 */
 function ObjectConstructor(globalObject, this, NewTarget, strict, params) {
   value := getOptionalParam(params, 0);
-  ObjectPrototype := getObjectPrototype(false);
+  ObjectPrototype := getObjectPrototype();
   /* If NewTarget is neither undefined nor the active function, then */
   if (NewTarget != 'undefined &&& false) /* duvida em como passar o NewTarget */
     /* Return OrdinaryCreateFromConstructor(NewTarget, "%ObjectPrototype%"). */
@@ -752,19 +752,10 @@ function ObjectPrototypeValueOf(globalObject, this, NewTarget, strict, params) {
 }
 
 /* Auxiliary functions */
-function getObjectPrototype(strict) {
+function getObjectPrototype() {
   return |Intrinsics|["ObjectPrototype"];
 }
 
-function getObjectPrototypeToString(strict) {
-  /* refObj := newPropertyReference(|global|, "Object", strict);
-  ObjectObject := GetValue(refObj);
-
-  refObjProto := newPropertyReference(ObjectObject, "prototype", strict);
-  objectObjectProto := GetValue(refObjProto);
-
-  refToStringObjProto := newPropertyReference(objectObjectProto, "toString", strict);
-  objectObjectToString := GetValue(refToStringObjProto); */
-
+function getObjectPrototypeToString() {
   return |Intrinsics|["ObjectObjProto_toString"];
 }

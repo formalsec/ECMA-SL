@@ -158,7 +158,7 @@ function BindingInitializationObjectPattern(param, value, environment) {
       /* If its a rest Element which is an identifier */
       if (argument.type == "Identifier") {
         /* Creates an Empty Object for that identifier */
-        status := BindingInitialization(property, ObjectCreate(getObjectPrototype(false), null), environment, null);
+        status := BindingInitialization(property, ObjectCreate(getObjectPrototype(), null), environment, null);
         @ReturnIfAbrupt(status);
         /* Initialize the remaining keys on that object */
         restElementObjectInitializer(property.argument, value, environment, initialized_keys);

@@ -1,7 +1,7 @@
 /* CreateIterResultObject ( value, done )*/
 function CreateIterResultObject ( value, done ) {
   /* 1. Let obj be ObjectCreate(%ObjectPrototype%). */
-  obj := ObjectCreate(|ObjectPrototype|, null);
+  obj := ObjectCreate(getObjectPrototype(), null);
   /* 2. Perform CreateDataProperty(obj, "value", value). */
   CreateDataProperty(obj, "value", value);
   /* 3. Perform CreateDataProperty(obj, "done", done). */

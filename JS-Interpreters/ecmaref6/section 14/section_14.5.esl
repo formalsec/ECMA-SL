@@ -35,7 +35,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
   /* 5. If ClassHeritageopt is not present, then */
   if (ClassHeritageopt == null) {
     /* 5a. Let protoParent be the intrinsic object %ObjectPrototype%. */
-    protoParent := getObjectPrototype(false);
+    protoParent := getObjectPrototype();
     /* 5b. Let constructorParent be the intrinsic object %FunctionPrototype%. */
     constructorParent := getFunctionPrototype(false);
   /* 6. Else */
@@ -83,7 +83,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
   /* 9. Else, let constructor be ConstructorMethod of ClassBody. */
   allMethods := getSeparateMethods(ClassBodyopt.body);
   if (allMethods.constructor == 'empty)
-    constructor := 'empty; 
+    constructor := 'empty;
   else
     constructor := allMethods.constructor.value;
   /* 10. If constructor is empty, then, */
