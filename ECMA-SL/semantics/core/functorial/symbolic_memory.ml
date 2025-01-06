@@ -87,9 +87,7 @@ module Make (O : Object_intf.S with type value = V.value) = struct
     | Triop (_, Ite, c, a, e) -> (
       match E.view a with
       | Val (App (`Op "loc", [ Int l ])) ->
-        let accum' =
-          E.(binop Ty_bool And accum (unop Ty_bool Not c))
-        in
+        let accum' = E.(binop Ty_bool And accum (unop Ty_bool Not c)) in
         let tl = unfold_ite ~accum:accum' e in
         (Some E.(binop Ty_bool And accum c), l) :: tl
       | _ -> assert false )

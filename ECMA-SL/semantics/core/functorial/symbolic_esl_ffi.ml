@@ -151,12 +151,12 @@ module Make () = struct
     in
     let s_is_prefix prefix str =
       match (Smtml.Expr.view prefix, Smtml.Expr.view str) with
-      | Val prefix, Val str -> ok_v (s_is_prefix prefix str)
+      | (Val prefix, Val str) -> ok_v (s_is_prefix prefix str)
       | _ -> ok @@ Smtml.Expr.binop Ty_str String_prefix prefix str
     in
     let s_is_suffix suffix str =
       match (Smtml.Expr.view suffix, Smtml.Expr.view str) with
-      | Val suffix, Val str -> ok_v (s_is_suffix suffix str)
+      | (Val suffix, Val str) -> ok_v (s_is_suffix suffix str)
       | _ -> ok @@ Smtml.Expr.binop Ty_str String_suffix suffix str
     in
     let array_len v =
