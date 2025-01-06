@@ -50,6 +50,7 @@ function stringOfError(error : object) : string {
 }
 
 function main() {
+  |globals_stack| := stack_make();
   x := buildAST();
   ret := ECMAScriptNodeInitialization(x);
   c_value := getCompletionValue(ret);
