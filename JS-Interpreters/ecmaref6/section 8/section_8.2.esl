@@ -54,7 +54,6 @@ function CreateIntrinsics(realmRec) {
 
   /* Initializing ObjectConstructor */
   ObjectConstructor := initObjectConstructor(ObjectPrototype, FunctionPrototype, realmRec, false);
-  |objectConstructor| := ObjectConstructor;
   intrinsics.Object := ObjectConstructor;
   createBuiltInProperty(globalObject, "Object", ObjectConstructor);
 
