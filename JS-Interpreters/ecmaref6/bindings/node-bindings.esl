@@ -138,12 +138,21 @@ function load_js_module(fpath) {
   let file_content = with_open_in(fpath, "input_all");
   let file_content_gen = extern parseJS(file_content);
   let file_content_ast = {file_content_gen}();
-  push_globals();
-  let result = ECMAScriptNodeInitialization(file_content_ast);
+  push_module(|global|, getObjectPrototype(), false);
+  let prev_ctx = |ctxStack|;
+  |ctxStack| := stack_make();
+  let ctx = createExecutionContext();
+  ctx.Function := 'null;
+  ctx.Realm := |realm|;
+  pushExecStack(ctx);
+  EnqueueJob("ScriptJobs", "ScriptEvaluationJob", [ file_content_ast ]);
+  let result = NextJob(NormalCompletion('undefined'));
+  /* let result = NextJob(NormalCompletion('undefined)); */
   /* TODO: handle `result` error  */
   let module = GetValue(newPropertyReference(|global|, "module", false));
   let exports = OrdinaryGetOwnProperty(module, "exports");
-  pop_globals();
+  |ctxStack| := prev_ctx;
+  pop_module(|global|);
   return exports.Value;
 }
 
@@ -195,7 +204,7 @@ function load_node_module(globalObject, objectPrototype, strict, x) {
 
 function __esl_node_require(globalObject, this, NewTarget, strict, params) {
   let x = hd params;
-  let objectPrototype = |Intrinsics|["ObjectPrototype"];
+  let objectPrototype = getObjectPrototype();
 
   /* 1. If X is a core module, */
   /*   a. return the core module */
@@ -230,14 +239,11 @@ function __esl_node_require(globalObject, this, NewTarget, strict, params) {
   throw ("package: '" + x + "' not found");
 }
 
-function init_node_global_object(globalObject, objectPrototype, strict) {
-  let realm = { globalEnv : globalObject };
-  createBuiltInProperty(globalObject, "__dirname", extern __dirname());
-  createBuiltInProperty(globalObject, "__filename", extern __filename());
-
-  let require = CreateBuiltInFunctionObject(["path"], "__esl_node_require", realm, strict, null);
-  createBuiltInProperty(globalObject, "require", require);
-  createBuiltInProperty(require, "prototype", objectPrototype);
+function push_module(globalObject, objectPrototype, strict) {
+  /* Save previous `module` and `exports` */
+  let module = GetValue(newPropertyReference(globalObject, "module", strict));
+  let exports = GetValue(newPropertyReference(globalObject, "exports", strict));
+  stack_push(|module_stack|, { module : module, exports : exports });
 
   let module = NewECMAScriptObject();
   setAllInternalMethodsOfOrdinaryObject(module);
@@ -249,9 +255,29 @@ function init_node_global_object(globalObject, objectPrototype, strict) {
   setInternalProperty(module, "Prototype", objectPrototype);
   createBuiltInProperty(module, "exports", exports);
   createBuiltInProperty(globalObject, "exports", exports);
+  return;
+}
 
-  let process = make_process_object(globalObject, objectPrototype, strict);
+function pop_module(globalObject) {
+  let prev = stack_pop(|module_stack|);
+  createBuiltInProperty(globalObject, "module", prev.module);
+  createBuiltInProperty(globalObject, "exports", prev.exports);
+  return;
+}
+
+function init_node_global_object(globalObject, realm) {
+  let objectPrototype = getObjectPrototype();
+  createBuiltInProperty(globalObject, "__dirname", extern __dirname());
+  createBuiltInProperty(globalObject, "__filename", extern __filename());
+
+  let require = CreateBuiltInFunctionObject(["path"], "__esl_node_require", realm, false, null);
+  createBuiltInProperty(require, "prototype", objectPrototype);
+  createBuiltInProperty(globalObject, "require", require);
+
+  let process = make_process_object(globalObject, objectPrototype, false);
   createBuiltInProperty(globalObject, "process", process);
+
+  push_module(globalObject, objectPrototype, false);
 
   createBuiltInProperty(globalObject, "global", globalObject);
   return;

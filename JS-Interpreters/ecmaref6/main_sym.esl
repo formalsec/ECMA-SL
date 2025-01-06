@@ -2,41 +2,40 @@ import "./esl_interpreter.esl";
 import "./bindings/ffi_symbolic.esl";
 import "./bindings/node-bindings.esl";
 
-/* Redefine this functions because we need to initialize the node global obj */
-function ECMAScriptNodeInitialization(sourceText) {
-    initGlobalVars();
-    realm := CreateRealm();
-
-    newContext := createExecutionContext();
-    newContext.Function := 'null;
-    newContext.Realm := realm;
-    pushExecStack(newContext);
-
-    status := InitializeNodeHostDefinedRealm(realm);
-    if (isAnAbruptCompletion(status)) {
-        assert (realm == null );
-        return;
-    }
-
-    |realm| := realm;
-
-    EnqueueJob("ScriptJobs", "ScriptEvaluationJob", [sourceText]);
-    return NextJob(NormalCompletion('undefined));
+function init() {
+  initGlobalVars();
+  |module_stack| := stack_make();
+  return;
 }
 
-function InitializeNodeHostDefinedRealm(realm) {
-    intrinsics := realm.intrinsics;
-    global := intrinsics.GlobalObject;
-    SetRealmGlobalObject(realm, global);
-
-    globalObj := SetDefaultGlobalBindings(realm);
-    @ReturnIfAbrupt(globalObj);
-
-    init_node_global_object(globalObj, intrinsics.ObjectPrototype, false);
-    return NormalCompletion('undefined);
+function init_host_defined_realm() {
+  /* 1. Let realm be CreateRealm(). */
+  let realm = CreateRealm();
+  |realm| := realm;
+  /* 2. Let newContext be a new execution context. */
+  let newContext = createExecutionContext();
+  /* 3. Set the Function of newContext to null. */
+  newContext.Funcion := 'null;
+  /* 4. Set the Realm of newContext to realm. */
+  newContext.Realm := realm;
+  /* 5. Set the ScriptOrModule of newContext to null. */
+  /* 6. Push newContext onto the execution context stack; newContext is now the running execution context. */
+  pushExecStack(newContext);
+  /* 7. If the host requires use of an exotic object to serve as realm's global object, let global be such an object created in a host-defined manner. Otherwise, let global be undefined, indicating that an ordinary object should be created as the global object. */
+  /* 8. If the host requires that the this binding in realm's global scope return an object other than the global object, let thisValue be such an object created in a host-defined manner. Otherwise, let thisValue be undefined, indicating that realm's global this binding should be the global object. */
+  /* 9. Perform SetRealmGlobalObject(realm, global, thisValue). */
+  let global = realm.intrinsics.GlobalObject;
+  SetRealmGlobalObject(realm, global);
+  /* 10. Let globalObj be ? SetDefaultGlobalBindings(realm). */
+  let globalObj = SetDefaultGlobalBindings(realm);
+  @ReturnIfAbrupt(globalObj);
+  /* 11. Create any host-defined global object properties on globalObj. */
+  init_node_global_object(globalObj, realm);
+  /* 12 Return unused. */
+  return NormalCompletion('undefined);
 }
 
-function stringOfError(error : object) : string {
+function string_of_error(error : object) : string {
   name := Get(error, "name");
   @ReturnIfAbrupt(name);
   if (name == 'undefined)
@@ -50,20 +49,25 @@ function stringOfError(error : object) : string {
 }
 
 function main() {
-  |globals_stack| := stack_make();
-  x := buildAST();
-  ret := ECMAScriptNodeInitialization(x);
-  c_value := getCompletionValue(ret);
+  init();
+  let res = init_host_defined_realm();
+  if (isAnAbruptCompletion(res))
+    throw "failed to initialize host defined realm";
 
-  if ((typeof c_value == "object") &&& ("ErrorData" in_obj c_value) ) {
-    name := Get(c_value, "name");
+  let ast = buildAST();
+  EnqueueJob("ScriptJobs", "ScriptEvaluationJob", [ ast ]);
+  let res = NextJob(NormalCompletion('undefined));
+  let val = getCompletionValue(res);
+
+  if ((typeof val == "object") &&& ("ErrorData" in_obj val)) {
+    let name = Get(val, "name");
     if (name == "TypeError") {
       print "Uncaught TypeError";
       extern assume(false);
     }
-    error := stringOfError(c_value);
-    extern abort(error);
+    let err = string_of_error(val);
+    extern abort(err);
   }
 
-  return ret;
+  return res;
 }

@@ -35,7 +35,7 @@ function executeJob(job) {
       sourceText := l_nth(job.Arguments, 0);
       return TopLevelModuleEvaluationJob(sourceText);
     }
-    default: { 
+    default: {
       throw "Job not implemented.";
     }
   }

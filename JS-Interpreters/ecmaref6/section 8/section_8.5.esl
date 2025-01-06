@@ -19,8 +19,8 @@ function execStackIsEmpty() {
 }
 
 function initGlobalVars() {
-    |ctxStack| := stack_make();
     initJobQueue();
+    |ctxStack| := stack_make();
     |__CUR__SYMB__| := 0;
     |GlobalSymbolRegistry| := {};
     return;
