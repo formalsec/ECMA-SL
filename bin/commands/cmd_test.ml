@@ -243,9 +243,11 @@ module TestTree = struct
     let open Fmt in
     let total = total tree in
     let ratio = float_of_int tree.success *. 100.0 /. float_of_int total in
-    let (_, mins, secs, millis) = Base.format_time tree.time in
+    let (hours, mins, secs, millis) = Base.format_time tree.time in
     pf ppf "Tests Successful: %d / %d (%.2f%%) | " tree.success total ratio;
-    pf ppf "Time elapsed: %dm %ds %dms@\n" mins secs millis;
+    if hours > 0 then
+      pf ppf "Time elapsed: %dh %dm %ds %dms@\n" hours mins secs millis
+    else pf ppf "Time elapsed: %dm %ds %dms@\n" mins secs millis;
     pf ppf "Failures: %d, Anomalies: %d, Skipped: %d" tree.failure tree.anomaly
       tree.skipped
 
