@@ -1,5 +1,3 @@
-let result = require("./node_require_b");
-
-console.log(result);
+require("./node_require_b.js");
 
 console.log("A");
