@@ -475,7 +475,6 @@ function getArrayPrototype(strict) {
 function initArrayObject(global, objectPrototype, strict) {
 
   objArrayPrototype := initArrayPrototype(global, objectPrototype, strict);
-  |ArrayPrototype| := objArrayPrototype;
 
   /* 22.1.1 The Array Constructor */
   objArrayConstructor := CreateGeneralBuiltInFunction(getFunctionPrototype(strict), ["items"], "ArrayConstructor", global, strict, 0.);
@@ -2714,7 +2713,7 @@ function arraySort(global, this, NewTarget, strict, args) {
   len := ToLength(Get(obj, "length"));
   /* 3. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
-  
+
   /* The sort order is the ordering, after completion of this function, of the integer
   *  indexed property values of obj whose integer indexes are less than len. The result
   *  of the sort function is then determined as follows: */
