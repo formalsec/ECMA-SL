@@ -19730,19 +19730,19 @@ Tests compilation of ecmaref6:
     return [false, __v3753]
   };
   function initGlobalVars(___internal_esl_global) {
-    __v3754 := "stack_make"(___internal_esl_global);
+    __v3754 := "initJobQueue"(___internal_esl_global);
     if (hd __v3754) {
       return __v3754
     } else {
       __v3754 := hd tl __v3754
     };
-    ___internal_esl_global["ctxStack"] := __v3754;
-    __v3755 := "initJobQueue"(___internal_esl_global);
+    __v3755 := "stack_make"(___internal_esl_global);
     if (hd __v3755) {
       return __v3755
     } else {
       __v3755 := hd tl __v3755
     };
+    ___internal_esl_global["ctxStack"] := __v3755;
     ___internal_esl_global["__CUR__SYMB__"] := 0;
     __v3756 := {};
     ___internal_esl_global["GlobalSymbolRegistry"] := __v3756;
