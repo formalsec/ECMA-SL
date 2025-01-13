@@ -35,14 +35,24 @@ Test basic symbolic number:
   Found 1 problems!
   [21]
   $ ecma-sl symbolic node_require_a.js
-     symbolic : no loc
+  "B"
+  "A"
+  - : app = { "type": symbol("normal"), "target": symbol("empty"),
+              "__completion__": true, "value": symbol("null"),  }
   All Ok!
-  Value '[]' is not a loc expression
   $ ecma-sl symbolic node_require_constant_a.js
-     symbolic : no loc
+  "sausage"
+  - : app = { "type": symbol("normal"), "value": symbol("null"),
+              "target": symbol("empty"), "__completion__": true,  }
   All Ok!
-  Value '[]' is not a loc expression
   $ ecma-sl symbolic node_require_function_a.js
-     symbolic : no loc
+  "In node_require_function_a.js"
+  "chourico"
+  - : app = { "type": symbol("normal"), "value": symbol("null"),
+              "__completion__": true, "target": symbol("empty"),  }
   All Ok!
-  Value '[]' is not a loc expression
+  $ ecma-sl symbolic node_require_modify_intrinsics_a.js
+  "polluted"
+  - : app = { "type": symbol("normal"), "__completion__": true,
+              "target": symbol("empty"), "value": symbol("null"),  }
+  All Ok!
