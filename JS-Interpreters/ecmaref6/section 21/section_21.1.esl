@@ -38,10 +38,10 @@ function StringConstructor(global, this, NewTarget, strict, args) {
   if (NewTarget == 'undefined)
     return s;
   /* 5. Return StringCreate(s, GetPrototypeFromConstructor(NewTarget, "%StringPrototype%")). */
-  return StringCreate(s, |StringPrototype|);
+  return StringCreate(s, getStringPrototype());
 }
 
-function getStringPrototype(strict) {
+function getStringPrototype() {
   /* refString := newPropertyReference(|global|, "String", strict);
   StringObject := GetValue(refString);
   refStringProto := newPropertyReference(StringObject, "prototype", strict);
