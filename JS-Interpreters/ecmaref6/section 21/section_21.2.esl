@@ -42,8 +42,6 @@ function initRegExpObject(globalObject, ObjectPrototype, strict) {
   */
   setJSProperty(regExpConstructor, "lastIndex", newDataPropertyDescriptorFull(0., true, false, false));
 
-  |RegExp| := regExpConstructor;
-
   return regExpConstructor;
 }
 
@@ -1223,7 +1221,7 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args) {
   /* 4. ReturnIfAbrupt(S). */
   @ReturnIfAbrupt(S);
   /* 5. Let C be SpeciesConstructor(rx, %RegExp%). */
-  C := SpeciesConstructor(rx, |RegExp|);
+  C := SpeciesConstructor(rx, |Intrinsics|["RegExp"]);
   /* 6. ReturnIfAbrupt(C). */
   @ReturnIfAbrupt(C);
   /* 7. Let flags be ToString(Get(rx, "flags")). */
