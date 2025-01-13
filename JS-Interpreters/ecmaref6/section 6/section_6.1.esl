@@ -136,7 +136,8 @@ function initIntrinsics(intrinsics, realm, strict) {
   fillFunctionPrototype(funcProto, funcConstructor, realm, strict);
 
   /* Iterator Prototype */
-  intrinsics.IteratorPrototype := initIteratorPrototype(realm, objProto, strict);
+  iterProto := initIteratorPrototype(realm, objProto, strict);
+  intrinsics.IteratorPrototype := iterProto;
 
   /* Array */
   ArrayObject := initArrayObject(realm, objProto, strict);
@@ -144,7 +145,7 @@ function initIntrinsics(intrinsics, realm, strict) {
   intrinsics.Array := ArrayObject;
   intrinsics.ArrayPrototype := getPrototypeValue(ArrayObject);
   intrinsics.ArrayProto_values := getJSProperty(getPrototypeValue(ArrayObject), "values").Value;
-  intrinsics.ArrayIteratorPrototype := initArrayIteratorPrototype(realm, objProto, strict);
+  intrinsics.ArrayIteratorPrototype := initArrayIteratorPrototype(iterProto, realm, strict);
 
   /* ArrayBuffer */
   ArrayBufferObject := initArrayBufferObject(realm, objProto, strict);

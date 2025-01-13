@@ -3466,8 +3466,8 @@ function CreateArrayIterator (array, kind) {
 /**
  * 22.1.5.2 The %ArrayIteratorPrototype% Object
  */
-function initArrayIteratorPrototype(realm, objectPrototype, strict) {
-  prototype := NewECMAScriptObjectFull(realm.intrinsics.IteratorPrototype, "Object", true);
+function initArrayIteratorPrototype(iterProto, realm, strict) {
+  prototype := NewECMAScriptObjectFull(iterProto, "Object", true);
   setAllInternalMethodsOfOrdinaryObject(prototype);
 
   /* 22.1.5.2.1 %ArrayIteratorPrototype%.next( ) */
