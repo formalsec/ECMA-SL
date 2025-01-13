@@ -55,90 +55,42 @@ function initGlobalObject(globalObject, intrinsic) {
   /* 15.1.3.4 encodeURIComponent (uriComponent) */
   createBuiltInProperty(globalObject, "encodeURIComponent", intrinsic.encodeURIComponent);
 
-  /* 15.1.4 Constructor Properties of the Global Object */
-  /* 15.1.4.1 Object ( . . . ) */
-  /* 15.1.4.2 Function ( . . . ) */
-
-  /* 15.1.4.3 Array ( . . . ) */
   createBuiltInProperty(globalObject, "Array", intrinsic.Array);
-  /* 15.1.4.4 String ( . . . ) */
-  createBuiltInProperty(globalObject, "String", intrinsic.String);
-  /* 15.1.4.5 Boolean ( . . . ) */
-  createBuiltInProperty(globalObject, "Boolean", intrinsic.Boolean);
-  /* 15.1.4.7 Date ( . . . ) */
-  createBuiltInProperty(globalObject, "Date", intrinsic.Date);
-  /* 15.1.4.8 RegExp ( . . . ) */
-  createBuiltInProperty(globalObject, "RegExp", intrinsic.RegExp);
-  /* 15.1.4.9 Error ( . . . ) */
-  createBuiltInProperty(globalObject, "Error", intrinsic.Error);
-  /* 15.1.4.10 EvalError ( . . . ) */
-  createBuiltInProperty(globalObject, "EvalError", intrinsic.EvalError);
-  /* 15.1.4.11 RangeError ( . . . ) */
-  createBuiltInProperty(globalObject, "RangeError", intrinsic.RangeError);
-  /* 15.1.4.12 ReferenceError ( . . . ) */
-  createBuiltInProperty(globalObject, "ReferenceError", intrinsic.ReferenceError);
-  /* 15.1.4.13 SyntaxError ( . . . ) */
-  createBuiltInProperty(globalObject, "SyntaxError", intrinsic.SyntaxError);
-  /* 15.1.4.14 TypeError ( . . . ) */
-  createBuiltInProperty(globalObject, "TypeError", |Intrinsics|["TypeError"]);
-  /* 15.1.4.15 URIError ( . . . ) */
-  createBuiltInProperty(globalObject, "URIError", intrinsic.URIError);
-
-  /* 15.1.5 Other Properties of the Global Object*/
-  /* 15.1.5.1 Math */
-  createBuiltInProperty(globalObject, "Math", intrinsic.Math);
-  /* 15.1.5.2 JSON */
-  createBuiltInProperty(globalObject, "JSON", intrinsic.JSON);
-
-  /* 18.3.8 Float32Array () */
-  createBuiltInProperty(globalObject, "Float32Array", intrinsic.Float32Array);
-  /* 18.3.9 Float64Array () */
-  createBuiltInProperty(globalObject, "Float64Array", intrinsic.Float64Array);
-  /* 18.3.11 Int8Array () */
-  createBuiltInProperty(globalObject, "Int8Array", intrinsic.Int8Array);
-  /* 18.3.12 Int16Array () */
-  createBuiltInProperty(globalObject, "Int16Array", intrinsic.Int16Array);
-  /* 18.3.13 Int32Array () */
-  createBuiltInProperty(globalObject, "Int32Array", intrinsic.Int32Array);
-  /* 18.3.27 Uint8Array () */
-  createBuiltInProperty(globalObject, "Uint8Array", intrinsic.Uint8Array);
-  /* 18.3.28 Uint8ClampedArray () */
-  createBuiltInProperty(globalObject, "Uint8ClampedArray", intrinsic.Uint8ClampedArray);
-  /* 18.3.29 Uint16Array () */
-  createBuiltInProperty(globalObject, "Uint16Array", intrinsic.Uint16Array);
-  /* 18.3.30 Uint32Array () */
-  createBuiltInProperty(globalObject, "Uint32Array", intrinsic.Uint32Array);
-
-  /* 25.4.3.1 Promise */
-  createBuiltInProperty(globalObject, "Promise", intrinsic.Promise);
-
-  /* 20.1 Number Objects */
-  createBuiltInProperty(globalObject, "Number", intrinsic.Number);
-
-  /* 23.1 Map */
-  createBuiltInProperty(globalObject, "Map", intrinsic.Map);
-
-  createBuiltInProperty(globalObject, "Symbol", intrinsic.Symbol);
-
-  /* 23.2 Set */
-  createBuiltInProperty(globalObject, "Set", intrinsic.Set);
-
-  /* 23.3 WeakMap Objects */
-  createBuiltInProperty(globalObject, "WeakMap", intrinsic.WeakMap);
-
-  /* 23.4 WeakSet Objects */
-  createBuiltInProperty(globalObject, "WeakSet", intrinsic.WeakSet);
-
-  /* 24.1 ArrayBuffer Objects */
   createBuiltInProperty(globalObject, "ArrayBuffer", intrinsic.ArrayBuffer);
-
-  /* 24.2 DataView Objects */
+  createBuiltInProperty(globalObject, "Boolean", intrinsic.Boolean);
   createBuiltInProperty(globalObject, "DataView", intrinsic.DataView);
-
-  /* 26.1 Reflect Object */
-  createBuiltInProperty(globalObject, "Reflect", intrinsic.Reflect);
-  /* 26.2 Proxy Objects */
+  createBuiltInProperty(globalObject, "Date", intrinsic.Date);
+  createBuiltInProperty(globalObject, "Error", intrinsic.Error);
+  createBuiltInProperty(globalObject, "EvalError", intrinsic.EvalError);
+  createBuiltInProperty(globalObject, "Float32Array", intrinsic.Float32Array);
+  createBuiltInProperty(globalObject, "Float64Array", intrinsic.Float64Array);
+  createBuiltInProperty(globalObject, "Function", intrinsic.Function);
+  createBuiltInProperty(globalObject, "Int8Array", intrinsic.Int8Array);
+  createBuiltInProperty(globalObject, "Int16Array", intrinsic.Int16Array);
+  createBuiltInProperty(globalObject, "Int32Array", intrinsic.Int32Array);
+  createBuiltInProperty(globalObject, "Map", intrinsic.Map);
+  createBuiltInProperty(globalObject, "Number", intrinsic.Number);
+  createBuiltInProperty(globalObject, "Object", intrinsic.Object);
   createBuiltInProperty(globalObject, "Proxy", intrinsic.Proxy);
+  createBuiltInProperty(globalObject, "Promise", intrinsic.Promise);
+  createBuiltInProperty(globalObject, "RangeError", intrinsic.RangeError);
+  createBuiltInProperty(globalObject, "ReferenceError", intrinsic.ReferenceError);
+  createBuiltInProperty(globalObject, "RegExp", intrinsic.RegExp);
+  createBuiltInProperty(globalObject, "Set", intrinsic.Set);
+  createBuiltInProperty(globalObject, "String", intrinsic.String);
+  createBuiltInProperty(globalObject, "Symbol", intrinsic.Symbol);
+  createBuiltInProperty(globalObject, "SyntaxError", intrinsic.SyntaxError);
+  createBuiltInProperty(globalObject, "TypeError", intrinsic.TypeError);
+  createBuiltInProperty(globalObject, "Uint8Array", intrinsic.Uint8Array);
+  createBuiltInProperty(globalObject, "Uint8ClampedArray", intrinsic.Uint8ClampedArray);
+  createBuiltInProperty(globalObject, "Uint16Array", intrinsic.Uint16Array);
+  createBuiltInProperty(globalObject, "Uint32Array", intrinsic.Uint32Array);
+  createBuiltInProperty(globalObject, "URIError", intrinsic.URIError);
+  createBuiltInProperty(globalObject, "WeakMap", intrinsic.WeakMap);
+  createBuiltInProperty(globalObject, "WeakSet", intrinsic.WeakSet);
+  createBuiltInProperty(globalObject, "JSON", intrinsic.JSON);
+  createBuiltInProperty(globalObject, "Math", intrinsic.Math);
+  createBuiltInProperty(globalObject, "Reflect", intrinsic.Reflect);
 
   /* Extras */
   ConsoleObject := initConsoleObject(globalObject, intrinsic.ObjectPrototype, false);
