@@ -55,32 +55,32 @@ function initFunctionPrototype(objectPrototype, globalObject, strict) {
 }
 
 /* 15.3.4 Properties of the Function Prototype Object */
-function fillFunctionPrototype(functionPrototypeObject, FunctionConstructor, globalObject, strict) {
+function fillFunctionPrototype(funcProto, constructor, realm, strict) {
   /* 19.2.3 The value of the length property of the Function prototype object is 0. */
-  createBuiltInPropertyWithFullDescriptor(functionPrototypeObject, "length", 0., false, false, true);
+  createBuiltInPropertyWithFullDescriptor(funcProto, "length", 0., false, false, true);
 
   /* 19.2.3 The value of the name property of the Function prototype object is the empty String. */
-  createBuiltInPropertyWithFullDescriptor(functionPrototypeObject, "name", "", false, false, true);
+  createBuiltInPropertyWithFullDescriptor(funcProto, "name", "", false, false, true);
 
   /* 15.3.4.1 Function.prototype.constructor */
   /* The initial value of Function.prototype.constructor is the built-in Function constructor. */
-  createBuiltInProperty(functionPrototypeObject, "constructor", FunctionConstructor);
+  createBuiltInProperty(funcProto, "constructor", constructor);
 
   /* 15.3.4.2 Function.prototype.toString ( ) */
-  toString := CreateBuiltInFunctionObject([], "FunctionPrototypeToString", globalObject, strict, null);
-  createBuiltInProperty(functionPrototypeObject, "toString", toString);
+  toString := CreateBuiltInFunctionObject([], "FunctionPrototypeToString", realm, strict, null);
+  createBuiltInProperty(funcProto, "toString", toString);
 
   /* 15.3.4.3 Function.prototype.apply (thisArg, argArray) */
-  apply := CreateBuiltInFunctionObject(["thisArg", "argArray"], "FunctionPrototypeApply", globalObject, strict, null);
-  createBuiltInProperty(functionPrototypeObject, "apply", apply);
+  apply := CreateBuiltInFunctionObject(["thisArg", "argArray"], "FunctionPrototypeApply", realm, strict, null);
+  createBuiltInProperty(funcProto, "apply", apply);
 
   /* 15.3.4.4 Function.prototype.call (thisArg [ , arg1 [ , arg2, ... ] ] ) */
-  call := CreateBuiltInFunctionObject(["thisArg"], "FunctionPrototypeCall", globalObject, strict, null);
-  createBuiltInProperty(functionPrototypeObject, "call", call);
+  call := CreateBuiltInFunctionObject(["thisArg"], "FunctionPrototypeCall", realm, strict, null);
+  createBuiltInProperty(funcProto, "call", call);
 
   /* 15.3.4.5 Function.prototype.bind (thisArg [, arg1 [, arg2, ...]]) */
-  bind := CreateBuiltInFunctionObject(["thisArg"], "FunctionPrototypeBind", globalObject, strict, null);
-  createBuiltInProperty(functionPrototypeObject, "bind", bind);
+  bind := CreateBuiltInFunctionObject(["thisArg"], "FunctionPrototypeBind", realm, strict, null);
+  createBuiltInProperty(funcProto, "bind", bind);
 
   return;
 }
