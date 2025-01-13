@@ -12,32 +12,25 @@ import "./node_shelljs.esl";
 function push_globals() {
   let saved_globals = {
     global: |global|,
-    Intrinsics: |Intrinsics|,
+    /* Intrinsics: |Intrinsics|, */
     ctxStack : |ctxStack|,
-    __CUR__SYMB__ : |__CUR__SYMB__|,
-    GlobalSymbolRegistry : |GlobalSymbolRegistry|,
-    RegExp : |RegExp|,
-    msPerDay : |msPerDay|,
-    LocalTZA : |LocalTZA|,
-    ElementTable : |ElementTable|,
-    StringPrototype : |StringPrototype|,
+    /* __CUR__SYMB__ : |__CUR__SYMB__|, */
+    /* GlobalSymbolRegistry : |GlobalSymbolRegistry|, */
+    /* ElementTable : |ElementTable|, */
     ScriptJobQueue : |ScriptJobQueue|,
-    PromiseJobQueue : |PromiseJobQueue|,
-    realm : |realm|
+    PromiseJobQueue : |PromiseJobQueue|
+    /* realm : |realm| */
   };
-  |global| := {};
-  |Intrinsics| := {};
-  |ctxStack| := [];
-  |__CUR__SYMB__| := 0;
-  |GlobalSymbolRegistry| := {};
-  |RegExp| := {};
-  |msPerDay| := 86400000.;
-  |LocalTZA| := 0.;
-  |ElementTable| := {};
-  |StringPrototype| := {};
+  |global| := 'undefined;
+  |realm|["globalThis"] := 'undefined;
+  /* |Intrinsics| := {}; */
+  |ctxStack| := stack_make();
+  /* |__CUR__SYMB__| := 0; */
+  /* |GlobalSymbolRegistry| := {}; */
+  /* |ElementTable| := {}; */
   |ScriptJobQueue| := [];
   |PromiseJobQueue| := [];
-  |realm| := {};
+  /* |realm| := {}; */
   stack_push(|globals_stack|,  saved_globals);
   return;
 }
@@ -45,18 +38,15 @@ function push_globals() {
 function pop_globals() {
   let saved_globals = stack_pop(|globals_stack|);
   |global| := saved_globals.global;
-  |Intrinsics| := saved_globals.Intrinsics;
+  |realm|["globalThis"] := saved_globals.global;
+  /* |Intrinsics| := saved_globals.Intrinsics; */
   |ctxStack| := saved_globals.ctxStack;
-  |__CUR__SYMB__| := saved_globals.__CUR__SYMB__;
-  |GlobalSymbolRegistry| := saved_globals.GlobalSymbolRegistry;
-  |RegExpr| := saved_globals.RegExp;
-  |msPerDay| := saved_globals.msPerDay;
-  |LocalTZA| := saved_globals.LocalTZA;
-  |ElementTable| := saved_globals.ElementTable;
-  |StringPrototype| := saved_globals.StringPrototype;
+  /* |__CUR__SYMB__| := saved_globals.__CUR__SYMB__; */
+  /* |GlobalSymbolRegistry| := saved_globals.GlobalSymbolRegistry; */
+  /* |ElementTable| := saved_globals.ElementTable; */
   |ScriptJobQueue| := saved_globals.ScriptJobQueue;
   |PromiseJobQueue| := saved_globals.PromiseJobQueue;
-  |realm| := saved_globals.realm;
+  /* |realm| := saved_globals.realm; */
   return;
 }
 
@@ -139,9 +129,10 @@ function load_js_module(fpath) {
   let file_content_gen = extern parseJS(file_content);
   let file_content_ast = {file_content_gen}();
   push_globals();
-  let result = ECMAScriptNodeInitialization(file_content_ast);
+  let result = nodeInitAndRun(file_content_ast, true);
   /* TODO: handle `result` error  */
-  let module = GetValue(newPropertyReference(|global|, "module", false));
+  let global = |realm|["globalThis"];
+  let module = GetValue(newPropertyReference(global, "module", false));
   let exports = OrdinaryGetOwnProperty(module, "exports");
   pop_globals();
   return exports.Value;
@@ -230,29 +221,86 @@ function __esl_node_require(globalObject, this, NewTarget, strict, params) {
   throw ("package: '" + x + "' not found");
 }
 
-function init_node_global_object(globalObject, objectPrototype, strict) {
-  let realm = { globalEnv : globalObject };
-  createBuiltInProperty(globalObject, "__dirname", extern __dirname());
-  createBuiltInProperty(globalObject, "__filename", extern __filename());
+function makeNodeObject(global, realm, strict) {
+  let objProto = realm.intrinsics.ObjectPrototype;
+  createBuiltInProperty(global, "__dirname", extern __dirname());
+  createBuiltInProperty(global, "__filename", extern __filename());
 
   let require = CreateBuiltInFunctionObject(["path"], "__esl_node_require", realm, strict, null);
-  createBuiltInProperty(globalObject, "require", require);
-  createBuiltInProperty(require, "prototype", objectPrototype);
+  createBuiltInProperty(global, "require", require);
+  createBuiltInProperty(require, "prototype", objProto);
 
   let module = NewECMAScriptObject();
   setAllInternalMethodsOfOrdinaryObject(module);
-  setInternalProperty(module, "Prototype", objectPrototype);
-  createBuiltInProperty(globalObject, "module", module);
+  setInternalProperty(module, "Prototype", objProto);
+  createBuiltInProperty(global, "module", module);
 
   let exports = NewECMAScriptObject();
   setAllInternalMethodsOfOrdinaryObject(exports);
-  setInternalProperty(module, "Prototype", objectPrototype);
+  setInternalProperty(module, "Prototype", objProto);
   createBuiltInProperty(module, "exports", exports);
-  createBuiltInProperty(globalObject, "exports", exports);
+  createBuiltInProperty(global, "exports", exports);
 
-  let process = make_process_object(globalObject, objectPrototype, strict);
-  createBuiltInProperty(globalObject, "process", process);
+  let process = make_process_object(global, objProto, strict);
+  createBuiltInProperty(global, "process", process);
 
-  createBuiltInProperty(globalObject, "global", globalObject);
+  createBuiltInProperty(global, "global", global);
   return;
+}
+
+function initNodeRealm(realm) {
+  /* If this implementation requires use of an exotic object to serve as realm’s global object, let global be such an object created in an implementation defined manner. Otherwise, let global be undefined indicating that an ordinary object should be created as the global object. */
+  let global = 'undefined;
+  /* Perform SetRealmGlobalObject(realm, global). */
+  SetRealmGlobalObject(realm, global);
+  /* Let globalObj be SetDefaultGlobalBindings(realm). */
+  let globalObj = SetDefaultGlobalBindings(realm);
+  /* ReturnIfAbrupt(globalObj). */
+  @ReturnIfAbrupt(globalObj);
+  /* Create any implementation defined global object properties on globalObj. */
+  makeNodeObject(globalObj, realm, false);
+  /* Return NormalCompletion(undefined). */
+  return NormalCompletion('undefined);
+}
+
+function nodeInitAndRun(sourceText, partial) {
+  /* Let realm be CreateRealm(). */
+  realm := 'undefined;
+  /* If partial execution is not enabled, create instrinsics */
+  if (!partial) {
+    realm := CreateRealm();
+    |realm| := realm;
+  /* Otherwise, reuse exisiting global instrinsics */
+  } else {
+    realm := |realm|;
+  }
+  /* Let newContext be a new execution context. */
+  let newContext = createExecutionContext();
+  /* Set the Function of newContext to null. */
+  newContext.Function := 'null;
+  /* Set the Realm of newContext to realm. */
+  newContext.Realm := realm;
+  /* Push newContext onto the execution context stack; newContext is now the running execution context. */
+  pushExecStack(newContext);
+  /* Let status be initNodeRealm(realm). */
+  let status = initNodeRealm(realm);
+  /* If _status_ is an abrupt completion, then */
+  if (isAnAbruptCompletion(status)) {
+    /* Assert: The first realm could not be created. */
+    assert (realm == null);
+    /* Terminate ECMAScript execution. */
+    /* FIXME: should have the same return type as below */
+    return;
+  }
+  /* In an implementation dependent manner, obtain the ECMAScript source texts (see clause 10) for zero or more ECMAScript scripts and/or ECMAScript modules. For each such sourceText do, */
+  /* If sourceText is the source code of a script, then */
+  /* Perform EnqueueJob("ScriptJobs", ScriptEvaluationJob, « sourceText »). */
+  /* EnqueueJob("ScriptJobs", "ScriptEvaluationJob", [ sourceText ]); */
+  /* Else sourceText is the source code of a module, */
+  /* Perform EnqueueJob("ScriptJobs", TopLevelModuleEvaluationJob, « sourceText »). */
+  /* TODO: */
+  EnqueueJob("ScriptJobs", "TopLevelModuleEvaluationJob", [ sourceText ]);
+  /* NextJob NormalCompletion(undefined). */
+  let result = NextJob(NormalCompletion('undefined));
+  return result;
 }
