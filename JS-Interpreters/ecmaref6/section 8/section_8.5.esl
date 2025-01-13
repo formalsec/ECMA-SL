@@ -33,6 +33,7 @@ the evaluation of any ECMAScript code: */
 function ECMAScriptInitialization(sourceText) {
     /* Let realm be CreateRealm(). */
     realm := CreateRealm();
+    |realm| := realm;
     /* Let newContext be a new execution context. */
     newContext := createExecutionContext();
     /* Set the Function of newContext to null. */
@@ -43,26 +44,20 @@ function ECMAScriptInitialization(sourceText) {
     pushExecStack(newContext);
     /* Let status be InitializeHostDefinedRealm(realm). */
     status := InitializeHostDefinedRealm(realm);
-
-    /* If status is an abrupt completion, then */
+    /* If _status_ is an abrupt completion, then */
     if (isAnAbruptCompletion(status)) {
       /* Assert: The first realm could not be created. */
       assert (realm == null);
       /* Terminate ECMAScript execution. */
+      /* FIXME: should have the same return type as below */
       return;
     }
-
-    |realm| := realm;
-
-    /* In an implementation dependent manner, obtain the ECMAScript source texts (see clause 10)
-       for zero or more ECMAScript scripts and/or ECMAScript modules. For each such sourceText
-       do, */
-        /* If sourceText is the source code of a script, then */
-            /* Perform EnqueueJob("ScriptJobs", ScriptEvaluationJob, « sourceText »). */
+    /* In an implementation dependent manner, obtain the ECMAScript source texts (see clause 10) for zero or more ECMAScript scripts and/or ECMAScript modules. For each such sourceText do, */
+    /* If sourceText is the source code of a script, then */
+    /* Perform EnqueueJob("ScriptJobs", ScriptEvaluationJob, « sourceText »). */
     EnqueueJob("ScriptJobs", "ScriptEvaluationJob", [sourceText]);
-        /* Else sourceText is the source code of a module, */
-            /* Perform EnqueueJob("ScriptJobs", TopLevelModuleEvaluationJob, « sourceText »). */
-
+    /* Else sourceText is the source code of a module, */
+    /* Perform EnqueueJob("ScriptJobs", TopLevelModuleEvaluationJob, « sourceText »). */
     /* NextJob NormalCompletion(undefined). */
     return NextJob(NormalCompletion('undefined));
 }
@@ -76,8 +71,10 @@ function ECMAScriptPartialInitialization(sourceText) {
     newContext.Function := 'null;
     newContext.Realm := |realm|;
     pushExecStack(newContext);
+    /* TODO: Don't we need to remake the global object? */
+    /* We should preserve intrinsics, but doesn't each module have its own globlaObj? */
     EnqueueJob("ScriptJobs", "ScriptEvaluationJob", [sourceText]);
-    return NextJob( NormalCompletion('undefined));
+    return NextJob(NormalCompletion('undefined));
 }
 
 /* 8.5.1 InitializeHostDefinedRealm ( realm )
@@ -88,7 +85,7 @@ function InitializeHostDefinedRealm(realm) {
     /* If this implementation requires use of an exotic object to serve as realm’s global object, let
     global be such an object created in an implementation defined manner. Otherwise, let global
     be undefined indicating that an ordinary object should be created as the global object. */
-    global := realm.intrinsics.GlobalObject;
+    global := 'undefined;
     /* Perform SetRealmGlobalObject(realm, global). */
     SetRealmGlobalObject(realm, global);
     /* Let globalObj be SetDefaultGlobalBindings(realm). */
