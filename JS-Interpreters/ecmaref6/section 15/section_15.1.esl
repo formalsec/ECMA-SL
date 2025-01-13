@@ -279,3 +279,9 @@ function ScriptEvaluationJob(sourceText) {
           must be deferred until the ScriptEvaluationJob is actually executed. */
 }
 
+
+/* 15.2.1.19 Runtime Semantics: TopLevelModuleEvaluationJob ( sourceText) */
+function topLevelModuleEvaluationJob(sourceText) {
+  /* FIXME: Currently just a wrapper for `ScriptEvaluationJob`  */
+  return ScriptEvaluationJob(sourceText);
+}
