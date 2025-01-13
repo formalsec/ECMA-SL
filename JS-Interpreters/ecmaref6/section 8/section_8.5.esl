@@ -19,8 +19,8 @@ function execStackIsEmpty() {
 }
 
 function initGlobalVars() {
-    |ctxStack| := stack_make();
     initJobQueue();
+    |ctxStack| := stack_make();
     |__CUR__SYMB__| := 0;
     |GlobalSymbolRegistry| := {};
     return;
@@ -31,8 +31,6 @@ function initGlobalVars() {
 An ECMAScript implementation performs the following steps prior to the execution of any Jobs or
 the evaluation of any ECMAScript code: */
 function ECMAScriptInitialization(sourceText) {
-    initGlobalVars();
-
     /* Let realm be CreateRealm(). */
     realm := CreateRealm();
     /* Let newContext be a new execution context. */

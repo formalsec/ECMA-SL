@@ -2,9 +2,14 @@ import "./esl_interpreter.esl";
 import "./bindings/ffi_symbolic.esl";
 import "./bindings/node-bindings.esl";
 
+function init() {
+  initGlobalVars();
+  |globals_stack| := stack_make();
+  return;
+}
+
 /* Redefine this functions because we need to initialize the node global obj */
 function ECMAScriptNodeInitialization(sourceText) {
-    initGlobalVars();
     realm := CreateRealm();
 
     newContext := createExecutionContext();
@@ -50,7 +55,7 @@ function stringOfError(error : object) : string {
 }
 
 function main() {
-  |globals_stack| := stack_make();
+  init();
   x := buildAST();
   ret := ECMAScriptNodeInitialization(x);
   c_value := getCompletionValue(ret);

@@ -1,5 +1,11 @@
 import "esl_interpreter.esl";
 
+/* initialize implementation defined stuff. These should only be initialized once */
+function init() {
+  initGlobalVars();
+  return;
+}
+
 function ECMAScriptReturn(ret) {
   c_value := getCompletionValue(ret);
   if ((typeof c_value == "object") &&& ("ErrorData" in_obj c_value) ) {
@@ -17,6 +23,7 @@ function mainPreInitialized() {
 }
 
 function main() {
+  init();
   x := buildAST();
   ret := ECMAScriptInitialization(x);
   return ECMAScriptReturn(ret);
