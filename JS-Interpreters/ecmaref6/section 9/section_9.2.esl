@@ -424,17 +424,17 @@ function AddRestrictedFunctionProperties(F, realm) {
      [[Configurable]]: true}). */
   /* status := DefinePropertyOrThrow(F, "caller", newGetAndSetAccessorPropertyDescriptorFull(thrower, thrower, false, true)); */
   F.JSProperties.caller := newGetAndSetAccessorPropertyDescriptorFull(thrower, thrower, false, true);
-  status := true;
+  /* status := true; */
   /* 4. Assert: status is not an abrupt completion. */
-  assert (!isAnAbruptCompletion(status));
+  /* assert (!isAnAbruptCompletion(status)); */
   /* 5. Return DefinePropertyOrThrow(F , "arguments", PropertyDescriptor
      {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false,
      [[Configurable]]: true}). */
   /* arguments := DefinePropertyOrThrow(F, "arguments", newGetAndSetAccessorPropertyDescriptorFull(thrower, thrower, false, true)); */
   F.JSProperties.arguments := newGetAndSetAccessorPropertyDescriptorFull(thrower, thrower, false, true);
-  arguments := true;
+  /* arguments := true; */
   /* 6. Assert: The above returned value is not an abrupt completion. */
-  assert (!isAnAbruptCompletion(arguments));
+  /* assert (!isAnAbruptCompletion(arguments)); */
   return;
 }
 
