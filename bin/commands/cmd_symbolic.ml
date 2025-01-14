@@ -24,6 +24,17 @@ module Symbolic_interpreter =
 
 let valid_languages : Enums.Lang.t list = Enums.Lang.[ Auto; JS; ESL; CESL ]
 
+let setup_prelude filename prelude =
+  let open Bos in
+  match prelude with
+  | None -> Ok filename
+  | Some prelude ->
+    let* data_prelude = OS.File.read prelude in
+    let* data_filename = OS.File.read filename in
+    let filename' = Fpath.v (Filename.temp_file "ecmasl" ".js") in
+    let* () = OS.File.writef filename' "%s\n%s" data_prelude data_filename in
+    Ok filename'
+
 let prog_of_js fpath =
   let open Ecma_sl in
   let interp = Share.es6_sym_interp () in
@@ -78,7 +89,8 @@ let write_report workspace symbolic_report =
   Result.bos
   @@ Bos.OS.File.writef ~mode path "%a" (Yojson.pretty_print ~std:true) json
 
-let run ~input ~lang ~target ~workspace ~harness:_ =
+let run ~input ~lang ~target ~workspace ~harness =
+  let* input = Result.bos @@ setup_prelude input harness in
   let* prog = dispatch_prog lang input in
   let testsuite = Fpath.(workspace / "test-suite") in
   let* _ = Result.bos (Bos.OS.Dir.create ~mode:0o777 testsuite) in
