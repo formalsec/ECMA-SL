@@ -5,6 +5,8 @@ import "./bindings/node-bindings.esl";
 function init() {
   initGlobalVars();
   |globals_stack| := stack_make();
+  |__dirname| := extern __dirname();
+  |__filename| := extern __filename();
   return;
 }
 

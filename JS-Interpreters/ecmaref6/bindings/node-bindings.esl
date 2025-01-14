@@ -18,7 +18,9 @@ function push_globals() {
     /* GlobalSymbolRegistry : |GlobalSymbolRegistry|, */
     /* ElementTable : |ElementTable|, */
     ScriptJobQueue : |ScriptJobQueue|,
-    PromiseJobQueue : |PromiseJobQueue|
+    PromiseJobQueue : |PromiseJobQueue|,
+    __dirname : |__dirname|,
+    __filename : |__filename|
     /* realm : |realm| */
   };
   |global| := 'undefined;
@@ -46,6 +48,8 @@ function pop_globals() {
   /* |ElementTable| := saved_globals.ElementTable; */
   |ScriptJobQueue| := saved_globals.ScriptJobQueue;
   |PromiseJobQueue| := saved_globals.PromiseJobQueue;
+  |__dirname| := saved_globals.__dirname;
+  |__filename| := saved_globals.__filename;
   /* |realm| := saved_globals.realm; */
   return;
 }
@@ -129,6 +133,9 @@ function load_js_module(fpath) {
   let file_content_gen = extern parseJS(file_content);
   let file_content_ast = {file_content_gen}();
   push_globals();
+  /* Set the new `__filename` and `__dirname` as the required file */
+  |__dirname| := fpath_to_string(dirname(fpath));
+  |__filename| := fpath_to_string(fpath);
   let result = nodeInitAndRun(file_content_ast, true);
   /* TODO: handle `result` error  */
   let global = |realm|["globalThis"];
@@ -201,9 +208,9 @@ function __esl_node_require(globalObject, this, NewTarget, strict, params) {
 
   /* 3. If X begins with './' or '/' or '../' */
   if (s_is_prefix("/", x) || s_is_prefix("./", x) || s_is_prefix("../", x)) {
-    let y = fpath_of_string(extern __filename());
+    let y = fpath_of_string(|__dirname|);
     let x = fpath_of_string(x);
-    let full_path = fpath_append(dirname(y), x);
+    let full_path = fpath_append(y, x);
     /*    a. LOAD_AS_FILE(Y + X) */
     return load_as_file(full_path);
     /*    b. LOAD_AS_DIRECTORY(Y + X) */
@@ -223,8 +230,8 @@ function __esl_node_require(globalObject, this, NewTarget, strict, params) {
 
 function makeNodeObject(global, realm, strict) {
   let objProto = realm.intrinsics.ObjectPrototype;
-  createBuiltInProperty(global, "__dirname", extern __dirname());
-  createBuiltInProperty(global, "__filename", extern __filename());
+  createBuiltInProperty(global, "__dirname", |__dirname|);
+  createBuiltInProperty(global, "__filename", |__filename|);
 
   let require = CreateBuiltInFunctionObject(["path"], "__esl_node_require", realm, strict, null);
   createBuiltInProperty(global, "require", require);
