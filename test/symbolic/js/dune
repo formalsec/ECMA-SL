@@ -3,6 +3,7 @@
  (deps
   %{bin:ecma-sl}
   (package ecma-sl)
+  (source_tree relative-require)
   node_require_a.js
   node_require_b.js
   node_require_constant_a.js
