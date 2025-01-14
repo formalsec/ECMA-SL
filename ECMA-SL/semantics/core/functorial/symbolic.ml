@@ -61,11 +61,11 @@ module P = struct
       | [] -> Choice.return None
       | [ (v, pc) ] ->
         fun thread ->
-          Option.fold ~none:Seq.empty ~some:Seq.return (return thread (v, pc))
+          Option.fold ~none:Cont.empty ~some:Cont.return (return thread (v, pc))
       | _ ->
         fun thread ->
           let thread = Thread.clone thread in
-          List.to_seq @@ List.filter_map (return thread) vals
+          Cont.of_list @@ List.filter_map (return thread) vals
 
     let delete o v = Object.delete o v [@@inline]
     let to_list o = Object.to_list o [@@inline]
@@ -106,12 +106,12 @@ module P = struct
       | [ (v, pc) ] -> (
         fun thread ->
           match return thread (v, pc) with
-          | None -> Seq.empty
-          | Some a -> Seq.return a )
+          | None -> Cont.empty
+          | Some a -> Cont.return a )
       | _ ->
         fun thread ->
           let thread = Thread.clone thread in
-          List.to_seq @@ List.filter_map (return thread) field_vals
+          Cont.of_list @@ List.filter_map (return thread) field_vals
 
     let set_field m loc ~field ~data = Memory.set_field m loc ~field ~data
     [@@inline]
@@ -138,16 +138,16 @@ module P = struct
       | [] ->
         fun _thread ->
           Log.stdout "   symbolic : no loc@.";
-          Seq.empty
+          Cont.empty
       | [ (c, v) ] -> (
         fun thread ->
           match return thread (c, v) with
-          | None -> Seq.empty
-          | Some a -> Seq.return a )
+          | None -> Cont.empty
+          | Some a -> Cont.return a )
       | _ ->
         fun thread ->
           let thread = Thread.clone thread in
-          List.to_seq @@ List.filter_map (return thread) locs
+          Cont.of_list @@ List.filter_map (return thread) locs
 
     let pp ppf v = Memory.pp ppf v [@@inline]
     let pp_val m fmt v = Memory.pp_val m fmt v [@@inline]

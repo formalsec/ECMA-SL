@@ -148,24 +148,34 @@ let run () (opts : Options.t) : unit Result.t =
     ; failures = []
     }
   in
-  let rec print_and_count_failures results =
+  let print_and_count_failures results =
+    let exception Exit in
     (* We have to measure execution time here as well *)
-    let start_time = Stdlib.Sys.time () in
-    let result = results () in
-    report.execution_time <-
-      report.execution_time +. (Stdlib.Sys.time () -. start_time);
-    match result with
-    | Seq.Nil -> Ok ()
-    | Seq.Cons (result, tl) -> (
-      let* result = process_result opts.workspace result in
-      match result with
-      | Ok () -> print_and_count_failures tl
-      | Error witness ->
-        Logs.app (fun k -> k "%a" Ecma_sl.Symbolic_error.pp witness);
-        report.num_failures <- succ report.num_failures;
-        report.failures <- witness :: report.failures;
-        if no_stop_at_failure then print_and_count_failures tl
-        else Error (`Symbolic witness) )
+    let exit = ref None in
+    let () =
+      try
+        results (fun result ->
+          let start_time = Stdlib.Sys.time () in
+          report.execution_time <-
+            report.execution_time +. (Stdlib.Sys.time () -. start_time);
+          let ret =
+            let* result = process_result opts.workspace result in
+            match result with
+            | Ok () -> Ok ()
+            | Error witness ->
+              Logs.app (fun k -> k "%a" Ecma_sl.Symbolic_error.pp witness);
+              report.num_failures <- succ report.num_failures;
+              report.failures <- witness :: report.failures;
+              if no_stop_at_failure then Ok () else Error (`Symbolic witness)
+          in
+          match ret with
+          | Ok () -> ()
+          | Error err ->
+            exit := Some err;
+            raise Exit )
+      with Exit -> ()
+    in
+    match !exit with None -> Ok () | Some err -> Error err
   in
   let result = print_and_count_failures results in
   if report.num_failures = 0 then Logs.app (fun k -> k "All Ok!")
