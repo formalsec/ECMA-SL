@@ -1,15 +1,15 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
@@ -78,7 +78,7 @@ let write_report workspace symbolic_report =
   Result.bos
   @@ Bos.OS.File.writef ~mode path "%a" (Yojson.pretty_print ~std:true) json
 
-let run ~input ~lang ~target ~workspace =
+let run ~input ~lang ~target ~workspace ~harness:_ =
   let* prog = dispatch_prog lang input in
   let testsuite = Fpath.(workspace / "test-suite") in
   let* _ = Result.bos (Bos.OS.Dir.create ~mode:0o777 testsuite) in
