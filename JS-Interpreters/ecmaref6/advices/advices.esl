@@ -1,0 +1,52 @@
+advice advices_init before main;
+function advices_init() {
+    |advices| := {};
+    |advices|.objects := 0;
+    |advices|.coercions := 0;
+    |advices|.backtracks := 0;
+    |advices|.promises := 0;
+    return;
+}
+
+advice advices_end after main;
+function advices_end(ret) {
+    print("Object Counter: " + int_to_string(|advices|.objects));
+    print("Coercion Counter: " + int_to_string(|advices|.coercions));
+    print("Backtracking Counter: " + int_to_string(|advices|.backtracks));
+    print("Promises Solved: " + int_to_string(|advices|.promises));
+    return;
+}
+
+
+
+// 3.1 Counting the number of objects
+advice advice_objects after ObjectCreate;
+function advice_objects(proto, internalSlotsList, ret) {
+    |advices|.objects := |advices|.objects + 1;
+    return;
+}
+
+// 3.2 Counting the number of implicit type coercions
+advice advice_coercions after ToBoolean;
+advice advice_coercions after ToNumber;
+advice advice_coercions after ToString;
+function advice_coercions(argument, ret) {
+    if (argument != ret)
+        |advices|.coercions := |advices|.coercions + 1;
+    return;
+}
+
+// 3.3 Measuring the backtracking level of regular expressions 
+advice advice_backtracking after isFailure;
+function advice_backtracking(st, ret) {
+    if (ret) 
+        |advices|.backtracks := |advices|.backtracks + 1;
+    return;
+}
+
+// 3.4 Counting the number of promises solved
+advice advice_promise after PromiseResolve;
+function advice_promise(global, this, NewTarget, strict, args, ret) {
+    |advices|.promises := |advices|.promises + 1;
+    return;
+}

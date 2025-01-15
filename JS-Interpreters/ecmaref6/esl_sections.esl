@@ -90,3 +90,5 @@ import "bindings/ffi_test262.esl";
 
 import "internal_representations/objects.esl";
 import "internal_representations/descriptors.esl";
+
+import "advices/advices.esl";
