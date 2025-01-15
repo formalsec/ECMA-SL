@@ -25,6 +25,7 @@
 %token NULL NONE
 %token LET
 %token IMPORT TYPEDEF MACRO FUNCTION
+%token ADVICE BEFORE AFTER
 %token PRINT RETURN DELETE EXTERN LAMBDA
 %token ASSERT FAIL THROW CATCH
 %token IF ELSE
@@ -124,6 +125,7 @@ let prog_element_target :=
   | ~ = tdef_target;    < EParsing_helper.Prog.parse_tdef >
   | ~ = macro_target;   < EParsing_helper.Prog.parse_macro >
   | ~ = func_target;    < EParsing_helper.Prog.parse_func >
+  | ~ = advice_target;  < EParsing_helper.Prog.parse_advice >
 
 (* ==================== Program Elements ==================== *)
 
@@ -142,6 +144,18 @@ let macro_target :=
 let func_target :=
   | FUNCTION; fn = id_target; pxs = func_tparams_target; tret = typing_target?; s = block_stmt_target;
     { EFunc.create fn pxs tret s @> at $sloc }
+
+// let advice_target := 
+//   | ADVICE; an = id_target; BEFORE; fn = id_target; SEMICOLON;
+//     { EAdvice.before fn an @> at $sloc }
+//   | ADVICE; an = id_target; AFTER; fn = id_target; SEMICOLON;
+//     { EAdvice.after fn an @> at $sloc }
+
+let advice_target := 
+  | ADVICE; an = id_target; BEFORE; fn = id_target; SEMICOLON;
+    { EAdvice.before fn an @> at $sloc }
+  | ADVICE; an = id_target; AFTER; fn = id_target; SEMICOLON;
+    { EAdvice.after fn an @> at $sloc }
 
 (* ==================== Statements ==================== *)
 

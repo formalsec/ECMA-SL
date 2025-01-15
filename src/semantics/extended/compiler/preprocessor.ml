@@ -28,6 +28,8 @@ module Imports = struct
   let import_resolver ~(stdlib : string) (workspace : string) (p : EProg.t)
     (resolved : (Id.t', unit) Hashtbl.t)
     (unresolved : (Id.t' * EImport.t list) list) : unit =
+    let open EParsing_helper.Prog in
+    let parse_advice' a p = List.iter (fun a -> parse_advice a p) a in
     let rec loop =
       let open Source in
       function
@@ -42,7 +44,6 @@ module Imports = struct
         if Hashtbl.mem resolved import.it then
           loop ((source, imports') :: unresolved')
         else
-          let open EParsing_helper.Prog in
           let dependency = load_dependency import dependency_path in
           let dependency_imports =
             relativize import.it (EProg.imports dependency)
@@ -51,6 +52,7 @@ module Imports = struct
           Hashtbl.iter (fun _ t -> parse_tdef t p) (EProg.tdefs dependency);
           Hashtbl.iter (fun _ f -> parse_func f p) (EProg.funcs dependency);
           Hashtbl.iter (fun _ m -> parse_macro m p) (EProg.macros dependency);
+          Hashtbl.iter (fun _ a -> parse_advice' a p) (EProg.advices dependency);
           loop (new_dependencies :: unresolved)
     in
     loop unresolved

@@ -467,16 +467,52 @@ and compile_assert (at : at) (e : EExpr.t) : c_stmt =
   let (e_s, e_e) = compile_expr at e in
   e_s @ [ Stmt.Assert e_e @?> at ]
 
-let compile_func (f : EFunc.t) : Func.t =
-  let (fn, pxs, s) = EFunc.(name f, params f, body f) in
+let compile_func' (f_at : at) (s_at : at) (fn : Id.t) (pxs : Id.t list)
+  (s_s : c_stmt) : Func.t =
   let global = Const.esl_globals_obj @?> fn.at in
-  let s_s = compile_stmt s in
   if fn.it = Const.original_main then
     let s_s' = (Stmt.AssignNewObj global @?> fn.at) :: s_s in
-    Func.create fn pxs (Builder.block ~at:s.at s_s') @> f.at
+    Func.create fn pxs (Builder.block ~at:s_at s_s') @> f_at
   else
     let params' = global :: pxs in
-    Func.create fn params' (Builder.block ~at:s.at s_s) @> f.at
+    Func.create fn params' (Builder.block ~at:s_at s_s) @> f_at
+
+let compile_func (f : EFunc.t) : Func.t =
+  let (fn, pxs, s) = EFunc.(name f, params f, body f) in
+  let s_s = compile_stmt s in
+  compile_func' fn.at s.at fn pxs s_s
+
+let compile_advice_call (at : at) (fn : Id.t') (es : Expr.t list) : c_expr =
+  let fe = Expr.Val (Value.Str fn) @?> at in
+  let global = Builder.global fe in
+  let res = Builder.var at in
+  let sres = Stmt.AssignCall (?@res, fe, global :: es) @?> at in
+  let sthrow = Builder.call_checker at (res.it @?> res.at) None in
+  ([ sres; sthrow ], res)
+
+let compile_advice (es : Expr.t list) (ret : Expr.t option) (advice : EAdvice.t)
+  : c_stmt =
+  let an = EAdvice.aname advice in
+  let params' = Option.fold ~none:es ~some:(fun r -> es @ [ r ]) ret in
+  fst (compile_advice_call advice.at an.it params')
+
+let compile_func_adviced (p : EProg.t) (f : EFunc.t) : Func.t list =
+  let fn = EFunc.name f in
+  match Hashtbl.find_opt (EProg.advices p) fn.it with
+  | None -> [ compile_func f ]
+  | Some advices ->
+    let (before, after) = List.partition EAdvice.is_before advices in
+    let fn' = "$" ^ fn.it in
+    let pxs = EFunc.params f in
+    let es = List.map (fun px -> Expr.Var px.it @> px.at) pxs in
+    let (f_s, f_e) = compile_advice_call f.at fn' es in
+    let sbefore = List.map (compile_advice es None) before in
+    let safter = List.map (compile_advice es (Some f_e)) after in
+    let sfalse = Expr.Val Value.False @?> f_e.at in
+    let f_e' = Expr.NOpt (ListExpr, [ sfalse; f_e ]) @?> f_e.at in
+    let sret = [ Stmt.Return f_e' @> f.at ] in
+    let sblock = List.flatten (sbefore @ [ f_s ] @ safter @ [ sret ]) in
+    [ compile_func (EFunc.rename f fn'); compile_func' f.at f.at fn pxs sblock ]
 
 let compile_lambda
   ((at, id, pxs, ctxvars, s) : at * string * Id.t list * Id.t list * EStmt.t) :
@@ -487,7 +523,7 @@ let compile_lambda
   Func.create (id @?> at) params (Builder.block ~at:s.at s_s) @> at
 
 let compile_prog (p : EProg.t) : Prog.t =
-  let funcs_f _ f acc = compile_func f :: acc in
+  let funcs_f _ f acc = (compile_func_adviced p) f @ acc in
   let funcs = Hashtbl.fold funcs_f (EProg.funcs p) [] in
   let lambdas = List.map compile_lambda (EProg.lambdas p) in
   Prog.create (lambdas @ funcs)

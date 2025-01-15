@@ -1166,13 +1166,13 @@ function GetSubstitution(matched, str, position, captures, replacement, global, 
     */
 
   if (position == 0)
-    before := "";
+    bfr := "";
   else
-    before := substring(str, 0., position);
+    bfr := substring(str, 0., position);
   if (tailPos >= stringLength)
-    after := "";
+    aft := "";
   else
-    after := substring(str, int_to_float tailPos,  int_to_float (s_len_u (str)));
+    aft := substring(str, int_to_float tailPos,  int_to_float (s_len_u (str)));
   result := "";
   len := s_len_u (replacement);
   i := 0;
@@ -1190,10 +1190,10 @@ function GetSubstitution(matched, str, position, captures, replacement, global, 
       result := s_concat([result, matched]);
       i := i + 2;
     } else if ((c1 == "$") &&& (c2 == "`")) {
-      result := s_concat([result, before]);
+      result := s_concat([result, bfr]);
       i := i + 2;
     } else if ((c1 == "$") &&& (c2 == "'")) {
-      result := s_concat([result, after]);
+      result := s_concat([result, aft]);
       i := i + 2;
     } else if ((c1 == "$") &&& (c2_code >= 48) &&& (c2_code <= 57)) {
       if ((i + 2) < len) {

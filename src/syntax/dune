@@ -20,6 +20,7 @@
   eProg
   eImport
   eFunc
+  eAdvice
   eMacro
   eStmt
   ePat

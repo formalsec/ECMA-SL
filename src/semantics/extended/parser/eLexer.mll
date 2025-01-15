@@ -16,6 +16,9 @@
             "typedef"                 , TYPEDEF;
             "macro"                   , MACRO;
             "function"                , FUNCTION;
+            "advice"                  , ADVICE;
+            "before"                  , BEFORE;
+            "after"                   , AFTER;
             "print"                   , PRINT;
             "return"                  , RETURN;
             "delete"                  , DELETE;

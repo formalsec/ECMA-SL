@@ -19,6 +19,9 @@ let create (fn : Id.t) (tpxs : (Id.t * EType.t option) list)
   { fn; tpxs; tret; s }
 [@@inline]
 
+let rename (f : t) (fn' : Id.t') : t =
+  { f.it with fn = fn' @> f.it.fn.at } @> f.at
+
 let name (f : t) : Id.t = f.it.fn [@@inline]
 let name' (f : t) : Id.t' = (name f).it
 let tparams (f : t) : (Id.t * EType.t option) list = f.it.tpxs [@@inline]

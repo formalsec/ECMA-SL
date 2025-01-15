@@ -22,6 +22,12 @@ module Prog = struct
     | None -> Hashtbl.replace p.macros mn.it macro
     | Some _ -> Compile_error.(throw ~src:mn.at (DuplicatedMacro mn))
 
+  let parse_advice (advice : EAdvice.t) (p : t) : unit =
+    let fn = EAdvice.fname advice in
+    match Hashtbl.find_opt p.advices fn.it with
+    | None -> Hashtbl.replace p.advices fn.it [ advice ]
+    | Some advices -> Hashtbl.replace p.advices fn.it (advice :: advices)
+
   let parse_prog (imports : EImport.t list) (parsers : (t -> unit) list) : t =
     let p = { (default ()) with imports } in
     List.iter (fun el_parser -> el_parser p) parsers;
