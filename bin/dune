@@ -11,6 +11,12 @@
   files
   git
   webhook
+  test_notify
+  test_parser
+  test_record
+  test_result
+  test_runner
+  test_tree
   ; commands
   cmd_compile
   cmd_interpret
