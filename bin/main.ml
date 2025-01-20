@@ -138,6 +138,15 @@ let symbolic_cmd =
   let info = Cmd.(info "symbolic" ~sdocs ~doc ~man ~man_xrefs ~exits) in
   Cmd.v info symbolic_term
 
+let test_symbolic_cmd =
+  let open Term.Syntax in
+  let term =
+    let+ inputs = Docs.FileOpts.inputs in
+    Cmd_test_symbolic.run ~inputs
+  in
+  let info = Cmd.info "test-sym" in
+  Cmd.v info term
+
 let cmd_list =
   [ compile_cmd
   ; interpret_cmd
@@ -145,6 +154,7 @@ let cmd_list =
   ; execute_cmd
   ; test_cmd
   ; symbolic_cmd
+  ; test_symbolic_cmd
   ]
 
 let main_cmd =
