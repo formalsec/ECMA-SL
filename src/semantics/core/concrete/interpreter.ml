@@ -163,7 +163,7 @@ module M (ITooling : Interpreter_tooling.M) = struct
     let lvl = Call_stack.depth st.stack - 1 in
     ITooling.Tracer.trace_stmt lvl s;
     ITooling.Profiler.count itool.pf `Stmt;
-    match s.it with
+    match Stmt.view s with
     | Skip -> Intermediate (st, cont) $$ SkipEval
     | Merge -> Intermediate (st, cont) $$ MergeEval
     | Debug s' ->

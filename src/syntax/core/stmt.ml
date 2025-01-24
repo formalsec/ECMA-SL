@@ -29,6 +29,8 @@ let default : unit -> t =
   let dlft = Skip @> none in
   fun () -> dlft
 
+let view s = s.it
+
 let rec pp (ppf : Format.formatter) (s : t) : unit =
   let pp_vs pp_v ppf es = Fmt.(list ~sep:comma pp_v) ppf es in
   let pp_indent pp_v ppf = Fmt.pf ppf "@\n  @[<v>%a@]@\n" pp_v in
