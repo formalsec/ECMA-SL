@@ -14,13 +14,14 @@ module Options = struct
     { tracer : tracer
     ; debugger : bool
     ; profiler : Enums.InterpProfiler.t
+    ; monitor_type : Monitor_type.t
     }
 
   let set_instrument (tracer_mode : Enums.InterpTracer.t) (tracer_loc : bool)
-    (tracer_depth : int) (debugger : bool) (profiler : Enums.InterpProfiler.t) :
-    instrument =
+    (tracer_depth : int) (debugger : bool) (profiler : Enums.InterpProfiler.t)
+    (monitor_type : Monitor_type.t) : instrument =
     let (mode, loc, depth) = (tracer_mode, tracer_loc, tracer_depth) in
-    { tracer = { mode; loc; depth }; debugger; profiler }
+    { tracer = { mode; loc; depth }; debugger; profiler; monitor_type }
 
   type config =
     { print_depth : int option
@@ -34,7 +35,8 @@ module Options = struct
     { print_depth = None
     ; resolve_exitval = true
     ; show_exitval = false
-    ; instrument = { tracer; debugger = false; profiler = None }
+    ; instrument =
+        { tracer; debugger = false; profiler = None; monitor_type = Nop }
     }
 
   let set_config (print_depth : int option) (show_exitval : bool)
@@ -116,14 +118,18 @@ module InterpreterInstrument = struct
     | Time -> (module Profiler.Time : Profiler.M)
     | Full -> (module Profiler.Full : Profiler.M)
 
-  let monitor () : (module Monitor.M) = (module Monitor.Default : Monitor.M)
+  let monitor monitor_type =
+    match monitor_type with
+    | Monitor_type.Nop -> (module Monitor.Nop : Monitor_intf.S)
+    | Printer -> (module Monitor.Printer : Monitor_intf.S)
+    | Other -> (module Monitor.Other : Monitor_intf.S)
 
   let intrument (instrument : Options.instrument) :
     (module Interpreter_tooling.M) =
     let module Tracer = (val tracer instrument.tracer) in
     let module Debugger = (val debugger instrument.debugger) in
     let module Profiler = (val profiler instrument.profiler) in
-    let module Monitor = (val monitor ()) in
+    let module Monitor = (val monitor instrument.monitor_type) in
     (module Interpreter_tooling.Default (Tracer) (Debugger) (Profiler) (Monitor))
 end
 

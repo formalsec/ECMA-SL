@@ -192,6 +192,13 @@ module InterpretOpts = struct
        'main' function, at the end of the program interpretation."
     in
     Arg.(value & flag & info [ "exitval" ] ~doc)
+
+  let monitor_type =
+    let doc =
+      "TODO: write documentation about available monitors. Currently there is \
+       a \"nop\" monitor and a \"printer\" monitor. "
+    in
+    Arg.(value & opt Ecma_sl.Monitor_type.conv Nop & info [ "monitor" ] ~doc)
 end
 
 module InterpretCmd = struct

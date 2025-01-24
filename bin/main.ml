@@ -37,6 +37,7 @@ let interpreter_instrument =
   $ Docs.InterpretOpts.tracer_depth
   $ Docs.InterpretOpts.debugger
   $ Docs.InterpretOpts.profiler
+  $ Docs.InterpretOpts.monitor_type
 
 let interpreter_config =
   let open Term in

@@ -158,8 +158,11 @@ module M (ITooling : Interpreter_tooling.M) = struct
   let eval_small_step (p : Prog.t) (st : st) (s : Stmt.t) (cont : Stmt.t list) :
     return =
     let itool = !(st.itool) in
-    let lbl_f = ITooling.Monitor.update_label in
-    let ( $$ ) v s_eval = lbl_f itool.mon s s_eval |> fun () -> v in
+    let update_label v label =
+      ITooling.Monitor.update_label itool.mon s label;
+      v
+    in
+    let ( $$ ) v label = update_label v label in
     let lvl = Call_stack.depth st.stack - 1 in
     ITooling.Tracer.trace_stmt lvl s;
     ITooling.Profiler.count itool.pf `Stmt;
