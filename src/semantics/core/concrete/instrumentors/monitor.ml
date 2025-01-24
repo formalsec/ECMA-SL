@@ -1,28 +1,5 @@
 open EslSyntax
-
-type stmt_eval =
-  | SkipEval
-  | MergeEval
-  | DebugEval
-  | BlockEval
-  | PrintEval
-  | ReturnEval
-  | AssignEval
-  | AssignCallEval of Func.t
-  | AssignECallEval
-  | AssignNewObjEval of Loc.t
-  | AssignObjToListEval
-  | AssignObjFieldsEval
-  | AssignInObjCheckEval of Loc.t * string
-  | FieldLookupEval of Loc.t * string
-  | FieldAssignEval of Loc.t * string
-  | FieldDeleteEval of Loc.t * string
-  | IfEval of bool
-  | WhileEval
-  | SwitchEval of Value.t
-  | FailEval
-  | AssertEval of bool
-  | AbortEval
+include Monitor_intf
 
 module type M = sig
   type sl

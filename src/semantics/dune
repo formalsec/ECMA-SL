@@ -36,6 +36,7 @@
   debugger
   profiler
   monitor
+  monitor_intf
   monitor_type
   ; concrete interpreter (instrumentation - debugger)
   debugger_tui

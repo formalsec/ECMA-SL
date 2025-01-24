@@ -2,7 +2,7 @@ module type M = sig
   module Tracer : Tracer.M
   module Debugger : Debugger.M
   module Profiler : Profiler.M
-  module Monitor : Monitor.M
+  module Monitor : Monitor_intf.S
 
   type t =
     { db : Debugger.t
@@ -18,7 +18,7 @@ module Default
     (Tr : Tracer.M)
     (Db : Debugger.M)
     (Pf : Profiler.M)
-    (Mon : Monitor.M) : M = struct
+    (Mon : Monitor_intf.S) : M = struct
   module Tracer = Tr
   module Debugger = Db
   module Profiler = Pf
