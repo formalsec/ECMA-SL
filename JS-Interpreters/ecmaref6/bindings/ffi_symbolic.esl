@@ -62,6 +62,7 @@ function make_esl_symbolic_object(globalObject, objectPrototype, strict) {
 
   let apiSymbolicAssume = CreateBuiltInFunctionObject([], "__esl_symbolic_assume", realm, strict, null);
   createBuiltInProperty(apiSymbolicAssume, "prototype", objectPrototype);
+  createBuiltInProperty(esl_symbolic, "assume", apiSymbolicAssume);
 
   let apiSymbolicAssert = CreateBuiltInFunctionObject([], "__esl_symbolic_assert", realm, strict, null);
   createBuiltInProperty(apiSymbolicAssert, "prototype", objectPrototype);
