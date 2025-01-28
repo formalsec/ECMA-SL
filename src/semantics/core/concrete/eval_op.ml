@@ -94,12 +94,14 @@ let binary_arith_semantics (op : Smtml.Ty.Binop.t) : arg * arg -> res = function
   | ((Real _, _), arg2) -> arg_err "float" arg2
   | (arg1, _) -> arg_err "integer/float" arg1
 
-let binary_bitwise_semantics (op : Smtml.Ty.Binop.t) : arg * arg -> res = function
+let binary_bitwise_semantics (op : Smtml.Ty.Binop.t) : arg * arg -> res =
+  function
   | (((Int _ as v1), _), ((Int _ as v2), _)) -> Smtml.Eval.binop Ty_int op v1 v2
   | ((Int _, _), arg2) -> arg_err "integer" arg2
   | (arg1, _) -> arg_err "integer" arg1
 
-let binary_logical_semantics (op : Smtml.Ty.Binop.t) : arg * arg -> res = function
+let binary_logical_semantics (op : Smtml.Ty.Binop.t) : arg * arg -> res =
+  function
   | ((((True | False) as v1), _), (((True | False) as v2), _)) ->
     Smtml.Eval.binop Ty_bool op v1 v2
   | (((True | False), _), arg2) -> arg_err "boolean" arg2
