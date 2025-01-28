@@ -32,4 +32,3 @@ let to_json = function
     `Assoc [ ("type", `String "ReadFile failure"); ("sink", `String v) ]
   | `Failure msg ->
     `Assoc [ ("type", `String "Failure"); ("sink", `String msg) ]
-
