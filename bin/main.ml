@@ -107,19 +107,19 @@ let test_cmd =
   let term = Term.(const Cmd_test.run $ copts $ test_opts) in
   Cmd.v info term
 
-let symbolic_opts =
-  let open Term in
-  const Cmd_symbolic.Options.set
-  $ Docs.FileOpts.input
-  $ Docs.SymbolicOpts.lang
-  $ Docs.SymbolicOpts.target
-  $ Docs.SymbolicOpts.workspace
+let symbolic_term =
+  let open Term.Syntax in
+  let+ () = copts
+  and+ input = Docs.FileOpts.input
+  and+ lang = Docs.SymbolicOpts.lang
+  and+ target = Docs.SymbolicOpts.target
+  and+ workspace = Docs.SymbolicOpts.workspace in
+  Cmd_symbolic.run ~input ~lang ~target ~workspace
 
 let symbolic_cmd =
   let open Docs.SymbolicCmd in
   let info = Cmd.(info "symbolic" ~sdocs ~doc ~man ~man_xrefs ~exits) in
-  let term = Term.(const Cmd_symbolic.run $ copts $ symbolic_opts) in
-  Cmd.v info term
+  Cmd.v info symbolic_term
 
 let cmd_list =
   [ compile_cmd
