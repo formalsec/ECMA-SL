@@ -1,8 +1,8 @@
 type t =
   { filename : Fpath.t
   ; mutable execution_time : float
-  ; solver_time : float
-  ; solver_queries : int
+  ; mutable solver_time : float
+  ; mutable solver_queries : int
   ; mutable num_failures : int
   ; mutable failures : Symbolic_error.t list
   }

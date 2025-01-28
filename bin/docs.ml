@@ -398,7 +398,7 @@ module SymbolicOpts = struct
        'js' for JavaScript (.js) files; (3) 'esl' for ECMA-SL (.esl) files; \
        and (3) 'cesl' for Core ECMA-SL (.cesl) files."
     in
-    let langs = Arg.enum Enums.Lang.(args Cmd_symbolic.Options.langs) in
+    let langs = Arg.enum Enums.Lang.(args Cmd_symbolic.valid_languages) in
     Arg.(value & opt langs Auto & info [ "lang" ] ~docv ~doc)
 
   let target =
