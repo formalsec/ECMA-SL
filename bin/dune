@@ -23,6 +23,7 @@
   eio
   eio_main
   ecma-sl
+  ecma-sl.symbolic
   fmt
   cmdliner
   yojson

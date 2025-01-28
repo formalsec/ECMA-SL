@@ -10,7 +10,7 @@ type cmderr =
   | `Execute of string
   | `Test
   | `TestFmt of string
-  | `Symbolic of Symbolic_error.t
+  | `Symbolic of Ecma_sl_symbolic.Symbolic_error.t
   | `Generic of string
   ]
 

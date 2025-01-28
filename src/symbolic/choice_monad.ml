@@ -1,5 +1,5 @@
 open EslBase
-module Value = Symbolic_value.M
+module Value = Symbolic_value
 module Memory = Symbolic_memory
 module Optimizer = Smtml.Optimizer.Z3
 
@@ -106,7 +106,7 @@ module Seq = struct
     | Val False -> Cont.return (false, t)
     | _ -> (
       let with_v = Smtml.Expr.Set.add v pc in
-      let with_no = Smtml.Expr.Set.add (Value.Bool.not v) pc in
+      let with_no = Smtml.Expr.Set.add (Value.Bool.not_ v) pc in
       let sat_true =
         if Smtml.Expr.Set.equal with_v pc then true
         else `Sat = Solver.check_set solver with_v
@@ -211,7 +211,7 @@ module List = struct
     | Val False -> [ (false, t) ]
     | _ -> (
       let with_v = Smtml.Expr.Set.add v pc in
-      let with_no = Smtml.Expr.Set.add (Value.Bool.not v) pc in
+      let with_no = Smtml.Expr.Set.add (Value.Bool.not_ v) pc in
       let sat_true =
         if Smtml.Expr.Set.equal with_v pc then true
         else `Sat = Solver.check_set solver with_v
@@ -238,4 +238,4 @@ module List = struct
    fun (thread : thread) -> List.map (fun v -> (v, thread)) vs
 end
 
-module P : Choice_monad_intf.Complete with module V := Value = Seq
+module P : Ecma_sl.Choice_monad_intf.Complete with module V := Value = Seq

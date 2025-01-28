@@ -13,7 +13,14 @@ end
 
 module SMap = Map.Make (String)
 
-module Make (Memory : Memory_intf.S) = struct
+module type Memory = sig
+  type t
+
+  val create : unit -> t
+  val clone : t -> t
+end
+
+module Make (Memory : Memory) = struct
   type memory = Memory.t
 
   type 'a t =

@@ -1,5 +1,5 @@
-open EslBase
-module Env = Symbolic.P.Env
+open Ecma_sl
+module Env = Symbolic.Env
 module SMap = Link_env.SMap
 
 let of_array arr =
@@ -14,10 +14,9 @@ module type S = sig
 end
 
 module Make () = struct
-  module Value = Symbolic.P.Value
-  module Choice = Symbolic.P.Choice
-  module Extern_func = Symbolic.P.Extern_func
+  module Choice = Choice_monad.Seq
   module Thread = Choice_monad.Thread
+  module Extern_func = Symbolic.Extern_func
   module Optimizer = Choice_monad.Optimizer
   open Extern_func
 
@@ -151,12 +150,12 @@ module Make () = struct
     in
     let s_is_prefix prefix str =
       match (Smtml.Expr.view prefix, Smtml.Expr.view str) with
-      | Val prefix, Val str -> ok_v (s_is_prefix prefix str)
+      | (Val prefix, Val str) -> ok_v (s_is_prefix prefix str)
       | _ -> ok @@ Smtml.Expr.binop Ty_str String_prefix prefix str
     in
     let s_is_suffix suffix str =
       match (Smtml.Expr.view suffix, Smtml.Expr.view str) with
-      | Val suffix, Val str -> ok_v (s_is_suffix suffix str)
+      | (Val suffix, Val str) -> ok_v (s_is_suffix suffix str)
       | _ -> ok @@ Smtml.Expr.binop Ty_str String_suffix suffix str
     in
     let array_len v =
@@ -432,7 +431,7 @@ module Make () = struct
       let* ty = Channel_utils.find channel_table v in
       let* ic = Channel_utils.Type.get_in ty in
       match In_channel.input_line ic with
-      | None -> Ok (Value.mk_symbol "undefined")
+      | None -> Ok (Symbolic_value.mk_symbol "undefined")
       | Some line -> Ok (Smtml.Expr.value (Str line))
     in
     let input_all v =
@@ -454,14 +453,14 @@ module Make () = struct
         | Val (Str str) -> Ok (Out_channel.output_string oc str)
         | _ -> Error (`Failure "cannot write non-string object")
       in
-      Ok (Value.mk_symbol "undefined")
+      Ok (Symbolic_value.mk_symbol "undefined")
     in
     let close v =
       let open Smtml_prelude.Result in
       Choice.return
       @@
       let* () = Channel_utils.close channel_table v in
-      Ok (Value.mk_symbol "undefined")
+      Ok (Symbolic_value.mk_symbol "undefined")
     in
     let file_exists v =
       match Smtml.Expr.view v with
@@ -594,12 +593,14 @@ module Make () = struct
       match Smtml.Expr.view v with
       | Val (Str "") -> fresh_x ()
       | Val (Str s) -> s
-      | _ -> Log.fail "'%a' is not a valid string symbol" Value.pp v
+      | _ -> Log.fail "'%a' is not a valid string symbol" Symbolic_value.pp v
     in
     let str_symbol (x : value) =
       ok (Smtml.Expr.symbol (Smtml.Symbol.make Ty_str (non_empty x)))
     in
-    let int_symbol (x : value) = ok (Value.int_symbol_s (non_empty x)) in
+    let int_symbol (x : value) =
+      ok (Smtml.Expr.symbol (Smtml.Symbol.make Ty_int (non_empty x)))
+    in
     let flt_symbol (x : value) =
       ok (Smtml.Expr.symbol (Smtml.Symbol.make Ty_real (non_empty x)))
     in
@@ -612,7 +613,7 @@ module Make () = struct
       | _ -> assert false
     in
     let is_symbolic (n : value) =
-      ok_v (if Value.is_symbolic n then True else False)
+      ok_v (if Symbolic_value.is_symbolic n then True else False)
     in
     let is_number (n : value) =
       ok_v
@@ -629,27 +630,27 @@ module Make () = struct
     (* TODO: Maybe we can refactor `exec`, `eval`, and `read_file` to use `abort` instead when reaching a sensitive sink with a symbolic expression *)
     let exec (e : value) =
       match Smtml.Expr.view e with
-      | Val _ -> ok @@ Value.mk_symbol "undefined"
+      | Val _ -> ok @@ Symbolic_value.mk_symbol "undefined"
       | _ -> error (`Exec_failure e)
     in
     let eval (e : value) =
       match Smtml.Expr.view e with
-      | Val _ -> ok @@ Value.mk_symbol "undefined"
+      | Val _ -> ok @@ Symbolic_value.mk_symbol "undefined"
       | _ -> error (`Eval_failure e)
     in
     let read_file (e : value) =
       match Smtml.Expr.view e with
-      | Val _ -> ok @@ Value.mk_symbol "undefined"
+      | Val _ -> ok @@ Symbolic_value.mk_symbol "undefined"
       | _ -> error (`ReadFile_failure e)
     in
-    let abort (e : value) = error (`Abort (Value.to_string e)) in
+    let abort (e : value) = error (`Abort (Symbolic_value.to_string e)) in
     let assume (e : value) =
       match Smtml.Expr.view e with
       | Val False -> Choice.stop
-      | Val True -> ok @@ Value.mk_symbol "undefined"
+      | Val True -> ok @@ Symbolic_value.mk_symbol "undefined"
       | _ ->
         Choice.with_mutable_thread @@ fun thread ->
-        (Ok (Value.mk_symbol "undefined"), Thread.add_pc thread e)
+        (Ok (Symbolic_value.mk_symbol "undefined"), Thread.add_pc thread e)
     in
     let evaluate (e : value) =
       Choice.with_thread @@ fun thread ->
@@ -687,35 +688,38 @@ module Make () = struct
         (* TODO: Error here *)
         assert false
     in
-    let print (v : Value.value) =
-      Log.stdout "extern print: %a@." Value.pp v;
+    let print (v : Symbolic_value.value) =
+      Log.stdout "extern print: %a@." Symbolic_value.pp v;
       ok_v (App (`Op "symbol", [ Str "undefined" ]))
     in
     (* TODO: The following functions where optimizations merged from the
        `trunk` branch. Check if we can integrate this with the concrete API. *)
-    let str_replace (s : Value.value) (t : Value.value) (t' : Value.value) =
+    let str_replace (s : Symbolic_value.value) (t : Symbolic_value.value)
+      (t' : Symbolic_value.value) =
       ok @@ Smtml.Expr.triop Ty_str String_replace s t t'
     in
-    let str_indexof (s : Value.value) (t : Value.value) (i : Value.value) =
+    let str_indexof (s : Symbolic_value.value) (t : Symbolic_value.value)
+      (i : Symbolic_value.value) =
       ok
       @@ Smtml.Expr.cvtop Ty_real Reinterpret_int
       @@ Smtml.Expr.triop Ty_str String_index s t
       @@ Smtml.Expr.cvtop Ty_int Reinterpret_float i
     in
-    let str_lastIndexOf (s : Value.value) (t : Value.value) =
+    let str_lastIndexOf (s : Symbolic_value.value) (t : Symbolic_value.value) =
       ok
       @@ Smtml.Expr.cvtop Ty_real Reinterpret_int
       @@ Smtml.Expr.binop Ty_str String_last_index s t
     in
-    let str_sub (s : Value.value) (start : Value.value) (len : Value.value) =
+    let str_sub (s : Symbolic_value.value) (start : Symbolic_value.value)
+      (len : Symbolic_value.value) =
       ok @@ Smtml.Expr.triop Ty_str String_extract s start len
     in
-    let str_parse_int (str : Value.value) =
+    let str_parse_int (str : Symbolic_value.value) =
       ok
       @@ Smtml.Expr.cvtop Ty_real Reinterpret_int
       @@ Smtml.Expr.cvtop Ty_str String_to_int str
     in
-    let str_split (s : Value.value) (r : Value.value) =
+    let str_split (s : Symbolic_value.value) (r : Symbolic_value.value) =
       Choice.with_mutable_thread @@ fun thread ->
       let x1 = Smtml.Expr.symbol @@ Smtml.Symbol.make Ty_str @@ fresh_x () in
       let x2 = Smtml.Expr.symbol @@ Smtml.Symbol.make Ty_str @@ fresh_x () in
@@ -723,14 +727,14 @@ module Make () = struct
         Smtml.Expr.relop Ty_bool Eq s
         @@ Smtml.Expr.naryop Ty_str Concat [ x1; r; x2 ]
       in
-      let result = Value.(mk_list [ x1; x2 ]) in
+      let result = Symbolic_value.(mk_list [ x1; x2 ]) in
       (Ok result, Thread.add_pc thread cond)
     in
-    let str_match (s : Value.value) =
+    let str_match (s : Symbolic_value.value) =
       Choice.with_mutable_thread @@ fun thread ->
       let x = Smtml.Expr.symbol @@ Smtml.Symbol.make Ty_str @@ fresh_x () in
       let cond = Smtml.Expr.binop Ty_str String_contains s x in
-      (Ok (Value.mk_list [ x ]), Thread.add_pc thread cond)
+      (Ok (Symbolic_value.mk_list [ x ]), Thread.add_pc thread cond)
     in
     let dirname () =
       let (dirname, _) = Fpath.split_base filename in
@@ -770,4 +774,4 @@ module Make () = struct
       |]
 end
 
-include (Make () : S with type extern_func := Symbolic.P.Extern_func.extern_func)
+include (Make () : S with type extern_func := Symbolic.Extern_func.extern_func)
