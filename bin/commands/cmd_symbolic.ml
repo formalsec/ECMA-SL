@@ -1,12 +1,12 @@
 open Smtml_prelude.Result
-module Thread = Ecma_sl.Choice_monad.Thread
-module Env = Ecma_sl.Symbolic.P.Env
-module Value = Ecma_sl.Symbolic.P.Value
-module Choice = Ecma_sl.Symbolic.P.Choice
-module Extern_func = Ecma_sl.Symbolic.P.Extern_func
-module Memory = Ecma_sl.Symbolic.P.Memory
-module State = Ecma_sl.Symbolic_interpreter.State
-module Solver = Ecma_sl.Solver
+module Value = Ecma_sl_symbolic.Symbolic_value
+module Choice = Ecma_sl_symbolic.Choice_monad.Seq
+module Thread = Ecma_sl_symbolic.Choice_monad.Thread
+module Env = Ecma_sl_symbolic.Symbolic.P.Env
+module Extern_func = Ecma_sl_symbolic.Symbolic.P.Extern_func
+module Memory = Ecma_sl_symbolic.Symbolic_memory
+module State = Ecma_sl_symbolic.Symbolic_interpreter.State
+module Solver = Ecma_sl_symbolic.Solver
 
 module Options = struct
   let langs : Enums.Lang.t list = Enums.Lang.[ Auto; JS; ESL; CESL ]
@@ -25,15 +25,16 @@ end
 
 let prog_of_js fpath =
   let open Ecma_sl in
-  let interp = Share.es6_sym_interp () |> Parsing.parse_prog in
+  let interp = Share.es6_sym_interp () in
+  let prog = Parsing.parse_prog interp in
   (* We can use interpreter will all the metadata once the value_translator can handle nary operators *)
   (* let instrument = Cmd_interpret.Options.default_instrument () in *)
   (* let* (interp, _) = Cmd_execute.setup_execution ECMARef6Sym None instrument in *)
   let ast = Fpath.v (Filename.temp_file "ecmasl" "ast.cesl") in
   let* () = Cmd_encode.encode None fpath (Some ast) in
   let+ build_ast = Cmd_execute.build_ast ast in
-  Hashtbl.replace (Prog.funcs interp) (Func.name' build_ast) build_ast;
-  interp
+  Hashtbl.replace (Prog.funcs prog) (Func.name' build_ast) build_ast;
+  prog
 
 let dispatch_prog lang fpath =
   let valid_langs = Enums.Lang.valid_langs Options.langs lang in
@@ -46,19 +47,11 @@ let dispatch_prog lang fpath =
     Result.error (`Generic msg)
 
 let link_env filename prog =
-  let open Ecma_sl in
+  let open Ecma_sl_symbolic in
   let env0 = Env.Build.empty () |> Env.Build.add_functions prog in
   Env.Build.add_extern_functions (Symbolic_esl_ffi.extern_cmds env0) env0
   |> Env.Build.add_extern_functions Symbolic_esl_ffi.concrete_api
   |> Env.Build.add_extern_functions (Symbolic_esl_ffi.symbolic_api filename)
-
-let pp_model fmt model =
-  let pp_map fmt (s, v) =
-    Fmt.pf fmt {|"%a" : %a|} Smtml.Symbol.pp s Smtml.Value.pp v
-  in
-  let pp_vars = Fmt.list ~sep:Fmt.comma pp_map in
-  Fmt.pf fmt "@[<v 2>module.exports.symbolic_map =@ { %a@\n}@]" pp_vars
-    (Smtml.Model.get_bindings model)
 
 let serialize_thread workspace =
   let open Ecma_sl in
@@ -71,7 +64,7 @@ let serialize_thread workspace =
     let solver = Thread.solver thread in
     match Solver.check_set solver pc with
     | `Unsat | `Unknown ->
-      (* Should not happen. But it does? This is so buggy omg *)
+      (* Should not happen. But it does? *)
       Ok ()
     | `Sat ->
       let model = Solver.model solver in
@@ -81,7 +74,7 @@ let serialize_thread workspace =
           (match result with Ok () -> "testcase-%d" | Error _ -> "witness-%d")
           (next_int ())
       in
-      let pp = Fmt.option pp_model in
+      let pp = Fmt.option Smtml.Model.pp in
       let pc = Smtml.Expr.Set.to_list @@ pc in
       Result.bos
       @@
@@ -120,7 +113,7 @@ let process_result (workspace : Fpath.t) (result, thread) =
 
 let write_report workspace symbolic_report =
   let mode = 0o666 in
-  let json = Ecma_sl.Symbolic_report.to_json symbolic_report in
+  let json = Ecma_sl_symbolic.Symbolic_report.to_json symbolic_report in
   let path = Fpath.(workspace / "symbolic-execution.json") in
   Result.bos
   @@ Bos.OS.File.writef ~mode path "%a" (Yojson.pretty_print ~std:true) json
@@ -132,7 +125,7 @@ let run () (opts : Options.t) : unit Result.t =
   let env = link_env opts.input p in
   let start = Stdlib.Sys.time () in
   let thread = Thread.create () in
-  let result = Ecma_sl.Symbolic_interpreter.main env opts.target in
+  let result = Ecma_sl_symbolic.Symbolic_interpreter.main env opts.target in
   let results = Choice.run result thread in
   let execution_time = Stdlib.Sys.time () -. start in
   let solver_time = !Solver.solver_time in
@@ -140,7 +133,7 @@ let run () (opts : Options.t) : unit Result.t =
   let testsuite = Fpath.(opts.workspace / "test-suite") in
   let* _ = Result.bos (Bos.OS.Dir.create ~mode:0o777 testsuite) in
   let report =
-    { Ecma_sl.Symbolic_report.filename = opts.input
+    { Ecma_sl_symbolic.Symbolic_report.filename = opts.input
     ; execution_time
     ; solver_time
     ; solver_queries
@@ -163,7 +156,8 @@ let run () (opts : Options.t) : unit Result.t =
             match result with
             | Ok () -> Ok ()
             | Error witness ->
-              Logs.app (fun k -> k "%a" Ecma_sl.Symbolic_error.pp witness);
+              Logs.app (fun k ->
+                k "%a" Ecma_sl_symbolic.Symbolic_error.pp witness );
               report.num_failures <- succ report.num_failures;
               report.failures <- witness :: report.failures;
               if no_stop_at_failure then Ok () else Error (`Symbolic witness)

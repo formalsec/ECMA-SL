@@ -59,22 +59,10 @@
   NSULevel_Dep
   ; functorial interpreter
   choice_monad_intf
-  choice_monad
   extern_func
   interpreter_functor_intf
   interpreter_functor
   link_env
-  memory_intf
-  object_intf
-  solver
-  symbolic
-  symbolic_error
-  symbolic_esl_ffi
-  symbolic_interpreter
-  symbolic_memory
-  symbolic_object
-  symbolic_report
-  symbolic_value
   value_intf
   ; functorial interpreter (domains)
   ;x symbolic_object2

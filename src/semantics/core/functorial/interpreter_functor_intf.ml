@@ -71,6 +71,15 @@ module type P = sig
 
     val add_memory : t -> memory -> t
     val add_func : t -> string -> Func.t -> unit
+
+    module Build : sig
+      val empty : unit -> t
+      val add_memory : Memory.t -> t -> t
+      val add_functions : Prog.t -> t -> t
+
+      val add_extern_functions :
+        Extern_func.extern_func Link_env.SMap.t -> t -> t
+    end
   end
 end
 

@@ -1,6 +1,6 @@
-open EslSyntax
+open Ecma_sl
 
 exception Crash of Source.at * string
 exception Invalid_arg of Source.at * string
 
-include Interpreter_functor.Make (Symbolic.P)
+include Interpreter_functor.Make (Symbolic)

@@ -1,8 +1,6 @@
 open EslSyntax
-module V = Symbolic_value.M
-module E = Smtml.Expr
 
-module Make (O : Object_intf.S with type value = V.value) = struct
+module Make (O : Object_intf.S with type value = Symbolic_value.value) = struct
   type object_ = O.t
 
   type t =
@@ -10,7 +8,7 @@ module Make (O : Object_intf.S with type value = V.value) = struct
     ; data : object_ Loc.Tbl.t
     }
 
-  type value = V.value
+  type value = Symbolic_value.value
 
   let create () : t = { parent = None; data = Loc.Tbl.create 512 }
   let clone (m : t) : t = { parent = Some m; data = Loc.Tbl.create 16 }
@@ -18,7 +16,7 @@ module Make (O : Object_intf.S with type value = V.value) = struct
   let insert ({ data = memory; _ } : t) (o : object_) : value =
     let loc = Loc.create () in
     Loc.Tbl.replace memory loc o;
-    E.(value (App (`Op "loc", [ Int loc ])))
+    Smtml.Expr.(value (App (`Op "loc", [ Int loc ])))
 
   let remove (m : t) (l : Loc.t) : unit = Loc.Tbl.remove m.data l
 
@@ -49,7 +47,7 @@ module Make (O : Object_intf.S with type value = V.value) = struct
   let has_field (h : t) (loc : Loc.t) (field : value) : value =
     Option.fold (get h loc)
       ~some:(fun o -> O.has_field o field)
-      ~none:(V.Bool.const false)
+      ~none:(Symbolic_value.Bool.const false)
 
   let set_field (h : t) (loc : Loc.t) ~(field : value) ~(data : value) : unit =
     Option.iter
@@ -81,44 +79,41 @@ module Make (O : Object_intf.S with type value = V.value) = struct
       data
 
   let rec unfold_ite ~(accum : value) (e : value) : (value option * int) list =
-    match E.view e with
+    match Smtml.Expr.view e with
     | Val (App (`Op "loc", [ Int x ])) -> [ (Some accum, x) ]
     (* TODO:x | Val (Val.Symbol _x) -> [ (Some accum, ~-1) ] *)
     | Triop (_, Ite, c, a, e) -> (
-      match E.view a with
+      match Smtml.Expr.view a with
       | Val (App (`Op "loc", [ Int l ])) ->
         let accum' =
-          E.(binop Ty_bool And accum (unop Ty_bool Not c))
+          Smtml.Expr.(binop Ty_bool And accum (unop Ty_bool Not c))
         in
         let tl = unfold_ite ~accum:accum' e in
-        (Some E.(binop Ty_bool And accum c), l) :: tl
+        (Some Smtml.Expr.(binop Ty_bool And accum c), l) :: tl
       | _ -> assert false )
     | _ -> assert false
 
   let loc (e : value) : ((value option * int) list, string) Result.t =
-    match E.view e with
+    match Smtml.Expr.view e with
     | Val (App (`Op "symbol", [ Str "undefined" ])) ->
       (* We're in an unsat path *)
       Ok []
     | Val (App (`Op "loc", [ Int l ])) -> Ok [ (None, l) ]
     | Triop (_, Ite, c, a, v) -> (
-      match E.view a with
+      match Smtml.Expr.view a with
       | Val (App (`Op "loc", [ Int l ])) ->
-        Ok ((Some c, l) :: unfold_ite ~accum:E.(unop Ty_bool Not c) v)
-      | _ -> Error (Fmt.str "Value '%a' is not a loc expression" E.pp e) )
+        Ok ((Some c, l) :: unfold_ite ~accum:Smtml.Expr.(unop Ty_bool Not c) v)
+      | _ ->
+        Error (Fmt.str "Value '%a' is not a loc expression" Smtml.Expr.pp e) )
     | _ ->
-      Fmt.epr "Value '%a' is not a loc expression" V.pp e;
+      Fmt.epr "Value '%a' is not a loc expression" Symbolic_value.pp e;
       Ok []
 
   let pp_val (h : t) fmt (e : value) : unit =
-    match E.view e with
+    match Smtml.Expr.view e with
     | Val (App (`Op "loc", [ Int l ])) -> (
       match get h l with None -> Loc.pp fmt l | Some o -> O.pp fmt o )
-    | _ -> V.pp fmt e
+    | _ -> Symbolic_value.pp fmt e
 end
 
-module M :
-  Memory_intf.S with type value = V.value and type object_ = Symbolic_object.M.t =
-  Make (Symbolic_object.M)
-
-include M
+include Make (Symbolic_object)
