@@ -51,7 +51,10 @@
   ppx_deriving
   (mdx :with-test)
   (ppx_inline_test :with-test)
-  (prelude :with-test)
+  (prelude
+   (and
+    (= "0.3")
+    :with-test))
   (rusage :with-test)
   (bisect_ppx
    (and
