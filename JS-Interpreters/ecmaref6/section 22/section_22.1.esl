@@ -2983,7 +2983,7 @@ function arraySplice(global, this, NewTarget, strict, args) {
     /* a. Let insertCount be 0. */
     insertCount := 0.;
     /* b. Let actualDeleteCount be 0. */
-    actualDeleteCount := 0;
+    actualDeleteCount := 0.;
   /* 9. Else if the number of actual arguments is 1, then  */
   } else {
     if (n_args == 1) {
