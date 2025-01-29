@@ -51,7 +51,7 @@ function IsArray(argument) {
 function isArrayExoticObject(arr) {
   if (inJSProperties(arr, "length")) {
     len := getJSProperty(arr, "length");
-    if (len.Configurable == true)
+    if (len.Configurable ||| (len.Value == 'undefined))
       return false;
     lenValue := len.Value;
     if ((lenValue < 0.) ||| (lenValue >= 2. ** 32.))
@@ -335,7 +335,7 @@ function AbstractRelationalComparison(x, y, LeftFirst) {
     /* e. Let n be the integer that is the code unit value for the character at position k within py. */
     /* f. If m < n, return true. Otherwise, return false. */
 
-    if (px < py) 
+    if (px < py)
       return true;
 
     /* gen_wrapper ["before-same:Otherwise, "] { */
