@@ -358,23 +358,18 @@ function StringFromCharCode(global, this, NewTarget, strict, args) {
   /* 2. Let length be the number of elements in codeUnits. */
   length := l_len(codeUnits);
   /* 3. Let elements be a new List. */
-  elements := [];
   s := "";
   /* 4. Let nextIndex be 0. */
-  nextIndex := 0;
   /* 5. Repeat while nextIndex < length */
-  while (nextIndex < length) {
+  foreach (next : codeUnits) {
     /* a. Let next be codeUnits[nextIndex]. */
-    next := l_nth(codeUnits, nextIndex);
     /* b. Let nextCU be ToUint16(next). */
     nextCU := ToUint16(next);
     /* c. ReturnIfAbrupt(nextCU). */
     @ReturnIfAbrupt(nextCU);
     /* d. Append nextCU to the end of elements. */
-    elements := l_concat(elements, [from_char_code_u (float_to_int(nextCU))]);
-    s := s_concat([s, from_char_code_u (float_to_int(nextCU))]);
+    s := s + from_char_code_u(float_to_int nextCU);
     /* e. Let nextIndex be nextIndex + 1. */
-    nextIndex := nextIndex + 1;
   }
   /* 6. Return the String value whose elements are, in order, the elements in the List elements. If length is 0, the empty string is returned. */
   return s;

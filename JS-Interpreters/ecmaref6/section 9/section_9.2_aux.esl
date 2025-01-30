@@ -4,15 +4,11 @@
  */
 
 function IteratorBindingInitialization(params, listIterator, scope, func) {
-  l_params := l_len (params);
-  i := 0;
-  while (i < l_params) {
-    param := l_nth(params, i);
+  foreach (param : params) {
     value := getParameterIteratorValue(param, listIterator, scope);
     @ReturnIfAbrupt(value);
     status := BindingInitialization(param, value, scope, listIterator);
     @ReturnIfAbrupt(status);
-    i := i + 1;
   }
   return NormalCompletion('empty);
 }
@@ -144,14 +140,10 @@ function BindingInitializationIdentifier(param, value, environment) {
 
 function BindingInitializationObjectPattern(param, value, environment) {
   properties := param.properties;
-  l_properties := l_len(properties);
-  i := 0;
   valid := RequireObjectCoercible(value);
   @ReturnIfAbrupt(valid);
   initialized_keys := [];
-  while (i < l_properties) {
-    property := l_nth(properties, i);
-
+  foreach (property : properties) {
     if (!("key" in_obj property)) {
       /* Rest Element case*/
       argument := property.argument;
@@ -174,7 +166,6 @@ function BindingInitializationObjectPattern(param, value, environment) {
       initialized_keys := l_add(initialized_keys, property_name);
       @ReturnIfAbrupt(status);
     }
-    i := i + 1;
   }
   return;
 }
@@ -189,15 +180,12 @@ function InitializeSingleObjectBinding(property, property_name, objectValue, env
 
 function BindingInitializationArrayPattern(param, value, environment) {
   elements := param.elements;
-  l_elements := l_len(elements);
-  i := 0;
   arrayIterator := GetIterator(value, null);
   @ReturnIfAbrupt(arrayIterator);
   step := 'undefined;
-  while (i < l_elements) {
+  foreach (element : elements) {
     step := IteratorStep(arrayIterator);
     @ReturnIfAbrupt(step);
-    element := l_nth(elements, i);
     if (step == false && element != null) {
      status := BindingInitialization(element, 'undefined, environment, {iterator: arrayIterator, done: true});
      @ReturnIfAbrupt(status);
@@ -210,7 +198,6 @@ function BindingInitializationArrayPattern(param, value, environment) {
         @ReturnIfAbrupt(status);
       }
     }
-    i := i + 1;
   }
 
   if ((step != false) &&& (step == 'undefined ||| !(IteratorComplete(step))))
