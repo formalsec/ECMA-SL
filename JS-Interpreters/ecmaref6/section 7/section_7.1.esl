@@ -115,7 +115,7 @@ function ToBoolean( argument ) {
 		case "Null":        return false;
 		case "Boolean":     return argument;
 		case "Number": {
-      if (argument == NaN ||| isZero(argument) == true ||| isMinusZero(argument) == true)
+      if (is_NaN(argument) ||| isZero(argument) ||| isMinusZero(argument))
         return false;
       else
         return true;
