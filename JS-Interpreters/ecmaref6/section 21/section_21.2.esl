@@ -704,11 +704,13 @@ function AdvanceStringIndex(S, index, unicode) {
     return index + 1.;
   /* 7. Let first be the code unit value at index index in S. */
   first := s_nth(S, float_to_int index);
+  first := to_char_code(first);
   /* 8. If first < 0xD800 or first > 0xDBFF, return index+1. */
   if ((first < 0xD800) || (first > 0xDBFF))
     return index + 1.;
   /* 9. Let second be the code unit value at index index+1 in S. */
   second := s_nth(S, float_to_int (index + 1.));
+  second := to_char_code(second);
   /* 10. If second < 0xDC00 or second > 0xDFFF, return index+1. */
   if ((second < 0xDC00) || (second > 0xDFFF))
     return index + 1.;
