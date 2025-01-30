@@ -550,9 +550,9 @@ function TypedArrayConstructorLength(global, this, NewTarget, strict, length) {
  */
 function AllocateTypedArray(newTarget, length, strict) {
   /* 1. Assert: IsConstructor(newTarget) is true. */
-  assert (IsConstructor(newTarget) == true);
+  assert (IsConstructor(newTarget));
   /* 2. If SameValue(%TypedArray%, newTarget) is true, throw a TypeError exception */
-  if (SameValue(|Intrinsics|.TypedArray, newTarget) == true)
+  if (SameValue(|Intrinsics|.TypedArray, newTarget))
     throw TypeErrorConstructorInternal();
   /* 3. NOTE %TypedArray% throws an exception when invoked via either a
      function call or the new operator. It can only be successfully invoked
@@ -567,7 +567,7 @@ function AllocateTypedArray(newTarget, length, strict) {
     if (subclass == 'null)
       throw TypeErrorConstructorInternal();
     /* b. If SameValue(%TypedArray%, subclass) is true, throw a TypeError exception. */
-    if (SameValue(|Intrinsics|.TypedArray, subclass) == true)
+    if (SameValue(|Intrinsics|.TypedArray, subclass))
       throw TypeErrorConstructorInternal();
     /* c. If subclass has a [[TypedArrayConstructorName]] internal slot, let constructorName be the value of subclass’s [[TypedArrayConstructorName]] internal slot. */
     if ("TypedArrayConstructorName" in_obj subclass)
@@ -643,7 +643,7 @@ function TypedArrayConstructorTypedArray(global, this, NewTarget, strict, typedA
   /* 6. Let srcData be the value of srcArray's [[ViewedArrayBuffer]] internal slot. */
   srcData := srcArray.ViewedArrayBuffer;
   /* 7. If IsDetachedBuffer(srcData) is true, */
-  if (IsDetachedBuffer(srcData) == true)
+  if (IsDetachedBuffer(srcData))
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 8. Let constructorName be the String value of O's [[TypedArrayName]] internal slot. */
@@ -665,7 +665,7 @@ function TypedArrayConstructorTypedArray(global, this, NewTarget, strict, typedA
   /* 16. Let byteLength be elementSize × elementLength. */
   byteLength := elementSize * elementLength;
   /* 17. If SameValue(elementType,srcType) is true, then */
-  if (SameValue(elementType, srcType) == true) {
+  if (SameValue(elementType, srcType)) {
     /* a. Let data be CloneArrayBuffer(srcData, srcByteOffset). */
     data := CloneArrayBuffer(strict, srcData, srcByteOffset, 'undefined);
     /* b. ReturnIfAbrupt(data). */
@@ -778,7 +778,7 @@ function TypedArrayConstructorBuffer(global, this, NewTarget, strict, buffer, by
     /* throw a RangeError exception */
     throw RangeErrorConstructorInternal();
   /* 11. If IsDetachedBuffer(buffer) is true, */
-  if (IsDetachedBuffer(buffer) == true)
+  if (IsDetachedBuffer(buffer))
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 12. Let bufferByteLength be the value of buffer's [[ArrayBufferByteLength]] internal slot. */
@@ -860,7 +860,7 @@ function TypedArrayFrom(constructor, items, mapfn, thisArg, strict) {
   /* 1. Let C be constructor. */
   C := constructor;
   /* 2. Assert: IsConstructor(C) is true. */
-  assert (IsConstructor(C) == true);
+  assert (IsConstructor(C));
   /* 3. Assert: mapfn is either a callable Object or undefined. */
   assert ((mapfn == 'undefined) || (IsCallable(mapfn)));
   /* 4. If mapfn is undefined, let mapping be false. */
@@ -1254,7 +1254,7 @@ function ValidateTypedArray(O) {
   /* 4. Let buffer be the value of O's [[ViewedArrayBuffer]] internal slot. */
   buffer := O.ViewedArrayBuffer;
   /* 5. If IsDetachedBuffer(buffer) is true, */
-  if (IsDetachedBuffer(buffer) == true)
+  if (IsDetachedBuffer(buffer))
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 6. Return buffer. */
@@ -2162,7 +2162,7 @@ function getTypedArrayLength(global, this, NewTarget, strict, args) {
   /* 5. Let buffer be the value of O's [[ViewedArrayBuffer]] internal slot. */
   buffer := O.ViewedArrayBuffer;
   /* 6. If IsDetachedBuffer(buffer) is true, */
-  if (IsDetachedBuffer(buffer) == true)
+  if (IsDetachedBuffer(buffer))
     /* return 0 */
     return 0.;
   /* 7. Let length be the value of O's [[ArrayLength]] internal slot. */
@@ -2675,7 +2675,7 @@ function TypedArraySetArray(global, this, strict, array, offset) {
   /* 9. Let targetBuffer be the value of target's [[ViewedArrayBuffer]] internal slot. */
   targetBuffer := target.ViewedArrayBuffer;
   /* 10. If IsDetachedBuffer(targetBuffer) is true, */
-  if (IsDetachedBuffer(targetBuffer) == true)
+  if (IsDetachedBuffer(targetBuffer))
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 11. Let targetLength be the value of target's [[ArrayLength]] internal slot. */
@@ -2764,7 +2764,7 @@ function TypedArraySetTypedArray(global, this, strict, typedArray, offset) {
   /* 9. Let targetBuffer be the value of target's [[ViewedArrayBuffer]] internal slot. */
   targetBuffer := target.ViewedArrayBuffer;
   /* 10. If IsDetachedBuffer(targetBuffer) is true, */
-  if (IsDetachedBuffer(targetBuffer) == true)
+  if (IsDetachedBuffer(targetBuffer))
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 11. Let targetLength be the value of target's [[ArrayLength]] internal slot. */
@@ -2772,7 +2772,7 @@ function TypedArraySetTypedArray(global, this, strict, typedArray, offset) {
   /* 12. Let srcBuffer be the value of typedArray's [[ViewedArrayBuffer]] internal slot. */
   srcBuffer := typedArray.ViewedArrayBuffer;
   /* 13. If IsDetachedBuffer(srcBuffer) is true, */
-  if (IsDetachedBuffer(srcBuffer) == true)
+  if (IsDetachedBuffer(srcBuffer))
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 14. Let targetName be the String value of target's [[TypedArrayName]] internal slot. */
@@ -2798,7 +2798,7 @@ function TypedArraySetTypedArray(global, this, strict, typedArray, offset) {
     /* throw a RangeError exception */
     throw RangeErrorConstructorInternal();
   /* 24. If SameValue(srcBuffer, targetBuffer) is true, then */
-  if (SameValue(srcBuffer, targetBuffer) == true) {
+  if (SameValue(srcBuffer, targetBuffer)) {
     /* a. Let srcBuffer be CloneArrayBuffer(targetBuffer, srcByteOffset,
        %ArrayBuffer%). */
     srcBuffer := CloneArrayBuffer(strict, targetBuffer, srcByteOffset, |Intrinsics|.ArrayBuffer);
@@ -2942,7 +2942,7 @@ function TypedArraySlice(global, this, NewTarget, strict, args) {
     /* a. Let srcBuffer be the value of O's [[ViewedArrayBuffer]] internal slot. */
     srcBuffer := O.ViewedArrayBuffer;
     /* b. If IsDetachedBuffer(srcBuffer) is true, */
-    if (IsDetachedBuffer(srcBuffer) == true)
+    if (IsDetachedBuffer(srcBuffer))
       /* throw a TypeError exception */
       throw TypeErrorConstructorInternal();
     /* c. Let targetBuffer be the value of A's [[ViewedArrayBuffer]] internal slot. */

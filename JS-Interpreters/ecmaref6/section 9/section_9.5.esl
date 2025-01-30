@@ -300,7 +300,7 @@ function PreventExtensionsProxy (O) {
 
 function GetOwnPropertyProxy (O, P) {
   /* 1. Assert: IsPropertyKey(P) is true. */
-  assert (IsPropertyKey(P) == true);
+  assert (IsPropertyKey(P));
   /* 2. Let handler be the value of the [[ProxyHandler]] internal slot of O. */
   handler := O.ProxyHandler;
   /* 3. If handler is null, throw a TypeError exception. */
@@ -409,7 +409,7 @@ function GetOwnPropertyProxy (O, P) {
 
 function DefineOwnPropertyProxy (O, P, Desc) {
   /* 1. Assert: IsPropertyKey(P) is true. */
-  assert (IsPropertyKey(P) == true);
+  assert (IsPropertyKey(P));
   /* 2. Let handler be the value of the [[ProxyHandler]] internal slot of O. */
   handler := O.ProxyHandler;
   /* 3. If handler is null, throw a TypeError exception. */
@@ -498,7 +498,7 @@ function DefineOwnPropertyProxy (O, P, Desc) {
 
 function HasPropertyProxy (O, P) {
   /* 1. Assert: IsPropertyKey(P) is true. */
-  assert (IsPropertyKey(P) == true);
+  assert (IsPropertyKey(P));
   /* 2. Let handler be the value of the [[ProxyHandler]] internal slot of O. */
   handler := O.ProxyHandler;
   /* 3. If handler is null, throw a TypeError exception. */
@@ -569,7 +569,7 @@ function HasPropertyProxy (O, P) {
 
 function GetProxy (O, P, Receiver) {
   /* 1. Assert: IsPropertyKey(P) is true. */
-  assert (IsPropertyKey(P) == true);
+  assert (IsPropertyKey(P));
   /* 2. Let handler be the value of the [[ProxyHandler]] internal slot of O. */
   handler := O.ProxyHandler;
   /* 3. If handler is null, throw a TypeError exception. */
@@ -598,13 +598,13 @@ function GetProxy (O, P, Receiver) {
   /* 13. If targetDesc is not undefined, then */
   if (targetDesc != 'undefined) {
     /* a. If IsDataDescriptor(targetDesc) and targetDesc.[[Configurable]] is false and targetDesc.[[Writable]] is false, then */
-    if ((IsDataDescriptor(targetDesc) == true) &&& (targetDesc.Configurable == false) &&& (targetDesc.Writable == false)) {
+    if (IsDataDescriptor(targetDesc) &&& (targetDesc.Configurable == false) &&& (targetDesc.Writable == false)) {
       /* i. If SameValue(trapResult, targetDesc.[[Value]]) is false, throw a TypeError exception. */
       if (SameValue(trapResult, targetDesc.Value) == false)
         throw TypeErrorConstructorInternal();
     }
     /* b. If IsAccessorDescriptor(targetDesc) and targetDesc.[[Configurable]] is false and targetDesc.[[Get]] is undefined, then */
-    if ((IsAccessorDescriptor(targetDesc) == true) &&& (targetDesc.Configurable == false) &&& (targetDesc.Get == 'undefined)) {
+    if (IsAccessorDescriptor(targetDesc) &&& (targetDesc.Configurable == false) &&& (targetDesc.Get == 'undefined)) {
       /* i. If trapResult is not undefined, throw a TypeError exception. */
       if (trapResult != 'undefined)
         throw TypeErrorConstructorInternal();
@@ -639,7 +639,7 @@ function GetProxy (O, P, Receiver) {
 
 function SetProxy (O, P, V, Receiver) {
   /* 1. Assert: IsPropertyKey(P) is true. */
-  assert (IsPropertyKey(P) == true);
+  assert (IsPropertyKey(P));
   /* 2. Let handler be the value of the [[ProxyHandler]] internal slot of O. */
   handler := O.ProxyHandler;
   /* 3. If handler is null, throw a TypeError exception. */
@@ -671,13 +671,13 @@ function SetProxy (O, P, V, Receiver) {
   /* 14. If targetDesc is not undefined, then */
   if (targetDesc != 'undefined) {
     /* a. If IsDataDescriptor(targetDesc) and targetDesc.[[Configurable]] is false and targetDesc.[[Writable]] is false, then */
-    if ((IsDataDescriptor(targetDesc) == true) &&& (targetDesc.Configurable == false) &&& (targetDesc.Writable == false)) {
+    if (IsDataDescriptor(targetDesc) &&& (targetDesc.Configurable == false) &&& (targetDesc.Writable == false)) {
       /* i. If SameValue(V, targetDesc.[[Value]]) is false, throw a TypeError exception. */
       if (SameValue(V, targetDesc.Value) == false)
         throw TypeErrorConstructorInternal();
     }
     /* b. If IsAccessorDescriptor(targetDesc) and targetDesc.[[Configurable]] is false, then */
-    if ((IsAccessorDescriptor(targetDesc) == true) &&& targetDesc.Configurable == false) {
+    if (IsAccessorDescriptor(targetDesc) &&& targetDesc.Configurable == false) {
       /* i. If targetDesc.[[Set]] is undefined, throw a TypeError exception. */
       if (targetDesc.Set == 'undefined)
         throw TypeErrorConstructorInternal();
@@ -714,7 +714,7 @@ function SetProxy (O, P, V, Receiver) {
 
 function DeleteProxy (O, P) {
   /* 1. Assert: IsPropertyKey(P) is true. */
-  assert (IsPropertyKey(P) == true);
+  assert (IsPropertyKey(P));
   /* 2. Let handler be the value of the [[ProxyHandler]] internal slot of O. */
   handler := O.ProxyHandler;
   /* 3. If handler is null, throw a TypeError exception. */
@@ -1048,7 +1048,7 @@ function ProxyCreate(target, handler) {
   setInternalProperty(P, "Enumerate", "EnumerateProxy");
   setInternalProperty(P, "OwnPropertyKeys", "OwnPropertyKeysProxy");
   /* 7. If IsCallable(target) is true, then */
-  if (IsCallable(target) == true) {
+  if (IsCallable(target)) {
     /* a. Set the [[Call]] internal method of P as specified in 9.5.13. */
     P.Call := "CallProxy";
     /* b. If target has a [[Construct]] internal method, then */

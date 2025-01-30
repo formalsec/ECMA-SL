@@ -279,7 +279,7 @@ function setAddObject(global, this, NewTarget, strict, args) {
   while (index < len) {
     e := l_nth(entries, index);
     /* a. If e is not empty and SameValueZero(e, value) is true, then */
-    if ((e != 'empty) &&& (SameValueZero(e, value) == true)) {
+    if ((e != 'empty) &&& SameValueZero(e, value)) {
       /* i. Return S. */
       return S;
     }
@@ -358,7 +358,7 @@ function setDeleteObject(global, this, NewTarget, strict, args) {
   while (index < len) {
     e := l_nth(entries, index);
     /* a. If e is not empty and SameValueZero(e, value) is true, then */
-    if ((e != 'empty) &&& (SameValueZero(e, value) == true)) {
+    if ((e != 'empty) &&& SameValueZero(e, value)) {
       /* i. Replace the element of entries whose value is e with an element whose value is empty. */
       newSetData := l_add(newSetData, 'empty);
       index := index + 1;
@@ -477,7 +477,7 @@ function setHasObject(global, this, NewTarget, strict, args) {
   while (index < len) {
     e := l_nth(entries, index);
     /* a. If e is not empty and SameValueZero(e, value) is true, then */
-    if ((e != 'empty) &&& (SameValueZero(e, value) == true))
+    if ((e != 'empty) &&& SameValueZero(e, value))
       /* i. Return true. */
       return true;
     index := index + 1;

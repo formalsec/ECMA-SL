@@ -75,7 +75,7 @@ function OrdinaryObjectSetPrototypeOf(O, V) {
       done := true;
     }
     /* Else, if SameValue(p, O) is true, return false. */
-    else if (SameValue(p, O) == true) {
+    else if (SameValue(p, O)) {
       return false;
     /* Else, */
     } else {
@@ -125,7 +125,7 @@ function OrdinaryObjectPreventExtensions(O) {
 */
 function OrdinaryGetOwnProperty(O, P) {
   /* Assert: IsPropertyKey(P) is true. */
-  assert (IsPropertyKey(P) == true);
+  assert (IsPropertyKey(P));
   /* If O does not have an own property with key P, return undefined. */
   if (!inJSProperties(O, P))
     return 'undefined;
@@ -180,7 +180,7 @@ function OrdinaryObjectGetOwnProperty(O, P) {
 function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
   /* Assert: If O is not undefined then IsPropertyKey(P) is true. */
   if (O != 'undefined)
-    assert(IsPropertyKey(P) == true);
+    assert(IsPropertyKey(P));
 
   /* If current is undefined, then */
   if (current == 'undefined ) {
@@ -191,7 +191,7 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
     assert (extensible == true);
 
     /* If IsGenericDescriptor(Desc) or IsDataDescriptor(Desc) is true, then */
-    if ((IsGenericDescriptor(Desc) == true) ||| (IsDataDescriptor(Desc) == true)) {
+    if (IsGenericDescriptor(Desc) ||| IsDataDescriptor(Desc)) {
       /* If O is not undefined, create an own data property named P of object O whose [[Value]], [[Writable]], [[Enumerable]]
       and [[Configurable]] attribute values are described by Desc. If the value of an attribute field of Desc is absent, the
       attribute of the newly created property is set to its default value. */
@@ -218,7 +218,7 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
   /* Return true, if every field in Desc also occurs in current and the value of every field in Desc is the same
       value as the corresponding field in current when compared using the SameValue algorithm.
   */
-  if (SameValue(current, Desc) == true)
+  if (SameValue(current, Desc))
     return true;
 
   /* If the [[Configurable]] field of current is false, then */
@@ -242,7 +242,7 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
       return false;
 
     /* If IsDataDescriptor(current) is true, then */
-    if (IsDataDescriptor(current) == true ) {
+    if (IsDataDescriptor(current)) {
       /* If O is not undefined, convert the property named P of object O from a data property to an
           accessor property. Preserve the existing values of the converted property’s [[Configurable]]
           and [[Enumerable]] attributes and set the rest of the property’s attributes to their default values. */
@@ -265,7 +265,7 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
       /* convertAccessorPropertyDescToDataPropertyDesc(O, P) */
     }
   /* Else if IsDataDescriptor(current) and IsDataDescriptor(Desc) are both true, then */
-  } else if ((IsDataDescriptor(current) == true) &&& (IsDataDescriptor(Desc) == true)) {
+  } else if (IsDataDescriptor(current) &&& IsDataDescriptor(Desc)) {
     /* If the [[Configurable]] field of current is false, then */
     if (current.Configurable == false) {
       /* Return false, if the [[Writable]] field of current is false and the [[Writable]] field of Desc is true. */
@@ -362,7 +362,7 @@ function OrdinaryObjectDefineOwnProperty(O, P, Desc) {
 */
 function OrdinaryHasProperty(O, P) {
     /* Assert: IsPropertyKey(P) is true. */
-    assert (IsPropertyKey(P) == true);
+    assert (IsPropertyKey(P));
     /* Let hasOwn be OrdinaryGetOwnProperty(O, P). */
     hasOwn := OrdinaryGetOwnProperty(O, P);
     /* If hasOwn is not undefined, return true. */
@@ -399,7 +399,7 @@ function OrdinaryObjectHasProperty(O, P) {
 */
 function OrdinaryObjectGet(O, P, Receiver) {
   /* Assert: IsPropertyKey(P) is true. */
-  assert (IsPropertyKey(P) == true );
+  assert (IsPropertyKey(P));
   /* Let desc be O.[[GetOwnProperty]](P). */
   desc := {O.GetOwnProperty}(O,P);
   /* ReturnIfAbrupt(desc). */
@@ -417,7 +417,7 @@ function OrdinaryObjectGet(O, P, Receiver) {
     return {parent.Get}(parent, P, Receiver);
   }
   /* If IsDataDescriptor(desc) is true, return desc.[[Value]]. */
-  if (IsDataDescriptor(desc) == true)
+  if (IsDataDescriptor(desc))
     return desc.Value;
   /* Otherwise, IsAccessorDescriptor(desc) must be true so, let getter be desc.[[Get]]. */
   getter := desc.Get;
@@ -436,7 +436,7 @@ function OrdinaryObjectGet(O, P, Receiver) {
 */
 function OrdinaryObjectSet(O, P, V, Receiver) {
   /* Assert: IsPropertyKey(P) is true. */
-  assert (IsPropertyKey(P) == true );
+  assert (IsPropertyKey(P));
   /* Let ownDesc be O.[[GetOwnProperty]](P). */
   ownDesc := {O.GetOwnProperty}(O,P);
   /* ReturnIfAbrupt(ownDesc). */
@@ -459,7 +459,7 @@ function OrdinaryObjectSet(O, P, V, Receiver) {
   }
 
   /* If IsDataDescriptor(ownDesc) is true, then */
-  if (IsDataDescriptor(ownDesc) == true) {
+  if (IsDataDescriptor(ownDesc)) {
     /* If ownDesc.[[Writable]] is false, return false. */
     if (ownDesc.Writable == false)
       return false;
@@ -473,7 +473,7 @@ function OrdinaryObjectSet(O, P, V, Receiver) {
     /* If existingDescriptor is not undefined, then */
     if (existingDescriptor != 'undefined) {
       /* If IsAccessorDescriptor(existingDescriptor) is true, return false. */
-      if (IsAccessorDescriptor(existingDescriptor) == true)
+      if (IsAccessorDescriptor(existingDescriptor))
         return false;
       /* If existingDescriptor.[[Writable]] is false, return false. */
       if (existingDescriptor.Writable == false)
@@ -490,7 +490,7 @@ function OrdinaryObjectSet(O, P, V, Receiver) {
   }
 
   /* Assert: IsAccessorDescriptor(ownDesc) is true. */
-  assert (IsAccessorDescriptor(ownDesc) == true);
+  assert (IsAccessorDescriptor(ownDesc));
   /* Let setter be ownDesc.[[Set]]. */
   setter := ownDesc.Set;
   /* If setter is undefined, return false. */
@@ -511,7 +511,7 @@ function OrdinaryObjectSet(O, P, V, Receiver) {
 */
 function OrdinaryObjectDelete(O, P) {
   /* Assert: IsPropertyKey(P) is true. */
-  assert (IsPropertyKey(P) == true);
+  assert (IsPropertyKey(P));
   /* Let desc be O.[[GetOwnProperty]](P). */
   desc := {O.GetOwnProperty}(O,P);
   /* ReturnIfAbrupt(desc). */
@@ -769,7 +769,7 @@ function GetPrototypeFromConstructor(constructor, intrinsicDefaultProto) {
   corresponding object must be an intrinsic that is intended to be used as the [[Prototype]] value of an object. */
   assert (typeof intrinsicDefaultProto == "string" &&& isIntrinsic(intrinsicDefaultProto));
   /* Assert: IsConstructor (constructor) is true. */
-  assert (IsConstructor(constructor) == true);
+  assert (IsConstructor(constructor));
   /* Let proto be Get(constructor, "prototype"). */
   proto := Get(constructor, "prototype");
   /* ReturnIfAbrupt(proto). */

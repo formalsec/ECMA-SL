@@ -153,7 +153,7 @@ function weakSetAdd(global, this, NewTarget, strict, args) {
   while (i < len) {
     e := l_nth(entries, i);
     /* a. If e is not empty and SameValue(e, value) is true, then */
-    if ((e != 'empty) &&& (SameValue(e, value) == true))
+    if ((e != 'empty) &&& SameValue(e, value))
       /* i. Return S. */
       return S;
     i := i + 1;
@@ -193,7 +193,7 @@ function weakSetDelete(global, this, NewTarget, strict, args) {
   while (i < len) {
     e := l_nth(entries, i);
     /* a. If e is not empty and SameValue(e, value) is true, then */
-    if ((e != 'empty) &&& (SameValue(e, value) == true)) {
+    if ((e != 'empty) &&& SameValue(e, value)) {
       /* i. Replace the element of entries whose value is e with an element whose value is empty.
       ii .Return true. */
       removed := true;
@@ -233,7 +233,7 @@ function weakSetHas(global, this, NewTarget, strict, args) {
   while (i < len) {
     e := l_nth(entries, i);
     /* a. If e is not empty and SameValue(e, value) is true, return true. */
-    if ((e != 'empty) &&& (SameValue(e, value) == true))
+    if ((e != 'empty) &&& SameValue(e, value))
       return true;
     i := i + 1;
   }

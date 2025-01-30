@@ -29,7 +29,7 @@ function GetViewValue (view, requestIndex, isLittleEndian, type) {
   /* 8. Let buffer be the value of view’s [[ViewedArrayBuffer]] internal slot. */
   buffer := view.ViewedArrayBuffer;
   /* 9. If IsDetachedBuffer(buffer) is true, throw a TypeError exception. */
-  if (IsDetachedBuffer(buffer) == true)
+  if (IsDetachedBuffer(buffer))
     throw TypeErrorConstructorInternal();
   /* 10. Let viewOffset be the value of view’s [[ByteOffset]] internal slot. */
   viewOffset := view.ByteOffset;
@@ -78,7 +78,7 @@ function SetViewValue (view, requestIndex, isLittleEndian, type, value) {
   /* 8. Let buffer be the value of view’s [[ViewedArrayBuffer]] internal slot. */
   buffer := view.ViewedArrayBuffer;
   /* 9. If IsDetachedBuffer(buffer) is true, throw a TypeError exception. */
-  if (IsDetachedBuffer(buffer) == true)
+  if (IsDetachedBuffer(buffer))
     throw TypeErrorConstructorInternal();
   /* 10. Let viewOffset be the value of view’s [[ByteOffset]] internal slot. */
   viewOffset := view.ByteOffset;
@@ -134,7 +134,7 @@ function DataViewConstructor(global, this, NewTarget, strict, args) {
     /* throw a RangeError exception */
     throw RangeErrorConstructorInternal();
   /* 8. If IsDetachedBuffer(buffer) is true, */
-  if (IsDetachedBuffer(buffer) == true)
+  if (IsDetachedBuffer(buffer))
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 9. Let bufferByteLength be the value of buffer's [[ArrayBufferByteLength]] internal slot. */
@@ -376,7 +376,7 @@ function DataViewPrototypeByteLength(global, this, NewTarget, strict, args) {
   /* 4. Let buffer be the value of O's [[ViewedArrayBuffer]] internal slot. */
   buffer := O.ViewedArrayBuffer;
   /* 5. If IsDetachedBuffer(buffer) is true, */
-  if (IsDetachedBuffer(buffer) == true)
+  if (IsDetachedBuffer(buffer))
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 6. Let size be the value of O's [[ByteLength]] internal slot. */
@@ -407,7 +407,7 @@ function DataViewPrototypeByteOffset(global, this, NewTarget, strict, args) {
   /* 4. Let buffer be the value of O's [[ViewedArrayBuffer]] internal slot. */
   buffer := O.ViewedArrayBuffer;
   /* 5. If IsDetachedBuffer(buffer) is true, */
-  if (IsDetachedBuffer(buffer) == true)
+  if (IsDetachedBuffer(buffer))
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 6. Let offset be the value of O's [[ByteOffset]] internal slot. */

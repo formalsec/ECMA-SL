@@ -33,7 +33,7 @@ function IsArrayIndex(P) {
  */
 function ArrayDefineOwnProperty(A, P, Desc) {
   /* 1. Assert: IsPropertyKey(P) is true. */
-  assert (IsPropertyKey(P) == true);
+  assert (IsPropertyKey(P));
   /* 2. If P is "length", then */
   if (P == "length") {
     /* a. Return ArraySetLength(A, Desc). */
@@ -151,7 +151,7 @@ function ArraySpeciesCreate(originalArray, length) {
     /* b. ReturnIfAbrupt(C). */
     @ReturnIfAbrupt(C);
     /* c. If IsConstructor(C) is true, then */
-    if (IsConstructor(C) == true) {
+    if (IsConstructor(C)) {
       /* i. Let thisRealm be the running execution context's Realm. */
       thisRealm := null; /* TODO: Provavelment depende do Rafael */
       /* ii. Let realmC be GetFunctionRealm(C). */
@@ -161,7 +161,7 @@ function ArraySpeciesCreate(originalArray, length) {
       /* iv. If thisRealm and realmC are not the same Realm Record, then */
       if (false) { /* TODO */
         /* 1. If SameValue(C, realmC.[[intrinsics]].[[%Array%]]) is true, */
-        if (SameValue(C, realmC.intrinsics.Array) == true) {/* TODO */
+        if (SameValue(C, realmC.intrinsics.Array)) {/* TODO */
           /* let C be undefined */
           C := 'undefined;
         }
@@ -397,7 +397,7 @@ function setStringInternals(S) {
 /* 9.4.3.1 [[GetOwnProperty]] ( P ) */
 function GetOwnPropertyString(S, P) {
   /* 1. Assert: IsPropertyKey(P) is true. */
-  assert (IsPropertyKey(P) == true);
+  assert (IsPropertyKey(P));
   /* 2. Let desc be OrdinaryGetOwnProperty(S, P). */
   desc := OrdinaryGetOwnProperty(S, P);
   /* 3. If desc is not undefined return desc. */
@@ -665,7 +665,7 @@ function ArgumentsObjectGetOwnProperty(O, P) {
     desc.Value := Get(map, P);
   }
   /* 8. If IsDataDescriptor(desc) is true and P is "caller" and desc.[[Value]] is a strict mode Function object, */
-  if (IsDataDescriptor(desc) == true &&  P == "caller" && DescriptorValueIsStrictFunction(desc) == true)
+  if (IsDataDescriptor(desc) &&  P == "caller" && DescriptorValueIsStrictFunction(desc))
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 9. Return desc. */
@@ -703,7 +703,7 @@ function ArgumentsObjectDefineOwnProperty(O, P, Desc) {
   /* 7. If the value of isMapped is true, then */
   if (isMapped == true) {
     /* a. If IsAccessorDescriptor(Desc) is true, then */
-    if (IsAccessorDescriptor(Desc) == true) {
+    if (IsAccessorDescriptor(Desc)) {
       /* i. Call map.[[Delete]](P). */
       {map.Delete}(map, P);
     /* b. Else */
@@ -867,7 +867,7 @@ function MakeArgSetter(name, lexicalEnvironment) {
  */
 function IntegerIndexedGetOwnProperty(O, P) {
   /* 1. Assert: IsPropertyKey(P) is true. */
-  assert (IsPropertyKey(P) == true);
+  assert (IsPropertyKey(P));
   /* 2. Assert: O is an Object that has a [[ViewedArrayBuffer]] internal slot. */
   assert ((Type(O) == "Object") &&& ("ViewedArrayBuffer" in_obj O));
   /* 3. If Type(P) is String, then */
@@ -903,7 +903,7 @@ function IntegerIndexedGetOwnProperty(O, P) {
  */
 function IntegerIndexedHasProperty(O, P) {
   /* 1. Assert: IsPropertyKey(P) is true. */
-  assert (IsPropertyKey(P) == true);
+  assert (IsPropertyKey(P));
   /* 2. Assert: O is an Object that has a [[ViewedArrayBuffer]] internal slot. */
   assert ((Type(O) == "Object") &&& ("ViewedArrayBuffer" in_obj O));
   /* 3. If Type(P) is String, then */
@@ -917,7 +917,7 @@ function IntegerIndexedHasProperty(O, P) {
       /* i. Let buffer be the value of O's [[ViewedArrayBuffer]] internal slot. */
       buffer := O.ViewedArrayBuffer;
       /* ii. If IsDetachedBuffer(buffer) is true, */
-      if (IsDetachedBuffer(buffer) == true)
+      if (IsDetachedBuffer(buffer))
         /* throw a TypeError exception */
         throw TypeErrorConstructorInternal();
       /* iii. If IsInteger(numericIndex) is false, return false */
@@ -952,7 +952,7 @@ function IntegerIndexedHasProperty(O, P) {
  */
 function IntegerIndexedDefineOwnProperty(O, P, Desc) {
   /* 1. Assert: IsPropertyKey(P) is true. */
-  assert (IsPropertyKey(P) == true);
+  assert (IsPropertyKey(P));
   /* 2. Assert: O is an Object that has a [[ViewedArrayBuffer]] internal slot. */
   assert (Type(O) == "Object" &&& "ViewedArrayBuffer" in_obj O);
   /* 3. If Type(P) is String, then */
@@ -1021,7 +1021,7 @@ function IntegerIndexedDefineOwnProperty(O, P, Desc) {
  */
 function IntegerIndexedGet(O, P, Receiver) {
   /* 1. Assert: IsPropertyKey(P) is true. */
-  assert (IsPropertyKey(P) == true);
+  assert (IsPropertyKey(P));
   /* 2. If Type(P) is String and if SameValue(O, Receiver) is true, then */
   if ((Type(P) == "String") &&& (SameValue(O, Receiver))) {
     /* a. Let numericIndex be CanonicalNumericIndexString (P). */
@@ -1047,7 +1047,7 @@ function IntegerIndexedGet(O, P, Receiver) {
  */
 function IntegerIndexedSet(O, P, V, Receiver) {
   /* 1. Assert: IsPropertyKey(P) is true. */
-  assert (IsPropertyKey(P) == true);
+  assert (IsPropertyKey(P));
   /* 2. If Type(P) is String and if SameValue(O, Receiver) is true, then */
   if ((Type(P) == "String") &&& (SameValue(O, Receiver))) {
     /* a. Let numericIndex be CanonicalNumericIndexString (P). */
@@ -1165,7 +1165,7 @@ function IntegerIndexedElementGet(O, index) {
   /* 3. Let buffer be the value of O's [[ViewedArrayBuffer]] internal slot. */
   buffer := O.ViewedArrayBuffer;
   /* 4. If IsDetachedBuffer(buffer) is true, */
-  if (IsDetachedBuffer(buffer) == true)
+  if (IsDetachedBuffer(buffer))
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 5. If IsInteger(index) is false, return undefined */
@@ -1218,7 +1218,7 @@ function IntegerIndexedElementSet(O, index, value) {
   /* 5. Let buffer be the value of O's [[ViewedArrayBuffer]] internal slot. */
   buffer := O.ViewedArrayBuffer;
   /* 6. If IsDetachedBuffer(buffer) is true, */
-  if (IsDetachedBuffer(buffer) == true)
+  if (IsDetachedBuffer(buffer))
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 7. If IsInteger(index) is false, return false */

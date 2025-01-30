@@ -729,7 +729,7 @@ function arrayFrom(global, this, NewTarget, strict, args) {
   /* 6. If usingIterator is not undefined, then */
   if (usingIterator != 'undefined) {
     /* a. If IsConstructor(C) is true, then */
-    if (IsConstructor(C) == true)
+    if (IsConstructor(C))
       /* i. Let A be Construct(C). */
       A := Construct(null, null, C, [], null);
     /* b. Else, */
@@ -799,7 +799,7 @@ function arrayFrom(global, this, NewTarget, strict, args) {
   @ReturnIfAbrupt(len);
   /* 12. If IsConstructor(C) is true, then */
   A := null;
-  if (IsConstructor(C) == true) {
+  if (IsConstructor(C)) {
     /* a. Let A be Construct(C, «len»). */
     A := Construct(null, null, C, [len], null);
   /* 13. Else, */
@@ -885,7 +885,7 @@ function arrayOf(global, this, NewTarget, strict, args) {
   /* 3. Let C be the this value. */
   C := this;
   /* 4. If IsConstructor(C) is true, then */
-  if (IsConstructor(C) == true) {
+  if (IsConstructor(C)) {
     /* a. Let A be Construct(C, «len»). */
     A := Construct(null, null, C, [int_to_float len], null);
   /* 5. Else, */

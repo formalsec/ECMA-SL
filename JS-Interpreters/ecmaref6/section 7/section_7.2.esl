@@ -7,7 +7,7 @@
 function RequireObjectCoercible(argument) {
 	switch(Type(argument)) {
 		case "Completion": {
-      if (isAnAbruptCompletion(argument) == true)
+      if (isAnAbruptCompletion(argument))
         return argument;
       else
         return RequireObjectCoercible(getCompletionValue(input));
@@ -54,7 +54,7 @@ function isArrayExoticObject(arr) {
     if (len.Configurable ||| (len.Value == 'undefined))
       return false;
     lenValue := len.Value;
-    if ((lenValue < 0.) ||| (lenValue >= 2. ** 32.))
+    if ((lenValue < 0.0) ||| (lenValue >= 4294967296.0))
       return false;
   } else {
     return false;
@@ -74,13 +74,9 @@ function IsCallable( argument ) {
 	/* ReturnIfAbrupt(argument). */
 	@ReturnIfAbrupt(argument);
 	/* If Type(argument) is not Object, return false. */
-	if (Type(argument) != "Object")
-		return false;
 	/* If argument has a [[Call]] internal method, return true. */
-	if ("Call" in_obj argument)
-		return true;
 	/* Return false. */
-	return false;
+	return ((Type(argument) == "Object") &&& ("Call" in_obj argument));
 }
 
 /**
@@ -93,13 +89,8 @@ function IsConstructor(argument) {
 	/* ReturnIfAbrupt(argument). */
 	@ReturnIfAbrupt(argument);
 	/* If Type(argument) is not Object, return false. */
-	if (Type(argument) != "Object")
-		return false;
 	/* If argument has a [[Construct]] internal method, return true. */
-	if ("Construct" in_obj argument)
-		return true;
-	/* Return false. */
-	return false;
+	return ((Type(argument) == "Object") &&& ("Construct" in_obj argument));
 }
 
 /**
@@ -147,13 +138,9 @@ function IsPropertyKey( argument ) {
 	@ReturnIfAbrupt(argument);
   t := Type(argument);
 	/* If Type(argument) is String, return true. */
-	if (t == "String")
-		return true;
 	/* If Type(argument) is Symbol, return true. */
-	if (t == "Symbol")
-		return true;
 	/* Return false. */
-	return false;
+	return ((t == "String") ||| (t == "Symbol"));
 }
 
 /**
@@ -171,10 +158,8 @@ function IsRegExp(argument) {
   if (isRegExp != 'undefined)
     return ToBoolean(isRegExp);
   /* 5. If argument has a [[RegExpMatcher]] internal slot, return true. */
-  if ("Match" in_obj argument)
-    return true;
   /* 6. Return false. */
-  return false;
+  return ("Match" in_obj argument);
 }
 
 /**

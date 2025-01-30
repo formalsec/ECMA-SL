@@ -14,18 +14,12 @@ function Completion(completionRecord) {
 
 /* auxiliary functions */
 function isAnAbruptCompletion (completion) {
-  if (Type(completion) != "Completion")
-    return false;
-  if (getCompletionType(completion) != 'normal)
-    return true;
-  return false;
+  return ((Type(completion) == "Completion") &&& (getCompletionType(completion) != 'normal));
 }
 
 /* Auxiliary functions created for the purposes of accessing the values of the triple that form the completion type. */
 function isErrorCompletion(completion) {
-  if (Type(completion) == "Completion")
-    return getCompletionType(completion) == 'throw;
-  return false;
+  return ((Type(completion) == "Completion") &&& (getCompletionType(completion) == 'throw));
 }
 
 function getCompletionType(completion) {
@@ -215,7 +209,7 @@ function IsPropertyReference (V) {
     type := Type(base)
   } */
 
-  return (Type(base) == "Object") ||| (Type(base) == "Symbol") ||| (HasPrimitiveBase(V) == true);
+  return (Type(base) == "Object") ||| (Type(base) == "Symbol") ||| HasPrimitiveBase(V);
   /* return (typeof (V) == "list") && (l_nth(V, 0) == "R") && (l_nth(V, 1) == "P") */
 }
 
@@ -248,7 +242,7 @@ function GetValue(V) {
   /* If IsPropertyReference(V), then */
   if (IsPropertyReference(V)) {
     /* If HasPrimitiveBase(V) is true, then */
-    if (HasPrimitiveBase(V) == true) {
+    if (HasPrimitiveBase(V)) {
         /* Assert: In this case, base will never be null or undefined. */
         assert (base != 'null &&& base != 'undefined);
         /* Let base be ToObject(base). */
@@ -292,7 +286,7 @@ function PutValue(V, W) {
     /* Else if IsPropertyReference(V), then */
     } else if (IsPropertyReference(V)) {
         /* If HasPrimitiveBase(V) is true, then */
-        if (HasPrimitiveBase(V) == true) {
+        if (HasPrimitiveBase(V)) {
             /* Assert: In this case, base will never be null or undefined. */
             assert (base != 'null ||| base != 'undefined);
             /* Set base to ToObject(base). */
@@ -325,7 +319,7 @@ function PutValue(V, W) {
 */
 function GetThisValue(V) {
     /* Assert: IsPropertyReference(V) is true. */
-    assert (IsPropertyReference(V) == true);
+    assert (IsPropertyReference(V));
     /* If IsSuperReference(V), then */
     if (IsSuperReference(V))
         /* Return the value of the thisValue component of the reference V. */
@@ -393,10 +387,8 @@ function IsAccessorDescriptor (Desc) {
   if (Desc == 'undefined)
     return false;
   /** 2. If both Desc.[[Get]] and Desc.[[Set]] are absent, then return false. */
-  if (!("Get" in_obj Desc) &&& !("Set" in_obj Desc))
-    return false;
   /** 3. Return true. */
-  return true;
+  return (("Get" in_obj Desc) ||| ("Set" in_obj Desc));
 }
 
 /**
@@ -407,10 +399,8 @@ function IsDataDescriptor (Desc) {
   if (Desc == 'undefined)
     return false;
   /** 2. If both Desc.[[Value]] and Desc.[[Writable]] are absent, then return false. */
-  if (!("Value" in_obj Desc) &&& !("Writable" in_obj Desc))
-    return false;
   /** 3. Return true. */
-  return true;
+  return (("Value" in_obj Desc) ||| ("Writable" in_obj Desc));
 }
 
 /**
@@ -421,10 +411,8 @@ function IsGenericDescriptor (Desc) {
   if (Desc == 'undefined)
     return false;
   /** 2. If IsAccessorDescriptor(Desc) and IsDataDescriptor(Desc) are both false, then return true. */
-  if (IsAccessorDescriptor(Desc) == false &&& IsDataDescriptor(Desc) == false)
-    return true;
   /** 3. Return false. */
-  return false;
+ return (IsAccessorDescriptor(Desc) == false &&& IsDataDescriptor(Desc) == false);
 }
 
 /**
@@ -591,11 +579,11 @@ function FromPropertyDescriptor(Desc) {
     /* ReturnIfAbrupt(Desc). */
     @ReturnIfAbrupt(Desc);
     /* Assert: Desc is a Property Descriptor */
-    assert (isPropertyDescriptor(Desc) == true);
+    assert (isPropertyDescriptor(Desc));
     /* Let like be Record{[[Value]]: undefined, [[Writable]]: false, [[Get]]: undefined, [[Set]]: undefined, [[Enumerable]]: false, [[Configurable]]: false}. */
     like := { Value: 'undefined, Writable: false, Get: 'undefined, Set: 'undefined, Enumerable: false, Configurable: false };
     /* If either IsGenericDescriptor(Desc) or IsDataDescriptor(Desc) is true, then */
-    if (IsGenericDescriptor(Desc) == true ||| IsDataDescriptor(Desc) == true) {
+    if (IsGenericDescriptor(Desc) ||| IsDataDescriptor(Desc)) {
       /* If Desc does not have a [[Value]] field, set Desc.[[Value]] to like.[[Value]]. */
       if (!("Value" in_obj Desc))
         Desc.Value := like.Value;

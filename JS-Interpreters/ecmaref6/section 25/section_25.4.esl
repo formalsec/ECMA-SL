@@ -200,7 +200,7 @@ function PromiseResolveFunctions(F, global, this, strict, args) {
   /* 5. Set alreadyResolved.[[value]] to true. */
   alreadyResolved.value := true;
   /* 6. If SameValue(resolution, promise) is true, then */
-  if (SameValue(resolution, promise) == true) {
+  if (SameValue(resolution, promise)) {
     /* a. Let selfResolutionError be a newly created TypeError object. */
     selfResolutionError := TypeErrorConstructorInternal();
     /* b. Return RejectPromise(promise, selfResolutionError). */
@@ -352,15 +352,11 @@ function GetCapabilitiesExecutorFunctions(F, global, this, strict, args) {
  */
 function IsPromise(x) {
   /* 1. If Type(x) is not Object, */
-  if (Type(x) != "Object")
     /* return false */
-    return false;
   /* 2. If x does not have a [[PromiseState]] internal slot, */
-  if (!("PromiseState" in_obj x))
     /* return false */
-    return false;
   /* 3. Return true. */
-  return true;
+  return ((Type(x) == "Object") &&& ("PromiseState" in_obj x));
 }
 
 /**
@@ -963,13 +959,13 @@ function PromiseResolve(global, this, NewTarget, strict, args) {
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 3. If IsPromise(x) is true, */
-  if (IsPromise(x) == true) {
+  if (IsPromise(x)) {
     /* a. Let xConstructor be Get(x, "constructor"). */
     xConstructor := Get(x, "constructor");
     /* b. ReturnIfAbrupt(xConstructor). */
     @ReturnIfAbrupt(xConstructor);
     /* c. If SameValue(xConstructor, C) is true, */
-    if (SameValue(xConstructor, C) == true)
+    if (SameValue(xConstructor, C))
       /* return x */
       return x;
   }
@@ -1109,7 +1105,7 @@ function PromisePrototypeThen(global, this, NewTarget, strict, args) {
  */
 function PerformPromiseThen(promise, onFulfilled, onRejected, resultCapability) {
   /* 1. Assert: IsPromise(promise) is true. */
-  assert (IsPromise(promise) == true);
+  assert (IsPromise(promise));
   /* 2. Assert: resultCapability is a PromiseCapability record. */
   assert (isPromiseCapabilityRecord(resultCapability));
   /* 3. If IsCallable(onFulfilled) is false, then */

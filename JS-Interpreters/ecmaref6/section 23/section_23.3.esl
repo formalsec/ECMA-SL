@@ -235,7 +235,7 @@ function weakMapDeleteObject(global, this, NewTarget, strict, args) {
   while (i < len) {
     p := l_nth(entries, i);
     /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, then */
-    if ((p.key != 'empty) &&& (SameValue(p.key, key) == true)) {
+    if ((p.key != 'empty) &&& SameValue(p.key, key)) {
       /* i. Set p.[[key]] to empty. */
       p.key := 'empty;
       /* ii. Set p.[[value]] to empty. */
@@ -272,7 +272,7 @@ function weakMapGetObject(global, this, NewTarget, strict, args) {
   while (i < len) {
     p := l_nth(entries, i);
     /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, return p.[[value]]. */
-    if ((p.key != 'empty) &&& (SameValue(p.key, key) == true)) {
+    if ((p.key != 'empty) &&& SameValue(p.key, key)) {
       return p.value;
     }
     i := i + 1;
@@ -304,7 +304,7 @@ function weakMapHasObject(global, this, NewTarget, strict, args) {
   while (i < len) {
     p := l_nth(entries, i);
     /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, return true. */
-    if ((p.key != 'empty) &&& (SameValue(p.key, key) == true))
+    if ((p.key != 'empty) &&& SameValue(p.key, key))
       return true;
     i := i + 1;
   }
@@ -336,7 +336,7 @@ function weakMapSetObject(global, this, NewTarget, strict, args) {
   while (i < len) {
     p := l_nth(entries, i);
     /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, then */
-    if ((p.key != 'empty) &&& (SameValue(p.key, key) == true)) {
+    if ((p.key != 'empty) &&& SameValue(p.key, key)) {
       /* i. Set p.[[value]] to value. */
       p.value := value;
       /* ii. Return M. */

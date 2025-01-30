@@ -147,12 +147,9 @@ function FunctionConstructor(globalObject, this, NewTarget, strict, params) {
   if (!isParsableAsFunctionBody(body))
     throw SyntaxErrorConstructorInternal();
   /* 9. If body is strict mode code (see 10.1.1) then let strict be true, else let strict be false. */
-  if (isBuiltInFunctionBodyStrictModeCode(body))
-    strict := true;
-  else
-    strict := false;
+  strict := isBuiltInFunctionBodyStrictModeCode(body);
   /* 10. If strict is true, throw any exceptions specified in 13.1 that apply. */
-  if ((strict == true) &&& anyStrictModeRestrictionApplicable(body))
+  if (strict &&& anyStrictModeRestrictionApplicable(body))
     throw SyntaxErrorConstructorInternal();
 
   F := FunctionAllocate(getFunctionPrototype(strict), strict, "normal");
