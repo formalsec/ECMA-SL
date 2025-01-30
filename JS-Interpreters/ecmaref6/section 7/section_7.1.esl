@@ -106,18 +106,18 @@ function ToPrimitive(input, PreferredType) {
 function ToBoolean( argument ) {
 	switch( Type(argument) ) {
 		case "Completion": {
-      if (isAnAbruptCompletion(argument) == true) 
-        return argument; 
-      else 
+      if (isAnAbruptCompletion(argument) == true)
+        return argument;
+      else
         return ToBoolean(getCompletionValue(argument));
     }
 		case "Undefined":   return false;
 		case "Null":        return false;
 		case "Boolean":     return argument;
 		case "Number": {
-      if (argument == NaN ||| isZero(argument) == true ||| isMinusZero(argument) == true) 
-        return false; 
-      else 
+      if (argument == NaN ||| isZero(argument) == true ||| isMinusZero(argument) == true)
+        return false;
+      else
         return true;
     }
 		case "String":      if (argument == "") return false; else return true;
@@ -175,12 +175,14 @@ function ToInteger( argument ) {
 	@ReturnIfAbrupt(num);
 	/* If number is NaN, return +0. */
 	if (is_NaN(num))
-		return 0.;
+		return 0.0;
 	/* If number is +0, -0, +Infinity, or -Infinity, return number. */
-	if (isZero(argument) == true ||| isMinusZero(argument) == true ||| argument == Infinity ||| argument == -Infinity)
+	if (isZero(num) == true
+      ||| isMinusZero(num) == true ||| num == Infinity ||| num == -Infinity)
 		return num;
 	/* Return the number value that is the same sign as number and whose magnitude is floor(abs(number)). */
-	return to_int(num);
+  let sign = (num < 0.0) ? -(1.0) : 1.0;
+  return sign * floor(abs(num));
 }
 
 /**
@@ -194,13 +196,17 @@ function ToInt32(argument) {
   num := ToNumber(argument);
   /* ReturnIfAbrupt(number). */
   @ReturnIfAbrupt(num);
-  return to_int32(num);
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
+	if (isZero(num) == true
+      ||| isMinusZero(num) == true ||| num == Infinity ||| num == -Infinity)
+		return 0.0;
   /* 3. Let posInt be sign(number) * floor(abs(number)). */
-  /* 4. Let int32bit be posInt modulo 2^32 ; that is, a finite integer value k of Number type with positive sign and less
-        than 2^32 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
-        multiple of 2^32 . */
+  let sign = (num < 0.0) ? -(1.0) : 1.0;
+  let posInt = sign * floor(abs(num));
+  /* 4. Let int32bit be posInt modulo 2^32 ; that is, a finite integer value k of Number type with positive sign and less than 2^32 in magnitude such that the mathematical difference of posInt and k is mathematically an integer multiple of 2^32 . */
+  let int32bit = mod(posInt, 4294967296.0);
   /* 5. If int32bit is greater than or equal to 2^31 , return int32bit - 2^32 , otherwise return int32bit. */
+  return ((int32bit >= 2147483648.0) ? int32bit - 4294967296.0 : int32bit);
 
   /* NOTE Given the above definition of ToInt32:
           * The ToInt32 abstract operation is idempotent: if applied to a result that it produced, the second application leaves that
@@ -222,12 +228,16 @@ function ToUint32(argument) {
   /* ReturnIfAbrupt(number). */
   @ReturnIfAbrupt(num);
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
-  return to_uint32(num);
+	if (isZero(num) == true
+      ||| isMinusZero(num) == true ||| num == Infinity ||| num == -Infinity)
+		return 0.0;
   /* 3. Let posInt be sign(number) x floor(abs(number)). */
-  /* 4. Let int32bit be posInt modulo 2^32 ; that is, a finite integer value k of Number type with positive sign and less
-        than 2^32 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
-        multiple of 2^32 . */
+  let sign = (num < 0.0) ? -(1.0) : 1.0;
+  let posInt = sign * floor(abs(num));
+  /* 4. Let int32bit be posInt modulo 2^32 ; that is, a finite integer value k of Number type with positive sign and less than 2^32 in magnitude such that the mathematical difference of posInt and k is mathematically an integer multiple of 2^32 . */
+  let int32bit = mod(posInt, 4294967296.0);
   /* 5. Return int32bit. */
+  return int32bit;
 
   /* NOTE Given the above definition of ToUint32:
           * Step 5 is the only difference between ToUint32 and ToInt32.
@@ -248,13 +258,17 @@ function ToInt16(argument) {
   num := ToNumber(argument);
   /* ReturnIfAbrupt(number). */
   @ReturnIfAbrupt(num);
-  return to_int(num);
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
+	if (isZero(num) == true
+      ||| isMinusZero(num) == true ||| num == Infinity ||| num == -Infinity)
+	  return 0.0;
   /* 3. Let posInt be sign(number) x floor(abs(number)). */
-  /* 4. Let int16bit be posInt modulo 2 16 ; that is, a finite integer value k of Number type with positive sign and less
-        than 2 16 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
-        multiple of 2^16 . */
-  /* 5. Return int16bit. */
+  let sign = (num < 0.0) ? -(1.0) : 1.0;
+  let posInt = sign * floor(abs(num));
+  /* 4. Let int16bit be posInt modulo 2 16. */
+  let int16bit = mod(posInt, 65536.0);
+  /* 5. If int16bit ≥ 2 15, return int16bit − 2 16, otherwise return int16bit. */
+  return ((int16bit >= 32768.0) ? int16bit - 65536.0 : int16bit);
 
   /* NOTE Given the above definition of ToUint16:
      * The substitution of 2 16 for 2 32 in step 4 is the only difference between ToUint32 and ToUint16.
@@ -268,49 +282,115 @@ function ToInt16(argument) {
 */
 function ToUint16(argument) {
   /* 1. Let number be the result of calling ToNumber on the input argument. */
-  num := ToNumber(argument);
+  let num = ToNumber(argument);
   /* ReturnIfAbrupt(number). */
   @ReturnIfAbrupt(num);
-  return to_uint16(num);
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
+	if (isZero(num) == true
+      ||| isMinusZero(num) == true ||| num == Infinity ||| num == -Infinity)
+	  return 0.0;
   /* 3. Let posInt be sign(number) x floor(abs(number)). */
-  /* 4. Let int16bit be posInt modulo 2 16 ; that is, a finite integer value k of Number type with positive sign and less
-        than 2 16 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
-        multiple of 2^16 . */
+  let sign = (num < 0.0) ? -(1.0) : 1.0;
+  let posInt = sign * floor(abs(num));
+  /* 4. Let int16bit be posInt modulo 2 16 ; that is, a finite integer value k of Number type with positive sign and less than 2 16 in magnitude such that the mathematical difference of posInt and k is mathematically an integer multiple of 2^16 . */
+  let int16bit = mod(posInt, 65536.0);
   /* 5. Return int16bit. */
-
+  return int16bit;
   /* NOTE Given the above definition of ToUint16:
      * The substitution of 2 16 for 2 32 in step 4 is the only difference between ToUint32 and ToUint16.
      * ToUint16 maps -0 to +0 */
 }
 
 /**
- * 7.1.9 ToInt8 ( argument )
+ * 7.1.9 ToInt8 (argument)
  *
- * The abstract operation ToInt8 converts argument to one of 2^8 integer values in the range −128 through 127,
- * inclusive. This abstract operation functions as follows:
- *
- * TODO
-*/
-
+ * The abstract operation ToInt8 converts argument to one of 2^8 integer values
+ * in the range -128 through 127, inclusive. This abstract operation functions
+ * as follows:
+ */
+function ToInt8(argument) {
+  /* 1. Let number be ToNumber(argument). */
+  num := ToNumber(argument);
+  /* 2. ReturnIfAbrupt(number). */
+  @ReturnIfAbrupt(num);
+  /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
+  if (is_NaN (num) ||| num == Infinity ||| num == -Infinity ||| isZero(num) ||| isMinusZero(num))
+    return 0.;
+  /* 4. Let int be the mathematical value that is the same sign as number and
+     whose magnitude is floor(abs(number)). */
+  let sign = abs(num) / num;
+  let integer = sign * floor(abs(num));
+  /* 5. Let int8bit be int modulo 2^8. */
+  let int8bit = mod(integer, 256.0);
+  /* 6. If int8bit ≥ 2^7, */
+  return ((int8bit >= 128.0) ? int8bit - 256.0 : int8bit);
+}
 
 /**
- * 7.1.10 ToUint8 ( argument )
+ * 7.1.10  ToUint8 (argument)
  *
- * The abstract operation ToUint8 converts argument to one of 2^8 integer values in the range 0 through 255,
- * inclusive. This abstract operation functions as follows:
- *
- * TODO
-*/
+ * The abstract operation ToUInt8 converts argument to one of 2^8 integer values
+ * in the range 0 through 255, inclusive. This abstract operation functions
+ * as follows:
+ */
+function ToUint8(argument) {
+  /* 1. Let number be ToNumber(argument). */
+  num := ToNumber(argument);
+  /* 2. ReturnIfAbrupt(number). */
+  @ReturnIfAbrupt(num);
+  /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
+  if (is_NaN (num) ||| num == Infinity ||| num == -Infinity ||| isZero(num) ||| isMinusZero(num))
+    return 0.;
+  /* 4. Let int be the mathematical value that is the same sign as number and
+     whose magnitude is floor(abs(number)). */
+  let sign = abs(num) / num;
+  let integer = sign * floor(abs(num)) ;
+  /* 5. Let int8bit be int modulo 2^8. */
+  let int8bit = mod(integer, 256.0);
+  /* 6. Return int8bit. */
+  return int8bit;
+}
 
 /**
- * 7.1.11 ToUint8Clamp ( argument )
+ * 7.1.11  ToUint8Clamp (argument)
  *
- * The abstract operation ToUint8Clamp converts argument to one of 2^8 integer values in the range 0 through
- * 255, inclusive. This abstract operation functions as follows:
+ * The abstract operation ToUint8Clamp converts argument to one of 2^8 integer values
+ * in the range 0 through 255, inclusive. This abstract operation functions
+ * as follows:
  *
- * TODO
-*/
+ * NOTE Unlike the other ECMAScript integer conversion abstract operation,
+ * ToUint8Clamp rounds rather than truncates non-integer values and does not convert +∞ to 0.
+ * ToUint8Clamp does “round half to even” tie-breaking.
+ * This differs from Math.round which does “round half up” tie-breaking.
+ */
+function ToUint8Clamp(argument) {
+  /* 1. Let number be ToNumber(argument). */
+  num := ToNumber(argument);
+  /* 2. ReturnIfAbrupt(number). */
+  @ReturnIfAbrupt(num);
+  /* 3. If number is NaN, return +0. */
+  if (is_NaN (num))
+    return 0.;
+  /* 4. If number ≤ 0, return +0. */
+  if (num <= 0.)
+    return 0.;
+  /* 5. If number ≥ 255, return 255. */
+  if (num >= 255.)
+    return 255.;
+  /* 6. Let f be floor(number). */
+  f := floor(num);
+  /* 7. If f + 0.5 < number, return f + 1. */
+  if (f + 0.5 < num)
+    return (f + 1.);
+  /* 8. If number < f + 0.5, return f. */
+  if (num < (f + 0.5))
+    return f;
+  /* 9. If f is odd, return f + 1. */
+  if (f % 2. != 0.)
+    return f + 1.;
+  /* 10. Return f. */
+  return f;
+}
 
 /**
  * 7.1.12 ToString ( argument )
@@ -322,7 +402,7 @@ function ToString( argument ) {
 		case "Completion": {
       if (isAnAbruptCompletion(argument) == true)
         return argument;
-      else 
+      else
         return ToString(getCompletionValue(argument));
     }
 		case "Undefined":   return "undefined";
@@ -350,7 +430,7 @@ function ToObject(argument) {
 		case "Completion": {
       if (isAnAbruptCompletion(argument) == true)
         return argument;
-      else 
+      else
         return ToObject(getCompletionValue(argument));
     }
 		case "Undefined":     throw TypeErrorConstructorInternal();
@@ -427,213 +507,4 @@ function CanonicalNumericIndexString(argument) {
     return 'undefined;
   /* Return n. */
   return n;
-}
-
-
-/**
- * 7.1.5 ToInt32 (argument)
- *
- * The abstract operation ToInt32 converts argument to one of 2^32 integer values
- * in the range -2^31 through 2^31-1, inclusive. This abstract operation functions
- * as follows:
- *
- * NOTE Given the above definition of ToInt32:
- *
- * The ToInt32 abstract operation is idempotent: if applied to a result that it
- * produced, the second application leaves that value unchanged.
- *
- * ToInt32(ToUint32(x)) is equal to ToInt32(x) for all values of x. (It is to
- * preserve this latter property that +∞ and -∞ are mapped to +0.)
- *
- * ToInt32 maps -0 to +0.
- */
-function _ToInt32(argument) {
-  /* 1. Let number be ToNumber(argument). */
-  num := ToNumber(argument);
-  /* 2. ReturnIfAbrupt(number). */
-  @ReturnIfAbrupt(num);
-  /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (is_NaN (num) ||| num == Infinity ||| num == -Infinity ||| isZero(num) ||| isMinusZero(num))
-    return 0.;
-  /* 4. Let int be the mathematical value that is the same sign as number and
-     whose magnitude is floor(abs(number)). */
-  integer := floor(abs(num)) * (abs(num) / num);
-  /* 5. Let int32bit be int modulo 2^32. */
-  int32bit := mod(integer, 2.**32.);
-  /* 6. If int32bit >= 2^31, */
-  if (int32bit >= 2.**31.)
-    /* return int32bit - 2^32,*/
-    return int32bit - 2.**32.;
-  /*  otherwise return int32bit */
-  return int32bit;
-}
-
-/**
- * 7.1.6 ToUint32 (argument)
- *
- * The abstract operation ToUint32 converts argument to one of 2^32 integer
- * values in the range 0 through 2^32-1, inclusive. This abstract operation
- * functions as follows:
- *
- * NOTE Given the above definition of ToUint32:
- *
- * Step 6 is the only difference between ToUint32 and ToInt32.
- *
- * The ToUint32 abstract operation is idempotent: if applied to a result that it
- * produced, the second application leaves that value unchanged.
- *
- * ToUint32(ToInt32(x)) is equal to ToUint32(x) for all values of x. (It is to
- * preserve this latter property that +∞ and -∞ are mapped to +0.)
- *
- * ToUint32 maps -0 to +0.
- */
-function _ToUint32(argument) {
-  /* 1. Let number be ToNumber(argument). */
-  num := ToNumber(argument);
-  /* 2. ReturnIfAbrupt(number). */
-  @ReturnIfAbrupt(num);
-  /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (is_NaN (num) ||| num == Infinity ||| num == -Infinity ||| isZero(num) ||| isMinusZero(num))
-    return 0.;
-  /* 4. Let int be the mathematical value that is the same sign as number and
-     whose magnitude is floor(abs(number)). */
-  integer := floor(abs(num)) *(abs(num)/num);
-  /* 5. Let int32bit be int modulo 2^32. */
-  int32bit := mod(integer, 2.**32.);
-  /* 6. Return int32bit. */
-  return int32bit;
-}
-
-/**
- * 7.1.8 ToUint16 (argument)
- *
- * The abstract operation ToUint16 converts argument to one of 2^16 integer values
- * in the range 0 through 2^16-1, inclusive. This abstract operation
- * functions as follows:
- *
- *
- * NOTE Given the above definition of ToUint16:
- *
- * The substitution of 216 for 232 in step 5 is the only difference between ToUint32 and ToUint16.
- * ToUint16 maps −0 to +0.
- */
-function _ToUint16(argument) {
-  /* 1. Let number be ToNumber(argument). */
-  num := ToNumber(argument);
-  /* 2. ReturnIfAbrupt(number). */
-  @ReturnIfAbrupt(num);
-  /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (is_NaN (num) ||| num == Infinity ||| num == -Infinity ||| isZero(num) ||| isMinusZero(num))
-    return 0.;
-  /* 4. Let int be the mathematical value that is the same sign as number and
-     whose magnitude is floor(abs(number)). */
-  integer := floor(abs(num)) *(abs(num)/num);
-  /* 5. Let int16bit be int modulo 2^16. */
-  int16bit := mod(integer, 2.**16.);
-  /* 6. Return int16bit */
-  return int16bit;
-}
-
-
-/**
- * 7.1.9 ToInt8 (argument)
- *
- * The abstract operation ToInt8 converts argument to one of 2^8 integer values
- * in the range -128 through 127, inclusive. This abstract operation functions
- * as follows:
- */
-function ToInt8(argument) {
-  /* 1. Let number be ToNumber(argument). */
-  num := ToNumber(argument);
-  /* 2. ReturnIfAbrupt(number). */
-  @ReturnIfAbrupt(num);
-  /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (is_NaN (num) ||| num == Infinity ||| num == -Infinity ||| isZero(num) ||| isMinusZero(num))
-    return 0.;
-  /* 4. Let int be the mathematical value that is the same sign as number and
-     whose magnitude is floor(abs(number)). */
-  integer := floor(abs(num)) *(abs(num)/num);
-  /* 5. Let int8bit be int modulo 2^8. */
-  int8bit := mod(integer, 2.**8.); /*TODO usar modulo que funciona com negativos*/
-  /* 6. If int8bit ≥ 2^7, */
-  if (int8bit >= 2.**7.)
-    /* return int8bit - 2^8, otherwise return int8bit */
-    return int8bit - 2.**8.;
-  return int8bit;
-}
-
-/**
- * 7.1.10  ToUint8 (argument)
- *
- * The abstract operation ToUInt8 converts argument to one of 2^8 integer values
- * in the range 0 through 255, inclusive. This abstract operation functions
- * as follows:
- */
-function ToUint8(argument) {
-  /* 1. Let number be ToNumber(argument). */
-  num := ToNumber(argument);
-  /* 2. ReturnIfAbrupt(number). */
-  @ReturnIfAbrupt(num);
-  /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (is_NaN (num) ||| num == Infinity ||| num == -Infinity ||| isZero(num) ||| isMinusZero(num))
-    return 0.;
-  /* 4. Let int be the mathematical value that is the same sign as number and
-     whose magnitude is floor(abs(number)). */
-  integer := floor(abs(num)) *(abs(num)/num);
-  /* 5. Let int8bit be int modulo 2^8. */
-  int8bit := mod(integer, 2.**8.); /*TODO usar modulo que funciona com negativos*/
-  /* 6. Return int8bit. */
-  return int8bit;
-}
-
-/**
- * 7.1.11  ToUint8Clamp (argument)
- *
- * The abstract operation ToUint8Clamp converts argument to one of 2^8 integer values
- * in the range 0 through 255, inclusive. This abstract operation functions
- * as follows:
- *
- * NOTE Unlike the other ECMAScript integer conversion abstract operation,
- * ToUint8Clamp rounds rather than truncates non-integer values and does not convert +∞ to 0.
- * ToUint8Clamp does “round half to even” tie-breaking.
- * This differs from Math.round which does “round half up” tie-breaking.
- */
-function ToUint8Clamp(argument) {
-  /* 1. Let number be ToNumber(argument). */
-  num := ToNumber(argument);
-  /* 2. ReturnIfAbrupt(number). */
-  @ReturnIfAbrupt(num);
-  /* 3. If number is NaN, return +0. */
-  if (is_NaN (num))
-    return 0.;
-  /* 4. If number ≤ 0, return +0. */
-  if (num <= 0.)
-    return 0.;
-  /* 5. If number ≥ 255, return 255. */
-  if (num >= 255.)
-    return 255.;
-  /* 6. Let f be floor(number). */
-  f := floor(num);
-  /* 7. If f + 0.5 < number, return f + 1. */
-  if (f + 0.5 < num)
-    return (f + 1.);
-  /* 8. If number < f + 0.5, return f. */
-  if (num < (f + 0.5))
-    return f;
-  /* 9. If f is odd, return f + 1. */
-  if (f % 2. != 0.)
-    return f + 1.;
-  /* 10. Return f. */
-  return f;
-}
-
-
-/* aux functions */
-
-function mod(a, b) {
-  res := a % b;
-  if (res < 0.)
-    return res + b;
-  return res;
-  /* return (((a % b) + b) % b) */
 }

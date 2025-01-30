@@ -16,6 +16,10 @@ function compare(a, b) : int {
 }
 
 /* Float operators */
+function mod(a, b) {
+  return ((a % b) + b) % b;
+}
+
 function is_int(f : float) : boolean {
   return trunc(f) == f;
 }
@@ -42,7 +46,7 @@ function to_int32(n : float) : float {
     return 0.0;
   sign := (n < 0.0) ? -(1.0) : 1.0;
   posInt := sign * floor(abs(n));
-  int32bit := posInt % 4294967296.0;
+  int32bit := mod(posInt, 4294967296.0);
   return ((int32bit >= 2147483648.0) ? int32bit - 4294967296.0 : int32bit);
 }
 
@@ -51,7 +55,7 @@ function to_uint32(n : float) : float {
     return 0.0;
   sign := (n < 0.0) ? -(1.0) : 1.0;
   posInt := sign * floor(abs(n));
-  return (posInt % 4294967296.0);
+  return mod(posInt, 4294967296.0);
 }
 
 function to_uint16(n : float) : float {
@@ -59,7 +63,7 @@ function to_uint16(n : float) : float {
     return 0.0;
   sign := (n < 0.0) ? -(1.0) : 1.0;
   posInt := sign * floor(abs(n));
-  return (posInt % 65536.0);
+  return mod(posInt, 65536.0);
 }
 
 function to_precision(x : float, y : int) : string {
