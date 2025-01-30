@@ -2146,10 +2146,13 @@ function JS_Interpreter_BinExpr(e, scope) {
     @ReturnIfAbrupt(rnum);
     /* 11. Let shiftCount be the result of masking out all but the least
       significant 5 bits of rnum, that is, compute rnum & 0x1F. */
-    shiftCount := maskOutBits(rnum);
+    shiftCount := (float_to_int rnum) & 0x1F;
     /* 12. Return the result of left shifting lnum by shiftCount bits. The result
       is a signed 32-bit integer. */
-    return int_to_float (float_to_int lnum << float_to_int shiftCount);
+    result := (float_to_int lnum) << shiftCount;
+    result := ToInt32(int_to_float result);
+    print result;
+    return result;
   }
   | { type: "BinaryExpression", operator: ">>", left: ShiftExpression, right: AdditiveExpression } -> {
     /* 12.8.4 The Signed Right Shift Operator ( >> ) */
@@ -2181,10 +2184,11 @@ function JS_Interpreter_BinExpr(e, scope) {
     @ReturnIfAbrupt(rnum);
     /* 11. Let shiftCount be the result of masking out all but the least
       significant 5 bits of rnum, that is, compute rnum & 0x1F. */
-    shiftCount := maskOutBits(rnum);
+    shiftCount := (float_to_int rnum) & 0x1F;
     /* 12. Return the result of left shifting lnum by shiftCount bits. The result
       is a signed 32-bit integer. */
-    return lnum >> shiftCount;
+    result := (float_to_int lnum) >> shiftCount;
+    return int_to_float result;
   }
   | { type: "BinaryExpression", operator: ">>>", left: ShiftExpression, right: AdditiveExpression } -> {
     /* 12.8.5 The Unsigned Right Shift Operator ( >>> ) */
@@ -2216,10 +2220,11 @@ function JS_Interpreter_BinExpr(e, scope) {
     @ReturnIfAbrupt(rnum);
     /* 11. Let shiftCount be the result of masking out all but the least
       significant 5 bits of rnum, that is, compute rnum & 0x1F. */
-    shiftCount := maskOutBits(rnum);
+    shiftCount := (float_to_int rnum) & 0x1F;
     /* 12. Return the result of left shifting lnum by shiftCount bits. The result
       is a signed 32-bit integer. */
-    return int_to_float (float_to_int lnum >>> float_to_int shiftCount);
+    result := (float_to_int lnum) >>> shiftCount;
+    return int_to_float result;
   }
   /* 12.9 Relational Operators */
   /* The result of evaluating a relational operator is always of type Boolean, reflecting whether the relationship
