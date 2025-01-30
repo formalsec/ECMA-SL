@@ -647,11 +647,12 @@ function getConversionOperation(type) {
   if (type == "Int16")
     return "ToInt16";
   if (type == "Uint16")
-    return "_ToUint16";
+    return "ToUint16";
   if (type == "Int32")
-    return "_ToInt32";
+    return "ToInt32";
   if (type == "Uint32")
-    return "_ToUint32";
+    return "ToUint32";
+  fail "getConversionOperation: unknown type \"" + type + "\"";
 }
 
 function reverse_array_buffer(buffer, size) {
