@@ -21,9 +21,11 @@ let rec pp (ppf : Format.formatter) (e : t) : unit =
   match e.it with
   | Val v -> Value.pp ppf v
   | Var x -> Fmt.string ppf x
-  | UnOpt (op, e') -> Operator.unopt_pp ~pp_v:pp ppf (op, e')
-  | BinOpt (op, e1, e2) -> Operator.binopt_pp ~pp_v:pp ppf (op, e1, e2)
-  | TriOpt (op, e1, e2, e3) -> Operator.triopt_pp ~pp_v:pp ppf (op, e1, e2, e3)
+  | UnOpt (op, e') -> Fmt.pf ppf "(%a)" (Operator.unopt_pp ~pp_v:pp) (op, e')
+  | BinOpt (op, e1, e2) ->
+    Fmt.pf ppf "(%a)" (Operator.binopt_pp ~pp_v:pp) (op, e1, e2)
+  | TriOpt (op, e1, e2, e3) ->
+    Fmt.pf ppf "(%a)" (Operator.triopt_pp ~pp_v:pp) (op, e1, e2, e3)
   | NOpt (op, es) -> Operator.nopt_pp ~pp_v:pp ppf (op, es)
   | Curry (fe, es) ->
     Fmt.pf ppf "@[<h>{%a}@(%a)@]" pp fe Fmt.(list ~sep:comma pp) es

@@ -194,7 +194,11 @@ and compile_unopt (s_at : at) (e_at : at) (op : Operator.unopt) (e : EExpr.t) :
   match op with
   | ObjectToList -> dflt (Stmt.AssignObjToList (?@res, e_e) @?> s_at)
   | ObjectFields -> dflt (Stmt.AssignObjFields (?@res, e_e) @?> s_at)
-  | _ -> dflt (Stmt.Assign (?@res, Expr.UnOpt (op, e_e) @?> e_at) @?> s_at)
+  | _ -> begin
+    match e_s with
+    | [] -> ([], Expr.UnOpt (op, e_e) @?> e_at)
+    | _ -> dflt (Stmt.Assign (?@res, Expr.UnOpt (op, e_e) @?> e_at) @?> s_at)
+  end
 
 and compile_binopt (s_at : at) (e_at : at) (op : Operator.binopt) (e1 : EExpr.t)
   (e2 : EExpr.t) : c_expr =
@@ -206,26 +210,37 @@ and compile_binopt (s_at : at) (e_at : at) (op : Operator.binopt) (e1 : EExpr.t)
   | SCLogicalAnd -> compile_sc_and res e1_s e1_e e2_s e2_e
   | SCLogicalOr -> compile_sc_or res e1_s e1_e e2_s e2_e
   | ObjectMem -> dflt (Stmt.AssignInObjCheck (?@res, e1_e, e2_e) @?> e_at)
-  | _ ->
-    dflt (Stmt.Assign (?@res, Expr.BinOpt (op, e1_e, e2_e) @?> e_at) @?> s_at)
+  | _ -> begin
+    match (e1_s, e2_s) with
+    | ([], []) -> ([], Expr.BinOpt (op, e1_e, e2_e) @?> e_at)
+    | _ ->
+      dflt (Stmt.Assign (?@res, Expr.BinOpt (op, e1_e, e2_e) @?> e_at) @?> s_at)
+  end
 
 and compile_triopt (s_at : at) (e_at : at) (op : Operator.triopt) (e1 : EExpr.t)
   (e2 : EExpr.t) (e3 : EExpr.t) : c_expr =
   let (e1_s, e1_e) = compile_expr s_at e1 in
   let (e2_s, e2_e) = compile_expr s_at e2 in
   let (e3_s, e3_e) = compile_expr s_at e3 in
-  let res = Builder.var e_at in
-  let triopt = Expr.TriOpt (op, e1_e, e2_e, e3_e) @?> e_at in
-  let sres = Stmt.Assign (?@res, triopt) @?> s_at in
-  (e1_s @ e2_s @ e3_s @ [ sres ], res)
+  match (e1_s, e2_s, e3_s) with
+  | ([], [], []) -> ([], Expr.TriOpt (op, e1_e, e2_e, e3_e) @?> e_at)
+  | _ ->
+    let res = Builder.var e_at in
+    let triopt = Expr.TriOpt (op, e1_e, e2_e, e3_e) @?> e_at in
+    let sres = Stmt.Assign (?@res, triopt) @?> s_at in
+    (e1_s @ e2_s @ e3_s @ [ sres ], res)
 
 and compile_nopt (s_at : at) (e_at : at) (op : Operator.nopt) (es : EExpr.t list)
   : c_expr =
   let (es_s, es_e) = List.split (List.map (compile_expr s_at) es) in
-  let res = Builder.var e_at in
-  let nopt = Expr.NOpt (op, es_e) @?> e_at in
-  let sres = Stmt.Assign (?@res, nopt) @?> s_at in
-  (List.concat es_s @ [ sres ], res)
+  let es_s = List.concat es_s in
+  match es_s with
+  | [] -> ([], Expr.NOpt (op, es_e) @?> e_at)
+  | _ ->
+    let res = Builder.var e_at in
+    let nopt = Expr.NOpt (op, es_e) @?> e_at in
+    let sres = Stmt.Assign (?@res, nopt) @?> s_at in
+    (es_s @ [ sres ], res)
 
 and compile_call (s_at : at) (e_at : at) (fe : EExpr.t) (es : EExpr.t list)
   (ferr : Id.t option) : c_expr =
@@ -270,16 +285,20 @@ and compile_curry (s_at : at) (e_at : at) (fe : EExpr.t) (es : EExpr.t list) :
   c_expr =
   let (fe_s, fe_e) = compile_expr s_at fe in
   let (es_s, es_e) = List.split (List.map (compile_expr s_at) es) in
-  let res = Builder.var e_at in
-  let sres = Stmt.Assign (?@res, Expr.Curry (fe_e, es_e) @?> e_at) @?> s_at in
-  (fe_s @ List.concat es_s @ [ sres ], res)
+  let es_s = List.concat es_s in
+  match (fe_s, es_s) with
+  | ([], []) -> ([], Expr.Curry (fe_e, es_e) @?> e_at)
+  | _ ->
+    let res = Builder.var e_at in
+    let sres = Stmt.Assign (?@res, Expr.Curry (fe_e, es_e) @?> e_at) @?> s_at in
+    (fe_s @ es_s @ [ sres ], res)
 
 let rec compile_stmt (s : EStmt.t) : c_stmt =
   let ( !! ) = real in
   match s.it with
   | Skip -> []
   | Debug s' -> !!(compile_debug s.at s')
-  | Block ss -> List.concat (List.map compile_stmt ss)
+  | Block ss -> List.concat_map compile_stmt ss
   | ExprStmt e -> !!(fst (compile_expr s.at e))
   | Print e -> !!(compile_print s.at e)
   | Return e -> !!(compile_return s.at e)
