@@ -4,29 +4,29 @@ Test basic symbolic number:
               "type": symbol("normal"),  }
   All Ok!
   $ ecma-sl symbolic basic_symbolic_string.js
-  - : app = { "__completion__": true, "target": symbol("empty"), "value": 0,
-              "type": symbol("normal"),  }
-  All Ok!
-  $ ecma-sl symbolic symbolic_number_arith.js
   - : app = { "__completion__": true, "value": 0, "target": symbol("empty"),
               "type": symbol("normal"),  }
   All Ok!
+  $ ecma-sl symbolic symbolic_number_arith.js
+  - : app = { "__completion__": true, "target": symbol("empty"), "value": 0,
+              "type": symbol("normal"),  }
+  All Ok!
   $ ecma-sl symbolic symbolic_number_branching.js
-  - : app = { "value": 0, "target": symbol("empty"), "type": symbol("normal"),
+  - : app = { "target": symbol("empty"), "value": 0, "type": symbol("normal"),
               "__completion__": true,  }
-  - : app = { "value": 0, "target": symbol("empty"), "type": symbol("normal"),
+  - : app = { "target": symbol("empty"), "value": 0, "type": symbol("normal"),
               "__completion__": true,  }
-  - : app = { "value": 0, "target": symbol("empty"), "type": symbol("normal"),
+  - : app = { "target": symbol("empty"), "value": 0, "type": symbol("normal"),
               "__completion__": true,  }
   All Ok!
   $ ecma-sl symbolic symbolic_string_operations.js
-  - : app = { "__completion__": true, "value": 0, "type": symbol("normal"),
-              "target": symbol("empty"),  }
+  - : app = { "__completion__": true, "value": 0, "target": symbol("empty"),
+              "type": symbol("normal"),  }
   All Ok!
   $ ecma-sl symbolic symbolic_string_branching.js
-  - : app = { "value": 0, "__completion__": true, "target": symbol("empty"),
+  - : app = { "target": symbol("empty"), "value": 0, "__completion__": true,
               "type": symbol("normal"),  }
-  - : app = { "value": 0, "__completion__": true, "target": symbol("empty"),
+  - : app = { "target": symbol("empty"), "value": 0, "__completion__": true,
               "type": symbol("normal"),  }
   All Ok!
   $ ecma-sl symbolic symbolic_string_array.js
