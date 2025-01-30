@@ -332,7 +332,6 @@ function initStringPrototype(global, objectPrototype, objStringConstructor, stri
   /* Once a String object is created, this property is unchanging. It has the attributes { [[Writable]]: false,
      [[Enumerable]]: false, [[Configurable]]: false }. */
   setJSProperty(prototype, "length", newDataPropertyDescriptorFull(0., false, false, false));
-  |StringPrototype| := prototype;
   return prototype;
 }
 
