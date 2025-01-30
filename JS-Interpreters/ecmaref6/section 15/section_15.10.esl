@@ -866,6 +866,7 @@ function JS_Interpreter_Assertion(ba) {
     };
     return t;
   }
+  fail "Assertion: \"" + ba.kind + "\" not implemented";
 }
 
 function isLineTerminator(c) {

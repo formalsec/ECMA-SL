@@ -504,7 +504,7 @@ function JS_Interpreter_Expr(e, scope) {
     return template;
   }
   | default -> {
-    print e;
+    fail "Js_Interpreter_Expr: \"" + e.type + "\" not implemented";
   }
 }
 
