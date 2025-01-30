@@ -340,7 +340,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
     Float64Array:       { type: "Float64", size: 8.}
   };
 
-  return prototype; 
+  return prototype;
 }
 
 /********************
@@ -686,9 +686,9 @@ function TypedArrayConstructorTypedArray(global, this, NewTarget, strict, typedA
     /* f. Let srcByteIndex be srcByteOffset. */
     srcByteIndex := srcByteOffset;
     /* g. Let targetByteIndex be 0. */
-    targetByteIndex := 0;
+    targetByteIndex := 0.0;
     /* h. Let count be elementLength. */
-    count := elementLength;
+    count := float_to_int elementLength;
     /* i. Repeat, while count >0 */
     while (count > 0) {
       /* i. Let value be GetValueFromBuffer(srcData, srcByteIndex, srcType). */
