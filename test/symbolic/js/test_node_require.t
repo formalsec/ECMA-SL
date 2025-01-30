@@ -6,8 +6,8 @@
   All Ok!
   $ ecma-sl symbolic node_require_constant_a.js
   "sausage"
-  - : app = { "__completion__": true, "value": symbol("null"),
-              "target": symbol("empty"), "type": symbol("normal"),  }
+  - : app = { "target": symbol("empty"), "__completion__": true,
+              "value": symbol("null"), "type": symbol("normal"),  }
   All Ok!
   $ ecma-sl symbolic node_require_function_a.js
   "In node_require_function_a.js"
