@@ -168,7 +168,7 @@ function getArrayBufferPrototypeByteLength(global, this, NewTarget, strict, args
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 4. If IsDetachedBuffer(O) is true, */
-  if (IsDetachedBuffer(O) == true)
+  if (IsDetachedBuffer(O))
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 5. Let length be the value of O’s [[ArrayBufferByteLength]] internal slot. */
@@ -200,7 +200,7 @@ function ArrayBufferPrototypeSlice(global, this, NewTarget, strict, args) {
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 4. If IsDetachedBuffer(O) is true, */
-  if (IsDetachedBuffer(O) == true)
+  if (IsDetachedBuffer(O))
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 5. Let len be the value of O’s [[ArrayBufferByteLength]] internal slot. */
@@ -246,11 +246,11 @@ function ArrayBufferPrototypeSlice(global, this, NewTarget, strict, args) {
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 18. If IsDetachedBuffer(new) is true, */
-  if (IsDetachedBuffer(new) == true)
+  if (IsDetachedBuffer(new))
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 19. If SameValue(new, O) is true, */
-  if (SameValue(new, O) == true)
+  if (SameValue(new, O))
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 20. If the value of new’s [[ArrayBufferByteLength]] internal slot < newLen, */
@@ -259,7 +259,7 @@ function ArrayBufferPrototypeSlice(global, this, NewTarget, strict, args) {
     throw TypeErrorConstructorInternal();
   /* NOTE: Side-effects of the above steps may have detached O. */
   /* 21. If IsDetachedBuffer(O) is true, */
-  if (IsDetachedBuffer(O) == true)
+  if (IsDetachedBuffer(O))
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
   /* 22. Let fromBuf be the value of O’s [[ArrayBufferData]] internal slot. */
@@ -311,10 +311,8 @@ function IsDetachedBuffer (arrayBuffer) {
 	/* 1. Assert: Type(arrayBuffer) is Object and it has an [[ArrayBufferData]] internal slot. */
 	assert ((Type(arrayBuffer) == "Object") &&& ("ArrayBufferData" in_obj arrayBuffer));
 	/* 2. If arrayBuffer’s [[ArrayBufferData]] internal slot is null, return true. */
-	if (arrayBuffer.ArrayBufferData == null)
-		return true;
 	/* 3. Return false. */
-	return false;
+	return (arrayBuffer.ArrayBufferData == null);
 }
 
 /**
@@ -353,11 +351,11 @@ function CloneArrayBuffer(strict, srcBuffer, srcByteOffset, cloneConstructor) {
 		/* b. ReturnIfAbrupt(cloneConstructor). */
 		@ReturnIfAbrupt(cloneConstructor);
 		/* c. If IsDetachedBuffer(srcBuffer) is true, throw a TypeError exception. */
-		if (IsDetachedBuffer(srcBuffer) == true)
+		if (IsDetachedBuffer(srcBuffer))
 			throw TypeErrorConstructorInternal();
 	/* 3. Else, Assert: IsConstructor(cloneConstructor) is true. */
 	} else {
-    assert (IsConstructor(cloneConstructor) == true);
+    assert (IsConstructor(cloneConstructor));
   }
 	/* 4. Let srcLength be the value of srcBuffer’s [[ArrayBufferByteLength]] internal slot. */
 	srcLength := srcBuffer.ArrayBufferByteLength;
@@ -372,7 +370,7 @@ function CloneArrayBuffer(strict, srcBuffer, srcByteOffset, cloneConstructor) {
 	/* 9. ReturnIfAbrupt(targetBuffer). */
 	@ReturnIfAbrupt(targetBuffer);
 	/* 10. If IsDetachedBuffer(srcBuffer) is true, throw a TypeError exception. */
-	if (IsDetachedBuffer(srcBuffer) == true)
+	if (IsDetachedBuffer(srcBuffer))
     throw TypeErrorConstructorInternal();
 	/* 11. Let targetBlock be the value of targetBuffer’s [[ArrayBufferData]] internal slot. */
 	targetBlock := targetBuffer.ArrayBufferData;
@@ -416,7 +414,7 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
       efficient for the implementation. An implementation must use the same
       value each time this step is executed and the same value must be used
       for the corresponding step in the SetValueInBuffer abstract operation */
-    isLittleEndian == true;
+    isLittleEndian := true;
   }
   /* 8. If isLittleEndian is false, reverse the order of the elements of rawValue */
   if (isLittleEndian == false) {

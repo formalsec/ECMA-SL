@@ -85,9 +85,7 @@ function getFunctionCode(F) {
 
 function DescriptorValueIsStrictFunction(desc) {
   F := desc.Value;
-  if (typeof F == "object")
-    return F.Strict;
-  return false;
+  return ((typeof F == "object") &&& F.Strict == true);
 }
 
 function setAllInternalMethodsExceptGet(obj) {

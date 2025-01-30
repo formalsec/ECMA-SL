@@ -424,7 +424,7 @@ function jsonParse(global, this, NewTarget, strict, args) {
       defined by either an ArrayLiteral or an ObjectLiteral. */
   /* TODO */
   /* 8. If IsCallable(reviver) is true, then */
-  if (IsCallable(reviver) == true) {
+  if (IsCallable(reviver)) {
     /* a. Let root be ObjectCreate(%ObjectPrototype%). */
     root := ObjectCreate(|Intrinsics|["ObjectPrototype"], null);
     /* b. Let rootName be the empty String. */
@@ -580,7 +580,7 @@ function jsonStringify(global, this, NewTarget, strict, args) {
   /* 4. If Type(replacer) is Object, then */
   if (Type(replacer) == "Object") {
     /* a. If IsCallable(replacer) is true, then */
-    if (IsCallable(replacer) == true) {
+    if (IsCallable(replacer)) {
       /* i. Let ReplacerFunction be replacer. */
       ReplacerFunction := replacer;
     } else {
@@ -589,7 +589,7 @@ function jsonStringify(global, this, NewTarget, strict, args) {
       /* ii. ReturnIfAbrupt(isArray). */
       @ReturnIfAbrupt(isArray);
       /* iii. If isArray is true, then  */
-      if (isArray == true) {
+      if (isArray) {
         /* 1. Let PropertyList be an empty internal List */
         PropertyList := [];
         /* 2. Let len be ToLength(Get(replacer, "length")). */
@@ -737,7 +737,7 @@ function SerializeJSONProperty(key, holder, stack, indent, gap, PropertyList, sp
     /* b. ReturnIfAbrupt(toJSON). */
     @ReturnIfAbrupt(toJSON);
     /* c. If IsCallable(toJSON) is true */
-    if (IsCallable(toJSON) == true) {
+    if (IsCallable(toJSON)) {
       /* i. Let value be Call(toJSON, value, «key»). */
       value := Call(null, null, toJSON, value, [key]);
       /* ii. ReturnIfAbrupt(value). */
@@ -800,7 +800,7 @@ function SerializeJSONProperty(key, holder, stack, indent, gap, PropertyList, sp
     /* b. ReturnIfAbrupt(isArray). */
     @ReturnIfAbrupt(isArray);
     /* c. If isArray is true, return SerializeJSONArray(value). */
-    if (isArray == true)
+    if (isArray)
       return SerializeJSONArray(value, stack, indent, gap, PropertyList, ReplacerFunction, space);
     /* d. Else, return SerializeJSONObject(value). */
     else

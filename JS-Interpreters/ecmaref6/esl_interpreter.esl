@@ -258,7 +258,7 @@ function JS_Interpreter_Expr(e, scope) {
     /* 5. If Type(ref) is Reference, then */
     if (Type(ref) == "Reference") {
       /* a. If IsPropertyReference(ref) is true, then */
-      if (IsPropertyReference(ref) == true) {
+      if (IsPropertyReference(ref)) {
         /* i. Let thisValue be GetThisValue(ref). */
         thisValue := GetThisValue(ref);
       /* b. Else, the base of ref is an Environment Record */
@@ -320,7 +320,7 @@ function JS_Interpreter_Expr(e, scope) {
     /* 3. ReturnIfAbrupt(lval). */
     @ReturnIfAbrupt(lval);
     /* 4. If lval is true, then */
-    if (lval == true) {
+    if (lval) {
       /* a. Let trueRef be the result of evaluating the first AssignmentExpression. */
       trueRef := JS_Interpreter_Expr(firstAssignmentExpression, scope);
       /* b. Return GetValue(trueRef). */
@@ -644,7 +644,7 @@ function JS_Interpreter_LogicalExpression(LogicalExpression, scope) {
     /* 4. ReturnIfAbrupt(lbool). */
     @ReturnIfAbrupt(lbool);
     /* 5. If lbool is true, */
-    if (lbool == true) {
+    if (lbool) {
       /* return lval */
       return lval;
     }
@@ -677,14 +677,14 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
       return true;
     }
     /* 4. If IsUnresolvableReference(ref) is true, then */
-    if (IsUnresolvableReference(ref) == true) {
+    if (IsUnresolvableReference(ref)) {
       /* a. Assert: IsStrictReference(ref) is false. */
       assert (IsStrictReference(ref) == false);
       /* b. Return true. */
       return true;
     }
     /* 5. If IsPropertyReference(ref) is true, then */
-    if (IsPropertyReference(ref) == true) {
+    if (IsPropertyReference(ref)) {
       /* a. If IsSuperReference(ref), */
       if (IsSuperReference(ref)) {
         /* throw a ReferenceError exception */
@@ -699,7 +699,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
       /* e. ReturnIfAbrupt(deleteStatus). */
       @ReturnIfAbrupt(deleteStatus);
       /* f. If deleteStatus is false and IsStrictReference(ref) is true, */
-      if ( (deleteStatus == false) &&& (IsStrictReference(ref) == true) ) {
+      if ( (deleteStatus == false) &&& (IsStrictReference(ref)) ) {
         /* throw a TypeError exception */
         throw TypeErrorConstructorInternal();
       }
@@ -743,7 +743,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     /* 2. If Type(val) is Reference, then */
     if (Type(val) == "Reference") {
       /* a. If IsUnresolvableReference(val) is true, */
-      if (IsUnresolvableReference(val) == true) {
+      if (IsUnresolvableReference(val)) {
         /* return "undefined" */
         return "undefined";
       }
@@ -1160,7 +1160,7 @@ function PropertyDefinitionEvaluation(PropertyDefinition, object, enumerable, sc
       return NormalCompletion('empty);
     }
     /* 7. If IsAnonymousFunctionDefinition(AssignmentExpression) is true, then */
-    if (IsAnonymousFunctionDefinition(AssignmentExpression) == true) {
+    if (IsAnonymousFunctionDefinition(AssignmentExpression)) {
       /* a. Let hasNameProperty be HasOwnProperty(propValue, "name"). */
       hasNameProperty := HasOwnProperty(propValue, "name");
       /* b. ReturnIfAbrupt(hasNameProperty). */
@@ -1600,7 +1600,7 @@ function JS_Interpreter_IfStatement(IfStatement, scope) {
     /* 3. ReturnIfAbrupt(exprValue). */
     @ReturnIfAbrupt(exprValue);
     /* 4. If exprValue is true, then */
-    if (exprValue == true) {
+    if (exprValue) {
       /* a. Let stmtCompletion be the result of evaluating the first Statement. */
       stmtCompletion := JS_Interpreter_Stmt(Statement1, scope);
     }
@@ -1774,7 +1774,7 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
       /* 6. ReturnIfAbrupt(value). */
       @ReturnIfAbrupt(value);
       /* 7. If IsAnonymousFunctionDefinition(Initializer) is true, then */
-      if (IsAnonymousFunctionDefinition(Initializer) == true) {
+      if (IsAnonymousFunctionDefinition(Initializer)) {
         /* a. Let hasNameProperty be HasOwnProperty(value, "name"). */
         hasNameProperty := HasOwnProperty(value, "name");
         /* b. ReturnIfAbrupt(hasNameProperty). */
@@ -1843,7 +1843,7 @@ function JS_Interpreter_LexicalDecl(LexicalDeclaration, scope) {
       /* 5. ReturnIfAbrupt(value). */
       @ReturnIfAbrupt(value);
       /* 6. If IsAnonymousFunctionDefinition(Initializer) is true, then */
-      if (IsAnonymousFunctionDefinition(Initializer) == true) {
+      if (IsAnonymousFunctionDefinition(Initializer)) {
         /* a. Let hasNameProperty be HasOwnProperty(value, "name"). */
         hasNameProperty := HasOwnProperty(value, "name");
         /* b. ReturnIfAbrupt(hasNameProperty). */
@@ -3466,7 +3466,7 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
   /* 3. Let destructuring be IsDestructuring of lhs. */
   destructuring := IsDestructuring(lhs);
   /* 4. If destructuring is true and if lhsKind is assignment, then */
-  if (destructuring == true &&& lhsKind == "assignment") {
+  if (destructuring &&& lhsKind == "assignment") {
     /*fail " a. Assert: lhs is a LeftHandSideExpression." */
     /* a. Assert: lhs is a LeftHandSideExpression. */
     /*assert( TODO: Instruction not yet implemented. )
@@ -3661,12 +3661,9 @@ function IsAnonymousFunctionDefinition(production) {
   /* 2. Let hasName be the result of HasName of production. */
   hasName := HasName(production);
   /* 3. If hasName is true, */
-  if (hasName == true) {
     /* return false */
-    return false;
-  }
   /* 4. Return true. */
-  return true;
+  return !hasName;
 }
 
 function IsFunctionDefinition(expression) {

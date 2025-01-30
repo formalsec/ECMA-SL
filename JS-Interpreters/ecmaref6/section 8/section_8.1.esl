@@ -396,7 +396,7 @@ function SetMutableBindingDeclarativeRecord(envRec, N, V, S) {
 		throw ReferenceErrorConstructorInternal();
 	/* Else if the binding for N in envRec is a mutable binding, change its bound value to V. */
   } else if (isMutableBinding(envRec, N)) {
-		setBindingValue(envRec, N, V);  
+		setBindingValue(envRec, N, V);
 	/* Else this must be an attempt to change the value of an immutable binding so if S is true throw a TypeError exception. */
   } else {
 		if (S == true)
@@ -1086,7 +1086,7 @@ function CanDeclareGlobalFunction(envRec, N) {
   if (existingProp.Configurable == true)
     return true;
   /* If IsDataDescriptor(existingProp) is true and existingProp has attribute values {[[Writable]]: true, [[Enumerable]]: true}, return true. */
-  if ((IsDataDescriptor(existingProp) == true) &&& (existingProp.Writable == true) &&& (existingProp.Enumerable == true))
+  if (IsDataDescriptor(existingProp) &&& (existingProp.Writable == true) &&& (existingProp.Enumerable == true))
     return true;
   /* Return false. */
   return false;

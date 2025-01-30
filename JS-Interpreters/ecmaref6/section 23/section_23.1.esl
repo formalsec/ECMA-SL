@@ -548,7 +548,7 @@ function InternalMapDelete(map, key) {
   /* 5. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
   foreach (p : entries) {
     /* a. If p.[[key]] is not empty and SameValueZero(p.[[key]], key) is true, then */
-    if ((p.key != 'empty) &&& (SameValue(p.key, key) == true)) {
+    if ((p.key != 'empty) &&& SameValue(p.key, key)) {
       /* i. Set p.[[key]] to empty. */
       p.key := 'empty;
       /* ii. Set p.[[value]] to empty. */
@@ -570,7 +570,7 @@ function InternalMapGet(map, key) {
   /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries */
   foreach (p : entries)
     /* If p.[[key]] is not empty and SameValueZero(p.[[key]], key) is true, return p.[[value]]. */
-    if ((p.key != 'empty) &&& (SameValueZero(p.key, key) == true))
+    if ((p.key != 'empty) &&& SameValueZero(p.key, key))
       /* return p.[[value]] */
       return p.value;
   /* Return undefined. */
@@ -596,7 +596,7 @@ function InternalMapSet(map, key, value) {
   /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries */
   foreach (p : entries) {
     /* If p.[[key]] is not empty and SameValueZero(p.[[key]], key) is true, then */
-    if ((p.key != 'empty) &&& (SameValueZero(p.key, key) == true)) {
+    if ((p.key != 'empty) &&& SameValueZero(p.key, key)) {
       /* Set p.[[value]] to value. */
       p.value := value;
       /* Return M. */
@@ -627,7 +627,7 @@ function InternalMapHas(map, key) {
   /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries */
   foreach (p: entries)
     /* If p.[[key]] is not empty and SameValueZero(p.[[key]], key) is true */
-    if ((p.key != 'empty) &&& (SameValueZero(p.key, key) == true))
+    if ((p.key != 'empty) &&& SameValueZero(p.key, key))
       /* return true. */
       return true;
   /* Return false. */

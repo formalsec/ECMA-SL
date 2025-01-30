@@ -21,7 +21,7 @@ function OrdinaryToPrimitive(O, hint) {
     /* ReturnIfAbrupt(method).*/
     @ReturnIfAbrupt(method);
     /* If IsCallable(method) is true, then*/
-    if (IsCallable(method) == true) {
+    if (IsCallable(method)) {
       /* Let result be Call(method, O).*/
       result := Call(null, null, method, O, null);
       /* ReturnIfAbrupt(result).*/
@@ -47,7 +47,7 @@ function OrdinaryToPrimitive(O, hint) {
 function ToPrimitive(input, PreferredType) {
 	switch (Type(input)) {
 		case "Completion": {
-			if (isAnAbruptCompletion(input) == true)
+			if (isAnAbruptCompletion(input))
 				return input;
 			else
 				return ToPrimitive(getCompletionValue(input), PreferredType);
@@ -106,7 +106,7 @@ function ToPrimitive(input, PreferredType) {
 function ToBoolean( argument ) {
 	switch( Type(argument) ) {
 		case "Completion": {
-      if (isAnAbruptCompletion(argument) == true)
+      if (isAnAbruptCompletion(argument))
         return argument;
       else
         return ToBoolean(getCompletionValue(argument));
@@ -134,7 +134,7 @@ function ToBoolean( argument ) {
 function ToNumber( argument ) {
 	switch( Type(argument) ) {
 		case "Completion": {
-      if (isAnAbruptCompletion(argument) == true)
+      if (isAnAbruptCompletion(argument))
         return argument;
       else
         return ToNumber(getCompletionValue(argument));
@@ -399,7 +399,7 @@ function ToUint8Clamp(argument) {
 function ToString( argument ) {
 	switch( Type(argument) ) {
 		case "Completion": {
-      if (isAnAbruptCompletion(argument) == true)
+      if (isAnAbruptCompletion(argument))
         return argument;
       else
         return ToString(getCompletionValue(argument));
@@ -427,7 +427,7 @@ function ToString( argument ) {
 function ToObject(argument) {
 	switch( Type(argument) ) {
 		case "Completion": {
-      if (isAnAbruptCompletion(argument) == true)
+      if (isAnAbruptCompletion(argument))
         return argument;
       else
         return ToObject(getCompletionValue(argument));

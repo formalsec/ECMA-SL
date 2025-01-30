@@ -638,7 +638,7 @@ function ObjectPrototypeIsPrototypeOf(globalObject, this, NewTarget, strict, par
     if (V == 'null)
       return false;
     /* c. If SameValue(O, V) is true, return true. */
-    if (SameValue(O, V) == true)
+    if (SameValue(O, V))
       return true;
   }
   /* NOTE The ordering of steps 1 and 2 is chosen to preserve the behaviour specified by previous editions of this
@@ -707,7 +707,7 @@ function ObjectPrototypeToString(globalObject, this, NewTarget, strict, params) 
   if (isArray == true)
     builtinTag := "Array";
   /* Else, if O is an exotic String object, let builtinTag be "String". */
-  else if (isStringExoticObject(O) == true ||| O.Class == "String")
+  else if (isStringExoticObject(O) ||| O.Class == "String")
     builtinTag := "String";
   /* Else, if O has an [[ParameterMap]] internal slot, let builtinTag be "Arguments". */
   else if ("ParameterMap" in_obj O)
