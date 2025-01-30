@@ -44,8 +44,9 @@ function escapePattern(P) {
   while (i < len) {
     c := s_nth_u(P, i);
     /* We only need to escape char '/' when the pattern is a single "/" */
-    if ((c == "/") &&& (len == 1)) {
-      S := S + "\\/";
+    if ((c == "/")) {
+      if (len > 1 &&& (s_nth_u(S, i - 1) == "\\")) S := S + "/";
+      else S := S + "\\/";
     } else if (c == "\r") {
       S := S + "\\r";
     } else if (c == "\n") {
