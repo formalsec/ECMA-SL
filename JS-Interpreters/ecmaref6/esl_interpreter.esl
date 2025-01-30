@@ -1868,7 +1868,8 @@ function JS_Interpreter_LexicalDecl(LexicalDeclaration, scope) {
       env := getLexicalEnvironment(scope);
       /* 5. Return the result of performing BindingInitialization for BindingPattern
             using value and env as the arguments. */
-      return BindingInitialization(BindingPattern, value, {LexicalEnvironment: env}, null);
+      environment := { LexicalEnvironment : env, strictCode : scope.strictCode };
+      return BindingInitialization(BindingPattern, value, environment, null);
     }
   }
 }

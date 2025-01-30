@@ -11,7 +11,7 @@ function IdentifierResolution(Identifier, runningExecCtx) {
         then let strict be true, else let strict be false. */
   if (isContainedInStrictCode(runningExecCtx))
     strict := true;
-  else 
+  else
     strict := false;
   /* 3. Return the result of calling GetIdentifierReference function passing env, Identifier, and strict as arguments.
         The result of evaluating an identifier is always a value of type Reference with its referenced name component
@@ -92,12 +92,8 @@ function ResolveBinding(scope, name, env)  {
 
   /* If the code matching the syntactic production that is being evaluated is contained in strict
   mode code, let strict be true, else let strict be false. */
-  if (isContainedInStrictCode(scope))
-    strict := true;
-  else
-    strict := false;
   /* Return GetIdentifierReference(env, name, strict ). */
-  return GetIdentifierReference(env, name, strict);
+  return GetIdentifierReference(env, name, isContainedInStrictCode(scope));
   /* NOTE The result of ResolveBinding is always a Reference value with its referenced name component equal to the name argument. */
 }
 
