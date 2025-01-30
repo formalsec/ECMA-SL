@@ -103,12 +103,11 @@ module TestRecord = struct
   let pp_simple (ppf : Format.formatter) (record : simple) : unit =
     let limit = !Options.term_width - 20 in
     let path = Fpath.to_string record.input in
-    let (_, _, secs, millis) = Base.format_time record.time in
-    let pp_time ppf (secs, millis) = Fmt.pf ppf "[%02d.%03ds]" secs millis in
+    let pp_time ppf time = Fmt.pf ppf "[%02.03f]" time in
     Fmt.pf ppf "%a " (Font.pp_out [ Faint ] (pp_path limit)) path;
     Fmt.pf ppf "%a " pp_result record.result;
     if record.result != Skipped then
-      Fmt.pf ppf "%a" (Font.pp_out [ Faint ] pp_time) (secs, millis)
+      Fmt.pf ppf "%a" (Font.pp_out [ Faint ] pp_time) record.time
 
   let pp_report (ppf : Format.formatter) (record : t) : unit =
     let line = String.make Options.report_width '-' in
