@@ -43,27 +43,23 @@ function escapePattern(P) {
   S := "";
   while (i < len) {
     c := s_nth_u(P, i);
-    /* the backlash is already escaped in the given string */
-    /*if ((c == "\\") ||| (c == "/")) {*/
-
-    /* Caused test to fail: bench/test262/tests/built-ins/RegExp/character-escape/S15.10.2.10_A5.1_T1.js */
-    if ((c == "/")) {
-      S := s_concat([S, "\\"]);
-      S := s_concat([S, c]);
+    /* We only need to escape char '/' when the pattern is a single "/" */
+    if ((c == "/") &&& (len == 1)) {
+      S := S + "\\/";
     } else if (c == "\r") {
-      S := s_concat([S, "\\r"]);
+      S := S + "\\r";
     } else if (c == "\n") {
-      S := s_concat([S, "\\n"]);
+      S := S + "\\n";
     } else if (c == "\f") {
-      S := s_concat([S, "\\f"]);
+      S := S + "\\f";
     } else if (c == "\t") {
-      S := s_concat([S, "\\t"]);
+      S := S + "\\t";
     } else if (c == "\v") {
-      S := s_concat([S, "\\v"]);
+      S := S + "\\v";
     } else if (c == "\b") {
-      S := s_concat([S, "\\b"]);
+      S := S + "\\b";
     } else {
-      S := s_concat([S, c]);
+      S := S + c;
     }
     i := i + 1;
   }
