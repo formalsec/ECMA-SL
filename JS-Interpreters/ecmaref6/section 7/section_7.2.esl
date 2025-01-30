@@ -300,9 +300,9 @@ function AbstractRelationalComparison(x, y, LeftFirst) {
     /* b. Let ny be the result of calling ToNumber(py). */
     ny := ToNumber(py);
     /* c. If nx is NaN, return undefined. */
-    if (nx == NaN)   return 'undefined;
+    if (is_NaN(nx))   return 'undefined;
     /* d. If ny is NaN, return undefined. */
-    if (ny == NaN)   return 'undefined;
+    if (is_NaN(ny))   return 'undefined;
     /* e. If nx and ny are the same Number value, return false. */
     if (nx == ny)    return false;
     /* f. If nx is +0 and ny is -0, return false. */
@@ -420,11 +420,11 @@ function StrictEqualityComparison(x, y) {
   /* 4. If Type(x) is Number, then */
   if (tx == "Number") {
     /* a. If x is NaN, */
-    if (x == NaN)
+    if (is_NaN(x))
       /* return false */
       return false;
     /* b. If y is NaN, */
-    if (y == NaN)
+    if (is_NaN(y))
       /* return false */
       return false;
     if (extern is_symbolic(x) ||| extern is_symbolic(y))
