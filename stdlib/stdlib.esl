@@ -338,7 +338,7 @@ function iter(f, lst) : void {
 
     Not tail-recursive. */
 function map(f, lst) : list {
-  if (l_len(lst) == 0)
+  if (lst == [])
     return [];
   v := hd lst;
   return l_prepend({f}(v), map(f, tl lst));
