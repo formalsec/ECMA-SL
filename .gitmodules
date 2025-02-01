@@ -1,6 +1,6 @@
 [submodule "extensions/ecmasl-vim"]
 	path = extensions/ecmasl-vim
-	url = https://github.com/wasp-platform/ecmasl-vim
+	url = https://github.com/formalsec/ecmasl-vim.git
 [submodule "bench/test262"]
 	path = bench/test262
-	url = git@github.com:formalsec/test262.git
+	url = https://github.com/formalsec/test262.git
