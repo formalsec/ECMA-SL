@@ -12,10 +12,17 @@ jobs:
   build:
     env:
       TERM: screen-256color
-      OCAML_COMPILER: 5.2
     strategy:
       fail-fast: false
-    runs-on: self-hosted
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+        ocaml-compiler:
+          - "5.3"
+
+    runs-on: ${{ matrix.os }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,10 +32,11 @@ jobs:
         with:
           node-version: 18
 
-      - name: Setup OCaml ${{ env.OCAML_COMPILER }}
+      - name: Setup OCaml ${{ matrix.ocaml-compiler }}
         uses: ocaml/setup-ocaml@v3
         with:
-          ocaml-compiler: ${{ env.OCAML_COMPILER }}
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+          dune-cache: true
 
       - name: Install dependencies
         run: opam install -y . --deps-only --with-test
