@@ -1,0 +1,5 @@
+import "./esl_interpreter.esl";
+
+function main() {
+  return 0;
+}
