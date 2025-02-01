@@ -1,0 +1,7 @@
+import "./esl_interpreter.esl";
+import "./bindings/ffi_symbolic.esl";
+import "./bindings/node-bindings.esl";
+
+function main() {
+  return 0;
+}
