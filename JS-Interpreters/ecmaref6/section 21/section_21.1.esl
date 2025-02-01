@@ -381,14 +381,11 @@ function StringFromCodePoint(global, this, NewTarget, strict, args) {
   /* 2. Let length be the number of elements in codePoints. */
   length := l_len(codePoints);
   /* 3. Let elements be a new List. */
-  elements := [];
   s := "";
   /* 4. Let nextIndex be 0. */
-  nextIndex := 0;
   /* 5. Repeat while nextIndex < length */
-  while (nextIndex < length) {
+  foreach (next : codePoints) {
     /* a. Let next be codePoints[nextIndex]. */
-    next := l_nth(codePoints, nextIndex);
     /* b.Let nextCP be ToNumber(next). */
     nextCP := ToNumber(next);
     /* c. ReturnIfAbrupt(nextCP). */
@@ -402,10 +399,8 @@ function StringFromCodePoint(global, this, NewTarget, strict, args) {
       throw RangeErrorConstructorInternal();
     /* f. Append the elements of the UTF16Encoding (10.1.1) of nextCP to the end of elements. */
     cu := UTF16Encoding(nextCP);
-    elements := l_concat(elements, [cu]);
     s := s_concat([s, from_char_code_u (cu)]);
     /* g. Let nextIndex be nextIndex + 1. */
-    nextIndex := nextIndex + 1;
   }
   /* 6. Return the String value whose elements are, in order, the elements in the List elements. If length is 0, the empty string is returned. */
   return s;
@@ -600,10 +595,8 @@ function StringPrototypeconcat(global, this, NewTarget, strict, args) {
   /* 5. Let R be S. */
   R := S;
   /* 6. Repeat, while args is not empty */
-  while (args_ != []) {
+  foreach (next : args_) {
     /* a. Remove the first element from args and let next be the value of that element. */
-    next  := hd args_;
-    args_ := tl args_;
     /* b. Let nextString be ToString(next). */
     nextString := ToString(next);
     /* c. ReturnIfAbrupt(nextString). */

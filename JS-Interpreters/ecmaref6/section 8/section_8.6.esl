@@ -35,17 +35,11 @@ function getOwnProperties(object) {
 function getOwnEnumerableProperties(object) {
   ownProperties := getOwnProperties(object);
   ownEnumerableProperties := [];
-
-  lownProperties := l_len(ownProperties);
-  i := 0;
-  while (i < lownProperties) {
-    pname := l_nth(ownProperties, i);
+  foreach (pname : ownProperties) {
     propDesc := getJSProperty(object, pname);
     if (isEnumerablePropertyDescriptor(propDesc))
       ownEnumerableProperties := l_add(ownEnumerableProperties, pname);
-    i := i + 1;
   }
-
   return ownEnumerableProperties;
 }
 

@@ -600,10 +600,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   /* 7. Let parameterNames be the BoundNames of formals. */
   parameterNames := getParamsNamesInFromFunction(code);
   /* 8. If parameterNames has any duplicate entries, let hasDuplicates be true. Otherwise, let hasDuplicates be false. */
-  if (parametersHasDuplicates(parameterNames) == true)
-    hasDuplicates := true;
-  else
-    hasDuplicates := false;
+  hasDuplicates := parametersHasDuplicates(parameterNames);
   /* 9. Let simpleParameterList be IsSimpleParameterList of formals. */
   simpleParameterList := getIsSimpleParameterListFromFunction(code);
   /* 10. Let hasParameterExpressions be ContainsExpression of formals. */
@@ -642,10 +639,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   }
 
   /* 21. For each String paramName in parameterNames, do */
-  lparameterNames := l_len (parameterNames);
-  i := 0;
-  while (i < lparameterNames) {
-    paramName := l_nth(parameterNames, i);
+  foreach (paramName : parameterNames) {
     /* a. Let alreadyDeclared be envRec.HasBinding(paramName). */
     alreadyDeclared := {envRec.HasBinding}(envRec, paramName);
     /* b. If alreadyDeclared is false, then */
@@ -659,8 +653,6 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
       /* Assert: status is never an abrupt completion for either of the above operations. */
       assert (!(isAnAbruptCompletion(status)));
     }
-
-    i := i + 1;
   }
 
   /* 22. If argumentsObjectNeeded is true, then */
@@ -721,10 +713,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
       instantiatedVarNames := l_add(instantiatedVarNames, "arguments");
 
     /* c. For each n in varNames, do */
-    lvarNames := l_len(varNames);
-    i := 0;
-    while (i < lvarNames) {
-      element := l_nth(varNames, i);
+    foreach (element : varNames) {
       /* i. If n is not an element of instantiatedVarNames, then */
       if (!(in_list(element, instantiatedVarNames))) {
         /* 1. Append n to instantiatedVarNames. */
@@ -736,7 +725,6 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
         /* Call envRec.InitializeBinding(n, undefined). */
         {envRec.InitializeBinding}(envRec, element, 'undefined);
       }
-      i := i + 1;
     }
     /* Let varEnv be env. */
     varEnv := env;
@@ -756,10 +744,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
     /* d. Let instantiatedVarNames be a new empty List. */
     instantiatedVarNames := [];
     /* f. For each n in varNames, do */
-    lvarNames := l_len(varNames);
-    i := 0;
-    while (i < lvarNames) {
-      element := l_nth(varNames, i);
+    foreach (element : varNames) {
       /* i. If n is not an element of instantiatedVarNames, then */
       if (!(in_list(element, instantiatedVarNames))) {
         /* 1. Append n to instantiatedVarNames. */
@@ -783,7 +768,6 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
         }
         {varEnvRec.InitializeBinding}(varEnvRec, element, initialValue);
       }
-      i := i + 1;
     }
   }
   /* 29. NOTE: Annex B.3.3 adds additional steps at this point. */
@@ -859,38 +843,22 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
  /* NOT IMPLEMENTED */
 
 /* Auxiliary Functions */
-
-function parametersHasDuplicates(parameters) {
-  l_parameters := l_len (parameters);
-  i := 0;
-  while (i < l_parameters) {
-    param := l_nth(parameters, i);
-    j := i + 1;
-    while (j < l_parameters) {
-      param2 := l_nth(parameters, j);
-      if (param == param2)
-        return true;
-      j := j + 1;
-    }
-    i := i + 1;
-  }
-  return false;
+function argumentsInArray(parameters) {
+  return in_list("arguments", parameters);
 }
 
-function argumentsInArray(parameters) {
-  l_parameters := l_len (parameters);
-  i := 0;
-  while (i < l_parameters) {
-    param := l_nth(parameters, i);
-    if (param == "arguments")
+function parametersHasDuplicates(parameters) {
+  seen := {};
+  foreach (param : parameters) {
+    if (seen[param] != 'undefined)
       return true;
-    i := i + 1;
+    seen[param] := true;
   }
   return false;
 }
 
 function getContainsExpressionInFunctionParams(codeObj) {
-  if ((codeObj == 'undefined)||| (Type(codeObj) != "Object"))
+  if ((codeObj == 'undefined) ||| (Type(codeObj) != "Object"))
     return false;
   return codeObj.containsExpression;
 }

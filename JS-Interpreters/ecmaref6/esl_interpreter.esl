@@ -27,19 +27,15 @@ function Interpreter_Statement_Guard(error) {
 function JS_Interpreter_SourceElements(SourceElements, scope) {
   return JS_Interpreter_StmtList(SourceElements, scope);
   /* The production SourceElements : SourceElements SourceElement is evaluated as follows: */
-
-  i := 0;
-  lSourceElements := l_len(SourceElements);
-  while (i < lSourceElements) {
+  foreach (sourceElement : SourceElements) {
     /* 1. Let headResult be the result of evaluating SourceElements. */
     /* 2. If headResult is an abrupt completion, return headResult. */
     /* 3. Let tailResult be result of evaluating SourceElement. */
     /* 4. If tailResult.value is empty, let (V) = headResult.value, otherwise let (V) = tailResult.value. */
-    result := JS_Interpreter_Stmt(l_nth(SourceElements, i), scope) catch Interpreter_Statement_Guard;
+    result := JS_Interpreter_Stmt(sourceElement, scope) catch Interpreter_Statement_Guard;
     if (isAnAbruptCompletion(result))
       return result;
     V := getCompletionValue(result);
-    i := i + 1;
   }
 
   /* 5. Return (tailResult.type, V, tailResult.target) */
@@ -119,10 +115,8 @@ function JS_Interpreter_Expr(e, scope) {
   | { type: "ArrayExpression", elements: ElementList } -> {
     /* 11.1.4 Array Initialiser */
     array := ArrayCreate(0., null);
-    let len = l_len(ElementList);
     i := 0;
-    while (i < len) {
-      let el = l_nth (ElementList, i);
+    foreach (el : ElementList) {
       if (el != null) {
         let initResult = JS_Interpreter_Expr(el, scope);
         let initValue = GetValue(initResult);
@@ -361,16 +355,13 @@ function JS_Interpreter_Expr(e, scope) {
     /* 3. Let rref be the result of evaluating AssignmentExpression. */
     /* 4. Return GetValue(rref). */
 
-    lExpression := l_len(Expressions);
-    ref := JS_Interpreter_Expr(l_nth(Expressions, 0), scope);
+    ref := JS_Interpreter_Expr(hd Expressions, scope);
     val := GetValue(ref);
 
-    i := 1;
-    while (i < lExpression) {
+    foreach(expr : tl Expressions) {
       @ReturnIfAbrupt(val);
-      ref := JS_Interpreter_Expr(l_nth(Expressions, i), scope);
+      ref := JS_Interpreter_Expr(expr, scope);
       val := GetValue(ref);
-      i := i + 1;
     }
 
     return val;
@@ -930,34 +921,23 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
 function JS_Interpreter_Arguments(ArgumentsList, scope) {
   /* 11.2.4 Argument Lists */
   /* The evaluation of an argument list produces a List of values (see 8.8). */
-
   /* The production ArgumentList : ArgumentList , AssignmentExpression is evaluated as follows:*/
-
   args := [];
-  lArguments := l_len(ArgumentsList);
-  i := 0;
   /* 1. Let precedingArgs be the result of evaluating ArgumentList. */
-  while (lArguments > i) {
+  foreach (argument : ArgumentsList) {
     /* 2. Let ref be the result of evaluating AssignmentExpression. */
-    argument := l_nth(ArgumentsList, i);
     ref := JS_Interpreter_Expr(argument, scope);
     /* 3. Let arg be GetValue(ref). */
     arg := GetValue(ref);
     @ReturnIfAbrupt(arg);
     if (argument.type == "SpreadElement") {
-      j := 0;
-      lSpread := l_len(arg);
-      while (lSpread > j) {
-        args := l_add(args, l_nth(arg, j));
-        j := j + 1;
+      foreach (elt : arg) {
+        args := l_add(args, elt);
       }
     } else {
       args := l_add(args, arg);
     }
-
-    i := i + 1;
   }
-
   /* 4. Return a List whose length is one greater than the length of precedingArgs and whose items are the items of
         precedingArgs, in order, followed at the end by arg which is the last item of the new list. */
   return args;
@@ -1804,13 +1784,9 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
     /* Pattern created specifically for the ForInStatement where the VariableDeclarationListNoIn can only contain one VariableDeclarator
        and where the String returned by this function is used in the evaluation of the ForInStatement */
     ret := 'null;
-    i := 0;
-    ldeclarations := l_len(VariableDeclarationListNoIn);
-    while (ldeclarations > i) {
-      ret := JS_Interpreter_VarDecl(l_nth(VariableDeclarationListNoIn, i), scope);
-      i := i + 1;
+    foreach (decl : VariableDeclarationListNoIn) {
+      ret := JS_Interpreter_VarDecl(decl, scope);
     }
-
     return ret;
   }
 }
