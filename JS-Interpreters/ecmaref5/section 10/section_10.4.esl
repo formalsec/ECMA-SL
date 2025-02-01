@@ -14,7 +14,7 @@ function EnteringGlobalCode(program) {
   /* 10.4.1 Entering Global Code */
   if ("optimised" in_obj program &&& program.optimised == true)
     globalObject := optimizeInitGlobalObject(program.strict);
-  else 
+  else
     globalObject := initGlobalObject(program.strict);
 
   /* The following steps are performed when control enters the execution context for global code: */
@@ -49,11 +49,11 @@ function InitialGlobalExecutionContext(globalObject, program) {
 /* 10.4.2 Entering Eval Code */
 function EnteringEvalCode(evalCode, ref, callingExecCtx) {
   evalCode.strict := isStrictModeCode(evalCode, callingExecCtx);
-
   /* The following steps are performed when control enters the execution context for eval code: */
 
   /* 1. If there is no calling context or if the eval code is not being evaluated by a direct call (15.1.2.1.1) to the eval
         function then, */
+  evalExecCtx := 'undefined;
   if (!isDirectCall(ref, callingExecCtx)) {
     /* a. Initialise the execution context as if it was a global execution context using the eval code as C as
           described in 10.4.1.1. */

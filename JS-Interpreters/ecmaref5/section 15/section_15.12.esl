@@ -950,6 +950,7 @@ function JO(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
     }
     i := i + 1;
   }
+  final := "";
   /* 9. If partial is empty, then */
   if ((l_len(partial)) == 0) {
     /* a. Let final be "{}". */
@@ -1038,6 +1039,7 @@ function JA(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
     index := index + 1.;
   }
   /* 9. If partial is empty ,then */
+  final := "";
   if ((l_len(partial)) == 0) {
     /* a. Let final be "[]". */
     final := "[]";

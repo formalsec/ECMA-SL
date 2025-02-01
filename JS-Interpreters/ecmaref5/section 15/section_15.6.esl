@@ -125,9 +125,8 @@ function BooleanPrototypeValueOf(globalObject, this, strict, params) {
   /* 1. Let B be the this value. */
   B := this;
   /* 2. If Type(B) is Boolean, then let b be B. */
-  if (Type(B) == "Boolean") {
-    b := B;
-  } else {
+  b := B;
+  if (Type(B) != "Boolean") {
     /* 3. Else if Type(B) is Object and the value of the [[Class]] internal property of B is "Boolean", then let b be
           the value of the [[PrimitiveValue]] internal property of B. */
     if ((Type(B) == "Object") &&& (getInternalProperty(B, "Class") == "Boolean"))

@@ -241,6 +241,7 @@ function ArgumentsObjectDelete(argumentsObject, P, Throw) {
 
 /* Auxiliary functions */
 function makeArgGetterLetBodyAuxFunction(name) {
+  body := 'undefined;
   body := lambda (scope, this, strict, args) [name] {
     envRec := getEnvironmentRecord(scope);
     val := getBindingValue(envRec, name);
@@ -255,6 +256,7 @@ function makeArgSetterLetParamAuxFunction(name) {
 }
 
 function makeArgSetterLetBodyAuxFunction(name, param) {
+  body := 'undefined;
   body := lambda (scope, this, strict, args) [name] {
     param := l_nth(args, 0);
     envRec := getEnvironmentRecord(scope);

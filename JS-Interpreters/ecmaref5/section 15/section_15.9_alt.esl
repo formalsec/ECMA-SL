@@ -508,7 +508,7 @@ function DateConstructor(global, this, strict, args) {
 
   if ((l_len(args) == 0))
     return internalNewDateWithoutValue(prototype);
-    
+
   return internalNewDate(prototype, args);
 }
 
@@ -570,7 +570,7 @@ function dateConstructorMultipleArgs(global, this, strict, args) {
     /* d. ReturnIfAbrupt(m). */
     @ReturnIfAbrupt(m);
     /* e. If date is supplied, let dt be ToNumber(date); else let dt be 1. */
-    if (date != null) dt := ToNumber(date); else dt := 1.;  
+    if (date != null) dt := ToNumber(date); else dt := 1.;
     /* f. ReturnIfAbrupt(dt). */
     @ReturnIfAbrupt(dt);
     /* g. If hours is supplied, let h be ToNumber(hours); else let h be 0. */
@@ -1882,6 +1882,7 @@ function internalNewDate(datePrototypeObject, args) {
 function internalNewDateWithValue(datePrototypeObject, value) {
   /* The [[Prototype]] internal property of the newly constructed object is set to the original Date prototype object,
     the one that is the initial value of Date.prototype (15.9.4.1). */
+  newlyConstructedObject := NewECMAScriptObject();
   setInternalProperty(newlyConstructedObject, "Prototype", datePrototypeObject);
   /* The [[Class]] internal property of the newly constructed object is set to "Date". */
   setInternalProperty(newlyConstructedObject, "Class", "Date");
@@ -1911,6 +1912,7 @@ function internalNewDateWithValue(datePrototypeObject, value) {
 function internalNewDateWithoutValue(datePrototypeObject) {
   /* The [[Prototype]] internal property of the newly constructed object is set to the original Date prototype object,
     the one that is the initial value of Date.prototype (15.9.4.1). */
+  newlyConstructedObject := NewECMAScriptObject();
   setInternalProperty(newlyConstructedObject, "Prototype", datePrototypeObject);
   /* The [[Class]] internal property of the newly constructed object is set to "Date". */
   setInternalProperty(newlyConstructedObject, "Class", "Date");

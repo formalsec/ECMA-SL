@@ -427,6 +427,7 @@ function arrayToString(global, this, strict, args) {
 function arrayToLocaleString(global, this, strict, args) {
   /* 1. Let O be the result of calling ToObject passing the this value as
         the argument. */
+  R := "";
   O := ToObject(this);
   /* 2. Let arrayLen be the result of calling the [[Get]] internal method
         of array with argument "length". */
@@ -646,9 +647,9 @@ function arrayJoin(global, this, strict, args) {
   element0 := {O.Get}(O, "0");
   /* 8. If element0 is undefined or null, let R be the empty String;
         otherwise, Let R be ToString(element0). */
-  if ((element0 == 'undefined) || (element0 == 'null))
-    R := "";
-  else
+
+  R := "";
+  if ((element0 != 'undefined) &&& (element0 != 'null))
     R := ToString(element0);
   /* 9. Let k be 1. */
   k := 1.;
@@ -2156,6 +2157,7 @@ function arrayReduce(global, this, strict, args) {
     throw TypeErrorConstructorInternal();
   /* 6. Let k be 0. */
   k := 0.;
+  accumulator := 'undefined;
   /* 7. If initialValue is present, then */
   if (initialValue != null) {
     /* a. Set accumulator to initialValue. */
@@ -2273,6 +2275,7 @@ function arrayReduceRight(global, this, strict, args) {
   /* 6. Let k be len-1. */
   k := len - 1.;
   /* 7. If initialValue is present, then */
+  accumulator := 'undefined;
   if (initialValue != null) {
     /* a. Set accumulator to initialValue. */
     accumulator := initialValue;

@@ -1091,8 +1091,10 @@ function StringPrototypeReplace(global, this, NewTarget, strict, args) {
   code units of string, replStr, and the trailing substring of string
   starting at index tailPos. If pos is 0, the first element of the
   concatenation will be the empty String. */
-  if (pos > 0.) first := substring(str, 0., pos); else first := "";
-  last := substring(str, tailPos, int_to_float(s_len_u (str)));
+  first := "";
+  if (pos > 0.)
+    first := substring(str, 0., pos);
+  last := substring(str, tailPos, int_to_float(s_len_u(str)));
   newString := first;
   newString := s_concat([newString, replStr]);
   newString := s_concat([newString, last]);
