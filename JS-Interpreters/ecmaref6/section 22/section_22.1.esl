@@ -1774,7 +1774,9 @@ function arrayJoin(global, this, NewTarget, strict, args) {
   element0 := Get(O, "0");
   @ReturnIfAbrupt(element0);
   /* 10. If element0 is undefined or null, let R be the empty String; otherwise, Let R be ToString(element0). */
-  if ((element0 == 'undefined) || (element0 == 'null)) R := ""; else R := ToString(element0);
+  R := "";
+  if ((element0 != 'undefined) &&& (element0 != 'null))
+    R := ToString(element0);
   /* 11. ReturnIfAbrupt(R). */
   @ReturnIfAbrupt(R);
   /* 12. Let k be 1. */
@@ -2975,7 +2977,11 @@ function arraySplice(global, this, NewTarget, strict, args) {
   /* 6. ReturnIfAbrupt(relativeStart). */
   @ReturnIfAbrupt(relativeStart);
   /* 7. If relativeStart is negative, let actualStart be max((len + relativeStart),0); else let actualStart be min(relativeStart, len). */
-  if (relativeStart < 0.) actualStart := max((len + relativeStart), 0.); else actualStart := min(relativeStart, len);
+  actualStart := 0.;
+  if (relativeStart < 0.)
+    actualStart := max((len + relativeStart), 0.);
+  else
+    actualStart := min(relativeStart, len);
   n_args := l_len(args);
 
   /* 8. If the number of actual arguments is 0, then  */

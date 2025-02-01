@@ -325,6 +325,7 @@ function parseAsProgram(progStr, strict) {
 }
 
 function optimizeInitGlobalObject(strict) {
+  loc_global := 'undefined;
   if ((typeof (strict) == "bool") &&& strict)
     loc_global := extern loadInitialHeap("globalHeap_strict.json");
   else
