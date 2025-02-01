@@ -4,10 +4,7 @@
 function sortProprtiesES6(internalSlotsList) {
   num_list := [];
   str_list := [];
-  i := 0;
-  len := l_len(internalSlotsList);
-  while (i < len) {
-    P := l_nth(internalSlotsList, i);
+  foreach (P : internalSlotsList) {
     num := ToNumber(P);
     /* Only positive integer numbers are */
     if (!(is_NaN(num)) &&& (ToUint32(num) == num) &&& !(in_list(P, num_list))) {
@@ -15,9 +12,8 @@ function sortProprtiesES6(internalSlotsList) {
     } else if (!(in_list(P, str_list))) {
       str_list := l_add(str_list, P);
     }
-    i := i + 1;
   }
-  num_list := l_sort (num_list);
+  num_list := l_sort(num_list);
   str_list := l_reverse(str_list);
   return l_concat(num_list, str_list);
 }
@@ -25,14 +21,10 @@ function getOwnEnumerablePropertiesNames(obj) {
   sortedPeoperties := sortProprtiesES6(obj.internalSlotsList); /* ordered properties according to ES6 */
   K := [];
   namedOwnProperties := sortedPeoperties;
-  lnamedOwnProperties := l_len(namedOwnProperties);
-  index := 0;
-  while (index < lnamedOwnProperties) {
-    P := l_nth(namedOwnProperties, index);
+  foreach (P : namedOwnProperties) {
     P_desc := getJSProperty(obj, P);
     if (isEnumerablePropertyDescriptor(P_desc))
       K := l_add(K, P);
-    index := index + 1;
   }
   return K;
 }

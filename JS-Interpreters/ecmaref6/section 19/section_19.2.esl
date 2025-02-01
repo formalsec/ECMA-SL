@@ -405,9 +405,7 @@ function getFunctionPrototype(strict) {
 }
 
 function isFunctionObject(object) {
-  if ((Type(object) == "Object") &&& (getInternalProperty(object, "Class") == "Function"))
-    return true;
-  return false;
+  return ((Type(object) == "Object") &&& (getInternalProperty(object, "Class") == "Function"));
 }
 
 function isParsableAsFormalParametersList(str) {
@@ -433,16 +431,11 @@ function parseParams(paramsStr) {
   params := s_split(paramsStr, ",");
 
   /* Remove leading and trailing spaces */
-  lparams := l_len(params);
-  i := 0;
   ret := [];
-  while (i < lparams) {
-    param := l_nth(params, i);
-    ret := l_add(ret, trim (param));
-    i := i + 1;
+  foreach (param : params) {
+    ret := l_prepend(trim(param), ret);
   }
-
-  return ret;
+  return l_reverse(ret);
 }
 
 function parseBody(params, bodyStr, strict) {
