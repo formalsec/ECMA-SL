@@ -7,7 +7,7 @@ jobs:
   test:
     env:
       TERM: screen-256color
-      OCAML_COMPILER: 5.2
+      OCAML_COMPILER: 5.3
       RESULTS_FILE: results-test262_${{ github.sha }}.txt
       SLACK_WEBHOOK_URL: ${{ vars.SLACK_WEBHOOK_URL }}
 
