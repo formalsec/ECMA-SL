@@ -44,6 +44,17 @@ module Exits = struct
     ]
 end
 
+module Copyright = struct
+  let s_copyright = "COPYRIGHT"
+
+  let disclamer =
+    "ecma-sl Copyright (C) 2022-2025  formalsec\n\
+     This program comes with ABSOLUTELY NO WARRANTY; for details type: \
+     `ecma-sl --help`.\n\
+     This is free software, and you are welcome to redistribute it\n\
+     under certain conditions."
+end
+
 module CommonOpts = struct
   let debug =
     let docs = Manpage.s_common_options in
@@ -484,6 +495,8 @@ module Application = struct
     ; `P "These options are common to all commands."
     ; `S Manpage.s_bugs
     ; `P "Check bug reports at https://github.com/formalsec/ECMA-SL/issues."
+    ; `S Copyright.s_copyright
+    ; `P Copyright.disclamer
     ]
 
   let man_xrefs = []
