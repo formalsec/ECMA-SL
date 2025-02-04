@@ -1,15 +1,15 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
@@ -18,19 +18,17 @@ open Ecma_sl
 
 type value = Smtml.Expr.t
 
-let equal (e1 : value) (e2 : value) : bool = Smtml.Expr.equal e1 e2 [@@inline]
-let hash (e : value) = Smtml.Expr.hash e [@@inline]
-let compare (e1 : value) (e2 : value) = compare (hash e1) (hash e2)
+let null = Smtml.Expr.value Nothing
+let string s = Smtml.Expr.value (Str s)
+let equal a b = Smtml.Expr.equal a b [@@inline]
+let hash e = Smtml.Expr.hash e [@@inline]
+let compare a b = Smtml.Expr.compare a b
 let pp fmt v = Smtml.Expr.pp fmt v [@@inline]
 let to_string v = Fmt.str "%a" pp v
-
-let mk_symbol (x : string) : value =
-  Smtml.Expr.value (App (`Op "symbol", [ Str x ]))
-[@@inline]
-
-let mk_list (vs : value list) : value = Smtml.Expr.make (List vs) [@@inline]
-let mk_tuple (fst, snd) : value = Smtml.Expr.make (List [ fst; snd ]) [@@inline]
-let is_symbolic (v : value) : bool = Smtml.Expr.is_symbolic v
+let mk_symbol x = Smtml.Expr.value (App (`Op "symbol", [ Str x ])) [@@inline]
+let mk_list vs = Smtml.Expr.make (List vs) [@@inline]
+let mk_tuple (fst, snd) = Smtml.Expr.make (List [ fst; snd ]) [@@inline]
+let is_symbolic v = Smtml.Expr.is_symbolic v
 
 let func (v : value) =
   match Smtml.Expr.view v with

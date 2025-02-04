@@ -1,15 +1,15 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
@@ -36,15 +36,15 @@ struct
 
   let check_return_value thread = function
     | Ok result -> (
-      match List.map Smtml.Expr.view result with
-      | [ List [ Hc.{ node = Smtml.Expr.Val False; _ }; result ] ] ->
+      match Smtml.Expr.view result with
+      | List [ Hc.{ node = Val False; _ }; result ] ->
         let mem = Symbolic.Thread.mem thread in
         Logs.app (fun k ->
           k "- : %a =@[<hov> %a@]" Smtml.Ty.pp (Smtml.Expr.ty result)
             (Symbolic.Memory.pp_val mem)
             result );
         Ok ()
-      | [ List [ { node = Val True; _ }; e ] ] ->
+      | List [ { node = Val True; _ }; e ] ->
         let msg =
           Fmt.str "Failure: @[<hov>uncaught exception:@ %a@]" Smtml.Expr.pp e
         in
@@ -53,7 +53,7 @@ struct
       | _ ->
         let msg =
           Fmt.str "Failure: @[<hov>something went terribly wrong:@ %a@]"
-            Smtml.Expr.pp_list result
+            Smtml.Expr.pp result
         in
         Logs.app (fun k -> k "%s" msg);
         Error (`Failure msg) )
@@ -61,8 +61,8 @@ struct
 
   module Symbolic_result = Symbolic_report.Make (Failure)
 
-  let run ?(no_stop_at_failure = false) ?(target = "main") ~callback filename
-    prog =
+  let run ?(no_stop_at_failure = false) ?(target = "main") ~out_cb ~err_cb
+    filename prog =
     let start = Sys.time () in
     let env = link_env filename prog in
     let computation = main env target in
@@ -83,6 +83,7 @@ struct
       let () =
         try
           results (fun (result, thread) ->
+            let () = out_cb thread result in
             let result = check_return_value thread result in
             (* BAD: ignoring return value because I don't care about the result *)
             match result with
@@ -90,7 +91,7 @@ struct
             | Error witness ->
               Logs.app (fun k -> k "%a" Symbolic_error.pp witness);
               report.num_failures <- succ report.num_failures;
-              let witnesses = callback thread witness in
+              let witnesses = err_cb thread witness in
               report.failures <- witnesses @ report.failures;
               if no_stop_at_failure then ()
               else begin

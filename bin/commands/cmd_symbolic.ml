@@ -24,7 +24,7 @@ module Symbolic_interpreter =
 
 let valid_languages : Enums.Lang.t list = Enums.Lang.[ Auto; JS; ESL; CESL ]
 
-let setup_prelude filename prelude =
+let setup_prelude ?(strict = false) filename prelude =
   let open Bos in
   match prelude with
   | None -> Ok filename
@@ -32,7 +32,12 @@ let setup_prelude filename prelude =
     let* data_prelude = OS.File.read prelude in
     let* data_filename = OS.File.read filename in
     let filename' = Fpath.v (Filename.temp_file "ecmasl" ".js") in
-    let* () = OS.File.writef filename' "%s\n%s" data_prelude data_filename in
+    let* () =
+      if strict then
+        OS.File.writef filename' "\"use strict\";\n\n%s\n%s" data_prelude
+          data_filename
+      else OS.File.writef filename' "%s\n%s" data_prelude data_filename
+    in
     Ok filename'
 
 let prog_of_js fpath =
@@ -96,7 +101,8 @@ let run ~input ~lang ~target ~workspace ~harness =
   let* _ = Result.bos (Bos.OS.Dir.create ~mode:0o777 testsuite) in
   let (result, report) =
     Symbolic_interpreter.run ~no_stop_at_failure:false ~target
-      ~callback:(serialize_thread testsuite)
+      ~out_cb:(fun _ _ -> ())
+      ~err_cb:(serialize_thread testsuite)
       input prog
   in
   Logs.debug (fun k -> k "  exec time : %fs" report.execution_time);

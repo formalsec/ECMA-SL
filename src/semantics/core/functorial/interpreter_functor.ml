@@ -58,7 +58,7 @@ module Make (P : Interpreter_functor_intf.P) :
       ; func = ""
       }
 
-    type return_result = (value list, err) Result.t
+    type return_result = (value, err) Result.t
 
     type stmt_result =
       | Return of return_result
@@ -66,7 +66,8 @@ module Make (P : Interpreter_functor_intf.P) :
 
     let return ?(value : value option) (state : exec_state) : stmt_result =
       match state.return_state with
-      | None -> Return (Ok (Option.to_list value))
+      | None ->
+        Return (Ok (Option.value value ~default:Value.null))
       | Some (state', ret_v) ->
         let v =
           match value with
