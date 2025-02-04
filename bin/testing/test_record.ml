@@ -6,8 +6,7 @@ type t =
   ; name : string
   ; sections : string list
   ; test : string
-  ; flags : string list
-  ; error : Value.t option
+  ; mutable metadata : Test_metadata.t option
   ; streams : Log.Redirect.t option
   ; retval : Value.t Result.t
   ; result : Test_result.t
@@ -21,8 +20,7 @@ let default () : t =
   ; name = ""
   ; sections = []
   ; test = ""
-  ; flags = []
-  ; error = None
+  ; metadata = None
   ; streams = None
   ; retval = Ok Nothing
   ; result = Test_result.Skipped
@@ -51,9 +49,6 @@ let pp_path (limit : int) (ppf : Format.formatter) (path : string) : unit =
   let dots = if len < limit then String.make (limit - len) '.' else "" in
   Fmt.pf ppf "%s %s" path' dots
 
-let pp_error (ppf : Format.formatter) (error : Value.t option) : unit =
-  match error with None -> Fmt.string ppf "none" | Some v -> Value.pp ppf v
-
 let pp_retval (ppf : Format.formatter) (retval : Value.t Result.t) : unit =
   match retval with Ok v -> Value.pp ppf v | Error _ -> Fmt.string ppf "-"
 
@@ -67,8 +62,7 @@ let pp_report report_width (ppf : Format.formatter) (record : t) : unit =
   Fmt.pf ppf "%a" pp_div "Test Details:";
   Fmt.pf ppf "name: %s@\n" record.name;
   Fmt.pf ppf "sections: %a@\n" Fmt.(list ~sep string) record.sections;
-  Fmt.pf ppf "flags: [@[<h>%a@]]@\n" Fmt.(list ~sep:comma string) record.flags;
-  Fmt.pf ppf "error: %a@\n@\n" pp_error record.error;
+  Fmt.pf ppf "metadata: %a@\n" (Fmt.option Test_metadata.pp) record.metadata;
   Fmt.pf ppf "retval: %a@\n" pp_retval record.retval;
   Fmt.pf ppf "result: %a@\n" Test_result.pp record.result;
   if not (Test_result.equal record.result Skipped) then

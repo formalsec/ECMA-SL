@@ -11,6 +11,7 @@
   files
   git
   webhook
+  test_metadata
   test_notify
   test_parser
   test_record
