@@ -1,9 +1,15 @@
 open Ecma_sl
 open Smtml_prelude.Result
 
+let flags (record : Test_record.t) =
+  match record.metadata with None -> [] | Some m -> m.flags
+
+let error (record : Test_record.t) =
+  Option.bind record.metadata Test_metadata.error
+
 let test_skipped (record : Test_record.t) : bool =
   let skipped_f skipped = function "skip" -> true | _ -> skipped in
-  List.fold_left skipped_f false record.flags
+  List.fold_left skipped_f false (flags record)
 
 let interp_config (profiler : Enums.InterpProfiler.t) :
   Cmd_interpret.Options.config =
@@ -17,7 +23,7 @@ let set_test_flags (record : Test_record.t) : Fpath.t Result.t =
     | _ -> (test, updated)
   in
   let start = (record.test, false) in
-  let (test, updated) = List.fold_left flags_f start record.flags in
+  let (test, updated) = List.fold_left flags_f start (flags record) in
   if not updated then Ok record.input
   else
     let input = Fpath.v (Filename.temp_file "ecmasl" "flagged-input.js") in
@@ -60,7 +66,7 @@ let execute_test (env : Prog.t * Value.t Heap.t option) (record : Test_record.t)
   Log.Redirect.restore streams;
   let streams = Some streams in
   let (retval, heap, metrics) = unfold_result interp_result in
-  let result = check_result record.error heap retval in
+  let result = check_result (error record) heap retval in
   let time = Base.time () -. record.time in
   Ok { record with streams; retval; result; time; metrics }
 

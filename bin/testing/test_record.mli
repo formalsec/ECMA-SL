@@ -6,8 +6,7 @@ type t =
   ; name : string
   ; sections : string list
   ; test : string
-  ; flags : string list
-  ; error : Value.t option
+  ; mutable metadata : Test_metadata.t option
   ; streams : Log.Redirect.t option
   ; retval : Value.t Result.t
   ; result : Test_result.t

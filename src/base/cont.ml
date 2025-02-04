@@ -30,4 +30,4 @@ let[@inline] map (f : 'a -> 'b) (v : 'a t) =
 let[@inline] bind (f : 'a -> 'b t) (v : 'a t) =
  fun (k : 'b -> unit) -> v (fun (x : 'a) -> (f x) k)
 
-let of_list (l : 'a list) = fun (k : 'a -> unit) -> List.iter k l
+let of_list (l : 'a list) : 'a t = fun (k : 'a -> unit) -> List.iter k l
