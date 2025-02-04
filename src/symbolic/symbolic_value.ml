@@ -30,10 +30,14 @@ let mk_list vs = Smtml.Expr.make (List vs) [@@inline]
 let mk_tuple (fst, snd) = Smtml.Expr.make (List [ fst; snd ]) [@@inline]
 let is_symbolic v = Smtml.Expr.is_symbolic v
 
-let func (v : value) =
+let func v =
   match Smtml.Expr.view v with
-  | Val (Value.Str x) -> Ok (x, [])
-  | _ -> Error "Value is not a function identifier"
+  | Val (Value.Str func) -> Ok (func, [])
+  | App (symbol, args) ->
+    let f = match symbol.name with Simple f -> f | _ -> assert false in
+    Ok (f, args)
+  | _ ->
+    Error (Fmt.str "Value: '%a' is not a function identifier" Smtml.Expr.pp v)
 
 module Bool = struct
   include Smtml.Expr.Bool
