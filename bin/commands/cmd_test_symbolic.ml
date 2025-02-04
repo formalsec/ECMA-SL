@@ -87,7 +87,6 @@ let run_and_check_result prelude results ({ Test.path; metadata; _ } as test) =
     | None -> false
     | Some m -> List.mem "onlyStrict" m.flags
   in
-  (* TODO: strict mode *)
   let filename =
     match Cmd_symbolic.setup_prelude ~strict path prelude with
     | Error (`Msg err) -> failwith err
@@ -107,7 +106,16 @@ let run_and_check_result prelude results ({ Test.path; metadata; _ } as test) =
     Fmt.pr "%a@." Test.pp test;
     Queue.push test results
 
-let print_and_count_results results =
+let notify data url =
+  let url = Webhook.url_of_string url in
+  let head = Git.get_head () in
+  let title =
+    Fmt.str "Symbolic Test262 results (commit hash=%s) :octopus:" head
+  in
+  let body = Webhook.default_slack_mrkdwn title data in
+  Lwt_main.run @@ Webhook.post_and_forget url body
+
+let print_and_count_results results webhook_url =
   let succ = ref 0
   and fail = ref 0
   and anomaly = ref 0
@@ -136,13 +144,14 @@ let print_and_count_results results =
       (float !succ /. float !total *. 100.0)
       !time !fail !anomaly !skip
   in
+  Option.iter (notify results_str) webhook_url;
   Fmt.pr "%s@." results_str
 
 (** This command is similar to `test` but it's for symbolic execution *)
-let run ~prelude ~inputs =
+let run ~prelude ~inputs ~test_type:_ ~webhook_url =
   Result.bos
   @@
   let+ tests = parse inputs in
   let results = Queue.create () in
   let () = tests (run_and_check_result prelude results) in
-  print_and_count_results results
+  print_and_count_results results webhook_url
