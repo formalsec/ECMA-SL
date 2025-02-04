@@ -142,8 +142,10 @@ let test_symbolic_cmd =
   let open Term.Syntax in
   let term =
     let+ prelude = Docs.ExecuteOpts.harness
-    and+ inputs = Docs.FileOpts.inputs in
-    Cmd_test_symbolic.run ~prelude ~inputs
+    and+ inputs = Docs.FileOpts.inputs
+    and+ test_type = Docs.TestOpts.test_type
+    and+ webhook_url = Docs.TestOpts.webhook_url in
+    Cmd_test_symbolic.run ~prelude ~inputs ~test_type ~webhook_url
   in
   let info = Cmd.info "test-sym" in
   Cmd.v info term
