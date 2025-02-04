@@ -141,8 +141,9 @@ let symbolic_cmd =
 let test_symbolic_cmd =
   let open Term.Syntax in
   let term =
-    let+ inputs = Docs.FileOpts.inputs in
-    Cmd_test_symbolic.run ~inputs
+    let+ prelude = Docs.ExecuteOpts.harness
+    and+ inputs = Docs.FileOpts.inputs in
+    Cmd_test_symbolic.run ~prelude ~inputs
   in
   let info = Cmd.info "test-sym" in
   Cmd.v info term
