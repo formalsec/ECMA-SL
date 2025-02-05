@@ -83,6 +83,8 @@ let check_result (test : Test.t) thread result =
 
 let run_and_check_result i prelude results ({ Test.path; metadata; _ } as test)
     =
+  (* Clear hashconsing table? Try to avoid memory leaks *)
+  Smtml.Expr.Hc.clear ();
   let module Symbolic_interpreter = Symbolic_interpreter () in
   let code = Code_utils.create () in
   let strict =
@@ -100,6 +102,7 @@ let run_and_check_result i prelude results ({ Test.path; metadata; _ } as test)
   | Ok prog ->
     let start = Sys.time () in
     let () =
+      (* FIXME: ignoring all my problems *)
       try
         let _ =
           Symbolic_interpreter.run ~no_stop_at_failure:false
