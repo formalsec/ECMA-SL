@@ -1,15 +1,15 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
@@ -71,7 +71,7 @@ module M (ITooling : Interpreter_tooling.M) = struct
     let v = eval_expr' st e in
     let lvl = Call_stack.depth st.stack - 1 in
     ITooling.Profiler.count !(st.itool).pf `Expr;
-    ITooling.Tracer.trace_expr lvl e (st.heap, v);
+    ITooling.Tracer.trace_expr !(st.itool).code lvl e (st.heap, v);
     v
 
   and eval_expr' (st : st) (e : Expr.t) : Value.t =
@@ -177,14 +177,16 @@ module M (ITooling : Interpreter_tooling.M) = struct
     let lbl_f = ITooling.Monitor.update_label in
     let ( $$ ) v s_eval = lbl_f itool.mon s s_eval |> fun () -> v in
     let lvl = Call_stack.depth st.stack - 1 in
-    ITooling.Tracer.trace_stmt lvl s;
+    ITooling.Tracer.trace_stmt !(st.itool).code lvl s;
     ITooling.Profiler.count itool.pf `Stmt;
     match s.it with
     | Skip -> Intermediate (st, cont) $$ SkipEval
     | Merge -> Intermediate (st, cont) $$ MergeEval
     | Debug s' ->
       let db_st = (st.store, st.heap, st.stack) in
-      let db_res = ITooling.Debugger.run itool.db db_st cont s' in
+      let db_res =
+        ITooling.Debugger.run itool.db !(st.itool).code db_st cont s'
+      in
       let ((store, heap, stack), cont') = db_res in
       Intermediate ({ st with store; heap; stack }, s' :: cont') $$ DebugEval
     | Block ss -> Intermediate (st, ss @ cont) $$ BlockEval
@@ -231,7 +233,7 @@ module M (ITooling : Interpreter_tooling.M) = struct
         let (stack'', cont'') = db_res in
         let st' = { st with store = store'; stack = stack'' } in
         ITooling.Profiler.count itool.pf `Call;
-        ITooling.Tracer.trace_call (lvl + 1) f s;
+        ITooling.Tracer.trace_call !(st.itool).code (lvl + 1) f s;
         Intermediate (st', cont'') $$ AssignCallEval f )
     | AssignECall (x, fn, es) ->
       let vs = List.map (eval_expr st) es in
@@ -358,8 +360,8 @@ module M (ITooling : Interpreter_tooling.M) = struct
     | Error err -> Runtime_error.(throw (Failure (Value.str err)))
     | _ -> Log.fail "unexpected intermediate state"
 
-  let eval_prog (ientry : IEntry.t) (p : Prog.t) : IResult.t =
-    let itool = ref (ITooling.initial_state ()) in
+  let eval_prog code (ientry : IEntry.t) (p : Prog.t) : IResult.t =
+    let itool = ref (ITooling.initial_state code) in
     let execute () = eval_instrumented ientry itool p in
     let finally () = ITooling.cleanup !itool in
     Fun.protect ~finally execute

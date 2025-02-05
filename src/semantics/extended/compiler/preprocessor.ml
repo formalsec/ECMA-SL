@@ -1,15 +1,15 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
@@ -21,8 +21,10 @@ open Source
 module Imports = struct
   open EImport
 
-  let load_dependency (file : Id.t) (path : string) : EProg.t =
-    try EParsing.(load_file ~file:file.it path |> parse_eprog ~file:file.it path)
+  let load_dependency code (file : Id.t) (path : string) : EProg.t =
+    try
+      EParsing.(
+        load_file code ~file:file.it path |> parse_eprog ~file:file.it path )
     with Not_found ->
       Compile_error.(throw ~src:file.at (UnknownDependency file))
 
@@ -41,7 +43,7 @@ module Imports = struct
     in
     List.map (relativize_f (Filename.dirname file)) imports
 
-  let import_resolver ~(stdlib : string) (workspace : string) (p : EProg.t)
+  let import_resolver ~(stdlib : string) code (workspace : string) (p : EProg.t)
     (resolved : (Id.t', unit) Hashtbl.t)
     (unresolved : (Id.t' * EImport.t list) list) : unit =
     let rec loop =
@@ -59,7 +61,7 @@ module Imports = struct
           loop ((source, imports') :: unresolved')
         else
           let open EParsing_helper.Prog in
-          let dependency = load_dependency import dependency_path in
+          let dependency = load_dependency code import dependency_path in
           let dependency_imports =
             relativize import.it (EProg.imports dependency)
           in
@@ -71,11 +73,11 @@ module Imports = struct
     in
     loop unresolved
 
-  let resolve_imports ~(stdlib : string) (p : EProg.t) : EProg.t =
+  let resolve_imports ~(stdlib : string) code (p : EProg.t) : EProg.t =
     let workspace = Filename.dirname (EProg.path p) in
     let resolved = Hashtbl.create !Base.default_hashtbl_sz in
     let relative_imports = relativize (EProg.file p) (EProg.imports p) in
-    import_resolver ~stdlib workspace p resolved
+    import_resolver ~stdlib code workspace p resolved
       [ (EProg.file p, relative_imports) ];
     { p with imports = [] }
 end

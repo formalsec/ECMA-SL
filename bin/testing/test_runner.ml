@@ -48,21 +48,21 @@ let check_result (error : Value.t option) heap (retval : Value.t Result.t) :
     | _ -> Anomaly )
   | _ -> Anomaly
 
-let execute (env : Prog.t * Value.t Heap.t option)
+let execute code (env : Prog.t * Value.t Heap.t option)
   (interp_config : Cmd_interpret.Options.config) (input : Fpath.t) :
   Interpreter.IResult.t Result.t =
-  try Cmd_execute.execute_js env interp_config input
+  try Cmd_execute.execute_js code env interp_config input
   with exn -> Result.error (`Generic (Printexc.to_string exn))
 
 let skip_test (record : Test_record.t) : Test_record.t Result.t =
   Ok { record with result = Skipped }
 
-let execute_test (env : Prog.t * Value.t Heap.t option) (record : Test_record.t)
+let execute_test code (env : Prog.t * Value.t Heap.t option) (record : Test_record.t)
   (interp_profiler : Enums.InterpProfiler.t) : Test_record.t Result.t =
   let interp_config = interp_config interp_profiler in
   let* input = set_test_flags record in
   let streams = Log.Redirect.capture Shared in
-  let interp_result = execute env interp_config input in
+  let interp_result = execute code env interp_config input in
   Log.Redirect.restore streams;
   let streams = Some streams in
   let (retval, heap, metrics) = unfold_result interp_result in
@@ -70,8 +70,8 @@ let execute_test (env : Prog.t * Value.t Heap.t option) (record : Test_record.t)
   let time = Base.time () -. record.time in
   Ok { record with streams; retval; result; time; metrics }
 
-let run (env : Prog.t * Value.t Heap.t option) (record : Test_record.t)
+let run code (env : Prog.t * Value.t Heap.t option) (record : Test_record.t)
   (interp_profiler : Enums.InterpProfiler.t) : Test_record.t Result.t =
   Log.debug "Starting test '%a'." Fpath.pp record.input;
   if test_skipped record then skip_test record
-  else execute_test env record interp_profiler
+  else execute_test code env record interp_profiler

@@ -1,15 +1,15 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
@@ -51,7 +51,7 @@ module type M = sig
   val initial_state : unit -> t
   val cleanup : t -> unit
   val set_interp_callbacks : InterpreterCallbacks.t -> unit
-  val run : t -> state -> cont -> Stmt.t -> state * cont
+  val run : t -> Code_utils.t -> state -> cont -> Stmt.t -> state * cont
   val call : t -> stack -> cont -> stack * cont
 end
 
@@ -62,7 +62,7 @@ module Disable : M = struct
   let cleanup (_ : t) : unit = ()
   let set_interp_callbacks (_ : InterpreterCallbacks.t) : unit = ()
 
-  let run (_ : t) (st : state) (cont : cont) (_ : Stmt.t) : state * cont =
+  let run (_ : t) _ (st : state) (cont : cont) (_ : Stmt.t) : state * cont =
     (st, cont)
 
   let call (_ : t) (stack : stack) (cont : cont) : stack * cont = (stack, cont)
@@ -96,13 +96,13 @@ module Enable : M = struct
     DebuggerTUI.terminate ();
     Log.Redirect.restore ~log:true data.streams
 
-  let run_debug_tui (st : state) (s : Stmt.t) (dbdata : dbdata) : dbdata =
+  let run_debug_tui code (st : state) (s : Stmt.t) (dbdata : dbdata) : dbdata =
     let rec run_debug_tui_loop tui =
-      let tui' = DebuggerTUI.update tui in
+      let tui' = DebuggerTUI.update code tui in
       if tui'.running then run_debug_tui_loop tui' else tui'
     in
     let tui = DebuggerTUI.set_data dbdata.tui st s in
-    DebuggerTUI.render tui;
+    DebuggerTUI.render code tui;
     let tui' = run_debug_tui_loop tui in
     { dbdata with tui = tui' }
 
@@ -140,8 +140,8 @@ module Enable : M = struct
     | (Exit, _) -> terminate () <@ (Final, st, cont)
     | _ -> Log.fail "expecting debugger flow action"
 
-  let run (db : t) (st : state) (cont : cont) (s : Stmt.t) : state * cont =
-    let run_debug_tui' = run_debug_tui st s in
+  let run (db : t) code (st : state) (cont : cont) (s : Stmt.t) : state * cont =
+    let run_debug_tui' = run_debug_tui code st s in
     let next_state' = next_state db st cont s in
     match !db with
     | Initial -> initialize_debug_tui () |> run_debug_tui' |> next_state'

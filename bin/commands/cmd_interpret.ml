@@ -1,15 +1,15 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
@@ -143,7 +143,7 @@ module InterpreterInstrument = struct
     (module Interpreter_tooling.Default (Tracer) (Debugger) (Profiler) (Monitor))
 end
 
-let interpret_partial (entry : Interpreter.IEntry.t) (config : Options.config)
+let interpret_partial code (entry : Interpreter.IEntry.t) (config : Options.config)
   (prog : Prog.t) : Interpreter.IResult.t =
   let instrument = config.instrument in
   let module Instrument = (val InterpreterInstrument.intrument instrument) in
@@ -151,25 +151,25 @@ let interpret_partial (entry : Interpreter.IEntry.t) (config : Options.config)
   Interpreter.IConfig.print_depth := config.print_depth;
   Interpreter.IConfig.resolve_exitval := config.resolve_exitval;
   Interpreter.IConfig.show_exitval := config.show_exitval;
-  ConcreteInterpreter.eval_prog entry prog
+  ConcreteInterpreter.eval_prog code entry prog
 
-let interpret (entry : Interpreter.IEntry.t) (config : Options.config)
+let interpret code (entry : Interpreter.IEntry.t) (config : Options.config)
   (prog : Prog.t) : Interpreter.IResult.t Result.t =
-  Result.esl_exec @@ fun () ->
-  let result = interpret_partial entry config prog in
+  Result.esl_exec code @@ fun () ->
+  let result = interpret_partial code entry config prog in
   let retval = result.retval in
   Log.debug "Sucessfuly evaluated program with return '%a'." Value.pp retval;
   Ok result
 
-let interpret_cesl (entry : Interpreter.IEntry.t) (config : Options.config)
+let interpret_cesl code (entry : Interpreter.IEntry.t) (config : Options.config)
   (file : Fpath.t) : Interpreter.IResult.t Result.t =
-  let* p = Cmd_compile.load file in
-  interpret entry config p
+  let* p = Cmd_compile.load code file in
+  interpret code entry config p
 
-let interpret_esl (entry : Interpreter.IEntry.t) (config : Options.config)
+let interpret_esl code (entry : Interpreter.IEntry.t) (config : Options.config)
   (untyped : bool) (file : Fpath.t) : Interpreter.IResult.t Result.t =
-  let* p = Cmd_compile.compile untyped file in
-  interpret entry config p
+  let* p = Cmd_compile.compile code untyped file in
+  interpret code entry config p
 
 let log_metrics (profiler : Enums.InterpProfiler.t)
   (result : Interpreter.IResult.t Result.t) : unit Result.t =
@@ -180,11 +180,12 @@ let log_metrics (profiler : Enums.InterpProfiler.t)
 let run () (opts : Options.t) : unit Result.t =
   let valid_langs = Enums.Lang.valid_langs Options.langs opts.lang in
   let entry = { (Interpreter.IEntry.default ()) with main = opts.main } in
+  let code = Code_utils.create () in
   log_metrics opts.config.instrument.profiler
   @@
   match Enums.Lang.resolve_file_lang valid_langs opts.input with
-  | Some ESL -> interpret_esl entry opts.config opts.untyped opts.input
-  | Some CESL -> interpret_cesl entry opts.config opts.input
+  | Some ESL -> interpret_esl code entry opts.config opts.untyped opts.input
+  | Some CESL -> interpret_cesl code entry opts.config opts.input
   | Some CESLUnattached | _ ->
     let config = { opts.config with resolve_exitval = false } in
-    interpret_cesl entry config opts.input
+    interpret_cesl code entry config opts.input

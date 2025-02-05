@@ -1,15 +1,15 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
@@ -125,11 +125,11 @@ let set_trace (tr : RtTrace.t) (err : t) : t = { err with trace = Some tr }
 let push (msg : msg) (err : t) : t = { err with msgs = msg :: err.msgs }
 [@@inline]
 
-let pp (ppf : Format.formatter) (err : t) : unit =
+let pp code (ppf : Format.formatter) (err : t) : unit =
   let module MsgFmt = Error_type.ErrorTypeFmt (RuntimeErr) in
   let module ErrSrcFmt = ErrSrc.ErrSrcFmt (RuntimeErr) in
   let module RtTraceFmt = RtTrace.RtTraceFmt (RuntimeErr) in
-  Fmt.pf ppf "%a%a%a" MsgFmt.pp err.msgs ErrSrcFmt.pp err.src
+  Fmt.pf ppf "%a%a%a" MsgFmt.pp err.msgs ErrSrcFmt.pp (code, err.src)
     (Fmt.option RtTraceFmt.pp) err.trace
 
-let str (err : t) = Fmt.str "%a" pp err [@@inline]
+let str code (err : t) = Fmt.str "%a" (pp code) err [@@inline]

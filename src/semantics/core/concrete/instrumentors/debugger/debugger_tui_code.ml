@@ -1,15 +1,15 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
@@ -62,8 +62,9 @@ let rec element (code : t) : t element = { v = code; window; refresh; element }
 let set_data (code : t) (at : Source.at) : t = { code with at }
 let render_static (code : t) : unit = Frame.draw code.frame
 
-let codeblock (nlines : int) (at : Source.at) : (int * string) list * int =
-  let file = Code_utils.file at.file in
+let codeblock (nlines : int) ((code, at) : Code_utils.t * Source.at) :
+  (int * string) list * int =
+  let file = Code_utils.file code at.file in
   let file_sz = Code_utils.file_sz file in
   let line = at.lpos.line in
   let prev_nlines = proportional_sz nlines 3 1 in
@@ -84,10 +85,10 @@ let render_codeline (win : Win.t) (lineno_sz : int) (i : int)
   !!(mvwaddstr win.w i 0 lineno');
   if trunc then !!(mvwaddstr win.w i (win.xz - 3) "...")
 
-let render_code (win : Win.t) (colors : colors) (at : Source.at) : unit =
+let render_code code (win : Win.t) (colors : colors) (at : Source.at) : unit =
   let color l = if l == at.lpos.line then colors.code_on else colors.code_off in
   let colors_f (lineno, line) = (lineno, line, color lineno) in
-  let (codeblock, last_line) = codeblock (win.yz - 2) at in
+  let (codeblock, last_line) = codeblock (win.yz - 2) (code, at) in
   let lineno_sz = String.length (string_of_int last_line) in
   let codeblock_colored = List.map colors_f codeblock in
   List.iteri (render_codeline win lineno_sz) codeblock_colored
@@ -110,8 +111,8 @@ let render_title (win : Win.t) (colors : colors) : unit =
   !!(mvwaddstr win.w 1 4 "ECMA-SL");
   !!(mvwaddstr win.w 2 3 "Debugging")
 
-let render (code : t) : unit =
+let render code_tbl (code : t) : unit =
   werase code.frame.el.v.w;
-  render_code code.frame.el.v code.colors code.at;
+  render_code code_tbl code.frame.el.v code.colors code.at;
   render_loc code.frame.el.v code.colors code.at;
   render_title code.frame.framewin code.colors

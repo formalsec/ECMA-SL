@@ -1,15 +1,15 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
@@ -17,14 +17,14 @@
 open EslSyntax
 open EslSyntax.Source
 
-let rec type_stmt (s : EStmt.t) (tctx : TCtx.t) : TCtx.t =
-  TCtx.safe_exec (type_stmt' s) tctx
+let rec type_stmt code (s : EStmt.t) (tctx : TCtx.t) : TCtx.t =
+  TCtx.safe_exec code (type_stmt' code s) tctx
 
-and type_stmt' (s : EStmt.t) (tctx : TCtx.t) : TCtx.t =
+and type_stmt' code (s : EStmt.t) (tctx : TCtx.t) : TCtx.t =
   match s.it with
   | Skip -> tctx
-  | Debug s' -> type_stmt s' tctx
-  | Block ss -> type_block ss tctx
+  | Debug s' -> type_stmt code s' tctx
+  | Block ss -> type_block code ss tctx
   | ExprStmt e -> type_expr_stmt e tctx
   | Print e -> type_print e tctx
   | Return e -> type_return e tctx
@@ -44,8 +44,8 @@ and type_stmt' (s : EStmt.t) (tctx : TCtx.t) : TCtx.t =
   | Fail _ -> tctx
   | Assert _ -> tctx
 
-and type_block (ss : EStmt.t list) (tctx : TCtx.t) : TCtx.t =
-  List.fold_left (fun tctx s -> type_stmt s tctx) tctx ss
+and type_block code (ss : EStmt.t list) (tctx : TCtx.t) : TCtx.t =
+  List.fold_left (fun tctx s -> type_stmt code s tctx) tctx ss
 
 and type_expr_stmt (e : EExpr.t) (tctx : TCtx.t) : TCtx.t =
   TExpr.type_expr tctx e |> fun _ -> tctx
