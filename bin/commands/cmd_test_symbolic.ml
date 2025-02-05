@@ -99,11 +99,18 @@ let run_and_check_result i prelude results ({ Test.path; metadata; _ } as test)
   | Error _err -> test.result <- Some Anomaly
   | Ok prog ->
     let start = Sys.time () in
-    let _ =
-      Symbolic_interpreter.run ~no_stop_at_failure:false
-        ~out_cb:(check_result test)
-        ~err_cb:(fun _ _err -> [])
-        path prog
+    let () =
+      try
+        let _ =
+          Symbolic_interpreter.run ~no_stop_at_failure:false
+            ~out_cb:(check_result test)
+            ~err_cb:(fun _ _err -> [])
+            path prog
+        in
+        ()
+      with exn ->
+        Fmt.epr "uncaught exception: %s@." (Printexc.to_string exn);
+        test.result <- Some Anomaly
     in
     test.time <- Sys.time () -. start;
     Fmt.pr "%05d %a@." !i Test.pp test;
