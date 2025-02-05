@@ -19,13 +19,18 @@ open Ecma_sl
 exception Crash of Source.at * string
 exception Invalid_arg of Source.at * string
 
-module Make (Failure : sig
-  type t
+module Interpreter = Interpreter_functor.Make (Symbolic)
 
-  val to_json : t -> Yojson.t
-end) =
+module Make
+    (Failure : sig
+      type t
+
+      val to_json : t -> Yojson.t
+    end)
+    () =
 struct
-  include Interpreter_functor.Make (Symbolic)
+  module Interpreter = Interpreter ()
+  module Symbolic_esl_ffi = Symbolic_esl_ffi.Make ()
 
   let link_env filename prog =
     let module Env = Symbolic.Env in
@@ -65,7 +70,7 @@ struct
     filename prog =
     let start = Sys.time () in
     let env = link_env filename prog in
-    let computation = main env target in
+    let computation = Interpreter.main env target in
     let thread = Choice_monad.Thread.create () in
     let results = Symbolic.Choice.run computation thread in
     let report =
