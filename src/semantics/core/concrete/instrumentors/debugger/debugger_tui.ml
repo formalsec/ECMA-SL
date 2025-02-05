@@ -1,15 +1,15 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
@@ -102,16 +102,16 @@ let render_static (tui : t) : unit =
   Terminal.render_static tui.term.el.v;
   refresh tui
 
-let render (tui : t) : unit =
-  Code.render tui.code;
+let render code (tui : t) : unit =
+  Code.render code tui.code;
   refresh tui
 
-let resize_cmd (tui : t) : t =
+let resize_cmd code (tui : t) : t =
   flushinp ();
   erase ();
   let tui' = resize tui in
   render_static tui';
-  render tui';
+  render code tui';
   refresh tui';
   tui'
 
@@ -120,9 +120,9 @@ let update_running (tui : t) : t =
   let running = function None | Print _ -> true | _ -> false in
   { tui with running = running tui.term.el.v.last_cmd }
 
-let update (tui : t) : t =
+let update code (tui : t) : t =
   let input = Interface.input () in
-  if input == Key.resize then resize_cmd tui
+  if input == Key.resize then resize_cmd code tui
   else
     let term = Interface.update tui.term input in
     let tui' = { tui with term } in

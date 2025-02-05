@@ -81,7 +81,10 @@ let check_result (test : Test.t) thread result =
     | List [ Hc.{ node = Val True; _ }; _ ] -> test.result <- Some Anomaly
     | _ -> test.result <- Some Anomaly )
 
-let run_and_check_result prelude results ({ Test.path; metadata; _ } as test) =
+let run_and_check_result i prelude results ({ Test.path; metadata; _ } as test)
+    =
+  let module Symbolic_interpreter = Symbolic_interpreter () in
+  let code = Code_utils.create () in
   let strict =
     match metadata with
     | None -> false
@@ -92,18 +95,19 @@ let run_and_check_result prelude results ({ Test.path; metadata; _ } as test) =
     | Error (`Msg err) -> failwith err
     | Ok filename -> filename
   in
-  match Cmd_symbolic.prog_of_js filename with
+  match Cmd_symbolic.prog_of_js code filename with
   | Error _err -> test.result <- Some Anomaly
   | Ok prog ->
     let start = Sys.time () in
     let _ =
       Symbolic_interpreter.run ~no_stop_at_failure:false
         ~out_cb:(check_result test)
-        ~err_cb:(fun _ err -> [ err ])
+        ~err_cb:(fun _ _err -> [])
         path prog
     in
     test.time <- Sys.time () -. start;
-    Fmt.pr "%a@." Test.pp test;
+    Fmt.pr "%05d %a@." !i Test.pp test;
+    incr i;
     Queue.push test results
 
 let notify data url =
@@ -153,5 +157,6 @@ let run ~prelude ~inputs ~test_type:_ ~webhook_url =
   @@
   let+ tests = parse inputs in
   let results = Queue.create () in
-  let () = tests (run_and_check_result prelude results) in
+  let i = ref 0 in
+  let () = tests (run_and_check_result i prelude results) in
   print_and_count_results results webhook_url

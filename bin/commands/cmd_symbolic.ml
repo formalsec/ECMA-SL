@@ -20,7 +20,9 @@ module Thread = Ecma_sl_symbolic.Choice_monad.Thread
 module Solver = Ecma_sl_symbolic.Solver
 
 module Symbolic_interpreter =
-  Ecma_sl_symbolic.Symbolic_interpreter.Make (Ecma_sl_symbolic.Symbolic_error) ()
+  Ecma_sl_symbolic.Symbolic_interpreter.Make
+    (Ecma_sl_symbolic.Symbolic_error)
+    ()
 
 let valid_languages : Enums.Lang.t list = Enums.Lang.[ Auto; JS; ESL; CESL ]
 
@@ -40,7 +42,7 @@ let setup_prelude ?(strict = false) filename prelude =
     in
     Ok filename'
 
-let prog_of_js fpath =
+let prog_of_js code fpath =
   let open Ecma_sl in
   let interp = Share.es6_sym_interp () in
   let prog = Parsing.parse_prog interp in
@@ -49,16 +51,16 @@ let prog_of_js fpath =
   (* let* (interp, _) = Cmd_execute.setup_execution ECMARef6Sym None instrument in *)
   let ast = Fpath.v (Filename.temp_file "ecmasl" "ast.cesl") in
   let* () = Cmd_encode.encode None fpath (Some ast) in
-  let+ build_ast = Cmd_execute.build_ast ast in
+  let+ build_ast = Cmd_execute.build_ast code ast in
   Hashtbl.replace (Prog.funcs prog) (Func.name' build_ast) build_ast;
   prog
 
-let dispatch_prog lang fpath =
+let dispatch_prog code lang fpath =
   let valid_langs = Enums.Lang.valid_langs valid_languages lang in
   match Enums.Lang.resolve_file_lang valid_langs fpath with
-  | Some CESL -> Cmd_compile.load fpath
-  | Some ESL -> Cmd_compile.compile true fpath
-  | Some JS -> prog_of_js fpath
+  | Some CESL -> Cmd_compile.load code fpath
+  | Some ESL -> Cmd_compile.compile code true fpath
+  | Some JS -> prog_of_js code fpath
   | _ ->
     let msg = Fmt.str "%a :unreconized file type" Fpath.pp fpath in
     Result.error (`Generic msg)
@@ -96,7 +98,8 @@ let write_report workspace symbolic_report =
 
 let run ~input ~lang ~target ~workspace ~harness =
   let* input = Result.bos @@ setup_prelude input harness in
-  let* prog = dispatch_prog lang input in
+  let code = Ecma_sl.Code_utils.create () in
+  let* prog = dispatch_prog code lang input in
   let testsuite = Fpath.(workspace / "test-suite") in
   let* _ = Result.bos (Bos.OS.Dir.create ~mode:0o777 testsuite) in
   let (result, report) =

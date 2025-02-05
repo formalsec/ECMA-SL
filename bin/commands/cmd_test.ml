@@ -84,14 +84,14 @@ let record (workspace : Fpath.t) (input : Fpath.t) (output : Files.output) :
   let* test = Result.bos (Bos.OS.File.read input) in
   Ok { (Test_record.default ()) with input; output; name; sections; test }
 
-let process_record (opts : Options.t) (env : Prog.t * Value.t Heap.t option)
-  (workspace : Fpath.t) (input : Fpath.t) (output : Files.output) :
-  Test_record.t Result.t =
+let process_record code (opts : Options.t)
+  (env : Prog.t * Value.t Heap.t option) (workspace : Fpath.t) (input : Fpath.t)
+  (output : Files.output) : Test_record.t Result.t =
   let* record = record workspace input output in
   match Enums.Lang.resolve_file_lang ~warn:false [ JS ] input with
   | Some JS ->
     let* record' = Test_parser.parse opts.test_type record in
-    Test_runner.run env record' opts.interp_profiler
+    Test_runner.run code env record' opts.interp_profiler
   | _ -> Ok { record with result = Skipped }
 
 let mutex = Mutex.create ()
@@ -99,7 +99,8 @@ let mutex = Mutex.create ()
 let run_single (opts : Options.t) (env : Prog.t * Value.t Heap.t option)
   (tree : Test_tree.t) (is_parallel : bool) (workspace : Fpath.t)
   (input : Fpath.t) (output : Files.output) : unit Result.t =
-  let* record = process_record opts env workspace input output in
+  let code = Code_utils.create () in
+  let* record = process_record code opts env workspace input output in
   (* TODO: Clean this mutex up. Either TestTree is immutable and we fold and
      return a TestTreee from `process_inputs` or we make TestTree a thread-safe
      data structure *)
@@ -131,7 +132,8 @@ let run () ({ inputs; report; harness; jsinterp; jobs; _ } as opts : Options.t)
   let* inputs = Files.generate_input_list inputs in
   Options.term_width := get_logging_width inputs;
   Log.stdout "%a@." (Test_tree.pp_status_header !Options.term_width) ();
-  let* env = Cmd_execute.setup_execution jsinterp harness in
+  let code = Code_utils.create () in
+  let* env = Cmd_execute.setup_execution code jsinterp harness in
   let tree = Test_tree.create "" in
   let outext = Enums.Lang.str TestReport in
   let is_parallel = jobs > 1 in
