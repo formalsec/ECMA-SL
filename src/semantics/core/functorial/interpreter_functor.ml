@@ -18,7 +18,7 @@
 
 open EslSyntax
 
-module Make (P : Interpreter_functor_intf.P) :
+module Make (P : Interpreter_functor_intf.P) () :
   Interpreter_functor_intf.S
     with type env := P.env
      and type 'a choice := 'a P.Choice.t
@@ -31,6 +31,7 @@ module Make (P : Interpreter_functor_intf.P) :
   module Env = P.Env
   module Choice = P.Choice
   open Choice
+  module Loc = Loc.Make ()
 
   let ( @> ) = Source.( @> )
 
@@ -66,8 +67,7 @@ module Make (P : Interpreter_functor_intf.P) :
 
     let return ?(value : value option) (state : exec_state) : stmt_result =
       match state.return_state with
-      | None ->
-        Return (Ok (Option.value value ~default:Value.null))
+      | None -> Return (Ok (Option.value value ~default:Value.null))
       | Some (state', ret_v) ->
         let v =
           match value with

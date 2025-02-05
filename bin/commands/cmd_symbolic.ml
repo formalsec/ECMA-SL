@@ -20,7 +20,7 @@ module Thread = Ecma_sl_symbolic.Choice_monad.Thread
 module Solver = Ecma_sl_symbolic.Solver
 
 module Symbolic_interpreter =
-  Ecma_sl_symbolic.Symbolic_interpreter.Make (Ecma_sl_symbolic.Symbolic_error)
+  Ecma_sl_symbolic.Symbolic_interpreter.Make (Ecma_sl_symbolic.Symbolic_error) ()
 
 let valid_languages : Enums.Lang.t list = Enums.Lang.[ Auto; JS; ESL; CESL ]
 
