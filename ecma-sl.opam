@@ -34,7 +34,7 @@ depends: [
   "ppx_deriving"
   "mdx" {with-test}
   "ppx_inline_test" {with-test}
-  "prelude" {= "0.3" & with-test}
+  "prelude" {>= "0.5" & with-test}
   "rusage" {with-test}
   "bisect_ppx" {>= "2.5.0" & with-test & with-dev-setup}
 ]
@@ -56,5 +56,5 @@ build: [
 ]
 dev-repo: "git+https://github.com/formalsec/ECMA-SL.git"
 pin-depends: [
-  [ "smtml.0.4.1" "git+https://github.com/formalsec/smtml.git#807ca82df56183920e2ed5a6e968a98330e68c33" ]
+  [ "smtml.0.5.0" "git+https://github.com/formalsec/smtml.git#5d3459acb3def2eb851422a6febb7cbf29a9087e" ]
 ]
