@@ -1,15 +1,15 @@
 /* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -1258,7 +1258,7 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 13.2.13 Block */
 
     /* Block : { } */
-    if (l_len(StatementList) == 0) {
+    if (StatementList == []) {
     /* 1. Return NormalCompletion(empty). */
       return NormalCompletion('empty);
     }
@@ -1867,31 +1867,15 @@ function JS_Interpreter_LexicalDecl(LexicalDeclaration, scope) {
 }
 
 function JS_Interpreter_StmtList(stmts, scope) {
-  /* StatementList : StatementList StatementListItem */
-  if (l_len(stmts) == 1) {
-  Statement := l_nth(stmts, 0);
-    s := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
-    return s;
+  last_completion := NormalCompletion('empty);
+  foreach (stmt : stmts) {
+    s := JS_Interpreter_Stmt(stmt, scope) catch Interpreter_Statement_Guard;
+    if (isAnAbruptCompletion(s)) {
+      return UpdateEmpty(s, getCompletionValue(last_completion));
+    }
+    last_completion := UpdateEmpty(s, getCompletionValue(last_completion));
   }
-
-  i := (l_len(stmts)) - 1;
-  Statement := l_nth(stmts, i);
-  StatementList := [];
-  while (i > 0) {
-    i := i - 1;
-    StatementList := l_prepend(l_nth(stmts, i), StatementList);
-  }
-
-  /* 1. Let sl be the result of evaluating StatementList. */
-  sl := JS_Interpreter_StmtList(StatementList, scope);
-  /* 2. ReturnIfAbrupt(sl). */
-  copy := sl;
-  @ReturnIfAbrupt(copy);
-  /* 3. Let s be the result of evaluating StatementListItem. */
-  s := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
-  /* 4. Return Completion(UpdateEmpty(s, sl.[[value]])). */
-  return Completion(UpdateEmpty(s, getCompletionValue(sl)));
-
+  return last_completion;
 }
 
 function JS_Interpreter_BinExpr(e, scope) {
