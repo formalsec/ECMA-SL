@@ -1,15 +1,15 @@
 /* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -22,9 +22,22 @@ function init() {
   return;
 }
 
+function stringOfError(error : object) : string {
+  name := Get(error, "name");
+  @ReturnIfAbrupt(name);
+  if (name == 'undefined)
+    name := "Error";
+
+  message := Get(error, "message");
+  @ReturnIfAbrupt(message);
+  if (message == 'undefined)
+    return "Uncaught " + name;
+  return "Uncaught " + name + ": " + message;
+}
+
 function ECMAScriptReturn(ret) {
   c_value := getCompletionValue(ret);
-  if ((typeof c_value == "object") &&& ("ErrorData" in_obj c_value) ) {
+  if ((typeof c_value == "object") &&& ("ErrorData" in_obj c_value)) {
     error_name := {c_value.Get}(c_value, "name", c_value);
     return newCompletion(getCompletionType(ret), error_name, getCompletionTarget(ret));
   }
