@@ -1,5 +1,5 @@
 open Bos
-open Smtml_prelude.Result
+open Result
 
 let timeout = 300
 let symbolic = Tool.symbolic ()
