@@ -1,15 +1,15 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
@@ -49,6 +49,8 @@ module Thread = struct
     let mem = Memory.clone mem in
     { solver; optimizer; pc; mem }
 end
+
+let is_sat = function `Sat -> true | _ -> false
 
 module Seq = struct
   type thread = Thread.t
@@ -90,9 +92,7 @@ module Seq = struct
       | `Sat -> Cont.return (true, t)
       | `Unsat -> Cont.return (false, t)
       | `Unknown ->
-        Format.eprintf "Unknown pc: %a@."
-          (Smtml.Expr.Set.pretty Smtml.Expr.pp)
-          pc;
+        Fmt.epr "Unknown pc: %a@." (Smtml.Expr.Set.pretty Smtml.Expr.pp) pc;
         Cont.empty )
 
   let check_add_true (cond : Value.value) : bool t =
@@ -108,9 +108,7 @@ module Seq = struct
       | `Sat -> Cont.return (true, Thread.add_pc t cond)
       | `Unsat -> Cont.return (false, t)
       | `Unknown ->
-        Format.eprintf "Unknown pc: %a@."
-          (Smtml.Expr.Set.pretty Smtml.Expr.pp)
-          pc;
+        Fmt.epr "Unknown pc: %a@." (Smtml.Expr.Set.pretty Smtml.Expr.pp) pc;
         Cont.empty )
 
   let branch (v : Value.value) : bool t =
@@ -125,11 +123,11 @@ module Seq = struct
       let with_no = Smtml.Expr.Set.add (Value.Bool.not_ v) pc in
       let sat_true =
         if Smtml.Expr.Set.equal with_v pc then true
-        else `Sat = Solver.check_set solver with_v
+        else is_sat @@ Solver.check_set solver with_v
       in
       let sat_false =
         if Smtml.Expr.Set.equal with_no pc then true
-        else `Sat = Solver.check_set solver with_no
+        else is_sat @@ Solver.check_set solver with_no
       in
       match (sat_true, sat_false) with
       | (false, false) -> Cont.empty
@@ -195,9 +193,7 @@ module List = struct
       | `Sat -> [ (true, t) ]
       | `Unsat -> [ (false, t) ]
       | `Unknown ->
-        Format.eprintf "Unknown pc: %a@."
-          (Smtml.Expr.Set.pretty Smtml.Expr.pp)
-          pc;
+        Fmt.epr "Unknown pc: %a@." (Smtml.Expr.Set.pretty Smtml.Expr.pp) pc;
         [] )
 
   let check_add_true (cond : Value.value) : bool t =
@@ -213,9 +209,7 @@ module List = struct
       | `Sat -> [ (true, Thread.add_pc t cond) ]
       | `Unsat -> [ (false, t) ]
       | `Unknown ->
-        Format.eprintf "Unknown pc: %a@."
-          (Smtml.Expr.Set.pretty Smtml.Expr.pp)
-          pc;
+        Fmt.epr "Unknown pc: %a@." (Smtml.Expr.Set.pretty Smtml.Expr.pp) pc;
         [] )
 
   let branch (v : Value.value) : bool t =
@@ -230,11 +224,11 @@ module List = struct
       let with_no = Smtml.Expr.Set.add (Value.Bool.not_ v) pc in
       let sat_true =
         if Smtml.Expr.Set.equal with_v pc then true
-        else `Sat = Solver.check_set solver with_v
+        else is_sat @@ Solver.check_set solver with_v
       in
       let sat_false =
         if Smtml.Expr.Set.equal with_no pc then true
-        else `Sat = Solver.check_set solver with_no
+        else is_sat @@ Solver.check_set solver with_no
       in
       match (sat_true, sat_false) with
       | (false, false) -> []

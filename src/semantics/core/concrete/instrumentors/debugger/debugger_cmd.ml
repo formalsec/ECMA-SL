@@ -1,19 +1,21 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
 
+module Parsing' = Parsing
+open Prelude
 open Debugger_types
 
 module Message = struct
@@ -65,11 +67,11 @@ let heapval_pp (heap : heap) : Value.t Fmt.t =
 
 let eval_cmd (state : state) (e_tkns : string list) : string =
   let (_, heap, _) = state in
-  if e_tkns == [] then Message.missing_expr
+  if List.is_empty e_tkns then Message.missing_expr
   else
     try
       let e_str = String.concat " " e_tkns in
-      let e = Parsing.parse_expr e_str in
+      let e = Parsing'.parse_expr e_str in
       let v = !InterpreterCallbacks.eval_expr state e in
       Fmt.str "%a" (heapval_pp heap) v
     with _ -> Message.invalid_expr

@@ -34,7 +34,7 @@ depends: [
   "ppx_deriving"
   "mdx" {with-test}
   "ppx_inline_test" {with-test}
-  "prelude" {>= "0.5" & with-test}
+  "prelude" {>= "0.5"}
   "rusage" {with-test}
   "bisect_ppx" {>= "2.5.0" & with-test & with-dev-setup}
 ]

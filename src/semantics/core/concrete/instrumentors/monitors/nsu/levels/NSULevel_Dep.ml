@@ -1,15 +1,15 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
@@ -37,7 +37,7 @@ module M = struct
     ()
 
   let str_sset (l : SSet.t) : string =
-    "{" ^ String.concat " " (SSet.elements l) ^ "}"
+    Fmt.str "{%a}" (Fmt.list ~sep:Fmt.sp Fmt.string) (SSet.elements l)
 
   let find_ref (lev : SSet.t) : t =
     let chng = ref true in
@@ -45,7 +45,7 @@ module M = struct
     let ele =
       List.fold_left
         (fun ac ele ->
-          if !ele = lev then (
+          if SSet.equal !ele lev then (
             chng := false;
             (*Log.stdout "Found ref >>>>>%d   (%s)\n" (Obj.magic (ele)) (str_sset !ref_res);*)
             ele )
@@ -67,11 +67,12 @@ module M = struct
     | None -> raise (Except "SecLev_Dep was not initialized with top element.")
     | Some v -> v
 
-  let str (l : t) : string = "{" ^ String.concat " " (SSet.elements !l) ^ "}"
+  let str (l : t) : string =
+    Fmt.str "{%a}" (Fmt.list ~sep:Fmt.sp Fmt.string) (SSet.elements !l)
 
   let flow_to_str (fl : flow) : string =
     match fl with
-    | (fromset, toset) -> Printf.sprintf "%s -> %s" (str fromset) (str toset)
+    | (fromset, toset) -> Fmt.str "%s -> %s" (str fromset) (str toset)
 
   let apply_flow (fl : flow) (lev : SSet.t) : SSet.t =
     Log.stdout "\tApplying flow %s to lev %s\n" (flow_to_str fl) (str_sset lev);
@@ -90,8 +91,7 @@ module M = struct
       if chng then loop chng lev2 else lev2
     in
     let res = loop true lev in
-    print_string ("\tResulting level: " ^ str_sset res ^ "\n");
-
+    Fmt.pr "\tResulting level: %s@." (str_sset res);
     res
 
   let lub (set1 : t) (set2 : t) : t = find_ref (SSet.union !set1 !set2)
@@ -99,15 +99,12 @@ module M = struct
   let leq (set1 : t) (set2 : t) : bool = SSet.subset !set1 !set2
 
   let update_levels () : unit =
-    List.iter (fun refer -> refer := close_level !refer) !all_levels;
-    ()
+    List.iter (fun refer -> refer := close_level !refer) !all_levels
 
   let addFlow (set1 : t) (set2 : t) : unit =
     flows := !flows @ [ (set1, set2) ];
-    print_string "Updating Levels list...\n";
-    update_levels ();
-
-    ()
+    Fmt.pr "Updating Levels list...@.";
+    update_levels ()
 
   let parse_lvl (str : string) : t =
     let rem1 = String.split_on_char '{' str in

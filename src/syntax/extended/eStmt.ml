@@ -1,15 +1,15 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
@@ -49,8 +49,8 @@ let default : unit -> t =
 let rec pp (ppf : Format.formatter) (s : t) : unit =
   let pp_vs pp_v ppf es = Fmt.(list ~sep:comma pp_v) ppf es in
   let pp_indent pp_v ppf = Fmt.pf ppf "  @[<v>%a@]" pp_v in
-  let pp_cont s =
-    Format.dprintf (match s.it with Block _ -> " " | _ -> "@\n")
+  let pp_cont fmt s =
+    Fmt.pf fmt (match Source.view s with Block _ -> " " | _ -> "@\n")
   in
   let pp_nested ppf s =
     match s.it with
@@ -85,13 +85,13 @@ let rec pp (ppf : Format.formatter) (s : t) : unit =
   | FieldDelete (oe, fe) ->
     Fmt.pf ppf "delete %a%a;" EExpr.pp oe EExpr.pp_lookup fe
   | If (e, s1, s2) ->
-    let pp_else ppf s2 = Fmt.pf ppf "%telse%a" (pp_cont s1) pp_else_if s2 in
+    let pp_else ppf s2 = Fmt.pf ppf "%aelse%a" pp_cont s1 pp_else_if s2 in
     Fmt.pf ppf "if (%a)%a%a" EExpr.pp e pp_nested s1 (Fmt.option pp_else) s2
   | While (e, s') -> Fmt.pf ppf "while (%a)%a" EExpr.pp e pp_nested s'
   | ForEach (x, e, s') ->
     Fmt.pf ppf "foreach (%a : %a)%a" Id.pp x EExpr.pp e pp_nested s'
   | RepeatUntil (s', e) ->
-    let pp_until ppf e = Fmt.pf ppf "%tuntil (%a);" (pp_cont s') EExpr.pp e in
+    let pp_until ppf e = Fmt.pf ppf "%auntil (%a);" pp_cont s EExpr.pp e in
     Fmt.pf ppf "repeat %a%a" pp_nested s' (Fmt.option pp_until) e
   | Switch (e, css, dflt) ->
     let pp_dflt_cs ppf s = Fmt.pf ppf "default:%a" pp_nested s in

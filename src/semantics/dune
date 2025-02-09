@@ -78,6 +78,7 @@
   tStmt
   tCtx
   ;  utils
+  re
   channel_utils
   arith_utils
   byte_utils
@@ -87,6 +88,14 @@
   string_utils)
  (preprocess
   (staged_pps ppx_import ppx_deriving.std))
- (libraries eslBase eslSyntax eslJSParser str menhirLib yojson curses)
+ (libraries
+  eslBase
+  eslSyntax
+  eslJSParser
+  menhirLib
+  yojson
+  curses
+  prelude
+  str)
  (instrumentation
   (backend bisect_ppx)))

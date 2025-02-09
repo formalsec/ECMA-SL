@@ -52,9 +52,7 @@
   (mdx :with-test)
   (ppx_inline_test :with-test)
   (prelude
-   (and
-    (>= "0.5")
-    :with-test))
+   (>= "0.5"))
   (rusage :with-test)
   (bisect_ppx
    (and

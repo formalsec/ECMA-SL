@@ -1,19 +1,20 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
 
+open Prelude
 open EslBase
 open EslSyntax
 
@@ -57,7 +58,7 @@ let set (heap : 'a t) (loc : Loc.t) (obj : 'a obj) : unit =
 let pp_map (pp_v : 'a obj Fmt.t) (ppf : Format.formatter)
   (map : 'a obj Loc.Tbl.t) : unit =
   let pp_bind ppf (loc, obj) = Fmt.pf ppf "%a: %a" Loc.pp loc pp_v obj in
-  if Loc.Tbl.length map == 0 then Fmt.string ppf "{}"
+  if Loc.Tbl.length map = 0 then Fmt.string ppf "{}"
   else
     Fmt.pf ppf "{ %a }"
       (Loc.Tbl.pp (fun ppf -> Fmt.string ppf ", ") pp_bind)

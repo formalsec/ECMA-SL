@@ -23,7 +23,7 @@ module Make () = struct
     let (next, _) = Base.make_counter 0 1 in
     next
 
-  let equal (loc1 : t) (loc2 : t) : bool = loc1 == loc2 [@@inline]
+  let equal (loc1 : t) (loc2 : t) : bool = phys_equal loc1 loc2 [@@inline]
   let hash (loc : t) : int = loc [@@inline]
 
   let pp (ppf : Format.formatter) (loc : t) : unit = Fmt.pf ppf "$loc_%d" loc

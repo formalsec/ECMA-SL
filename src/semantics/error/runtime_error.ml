@@ -14,6 +14,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
 
+open Prelude
 open EslBase
 open EslSyntax
 module ErrSrc = Error_source
@@ -105,7 +106,7 @@ type t =
 
 exception Error of t
 
-let raise (err : t) : 'a = Stdlib.raise_notrace (Error err) [@@inline]
+let raise (err : t) : 'a = raise_notrace (Error err) [@@inline]
 
 let create ?(src : ErrSrc.t = Source.none) (msgs : msg list) : t =
   { msgs; src; trace = None }

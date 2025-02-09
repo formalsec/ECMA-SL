@@ -1,15 +1,15 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
@@ -31,7 +31,7 @@ let is_special_number (s : string) : bool =
 let float_str (f : float) : string =
   let f_str = Fmt.str "%.17g" f in
   if is_special_number f_str || String.contains f_str '.' then f_str
-  else f_str ^ ".0"
+  else Fmt.str "%s.0" f_str
 
 let pp_custom_val (pp_v : t Fmt.t) (ppf : Format.formatter) (v : t) : unit =
   match v with

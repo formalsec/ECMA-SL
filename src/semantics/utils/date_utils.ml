@@ -1,19 +1,20 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
 
+open Prelude
 open EslBase
 
 (*YYYY-MM-DDTHH:mm:ss.sssZ*)
@@ -25,23 +26,28 @@ let is_final_index str i =
 let cl2s cl = String.concat "" (List.map (String.make 1) cl)
 
 let is_timezone str i =
-  Log.debug "debug 42: is_timezone %s %d %b \n" str i
-    (String.get str i <= 'Z' && String.get str i >= 'A');
-  String.get str i <= 'Z' && String.get str i >= 'A'
+  let result =
+    Char.code (String.get str i) <= Char.code 'Z'
+    && Char.code (String.get str i) >= Char.code 'A'
+  in
+  Log.debug "debug 42: is_timezone %s %d %b \n" str i result;
+  result
 
 let parse_segment (str : string) (i : int) (prev : char) (delim : char) :
   (float * int) option =
   Log.debug "debug 42: parse_segment %s, %d %c %c\n" str i prev delim;
   let len = String.length str in
-  if String.length str = i + 1 && String.get str i = prev then None
+  if String.length str = i + 1 && Char.equal (String.get str i) prev then None
   else
     let rec loop (chrs : char list) (j : int) =
-      if j >= len || String.get str j = delim then Some (chrs, j)
+      if j >= len || Char.equal (String.get str j) delim then Some (chrs, j)
       else
         let cj = String.get str j in
         Log.debug "debug 42: parse_segment char: %c\n" cj;
-        if cj <= '9' && cj >= '0' then loop (chrs @ [ cj ]) (j + 1)
-        else if cj <= 'Z' && cj >= 'A' then Some (chrs, j)
+        if Char.code cj <= Char.code '9' && Char.code cj >= Char.code '0' then
+          loop (chrs @ [ cj ]) (j + 1)
+        else if Char.code cj <= Char.code 'Z' && Char.code cj >= Char.code 'A'
+        then Some (chrs, j)
         else None
     in
     match loop [] (i + 1) with
@@ -49,7 +55,11 @@ let parse_segment (str : string) (i : int) (prev : char) (delim : char) :
     | Some ([], _) -> None
     | Some (chrs, j) ->
       let str_number = cl2s chrs in
-      let number = float_of_string str_number in
+      let number =
+        match float_of_string_opt str_number with
+        | Some f -> f
+        | None -> assert false
+      in
       Log.debug "debug42: got number: %f\n" number;
       Some (number, j)
 
@@ -57,17 +67,23 @@ let parse_year (str : string) (i : int) : (float * int) option =
   Log.debug "debug 42: parse_year %s, %d\n" str i;
   let len = String.length str in
   let rec loop (chrs : char list) (j : int) =
-    if j >= len || String.get str j = '-' then Some (chrs, j)
+    if j >= len || Char.equal (String.get str j) '-' then Some (chrs, j)
     else
       let cj = String.get str j in
       Log.debug "debug 42: parse_year char: %c\n" cj;
-      if cj <= '9' && cj >= '0' then loop (chrs @ [ cj ]) (j + 1) else None
+      if Char.code cj <= Char.code '9' && Char.code cj >= Char.code '0' then
+        loop (chrs @ [ cj ]) (j + 1)
+      else None
   in
   match loop [] i with
   | None -> None
   | Some (chrs, j) ->
     let str_year = cl2s chrs in
-    let year = float_of_string str_year in
+    let year =
+      match float_of_string_opt str_year with
+      | Some f -> f
+      | None -> assert false
+    in
     Log.debug "debug42: got year: %f\n" year;
     Some (year, j)
 
@@ -90,7 +106,7 @@ let parse_msec (str : string) (i : int) : (float * int) option =
   parse_segment str i '.' 'Z' (* TODO *)
 
 let parse_time_zone (str : string) (i : int) : string option =
-  Some (str ^ string_of_int i)
+  Some (Fmt.str "%s%d" str i)
 
 let parse_sth (str : string) (fs : (string -> int -> (float * int) option) list)
   : (float list * int) option =

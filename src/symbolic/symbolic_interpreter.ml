@@ -68,7 +68,7 @@ struct
 
   let run ?(no_stop_at_failure = false) ?(target = "main") ~out_cb ~err_cb
     filename prog =
-    let start = Sys.time () in
+    let start = Unix.gettimeofday () in
     let env = link_env filename prog in
     let computation = Interpreter.main env target in
     let thread = Choice_monad.Thread.create () in
@@ -105,7 +105,7 @@ struct
               end )
         with Exit -> ()
       in
-      report.execution_time <- Sys.time () -. report.execution_time;
+      report.execution_time <- Unix.gettimeofday () -. report.execution_time;
       report.solver_time <- !Solver.solver_time;
       report.solver_queries <- !Solver.solver_count;
       match !exit with None -> Ok () | Some err -> Error err

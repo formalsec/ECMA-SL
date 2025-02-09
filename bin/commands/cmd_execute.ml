@@ -73,8 +73,8 @@ let setup_program_harness code (interp : Prog.t) (harness : Fpath.t) :
   Log.debug "Sucessfuly linked JS harness '%a' to interpreter." Fpath.pp harness;
   Ok result.heap
 
-let setup_execution code (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option) :
-  (Prog.t * Value.t Heap.t option) Result.t =
+let setup_execution code (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option)
+  : (Prog.t * Value.t Heap.t option) Result.t =
   let finterp = Enums.JSInterp.interp jsinterp in
   let* interp = Cmd_compile.compile code true (Fpath.v finterp) in
   match harness with

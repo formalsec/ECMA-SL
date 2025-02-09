@@ -1,18 +1,19 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
+open Prelude
 
 let default_hashtbl_sz : int ref = ref 16
 
@@ -29,13 +30,12 @@ let make_counter (init : int) (step : int) : counter =
 
 let make_name_generator (base : string) : unit -> string =
   let (next, _) = make_counter 0 1 in
-  fun () -> base ^ string_of_int (next ())
+  fun () -> Fmt.str "%s%d" base (next ())
 
 let ordinal_suffix (n : int) : string =
-  string_of_int n
-  ^
-  if n mod 100 / 10 = 1 then "th"
-  else match n mod 10 with 1 -> "st" | 2 -> "nd" | 3 -> "rd" | _ -> "th"
+  Fmt.str "%d%s" n
+    ( if n mod 100 / 10 = 1 then "th"
+      else match n mod 10 with 1 -> "st" | 2 -> "nd" | 3 -> "rd" | _ -> "th" )
 
 type formated_time = int * int * int * int
 

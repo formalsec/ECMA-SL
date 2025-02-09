@@ -14,6 +14,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
 
+open Prelude
 open EslBase
 open EslSyntax
 
@@ -40,16 +41,16 @@ let line (file : file) (lineno : int) : int * string =
     Log.fail "expecting line between 1 and %d, but got %d" (file_sz file) lineno
 
 let rec lines (file : file) (start : int) (nlines : int) : (int * string) list =
-  if nlines == 0 then []
+  if nlines = 0 then []
   else line file start :: lines file (start + 1) (nlines - 1)
 
 let codeblock ((code, at) : t * Source.at) : string list =
   let trim_line line n =
     match (at.lpos.line, at.rpos.line) with
-    | (left, right) when left == n && right == n ->
+    | (left, right) when left = n && right = n ->
       String.substr ~left:at.lpos.col ~right:at.rpos.col line
-    | (l, _) when l == n -> String.substr ~left:at.lpos.col line
-    | (_, r) when r == n -> String.substr ~right:at.rpos.col line
+    | (l, _) when l = n -> String.substr ~left:at.lpos.col line
+    | (_, r) when r = n -> String.substr ~right:at.rpos.col line
     | _ -> line
   in
   let rec trim_lines = function
