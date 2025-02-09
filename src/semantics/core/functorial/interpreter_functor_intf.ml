@@ -16,6 +16,7 @@
 
 (* This code was based on: https://github.com/OCamlPro/owi/blob/main/src/intf/interpret_intf.ml *)
 
+open Prelude
 open EslSyntax
 
 module type P = sig

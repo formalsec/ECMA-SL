@@ -14,6 +14,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
 
+open Prelude
 open Debugger_types
 open Debugger_tui_helper
 
@@ -77,7 +78,7 @@ let codeblock (nlines : int) ((code, at) : Code_utils.t * Source.at) :
 let render_codeline (win : Win.t) (lineno_sz : int) (i : int)
   ((lineno, line, color) : int * string * Color.t) : unit =
   let lineno' = Fmt.str "%*d |" (15 + lineno_sz) lineno in
-  let line' = Str.(global_replace (regexp "\t") "  " line) in
+  let line' = Re.(global_replace (regexp "\t") "  " line) in
   let (line'', trunc) = String.truncate (win.xz - 19 - lineno_sz) line' in
   wattr_set win.w WA.normal color;
   !!(mvwaddstr win.w i (18 + lineno_sz) line'');
@@ -86,7 +87,7 @@ let render_codeline (win : Win.t) (lineno_sz : int) (i : int)
   if trunc then !!(mvwaddstr win.w i (win.xz - 3) "...")
 
 let render_code code (win : Win.t) (colors : colors) (at : Source.at) : unit =
-  let color l = if l == at.lpos.line then colors.code_on else colors.code_off in
+  let color l = if l = at.lpos.line then colors.code_on else colors.code_off in
   let colors_f (lineno, line) = (lineno, line, color lineno) in
   let (codeblock, last_line) = codeblock (win.yz - 2) (code, at) in
   let lineno_sz = String.length (string_of_int last_line) in
@@ -96,7 +97,7 @@ let render_code code (win : Win.t) (colors : colors) (at : Source.at) : unit =
 let render_loc_data (win : Win.t) (at : Source.at) : unit =
   let lineno_sz = String.length (string_of_int at.lpos.line) in
   let (file', trunc) = String.truncate (win.xz - 19 - lineno_sz) at.file in
-  let file'' = if trunc then file' ^ "..." else file' in
+  let file'' = if trunc then String.cat file' "..." else file' in
   let loc = Fmt.str "File %S, line %d" file'' at.lpos.line in
   !!(mvwaddstr win.w (win.yz - 1) 1 loc)
 

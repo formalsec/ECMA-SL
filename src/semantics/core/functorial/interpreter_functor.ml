@@ -15,7 +15,7 @@
  *)
 
 (* This code was based on: https://github.com/OCamlPro/owi/blob/main/src/interpret/interpret.ml *)
-
+open Prelude
 open EslSyntax
 
 module Make (P : Interpreter_functor_intf.P) () :
@@ -123,9 +123,11 @@ module Make (P : Interpreter_functor_intf.P) () :
      fun args ty f ->
       match ty with
       | UArg ty' -> apply args ty' (f ())
-      | Arg ty' ->
-        let v = List.hd args in
-        apply (List.tl args) ty' (f v)
+      | Arg ty' -> (
+        match args with
+        | v :: tl -> apply tl ty' (f v)
+        | [] -> Choice.return (Error (`Failure "extern func: not enough values"))
+        )
       | Res -> f
     in
     let (Extern_func (Func atype, func)) = f in

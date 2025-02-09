@@ -15,6 +15,7 @@
  *)
 
 (* This code was based on: https://github.com/OCamlPro/owi/blob/main/src/intf/func_intf.ml *)
+open Prelude
 
 type 'a err =
   [ `Abort of string

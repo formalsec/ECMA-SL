@@ -14,8 +14,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
 
+module Parsing' = Parsing
+open Prelude
 open EslBase
 open EslSyntax
+
+let ( let* ) = Result.bind
 
 type store = Value.t Store.t
 type heap = Value.t Heap.t
@@ -35,20 +39,25 @@ let bad_arg_err (arg : int) (op_lbl : string) (types : string)
 let eval_build_ast_func = Base.make_name_generator "eval_func_"
 
 let parseJS (prog : Prog.t) (code : string) : Value.t =
-  let input = Filename.temp_file "ecmasl" "eval_func.js" in
-  let output = Filename.temp_file "ecmasl" "eval_func.cesl" in
-  let eval_func_id = eval_build_ast_func () in
-  Io.write_file input code;
-  let js2ecmasl = EslJSParser.Api.cmd input (Some output) (Some eval_func_id) in
-  match Bos.OS.Cmd.run js2ecmasl with
-  | Error _ -> Log.fail "err in JS2ECMA-SL"
-  | Ok _ -> (
+  let result =
+    let* input = Bos.OS.File.tmp "ecmasl%seval_func.js" in
+    let input = Fpath.to_string input in
+    let* output = Bos.OS.File.tmp "ecmasl%seval_func.cesl" in
+    let output = Fpath.to_string output in
+    let eval_func_id = eval_build_ast_func () in
+    Io.write_file input code;
+    let js2ecmasl =
+      EslJSParser.Api.cmd input (Some output) (Some eval_func_id)
+    in
+    let* () = Bos.OS.Cmd.run js2ecmasl in
     try
       let ast_func = Io.read_file output in
-      let eval_func = Parsing.parse_func ast_func in
+      let eval_func = Parsing'.parse_func ast_func in
       Hashtbl.replace (Prog.funcs prog) eval_func_id eval_func;
-      Value.Str eval_func_id
-    with _ -> Log.fail "err in ParseJS" )
+      Ok (Value.Str eval_func_id)
+    with _ -> Log.fail "err in ParseJS"
+  in
+  match result with Ok v -> v | Error (`Msg err) -> Log.fail "%s" err
 
 module Impl = struct
   (* FIXME: This leaks memory!! :( *)
@@ -58,7 +67,7 @@ module Impl = struct
   let int_to_four_hex (v : Value.t) : Value.t =
     let op_lbl = "int_to_four_hex_external" in
     match v with
-    | Int i -> Str (Printf.sprintf "%04x" i)
+    | Int i -> Str (Fmt.str "%04x" i)
     | _ -> bad_arg_err 1 op_lbl "integer" [ v ]
 
   let octal_to_decimal (v : Value.t) : Value.t =
@@ -81,19 +90,15 @@ module Impl = struct
       let z = Float.to_int (Float.log10 x) + 1 in
       if y < z then
         let exp = Float.log10 x in
-        if exp >= 0. then
+        if Float.Infix.(exp >= 0.) then
           let num =
             Float.round
               (x /. (10. ** Float.trunc exp) *. (10. ** Float.of_int (y - 1)))
             /. (10. ** Float.of_int (y - 1))
           in
           if Float.is_integer num && y = 1 then
-            Str
-              ( string_of_int (Float.to_int num)
-              ^ "e+"
-              ^ Int.to_string (Float.to_int exp) )
-          else
-            Str (string_of_float num ^ "e+" ^ Int.to_string (Float.to_int exp))
+            Str (Fmt.str "%de+%d" (Float.to_int num) (Float.to_int exp))
+          else Str (Fmt.str "%fe+%d" num (Float.to_int exp))
         else
           let num =
             Float.round
@@ -102,14 +107,9 @@ module Impl = struct
           in
           if Float.is_integer num && y = 1 then
             Str
-              ( string_of_int (Float.to_int num)
-              ^ "e"
-              ^ Int.to_string (Float.to_int (Float.floor exp)) )
-          else
-            Str
-              ( string_of_float num
-              ^ "e"
-              ^ Int.to_string (Float.to_int (Float.floor exp)) )
+              (Fmt.str "%de%d" (Float.to_int num)
+                 (Float.to_int (Float.floor exp)) )
+          else Str (Fmt.str "%fe%d" num (Float.to_int (Float.floor exp)))
       else
         let res =
           Float.round (x *. (10. ** float_of_int (y - 1)))
@@ -124,17 +124,14 @@ module Impl = struct
     match (v1, v2) with
     | (Real x, Int y) ->
       let exp = Float.log10 x in
-      if exp >= 0. then
+      if Float.Infix.(exp >= 0.) then
         let num =
           Float.round (x /. (10. ** Float.trunc exp) *. (10. ** Float.of_int y))
           /. (10. ** Float.of_int y)
         in
         if Float.is_integer num then
-          Str
-            ( string_of_int (Float.to_int num)
-            ^ "e+"
-            ^ Int.to_string (Float.to_int exp) )
-        else Str (string_of_float num ^ "e+" ^ Int.to_string (Float.to_int exp))
+          Str (Fmt.str "%de+%d" (Float.to_int num) (Float.to_int exp))
+        else Str (Fmt.str "%fe+%d" num (Float.to_int exp))
       else
         let num =
           Float.round (x /. (10. ** Float.floor exp) *. (10. ** Float.of_int y))
@@ -142,21 +139,16 @@ module Impl = struct
         in
         if Float.is_integer num then
           Str
-            ( string_of_int (Float.to_int num)
-            ^ "e"
-            ^ Int.to_string (Float.to_int (Float.floor exp)) )
-        else
-          Str
-            ( string_of_float num
-            ^ "e"
-            ^ Int.to_string (Float.to_int (Float.floor exp)) )
+            (Fmt.str "%de%d" (Float.to_int num)
+               (Float.to_int (Float.floor exp)) )
+        else Str (Fmt.str "%fe%d" num (Float.to_int (Float.floor exp)))
     | (Real _, _) -> bad_arg_err 2 op_lbl "(float, integer)" [ v1; v2 ]
     | _ -> bad_arg_err 1 op_lbl "(float, integer)" [ v1; v2 ]
 
   let to_fixed ((v1, v2) : Value.t * Value.t) : Value.t =
     let op_lbl = "to_fixed_external" in
     match (v1, v2) with
-    | (Real x, Int y) -> Str (Printf.sprintf "%0.*f" y x)
+    | (Real x, Int y) -> Str (Fmt.str "%0.*f" y x)
     | (Real _, _) -> bad_arg_err 2 op_lbl "(float, integer)" [ v1; v2 ]
     | _ -> bad_arg_err 1 op_lbl "(float, integer)" [ v1; v2 ]
 
@@ -246,7 +238,7 @@ module Impl = struct
     | (_, Str "") -> unexpected_err 2 op_lbl "empty separator"
     | (Str str, Str sep) ->
       Value.List
-        (List.map (fun s -> Value.Str s) (Str.split (Str.regexp sep) str))
+        (List.map (fun s -> Value.Str s) (Re.split (Re.regexp sep) str))
     | (Str _, _) -> bad_arg_err 2 op_lbl "(string, string)" [ v1; v2 ]
     | _ -> bad_arg_err 1 op_lbl "(string, string)" [ v1; v2 ]
 
@@ -279,7 +271,11 @@ module Impl = struct
     match v with
     | Int l -> (
       try
-        let arr = Hashtbl.find arr_map l in
+        let arr =
+          match Hashtbl.find_opt arr_map l with
+          | Some v -> v
+          | None -> assert false
+        in
         Value.Int (Array.length arr)
       with Not_found -> unexpected_err 1 op_lbl "array not found" )
     | _ -> bad_arg_err 1 op_lbl "array" [ v ]
@@ -301,7 +297,11 @@ module Impl = struct
     match (v1, v2) with
     | (Int l, Int i) -> (
       try
-        let arr = Hashtbl.find arr_map l in
+        let arr =
+          match Hashtbl.find_opt arr_map l with
+          | Some v -> v
+          | None -> assert false
+        in
         Array.get arr i
       with
       | Not_found -> unexpected_err 1 op_lbl "array not found"
@@ -314,7 +314,11 @@ module Impl = struct
     match (v1, v2) with
     | (Int l, Int i) -> (
       try
-        let arr = Hashtbl.find arr_map l in
+        let arr =
+          match Hashtbl.find_opt arr_map l with
+          | Some v -> v
+          | None -> assert false
+        in
         Array.set arr i v3;
         Hashtbl.replace arr_map l arr;
         Value.Nothing
@@ -406,15 +410,9 @@ module Impl = struct
     | _ -> bad_arg_err 1 op_lbl "list" [ v ]
 
   let list_remove ((v1, v2) : Value.t * Value.t) : Value.t =
-    let rec _remove_aux lst el =
-      match lst with
-      | [] -> []
-      | hd :: tl when hd = el -> tl
-      | hd :: tl -> hd :: _remove_aux tl el
-    in
     let op_lbl = "l_remove_external" in
     match (v1, v2) with
-    | (List lst, el) -> List (_remove_aux lst el)
+    | (List lst, el) -> List (List.filter (fun v -> not (Value.equal el v)) lst)
     | _ -> bad_arg_err 1 op_lbl "(list, any)" [ v1; v2 ]
 
   let list_remove_nth ((v1, v2) : Value.t * Value.t) : Value.t =
@@ -478,7 +476,11 @@ module Impl = struct
       match v with
       | Int l -> (
         try
-          let bytes = Hashtbl.find arr_map l in
+          let bytes =
+            match Hashtbl.find_opt arr_map l with
+            | Some v -> v
+            | None -> assert false
+          in
           Array.map unpack_bt_f bytes
         with Not_found -> unexpected_err 1 op_lbl "array not found" )
       | _ -> bad_arg_err 1 op_lbl "byte array" [ v ]
@@ -516,7 +518,7 @@ module Impl = struct
     let op_lbl = "bytes_to_string_external" in
     let int_bytes = unpack_bytes_aux op_lbl v in
     let str_bytes = Array.map string_of_int int_bytes |> Array.to_list in
-    let bytes_string = "[" ^ String.concat "; " str_bytes ^ "]" in
+    let bytes_string = Fmt.str "[%s]" (String.concat "; " str_bytes) in
     Str bytes_string
 
   let int_to_be_bytes ((v1, v2) : Value.t * Value.t) : Value.t =
@@ -685,11 +687,11 @@ module Impl = struct
     match v with
     | Str s ->
       let regex =
-        Str.regexp
+        Re.regexp
           "-?\\(0\\|[1-9][0-9]*\\)\\(\\.[0-9]+\\)?\\([eE][+-]?[0-9]+\\)?"
       in
-      let matched = Str.string_match regex s 0 in
-      if matched then Str (Str.matched_string s) else Str ""
+      let matched = Re.string_match regex s 0 in
+      if matched then Str (Re.matched_string s) else Str ""
     | _ -> bad_arg_err 1 op_lbl "string" [ v ]
 
   (** * JSON string regex: https://stackoverflow.com/a/32155765/3049315 *)
@@ -698,11 +700,11 @@ module Impl = struct
     match v with
     | Str s ->
       let regex =
-        Str.regexp
+        Re.regexp
           "\"\\(\\\\\\([\"\\\\\\/bfnrt]\\|u[a-fA-F0-9][a-fA-F0-9][a-fA-F0-9][a-fA-F0-9]\\)\\|[^\"\\\\\000-\031\127]+\\)*\""
       in
-      let matched = Str.string_match regex s 0 in
-      if matched then Str (Str.matched_string s) else Str ""
+      let matched = Re.string_match regex s 0 in
+      if matched then Str (Re.matched_string s) else Str ""
     | _ -> bad_arg_err 1 op_lbl "string" [ v ]
 
   let parse_date (v : Value.t) : Value.t =
@@ -728,24 +730,28 @@ module Impl = struct
     match v with
     | Str s ->
       let year_sign = s.[0] in
-      if year_sign == '-' then
+      if Char.equal year_sign '-' then
         remove_sign s |> Date_utils.parse_date |> parse_date true
-      else if year_sign == '+' then
+      else if Char.equal year_sign '+' then
         remove_sign s |> Date_utils.parse_date |> parse_date false
       else Date_utils.parse_date s |> parse_date false
     | _ -> bad_arg_err 1 op_lbl "string" [ v ]
 
   (* TODO: Adapt `Channel_utils` to allow both the functorial and concrete interpreter to run these function *)
-  let open_in _v = failwith "TODO: open_in_external"
-  let open_out _v = failwith "TODO: open_out_external"
-  let input_line _v = failwith "TODO: input_line_external"
-  let input_all _v = failwith "TODO: input_all_external"
-  let output_string _ptr _str = failwith "TODO: output_string_external"
-  let close _ptr = failwith "TODO: close_external"
+  let open_in _v = Fmt.failwith "TODO: open_in_external"
+  let open_out _v = Fmt.failwith "TODO: open_out_external"
+  let input_line _v = Fmt.failwith "TODO: input_line_external"
+  let input_all _v = Fmt.failwith "TODO: input_all_external"
+  let output_string _ptr _str = Fmt.failwith "TODO: output_string_external"
+  let close _ptr = Fmt.failwith "TODO: close_external"
 
   let file_exists = function
     | Smtml.Value.Str path ->
-      let exists = Sys.file_exists path in
+      let exists =
+        match Bos.OS.File.exists (Fpath.v path) with
+        | Ok exists -> exists
+        | Error (`Msg err) -> Fmt.failwith "%s" err
+      in
       Smtml.Value.(if exists then True else False)
     | v -> bad_arg_err 1 "file_exists_external" "string" [ v ]
 

@@ -14,6 +14,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
 
+open Prelude
 open Debugger_types
 module DebuggerTUI = Debugger_tui
 module InterpreterCallbacks = Debugger_cmd.InterpreterCallbacks

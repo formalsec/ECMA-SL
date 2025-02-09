@@ -5,7 +5,9 @@
  (name ecma_sl)
  (modules ecma_sl site share)
  (wrapped false)
- (libraries eslBase eslSyntax eslSemantics eslJSParser dune-site)
+ (flags
+  (:standard -open Prelude))
+ (libraries eslBase eslSyntax eslSemantics eslJSParser dune-site smtml)
  (instrumentation
   (backend bisect_ppx)))
 
@@ -25,6 +27,8 @@
   symbolic_object
   symbolic_report
   symbolic_value)
+ (flags
+  (:standard -open Smtml_prelude))
  (libraries ecma-sl)
  (instrumentation
   (backend bisect_ppx)))

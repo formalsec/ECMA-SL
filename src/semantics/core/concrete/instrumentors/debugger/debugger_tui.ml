@@ -14,6 +14,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
 
+open Prelude
 open Debugger_types
 open Debugger_tui_helper
 module Code = Debugger_tui_code
@@ -122,7 +123,7 @@ let update_running (tui : t) : t =
 
 let update code (tui : t) : t =
   let input = Interface.input () in
-  if input == Key.resize then resize_cmd code tui
+  if input = Key.resize then resize_cmd code tui
   else
     let term = Interface.update tui.term input in
     let tui' = { tui with term } in

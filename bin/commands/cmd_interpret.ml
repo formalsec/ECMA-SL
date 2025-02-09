@@ -107,7 +107,8 @@ module InterpreterMetrics = struct
       (pp_el pp_counter) counter
 
   let log (profiler : Enums.InterpProfiler.t) (metrics : t) : unit =
-    if profiler == None then () else Log.esl "Execution metrics:%a" pp metrics
+    if Enums.InterpProfiler.equal profiler None then ()
+    else Log.esl "Execution metrics:%a" pp metrics
 end
 
 module InterpreterInstrument = struct
@@ -143,8 +144,8 @@ module InterpreterInstrument = struct
     (module Interpreter_tooling.Default (Tracer) (Debugger) (Profiler) (Monitor))
 end
 
-let interpret_partial code (entry : Interpreter.IEntry.t) (config : Options.config)
-  (prog : Prog.t) : Interpreter.IResult.t =
+let interpret_partial code (entry : Interpreter.IEntry.t)
+  (config : Options.config) (prog : Prog.t) : Interpreter.IResult.t =
   let instrument = config.instrument in
   let module Instrument = (val InterpreterInstrument.intrument instrument) in
   let module ConcreteInterpreter = Interpreter.M (Instrument) in

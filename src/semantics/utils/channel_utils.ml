@@ -1,18 +1,19 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
+open Prelude
 
 module Type = struct
   type t =
@@ -52,23 +53,23 @@ let alloc tbl channel =
   Hashtbl.replace tbl.data id channel;
   Ptr.make id
 
-let open_in tbl fpath = alloc tbl @@ In (open_in fpath)
-let open_out tbl fpath = alloc tbl @@ Out (open_out fpath)
+let open_in tbl fpath = alloc tbl @@ In (In_channel.open_text fpath)
+let open_out tbl fpath = alloc tbl @@ Out (Out_channel.open_text fpath)
 
 let find tbl ptr =
   let open Smtml_prelude.Result in
   let* id = Ptr.to_int ptr in
-  match Hashtbl.find tbl.data id with
-  | exception Not_found -> Error (`Failure "trying to use a closed channel")
-  | ch -> Ok ch
+  match Hashtbl.find_opt tbl.data id with
+  | None -> Error (`Failure "trying to use a closed channel")
+  | Some ch -> Ok ch
 
 let close tbl ptr =
   let open Smtml_prelude.Result in
   let* id = Ptr.to_int ptr in
   let* () =
-    match Hashtbl.find tbl.data id with
-    | exception Not_found -> Error (`Failure "trying to use a closed channel")
-    | In ch -> Ok (close_in ch)
-    | Out ch -> Ok (close_out ch)
+    match Hashtbl.find_opt tbl.data id with
+    | None -> Error (`Failure "trying to use a closed channel")
+    | Some (In ch) -> Ok (In_channel.close ch)
+    | Some (Out ch) -> Ok (Out_channel.close ch)
   in
   Ok (Hashtbl.remove tbl.data id)

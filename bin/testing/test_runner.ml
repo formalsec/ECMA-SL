@@ -57,8 +57,9 @@ let execute code (env : Prog.t * Value.t Heap.t option)
 let skip_test (record : Test_record.t) : Test_record.t Result.t =
   Ok { record with result = Skipped }
 
-let execute_test code (env : Prog.t * Value.t Heap.t option) (record : Test_record.t)
-  (interp_profiler : Enums.InterpProfiler.t) : Test_record.t Result.t =
+let execute_test code (env : Prog.t * Value.t Heap.t option)
+  (record : Test_record.t) (interp_profiler : Enums.InterpProfiler.t) :
+  Test_record.t Result.t =
   let interp_config = interp_config interp_profiler in
   let* input = set_test_flags record in
   let streams = Log.Redirect.capture Shared in

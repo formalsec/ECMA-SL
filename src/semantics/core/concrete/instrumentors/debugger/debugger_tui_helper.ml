@@ -1,19 +1,20 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
 
+open Prelude
 include Curses
 open EslBase
 
@@ -22,7 +23,7 @@ module Config = struct
 end
 
 let ( !! ) (sucess : bool) : unit =
-  if sucess == false then (
+  if not sucess then (
     endwin ();
     Log.fail "error in the debugger TUI" )
 
@@ -190,14 +191,14 @@ module Prompt = struct
   let move_left (prompt : t) : t =
     let pos = max (prompt.pos - 1) 0 in
     let prompt' = update prompt prompt.text prompt.len pos in
-    if prompt.x == 0 && prompt.pos == prompt.len then scrlup prompt';
+    if prompt.x = 0 && prompt.pos = prompt.len then scrlup prompt';
     !!(wmove prompt'.scrlpad.w prompt'.y prompt'.x);
     prompt'
 
   let move_right (prompt : t) : t =
     let pos = min (prompt.pos + 1) prompt.len in
     let prompt' = update prompt prompt.text prompt.len pos in
-    if prompt.x != 0 && prompt'.x == 0 && prompt'.pos == prompt'.len then
+    if (not (prompt.x = 0)) && prompt'.x = 0 && prompt'.pos = prompt'.len then
       scrldown prompt';
     !!(wmove prompt'.scrlpad.w prompt'.y prompt'.x);
     prompt'
@@ -209,14 +210,14 @@ module Prompt = struct
     !!(waddstr prompt.scrlpad.w right);
     let prompt' = update prompt text (prompt.len + 1) (prompt.pos + 1) in
     let (_, curs_x) = getyx prompt'.scrlpad.w in
-    if curs_x == 0 && prompt.pos == prompt.len then scrldown_fill prompt' 0
-    else if curs_x == 0 then scrlup prompt'
-    else if curs_x == 1 then scrldown_fill prompt' 1;
+    if curs_x = 0 && prompt.pos = prompt.len then scrldown_fill prompt' 0
+    else if curs_x = 0 then scrlup prompt'
+    else if curs_x = 1 then scrldown_fill prompt' 1;
     !!(wmove prompt'.scrlpad.w prompt'.y prompt'.x);
     prompt'
 
   let delete (prompt : t) : t =
-    if prompt.pos == String.length prompt.text then prompt
+    if prompt.pos = String.length prompt.text then prompt
     else
       let (left, right) = String.split_at_index prompt.pos prompt.text in
       let right' = String.substr ~left:1 right in
@@ -225,14 +226,14 @@ module Prompt = struct
       !!(waddch prompt.scrlpad.w (Char.code ' '));
       let prompt' = update prompt text (prompt.len - 1) prompt.pos in
       let (_, curs_x) = getyx prompt'.scrlpad.w in
-      if curs_x == 1 && prompt'.pos == prompt'.len then ()
-      else if curs_x == 1 then scrlup prompt'
-      else if curs_x == 0 then scrlup prompt';
+      if curs_x = 1 && prompt'.pos = prompt'.len then ()
+      else if curs_x = 1 then scrlup prompt'
+      else if curs_x = 0 then scrlup prompt';
       !!(wmove prompt'.scrlpad.w prompt'.y prompt'.x);
       prompt'
 
   let backspace (prompt : t) : t =
-    if prompt.pos == 0 then prompt else move_left prompt |> delete
+    if prompt.pos = 0 then prompt else move_left prompt |> delete
 
   let enter (prompt : t) : t =
     scrldown prompt;
@@ -242,11 +243,11 @@ module Prompt = struct
 
   let process (prompt : t) (input : int) : t =
     if input >= 32 && input <= 126 then add prompt input
-    else if input == Key.dc then delete prompt
-    else if input == Key.backspace then backspace prompt
-    else if input == Key.left then move_left prompt
-    else if input == Key.right then move_right prompt
-    else if input == Key.enter || input == 10 then enter prompt
+    else if input = Key.dc then delete prompt
+    else if input = Key.backspace then backspace prompt
+    else if input = Key.left then move_left prompt
+    else if input = Key.right then move_right prompt
+    else if input = Key.enter || input = 10 then enter prompt
     else prompt
 end
 

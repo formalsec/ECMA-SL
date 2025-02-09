@@ -1,23 +1,24 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
+open Prelude
 
 let trim_ends (s : string) : string =
   let s_len = String.length s in
   if s_len >= 2 then String.sub s 1 (String.length s - 2)
-  else raise (Failure ("INVALID GLOBAL VAR: " ^ s))
+  else raise (Failure (Fmt.str "INVALID GLOBAL VAR: %s" s))
 
 let from_char_code (n : int) : string =
   let c = Char.chr n in
@@ -35,7 +36,7 @@ let to_char_code (s : string) : int =
 let chop (str : string) ~(n : int) : string =
   let str_len = String.length str in
   if str_len = n then str
-  else if str_len < n then str ^ String.make (n - str_len) ' '
+  else if str_len < n then String.cat str (String.make (n - str_len) ' ')
   else String.sub str 0 n
 
 (* Does not verify if UTF-8 is valid. Esprima already produces valid UTF-8. *)
@@ -309,29 +310,34 @@ let utf8encode s =
   let s1 n = String.make 1 (Char.chr n) in
   let rec ienc k sofar resid =
     let bct = if k = 0 then 7 else 6 - k in
-    if resid < 1 lsl bct then s1 (prefs.(k) + resid) ^ sofar
-    else ienc (k + 1) (s1 (0x80 + (resid mod 64)) ^ sofar) (resid / 64)
+    if resid < 1 lsl bct then String.cat (s1 (prefs.(k) + resid)) sofar
+    else
+      ienc (k + 1) (String.cat (s1 (0x80 + (resid mod 64))) sofar) (resid / 64)
   in
-  ienc 0 "" (Stdlib.int_of_string ("0x" ^ s))
+  ienc 0 ""
+    ( match int_of_string_opt (String.cat "0x" s) with
+    | Some i -> i
+    | None -> assert false )
 
 let utf8decode s =
   let re =
-    Str.regexp
+    Re.regexp
       "\\\\u{[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?}"
   in
   let subst = function
-    | Str.Delim u -> utf8encode (String.sub u 3 (String.length u - 4))
-    | Str.Text _ ->
-      let re2 =
-        Str.regexp "\\\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]"
-      in
+    | Re.Delim u -> utf8encode (String.sub u 3 (String.length u - 4))
+    | Text _ ->
+      let re2 = Re.regexp "\\\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]" in
       let subst2 = function
-        | Str.Delim u2 -> utf8encode (String.sub u2 2 (String.length u2 - 2))
-        | Str.Text t2 -> t2
+        | Re.Delim u2 -> utf8encode (String.sub u2 2 (String.length u2 - 2))
+        | Text t2 -> t2
       in
-      String.concat "" (List.map subst2 (Str.full_split re2 s))
+      String.concat "" (List.map subst2 (Re.full_split re2 s))
   in
-  String.concat "" (List.map subst (Str.full_split re s))
+  String.concat "" (List.map subst (Re.full_split re s))
 
 let hexdecode s =
-  from_char_code_u (Stdlib.int_of_string ("0x" ^ String.sub s 2 2))
+  from_char_code_u
+    ( match int_of_string_opt (String.cat "0x" (String.sub s 2 2)) with
+    | Some i -> i
+    | None -> assert false )

@@ -4,6 +4,6 @@
  (public_name ecma-sl.base)
  (name eslBase)
  (modules base cont font log io string terminal)
- (libraries unix fmt)
+ (libraries fmt prelude unix)
  (instrumentation
   (backend bisect_ppx)))

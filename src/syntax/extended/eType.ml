@@ -1,21 +1,50 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
 
 open EslBase
 open Source
+
+type tlitkind =
+  | LitWeak
+  | LitStrong
+
+let equal_tlitkind a b =
+  match (a, b) with
+  | (LitWeak, LitWeak) | (LitStrong, LitStrong) -> true
+  | ((LitWeak | LitStrong), _) -> false
+
+type tliteral =
+  | IntegerLit of int
+  | FloatLit of float
+  | BooleanLit of bool
+  | StringLit of string
+  | SymbolLit of string
+
+type tobjkind =
+  | ObjLit
+  | ObjSto
+
+let equal_toobjkind a b =
+  match (a, b) with
+  | (ObjLit, ObjLit) | (ObjSto, ObjSto) -> true
+  | ((ObjLit | ObjSto), _) -> false
+
+type tfldstyle =
+  | FldReq
+  | FldOpt
 
 type t = t' Source.t
 
@@ -39,32 +68,13 @@ and t' =
   | SigmaType of Id.t * t list
   | UserDefinedType of Id.t'
 
-and tlitkind =
-  | LitWeak
-  | LitStrong
-
-and tliteral =
-  | IntegerLit of int
-  | FloatLit of float
-  | BooleanLit of bool
-  | StringLit of string
-  | SymbolLit of string
-
 and tobject =
   { kind : tobjkind
   ; flds : (Id.t', tobjfld) Hashtbl.t
   ; smry : (Id.t * t) option
   }
 
-and tobjkind =
-  | ObjLit
-  | ObjSto
-
 and tobjfld = Id.t * t * tfldstyle
-
-and tfldstyle =
-  | FldReq
-  | FldOpt
 
 let resolve_topt (t : t option) : t =
   match t with Some t' -> t' | None -> AnyType @> none
@@ -86,11 +96,10 @@ let tliteral_to_wide (lt : tliteral) : t' =
   | SymbolLit _ -> SymbolType
 
 let rec equal (t1 : t) (t2 : t) : bool =
-  let tsmry_get smry = Option.map (fun (_, tsmry) -> tsmry.it) smry in
   let tfld_equal (fn1, ft1, fs1) (fn2, ft2, fs2) =
-    String.equal fn1.it fn2.it && equal ft1 ft2 && fs1 == fs2
+    String.equal fn1.it fn2.it && equal ft1 ft2 && phys_equal fs1 fs2
   in
-  match (t1.it, t2.it) with
+  match (Source.view t1, Source.view t2) with
   | (AnyType, AnyType) -> true
   | (UnknownType, UnknownType) -> true
   | (NeverType, NeverType) -> true
@@ -107,17 +116,23 @@ let rec equal (t1 : t) (t2 : t) : bool =
   | (ObjectType tobj1, ObjectType tobj2) ->
     let tflds1 = Hashtbl.to_seq_values tobj1.flds in
     let tflds2 = Hashtbl.to_seq_values tobj2.flds in
-    tobj1.kind = tobj2.kind
-    && Seq.length tflds1 == Seq.length tflds2
+    equal_toobjkind tobj1.kind tobj2.kind
+    && Seq.length tflds1 = Seq.length tflds2
     && Seq.for_all (fun tfld1 -> Seq.exists (tfld_equal tfld1) tflds2) tflds1
-    && tsmry_get tobj1.smry = tsmry_get tobj2.smry
+    && equal_smry tobj1.smry tobj2.smry
   | (ListType t1, ListType t2) -> equal t1 t2
   | (TupleType ts1, TupleType ts2) -> List.equal equal ts1 ts2
   | (UnionType ts1, UnionType ts2) -> List.equal equal ts1 ts2
   | (SigmaType (dsc1, ts1), SigmaType (dsc2, ts2)) ->
-    dsc1.it = dsc2.it && List.equal equal ts1 ts2
-  | (UserDefinedType tvar1, UserDefinedType tvar2) -> tvar1 = tvar2
+    Id.equal dsc1 dsc2 && List.equal equal ts1 ts2
+  | (UserDefinedType tvar1, UserDefinedType tvar2) -> String.equal tvar1 tvar2
   | _ -> false
+
+and equal_smry a b =
+  match (a, b) with
+  | (None, None) -> true
+  | (Some (_, a), Some (_, b)) -> equal a b
+  | ((Some _ | None), _) -> false
 
 let pp_tobjfld (ppf : Format.formatter) ((fn, ft, fs) : tobjfld) : unit =
   let str_opt = function FldOpt -> "?" | _ -> "" in

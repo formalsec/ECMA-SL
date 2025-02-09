@@ -44,29 +44,37 @@ module Make () = struct
   let ok v = Choice.return (Ok v)
   let error v = Choice.return (Error v)
   let ok_v v = ok @@ Smtml.Expr.value v
-  let failure v = error @@ `Failure v
+  let failure fmt = Fmt.kstr (fun s -> error @@ `Failure s) fmt
 
   let extern_cmds env =
     let parseJS data =
+      let open Result in
       let open EslJSParser.Api in
-      let data =
-        match Smtml.Expr.view data with
-        | Val (Str data) -> data
-        | _ -> assert false
+      let result =
+        let data =
+          match Smtml.Expr.view data with
+          | Val (Str data) -> data
+          | _ -> assert false
+        in
+        let* input_file = Bos.OS.File.tmp "__parse_in_%s__.js" in
+        let input_file = Fpath.to_string input_file in
+        let* output_file = Bos.OS.File.tmp "__parse_out_%s__.js" in
+        let output_file = Fpath.to_string output_file in
+        Io.write_file input_file data;
+        let fid = fresh_func () in
+        let* () =
+          Bos.OS.Cmd.run (cmd input_file (Some output_file) (Some fid))
+        in
+        let data = Io.read_file output_file in
+        let func = Parsing.parse_func data in
+        Env.add_func env fid func;
+        Ok (Smtml.Expr.value (Str fid))
       in
-      let input_file = Filename.temp_file "__parse_in_" "__.js" in
-      let output_file = Filename.temp_file "__parse_out_" "__.js" in
-      Io.write_file input_file data;
-      let fid = fresh_func () in
-      begin
-        match Bos.OS.Cmd.run (cmd input_file (Some output_file) (Some fid)) with
-        | Error (`Msg msg) -> Fmt.epr "%s@." msg
-        | Ok () -> ()
-      end;
-      let data = Io.read_file output_file in
-      let func = Parsing.parse_func data in
-      Env.add_func env fid func;
-      ok_v (Str fid)
+      Choice.return
+      @@
+      match result with
+      | Ok _ as v -> v
+      | Error (`Msg err) -> Error (`Failure err)
     in
     of_array [| ("parseJS", Extern_func (Func (Arg Res), parseJS)) |]
 
@@ -75,44 +83,44 @@ module Make () = struct
     let int_to_four_hex v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (int_to_four_hex v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let octal_to_decimal v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (octal_to_decimal v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let to_precision v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (to_precision (v1, v2))
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let to_exponential v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (to_exponential (v1, v2))
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let to_fixed v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (to_fixed (v1, v2))
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let from_char_code v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (from_char_code v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let to_char_code v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (to_char_code v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let s_len v = ok @@ Smtml.Expr.unop Ty_str Length v in
     let s_concat v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (s_concat v)
       | List l -> ok @@ Smtml.Expr.naryop Ty_str Concat l
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let s_nth v1 v2 = ok @@ Smtml.Expr.binop Ty_str At v1 v2 in
     let s_substr v1 v2 v3 =
@@ -121,22 +129,22 @@ module Make () = struct
     let from_char_code_u v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (from_char_code_u v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let to_char_code_u v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (to_char_code_u v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let to_lower_case v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (to_lower_case v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let to_upper_case v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (to_upper_case v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let trim v = ok @@ Smtml.Expr.unop Ty_str Trim v in
     let s_len_u v =
@@ -157,7 +165,7 @@ module Make () = struct
           let lst = List.map Smtml.Expr.value lst in
           ok @@ Smtml.Expr.make (List lst)
         | _ -> assert false )
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let s_substr_u v1 v2 v3 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2, Smtml.Expr.view v3) with
@@ -177,34 +185,34 @@ module Make () = struct
     let array_len v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (array_len v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let array_make v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (array_make (v1, v2))
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let array_nth v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (array_nth (v1, v2))
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let array_set v1 v2 v3 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2, Smtml.Expr.view v3) with
       | (Val v1, Val v2, Val v3) -> ok_v (array_set (v1, v2, v3))
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let l_len v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (l_len v)
       | List _ -> ok @@ Smtml.Expr.unop Ty_list Length v
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let l_nth v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (l_nth (v1, v2))
       | (List _, _) -> ok @@ Smtml.Expr.binop Ty_list At v1 v2
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let l_add v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
@@ -213,13 +221,13 @@ module Make () = struct
         ok
         @@ Smtml.Expr.binop Ty_list List_append v1
         @@ Smtml.Expr.make (List [ v2 ])
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let l_prepend v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (l_prepend (v1, v2))
       | (_, List _) -> ok @@ Smtml.Expr.binop Ty_list List_cons v1 v2
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let l_concat v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
@@ -234,171 +242,170 @@ module Make () = struct
     let list_to_array v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (list_to_array v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let list_sort v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (list_sort v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let list_mem v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (list_mem (v1, v2))
       | (_, List lst) -> ok_v (if List.mem v1 lst then True else False)
       | _ ->
-        failure
-          (Fmt.str "%s: invalid arguments: %a %a" __FUNCTION__ Smtml.Expr.pp v1
-             Smtml.Expr.pp v2 )
+        failure "%s: invalid arguments: %a %a" __FUNCTION__ Smtml.Expr.pp v1
+          Smtml.Expr.pp v2
     in
     let list_remove_last v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (list_remove_last v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let list_remove v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (list_remove (v1, v2))
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let list_remove_nth v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (list_remove_nth (v1, v2))
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let float_to_byte v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (float_to_byte v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let float32_to_le_bytes v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (float32_to_le_bytes v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let float32_to_be_bytes v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (float32_to_be_bytes v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let float64_to_le_bytes v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (float64_to_le_bytes v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let float64_to_be_bytes v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (float64_to_be_bytes v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let float32_from_le_bytes v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (float32_from_le_bytes v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let float32_from_be_bytes v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (float32_from_be_bytes v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let float64_from_le_bytes v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (float64_from_le_bytes v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let float64_from_be_bytes v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (float64_from_be_bytes v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let bytes_to_string v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (bytes_to_string v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let int_to_be_bytes v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (int_to_be_bytes (v1, v2))
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let int_from_le_bytes v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (int_from_le_bytes (v1, v2))
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let uint_from_le_bytes v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (uint_from_le_bytes (v1, v2))
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let log_2 v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (log_2 v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let log_e v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (log_e v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let log_10 v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (log_10 v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let sin v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (sin v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let cos v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (cos v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let tan v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (tan v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let sinh v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (sinh v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let cosh v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (cosh v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let tanh v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (tanh v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let asin v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (asin v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let acos v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (acos v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let atan v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (atan v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let atan2 v1 v2 =
       match (Smtml.Expr.view v1, Smtml.Expr.view v2) with
       | (Val v1, Val v2) -> ok_v (atan2 (v1, v2))
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let exp v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (exp v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let abs v = ok @@ Smtml.Expr.unop Ty_real Abs v in
     let sqrt v = ok @@ Smtml.Expr.unop Ty_real Sqrt v in
@@ -408,40 +415,40 @@ module Make () = struct
     let utf8_decode v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (utf8_decode v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let hex_decode v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (hex_decode v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let parse_number v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (parse_number v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let parse_string v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (parse_string v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let parse_date v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (parse_date v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let open_in v =
       match Smtml.Expr.view v with
       | Val (Str fpath) -> ok @@ Channel_utils.open_in channel_table fpath
-      | _ -> failure @@ Fmt.str "invalid file path: %a" Smtml.Expr.pp v
+      | _ -> failure "invalid file path: %a" Smtml.Expr.pp v
     in
     let open_out v =
       match Smtml.Expr.view v with
       | Val (Str fpath) -> ok @@ Channel_utils.open_out channel_table fpath
-      | _ -> failure @@ Fmt.str "invalid file path: %a" Smtml.Expr.pp v
+      | _ -> failure "invalid file path: %a" Smtml.Expr.pp v
     in
     let input_line v =
-      let open Smtml_prelude.Result in
+      let open Result in
       Choice.return
       @@
       let* ty = Channel_utils.find channel_table v in
@@ -451,7 +458,7 @@ module Make () = struct
       | Some line -> Ok (Smtml.Expr.value (Str line))
     in
     let input_all v =
-      let open Smtml_prelude.Result in
+      let open Result in
       Choice.return
       @@
       let* ty = Channel_utils.find channel_table v in
@@ -459,7 +466,7 @@ module Make () = struct
       Ok (Smtml.Expr.value (Str (In_channel.input_all ic)))
     in
     let output_string v str =
-      let open Smtml_prelude.Result in
+      let open Result in
       Choice.return
       @@
       let* ty = Channel_utils.find channel_table v in
@@ -472,7 +479,7 @@ module Make () = struct
       Ok (Symbolic_value.mk_symbol "undefined")
     in
     let close v =
-      let open Smtml_prelude.Result in
+      let open Result in
       Choice.return
       @@
       let* () = Channel_utils.close channel_table v in
@@ -481,7 +488,7 @@ module Make () = struct
     let file_exists v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (file_exists v)
-      | _ -> failure (__FUNCTION__ ^ ": invalid argument")
+      | _ -> failure "%s: invalid argument" __FUNCTION__
     in
     let time () = ok_v (Real (Unix.gettimeofday ())) in
     of_array
@@ -672,7 +679,7 @@ module Make () = struct
       Choice.with_thread @@ fun thread ->
       let pc = Smtml.Expr.Set.add e @@ Thread.pc thread in
       let solver = Thread.solver thread in
-      assert (`Sat = Solver.check_set solver pc);
+      assert (Choice_monad.is_sat @@ Solver.check_set solver pc);
       Ok (Solver.get_value solver e)
     in
     let optimize target opt e pc =

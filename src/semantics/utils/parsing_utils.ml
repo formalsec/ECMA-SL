@@ -14,6 +14,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
 
+open Prelude
 open EslBase
 open EslSyntax
 
@@ -46,8 +47,11 @@ let print_position (outx : Format.formatter) (lexbuf : Lexing.lexbuf) : unit =
     (pos.pos_cnum - pos.pos_bol + 1)
 
 let parse_loc =
-  let re = Str.regexp {|\$loc_([0-9]+)|} in
+  let re = Re.regexp {|\$loc_([0-9]+)|} in
   fun (x : string) : Loc.t ->
-    match Str.string_match re x 0 with
-    | true -> int_of_string (Str.matched_group 1 x)
+    match Re.string_match re x 0 with
+    | true -> (
+      match int_of_string_opt (Re.matched_group 1 x) with
+      | Some i -> i
+      | None -> assert false )
     | false -> Log.fail "parse_loc: unable to parse location: '%s'" x

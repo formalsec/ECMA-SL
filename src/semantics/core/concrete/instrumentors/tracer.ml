@@ -14,6 +14,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
 
+open Prelude
 open EslBase
 open EslSyntax
 
@@ -38,7 +39,7 @@ module Truncate = struct
     let extra = Font.str_text_err [ Font.Faint ] "..." in
     let text = Fmt.str "%a" pp_el el in
     let (text', trunc) = String.truncate (lim - 3) text in
-    Fmt.string ppf (if trunc then text' ^ extra else text')
+    Fmt.string ppf (if trunc then String.cat text' extra else text')
 end
 
 type obj = Value.t Object.t
@@ -197,7 +198,7 @@ module Call : M = struct
   let trace_stmt _ (_ : int) (_ : Stmt.t) : unit = ()
 
   let trace_restore (lvl : int) (f : Func.t) : unit =
-    if lvl == -1 then Log.stderr "%a@." pp_func_restore f
+    if lvl = ~-1 then Log.stderr "%a@." pp_func_restore f
 
   let trace_call code (lvl : int) (_ : Func.t) (s : Stmt.t) : unit =
     if log_level lvl then Log.stderr "%a@." (pp_func_call code) (lvl, s)

@@ -1,15 +1,15 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
@@ -57,7 +57,8 @@ module P = struct
 
   type env = Env.t
 
-  let ( let*/ ) o f = match o with Error e -> failwith e | Ok o -> f o
+  let ( let*/ ) o f =
+    match o with Error e -> Fmt.failwith "%s" e | Ok o -> f o
 
   module Store = struct
     type bind = string
@@ -156,7 +157,7 @@ module P = struct
     [@@inline]
 
     let delete_field m loc v = Symbolic_memory.delete_field m loc v [@@inline]
-    let to_string h = Format.asprintf "%a" Symbolic_memory.pp h [@@inline]
+    let to_string h = Fmt.str "%a" Symbolic_memory.pp h [@@inline]
 
     let loc v =
       let*/ locs = Symbolic_memory.loc v in
