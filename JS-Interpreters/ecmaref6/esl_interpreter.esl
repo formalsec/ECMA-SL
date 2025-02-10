@@ -78,7 +78,7 @@ function JS_Interpreter_Expr(e, scope) {
     /* 1. If the function code for this ArrowFunction is strict mode code
      (10.2.1), */
     /* let strict be true. Otherwise let strict be false */
-    if (isStrictModeCode(ConciseBody, scope)) strict := true; else strict := false;
+    strict := isStrictModeCode(ConciseBody, scope);
     /* 2. Let scope be the LexicalEnvironment of the running execution context. */
     lexEnv := scope.LexicalEnvironment;
     /* 3. Let parameters be CoveredFormalsList of ArrowParameters. */
@@ -969,7 +969,7 @@ function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
 
     /* 1. If the function code for FunctionDeclaration is strict mode code, let strict be true.
           Otherwise let strict be false. */
-    if (isStrictModeCode(FunctionBody, scope)) strict := true; else strict := false;
+    strict := isStrictModeCode(FunctionBody, scope);
     /* 2. Let name br StringValue of BindingIdentifier */
     name := Identifier.name;
     lex := getLexicalEnvironment(scope);
