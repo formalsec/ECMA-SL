@@ -98,7 +98,7 @@ module Impl = struct
           in
           if Float.is_integer num && y = 1 then
             Str (Fmt.str "%de+%d" (Float.to_int num) (Float.to_int exp))
-          else Str (Fmt.str "%fe+%d" num (Float.to_int exp))
+          else Str (Fmt.str "%.12ge+%d" num (Float.to_int exp))
         else
           let num =
             Float.round
@@ -109,7 +109,7 @@ module Impl = struct
             Str
               (Fmt.str "%de%d" (Float.to_int num)
                  (Float.to_int (Float.floor exp)) )
-          else Str (Fmt.str "%fe%d" num (Float.to_int (Float.floor exp)))
+          else Str (Fmt.str "%.12ge%d" num (Float.to_int (Float.floor exp)))
       else
         let res =
           Float.round (x *. (10. ** float_of_int (y - 1)))
@@ -131,7 +131,7 @@ module Impl = struct
         in
         if Float.is_integer num then
           Str (Fmt.str "%de+%d" (Float.to_int num) (Float.to_int exp))
-        else Str (Fmt.str "%fe+%d" num (Float.to_int exp))
+        else Str (Fmt.str "%.12ge+%d" num (Float.to_int exp))
       else
         let num =
           Float.round (x /. (10. ** Float.floor exp) *. (10. ** Float.of_int y))
@@ -141,7 +141,7 @@ module Impl = struct
           Str
             (Fmt.str "%de%d" (Float.to_int num)
                (Float.to_int (Float.floor exp)) )
-        else Str (Fmt.str "%fe%d" num (Float.to_int (Float.floor exp)))
+        else Str (Fmt.str "%.12ge%d" num (Float.to_int (Float.floor exp)))
     | (Real _, _) -> bad_arg_err 2 op_lbl "(float, integer)" [ v1; v2 ]
     | _ -> bad_arg_err 1 op_lbl "(float, integer)" [ v1; v2 ]
 
