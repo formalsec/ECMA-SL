@@ -1,15 +1,15 @@
 /* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -262,6 +262,16 @@ function initIntrinsics(intrinsics, realm, strict) {
   /* Math */
   intrinsics.Math := initMathObject(realm, objProto, strict);
 
+  /* parseFloat */
+  /* IMPORTANT: This needs to be here before `initNumberObject`! */
+  parseFloat := CreateBuiltInFunctionObject(["string"], "GlobalObjectParseFloat", realm, strict, null);
+  intrinsics.parseFloat := parseFloat;
+
+  /* parseInt */
+  /* IMPORTANT: This needs to be here before `initNumberObject`! */
+  parseInt := CreateBuiltInFunctionObject(["string", "radix"], "GlobalObjectParseInt", realm, strict, null);
+  intrinsics.parseInt := parseInt;
+
   /* Number */
   NumberObject := initNumberObject(realm, objProto, strict);
   intrinsics.Number := NumberObject;
@@ -271,14 +281,6 @@ function initIntrinsics(intrinsics, realm, strict) {
   intrinsics.Object := objConstructor;
   intrinsics.ObjProto_toString := getJSProperty(objProto, "toString").Value;
   intrinsics.ObjectIteratorPrototype := initObjectIteratorPrototype(realm, objProto, strict);
-
-  /* parseFloat */
-  parseFloat := CreateBuiltInFunctionObject(["string"], "GlobalObjectParseFloat", realm, strict, null);
-  intrinsics.parseFloat := parseFloat;
-
-  /* parseInt */
-  parseInt := CreateBuiltInFunctionObject(["string", "radix"], "GlobalObjectParseInt", realm, strict, null);
-  intrinsics.parseInt := parseInt;
 
   /* Promise */
   PromiseObject := initPromiseObject(realm, funcProto, objProto, strict);

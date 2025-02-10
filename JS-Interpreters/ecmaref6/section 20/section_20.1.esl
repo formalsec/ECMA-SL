@@ -1,15 +1,15 @@
 /* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -189,13 +189,13 @@ function initNumberConstructor(prototype, global, strict) {
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "NEGATIVE_INFINITY", (-Infinity), false, false, false);
 
   /* 20.1.2.12 Number.parseFloat ( string ) */
-  parseFloatObject := CreateBuiltInFunctionObject(["string"], "GlobalObjectParseFloat", global, strict, null);
+  parseFloatObject := |Intrinsics|["parseFloat"];
   createBuiltInProperty(NumberConstructor, "parseFloat", parseFloatObject);
   descriptor := newDataPropertyDescriptorFull("parseFloat", false, false, true);
   setJSProperty(parseFloatObject, "name", descriptor);
 
   /* 20.1.2.13 Number.parseInt ( string, radix ) */
-  parseIntObject := CreateBuiltInFunctionObject(["string", "radix"], "GlobalObjectParseInt", global, strict, null);
+  parseIntObject := |Intrinsics|["parseInt"];
   createBuiltInProperty(NumberConstructor, "parseInt", parseIntObject);
   descriptor := newDataPropertyDescriptorFull("parseInt", false, false, true);
   setJSProperty(parseIntObject, "name", descriptor);
