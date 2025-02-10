@@ -1,15 +1,15 @@
 /* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -62,11 +62,11 @@ function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
   if (("ECMAScriptCode" in_obj F) &&& (typeof F.ECMAScriptCode == "string")
 		&&& ((F.ECMAScriptCode == "FunctionPrototypeCall") ||| (F.ECMAScriptCode == "TypedArraySubConstructor"))) {
 	  args := completeArgs(argumentsList, F);
-	  result := {F.ECMAScriptCode}(externalScope, V, NewTarget, F.strict, args) catch BuiltInCall_Handler;
+	  result := {F.ECMAScriptCode}(externalScope, V, NewTarget, F.Strict, args) catch BuiltInCall_Handler;
 	}
 	else if (("ECMAScriptCode" in_obj F) &&& ((typeof F.ECMAScriptCode == "string") ||| (typeof F.ECMAScriptCode == "curry"))) {
 	  args := completeArgs(argumentsList, F);
-	  result := {F.ECMAScriptCode}(F.Environment, V, NewTarget, F.strict, args) catch BuiltInCall_Handler;
+	  result := {F.ECMAScriptCode}(F.Environment, V, NewTarget, F.Strict, args) catch BuiltInCall_Handler;
 	}
 
   /* 10. Remove calleeContext from the execution context stack and restore callerContext as the running execution context. */
