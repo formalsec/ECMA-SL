@@ -1,15 +1,15 @@
 /* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -28,27 +28,17 @@ import "./node_shelljs.esl";
 function push_globals() {
   let saved_globals = {
     global: |global|,
-    /* Intrinsics: |Intrinsics|, */
     ctxStack : |ctxStack|,
-    /* __CUR__SYMB__ : |__CUR__SYMB__|, */
-    /* GlobalSymbolRegistry : |GlobalSymbolRegistry|, */
-    /* ElementTable : |ElementTable|, */
     ScriptJobQueue : |ScriptJobQueue|,
     PromiseJobQueue : |PromiseJobQueue|,
     __dirname : |__dirname|,
     __filename : |__filename|
-    /* realm : |realm| */
   };
   |global| := 'undefined;
   |realm|["globalThis"] := 'undefined;
-  /* |Intrinsics| := {}; */
   |ctxStack| := stack_make();
-  /* |__CUR__SYMB__| := 0; */
-  /* |GlobalSymbolRegistry| := {}; */
-  /* |ElementTable| := {}; */
   |ScriptJobQueue| := [];
   |PromiseJobQueue| := [];
-  /* |realm| := {}; */
   stack_push(|globals_stack|,  saved_globals);
   return;
 }
@@ -57,16 +47,11 @@ function pop_globals() {
   let saved_globals = stack_pop(|globals_stack|);
   |global| := saved_globals.global;
   |realm|["globalThis"] := saved_globals.global;
-  /* |Intrinsics| := saved_globals.Intrinsics; */
   |ctxStack| := saved_globals.ctxStack;
-  /* |__CUR__SYMB__| := saved_globals.__CUR__SYMB__; */
-  /* |GlobalSymbolRegistry| := saved_globals.GlobalSymbolRegistry; */
-  /* |ElementTable| := saved_globals.ElementTable; */
   |ScriptJobQueue| := saved_globals.ScriptJobQueue;
   |PromiseJobQueue| := saved_globals.PromiseJobQueue;
   |__dirname| := saved_globals.__dirname;
   |__filename| := saved_globals.__filename;
-  /* |realm| := saved_globals.realm; */
   return;
 }
 

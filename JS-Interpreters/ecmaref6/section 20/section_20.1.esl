@@ -98,11 +98,6 @@ function initNumberPrototype(global, objectPrototype, strict) {
 
 
 function getNumberPrototype(strict) {
-  /* refNumber := newPropertyReference(|global|, "Number", strict);
-  NumberObject := GetValue(refNumber);
-  refNumberProto := newPropertyReference(NumberObject, "prototype", strict);
-  objectNumberProto := GetValue(refNumberProto); */
-
   return |Intrinsics|["NumberPrototype"];
 }
 
