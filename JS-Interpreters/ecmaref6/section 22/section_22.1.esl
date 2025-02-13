@@ -2813,12 +2813,11 @@ function arraySort(global, this, NewTarget, strict, args) {
       index := index + 1;
     }
     sorted := (!somethingChanged);
-  }
+ }
 
   /* Set nonUndefined Items */
   i := 0;
-  while (i < nonUndLen) {
-    val := l_nth(nonUndefinedItems, i);
+  foreach (val : nonUndefinedItems) {
     i_str := ToString(int_to_float i);
     setStatus := {obj.Set}(obj, i_str, val, obj);
     @ReturnIfAbrupt(setStatus);

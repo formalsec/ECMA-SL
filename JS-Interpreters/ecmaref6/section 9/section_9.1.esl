@@ -1,15 +1,15 @@
 /* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -754,12 +754,8 @@ function ObjectCreate(proto, internalSlotsList) {
     internalSlotsList := [];
   /* Let obj be a newly created object with an internal slot for each name in internalSlotsList. */
   obj := NewECMAScriptObject();
-  l_internalSlotsList := l_len(internalSlotsList);
-  i := 0;
-  while (i < l_internalSlotsList) {
-    slot := l_nth(internalSlotsList, i);
+  foreach (slot : internalSlotsList) {
     setInternalProperty(obj, slot, 'undefined);
-    i := i + 1;
   }
 
   /* Set obj’s essential internal methods to the default ordinary object definitions specified in 9.1. */
