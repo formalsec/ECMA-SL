@@ -1,15 +1,15 @@
 /* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -218,19 +218,6 @@ function ObjectConstructor(globalObject, this, NewTarget, strict, params) {
   return ToObject(value);
 }
 
-/* aux function to create a list */
-function auxCreateList(origin) {
-  l := [];
-  i := 1;
-  len := l_len(origin);
-  while (i < len) {
-    obj := l_nth(origin, i);
-    l := l_add(l, obj);
-    i := i + 1;
-  }
-  return l;
-}
-
 /**
  * 19.1.2.1 Object.assign ( target, ...sources )
  *
@@ -247,7 +234,7 @@ function ObjectAssign(globalObject, this, NewTarget, strict, params) {
   if (l_len(params) == 1)
     return to;
   /* Let sources be the List of argument values starting with the second argument. */
-  sources := auxCreateList( params );
+  sources := tl params;
 
   /* For each element nextSource of sources, in ascending index order, */
   foreach (nextSource : sources) {
