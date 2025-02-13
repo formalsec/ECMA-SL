@@ -255,7 +255,7 @@ function JS_Interpreter_Expr(e, scope) {
       if (length == 0)
         return 'undefined;
       /* iv. Let evalText be the first element of argList. */
-      evalText := l_nth (argList, 0);
+      evalText := hd argList;
       /* v. If the source code matching this CallExpression is strict code, let
         strictCaller be true. Otherwise let strictCaller be false. */
       if (isContainedInStrictCode(scope)) strictCaller := true; else strictCaller := false;
