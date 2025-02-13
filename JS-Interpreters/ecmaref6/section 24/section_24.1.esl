@@ -615,12 +615,9 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
     }
   }
   /* 12. Store the individual bytes of rawBytes into block, in order, starting at block[byteIndex]. */
-  rawByteIndex := 0;
   blockIndex := byteIndex;
-  rawByteLen := l_len(rawBytes);
-  while (rawByteIndex < rawByteLen) {
-    a_set(block, blockIndex, l_nth(rawBytes, rawByteIndex));
-    rawByteIndex := rawByteIndex + 1;
+  foreach (rawByte : rawBytes) {
+    a_set(block, blockIndex, rawByte);
     blockIndex := blockIndex + 1;
   }
   return 'undefined;

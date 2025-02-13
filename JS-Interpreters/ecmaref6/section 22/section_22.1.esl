@@ -669,11 +669,10 @@ function ArrayConstructorItems(args, NewTarget, here) {
   /* 9. Let items be a zero-origined List containing the argument items in order. */
   items := args;
   /* 10. Repeat, while k < numberOfArgs */
-  while (k < numberOfArgs) {
+  foreach (itemK : items) {
     /* a. Let Pk be ToString(k). */
     Pk := ToString(k);
     /* b. Let itemK be items[k]. */
-    itemK := l_nth(items, float_to_int k);
     /* c. Let defineStatus be CreateDataProperty(array, Pk, itemK). */
     defineStatus := CreateDataProperty(array, Pk, itemK);
     /* d. Assert: defineStatus is true. */
@@ -909,9 +908,8 @@ function arrayOf(global, this, NewTarget, strict, args) {
   /* 7. Let k be 0. */
   k := 0;
   /* 8. Repeat, while k < len */
-  while (k < len) {
+  foreach (kValue : items) {
     /* a. Let kValue be items[k]. */
-    kValue := l_nth(items, k);
     /* b. Let Pk be ToString(k). */
     Pk := ToString(int_to_float k);
     /* c. Let defineStatus be CreateDataPropertyOrThrow(A,Pk, kValue). */
@@ -2813,12 +2811,11 @@ function arraySort(global, this, NewTarget, strict, args) {
       index := index + 1;
     }
     sorted := (!somethingChanged);
-  }
+ }
 
   /* Set nonUndefined Items */
   i := 0;
-  while (i < nonUndLen) {
-    val := l_nth(nonUndefinedItems, i);
+  foreach (val : nonUndefinedItems) {
     i_str := ToString(int_to_float i);
     setStatus := {obj.Set}(obj, i_str, val, obj);
     @ReturnIfAbrupt(setStatus);

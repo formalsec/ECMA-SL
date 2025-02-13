@@ -117,16 +117,7 @@ function CreateByteDataBlock(size) {
       throw RangeErrorConstructorInternal();
     if (size == 0.)
       size := 1.;
-    db := array_make(float_to_int(size), float_to_byte(0.));
-
-    /* i := 0.;
-    while (i < size) {
-        i := i + 1.;*/
-        /* 3. Set all of the bytes of db to 0. */
-        /*db := l_concat(db, float64_to_le_bytes(0.))
-    }*/
-    /* 4. Return db. */
-    return db;
+    return array_make(float_to_int(size), float_to_byte(0.));
 }
 
 /* 6.2.6.2 CopyDataBlockBytes(toBlock, toIndex, fromBlock, fromIndex, count) */
@@ -384,13 +375,9 @@ function getPropertyDescriptor(propertyIdentifier) {
 
 function CopyDescriptor(Desc) {
   newDesc := {};
-  i := 0;
-  list := obj_fields Desc;
-  llist := l_len(list);
-  while (i < llist) {
-    P := l_nth (list, i);
+  fields := obj_fields Desc;
+  foreach (P : fields) {
     newDesc[P] := Desc[P];
-    i := i + 1;
   }
   return newDesc;
 }

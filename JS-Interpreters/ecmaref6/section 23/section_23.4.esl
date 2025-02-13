@@ -1,15 +1,15 @@
 /* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -164,15 +164,11 @@ function weakSetAdd(global, this, NewTarget, strict, args) {
   /* 5. Let entries be the List that is the value of S’s [[WeakSetData]] internal slot. */
   entries := S.WeakSetData;
   /* 6. Repeat for each e that is an element of entries, */
-  i := 0;
-  len := l_len(entries);
-  while (i < len) {
-    e := l_nth(entries, i);
+  foreach (e : entries) {
     /* a. If e is not empty and SameValue(e, value) is true, then */
     if ((e != 'empty) &&& SameValue(e, value))
       /* i. Return S. */
       return S;
-    i := i + 1;
   }
   /* 7. Append value as the last element of entries. */
   S.WeakSetData := l_add(S.WeakSetData, value);
@@ -202,12 +198,9 @@ function weakSetDelete(global, this, NewTarget, strict, args) {
   /* 5. Let entries be the List that is the value of S’s [[WeakSetData]] internal slot. */
   entries := S.WeakSetData;
   /* 6. Repeat for each e that is an element of entries, */
-  i := 0;
-  len := l_len(entries);
   newWeakSetData := [];
   removed := false;
-  while (i < len) {
-    e := l_nth(entries, i);
+  foreach (e : entries) {
     /* a. If e is not empty and SameValue(e, value) is true, then */
     if ((e != 'empty) &&& SameValue(e, value)) {
       /* i. Replace the element of entries whose value is e with an element whose value is empty.
@@ -217,7 +210,6 @@ function weakSetDelete(global, this, NewTarget, strict, args) {
       /* Add the not removed elements to the new list*/
       newWeakSetData := l_prepend(e, newWeakSetData);
     }
-    i := i + 1;
   }
   /* Set the WeakSetData to the new list*/
   S.WeakSetData := l_reverse(newWeakSetData);
@@ -244,14 +236,10 @@ function weakSetHas(global, this, NewTarget, strict, args) {
   if (Type(value) != "Object")
     return false;
   /* 6. Repeat for each e that is an element of entries, */
-  i := 0;
-  len := l_len(entries);
-  while (i < len) {
-    e := l_nth(entries, i);
+  foreach (e : entries) {
     /* a. If e is not empty and SameValue(e, value) is true, return true. */
     if ((e != 'empty) &&& SameValue(e, value))
       return true;
-    i := i + 1;
   }
   /* 7. Return false */
   return false;

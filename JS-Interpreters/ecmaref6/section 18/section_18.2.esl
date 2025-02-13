@@ -1,15 +1,15 @@
 /* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -139,14 +139,10 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
 		/* a. If varEnvRec is a global Environment Record, then */
 		if (isGlobalEnvRec) {
 			/* i. For each name in varNames, do */
-			i := 0;
-			varNames_l := l_len(varNames);
 			/* 1. If varEnvRec.HasLexicalDeclaration(name) is true, throw a SyntaxError exception. */
-			while (i < varNames_l) {
-				name := l_nth(varNames, i);
+      foreach (name : varNames) {
 				if ({varEnvRec.HasBinding}(varEnvRec, name))
 					throw SyntaxErrorConstructorInternal();
-				i := i + 1;
 			}
 			/* NOTE: eval will not create a global var declaration that would be shadowed by a global lexical declaration. */
 		}
@@ -185,19 +181,16 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
   /* 9. Let declaredVarNames be an empty List. */
   declaredVarNames := [];
   /* 10. For each d in varDeclarations, do */
-  varNames_l := l_len(varNames);
-  i := 0;
-  while (i < varNames_l) {
-	  vn := l_nth(varNames, i);
+  foreach (vn : varNames) {
 	  if (!(in_list(vn, declaredFunctionNames))) {
 		  if (isGlobalEnvRec) {
 			  /* TODO */
 		  }
 		  if (!(in_list(vn, declaredVarNames)))
-			  declaredVarNames := l_add(declaredVarNames, vn);
+			  declaredVarNames := l_prepend(vn, declaredVarNames);
 	  }
-	  i := i + 1;
   }
+  declaredVarNames := l_reverse(declaredVarNames);
   /* 11. NOTE: No abnormal terminations occur after this algorithm step unless
 	 varEnvRec is a global Environment Record and the global object is a
 	 Proxy exotic object. */
@@ -216,35 +209,28 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
 	}
 
   /* 14. For each production f in functionsToInitialize, do */
-  functionsToInitialize_l := l_len(functionsToInitialize);
-  i := 0;
-  while (i < functionsToInitialize_l) {
-	f := l_nth(functionsToInitialize, i);
-	fn := f.id.name;
-	fo := JS_Interpreter_FunctionDeclaration(f, lexEnv);
-	if (isGlobalEnvRec) {
-		/* TODO */
-		status := {varEnvRec.CreateMutableBinding}(varEnvRec, fn, true);
-		{varEnvRec.SetMutableBinding}(varEnvRec, fn, fo, false);
-		@ReturnIfAbrupt(status);
-	} else {
-		bindingExists := {varEnvRec.HasBinding}(varEnvRec, fn);
-		if (!(bindingExists)) {
-			status := {varEnvRec.CreateMutableBinding}(varEnvRec, fn, true);
-			assert (!(isAnAbruptCompletion(status)));
-			status := {varEnvRec.InitializeBinding}(varEnvRec, fn, fo);
-		} else {
-			status := {varEnvRec.SetMutableBinding}(varEnvRec, fn, fo, false);
-		}
-	}
-	@ReturnIfAbrupt(status);
-	i := i + 1;
+  foreach (f : functionsToInitialize) {
+    fn := f.id.name;
+    fo := JS_Interpreter_FunctionDeclaration(f, lexEnv);
+    if (isGlobalEnvRec) {
+      /* TODO */
+      status := {varEnvRec.CreateMutableBinding}(varEnvRec, fn, true);
+      {varEnvRec.SetMutableBinding}(varEnvRec, fn, fo, false);
+      @ReturnIfAbrupt(status);
+    } else {
+      bindingExists := {varEnvRec.HasBinding}(varEnvRec, fn);
+      if (!(bindingExists)) {
+        status := {varEnvRec.CreateMutableBinding}(varEnvRec, fn, true);
+        assert (!(isAnAbruptCompletion(status)));
+        status := {varEnvRec.InitializeBinding}(varEnvRec, fn, fo);
+      } else {
+        status := {varEnvRec.SetMutableBinding}(varEnvRec, fn, fo, false);
+      }
+    }
+    @ReturnIfAbrupt(status);
   }
   /* 15. For each String vn in declaredVarNames, in list order do */
-  varNames_l := l_len(declaredVarNames);
-  i := 0;
-  while (i < varNames_l) {
-	  vn := l_nth(declaredVarNames, i);
+  foreach (vn : declaredVarNames) {
 	  /* If varEnvRec is a global Environment Record, then */
 	  if (isGlobalEnvRec) {
 		  /* TODO */
@@ -258,7 +244,6 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
 			  assert(!(isAnAbruptCompletion(status)));
 		  }
 	  }
-	i := i + 1;
   }
   /* 16. Return NormalCompletion(empty) */
   return NormalCompletion('empty);

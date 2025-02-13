@@ -252,11 +252,7 @@ function ObjectAssign(globalObject, this, NewTarget, strict, params) {
     }
 
     /* Repeat for each element nextKey of keys in List order, */
-    j := 0;
-    kLen := l_len(keys);
-
-    while (j < kLen) {
-      nextKey := l_nth(keys, j);
+    foreach(nextKey : keys) {
       /* Let desc be from.[[GetOwnProperty]](nextKey). */
       desc := {from.GetOwnProperty}(from, nextKey);
       /* ReturnIfAbrupt(desc). */
@@ -272,8 +268,6 @@ function ObjectAssign(globalObject, this, NewTarget, strict, params) {
         /* ReturnIfAbrupt(status). */
         @ReturnIfAbrupt(status);
       }
-
-      j := j + 1;
     }
   }
 

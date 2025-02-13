@@ -973,7 +973,7 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args) {
   /* 12. Let done be false. */
   done := false;
   /* 13. Repeat, while done is false */
-  while (done == false) {
+  while (!done) {
     /* a. Let result be RegExpExec(rx, S). */
     result := RegExpExec(rx, S);
     /* b. ReturnIfAbrupt(result). */
@@ -1017,10 +1017,7 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args) {
   /* 15. Let nextSourcePosition be 0. */
   nextSourcePosition := 0;
   /* 16. Repeat, for each result in results, */
-  i := 0;
-  len := l_len(results);
-  while (i < len) {
-    result := l_nth(results, i);
+  foreach (result : results) {
     /* a. Let nCaptures be ToLength(Get(result, "length")). */
     nCaptures := ToLength(Get(result, "length"));
     /* b. ReturnIfAbrupt(nCaptures). */
@@ -1100,8 +1097,6 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args) {
         /* iii. Let nextSourcePosition be position + matchLength. */
         nextSourcePosition := position + matchLength;
     }
-
-    i := i + 1;
   }
 
   /* 17. If nextSourcePosition ≥ lengthS, return accumulatedResult. */

@@ -1027,9 +1027,8 @@ function TypedArrayOf(global, this, NewTarget, strict, args) {
   /* 7. Let k be 0. */
   k := 0.;
   /* 8. Repeat, while k < len */
-  while (k < len) {
     /* a. Let kValue be items[k]. */
-    kValue := l_nth(items, float_to_int k);
+  foreach (kValue : items) {
     /* b. Let Pk be ToString(k). */
     Pk := ToString(k);
     /* c. Let status be Set(newObj, Pk, kValue, true). */
