@@ -284,17 +284,12 @@ function setAddObject(global, this, NewTarget, strict, args) {
   /* 4. Let entries be the List that is the value of S’s [[SetData]] internal slot. */
   entries := S.SetData;
   /* 5. Repeat for each e that is an element of entries */
-  len := l_len(entries);
-  index := 0;
-
-  while (index < len) {
-    e := l_nth(entries, index);
+  foreach (e : entries) {
     /* a. If e is not empty and SameValueZero(e, value) is true, then */
     if ((e != 'empty) &&& SameValueZero(e, value)) {
       /* i. Return S. */
       return S;
     }
-    index := index + 1;
   }
 
   /* 6. If value is −0, let value be +0. */
@@ -327,13 +322,9 @@ function setClearObject(global, this, NewTarget, strict, args) {
   /* 4. Let entries be the List that is the value of S’s [[SetData]] internal slot. */
   entries := S.SetData;
   /* 5. Repeat for each e that is an element of entries */
-  len := l_len(entries);
-  index := 0;
-  while (index < len) {
-    e := l_nth(entries, index);
+  foreach (e : entries) {
     /* a. Replace the element of entries whose value is e with an element whose value is empty. */
-    newSetData := l_add(newSetData, 'empty);
-    index := index + 1;
+    newSetData := l_prepend('empty, newSetData);
   }
   S.SetData := newSetData;
   /* 6. Return undefined.*/
@@ -366,8 +357,7 @@ function setDeleteObject(global, this, NewTarget, strict, args) {
   /* 5. Repeat for each e that is an element of entries */
   len := l_len(entries);
   index := 0;
-  while (index < len) {
-    e := l_nth(entries, index);
+  foreach (e : entries) {
     /* a. If e is not empty and SameValueZero(e, value) is true, then */
     if ((e != 'empty) &&& SameValueZero(e, value)) {
       /* i. Replace the element of entries whose value is e with an element whose value is empty. */
@@ -458,6 +448,7 @@ function setForEachObject(global, this, NewTarget, strict, args) {
       /* ii. ReturnIfAbrupt(funcResult). */
       @ReturnIfAbrupt(funcResult);
     }
+    /* FIXME: This is so terrible that it must be here for some good reason */
     index := index + 1;
     entries := S.SetData;
     len := l_len(entries);
@@ -483,15 +474,11 @@ function setHasObject(global, this, NewTarget, strict, args) {
   /* 4. Let entries be the List that is the value of S’s [[SetData]] internal slot. */
   entries := S.SetData;
   /* 5. Repeat for each e that is an element of entries */
-  len := l_len(entries);
-  index := 0;
-  while (index < len) {
-    e := l_nth(entries, index);
+  foreach (e : entries) {
     /* a. If e is not empty and SameValueZero(e, value) is true, then */
     if ((e != 'empty) &&& SameValueZero(e, value))
       /* i. Return true. */
       return true;
-    index := index + 1;
   }
   /* 6. Return false */
   return false;
@@ -534,14 +521,10 @@ function setSizeObject(global, this, NewTarget, strict, args) {
   /* 5. Let count be 0. */
   count := 0;
   /* 6. For each e that is an element of entries */
-  len := l_len(entries);
-  index := 0;
-  while (index < len) {
-    e := l_nth(entries, index);
+  foreach (e : entries) {
     /* a. If e is not empty, set count to count+1.*/
     if (e != 'empty)
       count := count + 1;
-    index := index + 1;
   }
   /* 7. return count */
   return (int_to_float(count));

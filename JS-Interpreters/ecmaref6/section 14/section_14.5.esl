@@ -1,15 +1,15 @@
 /* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -209,20 +209,17 @@ function BindingClassDeclarationEvaluation(ClassDeclaration, scope) {
 function getSeparateMethods(body) {
   constructor := 'empty;
   regularMethods := [];
-  i := 0;
-  len := l_len(body);
-  while (i < len) {
-    e := l_nth(body, i);
+  foreach (e : body) {
     if (e.type == "MethodDefinition") {
       if (e.key.name == "constructor")
         constructor := e;
       else
-        regularMethods := l_add (regularMethods, e);
+        regularMethods := l_prepend(e, regularMethods);
     } else if (e.type == "Property") {
-      regularMethods := l_add (regularMethods, e);
+      regularMethods := l_prepend(e, regularMethods);
     }
-    i := i + 1;
   }
+  regularMethods := l_reverse(regularMethods);
   return { constructor: constructor, regularMethods: regularMethods };
 }
 

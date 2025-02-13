@@ -510,7 +510,7 @@ function thisStringValue(value) {
 function StringPrototypecharAt(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
   if (n_args >= 1)
-    pos := l_nth(args, 0);
+    pos := hd args;
   else
     pos := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
@@ -934,10 +934,9 @@ function StringPrototypeMatch(global, this, NewTarget, strict, args) {
     /* Returns a list with a string that is contained insided S */
     matches := extern str_match(O);
     i := 0;
-    len_matches := l_len(matches);
     result := ArrayCreate(0.0, null);
-    while (i < len_matches) {
-      CreateDataProperty(result, int_to_string i, l_nth(matches, i));
+    foreach (match_ : matches) {
+      CreateDataProperty(result, int_to_string i, match_);
       i := i + 1;
     }
     return result;
@@ -1432,11 +1431,10 @@ function StringPrototypeSplit(global, this, NewTarget, strict, args) {
 
   /* FIXME(martelada): String.split summary */
   if (extern is_symbolic(S)) {
-    matches := extern summ_string_split(S, R);
     i := 0;
-    len_matches := l_len(matches);
-    while (i < len_matches) {
-      CreateDataProperty(A, int_to_string i, l_nth(matches, i));
+    matches := extern summ_string_split(S, R);
+    foreach (match_ : matches) {
+      CreateDataProperty(A, int_to_string i, match_);
       i := i + 1;
     }
     return A;

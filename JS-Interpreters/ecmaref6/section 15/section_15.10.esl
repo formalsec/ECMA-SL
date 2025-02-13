@@ -291,7 +291,7 @@ function RegExpPrototypeExec(global, this, NewTarget, strict, args) {
   /* 8. Let matchSucceeded be false. */
   matchSucceeded := false;
   /* 9. Repeat, while matchSucceeded is false */
-  while (matchSucceeded == false) {
+  while (!matchSucceeded) {
     /* a. If i < 0 or i > length, then */
     if ((i < 0) || (i > length)) {
       /* i. Call the [[Put]] internal method of R with arguments "lastIndex", 0, and true. */
@@ -923,14 +923,9 @@ function CharacterClassUnion(cs1, cs2) {
   if (cs2.positive != null) {
     if (cs1.positive == null)
       cs1.positive := {};
-    i := 0;
-    list := obj_fields cs2.positive;
-    len := l_len(list);
-    while (i < len) {
-      P := l_nth (list, i);
+    foreach (P : obj_fields cs2.positive) {
       CP := cs2.positive[P];
       cs1.positive[P] := CP;
-      i := i + 1;
     }
   }
 
@@ -938,14 +933,9 @@ function CharacterClassUnion(cs1, cs2) {
   if (cs2.negative != null) {
     if (cs1.negative == null)
       cs1.negative := {};
-    i := 0;
-    list := obj_fields cs2.negative;
-    len := l_len(list);
-    while (i < len) {
-      P := l_nth (list, i);
+    foreach (P : obj_fields cs2.negative) {
       CP := cs2.negative[P];
       cs1.negative[P] := CP;
-      i := i + 1;
     }
   }
 
@@ -1238,13 +1228,9 @@ function JS_Interpreter_RegEx(re, flags) {
   | { type: "CharacterClass", negative: true, expressions: res} -> {
     cs := EmptyCharacterClass(true);
     ic := flags.ic;
-    len := l_len(res);
-    i := 0;
-    while (i < len) {
-      el := l_nth(res, i);
+    foreach (el : res) {
       cs' := JS_Interpreter_CharacterClassElement(el, ic, true);
       CharacterClassUnion(cs, cs');
-      i := i + 1;
     }
 
     m := lambda (st, k) [cs] {
@@ -1263,13 +1249,9 @@ function JS_Interpreter_RegEx(re, flags) {
   | { type: "CharacterClass", expressions: res} -> {
     cs := EmptyCharacterClass(false);
     ic := flags.ic;
-    len := l_len(res);
-    i := 0;
-    while (i < len) {
-      el := l_nth(res, i);
+    foreach (el : res) {
       cs' := JS_Interpreter_CharacterClassElement(el, ic, false);
       CharacterClassUnion(cs, cs');
-      i := i + 1;
     }
     m := lambda (st, k) [cs] {
       c := stateGetChar(st);

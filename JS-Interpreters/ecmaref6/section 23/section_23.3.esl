@@ -1,15 +1,15 @@
 /* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -246,10 +246,7 @@ function weakMapDeleteObject(global, this, NewTarget, strict, args) {
   if (Type(key) != "Object")
     return false;
   /* 6. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
-  i := 0;
-  len := l_len(entries);
-  while (i < len) {
-    p := l_nth(entries, i);
+  foreach (p : entries) {
     /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, then */
     if ((p.key != 'empty) &&& SameValue(p.key, key)) {
       /* i. Set p.[[key]] to empty. */
@@ -259,7 +256,6 @@ function weakMapDeleteObject(global, this, NewTarget, strict, args) {
       /* iii. Return true. */
       return true;
       }
-    i := i + 1;
   }
   /* 7. Return false. */
   return false;
@@ -283,15 +279,11 @@ function weakMapGetObject(global, this, NewTarget, strict, args) {
   if (Type(key) != "Object")
     return 'undefined;
   /* 6. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
-  i := 0;
-  len := l_len(entries);
-  while (i < len) {
-    p := l_nth(entries, i);
+  foreach (p : entries) {
     /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, return p.[[value]]. */
     if ((p.key != 'empty) &&& SameValue(p.key, key)) {
       return p.value;
     }
-    i := i + 1;
   }
   /* 7. Return undefined. */
   return 'undefined;
@@ -315,14 +307,10 @@ function weakMapHasObject(global, this, NewTarget, strict, args) {
   if (Type(key) != "Object")
     return false;
   /* 6. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
-  i := 0;
-  len := l_len(entries);
-  while (i < len) {
-    p := l_nth(entries, i);
+  foreach (p : entries) {
     /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, return true. */
     if ((p.key != 'empty) &&& SameValue(p.key, key))
       return true;
-    i := i + 1;
   }
   /* 7. Return false. */
   return false;
@@ -347,10 +335,7 @@ function weakMapSetObject(global, this, NewTarget, strict, args) {
   if (Type(key) != "Object")
     throw TypeErrorConstructorInternal();
   /* 6. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
-  i := 0;
-  len := l_len(entries);
-  while (i < len) {
-    p := l_nth(entries, i);
+  foreach (p : entries) {
     /* a. If p.[[key]] is not empty and SameValue(p.[[key]], key) is true, then */
     if ((p.key != 'empty) &&& SameValue(p.key, key)) {
       /* i. Set p.[[value]] to value. */
@@ -358,7 +343,6 @@ function weakMapSetObject(global, this, NewTarget, strict, args) {
       /* ii. Return M. */
       return M;
     }
-    i := i + 1;
   }
   /* 7. Let p be the Record {[[key]]: key, [[value]]: value}. */
   p := { key: key, value: value };

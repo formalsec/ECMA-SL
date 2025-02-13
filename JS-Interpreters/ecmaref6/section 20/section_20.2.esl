@@ -1,15 +1,15 @@
 /* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -631,11 +631,8 @@ function MathHypot(globalObject, this, NewTarget, strict, params) {
   if (value == 'undefined)
     return 0.;
   sawNaN := false;
-  i := 0;
   sum := 0.;
-  len := l_len(params);
-  while (i < len) {
-    value := getOptionalParam(params, i);
+  foreach (value : params) {
     value := ToNumber(value);
     @ReturnIfAbrupt(value);
     /* If any argument is +∞, the result is +∞. */
@@ -649,7 +646,6 @@ function MathHypot(globalObject, this, NewTarget, strict, params) {
       sawNaN := true;
     else
       sum := sum + (value ** 2.);
-    i := i + 1;
   }
 
   /* If no argument is +∞ or −∞, and any argument is NaN, the result is NaN. */
@@ -762,13 +758,9 @@ function MathMax(globalObject, this, NewTarget, stric, params) {
   if (l_len(params) == 0)
     return -Infinity;
   max_value := ToNumber(getOptionalParam(params, 0));
-  i := 1;
-  lparams := l_len(params);
-  while (i < lparams) {
-    arg := getOptionalParam(params, i);
+  foreach (arg : tl params) {
     value := ToNumber(arg);
     max_value := max(max_value, value);
-    i := i + 1;
   }
   return max_value;
 }
@@ -783,13 +775,10 @@ function MathMin(globalObject, this, NewTarget, stric, params) {
   if (l_len(params) == 0)
     return Infinity;
   min_value := ToNumber(getOptionalParam(params, 0));
-  i := 1;
-  lparams := l_len(params);
-  while (i < lparams) {
+  foreach (arg : tl params) {
     arg := getOptionalParam(params, i);
     value := ToNumber(arg);
     min_value := min(min_value, value);
-    i := i + 1;
   }
   return min_value;
 }
