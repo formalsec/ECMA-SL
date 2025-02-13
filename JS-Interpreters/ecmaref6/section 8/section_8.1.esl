@@ -1,15 +1,15 @@
 /* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -182,7 +182,13 @@ function createImmutableBinding(declarativeEnvRec, name) {
 }
 
 function newBinding(initialised, value, deletable, modifiable, strict) {
-  return [initialised, value, deletable, modifiable, strict];
+  binding := array_make(5, null);
+  a_set(binding, 0, initialised);
+  a_set(binding, 1, value);
+  a_set(binding, 2, deletable);
+  a_set(binding, 3, modifiable);
+  a_set(binding, 4, strict);
+  return binding;
 }
 
 function newMutableBinding(value) {
@@ -195,49 +201,41 @@ function newImmutableBinding(value) {
 
 function isUninitialisedBinding(envRec, name) {
   binding := envRec[name];
-  return !(l_nth(binding, 0));
+  return !(a_nth(binding, 0));
 }
 
 function getBindingValue(envRec, name) {
   binding := envRec[name];
-  return l_nth(binding, 1);
+  return a_nth(binding, 1);
 }
 
 function isMutableBinding(envRec, name) {
   binding := envRec[name];
-  return l_nth(binding, 3);
+  return a_nth(binding, 3);
 }
 
 function isStrictBinding(envRec, name) {
   binding := envRec[name];
-  return l_nth(binding, 4);
+  return a_nth(binding, 4);
 }
 
 function setBindingValue(envRec, name, value) {
-  binding := envRec[name];
-  newBinding := newBinding(l_nth(binding, 0), value, l_nth(binding, 2), l_nth(binding, 3), l_nth(binding, 4));
-  envRec[name] := newBinding;
+  a_set(envRec[name], 1, value);
   return; /* TODO the return statement is necessary because of the Monitor. Check why! */
 }
 
 function setBindingInitialised(envRec, name, initialised) {
-  binding := envRec[name];
-  newBinding := newBinding(initialised, l_nth(binding, 1), l_nth(binding, 2), l_nth(binding, 3), l_nth(binding, 4));
-  envRec[name] := newBinding;
+  a_set(envRec[name], 0, initialised);
   return; /* TODO the return statement is necessary because of the Monitor. Check why! */
 }
 
 function setBindingDeletable(envRec, name, deletable) {
-  binding := envRec[name];
-  newBinding := newBinding(l_nth(binding, 0), l_nth(binding, 1), deletable, l_nth(binding, 3), l_nth(binding, 4));
-  envRec[name] := newBinding;
+  a_set(envRec[name], 2, deletable);
   return; /* TODO the return statement is necessary because of the Monitor. Check why! */
 }
 
 function setBindingStrict(envRec, name, strict) {
-  binding := envRec[name];
-  newBinding := newBinding(l_nth(binding, 0), l_nth(binding, 1), l_nth(binding, 2), l_nth(binding, 3), strict);
-  envRec[name] := newBinding;
+  a_set(envRec[name], 4, strict);
   return; /* TODO the return statement is necessary because of the Monitor. Check why! */
 }
 
@@ -246,8 +244,7 @@ function hasUninitialisedImmutableBinding(envRec, name) {
 }
 
 function isBindingCannotBeDeleted(envRec, name) {
-  binding := envRec[name];
-  return !l_nth(binding, 2);
+  return !a_nth(envRec[name], 2);
 }
 
 
