@@ -230,7 +230,7 @@ function WeakMapConstructor(global, this, NewTarget, strict, items) {
 
 /* 23.3.3.2 WeakMap.prototype.delete ( key ) */
 function weakMapDeleteObject(global, this, NewTarget, strict, args) {
-  key := l_nth(args, 0);
+  key := hd args;
 
   /* 1. Let M be the this value. */
   M := this;
@@ -263,7 +263,7 @@ function weakMapDeleteObject(global, this, NewTarget, strict, args) {
 
 /* 23.3.3.3 WeakMap.prototype.get ( key ) */
 function weakMapGetObject(global, this, NewTarget, strict, args) {
-  key := l_nth(args, 0);
+  key := hd args;
 
   /* 1. Let M be the this value. */
   M := this;
@@ -291,7 +291,7 @@ function weakMapGetObject(global, this, NewTarget, strict, args) {
 
 /* 23.3.3.4 WeakMap.prototype.has ( key ) */
 function weakMapHasObject(global, this, NewTarget, strict, args) {
-  key := l_nth(args, 0);
+  key := hd args;
 
   /* 1. Let M be the this value. */
   M := this;
@@ -318,7 +318,7 @@ function weakMapHasObject(global, this, NewTarget, strict, args) {
 
 /* 23.3.3.5 WeakMap.prototype.set ( key , value ) */
 function weakMapSetObject(global, this, NewTarget, strict, args) {
-  key := l_nth(args, 0);
+  key := hd args;
   value := l_nth(args, 1);
 
   /* 1. Let M be the this value. */

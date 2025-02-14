@@ -536,7 +536,7 @@ function StringPrototypecharAt(global, this, NewTarget, strict, args) {
 function StringPrototypecharCodeAt(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
   if (n_args >= 1)
-    pos := l_nth(args, 0);
+    pos := hd args;
   else
     pos := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
@@ -562,7 +562,7 @@ function StringPrototypecharCodeAt(global, this, NewTarget, strict, args) {
 function StringPrototypecodePointAt(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
   if (n_args >= 1)
-    pos := l_nth(args, 0);
+    pos := hd args;
   else
     pos := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
@@ -626,7 +626,7 @@ function StringPrototypeconcat(global, this, NewTarget, strict, args) {
 function StringPrototypeendsWith(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
   if (n_args >= 1)
-    searchString := l_nth(args, 0);
+    searchString := hd args;
   else
     searchString := 'undefined;
   if (n_args >= 2)
@@ -686,7 +686,7 @@ function StringPrototypeendsWith(global, this, NewTarget, strict, args) {
 function StringPrototypeincludes(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
   if (n_args >= 1)
-    searchString := l_nth(args, 0);
+    searchString := hd args;
   else
     searchString := 'undefined;
   if (n_args >= 2)
@@ -749,7 +749,7 @@ function includes(S, searchStr, start, searchLength, len) {
 function StringPrototypeindexOf(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
   if (n_args >= 1)
-    searchString := l_nth(args, 0);
+    searchString := hd args;
   else
     searchString := 'undefined;
   if (n_args >= 2)
@@ -804,7 +804,7 @@ function StringPrototypeindexOf(global, this, NewTarget, strict, args) {
 function StringPrototypelastIndexOf(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
   if (n_args >= 1)
-    searchString := l_nth(args, 0);
+    searchString := hd args;
   else
     searchString := 'undefined;
   if (n_args >= 2)
@@ -868,7 +868,7 @@ function StringPrototypelastIndexOf(global, this, NewTarget, strict, args) {
 function StringPrototypelocaleCompare(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
   if (n_args >= 1)
-    that := l_nth(args, 0);
+    that := hd args;
   else
     that := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
@@ -921,7 +921,7 @@ function StringPrototypelocaleCompare(global, this, NewTarget, strict, args) {
 function StringPrototypeMatch(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
   if (n_args >= 1)
-    regexp := l_nth(args, 0);
+    regexp := hd args;
   else
     regexp := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
@@ -969,7 +969,7 @@ function StringPrototypeMatch(global, this, NewTarget, strict, args) {
 function StringPrototypenormalize(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
   if (n_args >= 1)
-    form := l_nth(args, 0);
+    form := hd args;
   else
     form := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
@@ -998,7 +998,7 @@ function StringPrototypenormalize(global, this, NewTarget, strict, args) {
 function StringPrototyperepeat(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
   if (n_args >= 1)
-    count := l_nth(args, 0);
+    count := hd args;
   else
     count := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
@@ -1279,7 +1279,7 @@ function GetSubstitution(matched, str, position, captures, replacement, global, 
 function StringPrototypeSearch(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
   if (n_args >= 1)
-    regexp := l_nth(args, 0);
+    regexp := hd args;
   else
     regexp := 'undefined;
   /* 1. Let O be RequireObjectCoercible(this value). */
@@ -1313,7 +1313,7 @@ function StringPrototypeSearch(global, this, NewTarget, strict, args) {
 function StringPrototypeSlice(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
   if (n_args >= 1)
-    start := l_nth(args, 0);
+    start := hd args;
   else
     start := 'undefined;
   if (n_args >= 2)
@@ -1370,7 +1370,7 @@ function StringPrototypeSlice(global, this, NewTarget, strict, args) {
 function StringPrototypeSplit(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
   if (n_args >= 1)
-    separator := l_nth(args, 0);
+    separator := hd args;
   else
     separator := 'undefined;
   if (n_args >= 2)
@@ -1533,7 +1533,7 @@ function SplitMatch(S, q, R) {
 function StringPrototypestartsWith(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
   if (n_args >= 1)
-    searchString := l_nth(args, 0);
+    searchString := hd args;
   else
     searchString := 'undefined;
   if (n_args >= 2)
@@ -1588,7 +1588,7 @@ function StringPrototypestartsWith(global, this, NewTarget, strict, args) {
 function StringPrototypesubstring(global, this, NewTarget, strict, args) {
   n_args := l_len(args);
   if (n_args >= 1)
-    start := l_nth(args, 0);
+    start := hd args;
   else
     start := 'undefined;
   if (n_args >= 2)
