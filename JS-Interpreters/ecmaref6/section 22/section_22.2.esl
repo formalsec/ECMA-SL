@@ -843,7 +843,7 @@ function TypedArrayConstructorBuffer(global, this, NewTarget, strict, buffer, by
  * mapfn and thisArg, the following steps are taken:
  */
 function TypedArrayFromMethod(global, this, NewTarget, strict, args) {
-  source := l_nth(args, 0);
+  source := hd args;
   mapfn := getOptionalParam(args, 1);
   thisArg := getOptionalParam(args, 2);
   /* 1. Let C be the this value. */
@@ -1146,7 +1146,7 @@ function getTypedArrayByteOffset(global, this, NewTarget, strict, args) {
 function TypedArrayCopyWithin(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
-  target := l_nth(args, 0);
+  target := hd args;
   start := l_nth(args, 1);
   end := getOptionalParam(args, 2);
   /* 1. Let O be ToObject(this value). */
@@ -1349,7 +1349,7 @@ function TypedArrayEntries(global, this, NewTarget, strict, args) {
 function TypedArrayEvery(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
-  callbackfn := l_nth(args, 0);
+  callbackfn := hd args;
   thisArg := getOptionalParam(args, 1);
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -1433,7 +1433,7 @@ function TypedArrayEvery(global, this, NewTarget, strict, args) {
 function TypedArrayFill(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
-  value := l_nth(args, 0);
+  value := hd args;
   start := getOptionalParam(args, 1);
   end := getOptionalParam(args, 2);
   if (start == null) /* shouldn't optional arguments that are not passed default to 'undefined *??* */
@@ -1500,7 +1500,7 @@ function TypedArrayFill(global, this, NewTarget, strict, args) {
  * steps are taken:
  */
 function TypedArrayFilter(global, this, NewTarget, strict, args) {
-  callbackfn := l_nth(args, 0);
+  callbackfn := hd args;
   thisArg := getOptionalParam(args, 1);
   /* 1. Let O be the this value. */
   O := this;
@@ -1625,7 +1625,7 @@ function TypedArrayFilter(global, this, NewTarget, strict, args) {
 function TypedArrayFind(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
-  predicate := l_nth(args, 0);
+  predicate := hd args;
   thisArg := getOptionalParam(args, 1);
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -1724,7 +1724,7 @@ function TypedArrayFind(global, this, NewTarget, strict, args) {
 function TypedArrayFindIndex(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
-  predicate := l_nth(args, 0);
+  predicate := hd args;
   thisArg := getOptionalParam(args, 1);
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -1814,7 +1814,7 @@ function TypedArrayFindIndex(global, this, NewTarget, strict, args) {
 function TypedArrayForEach(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
-  callbackfn := l_nth(args, 0);
+  callbackfn := hd args;
   thisArg := getOptionalParam(args, 1);
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -1903,7 +1903,7 @@ function TypedArrayForEach(global, this, NewTarget, strict, args) {
 function TypedArrayIndexOf(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
-  searchElement := l_nth(args, 0);
+  searchElement := hd args;
   fromIndex := getOptionalParam(args, 1);
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -1994,7 +1994,7 @@ function TypedArrayIndexOf(global, this, NewTarget, strict, args) {
 function TypedArrayJoin(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
-  separator := l_nth(args, 0);
+  separator := hd args;
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
   /* 2. ReturnIfAbrupt(O). */
@@ -2103,7 +2103,7 @@ function TypedArrayKeys(global, this, NewTarget, strict, args) {
 function TypedArrayLastIndexOf(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
-  searchElement := l_nth(args, 0);
+  searchElement := hd args;
   fromIndex := getOptionalParam(args, 1);
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -2196,7 +2196,7 @@ function getTypedArrayLength(global, this, NewTarget, strict, args) {
  * are taken:
  */
 function TypedArrayMap(global, this, NewTarget, strict, args) {
-  callbackfn := l_nth(args, 0);
+  callbackfn := hd args;
   thisArg := getOptionalParam(args, 1);
   /* 1. Let O be the this value. */
   O := this;
@@ -2309,7 +2309,7 @@ function TypedArrayReduce(global, this, NewTarget, strict, args) {
   accumulator := null;
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
-  callbackfn := l_nth(args, 0);
+  callbackfn := hd args;
   initialValue := getOptionalParam(args, 1);
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -2443,7 +2443,7 @@ function TypedArrayReduceRight(global, this, NewTarget, strict, args) {
   accumulator := null;
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
-  callbackfn := l_nth(args, 0);
+  callbackfn := hd args;
   initialValue := getOptionalParam(args, 1);
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -2645,7 +2645,7 @@ function TypedArrayReverse(global, this, NewTarget, strict, args) {
  * The length property of the set method is 1.
  */
 function TypedArraySet(global, this, NewTarget, strict, args) {
-  array := l_nth(args, 0);
+  array := hd args;
   offset := getOptionalParam(args, 1);
   if (offset == null)
     offset := 'undefined;
@@ -2873,7 +2873,7 @@ function TypedArraySetTypedArray(global, this, strict, typedArray, offset) {
  * following steps are taken:
  */
 function TypedArraySlice(global, this, NewTarget, strict, args) {
-  start := l_nth(args, 0);
+  start := hd args;
   end := l_nth(args, 1);
   /* 1. Let O be the this value. */
   O := this;
@@ -3046,7 +3046,7 @@ function TypedArraySome(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
 
-  callbackfn := l_nth(args, 0);
+  callbackfn := hd args;
   thisArg := getOptionalParam(args, 1);
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -3117,7 +3117,7 @@ function TypedArraySome(global, this, NewTarget, strict, args) {
  * sort function. These steps are used instead of the entry steps in 22.1.3.24:
  */
 function TypedArraySort(global, this, NewTarget, strict, args) {
-  comparefn := l_nth(args, 0);
+  comparefn := hd args;
   /* 1. Let obj be the this value as the argument. */
   obj := this;
   /* 2. Let buffer be ValidateTypedArray(obj). */

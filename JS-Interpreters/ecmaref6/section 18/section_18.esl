@@ -308,7 +308,7 @@ function GlobalObjectIsNaN(globalObject, this, NewTarget, strict, params) {
  * When the isFinite function is called with one argument x, the following steps are taken:
  */
 function GlobalObjectIsFinite(globalObject, this, NewTarget, strict, params) {
-  num := l_nth(params, 0);
+  num := hd params;
   /* Returns false if the argument coerces to NaN, +Infinity, or -Infinity, and otherwise returns true. */
 
   /* 1. Let num be ToNumber(number). */
@@ -316,7 +316,7 @@ function GlobalObjectIsFinite(globalObject, this, NewTarget, strict, params) {
   /* 2. ReturnIfAbrupt(num). */
   @ReturnIfAbrupt(num);
   /* 3. If num is NaN, +∞, or −∞, return false. */
-  if ((is_NaN (num)) ||| (num == Infinity) ||| (num == -Infinity))
+  if ((is_NaN(num)) ||| (num == Infinity) ||| (num == -Infinity))
     return false;
   /* 4. Otherwise, return true. */
   return true;
@@ -366,8 +366,8 @@ function containsInvalidDigit(str, radix) {
 
   while (i < str_len) {
     char := s_nth_u(str, i);
-    index := indexOfChar(char);
-    if (index == -1 ||| index >= radixInt)
+    index := to_char_code_u(char) - to_char_code("0");
+    if (index >= radixInt)
       return true;
     i:= i + 1;
   }
@@ -404,22 +404,14 @@ function isSpaceCharacter(c) {
     "\u{2001}", "\u{2002}", "\u{2003}", "\u{2004}", "\u{2005}", "\u{2006}", "\u{2007}",
     "\u{2008}", "\u{2009}", "\u{200A}", "\u{202F}", "\u{205F}", "\u{3000}", "\n", "\r",
     "\u{2028}", "\u{2029}"];
-  foreach (s : spaces)
-    if (s == c)
-      return true;
-  return false;
+  return in_list(c, spaces);
 }
 
 function indexOfChar(char) {
-  chars := [
-    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-    "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
-    "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
-  ];
+  chars := "0123456789abcdefghijklmnopqrstuvwxyz";
   i := 0;
-
   while (i < 36) {
-    if (to_lower_case(char) == l_nth(chars, i))
+    if (to_lower_case(char) == s_nth(chars, i))
       return i;
     i := i + 1;
   }
@@ -434,7 +426,7 @@ function mathIntegerOf(str, radix) {
 
   while (i > 0) {
     char := s_nth_u(str, i - 1);
-    charValue := indexOfChar(char);
+    charValue := to_char_code_u(char) - to_char_code("0");
     value := value + ((radix ** (int_to_float (str_len - i))) * (int_to_float charValue));
     i := i - 1;
   }
