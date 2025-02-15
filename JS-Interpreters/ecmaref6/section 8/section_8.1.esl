@@ -182,13 +182,13 @@ function createImmutableBinding(declarativeEnvRec, name) {
 }
 
 function newBinding(initialised, value, deletable, modifiable, strict) {
-  binding := array_make(5, null);
-  a_set(binding, 0, initialised);
-  a_set(binding, 1, value);
-  a_set(binding, 2, deletable);
-  a_set(binding, 3, modifiable);
-  a_set(binding, 4, strict);
-  return binding;
+  return {
+    initialised: initialised,
+    value: value,
+    deletable: deletable,
+    modifiable: modifiable,
+    strict: strict
+  };
 }
 
 function newMutableBinding(value) {
@@ -201,41 +201,38 @@ function newImmutableBinding(value) {
 
 function isUninitialisedBinding(envRec, name) {
   binding := envRec[name];
-  return !(a_nth(binding, 0));
+  return !(binding.initialised);
 }
 
 function getBindingValue(envRec, name) {
-  binding := envRec[name];
-  return a_nth(binding, 1);
+  return envRec[name].value;
 }
 
 function isMutableBinding(envRec, name) {
-  binding := envRec[name];
-  return a_nth(binding, 3);
+  return envRec[name].modifiable;
 }
 
 function isStrictBinding(envRec, name) {
-  binding := envRec[name];
-  return a_nth(binding, 4);
+  return envRec[name].strict;
 }
 
 function setBindingValue(envRec, name, value) {
-  a_set(envRec[name], 1, value);
+  envRec[name].value := value;
   return; /* TODO the return statement is necessary because of the Monitor. Check why! */
 }
 
 function setBindingInitialised(envRec, name, initialised) {
-  a_set(envRec[name], 0, initialised);
+  envRec[name].initialised := initialised;
   return; /* TODO the return statement is necessary because of the Monitor. Check why! */
 }
 
 function setBindingDeletable(envRec, name, deletable) {
-  a_set(envRec[name], 2, deletable);
+  envRec[name].deletable := deletable;
   return; /* TODO the return statement is necessary because of the Monitor. Check why! */
 }
 
 function setBindingStrict(envRec, name, strict) {
-  a_set(envRec[name], 4, strict);
+  envRec[name].strict := strict;
   return; /* TODO the return statement is necessary because of the Monitor. Check why! */
 }
 
@@ -244,10 +241,8 @@ function hasUninitialisedImmutableBinding(envRec, name) {
 }
 
 function isBindingCannotBeDeleted(envRec, name) {
-  return !a_nth(envRec[name], 2);
+  return !(envRec[name].deletable);
 }
-
-
 
 /*
 8.1 Lexical Environments
@@ -309,10 +304,7 @@ function HasBindingDeclarativeRecord(envRec, N) {
 	/* Let envRec be the declarative Environment Record for which the method was invoked. */
 
 	/* If envRec has a binding for the name that is the value of N, return true. */
-	if (N in_obj envRec)
-		return true;
-	/* Return false. */
-	return false;
+	return (N in_obj envRec);
 }
 
 /* 8.1.1.1.2 CreateMutableBinding (N, D) */
@@ -329,10 +321,7 @@ function CreateMutableBindingDeclarativeRecord(envRec, N, D) {
     /* Create a mutable binding in envRec for N and record that it is uninitialized. If D is true record that the
        newly created binding may be deleted by a subsequent DeleteBinding call. */
     createMutableBinding(envRec, N, 'undefined);
-    if (D == true)
-    	setBindingDeletable(envRec, N, true);
-    else
-      setBindingDeletable(envRec, N, false);
+    setBindingDeletable(envRec, N, D);
 
     /* Return NormalCompletion(empty). */
     return NormalCompletion('empty);
@@ -543,10 +532,7 @@ function CreateMutableBindingObjectRecord(envRec, N, D) {
     /* Let bindings be the binding object for envRec. */
     bindings := getBindingObject(envRec);
     /* If D is true then let configValue be true otherwise let configValue be false. */
-    if (D == true)
-      configValue := true;
-    else
-      configValue := false;
+    configValue := D == true;
     /* TODO check pq e que isto e preciso  */
     createMutableBinding(envRec, N, 'undefined);
     /* Return DefinePropertyOrThrow(bindings, N,
