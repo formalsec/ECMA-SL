@@ -1,31 +1,31 @@
 /* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* Called in ESL_Interpreter.esl at the start of the program's execution */
 function initJobQueue() {
-  |ScriptJobQueue| := [];
-  |PromiseJobQueue| := [];
+  |ScriptJobQueue| := queue_make();
+  |PromiseJobQueue| := queue_make();
   return;
 }
 
 function appendToJobQueue(job, queueName) {
   if (queueName == "PromiseJobs")
-    |PromiseJobQueue| := l_add(|PromiseJobQueue|, job);
+    enqueue(|PromiseJobQueue|, job);
   else
-    |ScriptJobQueue| := l_add(|ScriptJobQueue|, job);
+    enqueue(|ScriptJobQueue|, job);
   return;
 }
 
@@ -121,12 +121,10 @@ function NextJob(result) {
 
     /* Let nextQueue be a non-empty Job Queue chosen in an implementation defined manner. If all Job Queues are
     empty, the result is implementation defined. */
-    if (l_len(|ScriptJobQueue|) != 0) {
-      nextPending := hd |ScriptJobQueue|;
-      |ScriptJobQueue| := tl |ScriptJobQueue|;
-    } else if (l_len(|PromiseJobQueue|) != 0) {
-      nextPending := hd |PromiseJobQueue|;
-      |PromiseJobQueue| := tl |PromiseJobQueue|;
+    if (!queue_is_empty(|ScriptJobQueue|)) {
+      nextPending := dequeue(|ScriptJobQueue|);
+    } else if (!queue_is_empty(|PromiseJobQueue|)) {
+      nextPending := dequeue(|PromiseJobQueue|);
     } else {
       return result;
     }

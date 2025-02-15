@@ -37,8 +37,8 @@ function push_globals() {
   |global| := 'undefined;
   |realm|["globalThis"] := 'undefined;
   |ctxStack| := stack_make();
-  |ScriptJobQueue| := [];
-  |PromiseJobQueue| := [];
+  |ScriptJobQueue| := queue_make();
+  |PromiseJobQueue| := queue_make();
   stack_push(|globals_stack|,  saved_globals);
   return;
 }
