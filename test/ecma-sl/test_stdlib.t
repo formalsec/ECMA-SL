@@ -35,3 +35,5 @@ Tests list operators:
   [ecma-sl] exit value: 0
   $ ecma-sl interpret test_stdlib_fpath.esl --exitval
   [ecma-sl] exit value: 0
+  $ ecma-sl interpret test_stdlib_queue.esl --exitval
+  [ecma-sl] exit value: 0
