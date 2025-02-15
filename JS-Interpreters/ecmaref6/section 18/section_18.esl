@@ -185,17 +185,14 @@ function GlobalObjectParseInt(globalObject, this, NewTarget, strict, params) {
   if (stripPrefix == true) {
     /* a. If the length of S is at least 2 and the first two characters of S are either "0x" or "0X", then remove
           the first two characters from S and let (R) = 16. */
-    if (s_len_u(S) >= 2 &&& (s_substr_u(S, 0, 2) == "0x" ||| s_substr_u(S, 0, 2) == "0X")) {
+    if (s_len_u(S) >= 2 &&& s_is_prefix("0x", S) ||| s_is_prefix("0X", S)) {
       S := s_substr_u(S, 2, s_len_u(S) - 2);
       R := 16.;
     }
   }
   /* 11. If S contains any character that is not a radix-R digit, then let Z be the substring of S consisting of all
          characters before the first such character; otherwise, let Z be S. */
-  if (containsInvalidDigit(S, R))
-    Z := stripInvalidChars(S, R);
-  else
-    Z := S;
+  Z := stripInvalidChars(S, R);
   /* 12. If Z is empty, return NaN. */
   if (Z == "")
     return NaN;
@@ -366,8 +363,8 @@ function containsInvalidDigit(str, radix) {
 
   while (i < str_len) {
     char := s_nth_u(str, i);
-    index := to_char_code_u(char) - to_char_code("0");
-    if (index >= radixInt)
+    index := indexOfChar(char);
+    if (index == -1 ||| index >= radixInt)
       return true;
     i:= i + 1;
   }
@@ -408,14 +405,26 @@ function isSpaceCharacter(c) {
 }
 
 function indexOfChar(char) {
+  /*
   chars := "0123456789abcdefghijklmnopqrstuvwxyz";
   i := 0;
+  char := to_lower_case(char);
   while (i < 36) {
-    if (to_lower_case(char) == s_nth(chars, i))
+    if (char == s_nth(chars, i))
       return i;
     i := i + 1;
   }
-
+  */
+  char := to_lower_case(char);
+  char_code := to_char_code_u(char);
+  char_code_0 := to_char_code("0");
+  char_code_9 := to_char_code("9");
+  if (char_code >= char_code_0 &&& char_code <= char_code_9)
+    return char_code - char_code_0;
+  char_code_a := to_char_code("a");
+  char_code_z := to_char_code("z");
+  if (char_code >= char_code_a &&& char_code <= char_code_z)
+    return 10 + (char_code - char_code_a);
   return -1;
 }
 
@@ -426,7 +435,7 @@ function mathIntegerOf(str, radix) {
 
   while (i > 0) {
     char := s_nth_u(str, i - 1);
-    charValue := to_char_code_u(char) - to_char_code("0");
+    charValue := indexOfChar(char);
     value := value + ((radix ** (int_to_float (str_len - i))) * (int_to_float charValue));
     i := i - 1;
   }

@@ -776,7 +776,6 @@ function MathMin(globalObject, this, NewTarget, stric, params) {
     return Infinity;
   min_value := ToNumber(getOptionalParam(params, 0));
   foreach (arg : tl params) {
-    arg := getOptionalParam(params, i);
     value := ToNumber(arg);
     min_value := min(min_value, value);
   }

@@ -3298,7 +3298,7 @@ function ForBodyEvaluation(test, increment, stmt, perIterationBindings, labelSet
       /* iii. ReturnIfAbrupt(testValue). */
       @ReturnIfAbrupt(testValue);
       /* iv. If ToBoolean(testValue) is false, */
-      if (ToBoolean(testValue) == false) {
+      if (!ToBoolean(testValue)) {
         /* return NormalCompletion(V) */
         return NormalCompletion(V);
       }
