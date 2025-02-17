@@ -2,6 +2,19 @@ open EslBase
 open EslSyntax
 open Source
 
+module Advices = struct
+  let add_advices (advices : Fpath.t list) (p : EProg.t) : EProg.t =
+    List.fold_left
+      (fun p advice ->
+        let workspace = Fpath.v (Filename.dirname (EProg.path p)) in
+        let advice' = Fpath.v (Unix.realpath (Fpath.to_string advice)) in
+        let advice'' = Option.get (Fpath.relativize ~root:workspace advice') in
+        let advice''' = Fpath.to_string advice'' in
+        let import = EImport.User (advice''' @> Source.none) @> Source.none in
+        EProg.{ p with imports = import :: p.imports } )
+      p advices
+end
+
 module Imports = struct
   open EImport
 

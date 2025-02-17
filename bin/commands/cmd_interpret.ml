@@ -47,12 +47,13 @@ module Options = struct
     ; lang : Enums.Lang.t
     ; main : string
     ; untyped : bool
+    ; advices : Fpath.t list
     ; config : config
     }
 
   let set (input : Fpath.t) (lang : Enums.Lang.t) (main : string)
-    (untyped : bool) (config : config) : t =
-    { input; lang; main; untyped; config }
+    (untyped : bool) (advices: Fpath.t list) (config : config) : t =
+    { input; lang; main; untyped; advices; config }
 end
 
 module InterpreterMetrics = struct
@@ -151,8 +152,9 @@ let interpret_cesl (entry : Interpreter.IEntry.t) (config : Options.config)
   interpret entry config p
 
 let interpret_esl (entry : Interpreter.IEntry.t) (config : Options.config)
-  (untyped : bool) (file : Fpath.t) : Interpreter.IResult.t Result.t =
-  let* p = Cmd_compile.compile untyped file in
+  (untyped : bool) (advices : Fpath.t list) (file : Fpath.t) :
+  Interpreter.IResult.t Result.t =
+  let* p = Cmd_compile.compile untyped advices file in
   interpret entry config p
 
 let log_metrics (profiler : Enums.InterpProfiler.t)
@@ -167,7 +169,7 @@ let run () (opts : Options.t) : unit Result.t =
   log_metrics opts.config.instrument.profiler
   @@
   match Enums.Lang.resolve_file_lang valid_langs opts.input with
-  | Some ESL -> interpret_esl entry opts.config opts.untyped opts.input
+  | Some ESL -> interpret_esl entry opts.config opts.untyped opts.advices opts.input
   | Some CESL -> interpret_cesl entry opts.config opts.input
   | Some CESLUnattached | _ ->
     let config = { opts.config with resolve_exitval = false } in

@@ -459,7 +459,7 @@ let run () ({ inputs; report; harness; jsinterp; jobs; _ } as opts : Options.t)
   let* inputs = Files.generate_input_list inputs in
   Options.term_width := get_logging_width inputs;
   Log.stdout "%a@." TestTree.pp_status_header ();
-  let* env = Cmd_execute.setup_execution jsinterp harness in
+  let* env = Cmd_execute.setup_execution true [] jsinterp harness in
   let tree = TestTree.create "" in
   let outext = Enums.Lang.str TestReport in
   let is_parallel = jobs > 1 in

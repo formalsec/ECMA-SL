@@ -83,6 +83,14 @@ module FileOpts = struct
 end
 
 module CompileOpts = struct
+  let advices =
+    let docv = "FILE" in
+    let doc =
+      "Sets an additional file containing ECMA-SL advices to run along with \
+       the main ECMA-SL file."
+    in
+    Arg.(value & opt_all non_dir_fpath [] & info [ "advice" ] ~docv ~doc)
+
   let untyped =
     let doc =
       "Run the ECMA-SL compiler without performing static type checking. In \

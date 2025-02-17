@@ -25,7 +25,7 @@ let dispatch_prog lang fpath =
   let valid_langs = Enums.Lang.valid_langs valid_languages lang in
   match Enums.Lang.resolve_file_lang valid_langs fpath with
   | Some CESL -> Cmd_compile.load fpath
-  | Some ESL -> Cmd_compile.compile true fpath
+  | Some ESL -> Cmd_compile.compile true [] fpath
   | Some JS -> prog_of_js fpath
   | _ ->
     let msg = Fmt.str "%a :unreconized file type" Fpath.pp fpath in

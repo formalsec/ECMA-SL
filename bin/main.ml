@@ -22,6 +22,7 @@ let compile_opts =
   $ Docs.FileOpts.input
   $ Docs.FileOpts.output
   $ Docs.CompileOpts.untyped
+  $ Docs.CompileOpts.advices
 
 let compile_cmd =
   let open Docs.CompileCmd in
@@ -52,6 +53,7 @@ let interpret_opts =
   $ Docs.InterpretOpts.lang
   $ Docs.InterpretOpts.main
   $ Docs.CompileOpts.untyped
+  $ Docs.CompileOpts.advices
   $ interpreter_config
 
 let interpret_cmd =
@@ -77,6 +79,7 @@ let execute_opts =
   let open Term in
   const Cmd_execute.Options.set
   $ Docs.FileOpts.input
+  $ Docs.CompileOpts.advices
   $ Docs.ExecuteOpts.lang
   $ Docs.ExecuteOpts.jsinterp
   $ Docs.ExecuteOpts.harness

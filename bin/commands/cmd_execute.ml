@@ -8,15 +8,17 @@ module Options = struct
 
   type t =
     { input : Fpath.t
+    ; advices : Fpath.t list
     ; lang : Enums.Lang.t
     ; jsinterp : Enums.JSInterp.t
     ; harness : Fpath.t option
     ; interp_config : Cmd_interpret.Options.config
     }
 
-  let set (input : Fpath.t) (lang : Enums.Lang.t) (jsinterp : Enums.JSInterp.t)
-    (harness : Fpath.t option) (interp_config : interp_config) =
-    { input; lang; jsinterp; harness; interp_config }
+  let set (input : Fpath.t) (advices : Fpath.t list) (lang : Enums.Lang.t)
+    (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option)
+    (interp_config : interp_config) =
+    { input; advices; lang; jsinterp; harness; interp_config }
 end
 
 let build_ast (file : Fpath.t) : Func.t Result.t =
@@ -57,10 +59,11 @@ let setup_program_harness (interp : Prog.t) (harness : Fpath.t) :
   Log.debug "Sucessfuly linked JS harness '%a' to interpreter." Fpath.pp harness;
   Ok result.heap
 
-let setup_execution (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option) :
+let setup_execution (untyped : bool) (advices : Fpath.t list)
+  (jsinterp : Enums.JSInterp.t) (harness : Fpath.t option) :
   (Prog.t * Value.t Heap.t option) Result.t =
   let finterp = Enums.JSInterp.interp jsinterp in
-  let* interp = Cmd_compile.compile true (Fpath.v finterp) in
+  let* interp = Cmd_compile.compile untyped advices (Fpath.v finterp) in
   match harness with
   | None -> Ok (interp, None)
   | Some harness' ->
@@ -87,7 +90,7 @@ let execute_js (setup : Prog.t * Value.t Heap.t option)
 
 let run () (opts : Options.t) : unit Result.t =
   let valid_langs = Enums.Lang.valid_langs Options.langs opts.lang in
-  let* setup = setup_execution opts.jsinterp opts.harness in
+  let* setup = setup_execution true opts.advices opts.jsinterp opts.harness in
   Cmd_interpret.log_metrics opts.interp_config.instrument.profiler
   @@
   match Enums.Lang.resolve_file_lang valid_langs opts.input with
