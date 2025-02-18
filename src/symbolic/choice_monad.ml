@@ -135,7 +135,7 @@ module Seq = struct
   let select_val (v : Value.value) thread =
     match Smtml.Expr.view v with
     | Val v -> Cont.return (v, thread)
-    | _ -> Log.fail "Unable to select value from %a" Value.pp v
+    | _ -> Fmt.failwith "Unable to select value from %a" Value.pp v
 
   (* FIXME: Clone state? *)
   let from_list _vs : 'a t =
@@ -224,7 +224,7 @@ module List = struct
   let select_val (v : Value.value) thread =
     match Smtml.Expr.view v with
     | Val v -> [ (v, thread) ]
-    | _ -> Log.fail "Unable to select value from %a" Value.pp v
+    | _ -> Fmt.failwith "Unable to select value from %a" Value.pp v
 
   (* FIXME: Clone state? *)
   let from_list vs : 'a t =

@@ -623,21 +623,41 @@ module Make () = struct
     let open Extern_func in
     let non_empty v =
       match Smtml.Expr.view v with
-      | Val (Str "") -> fresh_x ()
-      | Val (Str s) -> s
-      | _ -> Log.fail "'%a' is not a valid string symbol" Symbolic_value.pp v
+      | Val (Str "") -> Ok (fresh_x ())
+      | Val (Str s) -> Ok s
+      | _ ->
+        Error
+          (`Failure
+             (Fmt.str "'%a' is not a valid string symbol" Symbolic_value.pp v)
+          )
     in
     let str_symbol (x : value) =
-      ok (Smtml.Expr.symbol (Smtml.Symbol.make Ty_str (non_empty x)))
+      let open Result in
+      Choice.return
+      @@
+      let* x = non_empty x in
+      Ok (Smtml.Expr.symbol (Smtml.Symbol.make Ty_str x))
     in
     let int_symbol (x : value) =
-      ok (Smtml.Expr.symbol (Smtml.Symbol.make Ty_int (non_empty x)))
+      let open Result in
+      Choice.return
+      @@
+      let* x = non_empty x in
+      Ok (Smtml.Expr.symbol (Smtml.Symbol.make Ty_int x))
     in
     let flt_symbol (x : value) =
-      ok (Smtml.Expr.symbol (Smtml.Symbol.make Ty_real (non_empty x)))
+      let open Result in
+      Choice.return
+      @@
+      let* x = non_empty x in
+      Ok (Smtml.Expr.symbol (Smtml.Symbol.make Ty_real x))
     in
     let bool_symbol (x : value) =
-      ok (Smtml.Expr.symbol (Smtml.Symbol.make Ty_bool (non_empty x)))
+      let open Result in
+      Choice.return
+      @@
+      let* x = non_empty x in
+      Ok (Smtml.Expr.symbol (Smtml.Symbol.make Ty_bool x))
     in
     let lift_symbols (x : value) =
       match Smtml.Expr.view x with
@@ -721,7 +741,7 @@ module Make () = struct
         assert false
     in
     let print (v : Symbolic_value.value) =
-      Log.stdout "extern print: %a@." Symbolic_value.pp v;
+      Logs.app (fun k -> k "extern print: %a@." Symbolic_value.pp v);
       ok_v (App (`Op "symbol", [ Str "undefined" ]))
     in
     (* TODO: The following functions where optimizations merged from the

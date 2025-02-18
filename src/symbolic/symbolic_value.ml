@@ -16,6 +16,8 @@
 
 open Ecma_sl
 
+(* TODO: Usage of Fmt.failwith with be reduced in the future with Result.t *)
+
 type value = Smtml.Expr.t
 
 let null = Smtml.Expr.value Nothing
@@ -30,7 +32,7 @@ let compare a b = Smtml.Expr.compare a b
 
 let pp fmt v = Smtml.Expr.pp fmt v [@@inline]
 
-let to_string v = Fmt.str "%a" pp v
+let to_string v = Smtml.Expr.to_string v
 
 let mk_symbol x = Smtml.Expr.value (App (`Op "symbol", [ Str x ])) [@@inline]
 
@@ -104,7 +106,9 @@ let eval_unop (op : Operator.unopt) =
       match t with
       | Ty_int -> Smtml.Expr.unop Ty_int Neg v
       | Ty_real -> Smtml.Expr.unop Ty_real Neg v
-      | _ -> Log.fail "TODO:x Neg" )
+      | _ ->
+        Fmt.failwith "eval_unop: unsupported (neg (%a : %a))" Smtml.Expr.pp v
+          Smtml.Ty.pp t )
   | BitwiseNot -> Smtml.Expr.unop Ty_int Not
   | LogicalNot -> Smtml.Expr.unop Ty_bool Not
   | ListHead -> Smtml.Expr.unop Ty_list Head
@@ -124,7 +128,9 @@ let eval_unop (op : Operator.unopt) =
         | Ty_str -> Smtml.Expr.value (Str "string")
         | Ty_list -> Smtml.Expr.value (Str "list")
         | Ty_app -> Smtml.Expr.value (Str "app")
-        | _ -> Log.fail "Typeof unknown value: %a" Smtml.Expr.pp v ) )
+        | _ ->
+          Fmt.failwith "eval_unop: unsupported (typeof (%a : %a))" Smtml.Expr.pp
+            v Smtml.Expr.pp v ) )
   | IntToFloat -> Smtml.Expr.cvtop Ty_real Reinterpret_int
   | IntToString -> Smtml.Expr.cvtop Ty_int ToString
   | FloatToInt -> Smtml.Expr.cvtop Ty_real Reinterpret_float
@@ -153,29 +159,35 @@ let eval_binop (op : Operator.binopt) =
       | (Ty_str, Ty_str) -> Smtml.Expr.naryop Ty_str Concat [ v1; v2 ]
       | (Ty_str, _) | (_, Ty_str) -> Smtml.Expr.naryop Ty_str Concat [ v1; v2 ]
       | _ ->
-        Log.fail "TODO: (plus (%a : %a) (%a : %a))" Smtml.Expr.pp v1 Smtml.Ty.pp
-          t1 Smtml.Expr.pp v2 Smtml.Ty.pp t2 )
+        Fmt.failwith "eval_binop: unsupported (plus (%a : %a) (%a : %a)"
+          Smtml.Expr.pp v1 Smtml.Ty.pp t1 Smtml.Expr.pp v2 Smtml.Ty.pp t2 )
   | Minus -> (
     fun v1 v2 ->
       let (t1, t2) = (expr_type v1, expr_type v2) in
       match (t1, t2) with
       | (Ty_int, Ty_int) -> Smtml.Expr.binop Ty_int Sub v1 v2
       | (Ty_real, Ty_real) -> Smtml.Expr.binop Ty_real Sub v1 v2
-      | _ -> Log.fail "TODO:x Minus" )
+      | _ ->
+        Fmt.failwith "eval_binop: unsupported (minus (%a : %a) (%a : %a)"
+          Smtml.Expr.pp v1 Smtml.Ty.pp t1 Smtml.Expr.pp v2 Smtml.Ty.pp t2 )
   | Times -> (
     fun v1 v2 ->
       let (t1, t2) = (expr_type v1, expr_type v2) in
       match (t1, t2) with
       | (Ty_int, Ty_int) -> Smtml.Expr.binop Ty_int Mul v1 v2
       | (Ty_real, Ty_real) -> Smtml.Expr.binop Ty_real Mul v1 v2
-      | _ -> Log.fail "TODO:x Times" )
+      | _ ->
+        Fmt.failwith "eval_binop: unsupported (times (%a : %a) (%a : %a)"
+          Smtml.Expr.pp v1 Smtml.Ty.pp t1 Smtml.Expr.pp v2 Smtml.Ty.pp t2 )
   | Div -> (
     fun v1 v2 ->
       let (t1, t2) = (expr_type v1, expr_type v2) in
       match (t1, t2) with
       | (Ty_int, Ty_int) -> Smtml.Expr.binop Ty_int Div v1 v2
       | (Ty_real, Ty_real) -> Smtml.Expr.binop Ty_real Div v1 v2
-      | _ -> Log.fail "TODO:x Div %a %a" Smtml.Expr.pp v1 Smtml.Expr.pp v2 )
+      | _ ->
+        Fmt.failwith "eval_binop: unsupported (div (%a : %a) (%a : %a)"
+          Smtml.Expr.pp v1 Smtml.Ty.pp t1 Smtml.Expr.pp v2 Smtml.Ty.pp t2 )
   | Modulo -> (
     fun v1 v2 ->
       match (expr_type v1, expr_type v2) with
@@ -222,7 +234,9 @@ let eval_binop (op : Operator.binopt) =
       | (Ty_int, Ty_int) -> Smtml.Expr.relop Ty_int Le v1 v2
       | (Ty_real, Ty_real) -> Smtml.Expr.relop Ty_real Le v1 v2
       | (Ty_str, Ty_str) -> Smtml.Expr.relop Ty_str Le v1 v2
-      | _ -> Log.fail "TODO:x Le" )
+      | _ ->
+        Fmt.failwith "eval_binop: unsupported (le (%a : %a) (%a : %a)"
+          Smtml.Expr.pp v1 Smtml.Ty.pp t1 Smtml.Expr.pp v2 Smtml.Ty.pp t2 )
   | Gt -> (
     fun v1 v2 ->
       let (t1, t2) = (expr_type v1, expr_type v2) in
@@ -230,7 +244,9 @@ let eval_binop (op : Operator.binopt) =
       | (Ty_int, Ty_int) -> Smtml.Expr.relop Ty_int Gt v1 v2
       | (Ty_real, Ty_real) -> Smtml.Expr.relop Ty_real Gt v1 v2
       | (Ty_str, Ty_str) -> Smtml.Expr.relop Ty_str Gt v1 v2
-      | _ -> Log.fail "TODO:x Gt" )
+      | _ ->
+        Fmt.failwith "eval_binop: unsupported (gt (%a : %a) (%a : %a)"
+          Smtml.Expr.pp v1 Smtml.Ty.pp t1 Smtml.Expr.pp v2 Smtml.Ty.pp t2 )
   | Ge -> (
     fun v1 v2 ->
       let (t1, t2) = (expr_type v1, expr_type v2) in
@@ -238,7 +254,9 @@ let eval_binop (op : Operator.binopt) =
       | (Ty_int, Ty_int) -> Smtml.Expr.relop Ty_int Ge v1 v2
       | (Ty_real, Ty_real) -> Smtml.Expr.relop Ty_real Ge v1 v2
       | (Ty_str, Ty_str) -> Smtml.Expr.relop Ty_str Ge v1 v2
-      | _ -> Log.fail "TODO:x Ge" )
+      | _ ->
+        Fmt.failwith "eval_binop: unsupported (ge (%a : %a) (%a : %a)"
+          Smtml.Expr.pp v1 Smtml.Ty.pp t1 Smtml.Expr.pp v2 Smtml.Ty.pp t2 )
   | ObjectMem -> assert false
 
 let eval_triop (op : Operator.triopt) =
@@ -259,7 +277,7 @@ let rec eval_expr (store : store) (e : Expr.t) : value =
   | Var x -> (
     match Store.find store x with
     | Some v -> v
-    | None -> Log.fail "Cannot find var '%s'" x )
+    | None -> Fmt.failwith "Cannot find var '%s'" x )
   | UnOpt (op, e) ->
     let e' = eval_expr store e in
     eval_unop op e'
@@ -281,4 +299,5 @@ let rec eval_expr (store : store) (e : Expr.t) : value =
     match Smtml.Expr.view f' with
     | Val (Value.Str f') ->
       Smtml.Expr.make (App (Smtml.Symbol.(mk term f'), es'))
-    | _ -> Log.fail "error" )
+    | _ ->
+      Fmt.failwith "eval_expr: unsupported function name: %a" Smtml.Expr.pp f' )
