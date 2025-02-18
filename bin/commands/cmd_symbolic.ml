@@ -82,9 +82,9 @@ let serialize_thread workspace =
       let path = Fmt.kstr (add_seg workspace) "witness-%d" (next_int ()) in
       let pp = Fmt.option Smtml.Model.pp in
       let pc = Smtml.Expr.Set.to_list @@ pc in
-      let _ = Bos.OS.File.writef ~mode (path + ".sexp") "%a" pp model in
+      let _ = Bos.OS.File.writef ~mode (path + ".sexp") "%a@." pp model in
       let _ =
-        Bos.OS.File.writef ~mode (path + ".smtml") "%a" Smtml.Expr.pp_smt pc
+        Bos.OS.File.writef ~mode (path + ".smtml") "%a@." Smtml.Expr.pp_smt pc
       in
       [ witness ]
 
@@ -93,7 +93,7 @@ let write_report workspace symbolic_report =
   let json = Symbolic_interpreter.Symbolic_result.to_json symbolic_report in
   let path = Fpath.(workspace / "symbolic-execution.json") in
   Result.bos
-  @@ Bos.OS.File.writef ~mode path "%a" (Yojson.pretty_print ~std:true) json
+  @@ Bos.OS.File.writef ~mode path "%a@." (Yojson.pretty_print ~std:true) json
 
 let run ~input ~lang ~target ~workspace ~harness =
   let* input = Result.bos @@ setup_prelude input harness in
