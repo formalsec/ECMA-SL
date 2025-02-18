@@ -19,8 +19,11 @@ open EslSyntax
 let ( let* ) = Result.bind
 
 type obj = Value.t Object.t
+
 type store = Value.t Store.t
+
 type heap = Value.t Heap.t
+
 type stack = Value.t Store.t Call_stack.t
 
 module IEntry = struct
@@ -68,6 +71,8 @@ end
 
 module IConfig = struct
   let print_depth : int option ref = ref None
+
   let resolve_exitval : bool ref = ref true
+
   let show_exitval : bool ref = ref false
 end

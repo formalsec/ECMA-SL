@@ -6,6 +6,7 @@ type t =
   }
 
 let make flags error = { flags; error }
+
 let error { error; _ } = error
 
 let pp_error =

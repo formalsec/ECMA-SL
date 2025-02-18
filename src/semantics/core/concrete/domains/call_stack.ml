@@ -53,7 +53,9 @@ let frame (stack : 'store t) : 'store frame =
   | frame :: _ -> frame
 
 let depth (stack : 'store t) : int = List.length stack [@@inline]
+
 let func (stack : 'store t) : Func.t = (cursor @@ frame stack).f [@@inline]
+
 let stmt (stack : 'store t) : Stmt.t = (cursor @@ frame stack).s [@@inline]
 
 let pop (stack : 'store t) : 'store frame * 'store t =

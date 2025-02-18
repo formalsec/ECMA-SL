@@ -42,8 +42,11 @@ let default () : t =
   }
 
 let create (p : EProg.t) : t = { (default ()) with prog = p }
+
 let prog (tctx : t) : EProg.t = tctx.prog
+
 let func (tctx : t) : EFunc.t = tctx.func
+
 let set_func (f : EFunc.t) (tctx : t) : t = { tctx with func = f }
 
 let curr_treturn (tctx : t) : EType.t =

@@ -24,6 +24,7 @@ module M :
   Object_intf.S2 with type value = V.value and type value2 = Smtml.Expr.t =
 struct
   type value = V.value
+
   type value2 = Smtml.Expr.t
 
   type t =
@@ -110,6 +111,7 @@ struct
       o.symbolic_fields []
 
   let mk_ite e1 e2 e3 = V.TriOpt (Operator.Conditional, e1, e2, e3)
+
   let is_val = function V.Val _ -> true | _ -> false
 
   let has_field (o : t) (k : value) : value =

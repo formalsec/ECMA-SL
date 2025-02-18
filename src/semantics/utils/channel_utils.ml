@@ -54,6 +54,7 @@ let alloc tbl channel =
   Ptr.make id
 
 let open_in tbl fpath = alloc tbl @@ In (In_channel.open_text fpath)
+
 let open_out tbl fpath = alloc tbl @@ Out (Out_channel.open_text fpath)
 
 let find tbl ptr =

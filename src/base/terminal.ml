@@ -17,7 +17,9 @@ open Prelude
 
 module Config = struct
   let required_colors = 256
+
   let max_width = Int.max_int
+
   let max_height = Int.max_int
 end
 
@@ -78,6 +80,7 @@ module Descriptor = struct
 end
 
 let stdout : Descriptor.t ref = ref (Descriptor.create Unix.stdout)
+
 let stderr : Descriptor.t ref = ref (Descriptor.create Unix.stderr)
 
 let get (fdesc : Unix.file_descr) : Descriptor.t option =

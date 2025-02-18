@@ -26,6 +26,7 @@ let create (fs : Func.t list) : t =
   p
 
 let funcs (p : t) : (Id.t', Func.t) Hashtbl.t = p [@@inline]
+
 let func (p : t) (fn : Id.t') : Func.t option = Hashtbl.find_opt p fn [@@inline]
 
 let add_func (p : t) (fn : Id.t') (f : Func.t) : unit = Hashtbl.replace p fn f

@@ -20,8 +20,11 @@ open EslSyntax
 
 module Config = struct
   let trace_loc : bool ref = ref false
+
   let trace_depth : int option ref = ref None
+
   let max_obj_depth : int = 4
+
   let width : int = Terminal.width Unix.stderr
 end
 
@@ -43,7 +46,9 @@ module Truncate = struct
 end
 
 type obj = Value.t Object.t
+
 type heap = Value.t Heap.t
+
 type heapval = heap * Value.t
 
 let indent_pp (ppf : Format.formatter) (lvl : int) : unit =
@@ -111,8 +116,11 @@ end
 
 module type CODE_FMT = sig
   val log_expr : Expr.t -> bool
+
   val log_stmt : Stmt.t -> bool
+
   val expr_str : Code_utils.t -> Expr.t -> string
+
   val stmt_pp : Code_utils.t -> Stmt.t Fmt.t
 end
 
@@ -172,22 +180,31 @@ module CeslCodeFmt : CODE_FMT = struct
     match s.it with Skip | Merge | Block _ -> false | _ -> true
 
   let expr_str _ (e : Expr.t) : string = Expr.str e
+
   let stmt_pp _ (ppf : Format.formatter) (s : Stmt.t) : unit = Stmt.pp ppf s
 end
 
 module type M = sig
   val trace_expr : Code_utils.t -> int -> Expr.t -> heapval -> unit
+
   val trace_stmt : Code_utils.t -> int -> Stmt.t -> unit
+
   val trace_restore : int -> Func.t -> unit
+
   val trace_call : Code_utils.t -> int -> Func.t -> Stmt.t -> unit
+
   val trace_return : int -> Func.t -> Stmt.t -> heapval -> unit
 end
 
 module Disable : M = struct
   let trace_expr _ (_ : int) (_ : Expr.t) (_ : heapval) : unit = ()
+
   let trace_stmt _ (_ : int) (_ : Stmt.t) : unit = ()
+
   let trace_restore (_ : int) (_ : Func.t) : unit = ()
+
   let trace_call _ (_ : int) (_ : Func.t) (_ : Stmt.t) : unit = ()
+
   let trace_return (_ : int) (_ : Func.t) (_ : Stmt.t) (_ : heapval) : unit = ()
 end
 
@@ -195,6 +212,7 @@ module Call : M = struct
   open CallFmt
 
   let trace_expr _ (_ : int) (_ : Expr.t) (_ : heapval) : unit = ()
+
   let trace_stmt _ (_ : int) (_ : Stmt.t) : unit = ()
 
   let trace_restore (lvl : int) (f : Func.t) : unit =
@@ -210,6 +228,7 @@ end
 
 module Step : M = struct
   open DefaultFmt (EslCodeFmt)
+
   open CodeFmt
 
   let trace_expr _ (_ : int) (_ : Expr.t) (_ : heapval) : unit = ()
@@ -234,6 +253,7 @@ end
 
 module Full : M = struct
   open DefaultFmt (EslCodeFmt)
+
   open CodeFmt
 
   let trace_expr code (lvl : int) (e : Expr.t) ((heap, v) : heapval) : unit =
@@ -254,6 +274,7 @@ end
 
 module Core : M = struct
   open DefaultFmt (CeslCodeFmt)
+
   open CodeFmt
 
   let trace_expr code (lvl : int) (e : Expr.t) ((heap, v) : heapval) : unit =

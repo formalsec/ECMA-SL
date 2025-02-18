@@ -19,21 +19,37 @@ open Files.Parser
 
 module ExitCodes = struct
   let ok = Cmdliner.Cmd.Exit.ok
+
   let compile = 1
+
   let typing = 2
+
   let interpret = 3
+
   let encode = 4
+
   let execute = 5
+
   let test = 6
+
   let sym_abort = 20
+
   let sym_assert_failure = 21
+
   let sym_eval_failure = 22
+
   let sym_exec_failure = 23
+
   let sym_readFile_failure = 24
+
   let sym_failure = 25
+
   let generic = 40
+
   let term = 122
+
   let client = Cmdliner.Cmd.Exit.cli_error
+
   let internal = Cmdliner.Cmd.Exit.internal_error
 end
 
@@ -41,12 +57,19 @@ module Exits = struct
   open Cmdliner.Cmd.Exit
 
   let app = info ~doc:"on term error" ExitCodes.term :: defaults
+
   let common = info ~doc:"on generic client-side error" ExitCodes.generic :: app
+
   let compile = info ~doc:"on ECMA-SL compiling error" ExitCodes.compile
+
   let typing = info ~doc:"on ECMA-SL typing error" ExitCodes.typing
+
   let interpret = info ~doc:"on ECMA-SL runtime error" ExitCodes.internal
+
   let encoding = info ~doc:"on JavaScript encoding error" ExitCodes.encode
+
   let execute = info ~doc:"on JavaScript execution error" ExitCodes.execute
+
   let test = info ~doc:"on JavaScript test error" ExitCodes.test
 
   let symbolic =
@@ -120,6 +143,7 @@ end
 
 module CompileCmd = struct
   let sdocs = Manpage.s_common_options
+
   let doc = "Compiles an ECMA-SL program to Core ECMA-SL"
 
   let description =
@@ -128,7 +152,9 @@ module CompileCmd = struct
     |]
 
   let man = [ `S Manpage.s_description; `P (Array.get description 0) ]
+
   let man_xrefs = []
+
   let exits = Exits.compile :: Exits.typing :: Exits.common
 end
 
@@ -223,6 +249,7 @@ end
 
 module InterpretCmd = struct
   let sdocs = Manpage.s_common_options
+
   let doc = "Interprets a Core ECMA-SL program"
 
   let description =
@@ -243,6 +270,7 @@ module InterpretCmd = struct
     ]
 
   let man_xrefs = [ `Page ("ecma-sl compile", 1) ]
+
   let exits = Exits.compile :: Exits.typing :: Exits.interpret :: Exits.common
 end
 
@@ -259,6 +287,7 @@ end
 
 module EncodeCmd = struct
   let sdocs = Manpage.s_common_options
+
   let doc = "Encodes a JavaScript program in Core ECMA-SL"
 
   let description =
@@ -271,7 +300,9 @@ module EncodeCmd = struct
     |]
 
   let man = [ `S Manpage.s_description; `P (Array.get description 0) ]
+
   let man_xrefs = []
+
   let exits = Exits.encoding :: Exits.common
 end
 
@@ -307,6 +338,7 @@ end
 
 module ExecuteCmd = struct
   let sdocs = Manpage.s_common_options
+
   let doc = "Executes an encoded JavaScript program"
 
   let description =
@@ -378,6 +410,7 @@ end
 
 module TestCmd = struct
   let sdocs = Manpage.s_common_options
+
   let doc = "Executes an encoded JavaScript test"
 
   let description =
@@ -442,6 +475,7 @@ end
 
 module SymbolicCmd = struct
   let sdocs = Manpage.s_common_options
+
   let doc = "Performs symbolic analysis on an ECMA-SL program"
 
   let description =
@@ -480,7 +514,9 @@ end
 
 module Application = struct
   let sdocs = Manpage.s_common_options
+
   let doc = "Executable specification of the ECMAScript standard"
+
   let version = "%%VERSION%%"
 
   let description =
@@ -516,5 +552,6 @@ module Application = struct
     ]
 
   let man_xrefs = []
+
   let exits = Exits.app
 end

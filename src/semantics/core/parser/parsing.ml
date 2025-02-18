@@ -20,6 +20,7 @@ open EslSyntax
 include Parsing_utils
 
 type 'a start = Lexing.position -> 'a Parser.MenhirInterpreter.checkpoint
+
 type token = [%import: Parser.token] [@@deriving show]
 
 let lexer (last_token : token ref) (lexbuf : Lexing.lexbuf) =

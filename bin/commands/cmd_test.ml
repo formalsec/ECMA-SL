@@ -19,6 +19,7 @@ open Smtml_prelude.Result
 
 module Options = struct
   let term_width : int ref = ref (Terminal.width Unix.stdout)
+
   let report_width = 80
 
   type t =

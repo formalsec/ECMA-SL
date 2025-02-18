@@ -58,9 +58,13 @@ let resize (code : t) (consolewin : Win.t) : t =
   { code with frame }
 
 let window (code : t) : window = Frame.window code.frame
+
 let refresh (code : t) : unit = Frame.refresh code.frame
+
 let rec element (code : t) : t element = { v = code; window; refresh; element }
+
 let set_data (code : t) (at : Source.at) : t = { code with at }
+
 let render_static (code : t) : unit = Frame.draw code.frame
 
 let codeblock (nlines : int) ((code, at) : Code_utils.t * Source.at) :

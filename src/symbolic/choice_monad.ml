@@ -36,8 +36,11 @@ module Thread = struct
     }
 
   let solver t = t.solver
+
   let pc t = t.pc
+
   let mem t = t.mem
+
   let optimizer t = t.optimizer
 
   let add_pc t (v : Smtml.Expr.t) =
@@ -54,10 +57,13 @@ let is_sat = function `Sat -> true | _ -> false
 
 module Seq = struct
   type thread = Thread.t
+
   type 'a t = thread -> ('a * thread) Cont.t
 
   let return (v : 'a) : 'a t = fun t -> Cont.return (v, t)
+
   let stop : 'a t = fun _ -> Cont.empty
+
   let run (v : 'a t) (thread : thread) = v thread
 
   let bind (v : 'a t) (f : 'a -> 'b t) : 'b t =
@@ -66,7 +72,9 @@ module Seq = struct
     Cont.bind (fun (r, t') -> run (f r) t') result
 
   let ( let* ) v f = bind v f
+
   let map (v : 'a t) (f : 'a -> 'b) : 'b t = bind v (fun a -> return (f a))
+
   let ( let+ ) v f = map v f
 
   let with_thread (f : thread -> 'a) : 'a t =
@@ -152,10 +160,13 @@ end
 
 module List = struct
   type thread = Thread.t
+
   type 'a t = thread -> ('a * thread) list
 
   let return (v : 'a) : 'a t = fun t -> [ (v, t) ]
+
   let stop : 'a t = fun _ -> []
+
   let run (v : 'a t) (thread : thread) = v thread
 
   let bind (v : 'a t) (f : 'a -> 'b t) : 'b t =
@@ -167,7 +178,9 @@ module List = struct
     | _ -> List.concat_map (fun (r, t') -> run (f r) t') lst
 
   let ( let* ) v f = bind v f
+
   let map (v : 'a t) (f : 'a -> 'b) : 'b t = bind v (fun a -> return (f a))
+
   let ( let+ ) v f = map v f
 
   let with_thread (f : thread -> 'a) : 'a t =

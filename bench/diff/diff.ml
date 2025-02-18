@@ -1,5 +1,7 @@
 let debug = false
+
 let debug k = if debug then k Format.eprintf
+
 let ( let* ) = Result.bind
 
 module Fmap = Fpath.Map

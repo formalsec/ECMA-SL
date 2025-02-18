@@ -32,9 +32,13 @@ let create (fn : Id.t) (pxs : Id.t list) (s : Stmt.t) : t' = { fn; pxs; s }
 [@@inline]
 
 let name (f : t) : Id.t = f.it.fn [@@inline]
+
 let name' (f : t) : Id.t' = (name f).it
+
 let params (f : t) : Id.t list = f.it.pxs [@@inline]
+
 let params' (f : t) : Id.t' list = List.map (fun px -> px.it) (params f)
+
 let body (f : t) : Stmt.t = f.it.s [@@inline]
 
 let pp_signature (ppf : Format.formatter) (f : t) : unit =

@@ -16,8 +16,11 @@
 
 module type M = sig
   module Tracer : Tracer.M
+
   module Debugger : Debugger.M
+
   module Profiler : Profiler.M
+
   module Monitor : Monitor.M
 
   type t =
@@ -28,6 +31,7 @@ module type M = sig
     }
 
   val initial_state : Code_utils.t -> t
+
   val cleanup : t -> unit
 end
 

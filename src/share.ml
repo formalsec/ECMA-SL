@@ -16,6 +16,7 @@
 
 module Locations = struct
   let interps : string list = Site.Sites.interpreters
+
   let stdlib : string list = Site.Sites.stdlib
 end
 
@@ -38,6 +39,9 @@ let resolve (location : string list) (file : string) : string =
   | None -> assert false
 
 let es5_config () : string = resolve Locations.interps "es5.include"
+
 let es6_config () : string = resolve Locations.interps "es6.include"
+
 let es6_sym_config () : string = resolve Locations.interps "es6-sym.include"
+
 let es6_sym_interp () : string = resolve Locations.interps "es6-sym.cesl"

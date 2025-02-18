@@ -19,6 +19,7 @@ open EslBase
 open EslSyntax
 
 type arg = Value.t * Source.at
+
 type res = Value.t
 
 let custom_err (at : Source.at) (err : Runtime_error.msg) : 'a =

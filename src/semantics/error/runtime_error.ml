@@ -41,6 +41,7 @@ module RuntimeErr : Error_type.ERROR_TYPE with type t = msg = struct
   type t = msg
 
   let header : string = "RuntimeError"
+
   let font : Font.t = [ Red ]
 
   let equal (msg1 : t) (msg2 : t) : bool =
@@ -117,7 +118,9 @@ let throw ?(src : ErrSrc.t = Source.none) (msg : msg) : 'a =
 [@@inline]
 
 let src (err : t) : ErrSrc.t = err.src [@@inline]
+
 let trace (err : t) : RtTrace.t option = err.trace [@@inline]
+
 let set_src (src : ErrSrc.t) (err : t) : t = { err with src } [@@inline]
 
 let set_trace (tr : RtTrace.t) (err : t) : t = { err with trace = Some tr }

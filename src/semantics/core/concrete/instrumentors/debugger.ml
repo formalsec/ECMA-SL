@@ -50,9 +50,13 @@ module type M = sig
   type t
 
   val initial_state : unit -> t
+
   val cleanup : t -> unit
+
   val set_interp_callbacks : InterpreterCallbacks.t -> unit
+
   val run : t -> Code_utils.t -> state -> cont -> Stmt.t -> state * cont
+
   val call : t -> stack -> cont -> stack * cont
 end
 
@@ -60,7 +64,9 @@ module Disable : M = struct
   type t = unit
 
   let initial_state () : t = ()
+
   let cleanup (_ : t) : unit = ()
+
   let set_interp_callbacks (_ : InterpreterCallbacks.t) : unit = ()
 
   let run (_ : t) _ (st : state) (cont : cont) (_ : Stmt.t) : state * cont =

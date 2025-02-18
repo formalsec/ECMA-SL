@@ -36,9 +36,13 @@ module DebugLvl = struct
     List.map (fun lvl -> (str lvl, lvl)) lvls
 
   let value (lvl : t) : int = match lvl with None -> 0 | Warn -> 1 | Full -> 2
+
   let ( < ) (lvl1 : t) (lvl2 : t) : bool = Stdlib.(value lvl1 < value lvl2)
+
   let ( > ) (lvl1 : t) (lvl2 : t) : bool = Stdlib.(value lvl1 > value lvl2)
+
   let ( <= ) (lvl1 : t) (lvl2 : t) : bool = Stdlib.(value lvl1 <= value lvl2)
+
   let ( >= ) (lvl1 : t) (lvl2 : t) : bool = Stdlib.(value lvl1 >= value lvl2)
 end
 

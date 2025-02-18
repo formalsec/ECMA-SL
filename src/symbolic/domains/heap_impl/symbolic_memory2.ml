@@ -26,7 +26,9 @@ module Make
         with type value = Smtml.Expr.t
          and type value2 = Smtml.Expr.t) : Memory_intf.S2 = struct
   type value = Object.value
+
   type value2 = Object.value2
+
   type object_ = Object.t
 
   type t =
@@ -35,6 +37,7 @@ module Make
     }
 
   let create () = { parent = None; map = Hashtbl.create 16 }
+
   let clone h = { parent = Some h; map = Hashtbl.create 16 }
 
   let insert { map; _ } obj =
@@ -43,6 +46,7 @@ module Make
     E.(make @@ Val (App (`Op "loc", [ Int loc ])))
 
   let remove h l = Hashtbl.remove h.map l
+
   let set h key data = Hashtbl.replace h.map key data
 
   let find memory l =

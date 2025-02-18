@@ -15,7 +15,9 @@
  *)
 
 let eq v1 v2 = Smtml.Expr.relop Ty_bool Eq v1 v2
+
 let ite c v1 v2 = Smtml.Expr.Bool.ite c v1 v2
+
 let undef = Symbolic_value.mk_symbol "undefined"
 
 module Value_key = struct
@@ -40,6 +42,7 @@ let clone o =
   o
 
 let is_empty o = VMap.(is_empty o.fields && is_empty o.symbols)
+
 let to_list o = VMap.bindings o.symbols @ VMap.bindings o.fields
 
 let get_fields o =
@@ -143,4 +146,5 @@ let pp ppf { fields; symbols } =
     (fields, symbols)
 
 let to_string o = Fmt.str "%a" pp o
+
 let to_json = to_string

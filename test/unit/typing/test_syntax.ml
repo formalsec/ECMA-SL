@@ -3,18 +3,27 @@ open Test
 (* Simple types *)
 
 let%test "syntax_any_test" = Syntax.test "any" (Ok t_any)
+
 let%test "syntax_unknown_test" = Syntax.test "unknown" (Ok t_unknown)
+
 let%test "syntax_never_test" = Syntax.test "never" (Ok t_never)
+
 let%test "syntax_undefined_test" = Syntax.test "undefined" (Ok t_undefined)
+
 let%test "syntax_null_test" = Syntax.test "null" (Ok t_null)
+
 let%test "syntax_void_test" = Syntax.test "void" (Ok t_void)
 
 (* Primitive types *)
 
 let%test "syntax_int_test" = Syntax.test "int" (Ok t_int)
+
 let%test "syntax_float_test" = Syntax.test "float  " (Ok t_float)
+
 let%test "syntax_string_test" = Syntax.test "string" (Ok t_string)
+
 let%test "syntax_boolean_test" = Syntax.test "boolean" (Ok t_boolean)
+
 let%test "syntax_symbol_test" = Syntax.test "symbol" (Ok t_symbol)
 
 (* Literal types *)

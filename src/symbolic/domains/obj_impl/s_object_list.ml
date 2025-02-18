@@ -17,7 +17,9 @@
 open Core
 
 type vt = Expr.t
+
 type pct = Expr.t
+
 type encoded_pct = Smtml.Expression.t
 
 let rec_size = 1000
@@ -26,9 +28,13 @@ module ExprHash = struct
   type t = Expr.t
 
   let equal (e1 : Expr.t) (e2 : Expr.t) = Expr.equal e1 e2
+
   let hash (e : Expr.t) = Hashtbl.hash e
+
   let t_of_sexp e = failwith "Not implemented."
+
   let sexp_of_t e = failwith "Not implemented"
+
   let compare (e1 : Expr.t) (e2 : Expr.t) = Hashtbl.hash e1 - Hashtbl.hash e2
 end
 
@@ -98,8 +104,11 @@ let concrete_to_list (o : t) : (Expr.t * Expr.t option) list =
   List.fold o ~init:[] ~f:(fun accum o_r -> accum @ record_concrete_list o_r)
 
 let mk_eq e1 e2 = Expr.BinOpt (Operators.Eq, e1, e2)
+
 let mk_ite e1 e2 e3 = Expr.TriOpt (Operators.Conditional, e1, e2, e3)
+
 let mk_or e1 e2 = Expr.BinOpt (Operators.Log_Or, e1, e2)
+
 let mk_not e1 = Expr.UnOpt (Operators.Not, e1)
 
 let is_key_possible (k1 : Expr.t) (k2 : Expr.t) (solver : Batch.t)

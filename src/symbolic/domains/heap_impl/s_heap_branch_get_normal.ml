@@ -18,7 +18,9 @@ open Core
 module Object = S_object_branch_get
 
 type encoded_pct = Smtml.Expression.t
+
 type obj = Object.t
+
 type t = (Loc.t, obj) Hashtbl.t
 
 let create () : t = Hashtbl.create (module String)
@@ -35,6 +37,7 @@ let insert (h : t) (obj : obj) : Loc.t =
   loc
 
 let remove (h : t) (l : Loc.t) : unit = Hashtbl.remove h l
+
 let set (h : t) (key : Loc.t) (data : obj) : unit = Hashtbl.set h ~key ~data
 
 let get ?(setVal = true) (h : t) (l : Loc.t) : obj option =

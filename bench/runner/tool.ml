@@ -1,6 +1,7 @@
 type t = Symbolic
 
 let symbolic () = Symbolic
+
 let p f = Fpath.to_string f
 
 let cmd tool ~workspace ~file =

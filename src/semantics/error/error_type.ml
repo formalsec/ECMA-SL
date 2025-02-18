@@ -21,9 +21,13 @@ module type ERROR_TYPE = sig
   type t
 
   val header : string
+
   val font : Font.t
+
   val equal : t -> t -> bool
+
   val pp : t Fmt.t
+
   val str : t -> string
 end
 

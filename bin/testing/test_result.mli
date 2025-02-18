@@ -5,4 +5,5 @@ type t =
   | Skipped
 
 val equal : t -> t -> bool
+
 val pp : t Fmt.t

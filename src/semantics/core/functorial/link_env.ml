@@ -18,12 +18,17 @@ open EslSyntax
 
 module type S = sig
   type 'a t
+
   type memory
 
   val clone : 'a t -> 'a t
+
   val get_memory : 'a t -> memory
+
   val get_func : 'a t -> string -> (Func.t, string) Result.t
+
   val get_extern_func : 'a t -> string -> ('a, string) Result.t
+
   val add_memory : 'a t -> memory -> 'a t
 end
 
@@ -33,6 +38,7 @@ module type Memory = sig
   type t
 
   val create : unit -> t
+
   val clone : t -> t
 end
 
@@ -46,6 +52,7 @@ module Make (Memory : Memory) = struct
     }
 
   let clone (env : 'a t) = { env with memory = Memory.clone env.memory }
+
   let get_memory (env : 'a t) = env.memory
 
   let get_func (env : 'a t) id =
@@ -59,6 +66,7 @@ module Make (Memory : Memory) = struct
     | Some f -> Ok f
 
   let add_memory (env : 'a t) memory = { env with memory }
+
   let add_func (env : 'a t) fid f = Prog.add_func env.functions fid f
 
   module Build = struct
@@ -69,6 +77,7 @@ module Make (Memory : Memory) = struct
       }
 
     let add_memory memory (env : 'a t) = { env with memory }
+
     let add_functions functions (env : 'a t) = { env with functions }
 
     let add_extern_functions extern_funcs (env : 'a t) =

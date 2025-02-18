@@ -28,6 +28,7 @@ module M (SL : NSULevel.M) = struct
   exception Except of string
 
   type sl = SL.t
+
   type state_t = sl NSUCallStack.t * sl NSUHeap.t * sl NSUStore.t * sl list
 
   type monitor_return =

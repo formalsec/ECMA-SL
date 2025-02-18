@@ -37,8 +37,11 @@ module Parser = struct
     | `Error _ as err -> err
 
   let fpath = ((fun str -> `Ok (v str)), pp)
+
   let valid_fpath = ((fun str -> parse str Bos.OS.Path.exists |> fix_dir), pp)
+
   let non_dir_fpath = ((fun str -> parse str Bos.OS.File.exists), pp)
+
   let dir_fpath = ((fun str -> parse str Bos.OS.Dir.exists), pp)
 end
 
