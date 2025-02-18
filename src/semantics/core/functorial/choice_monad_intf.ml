@@ -44,9 +44,7 @@ end
 module type Complete = sig
   include Base
 
-  val check : V.value -> bool t
-
-  val check_add_true : V.value -> bool t
+  val check : ?add_to_pc:bool -> V.value -> bool t
 
   val branch : V.value -> bool t
 

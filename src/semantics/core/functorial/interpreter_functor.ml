@@ -169,7 +169,7 @@ module Make (P : Interpreter_functor_intf.P) () :
       ok { state with locals = Store.add_exn locals x.it v }
     | Assert e ->
       let e' = eval_expr locals e in
-      let* b = Choice.check_add_true @@ Value.Bool.not_ e' in
+      let* b = Choice.check ~add_to_pc:true @@ Value.Bool.not_ e' in
       if not b then ok state else error (`Assert_failure e')
     | Block blk -> ok { state with stmts = blk @ state.stmts }
     | If (br, blk1, blk2) ->
