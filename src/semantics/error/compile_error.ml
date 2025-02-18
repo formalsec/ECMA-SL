@@ -42,6 +42,7 @@ module CompileErr : Error_type.ERROR_TYPE with type t = msg = struct
   type t = msg
 
   let header : string = "CompileError"
+
   let font : Font.t = [ Red ]
 
   let equal (msg1 : t) (msg2 : t) : bool =
@@ -114,13 +115,16 @@ type t =
 exception Error of t
 
 let raise (err : t) : 'a = raise_notrace (Error err)
+
 let create ?(src : ErrSrc.t = Source.none) (msgs : msg list) : t = { msgs; src }
 
 let throw ?(src : ErrSrc.t = Source.none) (msg : msg) : 'a =
   raise @@ create ~src [ msg ]
 
 let push (msg : msg) (err : t) : t = { err with msgs = msg :: err.msgs }
+
 let src (err : t) : ErrSrc.t = err.src
+
 let set_src (src : ErrSrc.t) (err : t) : t = { err with src }
 
 let pp code (ppf : Format.formatter) (err : t) : unit =

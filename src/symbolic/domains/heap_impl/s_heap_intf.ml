@@ -16,14 +16,21 @@
 
 module type SymbolicHeap = sig
   type encoded_pct = Smtml.Expression.t
+
   type obj
+
   type t
 
   val create : unit -> t
+
   val clone : t -> t
+
   val insert : t -> obj -> Loc.t
+
   val remove : t -> Loc.t -> unit
+
   val set : t -> Loc.t -> obj -> unit
+
   val get : ?setVal:bool -> t -> Loc.t -> obj option
 
   val assign_obj_fields :

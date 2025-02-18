@@ -25,7 +25,9 @@ module type S = sig
   type extern_func
 
   val extern_cmds : Env.t -> extern_func SMap.t
+
   val symbolic_api : Fpath.t -> extern_func SMap.t
+
   val concrete_api : extern_func SMap.t
 end
 
@@ -38,12 +40,19 @@ module Make () = struct
 
   (* FIXME: This table should be part of Env.t or Thread.t to allow symbolic execution to branch/emulate the filesystem correctly *)
   let channel_table = Channel_utils.make ()
+
   let fresh_i = Base.make_name_generator "i"
+
   let fresh_x = Base.make_name_generator "x"
+
   let fresh_func = Base.make_name_generator "eval_func_"
+
   let ok v = Choice.return (Ok v)
+
   let error v = Choice.return (Error v)
+
   let ok_v v = ok @@ Smtml.Expr.value v
+
   let failure fmt = Fmt.kstr (fun s -> error @@ `Failure s) fmt
 
   let extern_cmds env =

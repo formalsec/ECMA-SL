@@ -18,6 +18,7 @@ open Prelude
 type 'a t = ('a -> unit) -> unit
 
 let[@inline] empty : 'a t = fun _ -> ()
+
 let[@inline] return (v : 'a) : 'a t = fun (k : 'a -> unit) -> k v
 
 let[@inline] cons (hd : 'a) (tl : 'a t) =

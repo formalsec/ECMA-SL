@@ -5,12 +5,15 @@ let test_subtyping = Typing.test_subtyping
 (* ========== Any Type ========== *)
 
 let%test "subtyping_any_eq" = test_subtyping (t_any, t_any) (Ok ())
+
 let%test "subtyping_any_ref" = test_subtyping (t_any, t_int) (Ok ())
+
 let%test "subtyping_any_src" = test_subtyping (t_int, t_any) (Ok ())
 
 (* ========== Unknown Type ========== *)
 
 let%test "subtyping_unknown_eq" = test_subtyping (t_unknown, t_unknown) (Ok ())
+
 let%test "subtyping_unknown_ref" = test_subtyping (t_unknown, t_int) (Ok ())
 
 let%test "subtyping_unknown_src" =

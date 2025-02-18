@@ -39,6 +39,9 @@ let resize (view : t) (consolewin : Win.t) (codewin : Win.t) : t =
   { frame }
 
 let window (view : t) : window = Frame.window view.frame
+
 let refresh (view : t) : unit = Frame.refresh view.frame
+
 let rec element (view : t) : t element = { v = view; window; refresh; element }
+
 let render_static (view : t) : unit = Frame.draw view.frame

@@ -18,9 +18,13 @@ open EslBase
 include Smtml.Value
 
 let void : t = Unit
+
 let null : t = Nothing
+
 let undefined : t = App (`Op "symbol", [ Str "undefined" ])
+
 let loc (l : Loc.t) : t = App (`Op "loc", [ Int l ]) [@@inline]
+
 let symbol (s : string) : t = App (`Op "symbol", [ Str s ]) [@@inline]
 
 let is_special_number (s : string) : bool =
@@ -49,4 +53,5 @@ let pp_custom_val (pp_v : t Fmt.t) (ppf : Format.formatter) (v : t) : unit =
   | _ -> Log.fail "Val.pp_custom_val: unexpected value '%a'" pp v
 
 let rec pp (ppf : Format.formatter) (v : t) : unit = pp_custom_val pp ppf v
+
 let str (v : t) : string = Fmt.str "%a" pp v [@@inline]

@@ -77,6 +77,7 @@ let resize (tui : t) : t =
   { tui with consolewin; code; view; exec; term }
 
 let terminate () : unit = endwin ()
+
 let window (tui : t) : window = tui.consolewin.w
 
 let refresh (tui : t) : unit =

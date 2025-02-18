@@ -32,8 +32,11 @@ type +'a t =
   }
 
 let pos_none : pos = { line = -1; col = -1 }
+
 let none : at = { file = ""; lpos = pos_none; rpos = pos_none; real = false }
+
 let view { it; _ } = it
+
 let equal_pos a b = a.line = b.line && a.col = b.col
 
 let equal a b =
@@ -43,8 +46,11 @@ let equal a b =
   && Bool.equal a.real b.real
 
 let ( @> ) (it : 'a) (at : at) : 'a t = { it; at } [@@inline]
+
 let ( @?> ) (it : 'a) (at : at) : 'a t = it @> { at with real = false }
+
 let map (f : 'a -> 'b) (x : 'a t) : 'b t = { x with it = f x.it } [@@inline]
+
 let is_none (at : at) : bool = equal at none [@@inline]
 
 let pp_pos (ppf : Format.formatter) (pos : pos) : unit =

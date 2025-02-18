@@ -29,8 +29,11 @@ module Message = struct
     \  6: help"
 
   let missing_expr = "Missing expression for evaluation."
+
   let invalid_expr = "Invalid expression syntax."
+
   let invalid_step = "Invalid step. Use 'step', 'step in' or 'step out'."
+
   let invalid = "Unknown command. Try 'help' for more information."
 end
 

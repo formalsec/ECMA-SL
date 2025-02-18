@@ -22,10 +22,13 @@ module SSet = Set.Make (String)
 
 module M = struct
   type t = SSet.t ref
+
   type flow = t * t
 
   let top : t option ref = ref None
+
   let flows : flow list ref = ref []
+
   let all_levels : t list ref = ref []
 
   let setTop (l_top : t) : unit =
@@ -95,7 +98,9 @@ module M = struct
     res
 
   let lub (set1 : t) (set2 : t) : t = find_ref (SSet.union !set1 !set2)
+
   let lubn (lst : t list) : t = List.fold_left lub (ref SSet.empty) lst
+
   let leq (set1 : t) (set2 : t) : bool = SSet.subset !set1 !set2
 
   let update_levels () : unit =

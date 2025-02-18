@@ -1,7 +1,6 @@
 open Bos
 open Ecma_sl
 open Smtml_prelude.Result
-
 module Symbolic_interpreter =
   Ecma_sl_symbolic.Symbolic_interpreter.Make (Ecma_sl_symbolic.Symbolic_error)
 

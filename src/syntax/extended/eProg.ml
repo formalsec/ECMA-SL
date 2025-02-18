@@ -42,10 +42,15 @@ let create (file : Id.t') (path : string) (imports : EImport.t list)
 [@@inline]
 
 let file (p : t) : Id.t' = p.file [@@inline]
+
 let path (p : t) : string = p.path [@@inline]
+
 let imports (p : t) : EImport.t list = p.imports [@@inline]
+
 let tdefs (p : t) : (Id.t', EType.TDef.t) Hashtbl.t = p.tdefs [@@inline]
+
 let macros (p : t) : (Id.t', EMacro.t) Hashtbl.t = p.macros [@@inline]
+
 let funcs (p : t) : (Id.t', EFunc.t) Hashtbl.t = p.funcs [@@inline]
 
 let pp (ppf : Format.formatter) (p : t) : unit =

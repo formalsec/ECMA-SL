@@ -19,6 +19,7 @@ open EslSyntax
 open EslSyntax.Source
 
 type c_expr = Stmt.t list * Expr.t
+
 type c_stmt = Stmt.t list
 
 let ( ?@ ) (e : Expr.t) : Id.t =
@@ -28,7 +29,9 @@ let ( ?@ ) (e : Expr.t) : Id.t =
 
 module Const = struct
   let original_main = "main"
+
   let esl_globals_loc = 0
+
   let esl_globals_obj = "___internal_esl_global"
 end
 
@@ -38,10 +41,15 @@ let real ?(at : at option) (ss : c_stmt) : c_stmt =
 
 module Builder = struct
   let var_id = Base.make_name_generator "__v"
+
   let etrue (x : 'a t) : Expr.t = Expr.Val Value.True @?> x.at
+
   let efalse (x : 'a t) : Expr.t = Expr.Val Value.False @?> x.at
+
   let global (x : 'a t) : Expr.t = Expr.Var Const.esl_globals_obj @?> x.at
+
   let var (at : at) : Expr.t = Expr.Var (var_id ()) @> at
+
   let block ?(at : at = none) (ss : Stmt.t list) : Stmt.t = Stmt.Block ss @> at
 
   let block_opt ?(at : at = none) (ss : Stmt.t list) : Stmt.t option =

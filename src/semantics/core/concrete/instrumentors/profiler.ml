@@ -25,9 +25,13 @@ module ExecutionTime = struct
     }
 
   let create () : t = { start = -1.0; stop = -1.0; diff = -1.0 } [@@inline]
+
   let start (ts : t) : t = { ts with start = Base.time () } [@@inline]
+
   let diff (ts : t) : t = { ts with diff = ts.stop -. ts.start } [@@inline]
+
   let stop (ts : t) : t = diff @@ { ts with stop = Base.time () } [@@inline]
+
   let json (ts : t) : Yojson.Basic.t = `Assoc [ ("exec_time", `Float ts.diff) ]
 end
 
@@ -81,9 +85,13 @@ module type M = sig
   type t
 
   val initial_state : unit -> t
+
   val start : t -> unit
+
   val stop : t -> 'a Heap.t -> unit
+
   val count : t -> ProgCounter.item -> unit
+
   val json : t -> Yojson.Basic.t
 end
 
@@ -91,9 +99,13 @@ module Disable : M = struct
   type t = unit
 
   let initial_state () : t = ()
+
   let start (_ : t) : unit = ()
+
   let stop (_ : t) (_ : 'a Heap.t) : unit = ()
+
   let count (_ : t) (_ : ProgCounter.item) : unit = ()
+
   let json (_ : t) : Yojson.Basic.t = `Assoc []
 end
 

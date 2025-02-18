@@ -49,9 +49,13 @@ let resize (term : t) (consolewin : Win.t) (execwin : Win.t) : t =
   { term with prompt }
 
 let window (term : t) : window = Prompt.window term.prompt
+
 let refresh (term : t) : unit = Prompt.refresh term.prompt
+
 let rec element (term : t) : t element = { v = term; window; refresh; element }
+
 let set_data (term : t) (st : state) : t = { term with last_cmd = None; st }
+
 let get_last_cmd (term : t) : Command.t = term.last_cmd
 
 let render_background (scrlpad : ScrollPad.t) (colors : colors) : unit =

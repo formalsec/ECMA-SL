@@ -84,10 +84,17 @@ let str ?(fdesc : Unix.file_descr option = None) (font : t) (pp_v : 'a Fmt.t)
   Fmt.str "%a" (pp ~fdesc font pp_v) v
 
 let pp_out font pp_v ppf v = pp ~fdesc:(Some Unix.stdout) font pp_v ppf v
+
 let pp_err font pp_v ppf v = pp ~fdesc:(Some Unix.stderr) font pp_v ppf v
+
 let str_out font pp_v v = str ~fdesc:(Some Unix.stdout) font pp_v v
+
 let str_err font pp_v v = str ~fdesc:(Some Unix.stderr) font pp_v v
+
 let pp_text_out font ppf s = pp ~fdesc:(Some Unix.stdout) font Fmt.string ppf s
+
 let pp_text_err font ppf s = pp ~fdesc:(Some Unix.stderr) font Fmt.string ppf s
+
 let str_text_out font s = str ~fdesc:(Some Unix.stdout) font Fmt.string s
+
 let str_text_err font s = str ~fdesc:(Some Unix.stderr) font Fmt.string s

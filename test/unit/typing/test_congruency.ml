@@ -5,7 +5,9 @@ let test_congruency = Typing.test_congruency
 (* ========== Any Type ========== *)
 
 let%test "congruency_any_eq" = test_congruency (t_any, t_any) (Ok ())
+
 let%test "congruency_any_ref" = test_congruency (t_any, t_int) (Ok ())
+
 let%test "congruency_any_src" = test_congruency (t_int, t_any) (Ok ())
 
 (* ========== Unknown Type ========== *)

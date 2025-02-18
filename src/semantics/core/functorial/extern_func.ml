@@ -32,7 +32,9 @@ end
 
 module type T = sig
   type value
+
   type 'a choice
+
   type nonrec err = value err
 
   type _ atype =
@@ -41,12 +43,15 @@ module type T = sig
     | Res : (value, err) Result.t choice atype
 
   type _ func_type = Func : 'a atype -> 'a func_type
+
   type extern_func = Extern_func : 'a func_type * 'a -> extern_func
 end
 
 module Make (Value : Value_intf.T) (M : Monad_type) = struct
   type value = Value.value
+
   type 'a choice = 'a M.t
+
   type nonrec err = value err
 
   type _ atype =
@@ -55,5 +60,6 @@ module Make (Value : Value_intf.T) (M : Monad_type) = struct
     | Res : (value, err) Result.t choice atype
 
   type _ func_type = Func : 'a atype -> 'a func_type
+
   type extern_func = Extern_func : 'a func_type * 'a -> extern_func
 end

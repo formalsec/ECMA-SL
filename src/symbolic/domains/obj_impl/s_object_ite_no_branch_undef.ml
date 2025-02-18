@@ -17,7 +17,9 @@
 open Core
 
 type vt = Expr.t
+
 type pct = Expr.t
+
 type encoded_pct = Smtml.Expression.t
 
 let counter = ref 0
@@ -26,9 +28,13 @@ module ExprHash = struct
   type t = Expr.t
 
   let equal (e1 : Expr.t) (e2 : Expr.t) = Expr.equal e1 e2
+
   let hash (e : Expr.t) = Hashtbl.hash e
+
   let t_of_sexp e = failwith "Not implemented."
+
   let sexp_of_t e = failwith "Not implemented"
+
   let compare (e1 : Expr.t) (e2 : Expr.t) = Hashtbl.hash e1 - Hashtbl.hash e2
 end
 
@@ -86,8 +92,11 @@ let get_concrete_field (o : t) (key : string) : Expr.t option =
   Hashtbl.find o.concrete_fields key
 
 let mk_eq e1 e2 = Expr.BinOpt (Operators.Eq, e1, e2)
+
 let mk_ite e1 e2 e3 = Expr.TriOpt (Operators.Conditional, e1, e2, e3)
+
 let mk_or e1 e2 = Expr.BinOpt (Operators.Log_Or, e1, e2)
+
 let mk_not e1 = Expr.UnOpt (Operators.Not, e1)
 
 let create_not_pct (l : (pct * Expr.t) list) (key : pct) (store : S_store.t) :

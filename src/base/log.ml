@@ -16,8 +16,11 @@
 
 module Config = struct
   let log_warns : bool ref = ref true
+
   let log_debugs : bool ref = ref false
+
   let out_ppf : Format.formatter ref = ref Fmt.stdout
+
   let err_ppf : Format.formatter ref = ref Fmt.stderr
 end
 

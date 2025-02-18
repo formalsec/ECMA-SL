@@ -36,11 +36,17 @@ let create (fn : Id.t) (tpxs : (Id.t * EType.t option) list)
 [@@inline]
 
 let name (f : t) : Id.t = f.it.fn [@@inline]
+
 let name' (f : t) : Id.t' = (name f).it
+
 let tparams (f : t) : (Id.t * EType.t option) list = f.it.tpxs [@@inline]
+
 let params (f : t) : Id.t list = List.map (fun (px, _) -> px) (tparams f)
+
 let params' (f : t) : Id.t' list = List.map (fun (px, _) -> px.it) (tparams f)
+
 let treturn (f : t) : EType.t option = f.it.tret [@@inline]
+
 let body (f : t) : EStmt.t = f.it.s [@@inline]
 
 let pp_signature (ppf : Format.formatter) (f : t) : unit =

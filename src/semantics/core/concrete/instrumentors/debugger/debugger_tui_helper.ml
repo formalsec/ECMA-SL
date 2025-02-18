@@ -62,7 +62,9 @@ module Win = struct
     { w; y; x; yz; xz }
 
   let window (win : t) : window = win.w
+
   let refresh (win : t) : unit = !!(wrefresh win.w)
+
   let rec element (win : t) : t element = { v = win; window; refresh; element }
 end
 
@@ -161,6 +163,7 @@ module Prompt = struct
     { scrlpad; text = ""; len = 0; pos = 0; row; col; y = row; x = col }
 
   let window (prompt : t) : window = ScrollPad.window prompt.scrlpad
+
   let refresh (prompt : t) : unit = ScrollPad.refresh prompt.scrlpad
 
   let rec element (prompt : t) : t element =
@@ -268,6 +271,7 @@ module Interface = struct
     { active; callback; el }
 
   let window (intf : 'a t) : window = intf.el.window intf.el.v
+
   let refresh (intf : 'a t) : unit = intf.el.refresh intf.el.v
 
   let rec element (intf : 'a t) : 'a t element =
@@ -285,6 +289,7 @@ module Color = struct
   type t = int
 
   let (next, _) = Base.make_counter 1 1
+
   let none = 0
 
   let mk (fg : int) (bg : int) : int =

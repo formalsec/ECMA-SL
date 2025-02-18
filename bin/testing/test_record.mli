@@ -15,8 +15,11 @@ type t =
   }
 
 val default : unit -> t
+
 val rename : t -> t
+
 val pp_path : int -> string Fmt.t
+
 val pp_report : int -> t Fmt.t
 
 module Simple : sig

@@ -18,6 +18,7 @@ open Prelude
 open EslBase
 
 type var = string
+
 type 'a t = (var, 'a) Hashtbl.t
 
 let set_bind (store : 'a t) ((x, v) : var * 'a) : unit =

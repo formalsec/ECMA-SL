@@ -17,6 +17,7 @@
 open Ecma_sl
 
 exception Crash of Source.at * string
+
 exception Invalid_arg of Source.at * string
 
 module Interpreter = Interpreter_functor.Make (Symbolic)

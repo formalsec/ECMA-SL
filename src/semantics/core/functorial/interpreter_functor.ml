@@ -36,11 +36,14 @@ module Make (P : Interpreter_functor_intf.P) () :
   let ( @> ) = Source.( @> )
 
   type value = P.value
+
   type store = P.store
 
   module State = struct
     type store = Store.t
+
     type env = P.env
+
     type err = Extern_func.err
 
     type exec_state =

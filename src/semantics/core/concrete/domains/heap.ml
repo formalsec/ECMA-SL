@@ -30,6 +30,7 @@ let default () : 'a t =
 [@@inline]
 
 let create () : 'a t = default () [@@inline]
+
 let length (heap : 'a t) : int = Loc.Tbl.length heap.map [@@inline]
 
 let extend (heap : 'a t) : 'a t = { (create ()) with parent = Some heap }

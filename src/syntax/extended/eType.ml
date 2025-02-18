@@ -188,8 +188,11 @@ module TDef = struct
     }
 
   let create (name : Id.t) (tval : tval) : t = { name; tval }
+
   let name (tdef : t) : Id.t = tdef.name
+
   let name' (tdef : t) : Id.t' = tdef.name.it
+
   let tval (tdef : t) : tval = tdef.tval
 
   let pp (ppf : Format.formatter) (tdef : t) : unit =

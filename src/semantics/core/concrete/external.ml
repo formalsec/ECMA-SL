@@ -22,6 +22,7 @@ open EslSyntax
 let ( let* ) = Result.bind
 
 type store = Value.t Store.t
+
 type heap = Value.t Heap.t
 
 let op_err (_arg : int) (op_lbl : string) (rterr : Runtime_error.msg) : 'a =
@@ -62,6 +63,7 @@ let parseJS (prog : Prog.t) (code : string) : Value.t =
 module Impl = struct
   (* FIXME: This leaks memory!! :( *)
   let arr_map = Hashtbl.create 128
+
   let arr_count = ref 0
 
   let int_to_four_hex (v : Value.t) : Value.t =
@@ -739,10 +741,15 @@ module Impl = struct
 
   (* TODO: Adapt `Channel_utils` to allow both the functorial and concrete interpreter to run these function *)
   let open_in _v = Fmt.failwith "TODO: open_in_external"
+
   let open_out _v = Fmt.failwith "TODO: open_out_external"
+
   let input_line _v = Fmt.failwith "TODO: input_line_external"
+
   let input_all _v = Fmt.failwith "TODO: input_all_external"
+
   let output_string _ptr _str = Fmt.failwith "TODO: output_string_external"
+
   let close _ptr = Fmt.failwith "TODO: close_external"
 
   let file_exists = function

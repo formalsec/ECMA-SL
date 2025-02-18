@@ -20,6 +20,7 @@ open EslSyntax
 open Call_stack
 
 type store = Value.t Store.t
+
 type t = store Call_stack.t
 
 module RtTraceFmt (ErrorType : Error_type.ERROR_TYPE) = struct

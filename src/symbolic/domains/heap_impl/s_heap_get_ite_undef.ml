@@ -18,6 +18,7 @@ open Core
 module Object = S_object_ite_no_branch_undef
 
 type encoded_pct = Smtml.Expression.t
+
 type obj = Object.t
 
 type t =
@@ -26,6 +27,7 @@ type t =
   }
 
 let caching = true
+
 let create () : t = { parent = None; map = Hashtbl.create (module String) }
 
 let clone (h : t) : t =
@@ -37,6 +39,7 @@ let insert (h : t) (obj : obj) : Loc.t =
   loc
 
 let remove (h : t) (l : Loc.t) : unit = Hashtbl.remove h.map l
+
 let set (h : t) (key : Loc.t) (data : obj) : unit = Hashtbl.set h.map ~key ~data
 
 let rec get ?(setVal = true) (h : t) (l : Loc.t) : obj option =
@@ -58,6 +61,7 @@ let mk_ite (e1 : Expr.t) (e2 : Expr.t) (e3 : Expr.t) : Expr.t =
   Expr.TriOpt (Operators.Conditional, e1, e2, e3)
 
 let mk_not (e : Expr.t) : Expr.t = Expr.UnOpt (Operators.Not, e)
+
 let mk_bool (b : bool) : Expr.t = Expr.Val (Val.Bool false)
 
 let mk_and (e1 : Expr.t) (e2 : Expr.t) : Expr.t =

@@ -20,8 +20,11 @@ open Ecma_sl
 *)
 module P = struct
   type value = Symbolic_value.value
+
   type store = Symbolic_value.Store.t
+
   type memory = Symbolic_memory.t
+
   type object_ = Symbolic_object.t
 
   module Value = Symbolic_value
@@ -35,18 +38,26 @@ module P = struct
     module Env = Link_env.Make (Symbolic_memory)
 
     type t = extern_func Env.t
+
     type nonrec memory = memory
 
     let clone env = Env.clone env [@@inline]
+
     let get_memory _env = Choice.with_thread Thread.mem [@@inline]
+
     let get_func env func_id = Env.get_func env func_id [@@inline]
+
     let get_extern_func env func_id = Env.get_extern_func env func_id [@@inline]
+
     let add_memory env mem = Env.add_memory env mem [@@inline]
+
     let add_func env func_id func = Env.add_func env func_id func [@@inline]
 
     module Build = struct
       let empty () = Env.Build.empty () [@@inline]
+
       let add_memory m env = Env.Build.add_memory m env [@@inline]
+
       let add_functions funcs env = Env.Build.add_functions funcs env [@@inline]
 
       let add_extern_functions funcs env =
@@ -62,9 +73,11 @@ module P = struct
 
   module Store = struct
     type bind = string
+
     type t = store
 
     let create lst = Symbolic_value.Store.create lst [@@inline]
+
     let mem store = Symbolic_value.Store.mem store [@@inline]
 
     let add_exn store key data = Symbolic_value.Store.add_exn store key data
@@ -75,10 +88,13 @@ module P = struct
 
   module Object = struct
     type t = object_
+
     type nonrec value = value
 
     let create () = Symbolic_object.create () [@@inline]
+
     let to_string o = Symbolic_object.to_string o [@@inline]
+
     let set o ~key ~data = Symbolic_object.set o ~key ~data [@@inline]
 
     let get o key =
@@ -107,22 +123,33 @@ module P = struct
           Cont.of_list @@ List.filter_map (return thread) vals
 
     let delete o v = Symbolic_object.delete o v [@@inline]
+
     let to_list o = Symbolic_object.to_list o [@@inline]
+
     let has_field o v = Symbolic_object.has_field o v [@@inline]
+
     let get_fields o = Symbolic_object.get_fields o [@@inline]
   end
 
   module Memory = struct
     type t = memory
+
     type nonrec object_ = object_
+
     type nonrec value = value
 
     let create () = Symbolic_memory.create () [@@inline]
+
     let clone m = Symbolic_memory.clone m [@@inline]
+
     let insert m o = Symbolic_memory.insert m o [@@inline]
+
     let remove m loc = Symbolic_memory.remove m loc [@@inline]
+
     let set m loc o = Symbolic_memory.set m loc o [@@inline]
+
     let get m loc = Symbolic_memory.get m loc [@@inline]
+
     let has_field m x v = Symbolic_memory.has_field m x v [@@inline]
 
     let get_field h loc v =
@@ -157,6 +184,7 @@ module P = struct
     [@@inline]
 
     let delete_field m loc v = Symbolic_memory.delete_field m loc v [@@inline]
+
     let to_string h = Fmt.str "%a" Symbolic_memory.pp h [@@inline]
 
     let loc v =
@@ -190,6 +218,7 @@ module P = struct
           Cont.of_list @@ List.filter_map (return thread) locs
 
     let pp ppf v = Symbolic_memory.pp ppf v [@@inline]
+
     let pp_val m fmt v = Symbolic_memory.pp_val m fmt v [@@inline]
   end
 end

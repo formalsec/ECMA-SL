@@ -30,6 +30,7 @@ let flows () : (SSet.t * SSet.t) list ref =
   raise (Except "Illegal Lattice operation ")
 
 let addFlow (_ : t) (_ : t) : unit = raise (Except "Illegal Lattice operation ")
+
 let setTop (_ : t) : unit = raise (Except "Illegal Lattice operation ")
 
 let str (l : t) =
@@ -40,6 +41,7 @@ let str (l : t) =
   | Low -> "low"
 
 let get_low () : t = Low
+
 let get_high () : t = High
 
 let parse_lvl (str : string) : t =

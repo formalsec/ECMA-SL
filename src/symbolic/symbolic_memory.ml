@@ -27,6 +27,7 @@ module Make (O : Object_intf.S with type value = Symbolic_value.value) = struct
   type value = Symbolic_value.value
 
   let create () : t = { parent = None; data = Loc.Tbl.create 512 }
+
   let clone (m : t) : t = { parent = Some m; data = Loc.Tbl.create 16 }
 
   let insert ({ data = memory; _ } : t) (o : object_) : value =

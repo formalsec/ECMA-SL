@@ -19,15 +19,25 @@ open Ecma_sl
 type value = Smtml.Expr.t
 
 let null = Smtml.Expr.value Nothing
+
 let string s = Smtml.Expr.value (Str s)
+
 let equal a b = Smtml.Expr.equal a b [@@inline]
+
 let hash e = Smtml.Expr.hash e [@@inline]
+
 let compare a b = Smtml.Expr.compare a b
+
 let pp fmt v = Smtml.Expr.pp fmt v [@@inline]
+
 let to_string v = Fmt.str "%a" pp v
+
 let mk_symbol x = Smtml.Expr.value (App (`Op "symbol", [ Str x ])) [@@inline]
+
 let mk_list vs = Smtml.Expr.make (List vs) [@@inline]
+
 let mk_tuple (fst, snd) = Smtml.Expr.make (List [ fst; snd ]) [@@inline]
+
 let is_symbolic v = Smtml.Expr.is_symbolic v
 
 let func v =
@@ -43,6 +53,7 @@ module Bool = struct
   include Smtml.Expr.Bool
 
   let const b = if b then true_ else false_
+
   let not_ e = not e [@@inline]
 end
 
@@ -50,6 +61,7 @@ module Store = struct
   module SMap = Map.Make (String)
 
   type bind = string
+
   type t = value SMap.t
 
   let create (values : (bind * value) list) : t =
