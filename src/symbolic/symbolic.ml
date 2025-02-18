@@ -205,7 +205,7 @@ module P = struct
       match locs with
       | [] ->
         fun _thread ->
-          Log.stdout "   symbolic : no loc@.";
+          Logs.err (fun k -> k "   symbolic : no loc");
           Cont.empty
       | [ (c, v) ] -> (
         fun thread ->
