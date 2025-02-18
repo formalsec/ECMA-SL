@@ -87,7 +87,7 @@ module Seq = struct
     let (result, thread) = f thread in
     Cont.return (result, thread)
 
-  let check (cond : Value.value) : bool t =
+  let check ?(add_to_pc = false) (cond : Value.value) : bool t =
    fun t ->
     let solver = Thread.solver t in
     let pc = Thread.pc t in
@@ -97,23 +97,9 @@ module Seq = struct
     | _ -> (
       let pc = Smtml.Expr.Set.add cond pc in
       match Solver.check_set solver pc with
-      | `Sat -> Cont.return (true, t)
-      | `Unsat -> Cont.return (false, t)
-      | `Unknown ->
-        Fmt.epr "Unknown pc: %a@." (Smtml.Expr.Set.pretty Smtml.Expr.pp) pc;
-        Cont.empty )
-
-  let check_add_true (cond : Value.value) : bool t =
-   fun t ->
-    let solver = Thread.solver t in
-    let pc = Thread.pc t in
-    match Smtml.Expr.view cond with
-    | Val True -> Cont.return (true, t)
-    | Val False -> Cont.return (false, t)
-    | _ -> (
-      let pc = Smtml.Expr.Set.add cond pc in
-      match Solver.check_set solver pc with
-      | `Sat -> Cont.return (true, Thread.add_pc t cond)
+      | `Sat ->
+        let t = if add_to_pc then Thread.add_pc t cond else t in
+        Cont.return (true, t)
       | `Unsat -> Cont.return (false, t)
       | `Unknown ->
         Fmt.epr "Unknown pc: %a@." (Smtml.Expr.Set.pretty Smtml.Expr.pp) pc;
@@ -204,22 +190,6 @@ module List = struct
       let pc = Smtml.Expr.Set.add cond pc in
       match Solver.check_set solver pc with
       | `Sat -> [ (true, t) ]
-      | `Unsat -> [ (false, t) ]
-      | `Unknown ->
-        Fmt.epr "Unknown pc: %a@." (Smtml.Expr.Set.pretty Smtml.Expr.pp) pc;
-        [] )
-
-  let check_add_true (cond : Value.value) : bool t =
-   fun t ->
-    let solver = Thread.solver t in
-    let pc = Thread.pc t in
-    match Smtml.Expr.view cond with
-    | Val True -> [ (true, t) ]
-    | Val False -> [ (false, t) ]
-    | _ -> (
-      let pc = Smtml.Expr.Set.add cond pc in
-      match Solver.check_set solver pc with
-      | `Sat -> [ (true, Thread.add_pc t cond) ]
       | `Unsat -> [ (false, t) ]
       | `Unknown ->
         Fmt.epr "Unknown pc: %a@." (Smtml.Expr.Set.pretty Smtml.Expr.pp) pc;
