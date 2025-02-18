@@ -82,7 +82,7 @@ let serialize_thread workspace =
       let path = Fmt.kstr (add_seg workspace) "witness-%d" (next_int ()) in
       let pp = Fmt.option Smtml.Model.pp in
       let pc = Smtml.Expr.Set.to_list @@ pc in
-      let _ = Bos.OS.File.writef ~mode (path + ".js") "%a" pp model in
+      let _ = Bos.OS.File.writef ~mode (path + ".sexp") "%a" pp model in
       let _ =
         Bos.OS.File.writef ~mode (path + ".smtml") "%a" Smtml.Expr.pp_smt pc
       in
