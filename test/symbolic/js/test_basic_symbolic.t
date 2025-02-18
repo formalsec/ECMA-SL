@@ -30,7 +30,6 @@ Test basic symbolic number:
               "target": symbol("empty"),  }
   All Ok!
   $ ecma-sl symbolic symbolic_string_array.js
-  (str.++ ((str.++ (flour, " ")), water))
        assert : failure with (false)
   Found 1 problems!
   [21]
