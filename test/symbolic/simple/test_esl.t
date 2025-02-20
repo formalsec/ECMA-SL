@@ -23,7 +23,9 @@ Esl tests:
   - : int = 1
   All Ok!
   $ ecma-sl symbolic string_concat.esl
-  Assert failure: (bool.ne (str.++ (flour, " ", water)) "banana bread")
+  "string_concat.esl":7.2-7.33: Assert failure:
+   Stmt: assert (loaf != "banana bread")
+   Expr: (bool.ne (str.++ (flour, " ", water)) "banana bread")
   Path condition:
    (bool.not (bool.ne (str.++ (flour, " ", water)) "banana bread"))
   Model:
