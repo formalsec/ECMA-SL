@@ -71,7 +71,7 @@ let serialize_thread workspace =
   fun thread witness ->
     let open Fpath in
     let pc = Thread.pc thread in
-    Logs.debug (fun pp -> pp "@[<hov 1>  path cond :@ %a@]" Solver.pp_set pc);
+    Logs.app (fun k -> k "@[<hov 1>Path condition:@;%a@]" Solver.pp_set pc);
     let solver = Thread.solver thread in
     match Solver.check_set solver pc with
     | `Unsat | `Unknown ->
@@ -81,6 +81,7 @@ let serialize_thread workspace =
       let model = Solver.model solver in
       let path = Fmt.kstr (add_seg workspace) "witness-%d" (next_int ()) in
       let pp = Fmt.option Smtml.Model.pp in
+      Logs.app (fun k -> k "@[<v 1>Model:@;%a@]" pp model);
       let pc = Smtml.Expr.Set.to_list @@ pc in
       let _ = Bos.OS.File.writef ~mode (path + ".sexp") "%a@." pp model in
       let _ =

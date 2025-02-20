@@ -1,15 +1,15 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
@@ -24,13 +24,12 @@ type t =
   ]
 
 let pp fmt = function
-  | `Abort msg -> Fmt.pf fmt "      abort : %s@." msg
-  | `Assert_failure v ->
-    Fmt.pf fmt "     assert : failure with (%a)" Smtml.Expr.pp v
-  | `Eval_failure v -> Fmt.pf fmt "       eval : %a" Smtml.Expr.pp v
-  | `Exec_failure v -> Fmt.pf fmt "       exec : %a" Smtml.Expr.pp v
-  | `ReadFile_failure v -> Fmt.pf fmt "   readFile : %a" Smtml.Expr.pp v
-  | `Failure msg -> Fmt.pf fmt "    failure : %s" msg
+  | `Abort msg -> Fmt.pf fmt "Abort: %s" msg
+  | `Assert_failure v -> Fmt.pf fmt "@[<hov 1>Assert failure:@;%a@]" Smtml.Expr.pp v
+  | `Eval_failure v -> Fmt.pf fmt "Eval failure: %a" Smtml.Expr.pp v
+  | `Exec_failure v -> Fmt.pf fmt "Exec failure: %a" Smtml.Expr.pp v
+  | `ReadFile_failure v -> Fmt.pf fmt "ReadFile failure: %a" Smtml.Expr.pp v
+  | `Failure msg -> Fmt.pf fmt "Failure: %s" msg
 
 let to_json = function
   | `Abort msg -> `Assoc [ ("type", `String "Abort"); ("sink", `String msg) ]
