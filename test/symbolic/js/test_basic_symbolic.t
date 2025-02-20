@@ -30,7 +30,9 @@ Test basic symbolic number:
               "target": symbol("empty"),  }
   All Ok!
   $ ecma-sl symbolic symbolic_string_array.js
-  Assert failure: false
+  "":82947.2-82947.20: Assert failure:
+   Stmt: assert (hd params)
+   Expr: false
   Path condition:
    (bool.eq "banana bread" (str.++ ((str.++ (flour, " ")), water)))
   Model:

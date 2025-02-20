@@ -19,7 +19,7 @@ open Prelude
 
 type 'a err =
   [ `Abort of string
-  | `Assert_failure of 'a
+  | `Assert_failure of EslSyntax.Stmt.t * 'a
   | `Eval_failure of 'a
   | `Exec_failure of 'a
   | `ReadFile_failure of 'a

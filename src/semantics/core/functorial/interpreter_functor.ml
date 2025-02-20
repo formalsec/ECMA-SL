@@ -151,8 +151,8 @@ module Make (P : Interpreter_functor_intf.P) () :
     (* Logs.debug (fun k -> *)
     (*   k "@[<hov 1>      store :@ %a@]" Value.Store.pp locals ); *)
     Logs.debug (fun k -> k "@[<hov 1>running stmt:@ %a@]" Stmt.pp_simple stmt);
-    match stmt.it with
-    | Stmt.Skip -> ok state
+    match Stmt.view stmt with
+    | Skip -> ok state
     | Merge -> ok state
     | Debug stmt ->
       Logs.warn (fun k -> k "ignoring break point in line %d" stmt.at.lpos.line);
@@ -170,7 +170,7 @@ module Make (P : Interpreter_functor_intf.P) () :
     | Assert e ->
       let e' = eval_expr locals e in
       let* b = Choice.check ~add_to_pc:true @@ Value.Bool.not_ e' in
-      if not b then ok state else error (`Assert_failure e')
+      if not b then ok state else error (`Assert_failure (stmt, e'))
     | Block blk -> ok { state with stmts = blk @ state.stmts }
     | If (br, blk1, blk2) ->
       let br = eval_expr locals br in

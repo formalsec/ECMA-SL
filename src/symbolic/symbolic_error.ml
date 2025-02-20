@@ -16,7 +16,7 @@
 
 type t =
   [ `Abort of string
-  | `Assert_failure of Smtml.Expr.t
+  | `Assert_failure of EslSyntax.Stmt.t * Smtml.Expr.t
   | `Eval_failure of Smtml.Expr.t
   | `Exec_failure of Smtml.Expr.t
   | `ReadFile_failure of Smtml.Expr.t
@@ -25,7 +25,11 @@ type t =
 
 let pp fmt = function
   | `Abort msg -> Fmt.pf fmt "Abort: %s" msg
-  | `Assert_failure v -> Fmt.pf fmt "@[<hov 1>Assert failure:@;%a@]" Smtml.Expr.pp v
+  | `Assert_failure (stmt, v) ->
+    let pos = stmt.EslSyntax.Source.at in
+    Fmt.pf fmt
+      "%a: Assert failure:@\n@[<hov 1> Stmt:@;%a@]@\n@[<hov 1> Expr:@;%a@]"
+      EslSyntax.Source.pp_at pos EslSyntax.Stmt.pp stmt Smtml.Expr.pp v
   | `Eval_failure v -> Fmt.pf fmt "Eval failure: %a" Smtml.Expr.pp v
   | `Exec_failure v -> Fmt.pf fmt "Exec failure: %a" Smtml.Expr.pp v
   | `ReadFile_failure v -> Fmt.pf fmt "ReadFile failure: %a" Smtml.Expr.pp v
@@ -33,7 +37,7 @@ let pp fmt = function
 
 let to_json = function
   | `Abort msg -> `Assoc [ ("type", `String "Abort"); ("sink", `String msg) ]
-  | `Assert_failure v ->
+  | `Assert_failure (_, v) ->
     let v = Smtml.Expr.to_string v in
     `Assoc [ ("type", `String "Assert failure"); ("sink", `String v) ]
   | `Eval_failure v ->
