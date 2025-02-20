@@ -3,6 +3,7 @@
 ### Changed
 ### Added
 
+- Improves symbolic execution prints
 - Adds `s_join` to ecma-sl's standard library
 - Adds `fpath`, a simple library to manipulate paths, to ecma-sl's standard library
 - Adds `os`, a simple library to manipulate files, to ecma-sl's standard library
