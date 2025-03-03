@@ -23,6 +23,8 @@ let parse_results file =
            Fmap.add (Fpath.v test) Test_result.Failure map
          | [ test; _; "ANOMALY"; _ ] ->
            Fmap.add (Fpath.v test) Test_result.Anomaly map
+         | test :: _ :: "SKIPPED" :: _ ->
+           Fmap.add (Fpath.v test) Test_result.Skipped map
          (* Ignore the other lines *)
          | _ -> map )
        Fmap.empty lines )
@@ -39,9 +41,10 @@ let diff a b =
           match (a, b) with
           | (Test_result.Success, Test_result.Success)
           | (Failure, Failure)
-          | (Anomaly, Anomaly) ->
+          | (Anomaly, Anomaly)
+          | (Skipped, Skipped) ->
             None
-          | ((Success | Failure | Anomaly), _) -> Some { a; b } )
+          | ((Success | Failure | Anomaly | Skipped), _) -> Some { a; b } )
         | ((None | Some _), _) ->
           (* Should never happen *)
           assert false )
