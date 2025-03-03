@@ -1248,11 +1248,65 @@ macro PropagateBlockLabelSet(Block, Stmts) {
   }
 }
 
+function isKnownProperty(prop) {
+  obj := {
+    HasThisBinding: true,
+    __thisValue: true,
+    CreateMutableBinding: true,
+    __NewTarget: true,
+    GetBindingValue: true,
+    InitializeBinding: true,
+    HasBinding: true,
+    arguments: true,
+    HomeObject: true,
+    WithBaseObject: true,
+    GetSuperBase: true,
+    SetMutableBinding: true,
+    CreateImmutableBinding: true,
+    FunctionObject: true,
+    thisBindingStatus: true,
+    GetThisBinding: true,
+    BindThisValue: true,
+    DeleteBinding: true,
+    HasSuperBinding: true
+  };
+  return (prop in_obj obj);
+}
+
+function printFunEnvRec(envRec) {
+  foreach (p : obj_fields envRec) {
+    if (!isKnownProperty(p)) {
+      print p + ": ";
+      print envRec[p].value;
+    }
+  }
+  return;
+}
+
+function debug_stmt(s, scope) {
+  print "JS_Interpreter_Stmt " + (int_to_string |g_count|);
+  |g_count| := |g_count| + 1;
+  envRec := scope.VariableEnvironment.EnvRec;
+  print "statement:";
+  print s;
+  print "arguments:";
+  if ("ObjectRecord" in_obj envRec) {
+    // print "ObjectRecord";
+    // print envRec.ObjectRecord.bindingObject.internalSlotsList;
+    print "Global";
+  } else {
+    // print "FunctionRecord";
+    printFunEnvRec(envRec);
+  }
+  return;
+}
+
 function JS_Interpreter_Stmt(s, scope) {
   /* TODO: Debug print
    *  Current statement
    *  Current Scope (Current Environment Record)
    */
+  debug_stmt(s, scope);
   match s : type with
   | { type: "BlockStatement", body: StatementList } -> {
     /* 13.2.13 Block */

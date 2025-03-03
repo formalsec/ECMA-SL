@@ -19,6 +19,7 @@ import "esl_interpreter.esl";
 /* initialize implementation defined stuff. These should only be initialized once */
 function init() {
   initGlobalVars();
+  |g_count| := 0;
   return;
 }
 

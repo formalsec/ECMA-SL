@@ -151,6 +151,27 @@ module M (ITooling : Interpreter_tooling.M) = struct
       Hashtbl.remove visited l
     | _ -> Value.pp_custom_val rec_print_pp' ppf v
 
+  let non_rec_print_pp (depth : int option) (visited : (Loc.t, unit) Hashtbl.t)
+    (heap : heap) (ppf : Format.formatter) (v : Value.t) : unit =
+    let inv_depth_f = Option.fold ~none:false ~some:(fun d -> d <= 0) in
+    (* let incr_depth_f = Option.map (fun d -> d - 1) in *)
+    let visited_loc_f = Hashtbl.mem visited in
+    (* let rec_print_pp' = rec_print_pp (incr_depth_f depth) visited heap in *)
+    match v with
+    | List _ when inv_depth_f depth -> Fmt.pf ppf "[...]"
+    | App (`Op "loc", [ Int l ]) when inv_depth_f depth || visited_loc_f l ->
+      Fmt.pf ppf "{...}"
+    | App (`Op "loc", [ Int l ]) ->
+      Hashtbl.add visited l ();
+      (Object.pp Value.pp) ppf (get_obj heap l);
+      Hashtbl.remove visited l
+    | _ -> Value.pp_custom_val Value.pp ppf v
+
+  (* So that the compiler doesn't complain about unused functions *)
+  let _ = [ rec_print_pp; non_rec_print_pp ]
+
+  let rec_print_pp = rec_print_pp
+
   let print_pp (heap : heap) (ppf : Format.formatter) (v : Value.t) : unit =
     let mk_visited () = Hashtbl.create !Base.default_hashtbl_sz in
     match v with
