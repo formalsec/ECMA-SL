@@ -37,7 +37,7 @@ Test basic symbolic number:
    (bool.eq "banana bread" (str.++ ((str.++ (flour, " ")), water)))
   Model:
    (model
-     (flour str "bread")
-     (water str "banana"))
+     (flour str "banana")
+     (water str "bread"))
   Found 1 problems!
   [21]
