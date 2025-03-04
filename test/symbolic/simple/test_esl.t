@@ -30,8 +30,8 @@ Esl tests:
    (bool.not (bool.ne (str.++ (flour, " ", water)) "banana bread"))
   Model:
    (model
-     (flour str "bread")
-     (water str "banana"))
+     (flour str "banana")
+     (water str "bread"))
   Found 1 problems!
   [21]
   $ ecma-sl symbolic while.esl
