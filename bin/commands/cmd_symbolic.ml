@@ -103,9 +103,10 @@ let run ~input ~lang ~target ~workspace ~harness =
   let testsuite = Fpath.(workspace / "test-suite") in
   let* _ = Result.bos (Bos.OS.Dir.create ~mode:0o777 testsuite) in
   let (result, report) =
-    Symbolic_interpreter.run ~no_stop_at_failure:false ~target
-      ~out_cb:(fun _ _ -> ())
-      ~err_cb:(serialize_thread testsuite)
+    Symbolic_interpreter.run ~print_return_value:true ~no_stop_at_failure:false
+      ~target
+      ~callback_out:(fun _ _ -> ())
+      ~callback_err:(serialize_thread testsuite)
       input prog
   in
   Logs.debug (fun k -> k " clock: %fs" report.execution_time);

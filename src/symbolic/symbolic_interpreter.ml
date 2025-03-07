@@ -40,15 +40,16 @@ struct
     |> Env.Build.add_extern_functions Symbolic_esl_ffi.concrete_api
     |> Env.Build.add_extern_functions (Symbolic_esl_ffi.symbolic_api filename)
 
-  let check_return_value thread = function
+  let check_return_value ~print_return_value thread = function
     | Ok result -> (
       match Smtml.Expr.view result with
       | List [ Hc.{ node = Val False; _ }; result ] ->
         let mem = Symbolic.Thread.mem thread in
-        Logs.app (fun k ->
-          k "- : %a =@[<hov> %a@]" Smtml.Ty.pp (Smtml.Expr.ty result)
-            (Symbolic.Memory.pp_val mem)
-            result );
+        if print_return_value then
+          Logs.app (fun k ->
+            k "- : %a =@[<hov> %a@]" Smtml.Ty.pp (Smtml.Expr.ty result)
+              (Symbolic.Memory.pp_val mem)
+              result );
         Ok ()
       | List [ { node = Val True; _ }; e ] ->
         let msg =
@@ -67,8 +68,8 @@ struct
 
   module Symbolic_result = Symbolic_report.Make (Failure)
 
-  let run ?(no_stop_at_failure = false) ?(target = "main") ~out_cb ~err_cb
-    filename prog =
+  let run ?(print_return_value = true) ?(no_stop_at_failure = false)
+    ?(target = "main") ~callback_out ~callback_err filename prog =
     let start = Unix.gettimeofday () in
     let env = link_env filename prog in
     let computation = Interpreter.main env target in
@@ -89,15 +90,15 @@ struct
       let () =
         try
           results (fun (result, thread) ->
-            let () = out_cb thread result in
-            let result = check_return_value thread result in
+            let () = callback_out thread result in
+            let result = check_return_value ~print_return_value thread result in
             (* BAD: ignoring return value because I don't care about the result *)
             match result with
             | Ok () -> ()
             | Error witness ->
               Logs.app (fun k -> k "%a" Symbolic_error.pp witness);
               report.num_failures <- succ report.num_failures;
-              let witnesses = err_cb thread witness in
+              let witnesses = callback_err thread witness in
               report.failures <- witnesses @ report.failures;
               if no_stop_at_failure then ()
               else begin
