@@ -101,7 +101,7 @@ module Make (P : Interpreter_functor_intf.P) () :
     Memory.pp_val heap fmt e
 
   let exec_func state func args ret_var =
-    Logs.debug (fun k -> k "@[<hov 1>calling func:@ %a@]" Func.pp_simple func);
+    Logs.debug (fun k -> k "@[<hov 1>invoke:@ %a@]" Func.pp_simple func);
     let return_state = Some (state, ret_var) in
     let params = Func.params' func in
     let store = Store.create (List.combine params args) in
@@ -147,10 +147,10 @@ module Make (P : Interpreter_functor_intf.P) () :
     let ok st = Choice.return @@ State.Continue st in
     let error err = Choice.return @@ State.Return (Error err) in
     let* m = Env.get_memory env in
-    Logs.debug (fun k -> k "@[<hov 1>      scope :@ %a@]" Fmt.string func);
+    Logs.debug (fun k -> k "@[<hov 1> scope:@ %a@]" Fmt.string func);
     (* Logs.debug (fun k -> *)
     (*   k "@[<hov 1>      store :@ %a@]" Value.Store.pp locals ); *)
-    Logs.debug (fun k -> k "@[<hov 1>running stmt:@ %a@]" Stmt.pp_simple stmt);
+    Logs.debug (fun k -> k "@[<hov 1>  stmt:@ %a@]" Stmt.pp_simple stmt);
     match Stmt.view stmt with
     | Skip -> ok state
     | Merge -> ok state
@@ -159,7 +159,6 @@ module Make (P : Interpreter_functor_intf.P) () :
       ok { state with stmts = stmt :: state.stmts }
     | Fail e ->
       let e' = Fmt.str "%a" (pp locals m) e in
-      Logs.app (fun k -> k "       fail : %s" e');
       error (`Failure e')
     | Print e ->
       Logs.app (fun k -> k "%a" (pp locals m) e);
@@ -284,8 +283,8 @@ module Make (P : Interpreter_functor_intf.P) () :
       | Continue state -> loop state
       | Return ret -> Choice.return ret )
     | [] -> (
-      Logs.app (fun k ->
-        k "    warning : %s: missing a return statement!" state.func );
+      Logs.warn (fun k ->
+        k "function %s: missing a return statement!" state.func );
       match State.return state with
       | Continue state -> loop state
       | Return ret -> Choice.return ret )
