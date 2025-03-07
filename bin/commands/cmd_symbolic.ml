@@ -108,8 +108,8 @@ let run ~input ~lang ~target ~workspace ~harness =
       ~err_cb:(serialize_thread testsuite)
       input prog
   in
-  Logs.debug (fun k -> k "  exec time : %fs" report.execution_time);
-  Logs.debug (fun k -> k "solver time : %fs" report.solver_time);
+  Logs.debug (fun k -> k " clock: %fs" report.execution_time);
+  Logs.debug (fun k -> k " query: %fs" report.solver_time);
   if report.num_failures = 0 then Logs.app (fun k -> k "All Ok!")
   else Logs.app (fun k -> k "Found %d problems!" report.num_failures);
   let* () = write_report workspace report in

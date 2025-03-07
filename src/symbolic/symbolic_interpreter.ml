@@ -54,14 +54,14 @@ struct
         let msg =
           Fmt.str "Failure: @[<hov>uncaught exception:@ %a@]" Smtml.Expr.pp e
         in
-        Logs.app (fun k -> k "%s" msg);
+        Logs.err (fun k -> k "%s" msg);
         Error (`Failure msg)
       | _ ->
         let msg =
           Fmt.str "Failure: @[<hov>something went terribly wrong:@ %a@]"
             Smtml.Expr.pp result
         in
-        Logs.app (fun k -> k "%s" msg);
+        Logs.err (fun k -> k "%s" msg);
         Error (`Failure msg) )
     | Error _ as err -> err
 
