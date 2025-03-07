@@ -104,9 +104,9 @@ let run_and_check_result i prelude results ({ Test.path; metadata; _ } as test)
       (* FIXME: ignoring all my problems *)
       try
         let _ =
-          Symbolic_interpreter.run ~no_stop_at_failure:false
-            ~out_cb:(check_result test)
-            ~err_cb:(fun _ _err -> [])
+          Symbolic_interpreter.run ~print_return_value:true
+            ~no_stop_at_failure:false ~callback_out:(check_result test)
+            ~callback_err:(fun _ _err -> [])
             path prog
         in
         ()
