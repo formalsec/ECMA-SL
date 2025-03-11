@@ -133,7 +133,7 @@ let eval_unop (op : Operator.unopt) =
             v Smtml.Expr.pp v ) )
   | IntToFloat -> Smtml.Expr.cvtop Ty_real Reinterpret_int
   | IntToString -> Smtml.Expr.cvtop Ty_int ToString
-  | FloatToInt -> Smtml.Expr.cvtop Ty_real Reinterpret_float
+  | FloatToInt -> Smtml.Expr.cvtop Ty_int Reinterpret_float
   | FloatToString -> (
     fun v ->
       match Smtml.Expr.view v with

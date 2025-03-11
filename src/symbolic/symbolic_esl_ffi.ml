@@ -416,6 +416,11 @@ module Make () = struct
       | Val v -> ok_v (exp v)
       | _ -> failure "%s: invalid argument" __FUNCTION__
     in
+    let random v =
+      match Smtml.Expr.view v with
+      | Val v -> ok_v (random v)
+      | _ -> failure "%s: invalid argument" __FUNCTION__
+    in
     let abs v = ok @@ Smtml.Expr.unop Ty_real Abs v in
     let sqrt v = ok @@ Smtml.Expr.unop Ty_real Sqrt v in
     let ceil v = ok @@ Smtml.Expr.unop Ty_real Ceil v in
@@ -598,6 +603,7 @@ module Make () = struct
        ; ("atan_external", Extern_func (Func (Arg Res), atan))
        ; ("atan2_external", Extern_func (Func (Arg (Arg Res)), atan2))
        ; ("exp_external", Extern_func (Func (Arg Res), exp)) (* parse *)
+       ; ("random_external", Extern_func (Func (Arg Res), random)) (* parse *)
        ; ("abs_external", Extern_func (Func (Arg Res), abs)) (* parse *)
        ; ("sqrt_external", Extern_func (Func (Arg Res), sqrt)) (* parse *)
        ; ("ceil_external", Extern_func (Func (Arg Res), ceil)) (* parse *)
