@@ -30,7 +30,7 @@ Test basic symbolic number:
               "target": symbol("empty"),  }
   All Ok!
   $ ecma-sl symbolic symbolic_string_array.js
-  "":82947.2-82947.20: Assert failure:
+  "":82957.2-82957.20: Assert failure:
    Stmt: assert (hd params)
    Expr: false
   Path condition:

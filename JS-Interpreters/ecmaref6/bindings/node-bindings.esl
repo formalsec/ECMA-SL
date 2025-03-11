@@ -163,11 +163,13 @@ function load_as_file(fpath) {
   /* 3. If X.json is a file, load X.json to a JavaScript Object. STOP */
   let fpath' = set_ext(fpath, ".json");
   if (file_exists(fpath')) {
-    throw "TODO: '" + fpath_to_string(fpath') + "' to a JavaScript Object";
+    /* throw "TODO: '" + fpath_to_string(fpath') + "' to a JavaScript Object"; */
+    return newLazyObject();
   }
 
   /* 4. If X.node is a file, load X.node as binary addon. STOP */
-  throw "TODO: load X.node as binary addon.";
+  /* throw "TODO: load X.node as binary addon."; */
+  return newLazyObject();
 }
 
 function load_node_module(globalObject, objectPrototype, strict, x) {
