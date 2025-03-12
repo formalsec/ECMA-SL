@@ -138,10 +138,9 @@ module Seq = struct
     | _ -> Fmt.failwith "Unable to select value from %a" Value.pp v
 
   (* FIXME: Clone state? *)
-  let from_list _vs : 'a t =
-   fun (_thread : thread) ->
-    (* List.to_seq @@ List.map (fun v -> (v, thread)) vs *)
-    assert false
+  let from_list vs : 'a t =
+   fun (thread : thread) ->
+     Cont.of_list @@ List.map (fun v -> (v, thread)) vs
 end
 
 module List = struct
