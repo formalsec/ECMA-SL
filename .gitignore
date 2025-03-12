@@ -9,6 +9,7 @@
 _build/
 _coverage/
 *.coverage
+*.install
 
 # Local Opam switch
 _opam/
