@@ -140,7 +140,12 @@ module Seq = struct
   (* FIXME: Clone state? *)
   let from_list vs : 'a t =
    fun (thread : thread) ->
-     Cont.of_list @@ List.map (fun v -> (v, thread)) vs
+    Cont.of_list
+    @@ List.map
+         (fun v ->
+           let thread = Thread.clone thread in
+           (v, thread) )
+         vs
 end
 
 module List = struct
