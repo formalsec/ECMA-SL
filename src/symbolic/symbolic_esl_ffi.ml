@@ -143,7 +143,9 @@ module Make () = struct
     let to_char_code_u v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (to_char_code_u v)
-      | _ -> failure "%s: invalid argument" __FUNCTION__
+      | _ ->
+          ok (Smtml.Expr.cvtop Ty_str String_to_code v)
+          (* failure "%s: invalid argument" __FUNCTION__ *)
     in
     let to_lower_case v =
       match Smtml.Expr.view v with

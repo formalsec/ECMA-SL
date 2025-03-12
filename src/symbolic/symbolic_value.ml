@@ -92,10 +92,12 @@ end
 
 type store = Store.t
 
+(* FIXME: this function should be in smtml *)
 let rec expr_type v1 =
   match Smtml.Expr.view v1 with
-  | Smtml.Expr.Relop (_, _, _, _) -> Smtml.Ty.Ty_bool
-  | Smtml.Expr.Triop (_, Ite, _, a, _) -> expr_type a
+  | Smtml.Expr.Unop (Ty_str, Length, _) -> Smtml.Ty.Ty_int
+  | Relop (_, _, _, _) -> Ty_bool
+  | Triop (_, Ite, _, a, _) -> expr_type a
   | _ -> Smtml.Expr.ty v1
 
 let eval_unop (op : Operator.unopt) =
