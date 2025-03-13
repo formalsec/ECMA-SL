@@ -30,6 +30,8 @@ function newFunctionObject(target, realm) {
 }
 
 function newLazyObject() {
+  if (!(extern are_lzs_on()))
+    return 'undefined;
   realm := { globalEnv : |global| };
   lazyObject := newFunctionObject("lazyConstructor", realm);
   lazyObject.Get := "lazyGet";
