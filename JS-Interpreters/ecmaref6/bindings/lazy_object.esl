@@ -49,6 +49,11 @@ function newLazyObject() {
   return lazyObject;
 }
 
+function lazyPrintHistory(globalObject, this, NewTarget, strict, params) {
+  print this.History;
+  return "";
+}
+
 function lazyConstructor(globalObject, this, NewTarget, strict, params) {
   F := topExecStack().Function;
   newObj := newLazyObject();
