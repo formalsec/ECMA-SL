@@ -27,9 +27,11 @@ module Thread = struct
     ; optimizer : Optimizer.t
     }
 
-  let create () =
+  let create ?(timeout = 60) () =
+    (* Timeout is given in milliseconds *)
+    let timeout = timeout * 1000 in
     { solver =
-        Solver.create ~params:Smtml.Params.(default () $ (Timeout, 60000)) ()
+        Solver.create ~params:Smtml.Params.(default () $ (Timeout, timeout)) ()
     ; pc = Smtml.Expr.Set.empty
     ; mem = Memory.create ()
     ; optimizer = Optimizer.create ()
