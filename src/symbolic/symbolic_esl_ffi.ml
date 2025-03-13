@@ -143,9 +143,8 @@ module Make () = struct
     let to_char_code_u v =
       match Smtml.Expr.view v with
       | Val v -> ok_v (to_char_code_u v)
-      | _ ->
-          ok (Smtml.Expr.cvtop Ty_str String_to_code v)
-          (* failure "%s: invalid argument" __FUNCTION__ *)
+      | _ -> ok (Smtml.Expr.cvtop Ty_str String_to_code v)
+      (* failure "%s: invalid argument" __FUNCTION__ *)
     in
     let to_lower_case v =
       match Smtml.Expr.view v with
@@ -804,6 +803,13 @@ module Make () = struct
       let filename = Fpath.to_string filename in
       ok_v @@ Str filename
     in
+    let process_cwd () =
+      match Bos.OS.Dir.current () with
+      | Ok fpath -> ok_v @@ Str (Fpath.to_string fpath)
+      | Error (`Msg err) ->
+        Logs.err (fun k -> k "process_cwd: %s" err);
+        ok @@ Symbolic_value.mk_symbol "undefined"
+    in
     of_array
       [| ("str_symbol", Extern_func (Func (Arg Res), str_symbol))
        ; ("int_symbol", Extern_func (Func (Arg Res), int_symbol))
@@ -830,6 +836,7 @@ module Make () = struct
        ; ("str_match", Extern_func (Func (Arg Res), str_match))
        ; ("__dirname", Extern_func (Func (UArg Res), dirname))
        ; ("__filename", Extern_func (Func (UArg Res), filename))
+       ; ("process_cwd_external", Extern_func (Func (UArg Res), process_cwd))
        ; ("summ_string_split", Extern_func (Func (Arg (Arg Res)), str_split))
       |]
 end
