@@ -142,10 +142,10 @@ let eval_unop (op : Operator.unopt) =
       | Val (Real f) ->
         Smtml.Expr.value (Str (Arith_utils.float_to_string_inner f))
       | _ -> Smtml.Expr.cvtop Ty_real ToString v )
-  | StringToInt -> Smtml.Expr.cvtop Ty_str String_to_int
+  | StringToInt -> Smtml.Expr.cvtop Ty_int OfString
   | StringToFloat -> (
     fun v ->
-      try Smtml.Expr.cvtop Ty_str String_to_float v
+      try Smtml.Expr.cvtop Ty_real OfString v
       with _ -> Smtml.Expr.value (Real Float.nan) )
   | ObjectToList -> assert false
   | ObjectFields -> assert false
