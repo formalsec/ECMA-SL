@@ -1,0 +1,11 @@
+function __esl_node_im_metadata(globalObject, this, newTarget, strict, params) {
+  let cmd = ToPrimitive(hd params, 'String);
+  return extern exec(cmd);
+}
+
+function make_im_metadata_object(globalObject, objectPrototype, strict) {
+  let realm = { globalEnv : globalObject };
+  let metadata = CreateBuiltInFunctionObject([], "__esl_node_im_metadata", realm, strict, null);
+  createBuiltInProperty(metadata, "prototype", objectPrototype);
+  return metadata;
+}

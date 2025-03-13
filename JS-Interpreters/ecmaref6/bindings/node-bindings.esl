@@ -23,6 +23,7 @@ import "./node-core/node_process.esl";
 import "./node-core/node_vm.esl";
 import "./node_cross-spawn.esl";
 import "./node_execa.esl";
+import "./node_im-metadata.esl";
 import "./node_shelljs.esl";
 
 function push_globals() {
@@ -186,7 +187,7 @@ function load_node_module(globalObject, objectPrototype, strict, x) {
     case "shelljs":
       return make_shelljs_object(globalObject, objectPrototype, strict);
     case "im-metadata":
-      return make_cross_spawn_object(globalObject, objectPrototype, strict);
+      return make_im_metadata_object(globalObject, objectPrototype, strict);
     case "gray-matter":
       return make_cross_spawn_object(globalObject, objectPrototype, strict);
     default:
