@@ -38,6 +38,8 @@ module Make () = struct
   module Optimizer = Choice_monad.Optimizer
   open Extern_func
 
+  let allow_lazy_values = ref true
+
   (* FIXME: This table should be part of Env.t or Thread.t to allow symbolic execution to branch/emulate the filesystem correctly *)
   let channel_table = Channel_utils.make ()
 
@@ -810,6 +812,7 @@ module Make () = struct
         Logs.err (fun k -> k "process_cwd: %s" err);
         ok @@ Symbolic_value.mk_symbol "undefined"
     in
+    let are_lzs_on () = if !allow_lazy_values then ok_v True else ok_v False in
     of_array
       [| ("str_symbol", Extern_func (Func (Arg Res), str_symbol))
        ; ("int_symbol", Extern_func (Func (Arg Res), int_symbol))
@@ -838,5 +841,6 @@ module Make () = struct
        ; ("__filename", Extern_func (Func (UArg Res), filename))
        ; ("process_cwd_external", Extern_func (Func (UArg Res), process_cwd))
        ; ("summ_string_split", Extern_func (Func (Arg (Arg Res)), str_split))
+       ; ("are_lzs_on", Extern_func (Func (UArg Res), are_lzs_on))
       |]
 end
