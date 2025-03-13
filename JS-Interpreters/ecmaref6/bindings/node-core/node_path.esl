@@ -33,6 +33,10 @@ function __esl_node_path_dirname(globalObject, this, NewTarget, strict, params) 
   /* TODO: Model dirname */
   return hd params;
 }
+function __esl_node_path_resolve(globalObject, this, NewTarget, strict, params) {
+  /* TODO: Model resolve */
+  return hd params;
+}
 
 function make_path_object(globalObject, objectPrototype, strict) {
   let realm = { globalEnv : globalObject };
@@ -53,6 +57,9 @@ function make_path_object(globalObject, objectPrototype, strict) {
   createBuiltInProperty(dirname, "prototype", objectPrototype);
   createBuiltInProperty(path, "dirname", dirname);
 
+  let resolve = CreateBuiltInFunctionObject([], "__esl_node_path_resolve", realm, strict, null);
+  createBuiltInProperty(resolve, "prototype", objectPrototype);
+  createBuiltInProperty(path, "resolve", resolve);
 
   let normalize = CreateBuiltInFunctionObject([], "__esl_node_path_dirname", realm, strict, null);
   createBuiltInProperty(normalize, "prototype", objectPrototype);
