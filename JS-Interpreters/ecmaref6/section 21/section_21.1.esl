@@ -1036,8 +1036,11 @@ function StringPrototypeReplace(global, this, NewTarget, strict, args) {
   searchValue := ((n_args >= 1) ? hd args : 'undefined);
   replaceValue := ((n_args >= 2) ? l_nth(args, 1) : 'undefined);
   /* FIXME(martelada): String.replace summary */
-  if (extern is_symbolic(this))
+  if (extern is_symbolic(this)) {
+    searchValue := ToString(searchValue);
+    replaceValue := ToString(replaceValue);
     return extern str_replace(this, searchValue, replaceValue);
+  }
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
   /* 2. ReturnIfAbrupt(O). */
