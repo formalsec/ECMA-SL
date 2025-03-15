@@ -1,15 +1,15 @@
 (* Copyright (C) 2022-2025 formalsec programmers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *)
@@ -20,13 +20,7 @@ let ite c v1 v2 = Smtml.Expr.Bool.ite c v1 v2
 
 let undef = Symbolic_value.mk_symbol "undefined"
 
-module Value_key = struct
-  type t = Symbolic_value.value
-
-  let compare (e1 : t) (e2 : t) = compare (Hashtbl.hash e1) (Hashtbl.hash e2)
-end
-
-module VMap = Map.Make (Value_key)
+module VMap = Map.Make (Symbolic_value)
 
 type value = Symbolic_value.value
 
@@ -37,9 +31,9 @@ type t =
 
 let create () = { fields = VMap.empty; symbols = VMap.empty }
 
-let clone o =
+let clone { fields; symbols } =
   (* Immutable structures don't need to be copied *)
-  o
+  { fields; symbols }
 
 let is_empty o = VMap.(is_empty o.fields && is_empty o.symbols)
 
@@ -130,7 +124,7 @@ let delete o key =
   | Val _ -> { o with fields = VMap.remove key o.fields }
   | _ ->
     (* Leak *)
-    Fmt.epr "Leaking object %a@." Smtml.Expr.pp key;
+    Logs.warn (fun k -> k "Leaking object %a@." Smtml.Expr.pp key);
     o
 
 let pp_map ppf v =
