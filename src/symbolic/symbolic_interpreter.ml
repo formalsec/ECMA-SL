@@ -68,8 +68,10 @@ struct
 
   module Symbolic_result = Symbolic_report.Make (Failure)
 
-  let run ?timeout ?(print_return_value = true) ?(no_stop_at_failure = false)
-    ?(target = "main") ~callback_out ~callback_err filename prog =
+  let run ?timeout ?(lazy_values = true) ?(print_return_value = true)
+    ?(no_stop_at_failure = false) ?(target = "main") ~callback_out ~callback_err
+    filename prog =
+    Symbolic_esl_ffi.allow_lazy_values := lazy_values;
     let start = Unix.gettimeofday () in
     let env = link_env filename prog in
     let computation = Interpreter.main env target in
