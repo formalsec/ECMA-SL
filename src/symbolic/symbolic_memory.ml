@@ -62,29 +62,27 @@ module Make (O : Object_intf.S with type value = Symbolic_value.value) = struct
       obj
 
   let has_field (h : t) (loc : Loc.t) (field : value) : value =
-    Option.fold (get h loc)
-      ~some:(fun o -> O.has_field o field)
-      ~none:(Symbolic_value.Bool.const false)
+    match get h loc with
+    | None -> Symbolic_value.Bool.const false
+    | Some o -> O.has_field o field
 
   let set_field (h : t) (loc : Loc.t) ~(field : value) ~(data : value) : unit =
-    Option.iter
-      (fun o ->
-        let o' = O.set o ~key:field ~data in
-        set h loc o' )
-      (get h loc)
+    match get h loc with
+    | None -> ()
+    | Some o ->
+      let o' = O.set o ~key:field ~data in
+      set h loc o'
 
   let get_field (h : t) (loc : Loc.t) (field : value) :
     (value * value list) list =
-    let o = get h loc in
-    Option.fold o ~none:[] ~some:(fun o -> O.get o field)
+    match get h loc with None -> [] | Some o -> O.get o field
 
   let delete_field (h : t) (loc : Loc.t) (f : value) =
-    let obj = get h loc in
-    Option.iter
-      (fun o ->
-        let o' = O.delete o f in
-        set h loc o' )
-      obj
+    match get h loc with
+    | None -> ()
+    | Some o ->
+      let o' = O.delete o f in
+      set h loc o'
 
   let rec pp ppf ({ data; parent } : t) =
     let pp_v ppf (key, data) = Fmt.pf ppf "%a: %a" Loc.pp key O.pp data in
@@ -98,15 +96,13 @@ module Make (O : Object_intf.S with type value = Symbolic_value.value) = struct
   let rec unfold_ite ~(accum : value) (e : value) : (value option * int) list =
     match Smtml.Expr.view e with
     | Val (App (`Op "loc", [ Int x ])) -> [ (Some accum, x) ]
-    (* TODO:x | Val (Val.Symbol _x) -> [ (Some accum, ~-1) ] *)
+    (* | Val (App (`Op "symbol", _)) -> [ (Some accum, ~-1) ] *)
     | Triop (_, Ite, c, a, e) -> (
       match Smtml.Expr.view a with
       | Val (App (`Op "loc", [ Int l ])) ->
-        let accum' =
-          Smtml.Expr.(binop Ty_bool And accum (unop Ty_bool Not c))
-        in
+        let accum' = Symbolic_value.Bool.(and_ accum (not_ c)) in
         let tl = unfold_ite ~accum:accum' e in
-        (Some Smtml.Expr.(binop Ty_bool And accum c), l) :: tl
+        (Some (Symbolic_value.Bool.and_ accum c), l) :: tl
       | _ -> assert false )
     | _ -> assert false
 
@@ -121,6 +117,7 @@ module Make (O : Object_intf.S with type value = Symbolic_value.value) = struct
       | Val (App (`Op "loc", [ Int l ])) ->
         Ok ((Some c, l) :: unfold_ite ~accum:Smtml.Expr.(unop Ty_bool Not c) v)
       | _ ->
+        Fmt.epr "Value '%a' is not a loc expression" Smtml.Expr.pp e;
         Error (Fmt.str "Value '%a' is not a loc expression" Smtml.Expr.pp e) )
     | _ ->
       Fmt.epr "Value '%a' is not a loc expression" Symbolic_value.pp e;

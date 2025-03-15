@@ -20,6 +20,8 @@ open Ecma_sl
 
 type value = Smtml.Expr.t
 
+type t = value
+
 let null = Smtml.Expr.value Nothing
 
 let string s = Smtml.Expr.value (Str s)
