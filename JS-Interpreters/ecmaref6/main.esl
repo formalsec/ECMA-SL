@@ -1,4 +1,5 @@
 import "esl_interpreter.esl";
+import "bindings/ffi_nodejs.esl";
 
 /* initialize implementation defined stuff. These should only be initialized once */
 function init() {
@@ -25,6 +26,6 @@ function mainPreInitialized() {
 function main() {
   init();
   x := buildAST();
-  ret := ECMAScriptInitialization(x);
+  ret := NodeJSInitialization(x);
   return ECMAScriptReturn(ret);
 }

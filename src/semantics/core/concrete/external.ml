@@ -733,6 +733,63 @@ module Impl = struct
     | v -> bad_arg_err 1 "file_exists_external" "string" [ v ]
 
   let time () = Smtml.Value.(Real (Unix.gettimeofday ()))
+
+  (* node.js functions implementation *)
+  let node_arg_to_str (v : Value.t) : string =
+    match v with
+    | Str v' -> v'
+    | _ -> Log.fail "invalid non-string argument for node function"
+
+  let node_arg_to_list (v : Value.t) : Value.t list =
+    match v with
+    | List vs -> vs
+    | _ -> Log.fail "invalid non-list argument for node function"
+
+  let rec node_arg_pp (ppf : Format.formatter) (v : Value.t) : unit =
+    match v with
+    | Unit -> ()
+    | Nothing | Int _ | Real _ | Str _ | True | False -> Value.pp ppf v
+    | List lst -> Fmt.(brackets (list ~sep:comma node_arg_pp)) ppf lst
+    | App (`Op "src", [ Str src ]) -> Fmt.string ppf src
+    | _ -> Fmt.pf ppf "undefined"
+
+  let make_node_code (require : string) (path : string) (args : Value.t list) =
+    let pp_args = Fmt.(list ~sep:(fun ppf () -> Fmt.pf ppf ", ") node_arg_pp) in
+    Fmt.str "require('%s')%s(%a);" require path pp_args args
+
+  let run_node_cmd (code : string) : Value.t =
+    let code' = String.map (fun c -> if c = '\"' then '\'' else c) code in
+    let cmd = Fmt.str "node -e \"%s\"" code' in
+    let (oc, ic, ec) = Unix.open_process_full cmd (Unix.environment ()) in
+    let stdout = Io.read_channel oc in
+    let stderr = Io.read_channel ec in
+    let status = Unix.close_process_full (oc, ic, ec) in
+    let exit_code =
+      match status with
+      | Unix.WEXITED code -> code
+      | Unix.WSIGNALED _ | Unix.WSTOPPED _ -> -1
+    in
+    Value.List [ Value.Int exit_code; Value.Str stdout; Value.Str stderr ]
+
+  let node_function (require' : Value.t) (path' : Value.t) (args' : Value.t) :
+    Value.t =
+    let require = node_arg_to_str require' in
+    let path = node_arg_to_str path' in
+    let args = node_arg_to_list args' in
+    let code = make_node_code require path args in
+    let code' = Fmt.str "console.log(%s)" code in
+    match run_node_cmd code' with
+    | Value.List (out :: _) -> out
+    | _ -> Value.Nothing
+
+  let node_child_process_exec (cmd : Value.t) : Value.t =
+    let cb =
+      "(error, stdout, stderr) => { if (stderr) console.error(stderr); if \
+       (stdout) console.log(stdout); return error ? error.code : 0; }"
+    in
+    let cb' = Value.App (`Op "src", [ Value.Str cb ]) in
+    let code = make_node_code "child_process" ".exec" [ cmd; cb' ] in
+    run_node_cmd code
 end
 
 include Impl
@@ -834,6 +891,10 @@ let execute (prog : Prog.t) (_store : 'a Store.t) (_heap : 'a Heap.t)
   | ("close_external", [ v ]) -> close v
   | ("file_exists_external", [ v ]) -> file_exists v
   | ("time_external", _) -> time ()
+  (* nodejs functions *)
+  | ("node_function", [ require; path; args ]) ->
+    node_function require path args
+  | ("node_child_process_exec", [ cmd ]) -> node_child_process_exec cmd
   | _ ->
     Log.warn "UNKNOWN %s external function" fn;
     Value.App (`Op "symbol", [ Str "undefined" ])

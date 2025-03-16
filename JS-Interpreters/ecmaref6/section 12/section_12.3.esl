@@ -51,6 +51,8 @@ function EvaluateDirectCall(func, thisValue, arguments, tailPosition, scope) {
   if (funcType != "Object")
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal();
+  if (func.__isNodeModule == true)
+    return callNodeFunction(scope, thisValue, func, argList);
   /* 4. If IsCallable(func) is false, */
   if (IsCallable(func) == false)
     /* throw a TypeError exception */

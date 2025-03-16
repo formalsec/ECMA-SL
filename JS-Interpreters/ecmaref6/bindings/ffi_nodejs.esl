@@ -1,0 +1,203 @@
+function createNodeObject(moduleName) {
+  objectPrototype := |Intrinsics|["ObjectPrototype"];
+  nodeObject := ObjectCreate(objectPrototype, null);
+  nodeObject.__isNodeModule := true;
+  nodeObject.__nodeModuleName := moduleName;
+  nodeObject.__nodeModulePath := "";
+  return nodeObject;
+}
+
+function extendNodeObject(nodeObject, path) {
+  newPath := s_concat([nodeObject.__nodeModulePath, ".", path]);
+  newNodeObject := createNodeObject(nodeObject.__nodeModuleName);
+  newNodeObject.__nodeModulePath := newPath;
+  return newDataPropertyDescriptor(newNodeObject);
+}
+
+function evaluateNodeObject(nodeObject) {
+  return 'undefined;
+}
+
+
+function callNodeFunction(scope, this, nodeObject, args) {
+  res := extern node_function(nodeObject.__nodeModuleName, nodeObject.__nodeModulePath, args);
+  return NormalCompletion('empty);
+}
+
+
+
+
+function __esl_node_child_process_exec(globalObject, thisValue, newTarget, strict, params) {
+  command := l_nth(params, 0);
+  res := extern node_child_process_exec(command);
+  
+  if (l_len(params) == 1)
+    return NormalCompletion('empty);
+
+  callback := l_nth(params, 1);
+  error := l_nth(res, 0);
+  stdout := l_nth(res, 1);
+  stderr := l_nth(res, 2);
+  error' := (error != 0) ? { code: error } : null;
+  callbackArgs := [ error', stdout, stderr ];
+  return Call(null, null, callback, thisValue, callbackArgs);
+
+}
+
+function makeChildProcessObject(globalObject, objectPrototype, strict) {
+  realm := { globalEnv : globalObject };
+  childProcess := createNodeObject("child_process");
+
+  exec := CreateBuiltInFunctionObject(["cmd"], "__esl_node_child_process_exec", realm, strict, null);
+  createBuiltInProperty(exec, "prototype", objectPrototype);
+  createBuiltInProperty(childProcess, "exec", exec);
+
+  return childProcess;
+}
+
+
+
+
+
+function makeProcessObject(globalObject, objectPrototype, strict) {
+  realm := { globalEnv : globalObject };
+  process := createNodeObject("process");
+
+  createBuiltInProperty(process, "execPath", "node");
+  createBuiltInProperty(process, "platform", 'undefined);
+
+  return process;
+}
+
+
+
+
+
+function loadNodejsModule(globalObject, objectPrototype, strict, moduleName) {
+  switch (moduleName) {
+    /* case "assert": */
+    /* case "buffer": */
+    case "child_process":
+      return makeChildProcessObject(globalObject, objectPrototype, strict);
+    case "mz/child_process":
+      return makeChildProcessObject(globalObject, objectPrototype, strict);
+    case "process":
+      return makeProcessObject(globalObject, objectPrototype, strict);
+    /* case "cluster": */
+    /* case "crypto": */
+    /* case "diagnostics_channel": */
+    /* case "dns": */
+    /* case "events": */
+    /* case "fs": */
+    /* case "fs/promises": */
+    /* case "http": */
+    /* case "http2": */
+    /* case "https": */
+    /* case "os": */
+    /* case "path": */
+    /* case "querystring": */
+    /* case "readline": */
+    /* case "repl": */
+    /* case "stream": */
+    /* case "string_decoder": */
+    /* case "test": */
+    /* case "timers": */
+    /* case "tls": */
+    /* case "tty": */
+    /* case "dgram": */
+    /* case "url": */
+    /* case "util": */
+    /* case "vm": */
+    /* case "worker_threads": */
+    /* case "zlib": */
+    default:
+      return createNodeObject(moduleName);
+  }
+}
+
+function __esl_node_require(globalObject, this, NewTarget, strict, params) {
+  moduleName := hd params;
+  objectPrototype := |Intrinsics|["ObjectPrototype"];
+  return loadNodejsModule(globalObject, objectPrototype, strict, moduleName);
+}
+
+
+
+
+
+function createExportsObject(objectPrototype) {
+  exports := ObjectCreate(objectPrototype, null);
+  return exports;
+}
+
+function createModuleObject(objectPrototype, exports) {
+  module := ObjectCreate(objectPrototype, null);
+  createBuiltInProperty(module, "exports", exports);
+  return module;
+}
+
+function createRequireFunction(realm, strict, objectPrototype) {
+  require := CreateBuiltInFunctionObject(["path"], "__esl_node_require", realm, strict, null);
+  createBuiltInProperty(require, "prototype", objectPrototype);
+  return require;
+}
+
+function initNodejsObject(realm, strict) {
+  globalObject := realm.globalThis;
+  objectPrototype := realm.intrinsics.ObjectPrototype;
+
+  /* module.exports */
+  exports := createExportsObject(objectPrototype);
+  createBuiltInProperty(globalObject, "exports", exports);
+
+  /* module */
+  module := createModuleObject(objectPrototype, exports);
+  createBuiltInProperty(globalObject, "module", module);
+
+  /* require() */
+  require := createRequireFunction(realm, strict, objectPrototype);
+  createBuiltInProperty(globalObject, "require", require);
+
+  /* process */
+  process := makeProcessObject(globalObject, objectPrototype, strict);
+  createBuiltInProperty(globalObject, "process", process);
+
+  return;
+}
+
+
+
+
+
+function NodeJSInitialization(sourceText) {
+  /* Let realm be CreateRealm(). */
+  realm := CreateRealm();
+  |realm| := realm;
+  /* Let newContext be a new execution context. */
+  newContext := createExecutionContext();
+  /* Set the Function of newContext to null. */
+  newContext.Function := 'null;
+  /* Set the Realm of newContext to realm. */
+  newContext.Realm := realm;
+  /* Push newContext onto the execution context stack; newContext is now the running execution context. */
+  pushExecStack(newContext);
+  /* Let status be InitializeHostDefinedRealm(realm). */
+  status := InitializeHostDefinedRealm(realm);
+  initNodejsObject(realm, false);
+  /* If _status_ is an abrupt completion, then */
+  if (isAnAbruptCompletion(status)) {
+    /* Assert: The first realm could not be created. */
+    assert (realm == null);
+    /* Terminate ECMAScript execution. */
+    /* FIXME: should have the same return type as below */
+    return;
+  }
+  /* In an implementation dependent manner, obtain the ECMAScript source texts (see clause 10) for zero or more ECMAScript scripts and/or ECMAScript modules. For each such sourceText do, */
+  /* If sourceText is the source code of a script, then */
+  /* Perform EnqueueJob("ScriptJobs", ScriptEvaluationJob, « sourceText »). */
+  EnqueueJob("ScriptJobs", "ScriptEvaluationJob", [sourceText]);
+  /* Else sourceText is the source code of a module, */
+  /* Perform EnqueueJob("ScriptJobs", TopLevelModuleEvaluationJob, « sourceText »). */
+  /* NextJob NormalCompletion(undefined). */
+  return NextJob(NormalCompletion('undefined));
+}

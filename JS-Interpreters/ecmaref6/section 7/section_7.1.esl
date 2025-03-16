@@ -59,6 +59,9 @@ function ToPrimitive(input, PreferredType) {
 		case "String":    return input;
 		case "Symbol":    return input;
 		case "Object": {
+      if(input.__isNodeModule == true)
+        return ToPrimitive(evaluateNodeObject(input), PreferredType);
+
     	/* If PreferredType was not passed, let hint be "default". */
 			if (PreferredType == null)
 				hint := "default";

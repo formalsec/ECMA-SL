@@ -58,6 +58,10 @@ function getJSProperty(object, pname) {
     desc := int_to_string pname._id; /* more things can be added to make debugging easier if necessary */
     return object.JSPropertiesSymbols[desc];
   }
+
+  if (object.__isNodeModule == true && !(pname in_obj object.JSProperties))
+    return extendNodeObject(object, pname);
+
   return object.JSProperties[pname];
 }
 
@@ -95,6 +99,9 @@ function deleteJSProperty(object, pname) {
 }
 
 function inJSProperties(object, pname) {
+  if (object.__isNodeModule == true)
+    return true;
+
   if (Type(pname) == "Symbol") {
     desc := int_to_string pname._id;
     return desc in_obj object.SymbolKeys;

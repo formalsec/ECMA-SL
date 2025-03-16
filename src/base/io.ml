@@ -1,3 +1,12 @@
+let read_channel (ic : in_channel) : string =
+  let rec loop acc =
+    try
+      let line = input_line ic in
+      loop (acc ^ line ^ "\n")
+    with End_of_file -> acc
+  in
+  loop ""
+
 let fin (process_f : in_channel -> 'a) (file : string) : 'a =
   let ic = open_in file in
   Fun.protect ~finally:(fun () -> close_in ic) (fun () -> process_f ic)
