@@ -54,17 +54,26 @@ function newPollutedObject(depth: float) {
 
   outer_object := ObjectCreate(proto, null);
   if (depth > 2.) {
+    polluted_obj := ObjectCreate(proto, null);
+    CreateDataPropertyOrThrow(polluted_obj, "polluted", "yes");
     middle_object := ObjectCreate(proto, null);
     prototype := extern str_symbol("");
     extern assume(prototype == "prototype");
-    CreateDataPropertyOrThrow(middle_object, prototype, inner_object);
+    CreateDataPropertyOrThrow(middle_object, prototype, polluted_obj);
     constructor := extern str_symbol("");
     extern assume(constructor == "constructor");
     CreateDataPropertyOrThrow(outer_object, constructor, middle_object);
-  } else {
+  } else if (depth == 2.) {
     proto := extern str_symbol("");
     extern assume(proto == "__proto__");
     CreateDataPropertyOrThrow(outer_object, proto, inner_object);
+  } else {
+    polluted_obj := ObjectCreate(proto, null);
+    assert (depth == 1.);
+    proto := extern str_symbol("");
+    extern assume(proto == "__proto__");
+    CreateDataPropertyOrThrow(polluted_obj, "polluted", "yes");
+    CreateDataPropertyOrThrow(outer_object, proto, polluted_obj);
   }
   return outer_object;
 }
