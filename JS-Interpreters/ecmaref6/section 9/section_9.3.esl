@@ -64,7 +64,7 @@ function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
 	  args := completeArgs(argumentsList, F);
 	  result := {F.ECMAScriptCode}(externalScope, V, NewTarget, F.Strict, args) catch BuiltInCall_Handler;
 	}
-	else if (("ECMAScriptCode" in_obj F) &&& ((typeof F.ECMAScriptCode == "string") ||| (typeof F.ECMAScriptCode == "curry"))) {
+	else if (("ECMAScriptCode" in_obj F) &&& ((typeof F.ECMAScriptCode == "string") ||| (typeof F.ECMAScriptCode == "app"))) {
 	  args := completeArgs(argumentsList, F);
 	  result := {F.ECMAScriptCode}(F.Environment, V, NewTarget, F.Strict, args) catch BuiltInCall_Handler;
 	}
