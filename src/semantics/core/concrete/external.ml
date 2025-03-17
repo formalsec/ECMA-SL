@@ -755,9 +755,9 @@ module Impl = struct
 
   let make_node_code (require : string) (path : string) (args : Value.t list) =
     let pp_args = Fmt.(list ~sep:(fun ppf () -> Fmt.pf ppf ", ") node_arg_pp) in
-    Fmt.str "require('%s')%s(%a);" require path pp_args args
+    Fmt.str "require('%s')%s(%a)" require path pp_args args
 
-  let run_node_cmd (code : string) : Value.t =
+  let run_node_cmd (code : string) : int * string * string =
     let code' = String.map (fun c -> if c = '\"' then '\'' else c) code in
     let cmd = Fmt.str "node -e \"%s\"" code' in
     let (oc, ic, ec) = Unix.open_process_full cmd (Unix.environment ()) in
@@ -769,7 +769,7 @@ module Impl = struct
       | Unix.WEXITED code -> code
       | Unix.WSIGNALED _ | Unix.WSTOPPED _ -> -1
     in
-    Value.List [ Value.Int exit_code; Value.Str stdout; Value.Str stderr ]
+    (exit_code, stdout, stderr)
 
   let node_function (require' : Value.t) (path' : Value.t) (args' : Value.t) :
     Value.t =
@@ -778,9 +778,8 @@ module Impl = struct
     let args = node_arg_to_list args' in
     let code = make_node_code require path args in
     let code' = Fmt.str "console.log(%s)" code in
-    match run_node_cmd code' with
-    | Value.List (out :: _) -> out
-    | _ -> Value.Nothing
+    let (_, stdout, stderr) = run_node_cmd code' in
+    Value.Str (stdout ^ stderr)
 
   let node_child_process_exec (cmd : Value.t) : Value.t =
     let cb =
@@ -789,7 +788,8 @@ module Impl = struct
     in
     let cb' = Value.App (`Op "src", [ Value.Str cb ]) in
     let code = make_node_code "child_process" ".exec" [ cmd; cb' ] in
-    run_node_cmd code
+    let (exit_code, stdout, stderr) = run_node_cmd code in
+    Value.List [ Value.Int exit_code; Value.Str stdout; Value.Str stderr ]
 end
 
 include Impl

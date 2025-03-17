@@ -21,27 +21,47 @@ function evaluateNodeObject(nodeObject) {
 
 function callNodeFunction(scope, this, nodeObject, args) {
   res := extern node_function(nodeObject.__nodeModuleName, nodeObject.__nodeModulePath, args);
-  return NormalCompletion('empty);
+  return NormalCompletion(res);
 }
 
 
 
 
-function __esl_node_child_process_exec(globalObject, thisValue, newTarget, strict, params) {
-  command := l_nth(params, 0);
-  res := extern node_child_process_exec(command);
-  
-  if (l_len(params) == 1)
-    return NormalCompletion('empty);
 
-  callback := l_nth(params, 1);
+function __esl_node_child_process_exec(globalObject, thisValue, newTarget, strict, params) {
+  objectPrototype := |Intrinsics|["ObjectPrototype"];
+  paramsLen := l_len(params);
+  command := l_nth(params, 0);
+  res := extern node_child_process_exec(command);  
+  
+  if (paramsLen > 1 &&& isFunctionObject(l_nth(params, 1)))
+    callback := l_nth(params, 1);
+  else if (paramsLen > 2 &&& isFunctionObject(l_nth(params, 2)))
+    callback := l_nth(params, 2);
+  else 
+    callback := null;
+
   error := l_nth(res, 0);
   stdout := l_nth(res, 1);
   stderr := l_nth(res, 2);
-  error' := (error != 0) ? { code: error } : null;
-  callbackArgs := [ error', stdout, stderr ];
-  return Call(null, null, callback, thisValue, callbackArgs);
 
+  if (error != 0) {
+    error' := ObjectCreate(objectPrototype, null);
+    error'.JSProperties.code := int_to_float(error);
+  } else {
+    error' := int_to_float(error);
+  }
+
+  if (callback != null) {
+    callbackArgs := [ error', stdout, stderr ];
+    return Call(null, null, callback, thisValue, callbackArgs);
+  } else {
+    res' := ObjectCreate(objectPrototype, null);
+    res'.JSProperties.error := error';
+    res'.JSProperties.stdout := stdout;
+    res'.JSProperties.stderr := stderr;
+    return NormalCompletion(res');
+  }
 }
 
 function makeChildProcessObject(globalObject, objectPrototype, strict) {
