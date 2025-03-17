@@ -38,6 +38,8 @@ module Make () = struct
   module Optimizer = Choice_monad.Optimizer
   open Extern_func
 
+  let g_replace_re = Re.regexp "/\\([^/]+\\)/g"
+
   let allow_lazy_values = ref true
 
   (* FIXME: This table should be part of Env.t or Thread.t to allow symbolic execution to branch/emulate the filesystem correctly *)
@@ -757,6 +759,14 @@ module Make () = struct
        `trunk` branch. Check if we can integrate this with the concrete API. *)
     let str_replace (s : Symbolic_value.value) (t : Symbolic_value.value)
       (t' : Symbolic_value.value) =
+      let t =
+        match Smtml.Expr.view t with
+        | Val (Str input) ->
+          if Re.string_match g_replace_re input 0 then
+            Smtml.Expr.value (Str (Re.matched_group 1 input))
+          else t
+        | _ -> t
+      in
       ok @@ Smtml.Expr.triop Ty_str String_replace s t t'
     in
     let str_indexof (s : Symbolic_value.value) (t : Symbolic_value.value)
