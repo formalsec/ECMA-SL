@@ -62,7 +62,7 @@ let typeof_semantics : arg -> res = function
   | (Nothing, _) -> Str "null"
   | (App (`Op "loc", [ Int _ ]), _) -> Str "object"
   | (App (`Op "symbol", [ Str _ ]), _) -> Str "symbol"
-  | (App (`Op _, _), _) -> Str "curry"
+  | (App (`Op _, _), _) -> Str "app"
   | (v, _) -> Log.fail "unknown value type: %a" Value.pp v
 
 let int_to_float_semantics : arg -> res = function
