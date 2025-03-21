@@ -56,5 +56,5 @@ build: [
 ]
 dev-repo: "git+https://github.com/formalsec/ECMA-SL.git"
 pin-depends: [
-  [ "smtml.dev" "git+https://github.com/formalsec/smtml.git#2ee6666f97f780bf9dbce3a77f5adb2c1d03d0d4" ]
+  [ "smtml.dev" "git+https://github.com/formalsec/smtml.git#bd5e2d7d918ced04cf350ae90d71e0d8db6ec3c2" ]
 ]
